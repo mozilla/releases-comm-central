@@ -18,6 +18,11 @@ const { OAuth2Providers } = ChromeUtils.importESModule(
   "resource:///modules/OAuth2Providers.sys.mjs"
 );
 
+const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
+});
+
 const CONFIG_CHANGE_INPUT_DEBOUNCE_MS = 100;
 const DEFAULT_CONFIG_CHANGE_HELP_TEXT_ID =
   "account-hub-manual-config-value-changed";
@@ -25,6 +30,7 @@ const DEFAULT_CONFIG_CHANGE_HELP_TEXT_ID =
 const { assert, gAccountSetupLogger, standardPorts } = AccountCreationUtils;
 
 import { AccountHubStep } from "./account-hub-step.mjs";
+import "chrome://messenger/content/tb-banner.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./account-hub-select.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./account-hub-input.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./account-hub-checkbox.mjs"; // eslint-disable-line import/no-unassigned-import
@@ -119,6 +125,20 @@ class EmailManualConfigForm extends AccountHubStep {
   #outgoingAuthenticationMethod;
 
   /**
+   * Warning shown when OAuth is selected for an unsupported incoming hostname.
+   *
+   * @type {import("chrome://messenger/content/tb-banner.mjs").Banner}
+   */
+  #incomingUnsupportedOAuthBanner;
+
+  /**
+   * Warning shown when OAuth is selected for an unsupported outgoing hostname.
+   *
+   * @type {import("chrome://messenger/content/tb-banner.mjs").Banner}
+   */
+  #outgoingUnsupportedOAuthBanner;
+
+  /**
    * Whether the form is currently showing validation errors.
    *
    * @type {boolean}
@@ -184,6 +204,12 @@ class EmailManualConfigForm extends AccountHubStep {
     this.#outgoingAuthenticationMethod = this.querySelector(
       "#manualOutgoingAuthMethod"
     );
+    this.#incomingUnsupportedOAuthBanner = this.querySelector(
+      "#manualIncomingUnsupportedOAuthBanner"
+    );
+    this.#outgoingUnsupportedOAuthBanner = this.querySelector(
+      "#manualOutgoingUnsupportedOAuthBanner"
+    );
     this.#sameUsernameCheckbox = this.querySelector("#sameUsername");
     this.#outgoingUsername = this.querySelector("#manualOutgoingUsername");
     this.#sameUsernameCheckbox.setAriaControlsElements(this.#outgoingUsername);
@@ -209,16 +235,31 @@ class EmailManualConfigForm extends AccountHubStep {
         } else if (event.currentTarget === this.#outgoingConnectionSecurity) {
           this.#adjustPortToSSLAndProtocol(this.#currentConfig, false);
         }
+        if (event.currentTarget === this.#incomingAuthenticationMethod) {
+          this.#updateUnsupportedOAuthBanner(true);
+        } else if (event.currentTarget === this.#outgoingAuthenticationMethod) {
+          this.#updateUnsupportedOAuthBanner(false);
+        }
         break;
-      case "click":
+      case "click": {
         if (event.currentTarget.id === "advancedConfigurationManual") {
           this.dispatchEvent(
             new CustomEvent("advanced-config", {
               bubbles: true,
             })
           );
+          break;
+        }
+
+        const oauthSupportLink = event.target.closest(
+          'a[data-l10n-name="oauth-support-link"]'
+        );
+        if (oauthSupportLink) {
+          event.preventDefault();
+          lazy.openLinkExternally(oauthSupportLink.href);
         }
         break;
+      }
       default:
         break;
     }
@@ -246,6 +287,9 @@ class EmailManualConfigForm extends AccountHubStep {
       "click",
       this
     );
+
+    this.#incomingUnsupportedOAuthBanner.addEventListener("click", this);
+    this.#outgoingUnsupportedOAuthBanner.addEventListener("click", this);
   }
 
   /**
@@ -302,19 +346,23 @@ class EmailManualConfigForm extends AccountHubStep {
    * @returns {Promise<boolean>} Whether the form is valid.
    */
   async validate() {
-    this.#adjustOAuthToHostname(this.#currentConfig, true);
-    this.#adjustOAuthToHostname(this.#currentConfig, false);
+    this.#updateUnsupportedOAuthBanner(true);
+    this.#updateUnsupportedOAuthBanner(false);
     this.#clearQueuedConfigChange();
     const errors = this.#captureConfig({ showErrors: true });
     this.#isShowingErrors = !!errors.length;
 
-    if (!errors.length) {
-      this.clearNotifications();
-      return true;
+    if (errors.length) {
+      await this.#showFieldErrorNotification(errors);
+      return false;
     }
 
-    await this.#showFieldErrorNotification(errors);
-    return false;
+    if (this.#isUnsupportedOAuth(true) || this.#isUnsupportedOAuth(false)) {
+      return false;
+    }
+
+    this.clearNotifications();
+    return true;
   }
 
   /**
@@ -361,7 +409,7 @@ class EmailManualConfigForm extends AccountHubStep {
       [0, 3, 4, 5, 6, 10],
       0
     );
-    this.#adjustOAuthToHostname(config, true);
+    this.#updateUnsupportedOAuthBanner(true);
 
     this.#incomingUsername.value = config.incoming.username;
 
@@ -384,7 +432,7 @@ class EmailManualConfigForm extends AccountHubStep {
       [0, 1, 3, 4, 5, 6, 10],
       0
     );
-    this.#adjustOAuthToHostname(config, false);
+    this.#updateUnsupportedOAuthBanner(false);
 
     // If a port number was specified other than "Auto".
     if (config.outgoing.port) {
@@ -541,56 +589,90 @@ class EmailManualConfigForm extends AccountHubStep {
   }
 
   /**
-   * Automatically adjust visibility of OAuth auth option and selected
-   * authentication for incoming and outgoing configurations based on
-   * hostname input.
+   * Look up the OAuth provider details for the current incoming or outgoing
+   * hostname.
    *
-   * @param {AccountConfig} [accountConfig] - Complete AccountConfig.
-   * @param {boolean} isIncoming - If hostname is incoming.
+   * @param {boolean} isIncoming - If the incoming server is being looked up.
+   * @returns {object|undefined} The OAuth provider details, or undefined when
+   *   the host is unknown or the hostname cannot be parsed.
    */
-  #adjustOAuthToHostname(accountConfig, isIncoming) {
-    const config = accountConfig || this.#currentConfig;
-    let oauthDetails = undefined;
+  #getOAuthDetails(isIncoming) {
     const protocol = isIncoming
-      ? config.incoming.type
-      : config.outgoing.type || "smtp";
+      ? this.#currentConfig.incoming.type
+      : this.#currentConfig.outgoing.type || "smtp";
     const hostname = isIncoming
       ? this.#incomingHostname.value
       : this.#outgoingHostname.value;
-    const authenticationMethodSelect = isIncoming
-      ? this.#incomingAuthenticationMethod
-      : this.#outgoingAuthenticationMethod;
-    const oauthOption = isIncoming
-      ? this.querySelector("#manualIncomingAuthMethodOAuth2")
-      : this.querySelector("#manualOutgoingAuthMethodOAuth2");
 
     try {
       const host = InputSanitizer.hostname(hostname);
-      oauthDetails = OAuth2Providers.getHostnameDetails(host, protocol);
-      oauthOption.hidden = !oauthDetails;
+      return OAuth2Providers.getHostnameDetails(host, protocol);
+    } catch (error) {
+      // An unparseable hostname cannot be a known OAuth provider.
+      return undefined;
+    }
+  }
+
+  /**
+   * Whether OAuth is selected for a hostname that has no known OAuth details.
+   *
+   * @param {boolean} isIncoming - If the incoming server is being checked.
+   *   Otherwise it checks the outgoing server.
+   * @returns {boolean} Whether an unsupported OAuth hostname is selected.
+   */
+  #isUnsupportedOAuth(isIncoming) {
+    const authenticationMethodSelect = isIncoming
+      ? this.#incomingAuthenticationMethod
+      : this.#outgoingAuthenticationMethod;
+
+    return (
+      authenticationMethodSelect.value == Ci.nsMsgAuthMethod.OAuth2 &&
+      !this.#getOAuthDetails(isIncoming)
+    );
+  }
+
+  /**
+   * Show/hide the OAuth unsupported-host warning for incoming/outgoing servers.
+   *
+   * @param {boolean} isIncoming - If this is for the incoming server.
+   *   Otherwise, this updates the outgoing server.
+   */
+  #updateUnsupportedOAuthBanner(isIncoming) {
+    const oauthDetails = this.#getOAuthDetails(isIncoming);
+    const hostname = isIncoming
+      ? this.#incomingHostname.value
+      : this.#outgoingHostname.value;
+
+    if (oauthDetails) {
       gAccountSetupLogger.debug(
         `OAuth2 details for server ${hostname} is,,
-        ${oauthDetails}`
-      );
-    } catch (error) {
-      oauthDetails = undefined;
-      oauthOption.hidden = true;
-    }
-
-    if (
-      !oauthDetails &&
-      authenticationMethodSelect.value == Ci.nsMsgAuthMethod.OAuth2
-    ) {
-      // If the hostname determined OAuth is not an option and its selected,
-      // reset the authentication option to "Normal Password".
-      authenticationMethodSelect.value = Ci.nsMsgAuthMethod.passwordCleartext;
-      const configDirection = isIncoming ? "incoming" : "outgoing";
-      config[configDirection].auth = InputSanitizer.integer(
-        authenticationMethodSelect.value
+          ${oauthDetails}`
       );
     }
 
-    this.#currentConfig = config;
+    const authenticationMethodSelect = isIncoming
+      ? this.#incomingAuthenticationMethod
+      : this.#outgoingAuthenticationMethod;
+    this.#toggleUnsupportedOAuthBanner(
+      isIncoming,
+      authenticationMethodSelect.value == Ci.nsMsgAuthMethod.OAuth2 &&
+        !oauthDetails
+    );
+  }
+
+  /**
+   * Update OAuth unsupported-host warning visibility.
+   *
+   * @param {boolean} isIncoming - If the incoming banner should be toggled,
+   *   otherwise the outgoing banner will be toggled.
+   * @param {boolean} show - Whether the relevant banner should be shown.
+   */
+  #toggleUnsupportedOAuthBanner(isIncoming, show) {
+    const banner = isIncoming
+      ? this.#incomingUnsupportedOAuthBanner
+      : this.#outgoingUnsupportedOAuthBanner;
+
+    banner.hidden = !show;
   }
 
   /**
@@ -793,11 +875,11 @@ class EmailManualConfigForm extends AccountHubStep {
             this.#adjustOutgoingSSLToPort();
             break;
           case this.#incomingHostname:
-            this.#adjustOAuthToHostname(this.#currentConfig, true);
+            this.#updateUnsupportedOAuthBanner(true);
             this.#runConfigChanged();
             break;
           case this.#outgoingHostname:
-            this.#adjustOAuthToHostname(this.#currentConfig, false);
+            this.#updateUnsupportedOAuthBanner(false);
             this.#runConfigChanged();
             break;
           default:
@@ -834,7 +916,10 @@ class EmailManualConfigForm extends AccountHubStep {
    */
   async #configChanged() {
     const errors = this.#captureConfig({ showErrors: this.#isShowingErrors });
-    const completed = !errors.some(error => error.visible);
+    const completed =
+      !errors.some(error => error.visible) &&
+      !this.#isUnsupportedOAuth(true) &&
+      !this.#isUnsupportedOAuth(false);
 
     if (this.#isShowingErrors) {
       if (errors.length) {
@@ -1018,6 +1103,8 @@ class EmailManualConfigForm extends AccountHubStep {
     this.#isShowingErrors = false;
     this.#clearFieldErrors();
     this.#clearAutomaticChangeIndicators();
+    this.#updateUnsupportedOAuthBanner(true);
+    this.#updateUnsupportedOAuthBanner(false);
     this.clearNotifications();
   }
 }

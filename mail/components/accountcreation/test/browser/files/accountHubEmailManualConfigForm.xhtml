@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="chrome://messenger/skin/spacings.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/accountHub.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/accountHubForms.css" />
+    <link rel="localization" href="branding/brand.ftl" />
     <link rel="localization" href="messenger/accountcreation/accountHub.ftl" />
     <script type="module" src="chrome://messenger/content/accountcreation/content/widgets/email-manual-config-form.mjs"></script>
   </head>
@@ -62,6 +63,20 @@
           </p>
         </details>
       </header>
+    </template>
+    <template id="tbBannerTemplate">
+      <details class="banner">
+        <summary>
+          <img id="icon" class="icon" alt="" />
+          <div id="title" class="title">
+            <slot name="title"></slot>
+          </div>
+          <span id="actionText" class="action-text" hidden="hidden"></span>
+        </summary>
+        <div id="description" class="description" hidden="hidden">
+          <slot name="description"></slot>
+        </div>
+      </details>
     </template>
     <template id="accountHubStepTemplate">
       <account-hub-header>
@@ -147,47 +162,70 @@
               ></account-hub-input>
 
               <!-- Incoming Authentication -->
-              <account-hub-select
-                id="manualIncomingAuthMethod"
-                l10n-label-id="account-hub-auth-label"
-                required="required"
-                value="0"
-                flex="1"
-                config-change-l10n-id="account-hub-manual-config-value-changed"
-                help-text-class="config-change-comment"
-              >
-                <option
-                  id="manualIncomingAuthMethodAutodetect"
-                  data-l10n-id="account-hub-ssl-autodetect-option"
+              <div class="form-field-with-banner">
+                <account-hub-select
+                  id="manualIncomingAuthMethod"
+                  l10n-label-id="account-hub-auth-label"
+                  required="required"
                   value="0"
-                ></option>
-                <option
-                  id="manualIncomingAuthMethodCleartext"
-                  data-l10n-id="account-hub-ssl-cleartext-password-option"
-                  value="3"
-                ></option>
-                <option
-                  id="manualIncomingAuthMethodEncrypted"
-                  data-l10n-id="account-hub-ssl-encrypted-password-option"
-                  value="4"
-                ></option>
-                <option
-                  id="manualIncomingAuthMethodKerbos"
-                  label="Kerberos / GSSAPI"
-                  value="5"
-                ></option>
-                <option
-                  id="manualIncomingAuthMethodNtlm"
-                  label="NTLM"
-                  value="6"
-                ></option>
-                <option
-                  id="manualIncomingAuthMethodOAuth2"
-                  value="10"
+                  flex="1"
+                  config-change-l10n-id="account-hub-manual-config-value-changed"
+                  help-text-class="config-change-comment"
+                >
+                  <option
+                    id="manualIncomingAuthMethodAutodetect"
+                    data-l10n-id="account-hub-ssl-autodetect-option"
+                    value="0"
+                  ></option>
+                  <option
+                    id="manualIncomingAuthMethodCleartext"
+                    data-l10n-id="account-hub-ssl-cleartext-password-option"
+                    value="3"
+                  ></option>
+                  <option
+                    id="manualIncomingAuthMethodEncrypted"
+                    data-l10n-id="account-hub-ssl-encrypted-password-option"
+                    value="4"
+                  ></option>
+                  <option
+                    id="manualIncomingAuthMethodKerbos"
+                    label="Kerberos / GSSAPI"
+                    value="5"
+                  ></option>
+                  <option
+                    id="manualIncomingAuthMethodNtlm"
+                    label="NTLM"
+                    value="6"
+                  ></option>
+                  <option
+                    id="manualIncomingAuthMethodOAuth2"
+                    value="10"
+                    label="OAuth2"
+                  ></option>
+                </account-hub-select>
+                <tb-banner
+                  id="manualIncomingUnsupportedOAuthBanner"
+                  variant="warning"
+                  expanded="true"
                   hidden="hidden"
-                  label="OAuth2"
-                ></option>
-              </account-hub-select>
+                  role="alert"
+                >
+                  <span
+                    slot="title"
+                    data-l10n-id="account-hub-oauth-unsupported-title"
+                  >
+                  </span>
+                  <span
+                    slot="description"
+                    data-l10n-id="account-hub-oauth-unsupported-description"
+                  >
+                    <a
+                      href="https://support.thunderbird.net/kb/tb-custom-oauth"
+                      data-l10n-name="oauth-support-link"
+                    ></a>
+                  </span>
+                </tb-banner>
+              </div>
 
               <!-- Incoming Connection Security -->
               <account-hub-select
@@ -279,52 +317,75 @@
               ></account-hub-input>
 
               <!-- Outgoing Authentication -->
-              <account-hub-select
-                id="manualOutgoingAuthMethod"
-                l10n-label-id="account-hub-auth-label"
-                required="required"
-                flex="1"
-                config-change-l10n-id="account-hub-manual-config-value-changed"
-                help-text-class="config-change-comment"
-              >
-                <option
-                  id="manualOutgoingAuthMethodAutodetect"
-                  data-l10n-id="account-hub-ssl-autodetect-option"
-                  selected="selected"
-                  value="0"
-                ></option>
-                <option
-                  id="manualOutgoingAuthMethodNone"
-                  data-l10n-id="account-hub-auth-no-authentication-option"
-                  value="1"
-                ></option>
-                <option
-                  id="manualOutgoingAuthMethodCleartext"
-                  data-l10n-id="account-hub-ssl-cleartext-password-option"
-                  value="3"
-                ></option>
-                <option
-                  id="manualOutgoingAuthMethodEncrypted"
-                  data-l10n-id="account-hub-ssl-encrypted-password-option"
-                  value="4"
-                ></option>
-                <option
-                  id="manualOutgoingAuthMethodKerbos"
-                  label="Kerberos / GSSAPI"
-                  value="5"
-                ></option>
-                <option
-                  id="manualOutgoingAuthMethodNtlm"
-                  label="NTLM"
-                  value="6"
-                ></option>
-                <option
-                  id="manualOutgoingAuthMethodOAuth2"
-                  value="10"
+              <div class="form-field-with-banner">
+                <account-hub-select
+                  id="manualOutgoingAuthMethod"
+                  l10n-label-id="account-hub-auth-label"
+                  required="required"
+                  flex="1"
+                  config-change-l10n-id="account-hub-manual-config-value-changed"
+                  help-text-class="config-change-comment"
+                >
+                  <option
+                    id="manualOutgoingAuthMethodAutodetect"
+                    data-l10n-id="account-hub-ssl-autodetect-option"
+                    selected="selected"
+                    value="0"
+                  ></option>
+                  <option
+                    id="manualOutgoingAuthMethodNone"
+                    data-l10n-id="account-hub-auth-no-authentication-option"
+                    value="1"
+                  ></option>
+                  <option
+                    id="manualOutgoingAuthMethodCleartext"
+                    data-l10n-id="account-hub-ssl-cleartext-password-option"
+                    value="3"
+                  ></option>
+                  <option
+                    id="manualOutgoingAuthMethodEncrypted"
+                    data-l10n-id="account-hub-ssl-encrypted-password-option"
+                    value="4"
+                  ></option>
+                  <option
+                    id="manualOutgoingAuthMethodKerbos"
+                    label="Kerberos / GSSAPI"
+                    value="5"
+                  ></option>
+                  <option
+                    id="manualOutgoingAuthMethodNtlm"
+                    label="NTLM"
+                    value="6"
+                  ></option>
+                  <option
+                    id="manualOutgoingAuthMethodOAuth2"
+                    value="10"
+                    label="OAuth2"
+                  ></option>
+                </account-hub-select>
+                <tb-banner
+                  id="manualOutgoingUnsupportedOAuthBanner"
+                  variant="warning"
+                  expanded="true"
                   hidden="hidden"
-                  label="OAuth2"
-                ></option>
-              </account-hub-select>
+                  role="alert"
+                >
+                  <span
+                    slot="title"
+                    data-l10n-id="account-hub-oauth-unsupported-title"
+                  >
+                  </span>
+                  <span
+                    slot="description"
+                    data-l10n-id="account-hub-oauth-unsupported-description"
+                  >
+                    <a
+                      href="https://support.thunderbird.net/kb/tb-custom-oauth"
+                      data-l10n-name="oauth-support-link"
+                    ></a>
+                  </span>
+                </tb-banner>
+              </div>
 
               <!-- Outgoing Connection Security -->
               <account-hub-select

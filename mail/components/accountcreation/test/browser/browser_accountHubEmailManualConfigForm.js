@@ -451,6 +451,9 @@ add_task(function test_setStateClearsTitleForUnknownIncomingType() {
 
 add_task(async function test_captureStateUsesCurrentValues() {
   const state = createFilledAccountConfig();
+  // Use password auth to avoid "Unsupported OAuth" form validation.
+  state.incoming.auth = Ci.nsMsgAuthMethod.passwordCleartext;
+  state.outgoing.auth = Ci.nsMsgAuthMethod.passwordCleartext;
   state.outgoing.username = "smtp-user";
   subview.setState(state);
 
@@ -461,7 +464,8 @@ add_task(async function test_captureStateUsesCurrentValues() {
   subview.querySelector("#manualOutgoingUsername").value = "outgoing-user";
   subview.querySelector("#manualOutgoingPort").value = "465";
 
-  Assert.ok(await subview.validate(), "The edited config should be valid");
+  const isValid = await subview.validate();
+  Assert.ok(isValid, "The edited config should be valid");
 
   const config = subview.captureState();
   Assert.equal(
@@ -501,8 +505,9 @@ add_task(async function test_validateShowsClickableErrorSummary() {
   incomingUsername.value = "";
   incomingPort.value = "0";
 
+  const isValid = await subview.validate();
   Assert.ok(
-    !(await subview.validate()),
+    !isValid,
     "The form should be invalid with missing incoming details"
   );
 
@@ -816,22 +821,23 @@ add_task(async function test_adjustIncomingOAuthToHostname() {
     subview.setState(config);
 
     Assert.ok(
-      subview.querySelector("#manualIncomingAuthMethodOAuth2").hidden,
-      "The incoming OAuth authentication method option should be hidden"
-    );
-
-    // Add a hostname that lets OAuth be available.
-    await fireInputEvent(hostname, "input", `${type}.gmail.com`);
-    Assert.ok(
       !subview.querySelector("#manualIncomingAuthMethodOAuth2").hidden,
       "The incoming OAuth authentication method option should be available"
     );
+
+    // Add a hostname that supports OAuth.
+    await fireInputEvent(hostname, "input", `${type}.gmail.com`);
     Assert.ok(
-      subview.querySelector("#manualOutgoingAuthMethodOAuth2").hidden,
-      "The outgoing OAuth authentication method option should be hidden"
+      !subview.querySelector("#manualIncomingAuthMethodOAuth2").hidden,
+      "The incoming OAuth authentication method option should stay available"
+    );
+    Assert.ok(
+      !subview.querySelector("#manualOutgoingAuthMethodOAuth2").hidden,
+      "The outgoing OAuth authentication method option should stay available"
     );
 
     info("Select OAuth");
+    authMethod.scrollIntoView({ block: "start", behavior: "instant" });
     await SimpleTest.promiseFocus(browser.contentWindow);
 
     let configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
@@ -856,8 +862,8 @@ add_task(async function test_adjustIncomingOAuthToHostname() {
       "The auth method should be set as OAuth2"
     );
 
-    // Change the hostname so OAuth shouldn't be available, and check that the
-    // authentication method is changed to "Normal Password".
+    // Change the hostname so OAuth isn't supported, and check that the
+    // authentication method stays selected with a warning.
     configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
       subview,
       "config-updated"
@@ -866,12 +872,16 @@ add_task(async function test_adjustIncomingOAuthToHostname() {
     await configUpdatedEventPromise;
     Assert.equal(
       authMethod.value,
-      Ci.nsMsgAuthMethod.passwordCleartext,
-      "The auth method should be set as Normal Password"
+      Ci.nsMsgAuthMethod.OAuth2,
+      "The auth method should stay set as OAuth2"
     );
     Assert.ok(
-      subview.querySelector("#manualIncomingAuthMethodOAuth2").hidden,
-      "The incoming OAuth authentication method option should be hidden"
+      !subview.querySelector("#manualIncomingAuthMethodOAuth2").hidden,
+      "The incoming OAuth authentication method option should stay available"
+    );
+    Assert.ok(
+      BrowserTestUtils.isVisible(getIncomingOAuthUnsupportedBanner()),
+      "The 'Unsupported OAuth' banner should be visible"
     );
 
     subview.resetState();
@@ -889,19 +899,19 @@ add_task(async function test_adjustOutgoingOAuthToHostname() {
   subview.setState(config);
 
   Assert.ok(
-    subview.querySelector("#manualOutgoingAuthMethodOAuth2").hidden,
-    "The outgoing OAuth authentication method option should be hidden"
-  );
-
-  // Add a hostname that lets OAuth be available.
-  await fireInputEvent(hostname, "input", "smtp.gmail.com");
-  Assert.ok(
     !subview.querySelector("#manualOutgoingAuthMethodOAuth2").hidden,
     "The outgoing OAuth authentication method option should be available"
   );
+
+  // Add a hostname with known OAuth support.
+  await fireInputEvent(hostname, "input", "smtp.gmail.com");
   Assert.ok(
-    subview.querySelector("#manualIncomingAuthMethodOAuth2").hidden,
-    "The incoming OAuth authentication method option should be hidden"
+    !subview.querySelector("#manualOutgoingAuthMethodOAuth2").hidden,
+    "The outgoing OAuth authentication method option should stay available"
+  );
+  Assert.ok(
+    !subview.querySelector("#manualIncomingAuthMethodOAuth2").hidden,
+    "The incoming OAuth authentication method option should stay available"
   );
 
   info("Select OAuth");
@@ -935,8 +945,8 @@ add_task(async function test_adjustOutgoingOAuthToHostname() {
     "The auth method should be set as OAuth2"
   );
 
-  // Change the hostname so OAuth shouldn't be available, and check that the
-  // authentication method is changed to "Normal Password".
+  // Change the hostname so OAuth isn't supported, and check that the
+  // authentication method stays selected and a warning is shown.
   configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
     subview,
     "config-updated"
@@ -945,16 +955,375 @@ add_task(async function test_adjustOutgoingOAuthToHostname() {
   await configUpdatedEventPromise;
   Assert.equal(
     authMethod.value,
-    Ci.nsMsgAuthMethod.passwordCleartext,
-    "The auth method should be set as Normal Password"
+    Ci.nsMsgAuthMethod.OAuth2,
+    "The auth method should stay set as OAuth2"
   );
   Assert.ok(
-    subview.querySelector("#manualOutgoingAuthMethodOAuth2").hidden,
-    "The outgoing OAuth authentication method option should be hidden"
+    !subview.querySelector("#manualOutgoingAuthMethodOAuth2").hidden,
+    "The outgoing OAuth authentication method option should stay available"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(getOutgoingOAuthUnsupportedBanner()),
+    "The 'Unsupported OAuth' banner should be visible"
   );
 
   subview.resetState();
 });
+
+add_task(async function test_unsupportedOAuthBannerDefaultHidden() {
+  const state = createFilledAccountConfig();
+  state.incoming.hostname = "example.com";
+  state.incoming.auth = Ci.nsMsgAuthMethod.passwordCleartext;
+  state.outgoing.hostname = "example.com";
+  state.outgoing.auth = Ci.nsMsgAuthMethod.passwordCleartext;
+  subview.setState(state);
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(getIncomingOAuthUnsupportedBanner()),
+    "The incoming 'Unsupported OAuth' banner should be hidden by default"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(getOutgoingOAuthUnsupportedBanner()),
+    "The outgoing 'Unsupported OAuth' banner should be hidden by default"
+  );
+
+  subview.resetState();
+});
+
+add_task(
+  async function test_incomingUnsupportedOAuthBannerForUnknownHostname() {
+    const state = createFilledAccountConfig();
+    state.incoming.hostname = "example.com";
+    state.incoming.auth = Ci.nsMsgAuthMethod.passwordCleartext;
+    subview.setState(state);
+
+    const incomingAuthMethod = subview.querySelector(
+      "#manualIncomingAuthMethod"
+    );
+    await fireInputEvent(
+      incomingAuthMethod,
+      "change",
+      Ci.nsMsgAuthMethod.OAuth2
+    );
+
+    const banner = getIncomingOAuthUnsupportedBanner();
+    Assert.ok(
+      BrowserTestUtils.isVisible(banner),
+      "The 'Unsupported OAuth' banner should be visible for an unknown hostname"
+    );
+    Assert.equal(
+      banner.getAttribute("role"),
+      "alert",
+      "The 'Unsupported OAuth' banner should have role='alert' so screen readers announce it"
+    );
+    Assert.equal(
+      document.l10n.getAttributes(banner.querySelector("[slot='title']")).id,
+      "account-hub-oauth-unsupported-title",
+      "The 'Unsupported OAuth' banner should use the correct title l10n id"
+    );
+    Assert.equal(
+      document.l10n.getAttributes(banner.querySelector("[slot='description']"))
+        .id,
+      "account-hub-oauth-unsupported-description",
+      "The 'Unsupported OAuth' banner should use the correct description l10n id"
+    );
+
+    const supportLink = banner.querySelector(
+      "[slot='description'] a[data-l10n-name='oauth-support-link']"
+    );
+    Assert.ok(
+      supportLink,
+      "The 'Unsupported OAuth' description should include a support link"
+    );
+    Assert.equal(
+      supportLink.href,
+      "https://support.thunderbird.net/kb/tb-custom-oauth",
+      "The 'Unsupported OAuth' support link should use the custom OAuth support URL"
+    );
+
+    await fireInputEvent(
+      incomingAuthMethod,
+      "change",
+      Ci.nsMsgAuthMethod.passwordCleartext
+    );
+    Assert.ok(
+      BrowserTestUtils.isHidden(banner),
+      "The 'Unsupported OAuth' banner should hide after selecting another auth method"
+    );
+
+    subview.resetState();
+  }
+);
+
+add_task(
+  async function test_outgoingUnsupportedOAuthBannerForUnknownHostname() {
+    const state = createFilledAccountConfig();
+    state.outgoing.hostname = "example.com";
+    state.outgoing.auth = Ci.nsMsgAuthMethod.passwordCleartext;
+    subview.setState(state);
+
+    const outgoingAuthMethod = subview.querySelector(
+      "#manualOutgoingAuthMethod"
+    );
+    await fireInputEvent(
+      outgoingAuthMethod,
+      "change",
+      Ci.nsMsgAuthMethod.OAuth2
+    );
+
+    const banner = getOutgoingOAuthUnsupportedBanner();
+    Assert.ok(
+      BrowserTestUtils.isVisible(banner),
+      "The outgoing 'Unsupported OAuth' banner should be visible for an unknown hostname"
+    );
+    Assert.equal(
+      banner.getAttribute("role"),
+      "alert",
+      "The outgoing 'Unsupported OAuth' banner should have role='alert' so screen readers announce it"
+    );
+    Assert.equal(
+      document.l10n.getAttributes(banner.querySelector("[slot='title']")).id,
+      "account-hub-oauth-unsupported-title",
+      "The outgoing 'Unsupported OAuth' banner should use the correct title l10n id"
+    );
+    Assert.equal(
+      document.l10n.getAttributes(banner.querySelector("[slot='description']"))
+        .id,
+      "account-hub-oauth-unsupported-description",
+      "The outgoing 'Unsupported OAuth' banner should use the correct description l10n id"
+    );
+
+    const supportLink = banner.querySelector(
+      "[slot='description'] a[data-l10n-name='oauth-support-link']"
+    );
+    Assert.ok(
+      supportLink,
+      "The outgoing 'Unsupported OAuth' description should include a support link"
+    );
+    Assert.equal(
+      supportLink.href,
+      "https://support.thunderbird.net/kb/tb-custom-oauth",
+      "The outgoing 'Unsupported OAuth' support link should use the custom OAuth support URL"
+    );
+
+    await fireInputEvent(
+      outgoingAuthMethod,
+      "change",
+      Ci.nsMsgAuthMethod.passwordCleartext
+    );
+    Assert.ok(
+      BrowserTestUtils.isHidden(banner),
+      "The outgoing 'Unsupported OAuth' banner should hide after changing auth method"
+    );
+
+    subview.resetState();
+  }
+);
+
+add_task(async function test_unsupportedOAuthBannersAreIndependent() {
+  const state = createFilledAccountConfig();
+  state.incoming.hostname = "example.com";
+  state.incoming.auth = Ci.nsMsgAuthMethod.OAuth2;
+  state.outgoing.hostname = "example.com";
+  state.outgoing.auth = Ci.nsMsgAuthMethod.OAuth2;
+  subview.setState(state);
+
+  const incomingBanner = getIncomingOAuthUnsupportedBanner();
+  const outgoingBanner = getOutgoingOAuthUnsupportedBanner();
+  Assert.ok(
+    BrowserTestUtils.isVisible(incomingBanner),
+    "The incoming 'Unsupported OAuth' banner should be visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(outgoingBanner),
+    "The outgoing 'Unsupported OAuth' banner should be visible"
+  );
+
+  await fireInputEvent(
+    subview.querySelector("#manualOutgoingAuthMethod"),
+    "change",
+    Ci.nsMsgAuthMethod.passwordCleartext
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(incomingBanner),
+    "The incoming 'Unsupported OAuth' banner should remain visible after outgoing auth changes"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(outgoingBanner),
+    "The outgoing 'Unsupported OAuth' banner should hide after outgoing auth changes"
+  );
+
+  await fireInputEvent(
+    subview.querySelector("#manualIncomingAuthMethod"),
+    "change",
+    Ci.nsMsgAuthMethod.passwordCleartext
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(incomingBanner),
+    "The incoming 'Unsupported OAuth' banner should hide after incoming auth changes"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(outgoingBanner),
+    "The outgoing 'Unsupported OAuth' banner should remain hidden"
+  );
+
+  subview.resetState();
+});
+
+add_task(async function test_validateBlocksIncomingUnsupportedOAuth() {
+  const state = createFilledAccountConfig();
+  state.incoming.hostname = "example.com";
+  state.incoming.auth = Ci.nsMsgAuthMethod.OAuth2;
+  state.outgoing.auth = Ci.nsMsgAuthMethod.passwordCleartext;
+  subview.setState(state);
+
+  const configUpdatedEvent = BrowserTestUtils.waitForEvent(
+    subview,
+    "config-updated"
+  );
+  subview
+    .querySelector("#manualIncomingAuthMethod")
+    .dispatchEvent(new Event("change", { bubbles: true }));
+  Assert.ok(
+    !(await configUpdatedEvent).detail.completed,
+    "The form should report incomplete when OAuth is selected for an unknown hostname"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(getIncomingOAuthUnsupportedBanner()),
+    "The 'Unsupported OAuth' banner should be visible"
+  );
+  const isValid = await subview.validate();
+  Assert.ok(
+    !isValid,
+    "The form should fail validation when OAuth is selected for an unknown hostname"
+  );
+
+  const advancedConfigEvent = BrowserTestUtils.waitForEvent(
+    subview,
+    "advanced-config"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    advancedConfigButton,
+    {},
+    browser.contentWindow
+  );
+
+  const event = await advancedConfigEvent;
+  Assert.equal(
+    event.target,
+    subview,
+    "Advanced configuration should still be available with 'Unsupported OAuth'"
+  );
+
+  subview.resetState();
+});
+
+add_task(async function test_validateBlocksOutgoingUnsupportedOAuth() {
+  const state = createFilledAccountConfig();
+  state.incoming.auth = Ci.nsMsgAuthMethod.passwordCleartext;
+  state.outgoing.hostname = "example.com";
+  state.outgoing.auth = Ci.nsMsgAuthMethod.OAuth2;
+  subview.setState(state);
+
+  const configUpdatedEvent = BrowserTestUtils.waitForEvent(
+    subview,
+    "config-updated"
+  );
+  subview
+    .querySelector("#manualOutgoingAuthMethod")
+    .dispatchEvent(new Event("change", { bubbles: true }));
+  Assert.ok(
+    !(await configUpdatedEvent).detail.completed,
+    "The form should report incomplete when outgoing OAuth is selected for an unknown hostname"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(getOutgoingOAuthUnsupportedBanner()),
+    "The outgoing 'Unsupported OAuth' banner should be visible"
+  );
+  const isValid = await subview.validate();
+  Assert.ok(
+    !isValid,
+    "The form should fail validation when OAuth is selected for an unknown hostname"
+  );
+
+  const advancedConfigEvent = BrowserTestUtils.waitForEvent(
+    subview,
+    "advanced-config"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    advancedConfigButton,
+    {},
+    browser.contentWindow
+  );
+
+  const event = await advancedConfigEvent;
+  Assert.equal(
+    event.target,
+    subview,
+    "Advanced configuration should still be available with outgoing 'Unsupported OAuth'"
+  );
+
+  subview.resetState();
+});
+
+add_task(
+  async function test_unsupportedOAuthBannerHidesWhenHostnameBecomesValid() {
+    const hostname = subview.querySelector("#manualIncomingHostname");
+    const incomingAuthMethod = subview.querySelector(
+      "#manualIncomingAuthMethod"
+    );
+
+    const state = createFilledAccountConfig();
+    state.incoming.type = "imap";
+    state.incoming.hostname = "example.com";
+    state.incoming.auth = Ci.nsMsgAuthMethod.OAuth2;
+    // Keep the outgoing server valid so only the incoming hostname drives the
+    // unsupported OAuth result.
+    state.outgoing.hostname = "smtp.gmail.com";
+    state.outgoing.auth = Ci.nsMsgAuthMethod.passwordCleartext;
+    subview.setState(state);
+
+    const banner = getIncomingOAuthUnsupportedBanner();
+    Assert.ok(
+      BrowserTestUtils.isVisible(banner),
+      "The 'Unsupported OAuth' banner should be visible for an unknown hostname"
+    );
+    let isValid = await subview.validate();
+    Assert.ok(
+      !isValid,
+      "Test Configuration should be blocked while OAuth is selected for an unknown hostname"
+    );
+
+    // Change the hostname to a known OAuth host while OAuth2 stays selected.
+    const configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
+      subview,
+      "config-updated"
+    );
+    await fireInputEvent(hostname, "input", "imap.gmail.com");
+    const configUpdatedEvent = await configUpdatedEventPromise;
+
+    Assert.equal(
+      incomingAuthMethod.value,
+      Ci.nsMsgAuthMethod.OAuth2,
+      "The auth method should stay set as OAuth2"
+    );
+    Assert.ok(
+      BrowserTestUtils.isHidden(banner),
+      "The 'Unsupported OAuth' banner should hide once the hostname is a known OAuth host"
+    );
+    Assert.ok(
+      configUpdatedEvent.detail.completed,
+      "The form should report complete once the hostname is a known OAuth host"
+    );
+    isValid = await subview.validate();
+    Assert.ok(
+      isValid,
+      "Test Configuration should be unblocked once the hostname is a known OAuth host"
+    );
+
+    subview.resetState();
+  }
+);
 
 /**
  * Sets value of input and fires event supplied in parameter.
@@ -973,6 +1342,28 @@ async function fireInputEvent(input, eventName, value) {
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     await new Promise(r => setTimeout(r, 100));
   }
+}
+
+/**
+ * Get the incoming 'Unsupported OAuth' banner.
+ *
+ * @returns {HTMLElement}
+ */
+function getIncomingOAuthUnsupportedBanner() {
+  const banner = subview.querySelector("#manualIncomingUnsupportedOAuthBanner");
+  Assert.ok(banner, "The incoming 'Unsupported OAuth' banner should exist");
+  return banner;
+}
+
+/**
+ * Get the outgoing 'Unsupported OAuth' banner.
+ *
+ * @returns {HTMLElement}
+ */
+function getOutgoingOAuthUnsupportedBanner() {
+  const banner = subview.querySelector("#manualOutgoingUnsupportedOAuthBanner");
+  Assert.ok(banner, "The outgoing 'Unsupported OAuth' banner should exist");
+  return banner;
 }
 
 add_task(async function test_advancedConfigurationDispatchesEvent() {
