@@ -54,7 +54,8 @@ add_task(function test_setState() {
 });
 
 add_task(async function test_captureState() {
-  const graphUrl = "https://graph.microsoft.com/v1.0";
+  const graphUrl = "https://graph.microsoft.com/";
+  const graphUrlWithVersion = "https://graph.microsoft.com/v1.0";
 
   const config = new AccountConfig();
   subview.setState(config);
@@ -67,6 +68,17 @@ add_task(async function test_captureState() {
     state.incoming.exchangeURL,
     graphUrl,
     "captureState should reflect current data"
+  );
+
+  serviceURLInput.select();
+  EventUtils.sendString(graphUrlWithVersion);
+
+  state = subview.captureState();
+
+  Assert.equal(
+    state.incoming.exchangeURL,
+    graphUrl,
+    "captureState should strip the version from a Microsoft Graph URL"
   );
 
   serviceURLInput.select();
@@ -121,6 +133,7 @@ add_task(async function test_serviceURLValidation() {
 
 add_task(async function test_serviceURLRestoredBySetState() {
   const graphUrl = "https://graph.microsoft.com/v1.0";
+  const normalizedGraphUrl = "https://graph.microsoft.com/";
 
   const config = new AccountConfig();
   config.incoming.exchangeURL = graphUrl;
@@ -131,9 +144,10 @@ add_task(async function test_serviceURLRestoredBySetState() {
     graphUrl,
     "setState should restore the saved service URL"
   );
+
   Assert.deepEqual(
     subview.captureState().incoming.exchangeURL,
-    graphUrl,
-    "captureState should return the restored service URL"
+    normalizedGraphUrl,
+    "captureState should strip the version from the restored Microsoft Graph URL"
   );
 });

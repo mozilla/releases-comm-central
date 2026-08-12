@@ -122,6 +122,16 @@ class EmailExchangeSettings extends AccountHubStep {
     try {
       const inputValue = this.#serviceURL.value.trim();
       const url = InputSanitizer.url(inputValue);
+      const parsedURL = URL.parse(url);
+
+      if (
+        parsedURL.origin === "https://graph.microsoft.com" &&
+        ["/v1.0", "/v1.0/"].includes(parsedURL.pathname)
+      ) {
+        parsedURL.pathname = "/";
+        return parsedURL.href;
+      }
+
       return url;
     } catch {
       return "";
