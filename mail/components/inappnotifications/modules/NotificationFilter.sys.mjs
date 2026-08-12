@@ -31,6 +31,18 @@ for (const [property, preference] of policyPreferences) {
   );
 }
 
+function versionMatches(pattern, actualVersion) {
+  if (!pattern.includes("*")) {
+    return pattern === actualVersion;
+  }
+
+  const escaped = pattern
+    .replaceAll(/[.+?^${}()|[\]\\]/g, "\\$&")
+    .replaceAll("*", ".*");
+
+  return new RegExp(`^${escaped}$`).test(actualVersion);
+}
+
 export const NotificationFilter = {
   /**
    * Initialize glean with the initial preference values for enabled
@@ -142,7 +154,9 @@ export const NotificationFilter = {
     }
     if (
       Array.isArray(profile.versions) &&
-      !profile.versions.includes(AppConstants.MOZ_APP_VERSION)
+      !profile.versions.some(version =>
+        versionMatches(version, AppConstants.MOZ_APP_VERSION)
+      )
     ) {
       return false;
     }

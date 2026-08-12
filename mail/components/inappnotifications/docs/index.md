@@ -114,7 +114,7 @@ When the `exclude` or `include` key are `null` or omitted the notification is di
 ##### Profile properties
 
 There are two kinds of keys that we target in the profile, single values and lists of values. Both of them have arrays in the targeting profile, but the arrays behave differently.
-Single values are `locales`, `versions`, `channels` and `operating systems` - there is only one possible active value for all of them. So the values in the array of the targeting profile are ORed against each other, if any of them is the current value the profile matches.
+Single values are `locales`, `versions`, `channels` and `operating systems` - there is only one possible active value for all of them. So the values in the array of the targeting profile are ORed against each other, if any of them is the current value the profile matches. For `versions`, a value containing `*` is treated as a wildcard, so `140.*` matches any 140.x version while plain values still match exactly.
 `displayed_notifications`, `pref_true` and `pref_false` compare against lists of values. So all of the items listed in the targeting profile have to be true for the profile to match.
 
 If any key is missing or `null` it will not affect the filtering result. Meanwhile an empty array will behave differently for the single values, leading to the profile always matching, while it behaves like `null` for the properties for lists of values.

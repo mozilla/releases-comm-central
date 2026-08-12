@@ -309,6 +309,44 @@ add_task(function test_checkProfile_match() {
   }
 });
 
+add_task(function test_checkProfile_versionsWildcard() {
+  const currentMajor = AppConstants.MOZ_APP_VERSION.split(".")[0];
+
+  Assert.ok(
+    NotificationFilter.checkProfile(
+      { versions: [AppConstants.MOZ_APP_VERSION] },
+      []
+    ),
+    "Exact version still matches"
+  );
+
+  Assert.ok(
+    NotificationFilter.checkProfile({ versions: [`${currentMajor}.*`] }, []),
+    "Wildcard version matches the current major version"
+  );
+
+  Assert.ok(
+    !NotificationFilter.checkProfile({ versions: ["999.*"] }, []),
+    "Wildcard version does not match an unrelated version"
+  );
+
+  Assert.ok(
+    !NotificationFilter.checkProfile(
+      { versions: [`${currentMajor[0]}[0-9]*`] },
+      []
+    ),
+    "Regex characters are treated literally"
+  );
+
+  Assert.ok(
+    !NotificationFilter.checkProfile(
+      { versions: [`${currentMajor.slice(0, 2)}.+`] },
+      []
+    ),
+    "Regex operators are treated literally"
+  );
+});
+
 add_task(function test_checkProfile_displayedNotifications_match() {
   Assert.ok(
     NotificationFilter.checkProfile(
