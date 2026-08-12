@@ -251,7 +251,8 @@ portable-atomic = { path = "../../build/rust/portable-atomic" }
 portable-atomic-util = { path = "../../build/rust/portable-atomic-util" }
 base64_21 = { package = "base64", path = "../../build/rust/base64" }
 wasi_0_11 = { package = "wasi", path = "../../build/rust/wasi" }
-itertools = { path = "../../build/rust/itertools" }
+itertools_0_13 = { package = "itertools", path = "../../build/rust/itertools-0.13" }
+itertools_0_14 = { package = "itertools", path = "../../build/rust/itertools" }
 backtrace = { path = "../../build/rust/backtrace" }
 bindgen_0_72 = { package = "bindgen", git = "https://github.com/glandium/rust-bindgen", rev = "5274da5a06411accb266c10819b989ac25a81b7d" }
 bindgen = { path = "../../build/rust/bindgen" }

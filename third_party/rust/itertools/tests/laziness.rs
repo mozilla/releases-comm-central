@@ -104,6 +104,18 @@ must_use_tests! {
         let _ = Panicking.circular_tuple_windows::<(_, _)>();
         let _ = Panicking.circular_tuple_windows::<(_, _, _)>();
     }
+    array_windows {
+        let _ = Panicking.array_windows::<0>();
+        let _ = Panicking.array_windows::<1>();
+        let _ = Panicking.array_windows::<2>();
+        let _ = Panicking.array_windows::<3>();
+    }
+    circular_array_windows {
+        let _ = Panicking.circular_array_windows::<0>();
+        let _ = Panicking.circular_array_windows::<1>();
+        let _ = Panicking.circular_array_windows::<2>();
+        let _ = Panicking.circular_array_windows::<3>();
+    }
     tuples {
         let _ = Panicking.tuples::<(_,)>();
         let _ = Panicking.tuples::<(_, _)>();
@@ -196,16 +208,28 @@ must_use_tests! {
     while_some {
         let _ = Panicking.map(Some).while_some();
     }
+    #[allow(deprecated)]
     tuple_combinations1 {
         let _ = Panicking.tuple_combinations::<(_,)>();
     }
+    #[allow(deprecated)]
     #[should_panic]
     tuple_combinations2 {
         let _ = Panicking.tuple_combinations::<(_, _)>();
     }
+    #[allow(deprecated)]
     #[should_panic]
     tuple_combinations3 {
         let _ = Panicking.tuple_combinations::<(_, _, _)>();
+    }
+    array_combinations1 {
+        let _ = Panicking.array_combinations::<1>();
+    }
+    array_combinations2 {
+        let _ = Panicking.array_combinations::<2>();
+    }
+    array_combinations3 {
+        let _ = Panicking.array_combinations::<3>();
     }
     combinations {
         let _ = Panicking.combinations(0);
@@ -216,6 +240,11 @@ must_use_tests! {
         let _ = Panicking.combinations_with_replacement(0);
         let _ = Panicking.combinations_with_replacement(1);
         let _ = Panicking.combinations_with_replacement(2);
+    }
+    array_combinations_with_replacement {
+        let _ = Panicking.array_combinations_with_replacement::<0>();
+        let _ = Panicking.array_combinations_with_replacement::<1>();
+        let _ = Panicking.array_combinations_with_replacement::<2>();
     }
     permutations {
         let _ = Panicking.permutations(0);

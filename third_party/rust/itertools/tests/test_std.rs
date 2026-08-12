@@ -9,6 +9,7 @@ use crate::it::multipeek;
 use crate::it::multizip;
 use crate::it::peek_nth;
 use crate::it::repeat_n;
+use crate::it::AllEqualValueError;
 use crate::it::ExactlyOneError;
 use crate::it::FoldWhile;
 use crate::it::Itertools;
@@ -20,7 +21,30 @@ use rand::{
     Rng, SeedableRng,
 };
 use rand::{seq::SliceRandom, thread_rng};
+use std::collections::HashMap;
+use std::hash::BuildHasher;
+use std::hash::RandomState;
+use std::iter::empty;
 use std::{cmp::min, fmt::Debug, marker::PhantomData};
+
+// A Hasher which forwards it's calls to RandomState to make sure different hashers
+// are accepted in the various *_with_hasher methods.
+#[derive(Default)]
+struct TestHasher(RandomState);
+
+impl TestHasher {
+    fn new() -> Self {
+        TestHasher(RandomState::new())
+    }
+}
+
+impl BuildHasher for TestHasher {
+    type Hasher = <RandomState as BuildHasher>::Hasher;
+
+    fn build_hasher(&self) -> Self::Hasher {
+        self.0.build_hasher()
+    }
+}
 
 #[test]
 fn product3() {
@@ -76,6 +100,10 @@ fn duplicates_by() {
         ys_rev.iter(),
         xs.iter().duplicates_by(|x| x[..2].to_string()).rev(),
     );
+
+    let _ = empty::<u8>()
+        .duplicates_by_with_hasher(|x| *x, TestHasher::new())
+        .next();
 }
 
 #[test]
@@ -103,6 +131,10 @@ fn duplicates() {
     );
     let ys_rev = vec![2, 1];
     assert_eq!(ys_rev, xs.iter().duplicates().rev().cloned().collect_vec());
+
+    let _ = empty::<u8>()
+        .duplicates_with_hasher(TestHasher::new())
+        .next();
 }
 
 #[test]
@@ -119,6 +151,8 @@ fn unique_by() {
         ys_rev.iter(),
         xs.iter().unique_by(|x| x[..2].to_string()).rev(),
     );
+
+    let _ = empty::<u8>().unique_by_with_hasher(|x| *x, TestHasher::new());
 }
 
 #[test]
@@ -136,6 +170,8 @@ fn unique() {
     it::assert_equal(ys.iter(), xs.iter().rev().unique().rev());
     let ys_rev = [1, 0];
     it::assert_equal(ys_rev.iter(), xs.iter().unique().rev());
+
+    let _ = empty::<u8>().unique_with_hasher(TestHasher::new());
 }
 
 #[test]
@@ -282,14 +318,17 @@ fn all_equal() {
 
 #[test]
 fn all_equal_value() {
-    assert_eq!("".chars().all_equal_value(), Err(None));
+    assert_eq!("".chars().all_equal_value(), Err(AllEqualValueError(None)));
     assert_eq!("A".chars().all_equal_value(), Ok('A'));
-    assert_eq!("AABBCCC".chars().all_equal_value(), Err(Some(('A', 'B'))));
+    assert_eq!(
+        "AABBCCC".chars().all_equal_value(),
+        Err(AllEqualValueError(Some(['A', 'B'])))
+    );
     assert_eq!("AAAAAAA".chars().all_equal_value(), Ok('A'));
     {
         let mut it = [1, 2, 3].iter().copied();
         let result = it.all_equal_value();
-        assert_eq!(result, Err(Some((1, 2))));
+        assert_eq!(result, Err(AllEqualValueError(Some([1, 2]))));
         let remaining = it.next();
         assert_eq!(remaining, Some(3));
         assert!(it.next().is_none());
@@ -301,6 +340,8 @@ fn all_unique() {
     assert!("ABCDEFGH".chars().all_unique());
     assert!(!"ABCDEFGA".chars().all_unique());
     assert!(::std::iter::empty::<usize>().all_unique());
+
+    let _ = empty::<u8>().all_unique_with_hasher(TestHasher::new());
 }
 
 #[test]
@@ -443,13 +484,13 @@ fn kmerge_empty() {
 
 #[test]
 fn kmerge_size_hint() {
-    let its = (0..5).map(|_| (0..10));
+    let its = (0..5).map(|_| 0..10);
     assert_eq!(its.kmerge().size_hint(), (50, Some(50)));
 }
 
 #[test]
 fn kmerge_empty_size_hint() {
-    let its = (0..5).map(|_| (0..0));
+    let its = (0..5).map(|_| 0..0);
     assert_eq!(its.kmerge().size_hint(), (0, Some(0)));
 }
 
@@ -496,7 +537,7 @@ qc::quickcheck! {
     fn k_smallest_range(n: i64, m: u16, k: u16) -> () {
         // u16 is used to constrain k and m to 0..2¹⁶,
         //  otherwise the test could use too much memory.
-        let (k, m) = (k as usize, m as u64);
+        let (k, m) = (k as usize, u64::from(m));
 
         let mut v: Vec<_> = (n..n.saturating_add(m as _)).collect();
         // Generate a random permutation of n..n+m
@@ -532,7 +573,7 @@ qc::quickcheck! {
     fn k_smallest_relaxed_range(n: i64, m: u16, k: u16) -> () {
         // u16 is used to constrain k and m to 0..2¹⁶,
         //  otherwise the test could use too much memory.
-        let (k, m) = (k as usize, m as u64);
+        let (k, m) = (k as usize, u64::from(m));
 
         let mut v: Vec<_> = (n..n.saturating_add(m as _)).collect();
         // Generate a random permutation of n..n+m
@@ -1066,9 +1107,15 @@ fn combinations() {
         ],
     );
 
-    it::assert_equal((0..0).tuple_combinations::<(_, _)>(), <Vec<_>>::new());
-    it::assert_equal((0..1).tuple_combinations::<(_, _)>(), <Vec<_>>::new());
-    it::assert_equal((0..2).tuple_combinations::<(_, _)>(), vec![(0, 1)]);
+    #[allow(deprecated)]
+    {
+        it::assert_equal((0..0).tuple_combinations::<(_, _)>(), <Vec<_>>::new());
+        it::assert_equal((0..1).tuple_combinations::<(_, _)>(), <Vec<_>>::new());
+        it::assert_equal((0..2).tuple_combinations::<(_, _)>(), vec![(0, 1)]);
+    }
+    it::assert_equal((0..0).array_combinations::<2>(), <Vec<[isize; 2]>>::new());
+    it::assert_equal((0..1).array_combinations::<2>(), <Vec<[isize; 2]>>::new());
+    it::assert_equal((0..2).array_combinations::<2>(), vec![[0, 1]]);
 
     it::assert_equal((0..0).combinations(2), <Vec<Vec<_>>>::new());
     it::assert_equal((0..1).combinations(1), vec![vec![0]]);
@@ -1254,6 +1301,30 @@ fn combinations_with_replacement_range_count() {
             assert!(should_be_none.is_none());
         }
     }
+}
+
+#[test]
+#[cfg(not(miri))]
+fn array_combinations_with_replacement() {
+    // Pool smaller than n
+    it::assert_equal(
+        (0..1).array_combinations_with_replacement::<2>(),
+        vec![[0, 0]],
+    );
+    // Pool larger than n
+    it::assert_equal(
+        (0..3).array_combinations_with_replacement::<2>(),
+        vec![[0, 0], [0, 1], [0, 2], [1, 1], [1, 2], [2, 2]],
+    );
+    // Zero size
+    it::assert_equal((0..3).array_combinations_with_replacement::<0>(), vec![[]]);
+    // Zero size on empty pool
+    it::assert_equal((0..0).array_combinations_with_replacement::<0>(), vec![[]]);
+    // Empty pool
+    it::assert_equal(
+        (0..0).array_combinations_with_replacement::<2>(),
+        vec![] as Vec<[_; 2]>,
+    );
 }
 
 #[test]
@@ -1507,7 +1578,7 @@ fn tree_reduce() {
             Some(s.to_string())
         };
         let num_strings = (0..i).map(|x| x.to_string());
-        let actual = num_strings.tree_reduce(|a, b| format!("{} {} x", a, b));
+        let actual = num_strings.tree_reduce(|a, b| format!("{a} {b} x"));
         assert_eq!(actual, expected);
     }
 }
@@ -1566,4 +1637,41 @@ fn multiunzip() {
             vec![11]
         )
     );
+}
+
+#[test]
+fn into_group_map_with_hasher() {
+    let _: HashMap<_, _, TestHasher> =
+        empty::<(u8, u8)>().into_group_map_with_hasher(TestHasher::new());
+}
+
+#[test]
+fn into_group_map_by_with_hasher() {
+    let _: HashMap<_, _, TestHasher> =
+        empty::<(u8, u8)>().into_group_map_by_with_hasher(|x| *x, TestHasher::new());
+}
+
+#[test]
+fn into_grouping_map_with_hasher() {
+    let _: HashMap<_, Vec<_>, TestHasher> = empty::<(u8, u8)>()
+        .into_grouping_map_with_hasher(TestHasher::new())
+        .collect();
+}
+
+#[test]
+fn into_grouping_map_by_with_hasher() {
+    let _: HashMap<_, Vec<_>, TestHasher> = empty::<(u8, u8)>()
+        .into_grouping_map_by_with_hasher(|x| *x, TestHasher::new())
+        .collect();
+}
+
+#[test]
+fn counts_with_hasher() {
+    let _: HashMap<_, _, TestHasher> = empty::<u8>().counts_with_hasher(TestHasher::new());
+}
+
+#[test]
+fn counts_by_with_hasher() {
+    let _: HashMap<_, _, TestHasher> =
+        empty::<u8>().counts_by_with_hasher(|x| x, TestHasher::new());
 }

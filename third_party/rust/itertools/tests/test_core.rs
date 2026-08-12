@@ -226,7 +226,7 @@ fn batching() {
     let pit = xs
         .iter()
         .cloned()
-        .batching(|it| it.next().and_then(|x| it.next().map(|y| (x, y))));
+        .batching(|it| it.next_array::<2>().map(|[a, b]| (a, b)));
     it::assert_equal(pit, ys.iter().cloned());
 }
 
@@ -281,6 +281,7 @@ fn count_clones() {
         let f = Foo { n: Cell::new(0) };
         let it = it::repeat_n(f, n);
         // drain it
+        #[allow(clippy::double_ended_iterator_last)]
         let last = it.last();
         if n == 0 {
             assert_eq!(last, None);

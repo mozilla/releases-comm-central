@@ -255,6 +255,7 @@ quickcheck! {
         test_double_ended_specializations(&it);
     }
 
+    #[allow(deprecated)]
     fn tuple_combinations(v: Vec<u8>) -> TestResult {
         if v.len() > 10 {
             return TestResult::discard();
@@ -299,6 +300,16 @@ quickcheck! {
         TestResult::passed()
     }
 
+    fn array_combinations_with_replacement(a: Vec<u8>) -> TestResult {
+        if a.len() > 10 {
+            return TestResult::discard();
+        }
+        test_specializations(&a.iter().array_combinations_with_replacement::<1>());
+        test_specializations(&a.iter().array_combinations_with_replacement::<2>());
+        test_specializations(&a.iter().array_combinations_with_replacement::<3>());
+
+        TestResult::passed()
+    }
     fn permutations(a: Vec<u8>, n: u8) -> TestResult {
         if n > 3 || a.len() > 8 {
             return TestResult::discard();
@@ -503,7 +514,10 @@ quickcheck! {
             }
 
             check_results_specialized!(it, |i| i.count());
-            check_results_specialized!(it, |i| i.last());
+            check_results_specialized!(it, |i| {
+                #[allow(clippy::double_ended_iterator_last)]
+                i.last()
+            });
             check_results_specialized!(it, |i| i.collect::<Vec<_>>());
             check_results_specialized!(it, |i| i.rev().collect::<Vec<_>>());
             check_results_specialized!(it, |i| {
