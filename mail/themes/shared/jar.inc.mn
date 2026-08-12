@@ -432,6 +432,7 @@
   skin/classic/messenger/shared/serverMenuItems.css           (../shared/mail/serverMenuItems.css)
   skin/classic/messenger/shared/spacesToolbar.css             (../shared/mail/spacesToolbar.css)
   skin/classic/messenger/shared/tabmail.css                   (../shared/mail/tabmail.css)
+  skin/classic/messenger/shared/tb-banner.css                 (../shared/mail/tb-banner.css)
   skin/classic/messenger/shared/themeableDialog.css           (../shared/mail/themeableDialog.css)
   skin/classic/messenger/threadCardTags.css                   (../shared/mail/threadCardTags.css)
   skin/classic/messenger/shared/threadCard.css                (../shared/mail/threadCard.css)

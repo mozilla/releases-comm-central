@@ -1,5 +1,8 @@
 # Custom Element Conventions
 
+- Custom elements **must** include a hyphen in their name. If the element name
+  doesn't naturally include one (e.g., 'banner'), prepend the element name
+  with 'tb-' (e.g., 'tb-banner')
 - Whenever possible custom elements are defined each in their own ES module
   - The file name should match the element tag name, so `<my-element>` is in
     `my-element.mjs`
@@ -33,6 +36,10 @@
 - Styles for the custom element are usually in a separate css file with the same
   name as the module. If the element has a shadow root, the stylesheet will be
   loaded into it.
+- Fluent strings are usually stored in a separate ftl file, with the same name as
+  the module. Load the file via `window.MozXULElement?.insertFTLIfNeeded("my-element.ftl")`
+  in your `connectedCallback` function. Alternatively, you can create a new
+  `DOMLocalization` instance, if you need to ensure no Fluent string ID conflicts.
 - When interacting with other custom elements, you should follow these methods:
   - To send (or request) information to a child element, call a method on it.
   - To send information to a parent element (without the parent requesting it in

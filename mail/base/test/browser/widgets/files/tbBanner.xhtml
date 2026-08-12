@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Banner element test</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/spacings.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
+    <link rel="localization" href="messenger/tb-banner.ftl" />
+    <script type="module" src="chrome://messenger/content/tb-banner.mjs"></script>
+  </head>
+  <body>
+    <template id="tbBannerTemplate">
+      <details class="banner">
+        <summary>
+          <img id="icon" class="icon" alt="" />
+          <div id="title" class="title">
+            <slot name="title"></slot>
+          </div>
+          <span id="actionText" class="action-text" hidden="hidden"></span>
+        </summary>
+        <div id="description" class="description" hidden="hidden">
+          <slot name="description"></slot>
+        </div>
+      </details>
+    </template>
+
+    <tb-banner id="basic">
+      <span slot="title">Test banner</span>
+    </tb-banner>
+
+    <tb-banner id="collapsible">
+      <span slot="title">Collapsible banner</span>
+      <span slot="description">Collapsible description</span>
+    </tb-banner>
+
+    <tb-banner id="expanded" variant="danger" expanded="true">
+      <span slot="title">Expanded banner</span>
+      <span slot="description">Expanded description</span>
+    </tb-banner>
+  </body>
+</html>

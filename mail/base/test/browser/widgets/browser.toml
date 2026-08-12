@@ -57,6 +57,8 @@ skip-if = [
 
 ["browser_searchBar.js"]
 
+["browser_tbBanner.js"]
+
 ["browser_threadCardTags.js"]
 
 ["browser_treeListbox.js"]

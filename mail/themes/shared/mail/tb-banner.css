@@ -1,0 +1,108 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:host([invalid]) {
+  display: none;
+}
+
+:host([variant="danger"]) {
+  --tb-banner-icon: var(--icon-warning);
+
+  .banner {
+    background-color: var(--color-critical-soft);
+    color: light-dark(var(--color-critical-pressed-light), var(--color-text-base-dark));
+    border-color: var(--color-critical-default);
+  }
+}
+
+:host([variant="warning"]) {
+  --tb-banner-icon: var(--icon-error-circle);
+
+  .banner {
+    background-color: var(--color-warning-soft);
+    color: var(--color-text-warning);
+    border-color: var(--color-warning-default);
+  }
+}
+
+:host([variant="success"]) {
+  --tb-banner-icon: var(--icon-success);
+
+  .banner {
+    background-color: var(--color-success-soft);
+    color: light-dark(var(--color-success-pressed-light), var(--color-text-success-dark));
+    border-color: light-dark(var(--color-success-default-light), var(--color-text-success-dark));
+  }
+}
+
+:host([variant="info"]) {
+  --tb-banner-icon: var(--icon-info);
+
+  .banner {
+    background-color: var(--color-primary-soft);
+    color: light-dark(var(--color-primary-pressed-light), var(--color-primary-default-dark));
+    border-color: var(--color-primary-default);
+  }
+}
+
+.banner {
+  --banner-icon-size: 16px;
+
+  padding: calc(var(--space-step) * 2) calc(var(--space-step) * 4);
+  border: 1px solid;
+  border-radius: 3px;
+
+  .action-text[hidden],
+  &:not([open]) .description {
+    display: none;
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--space-step) * 2);
+    font-size: 1rem;
+
+    .icon {
+      -moz-context-properties: fill, stroke;
+      fill: color-mix(in srgb, currentColor 20%, transparent);
+      stroke: currentColor;
+      content: var(--tb-banner-icon);
+      inline-size: var(--banner-icon-size);
+      block-size: var(--banner-icon-size);
+    }
+
+    .title {
+      font-weight: 700;
+      inline-size: 100%;
+      margin-block: 0;
+      text-align: center;
+    }
+
+    .action-text {
+      font-size: 0.85rem;
+      text-decoration: underline;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    /* If the <summary> has 'action-text' that's not hidden,
+     * this indicates it has description text. */
+    &:has(.action-text:not([hidden])) {
+      cursor: pointer;
+
+      .title {
+        text-align: start;
+      }
+    }
+  }
+
+  .description {
+    margin-block-start: calc(var(--space-step) * 2);
+    /* This needs to be left aligned with the title text. */
+    margin-inline-start: calc(var(--banner-icon-size) + calc(var(--space-step) * 2));
+    display: inline-block;
+    text-align: start;
+  }
+}

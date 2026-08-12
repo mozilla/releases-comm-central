@@ -127,6 +127,7 @@ messenger.jar:
     content/messenger/statuspanel.js                (content/widgets/statuspanel.js)
     content/messenger/tabmail-tab.js                (content/widgets/tabmail-tab.js)
     content/messenger/tabmail-tabs.js               (content/widgets/tabmail-tabs.js)
+    content/messenger/tb-banner.mjs                 (content/widgets/tb-banner.mjs)
     content/messenger/toolbarbutton-menu-button.js  (content/widgets/toolbarbutton-menu-button.js)
     content/messenger/tree-view.mjs                 (content/widgets/tree-view.mjs)
     content/messenger/treecol-image.mjs             (content/widgets/treecol-image.mjs)

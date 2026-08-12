@@ -1,0 +1,18 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<template id="tbBannerTemplate">
+  <details class="banner">
+    <summary>
+      <img id="icon" class="icon" alt="" />
+      <div id="title" class="title">
+        <slot name="title"></slot>
+      </div>
+      <span id="actionText" class="action-text" hidden="hidden"></span>
+    </summary>
+    <div id="description" class="description" hidden="hidden">
+      <slot name="description"></slot>
+    </div>
+  </details>
+</template>
