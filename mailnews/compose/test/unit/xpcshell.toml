@@ -31,6 +31,8 @@ skip-if = [
 
 ["test_fccReply.js"]
 
+["test_forwardMergeMixedCharsets.js"]
+
 ["test_forwardInlineAllHeaders.js"]
 
 ["test_forwardInlineMalformedAttachment.js"]

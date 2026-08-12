@@ -106,7 +106,9 @@ class mime_draft_data {
   MimeHeaders* headers;         // Copy of outer most mime header
   nsTArray<nsMsgAttachedFile*> attachments;  // attachments
   nsMsgAttachedFile* messageBody;            // message body
-  nsMsgAttachedFile* curAttachment;          // temp
+  nsTArray<nsMsgAttachedFile*>
+      appendedParts;                 // plain-text parts merged into body
+  nsMsgAttachedFile* curAttachment;  // temp
 
   nsCOMPtr<nsIFile> tmpFile;
   nsCOMPtr<nsIOutputStream> tmpFileStream;  // output file handle
