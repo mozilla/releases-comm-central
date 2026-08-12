@@ -10,6 +10,7 @@ from mozfile import load_source
 
 from mach.decorators import Command
 from mozbuild.base import BuildEnvironmentNotFoundException
+from mozversioncontrol import get_repository_object
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -47,6 +48,17 @@ def lint(command_context, *runargs, **lintargs):
         pass
 
     lintargs.setdefault("root", command_context.topsrcdir)
+
+    if lintargs.get("outgoing") is not None:
+        comm_root = os.path.join(command_context.topsrcdir, "comm")
+        repo = get_repository_object(comm_root)
+
+        upstream = lintargs["outgoing"] if isinstance(lintargs["outgoing"], str) else None
+        outgoing_files = repo.get_outgoing_files("AM", upstream=upstream)
+
+        lintargs["paths"] = (lintargs.get("paths") or []) + outgoing_files
+        lintargs["outgoing"] = None
+
     if lintargs["extra_args"] is None:
         lintargs["extra_args"] = []
 
