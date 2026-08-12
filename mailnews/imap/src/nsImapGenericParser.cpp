@@ -90,19 +90,29 @@ void nsImapGenericParser::skip_to_close_paren() {
   }
 }
 
+// (Re)initialize the tokenizer over the current line if it isn't already set
+// up. Returns false and reports a memory failure if the buffer can't be
+// allocated. The tokenizer buffer is a private copy of fCurrentLine that
+// NS_strtok() mutates in place; fLineOfTokens and fCurrentTokenPlaceHolder
+// point into it, so they must never outlive it (see AdvanceToNextLine()).
+bool nsImapGenericParser::InitTokenizer() {
+  if (!fStartOfLineOfTokens) {
+    fStartOfLineOfTokens = PL_strdup(fCurrentLine);
+    if (!fStartOfLineOfTokens) {
+      HandleMemoryFailure();
+      return false;
+    }
+    fLineOfTokens = fStartOfLineOfTokens;
+    fCurrentTokenPlaceHolder = fStartOfLineOfTokens;
+  }
+  return true;
+}
+
 void nsImapGenericParser::AdvanceToNextToken() {
   if (!fCurrentLine || fAtEndOfLine) AdvanceToNextLine();
   if (Connected()) {
-    if (!fStartOfLineOfTokens) {
-      // this is the first token of the line; setup tokenizer now
-      fStartOfLineOfTokens = PL_strdup(fCurrentLine);
-      if (!fStartOfLineOfTokens) {
-        HandleMemoryFailure();
-        return;
-      }
-      fLineOfTokens = fStartOfLineOfTokens;
-      fCurrentTokenPlaceHolder = fStartOfLineOfTokens;
-    }
+    // if this is the first token of the line, setup the tokenizer now
+    if (!InitTokenizer()) return;
     fNextToken = NS_strtok(WHITESPACE, &fCurrentTokenPlaceHolder);
     if (!fNextToken) {
       fAtEndOfLine = true;
@@ -116,11 +126,15 @@ void nsImapGenericParser::AdvanceToNextLine() {
   PR_FREEIF(fStartOfLineOfTokens);
 
   bool ok = GetNextLineForParser(&fCurrentLine);
+  // PR_FREEIF above freed and nulled fStartOfLineOfTokens, but fLineOfTokens
+  // and fCurrentTokenPlaceHolder still point into that freed buffer. Clear
+  // them on every path so they can't be dereferenced before InitTokenizer()
+  // reallocates the tokenizer for the new line.
+  fLineOfTokens = nullptr;
+  fCurrentTokenPlaceHolder = nullptr;
   if (!ok) {
     SetConnected(false);
     fStartOfLineOfTokens = nullptr;
-    fLineOfTokens = nullptr;
-    fCurrentTokenPlaceHolder = nullptr;
     fAtEndOfLine = true;
     fNextToken = CRLF;
   } else if (!fCurrentLine) {
@@ -374,6 +388,12 @@ char* nsImapGenericParser::CreateParenGroup() {
       returnString.Append(lit);
       PR_Free(lit);
       if (!ContinueParse()) break;
+      // A literal that exactly consumed its line leaves CreateLiteral() having
+      // advanced to a fresh line and released the tokenizer buffer that
+      // parenGroupStart pointed into. Re-tokenize the current line before
+      // resuming the scan, otherwise both pointers would dangle into freed
+      // memory.
+      if (!InitTokenizer()) break;
       parenGroupStart = fCurrentTokenPlaceHolder;
     } else if (*fCurrentTokenPlaceHolder == '"')  // quoted
     {

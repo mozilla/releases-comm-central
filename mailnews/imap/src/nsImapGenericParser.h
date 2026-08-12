@@ -49,6 +49,7 @@ class nsImapGenericParser {
   char* CreateParenGroup();
   virtual void SetSyntaxError(bool error, const char* msg);
 
+  bool InitTokenizer();
   void AdvanceToNextToken();
   void AdvanceToNextLine();
   void AdvanceTokenizerStartingPoint(int32_t bytesToAdvance);
