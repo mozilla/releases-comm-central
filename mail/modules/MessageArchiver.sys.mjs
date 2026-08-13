@@ -12,8 +12,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
 export function MessageArchiver() {
   this._batches = {};
   this._currentKey = null;
-  this._dstFolderParent = null;
-  this._dstFolderName = null;
 
   this.msgWindow = null;
   this.oncomplete = null;
@@ -79,11 +77,10 @@ let gIsArchiving = false;
 
 /**
  * @implements {nsIMsgCopyServiceListener}
- * @implements {nsIMsgFolderListener}
  * @implements {nsIMsgOperationListener}
  */
 MessageArchiver.prototype = {
-  archiveMessages(aMsgHdrs) {
+  async archiveMessages(aMsgHdrs) {
     if (!aMsgHdrs.length) {
       return;
     }
@@ -118,9 +115,12 @@ MessageArchiver.prototype = {
           continue;
         }
 
-        archiveFolder = lazy.MailUtils.getOrCreateFolder(
-          msgHdr.folder.server.serverURI + "/Archives"
-        );
+        archiveFolder = msgHdr.folder.rootFolder.getChildNamed("Archives");
+        if (!archiveFolder) {
+          archiveFolder =
+            await msgHdr.folder.rootFolder.createSubfolderAsync("Archives");
+        }
+        archiveFolder.setFlag(Ci.nsMsgFolderFlags.Archive);
         archiveGranularity = Services.prefs.getIntPref(
           "mail.identity.default.archive_granularity"
         );
@@ -135,7 +135,7 @@ MessageArchiver.prototype = {
           continue;
         }
 
-        archiveFolder = identity.getOrCreateArchivesFolder();
+        archiveFolder = await identity.getOrCreateArchivesFolderAsync();
         archiveGranularity = identity.archiveGranularity;
         archiveKeepFolderStructure = identity.archiveKeepFolderStructure;
         archiveRecreateInbox = identity.archiveRecreateInbox;
@@ -218,7 +218,7 @@ MessageArchiver.prototype = {
   },
 
   // continue processing of default archive operations
-  continueBatch() {
+  async continueBatch() {
     const batch = this._currentBatch;
     const srcFolder = batch.srcFolder;
     const archiveFolder = batch.archiveFolder;
@@ -243,20 +243,6 @@ MessageArchiver.prototype = {
       this.processNextBatch();
     }
 
-    // For folders on some servers (e.g. IMAP), we need to create the
-    // sub-folders asynchronously, so we chain the urls using the listener
-    // called back from createStorageIfMissing. For local,
-    // createStorageIfMissing is synchronous.
-    const isAsync = archiveFolder.server.protocolInfo.foldersCreatedAsync;
-    if (!archiveFolder.parent) {
-      archiveFolder.setFlag(Ci.nsMsgFolderFlags.Archive);
-      archiveFolder.createStorageIfMissing(this);
-      if (isAsync) {
-        // Continues with OnStopRunningUrl.
-        return;
-      }
-    }
-
     let granularity = batch.granularity;
     let forceSingle = !archiveFolder.canCreateSubfolders;
     if (
@@ -271,29 +257,13 @@ MessageArchiver.prototype = {
 
     if (granularity >= Ci.nsIMsgIdentity.perYearArchiveFolders) {
       if (!dstFolder.containsChildNamed(batch.yearFolderName)) {
-        if (isAsync) {
-          this._dstFolderParent = dstFolder;
-          this._dstFolderName = batch.yearFolderName;
-        }
-        dstFolder.createSubfolder(batch.yearFolderName, null);
-        if (isAsync) {
-          // Continues with folderAdded.
-          return;
-        }
+        await dstFolder.createSubfolderAsync(batch.yearFolderName);
       }
       dstFolder = dstFolder.getChildNamed(batch.yearFolderName);
     }
     if (granularity >= Ci.nsIMsgIdentity.perMonthArchiveFolders) {
       if (!dstFolder.containsChildNamed(batch.monthFolderName)) {
-        if (isAsync) {
-          this._dstFolderParent = dstFolder;
-          this._dstFolderName = batch.monthFolderName;
-        }
-        dstFolder.createSubfolder(batch.monthFolderName, null);
-        if (isAsync) {
-          // Continues with folderAdded.
-          return;
-        }
+        await dstFolder.createSubfolderAsync(batch.monthFolderName);
       }
       dstFolder = dstFolder.getChildNamed(batch.monthFolderName);
     }
@@ -320,16 +290,7 @@ MessageArchiver.prototype = {
       for (let i = 0; i < folderNames.length; ++i) {
         const folderName = folderNames[i];
         if (!dstFolder.containsChildNamed(folderName)) {
-          // Create Archive sub-folder (IMAP: async).
-          if (isAsync) {
-            this._dstFolderParent = dstFolder;
-            this._dstFolderName = folderName;
-          }
-          dstFolder.createSubfolder(folderName, this.msgWindow);
-          if (isAsync) {
-            // Continues with folderAdded.
-            return;
-          }
+          await dstFolder.createSubfolderAsync(folderName);
         }
         dstFolder = dstFolder.getChildNamed(folderName);
       }
@@ -373,24 +334,8 @@ MessageArchiver.prototype = {
     }
   },
 
-  // This also implements nsIMsgFolderListener, but we only care about the
-  // folderAdded (createSubfolder callback).
-  // @implements {nsIMsgFolderListener}
-  folderAdded(aFolder) {
-    // Check that this is the folder we're interested in.
-    if (
-      aFolder.parent == this._dstFolderParent &&
-      aFolder.name == this._dstFolderName
-    ) {
-      this._dstFolderParent = null;
-      this._dstFolderName = null;
-      this.continueBatch();
-    }
-  },
-
   QueryInterface: ChromeUtils.generateQI([
     "nsIMsgCopyServiceListener",
-    "nsIMsgFolderListener",
     "nsIMsgOperationListener",
   ]),
 };
