@@ -23,6 +23,4 @@ support-files = ["data/**"]
 
 ["browser_encryptedUriCleanup.js"]
 
-["browser_handlerSwitchPgpToSmime.js"]
-
 ["browser_nestedSMimeSigs.js"]
