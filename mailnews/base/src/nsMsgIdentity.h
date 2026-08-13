@@ -10,6 +10,8 @@
 #include "nsCOMPtr.h"
 #include "nsString.h"
 
+using mozilla::dom::Promise;
+
 class nsMsgIdentity final : public nsIMsgIdentity {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -22,13 +24,12 @@ class nsMsgIdentity final : public nsIMsgIdentity {
   nsCOMPtr<nsIPrefBranch> mDefPrefBranch;
 
  protected:
-  bool checkServerForExistingFolder(nsIMsgFolder* rootFolder,
-                                    const char* prefName, uint32_t folderFlag,
-                                    const nsACString& folderName,
-                                    nsIMsgFolder** retval);
   nsresult getOrCreateFolder(const char* prefName, uint32_t folderFlag,
                              const nsACString& folderName,
                              nsIMsgFolder** retval);
+  nsresult getOrCreateFolderAsync(const char* prefName, uint32_t folderFlag,
+                                  const nsACString& folderName, JSContext* cx,
+                                  Promise** aPromise);
   nsresult setFolderPref(const char* pref, const nsACString& retval,
                          uint32_t folderFlag);
 };
@@ -85,6 +86,12 @@ class nsMsgIdentity final : public nsIMsgIdentity {
   NS_IMETHODIMP                                                               \
   nsMsgIdentity::GetOrCreate##_postfix(nsIMsgFolder** retval) {               \
     return getOrCreateFolder(_prefName, _folderFlag, _folderName, retval);    \
+  }                                                                           \
+  NS_IMETHODIMP                                                               \
+  nsMsgIdentity::GetOrCreate##_postfix##Async(JSContext* cx,                  \
+                                              Promise** aPromise) {           \
+    return getOrCreateFolderAsync(_prefName, _folderFlag, _folderName, cx,    \
+                                  aPromise);                                  \
   }
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMSGIDENTITY_H_

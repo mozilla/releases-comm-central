@@ -88,6 +88,8 @@ tags = ["foldernames"]
 
 ["test_identity.js"]
 
+["test_identityFolders.js"]
+
 ["test_imapPump.js"]
 
 ["test_incomingServer.js"]

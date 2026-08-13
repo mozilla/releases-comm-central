@@ -205,9 +205,17 @@ interface nsIMsgIdentity : nsISupports {
    * (synchronous folder creation is required) in the same order as above.
    */
   nsIMsgFolder getOrCreateFccFolder();
+  [implicit_jscontext]
+  Promise getOrCreateFccFolderAsync();
   nsIMsgFolder getOrCreateDraftsFolder();
+  [implicit_jscontext]
+  Promise getOrCreateDraftsFolderAsync();
   nsIMsgFolder getOrCreateArchivesFolder();
+  [implicit_jscontext]
+  Promise getOrCreateArchivesFolderAsync();
   nsIMsgFolder getOrCreateTemplatesFolder();
+  [implicit_jscontext]
+  Promise getOrCreateTemplatesFolderAsync();
 
   /**
    * These attributes control whether the special folder pickers for

@@ -5,6 +5,7 @@
 #include "nsMsgIdentity.h"
 
 #include "mozilla/Components.h"
+#include "mozilla/dom/Promise.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
 #include "msgCore.h"  // for pre-compiled headers
@@ -23,6 +24,7 @@
 #include "nsString.h"
 #include "prprf.h"
 
+using mozilla::ErrorResult;
 using mozilla::Preferences;
 
 #define REL_FILE_PREF_SUFFIX "-rel"
@@ -317,27 +319,123 @@ NS_IMPL_IDPREF_BOOL(AutocompleteToMyDomain, "autocompleteToMyDomain")
 
 NS_IMPL_IDPREF_BOOL(Valid, "valid")
 
-bool nsMsgIdentity::checkServerForExistingFolder(nsIMsgFolder* rootFolder,
-                                                 const char* prefName,
-                                                 uint32_t folderFlag,
-                                                 const nsACString& folderName,
-                                                 nsIMsgFolder** retval) {
+bool checkServerForExistingFolder(nsIMsgFolder* rootFolder,
+                                  const char* prefName, uint32_t folderFlag,
+                                  const nsACString& folderName,
+                                  nsIMsgFolder** folder) {
   // Look for a folder with the flag we want.
-  nsresult rv = rootFolder->GetFolderWithFlags(folderFlag, retval);
-  if (NS_SUCCEEDED(rv) && *retval) {
-    SetCharAttribute(prefName, (*retval)->URI());
+  nsresult rv = rootFolder->GetFolderWithFlags(folderFlag, folder);
+  if (NS_SUCCEEDED(rv) && *folder) {
     return true;
   }
 
   // Look for a folder with the name we want.
-  rv = rootFolder->GetChildNamed(folderName, retval);
-  if (NS_SUCCEEDED(rv) && *retval) {
-    (*retval)->SetFlag(folderFlag);
-    SetCharAttribute(prefName, (*retval)->URI());
+  rv = rootFolder->GetChildNamed(folderName, folder);
+  if (NS_SUCCEEDED(rv) && *folder) {
     return true;
   }
   return false;
 }
+
+class FolderGetterOrCreator final : public nsIUrlListener {
+ public:
+  NS_DECL_ISUPPORTS
+
+  nsCOMPtr<nsMsgIdentity> identity;
+  char* prefName;
+  uint32_t folderFlag;
+  nsCString folderName;
+  nsTArray<RefPtr<nsIMsgIncomingServer>> candidateServers;
+  nsCOMPtr<nsIMsgFolder> rootFolder;
+  nsMainThreadPtrHandle<Promise> promiseHolder;
+
+  void tryNextCandidate() {
+    nsresult rv;
+    do {
+      if (candidateServers.IsEmpty()) {
+        finishPromise(nullptr);
+        return;
+      }
+      RefPtr<nsIMsgIncomingServer> server = candidateServers.ElementAt(0);
+      candidateServers.RemoveElementAt(0);
+      rv = checkServer(server);
+    } while (NS_FAILED(rv));
+  }
+
+  nsresult checkServer(RefPtr<nsIMsgIncomingServer> server) {
+    nsresult rv;
+    nsAutoCString uri;
+    rv = server->GetServerURI(uri);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // Should we store copies on this server?
+    bool defaultToServer;
+    rv = server->GetDefaultCopiesAndFoldersPrefsToServer(&defaultToServer);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (!defaultToServer) {
+      return NS_ERROR_FAILURE;
+    }
+
+    // Do we have an existing folder on this server? (If the server is deferred
+    // to another, check that.)
+    rv = server->GetRootMsgFolder(getter_AddRefs(rootFolder));
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<nsIMsgFolder> existingFolder;
+
+    // Look for a folder with the flag we want.
+    rv = rootFolder->GetFolderWithFlags(folderFlag,
+                                        getter_AddRefs(existingFolder));
+    if (NS_SUCCEEDED(rv) && existingFolder) {
+      // Success! Return the folder.
+      finishPromise(existingFolder);
+      return NS_OK;
+    }
+
+    // Look for a folder with the name we want.
+    rv = rootFolder->GetChildNamed(folderName, getter_AddRefs(existingFolder));
+    if (NS_SUCCEEDED(rv) && existingFolder) {
+      // Success! Return the folder.
+      finishPromise(existingFolder);
+      return NS_OK;
+    }
+
+    // Can we create one?
+    return rootFolder->CreateSubfolderWithListener(folderName, this);
+  }
+
+  NS_IMETHOD OnStartRunningUrl(nsIURI* url) override { return NS_OK; }
+
+  NS_IMETHOD OnStopRunningUrl(nsIURI* url, nsresult exitCode) override {
+    if (NS_FAILED(exitCode)) {
+      tryNextCandidate();
+      return NS_OK;
+    }
+
+    nsCOMPtr<nsIMsgFolder> newFolder;
+    nsresult rv =
+        rootFolder->GetChildNamed(folderName, getter_AddRefs(newFolder));
+    if (NS_FAILED(rv) || !newFolder) {
+      tryNextCandidate();
+    } else {
+      finishPromise(newFolder);
+    }
+    return NS_OK;
+  }
+
+  void finishPromise(nsCOMPtr<nsIMsgFolder> folder) {
+    if (folder) {
+      identity->SetCharAttribute(prefName, folder->URI());
+      folder->SetFlag(folderFlag);
+      promiseHolder.get()->MaybeResolve(folder);
+    } else {
+      promiseHolder.get()->MaybeReject(NS_ERROR_FAILURE);
+    }
+  };
+
+ private:
+  ~FolderGetterOrCreator() = default;
+};
+NS_IMPL_ISUPPORTS(FolderGetterOrCreator, nsIUrlListener)
 
 nsresult nsMsgIdentity::getOrCreateFolder(const char* prefName,
                                           uint32_t folderFlag,
@@ -467,6 +565,108 @@ nsresult nsMsgIdentity::getOrCreateFolder(const char* prefName,
   NS_ENSURE_SUCCESS(rv, rv);
 
   SetCharAttribute(prefName, (*retval)->URI());
+  return NS_OK;
+}
+
+nsresult nsMsgIdentity::getOrCreateFolderAsync(const char* prefName,
+                                               uint32_t folderFlag,
+                                               const nsACString& folderName,
+                                               JSContext* cx,
+                                               Promise** aPromise) {
+  if (!mPrefBranch) {
+    return NS_ERROR_NOT_INITIALIZED;
+  }
+
+  nsresult rv;
+  ErrorResult result;
+  RefPtr<Promise> promise =
+      Promise::Create(xpc::CurrentNativeGlobal(cx), result);
+  nsCOMPtr<nsIMsgFolder> folder;
+
+  // Look for a folder matching the preference value.
+  nsAutoCString prefValue;
+  mPrefBranch->GetStringPref(prefName, EmptyCString(), 1, prefValue);
+  if (!prefValue.IsEmpty()) {
+    rv = GetExistingFolder(prefValue, getter_AddRefs(folder));
+    if (NS_SUCCEEDED(rv) && folder) {
+      // Success! Return the folder.
+      promise->MaybeResolve(folder);
+      promise.forget(aPromise);
+      return NS_OK;
+    }
+  }
+
+  nsCOMPtr<nsIMsgAccountManager> accountManager =
+      mozilla::components::AccountManager::Service();
+
+  RefPtr<FolderGetterOrCreator> getterOrCreator = new FolderGetterOrCreator();
+  getterOrCreator->identity = this;
+  getterOrCreator->prefName = (char*)(prefName);
+  getterOrCreator->folderFlag = folderFlag;
+  getterOrCreator->folderName = folderName;
+
+  // Can we get a server that matches the preference?
+  if (!prefValue.IsEmpty()) {
+    nsCOMPtr<nsIURL> url;
+    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
+             .SetSpec(prefValue)
+             .Finalize(url);
+    if (NS_SUCCEEDED(rv)) {
+      nsCOMPtr<nsIMsgIncomingServer> server;
+
+      if (url->SchemeIs("mailbox")) {
+        // Of course that means looking for the same thing several times,
+        // because nothing is simple around here.
+        if (NS_SUCCEEDED(
+                NS_MutateURI(url).SetScheme("none"_ns).Finalize(url))) {
+          accountManager->FindServerByURI(url, getter_AddRefs(server));
+        }
+        if (!server &&
+            NS_SUCCEEDED(
+                NS_MutateURI(url).SetScheme("pop3"_ns).Finalize(url))) {
+          accountManager->FindServerByURI(url, getter_AddRefs(server));
+        }
+        if (!server &&
+            NS_SUCCEEDED(NS_MutateURI(url).SetScheme("rss"_ns).Finalize(url))) {
+          accountManager->FindServerByURI(url, getter_AddRefs(server));
+        }
+      } else {
+        accountManager->FindServerByURI(url, getter_AddRefs(server));
+      }
+
+      if (server) {
+        getterOrCreator->candidateServers.AppendElement(server);
+      }
+    }
+  }
+
+  // Look for a server we could create a folder on, starting with the
+  // identity's servers.
+  nsTArray<RefPtr<nsIMsgIncomingServer>> servers;
+  rv = accountManager->GetServersForIdentity(this, servers);
+  NS_ENSURE_SUCCESS(rv, rv);
+  for (RefPtr<nsIMsgIncomingServer> server : servers) {
+    if (!getterOrCreator->candidateServers.Contains(server)) {
+      getterOrCreator->candidateServers.AppendElement(server);
+    }
+  }
+
+  // Use the Local Folders server as a last resort.
+  nsCOMPtr<nsIMsgIncomingServer> localServer;
+  rv = accountManager->GetLocalFoldersServer(getter_AddRefs(localServer));
+  if (NS_SUCCEEDED(rv)) {
+    if (!getterOrCreator->candidateServers.Contains(localServer)) {
+      getterOrCreator->candidateServers.AppendElement(localServer);
+    }
+  }
+
+  // Now try each of the candidate servers until finding one we can use.
+
+  getterOrCreator->promiseHolder =
+      new nsMainThreadPtrHolder<Promise>(__func__, promise);
+  getterOrCreator->tryNextCandidate();
+
+  promise.forget(aPromise);
   return NS_OK;
 }
 
