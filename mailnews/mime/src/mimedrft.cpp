@@ -10,7 +10,7 @@
  * 04/20/2000       IBM Corp.      OS/2 VisualAge build.
  */
 
-#include <ctype.h>
+#include <utility>
 
 #include "comi18n.h"
 #include "mimehdrs.h"
@@ -486,7 +486,7 @@ static char* mime_draft_read_body_piece(nsIFile* file,
     nsAutoCString detectedCharset;
     rv = MIME_detect_charset(body, bodyLen, detectedCharset);
     if (NS_SUCCEEDED(rv) && !detectedCharset.IsEmpty()) {
-      bodyCharset = detectedCharset;
+      bodyCharset = std::move(detectedCharset);
     }
   }
   if (!bodyCharset.IsEmpty()) {
@@ -1201,7 +1201,6 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
   char* priority = 0;
   char* draftInfo = 0;
   char* contentLanguage = 0;
-  char* identityKey = 0;
   nsTArray<nsString> readOtherHeaders;
 
   bool forward_inline = false;
@@ -1376,19 +1375,19 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
     }
 
     // identity to prefer when opening the message in the compose window?
-    identityKey = MimeHeaders_get(mdd->headers, HEADER_X_MOZILLA_IDENTITY_KEY,
-                                  false, false);
-    if (identityKey && *identityKey) {
-      nsresult rv = NS_OK;
+    nsAutoCString identityKey;
+    identityKey.Adopt(MimeHeaders_get(
+        mdd->headers, HEADER_X_MOZILLA_IDENTITY_KEY, false, false));
+    if (!identityKey.IsEmpty()) {
       nsCOMPtr<nsIMsgAccountManager> accountManager =
           mozilla::components::AccountManager::Service();
       nsCOMPtr<nsIMsgIdentity> overrulingIdentity;
-      rv = accountManager->GetIdentity(nsDependentCString(identityKey),
-                                       getter_AddRefs(overrulingIdentity));
+      nsresult rv = accountManager->GetIdentity(
+          identityKey, getter_AddRefs(overrulingIdentity));
 
       if (NS_SUCCEEDED(rv) && overrulingIdentity) {
         mdd->identity = overrulingIdentity;
-        fields->SetCreatorIdentityKey(identityKey);
+        fields->SetCreatorIdentityKey(identityKey.get());
       }
     }
 
@@ -1652,8 +1651,6 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
   PR_FREEIF(foll);
   PR_FREEIF(priority);
   PR_FREEIF(draftInfo);
-  PR_Free(identityKey);
-
   delete[] newAttachData;
 }
 
