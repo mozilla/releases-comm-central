@@ -307,16 +307,16 @@ form {
     padding-inline: 0;
     margin-inline: 0;
     gap: var(--hub-manual-config-gap);
+  }
+}
 
-    .form-field-with-banner {
-      display: flex;
-      flex-direction: column;
-      gap: var(--hub-space-small);
+.form-field-with-banner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hub-space-small);
 
-      tb-banner a {
-        color: inherit;
-      }
-    }
+  tb-banner a {
+    color: inherit;
   }
 }
 

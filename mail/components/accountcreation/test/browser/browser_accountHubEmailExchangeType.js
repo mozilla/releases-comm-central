@@ -14,6 +14,7 @@ let subview;
 let graphCard;
 let ewsCard;
 let authenticationSelect;
+let unsupportedOAuthBanner;
 let defaultOauthInput;
 let oauthOptionsWrapperElement;
 let customOauthWrapperElement;
@@ -37,6 +38,9 @@ add_setup(async function () {
   );
   ewsCard = subview.querySelector('account-hub-radio-card-large[value="ews"]');
   authenticationSelect = subview.querySelector("#exchangeTypeAuthentication");
+  unsupportedOAuthBanner = subview.querySelector(
+    "#exchangeTypeUnsupportedOAuthBanner"
+  );
   defaultOauthInput = subview.querySelector("#exchangeTypeDefaultOauth");
   oauthOptionsWrapperElement = subview.querySelector(
     "#exchangeTypeOauthOptions"
@@ -538,6 +542,10 @@ add_task(function test_setStateShowsPlaceholderForRecommendedEwsWithoutAuth() {
     BrowserTestUtils.isHidden(oauthOptionsWrapperElement),
     "OAuth defaults should stay hidden while the EWS auth method is empty"
   );
+  Assert.ok(
+    BrowserTestUtils.isHidden(unsupportedOAuthBanner),
+    "The unsupported OAuth warning should stay hidden while EWS has no selected auth method"
+  );
 });
 
 add_task(function test_setStatePrefillsDiscoveredGraphConfig() {
@@ -565,6 +573,10 @@ add_task(function test_setStatePrefillsDiscoveredGraphConfig() {
     BrowserTestUtils.isVisible(oauthOptionsWrapperElement),
     "OAuth defaults should be visible for a discovered OAuth2 config"
   );
+  Assert.ok(
+    BrowserTestUtils.isHidden(unsupportedOAuthBanner),
+    "The unsupported OAuth warning should stay hidden for a known Graph service URL"
+  );
 
   changeAccountType(ewsCard);
   Assert.equal(
@@ -575,6 +587,79 @@ add_task(function test_setStatePrefillsDiscoveredGraphConfig() {
   Assert.ok(
     BrowserTestUtils.isHidden(oauthOptionsWrapperElement),
     "OAuth defaults should hide when EWS has no selected auth method"
+  );
+});
+
+add_task(async function test_unsupportedOAuthBannerFollowsAuthentication() {
+  const config = createIncomingConfig(
+    "ews",
+    Ci.nsMsgAuthMethod.passwordCleartext,
+    "user@example.com",
+    "https://exchange.example.invalid/EWS/Exchange.asmx"
+  );
+  subview.setState(config);
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(unsupportedOAuthBanner),
+    "The unsupported OAuth warning should be hidden for password authentication"
+  );
+
+  const configUpdated = BrowserTestUtils.waitForEvent(
+    subview,
+    "config-updated"
+  );
+  await selectAuthenticationMethod("incomingAuthMethodOAuth2");
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(unsupportedOAuthBanner),
+    "The unsupported OAuth warning should show for an unknown service URL"
+  );
+  Assert.equal(
+    unsupportedOAuthBanner.getAttribute("role"),
+    "alert",
+    "The unsupported OAuth warning should announce dynamically"
+  );
+  Assert.ok(
+    (await configUpdated).detail.completed,
+    "OAuth should remain usable for an unknown service URL"
+  );
+
+  const bannerHidden = BrowserTestUtils.waitForAttribute(
+    "hidden",
+    unsupportedOAuthBanner
+  );
+  await selectAuthenticationMethod("incomingAuthMethodCleartext");
+  await bannerHidden;
+});
+
+add_task(function test_unsupportedOAuthBannerFollowsAccountType() {
+  const config = createIncomingConfig(
+    "graph",
+    Ci.nsMsgAuthMethod.OAuth2,
+    "user@example.com",
+    "https://exchange.example.invalid/EWS/Exchange.asmx"
+  );
+  subview.setState(config);
+
+  Assert.ok(
+    graphCard.checked,
+    "Graph should be selected from the stored config"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(unsupportedOAuthBanner),
+    "The unsupported OAuth warning should show for Graph with an unknown service URL"
+  );
+
+  changeAccountType(ewsCard);
+  Assert.ok(
+    BrowserTestUtils.isHidden(unsupportedOAuthBanner),
+    "The unsupported OAuth warning should hide after selecting EWS without OAuth"
+  );
+
+  changeAccountType(graphCard);
+  Assert.ok(
+    BrowserTestUtils.isVisible(unsupportedOAuthBanner),
+    "The unsupported OAuth warning should return after selecting Graph"
   );
 });
 

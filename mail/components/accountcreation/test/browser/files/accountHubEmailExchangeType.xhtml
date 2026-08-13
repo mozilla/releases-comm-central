@@ -54,6 +54,20 @@
         </details>
       </header>
     </template>
+    <template id="tbBannerTemplate">
+      <details class="banner">
+        <summary>
+          <img id="icon" class="icon" alt="" />
+          <div id="title" class="title">
+            <slot name="title"></slot>
+          </div>
+          <span id="actionText" class="action-text" hidden="hidden"></span>
+        </summary>
+        <div id="description" class="description" hidden="hidden">
+          <slot name="description"></slot>
+        </div>
+      </details>
+    </template>
     <template id="accountHubStepTemplate">
       <account-hub-header>
         <span id="title" slot="title"></span>
@@ -159,30 +173,53 @@
                 required="required"
                 classes="input-field"
               ></account-hub-input>
-              <account-hub-select
-                id="exchangeTypeAuthentication"
-                l10n-label-id="account-hub-exchange-type-authentication"
-                required="required"
-              >
-                <option
-                  id="incomingAuthMethodSelectOption"
-                  value=""
-                  disabled="disabled"
-                  selected="selected"
-                  data-l10n-id="account-hub-select-option"
-                ></option>
-                <option
-                  id="incomingAuthMethodCleartext"
-                  data-l10n-id="account-hub-ssl-cleartext-password-option"
-                  value="3"
-                ></option>
-                <option id="incomingAuthMethodNtlm" label="NTLM" value="6"></option>
-                <option
-                  id="incomingAuthMethodOAuth2"
-                  value="10"
-                  label="OAuth2"
-                ></option>
-              </account-hub-select>
+              <div class="form-field-with-banner">
+                <account-hub-select
+                  id="exchangeTypeAuthentication"
+                  l10n-label-id="account-hub-exchange-type-authentication"
+                  required="required"
+                >
+                  <option
+                    id="incomingAuthMethodSelectOption"
+                    value=""
+                    disabled="disabled"
+                    selected="selected"
+                    data-l10n-id="account-hub-select-option"
+                  ></option>
+                  <option
+                    id="incomingAuthMethodCleartext"
+                    data-l10n-id="account-hub-ssl-cleartext-password-option"
+                    value="3"
+                  ></option>
+                  <option id="incomingAuthMethodNtlm" label="NTLM" value="6"></option>
+                  <option
+                    id="incomingAuthMethodOAuth2"
+                    value="10"
+                    label="OAuth2"
+                  ></option>
+                </account-hub-select>
+                <tb-banner
+                  id="exchangeTypeUnsupportedOAuthBanner"
+                  variant="warning"
+                  expanded="true"
+                  hidden="hidden"
+                  role="alert"
+                >
+                  <span
+                    slot="title"
+                    data-l10n-id="account-hub-oauth-unsupported-title"
+                  ></span>
+                  <span
+                    slot="description"
+                    data-l10n-id="account-hub-oauth-unsupported-description"
+                  >
+                    <a
+                      href="https://support.thunderbird.net/kb/tb-custom-oauth"
+                      data-l10n-name="oauth-support-link"
+                    ></a>
+                  </span>
+                </tb-banner>
+              </div>
               <div id="exchangeTypeOauthOptions" class="panel-subsection" hidden="hidden">
                 <account-hub-checkbox
                   id="exchangeTypeDefaultOauth"

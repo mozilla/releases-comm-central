@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AccountHubStep } from "./account-hub-step.mjs";
+import "chrome://messenger/content/tb-banner.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./account-hub-radio-card-large.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./account-hub-input.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./account-hub-select.mjs"; // eslint-disable-line import/no-unassigned-import
@@ -14,6 +15,14 @@ const { AccountConfig } = ChromeUtils.importESModule(
 const { InputSanitizer } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/InputSanitizer.sys.mjs"
 );
+const { OAuth2Providers } = ChromeUtils.importESModule(
+  "resource:///modules/OAuth2Providers.sys.mjs"
+);
+
+const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
+});
 
 const GRAPH_URL_ORIGIN = "https://graph.microsoft.com";
 
@@ -72,6 +81,14 @@ class EmailExchangeType extends AccountHubStep {
    * @type {AccountHubSelect}
    */
   #authenticationSelect;
+
+  /**
+   * Warning shown when OAuth is selected for an unsupported Exchange service
+   * URL.
+   *
+   * @type {import("chrome://messenger/content/tb-banner.mjs").Banner}
+   */
+  #unsupportedOAuthBanner;
 
   /**
    * The container for default and custom OAuth settings.
@@ -147,6 +164,9 @@ class EmailExchangeType extends AccountHubStep {
     this.#authenticationSelect = this.querySelector(
       "#exchangeTypeAuthentication"
     );
+    this.#unsupportedOAuthBanner = this.querySelector(
+      "#exchangeTypeUnsupportedOAuthBanner"
+    );
     this.#accountTypeCards = this.querySelectorAll(
       "account-hub-radio-card-large"
     );
@@ -177,6 +197,7 @@ class EmailExchangeType extends AccountHubStep {
       "click",
       this
     );
+    this.#unsupportedOAuthBanner.addEventListener("click", this);
 
     this.#updateAuthenticationOptions();
     this.#checkFormValidity();
@@ -190,15 +211,25 @@ class EmailExchangeType extends AccountHubStep {
       case "input":
         this.#checkFormValidity();
         break;
-      case "click":
+      case "click": {
         if (event.currentTarget.id === "advancedConfigurationExchange") {
           this.dispatchEvent(
             new CustomEvent("advanced-config", {
               bubbles: true,
             })
           );
+          break;
+        }
+
+        const oauthSupportLink = event.target.closest(
+          'a[data-l10n-name="oauth-support-link"]'
+        );
+        if (oauthSupportLink) {
+          event.preventDefault();
+          lazy.openLinkExternally(oauthSupportLink.href);
         }
         break;
+      }
     }
   }
 
@@ -225,6 +256,7 @@ class EmailExchangeType extends AccountHubStep {
 
     this.#selectedAccountType = selectedAccountType;
     this.#updateOauthOptions();
+    this.#updateUnsupportedOAuthBanner();
     this.#checkFormValidity();
   }
 
@@ -262,6 +294,29 @@ class EmailExchangeType extends AccountHubStep {
         input.dataset.wasRequired = true;
       }
     }
+  }
+
+  /**
+   * Look up OAuth provider details for the configured Exchange service URL.
+   *
+   * @returns {object|undefined} The OAuth provider details, or undefined when the URL
+   *   has no known OAuth provider.
+   */
+  #getOAuthDetails() {
+    const hostname = URL.parse(
+      this.#currentConfig.incoming.exchangeURL
+    )?.hostname;
+    return hostname && OAuth2Providers.getHostnameDetails(hostname, "exchange");
+  }
+
+  /**
+   * Show the OAuth unsupported-service URL warning when appropriate.
+   */
+  #updateUnsupportedOAuthBanner() {
+    this.#unsupportedOAuthBanner.hidden = !(
+      this.#authenticationSelect.value == Ci.nsMsgAuthMethod.OAuth2 &&
+      !this.#getOAuthDetails()
+    );
   }
 
   /**
