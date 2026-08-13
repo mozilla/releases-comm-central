@@ -10,6 +10,9 @@ export class MailMessageChild extends JSWindowActorChild {
       case "click":
         this.onClick(event);
         break;
+      case "resize":
+        this.onResize(event);
+        break;
     }
   }
 
@@ -38,6 +41,46 @@ export class MailMessageChild extends JSWindowActorChild {
       if (target.localName == "img" && target.hasAttribute("overflowing")) {
         event.preventDefault();
         target.toggleAttribute("shrinktofit");
+      }
+    }
+  }
+
+  onResize(event) {
+    const win = event.target;
+    const doc = win.document;
+    // Bail out if it's http content or we don't have images.
+    if (doc?.URL.startsWith("http") || !doc?.images) {
+      return;
+    }
+
+    const availableWidth = Math.max(
+      doc.body.scrollWidth,
+      win.visualViewport.width
+    );
+
+    const adjustImg = img => {
+      if (img.hasAttribute("shrinktofit")) {
+        // overflowing: Whether the image is overflowing visible area.
+        img.toggleAttribute("overflowing", img.naturalWidth > img.clientWidth);
+      } else if (img.hasAttribute("overflowing")) {
+        const isOverflowing = img.clientWidth >= availableWidth;
+        img.toggleAttribute("overflowing", isOverflowing);
+        img.toggleAttribute("shrinktofit", !isOverflowing);
+      }
+    };
+
+    for (const img of doc.querySelectorAll(
+      "img:is([shrinktofit],[overflowing])"
+    )) {
+      if (img.closest("[href]")) {
+        continue;
+      }
+      if (!img.complete) {
+        img.addEventListener("load", event => adjustImg(event.target), {
+          once: true,
+        });
+      } else {
+        adjustImg(img);
       }
     }
   }

@@ -266,7 +266,7 @@ const JSWINDOWACTORS = {
   MailMessage: {
     child: {
       esModuleURI: "resource:///actors/MailMessageChild.sys.mjs",
-      events: { click: {} },
+      events: { click: {}, resize: {} },
     },
     messageManagerGroups: ["mail-message"],
   },

@@ -63,48 +63,6 @@ function getMessagePaneBrowser() {
   return document.getElementById("messagepane");
 }
 
-/**
- * Handle "resize" events on the messagepane.
- */
-async function messagePaneOnResize() {
-  const doc = getMessagePaneBrowser().contentDocument;
-  // Bail out if it's http content or we don't have images.
-  if (doc?.URL.startsWith("http") || !doc?.images) {
-    return;
-  }
-
-  const availableWidth = Math.max(
-    document.body.scrollWidth,
-    window.visualViewport.width
-  );
-
-  const adjustImg = img => {
-    if (img.hasAttribute("shrinktofit")) {
-      // overflowing: Whether the image is overflowing visible area.
-      img.toggleAttribute("overflowing", img.naturalWidth > img.clientWidth);
-    } else if (img.hasAttribute("overflowing")) {
-      const isOverflowing = img.clientWidth >= availableWidth;
-      img.toggleAttribute("overflowing", isOverflowing);
-      img.toggleAttribute("shrinktofit", !isOverflowing);
-    }
-  };
-
-  for (const img of doc.querySelectorAll(
-    "img:is([shrinktofit],[overflowing])"
-  )) {
-    if (img.closest("[href]")) {
-      continue;
-    }
-    if (!img.complete) {
-      img.addEventListener("load", event => adjustImg(event.target), {
-        once: true,
-      });
-    } else {
-      adjustImg(img);
-    }
-  }
-}
-
 function ReloadMessage() {
   if (!gMessageURI) {
     return;
