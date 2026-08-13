@@ -452,13 +452,7 @@ async function saveAsEMLFile(msgNo) {
   var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   file.initWithFile(profD);
   file.append("content-policy-test-" + msgNo + ".eml");
-  messenger.saveAs(
-    msgHdr.folder.getUriForMsg(msgHdr),
-    true,
-    null,
-    file.path,
-    true
-  );
+  messenger.saveAs(msgHdr.folder.getUriForMsg(msgHdr), null, file.path, true);
   // no listener for saveAs, though we should add one.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 5000));

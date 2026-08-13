@@ -328,7 +328,7 @@ nsresult nsMessenger::AdjustFileIfNameTooLong(nsIFile* aFile) {
 }
 
 NS_IMETHODIMP
-nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
+nsMessenger::SaveAs(const nsACString& aURI,
                     nsIMsgIdentity* aIdentity, const nsAString& aMsgFilename,
                     bool aBypassFilePicker) {
   nsCOMPtr<nsIMsgMessageService> messageService;
@@ -338,9 +338,7 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
   int32_t saveAsFileType = EML_FILE_TYPE;
 
   nsresult rv = GetMessageServiceFromURI(aURI, getter_AddRefs(messageService));
-  if (NS_FAILED(rv)) goto done;
-
-  if (aAsFile) {
+  if (NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsIFile> saveAsFile;
     // show the file picker if BypassFilePicker is not specified (null) or false
     if (!aBypassFilePicker) {
@@ -442,45 +440,7 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
                                          mMsgWindow, urlListener, false, ""_ns,
                                          false, getter_AddRefs(dummyNull));
     }
-  } else {
-    // ** save as Template
-    nsCOMPtr<nsIFile> tmpFile;
-    nsresult rv = GetSpecialDirectoryWithFileName(NS_OS_TEMP_DIR, "nsmail.tmp",
-                                                  getter_AddRefs(tmpFile));
-
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // For temp file, we should use restrictive 00600 instead of
-    // ATTACHMENT_PERMISSION
-    rv = tmpFile->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 00600);
-    if (NS_FAILED(rv)) goto done;
-
-    // The saveListener is owned by whoever we ultimately register the
-    // listener with, generally a URL.
-    saveListener = new nsSaveMsgListener(tmpFile, this, nullptr);
-
-    if (aIdentity) {
-      nsCOMPtr<nsIMsgFolder> templatesFolder;
-      rv = aIdentity->GetOrCreateTemplatesFolder(
-          getter_AddRefs(templatesFolder));
-      if (NS_FAILED(rv)) goto done;
-      saveListener->m_templateUri = templatesFolder->URI();
-    }
-
-    bool needDummyHeader =
-        StringBeginsWith(saveListener->m_templateUri, "mailbox://"_ns);
-    bool canonicalLineEnding =
-        StringBeginsWith(saveListener->m_templateUri, "imap://"_ns);
-
-    rv = saveListener->QueryInterface(NS_GET_IID(nsIUrlListener),
-                                      getter_AddRefs(urlListener));
-    if (NS_FAILED(rv)) goto done;
-
-    rv = messageService->SaveMessageToDisk(aURI, tmpFile, needDummyHeader,
-                                           urlListener, canonicalLineEnding,
-                                           mMsgWindow);
   }
-
 done:
   if (NS_FAILED(rv)) {
     Alert("saveMessageFailed");

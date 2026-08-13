@@ -151,8 +151,6 @@ tags = ["compact"]
 
 ["test_saveImapDraft.js"]
 
-["test_saveTemplate.js"]
-
 ["test_starttlsFailure.js"]
 
 ["test_stopMovingToLocalFolder.js"]

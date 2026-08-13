@@ -96,7 +96,7 @@ async function saveAndLoad(fileEnding) {
   const uri = IMAPPump.inbox.getUriForMsg(hdr);
 
   // nsMessenger::saveAs
-  messenger.saveAs(uri, true, null, tmpFile.path, true);
+  messenger.saveAs(uri, null, tmpFile.path, true);
   info(`File saved at ${tmpFile.path}`);
 
   await TestUtils.waitForCondition(

@@ -5109,7 +5109,7 @@ var threadPane = {
       transferable.getTransferData("text/plain", messageURI);
       messageURI.value.QueryInterface(Ci.nsISupportsString);
 
-      top.messenger.saveAs(messageURI.value.data, true, null, file.path, true);
+      top.messenger.saveAs(messageURI.value.data, null, file.path, true);
     },
   },
 
