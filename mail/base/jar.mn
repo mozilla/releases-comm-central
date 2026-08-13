@@ -153,7 +153,6 @@ messenger.jar:
 
 comm.jar:
 % content communicator %content/communicator/
-   content/communicator/contentAreaClick.js         (content/contentAreaClick.js)
    content/communicator/utilityOverlay.js           (content/utilityOverlay.js)
 
 browser.jar:

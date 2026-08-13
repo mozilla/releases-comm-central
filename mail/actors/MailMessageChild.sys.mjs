@@ -3,12 +3,39 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export class MailMessageChild extends JSWindowActorChild {
+  handleEvent(event) {
+    switch (event.type) {
+      case "click":
+        this.onClick(event);
+        break;
+    }
+  }
+
   receiveMessage(message) {
     switch (message.name) {
       case "MailMessage:GetSelectionForQuoting":
         return this.getSelectionForQuoting();
     }
     return undefined;
+  }
+
+  onClick(event) {
+    const target = event.target;
+
+    // Is this an image that we might want to scale?
+    if (HTMLImageElement.isInstance(target) && target.src) {
+      // Make sure it loaded successfully. No action if not or a broken link.
+      const req = target.getRequest(Ci.nsIImageLoadingContent.CURRENT_REQUEST);
+      if (!req || req.imageStatus & Ci.imgIRequest.STATUS_ERROR) {
+        return;
+      }
+
+      // Is it an image?
+      if (target.localName == "img" && target.hasAttribute("overflowing")) {
+        event.preventDefault();
+        target.toggleAttribute("shrinktofit");
+      }
+    }
   }
 
   /**

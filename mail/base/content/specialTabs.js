@@ -813,7 +813,6 @@ var specialTabs = {
       aTab.browser.setAttribute("autocompletepopup", "PopupAutoComplete");
       aTab.browser.setAttribute("context", "browserContext");
       aTab.browser.setAttribute("maychangeremoteness", "true");
-      aTab.browser.setAttribute("onclick", "return contentAreaClick(event);");
       aTab.browser.openWindowInfo = aArgs.openWindowInfo || null;
       // Do not load about:blank (which is done as a secondary load, replacing the
       // initially loaded about:blank), which may lead to an assertion fail in

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // This file is loaded in messenger.xhtml.
-/* globals gatherTextUnder, goUpdateGlobalEditMenuItems, makeURLAbsolute, Services */
+/* globals goUpdateGlobalEditMenuItems, makeURLAbsolute, Services */
 /* import-globals-from ../../../base/content/widgets/browserPopups.js */
 
 var { openLinkExternally } = ChromeUtils.importESModule(

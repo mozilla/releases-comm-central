@@ -5,7 +5,6 @@
 /* import-globals-from ../../../../../toolkit/content/contentAreaUtils.js */
 /* import-globals-from ../../../../mailnews/addrbook/content/abDragDrop.js */
 /* import-globals-from ../../../../mailnews/base/prefs/content/accountUtils.js */
-/* import-globals-from ../../../base/content/contentAreaClick.js */
 /* import-globals-from ../../../base/content/mailCore.js */
 /* import-globals-from ../../../base/content/messenger-customization.js */
 /* import-globals-from ../../../base/content/toolbarIconColor.js */

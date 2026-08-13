@@ -150,7 +150,6 @@
   <script defer="defer" src="chrome://global/content/contentAreaUtils.js"></script>
   <script defer="defer" src="chrome://messenger/content/browserPopups.js"></script>
   <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
-  <script defer="defer" src="chrome://communicator/content/contentAreaClick.js"></script>
   <script defer="defer" src="chrome://messenger/content/toolbarIconColor.js"></script>
   <script defer="defer" src="chrome://messenger/content/jsTreeView.js"></script>
   <script defer="defer" src="chrome://messenger/content/chat/chat-messenger.js"></script>
@@ -648,8 +647,7 @@
                    flex="1"
                    disablehistory="true"
                    autocompletepopup="PopupAutoComplete"
-                   messagemanagergroup="single-site"
-                   onclick="return contentAreaClick(event);"/>
+                   messagemanagergroup="single-site"/>
         </hbox>
       </vbox>
     </vbox>

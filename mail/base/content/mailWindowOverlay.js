@@ -5,7 +5,6 @@
 /* global gSpacesToolbar */
 
 /* import-globals-from ../../../mailnews/extensions/newsblog/newsblogOverlay.js */
-/* import-globals-from contentAreaClick.js */
 /* import-globals-from globalOverlay.js */
 /* import-globals-from mailCommands.js */
 /* import-globals-from mailCore.js */

@@ -46,55 +46,6 @@ function goUpdatePasteMenuItems() {
   goUpdateCommand("cmd_paste");
 }
 
-/**
- * Gather all descendent text under given node.
- *
- * @param {Node} root - The root node to gather text from.
- * @returns {string} The text data under the node.
- */
-function gatherTextUnder(root) {
-  var text = "";
-  var node = root.firstChild;
-  var depth = 1;
-  while (node && depth > 0) {
-    // See if this node is text.
-    if (node.nodeType == Node.TEXT_NODE) {
-      // Add this text to our collection.
-      text += " " + node.data;
-    } else if (HTMLImageElement.isInstance(node)) {
-      // If it has an alt= attribute, add that.
-      var altText = node.getAttribute("alt");
-      if (altText && altText != "") {
-        text += " " + altText;
-      }
-    }
-    // Find next node to test.
-    if (node.firstChild) {
-      // If it has children, go to first child.
-      node = node.firstChild;
-      depth++;
-    } else if (node.nextSibling) {
-      // No children, try next sibling.
-      node = node.nextSibling;
-    } else {
-      // Last resort is a sibling of an ancestor.
-      while (node && depth > 0) {
-        node = node.parentNode;
-        depth--;
-        if (node.nextSibling) {
-          node = node.nextSibling;
-          break;
-        }
-      }
-    }
-  }
-  // Strip leading and trailing whitespace.
-  text = text.trim();
-  // Compress remaining whitespace.
-  text = text.replace(/\s+/g, " ");
-  return text;
-}
-
 function GenerateValidFilename(filename, extension) {
   if (filename) {
     // we have a title; let's see if it's usable
@@ -423,8 +374,10 @@ function openLinkIn(url, where, openParams) {
     return;
   }
 
-  if ("switchToTabHavingURI" in window) {
-    window.switchToTabHavingURI(url, true);
+  // We could be in content, but we need a *chrome* window.
+  const chromeWindow = window.browsingContext.topChromeWindow;
+  if ("switchToTabHavingURI" in chromeWindow) {
+    chromeWindow.switchToTabHavingURI(url, true);
     return;
   }
 
@@ -440,7 +393,7 @@ function openLinkIn(url, where, openParams) {
   args.appendElement(uri);
 
   const win = Services.ww.openWindow(
-    window,
+    chromeWindow,
     AppConstants.BROWSER_CHROME_URL,
     "_blank",
     "chrome,dialog=no,all",

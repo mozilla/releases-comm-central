@@ -314,13 +314,16 @@ add_task(async function testDisplay() {
     .querySelector("a")
     .scrollIntoView({ block: "start", behavior: "instant" });
 
+  let urlPromise = MockExternalProtocolService.promiseLoad();
   EventUtils.synthesizeMouseAtCenter(
     items[0].children[1].querySelector("a"),
     {},
     abWindow
   );
-  MockExternalProtocolService.assertHasLoadedURL(
-    "https://www.thunderbird.net/"
+  Assert.equal(
+    await urlPromise,
+    "https://www.thunderbird.net/",
+    "url should open in the system browser"
   );
 
   // Instant messaging section
@@ -347,12 +350,17 @@ add_task(async function testDisplay() {
   items[0].children[1]
     .querySelector("a")
     .scrollIntoView({ block: "start", behavior: "instant" });
+  urlPromise = MockExternalProtocolService.promiseLoad();
   EventUtils.synthesizeMouseAtCenter(
     items[0].children[1].querySelector("a"),
     {},
     abWindow
   );
-  MockExternalProtocolService.assertHasLoadedURL("xmpp:cowboy@example.org");
+  Assert.equal(
+    await urlPromise,
+    "xmpp:cowboy@example.org",
+    "url should open in the system browser"
+  );
 
   // Other sections.
   Assert.ok(BrowserTestUtils.isVisible(otherInfoSection));
@@ -893,13 +901,16 @@ add_task(async function testGoogleEscaping() {
     .querySelector("a")
     .scrollIntoView({ block: "start", behavior: "instant" });
 
+  const urlPromise = MockExternalProtocolService.promiseLoad();
   EventUtils.synthesizeMouseAtCenter(
     items[0].children[1].querySelector("a"),
     {},
     abWindow
   );
-  MockExternalProtocolService.assertHasLoadedURL(
-    "https://host/url:url;url,url/url"
+  Assert.equal(
+    await urlPromise,
+    "https://host/url:url;url,url/url",
+    "url should open in the system browser"
   );
 
   // Instant messaging section.

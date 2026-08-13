@@ -47,27 +47,21 @@ function canNavigate(linkNode, window) {
 export class LinkClickHandlerChild extends JSWindowActorChild {
   handleEvent(event) {
     // Don't handle events that:
-    //   a) are in the parent process (handled by onclick),
-    //   b) aren't trusted,
-    //   c) have already been handled or
-    //   d) aren't left-click.
-    if (
-      this.manager.isInProcess ||
-      !event.isTrusted ||
-      event.defaultPrevented ||
-      event.button
-    ) {
+    //   a) aren't trusted,
+    //   b) have already been handled or
+    //   c) aren't left-click.
+    if (!event.isTrusted || event.defaultPrevented || event.button) {
       return;
     }
 
-    const [eventHRef, linkNode] =
+    const [href, linkNode] =
       lazy.BrowserUtils.hrefAndLinkNodeForClickEvent(event) || [];
-    if (!eventHRef) {
+    if (!href) {
       return;
     }
 
     const pageURI = Services.io.newURI(this.document.location.href);
-    const eventURI = Services.io.newURI(eventHRef);
+    const eventURI = Services.io.newURI(href);
 
     if (event.target.ownerSVGElement) {
       if (
@@ -76,7 +70,7 @@ export class LinkClickHandlerChild extends JSWindowActorChild {
         eventURI.schemeIs("https")
       ) {
         event.preventDefault();
-        this.sendAsyncMessage("openLinkExternally", eventHRef);
+        this.sendAsyncMessage("openLinkExternally", { href });
       }
       return;
     }
@@ -85,9 +79,7 @@ export class LinkClickHandlerChild extends JSWindowActorChild {
       if (pageURI.host == eventURI.host) {
         if (!canNavigate(linkNode, this.contentWindow)) {
           event.preventDefault();
-          this.sendAsyncMessage("openLinkInNewTab", {
-            url: eventHRef,
-          });
+          this.sendAsyncMessage("openLinkInNewTab", { href });
         }
         return;
       }
@@ -99,9 +91,7 @@ export class LinkClickHandlerChild extends JSWindowActorChild {
         ) {
           if (!canNavigate(linkNode, this.contentWindow)) {
             event.preventDefault();
-            this.sendAsyncMessage("openLinkInNewTab", {
-              url: eventHRef,
-            });
+            this.sendAsyncMessage("openLinkInNewTab", { href });
           }
           return;
         }
@@ -121,7 +111,7 @@ export class LinkClickHandlerChild extends JSWindowActorChild {
       eventURI.schemeIs("https")
     ) {
       event.preventDefault();
-      this.sendAsyncMessage("openLinkExternally", eventHRef);
+      this.sendAsyncMessage("openLinkExternally", { href });
     }
   }
 }
@@ -135,43 +125,35 @@ export class LinkClickHandlerChild extends JSWindowActorChild {
 export class RelaxedLinkClickHandlerChild extends JSWindowActorChild {
   handleEvent(event) {
     // Don't handle events that:
-    //   a) are in the parent process (handled by onclick),
-    //   b) aren't trusted,
-    //   c) have already been handled or
-    //   d) aren't left-click.
-    if (
-      this.manager.isInProcess ||
-      !event.isTrusted ||
-      event.defaultPrevented ||
-      event.button
-    ) {
+    //   a) aren't trusted,
+    //   b) have already been handled or
+    //   c) aren't left-click.
+    if (!event.isTrusted || event.defaultPrevented || event.button) {
       return;
     }
 
-    const [eventHRef, linkNode] =
+    const [href, linkNode] =
       lazy.BrowserUtils.hrefAndLinkNodeForClickEvent(event) || [];
-    if (!eventHRef) {
+    if (!href) {
       return;
     }
 
     if (event.target.ownerSVGElement) {
-      const eventURI = Services.io.newURI(eventHRef);
+      const eventURI = Services.io.newURI(href);
       if (
         !lazy.protocolSvc.isExposedProtocol(eventURI.scheme) ||
         eventURI.schemeIs("http") ||
         eventURI.schemeIs("https")
       ) {
         event.preventDefault();
-        this.sendAsyncMessage("openLinkExternally", eventHRef);
+        this.sendAsyncMessage("openLinkExternally", { href });
       }
       return;
     }
 
     if (!canNavigate(linkNode, this.contentWindow)) {
       event.preventDefault();
-      this.sendAsyncMessage("openLinkInNewTab", {
-        url: eventHRef,
-      });
+      this.sendAsyncMessage("openLinkInNewTab", { href });
     }
   }
 }
@@ -187,32 +169,26 @@ export class RelaxedLinkClickHandlerChild extends JSWindowActorChild {
 export class StrictLinkClickHandlerChild extends JSWindowActorChild {
   handleEvent(event) {
     // Don't handle events that:
-    //   a) are in the parent process (handled by onclick),
-    //   b) aren't trusted,
-    //   c) have already been handled or
-    //   d) aren't left-click.
-    if (
-      this.manager.isInProcess ||
-      !event.isTrusted ||
-      event.defaultPrevented ||
-      event.button
-    ) {
+    //   a) aren't trusted,
+    //   b) have already been handled or
+    //   c) aren't left-click.
+    if (!event.isTrusted || event.defaultPrevented || event.button) {
       return;
     }
 
-    const [eventHRef, linkNode] =
+    const [href, linkNode] =
       lazy.BrowserUtils.hrefAndLinkNodeForClickEvent(event) || [];
-    if (!eventHRef) {
+    if (!href) {
       return;
     }
 
     const pageURI = Services.io.newURI(this.document.location.href);
-    const eventURI = Services.io.newURI(eventHRef);
+    const eventURI = Services.io.newURI(href);
     if (eventURI.specIgnoringRef == pageURI.specIgnoringRef) {
       if (!canNavigate(linkNode, this.contentWindow)) {
         event.preventDefault();
         this.sendAsyncMessage("openLinkInNewTab", {
-          url: eventHRef,
+          href,
         });
       }
       return;
@@ -224,7 +200,58 @@ export class StrictLinkClickHandlerChild extends JSWindowActorChild {
       eventURI.schemeIs("https")
     ) {
       event.preventDefault();
-      this.sendAsyncMessage("openLinkExternally", eventHRef);
+      const labelNode = linkNode || event.target;
+      const linkText = labelNode && gatherTextUnder(labelNode);
+      this.sendAsyncMessage("openLinkExternally", { href, linkText });
     }
   }
+}
+
+/**
+ * Gather all descendent text under given node.
+ *
+ * @param {Node} root - The root node to gather text from.
+ * @returns {string} The text data under the node.
+ */
+function gatherTextUnder(root) {
+  let text = "";
+  let node = root.firstChild;
+  let depth = 1;
+  while (node && depth > 0) {
+    // See if this node is text.
+    if (node.nodeType == Node.TEXT_NODE) {
+      // Add this text to our collection.
+      text += " " + node.data;
+    } else if (HTMLImageElement.isInstance(node)) {
+      // If it has an alt= attribute, add that.
+      const altText = node.getAttribute("alt");
+      if (altText && altText != "") {
+        text += " " + altText;
+      }
+    }
+    // Find next node to test.
+    if (node.firstChild) {
+      // If it has children, go to first child.
+      node = node.firstChild;
+      depth++;
+    } else if (node.nextSibling) {
+      // No children, try next sibling.
+      node = node.nextSibling;
+    } else {
+      // Last resort is a sibling of an ancestor.
+      while (node && depth > 0) {
+        node = node.parentNode;
+        depth--;
+        if (node.nextSibling) {
+          node = node.nextSibling;
+          break;
+        }
+      }
+    }
+  }
+  // Strip leading and trailing whitespace.
+  text = text.trim();
+  // Compress remaining whitespace.
+  text = text.replace(/\s+/g, " ");
+  return text;
 }
