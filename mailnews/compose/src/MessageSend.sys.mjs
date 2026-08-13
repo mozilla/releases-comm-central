@@ -106,7 +106,7 @@ export class MessageSend {
       this._composeBundle.GetStringFromName("assemblingMessage")
     );
 
-    this._fcc = lazy.MsgUtils.getFcc(
+    this._fcc = await lazy.MsgUtils.getFcc(
       userIdentity,
       compFields,
       originalMsgURI,
@@ -233,7 +233,7 @@ export class MessageSend {
       this._composeBundle.GetStringFromName("assemblingMessage")
     );
 
-    this._fcc = lazy.MsgUtils.getFcc(
+    this._fcc = await lazy.MsgUtils.getFcc(
       userIdentity,
       compFields,
       null,
@@ -1004,7 +1004,7 @@ export class MessageSend {
         this._folderUri = folderUri;
       }
     } else {
-      this._folderUri = lazy.MsgUtils.getMsgFolderURIFromPrefs(
+      this._folderUri = await lazy.MsgUtils.getMsgFolderURIFromPrefs(
         this._userIdentity,
         this._deliverMode
       );

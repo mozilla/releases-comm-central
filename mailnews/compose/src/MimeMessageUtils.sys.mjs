@@ -87,9 +87,9 @@ export var MsgUtils = {
    * @param {nsIMsgCompFields} compFields - The compose fields.
    * @param {string} originalMsgURI - The original message uri, can be null.
    * @param {MSG_ComposeType} compType - The compose type.
-   * @returns {string}
+   * @returns {Promise<string>}
    */
-  getFcc(userIdentity, compFields, originalMsgURI, compType) {
+  async getFcc(userIdentity, compFields, originalMsgURI, compType) {
     // Check if the default fcc has been overridden.
     let fcc = "";
     let useDefaultFcc = true;
@@ -157,7 +157,7 @@ export var MsgUtils = {
       }
 
       if (useDefaultFcc) {
-        const uri = this.getMsgFolderURIFromPrefs(
+        const uri = await this.getMsgFolderURIFromPrefs(
           userIdentity,
           Ci.nsIMsgSend.nsMsgDeliverNow
         );
@@ -749,9 +749,9 @@ export var MsgUtils = {
    *
    * @param {nsIMsgIdentity} userIdentity - The user identity.
    * @param {nsMsgDeliverMode} deliverMode - The deliver mode.
-   * @returns {string} The folder URI.
+   * @returns {Promise<string>} The folder URI.
    */
-  getMsgFolderURIFromPrefs(userIdentity, deliverMode) {
+  async getMsgFolderURIFromPrefs(userIdentity, deliverMode) {
     if (
       deliverMode == Ci.nsIMsgSend.nsMsgQueueForLater ||
       deliverMode == Ci.nsIMsgSend.nsMsgDeliverBackground
@@ -767,29 +767,16 @@ export var MsgUtils = {
       }
       return uri;
     }
-    // Note: we SHOULD use the getOrCreate*Folder functions here, as that is
-    // meant to be responsible for creating folders. But it currently can't
-    // create folders on remote servers, which we need. Instead we've reverted
-    // to an earlier behaviour of just returning the URI if it is set, and
-    // letting the caller create the folder.
+
+    let folder;
     if (deliverMode == Ci.nsIMsgSend.nsMsgSaveAsDraft) {
-      return (
-        userIdentity.draftsFolderURI ||
-        userIdentity.getOrCreateDraftsFolder().URI
-      );
+      folder = await userIdentity.getOrCreateDraftsFolderAsync();
+    } else if (deliverMode == Ci.nsIMsgSend.nsMsgSaveAsTemplate) {
+      folder = await userIdentity.getOrCreateTemplatesFolderAsync();
+    } else if (userIdentity.doFcc) {
+      folder = await userIdentity.getOrCreateFccFolderAsync();
     }
-    if (deliverMode == Ci.nsIMsgSend.nsMsgSaveAsTemplate) {
-      return (
-        userIdentity.templatesFolderURI ||
-        userIdentity.getOrCreateTemplatesFolder().URI
-      );
-    }
-    if (userIdentity.doFcc) {
-      return (
-        userIdentity.fccFolderURI || userIdentity.getOrCreateFccFolder().URI
-      );
-    }
-    return "";
+    return folder ? folder.URI : "";
   },
 
   /**

@@ -63,95 +63,250 @@ add_setup(async function () {
 });
 
 /**
- * Tests that sending a message with no sent mail folder set falls back to
- * saving the message in the local folders.
+ * Preference not set.
+ * No folder with the flag or name exists on the server.
+ * Folder with the default name should be created on the server.
  */
-add_task(async function testEmptyFccCreatesLocalFolder() {
+add_task(async function testEmptyPrefNoFolder() {
   imapIdentity.fccFolderURI = "";
-  await subtest("send", localRootFolder);
-  Assert.equal(
-    imapIdentity.fccFolderURI,
-    `${localRootFolder.URI}/Sent`,
-    "the folder URI should be set on the identity"
-  );
-});
-
-/**
- * Tests that sending a message with a remote sent mail folder set creates
- * the folder on the remote server and saves the message there.
- */
-add_task(async function testFccCreatesFolder() {
-  imapIdentity.fccFolderURI = imapRootFolder.URI + "/Sent";
-  await subtest("send", imapRootFolder);
-  Assert.equal(
-    imapIdentity.fccFolderURI,
-    `${imapRootFolder.URI}/Sent`,
-    "the folder URI should be set on the identity"
-  );
-});
-
-/**
- * Tests that saving a draft message with no drafts folder set falls back
- * to saving the message in the local folders.
- */
-add_task(async function testEmptyDraftsCreatesLocalFolder() {
   imapIdentity.draftsFolderURI = "";
-  await subtest("saveAsDraft", localRootFolder);
-  Assert.equal(
-    imapIdentity.draftsFolderURI,
-    `${localRootFolder.URI}/Drafts`,
-    "the folder URI should be set on the identity"
-  );
-});
-
-/**
- * Tests that saving a draft message with a remote drafts folder set creates
- * the folder on the remote server and saves the message there.
- */
-add_task(async function testDraftsCreatesFolder() {
-  imapIdentity.draftsFolderURI = imapRootFolder.URI + "/Drafts";
-  await subtest("saveAsDraft", imapRootFolder);
-  Assert.equal(
-    imapIdentity.draftsFolderURI,
-    `${imapRootFolder.URI}/Drafts`,
-    "the folder URI should be set on the identity"
-  );
-});
-
-/**
- * Tests that saving a template with no templates folder set falls back to
- * saving the message in the local folders.
- */
-add_task(async function testEmptyTemplatesCreatesLocalFolder() {
   imapIdentity.templatesFolderURI = "";
-  await subtest("saveAsTemplate", localRootFolder);
-  Assert.equal(
-    imapIdentity.templatesFolderURI,
-    `${localRootFolder.URI}/Templates`,
-    "the folder URI should be set on the identity"
+
+  const createdSentFolder = await subtest("send", imapRootFolder);
+  const createdDraftsFolder = await subtest("saveAsDraft", imapRootFolder);
+  const createdTemplatesFolder = await subtest(
+    "saveAsTemplate",
+    imapRootFolder
   );
+
+  await removeFolder(createdSentFolder);
+  await removeFolder(createdDraftsFolder);
+  await removeFolder(createdTemplatesFolder);
 });
 
 /**
- * Tests that saving a template with a remote templates folder set creates
- * the folder on the remote server and saves the message there.
+ * Preference not set.
+ * No folder with the flag or name exists on the server.
+ * Folder creation fails.
+ * Default folder on the server should be created on Local Folders.
  */
-add_task(async function testTemplatesCreatesFolder() {
-  imapIdentity.templatesFolderURI = imapRootFolder.URI + "/Templates";
-  await subtest("saveAsTemplate", imapRootFolder);
-  Assert.equal(
-    imapIdentity.templatesFolderURI,
-    `${imapRootFolder.URI}/Templates`,
-    "the folder URI should be set on the identity"
+add_task(async function testEmptyPrefFolderCreateFails() {
+  imapRootFolder.setFlag(Ci.nsMsgFolderFlags.ImapNoinferiors);
+  imapIdentity.fccFolderURI = "";
+  imapIdentity.draftsFolderURI = "";
+  imapIdentity.templatesFolderURI = "";
+
+  const createdSentFolder = await subtest("send", localRootFolder);
+  const createdDraftsFolder = await subtest("saveAsDraft", localRootFolder);
+  const createdTemplatesFolder = await subtest(
+    "saveAsTemplate",
+    localRootFolder
   );
+
+  await removeFolder(createdSentFolder);
+  await removeFolder(createdDraftsFolder);
+  await removeFolder(createdTemplatesFolder);
+  imapRootFolder.clearFlag(Ci.nsMsgFolderFlags.ImapNoinferiors);
 });
+
+/**
+ * Preference not set.
+ * Folder with the flag exists on the server.
+ * Folder with the flag should be used.
+ */
+add_task(async function testEmptyPrefFolderWithFlagExists() {
+  const flaggedSentFolder =
+    await imapRootFolder.createSubfolderAsync("FlaggedSentFolder");
+  flaggedSentFolder.setFlag(Ci.nsMsgFolderFlags.SentMail);
+  const flaggedDraftsFolder = await imapRootFolder.createSubfolderAsync(
+    "FlaggedDraftsFolder"
+  );
+  flaggedDraftsFolder.setFlag(Ci.nsMsgFolderFlags.Drafts);
+  const flaggedTemplatesFolder = await imapRootFolder.createSubfolderAsync(
+    "FlaggedTemplatesFolder"
+  );
+  flaggedTemplatesFolder.setFlag(Ci.nsMsgFolderFlags.Templates);
+
+  imapIdentity.fccFolderURI = "";
+  imapIdentity.draftsFolderURI = "";
+  imapIdentity.templatesFolderURI = "";
+
+  await subtest("send", imapRootFolder, "FlaggedSentFolder");
+  await subtest("saveAsDraft", imapRootFolder, "FlaggedDraftsFolder");
+  await subtest("saveAsTemplate", imapRootFolder, "FlaggedTemplatesFolder");
+
+  await removeFolder(flaggedSentFolder);
+  await removeFolder(flaggedDraftsFolder);
+  await removeFolder(flaggedTemplatesFolder);
+});
+
+/**
+ * Preference not set.
+ * Folder with the default name exists on the server.
+ * Folder with the default name should be used.
+ */
+add_task(async function testEmptyPrefFolderWithNameExists() {
+  const namedSentFolder = await imapRootFolder.createSubfolderAsync("Sent");
+  const namedDraftsFolder = await imapRootFolder.createSubfolderAsync("Drafts");
+  const namedTemplatesFolder =
+    await imapRootFolder.createSubfolderAsync("Templates");
+
+  imapIdentity.fccFolderURI = "";
+  imapIdentity.draftsFolderURI = "";
+  imapIdentity.templatesFolderURI = "";
+
+  await subtest("send", imapRootFolder);
+  await subtest("saveAsDraft", imapRootFolder);
+  await subtest("saveAsTemplate", imapRootFolder);
+
+  await removeFolder(namedSentFolder);
+  await removeFolder(namedDraftsFolder);
+  await removeFolder(namedTemplatesFolder);
+});
+
+/**
+ * Preference set to remote folder.
+ * Target folder does not exist.
+ * Folder with the default name should be created on the server.
+ */
+add_task(async function testServerPrefNoFolder() {
+  imapIdentity.fccFolderURI = imapRootFolder.server.serverURI + "/Wrong";
+  imapIdentity.draftsFolderURI = imapRootFolder.server.serverURI + "/Wrong";
+  imapIdentity.templatesFolderURI = imapRootFolder.server.serverURI + "/Wrong";
+
+  const createdSentFolder = await subtest("send", imapRootFolder);
+  const createdDraftsFolder = await subtest("saveAsDraft", imapRootFolder);
+  const createdTemplatesFolder = await subtest(
+    "saveAsTemplate",
+    imapRootFolder
+  );
+
+  await removeFolder(createdSentFolder);
+  await removeFolder(createdDraftsFolder);
+  await removeFolder(createdTemplatesFolder);
+});
+
+/**
+ * Preference set to remote folder.
+ * Target folder exists.
+ * Target folder should be used.
+ */
+add_task(async function testServerPrefFolderExists() {
+  const targetFolder =
+    await imapRootFolder.createSubfolderAsync("TargetFolder");
+
+  imapIdentity.fccFolderURI = targetFolder.URI;
+  imapIdentity.draftsFolderURI = targetFolder.URI;
+  imapIdentity.templatesFolderURI = targetFolder.URI;
+
+  await subtest("send", imapRootFolder, "TargetFolder");
+  await subtest("saveAsDraft", imapRootFolder, "TargetFolder");
+  await subtest("saveAsTemplate", imapRootFolder, "TargetFolder");
+
+  await removeFolder(targetFolder);
+});
+
+/**
+ * Preference set to nested remote folder.
+ * Target folder exists.
+ * Target folder should be used.
+ */
+add_task(async function testServerPrefDeepFolderExists() {
+  const inbox = imapRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+  const targetFolder = await inbox.createSubfolderAsync("InboxTargetFolder");
+
+  imapIdentity.fccFolderURI = targetFolder.URI;
+  imapIdentity.draftsFolderURI = targetFolder.URI;
+  imapIdentity.templatesFolderURI = targetFolder.URI;
+
+  await subtest("send", inbox, "InboxTargetFolder");
+  await subtest("saveAsDraft", inbox, "InboxTargetFolder");
+  await subtest("saveAsTemplate", inbox, "InboxTargetFolder");
+
+  await removeFolder(targetFolder);
+});
+
+/**
+ * Preference set to local folder with default name.
+ * Folder does not exist.
+ * Folder with the default name should be created on Local Folders.
+ */
+add_task(async function testLocalPrefNoFolder() {
+  imapIdentity.fccFolderURI = localRootFolder.URI + "/Sent";
+  imapIdentity.draftsFolderURI = localRootFolder.URI + "/Drafts";
+  imapIdentity.templatesFolderURI = localRootFolder.URI + "/Templates";
+
+  const createdSentFolder = await subtest("send", localRootFolder);
+  const createdDraftsFolder = await subtest("saveAsDraft", localRootFolder);
+  const createdTemplatesFolder = await subtest(
+    "saveAsTemplate",
+    localRootFolder
+  );
+
+  await removeFolder(createdSentFolder);
+  await removeFolder(createdDraftsFolder);
+  await removeFolder(createdTemplatesFolder);
+});
+
+/**
+ * Preference set to local folder.
+ * Folder exists.
+ * Target folder should be used.
+ */
+add_task(async function testLocalPrefFolderExists() {
+  const targetFolder =
+    await localRootFolder.createSubfolderAsync("LocalTargetFolder");
+
+  imapIdentity.fccFolderURI = targetFolder.URI;
+  imapIdentity.draftsFolderURI = targetFolder.URI;
+  imapIdentity.templatesFolderURI = targetFolder.URI;
+
+  await subtest("send", localRootFolder, "LocalTargetFolder");
+  await subtest("saveAsDraft", localRootFolder, "LocalTargetFolder");
+  await subtest("saveAsTemplate", localRootFolder, "LocalTargetFolder");
+
+  await removeFolder(targetFolder);
+});
+
+/**
+ * @param {nsIMsgFolder} folder
+ */
+async function removeFolder(folder) {
+  info(`removing ${folder.URI}`);
+  const rootFolder = folder.rootFolder;
+  if (folder.incomingServerType == "imap") {
+    const deletedPromise = PromiseTestUtils.promiseFolderDeleted(folder);
+    const promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
+    folder.deleteSelf(null);
+    await promptPromise;
+    await deletedPromise;
+  } else {
+    folder.deleteSelf(null);
+  }
+
+  info("emptying the trash");
+  const trashFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
+  await TestUtils.waitForCondition(
+    () => trashFolder.hasSubFolders,
+    "waiting for deleted folder to appear in the trash"
+  );
+  const listener = new PromiseTestUtils.PromiseUrlListener();
+  rootFolder.emptyTrash(listener);
+  await listener;
+}
 
 /**
  * @param {string} action
  * @param {nsIMsgFolder} expectedParent
+ * @returns {nsIMsgFolder}
  */
-async function subtest(action, expectedParent) {
-  const expectedName = {
+async function subtest(action, expectedParent, expectedName) {
+  const property = {
+    send: "fccFolderURI",
+    saveAsDraft: "draftsFolderURI",
+    saveAsTemplate: "templatesFolderURI",
+  }[action];
+  expectedName ??= {
     send: "Sent",
     saveAsDraft: "Drafts",
     saveAsTemplate: "Templates",
@@ -161,14 +316,22 @@ async function subtest(action, expectedParent) {
     saveAsDraft: Ci.nsMsgFolderFlags.Drafts,
     saveAsTemplate: Ci.nsMsgFolderFlags.Templates,
   }[action];
-  Assert.ok(
-    !expectedParent.containsChildNamed(expectedName),
-    "folder should not exist at the start of the test"
-  );
+
+  const folderExistedBeforeTest =
+    expectedParent.containsChildNamed(expectedName);
+  let folder;
+  let folderCountBeforeTest = 0;
+  let folderCreatedPromise;
+  if (folderExistedBeforeTest) {
+    folder = expectedParent.getChildNamed(expectedName);
+    folderCountBeforeTest =
+      folder.getTotalMessages(false) - folder.numPendingTotalMessages;
+  } else {
+    folderCreatedPromise = PromiseTestUtils.promiseFolderAdded(expectedName);
+  }
 
   const { composeWindow, subject } = await newComposeWindow(imapIdentity);
-  const folderCreatedPromise =
-    PromiseTestUtils.promiseFolderAdded(expectedName);
+  info(`${action} "${subject}"`);
   if (action == "send") {
     EventUtils.synthesizeMouseAtCenter(
       composeWindow.document.getElementById("button-send"),
@@ -193,40 +356,65 @@ async function subtest(action, expectedParent) {
 
   // Check that the folder is created.
 
-  const folder = await folderCreatedPromise;
-  Assert.ok(folder, "folder should have been created");
-  Assert.ok(folder.getFlag(expectedFlag), "folder should have the right flag");
+  if (folderCreatedPromise) {
+    folder = await folderCreatedPromise;
+  }
+  if (folder.server instanceof Ci.nsIImapIncomingServer) {
+    await TestUtils.waitForCondition(() => folder.server.allConnectionsIdle);
+  }
+  Assert.ok(folder, `${expectedName} folder should have been created`);
+  Assert.ok(
+    folder.getFlag(expectedFlag),
+    `${expectedName} folder should have the ${expectedName} flag`
+  );
   Assert.equal(
-    folder.parent,
-    expectedParent,
+    folder.parent.URI,
+    expectedParent.URI,
     "folder should be a child of the right parent"
+  );
+  Assert.equal(
+    imapIdentity[property],
+    `${expectedParent.URI}/${expectedName}`,
+    `the folder URI should be set to the identity ${property}`
   );
 
   // Check that the message was saved to the folder.
 
+  const expectedMessageCount = folderCountBeforeTest + 1;
+  folder.updateFolder(window.msgWindow);
   await TestUtils.waitForCondition(
-    () => folder.getTotalMessages(false) - folder.numPendingTotalMessages == 1,
-    "waiting for message to exist in folder"
+    () =>
+      folder.getTotalMessages(false) - folder.numPendingTotalMessages ==
+      expectedMessageCount,
+    "waiting for the folder's message count to increase"
   );
-  const copies = [...folder.messages];
-  Assert.equal(copies.length, 1, "one copy should be in the folder");
+  let copies;
+  await TestUtils.waitForCondition(() => {
+    copies = [...folder.messages];
+    return copies.length > folderCountBeforeTest;
+  }, "waiting for message to exist in the folder");
   Assert.equal(
-    copies[0].subject,
+    copies.length,
+    expectedMessageCount,
+    "a copy should be in the folder"
+  );
+  Assert.equal(
+    copies.at(-1).subject,
     subject,
     "the copy should have the right subject"
   );
 
   // Check that the message was saved to the remote server.
 
-  if (expectedParent == imapRootFolder) {
+  if (folder.server instanceof Ci.nsIImapIncomingServer) {
     const serverCopies = imapServer.getMessagesInFolder(folder);
     Assert.equal(
       serverCopies.length,
-      1,
+      expectedMessageCount,
       "one copy should be in the server mailbox"
     );
     Assert.stringContains(
-      serverCopies[0].getText(),
+      serverCopies.at(-1).getText(),
       `Subject: ${subject}\r\n`,
       "the server copy should have the right subject"
     );
@@ -235,4 +423,6 @@ async function subtest(action, expectedParent) {
   if (action != "send") {
     await BrowserTestUtils.closeWindow(composeWindow);
   }
+
+  return folder;
 }

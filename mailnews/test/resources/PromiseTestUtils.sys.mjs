@@ -278,6 +278,29 @@ PromiseTestUtils.promiseFolderAdded = function (folderName) {
 };
 
 /**
+ * Folder listener to resolve a promise when a folder is deleted.
+ *
+ * @param {nsIMsgFolder} folder - The folder being deleted.
+ * @returns {Promise} Promise that resolves when the deletion happens.
+ */
+PromiseTestUtils.promiseFolderDeleted = function (folder) {
+  return new Promise(resolve => {
+    var listener = {
+      folderDeleted: aFolder => {
+        if (aFolder == folder) {
+          MailServices.mfn.removeListener(listener);
+          resolve();
+        }
+      },
+    };
+    MailServices.mfn.addListener(
+      listener,
+      Ci.nsIMsgFolderNotificationService.folderDeleted
+    );
+  });
+};
+
+/**
  * Timer to resolve a promise after a delay
  *
  * @param {integer} aDelay - Delay in milliseconds
