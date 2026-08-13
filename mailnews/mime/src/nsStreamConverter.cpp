@@ -243,36 +243,6 @@ nsresult nsStreamConverter::DetermineOutputFormat(const char* aUrl,
   // to the part where the query strings begin.
   const char* queryPart = PL_strchr(aUrl, '?');
 
-  // First, did someone pass in a desired output format. They will be able to
-  // pass in any content type (i.e. image/gif, text/html, etc...but the "/" will
-  // have to be represented via the "%2F" value
-  const char* format = FindQueryElementData(queryPart, "outformat=");
-  if (format) {
-    // NOTE: I've done a file contents search of every file (*.*) in the mozilla
-    // directory tree and there is not a single location where the string
-    // "outformat" is added to any URL. It appears that this code has been
-    // orphaned off by a change elsewhere and is no longer required. It will be
-    // removed in the future unless someone complains.
-    MOZ_ASSERT(false, "Is this code actually being used?");
-
-    while (*format == ' ') ++format;
-
-    if (*format) {
-      mOverrideFormat = "raw";
-
-      // set mOutputFormat to the supplied format, ensure that we replace any
-      // %2F strings with the slash character
-      const char* nextField = PL_strpbrk(format, "&; ");
-      mOutputFormat.Assign(format, nextField ? nextField - format : -1);
-      mOutputFormat.ReplaceSubstring("%2F", "/");
-      mOutputFormat.ReplaceSubstring("%2f", "/");
-
-      // Don't muck with this data!
-      *aNewType = nsMimeOutput::nsMimeMessageRaw;
-      return NS_OK;
-    }
-  }
-
   // is this is a part that should just come out raw
   const char* part = FindQueryElementData(queryPart, "part=");
   if (part && !mToType.EqualsLiteral("application/xhtml+xml")) {
