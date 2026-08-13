@@ -45,9 +45,9 @@
         </hbox>
       </hbox>
       <hbox>
-        <label is="text-link" id="acceptRemoteContentInfo"
-               href="https://support.mozilla.org/kb/remote-content-in-messages"
-               data-l10n-id="remote-content-info"/>
+        <html:a id="acceptRemoteContentInfo"
+                href="https://support.mozilla.org/kb/remote-content-in-messages"
+                data-l10n-id="remote-content-privacy-info"/>
       </hbox>
     </html:fieldset>
     </html:div>
@@ -136,15 +136,14 @@
                   preference="privacy.globalprivacycontrol.enabled"
                   data-l10n-id="global-privacy-control-description"
                   search-l10n-ids="global-privacy-control-search" />
-        <html:a is="moz-support-link"
-                id="globalPrivacyControlLearnMoreLink"
-                support-page="global-privacy-control" />
+        <html:a id="globalPrivacyControlLearnMoreLink"
+                data-l10n-id="moz-support-link-text"
+                href="https://support.thunderbird.net/kb/global-privacy-control" />
       </hbox>
 
       <hbox align="center">
-        <html:a is="moz-support-link"
-                id="doNotTrackRemoval"
-                support-page="how-do-i-turn-do-not-track-feature"
+        <html:a id="doNotTrackRemoval"
+                href="https://support.thunderbird.net/kb/how-do-i-turn-do-not-track-feature"
                 data-l10n-id="do-not-track-removal" />
       </hbox>
     </html:fieldset>
@@ -652,18 +651,18 @@
       <vbox flex="1">
         <description class="tail-with-learn-more" data-l10n-id="preferences-doh-description"/>
         <html:a id="dohLearnMore"
-                is="moz-support-link"
                 class="learnMore"
-                support-page="dns-over-https"
+                data-l10n-id="moz-support-link-text"
+                href="https://support.thunderbird.net/kb/dns-over-https"
         />
       </vbox>
       <vbox id="dohStatusSection" class="privacy-detailedoption info-box-container">
         <hbox>
       <description id="dohStatus" class="doh-status-label tail-with-learn-more"/>
       <html:a id="dohStatusLearnMore"
-              is="moz-support-link"
               class="learnMore"
-              support-page="doh-status"
+              data-l10n-id="moz-support-link-text"
+              href="https://support.thunderbird.net/kb/doh-status"
               hidden="hidden"/>
     </hbox>
     <description id="dohResolver" class="doh-status-label"/>
@@ -702,9 +701,9 @@
                     <hbox class="extra-information-label">
                       <description class="doh-label tail-with-learn-more" data-l10n-id="preferences-doh-default-detailed-desc-3"/>
                       <html:a id="default-desc-3-learn-more"
-                              is="moz-support-link"
                               class="learnMore"
-                              support-page="doh-local-provider"
+                              data-l10n-id="moz-support-link-text"
+                              href="https://support.thunderbird.net/kb/doh-local-provider"
                       />
                     </hbox>
                     <hbox class="extra-information-label">
@@ -713,9 +712,9 @@
                     <hbox class="extra-information-label">
                       <description class="doh-label tail-with-learn-more" data-l10n-id="preferences-doh-default-detailed-desc-5"/>
                       <html:a id="default-desc-5-learn-more"
-                              is="moz-support-link"
                               class="learnMore"
-                              support-page="firefox-turn-off-secure-dns"
+                              data-l10n-id="moz-support-link-text"
+                              href="https://support.thunderbird.net/kb/firefox-turn-off-secure-dns"
                       />
                     </hbox>
                   </vbox>
