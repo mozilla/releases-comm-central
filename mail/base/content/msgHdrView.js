@@ -1082,7 +1082,7 @@ var messageProgressListener = {
     if (
       gMessage &&
       !gMessage.getUint32Property("notAPhishMessage") &&
-      PhishingDetector.analyzeMsgForPhishingURLs(url, browser)
+      (await PhishingDetector.analyzeMessage(url, browser))
     ) {
       gMessageNotificationBar.setPhishingMsg();
     }

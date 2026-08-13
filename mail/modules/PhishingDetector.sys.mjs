@@ -37,26 +37,22 @@ export const PhishingDetector = new (class PhishingDetector {
    * of a phishing attempt. Also checks for forms with action URLs, which are
    * disallowed.
    * Assumes the message has finished loading in the message pane (i.e.
-   * OnMsgParsed has fired).
+   * DOMContentLoaded has fired).
    *
-   * @param {nsIURI} aUrl
-   *   Url for the message being analyzed.
-   * @param {Element} browser
-   *   The browser element where the message is loaded.
-   * @returns {boolean}
-   *   Returns true if this does have phishing urls. Returns false if we
-   *   do not check this message or the phishing message does not need to be
-   *   displayed.
+   * @param {nsIURI} url - URL for the message being analyzed.
+   * @param {Element} browser - The browser element where the message is loaded.
+   * @returns {boolean} True if a warning should be displayed about the content
+   *   of this message.
    */
-  analyzeMsgForPhishingURLs(aUrl, browser) {
-    if (!aUrl || !this.mEnabled) {
+  async analyzeMessage(url, browser) {
+    if (!url || !this.mEnabled) {
       return false;
     }
 
     let folder;
     try {
-      const server = MailServices.accounts.findServerByURI(aUrl);
-      folder = server.getMsgFolderFromURI(null, aUrl.spec);
+      const server = MailServices.accounts.findServerByURI(url);
+      folder = server.getMsgFolderFromURI(null, url.spec);
     } catch (ex) {
       // findServerByURI can throw NS_ERROR_UNEXPECTED, especially if we are
       // opening an .eml file.
@@ -66,7 +62,7 @@ export const PhishingDetector = new (class PhishingDetector {
     }
 
     if (folder) {
-      // Ignore nntp and RSS messages.
+      // Ignore NNTP and RSS messages.
       if (folder.server.type == "nntp" || folder.server.type == "rss") {
         return false;
       }
@@ -82,9 +78,21 @@ export const PhishingDetector = new (class PhishingDetector {
       }
     }
 
-    // If the message contains forms with action attributes, warn the user.
-    const formNodes = browser.contentDocument.querySelectorAll("form[action]");
+    const actor =
+      browser.browsingContext.currentWindowGlobal.getActor("MailMessage");
+    return await actor.sendQuery("MailMessage:AnalyzeMessageBody");
+  }
 
+  /**
+   * Analyzes the body of the currently loaded message. This part runs in the
+   * same process as the message pane browser.
+   *
+   * @param {Document} document - The message body.
+   * @returns {boolean}
+   */
+  analyzeMessageBody(document) {
+    // If the message contains forms with action attributes, warn the user.
+    const formNodes = document.querySelectorAll("form[action]");
     return this.mDisallowFormActions && formNodes.length > 0;
   }
 

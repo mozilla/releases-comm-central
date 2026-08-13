@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { PhishingDetector } from "resource:///modules/PhishingDetector.sys.mjs";
+
 export class MailMessageChild extends JSWindowActorChild {
   handleEvent(event) {
     switch (event.type) {
@@ -13,6 +15,8 @@ export class MailMessageChild extends JSWindowActorChild {
 
   receiveMessage(message) {
     switch (message.name) {
+      case "MailMessage:AnalyzeMessageBody":
+        return PhishingDetector.analyzeMessageBody(this.document);
       case "MailMessage:GetSelectionForQuoting":
         return this.getSelectionForQuoting();
     }
