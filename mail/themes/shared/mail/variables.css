@@ -146,7 +146,7 @@
 
   --drop-indicator-z-index: 3;
 
-  & :is(menupopup, panel) {
+  & :is(menupopup, panel):not(.autoscroller) {
     --panel-background-color: var(--color-surface-subtle);
     --panel-text-color: var(--color-text-base);
     --panel-border-color: var(--color-surface-border-intense);
