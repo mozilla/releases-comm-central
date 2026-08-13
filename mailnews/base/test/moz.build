@@ -11,15 +11,4 @@ if CONFIG["MOZ_PANORAMA"]:
         "unit/xpcshell-panorama.toml"
     ]
 
-FINAL_LIBRARY = "xul-gtest"
-
-UNIFIED_SOURCES += [
-    "TestMsgStripRE.cpp",
-]
-
-LOCAL_INCLUDES += [
-    "/netwerk/test",
-    "/xpcom/tests",
-]
-
 TEST_DIRS += ["gtest"]
