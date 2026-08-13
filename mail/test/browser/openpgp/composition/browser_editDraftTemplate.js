@@ -89,8 +89,8 @@ add_setup(async function () {
 
   aliceIdentity.setUnicharAttribute("openpgp_key_id", id.split("0x").join(""));
 
-  draftsFolder = aliceIdentity.getOrCreateDraftsFolder();
-  templatesFolder = aliceIdentity.getOrCreateTemplatesFolder();
+  draftsFolder = await aliceIdentity.getOrCreateDraftsFolderAsync();
+  templatesFolder = await aliceIdentity.getOrCreateTemplatesFolderAsync();
 });
 
 /**

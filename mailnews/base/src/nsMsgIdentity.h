@@ -24,9 +24,6 @@ class nsMsgIdentity final : public nsIMsgIdentity {
   nsCOMPtr<nsIPrefBranch> mDefPrefBranch;
 
  protected:
-  nsresult getOrCreateFolder(const char* prefName, uint32_t folderFlag,
-                             const nsACString& folderName,
-                             nsIMsgFolder** retval);
   nsresult getOrCreateFolderAsync(const char* prefName, uint32_t folderFlag,
                                   const nsACString& folderName, JSContext* cx,
                                   Promise** aPromise);
@@ -82,10 +79,6 @@ class nsMsgIdentity final : public nsIMsgIdentity {
   NS_IMETHODIMP                                                               \
   nsMsgIdentity::Set##_postfix##URI(const nsACString& value) {                \
     return setFolderPref(_prefName, value, _folderFlag);                      \
-  }                                                                           \
-  NS_IMETHODIMP                                                               \
-  nsMsgIdentity::GetOrCreate##_postfix(nsIMsgFolder** retval) {               \
-    return getOrCreateFolder(_prefName, _folderFlag, _folderName, retval);    \
   }                                                                           \
   NS_IMETHODIMP                                                               \
   nsMsgIdentity::GetOrCreate##_postfix##Async(JSContext* cx,                  \

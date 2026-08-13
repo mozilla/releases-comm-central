@@ -182,7 +182,7 @@ interface nsIMsgIdentity : nsISupports {
    * Special folders:
    * These URI attributes just get or set a URI value in the preferences.
    * Values are initially empty until set (e.g. by IMAP folder discovery),
-   * or the corresponding getOrCreate*Folder function is called.
+   * or the corresponding getOrCreate*FolderAsync function is called.
    *
    * The existence of a URI value does not necessarily imply the existence
    * of a folder for that URI.
@@ -204,16 +204,12 @@ interface nsIMsgIdentity : nsISupports {
    * If no such folder can be found, create one using the first local server
    * (synchronous folder creation is required) in the same order as above.
    */
-  nsIMsgFolder getOrCreateFccFolder();
   [implicit_jscontext]
   Promise getOrCreateFccFolderAsync();
-  nsIMsgFolder getOrCreateDraftsFolder();
   [implicit_jscontext]
   Promise getOrCreateDraftsFolderAsync();
-  nsIMsgFolder getOrCreateArchivesFolder();
   [implicit_jscontext]
   Promise getOrCreateArchivesFolderAsync();
-  nsIMsgFolder getOrCreateTemplatesFolder();
   [implicit_jscontext]
   Promise getOrCreateTemplatesFolderAsync();
 

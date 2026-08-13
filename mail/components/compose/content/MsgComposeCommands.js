@@ -8015,12 +8015,24 @@ function ComposeCanClose() {
     // call window.focus, since we need to pop up a dialog
     // and therefore need to be visible (to prevent user confusion)
     window.focus();
-    const draftsFolder = gCurrentIdentity.getOrCreateDraftsFolder();
+    const messengerBundle = Services.strings.createBundle(
+      "chrome://messenger/locale/messenger.properties"
+    );
+    let draftsFolderName =
+      messengerBundle.GetStringFromName("draftsFolderName");
+    if (gCurrentIdentity.fccFolderURI) {
+      const draftsFolder = MailUtils.getExistingFolder(
+        gCurrentIdentity.fccFolderURI
+      );
+      if (draftsFolder) {
+        draftsFolderName = draftsFolder.localizedName;
+      }
+    }
     const result = Services.prompt.confirmEx(
       window,
       getComposeBundle().getString("saveDlogTitle"),
       getComposeBundle().getFormattedString("saveDlogMessages3", [
-        draftsFolder.localizedName,
+        draftsFolderName,
       ]),
       Services.prompt.BUTTON_TITLE_SAVE * Services.prompt.BUTTON_POS_0 +
         Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1 +
