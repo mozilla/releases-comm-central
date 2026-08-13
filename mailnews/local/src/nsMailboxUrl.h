@@ -91,7 +91,6 @@ class nsMailboxUrl : public nsMsgMailNewsUrl,
 
   // used by save message to disk
   nsCOMPtr<nsIFile> m_messageFile;
-  bool m_addDummyEnvelope;
   bool m_canonicalLineEnding;
   nsresult ParseSearchPart();
 

@@ -258,7 +258,7 @@ NS_IMETHODIMP nsMailboxService::IsMsgInMemCache(nsIURI* aUrl,
 
 NS_IMETHODIMP
 nsMailboxService::SaveMessageToDisk(const nsACString& aMessageURI,
-                                    nsIFile* aFile, bool aAddDummyEnvelope,
+                                    nsIFile* aFile,
                                     nsIUrlListener* aUrlListener,
                                     bool canonicalLineEnding,
                                     nsIMsgWindow* aMsgWindow) {
@@ -273,7 +273,6 @@ nsMailboxService::SaveMessageToDisk(const nsACString& aMessageURI,
     nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(mailboxurl);
     if (msgUrl) {
       msgUrl->SetMessageFile(aFile);
-      msgUrl->SetAddDummyEnvelope(aAddDummyEnvelope);
       msgUrl->SetCanonicalLineEnding(canonicalLineEnding);
     }
 

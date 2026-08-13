@@ -76,7 +76,6 @@ class BaseMessageService {
   saveMessageToDisk(
     messageUri,
     file,
-    addDummyEnvelope,
     urlListener,
     canonicalLineEnding,
     msgWindow
@@ -94,7 +93,7 @@ class BaseMessageService {
 
     this.loadMessage(
       messageUri,
-      url.getSaveAsListener(addDummyEnvelope, file),
+      url.getSaveAsListener(file),
       msgWindow,
       urlListener,
       false

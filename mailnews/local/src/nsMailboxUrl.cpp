@@ -41,7 +41,6 @@ nsMailboxUrl::nsMailboxUrl() {
   m_messageKey = nsMsgKey_None;
   m_messageSize = 0;
   m_messageFile = nullptr;
-  m_addDummyEnvelope = false;
   m_canonicalLineEnding = false;
   m_curMsgIndex = 0;
   mAutodetectCharset = false;
@@ -264,7 +263,6 @@ NS_IMETHODIMP nsMailboxUrl::GetMessageHeader(nsIMsgDBHdr** aMsgHdr) {
   return GetMsgHdrForKey(m_messageKey, aMsgHdr);
 }
 
-NS_IMPL_GETSET(nsMailboxUrl, AddDummyEnvelope, bool, m_addDummyEnvelope)
 NS_IMPL_GETSET(nsMailboxUrl, CanonicalLineEnding, bool, m_canonicalLineEnding)
 
 NS_IMETHODIMP

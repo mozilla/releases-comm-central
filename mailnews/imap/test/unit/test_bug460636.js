@@ -48,7 +48,6 @@ async function setup() {
   gIMAPService.saveMessageToDisk(
     "imap-message://user@localhost/INBOX#" + (IMAPPump.mailbox.uidnext - 1),
     gSavedMsgFile,
-    false,
     promiseUrlListener2,
     true, // Enforcing canonicalLineEnding (i.e., CRLF).
     null

@@ -66,13 +66,6 @@ NS_IMETHODIMP JaBaseCppUrl::SetMessageFile(nsIFile* aMessageFile) {
   return NS_OK;
 }
 
-NS_IMETHODIMP JaBaseCppUrl::GetAddDummyEnvelope(bool* aAddDummyEnvelope) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-NS_IMETHODIMP JaBaseCppUrl::SetAddDummyEnvelope(bool aAddDummyEnvelope) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMETHODIMP JaBaseCppUrl::GetCanonicalLineEnding(bool* aCanonicalLineEnding) {
   NS_ENSURE_ARG_POINTER(aCanonicalLineEnding);
   *aCanonicalLineEnding = mCanonicalLineEnding;

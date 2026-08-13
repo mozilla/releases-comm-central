@@ -328,9 +328,8 @@ nsresult nsMessenger::AdjustFileIfNameTooLong(nsIFile* aFile) {
 }
 
 NS_IMETHODIMP
-nsMessenger::SaveAs(const nsACString& aURI,
-                    nsIMsgIdentity* aIdentity, const nsAString& aMsgFilename,
-                    bool aBypassFilePicker) {
+nsMessenger::SaveAs(const nsACString& aURI, nsIMsgIdentity* aIdentity,
+                    const nsAString& aMsgFilename, bool aBypassFilePicker) {
   nsCOMPtr<nsIMsgMessageService> messageService;
   nsCOMPtr<nsIUrlListener> urlListener;
   RefPtr<nsSaveMsgListener> saveListener;
@@ -383,8 +382,8 @@ nsMessenger::SaveAs(const nsACString& aURI,
     if (NS_FAILED(rv)) goto done;
 
     if (saveAsFileType == EML_FILE_TYPE) {
-      rv = messageService->SaveMessageToDisk(aURI, saveAsFile, false,
-                                             urlListener, true, mMsgWindow);
+      rv = messageService->SaveMessageToDisk(aURI, saveAsFile, urlListener,
+                                             true, mMsgWindow);
     } else {
       nsAutoCString urlString(aURI);
 
@@ -649,8 +648,8 @@ nsMessenger::SaveMessages(const nsTArray<nsString>& aFilenameArray,
     }
 
     // Ok, now save the message.
-    rv = messageService->SaveMessageToDisk(
-        aMessageUriArray[i], saveToFile, false, urlListener, true, mMsgWindow);
+    rv = messageService->SaveMessageToDisk(aMessageUriArray[i], saveToFile,
+                                           urlListener, true, mMsgWindow);
     if (NS_FAILED(rv)) {
       Alert("saveMessageFailed");
       return rv;

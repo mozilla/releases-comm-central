@@ -59,7 +59,6 @@ nsImapUrl::nsImapUrl() : mLock("nsImapUrl.mLock") {
   m_file = nullptr;
   m_imapMailFolderSink = nullptr;
   m_imapMessageSink = nullptr;
-  m_addDummyEnvelope = false;
   m_canonicalLineEnding = false;
 }
 
@@ -1000,7 +999,6 @@ NS_IMETHODIMP nsImapUrl::GetUri(nsACString& aURI) {
   return rv;
 }
 
-NS_IMPL_GETSET(nsImapUrl, AddDummyEnvelope, bool, m_addDummyEnvelope)
 NS_IMPL_GETSET(nsImapUrl, CanonicalLineEnding, bool, m_canonicalLineEnding)
 NS_IMETHODIMP nsImapUrl::GetMsgLoadingFromCache(bool* result) {
   NS_ENSURE_ARG_POINTER(result);

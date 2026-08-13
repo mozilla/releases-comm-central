@@ -23,11 +23,9 @@ class SaveAsListener : public nsIStreamListener {
   NS_DECL_NSIREQUESTOBSERVER
   NS_DECL_NSISTREAMLISTENER
 
-  SaveAsListener(nsIFile* outputFile, bool addDummyEnvelope,
-                 bool useCanonicalLineEnding, nsIUrlListener* urlListener,
-                 nsIURI* uri)
-      : mAddDummyEnvelope(addDummyEnvelope),
-        mUseCanonicalLineEnding(useCanonicalLineEnding),
+  SaveAsListener(nsIFile* outputFile, bool useCanonicalLineEnding,
+                 nsIUrlListener* urlListener, nsIURI* uri)
+      : mUseCanonicalLineEnding(useCanonicalLineEnding),
         mWrittenData(false),
         mOutputFile(outputFile),
         mLeftOver(0),
@@ -51,7 +49,6 @@ class SaveAsListener : public nsIStreamListener {
   nsresult SetupMsgOutputStream();
 
   // The parameters for saving the file.
-  bool mAddDummyEnvelope;
   bool mUseCanonicalLineEnding;
 
   // Whether we've already started writing data.

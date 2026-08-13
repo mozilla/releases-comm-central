@@ -3413,12 +3413,11 @@ nsresult nsImapProtocol::BeginMessageDownLoad(
     {
       // we get here when download the inbox for offline use
       nsCOMPtr<nsIFile> file;
-      bool addDummyEnvelope = true;
       nsCOMPtr<nsIMsgMessageUrl> msgurl = do_QueryInterface(m_runningUrl);
       msgurl->GetMessageFile(getter_AddRefs(file));
-      msgurl->GetAddDummyEnvelope(&addDummyEnvelope);
-      if (file)
-        rv = m_imapMessageSink->SetupMsgWriteStream(file, addDummyEnvelope);
+      if (file) {
+        rv = m_imapMessageSink->SetupMsgWriteStream(file);
+      }
     }
     if (m_imapMailFolderSink && m_runningUrl) {
       nsCOMPtr<nsISupports> copyState;
@@ -3676,13 +3675,15 @@ void nsImapProtocol::FetchMessage(const nsCString& messageIds,
           nsCString arbitraryHeaders;
           GetArbitraryHeadersToDownload(arbitraryHeaders);
           for (uint32_t i = 0; i < mCustomDBHeaders.Length(); i++) {
-            if (!CaseInsensitiveFindInReadable(mCustomDBHeaders[i], arbitraryHeaders)) {
+            if (!CaseInsensitiveFindInReadable(mCustomDBHeaders[i],
+                                               arbitraryHeaders)) {
               if (!arbitraryHeaders.IsEmpty()) arbitraryHeaders.Append(' ');
               arbitraryHeaders.Append(mCustomDBHeaders[i]);
             }
           }
           for (uint32_t i = 0; i < mCustomHeaders.Length(); i++) {
-            if (!CaseInsensitiveFindInReadable(mCustomHeaders[i], arbitraryHeaders)) {
+            if (!CaseInsensitiveFindInReadable(mCustomHeaders[i],
+                                               arbitraryHeaders)) {
               if (!arbitraryHeaders.IsEmpty()) arbitraryHeaders.Append(' ');
               arbitraryHeaders.Append(mCustomHeaders[i]);
             }
@@ -5113,7 +5114,7 @@ void nsImapProtocol::DiscoverMailboxSpec(nsImapMailboxSpec* adoptedBoxSpec) {
         // Don't set the Trash flag if not using the Trash model
         if (GetDeleteIsMoveToTrash() && !onlineTrashFolderExists &&
             CaseInsensitiveFindInReadable(m_trashFolderPath,
-                           adoptedBoxSpec->mAllocatedPathName)) {
+                                          adoptedBoxSpec->mAllocatedPathName)) {
           bool trashExists = false;
           if (StringBeginsWith(m_trashFolderPath, "INBOX/"_ns,
                                nsCaseInsensitiveCStringComparator)) {
@@ -7723,7 +7724,7 @@ bool nsImapProtocol::GetListSubscribedIsBrokenOnServer() {
   // This is a workaround for an issue with LIST(SUBSCRIBED) crashing older
   // versions of Zimbra
   if (CaseInsensitiveFindInReadable("\"NAME\" \"Zimbra\""_ns,
-                     GetServerStateParser().GetServerID())) {
+                                    GetServerStateParser().GetServerID())) {
     nsCString serverID(GetServerStateParser().GetServerID());
     int start = serverID.LowerCaseFindASCII("\"version\" \"") + 11;
     int length = serverID.LowerCaseFindASCII("\" ", start);

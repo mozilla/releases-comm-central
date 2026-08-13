@@ -62,14 +62,7 @@ add_task(async function test_save_to_file() {
   const service = MailServices.messageServiceFromURI(messageURI);
 
   const asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  service.saveMessageToDisk(
-    messageURI,
-    file,
-    false,
-    asyncUrlListener,
-    true,
-    null
-  );
+  service.saveMessageToDisk(messageURI, file, asyncUrlListener, true, null);
   await asyncUrlListener.promise;
 
   // Read the file and make sure it matches the expected output.

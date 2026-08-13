@@ -856,7 +856,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::LoadURI(nsIDocShell* docShell,
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetSaveAsListener(
-    bool addDummyEnvelope, nsIFile* aFile, nsIStreamListener** aSaveListener) {
+    nsIFile* aFile, nsIStreamListener** aSaveListener) {
   NS_ENSURE_ARG_POINTER(aSaveListener);
 
   // Figure out whether we should use canonical line ending (i.e. CRLF). If we
@@ -871,8 +871,8 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetSaveAsListener(
     MOZ_TRY(msgUrl->GetCanonicalLineEnding(&useCanonicalLineEnding));
   }
 
-  RefPtr<SaveAsListener> saveAsListener = new SaveAsListener(
-      aFile, addDummyEnvelope, useCanonicalLineEnding, nullptr, nullptr);
+  RefPtr<SaveAsListener> saveAsListener =
+      new SaveAsListener(aFile, useCanonicalLineEnding, nullptr, nullptr);
 
   return saveAsListener->QueryInterface(NS_GET_IID(nsIStreamListener),
                                         (void**)aSaveListener);

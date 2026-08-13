@@ -973,7 +973,6 @@ export var MailUtils = {
     messageService.saveMessageToDisk(
       url.href,
       tempFile,
-      false,
       urlListener,
       true,
       null

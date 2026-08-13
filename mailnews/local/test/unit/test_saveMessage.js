@@ -58,7 +58,6 @@ add_task(async function test_saveMessage() {
     messageService.saveMessageToDisk(
       msgUri,
       savedFile,
-      false,
       promiseUrlListener,
       true,
       null

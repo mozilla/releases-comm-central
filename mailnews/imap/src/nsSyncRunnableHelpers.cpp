@@ -392,7 +392,7 @@ NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, SetAppendMsgUid, ImapUid,
 NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, GetMessageId, nsIImapUrl*,
                        nsACString&)
 
-NS_SYNCRUNNABLEMETHOD2(ImapMessageSink, SetupMsgWriteStream, nsIFile*, bool)
+NS_SYNCRUNNABLEMETHOD1(ImapMessageSink, SetupMsgWriteStream, nsIFile*)
 NS_SYNCRUNNABLEMETHOD3(ImapMessageSink, ParseAdoptedMsgLine, const char*,
                        ImapUid, nsIImapUrl*)
 NS_SYNCRUNNABLEMETHOD4(ImapMessageSink, NormalEndMsgWriteStream, ImapUid, bool,

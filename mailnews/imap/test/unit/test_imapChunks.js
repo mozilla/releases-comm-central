@@ -74,9 +74,7 @@ add_task(async function run_the_test() {
   gIMAPService.saveMessageToDisk(
     "imap-message://user@localhost/INBOX#" + (inbox.uidnext - 1),
     gSavedMsgFile,
-    false,
     promiseUrlListener,
-
     true,
     null
   );

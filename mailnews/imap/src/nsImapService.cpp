@@ -634,7 +634,6 @@ nsresult nsImapService::DecomposeImapURI(const nsACString& aMessageURI,
 
 NS_IMETHODIMP nsImapService::SaveMessageToDisk(const nsACString& aMessageURI,
                                                nsIFile* aFile,
-                                               bool aAddDummyEnvelope,
                                                nsIUrlListener* aUrlListener,
                                                bool canonicalLineEnding,
                                                nsIMsgWindow* aMsgWindow) {
@@ -660,15 +659,13 @@ NS_IMETHODIMP nsImapService::SaveMessageToDisk(const nsACString& aMessageURI,
     nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(imapUrl, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     msgUrl->SetMessageFile(aFile);
-    msgUrl->SetAddDummyEnvelope(aAddDummyEnvelope);
     msgUrl->SetCanonicalLineEnding(canonicalLineEnding);
 
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(msgUrl);
     if (mailnewsUrl) mailnewsUrl->SetMsgIsInLocalCache(hasMsgOffline);
 
     nsCOMPtr<nsIStreamListener> saveAsListener;
-    mailnewsUrl->GetSaveAsListener(aAddDummyEnvelope, aFile,
-                                   getter_AddRefs(saveAsListener));
+    mailnewsUrl->GetSaveAsListener(aFile, getter_AddRefs(saveAsListener));
 
     // IMAP code uses UID as msgkey.
     nsAutoCString uid;

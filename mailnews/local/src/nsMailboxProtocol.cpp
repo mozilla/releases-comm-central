@@ -408,12 +408,7 @@ nsresult nsMailboxProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
                 getter_AddRefs(m_msgFileOutputStream), tempMsgFile, -1, 00600);
             NS_ENSURE_SUCCESS(rv, rv);
 
-            bool addDummyEnvelope = false;
-            messageUrl->GetAddDummyEnvelope(&addDummyEnvelope);
-            if (addDummyEnvelope)
-              SetFlag(MAILBOX_MSG_PARSE_FIRST_LINE);
-            else
-              ClearFlag(MAILBOX_MSG_PARSE_FIRST_LINE);
+            ClearFlag(MAILBOX_MSG_PARSE_FIRST_LINE);
 
             m_nextState = MAILBOX_READ_MESSAGE;
             break;

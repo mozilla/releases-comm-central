@@ -123,29 +123,6 @@ nsresult SaveAsListener::SetupMsgOutputStream() {
   // doesn't care, btw, just unixoids do...)
   mOutputFile->Remove(false);
 
-  nsresult rv = MsgNewBufferedFileOutputStream(getter_AddRefs(mOutputStream),
-                                               mOutputFile, -1, 0666);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (mOutputStream && mAddDummyEnvelope) {
-    nsAutoCString result;
-    uint32_t writeCount;
-
-    time_t now = time((time_t*)0);
-    char* ct = ctime(&now);
-    // Remove the ending new-line character.
-    ct[24] = '\0';
-    result = "From - ";
-    result += ct;
-    result += MSG_LINEBREAK;
-    mOutputStream->Write(result.get(), result.Length(), &writeCount);
-
-    result = "X-Mozilla-Status: 0001";
-    result += MSG_LINEBREAK;
-    result += "X-Mozilla-Status2: 00000000";
-    result += MSG_LINEBREAK;
-    mOutputStream->Write(result.get(), result.Length(), &writeCount);
-  }
-
-  return rv;
+  return MsgNewBufferedFileOutputStream(getter_AddRefs(mOutputStream),
+                                        mOutputFile, -1, 0666);
 }

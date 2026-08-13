@@ -115,7 +115,6 @@ class nsImapUrl : public nsIImapUrl,
 
   // used by save message to disk
   nsCOMPtr<nsIFile> m_messageFile;
-  bool m_addDummyEnvelope;
   bool m_canonicalLineEnding;  // CRLF
 
   nsCString mURI;           // the RDF URI associated with this url.

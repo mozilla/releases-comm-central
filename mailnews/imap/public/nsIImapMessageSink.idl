@@ -27,7 +27,7 @@ interface nsIImapMessageSink : nsISupports {
    * Set up for downloading a message to disk.
    * TODO: what is the sequence of calls after this?
    */
-  void setupMsgWriteStream(in nsIFile aFile, in boolean aAppendDummyEnvelope);
+  void setupMsgWriteStream(in nsIFile aFile);
 
   /**
    * Used by the imap protocol code to notify the core backend code about

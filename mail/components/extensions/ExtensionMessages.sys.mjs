@@ -2838,7 +2838,6 @@ async function retrieveMessageFromServer(mid, server) {
     messageService.saveMessageToDisk(
       url.href,
       tempFile,
-      false,
       {
         async OnStopRunningUrl(_url, status) {
           resolve(status);

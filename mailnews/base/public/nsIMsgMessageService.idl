@@ -94,14 +94,11 @@ interface nsIMsgMessageService : nsISupports {
    *
    * @param aMessageURI The uri representing the message to spool out to disk.
    * @param aFile The file you want the message saved to
-   * @param aGenerateDummyEnvelope Usually FALSE. Set to TRUE if you want the msg
-   *        appended at the end of the file.
    * @param aUrlListener
    * @param canonicalLineEnding
    * @param aMsgWindow
    */
   void saveMessageToDisk(in AUTF8String aMessageURI, in nsIFile aFile,
-                         in boolean aGenerateDummyEnvelope,
                          in nsIUrlListener aUrlListener,
                          in boolean canonicalLineEnding, in nsIMsgWindow aMsgWindow);
 

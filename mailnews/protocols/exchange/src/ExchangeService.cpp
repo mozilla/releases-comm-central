@@ -72,7 +72,6 @@ NS_IMETHODIMP ExchangeService::LoadMessage(const nsACString& aMessageURI,
 
 NS_IMETHODIMP ExchangeService::SaveMessageToDisk(const nsACString& aMessageURI,
                                                  nsIFile* aFile,
-                                                 bool aGenerateDummyEnvelope,
                                                  nsIUrlListener* aUrlListener,
                                                  bool canonicalLineEnding,
                                                  nsIMsgWindow* aMsgWindow) {
@@ -85,8 +84,7 @@ NS_IMETHODIMP ExchangeService::SaveMessageToDisk(const nsACString& aMessageURI,
   // Build a listener that will write the message's content to the file as it
   // comes down from either the server or the local store.
   RefPtr<SaveAsListener> listener =
-      new SaveAsListener(aFile, aGenerateDummyEnvelope, canonicalLineEnding,
-                         aUrlListener, channelURI);
+      new SaveAsListener(aFile, canonicalLineEnding, aUrlListener, channelURI);
 
   return FetchMessage(channelURI, listener);
 }

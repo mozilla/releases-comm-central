@@ -28,8 +28,6 @@ class nsPop3Sink : public nsIPop3Sink {
   NS_DECL_NSIPOP3SINK
   nsresult GetServerFolder(nsIMsgFolder** aFolder);
 
-  static char* GetDummyEnvelope(void);
-
  protected:
   virtual ~nsPop3Sink();
   nsresult WriteLineToMailbox(const nsACString& buffer);

@@ -4282,40 +4282,13 @@ void nsImapMailFolder::TweakHeaderFlags(nsIImapProtocol* aProtocol,
 // nsIImapMessageSink.setupMsgWriteStream() implementation.
 // The protocol calls this to start downloading a message to disk.
 NS_IMETHODIMP
-nsImapMailFolder::SetupMsgWriteStream(nsIFile* aFile, bool addDummyEnvelope) {
+nsImapMailFolder::SetupMsgWriteStream(nsIFile* aFile) {
   nsresult rv;
   aFile->Remove(false);
   m_tempMessageStreamBytesWritten = 0;
   rv = MsgNewBufferedFileOutputStream(
       getter_AddRefs(m_tempMessageStream), aFile,
       PR_WRONLY | PR_CREATE_FILE | PR_TRUNCATE, 00700);
-  if (m_tempMessageStream && addDummyEnvelope) {
-    nsAutoCString result;
-    char* ct;
-    uint32_t writeCount;
-    time_t now = time((time_t*)0);
-    ct = ctime(&now);
-    ct[24] = 0;
-    result = "From - ";
-    result += ct;
-    result += MSG_LINEBREAK;
-
-    rv = m_tempMessageStream->Write(result.get(), result.Length(), &writeCount);
-    NS_ENSURE_SUCCESS(rv, rv);
-    m_tempMessageStreamBytesWritten += writeCount;
-
-    result = "X-Mozilla-Status: 0001";
-    result += MSG_LINEBREAK;
-    rv = m_tempMessageStream->Write(result.get(), result.Length(), &writeCount);
-    NS_ENSURE_SUCCESS(rv, rv);
-    m_tempMessageStreamBytesWritten += writeCount;
-
-    result = "X-Mozilla-Status2: 00000000";
-    result += MSG_LINEBREAK;
-    rv = m_tempMessageStream->Write(result.get(), result.Length(), &writeCount);
-    NS_ENSURE_SUCCESS(rv, rv);
-    m_tempMessageStreamBytesWritten += writeCount;
-  }
   return rv;
 }
 

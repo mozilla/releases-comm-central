@@ -132,7 +132,7 @@ interface nsIMsgMailNewsUrl : nsIURL {
   const unsigned long eMove     = 1;
   const unsigned long eDisplay  = 2;
   boolean IsUrlType(in unsigned long type);
-  nsIStreamListener getSaveAsListener(in boolean addDummyEnvelope, in nsIFile aFile);
+  nsIStreamListener getSaveAsListener(in nsIFile aFile);
 
   /**
    * Loads the URI in a docshell. This will give priority to loading the
@@ -169,7 +169,6 @@ interface nsIMsgMessageUrl : nsISupports {
   attribute AUTF8String uri;
   // used by imap, pop and nntp in order to implement save message to disk
   attribute nsIFile messageFile;
-  attribute boolean AddDummyEnvelope;
   attribute boolean canonicalLineEnding;
   attribute AUTF8String originalSpec;
 
