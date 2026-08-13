@@ -104,6 +104,7 @@ tasks:
                               end-tag: "BETA_{major_version}_END"
                               from-branch: "main"
                               to-branch: "beta"
+                              update-clobber-file: false
                               l10n-bump-info:
                                   - name: "Thunderbird l10n changesets"
                                     path: mail/locales/l10n-changesets.json
@@ -141,6 +142,7 @@ tasks:
                               end-tag: "RELEASE_{major_version}_END"
                               from-branch: "beta"
                               to-branch: "release"
+                              update-clobber-file: false
                     release-to-esr:
                         - uplift:
                               fetch-version-from: "mail/config/version.txt"
@@ -150,6 +152,7 @@ tasks:
                               replacements: []
                               end-tag: "ESR_{major_version}_BASE"
                               to-branch: "esr153"
+                              update-clobber-file: false
 
             # Thunderbird-specific gecko revision pinning
             gecko-rev:
