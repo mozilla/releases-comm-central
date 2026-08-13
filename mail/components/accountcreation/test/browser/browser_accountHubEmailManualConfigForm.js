@@ -8,6 +8,10 @@ const { AccountConfig } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountConfig.sys.mjs"
 );
 
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
+);
+
 const tabmail = document.getElementById("tabmail");
 let browser;
 let subview;
@@ -28,7 +32,9 @@ add_setup(async function () {
 
   advancedConfigButton = subview.querySelector("#advancedConfigurationManual");
 
+  MockExternalProtocolService.init();
   registerCleanupFunction(() => {
+    MockExternalProtocolService.cleanup();
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
   });
 });
@@ -802,6 +808,56 @@ add_task(async function test_showPlainSecurityError() {
   Assert.ok(
     outgoingConnectionSecurity.hasAttribute("warning"),
     "Outgoing socket should have warning label"
+  );
+
+  // Test the FAQ link in the warning message.
+  const incomingWarningLink =
+    incomingConnectionSecurity.shadowRoot.querySelector("a");
+
+  let loadPromise = MockExternalProtocolService.promiseLoad();
+  let helpLinkClickedPromise = BrowserTestUtils.waitForEvent(
+    incomingConnectionSecurity,
+    "helpLinkClick"
+  );
+  incomingConnectionSecurity.scrollIntoView({
+    block: "start",
+    behavior: "instant",
+  });
+
+  EventUtils.synthesizeMouseAtCenter(
+    incomingWarningLink,
+    {},
+    browser.contentWindow
+  );
+
+  await helpLinkClickedPromise;
+  Assert.equal(
+    await loadPromise,
+    "http://127.0.0.1:8888/support-dummy/",
+    "Should load FAQ link"
+  );
+
+  loadPromise = MockExternalProtocolService.promiseLoad();
+  helpLinkClickedPromise = BrowserTestUtils.waitForEvent(
+    outgoingConnectionSecurity,
+    "helpLinkClick"
+  );
+  outgoingConnectionSecurity.scrollIntoView({
+    block: "start",
+    behavior: "instant",
+  });
+  const outgoingWarningLink =
+    outgoingConnectionSecurity.shadowRoot.querySelector("a");
+  EventUtils.synthesizeMouseAtCenter(
+    outgoingWarningLink,
+    {},
+    browser.contentWindow
+  );
+  await helpLinkClickedPromise;
+  Assert.equal(
+    await loadPromise,
+    "http://127.0.0.1:8888/support-dummy/",
+    "Should load FAQ link"
   );
 
   subview.resetState();

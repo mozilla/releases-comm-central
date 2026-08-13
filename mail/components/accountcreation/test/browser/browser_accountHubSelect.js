@@ -95,9 +95,19 @@ add_task(async function test_correctlyHandlesWarning() {
 
   select.toggleAttribute("warning", true);
 
+  // Warning text with a link should send the event "helpLinkClick" when the
+  // link is clicked.
+  const helpLinkClickEventPromise = BrowserTestUtils.waitForEvent(
+    select,
+    "helpLinkClick"
+  );
+  const helpLink = warning.querySelector("a");
+  helpLink.click();
+  await helpLinkClickEventPromise;
+
   Assert.ok(
     BrowserTestUtils.isVisible(warning),
-    "Warning element should be hidden"
+    "Warning element should be visible"
   );
 
   select.toggleAttribute("warning", false);

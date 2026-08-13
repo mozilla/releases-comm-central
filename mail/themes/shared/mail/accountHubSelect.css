@@ -135,3 +135,7 @@ select {
 .account-hub-form-small-comment.config-change-comment:not([hidden]) {
   color: var(--color-primary-pressed);
 }
+
+.more-info-link {
+  cursor: pointer;
+}

@@ -260,6 +260,12 @@ class EmailManualConfigForm extends AccountHubStep {
         }
         break;
       }
+      case "helpLinkClick":
+        lazy.openLinkExternally(
+          Services.urlFormatter.formatURLPref("app.support.baseURL"),
+          { addToHistory: false }
+        );
+        break;
       default:
         break;
     }
@@ -288,6 +294,8 @@ class EmailManualConfigForm extends AccountHubStep {
       this
     );
 
+    this.#incomingConnectionSecurity.addEventListener("helpLinkClick", this);
+    this.#outgoingConnectionSecurity.addEventListener("helpLinkClick", this);
     this.#incomingUnsupportedOAuthBanner.addEventListener("click", this);
     this.#outgoingUnsupportedOAuthBanner.addEventListener("click", this);
   }

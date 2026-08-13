@@ -4,10 +4,6 @@
 
 const attrs = ["id", "disabled", "l10n-label-id", "warning", "l10n-error-id"];
 
-const { openLinkExternally } = ChromeUtils.importESModule(
-  "resource:///modules/LinkHelper.sys.mjs"
-);
-
 /**
  * Main action button for in app notifications.
  *
@@ -113,7 +109,6 @@ class AccountHubSelect extends HTMLElement {
 
     this.#slot.addEventListener("slotchange", this);
     this.select.addEventListener("change", this);
-    this.#error.querySelector("a").addEventListener("click", this);
 
     for (const attr of attrs) {
       this.attributeChangedCallback(attr, "", this.getAttribute(attr));
@@ -151,7 +146,6 @@ class AccountHubSelect extends HTMLElement {
     document.l10n.disconnectRoot(this.shadowRoot);
     this.#slot.removeEventListener("slotchange", this);
     this.select.removeEventListener("change", this);
-    this.#error.querySelector("a").removeEventListener("click", this);
     this.#observer?.disconnect();
   }
 
@@ -262,10 +256,15 @@ class AccountHubSelect extends HTMLElement {
         const isWarning = this.hasAttribute(attr);
         this.select.classList.toggle("warning", isWarning);
         this.select.setAttribute("aria-invalid", isWarning);
+        const errorLink = this.#error.querySelector("a");
         if (isWarning) {
           this.select.setAttribute("aria-describedby", "securityWarning");
           this.#error.setAttribute("role", "alert");
+          if (errorLink) {
+            errorLink.addEventListener("click", this);
+          }
         } else {
+          errorLink.removeEventListener("click", this);
           this.#error.removeAttribute("role");
           this.#syncDescription();
         }
@@ -305,10 +304,13 @@ class AccountHubSelect extends HTMLElement {
         break;
       }
       case "click":
-        openLinkExternally(
-          Services.urlFormatter.formatURLPref("app.support.baseURL"),
-          { addToHistory: false }
+        this.dispatchEvent(
+          new CustomEvent("helpLinkClick", {
+            bubbles: true,
+          })
         );
+        break;
+      default:
         break;
     }
   }
