@@ -1085,7 +1085,9 @@ export class AttachmentInfo {
         .getStringPref("mail.allowed_attachment_hostnames", "")
         .split(",")
         .filter(Boolean)
-        .some(h => new RegExp(`^file:\/+${h}/`, "i").test(this.url));
+        .some(h =>
+          new RegExp(`^file:\/+${RegExp.escape(h)}/`, "i").test(this.url)
+        );
       if (!allow) {
         console.warn(
           `Attachment blocked for UNC path ${this.url}. To unblock, add the hostname to mail.allowed_attachment_hostnames`
