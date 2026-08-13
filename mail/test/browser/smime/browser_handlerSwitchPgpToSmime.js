@@ -39,7 +39,14 @@ add_setup(async function () {
   );
 
   registerCleanupFunction(function () {
-    SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob", "Alice"]);
+    const certDB = Cc["@mozilla.org/security/x509certdb;1"].getService(
+      Ci.nsIX509CertDB
+    );
+    for (const cert of certDB.getCerts()) {
+      if (["NSS Test CA (RSA)", "Bob", "Alice"].includes(cert.commonName)) {
+        certDB.deleteCertificate(cert);
+      }
+    }
   });
 });
 
