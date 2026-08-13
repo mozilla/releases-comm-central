@@ -3,10 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "gtest/gtest.h"
-
 #include "nsMsgUtils.h"
 
-TEST(HashIfNecessary, Basics)
+// Invocation:
+// $ ./mach gtest "TestMsgHashIfNecessary.*"
+
+TEST(TestMsgHashIfNecessary, Basics)
 {
   // No hashing necessary.
   nsAutoString input(u"test"_ns);

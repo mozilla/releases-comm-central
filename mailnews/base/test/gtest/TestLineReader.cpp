@@ -8,9 +8,9 @@
 #include "mozilla/Span.h"
 
 // Invocation:
-// $ ./mach gtest "TestLineReader.*"
+// $ ./mach gtest "TestMsgLineReader.*"
 
-TEST(TestLineReader, Basic)
+TEST(TestMsgLineReader, Basic)
 {
   struct {
     nsTArray<nsCString> chunks;
@@ -100,7 +100,7 @@ TEST(TestLineReader, Basic)
 }
 
 // Check that processing is aborted when callback returns false.
-TEST(TestLineReader, Stop)
+TEST(TestMsgLineReader, Stop)
 {
   struct {
     nsTArray<nsCString> chunks;
@@ -154,7 +154,7 @@ TEST(TestLineReader, Stop)
 }
 
 // Test the SplitLines() fn.
-TEST(TestLineReader, SplitLines)
+TEST(TestMsgLineReader, SplitLines)
 {
   struct {
     nsCString input;

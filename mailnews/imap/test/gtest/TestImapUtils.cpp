@@ -7,10 +7,10 @@
 #include "nsImapMailFolder.h"
 
 // Invocation:
-// $ ./mach gtest "TestImapUtils.*"
+// $ ./mach gtest "TestMsgImapUtils.*"
 
 // Test AllocateImapUidString() and ParseUidString.
-TEST(TestImapUtils, ImapUidSets)
+TEST(TestMsgImapUtils, ImapUidSets)
 {
   static const struct {
     nsTArray<ImapUid> uids;   // Individual IMAP UIDs.
@@ -43,7 +43,7 @@ TEST(TestImapUtils, ImapUidSets)
 }
 
 // Test UidSetFromUids().
-TEST(TestImapUtils, UidSetFromUids)
+TEST(TestMsgImapUtils, UidSetFromUids)
 {
   static const struct {
     nsTArray<ImapUid> uids;   // Individual IMAP UIDs.

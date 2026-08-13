@@ -8,6 +8,9 @@
 #include "nsMsgUtils.h"
 #include "nsString.h"
 
+// Invocation:
+// $ ./mach gtest "TestMsgStripRE.*"
+
 using mozilla::Preferences;
 
 #define STRING_SIZE 255

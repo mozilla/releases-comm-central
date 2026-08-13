@@ -4,9 +4,9 @@
 #include "nsTArray.h"
 
 // Invocation:
-// $ ./mach gtest "TestHeaderReader.*"
+// $ ./mach gtest "TestMsgHeaderReader.*"
 
-TEST(TestHeaderReader, Basic)
+TEST(TestMsgHeaderReader, Basic)
 {
   struct hdr {
     nsCString name;
@@ -156,7 +156,7 @@ TEST(TestHeaderReader, Basic)
 
 // Check that callback can halt processing, and that it can be correctly
 // resumed.
-TEST(TestHeaderReader, Stop)
+TEST(TestMsgHeaderReader, Stop)
 {
   // We'll stop each time we find a header name containing "STOP".
   struct {
