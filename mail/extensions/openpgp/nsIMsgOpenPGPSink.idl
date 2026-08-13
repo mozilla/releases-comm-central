@@ -11,9 +11,7 @@ interface nsIURI;
 interface nsIMsgOpenPGPSink : nsISupports {
   void ignoreStatusFrom(in AUTF8String originMimePartNumber);
 
-  void handleSMimeMessage(in AUTF8String uri,
-                          in AUTF8String mimePartNumber,
-                          in AUTF8String contentType);
+  void handleSMimeMessage(in AUTF8String uri);
 
   void modifyMessageHeaders(in AUTF8String uri,
                             in AUTF8String headerData,

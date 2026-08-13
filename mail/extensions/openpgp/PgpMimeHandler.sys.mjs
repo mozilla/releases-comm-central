@@ -183,10 +183,6 @@ export class PgpMimeHandler {
         throw new Error("handleSmime error");
       },
     };
-    proxy.mailChannel?.openpgpSink?.handleSMimeMessage(
-      uri.spec,
-      proxy.mimePart,
-      proxy.contentType
-    );
+    proxy.mailChannel?.openpgpSink?.handleSMimeMessage(uri.spec);
   }
 }
