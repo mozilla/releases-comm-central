@@ -23,10 +23,10 @@ function onLoad() {
   descr.textContent = lazy.l10n.formatValueSync("item-modified-on-server");
 
   if (window.arguments[0].mode == "modify") {
-    descr.textContent += lazy.l10n.formatValueSync("modify-will-lose-data");
+    descr.textContent += " " + lazy.l10n.formatValueSync("modify-will-lose-data");
     document.l10n.setAttributes(dialog.getButton("accept"), "proceed-modify");
   } else {
-    descr.textContent += lazy.l10n.formatValueSync("delete-will-lose-data");
+    descr.textContent += " " + lazy.l10n.formatValueSync("delete-will-lose-data");
     document.l10n.setAttributes(dialog.getButton("accept"), "proceed-delete");
   }
 }
