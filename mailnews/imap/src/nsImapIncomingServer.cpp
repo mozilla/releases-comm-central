@@ -32,6 +32,7 @@
 #include "nsIMsgMailSession.h"
 #include "nsImapNamespace.h"
 #include "nsMsgUtils.h"
+#include "UrlListener.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "mozilla/Components.h"
@@ -2354,14 +2355,25 @@ nsImapIncomingServer::SubscribeToFolder(const nsACString& aName, bool subscribe,
   nsCOMPtr<nsIMsgFolder> msgFolder;
   if (rootMsgFolder && !aName.IsEmpty())
     rv = rootMsgFolder->FindSubFolder(aName, getter_AddRefs(msgFolder));
+  if (!msgFolder) {
+    NS_WARNING("SubscribeToFolder: could not resolve folder");
+    return NS_MSG_ERROR_FOLDER_MISSING;
+  }
 
-  nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
+  // The subscribe URL holds only weak references to folder sinks. Keep the
+  // folder alive for the URL's lifetime to prevent a premature release.
+  RefPtr<UrlListener> keepAlive = new UrlListener();
+  keepAlive->mStopFn = [folder = RefPtr<nsIMsgFolder>(msgFolder)](
+                           nsIURI* aUrl, nsresult aStatus) -> nsresult {
+    (void)folder;
+    return NS_OK;
+  };
 
-  if (subscribe)
-    rv = imapService->SubscribeFolder(msgFolder, aName, nullptr, aUri);
-  else
-    rv = imapService->UnsubscribeFolder(msgFolder, aName, nullptr, nullptr);
-
+  if (subscribe) {
+    rv = imapService->SubscribeFolder(msgFolder, aName, keepAlive, aUri);
+  } else {
+    rv = imapService->UnsubscribeFolder(msgFolder, aName, keepAlive, nullptr);
+  }
   return rv;
 }
 
