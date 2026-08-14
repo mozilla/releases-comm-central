@@ -7391,7 +7391,7 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
     // "pure" means the folder AND messages are copied to the destination and
     // then both are removed from source account.
     uint32_t folderFlags = 0;
-    if (srcFolder) srcFolder->GetFlags(&folderFlags);
+    srcFolder->GetFlags(&folderFlags);
 
     // if our source folder is a virtual folder, then it's a pure
     // local copy.
@@ -7420,13 +7420,12 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
     return imapService->MoveFolder(srcFolder, this, this, msgWindow);
   }
 
-  // !sameServer OR it's a copy. Unit tests expect a successful folder
-  // copy within the same IMAP server even though the UI forbids copy and
-  // only allows moves inside the same server. folderCopier, set below,
-  // handles the folder copy within an IMAP server (needed by unit tests) and
-  // the folder move or copy from another account or server into an IMAP
-  // account/server. The folder move from another account is "impure" since
-  // just the messages are moved and the source folder remains in place.
+  // !sameServer OR it's a copy. folderCopier, set below, handles the folder
+  // copy within an IMAP account, offered by the folder pane's "Copy To" menu
+  // and by a copy-drag, and the folder move or copy from another account or
+  // server into an IMAP account/server. The folder move from another account
+  // is "impure" since just the messages are moved and the source folder
+  // remains in place.
   RefPtr<nsImapFolderCopyState> folderCopier = new nsImapFolderCopyState(
       this, srcFolder,
       isMoveFolder,  // Always copy folders; if true only move the messages

@@ -13,7 +13,7 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
-var gEmptyLocal1, gEmptyLocal2, gEmptyLocal3, gNotEmptyLocal4;
+var gEmptyLocal1, gEmptyLocal2, gEmptyLocal3, gNotEmptyLocal4, gNotEmptyLocal5;
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -27,11 +27,15 @@ add_setup(function () {
   gEmptyLocal3 = localAccountUtils.rootFolder.createLocalSubfolder("empty 3");
   gNotEmptyLocal4 =
     localAccountUtils.rootFolder.createLocalSubfolder("not empty 4");
+  gNotEmptyLocal5 =
+    localAccountUtils.rootFolder.createLocalSubfolder("not empty 5");
 
   const messageGenerator = new MessageGenerator();
   const message = messageGenerator.makeMessage();
   gNotEmptyLocal4.QueryInterface(Ci.nsIMsgLocalMailFolder);
   gNotEmptyLocal4.addMessage(message.toMessageString());
+  gNotEmptyLocal5.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  gNotEmptyLocal5.addMessage(messageGenerator.makeMessage().toMessageString());
 
   // these hacks are required because we've created the inbox before
   // running initial folder discovery, and adding the folder bails
@@ -109,6 +113,53 @@ add_task(function verifyImapFolders() {
   Assert.notStrictEqual(folder1, null);
   Assert.notStrictEqual(folder2, null);
   Assert.notStrictEqual(folder3, null);
+});
+
+// The folder pane offers this copy through "Copy To" and through a copy-drag,
+// so the source folder must survive it and the copy must carry the messages.
+add_task(async function copyImapFolderWithinAccount() {
+  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  MailServices.copy.copyFolder(
+    gNotEmptyLocal5,
+    IMAPPump.inbox,
+    false,
+    copyListener,
+    null
+  );
+  await copyListener.promise;
+
+  const source = IMAPPump.inbox
+    .getChildNamed("not empty 5")
+    .QueryInterface(Ci.nsIMsgImapMailFolder);
+  const destination = IMAPPump.inbox.getChildNamed("empty 1");
+
+  // Only messages the source folder knows about are copied, so sync it first.
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  source.updateFolderWithListener(null, listener);
+  await listener.promise;
+  Assert.equal([...source.messages].length, 1, "source folder is populated");
+
+  copyListener = new PromiseTestUtils.PromiseCopyListener();
+  MailServices.copy.copyFolder(source, destination, false, copyListener, null);
+  await copyListener.promise;
+
+  const copied = destination
+    .getChildNamed("not empty 5")
+    .QueryInterface(Ci.nsIMsgImapMailFolder);
+  listener = new PromiseTestUtils.PromiseUrlListener();
+  copied.updateFolderWithListener(null, listener);
+  await listener.promise;
+
+  Assert.equal(
+    [...copied.messages].length,
+    1,
+    "the copy should hold the message of the source folder"
+  );
+  Assert.equal(
+    [...source.messages].length,
+    1,
+    "the source folder should remain in place with its message"
+  );
 });
 
 add_task(async function testImapFolderCopyFailure() {
