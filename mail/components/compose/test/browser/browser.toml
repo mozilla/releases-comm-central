@@ -28,3 +28,6 @@ tags = ["oauth"]
 ["browser_sendMessage_progress.js"]
 
 ["browser_sendMessage_spellCheck.js"]
+
+["browser_openPdfAttachment.js"]
+support-files = ["data/attachment.pdf"]
