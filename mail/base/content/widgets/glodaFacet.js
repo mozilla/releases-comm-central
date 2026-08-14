@@ -125,6 +125,7 @@
       sortDiv.classList.add("results-message-sort-bar");
 
       this.sortSelect = document.createElement("select");
+      this.sortSelect.classList.add("select");
       this.sortSelect.setAttribute("id", "sortby");
       const sortByPref = Services.prefs.getIntPref("gloda.facetview.sortby");
 

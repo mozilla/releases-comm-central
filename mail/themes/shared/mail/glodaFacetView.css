@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/messenger.css");
+@import url("chrome://messenger/skin/icons.css");
 @import url("chrome://messenger/skin/colors.css");
 @import url("chrome://messenger/skin/layout.css");
 @import url("chrome://messenger/skin/widgets.css");
@@ -14,7 +15,6 @@ body {
 }
 
 body {
-  block-size: 100%;
   overflow-y: auto;
 }
 
@@ -34,15 +34,13 @@ body {
 }
 
 #gloda-facet-view {
-  display: flex;
+  display: grid;
+  grid-template-columns: 20em 1fr;
   background-color: var(--layout-background-0);
   color: var(--layout-color-0);
-  align-items: stretch;
 }
 
 .facets-sidebar {
-  inline-size: 20em;
-  max-inline-size: 20em;
   padding: 4px;
   padding-inline-start: 1em;
   background-color: var(--layout-background-1);
@@ -50,13 +48,12 @@ body {
 }
 
 #main-column {
-  flex: 1;
   padding-inline-start: 1em;
   min-block-size: 100vh;
+  max-inline-size: 900px;
 }
 
 #header {
-  max-inline-size: 60em;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -66,7 +63,6 @@ body {
 #data-column {
   margin-block-start: 1em;
   margin-inline-end: 1em;
-  max-inline-size: 60em;
   display: flex;
   flex-direction: column;
 }
@@ -415,7 +411,7 @@ facet-boolean[disabled] {
   cursor: pointer;
   padding: 4px;
   padding-inline-end: 20px;
-  margin-inline-end: 2px;
+  margin-inline-end: 15px;
   border-radius: var(--button-border-radius);
   -moz-context-properties: fill;
   fill: currentColor;
@@ -438,33 +434,6 @@ facet-boolean[disabled] {
   flex: 1;
   display: flex;
   justify-content: end;
-}
-
-#sortby {
-  appearance: none;
-  min-block-size: 24px;
-  color: inherit;
-  margin: 1px 5px;
-  padding-block: 0;
-  padding-inline: 4px 20px;
-  border: 1px solid var(--button-border-color);
-  border-radius: var(--button-border-radius);
-  background-color: var(--button-background-color);
-  background-image: var(--icon-nav-down-sm);
-  background-position: right 4px center;
-  background-repeat: no-repeat;
-  background-size: auto 12px;
-  -moz-context-properties: fill;
-  fill: currentColor;
-
-  &:-moz-locale-dir(rtl) {
-    background-position-x: left 4px;
-  }
-
-  &:is(:hover, :focus) {
-    background-color: var(--button-hover-background-color);
-    cursor: pointer;
-  }
 }
 
 /* ===== Messages ===== */
@@ -606,6 +575,7 @@ facet-boolean[disabled] {
   font-family: monospace;
   font-size: medium;
   white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .message-body-fulltext-match {
