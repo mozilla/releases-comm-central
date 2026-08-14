@@ -837,8 +837,14 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
     if (folder) {
       nsCOMPtr<nsIMsgDatabase> folderDB;
       nsCOMPtr<nsIDBFolderInfo> folderInfo;
-      folder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo),
-                                   getter_AddRefs(folderDB));
+      // Avoid creating an empty summary file that is later to be orphaned when
+      // subscribing to a folder.
+      nsCOMPtr<nsIMsgDBService> dbService =
+          do_GetService("@mozilla.org/msgDatabase/msgDBService;1");
+      if (dbService) {
+        dbService->OpenFolderDB(folder, true, getter_AddRefs(folderDB));
+        if (folderDB) folderDB->GetDBFolderInfo(getter_AddRefs(folderInfo));
+      }
       if (folderInfo) {
         nsCString modSeqStr;
         folderInfo->GetCharProperty(kModSeqPropertyName, modSeqStr);

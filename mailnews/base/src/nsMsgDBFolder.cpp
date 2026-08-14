@@ -635,7 +635,7 @@ nsresult nsMsgDBFolder::GetFolderCacheElemFromFile(
   return rv;
 }
 
-nsresult nsMsgDBFolder::ReadDBFolderInfo(bool force) {
+nsresult nsMsgDBFolder::ReadDBFolderInfo(bool force, bool cacheOnly) {
   // Since it turns out to be pretty expensive to open and close
   // the DBs all the time, if we have to open it once, get everything
   // we might need while we're here
@@ -658,6 +658,10 @@ nsresult nsMsgDBFolder::ReadDBFolderInfo(bool force) {
         }
       }
     }
+  }
+
+  if (cacheOnly) {
+    return NS_OK;
   }
 
   if (force || !mInitializedFromCache) {

@@ -136,7 +136,26 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult CreateCollationKey(const nsCString& aSource, uint8_t** aKey,
                               uint32_t* aLength);
 
-  virtual nsresult ReadDBFolderInfo(bool force);
+  /**
+   * Load this folder's info (flags, message counts, sort order, name, ...)
+   * into the folder object.
+   *
+   * The folder cache is consulted first; unless cacheOnly is set, an
+   * existing summary database is then opened (or created, if there is none)
+   * and the info is read from there.
+   *
+   * When cacheOnly is set, the summary database is never opened or created,
+   * so the call is safe for a folder that isn't on disk yet (e.g. an IMAP
+   * folder in the early stages of subscribing to it).
+   *
+   * @param force     Re-read from the database even if the folder was
+   *                  already initialized from the folder cache.
+   * @param cacheOnly Only read from the folder cache; never open or create
+   *                  a summary file.
+   * @return NS_OK on success, or a failure code when the database couldn't
+   *         be opened or read (only possible when cacheOnly is false).
+   */
+  virtual nsresult ReadDBFolderInfo(bool force, bool cacheOnly = false);
   virtual nsresult FlushToFolderCache();
   virtual nsresult GetDatabase() = 0;
   virtual nsresult SendFlagNotifications(nsIMsgDBHdr* item, uint32_t oldFlags,

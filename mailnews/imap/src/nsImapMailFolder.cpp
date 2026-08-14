@@ -1153,7 +1153,9 @@ NS_IMETHODIMP nsImapMailFolder::GetHierarchyDelimiter(
       }
     }
   }
-  ReadDBFolderInfo(false);  // update cache first.
+  // Avoid creating an empty summary file that is later to be orphaned when
+  // subscribing to a folder.
+  ReadDBFolderInfo(false, /* cacheOnly */ true);  // update cache first.
   *aHierarchyDelimiter = m_hierarchyDelimiter;
   return NS_OK;
 }

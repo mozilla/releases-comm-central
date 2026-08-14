@@ -159,6 +159,8 @@ tags = ["compact"]
 
 ["test_subfolderLocation.js"]
 
+["test_subscribeNoSummaryFile.js"]
+
 ["test_syncChanges.js"]
 
 ["test_trustSpamAssassin.js"]
