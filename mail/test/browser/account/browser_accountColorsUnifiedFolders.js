@@ -29,6 +29,10 @@ const { add_message_to_folder, create_message, make_message_sets_in_folders } =
     "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
   );
 
+const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
+
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
 // Hardcoded colors from the --color-primary-default Bolt token.
@@ -189,20 +193,111 @@ add_task(async function test_custom_account_colors_in_message_list() {
   info("Test first message without any custom color");
   let account = addedAccounts.at(0);
   row = about3Pane.threadTree.getRowAtIndex(2);
-  subtest_check_message_indicator_variable(account, row, true);
-  subtest_check_message_indicator_color(account, row, true);
+  subtest_check_message_indicator_variable(account, row, ".account-indicator");
+  subtest_check_message_indicator_color(
+    account,
+    row,
+    ".account-indicator",
+    false,
+    true
+  );
 
   info("Test second message with custom color.");
   account = addedAccounts.at(1);
   row = about3Pane.threadTree.getRowAtIndex(1);
-  subtest_check_message_indicator_variable(account, row);
-  subtest_check_message_indicator_color(account, row);
+  subtest_check_message_indicator_variable(account, row, ".account-indicator");
+  subtest_check_message_indicator_color(account, row, ".account-indicator");
 
   info("Test third message with custom color.");
   account = addedAccounts.at(2);
   row = about3Pane.threadTree.getRowAtIndex(0);
-  subtest_check_message_indicator_variable(account, row);
-  subtest_check_message_indicator_color(account, row);
+  subtest_check_message_indicator_variable(account, row, ".account-indicator");
+  subtest_check_message_indicator_color(account, row, ".account-indicator");
+
+  // Switch to table view.
+  await ensure_table_view(document);
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
+
+  // Enable the account column.
+  const colPicker = about3Pane.document.querySelector(
+    "#threadTree .last-column .button-column-picker"
+  );
+  const colPickerPopup = about3Pane.document.querySelector(
+    "#threadTree .menupopup-column-picker"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(colPicker, {}, about3Pane);
+  await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "shown");
+
+  const menuItem = colPickerPopup.querySelector(`[value="accountCol"]`);
+  const checkedState = menuItem.hasAttribute("checked");
+  const checkedStateChanged = TestUtils.waitForCondition(
+    () => checkedState != menuItem.hasAttribute("checked"),
+    "The checked status changed"
+  );
+  const columnsChangedEvent = BrowserTestUtils.waitForEvent(
+    about3Pane.document,
+    "columns-changed"
+  );
+  colPickerPopup.activateItem(menuItem);
+  await checkedStateChanged;
+  await columnsChangedEvent;
+
+  // The column picker menupopup doesn't close automatically on purpose.
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "hidden");
+  await new Promise(about3Pane.requestAnimationFrame);
+  await TestUtils.waitForTick();
+
+  // Test account colors in table view.
+  info("Test first message without any custom color");
+  account = addedAccounts.at(0);
+  row = about3Pane.threadTree.getRowAtIndex(2);
+  subtest_check_message_indicator_variable(
+    account,
+    row,
+    "td.accountcol-column"
+  );
+  subtest_check_message_indicator_color(
+    account,
+    row,
+    "td.accountcol-column",
+    true,
+    true
+  );
+
+  info("Test second message with custom color.");
+  account = addedAccounts.at(1);
+  row = about3Pane.threadTree.getRowAtIndex(1);
+  subtest_check_message_indicator_variable(
+    account,
+    row,
+    "td.accountcol-column"
+  );
+  subtest_check_message_indicator_color(
+    account,
+    row,
+    "td.accountcol-column",
+    true
+  );
+
+  info("Test third message with custom color.");
+  account = addedAccounts.at(2);
+  row = about3Pane.threadTree.getRowAtIndex(0);
+  subtest_check_message_indicator_variable(
+    account,
+    row,
+    "td.accountcol-column"
+  );
+  subtest_check_message_indicator_color(
+    account,
+    row,
+    "td.accountcol-column",
+    true
+  );
+
+  await ensure_cards_view(document);
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 });
 
 /**
@@ -211,17 +306,16 @@ add_task(async function test_custom_account_colors_in_message_list() {
  *
  * @param {nsIMsgAccount} account
  * @param {HTMLTableRowElement} message
+ * @param {string} selector
  */
-function subtest_check_message_indicator_variable(account, message) {
-  const indicator = message.querySelector(".account-indicator");
+function subtest_check_message_indicator_variable(account, message, selector) {
+  const indicator = message.querySelector(selector);
   Assert.ok(
     BrowserTestUtils.isVisible(indicator),
     "The account indicator for the message should be visible"
   );
   Assert.equal(
-    message
-      .querySelector(".account-indicator")
-      .style.getPropertyValue(`--account-color`),
+    message.querySelector(selector).style.getPropertyValue(`--account-color`),
     `var(--server-${CSS.escape(account.incomingServer.key)}-color)`,
     "The account color variable should match the account indicator color variable"
   );
@@ -238,17 +332,24 @@ function subtest_check_message_indicator_variable(account, message) {
  *
  * @param {nsIMsgAccount} account
  * @param {HTMLTableRowElement} message
+ * @param {string} selector
+ * @param {boolean} [isPseudo=false]
  * @param {boolean} [isEmpty=false]
  */
 function subtest_check_message_indicator_color(
   account,
   message,
+  selector,
+  isPseudo = false,
   isEmpty = false
 ) {
+  const indicator = message.querySelector(selector);
+  const backgroundColor = isPseudo
+    ? getComputedStyle(indicator, "::before").backgroundColor
+    : getComputedStyle(indicator).backgroundColor;
   if (isEmpty) {
-    const indicator = message.querySelector(".account-indicator");
     Assert.equal(
-      getComputedStyle(indicator).backgroundColor,
+      backgroundColor,
       hexToRgb(defaultColor),
       "The account color should match the default for non customized colors"
     );
@@ -257,11 +358,17 @@ function subtest_check_message_indicator_color(
 
   const amu = new AccountManagerUtils(account);
   Assert.equal(
+    backgroundColor,
+    hexToRgb(amu.serverColor),
+    "The account color should match the account indicator color"
+  );
+
+  Assert.equal(
     about3Pane.document.documentElement.style.getPropertyValue(
       `--server-${CSS.escape(account.incomingServer.key)}-color`
     ),
     amu.serverColor,
-    "The account color should match the account indicator color"
+    "The account color should match the injected CSS variable"
   );
 }
 
@@ -272,6 +379,11 @@ function subtest_check_message_indicator_color(
  * @returns {string} RGB notation of the HEX color.
  */
 function hexToRgb(hexColor) {
+  // Ensure we always deal with a full 7 chars hex value.
+  // Expand shorthand hex like #f00 to #ff0000.
+  if (hexColor.length == 4) {
+    hexColor = `#${hexColor.at(1)}${hexColor.at(1)}${hexColor.at(2)}${hexColor.at(2)}${hexColor.at(3)}${hexColor.at(3)}`;
+  }
   const r = Number.parseInt(hexColor.slice(1, 3), 16);
   const g = Number.parseInt(hexColor.slice(3, 5), 16);
   const b = Number.parseInt(hexColor.slice(5), 16);

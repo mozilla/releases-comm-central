@@ -44,6 +44,11 @@ class ThreadRow extends TreeViewTableRow {
       textColumns.push(column.id);
     }
 
+    // If the user is showing the account column, fetch the server key.
+    if (textColumns.includes("accountCol")) {
+      textColumns.push("serverKeyCol");
+    }
+
     // XPCOM calls here must be keep to a minimum. Collect all of the
     // required data in one go.
     const properties = {};
@@ -246,9 +251,20 @@ class ThreadRow extends TreeViewTableRow {
       if (textIndex >= 0) {
         if (isDummyRow) {
           cell.textContent = "";
+          // Clear any potentially stale account color property for dummy rows.
+          if (column.id == "accountCol") {
+            cell.style.removeProperty("--account-color");
+          }
           continue;
         }
         cell.textContent = cellTexts[textIndex];
+        // If we're showing the account column, set the server color.
+        if (column.id == "accountCol") {
+          cell.style.setProperty(
+            "--account-color",
+            `var(--server-${CSS.escape(cellTexts[textColumns.indexOf("serverKeyCol")])}-color)`
+          );
+        }
         if (!column.custom) {
           document.l10n.setAttributes(cell, column.l10n.cell, {
             title: cellTexts[textIndex],

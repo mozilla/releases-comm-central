@@ -631,3 +631,9 @@ tr[data-properties~="outgoing"].selected .correspondentcol-column {
   margin: 0;
   flex-shrink: 0;
 }
+
+/* Account indicator */
+
+.is-unified tr:not([data-properties~="dummy"]) .accountcol-column::before {
+  display: inline-flex;
+}

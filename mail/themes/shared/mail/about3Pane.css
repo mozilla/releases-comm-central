@@ -671,6 +671,18 @@ conversation-view {
   }
 }
 
+.accountcol-column::before {
+  content: "";
+  display: none;
+  box-sizing: border-box;
+  background-color: var(--account-color, var(--folder-color-inbox));
+  border-radius: 3px;
+  inline-size: 3px;
+  block-size: 1rem;
+  margin-inline-end: 3px;
+  vertical-align: middle;
+}
+
 [data-mode="smart"]
   :is(
     [data-folder-type="inbox"],
