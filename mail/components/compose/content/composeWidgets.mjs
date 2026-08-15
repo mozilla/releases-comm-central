@@ -231,12 +231,12 @@ class MailAddressPill extends MozXULElement {
 
       if (
         this.emailInput.forceComplete &&
-        this.emailInput.mController.matchCount >= 1
+        this.emailInput.controller.matchCount >= 1
       ) {
         // If input.forceComplete is true and there are autocomplete matches,
         // we need to call the inbuilt Enter handler to force the input text
         // to the best autocomplete match because we've set input._dontBlur.
-        this.emailInput.mController.handleEnter(true);
+        this.emailInput.controller.handleEnter(true);
         return;
       }
 
@@ -309,6 +309,20 @@ class MailAddressPill extends MozXULElement {
   }
 
   async updatePill() {
+    // If this method is called before a blur or enter event that triggers the
+    // inbuilt autocomplete handler, replace the current value with the first
+    // match.
+    if (
+      this.emailInput.forceComplete &&
+      this.emailInput.controller.matchCount >= 1
+    ) {
+      // Complete to the selected match, using its address value rather than
+      // the text displayed in the autocomplete popup.
+      const selectedIndex = Math.max(this.emailInput.popup.selectedIndex, 0);
+      this.emailInput.value =
+        this.emailInput.controller.getFinalCompleteValueAt(selectedIndex);
+    }
+
     const addresses = MailServices.headerParser.makeFromDisplayAddress(
       this.emailInput.value
     );

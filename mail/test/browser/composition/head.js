@@ -6,35 +6,43 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-registerCleanupFunction(() => {
-  for (const book of MailServices.ab.directories) {
-    if (
-      ["ldap_2.servers.history", "ldap_2.servers.pab"].includes(book.dirPrefId)
-    ) {
-      let cards = book.childCards;
-      if (cards.length > 0) {
-        info(`Cleaning up ${cards.length} card(s) from ${book.dirName}`);
-        for (const card of cards) {
-          if (card.isMailList) {
-            MailServices.ab.deleteAddressBook(card.mailListURI);
+// We want to check that everything has been removed/reset, but if we register
+// a cleanup function here, it will run before any other cleanup function has
+// had a chance to run. Instead, when it runs register another cleanup
+// function which will run last.
+registerCleanupFunction(function () {
+  registerCleanupFunction(() => {
+    for (const book of MailServices.ab.directories) {
+      if (
+        ["ldap_2.servers.history", "ldap_2.servers.pab"].includes(
+          book.dirPrefId
+        )
+      ) {
+        let cards = book.childCards;
+        if (cards.length > 0) {
+          info(`Cleaning up ${cards.length} card(s) from ${book.dirName}`);
+          for (const card of cards) {
+            if (card.isMailList) {
+              MailServices.ab.deleteAddressBook(card.mailListURI);
+            }
+          }
+          cards = cards.filter(c => !c.isMailList);
+          if (cards.length > 0) {
+            book.deleteCards(cards);
           }
         }
-        cards = cards.filter(c => !c.isMailList);
-        if (cards.length > 0) {
-          book.deleteCards(cards);
-        }
+        is(book.childCards.length, 0);
+      } else {
+        Assert.report(true, undefined, undefined, "Unexpected address book!");
+        MailServices.ab.deleteAddressBook(book.URI);
       }
-      is(book.childCards.length, 0);
-    } else {
-      Assert.report(true, undefined, undefined, "Unexpected address book!");
-      MailServices.ab.deleteAddressBook(book.URI);
     }
-  }
 
-  Services.focus.focusedWindow = window;
-  const mailButton = document.getElementById("mailButton");
-  mailButton.focus();
-  mailButton.blur();
+    Services.focus.focusedWindow = window;
+    const mailButton = document.getElementById("mailButton");
+    mailButton.focus();
+    mailButton.blur();
+  });
 });
 
 /**

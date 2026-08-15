@@ -770,7 +770,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
         // Use the setTimeout only if the input field implements a forced
         // autocomplete and we don't have any match as we might need to wait for
         // the autocomplete suggestions to show up.
-        if (input.forceComplete && input.mController.matchCount == 0) {
+        if (input.forceComplete && input.controller.matchCount == 0) {
           // Prevent fast user input to become an error pill before
           // autocompletion kicks in with its default timeout.
           setTimeout(() => {
@@ -850,6 +850,19 @@ function addressInputOnInput(event, rawInput) {
 function recipientAddPills(input, automatic = false) {
   if (!input.value.trim()) {
     return;
+  }
+
+  // If the input was forced to complete and we have a match, manually handle it
+  // and replace the input value with the first result. We purposefully do not
+  // call input.controller.handleEnter() because that would force us to handle
+  // an early return to prevent an infinite loop, therefore causing some
+  // operations like SaveAsDraft to perform too soon before the addresses have
+  // been pillified.
+  if (input.forceComplete && input.controller.matchCount >= 1) {
+    // Complete to the selected match, using its address value rather than
+    // the text displayed in the autocomplete popup.
+    const selectedIndex = Math.max(input.popup.selectedIndex, 0);
+    input.value = input.controller.getFinalCompleteValueAt(selectedIndex);
   }
 
   const addresses = MailServices.headerParser.makeFromDisplayAddress(
@@ -945,11 +958,11 @@ function addressInputOnBlur(input) {
     return;
   }
 
-  if (input.forceComplete && input.mController.matchCount >= 1) {
+  if (input.forceComplete && input.controller.matchCount >= 1) {
     // If input.forceComplete is true and there are autocomplete matches,
     // we need to call the inbuilt Enter handler to force the input text
     // to the best autocomplete match because we've set input._dontBlur.
-    input.mController.handleEnter(true);
+    input.controller.handleEnter(true);
     return;
   }
 

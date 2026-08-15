@@ -363,7 +363,7 @@ const inputObserver = {
       // Interrupt if there's no input proxy, or the input doesn't have an ID,
       // the latter meaning that the autocomplete event was triggered within an
       // already existing pill, so we don't want to create a new pill.
-      if (!input || !input.id) {
+      if (!input?.id) {
         return;
       }
 
