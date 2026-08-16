@@ -219,7 +219,15 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CreateFolder(nsIMsgFolder* aParent,
       // need to set the folder name
       nsCOMPtr<nsIDBFolderInfo> folderInfo;
       rv = unusedDB->GetDBFolderInfo(getter_AddRefs(folderInfo));
-      if (NS_SUCCEEDED(rv)) folderInfo->SetMailboxName(safeFolderName);
+      if (NS_SUCCEEDED(rv)) {
+        folderInfo->SetMailboxName(safeFolderName);
+        // If the folder is stored under a hashed on-disk name, persist its
+        // real name in the summary so it survives a restart without the
+        // folder cache.
+        if (!safeFolderName.Equals(aFolderName)) {
+          folderInfo->SetFolderName(aFolderName);
+        }
+      }
 
       unusedDB->SetSummaryValid(true);
       unusedDB->Close(true);
