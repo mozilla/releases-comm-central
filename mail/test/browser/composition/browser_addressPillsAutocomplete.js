@@ -45,9 +45,8 @@ add_setup(async function () {
   }
   draftsFolder = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 
-  registerCleanupFunction(async () => {
+  registerCleanupFunction(() => {
     MailServices.ab.deleteAddressBook(addressBook.URI);
-    draftsFolder.deleteSelf(null);
   });
 });
 
