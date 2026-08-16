@@ -296,10 +296,14 @@ nsString NS_MsgHashIfNecessary(const nsAString& unsafeName) {
 
   char hashedname[9];
   int32_t keptLength = -1;
-  if (illegalCharacterIndex != -1)
-    keptLength = illegalCharacterIndex;
-  else if (name.Length() > MAX_LEN) {
+  if (illegalCharacterIndex != -1) {
+    // The name is truncated at the illegal character, but never beyond the
+    // length limit: the hashed name must fit within MAX_LEN like any other.
+    keptLength = std::min(illegalCharacterIndex, (int32_t)MAX_LEN - 8);
+  } else if (name.Length() > MAX_LEN) {
     keptLength = MAX_LEN - 8;
+  }
+  if (keptLength == (int32_t)MAX_LEN - 8) {
     // To avoid keeping only the high surrogate of a surrogate pair
     if (mozilla::IsHighSurrogate(name.CharAt(keptLength - 1))) --keptLength;
   }

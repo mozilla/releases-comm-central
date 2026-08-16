@@ -45,6 +45,13 @@ TEST(TestMsgHashIfNecessary, Basics)
   ASSERT_TRUE(NS_MsgHashIfNecessary(input).Equals(
       u"test TEST test TEST test TEST test TEST test TEa2bbf4d7"_ns));
 
+  // The 55-character limit also applies when the name contains an illegal
+  // character further in: the name is truncated to 47 characters (not at the
+  // illegal character) before the hash is appended.
+  input = u"1234567890 1234567890 1234567890 1234567890 1234567890: tail"_ns;
+  ASSERT_TRUE(NS_MsgHashIfNecessary(input).Equals(
+      u"1234567890 1234567890 1234567890 1234567890 123870c44d6"_ns));
+
   // No hashing necessary with this non-ASCII character. It used to be
   // different on Windows.
   input = u"test π"_ns;

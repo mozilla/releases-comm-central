@@ -247,6 +247,51 @@ async function test_createFolder() {
   }
 }
 
+// Replica of StringHash in mailnews/base/src/nsMsgUtils.cpp: h = 1, then for
+// each UTF-16 code unit (as two little-endian bytes):
+// h = 0x63c63cd9 * h + 0x9c39c33d + byte (mod 2^32). The result is the 8 hex
+// digits appended by NS_MsgHashIfNecessary. Math.imul is required for the
+// 32-bit multiplication; a plain "*" loses precision.
+function msgHash(name) {
+  let h = 1;
+  for (let i = 0; i < name.length; i++) {
+    const c = name.charCodeAt(i);
+    for (const b of [c & 0xff, (c >> 8) & 0xff]) {
+      h = (Math.imul(0x63c63cd9, h) + 0x9c39c33d + b) >>> 0;
+    }
+  }
+  return h.toString(16).padStart(8, "0");
+}
+
+/**
+ * A folder name with an illegal character far into it must still be stored
+ * under a name that fits the 55-character limit (bug 2029781): the hash is
+ * appended after 47 characters, not at the illegal character.
+ */
+async function test_longIllegalNameBounded() {
+  const root = create_temporary_directory();
+  const rootFolder = setup_mailbox("none", root);
+  // Initialize the root and its discovery (see test_createdFolderPersistsRealName
+  // for why this matters for maildir).
+  rootFolder.msgStore.createFolder(rootFolder, "setup");
+
+  const displayName =
+    "a very long folder name with an invalid character far in: and some more text";
+  Assert.greater(
+    displayName.indexOf(":"),
+    47,
+    "the illegal char must be past the 47-char cap"
+  );
+
+  const newFolder = rootFolder.msgStore.createFolder(rootFolder, displayName);
+  Assert.equal(
+    newFolder.filePath.leafName,
+    displayName.slice(0, 47) + msgHash(displayName),
+    "the on-disk name must be capped at 47 chars + the hash"
+  );
+  Assert.equal(newFolder.name, displayName, "the folder keeps its real name");
+}
+
 /**
  * Load messages into a msgStore and make sure we can read
  * them back correctly using asyncScan().
@@ -725,6 +770,7 @@ for (const store of localAccountUtils.pluggableStores) {
   add_task(withStore(store, test_discoverChildFolders));
   add_task(withStore(store, test_discoverSubFolders));
   add_task(withStore(store, test_createFolder));
+  add_task(withStore(store, test_longIllegalNameBounded));
   add_task(withStore(store, test_asyncScan));
   add_task(withStore(store, test_basicReadWrite));
   add_task(withStore(store, test_discardWrites));
