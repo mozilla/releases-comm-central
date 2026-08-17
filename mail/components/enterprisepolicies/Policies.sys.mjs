@@ -542,6 +542,17 @@ export var Policies = {
     },
   },
 
+  DisableDataCollectionSettings: {
+    onBeforeUIStartup(manager, param) {
+      if (param) {
+        lazy.PoliciesUtils.setAndLockPref(
+          "mail.data_collection_settings.enabled",
+          false
+        );
+      }
+    },
+  },
+
   DisabledCiphers: {
     onBeforeAddons(manager, param) {
       const cipherPrefs = {

@@ -180,6 +180,9 @@ pref("datareporting.policy.currentPolicyVersion", 2);
 pref("datareporting.policy.firstRunURL", "https://www.mozilla.org/thunderbird/legal/privacy/");
 #endif
 
+// Whether to show the data collection settings in Privacy & Security.
+pref("mail.data_collection_settings.enabled", true);
+
 // Base URL for web-based support pages.
 pref("app.support.baseURL", "https://support.thunderbird.net/%APP%/%VERSION%/%OS%/%LOCALE%/");
 

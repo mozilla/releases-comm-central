@@ -49,6 +49,16 @@ const POLICIES_TESTS = [
     lockedPrefs: { "pdfjs.disabled": true },
   },
 
+  // POLICY: DisableDataCollectionSettings
+  {
+    policies: { DisableDataCollectionSettings: false },
+    unlockedPrefs: { "mail.data_collection_settings.enabled": true },
+  },
+  {
+    policies: { DisableDataCollectionSettings: true },
+    lockedPrefs: { "mail.data_collection_settings.enabled": false },
+  },
+
   // POLICY: DisableExperimentalFeatures
   {
     policies: { DisableExperimentalFeatures: false },

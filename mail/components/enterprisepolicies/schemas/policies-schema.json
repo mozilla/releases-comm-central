@@ -177,6 +177,10 @@
       "type": "boolean"
     },
 
+    "DisableDataCollectionSettings": {
+      "type": "boolean"
+    },
+
     "DisabledCiphers": {
       "type": "object",
       "properties": {

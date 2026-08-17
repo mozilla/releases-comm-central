@@ -43,6 +43,8 @@ policy-DefaultDownloadDirectory = Set the default download directory.
 
 policy-DisableAppUpdate = Prevent { -brand-short-name } from updating.
 
+policy-DisableDataCollectionSettings = Prevent the user from changing data collection settings.
+
 policy-DisableDefaultClientAgent = Prevent the default client agent from taking any actions. Only applicable to Windows; other platforms don’t have the agent.
 
 policy-DisableDeveloperTools = Block access to the developer tools.

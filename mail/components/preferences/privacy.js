@@ -95,21 +95,35 @@ var gPrivacyPane = {
     this._initOSAuthentication();
 
     if (AppConstants.MOZ_DATA_REPORTING) {
-      this.initDataCollection();
-      if (AppConstants.MOZ_CRASHREPORTER) {
-        this.initSubmitCrashes();
+      const dataCollectionSettingsEnabled = Services.prefs.getBoolPref(
+        "mail.data_collection_settings.enabled",
+        true
+      );
+      if (!dataCollectionSettingsEnabled) {
+        // display:none, not hidden: the pane show/hide code overrides hidden.
+        document
+          .getElementById("privacyDataCollectionCategory")
+          .setAttribute("style", "display: none !important");
+        document
+          .getElementById("dataCollectionGroup")
+          .setAttribute("style", "display: none !important");
+      } else {
+        this.initDataCollection();
+        if (AppConstants.MOZ_CRASHREPORTER) {
+          this.initSubmitCrashes();
+        }
+        this.initSubmitHealthReport();
+        setEventListener(
+          "submitHealthReportBox",
+          "command",
+          gPrivacyPane.updateSubmitHealthReport
+        );
+        setEventListener(
+          "telemetryDataDeletionLearnMore",
+          "command",
+          gPrivacyPane.showDataDeletion
+        );
       }
-      this.initSubmitHealthReport();
-      setEventListener(
-        "submitHealthReportBox",
-        "command",
-        gPrivacyPane.updateSubmitHealthReport
-      );
-      setEventListener(
-        "telemetryDataDeletionLearnMore",
-        "command",
-        gPrivacyPane.showDataDeletion
-      );
     }
 
     this.readAcceptCookies();
