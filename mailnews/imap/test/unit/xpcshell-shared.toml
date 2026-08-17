@@ -9,6 +9,8 @@ environment = [
 
 ["test_bccProperty.js"]
 
+["test_imapVirtualFolderReuse.js"]
+
 ["test_bug460636.js"]
 
 ["test_chunkLastLF.js"]

@@ -115,3 +115,56 @@ add_task(async function test_create_folder_with_percent() {
     "mailbox://nobody@Local%20Folders/%25this%20has%20a%20%25"
   );
 });
+
+add_task(async function test_virtual_folder_not_reused_after_delete() {
+  localAccountUtils.loadLocalMailAccount();
+  const root = localAccountUtils.rootFolder;
+
+  // Create a virtual folder, and keep a strong reference to it so that the
+  // folder lookup service's weak reference still resolves after deletion.
+  const vfName = "VirtualFolder";
+  const vf = root.addSubfolder(vfName);
+  vf.setFlag(Ci.nsMsgFolderFlags.Virtual);
+
+  // Delete the virtual folder. Its C++ object is removed from the folder tree
+  // (parent set to null), but the cache entry still resolves because of the
+  // strong reference above. Recreating a folder with the same name must NOT
+  // reuse it, otherwise the new folder would incorrectly inherit the Virtual
+  // flag (bug 450059).
+  root.propagateDelete(vf, true);
+  Assert.equal(vf.parent, null, "deleted virtual folder should have no parent");
+
+  const recreated = root.addSubfolder(vfName);
+  Assert.notEqual(recreated, vf, "recreated folder should be a fresh object");
+  Assert.ok(
+    !recreated.getFlag(Ci.nsMsgFolderFlags.Virtual),
+    "recreated folder should not inherit the Virtual flag"
+  );
+});
+
+add_task(async function test_virtual_folder_not_reused_by_get_or_create() {
+  localAccountUtils.loadLocalMailAccount();
+  const root = localAccountUtils.rootFolder;
+
+  // Same as above, but exercised through getOrCreateFolderForURL, which is
+  // what (re)creating an IMAP folder uses (via nsImapMailFolder::AddSubfolder
+  // and AddSubfolderWithPath). It must not return the stale parentless virtual
+  // folder either, otherwise the caller would re-parent it and the new folder
+  // would incorrectly inherit the Virtual flag (bug 450059).
+  const vfName = "VirtualFolder2";
+  const vf = root.addSubfolder(vfName);
+  vf.setFlag(Ci.nsMsgFolderFlags.Virtual);
+
+  root.propagateDelete(vf, true);
+
+  const got = MailServices.folderLookup.getOrCreateFolderForURL(vf.URI);
+  Assert.notEqual(
+    got,
+    vf,
+    "getOrCreateFolderForURL should return a fresh object, not the stale virtual folder"
+  );
+  Assert.ok(
+    !got.getFlag(Ci.nsMsgFolderFlags.Virtual),
+    "fresh object should not inherit the Virtual flag"
+  );
+});

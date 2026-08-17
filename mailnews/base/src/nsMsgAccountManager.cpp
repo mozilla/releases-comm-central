@@ -3321,16 +3321,16 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderRemoved(nsIMsgFolder* parentFolder,
                                                    nsIMsgFolder* folder) {
   MOZ_ASSERT(!mozilla::StaticPrefs::mail_panorama_enabled_AtStartup());
   nsresult rv = NS_OK;
-  uint32_t folderFlags;
-  folder->GetFlags(&folderFlags);
+  // Only the Virtual flag is needed here, and GetFlag reads mFlags directly
+  // without touching the (possibly deleted) folder's message database, which
+  // would recreate its summary file.
+  bool isVirtual = false;
+  folder->GetFlag(nsMsgFolderFlags::Virtual, &isVirtual);
   // if we removed a VF, flush VF list to disk.
-  if (folderFlags & nsMsgFolderFlags::Virtual) {
+  if (isVirtual) {
     RemoveVFListenerForVF(folder, nullptr);
     m_virtualFolders.RemoveElement(folder);
     rv = SaveVirtualFolders();
-    // clear flags on deleted folder if it's a virtual folder, so that creating
-    // a new folder with the same name doesn't cause confusion.
-    folder->SetFlags(0);
     return rv;
   }
   // need to update the saved searches to check for a few things:

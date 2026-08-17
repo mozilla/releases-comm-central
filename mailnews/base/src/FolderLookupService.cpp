@@ -11,6 +11,7 @@
 #include "mozilla/StaticPrefs_mail.h"
 #include "msgCore.h"
 #include "nsINetUtil.h"
+#include "nsMsgFolderFlags.h"
 #include "nsNetCID.h"
 
 /**
@@ -111,10 +112,15 @@ NS_IMETHODIMP FolderLookupService::CreateFolderAndCache(
   // equality by pointer for folders with the same URI, which is relied upon
   // throughout the codebase. This function is still an improvement over
   // `getOrCreateFromURL` because it enforces that folders all have a valid
-  // parent folder, so they can't dangle. This also has the side effect of
-  // maintaining any previously existing flags, but again, the code relies on
-  // that maintenance.
+  // parent folder, so they can't dangle.
   nsCOMPtr<nsIMsgFolder> folderToReturn = GetExisting(uri);
+
+  // If we found a cached folder, check whether it's still in the tree. A
+  // parentless virtual folder was previously deleted and must not be reused.
+  if (folderToReturn) {
+    MaybeDiscardParentlessVirtualFolder(uri, folderToReturn);
+  }
+
   if (!folderToReturn) {
     rv = CreateDangling(uri, getter_AddRefs(folderToReturn));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -128,6 +134,8 @@ NS_IMETHODIMP FolderLookupService::CreateFolderAndCache(
   }
 
   // If the existing folder object has a parent, make sure it's the same parent.
+  // (At this point, folderToReturn either came from the cache with a parent,
+  // or was freshly created via CreateDangling with no parent yet.)
   nsCOMPtr<nsIMsgFolder> obtainedParent;
   rv = folderToReturn->GetParent(getter_AddRefs(obtainedParent));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -170,6 +178,14 @@ NS_IMETHODIMP FolderLookupService::GetOrCreateFolderForURL(
 
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> existingFolder = GetExisting(url);
+  if (existingFolder) {
+    // A cache entry can still resolve to a deleted or renamed folder if
+    // something else holds a strong reference to the folder object. Don't
+    // return a detached virtual folder: the caller would re-parent it and the
+    // new folder would incorrectly inherit the Virtual flag (and with it, the
+    // saved search's scope and terms).
+    MaybeDiscardParentlessVirtualFolder(url, existingFolder);
+  }
   if (existingFolder) {
     // The folder object exists and it has a server with a type,
     // indicating that the server hasn't been removed.
@@ -223,7 +239,7 @@ nsCOMPtr<nsIMsgFolder> FolderLookupService::GetExisting(const nsACString& url) {
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> foundFolder{do_QueryReferent(*found, &rv)};
   if (NS_FAILED(rv)) {
-    // There are no more strong references to this folder, so we can delete it.
+    // The weak reference has expired, so remove its stale cache entry.
     mFolderCache.Remove(url);
     return nullptr;
   }
@@ -272,4 +288,25 @@ nsresult FolderLookupService::CreateDangling(const nsACString& url,
   }
 
   return NS_OK;
+}
+
+void FolderLookupService::MaybeDiscardParentlessVirtualFolder(
+    const nsACString& url, nsCOMPtr<nsIMsgFolder>& folder) {
+  // This is a legacy folder-system concern; when Panorama is enabled the folder
+  // cache is managed differently, so never evict entries here.
+  if (mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
+    return;
+  }
+
+  nsCOMPtr<nsIMsgFolder> parent;
+  if (NS_FAILED(folder->GetParent(getter_AddRefs(parent))) || parent) {
+    return;
+  }
+
+  bool isVirtual = false;
+  folder->GetFlag(nsMsgFolderFlags::Virtual, &isVirtual);
+  if (isVirtual) {
+    mFolderCache.Remove(url);
+    folder = nullptr;
+  }
 }

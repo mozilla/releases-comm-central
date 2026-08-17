@@ -34,6 +34,32 @@ class FolderLookupService final : public nsIFolderLookupService {
    * needs to be parented by a calling function.
    */
   nsresult CreateDangling(const nsACString& url, nsIMsgFolder** folder);
+  /**
+   * If the folder found in the cache for |url| is a parentless virtual folder,
+   * remove it from the cache and null out |folder| so that callers create a
+   * fresh folder object instead of reusing the stale one.
+   *
+   * The cache holds weak references. If a deleted or renamed virtual folder is
+   * still strongly referenced elsewhere, its cache entry continues to resolve
+   * to the detached folder object. Don't reuse that object: re-parenting it
+   * would cause those references to silently point to a completely different
+   * logical folder that incorrectly inherits the Virtual flag (and with it,
+   * the saved search's scope and terms).
+   *
+   * Parentlessness alone does not identify a stale cache entry: legacy folder
+   * creation and recreation paths can temporarily use parentless non-virtual
+   * folder objects. Therefore, this check cannot yet be generalized to all
+   * folders. `GetFlag` is used rather than `GetFlags` so that checking the flag
+   * doesn't touch the deleted folder's message database, which would recreate
+   * its summary file.
+   *
+   * This is a legacy folder-system concern; when Panorama is enabled the folder
+   * cache is managed differently and entries are never evicted here.
+   *
+   * On return, |folder| is null if the folder was discarded.
+   */
+  void MaybeDiscardParentlessVirtualFolder(const nsACString& url,
+                                           nsCOMPtr<nsIMsgFolder>& folder);
 
   nsTHashMap<nsCString, nsWeakPtr> mFolderCache;
 };

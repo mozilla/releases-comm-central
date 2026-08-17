@@ -3523,11 +3523,12 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsACString& name,
     // 2. This folder object already has a child with the specified URI.
     // In both cases, that means `mSubFolders` already contains a child with the
     // given name. This cannot be treated as an error condition because the
-    // folder lookup service reuses folder objects for the same URI, so a folder
-    // that already exists in the cache with this folder's URI will also already
-    // have children matching the child folder's URI. This can be changed once
-    // dangling folders are removed. See
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1679333
+    // folder lookup service enforces pointer identity for live (parented)
+    // folders, so a folder cached with this folder's URI that is still in the
+    // tree will also already be in our children list.
+    // NOTE: The FLS no longer reuses parentless cached virtual folders, which
+    // is a step toward bug 1679333. This branch can be further simplified once
+    // all dangling folder paths are removed.
     if (NS_SUCCEEDED(rv)) {
       mSubFolders.AppendObject(folder);
     }
