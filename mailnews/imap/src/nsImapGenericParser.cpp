@@ -158,11 +158,13 @@ void nsImapGenericParser::AdvanceTokenizerStartingPoint(
     int32_t bytesToAdvance) {
   NS_ASSERTION(bytesToAdvance >= 0, "bytesToAdvance must not be negative");
   if (!fStartOfLineOfTokens) {
-    AdvanceToNextToken();  // the tokenizer was not yet initialized, do it now
-    if (!fStartOfLineOfTokens) return;
+    // The tokenizer needs to be re-initialized. bytesToAdvance was computed
+    // against fCurrentLine, so it's only still valid if AdvanceToNextToken()
+    // re-tokenizes that same line rather than fetching a new one.
+    bool willAdvanceLine = !fCurrentLine || fAtEndOfLine;
+    AdvanceToNextToken();
+    if (!fStartOfLineOfTokens || willAdvanceLine) return;
   }
-
-  if (!fStartOfLineOfTokens) return;
   // The last call to AdvanceToNextToken() cleared the token separator to '\0'
   // iff |fCurrentTokenPlaceHolder|.  We must recover this token separator now.
   if (fCurrentTokenPlaceHolder) {
