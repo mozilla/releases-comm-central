@@ -2638,6 +2638,7 @@ NS_IMETHODIMP nsMsgDBFolder::RemoveFolderListener(nsIFolderListener* listener) {
 }
 
 NS_IMETHODIMP nsMsgDBFolder::SetParent(nsIMsgFolder* aParent) {
+  nsCOMPtr<nsIMsgFolder> oldParent = do_QueryReferent(mParent);
   mParent = do_GetWeakReference(aParent);
   if (aParent) {
     nsresult rv;
@@ -2649,6 +2650,16 @@ NS_IMETHODIMP nsMsgDBFolder::SetParent(nsIMsgFolder* aParent) {
     nsCOMPtr<nsIMsgIncomingServer> server;
     rv = aParent->GetServer(getter_AddRefs(server));
     if (NS_SUCCEEDED(rv) && server) mServer = do_GetWeakReference(server);
+
+    if (!oldParent) {
+      // The folder is being (re-)added to the tree. A folder that was
+      // previously removed (e.g. deleted while it was being loaded) can be
+      // re-used for a new folder with the same name. Its loading state may
+      // have been abandoned without the usual EndFolderLoading cleanup, so
+      // make sure the database listener is re-attached when its database is
+      // (re)opened.
+      mAddListener = true;
+    }
   }
   return NS_OK;
 }

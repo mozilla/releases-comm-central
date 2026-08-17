@@ -25,6 +25,10 @@ tags = ["archive"]
 
 ["test_devtools_url.js"]
 
+["test_viewWrapper_virtualFolderDeleted.js"]
+run-sequentially = true  # Avoid bustage.
+tags = ["virtualfolders"]
+
 ["test_emptyTrash_dbViewWrapper.js"]
 run-sequentially = true  # Avoid bustage.
 
