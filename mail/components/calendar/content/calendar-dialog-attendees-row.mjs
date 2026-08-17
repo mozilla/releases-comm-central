@@ -155,9 +155,12 @@ class CalendarDialogAttendeesRow extends HTMLElement {
         args: { count: counts["NEEDS-ACTION"]?.length || 0 },
       },
     ]);
-    this.#summary.textContent = new Intl.ListFormat(undefined, {
-      style: "narrow",
-    }).format(translations);
+    this.#summary.textContent = new Intl.ListFormat(
+      Services.locale.appLocalesAsBCP47,
+      {
+        style: "narrow",
+      }
+    ).format(translations);
   }
 }
 
