@@ -17,13 +17,12 @@ task-defaults:
     shipping-phase: promote
     task-context:
         from-parameters:
-            head_rev: head_rev
+            head_rev: comm_head_rev
         substitution-fields:
             - worker.actions
     worker-type: lando
     worker:
         implementation: scriptworker-lando
-        repo-param-prefix: comm_
         lando-repo:
             by-project:
                 comm-beta: thunderbird-desktop-beta
