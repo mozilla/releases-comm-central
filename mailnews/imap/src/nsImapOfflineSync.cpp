@@ -777,86 +777,73 @@ nsresult nsImapOfflineSync::ProcessNextOperation() {
         // if we did not find a db record that matches the current playback
         // operation, then move to the next playback operation and recurse.
         if (!currentOp) {
-          // we are done with the current type
-          if (mCurrentPlaybackOpType ==
-              nsIMsgOfflineImapOperation::kFlagsChanged) {
-            mCurrentPlaybackOpType = nsIMsgOfflineImapOperation::kAddKeywords;
-            // recurse to deal with next type of operation
-            m_KeyIndex = 0;
-            ProcessNextOperation();
-          } else if (mCurrentPlaybackOpType ==
-                     nsIMsgOfflineImapOperation::kAddKeywords) {
-            mCurrentPlaybackOpType =
-                nsIMsgOfflineImapOperation::kRemoveKeywords;
-            // recurse to deal with next type of operation
-            m_KeyIndex = 0;
-            ProcessNextOperation();
-          } else if (mCurrentPlaybackOpType ==
-                     nsIMsgOfflineImapOperation::kRemoveKeywords) {
-            mCurrentPlaybackOpType = nsIMsgOfflineImapOperation::kMsgCopy;
-            // recurse to deal with next type of operation
-            m_KeyIndex = 0;
-            ProcessNextOperation();
-          } else if (mCurrentPlaybackOpType ==
-                     nsIMsgOfflineImapOperation::kMsgCopy) {
-            mCurrentPlaybackOpType = nsIMsgOfflineImapOperation::kMsgMoved;
-            // recurse to deal with next type of operation
-            m_KeyIndex = 0;
-            ProcessNextOperation();
-          } else if (mCurrentPlaybackOpType ==
-                     nsIMsgOfflineImapOperation::kMsgMoved) {
-            mCurrentPlaybackOpType = nsIMsgOfflineImapOperation::kAppendDraft;
-            // recurse to deal with next type of operation
-            m_KeyIndex = 0;
-            ProcessNextOperation();
-          } else if (mCurrentPlaybackOpType ==
-                     nsIMsgOfflineImapOperation::kAppendDraft) {
-            mCurrentPlaybackOpType =
-                nsIMsgOfflineImapOperation::kAppendTemplate;
-            // recurse to deal with next type of operation
-            m_KeyIndex = 0;
-            ProcessNextOperation();
-          } else if (mCurrentPlaybackOpType ==
-                     nsIMsgOfflineImapOperation::kAppendTemplate) {
-            mCurrentPlaybackOpType = nsIMsgOfflineImapOperation::kDeleteAllMsgs;
+          int32_t nextOp = 0;
+          switch (mCurrentPlaybackOpType) {
+            case nsIMsgOfflineImapOperation::kFlagsChanged:
+              nextOp = nsIMsgOfflineImapOperation::kAddKeywords;
+              break;
+            case nsIMsgOfflineImapOperation::kAddKeywords:
+              nextOp = nsIMsgOfflineImapOperation::kRemoveKeywords;
+              break;
+            case nsIMsgOfflineImapOperation::kRemoveKeywords:
+              nextOp = nsIMsgOfflineImapOperation::kMsgCopy;
+              break;
+            case nsIMsgOfflineImapOperation::kMsgCopy:
+              nextOp = nsIMsgOfflineImapOperation::kMsgMoved;
+              break;
+            case nsIMsgOfflineImapOperation::kMsgMoved:
+              nextOp = nsIMsgOfflineImapOperation::kAppendDraft;
+              break;
+            case nsIMsgOfflineImapOperation::kAppendDraft:
+              nextOp = nsIMsgOfflineImapOperation::kAppendTemplate;
+              break;
+            case nsIMsgOfflineImapOperation::kAppendTemplate:
+              nextOp = nsIMsgOfflineImapOperation::kDeleteAllMsgs;
+              break;
+            default:
+              break;
+          }
+          if (nextOp) {
+            mCurrentPlaybackOpType = nextOp;
             m_KeyIndex = 0;
             ProcessNextOperation();
           } else {
             DeleteAllOfflineOpsForCurrentDB();
             currentFolderFinished = true;
           }
-
         } else {
-          if (mCurrentPlaybackOpType ==
-              nsIMsgOfflineImapOperation::kFlagsChanged)
-            ProcessFlagOperation(currentOp);
-          else if (mCurrentPlaybackOpType ==
-                       nsIMsgOfflineImapOperation::kAddKeywords ||
-                   mCurrentPlaybackOpType ==
-                       nsIMsgOfflineImapOperation::kRemoveKeywords)
-            ProcessKeywordOperation(currentOp);
-          else if (mCurrentPlaybackOpType ==
-                   nsIMsgOfflineImapOperation::kMsgCopy)
-            ProcessCopyOperation(currentOp);
-          else if (mCurrentPlaybackOpType ==
-                   nsIMsgOfflineImapOperation::kMsgMoved)
-            ProcessMoveOperation(currentOp);
-          else if (mCurrentPlaybackOpType ==
-                   nsIMsgOfflineImapOperation::kAppendDraft)
-            ProcessAppendMsgOperation(currentOp,
-                                      nsIMsgOfflineImapOperation::kAppendDraft);
-          else if (mCurrentPlaybackOpType ==
-                   nsIMsgOfflineImapOperation::kAppendTemplate)
-            ProcessAppendMsgOperation(
-                currentOp, nsIMsgOfflineImapOperation::kAppendTemplate);
-          else if (mCurrentPlaybackOpType ==
-                   nsIMsgOfflineImapOperation::kDeleteAllMsgs) {
-            // empty trash is going to delete the db, so we'd better release the
-            // reference to the offline operation first.
-            currentOp = nullptr;
-            ProcessEmptyTrash();
-          } else
-            NS_WARNING("invalid playback op type");
+          switch (mCurrentPlaybackOpType) {
+            case nsIMsgOfflineImapOperation::kFlagsChanged:
+              ProcessFlagOperation(currentOp);
+              break;
+            case nsIMsgOfflineImapOperation::kAddKeywords:
+            case nsIMsgOfflineImapOperation::kRemoveKeywords:
+              ProcessKeywordOperation(currentOp);
+              break;
+            case nsIMsgOfflineImapOperation::kMsgCopy:
+              ProcessCopyOperation(currentOp);
+              break;
+            case nsIMsgOfflineImapOperation::kMsgMoved:
+              ProcessMoveOperation(currentOp);
+              break;
+            case nsIMsgOfflineImapOperation::kAppendDraft:
+              ProcessAppendMsgOperation(
+                  currentOp, nsIMsgOfflineImapOperation::kAppendDraft);
+              break;
+            case nsIMsgOfflineImapOperation::kAppendTemplate:
+              ProcessAppendMsgOperation(
+                  currentOp, nsIMsgOfflineImapOperation::kAppendTemplate);
+              break;
+            case nsIMsgOfflineImapOperation::kDeleteAllMsgs:
+              // empty trash is going to delete the db, so we'd better release
+              // the reference to the offline operation first.
+              currentOp = nullptr;
+              ProcessEmptyTrash();
+              break;
+            default:
+              NS_WARNING("invalid playback op type");
+              break;
+          }
         }
       } else
         currentFolderFinished = true;
