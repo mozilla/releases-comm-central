@@ -3,16 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * When an encrypted message is displayed, its URI is remembered.
- * When the user navigates away, the entry must be forgotten again,
- * even when the message can no longer be resolved to its necko URL.
- * Not forgetting would cause the URL entry to be kept, and could
- * wrongly cause an unrelated message to be treated as encrypted.
+ * When an encrypted message is displayed, its URI is remembered by
+ * gEncryptedURIService (used by the remote-content policy). That entry is
+ * forgotten again when navigating away, which involves re-deriving the
+ * message's necko URL. If the message can no longer be resolved (e.g. its
+ * account has been removed), the cleanup must still remove the remembered entry
+ * and must not throw and break the display of the next message (bug 2052976).
+ *
+ * Two complementary checks: one on the cleanup itself (the entries are gone),
+ * and one on the user-visible symptom (the next message still displays).
  */
 
 "use strict";
 
-const { be_in_folder, get_about_message, select_click_row } =
+const { be_in_folder, create_folder, get_about_message, select_click_row } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
   );
@@ -30,39 +34,13 @@ const gEncryptedURIService = Cc[
   "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"
 ].getService(Ci.nsIEncryptedSMIMEURIsService);
 
-let account;
-let folder;
+const MSG_BODY = "This is a test message from Alice to Bob.";
 
-add_setup(async function () {
-  SmimeUtils.ensureNSS();
-  SmimeUtils.loadPEMCertificate(
-    new FileUtils.File(getTestFilePath("data/TestCA.pem")),
-    Ci.nsIX509Cert.CA_CERT
-  );
-  SmimeUtils.loadCertificateAndKey(
-    new FileUtils.File(getTestFilePath("data/Bob.p12")),
-    "nss"
-  );
-  SmimeUtils.loadCertificateAndKey(
-    new FileUtils.File(getTestFilePath("data/Alice.p12")),
-    "nss"
-  );
+let survivingFolder;
+const removableAccounts = [];
+let accountCounter = 0;
 
-  // A dedicated account that can be removed while the message is displayed.
-  account = MailServices.accounts.createAccount();
-  account.incomingServer = MailServices.accounts.createIncomingServer(
-    "bob",
-    "example.com",
-    "pop3"
-  );
-  const identity = MailServices.accounts.createIdentity();
-  identity.email = "bob@example.com";
-  account.addIdentity(identity);
-
-  const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  folder = rootFolder.createLocalSubfolder("Encrypted");
-
+async function addEnvelopedMessage(folder) {
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFileMessage(
     new FileUtils.File(getTestFilePath("data/alice.env.eml")),
@@ -75,40 +53,94 @@ add_setup(async function () {
     null
   );
   await copyListener.promise;
+}
 
-  registerCleanupFunction(function () {
-    if (MailServices.accounts.accounts.includes(account)) {
-      MailServices.accounts.removeAccount(account, true);
-    }
-    SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob", "Alice"]);
-  });
-});
+function getMsgBodyTxt() {
+  return get_about_message().getMessagePaneBrowser().contentDocument
+    .documentElement.textContent;
+}
 
-add_task(async function test_encryptedUriForgottenWhenAccountRemoved() {
+/**
+ * Create a dedicated account (so it, and thus the message's server, can be
+ * removed later), put an enveloped message in it, and display it. Returns the
+ * account plus the URIs that were remembered while displaying it.
+ */
+async function displayEncryptedMessageInRemovableAccount() {
+  accountCounter++;
+  const account = MailServices.accounts.createAccount();
+  account.incomingServer = MailServices.accounts.createIncomingServer(
+    "bob",
+    `example-${accountCounter}.test`,
+    "pop3"
+  );
+  const identity = MailServices.accounts.createIdentity();
+  identity.email = "bob@example.com";
+  account.addIdentity(identity);
+  removableAccounts.push(account);
+
+  const rootFolder = account.incomingServer.rootFolder;
+  rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  const folder = rootFolder.createLocalSubfolder("Encrypted");
+  await addEnvelopedMessage(folder);
+
   await be_in_folder(folder);
   await select_click_row(0);
-
   const aboutMessage = get_about_message();
   await TestUtils.waitForCondition(
     () => aboutMessage.gMyLastEncryptedURI,
-    "the message should be processed"
+    "the encrypted message should be processed"
   );
-
-  // Displaying the decrypted message registers both the message URI and the
-  // corresponding necko URL.
   const messageUri = aboutMessage.gMyLastEncryptedURI;
   const neckoUri = MailServices.neckoURLForMessageURI(messageUri);
   await TestUtils.waitForCondition(
     () => gEncryptedURIService.isEncrypted(neckoUri),
     "the displayed encrypted message should be registered with the service"
   );
+  return { account, aboutMessage, messageUri, neckoUri };
+}
+
+add_setup(async function () {
+  SmimeUtils.ensureNSS();
+  SmimeUtils.loadPEMCertificate(
+    new FileUtils.File(getTestFilePath("data/TestCA.pem")),
+    Ci.nsIX509Cert.CA_CERT
+  );
+  // The message is enveloped to Bob; his key is needed to decrypt it.
+  SmimeUtils.loadCertificateAndKey(
+    new FileUtils.File(getTestFilePath("data/Bob.p12")),
+    "nss"
+  );
+  SmimeUtils.loadCertificateAndKey(
+    new FileUtils.File(getTestFilePath("data/Alice.p12")),
+    "nss"
+  );
+
+  survivingFolder = await create_folder("EncryptedUriCleanupSurviving");
+  await addEnvelopedMessage(survivingFolder);
+
+  registerCleanupFunction(function () {
+    for (const account of removableAccounts) {
+      if (MailServices.accounts.accounts.includes(account)) {
+        MailServices.accounts.removeAccount(account, true);
+      }
+    }
+    SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob", "Alice"]);
+  });
+});
+
+/**
+ * Cleanup check: after the account is removed, the remembered message URI and
+ * necko URL are both forgotten - even though the necko URL can no longer be
+ * derived from the (now unresolvable) message URI.
+ */
+add_task(async function test_entriesForgottenWhenAccountRemoved() {
+  const { account, aboutMessage, messageUri, neckoUri } =
+    await displayEncryptedMessageInRemovableAccount();
   Assert.ok(
     gEncryptedURIService.isEncrypted(messageUri),
     "the message URI should be registered as encrypted"
   );
 
-  // Remove the account, so the message URI can no longer be resolved to its
-  // necko URL.
   MailServices.accounts.removeAccount(account, true);
   let derivable = true;
   try {
@@ -121,8 +153,6 @@ add_task(async function test_encryptedUriForgottenWhenAccountRemoved() {
     "the necko URL can no longer be derived from the message URI"
   );
 
-  // The message-header sink forgets the remembered URIs when navigating away.
-  // Ensure the necko URL was forgotten, too.
   try {
     aboutMessage.forgetEncryptedURI();
   } catch (ex) {}
@@ -134,5 +164,23 @@ add_task(async function test_encryptedUriForgottenWhenAccountRemoved() {
   Assert.ok(
     !gEncryptedURIService.isEncrypted(messageUri),
     "the message URI entry must be cleaned up too"
+  );
+});
+
+/**
+ * Symptom check: navigating to another message after the account is removed must
+ * still work. Before the fix, the header sink threw while re-deriving the now
+ * unresolvable necko URL, which broke display of the next message.
+ */
+add_task(async function test_navigatingAwayWorksAfterAccountRemoved() {
+  const { account } = await displayEncryptedMessageInRemovableAccount();
+
+  MailServices.accounts.removeAccount(account, true);
+
+  await be_in_folder(survivingFolder);
+  await select_click_row(0);
+  await TestUtils.waitForCondition(
+    () => getMsgBodyTxt().includes(MSG_BODY),
+    "the next message must still decrypt and display after the account was removed"
   );
 });
