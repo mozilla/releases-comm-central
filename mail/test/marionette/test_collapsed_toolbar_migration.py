@@ -36,11 +36,23 @@ class TestCollapsedToolbarMigration(MarionetteTestCase):
     toolbar.
     """
 
+    # The toolbars are near the end of messengercompose.xhtml, so wait for the
+    # compose window to be ready before looking for them.
     get_collapsed_attributes = """
-        return [
-            document.getElementById("composeToolbar2").getAttribute("collapsed"),
-            document.getElementById("compose-toolbar-menubar2").getAttribute("collapsed"),
-        ];
+        const [resolve] = arguments;
+
+        function finish() {
+            resolve([
+                document.getElementById("composeToolbar2").getAttribute("collapsed"),
+                document.getElementById("compose-toolbar-menubar2").getAttribute("collapsed"),
+            ]);
+        }
+
+        if (window.composeEditorReady) {
+            finish();
+        } else {
+            window.addEventListener("compose-editor-ready", finish, { once: true });
+        }
     """
 
     get_xulstore_value = """
@@ -158,7 +170,7 @@ class TestCollapsedToolbarMigration(MarionetteTestCase):
             self.assertEqual("msgcompose", self.marionette.get_window_type())
             self.assertEqual(
                 expected_attribute_values,
-                self.marionette.execute_script(self.get_collapsed_attributes),
+                self.marionette.execute_async_script(self.get_collapsed_attributes),
             )
         finally:
             for key in COMPOSE_PREFS:
