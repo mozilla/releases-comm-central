@@ -14,6 +14,8 @@ var { CalendarTestUtils } = ChromeUtils.importESModule(
 
 var { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
 
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
+
 var gCalendar;
 
 /**
@@ -43,6 +45,9 @@ add_setup(async function () {
  * The party crashing dialog should not show.
  */
 add_task(async function test_message_non_invite_eml() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.dialogs.new.enabled", true]],
+  });
   const file = new FileUtils.File(getTestFilePath("data/message-non-invite.eml"));
 
   const win = await openMessageFromFile(file);
@@ -69,6 +74,20 @@ add_task(async function test_message_non_invite_eml() {
 
   const imipDetailsButton = aboutMessage.document.getElementById("imipDetailsButton");
   Assert.ok(!imipDetailsButton.hidden, "Details button should show");
+
+  EventUtils.synthesizeMouseAtCenter(imipDetailsButton, {}, aboutMessage);
+
+  const calendarWindow = cal.window.getCalendarWindow();
+
+  await TestUtils.waitForCondition(
+    () => calendarWindow?.document.querySelector("#calendarDialog[open]"),
+    "Waiting for the new calendar read dialog to open"
+  );
+
+  Assert.ok(
+    calendarWindow.document.querySelector("#calendarDialog[open]"),
+    "Details should open the new calendar read dialog"
+  );
 
   await BrowserTestUtils.closeWindow(win);
 });

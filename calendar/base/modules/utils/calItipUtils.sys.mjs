@@ -749,6 +749,11 @@ export var itip = {
       if (aFoundItems?.length) {
         let item = aFoundItems[0].isMutable ? aFoundItems[0] : aFoundItems[0].clone();
 
+        if (aParticipantStatus == "X-SHOWDETAILS") {
+          lazy.cal.window.getCalendarWindow()?.openEventDialogForViewing(item);
+          return true;
+        }
+
         if (aParticipantStatus == "X-RESCHEDULE") {
           // TODO most of the following should be moved to the actionFunc defined in
           // calItipUtils
