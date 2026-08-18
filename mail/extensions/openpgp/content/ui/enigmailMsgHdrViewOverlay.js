@@ -639,25 +639,6 @@ var openpgpSink = {
   },
 
   /**
-   * @param {string} uri - URI to handle.
-   */
-  handleSMimeMessage(uri) {
-    if (
-      Enigmail.hdrView.msgSignedStateString != null ||
-      Enigmail.hdrView.msgEncryptedStateString != null
-    ) {
-      // If we already processed an OpenPGP part, then we are handling
-      // a message with an inner S/MIME part. We must not reload
-      // the message here, because we'd run into an endless loop.
-      return;
-    }
-    if (EnigmailFuncs.isCurrentMessage(gMessageURI, uri)) {
-      EnigmailVerify.unregisterPGPMimeHandler();
-      Enigmail.msg.messageReload(false);
-    }
-  },
-
-  /**
    * Process an unobtrusive-signature header line.
    *
    * @param {string} payload - The signed part of the message that

@@ -86,8 +86,15 @@ extern mozilla::LazyLogModule gMimeCmsLog;
 void getMsgHdrForCurrentURL(MimeDisplayOptions* opts, nsIMsgDBHdr** aMsgHdr);
 char* mime_part_address(MimeObject* obj);
 
+// Implemented in mailnews/mime/cthandlers/pgpmime/nsPgpMimeProxy.cpp.
+extern "C" MimeObjectClass* MIME_PgpMimeCreateContentTypeHandlerClass(
+    const char* content_type, contentTypeHandlerInitStruct* initStruct);
+
 #define IMAP_EXTERNAL_CONTENT_HEADER "X-Mozilla-IMAP-Part"
 #define EXTERNAL_ATTACHMENT_URL_HEADER "X-Mozilla-External-Attachment-URL"
+
+// Not defined by nsMimeTypes.h.
+#define APPLICATION_PGP_SIGNATURE "application/pgp-signature"
 
 /* ==========================================================================
    Allocation and destruction
@@ -356,6 +363,25 @@ void getMsgHdrForCurrentURL(MimeDisplayOptions* opts, nsIMsgDBHdr** aMsgHdr) {
   return;
 }
 
+/* Is this a multipart/signed part carrying an OpenPGP signature? */
+static bool mime_is_pgp_signed(const char* content_type, MimeHeaders* hdrs) {
+  if (!content_type || PL_strcasecmp(content_type, MULTIPART_SIGNED)) {
+    return false;
+  }
+
+  char* ct =
+      hdrs ? MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false) : nullptr;
+  char* proto =
+      ct ? MimeHeaders_get_parameter(ct, PARAM_PROTOCOL, nullptr, nullptr)
+         : nullptr;
+
+  bool isPgp = proto && !PL_strcasecmp(proto, APPLICATION_PGP_SIGNATURE);
+
+  PR_FREEIF(proto);
+  PR_FREEIF(ct);
+  return isPgp;
+}
+
 MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
                                  MimeDisplayOptions* opts, bool exact_match_p,
                                  MimeObject* smimeParentObj) {
@@ -464,6 +490,22 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
         clazz = (MimeObjectClass*)&mimeExternalObjectClass;  // As attachment
     } else
       clazz = (MimeObjectClass*)tempClass;
+  } else if (mime_is_pgp_signed(content_type, hdrs) &&
+             !(opts && opts->notify_nested_bodies)) {
+    /* Route OpenPGP signed parts to the JS OpenPGP code.
+
+       The whole part is streamed to JS, which returns only the signed
+       content, so the signature part and the container are no longer visible
+       as MIME parts
+
+       notify_nested_bodies means the consumer builds a representation of the
+       MIME structure, so it needs the parts themselves. Compare
+       MimeMultipartSigned_emit_child(), where the S/MIME capable multipart
+       class notifies such a consumer about the child that its own dummied out
+       create_child would otherwise hide. We have no part to notify about, so
+       leave signed parts to the generic multipart handling instead. */
+    clazz =
+        MIME_PgpMimeCreateContentTypeHandlerClass(content_type, &ctHandlerInfo);
   } else {
     if (!content_type || !*content_type ||
         !PL_strcasecmp(content_type, "text")) /* with no / in the type */

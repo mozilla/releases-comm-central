@@ -1,0 +1,45 @@
+X-Mozilla-Status: 0001
+X-Mozilla-Status2: 00800000
+To: alice@openpgp.example
+From: Bob Babbage <bob@openpgp.example>
+Message-ID: <b5c1e0e6-6d3d-4c67-9d0e-6f6b1b0f5a21@openpgp.example>
+Date: Wed, 14 Oct 2020 13:55:14 -0400
+MIME-Version: 1.0
+Subject: S/MIME signature inside PGP/MIME encryption
+Content-Type: multipart/encrypted; protocol="application/pgp-encrypted";
+ boundary="OUTERENCBOUNDARY"
+
+This is an OpenPGP/MIME encrypted message (RFC 4880 and 3156)
+--OUTERENCBOUNDARY
+Content-Type: application/pgp-encrypted
+Content-Description: PGP/MIME version identification
+
+Version: 1
+
+--OUTERENCBOUNDARY
+Content-Type: application/octet-stream; name="encrypted.asc"
+Content-Description: OpenPGP encrypted message
+Content-Disposition: inline; filename="encrypted.asc"
+
+-----BEGIN PGP MESSAGE-----
+
+hF4DR2b2udXyHrYSAQdArBPkN/2Bva8VpK5uqNuUkoD3M+BDxXI3SdJVu6hrMhow
+G5wuLoQo7H2gxAb7WabkrBBv3Izave3gH6JdffcaxPtPYXMWzJCqS84yXwm8Aj/Q
+0sIIATrUIrFdQRRZpUAdWG220jiZsOomyPTs1+Kqlppn/lcwhAjNCvcyEI6awgn5
+OloXAECTp/Q7vr+VfvdfnmTBkQM1BMInEk0gFUYAt7OYYxXsN6A954NMg+6bEAkX
+zIEMiO3vBSJ8GALOIm8AASE6wD++6IESnzBZeZXnF3+dAASa0rYwfUCFEe2NNnQT
+TjEX22iOyIpP/M6VsXzQPfkMT3A7TWLhZ+j5hYVNYB0UDPWYXwIdlR9qgNf7tfXp
+hmbI1HHUWYOuqUrzejl1ZT4R/dbNLeHOObj0ZVE2mKHqWZpr2uo8LiYT6HZ+JqmB
+qYQYqBtYL4z0yWPOLCcY8pyXkTfD4v85YWtdquug5zFViK9ly+t+LKwi+rDagCeW
+WJTUnIjAGFrzWjI82uj5dKlmPfEcg5DbXMMdM9L02NnAgcoUL6osUnpiFN35yGFm
+k/npTG836kC14PgK9yKf8oBB/xngCcgtKzTCTWQTWJGkJRR6BD1PdLijlzAXOLrV
+rsxyepxjfmwwzbxkQC8iDUpUFR8fm6RYyO8bH0DP52YeoMAxn6jPKSTIH0yDLOAz
+01NkDlnT9/fZSakT7XJHjQEI04OyNqQNKXiBE0dl9MiYY/lcOQ/La5h1nbevSpxG
+BtOXKefx0keCYQ515x2c0xdahegjgL+FQdz/Ig09d+lvGshpWSvd5/ARVUSyR9jB
+WgI1I4KObokNFtTTXdxg4XSwHF56yQHOMfowZV5b4nT1tZH1aq3JAwb6vl1sTTse
+MFt0ftoRR5j/rSF8ZdMYCA2LkOoaUzswhItDEqO+UGpx0t/+SnfqeO417U4mJVX7
+zexni3AawGQ7zVk5mezrhfQBN9iaSENkrgSnZNF4a+1UHJUpBfkvljhhRQMuntvf
+oVk7BHKXZ/8ATBIDylZhNfuap9V8VTanHrN0PyLMqKt/+2Pze5aao/M95g==
+=Wv0P
+-----END PGP MESSAGE-----
+--OUTERENCBOUNDARY--

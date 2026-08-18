@@ -18,8 +18,6 @@ support-files = [
 
 ["test_bug493544.js"]
 
-["test_handlerRegistration.js"]
-
 ["test_hidden_attachments.js"]
 
 ["test_jsmime_charset.js"]
@@ -32,9 +30,15 @@ support-files = [
 
 ["test_mime_recursion.js"]
 
-["test_multipart_related_svg.js"]
+["test_multipartSignedDispatch.js"]
+tags = [
+  "openpgp",
+  "smime",
+]
 
 ["test_multipart_related_start.js"]
+
+["test_multipart_related_svg.js"]
 
 ["test_nsIMsgHeaderParser1.js"]
 

@@ -4,7 +4,6 @@
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.sys.mjs",
   EnigmailMimeEncrypt: "chrome://openpgp/content/modules/mimeEncrypt.sys.mjs",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.sys.mjs",
 });
@@ -24,7 +23,6 @@ export var EnigmailCore = {
 
     this.factories = [];
 
-    lazy.EnigmailVerify.registerPGPMimeHandler();
     //EnigmailFiltersWrapper.onStartup();
 
     lazy.EnigmailMimeEncrypt.init();

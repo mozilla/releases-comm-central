@@ -774,6 +774,30 @@ add_task(async function testOuterSmimeSigInnerPgpSignedByUnverifiedEncrypted() {
 });
 
 /**
+ * Test that the content of an S/MIME signed part, which is nested inside
+ * an OpenPGP encrypted message, is displayed. The S/MIME signature in the
+ * test message is invalid, only displaying the signed content matters.
+ */
+add_task(async function testInnerSmimeSigInsidePgpEncrypted() {
+  const msgc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath("data/eml/inner-smime-sig-in-pgp-encrypted.eml")
+    )
+  );
+  const aboutMessage = get_about_message(msgc);
+
+  Assert.ok(
+    getMsgBodyTxt(msgc).includes(MSG_TEXT),
+    "decrypted text of the S/MIME signed part should be in body"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
+    "encrypted icon should be shown"
+  );
+  await BrowserTestUtils.closeWindow(msgc);
+});
+
+/**
  * Test that we DO NOT decrypt a nested OpenPGP encrypted message
  * at MIME level 3, with an outer signature layer (level 1) and a
  * multipart/mixed in between (level 2).
@@ -854,6 +878,40 @@ add_task(async function testOuterPgpSigOpenSignedByUnverifiedEncrypted() {
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon should be shown"
+  );
+  await BrowserTestUtils.closeWindow(msgc);
+});
+
+/**
+ * Test that processing a mailing list digest containing multiple different
+ * signatures does not result in an endless reload loop, see bug 1946168.
+ */
+add_task(async function testMultipleSignatures() {
+  const msgc = await open_message_from_file(
+    new FileUtils.File(getTestFilePath("data/eml/multiple-signatures.eml"))
+  );
+  const aboutMessage = get_about_message(msgc);
+  Assert.ok(
+    getMsgBodyTxt(msgc).includes("Send dovecot mailing list submissions to"),
+    "message text should be in body"
+  );
+  Assert.ok(
+    getMsgBodyTxt(msgc).includes("hello2"),
+    "body of the nested unsigned message should be in body"
+  );
+  Assert.ok(
+    getMsgBodyTxt(msgc).includes("hello3"),
+    "body of the nested S/MIME signed message should be in body"
+  );
+  // This is an S/MIME signature status; at the time of writing this test,
+  // the string "mismatch" is used for status "notok".
+  Assert.ok(
+    !OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "mismatch"),
+    "signed icon should not be displayed"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
+    "encrypted icon should not be displayed"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });

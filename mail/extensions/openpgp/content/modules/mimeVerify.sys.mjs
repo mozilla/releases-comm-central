@@ -32,8 +32,6 @@ export var EnigmailVerify = {
   _initialized: false,
   lastMsgUri: null,
 
-  currentCtHandler: EnigmailConstants.MIME_HANDLER_UNDEF,
-
   init() {
     if (this._initialized) {
       return;
@@ -49,47 +47,6 @@ export var EnigmailVerify = {
     const v = new MimeVerify(protocol);
     return v;
   },
-
-  pgpMimeFactory: {
-    classID: Components.ID("{4f4400a8-9bcc-4b9d-9d53-d2437b377e29}"),
-    createInstance(iid) {
-      return Cc[
-        "@mozilla.org/mimecth;1?type=multipart/encrypted"
-      ].createInstance(iid);
-    },
-  },
-
-  /**
-   * Sets the PGPMime content type handler as the registered handler.
-   */
-  registerPGPMimeHandler() {
-    if (this.currentCtHandler == EnigmailConstants.MIME_HANDLER_PGPMIME) {
-      return;
-    }
-
-    const reg = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
-    reg.registerFactory(
-      this.pgpMimeFactory.classID,
-      "PGP/MIME verification",
-      "@mozilla.org/mimecth;1?type=multipart/signed",
-      this.pgpMimeFactory
-    );
-
-    this.currentCtHandler = EnigmailConstants.MIME_HANDLER_PGPMIME;
-  },
-
-  /**
-   * Clears the PGPMime content type handler registration. If no factory is
-   * registered, S/MIME works.
-   */
-  unregisterPGPMimeHandler() {
-    const reg = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
-    if (this.currentCtHandler == EnigmailConstants.MIME_HANDLER_PGPMIME) {
-      reg.unregisterFactory(this.pgpMimeFactory.classID, this.pgpMimeFactory);
-    }
-
-    this.currentCtHandler = EnigmailConstants.MIME_HANDLER_SMIME;
-  },
 };
 
 /**
@@ -98,7 +55,8 @@ export var EnigmailVerify = {
  * @param {?string} protocol - Type, like application/pgp-signature.
  */
 function MimeVerify(protocol) {
-  this.protocol = protocol || "application/pgp-signature";
+  // Lowercase, it's compared to the lowercased protocol from the message.
+  this.protocol = (protocol || "application/pgp-signature").toLowerCase();
   this.verifyEmbedded = false;
   this.partiallySigned = false;
   this.exitCode = null;
@@ -471,6 +429,11 @@ MimeVerify.prototype = {
       this.signedData
     );
     this.returnData(this.signedData);
+
+    if (this.protocol != "application/pgp-signature") {
+      lazy.log.debug(`Unexpected protocol seen: ${this.protocol}`);
+      return;
+    }
 
     if (!this.isAllowedSigPart(this.mimePartNumber, this.msgUriSpec)) {
       lazy.EnigmailSingletons.addUriWithNestedSignedPart(this.msgUriSpec);

@@ -100,4 +100,54 @@ GOOD_DATE=$(grep ^Date "alice.dsig.SHA256.multipart.eml" | sed 's/^Date: //')
 FUTURE_DATE=$(date --utc --rfc-email --date="${GOOD_DATE} + 6 hours")
 sed "s/^Date: .*$/Date: ${FUTURE_DATE}/" "alice.dsig.SHA256.multipart.eml" > "alice.future.dsig.SHA256.multipart.eml"
 
+# Wrap the clear-signed message in a multipart/mixed part and append an
+# unsigned footer, like mailing list software does. The signed part is
+# copied unmodified, its signature remains valid.
+# The signed part is at MIME part number 1.1, unless an unsigned header
+# part is added in front of it, then it is at 1.2.
+# $1: output file, $2: if "header", add an unsigned part before the
+# signed part.
+
+MIXED_BOUNDARY="============MIXEDBOUNDARY=="
+MIXED_DATE=$(printf '%s' "${GOOD_DATE}" | tr -d '\r')
+MIXED_SIGNED_CT=$(grep -i '^Content-Type: multipart/signed' "alice.dsig.SHA256.multipart.eml" | tr -d '\r')
+
+wrap_signed_in_mixed() {
+  {
+    printf 'MIME-Version: 1.0\r\n'
+    printf 'Date: %s\r\n' "${MIXED_DATE}"
+    printf 'From: Alice@example.com\r\n'
+    printf 'To: test-list@example.com\r\n'
+    printf 'Subject: [test-list] clear-signed sig.SHA256 wrapped in multipart/mixed\r\n'
+    printf 'Content-Type: multipart/mixed; boundary="%s"\r\n' "${MIXED_BOUNDARY}"
+    printf '\r\n'
+    if [ "$2" = "header" ]
+    then
+      printf -- '--%s\r\n' "${MIXED_BOUNDARY}"
+      printf 'Content-Type: text/plain; charset="us-ascii"\r\n'
+      printf 'Content-Transfer-Encoding: 7bit\r\n'
+      printf 'Content-Description: Mailing list header\r\n'
+      printf '\r\n'
+      printf 'Welcome to the test-list mailing list.\r\n'
+      printf '\r\n'
+    fi
+    printf -- '--%s\r\n' "${MIXED_BOUNDARY}"
+    printf '%s\r\n' "${MIXED_SIGNED_CT}"
+    printf '\r\n'
+    # Everything after the header block, that is the complete signed part.
+    sed '1,/^\r*$/d' "alice.dsig.SHA256.multipart.eml"
+    printf -- '--%s\r\n' "${MIXED_BOUNDARY}"
+    printf 'Content-Type: text/plain; charset="us-ascii"\r\n'
+    printf 'Content-Transfer-Encoding: 7bit\r\n'
+    printf 'Content-Description: Mailing list footer\r\n'
+    printf '\r\n'
+    printf 'test-list mailing list -- test-list@example.com\r\n'
+    printf '\r\n'
+    printf -- '--%s--\r\n' "${MIXED_BOUNDARY}"
+  } > "$1"
+}
+
+wrap_signed_in_mixed "$MILLDIR/alice.dsig.SHA256.multipart.in.mixed.eml"
+wrap_signed_in_mixed "$MILLDIR/alice.dsig.SHA256.multipart.in.mixed.with.header.eml" header
+
 rm -rf $TMPDIR

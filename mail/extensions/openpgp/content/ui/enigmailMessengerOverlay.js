@@ -42,7 +42,6 @@ ChromeUtils.defineESModuleGetters(this, {
   EnigmailSingletons: "chrome://openpgp/content/modules/singletons.sys.mjs",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.sys.mjs",
   EnigmailTrust: "chrome://openpgp/content/modules/trust.sys.mjs",
-  EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.sys.mjs",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.sys.mjs",
   getMimeTreeFromUrl: "chrome://openpgp/content/modules/MimeTree.sys.mjs",
   KeyLookupHelper: "chrome://openpgp/content/modules/keyLookupHelper.sys.mjs",
@@ -211,25 +210,6 @@ Enigmail.msg = {
       return null;
     }
     return MailServices.messageServiceFromURI(uri).getUrlForUri(uri);
-  },
-
-  /**
-   * Check that handler for multipart/signed is set to Enigmail.
-   * if handler is different, change it and reload message.
-   *
-   * @returns {boolean}
-   *  - true if handler is OK
-   *  - false if handler was changed and message is reloaded
-   */
-  checkPgpmimeHandler() {
-    if (
-      EnigmailVerify.currentCtHandler !== EnigmailConstants.MIME_HANDLER_PGPMIME
-    ) {
-      EnigmailVerify.registerPGPMimeHandler();
-      this.messageReload();
-      return false;
-    }
-    return true;
   },
 
   async notifyMessageDecryptDone() {
@@ -504,12 +484,6 @@ Enigmail.msg = {
           EnigmailMime.getProtocol(contentType)
         );
       if (!smime && (msgSigned || msgEncrypted)) {
-        // PGP/MIME messages
-
-        if (!Enigmail.msg.checkPgpmimeHandler()) {
-          return;
-        }
-
         // TODO Clarify: why reload?
         if (!isAuto) {
           Enigmail.msg.messageReload(false);
