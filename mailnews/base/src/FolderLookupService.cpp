@@ -261,11 +261,7 @@ nsresult FolderLookupService::CreateDangling(const nsACString& url,
   contractId.Append(scheme);
 
   nsresult rv;
-  nsCOMPtr<nsIFactory> factory = do_GetClassObject(contractId.get(), &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMsgFolder> newFolder;
-  rv = factory->CreateInstance(NS_IMSGFOLDER_IID, getter_AddRefs(newFolder));
+  nsCOMPtr<nsIMsgFolder> newFolder = do_CreateInstance(contractId.get(), &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (newFolder) {
