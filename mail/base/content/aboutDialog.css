@@ -22,14 +22,6 @@
   }
 }
 
-html,
-body {
-  inline-size: 670px;
-  block-size: 400px;
-  min-inline-size: 670px;
-  min-block-size: 400px;
-}
-
 body {
   margin: 0;
   overflow: hidden;
@@ -45,21 +37,19 @@ body {
 #aboutDialogContainer {
   display: flex;
   flex-direction: column;
-  inline-size: 100vw;
-  block-size: 100vh;
+  block-size: 100%;
   color: var(--dialog-box-color);
   background-color: var(--dialog-background);
 }
 
 #clientBox {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 3px;
-  flex: 1 1 0;
+  flex: 1 0 auto;
   background-color: var(--client-box-background);
 }
 
 #leftBox {
+  min-inline-size: 220px;
+  min-block-size: 240px;
   background-position: top center;
   background-repeat: no-repeat;
 }
@@ -73,6 +63,8 @@ body {
   margin-inline-end: 30px;
   -moz-context-properties: fill;
   fill: currentColor;
+  max-inline-size: 440px;
+  flex: 1 auto;
 
   &:-moz-locale-dir(rtl) {
     background-position: 100% 0;
