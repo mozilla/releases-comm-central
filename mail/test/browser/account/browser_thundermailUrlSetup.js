@@ -41,19 +41,19 @@ async function configureServers(username, accessToken, refreshToken) {
   });
 
   OAuth2TestUtils.stopServer();
+  OAuth2TestUtils.forgetObjects();
   oAuth2Server = await OAuth2TestUtils.startServer({
     username,
     accessToken,
     refreshToken,
   });
-  oAuth2Server.grantedScope = "test_mail";
 }
 
 add_setup(async function () {
   await SpecialPowers.pushPrefEnv({
     set: [
       ["mail.accounthub.thundermail.hostname", "external.test"],
-      ["mailnews.oauth.useExternalBrowser", false],
+      ["mailnews.oauth.useExternalBrowser", true],
     ],
   });
 
@@ -107,7 +107,7 @@ add_task(async function testGoodConfig() {
   setupService.observe(
     null,
     "net-thunderbird-url",
-    `net.thunderbird://thundermail/add?name=${name}&email=${username}&token=${token}`
+    `net.thunderbird://thundermail/add?name=${name}&email=${username}`
   );
 
   // Check the account hub.
@@ -121,9 +121,17 @@ add_task(async function testGoodConfig() {
     () => BrowserTestUtils.isVisible(configFoundStep),
     "waiting for Thundermail config to be found"
   );
-  // Click through to the success page. No address books or calendars are
-  // found because this test is a bit of a hack.
+
+  // Continue button triggers the OAuth login in the external browser, since
+  // there's no saved token for this account yet.
+  const urlPromise = OAuth2TestUtils.promiseExternalOAuthURL();
   EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  const url = await urlPromise;
+  await OAuth2TestUtils.submitOAuthURL(url, {
+    expectedScope: "test_mail",
+    username,
+    password: "password",
+  });
 
   const successStep = dialog.querySelector("email-added-success");
   await TestUtils.waitForCondition(
@@ -208,7 +216,7 @@ add_task(async function testRepeat() {
   setupService.observe(
     null,
     "net-thunderbird-url",
-    `net.thunderbird://thundermail/add?name=${name}&email=${username}&token=other_token`
+    `net.thunderbird://thundermail/add?name=${name}&email=${username}`
   );
 
   // The account hub dialog should open with an error message.
@@ -267,7 +275,7 @@ add_task(async function testSecondConfig() {
   setupService.observe(
     null,
     "net-thunderbird-url",
-    `net.thunderbird://thundermail/add?name=${secondName}&email=${secondUsername}&token=${secondToken}`
+    `net.thunderbird://thundermail/add?name=${secondName}&email=${secondUsername}`
   );
 
   // Check the account hub.
@@ -281,9 +289,17 @@ add_task(async function testSecondConfig() {
     () => BrowserTestUtils.isVisible(configFoundStep),
     "waiting for Thundermail config to be found"
   );
-  // Click through to the success page. No address books or calendars are
-  // found because this test is a bit of a hack.
+
+  // Continue button triggers the OAuth login in the external browser, since
+  // there's no saved token for this account yet.
+  const urlPromise = OAuth2TestUtils.promiseExternalOAuthURL();
   EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  const url = await urlPromise;
+  await OAuth2TestUtils.submitOAuthURL(url, {
+    expectedScope: "test_mail",
+    username: secondUsername,
+    password: "password",
+  });
 
   const successStep = dialog.querySelector("email-added-success");
   await TestUtils.waitForCondition(

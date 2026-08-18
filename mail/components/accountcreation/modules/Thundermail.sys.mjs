@@ -32,9 +32,8 @@ export class ThundermailURLHandler {
     const searchParams = url.searchParams;
     const realName = searchParams.get("name");
     const email = searchParams.get("email");
-    const token = searchParams.get("token");
 
-    if (!realName || !email || !token) {
+    if (!realName || !email) {
       logger.error(`Thundermail URL with invalid arguments: ${url}`);
       return;
     }
@@ -46,6 +45,6 @@ export class ThundermailURLHandler {
 
     const hub = win.document.querySelector("account-hub-container");
     const emailView = hub.shadowRoot.querySelector("account-hub-email");
-    await emailView.setUpThundermailFromURL(realName, email, token);
+    await emailView.setUpThundermailFromURL(realName, email);
   }
 }

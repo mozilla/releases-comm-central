@@ -20,7 +20,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
   ConfigVerifier: "resource:///modules/accountcreation/ConfigVerifier.sys.mjs",
   CreateInBackend:
     "resource:///modules/accountcreation/CreateInBackend.sys.mjs",
-  enforcePrimaryPassword: "resource:///modules/PrimaryPassword.sys.mjs",
   FetchConfig: "resource:///modules/accountcreation/FetchConfig.sys.mjs",
   FindConfig: "resource:///modules/accountcreation/FindConfig.sys.mjs",
   getAddonsList:
@@ -2457,9 +2456,8 @@ class AccountHubEmail extends HTMLElement {
   /**
    * @param {string} realName
    * @param {string} email
-   * @param {string} token
    */
-  async setUpThundermailFromURL(realName, email, token) {
+  async setUpThundermailFromURL(realName, email) {
     // Check if there's an existing token for this username. If there is, stop.
     // Override this preference for tests.
     const hostname = Services.prefs.getStringPref(
@@ -2488,16 +2486,6 @@ class AccountHubEmail extends HTMLElement {
         return;
       }
     }
-
-    // Save token to logins store.
-    if (!lazy.enforcePrimaryPassword()) {
-      return;
-    }
-    const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
-      Ci.nsILoginInfo
-    );
-    login.init(oauthOrigin, null, oauthDetails.allScopes, email, token);
-    await Services.logins.addLoginAsync(login);
 
     // Fetch latest autoconfig. We know that the ISP is configured.
     const abortController = new AbortController();
