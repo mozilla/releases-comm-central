@@ -100,7 +100,6 @@ interface nsIMsgImapMailFolder : nsISupports {
   void replayOfflineMoveCopy(in Array<nsMsgKey> keys, in boolean isMove,
       in nsIMsgFolder aDstFolder, in nsIUrlListener aUrlListener,
       in nsIMsgWindow aWindow, in boolean srcFolderOffline);
-  nsIURI playbackOfflineFolderCreate(in AString folderName, in nsIMsgWindow aWindow);
   /**
    * This is called by the offline sync code to tell the imap folder to
    * remember info about the header with this key (messageId and key) because

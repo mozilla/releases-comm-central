@@ -94,9 +94,8 @@ interface nsMsgFolderFlags : nsISupports {
   const nsMsgFolderFlagType PersonalShared  = 0x00800000;
   /// This folder is an IMAP \\Noselect folder
   const nsMsgFolderFlagType ImapNoselect    = 0x01000000;
-  /// This folder created offline (this is never set in current code,
-  /// but it is still checked for and obeyed if found on a folder.
-  const nsMsgFolderFlagType CreatedOffline  = 0x02000000;
+  /// Used to be CreatedOffline.
+  const nsMsgFolderFlagType Unused1  = 0x02000000;
   /// This imap folder cannot have children :-(
   const nsMsgFolderFlagType ImapNoinferiors = 0x04000000;
   /// This folder configured for offline use

@@ -45,13 +45,11 @@ class nsImapOfflineSync : public nsIUrlListener,
     return m_singleFolderToUpdate != nullptr;
   }
 
-  bool CreateOfflineFolder(nsIMsgFolder* folder);
   void SetWindow(nsIMsgWindow* window);
 
  protected:
   virtual ~nsImapOfflineSync();
 
-  bool CreateOfflineFolders();
   bool DestFolderOnSameServer(nsIMsgFolder* destFolder);
   bool AdvanceToNextServer();
   bool AdvanceToNextFolder();
@@ -87,8 +85,8 @@ class nsImapOfflineSync : public nsIUrlListener,
   int32_t mCurrentPlaybackOpType;  // kFlagsChanged -> kMsgCopy -> kMsgMoved
   bool m_mailboxupdatesStarted;
   bool m_mailboxupdatesFinished;
+  bool m_started;
   bool m_pseudoOffline;  // for queueing online events in offline db
-  bool m_createdOfflineFolders;
 };
 
 #endif  // COMM_MAILNEWS_IMAP_SRC_NSIMAPOFFLINESYNC_H_

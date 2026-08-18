@@ -3732,14 +3732,6 @@ NS_IMETHODIMP nsImapMailFolder::SetImapFlags(nsTArray<nsMsgKey> const& msgKeys,
                                       flags, true);
 }
 
-// "this" is the parent folder
-NS_IMETHODIMP nsImapMailFolder::PlaybackOfflineFolderCreate(
-    const nsAString& aFolderName, nsIMsgWindow* aWindow, nsIURI** url) {
-  nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-  return imapService->CreateFolder(this, NS_ConvertUTF16toUTF8(aFolderName),
-                                   this, url);
-}
-
 // "this" is the source folder.
 NS_IMETHODIMP
 nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& aMsgKeys,
