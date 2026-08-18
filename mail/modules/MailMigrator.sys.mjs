@@ -29,7 +29,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 61;
+    const UI_VERSION = 62;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -463,6 +463,44 @@ export var MailMigrator = {
           const old = Services.prefs.getBoolPref("mail.minimizeToTray");
           Services.prefs.setBoolPref("mail.closeToTray", old);
           Services.prefs.clearUserPref("mail.minimizeToTray");
+        }
+      }
+
+      if (currentUIVersion < 62) {
+        // Thunderbird 9 to 60 stored collapsed="true"/"false" for these
+        // toolbars. The attribute is now boolean, so the presence of any value
+        // collapses the toolbar. Rewrite the legacy values to what the current
+        // code persists: "-moz-missing\n" when visible, "" when collapsed.
+        // Values already in the current form are left alone, so we don't
+        // re-collapse toolbars for users who toggled the setting to work
+        // around this.
+        function updateCollapsedValue(url, id) {
+          if (!Services.xulStore.hasValue(url, id, "collapsed")) {
+            return;
+          }
+          const oldValue = Services.xulStore.getValue(url, id, "collapsed");
+          if (oldValue == "false") {
+            Services.xulStore.setValue(url, id, "collapsed", "-moz-missing\n");
+          } else if (oldValue == "true") {
+            Services.xulStore.setValue(url, id, "collapsed", "");
+          }
+        }
+
+        for (const elementID of [
+          "composeToolbar2",
+          "compose-toolbar-menubar2",
+        ]) {
+          updateCollapsedValue(
+            "chrome://messenger/content/messengercompose/messengercompose.xhtml",
+            elementID
+          );
+        }
+
+        for (const url of [
+          "chrome://messenger/content/messenger.xhtml",
+          "chrome://messenger/content/messageWindow.xhtml",
+        ]) {
+          updateCollapsedValue(url, "mail-bar3");
         }
       }
 

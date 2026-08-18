@@ -6,6 +6,11 @@ run-if = [
   "os == 'win'",
 ]
 
+["test_collapsed_toolbar_migration.py"]
+run-if = [
+  "os != 'mac'",
+]
+
 ["test_commandline.py"]
 
 ["test_compose_commandline.py"]
