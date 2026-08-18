@@ -1155,6 +1155,11 @@ pub struct AudioSampleEntry {
     data_reference_index: u16,
     pub channelcount: u32,
     pub samplesize: u16,
+    /// Sample rate stored in the ISOBMFF `AudioSampleEntry`.
+    ///
+    /// Codec-specific metadata can define a different effective sample rate;
+    /// for example, high-rate FLAC uses a constrained value here and carries
+    /// its native rate in [`FLACSpecificBox::stream_info`].
     pub samplerate: f64,
     pub codec_specific: AudioCodecSpecific,
     pub protection_info: TryVec<ProtectionSchemeInfoBox>,
@@ -1278,12 +1283,46 @@ pub struct FLACMetadataBlock {
     pub data: TryVec<u8>,
 }
 
+/// Audio properties parsed from a FLAC `METADATA_BLOCK_STREAMINFO` block.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct FLACStreamInfo {
+    /// Native sample rate of the FLAC bitstream.
+    pub sample_rate: u32,
+    /// Number of channels in the FLAC bitstream.
+    pub channel_count: u8,
+    /// Number of bits per sample in the FLAC bitstream.
+    pub bits_per_sample: u8,
+}
+
+impl FLACStreamInfo {
+    fn parse(data: &[u8]) -> Result<Self> {
+        if data.len() != 34 {
+            return Status::DflaStreamInfoBadSize.into();
+        }
+
+        // FLAC format § METADATA_BLOCK_STREAMINFO packs these fields into
+        // bytes 10 through 13 of the fixed-size 34-byte structure.
+        let sample_rate =
+            u32::from(data[10]) << 12 | u32::from(data[11]) << 4 | u32::from(data[12] >> 4);
+        let channel_count = ((data[12] >> 1) & 0x07) + 1;
+        let bits_per_sample = (((data[12] & 0x01) << 4) | (data[13] >> 4)) + 1;
+
+        Ok(Self {
+            sample_rate,
+            channel_count,
+            bits_per_sample,
+        })
+    }
+}
+
 /// Represents a FLACSpecificBox 'dfLa'
 #[derive(Debug)]
 pub struct FLACSpecificBox {
     #[allow(dead_code)] // See https://github.com/mozilla/mp4parse-rust/issues/340
     version: u8,
     pub blocks: TryVec<FLACMetadataBlock>,
+    /// Parsed audio properties from the first, mandatory STREAMINFO block.
+    pub stream_info: FLACStreamInfo,
 }
 
 #[derive(Debug)]
@@ -5497,7 +5536,10 @@ fn read_esds<T: Read>(src: &mut BMFFBox<T>, strictness: ParseStrictness) -> Resu
 
 /// Parse `FLACSpecificBox`.
 /// See [Encapsulation of FLAC in ISO Base Media File Format](https://github.com/xiph/flac/blob/master/doc/isoflac.txt) §  3.3.2
-fn read_dfla<T: Read>(src: &mut BMFFBox<T>) -> Result<FLACSpecificBox> {
+fn read_dfla<T: Read>(
+    src: &mut BMFFBox<T>,
+    strictness: ParseStrictness,
+) -> Result<FLACSpecificBox> {
     let (version, flags) = read_fullbox_extra(src)?;
     if version != 0 {
         return Err(Error::Unsupported("unknown dfLa (FLAC) version"));
@@ -5505,21 +5547,51 @@ fn read_dfla<T: Read>(src: &mut BMFFBox<T>) -> Result<FLACSpecificBox> {
     if flags != 0 {
         return Status::DflaFlagsNonzero.into();
     }
-    let mut blocks = TryVec::new();
-    while src.bytes_left() > 0 {
-        let block = read_flac_metadata(src)?;
-        blocks.push(block)?;
-    }
-    // The box must have at least one meta block, and the first block
-    // must be the METADATA_BLOCK_STREAMINFO
-    if blocks.is_empty() {
+
+    // STREAMINFO must be present and first. It is required to configure the
+    // decoder, so failure to parse it is fatal in every strictness mode.
+    if src.bytes_left() == 0 {
         return Status::DflaMissingMetadata.into();
-    } else if blocks[0].block_type != 0 {
-        return Status::DflaStreamInfoNotFirst.into();
-    } else if blocks[0].data.len() != 34 {
-        return Status::DflaStreamInfoBadSize.into();
     }
-    Ok(FLACSpecificBox { version, blocks })
+    let first_block = read_flac_metadata(src)?;
+    if first_block.block_type != 0 {
+        return Status::DflaStreamInfoNotFirst.into();
+    }
+    let stream_info = FLACStreamInfo::parse(&first_block.data)?;
+
+    let mut blocks = TryVec::new();
+    blocks.push(first_block)?;
+
+    while src.bytes_left() > 0 {
+        match read_flac_metadata(src) {
+            Ok(block) => blocks.push(block)?,
+            Err(error) => {
+                let recoverable = matches!(
+                    &error,
+                    Error::UnexpectedEOF
+                        | Error::InvalidData(Status::DflaBadMetadataBlockSize | Status::ReadBufErr)
+                );
+                if strictness == ParseStrictness::Strict || !recoverable {
+                    return Err(error);
+                }
+
+                // Do not hide physical truncation or an I/O failure. A short
+                // trailing metadata header contained within dfLa leaves no
+                // bytes here, while a file ending before dfLa's declared end
+                // causes this exact skip to fail.
+                let remaining = src.bytes_left();
+                skip_exact(src, remaining)?;
+                warn!("Ignoring malformed trailing FLAC metadata: {error}");
+                break;
+            }
+        }
+    }
+
+    Ok(FLACSpecificBox {
+        version,
+        blocks,
+        stream_info,
+    })
 }
 
 /// Parse `OpusSpecificBox`.
@@ -6007,7 +6079,7 @@ fn read_audio_sample_entry<T: Read>(
                 {
                     return Status::StsdBadAudioSampleEntry.into();
                 }
-                let dfla = read_dfla(&mut b)?;
+                let dfla = read_dfla(&mut b, strictness)?;
                 codec_type = CodecType::FLAC;
                 codec_specific = Some(AudioCodecSpecific::FLACSpecificBox(dfla));
             }
@@ -6432,6 +6504,16 @@ fn read_ilst_data<T: Read>(src: &mut BMFFBox<T>) -> Result<TryVec<u8>> {
 /// Skip a number of bytes that we don't care to parse.
 fn skip<T: Read>(src: &mut T, bytes: u64) -> Result<()> {
     std::io::copy(&mut src.take(bytes), &mut std::io::sink())?;
+    Ok(())
+}
+
+/// Skip exactly `bytes`, returning an error if the underlying reader ends
+/// before all requested bytes have been consumed.
+fn skip_exact<T: Read>(src: &mut T, bytes: u64) -> Result<()> {
+    let skipped = std::io::copy(&mut src.take(bytes), &mut std::io::sink())?;
+    if skipped != bytes {
+        return Err(Error::UnexpectedEOF);
+    }
     Ok(())
 }
 
