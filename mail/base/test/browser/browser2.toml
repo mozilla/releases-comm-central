@@ -24,6 +24,8 @@ support-files = [
 
 ["browser_findbar.js"]
 
+["browser_folderColorPersistence.js"]
+
 ["browser_folderTreeProperties.js"]
 tags = ["virtualfolders"]
 

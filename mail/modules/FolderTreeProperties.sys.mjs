@@ -8,6 +8,7 @@
  */
 
 import { JSONFile } from "resource://gre/modules/JSONFile.sys.mjs";
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const jsonFile = new JSONFile({
   path: PathUtils.join(PathUtils.profileDir, "folderTree.json"),
@@ -19,6 +20,62 @@ function ensureReady() {
     throw new Error("Folder tree properties cache not ready.");
   }
 }
+
+/**
+ * Re-key the stored color of a folder and its descendants after the folder's
+ * URI changed, so they aren't orphaned under the previous URI.
+ *
+ * @param {string} oldURI
+ * @param {string} newURI
+ */
+function followFolderURIChange(oldURI, newURI) {
+  if (!jsonFile.dataReady) {
+    // Retried once only; dataReady also goes false at shutdown.
+    readyPromise.then(() => {
+      if (jsonFile.dataReady) {
+        followFolderURIChange(oldURI, newURI);
+      }
+    }, console.error);
+    return;
+  }
+  // Equal URIs would delete the entry it just wrote.
+  if (oldURI == newURI || !jsonFile.data.colors) {
+    return;
+  }
+
+  const movedURIs = [];
+  for (const uri of Object.keys(jsonFile.data.colors)) {
+    // The trailing slash keeps a sibling with a longer name out of this.
+    if (uri != oldURI && !uri.startsWith(`${oldURI}/`)) {
+      continue;
+    }
+    const movedURI = newURI + uri.substring(oldURI.length);
+    jsonFile.data.colors[movedURI] = jsonFile.data.colors[uri];
+    delete jsonFile.data.colors[uri];
+    movedURIs.push(movedURI);
+  }
+  if (!movedURIs.length) {
+    return;
+  }
+  jsonFile.saveSoon();
+
+  // Notify without a color so the rows re-read this store. Depending on the
+  // folder type they were built before this point, from the old keys.
+  for (const movedURI of movedURIs) {
+    const folder = MailServices.folderLookup.getFolderForURL(movedURI);
+    if (folder) {
+      Services.obs.notifyObservers(folder, "folder-color-changed");
+    }
+  }
+}
+
+const folderListener = {
+  folderRenamed(oldFolder, newFolder) {
+    followFolderURIChange(oldFolder.URI, newFolder.URI);
+  },
+};
+
+MailServices.mfn.addListener(folderListener, MailServices.mfn.folderRenamed);
 
 export const FolderTreeProperties = {
   get ready() {
