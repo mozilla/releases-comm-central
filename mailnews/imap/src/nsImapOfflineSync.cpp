@@ -12,6 +12,7 @@
 #include "nsMsgFolderFlags.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIDBFolderInfo.h"
+#include "nsIImapService.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgAccountManager.h"
 #include "nsINntpIncomingServer.h"
@@ -713,12 +714,16 @@ nsresult nsImapOfflineSync::ProcessNextOperation() {
           if (!m_pseudoOffline) {
             // there are operations to playback so check uid validity
             SetCurrentUIDValidity(0);  // force initial invalid state
-            // do a lite select here and hook ourselves up as a listener.
-            nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
-                do_QueryInterface(m_currentFolder, &rv);
-            if (imapFolder) rv = imapFolder->LiteSelect(this, m_window);
-            // this is async, we will be called again by OnStopRunningUrl.
-            return rv;
+
+            // Call LiteSelectFolder() to select the current folder without
+            // kicking off a full syncing operation.
+            nsCOMPtr<nsIImapService> imapService =
+                mozilla::components::Imap::Service();
+            nsCOMPtr<nsIURI> unusedUri;
+            // Passing this as UrlListener, so our OnStopRunningUrl() will be
+            // called when this completes.
+            return imapService->LiteSelectFolder(
+                m_currentFolder, this, m_window, getter_AddRefs(unusedUri));
           }
         }
       }

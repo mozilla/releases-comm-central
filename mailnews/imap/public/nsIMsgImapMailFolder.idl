@@ -116,16 +116,6 @@ interface nsIMsgImapMailFolder : nsISupports {
    */
   boolean hasPseudoActivity();
 
-  /**
-   * Select this folder on the imap server without doing a sync of flags or
-   * headers. This is used for offline playback, where we don't want to
-   * download hdrs we don't have, because they may have been offline deleted.
-   *
-   * @param aUrlListener        url listener, can be null
-   * @param aWindow          msg window url is running in, can be null
-   */
-  void liteSelect(in nsIUrlListener aUrlListener, in nsIMsgWindow aWindow);
-
   void fillInFolderProps(in nsIMsgImapFolderProps aFolderProps);
   void resetNamespaceReferences();
   nsIMsgImapMailFolder findOnlineSubFolder(in AUTF8String onlineName);

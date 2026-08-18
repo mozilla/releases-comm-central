@@ -3868,14 +3868,6 @@ NS_IMETHODIMP nsImapMailFolder::StoreImapFlags(int32_t flags, bool addFlags,
   return rv;
 }
 
-NS_IMETHODIMP nsImapMailFolder::LiteSelect(nsIUrlListener* aUrlListener,
-                                           nsIMsgWindow* aMsgWindow) {
-  nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-  nsCOMPtr<nsIURI> outUri;
-  return imapService->LiteSelectFolder(this, aUrlListener, aMsgWindow,
-                                       getter_AddRefs(outUri));
-}
-
 nsresult nsImapMailFolder::GetFolderOwnerUserName(nsACString& userName) {
   if ((mFlags & nsMsgFolderFlags::ImapPersonal) ||
       !(mFlags &
