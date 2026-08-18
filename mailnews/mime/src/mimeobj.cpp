@@ -142,6 +142,8 @@ static void MimeObject_finalize(MimeObject* obj) {
 }
 
 // Extracts all values of a given parameter name from the query string.
+// The query must still be escaped: values are unescaped individually, after
+// splitting, so that escaped separators within a value are preserved.
 static nsTArray<nsCString> ExtractParams(const nsACString& query,
                                          const nsACString& paramName) {
   nsTArray<nsCString> parts;
@@ -153,8 +155,10 @@ static nsTArray<nsCString> ExtractParams(const nsACString& query,
     if (equals > 0) {
       nsAutoCString name, value;
       name.Assign(Substring(part, 0, equals));
-      value.Assign(Substring(part, equals + 1));
+      NS_UnescapeURL(name);
       if (name.Equals(paramName)) {
+        value.Assign(Substring(part, equals + 1));
+        NS_UnescapeURL(value);
         values.AppendElement(value);
       }
     }
@@ -184,7 +188,6 @@ static int MimeObject_parse_begin(MimeObject* obj) {
 
       nsAutoCString query;
       uri->GetQuery(query);
-      NS_UnescapeURL(query);
 
       obj->options->state->partsToStrip = ExtractParams(query, "del"_ns);
       obj->options->state->detachToFiles = ExtractParams(query, "detachTo"_ns);

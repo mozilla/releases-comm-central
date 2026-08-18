@@ -79,23 +79,27 @@ add_task(async function startMime() {
 add_task(async function detachAttachments() {
   let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
   const attachment = new AttachmentInfo(gCallbackObject.attachments[0]);
-  const profileDir = do_get_profile();
-  await AttachmentInfo.detachAttachments(msgHdr, [attachment], profileDir.path);
+  // A directory name with characters needing escaping in a URL, see bug 2060451.
+  const detachDir = PathUtils.join(do_get_profile().path, "detach & dir");
+  await IOUtils.makeDirectory(detachDir);
+  await AttachmentInfo.detachAttachments(msgHdr, [attachment], detachDir);
 
   // test that the detachment was successful
 
   // The message contained a file "check.pdf" which should
-  //  now exist in the profile directory.
-  const checkFile = profileDir.clone();
-  checkFile.append(attachment.name);
+  //  now exist in the detach directory.
+  const checkFilePath = PathUtils.join(detachDir, attachment.name);
 
-  Assert.ok(checkFile.exists(), `${checkFile.path} should exist`);
-  const fileInfo = await IOUtils.stat(checkFile.path);
+  Assert.ok(
+    await IOUtils.exists(checkFilePath),
+    `${checkFilePath} should exist`
+  );
+  const fileInfo = await IOUtils.stat(checkFilePath);
   Assert.equal(fileInfo.type, "regular", `The file type should be correct`);
   Assert.greater(
     fileInfo.size,
     0,
-    `The file ${checkFile.path} should have size`
+    `The file ${checkFilePath} should have size`
   );
 
   // The message should now have a detached attachment. Read the message,
@@ -106,6 +110,11 @@ add_task(async function detachAttachments() {
 
   const messageContent = await getContentFromMessage(msgHdr);
   Assert.ok(messageContent.includes("AttachmentDetached"));
+  Assert.stringContains(
+    messageContent,
+    `X-Mozilla-External-Attachment-URL: ${PathUtils.toFileURI(checkFilePath)}`,
+    "the link to the detached file should be intact"
+  );
 });
 
 /**
