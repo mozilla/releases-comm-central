@@ -502,7 +502,7 @@
           this.childWrapper.appendChild(
             this._buildSpecialMenu({
               special: "recent",
-              "data-l10n-id": "menu-move-copy-recent-destinations",
+              "data-l10n-id": "menu-move-copy-recent-destinations-no-accesskey",
             })
           );
         }
@@ -510,7 +510,7 @@
           this.childWrapper.appendChild(
             this._buildSpecialMenu({
               special: "favorites",
-              "data-l10n-id": "menu-move-copy-favorites",
+              "data-l10n-id": "menu-move-copy-favorites-no-accesskey",
             })
           );
         }

@@ -280,13 +280,11 @@ menu-copy-to =
     .label = Copy To
     .accesskey = C
 
-menu-move-copy-recent-destinations =
+menu-move-copy-recent-destinations-no-accesskey =
     .label = Recent Destinations
-    .accesskey = R
 
-menu-move-copy-favorites =
+menu-move-copy-favorites-no-accesskey =
     .label = Favorites
-    .accesskey = F
 
 menu-move-copy-no-recent =
     .label = (No recent destinations)
