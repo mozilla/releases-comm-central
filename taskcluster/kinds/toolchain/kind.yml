@@ -44,6 +44,7 @@ reference-tasks:
     - linux64-pkgconf
     - linux64-python
     - linux64-rust
+    - linux64-rust-analyzer
     - linux64-rust-cross
     - linux64-rust-dev
     - linux64-rust-macos

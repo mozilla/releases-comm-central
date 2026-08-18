@@ -63,6 +63,7 @@ tasks:
                 - linux64-node
                 - linux64-pkgconf
                 - linux64-rust
+                - linux64-rust-analyzer
                 - sysroot-wasm32-wasi
                 - sysroot-x86_64-linux-gnu
 
@@ -101,6 +102,7 @@ tasks:
                 - linux64-libdmg
                 - linux64-nasm
                 - linux64-node
+                - linux64-rust-analyzer
                 - linux64-rust-cross
                 - macosx64-x64-libotr
                 - macosx64-sdk
@@ -143,6 +145,7 @@ tasks:
                 - linux64-dump_syms
                 - linux64-nasm
                 - linux64-node
+                - linux64-rust-analyzer
                 - linux64-rust-cross
                 - linux64-rust-size
                 - linux64-upx
