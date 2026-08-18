@@ -7,6 +7,7 @@ const JOIN_LINK_PATTERNS = [
   /https?:\/\/(?:[\w.-]+\.)?zoom\.us\/j\/\d+[^\s<>]*/i,
   /https?:\/\/(?:[\w.-]+\.)?zoom\.us\/wc\/join\/\d+/i,
   /https?:\/\/events\.zoom\.us\/ejl\/[^\s<>]+/i,
+  /https?:\/\/(?:[\w.-]+\.)?zoom\.us\/my\/[^\s<>]+/i,
 
   // Microsoft Teams.
   /https?:\/\/teams\.microsoft\.com\/l\/meetup-join\/[^\s<>]+/i,

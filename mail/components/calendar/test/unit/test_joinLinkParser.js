@@ -71,6 +71,14 @@ const providers = {
         Join<https://test.zoom.us/j/12345?pwd=aBc67.8&jst=2>
       `,
     },
+    {
+      joinLink: "https://mozilla.zoom.us/my/somebody",
+      description: `
+        Zoom Personal Meeting Room
+        Join the meeting:
+        https://mozilla.zoom.us/my/somebody
+      `,
+    },
   ],
   teams: [
     {
