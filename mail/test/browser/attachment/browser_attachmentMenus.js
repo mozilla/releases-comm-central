@@ -599,6 +599,74 @@ for (let i = 0; i < messages.length; i++) {
 }
 
 /**
+ * Tests that the "all attachments" commands act on the attachments that are
+ * still there, when one of the attachments has already been deleted.
+ */
+add_task(async function test_all_commands_with_deleted_attachment() {
+  await be_in_folder(folder);
+  aboutMessage = get_about_message();
+  await select_click_row(
+    messages.findIndex(m => m.name == "multiple_attachments_one_deleted")
+  );
+  aboutMessage.toggleAttachmentList(true);
+  for (const attachment of aboutMessage.currentAttachments) {
+    await attachment.isEmpty();
+  }
+  Assert.equal(
+    aboutMessage.currentAttachments.length,
+    2,
+    "Message should have two attachments, one of them deleted"
+  );
+
+  const saveDir = Services.dirsvc.get("TmpD", Ci.nsIFile);
+  saveDir.append("save-all-with-deleted");
+  if (saveDir.exists()) {
+    saveDir.remove(true);
+  }
+  saveDir.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+  MockFilePicker.init();
+  registerCleanupFunction(() => saveDir.remove(true));
+
+  // "Save All" should save the attachment that is still there.
+  MockFilePicker.returnValue = MockFilePicker.returnOK;
+  MockFilePicker.useDirectory(saveDir.path);
+  const saved = BrowserTestUtils.waitForEvent(window, "attachmentsSaved");
+  EventUtils.synthesizeMouseAtCenter(
+    aboutMessage.document.getElementById("attachmentSaveAllMultiple"),
+    {},
+    aboutMessage
+  );
+  await saved;
+  Assert.deepEqual(
+    (await IOUtils.getChildren(saveDir.path)).map(p => PathUtils.filename(p)),
+    ["ubik.txt"],
+    "Only the attachment that is still there should have been saved"
+  );
+
+  // "Detach All" should ask where to save the remaining attachment. Cancelling
+  // the file picker aborts the operation, leaving the message untouched.
+  MockFilePicker.reset();
+  MockFilePicker.returnValue = MockFilePicker.returnCancel;
+  let pickerShown = false;
+  MockFilePicker.showCallback = () => {
+    pickerShown = true;
+  };
+  aboutMessage.goDoCommand("cmd_detachAllAttachments");
+  await TestUtils.waitForCondition(
+    () => pickerShown,
+    "file picker should be shown for detach"
+  );
+
+  // "Delete All" should ask for confirmation for the remaining attachment.
+  // Cancelling leaves the message untouched.
+  const confirmed = BrowserTestUtils.promiseAlertDialogOpen("cancel");
+  aboutMessage.goDoCommand("cmd_deleteAllAttachments");
+  await confirmed;
+
+  MockFilePicker.cleanup();
+});
+
+/**
  * Tests that the detach and delete attachment menu items are disabled for .eml
  * files.
  */

@@ -1740,14 +1740,16 @@ function onShowAttachmentItemContextMenu() {
   }
   contextMenu.attachments = selectedAttachments;
 
-  const allExternalAttachment = selectedAttachments.every(
-    attachment => attachment.isExternalAttachment
-  );
-  const allDeleted = selectedAttachments.every(
-    attachment => !attachment.hasFile
+  // Attachments that are deleted, or detached with a missing file, are skipped
+  // by the actions, so only disable if nothing is left to act on.
+  const someFilesAvailable = selectedAttachments.some(
+    attachment => attachment.hasFile
   );
   const canDetachSelected =
-    CanDetachAttachments() && !allExternalAttachment && !allDeleted;
+    CanDetachAttachments() &&
+    selectedAttachments.some(
+      attachment => attachment.hasFile && !attachment.isExternalAttachment
+    );
   const allLinkAttachment = selectedAttachments.every(
     attachment => attachment.isLinkAttachment
   );
@@ -1758,15 +1760,15 @@ function onShowAttachmentItemContextMenu() {
     attachment => attachment.isAllowedURL
   );
 
-  openMenu.disabled = allDeleted || !allAllowedURL;
-  saveMenu.disabled = allDeleted || !allAllowedURL;
-  detachMenu.disabled = !canDetachSelected || !allAllowedURL;
-  deleteMenu.disabled = !canDetachSelected || !allAllowedURL;
+  openMenu.disabled = !someFilesAvailable;
+  saveMenu.disabled = !someFilesAvailable;
+  detachMenu.disabled = !canDetachSelected;
+  deleteMenu.disabled = !canDetachSelected;
   copyUrlMenuSep.hidden = copyUrlMenu.hidden = !(
     allLinkAttachment || allFileAttachment
   );
   openFolderMenu.hidden = !allFileAttachment || !allAllowedURL;
-  openFolderMenu.disabled = allDeleted;
+  openFolderMenu.disabled = !someFilesAvailable;
 
   const allRfc822 = selectedAttachments.every(
     attachment =>
@@ -1774,7 +1776,7 @@ function onShowAttachmentItemContextMenu() {
       /[?&]filename=.*\.eml(&|$)/.test(attachment.url)
   );
   copyToFolderMenu.hidden = !allRfc822 || !allAllowedURL;
-  copyToFolderMenu.disabled = allDeleted;
+  copyToFolderMenu.disabled = !someFilesAvailable;
 
   Enigmail.hdrView.onShowAttachmentContextMenu();
 }
@@ -1823,22 +1825,12 @@ function onShowSaveAttachmentMenuMultiple() {
   const detachAllItem = document.getElementById("button-detachAllAttachments");
   const deleteAllItem = document.getElementById("button-deleteAllAttachments");
 
-  const allExternalAttachment = currentAttachments.every(
-    attachment => attachment.isExternalAttachment
-  );
-  const allDeleted = currentAttachments.every(
-    attachment => !attachment.hasFile
-  );
-  const canDetach =
-    CanDetachAttachments() && !allDeleted && !allExternalAttachment;
-  const allAllowedURL = currentAttachments.every(
-    attachment => attachment.isAllowedURL
-  );
-
-  openAllItem.disabled = allDeleted || !allAllowedURL;
-  saveAllItem.disabled = allDeleted || !allAllowedURL;
-  detachAllItem.disabled = !canDetach || !allAllowedURL;
-  deleteAllItem.disabled = !canDetach || !allAllowedURL;
+  // Deleted attachments, and detached ones with a missing file, are skipped by
+  // the actions, so the items only need to be disabled if nothing is left.
+  openAllItem.disabled = !AttachmentMenuController.someFilesAvailable();
+  saveAllItem.disabled = openAllItem.disabled;
+  detachAllItem.disabled = !AttachmentMenuController.canDetachFiles();
+  deleteAllItem.disabled = detachAllItem.disabled;
 }
 
 var AttachmentListController = {
@@ -1895,8 +1887,9 @@ var AttachmentMenuController = {
   canDetachFiles() {
     return (
       CanDetachAttachments() &&
-      currentAttachments.some(attachment => !attachment.isExternalAttachment) &&
-      this.someFilesAvailable()
+      currentAttachments.some(
+        attachment => attachment.hasFile && !attachment.isExternalAttachment
+      )
     );
   },
 
@@ -2420,24 +2413,32 @@ function HandleMultipleAttachments(attachments, action) {
     return;
   }
 
-  if (!attachments.every(attachment => attachment.isAllowedURL)) {
-    return;
+  if (action != "copyUrl") {
+    // Exclude attachments we can't act on: 1) deleted ones, or 2) detached ones
+    // with missing external files.
+    attachments = attachments.filter(attachment => attachment.hasFile);
+  }
+  attachments = attachments.filter(attachment => attachment.isAllowedURL);
+
+  if (action == "detach" || action == "delete") {
+    if (!CanDetachAttachments()) {
+      return;
+    }
+    // Already detached attachments are not part of the message anymore.
+    attachments = attachments.filter(
+      attachment => !attachment.isExternalAttachment
+    );
   }
 
-  const canDetach =
-    CanDetachAttachments() &&
-    attachments.every(
-      attachment => attachment.hasFile && !attachment.isExternalAttachment
-    );
+  if (!attachments.length) {
+    return;
+  }
 
   switch (action) {
     case "save":
       AttachmentInfo.saveAttachments(attachments, top.browsingContext);
       return;
     case "detach":
-      if (!canDetach) {
-        return;
-      }
       // "detach" on a multiple selection of attachments is so far not really
       // supported. As a workaround, resort to normal detach-"all". See also
       // the comment on 'detaching a multiple selection of attachments' below.
@@ -2453,9 +2454,6 @@ function HandleMultipleAttachments(attachments, action) {
       }
       return;
     case "delete":
-      if (!canDetach) {
-        return;
-      }
       if (attachments.length == 1) {
         attachments[0].deleteFromMessage();
       } else {

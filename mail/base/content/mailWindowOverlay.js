@@ -1848,16 +1848,15 @@ function addAttachmentToPopup(
     item.classList.add("notfound");
   }
 
-  const detached = attachment.isExternalAttachment;
-  const deleted = !attachment.hasFile;
-  const canDetach =
-    aboutMessage?.CanDetachAttachments() && !deleted && !detached;
-
-  if (deleted) {
-    // We can't do anything with a deleted attachment, so just return.
+  if (!attachment.hasFile) {
+    // A deleted attachment, or a detached one with a missing file. We can't do
+    // anything with it, so just return.
     item.disabled = true;
     return;
   }
+
+  const canDetach =
+    aboutMessage?.CanDetachAttachments() && !attachment.isExternalAttachment;
 
   // Create the "open" menu item
   let menuitem = document.createXULElement("menuitem");
@@ -1867,7 +1866,6 @@ function addAttachmentToPopup(
   );
   menuitem.setAttribute("label", getString("openLabel"));
   menuitem.setAttribute("accesskey", getString("openLabelAccesskey"));
-  menuitem.toggleAttribute("disabled", deleted);
   menuitem = menupopup.appendChild(menuitem);
 
   // Create the "save" menu item
@@ -1878,7 +1876,6 @@ function addAttachmentToPopup(
   );
   menuitem.setAttribute("label", getString("saveLabel"));
   menuitem.setAttribute("accesskey", getString("saveLabelAccesskey"));
-  menuitem.toggleAttribute("disabled", deleted);
   menuitem = menupopup.appendChild(menuitem);
 
   // Create the "detach" menu item
@@ -1912,7 +1909,6 @@ function addAttachmentToPopup(
     menuitem.setAttribute("oncommand", "this.attachment.openFolder();");
     menuitem.setAttribute("label", getString("openFolderLabel"));
     menuitem.setAttribute("accesskey", getString("openFolderLabelAccesskey"));
-    menuitem.toggleAttribute("disabled", !attachment.hasFile);
     menuitem = menupopup.appendChild(menuitem);
   }
 }
