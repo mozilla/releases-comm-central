@@ -22,7 +22,7 @@ class nsMessengerWinIntegration : public nsIMessengerWindowsIntegration {
  private:
   static nsString kSystemTrayMenuQuitMsg;
 
-  static nsresult HandleIconLeftClick(nsMessengerWinIntegration* instance);
+  static nsresult HandleIconActivate(nsMessengerWinIntegration* instance);
   static nsresult HandleIconContextMenu(int xPos, int yPos);
   static nsresult HandleTaskbarRecreated(nsMessengerWinIntegration* instance);
 

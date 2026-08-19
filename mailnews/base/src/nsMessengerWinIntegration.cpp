@@ -114,7 +114,7 @@ static HMENU sIconMenu;
 static uint32_t sUnreadCount;
 
 /* static */
-nsresult nsMessengerWinIntegration::HandleIconLeftClick(
+nsresult nsMessengerWinIntegration::HandleIconActivate(
     nsMessengerWinIntegration* instance) {
   nsresult rv;
 
@@ -253,11 +253,11 @@ LRESULT CALLBACK nsMessengerWinIntegration::IconWindowProc(HWND msgWindow,
   switch (msg) {
     case WM_USER:
       event = LOWORD(lp);
-      if (event == WM_LBUTTONDOWN) {
+      if (event == NIN_SELECT || event == NIN_KEYSELECT) {
         auto instance = reinterpret_cast<nsMessengerWinIntegration*>(
             ::GetWindowLongPtrW(msgWindow, GWLP_USERDATA));
 
-        rv = HandleIconLeftClick(instance);
+        rv = HandleIconActivate(instance);
         NS_ENSURE_SUCCESS(rv, 0);
         return 0;
       } else if (event == WM_CONTEXTMENU) {
