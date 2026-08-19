@@ -73,6 +73,8 @@ policy-DisableSystemAddonUpdate = Prevent { -brand-short-name } from installing 
 
 policy-DisableTelemetry = Turn off Telemetry.
 
+policy-DisableUpdateSettings = Prevent the user from changing application update settings.
+
 policy-DisplayMenuBar = Display the Menu Bar by default.
 
 policy-DNSOverHTTPS = Configure DNS over HTTPS.

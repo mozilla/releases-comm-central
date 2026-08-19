@@ -42,6 +42,8 @@ support-files = ["files/qrCodeWizard.xhtml"]
 
 ["browser_qrExport.js"]
 
+["browser_updateSettingsDisabled.js"]
+
 ["browser_sync.js"]
 skip-if = [
   "!sync",

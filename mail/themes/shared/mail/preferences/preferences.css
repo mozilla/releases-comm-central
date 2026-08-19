@@ -1671,3 +1671,7 @@ qr-code-wizard {
 .doh-label {
   display: list-item;
 }
+
+.hidden-via-pref {
+  display: none !important;
+}

@@ -149,6 +149,9 @@ pref("app.update.langpack.enabled", true);
   pref("app.update.background.allowUpdatesForUnelevatedInstallations", false);
 #endif
 
+// Whether to show the application update settings in General settings.
+pref("mail.update_settings.enabled", true);
+
 // Release notes URL
 pref("app.releaseNotesURL", "https://live.thunderbird.net/%APP%/releasenotes?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%");
 

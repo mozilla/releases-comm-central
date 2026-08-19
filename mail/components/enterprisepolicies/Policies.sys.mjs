@@ -694,6 +694,17 @@ export var Policies = {
     },
   },
 
+  DisableUpdateSettings: {
+    onBeforeUIStartup(manager, param) {
+      if (param) {
+        lazy.PoliciesUtils.setAndLockPref(
+          "mail.update_settings.enabled",
+          false
+        );
+      }
+    },
+  },
+
   DNSOverHTTPS: {
     onBeforeAddons(manager, param) {
       let locked = false;

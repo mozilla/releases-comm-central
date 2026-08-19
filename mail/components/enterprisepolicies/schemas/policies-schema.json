@@ -283,6 +283,10 @@
       "type": "boolean"
     },
 
+    "DisableUpdateSettings": {
+      "type": "boolean"
+    },
+
     "DNSOverHTTPS": {
       "type": "object",
       "properties": {

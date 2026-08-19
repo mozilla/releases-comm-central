@@ -79,6 +79,16 @@ const POLICIES_TESTS = [
     lockedPrefs: { "mail.qrexport.enabled": false },
   },
 
+  // POLICY: DisableUpdateSettings
+  {
+    policies: { DisableUpdateSettings: false },
+    unlockedPrefs: { "mail.update_settings.enabled": true },
+  },
+  {
+    policies: { DisableUpdateSettings: true },
+    lockedPrefs: { "mail.update_settings.enabled": false },
+  },
+
   // POLICY: Authentication
   {
     policies: {

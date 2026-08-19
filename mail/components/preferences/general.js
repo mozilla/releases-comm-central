@@ -356,8 +356,12 @@ var gGeneralPane = {
       gAppUpdater = new appUpdater();
       const updateDisabled =
         Services.policies && !Services.policies.isAllowed("appUpdate");
+      const updateSettingsEnabled = Services.prefs.getBoolPref(
+        "mail.update_settings.enabled",
+        true
+      );
 
-      if (gIsPackagedApp) {
+      if (gIsPackagedApp || !updateSettingsEnabled) {
         // When we're running inside an app package, there's no point in
         // displaying any update content here, and it would get confusing if we
         // did, because our updater is not enabled.
@@ -365,10 +369,8 @@ var gGeneralPane = {
         // because of the pane hiding/showing code interfering.
         document
           .getElementById("updatesCategory")
-          .setAttribute("style", "display: none !important");
-        document
-          .getElementById("updateApp")
-          .setAttribute("style", "display: none !important");
+          .classList.add("hidden-via-pref");
+        document.getElementById("updateApp").classList.add("hidden-via-pref");
       } else if (updateDisabled || UpdateUtils.appUpdateAutoSettingIsLocked()) {
         document.getElementById("updateAllowDescription").hidden = true;
         document.getElementById("updateSettingsContainer").hidden = true;
