@@ -732,7 +732,6 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 
 .panel-banner-item {
   appearance: none;
-  align-items: flex-start;
   margin: var(--appmenu-button-margin);
   padding-inline: 8px;
   padding-block: calc(var(--appmenu-button-padding) + 3px);
