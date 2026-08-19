@@ -1154,14 +1154,25 @@ export var RNP = {
           throw new Error("rnp_key_get_uid_handle_at failed");
         }
 
+        const uid_str = new lazy.ctypes.char.ptr();
+        if (RNPLib.rnp_key_get_uid_at(handle, i, uid_str.address())) {
+          throw new Error("rnp_key_get_uid_at failed");
+        }
+        const userIdStr = uid_str.readStringReplaceMalformed();
+        RNPLib.rnp_buffer_destroy(uid_str);
+
         // Never allow revoked user IDs
         let uidOkToUse = !this.isRevokedUid(uid_handle);
+        let ignoreReason = uidOkToUse ? null : "it is revoked";
         if (uidOkToUse) {
           // Usually, we don't allow user IDs reported as not valid
           uidOkToUse = !this.isBadUid(uid_handle);
+          if (!uidOkToUse) {
+            ignoreReason = "rnp_uid_is_valid reports it as invalid";
+          }
 
           const { hasGoodSignature, hasWeakSignature } =
-            this.getUidSignatureQuality(keyObj.keyId, uid_handle);
+            this.getUidSignatureQuality(keyObj.keyId, uid_handle, userIdStr);
 
           if (hasWeakSignature) {
             keyObj.hasIgnoredAttributes = true;
@@ -1174,17 +1185,21 @@ export var RNP = {
             // otherwise the user cannot see any text description.
             // We allow showing user IDs with a good self-signature.
             uidOkToUse = hasGoodSignature;
+            if (uidOkToUse) {
+              ignoreReason = null;
+            } else {
+              ignoreReason += ", and it has no good self signature";
+            }
           }
         }
 
-        if (uidOkToUse) {
-          const uid_str = new lazy.ctypes.char.ptr();
-          if (RNPLib.rnp_key_get_uid_at(handle, i, uid_str.address())) {
-            throw new Error("rnp_key_get_uid_at failed");
-          }
-          const userIdStr = uid_str.readStringReplaceMalformed();
-          RNPLib.rnp_buffer_destroy(uid_str);
+        if (!uidOkToUse) {
+          lazy.log.debug(
+            `Ignoring user ID ${i} (${userIdStr}) of key ${keyObj.fpr}, because ${ignoreReason}.`
+          );
+        }
 
+        if (uidOkToUse) {
           if (userIdStr !== RNP_PHOTO_USERID_ID) {
             if (!firstValidUid) {
               firstValidUid = userIdStr;
@@ -1215,6 +1230,9 @@ export var RNP = {
       }
 
       if (!keyObj.userId) {
+        lazy.log.debug(
+          `Key ${keyObj.fpr} has no usable user ID, it will be shown without a description.`
+        );
         keyObj.userId = "?";
       }
 
@@ -1502,7 +1520,15 @@ export var RNP = {
     return allFeatures;
   },
 
-  getUidSignatureQuality(self_key_id, uid_handle) {
+  /**
+   * @param {string} self_key_id - Key ID of the key that owns the user ID.
+   * @param {rnp_uid_handle_t} uid_handle
+   * @param {string} [userIdStr] - User ID string, used for debug logging only.
+   * @returns {object} quality
+   * @returns {boolean} quality.hasGoodSignature
+   * @returns {boolean} quality.hasWeakSignature
+   */
+  getUidSignatureQuality(self_key_id, uid_handle, userIdStr = "") {
     let hasGoodSignature = false;
     let hasWeakSignature = false;
 
@@ -1531,6 +1557,12 @@ export var RNP = {
           hasGoodSignature =
             sig_validity == RNPLib.RNP_SUCCESS ||
             sig_validity == RNPLib.RNP_ERROR_SIGNATURE_EXPIRED;
+
+          if (!hasGoodSignature) {
+            lazy.log.debug(
+              `Bad self signature ${i} on user ID (${userIdStr}) of key ${self_key_id}, rnp_signature_is_valid status ${sig_validity}.`
+            );
+          }
         }
 
         if (!hasWeakSignature) {
