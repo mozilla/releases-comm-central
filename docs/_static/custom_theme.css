@@ -74,3 +74,9 @@ table.docutils {
 .rst-content td > ul {
   margin-block-end: 0;
 }
+
+a code,
+a .docutils.literal {
+  text-decoration: underline;
+  text-underline-offset: 0.125rem;
+}
