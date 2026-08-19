@@ -860,48 +860,60 @@ class ExternalRequest {
     baseURI.port = socket.port;
     const callbackPrefix = baseURI.toString();
     const listener = {
-      QueryInterface: ChromeUtils.generateQI([
-        "nsIServerSocketListener",
-        "nsIInputStreamCallback",
-      ]),
+      QueryInterface: ChromeUtils.generateQI(["nsIServerSocketListener"]),
       _oauth: this.oauth,
       _closed: false,
       _receivedRequest: false,
-      _inputStream: null,
+      _connections: new Set(),
       _outputStream: null,
-      _transport: null,
-      _buffer: "",
 
       close() {
         if (this._closed) {
           return;
         }
         this._closed = true;
-        if (this._inputStream) {
-          this._inputStream.close();
-          this._inputStream = null;
-        }
         if (socket) {
           socket.close();
           socket = null;
         }
-
-        if (this._receivedRequest) {
-          // The response stream was closed in _respond().
-          this._transport = null;
-          return;
-        }
-
-        if (this._outputStream) {
-          this._outputStream.close();
-          this._outputStream = null;
-        }
-        if (this._transport) {
-          this._transport.close(Cr.NS_OK);
-          this._transport = null;
+        for (const connection of this._connections) {
+          connection.close();
         }
       },
 
+      /**
+       * Attempt to claim this connection as being the one handling the
+       * response. Closes the socket and all other connections to it.
+       *
+       * @param {object} connection
+       * @returns {boolean} - True on success, false if another connection has
+       *   already claimed this listener.
+       */
+      _claimConnection(connection) {
+        if (this._closed || this._receivedRequest) {
+          return false;
+        }
+        this._receivedRequest = true;
+        this._closed = true;
+        if (socket) {
+          socket.close();
+          socket = null;
+        }
+        for (const otherConnection of this._connections) {
+          if (otherConnection != connection) {
+            otherConnection.close();
+          }
+        }
+        this._outputStream = connection.detachOutputStream();
+        return true;
+      },
+
+      /**
+       * Construct an HTTP response and write it to the output stream, if open.
+       *
+       * @param {string} statusLine - HTTP status.
+       * @param {string} body - HTTP body, presumably HTML.
+       */
       _respond(statusLine, body) {
         if (!this._outputStream) {
           return;
@@ -921,11 +933,17 @@ class ExternalRequest {
         this._outputStream = null;
       },
 
-      _completeWithURL(url) {
-        if (this._receivedRequest) {
+      /**
+       * Use the completed response URL to attempt to finish the flow and
+       *   respond accordingly.
+       *
+       * @param {text} url - Full URL text.
+       * @param {object} connection
+       */
+      _completeWithURL(url, connection) {
+        if (!this._claimConnection(connection)) {
           return;
         }
-        this._receivedRequest = true;
 
         // If this will be treated as an error by onAuthorizationRecevied, show
         // the error page instead of the success page.
@@ -952,11 +970,15 @@ class ExternalRequest {
         });
       },
 
-      _fail() {
-        if (this._receivedRequest) {
+      /**
+       * Respond indicating something was unexpected with the HTTP request.
+       *
+       * @param {object} connection
+       */
+      _fail(connection) {
+        if (!this._claimConnection(connection)) {
           return;
         }
-        this._receivedRequest = true;
         lazy.OAuth2PageGenerator.generateErrorPage()
           .then(pageSource => {
             this._respond("400 Bad Request", pageSource);
@@ -974,71 +996,104 @@ class ExternalRequest {
       },
 
       onSocketAccepted(_socket, transport) {
-        if (this._closed || this._transport) {
+        if (this._closed) {
           transport.close(Cr.NS_ERROR_ABORT);
           return;
         }
 
-        this._transport = transport;
-        this._inputStream = transport
-          .openInputStream(0, 0, 0)
-          .QueryInterface(Ci.nsIAsyncInputStream);
-        this._outputStream = transport.openOutputStream(0, 0, 0);
-        this._inputStream.asyncWait(this, 0, 0, Services.tm.mainThread);
+        const connection = {
+          QueryInterface: ChromeUtils.generateQI(["nsIInputStreamCallback"]),
+          _listener: this,
+          _transport: transport,
+          _inputStream: transport
+            .openInputStream(0, 0, 0)
+            .QueryInterface(Ci.nsIAsyncInputStream),
+          _outputStream: transport.openOutputStream(0, 0, 0),
+          _buffer: "",
+
+          close() {
+            if (!this._transport) {
+              return;
+            }
+            this._inputStream.close();
+            this._outputStream.close();
+            this._transport.close(Cr.NS_OK);
+            this._transport = null;
+            this._listener._connections.delete(this);
+          },
+
+          detachOutputStream() {
+            this._inputStream.close();
+            const outputStream = this._outputStream;
+            this._outputStream = null;
+            this._transport = null;
+            this._listener._connections.delete(this);
+            return outputStream;
+          },
+
+          onInputStreamReady(stream) {
+            const MAX_REQUEST_LINE_BYTES = 8192;
+
+            if (this._listener._closed) {
+              this.close();
+              return;
+            }
+
+            let available;
+            try {
+              available = stream.available();
+            } catch (e) {
+              // A different connection may still succeed, so just close.
+              this.close();
+              return;
+            }
+
+            if (available <= 0) {
+              stream.asyncWait(this, 0, 0, Services.tm.mainThread);
+              return;
+            }
+
+            const scriptableStream = Cc[
+              "@mozilla.org/scriptableinputstream;1"
+            ].createInstance(Ci.nsIScriptableInputStream);
+            scriptableStream.init(stream);
+            this._buffer += scriptableStream.read(available);
+
+            const requestLineEnd = this._buffer.indexOf("\r\n");
+            if (requestLineEnd < 0) {
+              if (this._buffer.length > MAX_REQUEST_LINE_BYTES) {
+                this._listener._fail(this);
+                return;
+              }
+              stream.asyncWait(this, 0, 0, Services.tm.mainThread);
+              return;
+            }
+
+            const requestLine = this._buffer.substring(0, requestLineEnd);
+            const match = /^GET\s+(\S+)(?:\s|$)/.exec(requestLine);
+            if (!match) {
+              this._listener._fail(this);
+              return;
+            }
+
+            try {
+              const url = new URL(match[1], callbackPrefix).toString();
+              this._listener._completeWithURL(url, this);
+            } catch (e) {
+              this._listener._fail(this);
+            }
+          },
+        };
+        this._connections.add(connection);
+        connection._inputStream.asyncWait(
+          connection,
+          0,
+          0,
+          Services.tm.mainThread
+        );
       },
 
       onStopListening() {},
-
-      onInputStreamReady(stream) {
-        const MAX_REQUEST_LINE_BYTES = 8192;
-
-        if (this._closed || this._receivedRequest) {
-          return;
-        }
-
-        let available;
-        try {
-          available = stream.available();
-        } catch (e) {
-          this._fail();
-          return;
-        }
-
-        if (available <= 0) {
-          stream.asyncWait(this, 0, 0, Services.tm.mainThread);
-          return;
-        }
-
-        const scriptableStream = Cc[
-          "@mozilla.org/scriptableinputstream;1"
-        ].createInstance(Ci.nsIScriptableInputStream);
-        scriptableStream.init(stream);
-        this._buffer += scriptableStream.read(available);
-
-        const requestLineEnd = this._buffer.indexOf("\r\n");
-        if (requestLineEnd < 0) {
-          if (this._buffer.length > MAX_REQUEST_LINE_BYTES) {
-            this._fail();
-            return;
-          }
-          stream.asyncWait(this, 0, 0, Services.tm.mainThread);
-          return;
-        }
-
-        const requestLine = this._buffer.substring(0, requestLineEnd);
-        const match = /^GET\s+(\S+)(?:\s|$)/.exec(requestLine);
-        if (!match) {
-          this._fail();
-          return;
-        }
-
-        try {
-          const url = new URL(match[1], callbackPrefix).toString();
-          this._completeWithURL(url);
-        } catch (e) {
-          this._fail();
-        }
-      },
       _returnFocus: () => this.#returnFocus(),
     };
 

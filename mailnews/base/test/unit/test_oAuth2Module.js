@@ -11,6 +11,9 @@ const { OAuth2TestUtils } = ChromeUtils.importESModule(
 const { setTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"
 );
+const { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
 const { OAuth2PageGenerator } = ChromeUtils.importESModule(
   "moz-src:///comm/mailnews/base/src/OAuth2PageGenerator.sys.mjs"
 );
@@ -919,6 +922,7 @@ async function subtestExternalRequest(useCustomScheme) {
   await OAuth2TestUtils.startServer();
 
   const hostname = useCustomScheme ? "net.thunderbird.test" : "external.test";
+  let idleConnection;
   try {
     const mod = new OAuth2Module();
     Assert.ok(
@@ -938,6 +942,31 @@ async function subtestExternalRequest(useCustomScheme) {
     });
 
     const url = await externalOAuthURL;
+    if (!useCustomScheme) {
+      const redirectURI = new URL(
+        new URL(url).searchParams.get("redirect_uri")
+      );
+      const transportService = Cc[
+        "@mozilla.org/network/socket-transport-service;1"
+      ].getService(Ci.nsISocketTransportService);
+      const transport = transportService.createTransport(
+        [],
+        redirectURI.hostname,
+        redirectURI.port,
+        null,
+        null
+      );
+      idleConnection = {
+        transport,
+        inputStream: transport.openInputStream(0, 0, 0),
+        outputStream: transport.openOutputStream(0, 0, 0),
+      };
+      await TestUtils.waitForCondition(
+        () =>
+          mod._oauth.request._loopbackRedirectListener._connections.size == 1,
+        "OAuth listener should accept an idle connection"
+      );
+    }
     await OAuth2TestUtils.submitOAuthURL(url, {
       expectedHint: "romeo@foo.invalid",
       expectedScope: "test_mail",
@@ -982,6 +1011,7 @@ async function subtestExternalRequest(useCustomScheme) {
       "refresh token should have been saved"
     );
   } finally {
+    idleConnection?.transport.close(Cr.NS_OK);
     await Services.logins.removeAllLoginsAsync();
     OAuth2TestUtils.forgetObjects();
     OAuth2TestUtils.stopServer();
