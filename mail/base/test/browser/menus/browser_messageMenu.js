@@ -51,7 +51,20 @@ const messageMenuData = {
   menu_openFeedWebPageInMessagePane: {
     disabled: nothingSelected,
   },
-  msgAttachmentMenu: { disabled: true },
+  msgAttachmentMenu: {
+    disabled: [
+      ...nothingOrMultiSelected,
+      "singleSelection",
+      "message",
+      "syntheticView",
+      "mailMessageWindow",
+    ],
+  },
+  // The next four are only tested in the external message case.
+  "menu-openAllAttachments": {},
+  "menu-saveAllAttachments": {},
+  "menu-detachAllAttachments": { disabled: true },
+  "menu-deleteAllAttachments": { disabled: true },
   tagMenu: { disabled: [...nothingSelected, "externalMessage"] },
   "tagMenu-addNewTag": { disabled: nothingSelected },
   "tagMenu-manageTags": { disabled: nothingSelected },

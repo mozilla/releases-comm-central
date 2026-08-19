@@ -162,10 +162,14 @@ PromiseTestUtils.PromiseStreamListener = class extends (
    * @param {nsIStreamListener} [wrapped] - The nsIStreamListener to pass all
    *   notifications through to. This gets called prior to the callback (or
    *   async resumption).
+   * @param {boolean} [readBytes=false] - If the stream should be read with
+   *   `readBytes` instead of `read`. Use this if the stream is expected to
+   *   contain \0, but note it may throw NS_BASE_STREAM_WOULD_BLOCK.
    */
-  constructor(wrapped) {
+  constructor(wrapped, readBytes = false) {
     super(wrapped);
     this._stream = null;
+    this._readBytes = readBytes;
   }
 
   onStartRequest(aRequest) {
@@ -185,7 +189,11 @@ PromiseTestUtils.PromiseStreamListener = class extends (
       );
       this._stream.init(aInputStream);
     }
-    this._resolveValue += this._stream.read(aCount);
+    if (this._readBytes) {
+      this._resolveValue += this._stream.readBytes(aCount);
+    } else {
+      this._resolveValue += this._stream.read(aCount);
+    }
   }
 };
 

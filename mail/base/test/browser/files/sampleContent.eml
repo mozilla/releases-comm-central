@@ -1,5 +1,5 @@
 From andy@anway.invalid
-Content-Type: multipart/related;
+Content-Type: multipart/mixed;
  boundary="--------------CHOPCHOP0"
 Subject: Big Meeting Today
 From: "Andy Anway" <andy@anway.invalid>
@@ -9,6 +9,10 @@ Date: Tue, 01 Feb 2000 00:00:00 +1300
 
 This is a multi-part message in MIME format.
 ----------------CHOPCHOP0
+Content-Type: multipart/related;
+ boundary="--------------CHOPCHOP1"
+
+----------------CHOPCHOP1
 Content-Type: text/html; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
@@ -28,7 +32,7 @@ Content-Transfer-Encoding: 7bit
   </body>
 </html>
 
-----------------CHOPCHOP0
+----------------CHOPCHOP1
 Content-Type: image/png; charset=ISO-8859-1; format=flowed;
  name="tb-logo.png"
 Content-Transfer-Encoding: base64
@@ -156,6 +160,29 @@ RYtxWSaG4ZmGAtN6ZHU1G6ApMiVGMd2vuOJirV4pJevaKIr8BkxzNOidmiIDMQLzkkJwznrt
 9kElDlPPJNF/B7YdG5CBGE4PKthX2Woncacq2ykx8JXXv8G2Y6u/nF7SacdxYlFi7e8ngWdi
 gj1/6/W/lw0Mh9NQ9zRqE9PwMI6A65bzuBWDIqyCB2gB123z2r7Mmm9mk19z3eK1FQMylQ/B
 w3gfrq3Zpvfm2qo1Ia37G8S93Ux/GSLZAAAAAElFTkSuQmCC
+
+----------------CHOPCHOP1--
+----------------CHOPCHOP0
+Content-Type: text/plain; charset=UTF-8; name="attachment.txt"
+Content-Disposition: attachment; filename="attachment.txt"
+Content-Transfer-Encoding: base64
+
+SSdtIGEgdGV4dCBhdHRhY2htZW50ISBJIHdvbid0IGJlIGRpc3BsYXllZCBpbmxpbmUK
+
+----------------CHOPCHOP0
+Content-Type: image/svg+xml; name="attachment.svg"
+Content-Disposition: attachment; filename="attachment.svg"
+Content-Transfer-Encoding: base64
+
+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdo
+dD0iNDAiPgogIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwIiByPSIxNTAiIGZpbGw9InJlZCIvPgog
+IDxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwIiByPSIxMjAiIGZpbGw9IndoaXRlIi8+CiAgPGNpcmNs
+ZSBjeD0iMjAwIiBjeT0iMjAiIHI9IjkwIiBmaWxsPSJyZWQiLz4KICA8Y2lyY2xlIGN4PSIyMDAi
+IGN5PSIyMCIgcj0iNjAiIGZpbGw9IndoaXRlIi8+CiAgPGNpcmNsZSBjeD0iMjAwIiBjeT0iMjAi
+IHI9IjMwIiBmaWxsPSJyZWQiLz4KICA8dGV4dCB4PSIyMDAiIHk9IjIwIiBmb250LXNpemU9IjEy
+IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+SSdtIGFu
+IFNWRyBhdHRhY2htZW50ISBJIHdpbGwgYmUgZGlzcGxheWVkIGlubGluZSBpZiB5b3UgYWxsb3cg
+aXQuPC90ZXh0Pgo8L3N2Zz4K
 
 ----------------CHOPCHOP0--
 
