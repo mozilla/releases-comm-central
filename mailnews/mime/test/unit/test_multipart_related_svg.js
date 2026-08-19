@@ -75,6 +75,17 @@ add_task(async function test_embedded_svg_with_inline_attachments_disabled() {
     "text/html"
   );
   const imageURL = document.querySelector("img").getAttribute("src");
+  const imageParams = URL.parse(imageURL).searchParams;
+  Assert.equal(
+    imageParams.get("type"),
+    "image/svg+xml",
+    "URL params should contain the type"
+  );
+  Assert.equal(
+    imageParams.get("filename"),
+    "embedded.svg",
+    "URL params should contain the filename"
+  );
   const channel = NetUtil.newChannel({
     uri: imageURL,
     loadUsingSystemPrincipal: true,

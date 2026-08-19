@@ -56,6 +56,7 @@
 #include "mimecth.h"
 #include "mimemoz2.h"
 #include "mozilla/Components.h"
+#include "mozilla/Logging.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/StaticPrefs_mailnews.h"
 #include "nsICategoryManager.h"
@@ -69,6 +70,7 @@
 #include "nsMsgUtils.h"
 #include "nsSimpleMimeConverterStub.h"
 #include "nsTArray.h"
+#include "nsURLHelper.h"
 #include "nsXPCOMCID.h"
 #include "plstr.h"
 #include "prenv.h"
@@ -76,8 +78,6 @@
 #include "prlog.h"
 #include "prmem.h"
 #include "prprf.h"
-
-#include "mozilla/Logging.h"
 
 using namespace mozilla;
 extern mozilla::LazyLogModule gMimeCmsLog;
@@ -1509,75 +1509,68 @@ char* mime_find_suggested_name_of_part(const char* part, MimeObject* obj) {
 /* Parse the various "?" options off the URL and into the options struct.
  */
 int mime_parse_url_options(const char* url, MimeDisplayOptions* options) {
-  const char* q;
-
   if (!url || !*url) return 0;
   if (!options) return 0;
 
   MimeHeadersState default_headers = options->headers;
 
-  q = PL_strrchr(url, '?');
-  if (!q) return 0;
-  q++;
-  while (*q) {
-    const char *end, *value, *name_end;
-    end = q;
-    while (*end && *end != '&') end++;
-    value = q;
-    while (*value != '=' && value < end) value++;
-    name_end = value;
-    if (value < end) value++;
-    if (name_end <= q)
-      ;
-    else if (!PL_strncasecmp("headers", q, name_end - q)) {
-      if (end > value && !PL_strncasecmp("only", value, end - value))
-        options->headers = MimeHeadersOnly;
-      else if (end > value && !PL_strncasecmp("none", value, end - value))
-        options->headers = MimeHeadersNone;
-      else if (end > value && !PL_strncasecmp("all", value, end - value))
-        options->headers = MimeHeadersAll;
-      else if (end > value && !PL_strncasecmp("some", value, end - value))
-        options->headers = MimeHeadersSome;
-      else if (end > value && !PL_strncasecmp("micro", value, end - value))
-        options->headers = MimeHeadersMicro;
-      else if (end > value && !PL_strncasecmp("cite", value, end - value))
-        options->headers = MimeHeadersCitation;
-      else if (end > value && !PL_strncasecmp("citation", value, end - value))
-        options->headers = MimeHeadersCitation;
-      else
-        options->headers = default_headers;
-    } else if (!PL_strncasecmp("part", q, name_end - q) &&
-               options->format_out != nsMimeOutput::nsMimeMessageBodyQuoting) {
-      PR_FREEIF(options->part_to_load);
-      if (end > value) {
-        options->part_to_load = (char*)PR_MALLOC(end - value + 1);
-        if (!options->part_to_load) return MIME_OUT_OF_MEMORY;
-        memcpy(options->part_to_load, value, end - value);
-        options->part_to_load[end - value] = 0;
-      }
-    } else if (!PL_strncasecmp("emitter", q, name_end - q)) {
-      if ((end > value) && !PL_strncasecmp("js", value, end - value)) {
-        // the js emitter needs to hear about nested message bodies
-        //  in order to build a proper representation.
-        options->notify_nested_bodies = true;
-        // show_attachment_inline_p has the side-effect of letting the
-        //  emitter see all parts of a multipart/alternative, which it
-        //  really appreciates.
-        options->show_attachment_inline_p = true;
-        // however, show_attachment_inline_p also results in a few
-        //  subclasses writing junk into the body for display purposes.
-        // put a stop to these shenanigans by enabling write_pure_bodies.
-        //  current offenders are:
-        //  - MimeInlineImage
-        options->write_pure_bodies = true;
-        // we don't actually care about the data in the attachments, just the
-        // metadata (i.e. size)
-        options->metadata_only = true;
-      }
-    }
+  nsCOMPtr<nsIURI> uri;
+  nsresult rv = NS_NewURI(getter_AddRefs(uri), url);
+  NS_ENSURE_SUCCESS(rv, 0);
 
-    q = end;
-    if (*q) q++;
+  nsAutoCString query;
+  rv = uri->GetQuery(query);
+  NS_ENSURE_SUCCESS(rv, 0);
+
+  URLParams params;
+  params.ParseInput(query);
+
+  nsAutoCString headers;
+  params.Get("headers"_ns, headers);
+  if (headers.Equals("only")) {
+    options->headers = MimeHeadersOnly;
+  } else if (headers.Equals("none")) {
+    options->headers = MimeHeadersNone;
+  } else if (headers.Equals("all")) {
+    options->headers = MimeHeadersAll;
+  } else if (headers.Equals("some")) {
+    options->headers = MimeHeadersSome;
+  } else if (headers.Equals("micro")) {
+    options->headers = MimeHeadersMicro;
+  } else if (headers.Equals("cite")) {
+    options->headers = MimeHeadersCitation;
+  } else if (headers.Equals("citation")) {
+    options->headers = MimeHeadersCitation;
+  } else {
+    options->headers = default_headers;
+  }
+
+  nsAutoCString part;
+  params.Get("part"_ns, part);
+  if (!part.IsEmpty() &&
+      options->format_out != nsMimeOutput::nsMimeMessageBodyQuoting) {
+    options->part_to_load = strdup(part.get());
+  }
+
+  nsAutoCString emitter;
+  params.Get("emitter"_ns, emitter);
+  if (emitter.Equals("js")) {
+    // the js emitter needs to hear about nested message bodies
+    //  in order to build a proper representation.
+    options->notify_nested_bodies = true;
+    // show_attachment_inline_p has the side-effect of letting the
+    //  emitter see all parts of a multipart/alternative, which it
+    //  really appreciates.
+    options->show_attachment_inline_p = true;
+    // however, show_attachment_inline_p also results in a few
+    //  subclasses writing junk into the body for display purposes.
+    // put a stop to these shenanigans by enabling write_pure_bodies.
+    //  current offenders are:
+    //  - MimeInlineImage
+    options->write_pure_bodies = true;
+    // we don't actually care about the data in the attachments, just the
+    // metadata (i.e. size)
+    options->metadata_only = true;
   }
 
   /* Compatibility with the "?part=" syntax used in the old (Mozilla 2.0)

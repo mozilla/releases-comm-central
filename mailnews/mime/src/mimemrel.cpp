@@ -95,25 +95,29 @@
    = free all the cached data
  */
 
+#include "mimemrel.h"
+
 #include "mimehdrs.h"
-#include "mozilla/ScopeExit.h"
-#include "nsCOMPtr.h"
+#include "mimeleaf.h"
+#include "mimemapl.h"
+#include "mimemoz2.h"
 #include "mimemrel.h"
 #include "mimepbuf.h"
-#include "mimemapl.h"
-#include "mimeleaf.h"
-#include "nsMailHeaders.h"
-#include "prmem.h"
-#include "prprf.h"
-#include "prlog.h"
-#include "plstr.h"
-#include "mimemoz2.h"
-#include "nsString.h"
+#include "mozilla/ScopeExit.h"
 #include "msgCore.h"
+#include "nsCOMPtr.h"
+#include "nsIURIMutator.h"
+#include "nsMailHeaders.h"
 #include "nsMimeStringResources.h"
 #include "nsMimeTypes.h"
-#include "nsMsgUtils.h"
 #include "nsMsgCompUtils.h"
+#include "nsMsgUtils.h"
+#include "nsString.h"
+#include "nsURLHelper.h"
+#include "plstr.h"
+#include "prlog.h"
+#include "prmem.h"
+#include "prprf.h"
 
 #define MIME_SUPERCLASS mimeMultipartClass
 MimeDefClass(MimeMultipartRelated, MimeMultipartRelatedClass,
@@ -273,48 +277,6 @@ extern "C" char* escape_unescaped_percents(const char* incomingURL) {
   }
 
   return result;
-}
-
-/* This routine is only necessary because the mailbox URL fed to us
-   by the winfe can contain spaces and '>'s in it. It's a hack. */
-static char* escape_for_mrel_subst(char* inURL) {
-  char *output, *inC, *outC, *temp;
-
-  int size = strlen(inURL) + 1;
-
-  for (inC = inURL; *inC; inC++)
-    if ((*inC == ' ') || (*inC == '>'))
-      size += 2; /* space -> '%20', '>' -> '%3E', etc. */
-
-  output = (char*)PR_MALLOC(size);
-  if (output) {
-    /* Walk through the source string, copying all chars
-      except for spaces, which get escaped. */
-    inC = inURL;
-    outC = output;
-    while (*inC) {
-      if (*inC == ' ') {
-        *outC++ = '%';
-        *outC++ = '2';
-        *outC++ = '0';
-      } else if (*inC == '>') {
-        *outC++ = '%';
-        *outC++ = '3';
-        *outC++ = 'E';
-      } else
-        *outC++ = *inC;
-
-      inC++;
-    }
-    *outC = '\0';
-
-    temp = escape_unescaped_percents(output);
-    if (temp) {
-      PR_FREEIF(output);
-      output = temp;
-    }
-  }
-  return output;
 }
 
 static bool MimeStartParamExists(MimeObject* obj, MimeObject* child) {
@@ -484,16 +446,24 @@ static bool MimeMultipartRelated_output_child_p(MimeObject* obj,
           } else
             part = mime_set_url_part(obj->options->url, partnum.get(), false);
         }
+
         if (part) {
+          // Get the query as an URLParams object so we can safely modify it.
+          nsCOMPtr<nsIURI> uri;
+          nsresult rv = NS_NewURI(getter_AddRefs(uri), part);
+          NS_ENSURE_SUCCESS(rv, true);
+
+          nsAutoCString query;
+          rv = uri->GetQuery(query);
+          NS_ENSURE_SUCCESS(rv, true);
+
+          mozilla::URLParams params;
+          params.ParseInput(query);
+
           // Raw MIME part channels get their content type from the URL. Include
           // it so related resources which cannot be sniffed, such as SVG, load.
           if (child->content_type) {
-            char* typedPart =
-                PR_smprintf("%s&type=%s", part, child->content_type);
-            if (typedPart) {
-              PR_Free(part);
-              part = typedPart;
-            }
+            params.Set("type"_ns, nsCString(child->content_type));
           }
           char* name = MimeHeaders_get_name(child->headers, child->options);
           // let's stick the filename in the part so save as will work.
@@ -513,17 +483,21 @@ static bool MimeMultipartRelated_output_child_p(MimeObject* obj,
             }
           }
           if (name) {
-            char* savePart = part;
-            part = PR_smprintf("%s&filename=%s", savePart, name);
-            PR_Free(savePart);
-            PR_Free(name);
+            params.Set("filename"_ns, nsCString(name));
           }
+
+          // Update the query and convert the URI back to a string.
+          params.Serialize(query, true);
+          rv = NS_MutateURI(uri).SetQuery(query).Finalize(getter_AddRefs(uri));
+          NS_ENSURE_SUCCESS(rv, true);
+
+          nsAutoCString spec;
+          rv = uri->GetSpec(spec);
+          NS_ENSURE_SUCCESS(rv, true);
+
+          part = strdup(spec.get());
+
           char* temp = part;
-          /* If there's a space in the url, escape the url.
-             (This happens primarily on Windows and Unix.) */
-          if (PL_strchr(part, ' ') || PL_strchr(part, '>') ||
-              PL_strchr(part, '%'))
-            temp = escape_for_mrel_subst(part);
           MimeHashValue* value = new MimeHashValue(child, temp);
           PL_HashTableAdd(relobj->hash, absolute, value);
 

@@ -11,20 +11,22 @@
  */
 
 #include "mimeobj.h"
-#include "mimemult.h"
-#include "nsMailHeaders.h"
-#include "prmem.h"
-#include "plstr.h"
-#include "prio.h"
+
 #include "mimebuf.h"
-#include "prlog.h"
-#include "nsMimeTypes.h"
+#include "mimemult.h"
+#include "nsEscape.h"
+#include "nsIURI.h"
+#include "nsMailHeaders.h"
 #include "nsMimeStringResources.h"
+#include "nsMimeTypes.h"
+#include "nsNetUtil.h"
 #include "nsReadableUtils.h"
 #include "nsStringEnumerator.h"
-#include "nsNetUtil.h"
-#include "nsIURI.h"
-#include "nsEscape.h"
+#include "nsURLHelper.h"
+#include "plstr.h"
+#include "prio.h"
+#include "prlog.h"
+#include "prmem.h"
 
 MimeDefClass(MimeObject, MimeObjectClass, mimeObjectClass, NULL);
 
@@ -141,31 +143,6 @@ static void MimeObject_finalize(MimeObject* obj) {
   }
 }
 
-// Extracts all values of a given parameter name from the query string.
-// The query must still be escaped: values are unescaped individually, after
-// splitting, so that escaped separators within a value are preserved.
-static nsTArray<nsCString> ExtractParams(const nsACString& query,
-                                         const nsACString& paramName) {
-  nsTArray<nsCString> parts;
-  ParseString(query, '&', parts);
-
-  nsTArray<nsCString> values;
-  for (const auto& part : parts) {
-    int32_t equals = part.FindChar('=');
-    if (equals > 0) {
-      nsAutoCString name, value;
-      name.Assign(Substring(part, 0, equals));
-      NS_UnescapeURL(name);
-      if (name.Equals(paramName)) {
-        value.Assign(Substring(part, equals + 1));
-        NS_UnescapeURL(value);
-        values.AppendElement(value);
-      }
-    }
-  }
-  return values;
-}
-
 static int MimeObject_parse_begin(MimeObject* obj) {
   NS_ASSERTION(!obj->closed_p, "object shouldn't be already closed");
 
@@ -180,17 +157,21 @@ static int MimeObject_parse_begin(MimeObject* obj) {
     if (!obj->options->state) return MIME_OUT_OF_MEMORY;
     obj->options->state->root = obj;
     obj->options->state->separator_suppressed_p = true; /* no first sep */
-    if (PL_strcasestr(obj->options->url, "&del=")) {
-      nsCOMPtr<nsIURI> uri;
-      nsresult rv =
-          NS_NewURI(getter_AddRefs(uri), nsDependentCString(obj->options->url));
-      NS_ENSURE_SUCCESS(rv, -1);
 
-      nsAutoCString query;
-      uri->GetQuery(query);
+    nsCOMPtr<nsIURI> uri;
+    nsresult rv = NS_NewURI(getter_AddRefs(uri), obj->options->url);
+    NS_ENSURE_SUCCESS(rv, -1);
 
-      obj->options->state->partsToStrip = ExtractParams(query, "del"_ns);
-      obj->options->state->detachToFiles = ExtractParams(query, "detachTo"_ns);
+    nsAutoCString query;
+    rv = uri->GetQuery(query);
+    NS_ENSURE_SUCCESS(rv, -1);
+
+    mozilla::URLParams params;
+    params.ParseInput(query);
+
+    if (params.Has("del"_ns)) {
+      params.GetAll("del"_ns, obj->options->state->partsToStrip);
+      params.GetAll("detachTo"_ns, obj->options->state->detachToFiles);
     }
   }
 

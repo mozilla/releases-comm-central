@@ -22,6 +22,7 @@
 #include "nsNetUtil.h"
 #include "nsNetUtil.h"
 #include "nsString.h"
+#include "nsURLHelper.h"
 #include "plstr.h"
 #include "prlog.h"
 #include "prmem.h"
@@ -201,38 +202,14 @@ nsresult bridge_set_mime_stream_converter_listener(
   return NS_OK;
 }
 
-// find a query element in a url and return a pointer to its data
-// (query must be in the form "query=")
-static const char* FindQueryElementData(const char* aUrl, const char* aQuery) {
-  if (aUrl && aQuery) {
-    size_t queryLen = 0;  // we don't call strlen until we need to
-    aUrl = PL_strcasestr(aUrl, aQuery);
-    while (aUrl) {
-      if (!queryLen) queryLen = strlen(aQuery);
-      if (*(aUrl - 1) == '&' || *(aUrl - 1) == '?') return aUrl + queryLen;
-      aUrl = PL_strcasestr(aUrl + queryLen, aQuery);
-    }
-  }
-  return nullptr;
-}
-
-// case-sensitive test for string prefixing. If |string| is prefixed
-// by |prefix| then a pointer to the next character in |string| following
-// the prefix is returned. If it is not a prefix then |nullptr| is returned.
-static const char* SkipPrefix(const char* aString, const char* aPrefix) {
-  while (*aPrefix)
-    if (*aPrefix++ != *aString++) return nullptr;
-  return aString;
-}
-
 //
 // Utility routines needed by this interface
 //
-nsresult nsStreamConverter::DetermineOutputFormat(const char* aUrl,
+nsresult nsStreamConverter::DetermineOutputFormat(nsIURI* uri,
                                                   nsMimeOutputType* aNewType) {
   // sanity checking
   NS_ENSURE_ARG_POINTER(aNewType);
-  if (!aUrl || !*aUrl) {
+  if (!uri) {
     // default to html for the entire document
     *aNewType = nsMimeOutput::nsMimeMessageQuoting;
     mOutputFormat = "text/html";
@@ -241,11 +218,13 @@ nsresult nsStreamConverter::DetermineOutputFormat(const char* aUrl,
 
   // shorten the url that we test for the query strings by skipping directly
   // to the part where the query strings begin.
-  const char* queryPart = PL_strchr(aUrl, '?');
+  nsCString queryPart;
+  uri->GetQuery(queryPart);
 
   // is this is a part that should just come out raw
-  const char* part = FindQueryElementData(queryPart, "part=");
-  if (part && !mToType.EqualsLiteral("application/xhtml+xml")) {
+  nsAutoCString part;
+  if (mozilla::URLParams::Extract(queryPart, "part"_ns, part) &&
+      !mToType.EqualsLiteral("application/xhtml+xml")) {
     // default for parts
     mOutputFormat = "raw";
     *aNewType = nsMimeOutput::nsMimeMessageRaw;
@@ -253,43 +232,35 @@ nsresult nsStreamConverter::DetermineOutputFormat(const char* aUrl,
     // if we are being asked to fetch a part....it should have a
     // content type appended to it...if it does, we want to remember
     // that as mOutputFormat
-    const char* typeField = FindQueryElementData(queryPart, "type=");
-    if (typeField && !strncmp(typeField, "application/x-message-display",
-                              sizeof("application/x-message-display") - 1)) {
-      const char* secondTypeField = FindQueryElementData(typeField, "type=");
-      if (secondTypeField) typeField = secondTypeField;
-    }
-    if (typeField) {
-      // store the real content type...mOutputFormat gets deleted later on...
-      // and make sure we only get our own value.
-      char* nextField = PL_strchr(typeField, '&');
-      mRealContentType.Assign(typeField,
-                              nextField ? nextField - typeField : -1);
-      if (mRealContentType.EqualsLiteral("message/rfc822")) {
+    nsAutoCString type;
+    mozilla::URLParams::Extract(queryPart, "type"_ns, type);
+    if (!type.IsEmpty()) {
+      if (type.EqualsLiteral("message/rfc822")) {
         mRealContentType = "application/x-message-display";
         mOutputFormat = "text/html";
         *aNewType = nsMimeOutput::nsMimeMessageBodyDisplay;
-      } else if (mRealContentType.EqualsLiteral(
-                     "application/x-message-display")) {
+      } else if (type.EqualsLiteral("application/x-message-display")) {
         mRealContentType = "";
         mOutputFormat = "text/html";
         *aNewType = nsMimeOutput::nsMimeMessageBodyDisplay;
+      } else {
+        mRealContentType = type;
       }
     }
 
     return NS_OK;
   }
 
-  const char* emitter = FindQueryElementData(queryPart, "emitter=");
-  if (emitter) {
-    const char* remainder = SkipPrefix(emitter, "js");
-    if (remainder && (!*remainder || *remainder == '&'))
-      mOverrideFormat = "application/x-js-mime-message";
+  nsAutoCString emitter;
+  mozilla::URLParams::Extract(queryPart, "emitter"_ns, emitter);
+  if (emitter.EqualsLiteral("js")) {
+    mOverrideFormat = "application/x-js-mime-message";
   }
 
   // if using the header query
-  const char* header = FindQueryElementData(queryPart, "header=");
-  if (header) {
+  nsAutoCString header;
+  mozilla::URLParams::Extract(queryPart, "header"_ns, header);
+  if (!header.IsEmpty()) {
     struct HeaderType {
       const char* headerType;
       const char* outputFormat;
@@ -311,10 +282,8 @@ nsresult nsStreamConverter::DetermineOutputFormat(const char* aUrl,
     // find the requested header in table, ensure that we don't match on a
     // prefix by checking that the following character is either null or the
     // next query element
-    const char* remainder;
     for (uint32_t n = 0; n < std::size(rgTypes); ++n) {
-      remainder = SkipPrefix(header, rgTypes[n].headerType);
-      if (remainder && (*remainder == '\0' || *remainder == '&')) {
+      if (header.Equals(rgTypes[n].headerType)) {
         mOutputFormat = rgTypes[n].outputFormat;
         *aNewType = rgTypes[n].mimeOutputType;
         return NS_OK;
@@ -375,9 +344,7 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI* aURI,
   // output type is...
   nsMimeOutputType newType = mOutputType;
   if (!mAlreadyKnowOutputType) {
-    nsAutoCString urlSpec;
-    rv = aURI->GetSpecIgnoringRef(urlSpec);
-    DetermineOutputFormat(urlSpec.get(), &newType);
+    DetermineOutputFormat(aURI, &newType);
     mAlreadyKnowOutputType = true;
     mOutputType = newType;
   }

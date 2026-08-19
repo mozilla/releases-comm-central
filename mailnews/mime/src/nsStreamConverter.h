@@ -44,7 +44,7 @@ class nsStreamConverter : public nsIStreamConverter,
                   nsIChannel* aChannel);
   NS_IMETHOD GetContentType(char** aOutputContentType);
   NS_IMETHOD InternalCleanup(void);
-  NS_IMETHOD DetermineOutputFormat(const char* url, nsMimeOutputType* newType);
+  NS_IMETHOD DetermineOutputFormat(nsIURI* uri, nsMimeOutputType* newType);
   NS_IMETHOD FirePendingStartRequest(void);
 
  private:

@@ -152,11 +152,10 @@ add_task(async function testBodyFileURL2() {
 
 /**
  * Test with some completely unknown URL format.
- * FIXME: This doesn't work, but we'll fix it in the next patch.
  */
 add_task(async function testBodyNewURL() {
   await subtestBody("odd:///?p=file%3A%2F%2F%2Fsomewhere%2Fout%2Fthere.eml");
-}).skip();
+});
 
 /**
  * Simulates a load of sampleContent.eml from the given URI. The converter
@@ -252,15 +251,13 @@ async function subtestBody(uri) {
   expectedImgURL.searchParams.set("type", "image/png");
   expectedImgURL.searchParams.set("filename", "tb-logo.png");
 
-  // FIXME: The image URL is encoded incorrectly.
-  // That will be fixed in the next patch.
-  // const document = new DOMParser().parseFromString(output, "text/html");
-  // const img = document.querySelector("img");
-  // Assert.equal(
-  //   img.src,
-  //   expectedImgURL.toString(),
-  //   "inline image URL should be rewritten relative to the message URL"
-  // );
+  const document = new DOMParser().parseFromString(output, "text/html");
+  const img = document.querySelector("img");
+  Assert.equal(
+    img.src,
+    expectedImgURL.toString(),
+    "inline image URL should be rewritten relative to the message URL"
+  );
 
   // Test a request for the image.
 
