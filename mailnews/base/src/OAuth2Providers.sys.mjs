@@ -250,6 +250,7 @@ var kIssuers = new Map([
       clientSecret: "3ded85b4ec574c2187a55dc49d361280",
       authorizationEndpoint: "https://oauth.yandex.com/authorize",
       tokenEndpoint: "https://oauth.yandex.com/token",
+      useExternalBrowser: true,
     },
   ],
   [
