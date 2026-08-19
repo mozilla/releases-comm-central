@@ -133,3 +133,40 @@ add_task(async function test_all_folders_toggle_folder_open_state() {
     "Test ran to completion successfully"
   );
 });
+
+/**
+ * Creating a folder should only initialize the new row, not refresh every row in
+ * the folder pane. This keeps large IMAP folder discovery from repeatedly doing
+ * full-tree UI work while folders are added one at a time.
+ */
+add_task(async function test_folder_added_does_not_refresh_all_rows() {
+  const about3Pane = get_about_3pane();
+  const originalUpdateFolderRowUIElements =
+    about3Pane.folderPane.updateFolderRowUIElements;
+  let updateAllRowsCount = 0;
+
+  about3Pane.folderPane.updateFolderRowUIElements = function () {
+    updateAllRowsCount++;
+    return originalUpdateFolderRowUIElements.apply(this, arguments);
+  };
+
+  const folder = await create_folder("FolderPaneNoFullRefresh");
+  try {
+    Assert.ok(
+      about3Pane.folderPane.getRowForFolder(folder),
+      "The new folder row was added"
+    );
+    Assert.equal(
+      updateAllRowsCount,
+      0,
+      "Adding a folder should not refresh UI state on every folder row"
+    );
+  } finally {
+    about3Pane.folderPane.updateFolderRowUIElements =
+      originalUpdateFolderRowUIElements;
+    MailServices.accounts.localFoldersServer.rootFolder.propagateDelete(
+      folder,
+      true
+    );
+  }
+});

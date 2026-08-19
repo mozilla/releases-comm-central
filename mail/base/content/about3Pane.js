@@ -6310,7 +6310,6 @@ var folderListener = {
   onFolderAdded(parentFolder, childFolder) {
     folderPane.setSortOrderOnNewFolder(parentFolder, childFolder);
     folderPane.addFolder(parentFolder, childFolder);
-    folderPane.updateFolderRowUIElements();
   },
   onMessageAdded() {},
   onFolderRemoved(parentFolder, childFolder) {

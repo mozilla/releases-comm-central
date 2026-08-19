@@ -186,19 +186,15 @@ class FolderTreeRow extends HTMLLIElement {
   }
 
   set totalCount(value) {
-    if (this.#totalCount == value) {
-      return;
+    if (this.#totalCount != value) {
+      this.#totalCount = value;
+      this.classList.toggle("total", value > 0);
+      this.#updateTextNode(this.totalCountLabel, value);
     }
 
-    this.#totalCount = value;
-    this.classList.toggle("total", value > 0);
-    this.#updateTextNode(this.totalCountLabel, value);
-
-    this.totalCountLabel.hidden = !lazy.XULStoreUtils.isItemVisible(
-      "messenger",
-      "totalMsgCount"
+    this.toggleTotalCountBadgeVisibility(
+      !lazy.XULStoreUtils.isItemVisible("messenger", "totalMsgCount")
     );
-    this.#scheduleAriaLabelUpdate();
   }
 
   /**
@@ -211,18 +207,12 @@ class FolderTreeRow extends HTMLLIElement {
   }
 
   set folderSize(value) {
-    if (this.#folderSize == value) {
-      return;
+    if (this.#folderSize != value) {
+      this.#folderSize = value;
+      this.#updateTextNode(this.folderSizeLabel, value);
     }
 
-    this.#folderSize = value;
-    this.#updateTextNode(this.folderSizeLabel, value);
-
-    this.folderSizeLabel.hidden = !lazy.XULStoreUtils.isItemVisible(
-      "messenger",
-      "folderPaneFolderSize"
-    );
-    this.#scheduleAriaLabelUpdate();
+    this.#updateFolderSizeVisibility();
   }
 
   /**
@@ -429,7 +419,18 @@ class FolderTreeRow extends HTMLLIElement {
    * @param {boolean} isHidden
    */
   toggleTotalCountBadgeVisibility(isHidden) {
+    if (this.totalCountLabel.hidden == isHidden) {
+      return;
+    }
     this.totalCountLabel.hidden = isHidden;
+    this.#scheduleAriaLabelUpdate();
+  }
+
+  #updateFolderSizeVisibility() {
+    this.folderSizeLabel.hidden = !lazy.XULStoreUtils.isItemVisible(
+      "messenger",
+      "folderPaneFolderSize"
+    );
     this.#scheduleAriaLabelUpdate();
   }
 
