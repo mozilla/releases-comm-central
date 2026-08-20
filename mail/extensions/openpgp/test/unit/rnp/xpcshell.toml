@@ -12,6 +12,9 @@ tags = ["openpgp"]
 
 ["test_encryptAndOrSign.js"]
 
+["test_externalGnuPGSigning.js"]
+skip-if = ["os != 'linux'"]
+
 ["test_externalSigningKey.js"]
 
 ["test_revocation.js"]
