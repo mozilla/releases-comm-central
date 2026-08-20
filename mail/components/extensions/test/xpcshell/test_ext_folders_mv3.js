@@ -342,6 +342,19 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
       const folders = await browser.folders.getSubFolders(rootFolder.id, false);
       const InfoTestFolder = folders.find(f => f.name == "InfoTest");
 
+      function waitForInfoChanged(key, value) {
+        return new Promise(resolve => {
+          const listener = (folder, info) => {
+            if (folder.id != InfoTestFolder.id || info[key] != value) {
+              return;
+            }
+            browser.folders.onFolderInfoChanged.removeListener(listener);
+            resolve([folder, info]);
+          };
+          browser.folders.onFolderInfoChanged.addListener(listener);
+        });
+      }
+
       // Verify initial state of the InfoTestFolder.
       {
         window.assertDeepEqual(
@@ -394,8 +407,9 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
 
       // Clear new messages and check FolderInfo and onFolderInfoChanged event.
       {
-        const onFolderInfoChangedPromise = window.waitForEvent(
-          "folders.onFolderInfoChanged"
+        const onFolderInfoChangedPromise = waitForInfoChanged(
+          "newMessageCount",
+          0
         );
         await window.sendMessage("clearNewMessages");
         const [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
@@ -429,8 +443,9 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
       // Flip isFavorite to true and mark all messages as read. Check FolderInfo
       // and onFolderInfoChanged event.
       {
-        const onFolderInfoChangedPromise = window.waitForEvent(
-          "folders.onFolderInfoChanged"
+        const onFolderInfoChangedPromise = waitForInfoChanged(
+          "unreadMessageCount",
+          0
         );
         const onUpdatedPromise = window.waitForEvent("folders.onUpdated");
         await browser.folders.update(InfoTestFolder.id, {
@@ -487,8 +502,9 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
 
       // Test setting some messages back to unread.
       {
-        const onFolderInfoChangedPromise = window.waitForEvent(
-          "folders.onFolderInfoChanged"
+        const onFolderInfoChangedPromise = waitForInfoChanged(
+          "unreadMessageCount",
+          5
         );
         await window.sendMessage("markSomeAsUnread", 5);
         const [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
