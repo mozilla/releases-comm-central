@@ -7,6 +7,10 @@
  * back to the server by the next synchronization instead of being silently
  * discarded (bug 2052714), and that the playback does not corrupt other
  * events in the cache.
+ *
+ * Also tests the conflict prompt the synchronization raises when the server
+ * copy has moved on in the meantime (bug 2059370): when it appears, what it is
+ * asked about, and what each answer does to both sides.
  */
 
 var { ICSServer } = ChromeUtils.importESModule(
@@ -23,15 +27,15 @@ const UID_A = "event-a";
 const UID_B = "event-b";
 const UID_C = "event-c";
 
-// LAST-MODIFIED is deliberately in the past, so an offline edit is always the
-// newer copy and the synchronization takes the plain modify path. The overwrite
-// prompt on the other path is modal and would hang xpcshell (bug 2059370).
-function buildVEvent(uid, summary, day) {
+// LAST-MODIFIED decides which copy the synchronization considers the newer one.
+// It defaults to the past, so an offline edit always wins and the plain modify
+// path runs. The conflict tasks pass a stamp of their own to lose that race.
+function buildVEvent(uid, summary, day, lastModified = "20220316T100000Z") {
   return [
     "BEGIN:VEVENT",
     "UID:" + uid,
     "SUMMARY:" + summary,
-    "LAST-MODIFIED:20220316T100000Z",
+    "LAST-MODIFIED:" + lastModified,
     "DTSTART:202203" + day + "T120000Z",
     "DTEND:202203" + day + "T130000Z",
     "DTSTAMP:20220316T100000Z",
@@ -48,7 +52,12 @@ function buildIcs(...events) {
   );
 }
 
-function registerTestCalendar() {
+/**
+ * Creates a cached ICS calendar on the mock server and registers it.
+ *
+ * @returns {calICalendar} The registered calendar, once it has finished loading.
+ */
+async function registerTestCalendar() {
   const calendar = cal.manager.createCalendar("ics", Services.io.newURI(ICSServer.url));
   calendar.name = "offlinePlayback";
   calendar.id = cal.getUUID();
@@ -61,6 +70,20 @@ function registerTestCalendar() {
       cal.manager.unregisterCalendar(registered);
     }
   });
+  await waitForLoad(registered);
+  registered.setProperty("refreshInterval", "0");
+  return registered;
+}
+
+/**
+ * Resolves once the calendar reports being loaded. The cached calendar defers
+ * that notification until the synchronization the load triggered has finished,
+ * so this covers the playback of the offline changes as well.
+ *
+ * @param {calICalendar} calendar - The registered cached calendar.
+ * @returns {Promise<void>}
+ */
+function waitForLoad(calendar) {
   return new Promise(resolve => {
     const observer = {
       QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
@@ -73,12 +96,11 @@ function registerTestCalendar() {
       onPropertyChanged() {},
       onPropertyDeleting() {},
       onLoad() {
-        registered.removeObserver(observer);
-        registered.setProperty("refreshInterval", "0");
-        resolve(registered);
+        calendar.removeObserver(observer);
+        resolve();
       },
     };
-    registered.addObserver(observer);
+    calendar.addObserver(observer);
   });
 }
 
@@ -97,6 +119,104 @@ async function whileOffline(body) {
     Services.io.offline = false;
     Services.io.manageOfflineStatus = wasManaged;
   }
+}
+
+/**
+ * Stands in for the conflict dialog, which is modal and would hang xpcshell.
+ * Records what it was asked and answers with whatever `overwrite` is set to.
+ * Everything behind this stub is out of reach here.
+ */
+const MockConflictPrompt = {
+  _origFunc: null,
+  overwrite: false,
+  prompts: [],
+
+  register() {
+    if (!this._origFunc) {
+      this._origFunc = cal.provider.promptOverwrite;
+      cal.provider.promptOverwrite = (mode, item) => {
+        this.prompts.push({ mode, id: item.id, title: item.title });
+        return this.overwrite;
+      };
+    }
+  },
+
+  unregister() {
+    if (this._origFunc) {
+      cal.provider.promptOverwrite = this._origFunc;
+      this._origFunc = null;
+    }
+  },
+
+  /**
+   * @param {boolean} overwrite - The answer the dialog is to give from now on.
+   */
+  reset(overwrite) {
+    this.prompts.length = 0;
+    this.overwrite = overwrite;
+  },
+};
+
+/**
+ * Puts events A and B on the server, subscribes to the calendar and changes B
+ * while offline. B is the event the conflict tasks fight over, A the bystander.
+ *
+ * @param {Function} changeB - Called with the calendar and the cached copy of B.
+ * @returns {calICalendar} The registered cached calendar.
+ */
+async function calendarWithOfflineChangeToB(changeB) {
+  await ICSServer.putICSInternal(
+    buildIcs(buildVEvent(UID_A, "A", "17"), buildVEvent(UID_B, "B", "18"))
+  );
+  const calendar = await registerTestCalendar();
+  const b = await calendar.getItem(UID_B);
+  Assert.ok(b, "event B should be in the cache before going offline");
+  await whileOffline(() => changeB(calendar, b));
+  return calendar;
+}
+
+/**
+ * Rewrites the server copy of B, the way another client would after the offline
+ * change. Its LAST-MODIFIED makes it the newer copy, which is what the
+ * synchronization raises the conflict on.
+ *
+ * @param {string} summary - The summary the other client gave B.
+ * @param {string} [stamp] - The LAST-MODIFIED to give it. Defaults to an hour
+ *   from now: storing an offline edit restamps the item with the current time,
+ *   so only the future beats it. An offline deletion leaves the stamp alone and
+ *   those callers pass their own.
+ */
+async function putNewerServerCopyOfB(summary, stamp) {
+  stamp ||= new Date(Date.now() + 3600000).toISOString().replace(/[-:]|\.\d+/g, "");
+  await ICSServer.putICSInternal(
+    buildIcs(buildVEvent(UID_A, "A", "17"), buildVEvent(UID_B, summary, "18", stamp))
+  );
+}
+
+/**
+ * Asserts that the synchronization went through without asking. The server copy
+ * being untouched is the only reason the tasks above never see the prompt.
+ */
+function assertNoConflictRaised() {
+  Assert.deepEqual(MockConflictPrompt.prompts, [], "the synchronization should not ask anything");
+}
+
+/**
+ * Asserts that the synchronization raised exactly one conflict, about B.
+ *
+ * @param {string} mode - The conflict mode expected, "modify" or "delete".
+ * @param {string} title - The summary of the copy the prompt is to be handed.
+ *   Always the offline copy: the point of asking is what to do with it.
+ */
+function assertPromptedAboutB(mode, title) {
+  Assert.equal(MockConflictPrompt.prompts.length, 1, "should prompt exactly once");
+  Assert.equal(MockConflictPrompt.prompts[0]?.mode, mode, `should prompt in ${mode} mode`);
+  Assert.equal(MockConflictPrompt.prompts[0]?.id, UID_B, "should prompt about event B");
+  Assert.equal(
+    MockConflictPrompt.prompts[0]?.title,
+    title,
+    "should be handed the offline copy of B"
+  );
 }
 
 /** Adds event C on the server, the way another client would. */
@@ -136,10 +256,22 @@ function waitForSyncSettled(calendar) {
   );
 }
 
+/** Refreshes the calendar and waits for the synchronization to finish. */
+async function refreshAndWait(calendar) {
+  const loaded = waitForLoad(calendar);
+  calendar.refresh();
+  await loaded;
+  await waitForSyncSettled(calendar);
+}
+
 add_setup(async function () {
   do_get_profile();
   ICSServer.open();
   registerCleanupFunction(() => ICSServer.close());
+  // Registered for every task, so that a synchronization which unexpectedly
+  // raises a conflict fails the test instead of hanging on the dialog.
+  MockConflictPrompt.register();
+  registerCleanupFunction(() => MockConflictPrompt.unregister());
 });
 
 /**
@@ -147,6 +279,8 @@ add_setup(async function () {
  * just before survives the playback - its cache callback must not leak into it.
  */
 add_task(async function testOfflineModify() {
+  MockConflictPrompt.reset(false);
+
   // Put events A and B on the server and subscribe to the calendar.
   await ICSServer.putICSInternal(
     buildIcs(buildVEvent(UID_A, "A", "17"), buildVEvent(UID_B, "B", "18"))
@@ -204,11 +338,15 @@ add_task(async function testOfflineModify() {
   Assert.ok(ICSServer.ics.includes("A modified"), "A's modification is still on the server");
   await assertEventCSurvived(calendar);
 
+  assertNoConflictRaised();
+
   cal.manager.unregisterCalendar(calendar);
 });
 
 /** An event created while offline reaches the server. */
 add_task(async function testOfflineCreate() {
+  MockConflictPrompt.reset(false);
+
   // Put event A on the server and subscribe to the calendar.
   await ICSServer.putICSInternal(buildIcs(buildVEvent(UID_A, "A", "17")));
   const calendar = await registerTestCalendar();
@@ -247,11 +385,15 @@ add_task(async function testOfflineCreate() {
   );
   await assertEventCSurvived(calendar);
 
+  assertNoConflictRaised();
+
   cal.manager.unregisterCalendar(calendar);
 });
 
 /** An event deleted while offline is deleted from the server. */
 add_task(async function testOfflineDelete() {
+  MockConflictPrompt.reset(false);
+
   // Put events A and B on the server and subscribe to the calendar.
   await ICSServer.putICSInternal(
     buildIcs(buildVEvent(UID_A, "A", "17"), buildVEvent(UID_B, "B", "18"))
@@ -286,6 +428,198 @@ add_task(async function testOfflineDelete() {
   );
   Assert.ok(await calendar.getItem(UID_A), "the other event survived");
   await assertEventCSurvived(calendar);
+
+  assertNoConflictRaised();
+
+  cal.manager.unregisterCalendar(calendar);
+});
+
+/**
+ * An offline modification collides with a modification another client made on
+ * the server. Accepting the prompt puts the offline version on the server.
+ */
+add_task(async function testModifyVsServerEditAccepted() {
+  MockConflictPrompt.reset(true);
+
+  // Modify B while offline.
+  const calendar = await calendarWithOfflineChangeToB(async (registered, b) => {
+    const changed = b.clone();
+    changed.title = "B offline";
+    await registered.modifyItem(changed, b);
+  });
+
+  // Another client modifies B on the server after that, then synchronize.
+  await putNewerServerCopyOfB("B server");
+  await refreshAndWait(calendar);
+
+  // The synchronization asked about B, and the answer was to overwrite.
+  assertPromptedAboutB("modify", "B offline");
+  Assert.ok(ICSServer.ics.includes("B offline"), "the accepted overwrite should reach the server");
+  Assert.ok(!ICSServer.ics.includes("B server"), "the server copy of B should be gone");
+  Assert.equal(
+    (await calendar.getItem(UID_B))?.title,
+    "B offline",
+    "the cache should hold the offline version of B"
+  );
+
+  // The bystander is untouched.
+  Assert.equal((await calendar.getItem(UID_A))?.title, "A", "event A should be unchanged");
+
+  cal.manager.unregisterCalendar(calendar);
+});
+
+/**
+ * Declining the same conflict keeps the server version and drops the offline
+ * modification, which the recreated cache no longer holds either.
+ */
+add_task(async function testModifyVsServerEditDeclined() {
+  MockConflictPrompt.reset(false);
+
+  // Modify B while offline.
+  const calendar = await calendarWithOfflineChangeToB(async (registered, b) => {
+    const changed = b.clone();
+    changed.title = "B offline";
+    await registered.modifyItem(changed, b);
+  });
+
+  // Another client modifies B on the server after that, then synchronize.
+  await putNewerServerCopyOfB("B server");
+  await refreshAndWait(calendar);
+
+  // The synchronization asked about B, and the answer was to keep the server copy.
+  assertPromptedAboutB("modify", "B offline");
+  Assert.ok(ICSServer.ics.includes("B server"), "the server should keep its version of B");
+  Assert.ok(
+    !ICSServer.ics.includes("B offline"),
+    "the offline version should not reach the server"
+  );
+  Assert.equal(
+    (await calendar.getItem(UID_B))?.title,
+    "B server",
+    "the cache should drop the offline version of B"
+  );
+
+  cal.manager.unregisterCalendar(calendar);
+});
+
+/**
+ * An offline deletion collides with a modification another client made on the
+ * server - playing it back would destroy a change nobody here has seen, which
+ * is the only reason a deletion is worth asking about. Accepting the prompt
+ * deletes the event after all.
+ */
+add_task(async function testDeleteVsServerEditAccepted() {
+  MockConflictPrompt.reset(true);
+
+  // Delete B while offline.
+  const calendar = await calendarWithOfflineChangeToB((registered, b) => registered.deleteItem(b));
+
+  // Another client modifies B on the server after that, then synchronize.
+  await putNewerServerCopyOfB("B server", "20220317T100000Z");
+  await refreshAndWait(calendar);
+
+  // The synchronization asked about B, and the answer was to delete it anyway.
+  assertPromptedAboutB("delete", "B");
+  Assert.ok(
+    !ICSServer.ics.includes("UID:" + UID_B),
+    "the accepted deletion should reach the server"
+  );
+  // The playback does not await the removal from the cache, so poll for it.
+  await TestUtils.waitForCondition(
+    async () => !(await calendar.getItem(UID_B)),
+    "waiting for B to leave the cache",
+    WAIT_INTERVAL,
+    WAIT_TRIES
+  );
+
+  cal.manager.unregisterCalendar(calendar);
+});
+
+/**
+ * Declining the same conflict keeps the event on the server, and the recreated
+ * cache brings it back.
+ */
+add_task(async function testDeleteVsServerEditDeclined() {
+  MockConflictPrompt.reset(false);
+
+  // Delete B while offline.
+  const calendar = await calendarWithOfflineChangeToB((registered, b) => registered.deleteItem(b));
+
+  // Another client modifies B on the server after that, then synchronize.
+  await putNewerServerCopyOfB("B server", "20220317T100000Z");
+  await refreshAndWait(calendar);
+
+  // The synchronization asked about B, and the answer was to keep it.
+  assertPromptedAboutB("delete", "B");
+  Assert.ok(ICSServer.ics.includes("UID:" + UID_B), "B should still be on the server");
+  Assert.equal(
+    (await calendar.getItem(UID_B))?.title,
+    "B server",
+    "the cache should hold the server version of B again"
+  );
+
+  cal.manager.unregisterCalendar(calendar);
+});
+
+/**
+ * The mirror image: an offline modification of an event another client has
+ * deleted on the server. Accepting the prompt puts the event back.
+ */
+add_task(async function testModifyVsServerDeleteAccepted() {
+  MockConflictPrompt.reset(true);
+
+  // Modify B while offline.
+  const calendar = await calendarWithOfflineChangeToB(async (registered, b) => {
+    const changed = b.clone();
+    changed.title = "B offline";
+    await registered.modifyItem(changed, b);
+  });
+
+  // Another client deletes B on the server after that, then synchronize.
+  await ICSServer.putICSInternal(buildIcs(buildVEvent(UID_A, "A", "17")));
+  await refreshAndWait(calendar);
+
+  // The synchronization asked about B, and the answer was to bring it back.
+  assertPromptedAboutB("modify", "B offline");
+  Assert.ok(ICSServer.ics.includes("B offline"), "the re-added B should reach the server");
+  Assert.equal(
+    (await calendar.getItem(UID_B))?.title,
+    "B offline",
+    "the cache should hold the re-added B"
+  );
+
+  cal.manager.unregisterCalendar(calendar);
+});
+
+/** Declining the same conflict leaves the event deleted on both sides. */
+add_task(async function testModifyVsServerDeleteDeclined() {
+  MockConflictPrompt.reset(false);
+
+  // Modify B while offline.
+  const calendar = await calendarWithOfflineChangeToB(async (registered, b) => {
+    const changed = b.clone();
+    changed.title = "B offline";
+    await registered.modifyItem(changed, b);
+  });
+
+  // Another client deletes B on the server after that, then synchronize.
+  await ICSServer.putICSInternal(buildIcs(buildVEvent(UID_A, "A", "17")));
+  await refreshAndWait(calendar);
+
+  // The synchronization asked about B, and the answer was to let it go.
+  assertPromptedAboutB("modify", "B offline");
+  Assert.ok(!ICSServer.ics.includes("UID:" + UID_B), "B should stay deleted on the server");
+  const remaining = await calendar.getItemsAsArray(
+    Ci.calICalendar.ITEM_FILTER_ALL_ITEMS,
+    0,
+    null,
+    null
+  );
+  Assert.deepEqual(
+    remaining.map(item => item.id),
+    [UID_A],
+    "B should stay deleted in the cache"
+  );
 
   cal.manager.unregisterCalendar(calendar);
 });
