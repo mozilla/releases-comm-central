@@ -25,10 +25,6 @@ ChromeUtils.defineLazyGetter(lazy, "log", () => {
 
 var l10n = new Localization(["messenger/openpgp/openpgp.ftl"]);
 
-const str_encrypt = "encrypt";
-const str_sign = "sign";
-const str_certify = "certify";
-const str_authenticate = "authenticate";
 const RNP_PHOTO_USERID_ID = "(photo)"; // string is hardcoded inside RNP
 
 var RNPLib;
@@ -713,21 +709,21 @@ export var RNP = {
       keyObj.keyTrust = "o";
     }
 
-    if (RNPLib.rnp_key_allows_usage(handle, str_encrypt, allowed.address())) {
+    if (RNPLib.rnp_key_allows_usage(handle, "encrypt", allowed.address())) {
       throw new Error("rnp_key_allows_usage failed");
     }
     if (allowed.value) {
       keyObj.keyUseFor += "e";
       meta.e = true;
     }
-    if (RNPLib.rnp_key_allows_usage(handle, str_sign, allowed.address())) {
+    if (RNPLib.rnp_key_allows_usage(handle, "sign", allowed.address())) {
       throw new Error("rnp_key_allows_usage failed");
     }
     if (allowed.value) {
       keyObj.keyUseFor += "s";
       meta.s = true;
     }
-    if (RNPLib.rnp_key_allows_usage(handle, str_certify, allowed.address())) {
+    if (RNPLib.rnp_key_allows_usage(handle, "certify", allowed.address())) {
       throw new Error("rnp_key_allows_usage failed");
     }
     if (allowed.value) {
@@ -735,7 +731,7 @@ export var RNP = {
       meta.c = true;
     }
     if (
-      RNPLib.rnp_key_allows_usage(handle, str_authenticate, allowed.address())
+      RNPLib.rnp_key_allows_usage(handle, "authenticate", allowed.address())
     ) {
       throw new Error("rnp_key_allows_usage failed");
     }
@@ -3682,16 +3678,37 @@ export var RNP = {
     return key;
   },
 
-  isKeyUsableFor(key, usage) {
+  /**
+   * Test if the key's usage attributes allow the given usage, based on
+   * the public key material only, without requiring that the secret key
+   * material is available locally.
+   *
+   * @param {rnp_key_handle_t} key - RNP key handle.
+   * @param {string} usage - The usage to test for, e.g. "sign".
+   * @returns {boolean} true if the key allows the given usage
+   */
+  keyAllowsUsage(key, usage) {
     const allowed = new lazy.ctypes.bool();
     if (RNPLib.rnp_key_allows_usage(key, usage, allowed.address())) {
       throw new Error("rnp_key_allows_usage failed");
     }
-    if (!allowed.value) {
+    return allowed.value;
+  },
+
+  /**
+   * Test if the key can be used for the given usage. For signing, the
+   * secret key material must also be available locally.
+   *
+   * @param {rnp_key_handle_t} key - RNP key handle.
+   * @param {string} usage - The usage to test for, e.g. "sign".
+   * @returns {boolean} true if the key can be used for the given usage
+   */
+  isKeyUsableFor(key, usage) {
+    if (!this.keyAllowsUsage(key, usage)) {
       return false;
     }
 
-    if (usage != str_sign) {
+    if (usage != "sign") {
       return true;
     }
 
@@ -3701,7 +3718,34 @@ export var RNP = {
     );
   },
 
-  getSuitableSubkey(primary, usage) {
+  /**
+   * Find the key ID of a signing key related to the given key handle,
+   * based on the public key usage attributes only. This is used for
+   * externally managed secret keys, for which only the public key is
+   * available locally. Prefer the most recently created signing subkey.
+   * If no suitable subkey exists, return the ID of the primary key (if
+   * it allows signing), or null.
+   *
+   * @param {rnp_key_handle_t} primary - RNP key handle.
+   * @returns {?string} key ID of a suitable signing key, or null
+   */
+  findSuitableSigningKeyID(primary) {
+    if (!primary || primary.isNull()) {
+      return null;
+    }
+    const sub_handle = this.getSuitableSubkey(primary, "sign", true);
+    if (sub_handle) {
+      const signingKeyID = this.getKeyIDFromHandle(sub_handle);
+      RNPLib.rnp_key_handle_destroy(sub_handle);
+      return signingKeyID;
+    }
+    if (this.keyAllowsUsage(primary, "sign")) {
+      return this.getKeyIDFromHandle(primary);
+    }
+    return null;
+  },
+
+  getSuitableSubkey(primary, usage, publicKeyUsageOnly = false) {
     const sub_count = new lazy.ctypes.size_t();
     if (RNPLib.rnp_key_get_subkey_count(primary, sub_count.address())) {
       throw new Error("rnp_key_get_subkey_count failed");
@@ -3730,7 +3774,10 @@ export var RNP = {
         }
       }
       if (!skip) {
-        if (!this.isKeyUsableFor(sub_handle, usage)) {
+        const usable = publicKeyUsageOnly
+          ? this.keyAllowsUsage(sub_handle, usage)
+          : this.isKeyUsableFor(sub_handle, usage);
+        if (!usable) {
           skip = true;
         }
       }
@@ -3767,8 +3814,8 @@ export var RNP = {
     // Prefer usable subkeys, because they are always newer
     // (or same age) as primary key.
 
-    const use_sub = this.getSuitableSubkey(key, str_encrypt);
-    if (!use_sub && !this.isKeyUsableFor(key, str_encrypt)) {
+    const use_sub = this.getSuitableSubkey(key, "encrypt");
+    if (!use_sub && !this.isKeyUsableFor(key, "encrypt")) {
       return "";
     }
 
@@ -3784,9 +3831,9 @@ export var RNP = {
     // Prefer usable subkeys, because they are always newer
     // (or same age) as primary key.
 
-    const use_sub = this.getSuitableSubkey(key, str_encrypt);
-    if (!use_sub && !this.isKeyUsableFor(key, str_encrypt)) {
-      throw new Error("no suitable subkey found for " + str_encrypt);
+    const use_sub = this.getSuitableSubkey(key, "encrypt");
+    if (!use_sub && !this.isKeyUsableFor(key, "encrypt")) {
+      throw new Error("no suitable subkey found for encrypt");
     }
 
     if (
@@ -3901,6 +3948,21 @@ export var RNP = {
       if (args.sigTypeClear) {
         throw new Error(
           "unexpected signing request with external GnuPG key configuration"
+        );
+      }
+
+      const senderKey = await this.getKeyHandleByIdentifier(
+        RNPLib.ffi,
+        args.sender
+      );
+      if (senderKey && !senderKey.isNull()) {
+        args.externalSenderSigningKeyID =
+          this.findSuitableSigningKeyID(senderKey);
+        RNPLib.rnp_key_handle_destroy(senderKey);
+      }
+      if (!args.externalSenderSigningKeyID) {
+        throw new Error(
+          "no suitable signing key found for external GnuPG key " + args.sender
         );
       }
 
@@ -4061,13 +4123,13 @@ export var RNP = {
           // (or same age) as primary key.
           const usableSubKeyHandle = this.getSuitableSubkey(
             senderKeyTracker.getHandle(),
-            str_sign
+            "sign"
           );
           if (
             !usableSubKeyHandle &&
-            !this.isKeyUsableFor(senderKeyTracker.getHandle(), str_sign)
+            !this.isKeyUsableFor(senderKeyTracker.getHandle(), "sign")
           ) {
-            throw new Error("no suitable (sub)key found for " + str_sign);
+            throw new Error("no suitable (sub)key found for sign");
           }
           if (usableSubKeyHandle) {
             subKeyTracker = new RnpPrivateKeyUnlockTracker(usableSubKeyHandle);

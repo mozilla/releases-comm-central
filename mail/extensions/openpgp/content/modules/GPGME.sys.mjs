@@ -193,8 +193,9 @@ export var GPGME = {
     }
 
     let result = null;
-    //args.sender must be keyId
-    const keyId = args.sender.replace(/^0x/, "").toUpperCase();
+    const keyId = args.externalSenderSigningKeyID
+      .replace(/^0x/, "")
+      .toUpperCase();
 
     const ctx = new GPGMELib.gpgme_ctx_t();
     if (GPGMELib.gpgme_new(ctx.address())) {
@@ -268,8 +269,9 @@ export var GPGME = {
     }
 
     let result = null;
-    //args.sender must be keyId
-    const keyId = args.sender.replace(/^0x/, "").toUpperCase();
+    const keyId = args.externalSenderSigningKeyID
+      .replace(/^0x/, "")
+      .toUpperCase();
 
     const ctx = new GPGMELib.gpgme_ctx_t();
     if (GPGMELib.gpgme_new(ctx.address())) {
