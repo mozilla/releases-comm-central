@@ -130,8 +130,9 @@ const subtest_clickInBrowser = async (extension, getBrowser) => {
         {
           isSubDialog: false,
           callback(dialogWin) {
-            const btn =
-              dialogWin.document.querySelector("dialog").getButton("accept");
+            const btn = dialogWin.document
+              .querySelector("dialog")
+              .getButton("accept");
             btn.disabled = false;
             btn.click();
           },
