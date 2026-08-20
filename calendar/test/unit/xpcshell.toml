@@ -117,6 +117,8 @@ tags = ["caldav", "oauth"]
 
 ["test_itip_message_sender.js"]
 
+["test_itip_target_calendar.js"]
+
 ["test_itip_utils.js"]
 
 ["test_l10n_utils.js"]

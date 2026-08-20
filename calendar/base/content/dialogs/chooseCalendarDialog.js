@@ -45,6 +45,15 @@ function loadCalendars() {
     }
   }
 
+  // Optional caller-requested preselection, overriding the window default.
+  const preselectId = window.arguments[0].preselectId;
+  if (preselectId) {
+    const preselectIndex = calendars.findIndex(calendar => calendar.id == preselectId);
+    if (preselectIndex != -1) {
+      selectedIndex = preselectIndex;
+    }
+  }
+
   document.getElementById("prompt").textContent = window.arguments[0].promptText;
   if (window.arguments[0].promptNotify) {
     document.getElementById("promptNotify").textContent = window.arguments[0].promptNotify;

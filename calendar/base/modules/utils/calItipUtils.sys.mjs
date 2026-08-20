@@ -238,6 +238,18 @@ export var itip = {
 
     const writableCalendars = lazy.cal.manager.getCalendars().filter(isWritableCalendar);
     if (writableCalendars.length > 0) {
+      // Order the lookup so an existing copy is preferred in the default
+      // calendar first, then in the calendars' visible order.
+      const sortOrder = lazy.cal.view.calendarSortOrder;
+      const rank = calendar => {
+        if (calendar.getProperty("calendar-main-default")) {
+          return -1;
+        }
+        const index = sortOrder.indexOf(calendar.id);
+        return index == -1 ? sortOrder.length : index;
+      };
+      writableCalendars.sort((a, b) => rank(a) - rank(b));
+
       const compCal = Cc["@mozilla.org/calendar/calendar;1?type=composite"].createInstance(
         Ci.calICompositeCalendar
       );
@@ -889,7 +901,12 @@ export var itip = {
     }
 
     if (needsCalendar) {
-      let calendars = lazy.cal.manager.getCalendars().filter(itip.isSchedulingCalendar);
+      let calendars = lazy.cal.manager
+        .getCalendars()
+        .filter(
+          calendar =>
+            itip.isSchedulingCalendar(calendar) && lazy.cal.acl.userCanAddItemsToCalendar(calendar)
+        );
 
       if (aItipItem.receivedMethod == "REQUEST") {
         // try to further limit down the list to those calendars that
@@ -912,9 +929,23 @@ export var itip = {
         // the user wants to import into.
         targetCalendar = calendars[0];
       } else {
+        // Preselect the calendar that already holds the item, otherwise the
+        // current default calendar.
+        let preselectId = null;
+        const found = aItipItem.targetCalendar;
+        if (found && found.type != "composite") {
+          preselectId = found.id;
+        } else {
+          const defaultCalendar = calendars.find(calendar =>
+            calendar.getProperty("calendar-main-default")
+          );
+          preselectId = defaultCalendar ? defaultCalendar.id : null;
+        }
+
         // Ask what calendar to import into
         const args = {};
         args.calendars = calendars;
+        args.preselectId = preselectId;
         args.onOk = aCal => {
           targetCalendar = aCal;
         };
@@ -1857,7 +1888,7 @@ ItipItemFinder.prototype = {
                     }
 
                     // again, fall back to using configured organizer if not found
-                    let foundAttendee = firstFoundItem.getAttendeeById(att.id) || att;
+                    const foundAttendee = firstFoundItem.getAttendeeById(att.id) || att;
 
                     // If the user hasn't responded to the invitation yet and the
                     // SEQUENCE is unchanged, show the accept/decline buttons. We
@@ -1869,38 +1900,119 @@ ItipItemFinder.prototype = {
                         itip.compareSequence(itipItemItem, item) == 0)
                     ) {
                       actionMethod = "REQUEST:NEEDS-ACTION";
-                      operations.push((opListener, partStat, extResponse) => {
-                        const changedItem = firstFoundItem.clone();
-                        changedItem.removeAttendee(foundAttendee);
-                        foundAttendee = foundAttendee.clone();
-                        if (partStat) {
-                          foundAttendee.participationStatus = partStat;
-                        }
-                        changedItem.addAttendee(foundAttendee);
+                      operations.push(async (opListener, partStat, extResponse) => {
+                        // Nothing awaits this function. Completion is reported
+                        // through the listener, so no exception may escape.
+                        let opType = Ci.calIOperationListener.MODIFY;
+                        let listener = opListener;
+                        try {
+                          const targetCalendar = this.mItipItem.targetCalendar;
+                          let baseItem = firstFoundItem;
+                          let attendee = foundAttendee;
 
-                        const listener = new ItipOpListener(
-                          opListener,
-                          firstFoundItem,
-                          extResponse
-                        );
-                        return changedItem.calendar.modifyItem(changedItem, firstFoundItem).then(
-                          modifiedItem =>
-                            listener.onOperationComplete(
-                              modifiedItem.calendar,
-                              Cr.NS_OK,
-                              Ci.calIOperationListener.MODIFY,
-                              modifiedItem.id,
-                              modifiedItem
-                            ),
-                          e =>
-                            listener.onOperationComplete(
-                              null,
-                              e.result || Cr.NS_ERROR_FAILURE,
-                              Ci.calIOperationListener.MODIFY,
-                              null,
-                              e
-                            )
-                        );
+                          if (
+                            !rid &&
+                            targetCalendar &&
+                            targetCalendar.id != firstFoundItem.calendar.id
+                          ) {
+                            // The user picked a calendar other than the one the
+                            // item was found in. Look for a copy there.
+                            let existing = null;
+                            let lookupFailed = false;
+                            try {
+                              existing = await targetCalendar.getItem(this.mSearchId);
+                            } catch (e) {
+                              // Fall back to the found calendar rather than risk
+                              // creating a duplicate.
+                              lookupFailed = true;
+                              lazy.log.warn(
+                                `Lookup on selected calendar ${targetCalendar.id} failed: ${e}`
+                              );
+                            }
+
+                            if (!lookupFailed && !existing) {
+                              // The selected calendar has no copy of the item.
+                              // Add the response there instead of modifying the
+                              // item we found elsewhere.
+                              opType = Ci.calIOperationListener.ADD;
+                              const copyItem = itipItemItem.clone();
+                              setReceivedInfo(copyItem, itipItemItem);
+                              copyItem.parentItem.calendar = targetCalendar;
+                              addScheduleAgentClient(copyItem, targetCalendar);
+                              if (partStat && partStat != "DECLINED") {
+                                lazy.cal.alarms.setDefaultValues(copyItem);
+                              }
+                              const copyAttendee =
+                                itip.getInvitedAttendee(copyItem, targetCalendar) ||
+                                copyItem.getAttendeeById(foundAttendee.id);
+                              if (!copyAttendee && partStat) {
+                                lazy.log.warn(
+                                  `Encountered item without invited attendee! id=${copyItem.id}, method=${method} Exiting...`
+                                );
+                                return;
+                              }
+                              if (copyAttendee && partStat) {
+                                copyAttendee.participationStatus = partStat;
+                              }
+
+                              listener = new ItipOpListener(opListener, null, extResponse);
+                              const addedItem = await copyItem.calendar.addItem(copyItem);
+                              listener.onOperationComplete(
+                                addedItem.calendar,
+                                Cr.NS_OK,
+                                opType,
+                                addedItem.id,
+                                addedItem
+                              );
+                              return;
+                            }
+
+                            if (!lookupFailed) {
+                              // The selected calendar has its own copy of the
+                              // item. Modify that one.
+                              baseItem = existing;
+                              attendee =
+                                itip.getInvitedAttendee(existing, targetCalendar) ||
+                                existing.getAttendeeById(foundAttendee.id);
+                              if (!attendee) {
+                                lazy.log.warn(
+                                  `Encountered item without invited attendee! id=${existing.id}, method=${method} Exiting...`
+                                );
+                                return;
+                              }
+                            }
+                          }
+
+                          const changedItem = baseItem.clone();
+                          changedItem.removeAttendee(attendee);
+                          attendee = attendee.clone();
+                          if (partStat) {
+                            attendee.participationStatus = partStat;
+                          }
+                          changedItem.addAttendee(attendee);
+
+                          listener = new ItipOpListener(opListener, baseItem, extResponse);
+                          const modifiedItem = await changedItem.calendar.modifyItem(
+                            changedItem,
+                            baseItem
+                          );
+                          listener.onOperationComplete(
+                            modifiedItem.calendar,
+                            Cr.NS_OK,
+                            opType,
+                            modifiedItem.id,
+                            modifiedItem
+                          );
+                        } catch (e) {
+                          lazy.log.error(e);
+                          listener.onOperationComplete(
+                            null,
+                            e.result || Cr.NS_ERROR_FAILURE,
+                            opType,
+                            null,
+                            e
+                          );
+                        }
                       });
                     } else if (
                       item.calendar.getProperty("itip.disableRevisionChecks") ||
