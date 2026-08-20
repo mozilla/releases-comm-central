@@ -73,6 +73,20 @@ AsyncShutdown.profileBeforeChange.addBlocker("Calendar: closing databases", asyn
 });
 
 /**
+ * Statements are finalized at profile-change-teardown, but operations can still
+ * be in flight or start after that. Reading the JS `params` accessor of a
+ * finalized statement asserts in debug builds and fails in release builds, so
+ * refuse it up front. Binding through `bindByName` is not affected.
+ *
+ * @param {mozIStorageBaseStatement} stmt
+ */
+function throwIfFinalized(stmt) {
+  if (stmt.state == Ci.mozIStorageBaseStatement.MOZ_STORAGE_STATEMENT_INVALID) {
+    throw new Error("The calendar database has been shut down", { cause: "db-shutdown" });
+  }
+}
+
+/**
  * CalStorageDatabase is a mozIStorageAsyncConnection wrapper used by the
  * storage calendar.
  */
@@ -166,8 +180,10 @@ export class CalStorageDatabase {
    * Takes care of necessary preparations for most of our statements.
    *
    * @param {mozIStorageStatement} aStmt
+   * @throws If the statement has been finalized at shutdown.
    */
   prepareStatement(aStmt) {
+    throwIfFinalized(aStmt);
     try {
       aStmt.params.cal_id = this.calendarId;
       this.lastStatement = aStmt;
@@ -183,8 +199,10 @@ export class CalStorageDatabase {
    * @param {mozIStorageStatement} aStmt - The statement to execute.
    * @param {string} aIdParam - The name of the parameter referring to the item id.
    * @param {string} aId - The id of the item.
+   * @throws If the statement has been finalized at shutdown.
    */
   executeSyncItemStatement(aStmt, aIdParam, aId) {
+    throwIfFinalized(aStmt);
     try {
       aStmt.params.cal_id = this.calendarId;
       aStmt.params[aIdParam] = aId;
@@ -276,6 +294,7 @@ export class CalStorageDatabase {
   }
 
   prepareItemStatement(aStmts, aStmt, aIdParam, aId) {
+    throwIfFinalized(aStmt);
     aStmt.params.cal_id = this.calendarId;
     aStmt.params[aIdParam] = aId;
     aStmts.push(aStmt);
@@ -291,10 +310,9 @@ export class CalStorageDatabase {
    */
   logError(message, e) {
     let logMessage = "Message: " + message;
-    if (this.db) {
-      if (this.db.connectionReady) {
-        logMessage += "\nConnection Ready: " + this.db.connectionReady;
-      }
+    // Once the connection is closed, asking it anything throws.
+    if (this.db?.connectionReady) {
+      logMessage += "\nConnection Ready: " + this.db.connectionReady;
       if (this.db.lastError) {
         logMessage += "\nLast DB Error Number: " + this.db.lastError;
       }
@@ -315,7 +333,11 @@ export class CalStorageDatabase {
     if (this.lastStatement) {
       logMessage += "\nLast DB Statement: " + this.lastStatement;
       // Async statements do not allow enumeration of parameters.
-      if (this.lastStatement instanceof Ci.mozIStorageStatement && this.lastStatement.params) {
+      if (
+        this.lastStatement instanceof Ci.mozIStorageStatement &&
+        this.lastStatement.state != Ci.mozIStorageBaseStatement.MOZ_STORAGE_STATEMENT_INVALID &&
+        this.lastStatement.params
+      ) {
         for (const param in this.lastStatement.params) {
           logMessage +=
             "\nLast Statement param [" + param + "]: " + this.lastStatement.params[param];

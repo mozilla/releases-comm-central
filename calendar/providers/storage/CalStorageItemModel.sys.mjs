@@ -899,8 +899,8 @@ export class CalStorageItemModel extends CalStorageModelBase {
       const rec = item.recurrenceInfo;
 
       if (item.isEvent()) {
-        this.statements.mSelectEventExceptions.params.id = item.id;
         this.db.prepareStatement(this.statements.mSelectEventExceptions);
+        this.statements.mSelectEventExceptions.params.id = item.id;
         try {
           await this.db.executeAsync(this.statements.mSelectEventExceptions, async row => {
             const exc = await this.getEventFromRow(row, false);
@@ -913,8 +913,8 @@ export class CalStorageItemModel extends CalStorageModelBase {
           );
         }
       } else if (item.isTodo()) {
-        this.statements.mSelectTodoExceptions.params.id = item.id;
         this.db.prepareStatement(this.statements.mSelectTodoExceptions);
+        this.statements.mSelectTodoExceptions.params.id = item.id;
         try {
           await this.db.executeAsync(this.statements.mSelectTodoExceptions, async row => {
             const exc = await this.getTodoFromRow(row, false);
@@ -978,8 +978,8 @@ export class CalStorageItemModel extends CalStorageModelBase {
         this.#setDateParamHelper(selectAlarm, "recurrence_id", item.recurrenceId);
       }
       try {
-        selectAlarm.params.item_id = item.id;
         this.db.prepareStatement(selectAlarm);
+        selectAlarm.params.item_id = item.id;
         await this.db.executeAsync(selectAlarm, row => {
           item.addAlarm(new lazy.CalAlarm(this.#unfoldIcalString(row)));
         });

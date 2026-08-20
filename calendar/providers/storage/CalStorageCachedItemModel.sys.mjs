@@ -117,10 +117,18 @@ export class CalStorageCachedItemModel extends CalStorageItemModel {
             self.mRecItemCachePromise = null;
           }
         }
-        await self.#ensureRecurringItemCaches();
+        try {
+          await self.#ensureRecurringItemCaches();
 
-        for await (const value of cal.iterate.streamValues(getStream())) {
-          controller.enqueue(value);
+          for await (const value of cal.iterate.streamValues(getStream())) {
+            controller.enqueue(value);
+          }
+        } catch (e) {
+          // Reads can outlive the calendar. Nobody is left to hand the failure
+          // to, so end the stream instead of rejecting into nowhere.
+          if (e.cause != "db-shutdown") {
+            throw e;
+          }
         }
         controller.close();
       },

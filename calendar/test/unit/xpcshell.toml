@@ -143,6 +143,8 @@ tags = ["caldav"]
 
 ["test_storage_get_items.js"]
 
+["test_storage_teardown.js"]
+
 ["test_timezone.js"]
 
 ["test_timezone_changes.js"]
