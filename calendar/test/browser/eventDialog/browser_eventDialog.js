@@ -21,6 +21,7 @@ const EVENTATTENDEE = "foo@example.com";
 const EVENTURL = "https://mozilla.org/";
 const EVENT_ORGANIZER_EMAIL = "pillow@example.com";
 var firstDay;
+var firstEventStart;
 
 var { dayView, monthView } = CalendarTestUtils;
 
@@ -57,16 +58,7 @@ add_task(async function testEventDialog() {
   const nextHour = cal.dtz.now();
   nextHour.resetTo(firstDay.year, firstDay.month, firstDay.day, startHour, 0, 0, cal.dtz.UTC);
   const startTime = formatTime(nextHour);
-  nextHour.resetTo(
-    firstDay.year,
-    firstDay.month,
-    firstDay.day,
-    (startHour + 1) % 24,
-    0,
-    0,
-    cal.dtz.UTC
-  );
-  const endTime = formatTime(nextHour);
+  firstEventStart = nextHour.clone();
 
   // Create new event on first day in view.
   EventUtils.synthesizeMouseAtCenter(monthView.getDayBox(window, 1, 1), {}, window);
@@ -158,7 +150,7 @@ add_task(async function testEventDialog() {
     for (let col = 1; col <= 7; col++) {
       await monthView.waitForItemAt(window, row, col, 1);
       checkMonthAlarmIcon(window, row, col);
-      checkTooltip(row, col, startTime, endTime);
+      checkTooltip(row, col);
     }
   }
   Assert.ok(!monthView.getItemAt(window, 4, 1, 1));
@@ -370,7 +362,7 @@ add_task(async function testCtrlEnterShortcut() {
   EventUtils.synthesizeKey("KEY_Delete", {}, window);
 });
 
-function checkTooltip(row, col, startTime, endTime) {
+function checkTooltip(row, col) {
   const item = monthView.getItemAt(window, row, col, 1);
 
   const toolTipNode = document.getElementById("itemTooltip");
@@ -385,18 +377,17 @@ function checkTooltip(row, col, startTime, endTime) {
   // Check title.
   Assert.equal(getDescription(1), EVENTTITLE);
 
-  // Check date and time.
-  const dateTime = getDescription(3);
+  // Check date and time. Build the expected string with the same formatter the
+  // tooltip uses: assembling it from formatDate() would compare against a
+  // different date pattern on platforms that provide an OS-level one.
+  const start = firstEventStart.clone();
+  start.addDuration(cal.createDuration(`P${7 * (row - 1) + (col - 1)}D`));
+  const end = start.clone();
+  end.addDuration(cal.createDuration("PT1H"));
 
-  const currDate = firstDay.clone();
-  currDate.addDuration(cal.createDuration(`P${7 * (row - 1) + (col - 1)}D`));
-  const startDate = cal.dtz.formatter.formatDate(currDate);
-
-  Assert.ok(dateTime.startsWith(startDate));
-
-  // AM/PM indicator (if there is one) removed if it's the same in endTime.
-  Assert.stringContains(dateTime, startTime.replace(/ [AP]M/, ""));
-
-  // This could be on the next day if it is 00:00.
-  Assert.ok(dateTime.endsWith(endTime));
+  Assert.equal(
+    getDescription(3),
+    cal.dtz.formatter.formatInterval(start, end),
+    `tooltip at row ${row}, column ${col} shows the occurrence's date and time`
+  );
 }
