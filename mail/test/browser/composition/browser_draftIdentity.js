@@ -16,9 +16,9 @@ var { close_compose_window, open_compose_from_draft } =
 var {
   assert_selected_and_displayed,
   be_in_folder,
+  empty_folder,
   get_special_folder,
   get_about_message,
-  press_delete,
   select_click_row,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
@@ -80,6 +80,8 @@ add_setup(async function () {
 /**
  * Create a new templated draft message in the drafts folder.
  *
+ * @param {string} aFrom - From mailbox.
+ * @param {?string} aIdKey - Value to add to the Identity-Key header.
  * @returns {integer} The index (position) of the created message in the drafts folder.
  */
 function create_draft(aFrom, aIdKey) {
@@ -338,6 +340,21 @@ add_task(async function test_secondary_identity_smime_failure_keeps_draft() {
 });
 
 registerCleanupFunction(async function () {
+  // Some tests that open new windows don't return focus to the main window
+  // in a way that satisfies mochitest, and the test times out. This must
+  // happen before emptying the folder below, which synthesizes key presses
+  // in the main window.
+  Services.focus.focusedWindow = window;
+  // Focus an element in the main window, then blur it again to avoid it
+  // hijacking keypresses.
+  const mainWindowElement = document.getElementById("button-appmenu");
+  mainWindowElement.focus();
+  mainWindowElement.blur();
+
+  // Clear our drafts. Do this before removing the account, so that the
+  // resulting folder pane rebuild can't interfere with the deletions.
+  await empty_folder(gDrafts);
+
   for (let id = 1; id < gIdentities.length; id++) {
     gAccount.removeIdentity(
       MailServices.accounts.getIdentity(gIdentities[id].key)
@@ -349,19 +366,4 @@ registerCleanupFunction(async function () {
   MailServices.accounts.getIdentity(gIdentities[0].key).clearAllValues();
   MailServices.accounts.removeAccount(gAccount);
   gAccount = null;
-
-  // Clear our drafts.
-  await be_in_folder(gDrafts);
-  while (gDrafts.getTotalMessages(false) > 0) {
-    await press_delete();
-  }
-
-  // Some tests that open new windows don't return focus to the main window
-  // in a way that satisfies mochitest, and the test times out.
-  Services.focus.focusedWindow = window;
-  // Focus an element in the main window, then blur it again to avoid it
-  // hijacking keypresses.
-  const mainWindowElement = document.getElementById("button-appmenu");
-  mainWindowElement.focus();
-  mainWindowElement.blur();
 });
