@@ -351,6 +351,14 @@ async function clickHeader(header, type, order) {
   threadTree.removeEventListener("scroll", listener);
   Assert.lessOrEqual(scrollEvents, 1, "only one scroll event should fire");
 
+  // Sorting resets the tree, which creates rows that are only filled at the
+  // next animation frame. If the refresh driver was busy the timeout above
+  // isn't enough, so wait for the frames explicitly. Once for the scroll to be
+  // handled and the rows created...
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
+  // ... and once for them to be filled.
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
+
   Assert.equal(
     about3Pane.gViewWrapper.primarySortType,
     Ci.nsMsgViewSortType[type],
