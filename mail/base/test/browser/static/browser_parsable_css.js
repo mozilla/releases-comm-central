@@ -115,20 +115,6 @@ if (!Services.prefs.getBoolPref("layout.css.text-decoration-inset.enabled")) {
   });
 }
 
-if (!Services.prefs.getBoolPref("dom.viewTransitions.enabled")) {
-  // view-transition selectors
-  ignoreList.push({
-    sourceName: /\b(ua)\.css$/i,
-    errorMessage: /Unknown pseudo-class.*view-transition/i,
-    isFromDevTools: false,
-  });
-  ignoreList.push({
-    sourceName: /\b(ua)\.css$/i,
-    errorMessage: /Unknown property.*view-transition/i,
-    isFromDevTools: false,
-  });
-}
-
 if (!Services.prefs.getBoolPref("dom.headingoffset.enabled")) {
   ignoreList.push({
     sourceName: /\b(html)\.css$/i,
