@@ -134,6 +134,7 @@ urlpattern_glue = { path = "../../../netwerk/base/urlpattern_glue" }
 webrender_bindings = { path = "../../../gfx/webrender_bindings" }
 wgpu_bindings = { path = "../../../gfx/wgpu_bindings" }
 wpf-gpu-raster = { git = "https://github.com/FirefoxGraphics/wpf-gpu-raster", rev = "99979da091fd58fba8477e7fcdf5ec0727102916" }
+xdg_alerts = { path = "../../../toolkit/system/gnome/rust", optional = true }
 xpcom = { path = "../../../xpcom/rust/xpcom" }
 zlib-rs = { version = "0.6", features = ['avx512'], optional = true }
 
