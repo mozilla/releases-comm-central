@@ -53,6 +53,21 @@
 
       const monthDayLabels = document.createElement("h2");
       monthDayLabels.classList.add("calendar-month-day-box-dates");
+      monthDayLabels.setAttribute("role", "button");
+      monthDayLabels.tabIndex = -1;
+      monthDayLabels.addEventListener("click", event => this.onClick(event));
+      monthDayLabels.addEventListener("keydown", event => {
+        if (event.key != " " && event.key != "Enter") {
+          return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        if (this.mDate) {
+          this.calendarView.selectedDay = this.mDate;
+        }
+        this.calendarView.controller.createNewEvent();
+      });
+      this.monthDayLabels = monthDayLabels;
 
       const weekLabel = document.createElement("span");
       weekLabel.setAttribute("data-label", "week");
@@ -99,9 +114,11 @@
     set selected(val) {
       if (val) {
         this.setAttribute("selected", "true");
+        this.monthDayLabels.tabIndex = 0;
         this.parentNode.setAttribute("selected", "true");
       } else {
         this.removeAttribute("selected");
+        this.monthDayLabels.tabIndex = -1;
         this.parentNode.removeAttribute("selected");
       }
     }
@@ -150,6 +167,7 @@
         this.removeAttribute("week");
         this.removeAttribute("day");
         this.removeAttribute("value");
+        this.monthDayLabels.removeAttribute("aria-label");
         return;
       }
 
@@ -165,6 +183,7 @@
       } else {
         this.setAttribute("value", cal.dtz.formatter.formatDateOnly(this.mDate));
       }
+      this.monthDayLabels.setAttribute("aria-label", cal.dtz.formatter.formatDateLong(this.mDate));
     }
 
     addItem(aItem) {
