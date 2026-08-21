@@ -6,6 +6,9 @@ calendar-dialog-close-button =
   .aria-label = Close
   .title = Close
 
+calendar-event-create-edit-dialog =
+  .aria-label = Event
+
 calendar-dialog-menu-button =
   .aria-label = Open menu
   .title = Open Menu

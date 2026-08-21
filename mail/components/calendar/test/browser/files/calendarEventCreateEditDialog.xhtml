@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Calendar Event Create/Edit Dialog Test</title>
+    <link rel="localization" href="messenger/calendarDialog.ftl" />
+    <script
+      type="module"
+      src="moz-src:///comm/mail/components/calendar/content/calendar-event-create-edit-dialog.mjs"
+    ></script>
+  </head>
+  <body>
+    <template id="calendarEventCreateEditDialogTemplate">
+      <header class="calendar-event-create-edit-dialog-header"></header>
+      <main class="calendar-event-create-edit-dialog-body">
+        <div class="calendar-event-create-edit-dialog-subview-container">
+          <section
+            id="calendarEventCreateEditDialogMainSubview"
+            class="calendar-event-create-edit-dialog-subview"
+            data-subview="main"
+          >
+            <div class="calendar-event-create-edit-dialog-rows"></div>
+          </section>
+        </div>
+      </main>
+      <footer class="calendar-event-create-edit-dialog-footer"></footer>
+    </template>
+    <dialog is="calendar-event-create-edit-dialog"></dialog>
+  </body>
+</html>

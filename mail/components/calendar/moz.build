@@ -26,6 +26,7 @@ MOZ_SRC_FILES += [
     "content/calendar-dialog-row.mjs",
     "content/calendar-dialog-subview-manager.mjs",
     "content/calendar-dialog.mjs",
+    "content/calendar-event-create-edit-dialog.mjs",
     "content/dialog-position.mjs",
     "content/positioned-dialog.mjs",
     "modules/CalendarAttachmentUtils.sys.mjs",

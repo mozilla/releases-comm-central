@@ -58,4 +58,6 @@ subsuite = "thunderbird"
 
 ["browser_calendarDialogSubviewManager.js"]
 
+["browser_calendarEventCreateEditDialog.js"]
+
 ["browser_positionedDialog.js"]
