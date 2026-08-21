@@ -143,10 +143,15 @@ var calendarController = {
       // this.todo_tasktree_focused;
       case "calendar_edit_calendar_command":
         return this.isCalendarInForeground();
-      case "calendar_delete_todo_command":
-        if (!CalendarDeleteCommandEnabled) {
+      case "calendar_delete_todo_command": {
+        const selectedTasks = getSelectedTasks();
+        if (
+          selectedTasks.length == 0 ||
+          selectedTasks.some(task => !cal.acl.userCanDeleteItemsFromCalendar(task.calendar))
+        ) {
           return false;
         }
+      }
       // falls through otherwise
       case "calendar_toggle_completed_command":
       case "calendar_percentComplete-0_command":

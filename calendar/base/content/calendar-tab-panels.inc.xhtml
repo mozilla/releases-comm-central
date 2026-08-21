@@ -411,10 +411,11 @@
             <hbox id="calendar-task-details">
               <hbox id="other-actions-box">
                 <vbox id="task-actions-toolbox" class="inline-toolbox">
-                  <hbox id="task-actions-toolbar" class="themeable-brighttext">
+                  <hbox id="task-actions-toolbar" class="themeable-brighttext" role="toolbar">
                     <toolbarbutton id="task-actions-category"
                                    type="menu"
                                    wantdropmarker="true"
+                                   tabindex="0"
                                    command="calendar_task_category_command"
                                    class="toolbarbutton-1 message-header-view-button"
                                    data-l10n-id="calendar-event-listing-column-category">
@@ -431,6 +432,7 @@
                     </toolbarbutton>
                     <toolbarbutton is="toolbarbutton-menu-button" id="task-actions-markcompleted"
                                    type="menu"
+                                   tabindex="0"
                                    data-l10n-id="calendar-task-mark-completed"
                                    data-l10n-attrs="label accesskey tooltiptext"
                                    command="calendar_toggle_completed_command"
@@ -440,6 +442,7 @@
                     <toolbarbutton id="task-actions-priority"
                                    type="menu"
                                    wantdropmarker="true"
+                                   tabindex="0"
                                    data-l10n-id="calendar-task-change-priority"
                                    data-l10n-attrs="label accesskey tooltiptext"
                                    command="calendar_general-priority_command"
@@ -448,6 +451,7 @@
                     </toolbarbutton>
                     <toolbarbutton id="calendar-delete-task-button"
                                    class="toolbarbutton-1 message-header-view-button"
+                                   tabindex="0"
                                    data-l10n-id="calendar-taskview-delete"
                                    command="calendar_delete_todo_command"/>
                   </hbox>

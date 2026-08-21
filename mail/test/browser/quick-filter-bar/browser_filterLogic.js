@@ -355,9 +355,9 @@ add_task(async function test_filter_sender_display_name() {
 
   await be_in_folder(folder);
 
-  await toggle_text_constraints("recipients", "subject");
-
   await set_filter_text("Hotel");
+
+  await toggle_text_constraints("recipients", "subject");
 
   assert_messages_in_view(setSender);
 

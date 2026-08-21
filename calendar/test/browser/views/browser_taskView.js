@@ -53,7 +53,12 @@ add_task(async function () {
   const eventWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
   const treeChildren = document.querySelector("#calendar-task-tree .calendar-task-treechildren");
   Assert.ok(treeChildren);
+  // XUL tree rows are virtual; this synthetic double-click targets the
+  // implementation treechildren node at row coordinates, not a user-facing
+  // accessible DOM row.
+  AccessibilityUtils.setEnv({ mustHaveAccessibleRule: false });
   EventUtils.synthesizeMouse(treeChildren, 50, 0, { clickCount: 2 }, window);
+  AccessibilityUtils.resetEnv();
 
   await eventWindowPromise;
   const l10nDone = BrowserTestUtils.waitForEvent(document, "L10nMutationsFinished");

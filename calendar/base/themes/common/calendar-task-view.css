@@ -234,6 +234,10 @@
   padding-inline-start: 5px;
 }
 
+#task-actions-toolbar > .message-header-view-button {
+  -moz-user-focus: normal;
+}
+
 #task-actions-category {
   list-style-image: var(--icon-tag);
 }
