@@ -137,7 +137,7 @@ nsMsgAccountManager::~nsMsgAccountManager() {
 static nsCOMPtr<nsIAsyncShutdownService> GetShutdownService() {
   MOZ_ASSERT(NS_IsMainThread());
   nsCOMPtr<nsIAsyncShutdownService> service =
-      mozilla::services::GetAsyncShutdownService();
+      mozilla::components::AsyncShutdown::Service();
   MOZ_RELEASE_ASSERT(service);
   return service;
 }
