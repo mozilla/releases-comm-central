@@ -465,19 +465,29 @@ function checkLoginsCheckbox(loginsCheckbox, expectedType, expectedCount) {
 }
 
 async function closeRemoveDialog(win) {
+  const doc = win.document;
   const acceptButton = win.document.querySelector("dialog").getButton("accept");
-  const disabledPromise = BrowserTestUtils.waitForMutationCondition(
-    acceptButton,
-    { attributes: true },
-    () => acceptButton.disabled
-  );
   EventUtils.synthesizeMouseAtCenter(acceptButton, {}, win);
-  await disabledPromise;
-  await BrowserTestUtils.waitForMutationCondition(
-    acceptButton,
-    { attributes: true },
-    () => !acceptButton.disabled
+
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(doc.getElementById("success")) ||
+      BrowserTestUtils.isVisible(doc.getElementById("failure")),
+    "waiting for the account removal result"
   );
+  Assert.ok(
+    BrowserTestUtils.isHidden(doc.getElementById("failure")),
+    "account removal should not fail"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(doc.getElementById("success")),
+    "account removal should succeed"
+  );
+  await TestUtils.waitForCondition(
+    () => !acceptButton.disabled,
+    "waiting for the accept button to become enabled again"
+  );
+
   const closedPromise = BrowserTestUtils.waitForEvent(
     win.parent,
     "dialogclose"

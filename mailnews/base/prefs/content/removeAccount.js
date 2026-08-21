@@ -246,7 +246,7 @@ async function removeAccount() {
         if (items.difference(itemsRemoved).size == 0) {
           const [login] = await Services.logins.searchLoginsAsync({ guid });
           if (login) {
-            Services.logins.removeLoginAsync(login);
+            await Services.logins.removeLoginAsync(login);
           }
         }
       }
