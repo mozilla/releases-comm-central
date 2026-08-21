@@ -142,13 +142,9 @@ class AccountHubControllerClass {
       }
     );
 
-    this.#modal.addEventListener("keydown", event => {
-      if (event.key !== "Escape" || !this.isFirstRun) {
-        return;
-      }
-      event.preventDefault();
-      event.stopPropagation();
-    });
+    this.#modal.addEventListener("keydown", event =>
+      this.#handleKeyDown(event)
+    );
 
     this.#modal.addEventListener("close", () => {
       // Re-enable keyboard interaction.
@@ -212,6 +208,59 @@ class AccountHubControllerClass {
     for (const view of this.#modal.querySelectorAll(".account-hub-view")) {
       view.hidden = true;
     }
+  }
+
+  /**
+   * Handle keyboard actions shared by all Account Hub views.
+   *
+   * @param {KeyboardEvent} event
+   */
+  #handleKeyDown(event) {
+    if (event.key === "Escape" && this.isFirstRun) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    if (
+      event.key !== "Enter" ||
+      event.isComposing ||
+      event.defaultPrevented ||
+      !Element.isInstance(event.target) ||
+      !event.target.matches(
+        'input:not([type="button"]):not([type="reset"]):not([type="submit"]), account-hub-checkbox, account-hub-radio-card-large'
+      )
+    ) {
+      return;
+    }
+
+    if (event.repeat) {
+      // Prevent native implicit submission while a held key auto-repeats.
+      event.preventDefault();
+      return;
+    }
+
+    const form = event.target.closest("form");
+    if (!form) {
+      return;
+    }
+
+    const forwardButton = this.#currentView?.querySelector(
+      "account-hub-footer #forward:not([hidden])"
+    );
+    if (!forwardButton || forwardButton.disabled) {
+      // A form's native validity does not include every custom control used by
+      // Account Hub. The footer tracks the complete state, so suppress native
+      // implicit submission as well as requestSubmit() until it is enabled.
+      event.preventDefault();
+      return;
+    }
+
+    // Native implicit submission does not run for radio buttons, checkboxes,
+    // and form-associated controls. requestSubmit preserves the form's normal
+    // validation and submit handler for every Account Hub view.
+    event.preventDefault();
+    form.requestSubmit();
   }
 
   /**

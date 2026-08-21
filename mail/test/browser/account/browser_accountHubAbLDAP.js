@@ -141,11 +141,9 @@ add_task(async function test_duplicateDirectoryNameError() {
     "address-book-ldap-account-form"
   );
 
-  // Click continue to show error notification.
-  EventUtils.synthesizeMouseAtCenter(
-    dialog.querySelector("#addressBookFooter #forward"),
-    {}
-  );
+  // Submit the form with Enter to show the error notification.
+  ldapFormSubview.querySelector("#bindDN").focus();
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
 
   const header = ldapFormSubview.shadowRoot.querySelector("account-hub-header");
   const errorTitle = header.shadowRoot.querySelector(
@@ -218,8 +216,8 @@ async function fillSimpleLDAPConfigDetails(dialog) {
 }
 
 /**
- * Clicks continue on the form to create LDAP directory and close account hub,
- * showing the created LDAP directory in the address book tab.
+ * Submits the form with Enter to create the LDAP directory and close Account
+ * Hub, showing the created LDAP directory in the address book tab.
  *
  * @param {HTMLDialogElement} dialog - The account hub dialog.
  * @returns {Ci.nsIAbDirectory}
@@ -229,10 +227,8 @@ async function createDirectory(dialog) {
   const addressBookDirectoryPromise = TestUtils.topicObserved(
     "addrbook-directory-created"
   );
-  EventUtils.synthesizeMouseAtCenter(
-    dialog.querySelector("#addressBookFooter #forward"),
-    {}
-  );
+  dialog.querySelector("address-book-ldap-account-form #bindDN").focus();
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
 
   info("Opening address book tab...");
   const tabmail = document.getElementById("tabmail");

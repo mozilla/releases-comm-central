@@ -319,7 +319,7 @@ add_task(async function test_address_book_sync_account() {
   );
   Assert.ok(addressBookInput.checked, "Address book option should be checked");
 
-  // Click forward to add the address book and automatically close the dialog.
+  // Submit the selected address book with Enter and close the dialog.
   const addressBookDirectoryPromise = TestUtils.topicObserved(
     "addrbook-directory-synced"
   );
@@ -330,10 +330,13 @@ add_task(async function test_address_book_sync_account() {
     false,
     event => event.detail.tabInfo.mode.type == "addressBookTab"
   );
-  EventUtils.synthesizeMouseAtCenter(
-    dialog.querySelector("#addressBookFooter #forward"),
-    {}
+  addressBookInput.focus();
+  Assert.equal(
+    document.querySelector("account-hub-container").shadowRoot.activeElement,
+    addressBookInput,
+    "The selected address book should be focused before submitting"
   );
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
 
   const events = Glean.mail.accountHubLoaded.testGetValue();
   Assert.deepEqual(
@@ -526,10 +529,7 @@ add_task(async function test_localAddressBookCreation() {
     );
   })();
 
-  EventUtils.synthesizeMouseAtCenter(
-    accountHub.querySelector("#addressBookFooter #forward"),
-    {}
-  );
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
 
   // Check existence of address book.
   const [addressBookDirectory] = await addressBookDirectoryPromise;

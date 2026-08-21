@@ -673,7 +673,7 @@ async function fillInForm(
 
   await BrowserTestUtils.waitForAttributeRemoval("disabled", forward);
 
-  EventUtils.synthesizeMouseAtCenter(forward, {}, window);
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
 
   if (!shouldContinue) {
     return;
@@ -697,7 +697,6 @@ async function fillInForm(
  *   server. Should match the origin of the proxy we discover the books on.
  */
 async function checkSyncSubview(dialog, origin = "https://carddav.test") {
-  const forward = dialog.querySelector("#addressBookFooter #forward");
   const syncSubview = dialog.querySelector("#addressBookSyncSubview");
 
   await BrowserTestUtils.waitForAttributeRemoval("hidden", syncSubview);
@@ -730,7 +729,13 @@ async function checkSyncSubview(dialog, origin = "https://carddav.test") {
       true
     );
   })();
-  EventUtils.synthesizeMouseAtCenter(forward, {}, window);
+  otherAb.focus();
+  Assert.equal(
+    document.querySelector("account-hub-container").shadowRoot.activeElement,
+    otherAb,
+    "The selected address book should be focused before submitting"
+  );
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
 
   Assert.equal(
     MailServices.ab.directories.length,

@@ -139,6 +139,13 @@ add_task(async function test_manual_config_connect_reviews_updated_settings() {
   outgoingHostname.value = "SMTP.MOMO.INVALID";
   outgoingPort.value = "587";
 
+  const manualConfigForm =
+    manualConfigTemplate.querySelector("#manualConfigForm");
+  Assert.ok(
+    manualConfigForm.checkValidity(),
+    "The changed manual configuration should be valid before submitting it"
+  );
+
   const updatedConfig = manualConfigTemplate.captureState().copy();
   updatedConfig.incoming.hostname = "imap.tested.momo.invalid";
   updatedConfig.incoming.port = 993;
@@ -187,10 +194,8 @@ add_task(async function test_manual_config_connect_reviews_updated_settings() {
       return updatedConfig;
     });
 
-  EventUtils.synthesizeMouseAtCenter(
-    dialog.querySelector("#emailFooter #forward"),
-    {}
-  );
+  outgoingHostname.querySelector("input").focus();
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
 
   const passwordSubview = dialog.querySelector("#emailPasswordSubview");
   Assert.ok(

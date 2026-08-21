@@ -88,7 +88,6 @@ add_task(async function test_skip_sync_accounts_load() {
   const dialog = await subtest_open_account_hub_dialog();
   await subtest_fill_initial_config_fields(dialog, emailUser);
   const footer = dialog.querySelector("account-hub-footer");
-  const footerForward = footer.querySelector("#forward");
   const footerBack = footer.querySelector("#back");
   const configFoundTemplate = dialog.querySelector("email-config-found");
 
@@ -98,8 +97,15 @@ add_task(async function test_skip_sync_accounts_load() {
     "The IMAP config option should be visible."
   );
 
-  // Continue button should lead to password template.
-  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  // Enter on the selected config should lead to the password template.
+  const imapInput = configFoundTemplate.querySelector("#imap input");
+  imapInput.focus();
+  Assert.equal(
+    document.querySelector("account-hub-container").shadowRoot.activeElement,
+    imapInput,
+    "The selected config should be focused before submitting"
+  );
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
 
   Assert.ok(
     BrowserTestUtils.isHidden(configFoundTemplate),
@@ -133,7 +139,8 @@ add_task(async function test_skip_sync_accounts_load() {
   EventUtils.sendString("abc12345", window);
   await inputEvent;
 
-  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  passwordInput.focus();
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
   await BrowserTestUtils.waitForMutationCondition(
     emailPasswordTemplate,
     {
@@ -199,8 +206,6 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
 
   const dialog = await subtest_open_account_hub_dialog();
   await subtest_fill_initial_config_fields(dialog, emailUser);
-  const footer = dialog.querySelector("account-hub-footer");
-  const footerForward = footer.querySelector("#forward");
   const configFoundTemplate = dialog.querySelector("email-config-found");
 
   await TestUtils.waitForCondition(
@@ -209,8 +214,15 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
     "The IMAP config option should be visible"
   );
 
-  // Continue button should lead to password template.
-  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  // Enter on the selected config should lead to the password template.
+  const imapInput = configFoundTemplate.querySelector("#imap input");
+  imapInput.focus();
+  Assert.equal(
+    document.querySelector("account-hub-container").shadowRoot.activeElement,
+    imapInput,
+    "The selected config should be focused before submitting"
+  );
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
 
   Assert.ok(
     BrowserTestUtils.isHidden(configFoundTemplate),
@@ -244,7 +256,8 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
   EventUtils.sendString("abc12345", window);
   await inputEvent;
 
-  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  passwordInput.focus();
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isHidden(emailPasswordTemplate),
     "The email password subview should be hidden."
@@ -396,8 +409,7 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
     "Calendars count should be 0."
   );
 
-  // Select the first calendar and address book and click continue to add
-  // the selected calendar and address book.
+  // Select the first calendar and address book and press Enter to add them.
   checkEvent = BrowserTestUtils.waitForEvent(
     addressBooks[0].querySelector("input"),
     "change",
@@ -445,7 +457,13 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
     "addrbook-directory-synced"
   );
 
-  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  calendars[0].querySelector("input").focus();
+  Assert.equal(
+    document.querySelector("account-hub-container").shadowRoot.activeElement,
+    calendars[0].querySelector("input"),
+    "The selected calendar should be focused before submitting"
+  );
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
 
   // Check existence of address book and calendar.
   const [addressBookDirectory] = await addressBookDirectoryPromise;

@@ -1394,10 +1394,13 @@ add_task(async function test_exchange_type_submission_pref_enabled() {
 
   const footerForward = dialog.querySelector("#emailFooter #forward");
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
-  EventUtils.synthesizeMouseAtCenter(footerForward, {});
-
   const exchangeTypeSubview = dialog.querySelector("#emailExchangeTypeSubview");
-  await BrowserTestUtils.waitForAttributeRemoval("hidden", exchangeTypeSubview);
+  const exchangeTypeShown = BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    exchangeTypeSubview
+  );
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
+  await exchangeTypeShown;
 
   Assert.equal(
     exchangeTypeSubview.querySelector("#exchangeTypeUsername").value,
@@ -1408,21 +1411,58 @@ add_task(async function test_exchange_type_submission_pref_enabled() {
   const ewsCard = exchangeTypeSubview.querySelector(
     'account-hub-radio-card-large[value="ews"]'
   );
-  EventUtils.synthesizeMouseAtCenter(ewsCard, {});
-
   const authenticationSelect = exchangeTypeSubview.querySelector(
     "#exchangeTypeAuthentication"
   );
+  Assert.ok(footerForward.disabled, "Connect button should be disabled");
+  Assert.equal(
+    authenticationSelect.value,
+    "",
+    "An authentication method should not be selected"
+  );
+
+  ewsCard.focus();
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
+  await TestUtils.waitForTick();
+  Assert.ok(
+    BrowserTestUtils.isVisible(exchangeTypeSubview),
+    "Enter should not submit the Exchange type form while Connect is disabled"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(dialog.querySelector("#emailPasswordSubview")),
+    "The password step should remain hidden while Connect is disabled"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(ewsCard, {});
   authenticationSelect.value = String(Ci.nsMsgAuthMethod.passwordCleartext);
   authenticationSelect.select.dispatchEvent(
     new Event("change", { bubbles: true })
   );
 
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
-  EventUtils.synthesizeMouseAtCenter(footerForward, {});
-
+  EventUtils.synthesizeKey(
+    "KEY_Enter",
+    { repeat: true, type: "keydown" },
+    window
+  );
+  await TestUtils.waitForTick();
+  Assert.ok(
+    BrowserTestUtils.isVisible(exchangeTypeSubview),
+    "A repeated Enter keydown should not submit the Exchange type form"
+  );
   const passwordSubview = dialog.querySelector("#emailPasswordSubview");
-  await BrowserTestUtils.waitForAttributeRemoval("hidden", passwordSubview);
+  const passwordShown = BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    passwordSubview
+  );
+  ewsCard.focus();
+  Assert.equal(
+    document.querySelector("account-hub-container").shadowRoot.activeElement,
+    ewsCard,
+    "The selected Exchange type card should be focused before submitting"
+  );
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
+  await passwordShown;
   Assert.ok(
     BrowserTestUtils.isHidden(exchangeTypeSubview),
     "Submitting the Exchange type form should move to the password step"
@@ -1877,9 +1917,7 @@ async function cleanupGssapiTest() {
 
 async function subtest_select_protocol_and_continue(dialog, protocol) {
   await subtest_select_protocol(dialog, protocol);
-
-  const footerForward = dialog.querySelector("#emailFooter #forward");
-  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
 }
 
 async function subtest_select_protocol(dialog, protocol) {
@@ -1895,6 +1933,12 @@ async function subtest_select_protocol(dialog, protocol) {
 
   const footerForward = dialog.querySelector("#emailFooter #forward");
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+  protocolInput.focus();
+  Assert.equal(
+    document.querySelector("account-hub-container").shadowRoot.activeElement,
+    protocolInput,
+    `${protocol} input should be focused before submitting`
+  );
 }
 
 function subtest_assert_protocol_select_chrome(dialog, protocolSelectTemplate) {
