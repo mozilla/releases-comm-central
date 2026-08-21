@@ -2647,7 +2647,6 @@ dependencies = [
  "rust_minidump_writer_linux",
  "signature_cache",
  "sitecategories",
- "ssl_tokens_cache",
  "static_prefs",
  "storage",
  "sys_tray",
@@ -2774,7 +2773,6 @@ dependencies = [
  "rusqlite",
  "signature_cache",
  "sitecategories",
- "ssl_tokens_cache",
  "static_prefs",
  "storage",
  "trust-anchors",
@@ -6439,19 +6437,6 @@ dependencies = [
  "rusqlite",
  "tempfile",
  "thiserror 2.0.12",
-]
-
-[[package]]
-name = "ssl_tokens_cache"
-version = "0.1.0"
-dependencies = [
- "adler2",
- "bincode",
- "log",
- "nsstring",
- "serde",
- "static_assertions",
- "thin-vec",
 ]
 
 [[package]]
