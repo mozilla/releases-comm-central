@@ -176,9 +176,7 @@ export function PopupNotifications(tabbrowser, panel, iconBox, options = {}) {
   };
 
   const documentElement = this.window.document.documentElement;
-  const locationBarHidden = documentElement
-    .getAttribute("chromehidden")
-    .includes("location");
+  const locationBarHidden = documentElement.hasAttribute("popup-window");
   const isFullscreen = !!this.window.document.fullscreenElement;
 
   this.panel.setAttribute("followanchor", !locationBarHidden && !isFullscreen);
