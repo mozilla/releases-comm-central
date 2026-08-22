@@ -314,11 +314,12 @@ interface nsIMsgFolder : nsISupports {
 
   /**
    * Create a subfolder of the current folder with the passed in name.
+   * Intended for use by C++ callers while createSubfolderAsync is
+   * intended for use by JavaScript callers.
    * See createSubfolderAsync for expected statuses.
    *
    * @param folderName name of the folder to create.
    */
-  [noscript]
   void createSubfolderWithListener(in AUTF8String folderName,
                                    in nsIUrlListener listener);
 
