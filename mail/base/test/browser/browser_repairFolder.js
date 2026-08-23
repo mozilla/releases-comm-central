@@ -126,6 +126,25 @@ async function subtestRepairFolder(folder) {
     true,
     "The tree view should still be grouped by sort"
   );
+
+  // Wait for any restored message to finish loading, then leave the pane blank
+  // before the test's shared status-bar cleanup runs.
+  await clearMessageSelection();
+}
+
+async function clearMessageSelection() {
+  const messagePaneBrowser =
+    about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
+
+  about3Pane.threadTree.selectedIndex = -1;
+  await TestUtils.waitForCondition(
+    () =>
+      about3Pane.gMessage == null &&
+      messagePaneBrowser.webProgress?.isLoadingDocument === false &&
+      messagePaneBrowser.currentURI?.spec == "about:blank",
+    `waiting for blank message pane. Current location: ${messagePaneBrowser.currentURI?.spec}`
+  );
+  await TestUtils.waitForTick();
 }
 
 async function openFolderProperties(folder) {

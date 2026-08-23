@@ -106,6 +106,21 @@ add_task(async function () {
   }
 
   // Clear the selection so the I/O service doesn't complain when we remove
-  // the account.
-  about3Pane.threadTree.selectedIndex = -1;
+  // the account. Wait for the blank pane so status feedback has also settled.
+  await clearMessageSelection(about3Pane);
 });
+
+async function clearMessageSelection(about3Pane) {
+  const messagePaneBrowser =
+    about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
+
+  about3Pane.threadTree.selectedIndex = -1;
+  await TestUtils.waitForCondition(
+    () =>
+      about3Pane.gMessage == null &&
+      messagePaneBrowser.webProgress?.isLoadingDocument === false &&
+      messagePaneBrowser.currentURI?.spec == "about:blank",
+    `waiting for blank message pane. Current location: ${messagePaneBrowser.currentURI?.spec}`
+  );
+  await TestUtils.waitForTick();
+}
