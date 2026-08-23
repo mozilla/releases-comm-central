@@ -24,7 +24,7 @@ files_changed:
   - comm/build/dummy
 filters:
   - target_tasks_method
-head_git_repository: https://github.com/mozilla-releng/git-backing
+head_git_repository: https://github.com/mozilla-firefox/firefox
 head_git_rev: 7fa9b602777418732e08b26d1ef6c9945c4bbd72
 head_ref: default
 head_repository: https://hg.mozilla.org/mozilla-central

@@ -30,6 +30,7 @@ from comm_taskgraph.util.suite import is_suite_only_push
 logger = logging.getLogger(__name__)
 
 BALROG_PRODUCT = "Thunderbird"
+FIREFOX_GIT_REPOSITORY = "https://github.com/mozilla-firefox/firefox"
 
 # Backstop defaults
 BACKSTOP_TIME_INTERVAL = 60 * 22  # minutes
@@ -83,6 +84,7 @@ CRON_OPTIONS = {
 
 COMM_DEFAULTS = {
     "app_version": get_app_version(product_dir="comm/mail"),
+    "head_git_repository": FIREFOX_GIT_REPOSITORY,
     "version": get_version("comm/mail"),
     "comm_src_path": "comm/",
     "try_options": None,
