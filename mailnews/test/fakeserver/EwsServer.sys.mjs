@@ -973,13 +973,6 @@ export class EwsServer extends MockServer {
       ...reqDoc.getElementsByTagName("FolderIds")[0].children,
     ].map(c => c.getAttribute("Id"));
 
-    // Map the requested IDs to actual folders if we have them. A `null` folder
-    // in the resulting array means the folder couldn't be found on the server,
-    // and the relevant response message should reflect this.
-    const responseFolders = requestedFolderIds.map(id => {
-      return this.getDistinguishedFolder(id) ?? this.getFolder(id);
-    });
-
     // Generate a base document for the response.
     const resDoc = this.#parser.parseFromString(
       GET_FOLDER_RESPONSE_BASE,
@@ -991,8 +984,10 @@ export class EwsServer extends MockServer {
     const resMsgsEl = resDoc.getElementsByTagName("m:ResponseMessages")[0];
 
     // Add each folder to the response document.
-    responseFolders.forEach(folder => {
+    requestedFolderIds.forEach(id => {
+      const folder = this.getDistinguishedFolder(id) ?? this.getFolder(id);
       if (folder) {
+        // A folder was found, so a Folder response message should be returned.
         const folderEl = resDoc.createElement("t:Folder");
         // Add folder class, if the folder has one.
         if (folder.folderClass) {
@@ -1044,7 +1039,14 @@ export class EwsServer extends MockServer {
 
         // Add the response code to the response message.
         const resCodeEl = resDoc.createElement("m:ResponseCode");
-        resCodeEl.appendChild(resDoc.createTextNode("ErrorFolderNotFound"));
+        if (id == "archive") {
+          // Trying to get the undocumented "archive" distinguished ID gets
+          // treated, by at least some servers, as a schema error, not a folder
+          // not found error.
+          resCodeEl.appendChild(resDoc.createTextNode("ErrorSchemaValidation"));
+        } else {
+          resCodeEl.appendChild(resDoc.createTextNode("ErrorFolderNotFound"));
+        }
         messageEl.appendChild(resCodeEl);
 
         // Add a human-readable representation of the error to the response

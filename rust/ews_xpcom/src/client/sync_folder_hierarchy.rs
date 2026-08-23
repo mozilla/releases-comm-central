@@ -392,7 +392,8 @@ async fn get_well_known_folder_map<ServerT: ServerType>(
                 // well-known folders, so we skip any which were not
                 // found.
                 Err(XpComEwsError::ResponseError(ResponseError {
-                    response_code: ResponseCode::ErrorFolderNotFound,
+                    response_code:
+                        ResponseCode::ErrorFolderNotFound | ResponseCode::ErrorSchemaValidation,
                     ..
                 })) => None,
 

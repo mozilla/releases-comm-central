@@ -116,6 +116,29 @@ async function runSimpleSyncTest(syncClient) {
 }
 
 /**
+ * Test sync where the EWS server doesn't have an archive distinguished folder.
+ */
+add_task(async function testMissingArchive() {
+  try {
+    ewsServer.setRemoteFolders(
+      ewsServer.getWellKnownFolders().filter(folder => folder.id != "archive")
+    );
+    const listener = new EwsFolderCallbackListener();
+    ewsClient.syncFolderHierarchy(listener, null);
+    await listener._deferred.promise;
+
+    Assert.deepEqual(
+      [...listener._createdFolderIds],
+      ["inbox", "deleteditems", "drafts", "outbox", "sentitems", "junkemail"],
+      "all folders should have synced"
+    );
+    Assert.ok(listener._syncStateToken, "sync token should exist");
+  } finally {
+    ewsServer.setRemoteFolders(ewsServer.getWellKnownFolders());
+  }
+});
+
+/**
  * Test sync when a folder does not have a folder class.
  *
  * These should be created even though they don't have a class.
