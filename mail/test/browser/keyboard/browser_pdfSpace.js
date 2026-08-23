@@ -79,9 +79,9 @@ add_task(async function test_ctrlS_in_pdf_content_tab_triggers_download() {
   );
 
   try {
-    // Intercept sendAsyncMessage on the Pdfjs actor to detect
+    // Intercept sendAsyncMessage on the PdfJs actor to detect
     // the PDFJS:Save message without triggering an actual download.
-    const actor = browser.browsingContext.currentWindowGlobal.getActor("Pdfjs");
+    const actor = browser.browsingContext.currentWindowGlobal.getActor("PdfJs");
     const { promise, resolve } = Promise.withResolvers();
     actor.sendAsyncMessage = (name, data) => {
       delete actor.sendAsyncMessage; // restore the prototype method

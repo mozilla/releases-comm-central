@@ -317,7 +317,7 @@ function InitMsgWindow() {
               event.preventDefault();
               try {
                 tabmail.currentTabInfo.browser.browsingContext.currentWindowGlobal
-                  ?.getActor("Pdfjs")
+                  ?.getActor("PdfJs")
                   ?.sendAsyncMessage("PDFJS:Save", {});
               } catch (ex) {}
               return;

@@ -307,12 +307,12 @@ const JSWINDOWACTORS = {
     ],
   },
 
-  Pdfjs: {
+  PdfJs: {
     parent: {
-      esModuleURI: "resource://pdf.js/PdfjsParent.sys.mjs",
+      esModuleURI: "resource://pdf.js/PdfJsParent.sys.mjs",
     },
     child: {
-      esModuleURI: "resource://pdf.js/PdfjsChild.sys.mjs",
+      esModuleURI: "resource://pdf.js/PdfJsChild.sys.mjs",
     },
     enablePreference: PREF_PDFJS_ISDEFAULT_CACHE_STATE,
     allFrames: true,
