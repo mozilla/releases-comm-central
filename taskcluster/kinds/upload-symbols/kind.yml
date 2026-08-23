@@ -12,6 +12,7 @@ transforms:
 
 kind-dependencies:
     - build
+    - fetch
     - toolchain
 
 tasks:
@@ -28,6 +29,7 @@ tasks:
                 # {level} gets replaced in the upload_symbols transform
                 SYMBOL_SECRET: "project/comm/thunderbird/releng/build/level-{level}/gecko-symbol-upload"
                 MAKECAB: /builds/worker/fetches/makecab/makecab
+                UPLOAD_SYMBOLS: /builds/worker/fetches/upload-symbols-cli/upload-symbols
                 MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE: system
         run:
             using: mach
@@ -37,5 +39,7 @@ tasks:
         scopes:
             - secrets:get:project/comm/thunderbird/releng/build/level-{level}/gecko-symbol-upload
         fetches:
+            fetch:
+                - upload-symbols-linux64
             toolchain:
                 - linux64-makecab
