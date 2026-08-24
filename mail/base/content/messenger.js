@@ -195,6 +195,28 @@ var gMailInit = {
       if (devtoolsMenu) {
         devtoolsMenu.hidden = true;
       }
+    } else {
+      const updateDevtoolsToolboxVisibility = () => {
+        document.getElementById("devtoolsToolbox").hidden =
+          !this.gDevtoolsChromeEnabled || !this.gDevtoolsRemoteEnabled;
+      };
+
+      XPCOMUtils.defineLazyPreferenceGetter(
+        this,
+        "gDevtoolsChromeEnabled",
+        "devtools.chrome.enabled",
+        false,
+        updateDevtoolsToolboxVisibility
+      );
+      XPCOMUtils.defineLazyPreferenceGetter(
+        this,
+        "gDevtoolsRemoteEnabled",
+        "devtools.debugger.remote-enabled",
+        false,
+        updateDevtoolsToolboxVisibility
+      );
+
+      updateDevtoolsToolboxVisibility();
     }
 
     // - initialize tabmail system

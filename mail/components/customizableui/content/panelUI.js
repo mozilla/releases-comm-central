@@ -569,6 +569,14 @@ const PanelUI = {
 
     event.target.querySelector("#appmenu_exportmobile").hidden =
       !Services.prefs.getBoolPref("mail.qrexport.enabled", true);
+
+    const noDevtoolsAllowed =
+      !Services.policies.isAllowed("devtools") ||
+      !Services.prefs.getBoolPref("devtools.chrome.enabled") ||
+      !Services.prefs.getBoolPref("devtools.debugger.remote-enabled");
+    event.target.querySelector("#devToolsSeparator").hidden = noDevtoolsAllowed;
+    event.target.querySelector("#appmenu_devtoolsToolbox").hidden =
+      noDevtoolsAllowed;
   },
 
   _updateNotifications(notificationsChanged) {

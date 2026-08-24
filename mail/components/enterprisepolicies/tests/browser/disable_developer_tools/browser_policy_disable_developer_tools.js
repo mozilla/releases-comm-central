@@ -30,6 +30,41 @@ add_task(async function test_updates_post_policy() {
   info("Check that devtools menu items are hidden");
   const devtoolsMenu = window.document.getElementById("devtoolsMenu");
   ok(devtoolsMenu.hidden, "The Web Developer item of the tools menu is hidden");
+
+  const appMenuButton = document.getElementById("button-appmenu");
+  const appMenuPopup = document.getElementById("appMenu-popup");
+  const toolsMenu = document.getElementById("appmenu_toolsMenu");
+  const toolsView = document.getElementById("appMenu-toolsView");
+
+  const popupShownPromise = BrowserTestUtils.waitForPopupEvent(
+    appMenuPopup,
+    "shown"
+  );
+  EventUtils.synthesizeMouseAtCenter(appMenuButton, {}, window);
+  await popupShownPromise;
+
+  const viewShownPromise = BrowserTestUtils.waitForEvent(
+    toolsView,
+    "ViewShown"
+  );
+  EventUtils.synthesizeMouseAtCenter(toolsMenu, {}, window);
+  await viewShownPromise;
+
+  ok(
+    toolsView.querySelector("#appmenu_devtoolsToolbox").hidden,
+    "The App Menu Developer Tools item is hidden"
+  );
+  ok(
+    toolsView.querySelector("#devToolsSeparator").hidden,
+    "The App Menu Developer Tools separator is hidden"
+  );
+
+  const popupHiddenPromise = BrowserTestUtils.waitForPopupEvent(
+    appMenuPopup,
+    "hidden"
+  );
+  appMenuPopup.hidePopup();
+  await popupHiddenPromise;
 });
 
 const expectErrorPage = async function (url) {

@@ -110,3 +110,82 @@ add_task(async function testContentTab() {
   tabmail.switchToTab(2);
   await helper.testAllItems("contentTab");
 });
+
+add_task(async function testDevtoolsToolboxAvailability() {
+  const chromeEnabled = Services.prefs.getBoolPref("devtools.chrome.enabled");
+  const remoteEnabled = Services.prefs.getBoolPref(
+    "devtools.debugger.remote-enabled"
+  );
+  const menubarItem = document.getElementById("devtoolsToolbox");
+  const appMenuButton = document.getElementById("button-appmenu");
+  const appMenuPopup = document.getElementById("appMenu-popup");
+  const toolsMenu = document.getElementById("appmenu_toolsMenu");
+  const toolsView = document.getElementById("appMenu-toolsView");
+
+  async function checkAvailability(expectedAvailable) {
+    await TestUtils.waitForCondition(
+      () => menubarItem.hidden == !expectedAvailable,
+      "waiting for menubar Developer Tools item visibility"
+    );
+    Assert.equal(
+      menubarItem.hidden,
+      !expectedAvailable,
+      "menubar Developer Tools item visibility"
+    );
+
+    const popupShownPromise = BrowserTestUtils.waitForPopupEvent(
+      appMenuPopup,
+      "shown"
+    );
+    EventUtils.synthesizeMouseAtCenter(appMenuButton, {}, window);
+    await popupShownPromise;
+
+    const viewShownPromise = BrowserTestUtils.waitForEvent(
+      toolsView,
+      "ViewShown"
+    );
+    EventUtils.synthesizeMouseAtCenter(toolsMenu, {}, window);
+    await viewShownPromise;
+
+    Assert.equal(
+      toolsView.querySelector("#appmenu_devtoolsToolbox").hidden,
+      !expectedAvailable,
+      "App Menu Developer Tools item visibility"
+    );
+    Assert.equal(
+      toolsView.querySelector("#devToolsSeparator").hidden,
+      !expectedAvailable,
+      "App Menu Developer Tools separator visibility"
+    );
+
+    const popupHiddenPromise = BrowserTestUtils.waitForPopupEvent(
+      appMenuPopup,
+      "hidden"
+    );
+    appMenuPopup.hidePopup();
+    await popupHiddenPromise;
+  }
+
+  try {
+    await checkAvailability(true);
+
+    Services.prefs.setBoolPref("devtools.chrome.enabled", false);
+    await checkAvailability(false);
+
+    Services.prefs.setBoolPref("devtools.chrome.enabled", true);
+    Services.prefs.setBoolPref("devtools.debugger.remote-enabled", false);
+    await checkAvailability(false);
+
+    Services.prefs.setBoolPref("devtools.debugger.remote-enabled", true);
+    await checkAvailability(true);
+  } finally {
+    Services.prefs.setBoolPref("devtools.chrome.enabled", chromeEnabled);
+    Services.prefs.setBoolPref(
+      "devtools.debugger.remote-enabled",
+      remoteEnabled
+    );
+    if (appMenuPopup.state != "closed") {
+      appMenuPopup.hidePopup();
+    }
+  }
+});
