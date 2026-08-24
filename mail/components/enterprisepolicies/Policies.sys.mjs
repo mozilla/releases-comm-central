@@ -1578,7 +1578,6 @@ export var Policies = {
       const pkcs11db = Cc["@mozilla.org/security/pkcs11moduledb;1"].getService(
         Ci.nsIPKCS11ModuleDB
       );
-
       let securityDevices;
       if (param.Add || param.Delete) {
         // We're using the new syntax.
@@ -1598,11 +1597,9 @@ export var Policies = {
       } else {
         securityDevices = param;
       }
-
       if (!securityDevices) {
         return;
       }
-
       for (const deviceName in securityDevices) {
         let foundModule = false;
         for (const module of await pkcs11db.listModules()) {
@@ -1611,11 +1608,9 @@ export var Policies = {
             break;
           }
         }
-
         if (foundModule) {
           continue;
         }
-
         try {
           await pkcs11db.addModule(
             deviceName,
@@ -1631,9 +1626,17 @@ export var Policies = {
     },
 
     onProfileAfterChange(manager, param) {
-      this._onProfileAfterChangeImpl(manager, param).catch(ex => {
-        lazy.log.error("Unable to apply SecurityDevices policy", ex);
-      });
+      this._onProfileAfterChangeImpl(manager, param)
+        .then(() => {
+          Services.obs.notifyObservers(
+            null,
+            "test-enterprisepolicies-securitydevices"
+          );
+        })
+        .catch(ex => {
+          lazy.log.error(`Error running SecurityDevices.onProfileAfterChange`);
+          lazy.log.debug(ex);
+        });
     },
   },
 
