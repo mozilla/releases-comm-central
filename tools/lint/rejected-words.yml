@@ -7,6 +7,7 @@ avoid-blacklist-and-whitelist:
         - comm/tools/lint/rejected-words.yml
         - comm/mail/test/browser/account/browser_abWhitelist.js
         - comm/mail/app/profile/all-thunderbird.js
+        - comm/mail/components/enterprisepolicies/tests/browser/browser_policies_differences.js
         - comm/mailnews
     type: external
     wrappedType: regex
