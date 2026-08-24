@@ -1,0 +1,205 @@
+Test messages rc-openpgp-*.eml are used to test HTML with remote content.
+
+This text documents how they were generated.
+
+Dependencies:
+  rnp-cli, rnpkeys:
+    Set PATH to the "bin" directory from a Thunderbird build.
+    Used for generating most messages.
+
+  gpg:
+    Assumed to be present on the system.
+    Used to generate a legacy no-MDC message and a AEAD/OCB message.
+
+Preparation:
+  H_RNP="$(mktemp -d)"; chmod 700 "$H_RNP"
+  H_GPG="$(mktemp -d)"; chmod 700 "$H_GPG"
+
+  rnpkeys --homedir H_RNP \
+      --import ../keys/bob@openpgp.example-0xfbfcc82a015e7330-pub.asc
+  rnpkeys --homedir H_RNP \
+      --import ../keys/bob@openpgp.example-0xfbfcc82a015e7330-secret.asc
+
+  GNUPGHOME=H_GPG gpg --batch --quiet \
+      --import ../keys/bob@openpgp.example-0xfbfcc82a015e7330-pub.asc
+
+
+The encrypted plaintext (INNER_HTML)
+------------------------------------
+
+Every message encrypts the following MIME part (CRLF line endings).
+It refers to a remote image served by the mochitest http server.
+Tests looks for #testelement
+
+  Content-Type: text/html; charset=utf-8
+  Content-Transfer-Encoding: 8bit
+
+  <html><body><p>Integrity-protected secret body.</p><img id="testelement"
+  src="http://mochi.test:8888/browser/comm/mail/test/browser/content-policy/html/pass.png"></body></html>
+
+
+MIME assembly (templates)
+-------------------------
+
+The .asc outputs from the commands are wrapped by hand into the templates below.
+All lines are CRLF-terminated. In the templates, "--BOUNDARY" means two hyphens
+followed by that template's boundary string, and the final delimiter appends two
+more hyphens ("--BOUNDARY--"). The boundary strings are arbitrary but must be
+unique and match between the Content-Type header and the delimiter lines.
+
+Template A - PGP/MIME multipart/encrypted (RFC 3156)
+  boundary string: ------------remoteimagepgpmime
+
+    Content-Type: multipart/encrypted;
+     protocol="application/pgp-encrypted";
+     boundary="------------remoteimagepgpmime"
+
+    --BOUNDARY
+    Content-Type: application/pgp-encrypted
+    Content-Description: PGP/MIME version identification
+
+    Version: 1
+
+    --BOUNDARY
+    Content-Type: application/octet-stream; name="encrypted.asc"
+    Content-Description: OpenPGP encrypted message
+    Content-Disposition: inline; filename="encrypted.asc"
+
+    <contents of the .asc file>
+    --BOUNDARY--
+
+Template B - PGP/MIME multipart/signed (RFC 3156)
+  boundary string: ------------remoteimagesigwrap
+
+    Content-Type: multipart/signed; micalg="pgp-sha256";
+     protocol="application/pgp-signature"; boundary="------------remoteimagesigwrap"
+
+    --BOUNDARY
+    <SIGNED_PART, ending with its trailing CRLF>
+    --BOUNDARY
+    Content-Type: application/pgp-signature; name="signature.asc"
+    Content-Description: OpenPGP digital signature
+
+    <contents of sig.asc>
+    --BOUNDARY--
+
+  SIGNED_PART is a complete MIME part (e.g. a Template A block). The detached
+  signature (sig.asc) must be computed over SIGNED_PART with its final CRLF
+  removed - that CRLF belongs to the following boundary, not the content (RFC
+  3156). So the SIGNED_PART argument to the rnp-cli detached-sign command is the
+  part minus its trailing CRLF.
+
+Template C - multipart/mixed (attacker wrapper for the sub-part case)
+  boundary string: ------------remoteimagemixed
+
+    Content-Type: multipart/mixed; boundary="------------remoteimagemixed"
+
+    --BOUNDARY
+    Content-Type: text/html; charset=utf-8
+
+    <html><body><p>Attacker-controlled wrapper part.</p></body></html>
+    --BOUNDARY
+    <a full Template A block for the MDC message>
+    --BOUNDARY--
+
+Envelope: prepend these headers directly in front of the wrapper (the wrapper
+begins with its own Content-Type header, so there is NO blank line between
+MIME-Version and the wrapper):
+
+    From: Alice <alice@openpgp.example>
+    To: Bob <bob@openpgp.example>
+    Subject: <see table>
+    Date: Wed, 01 Jul 2026 12:00:00 +0000
+    Message-ID: <subject-with-spaces-replaced-by-dashes@remoteimage.test>
+    MIME-Version: 1.0
+
+Subjects (also used verbatim in the Message-ID, spaces -> dashes):
+
+    rc-openpgp-mdc.eml            rc mdc allow
+    rc-openpgp-aead.eml           rc aead allow
+    rc-openpgp-nomdc.eml          rc nomdc block
+    rc-openpgp-mdc-tampered.eml   rc mdc tampered block
+    rc-openpgp-mixed-subpart.eml  rc mixed subpart block
+    rc-openpgp-sigwrap-mdc.eml    rc sigwrap mdc allow
+    rc-openpgp-sigwrap-nomdc.eml  rc sigwrap nomdc block
+    pgp-sig-wrapping-smime-enc.eml   pgp sig wrapping smime enc block
+
+
+Per-file commands
+-----------------
+
+rc-openpgp-mdc.eml  (integrity-protected, allowed)
+  Encrypt INNER_HTML with RNP (produces an MDC/SEIPD v1 message), then PGP/MIME
+  multipart/encrypted wrap:
+    rnp-cli --homedir H_RNP \
+        --encrypt --recipient bob@openpgp.example --armor --output - INNER_HTML
+
+rc-openpgp-aead.eml  (AEAD/OCB, integrity-protected, allowed)
+  Encrypt INNER_HTML with gpg forcing OCB, then PGP/MIME wrap:
+    GNUPGHOME=H_GPG gpg --batch --yes --trust-model always \
+        -r bob@openpgp.example --armor --encrypt --force-ocb   (INNER_HTML on stdin)
+
+rc-openpgp-nomdc.eml  (legacy, no integrity, blocked)
+  Encrypt INNER_HTML with gpg in legacy RFC 2440 mode with CAST5 (no MDC), then
+  PGP/MIME wrap:
+    GNUPGHOME=H_GPG gpg --batch --yes --trust-model always \
+        -r bob@openpgp.example --armor --encrypt --rfc2440 --cipher-algo CAST5
+        (INNER_HTML on stdin)
+
+rc-openpgp-mdc-tampered.eml  (broken MDC, blocked)
+  Corrupt the MDC ciphertext with the helper script, then PGP/MIME wrap
+  (template A):
+    python3 tamper-armor.py mdc.asc > mdc-tampered.asc
+
+rc-openpgp-mixed-subpart.eml  (encrypted sub-part inside attacker MIME, blocked)
+  A multipart/mixed body with two parts: (1) an attacker-controlled text/html
+  part, and (2) the PGP/MIME multipart/encrypted MDC part (identical to
+  rc-openpgp-mdc.eml's body) as a non-top-level sibling. No re-encryption; the
+  MDC part is reused verbatim.
+
+rc-openpgp-sigwrap-mdc.eml  (OpenPGP signature wrapping an MDC child, allowed)
+  Detached-sign the PGP/MIME MDC part (rc-openpgp-mdc.eml's body) with the RNP
+  detached-signature command above, then multipart/signed wrap. The outer
+  signature need not verify; the child's encryption is what matters.
+
+rc-openpgp-sigwrap-nomdc.eml  (OpenPGP signature wrapping a no-MDC child, blocked)
+  Same as sigwrap-mdc, but sign the PGP/MIME no-MDC part (rc-openpgp-nomdc.eml's
+  body) instead.
+
+
+Related S/MIME file (written into ../../smime/data/, not this dir)
+-----------------------------------------------------------------
+
+pgp-sig-wrapping-smime-enc.eml  (OpenPGP signature wrapping an inner S/MIME
+  encrypted part; S/MIME is never integrity protected, so it stays blocked; read
+  by smime/browser_remoteContent.js). This one depends on the S/MIME artifact
+  ../../smime/data/alice.remoteimage.env.eml existing first (generated by NSS
+  security/nss/tests/smime/smime.sh together with
+  mailnews/test/data/smime/local-gen.sh). Take the application/pkcs7-mime
+  enveloped part out of that .eml, detached-sign it with the RNP command above,
+  and multipart/signed wrap it.
+
+
+Appendix: raw commands
+----------------------
+
+The crypto invocations plus the one tamper step. The MIME assembly (templates
+A/B/C) and the envelope headers are plain text, applied by hand to these outputs.
+
+  rnpkeys --homedir "$H_RNP" --import ../keys/bob@openpgp.example-0xfbfcc82a015e7330-pub.asc
+  rnpkeys --homedir "$H_RNP" --import ../keys/bob@openpgp.example-0xfbfcc82a015e7330-secret.asc
+  GNUPGHOME="$H_GPG" gpg --batch --quiet --import ../keys/bob@openpgp.example-0xfbfcc82a015e7330-pub.asc
+
+  rnp-cli --homedir "$H_RNP" --encrypt --recipient bob@openpgp.example --armor --output - INNER_HTML > mdc.asc
+  GNUPGHOME="$H_GPG" gpg --batch --yes --trust-model always -r bob@openpgp.example --armor --encrypt --force-ocb < INNER_HTML > aead.asc
+  GNUPGHOME="$H_GPG" gpg --batch --yes --trust-model always -r bob@openpgp.example --armor --encrypt --rfc2440 --cipher-algo CAST5 < INNER_HTML > nomdc.asc
+
+  rnp-cli --homedir "$H_RNP" --sign --detach --armor --hash SHA256 -u bob@openpgp.example --output - SIGNED_PART > sig.asc
+
+  python3 tamper-armor.py mdc.asc > mdc-tampered.asc
+
+(INNER_HTML is the encrypted plaintext part above; rnp-cli reads it as a file
+argument while gpg reads it on stdin. SIGNED_PART is the PGP/MIME part being
+detached-signed, with its trailing CRLF removed: the MDC part for sigwrap-mdc,
+the no-MDC part for sigwrap-nomdc, or the S/MIME enveloped part for
+pgp-sig-wrapping-smime-enc.)

@@ -1,0 +1,50 @@
+From: Alice <alice@openpgp.example>
+To: Bob <bob@openpgp.example>
+Subject: pgp sig wrapping smime enc block
+Date: Wed, 01 Jul 2026 12:00:00 +0000
+Message-ID: <pgp-sig-wrapping-smime-enc-block@remoteimage.test>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg="pgp-sha256";
+ protocol="application/pgp-signature"; boundary="------------remoteimagesigwrap"
+
+--------------remoteimagesigwrap
+Content-Type: application/pkcs7-mime; name=smime.p7m;
+    smime-type=enveloped-data
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename=smime.p7m
+Content-Description: S/MIME Encrypted Message
+
+MIAGCSqGSIb3DQEHA6CAMIACAQAxggGLMIIBhwIBADBvMGoxCzAJBgNVBAYTAlVT
+MRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRIw
+EAYDVQQKEwlCT0dVUyBOU1MxGjAYBgNVBAMTEU5TUyBUZXN0IENBIChSU0EpAgEo
+MA0GCSqGSIb3DQEBAQUABIIBAH6HoL0ITwPrpXsJnhKIaUABH77cYaVPFp3Hb/Uw
+z96vhRbeYNQnXMzHgLdnrsBAFekS5SduYTQEZk1z379/TVj6NW20rypvQzDxWDnO
+3JyIEAIbU/xTBSIKZ7VM0JpaCjCBpaa217c6SRheL/vfBsCOXoBZjB2KaQ3ncI5b
+BVeKB6QqC+N1pxVUMradzWZYe7rNwE04LB0KEFr8SNFNp/6ybXrlbsLbFUrzzUsW
+wXMCzSa/978pSHGvGPJwgHoAwAW6ErRG+KcK99Neh15lMHmQbLT1T8ZKo6syYJfN
+BZaI9bJC3SLrih+IT48MWyoFpt7h8OyqKNoC3BLAvsry/XowgAYJKoZIhvcNAQcB
+MB0GCWCGSAFlAwQBAgQQFdSW0cZNEDjCJ36RWLGxsaCABIHADOM1oc2s4qCpZJr8
+SlDdaiqbiN3HX2v7lMXwHiZlHcPgH3PfywK9vhf6lLIEx7YpUmVMIErkOZ+60wYU
++vWk6qzSyNjAFqtDoqAhW919w9IXGpdyk2QJGpLZqDyHit9hu0zvcN3yCyD3kBtA
+u3fhNL0jNQAJfmmzaEae1pgVz5um8jiamot3MATdqhUN4HwoWRu1AyAAlMCjtVPC
+JsfN4a+pvRRhL+sNeZe/GLBUeLsVQNGyfId3hwoqmpqFvmB0BBAVpq3Wnb+jT1NN
+ETFYAzIBAAAAAAAAAAAAAA==
+
+--------------remoteimagesigwrap
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+wsD5BAABCAAjFiEE0aZuGiOxgsmYD3iM+/zIKgFeczAFAmpGhR4FAwAAAAAACgkQ+/zIKgFeczBw
+6Qv6AwcXkMmingPZbhKyKxokKYQYklQ3uBi+642+uJR3NiZjr/7B6KfK21NlpvQYtD5gz04SzUK6
+jkne/27L2s1hohn0P3lSbeiiny0TotPvUFvgIhRoBcYm8rk4hwG7u9y6aRy/qaRDTPmEphxs9L4u
+NKjszN0cvysHG1JDbvjKk/cn0NGfss2CfG6K9ogI8SUl2gkZp+hKpJ5/10Jc23KtJ93s7hMSqtyz
+yKvkt8Sv80jYwY32fBhxUZd6KnGrB2Kyw3vjat/V6Ty8UrGs3yYXgEUr9YkQ9nO8vyLGk8CyNYlZ
+W2SOf/2iDmqmGB770mMrbIETISqARG1upmnTumMpisFLDlW/jhNb45wwlC9fc0mi4Nb2QitDIuRR
+Ysi8uipyoseguFh49ekDiiRJchpl9DCcCJMslLYijY2bmokLzGKeE1Gt+/cGLAjYx9dtUzOMguoi
+apN4Sw9wioufNkwU0I7t4X4FfikDvLAKxhXS62tZH20Q5oBWYawMLy8ONaFW
+=LSYu
+-----END PGP SIGNATURE-----
+
+--------------remoteimagesigwrap--

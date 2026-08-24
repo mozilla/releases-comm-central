@@ -1,0 +1,41 @@
+From: Alice <alice@openpgp.example>
+To: Bob <bob@openpgp.example>
+Subject: rc aead allow
+Date: Wed, 01 Jul 2026 12:00:00 +0000
+Message-ID: <rc-aead-allow@remoteimage.test>
+MIME-Version: 1.0
+Content-Type: multipart/encrypted;
+ protocol="application/pgp-encrypted";
+ boundary="------------remoteimagepgpmime"
+
+--------------remoteimagepgpmime
+Content-Type: application/pgp-encrypted
+Content-Description: PGP/MIME version identification
+
+Version: 1
+
+--------------remoteimagepgpmime
+Content-Type: application/octet-stream; name="encrypted.asc"
+Content-Description: OpenPGP encrypted message
+Content-Disposition: inline; filename="encrypted.asc"
+
+-----BEGIN PGP MESSAGE-----
+
+hQGMA3wvqk35PDeyAQv9GSDnu6us40HXwJAvenQWiVIL+5pHUEOOs/mbQawAehA7
+zifA3JLHHcQi3/fjKqY3Nka38IRUdNOkwqIBFczWCJAr6XFPqZYsxq0v+p74s5jh
+rIAtV9RW6+DrIi0htY9GM/jfkGJpPTjlvcwBgP7qKsqDorp4V3iDsgp3/0cTyU1Y
+B9UyHOFt6TWicFkkBwwPgyc+IF40v8pr0daELBSK4P1JjsqMZ5dHUHIhlyxuMKJl
+cNFN0CUrnlwUV93YWtX2mLc781DRCfAI0ZWjmiaJsyLhoUpYL+mP68NFK8IjeqVm
+v4RrWPQ7tSziO7DPZSE8yvEpJ4ZWW2Ntdw8uNVxP5dIgZIUNtEemmVsxLmBxrKUM
+7JPeo7RFAeB09JJh3YGqvhbMA1ZLHwrYMBTvc7VCdrVAv0PFjv4nvWyZ5ybL+tRb
+4jMMo7k711YHwd0QByvTScOMbUWqD409wOvbxp4LzxBEa7Rx9+6+FyvT0VRF3clf
+nKDJ4P8ZhScJb5iBiQ161MA+AQkCEN2wpTfOFee5ZGvcljUYrrnq4lTT66zwdeyi
+AjlHyBczKFOwEyUgxz36sKsnUBrQ1dLptDAj7YDGTcXXthybxJ+seaKtBSQ9o6Om
+xSEGGkT8m5Rjk/ymuU26iNb3aoO3j8JLbdbuahExl+1xDr537uF8Iv2aSBXEk53N
+uI3OOvqofZODu8i9QP3CvNFi3vim51wrflt3Cf4Qs1XJ9MclE4SEV47zd235PxAX
+ElPTFzlcqOIrlsk9g/+vR5VB3Vvon4ZYIrpI70txlROouO1n9UDhX0Tz1SZmq3pP
+Ba3YOCFn0GzWG3vgVropZalrWmSXP9lpnq6Xwn5jCIw=
+=GlHw
+-----END PGP MESSAGE-----
+
+--------------remoteimagepgpmime--
