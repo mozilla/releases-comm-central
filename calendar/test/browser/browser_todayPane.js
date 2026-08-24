@@ -479,6 +479,13 @@ add_task(async function testOverlapOutside() {
 add_task(async function testActive() {
   const now = cal.dtz.now();
 
+  // The event used as the past event runs from midnight until 00:01. It is
+  // still active if this test runs in the first minute of the day.
+  if (now.hour == 0 && now.minute == 0) {
+    info("Skipping active-event assertions at the start of the day");
+    return;
+  }
+
   const pastEvent = await addEvent("Past Event", "PT0M", "PT1M");
   const presentEvent = await addEvent("Present Event", `PT${now.hour}H`, `PT${now.hour + 1}H`);
   const futureEvent = await addEvent("Future Event", "PT23H59M", "PT24H");
