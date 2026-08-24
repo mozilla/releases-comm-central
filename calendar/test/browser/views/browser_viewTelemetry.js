@@ -28,6 +28,10 @@ function checkTelemetry(itemToAdd) {
 }
 
 add_setup(async function () {
+  // Mochitests can begin before delayed startup has finished loading Calendar.
+  // Wait for its deactivator to be ready before enabling the test calendar.
+  await window.delayedStartupPromise;
+
   // No views should have been initialized at the start of the test.
   checkTelemetry();
 
