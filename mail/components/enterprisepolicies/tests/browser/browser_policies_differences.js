@@ -39,6 +39,16 @@ const allowedDifferences = {
     '+       lazy.PoliciesUtils.setAndLockPref("browser.download.folderList", 2);',
     "      }",
   ],
+  DisableDeveloperTools: [
+    "~ onBeforeAddons:",
+    "  ...",
+    '          manager.disallowFeature("devtools");',
+    '          lazy.blockAboutPage(manager, "about:debugging");',
+    '          lazy.blockAboutPage(manager, "about:devtools-toolbox");',
+    '-         lazy.blockAboutPage(manager, "about:profiling");',
+    "        }",
+    "      }",
+  ],
 };
 
 // List built by just running the test with nothing in it and copy/pasting the
