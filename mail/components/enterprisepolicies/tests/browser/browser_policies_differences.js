@@ -106,6 +106,20 @@ const allowedDifferences = {
     "            );",
     "  ...",
   ],
+  PasswordManagerEnabled: [
+    "~ onBeforeUIStartup:",
+    "  ...",
+    '            "pref.privacy.disable_button.view_passwords",',
+    "            true",
+    "          );",
+    "-         lazy.PoliciesUtils.setAndLockPref(",
+    '-           "browser.contextual-password-manager.enabled",',
+    "-           false",
+    "-         );",
+    "        }",
+    '        lazy.PoliciesUtils.setAndLockPref("signon.rememberSignons", param);',
+    "      }",
+  ],
 };
 
 // List built by just running the test with nothing in it and copy/pasting the
