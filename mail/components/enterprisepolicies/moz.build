@@ -16,6 +16,10 @@ EXTRA_JS_MODULES.policies += [
     "Policies.sys.mjs",
 ]
 
+TESTING_JS_MODULES.policies_browser += [
+    "/browser/components/enterprisepolicies/Policies.sys.mjs",
+]
+
 JAR_MANIFESTS += [
     "jar.mn",
 ]
