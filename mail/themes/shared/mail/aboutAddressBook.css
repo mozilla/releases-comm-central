@@ -6,6 +6,8 @@
 @import url("chrome://messenger/skin/shared/list-container.css");
 @import url("chrome://messenger/skin/abFormFields.css");
 @import url("chrome://messenger/skin/icons.css");
+@import url("chrome://messenger/skin/variables.css");
+@import url("chrome://messenger/skin/widgets.css");
 
 :root {
   appearance: none;
@@ -852,14 +854,12 @@ input[type="number"] {
 
 /* Photo dialog */
 
-#photoDialogInner {
-  inline-size: 500px;
-  text-align: center;
-}
-
 #photoDropTarget {
-  block-size: 100px;
+  position: relative;
+  inline-size: 500px;
+  block-size: 200px;
   background-color: var(--button-background-color);
+  border-radius: var(--button-border-radius);
   background-image: var(--icon-user);
   background-size: 80px;
   background-position: center;
@@ -869,52 +869,34 @@ input[type="number"] {
   display: flex;
   justify-content: center;
   align-items: center;
+  text-align: center;
+  margin-block-end: 20px;
+}
 
-  & .icon {
+#dialogFileInput {
+  position: absolute;
+  block-size: 100%;
+  inline-size: 100%;
+  background-color: transparent;
+  padding: 0;
+  text-align: center;
+
+  &::file-selector-button,
+  &::-moz-file-content {
     display: none;
-    margin-inline-end: 8px;
-    inline-size: 16px;
-    block-size: 16px;
-  }
-
-  &.drop-error .icon {
-    display: unset;
-    background-image: url("chrome://global/skin/icons/warning.svg");
-    background-size: contain;
-  }
-
-  &.drop-loading .icon {
-    display: unset;
-    background-image: url("chrome://messenger/skin/icons/hourglass.svg");
-    -moz-context-properties: fill, stroke;
-    fill: currentColor;
-
-    @media (prefers-reduced-motion: no-preference) {
-      position: relative;
-      overflow: hidden;
-      text-align: start;
-      background-image: none;
-      stroke: currentColor;
-
-      &::before {
-        content: "";
-        position: absolute;
-        background-image: url("chrome://messenger/skin/icons/loading.svg");
-        inline-size: 480px;
-        block-size: 100%;
-        animation: tab-throbber-animation 1.05s steps(30) infinite;
-      }
-
-      &:dir(rtl)::before {
-        animation-name: tab-throbber-animation-rtl;
-      }
-    }
   }
 }
 
-#photoDialog {
+#photoDialog[open] {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: center;
+  min-inline-size: 480px;
+
   & svg {
     margin: -10px;
+    align-self: center;
   }
 
   & rect {
@@ -947,6 +929,7 @@ input[type="number"] {
 
   & .extra1 {
     margin-inline-end: auto;
+    background-image: var(--icon-trash);
   }
 }
 
@@ -958,4 +941,8 @@ input[type="number"] {
   padding: 9px;
   font-weight: 500;
   font-size: 1rem;
+}
+
+menu.dialog-menu-container {
+  padding: 0;
 }

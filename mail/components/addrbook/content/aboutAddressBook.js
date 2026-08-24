@@ -2712,7 +2712,9 @@ var detailsPane = {
 
     const photoButton = document.getElementById("photoButton");
     photoButton.addEventListener("keydown", event => {
-      photoDialog._onKeyDown(event);
+      if (event.key.toLowerCase() == "v" && !event.repeat) {
+        photoDialog._onKeyDown(event);
+      }
     });
     photoButton.addEventListener("click", () => {
       if (this._photoDetails.sourceURL) {
@@ -2721,9 +2723,9 @@ var detailsPane = {
           this._photoDetails.cropRect,
           true
         );
-      } else {
-        photoDialog.showEmpty();
+        return;
       }
+      photoDialog.showEmpty();
     });
 
     this.cancelEditButton.addEventListener("keypress", event => {
@@ -3901,34 +3903,41 @@ var photoDialog = {
    */
   _previewRect: null,
 
+  /**
+   * If the dialog has been previously initialized.
+   *
+   * @type {boolean}
+   */
+  _isInitialized: false,
+
   init() {
+    if (this._isInitialized) {
+      return;
+    }
+
     this._dialog = document.getElementById("photoDialog");
     this._dialog.saveButton = this._dialog.querySelector(".accept");
     this._dialog.cancelButton = this._dialog.querySelector(".cancel");
     this._dialog.discardButton = this._dialog.querySelector(".extra1");
 
     this._dropTarget = this._dialog.querySelector("#photoDropTarget");
+    this._banner = this._dialog.querySelector("#photoDialogBanner");
+    this._inputTarget = this._dialog.querySelector("#dialogFileInput");
     this._svg = this._dialog.querySelector("svg");
     this._preview = this._svg.querySelector("image");
     this._cropMask = this._svg.querySelector("path");
     this._dragRect = this._svg.querySelector("rect");
     this._corners = this._svg.querySelectorAll("rect.corner");
 
+    this._dialog.addEventListener("close", this);
     this._dialog.addEventListener("dragover", this);
     this._dialog.addEventListener("drop", this);
     this._dialog.addEventListener("paste", this);
     this._dialog.addEventListener("keydown", this);
-    this._dropTarget.addEventListener("click", event => {
-      if (event.button != 0) {
-        return;
+    this._inputTarget.addEventListener("change", async () => {
+      if (this._inputTarget.files.length === 1) {
+        this.showWithFile(this._inputTarget.files[0]);
       }
-      this._showFilePicker();
-    });
-    this._dropTarget.addEventListener("keydown", event => {
-      if (event.key != " " && event.key != "Enter") {
-        return;
-      }
-      this._showFilePicker();
     });
 
     class Mover {
@@ -4033,6 +4042,7 @@ var photoDialog = {
     this._dialog.saveButton.addEventListener("click", () => this._save());
     this._dialog.cancelButton.addEventListener("click", () => this._cancel());
     this._dialog.discardButton.addEventListener("click", () => this._discard());
+    this._isInitialized = true;
   },
 
   _setState(state) {
@@ -4040,16 +4050,28 @@ var photoDialog = {
       this._dropTarget.hidden = true;
       this._svg.toggleAttribute("hidden", false);
       this._dialog.saveButton.disabled = false;
+      this._banner.hidden = true;
       return;
     }
 
-    this._dropTarget.classList.toggle("drop-target", state == "target");
-    this._dropTarget.classList.toggle("drop-loading", state == "loading");
-    this._dropTarget.classList.toggle("drop-error", state == "error");
-    document.l10n.setAttributes(
-      this._dropTarget.querySelector(".label"),
-      `about-addressbook-photo-drop-${state}`
-    );
+    if (state == "target") {
+      this._preview.removeAttribute("href");
+      this._preview.removeAttribute("width");
+      this._preview.removeAttribute("height");
+      this._banner.hidden = true;
+    } else {
+      this._banner.setAttribute(
+        "variant",
+        state == "loading" ? "info" : "danger"
+      );
+      // about-addressbook-photo-drop-loading.
+      // about-addressbook-photo-drop-error.
+      document.l10n.setAttributes(
+        this._banner.querySelector(`span[slot="title"]`),
+        `about-addressbook-photo-drop-${state}`
+      );
+      this._banner.hidden = false;
+    }
 
     this._dropTarget.hidden = false;
     this._svg.toggleAttribute("hidden", true);
@@ -4253,6 +4275,9 @@ var photoDialog = {
 
   handleEvent(event) {
     switch (event.type) {
+      case "close":
+        this._setState("target");
+        break;
       case "dragover":
         this._onDragOver(event);
         break;
@@ -4386,32 +4411,6 @@ var photoDialog = {
     }
 
     return false;
-  },
-
-  /**
-   * Show a file picker to choose an image.
-   */
-  async _showFilePicker() {
-    const title = await document.l10n.formatValue(
-      "about-addressbook-photo-filepicker-title"
-    );
-
-    const picker = Cc["@mozilla.org/filepicker;1"].createInstance(
-      Ci.nsIFilePicker
-    );
-    picker.init(
-      window.browsingContext.topChromeWindow.browsingContext,
-      title,
-      Ci.nsIFilePicker.modeOpen
-    );
-    picker.appendFilters(Ci.nsIFilePicker.filterImages);
-    const result = await new Promise(resolve => picker.open(resolve));
-
-    if (result != Ci.nsIFilePicker.returnOK) {
-      return;
-    }
-
-    this.showWithFile(await File.createFromNsIFile(picker.file));
   },
 };
 

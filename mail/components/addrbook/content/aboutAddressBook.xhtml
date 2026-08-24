@@ -17,6 +17,7 @@
 
   <link rel="icon" href="chrome://messenger/skin/icons/new/compact/address-book.svg" />
 
+  <link rel="stylesheet" href="chrome://messenger/skin/spacings.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
   <link rel="stylesheet" href="chrome://global/skin/in-content/common.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/containers.css" />
@@ -38,6 +39,7 @@
   <script type="module" src="chrome://messenger/content/search-bar.mjs"></script>
   <script type="module" src="chrome://messenger/content/tree-listbox.mjs"></script>
   <script type="module" src="chrome://messenger/content/tree-view.mjs"></script>
+  <script type="module" src="chrome://messenger/content/tb-banner.mjs"></script>
   <script src="chrome://messenger/content/addressbook/aboutAddressBook.js"></script>
   <script type="module" src="chrome://messenger/content/addressbook/aboutAddressBookCommands.mjs"></script>
 </head>
@@ -295,29 +297,40 @@
     preventing change to another card.
   --></div>
 
-  <dialog id="photoDialog">
-    <div id="photoDialogInner">
-      <!-- FIXME: The dialog is not semantic or accessible.
-         - We use a tabindex and role="alert" as a temporary solution. -->
-      <div id="photoDropTarget" role="alert" tabindex="0">
-        <div class="icon"></div>
-        <div class="label" data-l10n-id="about-addressbook-photo-drop-target"></div>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" width="520" height="520" viewBox="-10 -10 520 520">
-        <image/>
-        <path fill="#000000" fill-opacity="0.5" d="M0 0H500V500H0Z M200 200V300H300V200Z"/>
-        <rect x="0" y="0" width="500" height="500"/>
-        <rect class="corner nw" width="40" height="40"/>
-        <rect class="corner ne" width="40" height="40"/>
-        <rect class="corner se" width="40" height="40"/>
-        <rect class="corner sw" width="40" height="40"/>
-      </svg>
+  <dialog id="photoDialog"
+          data-l10n-id="about-addressbook-photo-dialog-title"
+          role="dialog"
+          aria-modal="true">
+#include ../../../base/content/widgets/tb-banner.inc.xhtml
+    <tb-banner id="photoDialogBanner"
+               variant="info"
+               hidden="hidden"
+               role="alert">
+      <span slot="title"></span>
+    </tb-banner>
+    <div id="photoDropTarget">
+      <div class="icon"></div>
+      <label for="dialogFileInput" data-l10n-id="about-addressbook-photo-drop-target"></label>
+      <input type="file" id="dialogFileInput" accept="image/*" />
     </div>
+    <!-- FIXME: The cropping and resizing feature is not keyboard accessible. -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="520" height="520" viewBox="-10 -10 520 520">
+      <image/>
+      <path fill="#000000" fill-opacity="0.5" d="M0 0H500V500H0Z M200 200V300H300V200Z"/>
+      <rect x="0" y="0" width="500" height="500"/>
+      <rect class="corner nw" width="40" height="40"/>
+      <rect class="corner ne" width="40" height="40"/>
+      <rect class="corner se" width="40" height="40"/>
+      <rect class="corner sw" width="40" height="40"/>
+    </svg>
 
     <menu class="dialog-menu-container">
-      <button class="extra1" data-l10n-id="about-addressbook-photo-discard"></button>
-      <button class="cancel" data-l10n-id="about-addressbook-photo-cancel"></button>
-      <button class="accept primary" data-l10n-id="about-addressbook-photo-save"></button>
+      <button class="button extra1 button-destructive icon-button"
+              data-l10n-id="about-addressbook-photo-discard"></button>
+      <button class="button cancel"
+              data-l10n-id="about-addressbook-photo-cancel"></button>
+      <button class="button accept button-primary"
+              data-l10n-id="about-addressbook-photo-save"></button>
     </menu>
   </dialog>
 

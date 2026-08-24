@@ -104,7 +104,8 @@ function dropFile(target, path) {
 }
 
 function checkDialogElements({
-  dropTargetClass = "",
+  dropTargetVisible = false,
+  bannerVisible = false,
   svgVisible = false,
   saveButtonVisible = false,
   saveButtonDisabled = false,
@@ -114,19 +115,19 @@ function checkDialogElements({
   const dialog = abWindow.document.getElementById("photoDialog");
   const { saveButton, discardButton } = dialog;
   const dropTarget = dialog.querySelector("#photoDropTarget");
+  const banner = dialog.querySelector("#photoDialogBanner");
+
   const svg = dialog.querySelector("svg");
   Assert.equal(
     BrowserTestUtils.isVisible(dropTarget),
-    !!dropTargetClass,
+    dropTargetVisible,
     "drop target visibility"
   );
-  if (dropTargetClass) {
-    Assert.stringContains(
-      dropTarget.className,
-      dropTargetClass,
-      "drop target message"
-    );
-  }
+  Assert.equal(
+    BrowserTestUtils.isVisible(banner),
+    bannerVisible,
+    "banner visibility"
+  );
   Assert.equal(BrowserTestUtils.isVisible(svg), svgVisible, "SVG visibility");
   Assert.equal(
     BrowserTestUtils.isVisible(saveButton),
@@ -251,7 +252,7 @@ async function subtest_add_photo(book) {
   await waitForDialogOpenState(true);
 
   checkDialogElements({
-    dropTargetClass: "drop-target",
+    dropTargetVisible: true,
     saveButtonVisible: true,
     saveButtonDisabled: true,
   });
@@ -345,7 +346,7 @@ async function subtest_dont_add_photo(book) {
   await waitForDialogOpenState(true);
 
   checkDialogElements({
-    dropTargetClass: "drop-target",
+    dropTargetVisible: true,
     saveButtonVisible: true,
     saveButtonDisabled: true,
   });
@@ -406,7 +407,7 @@ async function subtest_dont_add_photo(book) {
   await waitForDialogOpenState(true);
 
   checkDialogElements({
-    dropTargetClass: "drop-target",
+    dropTargetVisible: true,
     saveButtonVisible: true,
     saveButtonDisabled: true,
   });
@@ -512,7 +513,7 @@ async function subtest_paste_url() {
   const cancelEditButton = abDocument.getElementById("cancelEditButton");
   const photoButton = abDocument.getElementById("photoButton");
   const editPhoto = photoButton.querySelector(".contact-photo");
-  const dropTarget = abDocument.getElementById("photoDropTarget");
+  const banner = abDocument.getElementById("photoDialogBanner");
 
   // Start a new contact and focus on the photo button.
 
@@ -569,7 +570,7 @@ async function subtest_paste_url() {
   EventUtils.synthesizeMouseAtCenter(photoButton, {}, abWindow);
   await waitForDialogOpenState(true);
   checkDialogElements({
-    dropTargetClass: "drop-target",
+    dropTargetVisible: true,
     saveButtonVisible: true,
     saveButtonDisabled: true,
   });
@@ -607,7 +608,7 @@ async function subtest_paste_url() {
   EventUtils.synthesizeMouseAtCenter(photoButton, {}, abWindow);
   await waitForDialogOpenState(true);
   checkDialogElements({
-    dropTargetClass: "drop-target",
+    dropTargetVisible: true,
     saveButtonVisible: true,
     saveButtonDisabled: true,
   });
@@ -628,12 +629,14 @@ async function subtest_paste_url() {
   Services.clipboard.setData(transfer3, null, Ci.nsIClipboard.kGlobalClipboard);
   EventUtils.synthesizeKey("v", { accelKey: true }, abWindow);
 
-  await TestUtils.waitForCondition(() =>
-    dropTarget.classList.contains("drop-error")
+  await TestUtils.waitForCondition(
+    () => banner.variant === "danger",
+    "The banner variant should show and error state"
   );
 
   checkDialogElements({
-    dropTargetClass: "drop-error",
+    dropTargetVisible: true,
+    bannerVisible: true,
     saveButtonVisible: true,
     saveButtonDisabled: true,
   });
