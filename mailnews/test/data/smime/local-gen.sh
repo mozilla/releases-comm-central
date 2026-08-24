@@ -40,6 +40,7 @@ cp -rv alice.sig.SHA256.opaque.env.eml "$MILLDIR"
 cp -rv alice.html.sig.SHA256.opaque.eml "$MILLDIR"
 cp -rv alice.html.sig.SHA256.opaque.env.eml "$MILLDIR"
 cp -rv alice.env.eml "$MILLDIR"
+cp -rv alice.remoteimage.env.eml "$MILLDIR"
 
 TMPDIR="./tmp-local"
 mkdir $TMPDIR
@@ -99,6 +100,87 @@ mv $MSG "$MILLDIR/multipart-alternative.eml"
 GOOD_DATE=$(grep ^Date "alice.dsig.SHA256.multipart.eml" | sed 's/^Date: //')
 FUTURE_DATE=$(date --utc --rfc-email --date="${GOOD_DATE} + 6 hours")
 sed "s/^Date: .*$/Date: ${FUTURE_DATE}/" "alice.dsig.SHA256.multipart.eml" > "alice.future.dsig.SHA256.multipart.eml"
+
+# Refresh the hand-crafted files in ../smime-manual (see its readme.txt). Their
+# structure is stable across a data refresh; only the Date header and the inner
+# enveloped payload need to be replaced with the current values from a generated
+# source message. The trailing (intentionally mismatched, and ignored) outer
+# signature block is left untouched.
+#
+# $1: file name in ../smime-manual
+# $2: generated source message (a top-level enveloped message) providing the
+#     fresh Date and enveloped payload.
+update_smime_manual() {
+  manual="../smime-manual/$1"
+  src="$2"
+
+  [ -f "$manual" ] || { echo "update_smime_manual: no such file: $manual" >&2; exit 1; }
+  [ -f "$src" ] || { echo "update_smime_manual: no such source: $src" >&2; exit 1; }
+
+  newdate=$(grep -m1 '^Date:' "$src" | sed 's/^Date: //; s/\r$//')
+  [ -n "$newdate" ] || {
+    echo "update_smime_manual: no Date: header in source $src" >&2; exit 1; }
+
+  # The fresh enveloped payload is the base64 block of the source's first
+  # enveloped-data part (a source may also contain a later signature block,
+  # which must not be picked up).
+  awk '
+    { l = $0; sub(/\r$/, "", l) }
+    state == 0 && l ~ /smime-type=enveloped-data/ { state = 1; next }
+    state == 1 && l == "" { state = 2; next }
+    state == 2 {
+      if (l ~ /^[A-Za-z0-9+\/]+={0,2}$/) { print; next }
+      exit
+    }
+  ' "$src" > "$TMPDIR/payload.b64"
+  [ -s "$TMPDIR/payload.b64" ] || {
+    echo "update_smime_manual: no enveloped-data payload found in source $src" >&2
+    exit 1; }
+
+  # Locate, in the manual file, the blank line ending the enveloped-data part
+  # headers and the last line of its base64 payload. Only the first base64 run
+  # (the enveloped payload) is considered; the later pkcs7-signature block is
+  # left alone.
+  headend=""; payend=""
+  # Don't let a non-match trip set -e here; it is reported explicitly below.
+  read -r headend payend < <(awk '
+    { l = $0; sub(/\r$/, "", l) }
+    state == 0 && l ~ /smime-type=enveloped-data/ { state = 1; next }
+    state == 1 && l == "" { headend = NR; state = 2; next }
+    state == 2 {
+      if (l ~ /^[A-Za-z0-9+\/]+={0,2}$/) { payend = NR; next }
+      print headend, payend; exit
+    }
+  ' "$manual") || true
+
+  valid=1
+  case "$headend" in '' | *[!0-9]*) valid=0 ;; esac
+  case "$payend" in '' | *[!0-9]*) valid=0 ;; esac
+  if [ "$valid" = 0 ] || [ "$payend" -lt "$headend" ]; then
+    echo "update_smime_manual: could not locate an enveloped-data block in $manual (unexpected structure)" >&2
+    exit 1
+  fi
+
+  {
+    sed -n "1,${headend}p" "$manual" | sed "s/^Date: .*/Date: ${newdate}\r/"
+    cat "$TMPDIR/payload.b64"
+    sed -n "$((payend + 1)),\$p" "$manual"
+  } > "$manual.tmp"
+  mv "$manual.tmp" "$manual"
+  echo "updated $manual"
+}
+
+update_smime_manual alice.dsig.SHA256.multipart.env.dsig.eml \
+  alice.dsig.SHA256.multipart.env.eml
+update_smime_manual outer-smime-bad-sig-inner-smime-enc-sig.eml \
+  alice.dsig.SHA256.multipart.env.eml
+update_smime_manual outer-smime-bad-sig-inner-smime-enc.eml \
+  alice.env.eml
+# The encryption layer here must stay decryptable with the current key so the
+# test genuinely exercises the code refusing to decrypt this wrapped layer
+# (a stale, undecryptable blob would pass trivially).
+update_smime_manual alice.env.mixed.dsig.SHA256.multipart.eml \
+  alice.env.dsig.SHA256.multipart.eml
 
 # Wrap the clear-signed message in a multipart/mixed part and append an
 # unsigned footer, like mailing list software does. The signed part is
