@@ -9,7 +9,6 @@ import { CommonUtils } from "resource://services-common/utils.sys.mjs";
 import { CryptoUtils } from "moz-src:///services/crypto/modules/utils.sys.mjs";
 import { LineReader } from "resource:///modules/LineReader.sys.mjs";
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
-import { MailStringUtils } from "resource:///modules/MailStringUtils.sys.mjs";
 import { Pop3Authenticator } from "resource:///modules/MailAuthenticator.sys.mjs";
 
 const lazy = {};
@@ -1020,7 +1019,7 @@ export class Pop3Client {
     // verified.
     this._nextAction = this._actionAuthLoginPass;
     this._logger.debug("Sending username for AUTH LOGIN");
-    await this._send(btoa(this._authenticator.username), true);
+    await this._send(this._authenticator.getLoginUsernameToken(), true);
   };
 
   /**
@@ -1050,21 +1049,12 @@ export class Pop3Client {
     // and is not verified.
     this._nextAction = this._actionAuthResponse;
     this._logger.debug("Sending password for AUTH LOGIN");
-    let password = await this._authenticator.getPassword();
-    if (
-      !Services.prefs.getBoolPref(
-        "mail.smtp_login_pop3_user_pass_auth_is_latin1",
-        true
-      ) ||
-      !/^[\x00-\xFF]+$/.test(password) // eslint-disable-line no-control-regex
-    ) {
-      // Unlike PLAIN auth, the payload of LOGIN auth is not standardized.
-      // When `mail.smtp_login_pop3_user_pass_auth_is_latin1` is true, we
-      // apply base64 encoding directly. Otherwise, we convert it to UTF-8
-      // BinaryString first, to make it work with btoa().
-      password = MailStringUtils.stringToByteString(password);
-    }
-    await this._send(btoa(password), true);
+    await this._send(
+      this._authenticator.getLoginPasswordToken(
+        await this._authenticator.getPassword()
+      ),
+      true
+    );
   };
 
   /**

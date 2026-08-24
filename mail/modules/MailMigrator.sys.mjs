@@ -29,7 +29,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 62;
+    const UI_VERSION = 63;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -504,6 +504,10 @@ export var MailMigrator = {
         }
       }
 
+      if (currentUIVersion < 63) {
+        this._migrateSmtpUsernamesToUtf8();
+      }
+
       // Migration tasks that may take a long time are not run immediately, but
       // added to the MigrationTasks object then run at the end.
       //
@@ -524,6 +528,35 @@ export var MailMigrator = {
           " -- " +
           "Will reattempt on next start."
       );
+    }
+  },
+
+  /**
+   * The SMTP server username pref used to be written as raw bytes, so a
+   * non-ASCII username ended up Latin-1 encoded. It is now written and read as
+   * UTF-8, so rewrite the values which aren't valid UTF-8 already.
+   */
+  _migrateSmtpUsernamesToUtf8() {
+    const keys = Services.prefs
+      .getCharPref("mail.smtpservers", "")
+      .split(",")
+      .filter(Boolean);
+    for (const key of keys) {
+      const prefName = `mail.smtpserver.${key}.username`;
+      // Read the raw bytes, one per code unit.
+      const raw = Services.prefs.getCharPref(prefName, "");
+      if (!raw) {
+        continue;
+      }
+      try {
+        new TextDecoder("utf-8", { fatal: true }).decode(
+          Uint8Array.from(raw, c => c.charCodeAt(0))
+        );
+      } catch (e) {
+        // Not UTF-8, so the bytes are Latin-1. Writing the string back stores
+        // it as UTF-8.
+        Services.prefs.setStringPref(prefName, raw);
+      }
     }
   },
 

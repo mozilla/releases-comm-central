@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { MailStringUtils } from "resource:///modules/MailStringUtils.sys.mjs";
 import { OAuth2 } from "resource:///modules/OAuth2.sys.mjs";
 import { OAuth2CustomDetails } from "resource:///modules/OAuth2CustomDetails.sys.mjs";
 import { OAuth2Providers } from "resource:///modules/OAuth2Providers.sys.mjs";
@@ -480,7 +481,9 @@ OAuth2Module.prototype = {
               // Pre-format the return value for an SASL XOAUTH2 client response
               // if that's what the consumer is expecting.
               retval = btoa(
-                `user=${this._username}\x01auth=Bearer ${retval}\x01\x01`
+                MailStringUtils.stringToByteString(
+                  `user=${this._username}\x01auth=Bearer ${retval}\x01\x01`
+                )
               );
             }
 

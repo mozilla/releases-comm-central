@@ -157,7 +157,7 @@ export class SmtpServer {
   }
 
   get username() {
-    return this._prefs.getCharPref("username", "");
+    return this._prefs.getStringPref("username", "");
   }
 
   set username(value) {
@@ -166,7 +166,7 @@ export class SmtpServer {
       // username.
       this.forgetPassword();
     }
-    this._setCharPref("username", value);
+    this._setStringPref("username", value);
     // Void out the cached URI so that the next access to `this.serverURI`
     // regenerates the nsIURI.
     this._uri = null;
@@ -483,6 +483,20 @@ export class SmtpServer {
   _setCharPref(name, value) {
     if (value) {
       this._prefs.setCharPref(name, value);
+    } else {
+      this._prefs.clearUserPref(name);
+    }
+  }
+
+  /**
+   * Set or clear a UTF-8 encoded string preference.
+   *
+   * @param {string} name - The preference name.
+   * @param {string} value - The preference value.
+   */
+  _setStringPref(name, value) {
+    if (value) {
+      this._prefs.setStringPref(name, value);
     } else {
       this._prefs.clearUserPref(name);
     }

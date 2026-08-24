@@ -102,6 +102,65 @@ add_task(async function testClientIdentityExtension() {
 });
 
 /**
+ * Test that a non-ASCII username and password reach the server UTF-8 encoded.
+ */
+add_task(async function testNonAsciiAuth() {
+  const kUsername = "üser€";
+  const kPassword = "päss€";
+
+  for (const scheme of ["PLAIN", "LOGIN", "CRAM-MD5"]) {
+    const authServer = setupServerDaemon(d => {
+      const handler = new SMTP_RFC2821_handler(d);
+      handler.kUsername = kUsername;
+      handler.kPassword = kPassword;
+      handler.kAuthRequired = true;
+      handler.kAuthSchemes = [scheme];
+      return handler;
+    });
+    authServer.start();
+
+    const smtpServer = getBasicSmtpServer(authServer.port);
+    smtpServer.authMethod =
+      scheme == "CRAM-MD5"
+        ? Ci.nsMsgAuthMethod.passwordEncrypted
+        : Ci.nsMsgAuthMethod.passwordCleartext;
+    smtpServer.username = kUsername;
+    smtpServer.password = kPassword;
+    const identity = getSmtpIdentity("identity@foo.invalid", smtpServer);
+
+    const listener = new PromiseTestUtils.PromiseMsgOutgoingListener();
+    smtpServer.sendMailMessage(
+      do_get_file("data/message1.eml"),
+      MailServices.headerParser.parseEncodedHeaderW("to@foo.invalid"),
+      [],
+      identity,
+      "from@foo.invalid",
+      null,
+      null,
+      false,
+      `<${scheme}@foo.invalid>`,
+      listener
+    );
+
+    await listener.promise;
+
+    // Reaching DATA means the server accepted the credentials it decoded.
+    do_check_transaction(authServer.playTransaction(), [
+      "EHLO test",
+      scheme == "PLAIN"
+        ? `AUTH PLAIN ${AuthPLAIN.encodeLine(kUsername, kPassword)}`
+        : `AUTH ${scheme}`,
+      "MAIL FROM:<from@foo.invalid> BODY=8BITMIME SIZE=159",
+      "RCPT TO:<to@foo.invalid>",
+      "DATA",
+    ]);
+
+    smtpServer.closeCachedConnections();
+    authServer.stop();
+  }
+});
+
+/**
  * Test that when To and Cc/Bcc contain the same address, should send only
  * one RCPT TO per address.
  */

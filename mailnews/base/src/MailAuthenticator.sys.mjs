@@ -35,6 +35,58 @@ class MailAuthenticator {
   }
 
   /**
+   * Get the UTF-8 ByteString form of the username, as needed by the SASL
+   * mechanisms which base64 encode it.
+   *
+   * @returns {string}
+   */
+  getByteStringUsername() {
+    return MailStringUtils.stringToByteString(this.username);
+  }
+
+  /**
+   * Base64 encode a username or password for the LOGIN auth mechanism. Unlike
+   * PLAIN auth, the payload of LOGIN auth is not standardized. When
+   * `mail.smtp_login_pop3_user_pass_auth_is_latin1` is true, a credential which
+   * fits into Latin-1 is encoded as is. Anything else is converted to a UTF-8
+   * ByteString first, which btoa() requires anyway.
+   *
+   * @param {string} credential - The username or password to encode.
+   * @returns {string}
+   */
+  _getLoginToken(credential) {
+    if (
+      Services.prefs.getBoolPref(
+        "mail.smtp_login_pop3_user_pass_auth_is_latin1",
+        true
+      ) &&
+      /^[\x00-\xFF]*$/.test(credential) // eslint-disable-line no-control-regex
+    ) {
+      return btoa(credential);
+    }
+    return btoa(MailStringUtils.stringToByteString(credential));
+  }
+
+  /**
+   * Get the base64 encoded username for the LOGIN auth mechanism.
+   *
+   * @returns {string}
+   */
+  getLoginUsernameToken() {
+    return this._getLoginToken(this.username);
+  }
+
+  /**
+   * Get the base64 encoded password for the LOGIN auth mechanism.
+   *
+   * @param {string} password - The password to encode.
+   * @returns {string}
+   */
+  getLoginPasswordToken(password) {
+    return this._getLoginToken(password);
+  }
+
+  /**
    * Forget cached password.
    */
   forgetPassword() {
@@ -73,7 +125,7 @@ class MailAuthenticator {
     const hex = [...signature]
       .map(x => x.toString(16).padStart(2, "0"))
       .join("");
-    return btoa(`${this.username} ${hex}`);
+    return btoa(`${this.getByteStringUsername()} ${hex}`);
   }
 
   /**
@@ -271,9 +323,11 @@ export class SmtpAuthenticator extends MailAuthenticator {
    * @returns {string}
    */
   getPlainToken() {
-    // According to rfc4616#section-2, password should be UTF-8 BinaryString
-    // before base64 encoded.
-    return btoa("\0" + this.username + "\0" + this.getByteStringPassword());
+    // According to rfc4616#section-2, username and password should be UTF-8
+    // BinaryString before base64 encoded.
+    return btoa(
+      "\0" + this.getByteStringUsername() + "\0" + this.getByteStringPassword()
+    );
   }
 
   getOAuthModule() {
@@ -352,10 +406,13 @@ class IncomingServerAuthenticator extends MailAuthenticator {
    * @returns {string}
    */
   async getPlainToken() {
-    // According to rfc4616#section-2, password should be UTF-8 BinaryString
-    // before base64 encoded.
+    // According to rfc4616#section-2, username and password should be UTF-8
+    // BinaryString before base64 encoded.
     return btoa(
-      "\0" + this.username + "\0" + (await this.getByteStringPassword())
+      "\0" +
+        this.getByteStringUsername() +
+        "\0" +
+        (await this.getByteStringPassword())
     );
   }
 

@@ -1103,7 +1103,7 @@ export class SmtpClient {
     }
     this.logger.debug("AUTH LOGIN USER");
     this._currentAction = this._actionAUTH_LOGIN_PASS;
-    this._sendCommand(btoa(this._authenticator.username), true);
+    this._sendCommand(this._authenticator.getLoginUsernameToken(), true);
   }
 
   /**
@@ -1123,21 +1123,10 @@ export class SmtpClient {
     }
     this.logger.debug("AUTH LOGIN PASS");
     this._currentAction = this._actionAUTHComplete;
-    let password = this._getPassword();
-    if (
-      !Services.prefs.getBoolPref(
-        "mail.smtp_login_pop3_user_pass_auth_is_latin1",
-        true
-      ) ||
-      !/^[\x00-\xFF]+$/.test(password) // eslint-disable-line no-control-regex
-    ) {
-      // Unlike PLAIN auth, the payload of LOGIN auth is not standardized. When
-      // `mail.smtp_login_pop3_user_pass_auth_is_latin1` is true, we apply
-      // base64 encoding directly. Otherwise, we convert it to UTF-8
-      // BinaryString first.
-      password = MailStringUtils.stringToByteString(password);
-    }
-    this._sendCommand(btoa(password), true);
+    this._sendCommand(
+      this._authenticator.getLoginPasswordToken(this._getPassword()),
+      true
+    );
   }
 
   /**

@@ -14,6 +14,35 @@
  */
 
 /**
+ * Base64 decode a credential. RFC 4616 mandates UTF-8, but the LOGIN mechanism
+ * is not standardized and clients may send Latin-1 there, so accept both like a
+ * lenient real world server would.
+ *
+ * @param {string} line - The base64 encoded credential.
+ * @returns {string} The decoded credential.
+ */
+function decodeCredential(line) {
+  const byteString = atob(line);
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(
+      Uint8Array.from(byteString, c => c.charCodeAt(0))
+    );
+  } catch (e) {
+    return byteString;
+  }
+}
+
+/**
+ * UTF-8 encode a credential, so that it can be base64 encoded.
+ *
+ * @param {string} credential - The credential to encode.
+ * @returns {string} The credential as a ByteString.
+ */
+function encodeCredential(credential) {
+  return String.fromCharCode(...new TextEncoder().encode(credential));
+}
+
+/**
  * Implements AUTH PLAIN
  *
  * @see RFC 4616
@@ -30,7 +59,7 @@ export var AuthPLAIN = {
    */
   decodeLine(line) {
     dump("AUTH PLAIN line -" + line + "-\n");
-    line = atob(line); // base64 decode
+    line = decodeCredential(line); // base64 decode
     const aap = line.split("\u0000"); // 0-charater is delimiter
     if (aap.length != 3) {
       throw new Error("Expected three parts");
@@ -64,8 +93,8 @@ export var AuthPLAIN = {
    * Useful for tests.
    */
   encodeLine(username, password) {
-    username = username.substring(0, 255);
-    password = password.substring(0, 255);
+    username = encodeCredential(username.substring(0, 255));
+    password = encodeCredential(password.substring(0, 255));
     return btoa("\u0000" + username + "\u0000" + password); // base64 encode
   },
 };
@@ -81,8 +110,9 @@ export var AuthLOGIN = {
    * @throws {Error} on decoding errors
    */
   decodeLine(line) {
-    dump("AUTH LOGIN -" + atob(line) + "-\n");
-    return atob(line); // base64 decode
+    const credential = decodeCredential(line); // base64 decode
+    dump("AUTH LOGIN -" + credential + "-\n");
+    return credential;
   },
 };
 
@@ -125,7 +155,7 @@ export var AuthCRAM = {
    */
   decodeLine(line) {
     dump("AUTH CRAM-MD5 line -" + line + "-\n");
-    line = atob(line);
+    line = decodeCredential(line);
     dump("base64 decoded -" + line + "-\n");
     var sp = line.split(" ");
     if (sp.length != 2) {
@@ -149,7 +179,8 @@ export var AuthCRAM = {
     const kInnerPad = 0x36; // per spec
     const kOuterPad = 0x5c;
 
-    key = this.textToNumberArray(key);
+    // The password is the HMAC-MD5 secret, and is UTF-8 encoded.
+    key = this.textToNumberArray(encodeCredential(key));
     text = this.textToNumberArray(text);
     // Make sure key is exactly kDigestLen bytes long. Algo per spec.
     if (key.length > kInputLen) {
