@@ -813,12 +813,13 @@ export var Policies = {
 
   DNSOverHTTPS: {
     onBeforeAddons(manager, param) {
-      let locked = false;
-      if ("Locked" in param) {
-        locked = param.Locked;
-      }
+      const locked = "Locked" in param ? param.Locked : false;
       if ("Enabled" in param) {
-        const mode = param.Enabled ? 2 : 5;
+        let mode = param.Enabled ? 2 : 5;
+        // Fallback only matters if DOH is enabled.
+        if (param.Fallback === false) {
+          mode = 3;
+        }
         lazy.PoliciesUtils.setDefaultPref("network.trr.mode", mode, locked);
       }
       if ("ProviderURL" in param) {
