@@ -307,6 +307,15 @@ NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsACString& aName,
   rv = CreateDirectoryForFolder(getter_AddRefs(path));
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // The folder URI only contains the online names of its ancestors. Those
+  // names do not necessarily match their on-disk names, which may have a
+  // numeric suffix to avoid a collision. Derive the child's path from the
+  // parent's actual path instead of letting it be reconstructed from the URI.
+  rv = path->Append(NS_MsgHashIfNecessary(aName));
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = folder->SetFilePath(path);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   folder->GetFlags((uint32_t*)&flags);
 
   flags |= nsMsgFolderFlags::Mail;
