@@ -85,8 +85,15 @@ const smimeSink = {
     this.resultSigFirst = undefined;
     return this._deferred.promise;
   },
-  signedStatus(aNestingLevel, aSignedStatus, aSignerCert) {
-    console.log("signedStatus " + aSignedStatus + " level " + aNestingLevel);
+  signedStatus(aNestingLevel, aSignedStatus, aReason, aSignerCert) {
+    console.log(
+      "signedStatus " +
+        aSignedStatus +
+        " reason" +
+        aReason?.enumString +
+        " level " +
+        aNestingLevel
+    );
     // dump("Signed message\n");
     Assert.equal(aNestingLevel, 1);
     if (!this.haveSignedBad) {

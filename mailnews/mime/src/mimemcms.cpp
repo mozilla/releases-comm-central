@@ -206,7 +206,7 @@ static MimeClosure MimeMultCMS_init(MimeObject* obj) {
       partnum.Adopt(mime_part_address(data->self));
       data->smimeSink->SignedStatus(aRelativeNestLevel,
                                     nsICMSMessageErrors::GENERAL_ERROR, nullptr,
-                                    data->url, partnum, ""_ns, ""_ns);
+                                    nullptr, data->url, partnum, ""_ns, ""_ns);
     }
     return MimeClosure(MimeClosure::isMimeMultCMSData, data);
   }
@@ -255,7 +255,7 @@ static MimeClosure MimeMultCMS_init(MimeObject* obj) {
       partnum.Adopt(mime_part_address(data->self));
       data->smimeSink->SignedStatus(aRelativeNestLevel,
                                     nsICMSMessageErrors::GENERAL_ERROR, nullptr,
-                                    data->url, partnum, ""_ns, ""_ns);
+                                    nullptr, data->url, partnum, ""_ns, ""_ns);
     }
     PR_Free(micalg);
     return MimeClosure(MimeClosure::isMimeMultCMSData, data);
@@ -494,7 +494,7 @@ static void MimeMultCMS_suppressed_child(MimeClosure crypto_closure) {
     partnum.Adopt(mime_part_address(data->self));
     data->smimeSink->SignedStatus(MIMEGetRelativeCryptoNestLevel(data->self),
                                   nsICMSMessageErrors::GENERAL_ERROR, nullptr,
-                                  data->url, partnum, ""_ns, ""_ns);
+                                  nullptr, data->url, partnum, ""_ns, ""_ns);
   }
 }
 
@@ -527,7 +527,7 @@ static char* MimeMultCMS_generate(MimeClosure crypto_closure) {
     if (data->smimeSink && !data->ignoredLayer) {
       data->smimeSink->SignedStatus(
           aRelativeNestLevel, nsICMSMessageErrors::VERIFY_NOT_YET_ATTEMPTED,
-          nullptr, data->url, partnum, ""_ns, ""_ns);
+          nullptr, nullptr, data->url, partnum, ""_ns, ""_ns);
     }
     return nullptr;
   }

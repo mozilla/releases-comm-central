@@ -10,6 +10,7 @@ const { getCertViewerUrl } = ChromeUtils.importESModule(
 
 var gEncryptionStatus = -1;
 var gSignatureStatus = -1;
+var gSignatureFailureReason = null;
 var gSignerCert = null;
 var gEncryptionCert = null;
 var gSignatureAlgorithm = "";
@@ -91,13 +92,10 @@ function smimeSignatureStatusInfo(status) {
         sigClass: "unknown",
       };
     case Ci.nsICMSMessageErrors.VERIFY_UNTRUSTED:
-      // XXX Need to extend to communicate better errors
-      // might also be:
-      // SIExpired SIRevoked SINotYetValid SIUnknownCA SIExpiredCA SIRevokedCA SINotYetValidCA
       return {
         sigInfoLabel: "SIInvalidLabel",
         sigInfoHeader: "SIInvalidHeader",
-        sigInfo: "SIUntrustedCA",
+        sigInfo: mapSignatureFailureReason(gSignatureFailureReason),
         sigClass: "notok",
       };
     case Ci.nsICMSMessageErrors.VERIFY_NOT_YET_ATTEMPTED:
@@ -326,5 +324,40 @@ function viewEncryptionCert(popupToHide) {
 
   if (gEncryptionCert) {
     viewCert(gEncryptionCert);
+  }
+}
+
+/**
+ * Map a signature verification failure reason to the appropriate
+ * error message string name.
+ *
+ * @param {nsISMimeVerificationFailure} reason
+ *
+ * @returns {string}
+ */
+function mapSignatureFailureReason(reason) {
+  if (!reason) {
+    return "SIClueless";
+  }
+
+  switch (reason.enumString) {
+    case "Result::ERROR_EXPIRED_CERTIFICATE":
+      return "SIExpired";
+    case "Result::ERROR_REVOKED_CERTIFICATE":
+      return "SIRevoked";
+    case "Result::ERROR_NOT_YET_VALID_CERTIFICATE":
+      return "SINotYetValid";
+    case "Result::ERROR_UNKNOWN_ISSUER":
+      return "SIUnknownCA";
+    case "Result::ERROR_EXPIRED_ISSUER_CERTIFICATE":
+      return "SIExpiredCA";
+    case "Result::ERROR_ISSUER_NO_LONGER_TRUSTED":
+      return "SIRevokedCA";
+    case "Result::ERROR_NOT_YET_VALID_ISSUER_CERTIFICATE":
+      return "SINotYetValidCA";
+    case "Result::ERROR_UNTRUSTED_ISSUER":
+      return "SIUntrustedCA";
+    default:
+      return "SIClueless";
   }
 }

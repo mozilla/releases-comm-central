@@ -275,6 +275,7 @@ var smimeSink = {
   /**
    * @param {integer} aNestingLevel - Nesting level.
    * @param {integer} aSignatureStatus - Signature status.
+   * @param {nsISMimeVerificationFailure} aReason - Verification failure reason.
    * @param {nsIX509Cert} aSignerCert - Certificate of signer.
    * @param {string} aMsgNeckoURL - URL processed.
    * @param {string} aOriginMimePartNumber - The MIME part that triggered this
@@ -285,6 +286,7 @@ var smimeSink = {
   signedStatus(
     aNestingLevel,
     aSignatureStatus,
+    aReason,
     aSignerCert,
     aMsgNeckoURL,
     aOriginMimePartNumber,
@@ -320,6 +322,7 @@ var smimeSink = {
       gSignatureStatusForURI = aMsgNeckoURL;
 
       gSignatureStatus = aSignatureStatus;
+      gSignatureFailureReason = aReason;
       gSignerCert = aSignerCert;
       gSignatureAlgorithm = aSignatureAlgorithm || "";
       gDigestAlgorithm = aDigestAlgorithm || "";

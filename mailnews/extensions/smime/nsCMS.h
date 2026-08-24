@@ -5,6 +5,7 @@
 #ifndef COMM_MAILNEWS_EXTENSIONS_SMIME_NSCMS_H_
 #define COMM_MAILNEWS_EXTENSIONS_SMIME_NSCMS_H_
 
+#include "mozpkix/Result.h"
 #include "nsISupports.h"
 #include "nsCOMPtr.h"
 #include "nsIInterfaceRequestor.h"
@@ -27,15 +28,21 @@ class nsCMSMessage : public nsICMSMessage {
   void referenceContext(nsIInterfaceRequestor* aContext) { m_ctx = aContext; }
   NSSCMSMessage* getCMS() { return m_cmsMsg; }
 
+  struct SignatureVerificationResult {
+    nsresult rv;
+    std::optional<mozilla::pkix::Result> reason;
+  };
+
  private:
   virtual ~nsCMSMessage();
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
   NSSCMSMessage* m_cmsMsg;
   NSSCMSSignerInfo* GetTopLevelSignerInfo();
   NSSCMSContentInfo* GetEncryptionContentInfo();
-  nsresult CommonVerifySignature(int32_t verifyFlags,
-                                 const nsTArray<uint8_t>& aDigestData,
-                                 int16_t aDigestType);
+
+  SignatureVerificationResult CommonVerifySignature(
+      int32_t verifyFlags, const nsTArray<uint8_t>& aDigestData,
+      int16_t aDigestType);
 
   nsresult CommonAsyncVerifySignature(int32_t verifyFlags,
                                       nsISMimeVerificationListener* aListener,
@@ -98,6 +105,25 @@ class nsCMSEncoder : public nsICMSEncoder {
   virtual ~nsCMSEncoder();
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
   NSSCMSEncoderContext* m_ecx;
+};
+
+/**
+ * Reason for S/MIME verification failure.
+ */
+class nsSMimeVerificationFailure : public nsISMimeVerificationFailure {
+ public:
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_NSISMIMEVERIFICATIONFAILURE
+
+  /**
+   * Construct from the given `mozilla::pkix::Result`.
+   */
+  explicit nsSMimeVerificationFailure(mozilla::pkix::Result result);
+
+ private:
+  virtual ~nsSMimeVerificationFailure();
+
+  mozilla::pkix::Result mResult;
 };
 
 #endif  // COMM_MAILNEWS_EXTENSIONS_SMIME_NSCMS_H_

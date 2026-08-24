@@ -119,10 +119,19 @@ const smimeSink = {
     Assert.ok(!!messageNumber);
     return messageNumber;
   },
-  signedStatus(aNestingLevel, aSignedStatus, aSignerCert, url, mimePart) {
+  signedStatus(
+    aNestingLevel,
+    aSignedStatus,
+    aReason,
+    aSignerCert,
+    url,
+    mimePart
+  ) {
     console.log(
       "signedStatus " +
         aSignedStatus +
+        "reason" +
+        aReason?.enumString +
         " level " +
         aNestingLevel +
         " mimePart: " +

@@ -47,8 +47,15 @@ nsresult nsCMSMessage::Init() {
   return EnsureNSSInitializedChromeOrContent() ? NS_OK : NS_ERROR_NOT_AVAILABLE;
 }
 
-NS_IMETHODIMP nsCMSMessage::VerifySignature(int32_t verifyFlags) {
-  return CommonVerifySignature(verifyFlags, {}, 0);
+NS_IMETHODIMP nsCMSMessage::VerifySignature(
+    int32_t verifyFlags, nsISMimeVerificationFailure** reason) {
+  const auto result = CommonVerifySignature(verifyFlags, {}, 0);
+  if (result.reason) {
+    auto failureReason =
+        RefPtr(new nsSMimeVerificationFailure{result.reason.value()});
+    failureReason.forget(reason);
+  }
+  return result.rv;
 }
 
 NSSCMSSignerInfo* nsCMSMessage::GetTopLevelSignerInfo() {
@@ -449,10 +456,18 @@ NS_IMETHODIMP nsCMSMessage::GetSigningTime(PRTime* aTime) {
 NS_IMETHODIMP
 nsCMSMessage::VerifyDetachedSignature(int32_t verifyFlags,
                                       const nsTArray<uint8_t>& aDigestData,
-                                      int16_t aDigestType) {
+                                      int16_t aDigestType,
+                                      nsISMimeVerificationFailure** aReason) {
   if (aDigestData.IsEmpty()) return NS_ERROR_FAILURE;
 
-  return CommonVerifySignature(verifyFlags, aDigestData, aDigestType);
+  const auto result =
+      CommonVerifySignature(verifyFlags, aDigestData, aDigestType);
+  if (result.reason) {
+    auto failureReason =
+        RefPtr(new nsSMimeVerificationFailure{result.reason.value()});
+    failureReason.forget(aReason);
+  }
+  return result.rv;
 }
 
 // This is an exact copy of NSS_CMSArray_Count from NSS' cmsarray.c,
@@ -515,15 +530,24 @@ static SECStatus myNSS_CMSSignedData_AddTempCertificate(NSSCMSSignedData* sigd,
   return rv;
 }
 
-typedef SECStatus (*extraVerificationOnCertFn)(CERTCertificate* cert,
-                                               SECCertUsage certusage);
+struct SecVerificationResult {
+  SECStatus result;
+  std::optional<mozilla::pkix::Result> reason;
 
-static SECStatus myExtraVerificationOnCert(CERTCertificate* cert,
-                                           SECCertUsage certusage) {
+  static SecVerificationResult SecStatusOnly(SECStatus rv) {
+    return SecVerificationResult{rv, std::nullopt};
+  }
+};
+
+typedef SecVerificationResult (*extraVerificationOnCertFn)(
+    CERTCertificate* cert, SECCertUsage certusage);
+
+static SecVerificationResult myExtraVerificationOnCert(CERTCertificate* cert,
+                                                       SECCertUsage certusage) {
   RefPtr<SharedCertVerifier> certVerifier;
   certVerifier = GetDefaultCertVerifier();
   if (!certVerifier) {
-    return SECFailure;
+    return {SECFailure, std::nullopt};
   }
 
   mozilla::psm::VerifyUsage usageForPkix;
@@ -536,7 +560,7 @@ static SECStatus myExtraVerificationOnCert(CERTCertificate* cert,
       usageForPkix = mozilla::psm::VerifyUsage::EmailRecipient;
       break;
     default:
-      return SECFailure;
+      return {SECFailure, std::nullopt};
   }
 
   nsTArray<uint8_t> certBytes(cert->derCert.data, cert->derCert.len);
@@ -550,10 +574,20 @@ static SECStatus myExtraVerificationOnCert(CERTCertificate* cert,
       certBytes, usageForPkix, Now(), nullptr /*XXX pinarg*/,
       nullptr /*hostname*/, builtChain);
   if (result != mozilla::pkix::Success) {
-    return SECFailure;
+    return {SECFailure, result};
   }
 
-  return SECSuccess;
+  return {SECSuccess, std::nullopt};
+}
+
+static void fillSignerInfoCerts(NSSCMSSignedData* sigd,
+                                CERTCertDBHandle* certdb) {
+  if (sigd->signerInfos != nullptr) {
+    /* fill in all signerinfo's certs */
+    for (int i = 0; sigd->signerInfos[i] != nullptr; i++)
+      (void)NSS_CMSSignerInfo_GetSigningCertificate(sigd->signerInfos[i],
+                                                    certdb);
+  }
 }
 
 // This is a temporary copy of NSS_CMSSignedData_ImportCerts, which
@@ -566,7 +600,7 @@ static SECStatus myExtraVerificationOnCert(CERTCertificate* cert,
 // NSS should add this or a similar API in the future,
 // and then these temporary functions should be removed, including
 // the ones above. Request is tracked in bugzilla 1738592.
-static SECStatus myNSS_CMSSignedData_ImportCerts(
+static SecVerificationResult myNSS_CMSSignedData_ImportCerts(
     NSSCMSSignedData* sigd, CERTCertDBHandle* certdb, SECCertUsage certusage,
     PRBool keepcerts, extraVerificationOnCertFn extraVerifyFn) {
   int certcount;
@@ -578,9 +612,20 @@ static SECStatus myNSS_CMSSignedData_ImportCerts(
   int i;
   PRTime now;
 
+  const auto freeResourcesOnExit =
+      mozilla::MakeScopeExit([&certArray, &certcount, &certList]() {
+        /* now free everything */
+        if (certArray) {
+          CERT_DestroyCertArray(certArray, certcount);
+        }
+        if (certList) {
+          CERT_DestroyCertList(certList);
+        }
+      });
+
   if (!sigd) {
     PORT_SetError(SEC_ERROR_INVALID_ARGS);
-    return SECFailure;
+    return SecVerificationResult::SecStatusOnly(SECFailure);
   }
 
   certcount = myNSS_CMSArray_Count((void**)sigd->rawCerts);
@@ -589,7 +634,7 @@ static SECStatus myNSS_CMSSignedData_ImportCerts(
   rv = CERT_ImportCerts(certdb, certusage, certcount, sigd->rawCerts,
                         &certArray, PR_FALSE, PR_FALSE, NULL);
   if (rv != SECSuccess) {
-    goto loser;
+    return SecVerificationResult::SecStatusOnly(rv);
   }
 
   /* save the certs so they don't get destroyed */
@@ -599,14 +644,15 @@ static SECStatus myNSS_CMSSignedData_ImportCerts(
   }
 
   if (!keepcerts) {
-    goto done;
+    fillSignerInfoCerts(sigd, certdb);
+    return SecVerificationResult::SecStatusOnly(rv);
   }
 
   /* build a CertList for filtering */
   certList = CERT_NewCertList();
   if (certList == NULL) {
     rv = SECFailure;
-    goto loser;
+    return SecVerificationResult::SecStatusOnly(rv);
   }
   for (i = 0; i < certcount; i++) {
     CERTCertificate* cert = certArray[i];
@@ -617,7 +663,7 @@ static SECStatus myNSS_CMSSignedData_ImportCerts(
   /* filter out the certs we don't want */
   rv = CERT_FilterCertListByUsage(certList, certusage, PR_FALSE);
   if (rv != SECSuccess) {
-    goto loser;
+    return SecVerificationResult::SecStatusOnly(rv);
   }
 
   /* go down the remaining list of certs and verify that they have
@@ -633,7 +679,8 @@ static SECStatus myNSS_CMSSignedData_ImportCerts(
     }
 
     if (extraVerifyFn) {
-      if ((*extraVerifyFn)(node->cert, certusage) != SECSuccess) {
+      const auto extraResult = (*extraVerifyFn)(node->cert, certusage);
+      if (extraResult.result != SECSuccess) {
         continue;
       }
     }
@@ -671,27 +718,12 @@ static SECStatus myNSS_CMSSignedData_ImportCerts(
 
   /* XXX CRL handling */
 
-done:
-  if (sigd->signerInfos != NULL) {
-    /* fill in all signerinfo's certs */
-    for (i = 0; sigd->signerInfos[i] != NULL; i++)
-      (void)NSS_CMSSignerInfo_GetSigningCertificate(sigd->signerInfos[i],
-                                                    certdb);
-  }
+  fillSignerInfoCerts(sigd, certdb);
 
-loser:
-  /* now free everything */
-  if (certArray) {
-    CERT_DestroyCertArray(certArray, certcount);
-  }
-  if (certList) {
-    CERT_DestroyCertList(certList);
-  }
-
-  return rv;
+  return SecVerificationResult::SecStatusOnly(rv);
 }
 
-nsresult nsCMSMessage::CommonVerifySignature(
+nsCMSMessage::SignatureVerificationResult nsCMSMessage::CommonVerifySignature(
     int32_t verifyFlags, const nsTArray<uint8_t>& aDigestData,
     int16_t aDigestType) {
   MOZ_LOG(gCMSLog, LogLevel::Debug,
@@ -707,7 +739,7 @@ nsresult nsCMSMessage::CommonVerifySignature(
   if (!NSS_CMSMessage_IsSigned(m_cmsMsg)) {
     MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CommonVerifySignature - not signed"));
-    return NS_ERROR_CMS_VERIFY_NOT_SIGNED;
+    return {NS_ERROR_CMS_VERIFY_NOT_SIGNED, {}};
   }
 
   cinfo = NSS_CMSMessage_ContentLevel(m_cmsMsg, 0);
@@ -726,7 +758,7 @@ nsresult nsCMSMessage::CommonVerifySignature(
                 ("nsCMSMessage::CommonVerifySignature - unexpected "
                  "ContentTypeTag"));
         rv = NS_ERROR_CMS_VERIFY_NO_CONTENT_INFO;
-        goto loser;
+        return {rv, {}};
       }
     }
   }
@@ -735,7 +767,7 @@ nsresult nsCMSMessage::CommonVerifySignature(
     MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CommonVerifySignature - no content info"));
     rv = NS_ERROR_CMS_VERIFY_NO_CONTENT_INFO;
-    goto loser;
+    return {rv, {}};
   }
 
   if (!aDigestData.IsEmpty()) {
@@ -762,43 +794,52 @@ nsresult nsCMSMessage::CommonVerifySignature(
         HASH_GetHashOidTagByHashType(static_cast<HASH_HashType>(aDigestType));
     if (oidTag == SEC_OID_UNKNOWN) {
       rv = NS_ERROR_CMS_VERIFY_BAD_DIGEST;
-      goto loser;
+      return {rv, {}};
     }
 
     if (NSS_CMSSignedData_SetDigestValue(sigd, oidTag, &digest)) {
       MOZ_LOG(gCMSLog, LogLevel::Debug,
               ("nsCMSMessage::CommonVerifySignature - bad digest"));
       rv = NS_ERROR_CMS_VERIFY_BAD_DIGEST;
-      goto loser;
+      return {rv, {}};
     }
   }
 
   // Import certs. Note that import failure is not a signature verification
   // failure. //
-  if (myNSS_CMSSignedData_ImportCerts(
-          sigd, CERT_GetDefaultCertDB(), certUsageEmailRecipient, true,
-          myExtraVerificationOnCert) != SECSuccess) {
+  if (myNSS_CMSSignedData_ImportCerts(sigd, CERT_GetDefaultCertDB(),
+                                      certUsageEmailRecipient, true,
+                                      myExtraVerificationOnCert)
+          .result != SECSuccess) {
     MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CommonVerifySignature - can not import certs"));
   }
 
   nsigners = NSS_CMSSignedData_SignerInfoCount(sigd);
   PR_ASSERT(nsigners > 0);
-  NS_ENSURE_TRUE(nsigners > 0, NS_ERROR_UNEXPECTED);
+  if (nsigners <= 0) {
+    return {NS_ERROR_UNEXPECTED, {}};
+  }
   si = NSS_CMSSignedData_GetSignerInfo(sigd, 0);
 
-  NS_ENSURE_TRUE(si, NS_ERROR_UNEXPECTED);
-  NS_ENSURE_TRUE(si->cert, NS_ERROR_UNEXPECTED);
+  if (!si) {
+    return {NS_ERROR_UNEXPECTED, {}};
+  }
+
+  if (!si->cert) {
+    return {NS_ERROR_UNEXPECTED, {}};
+  }
 
   // See bug 324474. We want to make sure the signing cert is
   // still valid at the current time.
 
-  if (myExtraVerificationOnCert(si->cert, certUsageEmailSigner) != SECSuccess) {
+  if (const auto extraVerificationResult =
+          myExtraVerificationOnCert(si->cert, certUsageEmailSigner);
+      extraVerificationResult.result != SECSuccess) {
     MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CommonVerifySignature - signing cert not trusted "
              "now"));
-    rv = NS_ERROR_CMS_VERIFY_UNTRUSTED;
-    goto loser;
+    return {NS_ERROR_CMS_VERIFY_UNTRUSTED, extraVerificationResult.reason};
   }
 
   sigAlgTag = NSS_CMSSignerInfo_GetDigestAlgTag(si);
@@ -821,7 +862,7 @@ nsresult nsCMSMessage::CommonVerifySignature(
           gCMSLog, LogLevel::Debug,
           ("nsCMSMessage::CommonVerifySignature - unsupported digest algo"));
       rv = NS_ERROR_CMS_VERIFY_UNSUPPORTED_ALGO;
-      goto loser;
+      return {rv, {}};
   };
 
   // We verify the first signer info,  only //
@@ -876,7 +917,7 @@ nsresult nsCMSMessage::CommonVerifySignature(
       rv = NS_ERROR_CMS_VERIFY_MALFORMED_SIGNATURE;
     }
 
-    goto loser;
+    return {rv, {}};
   }
 
   // Save the profile. Note that save import failure is not a signature
@@ -888,8 +929,7 @@ nsresult nsCMSMessage::CommonVerifySignature(
   }
 
   rv = NS_OK;
-loser:
-  return rv;
+  return {rv, {}};
 }
 
 NS_IMETHODIMP nsCMSMessage::AsyncVerifySignature(
@@ -930,17 +970,17 @@ class SMimeVerificationTask final : public CryptoTask {
     mozilla::StaticMutexAutoLock lock(sMutex);
     nsresult rv;
     if (mDigestData.IsEmpty()) {
-      rv = mMessage->VerifySignature(mVerifyFlags);
+      rv = mMessage->VerifySignature(mVerifyFlags, getter_AddRefs(mReason));
     } else {
-      rv = mMessage->VerifyDetachedSignature(mVerifyFlags, mDigestData,
-                                             mDigestType);
+      rv = mMessage->VerifyDetachedSignature(
+          mVerifyFlags, mDigestData, mDigestType, getter_AddRefs(mReason));
     }
 
     return rv;
   }
   virtual void CallCallback(nsresult rv) override {
     MOZ_ASSERT(NS_IsMainThread());
-    mListener->Notify(mMessage, rv);
+    mListener->Notify(mMessage, rv, mReason);
   }
 
   nsCOMPtr<nsICMSMessage> mMessage;
@@ -948,6 +988,7 @@ class SMimeVerificationTask final : public CryptoTask {
   nsTArray<uint8_t> mDigestData;
   int16_t mDigestType;
   int32_t mVerifyFlags;
+  nsCOMPtr<nsISMimeVerificationFailure> mReason;
 
   static mozilla::StaticMutex sMutex;
 };
@@ -1456,4 +1497,22 @@ NS_IMETHODIMP nsCMSEncoder::Finish() {
 NS_IMETHODIMP nsCMSEncoder::Encode(nsICMSMessage* aMsg) {
   MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSEncoder::Encode"));
   return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMPL_ISUPPORTS(nsSMimeVerificationFailure, nsISMimeVerificationFailure)
+
+nsSMimeVerificationFailure::nsSMimeVerificationFailure(
+    mozilla::pkix::Result result)
+    : mResult(std::move(result)) {}
+
+nsSMimeVerificationFailure::~nsSMimeVerificationFailure() = default;
+
+NS_IMETHODIMP nsSMimeVerificationFailure::GetEnumValue(int32_t* value) {
+  *value = static_cast<int32_t>(mResult);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsSMimeVerificationFailure::GetEnumString(nsACString& value) {
+  value.Assign(MapResultToName(mResult));
+  return NS_OK;
 }

@@ -4,6 +4,7 @@
 
 #include "nsISupports.idl"
 
+interface nsISMimeVerificationFailure;
 interface nsIX509Cert;
 
 /** @see nsIMsgOpenPGPSink */
@@ -25,6 +26,7 @@ interface nsIMsgSMIMESink : nsISupports {
 
   void signedStatus(in long nestingLevel,
                     in long signatureStatus,
+                    in nsISMimeVerificationFailure reason,
                     in nsIX509Cert signerCert,
                     in AUTF8String msgNeckoURL,
                     in AUTF8String originMimePartNumber,

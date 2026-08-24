@@ -4,6 +4,7 @@
 
 #include "nsISupports.idl"
 
+interface nsISMimeVerificationFailure;
 interface nsISMimeVerificationListener;
 
 %{ C++
@@ -40,16 +41,27 @@ interface nsICMSMessage : nsISupports
   readonly attribute AUTF8String keyEncAlgorithmName;
 
   /**
+   * Verify an S/MIME signature.
+   *
    * @param verifyFlags - Optional flags from nsICMSVerifyFlags.
+   *
+   * @returns The reason for failure verification, if verification failed.
    */
-  void verifySignature(in long verifyFlags);
+  nsISMimeVerificationFailure verifySignature(in long verifyFlags);
 
   /**
+   * Verify a detached S/MIME signature.
+   *
    * @param verifyFlags - Optional flags from nsICMSVerifyFlags.
+   * @param aDigestData - The data for the signature digest.
+   * @param aDigestType - The digest algorithm type.
+   *
+   * @returns The reason for failure verification, if verification failed.
    */
-  void verifyDetachedSignature(in long verifyFlags,
-                               in Array<octet> aDigestData,
-                               in int16_t aDigestType);
+  nsISMimeVerificationFailure verifyDetachedSignature(
+    in long verifyFlags,
+    in Array<octet> aDigestData,
+    in int16_t aDigestType);
   void createEncrypted(in Array<nsIX509Cert> aRecipientCerts);
 
   /** The parameter aDigestType must be one of the values in nsICryptoHash */
@@ -90,5 +102,19 @@ interface nsISMimeVerificationListener : nsISupports {
    * nsICMSMessage::verify[Detached]Signature
    */
   void notify(in nsICMSMessage verifiedMessage,
-              in nsresult verificationResultCode);
+              in nsresult verificationResultCode,
+              in nsISMimeVerificationFailure reason);
+};
+
+/**
+ * An interface to hold S/MIME signature verification reason
+ * failures. The underlying values correspond to `mozilla::pkix::Result`
+ * values indicating signature verification failure reasons.
+ */
+[scriptable, uuid(bc4a5aa7-2b1b-474f-82a3-00288f12070f)]
+interface nsISMimeVerificationFailure : nsISupports {
+  /** The `mozilla::pkix::Result` enumeration value. */
+  readonly attribute int32_t enumValue;
+  /** String representing the enum value. Of the form `Result::<ENUM_VALUE>`. */
+  readonly attribute ACString enumString;
 };

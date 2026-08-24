@@ -293,7 +293,8 @@ class SignedStatusRunnable : public mozilla::Runnable {
  public:
   SignedStatusRunnable(const nsMainThreadPtrHandle<nsIMsgSMIMESink>& aSink,
                        int32_t aNestingLevel, int32_t aSignatureStatus,
-                       nsIX509Cert* aSignerCert, const nsCString& aMsgNeckoURL,
+                       const nsCOMPtr<nsISMimeVerificationFailure>& aReason, nsIX509Cert* aSignerCert,
+                       const nsCString& aMsgNeckoURL,
                        const nsCString& aOriginMimePartNumber,
                        const nsCString& aSignatureAlgorithm,
                        const nsCString& aDigestAlgorithm);
@@ -304,6 +305,7 @@ class SignedStatusRunnable : public mozilla::Runnable {
   nsMainThreadPtrHandle<nsIMsgSMIMESink> m_sink;
   int32_t m_nestingLevel;
   int32_t m_signatureStatus;
+  nsCOMPtr<nsISMimeVerificationFailure> m_reason;
   nsCOMPtr<nsIX509Cert> m_signerCert;
   nsCString m_msgNeckoURL;
   nsCString m_originMimePartNumber;
@@ -313,7 +315,7 @@ class SignedStatusRunnable : public mozilla::Runnable {
 
 SignedStatusRunnable::SignedStatusRunnable(
     const nsMainThreadPtrHandle<nsIMsgSMIMESink>& aSink, int32_t aNestingLevel,
-    int32_t aSignatureStatus, nsIX509Cert* aSignerCert,
+    int32_t aSignatureStatus, const nsCOMPtr<nsISMimeVerificationFailure>& aNssReason, nsIX509Cert* aSignerCert,
     const nsCString& aMsgNeckoURL, const nsCString& aOriginMimePartNumber,
     const nsCString& aSignatureAlgorithm, const nsCString& aDigestAlgorithm)
     : mozilla::Runnable("SignedStatusRunnable"),
@@ -321,6 +323,7 @@ SignedStatusRunnable::SignedStatusRunnable(
       m_sink(aSink),
       m_nestingLevel(aNestingLevel),
       m_signatureStatus(aSignatureStatus),
+      m_reason(aNssReason),
       m_signerCert(aSignerCert),
       m_msgNeckoURL(aMsgNeckoURL),
       m_originMimePartNumber(aOriginMimePartNumber),
@@ -329,21 +332,22 @@ SignedStatusRunnable::SignedStatusRunnable(
 
 NS_IMETHODIMP SignedStatusRunnable::Run() {
   mResult = m_sink->SignedStatus(
-      m_nestingLevel, m_signatureStatus, m_signerCert, m_msgNeckoURL,
+      m_nestingLevel, m_signatureStatus, m_reason, m_signerCert, m_msgNeckoURL,
       m_originMimePartNumber, m_signatureAlgorithm, m_digestAlgorithm);
   return NS_OK;
 }
 
 nsresult ProxySignedStatus(const nsMainThreadPtrHandle<nsIMsgSMIMESink>& aSink,
                            int32_t aNestingLevel, int32_t aSignatureStatus,
-                           nsIX509Cert* aSignerCert,
+                           const nsCOMPtr<nsISMimeVerificationFailure> aReason, nsIX509Cert* aSignerCert,
                            const nsCString& aMsgNeckoURL,
                            const nsCString& aOriginMimePartNumber,
                            const nsCString& aSignatureAlgorithm,
                            const nsCString& aDigestAlgorithm) {
-  RefPtr<SignedStatusRunnable> signedStatus = new SignedStatusRunnable(
-      aSink, aNestingLevel, aSignatureStatus, aSignerCert, aMsgNeckoURL,
-      aOriginMimePartNumber, aSignatureAlgorithm, aDigestAlgorithm);
+  RefPtr<SignedStatusRunnable> signedStatus =
+      new SignedStatusRunnable(aSink, aNestingLevel, aSignatureStatus, aReason,
+                               aSignerCert, aMsgNeckoURL, aOriginMimePartNumber,
+                               aSignatureAlgorithm, aDigestAlgorithm);
   nsresult rv = NS_DispatchAndSpinEventLoopUntilComplete(
       "ProxySignedStatus"_ns, mozilla::GetMainThreadSerialEventTarget(),
       do_AddRef(signedStatus));
@@ -372,7 +376,8 @@ nsSMimeVerificationListener::nsSMimeVerificationListener(
 }
 
 NS_IMETHODIMP nsSMimeVerificationListener::Notify(
-    nsICMSMessage* aVerifiedMessage, nsresult aVerificationResultCode) {
+    nsICMSMessage* aVerifiedMessage, nsresult aVerificationResultCode,
+    nsISMimeVerificationFailure* aReason) {
   // Only continue if we have a valid pointer to the UI
   NS_ENSURE_FALSE(mSinkIsNull, NS_OK);
 
@@ -436,11 +441,11 @@ NS_IMETHODIMP nsSMimeVerificationListener::Notify(
   aVerifiedMessage->GetDigestAlgorithmName(digestAlgorithm);
 
   if (NS_IsMainThread()) {
-    mHeaderSink->SignedStatus(mMimeNestingLevel, signature_status, signerCert,
-                              mMsgNeckoURL, mOriginMimePartNumber,
+    mHeaderSink->SignedStatus(mMimeNestingLevel, signature_status, aReason,
+                              signerCert, mMsgNeckoURL, mOriginMimePartNumber,
                               signatureAlgorithm, digestAlgorithm);
   } else {
-    ProxySignedStatus(mHeaderSink, mMimeNestingLevel, signature_status,
+    ProxySignedStatus(mHeaderSink, mMimeNestingLevel, signature_status, aReason,
                       signerCert, mMsgNeckoURL, mOriginMimePartNumber,
                       signatureAlgorithm, digestAlgorithm);
   }
