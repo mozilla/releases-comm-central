@@ -29,6 +29,16 @@ const allowedDifferences = {
     "        }",
     "      }",
   ],
+  DefaultDownloadDirectory: [
+    "~ onBeforeAddons:",
+    "  ...",
+    '          "browser.download.dir",',
+    "          lazy.replacePathVariables(param)",
+    "        );",
+    "+       // If a custom download directory is being used, just lock folder list to 2.",
+    '+       lazy.PoliciesUtils.setAndLockPref("browser.download.folderList", 2);',
+    "      }",
+  ],
 };
 
 // List built by just running the test with nothing in it and copy/pasting the
