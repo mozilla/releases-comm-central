@@ -87,6 +87,25 @@ const allowedDifferences = {
     "        }",
     "      }",
   ],
+  InstallAddonsPermission: [
+    "~ onBeforeUIStartup:",
+    "  ...",
+    "          if (!param.Default) {",
+    '            manager.disallowFeature("installTemporaryAddon");',
+    "            lazy.PoliciesUtils.setAndLockPref(",
+    '-             "browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons",',
+    "-             false",
+    "-           );",
+    "-           lazy.PoliciesUtils.setAndLockPref(",
+    '-             "browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features",',
+    "-             false",
+    "-           );",
+    "-           lazy.PoliciesUtils.setAndLockPref(",
+    '              "extensions.getAddons.showPane",',
+    "              false",
+    "            );",
+    "  ...",
+  ],
 };
 
 // List built by just running the test with nothing in it and copy/pasting the

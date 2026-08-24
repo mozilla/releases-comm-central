@@ -1200,7 +1200,15 @@ export var Policies = {
       if ("Default" in param) {
         lazy.PoliciesUtils.setAndLockPref("xpinstall.enabled", param.Default);
         if (!param.Default) {
-          lazy.blockAboutPage(manager, "about:debugging");
+          manager.disallowFeature("installTemporaryAddon");
+          lazy.PoliciesUtils.setAndLockPref(
+            "extensions.getAddons.showPane",
+            false
+          );
+          lazy.PoliciesUtils.setAndLockPref(
+            "extensions.htmlaboutaddons.recommendations.enabled",
+            false
+          );
           manager.disallowFeature("xpinstall");
         }
       }
