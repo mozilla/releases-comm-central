@@ -333,6 +333,7 @@ export var Policies = {
     onBeforeUIStartup(manager, param) {
       if (param) {
         lazy.blockAboutPage(manager, "about:support");
+        manager.disallowFeature("aboutSupport");
       }
     },
   },
