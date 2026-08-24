@@ -16,7 +16,20 @@
 //    (or update) this entry to allowedDifferences"
 //  - paste it back in here, then run
 //    `./mach lint --fix -l eslint <this file>` to reindent it
-const allowedDifferences = {};
+const allowedDifferences = {
+  BlockAboutProfiles: [
+    "~ onBeforeUIStartup:",
+    "  onBeforeUIStartup(manager, param) {",
+    "        if (param) {",
+    '          lazy.blockAboutPage(manager, "about:profiles");',
+    '-         lazy.blockAboutPage(manager, "about:profilemanager");',
+    '-         lazy.blockAboutPage(manager, "about:editprofile");',
+    '-         lazy.blockAboutPage(manager, "about:deleteprofile");',
+    '-         lazy.blockAboutPage(manager, "about:newprofile");',
+    "        }",
+    "      }",
+  ],
+};
 
 // List built by just running the test with nothing in it and copy/pasting the
 // result. May evolve.

@@ -317,6 +317,11 @@ export var Policies = {
   },
 
   BlockAboutProfiles: {
+    onBeforeAddons(manager, param) {
+      if (param) {
+        manager.disallowFeature("profileManagement");
+      }
+    },
     onBeforeUIStartup(manager, param) {
       if (param) {
         lazy.blockAboutPage(manager, "about:profiles");
