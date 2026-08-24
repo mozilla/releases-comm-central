@@ -63,6 +63,16 @@ const POLICIES_TESTS = [
     lockedPrefs: { "mail.offer_experimental_features": false },
   },
 
+  // POLICY: DisableMessageForwardingFilters
+  {
+    policies: { DisableMessageForwardingFilters: false },
+    unlockedPrefs: { "mail.filters.forward.enabled": true },
+  },
+  {
+    policies: { DisableMessageForwardingFilters: true },
+    lockedPrefs: { "mail.filters.forward.enabled": false },
+  },
+
   // POLICY: DisableQRExport
   {
     policies: { DisableQRExport: false },

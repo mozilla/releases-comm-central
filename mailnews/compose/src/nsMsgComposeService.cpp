@@ -905,6 +905,10 @@ nsMsgComposeService::ForwardMessage(const nsAString& forwardTo,
                                     uint32_t aForwardType) {
   NS_ENSURE_ARG_POINTER(aMsgHdr);
 
+  if (!Preferences::GetBool("mail.filters.forward.enabled", true)) {
+    return NS_OK;
+  }
+
   nsresult rv;
   if (aForwardType == nsIMsgComposeService::kForwardAsDefault) {
     int32_t forwardPref = Preferences::GetInt("mail.forward_message_mode");

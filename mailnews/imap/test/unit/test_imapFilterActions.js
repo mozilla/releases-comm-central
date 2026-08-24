@@ -56,6 +56,7 @@ add_setup(async function () {
 
   registerCleanupFunction(() => {
     gSmtpServerD.stop();
+    Services.prefs.clearUserPref("mail.filters.forward.enabled");
     Services.prefs.clearUserPref("mail.forward_message_mode");
     if (gInboxListener) {
       gDbService.unregisterPendingListener(gInboxListener);
@@ -350,6 +351,33 @@ add_task(async function ForwardAsAttachment() {
   await testForward(0);
 });
 
+add_task(async function ForwardDisabled() {
+  Services.prefs.setBoolPref("mail.filters.forward.enabled", false);
+
+  try {
+    gSmtpServerD.resetTest();
+
+    gAction.type = Ci.nsMsgFilterAction.Forward;
+    gAction.strValue = "to@local";
+
+    const markReadAction = gFilter.createAction();
+    markReadAction.type = Ci.nsMsgFilterAction.MarkRead;
+
+    await setupTest(gFilter, gAction, markReadAction);
+
+    Assert.ok(
+      !gSmtpServerD._daemon.post,
+      "SMTP should not receive a message when filter forwarding is disabled"
+    );
+    Assert.ok(
+      gHeader.isRead,
+      "Filter actions after the blocked forwarding action should still execute"
+    );
+  } finally {
+    Services.prefs.clearUserPref("mail.filters.forward.enabled");
+  }
+});
+
 function setupFilters() {
   // Create a non-body filter.
   const filterList = IMAPPump.incomingServer.getFilterList(null);
@@ -402,15 +430,17 @@ function setupFilters() {
  */
 
 // basic preparation done for each test
-async function setupTest(aFilter, aAction) {
+async function setupTest(aFilter, ...aActions) {
   const filterList = IMAPPump.incomingServer.getFilterList(null);
   while (filterList.filterCount) {
     filterList.removeFilterAt(0);
   }
   if (aFilter) {
     aFilter.clearActionList();
-    if (aAction) {
-      aFilter.appendAction(aAction);
+    for (const action of aActions) {
+      aFilter.appendAction(action);
+    }
+    if (aActions.length) {
       filterList.insertFilterAt(0, aFilter);
     }
   }

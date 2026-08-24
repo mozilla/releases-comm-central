@@ -57,6 +57,8 @@ policy-DisableFormHistory = Don’t remember search and form history.
 
 policy-DisableMasterPasswordCreation = If true, a master password can’t be created.
 
+policy-DisableMessageForwardingFilters = Prevent message filters from automatically forwarding messages.
+
 policy-DisablePasswordReveal = Do not allow passwords to be revealed in saved logins.
 
 policy-DisableProfileImport = Disable the menu command to Import data from another application.

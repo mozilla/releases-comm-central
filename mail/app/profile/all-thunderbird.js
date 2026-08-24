@@ -1550,6 +1550,9 @@ pref("mail.inappnotifications.bypass-filtering", false);
 pref("mail.inappnotifications.isFlatpak", false);
 pref("mail.inappnotifications.isSnap", false);
 
+// Enable forwarding messages with message filters.
+pref("mail.filters.forward.enabled", true);
+
 // Offer experimental features in settings.
 pref("mail.offer_experimental_features", true);
 

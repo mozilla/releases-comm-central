@@ -1551,11 +1551,14 @@
                         enablefornews="false"></menuitem>
               <menuitem data-l10n-id="rule-action-copy"
                         value="copymessage"></menuitem>
-              <menuseparator enablefornews="false"></menuseparator>
-              <menuitem data-l10n-id="rule-action-forward"
+              <menuseparator class="forward-reply-leading-separator"
+                        enablefornews="false"></menuseparator>
+              <menuitem class="forward-message-action"
+                        data-l10n-id="rule-action-forward"
                         value="forwardmessage"
                         enablefornews="false"></menuitem>
-              <menuitem data-l10n-id="rule-action-reply"
+              <menuitem class="reply-message-action"
+                        data-l10n-id="rule-action-reply"
                         value="replytomessage"
                         enablefornews="false"></menuitem>
               <menuseparator></menuseparator>

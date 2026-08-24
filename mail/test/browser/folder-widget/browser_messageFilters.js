@@ -146,6 +146,77 @@ add_task(async function key_navigation_test() {
   await BrowserTestUtils.closeWindow(filterc);
 }).skip(AppConstants.platform == "macosx");
 
+add_task(async function test_forward_filter_action_visibility() {
+  await be_in_folder(folderA);
+  const filterWindow = await openFiltersDialogs();
+
+  async function checkForwardAction(filterEditor, enabled) {
+    try {
+      const forwardAction = filterEditor.document.querySelector(
+        ".forward-message-action"
+      );
+      Assert.ok(forwardAction, "Forward action should exist in the menu");
+
+      Assert.equal(
+        filterEditor.getComputedStyle(forwardAction).display == "none",
+        !enabled,
+        `Forward action should be ${enabled ? "visible" : "hidden"}`
+      );
+
+      if (!enabled) {
+        const replyAction = filterEditor.document.querySelector(
+          ".reply-message-action"
+        );
+        const leadingSeparator = filterEditor.document.querySelector(
+          ".forward-reply-leading-separator"
+        );
+
+        Assert.ok(replyAction, "Reply action should exist in the menu");
+        Assert.ok(leadingSeparator, "Leading separator should exist");
+
+        Assert.equal(
+          filterEditor.getComputedStyle(leadingSeparator).display == "none",
+          replyAction.hidden,
+          "Leading separator should be hidden only when Reply is also hidden"
+        );
+      }
+    } finally {
+      filterEditor.close();
+    }
+  }
+
+  async function openEditorAndCheck(enabled) {
+    const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+      null,
+      "chrome://messenger/content/FilterEditor.xhtml",
+      {
+        callback(filterEditor) {
+          return checkForwardAction(filterEditor, enabled);
+        },
+      }
+    );
+
+    EventUtils.synthesizeMouseAtCenter(
+      filterWindow.document.getElementById("newButton"),
+      {},
+      filterWindow
+    );
+    await dialogPromise;
+  }
+
+  try {
+    Services.prefs.clearUserPref("mail.filters.forward.enabled");
+    await openEditorAndCheck(true);
+
+    Services.prefs.setBoolPref("mail.filters.forward.enabled", false);
+    await SimpleTest.promiseFocus(filterWindow);
+    await openEditorAndCheck(false);
+  } finally {
+    Services.prefs.clearUserPref("mail.filters.forward.enabled");
+    await BrowserTestUtils.closeWindow(filterWindow);
+  }
+});
+
 /*
  * Test that the message filter list shows newsgroup servers.
  */

@@ -21,3 +21,11 @@
   min-block-size: 150px;
   block-size: 150px;
 }
+
+/* stylelint-disable-next-line media-query-no-invalid */
+@media (not -moz-pref("mail.filters.forward.enabled")) {
+  .forward-message-action,
+  .forward-reply-leading-separator:has(+ .forward-message-action + .reply-message-action[hidden]) {
+    display: none !important;
+  }
+}

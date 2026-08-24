@@ -730,6 +730,17 @@ export var Policies = {
     },
   },
 
+  DisableMessageForwardingFilters: {
+    onBeforeUIStartup(manager, param) {
+      if (param) {
+        lazy.PoliciesUtils.setAndLockPref(
+          "mail.filters.forward.enabled",
+          false
+        );
+      }
+    },
+  },
+
   DisablePasswordReveal: {
     onBeforeUIStartup(manager, param) {
       if (param) {

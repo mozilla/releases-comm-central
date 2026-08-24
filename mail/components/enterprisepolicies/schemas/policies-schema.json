@@ -250,6 +250,10 @@
       "type": "boolean"
     },
 
+    "DisableMessageForwardingFilters": {
+      "type": "boolean"
+    },
+
     "DisablePasswordReveal": {
       "type": "boolean"
     },
