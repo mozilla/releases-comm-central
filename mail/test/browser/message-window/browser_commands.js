@@ -70,19 +70,22 @@ add_task(async function test_copy_eml_message() {
     "11111111-bdfd-ca83-6479-3427940164a8@invalid"
   );
 
-  EventUtils.synthesizeMouseAtCenter(
-    msgc.document.documentElement,
+  const contextMenu = aboutMessage.document.getElementById("mailContext");
+  const contextMenuShown = BrowserTestUtils.waitForPopupEvent(
+    contextMenu,
+    "shown"
+  );
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "body",
     { type: "contextmenu" },
-    msgc
+    aboutMessage.getMessagePaneBrowser()
   );
-  await click_menus_in_sequence(
-    aboutMessage.document.getElementById("mailContext"),
-    [
-      { id: "mailContext-copyMenu" },
-      { label: "Recent Destinations" },
-      { label: "CopyToFolder" },
-    ]
-  );
+  await contextMenuShown;
+  await click_menus_in_sequence(contextMenu, [
+    { id: "mailContext-copyMenu" },
+    { label: "Recent Destinations" },
+    { label: "CopyToFolder" },
+  ]);
   await BrowserTestUtils.closeWindow(msgc);
 
   // Make sure the copy worked. Make sure the first header is the one used,
