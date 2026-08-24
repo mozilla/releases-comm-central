@@ -466,10 +466,11 @@ function checkLoginsCheckbox(loginsCheckbox, expectedType, expectedCount) {
 
 async function closeRemoveDialog(win) {
   const doc = win.document;
-  const acceptButton = win.document.querySelector("dialog").getButton("accept");
+  const dialog = doc.querySelector("dialog");
+  const acceptButton = dialog.getButton("accept");
   const success = doc.getElementById("success");
   const failure = doc.getElementById("failure");
-  EventUtils.synthesizeMouseAtCenter(acceptButton, {}, win);
+  dialog.acceptDialog();
 
   await TestUtils.waitForCondition(
     () => !success.hidden || !failure.hidden,
@@ -486,6 +487,6 @@ async function closeRemoveDialog(win) {
     win.parent,
     "dialogclose"
   );
-  EventUtils.synthesizeMouseAtCenter(acceptButton, {}, win);
+  dialog.acceptDialog();
   await closedPromise;
 }
