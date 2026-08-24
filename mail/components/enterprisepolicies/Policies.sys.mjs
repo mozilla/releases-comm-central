@@ -1277,7 +1277,7 @@ export var Policies = {
       if ("EnablePermissions" in param) {
         lazy.PoliciesUtils.setAndLockPref(
           "pdfjs.enablePermissions",
-          !param.Enabled
+          param.EnablePermissions
         );
       }
     },
