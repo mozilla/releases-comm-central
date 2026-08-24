@@ -791,6 +791,10 @@ export var Policies = {
           "toolkit.telemetry.archive.enabled",
           false
         );
+        lazy.PoliciesUtils.setAndLockPref(
+          "datareporting.usage.uploadEnabled",
+          false
+        );
         lazy.blockAboutPage(manager, "about:telemetry");
       }
     },
