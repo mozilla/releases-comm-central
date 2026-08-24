@@ -7109,12 +7109,13 @@ nsImapMailFolder::CopyMessages(
     if (keyArray.IsEmpty()) {
       goto done;
     }
-    auto uids = UidsFromMsgKeys(mDatabase, keyArray);
-    if (uids.isErr()) {
-      rv = uids.unwrapErr();
+
+    auto srcUids = UidsFromHdrs(sortedMsgs);
+    if (srcUids.isErr()) {
+      rv = srcUids.unwrapErr();
       goto done;
     }
-    nsAutoCString messageIds(UidSetFromUids(uids.unwrap()));
+    nsAutoCString messageIds(UidSetFromUids(srcUids.unwrap()));
 
     nsCOMPtr<nsIUrlListener> urlListener;
     rv =
