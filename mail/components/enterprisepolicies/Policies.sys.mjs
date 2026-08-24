@@ -19,15 +19,19 @@ XPCOMUtils.defineLazyServiceGetters(lazy, {
 
 ChromeUtils.defineESModuleGetters(lazy, {
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
+  AddonManagerPrivate: "resource://gre/modules/AddonManager.sys.mjs",
+  ExtensionPermissions: "resource://gre/modules/ExtensionPermissions.sys.mjs",
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
   ProxyPolicies: "resource:///modules/policies/ProxyPolicies.sys.mjs",
   SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
 
   PoliciesUtils: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   addAllowDenyPermissions: "resource://gre/modules/PoliciesHelpers.sys.mjs",
+  applyExtensionGuards: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   blockAboutPage: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   clearBlockedAboutPages: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   installAddonFromURL: "resource://gre/modules/PoliciesHelpers.sys.mjs",
+  installAddonFromRepository: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   pemToBase64: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   processMIMEInfo: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   replacePathVariables: "resource://gre/modules/PoliciesHelpers.sys.mjs",
@@ -923,7 +927,17 @@ export var Policies = {
       try {
         manager.setExtensionSettings(param);
       } catch (e) {
-        lazy.log.error("Invalid ExtensionSettings");
+        lazy.log.error(
+          `Some ExtensionSettings could not be applied: ${e.message}`
+        );
+      }
+      try {
+        lazy.applyExtensionGuards(param);
+      } catch (e) {
+        lazy.log.error(
+          `Invalid runtime_blocked_hosts/runtime_allowed_hosts in ` +
+            `ExtensionSettings: ${e.message}`
+        );
       }
     },
     async onBeforeUIStartup(manager, param) {
@@ -942,11 +956,10 @@ export var Policies = {
           );
           // Turn off recommendations
           lazy.PoliciesUtils.setAndLockPref(
-            "extensions.htmlaboutaddons.recommendations.enable",
+            "extensions.htmlaboutaddons.recommendations.enabled",
             false
           );
-          // Block about:debugging
-          lazy.blockAboutPage(manager, "about:debugging");
+          manager.disallowFeature("installTemporaryAddon");
         }
         if ("restricted_domains" in extensionSettings["*"]) {
           const restrictedDomains = Services.prefs
@@ -960,7 +973,10 @@ export var Policies = {
           );
         }
       }
-      const addons = await lazy.AddonManager.getAllAddons();
+      const addons = new Map();
+      for (const a of await lazy.AddonManager.getAllAddons()) {
+        addons.set(a.id, a);
+      }
       const allowedExtensions = [];
       for (const extensionID in extensionSettings) {
         if (extensionID == "*") {
@@ -974,14 +990,16 @@ export var Policies = {
             extensionSettings[extensionID].installation_mode ==
               "normal_installed"
           ) {
-            if (!extensionSettings[extensionID].install_url) {
-              throw new Error(`Missing install_url for ${extensionID}`);
+            const existingAddon = addons.get(extensionID);
+            if (extensionSettings[extensionID].install_url) {
+              lazy.installAddonFromURL(
+                extensionSettings[extensionID].install_url,
+                extensionID,
+                existingAddon
+              );
+            } else if (!existingAddon) {
+              lazy.installAddonFromRepository(extensionID);
             }
-            lazy.installAddonFromURL(
-              extensionSettings[extensionID].install_url,
-              extensionID,
-              addons.find(addon => addon.id == extensionID)
-            );
             manager.disallowFeature(`uninstall-extension:${extensionID}`);
             if (
               extensionSettings[extensionID].installation_mode ==
@@ -997,11 +1015,12 @@ export var Policies = {
           } else if (
             extensionSettings[extensionID].installation_mode == "blocked"
           ) {
-            if (addons.find(addon => addon.id == extensionID)) {
+            if (addons.has(extensionID)) {
               // Can't use the addon from getActiveAddons since it doesn't have uninstall.
               const addon = await lazy.AddonManager.getAddonByID(extensionID);
               try {
                 await addon.uninstall();
+                addons.delete(extensionID);
               } catch (e) {
                 // This can fail for add-ons that can't be uninstalled.
                 lazy.log.debug(
@@ -1012,8 +1031,9 @@ export var Policies = {
           }
         }
       }
-      if (blockAllExtensions) {
-        for (const addon of addons) {
+      const allowedTypes = extensionSettings["*"]?.allowed_types;
+      if (blockAllExtensions || allowedTypes) {
+        for (const addon of addons.values()) {
           if (
             addon.isSystem ||
             addon.isBuiltin ||
@@ -1021,13 +1041,21 @@ export var Policies = {
           ) {
             continue;
           }
-          if (!allowedExtensions.includes(addon.id)) {
+          // Match Chrome: any per-id ExtensionSettings entry (even empty)
+          // shadows the "*" defaults entirely, so an addon with its own
+          // entry is exempt from blockAllExtensions.
+          if (
+            !allowedExtensions.includes(addon.id) &&
+            !(blockAllExtensions && addon.id in extensionSettings) &&
+            (blockAllExtensions || !allowedTypes.includes(addon.type))
+          ) {
             try {
               // Can't use the addon from getActiveAddons since it doesn't have uninstall.
               const addonToUninstall = await lazy.AddonManager.getAddonByID(
                 addon.id
               );
               await addonToUninstall.uninstall();
+              addons.delete(addon.id);
             } catch (e) {
               // This can fail for add-ons that can't be uninstalled.
               lazy.log.debug(
@@ -1037,6 +1065,48 @@ export var Policies = {
           }
         }
       }
+
+      // Revoke any granted optional permissions that are now blocked. The
+      // appDisabled refresh below handles addons whose required permissions
+      // are blocked (via mayInstallAddon -> isUsableAddon).
+      for (const addon of addons.values()) {
+        if (
+          addon.isSystem ||
+          addon.isBuiltin ||
+          !(addon.scope & lazy.AddonManager.SCOPE_PROFILE)
+        ) {
+          continue;
+        }
+        const blockedPerms =
+          Services.policies.getExtensionSettings(addon.id)
+            ?.blocked_permissions ?? [];
+        if (!blockedPerms.length) {
+          continue;
+        }
+        try {
+          const granted = await lazy.ExtensionPermissions.get(addon.id);
+          const toRemove = granted.permissions.filter(perm =>
+            blockedPerms.includes(perm)
+          );
+          if (toRemove.length) {
+            const extension = WebExtensionPolicy.getByID(addon.id)?.extension;
+            await lazy.ExtensionPermissions.remove(
+              addon.id,
+              { permissions: toRemove, origins: [], data_collection: [] },
+              extension
+            );
+          }
+        } catch (e) {
+          lazy.log.debug(
+            `Could not revoke blocked optional permissions for ${addon.id}: ${e}`
+          );
+        }
+      }
+      // Recompute appDisabled across all addons against the new policy. This
+      // catches addons whose required permissions are now blocked (via
+      // mayInstallAddon) without persisting userDisabled, so an update that
+      // drops the blocked permission re-enables the addon automatically.
+      lazy.AddonManagerPrivate.updateAddonAppDisabledStates();
     },
   },
 
