@@ -610,9 +610,34 @@ export var Policies = {
 
   DisableBuiltinPDFViewer: {
     onBeforeAddons(manager, param) {
-      if (param) {
-        lazy.PoliciesUtils.setAndLockPref("pdfjs.disabled", true);
+      const policies = Services.policies.getActivePolicies();
+      if (
+        policies.Handlers?.mimeTypes?.["application/pdf"] ||
+        policies.Handlers?.extensions?.pdf
+      ) {
+        // If there is an existing Handlers policy modifying PDF behavior,
+        // don't do anything.
+        return;
       }
+      if (!param) {
+        // Ensure PDF.js is not blocked by the pref (no UI exists for this pref).
+        Services.prefs.clearUserPref("pdfjs.disabled");
+        // Only set handleInternally once per policy value; don't override the
+        // user's handler choice on every subsequent startup.
+        lazy.runOncePerModification("disableBuiltinPDFViewer", "false", () => {
+          const pdfMIMEInfo = lazy.gMIMEService.getFromTypeAndExtension(
+            "application/pdf",
+            "pdf"
+          );
+          lazy.processMIMEInfo({ action: "handleInternally" }, pdfMIMEInfo);
+        });
+        return;
+      }
+      const pdfMIMEInfo = lazy.gMIMEService.getFromTypeAndExtension(
+        "application/pdf",
+        "pdf"
+      );
+      lazy.processMIMEInfo({ action: "useSystemDefault" }, pdfMIMEInfo);
     },
   },
 
