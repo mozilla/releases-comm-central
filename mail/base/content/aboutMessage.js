@@ -194,7 +194,7 @@ function displayMessage(uri, viewWrapper) {
     // Don't clean up gViewWrapper if we're going to reuse it. If we're inside
     // about:3pane, close the view wrapper, but don't call `onLeavingFolder`,
     // because about:3pane will do that if we're actually leaving the folder.
-    gViewWrapper?.close(parent != top);
+    gViewWrapper?.close({ leavingFolder: parent == top });
     gViewWrapper = null;
   }
 

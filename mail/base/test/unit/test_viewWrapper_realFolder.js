@@ -666,7 +666,7 @@ add_task(async function test_real_folder_mark_read_on_exit() {
     setOne.synMessages.length,
     "all messages should have been added as unread"
   );
-  viewWrapper.close(false);
+  viewWrapper.close();
   // verify that closing the view does the expected marking of the messages
   // as read.
   assert_equals(

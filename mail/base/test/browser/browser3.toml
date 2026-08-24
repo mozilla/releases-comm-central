@@ -51,4 +51,6 @@ run-if = [
   "os == 'win'",
 ]
 
+["browser_startupNewStar.js"]
+
 ["browser_statusFeedback.js"]

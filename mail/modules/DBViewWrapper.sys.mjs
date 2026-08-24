@@ -760,16 +760,18 @@ DBViewWrapper.prototype = {
    *  for UI reasons like the user de-selecting the node in the tree; we should
    *  always be displaying something when used in a UI context!
    *
-   * @param {boolean} folderIsDead - If true, tells us not to try and tidy up
-   *   on our way out by virtue of the fact that the folder is dead and should
-   *   not be messed with.
+   * @param {object} [options]
+   * @param {boolean} [options.leavingFolder=true] - Whether to run leave-folder
+   *   behaviour before destroying the view. Pass false when not actually
+   *   leaving the folder, e.g. because the view is being rebuilt in place or
+   *   the folder itself went away; then the folder's start/endFolderLoading
+   *   bookkeeping is skipped too, so dead storage isn't rewritten.
    */
-  close(folderIsDead) {
+  close({ leavingFolder = true } = {}) {
     if (this.displayedFolder != null) {
       // onLeavingFolder does all the application-level stuff related to leaving
-      //  the folder (marking as read, etc.)  We only do this when the folder
-      //  is not dead (for obvious reasons).
-      if (!folderIsDead) {
+      //  the folder (marking as read, etc.)
+      if (leavingFolder) {
         // onLeavingFolder must be called before we potentially null out its
         //  msgDatabase, which we will do in the upcoming underlyingFolders loop
         this.onLeavingFolder(); // application logic
@@ -787,7 +789,7 @@ DBViewWrapper.prototype = {
 
       // Don't call back into a folder that is being deleted; EndFolderLoading's
       // UpdateSummaryTotals would reopen/rewrite its storage and cache.
-      this._setFolderLoading(false, folderIsDead);
+      this._setFolderLoading(false, !leavingFolder);
       this.displayedFolder = null;
     }
 
@@ -1362,7 +1364,7 @@ DBViewWrapper.prototype = {
     }
 
     if (aFolder == this.displayedFolder) {
-      this.close(true);
+      this.close({ leavingFolder: false });
       return;
     }
 
