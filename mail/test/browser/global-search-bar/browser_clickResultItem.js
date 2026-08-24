@@ -120,6 +120,9 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
     }
     input.focus();
 
+    const popup = document.getElementById("PopupGlodaAutocomplete");
+    const popupShown = BrowserTestUtils.waitForPopupEvent(popup, "shown");
+
     EventUtils.synthesizeKey("u", {}, input.documentGlobal);
     EventUtils.synthesizeKey("s", {}, input.documentGlobal);
     EventUtils.synthesizeKey("e", {}, input.documentGlobal);
@@ -128,6 +131,7 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
       () => input.controller.matchCount > 0,
       `"${test.selector}" did not find any matches`
     );
+    await popupShown;
 
     const target = document.querySelector(
       "#PopupGlodaAutocomplete > richlistbox > richlistitem"
