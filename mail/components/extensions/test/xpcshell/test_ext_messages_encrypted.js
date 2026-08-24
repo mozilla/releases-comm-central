@@ -27,6 +27,58 @@ const OPENPGP_KEY_PATH = PathUtils.join(
   "alice@openpgp.example-0xf231550c4f47e38e-secret.asc"
 );
 
+/**
+ * Read the values that change whenever the S/MIME test data is regenerated, from
+ * a message's canonical source in mailnews/test/data/smime, so this test does
+ * not hardcode them (bug 2012823).
+ *
+ * @param {string} fileName - A file name inside SMIME_DATA_DIR. The file must be
+ *   a message whose body is a single base64-encoded PKCS#7 blob.
+ * @returns {Promise<object>} An object with:
+ *   - date {string}: the Date header value.
+ *   - derSize {integer}: the decoded (binary) size of the base64 body, which is
+ *     what the messages API reports as the size of the PKCS#7 part.
+ *   - bodyLines {string[]}: the base64 body lines (the PKCS#7 blob as stored).
+ */
+async function readSmimeExpectations(fileName) {
+  const lines = (
+    await IOUtils.readUTF8(do_get_file(SMIME_DATA_DIR + fileName).path)
+  ).split(/\r?\n/);
+
+  // The file must be headers, a blank line, then a single base64 body. If its
+  // structure ever changes, fail loudly here instead of silently deriving a
+  // wrong expectation.
+  const headerEnd = lines.indexOf("");
+  if (headerEnd < 1) {
+    throw new Error(`${fileName}: no header/body separator (blank line) found`);
+  }
+
+  const dateLine = lines
+    .slice(0, headerEnd)
+    .find(line => line.startsWith("Date: "));
+  if (!dateLine) {
+    throw new Error(`${fileName}: no Date header found`);
+  }
+  const date = dateLine.slice("Date: ".length);
+
+  const bodyLines = lines.slice(headerEnd + 1).filter(line => line.length);
+  if (!bodyLines.length) {
+    throw new Error(`${fileName}: no base64 body found`);
+  }
+
+  // The messages API reports the decoded (binary) size of the PKCS#7 part.
+  // Decoding also validates that the body really is base64.
+  let derSize;
+  try {
+    derSize = atob(bodyLines.join("")).length;
+  } catch {
+    throw new Error(
+      `${fileName}: body is not valid base64 (unexpected structure)`
+    );
+  }
+  return { date, derSize, bodyLines };
+}
+
 add_setup(async () => {
   await Services.logins.initializationPromise;
   // Prepare OpenPGP messages.
@@ -1106,9 +1158,15 @@ add_task(async function test_openpgp_enc_msg_attachment() {
  * Test an S/MIME encrypted message.
  */
 add_task(async function test_smime_enc_not_signed() {
+  const enc = await readSmimeExpectations("alice.env.eml");
   const extension = ExtensionTestUtils.loadExtension({
     files: {
+      "expected.js": `window.SMIME = ${JSON.stringify({
+        date: enc.date,
+        encSize: enc.derSize,
+      })};`,
       "background.js": async () => {
+        const { date, encSize } = window.SMIME;
         const [folder] = await browser.folders.query({ name: "test4" });
         const { accountId } = folder;
         const { type } = await browser.accounts.get(accountId);
@@ -1126,11 +1184,11 @@ add_task(async function test_smime_enc_not_signed() {
           {
             contentType: "message/rfc822",
             partName: "",
-            size: 656,
+            size: encSize,
             decryptionStatus: "skipped",
             headers: {
               "mime-version": ["1.0"],
-              date: ["Mon, 26 Jan 2026 14:38:03 +0000"],
+              date: [date],
               from: ["Alice@example.com"],
               to: ["Bob@example.com"],
               subject: ["enveloped"],
@@ -1147,7 +1205,7 @@ add_task(async function test_smime_enc_not_signed() {
                   "content-disposition": ["attachment; filename=smime.p7m"],
                   "content-description": ["S/MIME Encrypted Message"],
                 },
-                size: 656,
+                size: encSize,
                 partName: "1",
                 name: "smime.p7m",
               },
@@ -1170,7 +1228,7 @@ add_task(async function test_smime_enc_not_signed() {
           [
             "Message-Id: <test4@sample.message>",
             "Mime-Version: 1.0",
-            "Date: Mon, 26 Jan 2026 14:38:03 +0000",
+            `Date: ${date}`,
             "From: Alice@example.com",
             "To: Bob@example.com",
             "Subject: enveloped",
@@ -1196,7 +1254,7 @@ add_task(async function test_smime_enc_not_signed() {
             decryptionStatus: "success",
             headers: {
               "mime-version": ["1.0"],
-              date: ["Mon, 26 Jan 2026 14:38:03 +0000"],
+              date: [date],
               from: ["Alice@example.com"],
               to: ["Bob@example.com"],
               subject: ["enveloped"],
@@ -1225,7 +1283,7 @@ add_task(async function test_smime_enc_not_signed() {
     },
     manifest: {
       manifest_version: 3,
-      background: { scripts: ["utils.js", "background.js"] },
+      background: { scripts: ["utils.js", "expected.js", "background.js"] },
       permissions: ["accountsRead", "messagesRead"],
     },
   });
@@ -1239,9 +1297,18 @@ add_task(async function test_smime_enc_not_signed() {
  * Test an S/MIME encrypted and signed message.
  */
 add_task(async function test_smime_enc_signed() {
+  const enc = await readSmimeExpectations("alice.sig.SHA256.opaque.env.eml");
+  const dec = await readSmimeExpectations("alice.sig.SHA256.opaque.eml");
   const extension = ExtensionTestUtils.loadExtension({
     files: {
+      "expected.js": `window.SMIME = ${JSON.stringify({
+        date: enc.date,
+        encSize: enc.derSize,
+        decSize: dec.derSize,
+        signedBlockLines: dec.bodyLines,
+      })};`,
       "background.js": async () => {
+        const { date, encSize, decSize, signedBlockLines } = window.SMIME;
         const [folder] = await browser.folders.query({ name: "test5" });
         const { messages } = await browser.messages.list(folder.id);
         browser.test.assertEq(1, messages.length);
@@ -1256,11 +1323,11 @@ add_task(async function test_smime_enc_signed() {
           {
             contentType: "message/rfc822",
             partName: "",
-            size: 3137,
+            size: encSize,
             decryptionStatus: "skipped",
             headers: {
               "mime-version": ["1.0"],
-              date: ["Mon, 26 Jan 2026 14:38:03 +0000"],
+              date: [date],
               from: ["Alice@example.com"],
               to: ["Bob@example.com"],
               subject: ["opaque-signed then enveloped sig.SHA256"],
@@ -1277,7 +1344,7 @@ add_task(async function test_smime_enc_signed() {
                   "content-disposition": ["attachment; filename=smime.p7m"],
                   "content-description": ["S/MIME Encrypted Message"],
                 },
-                size: 3137,
+                size: encSize,
                 partName: "1",
                 name: "smime.p7m",
               },
@@ -1300,7 +1367,7 @@ add_task(async function test_smime_enc_signed() {
           [
             "Message-Id: <test5@sample.message>",
             "Mime-Version: 1.0",
-            "Date: Mon, 26 Jan 2026 14:38:03 +0000",
+            `Date: ${date}`,
             "From: Alice@example.com",
             "To: Bob@example.com",
             "Subject: opaque-signed then enveloped sig.SHA256",
@@ -1309,44 +1376,7 @@ add_task(async function test_smime_enc_signed() {
             "Content-Disposition: attachment; filename=smime.p7m",
             "Content-Description: S/MIME Cryptographic Signature",
             "",
-            "MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0B",
-            "BwGggCSABEdDb250ZW50LVR5cGU6IHRleHQvcGxhaW4NCg0KVGhpcyBpcyBhIHRl",
-            "c3QgbWVzc2FnZSBmcm9tIEFsaWNlIHRvIEJvYi4NCgAAAAAAAKCCA2gwggNkMIIC",
-            "TKADAgECAgEeMA0GCSqGSIb3DQEBCwUAMGoxCzAJBgNVBAYTAlVTMRMwEQYDVQQI",
-            "EwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRIwEAYDVQQKEwlC",
-            "T0dVUyBOU1MxGjAYBgNVBAMTEU5TUyBUZXN0IENBIChSU0EpMB4XDTI2MDEyNjE0",
-            "MzgzNVoXDTMxMDEyNjE0MzgzNVowgYAxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpD",
-            "YWxpZm9ybmlhMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRIwEAYDVQQKEwlCT0dV",
-            "UyBOU1MxIDAeBgkqhkiG9w0BCQEWEUFsaWNlQGV4YW1wbGUuY29tMQ4wDAYDVQQD",
-            "EwVBbGljZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANSSfwOmxu7g",
-            "qbxfVw3iZGVmvYM5Lko5JuPCtlAIje8B840JMEJjnwWBa+kCSFQYj9X6bzEsUelh",
-            "gUfx5HCDtiVqsBs/YneqCkwqGiG30cnDnPX8HRvWUvxic4Iq43tJ5JLziJBsTRtv",
-            "BaN7Di4XbpUR2lnkvTMMk+Plvz3MqU+XEeE3Zg91RUsyimIxUds1C+qa2EUIj8eK",
-            "W8OD1ipRKb/bUfgjek340qPt5AqYQIE78vAoKhfSdmWCrrvRxkKlouPJxeleZTGC",
-            "SzHN6CjrMPqYOFSPEKdc50p7SVxiEfU1Nr5DakseNBNYHHj8P2UPP9wFcqcRS2Od",
-            "bLCCDGqEqkMCAwEAATANBgkqhkiG9w0BAQsFAAOCAQEAKVmeDCnN1xlq4um2vzl0",
-            "svLAFcQFRZ9BwcytkYYZhSG2I0GWJ1H0zoP1L+6He/vyLlSCLEG337AdjJLmkL9x",
-            "aDl411FrJ7568O2UN+y/VdFeKnWF/wKe2JeTHo2r6oUTKa7ghAo48IhR/Rj6zz6A",
-            "AejELVWkuk/oLP9SHcGQRNtp+oT/rG26jUri9SrhaLSlS7Xya4WV1IuO3z+iQvZ8",
-            "R0DZxONPA/Mdrb34jDj1rqfmkSoOyA1eKyF4/TI6g/byyGzkbRI20B782zKE1Czh",
-            "kDcvDRcsU77WdAajBWdF1ILLVctFjG9N09onXx5RmCPfCQ76XvyjeXH6sTbsH/Jg",
-            "AzGCAwowggMGAgEBMG8wajELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNhbGlmb3Ju",
-            "aWExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxEjAQBgNVBAoTCUJPR1VTIE5TUzEa",
-            "MBgGA1UEAxMRTlNTIFRlc3QgQ0EgKFJTQSkCAR4wDQYJYIZIAWUDBAIBBQCgggFs",
-            "MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI2MDEy",
-            "NjE0NDAxMFowLwYJKoZIhvcNAQkEMSIEIIkBFBAciGamC1l8rrQ9Rf3QYbZ8NKqg",
-            "sYvmT/s/qgusMH4GCSsGAQQBgjcQBDFxMG8wajELMAkGA1UEBhMCVVMxEzARBgNV",
-            "BAgTCkNhbGlmb3JuaWExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxEjAQBgNVBAoT",
-            "CUJPR1VTIE5TUzEaMBgGA1UEAxMRTlNTIFRlc3QgQ0EgKFJTQSkCAR4wgYAGCyqG",
-            "SIb3DQEJEAILMXGgbzBqMQswCQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5p",
-            "YTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzESMBAGA1UEChMJQk9HVVMgTlNTMRow",
-            "GAYDVQQDExFOU1MgVGVzdCBDQSAoUlNBKQIBHjANBgkqhkiG9w0BAQEFAASCAQCw",
-            "e0Slf4R7SgzcCHDCGcVVvynPR0+I62oypjXCi+18bBJuqpcp9C88hn1Y2CsXA5wH",
-            "FJfQeRz5qLMSy8VEmZYfwT32cB/R06sCRi8+jwoY1+FaoitcAPg3H+tlQWAy+4kg",
-            "+CKwYbvXajP7U081fBRgu6S1/JQs+5+oc4fiRLOKSklVFKp/VB3zeEr8Vh2Mk9Vh",
-            "u1DraqvUyLxRt0cUuYvBIHVlC6G+rNAoe8bcvKE1dh/q6VYGVmhULgqch2lZEdfq",
-            "I1b47Vm6K5/2ggfKXsN0L3jM5Eh7x3SVdrreYTq2pDSkQrbeaDdtiEKdX3iV6Na0",
-            "bnwPfxAs/J9XYhmcJ4A3AAAAAAAA",
+            ...signedBlockLines,
             "",
           ],
           rawContent,
@@ -1361,11 +1391,11 @@ add_task(async function test_smime_enc_signed() {
           {
             contentType: "message/rfc822",
             partName: "",
-            size: 1797,
+            size: decSize,
             decryptionStatus: "success",
             headers: {
               "mime-version": ["1.0"],
-              date: ["Mon, 26 Jan 2026 14:38:03 +0000"],
+              date: [date],
               from: ["Alice@example.com"],
               to: ["Bob@example.com"],
               subject: ["opaque-signed then enveloped sig.SHA256"],
@@ -1382,7 +1412,7 @@ add_task(async function test_smime_enc_signed() {
                   "content-disposition": ["attachment; filename=smime.p7m"],
                   "content-description": ["S/MIME Cryptographic Signature"],
                 },
-                size: 1797,
+                size: decSize,
                 partName: "1",
                 name: "smime.p7m",
               },
@@ -1398,7 +1428,7 @@ add_task(async function test_smime_enc_signed() {
     },
     manifest: {
       manifest_version: 3,
-      background: { scripts: ["utils.js", "background.js"] },
+      background: { scripts: ["utils.js", "expected.js", "background.js"] },
       permissions: ["accountsRead", "messagesRead"],
     },
   });
