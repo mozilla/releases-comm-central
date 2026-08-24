@@ -106,6 +106,21 @@ add_task(async function test_dialogOpenAndClose() {
     browser.contentWindow
   );
   Assert.ok(!dialog.open, "Dialog is closed");
+
+  dialog.setCalendarEvent(calendarEvent);
+  await dialog.show();
+  Assert.ok(dialog.open, "Dialog is updated to open");
+
+  // Hitting escape should call the "cancel" event on the dialog.
+  const cancelEventPromise = BrowserTestUtils.waitForEvent(
+    dialog,
+    "cancel",
+    true
+  );
+  EventUtils.synthesizeKey("KEY_Escape");
+  await cancelEventPromise;
+
+  Assert.ok(!dialog.open, "Dialog is closed");
 });
 
 add_task(async function test_setCalendarEvent() {

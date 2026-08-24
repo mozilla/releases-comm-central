@@ -159,6 +159,8 @@ export class CalendarDialog extends PositionedDialog {
         this.#subviewManager.isDefaultSubviewVisible();
 
       this.setAttribute("is", "calendar-dialog");
+      this.setAttribute("closedby", "closerequest");
+      this.addEventListener("cancel", this);
 
       this.container = document.getElementById("calendarDisplayBox");
       this.#title = this.querySelector(".calendar-dialog-title");
@@ -203,6 +205,9 @@ export class CalendarDialog extends PositionedDialog {
 
   handleEvent(event) {
     switch (event.type) {
+      case "cancel":
+        this.close();
+        break;
       case "click":
         for (const [selector, handler] of Object.entries(this.#clickHandlers)) {
           if (event.target.closest(selector)) {
