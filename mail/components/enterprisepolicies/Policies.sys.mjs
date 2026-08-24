@@ -1486,7 +1486,10 @@ export var Policies = {
                 const engine = lazy.SearchService.getEngineByName(engineName);
                 if (engine) {
                   try {
-                    await lazy.SearchService.removeEngine(engine);
+                    await lazy.SearchService.removeEngine(
+                      engine,
+                      lazy.SearchService.CHANGE_REASON.ENTERPRISE
+                    );
                   } catch (ex) {
                     lazy.log.error("Unable to remove the search engine", ex);
                   }
