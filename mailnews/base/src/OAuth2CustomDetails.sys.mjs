@@ -5,8 +5,8 @@
 /**
  * Custom OAuth2 connection parameters.
  *
- * This is the implementation of `IOAuth2CustomDetails` for IMAP, SMTP, and
- * likely other standard protocols in the future. The implementation for
+ * This is the implementation of `IOAuth2CustomDetails` for POP3, IMAP, SMTP,
+ * and likely other standard protocols in the future. The implementation for
  * Exchange (EWS and Graph) is in:
  * mailnews/protocols/exchange/src/ExchangeOAuth2CustomDetails.cpp
  *

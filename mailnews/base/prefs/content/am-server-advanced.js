@@ -39,6 +39,7 @@ function onLoad() {
   } else if (gServerSettings.serverType == "pop3") {
     document.getElementById("imapPanel").hidden = true;
     document.getElementById("ewsPanel").hidden = true;
+    setOAuth2CustomDetailsState(gServerSettings.oauth2UseCustomDetails);
     const radioGroup = document.getElementById("folderStorage");
 
     gFirstDeferredAccount = gServerSettings.deferredToAccount;
@@ -79,6 +80,7 @@ function onLoad() {
   ) {
     document.getElementById("pop3Panel").hidden = true;
     document.getElementById("imapPanel").hidden = true;
+    document.getElementById("oauth2CustomDetailsContainer").hidden = true;
     if (
       Services.prefs.getBoolPref(
         "experimental.mail.ews.overrideOAuth.enabled",

@@ -168,13 +168,13 @@ function updateOAuthUI(serverType) {
  * @returns {boolean}
  */
 function hasCustomOAuth(serverType) {
-  const customImap =
-    serverType == "imap" &&
+  const customConfig =
+    ["imap", "pop3"].includes(serverType) &&
     document.getElementById("server.oauth2.useCustomDetails").checked;
   const customExchange =
     ["ews", "graph"].includes(serverType) &&
     document.getElementById("ews.exchangeOverrideOAuthDetails").checked;
-  return customImap || customExchange;
+  return customConfig || customExchange;
 }
 
 /**
@@ -344,30 +344,6 @@ function onAdvanced() {
     serverSettings.overrideNamespaces = document.getElementById(
       "imap.overrideNamespaces"
     ).checked;
-    serverSettings.oauth2UseCustomDetails = document.getElementById(
-      "server.oauth2.useCustomDetails"
-    ).checked;
-    serverSettings.oauth2ClientId = document
-      .getElementById("server.oauth2.clientId")
-      .getAttribute("value");
-    serverSettings.oauth2AuthorizationEndpoint = document
-      .getElementById("server.oauth2.authorizationEndpoint")
-      .getAttribute("value");
-    serverSettings.oauth2TokenEndpoint = document
-      .getElementById("server.oauth2.tokenEndpoint")
-      .getAttribute("value");
-    serverSettings.oauth2Scopes = document
-      .getElementById("server.oauth2.scopes")
-      .getAttribute("value");
-    serverSettings.oauth2RedirectionEndpoint = document
-      .getElementById("server.oauth2.redirectionEndpoint")
-      .getAttribute("value");
-    serverSettings.oauth2UsePKCE = document.getElementById(
-      "server.oauth2.usePKCE"
-    ).checked;
-    serverSettings.oauth2UseExternalBrowser = document.getElementById(
-      "server.oauth2.useExternalBrowser"
-    ).checked;
   } else if (serverType == "pop3") {
     serverSettings.deferGetNewMail = document.getElementById(
       "pop3.deferGetNewMail"
@@ -405,6 +381,33 @@ function onAdvanced() {
     ).checked;
   }
 
+  if (serverType == "imap" || serverType == "pop3") {
+    serverSettings.oauth2UseCustomDetails = document.getElementById(
+      "server.oauth2.useCustomDetails"
+    ).checked;
+    serverSettings.oauth2ClientId = document
+      .getElementById("server.oauth2.clientId")
+      .getAttribute("value");
+    serverSettings.oauth2AuthorizationEndpoint = document
+      .getElementById("server.oauth2.authorizationEndpoint")
+      .getAttribute("value");
+    serverSettings.oauth2TokenEndpoint = document
+      .getElementById("server.oauth2.tokenEndpoint")
+      .getAttribute("value");
+    serverSettings.oauth2Scopes = document
+      .getElementById("server.oauth2.scopes")
+      .getAttribute("value");
+    serverSettings.oauth2RedirectionEndpoint = document
+      .getElementById("server.oauth2.redirectionEndpoint")
+      .getAttribute("value");
+    serverSettings.oauth2UsePKCE = document.getElementById(
+      "server.oauth2.usePKCE"
+    ).checked;
+    serverSettings.oauth2UseExternalBrowser = document.getElementById(
+      "server.oauth2.useExternalBrowser"
+    ).checked;
+  }
+
   const onCloseAdvanced = function (event) {
     if (serverType == "imap") {
       document.getElementById("imap.dualUseFolders").checked =
@@ -428,37 +431,6 @@ function onAdvanced() {
         .setAttribute("value", serverSettings.otherUsersNamespace);
       document.getElementById("imap.overrideNamespaces").checked =
         serverSettings.overrideNamespaces;
-      document.getElementById("server.oauth2.useCustomDetails").checked =
-        serverSettings.oauth2UseCustomDetails;
-      document
-        .getElementById("server.oauth2.clientId")
-        .setAttribute("value", serverSettings.oauth2ClientId);
-      document
-        .getElementById("server.oauth2.authorizationEndpoint")
-        .setAttribute("value", serverSettings.oauth2AuthorizationEndpoint);
-      document
-        .getElementById("server.oauth2.tokenEndpoint")
-        .setAttribute("value", serverSettings.oauth2TokenEndpoint);
-      document
-        .getElementById("server.oauth2.scopes")
-        .setAttribute("value", serverSettings.oauth2Scopes);
-      document
-        .getElementById("server.oauth2.redirectionEndpoint")
-        .setAttribute("value", serverSettings.oauth2RedirectionEndpoint);
-      document.getElementById("server.oauth2.usePKCE").checked =
-        serverSettings.oauth2UsePKCE;
-      document.getElementById("server.oauth2.useExternalBrowser").checked =
-        serverSettings.oauth2UseExternalBrowser;
-      if (event?.detail.button == "accept") {
-        const prefBranch = Services.prefs.getBranch(
-          `mail.server.${gServer.key}.`
-        );
-        serverSettings.oauth2Issuer = OAuth2CustomDetails.getIssuer(
-          prefBranch,
-          serverSettings.oauth2UseCustomDetails
-        );
-        applyOAuth2SettingsToOutgoingServer(serverSettings);
-      }
     } else if (serverType == "pop3") {
       document.getElementById("pop3.deferGetNewMail").checked =
         serverSettings.deferGetNewMail;
@@ -589,6 +561,40 @@ function onAdvanced() {
         serverSettings.exchangeUsePKCE;
       document.getElementById("ews.exchangeUseExternalBrowser").checked =
         serverSettings.exchangeUseExternalBrowser;
+    }
+
+    if (serverType == "imap" || serverType == "pop3") {
+      document.getElementById("server.oauth2.useCustomDetails").checked =
+        serverSettings.oauth2UseCustomDetails;
+      document
+        .getElementById("server.oauth2.clientId")
+        .setAttribute("value", serverSettings.oauth2ClientId);
+      document
+        .getElementById("server.oauth2.authorizationEndpoint")
+        .setAttribute("value", serverSettings.oauth2AuthorizationEndpoint);
+      document
+        .getElementById("server.oauth2.tokenEndpoint")
+        .setAttribute("value", serverSettings.oauth2TokenEndpoint);
+      document
+        .getElementById("server.oauth2.scopes")
+        .setAttribute("value", serverSettings.oauth2Scopes);
+      document
+        .getElementById("server.oauth2.redirectionEndpoint")
+        .setAttribute("value", serverSettings.oauth2RedirectionEndpoint);
+      document.getElementById("server.oauth2.usePKCE").checked =
+        serverSettings.oauth2UsePKCE;
+      document.getElementById("server.oauth2.useExternalBrowser").checked =
+        serverSettings.oauth2UseExternalBrowser;
+      if (event?.detail.button == "accept") {
+        const prefBranch = Services.prefs.getBranch(
+          `mail.server.${gServer.key}.`
+        );
+        serverSettings.oauth2Issuer = OAuth2CustomDetails.getIssuer(
+          prefBranch,
+          serverSettings.oauth2UseCustomDetails
+        );
+        applyOAuth2SettingsToOutgoingServer(serverSettings);
+      }
     }
     updateOAuthUI(serverType);
     document.dispatchEvent(new CustomEvent("prefchange"));

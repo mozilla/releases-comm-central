@@ -162,107 +162,6 @@
             accesskey="&overrideNamespaces.accesskey;"
           />
         </hbox>
-
-        <vbox id="oauth2CustomDetailsContainer">
-          <separator class="groove" />
-          <checkbox
-            id="oauth2UseCustomDetails"
-            amsa_persist="true"
-            data-l10n-id="oauth2-use-custom-details"
-            oncommand="onChangeOAuth2CustomDetails(this)"
-          />
-          <hbox class="indent">
-            <!-- Labels -->
-            <vbox>
-              <hbox flex="1" align="center">
-                <label
-                  id="oauth2ClientIdLabel"
-                  data-l10n-id="oauth2-client-id-label"
-                  control="oauth2ClientId"
-                />
-              </hbox>
-              <hbox flex="1" align="center">
-                <label
-                  id="oauth2AuthorizationEndpointLabel"
-                  data-l10n-id="oauth2-authorization-endpoint-label"
-                  control="oauth2AuthorizationEndpoint"
-                />
-              </hbox>
-              <hbox flex="1" align="center">
-                <label
-                  id="oauth2TokenEndpointLabel"
-                  data-l10n-id="oauth2-token-endpoint-label"
-                  control="oauth2TokenEndpoint"
-                />
-              </hbox>
-              <hbox flex="1" align="center">
-                <label
-                  id="oauth2ScopesLabel"
-                  data-l10n-id="oauth2-scopes-label"
-                  control="oauth2Scopes"
-                />
-              </hbox>
-              <hbox flex="1" align="center">
-                <label
-                  id="oauth2RedirectionEndpointLabel"
-                  data-l10n-id="oauth2-redirection-endpoint-label"
-                  control="oauth2RedirectionEndpoint"
-                />
-              </hbox>
-            </vbox>
-            <!-- Input Fields -->
-            <vbox flex="1">
-              <html:input
-                id="oauth2ClientId"
-                type="text"
-                class="input-inline"
-                aria-labelledby="oauth2ClientIdLabel"
-                amsa_persist="true"
-              />
-              <html:input
-                id="oauth2AuthorizationEndpoint"
-                type="url"
-                class="input-inline"
-                aria-labelledby="oauth2AuthorizationEndpointLabel"
-                amsa_persist="true"
-              />
-              <html:input
-                id="oauth2TokenEndpoint"
-                type="url"
-                class="input-inline"
-                aria-labelledby="oauth2TokenEndpointLabel"
-                amsa_persist="true"
-              />
-              <html:input
-                id="oauth2Scopes"
-                type="text"
-                class="input-inline"
-                aria-labelledby="oauth2ScopesLabel"
-                amsa_persist="true"
-              />
-              <html:input
-                id="oauth2RedirectionEndpoint"
-                type="url"
-                class="input-inline"
-                aria-labelledby="oauth2RedirectionEndpointLabel"
-                amsa_persist="true"
-                placeholder="http://localhost"
-              />
-            </vbox>
-          </hbox>
-          <vbox class="indent">
-            <checkbox
-              id="oauth2UsePKCE"
-              amsa_persist="true"
-              data-l10n-id="oauth2-use-pkce"
-            />
-            <checkbox
-              id="oauth2UseExternalBrowser"
-              amsa_persist="true"
-              data-l10n-id="oauth2-use-system-browser"
-            />
-          </vbox>
-        </vbox>
       </vbox>
 
       <!-- POP3 Panel -->
@@ -322,6 +221,108 @@
             </vbox>
           </radiogroup>
         </hbox>
+      </vbox>
+
+      <!-- custom OAuth fields, shared by IMAP and POP3 -->
+      <vbox id="oauth2CustomDetailsContainer">
+        <separator class="groove" />
+        <checkbox
+          id="oauth2UseCustomDetails"
+          amsa_persist="true"
+          data-l10n-id="oauth2-use-custom-details"
+          oncommand="onChangeOAuth2CustomDetails(this)"
+        />
+        <hbox class="indent">
+          <!-- Labels -->
+          <vbox>
+            <hbox flex="1" align="center">
+              <label
+                id="oauth2ClientIdLabel"
+                data-l10n-id="oauth2-client-id-label"
+                control="oauth2ClientId"
+              />
+            </hbox>
+            <hbox flex="1" align="center">
+              <label
+                id="oauth2AuthorizationEndpointLabel"
+                data-l10n-id="oauth2-authorization-endpoint-label"
+                control="oauth2AuthorizationEndpoint"
+              />
+            </hbox>
+            <hbox flex="1" align="center">
+              <label
+                id="oauth2TokenEndpointLabel"
+                data-l10n-id="oauth2-token-endpoint-label"
+                control="oauth2TokenEndpoint"
+              />
+            </hbox>
+            <hbox flex="1" align="center">
+              <label
+                id="oauth2ScopesLabel"
+                data-l10n-id="oauth2-scopes-label"
+                control="oauth2Scopes"
+              />
+            </hbox>
+            <hbox flex="1" align="center">
+              <label
+                id="oauth2RedirectionEndpointLabel"
+                data-l10n-id="oauth2-redirection-endpoint-label"
+                control="oauth2RedirectionEndpoint"
+              />
+            </hbox>
+          </vbox>
+          <!-- Input Fields -->
+          <vbox flex="1">
+            <html:input
+              id="oauth2ClientId"
+              type="text"
+              class="input-inline"
+              aria-labelledby="oauth2ClientIdLabel"
+              amsa_persist="true"
+            />
+            <html:input
+              id="oauth2AuthorizationEndpoint"
+              type="url"
+              class="input-inline"
+              aria-labelledby="oauth2AuthorizationEndpointLabel"
+              amsa_persist="true"
+            />
+            <html:input
+              id="oauth2TokenEndpoint"
+              type="url"
+              class="input-inline"
+              aria-labelledby="oauth2TokenEndpointLabel"
+              amsa_persist="true"
+            />
+            <html:input
+              id="oauth2Scopes"
+              type="text"
+              class="input-inline"
+              aria-labelledby="oauth2ScopesLabel"
+              amsa_persist="true"
+            />
+            <html:input
+              id="oauth2RedirectionEndpoint"
+              type="url"
+              class="input-inline"
+              aria-labelledby="oauth2RedirectionEndpointLabel"
+              amsa_persist="true"
+              placeholder="http://localhost"
+            />
+          </vbox>
+        </hbox>
+        <vbox class="indent">
+          <checkbox
+            id="oauth2UsePKCE"
+            amsa_persist="true"
+            data-l10n-id="oauth2-use-pkce"
+          />
+          <checkbox
+            id="oauth2UseExternalBrowser"
+            amsa_persist="true"
+            data-l10n-id="oauth2-use-system-browser"
+          />
+        </vbox>
       </vbox>
 
       <!-- EWS Panel -->

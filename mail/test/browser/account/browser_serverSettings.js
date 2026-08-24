@@ -14,6 +14,8 @@ const { wait_for_frame_load } = ChromeUtils.importESModule(
 // The accounts to use in tests.
 var ewsAccount;
 var imapAccount;
+var popAccount;
+var localAccount;
 var smtpServer;
 
 add_setup(() => {
@@ -23,8 +25,8 @@ add_setup(() => {
     .close();
 
   ewsAccount = MailServices.accounts.createAccount();
-  const identity = MailServices.accounts.createIdentity();
-  ewsAccount.addIdentity(identity);
+  const ewsIdentity = MailServices.accounts.createIdentity();
+  ewsAccount.addIdentity(ewsIdentity);
 
   // Create an EWS server and attach it to the account.
   ewsAccount.incomingServer = MailServices.accounts.createIncomingServer(
@@ -32,6 +34,10 @@ add_setup(() => {
     "test.test",
     "ews"
   );
+
+  smtpServer = MailServices.outgoingServer.createServer("smtp");
+  smtpServer.QueryInterface(Ci.nsISmtpServer).hostname = "localhost";
+  smtpServer.username = "user";
 
   imapAccount = MailServices.accounts.createAccount();
   const imapIdentity = MailServices.accounts.createIdentity();
@@ -42,18 +48,32 @@ add_setup(() => {
     "localhost",
     "imap"
   );
-  smtpServer = MailServices.outgoingServer.createServer("smtp");
-  smtpServer.QueryInterface(Ci.nsISmtpServer).hostname = "localhost";
-  smtpServer.username = "user";
   imapIdentity.smtpServerKey = smtpServer.key;
   imapAccount.addIdentity(imapIdentity);
+
+  popAccount = MailServices.accounts.createAccount();
+  const popIdentity = MailServices.accounts.createIdentity();
+
+  // Create a POP3 server and attach it to the account.
+  popAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "localhost",
+    "pop3"
+  );
+  popIdentity.smtpServerKey = smtpServer.key;
+  popAccount.addIdentity(popIdentity);
+  // POP3 needs this for its deferred folder-menupopup.
+  localAccount = MailServices.accounts.createLocalMailAccount();
 
   registerCleanupFunction(() => {
     // Make sure the account doesn't persist beyond the test.
     ewsAccount.incomingServer.closeCachedConnections();
     imapAccount.incomingServer.closeCachedConnections();
+    popAccount.incomingServer.closeCachedConnections();
     MailServices.accounts.removeAccount(ewsAccount, false);
     MailServices.accounts.removeAccount(imapAccount, false);
+    MailServices.accounts.removeAccount(popAccount, false);
+    MailServices.accounts.removeAccount(localAccount, false);
     MailServices.outgoingServer.deleteServer(smtpServer);
   });
 });
@@ -400,24 +420,29 @@ async function openAdvancedDialog(iframe, accountSettingsTab, buttonId) {
   return await waitForAdvancedDialog(accountSettingsTab);
 }
 
-/** Tests that changing the IMAP custom OAuth settings updates both servers. */
-add_task(async function test_imap_oauth_settings() {
-  const incomingPrefRoot = `mail.server.${imapAccount.incomingServer.key}.oauth2.`;
+/**
+ * Tests that changing custom OAuth settings updates incoming and outgoing
+ * servers.
+ *
+ * @param {object} account
+ * @param {string} accountType
+ */
+async function test_custom_oauth_settings(account, accountType) {
+  const incomingPrefRoot = `mail.server.${account.incomingServer.key}.oauth2.`;
   const outgoingPrefRoot = `mail.smtpserver.${smtpServer.key}.oauth2.`;
 
   try {
     Assert.equal(
-      MailServices.outgoingServer.getServerByIdentity(
-        imapAccount.defaultIdentity
-      ).key,
+      MailServices.outgoingServer.getServerByIdentity(account.defaultIdentity)
+        .key,
       smtpServer.key,
-      "The IMAP account should use the test SMTP server."
+      "The account should use the test SMTP server."
     );
 
     await open_advanced_settings(async accountSettingsTab => {
       const iframe = await selectAccountInSettings(
         accountSettingsTab,
-        imapAccount.key
+        account.key
       );
 
       // Confirm everything is in its default starting state.
@@ -435,7 +460,7 @@ add_task(async function test_imap_oauth_settings() {
       const advancedDialog = await openAdvancedDialog(
         iframe,
         accountSettingsTab,
-        "server.imapAdvancedButton"
+        `server.${accountType}AdvancedButton`
       );
 
       const useCustomDetails = advancedDialog.document.getElementById(
@@ -507,7 +532,7 @@ add_task(async function test_imap_oauth_settings() {
         "redirectionEndpoint",
       ];
       for (const [prefs, protocol] of [
-        [incomingPrefs, "IMAP"],
+        [incomingPrefs, accountType],
         [outgoingPrefs, "SMTP"],
       ]) {
         Assert.ok(
@@ -541,7 +566,7 @@ add_task(async function test_imap_oauth_settings() {
       Assert.equal(
         outgoingPrefs.getStringPref("issuer"),
         incomingIssuer,
-        "SMTP should use the same internal issuer as IMAP."
+        "SMTP should use the same internal issuer as incoming server."
       );
 
       // Confirm return to default when the custom details switch back off.
@@ -549,7 +574,7 @@ add_task(async function test_imap_oauth_settings() {
       const advancedDialogReopened = await openAdvancedDialog(
         iframe,
         accountSettingsTab,
-        "server.imapAdvancedButton"
+        `server.${accountType}AdvancedButton`
       );
       const useCustomDetailsReopened =
         advancedDialogReopened.document.getElementById(
@@ -587,12 +612,12 @@ add_task(async function test_imap_oauth_settings() {
       await acceptDialogAndWaitForClose(advancedDialogReopened);
 
       for (const [prefs, protocol] of [
-        [incomingPrefs, "IMAP"],
+        [incomingPrefs, accountType],
         [outgoingPrefs, "SMTP"],
       ]) {
         Assert.ok(
           !prefs.getBoolPref("useCustomDetails"),
-          `Disabling custom OAuth for IMAP should disable it for ${protocol}.`
+          `Disabling custom OAuth for ${accountType} should disable it for ${protocol}.`
         );
       }
     });
@@ -600,6 +625,14 @@ add_task(async function test_imap_oauth_settings() {
     Services.prefs.deleteBranch(incomingPrefRoot);
     Services.prefs.deleteBranch(outgoingPrefRoot);
   }
+}
+
+add_task(async function test_custom_imap_settings() {
+  await test_custom_oauth_settings(imapAccount, "imap");
+});
+
+add_task(async function test_custom_pop_settings() {
+  await test_custom_oauth_settings(popAccount, "pop");
 });
 
 /** Tests that setting the EWS Host URL changes the incoming server settings. */
