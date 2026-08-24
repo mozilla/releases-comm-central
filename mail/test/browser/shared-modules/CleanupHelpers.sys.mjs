@@ -13,6 +13,11 @@ import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
  */
 export async function clearStatusBar(window) {
   const status = window.MsgStatusFeedback;
+
+  // Status feedback is delivered with window.postMessage. Process any pending
+  // notification before deciding that the status bar is idle.
+  await TestUtils.waitForTick();
+
   try {
     await TestUtils.waitForCondition(
       () =>
