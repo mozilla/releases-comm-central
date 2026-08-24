@@ -220,11 +220,12 @@ export var Policies = {
 
   Authentication: {
     onBeforeAddons(manager, param) {
+      // When Authentication was originally implemented, it was always
+      // locked, so it defaults to locked.
       let locked = true;
       if ("Locked" in param) {
         locked = param.Locked;
       }
-
       if ("SPNEGO" in param) {
         lazy.PoliciesUtils.setDefaultPref(
           "network.negotiate-auth.trusted-uris",
