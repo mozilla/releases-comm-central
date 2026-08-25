@@ -30,14 +30,14 @@ const ignoreList = [
   // content: -moz-alt-content is UA-only.
   {
     sourceName: /\b(html)\.css$/i,
-    errorMessage: /Error in parsing value for ‘content’/i,
+    errorMessage: /Error in parsing value for ‘content:/i,
     isFromDevTools: false,
   },
   // megalist-agent.css is loaded as an agent sheet, so its UA-only
   // ::-moz-reveal selector doesn't parse as an author sheet here.
   {
     sourceName: /\bmegalist-agent\.css$/i,
-    errorMessage: /Unknown pseudo-class or pseudo-element ‘-moz-reveal’/i,
+    errorMessage: /Unknown pseudo-class or pseudo-element ‘.*::-moz-reveal’/i,
     isFromDevTools: false,
   },
   // These variables are declared somewhere else, and error when we load the
@@ -67,12 +67,7 @@ if (AppConstants.platform != "macosx") {
 if (!Services.prefs.getBoolPref("dom.select.customizable_select.enabled")) {
   ignoreList.push({
     sourceName: /\bforms\.css$/i,
-    errorMessage: /Unknown pseudo-class or pseudo-element ‘picker’./i,
-    isFromDevTools: false,
-  });
-  ignoreList.push({
-    sourceName: /\bforms\.css$/i,
-    errorMessage: /Unknown pseudo-class or pseudo-element ‘checkmark’./i,
+    errorMessage: /Unknown pseudo-class or pseudo-element ‘.*::checkmark’./i,
     isFromDevTools: false,
   });
 }
@@ -80,7 +75,7 @@ if (!Services.prefs.getBoolPref("dom.select.customizable_select.enabled")) {
 if (!Services.prefs.getBoolPref("layout.css.zoom.enabled")) {
   ignoreList.push({
     sourceName: /\bscrollbars\.css$/i,
-    errorMessage: /Error in parsing value for ‘zoom’/i,
+    errorMessage: /Error in parsing value for ‘zoom:/i,
     isFromDevTools: false,
   });
 }
