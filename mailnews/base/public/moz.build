@@ -4,6 +4,7 @@
 
 XPIDL_SOURCES += [
     "IHeaderBlock.idl",
+    "ImapTypes.idl",
     "MailNewsTypes2.idl",
     "msgIOAuth2Module.idl",
     "msgIPasswordAuthModule.idl",
