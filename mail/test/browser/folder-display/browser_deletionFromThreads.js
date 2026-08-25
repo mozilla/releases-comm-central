@@ -442,3 +442,81 @@ add_task(async function test_cross_tab_phantom_twisty() {
 
   await close_tab(tab2);
 });
+
+/**
+ * Bug 2065806 - Deleting the only child of a thread and then sorting must not
+ * remove the parent message from the view.
+ *
+ * When a delete left only the thread root, MSG_VIEW_FLAG_ISTHREAD was
+ * stripped from the root row along with Elided/HASCHILDREN. Sorting relies
+ * on ISTHREAD to find thread boundaries, so the root was silently dropped
+ * from the view until the folder was re-entered.
+ */
+add_task(async function test_delete_only_child_then_sort() {
+  // Setup a folder with exactly 2 messages in a thread (root + one child).
+  const structFolder = await create_folder("StructFolder_SortAfterDelete");
+  await make_message_sets_in_folders(
+    [structFolder],
+    [{ count: 2, msgsPerThread: 2 }]
+  );
+
+  await switch_tab(tab1);
+  await be_in_folder(structFolder);
+  await make_display_threaded();
+  await collapse_all_threads();
+
+  const dbView =
+    document.getElementById("tabmail").currentTabInfo.chromeBrowser
+      .contentWindow.gDBView;
+
+  Assert.equal(dbView.rowCount, 1, "Collapsed thread should show 1 row");
+
+  // Expand, delete the child (row 1), leaving only the root.
+  await expand_all_threads();
+  Assert.equal(dbView.rowCount, 2, "Expanded thread should show 2 rows");
+  await select_click_row(1);
+  await press_delete();
+
+  Assert.equal(dbView.rowCount, 1, "Only the root should remain");
+  Assert.ok(
+    !dbView.isContainer(0),
+    "Root should have lost the twisty after child deletion"
+  );
+
+  // Remember the root's message ID before sorting so we can verify it
+  // survives the sort.
+  const rootMessageId = dbView.getMsgHdrAt(0).messageId;
+
+  // Toggle the sort order on the date column. This exercises both the view
+  // rebuild path and ReverseThreads(), which needs ISTHREAD to find thread
+  // boundaries. The root must survive both directions.
+  const sortType = Ci.nsMsgViewSortType.byDate;
+  dbView.sort(sortType, Ci.nsMsgViewSortOrder.descending);
+  Assert.equal(
+    dbView.rowCount,
+    1,
+    "Root should still be visible after sorting descending"
+  );
+  Assert.equal(
+    dbView.getMsgHdrAt(0).messageId,
+    rootMessageId,
+    "The surviving row should still be the thread root"
+  );
+  dbView.sort(sortType, Ci.nsMsgViewSortOrder.ascending);
+  Assert.equal(
+    dbView.rowCount,
+    1,
+    "Root should still be visible after toggling sort back to ascending"
+  );
+  Assert.equal(
+    dbView.getMsgHdrAt(0).messageId,
+    rootMessageId,
+    "The surviving row should still be the thread root"
+  );
+  Assert.ok(
+    !dbView.isContainer(0),
+    "Root remains a single-message row without twisty"
+  );
+
+  structFolder.deleteSelf(null);
+});

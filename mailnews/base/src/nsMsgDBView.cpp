@@ -5181,13 +5181,12 @@ nsMsgDBView::OnHdrDeleted(nsIMsgDBHdr* aHdrChanged, nsMsgKey aParentKey,
         GetIndexOfFirstDisplayedKeyInThread(thread);
     if (IsValidIndex(threadRootIndex)) {
       // Check if the deletion left only one message, in this case strip the
-      // twisty and threading flags so the UI flattens.
+      // twisty and expansion state flags so the UI flattens.
       uint32_t numThreadChildren = 0;
       thread->GetNumChildren(&numThreadChildren);
       if (numThreadChildren <= 1) {
         m_flags[threadRootIndex] &=
-            ~(MSG_VIEW_FLAG_ISTHREAD | nsMsgMessageFlags::Elided |
-              MSG_VIEW_FLAG_HASCHILDREN);
+            ~(nsMsgMessageFlags::Elided | MSG_VIEW_FLAG_HASCHILDREN);
       }
       NoteChange(threadRootIndex, 1, nsMsgViewNotificationCode::changed);
     }

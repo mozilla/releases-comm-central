@@ -17,9 +17,12 @@ var {
   assert_tab_titled_from,
   be_in_folder,
   close_tab,
+  collapse_all_threads,
   create_folder,
+  expand_all_threads,
   get_about_3pane,
   get_about_message,
+  make_display_threaded,
   mc,
   open_selected_message_in_new_tab,
   open_selected_message_in_new_window,
@@ -863,3 +866,82 @@ add_task(
     await switch_tab(tabFolder);
   }
 );
+
+/**
+ * Bug 2065806 - Deleting a message that is hidden inside a collapsed thread
+ * (from another display) must keep the surviving thread root in the view,
+ * even after sorting.
+ *
+ * This exercises nsMsgDBView::OnHdrDeleted() for a header not visible in the
+ * folder tab's view: when the deletion leaves only the root, the view must
+ * clear Elided/HASCHILDREN but keep MSG_VIEW_FLAG_ISTHREAD, otherwise
+ * ReverseThreads() drops the row on the next sort.
+ */
+add_task(async function test_delete_hidden_thread_child_then_sort() {
+  // Setup a folder with exactly 2 messages in a thread (root + one child).
+  const structFolder = await create_folder("DeletionHiddenThreadChild");
+  await make_message_sets_in_folders(
+    [structFolder],
+    [{ count: 2, msgsPerThread: 2 }]
+  );
+
+  // Open the child message (row 1) in a message tab.
+  tabFolder = await be_in_folder(structFolder);
+  await make_display_threaded();
+  await expand_all_threads();
+  curMessage = await select_click_row(1);
+  tabMessage = await open_selected_message_in_new_tab();
+  await assert_selected_and_displayed(curMessage);
+
+  // Back in the folder tab, collapse the thread so the child is hidden.
+  await switch_tab(tabFolder);
+  await collapse_all_threads();
+  const dbView = get_about_3pane().gDBView;
+  Assert.equal(dbView.rowCount, 1, "Collapsed thread should show 1 row");
+
+  // Delete the child from the message tab.
+  await switch_tab(tabMessage);
+  await press_delete();
+
+  // The folder tab's view was notified about a header it could not see;
+  // the root must still be there, without a twisty.
+  await switch_tab(tabFolder);
+  Assert.equal(
+    dbView.rowCount,
+    1,
+    "Root should remain after the hidden child was deleted"
+  );
+  Assert.ok(
+    !dbView.isContainer(0),
+    "Root should have lost the twisty after child deletion"
+  );
+  const rootMessageId = dbView.getMsgHdrAt(0).messageId;
+
+  // Sorting must not drop the un-twistied root.
+  const sortType = Ci.nsMsgViewSortType.byDate;
+  dbView.sort(sortType, Ci.nsMsgViewSortOrder.descending);
+  Assert.equal(
+    dbView.rowCount,
+    1,
+    "Root should still be visible after sorting descending"
+  );
+  Assert.equal(
+    dbView.getMsgHdrAt(0).messageId,
+    rootMessageId,
+    "The surviving row should still be the thread root"
+  );
+  dbView.sort(sortType, Ci.nsMsgViewSortOrder.ascending);
+  Assert.equal(
+    dbView.rowCount,
+    1,
+    "Root should still be visible after toggling sort back to ascending"
+  );
+  Assert.equal(
+    dbView.getMsgHdrAt(0).messageId,
+    rootMessageId,
+    "The surviving row should still be the thread root"
+  );
+
+  // Clean up.
+  close_tab(tabMessage);
+});

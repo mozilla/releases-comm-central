@@ -761,8 +761,7 @@ nsresult nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index) {
         if (IsValidIndex(threadIndex)) {
           if (numThreadChildren == 1) {
             uint32_t flags = m_flags[threadIndex];
-            flags &= ~(MSG_VIEW_FLAG_ISTHREAD | nsMsgMessageFlags::Elided |
-                       MSG_VIEW_FLAG_HASCHILDREN);
+            flags &= ~(nsMsgMessageFlags::Elided | MSG_VIEW_FLAG_HASCHILDREN);
             m_flags[threadIndex] = flags;
           }
           // Notify about change in top level message in any case to have the
