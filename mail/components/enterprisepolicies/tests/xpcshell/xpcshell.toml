@@ -29,6 +29,8 @@ skip-if = [
 
 ["test_runOnce_helper.js"]
 
+["test_security_devices.js"]
+
 ["test_simple_pref_policies.js"]
 
 ["test_sorted_alphabetically.js"]
