@@ -77,15 +77,6 @@ if (!Services.prefs.getBoolPref("dom.select.customizable_select.enabled")) {
   });
 }
 
-if (!Services.prefs.getBoolPref("layout.css.fake-webkit-scrollbar.enabled")) {
-  ignoreList.push({
-    sourceName: /\bwebcompat\/injections\/css\/.*\.css$/i,
-    errorMessage:
-      /Unknown pseudo-class or pseudo-element ‘-webkit-scrollbar’./i,
-    isFromDevTools: false,
-  });
-}
-
 if (!Services.prefs.getBoolPref("layout.css.zoom.enabled")) {
   ignoreList.push({
     sourceName: /\bscrollbars\.css$/i,
@@ -320,59 +311,138 @@ function processCSSRules(container) {
       processCSSRules(rule); // @supports, @media, @layer (block), @keyframes, style rules with nested rules.
     }
     if (!rule.style) {
-      continue; // @layer (statement), @font-feature-values, @counter-style
-    }
-    // Extract urls from the css text.
-    // Note: CSSRule.style.cssText always has double quotes around URLs even
-    //       when the original CSS file didn't.
-    const cssText = rule.style.cssText;
-    const urls = cssText.match(/url\("[^"]*"\)/g);
-    // Extract props by searching all "--" preceded by "var(" or a non-word
-    // character.
-    const props = cssText.match(/(var\(\s*|\W|^)(--[\w\-]+)/g);
-    if (!urls && !props) {
+      // @layer (statement), @font-feature-values, @counter-style, @container, …
+
+      // Look for custom property usage in style queries
+      if (rule.conditionText) {
+        const lexer = new InspectorCSSParser(rule.conditionText);
+        let token;
+        let foundStyleFunc = false;
+        while ((token = lexer.nextToken())) {
+          // we're looking for usages of the `style()` function to collect referenced
+          // custom property names
+          if (token.tokenType === "Function" && token.value === "style") {
+            foundStyleFunc = true;
+            continue;
+          }
+
+          // If we saw a `style(` token before, we're looking for the custom property name
+          // param
+          if (
+            foundStyleFunc &&
+            token.tokenType === "Ident" &&
+            token.text.startsWith("--")
+          ) {
+            foundStyleFunc = false;
+            const prop = token.text;
+            const prevValue = customPropsToReferencesMap.get(prop) || 0;
+            customPropsToReferencesMap.set(prop, prevValue + 1);
+            continue;
+          }
+
+          // When seeing a closing parenthesis we can reset the work variable
+          if (token.tokenType === "CloseParenthesis") {
+            foundStyleFunc = false;
+            continue;
+          }
+        }
+      }
+
       continue;
     }
 
-    for (let url of urls || []) {
-      // Remove the url(" prefix and the ") suffix.
-      url = url.replace(/url\("(.*)"\)/, "$1");
-      if (url.startsWith("data:")) {
-        continue;
-      }
+    // We want to extract urls and variables from the css text.
+    // Let's parse the css text so we can iterate through the tokens, which is more
+    // reliable than trying to extract data with regexes.
+    const cssText = rule.style.cssText;
+    {
+      const lexer = new InspectorCSSParser(cssText);
+      let token;
+      let currentDeclarationName;
+      let foundVarFunc = false;
+      let foundUrlFunc = false;
 
-      // Make the url absolute and remove the ref.
-      const baseURI = Services.io.newURI(rule.parentStyleSheet.href);
-      url = Services.io.newURI(url, null, baseURI).specIgnoringRef;
+      while ((token = lexer.nextToken())) {
+        // At the beginning, we're looking for the declaration name
+        if (!currentDeclarationName) {
+          // which should be the first Ident token we see
+          if (token.tokenType === "Ident") {
+            currentDeclarationName = token.text;
 
-      // Store the image url along with the css file referencing it.
-      const baseUrl = baseURI.spec.split("?always-parse-css")[0];
-      if (!imageURIsToReferencesMap.has(url)) {
-        imageURIsToReferencesMap.set(url, new Set([baseUrl]));
-      } else {
-        imageURIsToReferencesMap.get(url).add(baseUrl);
-      }
-    }
-
-    for (let prop of props || []) {
-      if (prop.startsWith("var(")) {
-        prop = prop.substring(4).trim();
-        const prevValue = customPropsToReferencesMap.get(prop) || 0;
-        customPropsToReferencesMap.set(prop, prevValue + 1);
-      } else {
-        // Remove the extra non-word character captured by the regular
-        // expression if needed.
-        if (prop[0] != "-") {
-          prop = prop.substring(1);
-        }
-        if (!customPropsToReferencesMap.has(prop)) {
-          customPropsToReferencesMap.set(prop, undefined);
-          if (!customPropsDefinitionFileMap.has(prop)) {
-            customPropsDefinitionFileMap.set(prop, new Set());
+            // If it starts with "--", we have a custom property declaration
+            if (token.text.startsWith("--")) {
+              const prop = token.text;
+              if (!customPropsToReferencesMap.has(prop)) {
+                customPropsToReferencesMap.set(prop, undefined);
+                if (!customPropsDefinitionFileMap.has(prop)) {
+                  customPropsDefinitionFileMap.set(prop, new Set());
+                }
+                customPropsDefinitionFileMap
+                  .get(prop)
+                  .add(container.href || container.parentStyleSheet.href);
+              }
+            }
           }
-          customPropsDefinitionFileMap
-            .get(prop)
-            .add(container.href || container.parentStyleSheet.href);
+          continue;
+        }
+        // At this point, we found the declaration name, so we're parsing the declaration value
+
+        // we're looking for usages of the `var()` function to collect referenced custom property names
+        if (token.tokenType === "Function" && token.value === "var") {
+          foundVarFunc = true;
+          continue;
+        }
+        // If we saw a `var(` token before, then the next Ident should contain a custom
+        // property name
+        if (
+          foundVarFunc &&
+          token.tokenType === "Ident" &&
+          token.text.startsWith("--")
+        ) {
+          foundVarFunc = false;
+          const prop = token.text;
+          const prevValue = customPropsToReferencesMap.get(prop) || 0;
+          customPropsToReferencesMap.set(prop, prevValue + 1);
+          continue;
+        }
+
+        // we're also looking for usages of the `url()` function
+        if (token.tokenType === "Function" && token.value === "url") {
+          foundUrlFunc = true;
+          continue;
+        }
+        // If we saw a `url(` token before, then the next QuotedString should contain
+        // the actual URL (CSSRule.style.cssText always has double quotes around URLs
+        // even when the original CSS file didn't).
+        if (foundUrlFunc && token.tokenType === "QuotedString") {
+          foundUrlFunc = false;
+          let url = token.value;
+          if (url.startsWith("data:")) {
+            continue;
+          }
+
+          // Make the url absolute and remove the ref.
+          const baseURI = Services.io.newURI(rule.parentStyleSheet.href);
+          url = Services.io.newURI(url, null, baseURI).specIgnoringRef;
+
+          // Store the image url along with the css file referencing it.
+          const baseUrl = baseURI.spec.split("?always-parse-css")[0];
+          if (!imageURIsToReferencesMap.has(url)) {
+            imageURIsToReferencesMap.set(url, new Set([baseUrl]));
+          } else {
+            imageURIsToReferencesMap.get(url).add(baseUrl);
+          }
+
+          continue;
+        }
+
+        // When seeing a semi colon, we can reset the work variable so we're ready
+        // to parse the next declaration
+        if (token.tokenType === "Semicolon") {
+          foundVarFunc = false;
+          foundUrlFunc = false;
+          currentDeclarationName = null;
+          continue;
         }
       }
     }
@@ -406,6 +476,23 @@ function chromeFileExists(aURI) {
     }
   }
   return available > 0;
+}
+
+function shouldIgnorePropSource(item, prop) {
+  if (!item.sourceName || !customPropsDefinitionFileMap.has(prop)) {
+    return false;
+  }
+  return customPropsDefinitionFileMap
+    .get(prop)
+    .values()
+    .some(f => item.sourceName.test(f));
+}
+
+function shouldIgnorePropPattern(item, prop) {
+  if (!item.propName || !(item.propName instanceof RegExp)) {
+    return false;
+  }
+  return item.propName.test(prop);
 }
 
 add_task(async function checkAllTheCSS() {
@@ -527,7 +614,12 @@ add_task(async function checkAllTheCSS() {
     if (!refCount) {
       let ignored = false;
       for (const item of propNameAllowlist) {
-        if (item.propName == prop && isDevtools == item.isFromDevTools) {
+        if (
+          isDevtools == item.isFromDevTools &&
+          (item.propName == prop ||
+            shouldIgnorePropPattern(item, prop) ||
+            shouldIgnorePropSource(item, prop))
+        ) {
           item.used = true;
           if (
             !item.platforms ||
