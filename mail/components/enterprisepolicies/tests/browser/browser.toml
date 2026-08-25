@@ -57,3 +57,5 @@ run-if = [
 ["browser_policy_masterpassword.js"]
 
 ["browser_policy_passwordmanager.js"]
+
+["browser_policy_pdfviewer.js"]
