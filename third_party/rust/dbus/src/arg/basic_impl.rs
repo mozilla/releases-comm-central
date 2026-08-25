@@ -6,6 +6,7 @@ use std::{ptr, any, mem};
 use std::ffi::CStr;
 use std::os::raw::{c_void, c_char, c_int};
 use std::fs::File;
+use std::borrow::Cow;
 
 
 fn arg_append_basic<T>(i: *mut ffi::DBusMessageIter, arg_type: ArgType, v: T) {
@@ -166,7 +167,6 @@ impl<'a> Arg for &'a str {
 
 impl<'a> Append for &'a str {
     fn append_by_ref(&self, i: &mut IterAppend) {
-        use std::borrow::Cow;
         let b: &[u8] = self.as_bytes();
         let v: Cow<[u8]> = if !b.is_empty() && b[b.len()-1] == 0 { Cow::Borrowed(b) }
         else {
@@ -182,6 +182,12 @@ impl<'a> DictKey for &'a str {}
 impl<'a> Get<'a> for &'a str {
     fn get(i: &mut Iter<'a>) -> Option<&'a str> { unsafe { arg_get_str(&mut i.0, ArgType::String) }
         .and_then(|s| s.to_str().ok()) }
+}
+
+impl<'a> Append for Cow<'a, str> {
+    fn append_by_ref(&self, i: &mut IterAppend) {
+        (&**self).append_by_ref(i)
+    }
 }
 
 impl<'a> Arg for String {
@@ -243,7 +249,7 @@ impl DictKey for OwnedFd {}
 impl<'a> Get<'a> for OwnedFd {
     #[cfg(unix)]
     fn get(i: &mut Iter) -> Option<Self> {
-        arg_get_basic(&mut i.0, ArgType::UnixFd).map(|fd| unsafe { OwnedFd::new(fd) })
+        arg_get_basic(&mut i.0, ArgType::UnixFd).map(|fd| unsafe { OwnedFd::from_raw_fd(fd) })
     }
     #[cfg(windows)]
     fn get(_i: &mut Iter) -> Option<Self> {
@@ -251,8 +257,43 @@ impl<'a> Get<'a> for OwnedFd {
     }
 }
 
+#[cfg(all(unix, feature = "io-lifetimes"))]
+impl Arg for io_lifetimes::OwnedFd {
+    const ARG_TYPE: ArgType = ArgType::UnixFd;
+    fn signature() -> Signature<'static> { unsafe { Signature::from_slice_unchecked("h\0") } }
+}
+#[cfg(all(unix, feature = "io-lifetimes"))]
+impl Append for io_lifetimes::OwnedFd {
+    fn append_by_ref(&self, i: &mut IterAppend) {
+        arg_append_basic(&mut i.0, ArgType::UnixFd, self.as_raw_fd())
+    }
+}
+#[cfg(all(unix, feature = "io-lifetimes"))]
+impl DictKey for io_lifetimes::OwnedFd {}
+#[cfg(all(unix, feature = "io-lifetimes"))]
+impl<'a> Get<'a> for io_lifetimes::OwnedFd {
+    fn get(i: &mut Iter) -> Option<Self> {
+        arg_get_basic(&mut i.0, ArgType::UnixFd).map(|fd| unsafe { io_lifetimes::OwnedFd::from_raw_fd(fd) })
+    }
+}
+
 #[cfg(unix)]
-refarg_impl!(OwnedFd, _i, { use std::os::unix::io::AsRawFd; Some(_i.as_raw_fd() as i64) }, None, None, None);
+impl RefArg for OwnedFd {
+    #[inline]
+    fn arg_type(&self) -> ArgType { <Self as Arg>::ARG_TYPE }
+    #[inline]
+    fn signature(&self) -> Signature<'static> { <Self as Arg>::signature() }
+    #[inline]
+    fn append(&self, i: &mut IterAppend) { <Self as Append>::append_by_ref(self, i) }
+    #[inline]
+    fn as_any(&self) -> &dyn any::Any { self }
+    #[inline]
+    fn as_any_mut(&mut self) -> &mut dyn any::Any { self }
+    #[inline]
+    fn as_i64(&self) -> Option<i64> { Some(self.as_raw_fd() as i64) }
+    #[inline]
+    fn box_clone(&self) -> Box<dyn RefArg + 'static> { Box::new(self.try_clone().unwrap()) }
+}
 
 #[cfg(windows)]
 refarg_impl!(OwnedFd, _i, None, None, None, None);
@@ -290,6 +331,25 @@ impl RefArg for File {
     fn signature(&self) -> Signature<'static> { <File as Arg>::signature() }
     #[inline]
     fn append(&self, i: &mut IterAppend) { <File as Append>::append_by_ref(self, i) }
+    #[inline]
+    fn as_any(&self) -> &dyn any::Any { self }
+    #[inline]
+    fn as_any_mut(&mut self) -> &mut dyn any::Any { self }
+    #[cfg(unix)]
+    #[inline]
+    fn as_i64(&self) -> Option<i64> { Some(self.as_raw_fd() as i64) }
+    #[inline]
+    fn box_clone(&self) -> Box<dyn RefArg + 'static> { Box::new(self.try_clone().unwrap()) }
+}
+
+#[cfg(all(unix, feature = "io-lifetimes"))]
+impl RefArg for io_lifetimes::OwnedFd {
+    #[inline]
+    fn arg_type(&self) -> ArgType { <Self as Arg>::ARG_TYPE }
+    #[inline]
+    fn signature(&self) -> Signature<'static> { <Self as Arg>::signature() }
+    #[inline]
+    fn append(&self, i: &mut IterAppend) { <Self as Append>::append_by_ref(self, i) }
     #[inline]
     fn as_any(&self) -> &dyn any::Any { self }
     #[inline]

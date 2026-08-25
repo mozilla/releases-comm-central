@@ -4,7 +4,7 @@ use crate::{Signature, arg::TypeMismatchError, arg::Variant};
 use std::{fmt, any};
 use std::sync::Arc;
 // use std::rc::Rc;
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 
 use super::{Iter, IterAppend, ArgType};
 
@@ -295,6 +295,33 @@ impl ReadAll for () {
         Ok(())
     }
 }
+
+
+/// This is a fallback for methods that have tons of arguments.
+/// Usually we'll use a tuple because it is more ergonomic, but AppendAll is only
+/// implemented for tuples up to a certain size.
+impl AppendAll for VecDeque<Box<dyn RefArg>> {
+    fn append(&self, ia: &mut IterAppend) {
+        for arg in self {
+            arg.append(ia);
+        }
+    }
+}
+
+/// This is a fallback for methods that have tons of arguments.
+/// Usually we'll use a tuple because it is more ergonomic, but ReadAll is only
+/// implemented for tuples up to a certain size.
+impl ReadAll for VecDeque<Box<dyn RefArg>> {
+    fn read(ii: &mut Iter) -> Result<Self, TypeMismatchError> {
+        let mut r = VecDeque::new();
+        while let Some(arg) = ii.get_refarg() {
+            r.push_back(arg);
+            ii.next();
+        }
+        Ok(r)
+    }
+}
+
 
 argall_impl!(a A str,);
 argall_impl!(a A str, b B str,);

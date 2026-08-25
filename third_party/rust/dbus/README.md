@@ -28,7 +28,7 @@ Additional crates
  * [dbus-tokio](http://crates.io/crates/dbus-tokio/) integrates D-Bus with [Tokio](http://tokio.rs). [![API documentation](https://docs.rs/dbus-tokio/badge.svg)](https://docs.rs/dbus-tokio)
  * [dbus-codegen](http://crates.io/crates/dbus-codegen/) installs a binary tool which generates Rust code from D-Bus XML introspection data. The [readme](https://github.com/diwic/dbus-rs/tree/master/dbus-codegen) contains an introduction to how to use it.
  * [libdbus-sys](http://crates.io/crates/libdbus-sys/) contains the raw FFI bindings to libdbus.
- * [dbus-tree](http://crates.io/crates/dbus-tree/) facitilates easy building of method
+ * [dbus-tree](http://crates.io/crates/dbus-tree/) facilitates easy building of method
     dispatching servers (legacy design). [![API documentation](https://docs.rs/dbus-tree/badge.svg)](https://docs.rs/dbus-tree)
 
 Invitation
@@ -101,7 +101,7 @@ c.request_name("com.example.dbustest", false, true, false)?;
 let mut cr = Crossroads::new();
 let token = cr.register("com.example.dbustest", |b| {
     b.method("Hello", ("name",), ("reply",), |_, _, (name,): (String,)| {
-        Ok(format!("Hello {}!", name))
+        Ok((format!("Hello {}!", name),))
     });
 });
 cr.insert("/hello", &[token], ());
@@ -145,18 +145,28 @@ Features
 
 The `futures` feature makes `dbus` depend on the `futures` crate. This enables the `nonblock` module (used by the `dbus-tokio` crate).
 
+The `vendored` feature links libdbus statically into the final executable.
+
+The `stdfd` feature uses std's `OwnedFd` instead of dbus own. (This will be the default in the next major release.)
+
 The `no-string-validation` feature skips an extra check that a specific string (e g a `Path`, `ErrorName` etc) conforms to the D-Bus specification, which might also make things a tiny bit faster. But - if you do so, and then actually send invalid strings to the D-Bus library, you might get a panic instead of a proper error.
 
 Requirements
 ============
 
+Default
+-------
 [Libdbus](https://dbus.freedesktop.org/releases/dbus/) 1.6 or higher, and latest stable release of [Rust](https://www.rust-lang.org/). If you run Ubuntu (any maintained version should be okay), this means having the `libdbus-1-dev` and `pkg-config` packages installed while building, and the `libdbus-1-3` package installed while running.
 
-Cross compiling libdbus might be tricky because it binds to a C library, there are some notes [here](https://github.com/diwic/dbus-rs/blob/master/libdbus-sys/cross_compile.md).
+Vendored
+--------
+If the `vendored` feature is enabled, none of the default requirements.
+
+The `vendored` feature is the current recommended way to cross compile dbus-rs. More information and some other methods are mentioned [here](https://github.com/diwic/dbus-rs/blob/master/libdbus-sys/cross_compile.md).
 
 Alternatives
 ============
 
-[zbus](https://gitlab.freedesktop.org/dbus/zbus) and [rustbus](https://github.com/KillingSpark/rustbus) (stalled?) are D-Bus crates
+[zbus](https://github.com/dbus2/zbus) and [rustbus](https://github.com/KillingSpark/rustbus) (stalled?) are D-Bus crates
 written completely in Rust (i e, no bindings to C libraries).
 Some more alternatives are listed [here](https://github.com/KillingSpark/rust-dbus-comparisons), but I'm not sure how usable they are.

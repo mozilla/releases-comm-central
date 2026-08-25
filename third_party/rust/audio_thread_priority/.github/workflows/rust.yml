@@ -47,9 +47,11 @@ jobs:
 
     - name: Test
       shell: bash
-      run: rustup run ${{ matrix.rust }} cargo test --all
-      # setrlimit64 error in the CI container
-      if: matrix.os != 'ubuntu-24.04'
+      # The promotion tests skip themselves on Linux: rtkit is installed (pulled in by
+      # pulseaudio) but its polkit policy only serves processes in an active session, which a
+      # runner job is not. The argument-validation and serialization tests still run, and
+      # --nocapture makes the skip notices visible in the log.
+      run: rustup run ${{ matrix.rust }} cargo test --all -- --nocapture
 
   # Test on Linux, as if it didn't have DBUS, to exercise the fallback path.
   build-fallback:
@@ -81,4 +83,11 @@ jobs:
 
     - name: Test fallback (Linux without dbus)
       shell: bash
-      run: rustup run ${{ matrix.rust }} cargo test --no-default-features
+      # The native (no-dbus) path really promotes threads, so the tests need permission to request
+      # real-time scheduling. Raise RLIMIT_RTPRIO for this shell, as an admin would via systemd
+      # LimitRTPRIO or /etc/security/limits.conf; the unprivileged test process and its children
+      # inherit it. This mirrors a real deployment rather than running the tests as root.
+      run: |
+        sudo prlimit --pid $$ --rtprio=10:10
+        echo "RLIMIT_RTPRIO soft=$(ulimit -Sr) hard=$(ulimit -Hr)"
+        rustup run ${{ matrix.rust }} cargo test --no-default-features

@@ -71,9 +71,9 @@ git = "https://github.com/martinthomson/ohttp"
 rev = "600931b5a1e947776cbaad931ed78f1e89005352"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/audioipc?rev=88fe860"]
+[source."git+https://github.com/mozilla/audioipc?rev=d3c9825"]
 git = "https://github.com/mozilla/audioipc"
-rev = "88fe860"
+rev = "d3c9825"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/authenticator-rs?tag=v0.6.0"]

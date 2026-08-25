@@ -12,10 +12,16 @@
 [package]
 edition = "2018"
 name = "dbus"
-version = "0.9.6"
+version = "0.9.12"
 authors = ["David Henningsson <diwic@ubuntu.com>"]
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "Bindings to D-Bus, which is a bus commonly used on Linux for inter-process communication."
-documentation = "http://docs.rs/dbus"
+documentation = "https://docs.rs/dbus"
 readme = "README.md"
 keywords = [
     "D-Bus",
@@ -31,6 +37,50 @@ repository = "https://github.com/diwic/dbus-rs"
 
 [package.metadata.docs.rs]
 features = ["futures"]
+
+[badges.maintenance]
+status = "actively-developed"
+
+[features]
+futures = [
+    "futures-util",
+    "futures-channel",
+]
+no-string-validation = []
+stdfd = []
+vendored = ["libdbus-sys/vendored"]
+
+[lib]
+name = "dbus"
+path = "src/lib.rs"
+
+[[example]]
+name = "client"
+path = "examples/client.rs"
+
+[[example]]
+name = "match_signal"
+path = "examples/match_signal.rs"
+
+[[example]]
+name = "monitor"
+path = "examples/monitor.rs"
+
+[[example]]
+name = "properties"
+path = "examples/properties.rs"
+
+[[example]]
+name = "properties_msgitem"
+path = "examples/properties_msgitem.rs"
+
+[[example]]
+name = "rtkit"
+path = "examples/rtkit.rs"
+
+[[example]]
+name = "unity_focused_window"
+path = "examples/unity_focused_window.rs"
 
 [dependencies.futures-channel]
 version = "0.3"
@@ -49,21 +99,11 @@ default-features = false
 version = "0.2.66"
 
 [dependencies.libdbus-sys]
-version = "0.2.2"
+version = "0.2.7"
 
 [dev-dependencies.tempfile]
 version = "3"
 
-[features]
-futures = [
-    "futures-util",
-    "futures-channel",
-]
-no-string-validation = []
-
-[target."cfg(windows)".dependencies.winapi]
-version = "0.3.0"
-features = ["winsock2"]
-
-[badges.maintenance]
-status = "actively-developed"
+[target."cfg(windows)".dependencies.windows-sys]
+version = "0.61.0"
+features = ["Win32_Networking_WinSock"]

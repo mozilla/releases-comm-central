@@ -12,7 +12,9 @@ use std::convert::TryInto;
 use std::error::Error;
 use std::io::Error as OSError;
 
-use dbus::{BusType, Connection, Message, MessageItem, Props};
+use dbus::arg::messageitem::{MessageItem, Props};
+use dbus::ffidisp::{BusType, Connection};
+use dbus::Message;
 
 use crate::AudioThreadPriorityError;
 
@@ -49,18 +51,51 @@ pub struct RtPriorityThreadInfoInternal {
     pthread_id: libc::pthread_t,
     /// The PID of the process containing `thread_id` below.
     pid: libc::pid_t,
-    /// ...
+    /// The scheduling policy in place before promotion, to restore on demotion.
     policy: libc::c_int,
+    /// The scheduling priority in place before promotion, to restore on demotion.
+    priority: libc::c_int,
 }
 
 impl RtPriorityThreadInfoInternal {
-    /// Serialize a RtPriorityThreadInfoInternal to a byte buffer.
+    /// Serialize to a byte buffer. The fields are packed explicitly rather than transmuting the
+    /// struct, so no uninitialized padding bytes are ever read. Any trailing padding stays zero.
     pub fn serialize(&self) -> [u8; std::mem::size_of::<Self>()] {
-        unsafe { std::mem::transmute::<Self, [u8; std::mem::size_of::<Self>()]>(*self) }
+        let thread_id = self.thread_id.to_ne_bytes();
+        let pthread_id = self.pthread_id.to_ne_bytes();
+        let pid = self.pid.to_ne_bytes();
+        let policy = self.policy.to_ne_bytes();
+        let priority = self.priority.to_ne_bytes();
+
+        let mut bytes = [0u8; std::mem::size_of::<Self>()];
+        let fields = thread_id
+            .iter()
+            .chain(&pthread_id)
+            .chain(&pid)
+            .chain(&policy)
+            .chain(&priority);
+        for (dst, &src) in bytes.iter_mut().zip(fields) {
+            *dst = src;
+        }
+        bytes
     }
-    /// Get an RtPriorityThreadInfoInternal from a byte buffer.
+    /// Reconstruct from a byte buffer produced by `serialize`.
     pub fn deserialize(bytes: [u8; std::mem::size_of::<Self>()]) -> Self {
-        unsafe { std::mem::transmute::<[u8; std::mem::size_of::<Self>()], Self>(bytes) }
+        fn take<const N: usize>(src: &mut impl Iterator<Item = u8>) -> [u8; N] {
+            let mut chunk = [0u8; N];
+            for slot in &mut chunk {
+                *slot = src.next().unwrap();
+            }
+            chunk
+        }
+        let mut src = bytes.iter().copied();
+        RtPriorityThreadInfoInternal {
+            thread_id: kernel_pid_t::from_ne_bytes(take(&mut src)),
+            pthread_id: libc::pthread_t::from_ne_bytes(take(&mut src)),
+            pid: libc::pid_t::from_ne_bytes(take(&mut src)),
+            policy: libc::c_int::from_ne_bytes(take(&mut src)),
+            priority: libc::c_int::from_ne_bytes(take(&mut src)),
+        }
     }
     /// Returns the PID of the process containing the thread.
     pub fn pid(&self) -> libc::pid_t {
@@ -190,7 +225,8 @@ pub fn demote_current_thread_from_real_time_internal(
 ) -> Result<(), AudioThreadPriorityError> {
     assert!(unsafe { libc::pthread_self() } == rt_priority_handle.thread_info.pthread_id);
 
-    let param = unsafe { std::mem::zeroed::<libc::sched_param>() };
+    let mut param = unsafe { std::mem::zeroed::<libc::sched_param>() };
+    param.sched_priority = rt_priority_handle.thread_info.priority;
 
     if unsafe {
         libc::pthread_setschedparam(
@@ -212,7 +248,8 @@ pub fn demote_current_thread_from_real_time_internal(
 pub fn demote_thread_from_real_time_internal(
     thread_info: RtPriorityThreadInfoInternal,
 ) -> Result<(), AudioThreadPriorityError> {
-    let param = unsafe { std::mem::zeroed::<libc::sched_param>() };
+    let mut param = unsafe { std::mem::zeroed::<libc::sched_param>() };
+    param.sched_priority = thread_info.priority;
 
     // https://github.com/rust-lang/libc/issues/1511
     const SCHED_RESET_ON_FORK: libc::c_int = 0x40000000;
@@ -220,7 +257,7 @@ pub fn demote_thread_from_real_time_internal(
     if unsafe {
         libc::pthread_setschedparam(
             thread_info.pthread_id,
-            libc::SCHED_OTHER | SCHED_RESET_ON_FORK,
+            thread_info.policy | SCHED_RESET_ON_FORK,
             &param,
         )
     } < 0
@@ -257,6 +294,7 @@ pub fn get_current_thread_info_internal(
         thread_id,
         pthread_id,
         policy,
+        priority: param.sched_priority,
     })
 }
 

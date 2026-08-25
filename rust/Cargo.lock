@@ -350,12 +350,12 @@ dependencies = [
 
 [[package]]
 name = "audio_thread_priority"
-version = "0.35.1"
+version = "0.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b1b4a0adbf971420cca66a75361a1190f34a6762d66361e5cde03dda35d1ed3"
+checksum = "e58c7a923538aa84eef9947d81924fb9f34d7db6004e179218ab57a7bb7700b6"
 dependencies = [
  "cfg-if",
- "dbus 0.6.5",
+ "dbus",
  "libc",
  "log",
  "mach2",
@@ -365,7 +365,7 @@ dependencies = [
 [[package]]
 name = "audioipc2"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=88fe860#88fe8606638c072da22e01159a2168a4c2d9fc5d"
+source = "git+https://github.com/mozilla/audioipc?rev=d3c9825#d3c9825a876a5fc7b54101bd40d685acfc542917"
 dependencies = [
  "arrayvec",
  "ashmem",
@@ -391,7 +391,7 @@ dependencies = [
 [[package]]
 name = "audioipc2-client"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=88fe860#88fe8606638c072da22e01159a2168a4c2d9fc5d"
+source = "git+https://github.com/mozilla/audioipc?rev=d3c9825#d3c9825a876a5fc7b54101bd40d685acfc542917"
 dependencies = [
  "audio_thread_priority",
  "audioipc2",
@@ -402,7 +402,7 @@ dependencies = [
 [[package]]
 name = "audioipc2-server"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=88fe860#88fe8606638c072da22e01159a2168a4c2d9fc5d"
+source = "git+https://github.com/mozilla/audioipc?rev=d3c9825#d3c9825a876a5fc7b54101bd40d685acfc542917"
 dependencies = [
  "audio_thread_priority",
  "audioipc2",
@@ -1479,23 +1479,13 @@ dependencies = [
 
 [[package]]
 name = "dbus"
-version = "0.6.5"
+version = "0.9.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48b5f0f36f1eebe901b0e6bee369a77ed3396334bf3f09abd46454a576f71819"
+checksum = "3ab69f03cc8c4340c9c8e315114e1658e6775a9b16a04357973aa21cec22b32e"
 dependencies = [
  "libc",
  "libdbus-sys",
-]
-
-[[package]]
-name = "dbus"
-version = "0.9.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f8bcdd56d2e5c4ed26a529c5a9029f5db8290d433497506f958eae3be148eb6"
-dependencies = [
- "libc",
- "libdbus-sys",
- "winapi",
+ "windows-sys",
 ]
 
 [[package]]
@@ -1505,7 +1495,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a49da9fdfbe872d4841d56605dc42efa5e6ca3291299b87f44e1cde91a28617c"
 dependencies = [
  "clap",
- "dbus 0.9.6",
+ "dbus",
  "xml-rs",
 ]
 
@@ -1515,7 +1505,7 @@ version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f456e698ae8e54575e19ddb1f9b7bce2298568524f215496b248eb9498b4f508"
 dependencies = [
- "dbus 0.9.6",
+ "dbus",
 ]
 
 [[package]]
@@ -3669,7 +3659,7 @@ version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4934310bdd016e55725482b8d35ac0c16fd058c1b955d8959aa2d953b918c85b"
 dependencies = [
- "dbus 0.9.6",
+ "dbus",
  "dbus-codegen",
  "dbus-tree",
  "thiserror 1.999.999",
@@ -3782,9 +3772,7 @@ checksum = "68ab91017fe16c622486840e4c83c9a37afeff978bd239b5293d61ece587de66"
 
 [[package]]
 name = "libdbus-sys"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c185b5b7ad900923ef3a8ff594083d4d9b5aea80bb4f32b8342363138c0d456b"
+version = "0.2.7"
 dependencies = [
  "pkg-config",
 ]
@@ -8005,7 +7993,7 @@ checksum = "9edde0db4769d2dc68579893f2306b26c6ecfbe0ef499b013d731b7b9247e0b9"
 name = "xdg_alerts"
 version = "0.1.0"
 dependencies = [
- "dbus 0.6.5",
+ "dbus",
  "log",
  "nserror",
  "nsstring",

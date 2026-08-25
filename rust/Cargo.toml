@@ -326,6 +326,7 @@ ohttp = { git = "https://github.com/martinthomson/ohttp", rev = "600931b5a1e9477
 zip = { path = "../../third_party/rust/zip" }
 cssparser = { git = "https://github.com/servo/rust-cssparser", rev = "eff8704e994dc54e5df2a936b78b51828ee21464" }
 libcrux-traits = { path = "../../build/rust/libcrux-traits" }
+libdbus-sys = { path = "../../third_party/rust/libdbus-sys" }
 jxl_simd = { path = "../../third_party/rust/jxl_simd" }
 gleam = { git = "https://github.com/jamienicol/gleam", rev = "68ca4e5cc31135b843af07ff213a94b9ddce64cf" }
 gl_generator = { git = "https://github.com/jamienicol/gl-rs", rev = "71c792dbfe0ec5caeb242fc90937e19098386342" }

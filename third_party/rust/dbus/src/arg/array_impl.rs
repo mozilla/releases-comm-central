@@ -8,6 +8,7 @@ use std::ffi::{CString};
 use std::os::raw::{c_void, c_int};
 use std::collections::{HashMap, BTreeMap};
 use std::hash::{Hash, BuildHasher};
+use std::borrow::Cow;
 
 // Map DBus-Type -> Alignment. Copied from _dbus_marshal_write_fixed_multi in
 // http://dbus.freedesktop.org/doc/api/html/dbus-marshal-basic_8c_source.html#l01020
@@ -50,6 +51,12 @@ fn array_append<T: Arg, F: FnMut(&T, &mut IterAppend)>(z: &[T], i: &mut IterAppe
 impl<'a, T: Arg + Append + Clone> Append for &'a [T] {
     fn append_by_ref(&self, i: &mut IterAppend) {
         array_append(self, i, |arg, s| arg.clone().append(s));
+    }
+}
+
+impl<'a, T: Arg + Append + Clone> Append for Cow<'a, [T]> {
+    fn append_by_ref(&self, i: &mut IterAppend) {
+        (&**self).append_by_ref(i)
     }
 }
 
@@ -529,7 +536,7 @@ impl RefArg for InternalArray {
 }
 
 fn get_dict_refarg_for_value_type<'a, K, KF>(
-    value_type: ArgType,
+    is_variant: bool,
     i: &mut Iter<'a>,
     kf: KF,
 ) -> Box<dyn RefArg>
@@ -537,30 +544,10 @@ where
     K: DictKey + 'static + RefArg + Clone + Eq + Hash,
     KF: FnMut(&mut Iter<'a>) -> Option<K>,
 {
-    match value_type {
-        ArgType::Variant => {
-            get_dict_refarg::<K, Variant<Box<dyn RefArg>>, KF, _>(i, kf, Variant::new_refarg)
-        }
-        // Most of the following could also use get_dict_refarg to convert to a typed HashMap, but
-        // doing so results in a large binary size increase due to all the generic instances being
-        // instantiated.
-        ArgType::Byte
-        | ArgType::Int16
-        | ArgType::UInt16
-        | ArgType::Int32
-        | ArgType::UInt32
-        | ArgType::Int64
-        | ArgType::UInt64
-        | ArgType::Double
-        | ArgType::String
-        | ArgType::ObjectPath
-        | ArgType::Signature
-        | ArgType::Boolean
-        | ArgType::UnixFd
-        | ArgType::Array
-        | ArgType::Struct => get_internal_dict_refarg::<K, KF>(i, kf),
-        ArgType::DictEntry => panic!("Can't have DictEntry as value for dictionary"),
-        ArgType::Invalid => panic!("Array with invalid dictvalue"),
+    if is_variant {
+        get_dict_refarg::<K, Variant<Box<dyn RefArg>>, KF, _>(i, kf, Variant::new_refarg)
+    } else {
+        get_internal_dict_refarg::<K, KF>(i, kf)
     }
 }
 
@@ -585,34 +572,35 @@ pub fn get_array_refarg(i: &mut Iter) -> Box<dyn RefArg> {
         ArgType::Invalid => panic!("Array with Invalid ArgType"),
         ArgType::Array => get_internal_array(i),
         ArgType::DictEntry => {
-            let key = ArgType::from_i32(i.signature().as_bytes()[2] as i32).unwrap(); // The third character, after "a{", is our key.
-            let value = ArgType::from_i32(i.signature().as_bytes()[3] as i32).unwrap(); // The fourth character, after "a{", is our value.
+            let sbytes = i.signature();
+            let key = ArgType::from_i32(sbytes.as_bytes()[2] as i32).unwrap(); // The third character, after "a{", is our key.
+            let value = sbytes.as_bytes()[3]; // Treat variants as value slightly different
+            let is_variant = value == b'v';
             match key {
-                ArgType::Byte => get_dict_refarg_for_value_type::<u8, _>(value, i, Iter::get),
-                ArgType::Int16 => get_dict_refarg_for_value_type::<i16, _>(value, i, Iter::get),
-                ArgType::UInt16 => get_dict_refarg_for_value_type::<u16, _>(value, i, Iter::get),
-                ArgType::Int32 => get_dict_refarg_for_value_type::<i32, _>(value, i, Iter::get),
-                ArgType::UInt32 => get_dict_refarg_for_value_type::<u32, _>(value, i, Iter::get),
-                ArgType::Int64 => get_dict_refarg_for_value_type::<i64, _>(value, i, Iter::get),
-                ArgType::UInt64 => get_dict_refarg_for_value_type::<u64, _>(value, i, Iter::get),
+                ArgType::Byte => get_dict_refarg_for_value_type::<u8, _>(is_variant, i, Iter::get),
+                ArgType::Int16 => get_dict_refarg_for_value_type::<i16, _>(is_variant, i, Iter::get),
+                ArgType::UInt16 => get_dict_refarg_for_value_type::<u16, _>(is_variant, i, Iter::get),
+                ArgType::Int32 => get_dict_refarg_for_value_type::<i32, _>(is_variant, i, Iter::get),
+                ArgType::UInt32 => get_dict_refarg_for_value_type::<u32, _>(is_variant, i, Iter::get),
+                ArgType::Int64 => get_dict_refarg_for_value_type::<i64, _>(is_variant, i, Iter::get),
+                ArgType::UInt64 => get_dict_refarg_for_value_type::<u64, _>(is_variant, i, Iter::get),
                 ArgType::Double => get_internal_dict_refarg::<f64, _>(i, Iter::get),
-                ArgType::Boolean => get_dict_refarg_for_value_type::<bool, _>(value, i, Iter::get),
-                // ArgType::UnixFd => get_dict_refarg::<OwnedFd, _>(i),
-                ArgType::String => get_dict_refarg_for_value_type::<String, _>(value, i, Iter::get),
+                ArgType::Boolean => get_dict_refarg_for_value_type::<bool, _>(is_variant, i, Iter::get),
+                ArgType::String => get_dict_refarg_for_value_type::<String, _>(is_variant, i, Iter::get),
                 ArgType::ObjectPath => {
-                    get_dict_refarg_for_value_type::<Path<'static>, _>(value, i, |si| {
+                    get_dict_refarg_for_value_type::<Path<'static>, _>(is_variant, i, |si| {
                         si.get::<Path>().map(|s| s.into_static())
                     })
                 }
                 ArgType::Signature => {
-                    get_dict_refarg_for_value_type::<Signature<'static>, _>(value, i, |si| {
+                    get_dict_refarg_for_value_type::<Signature<'static>, _>(is_variant, i, |si| {
                         si.get::<Signature>().map(|s| s.into_static())
                     })
                 }
                 _ => panic!("Array with invalid dictkey ({:?})", key),
             }
         }
-        ArgType::UnixFd => get_var_array_refarg::<OwnedFd, _>(i, |si| si.get()),
+        ArgType::UnixFd => get_var_array_refarg::<std::fs::File, _>(i, |si| si.get()),
         ArgType::Struct => get_internal_array(i),
     };
 

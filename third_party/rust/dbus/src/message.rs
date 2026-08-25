@@ -361,8 +361,8 @@ impl Message {
         Ok(R::read(&mut self.iter_init())?)
     }
 
-    /// Returns a struct for retreiving the arguments from a message. Supersedes get_items().
-    pub fn iter_init(&self) -> Iter { Iter::new(&self) }
+    /// Returns a struct for retrieving the arguments from a message. Supersedes get_items().
+    pub fn iter_init(&self) -> Iter<'_> { Iter::new(&self) }
 
     /// Gets the MessageType of the Message.
     pub fn msg_type(&self) -> MessageType {
@@ -382,19 +382,19 @@ impl Message {
     }
 
     /// Gets the name of the connection that originated this message.
-    pub fn sender(&self) -> Option<BusName> {
+    pub fn sender(&self) -> Option<BusName<'_>> {
         self.msg_internal_str(unsafe { ffi::dbus_message_get_sender(self.msg) })
             .map(|s| unsafe { BusName::from_slice_unchecked(s) })
     }
 
     /// Gets the object path this Message is being sent to.
-    pub fn path(&self) -> Option<Path> {
+    pub fn path(&self) -> Option<Path<'_>> {
         self.msg_internal_str(unsafe { ffi::dbus_message_get_path(self.msg) })
             .map(|s| unsafe { Path::from_slice_unchecked(s) })
     }
 
     /// Gets the destination this Message is being sent to.
-    pub fn destination(&self) -> Option<BusName> {
+    pub fn destination(&self) -> Option<BusName<'_>> {
         self.msg_internal_str(unsafe { ffi::dbus_message_get_destination(self.msg) })
             .map(|s| unsafe { BusName::from_slice_unchecked(s) })
     }
@@ -408,13 +408,13 @@ impl Message {
     }
 
     /// Gets the interface this Message is being sent to.
-    pub fn interface(&self) -> Option<Interface> {
+    pub fn interface(&self) -> Option<Interface<'_>> {
         self.msg_internal_str(unsafe { ffi::dbus_message_get_interface(self.msg) })
             .map(|s| unsafe { Interface::from_slice_unchecked(s) })
     }
 
     /// Gets the interface member being called.
-    pub fn member(&self) -> Option<Member> {
+    pub fn member(&self) -> Option<Member<'_>> {
         self.msg_internal_str(unsafe { ffi::dbus_message_get_member(self.msg) })
             .map(|s| unsafe { Member::from_slice_unchecked(s) })
     }
@@ -449,6 +449,15 @@ impl Message {
     /// This way, you can create a method call and handle it without sending it to a real D-Bus instance.
     pub fn set_serial(&mut self, val: u32) {
         unsafe { ffi::dbus_message_set_serial(self.msg, val) };
+    }
+
+    /// Sets the object path of this message - you should not use this method
+    ///
+    /// Every message has a path already, and there is no good reason to change it using this method.
+    pub fn set_path(&mut self, path: &Path)  {
+        if unsafe { !ffi::dbus_message_set_path(self.msg, path.as_ptr()) } {
+            panic!("out of memory");
+        }
     }
 
     /// Marshals a message - mostly for internal use
@@ -489,6 +498,15 @@ impl Message {
         if x < MIN_HEADER as _ { Err(()) } else { Ok(x as usize) }
     }
 
+    /// Sets sender manually - mostly for internal use
+    ///
+    /// When sending a message, a sender will be automatically assigned, so you don't need to call
+    /// this method. However, it can be very useful in test code that is supposed to handle a method call.
+    /// This way, you can create a method call and handle it without receiving it from a real D-Bus instance.
+    pub fn set_sender(&mut self, sender: Option<BusName>) {
+        let c_sender = sender.as_ref().map(|d| d.as_cstr().as_ptr()).unwrap_or(ptr::null());
+        assert!(unsafe { ffi::dbus_message_set_sender(self.msg, c_sender) } != 0);
+    }
 }
 
 impl Drop for Message {
@@ -537,6 +555,16 @@ mod test {
         assert!(!m.get_no_reply());
         m.set_no_reply(true);
         assert!(m.get_no_reply());
+    }
+
+    #[test]
+    fn set_valid_sender() {
+        let mut m = Message::new_method_call("org.test.rust", "/", "org.test.rust", "Test").unwrap();
+        let sender = ":1.14";
+        let d = Some(BusName::new(sender).unwrap());
+        m.set_sender(d);
+
+        assert_eq!(sender, m.sender().unwrap().to_string());
     }
 
     #[test]
