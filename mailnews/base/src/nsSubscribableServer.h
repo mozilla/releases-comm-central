@@ -7,8 +7,6 @@
 
 #include "nsCOMPtr.h"
 #include "nsString.h"
-#include "mozilla/dom/XULTreeElement.h"
-#include "nsITreeSelection.h"
 #include "nsISubscribableServer.h"
 #include "nsTArray.h"
 
@@ -18,21 +16,17 @@ class nsSubscribableServer : public nsISubscribableServer {
  public:
   nsSubscribableServer();
 
-  nsresult Init();
-
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSISUBSCRIBABLESERVER
 
  private:
   virtual ~nsSubscribableServer();
 
-  nsresult ConvertNameToUnichar(const char* inStr, char16_t** outStr);
   nsCOMPtr<nsISubscribeListener> mSubscribeListener;
   nsCString mIncomingServerUri;
   char mDelimiter;
   bool mShowFullName;
   bool mStopped;
-  nsCString mServerType;
 
   // root of the folder tree while items are discovered on the server
   SubscribeTreeNode* mTreeRoot;
@@ -43,9 +37,6 @@ class nsSubscribableServer : public nsISubscribableServer {
                         const nsACString& aPath, SubscribeTreeNode** child);
   nsresult FindAndCreateNode(const nsACString& aPath,
                              SubscribeTreeNode** aResult);
-
-  int32_t GetRow(SubscribeTreeNode* node, bool* open);
-  int32_t AddSubtree(SubscribeTreeNode* node, int32_t index);
 };
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSSUBSCRIBABLESERVER_H_

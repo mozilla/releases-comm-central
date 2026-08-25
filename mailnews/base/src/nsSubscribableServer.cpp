@@ -6,8 +6,6 @@
 #include "nsIMsgIncomingServer.h"
 #include "nsMsgI18N.h"
 #include "nsMsgUtils.h"
-#include "nsTreeColumns.h"
-#include "mozilla/dom/DataTransfer.h"
 
 /**
  * The basic structure for the tree of the implementation.
@@ -37,8 +35,6 @@ nsSubscribableServer::nsSubscribableServer(void) {
   mStopped = false;
 }
 
-nsresult nsSubscribableServer::Init() { return NS_OK; }
-
 nsSubscribableServer::~nsSubscribableServer(void) {
   if (mTreeRoot) {
     FreeSubtree(mTreeRoot);
@@ -51,10 +47,8 @@ NS_IMETHODIMP
 nsSubscribableServer::SetIncomingServer(nsIMsgIncomingServer* aServer) {
   if (!aServer) {
     mIncomingServerUri.AssignLiteral("");
-    mServerType.Truncate();
     return NS_OK;
   }
-  aServer->GetType(mServerType);
 
   // We intentionally do not store a pointer to the aServer here
   // as it would create reference loops, because nsIImapIncomingServer
@@ -172,14 +166,6 @@ nsSubscribableServer::SubscribeCleanup() {
 }
 
 NS_IMETHODIMP
-nsSubscribableServer::StartPopulatingWithUri(nsIMsgWindow* aMsgWindow,
-                                             bool aForceToServer,
-                                             const nsACString& uri) {
-  mStopped = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsSubscribableServer::StartPopulating(nsIMsgWindow* aMsgWindow,
                                       bool aForceToServer,
                                       bool aGetOnlyNew /*ignored*/) {
@@ -270,7 +256,6 @@ nsresult nsSubscribableServer::AddChildNode(SubscribeTreeNode* parent,
                                             nsACString const& name,
                                             const nsACString& path,
                                             SubscribeTreeNode** child) {
-  nsresult rv = NS_OK;
   NS_ASSERTION(parent && child && !name.IsEmpty() && !path.IsEmpty(),
                "parent, child or name is null");
   if (!parent || !child || name.IsEmpty() || path.IsEmpty())
@@ -295,25 +280,17 @@ nsresult nsSubscribableServer::AddChildNode(SubscribeTreeNode* parent,
 
   SubscribeTreeNode* current = parent->firstChild;
 
-  /*
-   * Insert in reverse alphabetical order.
-   * This will reduce the # of strcmps since this is faster assuming:
-   *  1) the hostinfo.dat feeds us the groups in alphabetical order
-   *     since we control the hostinfo.dat file, we can guarantee this.
-   *  2) the server gives us the groups in alphabetical order
-   *     we can't guarantee this, but it seems to be a common thing.
-   *
-   * Because we have firstChild, lastChild, nextSibling, prevSibling,
-   * we can efficiently reverse the order when dumping to hostinfo.dat
-   * or to GetTargets().
-   */
+  // Insert in reverse alphabetical order, then walk backwards when reading
+  // (see GetChildURIs), so that children are returned in insertion order.
+  // For NNTP this is the order the server returns groups in, which is
+  // typically alphabetical, though not guaranteed by RFC 3977.
+
   int32_t compare = Compare(current->name, name);
 
   while (current && (compare != 0)) {
     if (compare < 0) {
       // CreateNode will set the parent->cachedChild
       *child = CreateNode(parent, name, path);
-      NS_ENSURE_SUCCESS(rv, rv);
 
       (*child)->nextSibling = current;
       (*child)->prevSibling = current->prevSibling;
@@ -461,10 +438,9 @@ nsSubscribableServer::GetLeafName(const nsACString& aPath,
   NS_ASSERTION(node, "didn't find the node");
   if (!node) return NS_ERROR_FAILURE;
 
-  // XXX TODO FIXME
-  // I'm assuming that mShowFullName is true for NNTP, false for IMAP.
-  // For imap, the node name is in MUTF-7; for news, the path is escaped UTF-8.
-  // When we switch to using the tree, this hack will go away.
+  // mShowFullName is true for NNTP, false for IMAP.
+  // For news, the path is escaped UTF-8, so unescape it to show the full path.
+  // For imap, show only the node name, which may be encoded as modified UTF-7.
   if (mShowFullName) {
     nsAutoCString unescapedName;
     MsgUnescapeString(

@@ -109,10 +109,6 @@ export class NntpIncomingServer extends MsgIncomingServer {
   }
 
   /** @see nsISubscribableServer */
-  get folderView() {
-    return this._subscribable.folderView;
-  }
-
   get subscribeListener() {
     return this._subscribable.subscribeListener;
   }

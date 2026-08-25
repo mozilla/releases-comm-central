@@ -2166,36 +2166,6 @@ NS_IMETHODIMP nsImapIncomingServer::GetManageMailAccountUrl(
 }
 
 NS_IMETHODIMP
-nsImapIncomingServer::StartPopulatingWithUri(nsIMsgWindow* aMsgWindow,
-                                             bool aForceToServer /*ignored*/,
-                                             const nsACString& uri) {
-  nsresult rv;
-  mDoingSubscribeDialog = true;
-
-  rv = EnsureInner();
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = mInner->StartPopulatingWithUri(aMsgWindow, aForceToServer, uri);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // imap always uses the canonical delimiter form of paths for subscribe ui.
-  rv = SetDelimiter('/');
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = SetShowFullName(false);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCString serverUri;
-  rv = GetServerURI(serverUri);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-  // If uri = imap://user@host/foo/bar, the serverUri is imap://user@host
-  // to get path from uri, skip over imap://user@host + 1 (for the /).
-  return imapService->GetListOfFoldersWithPath(
-      this, aMsgWindow, Substring(uri, serverUri.Length() + 1));
-}
-
-NS_IMETHODIMP
 nsImapIncomingServer::StartPopulating(nsIMsgWindow* aMsgWindow,
                                       bool aForceToServer /*ignored*/,
                                       bool aGetOnlyNew) {
