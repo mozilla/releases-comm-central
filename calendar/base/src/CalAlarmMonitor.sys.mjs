@@ -29,7 +29,7 @@ function peekAlarmWindow() {
 export function CalAlarmMonitor() {
   this.wrappedJSObject = this;
   this.mAlarms = [];
-  this.mSound = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
+  this.mSound = Cc["@mozilla.org/sound;1"].getService(Ci.nsISound);
 
   Services.obs.addObserver(this, "alarm-service-startup");
   Services.obs.addObserver(this, "alarm-service-shutdown");

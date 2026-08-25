@@ -339,7 +339,7 @@ export const MailNotificationManager = new (class {
     // Play the system sound.
     if (prefBranch.getIntPref(".type") == 0) {
       Cc["@mozilla.org/sound;1"]
-        .createInstance(Ci.nsISound)
+        .getService(Ci.nsISound)
         .playEventSound(Ci.nsISound.EVENT_NEW_MAIL_RECEIVED);
       return;
     }
