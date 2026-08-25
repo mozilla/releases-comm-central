@@ -314,6 +314,15 @@ var mailContextMenu = {
       }
     }
 
+    function isCommandEnabled(command) {
+      try {
+        return commandController.isCommandEnabled(command);
+      } catch (error) {
+        console.error(`Error checking whether ${command} is enabled:`, error);
+        return false;
+      }
+    }
+
     function setSingleSelection(id, show = true) {
       showItem(id, numSelectedMessages == 1 && show);
       enableItem(id, numSelectedMessages == 1);
@@ -338,19 +347,16 @@ var mailContextMenu = {
 
     // Ask commandController about the commands it controls.
     for (const [id, command] of Object.entries(this._commands)) {
-      showItem(
-        id,
-        !onSpecialItem && commandController.isCommandEnabled(command)
-      );
+      showItem(id, !onSpecialItem && isCommandEnabled(command));
     }
     for (const [id, command] of Object.entries(this._alwaysVisibleCommands)) {
       showItem(id, !onSpecialItem);
-      enableItem(id, commandController.isCommandEnabled(command));
+      enableItem(id, isCommandEnabled(command));
     }
 
     showItem(
       "navContext-delete",
-      !onSpecialItem && commandController.isCommandEnabled("cmd_deleteMessage")
+      !onSpecialItem && isCommandEnabled("cmd_deleteMessage")
     );
     showItem("mailContext-navigation", !onSpecialItem);
     showItem("mailContext-sep-navigation", !onSpecialItem);
@@ -410,7 +416,7 @@ var mailContextMenu = {
       "mailContext-forwardAsAttachment",
       !onSpecialItem &&
         numSelectedMessages &&
-        commandController.isCommandEnabled("cmd_forwardAttachment")
+        isCommandEnabled("cmd_forwardAttachment")
     );
 
     if (isDummyMessage || onSpecialItem) {

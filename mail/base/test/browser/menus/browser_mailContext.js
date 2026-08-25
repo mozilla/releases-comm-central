@@ -1034,6 +1034,77 @@ add_task(async function testSyntheticFolder() {
     "selection should be restored after the menu closes"
   );
 
+  // A command controller failure should only disable the affected command. In
+  // particular, it must not prevent the tags menu from being rebuilt or the
+  // separators from being normalized. See bug 2007529.
+  const tagPopup = about3Pane.document.getElementById("mailContext-tagpopup");
+  while (tagPopup.lastElementChild.localName == "menuitem") {
+    tagPopup.lastElementChild.remove();
+  }
+  for (const separator of mailContext.querySelectorAll(
+    ":scope > menuseparator"
+  )) {
+    separator.hidden = false;
+  }
+
+  const originalIsCommandEnabled =
+    about3Pane.commandController.isCommandEnabled;
+  about3Pane.commandController.isCommandEnabled = function (command) {
+    if (command == "cmd_markThreadAsRead") {
+      throw new Error("Simulated command state failure");
+    }
+    return originalIsCommandEnabled.call(this, command);
+  };
+  const consoleMessage = TestUtils.consoleMessageObserved(message =>
+    message.wrappedJSObject?.arguments?.[0]
+      ?.toString()
+      .includes("Error checking whether cmd_markThreadAsRead is enabled")
+  );
+
+  try {
+    EventUtils.synthesizeMouseAtCenter(
+      row4,
+      { type: "contextmenu" },
+      about3Pane
+    );
+    await BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+    await consoleMessage;
+
+    Assert.ok(
+      about3Pane.document.getElementById("mailContext-markThreadAsRead")
+        .disabled,
+      "the command with a failed state query should be disabled"
+    );
+    Assert.equal(
+      tagPopup.querySelectorAll("menuitem:not([id])").length,
+      MailServices.tags.getAllTags().length,
+      "the dynamic tag items should still be rebuilt"
+    );
+
+    const visibleItems = [...mailContext.children].filter(item => !item.hidden);
+    Assert.notEqual(
+      visibleItems[0].localName,
+      "menuseparator",
+      "the menu should not begin with a separator"
+    );
+    Assert.notEqual(
+      visibleItems.at(-1).localName,
+      "menuseparator",
+      "the menu should not end with a separator"
+    );
+    for (let i = 1; i < visibleItems.length; i++) {
+      Assert.ok(
+        visibleItems[i - 1].localName != "menuseparator" ||
+          visibleItems[i].localName != "menuseparator",
+        "the menu should not contain adjacent separators"
+      );
+    }
+  } finally {
+    about3Pane.commandController.isCommandEnabled = originalIsCommandEnabled;
+    mailContext.hidePopup();
+    await BrowserTestUtils.waitForPopupEvent(mailContext, "hidden");
+  }
+
   tabmail.closeOtherTabs(0);
 });
 
