@@ -270,11 +270,11 @@ var calImipBar = {
       if (!aMsgHdr) {
         return false;
       }
-      const author = aMsgHdr.mime2DecodedAuthor;
+      const author = aMsgHdr.mime2DecodedAuthor?.toLowerCase();
       const isSentFolder = aMsgHdr.folder && aMsgHdr.folder.flags & Ci.nsMsgFolderFlags.SentMail;
       if (author && isSentFolder) {
         for (const identity of MailServices.accounts.allIdentities) {
-          if (author.includes(identity.email) && !identity.fccReplyFollowsParent) {
+          if (author.includes(identity.email?.toLowerCase()) && !identity.fccReplyFollowsParent) {
             return true;
           }
         }

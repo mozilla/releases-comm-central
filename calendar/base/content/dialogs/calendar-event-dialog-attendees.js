@@ -722,7 +722,10 @@ window.addEventListener("dialogaccept", () => {
 
   const organizerId = existingOrganizer?.id ?? calendar.getProperty("organizerId");
   if (organizerId) {
-    const nonOrganizerAttendees = attendees.filter(attendee => attendee.id != organizerId);
+    const lowerOrganizerId = organizerId.toLowerCase();
+    const nonOrganizerAttendees = attendees.filter(
+      attendee => attendee.id.toLowerCase() != lowerOrganizerId
+    );
     if (nonOrganizerAttendees.length) {
       if (existingOrganizer) {
         organizer = existingOrganizer;

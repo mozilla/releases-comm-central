@@ -702,8 +702,9 @@ var calendarTaskButtonDNDObserver;
           // whatever seems suitable - in this case we don't try to remove
           // the sender from the recipient list
           identity = identity.QueryInterface(Ci.nsIMsgIdentity);
+          const identityEmail = identity.email.toLowerCase();
           parties = parties.filter(aParty => {
-            return identity.email != cal.email.getAttendeeEmail(aParty, false);
+            return identityEmail != cal.email.getAttendeeEmail(aParty, false).toLowerCase();
           });
         }
         const recipients = cal.email.createRecipientList(parties);

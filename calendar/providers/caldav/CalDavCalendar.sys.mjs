@@ -1299,7 +1299,7 @@ CalDavCalendar.prototype = {
       const ownerIdentities = this.mACLEntry.getOwnerIdentities();
       if (ownerIdentities.length > 0) {
         const identity = ownerIdentities[0];
-        this.mACLProperties.organizerId = identity.email;
+        this.mACLProperties.organizerId = `mailto:${identity.email}`;
         this.mACLProperties.organizerCN = identity.fullName;
         this.mACLProperties["imip.identity"] = identity;
       }

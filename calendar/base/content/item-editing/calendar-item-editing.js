@@ -817,7 +817,7 @@ function setContextPartstat(aTarget, aItems) {
       party = cal.itip.getInvitedAttendee(aItem);
     } else if (aItem.organizer && aItem.getAttendees().length) {
       const calOrgId = aItem.calendar.getProperty("organizerId");
-      if (calOrgId.toLowerCase() == aItem.organizer.id.toLowerCase()) {
+      if (calOrgId && calOrgId.toLowerCase() == aItem.organizer.id.toLowerCase()) {
         party = aItem.organizer;
       }
     }

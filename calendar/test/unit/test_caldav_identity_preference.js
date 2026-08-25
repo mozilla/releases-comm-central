@@ -105,6 +105,45 @@ add_task(async function test_none_uses_user_address() {
   Assert.equal(props.organizerId, "mailto:user-address@example.com");
 });
 
+/**
+ * organizerId keeps the case the user configured for the identity. Consumers
+ * are responsible for comparing it case insensitively. See bug 1889607.
+ */
+add_task(async function test_configured_identity_keeps_case() {
+  const { identity: configured } = makeConfiguredIdentity("Elton.JOHN@Example.COM", "Elton John");
+  const calendar = makeCalendar({
+    identityKey: configured.key,
+    userAddresses: [],
+    hasAccessControl: false,
+  });
+
+  Assert.equal(
+    calendar.wrappedJSObject.mACLProperties.organizerId,
+    "mailto:Elton.JOHN@Example.COM",
+    "organizerId should keep the identity's case"
+  );
+  Assert.equal(
+    calendar.getProperty("organizerId"),
+    "mailto:Elton.JOHN@Example.COM",
+    "the calendar should report organizerId with the identity's case"
+  );
+});
+
+add_task(async function test_acl_owner_identity_gets_mailto_prefix() {
+  const calendar = makeCalendar({
+    identityKey: "",
+    userAddresses: [],
+    aclIdentity: { email: "Owner.ACL@Example.COM", fullName: "ACL Owner", key: "aclOwnerKey" },
+    hasAccessControl: true,
+  });
+
+  Assert.equal(
+    calendar.wrappedJSObject.mACLProperties.organizerId,
+    "mailto:Owner.ACL@Example.COM",
+    "the ACL owner's organizerId should be prefixed with mailto:"
+  );
+});
+
 add_task(async function test_no_configured_no_user_address_uses_default_identity() {
   const calendar = makeCalendar({
     identityKey: undefined,

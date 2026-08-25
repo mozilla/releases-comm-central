@@ -262,7 +262,9 @@ export var invitation = {
       let attendeeLabel;
       let oldData;
       if (oldAttendeeData) {
-        oldData = oldAttendeeData.find(old => old.attendee.id == attendee.id);
+        oldData = oldAttendeeData.find(
+          old => old.attendee.id.toLowerCase() == attendee.id.toLowerCase()
+        );
         if (oldData) {
           // Same attendee.
           attendeeLabel = this.createAttendeeLabel(
@@ -617,7 +619,7 @@ export var invitation = {
           removed = true;
         } else if (!oldOrganizer) {
           added = true;
-        } else if (organizer.id !== oldOrganizer.id) {
+        } else if (organizer.id.toLowerCase() !== oldOrganizer.id.toLowerCase()) {
           removed = true;
           added = true;
         } else {
@@ -796,7 +798,7 @@ export var invitation = {
       aProposedItem.id == aExistingItem.id &&
       aProposedItem.organizer &&
       aExistingItem.organizer &&
-      aProposedItem.organizer.id == aExistingItem.organizer.id
+      aProposedItem.organizer.id.toLowerCase() == aExistingItem.organizer.id.toLowerCase()
     ) {
       const proposedSequence = aProposedItem.getProperty("SEQUENCE") || 0;
       const existingSequence = aExistingItem.getProperty("SEQUENCE") || 0;

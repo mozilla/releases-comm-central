@@ -512,6 +512,28 @@ add_task(function test_getAttendeesBySender() {
       expected: ["mailto:user1@example.net", "mailto:user2@example.net"],
     },
     {
+      // The sender's case does not match the attendee id, see bug 1889607.
+      input: {
+        attendees: [
+          { id: "mailto:user1@example.net", sentBy: null },
+          { id: "mailto:user2@example.net", sentBy: null },
+        ],
+        sender: "User1@Example.NET",
+      },
+      expected: ["mailto:user1@example.net"],
+    },
+    {
+      // The sender's case does not match the attendee id or SENT-BY.
+      input: {
+        attendees: [
+          { id: "mailto:User1@example.net", sentBy: null },
+          { id: "mailto:user2@example.net", sentBy: "MAILTO:USER1@example.net" },
+        ],
+        sender: "user1@example.net",
+      },
+      expected: ["mailto:User1@example.net", "mailto:user2@example.net"],
+    },
+    {
       input: { attendees: [], sender: "user1@example.net" },
       expected: [],
     },
@@ -655,6 +677,24 @@ add_task(function test_resolveDelegation() {
       expected: {
         delegatees: "attendee3@example.net",
         delegators: "attendee2@example.net",
+      },
+    },
+    {
+      // The delegation parameter's case differs from the attendee id, see bug 1889607.
+      input: {
+        attendee:
+          'ATTENDEE;DELEGATED-FROM="mailto:Attendee2@Example.NET";CN="Attendee 1":mailto:at' +
+          "tendee1@example.net",
+        attendees: [
+          'ATTENDEE;DELEGATED-FROM="mailto:Attendee2@Example.NET";CN="Attendee 1":mailto:at' +
+            "tendee1@example.net",
+          'ATTENDEE;DELEGATED-TO="mailto:attendee1@example.net";CN="Attendee 2":mailto:atte' +
+            "ndee2@example.net",
+        ],
+      },
+      expected: {
+        delegatees: "",
+        delegators: "Attendee 2 <attendee2@example.net>",
       },
     },
   ];
