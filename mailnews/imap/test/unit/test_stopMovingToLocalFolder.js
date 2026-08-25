@@ -48,9 +48,7 @@ add_setup(async function () {
 });
 
 add_task(async function move_messages() {
-  const msg = IMAPPump.inbox.msgDatabase.getMsgHdrForKey(
-    IMAPPump.mailbox.uidnext - 1
-  );
+  const msg = [...IMAPPump.inbox.messages][0];
   const copyListener = new PromiseTestUtils.PromiseCopyListener({
     onProgress() {
       stop_server();
