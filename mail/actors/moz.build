@@ -22,6 +22,7 @@ FINAL_TARGET_FILES.actors += [
     "MailLinkChild.sys.mjs",
     "MailLinkParent.sys.mjs",
     "MailMessageChild.sys.mjs",
+    "MailMessageParent.sys.mjs",
     "MessageScrollChild.sys.mjs",
     "MessageScrollParent.sys.mjs",
     "PromptParent.sys.mjs",

@@ -13,6 +13,9 @@ export class MailMessageChild extends JSWindowActorChild {
       case "resize":
         this.onResize(event);
         break;
+      case "visibilitychange":
+        this.onVisibilityChange(event);
+        break;
     }
   }
 
@@ -82,6 +85,14 @@ export class MailMessageChild extends JSWindowActorChild {
       } else {
         adjustImg(img);
       }
+    }
+  }
+
+  onVisibilityChange(event) {
+    if (event.target.visibilityState == "visible") {
+      this.sendAsyncMessage("MailMessage:VisibilityChange", {
+        uri: event.target.documentGlobal.location.href,
+      });
     }
   }
 

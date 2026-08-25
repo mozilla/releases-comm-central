@@ -9,6 +9,10 @@
 
 requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 2 : 1);
 
+const { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
+
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
 );
@@ -109,6 +113,30 @@ add_task(async function testEWS() {
   await subtest(ewsTestFolder);
 });
 
+function checkReadFlags(message, shouldBeRead, description) {
+  Assert.equal(message.isRead, shouldBeRead, `in the database, ${description}`);
+
+  if (message.folder.incomingServerType == "imap") {
+    const serverMessage = imapServer.daemon
+      .getMailbox("INBOX")
+      ._messages.find(m => m.uid == message.messageKey);
+    Assert.equal(
+      serverMessage.flags.includes("\\Seen"),
+      shouldBeRead,
+      `on the server, ${description}`
+    );
+  } else if (message.folder.incomingServerType == "ews") {
+    const serverMessage = ewsServer.getItemInfo(
+      message.getStringProperty("ewsId")
+    );
+    Assert.equal(
+      serverMessage.syntheticMessage.metaState.read,
+      shouldBeRead,
+      `on the server, ${description}`
+    );
+  }
+}
+
 async function subtest(testFolder) {
   const tabmail = document.getElementById("tabmail");
   const firstAbout3Pane = tabmail.currentAbout3Pane;
@@ -118,7 +146,7 @@ async function subtest(testFolder) {
   // Open a message in the first tab. It should get marked as read immediately.
 
   let message = testMessages.getNext();
-  Assert.ok(!message.isRead, "message 0 should not be read before load");
+  checkReadFlags(message, false, "message 0 should not be read before load");
   firstAbout3Pane.threadTree.selectedIndex =
     firstAbout3Pane.gDBView.findIndexOfMsgHdr(message, false);
   await BrowserTestUtils.waitForEvent(window, "MsgLoaded");
@@ -126,6 +154,8 @@ async function subtest(testFolder) {
     () => message.isRead,
     "waiting for message 0 to be marked as read"
   );
+  await promiseServerIdle(testFolder.server);
+  checkReadFlags(message, true, "message should be read after load");
   // Extra time to ensure loading completes. Not loading may lead to leaks.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
@@ -135,20 +165,22 @@ async function subtest(testFolder) {
     firstAbout3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
   await TestUtils.waitForCondition(
     () =>
-      firstMessagePane.contentDocument.readyState == "complete" &&
-      firstMessagePane.currentURI.spec == "about:blank"
+      !firstMessagePane.webProgress.isLoadingDocument &&
+      firstMessagePane.currentURI.spec == "about:blank",
+    "waiting for message pane to load about:blank"
   );
 
   // Open a message in a background tab. It should not get marked as read.
 
   message = testMessages.getNext();
-  Assert.ok(!message.isRead, "message 1 should not be read before load");
+  checkReadFlags(message, false, "message 1 should not be read before load");
   window.OpenMessageInNewTab(message, { background: true });
   await BrowserTestUtils.waitForEvent(window, "MsgLoaded");
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
-  Assert.ok(
-    !message.isRead,
+  checkReadFlags(
+    message,
+    false,
     "message 1 should not be read after opening in a background tab"
   );
 
@@ -158,6 +190,12 @@ async function subtest(testFolder) {
   await TestUtils.waitForTick();
   await TestUtils.waitForCondition(
     () => message.isRead,
+    "waiting for message 1 to be marked as read"
+  );
+  await promiseServerIdle(testFolder.server);
+  checkReadFlags(
+    message,
+    true,
     "message 1 should be read after switching to the background tab"
   );
   tabmail.closeTab(1);
@@ -169,13 +207,14 @@ async function subtest(testFolder) {
   Services.prefs.setIntPref("mailnews.mark_message_read.delay.interval", 2);
 
   message = testMessages.getNext();
-  Assert.ok(!message.isRead, "message 2 should not be read before load");
+  checkReadFlags(message, false, "message 2 should not be read before load");
   window.OpenMessageInNewTab(message, { background: true });
   await BrowserTestUtils.waitForEvent(window, "MsgLoaded");
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 3000));
-  Assert.ok(
-    !message.isRead,
+  checkReadFlags(
+    message,
+    false,
     "message 2 should not be read after opening in a background tab"
   );
 
@@ -183,13 +222,20 @@ async function subtest(testFolder) {
 
   const timeBeforeSwitchingTab = Date.now();
   tabmail.switchToTab(1);
-  Assert.ok(
-    !message.isRead,
+  checkReadFlags(
+    message,
+    false,
     "message 2 should not be read immediately after switching to the background tab"
   );
   await TestUtils.waitForCondition(
     () => message.isRead,
     "waiting for message 2 to be marked as read"
+  );
+  await promiseServerIdle(testFolder.server);
+  checkReadFlags(
+    message,
+    true,
+    "message 2 should be read after switching tabs"
   );
   Assert.greaterOrEqual(
     Date.now() - timeBeforeSwitchingTab,
@@ -206,13 +252,14 @@ async function subtest(testFolder) {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
 
   message = testMessages.getNext();
-  Assert.ok(!message.isRead, "message 3 should not be read before load");
+  checkReadFlags(message, false, "message 3 should not be read before load");
   window.OpenMessageInNewTab(message, { background: true });
   await BrowserTestUtils.waitForEvent(window, "MsgLoaded");
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
-  Assert.ok(
-    !message.isRead,
+  checkReadFlags(
+    message,
+    false,
     "message 3 should not be read after opening in a background tab"
   );
 
@@ -221,8 +268,9 @@ async function subtest(testFolder) {
   tabmail.switchToTab(1);
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
-  Assert.ok(
-    !message.isRead,
+  checkReadFlags(
+    message,
+    false,
     "message 3 should not be read after switching to the background tab"
   );
   tabmail.closeTab(1);
@@ -240,7 +288,7 @@ async function subtest(testFolder) {
   await BrowserTestUtils.waitForEvent(secondAbout3Pane, "aboutMessageLoaded");
 
   message = testMessages.getNext();
-  Assert.ok(!message.isRead, "message 4 should not be read before load");
+  checkReadFlags(message, false, "message 4 should not be read before load");
   await TestUtils.waitForCondition(
     () => secondAbout3Pane.gDBView,
     "waiting for second tab to select a folder"
@@ -250,8 +298,9 @@ async function subtest(testFolder) {
   await BrowserTestUtils.waitForEvent(window, "MsgLoaded");
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
-  Assert.ok(
-    !message.isRead,
+  checkReadFlags(
+    message,
+    false,
     "message 4 should not be read after opening in a background tab"
   );
 
@@ -259,6 +308,12 @@ async function subtest(testFolder) {
   await TestUtils.waitForTick();
   await TestUtils.waitForCondition(
     () => message.isRead,
+    "waiting for message 4 to be marked as read"
+  );
+  await promiseServerIdle(testFolder.server);
+  checkReadFlags(
+    message,
+    true,
     "message 4 should be read after switching to the background tab"
   );
   tabmail.closeTab(1);
@@ -267,15 +322,49 @@ async function subtest(testFolder) {
   // immediately.
 
   message = testMessages.getNext();
-  Assert.ok(!message.isRead, "message 5 should not be read before load");
+  checkReadFlags(message, false, "message 5 should not be read before load");
   window.OpenMessageInNewTab(message, { background: false });
   await BrowserTestUtils.waitForEvent(window, "MsgLoaded");
   await TestUtils.waitForCondition(
     () => message.isRead,
+    "waiting for message 5 to be marked as read"
+  );
+  await promiseServerIdle(testFolder.server);
+  checkReadFlags(
+    message,
+    true,
     "message 5 should be read after opening the foreground tab"
   );
   // Extra time to ensure loading completes. Not loading may lead to leaks.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
   tabmail.closeTab(1);
+
+  // Open a message in a new window. It should get marked as read immediately.
+
+  message = testMessages.getNext();
+  checkReadFlags(message, false, "message 6 should not be read before load");
+  const messageWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    undefined,
+    async win =>
+      win.document.documentURI ==
+      "chrome://messenger/content/messageWindow.xhtml"
+  );
+  MailUtils.openMessageInNewWindow(message);
+  const messageWindow = await messageWindowPromise;
+  await SimpleTest.promiseFocus(messageWindow);
+  await TestUtils.waitForCondition(
+    () => message.isRead,
+    "waiting for message 6 to be marked as read"
+  );
+  await promiseServerIdle(testFolder.server);
+  checkReadFlags(
+    message,
+    true,
+    "message 6 should be read after opening the foreground tab"
+  );
+  // Extra time to ensure loading completes. Not loading may lead to leaks.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
+  await BrowserTestUtils.closeWindow(messageWindow);
 }

@@ -4390,10 +4390,8 @@ function autoMarkAsRead() {
   const browser = getMessagePaneBrowser();
   if (!browser.docShellIsActive) {
     // We're in an inactive docShell (probably a background tab). Wait until
-    // it becomes active before marking the message as read.
-    browser.addEventListener("visibilitychange", () => autoMarkAsRead(), {
-      once: true,
-    });
+    // it becomes active (autoMarkAsRead will be called again via MailMessage
+    // actors) before marking the message as read.
     return;
   }
 
