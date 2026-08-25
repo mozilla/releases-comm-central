@@ -465,6 +465,23 @@ export class CalendarDialog extends PositionedDialog {
     this.querySelector("calendar-dialog-reminders-row").setReminders(reminders);
 
     const attendees = event.getAttendees();
+    const organizer = event.organizer;
+
+    if (organizer) {
+      const organizerAttendee = attendees.find(
+        attendee => attendee.id.toLowerCase() == organizer.id.toLowerCase()
+      );
+
+      if (organizerAttendee) {
+        const organizerDisplay = organizerAttendee.clone();
+        organizerDisplay.isOrganizer = true;
+        attendees[attendees.indexOf(organizerAttendee)] = organizerDisplay;
+      } else {
+        const organizerDisplay = organizer.clone();
+        organizerDisplay.participationStatus = "";
+        attendees.push(organizerDisplay);
+      }
+    }
 
     for (const attendeeView of this.querySelectorAll(
       "calendar-dialog-attendees-row"

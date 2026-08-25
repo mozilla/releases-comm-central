@@ -96,6 +96,10 @@ class CalendarDialogAttendee extends HTMLLIElement {
       );
     }
 
+    // The organizer isn't necessarily an attendee, so it may not have a
+    // participation status and therefore doesn't need a participation icon.
+    this.#icon.hidden = !attendee.participationStatus;
+
     switch (attendee.participationStatus) {
       case "ACCEPTED":
         this.#icon.classList.add("attending");

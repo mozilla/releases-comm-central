@@ -1154,6 +1154,124 @@ add_task(async function testAttendeesRowData() {
   resetDialog();
 });
 
+add_task(async function testAttendeesRowOrganizer() {
+  const attendeesRow = dialog.querySelector(
+    `calendar-dialog-attendees-row:not([type="full"])`
+  );
+  const attendeesList = attendeesRow.querySelector(".attendees-list");
+
+  const organizer = new CalAttendee();
+  organizer.id = "mailto:organizer@example.com";
+  organizer.commonName = "Event Organizer";
+  organizer.isOrganizer = true;
+
+  // An organizer who isn't also an attendee should still be displayed.
+  let event = await createEvent({
+    name: "Organizer only",
+    calendar,
+  });
+
+  let modifiedEvent = event.clone();
+  modifiedEvent.organizer = organizer;
+  event = await calendar.modifyItem(modifiedEvent, event);
+
+  dialog.setCalendarEvent(event);
+  await dialog.show();
+
+  await TestUtils.waitForCondition(
+    () => attendeesList.querySelectorAll("li").length == 1,
+    "The organizer should be displayed in the attendee list"
+  );
+
+  let displayedAttendees = attendeesList.querySelectorAll("li");
+
+  Assert.equal(displayedAttendees.length, 1, "Should display one attendee");
+  Assert.equal(
+    displayedAttendees[0].querySelector(".attendee-name").textContent,
+    "Event Organizer",
+    "Should display the organizer's name"
+  );
+  Assert.equal(
+    displayedAttendees[0]
+      .querySelector(".attendee-label")
+      .getAttribute("data-l10n-id"),
+    "calendar-dialog-attendee-organizer",
+    "Should identify the attendee as the organizer"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      displayedAttendees[0].querySelector(".attendee-icon")
+    ),
+    "Should not display a participation status for an organizer who isn't an attendee"
+  );
+
+  resetDialog();
+
+  // If the organizer is also an attendee, don't display them twice. Use
+  // different casing to ensure IDs are compared case-insensitively.
+  const organizerWithDifferentCase = organizer.clone();
+  organizerWithDifferentCase.id = "MAILTO:ORGANIZER@EXAMPLE.COM";
+
+  event = await createEvent({
+    name: "Organizer and attendee",
+    calendar,
+    attendees: [
+      {
+        id: "mailto:organizer@example.com",
+        commonName: "Event Organizer",
+        role: "REQ-PARTICIPANT",
+        participationStatus: "ACCEPTED",
+        isOrganizer: false,
+      },
+    ],
+  });
+
+  modifiedEvent = event.clone();
+  modifiedEvent.organizer = organizerWithDifferentCase;
+  event = await calendar.modifyItem(modifiedEvent, event);
+
+  dialog.setCalendarEvent(event);
+  await dialog.show();
+
+  await TestUtils.waitForCondition(
+    () => attendeesList.querySelectorAll("li").length == 1,
+    "The organizer who is also an attendee should be displayed once"
+  );
+
+  displayedAttendees = attendeesList.querySelectorAll("li");
+
+  Assert.equal(
+    displayedAttendees.length,
+    1,
+    "Should not duplicate an organizer who is also an attendee"
+  );
+  Assert.equal(
+    displayedAttendees[0]
+      .querySelector(".attendee-label")
+      .getAttribute("data-l10n-id"),
+    "calendar-dialog-attendee-organizer",
+    "Should identify the attendee as the organizer"
+  );
+  Assert.ok(
+    displayedAttendees[0]
+      .querySelector(".attendee-icon")
+      .classList.contains("attending"),
+    "Should preserve the organizer attendee's participation status"
+  );
+
+  const storedEvent = await calendar.getItem(event.id);
+  const storedAttendee = storedEvent.getAttendeeById(
+    "mailto:organizer@example.com"
+  );
+
+  Assert.ok(
+    !storedAttendee.isOrganizer,
+    "Displaying the organizer should not modify the stored event attendee"
+  );
+
+  resetDialog();
+});
+
 add_task(async function testAttendeesRowExpandButton() {
   calendar.setProperty(
     "organizerId",
