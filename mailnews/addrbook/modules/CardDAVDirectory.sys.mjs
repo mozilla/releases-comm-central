@@ -205,30 +205,6 @@ export class CardDAVDirectory extends SQLiteDirectory {
     const uri = serverURI.resolve(path);
     const username = this.getStringValue("carddav.username", "");
 
-    if (!("_oAuth" in this)) {
-      for (const login of await Services.logins.searchLoginsAsync({
-        origin: serverURI.prePath,
-      })) {
-        // If we have a saved login, it might be a Fastmail user with an app password,
-        // in which case we want to use it for authentication instead of OAuth2.
-        if (login.username == username) {
-          this._oAuth = null; // Use this saved login instead of OAuth.
-          break;
-        }
-      }
-    }
-    if (!("_oAuth" in this)) {
-      const oAuth = new lazy.OAuth2Module();
-      if (
-        oAuth.initFromHostname(serverURI.host, username || this.UID, "carddav")
-      ) {
-        this._oAuth = oAuth;
-      } else {
-        this._oAuth = null; // Prevents this block from running again.
-      }
-    }
-    details.oAuth = this._oAuth;
-
     const callbacks = new lazy.NotificationCallbacks(username);
     details.callbacks = callbacks;
 
@@ -237,11 +213,42 @@ export class CardDAVDirectory extends SQLiteDirectory {
 
     let response;
     try {
+      // Notify before resolving authentication. That reads from the login
+      // manager, which can take a while, and the directory is already busy.
       Services.obs.notifyObservers(
         this,
         "addrbook-directory-request-start",
         this.UID
       );
+
+      if (!("_oAuth" in this)) {
+        for (const login of await Services.logins.searchLoginsAsync({
+          origin: serverURI.prePath,
+        })) {
+          // If we have a saved login, it might be a Fastmail user with an app password,
+          // in which case we want to use it for authentication instead of OAuth2.
+          if (login.username == username) {
+            this._oAuth = null; // Use this saved login instead of OAuth.
+            break;
+          }
+        }
+      }
+      if (!("_oAuth" in this)) {
+        const oAuth = new lazy.OAuth2Module();
+        if (
+          oAuth.initFromHostname(
+            serverURI.host,
+            username || this.UID,
+            "carddav"
+          )
+        ) {
+          this._oAuth = oAuth;
+        } else {
+          this._oAuth = null; // Prevents this block from running again.
+        }
+      }
+      details.oAuth = this._oAuth;
+
       response = await lazy.CardDAVUtils.makeRequest(uri, details);
     } finally {
       Services.obs.notifyObservers(
@@ -315,7 +322,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
    * @param {string[]} hrefsToFetch - The href of each card to be requested.
    */
   async _fetchAndStore(hrefsToFetch) {
-    if (hrefsToFetch.length == 0) {
+    if (!hrefsToFetch.length) {
       return;
     }
 
@@ -618,7 +625,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
     }
 
     // Fetch any cards we don't already have, or that have changed.
-    while (hrefsToFetch.length > 0) {
+    while (hrefsToFetch.length) {
       response = await this._multigetRequest(
         hrefsToFetch.splice(0, this._multigetBatchSize)
       );
@@ -778,11 +785,11 @@ export class CardDAVDirectory extends SQLiteDirectory {
       }
     }
 
-    if (cardsToDelete.length > 0) {
+    if (cardsToDelete.length) {
       super.deleteCardsInternal(cardsToDelete);
     }
 
-    while (hrefsToFetch.length > 0) {
+    while (hrefsToFetch.length) {
       await this._fetchAndStore(
         hrefsToFetch.splice(0, this._multigetBatchSize)
       );
@@ -912,7 +919,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
       }
     }
 
-    if (cardsToDelete.length > 0) {
+    if (cardsToDelete.length) {
       super.deleteCardsInternal(
         cardsToDelete.map(cardByHref => this.getCard(cardByHref.uid))
       );
@@ -927,7 +934,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
       }
     }
 
-    while (hrefsToFetch.length > 0) {
+    while (hrefsToFetch.length) {
       await this._fetchAndStore(
         hrefsToFetch.splice(0, this._multigetBatchSize)
       );
@@ -956,6 +963,8 @@ CardDAVDirectory.prototype.classID = Components.ID(
  * Ensure that `string` always has Windows line-endings. Some functions,
  * notably DOMParser.parseFromString, strip \r, but we want it because \r\n
  * is a part of the vCard specification.
+ *
+ * @param {string} string - The string to normalize.
  */
 function normalizeLineEndings(string) {
   if (string.includes("\r\n")) {
@@ -966,6 +975,8 @@ function normalizeLineEndings(string) {
 
 /**
  * Encode special characters safely for XML.
+ *
+ * @param {string} string - The string to encode.
  */
 function xmlEncode(string) {
   return string
