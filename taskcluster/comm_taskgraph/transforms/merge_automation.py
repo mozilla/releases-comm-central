@@ -146,6 +146,11 @@ def pin_gecko_rev_yml(config, tasks):
 
         behavior = config.params["merge_config"]["behavior"]
 
+        # Only Apply Pinning to branch transitions
+        if behavior in ("bump-main", "bump-esr153"):
+            yield task
+            continue
+
         resolve_keyed_by(
             task,
             "worker.gecko-rev",

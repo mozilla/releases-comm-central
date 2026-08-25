@@ -65,6 +65,7 @@ tasks:
                                     - "{new_suite_version}"
                               end-tag: "NIGHTLY_{major_version}_END"
                               to-branch: "main"
+                              update-clobber-file: false
                     bump-esr153:
                         - esr-bump:
                               fetch-version-from: "mail/config/version.txt"
@@ -73,9 +74,8 @@ tasks:
                                     version-bump: "minor"
                                   - filename: "mail/config/version_display.txt"
                                     version-bump: "minor"
-                              replacements: []
                               to-branch: "esr153"
-                    early-to-late-beta: []
+                              update-clobber-file: false
                     main-to-beta:
                         - uplift:
                               fetch-version-from: "mail/config/version.txt"
@@ -144,7 +144,7 @@ tasks:
                               to-branch: "release"
                               update-clobber-file: false
                     release-to-esr:
-                        - uplift:
+                        - merge-day:
                               fetch-version-from: "mail/config/version.txt"
                               version-files:
                                   - filename: "mail/config/version_display.txt"
@@ -157,11 +157,6 @@ tasks:
             # Thunderbird-specific gecko revision pinning
             gecko-rev:
                 by-behavior:
-                    bump-esr153:
-                        source: to-branch
-                        upstream: mozilla-esr153
-                        tag: 'FIREFOX_{major_version}_{minor_version_plus1}(_\d+)?esr_BUILD\d'
-                        base: '(FIREFOX_ESR_{major_version}_BASE|FIREFOX_{major_version}_{minor_version}(_\d+)?)esr_BUILD\d'
                     main-to-beta:
                         source: from-branch
                         upstream: mozilla-beta
