@@ -18,15 +18,16 @@ add_task(async function () {
   var localserver = setupLocalServer(server.port);
   localserver.singleSignon = false;
 
-  // Add passwords to the manager
-  var serverURI = "news://localhost/";
+  // Add passwords to the manager. Per-group logins share the server origin and
+  // are told apart by the realm, which is what MsgAuthPrompt stores them as.
+  var serverURI = "news://localhost";
   var loginInfo1 = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
     Ci.nsILoginInfo
   );
   loginInfo1.init(
-    serverURI + "test.subscribe.empty",
+    serverURI,
     null,
-    serverURI + "test.subscribe.empty",
+    serverURI + "/test.subscribe.empty",
     "group1",
     "pass1",
     "",
@@ -37,9 +38,9 @@ add_task(async function () {
     Ci.nsILoginInfo
   );
   loginInfo2.init(
-    serverURI + "test.filter",
+    serverURI,
     null,
-    serverURI + "test.filter",
+    serverURI + "/test.filter",
     "group2",
     "pass2",
     "",

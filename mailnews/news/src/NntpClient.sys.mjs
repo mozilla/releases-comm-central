@@ -1003,7 +1003,7 @@ export class NntpClient {
     // manager. Do this even if mustPrompt is true, to prefill the dialog.
     if (!folder.groupUsername || !folder.groupPassword) {
       const logins = await Services.logins.searchLoginsAsync({
-        origin: signonUrl,
+        origin: Services.io.newURI(signonUrl).prePath,
         httpRealm: signonUrl,
       });
 
@@ -1099,7 +1099,7 @@ export class NntpClient {
           // There should only be one login stored for this url, however just in case
           // there isn't.
           for (const login of await Services.logins.searchLoginsAsync({
-            origin: signonUrl,
+            origin: Services.io.newURI(signonUrl).prePath,
             httpRealm: signonUrl,
           })) {
             await Services.logins.removeLoginAsync(login);

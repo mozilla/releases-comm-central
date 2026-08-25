@@ -570,10 +570,10 @@ async function subtestPasswordManager(prefsDocument, primaryPassword = "") {
         () => tree.view.rowCount == 1,
         "waiting for tree to be updated"
       );
-      Assert.equal(
-        (await Services.logins.getAllLogins()).length,
-        5,
-        "login should have been removed"
+      // The tree is updated before the deletion is committed to storage.
+      await TestUtils.waitForCondition(
+        async () => (await Services.logins.getAllLogins()).length == 5,
+        "waiting for the login to be removed"
       );
 
       // Clear the filter.
@@ -742,10 +742,10 @@ async function subtestPasswordManager(prefsDocument, primaryPassword = "") {
         () => tree.view.rowCount == 0,
         "waiting for tree to be cleared"
       );
-      Assert.equal(
-        (await Services.logins.getAllLogins()).length,
-        0,
-        "all logins should have been removed"
+      // The tree is updated before the deletions are committed to storage.
+      await TestUtils.waitForCondition(
+        async () => !(await Services.logins.getAllLogins()).length,
+        "waiting for all logins to be removed"
       );
       Assert.ok(removeButton.disabled, "remove button should be disabled");
       Assert.ok(

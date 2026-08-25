@@ -450,7 +450,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
     // There should only be one login stored for this url, however just in case
     // there isn't.
     for (const login of await Services.logins.searchLoginsAsync({
-      origin: signonUrl,
+      origin: Services.io.newURI(signonUrl).prePath,
       httpRealm: signonUrl,
     })) {
       await Services.logins.removeLoginAsync(login);

@@ -73,6 +73,20 @@ function setPref(calendarId, key, value) {
  */
 
 /**
+ * The origin a legacy Lightning `oauth:{id}` login is stored under. These are
+ * opaque URLs, and the Rust backend normalizes stored origins to origin-only
+ * form, which reduces them to just the scheme. Nothing reads these logins any
+ * more, so the collapse is harmless, but the tests below still check they are
+ * left alone.
+ *
+ * @param {string} id - The calendar or session ID the login was stored with.
+ * @returns {string} The origin as the active backend stores it.
+ */
+function legacyOAuthOrigin(id) {
+  return Services.prefs.getBoolPref("signon.storage.rust.active", false) ? "oauth:" : `oauth:${id}`;
+}
+
+/**
  * Clear any existing saved logins and add the given ones.
  *
  * @param {LoginData[]} logins - Zero or more login data objects.
@@ -252,7 +266,10 @@ add_task(async function testCalendarOAuth_id_valid() {
   const logins = [{ ...googleLogin, origin: `oauth:${calendarId}`, username: calendarId }];
   await setLogins(logins);
   await subtest(calendarId, { username: calendarId, reason: "no refresh token" });
-  await checkAndClearLogins([logins[0], { ...defaultLogin, username: calendarId }]);
+  await checkAndClearLogins([
+    { ...logins[0], origin: legacyOAuthOrigin(calendarId) },
+    { ...defaultLogin, username: calendarId },
+  ]);
 });
 
 /** Valid token stored with session ID. */
@@ -262,7 +279,10 @@ add_task(async function testCalendarOAuth_sessionId_valid() {
   setPref(calendarId, "sessionId", "test_session");
   await setLogins(logins);
   await subtest(calendarId, { username: calendarId, reason: "no refresh token" });
-  await checkAndClearLogins([logins[0], { ...defaultLogin, username: calendarId }]);
+  await checkAndClearLogins([
+    { ...logins[0], origin: legacyOAuthOrigin("test_session") },
+    { ...defaultLogin, username: calendarId },
+  ]);
 });
 
 /** Valid token stored with calendar ID, username set. */
@@ -272,7 +292,10 @@ add_task(async function testCalendarOAuth_username_valid() {
   setPref(calendarId, "username", USERNAME);
   await setLogins(logins);
   await subtest(calendarId, { username: USERNAME, reason: "no refresh token" });
-  await checkAndClearLogins([logins[0], defaultLogin]);
+  await checkAndClearLogins([
+    { ...logins[0], origin: legacyOAuthOrigin(calendarId) },
+    defaultLogin,
+  ]);
 });
 
 // Test making a request with a valid token, using Thunderbird's client ID and secret.

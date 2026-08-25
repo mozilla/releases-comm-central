@@ -64,36 +64,25 @@ add_task(async function test_password_manager() {
 });
 
 /**
- * Tests various origins that can be passed to passwordManagerSave
+ * Tests that origins are passed through to the password manager verbatim.
  */
 add_task(async function test_password_manager_origins() {
   await Services.logins.initializationPromise;
   await checkLoginCount(0);
 
-  // The scheme of the origin should be normalized to lowercase, this won't add any new passwords
-  await cal.auth.passwordManagerSave(USERNAME, PASSWORD, "OAUTH:xpcshell@example.com", REALM);
+  // Saving the same origin twice should modify the existing login.
+  await cal.auth.passwordManagerSave(USERNAME, PASSWORD, "https://example.com", REALM);
   await checkLoginCount(1);
-  await cal.auth.passwordManagerSave(USERNAME, PASSWORD, "oauth:xpcshell@example.com", REALM);
+  await cal.auth.passwordManagerSave(USERNAME, PASSWORD, "https://example.com", REALM);
   await checkLoginCount(1);
 
-  // Make sure that the prePath isn't used for oauth, because that is only the scheme
-  let found = await cal.auth.passwordManagerGet(USERNAME, {}, "oauth:", REALM);
-  Assert.ok(!found);
-
-  // Save a https url with a path (only prePath should be used)
-  await cal.auth.passwordManagerSave(USERNAME, PASSWORD, "https://example.com/withpath", REALM);
-  found = await cal.auth.passwordManagerGet(USERNAME, {}, "https://example.com", REALM);
-  Assert.ok(found);
+  // Distinct origins should each get their own login.
+  await cal.auth.passwordManagerSave(USERNAME, PASSWORD, "https://example.net", REALM);
+  const found = await cal.auth.passwordManagerGet(USERNAME, {}, "https://example.net", REALM);
+  Assert.ok(found, "the login saved for example.net should be found");
   await checkLoginCount(2);
 
-  // Entering something that is not an URL should assume https
-  await cal.auth.passwordManagerSave(USERNAME, PASSWORD, "example.net", REALM);
-  found = await cal.auth.passwordManagerGet(USERNAME, {}, "https://example.net", REALM);
-  Assert.ok(found);
-  await checkLoginCount(3);
-
   // Cleanup
-  await cal.auth.passwordManagerRemove(USERNAME, "oauth:xpcshell@example.com", REALM);
   await cal.auth.passwordManagerRemove(USERNAME, "https://example.com", REALM);
   await cal.auth.passwordManagerRemove(USERNAME, "https://example.net", REALM);
   await checkLoginCount(0);

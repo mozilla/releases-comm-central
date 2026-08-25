@@ -415,26 +415,6 @@ export var auth = {
   },
 
   /**
-   * Make sure the passed origin is actually an uri string, because password manager functions
-   * require it. This is a fallback for compatibility only and should be removed a few versions
-   * after Lightning 6.2
-   *
-   * @param {string} aOrigin - The hostname or origin to check
-   * @returns {string} The origin uri
-   */
-  _ensureOrigin(aOrigin) {
-    try {
-      const { prePath, spec } = Services.io.newURI(aOrigin);
-      if (prePath == "oauth:") {
-        return spec;
-      }
-      return prePath;
-    } catch (e) {
-      return "https://" + aOrigin;
-    }
-  },
-
-  /**
    * Helper to insert/update an entry to the password manager.
    *
    * @param {string} aUsername - The username to insert
@@ -450,25 +430,23 @@ export var auth = {
       throw new Error("password required");
     }
 
-    const origin = this._ensureOrigin(aOrigin);
-
-    if (!Services.logins.getLoginSavingEnabled(origin)) {
+    if (!Services.logins.getLoginSavingEnabled(aOrigin)) {
       throw new Components.Exception(
-        "Password saving is disabled for " + origin,
+        "Password saving is disabled for " + aOrigin,
         Cr.NS_ERROR_NOT_AVAILABLE
       );
     }
 
     try {
       const logins = await Services.logins.searchLoginsAsync({
-        origin,
+        origin: aOrigin,
         httpRealm: aRealm,
       });
 
       const newLoginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
         Ci.nsILoginInfo
       );
-      newLoginInfo.init(origin, null, aRealm, aUsername, aPassword, "", "");
+      newLoginInfo.init(aOrigin, null, aRealm, aUsername, aPassword, "", "");
       for (const login of logins) {
         if (aUsername == login.username) {
           await Services.logins.modifyLoginAsync(login, newLoginInfo);
@@ -506,11 +484,9 @@ export var auth = {
       throw new Components.Exception("", Cr.NS_ERROR_XPC_NEED_OUT_OBJECT);
     }
 
-    const origin = this._ensureOrigin(aOrigin);
-
     try {
       const logins = await Services.logins.searchLoginsAsync({
-        origin,
+        origin: aOrigin,
       });
       for (const loginInfo of logins) {
         if (
@@ -540,11 +516,9 @@ export var auth = {
       throw new Error("username required");
     }
 
-    const origin = this._ensureOrigin(aOrigin);
-
     try {
       const logins = await Services.logins.searchLoginsAsync({
-        origin,
+        origin: aOrigin,
         httpRealm: aRealm,
       });
       for (const loginInfo of logins) {

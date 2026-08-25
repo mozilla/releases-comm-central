@@ -85,7 +85,12 @@ add_task(async function testCreateCard() {
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await promise1;
   await notInEditingMode();
-  Assert.ok(bookRow.classList.contains("requesting"));
+  // This is the first request to the directory, so it has to look up the login
+  // before the request starts. The row isn't marked as requesting until then.
+  await TestUtils.waitForCondition(
+    () => bookRow.classList.contains("requesting"),
+    "waiting for the request to start"
+  );
   Assert.equal(abDocument.activeElement, editButton);
   Assert.ok(BrowserTestUtils.isVisible(editButton));
 
