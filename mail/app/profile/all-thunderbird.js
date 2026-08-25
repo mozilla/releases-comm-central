@@ -1554,7 +1554,7 @@ pref("mail.inappnotifications.isSnap", false);
 pref("mail.filters.forward.enabled", true);
 
 // Offer experimental features in settings.
-pref("mail.offer_experimental_features", true);
+pref("mail.experimental_features_settings.enabled", true);
 
 #ifdef NIGHTLY_BUILD
 // Enable the new experimental conversation view based on Gloda.

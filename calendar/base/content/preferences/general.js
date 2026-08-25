@@ -38,7 +38,7 @@ var gCalendarGeneralPane = {
     this.onChangedUseSystemTimezonePref();
 
     const offerExperimentalFeatures = Services.prefs.getBoolPref(
-      "mail.offer_experimental_features",
+      "mail.experimental_features_settings.enabled",
       true
     );
 

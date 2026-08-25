@@ -56,11 +56,11 @@ const POLICIES_TESTS = [
   // POLICY: DisableExperimentalFeatures
   {
     policies: { DisableExperimentalFeatures: false },
-    unlockedPrefs: { "mail.offer_experimental_features": true },
+    unlockedPrefs: { "mail.experimental_features_settings.enabled": true },
   },
   {
     policies: { DisableExperimentalFeatures: true },
-    lockedPrefs: { "mail.offer_experimental_features": false },
+    lockedPrefs: { "mail.experimental_features_settings.enabled": false },
   },
 
   // POLICY: DisableMessageForwardingFilters

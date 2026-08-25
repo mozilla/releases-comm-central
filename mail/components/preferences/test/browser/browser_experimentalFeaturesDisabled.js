@@ -10,7 +10,7 @@ var { CalendarTestUtils } = ChromeUtils.importESModule(
 
 add_setup(async function () {
   await SpecialPowers.pushPrefEnv({
-    set: [["mail.offer_experimental_features", false]],
+    set: [["mail.experimental_features_settings.enabled", false]],
   });
 
   const calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");

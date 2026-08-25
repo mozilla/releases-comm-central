@@ -715,7 +715,7 @@ export var Policies = {
     onBeforeUIStartup(manager, param) {
       if (param) {
         lazy.PoliciesUtils.setAndLockPref(
-          "mail.offer_experimental_features",
+          "mail.experimental_features_settings.enabled",
           false
         );
       }
