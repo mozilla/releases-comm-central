@@ -31,6 +31,7 @@ fn main() {
         .allowlist_type("CK_OBJECT_CLASS")
         .allowlist_type("CK_KEY_TYPE")
         .allowlist_type("CK_C_INITIALIZE_ARGS_PTR")
+        .allowlist_type("CK_TRUST")
         .allowlist_var("CK_TRUE")
         .allowlist_var("CK_FALSE")
         .allowlist_var("CK_UNAVAILABLE_INFORMATION")

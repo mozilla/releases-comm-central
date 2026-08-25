@@ -10,10 +10,10 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
-edition = "2021"
-rust-version = "1.66"
+edition = "2024"
+rust-version = "1.85"
 name = "phf_shared"
-version = "0.13.1"
+version = "0.14.0"
 authors = ["Steven Fackler <sfackler@gmail.com>"]
 build = false
 autolib = false
@@ -30,12 +30,12 @@ resolver = "1"
 
 [features]
 default = ["std"]
+ptrhash = []
 std = []
 
 [lib]
 name = "phf_shared"
 path = "src/lib.rs"
-test = false
 
 [dependencies.siphasher]
 version = "1.0"
@@ -46,5 +46,5 @@ optional = true
 default-features = false
 
 [dependencies.unicase]
-version = "2.4.0"
+version = "2.8.1"
 optional = true

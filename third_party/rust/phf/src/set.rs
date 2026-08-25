@@ -3,9 +3,9 @@ use core::fmt;
 use core::iter::FusedIterator;
 use core::iter::IntoIterator;
 
-use phf_shared::{PhfBorrow, PhfHash};
+use phf_shared::{PhfEq, PhfHash};
 
-use crate::{map, Map};
+use crate::{Map, map};
 
 /// An immutable set constructed at compile time.
 ///
@@ -59,7 +59,7 @@ impl<T> Set<T> {
     pub fn get_key<U>(&self, key: &U) -> Option<&T>
     where
         U: Eq + PhfHash + ?Sized,
-        T: PhfBorrow<U>,
+        T: PhfEq<U>,
     {
         self.map.get_key(key)
     }
@@ -68,7 +68,7 @@ impl<T> Set<T> {
     pub fn contains<U>(&self, value: &U) -> bool
     where
         U: Eq + PhfHash + ?Sized,
-        T: PhfBorrow<U>,
+        T: PhfEq<U>,
     {
         self.map.contains_key(value)
     }
@@ -85,7 +85,7 @@ impl<T> Set<T> {
 
 impl<T> Set<T>
 where
-    T: Eq + PhfHash + PhfBorrow<T>,
+    T: Eq + PhfHash + PhfEq<T>,
 {
     /// Returns true if `other` shares no elements with `self`.
     pub fn is_disjoint(&self, other: &Set<T>) -> bool {

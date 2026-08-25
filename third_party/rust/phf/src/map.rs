@@ -4,7 +4,7 @@ use core::iter::FusedIterator;
 use core::iter::IntoIterator;
 use core::ops::Index;
 use core::slice;
-use phf_shared::{self, HashKey, PhfBorrow, PhfHash};
+use phf_shared::{self, HashKey, PhfEq, PhfHash};
 #[cfg(feature = "serde")]
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,11 +15,31 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 /// The fields of this struct are public so that they may be initialized by the
 /// `phf_map!` macro and code generation. They are subject to change at any
 /// time and should never be accessed directly.
+#[cfg(not(feature = "ptrhash"))]
 pub struct Map<K: 'static, V: 'static> {
     #[doc(hidden)]
     pub key: HashKey,
     #[doc(hidden)]
     pub disps: &'static [(u32, u32)],
+    #[doc(hidden)]
+    pub entries: &'static [(K, V)],
+}
+
+/// An immutable map constructed at compile time.
+///
+/// ## Note
+///
+/// The fields of this struct are public so that they may be initialized by the
+/// `phf_map!` macro and code generation. They are subject to change at any
+/// time and should never be accessed directly.
+#[cfg(feature = "ptrhash")]
+pub struct Map<K: 'static, V: 'static> {
+    #[doc(hidden)]
+    pub key: HashKey,
+    #[doc(hidden)]
+    pub pilots: &'static [u8],
+    #[doc(hidden)]
+    pub remap: &'static [u32],
     #[doc(hidden)]
     pub entries: &'static [(K, V)],
 }
@@ -37,7 +57,7 @@ where
 impl<'a, K, V, T: ?Sized> Index<&'a T> for Map<K, V>
 where
     T: Eq + PhfHash,
-    K: PhfBorrow<T>,
+    K: PhfEq<T>,
 {
     type Output = V;
 
@@ -57,8 +77,17 @@ where
     K: PartialEq,
     V: PartialEq,
 {
+    #[cfg(not(feature = "ptrhash"))]
     fn eq(&self, other: &Self) -> bool {
         self.key == other.key && self.disps == other.disps && self.entries == other.entries
+    }
+
+    #[cfg(feature = "ptrhash")]
+    fn eq(&self, other: &Self) -> bool {
+        self.key == other.key
+            && self.pilots == other.pilots
+            && self.remap == other.remap
+            && self.entries == other.entries
     }
 }
 
@@ -73,11 +102,20 @@ impl<K, V> Map<K, V> {
     /// Create a new, empty, immutable map.
     #[inline]
     pub const fn new() -> Self {
-        Self {
+        #[cfg(not(feature = "ptrhash"))]
+        return Self {
             key: 0,
             disps: &[],
             entries: &[],
-        }
+        };
+
+        #[cfg(feature = "ptrhash")]
+        return Self {
+            key: 0,
+            pilots: &[],
+            remap: &[],
+            entries: &[],
+        };
     }
 
     /// Returns the number of entries in the `Map`.
@@ -96,7 +134,7 @@ impl<K, V> Map<K, V> {
     pub fn contains_key<T>(&self, key: &T) -> bool
     where
         T: Eq + PhfHash + ?Sized,
-        K: PhfBorrow<T>,
+        K: PhfEq<T>,
     {
         self.get(key).is_some()
     }
@@ -105,7 +143,7 @@ impl<K, V> Map<K, V> {
     pub fn get<T>(&self, key: &T) -> Option<&V>
     where
         T: Eq + PhfHash + ?Sized,
-        K: PhfBorrow<T>,
+        K: PhfEq<T>,
     {
         self.get_entry(key).map(|e| e.1)
     }
@@ -117,16 +155,17 @@ impl<K, V> Map<K, V> {
     pub fn get_key<T>(&self, key: &T) -> Option<&K>
     where
         T: Eq + PhfHash + ?Sized,
-        K: PhfBorrow<T>,
+        K: PhfEq<T>,
     {
         self.get_entry(key).map(|e| e.0)
     }
 
     /// Like `get`, but returns both the key and the value.
+    #[cfg(not(feature = "ptrhash"))]
     pub fn get_entry<T>(&self, key: &T) -> Option<(&K, &V)>
     where
         T: Eq + PhfHash + ?Sized,
-        K: PhfBorrow<T>,
+        K: PhfEq<T>,
     {
         if self.disps.is_empty() {
             return None;
@@ -134,8 +173,34 @@ impl<K, V> Map<K, V> {
         let hashes = phf_shared::hash(key, &self.key);
         let index = phf_shared::get_index(&hashes, self.disps, self.entries.len());
         let entry = &self.entries[index as usize];
-        let b: &T = entry.0.borrow();
-        if b == key {
+        if entry.0.phf_eq(key) {
+            Some((&entry.0, &entry.1))
+        } else {
+            None
+        }
+    }
+
+    /// Like `get`, but returns both the key and the value.
+    #[cfg(feature = "ptrhash")]
+    pub fn get_entry<T>(&self, key: &T) -> Option<(&K, &V)>
+    where
+        T: Eq + PhfHash + ?Sized,
+        K: PhfEq<T>,
+    {
+        if self.entries.is_empty() {
+            return None;
+        }
+
+        let hash = phf_shared::ptrhash::hash(key, &self.key);
+        let index = phf_shared::ptrhash::get_index(
+            self.key,
+            hash,
+            self.pilots,
+            self.remap,
+            self.entries.len(),
+        );
+        let entry = &self.entries[index as usize];
+        if entry.0.phf_eq(key) {
             Some((&entry.0, &entry.1))
         } else {
             None

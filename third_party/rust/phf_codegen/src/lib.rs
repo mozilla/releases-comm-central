@@ -15,9 +15,13 @@
 //!
 //! ```toml
 //! [build-dependencies]
-//! phf = { version = "0.13.1", default-features = false }
-//! phf_codegen = "0.13.1"
+//! phf = { version = "0.14.0", default-features = false }
+//! phf_codegen = "0.14.0"
 //! ```
+//!
+//! When using the experimental `ptrhash` feature, enable it on both
+//! `phf_codegen` and the runtime `phf` dependency so the generated constants
+//! and runtime layout stay in sync.
 //!
 //! Then put code on build.rs:
 //!
@@ -136,7 +140,7 @@
 //! // ...
 //! ```
 
-#![doc(html_root_url = "https://docs.rs/phf_codegen/0.13.1")]
+#![doc(html_root_url = "https://docs.rs/phf_codegen/0.14.0")]
 #![allow(clippy::new_without_default)]
 
 use phf_shared::{FmtConst, PhfHash};
@@ -145,13 +149,38 @@ use std::collections::HashSet;
 use std::fmt;
 use std::hash::Hash;
 
+#[cfg(not(feature = "ptrhash"))]
 use phf_generator::HashState;
+#[cfg(feature = "ptrhash")]
+use phf_generator::ptrhash::HashState;
 
 struct Delegate<T>(T);
 
 impl<T: FmtConst> fmt::Display for Delegate<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.fmt_const(f)
+    }
+}
+
+#[cfg(feature = "quote")]
+fn write_tokens(tokens: &mut proc_macro2::TokenStream, value: impl fmt::Display) {
+    tokens.extend(
+        value
+            .to_string()
+            .parse::<proc_macro2::TokenStream>()
+            .expect("phf_codegen generated invalid Rust tokens"),
+    );
+}
+
+fn generate_hash_state<H: PhfHash>(keys: &[H]) -> HashState {
+    #[cfg(not(feature = "ptrhash"))]
+    {
+        phf_generator::generate_hash(keys)
+    }
+
+    #[cfg(feature = "ptrhash")]
+    {
+        phf_generator::ptrhash::generate_hash(keys)
     }
 }
 
@@ -198,7 +227,10 @@ impl<'a, K: Hash + PhfHash + Eq + FmtConst> Map<'a, K> {
     }
 
     /// Calculate the hash parameters and return a struct implementing
-    /// [`Display`](::std::fmt::Display) which will print the constructed `phf::Map`.
+    /// [`Display`](::std::fmt::Display) for the constructed `phf::Map`.
+    ///
+    /// With the `quote` feature enabled, the returned value also implements
+    /// `quote::ToTokens`.
     ///
     /// # Panics
     ///
@@ -211,7 +243,7 @@ impl<'a, K: Hash + PhfHash + Eq + FmtConst> Map<'a, K> {
             }
         }
 
-        let state = phf_generator::generate_hash(&self.keys);
+        let state = generate_hash_state(&self.keys);
 
         DisplayMap {
             state,
@@ -231,6 +263,7 @@ pub struct DisplayMap<'a, K> {
 }
 
 impl<'a, K: FmtConst + 'a> fmt::Display for DisplayMap<'a, K> {
+    #[cfg(not(feature = "ptrhash"))]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // funky formatting here for nice output
         write!(
@@ -276,6 +309,73 @@ impl<'a, K: FmtConst + 'a> fmt::Display for DisplayMap<'a, K> {
 }}"
         )
     }
+
+    #[cfg(feature = "ptrhash")]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}::Map {{
+    key: {:?},
+    pilots: &[",
+            self.path, self.state.seed
+        )?;
+
+        for &pilot in &self.state.pilots {
+            write!(
+                f,
+                "
+        {},",
+                pilot
+            )?;
+        }
+
+        write!(
+            f,
+            "
+    ],
+    remap: &[",
+        )?;
+
+        for &index in &self.state.remap {
+            write!(
+                f,
+                "
+        {},",
+                index
+            )?;
+        }
+
+        write!(
+            f,
+            "
+    ],
+    entries: &[",
+        )?;
+
+        for &idx in &self.state.map {
+            write!(
+                f,
+                "
+        ({}, {}),",
+                Delegate(&self.keys[idx]),
+                &self.values[idx]
+            )?;
+        }
+
+        write!(
+            f,
+            "
+    ],
+}}"
+        )
+    }
+}
+
+#[cfg(feature = "quote")]
+impl<'a, K: FmtConst + 'a> quote::ToTokens for DisplayMap<'a, K> {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        write_tokens(tokens, self);
+    }
 }
 
 impl<'a, K, V> FromIterator<(K, V)> for Map<'a, K>
@@ -316,7 +416,10 @@ impl<'a, T: Hash + PhfHash + Eq + FmtConst> Set<'a, T> {
     }
 
     /// Calculate the hash parameters and return a struct implementing
-    /// [`Display`](::std::fmt::Display) which will print the constructed `phf::Set`.
+    /// [`Display`](::std::fmt::Display) for the constructed `phf::Set`.
+    ///
+    /// With the `quote` feature enabled, the returned value also implements
+    /// `quote::ToTokens`.
     ///
     /// # Panics
     ///
@@ -336,6 +439,13 @@ pub struct DisplaySet<'a, T> {
 impl<'a, T: FmtConst + 'a> fmt::Display for DisplaySet<'a, T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}::Set {{ map: {} }}", self.inner.path, self.inner)
+    }
+}
+
+#[cfg(feature = "quote")]
+impl<'a, T: FmtConst + 'a> quote::ToTokens for DisplaySet<'a, T> {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        write_tokens(tokens, self);
     }
 }
 
@@ -372,8 +482,10 @@ impl<'a, K: Hash + PhfHash + Eq + FmtConst> OrderedMap<'a, K> {
     }
 
     /// Calculate the hash parameters and return a struct implementing
-    /// [`Display`](::std::fmt::Display) which will print the constructed
-    /// `phf::OrderedMap`.
+    /// [`Display`](::std::fmt::Display) for the constructed `phf::OrderedMap`.
+    ///
+    /// With the `quote` feature enabled, the returned value also implements
+    /// `quote::ToTokens`.
     ///
     /// # Panics
     ///
@@ -386,7 +498,7 @@ impl<'a, K: Hash + PhfHash + Eq + FmtConst> OrderedMap<'a, K> {
             }
         }
 
-        let state = phf_generator::generate_hash(&self.keys);
+        let state = generate_hash_state(&self.keys);
 
         DisplayOrderedMap {
             state,
@@ -406,6 +518,7 @@ pub struct DisplayOrderedMap<'a, K> {
 }
 
 impl<'a, K: FmtConst + 'a> fmt::Display for DisplayOrderedMap<'a, K> {
+    #[cfg(not(feature = "ptrhash"))]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
@@ -458,6 +571,89 @@ impl<'a, K: FmtConst + 'a> fmt::Display for DisplayOrderedMap<'a, K> {
 }}"
         )
     }
+
+    #[cfg(feature = "ptrhash")]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}::OrderedMap {{
+    key: {:?},
+    pilots: &[",
+            self.path, self.state.seed
+        )?;
+
+        for &pilot in &self.state.pilots {
+            write!(
+                f,
+                "
+        {},",
+                pilot
+            )?;
+        }
+
+        write!(
+            f,
+            "
+    ],
+    remap: &[",
+        )?;
+
+        for &index in &self.state.remap {
+            write!(
+                f,
+                "
+        {},",
+                index
+            )?;
+        }
+
+        write!(
+            f,
+            "
+    ],
+    idxs: &[",
+        )?;
+
+        for &idx in &self.state.map {
+            write!(
+                f,
+                "
+        {},",
+                idx
+            )?;
+        }
+
+        write!(
+            f,
+            "
+    ],
+    entries: &[",
+        )?;
+
+        for (key, value) in self.keys.iter().zip(self.values.iter()) {
+            write!(
+                f,
+                "
+        ({}, {}),",
+                Delegate(key),
+                value
+            )?;
+        }
+
+        write!(
+            f,
+            "
+    ],
+}}"
+        )
+    }
+}
+
+#[cfg(feature = "quote")]
+impl<'a, K: FmtConst + 'a> quote::ToTokens for DisplayOrderedMap<'a, K> {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        write_tokens(tokens, self);
+    }
 }
 
 /// A builder for the `phf::OrderedSet` type.
@@ -486,8 +682,10 @@ impl<'a, T: Hash + PhfHash + Eq + FmtConst> OrderedSet<'a, T> {
     }
 
     /// Calculate the hash parameters and return a struct implementing
-    /// [`Display`](::std::fmt::Display) which will print the constructed
-    /// `phf::OrderedSet`.
+    /// [`Display`](::std::fmt::Display) for the constructed `phf::OrderedSet`.
+    ///
+    /// With the `quote` feature enabled, the returned value also implements
+    /// `quote::ToTokens`.
     ///
     /// # Panics
     ///
@@ -511,5 +709,12 @@ impl<'a, T: FmtConst + 'a> fmt::Display for DisplayOrderedSet<'a, T> {
             "{}::OrderedSet {{ map: {} }}",
             self.inner.path, self.inner
         )
+    }
+}
+
+#[cfg(feature = "quote")]
+impl<'a, T: FmtConst + 'a> quote::ToTokens for DisplayOrderedSet<'a, T> {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        write_tokens(tokens, self);
     }
 }

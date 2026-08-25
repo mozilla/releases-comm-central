@@ -2,7 +2,7 @@
 //!
 //! [phf]: https://docs.rs/phf
 
-#![doc(html_root_url = "https://docs.rs/phf_shared/0.13.1")]
+#![doc(html_root_url = "https://docs.rs/phf_shared/0.14.0")]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[cfg(feature = "std")]
@@ -12,6 +12,12 @@ use core::fmt;
 use core::hash::{Hash, Hasher};
 use core::num::Wrapping;
 use siphasher::sip128::{Hash128, Hasher128, SipHasher13};
+
+mod hasher;
+use hasher::PortableSipHasher;
+
+#[cfg(feature = "ptrhash")]
+pub mod ptrhash;
 
 #[non_exhaustive]
 pub struct Hashes {
@@ -33,7 +39,7 @@ pub fn displace(f1: u32, f2: u32, d1: u32, d2: u32) -> u32 {
 /// `key` is from `phf_generator::HashState`.
 #[inline]
 pub fn hash<T: ?Sized + PhfHash>(x: &T, key: &HashKey) -> Hashes {
-    let mut hasher = SipHasher13::new_with_keys(0, *key);
+    let mut hasher = PortableSipHasher::new(SipHasher13::new_with_keys(0, *key));
     x.phf_hash(&mut hasher);
 
     let Hash128 {
@@ -73,6 +79,7 @@ pub trait PhfHash {
     where
         Self: Sized,
     {
+        state.write_u64(data.len() as u64);
         for piece in data {
             piece.phf_hash(state);
         }
@@ -93,7 +100,8 @@ pub trait FmtConst {
 /// > In particular `Eq`, `Ord` and `Hash` must be equivalent for borrowed and owned values:
 /// > `x.borrow() == y.borrow()` should give the same result as `x == y`.
 ///
-/// (This crate's API only requires `Eq` and `PhfHash`, however.)
+/// (This crate's lookup API only requires `Eq`, `PhfHash`, and [`PhfEq`],
+/// however.)
 ///
 /// ### Motivation
 /// The conventional signature for lookup methods on collections looks something like this:
@@ -118,14 +126,36 @@ pub trait FmtConst {
 /// all the blanket impls.
 ///
 /// Instead, this trait is implemented conservatively, without blanket impls, so that impls like
-/// this may be added. This is feasible since the set of types that implement `PhfHash` is
-/// intentionally small.
+/// this may be added. [`PhfEq`] uses these impls for borrowed key forms that can be represented
+/// as a reference to the lookup key type. This is feasible since the set of types that implement
+/// `PhfHash` is intentionally small.
 ///
 /// This likely won't be fixable with specialization alone but will require full support for lattice
 /// impls since we technically want to add overlapping blanket impls.
 pub trait PhfBorrow<B: ?Sized> {
     /// Convert a reference to `self` to a reference to the borrowed type.
     fn borrow(&self) -> &B;
+}
+
+/// Trait for comparing stored PHF keys with runtime lookup keys.
+///
+/// Lookup keys must hash the same way as the stored key they compare equal to.
+/// Most borrowed key forms use the blanket implementation based on
+/// [`PhfBorrow`]. Tuples are implemented separately so references inside a
+/// tuple can use shorter lifetimes at lookup time. Tuple impls are provided up
+/// to 12 elements.
+pub trait PhfEq<B: ?Sized> {
+    /// Returns `true` if `self` and `other` are equivalent PHF keys.
+    fn phf_eq(&self, other: &B) -> bool;
+}
+
+impl<K, B: ?Sized + Eq> PhfEq<B> for K
+where
+    K: PhfBorrow<B>,
+{
+    fn phf_eq(&self, other: &B) -> bool {
+        self.borrow() == other
+    }
 }
 
 /// Create an impl of `FmtConst` delegating to `fmt::Debug` for types that can deal with it.
@@ -196,13 +226,6 @@ impl PhfBorrow<str> for String {
 }
 
 #[cfg(feature = "std")]
-impl PhfBorrow<[u8]> for Vec<u8> {
-    fn borrow(&self) -> &[u8] {
-        self
-    }
-}
-
-#[cfg(feature = "std")]
 delegate_debug!(String);
 
 #[cfg(feature = "std")]
@@ -214,10 +237,10 @@ impl PhfHash for String {
 }
 
 #[cfg(feature = "std")]
-impl PhfHash for Vec<u8> {
+impl<T: PhfHash> PhfHash for Vec<T> {
     #[inline]
     fn phf_hash<H: Hasher>(&self, state: &mut H) {
-        (**self).phf_hash(state)
+        self.as_slice().phf_hash(state)
     }
 }
 
@@ -239,14 +262,21 @@ impl PhfBorrow<str> for &str {
     }
 }
 
-impl PhfBorrow<[u8]> for &[u8] {
-    fn borrow(&self) -> &[u8] {
+#[cfg(feature = "std")]
+impl<T> PhfBorrow<[T]> for Vec<T> {
+    fn borrow(&self) -> &[T] {
         self
     }
 }
 
-impl<const N: usize> PhfBorrow<[u8; N]> for &[u8; N] {
-    fn borrow(&self) -> &[u8; N] {
+impl<T> PhfBorrow<[T]> for &[T] {
+    fn borrow(&self) -> &[T] {
+        self
+    }
+}
+
+impl<T, const N: usize> PhfBorrow<[T; N]> for &[T; N] {
+    fn borrow(&self) -> &[T; N] {
         self
     }
 }
@@ -255,21 +285,6 @@ impl PhfHash for str {
     #[inline]
     fn phf_hash<H: Hasher>(&self, state: &mut H) {
         self.as_bytes().phf_hash(state)
-    }
-}
-
-impl PhfHash for [u8] {
-    #[inline]
-    fn phf_hash<H: Hasher>(&self, state: &mut H) {
-        state.write(self);
-    }
-}
-
-impl FmtConst for [u8] {
-    #[inline]
-    fn fmt_const(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // slices need a leading reference
-        write!(f, "&{:?}", self)
     }
 }
 
@@ -362,38 +377,53 @@ impl PhfBorrow<uncased::UncasedStr> for &uncased::UncasedStr {
     }
 }
 
-macro_rules! sip_impl (
-    (le $t:ty) => (
-        impl PhfHash for $t {
-            #[inline]
-            fn phf_hash<H: Hasher>(&self, state: &mut H) {
-                self.to_le().hash(state);
-            }
-        }
-    );
+macro_rules! integer_impl (
     ($t:ty) => (
         impl PhfHash for $t {
             #[inline]
             fn phf_hash<H: Hasher>(&self, state: &mut H) {
                 self.hash(state);
             }
+
+            // `phf_hash_slice` cannot use `write` due to possible differences in endianness.
         }
     )
 );
 
-sip_impl!(u8);
-sip_impl!(i8);
-sip_impl!(le u16);
-sip_impl!(le i16);
-sip_impl!(le u32);
-sip_impl!(le i32);
-sip_impl!(le u64);
-sip_impl!(le i64);
-sip_impl!(le usize);
-sip_impl!(le isize);
-sip_impl!(le u128);
-sip_impl!(le i128);
-sip_impl!(bool);
+integer_impl!(u16);
+integer_impl!(i16);
+integer_impl!(u32);
+integer_impl!(i32);
+integer_impl!(u64);
+integer_impl!(i64);
+integer_impl!(usize);
+integer_impl!(isize);
+integer_impl!(u128);
+integer_impl!(i128);
+
+macro_rules! single_byte_impl (
+    ($t:ty) => (
+        impl PhfHash for $t {
+            #[inline]
+            fn phf_hash<H: Hasher>(&self, state: &mut H) {
+                self.hash(state);
+            }
+
+            #[inline]
+            fn phf_hash_slice<H: Hasher>(slice: &[$t], state: &mut H) {
+                // There is sadly no `[i8]::as_bytes` or `[bool]::as_bytes`.
+                state.write_u64(slice.len() as u64);
+                state.write(unsafe { &*(slice as *const [$t] as *const [u8]) });
+            }
+        }
+    )
+);
+
+single_byte_impl!(u8);
+single_byte_impl!(i8);
+// https://doc.rust-lang.org/reference/types/boolean.html#r-type.bool.repr guarantees that `bool`
+// has a fixed layout.
+single_byte_impl!(bool);
 
 impl PhfHash for char {
     #[inline]
@@ -402,22 +432,49 @@ impl PhfHash for char {
     }
 }
 
+impl<T: PhfHash, const N: usize> PhfHash for [T; N] {
+    #[inline]
+    fn phf_hash<H: Hasher>(&self, state: &mut H) {
+        <[T]>::phf_hash(self, state);
+    }
+}
+
+impl<T: PhfHash> PhfHash for [T] {
+    #[inline]
+    fn phf_hash<H: Hasher>(&self, state: &mut H) {
+        T::phf_hash_slice(self, state);
+    }
+}
+
 // minimize duplicated code since formatting drags in quite a bit
+fn fmt_slice<T: core::fmt::Debug>(slice: &[T], f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    // slices need a leading reference
+    write!(f, "&{:?}", slice)
+}
+
 fn fmt_array<T: core::fmt::Debug>(array: &[T], f: &mut fmt::Formatter<'_>) -> fmt::Result {
     write!(f, "{:?}", array)
 }
 
-macro_rules! array_impl (
+macro_rules! slice_impl (
     ($t:ty) => (
-        impl<const N: usize> PhfHash for [$t; N] {
-            #[inline]
-            fn phf_hash<H: Hasher>(&self, state: &mut H) {
-                for v in &self[..] {
-                    v.phf_hash(state);
-                }
+        impl FmtConst for [$t] {
+            fn fmt_const(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                fmt_slice(self, f)
             }
         }
 
+        #[cfg(feature = "std")]
+        impl FmtConst for Vec<$t> {
+            fn fmt_const(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                self.as_slice().fmt_const(f)
+            }
+        }
+    )
+);
+
+macro_rules! array_impl (
+    ($t:ty) => (
         impl<const N: usize> FmtConst for [$t; N] {
             fn fmt_const(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                 fmt_array(self, f)
@@ -431,6 +488,21 @@ macro_rules! array_impl (
         }
     )
 );
+
+slice_impl!(u8);
+slice_impl!(i8);
+slice_impl!(u16);
+slice_impl!(i16);
+slice_impl!(u32);
+slice_impl!(i32);
+slice_impl!(u64);
+slice_impl!(i64);
+slice_impl!(usize);
+slice_impl!(isize);
+slice_impl!(u128);
+slice_impl!(i128);
+slice_impl!(bool);
+slice_impl!(char);
 
 array_impl!(u8);
 array_impl!(i8);
@@ -447,33 +519,6 @@ array_impl!(i128);
 array_impl!(bool);
 array_impl!(char);
 
-macro_rules! slice_impl (
-    ($t:ty) => {
-        impl PhfHash for [$t] {
-            #[inline]
-            fn phf_hash<H: Hasher>(&self, state: &mut H) {
-                for v in self {
-                    v.phf_hash(state);
-                }
-            }
-        }
-    };
-);
-
-slice_impl!(i8);
-slice_impl!(u16);
-slice_impl!(i16);
-slice_impl!(u32);
-slice_impl!(i32);
-slice_impl!(u64);
-slice_impl!(i64);
-slice_impl!(usize);
-slice_impl!(isize);
-slice_impl!(u128);
-slice_impl!(i128);
-slice_impl!(bool);
-slice_impl!(char);
-
 macro_rules! tuple_impl {
     ($($t:ident),+) => {
         impl<$($t: PhfHash),+> PhfHash for ($($t,)+) {
@@ -483,12 +528,6 @@ macro_rules! tuple_impl {
                 $(
                     $t.phf_hash(state);
                 )+
-            }
-        }
-
-        impl<$($t: PhfHash),+> PhfBorrow<($($t,)+)> for ($($t,)+) {
-            fn borrow(&self) -> &($($t,)+) {
-                self
             }
         }
 
@@ -510,6 +549,21 @@ macro_rules! tuple_impl {
     };
 }
 
+macro_rules! tuple_eq_impl {
+    ($(($left_ty:ident, $left:ident, $right_ty:ident, $right:ident)),+) => {
+        impl<$($left_ty, $right_ty),+> PhfEq<($($right_ty,)+)> for ($($left_ty,)+)
+        where
+            $($left_ty: PartialEq<$right_ty>),+
+        {
+            fn phf_eq(&self, other: &($($right_ty,)+)) -> bool {
+                let ($($left,)+) = self;
+                let ($($right,)+) = other;
+                true $(&& $left == $right)+
+            }
+        }
+    };
+}
+
 tuple_impl!(A);
 tuple_impl!(A, B);
 tuple_impl!(A, B, C);
@@ -522,3 +576,246 @@ tuple_impl!(A, B, C, D, E, F, G, HT, I);
 tuple_impl!(A, B, C, D, E, F, G, HT, I, J);
 tuple_impl!(A, B, C, D, E, F, G, HT, I, J, K);
 tuple_impl!(A, B, C, D, E, F, G, HT, I, J, K, L);
+
+tuple_eq_impl!((A, a, AT, at));
+tuple_eq_impl!((A, a, AT, at), (B, b, BT, bt));
+tuple_eq_impl!((A, a, AT, at), (B, b, BT, bt), (C, c, CT, ct));
+tuple_eq_impl!(
+    (A, a, AT, at),
+    (B, b, BT, bt),
+    (C, c, CT, ct),
+    (D, d, DT, dt)
+);
+tuple_eq_impl!(
+    (A, a, AT, at),
+    (B, b, BT, bt),
+    (C, c, CT, ct),
+    (D, d, DT, dt),
+    (E, e, ET, et)
+);
+tuple_eq_impl!(
+    (A, a, AT, at),
+    (B, b, BT, bt),
+    (C, c, CT, ct),
+    (D, d, DT, dt),
+    (E, e, ET, et),
+    (F, ff, FT, ft)
+);
+tuple_eq_impl!(
+    (A, a, AT, at),
+    (B, b, BT, bt),
+    (C, c, CT, ct),
+    (D, d, DT, dt),
+    (E, e, ET, et),
+    (F, ff, FT, ft),
+    (G, g, GT, gt)
+);
+tuple_eq_impl!(
+    (A, a, AT, at),
+    (B, b, BT, bt),
+    (C, c, CT, ct),
+    (D, d, DT, dt),
+    (E, e, ET, et),
+    (F, ff, FT, ft),
+    (G, g, GT, gt),
+    (H, h, HT, ht)
+);
+tuple_eq_impl!(
+    (A, a, AT, at),
+    (B, b, BT, bt),
+    (C, c, CT, ct),
+    (D, d, DT, dt),
+    (E, e, ET, et),
+    (F, ff, FT, ft),
+    (G, g, GT, gt),
+    (H, h, HT, ht),
+    (I, i, IT, it)
+);
+tuple_eq_impl!(
+    (A, a, AT, at),
+    (B, b, BT, bt),
+    (C, c, CT, ct),
+    (D, d, DT, dt),
+    (E, e, ET, et),
+    (F, ff, FT, ft),
+    (G, g, GT, gt),
+    (H, h, HT, ht),
+    (I, i, IT, it),
+    (J, j, JT, jt)
+);
+tuple_eq_impl!(
+    (A, a, AT, at),
+    (B, b, BT, bt),
+    (C, c, CT, ct),
+    (D, d, DT, dt),
+    (E, e, ET, et),
+    (F, ff, FT, ft),
+    (G, g, GT, gt),
+    (H, h, HT, ht),
+    (I, i, IT, it),
+    (J, j, JT, jt),
+    (K, k, KT, kt)
+);
+tuple_eq_impl!(
+    (A, a, AT, at),
+    (B, b, BT, bt),
+    (C, c, CT, ct),
+    (D, d, DT, dt),
+    (E, e, ET, et),
+    (F, ff, FT, ft),
+    (G, g, GT, gt),
+    (H, h, HT, ht),
+    (I, i, IT, it),
+    (J, j, JT, jt),
+    (K, k, KT, kt),
+    (L, l, LT, lt)
+);
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[derive(PartialEq, Debug)]
+    enum HashCall {
+        Bytes(Vec<u8>),
+        U8(u8),
+        U16(u16),
+        U32(u32),
+        U64(u64),
+        U128(u128),
+        Usize(usize),
+        I8(i8),
+        I16(i16),
+        I32(i32),
+        I64(i64),
+        I128(i128),
+        Isize(isize),
+        // Ideally we'd handle `write_length_prefix` and `write_str` as well, but they are unstable.
+    }
+
+    #[derive(PartialEq, Debug)]
+    struct TestHasher {
+        calls: Vec<HashCall>,
+    }
+
+    impl Hasher for TestHasher {
+        fn finish(&self) -> u64 {
+            panic!("only used for tests");
+        }
+        fn write(&mut self, bytes: &[u8]) {
+            self.calls.push(HashCall::Bytes(bytes.to_vec()));
+        }
+        fn write_u8(&mut self, i: u8) {
+            self.calls.push(HashCall::U8(i));
+        }
+        fn write_u16(&mut self, i: u16) {
+            self.calls.push(HashCall::U16(i));
+        }
+        fn write_u32(&mut self, i: u32) {
+            self.calls.push(HashCall::U32(i));
+        }
+        fn write_u64(&mut self, i: u64) {
+            self.calls.push(HashCall::U64(i));
+        }
+        fn write_u128(&mut self, i: u128) {
+            self.calls.push(HashCall::U128(i));
+        }
+        fn write_usize(&mut self, i: usize) {
+            self.calls.push(HashCall::Usize(i));
+        }
+        fn write_i8(&mut self, i: i8) {
+            self.calls.push(HashCall::I8(i));
+        }
+        fn write_i16(&mut self, i: i16) {
+            self.calls.push(HashCall::I16(i));
+        }
+        fn write_i32(&mut self, i: i32) {
+            self.calls.push(HashCall::I32(i));
+        }
+        fn write_i64(&mut self, i: i64) {
+            self.calls.push(HashCall::I64(i));
+        }
+        fn write_i128(&mut self, i: i128) {
+            self.calls.push(HashCall::I128(i));
+        }
+        fn write_isize(&mut self, i: isize) {
+            self.calls.push(HashCall::Isize(i));
+        }
+    }
+
+    fn test_hash<T: PhfHash>(x: T) -> Vec<HashCall> {
+        let mut state = TestHasher { calls: Vec::new() };
+        x.phf_hash(&mut state);
+        state.calls
+    }
+
+    #[test]
+    fn byte_slices_are_hashed_efficiently() {
+        assert_eq!(
+            test_hash(&[1u8, 2, 3]),
+            [HashCall::U64(3), HashCall::Bytes([1, 2, 3].to_vec())]
+        );
+        assert_eq!(
+            test_hash(&[1i8, 2, 3]),
+            [HashCall::U64(3), HashCall::Bytes([1, 2, 3].to_vec())]
+        );
+        assert_eq!(
+            test_hash(&[false, true]),
+            [HashCall::U64(2), HashCall::Bytes([0, 1].to_vec())]
+        );
+    }
+
+    #[test]
+    fn slices_and_arrays_are_hashed_consistently() {
+        assert_eq!(test_hash(&[1u8, 2, 3]), test_hash(&[1u8, 2, 3][..]));
+        assert_eq!(test_hash(&[1u16, 2, 3]), test_hash(&[1u16, 2, 3][..]));
+    }
+
+    #[test]
+    fn array_reference_borrow_is_generic() {
+        fn assert_borrow<K, B: ?Sized>()
+        where
+            K: PhfBorrow<B>,
+        {
+        }
+
+        assert_borrow::<&[u32; 2], [u32; 2]>();
+        assert_borrow::<&[bool; 2], [bool; 2]>();
+        assert_borrow::<&[char; 2], [char; 2]>();
+    }
+
+    #[test]
+    fn tuple_eq_allows_shorter_reference_lifetimes() {
+        fn assert_ref_tuple<'a>(key: &(&'a str, &'a str)) -> bool
+        where
+            (&'static str, &'static str): PhfEq<(&'a str, &'a str)>,
+        {
+            ("a", "b").phf_eq(key)
+        }
+
+        fn assert_mixed_tuple<'a>(key: &(u32, &'a str)) -> bool
+        where
+            (u32, &'static str): PhfEq<(u32, &'a str)>,
+        {
+            (1, "a").phf_eq(key)
+        }
+
+        let a = String::from("a");
+        let b = String::from("b");
+        assert!(assert_ref_tuple(&(a.as_str(), b.as_str())));
+        assert!(assert_mixed_tuple(&(1, a.as_str())));
+    }
+
+    #[test]
+    fn variable_width_slice_elements_are_delimited() {
+        assert_ne!(test_hash(&["ab", "c"]), test_hash(&["a", "bc"]));
+
+        let key = 0;
+        let left = hash(&["ab", "c"], &key);
+        let right = hash(&["a", "bc"], &key);
+        assert!(
+            (left.g, left.f1, left.f2) != (right.g, right.f1, right.f2),
+            "different string arrays must not produce identical PHF hashes"
+        );
+    }
+}

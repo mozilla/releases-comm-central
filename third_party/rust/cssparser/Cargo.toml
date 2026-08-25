@@ -11,9 +11,9 @@
 
 [package]
 edition = "2018"
-rust-version = "1.71"
+rust-version = "1.85"
 name = "cssparser"
-version = "0.37.0"
+version = "0.38.0"
 authors = ["Simon Sapin <simon.sapin@exyr.org>"]
 build = false
 exclude = [
@@ -66,7 +66,7 @@ optional = true
 default-features = false
 
 [dependencies.phf]
-version = "0.13.1"
+version = "0.14.0"
 features = ["macros"]
 optional = true
 
