@@ -91,7 +91,7 @@ add_setup(async function setupTestCommon() {
 
   ds.unregisterProvider(dirProvider);
 
-  setUpdateTimerPrefs();
+  await setUpdateTimerPrefs();
   reloadUpdateManagerData(true);
   removeUpdateFiles(true);
   UpdateListener.reset();
@@ -132,10 +132,14 @@ registerCleanupFunction(async () => {
  * current time minus one minute in seconds and the interval time to 12 hours
  * in seconds.
  */
-function setUpdateTimerPrefs() {
+async function setUpdateTimerPrefs() {
   const now = Math.round(Date.now() / 1000) - 60;
-  Services.prefs.setIntPref(PREF_APP_UPDATE_LASTUPDATETIME, now);
-  Services.prefs.setIntPref(PREF_APP_UPDATE_INTERVAL, 43200);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      [PREF_APP_UPDATE_LASTUPDATETIME, now],
+      [PREF_APP_UPDATE_INTERVAL, 43200],
+    ],
+  });
 }
 
 /**

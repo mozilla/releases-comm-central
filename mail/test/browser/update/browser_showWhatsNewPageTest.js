@@ -30,13 +30,10 @@ const DEFAULT_NEW_BUILD_ID = "20080811053725";
 const gOrigAppInfo = Services.appinfo;
 
 add_setup(() => {
-  const origMstone = Services.prefs.getCharPref(PREF_MSTONE);
-
   MockExternalProtocolService.init();
 
   registerCleanupFunction(async () => {
     Services.appinfo = gOrigAppInfo;
-    Services.prefs.setCharPref(PREF_MSTONE, origMstone);
     MockExternalProtocolService.cleanup();
     await PlacesUtils.history.clear();
   });
@@ -74,7 +71,9 @@ async function WnpTest({
 }) {
   if (origAppVersion) {
     logTestInfo(`Setting original appVersion to ${origAppVersion}`);
-    Services.prefs.setCharPref(PREF_MSTONE, origAppVersion);
+    await SpecialPowers.pushPrefEnv({
+      set: [[PREF_MSTONE, origAppVersion]],
+    });
   } else {
     origAppVersion = Services.prefs.getCharPref(PREF_MSTONE);
     logTestInfo(`Loaded original appVersion as ${origAppVersion}`);

@@ -45,10 +45,9 @@ add_task(async function test_migrate_extension() {
   const parsedPref = JSON.parse(extensionPref || "{}");
   if (!parsedPref.hasOwnProperty(EXTENSION_ID)) {
     parsedPref[EXTENSION_ID] = "foo";
-    Services.prefs.setStringPref(
-      "extensions.webextensions.uuids",
-      JSON.stringify(parsedPref)
-    );
+    await SpecialPowers.pushPrefEnv({
+      set: [["extensions.webextensions.uuids", JSON.stringify(parsedPref)]],
+    });
   }
 
   migrateToolbarForSpace("mail");
@@ -88,12 +87,4 @@ add_task(async function test_migrate_extension() {
 
   storeState({});
   setCachedAllowedSpaces(new Map());
-  if (extensionPref) {
-    Services.prefs.setStringPref(
-      "extensions.webextensions.uuids",
-      extensionPref
-    );
-  } else {
-    Services.prefs.clearUserPref("extensions.webextensions.uuids");
-  }
 });
