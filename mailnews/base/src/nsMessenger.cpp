@@ -180,8 +180,8 @@ nsMessenger::nsFilePickerShownCallback::Done(
   return NS_OK;
 }
 
-nsresult nsMessenger::ShowPicker(nsIFilePicker* aPicker,
-                                 nsIFilePicker::ResultCode* aResult) {
+MOZ_CAN_RUN_SCRIPT_BOUNDARY nsresult nsMessenger::ShowPicker(
+    nsIFilePicker* aPicker, nsIFilePicker::ResultCode* aResult) {
   nsCOMPtr<nsIFilePickerShownCallback> callback =
       new nsMessenger::nsFilePickerShownCallback();
   nsFilePickerShownCallback* cb =
