@@ -23,6 +23,8 @@ support-files = ["data/**"]
 
 ["browser_encryptedUriCleanup.js"]
 
+["browser_encryptedRemoteContentFromFile.js"]
+
 ["browser_nestedSMimeSigs.js"]
 
 ["browser_smimeSignedPartDispatch.js"]

@@ -24,6 +24,8 @@ tags = ["openpgp"]
 
 ["browser_encryptedUriCleanup.js"]
 
+["browser_encryptedRemoteContentFromFile.js"]
+
 ["browser_inlineOpenPGP.js"]
 
 ["browser_keyWizard.js"]
