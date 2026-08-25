@@ -118,6 +118,10 @@ export const CheckButton = () => html`
   ></button>
 `;
 
+export const PillButton = () => html`
+  <button class="button button-primary pill-button">Join Meeting</button>
+`;
+
 export const ButtonGroup = () => html`
   <div class="button-group">
     <button class="button">First button</button>

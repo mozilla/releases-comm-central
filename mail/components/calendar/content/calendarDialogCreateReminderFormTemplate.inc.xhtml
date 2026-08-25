@@ -1,0 +1,77 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<html:template
+  id="calendarDialogCreateReminderFormTemplate"
+  xmlns="http://www.w3.org/1999/xhtml"
+>
+  <button
+    type="button"
+    data-l10n-id="calendar-dialog-add-reminder-button"
+    class="button button-flat icon-button add-reminder-button"
+  ></button>
+  <form
+    class="create-reminder-form"
+    hidden="hidden"
+  >
+    <select data-l10n-id="calendar-dialog-reminder-select" class="select">
+      <option
+        data-l10n-id="calendar-dialog-reminder-event-start"
+        value="0"
+      ></option>
+      <option
+        data-l10n-id="calendar-dialog-reminder-minutes-before"
+        data-l10n-args="{&quot;count&quot;:15}"
+        value="15"
+      ></option>
+      <option
+        data-l10n-id="calendar-dialog-reminder-minutes-before"
+        data-l10n-args="{&quot;count&quot;:30}"
+        value="30"
+      ></option>
+      <option
+        data-l10n-id="calendar-dialog-reminder-hours-before"
+        data-l10n-args="{&quot;count&quot;:1}"
+        value="60"
+      ></option>
+      <option
+        data-l10n-id="calendar-dialog-reminder-hours-before"
+        data-l10n-args="{&quot;count&quot;:2}"
+        value="120"
+      ></option>
+      <option
+        data-l10n-id="calendar-dialog-reminder-hours-before"
+        data-l10n-args="{&quot;count&quot;:12}"
+        value="720"
+      ></option>
+      <option
+        data-l10n-id="calendar-dialog-reminder-days-before"
+        data-l10n-args="{&quot;count&quot;:1}"
+        value="1440"
+      ></option>
+      <option
+        data-l10n-id="calendar-dialog-reminder-days-before"
+        data-l10n-args="{&quot;count&quot;:2}"
+        value="2880"
+      ></option>
+      <option
+        data-l10n-id="calendar-dialog-reminder-week-before"
+        value="10080"
+      ></option>
+    </select>
+    <button
+      type="submit"
+      data-l10n-id="calendar-dialog-save-reminder-button"
+      class="button button-primary pill-button"
+    ></button>
+    <button
+      type="button"
+      class="button button-flat delete-button icon-button icon-only">
+      <img
+        class="icon-delete"
+        data-l10n-id="calendar-dialog-delete-reminder-button"
+      />
+    </button>
+  </form>
+</html:template>

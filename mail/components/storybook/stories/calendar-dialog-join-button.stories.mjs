@@ -12,7 +12,7 @@ export default {
 };
 
 const JoinButtonTemplate = () => html`
-  <button type="button" class="button button-primary join-button">
+  <button type="button" class="button button-primary join-button pill-button">
     Join Meeting
   </button>
 `;

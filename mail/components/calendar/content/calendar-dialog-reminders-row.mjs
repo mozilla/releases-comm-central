@@ -3,6 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import "./calendar-dialog-row.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./calendar-dialog-create-reminder-form.mjs"; // eslint-disable-line import/no-unassigned-import
 
 /**
  * Template ID: #calendarDialogRemindersRowTemplate

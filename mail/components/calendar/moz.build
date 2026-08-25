@@ -20,6 +20,7 @@ MOZ_SRC_FILES += [
     "content/calendar-dialog-attendee.mjs",
     "content/calendar-dialog-attendees-row.mjs",
     "content/calendar-dialog-categories.mjs",
+    "content/calendar-dialog-create-reminder-form.mjs",
     "content/calendar-dialog-date-row.mjs",
     "content/calendar-dialog-description-row.mjs",
     "content/calendar-dialog-reminders-row.mjs",

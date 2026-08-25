@@ -18,6 +18,29 @@ ChromeUtils.defineESModuleGetters(lazy, {
 
 export var alarms = {
   /**
+   * Get the default offset for new alarms as defined in the calendar settings.
+   *
+   * @param {"event"|"todo"} type - The type of calendar item to get the offset
+   *   for.
+   * @returns {CalDuration} A duration of the offset. Should be a negative
+   *   duration to indicate before the item's start date.
+   */
+  getDefaultOffset(type) {
+    const alarmOffset = lazy.cal.createDuration();
+    let unit = Services.prefs.getStringPref("calendar.alarms." + type + "alarmunit", "minutes");
+
+    // Make sure the alarm pref is valid, default to minutes otherwise
+    if (!["weeks", "days", "hours", "minutes", "seconds"].includes(unit)) {
+      unit = "minutes";
+    }
+
+    alarmOffset[unit] = Services.prefs.getIntPref("calendar.alarms." + type + "alarmlen", 0);
+    alarmOffset.normalize();
+    alarmOffset.isNegative = true;
+    return alarmOffset;
+  },
+
+  /**
    * Read default alarm settings from user preferences and apply them to the
    * event/todo passed in. The item's calendar should be set to ensure the
    * correct alarm type is set.
@@ -27,18 +50,9 @@ export var alarms = {
   setDefaultValues(aItem) {
     const type = aItem.isEvent() ? "event" : "todo";
     if (Services.prefs.getIntPref("calendar.alarms.onfor" + type + "s", 0) == 1) {
-      const alarmOffset = lazy.cal.createDuration();
       const alarm = new lazy.CalAlarm();
-      let units = Services.prefs.getStringPref("calendar.alarms." + type + "alarmunit", "minutes");
+      const alarmOffset = this.getDefaultOffset(type);
 
-      // Make sure the alarm pref is valid, default to minutes otherwise
-      if (!["weeks", "days", "hours", "minutes", "seconds"].includes(units)) {
-        units = "minutes";
-      }
-
-      alarmOffset[units] = Services.prefs.getIntPref("calendar.alarms." + type + "alarmlen", 0);
-      alarmOffset.normalize();
-      alarmOffset.isNegative = true;
       if (type == "todo" && !aItem.entryDate) {
         // You can't have an alarm if the entryDate doesn't exist.
         aItem.entryDate = lazy.cal.dtz.now();

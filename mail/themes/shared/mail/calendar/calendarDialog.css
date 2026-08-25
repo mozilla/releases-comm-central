@@ -194,15 +194,6 @@ calendar-dialog-date-row {
 }
 
 .button.join-button {
-  border-radius: 1000px;
-  font-size: 0.77rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
-  box-shadow:
-    inset 0 4px 6px rgba(255, 255, 255, 0.1),
-    0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: calc(2 * var(--space-step)) calc(3 * var(--space-step));
   margin: 0;
 }
 
@@ -238,6 +229,36 @@ calendar-dialog-date-row {
 #reminderList {
   padding-inline-start: 0;
   margin-block: 0;
+}
+
+.button.icon-button.add-reminder-button {
+  color: var(--color-primary-default);
+  background-image: var(--icon-circle-add-sm);
+  margin-inline: 0;
+  margin-block-start: calc(3 * var(--space-step));
+}
+
+.create-reminder-form {
+  display: flex;
+  align-items: center;
+  gap: calc(3 * var(--space-step));
+  margin-block-start: calc(3 * var(--space-step));
+
+  .select {
+    flex: 1 auto;
+    margin: 0;
+  }
+
+  .button {
+    margin: 0;
+  }
+
+  .delete-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-inline-end: var(--button-margin);
+  }
 }
 
 calendar-dialog-subview-manager {

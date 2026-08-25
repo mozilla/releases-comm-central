@@ -13,6 +13,56 @@ ChromeUtils.defineESModuleGetters(this, {
 
 add_setup(() => do_get_profile(true));
 
+add_task(async function test_getDefaultOffset_events() {
+  let duration;
+
+  Services.prefs.setStringPref("calendar.alarms.eventalarmunit", "hours");
+  Services.prefs.setIntPref("calendar.alarms.eventalarmlen", 60);
+  duration = cal.alarms.getDefaultOffset("event");
+  ok(duration, "Should get an object");
+  equal(duration.icalString, "-P2DT12H", "Should have the expected offset");
+
+  Services.prefs.setStringPref("calendar.alarms.eventalarmunit", "yards");
+  Services.prefs.setIntPref("calendar.alarms.eventalarmlen", 20);
+  duration = cal.alarms.getDefaultOffset("event");
+  ok(duration, "Should get an object with invalid unit");
+  equal(duration.icalString, "-PT20M", "Should normalize invalid unit to minutes");
+
+  Services.prefs.setStringPref("calendar.alarms.eventalarmunit", "hours");
+  Services.prefs.setIntPref("calendar.alarms.eventalarmlen", 60);
+  duration = cal.alarms.getDefaultOffset("event");
+  ok(duration, "should get an object again after setting a valid unit");
+  equal(duration.icalString, "-P2DT12H", "Should have the expected offset again");
+
+  Services.prefs.clearUserPref("calendar.alarms.eventalarmunit");
+  Services.prefs.clearUserPref("calendar.alarms.eventalarmlen");
+});
+
+add_task(async function test_getDefaultOffset_tasks() {
+  let duration;
+
+  Services.prefs.setStringPref("calendar.alarms.todoalarmunit", "hours");
+  Services.prefs.setIntPref("calendar.alarms.todoalarmlen", 60);
+  duration = cal.alarms.getDefaultOffset("todo");
+  ok(duration, "Should get an object");
+  equal(duration.icalString, "-P2DT12H", "Should have the expected offset");
+
+  Services.prefs.setStringPref("calendar.alarms.todoalarmunit", "yards");
+  Services.prefs.setIntPref("calendar.alarms.todoalarmlen", 20);
+  duration = cal.alarms.getDefaultOffset("todo");
+  ok(duration, "Should still get an object with an invalid unit");
+  equal(duration.icalString, "-PT20M", "Should normalize the unit to minutes");
+
+  Services.prefs.setStringPref("calendar.alarms.todoalarmunit", "hours");
+  Services.prefs.setIntPref("calendar.alarms.todoalarmlen", 60);
+  duration = cal.alarms.getDefaultOffset("todo");
+  ok(duration, "Should get an object again after setting a valid unit");
+  equal(duration.icalString, "-P2DT12H", "Should have the expected offset again");
+
+  Services.prefs.clearUserPref("calendar.alarms.todoalarmunit");
+  Services.prefs.clearUserPref("calendar.alarms.todoalarmlen");
+});
+
 add_task(async function test_setDefaultValues_events() {
   let item, alarm;
 

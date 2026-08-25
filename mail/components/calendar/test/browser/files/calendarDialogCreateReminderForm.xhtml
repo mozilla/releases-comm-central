@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Calendar Dialog Create Reminder Form Test</title>
+    <link rel="localization" href="messenger/calendarDialog.ftl" />
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/icons.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/spacings.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/widgets.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/calendar/calendarDialog.css" />
+    <script type="module" src="moz-src:///comm/mail/components/calendar/content/calendar-dialog-create-reminder-form.mjs"></script>
+  </head>
+  <body>
+    <template id="calendarDialogCreateReminderFormTemplate">
+      <button
+        type="button"
+        data-l10n-id="calendar-dialog-add-reminder-button"
+        class="button button-flat icon-button add-reminder-button"
+      ></button>
+      <form
+        class="create-reminder-form"
+        hidden="hidden"
+      >
+        <select data-l10n-id="calendar-dialog-reminder-select" class="select">
+          <option
+            data-l10n-id="calendar-dialog-reminder-event-start"
+            value="0"
+          ></option>
+          <option
+            data-l10n-id="calendar-dialog-reminder-minutes-before"
+            data-l10n-args="{&quot;count&quot;:15}"
+            value="15"
+          ></option>
+          <option
+            data-l10n-id="calendar-dialog-reminder-minutes-before"
+            data-l10n-args="{&quot;count&quot;:30}"
+            value="30"
+          ></option>
+          <option
+            data-l10n-id="calendar-dialog-reminder-hours-before"
+            data-l10n-args="{&quot;count&quot;:1}"
+            value="60"
+          ></option>
+          <option
+            data-l10n-id="calendar-dialog-reminder-hours-before"
+            data-l10n-args="{&quot;count&quot;:2}"
+            value="120"
+          ></option>
+          <option
+            data-l10n-id="calendar-dialog-reminder-hours-before"
+            data-l10n-args="{&quot;count&quot;:12}"
+            value="720"
+          ></option>
+          <option
+            data-l10n-id="calendar-dialog-reminder-days-before"
+            data-l10n-args="{&quot;count&quot;:1}"
+            value="1440"
+          ></option>
+          <option
+            data-l10n-id="calendar-dialog-reminder-days-before"
+            data-l10n-args="{&quot;count&quot;:2}"
+            value="2880"
+          ></option>
+          <option
+            data-l10n-id="calendar-dialog-reminder-week-before"
+            value="10080"
+          ></option>
+        </select>
+        <button
+          type="submit"
+          data-l10n-id="calendar-dialog-save-reminder-button"
+          class="button button-primary pill-button"
+        ></button>
+        <button
+          type="button"
+          class="button button-flat delete-button icon-button icon-only">
+          <img
+            class="icon-delete"
+            data-l10n-id="calendar-dialog-delete-reminder-button"
+          />
+        </button>
+      </form>
+    </template>
+    <calendar-dialog-create-reminder-form></calendar-dialog-create-reminder-form>
+  </body>
+</html>
