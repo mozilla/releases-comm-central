@@ -494,7 +494,7 @@ function SaveAsFile(uris) {
   }
 
   if (uris.length == 1) {
-    messenger.saveAs(uris[0], true, null, filenames[0]);
+    messenger.saveAs(uris[0], null, filenames[0]);
   } else {
     messenger.saveMessages(filenames, uris);
   }

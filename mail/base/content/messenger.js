@@ -926,7 +926,7 @@ messageFlavorDataProvider.prototype = {
     const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
       Ci.nsIMessenger
     );
-    messenger.saveAs(messageURI.value.data, true, null, file.path, true);
+    messenger.saveAs(messageURI.value.data, null, file.path, true);
   },
 };
 

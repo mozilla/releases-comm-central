@@ -41,6 +41,8 @@ tags = ["oauth"]
 
 ["browser_repairFolder.js"]
 
+["browser_saveAs.js"]
+
 ["browser_searchMessages.js"]
 
 ["browser_smartFolderDelete.js"]
