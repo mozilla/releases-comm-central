@@ -44,6 +44,7 @@
 #include "nsMsgI18N.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
+#include "nsURLHelper.h"
 #include "plstr.h"
 #include "prio.h"
 #include "prmem.h"
@@ -1320,12 +1321,36 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
     // Don't keep ID when forwarding inline.
     if (forward_inline) keepID = false;
 
+    nsCOMPtr<nsIURI> uri;
+    NS_NewURI(getter_AddRefs(uri), mdd->url_name);
+
+    nsAutoCString query;
+    uri->GetQuery(query);
+
+    if (query.IsEmpty()) {
+      // Compose code loves to include the actual query in the ref part of the
+      // URL (e.g. .../test#4?editasnew=true). Rather than open that can of
+      // worms, let's just handle the weirdness.
+      // TODO: Fix bug 2066307 and remove this block.
+      uri->GetRef(query);
+      int32_t q = query.FindChar('?');
+      if (q == kNotFound) {
+        query.Truncate();
+      } else {
+        query.Cut(0, q + 1);
+      }
+    }
+
+    mozilla::URLParams params;
+    params.ParseInput(query);
+
     // nsMimeOutput::nsMimeMessageEditorTemplate is used for editing a message
     // "as new", creating a message from a template or editing a template.
     // Only in the latter case we want to preserve the ID.
     if (mdd->format_out == nsMimeOutput::nsMimeMessageEditorTemplate &&
-        !PL_strstr(mdd->url_name, "&edittempl=true"))
+        !params.Has("edittempl"_ns)) {
       keepID = false;
+    }
 
     if (keepID) fields->SetMessageId(id);
 
@@ -1461,17 +1486,15 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
 
       MSG_ComposeType msgComposeType = 0;  // Keep compilers happy.
       if (mdd->format_out == nsMimeOutput::nsMimeMessageEditorTemplate) {
-        if (PL_strstr(mdd->url_name, "?redirect=true") ||
-            PL_strstr(mdd->url_name, "&redirect=true"))
+        if (params.Has("redirect"_ns)) {
           msgComposeType = nsIMsgCompType::Redirect;
-        else if (PL_strstr(mdd->url_name, "?editasnew=true") ||
-                 PL_strstr(mdd->url_name, "&editasnew=true"))
+        } else if (params.Has("editasnew"_ns)) {
           msgComposeType = nsIMsgCompType::EditAsNew;
-        else if (PL_strstr(mdd->url_name, "?edittempl=true") ||
-                 PL_strstr(mdd->url_name, "&edittempl=true"))
+        } else if (params.Has("edittempl"_ns)) {
           msgComposeType = nsIMsgCompType::EditTemplate;
-        else
+        } else {
           msgComposeType = nsIMsgCompType::Template;
+        }
       }
 
       if (body && msgComposeType == nsIMsgCompType::EditAsNew) {

@@ -65,6 +65,8 @@
 #include "nsIMsgHdr.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsISimpleMimeConverter.h"
+#include "nsIURI.h"
+#include "nsIURIMutator.h"
 #include "nsMimeStringResources.h"
 #include "nsMimeTypes.h"
 #include "nsMsgUtils.h"
@@ -1275,70 +1277,41 @@ bool mime_crypto_object_p(MimeHeaders* hdrs, bool clearsigned_counts,
    it replaces it.
  */
 char* mime_set_url_part(const char* url, const char* part, bool append_p) {
-  const char* part_begin = 0;
-  const char* part_end = 0;
-  bool got_q = false;
-  const char* s;
   char* result;
 
   if (!url || !part) return 0;
 
-  nsAutoCString urlString(url);
-  int32_t typeIndex = urlString.Find("?type=application/x-message-display");
-  if (typeIndex != -1) {
-    urlString.Cut(typeIndex, sizeof("?type=application/x-message-display") - 1);
-    if (urlString.CharAt(typeIndex) == '&')
-      urlString.Replace(typeIndex, 1, '?');
-    url = urlString.get();
-  }
+  nsCOMPtr<nsIURI> uri;
+  nsresult rv = NS_NewURI(getter_AddRefs(uri), url);
+  NS_ENSURE_SUCCESS(rv, 0);
 
-  for (s = url; *s; s++) {
-    if (*s == '?') {
-      got_q = true;
-      if (!PL_strncasecmp(s, "?part=", 6)) part_begin = (s += 6);
-    } else if (got_q && *s == '&' && !PL_strncasecmp(s, "&part=", 6))
-      part_begin = (s += 6);
+  nsAutoCString query;
+  rv = uri->GetQuery(query);
+  NS_ENSURE_SUCCESS(rv, 0);
 
-    if (part_begin) {
-      while (*s && *s != '?' && *s != '&') s++;
-      part_end = s;
-      break;
-    }
-  }
+  URLParams params;
+  params.ParseInput(query);
+  params.Delete("type"_ns);
 
-  uint32_t resultlen = strlen(url) + strlen(part) + 10;
-  result = (char*)PR_MALLOC(resultlen);
-  if (!result) return 0;
+  nsAutoCString partParam;
+  params.Get("part"_ns, partParam);
 
-  if (part_begin) {
-    if (append_p) {
-      memcpy(result, url, part_end - url);
-      result[part_end - url] = '.';
-      result[part_end - url + 1] = 0;
-    } else {
-      memcpy(result, url, part_begin - url);
-      result[part_begin - url] = 0;
-    }
+  if (append_p) {
+    partParam.Append(part);
   } else {
-    PL_strncpyz(result, url, resultlen);
-    if (got_q)
-      PL_strcatn(result, resultlen, "&part=");
-    else
-      PL_strcatn(result, resultlen, "?part=");
+    partParam.Assign(part);
   }
+  params.Set("part"_ns, partParam);
 
-  PL_strcatn(result, resultlen, part);
+  params.Serialize(query, true);
+  rv = NS_MutateURI(uri).SetQuery(query).Finalize(getter_AddRefs(uri));
+  NS_ENSURE_SUCCESS(rv, 0);
 
-  if (part_end && *part_end) PL_strcatn(result, resultlen, part_end);
+  nsAutoCString spec;
+  rv = uri->GetSpec(spec);
+  NS_ENSURE_SUCCESS(rv, 0);
 
-  /* Semi-broken kludge to omit a trailing "?part=0". */
-  {
-    int L = strlen(result);
-    if (L > 6 && (result[L - 7] == '?' || result[L - 7] == '&') &&
-        !strcmp("part=0", result + L - 6))
-      result[L - 7] = 0;
-  }
-
+  result = strdup(spec.get());
   return result;
 }
 

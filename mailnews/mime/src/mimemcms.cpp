@@ -2,26 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "mimemcms.h"
+
+#include "mimecms.h"
+#include "mimemoz2.h"
+#include "mozilla/Preferences.h"
+#include "nsComponentManagerUtils.h"
+#include "nsCOMPtr.h"
+#include "nsICMSDecoder.h"
 #include "nsICMSMessage.h"
 #include "nsICMSMessageErrors.h"
-#include "nsICMSDecoder.h"
-#include "nsString.h"
 #include "nsICryptoHash.h"
-#include "mimemcms.h"
-#include "mimecms.h"
+#include "nsIMailChannel.h"
+#include "nsIMsgSMIMESink.h"
+#include "nsIURI.h"
+#include "nsIX509Cert.h"
 #include "nsMailHeaders.h"
+#include "nsMimeStringResources.h"
 #include "nsMimeTypes.h"
 #include "nspr.h"
-#include "nsMimeStringResources.h"
-#include "mimemoz2.h"
-#include "nsIURI.h"
-#include "nsIMsgSMIMESink.h"
-#include "nsCOMPtr.h"
-#include "nsIX509Cert.h"
+#include "nsString.h"
+#include "nsURLHelper.h"
 #include "plstr.h"
-#include "nsComponentManagerUtils.h"
-#include "nsIMailChannel.h"
-#include "mozilla/Preferences.h"
 
 using mozilla::Preferences;
 
@@ -158,10 +160,14 @@ static MimeClosure MimeMultCMS_init(MimeObject* obj) {
         // If we do not find header=filter, we assume the result of the
         // processing will be shown in the UI.
 
-        if (!strstr(data->url.get(), "?header=filter") &&
-            !strstr(data->url.get(), "&header=filter") &&
-            !strstr(data->url.get(), "?header=attach") &&
-            !strstr(data->url.get(), "&header=attach")) {
+        nsAutoCString query;
+        uri->GetQuery(query);
+
+        nsAutoCString header;
+        mozilla::URLParams::Extract(query, "header"_ns, header);
+
+        if (!header.EqualsLiteral("filter") &&
+            !header.EqualsLiteral("attach")) {
           nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(channel);
           if (mailChannel) {
             mailChannel->GetSmimeSink(getter_AddRefs(data->smimeSink));

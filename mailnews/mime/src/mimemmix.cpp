@@ -3,12 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "mimemmix.h"
-#include "prlog.h"
-#include "plstr.h"
-#include "prmem.h"
+
 #include "mimemoz2.h"
-#include "nsMimeStringResources.h"
 #include "mozilla/dom/Promise.h"
+#include "nsMimeStringResources.h"
+#include "nsURLHelper.h"
+#include "plstr.h"
+#include "prlog.h"
+#include "prmem.h"
 
 using namespace mozilla;
 
@@ -124,7 +126,7 @@ static int MimeMultipartMixed_parse_eof(MimeObject* obj, bool abort_p) {
         nsCOMPtr<nsIURI> uri;
         channel->GetURI(getter_AddRefs(uri));
         if (uri) {
-          nsresult rv = uri->GetSpec(mix->url);
+          uri->GetSpec(mix->url);
 
           // We only want to update the UI if the current mime transaction
           // is intended for display.
@@ -138,10 +140,14 @@ static int MimeMultipartMixed_parse_eof(MimeObject* obj, bool abort_p) {
           // If we do not find header=filter, we assume the result of the
           // processing will be shown in the UI.
 
-          if (NS_SUCCEEDED(rv) && !strstr(mix->url.get(), "?header=filter") &&
-              !strstr(mix->url.get(), "&header=filter") &&
-              !strstr(mix->url.get(), "?header=attach") &&
-              !strstr(mix->url.get(), "&header=attach")) {
+          nsAutoCString query;
+          uri->GetQuery(query);
+
+          nsAutoCString header;
+          mozilla::URLParams::Extract(query, "header"_ns, header);
+
+          if (!header.EqualsLiteral("filter") &&
+              !header.EqualsLiteral("attach")) {
             nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(channel);
             if (mailChannel) {
               mailChannel->GetOpenpgpSink(
