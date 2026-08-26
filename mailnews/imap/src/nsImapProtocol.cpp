@@ -55,7 +55,6 @@
 #include "nsIStreamListener.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsIImapIncomingServer.h"
-#include "nsIPrefLocalizedString.h"
 #include "nsImapUtils.h"
 #include "nsIStreamConverterService.h"
 #include "nsIProxyInfo.h"
@@ -94,8 +93,6 @@ LazyLogModule IMAP_CS("IMAP_CS");
 LazyLogModule IMAPCache("IMAPCache");
 extern LazyLogModule IMAP_DC;  // For imap folder discovery
 
-#define ONE_SECOND ((uint32_t)1000)  // one second
-
 #define OUTPUT_BUFFER_SIZE (4096 * 2)
 
 #define IMAP_ENV_HEADERS "From To Cc Bcc Subject Date Message-ID "
@@ -103,8 +100,9 @@ extern LazyLogModule IMAP_DC;  // For imap folder discovery
   "Priority X-Priority References Newsgroups In-Reply-To Content-Type " \
   "Reply-To Received"
 #define IMAP_ENV_AND_DB_HEADERS IMAP_ENV_HEADERS IMAP_DB_HEADERS
-MOZ_RUNINIT static const PRIntervalTime kImapSleepTime =
-    PR_MillisecondsToInterval(60000);
+
+static constexpr uint32_t kSleepTimeSeconds = 60;
+static constexpr uint32_t kIdleWaitSeconds = 2;
 static int32_t gPromoteNoopToCheckCount = 0;
 static const uint32_t kFlagChangesBeforeCheck = 10;
 static const int32_t kMaxSecondsBeforeCheck = 600;
@@ -1485,7 +1483,7 @@ void nsImapProtocol::ImapThreadMainLoop() {
   MOZ_LOG(IMAP, LogLevel::Debug,
           ("ImapThreadMainLoop entering [this=%p]", this));
 
-  PRIntervalTime sleepTime = kImapSleepTime;
+  PRIntervalTime sleepTime = PR_SecondsToInterval(kSleepTimeSeconds);
   bool idlePending = false;
   while (!DeathSignalReceived()) {
     nsresult rv = NS_OK;
@@ -1572,10 +1570,8 @@ void nsImapProtocol::ImapThreadMainLoop() {
             GetServerStateParser().GetCapabilityFlag() & kHasIdleCapability &&
             GetServerStateParser().GetIMAPstate() ==
                 nsImapServerResponseParser::kFolderSelected) {
-          // Set-up short wait time in milliseconds
-          static const PRIntervalTime kIdleWait =
-              PR_MillisecondsToInterval(2000);
-          sleepTime = kIdleWait;
+          // Set-up short wait time.
+          sleepTime = PR_SecondsToInterval(kIdleWaitSeconds);
           idlePending = true;
           Log("ImapThreadMainLoop", nullptr, "idlePending set");
         } else {
@@ -1586,15 +1582,16 @@ void nsImapProtocol::ImapThreadMainLoop() {
     } else {
       // No URL to run detected on wake up.
       if (idlePending) {
-        // Have seen no URLs for the short time (kIdleWait) so go into idle mode
-        // and set the loop sleep time back to its original longer time.
+        // Have seen no URLs for the short time (kIdleWaitSeconds) so go into
+        // idle mode and set the loop sleep time back to its original longer
+        // time.
         Idle();
         if (!m_idle) {
           // Server rejected IDLE. Treat like IDLE not enabled or available.
           m_imapMailFolderSink = nullptr;
         }
         idlePending = false;
-        sleepTime = kImapSleepTime;
+        sleepTime = PR_SecondsToInterval(kSleepTimeSeconds);
       }
     }
     if (!GetServerStateParser().Connected()) break;
@@ -3569,23 +3566,6 @@ void nsImapProtocol::FetchMsgAttribute(const nsCString& messageIds,
   m_fetchingWholeMessage = false;
 }
 
-// this routine is used to fetch a message or messages, or headers for a
-// message...
-
-void nsImapProtocol::FallbackToFetchWholeMsg(const nsCString& messageId,
-                                             uint32_t messageSize) {
-  if (m_imapMessageSink && m_runningUrl) {
-    bool shouldStoreMsgOffline;
-    m_runningUrl->GetStoreOfflineOnFallback(&shouldStoreMsgOffline);
-    m_runningUrl->SetStoreResultsOffline(shouldStoreMsgOffline);
-  }
-  FetchTryChunking(messageId,
-                   m_imapAction == nsIImapUrl::nsImapMsgFetchPeek
-                       ? kEveryThingRFC822Peek
-                       : kEveryThingRFC822,
-                   true, nullptr, messageSize, true);
-}
-
 void nsImapProtocol::FetchMessage(const nsCString& messageIds,
                                   nsIMAPeFetchFields whatToFetch,
                                   const char* fetchModifier, uint32_t startByte,
@@ -4489,7 +4469,7 @@ void nsImapProtocol::FolderMsgDump(mozilla::Span<const ImapUid> msgUids,
 
 void nsImapProtocol::WaitForPotentialListOfBodysToFetch(
     nsTArray<ImapUid>& msgIdList) {
-  PRIntervalTime sleepTime = kImapSleepTime;
+  PRIntervalTime sleepTime = PR_SecondsToInterval(kSleepTimeSeconds);
 
   ReentrantMonitorAutoEnter fetchListMon(m_fetchBodyListMonitor);
   while (!m_fetchBodyListIsNew && !DeathSignalReceived())
@@ -8355,7 +8335,7 @@ nsresult nsImapProtocol::GetPassword(nsString& password,
           if (!m_passwordObtained && !NS_FAILED(m_passwordStatus) &&
               m_passwordStatus != NS_MSG_PASSWORD_PROMPT_CANCELLED &&
               !DeathSignalReceived()) {
-            mon.Wait(PR_MillisecondsToInterval(1000));
+            mon.Wait(PR_SecondsToInterval(1));
           }
 
           if (NS_FAILED(m_passwordStatus) ||
