@@ -546,9 +546,27 @@ add_task(async function test_attachments_correctness() {
               { folderMessageURI: uri },
               att
             );
-            // The GlodaAttachment appends the filename, which is not always
-            // present
-            Assert.ok(glodaAttachment.url.startsWith(att.url));
+
+            // Check that `glodaAttachment.url` has at least all of the params
+            // in `att.url`. GlodaAttachment appends the type and filename,
+            // which are not always present.
+            info(`checking ${glodaAttachment.url} ~= ${att.url}`);
+            const glodaURL = URL.parse(glodaAttachment.url);
+            const attachmentURL = URL.parse(att.url);
+            Assert.equal(
+              `${glodaURL.protocol}//${glodaURL.pathname}`,
+              `${attachmentURL.protocol}//${attachmentURL.pathname}`,
+              `glodaAttachment.url and att.url are the same base URL`
+            );
+            // Check the decoded parameters, as "%20" is the same as "+", but
+            // they don't have string equality.
+            for (const [name, value] of attachmentURL.searchParams) {
+              Assert.equal(
+                glodaURL.searchParams.get(name),
+                value,
+                `param ${name} is the same in glodaAttachment.url and att.url`
+              );
+            }
           }
         } catch (e) {
           dump(aMimeMsg.prettyString() + "\n");
