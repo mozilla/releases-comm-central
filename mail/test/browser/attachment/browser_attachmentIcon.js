@@ -52,10 +52,7 @@ var messages = [
         body: textAttachment,
         filename: "ubik.txt",
         format: "",
-        icon:
-          "moz-icon://ubik.txt?size=16&contentType=text/plain&scale=1 1x, " +
-          "moz-icon://ubik.txt?size=16&contentType=text/plain&scale=2 2x, " +
-          "moz-icon://ubik.txt?size=16&contentType=text/plain&scale=3 3x",
+        icon: "moz-icon://ubik.txt?size=16&contentType=text/plain&scale=1 1x, moz-icon://ubik.txt?size=16&contentType=text/plain&scale=2 2x, moz-icon://ubik.txt?size=16&contentType=text/plain&scale=3 3x",
       },
     ],
   },
@@ -66,10 +63,7 @@ var messages = [
         body: textAttachment,
         filename: "ubik final.txt",
         format: "",
-        icon:
-          "moz-icon://ubik+final.txt?size=16&contentType=text/plain&scale=1 1x, " +
-          "moz-icon://ubik+final.txt?size=16&contentType=text/plain&scale=2 2x, " +
-          "moz-icon://ubik+final.txt?size=16&contentType=text/plain&scale=3 3x",
+        icon: "moz-icon://ubik%20final.txt?size=16&contentType=text/plain&scale=1 1x, moz-icon://ubik%20final.txt?size=16&contentType=text/plain&scale=2 2x, moz-icon://ubik%20final.txt?size=16&contentType=text/plain&scale=3 3x",
         checkIconLoaded: true,
       },
     ],
@@ -82,10 +76,7 @@ var messages = [
         contentType: "application/x-ubik",
         filename: "ubik",
         format: "",
-        icon:
-          "moz-icon://ubik?size=16&contentType=application/x-ubik&scale=1 1x, " +
-          "moz-icon://ubik?size=16&contentType=application/x-ubik&scale=2 2x, " +
-          "moz-icon://ubik?size=16&contentType=application/x-ubik&scale=3 3x",
+        icon: "moz-icon://ubik?size=16&contentType=application/x-ubik&scale=1 1x, moz-icon://ubik?size=16&contentType=application/x-ubik&scale=2 2x, moz-icon://ubik?size=16&contentType=application/x-ubik&scale=3 3x",
       },
     ],
   },
@@ -98,10 +89,7 @@ var messages = [
         filename: "lines.png",
         encoding: "base64",
         format: "",
-        icon:
-          "moz-icon://lines.png?size=16&contentType=image/png&scale=1 1x, " +
-          "moz-icon://lines.png?size=16&contentType=image/png&scale=2 2x, " +
-          "moz-icon://lines.png?size=16&contentType=image/png&scale=3 3x",
+        icon: "moz-icon://lines.png?size=16&contentType=image/png&scale=1 1x, moz-icon://lines.png?size=16&contentType=image/png&scale=2 2x, moz-icon://lines.png?size=16&contentType=image/png&scale=3 3x",
       },
     ],
   },
@@ -110,10 +98,7 @@ var messages = [
     bodyPart: null,
     attachments: [
       {
-        icon:
-          "moz-icon://attachment.txt?size=16&contentType=text/plain&scale=1 1x, " +
-          "moz-icon://attachment.txt?size=16&contentType=text/plain&scale=2 2x, " +
-          "moz-icon://attachment.txt?size=16&contentType=text/plain&scale=3 3x",
+        icon: "moz-icon://attachment.txt?size=16&contentType=text/plain&scale=1 1x, moz-icon://attachment.txt?size=16&contentType=text/plain&scale=2 2x, moz-icon://attachment.txt?size=16&contentType=text/plain&scale=3 3x",
       },
     ],
   },
@@ -122,10 +107,7 @@ var messages = [
     bodyPart: null,
     attachments: [
       {
-        icon:
-          "moz-icon://nonexistent.txt?size=16&contentType=text/plain&scale=1 1x, " +
-          "moz-icon://nonexistent.txt?size=16&contentType=text/plain&scale=2 2x, " +
-          "moz-icon://nonexistent.txt?size=16&contentType=text/plain&scale=3 3x",
+        icon: "moz-icon://nonexistent.txt?size=16&contentType=text/plain&scale=1 1x, moz-icon://nonexistent.txt?size=16&contentType=text/plain&scale=2 2x, moz-icon://nonexistent.txt?size=16&contentType=text/plain&scale=3 3x",
       },
     ],
   },
@@ -146,20 +128,14 @@ var messages = [
         body: textAttachment,
         filename: "ubik.txt",
         format: "",
-        icon:
-          "moz-icon://ubik.txt?size=16&contentType=text/plain&scale=1 1x, " +
-          "moz-icon://ubik.txt?size=16&contentType=text/plain&scale=2 2x, " +
-          "moz-icon://ubik.txt?size=16&contentType=text/plain&scale=3 3x",
+        icon: "moz-icon://ubik.txt?size=16&contentType=text/plain&scale=1 1x, moz-icon://ubik.txt?size=16&contentType=text/plain&scale=2 2x, moz-icon://ubik.txt?size=16&contentType=text/plain&scale=3 3x",
       },
       {
         body: binaryAttachment,
         contentType: "application/x-ubik",
         filename: "ubik",
         format: "",
-        icon:
-          "moz-icon://ubik?size=16&contentType=application/x-ubik&scale=1 1x, " +
-          "moz-icon://ubik?size=16&contentType=application/x-ubik&scale=2 2x, " +
-          "moz-icon://ubik?size=16&contentType=application/x-ubik&scale=3 3x",
+        icon: "moz-icon://ubik?size=16&contentType=application/x-ubik&scale=1 1x, moz-icon://ubik?size=16&contentType=application/x-ubik&scale=2 2x, moz-icon://ubik?size=16&contentType=application/x-ubik&scale=3 3x",
       },
     ],
   },
@@ -171,10 +147,7 @@ var messages = [
         body: textAttachment,
         filename: "ubik.txt",
         format: "",
-        icon:
-          "moz-icon://ubik.txt?size=16&contentType=text/plain&scale=1 1x, " +
-          "moz-icon://ubik.txt?size=16&contentType=text/plain&scale=2 2x, " +
-          "moz-icon://ubik.txt?size=16&contentType=text/plain&scale=3 3x",
+        icon: "moz-icon://ubik.txt?size=16&contentType=text/plain&scale=1 1x, moz-icon://ubik.txt?size=16&contentType=text/plain&scale=2 2x, moz-icon://ubik.txt?size=16&contentType=text/plain&scale=3 3x",
       },
       {
         body: vcardAttachment,
@@ -182,10 +155,7 @@ var messages = [
         filename: "ubik.vcf",
         encoding: "base64",
         format: "",
-        icon:
-          "moz-icon://ubik.vcf?size=16&contentType=text/vcard&scale=1 1x, " +
-          "moz-icon://ubik.vcf?size=16&contentType=text/vcard&scale=2 2x, " +
-          "moz-icon://ubik.vcf?size=16&contentType=text/vcard&scale=3 3x",
+        icon: "moz-icon://ubik.vcf?size=16&contentType=text/vcard&scale=1 1x, moz-icon://ubik.vcf?size=16&contentType=text/vcard&scale=2 2x, moz-icon://ubik.vcf?size=16&contentType=text/vcard&scale=3 3x",
       },
     ],
   },

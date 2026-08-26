@@ -999,8 +999,6 @@ GlodaAttachment.prototype = {
       sep +
       "part=" +
       this._part +
-      "&type=" +
-      encodeURIComponent(this.contentType) +
       "&filename=" +
       encodeURIComponent(this._name)
     );
