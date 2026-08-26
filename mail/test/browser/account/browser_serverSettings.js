@@ -530,6 +530,8 @@ async function test_custom_oauth_settings(account, accountType) {
         "tokenEndpoint",
         "scopes",
         "redirectionEndpoint",
+        "clientSecret",
+        "issuerIdentifier",
       ];
       for (const [prefs, protocol] of [
         [incomingPrefs, accountType],

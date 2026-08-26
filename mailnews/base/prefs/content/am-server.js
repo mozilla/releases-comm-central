@@ -400,6 +400,12 @@ function onAdvanced() {
     serverSettings.oauth2RedirectionEndpoint = document
       .getElementById("server.oauth2.redirectionEndpoint")
       .getAttribute("value");
+    serverSettings.oauth2ClientSecret = document
+      .getElementById("server.oauth2.clientSecret")
+      .getAttribute("value");
+    serverSettings.oauth2IssuerIdentifier = document
+      .getElementById("server.oauth2.issuerIdentifier")
+      .getAttribute("value");
     serverSettings.oauth2UsePKCE = document.getElementById(
       "server.oauth2.usePKCE"
     ).checked;
@@ -581,6 +587,12 @@ function onAdvanced() {
       document
         .getElementById("server.oauth2.redirectionEndpoint")
         .setAttribute("value", serverSettings.oauth2RedirectionEndpoint);
+      document
+        .getElementById("server.oauth2.clientSecret")
+        .setAttribute("value", serverSettings.oauth2ClientSecret);
+      document
+        .getElementById("server.oauth2.issuerIdentifier")
+        .setAttribute("value", serverSettings.oauth2IssuerIdentifier);
       document.getElementById("server.oauth2.usePKCE").checked =
         serverSettings.oauth2UsePKCE;
       document.getElementById("server.oauth2.useExternalBrowser").checked =
@@ -637,12 +649,14 @@ function applyOAuth2SettingsToOutgoingServer(settings) {
     prefBranch.setBoolPref(prefName, settings[settingName]);
   }
   for (const prefName of [
+    "issuer",
     "clientId",
     "authorizationEndpoint",
     "tokenEndpoint",
     "scopes",
     "redirectionEndpoint",
-    "issuer",
+    "clientSecret",
+    "issuerIdentifier",
   ]) {
     const settingName = `oauth2${prefName[0].toUpperCase()}${prefName.slice(1)}`;
     prefBranch.setStringPref(prefName, settings[settingName]);

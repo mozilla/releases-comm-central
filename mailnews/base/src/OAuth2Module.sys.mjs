@@ -375,10 +375,11 @@ OAuth2Module.prototype = {
       // string attributes, which can fall back to a default if left empty
       const attributes = [
         "clientId",
-        "clientSecret",
         "authorizationEndpoint",
         "tokenEndpoint",
         "redirectionEndpoint",
+        "clientSecret",
+        "issuerIdentifier",
       ];
 
       for (const key of attributes) {

@@ -197,6 +197,8 @@ function setOAuth2CustomDetailsState(isEnabled) {
     "oauth2TokenEndpoint",
     "oauth2Scopes",
     "oauth2RedirectionEndpoint",
+    "oauth2ClientSecret",
+    "oauth2IssuerIdentifier",
     "oauth2UsePKCE",
     "oauth2UseExternalBrowser",
   ];

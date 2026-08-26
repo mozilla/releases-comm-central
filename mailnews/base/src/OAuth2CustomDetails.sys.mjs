@@ -65,20 +65,25 @@ export class OAuth2CustomDetails {
       "oauth2.useCustomDetails",
       false
     );
+    this.issuer = OAuth2CustomDetails.getIssuer(
+      prefBranch,
+      this.useCustomDetails
+    );
+    this.scopes = prefBranch.getStringPref("oauth2.scopes", "");
     this.clientId = prefBranch.getStringPref("oauth2.clientId", "");
     this.authorizationEndpoint = prefBranch.getStringPref(
       "oauth2.authorizationEndpoint",
       ""
     );
     this.tokenEndpoint = prefBranch.getStringPref("oauth2.tokenEndpoint", "");
-    this.scopes = prefBranch.getStringPref("oauth2.scopes", "");
     this.redirectionEndpoint = prefBranch.getStringPref(
       "oauth2.redirectionEndpoint",
       ""
     );
-    this.issuer = OAuth2CustomDetails.getIssuer(
-      prefBranch,
-      this.useCustomDetails
+    this.clientSecret = prefBranch.getStringPref("oauth2.clientSecret", "");
+    this.issuerIdentifier = prefBranch.getStringPref(
+      "oauth2.issuerIdentifier",
+      ""
     );
     this.usePKCE = prefBranch.getBoolPref("oauth2.usePKCE", false);
     this.useExternalBrowser = prefBranch.getBoolPref(

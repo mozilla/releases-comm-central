@@ -270,6 +270,20 @@
                 control="oauth2RedirectionEndpoint"
               />
             </hbox>
+            <hbox flex="1" align="center">
+              <label
+                id="oauth2ClientSecretLabel"
+                data-l10n-id="oauth2-client-secret-label"
+                control="oauth2ClientSecret"
+              />
+            </hbox>
+            <hbox flex="1" align="center">
+              <label
+                id="oauth2IssuerIdentifierLabel"
+                data-l10n-id="oauth2-issuer-identifier-label"
+                control="oauth2IssuerIdentifier"
+              />
+            </hbox>
           </vbox>
           <!-- Input Fields -->
           <vbox flex="1">
@@ -308,6 +322,20 @@
               aria-labelledby="oauth2RedirectionEndpointLabel"
               amsa_persist="true"
               placeholder="http://localhost"
+            />
+            <html:input
+              id="oauth2ClientSecret"
+              type="password"
+              class="input-inline"
+              aria-labelledby="oauth2ClientSecretLabel"
+              amsa_persist="true"
+            />
+            <html:input
+              id="oauth2IssuerIdentifier"
+              type="url"
+              class="input-inline"
+              aria-labelledby="oauth2IssuerIdentifierLabel"
+              amsa_persist="true"
             />
           </vbox>
         </hbox>

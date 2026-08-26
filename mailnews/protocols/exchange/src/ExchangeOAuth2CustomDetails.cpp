@@ -196,6 +196,25 @@ NS_IMETHODIMP ExchangeOAuth2CustomDetails::GetTokenEndpoint(nsACString& value) {
   return NS_OK;
 }
 
+NS_IMETHODIMP ExchangeOAuth2CustomDetails::GetRedirectionEndpoint(
+    nsACString& value) {
+  const auto redirectionEndpoint = GetConfiguredRedirectUri();
+  if (redirectionEndpoint) {
+    value.Assign(*redirectionEndpoint);
+  } else {
+    value.Assign("");
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP ExchangeOAuth2CustomDetails::GetClientSecret(nsACString& value) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP ExchangeOAuth2CustomDetails::GetIssuerIdentifier(nsACString& value) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
 NS_IMETHODIMP ExchangeOAuth2CustomDetails::GetUsePKCE(bool* value) {
   NS_ENSURE_ARG(value);
   *value = GetConfiguredUsePKCE();
@@ -205,17 +224,6 @@ NS_IMETHODIMP ExchangeOAuth2CustomDetails::GetUsePKCE(bool* value) {
 NS_IMETHODIMP ExchangeOAuth2CustomDetails::GetUseExternalBrowser(bool* value) {
   NS_ENSURE_ARG(value);
   *value = GetConfiguredUseExternalBrowser();
-  return NS_OK;
-}
-
-NS_IMETHODIMP ExchangeOAuth2CustomDetails::GetRedirectionEndpoint(
-    nsACString& value) {
-  const auto redirectionEndpoint = GetConfiguredRedirectUri();
-  if (redirectionEndpoint) {
-    value.Assign(*redirectionEndpoint);
-  } else {
-    value.Assign("");
-  }
   return NS_OK;
 }
 
