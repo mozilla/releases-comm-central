@@ -198,6 +198,69 @@ export var itip = {
   },
 
   /**
+   * Adapts the scheduling responsibility for CalDAV servers according to RFC 6638
+   * based on forceEmailScheduling preference for the respective calendar.
+   *
+   * Must be called on any item about to be written to the calendar as a result
+   * of a scheduling action, so the server knows whether it is expected to send
+   * out the scheduling messages itself.
+   *
+   * @param {calIEvent|calIToDo} item - Item to apply the change on
+   */
+  adaptScheduleAgent(item) {
+    if (
+      !item.calendar ||
+      item.calendar.type != "caldav" ||
+      !item.calendar.getProperty("capabilities.autoschedule.supported")
+    ) {
+      return;
+    }
+
+    const identity = item.calendar.getProperty("imip.identity");
+    const orgEmail = identity?.QueryInterface(Ci.nsIMsgIdentity).email?.toLowerCase();
+    const isOrganizerAction =
+      item.organizer && orgEmail && item.organizer.id.toLowerCase() == "mailto:" + orgEmail;
+    if (item.calendar.getProperty("forceEmailScheduling")) {
+      // For attendees, we change schedule-agent only in case of an
+      // organizer triggered action.
+      if (isOrganizerAction) {
+        for (const attendee of item.getAttendees()) {
+          // Overwriting must always happen consistently for all
+          // attendees regarding SERVER or CLIENT but must not override
+          // e.g. NONE, so we only overwrite if the param is set to
+          // SERVER or doesn't exist.
+          if (
+            attendee.getProperty("SCHEDULE-AGENT") == "SERVER" ||
+            !attendee.getProperty("SCHEDULE-AGENT")
+          ) {
+            attendee.setProperty("SCHEDULE-AGENT", "CLIENT");
+            attendee.deleteProperty("SCHEDULE-STATUS");
+            attendee.deleteProperty("SCHEDULE-FORCE-SEND");
+          }
+        }
+      } else if (
+        item.organizer &&
+        (item.organizer.getProperty("SCHEDULE-AGENT") == "SERVER" ||
+          !item.organizer.getProperty("SCHEDULE-AGENT"))
+      ) {
+        // For organizer, we change the schedule-agent only in case of
+        // an attendee triggered action.
+        item.organizer.setProperty("SCHEDULE-AGENT", "CLIENT");
+        item.organizer.deleteProperty("SCHEDULE-STATUS");
+        item.organizer.deleteProperty("SCHEDULE-FORCE-SEND");
+      }
+    } else if (isOrganizerAction) {
+      for (const attendee of item.getAttendees()) {
+        if (attendee.getProperty("SCHEDULE-AGENT") == "CLIENT") {
+          attendee.deleteProperty("SCHEDULE-AGENT");
+        }
+      }
+    } else if (item.organizer && item.organizer.getProperty("SCHEDULE-AGENT") == "CLIENT") {
+      item.organizer.deleteProperty("SCHEDULE-AGENT");
+    }
+  },
+
+  /**
    * Scope: iTIP message receiver
    *
    * Given an nsIMsgDBHdr and an imipMethod, set up the given itip item.
@@ -1995,6 +2058,7 @@ ItipItemFinder.prototype = {
                             attendee.participationStatus = partStat;
                           }
                           changedItem.addAttendee(attendee);
+                          itip.adaptScheduleAgent(changedItem);
 
                           listener = new ItipOpListener(opListener, baseItem, extResponse);
                           const modifiedItem = await changedItem.calendar.modifyItem(

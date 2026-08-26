@@ -5,7 +5,7 @@
 /* exported gInTab, gMainWindow, gTabmail, intializeTabOrWindowVariables,
  *          dispose, setDialogId, loadReminders, saveReminder,
  *          commonUpdateReminder,
- *          adaptScheduleAgent, sendMailToOrganizer,
+ *          sendMailToOrganizer,
  *          openAttachmentFromItemSummary,
  */
 
@@ -525,63 +525,6 @@ function commonUpdateReminder(
 
   // Return the current reminder drop down selection index so it can be remembered.
   return reminderList.selectedIndex;
-}
-
-/**
- * Adapts the scheduling responsibility for CalDAV servers according to RFC 6638
- * based on forceEmailScheduling preference for the respective calendar.
- *
- * @param {calIEvent|calIToDo} aItem - Item to apply the change on
- */
-function adaptScheduleAgent(aItem) {
-  if (
-    aItem.calendar &&
-    aItem.calendar.type == "caldav" &&
-    aItem.calendar.getProperty("capabilities.autoschedule.supported")
-  ) {
-    const identity = aItem.calendar.getProperty("imip.identity");
-    const orgEmail = identity?.QueryInterface(Ci.nsIMsgIdentity).email?.toLowerCase();
-    const isOrganizerAction =
-      aItem.organizer && orgEmail && aItem.organizer.id.toLowerCase() == "mailto:" + orgEmail;
-    if (aItem.calendar.getProperty("forceEmailScheduling")) {
-      // For attendees, we change schedule-agent only in case of an
-      // organizer triggered action
-      if (isOrganizerAction) {
-        aItem.getAttendees().forEach(aAttendee => {
-          // Overwriting must always happen consistently for all
-          // attendees regarding SERVER or CLIENT but must not override
-          // e.g. NONE, so we only overwrite if the param is set to
-          // SERVER or doesn't exist
-          if (
-            aAttendee.getProperty("SCHEDULE-AGENT") == "SERVER" ||
-            !aAttendee.getProperty("SCHEDULE-AGENT")
-          ) {
-            aAttendee.setProperty("SCHEDULE-AGENT", "CLIENT");
-            aAttendee.deleteProperty("SCHEDULE-STATUS");
-            aAttendee.deleteProperty("SCHEDULE-FORCE-SEND");
-          }
-        });
-      } else if (
-        aItem.organizer &&
-        (aItem.organizer.getProperty("SCHEDULE-AGENT") == "SERVER" ||
-          !aItem.organizer.getProperty("SCHEDULE-AGENT"))
-      ) {
-        // For organizer, we change the schedule-agent only in case of
-        // an attendee triggered action
-        aItem.organizer.setProperty("SCHEDULE-AGENT", "CLIENT");
-        aItem.organizer.deleteProperty("SCHEDULE-STATUS");
-        aItem.organizer.deleteProperty("SCHEDULE-FORCE-SEND");
-      }
-    } else if (isOrganizerAction) {
-      aItem.getAttendees().forEach(aAttendee => {
-        if (aAttendee.getProperty("SCHEDULE-AGENT") == "CLIENT") {
-          aAttendee.deleteProperty("SCHEDULE-AGENT");
-        }
-      });
-    } else if (aItem.organizer && aItem.organizer.getProperty("SCHEDULE-AGENT") == "CLIENT") {
-      aItem.organizer.deleteProperty("SCHEDULE-AGENT");
-    }
-  }
 }
 
 /**

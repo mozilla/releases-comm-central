@@ -3142,7 +3142,7 @@ function onCommandSave(aIsClosing) {
   const originalItem = window.calendarItem;
   const item = saveItem();
   const calendar = getCurrentCalendar();
-  adaptScheduleAgent(item);
+  cal.itip.adaptScheduleAgent(item);
 
   item.makeImmutable();
   // Set the item for now, the callback below will set the full item when the

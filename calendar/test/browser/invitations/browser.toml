@@ -42,6 +42,8 @@ skip-if = [
 
 ["browser_imipBarRepeatUpdates.js"]
 
+["browser_imipBarScheduleAgent.js"]
+
 ["browser_imipBarUpdates.js"]
 
 ["browser_invitationDisplayNew.js"]

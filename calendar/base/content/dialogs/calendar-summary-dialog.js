@@ -254,7 +254,7 @@ function onInvitationDialogAccept() {
   const newItem = window.calendarItem;
   const calendar = newItem.calendar;
   saveReminder(newItem, calendar, document.querySelector(".item-alarm"));
-  adaptScheduleAgent(newItem);
+  cal.itip.adaptScheduleAgent(newItem);
   args.onOk(newItem, calendar, oldItem, null, respMode);
   window.calendarItem = newItem;
 }

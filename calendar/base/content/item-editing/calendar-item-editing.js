@@ -859,6 +859,7 @@ function setContextPartstat(aTarget, aItems) {
           newItem.removeAttendee(attendee);
           newItem.addAttendee(newAttendee);
         }
+        cal.itip.adaptScheduleAgent(newItem);
 
         let extResponse = null;
         if (aTarget.hasAttribute("respmode")) {
