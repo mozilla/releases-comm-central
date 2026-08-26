@@ -25,11 +25,11 @@ XPCOMUtils.defineLazyServiceGetters(lazy, {
   gMIMEService: ["@mozilla.org/mime;1", Ci.nsIMIMEService],
 });
 
-ChromeUtils.defineLazyGetter(lazy, "messengerBundle", () => {
-  return Services.strings.createBundle(
-    "chrome://messenger/locale/messenger.properties"
-  );
-});
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["messenger/attachmentInfo.ftl"])
+);
 
 /**
  * A class to handle attachment information and actions.
@@ -128,11 +128,9 @@ export class AttachmentInfo {
       return null;
     }
 
-    const bundle = Services.strings.createBundle(
-      "chrome://messenger/locale/messenger.properties"
-    );
-
-    const title = fpDialogTitle || bundle.GetStringFromName("SaveAttachment");
+    const title =
+      fpDialogTitle ||
+      (await lazy.l10n.formatValue("attachment-save-dialog-title"));
     const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
     fp.init(browsingContext, title, Ci.nsIFilePicker.modeSave);
     fp.defaultString = this.name.replaceAll(/[/:*?\"<>|]/g, "_");
@@ -172,7 +170,7 @@ export class AttachmentInfo {
       Services.prompt.alert(
         null,
         title,
-        bundle.GetStringFromName("saveAttachmentFailed")
+        await lazy.l10n.formatValue("attachment-save-failed")
       );
       return this.save(browsingContext, fpDialogTitle);
     }
@@ -201,12 +199,9 @@ export class AttachmentInfo {
       }
     }
 
-    const bundle = Services.strings.createBundle(
-      "chrome://messenger/locale/messenger.properties"
-    );
-
     const title =
-      fpDialogTitle || bundle.GetStringFromName("SaveAllAttachments");
+      fpDialogTitle ||
+      (await lazy.l10n.formatValue("attachment-save-all-dialog-title"));
     const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
     fp.init(browsingContext, title, Ci.nsIFilePicker.modeGetFolder);
     try {
@@ -228,9 +223,10 @@ export class AttachmentInfo {
       for (const attachment of attachments) {
         const path = PathUtils.join(fp.file.path, attachment.name);
         if (await IOUtils.exists(path)) {
-          const message = bundle.formatStringFromName("fileExists", [
-            attachment.name,
-          ]);
+          const message = await lazy.l10n.formatValue(
+            "attachment-file-exists",
+            { filename: attachment.name }
+          );
           if (!Services.prompt.confirm(browsingContext.window, null, message)) {
             // Skip if the user choose not to replace the existing.
             continue;
@@ -243,7 +239,7 @@ export class AttachmentInfo {
       Services.prompt.alert(
         browsingContext.window,
         title,
-        bundle.GetStringFromName("saveAttachmentFailed")
+        await lazy.l10n.formatValue("attachment-save-failed")
       );
       return null;
     }
@@ -395,10 +391,10 @@ export class AttachmentInfo {
     const win = browsingContext.topChromeWindow;
     const empty = await this.isEmpty();
     if (empty) {
-      const prompt = lazy.messengerBundle.GetStringFromName(
+      const prompt = await lazy.l10n.formatValue(
         this.isExternalAttachment
-          ? "externalAttachmentNotFound"
-          : "emptyAttachment"
+          ? "attachment-external-not-found"
+          : "attachment-empty"
       );
       Services.prompt.alert(win, null, prompt);
       return;
@@ -542,7 +538,7 @@ export class AttachmentInfo {
             filePicker.defaultExtension = extension;
             filePicker.init(
               win.browsingContext,
-              lazy.messengerBundle.GetStringFromName("SaveAttachment"),
+              await lazy.l10n.formatValue("attachment-save-dialog-title"),
               Ci.nsIFilePicker.modeSave
             );
             const rv = await new Promise(resolve => filePicker.open(resolve));
@@ -645,11 +641,9 @@ export class AttachmentInfo {
     }
     if (!silent) {
       // Confirm to proceed.
-      const message = Services.strings
-        .createBundle("chrome://messenger/locale/messenger.properties")
-        .formatStringFromName("deleteAttachments", [
-          attachments.map(a => a.name).join("\n"),
-        ]);
+      const message = await lazy.l10n.formatValue("attachment-delete-confirm", {
+        attachments: attachments.map(a => a.name).join("\n"),
+      });
       if (!Services.prompt.confirm(null, null, message)) {
         return;
       }
@@ -669,20 +663,18 @@ export class AttachmentInfo {
     if (this.contentType == "text/x-moz-deleted") {
       throw new Error(`${this.name} was already deleted.`);
     }
-    const bundle = Services.strings.createBundle(
-      "chrome://messenger/locale/messenger.properties"
-    );
-
     // Ask where to save.
-    const fpDialogTitle = bundle.GetStringFromName("DetachAttachment");
+    const fpDialogTitle = await lazy.l10n.formatValue(
+      "attachment-detach-dialog-title"
+    );
     const path = await this.save(browsingContext, fpDialogTitle);
     if (!path) {
       return;
     }
     // Confirm to proceed.
-    const message = bundle.formatStringFromName("detachAttachments", [
-      this.name,
-    ]);
+    const message = await lazy.l10n.formatValue("attachment-detach-confirm", {
+      attachments: this.name,
+    });
     if (!Services.prompt.confirm(browsingContext.window, null, message)) {
       return;
     }
@@ -716,9 +708,9 @@ export class AttachmentInfo {
     const silent = !!detachDir;
     if (!silent) {
       // Non-silent mode. No dir provided - need to ask for dir where to save.
-      const fpDialogTitle = Services.strings
-        .createBundle("chrome://messenger/locale/messenger.properties")
-        .GetStringFromName("DetachAllAttachments");
+      const fpDialogTitle = await lazy.l10n.formatValue(
+        "attachment-detach-all-dialog-title"
+      );
       detachDir = await AttachmentInfo.saveAttachments(
         attachments,
         browsingContext,
@@ -737,11 +729,9 @@ export class AttachmentInfo {
 
     if (!silent) {
       // Non-silent mode. Confirm before delete.
-      const message = Services.strings
-        .createBundle("chrome://messenger/locale/messenger.properties")
-        .formatStringFromName("detachAttachments", [
-          attachments.map(a => a.name).join("\n"),
-        ]);
+      const message = await lazy.l10n.formatValue("attachment-detach-confirm", {
+        attachments: attachments.map(a => a.name).join("\n"),
+      });
       if (!Services.prompt.confirm(null, null, message)) {
         return;
       }
