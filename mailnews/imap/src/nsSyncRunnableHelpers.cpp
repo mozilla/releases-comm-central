@@ -481,7 +481,10 @@ namespace mailnews {
 NS_IMPL_ISUPPORTS(OAuth2ThreadHelper, msgIOAuth2ModuleListener)
 
 OAuth2ThreadHelper::OAuth2ThreadHelper(nsIMsgIncomingServer* aServer)
-    : mMonitor("OAuth thread lock"), mServer(aServer) {}
+    : mMonitor("OAuth thread lock"),
+      mServer(aServer),
+      mInitCompleted(false),
+      mConnectCompleted(false) {}
 
 OAuth2ThreadHelper::~OAuth2ThreadHelper() {
   if (mOAuth2Support) {
@@ -510,11 +513,15 @@ bool OAuth2ThreadHelper::SupportsOAuth2() {
   } else {
     nsCOMPtr<nsIRunnable> runInit = NewRunnableMethod(
         "OAuth2ThreadHelper::SupportsOAuth2", this, &OAuth2ThreadHelper::Init);
+    mInitCompleted = false;
     nsresult rv = NS_DispatchToMainThread(runInit);
     if (NS_WARN_IF(NS_FAILED(rv))) {
       return false;
     }
-    mMonitor.Wait();
+    // Wait() can return spuriously, so loop until Init() has actually run.
+    while (!mInitCompleted) {
+      mMonitor.Wait();
+    }
   }
 
   // After synchronously initializing, if we didn't get an object, then we don't
@@ -532,37 +539,52 @@ void OAuth2ThreadHelper::GetXOAuth2String(nsACString& base64Str) {
   // Umm... what are you trying to do?
   if (!mOAuth2Support) return;
 
+  mConnectCompleted = false;
   nsCOMPtr<nsIRunnable> runInit = NS_NewRunnableFunction(
       "OAuth2ThreadHelper::GetXOAuth2String", [self = RefPtr(this)]() {
         if (mozilla::PastShutdownPhase(
                 mozilla::ShutdownPhase::AppShutdownConfirmed)) {
-          MonitorAutoLock lockGuard(self->mMonitor);
-          self->mOAuth2String.Truncate();
-          lockGuard.Notify();
+          self->CompleteConnect(""_ns);
           return;
         }
 
         // Connect is asynchronous and might never call its listener. Register
         // the shutdown wake-up before starting it, while the main thread can
         // still do so safely.
-        mozilla::RunOnShutdown(
-            [self]() {
-              MonitorAutoLock lockGuard(self->mMonitor);
-              self->mOAuth2String.Truncate();
-              lockGuard.Notify();
-            },
-            mozilla::ShutdownPhase::AppShutdownConfirmed);
+        mozilla::RunOnShutdown([self]() { self->CompleteConnect(""_ns); },
+                               mozilla::ShutdownPhase::AppShutdownConfirmed);
         self->Connect();
       });
   nsresult rv = NS_DispatchToMainThread(runInit);
   if (NS_WARN_IF(NS_FAILED(rv))) {
     return;
   }
-  mMonitor.Wait();
+  // Wait() can return spuriously. Without this loop an interactive OAuth2
+  // flow, which the IMAP thread may legitimately wait on for many seconds,
+  // could be abandoned early and report an empty token, failing the login.
+  while (!mConnectCompleted) {
+    mMonitor.Wait();
+  }
 
   // Now we either have the string, or we failed (in which case the string is
   // empty).
   base64Str = mOAuth2String;
+}
+
+/**
+ * Record the outcome of the authorization attempt and wake up the IMAP thread
+ * waiting in GetXOAuth2String(). `aToken` is empty if authorization failed.
+ * The first outcome wins; the shutdown wake-up must not clobber a token that
+ * arrived at the same time.
+ */
+void OAuth2ThreadHelper::CompleteConnect(const nsACString& aToken) {
+  MonitorAutoLock lockGuard(mMonitor);
+  if (mConnectCompleted) {
+    return;
+  }
+  mOAuth2String = aToken;
+  mConnectCompleted = true;
+  lockGuard.Notify();
 }
 
 void OAuth2ThreadHelper::Init() {
@@ -584,6 +606,7 @@ void OAuth2ThreadHelper::Init() {
   mServer = nullptr;
 
   // Notify anyone waiting that we're done.
+  mInitCompleted = true;
   mMonitor.Notify();
 }
 
@@ -596,27 +619,22 @@ void OAuth2ThreadHelper::Connect() {
   // If the method failed, we'll never get a callback, so notify the monitor
   // immediately so that IMAP can react.
   if (NS_FAILED(rv)) {
-    MonitorAutoLock lockGuard(mMonitor);
-    mMonitor.Notify();
+    CompleteConnect(""_ns);
   }
 }
 
 nsresult OAuth2ThreadHelper::OnSuccess(const nsACString& aBearerToken) {
   MOZ_ASSERT(NS_IsMainThread(), "Can't touch JS off-main-thread");
-  MonitorAutoLock lockGuard(mMonitor);
-
   MOZ_ASSERT(mOAuth2Support, "Should not be here if no OAuth2 support");
-  mOAuth2String = aBearerToken;
-  mMonitor.Notify();
+
+  CompleteConnect(aBearerToken);
   return NS_OK;
 }
 
 nsresult OAuth2ThreadHelper::OnFailure(nsresult aError) {
   MOZ_ASSERT(NS_IsMainThread(), "Can't touch JS off-main-thread");
-  MonitorAutoLock lockGuard(mMonitor);
 
-  mOAuth2String.Truncate();
-  mMonitor.Notify();
+  CompleteConnect(""_ns);
   return NS_OK;
 }
 

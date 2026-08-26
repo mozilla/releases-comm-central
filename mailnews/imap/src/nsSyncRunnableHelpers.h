@@ -137,11 +137,16 @@ class OAuth2ThreadHelper final : public msgIOAuth2ModuleListener {
   ~OAuth2ThreadHelper();
   void Init();
   void Connect();
+  void CompleteConnect(const nsACString& aToken);
 
   Monitor mMonitor;
   nsCOMPtr<msgIOAuth2Module> mOAuth2Support;
   nsCOMPtr<nsIMsgIncomingServer> mServer;
   nsCString mOAuth2String;
+  // Guard against spurious Wait() wake-ups: only Init()/CompleteConnect()
+  // set these, and only while holding mMonitor.
+  bool mInitCompleted MOZ_GUARDED_BY(mMonitor);
+  bool mConnectCompleted MOZ_GUARDED_BY(mMonitor);
 };
 
 }  // namespace mozilla::mailnews
