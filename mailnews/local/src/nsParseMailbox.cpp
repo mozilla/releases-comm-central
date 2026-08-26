@@ -494,7 +494,7 @@ nsresult nsParseMailMessageState::ParseHeaders() {
         header->value = value;
       }
     }
-    if (*buf == '\r' || *buf == '\n') {
+    if (buf < buf_end && (*buf == '\r' || *buf == '\n')) {
       char* last = bufWrite;
       char* saveBuf = buf;
       if (*buf == '\r' && buf + 1 < buf_end && buf[1] == '\n') buf++;

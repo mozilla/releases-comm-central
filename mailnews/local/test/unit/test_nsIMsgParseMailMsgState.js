@@ -14,6 +14,7 @@ add_task(async function run_the_test() {
   await test_parse_headers_without_crash("./data/mailformed_recipients.eml");
   await test_parse_headers_without_crash("./data/mailformed_subject.eml");
   await test_parse_headers_without_crash("./data/invalid_mozilla_keys.eml");
+  await test_parse_header_without_linebreak();
 });
 
 async function test_parse_headers_without_crash(eml) {
@@ -39,4 +40,17 @@ async function test_parse_headers_without_crash(eml) {
   // Apparently getDatabaseWOReparse doesn't like being called too often
   // in a row.
   await PromiseTestUtils.promiseDelay(200);
+}
+
+async function test_parse_header_without_linebreak() {
+  const parser = Cc[
+    "@mozilla.org/messenger/messagestateparser;1"
+  ].createInstance(Ci.nsIMsgParseMailMsgState);
+
+  parser.SetMailDB(localAccountUtils.inboxFolder.getDatabaseWOReparse());
+  parser.state = Ci.nsIMsgParseMailMsgState.ParseHeadersState;
+
+  const header = "X:" + "A".repeat(16382);
+  parser.ParseAFolderLine(header, header.length);
+  parser.ParseAFolderLine(MSG_LINEBREAK, MSG_LINEBREAK.length);
 }
