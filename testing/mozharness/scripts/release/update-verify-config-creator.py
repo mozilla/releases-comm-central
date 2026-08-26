@@ -604,7 +604,7 @@ class UpdateVerifyConfigCreator(BaseScript):
                 # possible problems:
                 # - we get a non tag rev
                 # - we get rate limited
-                git_url = f"https://raw.githubusercontent.com/mozilla-firefox/firefox/refs/tags/{rev}/{path}"
+                git_url = f"https://raw.githubusercontent.com/thunderbird/thunderbird-desktop/refs/tags/{rev}/{path}"
                 ret = self._retry_download(git_url, "WARNING")
 
             files.append(ret.read().strip().decode("utf-8"))
