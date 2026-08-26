@@ -124,11 +124,10 @@ static int MimeInlineImage_parse_begin(MimeObject* obj) {
     if (status < 0) return status;
   }
 
-  //
   // Now we are going to see if we should set the content type in the
   // URI for the url being run...
-  //
-  if (obj->options && obj->options->stream_closure && obj->content_type) {
+  if (obj->options && obj->options->stream_closure && obj->content_type &&
+      obj->options->part_to_load) {
     mime_stream_data* msd = obj->options->stream_closure.AsMimeStreamData();
     if (!msd) {
       return -1;

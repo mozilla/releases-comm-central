@@ -171,13 +171,11 @@ async function subtestBody(uri) {
 
   // Test the channel output.
 
-  // FIXME: The content type is set multiple times, and the last time is the
-  // content type of the attachment displayed inline. Bug 2064295.
-  // Assert.equal(
-  //   channel.contentType,
-  //   "text/html",
-  //   "body channel should have the HTML content type"
-  // );
+  Assert.equal(
+    channel.contentType,
+    "text/html",
+    "body channel should have the HTML content type"
+  );
   channel.checkHeaders([
     ["Content-Type", `multipart/mixed; boundary="--------------CHOPCHOP0"`],
     ["Subject", "Big Meeting Today"],
