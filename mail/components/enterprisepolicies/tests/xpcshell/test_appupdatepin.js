@@ -3,9 +3,10 @@
 
 "use strict";
 
-const { TelemetryTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/TelemetryTestUtils.sys.mjs"
-);
+add_setup(function () {
+  do_get_profile();
+  Services.fog.initializeFOG();
+});
 
 /**
  * Note that these tests only ensure that the pin is properly added to the
@@ -22,7 +23,7 @@ async function test_update_pin(pinString, pinIsValid = true) {
       AppUpdatePin: pinString,
     },
   });
-  Services.telemetry.clearScalars();
+  Services.fog.testResetFOG();
 
   equal(
     Services.policies.status,
@@ -48,16 +49,18 @@ async function test_update_pin(pinString, pinIsValid = true) {
 
   equal(updateURL, expected, "App Update URL should match expected URL.");
 
-  const scalars = TelemetryTestUtils.getProcessScalars("parent", false, true);
   if (pinIsValid) {
-    TelemetryTestUtils.assertScalar(
-      scalars,
-      "update.version_pin",
+    equal(
+      Glean.update.versionPin.testGetValue("metrics"),
       pinString,
       "Update pin telemetry should be set"
     );
   } else {
-    TelemetryTestUtils.assertScalarUnset(scalars, "update.version_pin");
+    equal(
+      Glean.update.versionPin.testGetValue("metrics"),
+      null,
+      "Update pin telemetry should not be set"
+    );
   }
 }
 
