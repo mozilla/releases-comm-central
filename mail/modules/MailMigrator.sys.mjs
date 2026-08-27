@@ -458,7 +458,8 @@ export var MailMigrator = {
         );
       }
 
-      if (currentUIVersion < 61) {
+      if (currentUIVersion < 62) {
+        // originally v61
         if (Services.prefs.prefHasUserValue("mail.minimizeToTray")) {
           const old = Services.prefs.getBoolPref("mail.minimizeToTray");
           Services.prefs.setBoolPref("mail.closeToTray", old);
