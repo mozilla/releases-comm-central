@@ -200,13 +200,17 @@ async function subtestBody(uri) {
   }
 
   const expectedAttachment1URL = URL.parse(uri);
+  // Delete first to get the params in order.
   expectedAttachment1URL.searchParams.delete("type");
   expectedAttachment1URL.searchParams.set("part", "1.2");
+  expectedAttachment1URL.searchParams.set("type", "text/plain");
   expectedAttachment1URL.searchParams.set("filename", "attachment.txt");
 
   const expectedAttachment2URL = URL.parse(uri);
+  // Delete first to get the params in order.
   expectedAttachment2URL.searchParams.delete("type");
   expectedAttachment2URL.searchParams.set("part", "1.3");
+  expectedAttachment2URL.searchParams.set("type", "image/svg+xml");
   expectedAttachment2URL.searchParams.set("filename", "attachment.svg");
 
   channel.checkAttachments([
@@ -291,7 +295,7 @@ async function subtestBody(uri) {
 
   Assert.equal(
     attachment1Channel.contentType,
-    "application/x-unknown-content-type", // text/plain?
+    "text/plain",
     "attachment channel should have the attachment content type"
   );
   Assert.equal(

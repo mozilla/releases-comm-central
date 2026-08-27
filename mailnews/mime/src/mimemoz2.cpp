@@ -30,6 +30,7 @@
 #include "nsIParserUtils.h"
 #include "nsIStringBundle.h"
 #include "nsIURI.h"
+#include "nsIURIMutator.h"
 #include "nsMailHeaders.h"
 #include "nsMimeStringResources.h"
 #include "nsMimeTypes.h"
@@ -37,6 +38,7 @@
 #include "nsMsgUtils.h"
 #include "nsStreamConverter.h"
 #include "nsString.h"
+#include "nsURLHelper.h"
 #include "nsXPCOM.h"
 #include "plstr.h"
 #include "prlog.h"
@@ -72,19 +74,14 @@ MimeObject* mime_get_main_object(MimeObject* obj);
 
 // Appends a "filename" parameter with the attachment name to the object url.
 void AppendFilenameParameterToAttachmentDataUrl(
-    const nsMsgAttachmentData* attachmentData, nsCString& url) {
-  url.AppendLiteral("&filename=");
-  nsAutoCString aResult;
-  if (NS_SUCCEEDED(MsgEscapeString(attachmentData->m_realName,
-                                   nsINetUtil::ESCAPE_XALPHAS, aResult))) {
-    url.Append(aResult);
-  } else {
-    url.Append(attachmentData->m_realName);
-  }
+    const nsMsgAttachmentData* attachmentData, URLParams& params) {
+  nsCString filename = attachmentData->m_realName;
   if (attachmentData->m_realType.EqualsLiteral("message/rfc822") &&
-      !StringEndsWith(url, ".eml"_ns, nsCaseInsensitiveCStringComparator)) {
-    url.AppendLiteral(".eml");
+      !StringEndsWith(filename, ".eml"_ns,
+                      nsCaseInsensitiveCStringComparator)) {
+    filename.AppendLiteral(".eml");
   }
+  params.Set("filename"_ns, filename);
 }
 
 nsresult MimeGetSize(MimeObject* child, int32_t* size) {
@@ -182,11 +179,27 @@ nsresult ProcessBodyAsAttachment(MimeObject* obj, nsMsgAttachmentData** data) {
     } else {
       // This is just a normal MIME part as usual.
       tmpURL = mime_set_url_part(url, id, true);
-      nsCString urlString(tmpURL);
+
+      nsCOMPtr<nsIURI> uri;
+      rv = NS_NewURI(getter_AddRefs(uri), tmpURL);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      nsAutoCString query;
+      rv = uri->GetQuery(query);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      URLParams params;
+      params.ParseInput(query);
+
       if (!tmp->m_realName.IsEmpty()) {
-        AppendFilenameParameterToAttachmentDataUrl(tmp, urlString);
+        AppendFilenameParameterToAttachmentDataUrl(tmp, params);
       }
-      rv = nsMimeNewURI(getter_AddRefs(tmp->m_url), urlString.get(), nullptr);
+
+      params.Serialize(query, true);
+      rv = NS_MutateURI(uri).SetQuery(query).Finalize(getter_AddRefs(uri));
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      tmp->m_url = uri;
     }
 
     if (!tmp->m_url || NS_FAILED(rv)) {
@@ -324,7 +337,16 @@ nsresult GenerateAttachmentData(MimeObject* object, const char* aMessageURL,
     return NS_OK;
   }
 
-  nsCString urlString(urlSpec);
+  nsCOMPtr<nsIURI> uri;
+  nsresult rv = NS_NewURI(getter_AddRefs(uri), urlSpec);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString query;
+  rv = uri->GetQuery(query);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  URLParams params;
+  params.ParseInput(query);
 
   nsMsgAttachmentData* tmp = &(aAttachData[attIndex++]);
 
@@ -333,8 +355,7 @@ nsresult GenerateAttachmentData(MimeObject* object, const char* aMessageURL,
   tmp->m_isExternalAttachment = isExternalAttachment;
   tmp->m_isExternalLinkAttachment =
       (isExternalAttachment &&
-       StringBeginsWith(urlString, "http"_ns,
-                        nsCaseInsensitiveCStringComparator));
+       (uri->SchemeIs("http") || uri->SchemeIs("https")));
   tmp->m_size = attSize;
   tmp->m_sizeExternalStr = "-1";
   tmp->m_disposition.Adopt(MimeHeaders_get(
@@ -447,31 +468,36 @@ nsresult GenerateAttachmentData(MimeObject* object, const char* aMessageURL,
     tmp->m_hasFilename = true;
   }
 
-  if (!tmp->m_realName.IsEmpty() && !tmp->m_isExternalAttachment) {
-    AppendFilenameParameterToAttachmentDataUrl(tmp, urlString);
-  } else if (tmp->m_isExternalAttachment) {
+  if (tmp->m_isExternalAttachment) {
     // Allows the JS mime emitter to figure out the part information.
-    urlString.AppendLiteral("?part=");
-    urlString.Append(part);
-  } else if (tmp->m_realType.LowerCaseEqualsLiteral(MESSAGE_RFC822)) {
-    // Special case...if this is a enclosed RFC822 message, give it a nice
-    // name.
-    if (object->headers->munged_subject) {
-      nsCString subject;
-      subject.Assign(object->headers->munged_subject);
-      MimeHeaders_convert_header_value(options, subject, false);
-      tmp->m_realName.Assign(subject);
-      tmp->m_realName.AppendLiteral(".eml");
-    } else
-      tmp->m_realName = "ForwardedMessage.eml";
+    params.Set("part"_ns, part);
+  } else {
+    if (!tmp->m_realType.IsEmpty() &&
+        !tmp->m_realType.LowerCaseEqualsLiteral(MESSAGE_RFC822)) {
+      params.Set("type"_ns, tmp->m_realType);
+    }
+    if (!tmp->m_realName.IsEmpty()) {
+      AppendFilenameParameterToAttachmentDataUrl(tmp, params);
+    } else if (tmp->m_realType.LowerCaseEqualsLiteral(MESSAGE_RFC822)) {
+      // Special case...if this is a enclosed RFC822 message, give it a nice
+      // name.
+      if (object->headers->munged_subject) {
+        nsCString subject;
+        subject.Assign(object->headers->munged_subject);
+        MimeHeaders_convert_header_value(options, subject, false);
+        tmp->m_realName.Assign(subject);
+        tmp->m_realName.AppendLiteral(".eml");
+      } else {
+        tmp->m_realName = "ForwardedMessage.eml";
+      }
+    }
   }
 
-  nsresult rv =
-      nsMimeNewURI(getter_AddRefs(tmp->m_url), urlString.get(), nullptr);
+  params.Serialize(query, true);
+  rv = NS_MutateURI(uri).SetQuery(query).Finalize(getter_AddRefs(uri));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  PR_FREEIF(urlSpec);
-
-  if (NS_FAILED(rv) || !tmp->m_url) return NS_ERROR_OUT_OF_MEMORY;
+  tmp->m_url = uri;
 
   ValidateRealName(tmp, object->headers);
 
