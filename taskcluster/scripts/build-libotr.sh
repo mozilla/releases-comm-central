@@ -233,7 +233,7 @@ case "${_TARGET_OS}" in
 
         export CC="${_TARGET_TRIPLE}-clang"
         export LD="${_TARGET_TRIPLE}-ld"
-        export CFLAGS="-isysroot ${CROSS_SYSROOT} -mmacosx-version-min=${MACOS_TARGET_SDK}"
+        export CFLAGS="-isysroot ${CROSS_SYSROOT} -mmacosx-version-min=${MACOS_TARGET_SDK} -Wno-error=incompatible-pointer-types"
         export LDFLAGS="-isysroot ${CROSS_SYSROOT}"
         export DSYMUTIL="${MOZ_FETCHES_DIR}/llvm-dsymutil/llvm-dsymutil"
 
@@ -256,7 +256,7 @@ case "${_TARGET_OS}" in
 
         export CC="${_TARGET_TRIPLE}-clang"
         export LD="${_TARGET_TRIPLE}-ld"
-        export CFLAGS="-isysroot ${CROSS_SYSROOT} -mmacosx-version-min=${MACOS_TARGET_SDK}"
+        export CFLAGS="-isysroot ${CROSS_SYSROOT} -mmacosx-version-min=${MACOS_TARGET_SDK} -Wno-error=incompatible-pointer-types"
         export LDFLAGS="-isysroot ${CROSS_SYSROOT}"
         export DSYMUTIL="${MOZ_FETCHES_DIR}/llvm-dsymutil/llvm-dsymutil"
 
