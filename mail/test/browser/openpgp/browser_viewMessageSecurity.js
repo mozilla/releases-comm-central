@@ -319,4 +319,8 @@ registerCleanupFunction(async function tearDown() {
   aliceAcct = null;
 
   await OpenPGPTestUtils.removeKeyById("0xf231550c4f47e38e", true);
+
+  // Bob.p12 contains both certificates. A later test in this directory
+  // loading either of them would block on a confirmation prompt.
+  SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob"]);
 });
