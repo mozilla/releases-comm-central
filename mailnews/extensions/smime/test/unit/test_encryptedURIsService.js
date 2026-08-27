@@ -12,15 +12,26 @@ const service = Cc[
   "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"
 ].getService(Ci.nsIEncryptedSMIMEURIsService);
 
+// Parsing a mailbox: or file: URL converts its path to an nsIFile, and a URL
+// that fails to parse isn't normalized at all. Derive the paths used below from
+// the profile so they are absolute in the form the platform expects; the files
+// need not exist.
+function urlPathFor(leafName) {
+  const file = do_get_profile();
+  file.append(leafName);
+  return Services.io.newFileURI(file).QueryInterface(Ci.nsIURL).filePath;
+}
+
+const FOLDER_PATH = urlPathFor("Inbox");
+
 // Two representations of the same message that differ only in volatile query
 // bits; they must be treated as the same message.
-const DISPLAY_URL =
-  "mailbox:///home/user/Inbox?type=application/x-message-display&number=7";
-const NECKO_URL = "mailbox:///home/user/Inbox?number=7";
+const DISPLAY_URL = `mailbox://${FOLDER_PATH}?type=application/x-message-display&number=7`;
+const NECKO_URL = `mailbox://${FOLDER_PATH}?number=7`;
 
 // A different message in the same folder; must never be confused with the one
 // above.
-const OTHER_MSG_URL = "mailbox:///home/user/Inbox?number=8";
+const OTHER_MSG_URL = `mailbox://${FOLDER_PATH}?number=8`;
 
 add_task(function test_differentQueryRepresentationsMatch() {
   service.rememberEncrypted(NECKO_URL);
@@ -74,20 +85,20 @@ add_task(function test_dualRegistrationForgetsCleanly() {
 });
 
 add_task(function test_distinctMessagesStayDistinct() {
-  service.rememberEncrypted("mailbox:///home/user/Inbox?number=5");
+  service.rememberEncrypted(`mailbox://${FOLDER_PATH}?number=5`);
 
   Assert.ok(
-    service.isEncrypted("mailbox:///home/user/Inbox?number=5"),
+    service.isEncrypted(`mailbox://${FOLDER_PATH}?number=5`),
     "exact folder lookup still matches"
   );
   Assert.ok(
-    !service.isEncrypted("mailbox:///home/user/Inbox?number=6"),
+    !service.isEncrypted(`mailbox://${FOLDER_PATH}?number=6`),
     "a different message number must not match"
   );
 
-  service.forgetEncrypted("mailbox:///home/user/Inbox?number=5");
+  service.forgetEncrypted(`mailbox://${FOLDER_PATH}?number=5`);
   Assert.ok(
-    !service.isEncrypted("mailbox:///home/user/Inbox?number=5"),
+    !service.isEncrypted(`mailbox://${FOLDER_PATH}?number=5`),
     "cleanup"
   );
 });
@@ -96,10 +107,9 @@ add_task(function test_fileOpenedMatchesMailboxDisplay() {
   // A message opened from a file is registered as a file:// URL but displayed,
   // and checked by the content policy, as mailbox:///<path>?...&number=0; both
   // must resolve to the same message.
-  const fileURL =
-    "file:///home/user/msg.eml?type=application/x-message-display";
-  const mailboxDisplayURL =
-    "mailbox:///home/user/msg.eml?type=application/x-message-display&number=0";
+  const filePath = urlPathFor("msg.eml");
+  const fileURL = `file://${filePath}?type=application/x-message-display`;
+  const mailboxDisplayURL = `mailbox://${filePath}?type=application/x-message-display&number=0`;
   service.rememberEncrypted(fileURL);
 
   Assert.ok(
