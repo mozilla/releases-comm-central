@@ -80,13 +80,10 @@ async function forwardViaFolder(aFilePath) {
   const aboutMessage = get_about_message(msgc);
 
   // Copy the message to a folder.
-  const documentChild =
-    aboutMessage.document.getElementById("messagepane").contentDocument
-      .documentElement;
-  EventUtils.synthesizeMouseAtCenter(
-    documentChild,
-    { type: "contextmenu", button: 2 },
-    documentChild.documentGlobal
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "html",
+    { type: "contextmenu" },
+    aboutMessage.getMessagePaneBrowser()
   );
   await click_menus_in_sequence(
     aboutMessage.document.getElementById("mailContext"),
@@ -104,10 +101,12 @@ async function forwardViaFolder(aFilePath) {
   const msg = await select_click_row(0);
   await assert_selected_and_displayed(window, msg);
 
-  Assert.ok(
-    get_about_message()
-      .document.getElementById("messagepane")
-      .contentDocument.body.textContent.includes("áóúäöüß")
+  await SpecialPowers.spawn(
+    get_about_message().getMessagePaneBrowser(),
+    [],
+    function () {
+      Assert.ok(content.document.body.textContent.includes("áóúäöüß"));
+    }
   );
 
   const fwdWin = await open_compose_with_forward();

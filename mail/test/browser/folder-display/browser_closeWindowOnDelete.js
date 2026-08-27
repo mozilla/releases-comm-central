@@ -24,7 +24,6 @@ var {
   create_folder,
   open_selected_message_in_new_tab,
   open_selected_message_in_new_window,
-  press_delete,
   reset_close_message_on_delete,
   select_click_row,
   set_close_message_on_delete,
@@ -37,6 +36,7 @@ var { make_message_sets_in_folders } = ChromeUtils.importESModule(
 );
 
 var folder;
+const tabmail = document.getElementById("tabmail");
 
 add_setup(async function () {
   folder = await create_folder("CloseWindowOnDeleteA");
@@ -61,18 +61,17 @@ add_task(
     const msgc2 = await open_selected_message_in_new_window();
 
     const preCount = folder.getTotalMessages(false);
-    msgc.focus();
     const closePromise = BrowserTestUtils.domWindowClosed(msgc);
-    await press_delete(msgc);
-    if (folder.getTotalMessages(false) != preCount - 1) {
-      throw new Error("didn't delete a message before closing window");
-    }
+    await SimpleTest.promiseFocus(msgc);
+    EventUtils.synthesizeKey("KEY_Delete", {}, msgc);
     await closePromise;
 
-    if (msgc2.closed) {
-      throw new Error("should only have closed the active window");
-    }
-
+    Assert.equal(
+      folder.getTotalMessages(false),
+      preCount - 1,
+      "should have deleted a message"
+    );
+    Assert.ok(!msgc2.closed, "should only have closed the active window");
     await BrowserTestUtils.closeWindow(msgc2);
 
     reset_close_message_on_delete();
@@ -98,21 +97,19 @@ add_task(
     const msgc2 = await open_selected_message_in_new_window();
 
     const preCount = folder.getTotalMessages(false);
-    msgc.focus();
     const closePromise = BrowserTestUtils.domWindowClosed(msgc);
     const closePromiseA = BrowserTestUtils.domWindowClosed(msgcA);
-    await press_delete(msgc);
-
-    if (folder.getTotalMessages(false) != preCount - 1) {
-      throw new Error("didn't delete a message before closing window");
-    }
+    await SimpleTest.promiseFocus(msgc);
+    EventUtils.synthesizeKey("KEY_Delete", {}, msgc);
     await closePromise;
     await closePromiseA;
 
-    if (msgc2.closed) {
-      throw new Error("should only have closed the active window");
-    }
-
+    Assert.equal(
+      folder.getTotalMessages(false),
+      preCount - 1,
+      "should have deleted a message"
+    );
+    Assert.ok(!msgc2.closed, "should only have closed the active window");
     await BrowserTestUtils.closeWindow(msgc2);
 
     reset_close_message_on_delete();
@@ -138,22 +135,20 @@ add_task(
     const msgc2 = await open_selected_message_in_new_window();
 
     const preCount = folder.getTotalMessages(false);
-    window.focus();
     const closePromise = BrowserTestUtils.domWindowClosed(msgc);
     const closePromiseA = BrowserTestUtils.domWindowClosed(msgcA);
     await select_click_row(0);
-    await press_delete(window);
-
-    if (folder.getTotalMessages(false) != preCount - 1) {
-      throw new Error("didn't delete a message before closing window");
-    }
+    await SimpleTest.promiseFocus();
+    EventUtils.synthesizeKey("KEY_Delete", {}, window);
     await closePromise;
     await closePromiseA;
 
-    if (msgc2.closed) {
-      throw new Error("should only have closed the first window");
-    }
-
+    Assert.equal(
+      folder.getTotalMessages(false),
+      preCount - 1,
+      "should have deleted a message"
+    );
+    Assert.ok(!msgc2.closed, "should only have closed the first window");
     await BrowserTestUtils.closeWindow(msgc2);
 
     reset_close_message_on_delete();
@@ -178,17 +173,25 @@ add_task(async function test_close_message_tab_on_delete_from_message_tab() {
 
   const preCount = folder.getTotalMessages(false);
   await switch_tab(msgc);
-  await press_delete();
+  const tabClosePromise = BrowserTestUtils.waitForEvent(
+    tabmail.tabContainer,
+    "TabClose"
+  );
+  await SimpleTest.promiseFocus();
+  EventUtils.synthesizeKey("KEY_Delete", {}, window);
+  await tabClosePromise;
 
-  if (folder.getTotalMessages(false) != preCount - 1) {
-    throw new Error("didn't delete a message before closing tab");
-  }
-
+  Assert.equal(
+    folder.getTotalMessages(false),
+    preCount - 1,
+    "should have deleted a message"
+  );
   assert_number_of_tabs_open(2);
-
-  if (msgc2 != document.getElementById("tabmail").tabInfo[1]) {
-    throw new Error("should only have closed the active tab");
-  }
+  Assert.equal(
+    msgc2,
+    tabmail.tabInfo[1],
+    "should only have closed the active tab"
+  );
 
   close_tab(msgc2);
 
@@ -215,17 +218,25 @@ add_task(
 
     const preCount = folder.getTotalMessages(false);
     await switch_tab(msgc);
-    await press_delete();
+    const tabClosePromise = BrowserTestUtils.waitForEvent(
+      tabmail.tabContainer,
+      "TabClose"
+    );
+    await SimpleTest.promiseFocus();
+    EventUtils.synthesizeKey("KEY_Delete", {}, window);
+    await tabClosePromise;
 
-    if (folder.getTotalMessages(false) != preCount - 1) {
-      throw new Error("didn't delete a message before closing tab");
-    }
-
+    Assert.equal(
+      folder.getTotalMessages(false),
+      preCount - 1,
+      "should have deleted a message"
+    );
     assert_number_of_tabs_open(2);
-
-    if (msgc2 != document.getElementById("tabmail").tabInfo[1]) {
-      throw new Error("should only have closed the active tab");
-    }
+    Assert.equal(
+      msgc2,
+      tabmail.tabInfo[1],
+      "should only have closed the active tab"
+    );
 
     close_tab(msgc2);
 
@@ -252,20 +263,26 @@ add_task(
     const msgc2 = await open_selected_message_in_new_tab(true);
 
     const preCount = folder.getTotalMessages(false);
-    window.focus();
     await select_click_row(0);
-    await press_delete(window);
+    const tabClosePromise = BrowserTestUtils.waitForEvent(
+      tabmail.tabContainer,
+      "TabClose"
+    );
+    await SimpleTest.promiseFocus();
+    EventUtils.synthesizeKey("KEY_Delete", {}, window);
+    await tabClosePromise;
 
-    if (folder.getTotalMessages(false) != preCount - 1) {
-      throw new Error("didn't delete a message before closing window");
-    }
-
+    Assert.equal(
+      folder.getTotalMessages(false),
+      preCount - 1,
+      "should have deleted a message"
+    );
     assert_number_of_tabs_open(2);
-
-    if (msgc2 != document.getElementById("tabmail").tabInfo[1]) {
-      throw new Error("should only have closed the active tab");
-    }
-
+    Assert.equal(
+      msgc2,
+      tabmail.tabInfo[1],
+      "should only have closed the active tab"
+    );
     close_tab(msgc2);
 
     reset_close_message_on_delete();
@@ -292,27 +309,25 @@ add_task(
     const msgc2A = await open_selected_message_in_new_window();
 
     const preCount = folder.getTotalMessages(false);
-    window.focus();
     const closePromise = BrowserTestUtils.domWindowClosed(msgcA);
     await select_click_row(0);
-    await press_delete(window);
-
-    if (folder.getTotalMessages(false) != preCount - 1) {
-      throw new Error("didn't delete a message before closing window");
-    }
+    await SimpleTest.promiseFocus();
+    EventUtils.synthesizeKey("KEY_Delete", {}, window);
     await closePromise;
 
+    Assert.equal(
+      folder.getTotalMessages(false),
+      preCount - 1,
+      "should have deleted a message"
+    );
     assert_number_of_tabs_open(2);
-
-    if (msgc2 != document.getElementById("tabmail").tabInfo[1]) {
-      throw new Error("should only have closed the active tab");
-    }
-
-    if (msgc2A.closed) {
-      throw new Error("should only have closed the first window");
-    }
-
+    Assert.equal(
+      msgc2,
+      tabmail.tabInfo[1],
+      "should only have closed the active tab"
+    );
     close_tab(msgc2);
+    Assert.ok(!msgc2A.closed, "should only have closed the first window");
     await BrowserTestUtils.closeWindow(msgc2A);
 
     reset_close_message_on_delete();

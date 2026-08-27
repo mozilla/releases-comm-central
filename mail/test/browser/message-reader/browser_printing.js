@@ -23,16 +23,13 @@ var { add_message_to_folder, create_message } = ChromeUtils.importESModule(
 
 var folder = null;
 
-const SUBJECT0 = "How is the printing?";
-const BODY0 = "Printing ok?";
-
 add_setup(async function () {
   folder = await create_folder("PrintingTest");
   await add_message_to_folder(
     [folder],
     create_message({
-      subject: SUBJECT0,
-      body: { body: BODY0 },
+      subject: "How is the printing?",
+      body: { body: "Printing ok?" },
     })
   );
   registerCleanupFunction(() => folder.deleteSelf(null));
@@ -56,19 +53,21 @@ add_task(async function test_open_printpreview() {
     return preview && BrowserTestUtils.isVisible(preview);
   });
 
-  const subject = preview.contentDocument.querySelector(
-    ".moz-main-header tr > td"
-  ).textContent;
-  Assert.equal(
-    subject,
-    "Subject: " + SUBJECT0,
-    "preview subject should be correct"
-  );
+  await SpecialPowers.spawn(preview, [], function () {
+    const subject = content.document.querySelector(
+      ".moz-main-header tr > td"
+    ).textContent;
+    Assert.equal(
+      subject,
+      "Subject: How is the printing?",
+      "preview subject should be correct"
+    );
 
-  const body = preview.contentDocument
-    .querySelector(".moz-text-flowed")
-    .textContent.trim();
-  Assert.equal(body, BODY0, "preview body should be correct");
+    const body = content.document
+      .querySelector(".moz-text-flowed")
+      .textContent.trim();
+    Assert.equal(body, "Printing ok?", "preview body should be correct");
+  });
 
   EventUtils.synthesizeKey("KEY_Escape", {}, window);
 

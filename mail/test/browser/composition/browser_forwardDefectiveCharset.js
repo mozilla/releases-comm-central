@@ -92,10 +92,12 @@ add_task(async function test_forward_from_folder() {
   const msg = await select_click_row(0);
   await assert_selected_and_displayed(window, msg);
 
-  Assert.ok(
-    get_about_message()
-      .document.getElementById("messagepane")
-      .contentDocument.body.textContent.includes(SOME_SPANISH)
+  await SpecialPowers.spawn(
+    get_about_message().getMessagePaneBrowser(),
+    [SOME_SPANISH],
+    function (spanish) {
+      Assert.ok(content.document.body.textContent.includes(spanish));
+    }
   );
 
   const cwc = await open_compose_with_forward();
