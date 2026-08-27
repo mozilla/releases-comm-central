@@ -421,6 +421,13 @@ nsresult nsMimeHtmlDisplayEmitter::EndAllAttachments() {
     listener->OnAttachmentsComplete(mailChannel);
   }
 
+  // EndAllAttachments is called even if there are no attachments, we can
+  // safely end the HTML output here.
+  if (mFormat != nsMimeOutput::nsMimeMessageFilterSniffer) {
+    UtilityWriteCRLF("</body>");
+    UtilityWriteCRLF("</html>");
+  }
+
   PROFILER_MARKER_TEXT(
       "MIME HTML Emitter", MAILNEWS,
       mozilla::MarkerOptions(mozilla::MarkerTiming::IntervalEnd()),
@@ -435,11 +442,7 @@ nsresult nsMimeHtmlDisplayEmitter::WriteBody(const nsACString& buf,
 }
 
 nsresult nsMimeHtmlDisplayEmitter::EndBody() {
-  if (mFormat != nsMimeOutput::nsMimeMessageFilterSniffer) {
-    UtilityWriteCRLF("</body>");
-    UtilityWriteCRLF("</html>");
-    PROFILER_MARKER_TEXT("MIME HTML Emitter", MAILNEWS, {}, "Body ends"_ns);
-  }
+  PROFILER_MARKER_TEXT("MIME HTML Emitter", MAILNEWS, {}, "Body ends"_ns);
 
   // Notify the front end that we've finished reading the body.
   nsresult rv;
@@ -451,5 +454,7 @@ nsresult nsMimeHtmlDisplayEmitter::EndBody() {
     listener->OnBodyComplete(mailChannel);
   }
 
+  // At this point, we've finished the body of the message, but not the
+  // attachments. The closing HTML tag will be added in EndAllAttachments.
   return NS_OK;
 }
