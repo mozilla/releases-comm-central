@@ -536,9 +536,6 @@ nsresult nsParseMailMessageState::ParseHeaders() {
           }
         }
       }
-
-      MOZ_ASSERT(header->value[header->length] == 0,
-                 "Non-null-terminated strings cause very, very bad problems");
     }
   }
   return NS_OK;
@@ -550,7 +547,7 @@ nsresult nsParseMailMessageState::InternSubject(HeaderData* header) {
     return NS_OK;
   }
 
-  nsDependentCString key(header->value);
+  nsCString key(header->value, header->length);
 
   uint32_t flags;
   (void)m_newMsgHdr->GetFlags(&flags);
@@ -763,11 +760,11 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
       // set the "replyTo" attribute on the msg hdr.
       if (replyTo && (!sender || replyTo->length != sender->length ||
                       strncmp(replyTo->value, sender->value, sender->length)))
-        m_newMsgHdr->SetStringProperty("replyTo",
-                                       nsDependentCString(replyTo->value));
+        m_newMsgHdr->SetStringProperty(
+            "replyTo", nsCString(replyTo->value, replyTo->length));
 
       if (sender) {
-        m_newMsgHdr->SetAuthor(nsDependentCString(sender->value));
+        m_newMsgHdr->SetAuthor(nsCString(sender->value, sender->length));
       }
 
       if (recipient == &m_newsgroups) {
@@ -779,7 +776,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
            one group in the summary list, and only being able to sort on the
            first group rather than the whole list.  It's worth it. */
         char* ch;
-        ch = PL_strchr(recipient->value, ',');
+        ch = PL_strnchr(recipient->value, ',', recipient->length);
         if (ch) {
           /* generate a new string that terminates before the , */
           nsAutoCString firstGroup;
@@ -787,16 +784,19 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
           m_newMsgHdr->SetRecipients(firstGroup);
         }
 
-        m_newMsgHdr->SetRecipients(nsDependentCString(recipient->value));
+        m_newMsgHdr->SetRecipients(
+            nsCString(recipient->value, recipient->length));
       } else if (recipient) {
-        m_newMsgHdr->SetRecipients(nsDependentCString(recipient->value));
+        m_newMsgHdr->SetRecipients(
+            nsCString(recipient->value, recipient->length));
       }
       if (ccList) {
-        m_newMsgHdr->SetCcList(nsDependentCString(ccList->value));
+        m_newMsgHdr->SetCcList(nsCString(ccList->value, ccList->length));
       }
 
       if (bccList) {
-        m_newMsgHdr->SetBccList(nsDependentCString(bccList->value));
+        m_newMsgHdr->SetBccList(
+            nsCString(bccList->value, bccList->length));
       }
 
       rv = InternSubject(subject);
@@ -825,7 +825,8 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
 
         if (!mozstatus && statush) {
           // Parse a little bit of the Berkeley Mail status header.
-          for (const char* s = statush->value; *s; s++) {
+          nsAutoCString statusStr(statush->value, statush->length);
+          for (const char* s = statusStr.get(); *s; s++) {
             uint32_t msgFlags = 0;
             (void)m_newMsgHdr->GetFlags(&msgFlags);
             switch (*s) {
@@ -846,7 +847,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
                 break;
               default:
                 NS_WARNING(nsPrintfCString("Unexpected status for %s: %s",
-                                           rawMsgId.get(), statush->value)
+                                           rawMsgId.get(), statusStr.get())
                                .get());
                 break;
             }
@@ -854,12 +855,15 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
         }
 
         if (account_key != nullptr)
-          m_newMsgHdr->SetAccountKey(nsDependentCString(account_key->value));
+          m_newMsgHdr->SetAccountKey(
+              nsCString(account_key->value, account_key->length));
         // use in-reply-to header as references, if there's no references header
         if (references != nullptr) {
-          m_newMsgHdr->SetReferences(nsDependentCString(references->value));
+          m_newMsgHdr->SetReferences(
+              nsCString(references->value, references->length));
         } else if (inReplyTo != nullptr) {
-          m_newMsgHdr->SetReferences(nsDependentCString(inReplyTo->value));
+          m_newMsgHdr->SetReferences(
+              nsCString(inReplyTo->value, inReplyTo->length));
         } else {
           m_newMsgHdr->SetReferences(""_ns);
         }
@@ -877,7 +881,8 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
         PRTime datePRTime = m_EnvDate;
         if (date) {
           // Date:
-          if (PR_ParseTimeString(date->value, false, &datePRTime) ==
+          nsAutoCString dateStr(date->value, date->length);
+          if (PR_ParseTimeString(dateStr.get(), false, &datePRTime) ==
               PR_SUCCESS) {
             // Convert to seconds as default value for 'Received'.
             PRTime2Seconds(datePRTime, &rcvTimeSecs);
@@ -893,7 +898,9 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
         } else if (deliveryDate) {
           // Upgrade 'Received' to Delivery-date: ?
           PRTime resultTime;
-          if (PR_ParseTimeString(deliveryDate->value, false, &resultTime) ==
+          nsAutoCString deliveryDateStr(deliveryDate->value,
+                                        deliveryDate->length);
+          if (PR_ParseTimeString(deliveryDateStr.get(), false, &resultTime) ==
               PR_SUCCESS) {
             PRTime2Seconds(resultTime, &rcvTimeSecs);
             if (datePRTime == 0) datePRTime = resultTime;
@@ -922,7 +929,8 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
 
           // We can ignore |NS_MsgGetPriorityFromString()| return value,
           // since we set a default value for |priorityVal|.
-          NS_MsgGetPriorityFromString(priority->value, priorityVal);
+          nsAutoCString priorityStr(priority->value, priority->length);
+          NS_MsgGetPriorityFromString(priorityStr.get(), priorityVal);
           m_newMsgHdr->SetPriority(priorityVal);
         } else if (priorityFlags == nsMsgPriority::notSet)
           m_newMsgHdr->SetPriority(nsMsgPriority::none);
@@ -952,39 +960,45 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
           if (m_customDBHeaderData[i].length)
             m_newMsgHdr->SetStringProperty(
                 m_customDBHeaders[i].get(),
-                nsDependentCString(m_customDBHeaderData[i].value));
+                nsCString(m_customDBHeaderData[i].value,
+                                   m_customDBHeaderData[i].length));
           // The received header is accumulated separately
           if (m_customDBHeaders[i].EqualsLiteral("received") &&
               !m_receivedValue.IsEmpty())
             m_newMsgHdr->SetStringProperty("received", m_receivedValue);
         }
         if (content_type) {
-          char* substring = PL_strstr(content_type->value, "charset");
+          const char* ctEnd = content_type->value + content_type->length;
+          char* substring =
+              PL_strnstr(content_type->value, "charset", content_type->length);
           if (substring) {
-            char* charset = PL_strchr(substring, '=');
+            char* charset = PL_strnchr(substring, '=', ctEnd - substring);
             if (charset) {
               charset++;
               /* strip leading whitespace and double-quote */
-              while (*charset && (IS_SPACE(*charset) || '\"' == *charset))
+              while (charset < ctEnd && (IS_SPACE(*charset) || '\"' == *charset))
                 charset++;
               /* strip trailing whitespace and double-quote */
               char* end = charset;
-              while (*end && !IS_SPACE(*end) && '\"' != *end && ';' != *end)
+              while (end < ctEnd && !IS_SPACE(*end) && '\"' != *end &&
+                     ';' != *end)
                 end++;
-              if (*charset) {
-                if (*end != '\0') {
+              if (charset < ctEnd) {
+                if (end != ctEnd) {
                   // if we're not at the very end of the line, we need
                   // to generate a new string without the trailing crud
                   nsAutoCString rawCharSet;
                   rawCharSet.Assign(charset, end - charset);
                   m_newMsgHdr->SetCharset(rawCharSet);
                 } else {
-                  m_newMsgHdr->SetCharset(nsDependentCString(charset));
+                  m_newMsgHdr->SetCharset(
+                      nsCString(charset, end - charset));
                 }
               }
             }
           }
-          substring = PL_strcasestr(content_type->value, "multipart/mixed");
+          substring = PL_strncasestr(content_type->value, "multipart/mixed",
+                                     content_type->length);
           if (substring) {
             uint32_t newFlags;
             m_newMsgHdr->OrFlags(nsMsgMessageFlags::Attachment, &newFlags);
