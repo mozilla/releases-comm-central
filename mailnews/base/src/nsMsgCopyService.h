@@ -5,12 +5,13 @@
 #ifndef COMM_MAILNEWS_BASE_SRC_NSMSGCOPYSERVICE_H_
 #define COMM_MAILNEWS_BASE_SRC_NSMSGCOPYSERVICE_H_
 
+#include "nsCOMPtr.h"
 #include "nscore.h"
 #include "nsIMsgCopyService.h"
-#include "nsCOMPtr.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgWindow.h"
+#include "nsITransactionManager.h"
 #include "nsTArray.h"
 
 typedef enum _nsCopyRequestType {

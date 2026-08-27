@@ -2,12 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsImapCore.h"
 #include "nsImapNamespace.h"
+
 #include "../public/nsIImapHostSessionList.h"
+#include "nsImapCore.h"
 #include "nsImapUrl.h"
-#include "nsString.h"
 #include "nsServiceManagerUtils.h"
+#include "nsString.h"
+#include "plstr.h"
+#include "prmem.h"
+#include "prprf.h"
 
 nsImapNamespace::nsImapNamespace(EIMAPNamespaceType type, const char* prefix,
                                  char delimiter, bool from_prefs) {

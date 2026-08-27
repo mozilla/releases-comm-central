@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "prsystem.h"
-
 #include "nsMessenger.h"
 
 // xpcom
@@ -77,12 +75,12 @@
 #include "nsIOutputStream.h"
 #include "nsIPrincipal.h"
 
-#include "nsString.h"
-
 #include "mozilla/dom/BrowserParent.h"
-
-#include "mozilla/NullPrincipal.h"
 #include "mozilla/JSONStringWriteFuncs.h"
+#include "mozilla/NullPrincipal.h"
+#include "nsPIDOMWindowInlines.h"
+#include "nsString.h"
+#include "prsystem.h"
 
 using namespace mozilla;
 using namespace mozilla::dom;

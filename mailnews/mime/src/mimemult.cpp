@@ -8,6 +8,7 @@
 
 #include "mimeeobj.h"
 #include "mimehdrs.h"
+#include "mimemalt.h"
 #include "mimemoz2.h"
 #include "mimemrel.h"
 #include "mimemsig.h"

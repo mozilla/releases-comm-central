@@ -1,14 +1,17 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #include <stdio.h>
+
 #include "mimei.h"
-#include "prmem.h"
 #include "mimeobj.h"
-#include "mozilla/CheckedInt.h"
-#include "mozilla/RangedPtr.h"
-#include "mozilla/mailnews/MimeEncoder.h"
 #include "modmimee.h"  // for MimeConverterOutputCallback
+#include "mozilla/CheckedInt.h"
+#include "mozilla/mailnews/MimeEncoder.h"
+#include "mozilla/RangedPtr.h"
+#include "nsMimeStringResources.h"
+#include "prmem.h"
 
 typedef enum mime_encoding {
   mime_Base64,

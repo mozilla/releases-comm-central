@@ -36,6 +36,7 @@
 #include "nsMimeTypes.h"
 #include "nsMsgI18N.h"
 #include "nsMsgUtils.h"
+#include "nsNetUtil.h"
 #include "nsStreamConverter.h"
 #include "nsString.h"
 #include "nsURLHelper.h"
@@ -48,6 +49,7 @@
 
 using mozilla::Preferences;
 using mozilla::PrefValueKind;
+using mozilla::URLParams;
 
 void ValidateRealName(nsMsgAttachmentData* aAttach, MimeHeaders* aHdrs);
 

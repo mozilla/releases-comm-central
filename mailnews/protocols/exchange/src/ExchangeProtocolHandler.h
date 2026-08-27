@@ -6,6 +6,7 @@
 #define COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGEPROTOCOLHANDLER_H_
 
 #include "nsIProtocolHandler.h"
+#include "nsTString.h"
 
 class ExchangeProtocolHandler : public nsIProtocolHandler {
  public:
