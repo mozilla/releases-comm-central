@@ -190,6 +190,30 @@ set_define("MOZ_PANORAMA", True, when=milestone.is_nightly)
 
 include("../../toolkit/moz.configure")
 
+# Bug 2062895: Remove when landing on m-c happens
+# Thunderbird Enterprise
+# ==============================================================
+
+option(
+    "--enable-enterprise",
+    default=False,
+    help="Build with enterprise support",
+)
+
+
+@depends("--enable-enterprise")
+def enable_enterprise(value):
+    if value:
+        return True
+
+
+set_config("MOZ_ENTERPRISE", enable_enterprise)
+set_define("MOZ_ENTERPRISE", enable_enterprise)
+
+# Clear the default value to avoid mozilla.com url compiled into product
+imply_option("--with-crashreporter-url", "", when="--enable-enterprise")
+# Bug 2062895: Remove when landing on m-c happens (end)
+
 @depends("--enable-enterprise", "--enable-project")
 def thunderbird_enterprise(enterprise, project):
     return enterprise and project[0] == "comm/mail"
