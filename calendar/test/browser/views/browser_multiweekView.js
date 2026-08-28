@@ -116,7 +116,9 @@ add_task(async function testMultiweekViewStartOfWeek() {
   );
 
   // Change the first day of the week to Monday.
-  Services.prefs.setIntPref("calendar.week.start", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.week.start", 1]],
+  });
   await TestUtils.waitForCondition(() => {
     const x = document.querySelector("#multiweek-view calendar-day-label").weekDay;
     console.log(x);
@@ -143,7 +145,9 @@ add_task(async function testMultiweekViewStartOfWeek() {
   );
 
   // Reset the first day of the week to Thursday.
-  Services.prefs.setIntPref("calendar.week.start", 4);
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.week.start", 4]],
+  });
   await TestUtils.waitForTick();
 
   // Check the view is updated correctly.

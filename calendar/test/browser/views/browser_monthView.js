@@ -114,7 +114,9 @@ add_task(async function testMonthViewStartOfWeek() {
   );
 
   // Change the first day of the week to Monday.
-  Services.prefs.setIntPref("calendar.week.start", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.week.start", 1]],
+  });
 
   // Check the view is updated correctly.
   labels = document.querySelectorAll("#month-view calendar-day-label");
@@ -136,7 +138,9 @@ add_task(async function testMonthViewStartOfWeek() {
   );
 
   // Reset the first day of the week to Thursday.
-  Services.prefs.setIntPref("calendar.week.start", 4);
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.week.start", 4]],
+  });
 
   // Check the view is updated correctly.
   labels = document.querySelectorAll("#month-view calendar-day-label");

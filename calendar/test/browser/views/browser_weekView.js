@@ -111,7 +111,9 @@ add_task(async function testWeekViewStartOfWeek() {
   );
 
   // Change the first day of the week to Monday.
-  Services.prefs.setIntPref("calendar.week.start", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.week.start", 1]],
+  });
 
   // Check the view is updated correctly.
   Assert.equal(weekView.dayColumns.length, 7);
@@ -132,7 +134,9 @@ add_task(async function testWeekViewStartOfWeek() {
   );
 
   // Reset the first day of the week to Thursday.
-  Services.prefs.setIntPref("calendar.week.start", 4);
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.week.start", 4]],
+  });
 
   // Check the view is updated correctly.
   Assert.equal(weekView.dayColumns.length, 7);

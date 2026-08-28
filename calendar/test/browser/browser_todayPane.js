@@ -27,11 +27,12 @@ const todayPaneStatusButton = document.getElementById("calendar-status-todaypane
 
 add_setup(async function () {
   calendar = CalendarTestUtils.createCalendar();
-  Services.prefs.setIntPref("calendar.agenda.days", 7);
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.agenda.days", 7]],
+  });
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
     TodayPane.setDay(cal.dtz.now()); // eslint-disable-line no-restricted-properties
-    Services.prefs.clearUserPref("calendar.agenda.days");
   });
 
   today = cal.dtz.now();

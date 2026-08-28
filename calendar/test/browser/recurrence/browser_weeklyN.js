@@ -176,9 +176,8 @@ add_task(async function testRecurrenceAcrossWeekStart() {
   Assert.notEqual(initialWeekStart, 6, "week start should not be Saturday");
 
   // Set week start to Saturday
-  Services.prefs.setIntPref("calendar.week.start", 6);
-  registerCleanupFunction(() => {
-    Services.prefs.setIntPref("calendar.week.start", initialWeekStart);
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.week.start", 6]],
   });
 
   async function setRecurrence(recurrenceWindow) {

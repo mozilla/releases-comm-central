@@ -38,12 +38,17 @@ var TIMEZONES = [
   "Australia/Adelaide",
 ];
 
+async function setTimezone(timezone) {
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.timezone.local", timezone]],
+  });
+}
+
 const calendarViewsInitialState = CalendarTestUtils.saveCalendarViewsState(window);
 
 add_setup(async () => {
   registerCleanupFunction(async () => {
     await CalendarTestUtils.restoreCalendarViewsState(window, calendarViewsInitialState);
-    Services.prefs.setStringPref("calendar.timezone.local", "UTC");
   });
 
   const calendar = CalendarTestUtils.createCalendar();
@@ -92,7 +97,7 @@ add_setup(async () => {
 });
 
 add_task(async function testTimezones3_checkStJohns() {
-  Services.prefs.setStringPref("calendar.timezone.local", "America/St_Johns");
+  await setTimezone("America/St_Johns");
   const times = [
     [
       [4, 30],
@@ -183,7 +188,7 @@ add_task(async function testTimezones3_checkStJohns() {
 });
 
 add_task(async function testTimezones4_checkCaracas() {
-  Services.prefs.setStringPref("calendar.timezone.local", "America/Caracas");
+  await setTimezone("America/Caracas");
   const times = [
     [
       [3, 30],
@@ -274,7 +279,7 @@ add_task(async function testTimezones4_checkCaracas() {
 });
 
 add_task(async function testTimezones5_checkPhoenix() {
-  Services.prefs.setStringPref("calendar.timezone.local", "America/Phoenix");
+  await setTimezone("America/Phoenix");
   const times = [
     [
       [1, 0],
@@ -365,7 +370,7 @@ add_task(async function testTimezones5_checkPhoenix() {
 });
 
 add_task(async function testTimezones6_checkLosAngeles() {
-  Services.prefs.setStringPref("calendar.timezone.local", "America/Los_Angeles");
+  await setTimezone("America/Los_Angeles");
   const times = [
     [
       [0, 0],
@@ -456,7 +461,7 @@ add_task(async function testTimezones6_checkLosAngeles() {
 });
 
 add_task(async function testTimezones7_checkBuenosAires() {
-  Services.prefs.setStringPref("calendar.timezone.local", "America/Argentina/Buenos_Aires");
+  await setTimezone("America/Argentina/Buenos_Aires");
   const times = [
     [
       [6, 0],
@@ -547,7 +552,7 @@ add_task(async function testTimezones7_checkBuenosAires() {
 });
 
 add_task(async function testTimezones8_checkParis() {
-  Services.prefs.setStringPref("calendar.timezone.local", "Europe/Paris");
+  await setTimezone("Europe/Paris");
   const times = [
     [
       [9, 0],
@@ -638,7 +643,7 @@ add_task(async function testTimezones8_checkParis() {
 });
 
 add_task(async function testTimezones9_checkKathmandu() {
-  Services.prefs.setStringPref("calendar.timezone.local", "Asia/Kathmandu");
+  await setTimezone("Asia/Kathmandu");
   const times = [
     [
       [13, 45],
@@ -729,7 +734,7 @@ add_task(async function testTimezones9_checkKathmandu() {
 });
 
 add_task(async function testTimezones10_checkAdelaide() {
-  Services.prefs.setStringPref("calendar.timezone.local", "Australia/Adelaide");
+  await setTimezone("Australia/Adelaide");
   const times = [
     [
       [18, 30],

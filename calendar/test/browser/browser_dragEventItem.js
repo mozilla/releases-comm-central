@@ -12,12 +12,16 @@ ChromeUtils.defineESModuleGetters(this, {
 });
 
 const calendar = CalendarTestUtils.createCalendar("Drag Test", "memory");
-// Set a low number of hours to reduce pixel -> minute rounding errors.
-Services.prefs.setIntPref("calendar.view.visiblehours", 3);
+
+add_setup(async function () {
+  // Set a low number of hours to reduce pixel -> minute rounding errors.
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.view.visiblehours", 3]],
+  });
+});
 
 registerCleanupFunction(() => {
   CalendarTestUtils.removeCalendar(calendar);
-  Services.prefs.clearUserPref("calendar.view.visiblehours");
   // Reset the spaces toolbar to its default visible state.
   window.gSpacesToolbar.toggleToolbar(false);
 });

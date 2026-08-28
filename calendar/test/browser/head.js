@@ -96,7 +96,9 @@ async function _openNewCalendarItemTab(tabMode) {
   const itemTabs = tabmail.tabModes[tabMode].tabs;
   const previousTabCount = itemTabs.length;
 
-  Services.prefs.setBoolPref("calendar.item.editInTab", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.item.editInTab", true]],
+  });
   let buttonId = "sidePanelNewEvent";
   if (tabMode == "calendarTask") {
     await openTasksTab();
@@ -369,7 +371,6 @@ registerCleanupFunction(async () => {
   for (const id of taskTabPanelIds) {
     await closeCalendarTaskTab(id);
   }
-  Services.prefs.setBoolPref("calendar.item.editInTab", false);
 
   Assert.equal(tabmail.tabInfo.length, 1, "all tabs closed");
 });

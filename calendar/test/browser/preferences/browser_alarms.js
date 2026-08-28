@@ -22,6 +22,18 @@ const l10n = new Localization(["calendar/calendar.ftl", "calendar/calendar-alarm
 const DEFVALUE = 43;
 
 add_task(async function testDefaultAlarms() {
+  // These preferences are changed through the Settings UI in tests below. Clear
+  // existing user values so their original state is restored when the test ends.
+  await SpecialPowers.pushPrefEnv({
+    clear: [
+      ["calendar.alarms.onforevents"],
+      ["calendar.alarms.eventalarmlen"],
+      ["calendar.alarms.eventalarmunit"],
+      ["calendar.alarms.onfortodos"],
+      ["calendar.alarms.todoalarmlen"],
+      ["calendar.alarms.todoalarmunit"],
+    ],
+  });
   const calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");
   calendar.setProperty("calendar-main-default", true);
   registerCleanupFunction(async () => {
@@ -186,9 +198,13 @@ add_task(async function testSounds() {
   // To hear the sound in this test, add `--setpref media.volume_scale=1.0` to
   // your command. You won't hear the system sound as nsISound is mocked out.
 
-  Services.prefs.setBoolPref("calendar.alarms.playsound", true);
-  Services.prefs.setIntPref("calendar.alarms.soundType", 0);
-  Services.prefs.setStringPref("calendar.alarms.soundURL", "");
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["calendar.alarms.playsound", true],
+      ["calendar.alarms.soundType", 0],
+      ["calendar.alarms.soundURL", ""],
+    ],
+  });
 
   const { prefsDocument, prefsWindow } = await openNewPrefsTab(
     "paneCalendar",
@@ -225,16 +241,4 @@ add_task(async function testSounds() {
   Assert.equal(audioElement.src, soundUrl);
 
   await closePrefsTab();
-
-  Services.prefs.clearUserPref("calendar.alarms.soundType");
-  Services.prefs.clearUserPref("calendar.alarms.soundURL");
-});
-
-registerCleanupFunction(function () {
-  Services.prefs.clearUserPref("calendar.alarms.onforevents");
-  Services.prefs.clearUserPref("calendar.alarms.eventalarmlen");
-  Services.prefs.clearUserPref("calendar.alarms.eventalarmunit");
-  Services.prefs.clearUserPref("calendar.alarms.onfortodos");
-  Services.prefs.clearUserPref("calendar.alarms.todoalarmlen");
-  Services.prefs.clearUserPref("calendar.alarms.todoalarmunit");
 });

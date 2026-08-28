@@ -10,11 +10,12 @@ var UTF8STRING = " 💣 💥  ☣  ";
 
 add_task(async function testUTF8() {
   const calendar = CalendarTestUtils.createCalendar();
-  Services.prefs.setStringPref("calendar.categories.names", UTF8STRING);
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.categories.names", UTF8STRING]],
+  });
 
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
-    Services.prefs.clearUserPref("calendar.categories.names");
   });
 
   await CalendarTestUtils.setCalendarView(window, "day");

@@ -50,13 +50,14 @@ add_setup(async function () {
   const markDeleted = deleteMgr.markDeleted;
   deleteMgr.markDeleted = () => {};
 
-  Services.prefs.setBoolPref("calendar.itip.newInvitationDisplay", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.itip.newInvitationDisplay", true]],
+  });
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, true);
     cal.itip.getImipTransport = getImipTransport;
     deleteMgr.markDeleted = markDeleted;
     CalendarTestUtils.removeCalendar(calendar);
-    Services.prefs.setBoolPref("calendar.itip.newInvitationDisplay", false);
   });
 });
 

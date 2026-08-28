@@ -20,7 +20,6 @@ add_setup(async function () {
 
 registerCleanupFunction(async function () {
   await CalendarTestUtils.closeCalendarTab(window);
-  Services.prefs.setStringPref("calendar.timezone.local", "UTC");
 });
 
 async function subtest() {
@@ -186,7 +185,9 @@ async function subtest() {
  * Run the test at UTC+12.
  */
 add_task(async function auckland() {
-  Services.prefs.setStringPref("calendar.timezone.local", "Pacific/Auckland");
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.timezone.local", "Pacific/Auckland"]],
+  });
   await subtest();
 });
 
@@ -194,7 +195,9 @@ add_task(async function auckland() {
  * Run the test at UTC+2.
  */
 add_task(async function berlin() {
-  Services.prefs.setStringPref("calendar.timezone.local", "Europe/Berlin");
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.timezone.local", "Europe/Berlin"]],
+  });
   await subtest();
 });
 
@@ -202,7 +205,9 @@ add_task(async function berlin() {
  * Run the test at UTC.
  */
 add_task(async function utc() {
-  Services.prefs.setStringPref("calendar.timezone.local", "UTC");
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.timezone.local", "UTC"]],
+  });
   await subtest();
 });
 
@@ -210,6 +215,8 @@ add_task(async function utc() {
  * Run the test at UTC-7.
  */
 add_task(async function vancouver() {
-  Services.prefs.setStringPref("calendar.timezone.local", "America/Vancouver");
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.timezone.local", "America/Vancouver"]],
+  });
   await subtest();
 });
