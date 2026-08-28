@@ -42,6 +42,27 @@ linux2404-64/debug:
         - mochitest-tests
         - xpcshell-tests
 
+linux2404-64-enterprise/opt:
+    build-platform: linux64-enterprise/opt
+    test-sets:
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
+linux2404-64-enterprise-shippable/opt:
+    build-platform: linux64-enterprise-shippable/opt
+    test-sets:
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
+linux2404-64-enterprise/debug:
+    build-platform: linux64-enterprise/debug
+    test-sets:
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
 linux2404-64-asan/opt:
     build-platform: linux64-asan/opt
     test-sets:
@@ -139,6 +160,38 @@ windows11-64-25h2-asan/opt:
     test-sets:
         - mochitest-tests
 
+windows11-64-25h2-enterprise/opt:
+    build-platform: win64-enterprise/opt
+    build-signing-label:
+        by-variant:
+            msix: repackage-signing-msix-win64-enterprise/opt
+            default: build-signing-win64-enterprise/opt
+    test-sets:
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
+##
+# windows11-64-25h2-enterprise-shippable/opt:
+#     build-platform: win64-enterprise-shippable/opt
+#     test-sets:
+#         # - marionette-enterprise-tests
+#         # - marionette-integration
+#         # - mochitest-browser-chrome
+#         # - mochitest-plain
+#         # - xpcshell
+
+windows11-64-25h2-enterprise/debug:
+    build-platform: win64-enterprise/debug
+    build-signing-label:
+        by-variant:
+            msix: repackage-signing-msix-win64-enterprise/debug
+            default: build-signing-win64-enterprise/debug
+    test-sets:
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
 ##
 # MacOS X platforms (matching /macosx.*/)
 
@@ -201,6 +254,45 @@ macosx1500-aarch64/debug:
 macosx1500-aarch64/opt:
     build-platform: macosx64-aarch64/opt
     build-signing-label: repackage-macosx64-aarch64/opt
+    test-sets:
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
+macosx1470-64-enterprise/debug:
+    build-platform: macosx64-enterprise/debug
+    test-sets:
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
+macosx1470-64-enterprise/opt:
+    build-platform: macosx64-enterprise/opt
+    test-sets:
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
+macosx1500-aarch64-enterprise/opt:
+    build-platform: macosx64-aarch64-enterprise/opt
+    build-signing-label: repackage-macosx64-aarch64-enterprise/opt
+    test-sets:
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
+##macosx1500-aarch64-enterprise-shippable/opt:
+##    build-platform: macosx1500-enterprise-shippable/opt
+##    build-signing-label: repackage-macosx64-aarch64-enterprise-shippable/opt
+##    test-sets:
+##        - marionette-enterprise-tests
+##        - marionette-tests
+##        - mochitest-tesst
+##        - xpcshell-tests
+
+macosx1500-aarch64-enterprise/debug:
+    build-platform: macosx64-aarch64-enterprise/debug
+    build-signing-label: repackage-macosx64-aarch64-enterprise/debug
     test-sets:
         - marionette-tests
         - mochitest-tests
