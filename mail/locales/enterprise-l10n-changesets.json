@@ -1,0 +1,26 @@
+{
+    "en-GB": {
+        "pin": false,
+        "platforms": [
+            "linux64",
+            "macosx64",
+            "win32",
+            "win64"
+        ],
+        "revision": "aa8944b0b7016185126d984ef653747452cc34fb"
+    },
+    "fr": {
+        "pin": false,
+        "platforms": [
+            "linux64",
+            "linux64-enterprise",
+            "linux64-aarch64-enterprise",
+            "macosx64",
+            "macosx64-enterprise",
+            "win32",
+            "win64",
+            "win64-enterprise"
+        ],
+        "revision": "aa8944b0b7016185126d984ef653747452cc34fb"
+    }
+}
