@@ -8,6 +8,7 @@ transforms:
     - taskgraph.transforms.from_deps
     - comm_taskgraph.transforms.enterprise:rewrite_shipping_phase
     - comm_taskgraph.transforms.l10n
+    - comm_taskgraph.transforms.enterprise:add_tbrust_vendor
     - gecko_taskgraph.transforms.job
     - gecko_taskgraph.transforms.task
 

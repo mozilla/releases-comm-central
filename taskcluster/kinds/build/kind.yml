@@ -14,6 +14,7 @@ transforms:
     - gecko_taskgraph.transforms.build_attrs:transforms
     - comm_taskgraph.transforms.enterprise:remove_enterprise_builds
     - gecko_taskgraph.transforms.build_lints:transforms
+    - comm_taskgraph.transforms.enterprise:add_tbrust_vendor
     - gecko_taskgraph.transforms.job:transforms
     - comm_taskgraph.transforms.tb_build:transforms
     - gecko_taskgraph.transforms.artifact:transforms

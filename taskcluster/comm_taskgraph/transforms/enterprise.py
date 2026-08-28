@@ -82,3 +82,28 @@ def remove_enterprise_complete(config, jobs):
         if "complete" in config.kind and "enterprise" not in config.params["project"] and "enterprise" in job["name"]:
             continue
         yield job
+
+
+def maybe_add_dep(job, dep):
+    if dep not in job["fetches"]["toolchain"]:
+        job["fetches"]["toolchain"].append(dep)
+
+
+@transforms.add
+def add_tbrust_vendor(config, jobs):
+    for job in jobs:
+        if "enterprise" in config.params["project"]:
+            if (config.kind == "build" or "l10n" in config.kind) and "enterprise" in job["name"]:
+                job["run"].setdefault("extra-config", {})["tbrust_vendor"] = True
+
+                has_tbrust_vendor = "tbrust-vendor" in job["run"]["actions"]
+                if not has_tbrust_vendor:
+                    job["run"]["actions"] = ["tbrust-vendor"] + job["run"]["actions"]
+
+                    maybe_add_dep(job, "linux64-cargo-vet")
+
+                    if "l10n" in config.kind:
+                        maybe_add_dep(job, "linux64-node")
+                        maybe_add_dep(job, "linux64-rust")
+
+        yield job
