@@ -36,3 +36,73 @@ marionette:
     max-run-time: 2700
     instance-size: default
     chunks: 1
+
+marionette-enterprise:
+    description: "Marionette integration enterprise run"
+    attributes:
+        code-review: true
+    treeherder-symbol: MnEnt(gecko)
+    suite: marionette-enterprise
+    run-on-projects: built-projects
+    tier: default
+    max-run-time:
+        by-test-platform:
+            .*-debug.*: 3600
+            default: 2700
+    instance-size: default
+    chunks: 1
+    mozharness:
+        config:
+            by-test-platform:
+                macosx.*:
+                    - marionette/prod_config.py
+                    - marionette/mac_taskcluster_config.py
+                    - marionette/enterprise_config.py
+                    - unittests/thunderbird_extra.py
+                windows.*:
+                    - marionette/windows_taskcluster_config.py
+                    - marionette/enterprise_config.py
+                    - unittests/thunderbird_extra.py
+                default:
+                    - marionette/prod_config.py
+                    - marionette/enterprise_config.py
+                    - remove_executables.py
+                    - unittests/thunderbird_extra.py
+        extra-options:
+            - --subsuite=marionette-enterprise
+            - --test-manifest=enterprise-tests.toml
+
+marionette-enterprise-thunderbird:
+    description: "Marionette integration enterprise Thunderbird run"
+    attributes:
+        code-review: true
+    treeherder-symbol: MnEnt(comm)
+    suite: marionette-enterprise-thunderbird
+    run-on-projects: built-projects
+    tier: default
+    max-run-time:
+        by-test-platform:
+            .*-debug.*: 3600
+            default: 2700
+    instance-size: default
+    chunks: 1
+    mozharness:
+        config:
+            by-test-platform:
+                macosx.*:
+                    - marionette/prod_config.py
+                    - marionette/mac_taskcluster_config.py
+                    - marionette/enterprise_config.py
+                    - unittests/thunderbird_extra.py
+                windows.*:
+                    - marionette/windows_taskcluster_config.py
+                    - marionette/enterprise_config.py
+                    - unittests/thunderbird_extra.py
+                default:
+                    - marionette/prod_config.py
+                    - marionette/enterprise_config.py
+                    - remove_executables.py
+                    - unittests/thunderbird_extra.py
+        extra-options:
+            - --subsuite=marionette-enterprise
+            - --test-manifest=../../../../../comm/testing/marionette/enterprise-tests-thunderbird.toml

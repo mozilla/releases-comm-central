@@ -18,6 +18,10 @@ gtest-tests:
 marionette-tests:
     - marionette
 
+marionette-enterprise-tests:
+    - marionette-enterprise
+    - marionette-enterprise-thunderbird
+
 mochitest-tests:
     - mochitest-thunderbird
 
