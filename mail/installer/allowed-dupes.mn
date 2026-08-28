@@ -139,3 +139,7 @@ defaults/settings/thunderbird/search-config-icons/5e03d6f4-6ee9-8bc8-cf22-7a5f2c
 defaults/settings/thunderbird/search-config-icons/74793ce1-a918-a5eb-d3c0-2aadaff3c88c
 defaults/settings/thunderbird/search-config-icons/0d7668a8-c3f4-cfee-cbc8-536511528937
 defaults/settings/thunderbird/search-config-icons/5ded611d-44b2-dc46-fd67-fb116888d75d
+
+# Enterprise branding: JSON files that are empty
+chrome/messenger/builtin-addons/thundermail/api/ProTweaks/schema.json
+chrome/messenger/content/branding/inAppNotificationData.json

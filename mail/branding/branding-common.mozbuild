@@ -35,3 +35,7 @@ def ThunderbirdBranding():
             "default64.png",
             "TB-symbolic.svg",
         ]
+    if CONFIG["MOZ_ENTERPRISE"]:
+        FINAL_TARGET_FILES.distribution += [
+            "distribution.ini",
+        ]

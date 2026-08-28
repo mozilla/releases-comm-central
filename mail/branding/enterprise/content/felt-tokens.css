@@ -1,0 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:root {
+  --felt-logo-background-gradient: linear-gradient(101deg, #0b4e9b 0%, #7c8be9 98.12%);
+}

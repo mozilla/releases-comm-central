@@ -1,0 +1,28 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#leftBox {
+  background-image: url("chrome://branding/content/about-logo.svg");
+}
+
+#rightBox {
+  background-size: 333px auto;
+}
+
+#codenameLogo {
+  block-size: 28px;
+  inline-size: 90px;
+  margin-block-start: 12px;
+}
+
+#updateDeck > hbox > label:not([class="text-link"]) {
+  opacity: 0.6;
+}
+
+#trademark {
+  font-size: xx-small;
+  text-align: center;
+  opacity: 0.6;
+  margin-block: 10px;
+}
