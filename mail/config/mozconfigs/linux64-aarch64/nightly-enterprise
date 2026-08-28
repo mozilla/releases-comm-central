@@ -1,0 +1,3 @@
+. "$topsrcdir/comm/mail/config/mozconfigs/linux64-aarch64/common"
+
+ac_add_options --enable-enterprise
