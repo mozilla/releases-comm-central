@@ -3,6 +3,7 @@ test-manifest-toml:
     description: ManifestParser TOML Linter
     exclude:
       - 'comm/testing/marionette/unit-tests.toml'
+      - 'comm/mail/test/marionette/enterprise/manifest.toml'
       - 'comm/third_party/rust/'
       - '**/.*ruff.toml'
       - '**/Cargo.toml'
