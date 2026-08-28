@@ -240,7 +240,7 @@ add_task(async function testTagsInVerticalView() {
     "the selected row should contain thread-card-tags"
   );
 
-  EventUtils.synthesizeMouseAtCenter(row, {}, about3Pane);
+  await clickThreadRow(row);
   Assert.ok(row.classList.contains("selected"), "the row should be selected");
 
   const tags = getCardTags(row);
@@ -258,7 +258,7 @@ add_task(async function testTagsInVerticalView() {
   Assert.equal(tags.title, importantTag, "the important tag should be set");
 
   const row2 = threadTree.getRowAtIndex(2);
-  EventUtils.synthesizeMouseAtCenter(row2, {}, about3Pane);
+  await clickThreadRow(row2);
   Assert.ok(
     row2.classList.contains("selected"),
     "the third row should be selected"
@@ -385,7 +385,7 @@ add_task(async function test_status_indicator_fluent() {
   );
 
   about3Pane.paneLayout.messagePaneVisible = true;
-  EventUtils.synthesizeMouseAtCenter(tableRow, {}, about3Pane);
+  await clickThreadRow(tableRow);
   await BrowserTestUtils.waitForEvent(window, "MsgLoaded");
   await TestUtils.waitForCondition(
     () => testMessages.at(1).isRead,
