@@ -236,11 +236,9 @@ NS_IMETHODIMP nsMailDatabase::ListAllOfflineOpIds(
       if (MOZ_LOG_TEST(IMAPOffline, LogLevel::Info)) {
         nsCOMPtr<nsIMsgOfflineImapOperation> offlineOp;
         GetOfflineOpForKey(outOid.mOid_Id, false, getter_AddRefs(offlineOp));
+
         if (offlineOp) {
-          nsMsgOfflineImapOperation* logOp =
-              static_cast<nsMsgOfflineImapOperation*>(
-                  static_cast<nsIMsgOfflineImapOperation*>(offlineOp.get()));
-          if (logOp) logOp->Log();
+          MOZ_LOG_FMT(IMAPOffline, LogLevel::Info, "offlineOp: {}", offlineOp);
         }
       }
     }

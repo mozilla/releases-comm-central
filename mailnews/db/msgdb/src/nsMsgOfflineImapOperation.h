@@ -20,7 +20,6 @@ class nsMsgOfflineImapOperation : public nsIMsgOfflineImapOperation {
   nsIMdbRow* GetMDBRow() { return m_mdbRow; }
   nsresult GetCopiesFromDB();
   nsresult SetCopiesToDB();
-  void Log();
 
  protected:
   virtual ~nsMsgOfflineImapOperation();

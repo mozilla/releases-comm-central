@@ -65,3 +65,10 @@ interface nsIMsgOfflineImapOperation : nsISupports
   attribute unsigned long msgSize;
   attribute boolean playingBack;
 };
+%{C++
+
+// {fmt} support, to make debugging and logging simpler.
+// These are defined in nsMsgOfflineImapOperation.h:
+nsCString format_as(nsOfflineImapOperationType operation);
+nsCString format_as(const nsIMsgOfflineImapOperation& offlineOp);
+%}
