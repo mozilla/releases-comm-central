@@ -5,6 +5,8 @@
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { calendarDeactivator } from "resource:///modules/calendar/calCalendarDeactivator.sys.mjs";
 
+import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
+
 /**
  * Return if this should be considered as the first run of Thunderbird or not.
  * Tests that don't want to see any first run behavior should set
@@ -13,6 +15,10 @@ import { calendarDeactivator } from "resource:///modules/calendar/calCalendarDea
  * @returns {boolean}
  */
 export function isFirstRun() {
+  if (AppConstants.MOZ_ENTERPRISE) {
+    return false;
+  }
+
   // We want at least one valid visible account in a set up profile.
   if (
     MailServices.accounts.accounts.some(
