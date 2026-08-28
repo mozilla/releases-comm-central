@@ -187,7 +187,11 @@ add_task(async function test_attachment_reminder_appears_properly() {
   const buttonSend = cwc.document.getElementById("button-send");
   EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.documentGlobal);
   await dialogPromise;
-  await new Promise(resolve => setTimeout(resolve));
+  await TestUtils.waitForCondition(
+    () =>
+      !cwc.document.getElementById("cmd_remindLater").hasAttribute("checked"),
+    "The manual reminder should get disabled"
+  );
 
   // After confirming the reminder the menuitem should get disabled.
   assert_manual_reminder_state(cwc, false);
