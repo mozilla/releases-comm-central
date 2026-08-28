@@ -143,20 +143,6 @@ const JSWINDOWACTORS = {
     safeForUntrustedWebProcess: true,
   },
 
-  ContextMenu: {
-    parent: {
-      esModuleURI: "resource:///actors/ContextMenuParent.sys.mjs",
-    },
-    child: {
-      esModuleURI: "resource:///actors/ContextMenuChild.sys.mjs",
-      events: {
-        contextmenu: { mozSystemGroup: true },
-      },
-    },
-    allFrames: true,
-    safeForUntrustedWebProcess: true,
-  },
-
   // As in ActorManagerParent.sys.mjs, but with single-site and single-page
   // message manager groups added.
   FindBar: {
@@ -374,6 +360,28 @@ const JSWINDOWACTORS = {
   },
 };
 
+if (
+  !AppConstants.MOZ_ENTERPRISE ||
+  // Services.felt is valid only on enterprise-firefox branches until it lands
+  // on mozilla-central. Disable the lint rule to avoid noise.
+  // eslint-disable-next-line mozilla/valid-services
+  (AppConstants.MOZ_ENTERPRISE && !Services.felt?.isFeltUI())
+) {
+  JSWINDOWACTORS.ContextMenu = {
+    parent: {
+      esModuleURI: "resource:///actors/ContextMenuParent.sys.mjs",
+    },
+    child: {
+      esModuleURI: "resource:///actors/ContextMenuChild.sys.mjs",
+      events: {
+        contextmenu: { mozSystemGroup: true },
+      },
+    },
+    allFrames: true,
+    safeForUntrustedWebProcess: true,
+  };
+}
+
 // Seconds of idle time before the late idle tasks will be scheduled.
 const LATE_TASKS_IDLE_TIME_SEC = 20;
 
@@ -549,6 +557,12 @@ MailGlue.prototype = {
           // difficult to avoid.
           lazy.windowsAlertsService.removeAllNotificationsForInstall();
         }
+        if (AppConstants.MOZ_ENTERPRISE) {
+          const { EnterpriseHandler } = ChromeUtils.importESModule(
+            "resource://gre/modules/enterprise/EnterpriseHandler.sys.mjs"
+          );
+          EnterpriseHandler.uninit();
+        }
         break;
       case "mail-startup-done":
         this._onFirstWindowLoaded();
@@ -575,6 +589,23 @@ MailGlue.prototype = {
         break;
       case "content-document-global-created":
       case "chrome-document-global-created": {
+        if (AppConstants.MOZ_ENTERPRISE) {
+          if (
+            aSubject.document?.documentURI ===
+            "chrome://messenger/content/messenger.xhtml"
+          ) {
+            aSubject.addEventListener(
+              "DOMContentLoaded",
+              () => {
+                const { EnterpriseHandler } = ChromeUtils.importESModule(
+                  "resource://gre/modules/enterprise/EnterpriseHandler.sys.mjs"
+                );
+                EnterpriseHandler.init(aSubject);
+              },
+              { once: true }
+            );
+          }
+        }
         // Set up lwt, but only if the "lightweightthemes" attr is set on the root
         // (i.e. in messenger.xhtml).
         aSubject.addEventListener(
@@ -727,6 +758,13 @@ MailGlue.prototype = {
 
     if (AppConstants.MOZ_UPDATER) {
       listeners.init();
+    }
+
+    if (AppConstants.MOZ_ENTERPRISE) {
+      const { EnterpriseEndpoints } = ChromeUtils.importESModule(
+        "resource://gre/modules/enterprise/EnterpriseEndpoints.sys.mjs"
+      );
+      EnterpriseEndpoints.init();
     }
   },
 

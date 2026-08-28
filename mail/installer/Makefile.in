@@ -180,6 +180,10 @@ ifdef MOZ_SERVICES_SYNC
 DEFINES += -DMOZ_SERVICES_SYNC
 endif
 
+ifdef MOZ_ENTERPRISE
+DEFINES += -DMOZ_ENTERPRISE=1
+endif
+
 libs::
 	$(MAKE) -C $(DEPTH)/comm/mail/locales langpack
 

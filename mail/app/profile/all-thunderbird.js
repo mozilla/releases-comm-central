@@ -450,6 +450,18 @@ pref("mailnews.send.loglevel", "Warn");
 
 pref("browser.hiddenWindowChromeURL", "chrome://messenger/content/hiddenWindowMac.xhtml");
 
+// Default preferences for enterprise builds
+#ifdef MOZ_ENTERPRISE
+pref("enterprise.log_level", "Error");
+// Prompting the signout dialog on quitting/closing the app
+pref("enterprise.prompt_on_signout", true);
+// On Enterprise we want to enforce updates so we force it
+// Bug 2020768: Should those value be set/locked at runtime by FELT only
+//              or is it fine to apply it to any enterprise build?
+pref("app.update.checkOnlyInstance.enabled", false);
+pref("app.update.background.enabled", true);
+#endif
+
 pref("offline.startup_state",            2);
 // 0 Ask before sending unsent messages when going online
 // 1 Always send unsent messages when going online

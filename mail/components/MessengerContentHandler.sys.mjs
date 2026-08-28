@@ -219,6 +219,8 @@ export class MessengerContentHandler {
       return;
     }
 
+    this.#handleFelt(cmdLine);
+
     if (AppConstants.platform == "win") {
       const tag = cmdLine.handleFlagWithParam("notification-windowsTag", false);
       if (
@@ -764,6 +766,18 @@ export class MessengerContentHandler {
       }
     } else {
       getOrOpen3PaneWindow();
+    }
+  }
+
+  #handleFelt(cmdLine) {
+    // Services.felt is valid only on enterprise-firefox branches until it lands
+    // on mozilla-central. Disable the lint rule to avoid noise.
+    // eslint-disable-next-line mozilla/valid-services
+    if (Services.felt && Services.felt.isFeltUI()) {
+      cmdLine.preventDefault = true;
+
+      // Consume Felt-specific flags that don't take parameters
+      cmdLine.handleFlag("feltUI", false);
     }
   }
 
