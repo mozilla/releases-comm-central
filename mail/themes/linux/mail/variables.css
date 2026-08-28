@@ -16,8 +16,8 @@
   --toolbox-text-color-inactive: -moz-headerbarinactivetext;
 
   &[lwtheme] {
-    --toolbox-background-color: var(--lwt-accent-color);
-    --toolbox-background-color-inactive: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+    --toolbox-background-color: var(--lwt-frame);
+    --toolbox-background-color-inactive: var(--lwt-frame-inactive, var(--lwt-frame));
     --toolbox-text-color: var(--lwt-text-color, currentColor);
     --toolbox-text-color-inactive: var(--lwt-text-color, currentColor);
   }

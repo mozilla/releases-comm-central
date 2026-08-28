@@ -22,7 +22,7 @@
 }
 
 :root[lwtheme] {
-  background-color: var(--lwt-accent-color);
+  background-color: var(--lwt-frame);
   color: var(--lwt-text-color);
 
   --box-text-color: var(--color-ink-90);
@@ -32,7 +32,7 @@
   --field-background-color: var(--color-white);
   --field-border-color: rgba(0, 0, 0, 0.3);
   --field-border-hover-color: rgba(0, 0, 0, 0.4);
-  --primary-focus-border: var(--lwt-accent-color);
+  --primary-focus-border: var(--lwt-frame);
 
   &[lwtheme-image]:not([lwt-tree]) {
     background-image: var(--lwt-header-image) !important;
@@ -41,7 +41,7 @@
   }
 
   &:not([lwt-tree]):-moz-window-inactive {
-    background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+    background-color: var(--lwt-frame-inactive, var(--lwt-frame));
   }
 
   &:not([lwt-tree]) dialog,
@@ -58,7 +58,7 @@
     --field-background-color: Field;
     --field-border-color: rgba(128, 128, 128, 0.6);
     --field-border-hover-color: rgba(128, 128, 128, 0.8);
-    --lwt-accent-color: -moz-Dialog;
+    --lwt-frame: -moz-Dialog;
     --richlist-button-background: -moz-Dialog;
     --tab-hover-background: hsla(0, 0%, 50%, 0.15);
     --tab-selected-background: hsla(0, 0%, 50%, 0.25);
@@ -482,7 +482,7 @@ tabpanels {
 }
 
 :root[lwtheme] legend {
-  background-color: var(--lwt-accent-color);
+  background-color: var(--lwt-frame);
 }
 
 separator.groove:not([orient="vertical"]) {

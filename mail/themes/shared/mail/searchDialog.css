@@ -126,7 +126,7 @@ treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
 
 :root[lwt-tree] #searchTermBox,
 :root[lwt-tree] #searchResults {
-  background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+  background-color: var(--lwt-frame-inactive, var(--lwt-frame));
 }
 
 :root:not([lwtheme]) #searchTermList:focus > richlistitem[selected] {

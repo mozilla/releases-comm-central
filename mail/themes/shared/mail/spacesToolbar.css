@@ -362,7 +362,7 @@ img {
     inline-size: 6px;
     padding: 0;
     background: var(--spaces-button-badge-bg-color);
-    border: 2px solid var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+    border: 2px solid var(--lwt-frame-inactive, var(--lwt-frame));
     border-radius: 6px;
   }
 

@@ -10,7 +10,7 @@
 
   :root[lwtheme] & {
     color: var(--toolbar-text-color, inherit);
-    background-color: var(--lwt-accent-color);
+    background-color: var(--lwt-frame);
     background-image:
       linear-gradient(var(--lwt-selected-tab-background-color, transparent), var(--lwt-selected-tab-background-color, transparent)),
       linear-gradient(var(--toolbar-background-color), var(--toolbar-background-color)), var(--lwt-header-image, none);

@@ -84,7 +84,7 @@ hr {
 
 :root[lwtheme] #navigation-toolbox,
 :root[lwtheme] #compose-toolbox {
-  background-color: var(--lwt-accent-color);
+  background-color: var(--lwt-frame);
   background-image: var(--lwt-additional-images);
   background-repeat: var(--lwt-background-tiling);
   background-position: var(--lwt-background-alignment);
@@ -108,7 +108,7 @@ hr {
 
 :root[lwtheme][customtitlebar] #navigation-toolbox:-moz-window-inactive,
 :root[lwtheme] #compose-toolbox:-moz-window-inactive {
-  background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+  background-color: var(--lwt-frame-inactive, var(--lwt-frame));
 }
 
 #titlebar > #toolbar-menubar:-moz-window-inactive,
@@ -931,7 +931,7 @@ statuspanel {
   background-position:
     bottom right,
     var(--lwt-background-alignment);
-  background-color: var(--lwt-accent-color);
+  background-color: var(--lwt-frame);
   background-image: var(--lwt-header-image), var(--lwt-additional-images);
   color: var(--lwt-text-color);
   border-block-start-color: var(--lwt-tabs-border-color);
@@ -1092,7 +1092,7 @@ findbar {
   border-block-start-color: var(--chrome-content-separator-color, ThreeDShadow);
 
   :root[lwtheme] & {
-    background-color: var(--lwt-accent-color);
+    background-color: var(--lwt-frame);
     background-image: linear-gradient(var(--toolbar-background-color), var(--toolbar-background-color)), var(--lwt-additional-images);
     background-repeat: no-repeat, var(--lwt-background-tiling);
     background-position:

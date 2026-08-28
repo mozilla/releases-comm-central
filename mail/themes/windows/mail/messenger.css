@@ -23,10 +23,10 @@
   }
 
   #messengerWindow[lwtheme] {
-    background-color: var(--lwt-accent-color);
+    background-color: var(--lwt-frame);
 
     &:-moz-window-inactive {
-      background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+      background-color: var(--lwt-frame-inactive, var(--lwt-frame));
     }
   }
 
