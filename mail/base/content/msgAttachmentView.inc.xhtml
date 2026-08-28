@@ -4,9 +4,15 @@
 
                           <!-- the message pane consists of 4 'boxes'. Box #4 is the attachment
                                box which can be toggled into a slim or an expanded view -->
-                          <hbox align="center" id="attachmentBar"
-                                context="attachment-toolbar-context-menu"
-                                onclick="if (event.button == 0) { toggleAttachmentList(undefined, true); }">
+                          <html:div id="attachmentBar"
+                                    role="button"
+                                    tabindex="0"
+                                    aria-controls="attachmentList"
+                                    aria-expanded="false"
+                                    context="attachment-toolbar-context-menu"
+                                    onclick="if (event.button == 0) { toggleAttachmentList(undefined, true); }"
+                                    oncontextmenu="attachmentBarOnContextMenu(event);"
+                                    onkeydown="attachmentBarOnKeyDown(event);">
                             <button type="checkbox" id="attachmentToggle"
                                     onmousedown="event.preventDefault();"
                                     onclick="event.stopPropagation();"
@@ -19,9 +25,11 @@
                               <html:span id="attachmentNameSep">: </html:span>
                               <label id="attachmentName" crop="center"
                                      role="button"
+                                     tabindex="0"
                                      tooltiptext="&openAttachment.tooltip;"
                                      tooltiptextopen="&openAttachment.tooltip;"
                                      onclick="OpenAttachmentFromBar(event);"
+                                     onkeydown="attachmentNameOnKeyDown(event);"
                                      ondragstart="attachmentNameDNDObserver.onDragStart(event);"/>
                               <label id="attachmentSize"/>
                             </hbox>
@@ -93,7 +101,7 @@
                                 </toolbaritem>
                               </hbox>
                             </vbox>
-                          </hbox>
+                          </html:div>
                           <richlistbox is="attachment-list" id="attachmentList"
                                        class="attachmentList"
                                        seltype="multiple"

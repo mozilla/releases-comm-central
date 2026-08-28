@@ -2274,17 +2274,20 @@ function toggleAttachmentList(expanded, updateFocus) {
   }
 
   attachmentToggle.checked = expanded;
+  attachmentBar.setAttribute("aria-expanded", String(expanded));
   attachmentList.collapsed = !expanded;
   attachmentView.classList.toggle("list-expanded", expanded);
+
+  const attachmentToggleLabel = bundle.getString(
+    expanded ? "collapseAttachmentPaneTooltip" : "expandAttachmentPaneTooltip"
+  );
+  attachmentToggle.setAttribute("aria-label", attachmentToggleLabel);
+  attachmentBar.setAttribute("tooltiptext", attachmentToggleLabel);
 
   if (expanded) {
     if (!attachmentView.collapsed) {
       attachmentSplitter.collapsed = false;
     }
-    attachmentBar.setAttribute(
-      "tooltiptext",
-      bundle.getString("collapseAttachmentPaneTooltip")
-    );
 
     attachmentList.setOptimumWidth();
 
@@ -2301,10 +2304,6 @@ function toggleAttachmentList(expanded, updateFocus) {
     }
   } else {
     attachmentSplitter.collapsed = true;
-    attachmentBar.setAttribute(
-      "tooltiptext",
-      bundle.getString("expandAttachmentPaneTooltip")
-    );
 
     // This may have been set by the XUL splitter.
     attachmentView.style.height = null;
@@ -2313,6 +2312,43 @@ function toggleAttachmentList(expanded, updateFocus) {
       // TODO
     }
   }
+}
+
+/**
+ * Toggle the message attachment list from the keyboard when the attachment bar
+ * itself is focused.
+ *
+ * @param {KeyboardEvent} event - The key event from the attachment bar.
+ */
+function attachmentBarOnKeyDown(event) {
+  if (event.key != " " && event.key != "Enter") {
+    return;
+  }
+  event.preventDefault();
+  event.stopPropagation();
+  toggleAttachmentList(undefined, true);
+}
+
+/**
+ * Open the attachment toolbar context menu for the HTML attachment bar.
+ *
+ * @param {MouseEvent} event - The context menu event from the attachment bar.
+ */
+function attachmentBarOnContextMenu(event) {
+  if (
+    event.target.closest("#attachmentInfo") ||
+    event.target.closest("#attachment-view-toolbar")
+  ) {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+  document
+    .getElementById("attachment-toolbar-context-menu")
+    .openPopup(event.currentTarget, {
+      triggerEvent: event,
+    });
 }
 
 /**
@@ -2329,6 +2365,21 @@ function OpenAttachmentFromBar(event) {
     }
     event.stopPropagation();
   }
+}
+
+/**
+ * Open an attachment from the attachment bar when the attachment name is
+ * focused.
+ *
+ * @param {KeyboardEvent} event - The key event from the attachment name.
+ */
+function attachmentNameOnKeyDown(event) {
+  if (event.key != " " && event.key != "Enter") {
+    return;
+  }
+  event.preventDefault();
+  event.stopPropagation();
+  TryHandleAllAttachments("open");
 }
 
 /**

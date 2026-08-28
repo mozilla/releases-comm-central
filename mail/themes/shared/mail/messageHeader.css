@@ -284,10 +284,16 @@ mail-tagfield[collapsed] {
 /* ::::: attachment view ::::: */
 
 #attachmentBar {
+  display: flex;
+  align-items: center;
   color: var(--layout-color-1);
   background-color: var(--layout-background-1);
   padding: 3px 0;
   overflow: hidden;
+
+  & > spacer {
+    flex: 1;
+  }
 }
 
 #attachmentToggle {
