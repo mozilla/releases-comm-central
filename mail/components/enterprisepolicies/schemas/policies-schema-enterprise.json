@@ -1,0 +1,743 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "Validation uses standard JSON Schema. Before validating, Thunderbird normalizes platform input in PolicySchemaValidator.sys.mjs: a value delivered as a JSON string is parsed where contentMediaType is application/json, and 0/1 integers become booleans. After validation, strings with format uri become URL objects, and a list entry that fails validation is dropped and logged rather than discarding the whole policy.",
+  "definitions": {
+    "url": { "type": "string", "format": "uri" },
+    "urlOrEmpty": {
+      "type": "string",
+      "anyOf": [{ "format": "uri" }, { "maxLength": 0 }]
+    },
+    "origin": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^([Ff][Ii][Ll][Ee]://.*|[Hh][Tt][Tt][Pp][Ss]?://[^/]+/?)$"
+    }
+  },
+  "type": "object",
+  "properties": {
+    "3rdparty": {
+      "type": "object",
+      "x-restart-required": true,
+      "properties": {
+        "Extensions": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "type": ["object", "array"],
+              "contentMediaType": "application/json"
+            }
+          }
+        }
+      }
+    },
+
+    "AppAutoUpdate": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "AppUpdatePin": {
+      "type": "string",
+      "x-restart-required": true
+    },
+
+    "AppUpdateURL": { "x-restart-required": true, "$ref": "#/definitions/url" },
+
+    "Authentication": {
+      "type": "object",
+      "x-restart-required": true,
+      "properties": {
+        "SPNEGO": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Delegated": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "NTLM": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AllowNonFQDN": {
+          "type": "object",
+          "properties": {
+            "SPNEGO": {
+              "type": "boolean"
+            },
+
+            "NTLM": {
+              "type": "boolean"
+            }
+          }
+        },
+        "AllowProxies": {
+          "type": "object",
+          "properties": {
+            "SPNEGO": {
+              "type": "boolean"
+            },
+
+            "NTLM": {
+              "type": "boolean"
+            }
+          }
+        },
+        "Locked": {
+          "type": "boolean"
+        },
+        "PrivateBrowsing": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "BackgroundAppUpdate": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "BlockAboutAddons": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "BlockAboutConfig": {
+      "type": "boolean",
+      "x-restart-required": false
+    },
+
+    "BlockAboutProfiles": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "BlockAboutSupport": {
+      "type": "boolean",
+      "x-restart-required": false
+    },
+
+    "CaptivePortal": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "Certificates": {
+      "type": "object",
+      "x-restart-required": true,
+      "properties": {
+        "ImportEnterpriseRoots": {
+          "type": "boolean"
+        },
+        "Install": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+
+    "Cookies": {
+      "type": "object",
+      "x-restart-required": false,
+      "properties": {
+        "Allow": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/origin" }
+        },
+
+        "Block": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/origin" }
+        },
+
+        "Default": {
+          "type": "boolean"
+        },
+
+        "AcceptThirdParty": {
+          "type": "string",
+          "enum": ["always", "never", "from-visited"]
+        },
+
+        "ExpireAtSessionEnd": {
+          "type": "boolean"
+        },
+
+        "Locked": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "DefaultDownloadDirectory": {
+      "type": "string",
+      "x-restart-required": true
+    },
+
+    "DisableAppUpdate": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "DisableBuiltinPDFViewer": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "DisableDataCollectionSettings": {
+      "type": "boolean"
+    },
+
+    "DisabledCiphers": {
+      "type": "object",
+      "x-restart-required": true,
+      "properties": {
+        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256": {
+          "type": "boolean"
+        },
+        "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256": {
+          "type": "boolean"
+        },
+        "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256": {
+          "type": "boolean"
+        },
+        "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256": {
+          "type": "boolean"
+        },
+        "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384": {
+          "type": "boolean"
+        },
+        "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384": {
+          "type": "boolean"
+        },
+        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA": {
+          "type": "boolean"
+        },
+        "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA": {
+          "type": "boolean"
+        },
+        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA": {
+          "type": "boolean"
+        },
+        "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA": {
+          "type": "boolean"
+        },
+        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA": {
+          "type": "boolean"
+        },
+        "TLS_DHE_RSA_WITH_AES_256_CBC_SHA": {
+          "type": "boolean"
+        },
+        "TLS_RSA_WITH_AES_128_GCM_SHA256": {
+          "type": "boolean"
+        },
+        "TLS_RSA_WITH_AES_256_GCM_SHA384": {
+          "type": "boolean"
+        },
+        "TLS_RSA_WITH_AES_128_CBC_SHA": {
+          "type": "boolean"
+        },
+        "TLS_RSA_WITH_AES_256_CBC_SHA": {
+          "type": "boolean"
+        },
+        "TLS_RSA_WITH_3DES_EDE_CBC_SHA": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "DisableDeveloperTools": {
+      "type": "boolean",
+      "x-restart-required": false
+    },
+
+    "DisableExperimentalFeatures": {
+      "type": "boolean"
+    },
+
+    "DisableMasterPasswordCreation": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "DisableMessageForwardingFilters": {
+      "type": "boolean"
+    },
+
+    "DisablePasswordReveal": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "DisableQRExport": {
+      "type": "boolean"
+    },
+
+    "DisableSafeMode": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "DisableSecurityBypass": {
+      "type": "object",
+      "x-restart-required": true,
+      "properties": {
+        "InvalidCertificate": {
+          "type": "boolean"
+        },
+
+        "SafeBrowsing": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "DisableSystemAddonUpdate": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "DisableTelemetry": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "DisableUpdateSettings": {
+      "type": "boolean"
+    },
+
+    "DNSOverHTTPS": {
+      "type": "object",
+      "x-restart-required": true,
+      "properties": {
+        "Enabled": {
+          "type": "boolean"
+        },
+        "ProviderURL": { "$ref": "#/definitions/urlOrEmpty" },
+        "ExcludedDomains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Locked": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "DownloadDirectory": {
+      "type": "string",
+      "x-restart-required": true
+    },
+
+    "Extensions": {
+      "type": "object",
+      "x-restart-required": true,
+      "properties": {
+        "Install": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Uninstall": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Locked": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+
+    "ExtensionSettings": {
+      "type": "object",
+      "x-restart-required": false,
+      "contentMediaType": "application/json",
+      "properties": {
+        "*": {
+          "type": "object",
+          "properties": {
+            "installation_mode": {
+              "type": "string",
+              "enum": ["allowed", "blocked"]
+            },
+            "allowed_types": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["extension", "dictionary", "locale", "theme"]
+              }
+            },
+            "blocked_install_message": {
+              "type": "string"
+            },
+            "install_sources": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "restricted_domains": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "patternProperties": {
+        "^(?!\\*$).*$": {
+          "type": "object",
+          "properties": {
+            "installation_mode": {
+              "type": "string",
+              "enum": [
+                "allowed",
+                "blocked",
+                "force_installed",
+                "normal_installed"
+              ]
+            },
+            "install_url": {
+              "type": "string"
+            },
+            "blocked_install_message": {
+              "type": "string"
+            },
+            "updates_disabled": {
+              "type": "boolean"
+            },
+            "update_url": { "$ref": "#/definitions/url" },
+            "private_browsing": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+
+    "ExtensionUpdate": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "Handlers": {
+      "type": "object",
+      "x-restart-required": true,
+      "contentMediaType": "application/json",
+      "patternProperties": {
+        "^(mimeTypes|extensions|schemes)$": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": ["saveToDisk", "useHelperApp", "useSystemDefault"]
+                },
+                "ask": {
+                  "type": "boolean"
+                },
+                "handlers": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "path": {
+                        "type": "string"
+                      },
+                      "uriTemplate": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "HardwareAcceleration": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "InAppNotification": {
+      "type": "object",
+      "properties": {
+        "DonationEnabled": {
+          "type": "boolean"
+        },
+        "SurveyEnabled": {
+          "type": "boolean"
+        },
+        "MessageEnabled": {
+          "type": "boolean"
+        },
+        "Disabled": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "InstallAddonsPermission": {
+      "type": "object",
+      "x-restart-required": true,
+      "properties": {
+        "Allow": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/origin" }
+        },
+        "Default": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "ManualAppUpdateOnly": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "NetworkPrediction": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "OfferToSaveLogins": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "OfferToSaveLoginsDefault": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "PasswordManagerEnabled": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "PDFjs": {
+      "type": "object",
+      "x-restart-required": true,
+      "properties": {
+        "Enabled": {
+          "type": "boolean"
+        },
+        "EnablePermissions": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "Preferences": {
+      "type": "object",
+      "x-restart-required": true,
+      "contentMediaType": "application/json",
+      "patternProperties": {
+        "^.*$": {
+          "type": ["number", "boolean", "string", "object"],
+          "properties": {
+            "Value": {
+              "type": ["number", "boolean", "string"]
+            },
+            "Status": {
+              "type": "string",
+              "enum": ["default", "locked", "user", "clear"]
+            }
+          }
+        }
+      }
+    },
+
+    "PrimaryPassword": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "PromptForDownloadLocation": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
+    "Proxy": {
+      "type": "object",
+      "x-restart-required": false,
+      "properties": {
+        "Mode": {
+          "type": "string",
+          "enum": ["none", "system", "manual", "autoDetect", "autoConfig"]
+        },
+
+        "Locked": {
+          "type": "boolean"
+        },
+
+        "AutoConfigURL": { "$ref": "#/definitions/urlOrEmpty" },
+
+        "FTPProxy": {
+          "type": "string"
+        },
+
+        "HTTPProxy": {
+          "type": "string"
+        },
+
+        "SSLProxy": {
+          "type": "string"
+        },
+
+        "SOCKSProxy": {
+          "type": "string"
+        },
+
+        "SOCKSVersion": {
+          "type": "number",
+          "enum": [4, 5]
+        },
+
+        "UseHTTPProxyForAllProtocols": {
+          "type": "boolean"
+        },
+
+        "Passthrough": {
+          "type": "string"
+        },
+
+        "UseProxyForDNS": {
+          "type": "boolean"
+        },
+
+        "AutoLogin": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "RequestedLocales": {
+      "type": ["string", "array"],
+      "x-restart-required": true,
+      "items": {
+        "type": "string"
+      }
+    },
+
+    "SearchEngines": {
+      "enterprise_only": true,
+
+      "type": "object",
+      "x-restart-required": true,
+      "properties": {
+        "Add": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["Name", "URLTemplate"],
+
+            "properties": {
+              "Name": {
+                "type": "string"
+              },
+              "IconURL": { "$ref": "#/definitions/urlOrEmpty" },
+              "Alias": {
+                "type": "string"
+              },
+              "Description": {
+                "type": "string"
+              },
+              "Encoding": {
+                "type": "string"
+              },
+              "Method": {
+                "type": "string",
+                "enum": ["GET", "POST"]
+              },
+              "URLTemplate": {
+                "type": "string"
+              },
+              "PostData": {
+                "type": "string"
+              },
+              "SuggestURLTemplate": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "Default": {
+          "type": "string"
+        },
+        "DefaultPrivate": {
+          "type": "string"
+        },
+        "PreventInstalls": {
+          "type": "boolean"
+        },
+        "Remove": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+
+    "SecurityDevices": {
+      "type": "object",
+      "x-restart-required": true,
+      "patternProperties": {
+        "^(?!Add$|Delete$).*$": { "type": "string" }
+      },
+      "properties": {
+        "Add": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": { "type": "string" }
+          }
+        },
+        "Delete": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+
+    "SSLVersionMax": {
+      "type": "string",
+      "x-restart-required": true,
+      "enum": ["tls1", "tls1.1", "tls1.2", "tls1.3"]
+    },
+
+    "SSLVersionMin": {
+      "type": "string",
+      "x-restart-required": true,
+      "enum": ["tls1", "tls1.1", "tls1.2", "tls1.3"]
+    }
+  }
+}

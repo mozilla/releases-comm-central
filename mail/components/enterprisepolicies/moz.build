@@ -18,6 +18,7 @@ EXTRA_JS_MODULES.policies += [
 
 TESTING_JS_MODULES.policies_browser += [
     "/browser/components/enterprisepolicies/Policies.sys.mjs",
+    "/browser/components/enterprisepolicies/schemas/policies-schema.json",
 ]
 
 JAR_MANIFESTS += [

@@ -30,12 +30,14 @@ ChromeUtils.defineESModuleGetters(lazy, {
   applyExtensionGuards: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   blockAboutPage: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   clearBlockedAboutPages: "resource://gre/modules/PoliciesHelpers.sys.mjs",
+  clearRunOnceModification: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   installAddonFromURL: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   installAddonFromRepository: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   pemToBase64: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   processMIMEInfo: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   replacePathVariables: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   runOncePerModification: "resource://gre/modules/PoliciesHelpers.sys.mjs",
+  unblockAboutPage: "resource://gre/modules/PoliciesHelpers.sys.mjs",
 });
 
 const PREF_LOGLEVEL = "browser.policies.loglevel";
@@ -1341,7 +1343,6 @@ export var Policies = {
         "app.update.lastUpdateTime",
         "app.update.migrated",
       ];
-
       for (const preference in param) {
         if (blockedPrefs.includes(preference)) {
           lazy.log.error(
@@ -1693,3 +1694,682 @@ export var Policies = {
     },
   },
 };
+
+if (AppConstants.MOZ_ENTERPRISE) {
+  Policies.BlockAboutConfig = {
+    onBeforeUIStartup(manager, param) {
+      if (param) {
+        lazy.blockAboutPage(manager, "about:config");
+        lazy.PoliciesUtils.setAndLockPref("devtools.chrome.enabled", false);
+      } else {
+        lazy.unblockAboutPage(manager, "about:config");
+        lazy.PoliciesUtils.setAndLockPref("devtools.chrome.enabled", true);
+      }
+    },
+    onRemove(manager, _) {
+      lazy.unblockAboutPage(manager, "about:config");
+      lazy.PoliciesUtils.unsetAndUnlockPref("devtools.chrome.enabled");
+    },
+  };
+
+  Policies.BlockAboutSupport = {
+    onBeforeUIStartup(manager, param) {
+      if (param) {
+        lazy.blockAboutPage(manager, "about:support");
+        manager.disallowFeature("aboutSupport");
+      } else {
+        lazy.unblockAboutPage(manager, "about:support");
+        manager.allowFeature("aboutSupport");
+      }
+    },
+    onRemove(manager, _oldParams) {
+      lazy.unblockAboutPage(manager, "about:support");
+      manager.allowFeature("aboutSupport");
+    },
+  };
+
+  Policies.Cookies = {
+    onBeforeUIStartup(manager, param) {
+      lazy.addAllowDenyPermissions("cookie", param.Allow, param.Block);
+
+      // Backwards-compat shim (Bug 2051574): before Bug 1767271, Cookies.Allow
+      // doubled as the clear-on-shutdown exception list. Sites are now exempted
+      // via the dedicated SanitizeOnShutdown.Exceptions key. If an admin hasn't
+      // adopted that key yet, treat Cookies.Allow entries as shutdown exceptions
+      // too. Remove this shim once admins have had a couple of releases to
+      // migrate.
+      if (
+        param.Allow?.length &&
+        !manager.getActivePolicies()?.SanitizeOnShutdown?.Exceptions?.length
+      ) {
+        lazy.log.warn(
+          "Using Cookies.Allow to exempt sites from clear-on-shutdown is " +
+            "deprecated and will stop working in a future release. Use the " +
+            "SanitizeOnShutdown.Exceptions policy instead."
+        );
+        lazy.addAllowDenyPermissions("persist-data-on-shutdown", param.Allow);
+      }
+
+      if (param.AllowSession) {
+        for (const origin of param.AllowSession) {
+          try {
+            Services.perms.addFromPrincipal(
+              Services.scriptSecurityManager.createContentPrincipalFromOrigin(
+                origin
+              ),
+              "cookie",
+              Ci.nsICookiePermission.ACCESS_SESSION,
+              Ci.nsIPermissionManager.EXPIRE_POLICY
+            );
+          } catch (ex) {
+            lazy.log.error(
+              `Unable to add cookie session permission - ${origin.href}`
+            );
+          }
+        }
+      }
+
+      if (param.Block) {
+        const hosts = param.Block.map(url => url.hostname)
+          .sort()
+          .join("\n");
+        lazy.runOncePerModification(
+          "clearCookiesForBlockedHosts",
+          hosts,
+          () => {
+            for (const blocked of param.Block) {
+              Services.cookies.removeCookiesWithOriginAttributes(
+                "{}",
+                blocked.hostname
+              );
+            }
+          }
+        );
+      }
+
+      if (param.ExpireAtSessionEnd != undefined) {
+        lazy.log.error(
+          "'ExpireAtSessionEnd' has been deprecated and it has no effect anymore."
+        );
+      }
+
+      // New Cookie Behavior option takes precendence
+      const defaultPref = Services.prefs.getDefaultBranch("");
+      let newCookieBehavior = defaultPref.getIntPref(
+        "network.cookie.cookieBehavior"
+      );
+      let newCookieBehaviorPB = defaultPref.getIntPref(
+        "network.cookie.cookieBehavior.pbmode"
+      );
+      if ("Behavior" in param || "BehaviorPrivateBrowsing" in param) {
+        const behaviors = {
+          accept: Ci.nsICookieService.BEHAVIOR_ACCEPT,
+          "reject-foreign": Ci.nsICookieService.BEHAVIOR_REJECT_FOREIGN,
+          reject: Ci.nsICookieService.BEHAVIOR_REJECT,
+          "limit-foreign": Ci.nsICookieService.BEHAVIOR_LIMIT_FOREIGN,
+          "reject-tracker": Ci.nsICookieService.BEHAVIOR_REJECT_TRACKER,
+          "reject-tracker-and-partition-foreign":
+            Ci.nsICookieService.BEHAVIOR_PARTITION_FOREIGN,
+          "partition-foreign": Ci.nsICookieService.BEHAVIOR_PARTITION_FOREIGN,
+        };
+        if ("Behavior" in param) {
+          newCookieBehavior = behaviors[param.Behavior];
+        }
+        if ("BehaviorPrivateBrowsing" in param) {
+          newCookieBehaviorPB = behaviors[param.BehaviorPrivateBrowsing];
+        }
+      } else {
+        // Default, AcceptThirdParty, and RejectTracker are being
+        // deprecated in favor of Behavior. They will continue
+        // to be supported, though.
+        if (
+          param.Default !== undefined ||
+          param.AcceptThirdParty !== undefined ||
+          param.RejectTracker !== undefined ||
+          param.Locked
+        ) {
+          newCookieBehavior = Ci.nsICookieService.BEHAVIOR_ACCEPT;
+          if (param.Default !== undefined && !param.Default) {
+            newCookieBehavior = Ci.nsICookieService.BEHAVIOR_REJECT;
+          } else if (param.AcceptThirdParty) {
+            if (param.AcceptThirdParty == "never") {
+              newCookieBehavior = Ci.nsICookieService.BEHAVIOR_REJECT_FOREIGN;
+            } else if (param.AcceptThirdParty == "from-visited") {
+              newCookieBehavior = Ci.nsICookieService.BEHAVIOR_LIMIT_FOREIGN;
+            }
+          } else if (param.RejectTracker) {
+            newCookieBehavior = Ci.nsICookieService.BEHAVIOR_REJECT_TRACKER;
+          }
+        }
+        // With the old cookie policy, we made private browsing the same.
+        newCookieBehaviorPB = newCookieBehavior;
+      }
+      // We set the values no matter what just in case the policy was only used to lock.
+      lazy.PoliciesUtils.setDefaultPref(
+        "network.cookie.cookieBehavior",
+        newCookieBehavior,
+        param.Locked
+      );
+      lazy.PoliciesUtils.setDefaultPref(
+        "network.cookie.cookieBehavior.pbmode",
+        newCookieBehaviorPB,
+        param.Locked
+      );
+    },
+    onRemove(manager, param) {
+      for (const origin of [
+        ...(param.Allow ?? []),
+        ...(param.Block ?? []),
+        ...(param.AllowSession ?? []),
+      ]) {
+        try {
+          Services.perms.removeFromPrincipal(
+            Services.scriptSecurityManager.createContentPrincipalFromOrigin(
+              origin
+            ),
+            "cookie"
+          );
+        } catch (ex) {
+          lazy.log.error(
+            `Unable to remove cookie permission - ${origin.href || origin}`
+          );
+        }
+      }
+      // persist-data-on-shutdown entries added by the deprecated Allow shim
+      // (see onBeforeUIStartup) are left in place as the shim is being removed
+      // in one of the next releases, and SanitizeOnShutdown.Exceptions
+      // owns these entries going forward.
+      lazy.clearRunOnceModification("clearCookiesForBlockedHosts");
+      lazy.PoliciesUtils.unsetDefaultPref("network.cookie.cookieBehavior");
+      lazy.PoliciesUtils.unsetDefaultPref(
+        "network.cookie.cookieBehavior.pbmode"
+      );
+    },
+  };
+
+  Policies.DisableDeveloperTools = {
+    onBeforeAddons(manager, param) {
+      if (param) {
+        lazy.PoliciesUtils.setAndLockPref("devtools.policy.disabled", true);
+        lazy.PoliciesUtils.setAndLockPref("devtools.chrome.enabled", false);
+
+        manager.disallowFeature("devtools");
+        lazy.blockAboutPage(manager, "about:debugging");
+        lazy.blockAboutPage(manager, "about:devtools-toolbox");
+      } else {
+        lazy.PoliciesUtils.setAndLockPref("devtools.policy.disabled", false);
+        lazy.PoliciesUtils.setAndLockPref("devtools.chrome.enabled", true);
+
+        manager.allowFeature("devtools");
+        lazy.unblockAboutPage(manager, "about:debugging");
+        lazy.unblockAboutPage(manager, "about:devtools-toolbox");
+      }
+    },
+    onRemove(manager, _) {
+      lazy.PoliciesUtils.unsetAndUnlockPref("devtools.policy.disabled");
+      lazy.PoliciesUtils.unsetAndUnlockPref("devtools.chrome.enabled");
+
+      manager.allowFeature("devtools");
+      lazy.unblockAboutPage(manager, "about:debugging");
+      lazy.unblockAboutPage(manager, "about:devtools-toolbox");
+    },
+  };
+
+  Policies.DownloadTelemetry = {
+    onBeforeAddons(manager, param) {
+      if (param && typeof param === "object") {
+        // Enable/disable download telemetry
+        if (typeof param.Enabled === "boolean") {
+          lazy.PoliciesUtils.setAndLockPref(
+            "browser.download.enterprise.telemetry.enabled",
+            param.Enabled
+          );
+        }
+
+        // Set URL logging level
+        if (
+          typeof param.UrlLogging === "string" &&
+          ["full", "domain", "none"].includes(param.UrlLogging)
+        ) {
+          lazy.PoliciesUtils.setAndLockPref(
+            "browser.download.enterprise.telemetry.urlLogging",
+            param.UrlLogging
+          );
+        }
+
+        // Set file logging level
+        if (
+          typeof param.FileLogging === "string" &&
+          ["full", "metadata", "none"].includes(param.FileLogging)
+        ) {
+          lazy.PoliciesUtils.setAndLockPref(
+            "browser.download.enterprise.telemetry.fileLogging",
+            param.FileLogging
+          );
+        }
+      }
+    },
+    onRemove(manager, oldParams) {
+      if (oldParams && typeof oldParams === "object") {
+        if ("Enabled" in oldParams) {
+          lazy.PoliciesUtils.unsetAndUnlockPref(
+            "browser.download.enterprise.telemetry.enabled"
+          );
+        }
+        if ("UrlLogging" in oldParams) {
+          lazy.PoliciesUtils.unsetAndUnlockPref(
+            "browser.download.enterprise.telemetry.urlLogging"
+          );
+        }
+        if ("FileLogging" in oldParams) {
+          lazy.PoliciesUtils.unsetAndUnlockPref(
+            "browser.download.enterprise.telemetry.fileLogging"
+          );
+        }
+      }
+    },
+  };
+
+  Policies.EnterpriseStorageEncryption = {
+    onBeforeUIStartup(manager, param) {
+      lazy.PoliciesUtils.setAndLockPref(
+        "security.storage.encryption.enabled",
+        param
+      );
+    },
+  };
+
+  Policies.ExtensionSettings = {
+    onBeforeAddons(manager, param) {
+      try {
+        manager.setExtensionSettings(param);
+      } catch (e) {
+        lazy.log.error(
+          `Some ExtensionSettings could not be applied: ${e.message}`
+        );
+      }
+      try {
+        lazy.applyExtensionGuards(param);
+      } catch (e) {
+        lazy.log.error(
+          `Invalid runtime_blocked_hosts/runtime_allowed_hosts in ` +
+            `ExtensionSettings: ${e.message}`
+        );
+      }
+    },
+    async onBeforeUIStartup(manager, param) {
+      const extensionSettings = param;
+      let blockAllExtensions = false;
+      if ("*" in extensionSettings) {
+        if (
+          "installation_mode" in extensionSettings["*"] &&
+          extensionSettings["*"].installation_mode == "blocked"
+        ) {
+          blockAllExtensions = true;
+          // Turn off discovery pane in about:addons
+          lazy.PoliciesUtils.setAndLockPref(
+            "extensions.getAddons.showPane",
+            false
+          );
+          // Turn off recommendations
+          lazy.PoliciesUtils.setAndLockPref(
+            "extensions.htmlaboutaddons.recommendations.enabled",
+            false
+          );
+          manager.disallowFeature("installTemporaryAddon");
+        }
+        if ("restricted_domains" in extensionSettings["*"]) {
+          const restrictedDomains = Services.prefs
+            .getCharPref("extensions.webextensions.restrictedDomains")
+            .split(",");
+          lazy.PoliciesUtils.setAndLockPref(
+            "extensions.webextensions.restrictedDomains",
+            restrictedDomains
+              .concat(extensionSettings["*"].restricted_domains)
+              .join(",")
+          );
+        }
+      }
+      const addons = new Map();
+      for (const a of await lazy.AddonManager.getAllAddons()) {
+        addons.set(a.id, a);
+      }
+      const allowedExtensions = [];
+      for (const extensionID in extensionSettings) {
+        if (extensionID == "*") {
+          // Ignore global settings
+          continue;
+        }
+        if ("installation_mode" in extensionSettings[extensionID]) {
+          if (
+            extensionSettings[extensionID].installation_mode ==
+              "force_installed" ||
+            extensionSettings[extensionID].installation_mode ==
+              "normal_installed"
+          ) {
+            const existingAddon = addons.get(extensionID);
+            if (extensionSettings[extensionID].install_url) {
+              lazy.installAddonFromURL(
+                extensionSettings[extensionID].install_url,
+                extensionID,
+                existingAddon
+              );
+            } else if (!existingAddon) {
+              lazy.installAddonFromRepository(extensionID);
+            }
+            manager.disallowFeature(`uninstall-extension:${extensionID}`);
+            if (
+              extensionSettings[extensionID].installation_mode ==
+              "force_installed"
+            ) {
+              manager.disallowFeature(`disable-extension:${extensionID}`);
+            }
+            allowedExtensions.push(extensionID);
+          } else if (
+            extensionSettings[extensionID].installation_mode == "allowed"
+          ) {
+            allowedExtensions.push(extensionID);
+          } else if (
+            extensionSettings[extensionID].installation_mode == "blocked"
+          ) {
+            if (addons.has(extensionID)) {
+              // Can't use the addon from getActiveAddons since it doesn't have uninstall.
+              const addon = await lazy.AddonManager.getAddonByID(extensionID);
+              try {
+                await addon.uninstall();
+                addons.delete(extensionID);
+              } catch (e) {
+                // This can fail for add-ons that can't be uninstalled.
+                lazy.log.debug(
+                  `Add-on ID (${addon.id}) couldn't be uninstalled.`
+                );
+              }
+            }
+          }
+        }
+      }
+      const allowedTypes = extensionSettings["*"]?.allowed_types;
+      if (blockAllExtensions || allowedTypes) {
+        for (const addon of addons.values()) {
+          if (
+            addon.isSystem ||
+            addon.isBuiltin ||
+            !(addon.scope & lazy.AddonManager.SCOPE_PROFILE)
+          ) {
+            continue;
+          }
+          // Match Chrome: any per-id ExtensionSettings entry (even empty)
+          // shadows the "*" defaults entirely, so an addon with its own
+          // entry is exempt from blockAllExtensions.
+          if (
+            !allowedExtensions.includes(addon.id) &&
+            !(blockAllExtensions && addon.id in extensionSettings) &&
+            (blockAllExtensions || !allowedTypes.includes(addon.type))
+          ) {
+            try {
+              // Can't use the addon from getActiveAddons since it doesn't have uninstall.
+              const addonToUninstall = await lazy.AddonManager.getAddonByID(
+                addon.id
+              );
+              await addonToUninstall.uninstall();
+              addons.delete(addon.id);
+            } catch (e) {
+              // This can fail for add-ons that can't be uninstalled.
+              lazy.log.debug(
+                `Add-on ID (${addon.id}) couldn't be uninstalled.`
+              );
+            }
+          }
+        }
+      }
+
+      // Revoke any granted optional permissions that are now blocked. The
+      // appDisabled refresh below handles addons whose required permissions
+      // are blocked (via mayInstallAddon -> isUsableAddon).
+      for (const addon of addons.values()) {
+        if (
+          addon.isSystem ||
+          addon.isBuiltin ||
+          !(addon.scope & lazy.AddonManager.SCOPE_PROFILE)
+        ) {
+          continue;
+        }
+        const blockedPerms =
+          Services.policies.getExtensionSettings(addon.id)
+            ?.blocked_permissions ?? [];
+        if (!blockedPerms.length) {
+          continue;
+        }
+        try {
+          const granted = await lazy.ExtensionPermissions.get(addon.id);
+          const toRemove = granted.permissions.filter(perm =>
+            blockedPerms.includes(perm)
+          );
+          if (toRemove.length) {
+            const extension = WebExtensionPolicy.getByID(addon.id)?.extension;
+            await lazy.ExtensionPermissions.remove(
+              addon.id,
+              { permissions: toRemove, origins: [], data_collection: [] },
+              extension
+            );
+          }
+        } catch (e) {
+          lazy.log.debug(
+            `Could not revoke blocked optional permissions for ${addon.id}: ${e}`
+          );
+        }
+      }
+      // Recompute appDisabled across all addons against the new policy. This
+      // catches addons whose required permissions are now blocked (via
+      // mayInstallAddon) without persisting userDisabled, so an update that
+      // drops the blocked permission re-enables the addon automatically.
+      lazy.AddonManagerPrivate.updateAddonAppDisabledStates();
+    },
+    onRemove(manager, oldParam) {
+      // Revert to the no-policy baseline: clear the settings object and host
+      // guards, unlock the prefs, and release the feature locks it set.
+      // Note: It does not undo the policy's one-way actions. Uninstalled extensions are not
+      // reinstalled and permissions revoked under blocked_permissions are not
+      // re-granted.
+      manager.setExtensionSettings({});
+      try {
+        lazy.applyExtensionGuards({});
+      } catch (e) {
+        lazy.log.error(
+          `Could not clear ExtensionSettings guards: ${e.message}`
+        );
+      }
+
+      lazy.PoliciesUtils.unsetDefaultPref("extensions.getAddons.showPane");
+      lazy.PoliciesUtils.unsetDefaultPref(
+        "extensions.htmlaboutaddons.recommendations.enabled"
+      );
+      lazy.PoliciesUtils.unsetDefaultPref(
+        "extensions.webextensions.restrictedDomains"
+      );
+
+      const activePolicies = manager.getActivePolicies();
+
+      // Don't re-allow installTemporaryAddon if it's still
+      // disallowed by the InstallAddonsPermission policy.
+      if (
+        oldParam["*"]?.installation_mode == "blocked" &&
+        activePolicies?.InstallAddonsPermission?.Default !== false
+      ) {
+        manager.allowFeature("installTemporaryAddon");
+      }
+
+      // Don't re-allow uninstall-/disable-extension:<id> if it's
+      // still disallowed by the Extensions policy.
+      const lockedByExtensions = new Set(
+        activePolicies?.Extensions?.Locked ?? []
+      );
+      for (const extensionID in oldParam) {
+        if (extensionID == "*" || lockedByExtensions.has(extensionID)) {
+          continue;
+        }
+        const mode = oldParam[extensionID].installation_mode;
+        if (mode == "force_installed" || mode == "normal_installed") {
+          manager.allowFeature(`uninstall-extension:${extensionID}`);
+          if (mode == "force_installed") {
+            manager.allowFeature(`disable-extension:${extensionID}`);
+          }
+        }
+      }
+
+      lazy.AddonManagerPrivate.updateAddonAppDisabledStates();
+    },
+  };
+
+  Policies.Proxy = {
+    onBeforeAddons(manager, param) {
+      if (param.Locked) {
+        manager.disallowFeature("changeProxySettings");
+      }
+      lazy.ProxyPolicies.configureProxySettings(
+        param,
+        lazy.PoliciesUtils.setDefaultPref.bind(lazy.PoliciesUtils)
+      );
+    },
+    onRemove(manager, oldParams) {
+      if (oldParams.Locked) {
+        manager.allowFeature("changeProxySettings");
+      }
+      lazy.ProxyPolicies.resetProxySettings(
+        lazy.PoliciesUtils.unsetDefaultPref.bind(lazy.PoliciesUtils)
+      );
+    },
+  };
+
+  Policies.Preferences = {
+    onBeforeAddons(manager, param) {
+      const allowedPrefixes = [
+        "accessibility.",
+        "app.update.",
+        "browser.",
+        "calendar.",
+        "chat.",
+        "datareporting.policy.",
+        "dom.",
+        "extensions.",
+        "general.autoScroll",
+        "general.smoothScroll",
+        "geo.",
+        "gfx.",
+        "intl.",
+        "layers.",
+        "layout.",
+        "mail.",
+        "mailnews.",
+        "media.",
+        "network.",
+        "pdfjs.",
+        "places.",
+        "print.",
+        "signon.",
+        "spellchecker.",
+        "ui.",
+        "widget.",
+      ];
+      const allowedSecurityPrefs = [
+        "security.default_personal_cert",
+        "security.insecure_connection_text.enabled",
+        "security.insecure_connection_text.pbmode.enabled",
+        "security.insecure_field_warning.contextual.enabled",
+        "security.mixed_content.block_active_content",
+        "security.osclientcerts.autoload",
+        "security.ssl.errorReporting.enabled",
+        "security.tls.hello_downgrade_check",
+        "security.tls.version.enable-deprecated",
+        "security.warn_submit_secure_to_insecure",
+      ];
+      const blockedPrefs = [
+        "app.update.channel",
+        "app.update.lastUpdateTime",
+        "app.update.migrated",
+      ];
+
+      for (const preference in param) {
+        if (blockedPrefs.includes(preference)) {
+          lazy.log.error(
+            `Unable to set preference ${preference}. Preference not allowed for security reasons.`
+          );
+          continue;
+        }
+        if (preference.startsWith("security.")) {
+          if (!allowedSecurityPrefs.includes(preference)) {
+            lazy.log.error(
+              `Unable to set preference ${preference}. Preference not allowed for security reasons.`
+            );
+            continue;
+          }
+        } else if (
+          !allowedPrefixes.some(prefix => preference.startsWith(prefix))
+        ) {
+          lazy.log.error(
+            `Unable to set preference ${preference}. Preference not allowed for stability reasons.`
+          );
+          continue;
+        }
+        if (typeof param[preference] != "object") {
+          // Legacy policy preferences
+          lazy.PoliciesUtils.setAndLockPref(preference, param[preference]);
+        } else {
+          if (param[preference].Status == "clear") {
+            Services.prefs.clearUserPref(preference);
+            continue;
+          }
+
+          let prefBranch;
+          if (param[preference].Status == "user") {
+            prefBranch = Services.prefs;
+          } else {
+            prefBranch = Services.prefs.getDefaultBranch("");
+          }
+
+          try {
+            switch (typeof param[preference].Value) {
+              case "boolean":
+                prefBranch.setBoolPref(preference, param[preference].Value);
+                break;
+
+              case "number":
+                if (!Number.isInteger(param[preference].Value)) {
+                  throw new Error(`Non-integer value for ${preference}`);
+                }
+
+                // This is ugly, but necessary. On Windows GPO and macOS
+                // configs, booleans are converted to 0/1. In the previous
+                // Preferences implementation, the schema took care of
+                // automatically converting these values to booleans.
+                // Since we allow arbitrary prefs now, we have to do
+                // something different. See bug 1666836.
+                if (
+                  param[preference].Type == "number" ||
+                  prefBranch.getPrefType(preference) == prefBranch.PREF_INT ||
+                  ![0, 1].includes(param[preference].Value)
+                ) {
+                  prefBranch.setIntPref(preference, param[preference].Value);
+                } else {
+                  prefBranch.setBoolPref(preference, !!param[preference].Value);
+                }
+                break;
+
+              case "string":
+                prefBranch.setStringPref(preference, param[preference].Value);
+                break;
+            }
+          } catch (e) {
+            lazy.log.error(
+              `Unable to set preference ${preference}. Probable type mismatch.`
+            );
+          }
+
+          if (param[preference].Status == "locked") {
+            Services.prefs.lockPref(preference);
+          }
+        }
+      }
+    },
+  };
+}
