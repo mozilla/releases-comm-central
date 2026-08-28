@@ -15,17 +15,26 @@ Date: Tue, 01 Feb 2000 00:00:00 +1300
   <body>
     <form>
       <div>
-        <input type="date" />
+        <label>
+          Date
+          <input type="date" />
+        </label>
       </div>
       <div>
-        <select>
-          <option value=""></option>
-          <option value="3.141592654">&pi;</option>
-          <option value="6.283185308">&tau;</option>
-        </select>
+        <label>
+          Circle constant
+          <select>
+            <option value=""></option>
+            <option value="3.141592654">&pi;</option>
+            <option value="6.283185308">&tau;</option>
+          </select>
+        </label>
       </div>
       <div>
-        <input list="letters"/>
+        <label>
+          Letter
+          <input list="letters"/>
+        </label>
         <datalist id="letters">
           <option value="alpha"/>
           <option value="beta"/>

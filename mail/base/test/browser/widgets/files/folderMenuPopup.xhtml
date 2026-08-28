@@ -20,26 +20,26 @@
   </head>
   <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     noMode
-    <menulist id="noMode" class="folderMenuItem">
+    <menulist id="noMode" class="folderMenuItem" aria-label="noMode">
       <menupopup is="folder-menupopup"/>
     </menulist>
 
     filingServers
-    <menulist id="filingServers" class="folderMenuItem">
+    <menulist id="filingServers" class="folderMenuItem" aria-label="filingServers">
       <menupopup is="folder-menupopup"
                  mode="filing"
                  expandFolders="false"/>
     </menulist>
 
     filingFolders
-    <menulist id="filingFolders" class="folderMenuItem">
+    <menulist id="filingFolders" class="folderMenuItem" aria-label="filingFolders">
       <menupopup is="folder-menupopup"
                  mode="filing"
                  showFileHereLabel="true"/>
     </menulist>
 
     filingServersAndFolders
-    <menulist id="filingServersAndFolders" class="folderMenuItem">
+    <menulist id="filingServersAndFolders" class="folderMenuItem" aria-label="filingServersAndFolders">
       <menupopup is="folder-menupopup"
                  mode="filing"
                  showAccountsFileHere="true"
@@ -47,7 +47,7 @@
     </menulist>
 
     filingSpecials
-    <menulist id="filingSpecials" class="folderMenuItem">
+    <menulist id="filingSpecials" class="folderMenuItem" aria-label="filingSpecials">
       <menupopup is="folder-menupopup"
                  mode="filing"
                  showAccountsFileHere="true"
@@ -58,7 +58,7 @@
     </menulist>
 
     searchServersAndFolders
-    <menulist id="searchServersAndFolders" class="folderMenuItem">
+    <menulist id="searchServersAndFolders" class="folderMenuItem" aria-label="searchServersAndFolders">
       <menupopup is="folder-menupopup"
                  mode="search"
                  showAccountsFileHere="true"
@@ -66,7 +66,7 @@
     </menulist>
 
     getMail
-    <menulist id="getMail" class="folderMenuItem">
+    <menulist id="getMail" class="folderMenuItem" aria-label="getMail">
       <menupopup is="folder-menupopup"
                  mode="getMail"
                  expandFolders="false">
@@ -76,35 +76,35 @@
     </menulist>
 
     newFolder
-    <menulist id="newFolder" class="folderMenuItem">
+    <menulist id="newFolder" class="folderMenuItem" aria-label="newFolder">
       <menupopup is="folder-menupopup"
                  mode="newFolder"
                  showFileHereLabel="true"/>
     </menulist>
 
     subscribe
-    <menulist id="subscribe" class="folderMenuItem">
+    <menulist id="subscribe" class="folderMenuItem" aria-label="subscribe">
       <menupopup is="folder-menupopup"
                  mode="subscribe"
                  expandFolders="false"/>
     </menulist>
 
     deferred
-    <menulist id="deferred" class="folderMenuItem">
+    <menulist id="deferred" class="folderMenuItem" aria-label="deferred">
       <menupopup is="folder-menupopup"
                  mode="deferred"
                  expandFolders="false"/>
     </menulist>
 
     notDeferred
-    <menulist id="notDeferred" class="folderMenuItem">
+    <menulist id="notDeferred" class="folderMenuItem" aria-label="notDeferred">
       <menupopup is="folder-menupopup"
                  mode="notDeferred"
                  showFileHereLabel="true"/>
     </menulist>
 
     feeds
-    <menulist id="feeds" class="folderMenuItem">
+    <menulist id="feeds" class="folderMenuItem" aria-label="feeds">
       <menupopup is="folder-menupopup"
                  mode="feeds"
                  showFileHereLabel="true"

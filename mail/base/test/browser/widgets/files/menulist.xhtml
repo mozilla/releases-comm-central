@@ -11,21 +11,24 @@
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <button id="before" label="I'm just a button" onclick="alert('I\'m a button!')"/>
 
-  <menulist>
+  <menulist aria-label="Plain menu list">
     <menupopup>
       <menuitem value="foo" label="foo"/>
       <menuitem value="bar" label="bar"/>
     </menupopup>
   </menulist>
 
-  <menulist is="menulist-editable">
+  <menulist is="menulist-editable" aria-label="Editable menu list">
     <menupopup>
       <menuitem value="foo" label="foo"/>
       <menuitem value="bar" label="bar"/>
     </menupopup>
   </menulist>
 
-  <menulist is="menulist-editable" editable="true" width="100">
+  <menulist is="menulist-editable"
+            editable="true"
+            width="100"
+            aria-label="Editable text menu list">
     <menupopup>
       <menuitem value="foo" label="foo"/>
       <menuitem value="bar" label="bar"/>
