@@ -63,6 +63,7 @@ def handle_keyed_by_local(config, jobs):
             **{
                 "release-type": config.params["release_type"],
                 "release-level": release_level(config.graph_config["release-branches"], config.params),
+                "project": config.params["project"],
             },
         )
         yield job

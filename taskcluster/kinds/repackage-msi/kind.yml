@@ -14,11 +14,13 @@ transforms:
 kind-dependencies:
     - repackage-signing
     - repackage-signing-l10n
+    - enterprise-repack-repackage
     - fetch
 
 only-for-build-platforms:
     - win32-shippable/opt
     - win64-shippable/opt
+    - win64-enterprise-shippable/opt
 
 tasks:
     repackage-msi:
@@ -42,6 +44,11 @@ tasks:
                         - repackage/base.py
                         - repackage/tb_win32_sfx_stub.py
                         - repackage/win64_signed.py
+        msi:
+            display-name:
+                by-shipping-product:
+                    thunderbird-enterprise: "Thunderbird Enterprise"
+                    default: "Thunderbird"
         package-formats: [msi]
         fetches:
             fetch:

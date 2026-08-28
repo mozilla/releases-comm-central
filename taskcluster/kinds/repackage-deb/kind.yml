@@ -6,6 +6,7 @@ loader: taskgraph.loader.transform:loader
 
 transforms:
     - taskgraph.transforms.from_deps
+    - comm_taskgraph.transforms.enterprise:rewrite_shipping_phase
     - gecko_taskgraph.transforms.name_sanity
     - gecko_taskgraph.transforms.repackage
     - gecko_taskgraph.transforms.job
@@ -14,9 +15,12 @@ transforms:
 kind-dependencies:
     - build-signing
     - toolchain
+    - enterprise-repack
 
 only-for-build-platforms:
     - linux64-shippable/opt
+    - linux64-enterprise-shippable/opt
+    - linux64-aarch64-enterprise-shippable/opt
 
 only-for-attributes:
     - nightly

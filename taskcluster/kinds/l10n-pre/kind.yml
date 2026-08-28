@@ -24,9 +24,18 @@ task-defaults:
         env:
             MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE: system
     use-python: default
-    locale-list: comm/mail/locales/onchange-locales
-    comm-locales-file: comm/mail/locales/l10n-changesets.json
-    browser-locales-file: browser/locales/l10n-changesets.json
+    locale-list:
+        by-project:
+            enterprise-thunderbird: comm/mail/locales/all-locales-enterprise
+            default: comm/mail/locales/onchange-locales
+    comm-locales-file:
+        by-project:
+            enterprise-thunderbird: comm/mail/locales/enterprise-l10n-changesets.json
+            default: comm/mail/locales/l10n-changesets.json
+    browser-locales-file:
+        by-project:
+            enterprise-thunderbird: browser/locales/enterprise-l10n-changesets.json
+            default: browser/locales/l10n-changesets.json
     run:
         using: mozharness
         comm-checkout: true
@@ -40,10 +49,18 @@ task-defaults:
         config-paths:
             - comm/testing/mozharness/configs
         config:
-            - single_locale/linux64.py
-            - single_locale/tc_common.py
-            - single_locale/thunderbird_split_l10n.py
-            - taskcluster_nightly.py
+            by-project:
+                enterprise-thunderbird:
+                    - single_locale/linux64.py
+                    - single_locale/tc_common.py
+                    - single_locale/thunderbird_split_l10n.py
+                    - single_locale/enterprise_thunderbird_split_l10n.py
+                    - taskcluster_nightly.py
+                default:
+                    - single_locale/linux64.py
+                    - single_locale/tc_common.py
+                    - single_locale/thunderbird_split_l10n.py
+                    - taskcluster_nightly.py
         options: []
     run-on-projects: ['ash']
     optimization: null

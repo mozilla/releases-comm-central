@@ -5,6 +5,7 @@
 loader: taskgraph.loader.transform:loader
 
 transforms:
+    - comm_taskgraph.transforms.enterprise:remove_enterprise_complete
     - taskgraph.transforms.task_context
     - taskgraph.transforms.from_deps
     - gecko_taskgraph.transforms.task

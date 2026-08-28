@@ -1,0 +1,30 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+loader: comm_taskgraph.loader.merge:loader
+only-for-project: enterprise-thunderbird
+reference-base-path: taskcluster/kinds
+
+kind-dependencies:
+    - enterprise-repack-mac-signing
+
+only-for-build-platforms:
+    - macosx64-shippable/opt
+    - macosx64-enterprise-shippable/opt
+
+reference-tasks:
+    - enterprise-repack-mac-notarization
+
+transforms:
+    - taskgraph.transforms.from_deps
+    - comm_taskgraph.transforms.enterprise:rewrite_shipping_product
+    - gecko_taskgraph.transforms.filter_notarization
+    - gecko_taskgraph.transforms.chunk_partners
+    - gecko_taskgraph.transforms.partner_signing
+    - gecko_taskgraph.transforms.signing
+    - gecko_taskgraph.transforms.repackage_routes
+    - gecko_taskgraph.transforms.task
+
+task-defaults:
+    shipping-product: thunderbird-enterprise

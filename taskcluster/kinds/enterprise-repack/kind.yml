@@ -1,0 +1,42 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+loader: comm_taskgraph.loader.merge:loader
+only-for-project: enterprise-thunderbird
+reference-base-path: taskcluster/kinds
+
+kind-dependencies:
+    - build
+    - toolchain
+    - build-signing
+    - build-mac-signing
+    - build-mac-notarization
+    - shippable-l10n-signing
+    - shippable-l10n-mac-signing
+    - shippable-l10n-mac-notarization
+
+reference-tasks:
+    - linux64-enterprise-shippable
+    - linux64-aarch64-enterprise-shippable
+    - macosx64-enterprise-shippable
+    - win64-enterprise-shippable
+
+transforms:
+    - comm_taskgraph.transforms.enterprise:rewrite_shipping_product
+    - comm_taskgraph.transforms.enterprise:rewrite_run_on_projects
+    - comm_taskgraph.transforms.enterprise:rewrite_mozharness_configs
+    - gecko_taskgraph.transforms.release_deps:transforms
+    - gecko_taskgraph.transforms.partner_repack:transforms
+    - gecko_taskgraph.transforms.job:transforms
+    - gecko_taskgraph.transforms.task:transforms
+
+task-defaults:
+    run-on-projects: ["enterprise-thunderbird"]
+    shipping-product: thunderbird-enterprise
+    shipping-phase: build
+    run:
+        config-paths:
+            - comm/testing/mozharness/configs
+        config:
+            - partner_repacks/enterprise_thunderbird.py

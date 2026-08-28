@@ -14,6 +14,7 @@ kind-dependencies:
     - toolchain
 
 transforms:
+    - comm_taskgraph.transforms.enterprise:remove_enterprise_tests
     - comm_taskgraph.transforms.tests:transforms
     - gecko_taskgraph.transforms.test:transforms
     - gecko_taskgraph.transforms.job:transforms

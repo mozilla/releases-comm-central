@@ -32,6 +32,7 @@ reference-tasks:
     - image_builder_arm64
     - index-task
     - lint
+    - partner-repack
     - push-to-try
     - static-analysis-build
     - ubuntu1804-base

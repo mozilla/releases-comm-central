@@ -178,6 +178,18 @@ def get_decision_parameters(graph_config, parameters):
         time_interval=BACKSTOP_TIME_INTERVAL,
         integration_projects=INTEGRATION_PROJECTS,
     )
+
+    if "enterprise" in project:
+        from comm_taskgraph.util.partners import (
+            get_release_partner_config,
+            get_release_partners,
+        )
+
+        parameters["release_partner_config"] = get_release_partner_config(
+            parameters, graph_config
+        )
+        parameters["release_partners"] = get_release_partners(parameters)
+
     for n in (
         "COMM_BASE_REPOSITORY",
         "COMM_BASE_REV",

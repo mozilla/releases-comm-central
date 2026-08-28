@@ -73,6 +73,7 @@ tasks:
                             release.*: MozillaThunderbirdRelease
                             esr.*: MZLA
                             default: ThunderbirdDaily
+                    default: TBIRD
             publisher:
                 by-package-format:
                     msix:

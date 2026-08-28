@@ -20,6 +20,7 @@ def loader(kind, path, config, params, loaded_tasks, write_artifacts):
     reference_config = {
         "kind-dependencies": config.get("kind-dependencies", None),
         "reference-base-path": config.pop("reference-base-path"),
+        "only-for-project": config.pop("only-for-project", None),
         "reference-tasks": config.pop("reference-tasks", None),
     }
     for task in reference_loader(

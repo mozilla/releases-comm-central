@@ -12,6 +12,7 @@ transforms:
     - gecko_taskgraph.transforms.release:run_on_releases
     - gecko_taskgraph.transforms.build:transforms
     - gecko_taskgraph.transforms.build_attrs:transforms
+    - comm_taskgraph.transforms.enterprise:remove_enterprise_builds
     - gecko_taskgraph.transforms.build_lints:transforms
     - gecko_taskgraph.transforms.job:transforms
     - comm_taskgraph.transforms.tb_build:transforms

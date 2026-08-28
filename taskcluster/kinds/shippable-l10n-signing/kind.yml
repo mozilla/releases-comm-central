@@ -22,6 +22,12 @@ not-for-build-platforms:
     - macosx64-shippable/opt
     - macosx64/opt
     - macosx64/debug
+    - macosx64-enterprise/opt
+    - macosx64-enterprise/debug
+    - macosx64-enterprise-shippable/opt
+
+task-defaults:
+    run-on-repo-type: [hg, git]
 
 tasks:
     shippable-l10n-signing:

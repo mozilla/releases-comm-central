@@ -60,6 +60,7 @@ reference-tasks:
     - linux64-wine
     - linux64-x64-compiler-rt-22
     - linux64-xar
+    - linux64-zucchini-bin
     - macosx64-aarch64-compiler-rt-22
     - macosx64-aarch64-fix-stacks
     - macosx64-aarch64-minidump-stackwalk

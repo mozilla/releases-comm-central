@@ -6,6 +6,8 @@ loader: taskgraph.loader.transform:loader
 
 transforms:
     - taskgraph.transforms.from_deps
+    - comm_taskgraph.transforms.enterprise:rewrite_shipping_phase
+    - comm_taskgraph.transforms.enterprise:rewrite_shipping_product
     - gecko_taskgraph.transforms.name_sanity
     - gecko_taskgraph.transforms.mar_signing
     - gecko_taskgraph.transforms.task
@@ -16,10 +18,14 @@ kind-dependencies:
 only-for-build-platforms:
     - linux64-shippable/opt
     - linux64-aarch64-shippable/opt
+    - linux64-enterprise-shippable/opt
+    - linux64-aarch64-enterprise-shippable/opt
     - macosx64-shippable/opt
+    - macosx64-enterprise-shippable/opt
     - win32-shippable/opt
     - win64-shippable/opt
     - win64-aarch64-shippable/opt
+    - win64-enterprise-shippable/opt
 
 tasks:
     mar-signing:

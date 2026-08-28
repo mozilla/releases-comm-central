@@ -48,8 +48,20 @@ def handle_keyed_by(config, jobs):
             **{
                 "release-type": config.params["release_type"],
                 "release-level": release_level(config.graph_config["release-branches"], config.params),
+                "project": config.params["project"],
             },
         )
+
+        for item in ["comm-locales-file", "browser-locales-file", "run.config"]:
+            resolve_keyed_by(
+                job,
+                item,
+                item_name=job["name"],
+                **{
+                    "project": config.params["project"],
+                }
+            )
+
         yield job
 
 

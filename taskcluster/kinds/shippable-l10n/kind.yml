@@ -6,6 +6,7 @@ loader: taskgraph.loader.transform:loader
 
 transforms:
     - taskgraph.transforms.from_deps
+    - comm_taskgraph.transforms.enterprise:rewrite_shipping_phase
     - comm_taskgraph.transforms.l10n
     - gecko_taskgraph.transforms.job
     - gecko_taskgraph.transforms.task
@@ -20,9 +21,13 @@ kind-dependencies:
 
 only-for-build-platforms:
     - linux64-shippable/opt
+    - linux64-enterprise-shippable/opt
+    - linux64-aarch64-enterprise-shippable/opt
     - macosx64-shippable/opt
+    - macosx64-enterprise-shippable/opt
     - win32-shippable/opt
     - win64-shippable/opt
+    - win64-enterprise-shippable/opt
 
 tasks:
     shippable-l10n:
@@ -30,14 +35,17 @@ tasks:
         from-deps:
             group-by: platform
         locales-file:
-            by-release-level:
-                production:
-                    by-release-type:
-                        beta|release|esr.*: comm/mail/locales/shipped-locales
-                        default: comm/mail/locales/all-locales
-                staging: comm/mail/locales/onchange-locales
+            by-project:
+                enterprise-thunderbird: comm/mail/locales/all-locales-enterprise
+                default:
+                    by-release-level:
+                        production:
+                            by-release-type:
+                                beta|release|esr.*: comm/mail/locales/shipped-locales
+                                default: comm/mail/locales/all-locales
+                        staging: comm/mail/locales/onchange-locales
         locales-per-chunk: 5
-        run-on-projects: ['release']
+        run-on-projects: ['release', 'enterprise-thunderbird']
         attributes:
             shipping_phase: promote
         ignore-locales:
@@ -76,9 +84,13 @@ tasks:
             job-name:
                 by-build-platform:
                     linux64-shippable: linux64-opt
+                    linux64-enterprise-shippable: linux64-enterprise-shippable-opt
+                    linux64-aarch64-enterprise-shippable: linux64-aarch64-enterprise-shippable-opt
                     macosx64-shippable: macosx64-opt
+                    macosx64-enterprise-shippable: macosx64-enterprise-opt
                     win32-shippable: win32-opt
                     win64-shippable: win64-opt
+                    win64-enterprise-shippable: win64-enterprise-opt
         worker-type: b-linux
         treeherder:
             symbol: L10n(B)
@@ -86,9 +98,13 @@ tasks:
             platform:
                 by-build-platform:
                     linux64-shippable: linux64-shippable/opt
+                    linux64-enterprise-shippable: linux64-enterprise-thunderbird-shippable/opt
+                    linux64-aarch64-enterprise-shippable: linux64-aarch64-enterprise-thunderbird-shippable/opt
                     macosx64-shippable: osx-shippable/opt
+                    macosx64-enterprise-shippable: osx-cross-enterprise-thunderbird-shippable/opt
                     win32-shippable: windows2012-32-shippable/opt
                     win64-shippable: windows2012-64-shippable/opt
+                    win64-enterprise-shippable: windows2012-64-enterprise-thunderbird-shippable/opt
         env:
             by-build-platform:
                 linux.*:
@@ -110,11 +126,29 @@ tasks:
                         - single_locale/tc_linux_common.py
                         - single_locale/thunderbird.py
                         - taskcluster_nightly.py
+                    linux64-enterprise-shippable:
+                        - single_locale/enterprise.py
+                        - single_locale/linux64.py
+                        - single_locale/tc_common.py
+                        - single_locale/tc_linux_common.py
+                        - taskcluster_nightly.py
+                    linux64-aarch64-enterprise-shippable:
+                        - single_locale/enterprise.py
+                        - single_locale/linux64.py
+                        - single_locale/tc_common.py
+                        - single_locale/tc_linux_common.py
+                        - taskcluster_nightly.py
                     macosx64-shippable:
                         - single_locale/macosx64.py
                         - single_locale/tc_common.py
                         - single_locale/tc_macosx64.py
                         - single_locale/thunderbird.py
+                        - taskcluster_nightly.py
+                    macosx64-enterprise-shippable:
+                        - single_locale/enterprise.py
+                        - single_locale/macosx64.py
+                        - single_locale/tc_common.py
+                        - single_locale/tc_macosx64.py
                         - taskcluster_nightly.py
                     win32-shippable:
                         - single_locale/win32.py
@@ -127,6 +161,12 @@ tasks:
                         - single_locale/tc_common.py
                         - single_locale/tc_win64.py
                         - single_locale/thunderbird.py
+                        - taskcluster_nightly.py
+                    win64-enterprise-shippable:
+                        - single_locale/enterprise.py
+                        - single_locale/win64.py
+                        - single_locale/tc_common.py
+                        - single_locale/tc_win64.py
                         - taskcluster_nightly.py
             actions: ['list-locales', 'setup', 'repack',
                       'summary']

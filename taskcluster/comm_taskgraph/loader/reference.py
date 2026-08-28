@@ -65,6 +65,10 @@ def loader(kind, path, config, params, loaded_tasks, write_artifacts):
     base_path = config.pop("reference-base-path")
     sub_path = os.path.join(base_path, kind)
 
+    project_limit = config.pop("only-for-project", None)
+    if project_limit and params["project"] != project_limit:
+        return []
+
     logger.debug("Reference loader: load tasks from {}".format(sub_path))
     sub_config = load_yaml(sub_path, "kind.yml")
     _loader = _get_loader(sub_path, sub_config)

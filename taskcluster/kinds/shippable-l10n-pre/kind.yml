@@ -8,6 +8,8 @@ kind-dependencies:
     - toolchain
 
 transforms:
+    - comm_taskgraph.transforms.enterprise:rewrite_shipping_phase
+    - comm_taskgraph.transforms.enterprise:rewrite_shipping_product
     - comm_taskgraph.transforms.l10n_pre:transforms
     - gecko_taskgraph.transforms.build:transforms
     - gecko_taskgraph.transforms.build_attrs:transforms
@@ -15,7 +17,7 @@ transforms:
     - gecko_taskgraph.transforms.task:transforms
 
 task-defaults:
-    run-on-repo-type: [hg]
+    run-on-repo-type: [hg, git]
     shipping-phase: promote
     shipping-product: thunderbird
     treeherder:
@@ -29,14 +31,23 @@ task-defaults:
     attributes:
         shippable: true
     locale-list:
-        by-release-level:
-            production:
-                by-release-type:
-                    beta|release|esr.*: comm/mail/locales/shipped-locales
-                    default: comm/mail/locales/all-locales
-            staging: comm/mail/locales/onchange-locales
-    comm-locales-file: comm/mail/locales/l10n-changesets.json
-    browser-locales-file: browser/locales/l10n-changesets.json
+        by-project:
+            enterprise-thunderbird: comm/mail/locales/all-locales-enterprise
+            default:
+                by-release-level:
+                    production:
+                        by-release-type:
+                            beta|release|esr.*: comm/mail/locales/shipped-locales
+                            default: comm/mail/locales/all-locales
+                    staging: comm/mail/locales/onchange-locales
+    comm-locales-file:
+        by-project:
+            enterprise-thunderbird: comm/mail/locales/enterprise-l10n-changesets.json
+            default: comm/mail/locales/l10n-changesets.json
+    browser-locales-file:
+        by-project:
+            enterprise-thunderbird: browser/locales/enterprise-l10n-changesets.json
+            default: browser/locales/l10n-changesets.json
     run:
         using: mozharness
         comm-checkout: true
@@ -51,10 +62,18 @@ task-defaults:
         config-paths:
             - comm/testing/mozharness/configs
         config:
-            - single_locale/linux64.py
-            - single_locale/tc_common.py
-            - single_locale/thunderbird_split_l10n.py
-            - taskcluster_nightly.py
+            by-project:
+                enterprise-thunderbird:
+                    - single_locale/linux64.py
+                    - single_locale/tc_common.py
+                    - single_locale/thunderbird_split_l10n.py
+                    - single_locale/enterprise_thunderbird_split_l10n.py
+                    - taskcluster_nightly.py
+                default:
+                    - single_locale/linux64.py
+                    - single_locale/tc_common.py
+                    - single_locale/thunderbird_split_l10n.py
+                    - taskcluster_nightly.py
         options: []
     run-on-projects: []
     optimization: null
