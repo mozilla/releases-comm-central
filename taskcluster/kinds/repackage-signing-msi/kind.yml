@@ -18,6 +18,7 @@ only-for-build-platforms:
     - win32/opt
     - win64-shippable/opt
     - win64/opt
+    - win64-enterprise-shippable/opt
 
 tasks:
     repackage-signing-msi:

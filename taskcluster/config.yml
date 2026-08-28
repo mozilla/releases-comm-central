@@ -7,6 +7,13 @@ project-repo-param-prefix: comm_
 product-dir: comm/mail
 
 treeherder:
+    branch-map:
+        by-project:
+            enterprise-thunderbird:
+                enterprise-main: enterprise-main
+                enterprise-beta: enterprise-beta
+                enterprise-release: enterprise-release
+            default: {}
     group-names:
         # Images/Packages/Toolchain
         'Deb8': 'Packages for Debian 8'
@@ -14,6 +21,7 @@ treeherder:
         'Deb10a64': 'Packages for Debian 10 for aarch64'
         'Deb12': 'Packages for Debian 12'
         'Fetch': 'Fetch and store content'
+        'Complete': 'Barrier tasks that resolve once all their dependencies have completed'
         'Ub18': 'Packages for Ubuntu 18.04'
         'Ub20': 'Packages for Ubuntu 20.04'
         'Ub22': 'Packages for Ubuntu 22.04'
@@ -78,6 +86,15 @@ treeherder:
         'M-cf': 'Mochitests confirm failure'
         'M-msix': 'Mochitests from MSIX builds'
         'M-msix-cf': 'Mochitests confirm failure from MSIX builds'
+        'Rpk-Ent': 'Enterprise repacks'
+        'Rpk-Ent-Rpk': 'Enterprise repacks repackage'
+        'Rpk': 'Classic repacks'
+        'MSI-Ent': "MSI Enterprise repacks"
+        'MSIs-Ent': "MSI signed Enterprise repacks"
+        'DEB-Ent': "Debian Enterprise repacks"
+        'BMS-Ent': "Mac signing for Enterprise repacks"
+        'BMN-Ent': "Mac notarization for Enterprise repacks"
+        'MnEnt': 'Marionette tests Enterprise'
 
         'Searchfox': 'Searchfox builds'
         'doc': 'Source docs'
@@ -93,6 +110,7 @@ try:
 release-promotion:
     products:
         - 'thunderbird'
+        - 'thunderbird-enterprise'
     rebuild-kinds:
         - docker-image
         - fetch
@@ -130,6 +148,13 @@ partner-urls:
     release-partner-attribution: null
     release-partner-repack: null
     release-eme-free-repack: null
+    enterprise-repack:
+        by-release-product:
+            default: null
+            thunderbird-enterprise:
+                by-release-level:
+                    staging: 'git@github.com:mozilla-partners/staging-enterprise-manifests.git'
+                    production: 'git@github.com:mozilla-partners/enterprise-manifests.git'
 
 task-priority:
     by-project:
@@ -206,36 +231,36 @@ workers:
             provisioner: scriptworker-k8s
             implementation: scriptworker-signing
             os: linux
-            worker-type: comm-t-signing
+            worker-type: '{trust-domain}-t-signing'
         linux-signing:
             provisioner: scriptworker-k8s
             implementation: scriptworker-signing
             os: linux
             worker-type:
                 by-release-level:
-                    production: comm-3-signing
-                    staging: comm-t-signing
+                    production: '{trust-domain}-3-signing'
+                    staging: '{trust-domain}-t-signing'
         mac-depsigning:
             provisioner: scriptworker-prov-v1
             implementation: iscript
             os: macosx
-            worker-type: dep-comm-signing-mac14m2
+            worker-type: 'dep-{trust-domain}-signing-mac14m2'
         mac-signing:
             provisioner: scriptworker-prov-v1
             implementation: iscript
             os: macosx
             worker-type:
                 by-release-level:
-                    production: comm-signing-mac14m2
-                    staging: dep-comm-signing-mac14m2
+                    production: '{trust-domain}-signing-mac14m2'
+                    staging: 'dep-{trust-domain}-signing-mac14m2'
         tree:
             provisioner: scriptworker-k8s
             implementation: treescript
             os: scriptworker
             worker-type:
                 by-release-level:
-                    production: comm-3-tree
-                    staging: comm-1-tree
+                    production: '{trust-domain}-3-tree'
+                    staging: '{trust-domain}-1-tree'
         lando:
             provisioner: scriptworker-k8s
             implementation: scriptworker-lando
@@ -245,7 +270,7 @@ workers:
                     production: '{trust-domain}-3-lando'
                     staging: '{trust-domain}-1-lando'
         t-linux-docker(-noscratch)?(-amd)?:
-            provisioner: comm-t
+            provisioner: '{trust-domain}-t'
             implementation: docker-worker
             os: linux
             worker-type: '{alias}'
@@ -270,7 +295,7 @@ workers:
             os: macosx
             worker-type: 'gecko-{alias}'
         win11-64-25h2:
-            provisioner: 'comm-t'
+            provisioner: '{trust-domain}-t'
             implementation: generic-worker
             os: windows
             worker-type: '{alias}'
@@ -280,7 +305,7 @@ workers:
             os: none
             worker-type: succeed
         misc:
-            provisioner: comm-t
+            provisioner: '{trust-domain}-t'
             implementation: docker-worker
             os: linux
             worker-type: misc
@@ -338,7 +363,10 @@ mac-signing:
                 - deep: false
                   runtime: true
                   force: true
-                  entitlements: public/build/security/browser.xml
+                  entitlements:
+                      by-build-platform:
+                          .*enterprise.*: public/build/security/thunderbirdenterprise.browser.xml
+                          default: public/build/security/browser.xml
                   globs:
                       - "/"  # The .app
 
@@ -393,7 +421,10 @@ mac-signing:
                 - deep: false
                   runtime: true
                   force: true
-                  entitlements: public/build/security/browser.xml
+                  entitlements:
+                      by-build-platform:
+                          .*enterprise.*: public/build/security/thunderbirdenterprise.browser.xml
+                          default: public/build/security/browser.xml
                   globs:
                       - "/"  # The .app
 

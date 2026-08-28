@@ -1,0 +1,52 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+loader: taskgraph.loader.transform:loader
+
+transforms:
+    - taskgraph.transforms.task_context
+    - taskgraph.transforms.from_deps
+    - gecko_taskgraph.transforms.task
+
+kind-dependencies:
+    - repackage-deb
+    - repackage-signing-msi
+    - enterprise-repack-mac-notarization
+
+task-defaults:
+    description: "Blocks until all {name} tasks are complete."
+    from-deps:
+        group-by: all
+        unique-kinds: false
+        set-name: false
+    index:
+        product: thunderbird
+        job-name: "complete-{name}"
+    task-context:
+        substitution-fields:
+            - description
+            - index.job-name
+            - treeherder.symbol
+    treeherder:
+        kind: build
+        tier: 1
+        symbol: "Complete({symbol})"
+        platform: gecko-decision/opt
+    worker-type: succeed
+
+tasks:
+    enterprise-repack:
+        from-deps:
+            kinds:
+                - repackage-deb
+                - repackage-signing-msi
+                - enterprise-repack-mac-notarization
+            with-attributes:
+                shipping_product: thunderbird-enterprise
+        index:
+            type: shippable
+        run-on-projects: [enterprise-thunderbird]
+        task-context:
+            from-object:
+                symbol: Rpk-Ent

@@ -37,7 +37,11 @@ tasks:
                 - comm/testing/mozharness/configs
             config:
                 by-build-platform:
-                    linux64\b.*:
+                    linux64-enterprise\b.*:
+                        - repackage/base.py
+                        - repackage/base_enterprise.py
+                        - repackage/linux64_signed.py
+                    linux64(?!-enterprise)\b.*:
                         - repackage/base.py
                         - repackage/linux64_signed.py
         package-formats:

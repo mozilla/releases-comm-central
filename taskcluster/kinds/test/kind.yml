@@ -26,7 +26,7 @@ tasks-from:
 
 # These apply to all included test yml files listed in tasks-from
 task-defaults:
-    run-on-repo-type: [hg]
+    run-on-repo-type: ["hg", "git"]
     attributes:
         retrigger: true
     use-python: system

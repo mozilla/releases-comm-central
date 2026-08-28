@@ -58,3 +58,19 @@ def use_comm_signing_artifacts(config, jobs):
                 if entry.get("path", "").startswith("checkouts/gecko/comm/build"):
                     entry["path"] = "/builds/worker/" + entry["path"]
         yield job
+
+
+@transforms.add
+def use_thunderbirdenterprise_entilement(config, jobs):
+    for job in jobs:
+        if "enterprise" not in config.params["project"]:
+            yield job
+            continue
+        if "macosx" not in job["label"] or "searchfox" in job["label"]:
+            yield job
+            continue
+        for entry in job.get("worker", {}).get("artifacts", []):
+            if "path" in entry and "browser.xml" in entry["path"]:
+                entry["path"] = entry["path"].replace("browser.xml", "thunderbirdenterprise.browser.xml")
+                entry["name"] = entry["name"].replace("browser.xml", "thunderbirdenterprise.browser.xml")
+        yield job

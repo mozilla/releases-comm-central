@@ -15,7 +15,7 @@ from taskgraph.util.vcs import get_repository
 from gecko_taskgraph.decision import ARTIFACTS_DIR, write_artifact
 from gecko_taskgraph.parameters import get_app_version, get_version
 from gecko_taskgraph.util.backstop import is_backstop
-from gecko_taskgraph.util.hg import get_hg_commit_message, get_hg_revision_info
+from gecko_taskgraph.util.hg import get_hg_revision_info
 from gecko_taskgraph.util.partials import populate_release_history
 from gecko_taskgraph.util.taskgraph import (
     find_decision_task,
@@ -67,6 +67,11 @@ PER_PROJECT_PARAMETERS = {
     "comm-esr153": {
         "target_tasks_method": "mozilla_esr153_tasks",
         "release_type": "esr153",
+    },
+    # Enterprise, will be improved later.
+    "enterprise-thunderbird": {
+        "target_tasks_method": "enterprise_thunderbird_with_tests_tasks",
+        "release_product": "thunderbird-enterprise",
     },
 }
 
@@ -136,7 +141,6 @@ def restore_options():
 def get_decision_parameters(graph_config, parameters):
     logger.info("{}.get_decision_parameters called".format(__name__))
 
-    commit_message = get_hg_commit_message(COMM)
     options = restore_options()
 
     # Apply default values for all Thunderbird CI projects - override some Gecko defaults!
@@ -156,6 +160,9 @@ def get_decision_parameters(graph_config, parameters):
     # `target_tasks_method` has higher precedence than `project` parameters
     if options.get("target_tasks_method"):
         parameters["target_tasks_method"] = options["target_tasks_method"]
+
+    repo = get_repository(COMM)
+    commit_message = repo.get_commit_message()
 
     # If the commit message contains "DONTBUILD" and this is an on-push
     # decision task, mark it so the morph phase can drop all tasks and so
@@ -181,8 +188,6 @@ def get_decision_parameters(graph_config, parameters):
     ):
         val = os.environ.get(n, "")
         parameters[n.lower()] = val
-
-    repo = get_repository(COMM)
 
     # If comm_base_ref is None, set to default branch
     if not parameters.get("comm_base_ref"):
