@@ -4,6 +4,8 @@ subsuite = "enterprise"
 
 run-if = ["enterprise"]
 
+["test_felt_thunderbird_enterprise_toolbar_button.py"]
+
 ["test_felt_thunderbird_fxa.py"]
 
 ["test_felt_thunderbird_starts.py"]

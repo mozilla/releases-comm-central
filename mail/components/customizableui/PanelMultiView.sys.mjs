@@ -315,6 +315,28 @@ export class PanelMultiView extends AssociatedToNode {
   }
 
   /**
+   * Returns the element with the given id.
+   * For nodes that are lazily loaded and not yet in the DOM, the node should
+   * be retrieved from the view cache template.
+   *
+   * @param {Document} doc
+   *   The document to retrieve the node for.
+   * @param {string} id
+   *   The ID of the element to retrieve from the DOM (or the
+   *   appMenu-viewCache).
+   * @returns {DOMNode|null}
+   *   The found DOMNode or null if no node was found with that ID.
+   */
+  static getViewNode(doc, id) {
+    const viewCacheTemplate = doc.getElementById("appMenu-viewCache");
+
+    return (
+      doc.getElementById(id) ||
+      viewCacheTemplate?.content.querySelector("#" + id)
+    );
+  }
+
+  /**
    * Ensures that when the specified window is closed all the <panelmultiview>
    * node it contains are destroyed properly.
    */

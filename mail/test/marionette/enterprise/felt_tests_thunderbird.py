@@ -65,3 +65,10 @@ class FeltTestsThunderbird(FeltTests):
             return self._child_driver.execute_script("""
                 return arguments[0].docShell.document.querySelector(arguments[1]);
             """, [ tab, selector ])
+
+class FeltTestsThunderbirdUi(FeltTestsThunderbird):
+    def get_elem_child(self, selector):
+        with self._child_driver.using_context(self._child_driver.CONTEXT_CHROME):
+            return self._child_driver.execute_script("""
+                return document.querySelector(arguments[0]);
+            """, [ selector ])

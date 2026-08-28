@@ -558,10 +558,10 @@ MailGlue.prototype = {
           lazy.windowsAlertsService.removeAllNotificationsForInstall();
         }
         if (AppConstants.MOZ_ENTERPRISE) {
-          const { EnterpriseHandler } = ChromeUtils.importESModule(
-            "resource://gre/modules/enterprise/EnterpriseHandler.sys.mjs"
+          const { EnterpriseBadge } = ChromeUtils.importESModule(
+            "resource://gre/modules/enterprise/EnterpriseBadge.sys.mjs"
           );
-          EnterpriseHandler.uninit();
+          EnterpriseBadge.uninit();
         }
         break;
       case "mail-startup-done":
@@ -595,12 +595,12 @@ MailGlue.prototype = {
             "chrome://messenger/content/messenger.xhtml"
           ) {
             aSubject.addEventListener(
-              "DOMContentLoaded",
+              "load",
               () => {
-                const { EnterpriseHandler } = ChromeUtils.importESModule(
-                  "resource://gre/modules/enterprise/EnterpriseHandler.sys.mjs"
+                const { EnterpriseBadge } = ChromeUtils.importESModule(
+                  "resource://gre/modules/enterprise/EnterpriseBadge.sys.mjs"
                 );
-                EnterpriseHandler.init(aSubject);
+                EnterpriseBadge.init(aSubject);
               },
               { once: true }
             );

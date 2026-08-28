@@ -20,6 +20,9 @@
                   class="notification-anchor-icon"
                   role="button" />
       </html:div>
+#ifdef MOZ_ENTERPRISE
+#include ../../../../../toolkit/components/enterprise/content/enterprise-badge.inc.xhtml
+#endif
       <toolbarbutton id="button-appmenu"
                      type="menu"
                      badged="true"

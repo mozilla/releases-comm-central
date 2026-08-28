@@ -77,6 +77,7 @@ const PanelUI = {
   init() {
     this._initElements();
     this.initAppMenuButton("button-appmenu", "mail-toolbox");
+    this.initEnterpriseBadge();
 
     this.menuButton = this.menuButtonMail;
 
@@ -175,6 +176,18 @@ const PanelUI = {
       button.addEventListener("keypress", PanelUI);
 
       this.kAppMenuButtons.add(button);
+    }
+  },
+
+  initEnterpriseBadge() {
+    if (AppConstants.MOZ_ENTERPRISE) {
+      const button = document.getElementById("enterprise-badge-toolbar-button");
+      button.addEventListener("click", ev => {
+        const { EnterpriseBadge } = ChromeUtils.importESModule(
+          "resource://gre/modules/enterprise/EnterpriseBadge.sys.mjs"
+        );
+        EnterpriseBadge.openPanel(button, ev);
+      });
     }
   },
 
@@ -415,6 +428,13 @@ const PanelUI = {
     );
   },
 
+  get mainView() {
+    if (!this._mainView) {
+      this._mainView = PanelMultiView.getViewNode(document, "appMenu-mainView");
+    }
+    return this._mainView;
+  },
+
   get isReady() {
     return !!this._isReady;
   },
@@ -443,8 +463,9 @@ const PanelUI = {
    *
    * @param {string} aViewId - The ID of the subview to show.
    * @param {Element} aAnchor - The element that spawned the subview.
+   * @param {Event} aEvent the event triggering the view showing.
    */
-  async showSubView(aViewId, aAnchor) {
+  async showSubView(aViewId, aAnchor, aEvent) {
     this._ensureEventListenersAdded();
     const viewNode = document.getElementById(aViewId);
     if (!viewNode) {
@@ -460,8 +481,92 @@ const PanelUI = {
     }
 
     const container = aAnchor.closest("panelmultiview");
-    if (container) {
+    if (container && !viewNode.hasAttribute("disallowSubView")) {
       container.showSubView(aViewId, aAnchor);
+    } else if (!aAnchor.open) {
+      aAnchor.open = true;
+
+      const tempPanel = document.createXULElement("panel");
+      tempPanel.setAttribute("type", "arrow");
+      tempPanel.setAttribute("id", "customizationui-widget-panel");
+      if (viewNode.hasAttribute("neverhidden")) {
+        tempPanel.setAttribute("neverhidden", "true");
+      }
+
+      tempPanel.setAttribute("class", "cui-widget-panel panel-no-padding");
+      tempPanel.setAttribute("viewId", aViewId);
+      if (aAnchor.getAttribute("tabspecific")) {
+        tempPanel.setAttribute("tabspecific", true);
+      }
+      if (aAnchor.getAttribute("locationspecific")) {
+        tempPanel.setAttribute("locationspecific", true);
+      }
+      if (this._disableAnimations) {
+        tempPanel.setAttribute("animate", "false");
+      }
+      tempPanel.setAttribute("context", "");
+
+      document.getElementById("mainPopupSet").appendChild(tempPanel);
+
+      const multiView = document.createXULElement("panelmultiview");
+      multiView.setAttribute("id", "customizationui-widget-multiview");
+      multiView.setAttribute("viewCacheId", "appMenu-viewCache");
+      multiView.setAttribute("mainViewId", viewNode.id);
+      multiView.appendChild(viewNode);
+      tempPanel.appendChild(multiView);
+      viewNode.classList.add("cui-widget-panelview", "PanelUI-subView");
+
+      // Set a role and name on the panel.
+      // If the panelview provides either data-panelrole or
+      // data-panelname, use it.
+      tempPanel.role = viewNode.dataset.panelrole || "group";
+      if (viewNode.dataset.panelname) {
+        tempPanel.ariaLabel = viewNode.dataset.panelname;
+      } else {
+        tempPanel.ariaLabelledByElements = [aAnchor];
+      }
+
+      let viewShown = false;
+      const panelRemover = event => {
+        // Avoid bubbled events triggering the panel closing.
+        if (event && event.target != tempPanel) {
+          return;
+        }
+        viewNode.classList.remove("cui-widget-panelview");
+        if (viewShown) {
+          CustomizableUI.removePanelCloseListeners(tempPanel);
+          tempPanel.removeEventListener("popuphidden", panelRemover);
+        }
+        aAnchor.open = false;
+
+        PanelMultiView.removePopup(tempPanel);
+      };
+
+      if (aAnchor.parentNode.id == "PersonalToolbar") {
+        tempPanel.classList.add("bookmarks-toolbar");
+      }
+
+      const anchor = this._getPanelAnchor(aAnchor);
+
+      if (aAnchor != anchor && aAnchor.id) {
+        anchor.setAttribute("consumeanchor", aAnchor.id);
+      }
+
+      try {
+        viewShown = await PanelMultiView.openPopup(tempPanel, anchor, {
+          position: "bottomright topright",
+          triggerEvent: aEvent,
+        });
+      } catch (ex) {
+        console.error(ex);
+      }
+
+      if (viewShown) {
+        CustomizableUI.addPanelCloseListeners(tempPanel);
+        tempPanel.addEventListener("popuphidden", panelRemover);
+      } else {
+        panelRemover();
+      }
     }
   },
 

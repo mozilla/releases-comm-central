@@ -608,5 +608,16 @@
                        oncommand="openAboutDialog();"/>
       </vbox>
     </panelview>
+
+<html:template id="appMenu-viewCache"></html:template>
+
+#ifdef MOZ_ENTERPRISE
+<!-- On Firefox, the enterprise panel's markup lives in the appMenu-viewCache template,
+ which is inert and cannot load its own stylesheet. This requirement in inherited here -->
+<html:link rel="stylesheet" href="chrome://enterprise/content/enterprise-panel.css" />
+
+#include ../../../../../toolkit/components/enterprise/content/enterprise-panel.inc.xhtml
+#endif
+
   </panelmultiview>
 </panel>
