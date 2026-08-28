@@ -35,6 +35,9 @@ task-defaults:
                 beta: release
                 release.*: release
                 esr.*: release
+                release-enterprise: release-enterprise
+                beta-enterprise: beta-enterprise
+                nightly-enterprise: nightly-enterprise
                 default: nightly
         # Note: These settings are only honored by nightly (i.e. shipping) builds
         update-channel:
@@ -43,16 +46,25 @@ task-defaults:
                 beta: beta
                 release.*: release
                 esr.*: esr
+                release-enterprise: comm-release-enterprise
+                beta-enterprise: comm-beta-enterprise
+                nightly-enterprise: comm-nightly-enterprise
                 default: null
         mar-channel-id:
             by-release-type:
                 beta: thunderbird-comm-beta
                 release.*: thunderbird-comm-release
                 esr.*: thunderbird-comm-esr
+                release-enterprise: thunderbird-enterprise-release
+                beta-enterprise: thunderbird-enterprise-beta
+                nightly-enterprise: thunderbird-enterprise-nightly
                 default: thunderbird-comm-central
         accepted-mar-channel-ids:
             by-release-type:
                 beta: thunderbird-comm-beta,thunderbird-comm-release
                 release.*: thunderbird-comm-release
                 esr.*: thunderbird-comm-esr
+                release-enterprise: thunderbird-enterprise-release
+                beta-enterprise: thunderbird-enterprise-beta
+                nightly-enterprise: thunderbird-enterprise-nightly
                 default: thunderbird-comm-central

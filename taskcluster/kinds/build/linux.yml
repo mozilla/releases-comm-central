@@ -54,6 +54,40 @@ linux64/opt:
             - sysroot-x86_64-linux-gnu
             - terser
 
+linux64-enterprise/opt:
+    description: "Linux64 Enterprise Opt"
+    index:
+        product: thunderbird
+        job-name: linux64-enterprise-opt
+    attributes:
+        enable-full-crashsymbols: true
+        code-review: true
+    treeherder:
+        platform: linux64-enterprise-thunderbird/opt
+        symbol: Bent
+    worker-type: b-linux-docker-xlarge-amd
+    worker:
+        max-run-time: 7200
+        env:
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+    run:
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+        mozconfig-variant: enterprise
+    run-on-projects: ["enterprise-thunderbird"]
+    run-on-repo-type: ["git"]
+    use-sccache: true
+    optimization:
+        never: null
+    fetches:
+        toolchain:
+            - linux64-libotr
+            - linux64-rust
+            - linux64-sccache
+            - sysroot-x86_64-linux-gnu
+            - terser
+
 linux64-shippable/opt:
     description: "Linux64 Shippable"
     attributes:
@@ -87,6 +121,43 @@ linux64-shippable/opt:
             - sysroot-x86_64-linux-gnu
             - terser
 
+linux64-enterprise-shippable/opt:
+    description: "Linux64 Enterprise Shippable"
+    attributes:
+        shippable: true
+        enable-full-crashsymbols: true
+        code-review: true
+    shipping-phase: build
+    shipping-product: thunderbird-enterprise
+    index:
+        product: thunderbird
+        job-name: linux64-enterprise-opt
+        type: shippable
+    treeherder:
+        platform: linux64-enterprise-thunderbird-shippable/opt
+        symbol: Bent
+    worker-type: b-linux-docker-xlarge-amd
+    worker:
+        max-run-time: 7200
+        env:
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+    run:
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+            - taskcluster_nightly.py
+        mozconfig-variant: enterprise
+    run-on-projects: ["enterprise-thunderbird"]
+    run-on-repo-type: ["git"]
+    optimization:
+        never: null
+    fetches:
+        toolchain:
+            - linux64-libotr
+            - linux64-rust
+            - sysroot-x86_64-linux-gnu
+            - terser
+
 linux64/debug:
     description: "Linux64 Debug"
     index:
@@ -107,6 +178,41 @@ linux64/debug:
             - builds/releng_base_linux_64_builds.py
         custom-build-variant-cfg: debug
         mozconfig-variant: debug
+    use-sccache: true
+    optimization:
+        never: null
+    fetches:
+        toolchain:
+            - linux64-libotr
+            - linux64-rust
+            - linux64-sccache
+            - sysroot-x86_64-linux-gnu
+
+linux64-enterprise/debug:
+    description: "Linux64 Enterprise Debug"
+    index:
+        product: thunderbird
+        job-name: linux64-enterprise-debug
+    attributes:
+        enable-full-crashsymbols: true
+        code-review: true
+    treeherder:
+        platform: linux64-enterprise-thunderbird/debug
+        symbol: Bent
+    worker-type: b-linux-docker-xlarge-amd
+    worker:
+        max-run-time: 7200
+        env:
+            PERFHERDER_EXTRA_OPTIONS: enterprise
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+    run:
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+        custom-build-variant-cfg: debug
+        mozconfig-variant: enterprise-debug
+    run-on-projects: ["enterprise-thunderbird"]
+    run-on-repo-type: ["git"]
     use-sccache: true
     optimization:
         never: null
@@ -289,6 +395,48 @@ linux64-aarch64-shippable/opt:
     run-on-releases: [nightly]
     optimization:
         never: null
+    fetches:
+        toolchain:
+            - linux-aarch64-libotr
+            - linux64-llvm-symbolizer
+            - linux64-rust
+            - sysroot-aarch64-linux-gnu
+            - sysroot-x86_64-linux-gnu
+            - terser
+
+linux64-aarch64-enterprise-shippable/opt:
+    description: "Linux64 aarch64 Enterprise Shippable Opt"
+    attributes:
+        shippable: true
+        enable-full-crashsymbols: true
+        code-review: true
+    shipping-product: thunderbird-enterprise
+    index:
+        product: thunderbird
+        job-name: linux64-aarch64-enterprise-opt
+        type: shippable
+    treeherder:
+        platform: linux64-aarch64-enterprise-thunderbird-shippable/opt
+        symbol: Bent
+    worker-type: b-linux-docker-xlarge-amd
+    worker:
+        max-run-time: 7200
+        env:
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+    run:
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+            - taskcluster_nightly.py
+        extra-config:
+            mozconfig_platform: linux64-aarch64
+        mozconfig-variant: enterprise
+        tooltool-downloads: public
+    run-on-projects: ["enterprise-thunderbird"]
+    run-on-repo-type: ["git"]
+    use-sccache: false
+    optimization:
+        skip-unless-backstop: null
     fetches:
         toolchain:
             - linux-aarch64-libotr

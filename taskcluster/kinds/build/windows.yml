@@ -226,6 +226,62 @@ win64/opt:
             - win64-libotr
             - winappsdk-x86_64-pc-windows-msvc
 
+win64-enterprise/opt:
+    description: "Win64 Enterprise Opt (Cross)"
+    index:
+        product: thunderbird
+        job-name: win64-enterprise-opt
+    attributes:
+        enable-build-signing: true
+        enable-full-crashsymbols: true
+        code-review: true
+    treeherder:
+        platform: windows2012-64-enterprise-thunderbird/opt
+        symbol: Bent
+        tier: 1
+    worker-type: b-linux-docker-xlarge-amd
+    worker:
+        max-run-time: 7200
+        env:
+            PERFHERDER_EXTRA_OPTIONS: cross
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            RUST_MIN_STACK: "16777216"
+    run:
+        actions: [build]
+        options: [append-env-variables-from-configs]
+        script: mozharness/scripts/fx_desktop_build.py
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+        extra-config:
+            stage_platform: win64
+            mozconfig_platform: win64
+        mozconfig-variant: enterprise
+    run-on-projects: ["enterprise-thunderbird"]
+    run-on-repo-type: ["git"]
+    use-sccache: true
+    optimization:
+        never: null
+    fetches:
+        toolchain:
+            - linux64-7zz
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-dump_syms
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust-cross
+            - linux64-rust-size
+            - linux64-sccache
+            - linux64-upx
+            - linux64-winchecksec
+            - linux64-wine
+            - sysroot-wasm32-wasi
+            - sysroot-x86_64-linux-gnu
+            - terser
+            - win64-libotr
+            - winappsdk-x86_64-pc-windows-msvc
+
 win64-shippable/opt:
     description: "Win64 Opt Shippable"
     index:
@@ -282,6 +338,65 @@ win64-shippable/opt:
             - win64-libotr
             - winappsdk-x86_64-pc-windows-msvc
 
+win64-enterprise-shippable/opt:
+    description: "Win64 Enterprise Opt Shippable"
+    index:
+        product: thunderbird
+        job-name: win64-enterprise-opt
+        type: shippable
+    attributes:
+        shippable: true
+        enable-build-signing: true
+        enable-full-crashsymbols: true
+        code-review: true
+    shipping-phase: build
+    shipping-product: thunderbird-enterprise
+    treeherder:
+        platform: windows2012-64-enterprise-thunderbird-shippable/opt
+        symbol: Bent
+        tier: 1
+    worker-type: b-linux-docker-xlarge-amd
+    worker:
+        max-run-time: 7200
+        env:
+            PERFHERDER_EXTRA_OPTIONS: cross
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            RUST_MIN_STACK: "16777216"
+    run:
+        actions: [build]
+        options: [append-env-variables-from-configs]
+        script: mozharness/scripts/fx_desktop_build.py
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+            - taskcluster_nightly.py
+        extra-config:
+            stage_platform: win64
+            mozconfig_platform: win64
+        mozconfig-variant: enterprise
+    run-on-projects: ["enterprise-thunderbird"]
+    run-on-repo-type: ["git"]
+    optimization:
+        never: null
+    fetches:
+        toolchain:
+            - linux64-7zz
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-dump_syms
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust-cross
+            - linux64-rust-size
+            - linux64-upx
+            - linux64-winchecksec
+            - linux64-wine
+            - sysroot-wasm32-wasi
+            - sysroot-x86_64-linux-gnu
+            - terser
+            - win64-libotr
+            - winappsdk-x86_64-pc-windows-msvc
+
 win64/debug:
     description: "Win64 Debug (Cross)"
     index:
@@ -312,6 +427,61 @@ win64/debug:
         mozconfig-variant: debug
         extra-config:
             mozconfig_platform: win64
+    use-sccache: true
+    optimization:
+        never: null
+    fetches:
+        toolchain:
+            - linux64-7zz
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-dump_syms
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust-cross
+            - linux64-rust-size
+            - linux64-sccache
+            - linux64-upx
+            - linux64-winchecksec
+            - linux64-wine
+            - sysroot-wasm32-wasi
+            - sysroot-x86_64-linux-gnu
+            - win64-libotr
+            - winappsdk-x86_64-pc-windows-msvc
+
+win64-enterprise/debug:
+    description: "Win64 Debug Enterprise (Cross)"
+    index:
+        product: thunderbird
+        job-name: win64-enterprise-debug
+    attributes:
+        enable-build-signing: true
+        enable-full-crashsymbols: true
+        code-review: true
+    treeherder:
+        platform: windows2012-64-enterprise-thunderbird/debug
+        symbol: Bent
+        tier: 1
+    worker-type: b-linux-docker-xlarge-amd
+    worker:
+        max-run-time: 7200
+        env:
+            PERFHERDER_EXTRA_OPTIONS: cross
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            RUST_MIN_STACK: "16777216"
+    run:
+        actions: [build]
+        options: [append-env-variables-from-configs]
+        script: mozharness/scripts/fx_desktop_build.py
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+            - builds/taskcluster_sub_win64/debug.py
+        extra-config:
+            mozconfig_platform: win64
+        mozconfig-variant: enterprise-debug
+    run-on-projects: ["enterprise-thunderbird"]
+    run-on-repo-type: ["git"]
     use-sccache: true
     optimization:
         never: null
@@ -586,6 +756,59 @@ win64-aarch64/debug:
         never: null
 
 
+win64-aarch64-enterprise/debug:
+    description: "AArch64 Win64 Enterprise Debug"
+    index:
+        product: thunderbird
+        job-name: win64-aarch64-enterprise-debug
+    attributes:
+        enable-full-crashsymbols: true
+        code-review: true
+    treeherder:
+        platform: windows2012-aarch64-enterprise-thunderbird/debug
+        symbol: Bent
+        tier: 1
+    worker-type: b-linux-docker-xlarge-amd
+    worker:
+        max-run-time: 7200
+        env:
+            PERFHERDER_EXTRA_OPTIONS: aarch64
+            RUST_MIN_STACK: "16777216"
+    run:
+        actions: [build]
+        options: [append-env-variables-from-configs]
+        script: mozharness/scripts/fx_desktop_build.py
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+            - builds/taskcluster_sub_win64/debug.py
+        extra-config:
+            mozconfig_platform: win64-aarch64
+        mozconfig-variant: enterprise-debug
+    run-on-projects: ["enterprise-thunderbird"]
+    run-on-repo-type: ["git"]
+    use-sccache: true
+    fetches:
+        toolchain:
+            - linux64-7zz
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-dump_syms
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust-cross
+            - linux64-rust-size
+            - linux64-sccache
+            - linux64-upx
+            - linux64-winchecksec
+            - linux64-wine
+            - sysroot-wasm32-wasi
+            - sysroot-x86_64-linux-gnu
+            - winappsdk-aarch64-pc-windows-msvc
+    optimization:
+        never: null
+
+
 win64-aarch64/opt:
     description: "AArch64 Win64 Opt"
     index:
@@ -615,6 +838,60 @@ win64-aarch64/opt:
             stage_platform: win64-aarch64
             mozconfig_platform: win64-aarch64
     run-on-projects: ['comm-central']
+    use-sccache: true
+    fetches:
+        toolchain:
+            - linux64-7zz
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-dump_syms
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust-cross
+            - linux64-rust-size
+            - linux64-sccache
+            - linux64-upx
+            - linux64-winchecksec
+            - linux64-wine
+            - sysroot-wasm32-wasi
+            - sysroot-x86_64-linux-gnu
+            - terser
+            - winappsdk-aarch64-pc-windows-msvc
+    optimization:
+        never: null
+
+win64-aarch64-enterprise/opt:
+    description: "AArch64 Win64 Enterprise Opt"
+    index:
+        product: thunderbird
+        job-name: win64-aarch64-enterprise-opt
+    attributes:
+        enable-build-signing: true
+        enable-full-crashsymbols: true
+        code-review: true
+    treeherder:
+        platform: windows2012-aarch64-enterprise-thunderbird/opt
+        symbol: Bent
+        tier: 1
+    worker-type: b-linux-docker-xlarge-amd
+    worker:
+        max-run-time: 7200
+        env:
+            PERFHERDER_EXTRA_OPTIONS: aarch64
+            RUST_MIN_STACK: "16777216"
+    run:
+        actions: [build]
+        options: [append-env-variables-from-configs]
+        script: mozharness/scripts/fx_desktop_build.py
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+        extra-config:
+            stage_platform: win64-aarch64
+            mozconfig_platform: win64-aarch64
+        mozconfig-variant: enterprise
+    run-on-projects: ["enterprise-thunderbird"]
+    run-on-repo-type: ["git"]
     use-sccache: true
     fetches:
         toolchain:
