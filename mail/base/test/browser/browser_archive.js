@@ -16,7 +16,9 @@ const { threadTree } = about3Pane;
 const messagesInThread = 5;
 
 add_setup(async function () {
-  Services.prefs.setBoolPref("mailnews.scroll_to_new_message", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.scroll_to_new_message", false]],
+  });
   // Create an account for the test.
   const account = MailServices.accounts.createLocalMailAccount();
   account.addIdentity(MailServices.accounts.createIdentity());
@@ -37,8 +39,6 @@ add_setup(async function () {
     // Clear the undo and redo stacks to avoid side-effects on
     // tests expecting them to start in a cleared state.
     MailServices.txns.transactionManager.clear();
-
-    Services.prefs.setBoolPref("mailnews.scroll_to_new_message", true);
   });
 
   // Create a folder for the account to store test messages.

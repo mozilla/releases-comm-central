@@ -24,7 +24,9 @@ const { folderPane, folderTree, threadTree } = about3Pane;
 let rootFolder, localTestFolder, imapTestFolder;
 
 add_setup(async function () {
-  Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [["ui.prefersReducedMotion", 1]],
+  });
 
   const generator = new MessageGenerator();
 
@@ -62,7 +64,6 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(account, false);
     MailServices.accounts.removeAccount(imapAccount, false);
     await ensure_cards_view(document);
-    Services.prefs.clearUserPref("ui.prefersReducedMotion");
   });
 });
 

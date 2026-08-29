@@ -35,15 +35,16 @@ add_setup(() => {
   });
 });
 
-function enableStartInTray(prefs = { closeToTray: true, startInTray: true }) {
-  Services.prefs.setBoolPref("mail.closeToTray", prefs.closeToTray);
-  Services.prefs.setBoolPref("mail.closeToTray.startInTray", prefs.startInTray);
+async function enableStartInTray(
+  prefs = { closeToTray: true, startInTray: true }
+) {
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.closeToTray", prefs.closeToTray],
+      ["mail.closeToTray.startInTray", prefs.startInTray],
+    ],
+  });
 }
-
-registerCleanupFunction(() => {
-  Services.prefs.clearUserPref("mail.closeToTray");
-  Services.prefs.clearUserPref("mail.closeToTray.startInTray");
-});
 
 /**
  * Run gMailInit.onBeforeInitialXULLayout and only resolve once start in tray
@@ -64,7 +65,7 @@ function runOnBeforeInitialXULLayout() {
 }
 
 add_task(async function test_noStartInTray() {
-  enableStartInTray({ closeToTray: false, startInTray: false });
+  await enableStartInTray({ closeToTray: false, startInTray: false });
 
   await runOnBeforeInitialXULLayout();
 
@@ -75,7 +76,7 @@ add_task(async function test_noStartInTray() {
 });
 
 add_task(async function test_onlyCloseToTray() {
-  enableStartInTray({ closeToTray: true, startInTray: false });
+  await enableStartInTray({ closeToTray: true, startInTray: false });
 
   await runOnBeforeInitialXULLayout();
 
@@ -86,7 +87,7 @@ add_task(async function test_onlyCloseToTray() {
 });
 
 add_task(async function test_onlyStartInTray() {
-  enableStartInTray({ closeToTray: false, startInTray: true });
+  await enableStartInTray({ closeToTray: false, startInTray: true });
 
   await runOnBeforeInitialXULLayout();
 
@@ -97,7 +98,7 @@ add_task(async function test_onlyStartInTray() {
 });
 
 add_task(async function test_firstWindowNoState() {
-  enableStartInTray();
+  await enableStartInTray();
   const initialized = sinon
     .stub(SessionStoreManager, "initialized")
     .get(() => false);
@@ -118,7 +119,7 @@ add_task(async function test_firstWindowNoState() {
 });
 
 add_task(async function test_firstWindowWithState() {
-  enableStartInTray();
+  await enableStartInTray();
   const initialized = sinon
     .stub(SessionStoreManager, "initialized")
     .get(() => false);
@@ -139,7 +140,7 @@ add_task(async function test_firstWindowWithState() {
 });
 
 add_task(async function test_reopenedWindowRestored() {
-  enableStartInTray();
+  await enableStartInTray();
   const initialized = sinon
     .stub(SessionStoreManager, "initialized")
     .get(() => true);
@@ -160,7 +161,7 @@ add_task(async function test_reopenedWindowRestored() {
 });
 
 add_task(async function test_reopenedWindowNotRestored() {
-  enableStartInTray();
+  await enableStartInTray();
   const initialized = sinon
     .stub(SessionStoreManager, "initialized")
     .get(() => true);
@@ -181,7 +182,7 @@ add_task(async function test_reopenedWindowNotRestored() {
 });
 
 add_task(async function test_firstWindowAsap() {
-  enableStartInTray();
+  await enableStartInTray();
   const initialized = sinon
     .stub(SessionStoreManager, "initialized")
     .get(() => false);
@@ -206,7 +207,7 @@ add_task(async function test_firstWindowAsap() {
 });
 
 add_task(async function test_reopenedWindowAsap() {
-  enableStartInTray();
+  await enableStartInTray();
   const initialized = sinon
     .stub(SessionStoreManager, "initialized")
     .get(() => true);
@@ -234,7 +235,7 @@ add_task(async function test_reopenedWindowAsap() {
 });
 
 add_task(async function test_delayedStartupDelayed() {
-  enableStartInTray({ closeToTray: false, startInTray: false });
+  await enableStartInTray({ closeToTray: false, startInTray: false });
   const mock = sinon.mock(gMailInit);
   mock.expects("_delayedStartup").never();
 
@@ -248,7 +249,7 @@ add_task(async function test_delayedStartupDelayed() {
 });
 
 add_task(async function test_delayedStartupImmediate() {
-  enableStartInTray();
+  await enableStartInTray();
   const mock = sinon.mock(gMailInit);
   mock.expects("_delayedStartup").once();
 

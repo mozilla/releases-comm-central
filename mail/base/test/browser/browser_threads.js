@@ -16,10 +16,9 @@ const { notificationBox } = threadPane;
 let rootFolder, testFolder, testMessages;
 
 add_setup(async function () {
-  Services.prefs.setStringPref(
-    "mail.ignore_thread.learn_more_url",
-    "http://mochi.test:8888/"
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.ignore_thread.learn_more_url", "http://mochi.test:8888/"]],
+  });
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
   const generator = new MessageGenerator();
@@ -65,7 +64,6 @@ add_setup(async function () {
     await ensure_cards_view(document);
     MailServices.accounts.removeAccount(account, false);
     about3Pane.paneLayout.messagePaneVisible = true;
-    Services.prefs.clearUserPref("mail.ignore_thread.learn_more_url");
   });
 });
 

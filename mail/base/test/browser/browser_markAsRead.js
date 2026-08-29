@@ -26,7 +26,9 @@ let localTestFolder, imapTestFolder, ewsTestFolder;
 add_setup(async function () {
   // We need to get messages directly from the server when displaying them,
   // or this test isn't really testing what it should.
-  Services.prefs.setBoolPref("mail.server.default.offline_download", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.server.default.offline_download", false]],
+  });
 
   const generator = new MessageGenerator();
 
@@ -88,14 +90,10 @@ add_setup(async function () {
     () => ewsTestFolder.getTotalMessages(false) == 10
   );
 
-  registerCleanupFunction(async function () {
+  registerCleanupFunction(function () {
     MailServices.accounts.removeAccount(account, false);
     MailServices.accounts.removeAccount(imapAccount, false);
     MailServices.accounts.removeAccount(ewsAccount, false);
-    Services.prefs.clearUserPref("mail.server.default.offline_download");
-    Services.prefs.clearUserPref("mailnews.mark_message_read.auto");
-    Services.prefs.clearUserPref("mailnews.mark_message_read.delay");
-    Services.prefs.clearUserPref("mailnews.mark_message_read.delay.interval");
   });
 });
 
@@ -203,8 +201,12 @@ async function subtest(testFolder) {
   // With the marking delayed by preferences, open a message in a background tab.
   // It should not get marked as read.
 
-  Services.prefs.setBoolPref("mailnews.mark_message_read.delay", true);
-  Services.prefs.setIntPref("mailnews.mark_message_read.delay.interval", 2);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mailnews.mark_message_read.delay", true],
+      ["mailnews.mark_message_read.delay.interval", 2],
+    ],
+  });
 
   message = testMessages.getNext();
   checkReadFlags(message, false, "message 2 should not be read before load");
@@ -244,12 +246,16 @@ async function subtest(testFolder) {
   );
   tabmail.closeTab(1);
 
-  Services.prefs.setBoolPref("mailnews.mark_message_read.delay", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.mark_message_read.delay", false]],
+  });
 
   // With the marking disabled by preferences, open a message in a background
   // tab. It should not get marked as read.
 
-  Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.mark_message_read.auto", false]],
+  });
 
   message = testMessages.getNext();
   checkReadFlags(message, false, "message 3 should not be read before load");
@@ -275,7 +281,9 @@ async function subtest(testFolder) {
   );
   tabmail.closeTab(1);
 
-  Services.prefs.setBoolPref("mailnews.mark_message_read.auto", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.mark_message_read.auto", true]],
+  });
 
   // Open a new 3-pane tab in the background and load a message in it. The
   // message should not get marked as read.

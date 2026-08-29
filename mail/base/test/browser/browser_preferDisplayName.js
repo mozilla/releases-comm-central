@@ -36,7 +36,6 @@ add_setup(async function () {
     await ensure_cards_view(document);
     book.deleteCards(book.childCards);
     MailServices.accounts.removeAccount(account, false);
-    Services.prefs.clearUserPref("mail.addressDisplayFormat");
   });
 
   const rootFolder = account.incomingServer.rootFolder.QueryInterface(
@@ -308,7 +307,9 @@ add_task(async function () {
 
   // Set global prefer display name preference to false.
 
-  Services.prefs.setBoolPref("mail.showCondensedAddresses", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.showCondensedAddresses", false]],
+  });
   await TestUtils.waitForCondition(
     () => !toLabel.parentNode,
     "Waiting for the header labels to reload."
@@ -376,7 +377,9 @@ add_task(async function () {
 
   // Reset prefer display name global preference to true.
 
-  Services.prefs.setBoolPref("mail.showCondensedAddresses", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.showCondensedAddresses", true]],
+  });
   await TestUtils.waitForCondition(
     () => !toLabel.parentNode,
     "Waiting for the header labels to reload."
@@ -462,7 +465,9 @@ add_task(async function () {
   );
 
   // Prefer email only. Changing the preference causes the message to reload.
-  Services.prefs.setIntPref("mail.addressDisplayFormat", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.addressDisplayFormat", 1]],
+  });
   await BrowserTestUtils.browserLoaded(messagePaneBrowser);
   await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 
@@ -479,7 +484,9 @@ add_task(async function () {
   );
 
   // Prefer name only. Changing the preference causes the message to reload.
-  Services.prefs.setIntPref("mail.addressDisplayFormat", 2);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.addressDisplayFormat", 2]],
+  });
   await BrowserTestUtils.browserLoaded(messagePaneBrowser);
   await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
 

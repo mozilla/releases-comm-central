@@ -67,12 +67,13 @@ add_setup(async function () {
   );
   folderC.markAllMessagesRead(null);
 
-  Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [["ui.prefersReducedMotion", 1]],
+  });
   about3Pane.paneLayout.messagePaneVisible = false;
 
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
-    Services.prefs.clearUserPref("ui.prefersReducedMotion");
     folderPane.activeModes = ["all"];
     Services.xulStore.removeDocument(
       "chrome://messenger/content/messenger.xhtml"

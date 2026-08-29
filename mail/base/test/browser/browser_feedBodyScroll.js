@@ -51,7 +51,9 @@ async function displayFeedMessage() {
 }
 
 add_task(async function test_feedBodyScroll() {
-  Services.prefs.setIntPref("rss.show.summary", 0);
+  await SpecialPowers.pushPrefEnv({
+    set: [["rss.show.summary", 0]],
+  });
 
   await displayFeedMessage(true);
 
@@ -109,6 +111,4 @@ add_task(async function test_feedBodyScroll() {
   // Click once more to load the next message.
   EventUtils.synthesizeKey(" ", {}, window);
   await nextItemLoaded;
-
-  Services.prefs.clearUserPref("rss.show.summary");
 });

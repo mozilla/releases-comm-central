@@ -34,7 +34,6 @@ add_setup(async function () {
 
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
-    Services.prefs.clearUserPref("mail.threadpane.table.horizontal_scroll");
     Services.xulStore.removeDocument(
       "chrome://messenger/content/messenger.xhtml"
     );
@@ -90,7 +89,9 @@ add_task(async function testHorizontalScroll() {
     "The last column's splitter should be disabled"
   );
 
-  Services.prefs.setBoolPref("mail.threadpane.table.horizontal_scroll", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.threadpane.table.horizontal_scroll", true]],
+  });
 
   // Simulate the resize of some columns by hardcoding a width value so we can
   // force a situation in which the user wants columns to be wider than the
@@ -124,7 +125,9 @@ add_task(async function testHorizontalScroll() {
     "The last column's splitter shouldn't be disabled"
   );
 
-  Services.prefs.setBoolPref("mail.threadpane.table.horizontal_scroll", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.threadpane.table.horizontal_scroll", false]],
+  });
 
   await TestUtils.waitForCondition(
     () =>

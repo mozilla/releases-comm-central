@@ -13,10 +13,14 @@ const TEST_DOCUMENT_URL = "http://mochi.test:8888/";
 let about3Pane;
 
 add_setup(async function () {
-  Services.prefs.setBoolPref("mailnews.scroll_to_new_message", false);
   // Reduce animations to prevent intermittent fails due to findbar collapsing
   // animation delay.
-  Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mailnews.scroll_to_new_message", false],
+      ["ui.prefersReducedMotion", 1],
+    ],
+  });
 
   // Create an account for the test.
   const account = MailServices.accounts.createLocalMailAccount();
@@ -50,8 +54,6 @@ add_setup(async function () {
   // Remove test account on cleanup.
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
-    Services.prefs.clearUserPref("mailnews.scroll_to_new_message");
-    Services.prefs.clearUserPref("ui.prefersReducedMotion");
   });
 });
 

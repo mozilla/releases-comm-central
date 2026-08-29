@@ -29,8 +29,12 @@ const generator = new MessageGenerator();
 let testFolder1, testFolder2, virtualFolder;
 
 add_setup(async function () {
-  Services.prefs.setBoolPref("mailnews.scroll_to_new_message", false);
-  Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mailnews.scroll_to_new_message", false],
+      ["ui.prefersReducedMotion", 1],
+    ],
+  });
 
   const account = MailServices.accounts.createLocalMailAccount();
   account.addIdentity(MailServices.accounts.createIdentity());
@@ -67,8 +71,6 @@ add_setup(async function () {
     threadPane.forgetSavedSelection(testFolder2.URI);
     threadPane.forgetSavedSelection(virtualFolder.URI);
     MailServices.accounts.removeAccount(account, false);
-    Services.prefs.clearUserPref("mailnews.scroll_to_new_message");
-    Services.prefs.clearUserPref("ui.prefersReducedMotion");
   });
 });
 

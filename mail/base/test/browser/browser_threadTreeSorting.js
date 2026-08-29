@@ -16,7 +16,9 @@ let rootFolder, testFolder, sourceMessageIDs;
 const menuHelper = new MenuTestHelper("menu_View");
 
 add_setup(async function () {
-  Services.prefs.setBoolPref("mailnews.scroll_to_new_message", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.scroll_to_new_message", false]],
+  });
   const generator = new MessageGenerator();
 
   const account = MailServices.accounts.createLocalMailAccount();
@@ -45,7 +47,6 @@ add_setup(async function () {
   registerCleanupFunction(async () => {
     await ensure_cards_view(document);
     MailServices.accounts.removeAccount(account, false);
-    Services.prefs.setBoolPref("mailnews.scroll_to_new_message", true);
   });
 });
 

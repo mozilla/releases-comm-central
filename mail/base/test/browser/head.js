@@ -324,6 +324,11 @@ async function promiseServerIdle(server) {
 }
 
 add_setup(async () => {
+  // These preferences are changed indirectly through the UI. Clear any existing
+  // user values so their original state is restored when the tests finish.
+  await SpecialPowers.pushPrefEnv({
+    clear: [["mail.pane_config.dynamic"], ["mail.threadpane.listview"]],
+  });
   // Remove state information (for example position and size) for the compose and
   // message window, which might have leaked in from previous tests.
   Services.xulStore.removeDocument(
@@ -340,9 +345,6 @@ add_setup(async () => {
 // which will run last.
 registerCleanupFunction(function () {
   registerCleanupFunction(async function () {
-    Services.prefs.clearUserPref("mail.pane_config.dynamic");
-    Services.prefs.clearUserPref("mail.threadpane.listview");
-
     const tabmail = document.getElementById("tabmail");
     if (tabmail.tabInfo.length > 1) {
       Assert.report(

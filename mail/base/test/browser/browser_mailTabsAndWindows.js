@@ -47,7 +47,6 @@ add_setup(async function () {
   messagesB = [...folderB.messages];
 
   registerCleanupFunction(() => {
-    Services.prefs.clearUserPref("mail.tabs.loadInBackground");
     MailServices.accounts.removeAccount(account, false);
   });
 });
@@ -250,7 +249,9 @@ add_task(async function testTabs() {
     "first message pane browser should not be a remote browser"
   );
 
-  Services.prefs.setBoolPref("mail.tabs.loadInBackground", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.tabs.loadInBackground", true]],
+  });
   info("Open some more tabs. These should open in the background.");
 
   window.MsgOpenNewTabForFolders([folderB], {
@@ -503,7 +504,9 @@ add_task(async function testTabs() {
     "first message pane browser should not be a remote browser"
   );
 
-  Services.prefs.setBoolPref("mail.tabs.loadInBackground", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.tabs.loadInBackground", false]],
+  });
   info("Open a new mail tab. Focus should switch to the new tab.");
 
   window.OpenMessageInNewTab(messagesB[0], {});

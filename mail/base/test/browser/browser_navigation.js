@@ -25,7 +25,9 @@ let folderA,
   folderDMessages;
 
 add_setup(async function () {
-  Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.mark_message_read.auto", false]],
+  });
 
   const generator = new MessageGenerator();
 
@@ -90,7 +92,6 @@ add_setup(async function () {
 
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
-    Services.prefs.clearUserPref("mailnews.mark_message_read.auto");
   });
 });
 

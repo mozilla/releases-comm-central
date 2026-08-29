@@ -13,6 +13,9 @@ const about3Pane = tabmail.currentAbout3Pane;
 let rssFeedFolder;
 
 add_setup(async () => {
+  await SpecialPowers.pushPrefEnv({
+    clear: [["rss.show.summary"]],
+  });
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
   const feedAccount = FeedUtils.createRssAccount("rssBodyMode");
@@ -222,28 +225,31 @@ add_task(async function test_feedBodyFormat_menubar() {
 }).skip(AppConstants.platform == "macosx"); // Can't click menu bar on Mac.
 
 add_task(async function test_feedBodyFormat_selectWebsite() {
-  Services.prefs.setIntPref("rss.show.summary", 0);
+  await SpecialPowers.pushPrefEnv({
+    set: [["rss.show.summary", 0]],
+  });
 
   await subtestSelectArticleAndCheckMode(true);
 
   about3Pane.threadTree.selectedIndex = -1; // Clear the displayed message.
-  Services.prefs.clearUserPref("rss.show.summary");
 });
 
 add_task(async function test_feedBodyFormat_selectSummary() {
-  Services.prefs.setIntPref("rss.show.summary", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [["rss.show.summary", 1]],
+  });
 
   await subtestSelectArticleAndCheckMode(false);
 
   about3Pane.threadTree.selectedIndex = -1; // Clear the displayed message.
-  Services.prefs.clearUserPref("rss.show.summary");
 });
 
 add_task(async function test_feedBodyFormat_selectFolder() {
-  Services.prefs.setIntPref("rss.show.summary", 2);
+  await SpecialPowers.pushPrefEnv({
+    set: [["rss.show.summary", 2]],
+  });
 
   await subtestSelectArticleAndCheckMode(true);
 
   about3Pane.threadTree.selectedIndex = -1; // Clear the displayed message.
-  Services.prefs.clearUserPref("rss.show.summary");
 });

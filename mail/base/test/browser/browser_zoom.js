@@ -15,7 +15,9 @@ const about3Pane = tabmail.currentAbout3Pane;
 const { threadTree } = about3Pane;
 
 add_setup(async function () {
-  Services.prefs.setBoolPref("mailnews.scroll_to_new_message", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.scroll_to_new_message", false]],
+  });
   // Create an account for the test.
   const account = MailServices.accounts.createLocalMailAccount();
   account.addIdentity(MailServices.accounts.createIdentity());
@@ -43,7 +45,6 @@ add_setup(async function () {
   // Remove test account on cleanup.
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
-    Services.prefs.setBoolPref("mailnews.scroll_to_new_message", true);
   });
 });
 

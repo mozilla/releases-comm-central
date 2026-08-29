@@ -19,7 +19,9 @@ let rootFolder,
   dataTransfer;
 
 add_setup(async function () {
-  Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [["ui.prefersReducedMotion", 1]],
+  });
 
   const account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
@@ -38,9 +40,8 @@ add_setup(async function () {
   folderB = rootFolder.createLocalSubfolder("folderB");
   folderC = rootFolder.createLocalSubfolder("folderC");
 
-  registerCleanupFunction(async () => {
+  registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
-    Services.prefs.clearUserPref("ui.prefersReducedMotion");
   });
 });
 
