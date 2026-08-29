@@ -151,8 +151,10 @@ let rootFolder, testFolder, testMessages;
 let draftsFolder, draftsMessages, templatesFolder, templatesMessages;
 
 add_setup(async function () {
-  Services.prefs.clearUserPref("mail.last_msg_movecopy_target_uri");
-  Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
+  await SpecialPowers.pushPrefEnv({
+    clear: [["mail.last_msg_movecopy_target_uri"]],
+    set: [["mailnews.mark_message_read.auto", false]],
+  });
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
   const generator = new MessageGenerator();
@@ -258,7 +260,6 @@ add_setup(async function () {
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(0);
     MailServices.accounts.removeAccount(account, false);
-    Services.prefs.clearUserPref("mailnews.mark_message_read.auto");
   });
 });
 

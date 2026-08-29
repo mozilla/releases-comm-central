@@ -11,12 +11,12 @@ let waitTime = 0;
 const tabmail = document.getElementById("tabmail");
 registerCleanupFunction(() => {
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
-  Services.prefs.clearUserPref("ui.prefersReducedMotion");
-  Services.prefs.clearUserPref("mailnews.default_view_flags");
 });
 
 async function withMotion(subtest) {
-  Services.prefs.setIntPref("ui.prefersReducedMotion", 0);
+  await SpecialPowers.pushPrefEnv({
+    set: [["ui.prefersReducedMotion", 0]],
+  });
   waitTime = 300;
   await TestUtils.waitForCondition(
     () => !matchMedia("(prefers-reduced-motion)").matches
@@ -25,7 +25,9 @@ async function withMotion(subtest) {
 }
 
 async function withoutMotion(subtest) {
-  Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [["ui.prefersReducedMotion", 1]],
+  });
   waitTime = 0;
   await TestUtils.waitForCondition(
     () => matchMedia("(prefers-reduced-motion)").matches
@@ -448,7 +450,9 @@ async function subtestDragUndroppable() {
 
 add_setup(async function () {
   // Make sure the whole test runs with an unthreaded view in all folders.
-  Services.prefs.setIntPref("mailnews.default_view_flags", 0);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.default_view_flags", 0]],
+  });
 
   const tab = tabmail.openTab("contentTab", {
     url: "chrome://mochitests/content/browser/comm/mail/base/test/browser/widgets/files/orderableTreeListbox.xhtml",

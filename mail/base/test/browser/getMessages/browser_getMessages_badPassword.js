@@ -34,7 +34,9 @@ const getMessagesContext = about3Pane.document.getElementById(
 );
 
 add_setup(async function () {
-  Services.prefs.setBoolPref("signon.rememberSignons", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["signon.rememberSignons", true]],
+  });
 
   localAccount = MailServices.accounts.createLocalMailAccount();
   localRootFolder = localAccount.incomingServer.rootFolder;
@@ -118,7 +120,6 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(nntpAccount, false);
 
     await Services.logins.removeAllLoginsAsync();
-    Services.prefs.clearUserPref("signon.rememberSignons");
   });
 });
 

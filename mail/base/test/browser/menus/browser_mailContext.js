@@ -316,7 +316,9 @@ async function checkMenuitems(menu, mode) {
 }
 
 add_setup(async function () {
-  Services.prefs.clearUserPref("mail.last_msg_movecopy_target_uri");
+  await SpecialPowers.pushPrefEnv({
+    clear: [["mail.last_msg_movecopy_target_uri"]],
+  });
   const generator = new MessageGenerator();
 
   const account = MailServices.accounts.createLocalMailAccount();
@@ -407,7 +409,6 @@ add_setup(async function () {
       Gloda.setFolderIndexingPriority(folder, -1);
     }
     MailServices.accounts.removeAccount(account, false);
-    Services.prefs.clearUserPref("mail.openMessageBehavior");
     cal.manager.getCalendars()[0].setProperty("disabled", true);
   });
 });
@@ -1146,10 +1147,9 @@ add_task(async function testExternalMessageTab() {
   const messageFile = new FileUtils.File(
     getTestFilePath("../files/sampleContent.eml")
   );
-  Services.prefs.setIntPref(
-    "mail.openMessageBehavior",
-    MailConsts.OpenMessageBehavior.NEW_TAB
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.openMessageBehavior", MailConsts.OpenMessageBehavior.NEW_TAB]],
+  });
   MailUtils.openEMLFile(
     window,
     messageFile,
@@ -1204,10 +1204,11 @@ add_task(async function testExternalMessageWindow() {
   const messageFile = new FileUtils.File(
     getTestFilePath("../files/sampleContent.eml")
   );
-  Services.prefs.setIntPref(
-    "mail.openMessageBehavior",
-    MailConsts.OpenMessageBehavior.NEW_WINDOW
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.openMessageBehavior", MailConsts.OpenMessageBehavior.NEW_WINDOW],
+    ],
+  });
   MailUtils.openEMLFile(
     window,
     messageFile,

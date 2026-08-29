@@ -25,6 +25,12 @@ const { displayFolder, messageBrowser, threadTree } = about3Pane;
 let testMessages, draftMessage, templateMessage, nntpMessage;
 
 add_setup(async function () {
+  // This preference can be changed indirectly through the UI. Clear any
+  // existing user value and restore its original state when the test finishes.
+  await SpecialPowers.pushPrefEnv({
+    clear: [["mail.tabs.loadInBackground"]],
+  });
+
   const generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();
@@ -95,8 +101,6 @@ add_setup(async function () {
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
     MailServices.accounts.removeAccount(nntpAccount, false);
-    Services.prefs.clearUserPref("mail.tabs.loadInBackground");
-    Services.prefs.clearUserPref("mail.forward_message_mode");
   });
 });
 
@@ -330,7 +334,9 @@ async function subtestSingleMessage(callbacks) {
     { to: [testMessages[0].author, testMessages[0].recipients] }
   );
 
-  Services.prefs.setIntPref("mail.forward_message_mode", 0);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.forward_message_mode", 0]],
+  });
   await promiseComposeWindow(
     openMenu,
     "mailContext-forward",
@@ -343,7 +349,9 @@ async function subtestSingleMessage(callbacks) {
     Ci.nsIMsgCompType.ForwardInline
   );
 
-  Services.prefs.setIntPref("mail.forward_message_mode", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.forward_message_mode", 1]],
+  });
   await promiseComposeWindow(
     openMenu,
     "mailContext-forward",

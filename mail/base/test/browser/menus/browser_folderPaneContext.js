@@ -206,7 +206,6 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(nntpAccount, false);
     MailServices.accounts.removeAccount(rssAccount, false);
     about3Pane.folderPane.activeModes = ["all"];
-    Services.prefs.clearUserPref("mail.tabs.loadInBackground");
   });
 });
 
@@ -918,7 +917,9 @@ add_task(async function testOpen() {
 
   // Open in a new background tab.
 
-  Services.prefs.setBoolPref("mail.tabs.loadInBackground", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.tabs.loadInBackground", true]],
+  });
 
   leftClickOn(plainFolder);
   let tabPromise = promiseTabOpenAndReady();
@@ -962,7 +963,9 @@ add_task(async function testOpen() {
 
   // Open in a new foreground tab by preference.
 
-  Services.prefs.setBoolPref("mail.tabs.loadInBackground", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.tabs.loadInBackground", false]],
+  });
 
   leftClickOn(inboxFolder);
   tabPromise = promiseTabOpenAndReady();

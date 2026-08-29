@@ -33,7 +33,9 @@ const getMessagesContext = about3Pane.document.getElementById(
 add_setup(async function () {
   // This test sometimes fails trying to send messages when going online.
   // It's nothing to do with what we're testing, so just avoid that code.
-  Services.prefs.setIntPref("offline.send.unsent_messages", 2);
+  await SpecialPowers.pushPrefEnv({
+    set: [["offline.send.unsent_messages", 2]],
+  });
 
   localAccount = MailServices.accounts.createLocalMailAccount();
   localRootFolder = localAccount.incomingServer.rootFolder;
@@ -88,12 +90,11 @@ add_setup(async function () {
 
   about3Pane.displayFolder(localRootFolder);
 
-  registerCleanupFunction(async function () {
+  registerCleanupFunction(function () {
     MailServices.accounts.removeAccount(localAccount, false);
     MailServices.accounts.removeAccount(imapAccount, false);
     MailServices.accounts.removeAccount(pop3Account, false);
     MailServices.accounts.removeAccount(nntpAccount, false);
-    Services.prefs.clearUserPref("offline.send.unsent_messages");
   });
 });
 

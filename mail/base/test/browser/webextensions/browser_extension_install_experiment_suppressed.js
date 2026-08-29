@@ -1,4 +1,14 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
 "use strict";
+
+async function setExperimentSuppression(suppressed) {
+  await SpecialPowers.pushPrefEnv({
+    set: [["extensions.experiments.suppressed", suppressed]],
+  });
+}
 
 async function installFile(filename) {
   const MockFilePicker = SpecialPowers.MockFilePicker;
@@ -52,7 +62,7 @@ function promiseInstallResult() {
  */
 add_task(async function test_suppressed_experiment_install() {
   // Enable experiment suppression.
-  Services.prefs.setBoolPref("extensions.experiments.suppressed", true);
+  await setExperimentSuppression(true);
 
   const installPromise = promiseInstallResult();
 
@@ -82,8 +92,6 @@ add_task(async function test_suppressed_experiment_install() {
 
   const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(tabmail.currentTabInfo);
-
-  Services.prefs.clearUserPref("extensions.experiments.suppressed");
 });
 
 /**
@@ -93,7 +101,7 @@ add_task(async function test_suppressed_experiment_install() {
  */
 add_task(async function test_allowlisted_experiment_bypasses_suppression() {
   // Enable experiment suppression.
-  Services.prefs.setBoolPref("extensions.experiments.suppressed", true);
+  await setExperimentSuppression(true);
 
   const installPromise = promiseInstallResult();
 
@@ -123,8 +131,6 @@ add_task(async function test_allowlisted_experiment_bypasses_suppression() {
 
   const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(tabmail.currentTabInfo);
-
-  Services.prefs.clearUserPref("extensions.experiments.suppressed");
 });
 
 /**
@@ -133,7 +139,7 @@ add_task(async function test_allowlisted_experiment_bypasses_suppression() {
  */
 add_task(async function test_temporary_experiment_bypasses_suppression() {
   // Enable experiment suppression.
-  Services.prefs.setBoolPref("extensions.experiments.suppressed", true);
+  await setExperimentSuppression(true);
 
   // Install the experiment as a temporary add-on (like about:debugging does).
   const xpiFile = new FileUtils.File(
@@ -168,7 +174,6 @@ add_task(async function test_temporary_experiment_bypasses_suppression() {
   const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(tabmail.currentTabInfo);
   await addon.uninstall();
-  Services.prefs.clearUserPref("extensions.experiments.suppressed");
 });
 
 /**
@@ -177,7 +182,7 @@ add_task(async function test_temporary_experiment_bypasses_suppression() {
  */
 add_task(async function test_aboutaddons_suppressed_banner() {
   // Install the experiment with suppression OFF by accepting the prompt.
-  Services.prefs.setBoolPref("extensions.experiments.suppressed", false);
+  await setExperimentSuppression(false);
 
   const installPromise = new Promise(resolve => {
     const listener = {
@@ -231,7 +236,7 @@ add_task(async function test_aboutaddons_suppressed_banner() {
   tabmail.closeTab(tabmail.currentTabInfo);
 
   // Enable suppression.
-  Services.prefs.setBoolPref("extensions.experiments.suppressed", true);
+  await setExperimentSuppression(true);
 
   // Re-open about:addons — warning banner should now be visible.
   const { document: addonDoc2 } = await openAddonsMgr(
@@ -260,7 +265,6 @@ add_task(async function test_aboutaddons_suppressed_banner() {
   // Clean up.
   tabmail.closeTab(tabmail.currentTabInfo);
   await addon.uninstall();
-  Services.prefs.clearUserPref("extensions.experiments.suppressed");
 });
 
 /**
@@ -269,7 +273,7 @@ add_task(async function test_aboutaddons_suppressed_banner() {
  */
 add_task(async function test_non_suppressed_experiment_install() {
   // Ensure experiment suppression is off.
-  Services.prefs.setBoolPref("extensions.experiments.suppressed", false);
+  await setExperimentSuppression(false);
 
   const installPromise = promiseInstallResult();
 
@@ -299,6 +303,4 @@ add_task(async function test_non_suppressed_experiment_install() {
 
   const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(tabmail.currentTabInfo);
-
-  Services.prefs.clearUserPref("extensions.experiments.suppressed");
 });

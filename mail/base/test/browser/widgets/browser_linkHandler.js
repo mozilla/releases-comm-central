@@ -102,14 +102,13 @@ const webProgressListener = {
   },
 };
 
-add_setup(function () {
+add_setup(async function () {
   // This test deliberately loads content from http:// URLs. For some reason
   // upgrading the icon URL to https:// causes it to attempt loading from an
   // external server and this makes the test crash.
-  Services.prefs.setBoolPref(
-    "security.mixed_content.upgrade_display_content",
-    false
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["security.mixed_content.upgrade_display_content", false]],
+  });
 
   MockExternalProtocolService.init();
 });
@@ -123,10 +122,6 @@ registerCleanupFunction(() => {
   }
 
   MockExternalProtocolService.cleanup();
-
-  Services.prefs.clearUserPref(
-    "security.mixed_content.upgrade_display_content"
-  );
 });
 
 async function clickOnLink(

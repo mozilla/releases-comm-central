@@ -385,10 +385,11 @@ async function subtest(aboutMessage, mailContext) {
 
 add_setup(async function () {
   MockExternalProtocolService.init();
-  Services.prefs.setStringPref(
-    "browser.safebrowsing.reportPhishURL",
-    "https://phish.invalid/?a=b"
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["browser.safebrowsing.reportPhishURL", "https://phish.invalid/?a=b"],
+    ],
+  });
 
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
@@ -413,7 +414,6 @@ add_setup(async function () {
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
     MockExternalProtocolService.cleanup();
-    Services.prefs.clearUserPref("browser.safebrowsing.reportPhishURL");
 
     const googleValue = Glean.mail.websearchUsage.google.testGetValue();
     Assert.equal(

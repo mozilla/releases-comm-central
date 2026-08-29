@@ -43,8 +43,12 @@ const getMessagesContext = about3Pane.document.getElementById(
 );
 
 add_setup(async function () {
-  Services.prefs.setStringPref("mailnews.oauth.loglevel", "Debug");
-  Services.prefs.setBoolPref("signon.rememberSignons", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mailnews.oauth.loglevel", "Debug"],
+      ["signon.rememberSignons", true],
+    ],
+  });
 
   localAccount = MailServices.accounts.createLocalMailAccount();
   localRootFolder = localAccount.incomingServer.rootFolder;
@@ -113,8 +117,6 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(ewsAccount, false);
 
     await Services.logins.removeAllLoginsAsync();
-    Services.prefs.clearUserPref("mailnews.oauth.loglevel");
-    Services.prefs.clearUserPref("signon.rememberSignons");
 
     Assert.ok(!MockAlertsService.alert, "no unexpected alerts were shown");
     MockAlertsService.cleanup();

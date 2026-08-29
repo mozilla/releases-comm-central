@@ -25,6 +25,13 @@ const mailContext = about3Pane.document.getElementById("mailContext");
 let testMessages;
 
 add_setup(async function () {
+  // These preferences can be changed indirectly through the UI. Clear any
+  // existing user values and restore their original state when the test
+  // finishes.
+  await SpecialPowers.pushPrefEnv({
+    clear: [["mail.tabs.loadInBackground"], ["mail.forward_message_mode"]],
+  });
+
   const generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();
@@ -54,8 +61,6 @@ add_setup(async function () {
 
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
-    Services.prefs.clearUserPref("mail.tabs.loadInBackground");
-    Services.prefs.clearUserPref("mail.forward_message_mode");
   });
 });
 

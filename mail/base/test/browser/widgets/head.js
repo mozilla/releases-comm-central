@@ -49,15 +49,21 @@ async function openExtensionPopup(win, buttonId) {
   return { actionButton, panel, browser };
 }
 
+add_setup(async function () {
+  // These preferences are changed indirectly through the UI. Clear any
+  // existing user values and restore their original state when the tests
+  // finish.
+  await SpecialPowers.pushPrefEnv({
+    clear: [["mail.pane_config.dynamic"], ["mail.threadpane.listview"]],
+  });
+});
+
 // Report and remove any remaining accounts/servers. If we register a cleanup
 // function here, it will run before any other cleanup function has had a
 // chance to run. Instead, when it runs register another cleanup function
 // which will run last.
 registerCleanupFunction(function () {
   registerCleanupFunction(async function () {
-    Services.prefs.clearUserPref("mail.pane_config.dynamic");
-    Services.prefs.clearUserPref("mail.threadpane.listview");
-
     const tabmail = document.getElementById("tabmail");
     if (tabmail.tabInfo.length > 1) {
       Assert.report(

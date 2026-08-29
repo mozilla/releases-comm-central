@@ -112,10 +112,6 @@ add_task(async function testContentTab() {
 });
 
 add_task(async function testDevtoolsToolboxAvailability() {
-  const chromeEnabled = Services.prefs.getBoolPref("devtools.chrome.enabled");
-  const remoteEnabled = Services.prefs.getBoolPref(
-    "devtools.debugger.remote-enabled"
-  );
   const menubarItem = document.getElementById("devtoolsToolbox");
   const appMenuButton = document.getElementById("button-appmenu");
   const appMenuPopup = document.getElementById("appMenu-popup");
@@ -169,21 +165,24 @@ add_task(async function testDevtoolsToolboxAvailability() {
   try {
     await checkAvailability(true);
 
-    Services.prefs.setBoolPref("devtools.chrome.enabled", false);
+    await SpecialPowers.pushPrefEnv({
+      set: [["devtools.chrome.enabled", false]],
+    });
     await checkAvailability(false);
 
-    Services.prefs.setBoolPref("devtools.chrome.enabled", true);
-    Services.prefs.setBoolPref("devtools.debugger.remote-enabled", false);
+    await SpecialPowers.pushPrefEnv({
+      set: [
+        ["devtools.chrome.enabled", true],
+        ["devtools.debugger.remote-enabled", false],
+      ],
+    });
     await checkAvailability(false);
 
-    Services.prefs.setBoolPref("devtools.debugger.remote-enabled", true);
+    await SpecialPowers.pushPrefEnv({
+      set: [["devtools.debugger.remote-enabled", true]],
+    });
     await checkAvailability(true);
   } finally {
-    Services.prefs.setBoolPref("devtools.chrome.enabled", chromeEnabled);
-    Services.prefs.setBoolPref(
-      "devtools.debugger.remote-enabled",
-      remoteEnabled
-    );
     if (appMenuPopup.state != "closed") {
       appMenuPopup.hidePopup();
     }
