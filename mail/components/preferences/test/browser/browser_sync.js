@@ -28,9 +28,9 @@ const PREF_PREFIX = "services.sync.engine";
 let prefsWindow, prefsDocument, tabmail;
 
 add_setup(async function () {
-  for (const engine of ALL_ENGINES) {
-    Services.prefs.setBoolPref(`${PREF_PREFIX}.${engine}`, true);
-  }
+  await SpecialPowers.pushPrefEnv({
+    set: ALL_ENGINES.map(engine => [`${PREF_PREFIX}.${engine}`, true]),
+  });
 
   ({ prefsWindow, prefsDocument } = await openNewPrefsTab("paneSync"));
   tabmail = document.getElementById("tabmail");
@@ -300,13 +300,21 @@ add_task(async function testEngines() {
   }
 
   assertEnginesShown(...ALL_ENGINES);
-  Services.prefs.setBoolPref(`${PREF_PREFIX}.servers`, false);
+  await SpecialPowers.pushPrefEnv({
+    set: [[`${PREF_PREFIX}.servers`, false]],
+  });
   assertEnginesShown("identities", "addressbooks", "calendars", "passwords");
-  Services.prefs.setBoolPref(`${PREF_PREFIX}.identities`, false);
-  Services.prefs.setBoolPref(`${PREF_PREFIX}.addressbooks`, false);
-  Services.prefs.setBoolPref(`${PREF_PREFIX}.calendars`, false);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      [`${PREF_PREFIX}.identities`, false],
+      [`${PREF_PREFIX}.addressbooks`, false],
+      [`${PREF_PREFIX}.calendars`, false],
+    ],
+  });
   assertEnginesShown("passwords");
-  Services.prefs.setBoolPref(`${PREF_PREFIX}.passwords`, false);
+  await SpecialPowers.pushPrefEnv({
+    set: [[`${PREF_PREFIX}.passwords`, false]],
+  });
   assertEnginesShown();
 
   info("Checking the engine selection dialog");
@@ -335,8 +343,12 @@ add_task(async function testEngines() {
   assertEnginesEnabled("servers", "identities", "calendars");
   assertEnginesShown("servers", "identities", "calendars");
 
-  Services.prefs.setBoolPref(`${PREF_PREFIX}.addressbooks`, true);
-  Services.prefs.setBoolPref(`${PREF_PREFIX}.passwords`, true);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      [`${PREF_PREFIX}.addressbooks`, true],
+      [`${PREF_PREFIX}.passwords`, true],
+    ],
+  });
   assertEnginesShown(...ALL_ENGINES);
 });
 

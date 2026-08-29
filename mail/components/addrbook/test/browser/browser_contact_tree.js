@@ -371,7 +371,9 @@ add_task(async function test_persistence() {
   book.addCard(createContact("echo", "november", "uniform"));
 
   Services.xulStore.removeDocument("about:addressbook");
-  Services.prefs.clearUserPref("mail.addr_book.lastnamefirst");
+  await SpecialPowers.pushPrefEnv({
+    clear: [["mail.addr_book.lastnamefirst"]],
+  });
 
   await openAddressBookWindow();
   await checkNamesListed("kilo", "quebec", "sierra", "uniform", "whiskey");
@@ -418,7 +420,6 @@ add_task(async function test_persistence() {
   await closeAddressBookWindow();
 
   Services.xulStore.removeDocument("about:addressbook");
-  Services.prefs.clearUserPref("mail.addr_book.lastnamefirst");
 
   await promiseDirectoryRemoved(book.URI);
 });
@@ -833,7 +834,9 @@ add_task(async function test_layout() {
     Assert.equal(cardsList.getRowAtIndex(0).clientHeight, height);
   }
 
-  Services.prefs.setIntPref("mail.uidensity", 0);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.uidensity", 0]],
+  });
   personalBook.addCard(
     createContact("contact", "one", undefined, "first@invalid")
   );
@@ -976,10 +979,14 @@ add_task(async function test_layout() {
 
   // Change the density.
 
-  Services.prefs.setIntPref("mail.uidensity", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.uidensity", 1]],
+  });
   checkRowHeight(22);
 
-  Services.prefs.setIntPref("mail.uidensity", 2);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.uidensity", 2]],
+  });
   checkRowHeight(32);
 
   // Close and reopen the Address Book and check that settings were remembered.
@@ -1052,7 +1059,6 @@ add_task(async function test_layout() {
   await closeAddressBookWindow();
 
   Services.xulStore.removeDocument("about:addressbook");
-  Services.prefs.clearUserPref("mail.uidensity");
   personalBook.deleteCards(personalBook.childCards);
 });
 

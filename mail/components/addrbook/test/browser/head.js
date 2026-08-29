@@ -11,6 +11,19 @@ const historyBook = MailServices.ab.getDirectoryFromId(
   "ldap_2.servers.history"
 );
 
+add_setup(async function () {
+  // These preferences are changed indirectly through the UI. Clear any
+  // existing user values and restore their original state when the tests
+  // finish.
+  // TODO: convert this to UID.
+  await SpecialPowers.pushPrefEnv({
+    clear: [
+      ["mail.addr_book.view.startupURI"],
+      ["mail.addr_book.view.startupURIisDefault"],
+    ],
+  });
+});
+
 // We want to check that everything has been removed/reset, but if we register
 // a cleanup function here, it will run before any other cleanup function has
 // had a chance to run. Instead, when it runs register another cleanup
@@ -41,10 +54,6 @@ registerCleanupFunction(function () {
       }
     }
     closeAddressBookWindow();
-
-    // TODO: convert this to UID.
-    Services.prefs.clearUserPref("mail.addr_book.view.startupURI");
-    Services.prefs.clearUserPref("mail.addr_book.view.startupURIisDefault");
 
     // Some tests that open new windows don't return focus to the main window
     // in a way that satisfies mochitest, and the test times out.

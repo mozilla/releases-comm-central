@@ -1144,11 +1144,12 @@ add_task(async function test_basic_edit() {
  * when it shouldn't be.
  */
 add_task(async function test_generate_display_name() {
-  Services.prefs.setBoolPref("mail.addr_book.displayName.autoGeneration", true);
-  Services.prefs.setStringPref(
-    "mail.addr_book.displayName.lastnamefirst",
-    "false"
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.addr_book.displayName.autoGeneration", true],
+      ["mail.addr_book.displayName.lastnamefirst", "false"],
+    ],
+  });
 
   const abWindow = await openAddressBookWindow();
   const abDocument = abWindow.document;
@@ -1204,18 +1205,16 @@ add_task(async function test_generate_display_name() {
   checkInputValues({ DisplayName: "" });
 
   // Flip the order.
-  Services.prefs.setStringPref(
-    "mail.addr_book.displayName.lastnamefirst",
-    "true"
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.addr_book.displayName.lastnamefirst", "true"]],
+  });
   setInputValues({ FirstName: "fourth" });
   checkInputValues({ DisplayName: "" });
 
   // Turn off generation.
-  Services.prefs.setBoolPref(
-    "mail.addr_book.displayName.autoGeneration",
-    false
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.addr_book.displayName.autoGeneration", false]],
+  });
   setInputValues({ FirstName: "fifth" });
   checkInputValues({ DisplayName: "" });
 
@@ -1232,11 +1231,12 @@ add_task(async function test_generate_display_name() {
   Assert.ok(!abWindow.detailsPane.isDirty, "dirty flag is cleared");
 
   // Reset the order and turn generation back on.
-  Services.prefs.setBoolPref("mail.addr_book.displayName.autoGeneration", true);
-  Services.prefs.setStringPref(
-    "mail.addr_book.displayName.lastnamefirst",
-    "false"
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.addr_book.displayName.autoGeneration", true],
+      ["mail.addr_book.displayName.lastnamefirst", "false"],
+    ],
+  });
 
   // Reload the card and check the values.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
@@ -1292,8 +1292,6 @@ add_task(async function test_generate_display_name() {
   await notInEditingMode(editButton);
 
   await closeAddressBookWindow();
-  Services.prefs.clearUserPref("mail.addr_book.displayName.autoGeneration");
-  Services.prefs.clearUserPref("mail.addr_book.displayName.lastnamefirst");
   personalBook.deleteCards(personalBook.childCards);
 });
 

@@ -768,21 +768,22 @@ add_task(async function accountListOrder() {
   is(cloudFileAccounts.providers.length, 1);
   is(cloudFileAccounts.accounts.length, 0);
 
+  const accountPrefs = [];
   for (const [key, displayName] of [
     ["someKey1", "carl's Account"],
     ["someKey2", "Amber's Account"],
     ["someKey3", "alice's Account"],
     ["someKey4", "Bob's Account"],
   ]) {
-    Services.prefs.setCharPref(
-      `mail.cloud_files.accounts.${key}.type`,
-      "ext-cloudfile@mochitest"
-    );
-    Services.prefs.setCharPref(
-      `mail.cloud_files.accounts.${key}.displayName`,
-      displayName
+    accountPrefs.push(
+      [`mail.cloud_files.accounts.${key}.type`, "ext-cloudfile@mochitest"],
+      [`mail.cloud_files.accounts.${key}.displayName`, displayName]
     );
   }
+
+  await SpecialPowers.pushPrefEnv({
+    set: accountPrefs,
+  });
 
   // Register our test provider.
 
@@ -807,5 +808,4 @@ add_task(async function accountListOrder() {
   await closePrefsTab();
   info("Stopping extension");
   await extension.unload();
-  Services.prefs.deleteBranch("mail.cloud_files.accounts");
 });

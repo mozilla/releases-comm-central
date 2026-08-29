@@ -124,11 +124,9 @@ async function testCheckboxes(paneID, scrollPaneTo, ...tests) {
       if (test.prefValues) {
         wantedValue = wantedValue ? test.prefValues[1] : test.prefValues[0];
       }
-      if (typeof wantedValue == "number") {
-        Services.prefs.setIntPref(test.pref, wantedValue);
-      } else {
-        Services.prefs.setBoolPref(test.pref, wantedValue);
-      }
+      await SpecialPowers.pushPrefEnv({
+        set: [[test.pref, wantedValue]],
+      });
     }
 
     const { prefsDocument, prefsWindow } = await openNewPrefsTab(
@@ -238,13 +236,9 @@ async function testRadioButtons(paneID, scrollPaneTo, ...tests) {
     for (const initialState of states) {
       info(`Opening ${paneID} with ${pref} set to ${initialState.prefValue}`);
 
-      if (typeof initialState.prefValue == "number") {
-        Services.prefs.setIntPref(pref, initialState.prefValue);
-      } else if (typeof initialState.prefValue == "boolean") {
-        Services.prefs.setBoolPref(pref, initialState.prefValue);
-      } else {
-        Services.prefs.setCharPref(pref, initialState.prefValue);
-      }
+      await SpecialPowers.pushPrefEnv({
+        set: [[pref, initialState.prefValue]],
+      });
 
       const { prefsDocument, prefsWindow } = await openNewPrefsTab(
         paneID,

@@ -49,8 +49,10 @@ add_setup(async function () {
  * @param {string} key
  * @param {string} value
  */
-function setPref(dirPrefId, key, value) {
-  Services.prefs.setStringPref(`ldap_2.servers.${dirPrefId}.${key}`, value);
+async function setPref(dirPrefId, key, value) {
+  await SpecialPowers.pushPrefEnv({
+    set: [[`ldap_2.servers.${dirPrefId}.${key}`, value]],
+  });
 }
 
 /**
@@ -118,7 +120,7 @@ async function subtest(dirPrefId, uid, newTokenDetails) {
   directory.__prefBranch = Services.prefs.getBranch(
     `ldap_2.servers.${dirPrefId}.`
   );
-  directory.__prefBranch.setStringPref("carddav.url", URL);
+  await setPref(dirPrefId, "carddav.url", URL);
 
   const dialogPromise = newTokenDetails
     ? handleOAuthDialog(newTokenDetails.username)
@@ -210,7 +212,7 @@ add_task(async function testAddressBookOAuth_username_validSingle() {
     { ...defaultLogin },
     { ...defaultLogin, scope: "other_scope", password: "other_refresh_token" },
   ];
-  setPref(dirPrefId, "carddav.username", USERNAME);
+  await setPref(dirPrefId, "carddav.username", USERNAME);
   await setLogins(logins);
   await subtest(dirPrefId, uid);
   await checkAndClearLogins(logins);
@@ -221,7 +223,7 @@ add_task(async function testAddressBookOAuth_username_validMultiple() {
   const dirPrefId = "username_validMultiple";
   const uid = "testAddressBookOAuth_username_validMultiple";
   const logins = [{ ...defaultLogin, scope: "scope test_scope other_scope" }];
-  setPref(dirPrefId, "carddav.username", USERNAME);
+  await setPref(dirPrefId, "carddav.username", USERNAME);
   await setLogins(logins);
   await subtest(dirPrefId, uid);
   await checkAndClearLogins(logins);

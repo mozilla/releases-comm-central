@@ -314,10 +314,9 @@ add_task(async function test_oauthWarning() {
 });
 
 add_task(async function test_passwordDisplayDisabled() {
-  Services.prefs.setBoolPref(
-    "pref.privacy.disable_button.view_passwords",
-    true
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["pref.privacy.disable_button.view_passwords", true]],
+  });
   // Re-open preferences tab to load new pref value "the intended way".
   tabmail.closeOtherTabs(0);
   ({ prefsWindow, prefsDocument } = await openNewPrefsTab("paneQrExport"));
@@ -341,7 +340,9 @@ add_task(async function test_passwordDisplayDisabled() {
     "With view passwords disabled the passwords input should be disabled"
   );
 
-  Services.prefs.clearUserPref("pref.privacy.disable_button.view_passwords");
+  await SpecialPowers.pushPrefEnv({
+    clear: [["pref.privacy.disable_button.view_passwords"]],
+  });
   tabmail.closeOtherTabs(0);
   ({ prefsWindow, prefsDocument } = await openNewPrefsTab("paneQrExport"));
 });

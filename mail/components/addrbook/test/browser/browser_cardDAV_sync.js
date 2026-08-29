@@ -31,14 +31,12 @@ add_task(async () => {
   const davDirectory = CardDAVDirectory.forFile(directory.fileName);
   Assert.equal(directory.dirType, Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
 
-  Services.prefs.setStringPref(
-    "ldap_2.servers.sync.carddav.token",
-    "http://mochi.test/sync/0"
-  );
-  Services.prefs.setStringPref(
-    "ldap_2.servers.sync.carddav.url",
-    CardDAVServer.url
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["ldap_2.servers.sync.carddav.token", "http://mochi.test/sync/0"],
+      ["ldap_2.servers.sync.carddav.url", CardDAVServer.url],
+    ],
+  });
 
   Assert.ok(davDirectory);
   Assert.equal(davDirectory._serverURL, CardDAVServer.url);

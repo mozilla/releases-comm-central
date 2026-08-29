@@ -795,8 +795,9 @@ add_task(async function test_startup_directory() {
   const URI_PREF = "mail.addr_book.view.startupURI";
   const DEFAULT_PREF = "mail.addr_book.view.startupURIisDefault";
 
-  Services.prefs.clearUserPref(URI_PREF);
-  Services.prefs.clearUserPref(DEFAULT_PREF);
+  await SpecialPowers.pushPrefEnv({
+    clear: [[URI_PREF], [DEFAULT_PREF]],
+  });
 
   async function checkMenuItem(index, expectChecked, toggle = false) {
     await showBooksContext(index);
@@ -838,7 +839,9 @@ add_task(async function test_startup_directory() {
   await checkMenuItem(0, true);
   await checkMenuItem(1, false);
   await checkMenuItem(2, false);
-  Services.prefs.setBoolPref(DEFAULT_PREF, false);
+  await SpecialPowers.pushPrefEnv({
+    set: [[DEFAULT_PREF, false]],
+  });
   await openDirectory(personalBook);
   await closeAddressBookWindow();
   Assert.equal(Services.prefs.getStringPref(URI_PREF), personalBook.URI);

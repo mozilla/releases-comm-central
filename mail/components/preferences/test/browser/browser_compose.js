@@ -90,7 +90,9 @@ add_task(async () => {
  * Tests the attachment reminders dialog.
  */
 add_task(async function testAttachmentReminderDialog() {
-  Services.prefs.setBoolPref("mail.compose.attachment_reminder", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.compose.attachment_reminder", true]],
+  });
   const { prefsDocument } = await openNewPrefsTab(
     "paneCompose",
     "compositionAttachmentsCategory"
@@ -108,7 +110,9 @@ add_task(async function testAttachmentReminderDialog() {
  * Tests the LDAP directories dialog.
  */
 add_task(async function testLDAPDialog() {
-  Services.prefs.setBoolPref("ldap_2.autoComplete.useDirectory", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["ldap_2.autoComplete.useDirectory", true]],
+  });
   const { prefsDocument } = await openNewPrefsTab(
     "paneCompose",
     "compositionAddressingCategory"

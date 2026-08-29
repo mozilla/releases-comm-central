@@ -75,7 +75,9 @@ add_task(async () => {
 });
 
 add_task(async () => {
-  Services.prefs.setBoolPref("mail.spam.manualMark", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.spam.manualMark", true]],
+  });
 
   await testRadioButtons("panePrivacy", "privacyJunkCategory", {
     pref: "mail.spam.manualMarkMode",

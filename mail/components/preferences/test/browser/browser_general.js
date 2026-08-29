@@ -94,7 +94,9 @@ add_task(async () => {
 }).skip(AppConstants.platform == "macosx");
 
 add_task(async () => {
-  Services.prefs.setBoolPref("mail.biff.play_sound", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.biff.play_sound", true]],
+  });
 
   await testRadioButtons("paneGeneral", "incomingMailCategory", {
     pref: "mail.biff.play_sound.type",
@@ -116,9 +118,13 @@ add_task(async function test_sounds() {
   // To hear the sound in this test, add `--setpref media.volume_scale=1.0` to
   // your command. You won't hear the system sound as nsISound is mocked out.
 
-  Services.prefs.setBoolPref("mail.biff.play_sound", true);
-  Services.prefs.setIntPref("mail.biff.play_sound.type", 0);
-  Services.prefs.setStringPref("mail.biff.play_sound.url", "");
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.biff.play_sound", true],
+      ["mail.biff.play_sound.type", 0],
+      ["mail.biff.play_sound.url", ""],
+    ],
+  });
   MockSound.init();
 
   const { prefsDocument, prefsWindow } = await openNewPrefsTab(
@@ -169,8 +175,6 @@ add_task(async function test_sounds() {
   await closePrefsTab();
 
   MockSound.cleanup();
-  Services.prefs.clearUserPref("mail.biff.play_sound.type");
-  Services.prefs.clearUserPref("mail.biff.play_sound.url");
 });
 
 add_task(async () => {
@@ -235,7 +239,9 @@ add_task(async () => {
 });
 
 add_task(async () => {
-  Services.prefs.setBoolPref("mailnews.mark_message_read.auto", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.mark_message_read.auto", true]],
+  });
 
   await testRadioButtons(
     "paneGeneral",
@@ -447,11 +453,12 @@ add_task(async function testLanguageAndFontsDialogs() {
  * Tests the new mail alert dialogs.
  */
 add_task(async function testNewMailAlertDialogs() {
-  Services.prefs.setBoolPref("mail.biff.show_alert", true);
-  Services.prefs.setStringPref(
-    "mail.biff.alert.enabled_actions",
-    "mark-as-read"
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.biff.show_alert", true],
+      ["mail.biff.alert.enabled_actions", "mark-as-read"],
+    ],
+  });
   const { prefsDocument } = await openNewPrefsTab(
     "paneGeneral",
     "incomingMailCategory"
@@ -704,6 +711,15 @@ add_task(async function testNetworkDialogs() {
 add_task(async function test_recent_destinations_options() {
   info("Testing Recent Destinations preference UI");
 
+  // Start with the default recent-destinations settings and
+  // they will be restored when the test finishes.
+  await SpecialPowers.pushPrefEnv({
+    clear: [
+      ["mail.folder_widget.recent_sort_order"],
+      ["mail.folder_widget.max_recent"],
+    ],
+  });
+
   const { prefsDocument, prefsWindow } = await openNewPrefsTab(
     "paneGeneral",
     "generalCategory"
@@ -749,9 +765,6 @@ add_task(async function test_recent_destinations_options() {
     10,
     "Max recent pref should be updated to 10"
   );
-
-  Services.prefs.clearUserPref("mail.folder_widget.recent_sort_order");
-  Services.prefs.clearUserPref("mail.folder_widget.max_recent");
 
   await closePrefsTab();
 });

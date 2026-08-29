@@ -35,9 +35,13 @@ add_task(async () => {
   });
   Assert.equal(directory.dirType, Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
 
-  Services.prefs.setIntPref(INTERVAL_PREF, 0);
-  Services.prefs.setStringPref(TOKEN_PREF, TOKEN_VALUE);
-  Services.prefs.setStringPref(URL_PREF, URL_VALUE);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      [INTERVAL_PREF, 0],
+      [TOKEN_PREF, TOKEN_VALUE],
+      [URL_PREF, URL_VALUE],
+    ],
+  });
 
   Assert.ok(davDirectory);
   Assert.equal(davDirectory._serverURL, URL_VALUE);

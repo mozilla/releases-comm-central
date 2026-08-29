@@ -22,44 +22,56 @@ const kFontTypes = ["serif", "sans-serif", "monospace"];
 
 add_setup(async function () {
   if (AppConstants.platform == "win") {
-    Services.prefs.setStringPref(
-      "font.name-list.serif.x-western",
-      "bc7e8c62-0634-467f-a029-fe6abcdf1582, Times New Roman"
-    );
-    Services.prefs.setStringPref(
-      "font.name-list.sans-serif.x-western",
-      "419129aa-43b7-40c4-b554-83d99b504b89, Arial"
-    );
-    Services.prefs.setStringPref(
-      "font.name-list.monospace.x-western",
-      "348df6e5-e874-4d21-ad4b-359b530a33b7, Courier New"
-    );
+    await SpecialPowers.pushPrefEnv({
+      set: [
+        [
+          "font.name-list.serif.x-western",
+          "bc7e8c62-0634-467f-a029-fe6abcdf1582, Times New Roman",
+        ],
+        [
+          "font.name-list.sans-serif.x-western",
+          "419129aa-43b7-40c4-b554-83d99b504b89, Arial",
+        ],
+        [
+          "font.name-list.monospace.x-western",
+          "348df6e5-e874-4d21-ad4b-359b530a33b7, Courier New",
+        ],
+      ],
+    });
   } else if (AppConstants.platform == "macosx") {
-    Services.prefs.setStringPref(
-      "font.name-list.serif.x-western",
-      "bc7e8c62-0634-467f-a029-fe6abcdf1582, Times"
-    );
-    Services.prefs.setStringPref(
-      "font.name-list.sans-serif.x-western",
-      "419129aa-43b7-40c4-b554-83d99b504b89, Helvetica"
-    );
-    Services.prefs.setStringPref(
-      "font.name-list.monospace.x-western",
-      "348df6e5-e874-4d21-ad4b-359b530a33b7, Courier"
-    );
+    await SpecialPowers.pushPrefEnv({
+      set: [
+        [
+          "font.name-list.serif.x-western",
+          "bc7e8c62-0634-467f-a029-fe6abcdf1582, Times",
+        ],
+        [
+          "font.name-list.sans-serif.x-western",
+          "419129aa-43b7-40c4-b554-83d99b504b89, Helvetica",
+        ],
+        [
+          "font.name-list.monospace.x-western",
+          "348df6e5-e874-4d21-ad4b-359b530a33b7, Courier",
+        ],
+      ],
+    });
   } else {
-    Services.prefs.setStringPref(
-      "font.name-list.serif.x-western",
-      "bc7e8c62-0634-467f-a029-fe6abcdf1582, serif"
-    );
-    Services.prefs.setStringPref(
-      "font.name-list.sans-serif.x-western",
-      "419129aa-43b7-40c4-b554-83d99b504b89, sans-serif"
-    );
-    Services.prefs.setStringPref(
-      "font.name-list.monospace.x-western",
-      "348df6e5-e874-4d21-ad4b-359b530a33b7, monospace"
-    );
+    await SpecialPowers.pushPrefEnv({
+      set: [
+        [
+          "font.name-list.serif.x-western",
+          "bc7e8c62-0634-467f-a029-fe6abcdf1582, serif",
+        ],
+        [
+          "font.name-list.sans-serif.x-western",
+          "419129aa-43b7-40c4-b554-83d99b504b89, sans-serif",
+        ],
+        [
+          "font.name-list.monospace.x-western",
+          "348df6e5-e874-4d21-ad4b-359b530a33b7, monospace",
+        ],
+      ],
+    });
   }
 
   let finished = false;
@@ -219,25 +231,27 @@ async function _verify_fonts_displayed(
  * present on the computer).
  */
 add_task(async function test_font_name_displayed() {
-  Services.prefs.setStringPref("font.language.group", kLanguage);
+  await SpecialPowers.pushPrefEnv({
+    set: [["font.language.group", kLanguage]],
+  });
 
   // Pick the first font for each font type and set it.
   const expected = {};
+  const fontPrefs = [];
   for (const [fontType, fontList] of Object.entries(gRealFontLists)) {
     // Work around bug 698238 (on Windows, Courier is returned by the enumerator but
     // substituted with Courier New) by getting the standard (substituted) family
     // name for each font.
     const standardFamily = gFontEnumerator.getStandardFamilyName(fontList[0]);
-    Services.prefs.setCharPref(
-      "font.name." + fontType + "." + kLanguage,
-      standardFamily
-    );
+    fontPrefs.push([`font.name.${fontType}.${kLanguage}`, standardFamily]);
     expected[fontType] = standardFamily;
   }
+  await SpecialPowers.pushPrefEnv({
+    set: fontPrefs,
+  });
 
   const fontTypes = kFontTypes.map(fontType => expected[fontType]);
   await _verify_fonts_displayed(false, ...fontTypes);
-  teardownTest();
 });
 
 // Fonts definitely not present on a computer -- we simply use UUIDs. These
@@ -254,11 +268,14 @@ const kFakeFonts = {
  * font.name-list.<type>.<language>.
  */
 add_task(async function test_font_name_not_present() {
-  Services.prefs.setStringPref("font.language.group", kLanguage);
+  await SpecialPowers.pushPrefEnv({
+    set: [["font.language.group", kLanguage]],
+  });
 
   // The fonts we're expecting to see selected in the font chooser for
   // test_font_name_not_present.
   const expected = {};
+  const fontPrefs = [];
   for (const [fontType, fakeFont] of Object.entries(kFakeFonts)) {
     // Look at the font.name-list. We need to verify that the first font is the
     // fake one, and that the second one is present on the user's computer.
@@ -279,23 +296,12 @@ add_task(async function test_font_name_not_present() {
 
     // Set font.name to be a nonsense name that shouldn't exist.
     // font.name-list is handled by wrapper.py.
-    Services.prefs.setCharPref(
-      "font.name." + fontType + "." + kLanguage,
-      fakeFont
-    );
+    fontPrefs.push([`font.name.${fontType}.${kLanguage}`, fakeFont]);
   }
+  await SpecialPowers.pushPrefEnv({
+    set: fontPrefs,
+  });
 
   const fontTypes = kFontTypes.map(fontType => expected[fontType]);
   await _verify_fonts_displayed(true, ...fontTypes);
-  teardownTest();
-});
-
-function teardownTest() {
-  for (const pref of Services.prefs.getChildList("font.name.")) {
-    Services.prefs.clearUserPref(pref);
-  }
-}
-
-registerCleanupFunction(function () {
-  Services.prefs.clearUserPref("font.language.group");
 });

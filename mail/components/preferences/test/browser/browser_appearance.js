@@ -22,6 +22,20 @@ let threadTree,
   folderChild2;
 
 add_setup(async () => {
+  // Start with the default appearance settings and restore the original
+  // preference values when the tests finish.
+  await SpecialPowers.pushPrefEnv({
+    clear: [
+      ["mail.appearance.accentColor"],
+      ["mail.threadpane.listview"],
+      ["mail.threadpane.cardsview.rowcount"],
+      ["mail.threadpane.table.horizontal_scroll"],
+      ["mailnews.default_view_flags"],
+      ["mailnews.default_sort_type"],
+      ["mailnews.default_sort_order"],
+    ],
+  });
+
   const account = MailServices.accounts.createLocalMailAccount();
   const rootFolder = account.incomingServer.rootFolder;
   rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
@@ -40,13 +54,6 @@ add_setup(async () => {
 
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
-    Services.prefs.clearUserPref("mail.appearance.accentColor");
-    Services.prefs.clearUserPref("mail.threadpane.listview");
-    Services.prefs.clearUserPref("mail.threadpane.cardsview.rowcount");
-    Services.prefs.clearUserPref("mail.threadpane.table.horizontal_scroll");
-    Services.prefs.clearUserPref("mailnews.default_view_flags");
-    Services.prefs.clearUserPref("mailnews.default_sort_type");
-    Services.prefs.clearUserPref("mailnews.default_sort_order");
   });
 });
 

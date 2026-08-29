@@ -37,14 +37,18 @@ add_task(async () => {
     }
   );
 
-  Services.prefs.setBoolPref("messenger.status.reportIdle", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["messenger.status.reportIdle", true]],
+  });
   await testCheckboxes("paneChat", "chatPaneCategory", {
     checkboxID: "autoAway",
     pref: "messenger.status.awayWhenIdle",
     enabledElements: ["#defaultIdleAwayMessage"],
   });
 
-  Services.prefs.setBoolPref("mail.chat.play_sound", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.chat.play_sound", true]],
+  });
   await testRadioButtons("paneChat", "chatPaneCategory", {
     pref: "mail.chat.play_sound.type",
     states: [
@@ -65,9 +69,13 @@ add_task(async function test_sounds() {
   // To hear the sound in this test, add `--setpref media.volume_scale=1.0` to
   // your command. You won't hear the system sound as nsISound is mocked out.
 
-  Services.prefs.setBoolPref("mail.chat.play_sound", true);
-  Services.prefs.setIntPref("mail.chat.play_sound.type", 0);
-  Services.prefs.setStringPref("mail.chat.play_sound.url", "");
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.chat.play_sound", true],
+      ["mail.chat.play_sound.type", 0],
+      ["mail.chat.play_sound.url", ""],
+    ],
+  });
   MockSound.init();
 
   const { prefsDocument, prefsWindow } = await openNewPrefsTab(
@@ -117,8 +125,6 @@ add_task(async function test_sounds() {
   await closePrefsTab();
 
   MockSound.cleanup();
-  Services.prefs.clearUserPref("mail.chat.play_sound.type");
-  Services.prefs.clearUserPref("mail.chat.play_sound.url");
 });
 
 add_task(async function testMessageStylePreview() {
