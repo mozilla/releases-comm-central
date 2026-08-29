@@ -110,7 +110,7 @@ export function OAuth2(scope, issuerDetails) {
   this.usePKCE = issuerDetails.usePKCE;
   this.useExternalBrowser = issuerDetails.useExternalBrowser;
   this.redirectionEndpoint =
-    issuerDetails.redirectionEndpoint || "http://localhost";
+    issuerDetails.redirectionEndpoint || "http://127.0.0.1";
   this.schemeRedirect = issuerDetails.schemeRedirect;
   this.tokenEndpoint = issuerDetails.tokenEndpoint;
 

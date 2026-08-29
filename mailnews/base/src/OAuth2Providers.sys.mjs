@@ -239,6 +239,7 @@ var kIssuers = new Map([
       clientSecret: "I0dCAXrcaNFujaaY",
       authorizationEndpoint: "https://o2.mail.ru/login",
       tokenEndpoint: "https://o2.mail.ru/token",
+      redirectionEndpoint: "http://localhost",
     },
   ],
   [
@@ -251,6 +252,7 @@ var kIssuers = new Map([
       authorizationEndpoint: "https://oauth.yandex.com/authorize",
       tokenEndpoint: "https://oauth.yandex.com/token",
       useExternalBrowser: true,
+      redirectionEndpoint: "http://localhost",
     },
   ],
   [
@@ -321,6 +323,7 @@ var kIssuers = new Map([
       authorizationEndpoint: "https://oauth.xfinity.com/oauth/authorize",
       tokenEndpoint: "https://oauth.xfinity.com/oauth/token",
       usePKCE: true,
+      redirectionEndpoint: "http://localhost",
     },
   ],
 
