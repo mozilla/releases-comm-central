@@ -16,6 +16,12 @@ XPCOMUtils.defineLazyPreferenceGetter(
 
 const LUMINANCE_THRESHOLD = 200;
 export const CONTRAST_THRESHOLD = 3.5;
+const VARIABLE_COLOR_PROPERTIES = [
+  "color",
+  "background",
+  "background-color",
+  "background-image",
+];
 
 /**
  * Convert a color string into an RGB array and returns the luminance value.
@@ -73,8 +79,10 @@ export const isTransparent = color => {
  * for dark mode, and sanitize them if not.
  *
  * @param {CSSStyleDeclaration} style - The style to sanitize.
+ * @param {object} [resolvedStyle=style] - Resolved style values.
  */
-function sanitizeStyle(style) {
+function sanitizeStyle(style, resolvedStyle = style) {
+  const { color, background, backgroundColor, backgroundImage } = resolvedStyle;
   // A blend mode is written for the backdrop the sender had in mind. Against a
   // dark one it may blend the content away, and we cannot inspect what it will
   // end up blending with, so drop it.
@@ -96,8 +104,8 @@ function sanitizeStyle(style) {
   // inspect their luminance.
   if (
     style.backgroundImage &&
-    style.backgroundImage !== "none" &&
-    !style.backgroundImage.includes("gradient")
+    backgroundImage !== "none" &&
+    !backgroundImage.includes("gradient")
   ) {
     style.removeProperty("background-image");
   }
@@ -105,10 +113,10 @@ function sanitizeStyle(style) {
   // Clear text color.
   if (
     (!style.background || style.background == "none") &&
-    (!style.backgroundColor || isTransparent(style.backgroundColor))
+    (!style.backgroundColor || isTransparent(backgroundColor))
   ) {
     // If no background color is specified, test the color luminance.
-    if (luminance(style.color) <= LUMINANCE_THRESHOLD) {
+    if (luminance(color) <= LUMINANCE_THRESHOLD) {
       style.removeProperty("color");
     }
     return;
@@ -117,38 +125,36 @@ function sanitizeStyle(style) {
   // Clear background color.
   if (
     style.backgroundColor &&
-    InspectorUtils.isValidCSSColor(style.backgroundColor)
+    InspectorUtils.isValidCSSColor(backgroundColor)
   ) {
     // Check if the background color luminance is too bright or if the color
     // contrast with foreground is not enough if we have a style color.
     if (
-      luminance(style.backgroundColor) > LUMINANCE_THRESHOLD ||
-      (style.color &&
-        contrast(style.color, style.backgroundColor) < CONTRAST_THRESHOLD)
+      luminance(backgroundColor) > LUMINANCE_THRESHOLD ||
+      (style.color && contrast(color, backgroundColor) < CONTRAST_THRESHOLD)
     ) {
       style.removeProperty("background-color");
       style.removeProperty("background");
 
       // Check for color luminance after we removed the background.
-      if (style.color && luminance(style.color) <= LUMINANCE_THRESHOLD) {
+      if (style.color && luminance(color) <= LUMINANCE_THRESHOLD) {
         style.removeProperty("color");
       }
     }
   }
 
   // Clear background style.
-  if (style.background && InspectorUtils.isValidCSSColor(style.background)) {
+  if (style.background && InspectorUtils.isValidCSSColor(background)) {
     // If there's only background color manipulation, check that its
     // luminance is not too bright.
     if (
-      luminance(style.background) > LUMINANCE_THRESHOLD ||
-      (style.color &&
-        contrast(style.color, style.background) < CONTRAST_THRESHOLD)
+      luminance(background) > LUMINANCE_THRESHOLD ||
+      (style.color && contrast(color, background) < CONTRAST_THRESHOLD)
     ) {
       style.removeProperty("background");
 
       // Check for color luminance after we removed the background.
-      if (style.color && luminance(style.color) <= LUMINANCE_THRESHOLD) {
+      if (style.color && luminance(color) <= LUMINANCE_THRESHOLD) {
         style.removeProperty("color");
       }
     }
@@ -232,15 +238,44 @@ export function adaptMessageForDarkMode(browser) {
     }
   }
 
-  // Remove any embedded styles.
+  // Collect resolved embedded styles before mutating any stylesheets, so Gecko
+  // only needs to flush styles once.
+  const stylesToSanitize = [];
   for (const node of browserDocument.getElementsByTagName("style")) {
     // Bail out if for whatever reason we don't have the right element.
     if (!HTMLStyleElement.isInstance(node)) {
       continue;
     }
 
-    for (const rule of node.sheet.rules) {
-      sanitizeStyle(rule.style);
+    for (const rule of node.sheet.cssRules) {
+      if (!CSSStyleRule.isInstance(rule)) {
+        continue;
+      }
+
+      const usesVariables = VARIABLE_COLOR_PROPERTIES.some(property =>
+        rule.style.getPropertyValue(property).includes("var(")
+      );
+      const element = usesVariables
+        ? browserDocument.querySelector(rule.selectorText)
+        : null;
+      let resolvedStyle;
+      if (element) {
+        // We ask Gecko to resolve variables for us when needed.
+        const { color, background, backgroundColor, backgroundImage } =
+          browser.contentWindow.getComputedStyle(element);
+        resolvedStyle = {
+          color,
+          background,
+          backgroundColor,
+          backgroundImage,
+        };
+      }
+      stylesToSanitize.push([rule.style, resolvedStyle]);
     }
+  }
+
+  // Remove any unsuitable embedded styles after all resolved values are read.
+  for (const [style, resolvedStyle] of stylesToSanitize) {
+    sanitizeStyle(style, resolvedStyle);
   }
 }

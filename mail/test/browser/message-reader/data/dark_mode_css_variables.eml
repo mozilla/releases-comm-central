@@ -1,0 +1,130 @@
+Message-ID: <dark-mode-css-variables@example.invalid>
+Date: Tue, 10 Apr 2012 00:00:00 +0000
+To: recipient@example.invalid
+From: Dark Mode <sender@example.invalid>
+Subject: Message colours using CSS variables
+MIME-Version: 1.0
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Message colours using CSS variables</title>
+    <style type="text/css">
+html, body { margin: 0; padding: 0; }
+body {
+  background-color: var(--bg-base, #ffffff);
+  color: var(--fg-text, #111111);
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 20.7px;
+  -webkit-text-size-adjust: 100%;
+}
+/* Larger base copy on small devices (inside the editor)
+@media screen and (max-device-width: 1200px) {
+  body, p, div { font-size: 16px; line-height: 24px; }
+}
+*/
+
+h1 {
+  font-size: 30px;
+  line-height: 34.5px;
+  letter-spacing: .6px;
+  font-weight: normal;
+  color: var(--fg-base, #111111);
+}
+h2 {
+  font-size: 21px;
+  line-height: 27.6px;
+  letter-spacing: .6px;
+  font-weight: normal;
+  color: var(--fg-base, #111111);
+}
+h3 {
+  font-size: 16px;
+  line-height: 20.7px;
+  letter-spacing: .6px;
+  font-weight: normal;
+  color: var(--fg-base, #111111);
+}
+h4 {
+  font-size: 14px;
+  line-height: 20.7px;
+  letter-spacing: .4px;
+  font-weight: normal;
+  color: var(--fg-text, #111111);
+}
+h5 {
+  font-size: 12px;
+  font-weight: normal;
+  color: var(--fg-secondary-text, #6b7280);
+}
+h6 {
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: bold;
+  color: var(--fg-secondary-text, #6b7280);
+}
+
+span, a, small, mark, sub, sup {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+em, i { font-style: italic; }
+strong, b { font-weight: bold; }
+u { text-decoration: underline; }
+
+a {
+  color: var(--color-primary, #006ce7);
+  text-decoration: underline;
+}
+a:hover { text-decoration: none; }
+
+ul {
+  display: block;
+  list-style: disc outside;
+  margin: 0;
+  padding: 0 0 0 2em;
+}
+ul ul { list-style-type: circle; }
+ul ul ul { list-style-type: square; }
+ol {
+  display: block;
+  list-style: decimal outside;
+  margin: 0;
+  padding: 0 0 0 2em;
+}
+ol ol { list-style-type: lower-alpha; }
+ol ol ol { list-style-type: lower-roman; }
+
+code, pre code {
+  border: 1px solid var(--fg-line, #e5e7eb);
+  background-color: var(--bg-background, #f6f6f6);
+  padding: 7px;
+  margin: 14px 0;
+  display: block;
+  font-family: "Courier New", Courier, monospace;
+  color: var(--fg-base, #222222);
+  border-radius: 3px;
+  white-space: pre-wrap;
+}
+/* Selection highlight
+::selection { background: var(--color-primary, #006ce7); color: #fff; }
+*/
+
+    </style>
+  </head>
+  <body>
+    <div style="background-color: rgba(0, 0, 0, 0);">
+      <span id="messageText" style="background-color: rgba(0, 0, 0, 0); color: #111111;">
+        Text written for a light background.
+      </span>
+      <a href="https://example.invalid/">Example link</a>
+    </div>
+  </body>
+</html>

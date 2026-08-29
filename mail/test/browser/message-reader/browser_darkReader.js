@@ -381,6 +381,46 @@ add_task(async function test_blend_mode_removed() {
   }
 });
 
+add_task(async function test_css_variables_resolved() {
+  const file = new FileUtils.File(
+    getTestFilePath("data/dark_mode_css_variables.eml")
+  );
+  const variablesMsgc = await open_message_from_file(file);
+  const previousAboutMessage = aboutMessage;
+  aboutMessage = get_about_message(variablesMsgc);
+
+  try {
+    if (!darkTheme.isActive) {
+      await toggle_theme(darkTheme, true);
+    }
+    if (Services.prefs.getBoolPref("mail.dark-reader.enabled", false)) {
+      await toggle_dark_reader(false);
+    }
+    await toggle_dark_reader(true);
+
+    const msgDoc =
+      aboutMessage.document.getElementById("messagepane").contentDocument;
+    const bodyStyle = msgDoc.defaultView.getComputedStyle(msgDoc.body);
+    const textStyle = msgDoc.defaultView.getComputedStyle(
+      msgDoc.querySelector("#messageText")
+    );
+
+    Assert.equal(
+      bodyStyle.backgroundColor,
+      "rgba(0, 0, 0, 0)",
+      "The light variable background should be removed"
+    );
+    Assert.equal(
+      textStyle.color,
+      "rgb(238, 238, 240)",
+      "The message text should inherit the dark reader color"
+    );
+  } finally {
+    aboutMessage = previousAboutMessage;
+    await BrowserTestUtils.closeWindow(variablesMsgc);
+  }
+});
+
 async function assert_light_style() {
   await new Promise(resolve => aboutMessage.requestAnimationFrame(resolve));
   if (AppConstants.DEBUG || AppConstants.ASAN || AppConstants.TSAN) {
