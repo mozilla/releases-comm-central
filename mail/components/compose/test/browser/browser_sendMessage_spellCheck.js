@@ -10,6 +10,12 @@
 let smtpServer, smtpIdentity;
 
 add_setup(async function () {
+  // Start without the send-shortcut warning preference and restore its
+  // original state when the test finishes.
+  await SpecialPowers.pushPrefEnv({
+    clear: [["mail.warn_on_send_accel_key"]],
+  });
+
   [smtpServer] = await ServerTestUtils.createServers([
     ServerTestUtils.serverDefs.smtp.plain,
   ]);
@@ -23,7 +29,6 @@ add_setup(async function () {
 
     MailServices.accounts.removeAccount(smtpAccount, false);
     await Services.logins.removeAllLoginsAsync();
-    Services.prefs.clearUserPref("mail.warn_on_send_accel_key");
   });
 });
 
@@ -53,7 +58,9 @@ add_task(async function testSpellCheckPass() {
  * Tests spell check on send fail.
  */
 add_task(async function testSpellCheckBeforeSendFail() {
-  Services.prefs.setBoolPref("mail.SpellCheckBeforeSend", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.SpellCheckBeforeSend", true]],
+  });
   const { composeWindow, subject } = await newComposeWindow(
     null,
     "spellled wrong"
@@ -96,6 +103,4 @@ add_task(async function testSpellCheckBeforeSendFail() {
     `Subject: ${subject}`,
     "server should have received message"
   );
-
-  Services.prefs.setBoolPref("mail.SpellCheckBeforeSend", false);
 });

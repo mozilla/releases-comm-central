@@ -112,10 +112,9 @@ add_task(async function test_calendarDialogOpenAndClose() {
 add_task(async function test_calendarDialogColors() {
   const category = "TEST";
   const formattedCategoryName = cal.view.formatStringForCSSRule(category);
-  Services.prefs.setStringPref(
-    `calendar.category.color.${formattedCategoryName}`,
-    "#0000ff"
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [[`calendar.category.color.${formattedCategoryName}`, "#0000ff"]],
+  });
   const dialog = document.getElementById("calendarDialog");
 
   await createEvent({ calendar, categories: [category] });
@@ -149,10 +148,6 @@ add_task(async function test_calendarDialogColors() {
     categoryItemStyles.backgroundColor,
     "rgb(0, 0, 255)",
     "Should apply the category color the the background of the item"
-  );
-
-  Services.prefs.clearUserPref(
-    `calendar.category.color.${formattedCategoryName}`
   );
 
   await cleanUp(dialog, eventBox);

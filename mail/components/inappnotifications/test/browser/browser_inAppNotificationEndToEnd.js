@@ -105,11 +105,12 @@ add_setup(async () => {
 
   MockExternalProtocolService.init();
 
-  Services.prefs.setIntPref(
-    "datareporting.policy.dataSubmissionPolicyAcceptedVersion",
-    10
-  );
-  Services.prefs.setIntPref("datareporting.policy.currentPolicyVersion", 10);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["datareporting.policy.dataSubmissionPolicyAcceptedVersion", 10],
+      ["datareporting.policy.currentPolicyVersion", 10],
+    ],
+  });
 
   const server = new HttpServer();
 
@@ -123,7 +124,9 @@ add_setup(async () => {
   server.start(-1);
 
   const serverUrl = `http://localhost:${server.identity.primaryPort}/notifications.json?t=${Date.now()}`;
-  Services.prefs.setStringPref("mail.inappnotifications.url", serverUrl);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.inappnotifications.url", serverUrl]],
+  });
 
   // We have to manually force a refresh for this test to finish within useful time.
   NotificationUpdater._clearStateForTests();
@@ -137,11 +140,9 @@ add_setup(async () => {
 
   registerCleanupFunction(async () => {
     await axeWatcher.finish();
-    Services.prefs.clearUserPref(
-      "datareporting.policy.dataSubmissionPolicyAcceptedVersion"
-    );
-    Services.prefs.clearUserPref("datareporting.policy.currentPolicyVersion");
-    Services.prefs.setStringPref("mail.inappnotifications.url", "");
+    await SpecialPowers.pushPrefEnv({
+      set: [["mail.inappnotifications.url", ""]],
+    });
     await reset();
     await new Promise(resolve => server.stop(resolve));
     MockExternalProtocolService.cleanup();

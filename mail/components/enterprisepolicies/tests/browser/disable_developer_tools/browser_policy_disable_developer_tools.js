@@ -16,7 +16,9 @@ add_task(async function test_updates_post_policy() {
     "devtools dedicated disabled pref is set to true"
   );
 
-  Services.prefs.setBoolPref("devtools.policy.disabled", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["devtools.policy.disabled", false]],
+  });
 
   is(
     Services.prefs.getBoolPref("devtools.policy.disabled"),

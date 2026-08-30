@@ -11,7 +11,9 @@
 let smtpServer, smtpIdentity, smtpOutgoingServer;
 
 add_setup(async function () {
-  Services.prefs.setBoolPref("mailnews.sendInBackground", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.sendInBackground", true]],
+  });
 
   [smtpServer] = await ServerTestUtils.createServers([
     ServerTestUtils.serverDefs.smtp.plain,

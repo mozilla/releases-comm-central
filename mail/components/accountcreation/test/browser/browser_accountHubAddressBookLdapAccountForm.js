@@ -61,8 +61,10 @@ add_task(function test_setState() {
   subview.resetState();
 });
 
-add_task(function test_setStateWithFontSize() {
-  Services.prefs.setIntPref("mail.uifontsize", 17);
+add_task(async function test_setStateWithFontSize() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.uifontsize", 17]],
+  });
   subview.setState();
 
   Assert.ok(
@@ -70,7 +72,7 @@ add_task(function test_setStateWithFontSize() {
     "The subview should have the stacked class"
   );
 
-  Services.prefs.clearUserPref("mail.uifontsize");
+  await SpecialPowers.popPrefEnv();
   subview.setState();
 });
 

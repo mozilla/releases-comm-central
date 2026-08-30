@@ -73,11 +73,9 @@ add_task(async function test_captureState() {
 });
 
 add_task(async function test_captureStateWithRememberPasswordPref() {
-  const previousRememberSignonsValue = Services.prefs.getBoolPref(
-    "signon.rememberSignons",
-    false
-  );
-  Services.prefs.setBoolPref("signon.rememberSignons", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["signon.rememberSignons", true]],
+  });
   subview.setState();
   Assert.ok(!rememberPassword.disabled, "Remember password should be enabled");
   Assert.ok(rememberPassword.checked, "Remember password should be checked");
@@ -103,9 +101,5 @@ add_task(async function test_captureStateWithRememberPasswordPref() {
       rememberPassword: true,
     },
     "Should get the entered data in the captured state"
-  );
-  Services.prefs.setBoolPref(
-    "signon.rememberSignons",
-    previousRememberSignonsValue
   );
 });

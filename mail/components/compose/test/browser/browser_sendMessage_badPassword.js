@@ -11,7 +11,9 @@ let smtpServer, smtpOutgoingServer, smtpIdentity;
 let ewsServer, ewsOutgoingServer, ewsIdentity;
 
 add_setup(async function () {
-  Services.prefs.setBoolPref("signon.rememberSignons", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["signon.rememberSignons", true]],
+  });
 
   [smtpServer, ewsServer] = await ServerTestUtils.createServers([
     ServerTestUtils.serverDefs.smtp.plain,
@@ -29,7 +31,6 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(ewsAccount, false);
     await Services.logins.removeAllLoginsAsync();
     clearHttpAuthCache();
-    Services.prefs.clearUserPref("signon.rememberSignons");
   });
 });
 

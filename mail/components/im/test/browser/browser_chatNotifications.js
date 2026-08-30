@@ -28,7 +28,9 @@ registerCleanupFunction(() => {
 });
 
 add_task(async function testNotificationsDisabled() {
-  Services.prefs.setBoolPref("mail.chat.show_desktop_notifications", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.chat.show_desktop_notifications", false]],
+  });
 
   Services.obs.notifyObservers(
     {
@@ -52,7 +54,9 @@ add_task(async function testNotificationsDisabled() {
     "No sound should be played when alerts are disabled"
   );
 
-  Services.prefs.setBoolPref("mail.chat.show_desktop_notifications", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.chat.show_desktop_notifications", true]],
+  });
   MockAlertsService.reset();
   MockSound.reset();
 
