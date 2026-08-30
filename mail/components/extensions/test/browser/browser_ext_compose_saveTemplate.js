@@ -40,10 +40,6 @@ function getBasicSmtpServer(port = 1, hostname = "localhost") {
     { port, hostname }
   );
 
-  // Override the default greeting so we get something predictable
-  // in the ELHO message
-  Services.prefs.setCharPref("mail.smtpserver.default.hello_argument", "test");
-
   return server;
 }
 
@@ -59,6 +55,12 @@ function getSmtpIdentity(senderName, smtpServer) {
 let gServer, gLocalRootFolder, gPopAccount, gLocalAccount;
 
 add_setup(async () => {
+  // Override the default greeting so we get something predictable
+  // in the EHLO message.
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.smtpserver.default.hello_argument", "test"]],
+  });
+
   gServer = setupServerDaemon();
   gServer.start();
 

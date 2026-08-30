@@ -16,9 +16,8 @@ add_setup(async () => {
   await createMessages(testFolder, 4);
 
   // Add a custom header to the composer UI.
-  Services.prefs.setCharPref("mail.compose.other.header", "X-Expediteur");
-  registerCleanupFunction(async () => {
-    Services.prefs.clearUserPref("mail.compose.other.header");
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.compose.other.header", "X-Expediteur"]],
   });
 });
 

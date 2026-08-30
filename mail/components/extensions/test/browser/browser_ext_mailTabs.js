@@ -42,11 +42,12 @@ add_setup(async () => {
   // test in MV2 but also report to the user. By default, tests throw when
   // deprecated properties are used.
   ExtensionTestUtils.failOnSchemaWarnings(false);
-  Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
+  await SpecialPowers.pushPrefEnv({
+    set: [["extensions.webextensions.messagesPerPage", 10]],
+  });
   registerCleanupFunction(async () => {
     await ensure_cards_view(document);
     ExtensionTestUtils.failOnSchemaWarnings(true);
-    Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
   });
   await new Promise(resolve => executeSoon(resolve));
 });

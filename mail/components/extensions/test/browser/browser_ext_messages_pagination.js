@@ -30,9 +30,11 @@ add_setup(async function setup() {
     messageListTracker.checkSearchCriteriaFnForTests = null;
   });
 
-  // Cleanup messagesPerPage preference, which is modified by the last test in
-  // this file.
-  Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
+  // Start with the default page size and restore the original preference when
+  // the test finishes.
+  await SpecialPowers.pushPrefEnv({
+    clear: [["extensions.webextensions.messagesPerPage"]],
+  });
 });
 
 /**
@@ -563,7 +565,9 @@ add_task(async function test_query_returnMessageListId() {
  * Note: Run this test last.
  */
 add_task(async function test_list_auto_early_page_return() {
-  Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
+  await SpecialPowers.pushPrefEnv({
+    set: [["extensions.webextensions.messagesPerPage", 10]],
+  });
 
   const {
     Management: {
@@ -643,6 +647,4 @@ add_task(async function test_list_auto_early_page_return() {
 
   await extension.awaitFinish("finished");
   await extension.unload();
-
-  Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
 });

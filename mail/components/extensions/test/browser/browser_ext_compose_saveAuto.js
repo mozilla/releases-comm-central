@@ -40,10 +40,6 @@ function getBasicSmtpServer(port = 1, hostname = "localhost") {
     { port, hostname }
   );
 
-  // Override the default greeting so we get something predictable
-  // in the ELHO message
-  Services.prefs.setCharPref("mail.smtpserver.default.hello_argument", "test");
-
   return server;
 }
 
@@ -61,6 +57,12 @@ let gServer, gRootFolder, gPopAccount, gLocalAccount;
 requestLongerTimeout(2);
 
 add_setup(async () => {
+  // Override the default greeting so we get something predictable
+  // in the EHLO message.
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.smtpserver.default.hello_argument", "test"]],
+  });
+
   gServer = setupServerDaemon();
   gServer.start();
 
@@ -82,10 +84,11 @@ add_setup(async () => {
   identity.draftsFolderURI = (await createSubfolder(gRootFolder, "Drafts")).URI;
   MailServices.accounts.setSpecialFolders();
 
-  // Reduce autosave interval to the minimum..
-  Services.prefs.setIntPref("mail.compose.autosaveinterval", 1);
+  // Reduce the autosave interval to the minimum.
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.compose.autosaveinterval", 1]],
+  });
   registerCleanupFunction(async () => {
-    Services.prefs.clearUserPref("mail.compose.autosaveinterval");
     gServer.stop();
   });
 });

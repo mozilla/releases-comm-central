@@ -31,9 +31,8 @@ add_setup(async () => {
   gDefaultTabmail.currentTabInfo.folder = gRootFolder;
   await ensure_table_view(document);
 
-  Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
-  registerCleanupFunction(() => {
-    Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
+  await SpecialPowers.pushPrefEnv({
+    set: [["extensions.webextensions.messagesPerPage", 10]],
   });
   await new Promise(resolve => executeSoon(resolve));
 });

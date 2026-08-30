@@ -27,10 +27,11 @@ add_setup(async () => {
   gDefaultTabmail.currentAbout3Pane.displayFolder(gSubFolders.test1.URI);
   await ensure_table_view(document);
 
-  Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
+  await SpecialPowers.pushPrefEnv({
+    set: [["extensions.webextensions.messagesPerPage", 10]],
+  });
   registerCleanupFunction(async () => {
     await ensure_cards_view(document);
-    Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
   });
   await new Promise(resolve => executeSoon(resolve));
 });
