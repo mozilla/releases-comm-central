@@ -26,13 +26,13 @@ var kSigBottomPref = "mail.identity.default.sig_bottom";
  * insert text before the signature.
  */
 add_task(async function test_on_reply_above_signature_below_reply() {
-  const origHtml = Services.prefs.getBoolPref(kHtmlPref);
-  const origReplyOnTop = Services.prefs.getIntPref(kReplyOnTopPref);
-  const origSigBottom = Services.prefs.getBoolPref(kSigBottomPref);
-
-  Services.prefs.setBoolPref(kHtmlPref, false);
-  Services.prefs.setIntPref(kReplyOnTopPref, kReplyOnTop);
-  Services.prefs.setBoolPref(kSigBottomPref, false);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      [kHtmlPref, false],
+      [kReplyOnTopPref, kReplyOnTop],
+      [kSigBottomPref, false],
+    ],
+  });
 
   const cw = await open_compose_new_mail();
   const mailBody = get_compose_body(cw);
@@ -43,10 +43,6 @@ add_task(async function test_on_reply_above_signature_below_reply() {
     "br",
     "Expected a BR node to start the compose body."
   );
-
-  Services.prefs.setBoolPref(kHtmlPref, origHtml);
-  Services.prefs.setIntPref(kReplyOnTopPref, origReplyOnTop);
-  Services.prefs.setBoolPref(kSigBottomPref, origSigBottom);
 
   await close_compose_window(cw);
 });

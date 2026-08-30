@@ -63,30 +63,38 @@ add_setup(async function () {
 
 /** Test sig strip true for format flowed. */
 add_task(async function test_sig_strip_true_ff() {
-  Services.prefs.setBoolPref("mail.strip_sig_on_reply", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.strip_sig_on_reply", true]],
+  });
   await check_sig_strip_works(0, true);
-  Services.prefs.clearUserPref("mail.strip_sig_on_reply");
+  await SpecialPowers.popPrefEnv();
 });
 
 /** Test sig strip false for format flowed. */
 add_task(async function test_sig_strip_false_ff() {
-  Services.prefs.setBoolPref("mail.strip_sig_on_reply", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.strip_sig_on_reply", false]],
+  });
   await check_sig_strip_works(0, false);
-  Services.prefs.clearUserPref("mail.strip_sig_on_reply");
+  await SpecialPowers.popPrefEnv();
 });
 
 /** Test sig strip true for non-format flowed. */
 add_task(async function test_sig_strip_true_nonff() {
-  Services.prefs.setBoolPref("mail.strip_sig_on_reply", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.strip_sig_on_reply", true]],
+  });
   await check_sig_strip_works(1, true);
-  Services.prefs.clearUserPref("mail.strip_sig_on_reply");
+  await SpecialPowers.popPrefEnv();
 });
 
 /** Test sig strip false for non-format flowed. */
 add_task(async function test_sig_strip_false_nonff() {
-  Services.prefs.setBoolPref("mail.strip_sig_on_reply", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.strip_sig_on_reply", false]],
+  });
   await check_sig_strip_works(1, false);
-  Services.prefs.clearUserPref("mail.strip_sig_on_reply");
+  await SpecialPowers.popPrefEnv();
 });
 
 /**

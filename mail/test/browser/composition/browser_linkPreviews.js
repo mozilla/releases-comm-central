@@ -15,7 +15,9 @@ var url =
   "http://mochi.test:8888/browser/comm/mail/test/browser/composition/html/linkpreview.html";
 
 add_task(async function previewEnabled() {
-  Services.prefs.setBoolPref("mail.compose.add_link_preview", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.compose.add_link_preview", true]],
+  });
   const win = await open_compose_new_mail();
   await navigator.clipboard.writeText(url);
 
@@ -31,5 +33,4 @@ add_task(async function previewEnabled() {
   );
 
   await close_compose_window(win);
-  Services.prefs.clearUserPref("mail.compose.add_link_preview");
 });

@@ -29,11 +29,14 @@ add_task(async function test_customHeaders() {
   );
 
   // Set other.header so that they will be rendered in compose window.
-  const otherHeaders = Services.prefs.getCharPref("mail.compose.other.header");
-  Services.prefs.setCharPref(
-    "mail.compose.other.header",
-    "X-Header1, X-Header2, Approved ,Supersedes, References, In-Reply-To"
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      [
+        "mail.compose.other.header",
+        "X-Header1, X-Header2, Approved ,Supersedes, References, In-Reply-To",
+      ],
+    ],
+  });
 
   // Set values to custom headers.
   let cwc = await open_compose_new_mail();
@@ -126,7 +129,4 @@ add_task(async function test_customHeaders() {
   );
 
   await close_compose_window(cwc);
-
-  // Reset other.header.
-  Services.prefs.setCharPref("mail.compose.other.header", otherHeaders);
 });

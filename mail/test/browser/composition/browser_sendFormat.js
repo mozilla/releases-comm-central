@@ -36,25 +36,21 @@ const { MimeParser } = ChromeUtils.importESModule(
   "resource:///modules/mimeParser.sys.mjs"
 );
 
-var sendFormatPreference;
-var htmlAsPreference;
 var draftsFolder;
 var outboxFolder;
 
 add_setup(async () => {
-  sendFormatPreference = Services.prefs.getIntPref("mail.default_send_format");
-  htmlAsPreference = Services.prefs.getIntPref("mailnews.display.html_as");
   // Show all parts to a message in the message display.
   // This allows us to see if a message contains both a plain text and a HTML
   // part.
-  Services.prefs.setIntPref("mailnews.display.html_as", 4);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.display.html_as", 4]],
+  });
   draftsFolder = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
   outboxFolder = await get_special_folder(Ci.nsMsgFolderFlags.Queue, true);
 });
 
 registerCleanupFunction(async function () {
-  Services.prefs.setIntPref("mail.default_send_format", sendFormatPreference);
-  Services.prefs.setIntPref("mailnews.display.html_as", htmlAsPreference);
   await empty_folder(draftsFolder);
   await empty_folder(outboxFolder);
 });
@@ -163,7 +159,9 @@ const BOLD_MESSAGE_BODY_AS_PLAIN = `*${BOLD_MESSAGE_BODY}*`;
  * @returns {Window} - The opened compose window, pre-filled with a message.
  */
 async function newMessage(preference, useBold) {
-  Services.prefs.setIntPref("mail.default_send_format", preference);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.default_send_format", preference]],
+  });
 
   const composeWindow = await open_compose_new_mail();
   assertSendFormatInMenu(
@@ -586,7 +584,9 @@ add_task(async function test_saving_draft_with_new_preference() {
     await saveDraft(composeWindow);
     // Re-open, with a new default preference set, to make sure the draft has
     // the send format set earlier saved in its headers.
-    Services.prefs.setIntPref("mail.default_send_format", newPreference);
+    await SpecialPowers.pushPrefEnv({
+      set: [["mail.default_send_format", newPreference]],
+    });
     // Draft keeps the old preference.
     composeWindow = await assertDraftFormat(preference);
     await assertSentMessage(

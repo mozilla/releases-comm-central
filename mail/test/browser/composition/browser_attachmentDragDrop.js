@@ -342,7 +342,9 @@ add_task(async function test_message_drag() {
   await cwc.RemoveAttachments([attachmentBucket.childNodes[0]]);
 
   // Try the same with mail.forward_add_extension false.
-  Services.prefs.setBoolPref("mail.forward_add_extension", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.forward_add_extension", false]],
+  });
 
   await simulateDragAndDrop(
     cwc,
@@ -376,7 +378,7 @@ add_task(async function test_message_drag() {
   );
   Assert.notEqual(attachment2, 0, "attachment2 should not be 0 bytes");
 
-  Services.prefs.clearUserPref("mail.forward_add_extension");
+  await SpecialPowers.popPrefEnv();
 
   await close_compose_window(cwc);
   await be_in_folder(inboxFolder);

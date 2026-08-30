@@ -15,14 +15,13 @@ var { OpenPGPTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mail/OpenPGPTestUtils.sys.mjs"
 );
 
-add_setup(() => {
-  Services.prefs.setBoolPref("mail.smime.remind_encryption_possible", true);
-  Services.prefs.setBoolPref("mail.openpgp.remind_encryption_possible", true);
-});
-
-registerCleanupFunction(() => {
-  Services.prefs.clearUserPref("mail.smime.remind_encryption_possible");
-  Services.prefs.clearUserPref("mail.openpgp.remind_encryption_possible");
+add_setup(async () => {
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.smime.remind_encryption_possible", true],
+      ["mail.openpgp.remind_encryption_possible", true],
+    ],
+  });
 });
 
 /**

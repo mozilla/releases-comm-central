@@ -139,12 +139,10 @@ add_task(async function test_utf8_forwarding_from_via_folder() {
   await forwardViaFolder("./content-utf8-alt-rel2.eml"); // Also tests content before <html>.
 
   // Repeat the last three in simple HTML view.
-  Services.prefs.setIntPref("mailnews.display.html_as", 3);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.display.html_as", 3]],
+  });
   await forwardViaFolder("./content-utf8-rel-alt.eml"); // Also tests HTML part without <html> tag.
   await forwardViaFolder("./content-utf8-alt-rel.eml"); // Also tests <html attr>.
   await forwardViaFolder("./content-utf8-alt-rel2.eml"); // Also tests content before <html>.
-});
-
-registerCleanupFunction(function () {
-  Services.prefs.clearUserPref("mailnews.display.html_as");
 });

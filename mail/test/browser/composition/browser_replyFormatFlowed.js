@@ -30,7 +30,9 @@ var gDrafts;
 
 add_setup(async function () {
   gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
-  Services.prefs.setBoolPref("mail.identity.id1.compose_html", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.identity.id1.compose_html", false]],
+  });
 });
 
 async function subtest_reply_format_flowed(aFlowed) {
@@ -39,7 +41,9 @@ async function subtest_reply_format_flowed(aFlowed) {
   const msgc = await open_message_from_file(file);
   await SimpleTest.promiseFocus(msgc);
 
-  Services.prefs.setBoolPref("mailnews.send_plaintext_flowed", aFlowed);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.send_plaintext_flowed", aFlowed]],
+  });
 
   await new Promise(requestIdleCallback);
   info("Opening reply compose window...");
@@ -79,9 +83,4 @@ async function subtest_reply_format_flowed(aFlowed) {
 add_task(async function test_reply_format_flowed() {
   await subtest_reply_format_flowed(true);
   await subtest_reply_format_flowed(false);
-});
-
-registerCleanupFunction(function () {
-  Services.prefs.clearUserPref("mail.identity.id1.compose_html");
-  Services.prefs.clearUserPref("mailnews.send_plaintext_flowed");
 });

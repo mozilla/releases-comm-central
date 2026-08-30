@@ -16,18 +16,19 @@ var { MailServices } = ChromeUtils.importESModule(
 const sender = "sender@example.invalid";
 const recipient = "recipient@example.invalid";
 
-add_setup(function () {
+add_setup(async function () {
   const identity = MailServices.accounts.defaultAccount.defaultIdentity;
   const originalEmail = identity.email;
   const originalFullName = identity.fullName;
   identity.email = sender;
   identity.fullName = "Sender";
 
-  Services.prefs.setBoolPref("mailnews.show_send_progress", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.show_send_progress", true]],
+  });
   registerCleanupFunction(() => {
     identity.email = originalEmail;
     identity.fullName = originalFullName;
-    Services.prefs.clearUserPref("mailnews.show_send_progress");
   });
 });
 

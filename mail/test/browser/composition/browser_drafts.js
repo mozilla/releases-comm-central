@@ -361,10 +361,9 @@ add_task(async function test_content_language_header() {
  * Tests Content-Language header suppression.
  */
 add_task(async function test_content_language_header_suppression() {
-  const statusQuo = Services.prefs.getBoolPref(
-    "mail.suppress_content_language"
-  );
-  Services.prefs.setBoolPref("mail.suppress_content_language", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.suppress_content_language", true]],
+  });
 
   const cwc = await open_compose_new_mail();
 
@@ -396,7 +395,7 @@ add_task(async function test_content_language_header_suppression() {
   // Clean up the created draft.
   await press_delete(window);
 
-  Services.prefs.setBoolPref("mail.suppress_content_language", statusQuo);
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -404,10 +403,9 @@ add_task(async function test_content_language_header_suppression() {
  */
 add_task(async function test_remove_space_stuffing_format_flowed() {
   // Prepare for plaintext email.
-  const oldHtmlPref = Services.prefs.getBoolPref(
-    "mail.identity.default.compose_html"
-  );
-  Services.prefs.setBoolPref("mail.identity.default.compose_html", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.identity.default.compose_html", false]],
+  });
 
   let cwc = await open_compose_new_mail();
 
@@ -452,7 +450,7 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
   // Clean up the created draft.
   await press_delete(window);
 
-  Services.prefs.setBoolPref("mail.identity.default.compose_html", oldHtmlPref);
+  await SpecialPowers.popPrefEnv();
 });
 
 /**

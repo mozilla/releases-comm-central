@@ -48,11 +48,9 @@ add_setup(async function () {
   // Don't create paragraphs in the test.
   // The test checks for the first DOM node and expects a text and not
   // a paragraph.
-  Services.prefs.setBoolPref("mail.compose.default_to_paragraph", false);
-});
-
-registerCleanupFunction(function () {
-  Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.compose.default_to_paragraph", false]],
+  });
 });
 
 async function forward_selected_messages_and_go_to_drafts_folder(callback) {

@@ -155,7 +155,9 @@ add_task(async function test_compose_from_composer() {
  * Test editing the identity email/name for the current composition.
  */
 add_task(async function test_editing_identity() {
-  Services.prefs.setBoolPref("mail.compose.warned_about_customize_from", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.compose.warned_about_customize_from", true]],
+  });
   await be_in_folder(gInbox);
 
   const compWin = await open_compose_new_mail();
@@ -209,7 +211,7 @@ add_task(async function test_editing_identity() {
   // Remove the saved draft.
   await press_delete(window);
   */
-  Services.prefs.setBoolPref("mail.compose.warned_about_customize_from", false);
+  await SpecialPowers.popPrefEnv();
 });
 
 /**

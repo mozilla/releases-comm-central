@@ -293,13 +293,17 @@ add_task(async function test_mailto_link_in_eml() {
  * Test that forward as attachment works.
  */
 add_task(async function test_forward_eml_as_attachment() {
-  Services.prefs.setIntPref("mail.forward_message_mode", 0);
+  // Case 1 - with extension.
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.forward_message_mode", 0],
+      ["mail.forward_add_extension", true],
+    ],
+  });
 
   const file = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
   const msgc = await open_message_from_file(file);
 
-  // Case 1 - with extension.
-  Services.prefs.setBoolPref("mail.forward_add_extension", true);
   const win = await open_compose_with_forward(msgc);
   const attachment =
     win.document.getElementById("attachmentBucket").itemChildren[0]?.attachment;
@@ -312,7 +316,9 @@ add_task(async function test_forward_eml_as_attachment() {
   await close_compose_window(win);
 
   // Case 2 - without extension.
-  Services.prefs.setBoolPref("mail.forward_add_extension", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.forward_add_extension", false]],
+  });
   const win2 = await open_compose_with_forward(msgc);
   const attachment2 =
     win2.document.getElementById("attachmentBucket").itemChildren[0]
@@ -340,6 +346,4 @@ add_task(async function test_forward_eml_as_attachment() {
   await press_delete(); // Delete the draft.
 
   await BrowserTestUtils.closeWindow(msgc); // close base .eml message
-  Services.prefs.clearUserPref("mail.forward_add_extension");
-  Services.prefs.clearUserPref("mail.forward_message_mode");
 });

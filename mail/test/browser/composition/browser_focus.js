@@ -484,17 +484,13 @@ add_task(async function test_jump_focus() {
   // Make sure the accessibility tabfocus is set to 7 to enable normal Tab
   // focus on non-input field elements. This is necessary only for macOS as
   // the default value is 2 instead of the default 7 used on Windows and Linux.
-  Services.prefs.setIntPref("accessibility.tabfocus", 7);
-  const prevHeader = Services.prefs.getCharPref("mail.compose.other.header");
-  const prevThreshold = Services.prefs.getIntPref(
-    "mail.compose.warn_public_recipients.threshold"
-  );
-  // Set two custom headers, but only one is shown.
-  Services.prefs.setCharPref(
-    "mail.compose.other.header",
-    "X-Header2,X-Header1"
-  );
-  Services.prefs.setIntPref("mail.compose.warn_public_recipients.threshold", 2);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["accessibility.tabfocus", 7],
+      ["mail.compose.other.header", "X-Header2,X-Header1"],
+      ["mail.compose.warn_public_recipients.threshold", 2],
+    ],
+  });
   for (const useTab of [false, true]) {
     for (const attachment of [false, true]) {
       for (const notifications of [false, true]) {
@@ -520,12 +516,4 @@ add_task(async function test_jump_focus() {
       }
     }
   }
-
-  // Reset the preferences.
-  Services.prefs.clearUserPref("accessibility.tabfocus");
-  Services.prefs.setCharPref("mail.compose.other.header", prevHeader);
-  Services.prefs.setIntPref(
-    "mail.compose.warn_public_recipients.threshold",
-    prevThreshold
-  );
 });

@@ -31,14 +31,15 @@ add_setup(async function () {
   requestLongerTimeout(2);
 
   // These prefs can't be set in the manifest as they contain white-space.
-  Services.prefs.setStringPref(
-    "mail.identity.id1.htmlSigText",
-    "Tinderbox is soo 90ies"
-  );
-  Services.prefs.setStringPref(
-    "mail.identity.id2.htmlSigText",
-    "Tinderboxpushlog is the new <b>hotness!</b>"
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.identity.id1.htmlSigText", "Tinderbox is soo 90ies"],
+      [
+        "mail.identity.id2.htmlSigText",
+        "Tinderboxpushlog is the new <b>hotness!</b>",
+      ],
+    ],
+  });
 
   // Ensure we're in the tinderbox account as that has the right identities set
   // up for this test.
@@ -55,33 +56,18 @@ add_setup(async function () {
   await be_in_folder(inbox);
 });
 
-registerCleanupFunction(function () {
-  Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
-  Services.prefs.clearUserPref("mail.identity.id1.compose_html");
-  Services.prefs.clearUserPref("mail.identity.id1.htmlSigText");
-  Services.prefs.clearUserPref("mail.identity.id2.htmlSigText");
-  Services.prefs.clearUserPref(
-    "mail.identity.id1.suppress_signature_separator"
-  );
-  Services.prefs.clearUserPref(
-    "mail.identity.id2.suppress_signature_separator"
-  );
-});
-
 /**
  * Test that the plaintext compose window has a signature initially,
  * and has the correct signature after switching to another identity.
  */
 async function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
-  Services.prefs.setBoolPref("mail.identity.id1.compose_html", false);
-  Services.prefs.setBoolPref(
-    "mail.identity.id1.suppress_signature_separator",
-    suppressSigSep
-  );
-  Services.prefs.setBoolPref(
-    "mail.identity.id2.suppress_signature_separator",
-    suppressSigSep
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.identity.id1.compose_html", false],
+      ["mail.identity.id1.suppress_signature_separator", suppressSigSep],
+      ["mail.identity.id2.suppress_signature_separator", suppressSigSep],
+    ],
+  });
   const cwc = await open_compose_new_mail();
 
   const contentFrame = cwc.document.getElementById("messageEditor");
@@ -185,20 +171,14 @@ async function HTMLComposeWindowSwitchSignatures(
   suppressSigSep,
   paragraphFormat
 ) {
-  Services.prefs.setBoolPref(
-    "mail.compose.default_to_paragraph",
-    paragraphFormat
-  );
-
-  Services.prefs.setBoolPref("mail.identity.id1.compose_html", true);
-  Services.prefs.setBoolPref(
-    "mail.identity.id1.suppress_signature_separator",
-    suppressSigSep
-  );
-  Services.prefs.setBoolPref(
-    "mail.identity.id2.suppress_signature_separator",
-    suppressSigSep
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.compose.default_to_paragraph", paragraphFormat],
+      ["mail.identity.id1.compose_html", true],
+      ["mail.identity.id1.suppress_signature_separator", suppressSigSep],
+      ["mail.identity.id2.suppress_signature_separator", suppressSigSep],
+    ],
+  });
   const cwc = await open_compose_new_mail();
 
   await setup_msg_contents(cwc, "", "HTML compose window", "Body, first line.");

@@ -63,11 +63,9 @@ add_task(async function test_invalid_data_uri() {
  * with $2, $1 should be discarded to prevent duplicated links.
  */
 add_task(async function test_freeTextLink() {
-  const prevSendFormat = Services.prefs.getIntPref("mail.default_send_format");
-  Services.prefs.setIntPref(
-    "mail.default_send_format",
-    Ci.nsIMsgCompSendFormat.PlainText
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.default_send_format", Ci.nsIMsgCompSendFormat.PlainText]],
+  });
   const cwc = await open_compose_new_mail();
   await setup_msg_contents(
     cwc,
@@ -102,6 +100,4 @@ add_task(async function test_freeTextLink() {
   );
 
   await press_delete(); // Delete the msg from Outbox.
-
-  Services.prefs.setIntPref("mail.default_send_format", prevSendFormat);
 });

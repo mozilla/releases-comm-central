@@ -19,14 +19,6 @@ var { click_menus_in_sequence, close_window } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 
-registerCleanupFunction(function () {
-  Services.prefs.clearUserPref("mailnews.reply_quoting_selection");
-  Services.prefs.clearUserPref(
-    "mailnews.reply_quoting_selection.only_if_chars"
-  );
-  Services.prefs.clearUserPref("mailnews.reply_quoting_selection.multi_word");
-});
-
 async function subtest(path) {
   const file = new FileUtils.File(getTestFilePath(path));
   const msgc = await open_message_from_file(file);
@@ -250,38 +242,38 @@ add_task(async function test_quoting_prefs() {
   await assertWholeMessageQuoted();
 
   // Check selection quoting when multiple words not required.
-  Services.prefs.setBoolPref(
-    "mailnews.reply_quoting_selection.multi_word",
-    false
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.reply_quoting_selection.multi_word", false]],
+  });
   await assertSelectionQuoted("line");
-  Services.prefs.setBoolPref(
-    "mailnews.reply_quoting_selection.multi_word",
-    true
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.reply_quoting_selection.multi_word", true]],
+  });
 
   // Select more than one word. The selection should be quoted.
   await SpecialPowers.spawn(browser, [7, 7, 13], selectCharacters);
   await assertSelectionQuoted("line 7");
 
   // Check selection quoting can be disabled.
-  Services.prefs.setBoolPref("mailnews.reply_quoting_selection", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.reply_quoting_selection", false]],
+  });
   await assertWholeMessageQuoted();
-  Services.prefs.setBoolPref("mailnews.reply_quoting_selection", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.reply_quoting_selection", true]],
+  });
 
   // Check selection quoting when particular characters are required.
-  Services.prefs.setStringPref(
-    "mailnews.reply_quoting_selection.only_if_chars",
-    "456"
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.reply_quoting_selection.only_if_chars", "456"]],
+  });
   await SpecialPowers.spawn(browser, [3, 0, 6], selectCharacters);
   await assertWholeMessageQuoted();
   await SpecialPowers.spawn(browser, [4, 0, 6], selectCharacters);
   await assertSelectionQuoted("line 4");
-  Services.prefs.setStringPref(
-    "mailnews.reply_quoting_selection.only_if_chars",
-    ""
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.reply_quoting_selection.only_if_chars", ""]],
+  });
 
   await BrowserTestUtils.closeWindow(messageWindow);
 });
