@@ -1,3 +1,9 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+"use strict";
+
 const { sinon } = ChromeUtils.importESModule(
   "resource://testing-common/Sinon.sys.mjs"
 );
@@ -6,18 +12,14 @@ const { GuessConfig } = ChromeUtils.importESModule(
 );
 
 const PREF_NAME = "mailnews.auto_config_url";
-const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 
-add_setup(function () {
+add_setup(async function () {
   // Set the pref to load a local autoconfig file.
   const url =
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
-  Services.prefs.setCharPref(PREF_NAME, url);
-});
-
-registerCleanupFunction(function () {
-  // Restore the original pref.
-  Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
+  await SpecialPowers.pushPrefEnv({
+    set: [[PREF_NAME, url]],
+  });
 });
 
 add_task(async function test_account_email_manual_config_form() {

@@ -38,7 +38,9 @@ add_task(async function test_open_account_hub_menubar() {
 }).skip(AppConstants.platform === "macosx");
 
 add_task(async function test_open_account_hub_appmenu() {
-  Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [["ui.prefersReducedMotion", 1]],
+  });
 
   EventUtils.synthesizeMouseAtCenter(
     document.getElementById("button-appmenu"),
@@ -69,7 +71,7 @@ add_task(async function test_open_account_hub_appmenu() {
     dialog,
     dialog.querySelector("email-auto-form")
   );
-  Services.prefs.clearUserPref("ui.prefersReducedMotion");
+  await SpecialPowers.popPrefEnv();
 });
 
 add_task(async function test_open_account_hub_account_central() {
@@ -188,8 +190,12 @@ add_task(async function test_open_account_hub_message_window() {
 }).skip(AppConstants.platform === "macosx");
 
 add_task(async function test_open_address_book_account_hub_appmenu() {
-  Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
-  Services.prefs.setBoolPref("mail.accounthub.addressbook.enabled", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["ui.prefersReducedMotion", 1],
+      ["mail.accounthub.addressbook.enabled", true],
+    ],
+  });
 
   EventUtils.synthesizeMouseAtCenter(
     document.getElementById("button-appmenu"),
@@ -220,12 +226,13 @@ add_task(async function test_open_address_book_account_hub_appmenu() {
   EventUtils.synthesizeKey("KEY_Escape", {});
   await closeEvent;
 
-  Services.prefs.clearUserPref("mail.accounthub.addressbook.enabled");
-  Services.prefs.clearUserPref("ui.prefersReducedMotion");
+  await SpecialPowers.popPrefEnv();
 });
 
 add_task(async function test_open_account_hub_address_book_tab() {
-  Services.prefs.setBoolPref("mail.accounthub.addressbook.enabled", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.accounthub.addressbook.enabled", true]],
+  });
   const abWindow = await new Promise(resolve => {
     window.openTab("addressBookTab", {
       onLoad(event, browser) {
@@ -249,5 +256,5 @@ add_task(async function test_open_account_hub_address_book_tab() {
   const tabmail = window.document.getElementById("tabmail");
   tabmail.closeTab(tabmail.currentTab);
 
-  Services.prefs.clearUserPref("mail.accounthub.addressbook.enabled");
+  await SpecialPowers.popPrefEnv();
 });

@@ -5,22 +5,18 @@
 "use strict";
 
 const PREF_NAME = "mailnews.auto_config_url";
-const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
 );
 
-add_setup(function () {
+add_setup(async function () {
   // Set the pref to load a local autoconfig file.
   const url =
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
-  Services.prefs.setCharPref(PREF_NAME, url);
-});
-
-registerCleanupFunction(function () {
-  // Restore the original pref.
-  Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
+  await SpecialPowers.pushPrefEnv({
+    set: [[PREF_NAME, url]],
+  });
 });
 
 add_task(async function test_choosing_pop3_account_creation() {

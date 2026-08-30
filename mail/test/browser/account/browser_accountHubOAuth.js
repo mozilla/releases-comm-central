@@ -12,21 +12,19 @@ const { ServerTestUtils } = ChromeUtils.importESModule(
 );
 
 const PREF_NAME = "mailnews.auto_config_url";
-const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 const MANUAL_CONFIG_PREF = "mail.accounthub.manualconfig.enabled";
 
-add_setup(function () {
-  // Set the pref to load a local autoconfig file.
+add_setup(async function () {
+  // Set the pref to load a local autoconfig file and disable the manual
+  // configuration shortcut for these tests.
   const url =
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
-  Services.prefs.setCharPref(PREF_NAME, url);
-  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, false);
-});
-
-registerCleanupFunction(function () {
-  // Restore the original pref.
-  Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
-  Services.prefs.setBoolPref(MANUAL_CONFIG_PREF, true);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      [PREF_NAME, url],
+      [MANUAL_CONFIG_PREF, false],
+    ],
+  });
 });
 
 add_task(async function test_account_oauth_imap_account() {

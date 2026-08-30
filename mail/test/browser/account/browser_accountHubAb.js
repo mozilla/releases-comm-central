@@ -11,7 +11,6 @@ const { cal } = ChromeUtils.importESModule(
 );
 
 const PREF_NAME = "mailnews.auto_config_url";
-const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 const _srv = DNS.srv;
 const _txt = DNS.txt;
 
@@ -46,18 +45,18 @@ DNS.txt = function (name) {
   throw new Error(`Unexpected DNS TXT lookup: ${name}`);
 };
 
-add_setup(function () {
+add_setup(async function () {
   // Set the pref to load a local autoconfig file.
   const url =
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
-  Services.prefs.setCharPref(PREF_NAME, url);
+  await SpecialPowers.pushPrefEnv({
+    set: [[PREF_NAME, url]],
+  });
 });
 
 registerCleanupFunction(function () {
   DNS.srv = _srv;
   DNS.txt = _txt;
-  // Restore the original pref.
-  Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
 });
 
 add_task(async function test_address_book_option_select_account_with_ab() {

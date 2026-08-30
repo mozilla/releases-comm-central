@@ -5,7 +5,6 @@
 "use strict";
 
 const PREF_NAME = "mailnews.auto_config_url";
-const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 
 add_setup(async () => {
   // Set the pref to load a local autoconfig file.
@@ -14,11 +13,6 @@ add_setup(async () => {
   await SpecialPowers.pushPrefEnv({
     set: [[PREF_NAME, url]],
   });
-});
-
-registerCleanupFunction(function () {
-  // Restore the original pref.
-  Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
 });
 
 add_task(async function test_application_init_with_first_run_account_hub() {

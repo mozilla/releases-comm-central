@@ -9,20 +9,19 @@ const { MockExternalProtocolService } = ChromeUtils.importESModule(
 );
 
 const PREF_NAME = "mailnews.auto_config_url";
-const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 
-add_setup(function () {
+add_setup(async function () {
   // Set the pref to load a local autoconfig file.
   const url =
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
-  Services.prefs.setCharPref(PREF_NAME, url);
+  await SpecialPowers.pushPrefEnv({
+    set: [[PREF_NAME, url]],
+  });
 
   MockExternalProtocolService.init();
 
   registerCleanupFunction(function () {
     MockExternalProtocolService.cleanup();
-    // Restore the original pref.
-    Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
   });
 });
 

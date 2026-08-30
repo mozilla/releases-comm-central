@@ -25,10 +25,9 @@ let ewsAccount, ewsRootFolder;
 add_setup(async () => {
   // Disable AutoSync so toggling offline flags doesn't trigger background
   // download timers that leak past the end of the test.
-  Services.prefs.setBoolPref(
-    "mail.server.default.autosync_offline_stores",
-    false
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.server.default.autosync_offline_stores", false]],
+  });
 
   // Set up servers.
 
@@ -146,11 +145,10 @@ add_setup(async () => {
     .getChildNamed("fourth")
     .clearFlag(Ci.nsMsgFolderFlags.Offline);
 
-  registerCleanupFunction(async () => {
+  registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(nntpAccount, false);
     MailServices.accounts.removeAccount(imapAccount, false);
     MailServices.accounts.removeAccount(ewsAccount, false);
-    Services.prefs.clearUserPref("mail.server.default.autosync_offline_stores");
     tabmail.closeOtherTabs(0);
   });
 });

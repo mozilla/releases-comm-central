@@ -15,7 +15,7 @@ var { FAKE_SERVER_HOSTNAME } = ChromeUtils.importESModule(
 var gKeyString = null;
 var gAccount = null;
 
-add_setup(function () {
+add_setup(async function () {
   const server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
@@ -24,8 +24,11 @@ add_setup(function () {
   gAccount = MailServices.accounts.findAccountForServer(server);
 
   gKeyString = "mail.server." + server.key + ".whiteListAbURI";
-  registerCleanupFunction(function () {
-    Services.prefs.clearUserPref(gKeyString);
+
+  // The Account Settings UI changes this preference. Start with an empty
+  // allowlist and restore its original state when the test finishes.
+  await SpecialPowers.pushPrefEnv({
+    set: [[gKeyString, ""]],
   });
 });
 

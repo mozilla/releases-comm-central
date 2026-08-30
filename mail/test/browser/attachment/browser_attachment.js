@@ -195,11 +195,10 @@ add_setup(async function () {
  *
  * @param {true} expand true if the attachment pane should start out expanded.
  */
-function ensure_starts_expanded(expand) {
-  Services.prefs.setBoolPref(
-    "mailnews.attachments.display.start_expanded",
-    expand
-  );
+async function ensure_starts_expanded(expand) {
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.attachments.display.start_expanded", expand]],
+  });
 }
 
 /**
@@ -525,7 +524,7 @@ add_task(async function test_attachment_list_expansion() {
 }).skip(); // supernova - bug 1787094
 
 add_task(async function test_attachment_list_starts_expanded() {
-  ensure_starts_expanded(true);
+  await ensure_starts_expanded(true);
   await be_in_folder(folder);
 
   await select_click_row(2);
@@ -538,7 +537,7 @@ add_task(async function test_attachment_list_starts_expanded() {
 });
 
 add_task(async function test_selected_attachments_are_cleared() {
-  ensure_starts_expanded(false);
+  await ensure_starts_expanded(false);
   await be_in_folder(folder);
   // First, select the message with two attachments.
   await select_click_row(3);

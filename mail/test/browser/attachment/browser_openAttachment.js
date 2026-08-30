@@ -50,13 +50,19 @@ add_setup(async function () {
   tmpD = PathUtils.join(PathUtils.tempDir, "pid-" + Services.appinfo.processID);
 
   savePath = await IOUtils.createUniqueDirectory(tmpD, "saveDestination");
-  Services.prefs.setStringPref("browser.download.dir", savePath);
 
   homeDirectory = await IOUtils.createUniqueDirectory(tmpD, "homeDirectory");
 
-  Services.prefs.setIntPref("browser.download.folderList", 2);
-  Services.prefs.setBoolPref("browser.download.useDownloadDir", true);
-  Services.prefs.setIntPref("security.dialog_enable_delay", 0);
+  homeDirectory = await IOUtils.createUniqueDirectory(tmpD, "homeDirectory");
+
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["browser.download.dir", savePath],
+      ["browser.download.folderList", 2],
+      ["browser.download.useDownloadDir", true],
+      ["security.dialog_enable_delay", 0],
+    ],
+  });
 
   const mockExePath = PathUtils.join(PathUtils.tempDir, "mockedExecutable");
   await IOUtils.write(mockExePath, new Uint8Array(), {
@@ -82,11 +88,6 @@ registerCleanupFunction(async function () {
 
   await IOUtils.remove(savePath, { recursive: true });
   await IOUtils.remove(homeDirectory, { recursive: true });
-
-  Services.prefs.clearUserPref("browser.download.dir");
-  Services.prefs.clearUserPref("browser.download.folderList");
-  Services.prefs.clearUserPref("browser.download.useDownloadDir");
-  Services.prefs.clearUserPref("security.dialog.dialog_enable_delay");
 
   for (const type of mockedHandlers) {
     const handlerInfo = mimeService.getFromTypeAndExtension(type, null);
@@ -384,7 +385,9 @@ add_task(async function saveToDiskAlwaysAsk() {
  * default download directory.
  */
 add_task(async function saveToDiskAlwaysAskPromptLocation() {
-  Services.prefs.setBoolPref("browser.download.useDownloadDir", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["browser.download.useDownloadDir", false]],
+  });
 
   createMockedHandler(
     "test/saveToDisk-true",
@@ -411,7 +414,7 @@ add_task(async function saveToDiskAlwaysAskPromptLocation() {
   Assert.ok(MockFilePicker.shown, "file picker was shown");
 
   MockFilePicker.reset();
-  Services.prefs.setBoolPref("browser.download.useDownloadDir", true);
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -510,7 +513,9 @@ add_task(async function saveToDisk() {
  * default download directory.
  */
 add_task(async function saveToDiskPromptLocation() {
-  Services.prefs.setBoolPref("browser.download.useDownloadDir", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["browser.download.useDownloadDir", false]],
+  });
 
   createMockedHandler(
     "test/saveToDisk-true",
@@ -534,7 +539,7 @@ add_task(async function saveToDiskPromptLocation() {
   Assert.ok(MockFilePicker.shown, "file picker was shown");
 
   MockFilePicker.reset();
-  Services.prefs.setBoolPref("browser.download.useDownloadDir", true);
+  await SpecialPowers.popPrefEnv();
 });
 
 /**

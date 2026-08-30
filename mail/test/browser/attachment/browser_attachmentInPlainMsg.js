@@ -14,7 +14,9 @@ var { get_about_message, open_message_from_file } = ChromeUtils.importESModule(
  * when message is viewed as plain text.
  */
 add_task(async function test_attachment_not_empty() {
-  Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.display.prefer_plaintext", true]],
+  });
 
   const file = new FileUtils.File(getTestFilePath("data/bug1358565.eml"));
 
@@ -43,6 +45,4 @@ add_task(async function test_attachment_not_empty() {
   );
 
   await BrowserTestUtils.closeWindow(msgc);
-
-  Services.prefs.clearUserPref("mailnews.display.prefer_plaintext");
 });
