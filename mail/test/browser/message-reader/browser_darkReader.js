@@ -242,49 +242,50 @@ add_task(async function test_message_scroll_position() {
 });
 
 add_task(async function test_darkReaderToggleVisibility() {
+  // The toggle's visibility is driven purely by CSS media queries, so don't
+  // wait for MsgLoaded here. On Windows, enabling high contrast mode makes
+  // `(forced-colors)` match in chrome documents, which makes
+  // LightweightThemeConsumer substitute the default theme for the active one.
+  // The color scheme then doesn't change when switching themes, so the message
+  // is never reloaded and no MsgLoaded is fired.
+  const toggle = aboutMessage.document.querySelector("#darkReaderToggle");
+
   info("Wait for light mode");
-  let msgLoaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
   await SpecialPowers.pushPrefEnv({
     set: [["ui.useAccessibilityTheme", 0]],
   });
   await toggle_theme(lightTheme, true);
-  await msgLoaded;
-
-  const toggle = aboutMessage.document.querySelector("#darkReaderToggle");
-
-  Assert.ok(
-    BrowserTestUtils.isHidden(toggle),
-    "Dark reader toggle is hidden in light theme"
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isHidden(toggle),
+    "Dark reader toggle should be hidden in light theme"
   );
 
-  // Enable high contrast mode
   info("wait for high contrast mode");
   await SpecialPowers.pushPrefEnv({
     set: [["ui.useAccessibilityTheme", 1]],
   });
-  await new Promise(aboutMessage.requestAnimationFrame);
+  await TestUtils.waitForCondition(
+    () => aboutMessage.matchMedia("(prefers-contrast)").matches,
+    "High contrast mode should take effect"
+  );
 
   Assert.ok(
     BrowserTestUtils.isHidden(toggle),
-    "Dark reader toggle is hidden in light theme with high contrast enabled"
+    "Dark reader toggle should be hidden in light theme with high contrast enabled"
   );
 
   info("wait for dark mode");
-  msgLoaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
   await toggle_theme(darkTheme, true);
-  await msgLoaded;
 
   Assert.ok(
     BrowserTestUtils.isHidden(toggle),
-    "Dark reader toggle is hidden in dark theme with high contrast enabled"
+    "Dark reader toggle should be hidden in dark theme with high contrast enabled"
   );
 
   await SpecialPowers.popPrefEnv();
-  await new Promise(aboutMessage.requestAnimationFrame);
-
-  Assert.ok(
-    BrowserTestUtils.isVisible(toggle),
-    "Dark reader toggle is visible in dark theme with high contrast disabled"
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(toggle),
+    "Dark reader toggle should be visible in dark theme with high contrast disabled"
   );
 
   await SpecialPowers.popPrefEnv();
