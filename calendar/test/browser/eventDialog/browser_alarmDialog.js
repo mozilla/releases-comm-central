@@ -88,3 +88,70 @@ add_task(async function testAlarmDialog() {
 
   Assert.ok(true, "Test ran to completion");
 });
+
+add_task(async function testAlarmDetailsUsesNewReadDialog() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.dialogs.new.enabled", true]],
+  });
+
+  const now = new Date();
+  const calendar = CalendarTestUtils.createCalendar();
+
+  registerCleanupFunction(() => {
+    CalendarTestUtils.removeCalendar(calendar);
+  });
+
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await CalendarTestUtils.goToDate(
+    window,
+    now.getUTCFullYear(),
+    now.getUTCMonth() + 1,
+    now.getUTCDate()
+  );
+  await CalendarTestUtils.calendarViewForward(window, 1);
+
+  const allDayHeader = dayView.getAllDayHeader(window);
+  EventUtils.synthesizeMouseAtCenter(allDayHeader, {}, window);
+
+  const alarmPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://calendar/content/calendar-alarm-dialog.xhtml",
+    {
+      async callback(alarmWindow) {
+        await new Promise(resolve => alarmWindow.setTimeout(resolve, 500));
+
+        const details = alarmWindow.document.querySelector(
+          '[data-l10n-id="calendar-alarm-details"]'
+        );
+        Assert.ok(details, "Details link should exist");
+
+        EventUtils.synthesizeMouseAtCenter(details, {}, alarmWindow);
+
+        await TestUtils.waitForCondition(
+          () => document.querySelector("#calendarDialog[open]"),
+          "Waiting for the new calendar read dialog to open"
+        );
+
+        Assert.ok(
+          document.querySelector("#calendarDialog[open]"),
+          "Alarm Details should open the new calendar read dialog"
+        );
+
+        document.getElementById("calendarDialog").close();
+
+        const dismissButton = alarmWindow.document.getElementById("alarm-dismiss-all-button");
+        EventUtils.synthesizeMouseAtCenter(dismissButton, {}, alarmWindow);
+      },
+    }
+  );
+
+  const { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window);
+  await setData(dialogWindow, iframeWindow, {
+    allday: true,
+    reminder: "1day",
+    title: "Event",
+  });
+
+  await saveAndCloseItemDialog(dialogWindow);
+  await alarmPromise;
+});

@@ -136,13 +136,14 @@ function onDismissAllAlarms() {
  * @param {Event} event - The itemdetails event.
  */
 function onItemDetails(event) {
-  // We want this to happen in a calendar window if possible. Otherwise open
-  // it using our window.
   const calWindow = cal.window.getCalendarWindow();
   if (calWindow) {
-    calWindow.modifyEventWithDialog(event.target.item, true);
+    calWindow.focus();
+    calWindow.openEventDialogForViewing(event.target.item, true);
   } else {
-    modifyEventWithDialog(event.target.item, true);
+    cal.window.goToCalendar(mainWindow => {
+      mainWindow.openEventDialogForViewing(event.target.item, true);
+    });
   }
 }
 

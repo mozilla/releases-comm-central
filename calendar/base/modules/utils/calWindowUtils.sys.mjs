@@ -74,11 +74,15 @@ export var window = {
    * Open (or focus if already open) the calendar tab, even if the imip bar is
    * in a message window, and even if there is no main three pane Thunderbird
    * window open. Called when clicking the imip bar's calendar button.
+   *
+   * @param {Function} [callback] - Called with the main window once the calendar
+   *   is ready.
    */
-  goToCalendar() {
+  goToCalendar(callback) {
     const openCal = mainWindow => {
       mainWindow.focus();
       mainWindow.document.getElementById("tabmail").openTab("calendar");
+      callback?.(mainWindow);
     };
 
     let mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
