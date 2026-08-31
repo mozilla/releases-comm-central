@@ -425,14 +425,12 @@ var smimeSink = {
 
     refreshSmimeMessageEncryptionStatus(aOriginMimePartNumber);
 
-    if (gEncryptedURIService) {
-      // Remember the message URI and the corresponding necko URI.
-      gMyLastEncryptedURI = gMessageURI;
-      gMyLastEncryptedNeckoURI =
-        MailServices.neckoURLForMessageURI(gMyLastEncryptedURI);
-      gEncryptedURIService.rememberEncrypted(gMyLastEncryptedURI);
-      gEncryptedURIService.rememberEncrypted(gMyLastEncryptedNeckoURI);
-    }
+    // Remember the message URI and the corresponding necko URI.
+    gMyLastEncryptedURI = gMessageURI;
+    gMyLastEncryptedNeckoURI =
+      MailServices.neckoURLForMessageURI(gMyLastEncryptedURI);
+    gEncryptedURIService.rememberEncrypted(gMyLastEncryptedURI);
+    gEncryptedURIService.rememberEncrypted(gMyLastEncryptedNeckoURI);
 
     switch (aEncryptionStatus) {
       case Ci.nsICMSMessageErrors.SUCCESS:
@@ -476,11 +474,11 @@ var smimeSink = {
 };
 
 function forgetEncryptedURI() {
-  if (gMyLastEncryptedURI && gEncryptedURIService) {
+  if (gMyLastEncryptedURI) {
     gEncryptedURIService.forgetEncrypted(gMyLastEncryptedURI);
     gMyLastEncryptedURI = null;
   }
-  if (gMyLastEncryptedNeckoURI && gEncryptedURIService) {
+  if (gMyLastEncryptedNeckoURI) {
     gEncryptedURIService.forgetEncrypted(gMyLastEncryptedNeckoURI);
     gMyLastEncryptedNeckoURI = null;
   }
@@ -553,11 +551,6 @@ function msgHdrViewSMIMEOnLoad() {
   listener.onEndHeaders = onSMIMEEndHeaders;
   listener.onBeforeShowHeaderPane = onSMIMEBeforeShowHeaderPane;
   gMessageListeners.push(listener);
-
-  // eslint-disable-next-line no-global-assign
-  gEncryptedURIService = Cc[
-    "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"
-  ].getService(Ci.nsIEncryptedSMIMEURIsService);
 }
 
 function msgHdrViewSMIMEOnUnload() {

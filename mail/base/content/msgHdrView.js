@@ -18,6 +18,7 @@
 /* import-globals-from mailCore.js */
 /* import-globals-from msgSecurityPane.js */
 /* global openpgpSink */ // From enigmailMsgHdrViewOverlay.js
+/* global gEncryptedURIService */ // From mailCommon.js
 
 /* globals MozElements */
 
@@ -74,12 +75,6 @@ XPCOMUtils.defineLazyServiceGetter(
   "gHandlerService",
   "@mozilla.org/uriloader/handler-service;1",
   Ci.nsIHandlerService
-);
-XPCOMUtils.defineLazyServiceGetter(
-  this,
-  "gEncryptedSMIMEURIsService",
-  "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1",
-  Ci.nsIEncryptedSMIMEURIsService
 );
 
 // Warning: It's critical that the code in here for displaying the message
@@ -513,7 +508,7 @@ var MsgHdrViewObserver = {
         gMessageNotificationBar.setRemoteContentMsg(
           null,
           subject,
-          !gEncryptedSMIMEURIsService.isEncrypted(browser.currentURI.spec)
+          !gEncryptedURIService.isEncrypted(browser.currentURI.spec)
         );
       }
     }
