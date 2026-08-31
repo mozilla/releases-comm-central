@@ -767,26 +767,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
         m_newMsgHdr->SetAuthor(nsCString(sender->value, sender->length));
       }
 
-      if (recipient == &m_newsgroups) {
-        /* In the case where the recipient is a newsgroup, truncate the string
-           at the first comma.  This is used only for presenting the thread
-           list, and newsgroup lines tend to be long and non-shared, and tend to
-           bloat the string table.  So, by only showing the first newsgroup, we
-           can reduce memory and file usage at the expense of only showing the
-           one group in the summary list, and only being able to sort on the
-           first group rather than the whole list.  It's worth it. */
-        char* ch;
-        ch = PL_strnchr(recipient->value, ',', recipient->length);
-        if (ch) {
-          /* generate a new string that terminates before the , */
-          nsAutoCString firstGroup;
-          firstGroup.Assign(recipient->value, ch - recipient->value);
-          m_newMsgHdr->SetRecipients(firstGroup);
-        }
-
-        m_newMsgHdr->SetRecipients(
-            nsCString(recipient->value, recipient->length));
-      } else if (recipient) {
+      if (recipient) {
         m_newMsgHdr->SetRecipients(
             nsCString(recipient->value, recipient->length));
       }
