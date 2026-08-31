@@ -175,7 +175,7 @@
 #endif
 @RESPATH@/application.ini
 #ifdef MOZ_ENTERPRISE
-@RESPATH@/distribution/distribution.ini
+@RESPATH@/thunderbird.cfg
 #endif
 #ifdef MOZ_UPDATER
 # update-settings.ini has been removed on macOS.

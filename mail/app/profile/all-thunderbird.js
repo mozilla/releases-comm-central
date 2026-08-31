@@ -564,7 +564,9 @@ pref("security.intermediate_preloading_healer.enabled", false);
 // to avoid the race that triggers multiple prompts (see bug 177175).
 pref("security.prompt_for_master_password_on_startup", true);
 
+#if !defined(MOZ_ENTERPRISE)
 pref("general.config.obscure_value", 0); // for MCD .cfg files
+#endif
 
 pref("browser.display.auto_quality_min_font_size", 0);
 

@@ -10,3 +10,12 @@ JAR_MANIFESTS += ["jar.mn"]
 
 include("../branding-common.mozbuild")
 ThunderbirdBranding()
+
+if CONFIG["MOZ_ENTERPRISE"]:
+    # Ship the AutoConfig file (pointed at by general.config.filename). The
+    # readable source is byte shifted at build time rather than checked in
+    # obscured. Installed into dist/bin (the parent of this branding's
+    # "browser" DIST_SUBDIR), alongside the browser binary.
+    GENERATED_FILES += ["thunderbird.cfg"]
+    GENERATED_FILES["thunderbird.cfg"].script = "byteshift.py:generate"
+    GENERATED_FILES["thunderbird.cfg"].inputs = ["thunderbird.cfg.in"]
