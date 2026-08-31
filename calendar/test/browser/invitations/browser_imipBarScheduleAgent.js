@@ -96,6 +96,11 @@ add_task(async function testAcceptExistingInvitation() {
     return event?.getAttendeeById("mailto:receiver@example.com")?.participationStatus == "ACCEPTED";
   }, "waiting for the invitation to be accepted");
 
+  await TestUtils.waitForCondition(
+    () => transport.sentItems.length > 0,
+    "waiting for the client to send the reply"
+  );
+
   Assert.equal(
     event.organizer.getProperty("SCHEDULE-AGENT"),
     "CLIENT",
