@@ -28,8 +28,8 @@ ChromeUtils.defineESModuleGetters(this, {
 XPCOMUtils.defineLazyServiceGetter(
   this,
   "gEncryptedURIService",
-  "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1",
-  Ci.nsIEncryptedSMIMEURIsService
+  "@mozilla.org/messenger/encrypted-msg-uris-service;1",
+  Ci.nsIEncryptedMsgURIsService
 );
 
 Object.defineProperty(this, "gDBView", {

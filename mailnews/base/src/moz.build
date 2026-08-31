@@ -51,6 +51,7 @@ UNIFIED_SOURCES += [
     "MboxMsgOutputStream.cpp",
     "MsgOperationListener.cpp",
     "nsCidProtocolHandler.cpp",
+    "nsEncryptedMsgURIsService.cpp",
     "nsImapMoveCoalescer.cpp",
     "nsMailAuthModule.cpp",
     "nsMailChannel.cpp",

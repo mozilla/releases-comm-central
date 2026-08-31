@@ -9,6 +9,7 @@ XPIDL_SOURCES += [
     "msgIOAuth2Module.idl",
     "msgIPasswordAuthModule.idl",
     "nsICopyMessageListener.idl",
+    "nsIEncryptedMsgURIsService.idl",
     "nsIFeedbackService.idl",
     "nsIFolderListener.idl",
     "nsIFolderLookupService.idl",

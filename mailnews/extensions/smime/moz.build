@@ -14,21 +14,17 @@ XPIDL_SOURCES += [
     "nsICMSMessage.idl",
     "nsICMSMessageErrors.idl",
     "nsICMSSecureMessage.idl",
-    "nsIEncryptedSMIMEURIsSrvc.idl",
     "nsIMsgSMIMESink.idl",
     "nsIUserCertPicker.idl",
 ]
 
 XPIDL_MODULE = "msgsmime"
 
-XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.toml"]
-
 UNIFIED_SOURCES += [
     "nsCertGen.cpp",
     "nsCertPicker.cpp",
     "nsCMS.cpp",
     "nsCMSSecureMessage.cpp",
-    "nsEncryptedSMIMEURIsService.cpp",
     "nsMsgComposeSecure.cpp",
 ]
 

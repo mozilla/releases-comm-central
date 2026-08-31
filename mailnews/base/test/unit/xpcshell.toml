@@ -63,6 +63,8 @@ tags = ["compact"]
 
 ["test_emptyTrash.js"]
 
+["test_encryptedURIsService.js"]
+
 ["test_fix_deferred_accounts.js"]
 
 ["test_folderCompact.js"]

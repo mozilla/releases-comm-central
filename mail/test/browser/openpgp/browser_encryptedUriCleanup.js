@@ -31,8 +31,8 @@ const { MailServices } = ChromeUtils.importESModule(
 );
 
 const gEncryptedURIService = Cc[
-  "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"
-].getService(Ci.nsIEncryptedSMIMEURIsService);
+  "@mozilla.org/messenger/encrypted-msg-uris-service;1"
+].getService(Ci.nsIEncryptedMsgURIsService);
 
 // The decrypted body of the test message.
 const MSG_TEXT = "Sundays are nothing without callaloo.";

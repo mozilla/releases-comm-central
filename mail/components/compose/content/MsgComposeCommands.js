@@ -215,8 +215,8 @@ var gIsRelatedToEncryptedOriginal = false;
 var gOpened = Date.now();
 
 var gEncryptedURIService = Cc[
-  "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"
-].getService(Ci.nsIEncryptedSMIMEURIsService);
+  "@mozilla.org/messenger/encrypted-msg-uris-service;1"
+].getService(Ci.nsIEncryptedMsgURIsService);
 
 try {
   var gDragService = Cc["@mozilla.org/widget/dragservice;1"].getService(

@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests that nsIEncryptedSMIMEURIsService recognizes an encrypted message
+ * Tests that nsIEncryptedMsgURIsService recognizes an encrypted message
  * regardless of which valid URI representation was used to register it or to
  * look it up.
  */
 
 const service = Cc[
-  "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"
-].getService(Ci.nsIEncryptedSMIMEURIsService);
+  "@mozilla.org/messenger/encrypted-msg-uris-service;1"
+].getService(Ci.nsIEncryptedMsgURIsService);
 
 // Parsing a mailbox: or file: URL converts its path to an nsIFile, and a URL
 // that fails to parse isn't normalized at all. Derive the paths used below from

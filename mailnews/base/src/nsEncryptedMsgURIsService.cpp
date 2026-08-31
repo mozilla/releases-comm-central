@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsEncryptedSMIMEURIsService.h"
+#include "nsEncryptedMsgURIsService.h"
 
 #include "mozilla/Assertions.h"
 #include "nsIMsgMailNewsUrl.h"
@@ -127,13 +127,13 @@ static void NormalizeURI(const nsACString& aURI, nsACString& aOut) {
   // already in aOut.
 }
 
-NS_IMPL_ISUPPORTS(nsEncryptedSMIMEURIsService, nsIEncryptedSMIMEURIsService)
+NS_IMPL_ISUPPORTS(nsEncryptedMsgURIsService, nsIEncryptedMsgURIsService)
 
-nsEncryptedSMIMEURIsService::nsEncryptedSMIMEURIsService() {}
+nsEncryptedMsgURIsService::nsEncryptedMsgURIsService() {}
 
-nsEncryptedSMIMEURIsService::~nsEncryptedSMIMEURIsService() {}
+nsEncryptedMsgURIsService::~nsEncryptedMsgURIsService() {}
 
-NS_IMETHODIMP nsEncryptedSMIMEURIsService::RememberEncrypted(
+NS_IMETHODIMP nsEncryptedMsgURIsService::RememberEncrypted(
     const nsACString& uri) {
   if (uri.IsEmpty()) {
     return NS_ERROR_INVALID_ARG;
@@ -149,7 +149,7 @@ NS_IMETHODIMP nsEncryptedSMIMEURIsService::RememberEncrypted(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsEncryptedSMIMEURIsService::ForgetEncrypted(
+NS_IMETHODIMP nsEncryptedMsgURIsService::ForgetEncrypted(
     const nsACString& uri) {
   if (uri.IsEmpty()) {
     return NS_ERROR_INVALID_ARG;
@@ -165,8 +165,8 @@ NS_IMETHODIMP nsEncryptedSMIMEURIsService::ForgetEncrypted(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsEncryptedSMIMEURIsService::IsEncrypted(const nsACString& uri,
-                                                       bool* _retval) {
+NS_IMETHODIMP nsEncryptedMsgURIsService::IsEncrypted(const nsACString& uri,
+                                                     bool* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = false;
   if (uri.IsEmpty()) {

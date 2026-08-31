@@ -31,8 +31,8 @@ const { MailServices } = ChromeUtils.importESModule(
 );
 
 const gEncryptedURIService = Cc[
-  "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"
-].getService(Ci.nsIEncryptedSMIMEURIsService);
+  "@mozilla.org/messenger/encrypted-msg-uris-service;1"
+].getService(Ci.nsIEncryptedMsgURIsService);
 
 const MSG_BODY = "This is a test message from Alice to Bob.";
 
