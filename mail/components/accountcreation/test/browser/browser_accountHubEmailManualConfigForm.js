@@ -341,7 +341,7 @@ add_task(function test_setStateShowsAutomaticChangeIndicators() {
     "Editing the form should clear automatic change indicators"
   );
   Assert.ok(
-    BrowserTestUtils.isHidden(incomingPortHelp),
+    !incomingPortHelp.classList.contains("config-change-comment"),
     "Editing the form should clear input automatic change indicators"
   );
 
@@ -753,6 +753,28 @@ add_task(async function test_adjustPortToSSLAndProtocol() {
     "Incoming port value should match STARTTLS connection security"
   );
 
+  await fireInputEvent(incomingConnectionSecurity, "change", -1);
+  Assert.equal(
+    incomingPort.valueAsNumber,
+    110,
+    "Incoming port value should stay the same for autodetect"
+  );
+
+  await fireInputEvent(
+    incomingConnectionSecurity,
+    "change",
+    Ci.nsMsgSocketType.SSL
+  );
+  await fireInputEvent(incomingPort, "input", "");
+  Assert.equal(incomingPort.value, "", "Should clear incoming port value");
+
+  await fireInputEvent(incomingConnectionSecurity, "change", -1);
+  Assert.equal(
+    incomingPort.value,
+    "",
+    "Incoming port should stay empty for autodetect"
+  );
+
   await fireInputEvent(
     outgoingConnectionSecurity,
     "change",
@@ -773,6 +795,28 @@ add_task(async function test_adjustPortToSSLAndProtocol() {
     outgoingPort.value,
     587,
     "Outgoing port value should match SSL connection security"
+  );
+
+  await fireInputEvent(outgoingConnectionSecurity, "change", -1);
+  Assert.equal(
+    outgoingPort.valueAsNumber,
+    587,
+    "Outgoing port value should stay the same for autodetect"
+  );
+
+  await fireInputEvent(
+    outgoingConnectionSecurity,
+    "change",
+    Ci.nsMsgSocketType.SSL
+  );
+  await fireInputEvent(outgoingPort, "input", "");
+  Assert.equal(outgoingPort.value, "", "Should clear outgoing port value");
+
+  await fireInputEvent(outgoingConnectionSecurity, "change", -1);
+  Assert.equal(
+    outgoingPort.value,
+    "",
+    "Outgoing port should stay empty for autodetect"
   );
 
   subview.resetState();
@@ -1381,23 +1425,44 @@ add_task(
   }
 );
 
+add_task(async function test_emptyPortsAreCapturedAsUnknown() {
+  const config = new AccountConfig();
+  subview.setState(config);
+
+  info("Validating so capture state isn't stale...");
+  await subview.validate();
+  const state = subview.captureState();
+
+  Assert.equal(
+    state.incoming.port,
+    -1,
+    "Should report incoming port as unknown"
+  );
+  Assert.equal(
+    state.outgoing.port,
+    -1,
+    "Should report outgoing port as unknown"
+  );
+});
+
 /**
  * Sets value of input and fires event supplied in parameter.
  *
  * @param {HTMLInputElement} input - The input to be updated.
  * @param {string} eventName - Type of event to be fired.
- * @param {number} value - Value to be applied to input.
+ * @param {number|string} value - Value to be applied to input.
  */
 async function fireInputEvent(input, eventName, value) {
+  const didConfigChange = BrowserTestUtils.waitForEvent(
+    input.closest("email-manual-config-form"),
+    "config-updated"
+  );
   input.value = value;
   input.dispatchEvent(new Event(eventName, { bubbles: true }));
 
-  // Timeout needed because there is a debounce on the config change
+  // Need to wait because there is a debounce on the config change
   // when typing.
-  if (eventName === "input") {
-    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-    await new Promise(r => setTimeout(r, 100));
-  }
+  await didConfigChange;
 }
 
 /**

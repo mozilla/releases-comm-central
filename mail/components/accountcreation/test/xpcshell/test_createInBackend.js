@@ -13,6 +13,9 @@ const { AccountConfig } = ChromeUtils.importESModule(
 const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+const { GuessConfig } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/GuessConfig.sys.mjs"
+);
 
 add_setup(function () {
   do_get_profile();
@@ -126,4 +129,40 @@ add_task(async function test_createExchangeAccountWithCustomOAuthSettings() {
       }
     }
   }
+});
+
+add_task(async function test_createAccountWithoutPorts() {
+  const config = new AccountConfig();
+  config.incoming.hostname = "example.com";
+  config.incoming.username = "test";
+  config.incoming.type = "imap";
+  config.incoming.port = GuessConfig.UNKNOWN;
+  config.outgoing.hostname = "example.com";
+  config.outgoing.username = "test";
+  config.outgoing.type = "smtp";
+  config.outgoing.port = GuessConfig.UNKNOWN;
+  const account = await CreateInBackend.createAccountInBackend(config);
+
+  const outgoingServer = MailServices.outgoingServer.getServerByIdentity(
+    account.defaultIdentity
+  );
+
+  Assert.equal(
+    outgoingServer.serverURI.spec,
+    "smtp://test@example.com/",
+    "Outgoing server should have a valid URI"
+  );
+  Assert.notEqual(
+    outgoingServer.port,
+    GuessConfig.UNKNOWN,
+    "Should not propagate unknown value as port for outgoing server"
+  );
+  Assert.greater(
+    account.incomingServer.port,
+    0,
+    "Should have a value for the incoming server port"
+  );
+
+  MailServices.accounts.removeAccount(account, true);
+  MailServices.outgoingServer.deleteServer(outgoingServer);
 });

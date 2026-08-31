@@ -20,6 +20,7 @@ const { OAuth2Providers } = ChromeUtils.importESModule(
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
+  GuessConfig: "resource:///modules/accountcreation/GuessConfig.sys.mjs",
   openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
 });
 
@@ -34,6 +35,15 @@ import "chrome://messenger/content/tb-banner.mjs"; // eslint-disable-line import
 import "./account-hub-select.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./account-hub-input.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./account-hub-checkbox.mjs"; // eslint-disable-line import/no-unassigned-import
+
+/**
+ * Check if a port value should be considered empty.
+ *
+ * @param {number|string} portValue
+ * @returns {boolean}
+ */
+const portIsEmpty = portValue =>
+  !portValue || portValue == lazy.GuessConfig.UNKNOWN;
 
 /**
  * Account Hub Email Manual Config Form Template
@@ -406,9 +416,10 @@ class EmailManualConfigForm extends AccountHubStep {
     );
 
     // If a port number was specified other than "Auto".
-    if (config.incoming.port) {
+    if (!portIsEmpty(config.incoming.port)) {
       this.#incomingPort.value = config.incoming.port;
     } else {
+      this.#incomingPort.value = "";
       this.#adjustPortToSSLAndProtocol(config, true);
     }
 
@@ -443,9 +454,10 @@ class EmailManualConfigForm extends AccountHubStep {
     this.#updateUnsupportedOAuthBanner(false);
 
     // If a port number was specified other than "Auto".
-    if (config.outgoing.port) {
+    if (!portIsEmpty(config.outgoing.port)) {
       this.#outgoingPort.value = config.outgoing.port;
     } else {
+      this.#outgoingPort.value = "";
       this.#adjustPortToSSLAndProtocol(config, false);
     }
   }
@@ -473,8 +485,10 @@ class EmailManualConfigForm extends AccountHubStep {
 
     if (isIncoming) {
       if (
-        config.incoming.port &&
-        !standardPorts.includes(config.incoming.port)
+        (!portIsEmpty(config.incoming.port) &&
+          !standardPorts.includes(config.incoming.port)) ||
+        (portIsEmpty(config.incoming.port) &&
+          socketType == lazy.GuessConfig.UNKNOWN)
       ) {
         return;
       }
@@ -496,20 +510,17 @@ class EmailManualConfigForm extends AccountHubStep {
       return;
     }
 
-    if (config.outgoing.port && !standardPorts.includes(config.outgoing.port)) {
+    if (
+      (!portIsEmpty(config.outgoing.port) &&
+        !standardPorts.includes(config.outgoing.port)) ||
+      (portIsEmpty(config.outgoing.port) &&
+        socketType == lazy.GuessConfig.UNKNOWN)
+    ) {
       return;
     }
 
     // Implicit TLS for SMTP is on port 465.
-    if (socketType == Ci.nsMsgSocketType.SSL) {
-      this.#outgoingPort.value = 465;
-    } else if (
-      (config.outgoing.port == 465 || !config.outgoing.port) &&
-      socketType == Ci.nsMsgSocketType.alwaysSTARTTLS
-    ) {
-      // Implicit TLS for SMTP is on port 465. STARTTLS won't work there.
-      this.#outgoingPort.value = 587;
-    }
+    this.#outgoingPort.value = socketType == Ci.nsMsgSocketType.SSL ? 465 : 587;
 
     config.outgoing.port = this.#outgoingPort.valueAsNumber;
     this.#currentConfig = config;
@@ -754,7 +765,9 @@ class EmailManualConfigForm extends AccountHubStep {
       input: this.#incomingPort,
       labelId: "account-hub-on-port-label",
       parse: input =>
-        InputSanitizer.integerRange(input.valueAsNumber, 1, 65535),
+        !input.value
+          ? lazy.GuessConfig.UNKNOWN
+          : InputSanitizer.integerRange(input.valueAsNumber, 1, 65535),
       update: value => {
         config.incoming.port = value;
       },
@@ -807,7 +820,9 @@ class EmailManualConfigForm extends AccountHubStep {
       input: this.#outgoingPort,
       labelId: "account-hub-on-port-label",
       parse: input =>
-        InputSanitizer.integerRange(input.valueAsNumber, 1, 65535),
+        !input.value
+          ? lazy.GuessConfig.UNKNOWN
+          : InputSanitizer.integerRange(input.valueAsNumber, 1, 65535),
       update: value => {
         config.outgoing.port = value;
       },
@@ -978,6 +993,11 @@ class EmailManualConfigForm extends AccountHubStep {
         newValue = element.getOptionLabel(newValue);
       }
 
+      if (oldValue == lazy.GuessConfig.UNKNOWN) {
+        oldValue = "∅";
+      }
+
+      element.setAttribute("help-text-class", "config-change-comment");
       element.setHelpText(
         element.getAttribute("config-change-l10n-id") ||
           DEFAULT_CONFIG_CHANGE_HELP_TEXT_ID,
@@ -1013,6 +1033,7 @@ class EmailManualConfigForm extends AccountHubStep {
       this.#outgoingConnectionSecurity,
       this.#outgoingPort,
     ]) {
+      field.removeAttribute("help-text-class");
       field.clearHelpText();
     }
   }
@@ -1109,6 +1130,8 @@ class EmailManualConfigForm extends AccountHubStep {
     this.#outgoingUsername.hidden = false;
     this.#outgoingUsername.required = true;
     this.#isShowingErrors = false;
+    this.#incomingPort.value = "";
+    this.#outgoingPort.value = "";
     this.#clearFieldErrors();
     this.#clearAutomaticChangeIndicators();
     this.#updateUnsupportedOAuthBanner(true);

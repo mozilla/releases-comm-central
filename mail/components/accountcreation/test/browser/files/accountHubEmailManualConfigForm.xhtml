@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/spacings.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/accountHub.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/accountHubForms.css" />
     <link rel="localization" href="branding/brand.ftl" />
@@ -92,7 +93,7 @@
     <template id="accountHubInputTemplate">
       <label></label>
       <div class="input-control">
-        <input aria-invalid="false" />
+        <input aria-invalid="false" placeholder="" />
         <img src="" alt="" class="form-icon icon-danger input-warning" />
         <img src="" alt="" class="form-icon icon-success input-success" />
         <span class="input-error-message"></span>
@@ -264,14 +265,12 @@
                 id="manualIncomingPort"
                 l10n-label-id="account-hub-on-port-label"
                 l10n-error-id="account-hub-port-error-text"
+                l10n-help-text-id="account-hub-port-help-text"
                 type="number"
                 min="1"
                 max="65535"
-                placeholder="993"
-                required="required"
                 classes="input-field number-input"
                 config-change-l10n-id="account-hub-manual-config-port-changed"
-                help-text-class="config-change-comment"
               ></account-hub-input>
             </fieldset>
             <fieldset
@@ -424,14 +423,12 @@
                 id="manualOutgoingPort"
                 l10n-label-id="account-hub-on-port-label"
                 l10n-error-id="account-hub-port-error-text"
+                l10n-help-text-id="account-hub-port-help-text"
                 type="number"
                 min="1"
                 max="65535"
-                placeholder="465"
-                required="required"
                 classes="input-field number-input"
                 config-change-l10n-id="account-hub-manual-config-port-changed"
-                help-text-class="config-change-comment"
               ></account-hub-input>
             </fieldset>
           </div>
