@@ -18,9 +18,13 @@ var { get_about_message, open_message_from_file } = ChromeUtils.importESModule(
 var gReferenceTextContent;
 
 add_setup(async function () {
-  Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", false);
-  Services.prefs.setIntPref("mailnews.display.html_as", 0);
-  Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers", 0);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mailnews.display.prefer_plaintext", false],
+      ["mailnews.display.html_as", 0],
+      ["mailnews.display.disallow_mime_handlers", 0],
+    ],
+  });
 
   const { textContent } = await extract_eml_body_textcontent(
     "./correctEncodingUTF8.eml",

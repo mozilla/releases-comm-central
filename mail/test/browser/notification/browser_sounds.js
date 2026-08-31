@@ -32,18 +32,23 @@ const complete = Services.io.newFileURI(
 let testFolder;
 
 add_setup(async function () {
+  await SpecialPowers.pushPrefEnv({
+    clear: [
+      ["mail.biff.play_sound"],
+      ["mail.biff.play_sound.type"],
+      ["mail.biff.play_sound.url"],
+      ["mail.feed.play_sound"],
+      ["mail.feed.play_sound.type"],
+      ["mail.feed.play_sound.url"],
+    ],
+  });
+
   MockSound.init();
   testFolder = await create_folder("Sounds");
 });
 
 registerCleanupFunction(function () {
   MockSound.cleanup();
-  Services.prefs.clearUserPref("mail.biff.play_sound");
-  Services.prefs.clearUserPref("mail.biff.play_sound.type");
-  Services.prefs.clearUserPref("mail.biff.play_sound.url");
-  Services.prefs.clearUserPref("mail.feed.play_sound");
-  Services.prefs.clearUserPref("mail.feed.play_sound.type");
-  Services.prefs.clearUserPref("mail.feed.play_sound.url");
 
   const trash = testFolder.rootFolder.getFolderWithFlags(
     Ci.nsMsgFolderFlags.Trash
@@ -57,13 +62,21 @@ registerCleanupFunction(function () {
  * `play_sound` preference is false.
  */
 add_task(async function testPlaySoundDirectly() {
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.biff.play_sound", true],
+      ["mail.biff.play_sound.type", 0],
+      ["mail.biff.play_sound.url", bell],
+      ["mail.feed.play_sound", true],
+      ["mail.feed.play_sound.type", 0],
+      ["mail.feed.play_sound.url", complete],
+    ],
+  });
+
   let promise;
 
   // Biff notification, system sound.
 
-  Services.prefs.setBoolPref("mail.biff.play_sound", true);
-  Services.prefs.setIntPref("mail.biff.play_sound.type", 0);
-  Services.prefs.setStringPref("mail.biff.play_sound.url", bell);
   promise = promiseSystemSoundPlayed();
   MailNotificationManager.playSound(
     Services.prefs.getBranch("mail.biff.play_sound")
@@ -72,19 +85,19 @@ add_task(async function testPlaySoundDirectly() {
 
   // Biff notification, custom sound.
 
-  Services.prefs.setIntPref("mail.biff.play_sound.type", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.biff.play_sound.type", 1]],
+  });
   promise = promiseCustomSoundPlayed(bell);
   MailNotificationManager.playSound(
     Services.prefs.getBranch("mail.biff.play_sound")
   );
   await promise;
+  await SpecialPowers.popPrefEnv();
 
   // RSS notification, system sound. Checks we're not playing the biff sound
   // by mistake.
 
-  Services.prefs.setBoolPref("mail.feed.play_sound", true);
-  Services.prefs.setIntPref("mail.feed.play_sound.type", 0);
-  Services.prefs.setStringPref("mail.feed.play_sound.url", complete);
   promise = promiseSystemSoundPlayed();
   MailNotificationManager.playSound(
     Services.prefs.getBranch("mail.feed.play_sound")
@@ -93,13 +106,18 @@ add_task(async function testPlaySoundDirectly() {
 
   // RSS notification, custom sound. Checks we're not playing the biff sound
   // by mistake.
-
-  Services.prefs.setIntPref("mail.feed.play_sound.type", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.feed.play_sound.type", 1]],
+  });
   promise = promiseCustomSoundPlayed(complete);
   MailNotificationManager.playSound(
     Services.prefs.getBranch("mail.feed.play_sound")
   );
   await promise;
+  await SpecialPowers.popPrefEnv();
+
+  // Restore the task's base sound preferences.
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -107,13 +125,19 @@ add_task(async function testPlaySoundDirectly() {
  * set to false. No sound should be played.
  */
 add_task(async function testNoSoundOnBiff() {
-  Services.prefs.setBoolPref("mail.biff.play_sound", false);
-  Services.prefs.setIntPref("mail.biff.play_sound.type", 0);
-  Services.prefs.setStringPref("mail.biff.play_sound.url", bell);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.biff.play_sound", false],
+      ["mail.biff.play_sound.type", 0],
+      ["mail.biff.play_sound.url", bell],
+    ],
+  });
 
   const promise = promiseNothingPlayed();
   await make_gradually_newer_sets_in_folder([testFolder], [{ count: 1 }]);
   await promise;
+
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -121,43 +145,59 @@ add_task(async function testNoSoundOnBiff() {
  * mode. No sound should be played.
  */
 add_task(async function testNoSoundOnBiffWithDND() {
-  MockOSIntegration._inDoNotDisturbMode = true;
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.biff.play_sound", true],
+      ["mail.biff.play_sound.type", 0],
+      ["mail.biff.play_sound.url", complete],
+    ],
+  });
 
-  Services.prefs.setBoolPref("mail.biff.play_sound", true);
-  Services.prefs.setIntPref("mail.biff.play_sound.type", 0);
-  Services.prefs.setStringPref("mail.biff.play_sound.url", complete);
+  MockOSIntegration._inDoNotDisturbMode = true;
 
   const promise = promiseNothingPlayed();
   await make_gradually_newer_sets_in_folder([testFolder], [{ count: 1 }]);
   await promise;
 
   MockOSIntegration._inDoNotDisturbMode = false;
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
  * Test the system sound when new mail is received.
  */
 add_task(async function testSystemSoundOnBiff() {
-  Services.prefs.setBoolPref("mail.biff.play_sound", true);
-  Services.prefs.setIntPref("mail.biff.play_sound.type", 0);
-  Services.prefs.setStringPref("mail.biff.play_sound.url", bell);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.biff.play_sound", true],
+      ["mail.biff.play_sound.type", 0],
+      ["mail.biff.play_sound.url", bell],
+    ],
+  });
 
   const promise = promiseSystemSoundPlayed();
   await make_gradually_newer_sets_in_folder([testFolder], [{ count: 1 }]);
   await promise;
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
  * Test the custom sound when new mail is received.
  */
 add_task(async function testCustomSoundOnBiff() {
-  Services.prefs.setBoolPref("mail.biff.play_sound", true);
-  Services.prefs.setIntPref("mail.biff.play_sound.type", 1);
-  Services.prefs.setStringPref("mail.biff.play_sound.url", complete);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.biff.play_sound", true],
+      ["mail.biff.play_sound.type", 1],
+      ["mail.biff.play_sound.url", complete],
+    ],
+  });
 
   const promise = promiseCustomSoundPlayed(complete);
   await make_gradually_newer_sets_in_folder([testFolder], [{ count: 1 }]);
   await promise;
+
+  await SpecialPowers.popPrefEnv();
 });
 
 let gMsgMinutes = 9000;

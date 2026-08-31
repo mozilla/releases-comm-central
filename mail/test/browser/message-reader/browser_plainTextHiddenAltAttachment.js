@@ -43,24 +43,32 @@ async function checkAttachmentVisible(expectedBodyText, missingBodyText) {
 }
 
 add_task(async function test_attachment_in_hidden_alternative_plaintext() {
-  Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", true);
-  Services.prefs.setIntPref("mailnews.display.html_as", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mailnews.display.prefer_plaintext", true],
+      ["mailnews.display.html_as", 1],
+    ],
+  });
+
   await checkAttachmentVisible(
     "This is the plain text part",
     "This is the HTML part"
   );
+
+  await SpecialPowers.popPrefEnv();
 });
 
 add_task(async function test_attachment_in_hidden_alternative_html() {
-  Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", false);
-  Services.prefs.setIntPref("mailnews.display.html_as", 0);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mailnews.display.prefer_plaintext", false],
+      ["mailnews.display.html_as", 0],
+    ],
+  });
   await checkAttachmentVisible(
     "This is the HTML part",
     "This is the plain text part"
   );
-});
 
-registerCleanupFunction(function () {
-  Services.prefs.clearUserPref("mailnews.display.prefer_plaintext");
-  Services.prefs.clearUserPref("mailnews.display.html_as");
+  await SpecialPowers.popPrefEnv();
 });

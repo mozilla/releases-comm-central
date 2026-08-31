@@ -13,7 +13,9 @@ let aboutMessage;
 let msgc;
 
 add_setup(async () => {
-  Services.prefs.setBoolPref("mail.inline_attachments", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.inline_attachments", true]],
+  });
   const file = new FileUtils.File(
     getTestFilePath("data/image_sizing_test.eml")
   );
@@ -36,7 +38,6 @@ add_setup(async () => {
   registerCleanupFunction(async () => {
     msgc.windowUtils.suppressAnimation(false);
     await BrowserTestUtils.closeWindow(msgc);
-    Services.prefs.clearUserPref("mail.inline_attachments");
   });
 });
 

@@ -32,19 +32,20 @@ const kInsertNotificationPref =
 const maxSize =
   Services.prefs.getIntPref("mail.compose.big_attachments.threshold_kb") * 1024;
 
-add_setup(function () {
+add_setup(async function () {
   requestLongerTimeout(2);
 
   gMockCloudfileManager.register(cloudType);
   MockFilePicker.init(window.browsingContext);
 
-  Services.prefs.setBoolPref(kInsertNotificationPref, true);
+  await SpecialPowers.pushPrefEnv({
+    set: [[kInsertNotificationPref, true]],
+  });
 });
 
 registerCleanupFunction(function () {
   gMockCloudfileManager.unregister(cloudType);
   MockFilePicker.cleanup();
-  Services.prefs.clearUserPref(kInsertNotificationPref);
 });
 
 const kBoxId = "compose-notification-bottom";

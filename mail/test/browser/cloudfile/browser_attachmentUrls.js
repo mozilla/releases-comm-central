@@ -59,7 +59,6 @@ var kTextNodeType = 3;
 var kSigPrefKey = "mail.identity.id1.htmlSigText";
 var kSigOnReplyKey = "mail.identity.default.sig_on_reply";
 var kSigOnForwardKey = "mail.identity.default.sig_on_fwd";
-var kDefaultSigKey = "mail.identity.id1.htmlSigText";
 var kFiles = ["./data/testFile1", "./data/testFile2"];
 var kLines = ["This is a line of text", "and here's another!"];
 
@@ -91,15 +90,17 @@ function test_expected_included(actual, expected, description) {
 add_setup(async function () {
   requestLongerTimeout(4);
 
-  // These prefs can't be set in the manifest as they contain white-space.
-  Services.prefs.setStringPref(
-    "mail.identity.id1.htmlSigText",
-    "Tinderbox is soo 90ies"
-  );
-  Services.prefs.setStringPref(
-    "mail.identity.id2.htmlSigText",
-    "Tinderboxpushlog is the new <b>hotness!</b>"
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      [kSigPrefKey, "Tinderbox is soo 90ies"],
+      [
+        "mail.identity.id2.htmlSigText",
+        "Tinderboxpushlog is the new <b>hotness!</b>",
+      ],
+      [kHtmlPrefKey, true],
+      ["mail.compose.default_to_paragraph", false],
+    ],
+  });
 
   // For replies and forwards, we'll work off a message in the Inbox folder
   // of the fake "tinderbox" account.
@@ -113,20 +114,11 @@ add_setup(async function () {
 
   MockFilePicker.init(window.browsingContext);
   gMockCloudfileManager.register();
-
-  Services.prefs.setBoolPref(kHtmlPrefKey, true);
-
-  // Don't create paragraphs in the test.
-  // The test fails if it encounters paragraphs <p> instead of breaks <br>.
-  Services.prefs.setBoolPref("mail.compose.default_to_paragraph", false);
 });
 
 registerCleanupFunction(function () {
   gMockCloudfileManager.unregister();
   MockFilePicker.cleanup();
-  Services.prefs.clearUserPref(kDefaultSigKey);
-  Services.prefs.clearUserPref(kHtmlPrefKey);
-  Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
 });
 
 /**
@@ -488,15 +480,24 @@ async function try_with_and_without_signature_in_reply_or_fwd(
   aSpecialTest,
   aText
 ) {
-  // By default, we have a signature included in replies, so we'll start
-  // with that.
-  Services.prefs.setBoolPref(kSigOnReplyKey, true);
-  Services.prefs.setBoolPref(kSigOnForwardKey, true);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      [kSigOnReplyKey, true],
+      [kSigOnForwardKey, true],
+    ],
+  });
   await aSpecialTest(aText, true);
 
-  Services.prefs.setBoolPref(kSigOnReplyKey, false);
-  Services.prefs.setBoolPref(kSigOnForwardKey, false);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      [kSigOnReplyKey, false],
+      [kSigOnForwardKey, false],
+    ],
+  });
   await aSpecialTest(aText, false);
+
+  await SpecialPowers.popPrefEnv();
+  await SpecialPowers.popPrefEnv();
 }
 
 /**
@@ -506,11 +507,11 @@ async function try_with_and_without_signature_in_reply_or_fwd(
  * @param {Function} aTest - A test that takes no arguments.
  */
 async function try_without_signature(aTest) {
-  const oldSig = Services.prefs.getCharPref(kSigPrefKey);
-  Services.prefs.setCharPref(kSigPrefKey, "");
-
+  await SpecialPowers.pushPrefEnv({
+    set: [[kSigPrefKey, ""]],
+  });
   await try_with_plaintext_and_html_mail(aTest);
-  Services.prefs.setCharPref(kSigPrefKey, oldSig);
+  await SpecialPowers.popPrefEnv();
 }
 
 /**
@@ -521,9 +522,12 @@ async function try_without_signature(aTest) {
  */
 async function try_with_plaintext_and_html_mail(aTest) {
   await aTest();
-  Services.prefs.setBoolPref(kHtmlPrefKey, false);
+
+  await SpecialPowers.pushPrefEnv({
+    set: [[kHtmlPrefKey, false]],
+  });
   await aTest();
-  Services.prefs.setBoolPref(kHtmlPrefKey, true);
+  await SpecialPowers.popPrefEnv();
 }
 
 /**
@@ -660,7 +664,9 @@ add_task(
 
     await close_compose_window(cw);
 
-    Services.prefs.setBoolPref(kHtmlPrefKey, false);
+    await SpecialPowers.pushPrefEnv({
+      set: [[kHtmlPrefKey, false]],
+    });
 
     // Now let's try with plaintext mail.
     cw = await open_compose_new_mail();
@@ -715,7 +721,8 @@ add_task(
 
     await close_compose_window(cw);
 
-    Services.prefs.setBoolPref(kHtmlPrefKey, true);
+    // Plaintext test.
+    await SpecialPowers.popPrefEnv();
   }
 );
 
@@ -814,22 +821,24 @@ async function subtest_adding_filelinks_to_written_message() {
  * reply above the quote.
  */
 add_task(async function test_adding_filelinks_to_empty_reply_above() {
-  const oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
-  Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnTop);
+  await SpecialPowers.pushPrefEnv({
+    set: [[kReplyOnTopKey, kReplyOnTop]],
+  });
 
   await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_reply_above,
     []
   );
-  // Now with HTML mail...
-  Services.prefs.setBoolPref(kHtmlPrefKey, false);
+  await SpecialPowers.pushPrefEnv({
+    set: [[kHtmlPrefKey, false]],
+  });
   await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_reply_above_plaintext,
     []
   );
 
-  Services.prefs.setBoolPref(kHtmlPrefKey, true);
-  Services.prefs.setIntPref(kReplyOnTopKey, oldReplyOnTop);
+  await SpecialPowers.popPrefEnv();
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -837,16 +846,18 @@ add_task(async function test_adding_filelinks_to_empty_reply_above() {
  * reply above the quote, after entering some text.
  */
 add_task(async function test_adding_filelinks_to_nonempty_reply_above() {
-  const oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
-  Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnTop);
+  await SpecialPowers.pushPrefEnv({
+    set: [[kReplyOnTopKey, kReplyOnTop]],
+  });
 
   await subtest_adding_filelinks_to_reply_above(kLines);
 
-  Services.prefs.setBoolPref(kHtmlPrefKey, false);
+  await SpecialPowers.pushPrefEnv({
+    set: [[kHtmlPrefKey, false]],
+  });
   await subtest_adding_filelinks_to_reply_above_plaintext(kLines);
-  Services.prefs.setBoolPref(kHtmlPrefKey, true);
-
-  Services.prefs.setIntPref(kReplyOnTopKey, oldReplyOnTop);
+  await SpecialPowers.popPrefEnv();
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -930,21 +941,24 @@ async function subtest_adding_filelinks_to_reply_above(aText) {
  * reply below the quote.
  */
 add_task(async function test_adding_filelinks_to_empty_reply_below() {
-  const oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
-  Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnBottom);
+  await SpecialPowers.pushPrefEnv({
+    set: [[kReplyOnTopKey, kReplyOnBottom]],
+  });
 
   await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_reply_below,
     []
   );
-  Services.prefs.setBoolPref(kHtmlPrefKey, false);
+  await SpecialPowers.pushPrefEnv({
+    set: [[kHtmlPrefKey, false]],
+  });
   await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_plaintext_reply_below,
     []
   );
-  Services.prefs.setBoolPref(kHtmlPrefKey, true);
 
-  Services.prefs.setIntPref(kReplyOnTopKey, oldReplyOnTop);
+  await SpecialPowers.popPrefEnv();
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -952,22 +966,24 @@ add_task(async function test_adding_filelinks_to_empty_reply_below() {
  * reply below the quote, after entering some text.
  */
 add_task(async function test_adding_filelinks_to_nonempty_reply_below() {
-  const oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
-  Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnBottom);
+  await SpecialPowers.pushPrefEnv({
+    set: [[kReplyOnTopKey, kReplyOnBottom]],
+  });
 
   await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_reply_below,
     kLines
   );
 
-  Services.prefs.setBoolPref(kHtmlPrefKey, false);
+  await SpecialPowers.pushPrefEnv({
+    set: [[kHtmlPrefKey, false]],
+  });
   await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_plaintext_reply_below,
     kLines
   );
-  Services.prefs.setBoolPref(kHtmlPrefKey, true);
-
-  Services.prefs.setIntPref(kReplyOnTopKey, oldReplyOnTop);
+  await SpecialPowers.popPrefEnv();
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -1069,17 +1085,22 @@ async function subtest_adding_filelinks_to_plaintext_reply_below(aText) {
  * typed into it.
  */
 add_task(async function test_adding_filelinks_to_empty_forward() {
-  Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnTop);
+  await SpecialPowers.pushPrefEnv({
+    set: [[kReplyOnTopKey, kReplyOnTop]],
+  });
   await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_forward,
     []
   );
-  Services.prefs.setBoolPref(kHtmlPrefKey, false);
+  await SpecialPowers.pushPrefEnv({
+    set: [[kHtmlPrefKey, false]],
+  });
   await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_forward,
     []
   );
-  Services.prefs.setBoolPref(kHtmlPrefKey, true);
+  await SpecialPowers.popPrefEnv(); // HTML/plaintext layer.
+  await SpecialPowers.popPrefEnv(); // Reply-position layer.
 });
 
 /**
@@ -1087,16 +1108,22 @@ add_task(async function test_adding_filelinks_to_empty_forward() {
  * text typed into it.
  */
 add_task(async function test_adding_filelinks_to_forward() {
+  await SpecialPowers.pushPrefEnv({
+    set: [[kReplyOnTopKey, kReplyOnTop]],
+  });
   await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_forward,
     kLines
   );
-  Services.prefs.setBoolPref(kHtmlPrefKey, false);
+  await SpecialPowers.pushPrefEnv({
+    set: [[kHtmlPrefKey, false]],
+  });
   await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_forward,
     kLines
   );
-  Services.prefs.setBoolPref(kHtmlPrefKey, true);
+  await SpecialPowers.popPrefEnv(); // HTML/plaintext layer.
+  await SpecialPowers.popPrefEnv(); // Reply-position layer.
 });
 
 /**

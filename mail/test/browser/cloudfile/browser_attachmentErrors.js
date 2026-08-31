@@ -45,7 +45,6 @@ var { MailServices } = ChromeUtils.importESModule(
 );
 
 var kHtmlPrefKey = "mail.identity.default.compose_html";
-var kDefaultSigKey = "mail.identity.id1.htmlSigText";
 var kFiles = ["./data/testFile1", "./data/testFile2"];
 
 var gInbox;
@@ -70,15 +69,20 @@ function test_expected_included(actual, expected, description) {
 add_setup(async function () {
   requestLongerTimeout(3);
 
-  // These prefs can't be set in the manifest as they contain white-space.
-  Services.prefs.setStringPref(
-    "mail.identity.id1.htmlSigText",
-    "Tinderbox is soo 90ies"
-  );
-  Services.prefs.setStringPref(
-    "mail.identity.id2.htmlSigText",
-    "Tinderboxpushlog is the new <b>hotness!</b>"
-  );
+  // The signature prefs can't be set in the manifest because they contain
+  // white-space. Use HTML composition, but don't create paragraphs because
+  // the test expects breaks instead of <p> elements.
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.identity.id1.htmlSigText", "Tinderbox is soo 90ies"],
+      [
+        "mail.identity.id2.htmlSigText",
+        "Tinderboxpushlog is the new <b>hotness!</b>",
+      ],
+      [kHtmlPrefKey, true],
+      ["mail.compose.default_to_paragraph", false],
+    ],
+  });
 
   // For replies and forwards, we'll work off a message in the Inbox folder
   // of the fake "tinderbox" account.
@@ -92,20 +96,11 @@ add_setup(async function () {
 
   MockFilePicker.init(window.browsingContext);
   gMockCloudfileManager.register();
-
-  Services.prefs.setBoolPref(kHtmlPrefKey, true);
-
-  // Don't create paragraphs in the test.
-  // The test fails if it encounters paragraphs <p> instead of breaks <br>.
-  Services.prefs.setBoolPref("mail.compose.default_to_paragraph", false);
 });
 
 registerCleanupFunction(function () {
   gMockCloudfileManager.unregister();
   MockFilePicker.cleanup();
-  Services.prefs.clearUserPref(kDefaultSigKey);
-  Services.prefs.clearUserPref(kHtmlPrefKey);
-  Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
 });
 
 /**

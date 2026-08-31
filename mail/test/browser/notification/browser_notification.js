@@ -40,30 +40,33 @@ var { MailTelemetryForTests } = ChromeUtils.importESModule(
 var gFolder = null;
 var gFolder2 = null;
 
-// An object to keep track of the boolean preferences we change, so that
-// we can put them back.
-var gOrigBoolPrefs = {};
-var gTotalOpenTime;
-
 // Used by make_gradually_newer_sets_in_folders
 var gMsgMinutes = 9000;
 
 add_setup(async function () {
   MockAlertsService.init();
   MockSound.init();
-  remember_and_set_bool_pref("mail.biff.play_sound", true);
 
-  // Ensure we have enabled new mail notifications
-  remember_and_set_bool_pref("mail.biff.show_alert", true);
+  const prefs = [
+    ["mail.biff.play_sound", true],
+    ["mail.biff.show_alert", true],
+    ["mail.biff.alert.show_subject", true],
+    ["mail.biff.alert.show_sender", true],
+    ["mail.biff.alert.show_preview", true],
+  ];
 
-  // Ensure that system notifications are used (relevant for Linux only)
   if (
     Services.appinfo.OS == "Linux" ||
     "@mozilla.org/gio-service;1" in Cc ||
     "@mozilla.org/gnome-gconf-service;1" in Cc
   ) {
-    remember_and_set_bool_pref("mail.biff.use_system_alert", true);
+    prefs.push(["mail.biff.use_system_alert", true]);
   }
+  if (Services.appinfo.OS != "Darwin") {
+    prefs.push(["alerts.totalOpenTime", 3000]);
+  }
+
+  await SpecialPowers.pushPrefEnv({ set: prefs });
 
   MailServices.accounts.localFoldersServer.performingBiff = true;
 
@@ -116,11 +119,6 @@ add_setup(async function () {
 });
 
 registerCleanupFunction(function () {
-  put_bool_prefs_back();
-  if (Services.appinfo.OS != "Darwin") {
-    Services.prefs.setIntPref("alerts.totalOpenTime", gTotalOpenTime);
-  }
-
   // Request focus on something in the main window so the test doesn't time
   // out waiting for focus.
   document.getElementById("button-appmenu").focus();
@@ -133,29 +131,7 @@ function setupTest() {
   gFolder.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NoMail;
   gFolder2.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NoMail;
 
-  remember_and_set_bool_pref("mail.biff.alert.show_subject", true);
-  remember_and_set_bool_pref("mail.biff.alert.show_sender", true);
-  remember_and_set_bool_pref("mail.biff.alert.show_preview", true);
-  if (Services.appinfo.OS != "Darwin") {
-    gTotalOpenTime = Services.prefs.getIntPref("alerts.totalOpenTime");
-    Services.prefs.setIntPref("alerts.totalOpenTime", 3000);
-  }
-
   Services.fog.testResetFOG();
-}
-
-function put_bool_prefs_back() {
-  for (const prefString in gOrigBoolPrefs) {
-    Services.prefs.setBoolPref(prefString, gOrigBoolPrefs[prefString]);
-  }
-}
-
-function remember_and_set_bool_pref(aPrefString, aBoolValue) {
-  if (!gOrigBoolPrefs[aPrefString]) {
-    gOrigBoolPrefs[aPrefString] = Services.prefs.getBoolPref(aPrefString);
-  }
-
-  Services.prefs.setBoolPref(aPrefString, aBoolValue);
 }
 
 /**
@@ -318,7 +294,9 @@ add_task(async function test_show_subject() {
  */
 add_task(async function test_hide_subject() {
   setupTest();
-  Services.prefs.setBoolPref("mail.biff.alert.show_subject", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.biff.alert.show_subject", false]],
+  });
   const subject = "This should not be displayed";
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1, subject }]);
   await MockAlertsService.promiseShown();
@@ -326,6 +304,7 @@ add_task(async function test_hide_subject() {
     !MockAlertsService.alert.text.includes(subject),
     "Should not have displayed the subject"
   );
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -333,9 +312,13 @@ add_task(async function test_hide_subject() {
  */
 add_task(async function test_show_only_subject() {
   setupTest();
-  Services.prefs.setBoolPref("mail.biff.alert.show_preview", false);
-  Services.prefs.setBoolPref("mail.biff.alert.show_sender", false);
-  Services.prefs.setBoolPref("mail.biff.alert.show_subject", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.biff.alert.show_preview", false],
+      ["mail.biff.alert.show_sender", false],
+      ["mail.biff.alert.show_subject", true],
+    ],
+  });
 
   const sender = ["John Cleese", "john@cleese.invalid"];
   const subject = "This should be displayed";
@@ -358,6 +341,7 @@ add_task(async function test_show_only_subject() {
     !MockAlertsService.alert.text.includes(sender[0]),
     "Should not have displayed the sender"
   );
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -382,7 +366,9 @@ add_task(async function test_show_sender() {
  */
 add_task(async function test_hide_sender() {
   setupTest();
-  Services.prefs.setBoolPref("mail.biff.alert.show_sender", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.biff.alert.show_sender", false]],
+  });
   const sender = ["John Cleese", "john@cleese.invalid"];
   await make_gradually_newer_sets_in_folder(
     [gFolder],
@@ -393,6 +379,7 @@ add_task(async function test_hide_sender() {
     !MockAlertsService.alert.text.includes(sender[0]),
     "Should not have displayed the sender"
   );
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -400,9 +387,13 @@ add_task(async function test_hide_sender() {
  */
 add_task(async function test_show_only_sender() {
   setupTest();
-  Services.prefs.setBoolPref("mail.biff.alert.show_preview", false);
-  Services.prefs.setBoolPref("mail.biff.alert.show_sender", true);
-  Services.prefs.setBoolPref("mail.biff.alert.show_subject", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.biff.alert.show_preview", false],
+      ["mail.biff.alert.show_sender", true],
+      ["mail.biff.alert.show_subject", false],
+    ],
+  });
 
   const sender = ["John Cleese", "john@cleese.invalid"];
   const subject = "This should not be displayed";
@@ -425,6 +416,7 @@ add_task(async function test_show_only_sender() {
     !MockAlertsService.alert.text.includes(subject),
     "Should not have displayed the subject"
   );
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -432,7 +424,6 @@ add_task(async function test_show_only_sender() {
  */
 add_task(async function test_show_preview() {
   setupTest();
-  Services.prefs.setBoolPref("mail.biff.alert.show_preview", true);
   const messageBody = "My message preview";
   await make_gradually_newer_sets_in_folder(
     [gFolder],
@@ -450,7 +441,9 @@ add_task(async function test_show_preview() {
  */
 add_task(async function test_hide_preview() {
   setupTest();
-  Services.prefs.setBoolPref("mail.biff.alert.show_preview", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.biff.alert.show_preview", false]],
+  });
   const messageBody = "My message preview";
   await make_gradually_newer_sets_in_folder(
     [gFolder],
@@ -461,6 +454,7 @@ add_task(async function test_hide_preview() {
     !MockAlertsService.alert.text.includes(messageBody),
     "Should not have displayed the preview"
   );
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -468,9 +462,13 @@ add_task(async function test_hide_preview() {
  */
 add_task(async function test_show_only_preview() {
   setupTest();
-  Services.prefs.setBoolPref("mail.biff.alert.show_preview", true);
-  Services.prefs.setBoolPref("mail.biff.alert.show_sender", false);
-  Services.prefs.setBoolPref("mail.biff.alert.show_subject", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.biff.alert.show_preview", true],
+      ["mail.biff.alert.show_sender", false],
+      ["mail.biff.alert.show_subject", false],
+    ],
+  });
 
   const sender = ["John Cleese", "john@cleese.invalid"];
   const subject = "This should not be displayed";
@@ -492,6 +490,7 @@ add_task(async function test_show_only_preview() {
     !MockAlertsService.alert.text.includes(subject),
     "Should not have displayed the subject"
   );
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -625,10 +624,9 @@ add_task(async function test_click_on_notification() {
   // message in a new tab.
 
   about3Pane.paneLayout.messagePaneVisible = false;
-  Services.prefs.setIntPref(
-    "mail.openMessageBehavior",
-    MailConsts.OpenMessageBehavior.NEW_TAB
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.openMessageBehavior", MailConsts.OpenMessageBehavior.NEW_TAB]],
+  });
 
   const tabPromise = BrowserTestUtils.waitForEvent(
     tabmail,
@@ -660,10 +658,12 @@ add_task(async function test_click_on_notification() {
 
   // Change the preference to open a new window instead of a new tab.
 
-  Services.prefs.setIntPref(
-    "mail.openMessageBehavior",
-    MailConsts.OpenMessageBehavior.NEW_WINDOW
-  );
+  await SpecialPowers.popPrefEnv();
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.openMessageBehavior", MailConsts.OpenMessageBehavior.NEW_WINDOW],
+    ],
+  });
 
   const winPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
     undefined,
@@ -683,7 +683,7 @@ add_task(async function test_click_on_notification() {
 
   // Clean up.
 
-  Services.prefs.clearUserPref("mail.openMessageBehavior");
+  await SpecialPowers.popPrefEnv();
   about3Pane.paneLayout.messagePaneVisible = true;
 });
 
@@ -692,13 +692,16 @@ add_task(async function test_click_on_notification() {
  */
 add_task(async function test_no_actions() {
   setupTest();
-  Services.prefs.setStringPref("mail.biff.alert.enabled_actions", "");
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.biff.alert.enabled_actions", ""]],
+  });
   MailTelemetryForTests.reportUIConfiguration();
   Assert.deepEqual(Glean.mail.notificationEnabledActions.testGetValue(), []);
 
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
   await MockAlertsService.promiseShown();
   Assert.deepEqual(MockAlertsService.alert.actions, []);
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -706,10 +709,9 @@ add_task(async function test_no_actions() {
  */
 add_task(async function test_mark_as_read_action() {
   setupTest();
-  Services.prefs.setStringPref(
-    "mail.biff.alert.enabled_actions",
-    "mark-as-read"
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.biff.alert.enabled_actions", "mark-as-read"]],
+  });
   MailTelemetryForTests.reportUIConfiguration();
   Assert.deepEqual(Glean.mail.notificationEnabledActions.testGetValue(), [
     "mark-as-read",
@@ -739,6 +741,7 @@ add_task(async function test_mark_as_read_action() {
     Glean.mail.notificationUsedActions["mark-as-starred"].testGetValue(),
     null
   );
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -746,10 +749,9 @@ add_task(async function test_mark_as_read_action() {
  */
 add_task(async function test_delete_action() {
   setupTest();
-  Services.prefs.setStringPref(
-    "mail.biff.alert.enabled_actions",
-    "delete,mark-as-read"
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.biff.alert.enabled_actions", "delete,mark-as-read"]],
+  });
   MailTelemetryForTests.reportUIConfiguration();
   Assert.deepEqual(Glean.mail.notificationEnabledActions.testGetValue(), [
     "delete",
@@ -791,6 +793,7 @@ add_task(async function test_delete_action() {
   const deletedMessage = [...trashFolder.messages].at(-1);
   Assert.equal(deletedMessage.messageId, newMessageId);
   Assert.ok(deletedMessage.isRead);
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -798,10 +801,9 @@ add_task(async function test_delete_action() {
  */
 add_task(async function test_star_action() {
   setupTest();
-  Services.prefs.setStringPref(
-    "mail.biff.alert.enabled_actions",
-    "delete,mark-as-starred"
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.biff.alert.enabled_actions", "delete,mark-as-starred"]],
+  });
   MailTelemetryForTests.reportUIConfiguration();
   Assert.deepEqual(Glean.mail.notificationEnabledActions.testGetValue(), [
     "delete",
@@ -832,6 +834,7 @@ add_task(async function test_star_action() {
     Glean.mail.notificationUsedActions["mark-as-starred"].testGetValue(),
     1
   );
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -839,10 +842,9 @@ add_task(async function test_star_action() {
  */
 add_task(async function test_mark_as_spam_action() {
   setupTest();
-  Services.prefs.setStringPref(
-    "mail.biff.alert.enabled_actions",
-    "mark-as-spam"
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.biff.alert.enabled_actions", "mark-as-spam"]],
+  });
   MailTelemetryForTests.reportUIConfiguration();
   Assert.deepEqual(Glean.mail.notificationEnabledActions.testGetValue(), [
     "mark-as-spam",
@@ -880,6 +882,7 @@ add_task(async function test_mark_as_spam_action() {
     Glean.mail.notificationUsedActions["mark-as-spam"].testGetValue(),
     1
   );
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -887,7 +890,9 @@ add_task(async function test_mark_as_spam_action() {
  */
 add_task(async function test_archive_action() {
   setupTest();
-  Services.prefs.setStringPref("mail.biff.alert.enabled_actions", "archive");
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.biff.alert.enabled_actions", "archive"]],
+  });
   MailTelemetryForTests.reportUIConfiguration();
   Assert.deepEqual(Glean.mail.notificationEnabledActions.testGetValue(), [
     "archive",
@@ -918,6 +923,7 @@ add_task(async function test_archive_action() {
   Assert.equal(archiveFolder.getTotalMessages(true), 1);
   const archivedMessage = [...archiveFolder.subFolders[0].messages].at(-1);
   Assert.equal(archivedMessage.messageId, newMessageId);
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -948,7 +954,9 @@ add_task(async function test_load_message_closes_notification() {
 add_task(async function test_revert_to_newmailalert() {
   setupTest();
 
-  Services.prefs.setBoolPref("mail.biff.use_system_alert", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.biff.use_system_alert", false]],
+  });
 
   // We expect the newmailalert.xhtml window.
   const alertPromise = promise_new_window("alert:alert");
@@ -962,4 +970,5 @@ add_task(async function test_revert_to_newmailalert() {
 
   // The alert closes itself.
   await BrowserTestUtils.domWindowClosed(win);
+  await SpecialPowers.popPrefEnv();
 }).skip(AppConstants.platform == "macosx" || Services.env.get("MOZ_HEADLESS")); // newmailalert.xhtml doesn't work on macOS or headless runs.

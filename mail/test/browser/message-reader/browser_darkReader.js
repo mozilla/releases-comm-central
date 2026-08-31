@@ -17,9 +17,12 @@ let aboutMessage, msgc, lightTheme, darkTheme;
 
 add_setup(async function () {
   // Disable dark message mode before setting up anything else.
-  Services.prefs.setBoolPref("mail.dark-reader.enabled", false);
   await SpecialPowers.pushPrefEnv({
-    set: [["ui.useAccessibilityTheme", 0]],
+    set: [
+      ["mail.dark-reader.enabled", false],
+      ["mail.dark-reader.show-toggle", true],
+      ["ui.useAccessibilityTheme", 0],
+    ],
   });
 
   const file = new FileUtils.File(getTestFilePath("data/dark_mode_test.eml"));
@@ -35,8 +38,6 @@ add_setup(async function () {
 
   registerCleanupFunction(async () => {
     await BrowserTestUtils.closeWindow(msgc);
-    Services.prefs.clearUserPref("mail.dark-reader.enabled");
-    Services.prefs.clearUserPref("mail.dark-reader.show-toggle");
     lightTheme.disable();
     darkTheme.disable();
   });
@@ -52,7 +53,9 @@ async function toggle_theme(theme, enable) {
 
 async function toggle_dark_reader(enable) {
   const msgLoaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
-  Services.prefs.setBoolPref("mail.dark-reader.enabled", enable);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.dark-reader.enabled", enable]],
+  });
   await msgLoaded;
 }
 
@@ -110,14 +113,16 @@ add_task(async function test_message_header_toggle() {
   );
 
   info("Disable the toggle visibility");
-  Services.prefs.setBoolPref("mail.dark-reader.show-toggle", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.dark-reader.show-toggle", false]],
+  });
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isHidden(toggle),
     "toggle button should be hidden"
   );
 
   info("Enable the toggle visibility");
-  Services.prefs.setBoolPref("mail.dark-reader.show-toggle", true);
+  await SpecialPowers.popPrefEnv();
 
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(toggle),

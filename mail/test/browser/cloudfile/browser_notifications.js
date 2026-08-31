@@ -34,7 +34,7 @@ var {
 );
 var { MockFilePicker } = SpecialPowers;
 
-var maxSize, oldInsertNotificationPref;
+var maxSize;
 
 var kOfferThreshold = "mail.compose.big_attachments.threshold_kb";
 var kInsertNotificationPref =
@@ -42,27 +42,22 @@ var kInsertNotificationPref =
 
 var kBoxId = "compose-notification-bottom";
 
-add_setup(function () {
+add_setup(async function () {
   requestLongerTimeout(2);
 
   gMockCloudfileManager.register();
   MockFilePicker.init(window.browsingContext);
 
   maxSize = Services.prefs.getIntPref(kOfferThreshold, 0) * 1024;
-  oldInsertNotificationPref = Services.prefs.getBoolPref(
-    kInsertNotificationPref
-  );
-  Services.prefs.setBoolPref(kInsertNotificationPref, true);
+
+  await SpecialPowers.pushPrefEnv({
+    set: [[kInsertNotificationPref, true]],
+  });
 });
 
 registerCleanupFunction(function () {
   gMockCloudfileManager.unregister();
   MockFilePicker.cleanup();
-  Services.prefs.setBoolPref(
-    kInsertNotificationPref,
-    oldInsertNotificationPref
-  );
-  Services.prefs.setIntPref(kOfferThreshold, maxSize);
 });
 
 /**
@@ -178,7 +173,9 @@ add_task(async function test_graduate_to_notification() {
 });
 
 add_task(async function test_no_notification_if_disabled() {
-  Services.prefs.setBoolPref("mail.cloud_files.enabled", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.cloud_files.enabled", false]],
+  });
   const cwc = await open_compose_new_mail(window);
 
   await add_attachments(cwc, "https://www.example.com/1", maxSize);
@@ -194,7 +191,7 @@ add_task(async function test_no_notification_if_disabled() {
   assert_cloudfile_notification_displayed(cwc, false);
 
   await close_compose_window(cwc);
-  Services.prefs.setBoolPref("mail.cloud_files.enabled", true);
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -213,12 +210,14 @@ add_task(async function test_link_insertion_notification_single() {
   close_upload_notification(cwc);
   gMockCloudfileManager.resolveUploads();
 
-  Services.prefs.setBoolPref(kInsertNotificationPref, false);
+  await SpecialPowers.pushPrefEnv({
+    set: [[kInsertNotificationPref, false]],
+  });
   MockFilePicker.setFiles(collectFiles(["./data/testFile2"]));
   await add_cloud_attachments(cwc, provider, false);
 
   assert_upload_notification_displayed(cwc, false);
-  Services.prefs.setBoolPref(kInsertNotificationPref, true);
+  await SpecialPowers.popPrefEnv();
 
   await close_compose_window(cwc);
   gMockCloudfileManager.resolveUploads();
@@ -242,13 +241,15 @@ add_task(async function test_link_insertion_notification_multiple() {
   close_upload_notification(cwc);
   gMockCloudfileManager.resolveUploads();
 
-  Services.prefs.setBoolPref(kInsertNotificationPref, false);
+  await SpecialPowers.pushPrefEnv({
+    set: [[kInsertNotificationPref, false]],
+  });
   MockFilePicker.setFiles(
     collectFiles(["./data/testFile3", "./data/testFile4"])
   );
   await add_cloud_attachments(cwc, provider, false);
   assert_upload_notification_displayed(cwc, false);
-  Services.prefs.setBoolPref(kInsertNotificationPref, true);
+  await SpecialPowers.popPrefEnv();
 
   await close_compose_window(cwc);
   gMockCloudfileManager.resolveUploads();
@@ -297,7 +298,9 @@ add_task(async function test_link_insertion_goes_away_on_error() {
 add_task(async function test_no_offer_on_conversion() {
   const kFiles = ["./data/testFile1", "./data/testFile2"];
   // Set the notification threshold to 0 to ensure that we get it.
-  Services.prefs.setIntPref(kOfferThreshold, 0);
+  await SpecialPowers.pushPrefEnv({
+    set: [[kOfferThreshold, 0]],
+  });
 
   // Insert some Filelinks...
   MockFilePicker.setFiles(collectFiles(kFiles));
@@ -346,7 +349,7 @@ add_task(async function test_no_offer_on_conversion() {
   await close_compose_window(cw);
 
   // Now put the old threshold back.
-  Services.prefs.setIntPref(kOfferThreshold, maxSize);
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -356,7 +359,9 @@ add_task(async function test_no_offer_on_conversion() {
 add_task(async function test_offer_then_upload_notifications() {
   const kFiles = ["./data/testFile1", "./data/testFile2"];
   // Set the notification threshold to 0 to ensure that we get it.
-  Services.prefs.setIntPref(kOfferThreshold, 0);
+  await SpecialPowers.pushPrefEnv({
+    set: [[kOfferThreshold, 0]],
+  });
 
   // We're going to add attachments to the attachmentbucket, and we'll
   // use the add_attachments helper function to do it.  First, retrieve
@@ -405,7 +410,7 @@ add_task(async function test_offer_then_upload_notifications() {
   await close_compose_window(cw);
 
   // Now put the old threshold back.
-  Services.prefs.setIntPref(kOfferThreshold, maxSize);
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
