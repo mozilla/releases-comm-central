@@ -10,12 +10,20 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
-edition = "2018"
-rust-version = "1.36"
+edition = "2024"
+rust-version = "1.88"
 name = "encoding_rs"
 version = "0.8.35"
 authors = ["Henri Sivonen <hsivonen@hsivonen.fi>"]
 build = false
+include = [
+    "src/**/*.rs",
+    "/data",
+    "Cargo.toml",
+    "COPYRIGHT",
+    "LICENSE*",
+    "README.md",
+]
 autolib = false
 autobins = false
 autoexamples = false
@@ -62,6 +70,7 @@ simd-accel = [
     "any_all_workaround",
     "rustversion",
 ]
+std = ["multiversion/std"]
 
 [lib]
 name = "encoding_rs"
@@ -69,6 +78,7 @@ path = "src/lib.rs"
 
 [dependencies]
 cfg-if = "1.0"
+multiversion_no_op = "1.0.0"
 
 [dependencies.any_all_workaround]
 version = "0.1.0"
@@ -86,6 +96,26 @@ optional = true
 bincode = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
+
+[target.'cfg(all(any(target_arch = "x86_64", target_arch = "x86"), not(all(target_feature = "avx2", target_feature = "bmi1"))))'.dependencies.multiversion]
+version = "0.8.0"
+default-features = false
+
+[target.'cfg(any(target_arch = "x86_64", target_arch = "x86"))'.dependencies]
+core_detect = "1"
+
+[target.'cfg(any(target_arch = "x86_64", target_arch = "x86", target_arch = "aarch64", all(target_arch = "wasm32", target_feature = "simd128")))'.dependencies.simdutf8]
+version = "0.1.5"
+features = [
+    "aarch64_neon",
+    "public_imp",
+]
+default-features = false
+
+[lints.rust.unexpected_cfgs]
+level = "warn"
+priority = 0
+check-cfg = ["cfg(fuzzing)"]
 
 [profile.release]
 lto = true

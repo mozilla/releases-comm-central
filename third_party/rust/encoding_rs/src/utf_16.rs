@@ -61,7 +61,7 @@ impl Utf16Decoder {
     }
 
     decoder_functions!(
-        {
+        preamble = {
             if self.pending_bmp {
                 match dest.check_space_bmp() {
                     Space::Full(_) => {
@@ -75,20 +75,21 @@ impl Utf16Decoder {
                 }
             }
         },
-        {
+        loop_preamble = {
             // This is the fast path. The rest runs only at the
             // start and end for partial sequences.
-            if self.lead_byte.is_none() && self.lead_surrogate == 0 {
-                if let Some((read, written)) = if self.be {
+            if self.lead_byte.is_none()
+                && self.lead_surrogate == 0
+                && let Some((read, written)) = if self.be {
                     dest.copy_utf16_from::<BigEndian>(&mut source)
                 } else {
                     dest.copy_utf16_from::<LittleEndian>(&mut source)
-                } {
-                    return (DecoderResult::Malformed(2, 0), read, written);
                 }
+            {
+                return (DecoderResult::Malformed(2, 0), read, written);
             }
         },
-        {
+        eof = {
             debug_assert!(!self.pending_bmp);
             if self.lead_surrogate != 0 || self.lead_byte.is_some() {
                 // We need to check space without intent to write in order to
@@ -125,7 +126,7 @@ impl Utf16Decoder {
                 }
             }
         },
-        {
+        body = {
             match self.lead_byte {
                 None => {
                     self.lead_byte = Some(b);
@@ -145,7 +146,7 @@ impl Utf16Decoder {
                             // The previous high surrogate was in
                             // error and this one becomes the new
                             // pending one.
-                            self.lead_surrogate = code_unit as u16;
+                            self.lead_surrogate = code_unit;
                             return (
                                 DecoderResult::Malformed(2, 2),
                                 unread_handle.consumed(),
@@ -186,14 +187,14 @@ impl Utf16Decoder {
                 }
             }
         },
-        self,
-        src_consumed,
-        dest,
-        source,
-        b,
-        destination_handle,
-        unread_handle,
-        check_space_astral
+        self = self,
+        src_consumed = src_consumed,
+        dest = dest,
+        source = source,
+        byte = b,
+        destination_handle = destination_handle,
+        unread_handle = unread_handle,
+        destination_check = check_space_astral
     );
 }
 

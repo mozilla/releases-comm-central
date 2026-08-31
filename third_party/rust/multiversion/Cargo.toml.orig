@@ -1,0 +1,35 @@
+[package]
+name = "multiversion"
+version = "0.8.0"
+authors = ["Caleb Zulawski <caleb.zulawski@gmail.com>"]
+license = "MIT OR Apache-2.0"
+description = "Easy function multiversioning"
+repository = "https://github.com/calebzulawski/multiversion"
+categories = ["hardware-support", "no-std"]
+readme = "README.md"
+include = [
+    "/Cargo.toml",
+    "/LICENSE-APACHE",
+    "/LICENSE-MIT",
+    "/README.md",
+    "/src/**",
+    "/tests/**",
+    "/benches/**",
+]
+edition = "2021"
+
+[features]
+default = ["std"]
+std = ["multiversion-macros/std"]
+
+[dependencies]
+multiversion-macros = { version = "0.8.0", path = "../multiversion-macros", default-features = false }
+target-features = "0.1"
+
+[dev-dependencies]
+rustversion = "1"
+criterion = "0.4"
+
+[[bench]]
+name = "benchmark"
+harness = false

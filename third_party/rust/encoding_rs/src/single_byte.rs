@@ -120,8 +120,9 @@ impl SingleByteDecoder {
                                                         Space::Available(
                                                             destination_handle_again,
                                                         ) => {
-                                                            let (b_again, _unread_handle_again) =
+                                                            let (b_again, unread_handle_again) =
                                                                 source_handle_again.read();
+                                                            unread_handle_again.commit();
                                                             b = b_again;
                                                             destination_handle =
                                                                 destination_handle_again;
@@ -143,6 +144,7 @@ impl SingleByteDecoder {
         }
     }
 
+    #[inline(always)]
     pub fn decode_to_utf16_raw(
         &mut self,
         src: &[u8],
@@ -158,14 +160,8 @@ impl SingleByteDecoder {
         // which will be separately marked.
         let mut converted = 0usize;
         'outermost: loop {
-            match unsafe {
-                // Safety: length is the minimum length, `src/dst + x` will always be valid for reads/writes of `len - x`
-                ascii_to_basic_latin(
-                    src.as_ptr().add(converted),
-                    dst.as_mut_ptr().add(converted),
-                    length - converted,
-                )
-            } {
+            // Safety: length is the minimum length, `src/dst + x` will always be valid for reads/writes of `len - x`
+            match ascii_to_basic_latin(&src[converted..], &mut dst[converted..]) {
                 None => {
                     return (pending, length, length);
                 }
@@ -414,14 +410,8 @@ impl SingleByteEncoder {
         // which will be separately marked.
         let mut converted = 0usize;
         'outermost: loop {
-            match unsafe {
-                // Safety: length is the minimum length, `src/dst + x` will always be valid for reads/writes of `len - x`
-                basic_latin_to_ascii(
-                    src.as_ptr().add(converted),
-                    dst.as_mut_ptr().add(converted),
-                    length - converted,
-                )
-            } {
+            // Safety: length is the minimum length, `src/dst + x` will always be valid for reads/writes of `len - x`
+            match basic_latin_to_ascii(&src[converted..], &mut dst[converted..]) {
                 None => {
                     return (pending, length, length);
                 }
