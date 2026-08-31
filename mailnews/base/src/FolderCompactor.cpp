@@ -33,6 +33,7 @@
 #include "mozilla/RefCounted.h"
 #include "mozilla/Services.h"
 #include "mozilla/ScopeExit.h"
+#include "mozilla/StaticPtr.h"
 #include "mozilla/glean/CommMailMetrics.h"
 
 mozilla::LazyLogModule gCompactLog("compact");
@@ -84,7 +85,7 @@ class FolderCompactor : public nsIStoreCompactListener {
 
    protected:
     ~ShutdownObserver() {}
-    MOZ_RUNINIT static RefPtr<FolderCompactor::ShutdownObserver> sInstance;
+    static mozilla::StaticRefPtr<FolderCompactor::ShutdownObserver> sInstance;
     bool mIsShuttingDown;
   };
 
@@ -716,7 +717,7 @@ NS_IMETHODIMP FolderCompactor::OnFinalSummary(nsresult status, int64_t oldSize,
 
 NS_IMPL_ISUPPORTS(FolderCompactor::ShutdownObserver, nsIObserver)
 
-MOZ_GLOBINIT RefPtr<FolderCompactor::ShutdownObserver>
+mozilla::StaticRefPtr<FolderCompactor::ShutdownObserver>
     FolderCompactor::ShutdownObserver::sInstance;
 
 FolderCompactor::ShutdownObserver::ShutdownObserver() {
