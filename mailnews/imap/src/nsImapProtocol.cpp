@@ -103,6 +103,7 @@ extern LazyLogModule IMAP_DC;  // For imap folder discovery
 
 static constexpr uint32_t kSleepTimeSeconds = 60;
 static constexpr uint32_t kIdleWaitSeconds = 2;
+static constexpr uint32_t kRetryDelaySeconds = 1;
 static int32_t gPromoteNoopToCheckCount = 0;
 static const uint32_t kFlagChangesBeforeCheck = 10;
 static const int32_t kMaxSecondsBeforeCheck = 600;
@@ -1961,6 +1962,14 @@ bool nsImapProtocol::ProcessCurrentURL() {
         nsCOMPtr<nsIRunnable> logonFunc = NS_NewRunnableFunction(
             "IMAP TryToLogin", [&]() { logonFailed = !TryToLogon(); });
         m_imapServerSink->Receiver()->RunLogonExclusive(logonFunc);
+        if (!logonFailed && !m_retryUrlOnError && !DeathSignalReceived() &&
+            NS_SUCCEEDED(GetConnectionStatus()) &&
+            m_imapAction != nsIImapUrl::nsImapVerifylogon) {
+          // The logon lock prevents concurrent attempts with obsolete
+          // credentials. Post-authentication setup does not need that
+          // protection and can be slow, so run it after releasing the lock.
+          ProcessAfterAuthenticated();
+        }
       }
       if (m_retryUrlOnError) return RetryUrl();
     }
@@ -2132,6 +2141,12 @@ bool nsImapProtocol::ProcessCurrentURL() {
 bool nsImapProtocol::RetryUrl() {
   nsCOMPtr<nsIImapUrl> kungFuGripImapUrl = m_runningUrl;
   nsCOMPtr<nsIImapMockChannel> saveMockChannel;
+
+  if (m_retryUrlOnError) {
+    // Avoid immediately reconnecting to a server that just failed. URL state
+    // limits this to one retry, and this protocol has its own worker thread.
+    PR_Sleep(PR_SecondsToInterval(kRetryDelaySeconds));
+  }
 
   // the mock channel might be null - that's OK.
   if (m_imapServerSink)
@@ -8596,6 +8611,12 @@ bool nsImapProtocol::TryToLogon() {
     loginSucceeded = NS_SUCCEEDED(rv);
 
     if (!loginSucceeded) {
+      if (NS_FAILED(GetConnectionStatus()) || DeathSignalReceived()) {
+        // A transport failure is not an authentication rejection. The socket
+        // layer preserves the error and may schedule one URL retry.
+        break;
+      }
+
       // If server gave reason for authentication failure as [UNAVAILABLE]
       // then we skip authentication retries, etc. The user will be notified by
       // pop-up with the reason, provided by the server, as to why it's
@@ -8686,20 +8707,15 @@ bool nsImapProtocol::TryToLogon() {
       m_imapServerSink->SetUserAuthenticated(true);
     }
 
-    nsImapAction imapAction;
-    m_runningUrl->GetImapAction(&imapAction);
-    // We don't want to do any more processing if we're just
-    // verifying the ability to logon because it can leave us in
-    // a half-constructed state.
-    if (imapAction != nsIImapUrl::nsImapVerifylogon)
-      ProcessAfterAuthenticated();
   } else  // login failed
   {
     MOZ_LOG(IMAP, LogLevel::Error, ("login failed entirely"));
     m_currentBiffState = nsIMsgFolder::nsMsgBiffState_Unknown;
     SendSetBiffIndicatorEvent(m_currentBiffState);
     HandleCurrentUrlError();
-    SetConnectionStatus(NS_ERROR_FAILURE);  // stop netlib
+    if (NS_SUCCEEDED(GetConnectionStatus())) {
+      SetConnectionStatus(NS_ERROR_FAILURE);  // stop netlib
+    }
   }
 
   return loginSucceeded;
