@@ -56,8 +56,6 @@ async function waitCheckEncryptionStateDone(win) {
   );
 }
 
-var sendFormatPreference;
-var htmlAsPreference;
 var draftsFolder;
 var outboxFolder;
 
@@ -66,7 +64,12 @@ var outboxFolder;
  * receiver.
  */
 add_setup(async function () {
-  Services.prefs.setStringPref(unobSigPrefName, "unobtrusive");
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      [unobSigPrefName, "unobtrusive"],
+      ["mailnews.display.html_as", 4],
+    ],
+  });
 
   bobAcct = MailServices.accounts.createAccount();
   bobAcct.incomingServer = MailServices.accounts.createIncomingServer(
@@ -111,12 +114,6 @@ add_setup(async function () {
 
   gOutbox = await get_special_folder(Ci.nsMsgFolderFlags.Queue);
 
-  sendFormatPreference = Services.prefs.getIntPref("mail.default_send_format");
-  htmlAsPreference = Services.prefs.getIntPref("mailnews.display.html_as");
-  // Show all parts to a message in the message display.
-  // This allows us to see if a message contains both a plain text and a HTML
-  // part.
-  Services.prefs.setIntPref("mailnews.display.html_as", 4);
   draftsFolder = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
   outboxFolder = await get_special_folder(Ci.nsMsgFolderFlags.Queue, true);
 });
@@ -135,7 +132,9 @@ const BOLD_MESSAGE_BODY_AS_PLAIN = `*${BOLD_MESSAGE_BODY}*`;
  * @returns {Window} - The opened compose window, pre-filled with a message.
  */
 async function newMessage(preference, useBold) {
-  Services.prefs.setIntPref("mail.default_send_format", preference);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.default_send_format", preference]],
+  });
 
   const composeWindow = await open_compose_new_mail();
 
@@ -369,14 +368,9 @@ add_task(async function test_preference_send_format() {
 });
 
 registerCleanupFunction(async function tearDown() {
-  Services.prefs.clearUserPref("openpgp_key_id");
   await OpenPGPTestUtils.removeKeyById("0xfbfcc82a015e7330", true);
   MailServices.accounts.removeIncomingServer(bobAcct.incomingServer, true);
   MailServices.accounts.removeAccount(bobAcct, true);
-
-  Services.prefs.clearUserPref(unobSigPrefName);
-  Services.prefs.setIntPref("mail.default_send_format", sendFormatPreference);
-  Services.prefs.setIntPref("mailnews.display.html_as", htmlAsPreference);
   await empty_folder(draftsFolder);
   await empty_folder(outboxFolder);
 });

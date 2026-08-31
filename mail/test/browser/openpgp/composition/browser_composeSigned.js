@@ -52,7 +52,9 @@ async function waitCheckEncryptionStateDone(win) {
  * receiver.
  */
 add_setup(async function () {
-  Services.prefs.setStringPref(unobSigPrefName, "multipart");
+  await SpecialPowers.pushPrefEnv({
+    set: [[unobSigPrefName, "multipart"]],
+  });
 
   bobAcct = MailServices.accounts.createAccount();
   bobAcct.incomingServer = MailServices.accounts.createIncomingServer(
@@ -105,7 +107,9 @@ add_setup(async function () {
  */
 add_task(async function testSignedMessageComposition() {
   const autocryptPrefName = "mail.identity.default.sendAutocryptHeaders";
-  Services.prefs.setBoolPref(autocryptPrefName, true);
+  await SpecialPowers.pushPrefEnv({
+    set: [[autocryptPrefName, true]],
+  });
 
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
@@ -189,7 +193,7 @@ add_task(async function testSignedMessageComposition() {
   // Delete the message so other tests work.
   EventUtils.synthesizeKey("KEY_Delete");
   // Restore pref to original value
-  Services.prefs.clearUserPref(autocryptPrefName);
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -467,5 +471,4 @@ registerCleanupFunction(async function tearDown() {
   await OpenPGPTestUtils.removeKeyById("0xfbfcc82a015e7330", true);
   MailServices.accounts.removeIncomingServer(bobAcct.incomingServer, true);
   MailServices.accounts.removeAccount(bobAcct, true);
-  Services.prefs.clearUserPref(unobSigPrefName);
 });

@@ -42,19 +42,14 @@ let gDrafts;
 
 const aboutMessage = get_about_message();
 
-function setAutoPrefs(autoEnable, autoDisable, notifyOnDisable) {
-  Services.prefs.setBoolPref("mail.e2ee.auto_enable", autoEnable);
-  Services.prefs.setBoolPref("mail.e2ee.auto_disable", autoDisable);
-  Services.prefs.setBoolPref(
-    "mail.e2ee.notify_on_auto_disable",
-    notifyOnDisable
-  );
-}
-
-function clearAutoPrefs() {
-  Services.prefs.clearUserPref("mail.e2ee.auto_enable");
-  Services.prefs.clearUserPref("mail.e2ee.auto_disable");
-  Services.prefs.clearUserPref("mail.e2ee.notify_on_auto_disable");
+async function setAutoPrefs(autoEnable, autoDisable, notifyOnDisable) {
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.e2ee.auto_enable", autoEnable],
+      ["mail.e2ee.auto_disable", autoDisable],
+      ["mail.e2ee.notify_on_auto_disable", notifyOnDisable],
+    ],
+  });
 }
 
 async function waitCheckEncryptionStateDone(win) {
@@ -123,7 +118,7 @@ async function testEncryptedMessageComposition(
   notifyOnDisable,
   signed
 ) {
-  setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
+  await setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
 
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
@@ -240,7 +235,7 @@ async function testEncryptedMessageWithKeyComposition(
   autoDisable,
   notifyOnDisable
 ) {
-  setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
+  await setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
 
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
@@ -340,7 +335,7 @@ async function testEncryptedRecipientKeyNotAvailabeMessageComposition(
   autoDisable,
   notifyOnDisable
 ) {
-  setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
+  await setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
 
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
@@ -411,7 +406,7 @@ add_task(
  * adding the second recipient (key not available).
  */
 add_task(async function testEncryptedRecipientKeyNotAvailabeAutoDisable() {
-  setAutoPrefs(true, true, false);
+  await setAutoPrefs(true, true, false);
 
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
@@ -463,7 +458,7 @@ async function testEncryptedRecipientKeyNotAcceptedMessageComposition(
   autoDisable,
   notifyOnDisable
 ) {
-  setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
+  await setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
 
   await OpenPGPTestUtils.importPublicKey(
     window,
@@ -564,7 +559,7 @@ async function testEncryptedRecipientKeyUnverifiedMessageComposition(
   autoDisable,
   notifyOnDisable
 ) {
-  setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
+  await setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
 
   await OpenPGPTestUtils.importPublicKey(
     window,
@@ -659,7 +654,7 @@ async function testEncryptedOneRecipientKeyNotAvailableMessageComposition(
   autoDisable,
   notifyOnDisable
 ) {
-  setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
+  await setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
 
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
@@ -738,7 +733,7 @@ async function testEncryptedOneRecipientKeyNotAcceptedMessageComposition(
   autoDisable,
   notifyOnDisable
 ) {
-  setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
+  await setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
 
   await OpenPGPTestUtils.importPublicKey(
     window,
@@ -840,7 +835,7 @@ async function testEncryptedOneRecipientKeyUnverifiedMessageComposition(
   autoDisable,
   notifyOnDisable
 ) {
-  setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
+  await setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
 
   await OpenPGPTestUtils.importPublicKey(
     window,
@@ -937,7 +932,7 @@ async function testEncryptedMessageReplyIsEncrypted(
   autoDisable,
   notifyOnDisable
 ) {
-  setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
+  await setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
 
   await be_in_folder(gDrafts);
   const msgc = await open_message_from_file(
@@ -986,7 +981,6 @@ add_task(
 );
 
 registerCleanupFunction(function tearDown() {
-  clearAutoPrefs();
   MailServices.accounts.removeIncomingServer(bobAcct.incomingServer, true);
   MailServices.accounts.removeAccount(bobAcct, true);
 });

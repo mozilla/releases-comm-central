@@ -55,9 +55,6 @@ add_setup(async function () {
   registerCleanupFunction(async () => {
     await OpenPGPTestUtils.removeKeyById("0xfbfcc82a015e7330", true);
     MailServices.accounts.removeAccount(bobAcct, true);
-    Services.prefs.clearUserPref(
-      "mailnews.message_display.disable_remote_image"
-    );
   });
 });
 
@@ -72,10 +69,14 @@ add_setup(async function () {
 async function checkFileOpenedEncryptedIsHardBlocked(
   remoteImagesGloballyEnabled
 ) {
-  Services.prefs.setBoolPref(
-    "mailnews.message_display.disable_remote_image",
-    !remoteImagesGloballyEnabled
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      [
+        "mailnews.message_display.disable_remote_image",
+        !remoteImagesGloballyEnabled,
+      ],
+    ],
+  });
 
   const msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/rc-openpgp-mdc.eml"))
@@ -123,6 +124,7 @@ async function checkFileOpenedEncryptedIsHardBlocked(
   );
 
   await BrowserTestUtils.closeWindow(msgc);
+  await SpecialPowers.popPrefEnv();
 }
 
 /**

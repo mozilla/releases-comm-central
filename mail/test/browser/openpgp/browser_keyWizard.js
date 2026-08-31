@@ -51,7 +51,9 @@ add_setup(async function () {
   gIdentity.email = "alice@openpgp.example";
   gAccount.addIdentity(gIdentity);
 
-  Services.prefs.setBoolPref("mail.openpgp.allow_external_gnupg", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.openpgp.allow_external_gnupg", true]],
+  });
 
   gTab = await open_content_tab_with_url("about:accountsettings");
   await promise_account_tree_load(gTab);
@@ -388,7 +390,7 @@ add_task(async function add_external_key() {
   );
 
   await OpenPGPTestUtils.removeKeyById(EXTERNAL_GNUP_KEY, false);
-  Services.prefs.clearUserPref("mail.openpgp.allow_external_gnupg");
+  await SpecialPowers.popPrefEnv();
 });
 
 /**

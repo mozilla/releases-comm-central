@@ -57,12 +57,10 @@ var aliceAcct;
  */
 add_setup(async function () {
   // This test assumes the standalone message window.
-  Services.prefs.setIntPref(
-    "mail.openMessageBehavior",
-    MailConsts.OpenMessageBehavior.NEW_WINDOW
-  );
-  registerCleanupFunction(() => {
-    Services.prefs.clearUserPref("mail.openMessageBehavior");
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.openMessageBehavior", MailConsts.OpenMessageBehavior.NEW_WINDOW],
+    ],
   });
 });
 
