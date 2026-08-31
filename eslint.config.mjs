@@ -269,6 +269,24 @@ export default [
   {
     ...mozilla.configs["flat/browser-test"],
     files: wrapPathsWithAllExts(browserTestPaths, ["mjs", "sjs"]),
+    rules: {
+      ...mozilla.configs["flat/browser-test"].rules,
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.object.object.name='Services'][callee.object.property.name='prefs'][callee.property.name=/^set[A-Za-z]+Pref$/]",
+          message:
+            "Use SpecialPowers.pushPrefEnv() instead of directly setting preferences in browser tests.",
+        },
+        {
+          selector:
+            "CallExpression[callee.object.object.name='Services'][callee.object.property.name='prefs'][callee.property.name='clearUserPref']",
+          message:
+            "Use SpecialPowers.pushPrefEnv({ clear: [...] }) instead of directly clearing preferences in browser tests.",
+        },
+      ],
+    },
   },
   {
     name: "valid-jsdoc-with-custom-element-tags",
