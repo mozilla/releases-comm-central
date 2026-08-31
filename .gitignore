@@ -54,6 +54,13 @@ rust/ms_graph_tb/ms_graph_tb_extract/target/
 *.orig
 *.rej
 
+# Still add Cargo.toml.orig and dotfiles in third_party/rust because cargo
+# vendored crates contain those files, which some other rules ignore.
+# lint-ignore-next-line: syntax-difference
+!third_party/rust/**/Cargo.toml.orig
+# lint-ignore-next-line: syntax-difference
+!third_party/rust/**/.*
+
 # User files that may appear at the root
 /.clang-tidy
 /.clangd
