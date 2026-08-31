@@ -478,7 +478,11 @@ const accessHkpInternal = {
    * @returns {string} found.pubKeys[].keyLen
    * @returns {string} found.pubKeys[].keyType
    * @returns {string} found.pubKeys[].created
-   * @returns {string} found.pubKeys[].status - One of ''=valid, r=revoked, e=expired.
+   * @returns {string} found.pubKeys[].status - The flags reported by the
+   *   server, e.g. r=revoked, e=expired, d=disabled, or a combination of
+   *   them. Empty or undefined if the server reported no flags, which
+   *   doesn't imply the key is valid, because servers may omit this
+   *   information.
    * @returns {string[]} found.pubKeys[].uid - Strings with UIDs.
    */
   async searchKeyserver(searchTerm, keyserver, listener = null) {
@@ -552,7 +556,82 @@ const accessHkpInternal = {
     }
     return retObj;
   },
+
+  /**
+   * Search for a key and download it, if the result is unambiguous.
+   *
+   * The status of a search result entry contains the flags that the server
+   * reported for that key, e.g. revoked or expired. An empty status only
+   * means that the server didn't report a problem; it isn't a confirmation
+   * that the key is valid, because a server is allowed to omit that
+   * information. We therefore use the status to skip keys, and require that
+   * exactly one potentially valid key remains. Whether that key is really
+   * usable must be decided by the caller, based on the downloaded key.
+   *
+   * @param {string} searchString - Search term.
+   * @param {string} keyserver - Keyserver URL (optionally incl. protocol).
+   * @param {KeySrvListener} [listener]
+   * @returns {Promise<?object>} the result of download(), or null if the
+   *   search didn't give exactly one potentially valid key.
+   */
+  async searchAndDownloadSingleResultNoImport(
+    searchString,
+    keyserver,
+    listener = null
+  ) {
+    const searchResult = await this.searchKeyserver(
+      searchString,
+      keyserver,
+      listener
+    );
+    if (searchResult.result != 0 || !searchResult.pubKeys.length) {
+      return null;
+    }
+    const candidates = searchResult.pubKeys.filter(k => !k.status);
+    if (candidates.length != 1) {
+      lazy.log.warn(
+        `Discarding search result for '${searchString}': found ` +
+          `${searchResult.pubKeys.length} keys, ${candidates.length} of them ` +
+          `potentially valid.`
+      );
+      return null;
+    }
+    return this.download(false, candidates[0].keyId, keyserver, listener);
+  },
 };
+
+/**
+ * Search for a key on a keyserver, and download it, if the server returned
+ * exactly one result.
+ *
+ * @param {object} acc - Keyserver access object to use.
+ * @param {string} searchString - Search term.
+ * @param {string} keyserver - Keyserver URL (optionally incl. protocol).
+ * @param {KeySrvListener} [listener]
+ * @returns {Promise<?object>} the result of download(), or null if the search
+ *   didn't give exactly one result.
+ */
+async function searchAndDownloadSingleResult(
+  acc,
+  searchString,
+  keyserver,
+  listener = null
+) {
+  const searchResult = await acc.searchKeyserver(
+    searchString,
+    keyserver,
+    listener
+  );
+  if (searchResult.result != 0 || searchResult.pubKeys.length != 1) {
+    return null;
+  }
+  return acc.download(
+    false,
+    searchResult.pubKeys[0].keyId,
+    keyserver,
+    listener
+  );
+}
 
 /**
  * Object to handle KeyBase requests (search & download only).
@@ -766,7 +845,7 @@ const accessKeyBase = {
   },
 
   /**
-   * Search for keys on a keyserver.
+   * Search for keys on a keyserver (using KeyBase).
    *
    * @param {string} searchTerm - Search term.
    * @param {string} keyserver - Keyserver URL (optionally incl. protocol).
@@ -844,6 +923,24 @@ const accessKeyBase = {
       .join(" ");
 
     return this.download(true, keyList, keyServer, listener);
+  },
+
+  /**
+   * Search for a key and download it, if the search gave exactly one result.
+   *
+   * @param {string} searchString - Search term.
+   * @param {string} keyserver - Keyserver URL (optionally incl. protocol).
+   * @param {KeySrvListener} [listener]
+   * @returns {Promise<?object>} the result of download(), or null if the
+   *   search didn't give exactly one result.
+   */
+  searchAndDownloadSingleResultNoImport(searchString, keyserver, listener) {
+    return searchAndDownloadSingleResult(
+      this,
+      searchString,
+      keyserver,
+      listener
+    );
   },
 };
 
@@ -1245,7 +1342,7 @@ const accessVksServer = {
           break;
         }
       } catch (ex) {
-        console.error("Uploading keys FAILED!", ex);
+        lazy.log.error(`Uploading keys to ${keyserver} FAILED!`, ex);
         rv = false;
         break;
       }
@@ -1259,7 +1356,7 @@ const accessVksServer = {
   },
 
   /**
-   * Search for keys on a keyserver.
+   * Search for keys on a keyserver (using VKS).
    *
    * @param {string} searchTerm - Search term.
    * @param {string} keyserver - Keyserver URL (optionally incl. protocol).
@@ -1331,6 +1428,24 @@ const accessVksServer = {
 
     return retObj;
   },
+
+  /**
+   * Search for a key and download it, if the search gave exactly one result.
+   *
+   * @param {string} searchString - Search term.
+   * @param {string} keyserver - Keyserver URL (optionally incl. protocol).
+   * @param {KeySrvListener} [listener]
+   * @returns {Promise<?object>} the result of download(), or null if the
+   *   search didn't give exactly one result.
+   */
+  searchAndDownloadSingleResultNoImport(searchString, keyserver, listener) {
+    return searchAndDownloadSingleResult(
+      this,
+      searchString,
+      keyserver,
+      listener
+    );
+  },
 };
 
 export var EnigmailKeyServer = {
@@ -1378,43 +1493,24 @@ export var EnigmailKeyServer = {
   },
 
   /**
-   * Search keys on a keyserver
+   * Search for a key and download it, without importing it, if the search
+   * gave an unambiguous result. What exactly is treated as unambiguous
+   * depends on the search mechanism.
    *
-   * @param {string} searchString - Search term. Multiple email addresses can
-   *   be search by spaces.
+   * @param {string} searchString - Search term.
    * @param {string} [keyserver] - Keyserver URL (optionally incl. protocol).
    * @param {KeySrvListener} [listener]
-   * @returns {Promise<object>} found
-   * @returns {integer} found.result
-   * @returns {object[]} found.pubKeys
-   * @returns {string} found.pubKeys[].keyId
-   * @returns {string} found.pubKeys[].keyLen
-   * @returns {string} found.pubKeys[].keyType
-   * @returns {string} found.pubKeys[].created
-   * @returns {string} found.pubKeys[].status - One of ''=valid, r=revoked, e=expired.
-   * @returns {string[]} found.pubKeys[].uid - Strings with UIDs.
+   * @returns {Promise<?object>} the result of download(), or null if the
+   *   search result wasn't unambiguous.
    */
-  async searchKeyserver(searchString, keyserver = null, listener = null) {
-    const acc = getAccessType(keyserver);
-    return acc.search(searchString, keyserver, listener);
-  },
-
   async searchAndDownloadSingleResultNoImport(
     searchString,
     keyserver = null,
     listener
   ) {
     const acc = getAccessType(keyserver);
-    const searchResult = await acc.searchKeyserver(
+    return acc.searchAndDownloadSingleResultNoImport(
       searchString,
-      keyserver,
-      listener
-    );
-    if (searchResult.result != 0 || searchResult.pubKeys.length != 1) {
-      return null;
-    }
-    return this.downloadNoImport(
-      searchResult.pubKeys[0].keyId,
       keyserver,
       listener
     );

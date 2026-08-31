@@ -34,6 +34,8 @@ run-if = [
   "os != 'linux'",
 ] # See bug 1806870.
 
+["browser_keyserverSearch.js"]
+
 ["browser_openPGPDrafts.js"]
 
 ["browser_perm_decrypt.js"]
