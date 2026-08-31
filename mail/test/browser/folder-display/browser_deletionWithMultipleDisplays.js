@@ -64,7 +64,9 @@ requestLongerTimeout(
 
 add_setup(async function () {
   // Use an ascending order because this test relies on message arrays matching.
-  Services.prefs.setIntPref("mailnews.default_sort_order", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.default_sort_order", 1]],
+  });
 
   folder = await create_folder("DeletionA");
   lastMessageFolder = await create_folder("DeletionB");
@@ -113,7 +115,6 @@ add_setup(async function () {
     multipleDeletionFolder2.deleteSelf(null);
     multipleDeletionFolder3.deleteSelf(null);
     multipleDeletionFolder4.deleteSelf(null);
-    Services.prefs.clearUserPref("mailnews.default_sort_order");
   });
 });
 

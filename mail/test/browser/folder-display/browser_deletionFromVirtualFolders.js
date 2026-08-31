@@ -75,7 +75,9 @@ async function performDelete(window, message) {
 
 add_setup(async function () {
   // Make sure the whole test runs with an unthreaded view in all folders.
-  Services.prefs.setIntPref("mailnews.default_view_flags", 0);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.default_view_flags", 0]],
+  });
 
   baseFolder = await create_folder("DeletionFromVirtualFoldersA");
   // For setTagged, we want exactly as many messages as we plan to delete, so
@@ -108,10 +110,9 @@ add_setup(async function () {
     () => document.querySelector("#unifiedToolbarContent .view-picker")
   );
 
-  registerCleanupFunction(async () => {
+  registerCleanupFunction(() => {
     baseFolder.deleteSelf(null);
     storeState({});
-    Services.prefs.clearUserPref("mailnews.default_view_flags");
     get_about_3pane().folderPane.activeModes = ["all"];
   });
 });

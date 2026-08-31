@@ -50,7 +50,6 @@ var { MailUtils } = ChromeUtils.importESModule(
 var unreadFolder, shiftDeleteFolder, threadDeleteFolder;
 var trashFolder, newsgroupFolder;
 var tagArray;
-var gAutoRead;
 
 // Adjust timeout to take care of code coverage runs, and mac needing twice
 // as long.
@@ -59,8 +58,9 @@ requestLongerTimeout(
 );
 
 add_setup(async function () {
-  gAutoRead = Services.prefs.getBoolPref("mailnews.mark_message_read.auto");
-  Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.mark_message_read.auto", false]],
+  });
 
   unreadFolder = await create_folder("UnreadFolder");
   shiftDeleteFolder = await create_folder("ShiftDeleteFolder");
@@ -87,7 +87,6 @@ add_setup(async function () {
   tagArray = MailServices.tags.getAllTags();
 
   registerCleanupFunction(function () {
-    Services.prefs.setBoolPref("mailnews.mark_message_read.auto", gAutoRead);
     unreadFolder.deleteSelf(null);
     shiftDeleteFolder.deleteSelf(null);
     threadDeleteFolder.deleteSelf(null);
@@ -354,14 +353,6 @@ add_task(async function test_mark_thread_as_read() {
   await be_in_folder(unreadThreadFolder);
   await make_display_threaded();
 
-  const serviceState = Services.prefs.getBoolPref(
-    "mailnews.mark_message_read.auto"
-  );
-  if (serviceState) {
-    // If mailnews.mark_message_read.auto is true, then we set it to false.
-    Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
-  }
-
   // Make sure Mark Thread as Read is enabled with >0 messages in thread unread.
   await right_click_on_row(0);
   await BrowserTestUtils.waitForPopupEvent(getMailContext(), "shown");
@@ -413,8 +404,6 @@ add_task(async function test_mark_thread_as_read() {
     !markThreadAsReadDisabled,
     "Mark Thread as read menu item should not be disabled!"
   );
-
-  Services.prefs.setBoolPref("mailnews.mark_message_read.auto", true);
 }).skip(); // See bug 654362.
 
 add_task(async function roving_multi_message_buttons() {
@@ -501,7 +490,9 @@ add_task(async function test_shift_delete_prompt() {
   goUpdateCommand("cmd_shiftDelete");
 
   // First, try shift-deleting and then cancelling at the prompt.
-  Services.prefs.setBoolPref("mail.warn_on_shift_delete", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.warn_on_shift_delete", true]],
+  });
   const warning =
     "This will delete messages immediately, without saving a copy to Trash. Are you sure you want to continue?";
   let dialogPromise = promise_and_check_alert_dialog("cancel", warning);
@@ -529,14 +520,17 @@ add_task(async function test_shift_delete_prompt() {
   Assert.notEqual(curMessage, await select_click_row(0));
 
   // Finally, try shift-deleting when we turned off the prompt.
-  Services.prefs.setBoolPref("mail.warn_on_shift_delete", false);
+  await SpecialPowers.popPrefEnv();
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.warn_on_shift_delete", false]],
+  });
   curMessage = await select_click_row(0);
   await press_delete(window, { shiftKey: true });
 
   // Make sure we really did delete the message.
   Assert.notEqual(curMessage, await select_click_row(0));
 
-  Services.prefs.clearUserPref("mail.warn_on_shift_delete");
+  await SpecialPowers.popPrefEnv();
 });
 
 add_task(async function test_thread_delete_prompt() {
@@ -547,7 +541,9 @@ add_task(async function test_thread_delete_prompt() {
   let curMessage = await select_click_row(0);
   goUpdateCommand("cmd_delete");
   // First, try deleting and then cancelling at the prompt.
-  Services.prefs.setBoolPref("mail.warn_on_collapsed_thread_operation", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.warn_on_collapsed_thread_operation", true]],
+  });
   const warning =
     "This will delete messages in collapsed threads. Are you sure you want to continue?";
   let dialogPromise = promise_and_check_alert_dialog("cancel", warning);
@@ -566,14 +562,17 @@ add_task(async function test_thread_delete_prompt() {
   Assert.notEqual(curMessage, await select_click_row(0));
 
   // Finally, try deleting when we turned off the prompt.
-  Services.prefs.setBoolPref("mail.warn_on_collapsed_thread_operation", false);
+  await SpecialPowers.popPrefEnv();
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.warn_on_collapsed_thread_operation", false]],
+  });
   curMessage = await select_click_row(0);
   await press_delete(window);
 
   // Make sure we really did delete the message.
   Assert.notEqual(curMessage, await select_click_row(0));
 
-  Services.prefs.clearUserPref("mail.warn_on_collapsed_thread_operation");
+  await SpecialPowers.popPrefEnv();
 });
 
 add_task(async function test_delete_from_trash_prompt() {
@@ -582,7 +581,9 @@ add_task(async function test_delete_from_trash_prompt() {
   goUpdateCommand("cmd_Delete");
 
   // First, try deleting and then cancelling at the prompt.
-  Services.prefs.setBoolPref("mail.warn_on_delete_from_trash", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.warn_on_delete_from_trash", true]],
+  });
   const warning =
     "This will permanently delete messages from Trash. Are you sure you want to continue?";
   let dialogPromise = promise_and_check_alert_dialog("cancel", warning);
@@ -601,14 +602,17 @@ add_task(async function test_delete_from_trash_prompt() {
   Assert.notEqual(curMessage, await select_click_row(0));
 
   // Finally, try deleting when we turned off the prompt.
-  Services.prefs.setBoolPref("mail.warn_on_delete_from_trash", false);
+  await SpecialPowers.popPrefEnv();
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.warn_on_delete_from_trash", false]],
+  });
   curMessage = await select_click_row(0);
   await press_delete(window);
 
   // Make sure we really did delete the message.
   Assert.notEqual(curMessage, await select_click_row(0));
 
-  Services.prefs.clearUserPref("mail.warn_on_delete_from_trash");
+  await SpecialPowers.popPrefEnv();
 });
 
 add_task(async function test_delete_from_newsgroup_prompt() {
@@ -617,7 +621,9 @@ add_task(async function test_delete_from_newsgroup_prompt() {
   goUpdateCommand("cmd_Delete");
 
   // First, try deleting and then cancelling at the prompt.
-  Services.prefs.setBoolPref("news.warn_on_delete", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["news.warn_on_delete", true]],
+  });
   const warning =
     "This will delete messages immediately, without saving a copy to Trash. Are you sure you want to continue?";
   let dialogPromise = promise_and_check_alert_dialog("cancel", warning);
@@ -636,14 +642,17 @@ add_task(async function test_delete_from_newsgroup_prompt() {
   Assert.notEqual(curMessage, await select_click_row(0));
 
   // Finally, try deleting when we turned off the prompt.
-  Services.prefs.setBoolPref("news.warn_on_delete", false);
+  await SpecialPowers.popPrefEnv();
+  await SpecialPowers.pushPrefEnv({
+    set: [["news.warn_on_delete", false]],
+  });
   curMessage = await select_click_row(0);
   await press_delete(window);
 
   // Make sure we really did delete the message.
   Assert.notEqual(curMessage, await select_click_row(0));
 
-  Services.prefs.clearUserPref("news.warn_on_delete");
+  await SpecialPowers.popPrefEnv();
 });
 
 /**

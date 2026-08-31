@@ -38,11 +38,11 @@ const { click_menus_in_sequence } = ChromeUtils.importESModule(
 
 let gInbox;
 let gOutbox;
-let gAutoRead;
 
 add_setup(async function () {
-  gAutoRead = Services.prefs.getBoolPref("mailnews.mark_message_read.auto");
-  Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.mark_message_read.auto", false]],
+  });
 
   gOutbox = await get_special_folder(Ci.nsMsgFolderFlags.Queue);
   gInbox = await create_folder("MsgStoreChecks");
@@ -304,7 +304,6 @@ add_task(async function test_mark_messages_forwarded() {
 });
 
 registerCleanupFunction(async function () {
-  Services.prefs.setBoolPref("mailnews.mark_message_read.auto", gAutoRead);
   // Clear all the created messages.
   await be_in_folder(gInbox.parent);
   await empty_folder(gInbox);

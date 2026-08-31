@@ -73,8 +73,10 @@ registerCleanupFunction(function () {
   }
 });
 
-function enable_archiving(enabled) {
-  Services.prefs.setBoolPref("mail.identity.default.archive_enabled", enabled);
+async function enable_archiving(enabled) {
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.identity.default.archive_enabled", enabled]],
+  });
 }
 
 add_task(async function test_yearly_archive() {
@@ -146,7 +148,7 @@ async function yearly_archive(srcFolder, expectedSubfolderName = "") {
 }
 
 add_task(async function test_monthly_archive() {
-  enable_archiving(true);
+  await enable_archiving(true);
   await monthly_archive(archiveSrcFolder);
 });
 
@@ -208,26 +210,24 @@ async function monthly_archive(srcFolder, expectedSubfolderName = "") {
 }
 
 add_task(async function test_folder_structure_archiving() {
-  enable_archiving(true);
-  Services.prefs.setBoolPref(
-    "mail.identity.default.archive_keep_folder_structure",
-    true
-  );
+  await enable_archiving(true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.identity.default.archive_keep_folder_structure", true]],
+  });
   await monthly_archive(archiveSrcFolder, "/ArchiveSrc");
   await yearly_archive(archiveSrcFolder, "/ArchiveSrc");
   await monthly_archive(inboxFolder);
   await yearly_archive(inboxFolder);
-  Services.prefs.setBoolPref(
-    "mail.identity.default.archive_recreate_inbox",
-    true
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.identity.default.archive_recreate_inbox", true]],
+  });
   await monthly_archive(inboxFolder, "/Inbox");
   await yearly_archive(inboxFolder, "/Inbox");
 });
 
 add_task(async function test_selection_after_archive() {
   const win = get_about_3pane();
-  enable_archiving(true);
+  await enable_archiving(true);
   await be_in_folder(archiveSrcFolder);
   const identity = MailServices.accounts.getFirstIdentityForServer(
     win.gDBView.getMsgHdrAt(0).folder.server
@@ -244,7 +244,7 @@ add_task(async function test_selection_after_archive() {
 });
 
 add_task(async function test_disabled_archive() {
-  enable_archiving(false);
+  await enable_archiving(false);
   await be_in_folder(archiveSrcFolder);
 
   // test single message
@@ -286,18 +286,5 @@ add_task(async function test_disabled_archive() {
     multiMsgView.contentDocument.getElementById("hdrArchiveButton").hidden,
     "Multi-message archive button should be disabled when " +
       "archiving is disabled!"
-  );
-});
-
-registerCleanupFunction(function () {
-  // Make sure archiving is enabled at the end
-  enable_archiving(true);
-  Services.prefs.setBoolPref(
-    "mail.identity.default.archive_keep_folder_structure",
-    false
-  );
-  Services.prefs.setBoolPref(
-    "mail.identity.default.archive_recreate_inbox",
-    false
   );
 });

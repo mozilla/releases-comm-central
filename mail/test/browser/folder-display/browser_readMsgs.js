@@ -29,7 +29,9 @@ var { inboxFolder } = ChromeUtils.importESModule(
  */
 add_task(async function testMarkedAsRead() {
   const folder = await create_folder("SpecialMsgs");
-  Services.prefs.setBoolPref("mailnews.mark_message_read.auto", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.mark_message_read.auto", true]],
+  });
 
   const file = new FileUtils.File(
     getTestFilePath("data/test-invalid-vcard.eml")
@@ -60,5 +62,5 @@ add_task(async function testMarkedAsRead() {
   );
   await be_in_folder(inboxFolder);
   folder.deleteSelf(null);
-  Services.prefs.clearUserPref("mailnews.mark_message_read.auto");
+  await SpecialPowers.popPrefEnv();
 });

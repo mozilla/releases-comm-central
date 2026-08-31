@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+add_setup(async function () {
+  await SpecialPowers.pushPrefEnv({
+    clear: [["mail.pane_config.dynamic"]],
+  });
+});
+
 function getFoldersContext() {
   return document
     .getElementById("tabmail")
@@ -28,5 +34,4 @@ registerCleanupFunction(() => {
   Services.xulStore.removeDocument(
     "chrome://messenger/content/messenger.xhtml"
   );
-  Services.prefs.clearUserPref("mail.pane_config.dynamic");
 });

@@ -167,7 +167,9 @@ add_task(async function test_selection_persists_through_folder_tab_changes() {
  */
 add_task(async function test_enter_scroll_to_new() {
   // This should be the default anyway:
-  Services.prefs.setBoolPref("mailnews.scroll_to_new_message", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.scroll_to_new_message", true]],
+  });
   await be_in_folder(folder);
   get_about_3pane().sortController.sortAscending();
   await select_click_row(1);

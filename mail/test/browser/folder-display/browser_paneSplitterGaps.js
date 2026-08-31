@@ -147,8 +147,9 @@ function assertPaneGeometry(about3Pane, when) {
  */
 add_task(async function test_classic_layout_has_no_pane_gaps() {
   const restoredHeight = 350;
-  const oldPaneConfig = Services.prefs.getIntPref("mail.pane_config.dynamic");
-  Services.prefs.setIntPref("mail.pane_config.dynamic", 0);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.pane_config.dynamic", 0]],
+  });
   XULStoreUtils.setValue("messenger", "folderPaneBox", "width", 250);
   XULStoreUtils.setValue(
     "messenger",
@@ -308,7 +309,7 @@ add_task(async function test_classic_layout_has_no_pane_gaps() {
     );
     assertPaneGeometry(about3Pane, "after resizing following a drag");
   } finally {
-    Services.prefs.setIntPref("mail.pane_config.dynamic", oldPaneConfig);
+    await SpecialPowers.popPrefEnv();
     XULStoreUtils.removeValue("messenger", "folderPaneBox", "width");
     XULStoreUtils.removeValue("messenger", "messagepaneboxwrapper", "height");
     XULStoreUtils.removeValue(

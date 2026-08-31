@@ -321,8 +321,9 @@ add_task(async function test_message_pane_restores_stored_size_on_startup() {
   await be_in_folder(folder);
 
   const restoredWidth = 420;
-  const oldPaneConfig = Services.prefs.getIntPref("mail.pane_config.dynamic");
-  Services.prefs.setIntPref("mail.pane_config.dynamic", 2);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.pane_config.dynamic", 2]],
+  });
   XULStoreUtils.setValue("messenger", "folderPaneBox", "width", 280);
   XULStoreUtils.setValue(
     "messenger",
@@ -472,7 +473,7 @@ add_task(async function test_message_pane_restores_stored_size_on_startup() {
       await closeRestoredPromise;
     }
   } finally {
-    Services.prefs.setIntPref("mail.pane_config.dynamic", oldPaneConfig);
+    await SpecialPowers.popPrefEnv();
     XULStoreUtils.removeValue("messenger", "folderPaneBox", "width");
     XULStoreUtils.removeValue("messenger", "messagepaneboxwrapper", "width");
     XULStoreUtils.removeValue(
@@ -492,8 +493,9 @@ add_task(
 
     const restoredFolderWidth = 349;
     const restoredMessageWidth = 640;
-    const oldPaneConfig = Services.prefs.getIntPref("mail.pane_config.dynamic");
-    Services.prefs.setIntPref("mail.pane_config.dynamic", 2);
+    await SpecialPowers.pushPrefEnv({
+      set: [["mail.pane_config.dynamic", 2]],
+    });
     XULStoreUtils.setValue(
       "messenger",
       "folderPaneBox",
@@ -542,7 +544,7 @@ add_task(
         "The message pane should restore the stored width after delayed window resize"
       );
     } finally {
-      Services.prefs.setIntPref("mail.pane_config.dynamic", oldPaneConfig);
+      await SpecialPowers.popPrefEnv();
       XULStoreUtils.removeValue("messenger", "folderPaneBox", "width");
       XULStoreUtils.removeValue("messenger", "messagepaneboxwrapper", "width");
       XULStoreUtils.removeValue(
