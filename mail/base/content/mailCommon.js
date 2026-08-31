@@ -1037,6 +1037,14 @@ window.controllers.insertControllerAt(0, commandController);
 var dbViewWrapperListener = {
   _allMessagesLoaded: false,
   _nextViewIndexAfterDelete: null,
+  /**
+   * Incremented every time `_nextViewIndexAfterDelete` is set, so that a
+   * deferred handler can tell whether the value still belongs to the removal
+   * it was scheduled for.
+   *
+   * @type {integer}
+   */
+  _nextViewIndexGeneration: 0,
 
   messenger: null,
   msgWindow: top.msgWindow,
@@ -1049,6 +1057,7 @@ var dbViewWrapperListener = {
       dbViewWrapperListener._nextViewIndexAfterDelete = gDBView
         ? gDBView.msgToSelectAfterDelete
         : null;
+      dbViewWrapperListener._nextViewIndexGeneration++;
     },
     selectedMessageRemoved() {
       // Virtual folders end up here while being loaded, when they restore their
@@ -1063,6 +1072,13 @@ var dbViewWrapperListener = {
         return;
       }
 
+      // Remember which removal the deferred call below is about. Another
+      // delete/move/archive operation may store its own index before the
+      // timeout runs, and that operation must update the selection itself
+      // when it completes. Acting on its index here would select a message
+      // before anything has been removed, firing a spurious "select" event.
+      this._generation = dbViewWrapperListener._nextViewIndexGeneration;
+
       // We need to invalidate the tree, but this method could get called
       // multiple times, so we won't invalidate until we get to the end of the
       // event loop.
@@ -1070,7 +1086,11 @@ var dbViewWrapperListener = {
         return;
       }
       this._timeout = setTimeout(() => {
-        dbViewWrapperListener.onMessagesRemoved();
+        if (
+          this._generation == dbViewWrapperListener._nextViewIndexGeneration
+        ) {
+          dbViewWrapperListener.onMessagesRemoved();
+        }
         window.threadTree?.invalidate();
         delete this._timeout;
       });
