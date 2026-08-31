@@ -58,6 +58,16 @@ requestLongerTimeout(1);
 let openedMsgWindowCount = 0;
 
 add_setup(async () => {
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      [
+        "extensions.webextensions.uuids",
+        Services.prefs.getStringPref("extensions.webextensions.uuids"),
+      ],
+    ],
+    clear: [["mail.pane_config.dynamic"], ["mail.threadpane.listview"]],
+  });
+
   await check3PaneState(true, true);
   const tabmail = document.getElementById("tabmail");
   if (tabmail.tabInfo.length > 1) {
@@ -118,12 +128,6 @@ registerCleanupFunction(async () => {
     )}`
   );
   setCachedAllowedSpaces(new Map());
-  Services.prefs.clearUserPref("mail.pane_config.dynamic");
-  Services.prefs.clearUserPref("mail.threadpane.listview");
-  Services.prefs.setStringPref(
-    "extensions.webextensions.uuids",
-    webextensions_uuids
-  );
 });
 
 /**
@@ -456,10 +460,9 @@ async function closeBrowserAction(extension, win = window) {
 
 async function openNewMailWindow(options = {}) {
   if (!options.newAccountWizard) {
-    Services.prefs.setBoolPref(
-      "mail.provider.suppress_dialog_on_startup",
-      true
-    );
+    await SpecialPowers.pushPrefEnv({
+      set: [["mail.provider.suppress_dialog_on_startup", true]],
+    });
   }
 
   const win = window.openDialog(
@@ -471,6 +474,10 @@ async function openNewMailWindow(options = {}) {
     BrowserTestUtils.waitForEvent(win, "focus", true),
     BrowserTestUtils.waitForEvent(win, "activate", true),
   ]);
+
+  if (!options.newAccountWizard) {
+    await SpecialPowers.popPrefEnv();
+  }
 
   return win;
 }
@@ -511,13 +518,11 @@ async function openMessageInTab(msgHdr) {
 
   // Ensure the behaviour pref is set to open a new tab. It is the default,
   // but you never know.
-  const oldPrefValue = Services.prefs.getIntPref("mail.openMessageBehavior");
-  Services.prefs.setIntPref(
-    "mail.openMessageBehavior",
-    MailConsts.OpenMessageBehavior.NEW_TAB
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.openMessageBehavior", MailConsts.OpenMessageBehavior.NEW_TAB]],
+  });
   MailUtils.displayMessages([msgHdr]);
-  Services.prefs.setIntPref("mail.openMessageBehavior", oldPrefValue);
+  await SpecialPowers.popPrefEnv();
 
   const win = Services.wm.getMostRecentWindow("mail:3pane");
   const tab = win.document.getElementById("tabmail").currentTabInfo;

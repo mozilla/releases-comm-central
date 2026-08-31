@@ -382,24 +382,32 @@ add_task(async function testExternalMessage() {
       .setQuery("type=application/x-message-display")
       .finalize();
 
-    Services.prefs.setIntPref(
-      "mail.openMessageBehavior",
-      MailConsts.OpenMessageBehavior[
-        location == "window" ? "NEW_WINDOW" : "NEW_TAB"
-      ]
-    );
+    await SpecialPowers.pushPrefEnv({
+      set: [
+        [
+          "mail.openMessageBehavior",
+          MailConsts.OpenMessageBehavior[
+            location == "window" ? "NEW_WINDOW" : "NEW_TAB"
+          ],
+        ],
+      ],
+    });
 
     MailUtils.openEMLFile(window, messageFile, url);
     extension.sendMessage();
   });
 
   extension.onMessage("openExternalAttachedMessage", async location => {
-    Services.prefs.setIntPref(
-      "mail.openMessageBehavior",
-      MailConsts.OpenMessageBehavior[
-        location == "window" ? "NEW_WINDOW" : "NEW_TAB"
-      ]
-    );
+    await SpecialPowers.pushPrefEnv({
+      set: [
+        [
+          "mail.openMessageBehavior",
+          MailConsts.OpenMessageBehavior[
+            location == "window" ? "NEW_WINDOW" : "NEW_TAB"
+          ],
+        ],
+      ],
+    });
 
     // The message with attachment should be loaded in the 3-pane tab.
     const aboutMessage = tabmail.currentAboutMessage;

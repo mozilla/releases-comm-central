@@ -19,12 +19,14 @@ add_setup(async () => {
 
   // The test uses a deprecated option which throws an error in tests by default.
   ExtensionTestUtils.failOnSchemaWarnings(false);
-  Services.prefs.setStringPref("mail.last_msg_movecopy_target_uri", "");
-  Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", false);
-  registerCleanupFunction(async () => {
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.last_msg_movecopy_target_uri", ""],
+      ["mail.last_msg_movecopy_was_move", false],
+    ],
+  });
+  registerCleanupFunction(() => {
     ExtensionTestUtils.failOnSchemaWarnings(true);
-    Services.prefs.clearUserPref("email.last_msg_movecopy_target_uri");
-    Services.prefs.clearUserPref("email.last_msg_movecopy_was_move");
   });
 });
 

@@ -30,8 +30,7 @@ add_setup(async function setup() {
     messageListTracker.checkSearchCriteriaFnForTests = null;
   });
 
-  // Start with the default page size and restore the original preference when
-  // the test finishes.
+  // Start with no user value for the preference modified by the last test.
   await SpecialPowers.pushPrefEnv({
     clear: [["extensions.webextensions.messagesPerPage"]],
   });
@@ -647,4 +646,6 @@ add_task(async function test_list_auto_early_page_return() {
 
   await extension.awaitFinish("finished");
   await extension.unload();
+
+  await SpecialPowers.popPrefEnv();
 });

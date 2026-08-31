@@ -170,12 +170,8 @@ const subtest_clickInBrowser = async (extension, getBrowser) => {
 };
 
 add_setup(async () => {
-  Services.prefs.setBoolPref(
-    "mail.external_protocol_requires_permission",
-    true
-  );
-  registerCleanupFunction(async () => {
-    Services.prefs.clearUserPref("mail.external_protocol_requires_permission");
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.external_protocol_requires_permission", true]],
   });
 
   const account = createAccount();

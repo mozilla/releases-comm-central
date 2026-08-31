@@ -146,8 +146,12 @@ add_setup(async () => {
   await lazy.SearchService.init();
 
   // Temporarily set this preference to show all headers.
-  Services.prefs.setIntPref("mail.show_headers", 2);
-  Services.prefs.setBoolPref("mailnews.headers.showMessageId", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.show_headers", 2],
+      ["mailnews.headers.showMessageId", true],
+    ],
+  });
 
   gAccount = createAccount();
   addIdentity(gAccount);
@@ -175,11 +179,6 @@ add_setup(async () => {
     folderPaneVisible: true,
     folderURI: gFolder.URI,
     messagePaneVisible: true,
-  });
-
-  registerCleanupFunction(async () => {
-    Services.prefs.clearUserPref("mail.show_headers");
-    Services.prefs.clearUserPref("mailnews.headers.showMessageId");
   });
 });
 
@@ -304,7 +303,9 @@ add_task(async function test_message_panes() {
 
   // Change this preference back to trigger a rebuild of the header view so
   // that "mailnews.headers.showMessageId" takes effect.
-  Services.prefs.setIntPref("mail.show_headers", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.show_headers", 1]],
+  });
 
   await subtest_message_panes(
     ["accountsRead", "messagesRead"],

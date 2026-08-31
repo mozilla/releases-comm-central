@@ -50,11 +50,9 @@ add_task(async function test_content_mv2() {
     folderURI: gFolders[0].URI,
   });
 
-  const oldPref = Services.prefs.getStringPref("mailnews.start_page.url");
-  Services.prefs.setStringPref(
-    "mailnews.start_page.url",
-    `${URL_BASE}/content.html`
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.start_page.url", `${URL_BASE}/content.html`]],
+  });
 
   const loadPromise = BrowserTestUtils.browserLoaded(about3Pane.webBrowser);
   window.goDoCommand("cmd_goStartPage");
@@ -81,8 +79,7 @@ add_task(async function test_content_mv2() {
   );
 
   await extension.unload();
-
-  Services.prefs.setStringPref("mailnews.start_page.url", oldPref);
+  await SpecialPowers.popPrefEnv();
 });
 add_task(async function test_content_tab_mv2() {
   const tab = window.openContentTab(`${URL_BASE}/content.html`);
@@ -164,11 +161,9 @@ add_task(async function test_content_mv3() {
     folderURI: gFolders[0].URI,
   });
 
-  const oldPref = Services.prefs.getStringPref("mailnews.start_page.url");
-  Services.prefs.setStringPref(
-    "mailnews.start_page.url",
-    `${URL_BASE}/content.html`
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.start_page.url", `${URL_BASE}/content.html`]],
+  });
 
   const loadPromise = BrowserTestUtils.browserLoaded(about3Pane.webBrowser);
   window.goDoCommand("cmd_goStartPage");
@@ -195,8 +190,7 @@ add_task(async function test_content_mv3() {
   );
 
   await extension.unload();
-
-  Services.prefs.setStringPref("mailnews.start_page.url", oldPref);
+  await SpecialPowers.popPrefEnv();
 });
 add_task(async function test_content_tab_mv3() {
   const tab = window.openContentTab(`${URL_BASE}/content.html`);

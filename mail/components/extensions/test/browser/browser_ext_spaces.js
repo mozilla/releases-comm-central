@@ -14,9 +14,8 @@ Services.scriptloader.loadSubScript(
 
 add_setup(async () => {
   // Reduce animations to prevent intermittent fails due to late theme changes.
-  Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
-  registerCleanupFunction(() => {
-    Services.prefs.clearUserPref("ui.prefersReducedMotion");
+  await SpecialPowers.pushPrefEnv({
+    set: [["ui.prefersReducedMotion", 1]],
   });
 });
 
