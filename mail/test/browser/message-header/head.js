@@ -15,6 +15,12 @@ var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
+add_setup(async function () {
+  await SpecialPowers.pushPrefEnv({
+    clear: [["mail.pane_config.dynamic"], ["mail.threadpane.listview"]],
+  });
+});
+
 registerCleanupFunction(() => {
   const tabmail = document.getElementById("tabmail");
   is(tabmail.tabInfo.length, 1);
@@ -31,9 +37,6 @@ registerCleanupFunction(() => {
   const mainWindowElement = document.getElementById("button-appmenu");
   mainWindowElement.focus();
   mainWindowElement.blur();
-
-  Services.prefs.clearUserPref("mail.pane_config.dynamic");
-  Services.prefs.clearUserPref("mail.threadpane.listview");
 });
 
 function createAccount(type = "none") {
@@ -81,13 +84,11 @@ async function openMessageInTab(msgHdr) {
 
   // Ensure the behaviour pref is set to open a new tab. It is the default,
   // but you never know.
-  const oldPrefValue = Services.prefs.getIntPref("mail.openMessageBehavior");
-  Services.prefs.setIntPref(
-    "mail.openMessageBehavior",
-    MailConsts.OpenMessageBehavior.NEW_TAB
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.openMessageBehavior", MailConsts.OpenMessageBehavior.NEW_TAB]],
+  });
   MailUtils.displayMessages([msgHdr]);
-  Services.prefs.setIntPref("mail.openMessageBehavior", oldPrefValue);
+  await SpecialPowers.popPrefEnv();
 
   const win = Services.wm.getMostRecentWindow("mail:3pane");
   const tab = win.document.getElementById("tabmail").currentTabInfo;

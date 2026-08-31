@@ -39,7 +39,9 @@ async function waitForL10n() {
 
 add_setup(async function () {
   // Set a value lower than the minimum allowed font size.
-  Services.prefs.setIntPref("mail.uifontsize", 7);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.uifontsize", 7]],
+  });
 
   folder = await create_folder("MessageWindowA");
 
@@ -50,9 +52,8 @@ add_setup(async function () {
 
   await add_message_to_folder([folder], message);
 
-  registerCleanupFunction(async () => {
+  registerCleanupFunction(() => {
     folder.deleteSelf(null);
-    Services.prefs.clearUserPref("mail.uifontsize");
   });
 });
 

@@ -245,23 +245,27 @@ var UNIQUE_ID = "3a9e1694-7115-4237-8b1e-1cabe6e35073";
 add_task(async function test_modified_pref_on_allowlist() {
   const PREFIX = "accessibility.";
   const prefName = PREFIX + UNIQUE_ID;
-  Services.prefs.setBoolPref(prefName, true);
+  await SpecialPowers.pushPrefEnv({
+    set: [[prefName, true]],
+  });
   const tab = await open_about_support();
 
   assert_content_tab_text_present(tab, prefName);
   close_tab(tab);
-  Services.prefs.clearUserPref(prefName);
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
  * Test that a modified preference not on the allowlist doesn't show up.
  */
 add_task(async function test_modified_pref_not_on_allowlist() {
-  Services.prefs.setBoolPref(UNIQUE_ID, true);
+  await SpecialPowers.pushPrefEnv({
+    set: [[UNIQUE_ID, true]],
+  });
   const tab = await open_about_support();
   assert_content_tab_text_absent(tab, UNIQUE_ID);
   close_tab(tab);
-  Services.prefs.clearUserPref(UNIQUE_ID);
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -270,12 +274,14 @@ add_task(async function test_modified_pref_not_on_allowlist() {
 add_task(async function test_modified_pref_on_disallowlist() {
   const PREFIX = "network.proxy.";
   const prefName = PREFIX + UNIQUE_ID;
-  Services.prefs.setBoolPref(prefName, true);
+  await SpecialPowers.pushPrefEnv({
+    set: [[prefName, true]],
+  });
   const tab = await open_about_support();
 
   assert_content_tab_text_absent(tab, prefName);
   close_tab(tab);
-  Services.prefs.clearUserPref(prefName);
+  await SpecialPowers.popPrefEnv();
 });
 
 /**

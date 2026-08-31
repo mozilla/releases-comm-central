@@ -27,15 +27,13 @@ let otherInbox, otherJunk;
 let smartJunk;
 
 add_setup(async function () {
-  Services.prefs.setBoolPref(
-    "mailnews.ui.junk.manualMarkAsJunkMarksRead",
-    true
-  );
-  Services.prefs.setBoolPref("mail.spam.manualMark", true);
-  Services.prefs.setIntPref(
-    "mail.spam.manualMarkMode",
-    Ci.nsISpamSettings.MANUAL_MARK_MODE_MOVE
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mailnews.ui.junk.manualMarkAsJunkMarksRead", true],
+      ["mail.spam.manualMark", true],
+      ["mail.spam.manualMarkMode", Ci.nsISpamSettings.MANUAL_MARK_MODE_MOVE],
+    ],
+  });
 
   const server = MailServices.accounts.localFoldersServer;
   const rootFolder = server.rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);

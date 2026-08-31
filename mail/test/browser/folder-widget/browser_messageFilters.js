@@ -205,14 +205,18 @@ add_task(async function test_forward_filter_action_visibility() {
   }
 
   try {
-    Services.prefs.clearUserPref("mail.filters.forward.enabled");
+    await SpecialPowers.pushPrefEnv({
+      clear: [["mail.filters.forward.enabled"]],
+    });
     await openEditorAndCheck(true);
 
-    Services.prefs.setBoolPref("mail.filters.forward.enabled", false);
+    await SpecialPowers.pushPrefEnv({
+      set: [["mail.filters.forward.enabled", false]],
+    });
     await SimpleTest.promiseFocus(filterWindow);
     await openEditorAndCheck(false);
   } finally {
-    Services.prefs.clearUserPref("mail.filters.forward.enabled");
+    await SpecialPowers.popPrefEnv();
     await BrowserTestUtils.closeWindow(filterWindow);
   }
 });

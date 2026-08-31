@@ -50,14 +50,16 @@ function makeBasicSmtpServer(port = 1, hostname = "localhost") {
     "password",
     { port, hostname }
   );
-
-  // Override the default greeting so we get something predictable
-  // in the ELHO message
-  Services.prefs.setCharPref("mail.smtpserver.default.hello_argument", "test");
   return server;
 }
 
 add_setup(async function () {
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mail.smtpserver.default.hello_argument", "test"],
+      ["mailnews.show_send_progress", false],
+    ],
+  });
   gServer = setupServerDaemon();
   gServer.start();
 
@@ -82,13 +84,11 @@ add_setup(async function () {
   const localRoot = server.rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   testFolder = localRoot.createLocalSubfolder("Test Folder");
   addMessageToFolder(testFolder);
-  Services.prefs.setBoolPref("mailnews.show_send_progress", false);
 
   registerCleanupFunction(() => {
     gServer.stop();
     testFolder.deleteSelf(null);
     MailServices.accounts.removeAccount(account, true);
-    Services.prefs.clearUserPref("mailnews.show_send_progress");
   });
 });
 

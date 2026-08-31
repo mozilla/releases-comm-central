@@ -37,12 +37,13 @@ var msgBodyStart =
 var msgBodyEnd = "</body>\n</html>\n";
 
 add_setup(async () => {
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.message_display.disable_remote_image", false]],
+  });
+
   folder = await create_folder("blockExceptionContentPolicy");
   registerCleanupFunction(() => {
     folder.deleteSelf(null);
-    Services.prefs.clearUserPref(
-      "mailnews.message_display.disable_remote_image"
-    );
   });
 });
 
@@ -111,12 +112,6 @@ function addToFolder(aSubject, aBody, aFolder) {
 add_task(async function test_blockSenderWhenGlobalAllow() {
   await be_in_folder(folder);
 
-  // Enable global "Allow remote content".
-  Services.prefs.setBoolPref(
-    "mailnews.message_display.disable_remote_image",
-    false
-  );
-
   // Add a Block exception for the sender.
   const senderURI = Services.io.newURI(
     "chrome://messenger/content/email=tests@example.com"
@@ -170,12 +165,6 @@ add_task(async function test_blockSenderWhenGlobalAllow() {
 add_task(async function test_allowWhenGlobalAllowNoExceptions() {
   await be_in_folder(folder);
 
-  // Enable global "Allow remote content".
-  Services.prefs.setBoolPref(
-    "mailnews.message_display.disable_remote_image",
-    false
-  );
-
   // Create a message with a remote image (no block exceptions set).
   const msgDbHdr = addToFolder(
     "allow no exceptions test",
@@ -210,12 +199,6 @@ add_task(async function test_allowWhenGlobalAllowNoExceptions() {
  */
 add_task(async function test_blockContentURLWhenGlobalAllow() {
   await be_in_folder(folder);
-
-  // Enable global "Allow remote content".
-  Services.prefs.setBoolPref(
-    "mailnews.message_display.disable_remote_image",
-    false
-  );
 
   // Add a Block exception for the image host.
   const imageURI = Services.io.newURI(url);

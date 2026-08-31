@@ -78,7 +78,9 @@ add_task(async function test_install_xpi_offer() {
 });
 
 add_task(async function test_xpinstall_disabled() {
-  Services.prefs.setBoolPref("xpinstall.enabled", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["xpinstall.enabled", false]],
+  });
 
   // Try installation again - this time we'll get an install has been disabled message.
   await BrowserTestUtils.synthesizeMouseAtCenter(
@@ -91,7 +93,7 @@ add_task(async function test_xpinstall_disabled() {
     ".popup-notification-secondary-button"
   );
 
-  Services.prefs.clearUserPref("xpinstall.enabled");
+  await SpecialPowers.popPrefEnv();
 });
 
 add_task(async function test_xpinstall_actually_install() {

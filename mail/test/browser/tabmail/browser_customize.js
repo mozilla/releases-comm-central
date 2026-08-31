@@ -21,13 +21,10 @@ const { promise_element_visible, promise_element_invisible } =
     "resource://testing-common/mail/DOMHelpers.sys.mjs"
   );
 
-add_setup(function () {
-  Services.prefs.setBoolPref("mail.tabs.autoHide", false);
-});
-
-registerCleanupFunction(function () {
-  // Let's reset any and all of our changes to the toolbar
-  Services.prefs.clearUserPref("mail.tabs.autoHide");
+add_setup(async function () {
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.tabs.autoHide", false]],
+  });
 });
 
 /**

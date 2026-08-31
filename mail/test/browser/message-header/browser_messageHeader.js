@@ -622,7 +622,9 @@ add_task(async function test_clicking_ab_button_opens_inline_contact_editor() {
  * Test that clicking references context menu works properly.
  */
 add_task(async function test_msg_id_context_menu() {
-  Services.prefs.setBoolPref("mailnews.headers.showReferences", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.headers.showReferences", true]],
+  });
 
   // Add a new message.
   const msg = create_message({
@@ -671,7 +673,7 @@ add_task(async function test_msg_id_context_menu() {
   );
 
   // Reset the preferences.
-  Services.prefs.setBoolPref("mailnews.headers.showReferences", false);
+  await SpecialPowers.popPrefEnv();
 });
 
 /**
@@ -790,10 +792,9 @@ add_task(
  */
 add_task(async function test_add_contact_from_context_menu() {
   const defaultAddBook = create_address_book("Default Add Address Book");
-  Services.prefs.setStringPref(
-    "mail.addr_book.add_item_default_uri",
-    defaultAddBook.URI
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.addr_book.add_item_default_uri", defaultAddBook.URI]],
+  });
 
   const popup = aboutMessage.document.getElementById("emailAddressPopup");
   // Click the contact to show the emailAddressPopup popup menu.
@@ -891,7 +892,7 @@ add_task(async function test_add_contact_from_context_menu() {
     "should not find a (second) card as we deleted it already"
   );
 
-  Services.prefs.clearUserPref("mail.addr_book.add_item_default_uri");
+  await SpecialPowers.popPrefEnv();
   MailServices.ab.deleteAddressBook(defaultAddBook.URI);
 });
 

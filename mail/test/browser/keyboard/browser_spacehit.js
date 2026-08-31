@@ -24,7 +24,6 @@ var { make_message_sets_in_folders } = ChromeUtils.importESModule(
 
 // Get original preference value.
 var prefName = "mail.advance_on_spacebar";
-var prefValue = Services.prefs.getBoolPref(prefName);
 
 add_setup(async function () {
   // Create six unread messages in a sample folder.
@@ -37,11 +36,6 @@ add_setup(async function () {
   await be_in_folder(folder);
 });
 
-registerCleanupFunction(function () {
-  // Restore original preference value.
-  Services.prefs.setBoolPref(prefName, prefValue);
-});
-
 /**
  * The second of six simple messages is selected and [Shift-]Space is
  * pressed to determine if focus changes to a new message.
@@ -51,7 +45,9 @@ registerCleanupFunction(function () {
  */
 async function subtest_advance_on_spacebar(shouldAdvance, isShiftPressed) {
   // Set preference.
-  Services.prefs.setBoolPref(prefName, shouldAdvance);
+  await SpecialPowers.pushPrefEnv({
+    set: [[prefName, shouldAdvance]],
+  });
   // Select the second message.
   const oldMessage = await select_click_row(1);
   await wait_for_message_display_completion(window);
@@ -113,7 +109,9 @@ async function subtest_advance_on_spacebar_browser(
   isShiftPressed
 ) {
   // Set preference.
-  Services.prefs.setBoolPref(prefName, shouldAdvance);
+  await SpecialPowers.pushPrefEnv({
+    set: [[prefName, shouldAdvance]],
+  });
   // Select the fifth message.
   const oldMessage = await select_click_row(4);
   await wait_for_message_display_completion(window);

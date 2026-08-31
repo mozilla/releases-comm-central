@@ -788,10 +788,9 @@ add_task(async function test_imgAuth() {
   );
 
   // Allow loading remote, to be able to test.
-  Services.prefs.setBoolPref(
-    "mailnews.message_display.disable_remote_image",
-    false
-  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.message_display.disable_remote_image", false]],
+  });
 
   // Select the newly created message.
   await be_in_folder(folder);
@@ -804,7 +803,7 @@ add_task(async function test_imgAuth() {
   const fwc = await open_compose_with_forward();
   await close_compose_window(fwc);
 
-  Services.prefs.clearUserPref("mailnews.message_display.disable_remote_image");
+  await SpecialPowers.popPrefEnv();
 });
 
 /** Make sure remote images work in signatures. */

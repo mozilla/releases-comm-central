@@ -119,7 +119,9 @@ add_setup(async function () {
 
   // Opt out of calendar promotion so we don't show the "lighting now
   // integrated" notification bar (which gives us unexpected heights).
-  Services.prefs.setBoolPref("calendar.integration.notify", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.integration.notify", false]],
+  });
 });
 
 registerCleanupFunction(function () {
@@ -366,7 +368,9 @@ add_task(async function test_message_pane_width_persistence() {
     Services.prefs.getIntPref("mail.pane_config.dynamic"),
     kClassicMailLayout
   );
-  Services.prefs.setIntPref("mail.pane_config.dynamic", kVerticalMailLayout);
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.pane_config.dynamic", kVerticalMailLayout]],
+  });
   Assert.equal(
     Services.prefs.getIntPref("mail.pane_config.dynamic"),
     kVerticalMailLayout
@@ -490,7 +494,7 @@ add_task(async function test_message_pane_width_persistence() {
   );
 
   // The layout is reset to classical mail layout.
-  Services.prefs.setIntPref("mail.pane_config.dynamic", kClassicMailLayout);
+  await SpecialPowers.popPrefEnv();
 
   Assert.equal(
     Services.prefs.getIntPref("mail.pane_config.dynamic"),

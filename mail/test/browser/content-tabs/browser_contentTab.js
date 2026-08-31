@@ -164,7 +164,9 @@ add_task(async function test_content_tab_onbeforeunload() {
   });
 
   const interactionPref = "dom.require_user_interaction_for_beforeunload";
-  Services.prefs.setBoolPref(interactionPref, false);
+  await SpecialPowers.pushPrefEnv({
+    set: [[interactionPref, false]],
+  });
 
   // Deny closing the tab.
   const denyTabCloseDialogPromise =
@@ -192,7 +194,7 @@ add_task(async function test_content_tab_onbeforeunload() {
     "Number of open tabs should be correct after tab was closed"
   );
 
-  Services.prefs.clearUserPref(interactionPref);
+  await SpecialPowers.popPrefEnv();
 });
 
 // XXX todo
