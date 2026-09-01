@@ -50,7 +50,7 @@ async function test_parse_header_without_linebreak() {
   parser.SetMailDB(localAccountUtils.inboxFolder.getDatabaseWOReparse());
   parser.state = Ci.nsIMsgParseMailMsgState.ParseHeadersState;
 
-  const header = "X:" + "A".repeat(16382);
+  const header = "Subject: " + "A".repeat(16375);
   parser.ParseAFolderLine(header, header.length);
   parser.ParseAFolderLine(MSG_LINEBREAK, MSG_LINEBREAK.length);
 }
