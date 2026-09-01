@@ -234,11 +234,27 @@ Enigmail.hdrView = {
 
       this.msgSignatureState = EnigmailConstants.MSG_SIG_NONE;
     } else if (statusFlags & EnigmailConstants.DECRYPTION_OKAY) {
+      const isSubPartView =
+        /[?&]part=/.test(this.lastEncryptedUri) ||
+        /[?&]examineEncryptedParts=true/.test(this.lastEncryptedUri);
+      // Don't claim integrity protection when rendering MIME sub parts
+      // or when processing an inline PGP subset.
+      const integrityProtected =
+        !isSubPartView &&
+        !(statusFlags & EnigmailConstants.PARTIALLY_PGP) &&
+        !!(extStatusFlags & EnigmailConstants.EXT_INTEGRITY_PROTECTED);
+
       this.lastEncryptedNeckoUri = MailServices.neckoURLForMessageURI(
         this.lastEncryptedUri
       );
-      gEncryptedURIService.rememberEncrypted(this.lastEncryptedUri);
-      gEncryptedURIService.rememberEncrypted(this.lastEncryptedNeckoUri);
+      gEncryptedURIService.rememberEncrypted(
+        this.lastEncryptedUri,
+        integrityProtected
+      );
+      gEncryptedURIService.rememberEncrypted(
+        this.lastEncryptedNeckoUri,
+        integrityProtected
+      );
       encrypted = "ok";
       this.msgEncryptionState = EnigmailConstants.MSG_ENC_OK;
     }

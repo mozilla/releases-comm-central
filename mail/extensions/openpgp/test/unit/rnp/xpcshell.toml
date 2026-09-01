@@ -17,6 +17,8 @@ skip-if = ["os != 'linux'"]
 
 ["test_externalSigningKey.js"]
 
+["test_integrityProtection.js"]
+
 ["test_revocation.js"]
 
 ["test_secretKeys.js"]

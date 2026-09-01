@@ -134,7 +134,7 @@ nsEncryptedMsgURIsService::nsEncryptedMsgURIsService() {}
 nsEncryptedMsgURIsService::~nsEncryptedMsgURIsService() {}
 
 NS_IMETHODIMP nsEncryptedMsgURIsService::RememberEncrypted(
-    const nsACString& uri) {
+    const nsACString& uri, bool aIsIntegrityProtected) {
   if (uri.IsEmpty()) {
     return NS_ERROR_INVALID_ARG;
   }
@@ -144,8 +144,24 @@ NS_IMETHODIMP nsEncryptedMsgURIsService::RememberEncrypted(
   if (key.IsEmpty()) {
     return NS_ERROR_FAILURE;
   }
-  // Assuming duplicates are allowed.
+  // Appended per registration, keeping duplicates; see mEncryptedURIs.
   mEncryptedURIs.AppendElement(key);
+
+  if (aIsIntegrityProtected) {
+    // Only mark as integrity protected if no earlier registration of this URI
+    // claimed the opposite.
+    if (!mIntegrityViolatedURIs.Contains(key)) {
+      mIntegrityProtectedURIs.Insert(key);
+    }
+  } else {
+    // A registration without integrity protection permanently (for the
+    // lifetime of the remembered URI) removes the integrity claim. Producers
+    // offering different integrity guarantees can register the same URI in an
+    // unspecified order, so the more restrictive claim must win regardless of
+    // which one arrives last.
+    mIntegrityProtectedURIs.Remove(key);
+    mIntegrityViolatedURIs.Insert(key);
+  }
   return NS_OK;
 }
 
@@ -159,9 +175,16 @@ NS_IMETHODIMP nsEncryptedMsgURIsService::ForgetEncrypted(
   if (key.IsEmpty()) {
     return NS_ERROR_FAILURE;
   }
-  // Assuming, this will only remove one copy of the string, if the array
-  // contains multiple copies of the same string.
+  // Removes a single entry, balancing one RememberEncrypted() call.
   mEncryptedURIs.RemoveElement(key);
+
+  // Entries of other registrations may remain, and the URI is then still
+  // encrypted. Discard the integrity state together with the last entry, so
+  // that a later unrelated display of the same URI starts from a clean slate.
+  if (!mEncryptedURIs.Contains(key)) {
+    mIntegrityProtectedURIs.Remove(key);
+    mIntegrityViolatedURIs.Remove(key);
+  }
   return NS_OK;
 }
 
@@ -178,5 +201,23 @@ NS_IMETHODIMP nsEncryptedMsgURIsService::IsEncrypted(const nsACString& uri,
     return NS_OK;
   }
   *_retval = mEncryptedURIs.Contains(key);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsEncryptedMsgURIsService::IsEncryptedWithoutIntegrity(
+    const nsACString& uri, bool* _retval) {
+  NS_ENSURE_ARG_POINTER(_retval);
+  *_retval = false;
+  if (uri.IsEmpty()) {
+    return NS_OK;
+  }
+  nsAutoCString key;
+  NormalizeURI(uri, key);
+  if (key.IsEmpty()) {
+    return NS_OK;
+  }
+  *_retval =
+      mEncryptedURIs.Contains(key) && (!mIntegrityProtectedURIs.Contains(key) ||
+                                       mIntegrityViolatedURIs.Contains(key));
   return NS_OK;
 }

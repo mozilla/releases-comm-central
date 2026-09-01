@@ -108,6 +108,7 @@ export var EnigmailConstants = {
   /* Extended status flags */
   EXT_SELF_IDENTITY: 0x00000001,
   EXT_SIGNING_TIME_MISMATCH: 0x00000002,
+  EXT_INTEGRITY_PROTECTED: 0x00000004,
 
   /* UI message status flags */
   MSG_SIG_NONE: 0,

@@ -190,3 +190,124 @@ add_task(function test_unnormalizableSchemeExactMatch() {
   service.forgetEncrypted(a);
   Assert.ok(!service.isEncrypted(a), "cleanup");
 });
+
+// The "integrity protected" dimension (bug 1994709). The remote-content gate in
+// nsMsgContentPolicy blocks remote content for an encrypted message iff the
+// service reports isEncryptedWithoutIntegrity(); the integrity state is keyed on
+// the same normalized key as the encrypted state.
+
+add_task(function test_integrity_unknownUri() {
+  const uri = `mailbox://${FOLDER_PATH}?number=20`;
+  Assert.ok(!service.isEncrypted(uri), "unknown URI should not be encrypted");
+  Assert.ok(
+    !service.isEncryptedWithoutIntegrity(uri),
+    "an unknown URI should not be an encrypted URI lacking integrity"
+  );
+});
+
+add_task(function test_integrity_defaultIsNotProtected() {
+  // S/MIME (and any caller that omits the flag) must never be reported as
+  // integrity protected -> stays hard-blocked.
+  const uri = `mailbox://${FOLDER_PATH}?number=21`;
+  service.rememberEncrypted(uri);
+  Assert.ok(service.isEncrypted(uri), "remembered as encrypted");
+  Assert.ok(
+    service.isEncryptedWithoutIntegrity(uri),
+    "default (no flag) is not integrity protected"
+  );
+  service.forgetEncrypted(uri);
+});
+
+add_task(function test_integrity_explicitFalse() {
+  const uri = `mailbox://${FOLDER_PATH}?number=22`;
+  service.rememberEncrypted(uri, false);
+  Assert.ok(service.isEncrypted(uri));
+  Assert.ok(
+    service.isEncryptedWithoutIntegrity(uri),
+    "explicit false is not protected"
+  );
+  service.forgetEncrypted(uri);
+});
+
+add_task(function test_integrity_protected() {
+  const uri = `mailbox://${FOLDER_PATH}?number=23`;
+  service.rememberEncrypted(uri, true);
+  Assert.ok(service.isEncrypted(uri));
+  Assert.ok(!service.isEncryptedWithoutIntegrity(uri), "integrity protected");
+  service.forgetEncrypted(uri);
+  Assert.ok(!service.isEncrypted(uri));
+  Assert.ok(
+    !service.isEncryptedWithoutIntegrity(uri),
+    "integrity state cleared after forget"
+  );
+});
+
+add_task(function test_integrity_trueThenFalseIsUnprotected() {
+  // If any registration of a URI lacks integrity protection, the URI must not
+  // be reported as integrity protected, even if another registration claimed
+  // it was. Producers with different guarantees may register the same URI in
+  // either order.
+  const uri = `mailbox://${FOLDER_PATH}?number=24`;
+  service.rememberEncrypted(uri, true);
+  Assert.ok(
+    !service.isEncryptedWithoutIntegrity(uri),
+    "protected after first register"
+  );
+  service.rememberEncrypted(uri, false);
+  Assert.ok(
+    service.isEncryptedWithoutIntegrity(uri),
+    "poisoned: a later unprotected register wins"
+  );
+  Assert.ok(service.isEncrypted(uri), "still encrypted, still blocked");
+  service.forgetEncrypted(uri);
+  service.forgetEncrypted(uri);
+  Assert.ok(!service.isEncrypted(uri));
+});
+
+add_task(function test_integrity_falseThenTrueStaysUnprotected() {
+  const uri = `mailbox://${FOLDER_PATH}?number=25`;
+  service.rememberEncrypted(uri, false);
+  service.rememberEncrypted(uri, true);
+  Assert.ok(
+    service.isEncryptedWithoutIntegrity(uri),
+    "poison persists: cannot upgrade to protected within a session"
+  );
+  service.forgetEncrypted(uri);
+  service.forgetEncrypted(uri);
+  Assert.ok(!service.isEncrypted(uri));
+});
+
+add_task(function test_integrity_forgetRefcountThenCleanSlate() {
+  const uri = `mailbox://${FOLDER_PATH}?number=26`;
+  // Two protected registrations (message URI + necko URL both remembered, and
+  // reloads can add more).
+  service.rememberEncrypted(uri, true);
+  service.rememberEncrypted(uri, true);
+  service.forgetEncrypted(uri);
+  Assert.ok(service.isEncrypted(uri), "still encrypted after one forget");
+  Assert.ok(
+    !service.isEncryptedWithoutIntegrity(uri),
+    "still protected after one forget"
+  );
+  service.forgetEncrypted(uri);
+  Assert.ok(!service.isEncrypted(uri), "fully forgotten");
+
+  // A fresh, unprotected display of the same URI must start from a clean slate.
+  service.rememberEncrypted(uri, false);
+  Assert.ok(
+    service.isEncryptedWithoutIntegrity(uri),
+    "clean slate, now unprotected"
+  );
+  service.forgetEncrypted(uri);
+});
+
+add_task(function test_integrity_requiresEncrypted() {
+  const uri = `mailbox://${FOLDER_PATH}?number=27`;
+  service.rememberEncrypted(uri, true);
+  service.forgetEncrypted(uri);
+  Assert.ok(!service.isEncrypted(uri));
+  Assert.ok(
+    !service.isEncryptedWithoutIntegrity(uri),
+    "a forgotten URI is not an encrypted URI lacking integrity"
+  );
+});

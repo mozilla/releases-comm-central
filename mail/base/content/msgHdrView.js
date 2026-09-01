@@ -505,11 +505,18 @@ var MsgHdrViewObserver = {
         browser.browsingContext.id == data ||
         browser.browsingContext == BrowsingContext.get(data)?.top
       ) {
-        gMessageNotificationBar.setRemoteContentMsg(
-          null,
-          subject,
-          !gEncryptedURIService.isEncrypted(browser.currentURI.spec)
+        // Offer the "load remote content" override for non-encrypted mail and,
+        // as of bug 1994709, for integrity-protected OpenPGP mail (MDC/AEAD).
+        // No override allowed for encrypted mail without integrity protection.
+        const canOverride = !gEncryptedURIService.isEncryptedWithoutIntegrity(
+          browser.currentURI.spec
         );
+        if (!canOverride) {
+          console.warn(
+            "Remote content unconditionally blocked due to missing integrity protection."
+          );
+        }
+        gMessageNotificationBar.setRemoteContentMsg(null, subject, canOverride);
       }
     }
   },

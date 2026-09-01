@@ -2220,6 +2220,8 @@ export var RNP = {
               result.encToDetails.myRecipKey
             );
             result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_OKAY;
+            result.extStatusFlags |=
+              lazy.EnigmailConstants.EXT_INTEGRITY_PROTECTED;
           }
         }
       }

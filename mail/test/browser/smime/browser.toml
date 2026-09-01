@@ -27,4 +27,6 @@ support-files = ["data/**"]
 
 ["browser_nestedSMimeSigs.js"]
 
+["browser_remoteContent.js"]
+
 ["browser_smimeSignedPartDispatch.js"]
