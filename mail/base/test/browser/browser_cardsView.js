@@ -408,6 +408,10 @@ add_task(async function test_status_indicator_fluent() {
   await TestUtils.waitForTick();
 
   tableRow = about3Pane.threadTree.getRowAtIndex(2);
+  // Rows are only filled on the animation frame after their index is set, so
+  // wait for one before inspecting the row's content.
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
+
   readStatus = tableRow.querySelector(".read-status");
   Assert.ok(
     BrowserTestUtils.isVisible(readStatus),
