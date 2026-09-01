@@ -58,6 +58,12 @@ tasks:
                             '1': true
                             default: false
                     default: false
+            pin-channels:
+                by-release-type:
+                    beta: ["beta"]
+                    release: ["release"]
+                    esr.*: ["esr", "esr-next"]
+                    default: []
         treeherder:
             platform: thunderbird-release/opt
             symbol: Rel(BS)

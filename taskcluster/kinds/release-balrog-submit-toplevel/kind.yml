@@ -48,6 +48,12 @@ tasks:
                     release(-rc)?: ["thunderbird-release-cdntest", "thunderbird-release-localtest"]
                     esr153: ["thunderbird-esr153-cdntest", "thunderbird-esr153-localtest"]
                     default: []
+            pin-channels:
+                by-release-type:
+                    beta: ["beta-localtest", "beta-cdntest"]
+                    release(-rc)?: ["release-localtest", "release-cdntest"]
+                    esr.*: ["esr-localtest", "esr-cdntest", "esr-localtest-next", "esr-cdntest-next"]
+                    default: []
             platforms: ["linux", "linux64", "macosx64", "win32", "win64"]
         treeherder:
             platform: thunderbird-release/opt
