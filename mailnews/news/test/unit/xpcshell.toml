@@ -4,8 +4,6 @@ support-files = ["postings/*"]
 
 ["test_NntpChannel.js"]
 
-["test_removeExpiredArticles.js"]
-
 ["test_biff.js"]
 
 ["test_bug37465.js"]
@@ -50,6 +48,8 @@ run-sequentially = true  # Restarts server twice--may work but dangerous
 ["test_nntpProxy.js"]
 
 ["test_nntpUrl.js"]
+
+["test_removeExpiredArticles.js"]
 
 ["test_server.js"]
 run-sequentially = true  # Uses fixed NNTP_PORT

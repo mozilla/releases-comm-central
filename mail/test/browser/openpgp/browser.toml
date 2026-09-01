@@ -22,9 +22,9 @@ tags = ["openpgp"]
 
 ["browser_collectKeys.js"]
 
-["browser_encryptedUriCleanup.js"]
-
 ["browser_encryptedRemoteContentFromFile.js"]
+
+["browser_encryptedUriCleanup.js"]
 
 ["browser_inlineOpenPGP.js"]
 

@@ -4,7 +4,6 @@
 
 #include "nsCMSSecureMessage.h"
 
-
 #include "ScopedNSSTypes.h"
 #include "SharedCertVerifier.h"
 #include "cms.h"

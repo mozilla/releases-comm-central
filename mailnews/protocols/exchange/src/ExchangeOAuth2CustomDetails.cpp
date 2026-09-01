@@ -211,7 +211,8 @@ NS_IMETHODIMP ExchangeOAuth2CustomDetails::GetClientSecret(nsACString& value) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP ExchangeOAuth2CustomDetails::GetIssuerIdentifier(nsACString& value) {
+NS_IMETHODIMP ExchangeOAuth2CustomDetails::GetIssuerIdentifier(
+    nsACString& value) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

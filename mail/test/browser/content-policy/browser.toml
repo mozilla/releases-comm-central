@@ -22,13 +22,13 @@ skip-if = [
 subsuite = "thunderbird"
 support-files = ["html/**"]
 
+["browser_blockException.js"]
+
 ["browser_composeMailto.js"]
 
 ["browser_dnsPrefetch.js"]
 
 ["browser_exposedInContentTabs.js"]
-
-["browser_blockException.js"]
 
 ["browser_generalContentPolicy.js"]
 skip-if = [

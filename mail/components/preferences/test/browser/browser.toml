@@ -22,9 +22,11 @@ support-files = [
 
 ["browser_compose.js"]
 
-["browser_fontChooser.js"]
-
 ["browser_dataCollectionSettingsDisabled.js"]
+
+["browser_experimentalFeaturesDisabled.js"]
+
+["browser_fontChooser.js"]
 
 ["browser_general.js"]
 support-files = ["files/complete.oga"]
@@ -36,16 +38,14 @@ support-files = ["files/complete.oga"]
 ["browser_qrCodeWizard.js"]
 support-files = ["files/qrCodeWizard.xhtml"]
 
-["browser_experimentalFeaturesDisabled.js"]
-
-["browser_qrExportDisabled.js"]
-
 ["browser_qrExport.js"]
 
-["browser_updateSettingsDisabled.js"]
+["browser_qrExportDisabled.js"]
 
 ["browser_sync.js"]
 skip-if = [
   "!sync",
 ]
 support-files = ["files/avatar.png"]
+
+["browser_updateSettingsDisabled.js"]

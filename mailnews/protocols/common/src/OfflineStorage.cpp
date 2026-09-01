@@ -342,7 +342,8 @@ nsresult LocalCopyVirtualFolder(nsIMsgFolder* virtualSourceFolder,
   }
   nsCOMPtr<nsIMsgCopyService> copyService =
       mozilla::components::Copy::Service();
-  return copyService->NotifyCompletion(virtualSourceFolder, destinationFolder, rv);
+  return copyService->NotifyCompletion(virtualSourceFolder, destinationFolder,
+                                       rv);
 }
 
 nsresult LocalDeleteMessages(

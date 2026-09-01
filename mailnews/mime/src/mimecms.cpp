@@ -295,8 +295,8 @@ class SignedStatusRunnable : public mozilla::Runnable {
  public:
   SignedStatusRunnable(const nsMainThreadPtrHandle<nsIMsgSMIMESink>& aSink,
                        int32_t aNestingLevel, int32_t aSignatureStatus,
-                       const nsCOMPtr<nsISMimeVerificationFailure>& aReason, nsIX509Cert* aSignerCert,
-                       const nsCString& aMsgNeckoURL,
+                       const nsCOMPtr<nsISMimeVerificationFailure>& aReason,
+                       nsIX509Cert* aSignerCert, const nsCString& aMsgNeckoURL,
                        const nsCString& aOriginMimePartNumber,
                        const nsCString& aSignatureAlgorithm,
                        const nsCString& aDigestAlgorithm);
@@ -317,8 +317,10 @@ class SignedStatusRunnable : public mozilla::Runnable {
 
 SignedStatusRunnable::SignedStatusRunnable(
     const nsMainThreadPtrHandle<nsIMsgSMIMESink>& aSink, int32_t aNestingLevel,
-    int32_t aSignatureStatus, const nsCOMPtr<nsISMimeVerificationFailure>& aNssReason, nsIX509Cert* aSignerCert,
-    const nsCString& aMsgNeckoURL, const nsCString& aOriginMimePartNumber,
+    int32_t aSignatureStatus,
+    const nsCOMPtr<nsISMimeVerificationFailure>& aNssReason,
+    nsIX509Cert* aSignerCert, const nsCString& aMsgNeckoURL,
+    const nsCString& aOriginMimePartNumber,
     const nsCString& aSignatureAlgorithm, const nsCString& aDigestAlgorithm)
     : mozilla::Runnable("SignedStatusRunnable"),
       mResult(NS_ERROR_UNEXPECTED),
@@ -341,7 +343,8 @@ NS_IMETHODIMP SignedStatusRunnable::Run() {
 
 nsresult ProxySignedStatus(const nsMainThreadPtrHandle<nsIMsgSMIMESink>& aSink,
                            int32_t aNestingLevel, int32_t aSignatureStatus,
-                           const nsCOMPtr<nsISMimeVerificationFailure> aReason, nsIX509Cert* aSignerCert,
+                           const nsCOMPtr<nsISMimeVerificationFailure> aReason,
+                           nsIX509Cert* aSignerCert,
                            const nsCString& aMsgNeckoURL,
                            const nsCString& aOriginMimePartNumber,
                            const nsCString& aSignatureAlgorithm,

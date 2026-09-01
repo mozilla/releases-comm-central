@@ -12,6 +12,9 @@ prefs = [
 ]
 subsuite = "thunderbird"
 
+["browser_openPdfAttachment.js"]
+support-files = ["data/attachment.pdf"]
+
 ["browser_sendMessage.js"]
 
 ["browser_sendMessage_background.js"]
@@ -28,6 +31,3 @@ tags = ["oauth"]
 ["browser_sendMessage_progress.js"]
 
 ["browser_sendMessage_spellCheck.js"]
-
-["browser_openPdfAttachment.js"]
-support-files = ["data/attachment.pdf"]

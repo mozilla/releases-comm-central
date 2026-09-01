@@ -25,10 +25,6 @@ tags = ["archive"]
 
 ["test_devtools_url.js"]
 
-["test_viewWrapper_virtualFolderDeleted.js"]
-run-sequentially = true  # Avoid bustage.
-tags = ["virtualfolders"]
-
 ["test_emptyTrash_dbViewWrapper.js"]
 run-sequentially = true  # Avoid bustage.
 
@@ -70,8 +66,8 @@ run-sequentially = true  # Avoid bustage.
 
 ["test_viewWrapper_realFolder.js"]
 run-if = [
+  "debug",
   "os != 'mac'",
-  "debug"
 ]
 reason = "osx shippable perma failures"
 
@@ -80,5 +76,9 @@ requesttimeoutfactor = 2
 tags = ["virtualfolders"]
 
 ["test_viewWrapper_virtualFolderCustomTerm.js"]
+run-sequentially = true  # Avoid bustage.
+tags = ["virtualfolders"]
+
+["test_viewWrapper_virtualFolderDeleted.js"]
 run-sequentially = true  # Avoid bustage.
 tags = ["virtualfolders"]

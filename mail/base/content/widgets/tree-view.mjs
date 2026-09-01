@@ -1362,7 +1362,6 @@ export class TreeView extends BaseTreeView {
     this.addEventListener("keyup", this);
   }
 
-  // eslint-disable-next-line complexity
   handleEvent(event) {
     switch (event.type) {
       case "keyup": {

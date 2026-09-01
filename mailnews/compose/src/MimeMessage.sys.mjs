@@ -380,7 +380,6 @@ export class MimeMessage {
       this._compFields.composeSecure.signFormat == "unobtrusive";
     const forceEncodingFor = body =>
       this._compFields.forceMsgEncoding &&
-      // eslint-disable-next-line no-control-regex
       !(isUnobtrusiveSig && !/[^\t\r\n\x20-\x7e]/.test(body));
     let formatParam = "";
     if (formatFlowed) {

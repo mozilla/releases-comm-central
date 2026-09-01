@@ -9,8 +9,8 @@ support-files = ["data/*"]
 ["test_attachment_intl.js"]
 
 ["test_autoReply.js"]
-skip-if = [
-  "os == 'mac'",
+run-if = [
+   "os != 'mac'",
 ]
 
 ["test_bcc.js"]
@@ -31,11 +31,11 @@ skip-if = [
 
 ["test_fccReply.js"]
 
-["test_forwardMergeMixedCharsets.js"]
-
 ["test_forwardInlineAllHeaders.js"]
 
 ["test_forwardInlineMalformedAttachment.js"]
+
+["test_forwardMergeMixedCharsets.js"]
 
 ["test_longLines.js"]
 

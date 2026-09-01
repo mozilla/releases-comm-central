@@ -776,8 +776,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
       }
 
       if (bccList) {
-        m_newMsgHdr->SetBccList(
-            nsCString(bccList->value, bccList->length));
+        m_newMsgHdr->SetBccList(nsCString(bccList->value, bccList->length));
       }
 
       rv = InternSubject(subject);
@@ -942,7 +941,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
             m_newMsgHdr->SetStringProperty(
                 m_customDBHeaders[i].get(),
                 nsCString(m_customDBHeaderData[i].value,
-                                   m_customDBHeaderData[i].length));
+                          m_customDBHeaderData[i].length));
           // The received header is accumulated separately
           if (m_customDBHeaders[i].EqualsLiteral("received") &&
               !m_receivedValue.IsEmpty())
@@ -957,7 +956,8 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
             if (charset) {
               charset++;
               /* strip leading whitespace and double-quote */
-              while (charset < ctEnd && (IS_SPACE(*charset) || '\"' == *charset))
+              while (charset < ctEnd &&
+                     (IS_SPACE(*charset) || '\"' == *charset))
                 charset++;
               /* strip trailing whitespace and double-quote */
               char* end = charset;
@@ -972,8 +972,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
                   rawCharSet.Assign(charset, end - charset);
                   m_newMsgHdr->SetCharset(rawCharSet);
                 } else {
-                  m_newMsgHdr->SetCharset(
-                      nsCString(charset, end - charset));
+                  m_newMsgHdr->SetCharset(nsCString(charset, end - charset));
                 }
               }
             }
