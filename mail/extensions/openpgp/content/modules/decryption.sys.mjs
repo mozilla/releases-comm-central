@@ -557,7 +557,9 @@ export var EnigmailDecryption = {
           lazy.l10n.formatValueSync("attachment-pgp-key", {
             name: displayName,
           }),
-          Services.prompt.STD_OK_CANCEL_BUTTONS,
+          Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
+            Services.prompt.BUTTON_POS_1 *
+              Services.prompt.BUTTON_TITLE_IS_STRING,
           lazy.l10n.formatValueSync("key-man-button-import"),
           lazy.l10n.formatValueSync("dlg-button-view"),
           null,
