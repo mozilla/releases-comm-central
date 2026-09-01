@@ -9,6 +9,7 @@ messenger.jar:
     content/messenger/messengercompose/cloudAttachmentLinkManager.js (content/cloudAttachmentLinkManager.js)
     content/messenger/messengercompose/addressingWidgetOverlay.js    (content/addressingWidgetOverlay.js)
     content/messenger/messengercompose/composeWidgets.mjs            (content/composeWidgets.mjs)
+    content/messenger/messengercompose/subjectSpellCheckMenu.mjs     (content/subjectSpellCheckMenu.mjs)
     content/messenger/messengercompose/editor.js                     (content/editor.js)
     content/messenger/messengercompose/editorUtilities.js            (content/editorUtilities.js)
     content/messenger/messengercompose/ComposerCommands.js           (content/ComposerCommands.js)

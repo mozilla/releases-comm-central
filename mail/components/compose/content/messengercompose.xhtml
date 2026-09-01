@@ -100,6 +100,7 @@
   <script type="module" src="chrome://messenger/content/drop-indicator.mjs"></script>
   <script type="module" src="chrome://messenger/content/menulist-editable.mjs"></script>
   <script type="module" src="chrome://messenger/content/messengercompose/composeWidgets.mjs"></script>
+  <script type="module" src="chrome://messenger/content/messengercompose/subjectSpellCheckMenu.mjs"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
@@ -2393,13 +2394,13 @@
         </hbox>
           <hbox id="msgSubjectContainer" flex="1" align="center"
                 class="input-container">
-          <moz-input-box spellcheck="true" style="flex: 1;">
-                <html:img id="msgEncryptedSubjectIcon"
-                          src="chrome://messenger/skin/icons/new/compact/lock-disabled.svg"
-                          data-l10n-id="subject-encription-icon"
-                          onclick="toggleEncryptedSubject(event);"
-                          hidden="hidden"
-                          alt="" />
+          <hbox id="msgSubjectBox" style="flex: 1; min-width: 0;">
+            <html:img id="msgEncryptedSubjectIcon"
+                      src="chrome://messenger/skin/icons/new/compact/lock-disabled.svg"
+                      data-l10n-id="subject-encription-icon"
+                      onclick="toggleEncryptedSubject(event);"
+                      hidden="hidden"
+                      alt="" />
             <html:input id="msgSubject"
                         type="text"
                         class="input-inline textbox-input"
@@ -2408,7 +2409,7 @@
                         onkeypress="subjectKeyPress(event);"
                         aria-labelledby="subjectLabel"
                         style="flex: 1;"/>
-          </moz-input-box>
+          </hbox>
         </hbox>
       </hbox>
     </toolbar>
