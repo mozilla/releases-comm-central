@@ -86,5 +86,9 @@
     }
   }
 
-  exports.Telemetry = Telemetry;
+  // The exported symbol must match this module's `experiment_apis` key in
+  // manifest.json ("thundermailTelemetry") — Gecko resolves the module by that
+  // name off the sandbox global, and a mismatch throws "module is not a
+  // constructor" from ExtensionCommon.asyncGetAPI(). See bug 2055585.
+  exports.thundermailTelemetry = Telemetry;
 })(this);

@@ -214,4 +214,32 @@ browser.runtime.onMessage.addListener((message) => {
       window.location.origin
     );
   }
+
+  // ----- Add-on to Web: external sign-out notification (issue #1024) -----
+  // When the session ends in another context (menu, web tab, AccountHub
+  // logout, etc.), background.ts broadcasts SIGN_OUT to all open tabs. The
+  // page must learn about it so its UserMenu/header UI can flip from
+  // "signed in" to "signed out" without a reload.
+  if (message.type === SIGN_OUT) {
+    window.postMessage(
+      {
+        type: SIGN_OUT,
+      },
+      window.location.origin
+    );
+  }
+
+  // ----- Add-on to Web: session-state update (issue #1024) -----
+  // A new OIDC session arriving via the background (typically an
+  // AccountHub-driven login) is broadcast to open tabs so the page can
+  // re-hydrate its auth UI.
+  if (message.type === OIDC_USER) {
+    window.postMessage(
+      {
+        type: OIDC_USER,
+        user: message.user,
+      },
+      window.location.origin
+    );
+  }
 });

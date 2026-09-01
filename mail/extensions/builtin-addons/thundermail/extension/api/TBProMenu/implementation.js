@@ -129,7 +129,16 @@
       }
     });
 
+    // We hang the button off a node owned by Thunderbird's app menu. Losing that
+    // node means we cannot render the Pro menu at all, so say so -- silence here
+    // would look identical to the add-on simply not being installed.
     const banner = window.document.getElementById('appMenu-addon-banners');
+    if (!banner) {
+      console.warn(
+        'TBProMenu: no #appMenu-addon-banners to anchor to; the Thunderbird Pro menu will not appear in this window.'
+      );
+      return null;
+    }
     banner.parentNode.insertBefore(toolbarButton, banner.nextSibling);
 
     return toolbarButton;
@@ -175,6 +184,12 @@
       const parentToolbarItem = document.getElementById(
         'tbpro-menu-id-' + parentId
       );
+      // The caller validated the parent against gMenuItems, which is global,
+      // while this lookup is per window. A window that never got the parent
+      // rendered simply has nothing to attach to.
+      if (!parentToolbarItem) {
+        return;
+      }
 
       let submenu;
       if (!parentToolbarItem.classList.contains('subviewbutton-nav')) {
@@ -214,6 +229,9 @@
       }
     } else {
       const menuItem = _getRootButton(window, extension, id);
+      if (!menuItem) {
+        return;
+      }
       menuItem.querySelector('.tbpro-menu-item-text').textContent = title;
       menuItem.querySelector('.tbpro-menu-item-bold-text').textContent =
         secondaryTitle;
@@ -234,8 +252,12 @@
   function _updateMenuItem(window, id, { title, secondaryTitle, tooltip }) {
     const document = window.document;
     const menuItem = document.getElementById('tbpro-menu-id-' + id);
+    // Callers reach this once per open mail window, and the public update() has
+    // already rejected ids it does not know about. A window that has not
+    // rendered the item is skipped -- throwing here would abandon the windows
+    // further down the list half updated.
     if (!menuItem) {
-      throw new ExtensionError('Could not find item ' + id);
+      return;
     }
 
     if (menuItem.classList.contains('tbpro-header-button')) {
@@ -271,6 +293,8 @@
     const panel = createElement({
       type: 'panelview',
       id,
+      // tbpro-panel-subview is neither styled nor queried by the add-on;
+      // retained as a stable hook for DOM inspection and out-of-tree chrome CSS.
       classes: ['PanelUI-subView', 'tbpro-panel-subview'],
       xul: true,
     });
@@ -356,8 +380,7 @@
    *  empty string to close everything, use "none" or omit completely to not close anything.
    * @param {string} options.action - The action name to use when for the onCommnd event emitted
    *  when the item is clicked.
-   * @param {string} options.id - The id of the submenu item. Used to generate the html ID
-   *  and for being able to remove the item later.
+   * @param {string} options.id - The id of the submenu item. Used to generate the html ID.
    * @param {string} options.menuId - The id of the submenu to add the item to.
    * @param {string} options.nav - The string of a submenu which should
    *  be navigated to when the item is clicked
@@ -370,6 +393,8 @@
     extension,
     { text, close = 'none', tooltip, action, id, nav, menuId }
   ) {
+    // tbpro-menu-button is neither styled nor queried by the add-on; retained as
+    // a stable hook for DOM inspection and out-of-tree chrome CSS.
     const classes = [
       'subviewbutton',
       'subviewbutton-iconic',
@@ -522,10 +547,6 @@
           }
         }
       }
-
-      // Flush all caches. Enable this only for debugging
-      // TODO disable
-      Services.obs.notifyObservers(null, 'startupcache-invalidate');
     }
 
     getAPI(context) {
@@ -574,52 +595,6 @@
             });
           },
 
-          remove(id) {
-            if (!(id in gMenuItems)) {
-              throw new ExtensionError('Could not find item ' + id);
-            }
-
-            const item = gMenuItems[id];
-            const parentItem = gMenuItems[item.parentId];
-            if (parentItem) {
-              parentItem.children = parentItem.children.filter(
-                (element) => element !== item
-              );
-            }
-            delete gMenuItems[id];
-
-            _applyForWindows((window, document) => {
-              const menu = document.getElementById('tbpro-menu-id-' + id);
-              if (!menu) {
-                return;
-              }
-
-              if (menu.classList.contains('subviewbutton-nav')) {
-                document
-                  .getElementById('appMenu-tbpro-submenu-' + id)
-                  ?.remove();
-                // TODO sub-sub-menus will not be cleaned up, fix this if needed
-              }
-
-              if (
-                menu.parentNode.querySelectorAll('.tbpro-menu-button').length <
-                2
-              ) {
-                const subview = menu.parentNode.closest('.tbpro-panel-subview');
-                const parentId = subview?.id.substring(22);
-                const parentButton = document.getElementById(
-                  'tbpro-menu-id-' + parentId
-                );
-                parentButton.classList.remove('subviewbutton-nav');
-                parentButton.setAttribute('closemenu', '');
-                parentButton.removeAttribute('oncommand');
-              }
-
-              menu.remove();
-              document.querySelector('#appMenu-multiView').goBack?.();
-            });
-          },
-
           clear(id) {
             if (!(id in gMenuItems)) {
               throw new ExtensionError('Could not find item ' + id);
@@ -632,8 +607,10 @@
 
             _applyForWindows((window, document) => {
               const parent = document.getElementById('tbpro-menu-id-' + id);
-              parent.classList.remove('subviewbutton-nav');
-              parent.removeAttribute('oncommand');
+              if (parent) {
+                parent.classList.remove('subviewbutton-nav');
+                parent.removeAttribute('oncommand');
+              }
               document.getElementById('appMenu-tbpro-submenu-' + id)?.remove();
             });
           },

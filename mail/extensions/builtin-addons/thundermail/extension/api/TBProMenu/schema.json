@@ -43,16 +43,6 @@
         ]
       },
       {
-        "name": "remove",
-        "type": "function",
-        "parameters": [
-          {
-            "name": "id",
-            "type": "string"
-          }
-        ]
-      },
-      {
         "name": "clear",
         "type": "function",
         "parameters": [

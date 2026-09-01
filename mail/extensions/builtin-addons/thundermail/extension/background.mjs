@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = "undefined" != typeof window ? window : "undefined" != typeof global ? global : "undefined" != typeof globalThis ? globalThis : "undefined" != typeof self ? self : {};
-		e.SENTRY_RELEASE = { id: "dc25092aee8a66b8f0868046d641f9fd9dcc8ff0" };
+		e.SENTRY_RELEASE = { id: "7c32f9769816d000db14315d9a381168500e294f" };
 		e._sentryModuleMetadata = e._sentryModuleMetadata || {}, e._sentryModuleMetadata[new e.Error().stack] = function(e) {
 			for (var n = 1; n < arguments.length; n++) {
 				var a = arguments[n];
@@ -10,11 +10,11 @@
 			}
 			return e;
 		}({}, e._sentryModuleMetadata[new e.Error().stack], {
-			"version": "2.0.5",
+			"version": "2.0.11",
 			"appHost": "background"
 		});
 		var n = new e.Error().stack;
-		n && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[n] = "b12e4cbb-5889-4f21-bf09-542f1fa6188f", e._sentryDebugIdIdentifier = "sentry-dbid-b12e4cbb-5889-4f21-bf09-542f1fa6188f");
+		n && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[n] = "e569811a-21ce-4edf-9d0d-22d5c95d68be", e._sentryDebugIdIdentifier = "sentry-dbid-e569811a-21ce-4edf-9d0d-22d5c95d68be");
 	} catch (e) {}
 })();
 var __create$2 = Object.create;
@@ -53,7 +53,7 @@ var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require
 });
 //#endregion
 //#region src/lib/logger.ts
-var version = "2.0.5";
+var version = "2.0.11";
 var LOG_LEVELS = {
 	debug: 0,
 	info: 1,
@@ -85,6 +85,158 @@ console.warn = (...args) => {
 };
 console.error = (...args) => {
 	if (shouldLog("error")) originalError(`[${version}]`, ...args);
+};
+//#endregion
+//#region ../send/frontend/src/config.ts
+var runtime = () => typeof window !== "undefined" && window.__APP_CONFIG__ || {};
+/**
+* Prefer a non-empty runtime value; otherwise fall back to the build-time Vite
+* env. An empty string is treated as "unset" -- that is what lets the committed
+* all-empty `public/config.js` fall through to a baked build.
+*/
+var pick = (runtimeVal, envVal) => {
+	const runtimeStr = runtimeVal === void 0 || runtimeVal === null ? void 0 : String(runtimeVal);
+	return runtimeStr !== void 0 && runtimeStr !== "" ? runtimeStr : envVal;
+};
+var buildEnv = {
+	appEnv: "production",
+	sendServerUrl: "https://send-backend.tb.pro",
+	sendClientUrl: "https://send.tb.pro",
+	oidcRootUrl: "https://auth.tb.pro/realms/tbpro/",
+	oidcClientId: "desktop",
+	allowPublicLogin: void 0,
+	sentryDsn: "https://af0e7594fd7dedb0d5c59ec7ecf169b5@o4505428107853824.ingest.us.sentry.io/4507567067758592",
+	posthogProjectKey: "phc_61NZH7teRtwmtZQHpKRltXUEEO7acpEAjpjdSiE5tdu",
+	posthogHost: "https://us.i.posthog.com",
+	splitSizeInMb: void 0,
+	loggerLevel: void 0,
+	uploadHttpRetryLimit: void 0,
+	uploadHttpRetryBaseDelayMs: void 0,
+	accountsUrl: void 0,
+	dashboardUrl: void 0,
+	contactFormUrl: void 0,
+	thundermailUrl: void 0,
+	appointmentUrl: void 0
+};
+/**
+* Last-resort defaults for the sibling-service URLs, selected by `appEnv`.
+*
+* These exist because the Thunderbird add-on bakes no sibling URLs and
+* `packages/addon` must not be modified: without a default set, an XPI would
+* render `undefined` links.
+*
+* Two defaults per key, not one. Before this refactor the same choice was made
+* by `BASE_URL.includes('send.tb.pro')`, so a non-production build got the
+* `-stage` set -- and collapsing to a single production default would silently
+* point the stage add-on and the stage web app at production accounts. Keying
+* off the DECLARED environment keeps that behaviour while fixing the two things
+* that were wrong with the old switch: the environment is now stated rather than
+* guessed from a URL substring, and every value is individually overridable.
+*
+* Any environment other than `production` gets the non-production set. That is
+* still only two sets, so an environment that is neither (e.g. `mzla-tb-dev`)
+* MUST set these explicitly -- APP_* at runtime on EKS, or VITE_* at build time
+* elsewhere. See `.env.sample`.
+*/
+/** Exported for `src/test/config.test.ts` only. */
+var SIBLING_URL_DEFAULTS = {
+	production: {
+		accountsUrl: "https://accounts.tb.pro",
+		dashboardUrl: "https://accounts.tb.pro/send/dashboard",
+		contactFormUrl: "https://accounts.tb.pro/contact",
+		thundermailUrl: "https://accounts.tb.pro/mail",
+		appointmentUrl: "https://appointment.tb.pro/"
+	},
+	nonProduction: {
+		accountsUrl: "https://accounts-stage.tb.pro",
+		dashboardUrl: "https://accounts-stage.tb.pro/send/dashboard",
+		contactFormUrl: "https://accounts-stage.tb.pro/contact",
+		thundermailUrl: "https://accounts-stage.tb.pro/mail",
+		appointmentUrl: "https://appointment-stage.tb.pro/"
+	}
+};
+/**
+* The declared environment name.
+*
+* Never inferred from a URL. Every build path that has an environment DOES
+* declare one: the container reads `APP_ENV` (see
+* `docker/docker-entrypoint.d/40-send-config.sh`), and for the S3/ECS and XPI
+* builds `scripts/build.sh` derives and exports `VITE_APP_ENV` from the
+* environment `merge.yml` selects.
+*
+* The undeclared fallback MUST be non-production, because `production` is the
+* one value consumers act dangerously on: `packages/addon/src/background.ts`
+* derives THUNDERMAIL_HOST from it (a token is sent to that host) and
+* `menu.ts`/SIBLING_URL_DEFAULTS pick the production accounts stack. The old
+* URL-sniffing code failed the same way (unknown URL -> not production), so a
+* stale checkout whose `.env` predates VITE_APP_ENV keeps its non-production
+* behaviour instead of silently flipping to production endpoints. `staging`
+* also matches what the old `getEnvironmentName` returned for an undeclared
+* non-dev build. A production deploy that forgets to declare fails safe --
+* visibly, with `-stage` sibling links -- rather than dangerously.
+*/
+var resolveAppEnv = () => pick(runtime().appEnv, buildEnv.appEnv) || "staging";
+var siblingUrl = (key) => pick(runtime()[key], buildEnv[key]) || SIBLING_URL_DEFAULTS[resolveAppEnv() === "production" ? "production" : "nonProduction"][key];
+/**
+* Runtime config accessor. Each getter resolves at call time, so it reflects
+* whatever `/config.js` injected before the bundle loaded.
+*/
+var config = {
+	/** Explicit environment name. See `resolveAppEnv` above. */
+	get appEnv() {
+		return resolveAppEnv();
+	},
+	get sendServerUrl() {
+		return pick(runtime().sendServerUrl, buildEnv.sendServerUrl);
+	},
+	get sendClientUrl() {
+		return pick(runtime().sendClientUrl, buildEnv.sendClientUrl);
+	},
+	get oidcRootUrl() {
+		return pick(runtime().oidcRootUrl, buildEnv.oidcRootUrl);
+	},
+	get oidcClientId() {
+		return pick(runtime().oidcClientId, buildEnv.oidcClientId);
+	},
+	get allowPublicLogin() {
+		return pick(runtime().allowPublicLogin, buildEnv.allowPublicLogin);
+	},
+	get sentryDsn() {
+		return pick(runtime().sentryDsn, buildEnv.sentryDsn);
+	},
+	get posthogProjectKey() {
+		return pick(runtime().posthogProjectKey, buildEnv.posthogProjectKey);
+	},
+	get posthogHost() {
+		return pick(runtime().posthogHost, buildEnv.posthogHost);
+	},
+	get splitSizeInMb() {
+		return pick(runtime().splitSizeInMb, buildEnv.splitSizeInMb);
+	},
+	get loggerLevel() {
+		return pick(runtime().loggerLevel, buildEnv.loggerLevel);
+	},
+	get uploadHttpRetryLimit() {
+		return pick(runtime().uploadHttpRetryLimit, buildEnv.uploadHttpRetryLimit);
+	},
+	get uploadHttpRetryBaseDelayMs() {
+		return pick(runtime().uploadHttpRetryBaseDelayMs, buildEnv.uploadHttpRetryBaseDelayMs);
+	},
+	get accountsUrl() {
+		return siblingUrl("accountsUrl");
+	},
+	get dashboardUrl() {
+		return siblingUrl("dashboardUrl");
+	},
+	get contactFormUrl() {
+		return siblingUrl("contactFormUrl");
+	},
+	get thundermailUrl() {
+		return siblingUrl("thundermailUrl");
+	},
+	get appointmentUrl() {
+		return siblingUrl("appointmentUrl");
+	}
 };
 //#endregion
 //#region ../../node_modules/.pnpm/pretty-bytes@6.1.1/node_modules/pretty-bytes/index.js
@@ -178,7 +330,7 @@ var ALL_UPLOADS_COMPLETE = "ALL_UPLOADS_COMPLETE";
 var ALL_UPLOADS_ABORTED = "ALL_UPLOADS_ABORTED";
 var ONE_MB_IN_BYTES = 1e3 * 1e3;
 var MAX_FILE_SIZE_HUMAN_READABLE = prettyBytes(ONE_MB_IN_BYTES * 1e3 * 20);
-var SPLIT_SIZE = 100 * ONE_MB_IN_BYTES;
+var SPLIT_SIZE = (Number(config.splitSizeInMb) || 100) * ONE_MB_IN_BYTES;
 var PING = "TB/PING";
 var BRIDGE_PING = "APP/PING";
 var OIDC_USER = "TB/OIDC_USER";
@@ -2998,14 +3150,19 @@ function isClientExecution() {
 	}
 }
 isClientExecution();
-isClientExecution();
-var getEnvName = () => {
-	isClientExecution();
-	const base_url = "https://send.tb.pro";
-	if (base_url.includes("send.tb.pro")) return "production";
-	if (base_url.includes("send-stage.tb.pro")) return "staging";
-	if (base_url.includes("localhost")) return "development";
-};
+/**
+* The environment this bundle is configured for.
+*
+* This used to sniff `VITE_SEND_CLIENT_URL` for `send.tb.pro` /
+* `send-stage.tb.pro` / `localhost` and return `undefined` for anything else --
+* so tb-dev silently yielded `undefined`, and an unset client URL threw a
+* TypeError. It now reads the explicit `APP_ENV` / `VITE_APP_ENV` value, which
+* can name any environment and always resolves to a string.
+*
+* Kept as a function (rather than collapsed into `config.appEnv`) only because
+* `packages/addon` imports it and must not be modified.
+*/
+var getEnvName = () => config.appEnv;
 //#endregion
 //#region ../send/frontend/src/apps/send/stores/config-store.ts
 var useConfigStore = defineStore("config", () => {
@@ -3030,8 +3187,8 @@ var useConfigStore = defineStore("config", () => {
 	const isTbproExtension = computed(() => {
 		return true;
 	});
-	const _serverUrl = /* @__PURE__ */ ref("https://send-backend.tb.pro");
-	const _isPublicLogin = /* @__PURE__ */ ref(false);
+	const _serverUrl = /* @__PURE__ */ ref(config.sendServerUrl);
+	const _isPublicLogin = /* @__PURE__ */ ref(config.allowPublicLogin === "true");
 	const serverUrl = computed(() => _serverUrl.value);
 	const isPublicLogin = computed(() => _isPublicLogin.value);
 	function setServerUrl(url) {
@@ -3040,7 +3197,7 @@ var useConfigStore = defineStore("config", () => {
 	function getAddonId() {
 		const runtimeId = typeof browser !== "undefined" ? browser?.runtime?.id : void 0;
 		if (runtimeId) return `ext-${runtimeId}`;
-		if (serverUrl.value.includes("send-backend.tb.pro")) return "ext-tbpro-add-on@thunderbird.net";
+		if (serverUrl.value?.includes("send-backend.tb.pro")) return "ext-tbpro-add-on@thunderbird.net";
 		else return "ext-tbpro-addon-stage@thunderbird.net";
 	}
 	async function openManagementPage() {}
@@ -3060,8 +3217,12 @@ var useConfigStore = defineStore("config", () => {
 });
 //#endregion
 //#region ../send/frontend/src/apps/common/constants.ts
-var BASE_URL = "https://send.tb.pro";
-var APPOINTMENT_URL = `https://appointment${!BASE_URL.includes("send.tb.pro") ? "-stage" : ""}.tb.pro/`;
+var BASE_URL = config.sendClientUrl;
+config.dashboardUrl;
+config.thundermailUrl;
+var APPOINTMENT_URL = config.appointmentUrl;
+config.accountsUrl;
+config.contactFormUrl;
 //#endregion
 //#region ../send/frontend/src/lib/streams.ts
 var DEFAULT_CHUNK_SIZE = 1024 * 64;
@@ -4916,6 +5077,23 @@ async function pullBridgedPassphrase(keychain) {
 //#endregion
 //#region ../send/frontend/src/lib/keychain.ts
 var import___vite_browser_external = /* @__PURE__ */ __toESM$2(require___vite_browser_external(), 1);
+/**
+* Thrown when a restore fails specifically because the passphrase cannot unwrap
+* the backup content key — i.e. the passphrase is genuinely wrong/mismatched.
+*
+* This lets restoreKeys distinguish a real "keys are incorrect" situation (which
+* SHOULD lock the keychain and route the user to /passphrase-changed) from a
+* transient/incidental failure (crypto blip, storage write race, concurrent
+* restore interleave) that must NOT produce a permanent lockout on an otherwise
+* correct passphrase.
+*/
+var IncorrectPassphraseError = class extends Error {
+	constructor(cause) {
+		super("Passphrase is incorrect");
+		this.name = "IncorrectPassphraseError";
+		this.cause = cause;
+	}
+};
 var SALT_LENGTH = 128;
 var crypto$1 = import___vite_browser_external.default;
 try {
@@ -5230,7 +5408,12 @@ async function decryptKeys(protectedContainerKeysObj, keychain, key, salt) {
 }
 async function decryptAll(keychainFromParams, { protectedContainerKeysStr, protectedKeypairStr, passwordWrappedKeyStr, saltStr, password }) {
 	const salt = Util.base64ToArrayBuffer(saltStr);
-	const key = await keychainFromParams.password.unwrapContentKey(passwordWrappedKeyStr, password, salt);
+	let key;
+	try {
+		key = await keychainFromParams.password.unwrapContentKey(passwordWrappedKeyStr, password, salt);
+	} catch (e) {
+		throw new IncorrectPassphraseError(e);
+	}
 	const protectedKeypair = JSON.parse(protectedKeypairStr);
 	const publicKeyCiphertext = protectedKeypair.publicKey;
 	const privateKeyCiphertext = protectedKeypair.privateKey;
@@ -5251,7 +5434,17 @@ async function restoreKeysUsingLocalStorage(keychain, api) {
 	}
 	return restoreKeys(keychain, api);
 }
-async function restoreKeys(keychain, api, msg, passPhrase) {
+var restoreInFlight = /* @__PURE__ */ new WeakMap();
+function restoreKeys(keychain, api, msg, passPhrase) {
+	const existing = restoreInFlight.get(keychain);
+	if (existing) return existing;
+	const run = _restoreKeys(keychain, api, msg, passPhrase).finally(() => {
+		restoreInFlight.delete(keychain);
+	});
+	restoreInFlight.set(keychain, run);
+	return run;
+}
+async function _restoreKeys(keychain, api, msg, passPhrase) {
 	if (!msg) msg = { value: "" };
 	const password = keychain.getPassphraseValue() || passPhrase;
 	if (!password) console.error("Keychain is not initialized");
@@ -5282,13 +5475,19 @@ async function restoreKeys(keychain, api, msg, passPhrase) {
 		};
 		await keychain.load(keypair, containerKeys);
 		await keychain.store();
+		keychain.locked = false;
 		msg.value = "✅ Restore complete";
 	} catch (e) {
-		keychain.locked = true;
-		const KEY_RESTORE_ERROR = `⛔️ Could not restore keys. Please make sure your backup phrase is correct.`;
-		console.error(KEY_RESTORE_ERROR, e);
-		msg.value = MSG_INCORRECT_PASSPHRASE;
-		throw new Error(KEY_RESTORE_ERROR);
+		if (e instanceof IncorrectPassphraseError) {
+			keychain.locked = true;
+			const KEY_RESTORE_ERROR = `⛔️ Could not restore keys. Please make sure your backup phrase is correct.`;
+			console.error(KEY_RESTORE_ERROR, e);
+			msg.value = MSG_INCORRECT_PASSPHRASE;
+			throw new Error(KEY_RESTORE_ERROR);
+		}
+		console.error("Transient error during key restore (not locking):", e);
+		msg.value = MSG_COULD_NOT_RETRIEVE;
+		throw e;
 	}
 }
 async function encryptKeys(containerKeysObj, key, salt, keychain) {
@@ -5339,2079 +5538,40 @@ async function backupKeys(keychain, api, msg) {
 	console.log("🔒 Backup complete");
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@trpc+client@11.17.0_@trpc+server@11.17.0_typescript@5.9.3__typescript@5.9.3/node_modules/@trpc/client/dist/objectSpread2-BvkFp-_Y.mjs
-var __create$1 = Object.create;
-var __defProp$1 = Object.defineProperty;
-var __getOwnPropDesc$1 = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames$1 = Object.getOwnPropertyNames;
-var __getProtoOf$1 = Object.getPrototypeOf;
-var __hasOwnProp$1 = Object.prototype.hasOwnProperty;
-var __commonJS$1 = (cb, mod) => function() {
-	return mod || (0, cb[__getOwnPropNames$1(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-};
-var __copyProps$1 = (to, from, except, desc) => {
-	if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames$1(from), i = 0, n = keys.length, key; i < n; i++) {
-		key = keys[i];
-		if (!__hasOwnProp$1.call(to, key) && key !== except) __defProp$1(to, key, {
-			get: ((k) => from[k]).bind(null, key),
-			enumerable: !(desc = __getOwnPropDesc$1(from, key)) || desc.enumerable
-		});
-	}
-	return to;
-};
-var __toESM$1 = (mod, isNodeMode, target) => (target = mod != null ? __create$1(__getProtoOf$1(mod)) : {}, __copyProps$1(isNodeMode || !mod || !mod.__esModule ? __defProp$1(target, "default", {
-	value: mod,
-	enumerable: true
-}) : target, mod));
-var require_typeof$1 = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/typeof.js"(exports, module) {
-	function _typeof$2(o) {
-		"@babel/helpers - typeof";
-		return module.exports = _typeof$2 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o$1) {
-			return typeof o$1;
-		} : function(o$1) {
-			return o$1 && "function" == typeof Symbol && o$1.constructor === Symbol && o$1 !== Symbol.prototype ? "symbol" : typeof o$1;
-		}, module.exports.__esModule = true, module.exports["default"] = module.exports, _typeof$2(o);
-	}
-	module.exports = _typeof$2, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} });
-var require_toPrimitive$1 = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/toPrimitive.js"(exports, module) {
-	var _typeof$1 = require_typeof$1()["default"];
-	function toPrimitive$1(t, r) {
-		if ("object" != _typeof$1(t) || !t) return t;
-		var e = t[Symbol.toPrimitive];
-		if (void 0 !== e) {
-			var i = e.call(t, r || "default");
-			if ("object" != _typeof$1(i)) return i;
-			throw new TypeError("@@toPrimitive must return a primitive value.");
-		}
-		return ("string" === r ? String : Number)(t);
-	}
-	module.exports = toPrimitive$1, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} });
-var require_toPropertyKey$1 = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/toPropertyKey.js"(exports, module) {
-	var _typeof = require_typeof$1()["default"];
-	var toPrimitive = require_toPrimitive$1();
-	function toPropertyKey$1(t) {
-		var i = toPrimitive(t, "string");
-		return "symbol" == _typeof(i) ? i : i + "";
-	}
-	module.exports = toPropertyKey$1, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} });
-var require_defineProperty$1 = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/defineProperty.js"(exports, module) {
-	var toPropertyKey = require_toPropertyKey$1();
-	function _defineProperty(e, r, t) {
-		return (r = toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
-			value: t,
-			enumerable: !0,
-			configurable: !0,
-			writable: !0
-		}) : e[r] = t, e;
-	}
-	module.exports = _defineProperty, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} });
-var require_objectSpread2$1 = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/objectSpread2.js"(exports, module) {
-	var defineProperty = require_defineProperty$1();
-	function ownKeys(e, r) {
-		var t = Object.keys(e);
-		if (Object.getOwnPropertySymbols) {
-			var o = Object.getOwnPropertySymbols(e);
-			r && (o = o.filter(function(r$1) {
-				return Object.getOwnPropertyDescriptor(e, r$1).enumerable;
-			})), t.push.apply(t, o);
-		}
-		return t;
-	}
-	function _objectSpread2(e) {
-		for (var r = 1; r < arguments.length; r++) {
-			var t = null != arguments[r] ? arguments[r] : {};
-			r % 2 ? ownKeys(Object(t), !0).forEach(function(r$1) {
-				defineProperty(e, r$1, t[r$1]);
-			}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function(r$1) {
-				Object.defineProperty(e, r$1, Object.getOwnPropertyDescriptor(t, r$1));
-			});
-		}
-		return e;
-	}
-	module.exports = _objectSpread2, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} });
-//#endregion
-//#region ../../node_modules/.pnpm/@trpc+server@11.17.0_typescript@5.9.3/node_modules/@trpc/server/dist/observable-UMO3vUa_.mjs
-/** @public */
-function observable(subscribe) {
-	const self = {
-		subscribe(observer) {
-			let teardownRef = null;
-			let isDone = false;
-			let unsubscribed = false;
-			let teardownImmediately = false;
-			function unsubscribe() {
-				if (teardownRef === null) {
-					teardownImmediately = true;
-					return;
-				}
-				if (unsubscribed) return;
-				unsubscribed = true;
-				if (typeof teardownRef === "function") teardownRef();
-				else if (teardownRef) teardownRef.unsubscribe();
-			}
-			teardownRef = subscribe({
-				next(value) {
-					var _observer$next;
-					if (isDone) return;
-					(_observer$next = observer.next) === null || _observer$next === void 0 || _observer$next.call(observer, value);
-				},
-				error(err) {
-					var _observer$error;
-					if (isDone) return;
-					isDone = true;
-					(_observer$error = observer.error) === null || _observer$error === void 0 || _observer$error.call(observer, err);
-					unsubscribe();
-				},
-				complete() {
-					var _observer$complete;
-					if (isDone) return;
-					isDone = true;
-					(_observer$complete = observer.complete) === null || _observer$complete === void 0 || _observer$complete.call(observer);
-					unsubscribe();
-				}
-			});
-			if (teardownImmediately) unsubscribe();
-			return { unsubscribe };
-		},
-		pipe(...operations) {
-			return operations.reduce(pipeReducer, self);
-		}
-	};
-	return self;
-}
-function pipeReducer(prev, fn) {
-	return fn(prev);
-}
-/** @internal */
-function observableToPromise(observable$1) {
-	const ac = new AbortController();
-	return new Promise((resolve, reject) => {
-		let isDone = false;
-		function onDone() {
-			if (isDone) return;
-			isDone = true;
-			obs$.unsubscribe();
-		}
-		ac.signal.addEventListener("abort", () => {
-			reject(ac.signal.reason);
-		});
-		const obs$ = observable$1.subscribe({
-			next(data) {
-				isDone = true;
-				resolve(data);
-				onDone();
-			},
-			error(data) {
-				reject(data);
-			},
-			complete() {
-				ac.abort();
-				onDone();
-			}
-		});
-	});
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@trpc+server@11.17.0_typescript@5.9.3/node_modules/@trpc/server/dist/observable-CUiPknO-.mjs
-function share(_opts) {
-	return (source) => {
-		let refCount = 0;
-		let subscription = null;
-		const observers = [];
-		function startIfNeeded() {
-			if (subscription) return;
-			subscription = source.subscribe({
-				next(value) {
-					for (const observer of observers) {
-						var _observer$next;
-						(_observer$next = observer.next) === null || _observer$next === void 0 || _observer$next.call(observer, value);
-					}
-				},
-				error(error) {
-					for (const observer of observers) {
-						var _observer$error;
-						(_observer$error = observer.error) === null || _observer$error === void 0 || _observer$error.call(observer, error);
-					}
-				},
-				complete() {
-					for (const observer of observers) {
-						var _observer$complete;
-						(_observer$complete = observer.complete) === null || _observer$complete === void 0 || _observer$complete.call(observer);
-					}
-				}
-			});
-		}
-		function resetIfNeeded() {
-			if (refCount === 0 && subscription) {
-				const _sub = subscription;
-				subscription = null;
-				_sub.unsubscribe();
-			}
-		}
-		return observable((subscriber) => {
-			refCount++;
-			observers.push(subscriber);
-			startIfNeeded();
-			return { unsubscribe() {
-				refCount--;
-				resetIfNeeded();
-				const index = observers.findIndex((v) => v === subscriber);
-				if (index > -1) observers.splice(index, 1);
-			} };
-		});
-	};
-}
-/**
-* @internal
-* An observable that maintains and provides a "current value" to subscribers
-* @see https://www.learnrxjs.io/learn-rxjs/subjects/behaviorsubject
-*/
-function behaviorSubject(initialValue) {
-	let value = initialValue;
-	const observerList = [];
-	const addObserver = (observer) => {
-		if (value !== void 0) observer.next(value);
-		observerList.push(observer);
-	};
-	const removeObserver = (observer) => {
-		observerList.splice(observerList.indexOf(observer), 1);
-	};
-	const obs = observable((observer) => {
-		addObserver(observer);
-		return () => {
-			removeObserver(observer);
-		};
-	});
-	obs.next = (nextValue) => {
-		if (value === nextValue) return;
-		value = nextValue;
-		for (const observer of observerList) observer.next(nextValue);
-	};
-	obs.get = () => value;
-	return obs;
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@trpc+client@11.17.0_@trpc+server@11.17.0_typescript@5.9.3__typescript@5.9.3/node_modules/@trpc/client/dist/splitLink-B7Cuf2c_.mjs
-/** @internal */
-function createChain(opts) {
-	return observable((observer) => {
-		function execute(index = 0, op = opts.op) {
-			const next = opts.links[index];
-			if (!next) throw new Error("No more links to execute - did you forget to add an ending link?");
-			return next({
-				op,
-				next(nextOp) {
-					return execute(index + 1, nextOp);
-				}
-			});
-		}
-		return execute().subscribe(observer);
-	});
-}
-function asArray(value) {
-	return Array.isArray(value) ? value : [value];
-}
-function splitLink(opts) {
-	return (runtime) => {
-		const yes = asArray(opts.true).map((link) => link(runtime));
-		const no = asArray(opts.false).map((link) => link(runtime));
-		return (props) => {
-			return observable((observer) => {
-				const links = opts.condition(props.op) ? yes : no;
-				return createChain({
-					op: props.op,
-					links
-				}).subscribe(observer);
-			});
-		};
-	};
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@trpc+server@11.17.0_typescript@5.9.3/node_modules/@trpc/server/dist/codes-DagpWZLc.mjs
-/**
-* Check that value is object
-* @internal
-*/
-function isObject(value) {
-	return !!value && !Array.isArray(value) && typeof value === "object";
-}
-/**
-* Create an object without inheriting anything from `Object.prototype`
-* @internal
-*/
-function emptyObject() {
-	return Object.create(null);
-}
-/**
-* Run an IIFE
-*/
-var run = (fn) => fn();
-function sleep(ms = 0) {
-	return new Promise((res) => setTimeout(res, ms));
-}
-/**
-* JSON-RPC 2.0 Error codes
-*
-* `-32000` to `-32099` are reserved for implementation-defined server-errors.
-* For tRPC we're copying the last digits of HTTP 4XX errors.
-*/
-var TRPC_ERROR_CODES_BY_KEY = {
-	PARSE_ERROR: -32700,
-	BAD_REQUEST: -32600,
-	INTERNAL_SERVER_ERROR: -32603,
-	NOT_IMPLEMENTED: -32603,
-	BAD_GATEWAY: -32603,
-	SERVICE_UNAVAILABLE: -32603,
-	GATEWAY_TIMEOUT: -32603,
-	UNAUTHORIZED: -32001,
-	PAYMENT_REQUIRED: -32002,
-	FORBIDDEN: -32003,
-	NOT_FOUND: -32004,
-	METHOD_NOT_SUPPORTED: -32005,
-	TIMEOUT: -32008,
-	CONFLICT: -32009,
-	PRECONDITION_FAILED: -32012,
-	PAYLOAD_TOO_LARGE: -32013,
-	UNSUPPORTED_MEDIA_TYPE: -32015,
-	UNPROCESSABLE_CONTENT: -32022,
-	PRECONDITION_REQUIRED: -32028,
-	TOO_MANY_REQUESTS: -32029,
-	CLIENT_CLOSED_REQUEST: -32099
-};
-TRPC_ERROR_CODES_BY_KEY.BAD_GATEWAY, TRPC_ERROR_CODES_BY_KEY.SERVICE_UNAVAILABLE, TRPC_ERROR_CODES_BY_KEY.GATEWAY_TIMEOUT, TRPC_ERROR_CODES_BY_KEY.INTERNAL_SERVER_ERROR;
-//#endregion
-//#region ../../node_modules/.pnpm/@trpc+server@11.17.0_typescript@5.9.3/node_modules/@trpc/server/dist/getErrorShape-BPSzUA7W.mjs
-var __create = Object.create;
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __commonJS = (cb, mod) => function() {
-	return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-};
-var __copyProps = (to, from, except, desc) => {
-	if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
-		key = keys[i];
-		if (!__hasOwnProp.call(to, key) && key !== except) __defProp(to, key, {
-			get: ((k) => from[k]).bind(null, key),
-			enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
-		});
-	}
-	return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", {
-	value: mod,
-	enumerable: true
-}) : target, mod));
-var noop$1 = () => {};
-var freezeIfAvailable = (obj) => {
-	if (Object.freeze) Object.freeze(obj);
-};
-function createInnerProxy(callback, path, memo) {
-	var _memo$cacheKey;
-	const cacheKey = path.join(".");
-	(_memo$cacheKey = memo[cacheKey]) !== null && _memo$cacheKey !== void 0 || (memo[cacheKey] = new Proxy(noop$1, {
-		get(_obj, key) {
-			if (typeof key !== "string" || key === "then") return void 0;
-			return createInnerProxy(callback, [...path, key], memo);
-		},
-		apply(_1, _2, args) {
-			const lastOfPath = path[path.length - 1];
-			if (lastOfPath === "valueOf" || lastOfPath === "toString" || lastOfPath === "toJSON") return `tRPC.proxy(${path.slice(0, -1).join(".")})`;
-			let opts = {
-				args,
-				path
-			};
-			if (lastOfPath === "call") opts = {
-				args: args.length >= 2 ? [args[1]] : [],
-				path: path.slice(0, -1)
-			};
-			else if (lastOfPath === "apply") opts = {
-				args: args.length >= 2 ? args[1] : [],
-				path: path.slice(0, -1)
-			};
-			freezeIfAvailable(opts.args);
-			freezeIfAvailable(opts.path);
-			return callback(opts);
-		}
-	}));
-	return memo[cacheKey];
-}
-/**
-* Creates a proxy that calls the callback with the path and arguments
-*
-* @internal
-*/
-var createRecursiveProxy = (callback) => createInnerProxy(callback, [], emptyObject());
-/**
-* Used in place of `new Proxy` where each handler will map 1 level deep to another value.
-*
-* @internal
-*/
-var createFlatProxy = (callback) => {
-	return new Proxy(noop$1, { get(_obj, name) {
-		if (name === "then") return void 0;
-		return callback(name);
-	} });
-};
-var require_typeof = __commonJS({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/typeof.js"(exports, module) {
-	function _typeof$2(o) {
-		"@babel/helpers - typeof";
-		return module.exports = _typeof$2 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o$1) {
-			return typeof o$1;
-		} : function(o$1) {
-			return o$1 && "function" == typeof Symbol && o$1.constructor === Symbol && o$1 !== Symbol.prototype ? "symbol" : typeof o$1;
-		}, module.exports.__esModule = true, module.exports["default"] = module.exports, _typeof$2(o);
-	}
-	module.exports = _typeof$2, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} });
-var require_toPrimitive = __commonJS({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/toPrimitive.js"(exports, module) {
-	var _typeof$1 = require_typeof()["default"];
-	function toPrimitive$1(t, r) {
-		if ("object" != _typeof$1(t) || !t) return t;
-		var e = t[Symbol.toPrimitive];
-		if (void 0 !== e) {
-			var i = e.call(t, r || "default");
-			if ("object" != _typeof$1(i)) return i;
-			throw new TypeError("@@toPrimitive must return a primitive value.");
-		}
-		return ("string" === r ? String : Number)(t);
-	}
-	module.exports = toPrimitive$1, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} });
-var require_toPropertyKey = __commonJS({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/toPropertyKey.js"(exports, module) {
-	var _typeof = require_typeof()["default"];
-	var toPrimitive = require_toPrimitive();
-	function toPropertyKey$1(t) {
-		var i = toPrimitive(t, "string");
-		return "symbol" == _typeof(i) ? i : i + "";
-	}
-	module.exports = toPropertyKey$1, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} });
-var require_defineProperty = __commonJS({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/defineProperty.js"(exports, module) {
-	var toPropertyKey = require_toPropertyKey();
-	function _defineProperty(e, r, t) {
-		return (r = toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
-			value: t,
-			enumerable: !0,
-			configurable: !0,
-			writable: !0
-		}) : e[r] = t, e;
-	}
-	module.exports = _defineProperty, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} });
-var require_objectSpread2 = __commonJS({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/objectSpread2.js"(exports, module) {
-	var defineProperty = require_defineProperty();
-	function ownKeys(e, r) {
-		var t = Object.keys(e);
-		if (Object.getOwnPropertySymbols) {
-			var o = Object.getOwnPropertySymbols(e);
-			r && (o = o.filter(function(r$1) {
-				return Object.getOwnPropertyDescriptor(e, r$1).enumerable;
-			})), t.push.apply(t, o);
-		}
-		return t;
-	}
-	function _objectSpread2(e) {
-		for (var r = 1; r < arguments.length; r++) {
-			var t = null != arguments[r] ? arguments[r] : {};
-			r % 2 ? ownKeys(Object(t), !0).forEach(function(r$1) {
-				defineProperty(e, r$1, t[r$1]);
-			}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function(r$1) {
-				Object.defineProperty(e, r$1, Object.getOwnPropertyDescriptor(t, r$1));
-			});
-		}
-		return e;
-	}
-	module.exports = _objectSpread2, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} });
-__toESM(require_objectSpread2(), 1);
-__toESM(require_defineProperty(), 1);
-var import_objectSpread2$1$11 = __toESM(require_objectSpread2(), 1);
-/** @internal */
-function transformResultInner(response, transformer) {
-	if ("error" in response) {
-		const error = transformer.deserialize(response.error);
-		return {
-			ok: false,
-			error: (0, import_objectSpread2$1$11.default)((0, import_objectSpread2$1$11.default)({}, response), {}, { error })
-		};
-	}
-	return {
-		ok: true,
-		result: (0, import_objectSpread2$1$11.default)((0, import_objectSpread2$1$11.default)({}, response.result), (!response.result.type || response.result.type === "data") && {
-			type: "data",
-			data: transformer.deserialize(response.result.data)
-		})
-	};
-}
-var TransformResultError = class extends Error {
-	constructor() {
-		super("Unable to transform response from server");
-	}
-};
-/**
-* Transforms and validates that the result is a valid TRPCResponse
-* @internal
-*/
-function transformResult(response, transformer) {
-	let result;
-	try {
-		result = transformResultInner(response, transformer);
-	} catch (_unused) {
-		throw new TransformResultError();
-	}
-	if (!result.ok && (!isObject(result.error.error) || typeof result.error.error["code"] !== "number")) throw new TransformResultError();
-	if (result.ok && !isObject(result.result)) throw new TransformResultError();
-	return result;
-}
-__toESM(require_objectSpread2(), 1);
-//#endregion
-//#region ../../node_modules/.pnpm/@trpc+client@11.17.0_@trpc+server@11.17.0_typescript@5.9.3__typescript@5.9.3/node_modules/@trpc/client/dist/TRPCClientError-apv8gw59.mjs
-var import_defineProperty$5 = __toESM$1(require_defineProperty$1(), 1);
-var import_objectSpread2$10 = __toESM$1(require_objectSpread2$1(), 1);
-function isTRPCClientError(cause) {
-	return cause instanceof TRPCClientError;
-}
-function isTRPCErrorResponse(obj) {
-	return isObject(obj) && isObject(obj["error"]) && typeof obj["error"]["code"] === "number" && typeof obj["error"]["message"] === "string";
-}
-function getMessageFromUnknownError(err, fallback) {
-	if (typeof err === "string") return err;
-	if (isObject(err) && typeof err["message"] === "string") return err["message"];
-	return fallback;
-}
-var TRPCClientError = class TRPCClientError extends Error {
-	constructor(message, opts) {
-		var _opts$result, _opts$result2;
-		const cause = opts === null || opts === void 0 ? void 0 : opts.cause;
-		super(message, { cause });
-		(0, import_defineProperty$5.default)(this, "cause", void 0);
-		(0, import_defineProperty$5.default)(this, "shape", void 0);
-		(0, import_defineProperty$5.default)(this, "data", void 0);
-		(0, import_defineProperty$5.default)(this, "meta", void 0);
-		this.meta = opts === null || opts === void 0 ? void 0 : opts.meta;
-		this.cause = cause;
-		this.shape = opts === null || opts === void 0 || (_opts$result = opts.result) === null || _opts$result === void 0 ? void 0 : _opts$result.error;
-		this.data = opts === null || opts === void 0 || (_opts$result2 = opts.result) === null || _opts$result2 === void 0 ? void 0 : _opts$result2.error.data;
-		this.name = "TRPCClientError";
-		Object.setPrototypeOf(this, TRPCClientError.prototype);
-	}
-	static from(_cause, opts = {}) {
-		const cause = _cause;
-		if (isTRPCClientError(cause)) {
-			if (opts.meta) cause.meta = (0, import_objectSpread2$10.default)((0, import_objectSpread2$10.default)({}, cause.meta), opts.meta);
-			return cause;
-		}
-		if (isTRPCErrorResponse(cause)) return new TRPCClientError(cause.error.message, (0, import_objectSpread2$10.default)((0, import_objectSpread2$10.default)({}, opts), {}, {
-			result: cause,
-			cause: opts.cause
-		}));
-		return new TRPCClientError(getMessageFromUnknownError(cause, "Unknown error"), (0, import_objectSpread2$10.default)((0, import_objectSpread2$10.default)({}, opts), {}, { cause }));
-	}
-};
-//#endregion
-//#region ../../node_modules/.pnpm/@trpc+client@11.17.0_@trpc+server@11.17.0_typescript@5.9.3__typescript@5.9.3/node_modules/@trpc/client/dist/unstable-internals-Bg7n9BBj.mjs
-/**
-* @internal
-*/
-/**
-* @internal
-*/
-function getTransformer(transformer) {
-	const _transformer = transformer;
-	if (!_transformer) return {
-		input: {
-			serialize: (data) => data,
-			deserialize: (data) => data
-		},
-		output: {
-			serialize: (data) => data,
-			deserialize: (data) => data
-		}
-	};
-	if ("input" in _transformer) return _transformer;
-	return {
-		input: _transformer,
-		output: _transformer
-	};
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@trpc+client@11.17.0_@trpc+server@11.17.0_typescript@5.9.3__typescript@5.9.3/node_modules/@trpc/client/dist/httpUtils-pyf5RF99.mjs
-var isFunction = (fn) => typeof fn === "function";
-function getFetch(customFetchImpl) {
-	if (customFetchImpl) return customFetchImpl;
-	if (typeof window !== "undefined" && isFunction(window.fetch)) return window.fetch;
-	if (typeof globalThis !== "undefined" && isFunction(globalThis.fetch)) return globalThis.fetch;
-	throw new Error("No fetch implementation found");
-}
-var import_objectSpread2$9 = __toESM$1(require_objectSpread2$1(), 1);
-function resolveHTTPLinkOptions(opts) {
-	return {
-		url: opts.url.toString(),
-		fetch: opts.fetch,
-		transformer: getTransformer(opts.transformer),
-		methodOverride: opts.methodOverride
-	};
-}
-function arrayToDict(array) {
-	const dict = {};
-	for (let index = 0; index < array.length; index++) dict[index] = array[index];
-	return dict;
-}
-var METHOD = {
-	query: "GET",
-	mutation: "POST",
-	subscription: "PATCH"
-};
-function getInput(opts) {
-	return "input" in opts ? opts.transformer.input.serialize(opts.input) : arrayToDict(opts.inputs.map((_input) => opts.transformer.input.serialize(_input)));
-}
-var getUrl = (opts) => {
-	const parts = opts.url.split("?");
-	let url = parts[0].replace(/\/$/, "") + "/" + opts.path;
-	const queryParts = [];
-	if (parts[1]) queryParts.push(parts[1]);
-	if ("inputs" in opts) queryParts.push("batch=1");
-	if (opts.type === "query" || opts.type === "subscription") {
-		const input = getInput(opts);
-		if (input !== void 0 && opts.methodOverride !== "POST") queryParts.push(`input=${encodeURIComponent(JSON.stringify(input))}`);
-	}
-	if (queryParts.length) url += "?" + queryParts.join("&");
-	return url;
-};
-var getBody = (opts) => {
-	if (opts.type === "query" && opts.methodOverride !== "POST") return void 0;
-	const input = getInput(opts);
-	return input !== void 0 ? JSON.stringify(input) : void 0;
-};
-var jsonHttpRequester = (opts) => {
-	return httpRequest((0, import_objectSpread2$9.default)((0, import_objectSpread2$9.default)({}, opts), {}, {
-		contentTypeHeader: "application/json",
-		getUrl,
-		getBody
-	}));
-};
-/**
-* Polyfill for DOMException with AbortError name
-*/
-var AbortError = class extends Error {
-	constructor() {
-		const name = "AbortError";
-		super(name);
-		this.name = name;
-		this.message = name;
-	}
-};
-/**
-* Polyfill for `signal.throwIfAborted()`
-*
-* @see https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/throwIfAborted
-*/
-var throwIfAborted = (signal) => {
-	var _signal$throwIfAborte;
-	if (!(signal === null || signal === void 0 ? void 0 : signal.aborted)) return;
-	(_signal$throwIfAborte = signal.throwIfAborted) === null || _signal$throwIfAborte === void 0 || _signal$throwIfAborte.call(signal);
-	if (typeof DOMException !== "undefined") throw new DOMException("AbortError", "AbortError");
-	throw new AbortError();
-};
-async function fetchHTTPResponse(opts) {
-	var _opts$methodOverride, _opts$trpcAcceptHeade;
-	throwIfAborted(opts.signal);
-	const url = opts.getUrl(opts);
-	const body = opts.getBody(opts);
-	const method = (_opts$methodOverride = opts.methodOverride) !== null && _opts$methodOverride !== void 0 ? _opts$methodOverride : METHOD[opts.type];
-	const resolvedHeaders = await (async () => {
-		const heads = await opts.headers();
-		if (Symbol.iterator in heads) return Object.fromEntries(heads);
-		return heads;
-	})();
-	const headers = (0, import_objectSpread2$9.default)((0, import_objectSpread2$9.default)((0, import_objectSpread2$9.default)({}, opts.contentTypeHeader && method !== "GET" ? { "content-type": opts.contentTypeHeader } : {}), opts.trpcAcceptHeader ? { [(_opts$trpcAcceptHeade = opts.trpcAcceptHeaderKey) !== null && _opts$trpcAcceptHeade !== void 0 ? _opts$trpcAcceptHeade : "trpc-accept"]: opts.trpcAcceptHeader } : void 0), resolvedHeaders);
-	return getFetch(opts.fetch)(url, {
-		method,
-		signal: opts.signal,
-		body,
-		headers
-	});
-}
-async function httpRequest(opts) {
-	const meta = {};
-	const res = await fetchHTTPResponse(opts);
-	meta.response = res;
-	const json = await res.json();
-	meta.responseJSON = json;
-	return {
-		json,
-		meta
-	};
-}
-__toESM$1(require_objectSpread2$1(), 1);
-//#endregion
-//#region ../../node_modules/.pnpm/@trpc+client@11.17.0_@trpc+server@11.17.0_typescript@5.9.3__typescript@5.9.3/node_modules/@trpc/client/dist/httpBatchLink-LhidKAPw.mjs
-/**
-* A function that should never be called unless we messed something up.
-*/
-var throwFatalError = () => {
-	throw new Error("Something went wrong. Please submit an issue at https://github.com/trpc/trpc/issues/new");
-};
-/**
-* Dataloader that's very inspired by https://github.com/graphql/dataloader
-* Less configuration, no caching, and allows you to cancel requests
-* When cancelling a single fetch the whole batch will be cancelled only when _all_ items are cancelled
-*/
-function dataLoader(batchLoader) {
-	let pendingItems = null;
-	let dispatchTimer = null;
-	const destroyTimerAndPendingItems = () => {
-		clearTimeout(dispatchTimer);
-		dispatchTimer = null;
-		pendingItems = null;
-	};
-	/**
-	* Iterate through the items and split them into groups based on the `batchLoader`'s validate function
-	*/
-	function groupItems(items) {
-		const groupedItems = [[]];
-		let index = 0;
-		while (true) {
-			const item = items[index];
-			if (!item) break;
-			const lastGroup = groupedItems[groupedItems.length - 1];
-			if (item.aborted) {
-				var _item$reject;
-				(_item$reject = item.reject) === null || _item$reject === void 0 || _item$reject.call(item, /* @__PURE__ */ new Error("Aborted"));
-				index++;
-				continue;
-			}
-			if (batchLoader.validate(lastGroup.concat(item).map((it) => it.key))) {
-				lastGroup.push(item);
-				index++;
-				continue;
-			}
-			if (lastGroup.length === 0) {
-				var _item$reject2;
-				(_item$reject2 = item.reject) === null || _item$reject2 === void 0 || _item$reject2.call(item, /* @__PURE__ */ new Error("Input is too big for a single dispatch"));
-				index++;
-				continue;
-			}
-			groupedItems.push([]);
-		}
-		return groupedItems;
-	}
-	function dispatch() {
-		const groupedItems = groupItems(pendingItems);
-		destroyTimerAndPendingItems();
-		for (const items of groupedItems) {
-			if (!items.length) continue;
-			const batch = { items };
-			for (const item of items) item.batch = batch;
-			batchLoader.fetch(batch.items.map((_item) => _item.key)).then(async (result) => {
-				await Promise.all(result.map(async (valueOrPromise, index) => {
-					const item = batch.items[index];
-					try {
-						var _item$resolve;
-						const value = await Promise.resolve(valueOrPromise);
-						(_item$resolve = item.resolve) === null || _item$resolve === void 0 || _item$resolve.call(item, value);
-					} catch (cause) {
-						var _item$reject3;
-						(_item$reject3 = item.reject) === null || _item$reject3 === void 0 || _item$reject3.call(item, cause);
-					}
-					item.batch = null;
-					item.reject = null;
-					item.resolve = null;
-				}));
-				for (const item of batch.items) {
-					var _item$reject4;
-					(_item$reject4 = item.reject) === null || _item$reject4 === void 0 || _item$reject4.call(item, /* @__PURE__ */ new Error("Missing result"));
-					item.batch = null;
-				}
-			}).catch((cause) => {
-				for (const item of batch.items) {
-					var _item$reject5;
-					(_item$reject5 = item.reject) === null || _item$reject5 === void 0 || _item$reject5.call(item, cause);
-					item.batch = null;
-				}
-			});
-		}
-	}
-	function load(key) {
-		var _dispatchTimer;
-		const item = {
-			aborted: false,
-			key,
-			batch: null,
-			resolve: throwFatalError,
-			reject: throwFatalError
-		};
-		const promise = new Promise((resolve, reject) => {
-			var _pendingItems;
-			item.reject = reject;
-			item.resolve = resolve;
-			(_pendingItems = pendingItems) !== null && _pendingItems !== void 0 || (pendingItems = []);
-			pendingItems.push(item);
-		});
-		(_dispatchTimer = dispatchTimer) !== null && _dispatchTimer !== void 0 || (dispatchTimer = setTimeout(dispatch));
-		return promise;
-	}
-	return { load };
-}
-/**
-* Like `Promise.all()` but for abort signals
-* - When all signals have been aborted, the merged signal will be aborted
-* - If one signal is `null`, no signal will be aborted
-*/
-function allAbortSignals(...signals) {
-	const ac = new AbortController();
-	const count = signals.length;
-	let abortedCount = 0;
-	const onAbort = () => {
-		if (++abortedCount === count) ac.abort();
-	};
-	for (const signal of signals) if (signal === null || signal === void 0 ? void 0 : signal.aborted) onAbort();
-	else signal === null || signal === void 0 || signal.addEventListener("abort", onAbort, { once: true });
-	return ac.signal;
-}
-var import_objectSpread2$7 = __toESM$1(require_objectSpread2$1(), 1);
-/**
-* @see https://trpc.io/docs/client/links/httpBatchLink
-*/
-function httpBatchLink(opts) {
-	var _opts$maxURLLength, _opts$maxItems;
-	const resolvedOpts = resolveHTTPLinkOptions(opts);
-	const maxURLLength = (_opts$maxURLLength = opts.maxURLLength) !== null && _opts$maxURLLength !== void 0 ? _opts$maxURLLength : Infinity;
-	const maxItems = (_opts$maxItems = opts.maxItems) !== null && _opts$maxItems !== void 0 ? _opts$maxItems : Infinity;
-	return () => {
-		const batchLoader = (type) => {
-			return {
-				validate(batchOps) {
-					if (maxURLLength === Infinity && maxItems === Infinity) return true;
-					if (batchOps.length > maxItems) return false;
-					const path = batchOps.map((op) => op.path).join(",");
-					const inputs = batchOps.map((op) => op.input);
-					return getUrl((0, import_objectSpread2$7.default)((0, import_objectSpread2$7.default)({}, resolvedOpts), {}, {
-						type,
-						path,
-						inputs,
-						signal: null
-					})).length <= maxURLLength;
-				},
-				async fetch(batchOps) {
-					const path = batchOps.map((op) => op.path).join(",");
-					const inputs = batchOps.map((op) => op.input);
-					const signal = allAbortSignals(...batchOps.map((op) => op.signal));
-					const res = await jsonHttpRequester((0, import_objectSpread2$7.default)((0, import_objectSpread2$7.default)({}, resolvedOpts), {}, {
-						path,
-						inputs,
-						type,
-						headers() {
-							if (!opts.headers) return {};
-							if (typeof opts.headers === "function") return opts.headers({ opList: batchOps });
-							return opts.headers;
-						},
-						signal
-					}));
-					return (Array.isArray(res.json) ? res.json : batchOps.map(() => res.json)).map((item) => ({
-						meta: res.meta,
-						json: item
-					}));
-				}
-			};
-		};
-		const loaders = {
-			query: dataLoader(batchLoader("query")),
-			mutation: dataLoader(batchLoader("mutation"))
-		};
-		return ({ op }) => {
-			return observable((observer) => {
-				/* istanbul ignore if -- @preserve */
-				if (op.type === "subscription") throw new Error("Subscriptions are unsupported by `httpLink` - use `httpSubscriptionLink` or `wsLink`");
-				const promise = loaders[op.type].load(op);
-				let _res = void 0;
-				promise.then((res) => {
-					_res = res;
-					const transformed = transformResult(res.json, resolvedOpts.transformer.output);
-					if (!transformed.ok) {
-						observer.error(TRPCClientError.from(transformed.error, { meta: res.meta }));
-						return;
-					}
-					observer.next({
-						context: res.meta,
-						result: transformed.result
-					});
-					observer.complete();
-				}).catch((err) => {
-					observer.error(TRPCClientError.from(err, { meta: _res === null || _res === void 0 ? void 0 : _res.meta }));
-				});
-				return () => {};
-			});
-		};
-	};
-}
-__toESM$1(require_objectSpread2$1(), 1);
-//#endregion
-//#region ../../node_modules/.pnpm/@trpc+client@11.17.0_@trpc+server@11.17.0_typescript@5.9.3__typescript@5.9.3/node_modules/@trpc/client/dist/wsLink-DSf4KOdW.mjs
-var jsonEncoder = {
-	encode: (data) => JSON.stringify(data),
-	decode: (data) => {
-		if (typeof data !== "string") throw new Error("jsonEncoder received binary data. JSON uses text frames. Use a binary encoder for binary data.");
-		return JSON.parse(data);
-	}
-};
-var lazyDefaults = {
-	enabled: false,
-	closeMs: 0
-};
-var keepAliveDefaults = {
-	enabled: false,
-	pongTimeoutMs: 1e3,
-	intervalMs: 5e3
-};
-/**
-* Calculates a delay for exponential backoff based on the retry attempt index.
-* The delay starts at 0 for the first attempt and doubles for each subsequent attempt,
-* capped at 30 seconds.
-*/
-var exponentialBackoff = (attemptIndex) => {
-	return attemptIndex === 0 ? 0 : Math.min(1e3 * 2 ** attemptIndex, 3e4);
-};
-/**
-* Get the result of a value or function that returns a value
-* It also optionally accepts typesafe arguments for the function
-*/
-var resultOf = (value, ...args) => {
-	return typeof value === "function" ? value(...args) : value;
-};
-var import_defineProperty$3 = __toESM$1(require_defineProperty$1(), 1);
-var TRPCWebSocketClosedError = class TRPCWebSocketClosedError extends Error {
-	constructor(opts) {
-		super(opts.message, { cause: opts.cause });
-		this.name = "TRPCWebSocketClosedError";
-		Object.setPrototypeOf(this, TRPCWebSocketClosedError.prototype);
-	}
-};
-/**
-* Utility class for managing a timeout that can be started, stopped, and reset.
-* Useful for scenarios where the timeout duration is reset dynamically based on events.
-*/
-var ResettableTimeout = class {
-	constructor(onTimeout, timeoutMs) {
-		this.onTimeout = onTimeout;
-		this.timeoutMs = timeoutMs;
-		(0, import_defineProperty$3.default)(this, "timeout", void 0);
-	}
-	/**
-	* Resets the current timeout, restarting it with the same duration.
-	* Does nothing if no timeout is active.
-	*/
-	reset() {
-		if (!this.timeout) return;
-		clearTimeout(this.timeout);
-		this.timeout = setTimeout(this.onTimeout, this.timeoutMs);
-	}
-	start() {
-		clearTimeout(this.timeout);
-		this.timeout = setTimeout(this.onTimeout, this.timeoutMs);
-	}
-	stop() {
-		clearTimeout(this.timeout);
-		this.timeout = void 0;
-	}
-};
-function withResolvers() {
-	let resolve;
-	let reject;
-	return {
-		promise: new Promise((res, rej) => {
-			resolve = res;
-			reject = rej;
-		}),
-		resolve,
-		reject
-	};
-}
-/**
-* Resolves a WebSocket URL and optionally appends connection parameters.
-*
-* If connectionParams are provided, appends 'connectionParams=1' query parameter.
-*/
-async function prepareUrl(urlOptions) {
-	const url = await resultOf(urlOptions.url);
-	if (!urlOptions.connectionParams) return url;
-	return url + `${url.includes("?") ? "&" : "?"}connectionParams=1`;
-}
-async function buildConnectionMessage(connectionParams, encoder) {
-	const message = {
-		method: "connectionParams",
-		data: await resultOf(connectionParams)
-	};
-	return encoder.encode(message);
-}
-var import_defineProperty$2 = __toESM$1(require_defineProperty$1(), 1);
-/**
-* Manages WebSocket requests, tracking their lifecycle and providing utility methods
-* for handling outgoing and pending requests.
-*
-* - **Outgoing requests**: Requests that are queued and waiting to be sent.
-* - **Pending requests**: Requests that have been sent and are in flight awaiting a response.
-*   For subscriptions, multiple responses may be received until the subscription is closed.
-*/
-var RequestManager = class {
-	constructor() {
-		(0, import_defineProperty$2.default)(this, "outgoingRequests", new Array());
-		(0, import_defineProperty$2.default)(this, "pendingRequests", {});
-	}
-	/**
-	* Registers a new request by adding it to the outgoing queue and setting up
-	* callbacks for lifecycle events such as completion or error.
-	*
-	* @param message - The outgoing message to be sent.
-	* @param callbacks - Callback functions to observe the request's state.
-	* @returns A cleanup function to manually remove the request.
-	*/
-	register(message, callbacks) {
-		const { promise: end, resolve } = withResolvers();
-		this.outgoingRequests.push({
-			id: String(message.id),
-			message,
-			end,
-			callbacks: {
-				next: callbacks.next,
-				complete: () => {
-					callbacks.complete();
-					resolve();
-				},
-				error: (e) => {
-					callbacks.error(e);
-					resolve();
-				}
-			}
-		});
-		return () => {
-			this.delete(message.id);
-			callbacks.complete();
-			resolve();
-		};
-	}
-	/**
-	* Deletes a request from both the outgoing and pending collections, if it exists.
-	*/
-	delete(messageId) {
-		if (messageId === null) return;
-		this.outgoingRequests = this.outgoingRequests.filter(({ id }) => id !== String(messageId));
-		delete this.pendingRequests[String(messageId)];
-	}
-	/**
-	* Moves all outgoing requests to the pending state and clears the outgoing queue.
-	*
-	* The caller is expected to handle the actual sending of the requests
-	* (e.g., sending them over the network) after this method is called.
-	*
-	* @returns The list of requests that were transitioned to the pending state.
-	*/
-	flush() {
-		const requests = this.outgoingRequests;
-		this.outgoingRequests = [];
-		for (const request of requests) this.pendingRequests[request.id] = request;
-		return requests;
-	}
-	/**
-	* Retrieves all currently pending requests, which are in flight awaiting responses
-	* or handling ongoing subscriptions.
-	*/
-	getPendingRequests() {
-		return Object.values(this.pendingRequests);
-	}
-	/**
-	* Retrieves a specific pending request by its message ID.
-	*/
-	getPendingRequest(messageId) {
-		if (messageId === null) return null;
-		return this.pendingRequests[String(messageId)];
-	}
-	/**
-	* Retrieves all outgoing requests, which are waiting to be sent.
-	*/
-	getOutgoingRequests() {
-		return this.outgoingRequests;
-	}
-	/**
-	* Retrieves all requests, both outgoing and pending, with their respective states.
-	*
-	* @returns An array of all requests with their state ("outgoing" or "pending").
-	*/
-	getRequests() {
-		return [...this.getOutgoingRequests().map((request) => ({
-			state: "outgoing",
-			message: request.message,
-			end: request.end,
-			callbacks: request.callbacks
-		})), ...this.getPendingRequests().map((request) => ({
-			state: "pending",
-			message: request.message,
-			end: request.end,
-			callbacks: request.callbacks
-		}))];
-	}
-	/**
-	* Checks if there are any pending requests, including ongoing subscriptions.
-	*/
-	hasPendingRequests() {
-		return this.getPendingRequests().length > 0;
-	}
-	/**
-	* Checks if there are any pending subscriptions
-	*/
-	hasPendingSubscriptions() {
-		return this.getPendingRequests().some((request) => request.message.method === "subscription");
-	}
-	/**
-	* Checks if there are any outgoing requests waiting to be sent.
-	*/
-	hasOutgoingRequests() {
-		return this.outgoingRequests.length > 0;
-	}
-};
-var import_defineProperty$1 = __toESM$1(require_defineProperty$1(), 1);
-/**
-* Opens a WebSocket connection asynchronously and returns a promise
-* that resolves when the connection is successfully established.
-* The promise rejects if an error occurs during the connection attempt.
-*/
-function asyncWsOpen(ws) {
-	const { promise, resolve, reject } = withResolvers();
-	ws.addEventListener("open", () => {
-		ws.removeEventListener("error", reject);
-		resolve();
-	});
-	ws.addEventListener("error", reject);
-	return promise;
-}
-/**
-* Sets up a periodic ping-pong mechanism to keep the WebSocket connection alive.
-*
-* - Sends "PING" messages at regular intervals defined by `intervalMs`.
-* - If a "PONG" response is not received within the `pongTimeoutMs`, the WebSocket is closed.
-* - The ping timer resets upon receiving any message to maintain activity.
-* - Automatically starts the ping process when the WebSocket connection is opened.
-* - Cleans up timers when the WebSocket is closed.
-*
-* @param ws - The WebSocket instance to manage.
-* @param options - Configuration options for ping-pong intervals and timeouts.
-*/
-function setupPingInterval(ws, { intervalMs, pongTimeoutMs }) {
-	let pingTimeout;
-	let pongTimeout;
-	function start() {
-		pingTimeout = setTimeout(() => {
-			ws.send("PING");
-			pongTimeout = setTimeout(() => {
-				ws.close();
-			}, pongTimeoutMs);
-		}, intervalMs);
-	}
-	function reset() {
-		clearTimeout(pingTimeout);
-		start();
-	}
-	function pong() {
-		clearTimeout(pongTimeout);
-		reset();
-	}
-	ws.addEventListener("open", start);
-	ws.addEventListener("message", ({ data }) => {
-		clearTimeout(pingTimeout);
-		start();
-		if (data === "PONG") pong();
-	});
-	ws.addEventListener("close", () => {
-		clearTimeout(pingTimeout);
-		clearTimeout(pongTimeout);
-	});
-}
-/**
-* Manages a WebSocket connection with support for reconnection, keep-alive mechanisms,
-* and observable state tracking.
-*/
-var WsConnection = class WsConnection {
-	constructor(opts) {
-		var _opts$WebSocketPonyfi;
-		(0, import_defineProperty$1.default)(this, "id", ++WsConnection.connectCount);
-		(0, import_defineProperty$1.default)(this, "WebSocketPonyfill", void 0);
-		(0, import_defineProperty$1.default)(this, "urlOptions", void 0);
-		(0, import_defineProperty$1.default)(this, "keepAliveOpts", void 0);
-		(0, import_defineProperty$1.default)(this, "encoder", void 0);
-		(0, import_defineProperty$1.default)(this, "wsObservable", behaviorSubject(null));
-		(0, import_defineProperty$1.default)(this, "openPromise", null);
-		this.WebSocketPonyfill = (_opts$WebSocketPonyfi = opts.WebSocketPonyfill) !== null && _opts$WebSocketPonyfi !== void 0 ? _opts$WebSocketPonyfi : WebSocket;
-		if (!this.WebSocketPonyfill) throw new Error("No WebSocket implementation found - you probably don't want to use this on the server, but if you do you need to pass a `WebSocket`-ponyfill");
-		this.urlOptions = opts.urlOptions;
-		this.keepAliveOpts = opts.keepAlive;
-		this.encoder = opts.encoder;
-	}
-	get ws() {
-		return this.wsObservable.get();
-	}
-	set ws(ws) {
-		this.wsObservable.next(ws);
-	}
-	/**
-	* Checks if the WebSocket connection is open and ready to communicate.
-	*/
-	isOpen() {
-		return !!this.ws && this.ws.readyState === this.WebSocketPonyfill.OPEN && !this.openPromise;
-	}
-	/**
-	* Checks if the WebSocket connection is closed or in the process of closing.
-	*/
-	isClosed() {
-		return !!this.ws && (this.ws.readyState === this.WebSocketPonyfill.CLOSING || this.ws.readyState === this.WebSocketPonyfill.CLOSED);
-	}
-	async open() {
-		var _this = this;
-		if (_this.openPromise) return _this.openPromise;
-		_this.id = ++WsConnection.connectCount;
-		_this.openPromise = prepareUrl(_this.urlOptions).then((url) => new _this.WebSocketPonyfill(url)).then(async (ws) => {
-			_this.ws = ws;
-			ws.binaryType = "arraybuffer";
-			ws.addEventListener("message", function({ data }) {
-				if (data === "PING") this.send("PONG");
-			});
-			if (_this.keepAliveOpts.enabled) setupPingInterval(ws, _this.keepAliveOpts);
-			ws.addEventListener("close", () => {
-				if (_this.ws === ws) _this.ws = null;
-			});
-			await asyncWsOpen(ws);
-			if (_this.urlOptions.connectionParams) ws.send(await buildConnectionMessage(_this.urlOptions.connectionParams, _this.encoder));
-		});
-		try {
-			await _this.openPromise;
-		} finally {
-			_this.openPromise = null;
-		}
-	}
-	/**
-	* Closes the WebSocket connection gracefully.
-	* Waits for any ongoing open operation to complete before closing.
-	*/
-	async close() {
-		var _this2 = this;
-		try {
-			await _this2.openPromise;
-		} finally {
-			var _this$ws;
-			(_this$ws = _this2.ws) === null || _this$ws === void 0 || _this$ws.close();
-		}
-	}
-};
-(0, import_defineProperty$1.default)(WsConnection, "connectCount", 0);
-/**
-* Provides a backward-compatible representation of the connection state.
-*/
-function backwardCompatibility(connection) {
-	if (connection.isOpen()) return {
-		id: connection.id,
-		state: "open",
-		ws: connection.ws
-	};
-	if (connection.isClosed()) return {
-		id: connection.id,
-		state: "closed",
-		ws: connection.ws
-	};
-	if (!connection.ws) return null;
-	return {
-		id: connection.id,
-		state: "connecting",
-		ws: connection.ws
-	};
-}
-var import_defineProperty$4 = __toESM$1(require_defineProperty$1(), 1);
-var import_objectSpread2$5 = __toESM$1(require_objectSpread2$1(), 1);
-/**
-* A WebSocket client for managing TRPC operations, supporting lazy initialization,
-* reconnection, keep-alive, and request management.
-*/
-var WsClient = class {
-	constructor(opts) {
-		var _opts$experimental_en, _opts$retryDelayMs;
-		(0, import_defineProperty$4.default)(this, "connectionState", void 0);
-		(0, import_defineProperty$4.default)(this, "allowReconnect", false);
-		(0, import_defineProperty$4.default)(this, "requestManager", new RequestManager());
-		(0, import_defineProperty$4.default)(this, "activeConnection", void 0);
-		(0, import_defineProperty$4.default)(this, "reconnectRetryDelay", void 0);
-		(0, import_defineProperty$4.default)(this, "inactivityTimeout", void 0);
-		(0, import_defineProperty$4.default)(this, "callbacks", void 0);
-		(0, import_defineProperty$4.default)(this, "lazyMode", void 0);
-		(0, import_defineProperty$4.default)(this, "encoder", void 0);
-		(0, import_defineProperty$4.default)(this, "reconnecting", null);
-		this.encoder = (_opts$experimental_en = opts.experimental_encoder) !== null && _opts$experimental_en !== void 0 ? _opts$experimental_en : jsonEncoder;
-		this.callbacks = {
-			onOpen: opts.onOpen,
-			onClose: opts.onClose,
-			onError: opts.onError
-		};
-		const lazyOptions = (0, import_objectSpread2$5.default)((0, import_objectSpread2$5.default)({}, lazyDefaults), opts.lazy);
-		this.inactivityTimeout = new ResettableTimeout(() => {
-			if (this.requestManager.hasOutgoingRequests() || this.requestManager.hasPendingRequests()) {
-				this.inactivityTimeout.reset();
-				return;
-			}
-			this.close().catch(() => null);
-		}, lazyOptions.closeMs);
-		this.activeConnection = new WsConnection({
-			WebSocketPonyfill: opts.WebSocket,
-			urlOptions: opts,
-			keepAlive: (0, import_objectSpread2$5.default)((0, import_objectSpread2$5.default)({}, keepAliveDefaults), opts.keepAlive),
-			encoder: this.encoder
-		});
-		this.activeConnection.wsObservable.subscribe({ next: (ws) => {
-			if (!ws) return;
-			this.setupWebSocketListeners(ws);
-		} });
-		this.reconnectRetryDelay = (_opts$retryDelayMs = opts.retryDelayMs) !== null && _opts$retryDelayMs !== void 0 ? _opts$retryDelayMs : exponentialBackoff;
-		this.lazyMode = lazyOptions.enabled;
-		this.connectionState = behaviorSubject({
-			type: "state",
-			state: lazyOptions.enabled ? "idle" : "connecting",
-			error: null
-		});
-		if (!this.lazyMode) this.open().catch(() => null);
-	}
-	/**
-	* Opens the WebSocket connection. Handles reconnection attempts and updates
-	* the connection state accordingly.
-	*/
-	async open() {
-		var _this = this;
-		_this.allowReconnect = true;
-		if (_this.connectionState.get().state === "idle") _this.connectionState.next({
-			type: "state",
-			state: "connecting",
-			error: null
-		});
-		try {
-			await _this.activeConnection.open();
-		} catch (error) {
-			_this.reconnect(new TRPCWebSocketClosedError({
-				message: "Initialization error",
-				cause: error
-			}));
-			return _this.reconnecting;
-		}
-	}
-	/**
-	* Closes the WebSocket connection and stops managing requests.
-	* Ensures all outgoing and pending requests are properly finalized.
-	*/
-	async close() {
-		var _this2 = this;
-		_this2.allowReconnect = false;
-		_this2.inactivityTimeout.stop();
-		const requestsToAwait = [];
-		for (const request of _this2.requestManager.getRequests()) if (request.message.method === "subscription") request.callbacks.complete();
-		else if (request.state === "outgoing") request.callbacks.error(TRPCClientError.from(new TRPCWebSocketClosedError({ message: "Closed before connection was established" })));
-		else requestsToAwait.push(request.end);
-		await Promise.all(requestsToAwait).catch(() => null);
-		await _this2.activeConnection.close().catch(() => null);
-		_this2.connectionState.next({
-			type: "state",
-			state: "idle",
-			error: null
-		});
-	}
-	/**
-	* Method to request the server.
-	* Handles data transformation, batching of requests, and subscription lifecycle.
-	*
-	* @param op - The operation details including id, type, path, input and signal
-	* @param transformer - Data transformer for serializing requests and deserializing responses
-	* @param lastEventId - Optional ID of the last received event for subscriptions
-	*
-	* @returns An observable that emits operation results and handles cleanup
-	*/
-	request({ op: { id, type, path, input, signal }, transformer, lastEventId }) {
-		return observable((observer) => {
-			const abort = this.batchSend({
-				id,
-				method: type,
-				params: {
-					input: transformer.input.serialize(input),
-					path,
-					lastEventId
-				}
-			}, (0, import_objectSpread2$5.default)((0, import_objectSpread2$5.default)({}, observer), {}, { next(event) {
-				const transformed = transformResult(event, transformer.output);
-				if (!transformed.ok) {
-					observer.error(TRPCClientError.from(transformed.error));
-					return;
-				}
-				observer.next({ result: transformed.result });
-			} }));
-			return () => {
-				abort();
-				if (type === "subscription" && this.activeConnection.isOpen()) this.send({
-					id,
-					method: "subscription.stop"
-				});
-				signal === null || signal === void 0 || signal.removeEventListener("abort", abort);
-			};
-		});
-	}
-	get connection() {
-		return backwardCompatibility(this.activeConnection);
-	}
-	reconnect(closedError) {
-		var _this3 = this;
-		this.connectionState.next({
-			type: "state",
-			state: "connecting",
-			error: TRPCClientError.from(closedError)
-		});
-		if (this.reconnecting) return;
-		const tryReconnect = async (attemptIndex) => {
-			try {
-				await sleep(_this3.reconnectRetryDelay(attemptIndex));
-				if (_this3.allowReconnect) {
-					await _this3.activeConnection.close();
-					await _this3.activeConnection.open();
-					if (_this3.requestManager.hasPendingRequests()) _this3.send(_this3.requestManager.getPendingRequests().map(({ message }) => message));
-				}
-				_this3.reconnecting = null;
-			} catch (_unused) {
-				await tryReconnect(attemptIndex + 1);
-			}
-		};
-		this.reconnecting = tryReconnect(0);
-	}
-	setupWebSocketListeners(ws) {
-		var _this4 = this;
-		const handleCloseOrError = (cause) => {
-			const reqs = this.requestManager.getPendingRequests();
-			for (const { message, callbacks } of reqs) {
-				if (message.method === "subscription") continue;
-				callbacks.error(TRPCClientError.from(cause !== null && cause !== void 0 ? cause : new TRPCWebSocketClosedError({
-					message: "WebSocket closed",
-					cause
-				})));
-				this.requestManager.delete(message.id);
-			}
-		};
-		ws.addEventListener("open", () => {
-			run(async () => {
-				var _this$callbacks$onOpe, _this$callbacks;
-				if (_this4.lazyMode) _this4.inactivityTimeout.start();
-				(_this$callbacks$onOpe = (_this$callbacks = _this4.callbacks).onOpen) === null || _this$callbacks$onOpe === void 0 || _this$callbacks$onOpe.call(_this$callbacks);
-				_this4.connectionState.next({
-					type: "state",
-					state: "pending",
-					error: null
-				});
-			}).catch((error) => {
-				ws.close(3e3);
-				handleCloseOrError(error);
-			});
-		});
-		ws.addEventListener("message", ({ data }) => {
-			this.inactivityTimeout.reset();
-			if (["PING", "PONG"].includes(data)) return;
-			const incomingMessage = this.encoder.decode(data);
-			if ("method" in incomingMessage) {
-				this.handleIncomingRequest(incomingMessage);
-				return;
-			}
-			this.handleResponseMessage(incomingMessage);
-		});
-		ws.addEventListener("close", (event) => {
-			var _this$callbacks$onClo, _this$callbacks2;
-			handleCloseOrError(event);
-			(_this$callbacks$onClo = (_this$callbacks2 = this.callbacks).onClose) === null || _this$callbacks$onClo === void 0 || _this$callbacks$onClo.call(_this$callbacks2, event);
-			if (!this.lazyMode || this.requestManager.hasPendingSubscriptions()) this.reconnect(new TRPCWebSocketClosedError({
-				message: "WebSocket closed",
-				cause: event
-			}));
-		});
-		ws.addEventListener("error", (event) => {
-			var _this$callbacks$onErr, _this$callbacks3;
-			handleCloseOrError(event);
-			(_this$callbacks$onErr = (_this$callbacks3 = this.callbacks).onError) === null || _this$callbacks$onErr === void 0 || _this$callbacks$onErr.call(_this$callbacks3, event);
-			this.reconnect(new TRPCWebSocketClosedError({
-				message: "WebSocket closed",
-				cause: event
-			}));
-		});
-	}
-	handleResponseMessage(message) {
-		const request = this.requestManager.getPendingRequest(message.id);
-		if (!request) return;
-		request.callbacks.next(message);
-		let completed = true;
-		if ("result" in message && request.message.method === "subscription") {
-			if (message.result.type === "data") request.message.params.lastEventId = message.result.id;
-			if (message.result.type !== "stopped") completed = false;
-		}
-		if (completed) {
-			request.callbacks.complete();
-			this.requestManager.delete(message.id);
-		}
-	}
-	handleIncomingRequest(message) {
-		if (message.method === "reconnect") this.reconnect(new TRPCWebSocketClosedError({ message: "Server requested reconnect" }));
-	}
-	/**
-	* Sends a message or batch of messages directly to the server.
-	*/
-	send(messageOrMessages) {
-		if (!this.activeConnection.isOpen()) throw new Error("Active connection is not open");
-		const messages = messageOrMessages instanceof Array ? messageOrMessages : [messageOrMessages];
-		this.activeConnection.ws.send(this.encoder.encode(messages.length === 1 ? messages[0] : messages));
-	}
-	/**
-	* Groups requests for batch sending.
-	*
-	* @returns A function to abort the batched request.
-	*/
-	batchSend(message, callbacks) {
-		var _this5 = this;
-		this.inactivityTimeout.reset();
-		run(async () => {
-			if (!_this5.activeConnection.isOpen()) await _this5.open();
-			await sleep(0);
-			if (!_this5.requestManager.hasOutgoingRequests()) return;
-			_this5.send(_this5.requestManager.flush().map(({ message: message$1 }) => message$1));
-		}).catch((err) => {
-			this.requestManager.delete(message.id);
-			callbacks.error(TRPCClientError.from(err));
-		});
-		return this.requestManager.register(message, callbacks);
-	}
-};
-function createWSClient(opts) {
-	return new WsClient(opts);
-}
-function wsLink(opts) {
-	const { client } = opts;
-	const transformer = getTransformer(opts.transformer);
-	return () => {
-		return ({ op }) => {
-			return observable((observer) => {
-				const connStateSubscription = op.type === "subscription" ? client.connectionState.subscribe({ next(result) {
-					observer.next({
-						result,
-						context: op.context
-					});
-				} }) : null;
-				const requestSubscription = client.request({
-					op,
-					transformer
-				}).subscribe(observer);
-				return () => {
-					requestSubscription.unsubscribe();
-					connStateSubscription === null || connStateSubscription === void 0 || connStateSubscription.unsubscribe();
-				};
-			});
-		};
-	};
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@trpc+client@11.17.0_@trpc+server@11.17.0_typescript@5.9.3__typescript@5.9.3/node_modules/@trpc/client/dist/index.mjs
-var import_defineProperty = __toESM$1(require_defineProperty$1(), 1);
-var import_objectSpread2$4 = __toESM$1(require_objectSpread2$1(), 1);
-var TRPCUntypedClient = class {
-	constructor(opts) {
-		(0, import_defineProperty.default)(this, "links", void 0);
-		(0, import_defineProperty.default)(this, "runtime", void 0);
-		(0, import_defineProperty.default)(this, "requestId", void 0);
-		this.requestId = 0;
-		this.runtime = {};
-		this.links = opts.links.map((link) => link(this.runtime));
-	}
-	$request(opts) {
-		var _opts$context;
-		return createChain({
-			links: this.links,
-			op: (0, import_objectSpread2$4.default)((0, import_objectSpread2$4.default)({}, opts), {}, {
-				context: (_opts$context = opts.context) !== null && _opts$context !== void 0 ? _opts$context : {},
-				id: ++this.requestId
-			})
-		}).pipe(share());
-	}
-	async requestAsPromise(opts) {
-		var _this = this;
-		try {
-			return (await observableToPromise(_this.$request(opts))).result.data;
-		} catch (err) {
-			throw TRPCClientError.from(err);
-		}
-	}
-	query(path, input, opts) {
-		return this.requestAsPromise({
-			type: "query",
-			path,
-			input,
-			context: opts === null || opts === void 0 ? void 0 : opts.context,
-			signal: opts === null || opts === void 0 ? void 0 : opts.signal
-		});
-	}
-	mutation(path, input, opts) {
-		return this.requestAsPromise({
-			type: "mutation",
-			path,
-			input,
-			context: opts === null || opts === void 0 ? void 0 : opts.context,
-			signal: opts === null || opts === void 0 ? void 0 : opts.signal
-		});
-	}
-	subscription(path, input, opts) {
-		return this.$request({
-			type: "subscription",
-			path,
-			input,
-			context: opts.context,
-			signal: opts.signal
-		}).subscribe({
-			next(envelope) {
-				switch (envelope.result.type) {
-					case "state":
-						var _opts$onConnectionSta;
-						(_opts$onConnectionSta = opts.onConnectionStateChange) === null || _opts$onConnectionSta === void 0 || _opts$onConnectionSta.call(opts, envelope.result);
-						break;
-					case "started":
-						var _opts$onStarted;
-						(_opts$onStarted = opts.onStarted) === null || _opts$onStarted === void 0 || _opts$onStarted.call(opts, { context: envelope.context });
-						break;
-					case "stopped":
-						var _opts$onStopped;
-						(_opts$onStopped = opts.onStopped) === null || _opts$onStopped === void 0 || _opts$onStopped.call(opts);
-						break;
-					case "data":
-					case void 0:
-						var _opts$onData;
-						(_opts$onData = opts.onData) === null || _opts$onData === void 0 || _opts$onData.call(opts, envelope.result.data);
-						break;
-				}
-			},
-			error(err) {
-				var _opts$onError;
-				(_opts$onError = opts.onError) === null || _opts$onError === void 0 || _opts$onError.call(opts, err);
-			},
-			complete() {
-				var _opts$onComplete;
-				(_opts$onComplete = opts.onComplete) === null || _opts$onComplete === void 0 || _opts$onComplete.call(opts);
-			}
-		});
-	}
-};
-var untypedClientSymbol = Symbol.for("trpc_untypedClient");
-var clientCallTypeMap = {
-	query: "query",
-	mutate: "mutation",
-	subscribe: "subscription"
-};
-/** @internal */
-var clientCallTypeToProcedureType = (clientCallType) => {
-	return clientCallTypeMap[clientCallType];
-};
-/**
-* @internal
-*/
-function createTRPCClientProxy(client) {
-	const proxy = createRecursiveProxy(({ path, args }) => {
-		const pathCopy = [...path];
-		const procedureType = clientCallTypeToProcedureType(pathCopy.pop());
-		const fullPath = pathCopy.join(".");
-		return client[procedureType](fullPath, ...args);
-	});
-	return createFlatProxy((key) => {
-		if (key === untypedClientSymbol) return client;
-		return proxy[key];
-	});
-}
-function createTRPCClient(opts) {
-	return createTRPCClientProxy(new TRPCUntypedClient(opts));
-}
-__toESM$1(require_objectSpread2$1(), 1);
-var import_objectSpread2$2 = __toESM$1(require_objectSpread2$1(), 1);
-function inputWithTrackedEventId(input, lastEventId) {
-	if (!lastEventId) return input;
-	if (input != null && typeof input !== "object") return input;
-	return (0, import_objectSpread2$2.default)((0, import_objectSpread2$2.default)({}, input !== null && input !== void 0 ? input : {}), {}, { lastEventId });
-}
-__toESM$1(__commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/asyncIterator.js"(exports, module) {
-	function _asyncIterator$1(r) {
-		var n, t, o, e = 2;
-		for ("undefined" != typeof Symbol && (t = Symbol.asyncIterator, o = Symbol.iterator); e--;) {
-			if (t && null != (n = r[t])) return n.call(r);
-			if (o && null != (n = r[o])) return new AsyncFromSyncIterator(n.call(r));
-			t = "@@asyncIterator", o = "@@iterator";
-		}
-		throw new TypeError("Object is not async iterable");
-	}
-	function AsyncFromSyncIterator(r) {
-		function AsyncFromSyncIteratorContinuation(r$1) {
-			if (Object(r$1) !== r$1) return Promise.reject(/* @__PURE__ */ new TypeError(r$1 + " is not an object."));
-			var n = r$1.done;
-			return Promise.resolve(r$1.value).then(function(r$2) {
-				return {
-					value: r$2,
-					done: n
-				};
-			});
-		}
-		return AsyncFromSyncIterator = function AsyncFromSyncIterator$1(r$1) {
-			this.s = r$1, this.n = r$1.next;
-		}, AsyncFromSyncIterator.prototype = {
-			s: null,
-			n: null,
-			next: function next() {
-				return AsyncFromSyncIteratorContinuation(this.n.apply(this.s, arguments));
-			},
-			"return": function _return(r$1) {
-				var n = this.s["return"];
-				return void 0 === n ? Promise.resolve({
-					value: r$1,
-					done: !0
-				}) : AsyncFromSyncIteratorContinuation(n.apply(this.s, arguments));
-			},
-			"throw": function _throw(r$1) {
-				var n = this.s["return"];
-				return void 0 === n ? Promise.reject(r$1) : AsyncFromSyncIteratorContinuation(n.apply(this.s, arguments));
-			}
-		}, new AsyncFromSyncIterator(r);
-	}
-	module.exports = _asyncIterator$1, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} })(), 1);
-var import_objectSpread2$1 = __toESM$1(require_objectSpread2$1(), 1);
-/**
-* @see https://trpc.io/docs/v11/client/links/retryLink
-*/
-function retryLink(opts) {
-	return () => {
-		return (callOpts) => {
-			return observable((observer) => {
-				let next$;
-				let callNextTimeout = void 0;
-				let lastEventId = void 0;
-				attempt(1);
-				function opWithLastEventId() {
-					const op = callOpts.op;
-					if (!lastEventId) return op;
-					return (0, import_objectSpread2$1.default)((0, import_objectSpread2$1.default)({}, op), {}, { input: inputWithTrackedEventId(op.input, lastEventId) });
-				}
-				function attempt(attempts) {
-					const op = opWithLastEventId();
-					next$ = callOpts.next(op).subscribe({
-						error(error) {
-							var _opts$retryDelayMs, _opts$retryDelayMs2;
-							if (!opts.retry({
-								op,
-								attempts,
-								error
-							})) {
-								observer.error(error);
-								return;
-							}
-							const delayMs = (_opts$retryDelayMs = (_opts$retryDelayMs2 = opts.retryDelayMs) === null || _opts$retryDelayMs2 === void 0 ? void 0 : _opts$retryDelayMs2.call(opts, attempts)) !== null && _opts$retryDelayMs !== void 0 ? _opts$retryDelayMs : 0;
-							if (delayMs <= 0) {
-								attempt(attempts + 1);
-								return;
-							}
-							callNextTimeout = setTimeout(() => attempt(attempts + 1), delayMs);
-						},
-						next(envelope) {
-							if ((!envelope.result.type || envelope.result.type === "data") && envelope.result.id) lastEventId = envelope.result.id;
-							observer.next(envelope);
-						},
-						complete() {
-							observer.complete();
-						}
-					});
-				}
-				return () => {
-					next$.unsubscribe();
-					clearTimeout(callNextTimeout);
-				};
-			});
-		};
-	};
-}
-var require_usingCtx = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/usingCtx.js"(exports, module) {
-	function _usingCtx() {
-		var r = "function" == typeof SuppressedError ? SuppressedError : function(r$1, e$1) {
-			var n$1 = Error();
-			return n$1.name = "SuppressedError", n$1.error = r$1, n$1.suppressed = e$1, n$1;
-		}, e = {}, n = [];
-		function using(r$1, e$1) {
-			if (null != e$1) {
-				if (Object(e$1) !== e$1) throw new TypeError("using declarations can only be used with objects, functions, null, or undefined.");
-				if (r$1) var o = e$1[Symbol.asyncDispose || Symbol["for"]("Symbol.asyncDispose")];
-				if (void 0 === o && (o = e$1[Symbol.dispose || Symbol["for"]("Symbol.dispose")], r$1)) var t = o;
-				if ("function" != typeof o) throw new TypeError("Object is not disposable.");
-				t && (o = function o$1() {
-					try {
-						t.call(e$1);
-					} catch (r$2) {
-						return Promise.reject(r$2);
-					}
-				}), n.push({
-					v: e$1,
-					d: o,
-					a: r$1
-				});
-			} else r$1 && n.push({
-				d: e$1,
-				a: r$1
-			});
-			return e$1;
-		}
-		return {
-			e,
-			u: using.bind(null, !1),
-			a: using.bind(null, !0),
-			d: function d() {
-				var o, t = this.e, s = 0;
-				function next() {
-					for (; o = n.pop();) try {
-						if (!o.a && 1 === s) return s = 0, n.push(o), Promise.resolve().then(next);
-						if (o.d) {
-							var r$1 = o.d.call(o.v);
-							if (o.a) return s |= 2, Promise.resolve(r$1).then(next, err);
-						} else s |= 1;
-					} catch (r$2) {
-						return err(r$2);
-					}
-					if (1 === s) return t !== e ? Promise.reject(t) : Promise.resolve();
-					if (t !== e) throw t;
-				}
-				function err(n$1) {
-					return t = t !== e ? new r(n$1, t) : n$1, next();
-				}
-				return next();
-			}
-		};
-	}
-	module.exports = _usingCtx, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} });
-var require_OverloadYield = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/OverloadYield.js"(exports, module) {
-	function _OverloadYield(e, d) {
-		this.v = e, this.k = d;
-	}
-	module.exports = _OverloadYield, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} });
-var require_awaitAsyncGenerator = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/awaitAsyncGenerator.js"(exports, module) {
-	var OverloadYield$1 = require_OverloadYield();
-	function _awaitAsyncGenerator$1(e) {
-		return new OverloadYield$1(e, 0);
-	}
-	module.exports = _awaitAsyncGenerator$1, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} });
-var require_wrapAsyncGenerator = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/wrapAsyncGenerator.js"(exports, module) {
-	var OverloadYield = require_OverloadYield();
-	function _wrapAsyncGenerator$1(e) {
-		return function() {
-			return new AsyncGenerator(e.apply(this, arguments));
-		};
-	}
-	function AsyncGenerator(e) {
-		var r, t;
-		function resume(r$1, t$1) {
-			try {
-				var n = e[r$1](t$1), o = n.value, u = o instanceof OverloadYield;
-				Promise.resolve(u ? o.v : o).then(function(t$2) {
-					if (u) {
-						var i = "return" === r$1 ? "return" : "next";
-						if (!o.k || t$2.done) return resume(i, t$2);
-						t$2 = e[i](t$2).value;
-					}
-					settle(n.done ? "return" : "normal", t$2);
-				}, function(e$1) {
-					resume("throw", e$1);
-				});
-			} catch (e$1) {
-				settle("throw", e$1);
-			}
-		}
-		function settle(e$1, n) {
-			switch (e$1) {
-				case "return":
-					r.resolve({
-						value: n,
-						done: !0
-					});
-					break;
-				case "throw":
-					r.reject(n);
-					break;
-				default: r.resolve({
-					value: n,
-					done: !1
-				});
-			}
-			(r = r.next) ? resume(r.key, r.arg) : t = null;
-		}
-		this._invoke = function(e$1, n) {
-			return new Promise(function(o, u) {
-				var i = {
-					key: e$1,
-					arg: n,
-					resolve: o,
-					reject: u,
-					next: null
-				};
-				t ? t = t.next = i : (r = t = i, resume(e$1, n));
-			});
-		}, "function" != typeof e["return"] && (this["return"] = void 0);
-	}
-	AsyncGenerator.prototype["function" == typeof Symbol && Symbol.asyncIterator || "@@asyncIterator"] = function() {
-		return this;
-	}, AsyncGenerator.prototype.next = function(e) {
-		return this._invoke("next", e);
-	}, AsyncGenerator.prototype["throw"] = function(e) {
-		return this._invoke("throw", e);
-	}, AsyncGenerator.prototype["return"] = function(e) {
-		return this._invoke("return", e);
-	};
-	module.exports = _wrapAsyncGenerator$1, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} });
-__toESM$1(require_usingCtx(), 1);
-__toESM$1(require_awaitAsyncGenerator(), 1);
-__toESM$1(require_wrapAsyncGenerator(), 1);
-__toESM$1(require_objectSpread2$1(), 1);
-//#endregion
-//#region ../send/frontend/src/lib/config.ts
-var TRPC_WS_PATH = `/trpc/ws`;
-//#endregion
-//#region ../send/frontend/src/lib/trpc.ts
-/**
-* This is the client-side code that uses the inferred types from the server
-*/
-var serverUrl = "https://send-backend.tb.pro".trim();
-var refreshUrl = `${serverUrl}/api/auth/refresh`;
-var trpcUrl = `${serverUrl}/trpc`;
-/**
-* Detect whether we're running in a test/automation context, where the
-* WebSocket must stay closed.
-*
-* Unit tests inject `import.meta.env.VITE_TESTING`. When that build-time flag is
-* unavailable — as in the shipped background bundle — fall back to the presence
-* of the WebExtension `browser.test` API, which the Thunderbird/Firefox test
-* harness only exposes when the add-on is loaded under automation. This keeps a
-* logged-out automation profile from ever opening the socket at startup.
-*/
-function detectTesting() {
-	return typeof browser !== "undefined" && Boolean(browser.test);
-}
-var isTesting = detectTesting();
-/**
-* Decide how (and whether) to build the WebSocket client.
-*
-* Returns `null` — meaning "do not connect" — when running under unit tests or
-* when no backend host is configured (empty `serverUrl`). Otherwise returns the
-* client config with **lazy mode** enabled.
-*
-* Lazy mode is critical: the background page of the built-in/system add-on
-* imports this module on every Thunderbird launch, including fresh,
-* never-signed-in profiles. A non-lazy client opens the socket as a side effect
-* of construction (at module load), which under automation triggers a fatal
-* "non-local network connections are disabled" abort and crashes the process
-* before any feature is used. With lazy mode the connection is deferred until
-* the first subscription actually runs (i.e. an authenticated user is using a
-* feature) and is closed again after inactivity, so a logged-out profile makes
-* zero outbound connections at startup.
-*/
-function getWsClientConfig(url, testing) {
-	const normalizedUrl = url.trim();
-	if (testing || normalizedUrl.length === 0) return null;
-	return {
-		url: `${normalizedUrl}${TRPC_WS_PATH}`,
-		lazy: {
-			enabled: true,
-			closeMs: 1e3
-		}
-	};
-}
-var wsClientConfig = getWsClientConfig(serverUrl, isTesting);
-var wsClient = wsClientConfig ? createWSClient(wsClientConfig) : null;
-/**
-* We only import the `AppRouter` type from the server - this is not available at runtime
-*/
-async function fetchWithLogoutCheck(url, options) {
-	async function getAuthStore() {
-		const { useAuthStore } = await Promise.resolve().then(() => auth_store_exports);
-		return useAuthStore();
-	}
-	async function buildHeaders() {
-		const headers = new Headers(options.headers);
-		try {
-			if (!headers.has("Authorization")) {
-				const token = await (await getAuthStore()).getAccessToken();
-				if (token) headers.set("Authorization", `Bearer ${token}`);
-			}
-		} catch {}
-		return headers;
-	}
-	const res = await fetch(url, {
-		...options,
-		headers: await buildHeaders(),
-		credentials: "include"
-	});
-	if (res.headers?.get?.("x-logout")) try {
-		if (await (await getAuthStore()).recoverOrForceLogout()) return await fetch(url, {
-			...options,
-			headers: await buildHeaders(),
-			credentials: "include"
-		});
-	} catch (error) {
-		console.error("Forced-logout handling failed:", error);
-	}
-	return res;
-}
-var trpc = createTRPCClient({ links: [splitLink({
-	condition: (op) => op.type === "subscription",
-	false: [retryLink({ 
-	/**
-	* Retry strategy for failed requests:
-	* - For 401 unauthorized errors: Attempts to refresh the token and retries up to 3 times
-	* - For queries (not mutations): Retries up to 3 times
-	* - For all other cases: No retry
-	*/
-retry(opts) {
-		if (opts.error.data?.code === "UNAUTHORIZED") {
-			if (opts.op.type !== "query") return false;
-			fetch(refreshUrl, { credentials: "include" }).then(() => {
-				console.info("revalidated token");
-			}).catch((err) => {
-				console.info("could not revalidate token", err);
-			});
-			return opts.attempts <= 3;
-		}
-	} }), httpBatchLink({
-		url: trpcUrl,
-		fetch: fetchWithLogoutCheck
-	})],
-	true: wsClient ? [wsLink({ client: wsClient })] : [httpBatchLink({
-		url: trpcUrl,
-		fetch: fetchWithLogoutCheck
-	})]
-})] });
-//#endregion
 //#region ../send/frontend/src/lib/api.ts
+/**
+* Build an absolute `/api/...` request URL from a caller-supplied, possibly
+* user-derived `path`, pinned to `serverUrl`'s origin.
+*
+* Guards against server-side request forgery (code-scanning alert #43): a `path`
+* containing a scheme or authority (`http://evil`, `//evil`) is rejected, a
+* `path` containing a backslash (which URL parsing may treat as a path
+* separator) is rejected, and dot-segments (`.`/`..`) — which `new URL()` would
+* normalize and could use to climb out of the `/api/` prefix (e.g. `../admin`
+* → `/admin`) — are rejected. After construction the resulting URL's origin is
+* asserted to equal the configured server origin, and its pathname is asserted
+* to still live under `/api/`, before it is ever used. Legitimate paths —
+* including query strings (`.../links?type=file`), trailing slashes and
+* non-ASCII-safe segments such as email addresses (`users/lookup/a@b.com/`) —
+* are preserved unchanged.
+*/
+function buildApiUrl(serverUrl, path) {
+	const trimmed = (path ?? "").trim();
+	if (!trimmed) throw new Error("Invalid API path");
+	if (/^(?:[a-zA-Z][a-zA-Z\d+\-.]*:)?\/\//.test(trimmed)) throw new Error("Invalid API path");
+	if (trimmed.includes("\\")) throw new Error("Invalid API path");
+	const relativePath = trimmed.replace(/^\/+/, "");
+	if (relativePath.split("/").some((segment) => segment === "." || segment === "..")) throw new Error("Invalid API path");
+	const url = new URL(`/api/${relativePath}`, serverUrl);
+	if (url.origin !== new URL(serverUrl).origin) throw new Error("Invalid API path");
+	if (!url.pathname.startsWith("/api/")) throw new Error("Invalid API path");
+	return url.toString();
+}
 var ApiConnection = class {
 	constructor(serverUrl) {
 		if (!serverUrl) throw Error("No Server URL provided.");
 		const u = new URL(serverUrl);
 		this.serverUrl = u.origin;
-		this.getStorageType().then((isBucketStorage) => {
-			this.isBucketStorage = isBucketStorage;
-		});
-	}
-	async getStorageType() {
-		return true;
 	}
 	toString() {
 		return this.serverUrl;
@@ -7420,8 +5580,8 @@ var ApiConnection = class {
 		await this.call("api/auth/oidc/logout");
 	}
 	async call(path, body = {}, method = "GET", headers = {}, options) {
-		const url = `${this.serverUrl}/api/${path}`;
-		const refreshTokenUrl = `${this.serverUrl}/api/auth/refresh`;
+		const url = buildApiUrl(this.serverUrl, path);
+		const refreshTokenUrl = buildApiUrl(this.serverUrl, "auth/refresh");
 		const requestHeaders = { ...headers };
 		if (!requestHeaders["Authorization"]) try {
 			const { useAuthStore } = await Promise.resolve().then(() => auth_store_exports);
@@ -7522,6 +5682,76 @@ var useApiStore = defineStore("api", () => {
 	return { api: new ApiConnection(url) };
 });
 //#endregion
+//#region ../send/frontend/src/lib/initFolderLock.ts
+/**
+* Cross-context lock for the default-folder delete+recreate branch in
+* init.ts. See issue #1032 (and its ancestor, #930).
+*
+* Why this exists: background.ts, the popup, and any web-app tab bridged
+* into the extension each load their OWN independent copy of init.ts as a
+* separate JS module instance (same reasoning as shared-pinia.ts's
+* per-context-singleton comment). A plain in-memory flag in one of those
+* copies is invisible to the others. `browser.storage.local` is the one
+* thing all of those contexts genuinely share, so it's the only place a
+* lock that actually works across contexts can live.
+*
+* This is intentionally a short-TTL lock, not a queue or a hard mutex: if a
+* context dies while holding it (tab closed, background page recycled), we
+* want the next init() call to be able to proceed after a few seconds
+* rather than being stuck forever. The tradeoff is a small window where two
+* contexts could still both proceed if one crashes at the exact wrong
+* moment inside its TTL -- that's an acceptable residual risk for a race
+* that was previously unguarded 100% of the time.
+*/
+var LOCK_TTL_MS = 15e3;
+function lockStorageKey(accountId) {
+	return `tbpro-init-folder-lock:${accountId}`;
+}
+function generateToken() {
+	if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+	return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+function hasExtensionStorage() {
+	return typeof browser !== "undefined" && !!browser?.storage?.local && typeof browser.storage.local.get === "function";
+}
+/**
+* Attempt to acquire the default-folder lock for this account.
+*
+* Returns a token to pass to releaseDefaultFolderLock() on success, or
+* `null` if another context currently holds an unexpired lock.
+*
+* In any context without `browser.storage.local` (e.g. a plain web-app tab
+* with no sibling extension context to race against), this always
+* "succeeds" by returning a token that release() will just no-op on --
+* there's nothing to coordinate with, so the delete+recreate branch proceeds
+* exactly as it did before this fix existed.
+*/
+async function acquireDefaultFolderLock(accountId) {
+	if (!accountId || !hasExtensionStorage()) return generateToken();
+	const key = lockStorageKey(accountId);
+	const now = Date.now();
+	const existing = (await browser.storage.local.get(key))?.[key];
+	if (existing && existing.expiresAt > now) return null;
+	const token = generateToken();
+	const record = {
+		token,
+		expiresAt: now + LOCK_TTL_MS
+	};
+	await browser.storage.local.set({ [key]: record });
+	return ((await browser.storage.local.get(key))?.[key])?.token === token ? token : null;
+}
+/**
+* Release a previously-acquired lock. Only clears the stored record if it
+* still matches the token we were given -- if the lock already expired and
+* a different context has since taken it over, we must not clear their
+* lock out from under them.
+*/
+async function releaseDefaultFolderLock(accountId, token) {
+	if (!accountId || !hasExtensionStorage()) return;
+	const key = lockStorageKey(accountId);
+	if (((await browser.storage.local.get(key))?.[key])?.token === token) await browser.storage.local.remove(key);
+}
+//#endregion
 //#region ../send/frontend/src/lib/init.ts
 /**
 * Loads user and keychain from storage; creates default folder if necessary.
@@ -7544,12 +5774,21 @@ async function _init(userStore, keychain, folderStore) {
 	await folderStore.sync();
 	const defaultFolder = folderStore?.defaultFolder;
 	const defaultFolderKeyIsMissing = defaultFolder && !keychain.keys[defaultFolder.id];
-	if (defaultFolderKeyIsMissing) {
-		console.warn(`Default folder ${defaultFolder.id} exists but has no key. Deleting orphaned container and recreating.`);
-		await folderStore.deleteFolder(defaultFolder.id);
-	}
 	if (!defaultFolder || defaultFolderKeyIsMissing) {
-		if (!(await folderStore.createFolder())?.id) return INIT_ERRORS.COULD_NOT_CREATE_DEFAULT_FOLDER;
+		const lockToken = await acquireDefaultFolderLock(userStore.user?.id);
+		if (lockToken === null) {
+			await folderStore.sync();
+			return folderStore?.defaultFolder ? INIT_ERRORS.NONE : INIT_ERRORS.NO_KEYCHAIN;
+		}
+		try {
+			if (defaultFolderKeyIsMissing) {
+				console.warn(`Default folder ${defaultFolder.id} exists but has no key. Deleting orphaned container and recreating.`);
+				await folderStore.deleteFolder(defaultFolder.id);
+			}
+			if (!(await folderStore.createFolder())?.id) return INIT_ERRORS.COULD_NOT_CREATE_DEFAULT_FOLDER;
+		} finally {
+			await releaseDefaultFolderLock(userStore.user?.id, lockToken);
+		}
 	}
 	return INIT_ERRORS.NONE;
 }
@@ -7561,6 +5800,128 @@ function init$1(userStore, keychain, folderStore) {
 	});
 	return inFlight;
 }
+//#endregion
+//#region ../send/frontend/src/lib/helpers.ts
+async function _download({ url, progressTracker }) {
+	const xhr = new XMLHttpRequest();
+	const { setProgress } = progressTracker;
+	xhr.onprogress = (event) => {
+		if (event.lengthComputable) {
+			const downloadProgress = event.loaded;
+			setProgress(downloadProgress);
+		}
+	};
+	return new Promise((resolve, reject) => {
+		xhr.addEventListener("loadend", async function() {
+			if (xhr.status !== 200) return reject(/* @__PURE__ */ new Error(`${xhr.status}`));
+			resolve(new Blob([xhr.response]));
+		});
+		xhr.open("get", url);
+		xhr.responseType = "blob";
+		xhr.send();
+	});
+}
+async function encrypt(stream, key) {
+	try {
+		let size = 0;
+		const chunks = [];
+		if (key) stream = encryptStream(stream, key);
+		const reader = stream.getReader();
+		let state = await reader.read();
+		while (!state.done) {
+			const buf = state.value;
+			chunks.push(buf);
+			size += buf.length;
+			console.info("Encrypted", size, "bytes", "- timestamp:", Date.now());
+			state = await reader.read();
+		}
+		return concatenateUint8Arrays(chunks);
+	} catch (e) {
+		console.error(e);
+	}
+}
+function concatenateUint8Arrays(arrays) {
+	const totalLength = arrays.reduce((acc, value) => acc + value.length, 0);
+	const result = new Uint8Array(totalLength);
+	let length = 0;
+	for (const array of arrays) {
+		result.set(array, length);
+		length += array.length;
+	}
+	return result;
+}
+var UPLOAD_ABORTED = "UPLOAD_ABORTED";
+var UPLOAD_HTTP_RETRY_LIMIT = Number(config.uploadHttpRetryLimit) || 3;
+var UPLOAD_HTTP_RETRY_BASE_DELAY_MS = Number(config.uploadHttpRetryBaseDelayMs) || 1e3;
+/**
+* Exponential backoff with jitter for the upload PUT retry schedule:
+*   delay = base * 2^attempt * (0.5 + Math.random() / 2)
+* The jitter factor is in [0.5, 1.0), so with the default 1000ms base the
+* per-attempt delays grow roughly ~1s, ~2s, ~4s while staying de-synchronized
+* across clients (avoids a thundering herd when B2 recovers).
+*
+* @param attempt - zero-based index of the attempt that just failed
+* @param baseDelayMs - base delay; defaults to UPLOAD_HTTP_RETRY_BASE_DELAY_MS
+*/
+function getUploadRetryDelayMs(attempt, baseDelayMs = UPLOAD_HTTP_RETRY_BASE_DELAY_MS) {
+	const exponential = baseDelayMs * 2 ** attempt;
+	const jitter = .5 + Math.random() / 2;
+	return Math.floor(exponential * jitter);
+}
+var uploadWithTracker = ({ url, readableStream, progressTracker, signal }) => {
+	const { setProgress } = progressTracker;
+	const XHR_TIMEOUT_MS = 18e4;
+	const attemptPut = (blob, attempt) => {
+		if (signal?.aborted) return Promise.reject(/* @__PURE__ */ new Error(UPLOAD_ABORTED));
+		if (attempt > 0) setProgress(0);
+		return new Promise((resolve, reject) => {
+			const xhr = new XMLHttpRequest();
+			xhr.open("PUT", url, true);
+			xhr.setRequestHeader("Content-Type", "application/octet-stream");
+			xhr.timeout = XHR_TIMEOUT_MS;
+			const onAbort = () => xhr.abort();
+			signal?.addEventListener("abort", onAbort, { once: true });
+			const cleanup = () => signal?.removeEventListener("abort", onAbort);
+			xhr.upload.onprogress = (event) => {
+				if (event.lengthComputable) {
+					const uploadProgress = event.loaded;
+					setProgress(uploadProgress);
+				}
+			};
+			xhr.onload = () => {
+				cleanup();
+				if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.response);
+				else {
+					console.error("Upload failed:");
+					reject(/* @__PURE__ */ new Error("UPLOAD_FAILED"));
+				}
+			};
+			xhr.onabort = () => {
+				cleanup();
+				reject(/* @__PURE__ */ new Error(UPLOAD_ABORTED));
+			};
+			xhr.onerror = () => {
+				cleanup();
+				reject(/* @__PURE__ */ new Error("XHR: UPLOAD_FAILED"));
+			};
+			xhr.ontimeout = () => {
+				cleanup();
+				reject(/* @__PURE__ */ new Error(`Upload timed out after ${XHR_TIMEOUT_MS / 1e3}s`));
+			};
+			xhr.send(blob);
+		}).catch((error) => {
+			if (!(signal?.aborted || error?.message === "UPLOAD_ABORTED") && attempt < UPLOAD_HTTP_RETRY_LIMIT) {
+				const delayMs = getUploadRetryDelayMs(attempt);
+				console.warn(`HTTP PUT attempt ${attempt + 1} failed, retrying in ${delayMs}ms...`, error.message);
+				return new Promise((resolve) => setTimeout(resolve, delayMs)).then(() => attemptPut(blob, attempt + 1));
+			}
+			throw error;
+		});
+	};
+	return new Response(readableStream).blob().then((uploadBlob) => {
+		return attemptPut(uploadBlob, 0);
+	});
+};
 /*!
 
 JSZip v3.10.1 - A JavaScript class for generating and reading zip files
@@ -7573,7 +5934,7 @@ JSZip uses the library pako released under the MIT license :
 https://github.com/nodeca/pako/blob/main/LICENSE
 */
 //#endregion
-//#region ../send/frontend/src/lib/utils.ts
+//#region ../../node_modules/.pnpm/@trpc+client@11.17.0_@trpc+server@11.17.0_typescript@5.9.3__typescript@5.9.3/node_modules/@trpc/client/dist/objectSpread2-BvkFp-_Y.mjs
 var import_jszip_min = /* @__PURE__ */ __toESM$2((/* @__PURE__ */ __commonJSMin(((exports, module) => {
 	(function(e) {
 		if ("object" == typeof exports && "undefined" != typeof module) module.exports = e();
@@ -10668,6 +9029,2067 @@ while (n === a[++i] && n === a[++i] && n === a[++i] && n === a[++i] && n === a[+
 		}, {}, [10])(10);
 	});
 })))(), 1);
+var __create$1 = Object.create;
+var __defProp$1 = Object.defineProperty;
+var __getOwnPropDesc$1 = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames$1 = Object.getOwnPropertyNames;
+var __getProtoOf$1 = Object.getPrototypeOf;
+var __hasOwnProp$1 = Object.prototype.hasOwnProperty;
+var __commonJS$1 = (cb, mod) => function() {
+	return mod || (0, cb[__getOwnPropNames$1(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+};
+var __copyProps$1 = (to, from, except, desc) => {
+	if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames$1(from), i = 0, n = keys.length, key; i < n; i++) {
+		key = keys[i];
+		if (!__hasOwnProp$1.call(to, key) && key !== except) __defProp$1(to, key, {
+			get: ((k) => from[k]).bind(null, key),
+			enumerable: !(desc = __getOwnPropDesc$1(from, key)) || desc.enumerable
+		});
+	}
+	return to;
+};
+var __toESM$1 = (mod, isNodeMode, target) => (target = mod != null ? __create$1(__getProtoOf$1(mod)) : {}, __copyProps$1(isNodeMode || !mod || !mod.__esModule ? __defProp$1(target, "default", {
+	value: mod,
+	enumerable: true
+}) : target, mod));
+var require_typeof$1 = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/typeof.js"(exports, module) {
+	function _typeof$2(o) {
+		"@babel/helpers - typeof";
+		return module.exports = _typeof$2 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o$1) {
+			return typeof o$1;
+		} : function(o$1) {
+			return o$1 && "function" == typeof Symbol && o$1.constructor === Symbol && o$1 !== Symbol.prototype ? "symbol" : typeof o$1;
+		}, module.exports.__esModule = true, module.exports["default"] = module.exports, _typeof$2(o);
+	}
+	module.exports = _typeof$2, module.exports.__esModule = true, module.exports["default"] = module.exports;
+} });
+var require_toPrimitive$1 = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/toPrimitive.js"(exports, module) {
+	var _typeof$1 = require_typeof$1()["default"];
+	function toPrimitive$1(t, r) {
+		if ("object" != _typeof$1(t) || !t) return t;
+		var e = t[Symbol.toPrimitive];
+		if (void 0 !== e) {
+			var i = e.call(t, r || "default");
+			if ("object" != _typeof$1(i)) return i;
+			throw new TypeError("@@toPrimitive must return a primitive value.");
+		}
+		return ("string" === r ? String : Number)(t);
+	}
+	module.exports = toPrimitive$1, module.exports.__esModule = true, module.exports["default"] = module.exports;
+} });
+var require_toPropertyKey$1 = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/toPropertyKey.js"(exports, module) {
+	var _typeof = require_typeof$1()["default"];
+	var toPrimitive = require_toPrimitive$1();
+	function toPropertyKey$1(t) {
+		var i = toPrimitive(t, "string");
+		return "symbol" == _typeof(i) ? i : i + "";
+	}
+	module.exports = toPropertyKey$1, module.exports.__esModule = true, module.exports["default"] = module.exports;
+} });
+var require_defineProperty$1 = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/defineProperty.js"(exports, module) {
+	var toPropertyKey = require_toPropertyKey$1();
+	function _defineProperty(e, r, t) {
+		return (r = toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
+			value: t,
+			enumerable: !0,
+			configurable: !0,
+			writable: !0
+		}) : e[r] = t, e;
+	}
+	module.exports = _defineProperty, module.exports.__esModule = true, module.exports["default"] = module.exports;
+} });
+var require_objectSpread2$1 = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/objectSpread2.js"(exports, module) {
+	var defineProperty = require_defineProperty$1();
+	function ownKeys(e, r) {
+		var t = Object.keys(e);
+		if (Object.getOwnPropertySymbols) {
+			var o = Object.getOwnPropertySymbols(e);
+			r && (o = o.filter(function(r$1) {
+				return Object.getOwnPropertyDescriptor(e, r$1).enumerable;
+			})), t.push.apply(t, o);
+		}
+		return t;
+	}
+	function _objectSpread2(e) {
+		for (var r = 1; r < arguments.length; r++) {
+			var t = null != arguments[r] ? arguments[r] : {};
+			r % 2 ? ownKeys(Object(t), !0).forEach(function(r$1) {
+				defineProperty(e, r$1, t[r$1]);
+			}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function(r$1) {
+				Object.defineProperty(e, r$1, Object.getOwnPropertyDescriptor(t, r$1));
+			});
+		}
+		return e;
+	}
+	module.exports = _objectSpread2, module.exports.__esModule = true, module.exports["default"] = module.exports;
+} });
+//#endregion
+//#region ../../node_modules/.pnpm/@trpc+server@11.17.0_typescript@5.9.3/node_modules/@trpc/server/dist/observable-UMO3vUa_.mjs
+/** @public */
+function observable(subscribe) {
+	const self = {
+		subscribe(observer) {
+			let teardownRef = null;
+			let isDone = false;
+			let unsubscribed = false;
+			let teardownImmediately = false;
+			function unsubscribe() {
+				if (teardownRef === null) {
+					teardownImmediately = true;
+					return;
+				}
+				if (unsubscribed) return;
+				unsubscribed = true;
+				if (typeof teardownRef === "function") teardownRef();
+				else if (teardownRef) teardownRef.unsubscribe();
+			}
+			teardownRef = subscribe({
+				next(value) {
+					var _observer$next;
+					if (isDone) return;
+					(_observer$next = observer.next) === null || _observer$next === void 0 || _observer$next.call(observer, value);
+				},
+				error(err) {
+					var _observer$error;
+					if (isDone) return;
+					isDone = true;
+					(_observer$error = observer.error) === null || _observer$error === void 0 || _observer$error.call(observer, err);
+					unsubscribe();
+				},
+				complete() {
+					var _observer$complete;
+					if (isDone) return;
+					isDone = true;
+					(_observer$complete = observer.complete) === null || _observer$complete === void 0 || _observer$complete.call(observer);
+					unsubscribe();
+				}
+			});
+			if (teardownImmediately) unsubscribe();
+			return { unsubscribe };
+		},
+		pipe(...operations) {
+			return operations.reduce(pipeReducer, self);
+		}
+	};
+	return self;
+}
+function pipeReducer(prev, fn) {
+	return fn(prev);
+}
+/** @internal */
+function observableToPromise(observable$1) {
+	const ac = new AbortController();
+	return new Promise((resolve, reject) => {
+		let isDone = false;
+		function onDone() {
+			if (isDone) return;
+			isDone = true;
+			obs$.unsubscribe();
+		}
+		ac.signal.addEventListener("abort", () => {
+			reject(ac.signal.reason);
+		});
+		const obs$ = observable$1.subscribe({
+			next(data) {
+				isDone = true;
+				resolve(data);
+				onDone();
+			},
+			error(data) {
+				reject(data);
+			},
+			complete() {
+				ac.abort();
+				onDone();
+			}
+		});
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@trpc+server@11.17.0_typescript@5.9.3/node_modules/@trpc/server/dist/observable-CUiPknO-.mjs
+function share(_opts) {
+	return (source) => {
+		let refCount = 0;
+		let subscription = null;
+		const observers = [];
+		function startIfNeeded() {
+			if (subscription) return;
+			subscription = source.subscribe({
+				next(value) {
+					for (const observer of observers) {
+						var _observer$next;
+						(_observer$next = observer.next) === null || _observer$next === void 0 || _observer$next.call(observer, value);
+					}
+				},
+				error(error) {
+					for (const observer of observers) {
+						var _observer$error;
+						(_observer$error = observer.error) === null || _observer$error === void 0 || _observer$error.call(observer, error);
+					}
+				},
+				complete() {
+					for (const observer of observers) {
+						var _observer$complete;
+						(_observer$complete = observer.complete) === null || _observer$complete === void 0 || _observer$complete.call(observer);
+					}
+				}
+			});
+		}
+		function resetIfNeeded() {
+			if (refCount === 0 && subscription) {
+				const _sub = subscription;
+				subscription = null;
+				_sub.unsubscribe();
+			}
+		}
+		return observable((subscriber) => {
+			refCount++;
+			observers.push(subscriber);
+			startIfNeeded();
+			return { unsubscribe() {
+				refCount--;
+				resetIfNeeded();
+				const index = observers.findIndex((v) => v === subscriber);
+				if (index > -1) observers.splice(index, 1);
+			} };
+		});
+	};
+}
+/**
+* @internal
+* An observable that maintains and provides a "current value" to subscribers
+* @see https://www.learnrxjs.io/learn-rxjs/subjects/behaviorsubject
+*/
+function behaviorSubject(initialValue) {
+	let value = initialValue;
+	const observerList = [];
+	const addObserver = (observer) => {
+		if (value !== void 0) observer.next(value);
+		observerList.push(observer);
+	};
+	const removeObserver = (observer) => {
+		observerList.splice(observerList.indexOf(observer), 1);
+	};
+	const obs = observable((observer) => {
+		addObserver(observer);
+		return () => {
+			removeObserver(observer);
+		};
+	});
+	obs.next = (nextValue) => {
+		if (value === nextValue) return;
+		value = nextValue;
+		for (const observer of observerList) observer.next(nextValue);
+	};
+	obs.get = () => value;
+	return obs;
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@trpc+client@11.17.0_@trpc+server@11.17.0_typescript@5.9.3__typescript@5.9.3/node_modules/@trpc/client/dist/splitLink-B7Cuf2c_.mjs
+/** @internal */
+function createChain(opts) {
+	return observable((observer) => {
+		function execute(index = 0, op = opts.op) {
+			const next = opts.links[index];
+			if (!next) throw new Error("No more links to execute - did you forget to add an ending link?");
+			return next({
+				op,
+				next(nextOp) {
+					return execute(index + 1, nextOp);
+				}
+			});
+		}
+		return execute().subscribe(observer);
+	});
+}
+function asArray(value) {
+	return Array.isArray(value) ? value : [value];
+}
+function splitLink(opts) {
+	return (runtime) => {
+		const yes = asArray(opts.true).map((link) => link(runtime));
+		const no = asArray(opts.false).map((link) => link(runtime));
+		return (props) => {
+			return observable((observer) => {
+				const links = opts.condition(props.op) ? yes : no;
+				return createChain({
+					op: props.op,
+					links
+				}).subscribe(observer);
+			});
+		};
+	};
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@trpc+server@11.17.0_typescript@5.9.3/node_modules/@trpc/server/dist/codes-DagpWZLc.mjs
+/**
+* Check that value is object
+* @internal
+*/
+function isObject(value) {
+	return !!value && !Array.isArray(value) && typeof value === "object";
+}
+/**
+* Create an object without inheriting anything from `Object.prototype`
+* @internal
+*/
+function emptyObject() {
+	return Object.create(null);
+}
+/**
+* Run an IIFE
+*/
+var run = (fn) => fn();
+function sleep(ms = 0) {
+	return new Promise((res) => setTimeout(res, ms));
+}
+/**
+* JSON-RPC 2.0 Error codes
+*
+* `-32000` to `-32099` are reserved for implementation-defined server-errors.
+* For tRPC we're copying the last digits of HTTP 4XX errors.
+*/
+var TRPC_ERROR_CODES_BY_KEY = {
+	PARSE_ERROR: -32700,
+	BAD_REQUEST: -32600,
+	INTERNAL_SERVER_ERROR: -32603,
+	NOT_IMPLEMENTED: -32603,
+	BAD_GATEWAY: -32603,
+	SERVICE_UNAVAILABLE: -32603,
+	GATEWAY_TIMEOUT: -32603,
+	UNAUTHORIZED: -32001,
+	PAYMENT_REQUIRED: -32002,
+	FORBIDDEN: -32003,
+	NOT_FOUND: -32004,
+	METHOD_NOT_SUPPORTED: -32005,
+	TIMEOUT: -32008,
+	CONFLICT: -32009,
+	PRECONDITION_FAILED: -32012,
+	PAYLOAD_TOO_LARGE: -32013,
+	UNSUPPORTED_MEDIA_TYPE: -32015,
+	UNPROCESSABLE_CONTENT: -32022,
+	PRECONDITION_REQUIRED: -32028,
+	TOO_MANY_REQUESTS: -32029,
+	CLIENT_CLOSED_REQUEST: -32099
+};
+TRPC_ERROR_CODES_BY_KEY.BAD_GATEWAY, TRPC_ERROR_CODES_BY_KEY.SERVICE_UNAVAILABLE, TRPC_ERROR_CODES_BY_KEY.GATEWAY_TIMEOUT, TRPC_ERROR_CODES_BY_KEY.INTERNAL_SERVER_ERROR;
+//#endregion
+//#region ../../node_modules/.pnpm/@trpc+server@11.17.0_typescript@5.9.3/node_modules/@trpc/server/dist/getErrorShape-BPSzUA7W.mjs
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __commonJS = (cb, mod) => function() {
+	return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+};
+var __copyProps = (to, from, except, desc) => {
+	if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
+		key = keys[i];
+		if (!__hasOwnProp.call(to, key) && key !== except) __defProp(to, key, {
+			get: ((k) => from[k]).bind(null, key),
+			enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+		});
+	}
+	return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", {
+	value: mod,
+	enumerable: true
+}) : target, mod));
+var noop$1 = () => {};
+var freezeIfAvailable = (obj) => {
+	if (Object.freeze) Object.freeze(obj);
+};
+function createInnerProxy(callback, path, memo) {
+	var _memo$cacheKey;
+	const cacheKey = path.join(".");
+	(_memo$cacheKey = memo[cacheKey]) !== null && _memo$cacheKey !== void 0 || (memo[cacheKey] = new Proxy(noop$1, {
+		get(_obj, key) {
+			if (typeof key !== "string" || key === "then") return void 0;
+			return createInnerProxy(callback, [...path, key], memo);
+		},
+		apply(_1, _2, args) {
+			const lastOfPath = path[path.length - 1];
+			if (lastOfPath === "valueOf" || lastOfPath === "toString" || lastOfPath === "toJSON") return `tRPC.proxy(${path.slice(0, -1).join(".")})`;
+			let opts = {
+				args,
+				path
+			};
+			if (lastOfPath === "call") opts = {
+				args: args.length >= 2 ? [args[1]] : [],
+				path: path.slice(0, -1)
+			};
+			else if (lastOfPath === "apply") opts = {
+				args: args.length >= 2 ? args[1] : [],
+				path: path.slice(0, -1)
+			};
+			freezeIfAvailable(opts.args);
+			freezeIfAvailable(opts.path);
+			return callback(opts);
+		}
+	}));
+	return memo[cacheKey];
+}
+/**
+* Creates a proxy that calls the callback with the path and arguments
+*
+* @internal
+*/
+var createRecursiveProxy = (callback) => createInnerProxy(callback, [], emptyObject());
+/**
+* Used in place of `new Proxy` where each handler will map 1 level deep to another value.
+*
+* @internal
+*/
+var createFlatProxy = (callback) => {
+	return new Proxy(noop$1, { get(_obj, name) {
+		if (name === "then") return void 0;
+		return callback(name);
+	} });
+};
+var require_typeof = __commonJS({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/typeof.js"(exports, module) {
+	function _typeof$2(o) {
+		"@babel/helpers - typeof";
+		return module.exports = _typeof$2 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o$1) {
+			return typeof o$1;
+		} : function(o$1) {
+			return o$1 && "function" == typeof Symbol && o$1.constructor === Symbol && o$1 !== Symbol.prototype ? "symbol" : typeof o$1;
+		}, module.exports.__esModule = true, module.exports["default"] = module.exports, _typeof$2(o);
+	}
+	module.exports = _typeof$2, module.exports.__esModule = true, module.exports["default"] = module.exports;
+} });
+var require_toPrimitive = __commonJS({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/toPrimitive.js"(exports, module) {
+	var _typeof$1 = require_typeof()["default"];
+	function toPrimitive$1(t, r) {
+		if ("object" != _typeof$1(t) || !t) return t;
+		var e = t[Symbol.toPrimitive];
+		if (void 0 !== e) {
+			var i = e.call(t, r || "default");
+			if ("object" != _typeof$1(i)) return i;
+			throw new TypeError("@@toPrimitive must return a primitive value.");
+		}
+		return ("string" === r ? String : Number)(t);
+	}
+	module.exports = toPrimitive$1, module.exports.__esModule = true, module.exports["default"] = module.exports;
+} });
+var require_toPropertyKey = __commonJS({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/toPropertyKey.js"(exports, module) {
+	var _typeof = require_typeof()["default"];
+	var toPrimitive = require_toPrimitive();
+	function toPropertyKey$1(t) {
+		var i = toPrimitive(t, "string");
+		return "symbol" == _typeof(i) ? i : i + "";
+	}
+	module.exports = toPropertyKey$1, module.exports.__esModule = true, module.exports["default"] = module.exports;
+} });
+var require_defineProperty = __commonJS({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/defineProperty.js"(exports, module) {
+	var toPropertyKey = require_toPropertyKey();
+	function _defineProperty(e, r, t) {
+		return (r = toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
+			value: t,
+			enumerable: !0,
+			configurable: !0,
+			writable: !0
+		}) : e[r] = t, e;
+	}
+	module.exports = _defineProperty, module.exports.__esModule = true, module.exports["default"] = module.exports;
+} });
+var require_objectSpread2 = __commonJS({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/objectSpread2.js"(exports, module) {
+	var defineProperty = require_defineProperty();
+	function ownKeys(e, r) {
+		var t = Object.keys(e);
+		if (Object.getOwnPropertySymbols) {
+			var o = Object.getOwnPropertySymbols(e);
+			r && (o = o.filter(function(r$1) {
+				return Object.getOwnPropertyDescriptor(e, r$1).enumerable;
+			})), t.push.apply(t, o);
+		}
+		return t;
+	}
+	function _objectSpread2(e) {
+		for (var r = 1; r < arguments.length; r++) {
+			var t = null != arguments[r] ? arguments[r] : {};
+			r % 2 ? ownKeys(Object(t), !0).forEach(function(r$1) {
+				defineProperty(e, r$1, t[r$1]);
+			}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function(r$1) {
+				Object.defineProperty(e, r$1, Object.getOwnPropertyDescriptor(t, r$1));
+			});
+		}
+		return e;
+	}
+	module.exports = _objectSpread2, module.exports.__esModule = true, module.exports["default"] = module.exports;
+} });
+__toESM(require_objectSpread2(), 1);
+__toESM(require_defineProperty(), 1);
+var import_objectSpread2$1$11 = __toESM(require_objectSpread2(), 1);
+/** @internal */
+function transformResultInner(response, transformer) {
+	if ("error" in response) {
+		const error = transformer.deserialize(response.error);
+		return {
+			ok: false,
+			error: (0, import_objectSpread2$1$11.default)((0, import_objectSpread2$1$11.default)({}, response), {}, { error })
+		};
+	}
+	return {
+		ok: true,
+		result: (0, import_objectSpread2$1$11.default)((0, import_objectSpread2$1$11.default)({}, response.result), (!response.result.type || response.result.type === "data") && {
+			type: "data",
+			data: transformer.deserialize(response.result.data)
+		})
+	};
+}
+var TransformResultError = class extends Error {
+	constructor() {
+		super("Unable to transform response from server");
+	}
+};
+/**
+* Transforms and validates that the result is a valid TRPCResponse
+* @internal
+*/
+function transformResult(response, transformer) {
+	let result;
+	try {
+		result = transformResultInner(response, transformer);
+	} catch (_unused) {
+		throw new TransformResultError();
+	}
+	if (!result.ok && (!isObject(result.error.error) || typeof result.error.error["code"] !== "number")) throw new TransformResultError();
+	if (result.ok && !isObject(result.result)) throw new TransformResultError();
+	return result;
+}
+__toESM(require_objectSpread2(), 1);
+//#endregion
+//#region ../../node_modules/.pnpm/@trpc+client@11.17.0_@trpc+server@11.17.0_typescript@5.9.3__typescript@5.9.3/node_modules/@trpc/client/dist/TRPCClientError-apv8gw59.mjs
+var import_defineProperty$5 = __toESM$1(require_defineProperty$1(), 1);
+var import_objectSpread2$10 = __toESM$1(require_objectSpread2$1(), 1);
+function isTRPCClientError(cause) {
+	return cause instanceof TRPCClientError;
+}
+function isTRPCErrorResponse(obj) {
+	return isObject(obj) && isObject(obj["error"]) && typeof obj["error"]["code"] === "number" && typeof obj["error"]["message"] === "string";
+}
+function getMessageFromUnknownError(err, fallback) {
+	if (typeof err === "string") return err;
+	if (isObject(err) && typeof err["message"] === "string") return err["message"];
+	return fallback;
+}
+var TRPCClientError = class TRPCClientError extends Error {
+	constructor(message, opts) {
+		var _opts$result, _opts$result2;
+		const cause = opts === null || opts === void 0 ? void 0 : opts.cause;
+		super(message, { cause });
+		(0, import_defineProperty$5.default)(this, "cause", void 0);
+		(0, import_defineProperty$5.default)(this, "shape", void 0);
+		(0, import_defineProperty$5.default)(this, "data", void 0);
+		(0, import_defineProperty$5.default)(this, "meta", void 0);
+		this.meta = opts === null || opts === void 0 ? void 0 : opts.meta;
+		this.cause = cause;
+		this.shape = opts === null || opts === void 0 || (_opts$result = opts.result) === null || _opts$result === void 0 ? void 0 : _opts$result.error;
+		this.data = opts === null || opts === void 0 || (_opts$result2 = opts.result) === null || _opts$result2 === void 0 ? void 0 : _opts$result2.error.data;
+		this.name = "TRPCClientError";
+		Object.setPrototypeOf(this, TRPCClientError.prototype);
+	}
+	static from(_cause, opts = {}) {
+		const cause = _cause;
+		if (isTRPCClientError(cause)) {
+			if (opts.meta) cause.meta = (0, import_objectSpread2$10.default)((0, import_objectSpread2$10.default)({}, cause.meta), opts.meta);
+			return cause;
+		}
+		if (isTRPCErrorResponse(cause)) return new TRPCClientError(cause.error.message, (0, import_objectSpread2$10.default)((0, import_objectSpread2$10.default)({}, opts), {}, {
+			result: cause,
+			cause: opts.cause
+		}));
+		return new TRPCClientError(getMessageFromUnknownError(cause, "Unknown error"), (0, import_objectSpread2$10.default)((0, import_objectSpread2$10.default)({}, opts), {}, { cause }));
+	}
+};
+//#endregion
+//#region ../../node_modules/.pnpm/@trpc+client@11.17.0_@trpc+server@11.17.0_typescript@5.9.3__typescript@5.9.3/node_modules/@trpc/client/dist/unstable-internals-Bg7n9BBj.mjs
+/**
+* @internal
+*/
+/**
+* @internal
+*/
+function getTransformer(transformer) {
+	const _transformer = transformer;
+	if (!_transformer) return {
+		input: {
+			serialize: (data) => data,
+			deserialize: (data) => data
+		},
+		output: {
+			serialize: (data) => data,
+			deserialize: (data) => data
+		}
+	};
+	if ("input" in _transformer) return _transformer;
+	return {
+		input: _transformer,
+		output: _transformer
+	};
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@trpc+client@11.17.0_@trpc+server@11.17.0_typescript@5.9.3__typescript@5.9.3/node_modules/@trpc/client/dist/httpUtils-pyf5RF99.mjs
+var isFunction = (fn) => typeof fn === "function";
+function getFetch(customFetchImpl) {
+	if (customFetchImpl) return customFetchImpl;
+	if (typeof window !== "undefined" && isFunction(window.fetch)) return window.fetch;
+	if (typeof globalThis !== "undefined" && isFunction(globalThis.fetch)) return globalThis.fetch;
+	throw new Error("No fetch implementation found");
+}
+var import_objectSpread2$9 = __toESM$1(require_objectSpread2$1(), 1);
+function resolveHTTPLinkOptions(opts) {
+	return {
+		url: opts.url.toString(),
+		fetch: opts.fetch,
+		transformer: getTransformer(opts.transformer),
+		methodOverride: opts.methodOverride
+	};
+}
+function arrayToDict(array) {
+	const dict = {};
+	for (let index = 0; index < array.length; index++) dict[index] = array[index];
+	return dict;
+}
+var METHOD = {
+	query: "GET",
+	mutation: "POST",
+	subscription: "PATCH"
+};
+function getInput(opts) {
+	return "input" in opts ? opts.transformer.input.serialize(opts.input) : arrayToDict(opts.inputs.map((_input) => opts.transformer.input.serialize(_input)));
+}
+var getUrl = (opts) => {
+	const parts = opts.url.split("?");
+	let url = parts[0].replace(/\/$/, "") + "/" + opts.path;
+	const queryParts = [];
+	if (parts[1]) queryParts.push(parts[1]);
+	if ("inputs" in opts) queryParts.push("batch=1");
+	if (opts.type === "query" || opts.type === "subscription") {
+		const input = getInput(opts);
+		if (input !== void 0 && opts.methodOverride !== "POST") queryParts.push(`input=${encodeURIComponent(JSON.stringify(input))}`);
+	}
+	if (queryParts.length) url += "?" + queryParts.join("&");
+	return url;
+};
+var getBody = (opts) => {
+	if (opts.type === "query" && opts.methodOverride !== "POST") return void 0;
+	const input = getInput(opts);
+	return input !== void 0 ? JSON.stringify(input) : void 0;
+};
+var jsonHttpRequester = (opts) => {
+	return httpRequest((0, import_objectSpread2$9.default)((0, import_objectSpread2$9.default)({}, opts), {}, {
+		contentTypeHeader: "application/json",
+		getUrl,
+		getBody
+	}));
+};
+/**
+* Polyfill for DOMException with AbortError name
+*/
+var AbortError = class extends Error {
+	constructor() {
+		const name = "AbortError";
+		super(name);
+		this.name = name;
+		this.message = name;
+	}
+};
+/**
+* Polyfill for `signal.throwIfAborted()`
+*
+* @see https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/throwIfAborted
+*/
+var throwIfAborted = (signal) => {
+	var _signal$throwIfAborte;
+	if (!(signal === null || signal === void 0 ? void 0 : signal.aborted)) return;
+	(_signal$throwIfAborte = signal.throwIfAborted) === null || _signal$throwIfAborte === void 0 || _signal$throwIfAborte.call(signal);
+	if (typeof DOMException !== "undefined") throw new DOMException("AbortError", "AbortError");
+	throw new AbortError();
+};
+async function fetchHTTPResponse(opts) {
+	var _opts$methodOverride, _opts$trpcAcceptHeade;
+	throwIfAborted(opts.signal);
+	const url = opts.getUrl(opts);
+	const body = opts.getBody(opts);
+	const method = (_opts$methodOverride = opts.methodOverride) !== null && _opts$methodOverride !== void 0 ? _opts$methodOverride : METHOD[opts.type];
+	const resolvedHeaders = await (async () => {
+		const heads = await opts.headers();
+		if (Symbol.iterator in heads) return Object.fromEntries(heads);
+		return heads;
+	})();
+	const headers = (0, import_objectSpread2$9.default)((0, import_objectSpread2$9.default)((0, import_objectSpread2$9.default)({}, opts.contentTypeHeader && method !== "GET" ? { "content-type": opts.contentTypeHeader } : {}), opts.trpcAcceptHeader ? { [(_opts$trpcAcceptHeade = opts.trpcAcceptHeaderKey) !== null && _opts$trpcAcceptHeade !== void 0 ? _opts$trpcAcceptHeade : "trpc-accept"]: opts.trpcAcceptHeader } : void 0), resolvedHeaders);
+	return getFetch(opts.fetch)(url, {
+		method,
+		signal: opts.signal,
+		body,
+		headers
+	});
+}
+async function httpRequest(opts) {
+	const meta = {};
+	const res = await fetchHTTPResponse(opts);
+	meta.response = res;
+	const json = await res.json();
+	meta.responseJSON = json;
+	return {
+		json,
+		meta
+	};
+}
+__toESM$1(require_objectSpread2$1(), 1);
+//#endregion
+//#region ../../node_modules/.pnpm/@trpc+client@11.17.0_@trpc+server@11.17.0_typescript@5.9.3__typescript@5.9.3/node_modules/@trpc/client/dist/httpBatchLink-LhidKAPw.mjs
+/**
+* A function that should never be called unless we messed something up.
+*/
+var throwFatalError = () => {
+	throw new Error("Something went wrong. Please submit an issue at https://github.com/trpc/trpc/issues/new");
+};
+/**
+* Dataloader that's very inspired by https://github.com/graphql/dataloader
+* Less configuration, no caching, and allows you to cancel requests
+* When cancelling a single fetch the whole batch will be cancelled only when _all_ items are cancelled
+*/
+function dataLoader(batchLoader) {
+	let pendingItems = null;
+	let dispatchTimer = null;
+	const destroyTimerAndPendingItems = () => {
+		clearTimeout(dispatchTimer);
+		dispatchTimer = null;
+		pendingItems = null;
+	};
+	/**
+	* Iterate through the items and split them into groups based on the `batchLoader`'s validate function
+	*/
+	function groupItems(items) {
+		const groupedItems = [[]];
+		let index = 0;
+		while (true) {
+			const item = items[index];
+			if (!item) break;
+			const lastGroup = groupedItems[groupedItems.length - 1];
+			if (item.aborted) {
+				var _item$reject;
+				(_item$reject = item.reject) === null || _item$reject === void 0 || _item$reject.call(item, /* @__PURE__ */ new Error("Aborted"));
+				index++;
+				continue;
+			}
+			if (batchLoader.validate(lastGroup.concat(item).map((it) => it.key))) {
+				lastGroup.push(item);
+				index++;
+				continue;
+			}
+			if (lastGroup.length === 0) {
+				var _item$reject2;
+				(_item$reject2 = item.reject) === null || _item$reject2 === void 0 || _item$reject2.call(item, /* @__PURE__ */ new Error("Input is too big for a single dispatch"));
+				index++;
+				continue;
+			}
+			groupedItems.push([]);
+		}
+		return groupedItems;
+	}
+	function dispatch() {
+		const groupedItems = groupItems(pendingItems);
+		destroyTimerAndPendingItems();
+		for (const items of groupedItems) {
+			if (!items.length) continue;
+			const batch = { items };
+			for (const item of items) item.batch = batch;
+			batchLoader.fetch(batch.items.map((_item) => _item.key)).then(async (result) => {
+				await Promise.all(result.map(async (valueOrPromise, index) => {
+					const item = batch.items[index];
+					try {
+						var _item$resolve;
+						const value = await Promise.resolve(valueOrPromise);
+						(_item$resolve = item.resolve) === null || _item$resolve === void 0 || _item$resolve.call(item, value);
+					} catch (cause) {
+						var _item$reject3;
+						(_item$reject3 = item.reject) === null || _item$reject3 === void 0 || _item$reject3.call(item, cause);
+					}
+					item.batch = null;
+					item.reject = null;
+					item.resolve = null;
+				}));
+				for (const item of batch.items) {
+					var _item$reject4;
+					(_item$reject4 = item.reject) === null || _item$reject4 === void 0 || _item$reject4.call(item, /* @__PURE__ */ new Error("Missing result"));
+					item.batch = null;
+				}
+			}).catch((cause) => {
+				for (const item of batch.items) {
+					var _item$reject5;
+					(_item$reject5 = item.reject) === null || _item$reject5 === void 0 || _item$reject5.call(item, cause);
+					item.batch = null;
+				}
+			});
+		}
+	}
+	function load(key) {
+		var _dispatchTimer;
+		const item = {
+			aborted: false,
+			key,
+			batch: null,
+			resolve: throwFatalError,
+			reject: throwFatalError
+		};
+		const promise = new Promise((resolve, reject) => {
+			var _pendingItems;
+			item.reject = reject;
+			item.resolve = resolve;
+			(_pendingItems = pendingItems) !== null && _pendingItems !== void 0 || (pendingItems = []);
+			pendingItems.push(item);
+		});
+		(_dispatchTimer = dispatchTimer) !== null && _dispatchTimer !== void 0 || (dispatchTimer = setTimeout(dispatch));
+		return promise;
+	}
+	return { load };
+}
+/**
+* Like `Promise.all()` but for abort signals
+* - When all signals have been aborted, the merged signal will be aborted
+* - If one signal is `null`, no signal will be aborted
+*/
+function allAbortSignals(...signals) {
+	const ac = new AbortController();
+	const count = signals.length;
+	let abortedCount = 0;
+	const onAbort = () => {
+		if (++abortedCount === count) ac.abort();
+	};
+	for (const signal of signals) if (signal === null || signal === void 0 ? void 0 : signal.aborted) onAbort();
+	else signal === null || signal === void 0 || signal.addEventListener("abort", onAbort, { once: true });
+	return ac.signal;
+}
+var import_objectSpread2$7 = __toESM$1(require_objectSpread2$1(), 1);
+/**
+* @see https://trpc.io/docs/client/links/httpBatchLink
+*/
+function httpBatchLink(opts) {
+	var _opts$maxURLLength, _opts$maxItems;
+	const resolvedOpts = resolveHTTPLinkOptions(opts);
+	const maxURLLength = (_opts$maxURLLength = opts.maxURLLength) !== null && _opts$maxURLLength !== void 0 ? _opts$maxURLLength : Infinity;
+	const maxItems = (_opts$maxItems = opts.maxItems) !== null && _opts$maxItems !== void 0 ? _opts$maxItems : Infinity;
+	return () => {
+		const batchLoader = (type) => {
+			return {
+				validate(batchOps) {
+					if (maxURLLength === Infinity && maxItems === Infinity) return true;
+					if (batchOps.length > maxItems) return false;
+					const path = batchOps.map((op) => op.path).join(",");
+					const inputs = batchOps.map((op) => op.input);
+					return getUrl((0, import_objectSpread2$7.default)((0, import_objectSpread2$7.default)({}, resolvedOpts), {}, {
+						type,
+						path,
+						inputs,
+						signal: null
+					})).length <= maxURLLength;
+				},
+				async fetch(batchOps) {
+					const path = batchOps.map((op) => op.path).join(",");
+					const inputs = batchOps.map((op) => op.input);
+					const signal = allAbortSignals(...batchOps.map((op) => op.signal));
+					const res = await jsonHttpRequester((0, import_objectSpread2$7.default)((0, import_objectSpread2$7.default)({}, resolvedOpts), {}, {
+						path,
+						inputs,
+						type,
+						headers() {
+							if (!opts.headers) return {};
+							if (typeof opts.headers === "function") return opts.headers({ opList: batchOps });
+							return opts.headers;
+						},
+						signal
+					}));
+					return (Array.isArray(res.json) ? res.json : batchOps.map(() => res.json)).map((item) => ({
+						meta: res.meta,
+						json: item
+					}));
+				}
+			};
+		};
+		const loaders = {
+			query: dataLoader(batchLoader("query")),
+			mutation: dataLoader(batchLoader("mutation"))
+		};
+		return ({ op }) => {
+			return observable((observer) => {
+				/* istanbul ignore if -- @preserve */
+				if (op.type === "subscription") throw new Error("Subscriptions are unsupported by `httpLink` - use `httpSubscriptionLink` or `wsLink`");
+				const promise = loaders[op.type].load(op);
+				let _res = void 0;
+				promise.then((res) => {
+					_res = res;
+					const transformed = transformResult(res.json, resolvedOpts.transformer.output);
+					if (!transformed.ok) {
+						observer.error(TRPCClientError.from(transformed.error, { meta: res.meta }));
+						return;
+					}
+					observer.next({
+						context: res.meta,
+						result: transformed.result
+					});
+					observer.complete();
+				}).catch((err) => {
+					observer.error(TRPCClientError.from(err, { meta: _res === null || _res === void 0 ? void 0 : _res.meta }));
+				});
+				return () => {};
+			});
+		};
+	};
+}
+__toESM$1(require_objectSpread2$1(), 1);
+//#endregion
+//#region ../../node_modules/.pnpm/@trpc+client@11.17.0_@trpc+server@11.17.0_typescript@5.9.3__typescript@5.9.3/node_modules/@trpc/client/dist/wsLink-DSf4KOdW.mjs
+var jsonEncoder = {
+	encode: (data) => JSON.stringify(data),
+	decode: (data) => {
+		if (typeof data !== "string") throw new Error("jsonEncoder received binary data. JSON uses text frames. Use a binary encoder for binary data.");
+		return JSON.parse(data);
+	}
+};
+var lazyDefaults = {
+	enabled: false,
+	closeMs: 0
+};
+var keepAliveDefaults = {
+	enabled: false,
+	pongTimeoutMs: 1e3,
+	intervalMs: 5e3
+};
+/**
+* Calculates a delay for exponential backoff based on the retry attempt index.
+* The delay starts at 0 for the first attempt and doubles for each subsequent attempt,
+* capped at 30 seconds.
+*/
+var exponentialBackoff = (attemptIndex) => {
+	return attemptIndex === 0 ? 0 : Math.min(1e3 * 2 ** attemptIndex, 3e4);
+};
+/**
+* Get the result of a value or function that returns a value
+* It also optionally accepts typesafe arguments for the function
+*/
+var resultOf = (value, ...args) => {
+	return typeof value === "function" ? value(...args) : value;
+};
+var import_defineProperty$3 = __toESM$1(require_defineProperty$1(), 1);
+var TRPCWebSocketClosedError = class TRPCWebSocketClosedError extends Error {
+	constructor(opts) {
+		super(opts.message, { cause: opts.cause });
+		this.name = "TRPCWebSocketClosedError";
+		Object.setPrototypeOf(this, TRPCWebSocketClosedError.prototype);
+	}
+};
+/**
+* Utility class for managing a timeout that can be started, stopped, and reset.
+* Useful for scenarios where the timeout duration is reset dynamically based on events.
+*/
+var ResettableTimeout = class {
+	constructor(onTimeout, timeoutMs) {
+		this.onTimeout = onTimeout;
+		this.timeoutMs = timeoutMs;
+		(0, import_defineProperty$3.default)(this, "timeout", void 0);
+	}
+	/**
+	* Resets the current timeout, restarting it with the same duration.
+	* Does nothing if no timeout is active.
+	*/
+	reset() {
+		if (!this.timeout) return;
+		clearTimeout(this.timeout);
+		this.timeout = setTimeout(this.onTimeout, this.timeoutMs);
+	}
+	start() {
+		clearTimeout(this.timeout);
+		this.timeout = setTimeout(this.onTimeout, this.timeoutMs);
+	}
+	stop() {
+		clearTimeout(this.timeout);
+		this.timeout = void 0;
+	}
+};
+function withResolvers() {
+	let resolve;
+	let reject;
+	return {
+		promise: new Promise((res, rej) => {
+			resolve = res;
+			reject = rej;
+		}),
+		resolve,
+		reject
+	};
+}
+/**
+* Resolves a WebSocket URL and optionally appends connection parameters.
+*
+* If connectionParams are provided, appends 'connectionParams=1' query parameter.
+*/
+async function prepareUrl(urlOptions) {
+	const url = await resultOf(urlOptions.url);
+	if (!urlOptions.connectionParams) return url;
+	return url + `${url.includes("?") ? "&" : "?"}connectionParams=1`;
+}
+async function buildConnectionMessage(connectionParams, encoder) {
+	const message = {
+		method: "connectionParams",
+		data: await resultOf(connectionParams)
+	};
+	return encoder.encode(message);
+}
+var import_defineProperty$2 = __toESM$1(require_defineProperty$1(), 1);
+/**
+* Manages WebSocket requests, tracking their lifecycle and providing utility methods
+* for handling outgoing and pending requests.
+*
+* - **Outgoing requests**: Requests that are queued and waiting to be sent.
+* - **Pending requests**: Requests that have been sent and are in flight awaiting a response.
+*   For subscriptions, multiple responses may be received until the subscription is closed.
+*/
+var RequestManager = class {
+	constructor() {
+		(0, import_defineProperty$2.default)(this, "outgoingRequests", new Array());
+		(0, import_defineProperty$2.default)(this, "pendingRequests", {});
+	}
+	/**
+	* Registers a new request by adding it to the outgoing queue and setting up
+	* callbacks for lifecycle events such as completion or error.
+	*
+	* @param message - The outgoing message to be sent.
+	* @param callbacks - Callback functions to observe the request's state.
+	* @returns A cleanup function to manually remove the request.
+	*/
+	register(message, callbacks) {
+		const { promise: end, resolve } = withResolvers();
+		this.outgoingRequests.push({
+			id: String(message.id),
+			message,
+			end,
+			callbacks: {
+				next: callbacks.next,
+				complete: () => {
+					callbacks.complete();
+					resolve();
+				},
+				error: (e) => {
+					callbacks.error(e);
+					resolve();
+				}
+			}
+		});
+		return () => {
+			this.delete(message.id);
+			callbacks.complete();
+			resolve();
+		};
+	}
+	/**
+	* Deletes a request from both the outgoing and pending collections, if it exists.
+	*/
+	delete(messageId) {
+		if (messageId === null) return;
+		this.outgoingRequests = this.outgoingRequests.filter(({ id }) => id !== String(messageId));
+		delete this.pendingRequests[String(messageId)];
+	}
+	/**
+	* Moves all outgoing requests to the pending state and clears the outgoing queue.
+	*
+	* The caller is expected to handle the actual sending of the requests
+	* (e.g., sending them over the network) after this method is called.
+	*
+	* @returns The list of requests that were transitioned to the pending state.
+	*/
+	flush() {
+		const requests = this.outgoingRequests;
+		this.outgoingRequests = [];
+		for (const request of requests) this.pendingRequests[request.id] = request;
+		return requests;
+	}
+	/**
+	* Retrieves all currently pending requests, which are in flight awaiting responses
+	* or handling ongoing subscriptions.
+	*/
+	getPendingRequests() {
+		return Object.values(this.pendingRequests);
+	}
+	/**
+	* Retrieves a specific pending request by its message ID.
+	*/
+	getPendingRequest(messageId) {
+		if (messageId === null) return null;
+		return this.pendingRequests[String(messageId)];
+	}
+	/**
+	* Retrieves all outgoing requests, which are waiting to be sent.
+	*/
+	getOutgoingRequests() {
+		return this.outgoingRequests;
+	}
+	/**
+	* Retrieves all requests, both outgoing and pending, with their respective states.
+	*
+	* @returns An array of all requests with their state ("outgoing" or "pending").
+	*/
+	getRequests() {
+		return [...this.getOutgoingRequests().map((request) => ({
+			state: "outgoing",
+			message: request.message,
+			end: request.end,
+			callbacks: request.callbacks
+		})), ...this.getPendingRequests().map((request) => ({
+			state: "pending",
+			message: request.message,
+			end: request.end,
+			callbacks: request.callbacks
+		}))];
+	}
+	/**
+	* Checks if there are any pending requests, including ongoing subscriptions.
+	*/
+	hasPendingRequests() {
+		return this.getPendingRequests().length > 0;
+	}
+	/**
+	* Checks if there are any pending subscriptions
+	*/
+	hasPendingSubscriptions() {
+		return this.getPendingRequests().some((request) => request.message.method === "subscription");
+	}
+	/**
+	* Checks if there are any outgoing requests waiting to be sent.
+	*/
+	hasOutgoingRequests() {
+		return this.outgoingRequests.length > 0;
+	}
+};
+var import_defineProperty$1 = __toESM$1(require_defineProperty$1(), 1);
+/**
+* Opens a WebSocket connection asynchronously and returns a promise
+* that resolves when the connection is successfully established.
+* The promise rejects if an error occurs during the connection attempt.
+*/
+function asyncWsOpen(ws) {
+	const { promise, resolve, reject } = withResolvers();
+	ws.addEventListener("open", () => {
+		ws.removeEventListener("error", reject);
+		resolve();
+	});
+	ws.addEventListener("error", reject);
+	return promise;
+}
+/**
+* Sets up a periodic ping-pong mechanism to keep the WebSocket connection alive.
+*
+* - Sends "PING" messages at regular intervals defined by `intervalMs`.
+* - If a "PONG" response is not received within the `pongTimeoutMs`, the WebSocket is closed.
+* - The ping timer resets upon receiving any message to maintain activity.
+* - Automatically starts the ping process when the WebSocket connection is opened.
+* - Cleans up timers when the WebSocket is closed.
+*
+* @param ws - The WebSocket instance to manage.
+* @param options - Configuration options for ping-pong intervals and timeouts.
+*/
+function setupPingInterval(ws, { intervalMs, pongTimeoutMs }) {
+	let pingTimeout;
+	let pongTimeout;
+	function start() {
+		pingTimeout = setTimeout(() => {
+			ws.send("PING");
+			pongTimeout = setTimeout(() => {
+				ws.close();
+			}, pongTimeoutMs);
+		}, intervalMs);
+	}
+	function reset() {
+		clearTimeout(pingTimeout);
+		start();
+	}
+	function pong() {
+		clearTimeout(pongTimeout);
+		reset();
+	}
+	ws.addEventListener("open", start);
+	ws.addEventListener("message", ({ data }) => {
+		clearTimeout(pingTimeout);
+		start();
+		if (data === "PONG") pong();
+	});
+	ws.addEventListener("close", () => {
+		clearTimeout(pingTimeout);
+		clearTimeout(pongTimeout);
+	});
+}
+/**
+* Manages a WebSocket connection with support for reconnection, keep-alive mechanisms,
+* and observable state tracking.
+*/
+var WsConnection = class WsConnection {
+	constructor(opts) {
+		var _opts$WebSocketPonyfi;
+		(0, import_defineProperty$1.default)(this, "id", ++WsConnection.connectCount);
+		(0, import_defineProperty$1.default)(this, "WebSocketPonyfill", void 0);
+		(0, import_defineProperty$1.default)(this, "urlOptions", void 0);
+		(0, import_defineProperty$1.default)(this, "keepAliveOpts", void 0);
+		(0, import_defineProperty$1.default)(this, "encoder", void 0);
+		(0, import_defineProperty$1.default)(this, "wsObservable", behaviorSubject(null));
+		(0, import_defineProperty$1.default)(this, "openPromise", null);
+		this.WebSocketPonyfill = (_opts$WebSocketPonyfi = opts.WebSocketPonyfill) !== null && _opts$WebSocketPonyfi !== void 0 ? _opts$WebSocketPonyfi : WebSocket;
+		if (!this.WebSocketPonyfill) throw new Error("No WebSocket implementation found - you probably don't want to use this on the server, but if you do you need to pass a `WebSocket`-ponyfill");
+		this.urlOptions = opts.urlOptions;
+		this.keepAliveOpts = opts.keepAlive;
+		this.encoder = opts.encoder;
+	}
+	get ws() {
+		return this.wsObservable.get();
+	}
+	set ws(ws) {
+		this.wsObservable.next(ws);
+	}
+	/**
+	* Checks if the WebSocket connection is open and ready to communicate.
+	*/
+	isOpen() {
+		return !!this.ws && this.ws.readyState === this.WebSocketPonyfill.OPEN && !this.openPromise;
+	}
+	/**
+	* Checks if the WebSocket connection is closed or in the process of closing.
+	*/
+	isClosed() {
+		return !!this.ws && (this.ws.readyState === this.WebSocketPonyfill.CLOSING || this.ws.readyState === this.WebSocketPonyfill.CLOSED);
+	}
+	async open() {
+		var _this = this;
+		if (_this.openPromise) return _this.openPromise;
+		_this.id = ++WsConnection.connectCount;
+		_this.openPromise = prepareUrl(_this.urlOptions).then((url) => new _this.WebSocketPonyfill(url)).then(async (ws) => {
+			_this.ws = ws;
+			ws.binaryType = "arraybuffer";
+			ws.addEventListener("message", function({ data }) {
+				if (data === "PING") this.send("PONG");
+			});
+			if (_this.keepAliveOpts.enabled) setupPingInterval(ws, _this.keepAliveOpts);
+			ws.addEventListener("close", () => {
+				if (_this.ws === ws) _this.ws = null;
+			});
+			await asyncWsOpen(ws);
+			if (_this.urlOptions.connectionParams) ws.send(await buildConnectionMessage(_this.urlOptions.connectionParams, _this.encoder));
+		});
+		try {
+			await _this.openPromise;
+		} finally {
+			_this.openPromise = null;
+		}
+	}
+	/**
+	* Closes the WebSocket connection gracefully.
+	* Waits for any ongoing open operation to complete before closing.
+	*/
+	async close() {
+		var _this2 = this;
+		try {
+			await _this2.openPromise;
+		} finally {
+			var _this$ws;
+			(_this$ws = _this2.ws) === null || _this$ws === void 0 || _this$ws.close();
+		}
+	}
+};
+(0, import_defineProperty$1.default)(WsConnection, "connectCount", 0);
+/**
+* Provides a backward-compatible representation of the connection state.
+*/
+function backwardCompatibility(connection) {
+	if (connection.isOpen()) return {
+		id: connection.id,
+		state: "open",
+		ws: connection.ws
+	};
+	if (connection.isClosed()) return {
+		id: connection.id,
+		state: "closed",
+		ws: connection.ws
+	};
+	if (!connection.ws) return null;
+	return {
+		id: connection.id,
+		state: "connecting",
+		ws: connection.ws
+	};
+}
+var import_defineProperty$4 = __toESM$1(require_defineProperty$1(), 1);
+var import_objectSpread2$5 = __toESM$1(require_objectSpread2$1(), 1);
+/**
+* A WebSocket client for managing TRPC operations, supporting lazy initialization,
+* reconnection, keep-alive, and request management.
+*/
+var WsClient = class {
+	constructor(opts) {
+		var _opts$experimental_en, _opts$retryDelayMs;
+		(0, import_defineProperty$4.default)(this, "connectionState", void 0);
+		(0, import_defineProperty$4.default)(this, "allowReconnect", false);
+		(0, import_defineProperty$4.default)(this, "requestManager", new RequestManager());
+		(0, import_defineProperty$4.default)(this, "activeConnection", void 0);
+		(0, import_defineProperty$4.default)(this, "reconnectRetryDelay", void 0);
+		(0, import_defineProperty$4.default)(this, "inactivityTimeout", void 0);
+		(0, import_defineProperty$4.default)(this, "callbacks", void 0);
+		(0, import_defineProperty$4.default)(this, "lazyMode", void 0);
+		(0, import_defineProperty$4.default)(this, "encoder", void 0);
+		(0, import_defineProperty$4.default)(this, "reconnecting", null);
+		this.encoder = (_opts$experimental_en = opts.experimental_encoder) !== null && _opts$experimental_en !== void 0 ? _opts$experimental_en : jsonEncoder;
+		this.callbacks = {
+			onOpen: opts.onOpen,
+			onClose: opts.onClose,
+			onError: opts.onError
+		};
+		const lazyOptions = (0, import_objectSpread2$5.default)((0, import_objectSpread2$5.default)({}, lazyDefaults), opts.lazy);
+		this.inactivityTimeout = new ResettableTimeout(() => {
+			if (this.requestManager.hasOutgoingRequests() || this.requestManager.hasPendingRequests()) {
+				this.inactivityTimeout.reset();
+				return;
+			}
+			this.close().catch(() => null);
+		}, lazyOptions.closeMs);
+		this.activeConnection = new WsConnection({
+			WebSocketPonyfill: opts.WebSocket,
+			urlOptions: opts,
+			keepAlive: (0, import_objectSpread2$5.default)((0, import_objectSpread2$5.default)({}, keepAliveDefaults), opts.keepAlive),
+			encoder: this.encoder
+		});
+		this.activeConnection.wsObservable.subscribe({ next: (ws) => {
+			if (!ws) return;
+			this.setupWebSocketListeners(ws);
+		} });
+		this.reconnectRetryDelay = (_opts$retryDelayMs = opts.retryDelayMs) !== null && _opts$retryDelayMs !== void 0 ? _opts$retryDelayMs : exponentialBackoff;
+		this.lazyMode = lazyOptions.enabled;
+		this.connectionState = behaviorSubject({
+			type: "state",
+			state: lazyOptions.enabled ? "idle" : "connecting",
+			error: null
+		});
+		if (!this.lazyMode) this.open().catch(() => null);
+	}
+	/**
+	* Opens the WebSocket connection. Handles reconnection attempts and updates
+	* the connection state accordingly.
+	*/
+	async open() {
+		var _this = this;
+		_this.allowReconnect = true;
+		if (_this.connectionState.get().state === "idle") _this.connectionState.next({
+			type: "state",
+			state: "connecting",
+			error: null
+		});
+		try {
+			await _this.activeConnection.open();
+		} catch (error) {
+			_this.reconnect(new TRPCWebSocketClosedError({
+				message: "Initialization error",
+				cause: error
+			}));
+			return _this.reconnecting;
+		}
+	}
+	/**
+	* Closes the WebSocket connection and stops managing requests.
+	* Ensures all outgoing and pending requests are properly finalized.
+	*/
+	async close() {
+		var _this2 = this;
+		_this2.allowReconnect = false;
+		_this2.inactivityTimeout.stop();
+		const requestsToAwait = [];
+		for (const request of _this2.requestManager.getRequests()) if (request.message.method === "subscription") request.callbacks.complete();
+		else if (request.state === "outgoing") request.callbacks.error(TRPCClientError.from(new TRPCWebSocketClosedError({ message: "Closed before connection was established" })));
+		else requestsToAwait.push(request.end);
+		await Promise.all(requestsToAwait).catch(() => null);
+		await _this2.activeConnection.close().catch(() => null);
+		_this2.connectionState.next({
+			type: "state",
+			state: "idle",
+			error: null
+		});
+	}
+	/**
+	* Method to request the server.
+	* Handles data transformation, batching of requests, and subscription lifecycle.
+	*
+	* @param op - The operation details including id, type, path, input and signal
+	* @param transformer - Data transformer for serializing requests and deserializing responses
+	* @param lastEventId - Optional ID of the last received event for subscriptions
+	*
+	* @returns An observable that emits operation results and handles cleanup
+	*/
+	request({ op: { id, type, path, input, signal }, transformer, lastEventId }) {
+		return observable((observer) => {
+			const abort = this.batchSend({
+				id,
+				method: type,
+				params: {
+					input: transformer.input.serialize(input),
+					path,
+					lastEventId
+				}
+			}, (0, import_objectSpread2$5.default)((0, import_objectSpread2$5.default)({}, observer), {}, { next(event) {
+				const transformed = transformResult(event, transformer.output);
+				if (!transformed.ok) {
+					observer.error(TRPCClientError.from(transformed.error));
+					return;
+				}
+				observer.next({ result: transformed.result });
+			} }));
+			return () => {
+				abort();
+				if (type === "subscription" && this.activeConnection.isOpen()) this.send({
+					id,
+					method: "subscription.stop"
+				});
+				signal === null || signal === void 0 || signal.removeEventListener("abort", abort);
+			};
+		});
+	}
+	get connection() {
+		return backwardCompatibility(this.activeConnection);
+	}
+	reconnect(closedError) {
+		var _this3 = this;
+		this.connectionState.next({
+			type: "state",
+			state: "connecting",
+			error: TRPCClientError.from(closedError)
+		});
+		if (this.reconnecting) return;
+		const tryReconnect = async (attemptIndex) => {
+			try {
+				await sleep(_this3.reconnectRetryDelay(attemptIndex));
+				if (_this3.allowReconnect) {
+					await _this3.activeConnection.close();
+					await _this3.activeConnection.open();
+					if (_this3.requestManager.hasPendingRequests()) _this3.send(_this3.requestManager.getPendingRequests().map(({ message }) => message));
+				}
+				_this3.reconnecting = null;
+			} catch (_unused) {
+				await tryReconnect(attemptIndex + 1);
+			}
+		};
+		this.reconnecting = tryReconnect(0);
+	}
+	setupWebSocketListeners(ws) {
+		var _this4 = this;
+		const handleCloseOrError = (cause) => {
+			const reqs = this.requestManager.getPendingRequests();
+			for (const { message, callbacks } of reqs) {
+				if (message.method === "subscription") continue;
+				callbacks.error(TRPCClientError.from(cause !== null && cause !== void 0 ? cause : new TRPCWebSocketClosedError({
+					message: "WebSocket closed",
+					cause
+				})));
+				this.requestManager.delete(message.id);
+			}
+		};
+		ws.addEventListener("open", () => {
+			run(async () => {
+				var _this$callbacks$onOpe, _this$callbacks;
+				if (_this4.lazyMode) _this4.inactivityTimeout.start();
+				(_this$callbacks$onOpe = (_this$callbacks = _this4.callbacks).onOpen) === null || _this$callbacks$onOpe === void 0 || _this$callbacks$onOpe.call(_this$callbacks);
+				_this4.connectionState.next({
+					type: "state",
+					state: "pending",
+					error: null
+				});
+			}).catch((error) => {
+				ws.close(3e3);
+				handleCloseOrError(error);
+			});
+		});
+		ws.addEventListener("message", ({ data }) => {
+			this.inactivityTimeout.reset();
+			if (["PING", "PONG"].includes(data)) return;
+			const incomingMessage = this.encoder.decode(data);
+			if ("method" in incomingMessage) {
+				this.handleIncomingRequest(incomingMessage);
+				return;
+			}
+			this.handleResponseMessage(incomingMessage);
+		});
+		ws.addEventListener("close", (event) => {
+			var _this$callbacks$onClo, _this$callbacks2;
+			handleCloseOrError(event);
+			(_this$callbacks$onClo = (_this$callbacks2 = this.callbacks).onClose) === null || _this$callbacks$onClo === void 0 || _this$callbacks$onClo.call(_this$callbacks2, event);
+			if (!this.lazyMode || this.requestManager.hasPendingSubscriptions()) this.reconnect(new TRPCWebSocketClosedError({
+				message: "WebSocket closed",
+				cause: event
+			}));
+		});
+		ws.addEventListener("error", (event) => {
+			var _this$callbacks$onErr, _this$callbacks3;
+			handleCloseOrError(event);
+			(_this$callbacks$onErr = (_this$callbacks3 = this.callbacks).onError) === null || _this$callbacks$onErr === void 0 || _this$callbacks$onErr.call(_this$callbacks3, event);
+			this.reconnect(new TRPCWebSocketClosedError({
+				message: "WebSocket closed",
+				cause: event
+			}));
+		});
+	}
+	handleResponseMessage(message) {
+		const request = this.requestManager.getPendingRequest(message.id);
+		if (!request) return;
+		request.callbacks.next(message);
+		let completed = true;
+		if ("result" in message && request.message.method === "subscription") {
+			if (message.result.type === "data") request.message.params.lastEventId = message.result.id;
+			if (message.result.type !== "stopped") completed = false;
+		}
+		if (completed) {
+			request.callbacks.complete();
+			this.requestManager.delete(message.id);
+		}
+	}
+	handleIncomingRequest(message) {
+		if (message.method === "reconnect") this.reconnect(new TRPCWebSocketClosedError({ message: "Server requested reconnect" }));
+	}
+	/**
+	* Sends a message or batch of messages directly to the server.
+	*/
+	send(messageOrMessages) {
+		if (!this.activeConnection.isOpen()) throw new Error("Active connection is not open");
+		const messages = messageOrMessages instanceof Array ? messageOrMessages : [messageOrMessages];
+		this.activeConnection.ws.send(this.encoder.encode(messages.length === 1 ? messages[0] : messages));
+	}
+	/**
+	* Groups requests for batch sending.
+	*
+	* @returns A function to abort the batched request.
+	*/
+	batchSend(message, callbacks) {
+		var _this5 = this;
+		this.inactivityTimeout.reset();
+		run(async () => {
+			if (!_this5.activeConnection.isOpen()) await _this5.open();
+			await sleep(0);
+			if (!_this5.requestManager.hasOutgoingRequests()) return;
+			_this5.send(_this5.requestManager.flush().map(({ message: message$1 }) => message$1));
+		}).catch((err) => {
+			this.requestManager.delete(message.id);
+			callbacks.error(TRPCClientError.from(err));
+		});
+		return this.requestManager.register(message, callbacks);
+	}
+};
+function createWSClient(opts) {
+	return new WsClient(opts);
+}
+function wsLink(opts) {
+	const { client } = opts;
+	const transformer = getTransformer(opts.transformer);
+	return () => {
+		return ({ op }) => {
+			return observable((observer) => {
+				const connStateSubscription = op.type === "subscription" ? client.connectionState.subscribe({ next(result) {
+					observer.next({
+						result,
+						context: op.context
+					});
+				} }) : null;
+				const requestSubscription = client.request({
+					op,
+					transformer
+				}).subscribe(observer);
+				return () => {
+					requestSubscription.unsubscribe();
+					connStateSubscription === null || connStateSubscription === void 0 || connStateSubscription.unsubscribe();
+				};
+			});
+		};
+	};
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@trpc+client@11.17.0_@trpc+server@11.17.0_typescript@5.9.3__typescript@5.9.3/node_modules/@trpc/client/dist/index.mjs
+var import_defineProperty = __toESM$1(require_defineProperty$1(), 1);
+var import_objectSpread2$4 = __toESM$1(require_objectSpread2$1(), 1);
+var TRPCUntypedClient = class {
+	constructor(opts) {
+		(0, import_defineProperty.default)(this, "links", void 0);
+		(0, import_defineProperty.default)(this, "runtime", void 0);
+		(0, import_defineProperty.default)(this, "requestId", void 0);
+		this.requestId = 0;
+		this.runtime = {};
+		this.links = opts.links.map((link) => link(this.runtime));
+	}
+	$request(opts) {
+		var _opts$context;
+		return createChain({
+			links: this.links,
+			op: (0, import_objectSpread2$4.default)((0, import_objectSpread2$4.default)({}, opts), {}, {
+				context: (_opts$context = opts.context) !== null && _opts$context !== void 0 ? _opts$context : {},
+				id: ++this.requestId
+			})
+		}).pipe(share());
+	}
+	async requestAsPromise(opts) {
+		var _this = this;
+		try {
+			return (await observableToPromise(_this.$request(opts))).result.data;
+		} catch (err) {
+			throw TRPCClientError.from(err);
+		}
+	}
+	query(path, input, opts) {
+		return this.requestAsPromise({
+			type: "query",
+			path,
+			input,
+			context: opts === null || opts === void 0 ? void 0 : opts.context,
+			signal: opts === null || opts === void 0 ? void 0 : opts.signal
+		});
+	}
+	mutation(path, input, opts) {
+		return this.requestAsPromise({
+			type: "mutation",
+			path,
+			input,
+			context: opts === null || opts === void 0 ? void 0 : opts.context,
+			signal: opts === null || opts === void 0 ? void 0 : opts.signal
+		});
+	}
+	subscription(path, input, opts) {
+		return this.$request({
+			type: "subscription",
+			path,
+			input,
+			context: opts.context,
+			signal: opts.signal
+		}).subscribe({
+			next(envelope) {
+				switch (envelope.result.type) {
+					case "state":
+						var _opts$onConnectionSta;
+						(_opts$onConnectionSta = opts.onConnectionStateChange) === null || _opts$onConnectionSta === void 0 || _opts$onConnectionSta.call(opts, envelope.result);
+						break;
+					case "started":
+						var _opts$onStarted;
+						(_opts$onStarted = opts.onStarted) === null || _opts$onStarted === void 0 || _opts$onStarted.call(opts, { context: envelope.context });
+						break;
+					case "stopped":
+						var _opts$onStopped;
+						(_opts$onStopped = opts.onStopped) === null || _opts$onStopped === void 0 || _opts$onStopped.call(opts);
+						break;
+					case "data":
+					case void 0:
+						var _opts$onData;
+						(_opts$onData = opts.onData) === null || _opts$onData === void 0 || _opts$onData.call(opts, envelope.result.data);
+						break;
+				}
+			},
+			error(err) {
+				var _opts$onError;
+				(_opts$onError = opts.onError) === null || _opts$onError === void 0 || _opts$onError.call(opts, err);
+			},
+			complete() {
+				var _opts$onComplete;
+				(_opts$onComplete = opts.onComplete) === null || _opts$onComplete === void 0 || _opts$onComplete.call(opts);
+			}
+		});
+	}
+};
+var untypedClientSymbol = Symbol.for("trpc_untypedClient");
+var clientCallTypeMap = {
+	query: "query",
+	mutate: "mutation",
+	subscribe: "subscription"
+};
+/** @internal */
+var clientCallTypeToProcedureType = (clientCallType) => {
+	return clientCallTypeMap[clientCallType];
+};
+/**
+* @internal
+*/
+function createTRPCClientProxy(client) {
+	const proxy = createRecursiveProxy(({ path, args }) => {
+		const pathCopy = [...path];
+		const procedureType = clientCallTypeToProcedureType(pathCopy.pop());
+		const fullPath = pathCopy.join(".");
+		return client[procedureType](fullPath, ...args);
+	});
+	return createFlatProxy((key) => {
+		if (key === untypedClientSymbol) return client;
+		return proxy[key];
+	});
+}
+function createTRPCClient(opts) {
+	return createTRPCClientProxy(new TRPCUntypedClient(opts));
+}
+__toESM$1(require_objectSpread2$1(), 1);
+var import_objectSpread2$2 = __toESM$1(require_objectSpread2$1(), 1);
+function inputWithTrackedEventId(input, lastEventId) {
+	if (!lastEventId) return input;
+	if (input != null && typeof input !== "object") return input;
+	return (0, import_objectSpread2$2.default)((0, import_objectSpread2$2.default)({}, input !== null && input !== void 0 ? input : {}), {}, { lastEventId });
+}
+__toESM$1(__commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/asyncIterator.js"(exports, module) {
+	function _asyncIterator$1(r) {
+		var n, t, o, e = 2;
+		for ("undefined" != typeof Symbol && (t = Symbol.asyncIterator, o = Symbol.iterator); e--;) {
+			if (t && null != (n = r[t])) return n.call(r);
+			if (o && null != (n = r[o])) return new AsyncFromSyncIterator(n.call(r));
+			t = "@@asyncIterator", o = "@@iterator";
+		}
+		throw new TypeError("Object is not async iterable");
+	}
+	function AsyncFromSyncIterator(r) {
+		function AsyncFromSyncIteratorContinuation(r$1) {
+			if (Object(r$1) !== r$1) return Promise.reject(/* @__PURE__ */ new TypeError(r$1 + " is not an object."));
+			var n = r$1.done;
+			return Promise.resolve(r$1.value).then(function(r$2) {
+				return {
+					value: r$2,
+					done: n
+				};
+			});
+		}
+		return AsyncFromSyncIterator = function AsyncFromSyncIterator$1(r$1) {
+			this.s = r$1, this.n = r$1.next;
+		}, AsyncFromSyncIterator.prototype = {
+			s: null,
+			n: null,
+			next: function next() {
+				return AsyncFromSyncIteratorContinuation(this.n.apply(this.s, arguments));
+			},
+			"return": function _return(r$1) {
+				var n = this.s["return"];
+				return void 0 === n ? Promise.resolve({
+					value: r$1,
+					done: !0
+				}) : AsyncFromSyncIteratorContinuation(n.apply(this.s, arguments));
+			},
+			"throw": function _throw(r$1) {
+				var n = this.s["return"];
+				return void 0 === n ? Promise.reject(r$1) : AsyncFromSyncIteratorContinuation(n.apply(this.s, arguments));
+			}
+		}, new AsyncFromSyncIterator(r);
+	}
+	module.exports = _asyncIterator$1, module.exports.__esModule = true, module.exports["default"] = module.exports;
+} })(), 1);
+var import_objectSpread2$1 = __toESM$1(require_objectSpread2$1(), 1);
+/**
+* @see https://trpc.io/docs/v11/client/links/retryLink
+*/
+function retryLink(opts) {
+	return () => {
+		return (callOpts) => {
+			return observable((observer) => {
+				let next$;
+				let callNextTimeout = void 0;
+				let lastEventId = void 0;
+				attempt(1);
+				function opWithLastEventId() {
+					const op = callOpts.op;
+					if (!lastEventId) return op;
+					return (0, import_objectSpread2$1.default)((0, import_objectSpread2$1.default)({}, op), {}, { input: inputWithTrackedEventId(op.input, lastEventId) });
+				}
+				function attempt(attempts) {
+					const op = opWithLastEventId();
+					next$ = callOpts.next(op).subscribe({
+						error(error) {
+							var _opts$retryDelayMs, _opts$retryDelayMs2;
+							if (!opts.retry({
+								op,
+								attempts,
+								error
+							})) {
+								observer.error(error);
+								return;
+							}
+							const delayMs = (_opts$retryDelayMs = (_opts$retryDelayMs2 = opts.retryDelayMs) === null || _opts$retryDelayMs2 === void 0 ? void 0 : _opts$retryDelayMs2.call(opts, attempts)) !== null && _opts$retryDelayMs !== void 0 ? _opts$retryDelayMs : 0;
+							if (delayMs <= 0) {
+								attempt(attempts + 1);
+								return;
+							}
+							callNextTimeout = setTimeout(() => attempt(attempts + 1), delayMs);
+						},
+						next(envelope) {
+							if ((!envelope.result.type || envelope.result.type === "data") && envelope.result.id) lastEventId = envelope.result.id;
+							observer.next(envelope);
+						},
+						complete() {
+							observer.complete();
+						}
+					});
+				}
+				return () => {
+					next$.unsubscribe();
+					clearTimeout(callNextTimeout);
+				};
+			});
+		};
+	};
+}
+var require_usingCtx = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/usingCtx.js"(exports, module) {
+	function _usingCtx() {
+		var r = "function" == typeof SuppressedError ? SuppressedError : function(r$1, e$1) {
+			var n$1 = Error();
+			return n$1.name = "SuppressedError", n$1.error = r$1, n$1.suppressed = e$1, n$1;
+		}, e = {}, n = [];
+		function using(r$1, e$1) {
+			if (null != e$1) {
+				if (Object(e$1) !== e$1) throw new TypeError("using declarations can only be used with objects, functions, null, or undefined.");
+				if (r$1) var o = e$1[Symbol.asyncDispose || Symbol["for"]("Symbol.asyncDispose")];
+				if (void 0 === o && (o = e$1[Symbol.dispose || Symbol["for"]("Symbol.dispose")], r$1)) var t = o;
+				if ("function" != typeof o) throw new TypeError("Object is not disposable.");
+				t && (o = function o$1() {
+					try {
+						t.call(e$1);
+					} catch (r$2) {
+						return Promise.reject(r$2);
+					}
+				}), n.push({
+					v: e$1,
+					d: o,
+					a: r$1
+				});
+			} else r$1 && n.push({
+				d: e$1,
+				a: r$1
+			});
+			return e$1;
+		}
+		return {
+			e,
+			u: using.bind(null, !1),
+			a: using.bind(null, !0),
+			d: function d() {
+				var o, t = this.e, s = 0;
+				function next() {
+					for (; o = n.pop();) try {
+						if (!o.a && 1 === s) return s = 0, n.push(o), Promise.resolve().then(next);
+						if (o.d) {
+							var r$1 = o.d.call(o.v);
+							if (o.a) return s |= 2, Promise.resolve(r$1).then(next, err);
+						} else s |= 1;
+					} catch (r$2) {
+						return err(r$2);
+					}
+					if (1 === s) return t !== e ? Promise.reject(t) : Promise.resolve();
+					if (t !== e) throw t;
+				}
+				function err(n$1) {
+					return t = t !== e ? new r(n$1, t) : n$1, next();
+				}
+				return next();
+			}
+		};
+	}
+	module.exports = _usingCtx, module.exports.__esModule = true, module.exports["default"] = module.exports;
+} });
+var require_OverloadYield = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/OverloadYield.js"(exports, module) {
+	function _OverloadYield(e, d) {
+		this.v = e, this.k = d;
+	}
+	module.exports = _OverloadYield, module.exports.__esModule = true, module.exports["default"] = module.exports;
+} });
+var require_awaitAsyncGenerator = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/awaitAsyncGenerator.js"(exports, module) {
+	var OverloadYield$1 = require_OverloadYield();
+	function _awaitAsyncGenerator$1(e) {
+		return new OverloadYield$1(e, 0);
+	}
+	module.exports = _awaitAsyncGenerator$1, module.exports.__esModule = true, module.exports["default"] = module.exports;
+} });
+var require_wrapAsyncGenerator = __commonJS$1({ "../../node_modules/.pnpm/@oxc-project+runtime@0.72.2/node_modules/@oxc-project/runtime/src/helpers/wrapAsyncGenerator.js"(exports, module) {
+	var OverloadYield = require_OverloadYield();
+	function _wrapAsyncGenerator$1(e) {
+		return function() {
+			return new AsyncGenerator(e.apply(this, arguments));
+		};
+	}
+	function AsyncGenerator(e) {
+		var r, t;
+		function resume(r$1, t$1) {
+			try {
+				var n = e[r$1](t$1), o = n.value, u = o instanceof OverloadYield;
+				Promise.resolve(u ? o.v : o).then(function(t$2) {
+					if (u) {
+						var i = "return" === r$1 ? "return" : "next";
+						if (!o.k || t$2.done) return resume(i, t$2);
+						t$2 = e[i](t$2).value;
+					}
+					settle(n.done ? "return" : "normal", t$2);
+				}, function(e$1) {
+					resume("throw", e$1);
+				});
+			} catch (e$1) {
+				settle("throw", e$1);
+			}
+		}
+		function settle(e$1, n) {
+			switch (e$1) {
+				case "return":
+					r.resolve({
+						value: n,
+						done: !0
+					});
+					break;
+				case "throw":
+					r.reject(n);
+					break;
+				default: r.resolve({
+					value: n,
+					done: !1
+				});
+			}
+			(r = r.next) ? resume(r.key, r.arg) : t = null;
+		}
+		this._invoke = function(e$1, n) {
+			return new Promise(function(o, u) {
+				var i = {
+					key: e$1,
+					arg: n,
+					resolve: o,
+					reject: u,
+					next: null
+				};
+				t ? t = t.next = i : (r = t = i, resume(e$1, n));
+			});
+		}, "function" != typeof e["return"] && (this["return"] = void 0);
+	}
+	AsyncGenerator.prototype["function" == typeof Symbol && Symbol.asyncIterator || "@@asyncIterator"] = function() {
+		return this;
+	}, AsyncGenerator.prototype.next = function(e) {
+		return this._invoke("next", e);
+	}, AsyncGenerator.prototype["throw"] = function(e) {
+		return this._invoke("throw", e);
+	}, AsyncGenerator.prototype["return"] = function(e) {
+		return this._invoke("return", e);
+	};
+	module.exports = _wrapAsyncGenerator$1, module.exports.__esModule = true, module.exports["default"] = module.exports;
+} });
+__toESM$1(require_usingCtx(), 1);
+__toESM$1(require_awaitAsyncGenerator(), 1);
+__toESM$1(require_wrapAsyncGenerator(), 1);
+__toESM$1(require_objectSpread2$1(), 1);
+//#endregion
+//#region ../send/frontend/src/lib/config.ts
+var TRPC_WS_PATH = `/trpc/ws`;
+//#endregion
+//#region ../send/frontend/src/lib/trpc.ts
+/**
+* This is the client-side code that uses the inferred types from the server
+*/
+var serverUrl = (config.sendServerUrl ?? "").trim();
+var refreshUrl = `${serverUrl}/api/auth/refresh`;
+var trpcUrl = `${serverUrl}/trpc`;
+/**
+* Detect whether we're running in a test/automation context, where the
+* WebSocket must stay closed.
+*
+* Unit tests inject `import.meta.env.VITE_TESTING`. When that build-time flag is
+* unavailable — as in the shipped background bundle — fall back to the presence
+* of the WebExtension `browser.test` API, which the Thunderbird/Firefox test
+* harness only exposes when the add-on is loaded under automation. This keeps a
+* logged-out automation profile from ever opening the socket at startup.
+*/
+function detectTesting() {
+	return typeof browser !== "undefined" && Boolean(browser.test);
+}
+var isTesting = detectTesting();
+/**
+* Decide how (and whether) to build the WebSocket client.
+*
+* Returns `null` — meaning "do not connect" — when running under unit tests or
+* when no backend host is configured (empty `serverUrl`). Otherwise returns the
+* client config with **lazy mode** enabled.
+*
+* Lazy mode is critical: the background page of the built-in/system add-on
+* imports this module on every Thunderbird launch, including fresh,
+* never-signed-in profiles. A non-lazy client opens the socket as a side effect
+* of construction (at module load), which under automation triggers a fatal
+* "non-local network connections are disabled" abort and crashes the process
+* before any feature is used. With lazy mode the connection is deferred until
+* the first subscription actually runs (i.e. an authenticated user is using a
+* feature) and is closed again after inactivity, so a logged-out profile makes
+* zero outbound connections at startup.
+*/
+function getWsClientConfig(url, testing) {
+	const normalizedUrl = url.trim();
+	if (testing || normalizedUrl.length === 0) return null;
+	return {
+		url: `${normalizedUrl}${TRPC_WS_PATH}`,
+		lazy: {
+			enabled: true,
+			closeMs: 1e3
+		}
+	};
+}
+var wsClientConfig = getWsClientConfig(serverUrl, isTesting);
+var wsClient = wsClientConfig ? createWSClient(wsClientConfig) : null;
+/**
+* We only import the `AppRouter` type from the server - this is not available at runtime
+*/
+async function fetchWithLogoutCheck(url, options) {
+	async function getAuthStore() {
+		const { useAuthStore } = await Promise.resolve().then(() => auth_store_exports);
+		return useAuthStore();
+	}
+	async function buildHeaders() {
+		const headers = new Headers(options.headers);
+		try {
+			if (!headers.has("Authorization")) {
+				const token = await (await getAuthStore()).getAccessToken();
+				if (token) headers.set("Authorization", `Bearer ${token}`);
+			}
+		} catch {}
+		return headers;
+	}
+	const res = await fetch(url, {
+		...options,
+		headers: await buildHeaders(),
+		credentials: "include"
+	});
+	if (res.headers?.get?.("x-logout")) try {
+		if (await (await getAuthStore()).recoverOrForceLogout()) return await fetch(url, {
+			...options,
+			headers: await buildHeaders(),
+			credentials: "include"
+		});
+	} catch (error) {
+		console.error("Forced-logout handling failed:", error);
+	}
+	return res;
+}
+var trpc = createTRPCClient({ links: [splitLink({
+	condition: (op) => op.type === "subscription",
+	false: [retryLink({ 
+	/**
+	* Retry strategy for failed requests:
+	* - For 401 unauthorized errors: Attempts to refresh the token and retries up to 3 times
+	* - For queries (not mutations): Retries up to 3 times
+	* - For all other cases: No retry
+	*/
+retry(opts) {
+		if (opts.error.data?.code === "UNAUTHORIZED") {
+			if (opts.op.type !== "query") return false;
+			fetch(refreshUrl, { credentials: "include" }).then(() => {
+				console.info("revalidated token");
+			}).catch((err) => {
+				console.info("could not revalidate token", err);
+			});
+			return opts.attempts <= 3;
+		}
+	} }), httpBatchLink({
+		url: trpcUrl,
+		fetch: fetchWithLogoutCheck
+	})],
+	true: wsClient ? [wsLink({ client: wsClient })] : [httpBatchLink({
+		url: trpcUrl,
+		fetch: fetchWithLogoutCheck
+	})]
+})] });
+//#endregion
+//#region ../send/frontend/src/lib/utils.ts
 /**
 * Generates a SHA-256 hash from a file blob.
 *
@@ -10740,44 +11162,6 @@ async function streamToArrayBuffer(stream, size) {
 		offset += part.length;
 	}
 	return result.buffer;
-}
-var ConnectionError = class extends Error {
-	constructor(canceled, duration, size) {
-		super(canceled ? "0" : "connection closed");
-		this.canceled = canceled;
-		this.duration = duration;
-		this.size = size;
-	}
-};
-function asyncInitWebSocket(serverUrl) {
-	return new Promise((resolve, reject) => {
-		try {
-			const ws = new WebSocket(serverUrl);
-			ws.addEventListener("open", () => resolve(ws), { once: true });
-		} catch (e) {
-			reject(new ConnectionError(false));
-		}
-	});
-}
-async function listenForResponse(ws, canceler) {
-	return new Promise((resolve, reject) => {
-		function handleClose() {
-			ws.removeEventListener("message", handleMessage);
-			reject(new ConnectionError(canceler.canceled));
-		}
-		function handleMessage(msg) {
-			ws.removeEventListener("close", handleClose);
-			try {
-				const response = JSON.parse(msg.data);
-				if (response.error) throw new Error(response.error);
-				else resolve(response);
-			} catch (e) {
-				reject(e);
-			}
-		}
-		ws.addEventListener("message", handleMessage, { once: true });
-		ws.addEventListener("close", handleClose, { once: true });
-	});
 }
 /**
 * Zips `blob` under `filename` and returns the archive as a Blob.
@@ -10969,176 +11353,6 @@ var checkBlobSize = async (blob) => {
 	return true;
 };
 //#endregion
-//#region ../send/frontend/src/lib/helpers.ts
-async function _download({ url, progressTracker, id }) {
-	const endpoint = `https://send-backend.tb.pro/api/download`;
-	const xhr = new XMLHttpRequest();
-	const { setProgress } = progressTracker;
-	xhr.onprogress = (event) => {
-		if (event.lengthComputable) {
-			const downloadProgress = event.loaded;
-			setProgress(downloadProgress);
-		}
-	};
-	return new Promise((resolve, reject) => {
-		xhr.addEventListener("loadend", async function() {
-			if (xhr.status !== 200) return reject(/* @__PURE__ */ new Error(`${xhr.status}`));
-			resolve(new Blob([xhr.response]));
-		});
-		xhr.open("get", id ? `${endpoint}/${id}` : url);
-		xhr.responseType = "blob";
-		xhr.send();
-	});
-}
-async function _upload(stream, key, encryptedSize = -1, { canceler = {}, progressTracker }) {
-	let host = "https://send-backend.tb.pro";
-	if (host) host = host.split("//")[1];
-	else throw new Error("no server url is set");
-	const ws = await asyncInitWebSocket(`wss://${host}/api/ws`);
-	try {
-		const fileMeta = {
-			name: "filename",
-			size: encryptedSize
-		};
-		listenForResponse(ws, canceler);
-		ws.send(JSON.stringify(fileMeta));
-		let size = 0;
-		const completedResponse = listenForResponse(ws, canceler);
-		if (key) stream = encryptStream(stream, key);
-		const reader = stream.getReader();
-		let state = await reader.read();
-		while (!state.done) {
-			if (canceler.cancelled) ws.close();
-			if (ws.readyState !== WebSocket.OPEN) break;
-			const buf = state.value;
-			ws.send(buf);
-			size += buf.length;
-			console.info("Uploaded", size, "bytes", "- timestamp:", Date.now());
-			progressTracker.setProgress(size);
-			state = await reader.read();
-			while (ws.bufferedAmount > 65536 * 2 && ws.readyState === WebSocket.OPEN && !canceler.cancelled) await delay();
-		}
-		if (ws.readyState === WebSocket.OPEN) ws.send(new Uint8Array([0]));
-		return await completedResponse;
-	} catch (e) {
-		console.error(e);
-		throw e;
-	} finally {
-		if (ws.readyState !== WebSocket.CLOSED && ws.readyState !== WebSocket.CLOSING) ws.close();
-	}
-}
-async function encrypt(stream, key) {
-	try {
-		let size = 0;
-		const chunks = [];
-		if (key) stream = encryptStream(stream, key);
-		const reader = stream.getReader();
-		let state = await reader.read();
-		while (!state.done) {
-			const buf = state.value;
-			chunks.push(buf);
-			size += buf.length;
-			console.info("Encrypted", size, "bytes", "- timestamp:", Date.now());
-			state = await reader.read();
-		}
-		return concatenateUint8Arrays(chunks);
-	} catch (e) {
-		console.error(e);
-	}
-}
-function concatenateUint8Arrays(arrays) {
-	const totalLength = arrays.reduce((acc, value) => acc + value.length, 0);
-	const result = new Uint8Array(totalLength);
-	let length = 0;
-	for (const array of arrays) {
-		result.set(array, length);
-		length += array.length;
-	}
-	return result;
-}
-/**
-* Calculates the size of a file after encrypting.
-*
-* @param originalSize: number - the original file size.
-* @param recordSize: number - the size of each chunk of data that gets encrypted.
-* @returns number - the total size of the file after encryption.
-*/
-function calculateEncryptedSize(originalSize, recordSize = ECE_RECORD_SIZE) {
-	const chunkSize = recordSize - 17;
-	return originalSize + Math.ceil(originalSize / chunkSize) * 17 + 21;
-}
-var UPLOAD_ABORTED = "UPLOAD_ABORTED";
-var UPLOAD_HTTP_RETRY_BASE_DELAY_MS = 1e3;
-/**
-* Exponential backoff with jitter for the upload PUT retry schedule:
-*   delay = base * 2^attempt * (0.5 + Math.random() / 2)
-* The jitter factor is in [0.5, 1.0), so with the default 1000ms base the
-* per-attempt delays grow roughly ~1s, ~2s, ~4s while staying de-synchronized
-* across clients (avoids a thundering herd when B2 recovers).
-*
-* @param attempt - zero-based index of the attempt that just failed
-* @param baseDelayMs - base delay; defaults to UPLOAD_HTTP_RETRY_BASE_DELAY_MS
-*/
-function getUploadRetryDelayMs(attempt, baseDelayMs = UPLOAD_HTTP_RETRY_BASE_DELAY_MS) {
-	const exponential = baseDelayMs * 2 ** attempt;
-	const jitter = .5 + Math.random() / 2;
-	return Math.floor(exponential * jitter);
-}
-var uploadWithTracker = ({ url, readableStream, progressTracker, signal }) => {
-	const { setProgress } = progressTracker;
-	const XHR_TIMEOUT_MS = 18e4;
-	const attemptPut = (blob, attempt) => {
-		if (signal?.aborted) return Promise.reject(/* @__PURE__ */ new Error(UPLOAD_ABORTED));
-		if (attempt > 0) setProgress(0);
-		return new Promise((resolve, reject) => {
-			const xhr = new XMLHttpRequest();
-			xhr.open("PUT", url, true);
-			xhr.setRequestHeader("Content-Type", "application/octet-stream");
-			xhr.timeout = XHR_TIMEOUT_MS;
-			const onAbort = () => xhr.abort();
-			signal?.addEventListener("abort", onAbort, { once: true });
-			const cleanup = () => signal?.removeEventListener("abort", onAbort);
-			xhr.upload.onprogress = (event) => {
-				if (event.lengthComputable) {
-					const uploadProgress = event.loaded;
-					setProgress(uploadProgress);
-				}
-			};
-			xhr.onload = () => {
-				cleanup();
-				if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.response);
-				else {
-					console.error("Upload failed:");
-					reject(/* @__PURE__ */ new Error("UPLOAD_FAILED"));
-				}
-			};
-			xhr.onabort = () => {
-				cleanup();
-				reject(/* @__PURE__ */ new Error(UPLOAD_ABORTED));
-			};
-			xhr.onerror = () => {
-				cleanup();
-				reject(/* @__PURE__ */ new Error("XHR: UPLOAD_FAILED"));
-			};
-			xhr.ontimeout = () => {
-				cleanup();
-				reject(/* @__PURE__ */ new Error(`Upload timed out after ${XHR_TIMEOUT_MS / 1e3}s`));
-			};
-			xhr.send(blob);
-		}).catch((error) => {
-			if (!(signal?.aborted || error?.message === "UPLOAD_ABORTED") && attempt < 3) {
-				const delayMs = getUploadRetryDelayMs(attempt);
-				console.warn(`HTTP PUT attempt ${attempt + 1} failed, retrying in ${delayMs}ms...`, error.message);
-				return new Promise((resolve) => setTimeout(resolve, delayMs)).then(() => attemptPut(blob, attempt + 1));
-			}
-			throw error;
-		});
-	};
-	return new Response(readableStream).blob().then((uploadBlob) => {
-		return attemptPut(uploadBlob, 0);
-	});
-};
-//#endregion
 //#region ../send/frontend/src/lib/filesync.ts
 async function _saveFile(file) {
 	return new Promise(function(resolve) {
@@ -11157,23 +11371,9 @@ async function _saveFile(file) {
 		}, 0);
 	});
 }
-async function getBlob(id, size, key, isBucketStorage = true, filename = "dummy.file", type = "text/plain", api, progressTracker) {
+async function getBlob(id, size, key, filename = "dummy.file", type = "text/plain", api, progressTracker) {
 	const { isSuspicious } = await api.call(`download/check-upload-id/${id}`);
 	if (isSuspicious) throw new Error("File has been reported as suspicious");
-	if (!isBucketStorage) {
-		const downloadedBlob = await _download({
-			id,
-			progressTracker
-		});
-		let plaintext;
-		if (key) plaintext = await streamToArrayBuffer(decryptStream(blobStream(downloadedBlob), key), size);
-		else plaintext = await downloadedBlob.arrayBuffer();
-		return await _saveFile({
-			plaintext,
-			name: decodeURIComponent(filename),
-			type
-		});
-	}
 	try {
 		const bucketResponse = await api.call(`download/${id}/signed`);
 		if (!bucketResponse?.url) throw new Error("BUCKET_URL_NOT_FOUND");
@@ -11196,15 +11396,9 @@ async function getBlob(id, size, key, isBucketStorage = true, filename = "dummy.
 		throw error;
 	}
 }
-async function sendBlob(blob, aesKey, api, progressTracker, isBucketStorage = true, options = {}) {
+async function sendBlob(blob, aesKey, api, progressTracker, options = {}) {
 	const { signal, onUploadId } = options;
 	const stream = blobStream(blob);
-	if (!isBucketStorage) {
-		const result = await _upload(stream, aesKey, calculateEncryptedSize(blob.size), { progressTracker });
-		const id = Array.isArray(result) ? result[0].id : result.id;
-		onUploadId?.(id);
-		return id;
-	}
 	try {
 		const { id, url } = await api.call("uploads/signed", { type: "application/octet-stream" }, "POST");
 		onUploadId?.(id);
@@ -11280,11 +11474,10 @@ var Downloader = class {
 		const { size, type } = await this.api.call(`uploads/${id}/metadata`);
 		if (!size) return false;
 		const contentKey = await this.keychain.container.unwrapContentKey(wrappedKeyStr, wrappingKey);
-		const isBucketStorage = this.api.isBucketStorage;
 		try {
 			progressTracker.setFileName(filename);
 			progressTracker.setProcessStage("downloading");
-			await getBlob(id, size, contentKey, isBucketStorage, filename, type, this.api, progressTracker);
+			await getBlob(id, size, contentKey, filename, type, this.api, progressTracker);
 			metrics.capture("download.size", {
 				size,
 				type
@@ -12421,10 +12614,9 @@ var Uploader = class {
 		const writtenUploadIds = /* @__PURE__ */ new Set();
 		const uploadPart = async (blob, index) => {
 			const filename = blob.name;
-			const isBucketStorage = api.isBucketStorage;
 			const partTracker = multipartTracker.getPartTracker(index);
 			const part = shouldSplit ? index + 1 : void 0;
-			const id = await sendBlob(blob, key, api, partTracker, isBucketStorage, {
+			const id = await sendBlob(blob, key, api, partTracker, {
 				signal: abortController.signal,
 				onUploadId: (uploadId) => writtenUploadIds.add(uploadId)
 			});
@@ -19459,6 +19651,10 @@ var useFolderStore = defineStore("folderManager", () => {
 		selectedFolderId.value = null;
 		selectedFileId.value = itemId;
 	}
+	function clearSelection() {
+		selectedFileId.value = null;
+		selectedFolderId.value = null;
+	}
 	async function createFolder(name = "Default", parentId, shareOnly = false) {
 		if (rootFolder.value) parentId = rootFolder.value.id;
 		const containerResponse = await api.call(`containers`, {
@@ -19544,7 +19740,7 @@ var useFolderStore = defineStore("folderManager", () => {
 	async function deleteItem(itemId, folderId) {
 		const result = await api.call(`containers/${folderId}/item/${itemId}`, { shouldDeleteContent: true }, "DELETE");
 		if (result) {
-			if (selectedFileId.value === itemId) setSelectedFile(null);
+			if (selectedFileId.value === itemId) clearSelection();
 			if (rootFolder.value?.items) {
 				const deletedKey = result.wrappedKey;
 				rootFolder.value.items = [...rootFolder.value.items.filter((i) => i.wrappedKey !== deletedKey)];
@@ -19568,7 +19764,6 @@ var useFolderStore = defineStore("folderManager", () => {
 	* - New approach: ~200MB peak memory usage (single piece + processing overhead)
 	*/
 	async function downloadMultipart(upload, containerId, wrappedKeyStr, name, api, keychain, progressTracker) {
-		const isBucketStorage = api.isBucketStorage;
 		let combinedType = "";
 		const _uploads = await api.call(`uploads/${upload.at(0).id}/parts`);
 		const wrappingKey = await keychain.get(containerId);
@@ -19594,21 +19789,12 @@ var useFolderStore = defineStore("folderManager", () => {
 		progressTracker.setText("Downloading file");
 		const multipartTracker = createMultipartDownloadProgressTracker(progressTracker, sortedMetadata, sortedMetadata.length > 1);
 		const createPieceStream = async (metadata, partTracker) => {
-			let downloadedBlob;
-			if (!isBucketStorage) {
-				downloadedBlob = await _download({
-					id: metadata.id,
-					progressTracker: partTracker
-				});
-				if (!downloadedBlob) throw new Error("DOWNLOAD_FAILED");
-			} else {
-				const bucketResponse = await api.call(`download/${metadata.id}/signed`);
-				if (!bucketResponse?.url) throw new Error("BUCKET_URL_NOT_FOUND");
-				downloadedBlob = await _download({
-					url: bucketResponse.url,
-					progressTracker: partTracker
-				});
-			}
+			const bucketResponse = await api.call(`download/${metadata.id}/signed`);
+			if (!bucketResponse?.url) throw new Error("BUCKET_URL_NOT_FOUND");
+			const downloadedBlob = await _download({
+				url: bucketResponse.url,
+				progressTracker: partTracker
+			});
 			let pieceStream;
 			if (contentKey) pieceStream = decryptStream(blobStream(downloadedBlob), contentKey);
 			else pieceStream = blobStream(downloadedBlob);
@@ -19752,6 +19938,7 @@ var useFolderStore = defineStore("folderManager", () => {
 		sync: async () => await goToRootFolder(null),
 		setSelectedFolder,
 		setSelectedFile,
+		clearSelection,
 		createFolder,
 		renameFolder,
 		deleteFolder,
@@ -19917,7 +20104,8 @@ var Sharer = class {
 			expiration
 		}, "POST");
 		if (!resp?.id) return null;
-		return `https://send.tb.pro/share/${resp.id}`;
+		const accessLink = resp.id;
+		return `${config.sendClientUrl}/share/${accessLink}`;
 	}
 };
 defineStore("sharingManager", () => {
@@ -23003,10 +23191,10 @@ var UserManager = class {
 //#region ../send/frontend/src/stores/auth-store.ts
 var auth_store_exports = /* @__PURE__ */ __exportAll({ useAuthStore: () => useAuthStore });
 var settings = {
-	authority: "https://auth.tb.pro/realms/tbpro/",
-	client_id: "desktop",
+	authority: config.oidcRootUrl,
+	client_id: config.oidcClientId,
 	redirect_uri: `${window.location.origin}/post-login`,
-	post_logout_redirect_uri: `https://send.tb.pro/logout`,
+	post_logout_redirect_uri: `${config.sendClientUrl}/logout`,
 	response_type: "code",
 	scope: "openid profile email offline_access",
 	automaticSilentRenew: false,
@@ -23435,7 +23623,7 @@ var stores_exports = /* @__PURE__ */ __exportAll({ useConfigStore: () => useConf
 function useIsExtension() {
 	const { isThunderbirdHost } = useConfigStore();
 	const isExtension = computed(() => {
-		if (window.location.href.includes("https://send.tb.pro") && !isThunderbirdHost) return false;
+		if (window.location.href.includes(BASE_URL) && !isThunderbirdHost) return false;
 		return true;
 	});
 	const isRunningInsideThunderbird = computed(() => {
@@ -23488,11 +23676,11 @@ var useExtensionStore = defineStore("extension", () => {
 			console.log(`[extension-store] No id provided to configureExtension()`);
 			return;
 		}
-		return browser.storage.local.set({ [id]: { [SERVER]: serverUrl.value } }).catch((error) => {
+		return browser.storage.local.set({ [id]: { [SERVER]: serverUrl } }).catch((error) => {
 			console.log(error);
 		}).then(() => {
 			setAccountConfigured(id);
-			setServerUrl(serverUrl.value);
+			setServerUrl(serverUrl);
 			browser.storage.local.get(id).then((accountInfo) => {
 				if (accountInfo[id] && SERVER in accountInfo[id]) {
 					setServerUrl(accountInfo[id][SERVER]);
@@ -23592,6 +23780,37 @@ var MENU_ACTIONS = {
 };
 var loginTabId = null;
 /**
+* The username the app menu is currently rendered for, or null when the menu is
+* in its signed-out state.
+*
+* getLoginState() runs every 60 seconds (and on every Send route change), and it
+* calls menuLoggedIn() to keep the menu in step with the stored session.
+* TBProMenu.create() rejects an id that already exists, so rebuilding the
+* submenu on every tick threw "Menu item manageDashboard already exists" once a
+* minute -- which getLoginState() then mistook for a failed session read and
+* reported as signed out (see #1120). Tracking what the menu already shows means
+* we only touch it when the signed-in state actually changed.
+*/
+var menuUsername = null;
+/**
+* Tail of the menu work queue.
+*
+* Sign-in and sign-out both arrive from several directions at once: init() starts
+* a login check without waiting for it while background's main() awaits its own,
+* the sign-in message handlers call menuLoggedIn() directly, and the user can
+* click Log out at any moment. Letting those overlap meant a sign-out could
+* finish in the middle of a sign-in rebuild -- leaving a menu that showed the
+* sign-in prompt above a fully populated signed-in submenu, with menuUsername
+* claiming a user who was no longer signed in. Serializing every menu update
+* through this queue keeps the menu and menuUsername in step.
+*/
+var menuQueue = Promise.resolve();
+function queueMenuWork(work) {
+	const run = menuQueue.then(work);
+	menuQueue = run.catch(() => {});
+	return run;
+}
+/**
 * Opens the login page in a new tab when user clicks the root menu item.
 * Includes extension flag to enable proper authentication flow.
 */
@@ -23617,11 +23836,18 @@ async function menuManageSend() {
 * Shows username and adds menu items for managing dashboard, Send, and logout.
 */
 async function menuLoggedIn({ username }) {
+	await queueMenuWork(async () => {
+		if (menuUsername === username) return;
+		await buildSignedInMenu(username);
+	});
+}
+async function buildSignedInMenu(username) {
 	await browser.TBProMenu.update(MENU_ACTIONS.ROOT, {
 		title: "",
 		secondaryTitle: username,
 		tooltip: browser.i18n.getMessage("menuSignedInTooltip")
 	});
+	await browser.TBProMenu.clear(MENU_ACTIONS.ROOT);
 	await browser.TBProMenu.create(MENU_ACTIONS.MANAGE_DASHBOARD, {
 		title: browser.i18n.getMessage("menuManageDashboard"),
 		parentId: MENU_ACTIONS.ROOT
@@ -23638,6 +23864,7 @@ async function menuLoggedIn({ username }) {
 		title: browser.i18n.getMessage("menuSignout"),
 		parentId: MENU_ACTIONS.ROOT
 	});
+	menuUsername = username;
 }
 /**
 * Handles logout process by resetting menu to logged-out state and opening logout page.
@@ -23645,13 +23872,16 @@ async function menuLoggedIn({ username }) {
 * Also clears all localStorage and extension storage data.
 */
 async function menuLogout() {
-	await browser.TBProMenu.update(MENU_ACTIONS.ROOT, {
-		title: browser.i18n.getMessage("menuSignInTo"),
-		secondaryTitle: browser.i18n.getMessage("thunderbirdPro"),
-		tooltip: ""
-	});
 	console.log("🧹 Clearing menu items and storage");
-	await browser.TBProMenu.clear("root");
+	await queueMenuWork(async () => {
+		menuUsername = null;
+		await browser.TBProMenu.update(MENU_ACTIONS.ROOT, {
+			title: browser.i18n.getMessage("menuSignInTo"),
+			secondaryTitle: browser.i18n.getMessage("thunderbirdPro"),
+			tooltip: ""
+		});
+		await browser.TBProMenu.clear(MENU_ACTIONS.ROOT);
+	});
 	await browser.storage.local.clear();
 	try {
 		localStorage.clear();
@@ -23665,31 +23895,16 @@ async function menuLogout() {
 }
 async function closeAllAddOnTabs() {
 	const tabs = await browser.tabs.query({});
-	for (const tab of tabs) if (tab.id && tab.url?.startsWith("https://send.tb.pro")) try {
+	for (const tab of tabs) if (tab.id && tab.url?.startsWith(BASE_URL)) try {
 		await browser.tabs.remove(tab.id);
 	} catch {
 		console.warn(`Could not close Send tab with id ${tab.id}`);
 	}
 }
 async function getLoginState() {
+	let auth;
 	try {
-		const auth = (await browser.storage.local.get(STORAGE_KEY_AUTH))[STORAGE_KEY_AUTH];
-		if (!auth) return {
-			isLoggedIn: false,
-			username: null
-		};
-		const username = auth?.profile?.preferred_username || auth?.profile?.email;
-		if (auth.refresh_token && username) {
-			await menuLoggedIn({ username });
-			return {
-				isLoggedIn: true,
-				username
-			};
-		}
-		return {
-			isLoggedIn: false,
-			username: null
-		};
+		auth = (await browser.storage.local.get(STORAGE_KEY_AUTH))[STORAGE_KEY_AUTH];
 	} catch (error) {
 		console.error("Error retrieving auth state from storage:", error);
 		return {
@@ -23697,6 +23912,24 @@ async function getLoginState() {
 			username: null
 		};
 	}
+	if (!auth) return {
+		isLoggedIn: false,
+		username: null
+	};
+	const username = auth?.profile?.preferred_username || auth?.profile?.email;
+	if (!auth.refresh_token || !username) return {
+		isLoggedIn: false,
+		username: null
+	};
+	try {
+		await menuLoggedIn({ username });
+	} catch (error) {
+		console.error("Could not update the Thunderbird Pro menu:", error);
+	}
+	return {
+		isLoggedIn: true,
+		username
+	};
 }
 async function closeLoginTab() {
 	console.log(`[menu.ts] Attempting to close login tab with id ${loginTabId}`);
@@ -23934,6 +24167,10 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
 			console.log("[background] got the ping from the bridge");
 			break;
 		case OIDC_USER:
+			if ((await browser.storage.local.get("STORAGE_KEY_AUTH"))["STORAGE_KEY_AUTH"]) {
+				console.warn("[onMessage] Dropping OIDC_USER: STORAGE_KEY_AUTH already holds a session");
+				break;
+			}
 			await browser.storage.local.set({ [STORAGE_KEY_AUTH]: message.user });
 			console.log(`🎯 user auth stored in add-on context.`);
 			console.log(`updating the 🍔 menu.`);
@@ -23959,6 +24196,18 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
 			menuLoggedIn({ username: email });
 			break;
 		case SIGN_OUT:
+			rejectAllInQueue(/* @__PURE__ */ new Error("User signed out."));
+			if (popupWindowId) {
+				try {
+					await browser.windows.remove(popupWindowId);
+				} catch (e) {
+					console.warn("Error closing popup on sign-out:", e);
+				}
+				popupWindowId = null;
+			}
+			try {
+				browser.runtime.sendMessage({ type: SIGN_OUT });
+			} catch {}
 			menuLogout();
 			try {
 				await browser.CloudFileAccounts.unregisterProvider();
@@ -24016,7 +24265,7 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
 			break;
 		}
 		case GET_TELEMETRY_STATE: {
-			if (!sender?.tab?.url?.startsWith("https://send.tb.pro")) break;
+			if (!sender?.tab?.url?.startsWith(BASE_URL)) break;
 			let enabled = false;
 			try {
 				enabled = await browser.thundermailTelemetry.isTelemetryEnabled();
@@ -24240,7 +24489,7 @@ function initTelemetryListener() {
 	}
 	browser.thundermailTelemetry.onChanged.addListener(async (enabled) => {
 		(await browser.tabs.query({})).forEach((tab) => {
-			if (tab.id && tab.url?.startsWith("https://send.tb.pro")) browser.tabs.sendMessage(tab.id, {
+			if (tab.id && tab.url?.startsWith(BASE_URL)) browser.tabs.sendMessage(tab.id, {
 				type: TELEMETRY_STATE_CHANGED,
 				enabled
 			}).catch(() => {});
