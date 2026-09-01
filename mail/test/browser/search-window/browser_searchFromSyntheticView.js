@@ -26,6 +26,10 @@ const { GlodaMsgIndexer } = ChromeUtils.importESModule(
 let folderName, folder, thread, term;
 
 add_setup(async function () {
+  await SpecialPowers.pushPrefEnv({
+    clear: [["mailnews.default_view_flags"]],
+  });
+
   folderName = "Test Folder Name";
   folder = await create_folder(folderName);
 
@@ -42,7 +46,6 @@ add_setup(async function () {
 
     const tabmail = document.getElementById("tabmail");
     tabmail.closeTab(tabmail.currentTabInfo);
-    Services.prefs.clearUserPref("mailnews.default_view_flags");
   });
 });
 

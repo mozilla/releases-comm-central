@@ -65,18 +65,28 @@ async function checkSingleMessage(
   const file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
 
   // Load and display as plain text.
-  Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", true);
-  Services.prefs.setIntPref("mailnews.display.html_as", 1);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mailnews.display.prefer_plaintext", true],
+      ["mailnews.display.html_as", 1],
+    ],
+  });
   let msgc = await open_message_from_file(file);
   await check_content(msgc, aExpectedPlainText, aExpectedHTML);
   await BrowserTestUtils.closeWindow(msgc);
+  await SpecialPowers.popPrefEnv();
 
   // Load and display as HTML.
-  Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", false);
-  Services.prefs.setIntPref("mailnews.display.html_as", 0);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["mailnews.display.prefer_plaintext", false],
+      ["mailnews.display.html_as", 0],
+    ],
+  });
   msgc = await open_message_from_file(file);
   await check_content(msgc, aExpectedHTML, aExpectedPlainText);
   await BrowserTestUtils.closeWindow(msgc);
+  await SpecialPowers.popPrefEnv();
 }
 
 /**
@@ -133,9 +143,4 @@ add_task(async function test_view() {
   // Bug 1367156: Rogue message which has an image as the last part.
   await checkSingleMessage("./test-alt-rogue.eml", "Plain Text", "HTML Body");
   await checkSingleMessage("./test-alt-rogue2.eml", "Plain Text", "HTML Body");
-});
-
-registerCleanupFunction(function () {
-  Services.prefs.clearUserPref("mailnews.display.prefer_plaintext");
-  Services.prefs.clearUserPref("mailnews.display.html_as");
 });

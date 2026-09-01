@@ -37,7 +37,6 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(ewsAccount, false);
     MailServices.accounts.removeAccount(graphAccount, false);
     await Services.logins.removeAllLoginsAsync();
-    Services.prefs.clearUserPref("mail.warn_on_send_accel_key");
   });
 });
 
@@ -122,6 +121,9 @@ add_task(async function testFileMenuGraph() {
  * @param {SMTPServer|EWSServer} server
  */
 async function subtestKeyboardShortcut(identity, server) {
+  await SpecialPowers.pushPrefEnv({
+    clear: [["mail.warn_on_send_accel_key"]],
+  });
   Assert.ok(
     Services.prefs.getBoolPref("mail.warn_on_send_accel_key"),
     "default value of warning pref should be true"
@@ -200,7 +202,7 @@ async function subtestKeyboardShortcut(identity, server) {
     "server should have received message"
   );
 
-  Services.prefs.clearUserPref("mail.warn_on_send_accel_key");
+  await SpecialPowers.popPrefEnv();
 }
 
 add_task(async function testKeyboardShortcutSMTP() {

@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-registerCleanupFunction(() => {
-  Services.prefs.clearUserPref("mail.pane_config.dynamic");
-  Services.prefs.clearUserPref("mail.threadpane.listview");
+add_setup(async function () {
+  await SpecialPowers.pushPrefEnv({
+    clear: [["mail.pane_config.dynamic"], ["mail.threadpane.listview"]],
+  });
 });

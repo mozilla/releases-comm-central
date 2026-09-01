@@ -40,7 +40,7 @@ const getCommonFiles = async () => {
                 if (changes.url) {
                   log.url = changes.url;
                 }
-                // The complete is only valid, if we have seen a url (which was
+                // The complete is only valid if we have seen a url (which was
                 // not "about:blank")
                 if (log.url && changes?.status == "complete") {
                   log.complete = true;

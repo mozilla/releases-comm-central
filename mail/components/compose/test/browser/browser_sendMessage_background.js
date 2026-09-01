@@ -46,7 +46,6 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(smtpAccount, false);
     MailServices.accounts.removeAccount(localMailAccount, false);
     await Services.logins.removeAllLoginsAsync();
-    Services.prefs.clearUserPref("mailnews.sendInBackground");
 
     Assert.equal(
       outbox.getTotalMessages(false),
