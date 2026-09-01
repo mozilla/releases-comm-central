@@ -1245,6 +1245,122 @@ add_task(async function testStrippedSig() {
   await BrowserTestUtils.closeWindow(msgc);
 });
 
+/**
+ * Test that choosing "View" in the prompt shown for an attached public key
+ * opens that specific attachment, when the attachment is a single one shown
+ * as #attachmentName in the attachment bar.
+ */
+add_task(async function testViewKeyAttachmentFromBar() {
+  const msgc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath(
+        "data/eml/unsigned-unencrypted-key-0x1f10171bfb881b1c-attached.eml"
+      )
+    )
+  );
+  const aboutMessage = get_about_message(msgc);
+
+  // A single attachment is shown as #attachmentName in the attachment bar.
+  const attachmentName = aboutMessage.document.getElementById("attachmentName");
+  Assert.ok(
+    !attachmentName.hidden,
+    "the single attachment should be shown in the attachment bar"
+  );
+
+  // Spy on the attachment-open entry point. The old code opened the list's
+  // (empty) selection via HandleSelectedAttachments; the fix opens the
+  // specific attachment via HandleMultipleAttachments([attachment], "open").
+  const opened = [];
+  const origHandleMultiple = aboutMessage.HandleMultipleAttachments;
+  aboutMessage.HandleMultipleAttachments = (attachments, action) => {
+    opened.push({ attachments, action });
+  };
+
+  try {
+    // Clicking the key attachment shows the import/view prompt; choose "View".
+    // In the common dialog the second confirmEx button (BUTTON_POS_1, our
+    // "View" label) maps to the "cancel" button.
+    const dialogPromise = BrowserTestUtils.promiseAlertDialog("cancel");
+    EventUtils.synthesizeMouseAtCenter(
+      attachmentName,
+      { clickCount: 1 },
+      aboutMessage
+    );
+    await dialogPromise;
+
+    await TestUtils.waitForCondition(
+      () => opened.length == 1,
+      "the attachment should be opened once after choosing View"
+    );
+  } finally {
+    aboutMessage.HandleMultipleAttachments = origHandleMultiple;
+  }
+
+  Assert.equal(opened[0].action, "open", "the open action should be requested");
+  Assert.equal(
+    opened[0].attachments.length,
+    1,
+    "exactly one attachment should be opened"
+  );
+  Assert.ok(
+    opened[0].attachments[0].name.endsWith(".asc"),
+    "the clicked key attachment should be opened, not the empty list selection"
+  );
+
+  await BrowserTestUtils.closeWindow(msgc);
+});
+
+/**
+ * Test that pressing Enter while a key attachment is focused in
+ * #attachmentList opens it the same way a double click does.
+ */
+add_task(async function testEnterOpensKeyAttachment() {
+  const msgc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath(
+        "data/eml/unsigned-unencrypted-key-0x1f10171bfb881b1c-attached.eml"
+      )
+    )
+  );
+  const aboutMessage = get_about_message(msgc);
+
+  // Expand the attachment list and focus its (single) attachment.
+  aboutMessage.toggleAttachmentList(true);
+  const attachmentList = aboutMessage.document.getElementById("attachmentList");
+  attachmentList.focus();
+  attachmentList.selectedIndex = 0;
+
+  // Spy on the attachment-open entry point.
+  const opened = [];
+  const origHandleMultiple = aboutMessage.HandleMultipleAttachments;
+  aboutMessage.HandleMultipleAttachments = (attachments, action) => {
+    opened.push({ attachments, action });
+  };
+
+  try {
+    // Pressing Enter shows the import/view prompt; choose "View" (BUTTON_POS_1,
+    // the common dialog's "cancel" button) to open the attachment.
+    const dialogPromise = BrowserTestUtils.promiseAlertDialog("cancel");
+    EventUtils.synthesizeKey("KEY_Enter", {}, aboutMessage);
+    await dialogPromise;
+
+    await TestUtils.waitForCondition(
+      () => opened.length == 1,
+      "the focused attachment should be opened once after pressing Enter"
+    );
+  } finally {
+    aboutMessage.HandleMultipleAttachments = origHandleMultiple;
+  }
+
+  Assert.equal(opened[0].action, "open", "the open action should be requested");
+  Assert.ok(
+    opened[0].attachments[0].name.endsWith(".asc"),
+    "the focused key attachment should be opened"
+  );
+
+  await BrowserTestUtils.closeWindow(msgc);
+});
+
 registerCleanupFunction(async function tearDown() {
   MailServices.accounts.removeAccount(aliceAcct, true);
   await OpenPGPTestUtils.removeKeyById("0xf231550c4f47e38e", true);

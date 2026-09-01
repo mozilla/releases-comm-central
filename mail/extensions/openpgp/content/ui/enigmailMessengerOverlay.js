@@ -1552,13 +1552,102 @@ Enigmail.msg = {
   },
 
   /**
-   * Set up some event handlers for the attachment items in #attachmentList.
+   * Set up event handlers so that opening an encrypted attachment is handled by
+   * our own decrypting code instead of the default handlers.
    */
-  handleAttachmentEvent() {
-    const attList = document.getElementById("attachmentList");
+  setupAttachmentEventListeners() {
+    if (this.handledAttachmentEvents) {
+      // The listeners live on the containers (#attachmentList and #attachmentInfo),
+      // which persist across messages, so they are only added once.
+      return;
+    }
+    this.handledAttachmentEvents = true;
 
-    for (const att of attList.itemChildren) {
-      att.addEventListener("click", this.attachmentItemClick.bind(this), true);
+    // Double-clicking an item in #attachmentList opens it via a dblclick
+    // handler on the item.
+    document
+      .getElementById("attachmentList")
+      .addEventListener(
+        "dblclick",
+        this.attachmentItemDblClick.bind(this),
+        true
+      );
+
+    // The single-attachment name shown in the attachment bar (#attachmentName)
+    // is opened by an inline click handler (OpenAttachmentFromBar).
+    document
+      .getElementById("attachmentInfo")
+      .addEventListener("click", this.attachmentNameClick.bind(this), true);
+
+    // Pressing Enter while an item in #attachmentList is focused opens it via a
+    // keydown handler on the list itself. Intercept on the parent
+    // (#attachmentView), in the capture phase, so we run before that handler.
+    document
+      .getElementById("attachmentView")
+      .addEventListener("keydown", this.attachmentListKeydown.bind(this), true);
+  },
+
+  /**
+   * Handle a double click on an item in #attachmentList.
+   *
+   * @param {MouseEvent} event
+   */
+  attachmentItemDblClick(event) {
+    if (event.button !== 0) {
+      return;
+    }
+    const attachment = event.target.closest(".attachmentItem").attachment;
+    if (!this.checkEncryptedAttach(attachment)) {
+      return;
+    }
+    event.stopPropagation();
+    this.handleAttachment("openAttachment", attachment);
+  },
+
+  /**
+   * Handle the Enter key while an item in #attachmentList is focused, opening
+   * the focused attachment like a double click does.
+   *
+   * @param {KeyboardEvent} event
+   */
+  attachmentListKeydown(event) {
+    if (
+      event.key != "Enter" ||
+      event.ctrlKey ||
+      event.altKey ||
+      event.metaKey ||
+      event.shiftKey
+    ) {
+      return;
+    }
+    const attachment =
+      document.getElementById("attachmentList").currentItem?.attachment;
+    if (!attachment || !this.checkEncryptedAttach(attachment)) {
+      return;
+    }
+    event.stopPropagation();
+    this.handleAttachment("openAttachment", attachment);
+  },
+
+  /**
+   * Handle a click on the single-attachment name in the attachment bar.
+   *
+   * @param {MouseEvent} event
+   */
+  attachmentNameClick(event) {
+    if (event.button !== 0 || !event.target.closest("#attachmentName")) {
+      return;
+    }
+    // #attachmentName is only shown for single-attachment messages.
+    const attachment = currentAttachments[0];
+    if (!attachment || !this.checkEncryptedAttach(attachment)) {
+      return;
+    }
+    // Prevent the inline OpenAttachmentFromBar handler from also handling the
+    // click, which would open a second dialog.
+    event.stopPropagation();
+    if (event.detail == 1) {
+      this.handleAttachment("openAttachment", attachment);
     }
   },
 
@@ -1869,7 +1958,7 @@ Enigmail.msg = {
           EnigmailDialog.keyImportDlg(window, importKeyList);
         }
       } else if (statusFlagsObj.value & EnigmailConstants.DISPLAY_MESSAGE) {
-        HandleSelectedAttachments("open");
+        HandleMultipleAttachments([attachment], "open");
       } else if (
         statusFlagsObj.value & EnigmailConstants.DISPLAY_MESSAGE ||
         actionType == "openAttachment"
@@ -1900,20 +1989,6 @@ Enigmail.msg = {
           // open the attachment using an external application
           openLinkExternally(outFileUri.asciiSpec, { addToHistory: false });
         }
-      }
-    }
-  },
-
-  /**
-   * Open an encrypted attachment item.
-   */
-  attachmentItemClick(event) {
-    const attachment = event.currentTarget.attachment;
-    if (this.checkEncryptedAttach(attachment)) {
-      if (event.button === 0 && event.detail == 2) {
-        // double click
-        this.handleAttachment("openAttachment", attachment);
-        event.stopPropagation();
       }
     }
   },
