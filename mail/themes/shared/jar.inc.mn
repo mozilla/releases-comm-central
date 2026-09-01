@@ -142,7 +142,6 @@
   skin/classic/messenger/browserRequest.css                   (../shared/mail/browserRequest.css)
   skin/classic/messenger/cloudfileSelectDialog.css            (../shared/mail/cloudfileSelectDialog.css)
   skin/classic/messenger/compactFoldersDialog.css             (../shared/mail/compactFoldersDialog.css)
-  skin/classic/messenger/compacttheme.css                     (../shared/mail/compacttheme.css)
   skin/classic/messenger/containers.css                       (../shared/mail/containers.css)
   skin/classic/messenger/conversation-view.css                (../shared/mail/conversationview/conversation-view.css)
   skin/classic/messenger/error-pages.css                      (../shared/mail/error-pages.css)
