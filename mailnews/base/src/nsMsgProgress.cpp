@@ -48,7 +48,7 @@ NS_IMETHODIMP nsMsgProgress::OpenProgressDialog(
 
   nsCOMPtr<mozIDOMWindowProxy> newWindow;
   return wwatch->OpenWindow(parentDOMWindow, nsDependentCString(dialogURL),
-                            "_blank"_ns, "chrome,dependent,centerscreen"_ns,
+                            u"_blank"_ns, "chrome,dependent,centerscreen"_ns,
                             array, getter_AddRefs(newWindow));
 }
 

@@ -1672,7 +1672,7 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
         nsCOMPtr<mozIDOMWindowProxy> migrateWizard;
         rv = ww->OpenWindow(
             nullptr, "chrome://messenger/content/compactFoldersDialog.xhtml"_ns,
-            "_blank"_ns, "chrome,dialog,modal,centerscreen"_ns, props,
+            u"_blank"_ns, "chrome,dialog,modal,centerscreen"_ns, props,
             getter_AddRefs(migrateWizard));
         NS_ENSURE_SUCCESS(rv, rv);
 

@@ -112,7 +112,7 @@ nsMsgComposeService::OpenComposeWindowWithParams(const char* chrome,
     chromeURL =
         "chrome://messenger/content/messengercompose/messengercompose.xhtml"_ns;
   }
-  rv = wwatch->OpenWindow(0, chromeURL, "_blank"_ns,
+  rv = wwatch->OpenWindow(0, chromeURL, u"_blank"_ns,
                           "all,chrome,dialog=no,status,toolbar"_ns,
                           msgParamsWrapper, getter_AddRefs(newWindow));
 
