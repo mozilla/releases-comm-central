@@ -485,7 +485,7 @@ var TodayPane = {
     TodayPane.updateSplitterState();
     const todayPanePanel = document.getElementById("today-pane-panel");
     const currentWidth = todayPanePanel.getModeAttribute("modewidths");
-    if (currentWidth != 0) {
+    if (currentWidth) {
       todayPanePanel.style.width = `${currentWidth}px`;
     }
     TodayPane.previousMode = gCurrentMode;
