@@ -417,7 +417,7 @@ export class AttachmentInfo {
         // Add the content type to avoid a "how do you want to open this?"
         // dialog. The type may already be there, but that doesn't matter.
         let url = this.url;
-        if (!url.includes("type=")) {
+        if (!url.includes("type=application/pdf")) {
           url += url.includes("?") ? "&" : "?";
           url += "type=application/pdf";
         }

@@ -38,6 +38,9 @@ support-files = ["data/**"]
 
 ["browser_openAttachment.js"]
 
+["browser_openPdfAttachment.js"]
+support-files = ["../../../components/compose/test/browser/data/attachment.pdf"]
+
 ["browser_rfc822Base64Attachment.js"]
 
 ["browser_unreferencedRelatedPart.js"]
