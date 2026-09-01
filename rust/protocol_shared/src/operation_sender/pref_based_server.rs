@@ -29,6 +29,22 @@ pub trait PrefBasedServer {
         register_observer(pref_name, observer)
     }
 
+    /// De-registers the [`nsIObserver`] so that it's not notified when a given
+    /// property of the server changes.
+    ///
+    /// `pref_name` must match the name given when registering with
+    /// [`observe_property`]
+    ///
+    /// [`observe_property`]: PrefBasedServer::observe_property
+    fn stop_observing(
+        &self,
+        pref_name: &str,
+        observer: RefPtr<nsIObserver>,
+    ) -> Result<(), nsresult> {
+        let pref_name = self.resolve_full_pref_name(pref_name)?;
+        remove_observer(pref_name, observer)
+    }
+
     /// Stores the string value of a given property.
     fn set_string_property(&self, pref_name: &str, value: String) -> Result<(), nsresult> {
         let pref_name = self.resolve_full_pref_name(pref_name)?;
@@ -156,4 +172,20 @@ fn register_observer(name: String, observer: RefPtr<nsIObserver>) -> Result<(), 
     let pref_name = nsCString::from(name);
     unsafe { pref_branch.AddObserverImpl(&raw const *pref_name, observer.coerce(), false) }
         .to_result()
+}
+
+/// De-registers the `nsIObserver` so that it's not notified when a given
+/// property of the server changes.
+///
+/// `pref_name` must match the name given when registering with
+/// [`observe_property`]
+///
+/// [`observe_property`]: PrefBasedServer::observe_property
+fn remove_observer(name: String, observer: RefPtr<nsIObserver>) -> Result<(), nsresult> {
+    // The observer has been registered against the root branch, so that's the
+    // one we need to get.
+    let pref_branch = root_pref_branch()?;
+
+    let pref_name = nsCString::from(name);
+    unsafe { pref_branch.RemoveObserverImpl(&raw const *pref_name, observer.coerce()) }.to_result()
 }

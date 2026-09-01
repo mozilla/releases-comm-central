@@ -5,11 +5,12 @@
 use std::env;
 
 use http::Request;
-use moz_http::{AuthIdentity, Response};
+use moz_http::Response;
 use url::Url;
 use uuid::Uuid;
+use xpcom::RefPtr;
 
-use crate::{authentication::credentials::Credentials, error::ProtocolError};
+use crate::{ServerType, error::ProtocolError};
 
 /// An internal wrapper to carry the metadata we use for logging sending a
 /// request (and receiving its response) alongside the request itself.
@@ -32,11 +33,14 @@ pub(crate) const LOG_NETWORK_PAYLOADS_ENV_VAR: &str = "THUNDERBIRD_LOG_NETWORK_P
 ///
 /// If an `auth_header_value` is provided, it is used to set the value of the
 /// `Authorization` header when sending the request.
-pub(crate) async fn send_request<'or>(
+pub(crate) async fn send_request<'or, ServerT>(
     client: &moz_http::Client,
     op_request: &OperationRequest<'or>,
-    credentials: &Credentials,
-) -> Result<Response, ProtocolError> {
+    server: RefPtr<ServerT>,
+) -> Result<Response, ProtocolError>
+where
+    ServerT: ServerType,
+{
     let OperationRequest {
         operation_id,
         operation_name,
@@ -59,21 +63,8 @@ pub(crate) async fn send_request<'or>(
         request_builder = request_builder.header(name.as_str(), value);
     }
 
-    // The value to use to manually set the `Authorization` header. We need to
-    // get it here (at the cost of an extra `await`), because if we get it
-    // through an `if let Some(...) = ...` statement then it doesn't live long
-    // enough (its lifetime needs to at least match that of `request_builder`).
-    // In other words, we need to declare it in the same scope as
-    // `request_builder`.
-    let fallback_hdr_value = credentials.to_auth_header_value().await?;
-
-    let auth_identity: Option<AuthIdentity> = credentials.into();
-    if let Some(ref auth_identity) = auth_identity {
-        // If we can get an `AuthIdentity`, keep Necko's auth cache current.
-        request_builder = request_builder.auth_identity(auth_identity);
-    }
-
-    if let Some(ref hdr_value) = fallback_hdr_value {
+    let auth_hdr_value = server.auth_header_value().await?;
+    if let Some(ref hdr_value) = auth_hdr_value {
         // Some auth mechanisms, such as OAuth2 and Basic, can provide the
         // `Authorization` header without Necko challenge handling.
         request_builder = request_builder.header("Authorization", hdr_value);

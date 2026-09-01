@@ -12,7 +12,6 @@ use nserror::{NS_OK, nsresult};
 use nsstring::{nsACString, nsCString, nsString};
 use url::Url;
 use uuid::Uuid;
-use xpcom::components;
 use xpcom::interfaces::nsIObserverService;
 use xpcom::{
     RefPtr, get_service, getter_addrefs,
@@ -23,9 +22,10 @@ use xpcom::{
     },
     xpcom_method,
 };
+use xpcom::{XpCom, components};
 
 use crate::client::ProtocolClient;
-use crate::observers::OutgoingRemovalObserver;
+use crate::observers::{OBSERVER_TOPIC_SMTPSERVER_REMOVED, OutgoingRemovalObserver};
 use crate::safe_xpcom::{SafeMsgOutgoingListener, uri::SafeUri};
 use crate::xpcom_io;
 
@@ -165,15 +165,14 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
                 // the client if the server gets removed.
                 let key = self.key()?;
                 let obs = OutgoingRemovalObserver::new_observer(client.clone(), key.to_string())?;
+
+                // Unwrapping should be fine since we're using a known string
+                // here.
+                let topic = CString::new(OBSERVER_TOPIC_SMTPSERVER_REMOVED).unwrap();
+
                 let observer_service = components::Observer::service::<nsIObserverService>()?;
-                unsafe {
-                    observer_service.AddObserver(
-                        obs.coerce(),
-                        c"message-smtpserver-removed".as_ptr(),
-                        false,
-                    )
-                }
-                .to_result()?;
+                unsafe { observer_service.AddObserver(obs.coerce(), topic.as_ptr(), false) }
+                    .to_result()?;
 
                 // We don't need to check the result because this only runs if
                 // no client was set yet.
@@ -503,8 +502,27 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
     // Type
     xpcom_method!(server_type => GetType() -> nsACString);
     fn server_type(&self) -> Result<nsCString, nsresult> {
-        let client = self.client()?;
-        Ok(client.protocol_identifier().into())
+        // The pref that stores the server's type uses a different prefix from
+        // other server properties (see
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=2067685), so we need to
+        // fetch it ourselves.
+        //
+        // An alternative would be to rely on the client to tell us which
+        // protocol it implements, but this can introduce recursion loops (e.g.
+        // when starting a client we might cache authentication data, which
+        // involves getting the account's password, which can involve getting
+        // the server's type).
+        let pref_svc = components::Preferences::service::<nsIPrefService>()?;
+        let root_branch = pref_svc.query_interface::<nsIPrefBranch>().unwrap();
+        let pref_name = format!("mail.smtpserver.{}.type", self.key()?);
+        let pref_name = CString::new(pref_name).unwrap();
+        let mut value = nsCString::new();
+
+        // SAFETY: We've ensured both `pref_name` and `value` are properly
+        // allocated and remain alive until `GetCharPref` returns.
+        unsafe { root_branch.GetCharPref(pref_name.as_ptr(), &raw mut *value) }.to_result()?;
+
+        Ok(value)
     }
 
     // Description
@@ -550,7 +568,7 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
 
         // Otherwise, ask it to look it up in the login manager.
         let username = self.username()?;
-        let protocol = self.client()?.protocol_identifier();
+        let protocol = self.server_type()?;
 
         let endpoint_url = self.endpoint_url()?;
         let hostname = match endpoint_url.host() {
@@ -570,7 +588,7 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
                 .QueryPasswordFromManagerAndCache(
                     &raw const *username,
                     &raw const *nsCString::from(hostname),
-                    &raw const *nsCString::from(protocol),
+                    &raw const *protocol,
                     &raw mut *password,
                 )
         }

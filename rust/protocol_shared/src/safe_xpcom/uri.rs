@@ -32,6 +32,12 @@ impl SafeUri {
     }
 }
 
+impl From<RefPtr<nsIURI>> for SafeUri {
+    fn from(value: RefPtr<nsIURI>) -> Self {
+        SafeUri(value)
+    }
+}
+
 impl From<SafeUri> for RefPtr<nsIURI> {
     fn from(value: SafeUri) -> Self {
         value.0

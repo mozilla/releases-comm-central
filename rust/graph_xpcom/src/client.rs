@@ -428,10 +428,6 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
 }
 
 impl<ServerT: ServerType> ProtocolClient for XpComGraphClient<ServerT> {
-    fn protocol_identifier(&self) -> String {
-        String::from("graph")
-    }
-
     async fn shutdown(self: Arc<XpComGraphClient<ServerT>>) {
         // Tell the queue to stop its workers.
         self.queue.stop().await;

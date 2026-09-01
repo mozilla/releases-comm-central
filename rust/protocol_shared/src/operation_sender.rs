@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::{cell::RefCell, ops::ControlFlow, sync::Arc, time::Duration};
+use std::{cell::RefCell, ffi::CString, ops::ControlFlow, sync::Arc, time::Duration};
 
 use async_lock::Mutex;
 use http::Request;
@@ -14,13 +14,16 @@ use moz_http::{Response, StatusCode};
 use operation_queue::line_token::{AcquireOutcome, Line, LineStatus};
 use url::Url;
 use uuid::Uuid;
-use xpcom::{RefCounted, RefPtr};
+use xpcom::{
+    RefCounted, RefPtr, components,
+    interfaces::{nsIObserver, nsIObserverService},
+};
 
 use crate::{
     ServerType,
     authentication::credentials::REALM_SERVER_PROPERTY_NAME,
     error::ProtocolError,
-    observers::UrlPrefObserver,
+    observers::{HttpAuthObserver, OBSERVER_TOPIC_PASSWORDMGR, UrlPrefObserver},
     operation_sender::send_request::{OperationRequest, send_request},
 };
 
@@ -117,6 +120,39 @@ pub enum TransportSecFailureBehavior {
     Silent,
 }
 
+/// An observer that was registered when starting up the [`OperationSender`],
+/// recorded so it can be cleanly de-registered upon shutdown.
+///
+/// Note that multiple registrations can exist for a given observer, if e.g. it
+/// was registered in multiple ways or against multiple targets.
+struct RegisteredObserver {
+    /// The observer itself.
+    obs: RefPtr<nsIObserver>,
+
+    /// The kind of registration, i.e. whether it was registered against the
+    /// pref service or the observer service.
+    kind: ObserverRegistrationKind,
+
+    /// The registration's target. For `Pref` registrations, this is the server
+    /// property specified when registering the observer. For `Service`
+    /// registrations, this is the topic used when registering.
+    target: String,
+}
+
+/// The kind of a given registration, which indicates which service the observer
+/// was registered against.
+enum ObserverRegistrationKind {
+    /// The observer was registered against the pref service, via
+    /// [`PrefBasedServer`] methods
+    ///
+    /// [`PrefBasedServer`]:
+    ///     crate::operation_sender::pref_based_server::PrefBasedServer
+    Pref,
+
+    /// The observer was registered against the [`nsIObserverService`] directly.
+    Service,
+}
+
 /// The central data structure for performing operations against an Exchange
 /// server.
 pub struct OperationSender<ServerT: RefCounted + 'static> {
@@ -133,6 +169,10 @@ pub struct OperationSender<ServerT: RefCounted + 'static> {
     // should be continuing processing requests) can be done by checking whether
     // this field's inner value is `None`.
     server: Mutex<Option<RefPtr<ServerT>>>,
+
+    // The observers we've registered at startup, so we can de-register them at
+    // shutdown.
+    observers_registrations: Vec<RegisteredObserver>,
 }
 
 impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
@@ -154,26 +194,124 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
 
         // Subscribe to changes to the base URL property on the server (named
         // "ews_url" for historical reasons), so we get updated when it changes.
-        let observer = UrlPrefObserver::new_observer(base_url.clone())?;
-        server.observe_property("ews_url", observer.clone())?;
+        let url_observer = UrlPrefObserver::new_observer(base_url.clone())?;
+        server.observe_property("ews_url", url_observer.clone())?;
+
+        // If the server's authentication should be handled by Necko, populate
+        // the authentication cache.
+        server.maybe_set_necko_auth_cache()?;
+
+        // Also observe future changes to the server's authentication parameters
+        // - that's the `realm` and `auth_method` properties of the server, as
+        // well as any login stored in the logins manager (the observer
+        // implementation is in charge of checking that a login addition/change
+        // matches the current server).
+        let auth_observer = HttpAuthObserver::new_observer(server.clone())?;
+        server.observe_property("realm", auth_observer.clone())?;
+        server.observe_property("auth_method", auth_observer.clone())?;
+        server.observe_property("ews_url", auth_observer.clone())?;
+
+        let obs_svc = components::Observer::service::<nsIObserverService>()?;
+        unsafe {
+            obs_svc.AddObserver(
+                auth_observer.coerce(),
+                c"passwordmgr-storage-changed".as_ptr(),
+                false,
+            )
+        }
+        .to_result()?;
+
+        // Record the observers we've just set up, so we can de-register them
+        // upon shutdown. This includes registrations made via
+        // `PrefBasedServer::observe_property`.
+        let observers_registrations = vec![
+            RegisteredObserver {
+                obs: url_observer,
+                kind: ObserverRegistrationKind::Pref,
+                target: "ews_url".to_string(),
+            },
+            RegisteredObserver {
+                obs: auth_observer.clone(),
+                kind: ObserverRegistrationKind::Pref,
+                target: "realm".to_string(),
+            },
+            RegisteredObserver {
+                obs: auth_observer.clone(),
+                kind: ObserverRegistrationKind::Pref,
+                target: "auth_method".to_string(),
+            },
+            RegisteredObserver {
+                obs: auth_observer,
+                kind: ObserverRegistrationKind::Service,
+                target: OBSERVER_TOPIC_PASSWORDMGR.to_string(),
+            },
+        ];
 
         Ok(OperationSender {
             base_url,
             server: Mutex::new(Some(server)),
             client: moz_http::Client::new(),
             error_handling_line: Line::new(),
+            observers_registrations,
         })
     }
 
     /// "Shut down" the operation sender, by dropping the reference it holds on
-    /// the server.
+    /// the server, and de-registering all observers related to the current
+    /// server.
     ///
     /// The server holds a reference on the client, and the client (through
-    /// `OperationSender`) also holds a reference on the server. Thus, this is
-    /// necessary so they don't prevent each other from being dropped (and leak
-    /// memory).
+    /// `OperationSender`) also holds a reference on the server. Thus, dropping
+    /// the reference on the server is necessary so they don't prevent each
+    /// other from being dropped (and leak memory).
     pub async fn shutdown(&self) {
-        self.server.lock().await.take();
+        let Some(server) = self.server.lock().await.take() else {
+            log::warn!(
+                "OperationSender::shutdown: called after the server reference is already gone (multiple shutdown attempts?)"
+            );
+            return;
+        };
+
+        // De-register the observers. We need to handle each "kind" of observer
+        // registration differently:
+        //  * Observers that were registered via `PrefBasedServer` methods
+        //    should be de-registered the same way, so that both operations
+        //    happen against the pref service.
+        //  * Observers that were registered directly against the observer
+        //    service should be de-registered against this same service.
+        let obs_svc = match components::Observer::service::<nsIObserverService>() {
+            Ok(svc) => svc,
+            Err(err) => {
+                log::error!("OperationSender::shutdown: failed to get observer service: {err}");
+                return;
+            }
+        };
+        for obs_reg in &self.observers_registrations {
+            match obs_reg.kind {
+                ObserverRegistrationKind::Pref => {
+                    if let Err(err) = server.stop_observing(&obs_reg.target, obs_reg.obs.clone()) {
+                        log::error!(
+                            "OperationSender::shutdown: failed to remove pref observer for property {}: {err}",
+                            obs_reg.target,
+                        );
+                    }
+                }
+                ObserverRegistrationKind::Service => {
+                    // Unwrapping should be fine here, since every string used here is
+                    // derived from one of the consts in `observers.rs`.
+                    let target = CString::new(obs_reg.target.as_str()).unwrap();
+
+                    let status =
+                        unsafe { obs_svc.RemoveObserver(obs_reg.obs.coerce(), target.as_ptr()) };
+                    if let Err(err) = status.to_result() {
+                        log::error!(
+                            "OperationSender::shutdown: failed to remove observer for topic {}: {err}",
+                            obs_reg.target,
+                        );
+                    }
+                }
+            }
+        }
     }
 
     /// Returns the [`Url`] currently used as the protocol API's base URL.
@@ -364,25 +502,8 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         &self,
         op_request: &OperationRequest<'or>,
     ) -> Result<Response, ProtocolError> {
-        // Get a new `Credentials` for the request.
-        //
-        // We used to reuse the same instance for each operation, but this does
-        // not scale well now that we're reusing the same client/sender for
-        // every operation (because there are a bunch of places that manage
-        // credentials for an account, and they don't all use the same
-        // identifiers). Getting a new `Credentials` for each request is the
-        // easiest way to ensure we're always using up-to-date credentials, for
-        // (hopefully) a minimal overhead (currently, the only difference this
-        // currently makes is we now get a new one if an auth failure can be
-        // solved by refreshing the cookie).
-        //
-        // If this ever becomes an issue, we can always either add a
-        // `Credentials` instance to each of `QueuedOperation`'s variants, or
-        // add one to `OperationSender` with some carefully crafted and
-        // configured observers.
-        let credentials = self.server().await?.get_credentials()?;
-
-        let resp = send_request(&self.client, op_request, &credentials).await?;
+        let server = self.server().await?;
+        let resp = send_request(&self.client, op_request, server).await?;
 
         // Catch authentication errors quickly so we can react to them
         // appropriately.

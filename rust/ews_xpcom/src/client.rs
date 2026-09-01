@@ -417,10 +417,6 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
 }
 
 impl<ServerT: ServerType + 'static> ProtocolClient for XpComEwsClient<ServerT> {
-    fn protocol_identifier(&self) -> String {
-        String::from("ews")
-    }
-
     async fn shutdown(self: Arc<XpComEwsClient<ServerT>>) {
         // Tell the queue to stop its workers.
         self.queue.stop().await;

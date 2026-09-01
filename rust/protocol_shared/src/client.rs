@@ -14,10 +14,6 @@ use crate::safe_xpcom::{SafeListener, handle_error};
 /// expect a client to feature.
 #[allow(async_fn_in_trait)]
 pub trait ProtocolClient {
-    /// The identifier of the protocol implemented by the client, to use in
-    /// internal URLs, preferences, etc.
-    fn protocol_identifier(&self) -> String;
-
     /// Let the client know it needs to shutdown (e.g. because the associated
     /// server is being removed).
     async fn shutdown(self: Arc<Self>);
