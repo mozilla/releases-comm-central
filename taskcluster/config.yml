@@ -140,6 +140,10 @@ release-branches:
     comm-release: true
     comm-esr140: true
     comm-esr153: true
+    enterprise-thunderbird:
+        - enterprise-main
+        - enterprise-beta
+        - enterprise-release
 
 scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'
