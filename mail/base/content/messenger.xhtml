@@ -131,6 +131,11 @@
   <link rel="localization" href="messenger/unifiedToolbar.ftl" />
   <link rel="localization" href="messenger/unifiedToolbarItems.ftl" />
   <link rel="localization" href="messenger/extensionsUI.ftl" />
+#ifdef MOZ_ENTERPRISE
+<!-- The enterprise badge markup lives in the inert unifiedToolbarTemplate, so it
+ cannot register its own localization link. Declared here for the whole document. -->
+  <link rel="localization" href="toolkit/enterprise/enterprise.ftl" />
+#endif
 #ifdef MOZ_SERVICES_SYNC
   <link rel="localization" href="messenger/syncAccounts.ftl" />
 #endif
