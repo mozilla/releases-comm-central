@@ -538,6 +538,16 @@ export var EnigmailDecryption = {
     return result.decryptedData;
   },
 
+  /**
+   * @param {Window} parent - Parent window.
+   * @param {nsIFile} outFile - File to write the decrypted result to.
+   * @param {string} displayName - Attachment filename.
+   * @param {string} byteData - Data to decrypt.
+   * @param {object} exitCodeObj - Object for exit status.
+   * @param {object} statusFlagsObj - Object for status flags.
+   * @param {object} errorMsgObj - Object for error message.
+   * @returns {boolean} true if the attachment decrypted successfully
+   */
   async decryptAttachment(
     parent,
     outFile,
@@ -550,23 +560,36 @@ export var EnigmailDecryption = {
     const attachmentHead = byteData.substr(0, 200);
     if (attachmentHead.match(/-----BEGIN PGP \w{5,10} KEY BLOCK-----/)) {
       lazy.log.debug("The attachment appears to be a PGP key file.");
-      if (
-        !Services.prompt.confirmEx(
-          parent,
-          null,
-          lazy.l10n.formatValueSync("attachment-pgp-key", {
-            name: displayName,
-          }),
-          Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
-            Services.prompt.BUTTON_POS_1 *
-              Services.prompt.BUTTON_TITLE_IS_STRING,
-          lazy.l10n.formatValueSync("key-man-button-import"),
-          lazy.l10n.formatValueSync("dlg-button-view"),
-          null,
-          null,
-          {}
-        )
-      ) {
+      // When opening with an external application is forbidden, the non-import
+      // action can only save the file, so label the button "Save"; otherwise
+      // it triggers the "open with" chooser, so label it "Open…".
+      const openButtonLabel = Services.prefs.getBoolPref(
+        "browser.download.forbid_open_with",
+        false
+      )
+        ? lazy.l10n.formatValueSync("dlg-button-save")
+        : lazy.l10n.formatValueSync("dlg-button-open");
+      // Cancel occupies BUTTON_POS_1 (the dialog's "cancel" button) so that
+      // dismissing the prompt with the Escape key maps to it and does not open
+      // the attachment. Esc always returns button 1.
+      const clickedButton = Services.prompt.confirmEx(
+        parent,
+        null,
+        lazy.l10n.formatValueSync("attachment-pgp-key-import", {
+          name: displayName,
+        }),
+        Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
+          Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL +
+          Services.prompt.BUTTON_POS_2 * Services.prompt.BUTTON_TITLE_IS_STRING,
+        lazy.l10n.formatValueSync("key-man-button-import"),
+        null,
+        openButtonLabel,
+        null,
+        {}
+      );
+      if (clickedButton == 0) {
+        // "Import"
+        // Import the keys contained in the attachment.
         const preview = await lazy.EnigmailKey.getKeyListFromKeyBlock(
           byteData,
           errorMsgObj,
@@ -577,7 +600,7 @@ export var EnigmailDecryption = {
         exitCodeObj.keyList = preview;
         if (preview && errorMsgObj.value === "") {
           lazy.log.debug(`Found ${preview.length} keys to import.`);
-          if (preview.length > 0) {
+          if (preview.length) {
             const acceptance = lazy.EnigmailDialog.confirmPubkeyImport(
               parent,
               preview
@@ -598,7 +621,7 @@ export var EnigmailDecryption = {
               statusFlagsObj.value = lazy.EnigmailConstants.IMPORTED_KEY;
             } else {
               exitCodeObj.value = 0;
-              statusFlagsObj.value = lazy.EnigmailConstants.DISPLAY_MESSAGE;
+              exitCodeObj.canceled = true;
             }
           }
         } else {
@@ -606,9 +629,14 @@ export var EnigmailDecryption = {
             `Getting key list from key block FAILED; ${errorMsgObj.value}`
           );
         }
-      } else {
+      } else if (clickedButton == 2) {
+        // "Open"
         exitCodeObj.value = 0;
         statusFlagsObj.value = lazy.EnigmailConstants.DISPLAY_MESSAGE;
+      } else {
+        // "Cancel" (button 1, or the Escape key)
+        exitCodeObj.value = 0;
+        exitCodeObj.canceled = true;
       }
       statusFlagsObj.ext = 0;
       return true;

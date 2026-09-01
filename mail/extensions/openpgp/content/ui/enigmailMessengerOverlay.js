@@ -1601,6 +1601,7 @@ Enigmail.msg = {
       return;
     }
     event.stopPropagation();
+    event.preventDefault();
     this.handleAttachment("openAttachment", attachment);
   },
 
@@ -1646,6 +1647,7 @@ Enigmail.msg = {
     // Prevent the inline OpenAttachmentFromBar handler from also handling the
     // click, which would open a second dialog.
     event.stopPropagation();
+    event.preventDefault();
     if (event.detail == 1) {
       this.handleAttachment("openAttachment", attachment);
     }
@@ -1653,6 +1655,7 @@ Enigmail.msg = {
 
   /**
    * Handle a selected attachment (decrypt & open or save).
+   * Used for context menu actions.
    *
    * @param {string} actionType
    */
@@ -1911,6 +1914,11 @@ Enigmail.msg = {
       statusFlagsObj,
       errorMsgObj
     );
+
+    if (exitCodeObj.canceled) {
+      // The user dismissed the key attachment prompt; don't open or save it.
+      return;
+    }
 
     if (!exitStatus || exitCodeObj.value !== 0) {
       exitStatus = false;

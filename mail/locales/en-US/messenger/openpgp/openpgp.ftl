@@ -838,12 +838,10 @@ unverified-reply = Indented message part (reply) was probably modified
 key-in-message-body = A key was found in the message body. Click ‘Import Key’ to import the key
 sig-mismatch = Error - Signature mismatch
 invalid-email = Error - invalid email address(es)
+
 # Variables:
-# $name (String) - File name of the attachment.
-attachment-pgp-key =
-    The attachment ‘{ $name }’ you are opening appears to be an OpenPGP key file.
-    Click ‘Import’ to import the keys contained or ‘View’ to view the file contents in a browser window
-dlg-button-view = &View
+#   $name (String) - File name of the attachment.
+attachment-pgp-key-import =  The attachment ‘{ $name }’ appears to be an OpenPGP key file. Do you want to import the keys it contains?
 
 ## Strings used in encryption.sys.mjs
 
@@ -862,6 +860,8 @@ debug-log-title = OpenPGP Debug Log
 dlg-button-ok = &OK
 dlg-button-close = &Close
 dlg-button-cancel = &Cancel
+dlg-button-open = &Open…
+dlg-button-save = &Save
 dlg-no-prompt = Do not show me this dialog again
 enig-prompt = OpenPGP Prompt
 enig-confirm = OpenPGP Confirmation
