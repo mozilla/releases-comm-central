@@ -946,6 +946,27 @@ var progressListener = {
     }
   },
 
+  async waitForStop() {
+    // Progress can stop before the send promise resolves, so we avoid waiting if it is already done.
+    if (!gSendOperationInProgress) {
+      return;
+    }
+
+    await new Promise(resolve => {
+      function onProgressStop(subject) {
+        if (subject.wrappedJSObject.composeWindow != window) {
+          return;
+        }
+        Services.obs.removeObserver(
+          onProgressStop,
+          "mail:composeSendProgressStop"
+        );
+        resolve();
+      }
+      Services.obs.addObserver(onProgressStop, "mail:composeSendProgressStop");
+    });
+  },
+
   onProgressChange(
     aWebProgress,
     aRequest,
@@ -6617,6 +6638,8 @@ async function CompleteGenericSendMessage(msgType) {
     msgType == Ci.nsIMsgCompDeliverMode.Later ||
     msgType == Ci.nsIMsgCompDeliverMode.Background
   ) {
+    // We keep the compose window open so the recovery dialog can be shown if copying fails.
+    await progressListener.waitForStop();
     window.close();
   }
 }
