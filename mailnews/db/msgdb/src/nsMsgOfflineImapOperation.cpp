@@ -94,6 +94,8 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::ClearOperation(
     case kMsgCopy:
       NS_ENSURE_TRUE(m_copyDestinations.Length() > 0, NS_ERROR_UNEXPECTED);
       m_copyDestinations.RemoveElementAt(0);
+      // NOTE: Likely bug: shouldn't this also keep kMsgCopy set if there
+      // are more destinations?
       break;
   }
   return m_mdb->SetUint32Property(m_mdbRow, PROP_OPERATION, m_operation);

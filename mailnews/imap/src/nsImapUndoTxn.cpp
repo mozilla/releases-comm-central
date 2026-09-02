@@ -564,6 +564,7 @@ NS_IMETHODIMP nsImapOfflineTxn::RedoTransaction(void) {
               op->SetDestinationFolderURI(folderURI);  // offline move
             if (m_opType == nsIMsgOfflineImapOperation::kMsgCopy) {
               op->SetOperation(nsIMsgOfflineImapOperation::kMsgMoved);
+              // NOTE: AddMessageCopyOperation() also sets kMsgCopy.
               op->AddMessageCopyOperation(folderURI);  // offline copy
             }
             dstFolder->SummaryChanged();
