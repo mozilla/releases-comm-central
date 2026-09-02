@@ -4375,9 +4375,15 @@ nsImapMailFolder::ParseAdoptedMsgLine(const char* adoptedMessageLine,
       NS_WARNING("ParseAdoptedMsgLine: already processing a message");
       return NS_ERROR_ABORT;
     }
-    rv = GetMessageHeader(uidOfMessage, getter_AddRefs(m_offlineHeader));
-    if (NS_SUCCEEDED(rv) && !m_offlineHeader) rv = NS_ERROR_UNEXPECTED;
+
+    // There should already be an entry in the database.
+    nsCOMPtr<nsIMsgDatabase> db;
+    rv = GetMsgDatabase(getter_AddRefs(db));
     NS_ENSURE_SUCCESS(rv, rv);
+    nsMsgKey msgKey = MOZ_TRY(MsgKeyFromUid(db, uidOfMessage));
+    rv = db->GetMsgHdrForKey(msgKey, getter_AddRefs(m_offlineHeader));
+    NS_ENSURE_SUCCESS(rv, rv);
+
     // StartNewOfflineMessage() sets up m_tempMessageStream and
     // m_tempMessageStreamBytesWritten.
     rv = StartNewOfflineMessage();
