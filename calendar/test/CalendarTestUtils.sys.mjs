@@ -791,10 +791,20 @@ export const CalendarTestUtils = {
   /**
    * Make sure the current view has finished loading.
    *
+   * A view that isn't active never refreshes, so by design its `ready` Promise
+   * never settles. Wait for it with a timeout instead of awaiting it directly,
+   * so that such a view fails the test quickly rather than hanging until the
+   * harness kills the whole run.
+   *
    * @param {Window} win
    */
   async ensureViewLoaded(win) {
-    await win.currentView().ready;
+    const view = win.currentView();
+    let loaded = false;
+    view.ready.then(() => {
+      loaded = true;
+    });
+    await TestUtils.waitForCondition(() => loaded, `${view.id} should finish loading`, 50, 600);
   },
 
   /**
@@ -805,7 +815,11 @@ export const CalendarTestUtils = {
    */
   async setCalendarView(win, viewName) {
     await CalendarTestUtils.openCalendarTab(win);
-    await CalendarTestUtils.ensureViewLoaded(win);
+    if (win.currentView().isActive) {
+      // Let the view we're about to switch away from settle first, but only if
+      // it can: an inactive view never refreshes and would never load.
+      await CalendarTestUtils.ensureViewLoaded(win);
+    }
 
     const viewTabButton = win.document.querySelector(
       `.calview-toggle-item[aria-controls="${viewName}-view"]`
