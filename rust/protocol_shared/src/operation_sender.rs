@@ -21,7 +21,7 @@ use xpcom::{
 
 use crate::{
     ServerType,
-    authentication::credentials::REALM_SERVER_PROPERTY_NAME,
+    authentication::REALM_SERVER_PROPERTY_NAME,
     error::ProtocolError,
     observers::{HttpAuthObserver, OBSERVER_TOPIC_PASSWORDMGR, UrlPrefObserver},
     operation_sender::send_request::{OperationRequest, send_request},
@@ -207,7 +207,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         // implementation is in charge of checking that a login addition/change
         // matches the current server).
         let auth_observer = HttpAuthObserver::new_observer(server.clone())?;
-        server.observe_property("realm", auth_observer.clone())?;
+        server.observe_property(REALM_SERVER_PROPERTY_NAME, auth_observer.clone())?;
         server.observe_property("auth_method", auth_observer.clone())?;
         server.observe_property("ews_url", auth_observer.clone())?;
 

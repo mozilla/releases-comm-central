@@ -19,12 +19,11 @@ use xpcom::{
 };
 
 use crate::{
-    authentication::oauth_listener::OAuthListener, error::ProtocolError,
-    operation_sender::pref_based_server::PrefBasedServer, safe_xpcom::SafeUri,
+    authentication::{REALM_SERVER_PROPERTY_NAME, oauth_listener::OAuthListener},
+    error::ProtocolError,
+    operation_sender::pref_based_server::PrefBasedServer,
+    safe_xpcom::SafeUri,
 };
-
-/// The name of the server property in which the authentication realm is stored.
-pub(crate) const REALM_SERVER_PROPERTY_NAME: &str = "realm";
 
 /// An entity which can provide details to use for authentication.
 #[allow(async_fn_in_trait)]

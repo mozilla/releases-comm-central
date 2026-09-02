@@ -6,7 +6,7 @@ use mailnews_ui_glue::UserInteractiveServer;
 use xpcom::RefCounted;
 
 use crate::{
-    authentication::credentials::AuthenticationProvider,
+    authentication::authentication_provider::AuthenticationProvider,
     operation_sender::pref_based_server::PrefBasedServer,
 };
 

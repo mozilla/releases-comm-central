@@ -19,7 +19,7 @@ use xpcom::{
 };
 
 use crate::{
-    authentication::credentials::AuthenticationProvider, client::ProtocolClient,
+    authentication::authentication_provider::AuthenticationProvider, client::ProtocolClient,
     operation_sender::pref_based_server::PrefBasedServer,
 };
 
