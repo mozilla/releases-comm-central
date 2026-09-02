@@ -322,5 +322,5 @@ registerCleanupFunction(async function tearDown() {
 
   // Bob.p12 contains both certificates. A later test in this directory
   // loading either of them would block on a confirmation prompt.
-  SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob"]);
+  await SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob"]);
 });

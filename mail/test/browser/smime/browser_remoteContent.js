@@ -56,10 +56,10 @@ add_setup(async function () {
 
   folder = await create_folder("SMIMERemoteContent");
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
     // A later test loading the same certificates would block on a
     // confirmation prompt.
-    SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob"]);
+    await SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob"]);
   });
 });
 

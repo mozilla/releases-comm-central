@@ -40,8 +40,8 @@ add_setup(async function () {
     "nss"
   );
 
-  registerCleanupFunction(function () {
-    SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob", "Alice"]);
+  registerCleanupFunction(async function () {
+    await SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob", "Alice"]);
     // Return focus to the main window so the next test doesn't time out.
     Services.focus.focusedWindow = window;
     const mainWindowElement = document.getElementById("button-appmenu");

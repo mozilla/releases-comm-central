@@ -46,7 +46,7 @@ add_setup(async function () {
   );
 
   registerCleanupFunction(async function () {
-    SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob"]);
+    await SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob"]);
     await OpenPGPTestUtils.removeKeyById("0xf231550c4f47e38e", true);
   });
 });

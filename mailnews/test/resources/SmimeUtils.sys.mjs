@@ -74,11 +74,11 @@ export const SmimeUtils = {
    * @param {string[]} commonNames - Every certificate whose commonName is in
    *   this list is deleted.
    */
-  removeCertificates(commonNames) {
+  async removeCertificates(commonNames) {
     const certDB = Cc["@mozilla.org/security/x509certdb;1"].getService(
       Ci.nsIX509CertDB
     );
-    for (const cert of certDB.getCerts()) {
+    for (const cert of await certDB.getCerts()) {
       if (commonNames.includes(cert.commonName)) {
         certDB.deleteCertificate(cert);
       }

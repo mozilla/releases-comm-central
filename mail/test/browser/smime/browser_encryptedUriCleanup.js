@@ -118,13 +118,13 @@ add_setup(async function () {
   survivingFolder = await create_folder("EncryptedUriCleanupSurviving");
   await addEnvelopedMessage(survivingFolder);
 
-  registerCleanupFunction(function () {
+  registerCleanupFunction(async function () {
     for (const account of removableAccounts) {
       if (MailServices.accounts.accounts.includes(account)) {
         MailServices.accounts.removeAccount(account, true);
       }
     }
-    SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob", "Alice"]);
+    await SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob", "Alice"]);
   });
 });
 

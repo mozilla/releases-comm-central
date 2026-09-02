@@ -51,8 +51,8 @@ add_setup(async function () {
     "nss"
   );
 
-  registerCleanupFunction(function () {
-    SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob", "Alice"]);
+  registerCleanupFunction(async function () {
+    await SmimeUtils.removeCertificates(["NSS Test CA (RSA)", "Bob", "Alice"]);
   });
 });
 
