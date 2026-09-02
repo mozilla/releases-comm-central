@@ -7,6 +7,9 @@
  * callback and keep the timer running.
  */
 
+// The number of mailboxes to create.
+const MAILBOX_COUNT = 20;
+
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
 );
@@ -27,6 +30,9 @@ add_task(async function () {
     flags: ["\\Sent"],
     subscribed: true,
   });
+  for (let i = 0; i < MAILBOX_COUNT; i++) {
+    imapServer.daemon.createMailbox(`folder${i}`, { subscribed: true });
+  }
 
   // Create an account and incoming server.
   const account = MailServices.accounts.createAccount();
@@ -59,15 +65,26 @@ add_task(async function () {
     0,
     "discovery queue should not be empty"
   );
-  Assert.greater(manager.updateQLength, 0, "update queue should not be empty");
+  Assert.greater(
+    manager.updateQLength,
+    MAILBOX_COUNT,
+    "update queue should contain all of the folders"
+  );
 
   // Remove the account.
   MailServices.accounts.removeAccount(account, false);
 
-  // Wait for the timer to stop running.
+  // Wait for the timer to stop running. All of the folders are gone, so this
+  // should happen in the next timer callback or two, not one folder at a time.
+  const startTime = Date.now();
   await TestUtils.waitForCondition(
     () => !manager.timerIsRunning,
     "waiting for timer to stop"
+  );
+  Assert.less(
+    Date.now() - startTime,
+    2000,
+    "the timer should stop soon after the folders are gone"
   );
   Assert.equal(
     manager.discoveryQLength,

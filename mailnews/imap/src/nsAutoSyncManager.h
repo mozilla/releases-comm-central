@@ -169,6 +169,8 @@ class nsAutoSyncManager final : public nsIObserver,
       const nsCOMArray<nsIAutoSyncState>& aQueue,
       nsIAutoSyncState* aAutoSyncStateObj, int32_t* aIndex = nullptr);
 
+  void DiscardGoneFolders();
+
   /// timer to process existing keys and updates
   void InitTimer();
   static void TimerCallback(nsITimer* aTimer, void* aClosure);

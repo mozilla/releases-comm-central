@@ -266,11 +266,42 @@ NS_IMETHODIMP nsAutoSyncManager::GetTimerIsRunning(bool* timerIsRunning) {
   return NS_OK;
 }
 
+/**
+ * Drops queued auto-sync states whose owner folder no longer exists, for
+ * example because the folder was deleted or its account removed. The queues
+ * are otherwise only processed one folder per timer callback, so gone folders
+ * would keep the timer running for much longer than necessary.
+ */
+void nsAutoSyncManager::DiscardGoneFolders() {
+  for (int32_t idx = mDiscoveryQ.Count() - 1; idx >= 0; idx--) {
+    nsCOMPtr<nsIMsgFolder> folder;
+    mDiscoveryQ[idx]->GetOwnerFolder(getter_AddRefs(folder));
+    if (!folder) {
+      MOZ_LOG_FMT(gAutoSyncLog, LogLevel::Debug,
+                  "{}: removing gone folder from the discovery q", __func__);
+      mDiscoveryQ.RemoveObjectAt(idx);
+    }
+  }
+  for (int32_t idx = mUpdateQ.Count() - 1; idx >= 0; idx--) {
+    nsCOMPtr<nsIMsgFolder> folder;
+    mUpdateQ[idx]->GetOwnerFolder(getter_AddRefs(folder));
+    if (!folder) {
+      MOZ_LOG_FMT(gAutoSyncLog, LogLevel::Debug,
+                  "{}: removing gone folder from the update q", __func__);
+      // An update of a folder that is gone never completes, so it won't reset
+      // mUpdateInProgress in OnStopRunningUrl().
+      if (idx == 0) mUpdateInProgress = false;
+      mUpdateQ.RemoveObjectAt(idx);
+    }
+  }
+}
+
 void nsAutoSyncManager::TimerCallback(nsITimer* aTimer, void* aClosure) {
   MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("Timer callback"));
   if (!aClosure) return;
 
   nsAutoSyncManager* autoSyncMgr = static_cast<nsAutoSyncManager*>(aClosure);
+  autoSyncMgr->DiscardGoneFolders();
   MOZ_LOG_FMT(gAutoSyncLog, LogLevel::Debug,
               "idleState={}, mDiscoveryQ count={}, mUpdateQ count={}",
               (int32_t)autoSyncMgr->GetIdleState(),
