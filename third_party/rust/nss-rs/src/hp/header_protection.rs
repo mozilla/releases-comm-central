@@ -129,7 +129,6 @@ impl Key {
                     )
                 })?;
                 debug_assert_eq!(usize::try_from(output_len)?, output.len());
-                Ok(output)
             }
             Self::Chacha(key) => {
                 let params = CK_CHACHA20_PARAMS {
@@ -153,8 +152,8 @@ impl Key {
                     )
                 })?;
                 debug_assert_eq!(usize::try_from(output_len)?, output.len());
-                Ok(output)
             }
         }
+        Ok(output)
     }
 }

@@ -69,7 +69,7 @@ version = "0.21"
 default-features = false
 
 [dependencies.nss-rs]
-version = "0.13"
+version = "0.14"
 git = "https://github.com/mozilla/nss-rs"
 default-features = false
 

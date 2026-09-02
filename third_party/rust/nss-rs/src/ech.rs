@@ -15,7 +15,7 @@ use log::trace;
 use pkcs11_bindings::{CKF_DERIVE, CKM_EC_KEY_PAIR_GEN};
 
 use crate::{
-    SECItem, SECItemBorrowed, SECItemMut,
+    SECItem, SECItemBorrowed, SECItemMut, der,
     err::{Error, Res, ssl::SSL_ERROR_ECH_RETRY_WITH_ECH},
     experimental_api, null_safe_slice,
     p11::{self, PrivateKey, PublicKey, SECKEYPrivateKey, SECKEYPublicKey, Slot},
@@ -100,10 +100,7 @@ pub fn generate_keys() -> Res<(PrivateKey, PublicKey)> {
     let oid_data = unsafe { p11::SECOID_FindOIDByTag(p11::SECOidTag::SEC_OID_CURVE25519) };
     let oid = unsafe { oid_data.as_ref() }.ok_or(Error::Internal)?;
     let oid_slc = unsafe { null_safe_slice(oid.oid.data, oid.oid.len) };
-    let mut params: Vec<u8> = Vec::with_capacity(oid_slc.len() + 2);
-    params.push(u8::try_from(p11::SEC_ASN1_OBJECT_ID)?);
-    params.push(u8::try_from(oid.oid.len)?);
-    params.extend_from_slice(oid_slc);
+    let params = der::object_id(oid_slc)?;
 
     let mut public_ptr: *mut SECKEYPublicKey = null_mut();
     let mut param_item = SECItemBorrowed::wrap(&params)?;

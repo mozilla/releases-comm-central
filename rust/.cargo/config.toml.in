@@ -111,9 +111,9 @@ git = "https://github.com/mozilla/midir.git"
 rev = "54759f681f3b523e120d047adec2bb1a97152017"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/mls-platform-api?rev=2a2e344019bfc76b7e566ee6e0549cf668d90127"]
+[source."git+https://github.com/mozilla/mls-platform-api?rev=eb1c880304127bcb7d0ee6d701fd4ca9ebc73403"]
 git = "https://github.com/mozilla/mls-platform-api"
-rev = "2a2e344019bfc76b7e566ee6e0549cf668d90127"
+rev = "eb1c880304127bcb7d0ee6d701fd4ca9ebc73403"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/mp4parse-rust?rev=215e238e633fa0df42cc25bfcf43a0f902692691"]
@@ -121,9 +121,9 @@ git = "https://github.com/mozilla/mp4parse-rust"
 rev = "215e238e633fa0df42cc25bfcf43a0f902692691"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/neqo?tag=v0.30.1"]
+[source."git+https://github.com/mozilla/neqo?tag=v0.31.1"]
 git = "https://github.com/mozilla/neqo"
-tag = "v0.30.1"
+tag = "v0.31.1"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/nss-rs"]

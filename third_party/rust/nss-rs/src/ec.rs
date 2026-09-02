@@ -42,6 +42,7 @@ pub enum EcCurve {
 pub type EcdhPublicKey = PublicKey;
 pub type EcdhPrivateKey = PrivateKey;
 
+#[derive(Clone, Debug)]
 pub struct EcdhKeypair {
     pub public: EcdhPublicKey,
     pub private: EcdhPrivateKey,
@@ -91,11 +92,9 @@ pub const OID_X25519_BYTES: &[u8] = &[
     0x2b, 0x06, 0x01, 0x04, 0x01, 0xDA, 0x47, 0x0F, 0x01,
 ];
 
+#[deprecated = "use der::object_id"]
 pub fn object_id(val: &[u8]) -> Result<Vec<u8>, Error> {
-    let mut out = Vec::with_capacity(der::MAX_TAG_AND_LENGTH_BYTES + val.len());
-    der::write_tag_and_length(&mut out, der::TAG_OBJECT_ID, val.len())?;
-    out.extend_from_slice(val);
-    Ok(out)
+    der::object_id(val)
 }
 
 fn ec_curve_to_oid(alg: &EcCurve) -> Vec<u8> {
@@ -125,7 +124,7 @@ pub fn ecdh_keygen(curve: &EcCurve) -> Result<EcdhKeypair, Error> {
 
     // Get the OID for the Curve
     let curve_oid = ec_curve_to_oid(curve);
-    let oid_bytes = object_id(&curve_oid)?;
+    let oid_bytes = der::object_id(&curve_oid)?;
     let mut oid = SECItemBorrowed::wrap(&oid_bytes)?;
     let oid_ptr: *mut SECItem = oid.as_mut();
 

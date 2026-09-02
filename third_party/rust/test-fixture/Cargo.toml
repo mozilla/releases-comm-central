@@ -48,6 +48,7 @@ path = ".."
 [lints.clippy]
 allow_attributes = "warn"
 allow_attributes_without_reason = "allow"
+assert_is_empty = "allow"
 cargo_common_metadata = "allow"
 cfg_not_test = "warn"
 clone_on_ref_ptr = "warn"

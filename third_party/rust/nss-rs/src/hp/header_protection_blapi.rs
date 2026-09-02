@@ -101,7 +101,6 @@ impl Key {
                     )
                 })?;
                 debug_assert_eq!(output_len as usize, output.len());
-                Ok(output)
             }
             Self::Chacha(key_bytes) => {
                 // RFC 9001 §5.4.4: counter = sample[0..4] as little-endian u32,
@@ -124,8 +123,8 @@ impl Key {
                         ctr,
                     )
                 })?;
-                Ok(output)
             }
         }
+        Ok(output)
     }
 }

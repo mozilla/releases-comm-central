@@ -3009,14 +3009,12 @@ dependencies = [
  "firefox-on-glean",
  "gecko-profiler",
  "happy-eyeballs",
- "libc",
  "log",
  "nserror",
  "nsstring",
  "serde",
  "static_prefs",
  "thin-vec",
- "winapi",
  "xpcom",
 ]
 
@@ -3564,6 +3562,7 @@ dependencies = [
  "log",
  "mozbuild",
  "nserror",
+ "nsstring",
  "once_cell",
  "serde",
  "serde_json",
@@ -4250,7 +4249,7 @@ dependencies = [
 [[package]]
 name = "mls-platform-api"
 version = "0.2.0"
-source = "git+https://github.com/mozilla/mls-platform-api?rev=2a2e344019bfc76b7e566ee6e0549cf668d90127#2a2e344019bfc76b7e566ee6e0549cf668d90127"
+source = "git+https://github.com/mozilla/mls-platform-api?rev=eb1c880304127bcb7d0ee6d701fd4ca9ebc73403#eb1c880304127bcb7d0ee6d701fd4ca9ebc73403"
 dependencies = [
  "bincode",
  "hex",
@@ -4350,7 +4349,7 @@ dependencies = [
 [[package]]
 name = "mls-rs-crypto-nss"
 version = "0.2.1"
-source = "git+https://github.com/mozilla/mls-platform-api?rev=2a2e344019bfc76b7e566ee6e0549cf668d90127#2a2e344019bfc76b7e566ee6e0549cf668d90127"
+source = "git+https://github.com/mozilla/mls-platform-api?rev=eb1c880304127bcb7d0ee6d701fd4ca9ebc73403#eb1c880304127bcb7d0ee6d701fd4ca9ebc73403"
 dependencies = [
  "getrandom 0.2.999",
  "hex",
@@ -4393,7 +4392,7 @@ dependencies = [
 [[package]]
 name = "mls-rs-provider-sqlite"
 version = "0.22.0"
-source = "git+https://github.com/mozilla/mls-platform-api?rev=2a2e344019bfc76b7e566ee6e0549cf668d90127#2a2e344019bfc76b7e566ee6e0549cf668d90127"
+source = "git+https://github.com/mozilla/mls-platform-api?rev=eb1c880304127bcb7d0ee6d701fd4ca9ebc73403#eb1c880304127bcb7d0ee6d701fd4ca9ebc73403"
 dependencies = [
  "async-trait",
  "hex",
@@ -4564,7 +4563,7 @@ dependencies = [
 [[package]]
 name = "mtu"
 version = "0.4.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.30.1#e2a2a7459b8b51778b50209251a61fc5ca020893"
+source = "git+https://github.com/mozilla/neqo?tag=v0.31.1#965bea08e57a7b79679f5ea4a51889fb6c669a15"
 dependencies = [
  "cfg_aliases",
  "libc",
@@ -4646,8 +4645,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-common"
-version = "0.30.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.30.1#e2a2a7459b8b51778b50209251a61fc5ca020893"
+version = "0.31.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.31.1#965bea08e57a7b79679f5ea4a51889fb6c669a15"
 dependencies = [
  "enum-map",
  "env_logger",
@@ -4661,8 +4660,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-http3"
-version = "0.30.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.30.1#e2a2a7459b8b51778b50209251a61fc5ca020893"
+version = "0.31.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.31.1#965bea08e57a7b79679f5ea4a51889fb6c669a15"
 dependencies = [
  "enumset",
  "http 1.4.0",
@@ -4681,8 +4680,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-qpack"
-version = "0.30.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.30.1#e2a2a7459b8b51778b50209251a61fc5ca020893"
+version = "0.31.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.31.1#965bea08e57a7b79679f5ea4a51889fb6c669a15"
 dependencies = [
  "log",
  "neqo-common",
@@ -4695,8 +4694,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-transport"
-version = "0.30.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.30.1#e2a2a7459b8b51778b50209251a61fc5ca020893"
+version = "0.31.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.31.1#965bea08e57a7b79679f5ea4a51889fb6c669a15"
 dependencies = [
  "enum-map",
  "enumset",
@@ -4715,8 +4714,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-udp"
-version = "0.30.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.30.1#e2a2a7459b8b51778b50209251a61fc5ca020893"
+version = "0.31.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.31.1#965bea08e57a7b79679f5ea4a51889fb6c669a15"
 dependencies = [
  "cfg_aliases",
  "libc",
@@ -4824,8 +4823,8 @@ dependencies = [
 
 [[package]]
 name = "nss-rs"
-version = "0.13.4"
-source = "git+https://github.com/mozilla/nss-rs#da11b438d142cdcb71a2b152a9c5d13efe59d8b6"
+version = "0.14.6"
+source = "git+https://github.com/mozilla/nss-rs#63c63046208f587573f71bb3885f16d10e0bf4eb"
 dependencies = [
  "bindgen 0.72.0",
  "enum-map",

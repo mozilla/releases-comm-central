@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-bin"
-version = "0.30.1"
+version = "0.31.1"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = "build.rs"
 autolib = false
@@ -139,7 +139,7 @@ path = "./../neqo-transport"
 path = "./../neqo-udp"
 
 [dependencies.nss]
-version = "0.13"
+version = "0.14"
 git = "https://github.com/mozilla/nss-rs"
 package = "nss-rs"
 
@@ -203,12 +203,13 @@ features = ["sync"]
 default-features = false
 
 [build-dependencies.cfg_aliases]
-version = "0.2"
+version = "0.2.2"
 default-features = false
 
 [lints.clippy]
 allow_attributes = "warn"
 allow_attributes_without_reason = "warn"
+assert_is_empty = "allow"
 cfg_not_test = "warn"
 clone_on_ref_ptr = "warn"
 create_dir = "warn"

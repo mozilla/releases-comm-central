@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-qpack"
-version = "0.30.1"
+version = "0.31.1"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = false
 autolib = false
@@ -93,6 +93,7 @@ path = "../test-fixture"
 [lints.clippy]
 allow_attributes = "warn"
 allow_attributes_without_reason = "warn"
+assert_is_empty = "allow"
 cfg_not_test = "warn"
 clone_on_ref_ptr = "warn"
 create_dir = "warn"

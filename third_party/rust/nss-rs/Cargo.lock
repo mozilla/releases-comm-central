@@ -160,7 +160,7 @@ dependencies = [
 
 [[package]]
 name = "nss-rs"
-version = "0.13.4"
+version = "0.14.6"
 dependencies = [
  "bindgen",
  "enum-map",
