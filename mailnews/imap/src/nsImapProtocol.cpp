@@ -9686,9 +9686,18 @@ bool nsImapMockChannel::ReadFromLocalCache() {
     return false;
   }
   // we want to create a file channel and read the msg from there.
-  // TODO: UID->nsMsgKey mapping
-  // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
-  nsMsgKey msgKey = strtoul(messageIdString.get(), nullptr, 10);
+
+  // Need the message key to get to offline copy.
+  ImapUid uid = strtoul(messageIdString.get(), nullptr, 10);
+  nsCOMPtr<nsIMsgDatabase> db;
+  rv = folder->GetMsgDatabase(getter_AddRefs(db));
+  NS_ENSURE_SUCCESS(rv, false);
+
+  nsMsgKey msgKey = MsgKeyFromUid(db, uid).unwrapOr(nsMsgKey_None);
+  if (msgKey == nsMsgKey_None) {
+    NS_WARNING("UID lookup failed");
+    return false;
+  }
   nsCOMPtr<nsIMsgDBHdr> hdr;
   rv = folder->GetMessageHeader(msgKey, getter_AddRefs(hdr));
   NS_ENSURE_SUCCESS(rv, false);

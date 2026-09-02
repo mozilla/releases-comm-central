@@ -908,9 +908,15 @@ NS_IMETHODIMP nsImapService::StreamMessage(
   // We need to add the fetch command here for the cache lookup to behave
   // correctly
   nsAutoCString additionalHeader(aAdditionalHeader);
-  nsAutoCString msgKey;
-  msgKey.AppendInt(key);
-  rv = AddImapFetchToUrl(mailnewsurl, folder, msgKey, additionalHeader);
+
+  nsCOMPtr<nsIMsgDatabase> db;
+  MOZ_TRY(folder->GetMsgDatabase(getter_AddRefs(db)));
+
+  ImapUid uid = MOZ_TRY(UidFromMsgKey(db, key));
+  nsAutoCString msgIds;
+  msgIds.AppendInt(uid);
+
+  rv = AddImapFetchToUrl(mailnewsurl, folder, msgIds, additionalHeader);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgIncomingServer> aMsgIncomingServer;
