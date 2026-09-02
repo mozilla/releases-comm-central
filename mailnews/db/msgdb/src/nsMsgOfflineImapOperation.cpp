@@ -20,6 +20,7 @@ NS_IMPL_ISUPPORTS(nsMsgOfflineImapOperation, nsIMsgOfflineImapOperation)
 #define PROP_NEW_FLAGS "newFlags"
 #define PROP_MESSAGE_KEY "msgKey"
 #define PROP_SRC_MESSAGE_KEY "srcMsgKey"
+#define PROP_SRC_UID "srcUid"
 #define PROP_SRC_FOLDER_URI "srcFolderURI"
 #define PROP_MOVE_DEST_FOLDER_URI "moveDest"
 #define PROP_NUM_COPY_DESTS "numCopyDests"
@@ -124,6 +125,16 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetSrcMessageKey(
 NS_IMETHODIMP nsMsgOfflineImapOperation::SetSrcMessageKey(
     nsMsgKey aMessageKey) {
   return m_mdb->SetUint32Property(m_mdbRow, PROP_SRC_MESSAGE_KEY, aMessageKey);
+}
+
+/* attribute unsigned long srcUid; */
+NS_IMETHODIMP nsMsgOfflineImapOperation::GetSrcUid(ImapUid* uid) {
+  NS_ENSURE_ARG(uid);
+  return m_mdb->GetUint32Property(m_mdbRow, PROP_SRC_UID, (uint32_t*)uid, 0);
+}
+
+NS_IMETHODIMP nsMsgOfflineImapOperation::SetSrcUid(ImapUid uid) {
+  return m_mdb->SetUint32Property(m_mdbRow, PROP_SRC_UID, (uint32_t)uid);
 }
 
 /* attribute imapMessageFlagsType flagOperation; */
@@ -380,6 +391,7 @@ nsCString format_as(const nsIMsgOfflineImapOperation& offlineOp) {
   nsOfflineImapOperationType operation;
   nsMsgKey messageKey;
   nsMsgKey srcMessageKey;
+  ImapUid srcUid;
   imapMessageFlagsType flagOperation;
   imapMessageFlagsType newFlags;
 
@@ -393,6 +405,7 @@ nsCString format_as(const nsIMsgOfflineImapOperation& offlineOp) {
   op->GetOperation(&operation);
   op->GetMessageKey(&messageKey);
   op->GetSrcMessageKey(&srcMessageKey);
+  op->GetSrcUid(&srcUid);
   op->GetFlagOperation(&flagOperation);
   op->GetNewFlags(&newFlags);
   op->GetDestinationFolderURI(destinationFolderURI);
@@ -402,6 +415,20 @@ nsCString format_as(const nsIMsgOfflineImapOperation& offlineOp) {
   op->GetMsgSize(&msgSize);
   op->GetPlayingBack(&playingBack);
 
+  // Grab the (internal) copyDestinations list.
+  // No way to get size, so keep going until error.
+  nsTArray<nsCString> copyDests;
+  int i = 0;
+  while (true) {
+    nsAutoCString uri;
+    nsresult rv = op->GetCopyDestination(i, getter_Copies(uri));
+    if (NS_FAILED(rv)) {
+      break;
+    }
+    copyDests.AppendElement(uri);
+    ++i;
+  }
+
   nsTArray<nsCString> fragments;
 
   fragments.AppendElement(
@@ -409,6 +436,9 @@ nsCString format_as(const nsIMsgOfflineImapOperation& offlineOp) {
 
   if (srcMessageKey != nsMsgKey_None) {
     fragments.AppendElement(fmt::format("srcMessageKey={}", srcMessageKey));
+  }
+  if (srcUid != 0) {
+    fragments.AppendElement(fmt::format("srcUid={}", srcUid));
   }
   if (flagOperation) {
     fragments.AppendElement(fmt::format("flagOperation={}", flagOperation));
@@ -421,6 +451,10 @@ nsCString format_as(const nsIMsgOfflineImapOperation& offlineOp) {
   }
   if (!sourceFolderURI.IsEmpty()) {
     fragments.AppendElement(fmt::format("srcFolder={}", sourceFolderURI));
+  }
+  if (!copyDests.IsEmpty()) {
+    fragments.AppendElement(
+        fmt::format("copyDestinations: {}", fmt::join(copyDests, ",")));
   }
   if (!keywordsToAdd.IsEmpty()) {
     fragments.AppendElement(fmt::format("keywordsToAdd={}", keywordsToAdd));
@@ -435,5 +469,6 @@ nsCString format_as(const nsIMsgOfflineImapOperation& offlineOp) {
   if (playingBack) {
     fragments.AppendElement("playingBack"_ns);
   }
+
   return StringJoin(" "_ns, fragments);
 }

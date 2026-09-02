@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "ImapTypes.idl"
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"
 #include "nsIImapUrl.idl" // for imapMessageFlagsType
@@ -79,6 +80,9 @@ interface nsIMsgOfflineImapOperation : nsISupports
 
   // For move/copy operations, the msg key of the source msg (in source DB).
   attribute nsMsgKey srcMessageKey;
+
+  // For move/copy operations, the UID of the source msg.
+  attribute ImapUid srcUid;
 
   // Writing to `.flagOperation` will:
   // 1. set `.newFlags`

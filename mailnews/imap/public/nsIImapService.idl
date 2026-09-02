@@ -146,6 +146,9 @@ interface nsIImapService : nsISupports
                         in nsIUrlListener aUrlListener,
                         in ACString folderPath);
 
+  /**
+   * Copy between folders on the same server.
+   */
   void onlineMessageCopy(in nsIMsgFolder aSrcFolder,
                          in ACString aMessageIds,
                          in nsIMsgFolder aDstFolder,

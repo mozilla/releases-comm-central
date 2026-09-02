@@ -424,7 +424,7 @@ void nsImapOfflineSync::ClearCurrentOps() {
 }
 
 void nsImapOfflineSync::ProcessMoveOperation(nsIMsgOfflineImapOperation* op) {
-  nsTArray<nsMsgKey> matchingFlagKeys;
+  nsTArray<nsMsgKey> srcKeys;
   uint32_t currentKeyIndex = m_KeyIndex;
   nsCString moveDestination;
   op->GetDestinationFolderURI(moveDestination);
@@ -434,7 +434,7 @@ void nsImapOfflineSync::ProcessMoveOperation(nsIMsgOfflineImapOperation* op) {
     if (moveMatches) {
       nsMsgKey curKey;
       currentOp->GetMessageKey(&curKey);
-      matchingFlagKeys.AppendElement(curKey);
+      srcKeys.AppendElement(curKey);
       currentOp->SetPlayingBack(true);
       m_currentOpsToClear.AppendObject(currentOp);
     }
@@ -469,19 +469,18 @@ void nsImapOfflineSync::ProcessMoveOperation(nsIMsgOfflineImapOperation* op) {
   nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
       do_QueryInterface(m_currentFolder);
   if (imapFolder && DestFolderOnSameServer(destFolder)) {
-    uint32_t curFolderFlags;
-    m_currentFolder->GetFlags(&curFolderFlags);
-    bool curFolderOffline = curFolderFlags & nsMsgFolderFlags::Offline;
-    imapFolder->ReplayOfflineMoveCopy(matchingFlagKeys, true, destFolder, this,
-                                      m_window, curFolderOffline);
+    imapFolder->ReplayOfflineMoveCopy(srcKeys, true, destFolder, this,
+                                      m_window);
   } else {
+    // NOTE: Is this dead code?
+    // The source messages have already been removed from the database,
+    // so there should be no way this ever did anything...
+    // Leaving it here for now, but treat it with skepticism.
     nsresult rv;
     nsTArray<RefPtr<nsIMsgDBHdr>> messages;
-    for (uint32_t keyIndex = 0; keyIndex < matchingFlagKeys.Length();
-         keyIndex++) {
+    for (nsMsgKey srcKey : srcKeys) {
       nsCOMPtr<nsIMsgDBHdr> mailHdr = nullptr;
-      rv = m_currentFolder->GetMessageHeader(
-          matchingFlagKeys.ElementAt(keyIndex), getter_AddRefs(mailHdr));
+      rv = m_currentFolder->GetMessageHeader(srcKey, getter_AddRefs(mailHdr));
       if (NS_SUCCEEDED(rv) && mailHdr) {
         uint32_t msgSize;
         // in case of a move, the header has already been deleted,
@@ -574,11 +573,8 @@ void nsImapOfflineSync::ProcessCopyOperation(
   nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
       do_QueryInterface(m_currentFolder);
   if (imapFolder && DestFolderOnSameServer(destFolder)) {
-    uint32_t curFolderFlags;
-    m_currentFolder->GetFlags(&curFolderFlags);
-    bool curFolderOffline = curFolderFlags & nsMsgFolderFlags::Offline;
     rv = imapFolder->ReplayOfflineMoveCopy(matchingFlagKeys, false, destFolder,
-                                           this, m_window, curFolderOffline);
+                                           this, m_window);
   } else {
     nsTArray<RefPtr<nsIMsgDBHdr>> messages;
     for (uint32_t keyIndex = 0; keyIndex < matchingFlagKeys.Length();

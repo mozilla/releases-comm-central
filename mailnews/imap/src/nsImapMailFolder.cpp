@@ -6,11 +6,15 @@
 
 #include <algorithm>
 
+#include "ErrorList.h"
 #include "ImapTypes.h"
+#include "mozilla/RefPtr.h"
 #include "msgCore.h"
 #include "CopyMessageStreamListener.h"
+#include "nsDebug.h"
 #include "nsError.h"
 #include "nsIAutoSyncManager.h"
+#include "nsIMsgDatabase.h"
 #include "nsIStringStream.h"
 #include "prmem.h"
 #include "nsIDBFolderInfo.h"
@@ -3741,82 +3745,176 @@ NS_IMETHODIMP nsImapMailFolder::SetImapFlags(nsTArray<nsMsgKey> const& msgKeys,
                                       flags, true);
 }
 
+// Helper to find destination `kMoveResult` offline ops, counterparts to
+// source `kMsgMoved`/`kMsgCopy` ops.
+// Upon success, returns a list with one entry to match each source op in.
+// If a matching counterpart destination op could not be found, that position
+// in the returned list will contain a nullptr.
+//
+// NOTE: it'd be much cleaner to just add a `.destMsgKey` field to the
+// src op for a direct lookup, but we're stuck with the data we've got.
+static mozilla::Result<nsTArray<RefPtr<nsIMsgOfflineImapOperation>>, nsresult>
+FindCounterPartOps(nsACString const& srcFolderUri,
+                   nsTArray<RefPtr<nsIMsgOfflineImapOperation>> const& srcOps,
+                   nsIMsgOfflineOpsDatabase* destDb) {
+  // Get *all* the offline ops for the dest folder.
+  nsTArray<nsMsgKey> destOpIds;
+  MOZ_TRY(destDb->ListAllOfflineOpIds(destOpIds));
+  nsTArray<RefPtr<nsIMsgOfflineImapOperation>> destOps(destOpIds.Length());
+  for (nsMsgKey id : destOpIds) {
+    RefPtr<nsIMsgOfflineImapOperation> op;
+    MOZ_TRY(destDb->GetOfflineOpForKey(id, false, getter_AddRefs(op)));
+    destOps.AppendElement(op);
+  }
+
+  // For each source op, find the counterpart dest op.
+  nsTArray<RefPtr<nsIMsgOfflineImapOperation>> matchingOps(srcOps.Length());
+  for (nsIMsgOfflineImapOperation* srcOp : srcOps) {
+    nsIMsgOfflineImapOperation* matching = nullptr;
+    nsMsgKey srcOpId;
+    MOZ_TRY(srcOp->GetMessageKey(&srcOpId));
+    for (nsIMsgOfflineImapOperation* destOp : destOps) {
+      nsAutoCString uri;
+      MOZ_TRY(destOp->GetSourceFolderURI(uri));
+      if (!srcFolderUri.Equals(uri)) {
+        continue;  // Nope. Some other folder.
+      }
+      nsMsgKey srcMessageKey;
+      destOp->GetSrcMessageKey(&srcMessageKey);
+      if (srcOpId != srcMessageKey) {
+        // Nope. Not one we're looking for.
+        continue;
+      }
+
+      // TODO: should check for correct kMsgMoved/kMoveResult pairing...
+
+      // If we get this far, we've found the counterpart!
+      matching = destOp;
+      break;
+    }
+
+    // There _should_ always be a match...
+    if (!matching) {
+      NS_WARNING("Couldn't find counterpart offline op");
+    }
+    matchingOps.AppendElement(matching);
+  }
+  MOZ_ASSERT(srcOps.Length() == matchingOps.Length());
+  return matchingOps;
+}
+
 // "this" is the source folder.
+// destFolder must be a folder on the same server.
+// NOTE: for a move, the keys in aMsgKeys won't exist, as the messages will
+// already have been deleted in the local database.
+// But they can be used to retrieve the offline ops, where we can get the
+// UID we need to perform the server-side move.
 NS_IMETHODIMP
-nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& aMsgKeys,
-                                        bool isMove, nsIMsgFolder* aDstFolder,
-                                        nsIUrlListener* aUrlListener,
-                                        nsIMsgWindow* aWindow,
-                                        bool srcFolderOffline) {
+nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& srcOpIds,
+                                        bool isMove, nsIMsgFolder* destFolder,
+                                        nsIUrlListener* urlListener,
+                                        nsIMsgWindow* window) {
   nsresult rv;
 
-  nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(aDstFolder);
-  if (imapFolder) {
-    nsImapMailFolder* destImapFolder =
-        static_cast<nsImapMailFolder*>(aDstFolder);
-    nsCOMPtr<nsIMsgDatabase> dstFolderDB;
-    aDstFolder->GetMsgDatabase(getter_AddRefs(dstFolderDB));
-    nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
-        do_QueryInterface(dstFolderDB, &rv);
+  // We'll be using nsIImapService.onlineMessageCopy(), which only works
+  // on the same server.
+  bool isSameServer = false;
+  MOZ_TRY(IsOnSameServer(this, destFolder, &isSameServer));
+
+  // We _know_ the destination is an IMAP folder.
+  RefPtr<nsImapMailFolder> imapDestFolder =
+      static_cast<nsImapMailFolder*>(destFolder);
+
+  // We also know both folders have DBs which support offline operations.
+  nsCOMPtr<nsIMsgOfflineOpsDatabase> srcDb;
+  {
+    nsCOMPtr<nsIMsgDatabase> db;
+    GetMsgDatabase(getter_AddRefs(db));
+    srcDb = do_QueryInterface(db, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    if (opsDb) {
-      // find the fake header in the destination db, and use that to
-      // set the pending attributes on the real headers. To do this,
-      // we need to iterate over the offline ops in the destination db,
-      // looking for ones with matching keys and source folder uri.
-      // If we find that offline op, its "key" will be the key of the fake
-      // header, so we just need to get the header for that key
-      // from the dest db.
-      nsTArray<nsMsgKey> offlineOps;
-      if (NS_SUCCEEDED(opsDb->ListAllOfflineOpIds(offlineOps))) {
-        nsTArray<RefPtr<nsIMsgDBHdr>> messages;
-        nsCString srcFolderUri;
-        GetURI(srcFolderUri);
-        nsCOMPtr<nsIMsgOfflineImapOperation> currentOp;
-        for (uint32_t opIndex = 0; opIndex < offlineOps.Length(); opIndex++) {
-          opsDb->GetOfflineOpForKey(offlineOps[opIndex], false,
-                                    getter_AddRefs(currentOp));
-          if (currentOp) {
-            nsCString opSrcUri;
-            currentOp->GetSourceFolderURI(opSrcUri);
-            if (opSrcUri.Equals(srcFolderUri)) {
-              nsMsgKey srcMessageKey;
-              currentOp->GetSrcMessageKey(&srcMessageKey);
-              for (auto key : aMsgKeys) {
-                if (srcMessageKey == key) {
-                  nsCOMPtr<nsIMsgDBHdr> fakeDestHdr;
-                  dstFolderDB->GetMsgHdrForKey(offlineOps[opIndex],
-                                               getter_AddRefs(fakeDestHdr));
-                  if (fakeDestHdr) messages.AppendElement(fakeDestHdr);
-                  break;
-                }
-              }
-            }
-          }
-        }
-        // 3rd parameter: Sets offline flag.
-        destImapFolder->SetPendingAttributes(messages, isMove,
-                                             srcFolderOffline);
-      }
+  }
+
+  // Get the offline ops we're aiming to use (the source ops).
+  nsTArray<RefPtr<nsIMsgOfflineImapOperation>> srcOps(srcOpIds.Length());
+  for (nsMsgKey id : srcOpIds) {
+    RefPtr<nsIMsgOfflineImapOperation> op;
+    MOZ_TRY(srcDb->GetOfflineOpForKey(id, false, getter_AddRefs(op)));
+    srcOps.AppendElement(op);
+  }
+
+  // We also want to find all the destination messages, and call
+  // SetPendingAttributes() upon them.
+  // NOTE: this only works for moves, but not for copies. `kMsgCopy`
+  // setup just doesn't set up a counterpart offline op in the dest DB.
+  // It's not clear why this is set up only for moves and not for copies.
+  // Maybe an oversight in old code? In any case we'll preserve this
+  // behaviour (for now).
+  nsCOMPtr<nsIMsgOfflineOpsDatabase> destDb;
+  {
+    nsCOMPtr<nsIMsgDatabase> db;
+    imapDestFolder->GetMsgDatabase(getter_AddRefs(db));
+    destDb = do_QueryInterface(db, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  // Find the corresponding offline ops in the dest db.
+  nsTArray<RefPtr<nsIMsgOfflineImapOperation>> destOps =
+      MOZ_TRY(FindCounterPartOps(URI(), srcOps, destDb));
+
+  // Collect all the dest msgHdrs and apply SetPendingAttributes() on them.
+  nsTArray<RefPtr<nsIMsgDBHdr>> destMessages(destOps.Length());
+  for (nsIMsgOfflineImapOperation* op : destOps) {
+    if (!op) {
+      // No corresponding op. Not much we can do
+      continue;
     }
-    // if we can't get the dst folder db, we should still try to playback
-    // the offline move/copy.
+    nsMsgKey key;
+    MOZ_TRY(op->GetMessageKey(&key));
+    nsCOMPtr<nsIMsgDBHdr> hdr;
+    destDb->GetMsgHdrForKey(key, getter_AddRefs(hdr));
+    if (hdr) {
+      destMessages.AppendElement(hdr);
+    } else {
+      // Shouldn't happen, but want to continue if it does.
+      NS_WARNING("Couldn't find msgHdr for destination op");
+    }
+  }
+  uint32_t srcFolderFlags;
+  GetFlags(&srcFolderFlags);
+  bool isSrcFolderOffline = srcFolderFlags & nsMsgFolderFlags::Offline;
+  imapDestFolder->SetPendingAttributes(destMessages, isMove,
+                                       isSrcFolderOffline);
+
+  // Time to play back the offline move/copy.
+  // For that we need the UIDs of the src messages.
+  // Even if the src messages might have been removed from the local database,
+  // the UIDs should be recorded in the source offline ops.
+  nsTArray<ImapUid> srcUids(srcOps.Length());
+  for (nsIMsgOfflineImapOperation* op : srcOps) {
+    ImapUid uid;
+    MOZ_TRY(op->GetSrcUid(&uid));
+    if (uid != 0) {
+      srcUids.AppendElement(uid);
+    } else {
+      // Shouldn't happen but want to continue if it does.
+      NS_WARNING("Missing srcUid in offline op");
+    }
   }
 
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
   nsCOMPtr<nsIURI> resultUrl;
-  nsTArray<ImapUid> uids = MOZ_TRY(UidsFromMsgKeys(mDatabase, aMsgKeys));
-  nsAutoCString idSet(UidSetFromUids(uids));
+  nsAutoCString idSet(UidSetFromUids(srcUids));
   // Tell IMAP to copy (or move) messages with given uids in this folder to
   // aDstFolder.
-  rv = imapService->OnlineMessageCopy(this, idSet, aDstFolder, true, isMove,
-                                      aUrlListener, getter_AddRefs(resultUrl),
-                                      nullptr, aWindow);
+  rv = imapService->OnlineMessageCopy(this, idSet, destFolder, true, isMove,
+                                      urlListener, getter_AddRefs(resultUrl),
+                                      nullptr, window);
   if (resultUrl) {
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(resultUrl, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIUrlListener> folderListener = do_QueryInterface(aDstFolder);
-    if (folderListener) mailnewsUrl->RegisterListener(folderListener);
+    nsCOMPtr<nsIUrlListener> folderListener = do_QueryInterface(destFolder);
+    if (folderListener) {
+      mailnewsUrl->RegisterListener(folderListener);
+    }
   }
   return rv;
 }
@@ -6712,13 +6810,16 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
             nsCString folderURI;
             GetURI(folderURI);
             if (isMove) {
+              // The source db entry for the message will be deleted
+              // immediately, so sourceOp needs to hold all details required
+              // to perform the eventual server operation.
               uint32_t msgSize;
               uint32_t msgFlags;
               imapMessageFlagsType newImapFlags = 0;
               message->GetMessageSize(&msgSize);
               message->GetFlags(&msgFlags);
-              sourceOp->SetDestinationFolderURI(folderURI);  // offline move
               sourceOp->SetOperation(nsIMsgOfflineImapOperation::kMsgMoved);
+              sourceOp->SetDestinationFolderURI(folderURI);
               sourceOp->SetMsgSize(msgSize);
               newImapFlags = msgFlags & 0x7;
               if (msgFlags & nsMsgMessageFlags::Forwarded)
@@ -6727,6 +6828,8 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
             } else {
               sourceOp->AddMessageCopyOperation(folderURI);  // offline copy
             }
+            ImapUid srcUid = UidFromMsgKey(opsDb, originalKey).unwrapOr(0);
+            sourceOp->SetSrcUid(srcUid);
 
             sourceOp->GetOperation(&moveCopyOpType);
             srcMsgs.AppendObject(message);
@@ -6763,6 +6866,10 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
           }
 
           if (NS_SUCCEEDED(stopit)) {
+            nsMsgKey newKey;
+            newMailHdr->GetMessageKey(&newKey);
+            MOZ_ASSERT(newKey != nsMsgKey_None);
+
             bool hasMsgOffline = false;
 
             destMsgHdrs.AppendElement(newMailHdr);
