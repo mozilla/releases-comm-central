@@ -348,8 +348,8 @@ void AppendUid(nsCString& msgIds, ImapUid uid) {
   msgIds.Append(buf);
 }
 
-nsCString UidSetFromUids(mozilla::Span<const ImapUid> uids) {
-  nsTArray<ImapUid> sortedUids(uids);
+nsCString UidSetFromUids(nsTArray<ImapUid> const& uids) {
+  nsTArray<ImapUid> sortedUids(uids.Clone());
   sortedUids.Sort();
 
   nsTArray<nsCString> fragments;

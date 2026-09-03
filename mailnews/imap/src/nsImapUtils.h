@@ -10,7 +10,6 @@
 #include "nsTArray.h"
 #include "nsIMailboxSpec.h"
 #include "nsCOMPtr.h"
-#include "mozilla/Span.h"
 
 class nsImapFlagAndUidState;
 class nsImapProtocol;
@@ -66,7 +65,7 @@ void AppendUid(nsCString& msgIds, ImapUid uid);
  * In practice the output will likely be sorted and de-duped,
  * but the spec implies you shouldn't rely on that.
  */
-nsCString UidSetFromUids(mozilla::Span<const ImapUid> uids);
+nsCString UidSetFromUids(nsTArray<ImapUid> const& uids);
 
 /**
  * Returns a list of UIDs for the given messages.

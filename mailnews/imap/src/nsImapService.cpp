@@ -307,6 +307,13 @@ NS_IMETHODIMP nsImapService::LoadMessage(const nsACString& aMessageURI,
     nsCOMPtr<nsIMsgFolder> folder;
     rv = GetExistingFolder(folderURI, getter_AddRefs(folder));
     NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr<nsIMsgDatabase> db;
+    rv = folder->GetMsgDatabase(getter_AddRefs(db));
+    NS_ENSURE_SUCCESS(rv, rv);
+    ImapUid uid = MOZ_TRY(UidFromMsgKey(db, key));
+    nsAutoCString msgIds(UidSetFromUids({uid}));
+
     nsCOMPtr<nsIImapMessageSink> imapMessageSink(
         do_QueryInterface(folder, &rv));
     if (NS_SUCCEEDED(rv)) {
@@ -320,9 +327,10 @@ NS_IMETHODIMP nsImapService::LoadMessage(const nsACString& aMessageURI,
         nsresult rv;
         nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(imapUrl);
 
-        nsAutoCString msgKey;
-        msgKey.AppendInt(key);
-        rv = AddImapFetchToUrl(mailnewsurl, folder, msgKey + mimePart,
+        // TODO: Sort out the mimePart mess here. Shouldn't intermingle
+        // UID sets and mime part.
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+        rv = AddImapFetchToUrl(mailnewsurl, folder, msgIds + mimePart,
                                EmptyCString());
         NS_ENSURE_SUCCESS(rv, rv);
 
@@ -370,13 +378,11 @@ NS_IMETHODIMP nsImapService::LoadMessage(const nsACString& aMessageURI,
       }
 
       nsCOMPtr<nsIURI> dummyURI;
-      nsAutoCString msgKey;
-      msgKey.AppendInt(key);
       rv = FetchMessage(imapUrl,
                         forcePeek ? nsIImapUrl::nsImapMsgFetchPeek
                                   : nsIImapUrl::nsImapMsgFetch,
                         folder, imapMessageSink, aMsgWindow, aDisplayConsumer,
-                        msgKey, false, getter_AddRefs(dummyURI));
+                        msgIds, false, getter_AddRefs(dummyURI));
     }
   }
   return rv;
@@ -517,11 +523,14 @@ NS_IMETHODIMP nsImapService::CopyMessage(const nsACString& aSrcMailboxURI,
       // now try to download the message
       nsImapAction imapAction = nsIImapUrl::nsImapOnlineToOfflineCopy;
       nsCOMPtr<nsIURI> dummyURI;
-      nsAutoCString msgKey;
-      msgKey.AppendInt(key);
+      nsCOMPtr<nsIMsgDatabase> db;
+      rv = folder->GetMsgDatabase(getter_AddRefs(db));
+      NS_ENSURE_SUCCESS(rv, rv);
+      ImapUid uid = MOZ_TRY(UidFromMsgKey(db, key));
+      nsAutoCString msgIds(UidSetFromUids({uid}));
       rv =
           FetchMessage(imapUrl, imapAction, folder, imapMessageSink, aMsgWindow,
-                       aMailboxCopy, msgKey, false, getter_AddRefs(dummyURI));
+                       aMailboxCopy, msgIds, false, getter_AddRefs(dummyURI));
     }  // if we got an imap message sink
   }  // if we decomposed the imap message
   return rv;
@@ -544,12 +553,13 @@ NS_IMETHODIMP nsImapService::CopyMessages(
     nsCString uri;
     srcFolder->GenerateMessageURI(aKeys[0], uri);
 
-    nsCString messageIds;
-    // TODO: AllocateImapUidString() maxes out at 950 keys or so... it
-    // updates the numKeys passed in, but here the resulting value is
-    // ignored. Does this need sorting out?
-    uint32_t numKeys = aKeys.Length();
-    AllocateImapUidString(aKeys.Elements(), numKeys, nullptr, messageIds);
+    // Work out the UIDs of the messages involved.
+    nsCOMPtr<nsIMsgDatabase> db;
+    rv = srcFolder->GetMsgDatabase(getter_AddRefs(db));
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsTArray<ImapUid> uids = MOZ_TRY(UidsFromMsgKeys(db, aKeys));
+    nsAutoCString messageIds(UidSetFromUids(uids));
+
     nsCOMPtr<nsIImapUrl> imapUrl;
     nsAutoCString urlSpec;
     char hierarchyDelimiter = GetHierarchyDelimiter(folder);
@@ -557,7 +567,6 @@ NS_IMETHODIMP nsImapService::CopyMessages(
                               aUrlListener, urlSpec, hierarchyDelimiter);
     nsImapAction action = nsIImapUrl::nsImapOnlineToOfflineCopy;
     imapUrl->SetCopyState(aMailboxCopy);
-    // now try to display the message
     rv = FetchMessage(imapUrl, action, folder, imapMessageSink, aMsgWindow,
                       aMailboxCopy, messageIds, false, aURL);
 
@@ -667,13 +676,16 @@ NS_IMETHODIMP nsImapService::SaveMessageToDisk(const nsACString& aMessageURI,
     nsCOMPtr<nsIStreamListener> saveAsListener;
     mailnewsUrl->GetSaveAsListener(aFile, getter_AddRefs(saveAsListener));
 
-    // IMAP code uses UID as msgkey.
-    nsAutoCString uid;
-    uid.AppendInt(msgKey);
+    nsCOMPtr<nsIMsgDatabase> db;
+    rv = folder->GetMsgDatabase(getter_AddRefs(db));
+    NS_ENSURE_SUCCESS(rv, rv);
+    ImapUid uid = MOZ_TRY(UidFromMsgKey(db, msgKey));
+    nsAutoCString msgIds(UidSetFromUids({uid}));
+
     nsCOMPtr<nsIURI> dummyNull;
     return FetchMessage(imapUrl, nsIImapUrl::nsImapSaveMessageToDisk, folder,
-                        imapMessageSink, aMsgWindow, saveAsListener, uid, false,
-                        getter_AddRefs(dummyNull));
+                        imapMessageSink, aMsgWindow, saveAsListener, msgIds,
+                        false, getter_AddRefs(dummyNull));
   }
   return rv;
 }
