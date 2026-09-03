@@ -46,8 +46,8 @@ task-defaults:
             by-release-type:
                 nightly: nightly
                 beta: beta
-                release.*: release
-                esr.*: esr
+                release(?!-enterprise).*: release
+                esr(?!-enterprise).*: esr
                 release-enterprise: comm-release-enterprise
                 beta-enterprise: comm-beta-enterprise
                 nightly-enterprise: comm-nightly-enterprise
@@ -55,8 +55,8 @@ task-defaults:
         mar-channel-id:
             by-release-type:
                 beta: thunderbird-comm-beta
-                release.*: thunderbird-comm-release
-                esr.*: thunderbird-comm-esr
+                release(?!-enterprise).*: thunderbird-comm-release
+                esr(?!-enterprise).*: thunderbird-comm-esr
                 release-enterprise: thunderbird-enterprise-release
                 beta-enterprise: thunderbird-enterprise-beta
                 nightly-enterprise: thunderbird-enterprise-nightly
@@ -64,8 +64,8 @@ task-defaults:
         accepted-mar-channel-ids:
             by-release-type:
                 beta: thunderbird-comm-beta,thunderbird-comm-release
-                release.*: thunderbird-comm-release
-                esr.*: thunderbird-comm-esr
+                release(?!-enterprise).*: thunderbird-comm-release
+                esr(?!-enterprise).*: thunderbird-comm-esr
                 release-enterprise: thunderbird-enterprise-release
                 beta-enterprise: thunderbird-enterprise-beta
                 nightly-enterprise: thunderbird-enterprise-nightly

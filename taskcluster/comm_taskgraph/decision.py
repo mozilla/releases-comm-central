@@ -180,6 +180,8 @@ def get_decision_parameters(graph_config, parameters):
     )
 
     if "enterprise" in project:
+        from gecko_taskgraph.parameters import get_release_type
+
         from comm_taskgraph.util.partners import (
             get_release_partner_config,
             get_release_partners,
@@ -189,6 +191,7 @@ def get_decision_parameters(graph_config, parameters):
             parameters, graph_config
         )
         parameters["release_partners"] = get_release_partners(parameters)
+        parameters["release_type"] = get_release_type(parameters)
 
     for n in (
         "COMM_BASE_REPOSITORY",
