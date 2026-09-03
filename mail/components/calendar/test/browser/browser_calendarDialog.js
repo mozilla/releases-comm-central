@@ -1515,6 +1515,8 @@ add_task(async function test_userAttendanceResponse() {
     "Going should be checked in the acceptance widget"
   );
 
+  browser.contentWindow.doTransaction = async () => {};
+
   // Clicking "maybe" should fire setEventResponse and update the status attribute of
   // the acceptance widget.
   const setEventReponseEvent = BrowserTestUtils.waitForEvent(
@@ -1540,6 +1542,8 @@ add_task(async function test_userAttendanceResponse() {
     "TENTATIVE",
     "Maybe should be checked in the acceptance widget"
   );
+
+  delete browser.contentWindow.doTransaction;
 
   // Clean up.
   calendar.setProperty("organizerId", "");

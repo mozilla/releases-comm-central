@@ -109,6 +109,143 @@ add_task(async function test_calendarDialogOpenAndClose() {
   await cleanUp(dialog, eventBox);
 });
 
+add_task(async function test_respondToRecurringInvitation() {
+  const calendarUser = "mailto:receiver@example.com";
+  const organizerId = "mailto:sender@example.com";
+  calendar.setProperty("organizerId", calendarUser);
+
+  let invitation = await createEvent({
+    calendar,
+    repeats: true,
+    attendees: [
+      {
+        commonName: "Receiver",
+        id: calendarUser,
+        role: "REQ-PARTICIPANT",
+        participationStatus: "NEEDS-ACTION",
+      },
+      {
+        commonName: "Other",
+        id: "mailto:other@example.com",
+        role: "REQ-PARTICIPANT",
+        participationStatus: "ACCEPTED",
+      },
+    ],
+  });
+  const updatedInvitation = invitation.clone();
+  const organizer = new CalAttendee();
+  organizer.id = organizerId;
+  organizer.commonName = "Sender";
+  organizer.participationStatus = "ACCEPTED";
+  organizer.isOrganizer = true;
+  updatedInvitation.organizer = organizer;
+  invitation = await calendar.modifyItem(updatedInvitation, invitation);
+
+  const eventBox = await openAndShowEvent();
+  const occurrence = eventBox.occurrence;
+  Assert.ok(occurrence.recurrenceId, "opened a recurring event occurrence");
+
+  const dialog = document.querySelector('[is="calendar-dialog"]');
+  const acceptanceWidget = dialog.querySelector("calendar-dialog-acceptance");
+  await BrowserTestUtils.waitForAttribute(
+    "status",
+    acceptanceWidget,
+    "NEEDS-ACTION"
+  );
+
+  const sentItems = [];
+  const getImipTransport = cal.itip.getImipTransport;
+  cal.itip.getImipTransport = () => ({
+    scheme: "mailto",
+    type: "email",
+    sendItems(recipients, itipItem, fromAttendee) {
+      sentItems.push({ recipients, itipItem, fromAttendee });
+      return true;
+    },
+  });
+
+  const responseEvent = BrowserTestUtils.waitForEvent(
+    acceptanceWidget,
+    "setEventResponse"
+  );
+  await new Promise(resolve => setTimeout(resolve));
+  EventUtils.synthesizeMouseAtCenter(
+    acceptanceWidget.shadowRoot.querySelector('label[for="maybe"]'),
+    {},
+    window
+  );
+  Assert.equal(
+    (await responseEvent).detail.status,
+    "TENTATIVE",
+    "the RSVP control sends the selected response"
+  );
+
+  let storedEvent;
+  await TestUtils.waitForCondition(async () => {
+    storedEvent = await calendar.getItem(invitation.id);
+    const exception = storedEvent.recurrenceInfo.getExceptionFor(
+      occurrence.recurrenceId
+    );
+    return (
+      exception?.getAttendeeById(calendarUser).participationStatus ==
+      "TENTATIVE"
+    );
+  }, "waiting for the RSVP response to be saved");
+  await TestUtils.waitForCondition(
+    () => sentItems.length == 1,
+    "waiting for the RSVP response to be sent"
+  );
+
+  const exception = storedEvent.recurrenceInfo.getExceptionFor(
+    occurrence.recurrenceId
+  );
+  Assert.equal(
+    exception.getAttendeeById(calendarUser).participationStatus,
+    "TENTATIVE",
+    "the selected occurrence has the new RSVP status"
+  );
+  Assert.equal(
+    storedEvent.getAttendeeById(calendarUser).participationStatus,
+    "NEEDS-ACTION",
+    "the recurring parent keeps its RSVP status"
+  );
+
+  Assert.equal(
+    sentItems[0].recipients.length,
+    1,
+    "the reply has one recipient"
+  );
+  Assert.equal(
+    sentItems[0].recipients[0].id,
+    organizerId,
+    "the reply is sent to the organizer"
+  );
+  Assert.equal(
+    sentItems[0].fromAttendee.participationStatus,
+    "TENTATIVE",
+    "the reply has the new RSVP status"
+  );
+
+  Assert.equal(
+    acceptanceWidget.getAttribute("status"),
+    "TENTATIVE",
+    "the RSVP control shows the new status"
+  );
+  const attendee = Array.from(
+    dialog.querySelectorAll("calendar-dialog-attendees-row:not([type]) li")
+  ).find(element => element.attendee.id == calendarUser);
+  Assert.equal(
+    attendee.attendee.participationStatus,
+    "TENTATIVE",
+    "the attendee list shows the new RSVP status"
+  );
+
+  cal.itip.getImipTransport = getImipTransport;
+  await calendar.deleteItem(invitation.parentItem);
+  calendar.setProperty("organizerId", "mailto:organizer@example.com");
+  dialog.close();
+});
+
 add_task(async function test_calendarDialogColors() {
   const category = "TEST";
   const formattedCategoryName = cal.view.formatStringForCSSRule(category);

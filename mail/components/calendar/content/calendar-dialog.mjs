@@ -83,6 +83,21 @@ export class CalendarDialog extends PositionedDialog {
   #meetingUrl = null;
 
   /**
+   * The event currently displayed in the dialog. For recurring events this is
+   * the selected occurrence.
+   *
+   * @type {calIEvent?}
+   */
+  #event = null;
+
+  /**
+   * The callback used to save changes to the displayed event.
+   *
+   * @type {?Function}
+   */
+  #onEventResponse = null;
+
+  /**
    * Event loading promise. Don't try loading again until previous attempt is complete.
    *
    * @type {boolean}
@@ -227,11 +242,7 @@ export class CalendarDialog extends PositionedDialog {
         break;
       }
       case "setEventResponse":
-        this.querySelector("calendar-dialog-acceptance").setAttribute(
-          "status",
-          event.detail.status
-        );
-        // TODO: Update the event with the user response.
+        this.#setEventResponse(event.detail.status);
         break;
     }
   }
@@ -271,9 +282,10 @@ export class CalendarDialog extends PositionedDialog {
    * with a calIEvent the dialog will update to show the data of that event.
    *
    * @param {calIEvent} event
+   * @param {?Function} [onEventResponse] - Called to save an event response.
    * @throws {Error} When passed a calIItemBase that isn't an event.
    */
-  setCalendarEvent(event) {
+  setCalendarEvent(event, onEventResponse = null) {
     if (!event.isEvent()) {
       throw new Error("Can only display events");
     }
@@ -282,6 +294,7 @@ export class CalendarDialog extends PositionedDialog {
       this.close();
     }
 
+    this.#onEventResponse = onEventResponse;
     this.removeAttribute("calendar-id");
     if (event.recurrenceId) {
       this.setAttribute("recurrence-id", event.recurrenceId.nativeTime);
@@ -423,6 +436,8 @@ export class CalendarDialog extends PositionedDialog {
         }
       }
     }
+    this.#event = event;
+
     const selector = `#view-box > :not([hidden]) [data-event-id="${event.id}"]${recurrenceSelector}`;
     this.trigger = document.querySelector(selector);
 
@@ -551,6 +566,8 @@ export class CalendarDialog extends PositionedDialog {
    * Clear the data displayed in the dialog.
    */
   #clearData() {
+    this.#event = null;
+    this.#onEventResponse = null;
     this.#subviewManager.showDefaultSubview();
     this.#title.textContent = "";
     this.querySelector(".calendar-name").textContent = "";
@@ -572,6 +589,88 @@ export class CalendarDialog extends PositionedDialog {
     this.querySelector("calendar-dialog-acceptance").reset();
     this.querySelector("#expandingDescription").setDescription("");
     this.querySelector("#expandedDescription").setDescription("");
+  }
+
+  /**
+   * Saves a new participation status and sends the corresponding iTIP reply.
+   *
+   * @param {string} participationStatus - The new participation status.
+   */
+  async #setEventResponse(participationStatus) {
+    const oldEvent = this.#event;
+    const oldAttendee =
+      oldEvent && cal.itip.getInvitedAttendee(oldEvent, oldEvent.calendar);
+    if (
+      !oldEvent ||
+      !oldAttendee ||
+      oldAttendee.participationStatus == participationStatus
+    ) {
+      return;
+    }
+
+    // `oldEvent` is the displayed occurrence, so this intentionally updates
+    // only that occurrence instead of the parent recurring event.
+    const newEvent = oldEvent.clone();
+    const invitedAttendee = cal.itip.getInvitedAttendee(
+      newEvent,
+      newEvent.calendar
+    );
+    if (!invitedAttendee) {
+      return;
+    }
+    const newAttendee = invitedAttendee.clone();
+    newEvent.removeAttendee(invitedAttendee);
+    newEvent.addAttendee(newAttendee);
+    // Ensure scheduling recognizes this as an attendee update, as the
+    // existing event read dialog does.
+    newEvent.wrappedJSObject.ensureNotDirty();
+    newAttendee.participationStatus = participationStatus;
+
+    try {
+      const response = { responseMode: Ci.calIItipItem.AUTO };
+      if (this.#onEventResponse) {
+        await this.#onEventResponse(
+          newEvent,
+          newEvent.calendar,
+          oldEvent,
+          null,
+          response
+        );
+      } else {
+        await window.doTransaction(
+          "modify",
+          newEvent,
+          newEvent.calendar,
+          oldEvent,
+          null,
+          response
+        );
+      }
+    } catch (error) {
+      console.error("Failed to send calendar event response", error);
+      this.querySelector("calendar-dialog-acceptance").setAttribute(
+        "status",
+        oldAttendee.participationStatus
+      );
+      return;
+    }
+
+    // The dialog may have been reused while the transaction was in progress.
+    if (this.#event !== oldEvent) {
+      return;
+    }
+
+    this.#event = newEvent;
+    const attendees = newEvent.getAttendees();
+    for (const attendeeView of this.querySelectorAll(
+      "calendar-dialog-attendees-row"
+    )) {
+      attendeeView.setAttendees(attendees);
+    }
+    this.querySelector("calendar-dialog-acceptance").setAttribute(
+      "status",
+      participationStatus
+    );
   }
 
   /**
