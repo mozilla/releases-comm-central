@@ -241,6 +241,3 @@ imply_option(
 )
 
 imply_option("MOZ_APP_UA_NAME", "Firefox", when=thunderbird_enterprise)
-
-imply_option("MOZ_SERVICES_SYNC", True, when=thunderbird_enterprise)
-set_define("MOZ_SERVICES_SYNC", True, when=thunderbird_enterprise)
