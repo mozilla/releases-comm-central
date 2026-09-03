@@ -5,6 +5,9 @@
 import "./calendar-dialog-row.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-attendee.mjs"; // eslint-disable-line import/no-unassigned-import
 
+// Number of attendees to render before yielding to the scheduler.
+const RENDER_CHUNK_SIZE = 50;
+
 /**
  * Template ID: #calendarAttendeesRowTemplate
  *
@@ -34,6 +37,13 @@ class CalendarDialogAttendeesRow extends HTMLElement {
    */
   #isFullAttendees = null;
 
+  /**
+   * Controller used to abort stale attendee rendering tasks.
+   *
+   * @type {?AbortController}
+   */
+  #renderAbortController = null;
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -62,12 +72,20 @@ class CalendarDialogAttendeesRow extends HTMLElement {
     this.#list = this.querySelector(".attendees-list");
   }
 
+  disconnectedCallback() {
+    this.#renderAbortController?.abort();
+    this.#renderAbortController = null;
+  }
+
   /**
    * Set the attendee information from an array of attendee objects.
    *
    * @param {calIAttendee[]} attendees - An array of event attendees.
    */
   setAttendees(attendees) {
+    this.#renderAbortController?.abort();
+    this.#renderAbortController = null;
+
     this.#list.innerHTML = "";
     document.l10n.setAttributes(
       this.querySelector("#attendeesCount"),
@@ -86,18 +104,6 @@ class CalendarDialogAttendeesRow extends HTMLElement {
       );
     }
 
-    if (this.#isFullAttendees && attendees.length > 50) {
-      this.#list.hidden = true;
-      this.#summary.hidden = false;
-
-      document.l10n.setAttributes(
-        this.#summary,
-        "calendar-dialog-attendees-too-many-guests"
-      );
-
-      return;
-    }
-
     if (!this.#isFullAttendees) {
       this.querySelector("calendar-dialog-row").toggleAttribute(
         "expanding",
@@ -114,15 +120,78 @@ class CalendarDialogAttendeesRow extends HTMLElement {
       // without awaiting to not delay the overall dialog rendering.
       this.#setSummary(attendees);
     } else {
-      this.#list.replaceChildren(
-        ...attendees.map(attendee => {
-          const attendeeElement = document.createElement("li", {
-            is: "calendar-dialog-attendee",
-          });
-          attendeeElement.setAttendee(attendee);
-          return attendeeElement;
-        })
-      );
+      this.#renderAttendees(attendees).catch(error => {
+        console.error("Failed to render calendar attendees", error);
+      });
+    }
+  }
+
+  /**
+   * Renders the attendees to the UI in a non-blocking fashion. Allows aborting
+   * in the middle of rendering. In the very rare case that the Scheduler API is
+   * unavailable, this function will be blocking for very large attendee
+   * lists.
+   *
+   * @param {calIAttendee[]} attendees - An array of event attendees.
+   */
+  async #renderAttendees(attendees) {
+    const controller = new AbortController();
+    this.#renderAbortController = controller;
+    const { signal } = controller;
+
+    const renderChunked = async () => {
+      let fragment = document.createDocumentFragment();
+      let fragmentLength = 0;
+
+      for (const attendee of attendees) {
+        signal.throwIfAborted();
+        const attendeeElement = document.createElement("li", {
+          is: "calendar-dialog-attendee",
+        });
+        attendeeElement.setAttendee(attendee);
+        fragment.appendChild(attendeeElement);
+        fragmentLength++;
+
+        if (globalThis.scheduler && fragmentLength >= RENDER_CHUNK_SIZE) {
+          signal.throwIfAborted();
+
+          // Add the current group before yielding the task.
+          this.#list.appendChild(fragment);
+
+          this.#list.ariaBusy = true;
+
+          // appendChild empties the fragment. Make a new fragment for the next
+          // group.
+          fragment = document.createDocumentFragment();
+          fragmentLength = 0;
+
+          await globalThis.scheduler.yield();
+        }
+      }
+
+      signal.throwIfAborted();
+
+      // Add the remaining attendees to the list.
+      this.#list.appendChild(fragment);
+      this.#list.ariaBusy = false;
+    };
+
+    try {
+      if (globalThis.scheduler) {
+        await globalThis.scheduler.postTask(renderChunked, {
+          signal,
+        });
+      } else {
+        await renderChunked();
+      }
+    } catch (error) {
+      if (!signal.aborted) {
+        throw error;
+      }
+    } finally {
+      if (this.#renderAbortController === controller) {
+        this.#renderAbortController = null;
+      }
     }
   }
 

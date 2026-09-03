@@ -28,6 +28,10 @@ add_setup(async function () {
   attendeesRowElementFull = tab.browser.contentWindow.document.querySelector(
     `calendar-dialog-attendees-row[type]`
   );
+
+  registerCleanupFunction(() => {
+    tabmail.closeTab(tab);
+  });
 });
 
 add_task(async function test_calendarDialogAttendeesRowVisibility() {
@@ -77,6 +81,7 @@ add_task(async function test_calendarDialogAttendeesRowTitle() {
 
 add_task(async function test_calendarDialogAttendeesRowSummary() {
   const summary = attendeesRowElement.querySelector(".attendees-summary");
+  const list = attendeesRowElement.querySelector(".attendees-list");
 
   attendeesRowElement.setAttendees([
     { ...baseAttendee, participationStatus: "DECLINED" },
@@ -101,13 +106,22 @@ add_task(async function test_calendarDialogAttendeesRowSummary() {
 
   attendeesRowElement.setAttendees([baseAttendee]);
 
+  await BrowserTestUtils.waitForMutationCondition(
+    list,
+    {
+      childList: true,
+    },
+    () => list.querySelectorAll("li").length === 1,
+    { msg: "Single attendee should eventually render" }
+  );
+
   Assert.ok(
     BrowserTestUtils.isHidden(summary),
     "Summary should be hidden with 3 attendees or less"
   );
 });
 
-add_task(async function testCalendarDialogAttendeesList() {
+add_task(async function test_calendarDialogAttendeesList() {
   const list = attendeesRowElement.querySelector(".attendees-list");
 
   attendeesRowElement.setAttendees([
@@ -145,11 +159,10 @@ add_task(async function testCalendarDialogAttendeesList() {
   );
 });
 
-add_task(async function testCalendarDialogAttendeesFullList() {
+add_task(async function test_calendarDialogAttendeesFullList() {
   const list = attendeesRowElementFull.querySelector(".attendees-list");
-  attendeesRowElementFull.setAttribute("type", "full");
 
-  attendeesRowElementFull.setAttendees([
+  const attendees = [
     { ...baseAttendee, participationStatus: "DECLINED" },
     { ...baseAttendee, participationStatus: "DECLINED" },
     { ...baseAttendee, participationStatus: "TENTATIVE" },
@@ -158,33 +171,125 @@ add_task(async function testCalendarDialogAttendeesFullList() {
     { ...baseAttendee, participationStatus: "NEEDS-ACTION" },
     baseAttendee,
     baseAttendee,
-  ]);
+  ];
+
+  attendeesRowElementFull.setAttendees(attendees);
+
+  await BrowserTestUtils.waitForMutationCondition(
+    list,
+    { childList: true },
+    () => list.querySelectorAll("li").length === attendees.length,
+    { msg: "All attendees should eventually render" }
+  );
 
   Assert.equal(
     list.querySelectorAll("li").length,
-    8,
-    "Should show 8 attendee items"
+    attendees.length,
+    "Should show all attendee items"
   );
 });
 
-add_task(async function testCalendarDialogAttendeesOverFullList() {
-  const summary = attendeesRowElementFull.querySelector(".attendees-summary");
+add_task(async function test_calendarDialogAttendeesNonBlockingUI() {
   const list = attendeesRowElementFull.querySelector(".attendees-list");
-  attendeesRowElementFull.setAttribute("type", "full");
 
   const attendees = [];
-  for (let i = 0; i < 60; i++) {
+  const numAttendees = 500;
+  for (let i = 0; i < numAttendees; i++) {
     attendees.push(baseAttendee);
   }
 
   attendeesRowElementFull.setAttendees(attendees);
 
-  Assert.equal(
-    document.l10n.getAttributes(summary).id,
-    "calendar-dialog-attendees-too-many-guests",
-    "Should show too many guests error"
+  await BrowserTestUtils.waitForMutationCondition(
+    list,
+    { childList: true },
+    () => {
+      const listLength = list.querySelectorAll("li").length;
+      return listLength > 0 && listLength < numAttendees;
+    },
+    { msg: "List should render a subset of attendees then yield" }
   );
 
-  Assert.ok(BrowserTestUtils.isHidden(list), "List should be hidden");
-  Assert.ok(BrowserTestUtils.isVisible(summary), "Summary should be visible");
+  await BrowserTestUtils.waitForMutationCondition(
+    list,
+    { childList: true },
+    () => list.querySelectorAll("li").length === numAttendees,
+    { msg: "All attendees should eventually render" }
+  );
+});
+
+add_task(async function test_calendarDialogAttendeesLatestRenderWins() {
+  const list = attendeesRowElementFull.querySelector(".attendees-list");
+
+  const firstAttendees = [];
+  const numFirstAttendees = 5000;
+  for (let i = 0; i < numFirstAttendees; i++) {
+    firstAttendees.push({ ...baseAttendee, commonName: "stale" });
+  }
+
+  const latestAttendee = { ...baseAttendee, commonName: "latest" };
+
+  attendeesRowElementFull.setAttendees(firstAttendees);
+
+  await BrowserTestUtils.waitForMutationCondition(
+    list,
+    { childList: true },
+    () => list.querySelectorAll("li").length > 50,
+    { msg: "List should render a chunk of attendees" }
+  );
+
+  attendeesRowElementFull.setAttendees([latestAttendee]);
+
+  await BrowserTestUtils.waitForMutationCondition(
+    list,
+    { childList: true },
+    () =>
+      list.querySelectorAll("li").length === 1 &&
+      list.querySelector(".attendee-name").textContent === "latest",
+    { msg: "Only the latest attendee list should render" }
+  );
+
+  Assert.equal(
+    list.querySelectorAll("li").length,
+    1,
+    "Only the latest attendee list should render"
+  );
+  Assert.equal(
+    list.querySelector(".attendee-name").textContent,
+    "latest",
+    "The rendered attendee should use the latest data"
+  );
+});
+
+add_task(async function test_calendarDialogAttendeesFallbackWithoutScheduler() {
+  const win = attendeesRowElementFull.documentGlobal;
+  const originalScheduler = win.scheduler;
+  const list = attendeesRowElementFull.querySelector(".attendees-list");
+
+  Object.defineProperty(win, "scheduler", {
+    configurable: true,
+    value: undefined,
+  });
+
+  try {
+    const attendees = [];
+    const numAttendees = 100;
+
+    for (let i = 0; i < numAttendees; i++) {
+      attendees.push({ ...baseAttendee, commonName: `attendee ${i}` });
+    }
+
+    attendeesRowElementFull.setAttendees(attendees);
+
+    Assert.equal(
+      list.querySelectorAll("li").length,
+      numAttendees,
+      "All attendees should render without the Scheduler API"
+    );
+  } finally {
+    Object.defineProperty(win, "scheduler", {
+      configurable: true,
+      value: originalScheduler,
+    });
+  }
 });
