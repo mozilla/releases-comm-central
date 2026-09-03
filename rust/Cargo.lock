@@ -3922,13 +3922,11 @@ version = "0.1.0"
 dependencies = [
  "base64 0.21.999",
  "kvstore",
- "nserror",
+ "mozbuild",
  "nss-rs",
- "nsstring",
  "serde",
  "serde_json",
  "thiserror 1.999.999",
- "xpcom",
  "zeroize",
 ]
 
