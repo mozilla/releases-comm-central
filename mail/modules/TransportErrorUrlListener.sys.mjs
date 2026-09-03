@@ -32,7 +32,12 @@ export class TransportErrorUrlListener {
       if (errorClass == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
         const mailNewsUrl = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
         const secInfo = mailNewsUrl.failedSecInfo;
-        MailServices.mailSession.alertCertError(secInfo, mailNewsUrl);
+        // TODO: https://bugzilla.mozilla.org/show_bug.cgi?id=2067938
+        // All protocols except Exchange currently set the `failedSecInfo` field
+        // in order to report this certificate error.
+        if (secInfo) {
+          MailServices.mailSession.alertCertError(secInfo, mailNewsUrl);
+        }
       }
     } catch (e) {
       // It's not an NSS error.

@@ -7,10 +7,8 @@ use std::ffi::CStr;
 use nserror::nsresult;
 use nsstring::nsString;
 use thin_vec::ThinVec;
-use xpcom::interfaces::{
-    nsIMsgMailNewsUrl, nsIMsgMailSession, nsIStringBundle, nsIStringBundleService, nsIURI,
-};
-use xpcom::{RefPtr, XpCom, get_service, getter_addrefs};
+use xpcom::interfaces::{nsIMsgMailSession, nsIStringBundle, nsIStringBundleService, nsIURI};
+use xpcom::{RefPtr, get_service, getter_addrefs};
 
 mod authentication_alerts;
 mod connection_alerts;
@@ -69,26 +67,29 @@ fn get_formatted_string(
     Ok(message.to_string())
 }
 
+/// Whether to raise a notification to the user level or silently handle errors.
+#[repr(C)]
+pub enum ErrorBehavior {
+    Notify,
+    Silent,
+}
+
 /// Register an alert with the given message associated with the given URI.
 ///
-/// A notification will also be shown to the user (either through a modal or via
-/// a native OS notification, depending on the platform) unless the `uri` is an
-/// `nsIMsgMailNewsUrl` without an `nsIMsgWindow` attached to it.
-pub fn register_alert(message: String, uri: RefPtr<nsIURI>) -> Result<(), nsresult> {
+/// The `behavior` parameter specifies whether the alert should be presented to
+/// the user or not.
+pub fn register_alert(
+    message: String,
+    uri: RefPtr<nsIURI>,
+    behavior: ErrorBehavior,
+) -> Result<(), nsresult> {
     let mail_session =
         get_service::<nsIMsgMailSession>(c"@mozilla.org/messenger/services/session;1")
             .ok_or(nserror::NS_ERROR_UNEXPECTED)?;
 
-    // Silent alerts should only be sent if the URI is an `nsIMsgMailNewsUrl`
-    // without an `nsIMsgWindow` (i.e. `nsIMsgMailNewsUrl::GetMsgWindow` returns
-    // `NS_ERROR_NULL_POINTER`).
-    let silent = match uri.query_interface::<nsIMsgMailNewsUrl>() {
-        Some(mailnews_url) => match getter_addrefs(|p| unsafe { mailnews_url.GetMsgWindow(p) }) {
-            Ok(_) => false,
-            Err(err) if err == nserror::NS_ERROR_NULL_POINTER => true,
-            Err(err) => return Err(err),
-        },
-        None => false,
+    let silent = match behavior {
+        ErrorBehavior::Notify => false,
+        ErrorBehavior::Silent => true,
     };
 
     let message = nsString::from(&message);

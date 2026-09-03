@@ -10,15 +10,16 @@ use xpcom::interfaces::{nsIMsgIncomingServer, nsIObserverService};
 use xpcom::{RefCounted, RefPtr, components};
 
 use crate::{
-    MESSENGER_STRING_BUNDLE, UserInteractiveServer, get_formatted_string, get_string_bundle,
-    register_alert,
+    ErrorBehavior, MESSENGER_STRING_BUNDLE, UserInteractiveServer, get_formatted_string,
+    get_string_bundle, register_alert,
 };
 
 /// Handle a possible connection error that came from the given
 /// [`nsIMsgIncomingServer`].
 ///
-/// If the error matches a known connection error, the user is shown an alert
-/// notification/modal. Otherwise, this does nothing.
+/// If the error matches a known connection error, an alert is issued, and the
+/// `behavior` parameter determines whether the user is shown an alert
+/// notification/modal. If the error is unknown, this does nothing.
 ///
 /// # Safety
 ///
@@ -28,6 +29,7 @@ use crate::{
 pub unsafe extern "C" fn maybe_handle_connection_error_from_incoming_server(
     error: nsresult,
     incoming_server: *const nsIMsgIncomingServer,
+    behavior: ErrorBehavior,
 ) -> nsresult {
     if incoming_server.is_null() {
         return nserror::NS_ERROR_NULL_POINTER;
@@ -40,7 +42,7 @@ pub unsafe extern "C" fn maybe_handle_connection_error_from_incoming_server(
     // shouldn't panic here.
     let incoming_server = unsafe { RefPtr::from_raw(incoming_server).unwrap() };
 
-    match maybe_handle_connection_error(error, incoming_server) {
+    match maybe_handle_connection_error(error, incoming_server, behavior) {
         Ok(_) => nserror::NS_OK,
         Err(status) => status,
     }
@@ -48,11 +50,13 @@ pub unsafe extern "C" fn maybe_handle_connection_error_from_incoming_server(
 
 /// Handles an error that might represent a connection error.
 ///
-/// If the error matches a known connection error, the user is shown an alert
-/// notification/modal. Otherwise, this does nothing.
+/// If the error matches a known connection error, an alert is issued, and the
+/// `behavior` parameter determines whether the user is shown an alert
+/// notification/modal. If the error is unknown, this does nothing.
 pub fn maybe_handle_connection_error<ServerT>(
     error: nsresult,
     server: RefPtr<ServerT>,
+    behavior: ErrorBehavior,
 ) -> Result<(), nsresult>
 where
     ServerT: UserInteractiveServer + RefCounted,
@@ -81,7 +85,7 @@ where
     let message = get_formatted_string(&bundle, message_name, thin_vec![name])?;
 
     let uri = server.uri()?;
-    register_alert(message, uri)
+    register_alert(message, uri, behavior)
 }
 
 pub fn report_connection_success<ServerT>(server: RefPtr<ServerT>) -> Result<(), nsresult>

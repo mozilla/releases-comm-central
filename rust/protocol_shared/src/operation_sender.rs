@@ -7,7 +7,7 @@ use std::{cell::RefCell, ffi::CString, ops::ControlFlow, sync::Arc, time::Durati
 use async_lock::Mutex;
 use http::Request;
 use mailnews_ui_glue::{
-    AuthErrorOutcome, handle_auth_failure, handle_transport_sec_failure,
+    AuthErrorOutcome, ErrorBehavior, handle_auth_failure, handle_transport_sec_failure,
     maybe_handle_connection_error, report_connection_success,
 };
 use moz_http::{Response, StatusCode};
@@ -446,8 +446,12 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                         );
                     }
 
-                    maybe_handle_connection_error((&err).into(), self.server().await?)
-                        .map_err(ProtocolError::from)?;
+                    maybe_handle_connection_error(
+                        (&err).into(),
+                        self.server().await?,
+                        ErrorBehavior::Notify,
+                    )
+                    .map_err(ProtocolError::from)?;
                     return Err(ProtocolError::from(err).into());
                 }
             };
@@ -564,7 +568,11 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             // user (depending on which specific error it is) before
             // propagating it.
             ProtocolError::Http(ref http_error) => {
-                maybe_handle_connection_error(http_error.into(), self.server().await?)?;
+                maybe_handle_connection_error(
+                    http_error.into(),
+                    self.server().await?,
+                    ErrorBehavior::Notify,
+                )?;
                 Err(err)
             }
 
@@ -675,7 +683,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             return Err(err);
         }
 
-        let outcome = handle_auth_failure(self.server().await?)?;
+        let outcome = handle_auth_failure(self.server().await?, ErrorBehavior::Notify)?;
 
         match outcome {
             // The user has asked us to retry the request, let's do this by

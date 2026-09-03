@@ -13,8 +13,8 @@ use xpcom::{RefCounted, RefPtr, get_service};
 
 use crate::user_interactive_server::UserInteractiveServer;
 use crate::{
-    IMAP_MSG_STRING_BUNDLE, MESSENGER_STRING_BUNDLE, PasswordPromptResult, get_formatted_string,
-    get_string, get_string_bundle, register_alert,
+    ErrorBehavior, IMAP_MSG_STRING_BUNDLE, MESSENGER_STRING_BUNDLE, PasswordPromptResult,
+    get_formatted_string, get_string, get_string_bundle, register_alert,
 };
 
 /// The outcome of the handling of an authentication error, and the action that
@@ -36,6 +36,9 @@ pub enum AuthErrorOutcome {
 /// Note the actual error is not included here, because all we need to know here
 /// is that we failed to authenticate against the remote server.
 ///
+/// The `behavior` parameter specifies whether an error should be raised
+/// to the user.
+///
 /// # Safety
 ///
 /// The arguments must point to valid objects or be the null pointer. In the
@@ -44,6 +47,7 @@ pub enum AuthErrorOutcome {
 pub unsafe extern "C" fn handle_auth_failure_from_incoming_server(
     incoming_server: *const nsIMsgIncomingServer,
     action: *mut AuthErrorOutcome,
+    behavior: ErrorBehavior,
 ) -> nsresult {
     if incoming_server.is_null() || action.is_null() {
         return nserror::NS_ERROR_NULL_POINTER;
@@ -56,7 +60,7 @@ pub unsafe extern "C" fn handle_auth_failure_from_incoming_server(
     // shouldn't panic here.
     let incoming_server = unsafe { RefPtr::from_raw(incoming_server).unwrap() };
 
-    match handle_auth_failure(incoming_server) {
+    match handle_auth_failure(incoming_server, behavior) {
         Ok(outcome) => {
             // SAFETY: We have already ensured the provided pointer is not null,
             // and the function's call contract implies consumers should ensure
@@ -73,14 +77,20 @@ pub unsafe extern "C" fn handle_auth_failure_from_incoming_server(
 /// Handle an authentication error that came from the given server, as per its
 /// preferred authentication method.
 ///
+/// If `silent` is false, that is an indication that an alert should be shown
+/// to the user.
+///
 /// Note the actual error is not included here, because all we need to know here
 /// is that we failed to authenticate against the remote server.
-pub fn handle_auth_failure<ServerT>(server: RefPtr<ServerT>) -> Result<AuthErrorOutcome, nsresult>
+pub fn handle_auth_failure<ServerT>(
+    server: RefPtr<ServerT>,
+    behavior: ErrorBehavior,
+) -> Result<AuthErrorOutcome, nsresult>
 where
     ServerT: UserInteractiveServer + RefCounted,
 {
     match server.auth_method()? {
-        nsMsgAuthMethod::OAuth2 => notify_oauth_failure(server),
+        nsMsgAuthMethod::OAuth2 => notify_oauth_failure(server, behavior),
         nsMsgAuthMethod::passwordCleartext | nsMsgAuthMethod::NTLM => {
             notify_password_failure(server)
         }
@@ -91,9 +101,15 @@ where
 /// Notify the user about a failure to authenticate against the given server
 /// using OAuth2.
 ///
+/// If `silent` is false, that is an indication that an alert should be shown
+/// to the user.
+///
 /// This function always returns [`AuthErrorOutcome::ABORT`] (unless an error
 /// occurs while notifying).
-fn notify_oauth_failure<ServerT>(server: RefPtr<ServerT>) -> Result<AuthErrorOutcome, nsresult>
+fn notify_oauth_failure<ServerT>(
+    server: RefPtr<ServerT>,
+    behavior: ErrorBehavior,
+) -> Result<AuthErrorOutcome, nsresult>
 where
     ServerT: UserInteractiveServer + RefCounted,
 {
@@ -101,7 +117,7 @@ where
     let uri = server.uri()?;
     let bundle = get_string_bundle(IMAP_MSG_STRING_BUNDLE)?;
     let message = get_formatted_string(&bundle, c"imapOAuth2Error", thin_vec![host_name])?;
-    register_alert(message, uri)?;
+    register_alert(message, uri, behavior)?;
     Ok(AuthErrorOutcome::ABORT)
 }
 

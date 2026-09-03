@@ -11240,13 +11240,13 @@ function InitEditor() {
       }
       if (!/^file:/i.test(src)) {
         // Check if this is a protocol that can fetch parts.
-        const protocol = src.substr(0, src.indexOf(":")).toLowerCase();
-        if (
-          !(
-            Services.io.getProtocolHandler(protocol) instanceof
-            Ci.nsIMsgMessageFetchPartService
-          )
-        ) {
+        let messageService;
+        try {
+          messageService = MailServices.messageServiceFromURI(src);
+        } catch {
+          return;
+        }
+        if (!(messageService instanceof Ci.nsIMsgMessageFetchPartService)) {
           // Can't fetch parts, don't try to load.
           return;
         }

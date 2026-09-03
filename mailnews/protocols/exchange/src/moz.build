@@ -22,6 +22,7 @@ UNIFIED_SOURCES += [
     "ExchangeProtocolHandler.cpp",
     "ExchangeProtocolInfo.cpp",
     "ExchangeService.cpp",
+    "ExchangeUrl.cpp",
 ]
 
 XPCOM_MANIFESTS += [

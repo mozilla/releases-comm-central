@@ -77,13 +77,14 @@ function onCopyOrDragStart(e) {
     return;
   }
   const sourceURL = sourceDoc.URL;
-  const protocol = sourceURL.substr(0, sourceURL.indexOf(":")).toLowerCase();
-  if (
-    !(
-      Services.io.getProtocolHandler(protocol) instanceof
-      Ci.nsIMsgMessageFetchPartService
-    )
-  ) {
+
+  let messageService;
+  try {
+    messageService = MailServices.messageServiceFromURI(sourceURL);
+  } catch {
+    return;
+  }
+  if (!(messageService instanceof Ci.nsIMsgMessageFetchPartService)) {
     // Can't fetch parts, not a message protocol, don't process.
     return;
   }

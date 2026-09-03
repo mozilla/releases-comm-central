@@ -9,6 +9,7 @@
 #include "IExchangeClient.h"
 #include "IExchangeFolder.h"
 #include "IExchangeIncomingServer.h"
+#include "nsContentSecurityManager.h"
 #include "nsIInputStream.h"
 #include "nsIInputStreamPump.h"
 #include "nsIMailChannel.h"
@@ -283,6 +284,11 @@ NS_IMETHODIMP ExchangeMessageChannel::Open(nsIInputStream** _retval) {
 NS_IMETHODIMP ExchangeMessageChannel::AsyncOpen(nsIStreamListener* aListener) {
   mPending = false;
 
+  nsCOMPtr<nsIStreamListener> listener = aListener;
+  nsresult rv =
+      nsContentSecurityManager::doContentSecurityCheck(this, listener);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   nsAutoCString scheme;
   MOZ_TRY(mURI->GetScheme(scheme));
 
@@ -296,7 +302,6 @@ NS_IMETHODIMP ExchangeMessageChannel::AsyncOpen(nsIStreamListener* aListener) {
   }
 
   // Get the header and folder matching the URI.
-  nsresult rv;
   nsCOMPtr<nsIMsgMessageService> msgService =
       do_GetService(serviceId.Data(), &rv);
   NS_ENSURE_SUCCESS(rv, rv);
