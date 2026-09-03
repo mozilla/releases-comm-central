@@ -34,7 +34,7 @@ impl ThreadInfoArm {
             .map_err(ThreadInfoError::PtraceError)?;
         let fpregs = process_inspector
             .get_fp_regs(tid)
-            .map_err(ThreadInfoError::PtraceError)?;
+            .unwrap_or_default();
 
         let stack_pointer = regs.uregs[13] as usize;
 
