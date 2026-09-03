@@ -69,7 +69,7 @@ async function subtest_action_menu(
     const name = "Generated extension";
     const brand = Services.strings
       .createBundle("chrome://branding/locale/brand.properties")
-      .GetStringFromName("brandShorterName");
+      .GetStringFromName("brandShortName");
 
     info(
       `Choosing 'Remove Extension' in ${menu.id} should show confirm dialog.`
