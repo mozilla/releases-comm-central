@@ -54,4 +54,55 @@ add_task(async function () {
     "the summary dialog should show the event"
   );
   await BrowserTestUtils.closeWindow(dialog);
+  MockAlertsService.reset();
+});
+
+add_task(async function test_notification_newCalendarDialogPosition() {
+  const calendar = CalendarTestUtils.createCalendar();
+  registerCleanupFunction(() => {
+    CalendarTestUtils.removeCalendar(calendar);
+    MockAlertsService.reset();
+  });
+
+  const event = new CalEvent();
+  event.title = "Notify me!";
+  event.startDate = cal.dtz.now();
+  event.endDate = cal.dtz.now();
+  event.endDate.hour++;
+  const storedEvent = await calendar.addItem(event);
+
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.dialogs.new.enabled", true]],
+  });
+
+  const shownPromise = MockAlertsService.promiseShown();
+  CalAlarmMonitor.onNotification(storedEvent);
+  await shownPromise;
+
+  MockAlertsService.callbacks.onAlertClick();
+  MockAlertsService.callbacks.onAlertFinished();
+
+  const dialog = await TestUtils.waitForCondition(
+    () => document.querySelector("#calendarDialog[open]"),
+    "Waiting for the new calendar dialog to open"
+  );
+  const dialogRect = dialog.getBoundingClientRect();
+  const containerRect = document.getElementById("tabpanelcontainer").getBoundingClientRect();
+
+  Assert.lessOrEqual(
+    Math.abs(
+      dialogRect.left + dialogRect.width / 2 - (containerRect.left + containerRect.width / 2)
+    ),
+    4,
+    "The dialog should be centered horizontally in the visible tab panel"
+  );
+  Assert.lessOrEqual(
+    Math.abs(
+      dialogRect.top + dialogRect.height / 2 - (containerRect.top + containerRect.height / 2)
+    ),
+    4,
+    "The dialog should be centered vertically in the visible tab panel"
+  );
+
+  dialog.close();
 });

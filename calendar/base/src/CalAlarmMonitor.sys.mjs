@@ -172,7 +172,7 @@ CalAlarmMonitor.prototype = {
     alertsService.showAlertWithCallbacks(alert, {
       QueryInterface: ChromeUtils.generateQI(["nsIAlertCallbacks"]),
       onAlertClick(_action) {
-        cal.window.getCalendarWindow()?.openEventDialogForViewing(item, true);
+        cal.window.getCalendarWindow()?.openEventDialogForViewing(item);
       },
       onAlertFinished() {},
     });

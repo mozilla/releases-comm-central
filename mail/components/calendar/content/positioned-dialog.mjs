@@ -99,13 +99,8 @@ export class PositionedDialog extends HTMLDialogElement {
     // to be called in child methods to keep this self contained.
     window.addEventListener("resize", this.#debounceResize);
 
-    if (!this.trigger && event) {
+    if (!this.trigger && event?.target) {
       this.trigger = event.target.closest(this.triggerSelector);
-    }
-
-    if (!this.trigger) {
-      super.show();
-      return;
     }
 
     // Visibly hide the dialog but show it, this allows us to get the true

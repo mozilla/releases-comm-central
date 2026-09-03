@@ -301,6 +301,15 @@ export class CalendarDialog extends PositionedDialog {
    */
   async show(event) {
     await this.showPromise;
+
+    const calendarDisplayBox = document.getElementById("calendarDisplayBox");
+    const calendarDisplayBoxRect = calendarDisplayBox?.getBoundingClientRect();
+    this.container =
+      calendarDisplayBoxRect?.width > 0 && calendarDisplayBoxRect.height > 0
+        ? calendarDisplayBox
+        : (document.getElementById("tabpanelcontainer") ??
+          document.documentElement);
+
     super.show(event);
   }
 

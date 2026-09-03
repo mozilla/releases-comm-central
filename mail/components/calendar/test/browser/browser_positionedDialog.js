@@ -40,11 +40,25 @@ add_setup(async function () {
  * Setup the trigger, container, and dialog for dialog position then
  * open the dialog and return its DomRect.
  *
- * @param {DOMRect} options - The trigger, container and dialog options to
+ * @param {object} options - The trigger, container and dialog options to
  *  setup.
+ * @param {DOMRect} options.trigger - The trigger geometry.
+ * @param {DOMRect} options.container - The container geometry.
+ * @param {DOMRect} options.dialog - The dialog geometry.
+ * @param {boolean} [options.withEvent=true] - Whether the dialog should be
+ *  opened with a triggering event.
  * @returns {DOMRect}
  */
-async function setupPositioning({ trigger, container, dialog }) {
+async function setupPositioning({
+  trigger,
+  container,
+  dialog,
+  withEvent = true,
+}) {
+  if (dialogElement.open) {
+    dialogElement.close();
+  }
+
   triggerElement.style.width = `${trigger.width}px`;
   triggerElement.style.height = `${trigger.height}px`;
   triggerElement.style.left = `${trigger.left}px`;
@@ -60,7 +74,7 @@ async function setupPositioning({ trigger, container, dialog }) {
 
   await new Promise(dialogElement.documentGlobal.requestAnimationFrame);
 
-  dialogElement.show({ target: triggerElement });
+  dialogElement.show(withEvent ? { target: triggerElement } : undefined);
 
   return dialogElement.getBoundingClientRect();
 }
@@ -1207,6 +1221,36 @@ const tests = [
       top: 100,
       bottom: 200,
       right: 200,
+    },
+    container: {
+      height: 1000,
+      width: 1000,
+      left: 0,
+      top: 0,
+      bottom: 1000,
+      right: 1000,
+    },
+    dialog: {
+      width: 100,
+      height: 100,
+      margin: 12,
+    },
+    result: {
+      x: 450,
+      y: 450,
+    },
+  },
+  {
+    label: "No trigger",
+    message: "No triggering event",
+    withEvent: false,
+    trigger: {
+      height: 100,
+      width: 100,
+      left: 400,
+      top: 400,
+      bottom: 500,
+      right: 500,
     },
     container: {
       height: 1000,
