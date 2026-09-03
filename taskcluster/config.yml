@@ -158,7 +158,7 @@ partner-urls:
             thunderbird-enterprise:
                 by-release-level:
                     staging: 'git@github.com:mozilla-partners/staging-enterprise-thunderbird-manifests.git'
-                    production: 'git@github.com:mozilla-partners/enterprise-manifests.git'
+                    production: 'git@github.com:mozilla-partners/enterprise-thunderbird-manifests.git'
 
 task-priority:
     by-project:
