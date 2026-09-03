@@ -367,7 +367,7 @@ function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
  */
 function openEventDialogForViewing(item, event) {
   function onDialogComplete(newItem, calendar, originalItem, listener, extresponse) {
-    return doTransaction("modify", newItem, calendar, originalItem, listener, extresponse);
+    doTransaction("modify", newItem, calendar, originalItem, listener, extresponse);
   }
   openEventDialog(item, item.calendar, "view", onDialogComplete, undefined, undefined, event);
 }
@@ -575,7 +575,7 @@ function openEventDialog(
   ) {
     const showDialog = () => {
       const dialog = document.getElementById("calendarDialog");
-      dialog.setCalendarEvent(calendarItem, callback);
+      dialog.setCalendarEvent(calendarItem);
       dialog.show(event);
     };
     if (!document.getElementById("calendarDialog")) {
