@@ -83,8 +83,6 @@
       |     +--- MimeInlineImage
       |     |
       |     \--- MimeExternalObject
-      |
-      \--- MimeExternalBody
 
 
   =========================================================================

@@ -9,9 +9,7 @@
 
 /* The MimeExternalObject class represents MIME parts which contain data
    which cannot be displayed inline -- application/octet-stream and any
-   other type that is not otherwise specially handled.  (This is not to
-   be confused with MimeExternalBody, which is the handler for the
-   message/external-object MIME type only.)
+   other type that is not otherwise specially handled.
  */
 
 typedef struct MimeExternalObjectClass MimeExternalObjectClass;

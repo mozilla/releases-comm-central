@@ -75,8 +75,6 @@
       |     |--- MimeInlineImage
       |     |
       |     |--- MimeExternalObject
-      |
-      |--- MimeExternalBody
  */
 
 typedef struct {

@@ -48,7 +48,6 @@
 /* SUPPORTED VIA PLUGIN     |     |     |--- MimeInlineTextVCard */
 #include "mimeiimg.h"  /*   |     |--- MimeInlineImage */
 #include "mimeeobj.h"  /*   |     |--- MimeExternalObject */
-#include "mimeebod.h"  /*   |--- MimeExternalBody */
                        /* If you add classes here,also add them to mimei.h */
 // clang-format on
 
@@ -322,8 +321,7 @@ bool mime_is_allowed_class(const MimeObjectClass* clazz,
       (avoid_strange_content &&
        (clazz == (MimeObjectClass*)&mimeInlineTextEnrichedClass ||
         clazz == (MimeObjectClass*)&mimeInlineTextRichtextClass ||
-        clazz == (MimeObjectClass*)&mimeSunAttachmentClass ||
-        clazz == (MimeObjectClass*)&mimeExternalBodyClass)));
+        clazz == (MimeObjectClass*)&mimeSunAttachmentClass)));
 }
 
 void getMsgHdrForCurrentURL(MimeDisplayOptions* opts, nsIMsgDBHdr** aMsgHdr) {
@@ -697,9 +695,8 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
       if (!PL_strcasecmp(content_type + 8, "rfc822") ||
           !PL_strcasecmp(content_type + 8, "news"))
         clazz = (MimeObjectClass*)&mimeMessageClass;
-      else if (!PL_strcasecmp(content_type + 8, "external-body"))
-        clazz = (MimeObjectClass*)&mimeExternalBodyClass;
-      else if (!PL_strcasecmp(content_type + 8, "partial"))
+      else if (!PL_strcasecmp(content_type + 8, "external-body") ||
+               !PL_strcasecmp(content_type + 8, "partial"))
         /* I guess these are most useful as externals, for now... */
         clazz = (MimeObjectClass*)&mimeExternalObjectClass;
       else if (!exact_match_p)

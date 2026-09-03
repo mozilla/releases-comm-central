@@ -39,7 +39,6 @@ UNIFIED_SOURCES += [
     "mimecryp.cpp",
     "mimecth.cpp",
     "mimedrft.cpp",
-    "mimeebod.cpp",
     "mimeenc.cpp",
     "mimeeobj.cpp",
     "mimehdrs.cpp",

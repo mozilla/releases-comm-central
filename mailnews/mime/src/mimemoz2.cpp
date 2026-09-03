@@ -4,7 +4,6 @@
 
 #include "mimemoz2.h"
 
-#include "mimeebod.h"
 #include "mimehdrs.h"
 #include "mimei.h"
 #include "mimeleaf.h"
@@ -513,9 +512,7 @@ nsresult BuildAttachmentList(MimeObject* anObject,
   int32_t i;
   MimeContainer* cobj = (MimeContainer*)anObject;
 
-  if ((!anObject) || (!cobj->children) || (!cobj->nchildren) ||
-      (mime_typep(anObject, (MimeObjectClass*)&mimeExternalBodyClass)))
-    return NS_OK;
+  if (!anObject || !cobj->children || !cobj->nchildren) return NS_OK;
 
   // Under multipart/alternative, body-typed siblings are alternatives, not
   // attachments.
