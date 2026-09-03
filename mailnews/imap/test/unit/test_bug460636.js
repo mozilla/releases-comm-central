@@ -44,9 +44,11 @@ async function setup() {
   gSavedMsgFile = Services.dirsvc.get("IMapMD", Ci.nsIFile);
   gSavedMsgFile.append(gFileName + ".eml");
 
+  const msg = [...IMAPPump.inbox.messages][0];
+
   const promiseUrlListener2 = new PromiseTestUtils.PromiseUrlListener();
   gIMAPService.saveMessageToDisk(
-    "imap-message://user@localhost/INBOX#" + (IMAPPump.mailbox.uidnext - 1),
+    IMAPPump.inbox.getUriForMsg(msg),
     gSavedMsgFile,
     promiseUrlListener2,
     true, // Enforcing canonicalLineEnding (i.e., CRLF).
