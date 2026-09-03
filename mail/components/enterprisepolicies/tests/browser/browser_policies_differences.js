@@ -517,12 +517,11 @@ if (AppConstants.MOZ_ENTERPRISE) {
   allowedPoliciesMissing.push(
     "AccessConnector",
     "AIChatbot",
-    "BlocklistDomainBrowsedTelemetry",
     "ContentAnalysisTelemetry",
     "CrashReportsSubmit",
     "DataLossPrevention",
     "DisableLocalPolicies",
-    "PrintPageTelemetry",
+    "SecurityLogging",
     "Sync",
     "Watermark"
   );
@@ -1072,6 +1071,34 @@ if (AppConstants.MOZ_ENTERPRISE) {
   // policies-schema-enterprise.json carries the same "x-restart-required" keys
   // as Firefox, so the key is compared rather than ignored on these builds and
   // shows up as context next to the differences of these three policies.
+  allowedSchemaDifferences.definitions = [
+    "  ...",
+    "        }",
+    "      ]",
+    "    },",
+    '-   "urlLoggingLevel": {',
+    '-     "type": "string",',
+    '-     "oneOf": [',
+    "-       {",
+    '-         "const": "full",',
+    '-         "title": "Full URLs"',
+    "-       },",
+    "-       {",
+    '-         "const": "domain",',
+    '-         "title": "Domains only"',
+    "-       },",
+    "-       {",
+    '-         "const": "none",',
+    '-         "title": "No URLs"',
+    "-       }",
+    "-     ]",
+    "-   },",
+    '    "origin": {',
+    '      "type": "string",',
+    '      "format": "uri",',
+    "  ...",
+  ];
+
   allowedSchemaDifferences.SearchEngines = [
     "  {",
     '+   "enterprise_only": true,',
@@ -1170,7 +1197,6 @@ const allowedSchemaMissing = [
   "AutofillAddressEnabled",
   "AutofillCreditCardEnabled",
   "AutoLaunchProtocolsFromOrigins",
-  "BlocklistDomainBrowsedTelemetry",
   "Bookmarks",
   "BrowserDataBackup",
   "CNSA2KeyAgreementEnabled",
@@ -1203,7 +1229,6 @@ const allowedSchemaMissing = [
   "DisplayBookmarksToolbar",
   "DisplayMenuBar",
   "DontCheckDefaultBrowser",
-  "DownloadTelemetry",
   "EnableTrackingProtection",
   "EncryptedMediaExtensions",
   "EnterpriseStorageEncryption",
@@ -1233,12 +1258,12 @@ const allowedSchemaMissing = [
   "PopupBlocking",
   "PostQuantumKeyAgreementEnabled",
   "PrintingEnabled",
-  "PrintPageTelemetry",
   "PrivateBrowsingModeAvailability",
   "RelaunchRequired",
   "SanitizeOnShutdown",
   "SearchBar",
   "SearchSuggestEnabled",
+  "SecurityLogging",
   "ShowHomeButton",
   "SitePolicies",
   "SkipTermsOfUse",

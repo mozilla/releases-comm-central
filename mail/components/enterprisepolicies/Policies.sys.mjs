@@ -1935,61 +1935,6 @@ if (AppConstants.MOZ_ENTERPRISE) {
     },
   };
 
-  Policies.DownloadTelemetry = {
-    onBeforeAddons(manager, param) {
-      if (param && typeof param === "object") {
-        // Enable/disable download telemetry
-        if (typeof param.Enabled === "boolean") {
-          lazy.PoliciesUtils.setAndLockPref(
-            "browser.download.enterprise.telemetry.enabled",
-            param.Enabled
-          );
-        }
-
-        // Set URL logging level
-        if (
-          typeof param.UrlLogging === "string" &&
-          ["full", "domain", "none"].includes(param.UrlLogging)
-        ) {
-          lazy.PoliciesUtils.setAndLockPref(
-            "browser.download.enterprise.telemetry.urlLogging",
-            param.UrlLogging
-          );
-        }
-
-        // Set file logging level
-        if (
-          typeof param.FileLogging === "string" &&
-          ["full", "metadata", "none"].includes(param.FileLogging)
-        ) {
-          lazy.PoliciesUtils.setAndLockPref(
-            "browser.download.enterprise.telemetry.fileLogging",
-            param.FileLogging
-          );
-        }
-      }
-    },
-    onRemove(manager, oldParams) {
-      if (oldParams && typeof oldParams === "object") {
-        if ("Enabled" in oldParams) {
-          lazy.PoliciesUtils.unsetAndUnlockPref(
-            "browser.download.enterprise.telemetry.enabled"
-          );
-        }
-        if ("UrlLogging" in oldParams) {
-          lazy.PoliciesUtils.unsetAndUnlockPref(
-            "browser.download.enterprise.telemetry.urlLogging"
-          );
-        }
-        if ("FileLogging" in oldParams) {
-          lazy.PoliciesUtils.unsetAndUnlockPref(
-            "browser.download.enterprise.telemetry.fileLogging"
-          );
-        }
-      }
-    },
-  };
-
   Policies.EnterpriseStorageEncryption = {
     onBeforeUIStartup(manager, param) {
       lazy.PoliciesUtils.setAndLockPref(
