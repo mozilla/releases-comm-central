@@ -210,6 +210,42 @@ def enable_enterprise(value):
 set_config("MOZ_ENTERPRISE", enable_enterprise)
 set_define("MOZ_ENTERPRISE", enable_enterprise)
 
+
+default_enterprise_console = dependable(
+    "https://stormkeeper.sandbox.moz-enterprise.com"
+)
+
+option(
+    "--with-enterprise-console-url",
+    nargs=1,
+    default=default_enterprise_console,
+    help="Enterprise console address the built application points at",
+    when=enable_enterprise,
+)
+
+
+@depends(
+    "--with-enterprise-console-url", default_enterprise_console, when=enable_enterprise
+)
+def enterprise_console_url(value, default_url):
+    # --without-enterprise-console-url or an empty value falls back to the default.
+    url = value[0] if value and value[0] else default_url
+    if not url.startswith("https://"):
+        die(
+            "--with-enterprise-console-url must be a https:// URL, got %s",
+            url,
+        )
+    # The value is interpolated into a JS string literal in thunderbird.cfg.
+    if any(c in url for c in '"\\\n\r'):
+        die(
+            "--with-enterprise-console-url must not contain quotes, backslashes or "
+            "newlines"
+        )
+    return url
+
+
+set_config("MOZ_ENTERPRISE_CONSOLE_URL", enterprise_console_url)
+
 # Clear the default value to avoid mozilla.com url compiled into product
 imply_option("--with-crashreporter-url", "", when="--enable-enterprise")
 # Bug 2062895: Remove when landing on m-c happens (end)
