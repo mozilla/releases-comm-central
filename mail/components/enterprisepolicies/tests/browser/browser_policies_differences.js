@@ -210,7 +210,7 @@ const allowedPoliciesDifferences = {
     "- ",
     "        for (const preference in param) {",
     "          if (blockedPrefs.includes(preference)) {",
-    "            lazy.log.error(",
+    "            lazy.reportFailure(",
     "  ...",
     "              continue;",
     "            }",

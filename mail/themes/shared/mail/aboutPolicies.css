@@ -161,3 +161,14 @@ tbody.collapsible td {
 .inactive-service-message {
   padding: 1rem;
 }
+
+/*
+ * A policy whose name is flagged in the Active tab was only partially
+ * applied: at least one of its operations failed. The Errors tab has the
+ * details.
+ */
+.policy-failure-marker {
+  color: var(--text-color-deemphasized);
+  display: block;
+  font-size: smaller;
+}

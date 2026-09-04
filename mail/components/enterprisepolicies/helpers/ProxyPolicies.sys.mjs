@@ -4,6 +4,10 @@
 
 const lazy = {};
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  PolicyFailures: "resource://gre/modules/PoliciesHelpers.sys.mjs",
+});
+
 const PREF_LOGLEVEL = "browser.policies.loglevel";
 
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
@@ -25,6 +29,17 @@ export var PROXY_TYPES_MAP = new Map([
   ["autoDetect", Ci.nsIProtocolProxyService.PROXYCONFIG_WPAD],
   ["autoConfig", Ci.nsIProtocolProxyService.PROXYCONFIG_PAC],
 ]);
+
+/**
+ * Reports an operation of a policy that failed, so that the policy is flagged
+ * as only partially applied in about:policies.
+ *
+ * @param {string} message A description of what failed.
+ */
+function reportFailure(message) {
+  lazy.log.error(message);
+  lazy.PolicyFailures.report("Proxy", message);
+}
 
 export var ProxyPolicies = {
   configureProxySettings(param, setPref) {
@@ -74,7 +89,7 @@ export var ProxyPolicies = {
         // instead of parsing manually.
         url = new URL(`https://${address}`);
       } catch (e) {
-        lazy.log.error(`Invalid address for ${type} proxy: ${address}`);
+        reportFailure(`Invalid address for ${type} proxy: ${address}`);
         return;
       }
 
