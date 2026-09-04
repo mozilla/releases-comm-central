@@ -11,7 +11,8 @@ use std::{
 
 use happy_eyeballs::{
     CONNECTION_ATTEMPT_DELAY, ConnectionAttemptHttpVersions, DnsRecordType, DnsResult, Endpoint,
-    HappyEyeballs, HttpVersions, Id, Input, IpPreference, NetworkConfig, Output, RESOLUTION_DELAY,
+    EndpointTarget, HappyEyeballs, HttpVersions, Id, Input, IpPreference, NetworkConfig, Output,
+    RESOLUTION_DELAY,
 };
 
 fn expect_hints_move_on_with_timeout(
@@ -485,7 +486,7 @@ fn multiple_ips_per_record() {
         Output::AttemptConnection {
             id: Id::from(4),
             endpoint: Endpoint {
-                address: SocketAddr::new(V6_ADDR_2.into(), PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V6_ADDR_2.into(), PORT)),
                 http_version: ConnectionAttemptHttpVersions::H2OrH1,
                 ech_config: None,
             },

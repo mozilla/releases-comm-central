@@ -7,8 +7,8 @@ use common::*;
 use std::{net::SocketAddr, num::NonZeroU32, time::Duration};
 
 use happy_eyeballs::{
-    CONNECTION_ATTEMPT_DELAY, ConnectionAttemptHttpVersions, DnsResult, Endpoint, Id, Input,
-    NetworkConfig, Output,
+    CONNECTION_ATTEMPT_DELAY, ConnectionAttemptHttpVersions, DnsResult, Endpoint, EndpointTarget,
+    Id, Input, NetworkConfig, Output,
 };
 
 #[test]
@@ -26,7 +26,7 @@ fn ipv6_blackhole() {
     for _ in 0..42 {
         now += CONNECTION_ATTEMPT_DELAY;
         let connection_attempt = he.process_output(now).unwrap().attempt().unwrap();
-        if connection_attempt.address.is_ipv4() {
+        if connection_attempt.address().unwrap().is_ipv4() {
             return;
         }
     }
@@ -82,13 +82,13 @@ fn connection_attempt_delay_multiplier() {
     // Second attempt at t=250 (after base * 2^0). The next delay then doubles.
     now += base;
     let second = he.process_output(now).unwrap().attempt().unwrap();
-    assert_eq!(second.address.ip(), V6_ADDR_2);
+    assert_eq!(second.address().unwrap().ip(), V6_ADDR_2);
     he.expect(Output::Timer { duration: base * 2 }, now);
 
     // Third attempt at t=750 (after base * 2^1). The next delay doubles again.
     now += base * 2;
     let third = he.process_output(now).unwrap().attempt().unwrap();
-    assert_eq!(third.address.ip(), V6_ADDR_3);
+    assert_eq!(third.address().unwrap().ip(), V6_ADDR_3);
     he.expect(Output::Timer { duration: base * 4 }, now);
 }
 
@@ -120,7 +120,7 @@ fn failed_attempts_do_not_increase_delay() {
     he.expect(out_attempt_v6_h1_h2(Id::from(3)), now);
     he.input(in_connection_result_negative(Id::from(3)), now);
     let second = he.process_output(now).unwrap().attempt().unwrap();
-    assert_eq!(second.address.ip(), V6_ADDR_2);
+    assert_eq!(second.address().unwrap().ip(), V6_ADDR_2);
 
     // Only one attempt is in progress, so the delay stays at the base value
     // rather than growing because a previous attempt failed.
@@ -173,7 +173,7 @@ fn successful_connection_cancels_others() {
         Output::AttemptConnection {
             id: Id::from(5),
             endpoint: Endpoint {
-                address: SocketAddr::new(V6_ADDR_2.into(), PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V6_ADDR_2.into(), PORT)),
                 http_version: ConnectionAttemptHttpVersions::H2OrH1,
                 ech_config: None,
             },

@@ -330,8 +330,56 @@ impl ServiceInfo {
         // ALPNs.
         enabled_http_versions: &HttpVersions,
         ech_enabled: bool,
+        // When `Some(origin_host)`, build by-name endpoints
+        // ([`EndpointTarget::Name`]) to this record's target name instead of
+        // address endpoints, ignoring the IP hints. Used by
+        // [`ResolutionMode::ByNameWithHttpsRr`]. The origin host is the fallback
+        // for a record whose target name is the root (".").
+        by_name: Option<&str>,
     ) -> Vec<Endpoint> {
         let port = self.port.unwrap_or(port);
+
+        // Each ServiceMode record's ALPN SvcParam lists the protocols available
+        // at its own TargetName, so use only this record's ALPNs, never another
+        // record's. Assembling the "SVCB ALPN set" -- including adding the
+        // scheme default ("http/1.1" for "https") when no "alpn" is present --
+        // is the caller's responsibility when interpreting the record (RFC 9460
+        // Section 7.1.1). A record that still carries no ALPN here is not usable
+        // (a "no-default-alpn" record without "alpn" is not even self-consistent,
+        // Section 2.4.3) and yields no endpoints.
+        //
+        // <https://www.rfc-editor.org/rfc/rfc9460#section-7.1.1>
+        let mut versions = self.alpn_http_versions.clone();
+        enabled_http_versions.filter_disabled(&mut versions);
+        let http_versions = ConnectionAttemptHttpVersions::from_http_versions(&versions);
+
+        // By-name mode: connect to the record's target name over each advertised
+        // ALPN, carrying its ECH. Everything below is address racing, which does
+        // not apply: the IP hints are ignored.
+        if let Some(origin_host) = by_name {
+            let ech_config = ech_enabled.then(|| self.ech_config.clone()).flatten();
+            // The target name is a DNS name, but this is a connect host (SNI, or
+            // a proxy's CONNECT target), so drop the root label's trailing dot.
+            // A ServiceMode target of "." denotes the owner name, which is the
+            // origin.
+            let target = self.target_name.as_str().trim_end_matches('.');
+            let host = if target.is_empty() {
+                origin_host
+            } else {
+                target
+            };
+            return http_versions
+                .iter()
+                .map(|&http_version| Endpoint {
+                    target: EndpointTarget::Name {
+                        host: host.to_string(),
+                        port,
+                    },
+                    http_version,
+                    ech_config: ech_config.clone(),
+                })
+                .collect();
+        }
 
         // > ServiceMode records can contain address hints via ipv6hint and
         // > ipv4hint parameters. When these are received, they SHOULD be
@@ -362,20 +410,6 @@ impl ServiceInfo {
         let hint_v6: &[Ipv6Addr] = self.ipv6_hints.as_slice();
         let hint_v4: &[Ipv4Addr] = self.ipv4_hints.as_slice();
 
-        // Each ServiceMode record's ALPN SvcParam lists the protocols available
-        // at its own TargetName, so use only this record's ALPNs, never another
-        // record's. Assembling the "SVCB ALPN set" -- including adding the
-        // scheme default ("http/1.1" for "https") when no "alpn" is present --
-        // is the caller's responsibility when interpreting the record (RFC 9460
-        // Section 7.1.1). A record that still carries no ALPN here is not usable
-        // (a "no-default-alpn" record without "alpn" is not even self-consistent,
-        // Section 2.4.3) and yields no endpoints.
-        //
-        // <https://www.rfc-editor.org/rfc/rfc9460#section-7.1.1>
-        let mut versions = self.alpn_http_versions.clone();
-        enabled_http_versions.filter_disabled(&mut versions);
-        let http_versions = ConnectionAttemptHttpVersions::from_http_versions(&versions);
-
         let hints = hint_v6
             .iter()
             .cloned()
@@ -385,7 +419,7 @@ impl ServiceInfo {
                 // TODO: way around allocation?
                 let ech_config = ech_enabled.then(|| self.ech_config.clone()).flatten();
                 http_versions.iter().map(move |&http_version| Endpoint {
-                    address: SocketAddr::new(ip, port),
+                    target: EndpointTarget::Address(SocketAddr::new(ip, port)),
                     http_version,
                     ech_config: ech_config.clone(),
                 })
@@ -409,7 +443,7 @@ impl ServiceInfo {
                 // TODO: way around allocation?
                 let ech_config = ech_enabled.then(|| self.ech_config.clone()).flatten();
                 http_versions.iter().map(move |v| Endpoint {
-                    address: SocketAddr::new(ip, port),
+                    target: EndpointTarget::Address(SocketAddr::new(ip, port)),
                     http_version: *v,
                     ech_config: ech_config.clone(),
                 })
@@ -676,6 +710,60 @@ pub struct NetworkConfig {
     /// Defaults to `true`, matching
     /// <https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-02.html#section-4.2>.
     pub wait_for_preferred_address: bool,
+    /// How the origin host is resolved before connecting.
+    ///
+    /// Defaults to [`ResolutionMode::ByIp`], the normal Happy Eyeballs path.
+    pub resolution: ResolutionMode,
+}
+
+/// How the origin host is turned into connection attempts.
+///
+/// Happy Eyeballs normally resolves the target host and races the resulting
+/// IPs. That is wrong when the host should not (or cannot) be resolved
+/// client-side, e.g. when a proxy resolves the hostname for us, or when
+/// establishing an inner proxy connection. In those cases the client has no IPs
+/// to race and should connect by hostname instead. The two by-name variants
+/// cover that, differing only in whether the HTTPS (SVCB) record is fetched for
+/// its ALPN.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub enum ResolutionMode {
+    /// Resolve the origin (A, AAAA, and HTTPS records) and race the resulting
+    /// IPs. The default Happy Eyeballs behavior.
+    #[default]
+    ByIp,
+    /// Connect to the origin by name with no client-side DNS whatsoever: neither
+    /// the HTTPS record nor A/AAAA are queried.
+    ///
+    /// The state machine emits no [`Output::SendDnsQuery`] and produces by-name
+    /// connection attempts ([`EndpointTarget::Name`]) for the origin host and
+    /// port over the enabled H2/H1 versions, attempting immediately. Alt-svc
+    /// entries are attempted by name too, over their advertised protocol.
+    ///
+    /// Use this when even a single leaked DNS query is unacceptable, e.g. when
+    /// the resolver is the operating system's and every query must stay inside
+    /// the proxy connection.
+    ByName,
+    /// Connect to the origin by name, but first fetch the origin's HTTPS (SVCB)
+    /// record to learn its ALPN.
+    ///
+    /// Only the HTTPS query is sent; no A or AAAA query is emitted and no
+    /// address-family racing happens. The state machine waits for the HTTPS
+    /// answer, then produces one by-name connection attempt
+    /// ([`EndpointTarget::Name`]) per advertised ALPN version (so a record
+    /// advertising h3 yields a by-name h3 attempt), using the record's target
+    /// name when it aliases (otherwise the origin host) and its port, and
+    /// carrying its ECH config. The record's `ipv4hint`/`ipv6hint` are ignored:
+    /// they are never used to race IPs. If the HTTPS query fails, is empty, or
+    /// is negative, the machine falls back to the by-name origin over the
+    /// enabled H2/H1 versions.
+    ///
+    /// Alt-svc entries are attempted by name too, over their advertised
+    /// protocol, so an alt-svc that advertises h3 is raced over h3.
+    ///
+    /// Use this when the resolver is trusted not to leak the query (e.g. DoH),
+    /// so the ALPN (and thus HTTP/3) can be honored while still connecting by
+    /// name.
+    ByNameWithHttpsRr,
 }
 
 impl Default for NetworkConfig {
@@ -689,6 +777,7 @@ impl Default for NetworkConfig {
             connection_attempt_delay_multiplier: CONNECTION_ATTEMPT_DELAY_MULTIPLIER,
             ech: true,
             wait_for_preferred_address: true,
+            resolution: ResolutionMode::ByIp,
         }
     }
 }
@@ -743,12 +832,43 @@ impl ConnectionAttempt {
     }
 }
 
-/// All information (IP, HTTP version, ...) needed to attempt a connection to a specific endpoint.
+/// What an [`Endpoint`] connects to: either a resolved socket address (the
+/// normal Happy Eyeballs path) or a bare hostname and port to connect to
+/// without client-side resolution.
+///
+/// The by-name variant exists for cases where the host's address should not (or
+/// cannot) be resolved client-side, e.g. when a proxy resolves the hostname for
+/// us, or when establishing an inner proxy connection. See
+/// [`NetworkConfig::resolution`] and [`ResolutionMode`].
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum EndpointTarget {
+    /// A resolved socket address to connect to directly.
+    Address(SocketAddr),
+    /// A hostname and port to connect to by name, leaving *address* resolution
+    /// to a downstream party (e.g. a proxy), so there is no address family to
+    /// race. This does not imply that no DNS happens at all:
+    /// [`ResolutionMode::ByNameWithHttpsRr`] still queries the origin's HTTPS
+    /// record for its ALPN.
+    Name { host: String, port: u16 },
+}
+
+/// All information (target, HTTP version, ...) needed to attempt a connection to a specific endpoint.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Endpoint {
-    pub address: SocketAddr,
+    pub target: EndpointTarget,
     pub http_version: ConnectionAttemptHttpVersions,
     pub ech_config: Option<EchConfig>,
+}
+
+impl Endpoint {
+    /// The resolved socket address for this endpoint, or [`None`] for a by-name
+    /// target (see [`EndpointTarget::Name`]).
+    pub fn address(&self) -> Option<SocketAddr> {
+        match self.target {
+            EndpointTarget::Address(address) => Some(address),
+            EndpointTarget::Name { .. } => None,
+        }
+    }
 }
 
 /// Interleave a group's endpoints across protocol variants and address
@@ -809,10 +929,17 @@ fn interleave_endpoints(endpoints: Vec<Endpoint>, prefer_v6: bool) -> Vec<Endpoi
         VecDeque<Endpoint>,
     > = BTreeMap::new();
     for endpoint in endpoints {
-        let family = if endpoint.address.is_ipv6() == prefer_v6 {
-            FamilyPreference::Preferred
-        } else {
-            FamilyPreference::Other
+        let family = match &endpoint.target {
+            EndpointTarget::Address(address) => {
+                if address.is_ipv6() == prefer_v6 {
+                    FamilyPreference::Preferred
+                } else {
+                    FamilyPreference::Other
+                }
+            }
+            // A by-name target has no address family to alternate with, so it
+            // groups on its own as the preferred family and is dealt promptly.
+            EndpointTarget::Name { .. } => FamilyPreference::Preferred,
         };
         groups
             .entry((endpoint.http_version, family))
@@ -992,21 +1119,41 @@ impl HappyEyeballs {
             return Some(o);
         }
 
-        // Send DNS queries.
-        if let Some(o) = self.send_dns_request() {
-            return Some(o);
-        }
+        // Send DNS queries. Which ones depends on the resolution mode.
+        match self.network_config.resolution {
+            // Resolve everything and race the addresses: the origin's HTTPS and
+            // A/AAAA records, plus any HTTPS target name and alt-svc host.
+            ResolutionMode::ByIp => {
+                if let Some(o) = self.send_dns_request() {
+                    return Some(o);
+                }
 
-        if let Some(o) = self.send_dns_request_for_target_name() {
-            return Some(o);
-        }
+                if let Some(o) = self.send_dns_request_for_target_name() {
+                    return Some(o);
+                }
 
-        if let Some(o) = self.send_dns_request_for_alt_svc() {
-            return Some(o);
-        }
+                if let Some(o) = self.send_dns_request_for_alt_svc() {
+                    return Some(o);
+                }
 
-        if let Some(o) = self.send_dns_refresh() {
-            return Some(o);
+                if let Some(o) = self.send_dns_refresh() {
+                    return Some(o);
+                }
+            }
+            // Only the origin HTTPS record, for its ALPN (A/AAAA are gated off
+            // inside `send_dns_request`). The target name and alt-svc hosts are
+            // attempted by name, so neither is resolved.
+            ResolutionMode::ByNameWithHttpsRr => {
+                if let Some(o) = self.send_dns_request() {
+                    return Some(o);
+                }
+
+                if let Some(o) = self.send_dns_refresh() {
+                    return Some(o);
+                }
+            }
+            // No client-side DNS whatsoever.
+            ResolutionMode::ByName => {}
         }
 
         if let Some(o) = self.delay(now) {
@@ -1114,8 +1261,14 @@ impl HappyEyeballs {
         }
         .into();
 
-        let record_types = std::iter::once(DnsRecordType::Https)
-            .chain(self.network_config.ip.address_record_types());
+        // `ResolutionMode::ByNameWithHttpsRr` fetches only the HTTPS record for
+        // its ALPN; it must never emit an A or AAAA query.
+        let address_record_types = (self.network_config.resolution
+            != ResolutionMode::ByNameWithHttpsRr)
+            .then(|| self.network_config.ip.address_record_types())
+            .into_iter()
+            .flatten();
+        let record_types = std::iter::once(DnsRecordType::Https).chain(address_record_types);
         for record_type in record_types {
             if !self
                 .dns_queries
@@ -1400,6 +1553,10 @@ impl HappyEyeballs {
         move_on |= self.move_on_without_timeout();
         move_on |= self.move_on_with_timeout(now);
         move_on |= matches!(self.host, Host::Ip(_));
+        // `ResolutionMode::ByName` has no DNS to wait for at all: move on
+        // immediately. `ResolutionMode::ByNameWithHttpsRr` instead waits for the
+        // origin HTTPS answer, which `move_on_without_timeout` keys on.
+        move_on |= self.network_config.resolution == ResolutionMode::ByName;
         if !move_on {
             return None;
         }
@@ -1529,6 +1686,9 @@ impl HappyEyeballs {
                 ipv6_addrs,
                 &self.network_config.http_versions,
                 self.network_config.ech,
+                (self.network_config.resolution == ResolutionMode::ByNameWithHttpsRr)
+                    .then(|| self.origin_host_str())
+                    .flatten(),
             );
             endpoints.extend(interleave_endpoints(bucket, prefer_v6));
         }
@@ -1564,6 +1724,9 @@ impl HappyEyeballs {
                 .connection_attempts
                 .iter()
                 .any(|a| a.state == ConnectionState::Failed)
+                // Without a single DNS query (e.g. `ResolutionMode::ByName`)
+                // there is no resolution that could have failed.
+                || self.dns_queries.is_empty()
             {
                 FailureReason::Connection
             } else {
@@ -1624,6 +1787,10 @@ impl HappyEyeballs {
     ///
     /// ECH is never applied: an alt-svc target may differ from the origin, so
     /// the origin's HTTPS-record ECH config does not apply to it.
+    ///
+    /// In a by-name mode (see [`ResolutionMode`]) a domain alt-svc target is
+    /// attempted by name instead of being resolved; an IP-literal target still
+    /// takes the address path.
     fn alt_svc_endpoints(&self) -> Vec<Endpoint> {
         let mut endpoints = Vec::new();
         for alt_svc in &self.network_config.alt_svc {
@@ -1635,8 +1802,27 @@ impl HappyEyeballs {
             }
             let port = alt_svc.port.unwrap_or(self.port);
             let http_version: ConnectionAttemptHttpVersions = alt_svc.http_version.into();
+
+            // By-name mode: attempt the alt-svc target by name over its
+            // advertised protocol (so an h3 alt-svc is raced over h3), unless the
+            // target is an IP literal, which needs no resolution and takes the
+            // address path below.
+            if matches!(
+                self.network_config.resolution,
+                ResolutionMode::ByName | ResolutionMode::ByNameWithHttpsRr
+            ) {
+                if let Some(host) = self.alt_svc_by_name_host(alt_svc) {
+                    endpoints.push(Endpoint {
+                        target: EndpointTarget::Name { host, port },
+                        http_version,
+                        ech_config: None,
+                    });
+                    continue;
+                }
+            }
+
             endpoints.extend(self.alt_svc_addrs(alt_svc).into_iter().map(|ip| Endpoint {
-                address: SocketAddr::new(ip, port),
+                target: EndpointTarget::Address(SocketAddr::new(ip, port)),
                 http_version,
                 ech_config: None,
             }));
@@ -1649,16 +1835,67 @@ impl HappyEyeballs {
     /// (interleaved by the caller).
     fn origin_fallback_endpoints(&self) -> Vec<Endpoint> {
         let http_versions = self.fallback_http_versions();
+
+        // By-name mode: connect to a domain origin by name, with no resolved
+        // address (and thus no address-family racing). An IP-literal origin
+        // needs no resolution regardless, so it keeps the normal address path
+        // below.
+        if matches!(
+            self.network_config.resolution,
+            ResolutionMode::ByName | ResolutionMode::ByNameWithHttpsRr
+        ) {
+            if let Some(host) = self.origin_host_str() {
+                return http_versions
+                    .iter()
+                    .map(|&http_version| Endpoint {
+                        target: EndpointTarget::Name {
+                            host: host.to_string(),
+                            port: self.port,
+                        },
+                        http_version,
+                        ech_config: None,
+                    })
+                    .collect();
+            }
+        }
+
         self.origin_addrs()
             .into_iter()
             .flat_map(|ip| {
                 http_versions.iter().map(move |&http_version| Endpoint {
-                    address: SocketAddr::new(ip, self.port),
+                    target: EndpointTarget::Address(SocketAddr::new(ip, self.port)),
                     http_version,
                     ech_config: None,
                 })
             })
             .collect()
+    }
+
+    /// The origin host as a connect name, or [`None`] when the origin is an IP
+    /// literal, which is connected to by address rather than by name.
+    ///
+    /// The root label's trailing dot is stripped: an origin may legitimately be
+    /// given fully qualified (`example.com.`), but a connect name (SNI, or a
+    /// proxy's CONNECT target) must not carry it.
+    fn origin_host_str(&self) -> Option<&str> {
+        match &self.host {
+            Host::Domain(domain) => Some(domain.trim_end_matches('.')),
+            Host::Ip(_) => None,
+        }
+    }
+
+    /// The hostname to connect to by name for an alt-svc entry in a by-name mode:
+    /// the alt-svc's own host when it is a domain, or the origin host when the
+    /// alt-svc omits a host. Returns [`None`] when the effective host is an IP
+    /// literal, which needs no resolution and uses the address path instead.
+    fn alt_svc_by_name_host(&self, alt_svc: &AltSvc) -> Option<String> {
+        match &alt_svc.host {
+            Some(host) => host
+                .parse::<IpAddr>()
+                .is_err()
+                .then(|| host.trim_end_matches('.').to_string()),
+            None => self.origin_host_str().map(ToString::to_string),
+        }
     }
 
     /// Addresses for an alt-svc entry's effective host: its own host when set,
@@ -1704,6 +1941,20 @@ impl HappyEyeballs {
                 return false;
             }
         };
+
+        // `ResolutionMode::ByNameWithHttpsRr` queries only the origin HTTPS
+        // record and never any address, so there are no addresses to wait for:
+        // move on once that HTTPS query has completed, whether its answer is
+        // positive, empty, or negative. A non-positive answer simply yields no
+        // HTTPS endpoints and falls back to the by-name origin.
+        if self.network_config.resolution == ResolutionMode::ByNameWithHttpsRr {
+            return self
+                .dns_queries
+                .iter()
+                .filter(|q| q.target_name.as_str() == hostname)
+                .filter(|q| q.is_completed())
+                .any(|q| q.record_type == DnsRecordType::Https);
+        }
 
         // > Some positive (non-empty) address answers have been received AND
         //

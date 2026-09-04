@@ -4,7 +4,8 @@ use common::*;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 use happy_eyeballs::{
-    ConnectionAttemptHttpVersions, Endpoint, FailureReason, HappyEyeballs, Id, Output,
+    ConnectionAttemptHttpVersions, Endpoint, EndpointTarget, FailureReason, HappyEyeballs, Id,
+    Output,
 };
 
 /// All DNS queries fail. No connections are attempted.
@@ -67,7 +68,10 @@ fn ip_host_connection_failure() {
         Output::AttemptConnection {
             id: Id::from(0),
             endpoint: Endpoint {
-                address: SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), PORT),
+                target: EndpointTarget::Address(SocketAddr::new(
+                    IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)),
+                    PORT,
+                )),
                 http_version: ConnectionAttemptHttpVersions::H2OrH1,
                 ech_config: None,
             },

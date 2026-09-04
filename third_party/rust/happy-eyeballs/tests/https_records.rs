@@ -7,8 +7,8 @@ use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
 
 use happy_eyeballs::{
     AltSvc, CONNECTION_ATTEMPT_DELAY, ConnectionAttemptHttpVersions, ConnectionResult,
-    DnsRecordType, DnsResult, EchConfig, Endpoint, FailureReason, HttpVersion, Id, Input,
-    IpPreference, NetworkConfig, Output, RESOLUTION_DELAY,
+    DnsRecordType, DnsResult, EchConfig, Endpoint, EndpointTarget, FailureReason, HttpVersion, Id,
+    Input, IpPreference, NetworkConfig, Output, RESOLUTION_DELAY,
 };
 
 #[test]
@@ -38,7 +38,7 @@ fn ech_config_propagated_to_endpoint() {
         Output::AttemptConnection {
             id: Id::from(3),
             endpoint: Endpoint {
-                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V6_ADDR.into(), PORT)),
                 http_version: ConnectionAttemptHttpVersions::H3,
                 ech_config: Some(ech_config()),
             },
@@ -280,7 +280,7 @@ fn ech_disabled() {
         Output::AttemptConnection {
             id: Id::from(3),
             endpoint: Endpoint {
-                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V6_ADDR.into(), PORT)),
                 http_version: ConnectionAttemptHttpVersions::H3,
                 ech_config: None,
             },
@@ -294,7 +294,7 @@ fn ech_disabled() {
         [Output::AttemptConnection {
             id: Id::from(4),
             endpoint: Endpoint {
-                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V6_ADDR.into(), PORT)),
                 http_version: ConnectionAttemptHttpVersions::H2OrH1,
                 ech_config: None,
             },
@@ -325,7 +325,7 @@ fn ech_config_from_https_applies_to_aaaa() {
         Output::AttemptConnection {
             id: Id::from(3),
             endpoint: Endpoint {
-                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V6_ADDR.into(), PORT)),
                 http_version: ConnectionAttemptHttpVersions::H3,
                 ech_config: Some(ech_config()),
             },
@@ -350,7 +350,7 @@ fn multiple_target_names() {
         Output::AttemptConnection {
             id: Id::from(4),
             endpoint: Endpoint {
-                address: SocketAddr::new(V6_ADDR_2.into(), PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V6_ADDR_2.into(), PORT)),
                 http_version: ConnectionAttemptHttpVersions::H3,
                 ech_config: None,
             },
@@ -422,7 +422,7 @@ fn partial_ech_two_service_infos() {
         Output::AttemptConnection {
             id: Id::from(5),
             endpoint: Endpoint {
-                address: SocketAddr::new(V4_ADDR_2.into(), SVC1_PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V4_ADDR_2.into(), SVC1_PORT)),
                 http_version: ConnectionAttemptHttpVersions::H3,
                 ech_config: Some(ech_config()),
             },
@@ -497,7 +497,7 @@ fn both_service_infos_have_ech_no_origin_fallback() {
         Output::AttemptConnection {
             id: Id::from(7),
             endpoint: Endpoint {
-                address: SocketAddr::new(V4_ADDR_2.into(), SVC1_PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V4_ADDR_2.into(), SVC1_PORT)),
                 http_version: ConnectionAttemptHttpVersions::H3,
                 ech_config: Some(ech_config()),
             },
@@ -529,7 +529,7 @@ fn both_service_infos_have_ech_no_origin_fallback() {
             Output::AttemptConnection {
                 id: Id::from(8),
                 endpoint: Endpoint {
-                    address: SocketAddr::new(V4_ADDR.into(), SVC2_PORT),
+                    target: EndpointTarget::Address(SocketAddr::new(V4_ADDR.into(), SVC2_PORT)),
                     http_version: ConnectionAttemptHttpVersions::H2,
                     ech_config: Some(ech_config()),
                 },
@@ -801,7 +801,7 @@ fn partial_ech_with_alt_svc() {
         Output::AttemptConnection {
             id: Id::from(5),
             endpoint: Endpoint {
-                address: SocketAddr::new(V4_ADDR_2.into(), SVC1_PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V4_ADDR_2.into(), SVC1_PORT)),
                 http_version: ConnectionAttemptHttpVersions::H3,
                 ech_config: Some(ech_config()),
             },
@@ -908,7 +908,7 @@ fn https_port_svcparam_applies_but_fallbacks_follow() {
         Output::AttemptConnection {
             id: Id::from(3),
             endpoint: Endpoint {
-                address: SocketAddr::new(V6_ADDR.into(), CUSTOM_PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V6_ADDR.into(), CUSTOM_PORT)),
                 http_version: ConnectionAttemptHttpVersions::H3,
                 ech_config: None,
             },
@@ -957,7 +957,7 @@ fn https_two_service_infos_with_different_ports() {
             Output::AttemptConnection {
                 id: Id::from(id),
                 endpoint: Endpoint {
-                    address: SocketAddr::new(addr, port),
+                    target: EndpointTarget::Address(SocketAddr::new(addr, port)),
                     http_version,
                     ech_config: None,
                 },
@@ -1086,7 +1086,7 @@ fn https_svc1_addresses_trigger_additional_attempts() {
         Output::AttemptConnection {
             id: Id::from(id),
             endpoint: Endpoint {
-                address: SocketAddr::new(addr, PORT),
+                target: EndpointTarget::Address(SocketAddr::new(addr, PORT)),
                 http_version,
                 ech_config: None,
             },
@@ -1262,7 +1262,7 @@ fn target_name_redirect_addresses_used_in_connection_attempts() {
         Output::AttemptConnection {
             id: Id::from(5),
             endpoint: Endpoint {
-                address: SocketAddr::new(V6_ADDR_2.into(), PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V6_ADDR_2.into(), PORT)),
                 http_version: ConnectionAttemptHttpVersions::H3,
                 ech_config: None,
             },
@@ -1294,7 +1294,7 @@ fn target_name_redirect_addresses_used_in_connection_attempts() {
             Output::AttemptConnection {
                 id: Id::from(6),
                 endpoint: Endpoint {
-                    address: SocketAddr::new(V4_ADDR_2.into(), PORT),
+                    target: EndpointTarget::Address(SocketAddr::new(V4_ADDR_2.into(), PORT)),
                     http_version: ConnectionAttemptHttpVersions::H3,
                     ech_config: None,
                 },
@@ -1381,7 +1381,7 @@ fn ech_retry_same_endpoint() {
         Output::AttemptConnection {
             id: Id::from(3),
             endpoint: Endpoint {
-                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V6_ADDR.into(), PORT)),
                 http_version: ConnectionAttemptHttpVersions::H2,
                 ech_config: Some(ech_config()),
             },
@@ -1405,7 +1405,7 @@ fn ech_retry_same_endpoint() {
         Output::AttemptConnection {
             id: Id::from(4),
             endpoint: Endpoint {
-                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V6_ADDR.into(), PORT)),
                 http_version: ConnectionAttemptHttpVersions::H2,
                 ech_config: Some(new_ech_config.clone()),
             },
@@ -1442,7 +1442,7 @@ fn ech_retry_without_ech_sets_flag() {
         Output::AttemptConnection {
             id: Id::from(3),
             endpoint: Endpoint {
-                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V6_ADDR.into(), PORT)),
                 http_version: ConnectionAttemptHttpVersions::H2,
                 ech_config: Some(ech_config()),
             },
@@ -1462,7 +1462,7 @@ fn ech_retry_without_ech_sets_flag() {
         Output::AttemptConnection {
             id: Id::from(4),
             endpoint: Endpoint {
-                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V6_ADDR.into(), PORT)),
                 http_version: ConnectionAttemptHttpVersions::H2,
                 ech_config: Some(empty_ech_config.clone()),
             },
@@ -1503,7 +1503,7 @@ fn ech_retry_no_infinite_loop() {
         Output::AttemptConnection {
             id: Id::from(3),
             endpoint: Endpoint {
-                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V6_ADDR.into(), PORT)),
                 http_version: ConnectionAttemptHttpVersions::H2,
                 ech_config: Some(ech_config()),
             },
@@ -1524,7 +1524,7 @@ fn ech_retry_no_infinite_loop() {
         Output::AttemptConnection {
             id: Id::from(4),
             endpoint: Endpoint {
-                address: SocketAddr::new(V6_ADDR.into(), PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V6_ADDR.into(), PORT)),
                 http_version: ConnectionAttemptHttpVersions::H2,
                 ech_config: Some(retry_ech_config.clone()),
             },
@@ -1550,7 +1550,7 @@ fn ech_retry_no_infinite_loop() {
         Output::AttemptConnection {
             id: Id::from(5),
             endpoint: Endpoint {
-                address: SocketAddr::new(V4_ADDR.into(), PORT),
+                target: EndpointTarget::Address(SocketAddr::new(V4_ADDR.into(), PORT)),
                 http_version: ConnectionAttemptHttpVersions::H2,
                 ech_config: Some(ech_config()),
             },
