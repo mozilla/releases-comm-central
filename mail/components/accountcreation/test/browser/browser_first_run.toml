@@ -14,6 +14,8 @@ prefs = [
 ]
 subsuite = "thunderbird"
 
+skip-if = ["enterprise"]
+
 ["browser_accountHubFirstRun.js"]
 
 ["browser_accountHubHeaderFirstRun.js"]
