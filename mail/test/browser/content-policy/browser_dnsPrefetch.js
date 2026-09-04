@@ -157,7 +157,7 @@ add_task(async function test_dnsPrefetch_message() {
   const about3Pane = get_about_3pane();
   Assert.ok(
     !about3Pane.document.getElementById("multiMessageBrowser").docShell
-      .allowDNSPrefetch.allowDNSPrefetch,
+      .allowDNSPrefetch,
     "multimessagepane should have disabled DNS prefetch at startup"
   );
 
