@@ -73,6 +73,11 @@ PER_PROJECT_PARAMETERS = {
         "target_tasks_method": "enterprise_thunderbird_with_tests_tasks",
         "release_product": "thunderbird-enterprise",
     },
+    "enterprise-thunderbird-try": {
+        "enable_always_target": True,
+        "release_product": "thunderbird-enterprise",
+        "target_tasks_method": "try_cc_tasks",
+    },
 }
 
 CRON_OPTIONS = {
