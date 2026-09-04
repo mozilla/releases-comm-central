@@ -408,15 +408,12 @@ nsresult nsMailboxProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
                 getter_AddRefs(m_msgFileOutputStream), tempMsgFile, -1, 00600);
             NS_ENSURE_SUCCESS(rv, rv);
 
-            ClearFlag(MAILBOX_MSG_PARSE_FIRST_LINE);
-
             m_nextState = MAILBOX_READ_MESSAGE;
             break;
           }
           case MailboxAction::CopyMessage:
           case MailboxAction::MoveMessage:
           case MailboxAction::FetchMessage:
-            ClearFlag(MAILBOX_MSG_PARSE_FIRST_LINE);
             m_nextState = MAILBOX_READ_MESSAGE;
             break;
           case MailboxAction::FetchPart:
@@ -468,10 +465,7 @@ int32_t nsMailboxProtocol::ReadMessageResponse(nsIInputStream* inputStream,
       the local system will convert that to the local line
       terminator as it is read.
       */
-      // mscott - the firstline hack is aimed at making sure we don't write
-      // out the dummy header when we are trying to display the message.
-      // The dummy header is the From line with the date tag on it.
-      if (m_msgFileOutputStream && TestFlag(MAILBOX_MSG_PARSE_FIRST_LINE)) {
+      if (m_msgFileOutputStream) {
         uint32_t count = 0;
         rv = m_msgFileOutputStream->Write(line, PL_strlen(line), &count);
         if (NS_FAILED(rv)) break;
@@ -483,8 +477,7 @@ int32_t nsMailboxProtocol::ReadMessageResponse(nsIInputStream* inputStream,
                                             &count);
 
         if (NS_FAILED(rv)) break;
-      } else
-        SetFlag(MAILBOX_MSG_PARSE_FIRST_LINE);
+      }
       PR_Free(line);
     }
     PR_Free(line);

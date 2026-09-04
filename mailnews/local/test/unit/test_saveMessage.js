@@ -5,13 +5,16 @@
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
+const { NetUtil } = ChromeUtils.importESModule(
+  "resource://gre/modules/NetUtil.sys.mjs"
+);
 
-/**
- * Test bug 460636 - Saving message in local folder as .EML removes starting
- * dot in all lines, and ignores line if single dot only line.
- */
-add_task(async function test_saveMessage() {
-  localAccountUtils.loadLocalMailAccount();
+function normalizeLineEndings(value) {
+  return value.replace(/\r\n?/g, "\n");
+}
+
+async function saveMessageFromStore(storeID) {
+  localAccountUtils.loadLocalMailAccount(storeID);
 
   const messageService = Cc[
     "@mozilla.org/messenger/messageservice;1?type=mailbox-message"
@@ -53,6 +56,12 @@ add_task(async function test_saveMessage() {
 
     // Save it out.
     const msgHdr = inbox.GetMessageHeader(copied.messageKeys[0]);
+    const storedStream = inbox.getMsgInputStream(msgHdr);
+    const storedMessage = NetUtil.readInputStreamToString(
+      storedStream,
+      storedStream.available()
+    );
+    storedStream.close();
     const msgUri = inbox.getUriForMsg(msgHdr);
     const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
     messageService.saveMessageToDisk(
@@ -64,12 +73,18 @@ add_task(async function test_saveMessage() {
     );
     await promiseUrlListener.promise;
 
-    // Check output against the original message, accounting for added
-    // X-Mozilla-* headers.
-    let got = await IOUtils.readUTF8(savedFile.path);
-    got = strip_x_moz_headers(got);
-    const expect = await IOUtils.readUTF8(inFile.path);
-    Assert.equal(got, expect, "Saved message should match original");
+    const savedMessage = await IOUtils.readUTF8(savedFile.path);
+    Assert.equal(
+      normalizeLineEndings(savedMessage),
+      normalizeLineEndings(storedMessage),
+      "Saving should preserve the complete message-store stream apart from line endings"
+    );
+
+    Assert.equal(
+      strip_x_moz_headers(savedMessage),
+      await IOUtils.readUTF8(inFile.path),
+      "Saved message should match original apart from added X-Mozilla-* headers"
+    );
   } finally {
     // Clean up.
     localAccountUtils.clearAll();
@@ -77,4 +92,17 @@ add_task(async function test_saveMessage() {
       savedFile.remove(false);
     }
   }
+}
+
+/**
+ * Test bug 460636 - Saving message in local folder as .EML removes starting
+ * dot in all lines, and ignores line if single dot only line.
+ * Also ensure that saving does not remove the first line of a message.
+ */
+add_task(async function test_saveMessage_mbox() {
+  await saveMessageFromStore("@mozilla.org/msgstore/berkeleystore;1");
+});
+
+add_task(async function test_saveMessage_maildir() {
+  await saveMessageFromStore("@mozilla.org/msgstore/maildirstore;1");
 });

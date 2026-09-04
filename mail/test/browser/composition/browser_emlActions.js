@@ -8,7 +8,7 @@
 
 "use strict";
 
-requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 4 : 2);
+requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 4 : 3);
 
 var {
   close_compose_window,
@@ -36,10 +36,24 @@ var { MailServices } = ChromeUtils.importESModule(
 );
 
 var gDrafts;
+const { MockFilePicker } = SpecialPowers;
 
 add_setup(async function () {
   gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
+
+  MockFilePicker.init(window.browsingContext);
+  registerCleanupFunction(() => MockFilePicker.cleanup());
 });
+
+async function createTempDestination(suggestedName) {
+  const path = await IOUtils.createUniqueFile(PathUtils.tempDir, suggestedName);
+  await IOUtils.remove(path);
+  return { path, file: await IOUtils.getFile(path) };
+}
+
+function normalizeLineEndings(value) {
+  return value.replace(/\r\n?/g, "\n");
+}
 
 /**
  * Test that replying to an opened .eml message works, and that the reply can
@@ -206,17 +220,41 @@ add_task(async function test_forward_eml_catchall() {
 add_task(async function test_save_eml_as_file1() {
   const file = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
   const msgc = await open_message_from_file(file);
-  const pickerPromise = new Promise(resolve => {
-    SpecialPowers.MockFilePicker.init(msgc.browsingContext);
-    SpecialPowers.MockFilePicker.showCallback = picker => {
-      resolve(picker.defaultString);
-      return Ci.nsIFilePicker.returnOK;
-    };
-  });
-  EventUtils.synthesizeKey("s", { accelKey: true }, msgc);
-  Assert.equal(await pickerPromise, "testmsg.eml");
-  SpecialPowers.MockFilePicker.cleanup();
-  await BrowserTestUtils.closeWindow(msgc);
+
+  const destination = await createTempDestination("save_eml_as_file1.eml");
+  MockFilePicker.reset();
+  MockFilePicker.setFiles([destination.file]);
+
+  try {
+    const pickerPromise = new Promise(resolve => {
+      MockFilePicker.showCallback = picker => {
+        resolve(picker);
+        return Ci.nsIFilePicker.returnOK;
+      };
+    });
+    get_about_message(msgc).commandController.doCommand("cmd_saveAsFile");
+    const picker = await pickerPromise;
+
+    Assert.equal(picker.defaultString, "testmsg.eml");
+    Assert.ok(picker.file, "should have returned a file to save to");
+
+    await TestUtils.waitForCondition(
+      async () =>
+        (await IOUtils.exists(destination.path)) &&
+        (await IOUtils.stat(destination.path)).size,
+      "should have written to the saved eml file"
+    );
+
+    Assert.equal(
+      normalizeLineEndings(await IOUtils.readUTF8(destination.path)),
+      normalizeLineEndings(await IOUtils.readUTF8(file.path)),
+      "saved eml should be identical to the source file"
+    );
+  } finally {
+    MockFilePicker.reset();
+    await IOUtils.remove(destination.path, { ignoreAbsent: true });
+    await BrowserTestUtils.closeWindow(msgc);
+  }
 });
 
 /**
@@ -246,24 +284,47 @@ add_task(async function test_save_eml_as_file2() {
   msgc2.document.documentElement.focus();
   await TestUtils.waitForTick();
 
-  const pickerPromise = new Promise(resolve => {
-    SpecialPowers.MockFilePicker.init(msgc2.browsingContext);
-    SpecialPowers.MockFilePicker.showCallback = picker => {
-      resolve(picker.defaultString);
-      return Ci.nsIFilePicker.returnOK;
-    };
-  });
-  info(
-    "will now save the attached email and check the save dialog uses the name it was attached as"
-  );
-  EventUtils.synthesizeKey("s", { accelKey: true }, msgc2);
-  Assert.ok(
-    /that's why(-(\d)+)?\.eml/.test(await pickerPromise),
-    "Correct filename"
-  );
-  SpecialPowers.MockFilePicker.cleanup();
-  await BrowserTestUtils.closeWindow(msgc2);
-  await BrowserTestUtils.closeWindow(msgc);
+  const destination = await createTempDestination("save_eml_as_file2.eml");
+  MockFilePicker.reset();
+  MockFilePicker.setFiles([destination.file]);
+
+  try {
+    const pickerPromise = new Promise(resolve => {
+      MockFilePicker.showCallback = picker => {
+        resolve(picker);
+        return Ci.nsIFilePicker.returnOK;
+      };
+    });
+    info(
+      "will now save the attached email and check the save dialog uses the name it was attached as"
+    );
+    get_about_message(msgc2).commandController.doCommand("cmd_saveAsFile");
+    const picker = await pickerPromise;
+
+    Assert.equal(picker.defaultString, "that's why.eml");
+    Assert.ok(picker.file, "should have returned a file to save to");
+
+    await TestUtils.waitForCondition(
+      async () =>
+        (await IOUtils.exists(destination.path)) &&
+        (await IOUtils.stat(destination.path)).size,
+      "should have written to the saved eml file"
+    );
+
+    // Use the original source file of the attachment for the comparison. MIME
+    // extraction terminates the attachment with an additional line ending.
+    const file2 = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
+    Assert.equal(
+      normalizeLineEndings(await IOUtils.readUTF8(destination.path)),
+      `${normalizeLineEndings(await IOUtils.readUTF8(file2.path))}\n`,
+      "saved eml should preserve the complete extracted message"
+    );
+  } finally {
+    MockFilePicker.reset();
+    await IOUtils.remove(destination.path, { ignoreAbsent: true });
+    await BrowserTestUtils.closeWindow(msgc2);
+    await BrowserTestUtils.closeWindow(msgc);
+  }
 });
 
 /**

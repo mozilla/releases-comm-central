@@ -455,30 +455,24 @@ async function ComposeMessage(
 /**
  * Save as file.
  *
- * @param {string[]} uris - URIs of files to save.
+ * @param {string[]} uris - URIs of messages to save as file.
  */
 function SaveAsFile(uris) {
+  // For EML files opened from disk, retain the original filename.
+  if (uris.length == 1) {
+    const url = Services.io.newURI(uris[0]);
+    if (url.schemeIs("file")) {
+      const fileName = decodeURIComponent(
+        url.QueryInterface(Ci.nsIFileURL).fileName
+      );
+      messenger.saveAs(uris[0], null, fileName);
+      return;
+    }
+  }
+
   const filenames = [];
 
   for (const uri of uris) {
-    // Save an .eml files directly from its URL.
-    if (/type=application\/x-message-display$/.test(uri)) {
-      top.saveURL(
-        uri, // URL
-        null, // originalURL
-        "", // fileName (ignored)
-        null, // filePickerTitleKey
-        true, // shouldBypassCache
-        false, // skipPrompt
-        null, // referrerInfo
-        null, // cookieJarSettings
-        document, // sourceDocument
-        null, // isContentWindowPrivate,
-        Services.scriptSecurityManager.getSystemPrincipal() // principal
-      );
-      return;
-    }
-
     const msgHdr =
       MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(uri);
     const nameBase = GenerateFilenameFromMsgHdr(msgHdr);

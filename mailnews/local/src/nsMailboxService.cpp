@@ -100,51 +100,30 @@ nsresult nsMailboxService::FetchMessage(
   nsCOMPtr<nsIMsgMailNewsUrl> msgUrl;
   nsAutoCString uriString(aMessageURI);
 
-  if (StringBeginsWith(aMessageURI, "file:"_ns)) {
-    int64_t fileSize;
-    nsCOMPtr<nsIURI> fileUri;
-    rv = NS_NewURI(getter_AddRefs(fileUri), aMessageURI);
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIFileURL> fileUrl = do_QueryInterface(fileUri, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIFile> file;
-    rv = fileUrl->GetFile(getter_AddRefs(file));
-    NS_ENSURE_SUCCESS(rv, rv);
-    file->GetFileSize(&fileSize);
-    uriString.Replace(0, 5, "mailbox:"_ns);
-    uriString.AppendLiteral("&number=0");
-    rv = NS_NewURI(getter_AddRefs(url), uriString);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    msgUrl = do_QueryInterface(url);
-    if (msgUrl) {
-      msgUrl->SetMsgWindow(aMsgWindow);
-      nsMailboxUrl* mailboxUrl = static_cast<nsMailboxUrl*>(msgUrl.get());
-      mailboxUrl->SetMessageSize((uint32_t)fileSize);
-      if (aUrlListener) {
-        rv = msgUrl->RegisterListener(aUrlListener);
-        NS_ENSURE_SUCCESS(rv, rv);
-      }
+  // Forward inline of message/rfc822 attachments opened in a standalone
+  // message window have "&type=application/x-message-display" appended.
+  // Strip it and create a plain URI. File URIs skip this path — they go
+  // through PrepareMessageUrl which handles the file: → mailbox: rewrite.
+  int32_t typeIndex =
+      StringBeginsWith(aMessageURI, "file:"_ns)
+          ? -1
+          : uriString.Find("&type=application/x-message-display");
+  if (typeIndex != -1) {
+    uriString.Cut(typeIndex, sizeof("&type=application/x-message-display") - 1);
+    rv = NS_NewURI(getter_AddRefs(url), uriString.get());
+    if (NS_SUCCEEDED(rv)) {
+      mailboxurl = do_QueryInterface(url, &rv);
     }
   } else {
-    // this happens with forward inline of message/rfc822 attachment
-    // opened in a stand-alone msg window.
-    int32_t typeIndex = uriString.Find("&type=application/x-message-display");
-    if (typeIndex != -1) {
-      uriString.Cut(typeIndex,
-                    sizeof("&type=application/x-message-display") - 1);
-      rv = NS_NewURI(getter_AddRefs(url), uriString.get());
-      mailboxurl = do_QueryInterface(url);
-    } else
-      rv = PrepareMessageUrl(aMessageURI, aUrlListener, actionToUse,
-                             getter_AddRefs(mailboxurl), aMsgWindow);
+    rv = PrepareMessageUrl(aMessageURI, aUrlListener, actionToUse,
+                           getter_AddRefs(mailboxurl), aMsgWindow);
+  }
 
-    if (NS_SUCCEEDED(rv)) {
-      url = mailboxurl;
-      msgUrl = do_QueryInterface(url);
-      msgUrl->SetMsgWindow(aMsgWindow);
-      if (aFileName) msgUrl->SetFileNameInternal(nsDependentCString(aFileName));
-    }
+  if (NS_SUCCEEDED(rv)) {
+    url = mailboxurl;
+    msgUrl = do_QueryInterface(url);
+    msgUrl->SetMsgWindow(aMsgWindow);
+    if (aFileName) msgUrl->SetFileNameInternal(nsDependentCString(aFileName));
   }
 
   nsCOMPtr<nsIMsgI18NUrl> i18nurl(do_QueryInterface(msgUrl));
@@ -332,6 +311,48 @@ nsresult nsMailboxService::PrepareMessageUrl(
   nsCOMPtr<nsIMsgMailNewsUrl> url =
       do_CreateInstance("@mozilla.org/messenger/mailboxurl;1", &rv);
   if (NS_SUCCEEDED(rv) && url) {
+    // Standalone .eml files opened via file:// URIs: build a mailbox:// URL
+    // with number=0 so the mailbox protocol treats it as a raw file.
+    if (StringBeginsWith(aSrcMsgMailboxURI, "file:"_ns)) {
+      nsCOMPtr<nsIURI> fileUri;
+      rv = NS_NewURI(getter_AddRefs(fileUri), aSrcMsgMailboxURI);
+      NS_ENSURE_SUCCESS(rv, rv);
+      nsCOMPtr<nsIFileURL> fileUrl = do_QueryInterface(fileUri, &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
+      nsCOMPtr<nsIFile> file;
+      rv = fileUrl->GetFile(getter_AddRefs(file));
+      NS_ENSURE_SUCCESS(rv, rv);
+      int64_t fileSize;
+      rv = file->GetFileSize(&fileSize);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      nsAutoCString mailboxSpec(aSrcMsgMailboxURI);
+      mailboxSpec.Replace(0, 5, "mailbox:"_ns);
+      // Append number=0 with the correct separator: ? if no existing query,
+      // & if there are already query params (e.g.
+      // ?type=application/x-message-display).
+      mailboxSpec.AppendLiteral(
+          mailboxSpec.FindChar('?') == kNotFound ? "?number=0" : "&number=0");
+      rv = url->SetSpecInternal(mailboxSpec);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      nsMailboxUrl* mailboxUrl = static_cast<nsMailboxUrl*>(url.get());
+      mailboxUrl->SetMailboxAction(aMailboxAction);
+      mailboxUrl->SetMessageSize((uint32_t)fileSize);
+
+      if (aUrlListener) rv = url->RegisterListener(aUrlListener);
+
+      url->SetMsgWindow(msgWindow);
+      nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(url);
+      if (msgUrl) {
+        msgUrl->SetOriginalSpec(aSrcMsgMailboxURI);
+        msgUrl->SetUri(aSrcMsgMailboxURI);
+      }
+
+      url.forget(aMailboxUrl);
+      return rv;
+    }
+
     // okay now generate the url string
     char* urlSpec;
     nsAutoCString folderURI;
