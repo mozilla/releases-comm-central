@@ -33,6 +33,10 @@ tags = ["oauth"]
 
 ["test_firstRun.js"]
 tags = ["addrbook"]
+skip-if = ["enterprise"]
+
+["test_firstRun_enterprise.js"]
+run-if = ["enterprise"]
 
 ["test_guessConfig.js"]
 
