@@ -10,11 +10,7 @@ from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.dependencies import get_primary_dependency
 from taskgraph.util.taskcluster import get_artifact_path
 
-from gecko_taskgraph.transforms.build_signing import add_signed_routes
-
 transforms = TransformSequence()
-
-transforms.add(add_signed_routes)
 
 
 @transforms.add
