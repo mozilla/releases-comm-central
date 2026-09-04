@@ -428,3 +428,32 @@ def verify_try_expiration_policies(graph_config):
             raise Exception(
                 f'expiration-policy "{policy}" ({expires}) is larger than {cap} for try'
             )
+
+
+@verifications.add("optimized_task_graph")
+def verify_task_graph_no_shippable_enterprise_level_not_1(
+    task, taskgraph, scratch_pad, graph_config, parameters
+):
+    """
+    Verify that no task running as part of Comm Decision (Thunderbird Enterprise)
+    is missing COMM_{HEAD,BASE}_{HEAD_REV,REPOSITORY} environment variables
+    """
+    if parameters["project"] != "enterprise-thunderbird":
+        return
+
+    # Some task have no payload.env field, there is no need to check those.
+    # e.g. build-signing tasks
+    if task is None or not task.task.get("payload", {}).get("env", {}):
+        return
+
+    required_envs = [
+        "COMM_BASE_REPOSITORY",
+        "COMM_HEAD_REPOSITORY",
+        "COMM_HEAD_REV",
+    ]
+
+    for required_env in required_envs:
+        if not task.task.get("payload", {}).get("env", {}).get(required_env):
+            raise Exception(
+                f"Thunderbird Enterprise job {task.label} missing {required_env}"
+            )
