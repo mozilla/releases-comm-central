@@ -173,9 +173,17 @@ void nsImapGenericParser::AdvanceTokenizerStartingPoint(
       fStartOfLineOfTokens[endTokenOffset] = fCurrentLine[endTokenOffset];
   }
 
-  NS_ASSERTION(bytesToAdvance + (fLineOfTokens - fStartOfLineOfTokens) <=
-                   (int32_t)strlen(fCurrentLine),
-               "cannot advance beyond end of fLineOfTokens");
+  // Enforce the bound. A caller that derived
+  // bytesToAdvance from a pointer that isn't in the tokenizer buffer would
+  // otherwise leave fLineOfTokens, and with it fCurrentTokenPlaceHolder,
+  // pointing at unrelated memory.
+  int32_t consumed = int32_t(fLineOfTokens - fStartOfLineOfTokens);
+  int32_t lineLength = fCurrentLine ? int32_t(strlen(fCurrentLine)) : 0;
+  if (bytesToAdvance < 0 || consumed < 0 || consumed > lineLength ||
+      bytesToAdvance > lineLength - consumed) {
+    SetSyntaxError(true, "cannot advance beyond end of fLineOfTokens");
+    return;
+  }
   fLineOfTokens += bytesToAdvance;
   fCurrentTokenPlaceHolder = fLineOfTokens;
 }
@@ -361,15 +369,28 @@ char* nsImapGenericParser::CreateLiteral() {
 // corresponding closing paren, and leave the parser in the right place
 // afterwards.
 char* nsImapGenericParser::CreateParenGroup() {
-  NS_ASSERTION(fNextToken[0] == '(', "we don't have a paren group!");
+  // Validate the precondition here rather than trusting the callers. At end of
+  // line AdvanceToNextToken() hands out the static CRLF literal, which is not
+  // in the tokenizer buffer, so subtracting fLineOfTokens from it would give a
+  // meaningless offset and move the tokenizer outside the line.
+  if (!fNextToken || fNextToken[0] != '(' || !fLineOfTokens) {
+    SetSyntaxError(true, "no paren group to create");
+    return nullptr;
+  }
 
   int numOpenParens = 0;
   AdvanceTokenizerStartingPoint(fNextToken - fLineOfTokens);
+  if (!ContinueParse()) return nullptr;
 
   // Build up a buffer containing the paren group.
   nsCString returnString;
   char* parenGroupStart = fCurrentTokenPlaceHolder;
-  NS_ASSERTION(parenGroupStart[0] == '(', "we don't have a paren group (2)!");
+  // AdvanceTokenizerStartingPoint() can bail out without advancing, leaving
+  // the tokenizer pointers null.
+  if (!parenGroupStart) {
+    SetSyntaxError(true, "tokenizer was reset in paren group");
+    return nullptr;
+  }
   while (*fCurrentTokenPlaceHolder) {
     if (*fCurrentTokenPlaceHolder == '{')  // literal
     {

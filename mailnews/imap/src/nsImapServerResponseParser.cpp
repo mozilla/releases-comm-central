@@ -1132,7 +1132,7 @@ void nsImapServerResponseParser::msg_fetch() {
       }
     } else if (!PL_strcasecmp(fNextToken, "X-GM-LABELS")) {
       AdvanceToNextToken();
-      if (!fNextToken)
+      if (!fNextToken || fNextToken[0] != '(')
         SetSyntaxError(true);
       else {
         fLabels = CreateParenGroup();
@@ -2277,8 +2277,11 @@ void nsImapServerResponseParser::id_data() {
   AdvanceToNextToken();
   if (!PL_strcasecmp(fNextToken, "NIL"))
     AdvanceToNextToken();
-  else
+  else if (fNextToken[0] == '(')
     fServerIdResponse.Adopt(CreateParenGroup());
+  // Anything else is a malformed id_response [RFC2971, Sec. 3.2]. The server
+  // ID is only informational, so don't fail the whole response over it, just
+  // leave fServerIdResponse unset.
   skip_to_CRLF();
 }
 
