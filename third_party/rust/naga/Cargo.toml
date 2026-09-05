@@ -210,7 +210,7 @@ default-features = false
 path = "hlsl-snapshots"
 
 [dev-dependencies.itertools]
-version = "0.14"
+version = "0.15"
 
 [dev-dependencies.naga-test]
 path = "../naga-test"

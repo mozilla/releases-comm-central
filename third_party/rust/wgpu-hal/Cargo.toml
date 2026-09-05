@@ -56,15 +56,14 @@ dx12 = [
     "dep:bytemuck",
     "dep:gpu-allocator",
     "dep:libloading",
-    "dep:once_cell",
     "dep:ordered-float",
-    "dep:parking_lot",
     "dep:profiling",
     "dep:range-alloc",
+    "dep:wgpu-sync",
     "dep:windows-core",
     "gpu-allocator/d3d12",
     "naga/hlsl-out",
-    "once_cell/std",
+    "wgpu-sync/std",
     "windows/Win32_Devices_DeviceAndDriverInstallation",
     "windows/Win32_Devices_Display",
     "windows/Win32_Graphics_Direct3D_Dxc",
@@ -92,13 +91,14 @@ gles = [
     "dep:libloading",
     "dep:ndk-sys",
     "dep:objc2",
-    "dep:parking_lot",
     "dep:profiling",
     "dep:wasm-bindgen",
     "dep:wayland-sys",
     "dep:web-sys",
+    "dep:wgpu-sync",
     "dep:windows-result",
     "naga/glsl-out",
+    "wgpu-sync/std",
     "wgpu-types/web",
     "windows-result/std",
     "windows/Win32_Graphics_Gdi",
@@ -109,6 +109,7 @@ gles = [
 internal_error_panic = []
 metal = [
     "naga/msl-out",
+    "wgpu-sync/std",
     "dep:arrayvec",
     "dep:block2",
     "dep:bytemuck",
@@ -119,10 +120,10 @@ metal = [
     "dep:objc2-foundation",
     "dep:objc2-metal",
     "dep:objc2-quartz-core",
-    "dep:parking_lot",
     "dep:profiling",
     "dep:smallvec",
     "dep:raw-window-metal",
+    "dep:wgpu-sync",
 ]
 portable-atomic = [
     "dep:portable-atomic",
@@ -133,9 +134,13 @@ renderdoc = [
     "dep:renderdoc-sys",
 ]
 static-dxc = ["dep:mach-dxcompiler-rs"]
-validation_canary = ["dep:parking_lot"]
+validation_canary = [
+    "dep:wgpu-sync",
+    "wgpu-sync/std",
+]
 vulkan = [
     "naga/spv-out",
+    "wgpu-sync/std",
     "dep:android_system_properties",
     "dep:arrayvec",
     "dep:ash",
@@ -143,10 +148,10 @@ vulkan = [
     "dep:libc",
     "dep:libloading",
     "dep:ordered-float",
-    "dep:parking_lot",
     "dep:profiling",
     "dep:raw-window-metal",
     "dep:smallvec",
+    "dep:wgpu-sync",
     "dep:windows",
     "dep:windows-core",
     "gpu-allocator/vulkan",
@@ -223,10 +228,6 @@ version = ">=3, <6.0"
 optional = true
 default-features = false
 
-[dependencies.parking_lot]
-version = "0.12.3"
-optional = true
-
 [dependencies.profiling]
 version = "1.0.1"
 optional = true
@@ -246,6 +247,12 @@ default-features = false
 [dependencies.wgpu-naga-bridge]
 version = "30.0.0"
 path = "../wgpu-naga-bridge"
+
+[dependencies.wgpu-sync]
+version = "30.0.0"
+path = "../wgpu-sync"
+optional = true
+default-features = false
 
 [dependencies.wgpu-types]
 version = "30.0.0"
@@ -275,17 +282,17 @@ features = ["android-native-activity"]
 version = "0.2.2"
 
 [target.'cfg(all(target_family = "wasm", not(target_os = "emscripten")))'.dependencies.js-sys]
-version = "0.3.100"
+version = "0.3.104"
 optional = true
 default-features = true
 
 [target.'cfg(all(target_family = "wasm", not(target_os = "emscripten")))'.dependencies.wasm-bindgen]
-version = "0.2.123"
+version = "0.2.127"
 optional = true
 default-features = false
 
 [target.'cfg(all(target_family = "wasm", not(target_os = "emscripten")))'.dependencies.web-sys]
-version = "0.3.100"
+version = "0.3.104"
 features = [
     "default",
     "Window",
@@ -510,11 +517,6 @@ default-features = false
 [target."cfg(windows)".dependencies.glutin_wgl_sys]
 version = "0.6"
 optional = true
-
-[target."cfg(windows)".dependencies.once_cell]
-version = "1.21"
-optional = true
-default-features = false
 
 [target."cfg(windows)".dependencies.range-alloc]
 version = "0.1"

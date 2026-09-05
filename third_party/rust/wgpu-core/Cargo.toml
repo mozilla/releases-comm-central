@@ -78,6 +78,7 @@ renderdoc = [
 replay = [
     "serde",
     "naga/deserialize",
+    "std",
 ]
 resource_log_info = []
 serde = [
@@ -90,7 +91,7 @@ serde = [
 ]
 spirv = ["naga/spv-in"]
 static-dxc = ["wgpu-hal/static-dxc"]
-std = []
+std = ["wgpu-sync/std"]
 strict_asserts = ["wgpu-types/strict_asserts"]
 trace = [
     "serde",
@@ -166,13 +167,9 @@ path = "../naga"
 version = "30.0.0"
 path = "../naga-types"
 
-[dependencies.once_cell]
-version = "1.21"
-features = ["std"]
+[dependencies.num-traits]
+version = "0.2.16"
 default-features = false
-
-[dependencies.parking_lot]
-version = "0.12.3"
 
 [dependencies.profiling]
 version = "1.0.1"
@@ -192,10 +189,7 @@ default-features = false
 
 [dependencies.serde]
 version = "1.0.225"
-features = [
-    "default",
-    "derive",
-]
+features = ["derive"]
 optional = true
 default-features = false
 
@@ -213,6 +207,11 @@ path = "../wgpu-hal"
 [dependencies.wgpu-naga-bridge]
 version = "30.0.0"
 path = "../wgpu-naga-bridge"
+
+[dependencies.wgpu-sync]
+version = "30.0.0"
+path = "../wgpu-sync"
+default-features = false
 
 [dependencies.wgpu-types]
 version = "30.0.0"
