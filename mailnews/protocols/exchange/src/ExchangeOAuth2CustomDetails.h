@@ -64,6 +64,8 @@ class ExchangeOAuth2CustomDetails : public IOAuth2CustomDetails {
   std::optional<nsAutoCString> GetConfiguredRedirectUri() const;
   std::optional<nsAutoCString> GetConfiguredEndpointHost() const;
   std::optional<nsAutoCString> GetConfiguredOAuthScopes() const;
+  std::optional<nsAutoCString> GetConfiguredClientSecret() const;
+  std::optional<nsAutoCString> GetConfiguredIssuerIdentifier() const;
   ///@}
 
  protected:
