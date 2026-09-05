@@ -192,6 +192,11 @@
       "x-restart-required": true
     },
 
+    "DisableChat": {
+      "type": "boolean",
+      "x-restart-required": true
+    },
+
     "DisableDataCollectionSettings": {
       "type": "boolean"
     },

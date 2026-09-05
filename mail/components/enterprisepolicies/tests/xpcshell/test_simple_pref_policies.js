@@ -43,6 +43,16 @@ const POLICIES_TESTS = [
     },
   },
 
+  // POLICY: DisableChat
+  {
+    policies: { DisableChat: false },
+    unlockedPrefs: { "mail.chat.enabled": true },
+  },
+  {
+    policies: { DisableChat: true },
+    lockedPrefs: { "mail.chat.enabled": false },
+  },
+
   // POLICY: DisableDataCollectionSettings
   {
     policies: { DisableDataCollectionSettings: false },

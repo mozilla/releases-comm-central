@@ -177,6 +177,10 @@
       "type": "boolean"
     },
 
+    "DisableChat": {
+      "type": "boolean"
+    },
+
     "DisableDataCollectionSettings": {
       "type": "boolean"
     },

@@ -677,6 +677,14 @@ export var Policies = {
     },
   },
 
+  DisableChat: {
+    onBeforeUIStartup(manager, param) {
+      if (param) {
+        lazy.PoliciesUtils.setAndLockPref("mail.chat.enabled", false);
+      }
+    },
+  },
+
   DisableDataCollectionSettings: {
     onBeforeUIStartup(manager, param) {
       if (param) {

@@ -254,6 +254,13 @@ unified-toolbar-tab {
   content: var(--icon-chat);
 }
 
+/* stylelint-disable-next-line media-query-no-invalid */
+@media not -moz-pref("mail.chat.enabled") {
+  #unified-toolbar-customization-tab-chat {
+    display: none;
+  }
+}
+
 #unified-toolbar-customization-tab-settings::part(icon) {
   content: var(--icon-settings);
 }
