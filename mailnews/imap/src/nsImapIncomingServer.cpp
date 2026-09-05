@@ -2014,7 +2014,7 @@ nsImapIncomingServer::AsyncGetPassword(nsIImapProtocol* aProtocol,
   }
 
   MOZ_TRY(mPasswordModule->GetCachedPassword(value));
-  if (value.IsEmpty()) {
+  if (!value.IsEmpty()) {
     aPassword = NS_ConvertUTF8toUTF16(value);
   }
 
