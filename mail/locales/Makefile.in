@@ -43,6 +43,7 @@ l10n-%:
 # we need the current value of AB_CD.
 	$(if $(filter en-US,$(AB_CD)),, @$(MAKE) merge-$*)
 	$(if $(filter en-US,$(AB_CD)),, @$(MAKE) post-merge-$*)
+ifdef MOZ_USE_LEGACY_L10N
 	$(NSINSTALL) -D $(DIST)/install
 	@$(MAKE) -C $(DEPTH)/toolkit/locales l10n-$*  XPI_ROOT_APPID='$(XPI_ROOT_APPID)'
 	@$(MAKE) -C $(DEPTH)/devtools/client/locales AB_CD=$* XPI_NAME=locale-$* XPI_ROOT_APPID='$(XPI_ROOT_APPID)'
@@ -53,6 +54,9 @@ l10n-%:
 	@$(MAKE) l10n AB_CD=$* XPI_NAME=locale-$* PREF_DIR=$(PREF_DIR)
 	@$(MAKE) multilocale.txt-$* AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -C $(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales AB_CD=$* XPI_NAME=locale-$*
+else
+	$(call py_action,l10n_stage,--locale=$* --manifest=$(DEPTH)/l10n-manifest.json --merge-tree=$(BASE_MERGE)/$* --dest=$(DIST)/xpi-stage/locale-$* --topsrcdir=$(topsrcdir) --topobjdir=$(DEPTH))
+endif
 
 post-merge-%:
 	$(PYTHON3) $(MOZILLA_DIR)/mach tb-add-missing-ftls --merge $(BASE_MERGE) $*
