@@ -18,7 +18,7 @@
 #include "nsIHttpProtocolHandler.h"
 #include "nsIMsgOutgoingServerService.h"  // for actually sending the message...
 #include "nsIMsgOutgoingServer.h"
-#include "nsIMsgCompUtils.h"
+#include "nsMsgCompUtils.h"
 #include "nsIStringBundle.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsMsgUtils.h"
@@ -358,15 +358,9 @@ nsresult nsMsgMdnGenerator::CreateFirstPart() {
   nsString firstPart2;
   nsresult rv = NS_OK;
 
-  nsCOMPtr<nsIMsgCompUtils> compUtils =
-      do_GetService("@mozilla.org/messengercompose/computils;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   if (m_mimeSeparator.IsEmpty()) {
-    rv = compUtils->MimeMakeSeparator("mdn", getter_Copies(m_mimeSeparator));
-    NS_ENSURE_SUCCESS(rv, rv);
+    m_mimeSeparator.Adopt(mime_make_separator("mdn"));
   }
-  if (m_mimeSeparator.IsEmpty()) return NS_ERROR_OUT_OF_MEMORY;
 
   tmpBuffer = (char*)PR_CALLOC(256);
 
@@ -411,6 +405,10 @@ nsresult nsMsgMdnGenerator::CreateFirstPart() {
   PUSH_N_FREE_STRING(parm);
 
   PR_Free(convbuf);
+
+  nsCOMPtr<nsIMsgCompUtils> compUtils =
+      do_GetService("@mozilla.org/messengercompose/computils;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   rv = compUtils->MsgGenerateMessageId(m_identity, ""_ns, m_messageId);
   NS_ENSURE_SUCCESS(rv, rv);

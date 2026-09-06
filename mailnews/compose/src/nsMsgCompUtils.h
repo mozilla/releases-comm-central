@@ -5,14 +5,16 @@
 #ifndef COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPUTILS_H_
 #define COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPUTILS_H_
 
-#include "nscore.h"
-#include "mozilla/dom/Document.h"
-#include "nsIMsgSend.h"
+#include "mozilla/Logging.h"
 #include "nsIMsgCompUtils.h"
+#include "nscore.h"
 
 class nsIArray;
-class nsIDocument;
-class nsIPrompt;
+class nsIFile;
+
+namespace mozilla::dom {
+class Document;
+}
 
 #define ANY_SERVER "anyfolder://"
 
@@ -46,37 +48,7 @@ PR_BEGIN_EXTERN_C
 //
 nsresult nsMsgCreateTempFile(const char* tFileName, nsIFile** tFile);
 
-//
-// Various utilities for building parts of MIME encoded
-// messages during message composition
-//
-
 char* mime_make_separator(const char* prefix);
-char* mime_gen_content_id(uint32_t aPartNum, const char* aEmailAddress);
-
-bool mime_7bit_data_p(const char* string, uint32_t size);
-
-char* mime_fix_header_1(const char* string, bool addr_p, bool news_p);
-char* mime_fix_header(const char* string);
-char* mime_fix_addr_header(const char* string);
-char* mime_fix_news_header(const char* string);
-
-bool mime_type_requires_b64_p(const char* type);
-bool mime_type_needs_charset(const char* type);
-
-char* msg_make_filename_qtext(const char* srcText, bool stripCRLFs);
-
-char* RFC2231ParmFolding(const char* parmName, const char* parmValue);
-
-//
-// network service type calls...
-//
-nsresult nsMsgNewURL(nsIURI** aInstancePtrResult, const nsCString& aSpec);
-char* nsMsgGetLocalFileFromURL(const char* url);
-
-char* nsMsgParseURLHost(const char* url);
-
-char* GenerateFileNameFromURI(nsIURI* aURL);
 
 // Check if we should use format=flowed
 void GetSerialiserFlags(bool* flowed, bool* formatted);

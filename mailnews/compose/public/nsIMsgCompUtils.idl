@@ -7,8 +7,6 @@
 
 [scriptable, uuid(00b4569a-077e-4236-b993-980fd82bb948)]
 interface nsIMsgCompUtils : nsISupports {
-  string mimeMakeSeparator(in string prefix);
-
   /**
    * Try to use the provided identity and/or host name to generate a message ID.
    *
