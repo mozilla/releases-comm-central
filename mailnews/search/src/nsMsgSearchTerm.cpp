@@ -977,11 +977,18 @@ nsresult nsMsgSearchTerm::MatchString(const nsAString& utf16StrToMatch,
 
   switch (m_operator) {
     case nsMsgSearchOp::Contains:
-      if (CaseInsensitiveFindInReadable(needle, utf16StrToMatch)) result = true;
+      // An empty needle means "no match".
+      if (!needle.IsEmpty() &&
+          CaseInsensitiveFindInReadable(needle, utf16StrToMatch)) {
+        result = true;
+      }
       break;
     case nsMsgSearchOp::DoesntContain:
-      if (!CaseInsensitiveFindInReadable(needle, utf16StrToMatch))
+      // An empty needle means "always match".
+      if (needle.IsEmpty() ||
+          !CaseInsensitiveFindInReadable(needle, utf16StrToMatch)) {
         result = true;
+      }
       break;
     case nsMsgSearchOp::Is:
       if (needle.Equals(utf16StrToMatch, nsCaseInsensitiveStringComparator))

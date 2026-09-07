@@ -558,6 +558,21 @@ var Tests = [
     op: IsAfter,
     count: 0,
   },
+  // Empty search values must not match everything.
+  // "contains" with an empty value should never match.
+  {
+    testString: "",
+    testAttribute: Subject,
+    op: Contains,
+    count: 0,
+  },
+  // "doesn't contain" with an empty value should match every message.
+  {
+    testString: "",
+    testAttribute: Subject,
+    op: DoesntContain,
+    count: 1,
+  },
 ];
 
 function run_test() {
