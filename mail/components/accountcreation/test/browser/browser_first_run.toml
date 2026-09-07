@@ -14,7 +14,7 @@ prefs = [
 ]
 subsuite = "thunderbird"
 
-skip-if = ["enterprise"]
+skip-if = ["enterprise"] # First run disabled on enterprise builds
 
 ["browser_accountHubFirstRun.js"]
 
