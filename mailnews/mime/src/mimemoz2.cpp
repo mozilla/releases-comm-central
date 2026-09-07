@@ -106,6 +106,36 @@ nsresult MimeGetSize(MimeObject* child, int32_t* size) {
   return NS_OK;
 }
 
+// Creates the attachment URI from `spec`, adding a "filename" parameter for
+// named attachments. `spec` must not be null.
+static nsresult BuildAttachmentUrl(const char* spec,
+                                   const nsMsgAttachmentData* attachmentData,
+                                   nsIURI** result) {
+  NS_ENSURE_ARG_POINTER(spec);
+
+  nsCOMPtr<nsIURI> uri;
+  nsresult rv = NS_NewURI(getter_AddRefs(uri), spec);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString query;
+  rv = uri->GetQuery(query);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  URLParams params;
+  params.ParseInput(query);
+
+  if (!attachmentData->m_realName.IsEmpty()) {
+    AppendFilenameParameterToAttachmentDataUrl(attachmentData, params);
+  }
+
+  params.Serialize(query, true);
+  rv = NS_MutateURI(uri).SetQuery(query).Finalize(getter_AddRefs(uri));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  uri.forget(result);
+  return NS_OK;
+}
+
 nsresult ProcessBodyAsAttachment(MimeObject* obj, nsMsgAttachmentData** data) {
   nsMsgAttachmentData* tmp;
   char* disp = nullptr;
@@ -118,6 +148,8 @@ nsresult ProcessBodyAsAttachment(MimeObject* obj, nsMsgAttachmentData** data) {
   // to do this.
   MimeObject* child = obj;
 
+  // We're actually returning a list of attachments. The list is terminated by an
+  // entry with a null `m_url` member.
   *data = new nsMsgAttachmentData[2];
   if (!*data) return NS_ERROR_OUT_OF_MEMORY;
 
@@ -176,31 +208,12 @@ nsresult ProcessBodyAsAttachment(MimeObject* obj, nsMsgAttachmentData** data) {
     if (id_imap && id) {
       // if this is an IMAP part.
       tmpURL = mime_set_url_imap_part(url, id_imap, id);
-      rv = nsMimeNewURI(getter_AddRefs(tmp->m_url), tmpURL, nullptr);
+      rv = tmpURL ? nsMimeNewURI(getter_AddRefs(tmp->m_url), tmpURL, nullptr)
+                  : NS_ERROR_UNEXPECTED;
     } else {
       // This is just a normal MIME part as usual.
       tmpURL = mime_set_url_part(url, id, true);
-
-      nsCOMPtr<nsIURI> uri;
-      rv = NS_NewURI(getter_AddRefs(uri), tmpURL);
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      nsAutoCString query;
-      rv = uri->GetQuery(query);
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      URLParams params;
-      params.ParseInput(query);
-
-      if (!tmp->m_realName.IsEmpty()) {
-        AppendFilenameParameterToAttachmentDataUrl(tmp, params);
-      }
-
-      params.Serialize(query, true);
-      rv = NS_MutateURI(uri).SetQuery(query).Finalize(getter_AddRefs(uri));
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      tmp->m_url = uri;
+      rv = BuildAttachmentUrl(tmpURL, tmp, getter_AddRefs(tmp->m_url));
     }
 
     if (!tmp->m_url || NS_FAILED(rv)) {
@@ -208,7 +221,8 @@ nsresult ProcessBodyAsAttachment(MimeObject* obj, nsMsgAttachmentData** data) {
       *data = nullptr;
       PR_FREEIF(id);
       PR_FREEIF(id_imap);
-      return NS_ERROR_OUT_OF_MEMORY;
+      PR_FREEIF(tmpURL);
+      return NS_ERROR_FAILURE;
     }
   }
   PR_FREEIF(id);

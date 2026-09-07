@@ -1269,9 +1269,11 @@ bool mime_crypto_object_p(MimeHeaders* hdrs, bool clearsigned_counts,
 
 #endif  // ENABLE_SMIME
 
-/* Puts a part-number into a URL.  If append_p is true, then the part number
-   is appended to any existing part-number already in that URL; otherwise,
-   it replaces it.
+/**
+ * Puts a part-number into a URL.  If append_p is true, then the part number
+ * is appended to any existing part-number already in that URL; otherwise,
+ * it replaces it.
+ * @returns the new url. Returns null if the URL failed to parse.
  */
 char* mime_set_url_part(const char* url, const char* part, bool append_p) {
   char* result;
