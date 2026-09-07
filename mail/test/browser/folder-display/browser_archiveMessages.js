@@ -98,8 +98,9 @@ add_task(async function test_batch_archiver() {
 
   /* We only have the first thread left */
   await toggle_thread_row(0);
-  await assert_selected_and_displayed(root2);
+  await assert_selected(root2);
   await expand_all_threads();
+  await assert_selected_and_displayed(root2);
 
   /* Archive the head of the thread, check that it still works fine */
   const child1 = await select_click_row(1);

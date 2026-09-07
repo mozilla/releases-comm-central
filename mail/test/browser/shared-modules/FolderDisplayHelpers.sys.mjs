@@ -1299,48 +1299,44 @@ export async function wait_for_all_messages_to_load(win = mc) {
  * like so:
  * ###!!! ASSERTION: Overwriting an existing document channel!
  *
- * @param {Window} [aWin] - The window in whose context to do this, defaults to
+ * @param {Window} [win] - The window in whose context to do this, defaults to
  *   the first window.
- * @param {boolean} [aLoadDemanded=false] - Should we require that we wait for
+ * @param {boolean} [loadDemanded=false] - Should we require that we wait for
  *   a message to be loaded? If you do not pass true and there is no message
  *   load in process, this method will return immediately.
  */
-export async function wait_for_message_display_completion(aWin, aLoadDemanded) {
-  let win;
+export async function wait_for_message_display_completion(win, loadDemanded) {
   await TestUtils.waitForTick();
-  if (aWin == null || aWin.document.getElementById("tabmail")) {
-    win = get_about_message();
-  } else {
-    win = aWin.document.getElementById("messageBrowser").contentWindow;
+
+  let about3Pane;
+  try {
+    about3Pane = get_about_3pane(win);
+  } catch {}
+
+  if (about3Pane?.gDBView?.getSelectedMsgHdrs().length > 1) {
+    // Displaying multiple messages.
+    return;
+  }
+  if (about3Pane?.messagePaneSplitter.isCollapsed) {
+    // Message pane hidden.
+    return;
   }
 
-  const tabmail = mc.document.getElementById("tabmail");
-  if (tabmail.currentTabInfo.mode.name == "mail3PaneTab") {
-    const about3Pane = tabmail.currentAbout3Pane;
-    if (about3Pane?.gDBView?.getSelectedMsgHdrs().length > 1) {
-      // Displaying multiple messages.
-      return;
-    }
-    if (about3Pane?.messagePaneSplitter.isCollapsed) {
-      // Message pane hidden.
-      return;
-    }
-  }
-
+  const aboutMessage = get_about_message(win);
   await TestUtils.waitForCondition(
     () =>
-      win.document.readyState == "complete" &&
-      win.location.href == "about:message"
+      aboutMessage.document.readyState == "complete" &&
+      aboutMessage.location.href == "about:message"
   );
 
-  const messagePaneBrowser = win.getMessagePaneBrowser();
-
+  const messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
   await TestUtils.waitForCondition(
     () =>
       messagePaneBrowser.webProgress?.isLoadingDocument === false &&
-      (!aLoadDemanded || messagePaneBrowser.currentURI?.spec != "about:blank"),
+      (!loadDemanded || messagePaneBrowser.currentURI?.spec != "about:blank"),
     `Timeout waiting for a message. Current location: ${messagePaneBrowser.currentURI?.spec}`
   );
+
   await TestUtils.waitForTick();
 }
 
@@ -1744,26 +1740,94 @@ async function _internal_assert_displayed(
   troller,
   desiredIndices
 ) {
+  let about3Pane, messageBrowser, multiMessageBrowser;
+  try {
+    about3Pane = get_about_3pane(troller);
+    ({ messageBrowser, multiMessageBrowser } = about3Pane);
+  } catch {}
+  const aboutMessage = get_about_message(troller);
+
   // - verify that the right thing is being displayed.
   // no selection means folder summary.
   if (desiredIndices.length == 0) {
     await wait_for_blank_content_pane(troller);
-
-    const messageWindow = get_about_message();
+    Assert.ok(
+      about3Pane,
+      "selecting zero messages can only happen in about:3pane"
+    );
+    Assert.ok(
+      BrowserTestUtils.isHidden(messageBrowser),
+      "the message browser should be hidden when zero messages are selected"
+    );
+    Assert.ok(
+      BrowserTestUtils.isHidden(multiMessageBrowser),
+      "the multi-message browser should be hidden when zero messages are selected"
+    );
 
     // folder summary is not landed yet, just verify there is no message.
-    if (messageWindow.gMessage) {
+    if (aboutMessage.gMessage) {
       throw new Error(
         "Message display should not think it is displaying a message."
       );
     }
-    // make sure the content pane is pointed at about:blank
-    const location = messageWindow.getMessagePaneBrowser()?.location;
-    if (location && location.href != "about:blank") {
-      throw new Error(
-        `the content pane should be blank, but is showing: '${location.href}'`
+  } else if (desiredIndices.length == 1) {
+    await wait_for_message_display_completion(troller);
+    if (about3Pane) {
+      Assert.ok(
+        BrowserTestUtils.isVisible(messageBrowser),
+        "the messageBrowser browser should be visible when one message is selected"
+      );
+      Assert.ok(
+        BrowserTestUtils.isHidden(multiMessageBrowser),
+        "the multi-message browser should be hidden when one message is selected"
       );
     }
+
+    const desiredMessage = get_db_view(troller).getMsgHdrAt(desiredIndices[0]);
+    Assert.equal(
+      aboutMessage.gMessage,
+      desiredMessage,
+      "about:message should have the right gMessage"
+    );
+
+    const messagePane = aboutMessage.getMessagePaneBrowser();
+    Assert.ok(
+      !messagePane.webProgress?.isLoadingDocument,
+      "message pane should have finished loading"
+    );
+    const messageService = MailServices.messageServiceFromURI(
+      desiredMessage.folder.URI
+    );
+    Assert.equal(
+      messagePane.currentURI.spec,
+      messageService.getUrlForUri(
+        desiredMessage.folder.getUriForMsg(desiredMessage)
+      ).spec,
+      "the message pane should be displaying the right message"
+    );
+  } else {
+    Assert.ok(
+      about3Pane,
+      "selecting multiple messages can only happen in about:3pane"
+    );
+    Assert.ok(
+      BrowserTestUtils.isHidden(messageBrowser),
+      "the message browser should be hidden when multiple messages are selected"
+    );
+    Assert.ok(
+      BrowserTestUtils.isVisible(multiMessageBrowser),
+      "the multiMessageBrowser browser should be visible when multiple messages are selected"
+    );
+
+    const dbView = get_db_view(troller);
+    const desiredMessages = desiredIndices.map(i => dbView.getMsgHdrAt(i));
+    const summary = multiMessageBrowser.contentWindow.gMessageSummary;
+
+    Assert.deepEqual(
+      desiredMessages.map(m => `${m.messageKey}${m.folder.URI}`).toSorted(),
+      Object.keys(summary._msgNodes).toSorted(),
+      "the selected messages should be summarised"
+    );
   }
 }
 

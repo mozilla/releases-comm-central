@@ -233,6 +233,7 @@ async function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
     await assert_tab_titled_from(tabMessageBackground, aMessage);
   }
   if (aFlags & VERIFY_MESSAGE_WINDOW) {
+    await wait_for_message_display_completion(msgc);
     Assert.equal(
       get_about_message(msgc).gMessage,
       aMessage,

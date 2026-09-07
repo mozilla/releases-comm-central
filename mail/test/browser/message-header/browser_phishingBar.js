@@ -323,7 +323,7 @@ add_task(async function test_phishing_warning_for_local_domain() {
   dialogElement.getButton("cancel").click();
   await BrowserTestUtils.windowClosed(dialogWin);
   await SimpleTest.promiseFocus();
-  await assert_displayed(-6, "message should remain displayed");
+  await assert_displayed(-6);
 
   dialogPromise = BrowserTestUtils.promiseAlertDialogOpen("accept");
   let linkPromise = MockExternalProtocolService.promiseLoad();
@@ -334,7 +334,7 @@ add_task(async function test_phishing_warning_for_local_domain() {
     "http://localhost/",
     "accept button should load localhost"
   );
-  await assert_displayed(-6, "message should remain displayed");
+  await assert_displayed(-6);
 
   dialogPromise = BrowserTestUtils.promiseAlertDialogOpen("extra1");
   linkPromise = MockExternalProtocolService.promiseLoad();
@@ -345,7 +345,7 @@ add_task(async function test_phishing_warning_for_local_domain() {
     "http://evilhost/",
     "extra1 button should load evilhost"
   );
-  await assert_displayed(-6, "message should remain displayed");
+  await assert_displayed(-6);
 });
 
 /**
