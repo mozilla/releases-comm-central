@@ -570,3 +570,97 @@ add_task(async function testNoAttachments() {
     "there should no fieldsets for attachments"
   );
 });
+
+/**
+ * Test that conditional CSS is stripped while unconditional CSS is preserved
+ * when mail.html_sanitize.drop_conditional_css is enabled.
+ */
+add_task(async function testConditionalCSSStripped() {
+  const uri = `${sampleEmailURI}?number=6`;
+  const channel = new TestMailChannel(uri);
+  const input = `Content-Type: text/html; charset=UTF-8
+
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>#foo { color: blue; } @media (min-width: 300px) { #bar { color: red; } }</style>
+      </head>
+      <body></body>
+    </html>
+  `.replaceAll(/^ {4}/gm, "");
+  const output = await convertStream(uri, channel, input);
+  const doc = new DOMParser().parseFromString(output, "text/html");
+  const sheet = doc.querySelector("style").sheet;
+
+  // 1. Unconditional CSS rule should stay regardless.
+  Assert.equal(
+    sheet.cssRules.length,
+    1,
+    "only unconditional rule should remain"
+  );
+  Assert.equal(
+    sheet.cssRules[0].cssText,
+    "#foo { color: blue; }",
+    "unconditional CSS rule should stay regardless"
+  );
+
+  // 2. Conditional CSS rule (@media) should be stripped.
+  Assert.ok(
+    ![...sheet.cssRules].some(rule => rule.type === CSSRule.MEDIA_RULE),
+    "conditional CSS rule (@media) should be stripped when pref is enabled"
+  );
+});
+
+/**
+ * Test that conditional CSS is preserved along with unconditional CSS
+ * when mail.html_sanitize.drop_conditional_css is disabled.
+ */
+add_task(async function testConditionalCSSPreservedWhenPrefDisabled() {
+  Services.prefs.setBoolPref("mail.html_sanitize.drop_conditional_css", false);
+  registerCleanupFunction(() => {
+    Services.prefs.clearUserPref("mail.html_sanitize.drop_conditional_css");
+  });
+
+  const uri = `${sampleEmailURI}?number=7`;
+  const channel = new TestMailChannel(uri);
+  const input = `Content-Type: text/html; charset=UTF-8
+
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>#foo { color: blue; } @media (min-width: 300px) { #bar { color: red; } }</style>
+      </head>
+      <body></body>
+    </html>
+  `.replaceAll(/^ {4}/gm, "");
+  const output = await convertStream(uri, channel, input);
+  const doc = new DOMParser().parseFromString(output, "text/html");
+  const sheet = doc.querySelector("style").sheet;
+
+  // 3. Unconditional CSS rule should stay regardless.
+  Assert.equal(sheet.cssRules.length, 2, "both rules should be preserved");
+  Assert.equal(
+    sheet.cssRules[0].cssText,
+    "#foo { color: blue; }",
+    "unconditional CSS rule should stay regardless when pref is disabled"
+  );
+
+  // 4. Conditional CSS rule (@media) should be preserved.
+  Assert.equal(
+    sheet.cssRules[1].type,
+    CSSRule.MEDIA_RULE,
+    "conditional CSS rule (@media) should be preserved when pref is disabled"
+  );
+  Assert.equal(
+    sheet.cssRules[1].conditionText,
+    "(min-width: 300px)",
+    "media condition should be preserved when pref is disabled"
+  );
+  Assert.equal(
+    sheet.cssRules[1].cssRules[0]?.cssText,
+    "#bar { color: red; }",
+    "nested rule inside conditional block should be preserved when pref is disabled"
+  );
+
+  Services.prefs.clearUserPref("mail.html_sanitize.drop_conditional_css");
+});

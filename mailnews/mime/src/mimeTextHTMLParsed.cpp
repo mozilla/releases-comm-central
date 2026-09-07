@@ -30,7 +30,7 @@
 #include "nsContentUtils.h"
 #include "nsGenericHTMLElement.h"
 #include "nsIDocumentEncoder.h"
-#include "nsIParserUtils.h"
+#include "nsTreeSanitizer.h"
 #include "prlog.h"
 #include "prmem.h"
 
@@ -103,6 +103,10 @@ static int MimeInlineTextHTMLParsed_parse_eof(MimeObject* obj, bool abort_p) {
     }
   }
 
+  if (mozilla::StaticPrefs::mail_html_sanitize_drop_conditional_css()) {
+    nsTreeSanitizer::RemoveConditionalCSSFromSubtree(document);
+  }
+
   // Serialize it back to HTML source again.
   nsCOMPtr<nsIDocumentEncoder> encoder = do_createDocumentEncoder("text/html");
   NS_ENSURE_TRUE(encoder, -1);
@@ -113,17 +117,7 @@ static int MimeInlineTextHTMLParsed_parse_eof(MimeObject* obj, bool abort_p) {
   rv = encoder->EncodeToString(parsed);
   NS_ENSURE_SUCCESS(rv, -1);
 
-  nsCString resultCStr;
-  if (mozilla::StaticPrefs::mail_html_sanitize_drop_conditional_css()) {
-    nsString cssCondStripped;
-    nsCOMPtr<nsIParserUtils> parserUtils =
-        do_GetService(NS_PARSERUTILS_CONTRACTID);
-    parserUtils->RemoveConditionalCSS(parsed, cssCondStripped);
-    parsed.Truncate();
-    resultCStr = NS_ConvertUTF16toUTF8(cssCondStripped);
-  } else {
-    resultCStr = NS_ConvertUTF16toUTF8(parsed);
-  }
+  nsCString resultCStr = NS_ConvertUTF16toUTF8(parsed);
 
   // Write it out.
 
