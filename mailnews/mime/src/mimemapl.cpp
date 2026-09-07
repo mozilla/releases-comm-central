@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "mimemapl.h"
-#include "prmem.h"
 #include "plstr.h"
-#include "nsMimeStringResources.h"
 #include "nsMimeTypes.h"
 
 #define MIME_SUPERCLASS mimeMultipartClass
@@ -43,58 +41,6 @@ static int MimeMultipartAppleDouble_parse_begin(MimeObject* obj) {
     NS_ASSERTION(obj->options->state->first_data_written_p,
                  "first data not written");
   }
-
-#ifdef XP_MACOSX
-  if (obj->options && obj->options->state) {
-    //  obj->options->state->separator_suppressed_p = true;
-    goto done;
-  }
-  /*
-   * It would be nice to not showing the resource fork links
-   * if we are displaying inline. But, there is no way we could
-   * know ahead of time that we could display the data fork and
-   * the data fork is always hidden on MAC platform.
-   */
-#endif
-  /* If we're writing this object as HTML, then emit a link for the
-   multipart/appledouble part (both links) that looks just like the
-   links that MimeExternalObject emits for external leaf parts.
-   */
-  if (obj->options && obj->output_p && obj->options->write_html_p &&
-      obj->options->output_fn) {
-    char* id = 0;
-    char* id_url = 0;
-    char* id_imap = 0;
-
-    id = mime_part_address(obj);
-    if (!id) return MIME_OUT_OF_MEMORY;
-    if (obj->options->missing_parts) id_imap = mime_imap_part_address(obj);
-
-    if (obj->options && obj->options->url) {
-      const char* url = obj->options->url;
-      if (id_imap && id) {
-        /* if this is an IMAP part. */
-        id_url = mime_set_url_imap_part(url, id_imap, id);
-      } else {
-        /* This is just a normal MIME part as usual. */
-        id_url = mime_set_url_part(url, id, true);
-      }
-      if (!id_url) {
-        PR_FREEIF(id_imap);
-        PR_Free(id);
-        return MIME_OUT_OF_MEMORY;
-      }
-    }
-
-    //  FAIL:
-    PR_FREEIF(id);
-    PR_FREEIF(id_url);
-    PR_FREEIF(id_imap);
-  }
-
-#ifdef XP_MACOSX
-done:
-#endif
 
   return 0;
 }
