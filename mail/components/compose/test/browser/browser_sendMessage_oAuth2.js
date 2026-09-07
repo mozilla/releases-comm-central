@@ -135,6 +135,38 @@ add_task(async function testNoAccessTokenEWS() {
 });
 
 /**
+ * Tests inline and continuation responses around the AUTH command limit.
+ */
+add_task(async function testAccessTokenLengthSMTP() {
+  try {
+    // With username "user", these produce 511- and 515-byte AUTH commands,
+    // including CRLF. Also exercise a substantially longer token.
+    for (const length of [348, 349, 2048]) {
+      const accessToken = "f7b7ced076d09618b52fd787cb4eaa30"
+        .repeat(64)
+        .slice(0, length);
+      oAuth2Server.accessToken = accessToken;
+      smtpServer.options.password = accessToken;
+      await subtestNoAccessToken(smtpIdentity, smtpOutgoingServer, smtpServer);
+      const transaction = [smtpServer.server.playTransaction()].flat().at(-1);
+      Assert.equal(
+        transaction.them.find(command => command.startsWith("AUTH ")),
+        length === 348
+          ? "AUTH XOAUTH2 " +
+              btoa(`user=user\x01auth=Bearer ${accessToken}\x01\x01`)
+          : "AUTH XOAUTH2",
+        `Use an initial response only when the ${length}-character token fits`
+      );
+      smtpOutgoingServer.closeCachedConnections();
+    }
+  } finally {
+    smtpOutgoingServer.closeCachedConnections();
+    oAuth2Server.accessToken = "access_token";
+    smtpServer.options.password = "access_token";
+  }
+});
+
+/**
  * Tests that with an expired access token, a new access token is requested.
  */
 async function subtestExpiredAccessToken(identity, outgoingServer, server) {

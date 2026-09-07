@@ -782,9 +782,26 @@ export class SmtpClient {
       case "XOAUTH2": {
         // See https://developers.google.com/gmail/xoauth2_protocol#smtp_protocol_exchange
         this.logger.debug("Authentication via AUTH XOAUTH2");
-        this._currentAction = this._actionAUTH_XOAUTH2;
         const oauthToken = await this._authenticator.getOAuthToken();
-        this._sendCommand("AUTH XOAUTH2 " + oauthToken, true);
+        const authCommand = "AUTH XOAUTH2 " + oauthToken;
+        // We keep the initial response inline if possible to save a round-trip.
+        // An initial response is subject to the 512-byte AUTH command-line limit
+        // including the mandatory CRLF, while client responses following a
+        // server challenge are independent of that limit.
+        if (authCommand.length + 2 <= 512) {
+          this._currentAction = this._actionAUTH_XOAUTH2;
+          this._sendCommand(authCommand, true);
+          return;
+        }
+        this._currentAction = command => {
+          if (command.statusCode != 334) {
+            this._actionAUTHComplete(command);
+            return;
+          }
+          this._currentAction = this._actionAUTH_XOAUTH2;
+          this._sendCommand(oauthToken, true);
+        };
+        this._sendCommand("AUTH XOAUTH2");
         return;
       }
       case "GSSAPI": {
@@ -1149,10 +1166,10 @@ export class SmtpClient {
    * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionAUTH_XOAUTH2(command) {
-    if (!command.success) {
+    if (command.statusCode == 334) {
       this.logger.warn("Error during AUTH XOAUTH2, sending empty response");
-      this._sendCommand("");
       this._currentAction = this._actionAUTHComplete;
+      this._sendCommand("");
     } else {
       this._actionAUTHComplete(command);
     }
