@@ -339,8 +339,10 @@ nsresult GenerateAttachmentData(MimeObject* object, const char* aMessageURL,
           object->content_type = strdup("text/x-moz-deleted");
         }
       }
-      if (!isExternalAttachment)
+      if (!isExternalAttachment) {
+        PR_FREEIF(urlSpec);
         urlSpec = mime_set_url_part(aMessageURL, part.get(), true);
+      }
     }
   }
 
@@ -354,6 +356,7 @@ nsresult GenerateAttachmentData(MimeObject* object, const char* aMessageURL,
 
   nsCOMPtr<nsIURI> uri;
   nsresult rv = NS_NewURI(getter_AddRefs(uri), urlSpec);
+  PR_FREEIF(urlSpec);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString query;

@@ -125,7 +125,7 @@ MimeDefClass(MimeMultipartRelated, MimeMultipartRelatedClass,
 
 class MimeHashValue {
  public:
-  MimeHashValue(MimeObject* obj, char* url) {
+  MimeHashValue(MimeObject* obj, const char* url) {
     m_obj = obj;
     m_url = strdup(url);
   }
@@ -368,6 +368,57 @@ char* MakeAbsoluteURL(char* base_url, char* relative_url) {
   return retString;
 }
 
+// Rewrites the query of `spec` to carry `child`'s content type and filename,
+// and returns the result in `result`.
+static nsresult BuildRelatedPartUrl(const char* spec, MimeObject* child,
+                                    nsACString& result) {
+  // Get the query as an URLParams object so we can safely modify it.
+  nsCOMPtr<nsIURI> uri;
+  nsresult rv = NS_NewURI(getter_AddRefs(uri), spec);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString query;
+  rv = uri->GetQuery(query);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  mozilla::URLParams params;
+  params.ParseInput(query);
+
+  // Raw MIME part channels get their content type from the URL. Include
+  // it so related resources which cannot be sniffed, such as SVG, load.
+  if (child->content_type) {
+    params.Set("type"_ns, nsDependentCString(child->content_type));
+  }
+  char* name = MimeHeaders_get_name(child->headers, child->options);
+  // let's stick the filename in the part so save as will work.
+  if (!name) {
+    // Mozilla platform code will correct the file extension
+    // when copying the embedded image. That doesn't work
+    // since our MailNews URLs don't allow setting the file
+    // extension. So provide a filename and valid extension.
+    char* ct =
+        MimeHeaders_get(child->headers, HEADER_CONTENT_TYPE, false, false);
+    if (ct) {
+      name = ct;
+      char* slash = strchr(name, '/');
+      if (slash) *slash = '.';
+      char* semi = strchr(name, ';');
+      if (semi) *semi = 0;
+    }
+  }
+  if (name) {
+    params.Set("filename"_ns, nsCString(name));
+    PR_Free(name);
+  }
+
+  // Update the query and convert the URI back to a string.
+  params.Serialize(query, true);
+  rv = NS_MutateURI(uri).SetQuery(query).Finalize(getter_AddRefs(uri));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return uri->GetSpec(result);
+}
+
 static bool MimeMultipartRelated_output_child_p(MimeObject* obj,
                                                 MimeObject* child) {
   MimeMultipartRelated* relobj = (MimeMultipartRelated*)obj;
@@ -414,6 +465,7 @@ static bool MimeMultipartRelated_output_child_p(MimeObject* obj,
     if (absolute) {
       nsAutoCString partnum;
       nsAutoCString imappartnum;
+      char* part = nullptr;
       partnum.Adopt(mime_part_address(child));
       if (!partnum.IsEmpty()) {
         if (obj->options->missing_parts) {
@@ -430,7 +482,6 @@ static bool MimeMultipartRelated_output_child_p(MimeObject* obj,
         if (mime_typep(child, (MimeObjectClass*)&mimeMultipartAppleDoubleClass))
           partnum.AppendLiteral(".2");
 
-        char* part;
         if (!imappartnum.IsEmpty())
           part = mime_set_url_imap_part(obj->options->url, imappartnum.get(),
                                         partnum.get());
@@ -446,101 +497,56 @@ static bool MimeMultipartRelated_output_child_p(MimeObject* obj,
           } else
             part = mime_set_url_part(obj->options->url, partnum.get(), false);
         }
+      }
 
-        if (part) {
-          // Get the query as an URLParams object so we can safely modify it.
-          nsCOMPtr<nsIURI> uri;
-          nsresult rv = NS_NewURI(getter_AddRefs(uri), part);
-          NS_ENSURE_SUCCESS(rv, true);
-
-          nsAutoCString query;
-          rv = uri->GetQuery(query);
-          NS_ENSURE_SUCCESS(rv, true);
-
-          mozilla::URLParams params;
-          params.ParseInput(query);
-
-          // Raw MIME part channels get their content type from the URL. Include
-          // it so related resources which cannot be sniffed, such as SVG, load.
-          if (child->content_type) {
-            params.Set("type"_ns, nsCString(child->content_type));
-          }
-          char* name = MimeHeaders_get_name(child->headers, child->options);
-          // let's stick the filename in the part so save as will work.
-          if (!name) {
-            // Mozilla platform code will correct the file extension
-            // when copying the embedded image. That doesn't work
-            // since our MailNews URLs don't allow setting the file
-            // extension. So provide a filename and valid extension.
-            char* ct = MimeHeaders_get(child->headers, HEADER_CONTENT_TYPE,
-                                       false, false);
-            if (ct) {
-              name = ct;
-              char* slash = strchr(name, '/');
-              if (slash) *slash = '.';
-              char* semi = strchr(name, ';');
-              if (semi) *semi = 0;
-            }
-          }
-          if (name) {
-            params.Set("filename"_ns, nsCString(name));
-          }
-
-          // Update the query and convert the URI back to a string.
-          params.Serialize(query, true);
-          rv = NS_MutateURI(uri).SetQuery(query).Finalize(getter_AddRefs(uri));
-          NS_ENSURE_SUCCESS(rv, true);
-
-          nsAutoCString spec;
-          rv = uri->GetSpec(spec);
-          NS_ENSURE_SUCCESS(rv, true);
-
-          part = strdup(spec.get());
-
-          char* temp = part;
-          MimeHashValue* value = new MimeHashValue(child, temp);
-          PL_HashTableAdd(relobj->hash, absolute, value);
-
-          /* rhp - If this part ALSO has a Content-ID we need to put that into
-                   the hash table and this is what this code does
-           */
-          {
-            char* tloc;
-            char* tmp = MimeHeaders_get(child->headers, HEADER_CONTENT_ID,
-                                        false, false);
-            if (tmp) {
-              char* tmp2 = tmp;
-              if (*tmp2 == '<') {
-                int length;
-                tmp2++;
-                length = strlen(tmp2);
-                if (length > 0 && tmp2[length - 1] == '>') {
-                  tmp2[length - 1] = '\0';
-                }
-              }
-
-              tloc = PR_smprintf("cid:%s", tmp2);
-              PR_Free(tmp);
-              if (tloc) {
-                MimeHashValue* value;
-                value = (MimeHashValue*)PL_HashTableLookup(relobj->hash, tloc);
-
-                if (!value) {
-                  value = new MimeHashValue(child, temp);
-                  PL_HashTableAdd(relobj->hash, tloc, value);
-                } else
-                  PR_smprintf_free(tloc);
-              }
-            }
-          }
-          /*  rhp - End of putting more stuff into the hash table */
-
-          /* it's possible that temp pointer is the same than the part
-             pointer, therefore be careful to not freeing twice the same
-             pointer */
-          if (temp && temp != part) PR_Free(temp);
-          PR_Free(part);
+      if (part) {
+        nsAutoCString spec;
+        nsresult rv = BuildRelatedPartUrl(part, child, spec);
+        PR_Free(part);
+        if (NS_FAILED(rv)) {
+          PR_Free(absolute);
+          return true;
         }
+
+        MimeHashValue* value = new MimeHashValue(child, spec.get());
+        PL_HashTableAdd(relobj->hash, absolute, value);
+
+        /* rhp - If this part ALSO has a Content-ID we need to put that into
+                 the hash table and this is what this code does
+         */
+        {
+          char* tloc;
+          char* tmp =
+              MimeHeaders_get(child->headers, HEADER_CONTENT_ID, false, false);
+          if (tmp) {
+            char* tmp2 = tmp;
+            if (*tmp2 == '<') {
+              int length;
+              tmp2++;
+              length = strlen(tmp2);
+              if (length > 0 && tmp2[length - 1] == '>') {
+                tmp2[length - 1] = '\0';
+              }
+            }
+
+            tloc = PR_smprintf("cid:%s", tmp2);
+            PR_Free(tmp);
+            if (tloc) {
+              MimeHashValue* value;
+              value = (MimeHashValue*)PL_HashTableLookup(relobj->hash, tloc);
+
+              if (!value) {
+                value = new MimeHashValue(child, spec.get());
+                PL_HashTableAdd(relobj->hash, tloc, value);
+              } else
+                PR_smprintf_free(tloc);
+            }
+          }
+        }
+        /*  rhp - End of putting more stuff into the hash table */
+      } else {
+        // Nothing took ownership of `absolute`.
+        PR_Free(absolute);
       }
     }
   } else {
