@@ -51,24 +51,6 @@ NS_IMETHODIMP nsImapFlagAndUidState::SetMessageFlags(int32_t zeroBasedIndex,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapFlagAndUidState::GetNumberOfRecentMessages(
-    int32_t* result) {
-  if (!result) return NS_ERROR_NULL_POINTER;
-
-  PR_CEnterMonitor(this);
-  uint32_t counter = 0;
-  int32_t numUnseenMessages = 0;
-
-  for (counter = 0; counter < fUids.Length(); counter++) {
-    if (fFlags[counter] & kImapMsgRecentFlag) numUnseenMessages++;
-  }
-  PR_CExitMonitor(this);
-
-  *result = numUnseenMessages;
-
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsImapFlagAndUidState::GetPartialUIDFetch(
     bool* aPartialUIDFetch) {
   NS_ENSURE_ARG_POINTER(aPartialUIDFetch);

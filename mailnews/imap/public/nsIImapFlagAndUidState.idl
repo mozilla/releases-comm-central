@@ -9,7 +9,6 @@
 interface nsIImapFlagAndUidState : nsISupports
 {
   readonly attribute long numberOfMessages;
-  readonly attribute long numberOfRecentMessages;
 
   /**
    * If a full update, the total number of deleted messages
