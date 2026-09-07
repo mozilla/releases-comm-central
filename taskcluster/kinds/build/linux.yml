@@ -4,7 +4,7 @@
 ---
 task-defaults:
     run-on-repo-type: [hg]
-    worker-type: b-linux
+    worker-type: b-linux-docker-amd
     run:
         using: mozharness
         comm-checkout: true

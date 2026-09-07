@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
 task-defaults:
+    worker-type: b-linux-docker-amd
     run-on-repo-type: [hg]
     run:
         using: mozharness
@@ -29,7 +30,6 @@ win32/opt:
         platform: windows2012-32/opt
         symbol: B
         tier: 1
-    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -84,7 +84,6 @@ win32-shippable/opt:
         platform: windows2012-32-shippable/opt
         symbol: B
         tier: 1
-    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -135,7 +134,6 @@ win32/debug:
         platform: windows2012-32/debug
         symbol: B
         tier: 1
-    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -186,7 +184,6 @@ win64/opt:
         platform: windows2012-64/opt
         symbol: B
         tier: 1
-    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -298,7 +295,6 @@ win64-shippable/opt:
         platform: windows2012-64-shippable/opt
         symbol: B
         tier: 1
-    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -409,7 +405,6 @@ win64/debug:
         platform: windows2012-64/debug
         symbol: B
         tier: 1
-    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -602,7 +597,6 @@ win64-asan/opt:
         platform: windows2012-64/asan
         symbol: Bo
         tier: 1
-    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -716,7 +710,6 @@ win64-aarch64/debug:
         platform: windows2012-aarch64/debug
         symbol: B
         tier: 1
-    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -821,7 +814,6 @@ win64-aarch64/opt:
         platform: windows2012-aarch64/opt
         symbol: B
         tier: 1
-    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -931,7 +923,6 @@ win64-aarch64-shippable/opt:
         platform: windows2012-aarch64-shippable/opt
         symbol: B
         tier: 1
-    worker-type: b-linux
     worker:
         max-run-time: 9000
         env:

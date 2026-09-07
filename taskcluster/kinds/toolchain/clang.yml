@@ -15,7 +15,7 @@ task-defaults:
             - 'build/build-clang/build-clang.py'
     worker:
         max-run-time: 7200
-    worker-type: b-linux
+    worker-type: b-linux-docker-amd
 
 
 # The clang compilers defined below are the same as what's defined in

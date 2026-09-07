@@ -6,7 +6,7 @@ task-defaults:
     run-on-repo-type: [hg]
     index:
         product: thunderbird
-    worker-type: b-linux
+    worker-type: b-linux-docker-amd
     worker:
         artifacts:
             - name: public/build/security/browser.xml

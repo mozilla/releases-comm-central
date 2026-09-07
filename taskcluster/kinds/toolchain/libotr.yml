@@ -6,7 +6,7 @@
 task-defaults:
     run-on-repo-type: [hg]
     description: 'libotr library build'
-    worker-type: b-linux
+    worker-type: b-linux-docker-amd
     worker:
         max-run-time: 1800
     treeherder:

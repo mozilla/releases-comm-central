@@ -17,6 +17,7 @@ transforms:
 
 task-defaults:
     run-on-repo-type: [hg]
+    worker-type: b-linux-docker-large-amd
     index:
         product: thunderbird
     treeherder:
@@ -34,7 +35,6 @@ tasks:
             job-name: linux64-searchfox-debug
         treeherder:
             platform: linux64/debug
-        worker-type: b-linux
         worker:
             max-run-time: 36000
             env:
@@ -73,7 +73,6 @@ tasks:
             job-name: macosx64-searchfox-debug
         treeherder:
             platform: osx-cross/debug
-        worker-type: b-linux
         worker:
             max-run-time: 36000
             env:
@@ -115,7 +114,6 @@ tasks:
             job-name: win64-searchfox-debug
         treeherder:
             platform: windows2012-64/debug
-        worker-type: b-linux
         worker:
             max-run-time: 36000
             env:
