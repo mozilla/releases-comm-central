@@ -9,6 +9,7 @@ transforms:
     - comm_taskgraph.transforms.enterprise:rewrite_shipping_phase
     - gecko_taskgraph.transforms.name_sanity
     - gecko_taskgraph.transforms.repackage
+    - comm_taskgraph.transforms.enterprise:maybe_repackage_routes
     - gecko_taskgraph.transforms.job
     - gecko_taskgraph.transforms.task
 

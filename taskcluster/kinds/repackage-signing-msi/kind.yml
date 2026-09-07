@@ -8,6 +8,7 @@ transforms:
     - taskgraph.transforms.from_deps
     - gecko_taskgraph.transforms.name_sanity
     - gecko_taskgraph.transforms.repackage_signing
+    - comm_taskgraph.transforms.enterprise:maybe_repackage_routes
     - gecko_taskgraph.transforms.task
 
 kind-dependencies:
