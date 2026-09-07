@@ -52,6 +52,7 @@ Thunderbird Source Tree Documentation
    /backend/folder_storage
    /backend/message_database
    /panorama/index
+   /backend/message_display
 
 .. toctree::
    :caption: Address Book
