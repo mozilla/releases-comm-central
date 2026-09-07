@@ -89,7 +89,7 @@ class ATNUploader:
         data = {"channel": self.langpack_channel}
 
         url = ATN_UPLOAD_URL.format(version=self.langpack_version, langcode=locale)
-        with requests.put(url, files=file, data=data, headers=headers, verify=False) as resp:
+        with requests.put(url, files=file, data=data, headers=headers, timeout=120) as resp:
             if not resp.ok:
                 print_line(f"Failed {locale}")
 
@@ -129,7 +129,7 @@ def get_secret(name: str) -> Tuple[ApiParam, ApiParam]:
             f"{taskcluster_url}/secrets/v1/secret/project/comm/thunderbird/releng"
             f"/build/level-{level}/{name}"
         )
-        res = requests.get(secrets_url)
+        res = requests.get(secrets_url, timeout=30)
         res.raise_for_status()
         secret = res.json()
     elif "SECRET_FILE" in os.environ:  # For local dev/debug
