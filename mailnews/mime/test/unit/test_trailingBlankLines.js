@@ -292,6 +292,39 @@ for (const flowed of [false, true]) {
   add_task(task);
 }
 
+add_task(async function test_html_as_plaintext_leading_empty_line() {
+  Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers", 1);
+  const raw =
+    `From: ${SENDER}\r\n` +
+    `To: ${RECIPIENT}\r\n` +
+    "Subject: HTML as plaintext leading blank line test\r\n" +
+    "MIME-Version: 1.0\r\n" +
+    "Content-Type: text/html; charset=UTF-8\r\n" +
+    "\r\n" +
+    "<p><br>First line of email.</p>\r\n" +
+    "<p>Second line of email.</p>\r\n" +
+    "<br>\r\n".repeat(50);
+
+  const html = await streamMessage(raw, true);
+  const body = renderedBody(html, false);
+  Assert.stringContains(
+    body,
+    "First line of email.",
+    "the HTML body converted to plaintext is rendered"
+  );
+  Assert.stringContains(
+    body,
+    "Second line of email.",
+    "the second line is rendered"
+  );
+  Assert.equal(
+    trailingBreaks(html, false),
+    1,
+    "the trailing blank lines in converted HTML collapse to a single break"
+  );
+});
+
 registerCleanupFunction(() => {
   Services.prefs.clearUserPref("mail.body_sanitize_trailing_blank_lines");
+  Services.prefs.clearUserPref("mailnews.display.disallow_mime_handlers");
 });

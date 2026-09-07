@@ -2,26 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* TODO:
-  - If you Save As File .html with this mode, you get a total mess.
-  - Print is untested (crashes in all modes).
-*/
 /* If you fix a bug here, check, if the same is also in mimethsa, because that
    class is based on this class. */
 
 #include "mimethpl.h"
+#include <string_view>
 #include "prlog.h"
 #include "mimemoz2.h"
 #include "nsString.h"
 #include "nsIDocumentEncoder.h"  // for output flags
 
 #define MIME_SUPERCLASS mimeInlineTextPlainClass
-/* I should use the Flowed class as base (because our HTML->TXT converter
-   can generate flowed, and we tell it to) - this would get a bit nicer
-   rendering. However, that class is more picky about line endings
-   and I currently don't feel like splitting up the generated plaintext
-   into separate lines again. So, I just throw the whole message at once
-   at the TextPlain_parse_line function - it happens to work *g*. */
 MimeDefClass(MimeInlineTextHTMLAsPlaintext, MimeInlineTextHTMLAsPlaintextClass,
              mimeInlineTextHTMLAsPlaintextClass, &MIME_SUPERCLASS);
 
@@ -81,10 +72,28 @@ static int MimeInlineTextHTMLAsPlaintext_parse_eof(MimeObject* obj,
     HTML2Plaintext(cb, asPlaintext, flags, 80);
 
     NS_ConvertUTF16toUTF8 resultCStr(asPlaintext);
-    // TODO parse each line independently
-    status =
-        ((MimeObjectClass*)&MIME_SUPERCLASS)
-            ->parse_line(resultCStr.BeginWriting(), resultCStr.Length(), obj);
+    // We parse each line independently including its line terminator to allow
+    // for smooth further processing, such as our trailing empty line collapse.
+    std::string_view text(resultCStr.get(), resultCStr.Length());
+
+    while (!text.empty()) {
+      size_t eol = text.find_first_of("\r\n");
+      size_t lineLen = text.size();
+      if (eol != std::string_view::npos) {
+        lineLen = (text[eol] == '\r' && eol + 1 < text.size() &&
+                   text[eol + 1] == '\n')
+                      ? eol + 2
+                      : eol + 1;
+      }
+      status =
+          ((MimeObjectClass*)&MIME_SUPERCLASS)
+              ->parse_line(text.data(), static_cast<int32_t>(lineLen), obj);
+      if (status < 0) {
+        cb.Truncate();
+        return status;
+      }
+      text.remove_prefix(lineLen);
+    }
     cb.Truncate();
   }
 
