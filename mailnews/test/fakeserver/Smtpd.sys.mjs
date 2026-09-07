@@ -194,7 +194,7 @@ export class SMTP_RFC2821_handler {
     this._nextAuthFunction = this.authLOGINUsername;
     this._multiline = true;
 
-    return "334 " + btoa("Username:");
+    return "334 " + (this.kLoginUserChallenge ?? btoa("Username:"));
   }
   authLOGINUsername(line) {
     var req = AuthLOGIN.decodeLine(line);
@@ -205,7 +205,7 @@ export class SMTP_RFC2821_handler {
       this._nextAuthFunction = this.authLOGINBadUsername;
     }
     this._multiline = true;
-    return "334 " + btoa("Password:");
+    return "334 " + (this.kLoginPassChallenge ?? btoa("Password:"));
   }
   authLOGINBadUsername() {
     if (this.dropOnAuthFailure) {

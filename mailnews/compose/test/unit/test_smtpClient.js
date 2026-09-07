@@ -331,3 +331,144 @@ add_task(async function testTransientFailureRetryPerMessage() {
     "second message gets its own retry"
   );
 });
+
+/**
+ * Test that AUTH LOGIN completes successfully with arbitrary challenge strings.
+ */
+add_task(async function testAuthLoginChallenges() {
+  const challengePairs = [
+    {
+      userChallenge: "dXNlcm5hbWU6",
+      passChallenge: "cGFzc3dvcmQ6",
+      label: "lowercase",
+    },
+    {
+      userChallenge: "DXNLCM5HBWU6",
+      passChallenge: "UGFzc3dvcmQ6",
+      label: "uppercased-base64",
+    },
+    {
+      userChallenge: btoa("User Name"),
+      passChallenge: btoa("Password"),
+      label: "draft-standard",
+    },
+    {
+      userChallenge: btoa("Custom challenge"),
+      passChallenge: btoa("Custom secret"),
+      label: "arbitrary",
+    },
+    // A bare "334 " without challenge strings.
+    {
+      userChallenge: "",
+      passChallenge: "",
+      label: "bare",
+    },
+  ];
+
+  for (const { userChallenge, passChallenge, label } of challengePairs) {
+    const authServer = setupServerDaemon(d => {
+      const handler = new SMTP_RFC2821_handler(d);
+      handler.kUsername = "testuser";
+      handler.kPassword = "testpassword";
+      handler.kAuthRequired = true;
+      handler.kAuthSchemes = ["LOGIN"];
+      handler.kLoginUserChallenge = userChallenge;
+      handler.kLoginPassChallenge = passChallenge;
+      return handler;
+    });
+    authServer.start();
+
+    const smtpServer = getBasicSmtpServer(authServer.port);
+    smtpServer.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
+    smtpServer.username = "testuser";
+    smtpServer.password = "testpassword";
+    const identity = getSmtpIdentity("identity@example.invalid", smtpServer);
+
+    const listener = new PromiseTestUtils.PromiseMsgOutgoingListener();
+    smtpServer.sendMailMessage(
+      do_get_file("data/message1.eml"),
+      MailServices.headerParser.parseEncodedHeaderW(
+        "recipient@example.invalid"
+      ),
+      [],
+      identity,
+      "sender@example.invalid",
+      null,
+      null,
+      false,
+      `<login-${label.replace(/\s+/g, "-")}@example.invalid>`,
+      listener
+    );
+
+    await listener.promise;
+
+    do_check_transaction(authServer.playTransaction(), [
+      "EHLO test",
+      "AUTH LOGIN",
+      "MAIL FROM:<sender@example.invalid> BODY=8BITMIME SIZE=159",
+      "RCPT TO:<recipient@example.invalid>",
+      "DATA",
+    ]);
+
+    smtpServer.closeCachedConnections();
+    authServer.stop();
+  }
+});
+
+/**
+ * Test that AUTH LOGIN handles a non-334 server error response (e.g. 535).
+ */
+add_task(async function testAuthLoginFailure() {
+  /**
+   * SMTP handler that rejects AUTH LOGIN with a 535 error response.
+   */
+  class FailHandler extends SMTP_RFC2821_handler {
+    authLOGINStart() {
+      return "535 5.7.8 Authentication credentials invalid";
+    }
+  }
+
+  const authServer = setupServerDaemon(d => {
+    const handler = new FailHandler(d);
+    handler.kUsername = "testuser";
+    handler.kPassword = "testpassword";
+    handler.kAuthRequired = true;
+    handler.kAuthSchemes = ["LOGIN"];
+    return handler;
+  });
+  authServer.start();
+
+  const smtpServer = getBasicSmtpServer(authServer.port);
+  smtpServer.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
+  smtpServer.username = "testuser";
+  smtpServer.password = "testpassword";
+  const identity = getSmtpIdentity("identity@example.invalid", smtpServer);
+
+  const listener = new PromiseTestUtils.PromiseMsgOutgoingListener();
+  smtpServer.sendMailMessage(
+    null,
+    [],
+    [],
+    identity,
+    "sender@example.invalid",
+    null,
+    null,
+    false,
+    "<login-fail-535@example.invalid>",
+    listener
+  );
+
+  await Assert.rejects(
+    listener.promise,
+    err => err.message == Cr.NS_ERROR_FAILURE,
+    "sendMailMessage should reject with NS_ERROR_FAILURE on 535 response"
+  );
+
+  do_check_transaction(authServer.playTransaction(), [
+    "EHLO test",
+    "AUTH LOGIN",
+  ]);
+
+  smtpServer.closeCachedConnections();
+  authServer.stop();
+});

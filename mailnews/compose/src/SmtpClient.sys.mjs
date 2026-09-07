@@ -1097,7 +1097,7 @@ export class SmtpClient {
    * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionAUTH_LOGIN_USER(command) {
-    if (command.statusCode !== 334 || command.data !== "VXNlcm5hbWU6") {
+    if (command.statusCode !== 334) {
       this._onNsError("smtpAuthFailure", command.data);
       return;
     }
@@ -1114,10 +1114,7 @@ export class SmtpClient {
    *   the server.
    */
   _actionAUTH_LOGIN_PASS(command) {
-    if (
-      command.statusCode !== 334 ||
-      (command.data !== btoa("Password:") && command.data !== btoa("password:"))
-    ) {
+    if (command.statusCode !== 334) {
       this._onNsError("smtpAuthFailure", command.data);
       return;
     }
