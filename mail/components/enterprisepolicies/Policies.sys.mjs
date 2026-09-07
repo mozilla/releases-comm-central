@@ -1868,7 +1868,8 @@ if (AppConstants.MOZ_ENTERPRISE) {
               Ci.nsIPermissionManager.EXPIRE_POLICY
             );
           } catch (ex) {
-            lazy.log.error(
+            lazy.reportFailure(
+              "Cookies",
               `Unable to add cookie session permission - ${origin.href}`
             );
           }
@@ -2105,10 +2106,11 @@ if (AppConstants.MOZ_ENTERPRISE) {
               lazy.installAddonFromURL(
                 extensionSettings[extensionID].install_url,
                 extensionID,
-                existingAddon
+                existingAddon,
+                "ExtensionSettings"
               );
             } else if (!existingAddon) {
-              lazy.installAddonFromRepository(extensionID);
+              lazy.installAddonFromRepository(extensionID, "ExtensionSettings");
             }
             manager.disallowFeature(`uninstall-extension:${extensionID}`);
             if (
@@ -2344,14 +2346,16 @@ if (AppConstants.MOZ_ENTERPRISE) {
 
       for (const preference in param) {
         if (blockedPrefs.includes(preference)) {
-          lazy.log.error(
+          lazy.reportFailure(
+            "Preferences",
             `Unable to set preference ${preference}. Preference not allowed for security reasons.`
           );
           continue;
         }
         if (preference.startsWith("security.")) {
           if (!allowedSecurityPrefs.includes(preference)) {
-            lazy.log.error(
+            lazy.reportFailure(
+              "Preferences",
               `Unable to set preference ${preference}. Preference not allowed for security reasons.`
             );
             continue;
@@ -2359,14 +2363,24 @@ if (AppConstants.MOZ_ENTERPRISE) {
         } else if (
           !allowedPrefixes.some(prefix => preference.startsWith(prefix))
         ) {
-          lazy.log.error(
+          lazy.reportFailure(
+            "Preferences",
             `Unable to set preference ${preference}. Preference not allowed for stability reasons.`
           );
           continue;
         }
         if (typeof param[preference] != "object") {
           // Legacy policy preferences
-          lazy.PoliciesUtils.setAndLockPref(preference, param[preference]);
+          try {
+            lazy.PoliciesUtils.setAndLockPref(preference, param[preference]);
+          } catch (e) {
+            // Keep going so that one bad preference doesn't discard the
+            // preferences that come after it.
+            lazy.reportFailure(
+              "Preferences",
+              lazy.describePreferenceFailure(preference, param[preference], e)
+            );
+          }
         } else {
           if (param[preference].Status == "clear") {
             Services.prefs.clearUserPref(preference);
@@ -2413,8 +2427,13 @@ if (AppConstants.MOZ_ENTERPRISE) {
                 break;
             }
           } catch (e) {
-            lazy.log.error(
-              `Unable to set preference ${preference}. Probable type mismatch.`
+            lazy.reportFailure(
+              "Preferences",
+              lazy.describePreferenceFailure(
+                preference,
+                param[preference].Value,
+                e
+              )
             );
           }
 
