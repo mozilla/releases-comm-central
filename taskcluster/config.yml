@@ -360,8 +360,6 @@ mac-signing:
                       - "/Contents/MacOS/XUL"
                       - "/Contents/MacOS/pingsender"
                       - "/Contents/MacOS/*.dylib"
-                      - "/Contents/MacOS/rnp-cli"
-                      - "/Contents/MacOS/rnpkeys"
                       - "/Contents/Frameworks/ChannelPrefs.framework"
 
                 - deep: false
@@ -410,8 +408,6 @@ mac-signing:
                       - "/Contents/Library/LaunchServices/org.mozilla.updater"
                       - "/Contents/Library/Spotlight/thunderbird.mdimporter"
                       - "/Contents/MacOS/pingsender"
-                      - "/Contents/MacOS/rnp-cli"
-                      - "/Contents/MacOS/rnpkeys"
                       - "/Contents/Frameworks/ChannelPrefs.framework"
 
                 - deep: false
