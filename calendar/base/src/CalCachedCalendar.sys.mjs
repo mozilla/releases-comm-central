@@ -121,6 +121,7 @@ export function calCachedCalendar(uncachedCalendar) {
   }
   this.offlineCachedItems = {};
   this.offlineCachedItemFlags = {};
+  this.mPendingUidConflicts = [];
 }
 
 calCachedCalendar.prototype = {
@@ -324,6 +325,7 @@ calCachedCalendar.prototype = {
         };
         this.mUncachedCalendar.replayChangesOn(opListener);
       });
+      await this.applyPendingUidConflicts();
       return;
     }
 
@@ -435,6 +437,7 @@ calCachedCalendar.prototype = {
     this.offlineCachedItems = {};
     this.offlineCachedItemFlags = {};
     await this.playbackOfflineItems();
+    await this.applyPendingUidConflicts();
     clearPending();
   },
 
@@ -526,7 +529,12 @@ calCachedCalendar.prototype = {
           await uncachedOp(item);
         } catch (e) {
           error = e;
-          lazy.log.error(
+          // A create rejected for a UID the server already owns is recovered
+          // below; keep that at debug.
+          const expected =
+            aPlaybackType == Ci.calIChangeLog.OFFLINE_FLAG_CREATED_RECORD &&
+            e.result == Ci.calIErrors.UID_CONFLICT;
+          lazy.log[expected ? "debug" : "error"](
             "[calCachedCalendar] Could not perform playback operation " +
               debugOp +
               " for item " +
@@ -541,6 +549,17 @@ calCachedCalendar.prototype = {
           } else {
             storage.resetItemOfflineFlag(item);
           }
+        } else if (
+          aPlaybackType == Ci.calIChangeLog.OFFLINE_FLAG_CREATED_RECORD &&
+          error.result == Ci.calIErrors.UID_CONFLICT
+        ) {
+          // The server already holds this UID; the create cannot ever succeed.
+          // Remember our copy so applyPendingUidConflicts() can transfer the
+          // response onto the server's copy once the next sync has fetched it.
+          if (!self.mPendingUidConflicts.some(pending => pending.id == item.id)) {
+            self.mPendingUidConflicts.push(item);
+          }
+          storage.resetItemOfflineFlag(item);
         } else {
           // If the playback action could not be performed, then there
           // is no need for further action. The item still has the
@@ -583,6 +602,61 @@ calCachedCalendar.prototype = {
       );
       // start the first operation
       await popItemQueue();
+    }
+  },
+
+  /**
+   * Transfer the responses of offline-created invitation replies whose
+   * playback collided with the server's own copy (see popItemQueue) onto that
+   * copy, which the just-finished sync has fetched. Uses the regular
+   * modifyItem path, so the server and the cache are updated like for any
+   * other modification.
+   */
+  async applyPendingUidConflicts() {
+    const pending = this.mPendingUidConflicts;
+    this.mPendingUidConflicts = [];
+    for (const offlineItem of pending) {
+      try {
+        const offlineAttendee = cal.itip.getInvitedAttendee(offlineItem, this);
+        const partStat = offlineAttendee?.participationStatus;
+        if (!partStat) {
+          continue;
+        }
+        const serverItem = await this.mCachedCalendar.getItem(offlineItem.id);
+        if (!serverItem) {
+          // Not fetched yet; try again after the next sync.
+          this.mPendingUidConflicts.push(offlineItem);
+          continue;
+        }
+        let attendee = cal.itip.getInvitedAttendee(serverItem, this);
+        if (!attendee || attendee.participationStatus == partStat) {
+          continue;
+        }
+        if (
+          attendee.participationStatus != "NEEDS-ACTION" ||
+          (!this.getProperty("itip.disableRevisionChecks") &&
+            cal.itip.compareSequence(offlineItem, serverItem) != 0)
+        ) {
+          // Answered elsewhere or a newer SEQUENCE; the server copy wins. The
+          // DTSTAMP is ignored so a reply from another attendee, which the
+          // server writes into its copy, does not discard our response.
+          lazy.log.warn(
+            `[calCachedCalendar] discarding offline response for ${offlineItem.id}, the server copy changed`
+          );
+          continue;
+        }
+        const changedItem = serverItem.clone();
+        changedItem.removeAttendee(attendee);
+        attendee = attendee.clone();
+        attendee.participationStatus = partStat;
+        changedItem.addAttendee(attendee);
+        await this.modifyItem(changedItem, serverItem);
+      } catch (e) {
+        lazy.log.warn(
+          `[calCachedCalendar] applying offline response for ${offlineItem.id} failed: ${e}`
+        );
+        this.mPendingUidConflicts.push(offlineItem);
+      }
     }
   },
 
@@ -737,7 +811,9 @@ calCachedCalendar.prototype = {
       // cached calendar's "onAddItem" event firing before the endBatch() call of
       // the uncached calendar.
       // @implements {OnOperationCompleteHandler}
+      let callbackRan = false;
       const adoptItemCallback = async (calendar, status, opType, id, detail) => {
+        callbackRan = true;
         if (isUnavailableCode(status)) {
           // The item couldn't be added to the (remote) location,
           // this is like being offline. Add the item to the cached
@@ -758,6 +834,11 @@ calCachedCalendar.prototype = {
 
       this.mUncachedCalendar.wrappedJSObject._cachedAdoptItemCallback = adoptItemCallback;
       this.mUncachedCalendar.adoptItem(item).catch(e => {
+        // The provider runs the callback itself before it rejects, so without
+        // this the rejection would run it a second time.
+        if (callbackRan) {
+          return;
+        }
         adoptItemCallback(
           item.calendar,
           e.result || Cr.NS_ERROR_FAILURE,

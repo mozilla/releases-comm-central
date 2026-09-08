@@ -43,9 +43,21 @@ export var CalDAVServer = {
   items: new Map(),
   deletedItems: new Map(),
   changeCount: 0,
+  requestCount: 0,
   server: null,
   isOpen: false,
   canDoSyncCollection: true,
+
+  /**
+   * When set, a PUT that creates a new resource (If-None-Match: *) is rejected
+   * if another resource in the collection already uses the same iCalendar UID,
+   * mimicking servers that enforce UID uniqueness (RFC 4791
+   * CALDAV:no-uid-conflict). The value selects the shape of the rejection:
+   * "sabre400" (Nextcloud), "radicale409", "sogo409", "precondition409href" or
+   * "plain412" (the copy already sits at the requested URI).
+   * See _writeUidConflict(). When null, duplicate UIDs are accepted.
+   */
+  conflictResponseStyle: null,
 
   /**
    * The "current-user-privilege-set" in responses. Set to null to have no privilege set.
@@ -69,6 +81,7 @@ export var CalDAVServer = {
     this.deletedItems.clear();
     this.changeCount = 0;
     this.privileges = "<d:privilege><d:all/></d:privilege>";
+    this.conflictResponseStyle = null;
     this.resetHandlers();
   },
 
@@ -113,6 +126,7 @@ export var CalDAVServer = {
   },
 
   checkAuth(request, response) {
+    this.requestCount++;
     logger.log(`Checking authorization for ${request.method} ${request.path}`);
 
     if (!request.hasHeader("Authorization")) {
@@ -611,13 +625,102 @@ export var CalDAVServer = {
       }
     }
 
+    const ics = CommonUtils.readBytesFromInputStream(request.bodyInputStream);
+
+    if (
+      this.conflictResponseStyle &&
+      request.hasHeader("If-None-Match") &&
+      request.getHeader("If-None-Match") == "*"
+    ) {
+      const uid = this._extractUid(ics);
+      for (const [path, item] of this.items) {
+        if (path != request.path && uid && this._extractUid(item.ics) == uid) {
+          this._writeUidConflict(response, path);
+          return;
+        }
+      }
+    }
+
     response.processAsync();
 
-    const ics = CommonUtils.readBytesFromInputStream(request.bodyInputStream);
     await this.putItemInternal(request.path, ics);
     response.setStatusLine("1.1", 204, "No Content");
 
     response.finish();
+  },
+
+  /**
+   * Write a UID-conflict rejection in the shape selected by
+   * `conflictResponseStyle`, to exercise the client's layered detection:
+   *   - "sabre400": Nextcloud/SabreDAV's non-conformant bare 400.
+   *   - "radicale409": Radicale's 409 + CALDAV:no-uid-conflict element.
+   *   - "sogo409": SOGo's 409 + plain DAV:error (no precondition element).
+   *   - "precondition409href": 409 + the element including the DAV:href.
+   *
+   * @param {nsIHttpResponse} response
+   * @param {string} conflictPath - Path of the existing conflicting resource.
+   */
+  _writeUidConflict(response, conflictPath) {
+    response.setHeader("Content-Type", "application/xml; charset=utf-8");
+    switch (this.conflictResponseStyle) {
+      case "radicale409":
+        response.setStatusLine("1.1", 409, "Conflict");
+        response.write(
+          `<?xml version="1.0" encoding="utf-8"?>\n` +
+            `<error xmlns="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav"><C:no-uid-conflict /></error>`
+        );
+        break;
+      case "sogo409":
+        // SOGo: 409 with a plain DAV:error message (no precondition element).
+        response.setStatusLine("1.1", 409, "Conflict");
+        response.write(
+          `<?xml version="1.0" encoding="utf-8"?>\n` +
+            `<D:error xmlns:D="DAV:">Event UID already in use. (x)</D:error>`
+        );
+        break;
+      case "precondition409href":
+        // RFC 4791 section 5.3.2: 409 with the precondition AND the DAV:href of
+        // the conflicting resource, so the client can target it directly.
+        response.setStatusLine("1.1", 409, "Conflict");
+        response.write(
+          `<?xml version="1.0" encoding="utf-8"?>\n` +
+            `<d:error xmlns:d="DAV:" xmlns:cal="urn:ietf:params:xml:ns:caldav">` +
+            `<cal:no-uid-conflict><d:href>${conflictPath}</d:href></cal:no-uid-conflict>` +
+            `</d:error>`
+        );
+        break;
+      case "plain412":
+        // A create (If-None-Match: *) where a resource already exists at the
+        // target URI itself, e.g. on servers that store the deposited copy
+        // under the item's UID.
+        response.setStatusLine("1.1", 412, "Precondition Failed");
+        response.write(`<?xml version="1.0" encoding="utf-8"?>\n<d:error xmlns:d="DAV:"/>`);
+        break;
+      case "sabre400":
+        // Nextcloud/SabreDAV: non-conformant bare 400 with a plain message.
+        response.setStatusLine("1.1", 400, "Bad Request");
+        response.write(
+          `<?xml version="1.0" encoding="utf-8"?>\n` +
+            `<d:error xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns">` +
+            `<s:exception>Sabre\\DAV\\Exception\\BadRequest</s:exception>` +
+            `<s:message>Calendar object with uid already exists in this calendar collection</s:message>` +
+            `</d:error>`
+        );
+        break;
+      default:
+        throw new Error(`Unknown conflictResponseStyle: ${this.conflictResponseStyle}`);
+    }
+  },
+
+  /**
+   * Extract the iCalendar UID from a serialized calendar object.
+   *
+   * @param {string} ics - The serialized calendar object.
+   * @returns {?string} The UID, or null if none was found.
+   */
+  _extractUid(ics) {
+    const match = /^UID:(.*)$/im.exec(ics);
+    return match ? match[1].trim() : null;
   },
 
   async putItemInternal(name, ics) {

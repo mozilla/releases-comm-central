@@ -20,6 +20,7 @@ ChromeUtils.defineLazyGetter(lazy, "log", () => {
 const XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>\n';
 const MIME_TEXT_CALENDAR = "text/calendar; charset=utf-8";
 const MIME_TEXT_XML = "text/xml; charset=utf-8";
+const CALDAV_NS = "urn:ietf:params:xml:ns:caldav";
 
 /**
  * Base class for a CalDAV request.
@@ -315,6 +316,31 @@ class CalDavResponseBase {
   /** If the response indicates the resource was not found */
   get notFound() {
     return this.status == 404;
+  }
+
+  /**
+   * If a create ("If-None-Match: *") failed because the item's UID is already
+   * in use: a 409 (RFC 4791 CALDAV:no-uid-conflict, element optional) or 412
+   * (a resource already exists at the target URI), the no-uid-conflict element
+   * on any other 4xx, or Nextcloud's bare 400.
+   */
+  get uidConflict() {
+    if (this.conflict) {
+      return true;
+    }
+    if (!this.clientError) {
+      return false;
+    }
+    try {
+      if (this.xml?.getElementsByTagNameNS(CALDAV_NS, "no-uid-conflict").length) {
+        return true;
+      }
+      // Nextcloud quirk: bare 400 with a plain message, no element. Newer
+      // Nextcloud sends a conformant 409; keep this for older servers.
+      return this.status == 400 && this.text.toLowerCase().includes("uid already exists");
+    } catch (e) {
+      return false;
+    }
   }
 
   /** If the response has a server error (5xx) */

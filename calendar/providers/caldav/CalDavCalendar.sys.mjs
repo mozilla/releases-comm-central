@@ -575,7 +575,9 @@ CalDavCalendar.prototype = {
           if (adoptCallback) {
             await adoptCallback(calendar, status, opType, id, detail);
           }
-          return Components.isSuccessCode(status) ? resolve(detail) : reject(detail);
+          return Components.isSuccessCode(status)
+            ? resolve(detail)
+            : reject(new Components.Exception(detail, status));
         },
       });
     });
@@ -646,6 +648,11 @@ CalDavCalendar.prototype = {
         } else if (response.serverError) {
           status = Cr.NS_ERROR_NOT_AVAILABLE;
           detail = "Server Replied with " + response.status;
+        } else if (response.uidConflict) {
+          // The UID is already used on the server (it scheduled the event before
+          // we synced); let the caller sync and update that copy.
+          status = Ci.calIErrors.UID_CONFLICT;
+          detail = "Server Replied with " + response.status;
         } else if (response.status) {
           // There is a response status, but we haven't handled it yet. Any
           // error occurring here should consider being handled!
@@ -662,8 +669,13 @@ CalDavCalendar.prototype = {
           detail = "Server Replied with " + response.status;
         }
 
-        // Still need to visually notify for uncached calendars.
-        if (!this.isCached && !Components.isSuccessCode(status)) {
+        // Still need to visually notify for uncached calendars, except for a
+        // UID conflict, which the caller may recover from.
+        if (
+          !this.isCached &&
+          !Components.isSuccessCode(status) &&
+          status != Ci.calIErrors.UID_CONFLICT
+        ) {
           this.reportDavError(Ci.calIErrors.DAV_PUT_ERROR, status, detail);
         }
 

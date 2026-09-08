@@ -69,6 +69,9 @@ tags = ["caldav"]
 ["test_caldav_requests.js"]
 tags = ["caldav", "oauth"]
 
+["test_caldav_uidCollision.js"]
+tags = ["caldav"]
+
 ["test_calmgr.js"]
 
 ["test_calreadablestreamfactory.js"]

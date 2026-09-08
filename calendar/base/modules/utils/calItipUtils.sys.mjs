@@ -20,6 +20,8 @@ ChromeUtils.defineESModuleGetters(lazy, {
   CalItipOutgoingMessage: "resource:///modules/CalItipOutgoingMessage.sys.mjs",
   CalRelation: "resource:///modules/CalRelation.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
+  clearTimeout: "resource://gre/modules/Timer.sys.mjs",
+  setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
   return console.createInstance({
@@ -1695,6 +1697,63 @@ function addScheduleAgentClient(item, calendar) {
   }
 }
 
+const UID_CONFLICT_REFRESH_TIMEOUT_MS = 20000;
+
+/**
+ * Refresh the calendar and resolve once its "onLoad" fires, or after a timeout.
+ *
+ * @param {calICalendar} calendar - The calendar to refresh.
+ * @returns {Promise<boolean>} True once a load completed, false on failure/timeout.
+ */
+function refreshCalendarAndWait(calendar) {
+  return new Promise(resolve => {
+    let settled = false;
+    let timer = null;
+    const observer = {
+      QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
+      onStartBatch() {},
+      onEndBatch() {},
+      onError() {},
+      onPropertyChanged() {},
+      onPropertyDeleting() {},
+      onAddItem() {},
+      onModifyItem() {},
+      onDeleteItem() {},
+      onLoad() {
+        finish(true);
+      },
+    };
+    function finish(result) {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      if (timer) {
+        lazy.clearTimeout(timer);
+      }
+      try {
+        calendar.removeObserver(observer);
+      } catch (e) {
+        lazy.log.warn(`Failed to remove calendar observer: ${e}`);
+      }
+      resolve(result);
+    }
+
+    // Setup is inside the try so a throw resolves false instead of rejecting.
+    try {
+      calendar.addObserver(observer);
+      timer = lazy.setTimeout(() => finish(false), UID_CONFLICT_REFRESH_TIMEOUT_MS);
+      Promise.resolve(calendar.refresh()).catch(e => {
+        lazy.log.warn(`Calendar refresh failed during UID conflict recovery: ${e}`);
+        finish(false);
+      });
+    } catch (e) {
+      lazy.log.warn(`Calendar refresh failed during UID conflict recovery: ${e}`);
+      finish(false);
+    }
+  });
+}
+
 var ItipItemFinderFactory = {
   /**  Map to save finder instances for given ids */
   _findMap: {},
@@ -1751,7 +1810,14 @@ ItipItemFinder.prototype = {
   mOptionsFunc: null,
   mFoundItems: null,
 
+  // Set while resolveUidCollision() refreshes, to block the re-entrant
+  // processing its onLoad, onAddItem and onModifyItem would trigger.
+  mResolvingCollision: false,
+
   async findItem() {
+    if (this.mResolvingCollision) {
+      return;
+    }
     this.mFoundItems = [];
     this._unobserveChanges();
 
@@ -1827,7 +1893,101 @@ ItipItemFinder.prototype = {
     this._unobserveChanges();
   },
 
+  /**
+   * Recover from a create that failed because the server already holds this
+   * UID: sync, then apply the response to the existing copy like the
+   * "REQUEST:NEEDS-ACTION" found path.
+   *
+   * @param {calICalendar} targetCalendar - The calendar the add targeted.
+   * @param {calIItemBase} itipItemItem - The invitation being accepted.
+   * @param {?string} partStat - The chosen participation status.
+   * @param {?object} extResponse - The external response descriptor.
+   * @param {calIOperationListener} opListener - Notified of the outcome.
+   * @returns {Promise<boolean>} Whether the conflict was resolved; on false
+   *   the caller reports the original error.
+   */
+  async resolveUidCollision(targetCalendar, itipItemItem, partStat, extResponse, opListener) {
+    if (itipItemItem.recurrenceId) {
+      // Fetching by UID would return the master, not the occurrence. Accepting
+      // a single occurrence before the sync is therefore not recovered and
+      // reports the conflict, unlike the found path which resolves the
+      // occurrence from the master it already has.
+      return false;
+    }
+    let existingItem = null;
+    let changedItem = null;
+    try {
+      this.mResolvingCollision = true;
+
+      const loaded = await refreshCalendarAndWait(targetCalendar);
+      if (loaded) {
+        existingItem = await targetCalendar.getItem(itipItemItem.id);
+      }
+      if (!existingItem) {
+        return false;
+      }
+
+      // Only act on a pending invitation of the current SEQUENCE, like the
+      // found NEEDS-ACTION path: the DTSTAMP is ignored there and here, so a
+      // reply from another attendee does not make the invitation look already
+      // processed, and "itip.disableRevisionChecks" waives the check entirely.
+      // Anything else is left for the user to review.
+      let attendee = itip.getInvitedAttendee(existingItem, targetCalendar);
+      if (
+        attendee?.participationStatus != "NEEDS-ACTION" ||
+        (!targetCalendar.getProperty("itip.disableRevisionChecks") &&
+          itip.compareSequence(itipItemItem, existingItem) != 0)
+      ) {
+        return false;
+      }
+
+      changedItem = existingItem.clone();
+      changedItem.removeAttendee(attendee);
+      attendee = attendee.clone();
+      if (partStat) {
+        attendee.participationStatus = partStat;
+      }
+      changedItem.addAttendee(attendee);
+    } catch (e) {
+      lazy.log.warn(`Failed to resolve UID conflict for ${itipItemItem.id}: ${e}`);
+      return false;
+    } finally {
+      // Reset before the modify so its onModifyItem refresh runs normally.
+      this.mResolvingCollision = false;
+    }
+
+    const listener = new ItipOpListener(opListener, existingItem, extResponse);
+    let modifiedItem;
+    try {
+      modifiedItem = await changedItem.calendar.modifyItem(changedItem, existingItem);
+    } catch (e) {
+      listener.onOperationComplete(
+        null,
+        e.result || Cr.NS_ERROR_FAILURE,
+        Ci.calIOperationListener.MODIFY,
+        null,
+        e
+      );
+      return true;
+    }
+    listener.onOperationComplete(
+      modifiedItem.calendar,
+      Cr.NS_OK,
+      Ci.calIOperationListener.MODIFY,
+      modifiedItem.id,
+      modifiedItem
+    );
+    return true;
+  },
+
   processFoundItems() {
+    if (this.mResolvingCollision) {
+      // The refresh in resolveUidCollision() writes the server's copy into the
+      // calendar. Offering options for it would replace the action function the
+      // user is currently running; the modify at the end of the recovery brings
+      // the caller up to date.
+      return;
+    }
     let rc = Cr.NS_OK;
     const method = this.mItipItem.receivedMethod.toUpperCase();
     let actionMethod = method;
@@ -2357,14 +2517,28 @@ ItipItemFinder.prototype = {
                     item.id,
                     item
                   ),
-                e =>
-                  listener.onOperationComplete(
+                async e => {
+                  // Accept-before-sync UID conflict: recover.
+                  if (method == "REQUEST" && e?.result == Ci.calIErrors.UID_CONFLICT) {
+                    const resolved = await this.resolveUidCollision(
+                      this.mItipItem.targetCalendar,
+                      itipItemItem,
+                      partStat,
+                      extResponse,
+                      opListener
+                    );
+                    if (resolved) {
+                      return null;
+                    }
+                  }
+                  return listener.onOperationComplete(
                     newItem.calendar,
                     e.result || Cr.NS_ERROR_FAILURE,
                     Ci.calIOperationListener.ADD,
                     newItem.id,
                     e
-                  )
+                  );
+                }
               );
             };
             operations.push(action);

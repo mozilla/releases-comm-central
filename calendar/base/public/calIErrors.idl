@@ -75,6 +75,12 @@ interface calIErrors : nsISupports
    */
   const unsigned long MODIFICATION_FAILED = ERROR_BASE + 10;
 
+  /**
+   * An item could not be added because its UID is already in use on the
+   * server.
+   */
+  const unsigned long UID_CONFLICT = ERROR_BASE + 11;
+
   /* ICS specific errors */
   const unsigned long ICS_ERROR_BASE = ERROR_BASE + 0x100;
 
