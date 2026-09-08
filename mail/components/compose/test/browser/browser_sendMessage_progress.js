@@ -106,9 +106,27 @@ add_setup(async function () {
 });
 
 /**
+ * Wait until the send or save progress of a compose window stops. The final
+ * taskbar progress event is set just before this notification, and can be
+ * delivered after the compose window has closed, so waiting for the window to
+ * close is not enough.
+ *
+ * @param {DOMWindow} composeWindow
+ * @returns {Promise}
+ */
+function progressStopPromise(composeWindow) {
+  return TestUtils.topicObserved(
+    "mail:composeSendProgressStop",
+    subject => subject.wrappedJSObject.composeWindow == composeWindow
+  );
+}
+
+/**
  * Test sending a small message. There should be no taskbar progress updates.
  */
 add_task(async function testSendSmall() {
+  gProgressEvents.length = 0;
+
   const { composeWindow } = await newComposeWindow(
     smtpIdentity,
     "I will not waste chalk.\n"
@@ -117,8 +135,10 @@ add_task(async function testSendSmall() {
   const toolbarButton = composeDocument.getElementById("button-send");
 
   Assert.ok(!toolbarButton.disabled, "toolbar button should not be disabled");
+  const progressStopped = progressStopPromise(composeWindow);
+  const windowClosed = BrowserTestUtils.domWindowClosed(composeWindow);
   EventUtils.synthesizeMouseAtCenter(toolbarButton, {}, composeWindow);
-  await BrowserTestUtils.domWindowClosed(composeWindow);
+  await Promise.all([progressStopped, windowClosed]);
 
   Assert.equal(
     gProgressEvents.length,
@@ -140,14 +160,14 @@ add_task(async function testSendSmall() {
     Ci.nsITaskbarProgress.STATE_NO_PROGRESS,
     "event 2 must be in the no progress state"
   );
-
-  gProgressEvents.length = 0;
 });
 
 /**
  * Test sending a large message. There should be taskbar progress updates.
  */
 add_task(async function testSendLarge() {
+  gProgressEvents.length = 0;
+
   const { composeWindow } = await newComposeWindow(
     smtpIdentity,
     // We need enough data to get more than one progress report. Each chunk is
@@ -159,8 +179,10 @@ add_task(async function testSendLarge() {
   const toolbarButton = composeDocument.getElementById("button-send");
 
   Assert.ok(!toolbarButton.disabled, "toolbar button should not be disabled");
+  const progressStopped = progressStopPromise(composeWindow);
+  const windowClosed = BrowserTestUtils.domWindowClosed(composeWindow);
   EventUtils.synthesizeMouseAtCenter(toolbarButton, {}, composeWindow);
-  await BrowserTestUtils.domWindowClosed(composeWindow);
+  await Promise.all([progressStopped, windowClosed]);
 
   const progressEventCount = gProgressEvents.length;
   let previous = 0;
@@ -168,6 +190,15 @@ add_task(async function testSendLarge() {
     progressEventCount,
     2,
     "at least two progress events should have occurred"
+  );
+  // The events setting the progress come first, the events clearing it last.
+  const firstClearedIndex = gProgressEvents.findIndex(
+    event => event.state == Ci.nsITaskbarProgress.STATE_NO_PROGRESS
+  );
+  Assert.greater(
+    firstClearedIndex,
+    0,
+    "the progress should have been set, then cleared"
   );
   for (let i = 0; i < progressEventCount; i++) {
     const progressEvent = gProgressEvents[i];
@@ -179,8 +210,7 @@ add_task(async function testSendLarge() {
         "progress events should be on the compose window"
       );
     }
-    // The last two events clear the progress, all the others set it.
-    if (i < progressEventCount - 2) {
+    if (i < firstClearedIndex) {
       Assert.equal(
         progressEvent.state,
         Ci.nsITaskbarProgress.STATE_NORMAL,
@@ -215,8 +245,6 @@ add_task(async function testSendLarge() {
       );
     }
   }
-
-  gProgressEvents.length = 0;
 });
 
 /**
@@ -224,6 +252,8 @@ add_task(async function testSendLarge() {
  * taskbar progress updates, but they should be cleared after saving.
  */
 add_task(async function testSaveLarge() {
+  gProgressEvents.length = 0;
+
   const { composeWindow } = await newComposeWindow(
     smtpIdentity,
     // We need enough data to get more than one progress report. Each chunk is
@@ -234,9 +264,10 @@ add_task(async function testSaveLarge() {
   const toolbarButton = composeDocument.getElementById("button-save");
 
   Assert.ok(!toolbarButton.disabled, "toolbar button should not be disabled");
+  const progressStopped = progressStopPromise(composeWindow);
   EventUtils.synthesizeMouseAtCenter(toolbarButton, {}, composeWindow);
   // Wait until saving stops, then wait more to see if anything else happens.
-  await TestUtils.topicObserved("mail:composeSendProgressStop");
+  await progressStopped;
   await new Promise(resolve => composeWindow.setTimeout(resolve, 500));
   Assert.greaterOrEqual(
     gProgressEvents.length,
@@ -256,5 +287,4 @@ add_task(async function testSaveLarge() {
   );
 
   await BrowserTestUtils.closeWindow(composeWindow);
-  gProgressEvents.length = 0;
 });
