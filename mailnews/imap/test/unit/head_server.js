@@ -183,6 +183,74 @@ function addImapMessage() {
   return message;
 }
 
+/**
+ * The messages a mailbox holds on the server, without the ones a move has
+ * already marked deleted and that only an expunge still has to clear out.
+ *
+ * @param {string} name - The mailbox name on the fake server.
+ * @returns {object[]}
+ */
+function serverMessages(name) {
+  return IMAPPump.daemon
+    .getMailbox(name)
+    ._messages.filter(message => !message.flags.includes("\\Deleted"));
+}
+
+/**
+ * Moves messages the way drag and drop does.
+ *
+ * @param {nsIMsgFolder} source
+ * @param {nsIMsgDBHdr[]} headers
+ * @param {nsIMsgFolder} destination
+ */
+async function moveImapMessages(source, headers, destination) {
+  const listener = new PromiseTestUtils.PromiseCopyListener();
+  MailServices.copy.copyMessages(
+    source,
+    headers,
+    destination,
+    true, // isMove
+    listener,
+    null,
+    true // allowUndo, as for a user-initiated move
+  );
+  await listener.promise;
+}
+
+/**
+ * Puts messages into the inbox and makes them available offline.
+ *
+ * @param {number} count - How many messages to add.
+ * @returns {Promise<nsIMsgDBHdr[]>} Their headers, in the order added.
+ */
+async function addImapMessagesAndSync(count) {
+  const added = [];
+  for (let i = 0; i < count; i++) {
+    added.push(addImapMessage());
+  }
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+  listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.downloadAllForOffline(listener, null);
+  await listener.promise;
+  return added.map(message =>
+    IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(message.messageId)
+  );
+}
+
+/**
+ * @param {string} name - The folder name to create.
+ * @returns {Promise<nsIMsgImapMailFolder>} A new folder on the same account.
+ */
+async function createImapSubfolder(name) {
+  IMAPPump.incomingServer.rootFolder.createSubfolder(name, null);
+  await PromiseTestUtils.promiseFolderAdded(name);
+  return IMAPPump.incomingServer.rootFolder
+    .getChildNamed(name)
+    .QueryInterface(Ci.nsIMsgImapMailFolder);
+}
+
 registerCleanupFunction(function () {
   load(gDEPTH + "mailnews/resources/mailShutdown.js");
 });

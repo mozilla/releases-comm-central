@@ -22,6 +22,26 @@
 #include "nsMsgUtils.h"
 #include "mozilla/Components.h"
 
+/**
+ * Set or clear the `nsMsgFolderFlags::OfflineEvents` flag on `folder`,
+ * depending on whether it has any offline operations queued in its database.
+ * Call this while that database is still open. Special case: if the database
+ * cannot be asked, the flag is cleared.
+ */
+static void UpdateOfflineEventsFlag(nsIMsgFolder* folder,
+                                    nsIMsgOfflineOpsDatabase* db) {
+  MOZ_ASSERT(folder);
+  nsTArray<nsMsgKey> pending;
+  if (db && NS_SUCCEEDED(db->ListAllOfflineOpIds(pending)) &&
+      !pending.IsEmpty()) {
+    folder->SetFlag(nsMsgFolderFlags::OfflineEvents);
+  } else {
+    // UpdateFolder hands a folder whose flag is set to the playback machinery
+    // instead of selecting it, so a flag we cannot justify has to go.
+    folder->ClearFlag(nsMsgFolderFlags::OfflineEvents);
+  }
+}
+
 NS_IMPL_ISUPPORTS(nsImapOfflineSync, nsIUrlListener, nsIMsgCopyServiceListener,
                   nsIDBChangeListener)
 
@@ -653,9 +673,9 @@ nsresult nsImapOfflineSync::ProcessNextOperation() {
       m_KeyIndex = 0;
       if (NS_FAILED(m_currentDB->ListAllOfflineOpIds(m_CurrentKeys)) ||
           m_CurrentKeys.IsEmpty()) {
+        UpdateOfflineEventsFlag(m_currentFolder, m_currentDB);
         ClearDB();
         folderInfo = nullptr;  // can't hold onto folderInfo longer than db
-        m_currentFolder->ClearFlag(nsMsgFolderFlags::OfflineEvents);
       } else {
         // trash any ghost msgs
         bool deletedGhostMsgs = false;
@@ -704,6 +724,7 @@ nsresult nsImapOfflineSync::ProcessNextOperation() {
         m_CurrentKeys.Clear();
         if (NS_FAILED(m_currentDB->ListAllOfflineOpIds(m_CurrentKeys)) ||
             m_CurrentKeys.IsEmpty()) {
+          UpdateOfflineEventsFlag(m_currentFolder, m_currentDB);
           ClearDB();
         } else if (folderFlags & nsMsgFolderFlags::ImapBox) {
           // if pseudo offline, falls through to playing ops back.
@@ -847,6 +868,7 @@ nsresult nsImapOfflineSync::ProcessNextOperation() {
       currentFolderFinished = true;
 
     if (currentFolderFinished) {
+      UpdateOfflineEventsFlag(m_currentFolder, m_currentDB);
       ClearDB();
       if (!m_singleFolderToUpdate) {
         AdvanceToNextFolder();
@@ -866,7 +888,6 @@ nsresult nsImapOfflineSync::ProcessNextOperation() {
       AdvanceToNextFolder();
     }
     if (m_singleFolderToUpdate) {
-      m_singleFolderToUpdate->ClearFlag(nsMsgFolderFlags::OfflineEvents);
       m_singleFolderToUpdate->UpdateFolder(m_window);
     }
   }
@@ -895,9 +916,6 @@ void nsImapOfflineSync::DeleteAllOfflineOpsForCurrentDB() {
                                       getter_AddRefs(currentOp));
   }
   m_currentDB->Commit(nsMsgDBCommitType::kLargeCommit);
-  // turn off nsMsgFolderFlags::OfflineEvents
-  if (m_currentFolder)
-    m_currentFolder->ClearFlag(nsMsgFolderFlags::OfflineEvents);
 }
 
 NS_IMETHODIMP nsImapOfflineSync::OnStartCopy() {
