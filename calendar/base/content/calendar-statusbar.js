@@ -67,7 +67,7 @@ var gCalendarStatusFeedback = {
         this.mCalendarStep = Math.trunc(100 / this.mCalendarCount);
       }
       this.mProgressMode = aProgressMode;
-      this.mStatusProgressPanel.removeAttribute("collapsed");
+      this.mStatusProgressPanel.hidden = false;
       if (this.mProgressMode == Ci.calIStatusObserver.DETERMINED_PROGRESS) {
         this.mStatusBar.value = 0;
         this._showStatusString("getting-calendar-info-common");
@@ -84,7 +84,7 @@ var gCalendarStatusFeedback = {
     }
     if (this.spinning != Ci.calIStatusObserver.NO_PROGRESS) {
       this.mProgressMode = Ci.calIStatusObserver.NO_PROGRESS;
-      this.mStatusProgressPanel.collapsed = true;
+      this.mStatusProgressPanel.hidden = true;
       this.mStatusBar.value = 0;
       this.mCalendarCount = 0;
       this._showStatusString("");

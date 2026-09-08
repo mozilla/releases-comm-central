@@ -668,7 +668,7 @@ nsMsgStatusFeedback.prototype = {
         this._progressBar.label = Math.round(percentage) + "%";
       }
       if (!this._progressBarVisible) {
-        this._progressBarContainer.removeAttribute("collapsed");
+        this._progressBarContainer.hidden = false;
         this._progressBarVisible = true;
       }
     } else {
@@ -677,40 +677,65 @@ nsMsgStatusFeedback.prototype = {
       this._progressBar.label = "";
 
       if (this._progressBarVisible) {
-        this._progressBarContainer.collapsed = true;
+        this._progressBarContainer.hidden = true;
         this._progressBarVisible = false;
       }
     }
   },
 
   // nsIActivityMgrListener
-  onAddedActivity(aID, aActivity) {
+  onAddedActivity(aID, activity) {
     // ignore Gloda activity for status bar purposes
-    if (aActivity.initiator == Gloda) {
+    if (activity.initiator == Gloda) {
       return;
     }
-    if (aActivity instanceof Ci.nsIActivityEvent) {
-      this.showStatusString(aActivity.displayText);
-    } else if (aActivity instanceof Ci.nsIActivityProcess) {
-      this._activeProcesses.push(aActivity);
-      aActivity.addListener(this);
+    if (activity instanceof Ci.nsIActivityEvent) {
+      this.showStatusString(activity.displayText);
+    } else if (activity instanceof Ci.nsIActivityProcess) {
+      this._activeProcesses.push(activity);
+      activity.addListener(this);
       this.startMeteors();
     }
   },
 
-  onRemovedActivity(aID) {
-    this._activeProcesses = this._activeProcesses.filter(function (element) {
-      if (element.id == aID) {
-        element.removeListener(this);
-        this.stopMeteors();
-        return false;
-      }
-      return true;
-    }, this);
+  onRemovedActivity(id) {
+    const process = this._activeProcesses.find(p => p.id == id);
+    if (process) {
+      this._releaseProcess(process);
+    }
+  },
+
+  /**
+   * Balance the startMeteors() call we made for this process in
+   * onAddedActivity(), at most once per process.
+   *
+   * @param {nsIActivityProcess} process
+   */
+  _releaseProcess(process) {
+    const index = this._activeProcesses.indexOf(process);
+    if (index < 0) {
+      return;
+    }
+    this._activeProcesses.splice(index, 1);
+    process.removeListener(this);
+    this.stopMeteors();
   },
 
   // nsIActivityListener
-  onStateChanged() {},
+  onStateChanged(aActivity) {
+    // Each activity module is individually responsible for calling
+    // removeActivity() once its process is done, and the activity manager only
+    // prunes finished processes when the user clears the Activity Manager
+    // list. A module that forgets would otherwise leave the progress meter
+    // spinning -- and repainting -- for the lifetime of the window, so stop
+    // tracking a process as soon as it reaches a state it cannot leave.
+    if (
+      aActivity.state == Ci.nsIActivityProcess.STATE_COMPLETED ||
+      aActivity.state == Ci.nsIActivityProcess.STATE_CANCELED
+    ) {
+      this._releaseProcess(aActivity);
+    }
+  },
 
   onProgressChanged(aActivity, aStatusText) {
     const index = this._activeProcesses.indexOf(aActivity);

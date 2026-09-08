@@ -61,9 +61,7 @@ window.addEventListener("message", event => {
   }
   if (event.data.meteors == "start-meteors") {
     if (!this.progressMeterVisible) {
-      document
-        .getElementById("statusbar-progresspanel")
-        .removeAttribute("collapsed");
+      document.getElementById("statusbar-progresspanel").hidden = false;
       this.progressMeterVisible = true;
     }
     document.getElementById("statusbar-icon").removeAttribute("value");
@@ -71,7 +69,7 @@ window.addEventListener("message", event => {
     if (this.progressMeterVisible) {
       const progressPanel = document.getElementById("statusbar-progresspanel");
       if (progressPanel) {
-        progressPanel.collapsed = true;
+        progressPanel.hidden = true;
       }
       this.progressMeterVisible = false;
     }
@@ -768,7 +766,7 @@ function runSelectedFilters() {
         // Failsafe against stray status/meteor messages.
         // Once Bug 2002774 has landed, this can probably be removed.
         if (window.progressMeterVisible) {
-          document.getElementById("statusbar-progresspanel").collapsed = true;
+          document.getElementById("statusbar-progresspanel").hidden = true;
           window.progressMeterVisible = false;
         }
         document.getElementById("statusText").setAttribute("value", "");
