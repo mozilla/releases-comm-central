@@ -302,6 +302,16 @@ export var CardDAVUtils = {
 
     let url = new URL(location);
 
+    if (url.username || url.password) {
+      // Necko would authenticate with these itself and never ask `callbacks`,
+      // leaving us with no credentials to store and the password in a pref.
+      // They only fill gaps, so whatever the user was asked for wins.
+      username ||= decodeURIComponent(url.username);
+      password ||= decodeURIComponent(url.password);
+      url.username = "";
+      url.password = "";
+    }
+
     if (url.hostname in PRESETS) {
       if (PRESETS[url.hostname] === null) {
         throw new Components.Exception(
@@ -533,18 +543,16 @@ export var CardDAVUtils = {
             book.setBoolValue("readOnly", true);
           }
 
-          let authPromise;
-          if (oAuth) {
-            book.setStringValue("carddav.username", username);
-            authPromise = Promise.resolve();
-          } else if (callbacks.authInfo?.username) {
+          // The server only asks for credentials if it wants them, so fall
+          // back to the username we were given.
+          let bookUsername = username;
+          let authPromise = Promise.resolve();
+          if (!oAuth && callbacks.authInfo?.username) {
             log.log(`Saving login info for ${callbacks.authInfo.username}`);
-            book.setStringValue(
-              "carddav.username",
-              callbacks.authInfo.username
-            );
+            bookUsername = callbacks.authInfo.username;
             authPromise = callbacks.saveAuth().catch(console.error);
           }
+          book.setStringValue("carddav.username", bookUsername);
 
           const dir = lazy.CardDAVDirectory.forFile(book.fileName);
           // Pass the context to the created address book. This prevents asking
@@ -554,7 +562,7 @@ export var CardDAVUtils = {
 
           // Trigger the initial sync with the server. Do not do this async,
           // as it's not required before returning the directory.
-          authPromise.then(() => dir.fetchAllFromServer());
+          authPromise.then(() => dir.fetchAllFromServer()).catch(console.error);
 
           return dir;
         },
