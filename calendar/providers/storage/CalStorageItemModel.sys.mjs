@@ -1369,6 +1369,7 @@ export class CalStorageItemModel extends CalStorageModelBase {
     const stmts = [];
     this.db.prepareItemStatement(stmts, this.statements.mDeleteAttendees, "item_id", id);
     this.db.prepareItemStatement(stmts, this.statements.mDeleteProperties, "item_id", id);
+    this.db.prepareItemStatement(stmts, this.statements.mDeleteParameters, "item_id", id);
     this.db.prepareItemStatement(stmts, this.statements.mDeleteRecurrence, "item_id", id);
     this.db.prepareItemStatement(stmts, this.statements.mDeleteEvent, "id", id);
     this.db.prepareItemStatement(stmts, this.statements.mDeleteTodo, "id", id);
