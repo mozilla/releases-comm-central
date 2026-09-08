@@ -636,6 +636,40 @@ function testSearch() {
       test.customHeader ? test.customHeader : "X-Bugzilla-Watch-Reason"
     );
   } else {
-    do_test_finished();
+    testSearchWithoutTerms();
   }
+}
+
+// Unlike a filter, a search with no terms at all must match every message.
+// Virtual folders and the quick search views rely on that, and reach it
+// through nsIMsgSearchSession.MatchHdr rather than through search().
+function testSearchWithoutTerms() {
+  const inbox = localAccountUtils.inboxFolder;
+  for (const subject of ["second message", "third message"]) {
+    inbox.addMessage(
+      "From: sender@test.invalid\r\n" +
+        "To: recipient@test.invalid\r\n" +
+        `Subject: ${subject}\r\n` +
+        `Message-ID: <${subject.replace(" ", "")}@test.invalid>\r\n` +
+        "\r\n" +
+        "body\r\n"
+    );
+  }
+  const msgHdrs = [...inbox.messages];
+  Assert.greater(msgHdrs.length, 1, "the folder should hold several messages");
+
+  const searchSession = Cc[
+    "@mozilla.org/messenger/searchSession;1"
+  ].createInstance(Ci.nsIMsgSearchSession);
+  searchSession.addScopeTerm(Ci.nsMsgSearchScope.offlineMail, inbox);
+  Assert.equal(searchSession.searchTerms.length, 0, "no terms were added");
+
+  for (const msgHdr of msgHdrs) {
+    Assert.ok(
+      searchSession.MatchHdr(msgHdr, inbox.msgDatabase),
+      `a search without terms should match "${msgHdr.subject}"`
+    );
+  }
+
+  do_test_finished();
 }

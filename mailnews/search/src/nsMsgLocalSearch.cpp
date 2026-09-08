@@ -130,15 +130,17 @@ bool nsMsgSearchBoolExpression::OfflineEvaluate(nsIMsgDBHdr* msgToMatch,
                                                 nsIMsgDatabase* db,
                                                 const nsACString& headers,
                                                 bool Filtering) {
-  bool result = true;  // always default to false positives
+  // Default to no match. An expression we can't evaluate must not turn into a
+  // match, or a filter would act on messages it was never meant to touch.
+  bool result = false;
   bool isAnd;
 
   if (m_term)  // do we contain just a search term?
   {
-    nsMsgSearchOfflineMail::ProcessSearchTerm(msgToMatch, m_term,
-                                              defaultCharset, scope, db,
-                                              headers, Filtering, &result);
-    return result;
+    nsresult rv = nsMsgSearchOfflineMail::ProcessSearchTerm(
+        msgToMatch, m_term, defaultCharset, scope, db, headers, Filtering,
+        &result);
+    return NS_SUCCEEDED(rv) && result;
   }
 
   // otherwise we must recursively determine the value of our sub expressions
@@ -380,7 +382,7 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(
   const char* charset;
   bool charsetOverride = false; /* XXX BUG 68706 */
   uint32_t msgFlags;
-  bool result;
+  bool result = false;
   bool matchAll;
 
   NS_ENSURE_ARG_POINTER(pResult);
@@ -586,6 +588,14 @@ nsresult nsMsgSearchOfflineMail::MatchTerms(
     nsMsgSearchBoolExpression** aExpressionTree, bool* pResult) {
   NS_ENSURE_ARG(aExpressionTree);
   nsresult err;
+
+  if (termList.IsEmpty()) {
+    // A filter without usable search terms would otherwise match every
+    // message and quietly misfile the user's mail. Searches keep the
+    // historical "no terms means everything" behaviour.
+    *pResult = !Filtering;
+    return NS_OK;
+  }
 
   if (!*aExpressionTree) {
     uint32_t initialPos = 0;

@@ -14,6 +14,8 @@ head = "head_mailbase.js"
 
 ["test_copyThenMoveManual.js"]
 
+["test_filterUnusableCondition.js"]
+
 ["test_junkWhitelisting.js"]
 
 ["test_quarantineFilterMove.js"]

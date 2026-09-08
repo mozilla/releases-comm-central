@@ -14,20 +14,32 @@ var { MailServices } = ChromeUtils.importESModule(
 );
 
 var kCustomId = "xpcomtest@mozilla.org#test";
+var kFailingId = "xpcomtest@mozilla.org#failing";
 var gHdr;
 
 var Tests = [
   {
+    customId: kCustomId,
     setValue: "iamgood",
     testValue: "iamnotgood",
     op: Ci.nsMsgSearchOp.Is,
     count: 0,
   },
   {
+    customId: kCustomId,
     setValue: "iamgood",
     testValue: "iamgood",
     op: Ci.nsMsgSearchOp.Is,
     count: 1,
+  },
+  // A custom term that fails must not count as a match, even for a message
+  // whose value would otherwise satisfy it.
+  {
+    customId: kFailingId,
+    setValue: "iamgood",
+    testValue: "iamgood",
+    op: Ci.nsMsgSearchOp.Is,
+    count: 0,
   },
 ];
 
@@ -59,9 +71,34 @@ var customTerm = {
   },
 };
 
+// nsIMsgSearchCustomTerm object whose match() always fails. Note that
+// XPConnect zeroes the retval before the call, so the false result comes from
+// there rather than from the caller's error handling.
+var failingTerm = {
+  id: kFailingId,
+  name: "failing term name",
+  getEnabled(scope, op) {
+    return (
+      scope == Ci.nsMsgSearchScope.offlineMail && op == Ci.nsMsgSearchOp.Is
+    );
+  },
+  getAvailable(scope, op) {
+    return (
+      scope == Ci.nsMsgSearchScope.offlineMail && op == Ci.nsMsgSearchOp.Is
+    );
+  },
+  getAvailableOperators() {
+    return [Ci.nsMsgSearchOp.Is];
+  },
+  match() {
+    throw new Components.Exception("custom term failure", Cr.NS_ERROR_FAILURE);
+  },
+};
+
 function run_test() {
   localAccountUtils.loadLocalMailAccount();
   MailServices.filters.addCustomTerm(customTerm);
+  MailServices.filters.addCustomTerm(failingTerm);
 
   /** @implements {nsIMsgCopyServiceListener} */
   var copyListener = {
@@ -106,7 +143,7 @@ function doTest() {
       test.op,
       test.count,
       doTest,
-      kCustomId
+      test.customId
     );
   } else {
     gHdr = null;

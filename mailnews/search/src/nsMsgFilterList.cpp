@@ -681,8 +681,18 @@ nsresult nsMsgFilterList::LoadTextFilters(
             CopyUTF16toUTF8(unicodeStr, value);
           }
           err = ParseCondition(m_curFilter, value);
-          if (err == NS_ERROR_INVALID_ARG)
+          if (NS_SUCCEEDED(err)) {
+            // A condition we couldn't turn into a single search term leaves
+            // the filter matching everything, so treat it as unparseable.
+            nsTArray<RefPtr<nsIMsgSearchTerm>> terms;
+            m_curFilter->GetSearchTerms(terms);
+            if (terms.IsEmpty()) err = NS_ERROR_INVALID_ARG;
+          }
+          if (NS_FAILED(err) && err != NS_ERROR_OUT_OF_MEMORY) {
+            // Disable just this filter rather than aborting the whole file,
+            // which would drop every filter after this one.
             err = m_curFilter->SetUnparseable(true);
+          }
           NS_ENSURE_SUCCESS(err, err);
         }
         break;
