@@ -73,6 +73,16 @@ const POLICIES_TESTS = [
     lockedPrefs: { "mail.experimental_features_settings.enabled": false },
   },
 
+  // POLICY: DisableFileLink
+  {
+    policies: { DisableFileLink: false },
+    unlockedPrefs: { "mail.cloud_files.enabled": true },
+  },
+  {
+    policies: { DisableFileLink: true },
+    lockedPrefs: { "mail.cloud_files.enabled": false },
+  },
+
   // POLICY: DisableMessageForwardingFilters
   {
     policies: { DisableMessageForwardingFilters: false },

@@ -762,6 +762,14 @@ export var Policies = {
     },
   },
 
+  DisableFileLink: {
+    onBeforeUIStartup(manager, param) {
+      if (param) {
+        lazy.PoliciesUtils.setAndLockPref("mail.cloud_files.enabled", false);
+      }
+    },
+  },
+
   DisableMasterPasswordCreation: {
     onBeforeUIStartup(manager, param) {
       if (param) {

@@ -53,6 +53,8 @@ policy-DisableDeveloperTools = Block access to the developer tools.
 
 policy-DisableFeedbackCommands = Disable commands to send feedback from the Help menu (Submit Feedback and Report Deceptive Site).
 
+policy-DisableFileLink = Disable the Filelink feature.
+
 policy-DisableForgetButton = Prevent access to the Forget button.
 
 policy-DisableFormHistory = Don’t remember search and form history.

@@ -250,6 +250,10 @@
       "type": "boolean"
     },
 
+    "DisableFileLink": {
+      "type": "boolean"
+    },
+
     "DisableMasterPasswordCreation": {
       "type": "boolean"
     },

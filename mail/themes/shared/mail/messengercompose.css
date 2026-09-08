@@ -1538,3 +1538,15 @@ dialog .key-info-block {
 .comma-separated a:not(:last-child)::after {
   content: ", ";
 }
+
+/* Hide Filelink (cloud attachment) menu entries when the feature is disabled
+   (e.g. by the DisableFileLink enterprise policy locking mail.cloud_files.enabled).
+   The bound commands are hidden via JS, but `hidden` does not propagate from a
+   command to its bound <menu>, so hide them here. */
+/* stylelint-disable-next-line media-query-no-invalid */
+@media not -moz-pref("mail.cloud_files.enabled") {
+  menu[command="cmd_attachCloud"],
+  menu[command="cmd_convertCloud"] {
+    display: none;
+  }
+}
