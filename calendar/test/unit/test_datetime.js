@@ -94,4 +94,11 @@ function run_test() {
   // Comparing a date-time with a date of the same day should be 0
   equal(cal.createDateTime("20120101T120000").compare(cal.createDateTime("20120101")), 0);
   equal(cal.createDateTime("20120101").compare(cal.createDateTime("20120101T120000")), 0);
+
+  // Bug 1917314 - adding a duration with a time part to a date should not
+  // move the date, not even when the result is cloned right away.
+  const allDay = cal.createDateTime("20250111");
+  allDay.addDuration(cal.createDuration("-PT8H"));
+  equal(allDay.clone().icalString, "20250111");
+  equal(allDay.icalString, "20250111");
 }

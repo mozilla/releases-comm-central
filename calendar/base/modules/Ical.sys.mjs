@@ -1353,6 +1353,13 @@ class Time {
    * @return {Time}              The cloned object
    */
   clone() {
+    // Local patch for https://github.com/kewisch/ical.js/issues/1024: flush a
+    // pending normalization, so that cloning a date holding leftover time
+    // components does not carry those over into the day (bug 1917314).
+    if (this._pendingNormalization) {
+      this._normalize();
+      this._pendingNormalization = false;
+    }
     return new Time(this._time, this.zone);
   }
 

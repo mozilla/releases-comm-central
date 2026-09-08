@@ -22,6 +22,8 @@ tags = ["recurrence"]
 
 ["browser_lastDayOfMonth.js"]
 
+["browser_monthlyUntilAllDay.js"]
+
 ["browser_recurrenceNavigation.js"]
 
 ["browser_weeklyN.js"]
