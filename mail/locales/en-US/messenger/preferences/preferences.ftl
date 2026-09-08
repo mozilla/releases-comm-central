@@ -50,7 +50,7 @@ general-files-and-attachment-header = Files & Attachments
 
 general-tags-header = Tags
 
-general-reading-and-display-header = Reading & Display
+general-reading-and-viewing-header = Reading & viewing
 
 general-updates-header = Updates
 
@@ -394,8 +394,8 @@ clear-cache-shutdown-label =
     .label = Clear cache on shutdown
     .accesskey = s
 
-always-underline-links =
-    .label = Always underline links
+underline-text-links-label =
+    .label = Underline text links in messages
     .accesskey = k
 
 font-legend = Fonts
@@ -412,14 +412,14 @@ font-options-button =
     .label = Advanced…
     .accesskey = A
 
-display-width-legend = Plain Text Messages
+display-width-legend = Plain text messages
 
 # Note : convert-emoticons-label 'Emoticons' are also known as 'Smileys', e.g. :-)
 convert-emoticons-label =
     .label = Display emoticons as graphics
     .accesskey = e
 
-display-text-label = When displaying quoted plain text messages:
+display-text-formatting-label = Quoted text formatting
 
 style-label =
     .value = Style:
@@ -432,7 +432,7 @@ bold-style-item =
 italic-style-item =
     .label = Italic
 bold-italic-style-item =
-    .label = Bold Italic
+    .label = Bold italic
 
 size-label =
     .value = Size:
@@ -493,20 +493,20 @@ auto-mark-as-read =
     .label = Automatically mark messages as read
     .accesskey = A
 
-mark-read-no-delay =
-    .label = Immediately on display
+mark-read-when-opened =
+    .label = Immediately when opened
     .accesskey = o
 
-view-attachments-inline =
-    .label = View attachments inline
-    .accesskey = V
+show-attachments-inline-label =
+    .label = Show attachments inside the message body
+    .accesskey = m
 
-## Note: This will concatenate to "After displaying for [___] seconds",
-## using (mark-read-delay) and a number (seconds-label).
+## Note: This will concatenate to "After viewing for [___] seconds",
+## using (mark-read-after-viewing) and a number (seconds-label).
 
-mark-read-delay =
-    .label = After displaying for
-    .accesskey = d
+mark-read-after-viewing =
+    .label = After viewing for
+    .accesskey = v
 
 seconds-label = seconds
 
@@ -531,7 +531,7 @@ close-move-delete =
     .label = Close message window/tab on move or delete
     .accesskey = C
 
-address-display-legend = Message List
+address-display-legend = Message list
 
 address-display-description = Preferred address display format:
 
@@ -547,8 +547,8 @@ address-display-name =
     .label = Name only
     .accesskey = N
 
-condensed-addresses-label =
-    .label = Show only display name for people in my address book
+display-name-only-label =
+    .label = Only show display name for contacts saved in the address book
     .accesskey = S
 
 table-layout-legend = Table View
@@ -559,29 +559,29 @@ table-layout-horizontal-scroll-label =
 
 conversation-view-legend = Conversation view
 
-conversation-view-checkbox-label =
-    .label = Enable conversation view
+show-conversation-view-label =
+    .label = Show conversation view
     .accesskey = c
-conversation-view-checkbox-description = Experimental feature based on Gloda, use it at your own risk
+conversation-view-preview-description = This is an early preview feature. It groups related messages together, but it might not always work as expected.
 
 label-experiment = Experimental
 
-dark-message-mode-legend = Message reader style
+dark-mode-message-appearance = Message appearance
 
-dark-message-mode-checkbox-label =
-    .label = Enable dark message mode
+dark-mode-checkbox-label =
+    .label = Use dark mode for message text
     .accesskey = d
-dark-message-mode-description = Force the message body to follow dark themes
+dark-mode-message-text-description = Applies a dark background to all incoming messages, even if the sender formatted them in light colors.
 
 dark-message-mode-toggle-label =
     .label = Show dark message mode toggle
     .accesskey = t
-dark-message-mode-toggle-description = Show a toggle in the message header to quickly disable the dark message mode
+dark-mode-toggle-description = Lets you quickly switch an email back to light mode while reading, without changing your main settings.
 
-general-folder-options-header = Folder Management Options
+general-folder-settings-header = Folder settings
 
-recent-destinations-legend = Recent Destinations
-recent-destinations-description = Options for listing and sorting folders where messages were recently moved to.
+recent-folders-legend = Recent folders
+recent-folders-description = Controls how recently used folders appear when moving messages.
 
 recent-sort-order-label = Sort order:
     .accesskey = S

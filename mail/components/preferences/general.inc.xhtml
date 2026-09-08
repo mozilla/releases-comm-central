@@ -559,7 +559,7 @@
     <hbox id="readingAndDisplayCategory"
           class="subcategory"
           data-category="paneGeneral">
-      <html:h1 data-l10n-id="general-reading-and-display-header"/>
+      <html:h1 data-l10n-id="general-reading-and-viewing-header"/>
     </hbox>
 
     <html:div data-category="paneGeneral">
@@ -567,13 +567,13 @@
       <vbox>
         <hbox align="center">
           <checkbox id="alwaysUnderlineLinks"
-                    data-l10n-id="always-underline-links"
+                    data-l10n-id="underline-text-links-label"
                     preference="layout.css.always_underline_links"/>
         </hbox>
 
         <hbox>
           <checkbox id="viewAttachmentsInline"
-                    data-l10n-id="view-attachments-inline"
+                    data-l10n-id="show-attachments-inline-label"
                     preference="mail.inline_attachments"/>
         </hbox>
 
@@ -588,11 +588,11 @@
                     align="start"
                     preference="mailnews.mark_message_read.delay">
           <radio id="mark_read_immediately"
-                 data-l10n-id="mark-read-no-delay"
+                 data-l10n-id="mark-read-when-opened"
                  value="false"/>
           <hbox align="center">
             <radio id="markAsReadAfterDelay" value="true"
-                   data-l10n-id="mark-read-delay"/>
+                   data-l10n-id="mark-read-after-viewing"/>
             <html:input id="markAsReadDelay" type="number" class="size3"
                         min="1" max="2147483"
                         preference="mailnews.mark_message_read.delay.interval"
@@ -641,7 +641,7 @@
 
         <separator class="thin"/>
 
-        <label control="displayText" data-l10n-id="display-text-label"/>
+        <label control="displayText" data-l10n-id="display-text-formatting-label"/>
         <hbox id="displayText" class="indent" align="center" role="group">
           <label data-l10n-id="style-label" control="mailQuotedStyle"/>
           <hbox>
@@ -692,7 +692,7 @@
         <separator class="thin"/>
         <hbox>
           <checkbox id="showCondensedAddresses"
-                    data-l10n-id="condensed-addresses-label"
+                    data-l10n-id="display-name-only-label"
                     preference="mail.showCondensedAddresses"/>
         </hbox>
       </vbox>
@@ -736,9 +736,9 @@
           </hbox>
           <vbox>
             <checkbox id="conversationView"
-                      data-l10n-id="conversation-view-checkbox-label"
+                      data-l10n-id="show-conversation-view-label"
                       preference="mail.thread.conversation.enabled"/>
-            <description data-l10n-id="conversation-view-checkbox-description"
+            <description data-l10n-id="conversation-view-preview-description"
                         class="tip-caption indent"/>
           </vbox>
         </vbox>
@@ -747,18 +747,18 @@
       <separator/>
       <vbox>
         <hbox class="align-baseline">
-          <html:legend data-l10n-id="dark-message-mode-legend"></html:legend>
+          <html:legend data-l10n-id="dark-mode-message-appearance"></html:legend>
         </hbox>
         <vbox>
           <checkbox id="darkReader"
-                    data-l10n-id="dark-message-mode-checkbox-label"
+                    data-l10n-id="dark-mode-checkbox-label"
                     preference="mail.dark-reader.enabled"/>
-          <description data-l10n-id="dark-message-mode-description"
+          <description data-l10n-id="dark-mode-message-text-description"
                        class="tip-caption indent"/>
           <checkbox id="darkReaderToggle"
                     data-l10n-id="dark-message-mode-toggle-label"
                     preference="mail.dark-reader.show-toggle"/>
-          <description data-l10n-id="dark-message-mode-toggle-description"
+          <description data-l10n-id="dark-mode-toggle-description"
                        class="tip-caption indent"/>
         </vbox>
       </vbox>
@@ -768,12 +768,12 @@
     <html:div id="folderOptionsCategory"
               class="subcategory"
               data-category="paneGeneral">
-      <html:h1 data-l10n-id="general-folder-options-header"></html:h1>
+      <html:h1 data-l10n-id="general-folder-settings-header"></html:h1>
     </html:div>
 
     <html:fieldset id="recentDestinationsOptions" data-category="paneGeneral">
-      <html:legend data-l10n-id="recent-destinations-legend"></html:legend>
-      <description data-l10n-id="recent-destinations-description"/>
+      <html:legend data-l10n-id="recent-folders-legend"></html:legend>
+      <description data-l10n-id="recent-folders-description"/>
       <separator></separator>
 
       <hbox align="center" pack="start">
