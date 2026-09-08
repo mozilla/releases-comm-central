@@ -67,6 +67,9 @@ def lint(command_context, *runargs, **lintargs):
     # Add the linter code from gecko to sys.path. Normally handled by "config_paths"
     sys.path.insert(0, mach_lint.here)
     lintargs["config_paths"].insert(0, HERE)
+    # Most of the linter definitions here wrap a payload module that lives in
+    # gecko's tools/lint rather than next to the definition.
+    lintargs["linter_paths"] = [mach_lint.here]
 
     lintargs["virtualenv_bin_path"] = command_context.virtualenv_manager.bin_path
     lintargs["virtualenv_manager"] = command_context.virtualenv_manager
