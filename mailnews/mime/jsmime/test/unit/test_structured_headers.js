@@ -231,6 +231,9 @@ define(function (require) {
         "<asd@asd.com><asdf@asdf.com><asdfg@asdfg.com>",
         "<asd@asd.com> <asdf@asdf.com> <asdfg@asdfg.com>",
       ],
+      // No valid message id to be found: keep the value.
+      ["asd@asd.com", "asd@asd.com"],
+      [" <asd@asd.com ", "<asd@asd.com"],
     ];
     multiple_unstructured_headers.forEach(function (header) {
       testHeader(header, multiple_unstructured_tests);

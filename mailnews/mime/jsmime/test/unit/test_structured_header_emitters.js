@@ -116,6 +116,25 @@ define(function (require) {
       testHeader(header, unstructured_tests);
     });
 
+    const message_id_headers = ["In-Reply-To", "References"];
+    const message_id_tests = [
+      ["", ""],
+      ["<asd@asd.com>", "<asd@asd.com>"],
+      ["<asd@asd.com> <asdf@asdf.com>", "<asd@asd.com> <asdf@asdf.com>"],
+      // Message ids are not a phrase, so they are never RFC 2047 encoded.
+      ["<\u00fcmlaut@asd.com>", "<\u00fcmlaut@asd.com>"],
+      // Folding happens between the message ids.
+      [
+        "<0000000000000000000000000000000000000000000000000000000@asd.com>" +
+          " <1111111111111111111111111111111111111111111111111111111@asd.com>",
+        "<0000000000000000000000000000000000000000000000000000000@asd.com>" +
+          "\r\n <1111111111111111111111111111111111111111111111111111111@asd.com>",
+      ],
+    ];
+    message_id_headers.forEach(function (header) {
+      testHeader(header, message_id_tests);
+    });
+
     test("emitStructuredHeaders", function () {
       const headers = new Map();
       headers.set("From", [{ name: "", email: "bugzilla-daemon@mozilla.org" }]);

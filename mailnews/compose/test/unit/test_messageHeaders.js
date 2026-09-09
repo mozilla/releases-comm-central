@@ -323,6 +323,48 @@ async function testOtherHeadersAgentParam(sendAgent, minimalAgent) {
     References: expected.join(" "),
     "In-Reply-To": references[references.length - 1],
   });
+
+  // A References value holding no message id at all shouldn't break sending,
+  // whether it went through the compose fields parsing...
+  fields.references = "not-a-message-id@test.invalid";
+  await checkNoMessageIdReferences(fields, identity);
+
+  // ... or was stored unparsed.
+  fields.setHeader("References", "not-a-message-id@test.invalid");
+  await checkNoMessageIdReferences(fields, identity);
+
+  // Message ids are not a phrase: a non-ASCII one must be kept as is, RFC 2047
+  // encoding it would destroy it.
+  fields.setHeader("References", "<\u00fcmlaut@test.invalid>");
+  const nonAsciiMsgHdr = await richCreateMessage(fields, [], identity);
+  const nonAsciiRefs = MimeParser.extractHeaders(
+    mailTestUtils.loadMessageToString(nonAsciiMsgHdr?.folder, nonAsciiMsgHdr)
+  ).getRawHeader("References")[0];
+  Assert.ok(
+    nonAsciiRefs.endsWith("mlaut@test.invalid>"),
+    `References should hold the message id, got "${nonAsciiRefs}"`
+  );
+  Assert.ok(
+    !nonAsciiRefs.includes("=?"),
+    `References should not be RFC 2047 encoded, got "${nonAsciiRefs}"`
+  );
+}
+
+/**
+ * Send with the given fields and check that the resulting message kept the
+ * References header, and got no In-Reply-To.
+ *
+ * @param {nsIMsgCompFields} fields
+ * @param {nsIMsgIdentity} identity
+ */
+async function checkNoMessageIdReferences(fields, identity) {
+  const msgHdr = await richCreateMessage(fields, [], identity);
+  const msgData = mailTestUtils.loadMessageToString(msgHdr?.folder, msgHdr);
+  Assert.ok(msgData, "message should have been created");
+  checkMessageHeaders(msgData, {
+    References: "not-a-message-id@test.invalid",
+    "In-Reply-To": undefined,
+  });
 }
 
 /**

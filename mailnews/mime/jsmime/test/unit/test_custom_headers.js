@@ -39,5 +39,11 @@ define(function (require) {
         jsmime.headerparser.addStructuredDecoder("To", customDecoder);
       }, /Cannot override header/);
     });
+    test("decoder returning nothing", function () {
+      jsmime.headerparser.addStructuredDecoder("X-Nothing", () => undefined);
+      assert.throws(function () {
+        jsmime.headerparser.parseStructuredHeader("X-Nothing", "value");
+      }, /Could not decode structured header/);
+    });
   });
 });
