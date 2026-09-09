@@ -11,4 +11,6 @@ run-if = ["enterprise"]
 ["test_felt_thunderbird_fxa.py"]
 run-if = ["sync"]
 
+["test_felt_thunderbird_signout.py"]
+
 ["test_felt_thunderbird_starts.py"]

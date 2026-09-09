@@ -43,6 +43,9 @@ if CONFIG["MOZ_DEBUG"] or CONFIG["NIGHTLY_BUILD"]:
         "StartupRecorder.sys.mjs",
     ]
 
+if CONFIG["MOZ_ENTERPRISE"]:
+    DIRS += ["enterprise"]
+
 XPCOM_MANIFESTS += [
     "components.conf",
 ]

@@ -6,6 +6,12 @@
   <command id="cmd_CustomizeMailToolbar"
            oncommand="CustomizeMailToolbar('mail-toolbox', 'CustomizeMailToolbar')"/>
 
+#ifdef MOZ_ENTERPRISE
+  <!-- Handled by PanelUI.initEnterpriseBadge(), the enterprise panel holding
+       the sign out button is only present in messenger.xhtml. -->
+  <command id="cmd_signoutEnterpriseUser"/>
+#endif
+
   <commandset id="mailFileMenuItems"
               commandupdater="true"
               events="create-menu-file"

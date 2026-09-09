@@ -188,6 +188,15 @@ const PanelUI = {
         );
         EnterpriseBadge.openPanel(button, ev);
       });
+
+      document
+        .getElementById("cmd_signoutEnterpriseUser")
+        .addEventListener("command", () => {
+          const { EnterpriseHandler } = ChromeUtils.importESModule(
+            "resource:///modules/enterprise/EnterpriseHandler.sys.mjs"
+          );
+          EnterpriseHandler.onSignOut(window).catch(console.error);
+        });
     }
   },
 
