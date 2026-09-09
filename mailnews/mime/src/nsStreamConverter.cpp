@@ -218,12 +218,12 @@ nsresult nsStreamConverter::DetermineOutputFormat(nsIURI* uri,
 
   // shorten the url that we test for the query strings by skipping directly
   // to the part where the query strings begin.
-  nsCString queryPart;
-  uri->GetQuery(queryPart);
+  nsCString query;
+  uri->GetQuery(query);
 
   // is this is a part that should just come out raw
   nsAutoCString part;
-  if (mozilla::URLParams::Extract(queryPart, "part"_ns, part) &&
+  if (mozilla::URLParams::Extract(query, "part"_ns, part) &&
       !mToType.EqualsLiteral("application/xhtml+xml")) {
     // default for parts
     mOutputFormat = "raw";
@@ -233,7 +233,7 @@ nsresult nsStreamConverter::DetermineOutputFormat(nsIURI* uri,
     // content type appended to it...if it does, we want to remember
     // that as mOutputFormat
     nsAutoCString type;
-    mozilla::URLParams::Extract(queryPart, "type"_ns, type);
+    mozilla::URLParams::Extract(query, "type"_ns, type);
     if (!type.IsEmpty()) {
       if (type.EqualsLiteral("message/rfc822")) {
         mRealContentType = "application/x-message-display";
@@ -252,14 +252,14 @@ nsresult nsStreamConverter::DetermineOutputFormat(nsIURI* uri,
   }
 
   nsAutoCString emitter;
-  mozilla::URLParams::Extract(queryPart, "emitter"_ns, emitter);
+  mozilla::URLParams::Extract(query, "emitter"_ns, emitter);
   if (emitter.EqualsLiteral("js")) {
     mOverrideFormat = "application/x-js-mime-message";
   }
 
   // if using the header query
   nsAutoCString header;
-  mozilla::URLParams::Extract(queryPart, "header"_ns, header);
+  mozilla::URLParams::Extract(query, "header"_ns, header);
   if (!header.IsEmpty()) {
     struct HeaderType {
       const char* headerType;
@@ -849,9 +849,11 @@ NS_IMETHODIMP nsStreamConverter::AsyncConvertData(const char* aFromType,
                "mailnews mime converter has to have the channel passed in...");
   if (NS_FAILED(rv)) return rv;
 
-  nsCOMPtr<nsIURI> aUri;
-  aChannel->GetURI(getter_AddRefs(aUri));
-  return Init(aUri, aListener, aChannel);
+  nsCOMPtr<nsIURI> uri;
+  MOZ_TRY(aChannel->GetURI(getter_AddRefs(uri)));
+  nsCOMPtr<nsIURI> repairedURI;
+  MOZ_TRY(RepairDodgyQueryURI(uri, getter_AddRefs(repairedURI)));
+  return Init(repairedURI, aListener, aChannel);
 }
 
 NS_IMETHODIMP nsStreamConverter::FirePendingStartRequest() {

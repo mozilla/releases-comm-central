@@ -551,4 +551,17 @@ inline bool IsNewsScheme(const nsACString& scheme) {
          scheme.EqualsLiteral("news-message");
 }
 
+/**
+ * Our code loves to have the query and ref parts of the URL in the wrong order
+ * (e.g. .../test#4?editasnew=true). Detect this and flip the parts around.
+ *
+ * Some code relies on this bad behaviour, so be careful to check what happens
+ * to the returned URI after calling these functions.
+ *
+ * TODO: Fix bug 2066307 and remove these functions.
+ */
+nsresult ParseDodgyQueryURI(const char* uriString, nsIURI** outURI);
+
+nsresult RepairDodgyQueryURI(nsIURI* inURI, nsIURI** outURI);
+
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMSGUTILS_H_

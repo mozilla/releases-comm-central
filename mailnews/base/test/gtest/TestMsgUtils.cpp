@@ -113,3 +113,80 @@ TEST(TestMsgUtils, StringFields)
     ASSERT_EQ(got, t.expected);
   }
 }
+
+TEST(TestMsgUtils, ParseDodgyQueryURI)
+{
+  nsCOMPtr<nsIURI> output;
+
+  // Invalid input, the output should be null.
+  ParseDodgyQueryURI(nullptr, getter_AddRefs(output));
+  ASSERT_EQ(output, nullptr);
+
+  ParseDodgyQueryURI("", getter_AddRefs(output));
+  ASSERT_EQ(output, nullptr);
+
+  ParseDodgyQueryURI("not a uri", getter_AddRefs(output));
+  ASSERT_EQ(output, nullptr);
+
+  // No query or fragment, these should remain unchanged.
+  ParseDodgyQueryURI("foo:bar", getter_AddRefs(output));
+  ASSERT_EQ(output->GetSpecOrDefault(), "foo:bar");
+
+  ParseDodgyQueryURI("foo:bar?query", getter_AddRefs(output));
+  ASSERT_EQ(output->GetSpecOrDefault(), "foo:bar?query");
+
+  ParseDodgyQueryURI("foo:bar#fragment", getter_AddRefs(output));
+  ASSERT_EQ(output->GetSpecOrDefault(), "foo:bar#fragment");
+
+  // Query and fragment in the right order, this should remain unchanged.
+  ParseDodgyQueryURI("foo:bar?query#fragment", getter_AddRefs(output));
+  ASSERT_EQ(output->GetSpecOrDefault(), "foo:bar?query#fragment");
+
+  // Query and fragment in the wrong order, this should be corrected.
+  ParseDodgyQueryURI("foo:bar#fragment?query", getter_AddRefs(output));
+  ASSERT_EQ(output->GetSpecOrDefault(), "foo:bar?query#fragment");
+
+  // Query and fragment in the right order, plus some other query-ish string,
+  // this should remain unchanged.
+  ParseDodgyQueryURI("foo:bar?query#fragment?other", getter_AddRefs(output));
+  ASSERT_EQ(output->GetSpecOrDefault(), "foo:bar?query#fragment?other");
+}
+
+TEST(TestMsgUtils, RepairDodgyQueryURI)
+{
+  nsCOMPtr<nsIURI> input;
+  nsCOMPtr<nsIURI> output;
+
+  // Invalid input, the output should be null.
+  RepairDodgyQueryURI(nullptr, getter_AddRefs(output));
+  ASSERT_EQ(output, nullptr);
+
+  // No query or fragment, these should remain unchanged.
+  NS_NewURI(getter_AddRefs(input), "foo:bar");
+  RepairDodgyQueryURI(input, getter_AddRefs(output));
+  ASSERT_EQ(output->GetSpecOrDefault(), "foo:bar");
+
+  NS_NewURI(getter_AddRefs(input), "foo:bar?query");
+  RepairDodgyQueryURI(input, getter_AddRefs(output));
+  ASSERT_EQ(output->GetSpecOrDefault(), "foo:bar?query");
+
+  NS_NewURI(getter_AddRefs(input), "foo:bar#fragment");
+  RepairDodgyQueryURI(input, getter_AddRefs(output));
+  ASSERT_EQ(output->GetSpecOrDefault(), "foo:bar#fragment");
+
+  // Query and fragment in the right order, this should remain unchanged.
+  NS_NewURI(getter_AddRefs(input), "foo:bar?query#fragment");
+  RepairDodgyQueryURI(input, getter_AddRefs(output));
+  ASSERT_EQ(output->GetSpecOrDefault(), "foo:bar?query#fragment");
+
+  // Query and fragment in the wrong order, this should be corrected.
+  NS_NewURI(getter_AddRefs(input), "foo:bar#fragment?query");
+  RepairDodgyQueryURI(input, getter_AddRefs(output));
+  ASSERT_EQ(output->GetSpecOrDefault(), "foo:bar?query#fragment");
+
+  // Query and fragment in the right order, plus some other query-ish string,
+  // this should remain unchanged.
+  NS_NewURI(getter_AddRefs(input), "foo:bar?query#fragment?other");
+  RepairDodgyQueryURI(input, getter_AddRefs(output));
+  ASSERT_EQ(output->GetSpecOrDefault(), "foo:bar?query#fragment?other");
+}

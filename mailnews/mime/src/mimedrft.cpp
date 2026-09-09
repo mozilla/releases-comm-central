@@ -1322,24 +1322,12 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
     if (forward_inline) keepID = false;
 
     nsCOMPtr<nsIURI> uri;
-    NS_NewURI(getter_AddRefs(uri), mdd->url_name);
+    nsresult rv = ParseDodgyQueryURI(mdd->url_name, getter_AddRefs(uri));
+    NS_ENSURE_SUCCESS_VOID(rv);
 
     nsAutoCString query;
-    uri->GetQuery(query);
-
-    if (query.IsEmpty()) {
-      // Compose code loves to include the actual query in the ref part of the
-      // URL (e.g. .../test#4?editasnew=true). Rather than open that can of
-      // worms, let's just handle the weirdness.
-      // TODO: Fix bug 2066307 and remove this block.
-      uri->GetRef(query);
-      int32_t q = query.FindChar('?');
-      if (q == kNotFound) {
-        query.Truncate();
-      } else {
-        query.Cut(0, q + 1);
-      }
-    }
+    rv = uri->GetQuery(query);
+    NS_ENSURE_SUCCESS_VOID(rv);
 
     mozilla::URLParams params;
     params.ParseInput(query);

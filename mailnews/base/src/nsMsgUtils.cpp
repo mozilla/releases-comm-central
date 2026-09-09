@@ -1937,3 +1937,37 @@ nsTArray<nsCString> StringFields(nsACString const& s) {
   }
   return out;
 }
+
+nsresult ParseDodgyQueryURI(const char* uriString, nsIURI** outURI) {
+  NS_ENSURE_ARG(uriString);
+  NS_ENSURE_ARG_POINTER(outURI);
+  *outURI = nullptr;
+
+  nsCOMPtr<nsIURI> uri;
+  MOZ_TRY(NS_NewURI(getter_AddRefs(uri), uriString));
+  return RepairDodgyQueryURI(uri, outURI);
+}
+
+nsresult RepairDodgyQueryURI(nsIURI* inURI, nsIURI** outURI) {
+  NS_ENSURE_ARG(inURI);
+  NS_ENSURE_ARG_POINTER(outURI);
+  *outURI = nullptr;
+
+  nsCString query;
+  MOZ_TRY(inURI->GetQuery(query));
+  nsCString ref;
+  MOZ_TRY(inURI->GetRef(ref));
+
+  if (query.IsEmpty()) {
+    int32_t q = ref.FindChar('?');
+    if (q != kNotFound) {
+      query = Substring(ref, q + 1);
+      ref.Cut(q, ref.Length() - q);
+
+      return NS_MutateURI(inURI).SetQuery(query).SetRef(ref).Finalize(outURI);
+    }
+  }
+
+  NS_ADDREF(*outURI = inURI);
+  return NS_OK;
+}
