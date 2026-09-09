@@ -77,10 +77,11 @@ jobs:
           - comm-beta
           - comm-release
           - comm-esr140
+          - comm-esr153
       when:
           by-project:
               comm-central: [{hour: 6, minute: 45}, {hour: 18, minute: 45}]
-              comm-(beta|release|esr140): [{hour: 9, minute: 00}]
+              comm-(beta|release|esr140|esr153): [{hour: 9, minute: 00}]
               # No default
 
     - name: tb-rust-vendor-check
