@@ -1790,9 +1790,9 @@ int MimeObject_output_init(MimeObject* obj, const char* content_type) {
     if ((obj->options) &&
         (obj->options->format_out == nsMimeOutput::nsMimeMessageQuoting ||
          obj->options->format_out == nsMimeOutput::nsMimeMessageBodyQuoting ||
-         obj->options->format_out == nsMimeOutput::nsMimeMessageSaveAs ||
-         obj->options->format_out == nsMimeOutput::nsMimeMessagePrintOutput))
+         obj->options->format_out == nsMimeOutput::nsMimeMessageSaveAs)) {
       ResetChannelCharset(obj);
+    }
 
     status = obj->options->output_init_fn(content_type, charset, name,
                                           x_mac_type, x_mac_creator,

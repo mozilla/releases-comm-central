@@ -383,23 +383,19 @@ nsMessenger::SaveAs(const nsACString& aURI, nsIMsgIdentity* aIdentity,
       rv = messageService->SaveMessageToDisk(aURI, saveAsFile, urlListener,
                                              true, mMsgWindow);
     } else {
-      nsAutoCString urlString(aURI);
-
-      // we can't go RFC822 to TXT until bug #1775 is fixed
-      // so until then, do the HTML to TXT conversion in
-      // nsSaveMsgListener::OnStopRequest(), see ConvertBufToPlainText()
-      //
-      // Setup the URL for a "Save As..." Operation...
-      // For now, if this is a save as TEXT operation, then do
-      // a "printing" operation
       if (saveAsFileType == TEXT_FILE_TYPE) {
         saveListener->m_outputFormat = nsSaveMsgListener::ePlainText;
         saveListener->m_doCharsetConversion = true;
-        urlString.AppendLiteral("?header=print");
       } else {
         saveListener->m_outputFormat = nsSaveMsgListener::eHTML;
         saveListener->m_doCharsetConversion = false;
+      }
+
+      nsAutoCString urlString(aURI);
+      if (urlString.FindChar('?') == kNotFound) {
         urlString.AppendLiteral("?header=saveas");
+      } else {
+        urlString.AppendLiteral("&header=saveas");
       }
 
       nsCOMPtr<nsIURI> url;

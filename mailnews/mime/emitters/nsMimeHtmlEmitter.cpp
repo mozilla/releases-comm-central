@@ -42,7 +42,6 @@ nsresult nsMimeHtmlDisplayEmitter::Init() { return NS_OK; }
 nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTMLPrefix(
     const nsACString& name) {
   if ((mFormat == nsMimeOutput::nsMimeMessageSaveAs) ||
-      (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) ||
       (mFormat == nsMimeOutput::nsMimeMessageBodyDisplay))
     return nsMimeBaseEmitter::WriteHeaderFieldHTMLPrefix(name);
   else
@@ -52,7 +51,6 @@ nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTMLPrefix(
 nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTML(const char* field,
                                                         const char* value) {
   if ((mFormat == nsMimeOutput::nsMimeMessageSaveAs) ||
-      (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) ||
       (mFormat == nsMimeOutput::nsMimeMessageBodyDisplay))
     return nsMimeBaseEmitter::WriteHeaderFieldHTML(field, value);
   else
@@ -61,7 +59,6 @@ nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTML(const char* field,
 
 nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTMLPostfix() {
   if ((mFormat == nsMimeOutput::nsMimeMessageSaveAs) ||
-      (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) ||
       (mFormat == nsMimeOutput::nsMimeMessageBodyDisplay))
     return nsMimeBaseEmitter::WriteHeaderFieldHTMLPostfix();
   else
@@ -207,7 +204,6 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(int32_t aHeaderMode) {
 NS_IMETHODIMP nsMimeHtmlDisplayEmitter::WriteHTMLHeaders(
     const nsACString& name) {
   if ((mFormat == nsMimeOutput::nsMimeMessageSaveAs) ||
-      (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) ||
       (mFormat == nsMimeOutput::nsMimeMessageBodyDisplay)) {
     nsMimeBaseEmitter::WriteHTMLHeaders(name);
   }

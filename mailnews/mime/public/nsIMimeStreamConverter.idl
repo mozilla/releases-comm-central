@@ -15,18 +15,17 @@ typedef long nsMimeOutputType;
 [scriptable, uuid(fdc2956e-d558-43fb-bfdd-fb9511229aa5)]
 interface nsMimeOutput : nsISupports
 {
-  const long nsMimeMessageBodyDisplay = 2;
-  const long nsMimeMessageQuoting = 3;
-  const long nsMimeMessageBodyQuoting = 4;
-  const long nsMimeMessageRaw = 5;
-  const long nsMimeMessageDraftOrTemplate = 6;
-  const long nsMimeMessageEditorTemplate = 7;
-  const long nsMimeMessagePrintOutput = 9;
-  const long nsMimeMessageSaveAs = 10;
-  const long nsMimeMessageFilterSniffer = 12;
-  const long nsMimeMessageDecrypt = 13;
-  const long nsMimeMessageAttach = 14;
-  const long nsMimeUnknown = 15;
+  const long nsMimeMessageBodyDisplay = 1;
+  const long nsMimeMessageQuoting = 2;
+  const long nsMimeMessageBodyQuoting = 3;
+  const long nsMimeMessageRaw = 4;
+  const long nsMimeMessageDraftOrTemplate = 5;
+  const long nsMimeMessageEditorTemplate = 6;
+  const long nsMimeMessageSaveAs = 7;
+  const long nsMimeMessageFilterSniffer = 8;
+  const long nsMimeMessageDecrypt = 9;
+  const long nsMimeMessageAttach = 10;
+  const long nsMimeUnknown = 11;
 };
 
 [scriptable, uuid(FA81CAA0-6261-11d3-8311-00805F2A0107)]

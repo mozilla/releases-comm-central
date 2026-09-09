@@ -275,8 +275,6 @@ nsresult nsStreamConverter::DetermineOutputFormat(nsIURI* uri,
         {"filter", "text/html", nsMimeOutput::nsMimeMessageFilterSniffer},
         // nsMsgQuote::QuoteMessage
         {"quotebody", "text/html", nsMimeOutput::nsMimeMessageBodyQuoting},
-        // nsMessenger::SaveAs (HTML output is then converted to plain text)
-        {"print", "text/html", nsMimeOutput::nsMimeMessagePrintOutput},
         // nsMsgQuote::QuoteMessage
         {"quote", "text/html", nsMimeOutput::nsMimeMessageQuoting},
         // nsMessenger::SaveAs
@@ -364,7 +362,6 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI* aURI,
     case nsMimeOutput::nsMimeMessageSaveAs:       // Save as operation
     case nsMimeOutput::nsMimeMessageBodyQuoting:  // only HTML body quoted
                                                   // output
-    case nsMimeOutput::nsMimeMessagePrintOutput:  // all Printing output
       mOutputFormat = "text/html";
       break;
 

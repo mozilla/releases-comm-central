@@ -148,8 +148,8 @@ nsresult ProcessBodyAsAttachment(MimeObject* obj, nsMsgAttachmentData** data) {
   // to do this.
   MimeObject* child = obj;
 
-  // We're actually returning a list of attachments. The list is terminated by an
-  // entry with a null `m_url` member.
+  // We're actually returning a list of attachments. The list is terminated by
+  // an entry with a null `m_url` member.
   *data = new nsMsgAttachmentData[2];
   if (!*data) return NS_ERROR_OUT_OF_MEMORY;
 
@@ -719,8 +719,7 @@ extern "C" void NotifyEmittersOfAttachmentList(MimeDisplayOptions* opt,
 
     if ((opt->format_out == nsMimeOutput::nsMimeMessageQuoting) ||
         (opt->format_out == nsMimeOutput::nsMimeMessageBodyQuoting) ||
-        (opt->format_out == nsMimeOutput::nsMimeMessageSaveAs) ||
-        (opt->format_out == nsMimeOutput::nsMimeMessagePrintOutput)) {
+        (opt->format_out == nsMimeOutput::nsMimeMessageSaveAs)) {
       mimeEmitterAddAttachmentField(opt, HEADER_CONTENT_DESCRIPTION,
                                     tmp->m_description.get());
       mimeEmitterAddAttachmentField(opt, HEADER_CONTENT_TYPE,
@@ -1365,7 +1364,6 @@ extern "C" void* mime_bridge_create_display_stream(
 
     case nsMimeOutput::nsMimeMessageSaveAs:   // Save As operations
     case nsMimeOutput::nsMimeMessageQuoting:  // all HTML quoted/printed output
-    case nsMimeOutput::nsMimeMessagePrintOutput:
       msd->options->fancy_headers_p = true;
       break;
 
@@ -1705,8 +1703,7 @@ extern "C" nsresult mimeEmitterEndHeader(MimeDisplayOptions* opt,
 
     nsCString name;
     if (msd->format_out == nsMimeOutput::nsMimeMessageBodyDisplay ||
-        msd->format_out == nsMimeOutput::nsMimeMessageSaveAs ||
-        msd->format_out == nsMimeOutput::nsMimeMessagePrintOutput) {
+        msd->format_out == nsMimeOutput::nsMimeMessageSaveAs) {
       if (obj->headers) {
         nsMsgAttachmentData attachments[1];
         attIndex = 0;

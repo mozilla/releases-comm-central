@@ -151,12 +151,12 @@ add_task(async function testSingleTXT() {
 
   Assert.stringContains(
     savedText,
-    `Date:${end}${dateFormat.format(new Date("2000-02-01T05:00:00"))}${end}`,
+    `Date: ${dateFormat.format(new Date("2000-02-01T05:00:00"))}${end}`,
     "file content should include the localised date"
   );
   Assert.stringContains(
     savedText,
-    `Subject:${end}${testMessages[5].subject}${end}`,
+    `Subject: ${testMessages[5].subject}${end}`,
     "file content should include the subject"
   );
 });

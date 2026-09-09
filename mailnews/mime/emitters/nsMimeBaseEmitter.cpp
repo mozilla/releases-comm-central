@@ -748,13 +748,11 @@ nsresult nsMimeBaseEmitter::WriteHeaderFieldHTML(const char* field,
 }
 
 nsresult nsMimeBaseEmitter::WriteHeaderFieldHTMLPrefix(const nsACString& name) {
-  if (((mFormat == nsMimeOutput::nsMimeMessageSaveAs) && (mFirstHeaders)) ||
-      ((mFormat == nsMimeOutput::nsMimeMessagePrintOutput) &&
-       (mFirstHeaders)) ||
-      ((mFormat == nsMimeOutput::nsMimeMessageBodyDisplay) && (mFirstHeaders)))
+  if (mFirstHeaders && (mFormat == nsMimeOutput::nsMimeMessageSaveAs ||
+                        mFormat == nsMimeOutput::nsMimeMessageBodyDisplay)) {
     /* DO NOTHING */;  // rhp: Do nothing...leaving the conditional like this so
                        // its easier to see the logic of what is going on.
-  else {
+  } else {
     mHTMLHeaders.AppendLiteral(
         "<br><fieldset class=\"moz-mime-attachment-header\">");
     if (!name.IsEmpty()) {

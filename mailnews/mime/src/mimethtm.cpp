@@ -171,9 +171,9 @@ static int MimeInlineTextHTML_parse_eof(MimeObject* obj, bool abort_p) {
  * serialised HTML of a message. This becomes a no-op if no <body> tag is found.
  */
 void MimeInlineTextHTML_insert_lang_div(MimeObject* obj, nsCString& message) {
-  if (obj->options->format_out != nsMimeOutput::nsMimeMessageBodyDisplay &&
-      obj->options->format_out != nsMimeOutput::nsMimeMessagePrintOutput)
+  if (obj->options->format_out != nsMimeOutput::nsMimeMessageBodyDisplay) {
     return;
+  }
 
   // Make sure we have a <body> before we start.
   int32_t index = message.LowerCaseFindASCII("<body");
@@ -212,9 +212,9 @@ void MimeInlineTextHTML_insert_lang_div(MimeObject* obj, nsCString& message) {
  */
 void MimeInlineTextHTML_remove_plaintext_tag(MimeObject* obj,
                                              nsCString& message) {
-  if (obj->options->format_out != nsMimeOutput::nsMimeMessageBodyDisplay &&
-      obj->options->format_out != nsMimeOutput::nsMimeMessagePrintOutput)
+  if (obj->options->format_out != nsMimeOutput::nsMimeMessageBodyDisplay) {
     return;
+  }
 
   // Replace all <plaintext> and </plaintext> tags.
   int32_t index = 0;

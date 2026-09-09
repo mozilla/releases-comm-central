@@ -131,8 +131,7 @@ static int MimeInlineTextPlainFlowed_parse_begin(MimeObject* obj) {
 
   if (exdata->fixedwidthfont) fontstyle = "font-family: -moz-fixed";
 
-  if (nsMimeOutput::nsMimeMessageBodyDisplay == obj->options->format_out ||
-      nsMimeOutput::nsMimeMessagePrintOutput == obj->options->format_out) {
+  if (nsMimeOutput::nsMimeMessageBodyDisplay == obj->options->format_out) {
     int32_t fontSize;            // default font size
     int32_t fontSizePercentage;  // size percentage
     nsresult rv = GetMailNewsFont(obj, exdata->fixedwidthfont, &fontSize,

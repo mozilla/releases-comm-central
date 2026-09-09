@@ -126,8 +126,7 @@ static int MimeInlineTextPlain_parse_begin(MimeObject* obj) {
       if (!obj->options->variable_width_plaintext_p)
         fontstyle = "font-family: -moz-fixed";
 
-      if (nsMimeOutput::nsMimeMessageBodyDisplay == obj->options->format_out ||
-          nsMimeOutput::nsMimeMessagePrintOutput == obj->options->format_out) {
+      if (nsMimeOutput::nsMimeMessageBodyDisplay == obj->options->format_out) {
         int32_t fontSize;            // default font size
         int32_t fontSizePercentage;  // size percentage
         nsresult rv =
