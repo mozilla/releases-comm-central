@@ -113,6 +113,11 @@ def test_fetch_indexed_artifact(task_id, artifact_path, body, status, expected):
             responses.assert_call_count(url, 1)
 
 
+def test_run_cmd_missing_executable():
+    with pytest.raises(FileNotFoundError):
+        vendor.support.run_cmd(["./mach-does-not-exist", "tb-rust", "check-upstream"])
+
+
 class Repo:
     api_url = "https://api_url"
     dot_path = "dot_path"

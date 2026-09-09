@@ -46,12 +46,16 @@ def run_cmd(*args, **kwargs):
         rv = subprocess.run(*args, **kwargs)
     except subprocess.CalledProcessError as e:
         rv = e
-    finally:
-        log(f"Return code: {rv.returncode}")
-        log(rv.stdout)
-        log(rv.stderr)
-        if type(rv) is subprocess.CalledProcessError:
-            raise rv
+    # The command never ran, so there is no rv to report a return code from.
+    except OSError as e:
+        log(f"Failed to execute {args[0]}: {e}")
+        raise
+
+    log(f"Return code: {rv.returncode}")
+    log(rv.stdout)
+    log(rv.stderr)
+    if type(rv) is subprocess.CalledProcessError:
+        raise rv
 
     return rv
 

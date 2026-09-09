@@ -5,17 +5,44 @@
 import logging
 from pathlib import Path
 
+import yaml
+
 from gecko_taskgraph import GECKO
 from gecko_taskgraph.actions.registry import register_callback_action
 from gecko_taskgraph.actions.util import create_tasks, fetch_graph_and_labels
 from gecko_taskgraph.util.attributes import RELEASE_PROMOTION_PROJECTS
 from mozversioncontrol import HgRepository
 
+from comm_taskgraph import COMM
+
 logger = logging.getLogger(__name__)
 
 
 def is_release_promotion_available(parameters):
     return parameters["project"] in RELEASE_PROMOTION_PROJECTS
+
+
+def upstream_gecko_rev():
+    """Resolve the Gecko revision to sync vendored code with.
+
+    A pinned GECKO_HEAD_REV wins over GECKO_HEAD_REF, which has to be passed to
+    hg id explicitly: with no revision it returns the remote's tip, a tag-only
+    commit whenever tagging was the last thing pushed there.
+    """
+    gecko_rev = yaml.safe_load((Path(COMM) / ".gecko_rev.yml").read_text())
+
+    if pinned_rev := gecko_rev.get("GECKO_HEAD_REV"):
+        return pinned_rev
+
+    repo = HgRepository(Path(GECKO))
+    return repo._run(
+        "id",
+        "-i",
+        "--template={node}",
+        "-r",
+        gecko_rev["GECKO_HEAD_REF"],
+        gecko_rev["GECKO_HEAD_REPOSITORY"],
+    )
 
 
 @register_callback_action(
@@ -61,9 +88,7 @@ def tb_rust_sync_action(parameters, graph_config, _input, task_group_id, task_id
     decision_task_id, full_task_graph, label_to_taskid, _ = fetch_graph_and_labels(
         parameters, graph_config
     )
-    remote = "https://hg.mozilla.org/mozilla-central"
-    repo = HgRepository(Path(GECKO))
-    rev = repo._run("id", "-i", "--template={node}", remote)
+    rev = upstream_gecko_rev()
     logger.info(f"Setting upstream rev to {rev}")
 
     def modifier(entry):
