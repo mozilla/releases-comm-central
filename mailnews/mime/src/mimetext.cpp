@@ -247,10 +247,10 @@ int MimeInlineText_flushBlankLines(MimeObject* obj, const char* blank,
   return 0;
 }
 
-#define MimeInlineText_grow_cbuffer(text, desired_size)                       \
-  (((desired_size) >= (text)->cbuffer_size)                                   \
-       ? mime_GrowBuffer((desired_size), sizeof(char), 100, &(text)->cbuffer, \
-                         &(text)->cbuffer_size)                               \
+#define MimeInlineText_grow_cbuffer(text, desired_size)         \
+  (((desired_size) >= (text)->cbuffer_size)                     \
+       ? mime_GrowBuffer((desired_size), 100, &(text)->cbuffer, \
+                         &(text)->cbuffer_size)                 \
        : 0)
 
 static int MimeInlineText_convert_and_parse_line(const char* line,

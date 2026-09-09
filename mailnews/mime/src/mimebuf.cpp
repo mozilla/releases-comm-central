@@ -22,8 +22,8 @@
 #include "nsMimeStringResources.h"
 #include "mimeobj.h"
 
-extern "C" int mime_GrowBuffer(uint32_t desired_size, uint32_t element_size,
-                               uint32_t quantum, char** buffer, int32_t* size) {
+extern "C" int mime_GrowBuffer(uint32_t desired_size, uint32_t quantum,
+                               char** buffer, int32_t* size) {
   /* A negative *size means an earlier growth wrapped it. Refuse, rather than
      let the comparison below cast it back to a huge unsigned value, conclude
      no growth is needed and report success. */
@@ -40,11 +40,8 @@ extern "C" int mime_GrowBuffer(uint32_t desired_size, uint32_t element_size,
         mozilla::CheckedInt<int32_t>(*size) + increment;
     if (!new_size.isValid()) return MIME_OUT_OF_MEMORY;
 
-    new_buf =
-        (*buffer ? (char*)PR_Realloc(*buffer, new_size.value() *
-                                                  (element_size / sizeof(char)))
-                 : (char*)PR_MALLOC(new_size.value() *
-                                    (element_size / sizeof(char))));
+    new_buf = (*buffer ? (char*)PR_Realloc(*buffer, new_size.value())
+                       : (char*)PR_MALLOC(new_size.value()));
     if (!new_buf) return MIME_OUT_OF_MEMORY;
     *buffer = new_buf;
     *size = new_size.value();
@@ -162,8 +159,8 @@ extern "C" int mime_LineBuffer(const char* net_buffer, int32_t net_buffer_size,
       if (!desired_size.isValid()) return MIME_OUT_OF_MEMORY;
 
       if (desired_size.value() >= *buffer_sizeP) {
-        status = mime_GrowBuffer(desired_size.value(), sizeof(char), 1024,
-                                 bufferP, buffer_sizeP);
+        status =
+            mime_GrowBuffer(desired_size.value(), 1024, bufferP, buffer_sizeP);
         if (status < 0) return status;
       }
       memcpy((*bufferP) + (*buffer_fpP), net_buffer, (end - net_buffer));

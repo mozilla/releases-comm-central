@@ -14,17 +14,17 @@ TEST(TestMimeBuf, GrowBufferGrows)
   char* buffer = nullptr;
   int32_t size = 0;
 
-  ASSERT_EQ(mime_GrowBuffer(16, sizeof(char), 255, &buffer, &size), 0);
+  ASSERT_EQ(mime_GrowBuffer(16, 255, &buffer, &size), 0);
   ASSERT_NE(buffer, nullptr);
-  // quantum (mime_GrowBuffer 3rd param) is the minimum growth step, so a
+  // quantum (mime_GrowBuffer 2nd param) is the minimum growth step, so a
   // 16-byte request grows by 255.
   EXPECT_EQ(size, 255);
 
-  ASSERT_EQ(mime_GrowBuffer(1024, sizeof(char), 255, &buffer, &size), 0);
+  ASSERT_EQ(mime_GrowBuffer(1024, 255, &buffer, &size), 0);
   EXPECT_EQ(size, 1024);
 
   // Already big enough: no growth, still success.
-  ASSERT_EQ(mime_GrowBuffer(512, sizeof(char), 255, &buffer, &size), 0);
+  ASSERT_EQ(mime_GrowBuffer(512, 255, &buffer, &size), 0);
   EXPECT_EQ(size, 1024);
 
   PR_Free(buffer);
@@ -38,8 +38,7 @@ TEST(TestMimeBuf, GrowBufferRejectsNegativeSize)
   char* buffer = nullptr;
   int32_t size = -1;
 
-  EXPECT_EQ(mime_GrowBuffer(16, sizeof(char), 255, &buffer, &size),
-            MIME_OUT_OF_MEMORY);
+  EXPECT_EQ(mime_GrowBuffer(16, 255, &buffer, &size), MIME_OUT_OF_MEMORY);
   EXPECT_EQ(buffer, nullptr);
 }
 
@@ -50,7 +49,7 @@ TEST(TestMimeBuf, GrowBufferRejectsOverflow)
   char* buffer = nullptr;
   int32_t size = INT32_MAX - 16;
 
-  EXPECT_EQ(mime_GrowBuffer(INT32_MAX, sizeof(char), 255, &buffer, &size),
+  EXPECT_EQ(mime_GrowBuffer(INT32_MAX, 255, &buffer, &size),
             MIME_OUT_OF_MEMORY);
   EXPECT_EQ(size, INT32_MAX - 16);
   EXPECT_EQ(buffer, nullptr);

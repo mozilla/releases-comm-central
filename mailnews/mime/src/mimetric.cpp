@@ -69,8 +69,7 @@ int MimeRichtextConvert(const char* line, int32_t length, MimeObject* obj,
   desired_size = (length * BGROWTH) + 1;
 #undef BGROWTH
   if (desired_size >= (uint32_t)*obuffer_sizeP)
-    status = mime_GrowBuffer(desired_size, sizeof(char), 1024, obufferP,
-                             obuffer_sizeP);
+    status = mime_GrowBuffer(desired_size, 1024, obufferP, obuffer_sizeP);
   if (status < 0) return status;
 
   if (enriched_p) {

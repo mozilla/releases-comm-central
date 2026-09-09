@@ -104,8 +104,8 @@ int MimeHeaders_parse_line(const char* buffer, int32_t size,
       mozilla::CheckedInt<int32_t>(hdrs->all_headers_fp) + size + 1;
   if (size < 0 || !desired_size.isValid()) return MIME_OUT_OF_MEMORY;
   if (desired_size.value() >= hdrs->all_headers_size) {
-    status = mime_GrowBuffer(desired_size.value(), sizeof(char), 255,
-                             &hdrs->all_headers, &hdrs->all_headers_size);
+    status = mime_GrowBuffer(desired_size.value(), 255, &hdrs->all_headers,
+                             &hdrs->all_headers_size);
     if (status < 0) return status;
   }
   memcpy(hdrs->all_headers + hdrs->all_headers_fp, buffer, size);
@@ -441,10 +441,10 @@ char* MimeHeaders_get_parameter(const char* header_value, const char* parm_name,
 #define MimeHeaders_write(HDRS, OPT, DATA, LENGTH) \
   MimeOptions_write((HDRS), (OPT), (DATA), (LENGTH), true);
 
-#define MimeHeaders_grow_obuffer(hdrs, desired_size)                          \
-  ((((long)(desired_size)) >= ((long)(hdrs)->obuffer_size))                   \
-       ? mime_GrowBuffer((desired_size), sizeof(char), 255, &(hdrs)->obuffer, \
-                         &(hdrs)->obuffer_size)                               \
+#define MimeHeaders_grow_obuffer(hdrs, desired_size)            \
+  ((((long)(desired_size)) >= ((long)(hdrs)->obuffer_size))     \
+       ? mime_GrowBuffer((desired_size), 255, &(hdrs)->obuffer, \
+                         &(hdrs)->obuffer_size)                 \
        : 0)
 
 int MimeHeaders_write_all_headers(MimeHeaders* hdrs, MimeDisplayOptions* opt,

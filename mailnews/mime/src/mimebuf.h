@@ -17,8 +17,8 @@
 
 #include "mimeobj.h"
 
-extern "C" int mime_GrowBuffer(uint32_t desired_size, uint32_t element_size,
-                               uint32_t quantum, char** buffer, int32_t* size);
+extern "C" int mime_GrowBuffer(uint32_t desired_size, uint32_t quantum,
+                               char** buffer, int32_t* size);
 
 extern "C" int mime_LineBuffer(const char* net_buffer, int32_t net_buffer_size,
                                char** bufferP, int32_t* buffer_sizeP,
