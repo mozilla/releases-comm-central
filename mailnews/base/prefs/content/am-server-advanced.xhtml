@@ -436,10 +436,12 @@
               />
               <html:input
                 id="exchangeEndpointHost"
-                type="url"
+                type="text"
+                pattern="[A-Za-z0-9.\-]+"
                 class="input-inline"
                 aria-labelledby="exchangeEndpointHostLabel"
                 amsa_persist="true"
+                placeholder="login.microsoftonline.com"
               />
               <html:input
                 id="exchangeOAuthScopes"
