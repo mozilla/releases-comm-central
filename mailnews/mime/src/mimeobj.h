@@ -174,13 +174,7 @@ struct MimeObject {
    */
   char *ibuffer, *obuffer;
   int32_t ibuffer_size, obuffer_size;
-  int32_t ibuffer_fp, obuffer_fp;
+  int32_t ibuffer_fp;
 };
-
-#define MimeObject_grow_obuffer(obj, desired_size)                        \
-  (((desired_size) >= (obj)->obuffer_size)                                \
-       ? mime_GrowBuffer((uint32_t)(desired_size), 1024, &(obj)->obuffer, \
-                         (int32_t*)&(obj)->obuffer_size)                  \
-       : 0)
 
 #endif  // COMM_MAILNEWS_MIME_SRC_MIMEOBJ_H_

@@ -38,10 +38,6 @@ typedef struct MimeHeaders {
                          array (and consequently, how many
                          distinct headers are in here.) */
 
-  char* obuffer; /* This buffer is used for output. */
-  int32_t obuffer_size;
-  int32_t obuffer_fp;
-
   char* munged_subject; /* What a hack.  This is a place to write down
                            the subject header, after it's been
                            charset-ified and stuff.  Remembered so that

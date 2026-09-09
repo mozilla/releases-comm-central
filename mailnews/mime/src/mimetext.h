@@ -61,8 +61,6 @@ struct MimeInlineText {
                     or defaults. */
   bool charsetOverridable;
   bool needUpdateMsgWinCharset;
-  char* cbuffer; /* Buffer used for charset conversion. */
-  int32_t cbuffer_size;
 
   bool inputAutodetect;
   bool initializeCharset;

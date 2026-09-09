@@ -72,10 +72,7 @@ void MimeHeaders_free(MimeHeaders* hdrs) {
   if (!hdrs) return;
   PR_FREEIF(hdrs->all_headers);
   PR_FREEIF(hdrs->heads);
-  PR_FREEIF(hdrs->obuffer);
   PR_FREEIF(hdrs->munged_subject);
-  hdrs->obuffer_fp = 0;
-  hdrs->obuffer_size = 0;
 
   PR_Free(hdrs);
 }
@@ -441,12 +438,6 @@ char* MimeHeaders_get_parameter(const char* header_value, const char* parm_name,
 #define MimeHeaders_write(HDRS, OPT, DATA, LENGTH) \
   MimeOptions_write((HDRS), (OPT), (DATA), (LENGTH), true);
 
-#define MimeHeaders_grow_obuffer(hdrs, desired_size)            \
-  ((((long)(desired_size)) >= ((long)(hdrs)->obuffer_size))     \
-       ? mime_GrowBuffer((desired_size), 255, &(hdrs)->obuffer, \
-                         &(hdrs)->obuffer_size)                 \
-       : 0)
-
 int MimeHeaders_write_all_headers(MimeHeaders* hdrs, MimeDisplayOptions* opt,
                                   bool attachment) {
   int status = 0;
@@ -695,10 +686,6 @@ void MimeHeaders_do_unix_display_hook_hack(MimeHeaders* hdrs) {
 static void MimeHeaders_compact(MimeHeaders* hdrs) {
   NS_ASSERTION(hdrs, "1.22 <rhp@netscape.com> 22 Aug 1999 08:48");
   if (!hdrs) return;
-
-  PR_FREEIF(hdrs->obuffer);
-  hdrs->obuffer_fp = 0;
-  hdrs->obuffer_size = 0;
 
   /* These really shouldn't have gotten out of whack again. */
   NS_ASSERTION(hdrs->all_headers_fp <= hdrs->all_headers_size &&

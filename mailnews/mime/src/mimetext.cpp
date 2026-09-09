@@ -141,10 +141,6 @@ static void MimeInlineText_finalize(MimeObject* obj) {
 
   PR_FREEIF(text->charset);
 
-  // Should have been freed by parse_eof, but just in case...
-  PR_ASSERT(!text->cbuffer);
-  PR_FREEIF(text->cbuffer);
-
   if (text->inputAutodetect) {
     PR_FREEIF(text->lineDamBuffer);
     PR_FREEIF(text->lineDamPtrs);
@@ -194,16 +190,10 @@ static int MimeInlineText_parse_eof(MimeObject* obj, bool abort_p) {
 }
 
 static int MimeInlineText_parse_end(MimeObject* obj, bool abort_p) {
-  MimeInlineText* text = (MimeInlineText*)obj;
-
   if (obj->parsed_p) {
     PR_ASSERT(obj->closed_p);
     return 0;
   }
-
-  // We won't be needing this buffer any more; nuke it.
-  PR_FREEIF(text->cbuffer);
-  text->cbuffer_size = 0;
 
   return ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_end(obj, abort_p);
 }
@@ -246,12 +236,6 @@ int MimeInlineText_flushBlankLines(MimeObject* obj, const char* blank,
   }
   return 0;
 }
-
-#define MimeInlineText_grow_cbuffer(text, desired_size)         \
-  (((desired_size) >= (text)->cbuffer_size)                     \
-       ? mime_GrowBuffer((desired_size), 100, &(text)->cbuffer, \
-                         &(text)->cbuffer_size)                 \
-       : 0)
 
 static int MimeInlineText_convert_and_parse_line(const char* line,
                                                  int32_t length,

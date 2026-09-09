@@ -273,7 +273,6 @@ static int MimeObject_parse_end(MimeObject* obj, bool abort_p) {
   obj->ibuffer_fp = 0;
   obj->ibuffer_size = 0;
   PR_FREEIF(obj->obuffer);
-  obj->obuffer_fp = 0;
   obj->obuffer_size = 0;
 
   obj->parsed_p = true;
