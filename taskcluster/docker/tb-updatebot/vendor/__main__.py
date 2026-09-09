@@ -138,6 +138,13 @@ def compare_checksums(old_checksums):
 def commit_changes():
     os.chdir(COMM_PATH)
     run_cmd([HG, "addremove", "third_party/rust/", "rust/"])
+
+    # Explicitly add the content of the Cargo.toml.orig files as they are
+    # covered by the hgignore pattern "*.orig".
+    extra_files = [str(p) for p in Path("third_party/rust").glob("**/Cargo.toml.orig")]
+    if extra_files:
+        run_cmd([HG, "addremove"] + extra_files)
+
     logmsg = f"""Bug 1878375 - Synchronize vendored Rust libraries with mozilla-central. r={REVIEWERS}
 
 mozilla-central: {GECKO_HEAD_REV}
