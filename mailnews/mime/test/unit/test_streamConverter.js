@@ -54,7 +54,7 @@ class TestMailChannel extends MailChannel {
         Assert.equal(
           mimeHeaders.extractHeader(name, true).replaceAll("\t", " "),
           value,
-          `mimeHeaders value for ${name}`
+          `mimeHeaders value for '${name}'`
         );
       }
     }
@@ -76,7 +76,7 @@ class TestMailChannel extends MailChannel {
         Assert.equal(
           property.value,
           expectedAttachments[i][property.name],
-          `attachment ${i} property ${property.name}`
+          `attachment ${i} property '${property.name}'`
         );
         delete expectedAttachments[i][property.name];
       }
@@ -90,18 +90,17 @@ class TestMailChannel extends MailChannel {
 }
 
 /**
- * @param {string} uri
  * @param {nsIChannel} channel
  * @param {string} input
  * @returns {string}
  */
-async function convertStream(uri, channel, input) {
+async function convertStream(channel, input) {
   const converter = Cc[
     "@mozilla.org/streamconv;1?from=message/rfc822&to=*/*"
   ].createInstance(Ci.nsIStreamConverter);
 
   const listener = new PromiseTestUtils.PromiseStreamListener(undefined, true);
-  converter.asyncConvertData("message/rfc822", "text/html", listener, channel);
+  converter.asyncConvertData(null, null, listener, channel);
 
   const { buffer } = new TextEncoder().encode(input);
   const inputStream = Cc[
@@ -118,6 +117,10 @@ async function convertStream(uri, channel, input) {
 const sampleEmailFile = do_get_file("sampleContent.eml");
 const sampleEmailURI =
   "mailbox:" + Services.io.newFileURI(sampleEmailFile).spec.slice(5);
+const localizedDate = new Services.intl.DateTimeFormat(undefined, {
+  dateStyle: "short",
+  timeStyle: "short",
+}).format(new Date("2000-02-01T00:00:00+1300"));
 
 /**
  * Test with a mailbox URL for an email file.
@@ -167,7 +170,7 @@ add_task(async function testBodyNewURL() {
 async function subtestBody(uri) {
   const channel = new TestMailChannel(uri);
   const input = await IOUtils.readUTF8(sampleEmailFile.path);
-  const output = await convertStream(uri, channel, input);
+  const output = await convertStream(channel, input);
 
   // Test the channel output.
 
@@ -183,13 +186,7 @@ async function subtestBody(uri) {
     ["To", `"Bob Bell" <bob@bell.invalid>`],
     ["Message-Id", "<sample.content@made.up.invalid>"],
     ["Date", "Tue, 01 Feb 2000 00:00:00 +1300"],
-    [
-      "X-Mozilla-LocalizedDate",
-      new Services.intl.DateTimeFormat(undefined, {
-        dateStyle: "short",
-        timeStyle: "short",
-      }).format(new Date("2000-02-01T00:00:00+1300")),
-    ],
+    ["X-Mozilla-LocalizedDate", localizedDate],
   ]);
 
   let expectedAttachmentURI;
@@ -266,7 +263,7 @@ async function subtestBody(uri) {
   // Test a request for the image.
 
   const imgChannel = new TestPlainChannel(expectedImgURL);
-  const imgOutput = await convertStream(expectedImgURL, imgChannel, input);
+  const imgOutput = await convertStream(imgChannel, input);
 
   Assert.equal(
     imgChannel.contentType,
@@ -287,11 +284,7 @@ async function subtestBody(uri) {
   // Test a request for the first attachment.
 
   const attachment1Channel = new TestPlainChannel(expectedAttachment1URL);
-  const attachment1Output = await convertStream(
-    expectedAttachment1URL,
-    attachment1Channel,
-    input
-  );
+  const attachment1Output = await convertStream(attachment1Channel, input);
 
   Assert.equal(
     attachment1Channel.contentType,
@@ -307,11 +300,7 @@ async function subtestBody(uri) {
   // Test a request for the second attachment.
 
   const attachment2Channel = new TestPlainChannel(expectedAttachment2URL);
-  const attachment2Output = await convertStream(
-    expectedAttachment2URL,
-    attachment2Channel,
-    input
-  );
+  const attachment2Output = await convertStream(attachment2Channel, input);
 
   Assert.equal(
     attachment2Channel.contentType,
@@ -337,7 +326,7 @@ add_task(async function testInlineAttachments() {
   const uri = `${sampleEmailURI}?number=2`;
   const channel = new TestMailChannel(uri);
   const input = await IOUtils.readUTF8(sampleEmailFile.path);
-  const output = await convertStream(uri, channel, input);
+  const output = await convertStream(channel, input);
 
   // Test the HTML output.
 
@@ -386,7 +375,7 @@ add_task(async function testInlineTextAttachments() {
   const uri = `${sampleEmailURI}?number=3`;
   const channel = new TestMailChannel(uri);
   const input = await IOUtils.readUTF8(sampleEmailFile.path);
-  const output = await convertStream(uri, channel, input);
+  const output = await convertStream(channel, input);
 
   // Test the HTML output.
 
@@ -447,7 +436,7 @@ add_task(async function testNoInlineAttachments() {
   const uri = `${sampleEmailURI}?number=4`;
   const channel = new TestMailChannel(uri);
   const input = await IOUtils.readUTF8(sampleEmailFile.path);
-  const output = await convertStream(uri, channel, input);
+  const output = await convertStream(channel, input);
 
   // Test the HTML output.
 
@@ -519,7 +508,7 @@ add_task(async function testNoAttachments() {
       </body>
     </html>
   `.replaceAll(/^ {2,4}/gm, "");
-  const output = await convertStream(uri, channel, input);
+  const output = await convertStream(channel, input);
 
   // Test the channel output.
 
@@ -588,7 +577,7 @@ add_task(async function testConditionalCSSStripped() {
       <body></body>
     </html>
   `.replaceAll(/^ {4}/gm, "");
-  const output = await convertStream(uri, channel, input);
+  const output = await convertStream(channel, input);
   const doc = new DOMParser().parseFromString(output, "text/html");
   const sheet = doc.querySelector("style").sheet;
 
@@ -633,7 +622,7 @@ add_task(async function testConditionalCSSPreservedWhenPrefDisabled() {
       <body></body>
     </html>
   `.replaceAll(/^ {4}/gm, "");
-  const output = await convertStream(uri, channel, input);
+  const output = await convertStream(channel, input);
   const doc = new DOMParser().parseFromString(output, "text/html");
   const sheet = doc.querySelector("style").sheet;
 
@@ -664,3 +653,88 @@ add_task(async function testConditionalCSSPreservedWhenPrefDisabled() {
 
   Services.prefs.clearUserPref("mail.html_sanitize.drop_conditional_css");
 });
+
+/**
+ * Test print-only headers when set to "micro headers".
+ */
+add_task(async function testMicroHeaders() {
+  Services.prefs.setIntPref(
+    "mail.show_headers",
+    Ci.nsMimeHeaderDisplayTypes.MicroHeaders
+  );
+
+  await subtestPrintedHeaders([
+    ["Subject: ", "Big Meeting Today"],
+    ["From: ", `"Andy Anway" <andy@anway.invalid>`],
+    ["Date: ", localizedDate],
+  ]);
+
+  Services.prefs.clearUserPref("mail.show_headers");
+});
+
+/**
+ * Test print-only headers when set to "normal headers".
+ */
+add_task(async function testNormalHeaders() {
+  Services.prefs.setIntPref(
+    "mail.show_headers",
+    Ci.nsMimeHeaderDisplayTypes.NormalHeaders
+  );
+
+  await subtestPrintedHeaders([
+    ["Subject: ", "Big Meeting Today"],
+    ["From: ", `"Andy Anway" <andy@anway.invalid>`],
+    ["Date: ", localizedDate],
+    ["To: ", `"Bob Bell" <bob@bell.invalid>`],
+  ]);
+
+  Services.prefs.clearUserPref("mail.show_headers");
+});
+
+/**
+ * Test print-only headers when set to "all headers".
+ */
+add_task(async function testAllHeaders() {
+  Services.prefs.setIntPref(
+    "mail.show_headers",
+    Ci.nsMimeHeaderDisplayTypes.AllHeaders
+  );
+
+  await subtestPrintedHeaders([
+    ["Subject: ", "Big Meeting Today"],
+    ["From: ", `"Andy Anway" <andy@anway.invalid>`],
+    ["Date: ", localizedDate],
+    ["To: ", `"Bob Bell" <bob@bell.invalid>`],
+    ["Content-Type: ", `multipart/mixed; boundary="--------------CHOPCHOP0"`],
+    ["Message-ID: ", "<sample.content@made.up.invalid>"],
+  ]);
+
+  Services.prefs.clearUserPref("mail.show_headers");
+});
+
+/**
+ * @param {string[][]} expectedHeaders - An array of key/value pairs.
+ */
+async function subtestPrintedHeaders(expectedHeaders) {
+  const uri = `${sampleEmailURI}?number=8`;
+  const channel = new TestMailChannel(uri);
+  const input = await IOUtils.readUTF8(sampleEmailFile.path);
+  const output = await convertStream(channel, input);
+
+  const document = new DOMParser().parseFromString(output, "text/html");
+  const headerDivs = document.querySelectorAll("div.moz-header-display-name");
+  Assert.equal(headerDivs.length, expectedHeaders.length);
+
+  for (let i = 0; i < expectedHeaders.length; i++) {
+    Assert.equal(
+      headerDivs[i].textContent,
+      expectedHeaders[i][0],
+      `header name ${i}`
+    );
+    Assert.equal(
+      headerDivs[i].nextSibling.nodeValue,
+      expectedHeaders[i][1],
+      `header value ${i}`
+    );
+  }
+}
