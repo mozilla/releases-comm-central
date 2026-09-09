@@ -8,6 +8,7 @@ ac_add_options --disable-profiling
 ac_add_options --disable-warnings-as-errors
 ac_add_options --without-wasm-sandboxed-libraries
 ac_add_options --enable-coverage
+ac_add_options --disable-unified-build
 
 CLANG_LIB_DIR="$(cd $MOZ_FETCHES_DIR/clang/lib/clang/* && cd lib/linux && pwd)"
 export LDFLAGS="--coverage -L$CLANG_LIB_DIR"

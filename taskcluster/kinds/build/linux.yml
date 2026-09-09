@@ -24,7 +24,6 @@ task-defaults:
             - linux64-rust-size
             - sysroot-wasm32-wasi
 
-
 linux64/opt:
     description: "Linux64 Opt"
     index:
@@ -465,6 +464,7 @@ linux64-ccov/opt:
         env:
             RUSTC_BOOTSTRAP: '1'
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+    worker-type: b-linux-docker-large-amd
     run:
         using: mozharness
         comm-checkout: true
