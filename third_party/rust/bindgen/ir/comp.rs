@@ -1,7 +1,5 @@
 //! Compound types (unions and structs) in our intermediate representation.
 
-use itertools::Itertools;
-
 use super::analysis::Sizedness;
 use super::annotations::Annotations;
 use super::context::{BindgenContext, FunctionId, ItemId, TypeId, VarId};
@@ -11,6 +9,7 @@ use super::layout::Layout;
 use super::template::TemplateParameters;
 use super::traversal::{EdgeKind, Trace, Tracer};
 use super::ty::RUST_DERIVE_IN_ARRAY_LIMIT;
+use crate::callbacks::FieldInfo;
 use crate::clang;
 use crate::codegen::struct_layout::align_to;
 use crate::ir::derive::CanDeriveCopy;
@@ -142,6 +141,7 @@ pub(crate) trait FieldMethods {
     fn ty(&self) -> TypeId;
 
     /// Get the comment for this field.
+    #[allow(dead_code)] // Used by trait implementations in Field wrapper types
     fn comment(&self) -> Option<&str>;
 
     /// If this is a bitfield, how many bits does it need?
@@ -491,25 +491,25 @@ where
 
     loop {
         // While we have plain old data members, just keep adding them to our
-        // resulting fields. We introduce a scope here so that we can use
-        // `raw_fields` again after the `by_ref` iterator adaptor is dropped.
+        // resulting fields.
+        while let Some(raw_field) =
+            raw_fields.next_if(|f| f.bitfield_width().is_none())
         {
-            let non_bitfields = raw_fields
-                .by_ref()
-                .peeking_take_while(|f| f.bitfield_width().is_none())
-                .map(|f| Field::DataMember(f.0));
-            fields.extend(non_bitfields);
+            fields.push(Field::DataMember(raw_field.0));
         }
+
+        let mut bitfields = vec![];
 
         // Now gather all the consecutive bitfields. Only consecutive bitfields
         // may potentially share a bitfield allocation unit with each other in
         // the Itanium C++ ABI.
-        let mut bitfields = raw_fields
-            .by_ref()
-            .peeking_take_while(|f| f.bitfield_width().is_some())
-            .peekable();
+        while let Some(raw_field) =
+            raw_fields.next_if(|f| f.bitfield_width().is_some())
+        {
+            bitfields.push(raw_field);
+        }
 
-        if bitfields.peek().is_none() {
+        if bitfields.is_empty() {
             break;
         }
 
@@ -702,7 +702,12 @@ impl CompFields {
         }
     }
 
-    fn deanonymize_fields(&mut self, ctx: &BindgenContext, methods: &[Method]) {
+    fn assign_field_names(
+        &mut self,
+        ctx: &BindgenContext,
+        canonical_type_name: &str,
+        methods: &[Method],
+    ) {
         let fields = match *self {
             CompFields::After { ref mut fields, .. } => fields,
             // Nothing to do here.
@@ -711,6 +716,46 @@ impl CompFields {
                 panic!("Not yet computed bitfield units.");
             }
         };
+
+        for field in fields.iter_mut() {
+            match field {
+                Field::DataMember(FieldData { name, ty, .. }) => {
+                    if let Some(original_name) = name.as_deref() {
+                        let maybe_rename = ctx.options().last_callback(|cb| {
+                            cb.field_name(FieldInfo {
+                                type_name: canonical_type_name,
+                                field_name: original_name,
+                                field_type_name: ctx.resolve_type(*ty).name(),
+                            })
+                        });
+
+                        if let Some(new_name) = maybe_rename {
+                            *name = Some(new_name);
+                        }
+                    }
+                }
+                Field::Bitfields(BitfieldUnit { bitfields, .. }) => {
+                    for bitfield in bitfields.iter_mut() {
+                        if let Some(original_name) = bitfield.name() {
+                            let maybe_rename =
+                                ctx.options().last_callback(|cb| {
+                                    cb.field_name(FieldInfo {
+                                        type_name: canonical_type_name,
+                                        field_name: original_name,
+                                        field_type_name: ctx
+                                            .resolve_type(bitfield.ty())
+                                            .name(),
+                                    })
+                                });
+
+                            if let Some(new_name) = maybe_rename {
+                                bitfield.data.name = Some(new_name);
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         fn has_method(
             methods: &[Method],
@@ -790,6 +835,10 @@ impl CompFields {
     }
 
     /// Return the flex array member for the struct/class, if any.
+    ///
+    /// This method recursively checks if the last field is either:
+    /// 1. An incomplete array (direct FAM)
+    /// 2. A struct/union that itself has a FAM (nested FAM)
     fn flex_array_member(&self, ctx: &BindgenContext) -> Option<TypeId> {
         let fields = match self {
             CompFields::Before(_) => panic!("raw fields"),
@@ -799,10 +848,23 @@ impl CompFields {
 
         match fields.last()? {
             Field::Bitfields(..) => None,
-            Field::DataMember(FieldData { ty, .. }) => ctx
-                .resolve_type(*ty)
-                .is_incomplete_array(ctx)
-                .map(|item| item.expect_type_id(ctx)),
+            Field::DataMember(FieldData { ty, .. }) => {
+                let resolved_ty = ctx.resolve_type(*ty);
+
+                // Check if it's an incomplete array first
+                if let Some(item) = resolved_ty.is_incomplete_array(ctx) {
+                    return Some(item.expect_type_id(ctx));
+                }
+
+                // Check if it's a compound type with a FAM (need to resolve through type refs)
+                let canonical_ty = resolved_ty.canonical_type(ctx);
+                if let super::ty::TypeKind::Comp(ref comp) = canonical_ty.kind()
+                {
+                    return comp.flex_array_member(ctx);
+                }
+
+                None
+            }
         }
     }
 }
@@ -882,6 +944,20 @@ impl FieldMethods for FieldData {
 
     fn offset(&self) -> Option<usize> {
         self.offset
+    }
+}
+
+impl FieldData {
+    /// Get this field's documentation comment, if it has any, already preprocessed
+    /// and with the right indentation. Returns `None` if comment generation is disabled.
+    pub(crate) fn doc_comment(&self, ctx: &BindgenContext) -> Option<String> {
+        if !ctx.options().generate_comments {
+            return None;
+        }
+
+        self.comment
+            .as_ref()
+            .map(|comment| ctx.options().process_comment(comment))
     }
 }
 
@@ -1668,8 +1744,13 @@ impl CompInfo {
     }
 
     /// Assign for each anonymous field a generated name.
-    pub(crate) fn deanonymize_fields(&mut self, ctx: &BindgenContext) {
-        self.fields.deanonymize_fields(ctx, &self.methods);
+    pub(crate) fn assign_field_names(
+        &mut self,
+        ctx: &BindgenContext,
+        canonical_type_name: &str,
+    ) {
+        self.fields
+            .assign_field_names(ctx, canonical_type_name, &self.methods);
     }
 
     /// Returns whether the current union can be represented as a Rust `union`
@@ -1718,7 +1799,9 @@ impl CompInfo {
             return (false, false);
         }
 
-        if layout.is_some_and(|l| l.size == 0) {
+        if layout.is_some_and(|l| l.size == 0) &&
+            union_style != NonCopyUnionStyle::ManuallyDrop
+        {
             return (false, false);
         }
 

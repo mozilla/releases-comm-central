@@ -21,6 +21,7 @@ use super::traversal::{self, Edge, ItemTraversal};
 use super::ty::{FloatKind, Type, TypeKind};
 use crate::clang::{self, ABIKind, Cursor};
 use crate::codegen::CodegenError;
+use crate::ir::item::ItemCanonicalName;
 use crate::BindgenOptions;
 use crate::{Entry, HashMap, HashSet};
 
@@ -1014,8 +1015,8 @@ If you encounter an error missing from this list, please file an issue or a PR!"
     }
 
     /// Assign a new generated name for each anonymous field.
-    fn deanonymize_fields(&mut self) {
-        let _t = self.timer("deanonymize_fields");
+    fn assign_field_names(&mut self) {
+        let _t = self.timer("assign_field_names");
 
         let comp_item_ids: Vec<ItemId> = self
             .items()
@@ -1028,13 +1029,15 @@ If you encounter an error missing from this list, please file an issue or a PR!"
             .collect();
 
         for id in comp_item_ids {
+            let canonical_type_name =
+                self.resolve_item(id).canonical_name(self);
             self.with_loaned_item(id, |ctx, item| {
                 item.kind_mut()
                     .as_type_mut()
                     .unwrap()
                     .as_comp_mut()
                     .unwrap()
-                    .deanonymize_fields(ctx);
+                    .assign_field_names(ctx, &canonical_type_name);
             });
         }
     }
@@ -1184,7 +1187,7 @@ If you encounter an error missing from this list, please file an issue or a PR!"
         self.compute_bitfield_units();
         self.process_replacements();
 
-        self.deanonymize_fields();
+        self.assign_field_names();
 
         self.assert_no_dangling_references();
 
@@ -1848,7 +1851,10 @@ If you encounter an error missing from this list, please file an issue or a PR!"
         ty: &clang::Type,
         location: Option<Cursor>,
     ) -> Option<TypeId> {
-        use clang_sys::{CXCursor_TypeAliasTemplateDecl, CXCursor_TypeRef};
+        use clang_sys::{
+            CXCursor_TypeAliasTemplateDecl, CXCursor_TypeRef,
+            CXCursor_TypedefDecl,
+        };
         debug!("builtin_or_resolved_ty: {ty:?}, {location:?}, {with_id:?}, {parent_id:?}");
 
         if let Some(decl) = ty.canonical_declaration(location.as_ref()) {
@@ -1864,6 +1870,18 @@ If you encounter an error missing from this list, please file an issue or a PR!"
                 //   * we have already parsed and resolved this type, and
                 //     there's nothing left to do.
                 if let Some(location) = location {
+                    // When a hidden `typedef struct Foo Foo;` carries docs, the
+                    // alias is not emitted in codegen and those docs would
+                    // otherwise be lost. Attach the docs to the already-resolved
+                    // target type here.
+                    if location.kind() == CXCursor_TypedefDecl {
+                        self.inherit_typedef_comment(
+                            id,
+                            *decl.cursor(),
+                            location,
+                        );
+                    }
+
                     if decl.cursor().is_template_like() &&
                         *ty != decl.cursor().cur_type()
                     {
@@ -1897,6 +1915,28 @@ If you encounter an error missing from this list, please file an issue or a PR!"
 
         debug!("Not resolved, maybe builtin?");
         self.build_builtin_ty(ty)
+    }
+
+    fn inherit_typedef_comment(
+        &mut self,
+        resolved_type: TypeId,
+        decl: Cursor,
+        typedef_cursor: Cursor,
+    ) {
+        let Some(comment) = typedef_cursor.raw_comment() else {
+            return;
+        };
+
+        // Only inherit docs for hidden overlapping aliases, e.g.
+        // `typedef struct Foo Foo;`.
+        if typedef_cursor.spelling() != decl.spelling() {
+            return;
+        }
+
+        let item_id: ItemId = resolved_type.into();
+        if let Some(item) = self.items[item_id.0].as_mut() {
+            item.set_comment_if_none(comment);
+        }
     }
 
     /// Make a new item that is a resolved type reference to the `wrapped_id`.
@@ -2055,10 +2095,12 @@ If you encounter an error missing from this list, please file an issue or a PR!"
             let mut header_names_to_compile = Vec::new();
             let mut header_paths = Vec::new();
             let mut header_includes = Vec::new();
-            let single_header = self.options().input_headers.last().cloned()?;
-            for input_header in &self.options.input_headers
-                [..self.options.input_headers.len() - 1]
-            {
+            let [input_headers @ .., single_header] =
+                &self.options().input_headers[..]
+            else {
+                return None;
+            };
+            for input_header in input_headers {
                 let path = Path::new(input_header.as_ref());
                 if let Some(header_path) = path.parent() {
                     if header_path == Path::new("") {
@@ -2095,7 +2137,7 @@ If you encounter an error missing from this list, please file an issue or a PR!"
             }
             let mut tu = clang::TranslationUnit::parse(
                 &index,
-                &single_header,
+                single_header,
                 &c_args,
                 &[],
                 clang_sys::CXTranslationUnit_ForSerialization,

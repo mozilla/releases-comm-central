@@ -107,7 +107,7 @@ pub(crate) fn blob(
     }
 
     ctx.generated_opaque_array(align);
-    let ident = format_ident!("__BindgenOpaqueArray{}", align);
+    let ident = format_ident!("__BindgenOpaqueArray{align}");
     let size = layout.size;
     if ctx.options().enable_cxx_namespaces {
         syn::parse_quote! { root::#ident<[u8; #size]> }
@@ -320,14 +320,14 @@ pub(crate) mod ast_ty {
         }
 
         if f.is_nan() {
-            return Ok(quote! { f64::NAN });
+            return Ok(quote! { f64::NAN as _ });
         }
 
         if f.is_infinite() {
             let tokens = if f.is_sign_positive() {
-                quote! { f64::INFINITY }
+                quote! { f64::INFINITY as _ }
             } else {
-                quote! { f64::NEG_INFINITY }
+                quote! { f64::NEG_INFINITY as _ }
             };
             return Ok(tokens);
         }

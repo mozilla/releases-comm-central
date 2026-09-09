@@ -546,25 +546,25 @@ dependencies = [
 
 [[package]]
 name = "bindgen"
-version = "0.69.999"
+version = "0.72.999"
 dependencies = [
- "bindgen 0.72.0",
+ "bindgen 0.73.1",
 ]
 
 [[package]]
 name = "bindgen"
-version = "0.72.0"
-source = "git+https://github.com/glandium/rust-bindgen?rev=5274da5a06411accb266c10819b989ac25a81b7d#5274da5a06411accb266c10819b989ac25a81b7d"
+version = "0.73.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "54be9a169b85a1bef39252af30bb6246a31b23c7e0f6a162520dd869f8dad33c"
 dependencies = [
  "bitflags 2.10.0",
  "cexpr",
  "clang-sys",
- "itertools 0.14.999",
  "proc-macro2",
  "quote",
  "regex",
  "rustc-hash 2.1.1",
- "shlex",
+ "shlex 2.0.1",
  "syn",
 ]
 
@@ -818,7 +818,7 @@ version = "1.2.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "deec109607ca693028562ed836a5f1c4b8bd77755c4e132fc5ce11b0b6211ae7"
 dependencies = [
- "shlex",
+ "shlex 1.3.999",
 ]
 
 [[package]]
@@ -1103,7 +1103,7 @@ version = "0.2.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b9b4739a805a62757a83e5654fa3faabec0442666b263bb2287d5a8185bfd953"
 dependencies = [
- "bindgen 0.72.0",
+ "bindgen 0.72.999",
 ]
 
 [[package]]
@@ -2445,7 +2445,7 @@ name = "gecko-profiler"
 version = "0.1.0"
 dependencies = [
  "bincode",
- "bindgen 0.69.999",
+ "bindgen 0.73.1",
  "lazy_static",
  "mozbuild",
  "profiler-macros",
@@ -4828,7 +4828,7 @@ name = "nss-rs"
 version = "0.14.6"
 source = "git+https://github.com/mozilla/nss-rs#63c63046208f587573f71bb3885f16d10e0bf4eb"
 dependencies = [
- "bindgen 0.72.0",
+ "bindgen 0.72.999",
  "enum-map",
  "log",
  "mozbuild",
@@ -5086,7 +5086,7 @@ name = "ohttp"
 version = "0.7.2"
 source = "git+https://github.com/martinthomson/ohttp?rev=600931b5a1e947776cbaad931ed78f1e89005352#600931b5a1e947776cbaad931ed78f1e89005352"
 dependencies = [
- "bindgen 0.72.0",
+ "bindgen 0.72.999",
  "byteorder",
  "hex",
  "log",
@@ -5335,7 +5335,7 @@ version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f81e0ffd4db150990a30013e47ebeeab2a71cfb27d1cbd83d1ec43d7b297e0c1"
 dependencies = [
- "bindgen 0.72.0",
+ "bindgen 0.73.1",
 ]
 
 [[package]]
@@ -6317,9 +6317,16 @@ dependencies = [
 
 [[package]]
 name = "shlex"
-version = "1.3.0"
+version = "1.3.999"
+dependencies = [
+ "shlex 2.0.1",
+]
+
+[[package]]
+name = "shlex"
+version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
+checksum = "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba"
 
 [[package]]
 name = "signature_cache"
@@ -6540,7 +6547,7 @@ dependencies = [
  "app_units",
  "arrayvec",
  "atomic_refcell",
- "bindgen 0.69.999",
+ "bindgen 0.73.1",
  "bitflags 2.10.0",
  "byteorder",
  "cssparser",
@@ -7049,7 +7056,7 @@ dependencies = [
 name = "trust-anchors"
 version = "0.1.0"
 dependencies = [
- "bindgen 0.69.999",
+ "bindgen 0.73.1",
  "mozbuild",
  "nom",
  "pkcs11-bindings",

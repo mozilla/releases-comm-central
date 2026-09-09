@@ -99,7 +99,7 @@ pub trait ParseCallbacks: fmt::Debug {
         None
     }
 
-    /// This will be called on every header filename passed to (`Builder::header`)[`crate::Builder::header`].
+    /// This will be called on every header filename passed to [`Builder::header`][crate::Builder::header].
     fn header_file(&self, _filename: &str) {}
 
     /// This will be called on every file inclusion, with the full path of the included file.
@@ -142,6 +142,35 @@ pub trait ParseCallbacks: fmt::Debug {
         vec![]
     }
 
+    /// Provide a list of custom attributes for struct/union fields.
+    ///
+    /// These attributes will be applied to the field in the generated Rust code.
+    /// If no additional attributes are wanted, this function should return an
+    /// empty `Vec`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use bindgen::callbacks::{ParseCallbacks, FieldAttributeInfo};
+    /// # #[derive(Debug)]
+    /// # struct MyCallbacks;
+    /// # impl ParseCallbacks for MyCallbacks {
+    /// fn field_attributes(&self, info: &FieldAttributeInfo<'_>) -> Vec<String> {
+    ///     if info.field_name == "internal" {
+    ///         vec!["serde(skip)".to_string()]
+    ///     } else if info.field_name == "0" {
+    ///         // Newtype tuple field
+    ///         vec!["serde(transparent)".to_string()]
+    ///     } else {
+    ///         vec![]
+    ///     }
+    /// }
+    /// # }
+    /// ```
+    fn field_attributes(&self, _info: &FieldAttributeInfo<'_>) -> Vec<String> {
+        vec![]
+    }
+
     /// Process a source code comment.
     fn process_comment(&self, _comment: &str) -> Option<String> {
         None
@@ -155,6 +184,11 @@ pub trait ParseCallbacks: fmt::Debug {
         &self,
         _info: FieldInfo<'_>,
     ) -> Option<crate::FieldVisibilityKind> {
+        None
+    }
+
+    /// Allows to rename a struct or union field, replacing `_info.field_name`.
+    fn field_name(&self, _info: FieldInfo<'_>) -> Option<String> {
         None
     }
 
@@ -250,6 +284,18 @@ pub enum DiscoveredItem {
         /// Type to which this method belongs.
         parent: DiscoveredItemId,
     }, // modules, etc.
+
+    /// A constant.
+    Constant {
+        /// The final name of the generated binding
+        final_name: String,
+    },
+
+    /// A variable.
+    Variable {
+        /// The final name of the generated binding
+        final_name: String,
+    },
 }
 
 /// Relevant information about a type to which new derive attributes will be added using
@@ -309,8 +355,8 @@ pub enum ItemKind {
     Var,
 }
 
-/// Relevant information about a field for which visibility can be determined using
-/// [`ParseCallbacks::field_visibility`].
+/// Relevant information about a field for which visibility and name can be overridden using
+/// [`ParseCallbacks::field_visibility`] and [`ParseCallbacks::field_name`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct FieldInfo<'a> {
@@ -319,6 +365,27 @@ pub struct FieldInfo<'a> {
     /// The name of the field.
     pub field_name: &'a str,
     /// The name of the type of the field.
+    pub field_type_name: Option<&'a str>,
+}
+
+/// Relevant information about a field to which new attributes will be added using
+/// [`ParseCallbacks::field_attributes`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct FieldAttributeInfo<'a> {
+    /// The name of the containing type (struct/union).
+    pub type_name: &'a str,
+
+    /// The kind of the containing type.
+    pub type_kind: TypeKind,
+
+    /// The name of the field.
+    ///
+    /// For newtype tuple structs (when using `--default-alias-style=new_type`),
+    /// this will be `"0"` for the inner field.
+    pub field_name: &'a str,
+
+    /// The name of the field's type, if available.
     pub field_type_name: Option<&'a str>,
 }
 

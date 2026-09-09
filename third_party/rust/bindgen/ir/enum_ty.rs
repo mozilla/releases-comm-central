@@ -65,7 +65,10 @@ impl Enum {
             return Err(ParseError::Continue);
         }
 
-        let declaration = ty.declaration().canonical();
+        // Use the enum decl instead of the canonical destination. The
+        // cursor location of the first declaration may be the forward
+        // declaration.
+        let declaration = ty.declaration();
         let repr = declaration
             .enum_type()
             .and_then(|et| Item::from_ty(&et, declaration, None, ctx).ok());
@@ -302,9 +305,16 @@ impl EnumVariant {
         self.val
     }
 
-    /// Get this variant's documentation.
-    pub(crate) fn comment(&self) -> Option<&str> {
-        self.comment.as_deref()
+    /// Get this variant's documentation comment, if it has any, already preprocessed
+    /// and with the right indentation. Returns `None` if comment generation is disabled.
+    pub(crate) fn doc_comment(&self, ctx: &BindgenContext) -> Option<String> {
+        if !ctx.options().generate_comments {
+            return None;
+        }
+
+        self.comment
+            .as_ref()
+            .map(|comment| ctx.options().process_comment(comment))
     }
 
     /// Returns whether this variant should be enforced to be a constant by code

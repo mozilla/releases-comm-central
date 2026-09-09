@@ -254,8 +254,8 @@ wasi_0_11 = { package = "wasi", path = "../../build/rust/wasi" }
 itertools_0_13 = { package = "itertools", path = "../../build/rust/itertools-0.13" }
 itertools_0_14 = { package = "itertools", path = "../../build/rust/itertools" }
 backtrace = { path = "../../build/rust/backtrace" }
-bindgen_0_72 = { package = "bindgen", git = "https://github.com/glandium/rust-bindgen", rev = "5274da5a06411accb266c10819b989ac25a81b7d" }
-bindgen = { path = "../../build/rust/bindgen" }
+bindgen = { package = "bindgen", path = "../../build/rust/bindgen" }
+shlex = { path = "../../build/rust/shlex" }
 icu_collator = { path = "../../third_party/rust/icu_collator" }
 icu_collator_data = { path = "../../third_party/rust/icu_collator_data" }
 icu_normalizer = { path = "../../third_party/rust/icu_normalizer" }

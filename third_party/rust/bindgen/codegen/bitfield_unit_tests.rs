@@ -258,3 +258,182 @@ bitfield_unit_set! {
     set(7, 16, 0b1111111111111111) is 0b00000000011111111111111110000000;
     set(8, 16, 0b1111111111111111) is 0b00000000111111111111111100000000;
 }
+
+// Tests for const-generic methods
+#[test]
+fn bitfield_unit_get_const_matches_get() {
+    // Test that get_const produces same results as get
+    let unit = __BindgenBitfieldUnit::<[u8; 4]>::new([
+        0b01010101, 0b11111111, 0b00000000, 0b11111111,
+    ]);
+
+    // Single byte tests
+    assert_eq!(unit.get_const::<0, 1>(), unit.get(0, 1));
+    assert_eq!(unit.get_const::<1, 1>(), unit.get(1, 1));
+    assert_eq!(unit.get_const::<0, 8>(), unit.get(0, 8));
+    assert_eq!(unit.get_const::<3, 5>(), unit.get(3, 5));
+
+    // Cross-byte boundary tests
+    assert_eq!(unit.get_const::<0, 16>(), unit.get(0, 16));
+    assert_eq!(unit.get_const::<4, 16>(), unit.get(4, 16));
+    assert_eq!(unit.get_const::<7, 16>(), unit.get(7, 16));
+    assert_eq!(unit.get_const::<8, 16>(), unit.get(8, 16));
+
+    // Large field
+    assert_eq!(unit.get_const::<0, 32>(), unit.get(0, 32));
+}
+
+#[test]
+fn bitfield_unit_set_const_matches_set() {
+    // Test that set_const produces same results as set
+    let test_value = 0b101010101010;
+
+    for offset in [0, 1, 3, 7, 8, 12] {
+        for width in [1, 2, 5, 8, 12] {
+            let mut unit_const = __BindgenBitfieldUnit::<[u8; 4]>::new([0; 4]);
+            let mut unit_runtime =
+                __BindgenBitfieldUnit::<[u8; 4]>::new([0; 4]);
+
+            match (offset, width) {
+                (0, 1) => unit_const.set_const::<0, 1>(test_value),
+                (0, 2) => unit_const.set_const::<0, 2>(test_value),
+                (0, 5) => unit_const.set_const::<0, 5>(test_value),
+                (0, 8) => unit_const.set_const::<0, 8>(test_value),
+                (0, 12) => unit_const.set_const::<0, 12>(test_value),
+                (1, 1) => unit_const.set_const::<1, 1>(test_value),
+                (1, 2) => unit_const.set_const::<1, 2>(test_value),
+                (1, 5) => unit_const.set_const::<1, 5>(test_value),
+                (1, 8) => unit_const.set_const::<1, 8>(test_value),
+                (1, 12) => unit_const.set_const::<1, 12>(test_value),
+                (3, 1) => unit_const.set_const::<3, 1>(test_value),
+                (3, 2) => unit_const.set_const::<3, 2>(test_value),
+                (3, 5) => unit_const.set_const::<3, 5>(test_value),
+                (3, 8) => unit_const.set_const::<3, 8>(test_value),
+                (3, 12) => unit_const.set_const::<3, 12>(test_value),
+                (7, 1) => unit_const.set_const::<7, 1>(test_value),
+                (7, 2) => unit_const.set_const::<7, 2>(test_value),
+                (7, 5) => unit_const.set_const::<7, 5>(test_value),
+                (7, 8) => unit_const.set_const::<7, 8>(test_value),
+                (7, 12) => unit_const.set_const::<7, 12>(test_value),
+                (8, 1) => unit_const.set_const::<8, 1>(test_value),
+                (8, 2) => unit_const.set_const::<8, 2>(test_value),
+                (8, 5) => unit_const.set_const::<8, 5>(test_value),
+                (8, 8) => unit_const.set_const::<8, 8>(test_value),
+                (8, 12) => unit_const.set_const::<8, 12>(test_value),
+                (12, 1) => unit_const.set_const::<12, 1>(test_value),
+                (12, 2) => unit_const.set_const::<12, 2>(test_value),
+                (12, 5) => unit_const.set_const::<12, 5>(test_value),
+                (12, 8) => unit_const.set_const::<12, 8>(test_value),
+                (12, 12) => unit_const.set_const::<12, 12>(test_value),
+                _ => continue,
+            }
+
+            unit_runtime.set(offset, width, test_value);
+            // Compare by reading back the full value
+            assert_eq!(unit_const.get(0, 32), unit_runtime.get(0, 32));
+        }
+    }
+}
+
+#[test]
+fn bitfield_unit_raw_const_methods() {
+    let unit = __BindgenBitfieldUnit::<[u8; 2]>::new([0b10011101, 0b00011101]);
+
+    // Test raw_get_const
+    unsafe {
+        assert_eq!(
+            __BindgenBitfieldUnit::raw_get_const::<0, 8>(&unit),
+            unit.get(0, 8)
+        );
+        assert_eq!(
+            __BindgenBitfieldUnit::raw_get_const::<4, 8>(&unit),
+            unit.get(4, 8)
+        );
+        assert_eq!(
+            __BindgenBitfieldUnit::raw_get_const::<0, 16>(&unit),
+            unit.get(0, 16)
+        );
+    }
+
+    // Test raw_set_const
+    let mut unit_const = __BindgenBitfieldUnit::<[u8; 2]>::new([0; 2]);
+    let mut unit_runtime = __BindgenBitfieldUnit::<[u8; 2]>::new([0; 2]);
+
+    unsafe {
+        __BindgenBitfieldUnit::raw_set_const::<3, 5>(&mut unit_const, 0b11111);
+    }
+    unit_runtime.set(3, 5, 0b11111);
+
+    // Compare by reading back
+    assert_eq!(unit_const.get(0, 16), unit_runtime.get(0, 16));
+}
+
+// Regression: const-generic accessors must not shift-overflow when
+// BIT_WIDTH equals the native word size (usize::BITS). Previously
+// `(1usize << BIT_WIDTH) - 1` panicked in debug builds for 64-bit
+// fields on 64-bit targets (and 32-bit fields on 32-bit targets).
+#[test]
+fn bitfield_unit_const_full_word_width() {
+    let storage = [0x12u8, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0];
+    let unit = __BindgenBitfieldUnit::<[u8; 8]>::new(storage);
+
+    // Width == 64 on 64-bit hosts, and width == 32 exercises the
+    // boundary on 32-bit hosts (still safe on 64-bit, just routes
+    // through a different branch).
+    assert_eq!(unit.get_const::<0, 64>(), unit.get(0, 64));
+    assert_eq!(unit.get_const::<0, 32>(), unit.get(0, 32));
+
+    unsafe {
+        assert_eq!(
+            __BindgenBitfieldUnit::raw_get_const::<0, 64>(&unit),
+            unit.get(0, 64),
+        );
+    }
+
+    let mut unit_const = __BindgenBitfieldUnit::<[u8; 8]>::new([0; 8]);
+    let mut unit_runtime = __BindgenBitfieldUnit::<[u8; 8]>::new([0; 8]);
+    let value = 0xDEAD_BEEF_CAFE_BABE_u64;
+
+    unit_const.set_const::<0, 64>(value);
+    unit_runtime.set(0, 64, value);
+    assert_eq!(unit_const.get(0, 64), unit_runtime.get(0, 64));
+
+    let mut unit_raw = __BindgenBitfieldUnit::<[u8; 8]>::new([0; 8]);
+    unsafe {
+        __BindgenBitfieldUnit::raw_set_const::<0, 64>(&mut unit_raw, value);
+    }
+    assert_eq!(unit_raw.get(0, 64), value);
+
+    // Exercise the new `field_mask = !0 << bit_shift` branch with a
+    // non-zero bit_shift (BIT_WIDTH + bit_shift == usize::BITS but
+    // BIT_WIDTH < usize::BITS, so the value-mask still runs).
+    let mut unit_shifted_const =
+        __BindgenBitfieldUnit::<[u8; 9]>::new([0xAA; 9]);
+    let mut unit_shifted_runtime =
+        __BindgenBitfieldUnit::<[u8; 9]>::new([0xAA; 9]);
+    unit_shifted_const.set_const::<1, 63>(value & ((1u64 << 63) - 1));
+    unit_shifted_runtime.set(1, 63, value & ((1u64 << 63) - 1));
+    assert_eq!(
+        unit_shifted_const.get(0, 64),
+        unit_shifted_runtime.get(0, 64),
+    );
+    assert_eq!(
+        unit_shifted_const.get_const::<1, 63>(),
+        unit_shifted_runtime.get(1, 63),
+    );
+
+    let mut unit_shifted_raw = __BindgenBitfieldUnit::<[u8; 9]>::new([0xAA; 9]);
+    let mut unit_shifted_raw_runtime =
+        __BindgenBitfieldUnit::<[u8; 9]>::new([0xAA; 9]);
+    unsafe {
+        __BindgenBitfieldUnit::raw_set_const::<1, 63>(
+            &mut unit_shifted_raw,
+            value & ((1u64 << 63) - 1),
+        );
+    }
+    unit_shifted_raw_runtime.set(1, 63, value & ((1u64 << 63) - 1));
+    assert_eq!(
+        unit_shifted_raw.get(0, 64),
+        unit_shifted_raw_runtime.get(0, 64),
+    );
+}

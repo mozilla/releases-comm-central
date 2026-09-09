@@ -21,8 +21,8 @@ use self::struct_layout::StructLayoutTracker;
 use super::BindgenOptions;
 
 use crate::callbacks::{
-    AttributeInfo, DeriveInfo, DiscoveredItem, DiscoveredItemId, FieldInfo,
-    TypeKind as DeriveTypeKind,
+    AttributeInfo, DeriveInfo, DiscoveredItem, DiscoveredItemId,
+    FieldAttributeInfo, FieldInfo, TypeKind as DeriveTypeKind,
 };
 use crate::codegen::error::Error;
 use crate::ir::analysis::{HasVtable, Sizedness};
@@ -199,6 +199,53 @@ fn derives_of_item(
     derivable_traits
 }
 
+/// Appends the contents of the `custom_derives` slice to the `derives` vector,
+/// ignoring duplicates and preserving order.
+fn append_custom_derives<'a>(
+    derives: &mut Vec<&'a str>,
+    custom_derives: &'a [String],
+) {
+    for custom_derive in custom_derives.iter().map(|s| s.as_str()) {
+        if !derives.contains(&custom_derive) {
+            derives.push(custom_derive);
+        }
+    }
+}
+
+/// Collects field attributes from multiple sources (annotations, callbacks, and CLI/Builder patterns).
+fn collect_field_attributes(
+    ctx: &BindgenContext,
+    annotations: &Annotations,
+    type_name: &str,
+    type_kind: DeriveTypeKind,
+    field_name: &str,
+    field_type_name: Option<&str>,
+) -> Vec<String> {
+    let mut all_field_attributes = Vec::new();
+
+    // 1. Get attributes from annotations
+    all_field_attributes.extend(annotations.attributes().iter().cloned());
+
+    // 2. Get custom attributes from callbacks
+    all_field_attributes.extend(ctx.options().all_callbacks(|cb| {
+        cb.field_attributes(&FieldAttributeInfo {
+            type_name,
+            type_kind,
+            field_name,
+            field_type_name,
+        })
+    }));
+
+    // 3. Get attributes from CLI/Builder patterns
+    for (type_pat, field_pat, attr) in &ctx.options().field_attr_patterns {
+        if type_pat.as_ref() == type_name && field_pat.as_ref() == field_name {
+            all_field_attributes.push(attr.to_string());
+        }
+    }
+
+    all_field_attributes
+}
+
 impl From<DerivableTraits> for Vec<&'static str> {
     fn from(derivable_traits: DerivableTraits) -> Vec<&'static str> {
         [
@@ -214,7 +261,7 @@ impl From<DerivableTraits> for Vec<&'static str> {
         ]
         .iter()
         .filter_map(|&(flag, derive)| {
-            Some(derive).filter(|_| derivable_traits.contains(flag))
+            derivable_traits.contains(flag).then_some(derive)
         })
         .collect()
     }
@@ -681,13 +728,14 @@ impl CodeGenerator for Var {
         let ty = var_ty.to_rust_ty_or_opaque(ctx, &());
 
         if let Some(val) = self.val() {
-            match *val {
-                VarType::Bool(val) => {
-                    result.push(quote! {
-                        #(#attrs)*
-                        pub const #canonical_ident : #ty = #val ;
-                    });
+            utils::call_discovered_item_callback(ctx, item, || {
+                DiscoveredItem::Constant {
+                    final_name: canonical_name.clone(),
                 }
+            });
+
+            let const_expr = match *val {
+                VarType::Bool(val) => Some(val.to_token_stream()),
                 VarType::Int(val) => {
                     let int_kind = var_ty
                         .into_resolver()
@@ -702,10 +750,7 @@ impl CodeGenerator for Var {
                     } else {
                         helpers::ast_ty::uint_expr(val as _)
                     };
-                    result.push(quote! {
-                        #(#attrs)*
-                        pub const #canonical_ident : #ty = #val ;
-                    });
+                    Some(val)
                 }
                 VarType::String(ref bytes) => {
                     let prefix = ctx.trait_prefix();
@@ -758,23 +803,40 @@ impl CodeGenerator for Var {
                             pub const #canonical_ident: &#(#lifetime )*#array_ty = #bytes ;
                         });
                     }
+                    None
                 }
-                VarType::Float(f) => {
-                    if let Ok(expr) = helpers::ast_ty::float_expr(f) {
-                        result.push(quote! {
-                            #(#attrs)*
-                            pub const #canonical_ident : #ty = #expr ;
-                        });
-                    }
+                VarType::Float(f) => helpers::ast_ty::float_expr(f).ok(),
+                VarType::Char(c) => Some(c.to_token_stream()),
+            };
+
+            if let Some(mut val) = const_expr {
+                let var_ty_item =
+                    var_ty.into_resolver().through_type_refs().resolve(ctx);
+
+                let is_alias = var_ty_item
+                    .as_type()
+                    .is_some_and(|ty| matches!(ty.kind(), TypeKind::Alias(..)));
+
+                if is_alias &&
+                    matches!(
+                        var_ty_item.alias_style(ctx),
+                        AliasVariation::NewType | AliasVariation::NewTypeDeref
+                    )
+                {
+                    val = quote! { #ty(#val) };
                 }
-                VarType::Char(c) => {
-                    result.push(quote! {
-                        #(#attrs)*
-                        pub const #canonical_ident : #ty = #c ;
-                    });
-                }
+                result.push(quote! {
+                    #(#attrs)*
+                    pub const #canonical_ident : #ty = #val ;
+                });
             }
         } else {
+            utils::call_discovered_item_callback(ctx, item, || {
+                DiscoveredItem::Variable {
+                    final_name: canonical_name.clone(),
+                }
+            });
+
             let symbol: &str = self.link_name().unwrap_or_else(|| {
                 let link_name =
                     self.mangled_name().unwrap_or_else(|| self.name());
@@ -790,6 +852,20 @@ impl CodeGenerator for Var {
                 }
             });
 
+            let mut block_attributes = quote! {};
+            for attr in &ctx.options().extern_block_attrs {
+                let parsed_attr = proc_macro2::TokenStream::from_str(attr).unwrap_or_else(
+                    |err| {
+                        panic!(
+                            "Error parsing extern static block attribute `{attr}`: {err}"
+                        )
+                    },
+                );
+                block_attributes.extend(quote! {
+                    #parsed_attr
+                });
+            }
+
             let maybe_mut = if self.is_const() {
                 quote! {}
             } else {
@@ -803,6 +879,7 @@ impl CodeGenerator for Var {
                 .then(|| quote!(unsafe));
 
             let tokens = quote!(
+                #block_attributes
                 #safety extern "C" {
                     #(#attrs)*
                     pub static #maybe_mut #canonical_ident: #ty;
@@ -939,13 +1016,6 @@ impl CodeGenerator for Type {
                             layout.size,
                             ctx.target_pointer_size(),
                             );
-                        assert_eq!(
-                            layout.align,
-                            ctx.target_pointer_size(),
-                            "Target platform requires `--no-size_t-is-usize`. The alignment of `{spelling}` ({}) does not match the target pointer size ({})",
-                            layout.align,
-                            ctx.target_pointer_size(),
-                        );
                     }
                     return;
                 }
@@ -966,6 +1036,9 @@ impl CodeGenerator for Type {
                         .with_implicit_template_params(ctx, inner_item)
                 };
 
+                let inner_canon_type =
+                    inner_item.expect_type().canonical_type(ctx);
+
                 {
                     // FIXME(emilio): This is a workaround to avoid generating
                     // incorrect type aliases because of types that we haven't
@@ -977,8 +1050,6 @@ impl CodeGenerator for Type {
                     // with invalid template parameters, and at least this way
                     // they can be replaced, instead of generating plain invalid
                     // code.
-                    let inner_canon_type =
-                        inner_item.expect_type().canonical_type(ctx);
                     if inner_canon_type.is_invalid_type_param() {
                         warn!(
                             "Item contained invalid named type, skipping: \
@@ -1005,15 +1076,8 @@ impl CodeGenerator for Type {
                     quote! {}
                 };
 
-                let alias_style = if ctx.options().type_alias.matches(&name) {
-                    AliasVariation::TypeAlias
-                } else if ctx.options().new_type_alias.matches(&name) {
-                    AliasVariation::NewType
-                } else if ctx.options().new_type_alias_deref.matches(&name) {
-                    AliasVariation::NewTypeDeref
-                } else {
-                    ctx.options().default_alias_style
-                };
+                let alias_style = item.alias_style(ctx);
+                let mut needs_debug_impl = false;
 
                 // We prefer using `pub use` over `pub type` because of:
                 // https://github.com/rust-lang/rust/issues/26264
@@ -1045,6 +1109,13 @@ impl CodeGenerator for Type {
                         let packed = false; // Types can't be packed in Rust.
                         let derivable_traits =
                             derives_of_item(item, ctx, packed);
+                        if !derivable_traits.contains(DerivableTraits::DEBUG) {
+                            needs_debug_impl = ctx.options().derive_debug &&
+                                ctx.options().impl_debug &&
+                                !ctx.no_debug_by_name(item) &&
+                                !item.annotations().disallow_debug() &&
+                                !inner_canon_type.is_void();
+                        }
                         let mut derives: Vec<_> = derivable_traits.into();
                         // The custom derives callback may return a list of derive attributes;
                         // add them to the end of the list.
@@ -1056,9 +1127,10 @@ impl CodeGenerator for Type {
                                 })
                             });
                         // In most cases this will be a no-op, since custom_derives will be empty.
-                        derives
-                            .extend(custom_derives.iter().map(|s| s.as_str()));
-                        attributes.push(attributes::derives(&derives));
+                        append_custom_derives(&mut derives, &custom_derives);
+                        if !derives.is_empty() {
+                            attributes.push(attributes::derives(&derives));
+                        }
 
                         let custom_attributes =
                             ctx.options().all_callbacks(|cb| {
@@ -1127,8 +1199,33 @@ impl CodeGenerator for Type {
                             })
                             .unwrap_or(ctx.options().default_visibility);
                         let access_spec = access_specifier(visibility);
+
+                        // Collect field attributes for newtype tuple field
+                        let type_name = item.canonical_name(ctx);
+                        let all_field_attributes = collect_field_attributes(
+                            ctx,
+                            item.annotations(),
+                            &type_name,
+                            DeriveTypeKind::Struct,
+                            "0",
+                            inner_item.expect_type().name(),
+                        );
+
+                        // Build the field with attributes
+                        let mut field_tokens = quote! {};
+                        for attr in &all_field_attributes {
+                            let attr_tokens: proc_macro2::TokenStream =
+                                attr.parse().expect("Invalid field attribute");
+                            field_tokens.append_all(quote! {
+                                #[#attr_tokens]
+                            });
+                        }
+                        field_tokens.append_all(quote! {
+                            #access_spec #inner_rust_type
+                        });
+
                         quote! {
-                            (#access_spec #inner_rust_type) ;
+                            (#field_tokens) ;
                         }
                     }
                 });
@@ -1147,6 +1244,17 @@ impl CodeGenerator for Type {
                             #[inline]
                             fn deref_mut(&mut self) -> &mut Self::Target {
                                 &mut self.0
+                            }
+                        }
+                    });
+                }
+
+                if needs_debug_impl {
+                    let prefix = ctx.trait_prefix();
+                    tokens.append_all(quote! {
+                        impl ::#prefix::fmt::Debug for #rust_name {
+                            fn fmt(&self, f: &mut ::#prefix::fmt::Formatter<'_>) -> ::#prefix::fmt::Result {
+                                f.debug_tuple(stringify!(#rust_name)).field(&self.0).finish()
                             }
                         }
                     });
@@ -1504,8 +1612,20 @@ impl FieldCodegen<'_> for FieldData {
         } else if let Some(item) = field_ty.is_incomplete_array(ctx) {
             // Only FAM if its the last field
             if ctx.options().flexarray_dst && last_field {
+                // Check if parent struct is packed to determine if we need ManuallyDrop
+                let layout = parent_item.expect_type().layout(ctx);
+                let is_packed = parent.is_packed(ctx, layout.as_ref());
                 struct_layout.saw_flexible_array();
-                syn::parse_quote! { FAM }
+
+                // For packed structs, we need to wrap FAM in ManuallyDrop
+                // because Rust requires that DST fields in packed structs
+                // don't need Drop to be run.
+                if is_packed {
+                    let prefix = ctx.trait_prefix();
+                    syn::parse_quote! { ::#prefix::mem::ManuallyDrop<FAM> }
+                } else {
+                    syn::parse_quote! { FAM }
+                }
             } else {
                 result.saw_incomplete_array();
 
@@ -1517,16 +1637,35 @@ impl FieldCodegen<'_> for FieldData {
                     syn::parse_quote! { __IncompleteArrayField<#inner> }
                 }
             }
+        } else if let TypeKind::Comp(ref comp) = field_ty.kind() {
+            // Nested FAM: the field is a struct that itself has a FAM
+            // Only treat as FAM if it's the last field
+            if ctx.options().flexarray_dst &&
+                last_field &&
+                comp.flex_array_member(ctx).is_some()
+            {
+                let layout = parent_item.expect_type().layout(ctx);
+                let is_packed = parent.is_packed(ctx, layout.as_ref());
+                struct_layout.saw_flexible_array();
+
+                // For nested FAMs, we need to parameterize the field type with FAM
+                // For packed structs, wrap in ManuallyDrop
+                if is_packed {
+                    let prefix = ctx.trait_prefix();
+                    syn::parse_quote! { ::#prefix::mem::ManuallyDrop<#ty<FAM>> }
+                } else {
+                    syn::parse_quote! { #ty<FAM> }
+                }
+            } else {
+                ty
+            }
         } else {
             ty
         };
 
         let mut field = quote! {};
-        if ctx.options().generate_comments {
-            if let Some(raw_comment) = self.comment() {
-                let comment = ctx.options().process_comment(raw_comment);
-                field = attributes::doc(&comment);
-            }
+        if let Some(comment) = self.doc_comment(ctx) {
+            field = attributes::doc(&comment);
         }
 
         let field_name = self
@@ -1557,6 +1696,31 @@ impl FieldCodegen<'_> for FieldData {
         );
         let accessor_kind =
             self.annotations().accessor_kind().unwrap_or(accessor_kind);
+
+        // Collect field attributes from multiple sources
+        let type_name = parent_item.canonical_name(ctx);
+        let type_kind = if parent.is_union() {
+            DeriveTypeKind::Union
+        } else {
+            DeriveTypeKind::Struct
+        };
+        let all_field_attributes = collect_field_attributes(
+            ctx,
+            self.annotations(),
+            &type_name,
+            type_kind,
+            field_name,
+            field_ty.name(),
+        );
+
+        // Apply all custom attributes to the field
+        for attr in &all_field_attributes {
+            let attr_tokens: proc_macro2::TokenStream =
+                attr.parse().expect("Invalid field attribute");
+            field.append_all(quote! {
+                #[#attr_tokens]
+            });
+        }
 
         match visibility {
             FieldVisibilityKind::Private => {
@@ -1661,16 +1825,11 @@ impl Bitfield {
 
         let offset = self.offset_into_unit();
         let width = self.width() as u8;
-        let prefix = ctx.trait_prefix();
 
         ctor_impl.append_all(quote! {
-            __bindgen_bitfield_unit.set(
-                #offset,
-                #width,
+            __bindgen_bitfield_unit.set_const::<#offset, #width>(
                 {
-                    let #param_name: #bitfield_int_ty = unsafe {
-                        ::#prefix::mem::transmute(#param_name)
-                    };
+                    let #param_name: #bitfield_int_ty = #param_name as _;
                     #param_name as u64
                 }
             );
@@ -1933,6 +2092,7 @@ impl<'a> FieldCodegen<'a> for Bitfield {
 
         let bitfield_ty_item = ctx.resolve_item(self.ty());
         let bitfield_ty = bitfield_ty_item.expect_type();
+        let bitfield_ty_kind = bitfield_ty.canonical_type(ctx).kind();
         let bitfield_ty_ident = bitfield_ty.name();
 
         let bitfield_ty_layout = bitfield_ty
@@ -1975,24 +2135,19 @@ impl<'a> FieldCodegen<'a> for Bitfield {
             methods.extend(Some(quote! {
                 #[inline]
                 #access_spec fn #getter_name(&self) -> #bitfield_ty {
-                    unsafe {
-                        ::#prefix::mem::transmute(
-                            self.#unit_field_ident.as_ref().get(#offset, #width)
-                                as #bitfield_int_ty
-                        )
-                    }
+                    self.#unit_field_ident.as_ref().get(#offset, #width)
+                        as #bitfield_int_ty
+                        as _
                 }
 
                 #[inline]
                 #access_spec fn #setter_name(&mut self, val: #bitfield_ty) {
-                    unsafe {
-                        let val: #bitfield_int_ty = ::#prefix::mem::transmute(val);
-                        self.#unit_field_ident.as_mut().set(
-                            #offset,
-                            #width,
-                            val as u64
-                        )
-                    }
+                    let val: #bitfield_int_ty = val as _;
+                    self.#unit_field_ident.as_mut().set(
+                        #offset,
+                        #width,
+                        val as u64
+                    )
                 }
             }));
 
@@ -2000,18 +2155,19 @@ impl<'a> FieldCodegen<'a> for Bitfield {
                 #[inline]
                 #access_spec unsafe fn #raw_getter_name(this: *const Self) -> #bitfield_ty {
                     unsafe {
-                        ::#prefix::mem::transmute(<#unit_field_ty>::raw_get(
+                        <#unit_field_ty>::raw_get(
                             (*::#prefix::ptr::addr_of!((*this).#unit_field_ident)).as_ref() as *const _,
                             #offset,
                             #width,
-                        ) as #bitfield_int_ty)
+                        ) as #bitfield_int_ty
+                          as _
                     }
                 }
 
                 #[inline]
                 #access_spec unsafe fn #raw_setter_name(this: *mut Self, val: #bitfield_ty) {
                     unsafe {
-                        let val: #bitfield_int_ty = ::#prefix::mem::transmute(val);
+                        let val: #bitfield_int_ty = val as _;
                         <#unit_field_ty>::raw_set(
                             (*::#prefix::ptr::addr_of_mut!((*this).#unit_field_ident)).as_mut() as *mut _,
                             #offset,
@@ -2022,50 +2178,69 @@ impl<'a> FieldCodegen<'a> for Bitfield {
                 }
             }));
         } else {
+            let is_rust_union =
+                parent.is_union() && struct_layout.is_rust_union();
+
+            let get = quote! { self.#unit_field_ident.get_const::<#offset, #width>() as #bitfield_int_ty };
+            let raw_get = quote! {
+                <#unit_field_ty>::raw_get_const::<#offset, #width>(
+                    ::#prefix::ptr::addr_of!((*this).#unit_field_ident),
+                ) as #bitfield_int_ty
+            };
+
+            let (getter_inner, raw_getter_inner) = match bitfield_ty_kind {
+                TypeKind::Int(IntKind::Bool) => {
+                    (quote! { #get != 0 }, quote! { #raw_get != 0 })
+                }
+                TypeKind::Enum(..) => (
+                    quote! { ::#prefix::mem::transmute(#get) },
+                    quote! { ::#prefix::mem::transmute(#raw_get) },
+                ),
+                _ => (quote! { #get as _ }, quote! { #raw_get as _ }),
+            };
+
+            let getter_body = if is_rust_union ||
+                matches!(bitfield_ty_kind, TypeKind::Enum(..))
+            {
+                quote! { unsafe { #getter_inner } }
+            } else {
+                getter_inner
+            };
+
+            let setter_inner = quote! {
+                let val: #bitfield_int_ty = val as _;
+                self.#unit_field_ident.set_const::<#offset, #width>(val as u64)
+            };
+            let setter_body = if is_rust_union {
+                quote! { unsafe { #setter_inner } }
+            } else {
+                setter_inner
+            };
+
             methods.extend(Some(quote! {
                 #[inline]
                 #access_spec fn #getter_name(&self) -> #bitfield_ty {
-                    unsafe {
-                        ::#prefix::mem::transmute(
-                            self.#unit_field_ident.get(#offset, #width)
-                                as #bitfield_int_ty
-                        )
-                    }
+                    #getter_body
                 }
 
                 #[inline]
                 #access_spec fn #setter_name(&mut self, val: #bitfield_ty) {
-                    unsafe {
-                        let val: #bitfield_int_ty = ::#prefix::mem::transmute(val);
-                        self.#unit_field_ident.set(
-                            #offset,
-                            #width,
-                            val as u64
-                        )
-                    }
+                    #setter_body
                 }
             }));
 
             methods.extend(Some(quote! {
                 #[inline]
                 #access_spec unsafe fn #raw_getter_name(this: *const Self) -> #bitfield_ty {
-                    unsafe {
-                        ::#prefix::mem::transmute(<#unit_field_ty>::raw_get(
-                            ::#prefix::ptr::addr_of!((*this).#unit_field_ident),
-                            #offset,
-                            #width,
-                        ) as #bitfield_int_ty)
-                    }
+                    unsafe { #raw_getter_inner }
                 }
 
                 #[inline]
                 #access_spec unsafe fn #raw_setter_name(this: *mut Self, val: #bitfield_ty) {
                     unsafe {
-                        let val: #bitfield_int_ty = ::#prefix::mem::transmute(val);
-                        <#unit_field_ty>::raw_set(
+                        let val: #bitfield_int_ty = val as _;
+                        <#unit_field_ty>::raw_set_const::<#offset, #width>(
                             ::#prefix::ptr::addr_of_mut!((*this).#unit_field_ident),
-                            #offset,
-                            #width,
                             val as u64,
                         )
                     }
@@ -2402,7 +2577,16 @@ impl CodeGenerator for CompInfo {
             // the beginning of the struct. This avoids hitting
             // https://github.com/rust-lang/rust-bindgen/issues/2179
             // Do it for bitfields only for now for backwards compat.
-            if self.has_bitfields() && explicit <= 8 {
+            //
+            // (Note that, if the target's primitive type alignment is *not* sufficiently
+            // aligned, as in the case of u64 on a 32-bit system, we should not insert the dummy
+            // field, hence checking that `explicit` is less-than-or-equal-to the target primitive
+            // type's alignemnt.)
+            let target_primitive_align = Layout::for_size(ctx, explicit).align;
+            if self.has_bitfields() &&
+                explicit <= 8 &&
+                target_primitive_align >= explicit
+            {
                 let align_ty = match explicit {
                     8 => quote! { u64 },
                     4 => quote! { u32 },
@@ -2421,7 +2605,17 @@ impl CodeGenerator for CompInfo {
             }
         }
 
-        let derivable_traits = derives_of_item(item, ctx, packed);
+        let derivable_traits = if self.is_forward_declaration() {
+            // The only trait we can derive for forward declared types is `Debug`,
+            // since we don't know anything about the layout or type.
+            let mut derivable_traits = DerivableTraits::empty();
+            if !item.annotations().disallow_debug() {
+                derivable_traits |= DerivableTraits::DEBUG;
+            }
+            derivable_traits
+        } else {
+            derives_of_item(item, ctx, packed)
+        };
         if !derivable_traits.contains(DerivableTraits::DEBUG) {
             needs_debug_impl = ctx.options().derive_debug &&
                 ctx.options().impl_debug &&
@@ -2488,7 +2682,7 @@ impl CodeGenerator for CompInfo {
             })
         });
         // In most cases this will be a no-op, since custom_derives will be empty.
-        derives.extend(custom_derives.iter().map(|s| s.as_str()));
+        append_custom_derives(&mut derives, &custom_derives);
 
         if !derives.is_empty() {
             attributes.push(attributes::derives(&derives));
@@ -3562,6 +3756,9 @@ impl EnumBuilder {
                 quote! {
                     // todo: Probably some attributes, e.g. `cfg` should apply to the `mod`.
                     pub mod #module_name {
+                        #[allow(unused_imports)]
+                        use super::*;
+
                         #( #attrs )*
                         pub type #enum_ident = #enum_repr;
 
@@ -3688,7 +3885,7 @@ impl CodeGenerator for Enum {
                 })
             });
             // In most cases this will be a no-op, since custom_derives will be empty.
-            derives.extend(custom_derives.iter().map(|s| s.as_str()));
+            append_custom_derives(&mut derives, &custom_derives);
 
             attrs.extend(
                 item.annotations()
@@ -3798,14 +3995,11 @@ impl CodeGenerator for Enum {
                 continue;
             }
 
-            let mut variant_doc = quote! {};
-            if ctx.options().generate_comments {
-                if let Some(raw_comment) = variant.comment() {
-                    let processed_comment =
-                        ctx.options().process_comment(raw_comment);
-                    variant_doc = attributes::doc(&processed_comment);
-                }
-            }
+            let variant_doc = if let Some(comment) = variant.doc_comment(ctx) {
+                attributes::doc(&comment)
+            } else {
+                quote! {}
+            };
 
             match seen_values.entry(variant.val()) {
                 Entry::Occupied(ref entry) => {
@@ -3997,9 +4191,10 @@ impl FromStr for AliasVariation {
 }
 
 /// Enum for how non-`Copy` `union`s should be translated.
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug, Default)]
 pub enum NonCopyUnionStyle {
     /// Wrap members in a type generated by `bindgen`.
+    #[default]
     BindgenWrapper,
     /// Wrap members in [`::core::mem::ManuallyDrop`].
     ///
@@ -4016,12 +4211,6 @@ impl fmt::Display for NonCopyUnionStyle {
         };
 
         s.fmt(f)
-    }
-}
-
-impl Default for NonCopyUnionStyle {
-    fn default() -> Self {
-        Self::BindgenWrapper
     }
 }
 
@@ -4381,6 +4570,12 @@ impl TryToRustTy for Type {
                 if inner_ty.canonical_type(ctx).is_function() || is_objc_pointer
                 {
                     Ok(ty)
+                } else if ctx.options().generate_cxx_nonnull_references &&
+                    matches!(self.kind(), TypeKind::Reference(_))
+                {
+                    // It's UB to pass null values in place of C++ references
+                    let prefix = ctx.trait_prefix();
+                    Ok(syn::parse_quote! { ::#prefix::ptr::NonNull<#ty> })
                 } else {
                     Ok(ty.to_ptr(is_const))
                 }
@@ -4669,13 +4864,19 @@ impl CodeGenerator for Function {
             }
         }
 
-        // Unfortunately this can't piggyback on the `attributes` list because
-        // the #[link(wasm_import_module)] needs to happen before the `extern
-        // "C"` block. It doesn't get picked up properly otherwise
-        let wasm_link_attribute =
-            ctx.options().wasm_import_module_name.as_ref().map(|name| {
-                quote! { #[link(wasm_import_module = #name)] }
+        let mut block_attributes = quote! {};
+        for attr in &ctx.options().extern_block_attrs {
+            let parsed_attr = proc_macro2::TokenStream::from_str(attr).unwrap_or_else(
+                |err| {
+                    panic!(
+                        "Error parsing extern fn block attribute `{attr}`: {err}"
+                    )
+                },
+            );
+            block_attributes.extend(quote! {
+                #parsed_attr
             });
+        }
 
         let should_wrap = is_internal &&
             ctx.options().wrap_static_fns &&
@@ -4729,7 +4930,7 @@ impl CodeGenerator for Function {
             .then(|| quote!(unsafe));
 
         let tokens = quote! {
-            #wasm_link_attribute
+            #block_attributes
             #safety extern #abi {
                 #(#attributes)*
                 pub fn #ident ( #( #args ),* ) #ret;
@@ -5393,14 +5594,6 @@ pub(crate) mod utils {
     ) {
         let prefix = ctx.trait_prefix();
 
-        // If the target supports `const fn`, declare eligible functions
-        // as `const fn` else just `fn`.
-        let const_fn = if true {
-            quote! { const fn }
-        } else {
-            quote! { fn }
-        };
-
         // TODO(emilio): The fmt::Debug impl could be way nicer with
         // std::intrinsics::type_name, but...
         let union_field_decl = quote! {
@@ -5408,23 +5601,22 @@ pub(crate) mod utils {
             pub struct __BindgenUnionField<T>(::#prefix::marker::PhantomData<T>);
         };
 
-        let transmute =
-            ctx.wrap_unsafe_ops(quote!(::#prefix::mem::transmute(self)));
+        let transmute = quote!(unsafe { ::#prefix::mem::transmute(self) });
 
         let union_field_impl = quote! {
             impl<T> __BindgenUnionField<T> {
                 #[inline]
-                pub #const_fn new() -> Self {
+                pub const fn new() -> Self {
                     __BindgenUnionField(::#prefix::marker::PhantomData)
                 }
 
                 #[inline]
-                pub unsafe fn as_ref(&self) -> &T {
+                pub const unsafe fn as_ref(&self) -> &T {
                     #transmute
                 }
 
                 #[inline]
-                pub unsafe fn as_mut(&mut self) -> &mut T {
+                pub const unsafe fn as_mut(&mut self) -> &mut T {
                     #transmute
                 }
             }
@@ -5617,7 +5809,7 @@ pub(crate) mod utils {
             let ident = if align == 1 {
                 format_ident!("__BindgenOpaqueArray")
             } else {
-                format_ident!("__BindgenOpaqueArray{}", align)
+                format_ident!("__BindgenOpaqueArray{align}")
             };
             let repr = if align <= 1 {
                 quote! { #[repr(C)] }

@@ -137,6 +137,31 @@ fn parse_custom_attribute(
     Ok((attributes, regex.to_owned()))
 }
 
+fn parse_field_attr(
+    field_attr: &str,
+) -> Result<(String, String, String), Error> {
+    // Parse format: TYPE::FIELD=ATTR
+    // We need to split on the first '=' after finding the '::'
+    let (type_field, attr) = field_attr.split_once('=').ok_or_else(|| {
+        Error::raw(ErrorKind::InvalidValue, "Missing `=` in field-attr")
+    })?;
+
+    let (type_name, field_name) =
+        type_field.rsplit_once("::").ok_or_else(|| {
+            Error::raw(
+                ErrorKind::InvalidValue,
+                "Missing `::` in field-attr. Expected format: TYPE::FIELD=ATTR",
+            )
+        })?;
+
+    // Validate the attribute is valid Rust syntax
+    if let Err(err) = TokenStream::from_str(attr) {
+        return Err(Error::raw(ErrorKind::InvalidValue, err));
+    }
+
+    Ok((type_name.to_owned(), field_name.to_owned(), attr.to_owned()))
+}
+
 #[derive(Parser, Debug)]
 #[clap(
     about = "Generates Rust bindings from C/C++ headers.",
@@ -258,6 +283,9 @@ struct BindgenCommand {
     /// Use extern crate instead of use for objc.
     #[arg(long)]
     objc_extern_crate: bool,
+    /// Use `NonNull` in place of raw pointers for C++ references.
+    #[arg(long)]
+    nonnull_references: bool,
     /// Generate block signatures instead of void pointers.
     #[arg(long)]
     generate_block: bool,
@@ -420,6 +448,9 @@ struct BindgenCommand {
     /// The NAME to be used in a #[link(wasm_import_module = ...)] statement
     #[arg(long, value_name = "NAME")]
     wasm_import_module_name: Option<String>,
+    /// Attributes to apply to extern blocks.
+    #[arg(long, value_name = "ATTRS")]
+    extern_block_attrs: Vec<String>,
     /// Use dynamic loading mode with the given library NAME.
     #[arg(long, value_name = "NAME")]
     dynamic_loading: Option<String>,
@@ -525,6 +556,9 @@ struct BindgenCommand {
     /// be called.
     #[arg(long)]
     generate_private_functions: bool,
+    /// Add a custom attribute to a field. The SPEC value must be of the shape TYPE::FIELD=ATTR.
+    #[arg(long, value_name = "SPEC", value_parser = parse_field_attr)]
+    field_attr: Vec<(String, String, String)>,
     /// Whether to emit diagnostics or not.
     #[cfg(feature = "experimental")]
     #[arg(long, requires = "experimental")]
@@ -590,6 +624,7 @@ where
         no_doc_comments,
         no_recursive_allowlist,
         objc_extern_crate,
+        nonnull_references,
         generate_block,
         generate_cstr,
         block_extern_crate,
@@ -643,6 +678,7 @@ where
         enable_function_attribute_detection,
         use_array_pointers_in_arguments,
         wasm_import_module_name,
+        extern_block_attrs,
         dynamic_loading,
         dynamic_link_require_all,
         prefix_link_name,
@@ -676,6 +712,7 @@ where
         generate_deleted_functions,
         generate_pure_virtual_functions,
         generate_private_functions,
+        field_attr,
         #[cfg(feature = "experimental")]
         emit_diagnostics,
         generate_shell_completions,
@@ -903,6 +940,7 @@ where
             time_phases,
             use_array_pointers_in_arguments => Builder::array_pointers_in_arguments,
             wasm_import_module_name,
+            extern_block_attrs => Builder::extern_block_attrs,
             ctypes_prefix,
             anon_fields_prefix,
             generate => Builder::with_codegen_config,
@@ -921,6 +959,7 @@ where
             no_doc_comments => |b, _| b.generate_comments(false),
             no_recursive_allowlist => |b, _| b.allowlist_recursively(false),
             objc_extern_crate,
+            nonnull_references => |b, _| b.generate_cxx_nonnull_references(true),
             generate_block,
             generate_cstr,
             block_extern_crate,
@@ -971,6 +1010,7 @@ where
             generate_deleted_functions,
             generate_pure_virtual_functions,
             generate_private_functions,
+            field_attr => |b, (type_name, field_name, attr)| b.field_attribute(type_name, field_name, attr),
         }
     );
 
