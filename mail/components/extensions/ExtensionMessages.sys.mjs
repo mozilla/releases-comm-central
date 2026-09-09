@@ -1596,7 +1596,15 @@ export class MessageTracker extends EventEmitter {
         return deferred.promise;
       });
 
-      dstFolder.updateFolder(null);
+      // Deleting attachments replaces a message by a modified copy in the very
+      // same folder, which is reported as a move. Updating the folder while the
+      // original message is still being deleted would re-add its header, which
+      // in turn would confuse the pseudo header handling of the IMAP folder and
+      // corrupt the key mapping of the message tracker. The modified copy is
+      // picked up by the folder update of the delete operation itself.
+      if (cachedSrcMsgs.some(msgHdr => msgHdr.folder?.URI != dstFolder.URI)) {
+        dstFolder.updateFolder(null);
+      }
       const deferredDstMsgs = await Promise.all(dstMsgsPromises);
       this.emit(emitMsg, cachedSrcMsgs, deferredDstMsgs);
     } else {
