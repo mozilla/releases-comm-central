@@ -9,24 +9,34 @@
 #include <shellapi.h>
 #include <strsafe.h>
 
+// Since we are including windows.h, undefine things we'll redefine.
+#ifdef GetNextSibling
+#  undef GetNextSibling
+#endif
+
+#ifdef GetUserName
+#  undef GetUserName
+#endif
+
+#include "mozIDOMWindow.h"
 #include "mozilla/Components.h"
 #include "mozilla/intl/Localization.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/Services.h"
-#include "mozIDOMWindow.h"
 #include "nsCOMArray.h"
 #include "nsIAppStartup.h"
 #include "nsIBaseWindow.h"
 #include "nsIDocShell.h"  // IWYU pragma: keep
-#include "nsIStringBundle.h"
-#include "nsISupportsPrimitives.h"
 #include "nsIMsgWindow.h"
 #include "nsIObserverService.h"
+#include "nsIStringBundle.h"
+#include "nsISupportsPrimitives.h"
 #include "nsIWidget.h"
 #include "nsIWindowMediator.h"
 #include "nsMsgUtils.h"
-#include "nsServiceManagerUtils.h"
 #include "nsPIDOMWindow.h"
+#include "nsPIDOMWindowInlines.h"
+#include "nsServiceManagerUtils.h"
 
 using namespace mozilla;
 
@@ -34,11 +44,6 @@ using namespace mozilla;
 #define SHOW_TRAY_ICON_PREF "mail.biff.show_tray_icon"
 #define SHOW_TRAY_ICON_ALWAYS_PREF "mail.biff.show_tray_icon_always"
 #define EXIT_MENU_ITEM_ID 1
-
-// since we are including windows.h in this file, undefine get user name....
-#ifdef GetUserName
-#  undef GetUserName
-#endif
 
 #ifndef NIIF_USER
 #  define NIIF_USER 0x00000004
