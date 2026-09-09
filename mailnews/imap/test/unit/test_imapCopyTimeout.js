@@ -38,21 +38,23 @@ add_setup(function () {
     "mail.server.default.autosync_offline_stores",
     false
   );
+  registerCleanupFunction(() => {
+    teardownIMAPPump();
+  });
 });
 
 add_task(async function createTargetFolder() {
-  IMAPPump.daemon.copySleep = 5000;
-  IMAPPump.incomingServer.rootFolder.createSubfolder("targetFolder", null);
-  await PromiseTestUtils.promiseFolderAdded("targetFolder");
   gTargetFolder =
-    IMAPPump.incomingServer.rootFolder.getChildNamed("targetFolder");
+    await IMAPPump.incomingServer.rootFolder.createSubfolderAsync(
+      "targetFolder"
+    );
   Assert.ok(gTargetFolder instanceof Ci.nsIMsgImapMailFolder);
   const listener = new PromiseTestUtils.PromiseUrlListener();
   gTargetFolder.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
-// load and update a message in the imap fake server
+// Load a message onto the fake server, and make sure it's fetched.
 add_task(async function loadImapMessage() {
   let messages = [];
   const gMessageGenerator = new MessageGenerator();
@@ -69,16 +71,15 @@ add_task(async function loadImapMessage() {
   IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
   await promiseUrlListener.promise;
   Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
-  const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  Assert.ok(msgHdr instanceof Ci.nsIMsgDBHdr);
 });
 
-// move the message to a different folder
-add_task(async function moveMessageToTargetFolder() {
+// Cause a timeout while moving the message from "INBOX" to "targetFolder".
+add_task(async function moveMessageWithTimeout() {
   const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   // This should cause the move to be done as an offline imap operation
   // that's played back immediately.
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
+  IMAPPump.daemon.copySleep = 5000;
   MailServices.copy.copyMessages(
     IMAPPump.inbox,
     [msgHdr],
@@ -89,9 +90,7 @@ add_task(async function moveMessageToTargetFolder() {
     true
   );
   await copyListener.promise;
-});
 
-add_task(async function waitForOfflinePlayback() {
   // Just wait for the alert about timed out connection.
   const alertText = await alertPromise;
   Assert.ok(alertText.startsWith("Connection to server localhost timed out."));
@@ -104,17 +103,13 @@ add_task(async function updateTargetFolderAndInbox() {
   const urlListenerInbox = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, urlListenerInbox);
   await urlListenerInbox.promise;
-});
 
-// Cleanup
-add_task(async function endTest() {
   // Make sure neither source nor target folder have offline events.
   Assert.ok(!IMAPPump.inbox.getFlag(Ci.nsMsgFolderFlags.OfflineEvents));
   Assert.ok(!gTargetFolder.getFlag(Ci.nsMsgFolderFlags.OfflineEvents));
 
-  // fake server does the copy, but then times out, so make sure the target
+  // Fake server does the copy, but then times out, so make sure the target
   // folder has only 1 message, not the multiple ones it would have if we
   // retried.
   Assert.equal(gTargetFolder.getTotalMessages(false), 1);
-  teardownIMAPPump();
 });
