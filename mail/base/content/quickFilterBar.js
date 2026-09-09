@@ -82,6 +82,16 @@ var quickFilterBar = {
         this._resetFilterState();
       }
     });
+
+    // The <command> elements these keys and buttons are bound to live in the
+    // parent window, and their disabled state may have been calculated before
+    // the callbacks above existed. Recalculate it now.
+    for (const command of [
+      "cmd_showQuickFilterBar",
+      "cmd_toggleQuickFilterBar",
+    ]) {
+      top.goUpdateCommand(command);
+    }
     window.addEventListener("keydown", event => {
       if (event.keyCode != KeyEvent.DOM_VK_ESCAPE || !this.filterer.visible) {
         // The filter bar isn't visible, do nothing.
