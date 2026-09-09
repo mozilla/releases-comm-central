@@ -728,6 +728,22 @@
     all(feature = "simd-accel", target_endian = "little"),
     feature(portable_simd)
 )]
+// These are for working around
+// https://github.com/rust-lang/stdarch/issues/2208
+// https://github.com/rust-lang/rust/issues/159464
+// https://github.com/rust-lang/rust/pull/161558
+#![cfg_attr(
+    all(slow_mm_packus_epi16, feature = "simd-accel", target_feature = "sse2"),
+    feature(link_llvm_intrinsics)
+)]
+#![cfg_attr(
+    all(slow_mm_packus_epi16, feature = "simd-accel", target_feature = "sse2"),
+    feature(abi_unadjusted)
+)]
+#![cfg_attr(
+    all(slow_mm_packus_epi16, feature = "simd-accel", target_feature = "sse2"),
+    feature(simd_ffi)
+)]
 
 #[cfg(feature = "alloc")]
 #[cfg_attr(test, macro_use)]
@@ -4034,23 +4050,21 @@ impl Decoder {
         dst: &mut str,
         last: bool,
     ) -> (CoderResult, usize, usize, bool) {
-        // TODO: This method does not need to be panic-safe against user code.
-        // However, if there is a bug inside the crate so that something inside
-        // the implementation panics after bytes have been written (there's intentional
-        // panic pass-through for checking preconditions _before_ bytes have been
-        // written), the code is compiled with unwinding enabled, and the caller
-        // catches the panic, the caller could end up holding `dst` that is in
-        // an invalid state.
-        // https://github.com/hsivonen/encoding_rs/issues/133
-
         // SAFETY: We trust that `decode_to_utf8` writes
         // valid UTF-8. To make the part of the slice after what was reported
         // as logically written by that funtion, we use knowledge of the internals
         // to overwrite trailing garbage that may have been written. Then we also
         // overwrite a possible partial UTF-8 byte sequence after that. Then the
         // rest must be valid on the assumption that `dst` was valid to begin with.
-        let bytes: &mut [u8] = unsafe { dst.as_bytes_mut() };
-        let (result, read, written, replaced) = self.decode_to_utf8(src, bytes, last);
+        // In case of a panic, the `ScopeGuard` zeros the whole slice, which ensures
+        // it's valid UTF-8 in an use-after-panic scenario when unwinding is enabled.
+        // (Relevant only if there's a panic due to a crate-internal bug. Panics
+        // arising from misuse of the public API don't need this guard and end up
+        // zeroing the slice unnecessarily.)
+        let mut bytes = scopeguard::guard(unsafe { dst.as_bytes_mut() }, |bytes| {
+            bytes.iter_mut().for_each(|b| *b = 0)
+        });
+        let (result, read, written, replaced) = self.decode_to_utf8(src, &mut bytes, last);
         let len = bytes.len();
         let mut trail = written;
         // Non-UTF-8 ASCII-compatible decoders may write up to `MAX_STRIDE_SIZE`
@@ -4067,6 +4081,8 @@ impl Decoder {
             bytes[trail] = 0;
             trail += 1;
         }
+        // Defuse the zeroing guard.
+        let _ = scopeguard::ScopeGuard::<&mut [u8], _>::into_inner(bytes);
         (result, read, written, replaced)
     }
 
@@ -4156,23 +4172,22 @@ impl Decoder {
         dst: &mut str,
         last: bool,
     ) -> (DecoderResult, usize, usize) {
-        // TODO: This method does not need to be panic-safe against user code.
-        // However, if there is a bug inside the crate so that something inside
-        // the implementation panics after bytes have been written (there's intentional
-        // panic pass-through for checking preconditions _before_ bytes have been
-        // written), the code is compiled with unwinding enabled, and the caller
-        // catches the panic, the caller could end up holding `dst` that is in
-        // an invalid state.
-        // https://github.com/hsivonen/encoding_rs/issues/133
-
         // SAFETY: We trust that `decode_to_utf8_without_replacement` writes
         // valid UTF-8. To make the part of the slice after what was reported
         // as logically written by that funtion, we use knowledge of the internals
         // to overwrite trailing garbage that may have been written. Then we also
         // overwrite a possible partial UTF-8 byte sequence after that. Then the
         // rest must be valid on the assumption that `dst` was valid to begin with.
-        let bytes: &mut [u8] = unsafe { dst.as_bytes_mut() };
-        let (result, read, written) = self.decode_to_utf8_without_replacement(src, bytes, last);
+        // In case of a panic, the `ScopeGuard` zeros the whole slice, which ensures
+        // it's valid UTF-8 in an use-after-panic scenario when unwinding is enabled.
+        // (Relevant only if there's a panic due to a crate-internal bug. Panics
+        // arising from misuse of the public API don't need this guard and end up
+        // zeroing the slice unnecessarily.)
+        let mut bytes = scopeguard::guard(unsafe { dst.as_bytes_mut() }, |bytes| {
+            bytes.iter_mut().for_each(|b| *b = 0)
+        });
+        let (result, read, written) =
+            self.decode_to_utf8_without_replacement(src, &mut bytes, last);
         let len = bytes.len();
         let mut trail = written;
         // Non-UTF-8 ASCII-compatible decoders may write up to `MAX_STRIDE_SIZE`
@@ -4189,6 +4204,8 @@ impl Decoder {
             bytes[trail] = 0;
             trail += 1;
         }
+        // Defuse the zeroing guard.
+        let _ = scopeguard::ScopeGuard::<&mut [u8], _>::into_inner(bytes);
         (result, read, written)
     }
 
@@ -5185,9 +5202,7 @@ cfg_if! {
         target_arch = "riscv32",
         target_arch = "riscv64",
         target_arch = "loongarch64",
-        target_arch = "s390x",
-        target_arch = "powerpc",
-        target_arch = "powerpc64")))] {
+        target_arch = "s390x")))] {
         #[inline(always)]
         unsafe fn pointer_escapes(ptr: *mut MaybeUninit<u8>) {
             // SAFETY:

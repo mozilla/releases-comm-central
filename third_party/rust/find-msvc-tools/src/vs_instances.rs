@@ -4,7 +4,7 @@ use std::convert::TryFrom;
 use std::io::BufRead;
 use std::path::PathBuf;
 
-use crate::windows::setup_config::{EnumSetupInstances, SetupInstance};
+use crate::setup_config::{EnumSetupInstances, SetupInstance};
 
 pub enum VsInstance {
     Com(SetupInstance),
@@ -12,7 +12,7 @@ pub enum VsInstance {
 }
 
 impl VsInstance {
-    pub fn installation_name(&self) -> Option<Cow<str>> {
+    pub fn installation_name(&self) -> Option<Cow<'_, str>> {
         match self {
             VsInstance::Com(s) => s
                 .installation_name()
@@ -30,7 +30,7 @@ impl VsInstance {
         }
     }
 
-    pub fn installation_version(&self) -> Option<Cow<str>> {
+    pub fn installation_version(&self) -> Option<Cow<'_, str>> {
         match self {
             VsInstance::Com(s) => s
                 .installation_version()
@@ -50,7 +50,7 @@ pub enum VsInstances {
 impl IntoIterator for VsInstances {
     type Item = VsInstance;
     #[allow(bare_trait_objects)]
-    type IntoIter = Box<Iterator<Item = Self::Item>>;
+    type IntoIter = Box<dyn Iterator<Item = Self::Item>>;
 
     fn into_iter(self) -> Self::IntoIter {
         match self {

@@ -239,7 +239,10 @@ Due to function multiversioning for AVX2+BMI1 on x86_64 with the `simd-accel` an
 features (see below), on x86 and x86_64 targets, this crate has the usual proc macro dependencies
 in its dependency tree. Cargo does not allow combining `feature` conditions with
 target-related conditions, so the dependencies are there even when the
-`simd-accel` and `std` features are not enabled.
+`simd-accel` and `std` features are not enabled. (Flipping things the other way round
+and making the inclusion of the crates dependent on `simd-accel` or `std` would mean
+non-x86/x86_64 builds would pay for what they don't use, and even x86/x86_64 builds
+wouldn't have the opt-opt below.)
 
 You can, however, avoid these by changing the available set of `target_feature`s by
 specifying `RUSTFLAGS='-C target_cpu=x86-64-v3'`.
@@ -306,6 +309,13 @@ The `simd-accel` feature has been tested with these target architectures:
 With other little-endian target architectures, the code should compute correct
 results, but performance has not been tuned. With big-endian architectures,
 `core::simd` isn't actually used for now.
+
+On 32-bit ARM, be careful to either use a `thumbv7neon` target or to explicitly
+enable `neon` _and_ also build the standard library with `neon` enabled.
+Enabling `simd-accel` will build without error but will not result in the
+intended performance when `neon` isn't enabled for the compilation or when
+the stardard library has been built without `neon`. (The `thumbv7neon` targets
+exist to address this issue.)
 
 When `simd-accel` is enabled, this crate benefits from AVX2+BMI1. When targeting
 x86_64, if you know that the binaries will only be run on x86-64-v3 or higher,
@@ -539,19 +549,22 @@ To regenerate the generated code:
 
 ## Release Notes
 
-# 0.8.40
+### 0.8.40
 
 * Increase MSRV to 1.88. (For `as_chunks` on slice.)
 * Fix correctness of buffer boundary handling in two-byte legacy decoders. (Applicable to streaming decode.)
 * Make decoder methods that write to `String` panic-safe so that the `String` no longer exposes uninitalized memory when user code tries to reuse a decoder that has reached the end of the stream previously, catches the panic, and uses the `String` afterwards. (Applicable when compiled with panic unwinding and the caller uses the API in an unintended way.)
 * Major rewrite of the ASCII acceleration internals to fix correctness in the non-SIMD case, to reduce `unsafe`, to remove code path divergence based on buffer alignment, and to improve performance.
 * Use the `simdutf8` crate for UTF-8 validation on aarch64, when compiled with Wasm SIMD enabled, and on x86/x86_64 when SSE 4.2 or, even better, AVX2 is available (works even without the `simd-accel` or `std` features).
-* On x86_64 with the `simd-accel` feature enabled, added function multiversioning to use AVX2+BMI1 when available (requires also the new `std` feature).
+* On x86_64 and x86 with the `simd-accel` feature enabled, added function multiversioning to use AVX2+BMI1 when available (requires also the new `std` feature).
 * Bound check optimization.
 * Documentation tweaks.
 * Address compiler warnings and Clippy lints.
+* Defense-in-depth in functions that write to `&mut str` in case there exists a crate-internal bug that panics.
 
-# 0.8.36 though 0.8.39
+Thanks to everyone who reported bugs and contributed fixes to this release!
+
+### 0.8.36 though 0.8.39
 
 * Reserved version numbers.
 

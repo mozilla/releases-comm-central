@@ -8,7 +8,7 @@
 #![allow(bad_style)]
 #![allow(unused)]
 
-use crate::windows::{
+use crate::{
     com::{BStr, ComPtr},
     winapi::{
         IUnknown, IUnknownVtbl, Interface, LCID, LPCOLESTR, LPCWSTR, LPFILETIME, LPSAFEARRAY,
@@ -175,7 +175,7 @@ impl SetupConfiguration {
         if err < 0 {
             return Err(err);
         }
-        let obj = unsafe { ComPtr::from_raw(obj as *mut ISetupConfiguration) };
+        let obj = unsafe { ComPtr::from_raw(obj.cast()) };
         Ok(SetupConfiguration(obj))
     }
     pub fn get_instance_for_current_process(&self) -> Result<SetupInstance, i32> {

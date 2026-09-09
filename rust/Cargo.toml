@@ -255,7 +255,6 @@ itertools_0_13 = { package = "itertools", path = "../../build/rust/itertools-0.1
 itertools_0_14 = { package = "itertools", path = "../../build/rust/itertools" }
 backtrace = { path = "../../build/rust/backtrace" }
 bindgen = { package = "bindgen", path = "../../build/rust/bindgen" }
-shlex = { path = "../../build/rust/shlex" }
 icu_collator = { path = "../../third_party/rust/icu_collator" }
 icu_collator_data = { path = "../../third_party/rust/icu_collator_data" }
 icu_normalizer = { path = "../../third_party/rust/icu_normalizer" }
@@ -266,6 +265,7 @@ utf16_iter = { path = "../../third_party/rust/utf16_iter" }
 icu_properties = { path = "../../third_party/rust/icu_properties" }
 icu_properties_data = { path = "../../third_party/rust/icu_properties_data" }
 autocfg = { path = "../../third_party/rust/autocfg" }
+cc = { path = "../../third_party/rust/cc" }
 goblin = { path = "../../build/rust/goblin" }
 getrandom = { path = "../../build/rust/getrandom" }
 procfs-core = { path = "../../build/rust/procfs-core" }
@@ -301,7 +301,6 @@ wr_malloc_size_of = { path = "../../gfx/wr/wr_malloc_size_of" }
 harfbuzz-sys = { git = "https://github.com/hsivonen/rust-harfbuzz", rev = "9d58a23a98772a197291d04af93f7041b7093d95" }
 harfbuzz = { git = "https://github.com/hsivonen/rust-harfbuzz", rev = "9d58a23a98772a197291d04af93f7041b7093d95" }
 harfbuzz-traits = { git = "https://github.com/hsivonen/rust-harfbuzz", rev = "9d58a23a98772a197291d04af93f7041b7093d95" }
-encoding_rs = { git = "https://github.com/hsivonen/encoding_rs", rev = "a4f2911cece3997c46da56785782b60dc0e5ab17" }
 objc = { git = "https://github.com/glandium/rust-objc", rev = "4de89f5aa9851ceca4d40e7ac1e2759410c04324" }
 allocator-api2 = { git = "https://github.com/glandium/allocator-api2", rev = "ad5f3d56a5a4519eff52af4ff85293431466ef5c" }
 ads-client = { path = "../../third_party/application-services/components/ads-client" }
