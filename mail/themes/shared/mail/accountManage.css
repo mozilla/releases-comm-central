@@ -56,7 +56,7 @@ fieldset {
       background-color: var(--panel-background-color-dimmed);
     }
 
-    &[selected="true"] {
+    &[selected] {
       color: var(--selected-item-text-color);
       background-color: var(--selected-item-color);
     }

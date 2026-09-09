@@ -26,9 +26,7 @@ add_task(async function testMonthView() {
 
   // Verify date.
   await TestUtils.waitForCondition(() => {
-    const dateLabel = document.querySelector(
-      '#month-view td[selected="true"] > calendar-month-day-box'
-    );
+    const dateLabel = document.querySelector("#month-view td[selected] > calendar-month-day-box");
     return dateLabel && dateLabel.mDate.icalString == "20090101";
   }, "Inspecting the date");
 

@@ -147,18 +147,12 @@
     }
 
     set selected(val) {
-      if (val) {
-        this.setAttribute("selected", "true");
-      } else {
-        this.removeAttribute("selected");
-      }
+      this.toggleAttribute("selected", val);
     }
 
     get selected() {
       return (
-        gChatTab &&
-        gChatTab.tabNode.selected &&
-        this.getAttribute("selected") == "true"
+        gChatTab && gChatTab.tabNode.selected && this.hasAttribute("selected")
       );
     }
 

@@ -103,24 +103,13 @@
     }
 
     get selected() {
-      const sel = this.getAttribute("selected");
-      if (sel && sel == "true") {
-        return true;
-      }
-
-      return false;
+      return this.hasAttribute("selected");
     }
 
     set selected(val) {
-      if (val) {
-        this.setAttribute("selected", "true");
-        this.monthDayLabels.tabIndex = 0;
-        this.parentNode.setAttribute("selected", "true");
-      } else {
-        this.removeAttribute("selected");
-        this.monthDayLabels.tabIndex = -1;
-        this.parentNode.removeAttribute("selected");
-      }
+      this.toggleAttribute("selected", val);
+      this.monthDayLabels.tabIndex = val ? 0 : -1;
+      this.parentNode.toggleAttribute("selected", val);
     }
 
     get showMonthLabel() {

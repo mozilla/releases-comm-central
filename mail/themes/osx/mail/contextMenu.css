@@ -46,7 +46,7 @@ menupopup {
       display: flex;
     }
 
-    &[selected="true"] > .menu-icon {
+    &[selected] > .menu-icon {
       visibility: inherit;
       content: var(--menuitem-icon);
     }

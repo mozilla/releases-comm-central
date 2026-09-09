@@ -973,7 +973,7 @@ class MailRecipientsArea extends MozXULElement {
       ) {
         if (!pill.hasAttribute("selected")) {
           this.deselectAllPills();
-          pill.setAttribute("selected", "selected");
+          pill.toggleAttribute("selected", true);
         }
         this.removeSelectedPills();
         return;
@@ -1099,7 +1099,7 @@ class MailRecipientsArea extends MozXULElement {
         // For rapid repeated deletions (esp. from holding BACKSPACE),
         // stop before selecting another focused pill for deletion.
         if (!this.hasSelectedPills() && !event.repeat) {
-          pill.setAttribute("selected", "selected");
+          pill.toggleAttribute("selected", true);
           break;
         }
         // Delete selected pills, handle focus and select another pill
@@ -1131,7 +1131,7 @@ class MailRecipientsArea extends MozXULElement {
           // Unmodified navigation: select only first pill and focus it below.
           // ### Todo: We can't handle Shift+Home yet, so it ends up here.
           this.deselectAllPills();
-          firstPill.setAttribute("selected", "selected");
+          firstPill.toggleAttribute("selected", true);
         }
         firstPill.focus();
         break;
@@ -1249,21 +1249,21 @@ class MailRecipientsArea extends MozXULElement {
 
     if (event.shiftKey) {
       if (sourcePill) {
-        sourcePill.setAttribute("selected", "selected");
+        sourcePill.toggleAttribute("selected", true);
       }
       if (event.key == "Home" && !sourcePill) {
         // Shift+Home from address input.
         this.selectSiblingPills(targetPill);
       }
       if (targetPill) {
-        targetPill.setAttribute("selected", "selected");
+        targetPill.toggleAttribute("selected", true);
       }
     } else if (!event.ctrlKey) {
       // Non-modified navigation keys must select the target pill and deselect
       // all others. Also some other keys like Backspace from rowInput.
       this.deselectAllPills();
       if (targetPill) {
-        targetPill.setAttribute("selected", "selected");
+        targetPill.toggleAttribute("selected", true);
       } else {
         // Focus the input navigated to.
         targetElement.focus();
@@ -1402,7 +1402,7 @@ class MailRecipientsArea extends MozXULElement {
       // round (1), and we have removed a single pill only, and it's not a
       // case of "satellite focus" (see above):
       // Conveniently select the nearest pill for rapid consecutive deletions.
-      focusElement.setAttribute("selected", "selected");
+      focusElement.toggleAttribute("selected", true);
     }
     // Find focus (3): If all else fails (no pills left in addressContainer,
     // or last pill deleted forwards): Focus rowInput.
@@ -1430,7 +1430,7 @@ class MailRecipientsArea extends MozXULElement {
    */
   selectSiblingPills(pill) {
     for (const sPill of this.getSiblingPills(pill)) {
-      sPill.setAttribute("selected", "selected");
+      sPill.toggleAttribute("selected", true);
     }
   }
 
@@ -1439,7 +1439,7 @@ class MailRecipientsArea extends MozXULElement {
    */
   selectAllPills() {
     for (const pill of this.getAllPills()) {
-      pill.setAttribute("selected", "selected");
+      pill.toggleAttribute("selected", true);
     }
   }
 

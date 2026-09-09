@@ -560,7 +560,7 @@
       if (!monthChanged && this.dayBoxes.size > 0) {
         this.mSelected = this.getBoxForDate(this.value);
         if (this.mSelected) {
-          this.mSelected.setAttribute("selected", "true");
+          this.mSelected.toggleAttribute("selected", true);
         }
 
         const todayBox = this.getBoxForDate(today);
@@ -649,7 +649,7 @@
           const val = this.value;
           if (this._sameDay(val, date)) {
             this.mSelected = day;
-            day.setAttribute("selected", "true");
+            day.toggleAttribute("selected", true);
           }
 
           // Highlight the extra date.
@@ -918,7 +918,7 @@
           this.mSelected.removeAttribute("selected");
         }
         this.mSelected = day;
-        day.setAttribute("selected", "true");
+        day.toggleAttribute("selected", true);
         this.mValue = aDate;
         const today = new Date();
         this.mShowsToday =

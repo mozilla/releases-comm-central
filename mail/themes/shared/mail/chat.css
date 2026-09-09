@@ -224,7 +224,7 @@ richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButt
   inline-size: 2px;
   block-size: 100%;
 
-  &[selected="true"] {
+  &[selected] {
     background-color: var(--tabline-color);
   }
 

@@ -1733,7 +1733,7 @@ function onShowAttachmentItemContextMenu() {
   ) {
     selectedAttachments = [attachmentList.getItemAtIndex(0).attachment];
     if (contextMenu.triggerNode == attachmentName) {
-      attachmentName.setAttribute("selected", true);
+      attachmentName.toggleAttribute("selected", true);
     }
   } else {
     selectedAttachments = [...attachmentList.selectedItems].map(

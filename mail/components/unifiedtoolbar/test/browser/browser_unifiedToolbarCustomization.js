@@ -80,10 +80,9 @@ add_task(async function test_open_customization() {
       `${space.name} tab has a pane`
     );
     if (space === window.gSpacesToolbar.currentSpace) {
-      Assert.equal(
-        tab.getAttribute("selected"),
-        "true",
-        `Tab for current space (${space.name}) is selected`
+      Assert.ok(
+        tab.hasAttribute("selected"),
+        `Tab for current space (${space.name}) should be selected`
       );
     }
     tabsWithSpaces.add(tab);

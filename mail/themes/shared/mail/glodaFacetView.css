@@ -335,7 +335,7 @@ facet-boolean[disabled] {
   cursor: pointer;
   border-block-end: 1px solid var(--layout-color-3);
 
-  &[selected="true"] {
+  &[selected] {
     background-color: var(--selected-item-color);
     color: var(--selected-item-text-color);
   }
@@ -366,7 +366,7 @@ facet-boolean[disabled] {
     text-decoration: line-through; /* strike the names of excluded facets */
   }
 
-  .bar[selected="true"] > & {
+  .bar[selected] > & {
     color: var(--selected-item-text-color);
   }
 }
@@ -379,7 +379,7 @@ facet-boolean[disabled] {
   line-height: 1.6em;
   color: var(--layout-color-3);
 
-  .bar[selected="true"] > & {
+  .bar[selected] > & {
     color: var(--selected-item-text-color);
   }
 }

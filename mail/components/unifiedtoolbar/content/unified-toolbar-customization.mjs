@@ -228,7 +228,7 @@ class UnifiedToolbarCustomization extends HTMLElement {
     tab.id = tabId;
     tab.setAttribute("aria-controls", paneId);
     if (activeSpace) {
-      tab.setAttribute("selected", true);
+      tab.toggleAttribute("selected", true);
     }
     const isBuiltinSpace = BUILTIN_SPACES.has(space.name);
     if (isBuiltinSpace) {
@@ -358,7 +358,7 @@ class UnifiedToolbarCustomization extends HTMLElement {
       }
       if (
         !tabToSelect &&
-        !this.querySelector(`unified-toolbar-tab[selected="true"]`)
+        !this.querySelector("unified-toolbar-tab[selected]")
       ) {
         tabToSelect = this.querySelector("unified-toolbar-tab");
       }

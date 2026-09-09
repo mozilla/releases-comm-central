@@ -75,7 +75,7 @@ add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
   EventUtils.synthesizeKey("KEY_Enter", {}, window);
 
   const tab = document.querySelector(
-    "tabmail > tabbox > tabpanels > vbox[selected=true]"
+    "tabmail > tabbox > tabpanels > vbox[selected]"
   );
 
   const iframe = tab.querySelector("iframe");

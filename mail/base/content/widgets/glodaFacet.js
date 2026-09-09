@@ -1111,7 +1111,7 @@
         }
 
         this.currentNode = node;
-        node.setAttribute("selected", "true");
+        node.toggleAttribute("selected", true);
 
         if (node.classList.contains("bar")) {
           document.querySelector("facet-popup-menu").show(event, this, node);
@@ -1344,7 +1344,7 @@
         const variety = barNode.getAttribute("variety");
         const label = barNode.querySelector(".bar-link").textContent;
         this.build(facetDef, label, groupValue);
-        this.node.setAttribute("selected", "true");
+        this.node.toggleAttribute("selected", true);
         const rtl = window.getComputedStyle(this).direction == "rtl";
         /* We show different menus if we're on an "unselected" facet value,
          or if we're on a preselected facet value, whether included or

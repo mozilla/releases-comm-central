@@ -120,11 +120,6 @@
   font-weight: bold;
 }
 
-.selected-text:not([selected="true"]),
-.unselected-text[selected="true"] {
-  visibility: hidden;
-}
-
 .categories-textbox .textbox-search-icon {
   list-style-image: none;
   cursor: default;

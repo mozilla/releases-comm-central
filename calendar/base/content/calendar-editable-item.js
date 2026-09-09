@@ -188,7 +188,7 @@
     set selected(val) {
       if (val && !this.mSelected) {
         this.mSelected = true;
-        this.setAttribute("selected", "true");
+        this.toggleAttribute("selected", true);
         this.setAttribute("aria-selected", "true");
         this.focus();
       } else if (!val && this.mSelected) {

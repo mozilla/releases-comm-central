@@ -424,7 +424,7 @@ async function wizardCreateKey() {
         : "radio-keygen-no-protection"
     );
 
-    autoProt.setAttribute("selected", true);
+    autoProt.toggleAttribute("selected", true);
     document
       .getElementById("keygenPassphraseProtection")
       .removeAttribute("selected");

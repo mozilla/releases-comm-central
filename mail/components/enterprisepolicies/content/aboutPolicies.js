@@ -501,9 +501,9 @@ function show(button) {
   content.classList.add("active");
   content.hidden = false;
 
-  const current_button = document.querySelector("[selected=true]");
+  const current_button = document.querySelector("[selected]");
   current_button.removeAttribute("selected");
-  button.setAttribute("selected", "true");
+  button.toggleAttribute("selected", true);
 
   const title = document.getElementById("sectionTitle");
   title.textContent = button.children[1].textContent;

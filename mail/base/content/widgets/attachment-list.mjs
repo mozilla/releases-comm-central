@@ -59,7 +59,7 @@ class MozAttachmentlist extends MozElements.RichListBox {
     const children = Array.from(this._childNodes);
 
     children
-      .filter(child => child.getAttribute("selected") == "true")
+      .filter(child => child.hasAttribute("selected"))
       .forEach(this.selectedItems.append, this.selectedItems);
 
     children

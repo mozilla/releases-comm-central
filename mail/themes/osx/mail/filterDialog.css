@@ -49,10 +49,6 @@ hbox > .small-button + .small-button {
   margin-inline-end: 2px;
 }
 
-#searchTermList > listitem[selected="true"] {
-  background-color: inherit;
-}
-
 toolbarbutton[is="toolbarbutton-menu-button"] > toolbarbutton {
   min-block-size: 0;
 }

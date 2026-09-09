@@ -263,7 +263,7 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
   font-weight: 800;
 }
 
-.minimonth-day[selected="true"] {
+.minimonth-day[selected] {
   background-color: var(--mmDaySelectedBackground);
   color: var(--mmDaySelectedColor);
   border: 1px solid var(--mmDaySelectedBorderColor);
@@ -279,7 +279,7 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
   border: 1px solid var(--mmHighlightBorderColor);
 }
 
-.minimonth-day[selected="true"][today="true"] {
+.minimonth-day[selected][today="true"] {
   background-color: var(--mmDaySelectedTodayBackground);
   border: 1px solid var(--mmDaySelectedTodayBorderColor);
 }
@@ -311,7 +311,7 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
   outline: none;
 }
 
-.minimonth-day:hover[interactive][selected="true"] {
+.minimonth-day:hover[interactive][selected] {
   border-color: var(--mmHighlightBorderColor);
 }
 

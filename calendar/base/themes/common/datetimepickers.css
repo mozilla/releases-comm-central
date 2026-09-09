@@ -123,8 +123,8 @@ timepicker > menulist::part(text-input) {
 
 /* selected hour box */
 
-.time-picker-hour-box-class[selected="true"],
-.time-picker-hour-box-class[selected="true"]:hover {
+.time-picker-hour-box-class[selected],
+.time-picker-hour-box-class[selected]:hover {
   background-color: var(--tbHighlightBackground);
   color: var(--tbHighlightColor);
 }
@@ -179,7 +179,7 @@ timepicker > menulist::part(text-input) {
   cursor: pointer;
 }
 
-.time-picker-minute-label[selected="true"]:hover {
+.time-picker-minute-label[selected]:hover {
   background-color: var(--tbHighlightBackground);
   color: var(--tbHighlightColor);
   cursor: pointer;
@@ -187,7 +187,7 @@ timepicker > menulist::part(text-input) {
 
 /* selected five-minute grid element box */
 
-.time-picker-five-minute-class[selected="true"] {
+.time-picker-five-minute-class[selected] {
   background-color: var(--tbHighlightBackground);
   color: var(--tbHighlightColor);
 }
@@ -221,7 +221,7 @@ timepicker > menulist::part(text-input) {
   cursor: pointer;
 }
 
-.time-picker-one-minute-class[selected="true"] > label:hover {
+.time-picker-one-minute-class[selected] > label:hover {
   background-color: var(--tbHighlightBackground) !important;
   color: var(--tbHighlightColor) !important;
   cursor: pointer;
@@ -229,7 +229,7 @@ timepicker > menulist::part(text-input) {
 
 /* selected one-minute grid element box */
 
-.time-picker-one-minute-class[selected="true"] {
+.time-picker-one-minute-class[selected] {
   background-color: var(--tbHighlightBackground);
   color: var(--tbHighlightColor);
 }

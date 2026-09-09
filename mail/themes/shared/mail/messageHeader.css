@@ -352,7 +352,7 @@ mail-tagfield[collapsed] {
     outline-offset: -1px;
   }
 
-  &:is(:hover, [selected="true"]) {
+  &:is(:hover, [selected]) {
     cursor: pointer;
     color: var(--selected-item-text-color);
     background-color: var(--selected-item-color);

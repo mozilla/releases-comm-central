@@ -27,7 +27,7 @@ add_task(async function testMultiweekView() {
   // Verify date.
   await TestUtils.waitForCondition(() => {
     const dateLabel = document.querySelector(
-      '#multiweek-view td[selected="true"] > calendar-month-day-box'
+      "#multiweek-view td[selected] > calendar-month-day-box"
     );
     return dateLabel && dateLabel.mDate.icalString == "20090101";
   }, "Inspecting the date");

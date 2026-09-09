@@ -170,11 +170,7 @@ ChromeUtils.defineESModuleGetters(this, {
         aMenuitem.removeAttribute("busy");
       }
 
-      if (aTab.selected) {
-        aMenuitem.setAttribute("selected", "true");
-      } else {
-        aMenuitem.removeAttribute("selected");
-      }
+      aMenuitem.toggleAttribute("selected", aTab.selected);
     }
   }
 
@@ -791,7 +787,7 @@ ChromeUtils.defineESModuleGetters(this, {
           favIconUrl: null,
           _ext: {},
           get selected() {
-            return this.panel?.getAttribute("selected") === "true";
+            return this.panel?.hasAttribute("selected") ?? false;
           },
         };
 
@@ -873,7 +869,7 @@ ChromeUtils.defineESModuleGetters(this, {
           }
         }
 
-        this.panelContainer.selectedPanel.setAttribute("selected", "true");
+        this.panelContainer.selectedPanel.toggleAttribute("selected", true);
         const tabOpenFunc = tab.mode.openTab || tab.mode.tabType.openTab;
         tabOpenFunc.apply(tab.mode.tabType, [tab, aArgs]);
         if (tab.browser?.browsingContext?.isContent) {
@@ -1601,7 +1597,7 @@ ChromeUtils.defineESModuleGetters(this, {
           }
         }
 
-        this.panelContainer.selectedPanel.setAttribute("selected", "true");
+        this.panelContainer.selectedPanel.toggleAttribute("selected", true);
         const showTabFunc = tab.mode.showTab || tab.mode.tabType.showTab;
         showTabFunc.call(tab.mode.tabType, tab);
         if (tab.browser?.browsingContext?.isContent) {

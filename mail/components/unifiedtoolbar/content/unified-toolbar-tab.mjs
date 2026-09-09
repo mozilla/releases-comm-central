@@ -92,7 +92,7 @@ class UnifiedToolbarTab extends HTMLElement {
       ?.unselect();
     this.#tab.setAttribute("aria-selected", "true");
     this.#tab.tabIndex = 0;
-    this.setAttribute("selected", true);
+    this.toggleAttribute("selected", true);
     this.#toggleTabPane(true);
     const tabSwitchEvent = new Event("tabswitch", {
       bubbles: true,

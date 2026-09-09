@@ -55,7 +55,7 @@ menupopup {
     }
 
     &[checked],
-    &[selected="true"] {
+    &[selected] {
       --menuitem-icon: var(--icon-check);
       -moz-context-properties: fill, stroke;
       stroke: currentColor;

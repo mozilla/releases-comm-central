@@ -113,11 +113,7 @@
         this.label.removeAttribute("value");
       }
 
-      if (this.hasAttribute("selected")) {
-        this.label.setAttribute("selected", this.getAttribute("selected"));
-      } else {
-        this.label.removeAttribute("selected");
-      }
+      this.label.toggleAttribute("selected", this.hasAttribute("selected"));
     }
   }
 
@@ -216,11 +212,7 @@
         this.label.removeAttribute("value");
       }
 
-      if (this.hasAttribute("selected")) {
-        this.label.setAttribute("selected", this.getAttribute("selected"));
-      } else {
-        this.label.removeAttribute("selected");
-      }
+      this.label.toggleAttribute("selected", this.hasAttribute("selected"));
     }
   }
 
@@ -564,7 +556,7 @@
         this.mSelectedHourItem.removeAttribute("selected");
       }
       // set selected attribute, to cause the selected style to apply
-      hourItem.setAttribute("selected", "true");
+      hourItem.toggleAttribute("selected", true);
       // remember the selected item so we can deselect it
       this.mSelectedHourItem = hourItem;
     }
@@ -580,7 +572,7 @@
         this.mSelectedMinuteItem.removeAttribute("selected");
       }
       // set selected attribute, to cause the selected style to apply
-      minuteItem.setAttribute("selected", "true");
+      minuteItem.toggleAttribute("selected", true);
       // remember the selected item so we can deselect it
       this.mSelectedMinuteItem = minuteItem;
     }

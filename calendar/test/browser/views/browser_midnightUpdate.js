@@ -681,7 +681,7 @@ async function checkMonthViewSelected(which, expected) {
   info(`checking ${which} view selection`);
   await CalendarTestUtils.setCalendarView(window, which);
 
-  const selectedBoxes = views[which].querySelectorAll(`calendar-month-day-box[selected="true"]`);
+  const selectedBoxes = views[which].querySelectorAll("calendar-month-day-box[selected]");
   Assert.equal(selectedBoxes.length, 1);
   Assert.equal(selectedBoxes[0].getAttribute("year"), expected.year);
   Assert.equal(selectedBoxes[0].getAttribute("month"), expected.month + 1); // Not zero-indexed.

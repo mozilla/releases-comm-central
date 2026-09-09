@@ -716,9 +716,9 @@ calendar-event-box:not([hidden]) {
   position: relative;
 }
 
-calendar-month-day-box-item[selected="true"].calendar-color-box,
-calendar-event-box[selected="true"].calendar-color-box,
-calendar-editable-item[selected="true"].calendar-color-box {
+calendar-month-day-box-item[selected].calendar-color-box,
+calendar-event-box[selected].calendar-color-box,
+calendar-editable-item[selected].calendar-color-box {
   color: var(--color-white) !important;
   background-color: var(--color-blue-50) !important;
   box-shadow: 0 3px 8px -3px rgba(0, 0, 0, 0.3);
@@ -857,29 +857,29 @@ calendar-month-day-box {
   padding-inline: var(--today-week-pill-padding-inline);
 }
 
-.calendar-month-day-box-current-month[selected="true"],
-.calendar-month-day-box-day-off[selected="true"],
-.calendar-month-day-box-other-month[selected="true"] {
+.calendar-month-day-box-current-month[selected],
+.calendar-month-day-box-day-off[selected],
+.calendar-month-day-box-other-month[selected] {
   border: 1px solid var(--viewHighlightBorderColor);
 }
 
-.calendar-month-day-box-current-month[selected="true"] {
+.calendar-month-day-box-current-month[selected] {
   background-color: var(--viewDayBoxSelectedBackground);
 }
 
-.calendar-month-day-box-day-off[selected="true"] {
+.calendar-month-day-box-day-off[selected] {
   background-color: var(--viewDayBoxSelectedBackground);
 }
 
-.calendar-month-day-box-other-month[selected="true"] {
+.calendar-month-day-box-other-month[selected] {
   background-color: var(--viewDayBoxOtherSelectedBackground);
 }
 
-.calendar-month-day-box-date-label[selected="true"] {
+.calendar-month-day-box-date-label[selected] {
   color: var(--viewMonthDayBoxSelectedColor);
 }
 
-.calendar-month-day-box-date-label[relation="today"][selected="true"] {
+.calendar-month-day-box-date-label[relation="today"][selected] {
   color: var(--viewTodayLabelColor);
 }
 

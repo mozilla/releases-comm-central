@@ -44,7 +44,7 @@ FeedItem.prototype = {
     "    <title>%TITLE%</title>\n" +
     '    <base href="%BASE%">\n' +
     "  </head>\n" +
-    '  <body id="msgFeedSummaryBody" selected="false">\n' +
+    '  <body id="msgFeedSummaryBody">\n' +
     "    %CONTENT%\n" +
     "  </body>\n" +
     "</html>\n",

@@ -358,7 +358,7 @@ function addressRowAddRecipientsArray(row, addressArray, select = false) {
   for (const address of addresses) {
     const pill = recipientArea.createRecipientPill(input, address);
     if (select) {
-      pill.setAttribute("selected", "selected");
+      pill.toggleAttribute("selected", true);
     }
   }
 
@@ -1055,7 +1055,7 @@ function onPillPopupShowing(event) {
   const pill = event.explicitOriginalTarget.closest("mail-address-pill");
   if (!pill.hasAttribute("selected")) {
     recipientsContainer.deselectAllPills();
-    pill.setAttribute("selected", "selected");
+    pill.toggleAttribute("selected", true);
   }
 
   const allSelectedPills = recipientsContainer.getAllSelectedPills();

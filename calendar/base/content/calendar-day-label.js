@@ -50,13 +50,9 @@
         return;
       }
 
-      if (this.hasAttribute("selected")) {
-        this.longWeekdayName.setAttribute("selected", this.getAttribute("selected"));
-        this.shortWeekdayName.setAttribute("selected", this.getAttribute("selected"));
-      } else {
-        this.longWeekdayName.removeAttribute("selected");
-        this.shortWeekdayName.removeAttribute("selected");
-      }
+      const selected = this.hasAttribute("selected");
+      this.longWeekdayName.toggleAttribute("selected", selected);
+      this.shortWeekdayName.toggleAttribute("selected", selected);
 
       if (this.hasAttribute("relation")) {
         this.longWeekdayName.setAttribute("relation", this.getAttribute("relation"));

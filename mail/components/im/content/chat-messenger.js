@@ -317,7 +317,7 @@ var chatTabType = {
       delete item.searchTerm;
     }
     item.hidden = false;
-    if (item.getAttribute("selected")) {
+    if (item.hasAttribute("selected")) {
       chatHandler.onListItemSelected();
     } else {
       document.getElementById("contactlistbox").selectedItem = item;
