@@ -97,6 +97,7 @@ COMM_DEFAULTS = {
     "head_git_repository": FIREFOX_GIT_REPOSITORY,
     "version": get_version("comm/mail"),
     "comm_src_path": "comm/",
+    "shipping": True,
     "try_options": None,
 }
 

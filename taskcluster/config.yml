@@ -163,9 +163,15 @@ partner-urls:
 task-priority:
     by-project:
         'comm-central': 'medium'
-        'comm-beta': 'high'
+        'comm-beta':
+            by-shipping:
+                'true': 'high'
+                'default': 'low'
         'comm-release': 'highest'
-        'comm-esr.*': 'very-high'
+        'comm-esr.*':
+            by-shipping:
+                'true': 'very-high'
+                'default': 'low'
         'default': 'low'
 
 taskgraph:

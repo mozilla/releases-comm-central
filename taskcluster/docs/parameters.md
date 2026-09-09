@@ -4,6 +4,14 @@
 
 See the gecko_taskgraph parameters documentation.
 
+Thunderbird overrides the default of one gecko parameter:
+
+`shipping`
+
+: Always `true`. Thunderbird generally only pushes shipping candidates to
+  beta and ESR and therefore always runs at raised priority. See `task-priority`
+  in `comm/taskcluster/config.yml`.
+
 ## Comm Push Information
 
 These parameters correspond to the repository and revision of the comm-central

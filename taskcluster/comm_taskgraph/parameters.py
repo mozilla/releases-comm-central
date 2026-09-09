@@ -42,6 +42,7 @@ def get_defaults(repo_root=None):
         "version": get_version("comm/mail"),
         "comm_src_path": "comm/",
         "files_changed": changed_files,
+        "shipping": True,
         "try_options": None,
     }
 

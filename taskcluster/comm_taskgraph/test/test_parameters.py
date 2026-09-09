@@ -61,6 +61,7 @@ class TestCommParameters(unittest.TestCase):
         "release_type": "release_type",
         "release_product": None,
         "repository_type": "hg",
+        "shipping": True,
         "target_tasks_method": "target_tasks_method",
         "test_manifest_loader": "default",
         "tasks_for": "tasks_for",
