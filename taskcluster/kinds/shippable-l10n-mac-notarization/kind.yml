@@ -8,7 +8,7 @@ transforms:
     - taskgraph.transforms.from_deps
     - gecko_taskgraph.transforms.filter_notarization
     - gecko_taskgraph.transforms.name_sanity
-    - gecko_taskgraph.transforms.shippable_l10n_signing
+    - gecko_taskgraph.transforms.l10n_signing
     - gecko_taskgraph.transforms.signing
     - gecko_taskgraph.transforms.task
     - comm_taskgraph.transforms.signing

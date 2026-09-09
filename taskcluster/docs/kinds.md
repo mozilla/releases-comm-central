@@ -386,12 +386,12 @@ and `comm-l10n`, merge them, and create a tar file.
 
 Signs artifacts from `shippable-l10n-pre`.
 
-## shippable-l10n-signing
+## l10n-signing
 
-Takes artifacts from the shippable-l10n kind and passes them to signing servers
-to have their contents signed appropriately, based on an appropriate signing
-format. One signing job is created for each shippable-l10n job (usually
-chunked).
+The l10n signing kind takes artifacts from the shippable-l10n and l10n kinds and
+passes them to signing servers to have their contents signed appropriately, based
+on an appropriate signing format. One signing job is created for each upstream l10n
+job (the shippable-l10n jobs are usually chunked; the l10n jobs are not).
 
 ## source-docs
 

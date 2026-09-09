@@ -24,7 +24,7 @@ kind-dependencies:
     - shippable-l10n
     - shippable-l10n-mac-signing
     - shippable-l10n-mac-notarization
-    - shippable-l10n-signing
+    - l10n-signing
     - repackage-signing-l10n
     - partials
     - partials-signing

@@ -7,16 +7,14 @@ loader: taskgraph.loader.transform:loader
 transforms:
     - taskgraph.transforms.from_deps
     - gecko_taskgraph.transforms.name_sanity
-    - gecko_taskgraph.transforms.shippable_l10n_signing
+    - gecko_taskgraph.transforms.l10n_signing
     - gecko_taskgraph.transforms.signing
     - gecko_taskgraph.transforms.task
     - comm_taskgraph.transforms.signing
 
 kind-dependencies:
     - shippable-l10n
-
-only-for-attributes:
-    - shippable
+    - l10n
 
 not-for-build-platforms:
     - macosx64-shippable/opt
@@ -30,6 +28,6 @@ task-defaults:
     run-on-repo-type: [hg, git]
 
 tasks:
-    shippable-l10n-signing:
+    l10n-signing:
         from-deps:
             group-by: chunk-locales

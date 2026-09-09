@@ -15,7 +15,7 @@ transforms = TransformSequence()
 def add_langpack_fetches(config, jobs):
     """Adds the fetch configuration for the langpacks. This is done here
     because Thunderbird langpacks are not signed and therefore not found as
-    artifacts of "shippable-l10n-signing" like they are for Firefox. Need to
+    artifacts of "l10n-signing" like they are for Firefox. Need to
     use "shippable-l10n".
     """
 
