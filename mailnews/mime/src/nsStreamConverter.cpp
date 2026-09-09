@@ -402,10 +402,6 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI* aURI,
     aChannel->SetContentType(contentTypeToUse);
   }
 
-  // rv = NS_NewInputStreamChannel(getter_AddRefs(mOutgoingChannel), aURI,
-  // nullptr, contentTypeToUse, -1); if (NS_FAILED(rv))
-  //    return rv;
-
   // Set system principal for this document, which will be dynamically generated
 
   // We will first find an appropriate emitter in the repository that supports
@@ -467,7 +463,11 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI* aURI,
   if (!mBridgeStream) {
     return NS_ERROR_OUT_OF_MEMORY;
   }
-  SetStreamURI(aURI);
+
+  mURI = aURI;
+  if (mBridgeStream) {
+    bridge_new_new_uri((nsMIMESession*)mBridgeStream, aURI, mOutputType);
+  }
 
   // Do we need to setup an Mime Stream Converter Listener?
   if (mMimeStreamConverterListener) {
@@ -503,26 +503,6 @@ nsresult nsStreamConverter::SetMimeOutputType(nsMimeOutputType aType) {
   mAlreadyKnowOutputType = true;
   mOutputType = aType;
   if (mBridgeStream) bridge_set_output_type(mBridgeStream, aType);
-  return NS_OK;
-}
-
-//
-// This is needed by libmime for MHTML link processing...this is the URI
-// associated with this input stream
-//
-nsresult nsStreamConverter::SetStreamURI(nsIURI* aURI) {
-  mURI = aURI;
-  if (mBridgeStream)
-    return bridge_new_new_uri((nsMIMESession*)mBridgeStream, aURI, mOutputType);
-  else
-    return NS_OK;
-}
-
-nsresult nsStreamConverter::SetMimeHeadersListener(
-    nsIMimeStreamConverterListener* listener, nsMimeOutputType aType) {
-  mMimeStreamConverterListener = listener;
-  bridge_set_mime_stream_converter_listener((nsMIMESession*)mBridgeStream,
-                                            listener, aType);
   return NS_OK;
 }
 
@@ -821,7 +801,10 @@ NS_IMETHODIMP nsStreamConverter::AsyncConvertData(const char* aFromType,
     nsCOMPtr<nsIMimeStreamConverterListener> quoteListener;
     rv = msgQuote->GetQuoteListener(getter_AddRefs(quoteListener));
     if (quoteListener) {
-      SetMimeHeadersListener(quoteListener, nsMimeOutput::nsMimeMessageQuoting);
+      mMimeStreamConverterListener = quoteListener;
+      bridge_set_mime_stream_converter_listener(
+          (nsMIMESession*)mBridgeStream, quoteListener,
+          nsMimeOutput::nsMimeMessageQuoting);
     }
     MOZ_TRY(msgQuote->GetQuoteChannel(getter_AddRefs(channel)));
     MOZ_TRY(channel->GetURI(getter_AddRefs(uri)));

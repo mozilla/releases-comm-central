@@ -47,17 +47,6 @@ interface nsIMimeStreamConverter : nsISupports {
   void setMimeOutputType(in nsMimeOutputType aType);
 
   /**
-   * This is needed by libmime for MHTML link processing...the url is the URL
-   * string associated with this input stream.
-   */
-  void setStreamURI(in nsIURI aURI);
-
-  /**
-   * Used to extract headers while parsing a message.
-   */
-  void setMimeHeadersListener(in nsIMimeStreamConverterListener listener, in nsMimeOutputType aType);
-
-  /**
    * This is used for forward inline, both as a filter action, and from the UI.
    */
   attribute boolean forwardInline;
@@ -72,6 +61,7 @@ interface nsIMimeStreamConverter : nsISupports {
    * Address for the forward inline filter to forward the message to.
    */
   attribute AString forwardToAddress;
+
   /**
    * Use the opposite compose format, used for forward inline.
    */
