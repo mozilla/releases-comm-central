@@ -1214,9 +1214,6 @@ MimeDisplayOptions::MimeDisplayOptions() {
   url = nullptr;
 
   memset((void*)&headers, 0, sizeof(headers));
-  fancy_headers_p = false;
-
-  output_vcard_buttons_p = false;
 
   variable_width_plaintext_p = false;
   wrap_long_lines_p = false;
@@ -1358,13 +1355,8 @@ extern "C" void* mime_bridge_create_display_stream(
   switch (format_out) {
     case nsMimeOutput::nsMimeMessageBodyDisplay:  // the split header/body
                                                   // display
-      msd->options->fancy_headers_p = true;
-      msd->options->output_vcard_buttons_p = true;
-      break;
-
-    case nsMimeOutput::nsMimeMessageSaveAs:   // Save As operations
+    case nsMimeOutput::nsMimeMessageSaveAs:       // Save As operations
     case nsMimeOutput::nsMimeMessageQuoting:  // all HTML quoted/printed output
-      msd->options->fancy_headers_p = true;
       break;
 
     case nsMimeOutput::nsMimeMessageBodyQuoting:  // only HTML body quoted

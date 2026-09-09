@@ -135,12 +135,6 @@ class MimeDisplayOptions {
             MimeDisplayOptions itself.) */
 
   MimeHeadersState headers; /* How headers should be displayed. */
-  bool fancy_headers_p;     /* Whether to do clever formatting of headers
-                               using tables, instead of spaces. */
-
-  bool output_vcard_buttons_p; /* Whether to output the buttons */
-                               /* on vcards. */
-
   bool variable_width_plaintext_p; /* Whether text/plain messages should
                                       be in variable width, or fixed. */
   bool wrap_long_lines_p;          /* Whether to wrap long lines in text/plain
