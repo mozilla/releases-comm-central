@@ -14,6 +14,7 @@
  */
 #include "mimebuf.h"
 
+#include "mozilla/CheckedInt.h"
 #include "prmem.h"
 #include "plstr.h"
 #include "prlog.h"
@@ -23,20 +24,30 @@
 
 extern "C" int mime_GrowBuffer(uint32_t desired_size, uint32_t element_size,
                                uint32_t quantum, char** buffer, int32_t* size) {
+  /* A negative *size means an earlier growth wrapped it. Refuse, rather than
+     let the comparison below cast it back to a huge unsigned value, conclude
+     no growth is needed and report success. */
+  if (*size < 0) return MIME_OUT_OF_MEMORY;
+
   if ((uint32_t)*size <= desired_size) {
     char* new_buf;
-    uint32_t increment = desired_size - *size;
+    uint32_t increment = desired_size - (uint32_t)*size;
     if (increment < quantum) /* always grow by a minimum of N bytes */
       increment = quantum;
 
+    /* The size is tracked in an int32_t, so refuse what it cannot hold. */
+    mozilla::CheckedInt<int32_t> new_size =
+        mozilla::CheckedInt<int32_t>(*size) + increment;
+    if (!new_size.isValid()) return MIME_OUT_OF_MEMORY;
+
     new_buf =
-        (*buffer ? (char*)PR_Realloc(*buffer, (*size + increment) *
+        (*buffer ? (char*)PR_Realloc(*buffer, new_size.value() *
                                                   (element_size / sizeof(char)))
-                 : (char*)PR_MALLOC((*size + increment) *
+                 : (char*)PR_MALLOC(new_size.value() *
                                     (element_size / sizeof(char))));
     if (!new_buf) return MIME_OUT_OF_MEMORY;
     *buffer = new_buf;
-    *size += increment;
+    *size = new_size.value();
   }
   return 0;
 }
@@ -146,11 +157,13 @@ extern "C" int mime_LineBuffer(const char* net_buffer, int32_t net_buffer_size,
      chunk of data to it. */
     {
       const char* end = (newline ? newline : net_buffer_end);
-      uint32_t desired_size = (end - net_buffer) + (*buffer_fpP) + 1;
+      mozilla::CheckedInt<int32_t> desired_size =
+          mozilla::CheckedInt<int32_t>(*buffer_fpP) + (end - net_buffer) + 1;
+      if (!desired_size.isValid()) return MIME_OUT_OF_MEMORY;
 
-      if (desired_size >= (uint32_t)(*buffer_sizeP)) {
-        status = mime_GrowBuffer(desired_size, sizeof(char), 1024, bufferP,
-                                 buffer_sizeP);
+      if (desired_size.value() >= *buffer_sizeP) {
+        status = mime_GrowBuffer(desired_size.value(), sizeof(char), 1024,
+                                 bufferP, buffer_sizeP);
         if (status < 0) return status;
       }
       memcpy((*bufferP) + (*buffer_fpP), net_buffer, (end - net_buffer));
