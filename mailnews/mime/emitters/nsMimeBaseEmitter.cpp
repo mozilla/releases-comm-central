@@ -486,7 +486,7 @@ nsMimeBaseEmitter::UpdateCharacterSet(const char* aCharset) {
   if (aCharset) {
     nsAutoCString contentType;
 
-    if (NS_SUCCEEDED(mChannel->GetContentType(contentType)) &&
+    if (mChannel && NS_SUCCEEDED(mChannel->GetContentType(contentType)) &&
         !contentType.IsEmpty()) {
       char* cBegin = contentType.BeginWriting();
 

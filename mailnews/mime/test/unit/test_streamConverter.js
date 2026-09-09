@@ -90,17 +90,21 @@ class TestMailChannel extends MailChannel {
 }
 
 /**
- * @param {nsIChannel} channel
+ * @param {nsIChannel|nsIURI} channelOrURI
  * @param {string} input
  * @returns {string}
  */
-async function convertStream(channel, input) {
+async function convertStream(channelOrURI, input) {
+  let channel = null;
+  try {
+    channel = channelOrURI.QueryInterface(Ci.nsIChannel);
+  } catch {}
   const converter = Cc[
     "@mozilla.org/streamconv;1?from=message/rfc822&to=*/*"
   ].createInstance(Ci.nsIStreamConverter);
 
   const listener = new PromiseTestUtils.PromiseStreamListener(undefined, true);
-  converter.asyncConvertData(null, null, listener, channel);
+  converter.asyncConvertData(null, null, listener, channelOrURI);
 
   const { buffer } = new TextEncoder().encode(input);
   const inputStream = Cc[
@@ -738,3 +742,41 @@ async function subtestPrintedHeaders(expectedHeaders) {
     );
   }
 }
+
+/**
+ * Test using an nsIURI instead of an nsIChannel as the `context` argument.
+ */
+add_task(async function testURIArgument() {
+  const uri = `${sampleEmailURI}?number=9`;
+  const input = await IOUtils.readUTF8(sampleEmailFile.path);
+  const output = await convertStream(Services.io.newURI(uri), input);
+
+  // Test the HTML output.
+
+  Assert.equal(
+    output.slice(0, 28),
+    "\xEF\xBB\xBF<!DOCTYPE html>\r\n<html>\r\n",
+    "output should begin with UTF-8 BOM and HTML doctype"
+  );
+  Assert.equal(
+    output.slice(-18),
+    "</body>\r\n</html>\r\n",
+    "output should end with closing HTML tag"
+  );
+
+  // Test the <img> tag in the HTML output.
+
+  const expectedImgURL = URL.parse(uri);
+  expectedImgURL.searchParams.delete("type");
+  expectedImgURL.searchParams.set("part", "1.1.2");
+  expectedImgURL.searchParams.set("type", "image/png");
+  expectedImgURL.searchParams.set("filename", "tb-logo.png");
+
+  const document = new DOMParser().parseFromString(output, "text/html");
+  const img = document.querySelector("img");
+  Assert.equal(
+    img.src,
+    expectedImgURL.toString(),
+    "inline image URL should be rewritten relative to the message URL"
+  );
+});

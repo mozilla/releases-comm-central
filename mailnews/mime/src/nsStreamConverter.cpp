@@ -398,7 +398,9 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI* aURI,
   // Let's use the original channel and just set our content type on top of the
   // original channel...
 
-  aChannel->SetContentType(contentTypeToUse);
+  if (aChannel) {
+    aChannel->SetContentType(contentTypeToUse);
+  }
 
   // rv = NS_NewInputStreamChannel(getter_AddRefs(mOutgoingChannel), aURI,
   // nullptr, contentTypeToUse, -1); if (NS_FAILED(rv))
@@ -811,31 +813,35 @@ NS_IMETHODIMP nsStreamConverter::AsyncConvertData(const char* aFromType,
                                                   nsIStreamListener* aListener,
                                                   nsISupports* aCtxt) {
   nsresult rv = NS_OK;
-  nsCOMPtr<nsIMsgQuote> aMsgQuote = do_QueryInterface(aCtxt, &rv);
-  nsCOMPtr<nsIChannel> aChannel;
+  nsCOMPtr<nsIMsgQuote> msgQuote = do_QueryInterface(aCtxt, &rv);
+  nsCOMPtr<nsIChannel> channel;
+  nsCOMPtr<nsIURI> uri;
 
-  if (aMsgQuote) {
+  if (msgQuote) {
     nsCOMPtr<nsIMimeStreamConverterListener> quoteListener;
-    rv = aMsgQuote->GetQuoteListener(getter_AddRefs(quoteListener));
-    if (quoteListener)
+    rv = msgQuote->GetQuoteListener(getter_AddRefs(quoteListener));
+    if (quoteListener) {
       SetMimeHeadersListener(quoteListener, nsMimeOutput::nsMimeMessageQuoting);
-    rv = aMsgQuote->GetQuoteChannel(getter_AddRefs(aChannel));
+    }
+    MOZ_TRY(msgQuote->GetQuoteChannel(getter_AddRefs(channel)));
+    MOZ_TRY(channel->GetURI(getter_AddRefs(uri)));
   } else {
-    aChannel = do_QueryInterface(aCtxt, &rv);
+    channel = do_QueryInterface(aCtxt, &rv);
+    if (NS_SUCCEEDED(rv) && channel) {
+      MOZ_TRY(channel->GetURI(getter_AddRefs(uri)));
+    } else {
+      uri = do_QueryInterface(aCtxt, &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
+    nsCOMPtr<nsIURI> repairedURI;
+    MOZ_TRY(RepairDodgyQueryURI(uri, getter_AddRefs(repairedURI)));
+    uri = repairedURI;
   }
 
   mFromType = aFromType;
   mToType = aToType;
 
-  NS_ASSERTION(aChannel && NS_SUCCEEDED(rv),
-               "mailnews mime converter has to have the channel passed in...");
-  if (NS_FAILED(rv)) return rv;
-
-  nsCOMPtr<nsIURI> uri;
-  MOZ_TRY(aChannel->GetURI(getter_AddRefs(uri)));
-  nsCOMPtr<nsIURI> repairedURI;
-  MOZ_TRY(RepairDodgyQueryURI(uri, getter_AddRefs(repairedURI)));
-  return Init(repairedURI, aListener, aChannel);
+  return Init(uri, aListener, channel);
 }
 
 NS_IMETHODIMP nsStreamConverter::FirePendingStartRequest() {
