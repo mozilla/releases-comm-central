@@ -355,9 +355,13 @@ nsresult nsMailboxUrl::ParseUrl() {
   // ### fix me.
   // this hack is to avoid asserting on every local message loaded because the
   // security manager is creating an empty "mailbox://" uri for every message.
-  if (m_file.Length() < 2)
+  if (m_file.Length() < 2) {
     m_filePath = nullptr;
-  else {
+  } else if (m_baseURL->SchemeIs("mailbox-message")) {
+    // No point in trying to convert the file part of the URL to a path, it
+    // won't point to an actual file.
+    m_filePath = nullptr;
+  } else {
     nsCString fileUri("file://");
     fileUri.Append(m_file);
     nsresult rv;
