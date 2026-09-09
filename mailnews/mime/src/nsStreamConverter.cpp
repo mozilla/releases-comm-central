@@ -254,6 +254,7 @@ nsresult nsStreamConverter::DetermineOutputFormat(nsIURI* uri,
   nsAutoCString emitter;
   mozilla::URLParams::Extract(query, "emitter"_ns, emitter);
   if (emitter.EqualsLiteral("js")) {
+    // MsgHdrToMimeMessage via StreamMessage
     mOverrideFormat = "application/x-js-mime-message";
   }
 
@@ -269,14 +270,22 @@ nsresult nsStreamConverter::DetermineOutputFormat(nsIURI* uri,
 
     // place most commonly used options at the top
     static const struct HeaderType rgTypes[] = {
+        // MsgHdrToMimeMessage via StreamMessage
+        // nsBayesianFilter::tokenizeMessage
         {"filter", "text/html", nsMimeOutput::nsMimeMessageFilterSniffer},
+        // nsMsgQuote::QuoteMessage
         {"quotebody", "text/html", nsMimeOutput::nsMimeMessageBodyQuoting},
+        // nsMessenger::SaveAs (HTML output is then converted to plain text)
         {"print", "text/html", nsMimeOutput::nsMimeMessagePrintOutput},
+        // nsMsgQuote::QuoteMessage
         {"only", "text/xml", nsMimeOutput::nsMimeMessageHeaderDisplay},
-        {"none", "text/html", nsMimeOutput::nsMimeMessageBodyDisplay},
+        // nsMsgQuote::QuoteMessage
         {"quote", "text/html", nsMimeOutput::nsMimeMessageQuoting},
+        // nsMessenger::SaveAs
         {"saveas", "text/html", nsMimeOutput::nsMimeMessageSaveAs},
+        // Unused.
         {"src", "text/plain", nsMimeOutput::nsMimeMessageSource},
+        // AttachmentInfo.stripAttachments via StreamMessage
         {"attach", "raw", nsMimeOutput::nsMimeMessageAttach}};
 
     // find the requested header in table, ensure that we don't match on a
