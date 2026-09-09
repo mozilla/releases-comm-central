@@ -412,13 +412,13 @@ nsresult nsMimeHtmlDisplayEmitter::EndAllAttachments() {
   PROFILER_MARKER_TEXT("MIME HTML Emitter", MAILNEWS, {}, "Attachments end"_ns);
 
   // Notify the front end that we've finished reading the body.
-  nsresult rv;
-  nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(mChannel, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIMailProgressListener> listener;
-  mailChannel->GetListener(getter_AddRefs(listener));
-  if (listener) {
-    listener->OnAttachmentsComplete(mailChannel);
+  nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(mChannel);
+  if (mailChannel) {
+    nsCOMPtr<nsIMailProgressListener> listener;
+    mailChannel->GetListener(getter_AddRefs(listener));
+    if (listener) {
+      listener->OnAttachmentsComplete(mailChannel);
+    }
   }
 
   // EndAllAttachments is called even if there are no attachments, we can
