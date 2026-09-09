@@ -1357,10 +1357,8 @@ extern "C" void* mime_bridge_create_display_stream(
   MIME_HeaderType = MimeHeadersAll;
   msd->options->write_html_p = true;
   switch (format_out) {
-    case nsMimeOutput::nsMimeMessageHeaderDisplay:  // the split header/body
-                                                    // display
-    case nsMimeOutput::nsMimeMessageBodyDisplay:    // the split header/body
-                                                    // display
+    case nsMimeOutput::nsMimeMessageBodyDisplay:  // the split header/body
+                                                  // display
       msd->options->fancy_headers_p = true;
       msd->options->output_vcard_buttons_p = true;
       break;
@@ -1706,8 +1704,7 @@ extern "C" nsresult mimeEmitterEndHeader(MimeDisplayOptions* opt,
     nsIMimeEmitter* emitter = (nsIMimeEmitter*)msd->output_emitter;
 
     nsCString name;
-    if (msd->format_out == nsMimeOutput::nsMimeMessageHeaderDisplay ||
-        msd->format_out == nsMimeOutput::nsMimeMessageBodyDisplay ||
+    if (msd->format_out == nsMimeOutput::nsMimeMessageBodyDisplay ||
         msd->format_out == nsMimeOutput::nsMimeMessageSaveAs ||
         msd->format_out == nsMimeOutput::nsMimeMessagePrintOutput) {
       if (obj->headers) {

@@ -278,8 +278,6 @@ nsresult nsStreamConverter::DetermineOutputFormat(nsIURI* uri,
         // nsMessenger::SaveAs (HTML output is then converted to plain text)
         {"print", "text/html", nsMimeOutput::nsMimeMessagePrintOutput},
         // nsMsgQuote::QuoteMessage
-        {"only", "text/xml", nsMimeOutput::nsMimeMessageHeaderDisplay},
-        // nsMsgQuote::QuoteMessage
         {"quote", "text/html", nsMimeOutput::nsMimeMessageQuoting},
         // nsMessenger::SaveAs
         {"saveas", "text/html", nsMimeOutput::nsMimeMessageSaveAs},
@@ -359,10 +357,6 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI* aURI,
   }
 
   switch (newType) {
-    case nsMimeOutput::nsMimeMessageHeaderDisplay:  // the split header/body
-                                                    // display
-      mOutputFormat = "text/xml";
-      break;
     case nsMimeOutput::nsMimeMessageBodyDisplay:  // the split header/body
                                                   // display
       mOutputFormat = "text/html";

@@ -11,7 +11,6 @@ UNIFIED_SOURCES += [
     "nsMimePlainEmitter.cpp",
     "nsMimeRawEmitter.cpp",
     "nsMimeRebuffer.cpp",
-    "nsMimeXmlEmitter.cpp",
 ]
 
 FINAL_LIBRARY = "mail"

@@ -2681,7 +2681,7 @@ nsMsgCompose::QuoteMessage(const nsACString& msgURI) {
   mQuoteStreamListener->SetComposeObj(this);
 
   rv = mQuote->QuoteMessage(msgURI, false, mQuoteStreamListener,
-                            mAutodetectCharset, false, msgHdr);
+                            mAutodetectCharset, msgHdr);
   return rv;
 }
 
@@ -2720,7 +2720,7 @@ nsresult nsMsgCompose::QuoteOriginalMessage()  // New template
   mQuoteStreamListener->SetComposeObj(this);
 
   rv = mQuote->QuoteMessage(msgUri, mWhatHolder != 1, mQuoteStreamListener,
-                            mAutodetectCharset, !bAutoQuote, originalMsgHdr);
+                            mAutodetectCharset, originalMsgHdr);
   return rv;
 }
 

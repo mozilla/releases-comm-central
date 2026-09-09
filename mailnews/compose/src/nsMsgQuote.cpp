@@ -77,10 +77,11 @@ NS_IMETHODIMP nsMsgQuote::GetStreamListener(
   return NS_OK;
 }
 
-nsresult nsMsgQuote::QuoteMessage(
+NS_IMETHODIMP
+nsMsgQuote::QuoteMessage(
     const nsACString& msgURI, bool quoteHeaders,
     nsIMsgQuotingOutputStreamListener* aQuoteMsgStreamListener,
-    bool aAutodetectCharset, bool headersOnly, nsIMsgDBHdr* aMsgHdr) {
+    bool aAutodetectCharset, nsIMsgDBHdr* aMsgHdr) {
   nsresult rv;
 
   mQuoteHeaders = quoteHeaders;
@@ -108,10 +109,7 @@ nsresult nsMsgQuote::QuoteMessage(
   rv = newURI->GetQuery(queryPart);
   if (!queryPart.IsEmpty()) queryPart.Append('&');
 
-  if (headersOnly) /* We don't need to quote the message body but we still need
-                      to extract the headers */
-    queryPart.AppendLiteral("header=only");
-  else if (quoteHeaders)
+  if (quoteHeaders)
     queryPart.AppendLiteral("header=quote");
   else
     queryPart.AppendLiteral("header=quotebody");
