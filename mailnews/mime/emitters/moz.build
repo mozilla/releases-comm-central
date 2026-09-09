@@ -8,7 +8,6 @@ UNIFIED_SOURCES += [
     "nsEmitterUtils.cpp",
     "nsMimeBaseEmitter.cpp",
     "nsMimeHtmlEmitter.cpp",
-    "nsMimePlainEmitter.cpp",
     "nsMimeRawEmitter.cpp",
     "nsMimeRebuffer.cpp",
 ]

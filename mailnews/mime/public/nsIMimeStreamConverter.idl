@@ -23,7 +23,6 @@ interface nsMimeOutput : nsISupports
   const long nsMimeMessageEditorTemplate = 7;
   const long nsMimeMessagePrintOutput = 9;
   const long nsMimeMessageSaveAs = 10;
-  const long nsMimeMessageSource = 11;
   const long nsMimeMessageFilterSniffer = 12;
   const long nsMimeMessageDecrypt = 13;
   const long nsMimeMessageAttach = 14;

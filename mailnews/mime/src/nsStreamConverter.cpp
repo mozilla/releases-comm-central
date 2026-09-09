@@ -281,8 +281,6 @@ nsresult nsStreamConverter::DetermineOutputFormat(nsIURI* uri,
         {"quote", "text/html", nsMimeOutput::nsMimeMessageQuoting},
         // nsMessenger::SaveAs
         {"saveas", "text/html", nsMimeOutput::nsMimeMessageSaveAs},
-        // Unused.
-        {"src", "text/plain", nsMimeOutput::nsMimeMessageSource},
         // AttachmentInfo.stripAttachments via StreamMessage
         {"attach", "raw", nsMimeOutput::nsMimeMessageAttach}};
 
@@ -376,12 +374,6 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI* aURI,
       mOutputFormat = "raw";
       break;
 
-    case nsMimeOutput::nsMimeMessageSource:  // the raw RFC822 data (view
-                                             // source) and attachments
-      mOutputFormat = "text/plain";
-      mOverrideFormat = "raw";
-      break;
-
     case nsMimeOutput::nsMimeMessageDraftOrTemplate:  // Loading drafts &
                                                       // templates
       mOutputFormat = "message/draft";
@@ -471,25 +463,21 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI* aURI,
     whattodo = whattodo | mozITXTToHTMLConv::kStructPhrase;
   }
 
-  if (mOutputType == nsMimeOutput::nsMimeMessageSource)
-    return NS_OK;
-  else {
-    mBridgeStream =
-        bridge_create_stream(mEmitter, this, aURI, newType, whattodo, aChannel);
-    if (!mBridgeStream)
-      return NS_ERROR_OUT_OF_MEMORY;
-    else {
-      SetStreamURI(aURI);
-
-      // Do we need to setup an Mime Stream Converter Listener?
-      if (mMimeStreamConverterListener)
-        bridge_set_mime_stream_converter_listener((nsMIMESession*)mBridgeStream,
-                                                  mMimeStreamConverterListener,
-                                                  mOutputType);
-
-      return NS_OK;
-    }
+  mBridgeStream =
+      bridge_create_stream(mEmitter, this, aURI, newType, whattodo, aChannel);
+  if (!mBridgeStream) {
+    return NS_ERROR_OUT_OF_MEMORY;
   }
+  SetStreamURI(aURI);
+
+  // Do we need to setup an Mime Stream Converter Listener?
+  if (mMimeStreamConverterListener) {
+    bridge_set_mime_stream_converter_listener((nsMIMESession*)mBridgeStream,
+                                              mMimeStreamConverterListener,
+                                              mOutputType);
+  }
+
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsStreamConverter::GetContentType(char** aOutputContentType) {
@@ -643,7 +631,6 @@ nsresult nsStreamConverter::OnDataAvailable(nsIRequest* request,
                                             uint64_t sourceOffset,
                                             uint32_t aLength) {
   nsresult rc = NS_OK;  // should this be an error instead?
-  uint32_t written;
 
   nsCOMPtr<nsIInputStream> stream = aIStream;
   NS_ENSURE_TRUE(stream, NS_ERROR_NULL_POINTER);
@@ -673,12 +660,7 @@ nsresult nsStreamConverter::OnDataAvailable(nsIRequest* request,
     readLen = writePtr - buf;
   }
 
-  if (mOutputType == nsMimeOutput::nsMimeMessageSource) {
-    rc = NS_OK;
-    if (mEmitter) {
-      rc = mEmitter->Write(Substring(buf, buf + readLen), &written);
-    }
-  } else if (mBridgeStream) {
+  if (mBridgeStream) {
     nsMIMESession* tSession = (nsMIMESession*)mBridgeStream;
     // XXX Casting int to nsresult
     rc = static_cast<nsresult>(
