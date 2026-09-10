@@ -965,6 +965,13 @@ header {
 
 /* Footer */
 
+/* stylelint-disable-next-line media-query-no-invalid */
+@media not -moz-pref("mail.community_features.enabled") {
+  #accountHubDonate {
+    display: none;
+  }
+}
+
 .hub-footer {
   grid-area: footer;
 

@@ -1672,6 +1672,13 @@ qr-code-wizard {
   display: list-item;
 }
 
+/* stylelint-disable-next-line media-query-no-invalid */
+@media not -moz-pref("mail.community_features.enabled") {
+  #startPageSettings {
+    display: none;
+  }
+}
+
 .hidden-via-pref {
   display: none !important;
 }

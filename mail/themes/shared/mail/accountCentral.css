@@ -377,6 +377,15 @@ aside.settings-btn-container {
   }
 }
 
+/* stylelint-disable-next-line media-query-no-invalid */
+@media not -moz-pref("mail.community_features.enabled") {
+  #donationParagraph,
+  #involvedLink,
+  #developerLink {
+    display: none;
+  }
+}
+
 .btn-link {
   appearance: none;
   display: flex;

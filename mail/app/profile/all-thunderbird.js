@@ -1559,6 +1559,10 @@ pref("mail.inappnotifications.isSnap", false);
 // Enable forwarding messages with message filters.
 pref("mail.filters.forward.enabled", true);
 
+// Offer community features such as donate, get involved, share ideas
+// etc across the application.
+pref("mail.community_features.enabled", true);
+
 // Offer experimental features in settings.
 pref("mail.experimental_features_settings.enabled", true);
 

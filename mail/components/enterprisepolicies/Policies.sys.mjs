@@ -738,6 +738,22 @@ export var Policies = {
     },
   },
 
+  DisableCommunity: {
+    onBeforeUIStartup(manager, param) {
+      if (param) {
+        lazy.PoliciesUtils.setAndLockPref(
+          "mail.community_features.enabled",
+          false
+        );
+        lazy.PoliciesUtils.setAndLockPref("mailnews.start_page.enabled", false);
+        lazy.PoliciesUtils.setAndLockPref(
+          "mail.accounthub.thundermail.enabled",
+          false
+        );
+      }
+    },
+  },
+
   DisableDeveloperTools: {
     onBeforeAddons(manager, param) {
       if (param) {

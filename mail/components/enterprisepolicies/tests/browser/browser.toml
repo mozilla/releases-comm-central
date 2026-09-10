@@ -35,6 +35,8 @@ skip-if = [
 
 ["browser_policy_cookie_settings.js"]
 
+["browser_policy_disable_community.js"]
+
 ["browser_policy_disable_safemode.js"]
 
 ["browser_policy_disable_telemetry.js"]

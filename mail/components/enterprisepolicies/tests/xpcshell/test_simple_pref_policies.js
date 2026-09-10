@@ -53,6 +53,24 @@ const POLICIES_TESTS = [
     lockedPrefs: { "mail.chat.enabled": false },
   },
 
+  // POLICY: DisableCommunity
+  {
+    policies: { DisableCommunity: false },
+    unlockedPrefs: {
+      "mail.community_features.enabled": true,
+      "mailnews.start_page.enabled": true,
+      "mail.accounthub.thundermail.enabled": true,
+    },
+  },
+  {
+    policies: { DisableCommunity: true },
+    lockedPrefs: {
+      "mail.community_features.enabled": false,
+      "mailnews.start_page.enabled": false,
+      "mail.accounthub.thundermail.enabled": false,
+    },
+  },
+
   // POLICY: DisableDataCollectionSettings
   {
     policies: { DisableDataCollectionSettings: false },
