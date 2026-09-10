@@ -13,6 +13,7 @@ const { formatUTMParams, getAddonMessageInfo } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   AddonRepository: "resource://gre/modules/addons/AddonRepository.sys.mjs",
+  openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
   parseManifest: "resource:///modules/ExtensionUtilities.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });
@@ -35,17 +36,14 @@ function getBrowserElement() {
   window.MozXULElement.insertFTLIfNeeded("messenger/extensionPermissions.ftl");
   UIFontSize.registerWindow(window);
 
-  // Consume clicks on a-tags and let openTrustedLinkIn() decide how to open them.
+  // Consume clicks on a-tags. Open them in the default browser.
   window.addEventListener("click", event => {
     if (event.target.matches("a[href]") && event.target.href) {
       const uri = Services.io.newURI(event.target.href);
       if (uri.scheme == "http" || uri.scheme == "https") {
         event.preventDefault();
         event.stopPropagation();
-        window.browsingContext.topChromeWindow.openTrustedLinkIn(
-          event.target.href,
-          "tab"
-        );
+        openLinkExternally(event.target.href, { addToHistory: false });
       }
     }
   });

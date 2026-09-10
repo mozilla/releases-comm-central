@@ -6,43 +6,23 @@
 
 /**
  * Tests that http(s) hyperlinks on an extension's Details and Permissions
- * pages in about:addons are correctly opened in a content tab.
+ * pages in about:addons are opened in the external browser.
  */
+
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
+);
 
 const HOMEPAGE_URL = "https://example.com/extension-homepage/";
 const ID = "detail-links@mochi.test";
 
-/**
- * Wait for the next content tab to be opened in tabmail and finish loading the
- * given URL.
- *
- * @param {object} tabmail - The tabmail element.
- * @param {string} url - The URL the new content tab is expected to load.
- * @returns {Promise<object>} Resolves with the opened tabInfo once it has
- *   loaded the expected URL.
- */
-function promiseContentTabLoaded(tabmail, url) {
-  return new Promise(resolve => {
-    const monitor = {
-      onTabTitleChanged() {},
-      onTabClosing() {},
-      onTabPersist() {},
-      onTabRestored() {},
-      onTabSwitched() {},
-      onTabOpened(tab) {
-        tabmail.unregisterTabMonitor(monitor);
-        resolve(
-          BrowserTestUtils.browserLoaded(
-            tab.browser,
-            false,
-            loaded => loaded == url
-          ).then(() => tab)
-        );
-      },
-    };
-    tabmail.registerTabMonitor(monitor);
-  });
-}
+add_setup(function () {
+  MockExternalProtocolService.init();
+});
+
+registerCleanupFunction(function () {
+  MockExternalProtocolService.cleanup();
+});
 
 add_task(async function test_detail_and_permissions_links() {
   const extension = ExtensionTestUtils.loadExtension({
@@ -75,16 +55,18 @@ add_task(async function test_detail_and_permissions_links() {
     "The homepage link points at the extension homepage"
   );
 
-  let tabPromise = promiseContentTabLoaded(tabmail, HOMEPAGE_URL);
+  let loadPromise = MockExternalProtocolService.promiseLoad();
   homepageLink.click();
-  let openedTab = await tabPromise;
   is(
-    openedTab.browser.currentURI.spec,
+    await loadPromise,
     HOMEPAGE_URL,
-    "Clicking the homepage link opened it in a content tab"
+    "Clicking the homepage link should have opened it externally"
   );
-  tabmail.closeTab(openedTab);
-  tabmail.switchToTab(aboutAddonsTab);
+  is(
+    tabmail.currentTabInfo,
+    aboutAddonsTab,
+    "The about:addons tab should still be the current tab"
+  );
 
   // Switch to the Permissions page, which has a "learn more" support link in
   // its footer.
@@ -105,15 +87,18 @@ add_task(async function test_detail_and_permissions_links() {
 
   // Bring the footer link on-screen so it is considered clickable.
   learnMoreLink.scrollIntoView();
-  tabPromise = promiseContentTabLoaded(tabmail, learnMoreURL);
+  loadPromise = MockExternalProtocolService.promiseLoad();
   learnMoreLink.click();
-  openedTab = await tabPromise;
   is(
-    openedTab.browser.currentURI.spec,
+    await loadPromise,
     learnMoreURL,
-    "Clicking the permissions learn more link opened it in a content tab"
+    "Clicking the permissions learn more link should have opened it externally"
   );
-  tabmail.closeTab(openedTab);
+  is(
+    tabmail.currentTabInfo,
+    aboutAddonsTab,
+    "The about:addons tab should still be the current tab"
+  );
 
   tabmail.closeTab(aboutAddonsTab);
 
