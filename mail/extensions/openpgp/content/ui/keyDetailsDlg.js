@@ -860,6 +860,7 @@ function createSubkeyItem(mainKeyIsSecret, subkey, usagetext) {
   const keyObj = {
     keyType: subkeyType,
     keyId: "0x" + subkey.keyId,
+    version: subkey.version,
     algo: subkey.algoSym,
     size: subkey.keySize,
     creationDate: subkey.created,
@@ -875,6 +876,7 @@ function SubkeyListView(keyObj) {
 
   this.subkeys = [];
   this.rowCount = keyObj.subKeys.length + 1;
+
   this.subkeys.push(
     createSubkeyItem(
       keyObj.secretAvailable,
@@ -907,6 +909,8 @@ SubkeyListView.prototype = {
           return s.keyType;
         case "keyIdCol":
           return s.keyId;
+        case "versionCol":
+          return s.version;
         case "algoCol":
           return s.algo;
         case "sizeCol":

@@ -214,6 +214,7 @@ export class EnigmailKeyObj {
       "keyTrust",
       "keyUseFor",
       "ownerTrust",
+      "version",
       "algoSym",
       "keySize",
       "userIds",

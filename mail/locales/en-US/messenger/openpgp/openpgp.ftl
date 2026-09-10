@@ -322,6 +322,8 @@ openpgp-key-details-upgrade-ok = The key was successfully upgraded. You should s
 
 openpgp-key-details-algorithm-label =
     .label = Algorithm
+openpgp-key-details-version-label =
+    .label = Version
 openpgp-key-details-size-label =
     .label = Size
 openpgp-key-details-created-label =

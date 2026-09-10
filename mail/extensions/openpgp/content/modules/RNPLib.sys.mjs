@@ -2073,6 +2073,14 @@ function enableRNPLibJS() {
       ctypes.uint32_t.ptr
     ),
 
+    rnp_key_get_version: librnp.declare(
+      "rnp_key_get_version",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.uint32_t.ptr
+    ),
+
     rnp_result_t,
     rnp_ffi_t,
     rnp_password_cb_t,
