@@ -2,9 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-attachment-reminder-dialog-title = Attachment Reminder Keywords
+attachment-reminder-dialog-title = Attachment reminder keywords
 
-attachment-reminder-label = { -brand-short-name } will warn you about missing attachments if you’re about to send an email containing one of these keywords.
+attachment-reminder-description = Show a reminder for missing attachments if the email contains matching keywords.
 
 keyword-new-button =
     .label = New…

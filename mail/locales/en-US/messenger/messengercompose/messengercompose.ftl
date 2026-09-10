@@ -5,7 +5,7 @@
 ## Send Format
 
 compose-send-format-menu =
-    .label = Sending Format
+    .label = Sending format
     .accesskey = F
 
 compose-send-auto-menu-item =

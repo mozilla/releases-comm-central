@@ -59,15 +59,15 @@ general-network-and-storage-header = Network and storage
 
 general-search-performance-label = Search & performance
 
-composition-category-header = Composition
+compose-writing-emails-header = Writing emails
 
 composition-attachments-header = Attachments
 
 composition-spelling-title = Spelling
 
-compose-html-style-title = HTML Style
+compose-message-formatting-title = Message formatting
 
-composition-addressing-header = Addressing
+compose-address-autocomplete-header = Address autocomplete
 
 privacy-main-header = Privacy
 
@@ -621,25 +621,25 @@ new-calendar-checkbox-description = Experimental new calendar dialog for viewing
 
 ## Compose Tab
 
-forward-label =
-    .value = Forward messages:
+forward-messages-label =
+    .value = Forward messages as:
     .accesskey = F
 
-inline-label =
-    .label = Inline
+forward-inline-label =
+    .label = Inside the message (inline)
 
 as-attachment-label =
     .label = As Attachment
 
-extension-label =
-    .label = add extension to file name
+add-file-type-label =
+    .label = Add file type to attached messages
     .accesskey = e
 
 ## Note: This will concatenate to "Auto Save every [___] minutes",
 ## using (auto-save-label) and a number (auto-save-end).
 
-auto-save-label =
-    .label = Auto Save every
+autosave-draft-label =
+    .label = Automatically save a draft every
     .accesskey = A
 
 auto-save-end = minutes
@@ -658,15 +658,15 @@ spellcheck-label =
     .label = Check spelling before sending
     .accesskey = C
 
-spellcheck-inline-label =
-    .label = Enable spellcheck as you type
+spellcheck-while-typing-label =
+    .label = Check spelling while typing
     .accesskey = E
 
 language-popup-label =
     .value = Language:
     .accesskey = L
 
-download-dictionaries-link = Download More Dictionaries
+download-dictionaries-link = Download more dictionaries
 
 font-label =
     .value = Font:
@@ -676,8 +676,8 @@ font-size-label =
     .value = Size:
     .accesskey = z
 
-default-colors-label =
-    .label = Use reader’s default colors
+ignore-sender-styles-label =
+    .label = Ignore sender fonts and colors
     .accesskey = d
 
 font-color-label =
@@ -692,63 +692,63 @@ restore-html-label =
     .label = Restore Defaults
     .accesskey = R
 
-default-format-label =
-    .label = Use Paragraph format instead of Body Text by default
+paragraph-spacing-label =
+    .label = Pressing Enter starts a new paragraph with extra spacing
     .accesskey = P
 
-compose-send-format-title = Sending Format
+compose-send-format-title = Sending format
 
-compose-send-automatic-option =
-    .label = Automatic
+compose-format-automatic-option =
+    .label = Automatic (recommended)
 
-compose-send-automatic-description = If no styling is used in the message, send Plain Text. Otherwise, send HTML with a Plain Text fallback.
+compose-format-automatic-description = Send formatted text if you add styles (like bold or links), or plain text if you don’t.
 
-compose-send-both-option =
-    .label = Both HTML and Plain Text
+compose-format-both-option =
+    .label = Both rich text (HTML) and plain text
 
-compose-send-both-description = The recipient’s email application will determine which version to show.
+compose-format-both-description = Always sends both versions so the recipient’s email app can choose which one to display.
 
-compose-send-html-option =
-    .label = Only HTML
+compose-format-html-option =
+    .label = Rich text (HTML) only
 
-compose-send-html-description = Some recipients may not be able to read the message without a Plain Text fallback.
+compose-format-html-description = Keeps custom fonts, colors, and images, but some older email apps may not display it properly.
 
-compose-send-plain-option =
-    .label = Only Plain Text
+compose-format-plain-option =
+    .label = Plain text only
 
-compose-send-plain-description = Some styling will be converted into a plain alternative, while other composition features will be disabled.
+compose-format-plain-description = Removes all formatting, colors, and images. Best for simple text emails that work everywhere.
 
-autocomplete-description = When addressing messages, look for matching entries in:
+autocomplete-matches-description = When typing a recipient’s name or email, look for matches in:
 
-ab-label =
-    .label = Local Address Books
-    .accesskey = L
+company-network-directory-label =
+    .label = Company or network directory
+    .accesskey = C
 
-directories-label =
-    .label = Directory Server:
+directory-server-label =
+    .label = Directory server
     .accesskey = D
 
 directories-none-label =
     .none = None
 
-edit-directories-label =
-    .label = Edit Directories…
+manage-directories-label =
+    .label = Manage directories…
     .accesskey = E
 
-email-picker-label =
-    .label = Automatically add outgoing email addresses to my:
+collect-outgoing-label =
+    .label = Automatically save outgoing email addresses to:
     .accesskey = A
 
-email-picker-description = The location of new contacts saved from sent messages.
+collect-outgoing-description = Where new contacts are saved when created manually or added from emails.
 
-default-add-address-book-label =
-    .value = Default address book for manually added contacts:
-    .accesskey = D
+save-added-contacts-label =
+    .value = Save manually added contacts to:
+    .accesskey = m
 
-default-add-address-book-description = The location of new contacts saved from received messages.
+save-added-contacts-description = Where new contacts are saved from emails.
 
-default-directory-label =
-    .value = Default startup directory in the address book window:
+show-directory-startup-label =
+    .value = Show directory in the address book window when opening { -brand-short-name }
     .accesskey = S
 
 default-last-label =
@@ -758,12 +758,12 @@ attachment-label =
     .label = Check for missing attachments
     .accesskey = m
 
-attachment-options-label =
-    .label = Keywords…
+edit-keywords-label =
+    .label = Edit keywords…
     .accesskey = K
 
-enable-cloud-share =
-    .label = Offer to share for files larger than
+offer-share-large-files-label =
+    .label = Offer to share files by link when they exceed:
 cloud-share-size =
     .value = MB
 

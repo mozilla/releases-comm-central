@@ -11,32 +11,32 @@
     <hbox id="compositionMainCategory"
           class="subcategory"
           data-category="paneCompose">
-      <html:h1 data-l10n-id="composition-category-header"/>
+      <html:h1 data-l10n-id="compose-writing-emails-header"/>
     </hbox>
 
     <html:div data-category="paneCompose">
     <html:fieldset data-category="paneCompose">
       <separator class="thin"/>
       <hbox align="center">
-        <label data-l10n-id="forward-label" control="forwardMessageMode"/>
+        <label data-l10n-id="forward-messages-label" control="forwardMessageMode"/>
         <hbox>
           <menulist id="forwardMessageMode" preference="mail.forward_message_mode">
             <menupopup>
-              <menuitem value="2" data-l10n-id="inline-label"/>
+              <menuitem value="2" data-l10n-id="forward-inline-label"/>
               <menuitem value="0" data-l10n-id="as-attachment-label"/>
             </menupopup>
           </menulist>
         </hbox>
         <separator orient="vertical" class="thin"/>
         <checkbox id="addExtension" preference="mail.forward_add_extension"
-                  data-l10n-id="extension-label"/>
+                  data-l10n-id="add-file-type-label"/>
       </hbox>
 
       <separator class="thin"/>
 
       <hbox align="center" pack="start">
         <checkbox id="autoSave" preference="mail.compose.autosave"
-                  data-l10n-id="auto-save-label"/>
+                  data-l10n-id="autosave-draft-label"/>
         <html:input id="autoSaveInterval" type="number" class="size2"
                     min="1" max="35790"
                     preference="mail.compose.autosaveinterval"
@@ -69,7 +69,7 @@
       </hbox>
       <hbox>
         <checkbox id="inlineSpellCheck"
-                  data-l10n-id="spellcheck-inline-label"
+                  data-l10n-id="spellcheck-while-typing-label"
                   preference="mail.spellcheck.inline"/>
         <spacer flex="1"/>
       </hbox>
@@ -101,7 +101,7 @@
 
     <html:div data-category="paneCompose">
     <html:fieldset data-category="paneCompose">
-      <html:legend data-l10n-id="compose-html-style-title"></html:legend>
+      <html:legend data-l10n-id="compose-message-formatting-title"></html:legend>
       <hbox>
         <vbox flex="1">
           <hbox align="center">
@@ -140,7 +140,7 @@
 
           <hbox align="center">
             <checkbox id="useReaderDefaults"
-                      data-l10n-id="default-colors-label"
+                      data-l10n-id="ignore-sender-styles-label"
                       preference="msgcompose.default_colors"/>
           </hbox>
           <hbox align="center" class="indent">
@@ -167,7 +167,7 @@
 
       <hbox align="center">
         <checkbox id="defaultToParagraph"
-                  data-l10n-id="default-format-label"
+                  data-l10n-id="paragraph-spacing-label"
                   preference="mail.compose.default_to_paragraph"/>
       </hbox>
     </html:fieldset>
@@ -180,28 +180,28 @@
                   preference="mail.default_send_format">
         <radio value="0"
                aria-describedby="composeSendAutomaticDescription"
-               data-l10n-id="compose-send-automatic-option" />
+               data-l10n-id="compose-format-automatic-option" />
         <description id="composeSendAutomaticDescription"
                      class="indent tip-caption"
-                     data-l10n-id="compose-send-automatic-description" />
+                     data-l10n-id="compose-format-automatic-description" />
         <radio value="3"
                aria-describedby="composeSendBothDescription"
-               data-l10n-id="compose-send-both-option" />
+               data-l10n-id="compose-format-both-option" />
         <description id="composeSendBothDescription"
                      class="indent tip-caption"
-                     data-l10n-id="compose-send-both-description" />
+                     data-l10n-id="compose-format-both-description" />
         <radio value="2"
                aria-describedby="composeSendHTMLDescription"
-               data-l10n-id="compose-send-html-option" />
+               data-l10n-id="compose-format-html-option" />
         <description id="composeSendHTMLDescription"
                      class="indent tip-caption"
-                     data-l10n-id="compose-send-html-description" />
+                     data-l10n-id="compose-format-html-description" />
         <radio value="1"
                aria-describedby="composeSendPlainDescription"
-               data-l10n-id="compose-send-plain-option" />
+               data-l10n-id="compose-format-plain-option" />
         <description id="composeSendPlainDescription"
                      class="indent tip-caption"
-                     data-l10n-id="compose-send-plain-description" />
+                     data-l10n-id="compose-format-plain-description" />
       </radiogroup>
     </html:fieldset>
     </html:div>
@@ -209,7 +209,7 @@
     <hbox id="compositionAddressingCategory"
           class="subcategory"
           data-category="paneCompose">
-      <html:h1 data-l10n-id="composition-addressing-header"/>
+      <html:h1 data-l10n-id="compose-address-autocomplete-header"/>
     </hbox>
 
     <html:div data-category="paneCompose">
@@ -217,15 +217,15 @@
       <!-- Address Autocomplete -->
       <separator class="thin"/>
 
-      <description data-l10n-id="autocomplete-description"/>
+      <description data-l10n-id="autocomplete-matches-description"/>
 
       <hbox align="center">
-        <checkbox id="addressingAutocomplete" data-l10n-id="ab-label"
+        <checkbox id="addressingAutocomplete" data-l10n-id="company-network-directory-label"
                   preference="mail.enable_autocomplete"/>
       </hbox>
 
       <hbox align="center">
-        <checkbox id="autocompleteLDAP" data-l10n-id="directories-label"
+        <checkbox id="autocompleteLDAP" data-l10n-id="directory-server-label"
                   preference="ldap_2.autoComplete.useDirectory"/>
         <hbox flex="1">
           <menulist is="menulist-addrbooks" id="directoriesList"
@@ -237,7 +237,7 @@
                     flex="1"/>
         </hbox>
         <button is="highlightable-button" id="editButton"
-                data-l10n-id="edit-directories-label"
+                data-l10n-id="manage-directories-label"
                 oncommand="gComposePane.editDirectories();"
                 preference="pref.ldap.disable_button.edit_directories"/>
       </hbox>
@@ -246,7 +246,7 @@
 
       <vbox>
         <hbox align="center" pack="start">
-          <checkbox id="emailCollectionOutgoing" data-l10n-id="email-picker-label"
+          <checkbox id="emailCollectionOutgoing" data-l10n-id="collect-outgoing-label"
                     preference="mail.collect_email_address_outgoing"/>
           <hbox flex="1">
             <menulist is="menulist-addrbooks" id="localDirectoriesList"
@@ -258,12 +258,12 @@
           </hbox>
         </hbox>
         <description class="tip-caption indent"
-                     data-l10n-id="email-picker-description"/>
+                     data-l10n-id="collect-outgoing-description"/>
       </vbox>
 
       <vbox>
         <hbox align="center" pack="start">
-          <label data-l10n-id="default-add-address-book-label"
+          <label data-l10n-id="save-added-contacts-label"
                  control="defaultAddDirectoryList"/>
           <hbox flex="1">
             <menulist is="menulist-addrbooks"
@@ -274,13 +274,13 @@
           </hbox>
         </hbox>
         <description class="tip-caption"
-                     data-l10n-id="default-add-address-book-description"/>
+                     data-l10n-id="save-added-contacts-description"/>
       </vbox>
 
       <separator/>
 
       <hbox align="center" pack="start">
-        <label data-l10n-id="default-directory-label"
+        <label data-l10n-id="show-directory-startup-label"
                control="defaultStartupDirList"/>
         <hbox flex="1">
           <menulist is="menulist-addrbooks" id="defaultStartupDirList"
@@ -310,11 +310,11 @@
         <spacer flex="1"/>
         <hbox>
           <button is="highlightable-button" id="attachment_reminder_button"
-                  data-l10n-id="attachment-options-label"
+                  data-l10n-id="edit-keywords-label"
                   oncommand="gComposePane.attachmentReminderOptionsDialog();"
                   search-l10n-ids="
                     attachment-reminder-dialog-title,
-                    attachment-reminder-label,
+                    attachment-reminder-description,
                     keyword-new-button.label,
                     keyword-edit-button.label,
                     keyword-remove-button.label,
@@ -327,7 +327,7 @@
       <vbox id="cloudFileBox">
         <hbox id="cloudFileToggleAndThreshold" align="center">
           <checkbox id="enableThreshold"
-                    data-l10n-id="enable-cloud-share"
+                    data-l10n-id="offer-share-large-files-label"
                     preference="mail.compose.big_attachments.notify"/>
           <html:input id="cloudFileThreshold" type="number" min="0" class="size3"
                       preference="mail.compose.big_attachments.threshold_kb"/>
