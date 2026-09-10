@@ -44,9 +44,10 @@ category-qr-export =
 
 general-language-and-fonts-header = Language & Fonts
 
-general-incoming-mail-header = Incoming Mails
+general-email-notifications-header = Email notifications
 
-general-files-and-attachment-header = Files & Attachments
+general-files-and-attachment-header = Files & attachments
+general-files-and-attachment-description = Select what files are saved and where they are saved on your computer.
 
 general-tags-header = Tags
 
@@ -199,7 +200,7 @@ start-in-tray-label =
     .label = Start { -brand-short-name } in the tray
     .accesskey = S
 
-new-message-arrival = When new messages arrive:
+new-message-arrival-legend = When a new message arrives:
 mail-play-sound-label =
     .label = { PLATFORM() ->
         [macos] Play the following sound file:
@@ -210,16 +211,16 @@ mail-play-button =
     .label = Play
     .accesskey = P
 
-change-dock-icon = Change preferences for the app icon
+change-dock-icon-description = App badges and notifications
 app-icon-options =
-    .label = App Icon Options…
+    .label = App icon options…
     .accesskey = n
 
-animated-alert-label =
-    .label = Show an alert
+new-email-alert-label =
+    .label = Show an alert for new emails
     .accesskey = S
-customize-alert-label =
-    .label = Customize…
+customize-alerts-label =
+    .label = Customize alerts…
     .accesskey = C
 
 biff-use-system-alert =
@@ -234,12 +235,12 @@ tray-icon-unread-description = Recommended when using small taskbar buttons
 mail-system-sound-label =
     .label = Default system sound for new mail
     .accesskey = D
-mail-custom-sound-label =
-    .label = Use the following sound file
+use-custom-sound-label =
+    .label = Use custom sound for alerts
     .accesskey = U
-mail-browse-sound-button =
-    .label = Browse…
-    .accesskey = B
+mail-select-audio-button =
+    .label = Select audio…
+    .accesskey = A
 
 enable-gloda-search-label =
     .label = Enable Global Search and Indexer
@@ -449,10 +450,10 @@ quoted-text-color =
     .label = Color:
     .accesskey = o
 
-search-handler-table =
-    .placeholder = Filter content types and actions
+search-content-types =
+    .placeholder = Search types of content
 
-type-column-header = Content Type
+type-column-header = Content type
 
 action-column-header = Action
 
@@ -475,7 +476,7 @@ always-ask-label =
     .accesskey = A
 
 
-display-tags-text = Tags can be used to categorize and prioritize your messages.
+use-tags-text = Use tags to categorize and prioritize messages.
 
 new-tag-button =
     .label = New…

@@ -331,39 +331,39 @@
     <hbox id="incomingMailCategory"
           class="subcategory"
           data-category="paneGeneral">
-      <html:h1 data-l10n-id="general-incoming-mail-header"/>
+      <html:h1 data-l10n-id="general-email-notifications-header"/>
     </hbox>
 
     <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
-      <html:legend data-l10n-id="new-message-arrival"></html:legend>
+      <html:legend data-l10n-id="new-message-arrival-legend"></html:legend>
 #if defined(XP_MACOSX) || defined(XP_WIN)
       <hbox align="center">
-        <description flex="1" data-l10n-id="change-dock-icon"/>
+        <description flex="1" data-l10n-id="change-dock-icon-description"/>
         <hbox>
           <button is="highlightable-button" id="dockOptions"
                   oncommand="gGeneralPane.configureDockOptions();"
                   data-l10n-id="app-icon-options"
                   search-l10n-ids="
-                    dock-options-dialog-title,
-                    bounce-system-dock-icon.label,
+                    dock-icon-notification-dialog-title,
+                    dock-icon-animate-label.label,
                     dock-icon-legend,
-                    dock-icon-show-label.value,
-                    count-unread-messages-radio.label,
-                    count-new-messages-radio.label,
-                    notification-settings-info2"/>
+                    dock-badge-show-label.value,
+                    total-unread-messages-radio.label,
+                    total-new-messages-radio.label,
+                    notification-badge-system-info"/>
         </hbox>
       </hbox>
 #endif
       <hbox align="center">
         <checkbox id="newMailNotificationAlert"
-                  data-l10n-id="animated-alert-label"
+                  data-l10n-id="new-email-alert-label"
                   preference="mail.biff.show_alert"/>
         <spacer flex="1"/>
         <hbox>
           <button is="highlightable-button" id="customizeMailAlert"
                   oncommand="gGeneralPane.customizeMailAlert();"
-                  data-l10n-id="customize-alert-label"
+                  data-l10n-id="customize-alerts-label"
                   search-l10n-ids="
                     notifications-dialog-title,
                     customize-alert-description,
@@ -419,7 +419,7 @@
         <hbox>
           <radio id="custom"
                  value="1"
-                 data-l10n-id="mail-custom-sound-label"/>
+                 data-l10n-id="use-custom-sound-label"/>
           <spacer flex="1"/>
         </hbox>
       </radiogroup>
@@ -433,7 +433,7 @@
                     preference-editable="true"
                     aria-labelledby="custom"/>
         <button is="highlightable-button" id="browseForSound"
-                data-l10n-id="mail-browse-sound-button"
+                data-l10n-id="mail-select-audio-button"
                 oncommand="gGeneralPane.browseForSoundFile();"/>
       </hbox>
     </html:fieldset>
@@ -447,9 +447,10 @@
 
     <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
+      <description data-l10n-id="general-files-and-attachment-description"/>
       <html:input type="search"
                   id="filter"
-                  data-l10n-id="search-handler-table"
+                  data-l10n-id="search-content-types"
                   data-l10n-attrs="placeholder"
                   aria-controls="handlersTable"
                   oninput="gGeneralPane._rebuildView();"/>
@@ -523,7 +524,7 @@
 
     <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
-      <label control="tagList" data-l10n-id="display-tags-text"/>
+      <label control="tagList" data-l10n-id="use-tags-text"/>
       <hbox>
         <richlistbox id="tagList"
                      flex="1"

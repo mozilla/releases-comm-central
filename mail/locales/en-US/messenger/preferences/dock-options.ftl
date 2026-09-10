@@ -2,27 +2,27 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-dock-options-dialog-title = App icon options
+dock-icon-notification-dialog-title = App icon notification settings
 
 dock-options-show-badge =
     .label = Show badge icon
     .accesskey = b
 
-bounce-system-dock-icon =
-    .label = Animate the app icon when a new message arrives
+dock-icon-animate-label =
+    .label = Animate the app icon for new messages
     .accesskey = i
 
 dock-icon-legend = App icon badge
 
-dock-icon-show-label =
-    .value = Badge app icon with:
+dock-badge-show-label =
+    .value = Show a badge for
 
-count-unread-messages-radio =
-    .label = Count of unread messages
+total-unread-messages-radio =
+    .label = Total unread messages
     .accesskey = u
 
-count-new-messages-radio =
-    .label = Count of new messages
+total-new-messages-radio =
+    .label = Total new messages
     .accesskey = n
 
-notification-settings-info2 = You can disable the badge on the Notification pane of System Settings.
+notification-badge-system-info = Notification badges can also be turned on or off in the computer’s system settings.
