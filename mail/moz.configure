@@ -188,6 +188,10 @@ set_config(
 set_config("MOZ_PANORAMA", True, when=milestone.is_nightly)
 set_define("MOZ_PANORAMA", True, when=milestone.is_nightly)
 
+# Build with (but not necessarily use) the child-process message display.
+set_config("MOZ_REMOTE_READER", True, when=milestone.is_nightly)
+set_define("MOZ_REMOTE_READER", True, when=milestone.is_nightly)
+
 include("../../toolkit/moz.configure")
 
 # Bug 2062895: Remove when landing on m-c happens
