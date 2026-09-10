@@ -821,7 +821,7 @@
         <vbox>
           <hbox>
             <button is="highlightable-button" id="showUpdateHistory"
-                    data-l10n-id="update-history-button"
+                    data-l10n-id="show-history-button"
                     preference="app.update.disable_button.showUpdateHistory"
                     oncommand="gGeneralPane.showUpdates();"
                     search-l10n-ids="
@@ -930,13 +930,15 @@
         </deck>
       </hbox>
       <separator/>
-      <description id="updateAllowDescription" data-l10n-id="allow-description"/>
+      <description id="updateAllowDescription" data-l10n-id="update-settings-title"/>
       <vbox id="updateSettingsContainer">
         <radiogroup id="updateRadioGroup"
                     align="start">
           <radio id="autoDesktop"
                  value="true"
-                 data-l10n-id="automatic-updates-label"/>
+                 data-l10n-id="install-updates-automatically-label"/>
+          <description class="indent tip-caption"
+                       data-l10n-id="install-updates-automatically-description"/>
 #ifdef MOZ_UPDATE_AGENT
       <checkbox id="backgroundUpdate"
                 class="indent"
@@ -945,7 +947,7 @@
 #endif
           <radio id="manualDesktop"
                  value="false"
-                 data-l10n-id="check-updates-label"/>
+                 data-l10n-id="check-updates-ask-label"/>
         </radiogroup>
         <description id="updateSettingCrossUserWarning"
                      data-l10n-id="cross-user-udpate-warning"

@@ -323,21 +323,22 @@ update-app-legend = { -brand-short-name } Updates
 #   $version (String): version of Thunderbird, e.g. 68.0.1
 update-app-version = Version { $version }
 
-allow-description = Allow { -brand-short-name } to
-automatic-updates-label =
-    .label = Automatically install updates (recommended: improved security)
+update-settings-title = Update settings
+install-updates-automatically-label =
+    .label = Automatically install updates (recommended)
     .accesskey = A
-check-updates-label =
-    .label = Check for updates, but let me choose whether to install them
+install-updates-automatically-description = Keeps { -brand-short-name } secure with the latest security fixes.
+check-updates-ask-label =
+    .label = Check for updates, but ask before installing
     .accesskey = C
 
 update-application-background-enabled =
     .label = When { -brand-short-name } is not running
     .accesskey = W
 
-update-history-button =
-    .label = Show Update History
-    .accesskey = p
+show-history-button =
+    .label = Show history
+    .accesskey = h
 
 use-service =
     .label = Use a background service to install updates
@@ -1147,7 +1148,7 @@ search-preferences-input2 =
     .style = width: 15.4em
     .placeholder = Find in Settings
 
-managed-notice = { -brand-short-name } is being managed by your organization.
+managed-by-organization-notice = { -brand-short-name } is managed by an organization.
 
 ## Settings UI Search Results
 
