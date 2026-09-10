@@ -279,14 +279,15 @@ browsing-gtk-use-non-overlay-scrollbars =
 
 window-layout-legend = Window Layout
 
-draw-in-titlebar-label =
-    .label = Hide system window titlebar
+hide-titlebar-label =
+    .label = Hide title bar
     .accesskey = H
+hide-titlebar-description = Removes the top bar showing the window name to save screen space
 
-auto-hide-tabbar-label =
-    .label = Auto hide tab bar
-    .accesskey = A
-auto-hide-tabbar-description = Hide the tab bar when only a single tab is open
+hide-tabbar-single-tab-label =
+    .label = Hide the tab bar when only a single tab is open
+    .accesskey = T
+auto-hide-tabbar-second-tab-description = Automatically hides tabs until you open a second tab.
 
 system-settings-legend = System settings
 check-email-app-label =
@@ -1326,8 +1327,8 @@ appearance-category-header = Appearance
 
 accent-color-legend = Accent Color
 
-accent-color-label =
-    .value = Define the color used for primary buttons and highlighted elements:
+accent-color-selection-label =
+    .value = Select color for primary button and highlights
 
 accent-color-os =
     .label = Follow operating system
@@ -1354,21 +1355,21 @@ accent-color-disabled-description = Accent colors are not supported in High Cont
 
 default-message-list-legend = Message List
 
-appearance-view-style =
-    .value = View Style:
+appearance-view-style-select =
+    .value = Select view style:
 
 appearance-radio-table =
     .label = Table view
 
-appearance-radio-cards =
-    .label = Cards view
+appearance-radio-card-view =
+    .label = Card view
 
-cards-view-legend = Cards View Options
+card-view-options-legend = Card view options
 
 table-view-legend = Table View Options
 
 appearance-card-rows =
-    .value = Row Count:
+    .value = Row count:
 
 appearance-card-style-3 =
     .label = 3 rows
@@ -1376,9 +1377,9 @@ appearance-card-style-3 =
 appearance-card-style-2 =
     .label = 2 rows
 
-default-message-list-sorting-legend = Sorting and Threading
+default-message-list-sorting-legend = Sorting and threading
 
-default-message-list-description = Define the default sorting and threading options for newly created folders.
+default-message-list-new-folders-description = Select default sorting and threading options for new folders
 
 default-flag-label =
     .value = Default Threading:
@@ -1392,7 +1393,7 @@ default-flag-threaded =
 default-flag-grouped =
     .label = Grouped by Sort
 
-default-sort-label = Default Sort by:
+default-sort-by-label = Sort messages by:
 
 default-sort-date =
     .label = Date
@@ -1448,27 +1449,23 @@ default-sort-received =
 default-sort-correspondents =
     .label = Correspondents
 
-default-order-label = Default Sort Order:
+default-order-label = Default sort order
 
-default-sort-ascending =
-    .label = Ascending
+default-sort-newest-bottom =
+    .label = Newest messages at the bottom
 
-default-sort-ascending-description = New messages at the bottom
+default-sort-new-messages-top =
+    .label = Newest messages at the top
 
-default-sort-descending =
-    .label = Descending
+apply-view-settings-label = Apply these view settings to:
 
-default-sort-descending-description = New messages at the top
-
-apply-thread-sort-label = Propagate threading and sorting settings to:
-
-apply-sort-to-all-button =
-    .label = All existing folders
+apply-view-settings-to-all-folders-button =
+    .label = All folders and subfolders
     .accesskey = A
 
-choose-apply-sort-button =
-    .label = Choose…
-    .accesskey = C
+select-apply-sort-folders-button =
+    .label = Select folders
+    .accesskey = S
 
 apply-current-view-to-folder =
     .label = Folder…
