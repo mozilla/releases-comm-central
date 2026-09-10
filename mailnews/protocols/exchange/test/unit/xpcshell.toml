@@ -32,6 +32,8 @@ tags = ["foldernames"]
 
 ["test_getMessage.js"]
 
+["test_httpAuthCache.js"]
+
 ["test_item_operations.js"]
 
 ["test_item_operations_exchange_2010.js"]

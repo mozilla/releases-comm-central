@@ -691,6 +691,13 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
         .to_result()
     }
 
+    xpcom_method!(forget_session_password => ForgetSessionPassword());
+    fn forget_session_password(&self) -> Result<(), nsresult> {
+        // SAFETY: `self.password_module` is instantiated in the constructor, so
+        // it should always be a valid pointer.
+        unsafe { self.password_module.borrow().ForgetSessionPassword() }.to_result()
+    }
+
     xpcom_method!(send_mail => SendMailMessage(
         aFilePath: *const nsIFile,
         aRecipients: *const ThinVec<Option<RefPtr<msgIAddressObject>>>,

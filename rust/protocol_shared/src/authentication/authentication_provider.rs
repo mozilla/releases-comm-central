@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::{ops::Deref, ptr};
+use std::ops::Deref;
 
 use base64::prelude::*;
 use url::Url;
@@ -13,15 +13,14 @@ use xpcom::{
     RefPtr, create_instance, getter_addrefs,
     interfaces::{
         IExchangeLanguageInteropFactory, IOAuth2CustomDetails, msgIOAuth2Module,
-        nsIHttpAuthManager, nsIMsgIncomingServer, nsIMsgOutgoingServer, nsMsgAuthMethod,
-        nsMsgAuthMethodValue,
+        nsIMsgIncomingServer, nsIMsgOutgoingServer, nsMsgAuthMethod, nsMsgAuthMethodValue,
     },
 };
 
 use crate::{
-    authentication::{REALM_SERVER_PROPERTY_NAME, oauth_listener::OAuthListener},
+    authentication::{auth_cache_manager::AUTH_CACHE_MANAGER, oauth_listener::OAuthListener},
     error::ProtocolError,
-    operation_sender::pref_based_server::PrefBasedServer,
+    operation_sender::pref_based_server::{PrefBasedServer, ServerProperty},
     safe_xpcom::SafeUri,
 };
 
@@ -53,6 +52,12 @@ pub trait AuthenticationProvider {
     /// This can be [`None`] if the server does not have a URL set, or if its
     /// protocol does not use HTTP.
     fn base_http_url(&self) -> Result<Option<Url>, nsresult>;
+
+    /// Retrieves the server's key.
+    fn key(&self) -> Result<nsCString, nsresult>;
+
+    /// Forgets the server's in-memory copy of its password.
+    fn forget_session_password(&self) -> Result<(), nsresult>;
 
     /// Creates and initializes an OAuth2 module.
     ///
@@ -141,113 +146,17 @@ pub trait AuthenticationProvider {
         Ok(hdr_value)
     }
 
-    /// Create an entry for the server in Necko's HTTP auth cache, if relevant
-    /// for the server's authentication method.
-    ///
-    /// This method expects the server's base URL to be set, and to use an
-    /// HTTP(S) scheme.
     fn maybe_set_necko_auth_cache(&self) -> Result<(), nsresult> {
-        let realm = self.realm()?;
-        let password = self.password()?;
+        AUTH_CACHE_MANAGER.with(|manager| {
+            manager.remove_from_cache(self)?;
+            manager.add_or_update_cache(self)
+        })?;
+        Ok(())
+    }
 
-        // `nsIHttpAuthManager::SetAuthIdentity` annoyingly requires the
-        // username to be an `nsString`, whereas we typically treat it as an
-        // `nsCString` in Thunderbird. So we convert it into a `String` here so
-        // it can be turned into an `nsString` later (`nsstring` doesn't
-        // currently provide conversion utilities between `nsString` and
-        // `nsCString`).
-        let username = self.username()?.to_string();
-
-        // Set the auth type, domain and username, but also (and maybe more
-        // importantly) filter out the auth types for which we should no-op
-        // here.
-        let (auth_type, domain, username) = match self.auth_method()? {
-            nsMsgAuthMethod::NTLM => {
-                // NTLM usernames might come in the form `domain\username`. Note
-                // that they might also come in the form `username@domain`, but
-                // this is done in order to work around the 15-character limit
-                // for domain length and such usernames should be sent to the
-                // server as is.
-                let (domain, username) =
-                    username.split_once('\\').unwrap_or(("", username.as_str()));
-
-                ("ntlm", domain, username)
-            }
-
-            // Other authentication methods are either implemented on our side
-            // or unsupported. Eventually we'll want to defer Basic auth to
-            // Necko as well, but we need to fix
-            // https://bugzilla.mozilla.org/show_bug.cgi?id=2059739 first.
-            _ => return Ok(()),
-        };
-
-        // We're setting Necko's HTTP auth cache here, which happens first on
-        // client setup (which itself happens when we try performing the
-        // server's first operation), so we expect the server to be ready to
-        // send HTTP requests by this point.
-        let Some(url) = self.base_http_url()? else {
-            log::error!("trying to set the HTTP auth cache for server without a URL");
-            return Err(nserror::NS_ERROR_UNEXPECTED);
-        };
-
-        // If the URL doesn't have a port, we need to set it to -1, which is the
-        // default for `nsIURI`. We can't use `port_or_known_default()` because
-        // a URL without an explicit port will match an entry with -1 but not
-        // one with 80 or 443.
-        let port = url.port().map_or(-1, i32::from);
-        let scheme = nsCString::from(url.scheme());
-
-        let Some(hostname) = url.host() else {
-            log::error!("invalid URL: missing hostname: {}", url.as_str());
-            return Err(nserror::NS_ERROR_UNEXPECTED);
-        };
-        let hostname = nsCString::from(hostname.to_string());
-
-        log::debug!(
-            "adding or updating Necko's auth cache - \
-                auth_type={auth_type}, \
-                realm={realm}, \
-                domain={domain}, \
-                username={username}, \
-                hostname={hostname}, \
-                port={port}"
-        );
-
-        let auth_manager: RefPtr<nsIHttpAuthManager> =
-            xpcom::get_service(c"@mozilla.org/network/http-auth-manager;1")
-                .ok_or(nserror::NS_ERROR_UNEXPECTED)?;
-
-        // SAFETY: We've ensured the pointers we use here point to valid data. This
-        // data is copied (via `ns[C]String::Assign`) before `SetAuthIdentity`
-        // returns.
-        unsafe {
-            // Set the auth identity in Necko's auth cache. We need to make sure we
-            // supply the same scheme, host and port (also path and realm, if
-            // non-empty) that will be used in requests, otherwise we'll get a cache
-            // miss.
-            auth_manager.SetAuthIdentity(
-                &raw const *scheme,
-                &raw const *hostname,
-                port,
-                // Note: we supply the auth type because the XPIDL has it (and
-                // we know it), but the actual implementation ignores it.
-                &raw const *nsCString::from(auth_type),
-                &raw const *realm,
-                // We currently don't set a path, so that the auth cache entry
-                // applies to the entire domain (for this scheme and username).
-                // In the future, there might be edge cases in which setting a
-                // path (e.g. the Graph subpath or EWS endpoint) is desirable,
-                // but we can address those later on.
-                &raw const *nsCString::new(),
-                &raw const *nsString::from(domain),
-                &raw const *nsString::from(username),
-                &raw const *password,
-                // Optional parameters.
-                false,
-                ptr::null(),
-            )
-        }
-        .to_result()
+    fn maybe_remove_necko_auth_cache_entry(&self) -> Result<(), nsresult> {
+        AUTH_CACHE_MANAGER.with(|manager| manager.remove_from_cache(self))?;
+        Ok(())
     }
 }
 
@@ -291,7 +200,7 @@ impl AuthenticationProvider for nsIMsgIncomingServer {
     }
 
     fn realm(&self) -> Result<nsCString, nsresult> {
-        let realm = self.get_string_property(REALM_SERVER_PROPERTY_NAME)?;
+        let realm = self.get_string_property(ServerProperty::Realm)?;
         Ok(nsCString::from(realm))
     }
 
@@ -312,6 +221,16 @@ impl AuthenticationProvider for nsIMsgIncomingServer {
         })?;
 
         Ok(Some(url))
+    }
+
+    fn key(&self) -> Result<nsCString, nsresult> {
+        let mut key = nsCString::new();
+        unsafe { self.GetKey(&raw mut *key) }.to_result()?;
+        Ok(key)
+    }
+
+    fn forget_session_password(&self) -> Result<(), nsresult> {
+        unsafe { self.ForgetSessionPassword(false) }.to_result()
     }
 
     fn oauth2_module(
@@ -378,7 +297,7 @@ impl AuthenticationProvider for nsIMsgOutgoingServer {
     }
 
     fn realm(&self) -> Result<nsCString, nsresult> {
-        let realm = self.get_string_property(REALM_SERVER_PROPERTY_NAME)?;
+        let realm = self.get_string_property(ServerProperty::Realm)?;
         Ok(nsCString::from(realm))
     }
 
@@ -409,6 +328,16 @@ impl AuthenticationProvider for nsIMsgOutgoingServer {
         } else {
             Ok(None)
         }
+    }
+
+    fn key(&self) -> Result<nsCString, nsresult> {
+        let mut key = nsCString::new();
+        unsafe { self.GetKey(&raw mut *key) }.to_result()?;
+        Ok(key)
+    }
+
+    fn forget_session_password(&self) -> Result<(), nsresult> {
+        unsafe { self.ForgetSessionPassword() }.to_result()
     }
 
     fn oauth2_module(

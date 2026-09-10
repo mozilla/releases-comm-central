@@ -13,6 +13,22 @@ use xpcom::{
     },
 };
 
+/// A representation of server properties we might want to either observe, read
+/// or change through a [`PrefBasedServer`] implementation.
+///
+/// This enum does not have e.g. an `impl From<_> for String`, because the name
+/// of the actual prefs matching these properties might change between server
+/// types and implementations (e.g. "authMethod" vs "auth_method"), see
+/// <https://bugzilla.mozilla.org/show_bug.cgi?id=2067685>
+#[derive(Debug, Clone, Copy)]
+#[non_exhaustive]
+pub enum ServerProperty {
+    AuthMethod,
+    EwsUrl,
+    Realm,
+    Username,
+}
+
 /// A server which uses prefs to store properties.
 pub trait PrefBasedServer {
     /// Registers an [`nsIObserver`] to be called when a given property of the
@@ -22,10 +38,10 @@ pub trait PrefBasedServer {
     /// observer is subscribed to any change to a property in that branch.
     fn observe_property(
         &self,
-        pref_name: &str,
+        prop: ServerProperty,
         observer: RefPtr<nsIObserver>,
     ) -> Result<(), nsresult> {
-        let pref_name = self.resolve_full_pref_name(pref_name)?;
+        let pref_name = self.resolve_full_pref_name(prop)?;
         register_observer(pref_name, observer)
     }
 
@@ -38,22 +54,22 @@ pub trait PrefBasedServer {
     /// [`observe_property`]: PrefBasedServer::observe_property
     fn stop_observing(
         &self,
-        pref_name: &str,
+        prop: ServerProperty,
         observer: RefPtr<nsIObserver>,
     ) -> Result<(), nsresult> {
-        let pref_name = self.resolve_full_pref_name(pref_name)?;
+        let pref_name = self.resolve_full_pref_name(prop)?;
         remove_observer(pref_name, observer)
     }
 
     /// Stores the string value of a given property.
-    fn set_string_property(&self, pref_name: &str, value: String) -> Result<(), nsresult> {
-        let pref_name = self.resolve_full_pref_name(pref_name)?;
+    fn set_string_property(&self, prop: ServerProperty, value: String) -> Result<(), nsresult> {
+        let pref_name = self.resolve_full_pref_name(prop)?;
         store_string_pref(pref_name, value)
     }
 
     /// Reads the string value of a given property.
-    fn get_string_property(&self, pref_name: &str) -> Result<String, nsresult> {
-        let pref_name = self.resolve_full_pref_name(pref_name)?;
+    fn get_string_property(&self, prop: ServerProperty) -> Result<String, nsresult> {
+        let pref_name = self.resolve_full_pref_name(prop)?;
         read_string_pref(pref_name)
     }
 
@@ -61,25 +77,39 @@ pub trait PrefBasedServer {
     /// server's pref branch, to its full name relative to the root branch.
     ///
     /// For example, this maps "authMethod" to "mail.server.ews1.authMethod".
-    fn resolve_full_pref_name(&self, pref_name: &str) -> Result<String, nsresult>;
+    fn resolve_full_pref_name(&self, prop: ServerProperty) -> Result<String, nsresult>;
 }
 
 impl PrefBasedServer for nsIMsgIncomingServer {
-    fn resolve_full_pref_name(&self, pref_name: &str) -> Result<String, nsresult> {
+    fn resolve_full_pref_name(&self, prop: ServerProperty) -> Result<String, nsresult> {
+        let prop_name = match prop {
+            ServerProperty::AuthMethod => "authMethod",
+            ServerProperty::EwsUrl => "ews_url",
+            ServerProperty::Realm => "realm",
+            ServerProperty::Username => "username",
+        };
+
         let mut key = nsCString::new();
         unsafe { self.GetKey(&raw mut *key) }.to_result()?;
 
-        let pref_name = format!("mail.server.{key}.{pref_name}");
+        let pref_name = format!("mail.server.{key}.{prop_name}");
         Ok(pref_name)
     }
 }
 
 impl PrefBasedServer for nsIMsgOutgoingServer {
-    fn resolve_full_pref_name(&self, pref_name: &str) -> Result<String, nsresult> {
+    fn resolve_full_pref_name(&self, prop: ServerProperty) -> Result<String, nsresult> {
+        let prop_name = match prop {
+            ServerProperty::AuthMethod => "auth_method",
+            ServerProperty::EwsUrl => "ews_url",
+            ServerProperty::Realm => "realm",
+            ServerProperty::Username => "username",
+        };
+
         let mut key: nsCString = nsCString::new();
         unsafe { self.GetKey(&raw mut *key) }.to_result()?;
 
-        let pref_name = format!("mail.outgoingserver.{key}.{pref_name}");
+        let pref_name = format!("mail.outgoingserver.{key}.{prop_name}");
         Ok(pref_name)
     }
 }

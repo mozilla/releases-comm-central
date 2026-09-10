@@ -191,6 +191,11 @@ interface nsIMsgOutgoingServer : nsISupports {
   void forgetPassword();
 
   /**
+   * Forget the password in memory which is cached for the session.
+   */
+  void forgetSessionPassword();
+
+  /**
    * Verify that we can log onto the server.
    *
    * @param  aPassword    The password to use

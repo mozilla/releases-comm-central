@@ -47,20 +47,24 @@ async function syncFolder(incomingServer, folder) {
  *
  * @returns {[EwsServer, nsIMsgIncomingServer]}
  */
-function setupBasicEwsTestServer({ version = "Exchange2013" }) {
+function setupBasicEwsTestServer({
+  username = "user",
+  password = "password",
+  version = "Exchange2013",
+}) {
   // Ensure we have an on-disk profile.
   do_get_profile();
 
   // Create a new mock EWS server, and start it.
-  const ewsServer = new EwsServer({ version });
+  const ewsServer = new EwsServer({ username, password, version });
   ewsServer.start();
 
   // Create and configure the EWS incoming server.
   const incomingServer = localAccountUtils.create_incoming_server(
     "ews",
     ewsServer.port,
-    "user",
-    "password"
+    username,
+    password
   );
   incomingServer.QueryInterface(Ci.IExchangeIncomingServer);
   incomingServer.setStringValue(

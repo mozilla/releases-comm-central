@@ -21,10 +21,12 @@ use xpcom::{
 
 use crate::{
     ServerType,
-    authentication::REALM_SERVER_PROPERTY_NAME,
     error::ProtocolError,
     observers::{HttpAuthObserver, OBSERVER_TOPIC_PASSWORDMGR, UrlPrefObserver},
-    operation_sender::send_request::{OperationRequest, send_request},
+    operation_sender::{
+        pref_based_server::ServerProperty,
+        send_request::{OperationRequest, send_request},
+    },
 };
 
 pub mod pref_based_server;
@@ -129,28 +131,18 @@ struct RegisteredObserver {
     /// The observer itself.
     obs: RefPtr<nsIObserver>,
 
-    /// The kind of registration, i.e. whether it was registered against the
-    /// pref service or the observer service.
-    kind: ObserverRegistrationKind,
-
-    /// The registration's target. For `Pref` registrations, this is the server
-    /// property specified when registering the observer. For `Service`
-    /// registrations, this is the topic used when registering.
-    target: String,
+    // The target of the observer's registration.
+    target: ObserverRegistrationTarget,
 }
 
-/// The kind of a given registration, which indicates which service the observer
-/// was registered against.
-enum ObserverRegistrationKind {
-    /// The observer was registered against the pref service, via
-    /// [`PrefBasedServer`] methods
-    ///
-    /// [`PrefBasedServer`]:
-    ///     crate::operation_sender::pref_based_server::PrefBasedServer
-    Pref,
+/// The target of an observer registration.
+enum ObserverRegistrationTarget {
+    /// The observer was registered to be notified when the pref for a given
+    /// server property is changed.
+    Pref(ServerProperty),
 
-    /// The observer was registered against the [`nsIObserverService`] directly.
-    Service,
+    /// The observer was registered for all notifications on a given topic.
+    Topic(String),
 }
 
 /// The central data structure for performing operations against an Exchange
@@ -195,27 +187,32 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         // Subscribe to changes to the base URL property on the server (named
         // "ews_url" for historical reasons), so we get updated when it changes.
         let url_observer = UrlPrefObserver::new_observer(base_url.clone())?;
-        server.observe_property("ews_url", url_observer.clone())?;
+        server.observe_property(ServerProperty::EwsUrl, url_observer.clone())?;
 
         // If the server's authentication should be handled by Necko, populate
         // the authentication cache.
         server.maybe_set_necko_auth_cache()?;
 
-        // Also observe future changes to the server's authentication parameters
-        // - that's the `realm` and `auth_method` properties of the server, as
-        // well as any login stored in the logins manager (the observer
-        // implementation is in charge of checking that a login addition/change
-        // matches the current server).
+        // Also observe future changes to the server's authentication-related
+        // properties, as well as any login stored in the logins manager (the
+        // observer implementation is in charge of checking that a login
+        // addition/change matches the current server).
+        //
+        // We include the username property here, because servers read usernames
+        // from their properties rather than from the logins manager.
         let auth_observer = HttpAuthObserver::new_observer(server.clone())?;
-        server.observe_property(REALM_SERVER_PROPERTY_NAME, auth_observer.clone())?;
-        server.observe_property("auth_method", auth_observer.clone())?;
-        server.observe_property("ews_url", auth_observer.clone())?;
+        server.observe_property(ServerProperty::AuthMethod, auth_observer.clone())?;
+        server.observe_property(ServerProperty::EwsUrl, auth_observer.clone())?;
+        server.observe_property(ServerProperty::Realm, auth_observer.clone())?;
+        server.observe_property(ServerProperty::Username, auth_observer.clone())?;
 
         let obs_svc = components::Observer::service::<nsIObserverService>()?;
         unsafe {
             obs_svc.AddObserver(
                 auth_observer.coerce(),
-                c"passwordmgr-storage-changed".as_ptr(),
+                // Unwrapping should be fine here, since this string is a
+                // constant we know.
+                CString::new(OBSERVER_TOPIC_PASSWORDMGR).unwrap().as_ptr(),
                 false,
             )
         }
@@ -227,23 +224,27 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         let observers_registrations = vec![
             RegisteredObserver {
                 obs: url_observer,
-                kind: ObserverRegistrationKind::Pref,
-                target: "ews_url".to_string(),
+                target: ObserverRegistrationTarget::Pref(ServerProperty::EwsUrl),
             },
             RegisteredObserver {
                 obs: auth_observer.clone(),
-                kind: ObserverRegistrationKind::Pref,
-                target: "realm".to_string(),
+                target: ObserverRegistrationTarget::Pref(ServerProperty::AuthMethod),
             },
             RegisteredObserver {
                 obs: auth_observer.clone(),
-                kind: ObserverRegistrationKind::Pref,
-                target: "auth_method".to_string(),
+                target: ObserverRegistrationTarget::Pref(ServerProperty::EwsUrl),
+            },
+            RegisteredObserver {
+                obs: auth_observer.clone(),
+                target: ObserverRegistrationTarget::Pref(ServerProperty::Realm),
+            },
+            RegisteredObserver {
+                obs: auth_observer.clone(),
+                target: ObserverRegistrationTarget::Pref(ServerProperty::Username),
             },
             RegisteredObserver {
                 obs: auth_observer,
-                kind: ObserverRegistrationKind::Service,
-                target: OBSERVER_TOPIC_PASSWORDMGR.to_string(),
+                target: ObserverRegistrationTarget::Topic(OBSERVER_TOPIC_PASSWORDMGR.to_string()),
             },
         ];
 
@@ -272,6 +273,13 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             return;
         };
 
+        // When relevant and possible, include the server's key when logging
+        // errors.
+        let server_display = match server.key().ok() {
+            Some(key) => format!("server \"{key}\""),
+            None => "server".to_string(),
+        };
+
         // De-register the observers. We need to handle each "kind" of observer
         // registration differently:
         //  * Observers that were registered via `PrefBasedServer` methods
@@ -287,30 +295,36 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             }
         };
         for obs_reg in &self.observers_registrations {
-            match obs_reg.kind {
-                ObserverRegistrationKind::Pref => {
-                    if let Err(err) = server.stop_observing(&obs_reg.target, obs_reg.obs.clone()) {
+            match obs_reg.target {
+                ObserverRegistrationTarget::Pref(prop) => {
+                    if let Err(err) = server.stop_observing(prop, obs_reg.obs.clone()) {
                         log::error!(
-                            "OperationSender::shutdown: failed to remove pref observer for property {}: {err}",
-                            obs_reg.target,
+                            "OperationSender::shutdown: failed to remove pref observer for {server_display} property {prop:?}: {err}",
                         );
                     }
                 }
-                ObserverRegistrationKind::Service => {
-                    // Unwrapping should be fine here, since every string used here is
-                    // derived from one of the consts in `observers.rs`.
-                    let target = CString::new(obs_reg.target.as_str()).unwrap();
+                ObserverRegistrationTarget::Topic(ref topic) => {
+                    // Unwrapping should be fine here, since every string used
+                    // here is derived from one of the consts in `observers.rs`.
+                    let target = CString::new(topic.as_str()).unwrap();
 
                     let status =
                         unsafe { obs_svc.RemoveObserver(obs_reg.obs.coerce(), target.as_ptr()) };
                     if let Err(err) = status.to_result() {
                         log::error!(
-                            "OperationSender::shutdown: failed to remove observer for topic {}: {err}",
-                            obs_reg.target,
+                            "OperationSender::shutdown: failed to remove observer for topic {topic}: {err}"
                         );
                     }
                 }
             }
+        }
+
+        // Remove any entry the Necko HTTP auth cache might have for this
+        // server.
+        if let Err(err) = server.maybe_remove_necko_auth_cache_entry() {
+            log::error!(
+                "OperationSender::shutdown: failed to remove {server_display} from the Necko auth cache: {err}"
+            );
         }
     }
 
@@ -651,7 +665,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             if realms.len() < 2 {
                 // Check if we already have a realm stored for this server.
                 let server = self.server().await?;
-                let existing_realm = server.get_string_property(REALM_SERVER_PROPERTY_NAME)?;
+                let existing_realm = server.get_string_property(ServerProperty::Realm)?;
 
                 // See if what we got from the response matches what we have
                 // stored locally. Let's do this by comparing strings, using an
@@ -662,7 +676,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                     log::debug!(
                         "got response with different realm than what was stored, retrying with new realm"
                     );
-                    server.set_string_property(REALM_SERVER_PROPERTY_NAME, realm)?;
+                    server.set_string_property(ServerProperty::Realm, realm)?;
                     return Ok(());
                 } else {
                     log::debug!("ignoring WWW-Authenticate response headers with known realm");

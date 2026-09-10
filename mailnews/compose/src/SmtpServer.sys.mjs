@@ -378,6 +378,10 @@ export class SmtpServer {
     );
   }
 
+  forgetSessionPassword() {
+    this.password = "";
+  }
+
   async #forgetPasswordInternal() {
     this.password = "";
     if (!this.hostname) {

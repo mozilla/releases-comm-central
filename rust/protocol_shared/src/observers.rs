@@ -11,21 +11,58 @@ use std::{
 use mailnews_string_glue::{parse_utf8_lossy, parse_utf16_lossy};
 use nserror::{NS_OK, nsresult};
 use nsstring::{nsCString, nsString};
+
 use url::Url;
 use xpcom::{
-    RefCounted, RefPtr, XpCom, components,
-    interfaces::{nsILoginInfo, nsIObserver, nsIObserverService, nsIPrefBranch, nsISupports},
+    RefCounted, RefPtr, XpCom, components, getter_addrefs,
+    interfaces::{
+        nsIArrayExtensions, nsILoginInfo, nsIObserver, nsIObserverService, nsIPrefBranch,
+        nsISupports,
+    },
     xpcom_method,
 };
 
 use crate::{
-    authentication::authentication_provider::AuthenticationProvider, client::ProtocolClient,
+    authentication::{
+        auth_cache_manager::{AUTH_CACHE_MANAGER, HttpAuthCacheManager},
+        authentication_provider::AuthenticationProvider,
+    },
+    client::ProtocolClient,
     operation_sender::pref_based_server::PrefBasedServer,
 };
 
+// The topics we're observing.
 pub(crate) const OBSERVER_TOPIC_PREF: &str = "nsPref:changed";
 pub(crate) const OBSERVER_TOPIC_PASSWORDMGR: &str = "passwordmgr-storage-changed";
 pub(crate) const OBSERVER_TOPIC_SMTPSERVER_REMOVED: &str = "message-smtpserver-removed";
+
+/// A representation of the possible values of the `data` argument an observer
+/// might get with a "passwordmgr-storage-changed" notification.
+///
+/// This enum only lists the values we care about in the current observer
+/// implementations. Any other value gets mapped to
+/// [`PasswordManagerDataValue::Unsupported`].
+#[derive(Debug, Clone, Copy)]
+#[non_exhaustive]
+enum PasswordManagerDataValue {
+    Add,
+    Modify,
+    Remove,
+    RemoveAll,
+    Unsupported,
+}
+
+impl From<String> for PasswordManagerDataValue {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "addLogin" => Self::Add,
+            "modifyLogin" => Self::Modify,
+            "removeLogin" => Self::Remove,
+            "removeAllLogins" => Self::RemoveAll,
+            _ => Self::Unsupported,
+        }
+    }
+}
 
 /// An observer that subscribes to notification of outgoing server removal, and
 /// shuts down the configured client if the removal is for the configured key.
@@ -144,6 +181,9 @@ enum AuthChangeAction {
     /// Refresh the auth cache entry for the current server.
     Refresh,
 
+    /// Invalidate the auth cache entry for the current server.
+    Remove,
+
     /// Ignore the notification.
     Ignore,
 }
@@ -190,20 +230,75 @@ impl<ServerT: AuthenticationProvider + PrefBasedServer + RefCounted> HttpAuthObs
         //  * a property/pref for the current server that's relevant to auth
         //    being changed and the update matches the settings of the current
         //    server.
+        //
+        // Additionally, if a login is being removed (or all logins are being
+        // removed) we want to invalidate relevant cache entries.
         let action = match topic.as_str() {
-            OBSERVER_TOPIC_PASSWORDMGR => match data.as_str() {
-                // TODO: We currently only support `addLogin` and `modifyLogin`
-                // updates. Login removal is handled separately, see
-                // https://bugzilla.mozilla.org/show_bug.cgi?id=2067736
-                "addLogin" | "modifyLogin" => {
-                    let login_info: RefPtr<nsILoginInfo> = subject
-                        .query_interface()
-                        .ok_or(nserror::NS_ERROR_INVALID_ARG)?;
+            OBSERVER_TOPIC_PASSWORDMGR => {
+                let data = PasswordManagerDataValue::from(data);
+                match data {
+                    // When adding or removing a login, `subject` is the
+                    // `nsILoginInfo` for the login that's being added or
+                    // removed.
+                    PasswordManagerDataValue::Add | PasswordManagerDataValue::Remove => {
+                        let login_info: RefPtr<nsILoginInfo> = subject
+                            .query_interface()
+                            .ok_or(nserror::NS_ERROR_INVALID_ARG)?;
 
-                    self.action_from_login_info(login_info)?
+                        self.action_from_login_info(login_info, data)?
+                    }
+
+                    // When modifying a login, `subject` is a 2-item array that
+                    // contains the login info before and after modification,
+                    // respectively.
+                    PasswordManagerDataValue::Modify => {
+                        let login_infos: RefPtr<nsIArrayExtensions> = subject
+                            .query_interface()
+                            .ok_or(nserror::NS_ERROR_INVALID_ARG)?;
+
+                        let old_login_info: RefPtr<nsILoginInfo> =
+                            getter_addrefs(|p| unsafe { login_infos.GetElementAt(0, p) })?
+                                .query_interface()
+                                .ok_or(nserror::NS_ERROR_INVALID_ARG)?;
+
+                        let new_login_info: RefPtr<nsILoginInfo> =
+                            getter_addrefs(|p| unsafe { login_infos.GetElementAt(1, p) })?
+                                .query_interface()
+                                .ok_or(nserror::NS_ERROR_INVALID_ARG)?;
+
+                        // Compare the current server with the old
+                        // `nsILoginInfo`. If this doesn't match, try the same
+                        // comparison but with the new `nsILoginInfo`, because
+                        // the user might have changed e.g. the username in
+                        // there. We generally want to err on the side of
+                        // caution here, because refreshing a server's cache
+                        // entry when it's not necessary comes at a low-ish cost
+                        // but not refreshing when we ought to causes problems.
+                        // So we only want to ignore if we can't match either
+                        // `nsILoginInfo` to the current server.
+                        let old_action = self.action_from_login_info(old_login_info, data)?;
+                        if matches!(old_action, AuthChangeAction::Ignore) {
+                            self.action_from_login_info(new_login_info, data)?
+                        } else {
+                            old_action
+                        }
+                    }
+
+                    // If the action performed is to clear all logins, we need
+                    // to clear the authentication cache.
+                    PasswordManagerDataValue::RemoveAll => {
+                        // All the logins are being removed; there's nothing we
+                        // need to do for the current server specifically but we
+                        // need to clear the entire cache instead.
+                        AUTH_CACHE_MANAGER.with(HttpAuthCacheManager::clear_cache)?;
+                        return Ok(());
+                    }
+
+                    // If the action performed isn't one we need to support
+                    // here, do nothing.
+                    PasswordManagerDataValue::Unsupported => AuthChangeAction::Ignore,
                 }
-                _ => AuthChangeAction::Ignore,
-            },
+            }
             // Considering the observer should have been registered to only
             // watch auth-related prefs for our server, a pref-related event
             // should mean we want to refresh the cache.
@@ -213,6 +308,7 @@ impl<ServerT: AuthenticationProvider + PrefBasedServer + RefCounted> HttpAuthObs
 
         match action {
             AuthChangeAction::Refresh => self.server.maybe_set_necko_auth_cache(),
+            AuthChangeAction::Remove => self.server.maybe_remove_necko_auth_cache_entry(),
             AuthChangeAction::Ignore => Ok(()),
         }
     }
@@ -225,6 +321,7 @@ impl<ServerT: AuthenticationProvider + PrefBasedServer + RefCounted> HttpAuthObs
     fn action_from_login_info(
         &self,
         login_info: RefPtr<nsILoginInfo>,
+        data_value: PasswordManagerDataValue,
     ) -> Result<AuthChangeAction, nsresult> {
         let mut origin = nsString::new();
         unsafe { login_info.GetOrigin(&raw mut *origin) }.to_result()?;
@@ -246,7 +343,14 @@ impl<ServerT: AuthenticationProvider + PrefBasedServer + RefCounted> HttpAuthObs
         let username_matches = username == self.server.username()?.to_string();
 
         let action = if type_matches && hostname_matches && username_matches {
-            AuthChangeAction::Refresh
+            match data_value {
+                PasswordManagerDataValue::Remove => AuthChangeAction::Remove,
+
+                // If we got here and the data value isn't `removeLogin` then
+                // we're either adding or modifying a login and we should
+                // default to refreshing.
+                _ => AuthChangeAction::Refresh,
+            }
         } else {
             AuthChangeAction::Ignore
         };
