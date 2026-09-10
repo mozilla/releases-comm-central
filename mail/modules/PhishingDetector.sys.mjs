@@ -78,9 +78,30 @@ export const PhishingDetector = new (class PhishingDetector {
       }
     }
 
-    const actor =
-      browser.browsingContext.currentWindowGlobal.getActor("MailMessage");
-    return await actor.sendQuery("MailMessage:AnalyzeMessageBody");
+    // The message pane may navigate away, or go away entirely, before we get
+    // here. If it has, there is no MailMessage actor to ask - getActor throws
+    // for a window global which has already been swapped for a web page - and
+    // there's nothing left to warn about anyway.
+    let actor;
+    try {
+      actor =
+        browser.browsingContext?.currentWindowGlobal?.getActor("MailMessage");
+    } catch (ex) {
+      return false;
+    }
+    if (!actor) {
+      return false;
+    }
+
+    try {
+      return await actor.sendQuery("MailMessage:AnalyzeMessageBody");
+    } catch (ex) {
+      // Same again, but the pane went away while the query was in flight.
+      if (ex.name != "AbortError") {
+        throw ex;
+      }
+      return false;
+    }
   }
 
   /**

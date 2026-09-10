@@ -668,8 +668,10 @@ var messageProgressListener = {
    * message loading has finished.
    */
   onDOMContentLoaded(event) {
-    const { docShell } = event.target.documentGlobal;
-    if (!docShell.isTopLevelContentDocShell) {
+    // The listener for this event outlives the message load, so it can fire
+    // for a document which isn't the message, or one which has already gone.
+    const { docShell } = event.target.documentGlobal ?? {};
+    if (!docShell?.isTopLevelContentDocShell) {
       return;
     }
 
@@ -1007,6 +1009,13 @@ var messageProgressListener = {
    */
   async onEndMsgDownload(url) {
     const browser = getMessagePaneBrowser();
+    // Everything here is about the message which just loaded. The message pane
+    // can navigate away before or while we do it, and once it has, there's
+    // nothing left to do.
+    const isStillDisplayed = () => url.equals(browser.currentURI);
+    if (!isStillDisplayed()) {
+      return;
+    }
 
     // If we have no attachments, we hide the attachment icon in the message
     // tree.
@@ -1080,6 +1089,10 @@ var messageProgressListener = {
       gMessageNotificationBar.setPhishingMsg();
     }
 
+    if (!isStillDisplayed()) {
+      return;
+    }
+
     // Notify anyone (e.g., extensions) who's interested in when a message is loaded.
     Services.obs.notifyObservers(null, "MsgMsgDisplayed", gMessageURI);
 
@@ -1137,6 +1150,9 @@ var messageProgressListener = {
           once: true,
         });
       });
+      if (!isStillDisplayed()) {
+        return;
+      }
     }
 
     // Scale any overflowing images, exclude http content.

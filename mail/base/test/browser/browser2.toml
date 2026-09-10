@@ -49,4 +49,6 @@ run-if = [
 
 ["browser_messageBodyAs.js"]
 
+["browser_messagePaneNavigateAway.js"]
+
 ["browser_multiMessageView.js"]
