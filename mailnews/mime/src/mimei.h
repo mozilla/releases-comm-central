@@ -298,25 +298,6 @@ extern char* mime_get_base_url(const char* url);
 extern char* mime_set_url_imap_part(const char* url, const char* part,
                                     const char* libmimepart);
 
-/* Given a part ID, looks through the MimeObject tree for a sub-part whose ID
-   number matches, and returns the MimeObject (else NULL.)
-   (part is not a URL -- it's of the form "1.3.5".)
- */
-extern MimeObject* mime_address_to_part(const char* part, MimeObject* obj);
-
-/* Given a part ID, looks through the MimeObject tree for a sub-part whose ID
-   number matches; if one is found, returns the Content-Name of that part.
-   Else returns NULL.  (part is not a URL -- it's of the form "1.3.5".)
- */
-extern char* mime_find_suggested_name_of_part(const char* part,
-                                              MimeObject* obj);
-
-/* Given a part ID, looks through the MimeObject tree for a sub-part whose ID
-   number matches; if one is found, returns the Content-Name of that part.
-   Else returns NULL.  (part is not a URL -- it's of the form "1.3.5".)
- */
-extern char* mime_find_content_type_of_part(const char* part, MimeObject* obj);
-
 /* Parse the various "?" options off the URL and into the options struct.
  */
 extern int mime_parse_url_options(const char* url, MimeDisplayOptions*);
