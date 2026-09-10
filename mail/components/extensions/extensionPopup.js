@@ -122,7 +122,7 @@ function loadRequestedUrl() {
       triggeringPrincipal: getContentPrincipalWithProtocolPermission(uri),
     });
   } else {
-    const createData = window.arguments[1].wrappedJSObject;
+    const createData = window.arguments[2].wrappedJSObject;
     const tabParams = createData.tabs[0].tabParams;
     const uri = Services.io.newURI(tabParams.url);
 
@@ -209,6 +209,14 @@ function getBrowser() {
 
 var gBrowserInit = {
   onDOMContentLoaded() {
+    const extraOptions = window.arguments?.[1];
+    if (
+      extraOptions instanceof Ci.nsIPropertyBag2 &&
+      extraOptions.hasKey("web-extension-popup-window")
+    ) {
+      document.documentElement.setAttribute("web-extension-popup-window", true);
+    }
+
     // This needs setting up before we create the first remote browser.
     window.docShell.treeOwner
       .QueryInterface(Ci.nsIInterfaceRequestor)

@@ -436,7 +436,16 @@ this.windows = class extends ExtensionAPIPersistent {
               })),
             };
             actionData.wrappedJSObject = actionData;
-            args.appendElement(null);
+
+            // Flag the window as a WebExtension popup window, so its chrome
+            // (currently just the read-only location bar) can be hidden.
+            const extraOptions = Cc[
+              "@mozilla.org/hash-property-bag;1"
+            ].createInstance(Ci.nsIWritablePropertyBag2);
+            extraOptions.setPropertyAsBool("web-extension-popup-window", true);
+
+            args.appendElement(null); // uriToLoad
+            args.appendElement(extraOptions);
             args.appendElement(actionData);
             return args;
           };

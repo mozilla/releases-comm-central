@@ -463,3 +463,51 @@ add_task(async function test_popupState() {
   await extension.awaitFinish();
   await extension.unload();
 });
+
+add_task(async function test_popupLocationBarHidden() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "test.html": `<!DOCTYPE html>
+        <html>
+          <head>
+            <title>TEST</title>
+            <meta charset="utf-8">
+          </head>
+          <body>
+            <p>Test body</p>
+          </body>
+        </html>`,
+      "background.js": async () => {
+        const popupWindow = await browser.windows.create({
+          type: "popup",
+          url: "test.html",
+        });
+        await window.sendMessage("checkLocationBar");
+        await browser.windows.remove(popupWindow.id);
+
+        browser.test.notifyPass();
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+    },
+  });
+
+  extension.onMessage("checkLocationBar", () => {
+    const win = Services.wm.getMostRecentWindow("mail:extensionPopup");
+    Assert.ok(
+      win.document.documentElement.hasAttribute("web-extension-popup-window"),
+      "The popup window should have the web-extension-popup-window attribute"
+    );
+    Assert.ok(
+      BrowserTestUtils.isHidden(win.document.getElementById("header")),
+      "The location bar should be hidden in a WebExtension popup window"
+    );
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish();
+  await extension.unload();
+});

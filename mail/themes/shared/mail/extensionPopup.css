@@ -9,6 +9,6 @@
   position: absolute;
 }
 
-:root[chromehidden~="location"] #header {
+:root[web-extension-popup-window] #header {
   display: none;
 }
