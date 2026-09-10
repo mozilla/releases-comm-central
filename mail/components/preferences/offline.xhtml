@@ -18,6 +18,7 @@
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:"
     />
     <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="localization" href="branding/brand.ftl" />
     <link rel="localization" href="messenger/preferences/offline.ftl" />
     <script
       defer="defer"
@@ -33,45 +34,45 @@
   >
     <dialog id="OfflineSettingsDialog">
       <checkbox
-        data-l10n-id="autodetect-online-label"
+        data-l10n-id="autodetect-connection-label"
         preference="offline.autoDetect"
       />
       <separator class="thin" />
 
-      <label
-        data-l10n-id="offline-preference-startup-label"
-        control="whenStartingUp"
-      />
+      <label data-l10n-id="offline-startup-label" control="whenStartingUp" />
       <radiogroup
         id="whenStartingUp"
         class="indent"
         preference="offline.startup_state"
       >
-        <radio value="0" data-l10n-id="status-radio-remember" />
-        <radio value="1" data-l10n-id="status-radio-ask" />
-        <radio value="2" data-l10n-id="status-radio-always-online" />
-        <radio value="3" data-l10n-id="status-radio-always-offline" />
+        <radio value="0" data-l10n-id="status-radio-last-used" />
+        <radio value="1" data-l10n-id="status-radio-ask-connect" />
+        <radio value="2" data-l10n-id="status-radio-start-online" />
+        <radio value="3" data-l10n-id="status-radio-start-offline" />
         <radio value="4" hidden="hidden" />
       </radiogroup>
 
       <separator />
 
-      <label data-l10n-id="going-online-label" control="whengoingOnlinestate" />
+      <label
+        data-l10n-id="going-online-prompt"
+        control="whengoingOnlinestate"
+      />
       <radiogroup
         id="whengoingOnlinestate"
         orient="horizontal"
         class="indent"
         preference="offline.send.unsent_messages"
       >
-        <radio value="1" data-l10n-id="going-online-auto" />
-        <radio value="2" data-l10n-id="going-online-not" />
-        <radio value="0" data-l10n-id="going-online-ask" />
+        <radio value="1" data-l10n-id="going-online-send" />
+        <radio value="2" data-l10n-id="going-online-keep" />
+        <radio value="0" data-l10n-id="going-online-ask-send" />
       </radiogroup>
 
       <separator class="thin" />
 
       <label
-        data-l10n-id="going-offline-label"
+        data-l10n-id="going-offline-prompt"
         control="whengoingOfflinestate"
       />
       <radiogroup
@@ -80,9 +81,9 @@
         class="indent"
         preference="offline.download.download_messages"
       >
-        <radio value="1" data-l10n-id="going-offline-auto" />
-        <radio value="2" data-l10n-id="going-offline-not" />
-        <radio value="0" data-l10n-id="going-offline-ask" />
+        <radio value="1" data-l10n-id="going-offline-download" />
+        <radio value="2" data-l10n-id="going-offline-keep" />
+        <radio value="0" data-l10n-id="going-offline-ask-download" />
       </radiogroup>
       <separator />
     </dialog>

@@ -55,9 +55,9 @@ general-reading-and-viewing-header = Reading & viewing
 
 general-updates-header = Updates
 
-general-network-and-diskspace-header = Network & Disk Space
+general-network-and-storage-header = Network and storage
 
-general-indexing-label = Indexing
+general-search-performance-label = Search & performance
 
 composition-category-header = Composition
 
@@ -242,27 +242,27 @@ mail-select-audio-button =
     .label = Select audio…
     .accesskey = A
 
-enable-gloda-search-label =
-    .label = Enable Global Search and Indexer
-    .accesskey = G
+enable-global-search-label =
+    .label = Turn on search across all email accounts
+    .accesskey = e
 
-gloda-show-results-as-list-label =
-    .label = Show global search results as a list by default
+gloda-results-plain-list-label =
+    .label = Show search results as a plain list
     .accesskey = L
 
 datetime-formatting-legend = Date and Time Formatting
 display-language-legend = Display language
 
-allow-hw-accel =
-    .label = Use hardware acceleration when available
+allow-graphics-accel =
+    .label = Use graphics acceleration for smoother scrolling and performance
     .accesskey = h
 
-store-type-label =
-    .value = Message Store Type for new accounts:
+storage-format-label =
+    .value = Storage format for new accounts:
     .accesskey = T
 
-mbox-store-label =
-    .label = File per folder (mbox)
+mbox-store-single-label =
+    .label = Single file per folder (mbox)
 maildir-store-label =
     .label = File per message (maildir)
 
@@ -308,9 +308,9 @@ search-integration-label =
     .label = Allow { search-engine-name } to search messages
     .accesskey = S
 
-config-editor-button =
-    .label = Config Editor…
-    .accesskey = C
+advanced-settings-button =
+    .label = Advanced settings
+    .accesskey = v
 
 return-receipts-description = Determine how { -brand-short-name } handles return receipts
 return-receipts-button =
@@ -347,53 +347,53 @@ use-service =
 cross-user-udpate-warning = This setting will apply to all Windows accounts and { -brand-short-name } profiles using this installation of { -brand-short-name }.
 
 networking-legend = Connection
-proxy-config-description = Configure how { -brand-short-name } connects to the Internet
+connection-config-description = Control how { -brand-short-name } connects to the internet.
 
-network-settings-button =
-    .label = Settings…
+connection-options-button =
+    .label = Connection options…
     .accesskey = S
 
-offline-legend = Offline
-offline-settings = Configure offline settings
+offline-mode-legend = Offline mode
+offline-settings-label = Offline settings
 
 offline-settings-button =
     .label = Offline…
     .accesskey = O
 
-diskspace-legend = Disk Space
-offline-compact-folder =
-    .label = Compact all folders when it will save over
+temporary-storage-legend = Temporary storage
+offline-compact-remove-deleted =
+    .label = Remove data from folders when they have already been deleted to free up storage
     .accesskey = a
 
-offline-compact-folder-automatically =
-    .label = Ask every time before compacting
+offline-compact-ask-cleanup =
+    .label = Ask before cleaning up folders
     .accesskey = b
 
 compact-folder-size =
     .value = MB in total
 
-## Note: The entities use-cache-before and use-cache-after appear on a single
+## Note: The entities use-cache-before and use-temp-storage-after appear on a single
 ## line in preferences as follows:
-## use-cache-before [ textbox for cache size in MB ] use-cache-after
+## use-cache-before [ textbox for cache size in MB ] use-temp-storage-after
 
 use-cache-before =
     .value = Use up to
     .accesskey = U
 
-use-cache-after = MB of space for the cache
+use-temp-storage-after = MB of space for temporary files
 
 ##
 
-smart-cache-label =
-    .label = Override automatic cache management
-    .accesskey = v
+manual-storage-limit-label =
+    .label = Manually set storage limits for temporary files
+    .accesskey = M
 
-clear-cache-button =
-    .label = Clear Now
+clear-temp-files-button =
+    .label = Clear temporary files
     .accesskey = C
 
-clear-cache-shutdown-label =
-    .label = Clear cache on shutdown
+clear-temp-files-shutdown-label =
+    .label = Clear temporary files when { -brand-short-name } closes
     .accesskey = s
 
 underline-text-links-label =

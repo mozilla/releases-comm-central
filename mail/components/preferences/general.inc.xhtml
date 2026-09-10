@@ -967,7 +967,7 @@
     <hbox id="networkAndDiskspaceCategory"
           class="subcategory"
           data-category="paneGeneral">
-      <html:h1 data-l10n-id="general-network-and-diskspace-header"/>
+      <html:h1 data-l10n-id="general-network-and-storage-header"/>
     </hbox>
 
     <!-- Networking & Disk Space -->
@@ -976,35 +976,35 @@
       <html:legend data-l10n-id="networking-legend"></html:legend>
       <hbox align="center">
         <description control="catProxiesButton"
-                     data-l10n-id="proxy-config-description"
+                     data-l10n-id="connection-config-description"
                      flex="1"/>
         <hbox>
           <button is="highlightable-button" id="catProxiesButton"
-                  data-l10n-id="network-settings-button"
+                  data-l10n-id="connection-options-button"
                   oncommand="gGeneralPane.showConnections();"
                   search-l10n-ids="
                     connection-dialog-title,
-                    connection-proxy-legend,
+                    connection-internet-proxy-legend,
                     proxy-type-no.label,
-                    proxy-type-wpad.label,
+                    proxy-autodetect-network.label,
                     proxy-type-system.label,
-                    proxy-type-manual.label,
+                    proxy-manual-setup.label,
                     proxy-http-label.value,
                     http-port-label.value,
-                    proxy-http-sharing.label,
+                    proxy-https-sharing.label,
                     proxy-https-label.value,
                     ssl-port-label.value,
                     proxy-socks-label.value,
                     socks-port-label.value,
                     proxy-socks4-label.label,
                     proxy-socks5-label.label,
-                    proxy-type-auto.label,
+                    proxy-auto-script-url.label,
                     proxy-reload-label.label,
-                    no-proxy-label.value,
+                    no-proxy-addresses-label.value,
                     no-proxy-example,
-                    connection-proxy-noproxy-localhost-desc-2,
-                    proxy-password-prompt.label,
-                    proxy-remote-dns.label"/>
+                    connection-proxy-local-network-desc,
+                    proxy-auto-login-saved-password.label,
+                    proxy-socks-remote-dns.label"/>
         </hbox>
       </hbox>
     </html:fieldset>
@@ -1012,9 +1012,9 @@
 
     <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
-      <html:legend data-l10n-id="offline-legend"></html:legend>
+      <html:legend data-l10n-id="offline-mode-legend"></html:legend>
       <hbox align="center">
-        <description data-l10n-id="offline-settings"
+        <description data-l10n-id="offline-settings-label"
                      control="offlineSettingsButton"
                      flex="1"/>
         <hbox>
@@ -1023,20 +1023,20 @@
                   oncommand="gGeneralPane.showOffline();"
                   search-l10n-ids="
                     offline-dialog-title,
-                    autodetect-online-label.label,
-                    startup-label,
-                    status-radio-remember.label,
-                    status-radio-ask.label,
-                    status-radio-always-online.label,
-                    status-radio-always-offline.label,
-                    going-online-label,
-                    going-online-auto.label,
-                    going-online-not.label,
-                    going-online-ask.label,
-                    going-offline-label,
-                    going-offline-auto.label,
-                    going-offline-not.label,
-                    going-offline-ask.label"/>
+                    autodetect-connection-label.label,
+                    offline-startup-label,
+                    status-radio-last-used.label,
+                    status-radio-ask-connect.label,
+                    status-radio-start-online.label,
+                    status-radio-start-offline.label,
+                    going-online-prompt,
+                    going-online-send.label,
+                    going-online-keep.label,
+                    going-online-ask-send.label,
+                    going-offline-prompt,
+                    going-offline-download.label,
+                    going-offline-keep.label,
+                    going-offline-ask-download.label"/>
         </hbox>
       </hbox>
     </html:fieldset>
@@ -1044,22 +1044,22 @@
 
     <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
-      <html:legend data-l10n-id="diskspace-legend"></html:legend>
+      <html:legend data-l10n-id="temporary-storage-legend"></html:legend>
       <hbox align="center">
         <label id="actualDiskCacheSize" flex="1"/>
         <button is="highlightable-button" id="clearCacheButton"
-                data-l10n-id="clear-cache-button"
+                data-l10n-id="clear-temp-files-button"
                 oncommand="gGeneralPane.clearCache();"/>
       </hbox>
       <hbox>
         <checkbox id="clearCacheOnShutdown"
                   preference="privacy.clearOnShutdown.cache"
-                  data-l10n-id="clear-cache-shutdown-label"/>
+                  data-l10n-id="clear-temp-files-shutdown-label"/>
       </hbox>
       <hbox>
         <checkbox id="allowSmartSize"
                   preference="browser.cache.disk.smart_size.enabled"
-                  data-l10n-id="smart-cache-label"/>
+                  data-l10n-id="manual-storage-limit-label"/>
       </hbox>
       <hbox align="center" class="indent">
         <label id="useCacheBefore" control="cacheSize"
@@ -1067,11 +1067,11 @@
         <html:input id="cacheSize" type="number" class="size4" max="1024"
                     preference="browser.cache.disk.capacity"
                     aria-labelledby="useCacheBefore cacheSize useCacheAfter"/>
-        <label id="useCacheAfter" data-l10n-id="use-cache-after" flex="1"/>
+        <label id="useCacheAfter" data-l10n-id="use-temp-storage-after" flex="1"/>
       </hbox>
       <hbox align="center">
           <checkbox id="offlineCompactFolder"
-                    data-l10n-id="offline-compact-folder"
+                    data-l10n-id="offline-compact-remove-deleted"
                     aria-labelledby="offlineCompactFolder offlineCompactFolderMin compactFolderMB"
                     preference="mail.prompt_purge_threshold"
                     oncommand="gGeneralPane.updateCompactOptions();"/>
@@ -1083,7 +1083,7 @@
       </hbox>
       <hbox align="center" class="indent">
         <checkbox id="offlineCompactFolderAutomatically"
-                  data-l10n-id="offline-compact-folder-automatically"
+                  data-l10n-id="offline-compact-ask-cleanup"
                   preference="mail.purge.ask"/>
       </hbox>
     </html:fieldset>
@@ -1091,26 +1091,26 @@
 
     <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
-      <html:legend data-l10n-id="general-indexing-label"></html:legend>
+      <html:legend data-l10n-id="general-search-performance-label"></html:legend>
       <vbox>
         <hbox>
           <checkbox id="enableGloda"
                     preference="mailnews.database.global.indexer.enabled"
-                    data-l10n-id="enable-gloda-search-label"/>
+                    data-l10n-id="enable-global-search-label"/>
         </hbox>
         <hbox>
           <checkbox id="glodaFacetShowAsList"
                     preference="gloda.show_as_list_by_default"
-                    data-l10n-id="gloda-show-results-as-list-label"/>
+                    data-l10n-id="gloda-results-plain-list-label"/>
         </hbox>
         <hbox align="center">
-          <label control="storeTypeMenulist" data-l10n-id="store-type-label"/>
+          <label control="storeTypeMenulist" data-l10n-id="storage-format-label"/>
           <hbox>
             <menulist id="storeTypeMenulist"
                       oncommand="gGeneralPane.updateDefaultStore(this.selectedItem.value)">
               <menupopup id="storeTypeMenupopup">
                 <menuitem id="mboxStore"
-                          data-l10n-id="mbox-store-label"
+                          data-l10n-id="mbox-store-single-label"
                           value="@mozilla.org/msgstore/berkeleystore;1"/>
                 <menuitem id="maildirStore"
                           data-l10n-id="maildir-store-label"
@@ -1122,7 +1122,7 @@
         <hbox>
           <checkbox id="allowHWAccel"
                     preference="layers.acceleration.disabled"
-                    data-l10n-id="allow-hw-accel"/>
+                    data-l10n-id="allow-graphics-accel"/>
         </hbox>
       </vbox>
       <vbox>
@@ -1137,7 +1137,7 @@
       <hbox pack="end">
         <hbox>
           <button is="highlightable-button" id="configEditor"
-                  data-l10n-id="config-editor-button"
+                  data-l10n-id="advanced-settings-button"
                   oncommand="gGeneralPane.showConfigEdit();"
                   searchkeywords="about:config"
                   search-l10n-ids="

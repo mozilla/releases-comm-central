@@ -67,18 +67,20 @@
 
       <html:div>
         <html:fieldset>
-          <html:legend data-l10n-id="connection-proxy-legend"></html:legend>
+          <html:legend
+            data-l10n-id="connection-internet-proxy-legend"
+          ></html:legend>
 
           <radiogroup id="networkProxyType" preference="network.proxy.type">
             <radio value="0" data-l10n-id="proxy-type-no" />
-            <radio value="4" data-l10n-id="proxy-type-wpad" />
+            <radio value="4" data-l10n-id="proxy-autodetect-network" />
             <radio
               value="5"
               data-l10n-id="proxy-type-system"
               id="systemPref"
               hidden="hidden"
             />
-            <radio value="1" data-l10n-id="proxy-type-manual" />
+            <radio value="1" data-l10n-id="proxy-manual-setup" />
             <box id="proxy-grid" class="indent" flex="1">
               <html:div class="proxy-grid-row">
                 <hbox pack="end">
@@ -111,7 +113,7 @@
                 <hbox>
                   <checkbox
                     id="shareAllProxies"
-                    data-l10n-id="proxy-http-sharing"
+                    data-l10n-id="proxy-https-sharing"
                     preference="network.proxy.share_proxy_settings"
                     class="align-no-label"
                   />
@@ -191,7 +193,7 @@
                 </radiogroup>
               </html:div>
             </box>
-            <radio value="2" data-l10n-id="proxy-type-auto" />
+            <radio value="2" data-l10n-id="proxy-auto-script-url" />
             <hbox class="indent input-container" flex="1" align="center">
               <html:input
                 id="networkProxyAutoconfigURL"
@@ -210,7 +212,10 @@
         </html:fieldset>
       </html:div>
       <separator class="thin" />
-      <label data-l10n-id="no-proxy-label" control="networkProxyNone" />
+      <label
+        data-l10n-id="no-proxy-addresses-label"
+        control="networkProxyNone"
+      />
       <html:textarea
         id="networkProxyNone"
         rows="2"
@@ -220,18 +225,18 @@
       <label
         id="networkProxyNoneLocalhost"
         control="networkProxyNone"
-        data-l10n-id="connection-proxy-noproxy-localhost-desc-2"
+        data-l10n-id="connection-proxy-local-network-desc"
       />
       <separator class="thin" />
       <checkbox
         id="autologinProxy"
-        data-l10n-id="proxy-password-prompt"
+        data-l10n-id="proxy-auto-login-saved-password"
         preference="signon.autologin.proxy"
       />
       <checkbox
         id="networkProxySOCKSRemoteDNS"
         preference="network.proxy.socks_remote_dns"
-        data-l10n-id="proxy-remote-dns"
+        data-l10n-id="proxy-socks-remote-dns"
       />
     </dialog>
   </html:body>
