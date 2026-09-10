@@ -5,16 +5,17 @@
 #ifndef COMM_MAILNEWS_EXTENSIONS_SMIME_NSCMS_H_
 #define COMM_MAILNEWS_EXTENSIONS_SMIME_NSCMS_H_
 
+#include "cms.h"
+#include "mozilla/Maybe.h"
 #include "mozpkix/Result.h"
-#include "nsISupports.h"
 #include "nsCOMPtr.h"
-#include "nsIInterfaceRequestor.h"
-#include "nsICMSMessage.h"
-#include "nsICMSEncoder.h"
 #include "nsICMSDecoder.h"
 #include "nsICMSDecoderJS.h"
+#include "nsICMSEncoder.h"
+#include "nsICMSMessage.h"
+#include "nsIInterfaceRequestor.h"
+#include "nsISupports.h"
 #include "sechash.h"
-#include "cms.h"
 
 class nsCMSMessage : public nsICMSMessage {
  public:
@@ -30,7 +31,7 @@ class nsCMSMessage : public nsICMSMessage {
 
   struct SignatureVerificationResult {
     nsresult rv;
-    std::optional<mozilla::pkix::Result> reason;
+    mozilla::Maybe<mozilla::pkix::Result> reason;
   };
 
  private:

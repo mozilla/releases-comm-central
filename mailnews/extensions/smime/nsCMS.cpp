@@ -5,12 +5,14 @@
 #include "nsCMS.h"
 
 #include "CertVerifier.h"
-#include "CryptoTask.h"
-#include "ScopedNSSTypes.h"
 #include "cms.h"
+#include "CryptoTask.h"
 #include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/RefPtr.h"
+#include "mozilla/StaticMutex.h"
+#include "mozpkix/pkixtypes.h"
+#include "mozpkix/Result.h"
 #include "nsDependentSubstring.h"
 #include "nsICryptoHash.h"
 #include "nsISupports.h"
@@ -18,13 +20,11 @@
 #include "nsNSSCertificate.h"
 #include "nsNSSComponent.h"
 #include "nsServiceManagerUtils.h"
-#include "mozpkix/Result.h"
-#include "mozpkix/pkixtypes.h"
+#include "ScopedNSSTypes.h"
 #include "secasn1.h"
-#include "sechash.h"
 #include "secerr.h"
+#include "sechash.h"
 #include "smime.h"
-#include "mozilla/StaticMutex.h"
 
 using namespace mozilla;
 using namespace mozilla::psm;
@@ -532,10 +532,10 @@ static SECStatus myNSS_CMSSignedData_AddTempCertificate(NSSCMSSignedData* sigd,
 
 struct SecVerificationResult {
   SECStatus result;
-  std::optional<mozilla::pkix::Result> reason;
+  mozilla::Maybe<mozilla::pkix::Result> reason;
 
   static SecVerificationResult SecStatusOnly(SECStatus rv) {
-    return SecVerificationResult{rv, std::nullopt};
+    return SecVerificationResult{rv, mozilla::Nothing()};
   }
 };
 
@@ -547,7 +547,7 @@ static SecVerificationResult myExtraVerificationOnCert(CERTCertificate* cert,
   RefPtr<SharedCertVerifier> certVerifier;
   certVerifier = GetDefaultCertVerifier();
   if (!certVerifier) {
-    return {SECFailure, std::nullopt};
+    return {SECFailure, mozilla::Nothing()};
   }
 
   mozilla::psm::VerifyUsage usageForPkix;
@@ -560,7 +560,7 @@ static SecVerificationResult myExtraVerificationOnCert(CERTCertificate* cert,
       usageForPkix = mozilla::psm::VerifyUsage::EmailRecipient;
       break;
     default:
-      return {SECFailure, std::nullopt};
+      return {SECFailure, mozilla::Nothing()};
   }
 
   nsTArray<uint8_t> certBytes(cert->derCert.data, cert->derCert.len);
@@ -574,10 +574,10 @@ static SecVerificationResult myExtraVerificationOnCert(CERTCertificate* cert,
       certBytes, usageForPkix, Now(), nullptr /*XXX pinarg*/,
       nullptr /*hostname*/, builtChain);
   if (result != mozilla::pkix::Success) {
-    return {SECFailure, result};
+    return {SECFailure, mozilla::Some(result)};
   }
 
-  return {SECSuccess, std::nullopt};
+  return {SECSuccess, mozilla::Nothing()};
 }
 
 static void fillSignerInfoCerts(NSSCMSSignedData* sigd,
