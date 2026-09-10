@@ -19,10 +19,10 @@ dateformat-long =
 dateformat-short =
     .label = Short: { $date }
 
-use-system-timezone-radio-button =
-    .label = Use system timezone
-set-timezone-manually-radio-button =
-    .label = Set timezone manually
+auto-detect-timezone-radio-button =
+    .label = Automatically detect timezone
+manually-set-timezone-radio-button =
+    .label = Manually set timezone
 
 timezone-label =
     .value = Timezone:
@@ -169,11 +169,11 @@ prompt-delete-label =
     .label = Prompt before deleting events and tasks.
     .accesskey = V
 
-reminder-legend = When a Reminder is Due:
+reminder-legend = When a reminder is due:
 
-reminder-play-checkbox =
-    .label = Play a sound
-    .accesskey = s
+reminder-play-sound-checkbox =
+    .label = Play
+    .accesskey = l
 
 reminder-play-alarm-button =
     .label = Play
