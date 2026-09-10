@@ -685,6 +685,22 @@ export var Policies = {
     },
   },
 
+  DisableCommunity: {
+    onBeforeUIStartup(manager, param) {
+      if (param) {
+        lazy.PoliciesUtils.setAndLockPref(
+          "mail.community_features.enabled",
+          false
+        );
+        lazy.PoliciesUtils.setAndLockPref("mailnews.start_page.enabled", false);
+        lazy.PoliciesUtils.setAndLockPref(
+          "mail.accounthub.thundermail.enabled",
+          false
+        );
+      }
+    },
+  },
+
   DisableDataCollectionSettings: {
     onBeforeUIStartup(manager, param) {
       if (param) {
@@ -734,22 +750,6 @@ export var Policies = {
 
       for (const cipher in param) {
         lazy.PoliciesUtils.setAndLockPref(cipherPrefs[cipher], !param[cipher]);
-      }
-    },
-  },
-
-  DisableCommunity: {
-    onBeforeUIStartup(manager, param) {
-      if (param) {
-        lazy.PoliciesUtils.setAndLockPref(
-          "mail.community_features.enabled",
-          false
-        );
-        lazy.PoliciesUtils.setAndLockPref("mailnews.start_page.enabled", false);
-        lazy.PoliciesUtils.setAndLockPref(
-          "mail.accounthub.thundermail.enabled",
-          false
-        );
       }
     },
   },

@@ -181,6 +181,10 @@
       "type": "boolean"
     },
 
+    "DisableCommunity": {
+      "type": "boolean"
+    },
+
     "DisableDataCollectionSettings": {
       "type": "boolean"
     },
@@ -240,10 +244,6 @@
           "type": "boolean"
         }
       }
-    },
-
-    "DisableCommunity": {
-      "type": "boolean"
     },
 
     "DisableDeveloperTools": {
