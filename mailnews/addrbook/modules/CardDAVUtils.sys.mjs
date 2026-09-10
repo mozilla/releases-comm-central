@@ -44,6 +44,16 @@ const writePrivs = ["write", "write-content", "bind", "all"];
 // book readable.
 const readPrivs = ["read", "all"];
 
+/**
+ * Thrown when the server rejected the credentials it was sent.
+ */
+export class AuthorizationError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "AuthorizationError";
+  }
+}
+
 export var CardDAVUtils = {
   _contextMap: new Map(),
 
@@ -221,12 +231,7 @@ export var CardDAVUtils = {
           }
           if (finalChannel.responseStatus == 401) {
             // We tried to authenticate, but failed.
-            reject(
-              new Components.Exception(
-                "Authorization failure",
-                Cr.NS_ERROR_FAILURE
-              )
-            );
+            reject(new AuthorizationError("Authorization failure"));
             return;
           }
           resolve({
@@ -680,6 +685,23 @@ export class NotificationCallbacks {
         ""
       );
       try {
+        // Replace the rejected password instead of adding a second login
+        // next to it.
+        const logins = await Services.logins.searchLoginsAsync({
+          origin: this.origin,
+          httpRealm: this.authInfo.realm,
+        });
+        const existingLogin = logins.find(
+          login => login.username === this.authInfo.username
+        );
+        if (existingLogin) {
+          const propBag = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
+            Ci.nsIWritablePropertyBag
+          );
+          propBag.setProperty("password", this.authInfo.password);
+          await Services.logins.modifyLoginAsync(existingLogin, propBag);
+          return;
+        }
         if (!lazy.enforcePrimaryPassword()) {
           return;
         }

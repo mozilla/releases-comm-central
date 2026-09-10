@@ -7,6 +7,7 @@ import "chrome://messenger/content/accountcreation/content/widgets/account-hub-f
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
+  AuthorizationError: "resource:///modules/CardDAVUtils.sys.mjs",
   MailServices: "resource:///modules/MailServices.sys.mjs",
   OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
   RemoteAddressBookUtils:
@@ -26,6 +27,8 @@ ChromeUtils.defineESModuleGetters(lazy, {
  * @property {string} [password] - If the address book server doesn't use oauth,
  *   the password to login.
  * @property {boolean} [rememberPassword] - If the password should be stored.
+ * @property {boolean} [passwordFromStore] - If the password was taken from the
+ *   password manager rather than entered by the user.
  */
 
 class AccountHubAddressBook extends HTMLElement {
@@ -406,9 +409,10 @@ class AccountHubAddressBook extends HTMLElement {
           const logins = await Services.logins.searchLoginsAsync({
             origin: new URL(stateData.server).origin,
           });
-          const login = logins.find(
-            loginInfo => loginInfo.username === stateData.username
-          );
+          // No realm to match on yet, so take what worked most recently.
+          const [login] = logins
+            .filter(loginInfo => loginInfo.username === stateData.username)
+            .sort((a, b) => b.timePasswordChanged - a.timePasswordChanged);
           // If we can't find credentials, ask for the password.
           if (!login) {
             await this.#initUI("remotePasswordSubview");
@@ -420,6 +424,7 @@ class AccountHubAddressBook extends HTMLElement {
           // We retrieved it from the password store, so we should remember it
           // if we need it for a different origin.
           this.#remoteAddressBookState.rememberPassword = true;
+          this.#remoteAddressBookState.passwordFromStore = true;
         }
         await this.#initializeSyncSubview(currentState);
         break;
@@ -428,6 +433,7 @@ class AccountHubAddressBook extends HTMLElement {
         this.#remoteAddressBookState.password = stateData.password;
         this.#remoteAddressBookState.rememberPassword =
           stateData.rememberPassword;
+        this.#remoteAddressBookState.passwordFromStore = false;
         await this.#initializeSyncSubview(currentState);
         break;
       case "syncAddressBooksSubview": {
@@ -512,6 +518,22 @@ class AccountHubAddressBook extends HTMLElement {
       }
       //TODO username?
     } catch (error) {
+      if (
+        error instanceof lazy.AuthorizationError &&
+        this.#remoteAddressBookState.passwordFromStore
+      ) {
+        // The user never saw the password we just used, so let them enter
+        // one.
+        this.#currentSubview.clearNotifications();
+        await this.#initUI("remotePasswordSubview");
+        this.#currentSubview.setState();
+        this.#currentSubview.showNotification({
+          fluentTitleId: "account-hub-credentials-wrong",
+          error,
+          type: "error",
+        });
+        return;
+      }
       if (error.result == Cr.NS_ERROR_NOT_AVAILABLE) {
         this.#currentSubview.showNotification({
           fluentTitleId: "address-book-carddav-known-incompatible",

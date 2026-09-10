@@ -326,6 +326,93 @@ add_task(async function test_wrongPassword() {
   await checkSyncSubview(dialog);
 });
 
+add_task(async function test_wrongPasswordFromStorage() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["signon.rememberSignons", true]],
+  });
+  // Another service's login for the same origin and user, different realm.
+  await createLogin(
+    "https://carddav.test",
+    CardDAVServer.username,
+    "*******",
+    "some other service"
+  );
+
+  const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
+  const passwordStep = dialog.querySelector("#addressBookPasswordSubview");
+
+  await goToRemoteForm(dialog);
+  const loading = waitDuringBusy(dialog);
+  await fillInForm(dialog, "https://carddav.test/", false);
+  await loading;
+
+  const askedForPassword = BrowserTestUtils.isVisible(passwordStep);
+  Assert.ok(
+    askedForPassword,
+    "Should ask for the password after the stored one was rejected"
+  );
+
+  if (askedForPassword) {
+    await showingError(
+      dialog,
+      "addressBookPasswordSubview",
+      "account-hub-credentials-wrong"
+    );
+
+    info("Entering correct password");
+    EventUtils.synthesizeMouseAtCenter(
+      passwordStep.querySelector("#password"),
+      {}
+    );
+    EventUtils.sendString(CardDAVServer.password);
+    EventUtils.synthesizeMouseAtCenter(
+      dialog.querySelector("#addressBookFooter #forward"),
+      {},
+      window
+    );
+
+    await checkSyncSubview(dialog);
+  }
+
+  let logins = await Services.logins.searchLoginsAsync({
+    origin: "https://carddav.test",
+  });
+  Assert.equal(logins.length, 2, "Should have stored a second login");
+  Assert.equal(
+    logins.find(login => login.httpRealm == "some other service")?.password,
+    "*******",
+    "Should have left the other service's password alone"
+  );
+  Assert.equal(
+    logins.find(login => login.httpRealm == "test")?.password,
+    CardDAVServer.password,
+    "Should have stored the password that worked under the server's realm"
+  );
+  info("Running the flow again with two logins to choose from");
+  const secondRun = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
+  await goToRemoteForm(secondRun);
+  const reloading = waitDuringBusy(secondRun);
+  await fillInForm(secondRun, "https://carddav.test/", false);
+  await reloading;
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      secondRun.querySelector("#addressBookPasswordSubview")
+    ),
+    "Should take the login that worked last and not ask again"
+  );
+
+  await checkSyncSubview(secondRun);
+
+  logins = await Services.logins.searchLoginsAsync({
+    origin: "https://carddav.test",
+  });
+  for (const login of logins) {
+    await Services.logins.removeLoginAsync(login);
+  }
+  await SpecialPowers.popPrefEnv();
+});
+
 add_task(async function test_emailWithoutServer() {
   const login = await createLogin("https://test.invalid", "alice@test.invalid");
 
@@ -856,16 +943,19 @@ async function showingError(dialog, stepId, errorStringId) {
  * @param {string} [origin] - Origin for the login.
  * @param {string} [username] - Username in the login.
  * @param {string} [password] - Password of the login.
+ * @param {string} [realm="test"] - HTTP realm of the login. Defaults to the
+ *   realm the CardDAVServer asks for.
  * @returns {Promise<nsILoginInfo>} - Resolves to the stored login instance.
  */
 function createLogin(
   origin = CardDAVServer.origin,
   username = CardDAVServer.username,
-  password = CardDAVServer.password
+  password = CardDAVServer.password,
+  realm = "test"
 ) {
   const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
     Ci.nsILoginInfo
   );
-  login.init(origin, null, "test", username, password, "", "");
+  login.init(origin, null, realm, username, password, "", "");
   return Services.logins.addLoginAsync(login);
 }
