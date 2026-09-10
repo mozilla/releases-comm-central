@@ -216,7 +216,7 @@ set_define("MOZ_ENTERPRISE", enable_enterprise)
 
 
 default_enterprise_console = dependable(
-    "https://stormkeeper.sandbox.moz-enterprise.com"
+    "FIREFOX_ENTERPRISE_GENERIC"
 )
 
 option(
@@ -234,9 +234,15 @@ option(
 def enterprise_console_url(value, default_url):
     # --without-enterprise-console-url or an empty value falls back to the default.
     url = value[0] if value and value[0] else default_url
-    if not url.startswith("https://"):
+    if not any(
+        [
+            url.startswith("https://"),
+            url.startswith("http://"),
+            url == "FIREFOX_ENTERPRISE_GENERIC",
+        ]
+    ):
         die(
-            "--with-enterprise-console-url must be a https:// URL, got %s",
+	    "--with-enterprise-console-url must be a http(s):// URL, got %s",
             url,
         )
     # The value is interpolated into a JS string literal in thunderbird.cfg.
