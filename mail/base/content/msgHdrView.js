@@ -86,8 +86,6 @@ XPCOMUtils.defineLazyServiceGetter(
 // message view in the message header pane.
 
 var gViewAllHeaders = false;
-var gMinNumberOfHeaders = 0;
-var gDummyHeaderIdIndex = 0;
 var gBuildAttachmentsForCurrentMsg = false;
 var gBuiltExpandedView = false;
 
@@ -424,12 +422,6 @@ async function msgSecurityKeypressHandler(event) {
 }
 
 async function OnLoadMsgHeaderPane() {
-  // Load any preferences that at are global with regards to
-  // displaying a message...
-  gMinNumberOfHeaders = Services.prefs.getIntPref(
-    "mailnews.headers.minNumHeaders"
-  );
-
   Services.obs.addObserver(MsgHdrViewObserver, "remote-content-blocked");
 
   initializeHeaderViewTables();
@@ -741,7 +733,6 @@ var messageProgressListener = {
             headerEntry.enclosingRow.remove();
           }
         }
-        gDummyHeaderIdIndex = 0;
 
         gExpandedHeaderView = {};
         initializeHeaderViewTables();
@@ -1279,58 +1270,10 @@ function showHeaderView(aHeaderTable) {
 }
 
 /**
- * Enumerate through the list of headers and find the number that are visible
- * add empty entries if we don't have the minimum number of rows.
- */
-function EnsureMinimumNumberOfHeaders(headerTable) {
-  // 0 means we don't have a minimum... do nothing special
-  if (!gMinNumberOfHeaders) {
-    return;
-  }
-
-  var numVisibleHeaders = 0;
-  for (const name in headerTable) {
-    const headerEntry = headerTable[name];
-    if (headerEntry.valid) {
-      numVisibleHeaders++;
-    }
-  }
-
-  if (numVisibleHeaders < gMinNumberOfHeaders) {
-    // How many empty headers do we need to add?
-    var numEmptyHeaders = gMinNumberOfHeaders - numVisibleHeaders;
-
-    // We may have already dynamically created our empty rows and we just need
-    // to make them visible.
-    for (const index in headerTable) {
-      const headerEntry = headerTable[index];
-      if (index.startsWith("Dummy-Header") && numEmptyHeaders) {
-        headerEntry.valid = true;
-        numEmptyHeaders--;
-      }
-    }
-
-    // Ok, now if we have any extra dummy headers we need to add, create a new
-    // header widget for them.
-    while (numEmptyHeaders) {
-      var dummyHeaderId = "Dummy-Header" + gDummyHeaderIdIndex;
-      gExpandedHeaderView[dummyHeaderId] = new HeaderView(dummyHeaderId, "");
-      gExpandedHeaderView[dummyHeaderId].valid = true;
-
-      gDummyHeaderIdIndex++;
-      numEmptyHeaders--;
-    }
-  }
-}
-
-/**
  * Make sure the appropriate fields in the expanded header view are collapsed
  * or visible...
  */
 function updateExpandedView() {
-  if (gMinNumberOfHeaders) {
-    EnsureMinimumNumberOfHeaders(gExpandedHeaderView);
-  }
   showHeaderView(gExpandedHeaderView);
 
   // Now that we have all the headers, ensure that the name columns of both

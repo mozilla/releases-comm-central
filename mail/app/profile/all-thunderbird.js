@@ -408,10 +408,6 @@ pref("mail.compose.default_to_paragraph", true);
 // we can extract from the URL instead.
 pref("mail.compose.add_link_preview", false);
 
-// hidden pref to ensure a certain number of headers in the message pane
-// to avoid the height of the header area from changing when headers are present / not present
-pref("mailnews.headers.minNumHeaders", 0); // 0 means we ignore this pref
-
 // 0=no header, 1="<author> wrote:", 2="On <date> <author> wrote:"
 // 3="<author> wrote On <date>:", 4=user specified
 pref("mailnews.reply_header_type", 2);
