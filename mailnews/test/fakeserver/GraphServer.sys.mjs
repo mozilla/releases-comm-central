@@ -944,6 +944,8 @@ export class GraphServer extends MockServer {
       (maxPageSizeMatch = /odata\.maxpagesize=([0-9]+)/.exec(preferHeaderValue))
     ) {
       this.lastMaxMessagePageSize = parseInt(maxPageSizeMatch[1]);
+    } else {
+      this.lastMaxMessagePageSize = null;
     }
 
     const params = new URLSearchParams(queryString);

@@ -178,22 +178,55 @@ add_task(async function testSyncRecipientsGraph() {
  * @param {EwsClient|GraphClient} client - The protocol client to test.
  */
 async function testMaxPage(mockServer, client) {
+  // This value is defined in protocol_shared's `lib.rs`. It should be kept in
+  // sync with that file.
+  const expectedMaxPageSize = 256;
+
   mockServer.setRemoteFolders(mockServer.getWellKnownFolders());
   mockServer.clearItems();
+  mockServer.maxSyncItems = expectedMaxPageSize;
 
-  const messages = generator.makeMessages({ count: 6 });
+  // Case 1: No sync state token, too few items to sync to warrant more pages.
+  const messages = generator.makeMessages({ count: expectedMaxPageSize });
   mockServer.addMessages("inbox", messages);
 
-  const listener = new ExchangeMessageCallbackListener();
-  client.syncMessagesForFolder(listener, "inbox", null);
-  await listener.deferred.promise;
+  const listener1 = new ExchangeMessageCallbackListener();
+  client.syncMessagesForFolder(listener1, "inbox", null);
+  await listener1.deferred.promise;
 
-  // This value is defined in both the EWS client's and the Graph client's
-  // `sync_messages_for_folder.rs`. It should be kept in sync with these files.
   Assert.equal(
     mockServer.lastMaxMessagePageSize,
-    256,
-    "message syncs should be performed with the expected maximum page size"
+    expectedMaxPageSize,
+    "initial message sync should be performed with the expected maximum page size"
+  );
+
+  Assert.ok(listener1.syncStateToken, "initial sync should generate token");
+
+  // Case 2: Sync state token, too few items to sync to warrant more pages.
+  mockServer.addMessages("inbox", messages);
+
+  const listener2 = new ExchangeMessageCallbackListener();
+  client.syncMessagesForFolder(listener2, "inbox", listener1.syncStateToken);
+  await listener2.deferred.promise;
+
+  Assert.equal(
+    mockServer.lastMaxMessagePageSize,
+    expectedMaxPageSize,
+    "later message syncs should be performed with the expected maximum page size"
+  );
+
+  // Case 3: Enough items to sync to warrant more pages.
+  mockServer.addMessages("inbox", messages);
+  mockServer.addMessages("inbox", messages);
+
+  const listener3 = new ExchangeMessageCallbackListener();
+  client.syncMessagesForFolder(listener3, "inbox", listener2.syncStateToken);
+  await listener3.deferred.promise;
+
+  Assert.equal(
+    mockServer.lastMaxMessagePageSize,
+    expectedMaxPageSize,
+    "paged message syncs should be performed with the expected maximum page size"
   );
 }
 

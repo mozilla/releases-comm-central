@@ -56,7 +56,8 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
     ) -> Result<Self::Okay, XpComGraphError> {
         let mut response = match self.sync_state_token {
             Some(ref token) => {
-                let request = messages::delta::GetDelta::try_from(token.as_str())?;
+                let mut request = messages::delta::GetDelta::try_from(token.as_str())?;
+                request.set_max_page_size(EXCHANGE_MAX_PAGE_SIZE);
                 client
                     .send_request_json_response(request, Default::default())
                     .await?
