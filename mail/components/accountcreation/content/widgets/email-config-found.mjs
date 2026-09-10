@@ -77,8 +77,8 @@ class EmailConfigFound extends AccountHubStep {
     });
 
     this.querySelector("#editConfiguration").addEventListener("click", this);
-    this.querySelector("#addonInstall").addEventListener("click", this);
-    this.querySelector("#addonInfo").addEventListener("click", this);
+    this.querySelector("#addonInstall")?.addEventListener("click", this);
+    this.querySelector("#addonInfo")?.addEventListener("click", this);
 
     this.#currentConfig = {};
   }
@@ -122,7 +122,9 @@ class EmailConfigFound extends AccountHubStep {
    */
   setState(configData) {
     this.#currentConfig = configData;
-    this.setAddon();
+    if (this.querySelector("#addonInstall")) {
+      this.setAddon();
+    }
     this.#updateFields();
   }
 
@@ -284,7 +286,12 @@ class EmailConfigFound extends AccountHubStep {
       incomingAuthTypeL10Id
     );
 
-    this.querySelector("#owlExchangeDescription").hidden = true;
+    const owlExchangeDescription = this.querySelector(
+      "#owlExchangeDescription"
+    );
+    if (owlExchangeDescription) {
+      owlExchangeDescription.hidden = true;
+    }
     this.querySelector("#editConfiguration").hidden = false;
 
     this.#selectedConfig = this.#currentConfig.copy();

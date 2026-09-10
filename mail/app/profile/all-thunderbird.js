@@ -456,6 +456,7 @@ pref("enterprise.prompt_on_signout", true);
 //              or is it fine to apply it to any enterprise build?
 pref("app.update.checkOnlyInstance.enabled", false);
 pref("app.update.background.enabled", true);
+pref("mailnews.auto_config.addons_url", "");
 #endif
 
 pref("offline.startup_state",            2);

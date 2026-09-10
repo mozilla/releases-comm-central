@@ -1584,15 +1584,17 @@ class AccountHubEmail extends HTMLElement {
     }
 
     if (config && !config.isRedirect) {
-      try {
-        config = await this.#getExchangeAddons(config);
-      } catch (error) {
-        this.#discoveryStream = null;
-        if (
-          error instanceof UserCancelledException ||
-          error instanceof UserSkippedError
-        ) {
-          throw error;
+      if (Services.prefs.getStringPref("mailnews.auto_config.addons_url")) {
+        try {
+          config = await this.#getExchangeAddons(config);
+        } catch (error) {
+          this.#discoveryStream = null;
+          if (
+            error instanceof UserCancelledException ||
+            error instanceof UserSkippedError
+          ) {
+            throw error;
+          }
         }
       }
 
