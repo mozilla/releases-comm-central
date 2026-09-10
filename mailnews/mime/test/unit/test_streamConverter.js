@@ -242,6 +242,10 @@ async function subtestBody(uri) {
     "\xEF\xBB\xBF<!DOCTYPE html>\r\n<html>\r\n",
     "output should begin with UTF-8 BOM and HTML doctype"
   );
+  Assert.ok(
+    output.includes("<p>This is a page of sample content for tests.</p>"),
+    "output should include the text of the message"
+  );
   Assert.equal(
     output.slice(-18),
     "</body>\r\n</html>\r\n",
@@ -779,4 +783,257 @@ add_task(async function testURIArgument() {
     expectedImgURL.toString(),
     "inline image URL should be rewritten relative to the message URL"
   );
+});
+
+const lineEnding = AppConstants.platform == "win" ? "\r\n" : "\n";
+
+/**
+ * Test output by specifying `header=filter`.
+ */
+add_task(async function testFilterOutput() {
+  const uri = `${sampleEmailURI}?number=10&header=filter`;
+  const channel = new TestMailChannel(uri);
+  const input = await IOUtils.readUTF8(sampleEmailFile.path);
+  const output = await convertStream(channel, input);
+
+  Assert.equal(
+    channel.contentType,
+    "text/html",
+    "channel should have the HTML content type"
+  );
+
+  channel.checkHeaders([
+    ["Content-Type", `multipart/mixed; boundary="--------------CHOPCHOP0"`],
+    ["Subject", "Big Meeting Today"],
+    ["From", `"Andy Anway" <andy@anway.invalid>`],
+    ["To", `"Bob Bell" <bob@bell.invalid>`],
+    ["Message-Id", "<sample.content@made.up.invalid>"],
+    ["Date", "Tue, 01 Feb 2000 00:00:00 +1300"],
+    ["X-Mozilla-LocalizedDate", localizedDate],
+  ]);
+
+  const expectedAttachmentURI = "mailbox-message:" + uri.slice(8) + "#10";
+
+  const expectedAttachment1URL = URL.parse(uri);
+  // Delete first to get the params in order.
+  expectedAttachment1URL.searchParams.delete("type");
+  expectedAttachment1URL.searchParams.set("part", "1.2");
+  expectedAttachment1URL.searchParams.set("type", "text/plain");
+  expectedAttachment1URL.searchParams.set("filename", "attachment.txt");
+
+  const expectedAttachment2URL = URL.parse(uri);
+  // Delete first to get the params in order.
+  expectedAttachment2URL.searchParams.delete("type");
+  expectedAttachment2URL.searchParams.set("part", "1.3");
+  expectedAttachment2URL.searchParams.set("type", "image/svg+xml");
+  expectedAttachment2URL.searchParams.set("filename", "attachment.svg");
+
+  channel.checkAttachments([
+    {
+      uri: expectedAttachmentURI,
+      url: expectedAttachment1URL,
+      displayName: "attachment.txt",
+      contentType: "text/plain",
+      "X-Mozilla-PartSize": "51",
+      notDownloaded: false,
+      "X-Mozilla-PartDownloaded": "1",
+    },
+    {
+      uri: expectedAttachmentURI,
+      url: expectedAttachment2URL,
+      displayName: "attachment.svg",
+      contentType: "image/svg+xml",
+      "X-Mozilla-PartSize": "474",
+      notDownloaded: false,
+      "X-Mozilla-PartDownloaded": "1",
+    },
+  ]);
+
+  const start = `<!DOCTYPE html>${lineEnding}<html>${lineEnding}`;
+  Assert.equal(
+    output.slice(0, start.length),
+    start,
+    "output should begin with HTML doctype"
+  );
+  Assert.ok(
+    !output.includes("Big Meeting Today"),
+    "output should not include the subject"
+  );
+  Assert.ok(
+    !output.includes(localizedDate),
+    "output should not include the date"
+  );
+  Assert.ok(
+    output.includes("<p>This is a page of sample content for tests.</p>"),
+    "output should include the text of the message"
+  );
+  // We also get the inline attachment display and print-only attachment list,
+  // after the closing tag. Should we?
+  // const end = `</body>${lineEnding}</html>`;
+  // Assert.equal(
+  //   output.slice(-end.length),
+  //   end,
+  //   "output should end with closing HTML tag"
+  // );
+});
+
+/**
+ * Test plain text output by specifying `header=quotebody`.
+ */
+add_task(async function testQuoteBodyOutput() {
+  const uri = `${sampleEmailURI}?number=11&header=quotebody`;
+  const channel = new TestMailChannel(uri);
+  const input = await IOUtils.readUTF8(sampleEmailFile.path);
+  const output = await convertStream(channel, input);
+
+  Assert.stringMatches(
+    channel.contentType,
+    /^text\/html/,
+    "channel should have the HTML content type"
+  );
+
+  channel.checkHeaders([]);
+  channel.checkAttachments([]);
+
+  const start = `<!DOCTYPE html>${lineEnding}<html><head>${lineEnding}`;
+  Assert.equal(
+    output.slice(0, start.length),
+    start,
+    "output should begin with HTML doctype"
+  );
+  Assert.ok(
+    !output.includes("Big Meeting Today"),
+    "output should not include the subject"
+  );
+  Assert.ok(
+    !output.includes(localizedDate),
+    "output should not include the date"
+  );
+  Assert.ok(
+    output.includes("<p>This is a page of sample content for tests.</p>"),
+    "output should include the text of the message"
+  );
+  Assert.equal(
+    output.slice(-15),
+    "\n</body></html>", // Not \r\n on Windows.
+    "output should end with closing HTML tag"
+  );
+});
+
+/**
+ * Test plain text output by specifying `header=quote`.
+ * This is extremely similar to the quotebody output above, in fact it would
+ * be the same for this message if the URL wasn't different. There are tiny
+ * differences in the code that gets run, but I don't know if there's any
+ * scenario where those differences actually matter.
+ */
+add_task(async function testQuoteOutput() {
+  const uri = `${sampleEmailURI}?number=12&header=quote`;
+  const channel = new TestMailChannel(uri);
+  const input = await IOUtils.readUTF8(sampleEmailFile.path);
+  const output = await convertStream(channel, input);
+
+  Assert.equal(
+    channel.contentType,
+    "text/html",
+    "channel should have the HTML content type"
+  );
+
+  channel.checkHeaders([]);
+  channel.checkAttachments([]);
+
+  const start = `<!DOCTYPE html>${lineEnding}<html><head>${lineEnding}`;
+  Assert.equal(
+    output.slice(0, start.length),
+    start,
+    "output should begin with HTML doctype"
+  );
+  Assert.ok(
+    !output.includes("Big Meeting Today"),
+    "output should not include the subject"
+  );
+  Assert.ok(
+    !output.includes(localizedDate),
+    "output should not include the date"
+  );
+  Assert.ok(
+    output.includes("<p>This is a page of sample content for tests.</p>"),
+    "output should include the text of the message"
+  );
+  Assert.equal(
+    output.slice(-15),
+    "\n</body></html>", // Not \r\n on Windows.
+    "output should end with closing HTML tag"
+  );
+});
+
+/**
+ * Test alternative HTML output by specifying `header=saveas`.
+ * This format emits the headers and attachments to the channel, but that
+ * doesn't make much sense.
+ */
+add_task(async function testSaveAsOutput() {
+  const uri = `${sampleEmailURI}?number=13&header=saveas`;
+  const channel = new TestMailChannel(uri);
+  const input = await IOUtils.readUTF8(sampleEmailFile.path);
+  const output = await convertStream(channel, input);
+
+  Assert.equal(
+    channel.contentType,
+    "text/html",
+    "channel should have the HTML content type"
+  );
+
+  Assert.equal(
+    output.slice(0, 28),
+    "\xEF\xBB\xBF<!DOCTYPE html>\r\n<html>\r\n",
+    "output should begin with UTF-8 BOM and HTML doctype"
+  );
+  Assert.ok(
+    output.includes("\r\n<title>Big Meeting Today</title>\r\n"),
+    "output should include the subject in the title"
+  );
+  Assert.ok(
+    output.includes(`<td><b>Subject: </b>Big Meeting Today</td>`),
+    "output should include the subject"
+  );
+  Assert.ok(
+    output.includes(`<td><b>Date: </b>${localizedDate}</td>`),
+    "output should include the localised date"
+  );
+  Assert.ok(
+    output.includes("<p>This is a page of sample content for tests.</p>"),
+    "output should include the text of the message"
+  );
+  Assert.equal(
+    output.slice(-11),
+    "\r\n</html>\r\n",
+    "output should end with closing HTML tag"
+  );
+});
+
+/**
+ * Test raw output by specifying `header=attach`.
+ */
+add_task(async function testRawOutput() {
+  const uri = `${sampleEmailURI}?number=14&header=attach`;
+  const channel = new TestMailChannel(uri);
+  const input = await IOUtils.readUTF8(sampleEmailFile.path);
+  const output = await convertStream(channel, input);
+
+  // The channel's content-type should probably be "message/rfc822", but it
+  // is "application/x-unknown-content-type".
+
+  channel.checkHeaders([]);
+  channel.checkAttachments([]);
+
+  if (AppConstants.platform == "win") {
+    Assert.equal(
+      output.replaceAll("\r", ""),
+      input,
+      "raw output minus carriage returns should match input"
+    );
+  } else {
+    Assert.equal(output, input, "raw output should match input");
+  }
 });
