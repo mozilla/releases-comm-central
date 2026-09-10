@@ -171,13 +171,31 @@ add_task(async function test_change_username() {
 
 /**
  * Tests that the authentication cache is properly updated when changing the
- * server's password.
+ * server's password in the password manager.
  */
-add_task(async function test_change_password() {
+add_task(async function test_change_password_from_storage() {
   await modifyLoginAndCheck(USERNAME, "newPassword");
 
   // Reset the login as it was in the logins manager initially.
   await modifyLoginAndCheck(USERNAME, PASSWORD);
+});
+
+/**
+ * Tests that the authentication cache is properly updated when changing the
+ * server's in-memory copy of the password.
+ */
+add_task(async function test_change_password_from_memory() {
+  const newPassword = "newPassword";
+  incomingServer.password = newPassword;
+  checkAuthCache({
+    realm: "",
+    domain: "",
+    user: USERNAME,
+    password: newPassword,
+  });
+
+  incomingServer.password = PASSWORD;
+  checkAuthCache({ realm: "", domain: "", user: USERNAME, password: PASSWORD });
 });
 
 function checkAuthCache(expectedEntry) {

@@ -25,7 +25,7 @@ use xpcom::{
 use crate::{
     authentication::{
         auth_cache_manager::{AUTH_CACHE_MANAGER, HttpAuthCacheManager},
-        authentication_provider::AuthenticationProvider,
+        authentication_provider::{AuthenticationProvider, PasswordLocationForCache},
     },
     client::ProtocolClient,
     operation_sender::pref_based_server::PrefBasedServer,
@@ -35,6 +35,7 @@ use crate::{
 pub(crate) const OBSERVER_TOPIC_PREF: &str = "nsPref:changed";
 pub(crate) const OBSERVER_TOPIC_PASSWORDMGR: &str = "passwordmgr-storage-changed";
 pub(crate) const OBSERVER_TOPIC_SMTPSERVER_REMOVED: &str = "message-smtpserver-removed";
+pub(crate) const OBSERVER_TOPIC_CACHED_PASSWORD_CHANGED: &str = "message-cached-password-changed";
 
 /// A representation of the possible values of the `data` argument an observer
 /// might get with a "passwordmgr-storage-changed" notification.
@@ -179,7 +180,7 @@ impl UrlPrefObserver {
 /// What action to perform when the [`HttpAuthObserver`] gets notified.
 enum AuthChangeAction {
     /// Refresh the auth cache entry for the current server.
-    Refresh,
+    Refresh(PasswordLocationForCache),
 
     /// Invalidate the auth cache entry for the current server.
     Remove,
@@ -229,7 +230,8 @@ impl<ServerT: AuthenticationProvider + PrefBasedServer + RefCounted> HttpAuthObs
         //    which matches the current server's settings, or
         //  * a property/pref for the current server that's relevant to auth
         //    being changed and the update matches the settings of the current
-        //    server.
+        //    server, or
+        //  * the cached password for the current server.
         //
         // Additionally, if a login is being removed (or all logins are being
         // removed) we want to invalidate relevant cache entries.
@@ -299,15 +301,28 @@ impl<ServerT: AuthenticationProvider + PrefBasedServer + RefCounted> HttpAuthObs
                     PasswordManagerDataValue::Unsupported => AuthChangeAction::Ignore,
                 }
             }
+
             // Considering the observer should have been registered to only
             // watch auth-related prefs for our server, a pref-related event
             // should mean we want to refresh the cache.
-            OBSERVER_TOPIC_PREF => AuthChangeAction::Refresh,
+            OBSERVER_TOPIC_PREF => AuthChangeAction::Refresh(PasswordLocationForCache::Memory),
+
+            // If a cached password has changed, check if the key matches ours.
+            OBSERVER_TOPIC_CACHED_PASSWORD_CHANGED => {
+                let key = self.server.key()?.to_string();
+                if key == data {
+                    AuthChangeAction::Refresh(PasswordLocationForCache::Memory)
+                } else {
+                    AuthChangeAction::Ignore
+                }
+            }
             _ => AuthChangeAction::Ignore,
         };
 
         match action {
-            AuthChangeAction::Refresh => self.server.maybe_set_necko_auth_cache(),
+            AuthChangeAction::Refresh(pw_location) => {
+                self.server.maybe_set_necko_auth_cache(pw_location)
+            }
             AuthChangeAction::Remove => self.server.maybe_remove_necko_auth_cache_entry(),
             AuthChangeAction::Ignore => Ok(()),
         }
@@ -349,7 +364,7 @@ impl<ServerT: AuthenticationProvider + PrefBasedServer + RefCounted> HttpAuthObs
                 // If we got here and the data value isn't `removeLogin` then
                 // we're either adding or modifying a login and we should
                 // default to refreshing.
-                _ => AuthChangeAction::Refresh,
+                _ => AuthChangeAction::Refresh(PasswordLocationForCache::Storage),
             }
         } else {
             AuthChangeAction::Ignore

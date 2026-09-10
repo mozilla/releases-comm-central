@@ -21,8 +21,12 @@ use xpcom::{
 
 use crate::{
     ServerType,
+    authentication::authentication_provider::PasswordLocationForCache,
     error::ProtocolError,
-    observers::{HttpAuthObserver, OBSERVER_TOPIC_PASSWORDMGR, UrlPrefObserver},
+    observers::{
+        HttpAuthObserver, OBSERVER_TOPIC_CACHED_PASSWORD_CHANGED, OBSERVER_TOPIC_PASSWORDMGR,
+        UrlPrefObserver,
+    },
     operation_sender::{
         pref_based_server::ServerProperty,
         send_request::{OperationRequest, send_request},
@@ -191,32 +195,16 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
 
         // If the server's authentication should be handled by Necko, populate
         // the authentication cache.
-        server.maybe_set_necko_auth_cache()?;
+        server.maybe_set_necko_auth_cache(PasswordLocationForCache::Memory)?;
 
         // Also observe future changes to the server's authentication-related
-        // properties, as well as any login stored in the logins manager (the
-        // observer implementation is in charge of checking that a login
-        // addition/change matches the current server).
+        // properties, as well as any login stored in the logins manager and
+        // cached password (the observer implementation is in charge of checking
+        // that a notification matches the current server).
         //
         // We include the username property here, because servers read usernames
         // from their properties rather than from the logins manager.
-        let auth_observer = HttpAuthObserver::new_observer(server.clone())?;
-        server.observe_property(ServerProperty::AuthMethod, auth_observer.clone())?;
-        server.observe_property(ServerProperty::EwsUrl, auth_observer.clone())?;
-        server.observe_property(ServerProperty::Realm, auth_observer.clone())?;
-        server.observe_property(ServerProperty::Username, auth_observer.clone())?;
-
-        let obs_svc = components::Observer::service::<nsIObserverService>()?;
-        unsafe {
-            obs_svc.AddObserver(
-                auth_observer.coerce(),
-                // Unwrapping should be fine here, since this string is a
-                // constant we know.
-                CString::new(OBSERVER_TOPIC_PASSWORDMGR).unwrap().as_ptr(),
-                false,
-            )
-        }
-        .to_result()?;
+        let auth_observer = observe_auth_changes(server.clone())?;
 
         // Record the observers we've just set up, so we can de-register them
         // upon shutdown. This includes registrations made via
@@ -243,8 +231,14 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                 target: ObserverRegistrationTarget::Pref(ServerProperty::Username),
             },
             RegisteredObserver {
-                obs: auth_observer,
+                obs: auth_observer.clone(),
                 target: ObserverRegistrationTarget::Topic(OBSERVER_TOPIC_PASSWORDMGR.to_string()),
+            },
+            RegisteredObserver {
+                obs: auth_observer,
+                target: ObserverRegistrationTarget::Topic(
+                    OBSERVER_TOPIC_CACHED_PASSWORD_CHANGED.to_string(),
+                ),
             },
         ];
 
@@ -716,4 +710,52 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             }
         }
     }
+}
+
+/// Creates an [`HttpAuthObserver`] and registers it against the given server.
+fn observe_auth_changes<ServerT: ServerType + 'static>(
+    server: RefPtr<ServerT>,
+) -> Result<RefPtr<nsIObserver>, ProtocolError> {
+    let auth_observer = HttpAuthObserver::new_observer(server.clone())?;
+    server.observe_property(ServerProperty::AuthMethod, auth_observer.clone())?;
+    server.observe_property(ServerProperty::EwsUrl, auth_observer.clone())?;
+    server.observe_property(ServerProperty::Realm, auth_observer.clone())?;
+    server.observe_property(ServerProperty::Username, auth_observer.clone())?;
+
+    let obs_svc = components::Observer::service::<nsIObserverService>()?;
+    // SAFETY: Both parameters are valid pointers that stay alive throughout the
+    // function call. It does not matter that the topic's `CString` doesn't live
+    // beyond this, because it is only used to compute a hash for the
+    // `nsIObserverService`'s internal hash table, which happens before
+    // `AddObserver` returns.
+    unsafe {
+        obs_svc.AddObserver(
+            auth_observer.coerce(),
+            // Unwrapping should be fine here, since this string is a
+            // constant we know.
+            CString::new(OBSERVER_TOPIC_PASSWORDMGR).unwrap().as_ptr(),
+            false,
+        )
+    }
+    .to_result()?;
+
+    // SAFETY: Both parameters are valid pointers that stay alive throughout the
+    // function call. It does not matter that the topic's `CString` doesn't live
+    // beyond this, because it is only used to compute a hash for the
+    // `nsIObserverService`'s internal hash table, which happens before
+    // `AddObserver` returns.
+    unsafe {
+        obs_svc.AddObserver(
+            auth_observer.coerce(),
+            // Unwrapping should be fine here, since this string is a
+            // constant we know.
+            CString::new(OBSERVER_TOPIC_CACHED_PASSWORD_CHANGED)
+                .unwrap()
+                .as_ptr(),
+            false,
+        )
+    }
+    .to_result()?;
+
+    Ok(auth_observer)
 }

@@ -419,29 +419,13 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
     // Key
     xpcom_method!(key => GetKey() -> nsACString);
     fn key(&self) -> Result<nsCString, nsresult> {
-        // Try to get the server's key from memory, or read it from prefs (and
-        // set it) if it hasn't been set yet. In the future we should be able to
-        // do this with `get_or_try_init`, once it has stabilized and we have a
-        // suitable MSRV.
-        // https://github.com/rust-lang/rust/issues/109737
-        let key = self.key.get();
-
-        let key = match key {
-            Some(key) => key.clone(),
-            None => {
-                let key = self
-                    .read_string_pref(PrefName::Key)?
-                    .ok_or(nserror::NS_ERROR_NOT_INITIALIZED)?;
-
-                // We don't need to check whether the return value is an error,
-                // since this code only runs if the key wasn't already set.
-                _ = self.key.set(key.clone());
-
-                key
-            }
-        };
-
-        Ok(key)
+        // Try to get the server's key from memory. We cannot read it from
+        // prefs, since we need the key to build the pref branch in the first
+        // place.
+        self.key
+            .get()
+            .ok_or(nserror::NS_ERROR_NOT_INITIALIZED)
+            .map(nsCString::clone)
     }
 
     xpcom_method!(set_key => SetKey(key: *const nsACString));
@@ -450,7 +434,11 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
             .set(key.into())
             .or(Err(nserror::NS_ERROR_ALREADY_INITIALIZED))?;
 
-        self.store_string_pref(PrefName::Key, key)
+        self.store_string_pref(PrefName::Key, key)?;
+
+        // Also set the key on the password module, so that we correctly notify
+        // when the password changes.
+        unsafe { self.password_module.borrow().SetKey(key) }.to_result()
     }
 
     // UID

@@ -12,7 +12,7 @@
 
 use std::{cell::RefCell, collections::HashMap, fmt::Debug, ptr};
 
-use nserror::{NS_ERROR_INVALID_ARG, NS_ERROR_UNEXPECTED, nsresult};
+use nserror::{NS_ERROR_INVALID_ARG, NS_ERROR_NOT_AVAILABLE, NS_ERROR_UNEXPECTED, nsresult};
 use nsstring::{nsCString, nsString};
 use thin_vec::ThinVec;
 use xpcom::{
@@ -20,7 +20,9 @@ use xpcom::{
     interfaces::{nsIHttpAuthCache, nsIHttpAuthEntry, nsIHttpAuthManager, nsMsgAuthMethod},
 };
 
-use crate::authentication::authentication_provider::AuthenticationProvider;
+use crate::authentication::authentication_provider::{
+    AuthenticationProvider, PasswordLocationForCache,
+};
 
 thread_local! {
     /// An instance of [`HttpAuthCacheManager`] that is reused by any other
@@ -65,6 +67,7 @@ impl ServerAuthIdentity {
     /// [`AuthenticationProvider`].
     fn from_server<T: AuthenticationProvider + ?Sized>(
         server: &T,
+        pw_location: PasswordLocationForCache,
     ) -> Result<Option<ServerAuthIdentity>, nsresult> {
         let username = server.username()?.to_string();
 
@@ -112,21 +115,24 @@ impl ServerAuthIdentity {
             return Err(NS_ERROR_UNEXPECTED);
         };
 
-        // In some cases, it is possible that the return value of
-        // `server.password()` has not yet been updated to reflect the password
-        // stored in the login manager. This can happen if the
-        // `HttpAuthCacheManager` is called from an observer that is notified
-        // before the server's own observer. Because of this, we want to make
-        // the server forget its in-memory copy of the password so it's read
-        // from storage.
-        //
-        // This can have the unfortunate side-effect of getting the password
-        // read from storage twice in a row (e.g. in the observer case described
-        // above), but it should be negligible considering updates of
-        // authentication settings don't tend to happen often (and the more
-        // automated ones, like when refreshing an OAuth2 token, should have
-        // already been filtered out at this point).
-        server.forget_session_password()?;
+        if matches!(pw_location, PasswordLocationForCache::Storage) {
+            // In some cases, it is possible that the return value of
+            // `server.password()` has not yet been updated to reflect the
+            // password stored in the login manager. This can happen if the
+            // `HttpAuthCacheManager` is called from an observer that is
+            // notified before the server's own observer. Because of this, we
+            // want to make the server forget its in-memory copy of the password
+            // so it's read from storage.
+            //
+            // This can have the unfortunate side-effect of getting the password
+            // read from storage twice in a row (e.g. in the observer case
+            // described above), but it should be negligible considering updates
+            // of authentication settings don't tend to happen often (and the
+            // more automated ones, like when refreshing an OAuth2 token, should
+            // have already been filtered out at this point).
+            server.forget_session_password()?;
+        }
+
         let password = server.password()?;
 
         let identity = ServerAuthIdentity {
@@ -179,9 +185,10 @@ impl HttpAuthCacheManager {
     pub(super) fn add_or_update_cache<ServerT: AuthenticationProvider + ?Sized>(
         &self,
         server: &ServerT,
+        pw_location: PasswordLocationForCache,
     ) -> Result<(), nsresult> {
         // Make sure we have a cache entry for the server.
-        let Some(ident) = ServerAuthIdentity::from_server(server)? else {
+        let Some(ident) = ServerAuthIdentity::from_server(server, pw_location)? else {
             // The server's auth method isn't delegated to Necko.
             return Ok(());
         };
@@ -280,7 +287,21 @@ impl HttpAuthCacheManager {
 
         // SAFETY: `stale_entry` is wrapped in a `RefPtr` which ensures the
         // inner `nsIHttpAuthEntry` is kept alive.
-        unsafe { cache.ClearEntry(stale_entry.coerce()) }.to_result()?;
+        match unsafe { cache.ClearEntry(stale_entry.coerce()) }.to_result() {
+            Ok(()) => (),
+            // `nsHttpAuthCacheManager` returns with `NS_ERROR_NOT_AVAILABLE` if
+            // it cannot find the entry. This might be the case if e.g. incoming
+            // and outgoing servers exist for the same account.
+            //
+            // We *could* go and find another entry to remove instead, but this
+            // method is either called in the context of removing an account (in
+            // which case the server associated with the cache entry will likely
+            // get removed as well), or refreshing the cache entry for the
+            // server (in which case we'll likely end up setting the right data
+            // in the cache).
+            Err(err) if err == NS_ERROR_NOT_AVAILABLE => (),
+            Err(err) => return Err(err),
+        }
 
         // Also remove it from our own map.
         self.cache_entries.borrow_mut().remove(&key);

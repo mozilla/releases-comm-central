@@ -186,8 +186,10 @@ NS_IMETHODIMP
 nsMsgIncomingServer::SetKey(const nsACString& serverKey) {
   m_serverKey.Assign(serverKey);
 
+  nsresult rv = mPasswordModule->SetKey(serverKey);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   // in order to actually make use of the key, we need the prefs
-  nsresult rv;
   nsCOMPtr<nsIPrefService> prefs = Preferences::GetService();
 
   nsAutoCString branchName;

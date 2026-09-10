@@ -12,13 +12,33 @@ XPCOMUtils.defineLazyServiceGetter(
   Ci.nsIAuthPrompt
 );
 
+const CACHED_PASSWORD_CHANGED_TOPIC = "message-cached-password-changed";
+
 /**
  * @implements {msgIPasswordAuthModule}
  */
 export class MsgPasswordAuthModule {
   QueryInterface = ChromeUtils.generateQI(["msgIPasswordAuthModule"]);
 
-  cachedPassword;
+  key;
+
+  #cachedPassword;
+
+  get cachedPassword() {
+    return this.#cachedPassword;
+  }
+
+  set cachedPassword(value) {
+    this.#cachedPassword = value;
+
+    if (this.key) {
+      Services.obs.notifyObservers(
+        this,
+        CACHED_PASSWORD_CHANGED_TOPIC,
+        this.key
+      );
+    }
+  }
 
   queryPasswordFromUserAndCache(
     username,
@@ -28,8 +48,8 @@ export class MsgPasswordAuthModule {
     promptTitle,
     password
   ) {
-    if (this.cachedPassword) {
-      return this.cachedPassword;
+    if (this.#cachedPassword) {
+      return this.#cachedPassword;
     }
 
     // Let's see if we have the password in the password manager and
@@ -37,8 +57,8 @@ export class MsgPasswordAuthModule {
     // to get up and running w/o a password prompting UI.
 
     this.queryPasswordFromManagerAndCache(username, hostname, localStoreType);
-    if (this.cachedPassword) {
-      return this.cachedPassword;
+    if (this.#cachedPassword) {
+      return this.#cachedPassword;
     }
 
     // Otherwise, prompt the user for the password.
@@ -72,11 +92,21 @@ export class MsgPasswordAuthModule {
     }
 
     // We got a password back... so remember it.
-    this.cachedPassword = passwordObj.value;
+    this.#cachedPassword = passwordObj.value;
+
+    // Notify listeners that we're running with a different password now.
+    if (this.key) {
+      Services.obs.notifyObservers(
+        this,
+        CACHED_PASSWORD_CHANGED_TOPIC,
+        this.key
+      );
+    }
+
     return passwordObj.value;
   }
 
-  // This sets cachedPassword if we find a password in the manager, and return
+  // This sets #cachedPassword if we find a password in the manager, and return
   // it.
   queryPasswordFromManagerAndCache(username, hostname, localStoreType) {
     let finished = false;
@@ -90,7 +120,7 @@ export class MsgPasswordAuthModule {
       () => finished
     );
 
-    return this.cachedPassword;
+    return this.#cachedPassword;
   }
 
   async #queryPasswordFromManagerAndCacheInternal(
@@ -107,7 +137,7 @@ export class MsgPasswordAuthModule {
     });
     for (const login of logins) {
       if (login.username == username) {
-        this.cachedPassword = login.password;
+        this.#cachedPassword = login.password;
         return login.password;
       }
     }
@@ -147,10 +177,10 @@ export class MsgPasswordAuthModule {
       }
     }
 
-    this.cachedPassword = "";
+    this.#cachedPassword = "";
   }
 
   forgetSessionPassword() {
-    this.cachedPassword = "";
+    this.#cachedPassword = "";
   }
 }

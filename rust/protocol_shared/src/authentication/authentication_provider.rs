@@ -24,6 +24,24 @@ use crate::{
     safe_xpcom::SafeUri,
 };
 
+/// The location from which the password should be read, specifically when
+/// updating Necko's HTTP auth cache.
+pub enum PasswordLocationForCache {
+    /// The password should be read from the password manager rather than
+    /// memory.
+    ///
+    /// As an implementation detail, this does not mean that the auth cache
+    /// manager will actually read form the password manager, but rather that it
+    /// will call [`AuthenticationProvider::forget_session_password`] so to
+    /// force the server to do so on the next call to
+    /// [`AuthenticationProvider::password`].
+    Storage,
+
+    /// The auth cache manager should use the password stored in-memory by the
+    /// server, without trying to "refresh" it.
+    Memory,
+}
+
 /// An entity which can provide details to use for authentication.
 #[allow(async_fn_in_trait)]
 pub trait AuthenticationProvider {
@@ -146,10 +164,13 @@ pub trait AuthenticationProvider {
         Ok(hdr_value)
     }
 
-    fn maybe_set_necko_auth_cache(&self) -> Result<(), nsresult> {
+    fn maybe_set_necko_auth_cache(
+        &self,
+        pw_location: PasswordLocationForCache,
+    ) -> Result<(), nsresult> {
         AUTH_CACHE_MANAGER.with(|manager| {
             manager.remove_from_cache(self)?;
-            manager.add_or_update_cache(self)
+            manager.add_or_update_cache(self, pw_location)
         })?;
         Ok(())
     }
