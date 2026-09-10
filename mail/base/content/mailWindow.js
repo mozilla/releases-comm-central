@@ -809,7 +809,7 @@ nsBrowserAccess.prototype = {
 
     // Try the current window. If we're in a popup, fall back on the most
     // recent browser window.
-    if (!window.document.documentElement.getAttribute("chromehidden")) {
+    if (window.toolbar.visible) {
       win = window;
     } else {
       win = getMostRecentMailWindow();

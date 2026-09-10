@@ -1034,9 +1034,7 @@ var CustomTitlebar = {
     let allowed =
       this.systemSupported && Object.keys(this._disallowed).length == 0;
 
-    if (
-      document.documentElement.getAttribute("chromehidden")?.includes("toolbar")
-    ) {
+    if (!window.toolbar.visible) {
       // Don't draw in titlebar in case of a popup window.
       allowed = false;
     }

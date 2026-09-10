@@ -808,11 +808,11 @@ function getMostRecentMailWindow() {
   win = Services.wm.getMostRecentWindow("mail:3pane", true);
 
   // If we're lucky, this isn't a popup, and we can just return this.
-  if (win && win.document.documentElement.getAttribute("chromehidden")) {
+  if (win && !win.toolbar.visible) {
     win = null;
     // This is oldest to newest, so this gets a bit ugly.
     for (const nextWin of Services.wm.getEnumerator("mail:3pane", true)) {
-      if (!nextWin.document.documentElement.getAttribute("chromehidden")) {
+      if (nextWin.toolbar.visible) {
         win = nextWin;
       }
     }
