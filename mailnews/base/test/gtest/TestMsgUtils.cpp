@@ -4,6 +4,7 @@
 
 #include "gtest/gtest.h"
 #include "nsMsgUtils.h"
+#include "nsNetUtil.h"
 
 // Invocation:
 // $ ./mach gtest "TestMsgUtils.*"
