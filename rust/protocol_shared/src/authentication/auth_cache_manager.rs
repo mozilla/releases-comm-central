@@ -84,10 +84,10 @@ impl ServerAuthIdentity {
                 ("ntlm", domain, username)
             }
 
+            nsMsgAuthMethod::passwordCleartext => ("basic", "", username.as_str()),
+
             // Other authentication methods are either implemented on our side
-            // or unsupported. Eventually we'll want to defer Basic auth to
-            // Necko as well, but we need to fix
-            // https://bugzilla.mozilla.org/show_bug.cgi?id=2059739 first.
+            // or unsupported.
             _ => {
                 log::debug!(
                     "not generating an auth identity for server with an auth method that isn't delegated to Necko"

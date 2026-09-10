@@ -4,7 +4,6 @@
 
 use std::ops::Deref;
 
-use base64::prelude::*;
 use url::Url;
 
 use nserror::nsresult;
@@ -112,15 +111,8 @@ pub trait AuthenticationProvider {
     /// server's authentication method.
     async fn auth_header_value(&self) -> Result<Option<String>, ProtocolError> {
         let hdr_value = match self.auth_method()? {
-            // Build Basic auth tokens ourselves until
-            // https://bugzilla.mozilla.org/show_bug.cgi?id=2059739 is fixed.
-            nsMsgAuthMethod::passwordCleartext => {
-                let username = self.username()?;
-                let password = self.password()?;
-
-                let token = BASE64_STANDARD.encode(format!("{username}:{password}"));
-                Some(format!("Basic {token}"))
-            }
+            // We defer Basic auth to Necko.
+            nsMsgAuthMethod::passwordCleartext => None,
 
             // We defer NTLM auth to Necko.
             nsMsgAuthMethod::NTLM => None,
