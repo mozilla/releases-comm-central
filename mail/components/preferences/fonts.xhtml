@@ -15,7 +15,7 @@
   style="min-width: 60ch"
 >
   <head>
-    <title data-l10n-id="fonts-dialog-title"></title>
+    <title data-l10n-id="text-font-options-dialog-title"></title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
@@ -47,7 +47,7 @@
             <label
               id="fontsTitle"
               control="selectLangs"
-              data-l10n-id="fonts-language-legend"
+              data-l10n-id="fonts-character-set-legend"
             />
           </hbox>
           <menulist id="selectLangs" flex="1" preference="font.language.group">
@@ -160,7 +160,7 @@
         <box id="font-chooser-group">
           <!-- proportional row -->
           <hbox align="center" pack="end">
-            <label data-l10n-id="fonts-proportional-label" />
+            <label data-l10n-id="font-main-style-label" />
           </hbox>
           <menulist id="defaultFontType">
             <menupopup>
@@ -218,7 +218,7 @@
 
           <!-- sans-serif row -->
           <hbox align="center" pack="end">
-            <label control="sans-serif" data-l10n-id="font-sans-serif-label" />
+            <label control="sans-serif" data-l10n-id="sans-serif-font-label" />
           </hbox>
           <menulist id="sans-serif" delayprefsave="true" />
           <spacer />
@@ -308,18 +308,20 @@
       </html:fieldset>
 
       <html:fieldset>
-        <html:legend data-l10n-id="font-control-legend"></html:legend>
+        <html:legend
+          data-l10n-id="message-font-permissions-legend"
+        ></html:legend>
         <hbox>
           <checkbox
             id="useDocumentFonts"
-            data-l10n-id="use-document-fonts-checkbox"
+            data-l10n-id="allow-incoming-fonts-checkbox"
             preference="browser.display.use_document_fonts"
           />
         </hbox>
         <hbox>
           <checkbox
             id="mailFixedWidthMessages"
-            data-l10n-id="use-fixed-width-plain-checkbox"
+            data-l10n-id="display-fixed-width-plain-checkbox"
             preference="mail.fixed_width_messages"
           />
         </hbox>

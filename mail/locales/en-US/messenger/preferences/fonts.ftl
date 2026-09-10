@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-fonts-dialog-title = Fonts
+text-font-options-dialog-title = Text & font options
 
 # Variables:
 #   $name {string, "Arial"} - Name of the default font
@@ -11,13 +11,13 @@ fonts-label-default =
 fonts-label-default-unnamed =
     .label = Default
 
-fonts-language-legend =
-    .value = Fonts for:
+fonts-character-set-legend =
+    .value = Character set:
     .accesskey = t
 
-fonts-proportional-label =
-    .value = Proportional:
-    .accesskey = P
+font-main-style-label =
+    .value = Main font style:
+    .accesskey = f
 
 ## Languages
 
@@ -101,8 +101,8 @@ font-serif-label =
     .value = Serif:
     .accesskey = S
 
-font-sans-serif-label =
-    .value = Sans-serif:
+sans-serif-font-label =
+    .value = Sans-serif font:
     .accesskey = n
 
 font-monospace-label =
@@ -118,14 +118,14 @@ min-size-none =
 
 ## Fonts in message
 
-font-control-legend = Font Control
+message-font-permissions-legend = Message font permissions
 
-use-document-fonts-checkbox =
-    .label = Allow messages to use other fonts
+allow-incoming-fonts-checkbox =
+    .label = Allow incoming messages to use their own fonts
     .accesskey = o
 
-use-fixed-width-plain-checkbox =
-    .label = Use fixed width font for plain text messages
+display-fixed-width-plain-checkbox =
+    .label = Display plain text messages in a fixed-width font
     .accesskey = x
 
 ## Language settings

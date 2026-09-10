@@ -112,9 +112,9 @@ chat-notifications-title = Notifications
 
 chat-pane-styling-header = Styling
 
-choose-messenger-language-description = Choose the languages used to display menus, messages, and notifications from { -brand-short-name }.
-manage-messenger-languages-button =
-  .label = Set Alternatives…
+choose-display-language-description = Choose the language used for menus, buttons, and notifications.
+manage-languages-button =
+  .label = Manage languages…
   .accesskey = l
 confirm-messenger-language-change-description = Restart { -brand-short-name } to apply these changes
 confirm-messenger-language-change-button = Apply and Restart
@@ -165,15 +165,15 @@ focus-search-shortcut-alt =
 
 general-legend = { -brand-short-name } Start Page
 
-start-page-label =
-    .label = When { -brand-short-name } launches, show the Start Page in the message area
+show-start-page-label =
+    .label = Show the Start Page when { -brand-short-name } opens
     .accesskey = W
 
 location-label =
     .value = Location:
     .accesskey = o
 restore-default-label =
-    .label = Restore Default
+    .label = Restore default
     .accesskey = R
 
 default-search-engine = Default Search Engine
@@ -250,7 +250,7 @@ gloda-show-results-as-list-label =
     .accesskey = L
 
 datetime-formatting-legend = Date and Time Formatting
-language-selector-legend = Language
+display-language-legend = Display language
 
 allow-hw-accel =
     .label = Use hardware acceleration when available
@@ -266,9 +266,9 @@ maildir-store-label =
     .label = File per message (maildir)
 
 scrolling-legend = Scrolling
-autoscroll-label =
-    .label = Use autoscrolling
-    .accesskey = U
+enable-autoscroll-label =
+    .label = Enable auto-scrolling
+    .accesskey = g
 smooth-scrolling-label =
     .label = Use smooth scrolling
     .accesskey = m
@@ -287,13 +287,13 @@ auto-hide-tabbar-label =
     .accesskey = A
 auto-hide-tabbar-description = Hide the tab bar when only a single tab is open
 
-system-integration-legend = System Integration
-always-check-default =
-    .label = Always check to see if { -brand-short-name } is the default mail client on startup
+system-settings-legend = System settings
+check-email-app-label =
+    .label = Always check to see if { -brand-short-name } is the default email app when opened
     .accesskey = A
-check-default-button =
-    .label = Check Now…
-    .accesskey = N
+edit-defaults-apps-button =
+    .label = Edit defaults…
+    .accesskey = u
 
 # Note: This is the search engine name for all the different platforms.
 # Platforms that don't support it should be left blank.
@@ -408,9 +408,9 @@ default-size-label =
     .value = Size:
     .accesskey = S
 
-font-options-button =
-    .label = Advanced…
-    .accesskey = A
+customize-fonts-button =
+    .label = Customize fonts…
+    .accesskey = f
 
 display-width-legend = Plain text messages
 

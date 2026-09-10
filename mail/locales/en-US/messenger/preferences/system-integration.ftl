@@ -2,14 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-system-integration-dialog-title = System Integration
+system-settings-dialog-title = System settings
 
 system-integration-dialog =
     .buttonlabelaccept = Set as Default
     .buttonlabelcancel = Skip Integration
     .buttonlabelcancel2 = Cancel
 
-default-client-intro = Use { -brand-short-name } as the default client for:
+default-app-intro = Use { -brand-short-name } as the default app for:
 
 unset-default-tooltip = It is not possible to unset { -brand-short-name } as the default client within { -brand-short-name }. To make another application the default you must use its “Set as default” dialog.
 
@@ -42,6 +42,6 @@ system-search-integration-label =
     .label = Allow { system-search-engine-name } to search messages
     .accesskey = S
 
-check-on-startup-label =
-    .label = Always perform this check when starting { -brand-short-name }
+check-default-email-app-label =
+    .label = Always check to see if { -brand-short-name } is the default email app when opened
     .accesskey = A

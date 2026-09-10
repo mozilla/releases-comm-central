@@ -40,7 +40,7 @@
         <hbox align="start">
           <checkbox id="mailnewsStartPageEnabled"
                     preference="mailnews.start_page.enabled"
-                    data-l10n-id="start-page-label"/>
+                    data-l10n-id="show-start-page-label"/>
         </hbox>
         <hbox align="center" class="input-container">
           <label data-l10n-id="location-label" control="mailnewsStartPageUrl"/>
@@ -78,30 +78,30 @@
 #ifdef HAVE_SHELL_SERVICE
     <html:div data-category="paneGeneral">
     <html:fieldset id="systemDefaultsGroup" data-category="paneGeneral">
-      <html:legend data-l10n-id="system-integration-legend"></html:legend>
+      <html:legend data-l10n-id="system-settings-legend"></html:legend>
       <vbox>
       <hbox id="checkDefaultBox" align="center">
         <checkbox id="alwaysCheckDefault"
                   preference="mail.shell.checkDefaultClient"
-                  data-l10n-id="always-check-default"/>
+                  data-l10n-id="check-email-app-label"/>
         <spacer flex="1"/>
         <hbox>
           <button is="highlightable-button" id="checkDefaultButton"
-                  data-l10n-id="check-default-button"
+                  data-l10n-id="edit-defaults-apps-button"
                   oncommand="gGeneralPane.checkDefaultNow();"
                   preference="pref.general.disable_button.default_mail"
                   search-l10n-ids="
-                    system-integration-dialog-title,
+                    system-settings-dialog-title,
                     system-integration-dialog.buttonlabelaccept,
                     system-integration-dialog.buttonlabelcancel,
                     system-integration-dialog.buttonlabelcancel2,
-                    default-client-intro,
+                    default-app-intro,
                     unset-default-tooltip,
                     checkbox-email-label.label,
                     checkbox-newsgroups-label.label,
                     checkbox-feeds-label.label,
                     system-search-integration-label.label,
-                    check-on-startup-label.label"/>
+                    check-default-email-app-label.label"/>
         </hbox>
       </hbox>
 #ifdef XP_WIN
@@ -131,7 +131,7 @@
       <html:legend data-l10n-id="scrolling-legend"></html:legend>
       <hbox>
         <checkbox id="useAutoScroll"
-                  data-l10n-id="autoscroll-label"
+                  data-l10n-id="enable-autoscroll-label"
                   preference="general.autoScroll"/>
         <spacer flex="1"/>
       </hbox>
@@ -160,11 +160,11 @@
 
     <html:div data-category="paneGeneral">
     <html:fieldset id="messengerLanguagesBox" data-category="paneGeneral" hidden="hidden">
-      <html:legend data-l10n-id="language-selector-legend"></html:legend>
+      <html:legend data-l10n-id="display-language-legend"></html:legend>
         <vbox align="start">
         <description flex="1"
                      controls="chooseMessengerLanguage"
-                     data-l10n-id="choose-messenger-language-description"/>
+                     data-l10n-id="choose-display-language-description"/>
         <hbox>
           <hbox>
             <menulist id="primaryMessengerLocale"
@@ -175,7 +175,7 @@
           <hbox>
             <button is="highlightable-button" id="manageMessengerLanguagesButton"
                     class="accessory-button"
-                    data-l10n-id="manage-messenger-languages-button"
+                    data-l10n-id="manage-languages-button"
                     oncommand="gGeneralPane.showMessengerLanguagesSubDialog({search: false})"
                     search-l10n-ids="
                       languages-customize-moveup.label,
@@ -252,14 +252,14 @@
         </hbox>
         <hbox>
           <button is="highlightable-button" id="advancedFonts"
-                  data-l10n-id="font-options-button"
+                  data-l10n-id="customize-fonts-button"
                   oncommand="gGeneralPane.configureFonts();"
                   flex="1"
                   search-l10n-ids="
                     fonts-label-default-unnamed.label,
-                    fonts-dialog-title,
-                    fonts-language-legend.value,
-                    fonts-proportional-label.value,
+                    text-font-options-dialog-title,
+                    fonts-character-set-legend.value,
+                    font-main-style-label.value,
                     font-language-group-latin.label,
                     font-language-group-japanese.label,
                     font-language-group-trad-chinese.label,
@@ -294,13 +294,13 @@
                     font-size-label.value,
                     font-size-monospace-label.value,
                     font-serif-label.value,
-                    font-sans-serif-label.value,
+                    sans-serif-font-label.value,
                     font-monospace-label.value,
                     font-min-size-label.value,
                     min-size-none.label,
-                    font-control-legend,
-                    use-document-fonts-checkbox.label,
-                    use-fixed-width-plain-checkbox.label,
+                    message-font-permissions-legend,
+                    allow-incoming-fonts-checkbox.label,
+                    display-fixed-width-plain-checkbox.label,
                     text-encoding-legend,
                     text-encoding-description,
                     font-outgoing-email-label.value,
