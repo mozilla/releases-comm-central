@@ -10,6 +10,8 @@ prefs = [
   "carddav.sync.loglevel=Debug",
 ]
 
+["test_cardDAV_auth.js"]
+
 ["test_cardDAV_copyCard.js"]
 
 ["test_cardDAV_detect.js"]
