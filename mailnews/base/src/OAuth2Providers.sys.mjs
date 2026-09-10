@@ -58,6 +58,8 @@ const GRAPH_SCOPES = {
   extra: "offline_access",
 };
 
+const SEZNAM_SCOPES = "identity calendar email";
+
 const TBPRO_SCOPES = "openid profile email offline_access";
 
 /**
@@ -79,6 +81,13 @@ var kHostnames = new Map([
 
   ["imap.yandex.com", ["oauth.yandex.com", "mail:imap_full"]],
   ["smtp.yandex.com", ["oauth.yandex.com", "mail:smtp"]],
+
+  ["imap.seznam.cz", ["Seznam.cz", SEZNAM_SCOPES]],
+  ["smtp.seznam.cz", ["Seznam.cz", SEZNAM_SCOPES]],
+  ["pop3.seznam.cz", ["Seznam.cz", SEZNAM_SCOPES]],
+  ["caldav.seznam.cz", ["Seznam.cz", SEZNAM_SCOPES]],
+  ["carddav.seznam.cz", ["Seznam.cz", SEZNAM_SCOPES]],
+  ["carddav-personal.seznam.cz", ["Seznam.cz", SEZNAM_SCOPES]],
 
   ["yahoo.com", ["login.yahoo.com", "mail-w ycal-w sdct-w"]],
   ["att.net", ["login.yahoo.com", "mail-w ycal-w sdct-w"]],
@@ -175,6 +184,7 @@ const kIssuersWithoutExchangeSupport = new Set([
   "comcast.net",
   "auth.tb.pro",
   "auth-stage.tb.pro",
+  "seznam.cz",
 ]);
 
 /**
@@ -253,6 +263,20 @@ var kIssuers = new Map([
       tokenEndpoint: "https://oauth.yandex.com/token",
       useExternalBrowser: true,
       redirectionEndpoint: "http://localhost",
+    },
+  ],
+  [
+    "Seznam.cz",
+    {
+      name: "Seznam.cz",
+      builtIn: true,
+      clientId: "7c0b7108b69c671152f76796be1779fbb634cddfa7e0c187",
+      authorizationEndpoint: "https://login.seznam.cz/api/v1/oauth/auth",
+      tokenEndpoint: "https://login.seznam.cz/api/v1/oauth/token",
+      redirectionEndpoint: "http://127.0.0.1/seznam",
+      issuerIdentifier: "https://login.seznam.cz",
+      usePKCE: true,
+      useExternalBrowser: true,
     },
   ],
   [
