@@ -23,6 +23,8 @@
 }
 
 #handlersView {
+  /* The same value .paneDeckContainer uses. */
+  inline-size: min(100%, 800px);
   block-size: 210px;
   overflow-y: auto;
   border: 1px solid var(--border-color);
@@ -121,6 +123,8 @@
 .typeLabel {
   display: flex;
   align-items: center;
+  /* The halve of #handlersView. */
+  max-inline-size: 400px;
 
   & > .typeIcon {
     flex: 0 0 auto;
@@ -145,6 +149,8 @@
   display: flex;
   justify-content: space-between;
   inline-size: 100%;
+  /* The halve of #handlersView. */
+  max-inline-size: 400px;
   border-radius: 0;
   margin: 0;
   padding-block: 0;
