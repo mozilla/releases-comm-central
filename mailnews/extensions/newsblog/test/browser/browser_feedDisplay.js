@@ -354,21 +354,23 @@ add_task(async function testSubscribeFromAccountSettings() {
   Assert.ok(accountRow, "should have a feed account in the account tree");
   accountTree.selectedIndex = accountTree.rows.indexOf(accountRow);
 
+  // Waiting for the page to load isn't enough, the account manager sets
+  // gAccount on it afterwards and the button's command handler needs it.
   const contentFrame = amDocument.getElementById("contentFrame");
   await TestUtils.waitForCondition(
-    () =>
-      contentFrame.contentDocument?.getElementById("manageFeedSubscriptions"),
-    "waiting for the feed account settings page to load"
+    () => contentFrame.contentWindow?.gAccount,
+    "waiting for the feed account settings page to be initialized"
   );
+
+  const button = contentFrame.contentDocument.getElementById(
+    "manageFeedSubscriptions"
+  );
+  Assert.ok(button, "should have a manage subscriptions button");
 
   const dialogPromise = promiseSubscribeInDialog(
     "https://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/rss.xml"
   );
-  EventUtils.synthesizeMouseAtCenter(
-    contentFrame.contentDocument.getElementById("manageFeedSubscriptions"),
-    {},
-    contentFrame.contentWindow
-  );
+  EventUtils.synthesizeMouseAtCenter(button, {}, contentFrame.contentWindow);
   await dialogPromise;
 
   tabmail.closeTab(tabInfo);
