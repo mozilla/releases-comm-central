@@ -47,7 +47,7 @@ function MsgSubscribe(selectedFolder) {
     openSubscriptionsDialog(selectedFolder);
   } else {
     // Open IMAP/NNTP subscription dialog.
-    top.openDialog(
+    window.browsingContext.topChromeWindow.openDialog(
       "chrome://messenger/content/subscribe.xhtml",
       "subscribe",
       "chrome,modal,titlebar,resizable=yes",
@@ -76,7 +76,7 @@ function openSubscriptionsDialog(selectedFolder) {
 
     subscriptionsWindow.focus();
   } else {
-    top.openDialog(
+    window.browsingContext.topChromeWindow.openDialog(
       "chrome://messenger-newsblog/content/feed-subscriptions.xhtml",
       "",
       "centerscreen,chrome,dialog=no,resizable",
@@ -136,7 +136,13 @@ function MsgUnsubscribe(folder) {
     folder.localizedName,
   ]);
 
-  if (!Services.prompt.confirm(top, titleMsg, dialogMsg)) {
+  if (
+    !Services.prompt.confirm(
+      window.browsingContext.topChromeWindow,
+      titleMsg,
+      dialogMsg
+    )
+  ) {
     return;
   }
 

@@ -210,10 +210,11 @@
 
       <hbox pack="end">
         <button
+          id="manageFeedSubscriptions"
           label="&manageSubscriptions.label;"
           accesskey="&manageSubscriptions.accesskey;"
           oncommand="
-            openSubscriptionsDialog(gAccount.incomingServer.rootFolder)
+            SubscribeCommands.MsgSubscribe(gAccount.incomingServer.rootFolder)
           "
         />
       </hbox>

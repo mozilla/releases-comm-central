@@ -7,6 +7,14 @@
 var { FeedUtils } = ChromeUtils.importESModule(
   "resource:///modules/FeedUtils.sys.mjs"
 );
+ChromeUtils.defineESModuleGetters(
+  this,
+  {
+    SubscribeCommands: "chrome://messenger/content/SubscribeCommands.mjs",
+  },
+  { global: "current" }
+);
+
 ChromeUtils.defineESModuleGetters(this, {
   AccountManagerUtils:
     "moz-src:///comm/mail/modules/AccountManagerUtils.sys.mjs",

@@ -42,29 +42,14 @@ async function threadTreeClick(row, event = {}) {
 }
 
 /**
- * Select account1, bring up the subscription dialog and subscribe to
- * the given feed URL.
+ * Wait for the feed subscriptions dialog, subscribe to the given feed URL in
+ * it, and accept the dialog.
  *
  * @param {string} feedURL - The feed URL to subscribe to.
- * @returns {Promise} when subscription is done.
+ * @returns {Promise} when the dialog is closed.
  */
-async function subscribeToFeed(feedURL) {
-  const account1 = MailServices.accounts.getAccount("account1");
-  const account1RootFolder = account1.incomingServer.rootFolder;
-  about3Pane.displayFolder(account1RootFolder.URI);
-  const index = about3Pane.folderTree.selectedIndex;
-  Assert.equal(index, 0, "index 0 (account1 root folder) should be selected");
-
-  const menu = about3Pane.document.getElementById("folderPaneContext");
-  const menuItem = about3Pane.document.getElementById(
-    "folderPaneContext-subscribe"
-  );
-  const shownPromise = BrowserTestUtils.waitForPopupEvent(menu, "shown");
-  folderTreeClick(index, { type: "contextmenu" });
-  await shownPromise;
-
-  const hiddenPromise = BrowserTestUtils.waitForPopupEvent(menu, "hidden");
-  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+function promiseSubscribeInDialog(feedURL) {
+  return BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://messenger-newsblog/content/feed-subscriptions.xhtml",
     {
@@ -118,6 +103,32 @@ async function subscribeToFeed(feedURL) {
       },
     }
   );
+}
+
+/**
+ * Select account1, bring up the subscription dialog from the folder pane
+ * context menu and subscribe to the given feed URL.
+ *
+ * @param {string} feedURL - The feed URL to subscribe to.
+ * @returns {Promise} when subscription is done.
+ */
+async function subscribeToFeed(feedURL) {
+  const account1 = MailServices.accounts.getAccount("account1");
+  const account1RootFolder = account1.incomingServer.rootFolder;
+  about3Pane.displayFolder(account1RootFolder.URI);
+  const index = about3Pane.folderTree.selectedIndex;
+  Assert.equal(index, 0, "index 0 (account1 root folder) should be selected");
+
+  const menu = about3Pane.document.getElementById("folderPaneContext");
+  const menuItem = about3Pane.document.getElementById(
+    "folderPaneContext-subscribe"
+  );
+  const shownPromise = BrowserTestUtils.waitForPopupEvent(menu, "shown");
+  folderTreeClick(index, { type: "contextmenu" });
+  await shownPromise;
+
+  const hiddenPromise = BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+  const dialogPromise = promiseSubscribeInDialog(feedURL);
   menu.activateItem(menuItem);
   await Promise.all([hiddenPromise, dialogPromise]);
 }
@@ -323,4 +334,61 @@ add_task(async function testSubscribeRss2EmptyTitleDesc() {
   );
 
   await unsubscribeCurrentRow();
+});
+
+add_task(async function testSubscribeFromAccountSettings() {
+  const tabInfo = window.openTab("contentTab", {
+    url: "about:accountsettings",
+  });
+  await BrowserTestUtils.browserLoaded(
+    tabInfo.browser,
+    false,
+    "about:accountsettings"
+  );
+
+  const amDocument = tabInfo.browser.contentDocument;
+  const accountTree = amDocument.getElementById("accounttree");
+  const accountRow = amDocument.querySelector(
+    '#accounttree [PageTag="am-newsblog.xhtml"]'
+  );
+  Assert.ok(accountRow, "should have a feed account in the account tree");
+  accountTree.selectedIndex = accountTree.rows.indexOf(accountRow);
+
+  const contentFrame = amDocument.getElementById("contentFrame");
+  await TestUtils.waitForCondition(
+    () =>
+      contentFrame.contentDocument?.getElementById("manageFeedSubscriptions"),
+    "waiting for the feed account settings page to load"
+  );
+
+  const dialogPromise = promiseSubscribeInDialog(
+    "https://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/rss.xml"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    contentFrame.contentDocument.getElementById("manageFeedSubscriptions"),
+    {},
+    contentFrame.contentWindow
+  );
+  await dialogPromise;
+
+  tabmail.closeTab(tabInfo);
+
+  const folder = rootFolder.subFolders.find(f => f.name == "Test Feed");
+  Assert.ok(folder, "should have added feed folder");
+
+  // The folder pane was in a background tab while the folder was added, so it
+  // may not have a row for it yet. `displayFolder` does nothing if it doesn't.
+  await TestUtils.waitForCondition(
+    () => about3Pane.folderPane.getRowForFolder(folder),
+    "waiting for the feed folder to appear in the folder pane"
+  );
+  about3Pane.displayFolder(folder.URI);
+  Assert.equal(
+    folderTree.selectedRow.uri,
+    folder.URI,
+    "the feed folder should be selected"
+  );
+
+  await unsubscribeCurrentRow();
+  folderTree.selectedIndex = 0;
 });
