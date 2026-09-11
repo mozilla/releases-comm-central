@@ -362,6 +362,43 @@ linux64-aarch64/opt:
             - sysroot-x86_64-linux-gnu
             - terser
 
+linux64-aarch64/debug:
+    description: "Linux64 aarch64 Debug"
+    index:
+        product: thunderbird
+        job-name: linux64-aarch64-debug
+    attributes:
+        enable-full-crashsymbols: true
+    treeherder:
+        platform: linux64-aarch64/debug
+        symbol: B
+        tier: 2
+    worker:
+        max-run-time: 7200
+    run:
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+        extra-config:
+            mozconfig_platform: linux64-aarch64
+            stage_platform: linux64-aarch64-debug
+        custom-build-variant-cfg: debug
+        mozconfig-variant: debug
+        tooltool-downloads: public
+    run-on-projects: ['comm-central']
+    use-sccache: true
+    optimization:
+        skip-unless-backstop: null
+    fetches:
+        toolchain:
+            - linux-aarch64-libotr
+            - linux64-llvm-symbolizer
+            - linux64-rust
+            - linux64-sccache
+            - sysroot-aarch64-linux-gnu
+            - sysroot-x86_64-linux-gnu
+            - terser
+
 linux64-aarch64-shippable/opt:
     description: "Linux64 aarch64 Shippable"
     attributes:
