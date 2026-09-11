@@ -8,7 +8,6 @@ compose-message-cancelling = Cancelling…
 
 compose-message-attachment-name = Attached Message
 
-
 ## Compose window
 
 compose-initialization-error-title = Message Compose
