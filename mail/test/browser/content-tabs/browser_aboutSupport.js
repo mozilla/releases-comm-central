@@ -216,6 +216,46 @@ add_task(async function test_display_about_support() {
 });
 
 /**
+ * Test that the notice about crash reports not being configured only shows
+ * when there is in fact no crash report URL configured.
+ */
+add_task(async function test_crash_reports_config_notice() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["breakpad.reportURL", "https://example.com/report/"]],
+  });
+  let tab = await open_about_support();
+  if (!content_tab_e(tab, "crashes-noConfig")) {
+    // Build without a crash reporter, nothing to check.
+    close_tab(tab);
+    await SpecialPowers.popPrefEnv();
+    return;
+  }
+  assert_content_tab_element_hidden(
+    tab,
+    content_tab_e(tab, "crashes-noConfig")
+  );
+  assert_content_tab_element_visible(
+    tab,
+    content_tab_e(tab, "crashes-allReports")
+  );
+  close_tab(tab);
+  await SpecialPowers.popPrefEnv();
+
+  await SpecialPowers.pushPrefEnv({ set: [["breakpad.reportURL", ""]] });
+  tab = await open_about_support();
+  assert_content_tab_element_visible(
+    tab,
+    content_tab_e(tab, "crashes-noConfig")
+  );
+  assert_content_tab_element_hidden(
+    tab,
+    content_tab_e(tab, "crashes-allReports")
+  );
+  close_tab(tab);
+  await SpecialPowers.popPrefEnv();
+});
+
+/**
  * Test that our accounts are displayed in order.
  */
 add_task(async function test_accounts_in_order() {
