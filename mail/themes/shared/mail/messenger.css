@@ -1039,6 +1039,7 @@ label.statusbarpanel {
 
   &[offline="true"] {
     list-style-image: var(--icon-offline);
+    fill: currentColor;
   }
 }
 
