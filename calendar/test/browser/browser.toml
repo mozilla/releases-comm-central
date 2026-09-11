@@ -43,6 +43,8 @@ run-if = [
   "!headless",
 ] # See bug 1806870.
 
+["browser_eventDialogConflictPrompt.js"]
+
 ["browser_eventDisplay_dayView.js"]
 
 ["browser_eventDisplay_multiWeekView.js"]

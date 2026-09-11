@@ -143,10 +143,10 @@ var eventDialogCalendarObserver = {
       // The item has been modified outside the dialog. We only need to
       // prompt if there have been local changes also.
       if (isItemChanged()) {
-        const promptTitle = this.l10n.formatValueSync("modify-conflict-prompt-title");
-        const promptMessage = this.l10n.formatValueSync("modify-conflict-prompt-message");
-        const promptButton1 = this.l10n.formatValueSync("modify-conflict-prompt-button1");
-        const promptButton2 = this.l10n.formatValueSync("modify-conflict-prompt-button2");
+        const promptTitle = l10n.formatValueSync("modify-conflict-prompt-title");
+        const promptMessage = l10n.formatValueSync("modify-conflict-prompt-message");
+        const promptButton1 = l10n.formatValueSync("modify-conflict-prompt-button1");
+        const promptButton2 = l10n.formatValueSync("modify-conflict-prompt-button2");
         const flags =
           Ci.nsIPromptService.BUTTON_TITLE_IS_STRING * Ci.nsIPromptService.BUTTON_POS_0 +
           Ci.nsIPromptService.BUTTON_TITLE_IS_STRING * Ci.nsIPromptService.BUTTON_POS_1;
