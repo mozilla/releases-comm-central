@@ -1,11 +1,14 @@
 //! This module corresponds to `mach/mach_port.h`
 
-use kern_return::kern_return_t;
-use mach_types::ipc_space_t;
-use message::mach_msg_type_name_t;
-use port::{mach_port_delta_t, mach_port_name_t, mach_port_right_t, mach_port_t};
+use crate::kern_return::kern_return_t;
+use crate::mach_types::ipc_space_t;
+use crate::message::mach_msg_type_name_t;
+use crate::port::{
+    mach_port_delta_t, mach_port_name_t, mach_port_options_t, mach_port_right_t, mach_port_t,
+};
+use crate::vm_types::mach_port_context_t;
 
-extern "C" {
+unsafe extern "C" {
     pub fn mach_port_allocate(
         task: ipc_space_t,
         right: mach_port_right_t,
@@ -31,5 +34,17 @@ extern "C" {
         name: mach_port_name_t,
         right: mach_port_right_t,
         delta: mach_port_delta_t,
+    ) -> kern_return_t;
+    pub fn mach_port_construct(
+        task: ipc_space_t,
+        options: *mut mach_port_options_t,
+        context: mach_port_context_t,
+        name: *mut mach_port_name_t,
+    ) -> kern_return_t;
+    pub fn mach_port_destruct(
+        task: ipc_space_t,
+        name: mach_port_name_t,
+        srdelta: mach_port_delta_t,
+        guard: mach_port_context_t,
     ) -> kern_return_t;
 }

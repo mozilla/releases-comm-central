@@ -1,7 +1,9 @@
-//! This module corresponds to `mach/kern_return.h` and
-//! `mach/i386/kern_return.h`.
+//! This module corresponds to `mach/kern_return.h`.
+use core::ffi::c_int;
 
-pub type kern_return_t = ::libc::c_int;
+// ...Except for this particular type, which is taken from `mach/i386/kern_return.h` and
+// `mach/arm/kern_return.h` (also used for aarch64): it is the same type in both header files.
+pub type kern_return_t = c_int;
 
 pub const KERN_SUCCESS: kern_return_t = 0;
 pub const KERN_INVALID_ADDRESS: kern_return_t = 1;

@@ -1,6 +1,6 @@
 //! Implementation of [`getcontext`](https://man7.org/linux/man-pages/man3/getcontext.3.html)
 
-extern "C" {
+unsafe extern "C" {
     /// A portable implementation of [`getcontext`](https://man7.org/linux/man-pages/man3/getcontext.3.html)
     /// since it is not supported by all libc implementations, namely `musl`, as
     /// it has been deprecated from POSIX for over a decade
@@ -20,5 +20,11 @@ cfg_if::cfg_if! {
         mod aarch64;
     } else if #[cfg(target_arch = "arm")] {
         mod arm;
+    } else if #[cfg(target_arch = "riscv64")] {
+        mod riscv64;
+    } else if #[cfg(target_arch = "s390x")] {
+        mod s390x;
+    } else if #[cfg(target_arch = "loongarch64")] {
+        mod loongarch64;
     }
 }

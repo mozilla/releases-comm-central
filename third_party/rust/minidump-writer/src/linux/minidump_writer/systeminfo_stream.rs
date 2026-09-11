@@ -14,7 +14,7 @@ pub enum SectionSystemInfoError {
 }
 
 pub fn write(
-    process_inspector: &ProcessInspector,
+    process_inspector: &dyn ProcessInspector,
     buffer: &mut DumpBuf,
     mut soft_errors: impl WriteErrorList<SectionSystemInfoError>,
 ) -> Result<MDRawDirectory, SectionSystemInfoError> {

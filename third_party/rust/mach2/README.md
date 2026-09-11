@@ -8,7 +8,7 @@ A Rust interface to the **user-space** API of the Mach 3.0 kernel exposed in
 
 This library does not expose the **kernel-space** API of the Mach 3.0 kernel
 exposed in
-`SDK/System/Library/Frameworks/Kernel.framework/Versions/A/Headers/mach`. 
+`SDK/System/Library/Frameworks/Kernel.framework/Versions/A/Headers/mach`.
 
 That is, if you are writing a kernel-resident device drivers or some other
 kernel extensions you have to use something else. The user-space kernel API is
@@ -22,15 +22,14 @@ Add the following to your `Cargo.toml` to conditionally include mach on those
 platforms that support it.
 
 ```toml
-[target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies.mach]
-version = "0.4"
+[target.'cfg(target_vendor = "apple")'.dependencies.mach]
+version = "0.6"
 ```
 
 Available crate feature:
 
 * **unstable** (disabled by default): Exposes newly changed APIs. Enabling this may
   bring breaking changes (see the breaking change policy).
-
 
 ### Breaking change policy
 
@@ -46,17 +45,42 @@ we expose the newer one, i.e. `4`, under `unstable` first.
 So the `unstable` users should notice the change on the first release since deprecating.
 After a month or more, all the users should notice it.
 
+## Examples
+
+Examples can be found in the [examples](./examples) directory of this repository.
+
+Since [`examples/dump_process_registers.rs`](./examples/dump_process_registers.rs) makes use of the `task_for_pid()` function, which requires elevated privileges, it is necessary to disable System Integrity Protection (SIP) and to be part of the `admin` or `_developer` group in order to run the example. However, do note that disabling SIP is in no way encouraged, and should only be done for development/debugging purposes.
+
+1. Reboot macOS in recovery mode.
+2. Click on `Options`.
+3. Log in to your user.
+4. In the menu click on `Utilities` and then `Terminal`.
+5. In the terminal type the following command to disable SIP: `csrutil disable` (`csrutil enable` to re-enable SIP).
+6. Reboot your machine.
+
+To run the example, build it as follows:
+
+```
+cargo b --example dump_process_registers
+```
+
+Then run it using `sudo`:
+
+```
+sudo ./target/debug/examples/dump_process_registers
+```
+
 ## Platform support
 
 The following table describes the current CI set-up:
 
-| Target                  | Min. Rust | XCode           | build | ctest | run |
-|-------------------------|-----------|-----------------|-------|-------|-----|
-| `x86_64-apple-darwin`   | 1.33.0    | 10.3.0 - 13.1.0 | ✓     | ✓     | ✓   |
-| `aarch64-apple-darwin`  | nightly   | 13.1.0          | ✓     | -     | -   |
-| `aarch64-apple-ios`     | nightly   | 13.1.0          | ✓     | -     | -   |
-| `aarch64-apple-ios-sim` | nightly   | 13.1.0          | ✓     | -     | -   |
-| `x86_64-apple-ios`      | nightly   | 13.1.0          | ✓     | -     | -   |
+| Target                  | XCode  | build | ctest | run |
+|-------------------------|--------|-------|-------|-----|
+| `x86_64-apple-darwin`   | 26.1.0 | ✓     | ✓     | ✓   |
+| `aarch64-apple-darwin`  | 26.1.0 | ✓     | ✓     | ✓   |
+| `aarch64-apple-ios`     | 26.1.0 | ✓     | -     | -   |
+| `aarch64-apple-ios-sim` | 26.1.0 | ✓     | -     | -   |
+| `x86_64-apple-ios`      | 26.1.0 | ✓     | -     | -   |
 
 ## License
 

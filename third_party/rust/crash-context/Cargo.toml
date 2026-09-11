@@ -10,16 +10,19 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
-edition = "2021"
-rust-version = "1.59.0"
+edition = "2024"
+rust-version = "1.88.0"
 name = "crash-context"
-version = "0.6.1"
-authors = [
-    "Embark <opensource@embark-studios.com>",
-    "Jake Shadle <jake.shadle@embark-studios.com>",
-]
+version = "0.8.0"
+authors = ["Jake Shadle <jake.shadle@embark-studios.com>"]
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "Provides portable types containing target specific contextual information at the time of a crash"
-homepage = "https://github.com/EmbarkStudios/crash-handling/tree/main/crash-context"
+homepage = "https://github.com/rust-minidump/minidump-writer/tree/main/crates/crash-context"
 documentation = "https://docs.rs/crash-context"
 readme = "README.md"
 keywords = [
@@ -28,15 +31,23 @@ keywords = [
     "getcontext",
 ]
 categories = ["external-ffi-bindings"]
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/EmbarkStudios/crash-handling"
-resolver = "1"
+license = "MIT"
+repository = "https://github.com/rust-minidump/minidump-writer"
+
+[lib]
+name = "crash_context"
+path = "src/lib.rs"
+
+[[test]]
+name = "capture_context"
+path = "tests/capture_context.rs"
 
 [dependencies.cfg-if]
 version = "1.0"
 
-[target."cfg(any(target_os = \"linux\", target_os = \"android\"))".dependencies.libc]
+[target.'cfg(any(target_os = "linux", target_os = "android"))'.dependencies.libc]
 version = "0.2"
+default-features = false
 
-[target."cfg(target_os = \"macos\")".dependencies.mach2]
-version = "0.4"
+[target.'cfg(target_os = "macos")'.dependencies.mach2]
+version = "0.6"

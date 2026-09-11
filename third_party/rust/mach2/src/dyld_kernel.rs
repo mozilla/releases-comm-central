@@ -1,7 +1,7 @@
 //! This module roughly corresponds to `mach/dyld_kernel.h`.
 
-use boolean::boolean_t;
-use mach_types::{fsid_t, fsobj_id_t, uuid_t};
+use crate::boolean::boolean_t;
+use crate::mach_types::{fsid_t, fsobj_id_t, uuid_t};
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Default, Hash, PartialOrd, PartialEq, Eq, Ord)]

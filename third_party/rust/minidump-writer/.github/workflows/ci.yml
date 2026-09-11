@@ -34,6 +34,7 @@ jobs:
         job:
           - { os: ubuntu-24.04,   target: x86_64-unknown-linux-gnu, release: true }
           - { os: ubuntu-24.04,   target: x86_64-unknown-linux-musl }
+          - { os: ubuntu-24.04-arm,   target: aarch64-unknown-linux-gnu }
           - { os: windows-2025,   target: x86_64-pc-windows-msvc }
           - { os: macos-15-intel, target: x86_64-apple-darwin }
           - { os: macos-15,       target: aarch64-apple-darwin }
@@ -43,10 +44,13 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           target: ${{ matrix.job.target }}
+          components: clippy
       - name: Fetch
         run: cargo fetch --target ${{ matrix.job.target }}
       - name: Build
         run: cargo test --target ${{ matrix.job.target }} --no-run
+      - name: Clippy
+        run: cargo clippy --all-features --all-targets --target ${{ matrix.job.target }} -- -D warnings
       - name: Test
         run: cargo test --target ${{ matrix.job.target }}
       - name: Release test
@@ -79,7 +83,6 @@ jobs:
       matrix:
         job:
           - target: i686-unknown-linux-gnu
-          - target: aarch64-unknown-linux-gnu
           - target: aarch64-unknown-linux-musl
           - target: arm-unknown-linux-gnueabi
           - target: arm-unknown-linux-musleabi
@@ -137,6 +140,7 @@ jobs:
             cargo run --target x86_64-linux-android --bin test -- nop
             # Build and run tests
             cargo test --target x86_64-linux-android
+            cargo clippy --all-features --all-targets --target x86_64-linux-android -- -D warnings
 
   deny-check:
     runs-on: ubuntu-24.04

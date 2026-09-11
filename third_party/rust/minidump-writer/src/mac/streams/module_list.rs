@@ -92,7 +92,7 @@ impl MinidumpWriter {
         }
 
         if !modules
-            .get(0)
+            .first()
             .map(|rm| rm.version_info.signature != format::VS_FFI_SIGNATURE)
             .unwrap_or_default()
         {
@@ -104,10 +104,10 @@ impl MinidumpWriter {
             // Apple, which considering their penchant for changings things often
             // and not actually documenting anything, is fair, but if that ever
             // happens we can just...change the code.
-            if let Ok(dyld_image) = self.read_dyld(&all_images_info, dumper) {
-                if let Ok(module) = self.write_module(dyld_image, buf) {
-                    modules.push(module);
-                }
+            if let Ok(dyld_image) = self.read_dyld(&all_images_info, dumper)
+                && let Ok(module) = self.write_module(dyld_image, buf)
+            {
+                modules.push(module);
             }
 
             Ok(modules)
@@ -372,7 +372,7 @@ mod test {
             let expect_segment_data = unsafe {
                 getsegmentdata(
                     expected_img_hdr,
-                    b"__TEXT\0".as_ptr(),
+                    c"__TEXT".as_ptr().cast(),
                     &mut expect_segment_size,
                 )
             };

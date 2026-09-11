@@ -15,13 +15,13 @@
 use crate::CrashContext;
 use mach2::{
     bootstrap, kern_return::KERN_SUCCESS, mach_port, message as msg, port, task,
-    traps::mach_task_self,
+    task_special_ports::TASK_BOOTSTRAP_PORT, traps::mach_task_self,
 };
 pub use mach2::{kern_return::kern_return_t, message::mach_msg_return_t};
 use std::{ffi::CStr, time::Duration};
 
-extern "C" {
-    /// From <usr/include/mach/mach_traps.h>, there is no binding for this in mach2
+unsafe extern "C" {
+    /// From `<usr/include/mach/mach_traps.h>`, there is no binding for this in mach2
     pub fn pid_for_task(task: port::mach_port_name_t, pid: *mut i32) -> kern_return_t;
 }
 
@@ -99,7 +99,7 @@ struct CrashContextMessage {
     /// The optional exception subcode
     exception_subcode: u64,
     /// We don't actually send this, but it's tacked on by the kernel :(
-    trailer: MachMsgTrailer,
+    _trailer: MachMsgTrailer,
 }
 
 const FLAG_HAS_EXCEPTION: u32 = 0x1;
@@ -110,6 +110,7 @@ const FLAG_HAS_SUBCODE: u32 = 0x2;
 struct AcknowledgementMessage {
     head: MachMsgHeader,
     result: u32,
+    _trailer: MachMsgTrailer,
 }
 
 /// An error that can occur while interacting with mach ports
@@ -175,7 +176,7 @@ impl Client {
             let mut task_bootstrap_port = 0;
             kern!(task::task_get_special_port(
                 mach_task_self(),
-                task::TASK_BOOTSTRAP_PORT,
+                TASK_BOOTSTRAP_PORT,
                 &mut task_bootstrap_port
             ));
 
@@ -235,7 +236,8 @@ impl Client {
                 head: MachMsgHeader {
                     bits: msg::MACH_MSG_TYPE_COPY_SEND | msg::MACH_MSGH_BITS_COMPLEX,
                     // We don't send the trailer, that's added by the kernel
-                    size: std::mem::size_of::<CrashContextMessage>() as u32 - 8,
+                    size: std::mem::size_of::<CrashContextMessage>() as u32
+                        - std::mem::size_of::<MachMsgTrailer>() as u32,
                     remote_port: self.port,
                     local_port: port::MACH_PORT_NULL,
                     voucher_port: port::MACH_PORT_NULL,
@@ -257,7 +259,7 @@ impl Client {
                 exception_subcode,
                 // We don't actually send this but I didn't feel like making
                 // two types
-                trailer: MachMsgTrailer { kind: 0, size: 8 },
+                _trailer: MachMsgTrailer { kind: 0, size: 8 },
             };
 
             // Try to actually send the message to the Server
@@ -314,7 +316,7 @@ impl Server {
             let mut task_bootstrap_port = 0;
             kern!(task::task_get_special_port(
                 mach_task_self(),
-                task::TASK_BOOTSTRAP_PORT,
+                TASK_BOOTSTRAP_PORT,
                 &mut task_bootstrap_port
             ));
 
@@ -441,13 +443,15 @@ impl Acknowledger {
                 let mut msg = AcknowledgementMessage {
                     head: MachMsgHeader {
                         bits: msg::MACH_MSG_TYPE_COPY_SEND,
-                        size: std::mem::size_of::<AcknowledgementMessage>() as u32,
+                        size: std::mem::size_of::<AcknowledgementMessage>() as u32
+                            - std::mem::size_of::<MachMsgTrailer>() as u32,
                         remote_port: port,
                         local_port: port::MACH_PORT_NULL,
                         voucher_port: port::MACH_PORT_NULL,
                         id: 0,
                     },
                     result: ack,
+                    _trailer: MachMsgTrailer { kind: 0, size: 8 },
                 };
 
                 // Try to actually send the message
@@ -487,21 +491,23 @@ impl AckReceiver {
     /// Performs syscalls. Only used internally hence the entire function being
     /// marked unsafe.
     unsafe fn new() -> Result<Self, Error> {
-        let mut port = 0;
-        kern!(mach_port::mach_port_allocate(
-            mach_task_self(),
-            port::MACH_PORT_RIGHT_RECEIVE,
-            &mut port
-        ));
+        unsafe {
+            let mut port = 0;
+            kern!(mach_port::mach_port_allocate(
+                mach_task_self(),
+                port::MACH_PORT_RIGHT_RECEIVE,
+                &mut port
+            ));
 
-        kern!(mach_port::mach_port_insert_right(
-            mach_task_self(),
-            port,
-            port,
-            msg::MACH_MSG_TYPE_MAKE_SEND
-        ));
+            kern!(mach_port::mach_port_insert_right(
+                mach_task_self(),
+                port,
+                port,
+                msg::MACH_MSG_TYPE_MAKE_SEND
+            ));
 
-        Ok(Self { port })
+            Ok(Self { port })
+        }
     }
 
     /// Waits for the specified duration to receive a result from the [`Server`]
@@ -516,30 +522,33 @@ impl AckReceiver {
     /// Performs syscalls. Only used internally hence the entire function being
     /// marked unsafe.
     unsafe fn recv_ack(&mut self, timeout: Option<Duration>) -> Result<u32, Error> {
-        let mut ack = AcknowledgementMessage {
-            head: MachMsgHeader {
-                bits: 0,
-                size: std::mem::size_of::<AcknowledgementMessage>() as u32,
-                remote_port: port::MACH_PORT_NULL,
-                local_port: self.port,
-                voucher_port: port::MACH_PORT_NULL,
-                id: 0,
-            },
-            result: 0,
-        };
+        unsafe {
+            let mut ack = AcknowledgementMessage {
+                head: MachMsgHeader {
+                    bits: 0,
+                    size: std::mem::size_of::<AcknowledgementMessage>() as u32,
+                    remote_port: port::MACH_PORT_NULL,
+                    local_port: self.port,
+                    voucher_port: port::MACH_PORT_NULL,
+                    id: 0,
+                },
+                result: 0,
+                _trailer: MachMsgTrailer { kind: 0, size: 8 },
+            };
 
-        // Wait for a response from the Server
-        msg!(msg::mach_msg(
-            ((&mut ack.head) as *mut MachMsgHeader).cast(),
-            msg::MACH_RCV_MSG | msg::MACH_RCV_TIMEOUT,
-            0,
-            ack.head.size,
-            self.port,
-            timeout.map(|t| t.as_millis() as u32).unwrap_or_default(),
-            port::MACH_PORT_NULL
-        ));
+            // Wait for a response from the Server
+            msg!(msg::mach_msg(
+                ((&mut ack.head) as *mut MachMsgHeader).cast(),
+                msg::MACH_RCV_MSG | msg::MACH_RCV_TIMEOUT,
+                0,
+                ack.head.size,
+                self.port,
+                timeout.map(|t| t.as_millis() as u32).unwrap_or_default(),
+                port::MACH_PORT_NULL
+            ));
 
-        Ok(ack.result)
+            Ok(ack.result)
+        }
     }
 }
 

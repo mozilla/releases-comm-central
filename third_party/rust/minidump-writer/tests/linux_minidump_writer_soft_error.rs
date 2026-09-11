@@ -1,11 +1,8 @@
 #![cfg(any(target_os = "linux", target_os = "android"))]
 
-use {
-    common::*,
-    minidump::Minidump,
-    minidump_writer::{FailSpotName, minidump_writer::MinidumpWriterConfig},
-    serde_json::json,
-};
+use common::*;
+use minidump::Minidump;
+use minidump_writer::{FailSpotName, minidump_writer::MinidumpWriterConfig};
 
 mod common;
 
@@ -36,41 +33,6 @@ fn soft_error_stream() {
 
 #[test]
 fn soft_error_stream_content() {
-    let expected_errors = vec![
-        json!({"InitErrors": [
-            {"StopProcessFailed":
-                {"Stop":
-                    {"Local":
-                        {"SigStopFailed": 1}
-                    }
-                }
-            },
-            {"FillMissingAuxvInfoErrors": ["InvalidFormat"]},
-            {"EnumerateThreadsErrors": [
-                {"ReadThreadNameFailed": "\
-                    Custom {\n    \
-                        kind: Other,\n    \
-                        error: Local(\n        \
-                            OpenFileFailed(\n            \
-                                1,\n        \
-                            ),\n    \
-                        ),\n\
-                    }"
-                }
-            ]},
-            {"SuspendThreadsErrors": [{"PtraceAttachError": [1234, libc::EPERM]}]}
-        ]}),
-        json!({"WriteSystemInfoErrors": [
-            {"WriteCpuInformationFailed": {
-                "ReadFileError": {
-                    "Local": {
-                        "OpenFileFailed": 1
-                    }
-                }
-            }}
-        ]}),
-    ];
-
     let mut child = start_child_and_wait_for_threads(1);
     let pid = child.id() as i32;
 
@@ -97,7 +59,89 @@ fn soft_error_stream_content() {
     child.kill().expect("Failed to kill process");
     child.wait().expect("Failed to wait on killed process");
 
-    // Ensure the MozSoftErrors stream contains the expected errors
     let dump = Minidump::read_path(tmpfile.path()).expect("failed to read minidump");
-    assert_soft_errors_in_minidump(&dump, &expected_errors);
+
+    // Ensure the MozSoftErrors stream contains the expected errors
+    assert_minidump_soft_errors_match_all(
+        &dump,
+        &[
+            ErrorPattern::value(libc::EPERM).with_ancestor("StopProcessFailed"),
+            // AuxvError is not reachable so use the string form instead
+            ErrorPattern::value("InvalidFormat").with_ancestor("FillMissingAuxvInfoErrors"),
+            ErrorPattern::value("ReadThreadNameFailed"),
+            ErrorPattern::value(libc::EPERM).with_ancestor("SuspendThreadsErrors"),
+            ErrorPattern::value(libc::EPERM).with_ancestor("WriteCpuInformationFailed"),
+        ],
+    );
+}
+
+#[test]
+fn thread_stack_pointer_unmapped_soft_error() {
+    let mut child = start_child_and_wait_for_threads(1);
+    let pid = child.id() as i32;
+
+    let mut tmpfile = tempfile::Builder::new()
+        .prefix("stack_pointer_unmapped")
+        .tempfile()
+        .unwrap();
+
+    let mut fail_client = FailSpotName::testing_client();
+    fail_client.set_enabled(FailSpotName::StackPointerMapping, true);
+
+    MinidumpWriterConfig::new(pid, pid)
+        .write(&mut tmpfile)
+        .expect("could not write minidump");
+    child.kill().expect("Failed to kill process");
+    child.wait().expect("Failed to wait on killed process");
+
+    let dump = Minidump::read_path(tmpfile.path()).expect("failed to read minidump");
+    assert_minidump_contains_soft_error(&dump, "GetStackInfoFailed");
+}
+
+#[test]
+fn thread_stack_unreadable_soft_error() {
+    let mut child = start_child_and_wait_for_threads(1);
+    let pid = child.id() as i32;
+
+    let mut tmpfile = tempfile::Builder::new()
+        .prefix("stack_unreadable")
+        .tempfile()
+        .unwrap();
+
+    let mut fail_client = FailSpotName::testing_client();
+    fail_client.set_enabled(FailSpotName::ThreadStackCopy, true);
+
+    MinidumpWriterConfig::new(pid, pid)
+        .write(&mut tmpfile)
+        .expect("could not write minidump");
+    child.kill().expect("Failed to kill process");
+    child.wait().expect("Failed to wait on killed process");
+
+    let dump = Minidump::read_path(tmpfile.path()).expect("failed to read minidump");
+    assert_minidump_contains_soft_error(&dump, "CopyFromProcessError");
+}
+
+#[test]
+fn crashing_thread_ip_memory_unreadable_soft_error() {
+    let mut child = start_child_and_wait_for_threads(1);
+    let pid = child.id() as i32;
+
+    let mut tmpfile = tempfile::Builder::new()
+        .prefix("ip_memory_unreadable")
+        .tempfile()
+        .unwrap();
+
+    let mut fail_client = FailSpotName::testing_client();
+    fail_client.set_enabled(FailSpotName::CrashingThreadIpCopy, true);
+
+    let mut config = MinidumpWriterConfig::new(pid, pid);
+    config.set_crash_context(get_dummy_crash_context(pid));
+    config
+        .write(&mut tmpfile)
+        .expect("could not write minidump");
+    child.kill().expect("Failed to kill process");
+    child.wait().expect("Failed to wait on killed process");
+
+    let dump = Minidump::read_path(tmpfile.path()).expect("failed to read minidump");
+    assert_minidump_contains_soft_error(&dump, "CopyFromProcessError");
 }

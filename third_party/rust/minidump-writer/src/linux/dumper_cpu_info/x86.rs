@@ -24,7 +24,7 @@ impl CpuInfoEntry {
 }
 
 pub fn write_cpu_information(
-    process_inspector: &ProcessInspector,
+    process_inspector: &dyn ProcessInspector,
     sys_info: &mut MDRawSystemInfo,
 ) -> Result<()> {
     let vendor_id_name = "vendor_id";
@@ -50,7 +50,7 @@ pub fn write_cpu_information(
     }
 
     let cpuinfo_file = process_inspector
-        .read_file("/proc/cpuinfo")
+        .read_file("/proc/cpuinfo".into())
         .map_err(CpuInfoError::ReadFileError)?;
 
     let mut vendor_id = String::new();

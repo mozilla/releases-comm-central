@@ -116,7 +116,7 @@ fn thread_list_from_parent() {
     for (idx, curr_thread) in dumper.threads.iter().enumerate() {
         println!("curr_thread: {curr_thread:?}");
         let info = dumper
-            .get_thread_info_by_index(idx)
+            .get_thread_info_by_index(idx, error_graph::strategy::DontCare)
             .expect("Could not get thread info by index");
         let (_valid_stack_ptr, stack_len) = dumper
             .get_stack_info(info.stack_pointer)
@@ -293,7 +293,7 @@ fn sanitizes_stack_copies() {
     assert_eq!(dumper.threads.len(), num_of_threads);
 
     let thread_info = dumper
-        .get_thread_info_by_index(0)
+        .get_thread_info_by_index(0, error_graph::strategy::DontCare)
         .expect("Couldn't find thread_info");
 
     let defaced;
@@ -338,7 +338,7 @@ fn sanitizes_stack_copies() {
     // The instruction pointer definitely should point into an executable mapping.
     let instr_ptr = thread_info.get_instruction_pointer();
     let mapping_info = dumper
-        .find_mapping_no_bias(instr_ptr)
+        .find_mapping(instr_ptr)
         .expect("Failed to find mapping info");
     assert!(mapping_info.is_executable());
 

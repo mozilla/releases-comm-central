@@ -46,7 +46,7 @@ std::arch::global_asm! {
 
     // Return 0
     "mov   r0, #0",
-    "bx    lr",
+    "mov   pc, lr",
 
     ".fnend",
     ".size crash_context_getcontext, . - crash_context_getcontext",

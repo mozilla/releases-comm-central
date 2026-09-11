@@ -160,11 +160,11 @@ fn section_header_with_name<'sc, MM: ReadModuleMemory>(
 }
 
 pub fn read_build_id_from_file(
-    process_inspector: &ProcessInspector,
+    process_inspector: &dyn ProcessInspector,
     path: &Path,
 ) -> Result<Vec<u8>, Error> {
     let module_memory_reader = process_inspector
-        .map_module_into_memory(path, 0)
+        .map_module_into_memory(path.into(), 0)
         .map_err(Error::MapModuleFailed)?;
     read_build_id_from_module(module_memory_reader)
 }
@@ -191,7 +191,7 @@ pub fn read_build_id_from_module(module_memory: impl ReadModuleMemory) -> Result
 }
 
 pub fn read_soname_from_file(
-    process_inspector: &ProcessInspector,
+    process_inspector: &dyn ProcessInspector,
     path: &Path,
     offset: usize,
 ) -> Result<String, Error> {
@@ -206,7 +206,7 @@ pub fn read_soname_from_file(
     }
 
     let module_memory_reader = process_inspector
-        .map_module_into_memory(path, offset)
+        .map_module_into_memory(path.into(), offset)
         .map_err(Error::MapModuleFailed)?;
 
     let memory_len = module_memory_reader.len().map_err(Error::MapModuleFailed)?;

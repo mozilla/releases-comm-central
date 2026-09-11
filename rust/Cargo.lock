@@ -358,7 +358,7 @@ dependencies = [
  "dbus",
  "libc",
  "log",
- "mach2",
+ "mach2 0.4.999",
  "windows-sys",
 ]
 
@@ -1161,13 +1161,12 @@ dependencies = [
 
 [[package]]
 name = "crash-context"
-version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b85cef661eeca0c6675116310936972c520ebb0a33ddef16fd7efc957f4c1288"
+version = "0.8.0"
+source = "git+https://github.com/rust-minidump/minidump-writer.git?rev=6744feee58804a78730d176cdcc31bb4f3021107#6744feee58804a78730d176cdcc31bb4f3021107"
 dependencies = [
  "cfg-if",
  "libc",
- "mach2",
+ "mach2 0.6.0",
 ]
 
 [[package]]
@@ -1176,7 +1175,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "crash_helper_common",
- "mach2",
+ "mach2 0.6.0",
  "minidump-writer",
  "nix",
  "num-derive",
@@ -1193,7 +1192,7 @@ dependencies = [
  "getrandom 0.3.3",
  "linked-hash-map",
  "log",
- "mach2",
+ "mach2 0.6.0",
  "minidump-writer",
  "mozannotation_server",
  "mozbuild",
@@ -1363,7 +1362,7 @@ dependencies = [
  "cubeb-backend",
  "float-cmp",
  "libc",
- "mach2",
+ "mach2 0.4.999",
  "num",
  "ringbuf",
  "triple_buffer",
@@ -3973,12 +3972,16 @@ dependencies = [
 
 [[package]]
 name = "mach2"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6d0d1830bcd151a6fc4aea1369af235b36c1528fe976b8ff678683c9995eade8"
+version = "0.4.999"
 dependencies = [
- "libc",
+ "mach2 0.6.0",
 ]
+
+[[package]]
+name = "mach2"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dae608c151f68243f2b000364e1f7b186d9c29845f7d2d85bd31b9ad77ad552b"
 
 [[package]]
 name = "macro_rules_attribute"
@@ -4204,8 +4207,8 @@ dependencies = [
 
 [[package]]
 name = "minidump-writer"
-version = "0.12.0"
-source = "git+https://github.com/rust-minidump/minidump-writer.git?rev=ee5b9d59d85bea1d4c6845f6b854e04fe204adf2#ee5b9d59d85bea1d4c6845f6b854e04fe204adf2"
+version = "0.13.0"
+source = "git+https://github.com/rust-minidump/minidump-writer.git?rev=6744feee58804a78730d176cdcc31bb4f3021107#6744feee58804a78730d176cdcc31bb4f3021107"
 dependencies = [
  "bitflags 2.10.0",
  "byteorder",
@@ -4216,9 +4219,10 @@ dependencies = [
  "goblin 0.9.2",
  "libc",
  "log",
- "mach2",
+ "mach2 0.6.0",
  "memmap2",
  "minidump-common",
+ "plain",
  "process-backend",
  "procfs-core",
  "scroll",
@@ -5447,11 +5451,10 @@ dependencies = [
 
 [[package]]
 name = "process-backend"
-version = "0.0.0"
-source = "git+https://github.com/rust-minidump/minidump-writer.git?rev=ee5b9d59d85bea1d4c6845f6b854e04fe204adf2#ee5b9d59d85bea1d4c6845f6b854e04fe204adf2"
+version = "0.1.0"
+source = "git+https://github.com/rust-minidump/minidump-writer.git?rev=6744feee58804a78730d176cdcc31bb4f3021107#6744feee58804a78730d176cdcc31bb4f3021107"
 dependencies = [
  "libc",
- "log",
  "process-reader",
  "serde",
  "thiserror 2.0.12",
@@ -5459,8 +5462,8 @@ dependencies = [
 
 [[package]]
 name = "process-reader"
-version = "0.0.0"
-source = "git+https://github.com/rust-minidump/minidump-writer.git?rev=ee5b9d59d85bea1d4c6845f6b854e04fe204adf2#ee5b9d59d85bea1d4c6845f6b854e04fe204adf2"
+version = "0.1.0"
+source = "git+https://github.com/rust-minidump/minidump-writer.git?rev=6744feee58804a78730d176cdcc31bb4f3021107#6744feee58804a78730d176cdcc31bb4f3021107"
 dependencies = [
  "libc",
  "serde",
@@ -5473,7 +5476,7 @@ dependencies = [
  "goblin 0.9.2",
  "libc",
  "log",
- "mach2",
+ "mach2 0.6.0",
  "memoffset 0.9.0",
  "scroll",
  "thiserror 2.0.12",

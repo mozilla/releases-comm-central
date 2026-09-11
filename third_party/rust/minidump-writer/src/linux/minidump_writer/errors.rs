@@ -12,6 +12,7 @@ use {
             thread_list_stream::SectionThreadListError,
             thread_names_stream::SectionThreadNamesError,
         },
+        module_list::ModuleResolveError,
         module_reader::ModuleReaderError,
         process_inspection,
         serializers::*,
@@ -69,6 +70,10 @@ pub enum WriterError {
     ResumeThreadsErrors(#[source] ErrorList<WriterError>),
     #[error("Errors occurred while writing system info")]
     WriteSystemInfoErrors(#[source] ErrorList<SectionSystemInfoError>),
+    #[error("Errors occurred while writing the thread list")]
+    WriteThreadListErrors(#[source] ErrorList<SectionThreadListError>),
+    #[error("Errors occurred while writing the module list")]
+    WriteModuleListErrors(#[source] ErrorList<SectionMappingsError>),
     #[error("Failed writing cpuinfo")]
     WriteCpuInfoFailed(#[source] MemoryWriterError),
     #[error("Failed writing thread proc status")]
@@ -170,6 +175,10 @@ pub enum InitError {
     AggregateMappingsFailed(#[source] MapsReaderError),
     #[error("Failed to enumerate process mappings")]
     EnumerateMappingsFailed(#[source] Box<InitError>),
+    #[error("Failed to enumerate the process' loaded modules")]
+    EnumerateModulesFailed(#[source] Box<InitError>),
+    #[error("Errors occurred while resolving the module list")]
+    ResolveModuleListErrors(#[source] ErrorList<ModuleResolveError>),
     #[error("Errors occurred while suspending threads")]
     SuspendThreadsErrors(#[source] ErrorList<WriterError>),
     #[error("No threads left to suspend out of {0}")]

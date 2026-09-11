@@ -1,9 +1,11 @@
 use std::{
     error,
-    io::{BufRead, BufReader, Write},
+    io::{BufRead, BufReader},
     process::{Child, Command, Stdio},
     result,
 };
+
+use serde::Serialize;
 
 #[allow(unused)]
 type Error = Box<dyn error::Error + std::marker::Send + std::marker::Sync>;
@@ -39,16 +41,34 @@ fn build_command() -> Command {
     cmd
 }
 
+/// Must be taken by tests that use ptrace() to avoid racing on attaching to the parent,
+/// leading to random failures.
+static PTRACE_PARENT_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
 #[allow(unused)]
 pub fn spawn_child(command: &str, args: &[&str]) {
     let mut cmd = build_command();
     cmd.arg(command).args(args);
 
-    let child = cmd.output().expect("failed to execute child");
+    let child = {
+        // Panicking is fine as far as ptrace is concerned,
+        // no need to poison other tests.
+        let _guard = PTRACE_PARENT_LOCK
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        cmd.output().expect("failed to execute child")
+    };
 
     println!("Child output:");
-    std::io::stdout().write_all(&child.stdout).unwrap();
-    std::io::stdout().write_all(&child.stderr).unwrap();
+    println!("===stdout===");
+
+    print_stdio(&child.stdout);
+
+    println!("\n===stderr===");
+
+    print_stdio(&child.stderr);
+
+    println!("\n============");
     assert_eq!(child.status.code().expect("No return value"), 0);
 }
 
@@ -122,25 +142,112 @@ where
     serde_json::from_str(contents).expect("expected json")
 }
 
+pub fn visit_json_objects<V>(json: &serde_json::Value, path: &mut Vec<String>, visit: &mut V)
+where
+    V: FnMut(&[String], &serde_json::Value),
+{
+    if let Some(obj) = json.as_object() {
+        for (key, value) in obj.iter() {
+            // visiting the key is useful if you're matching against a complex enum member
+            // but don't really care about its contents
+            visit(path, &serde_json::Value::String(key.clone()));
+            path.push(key.clone());
+            visit_json_objects(value, path, visit);
+            path.pop();
+        }
+    }
+    if let Some(arr) = json.as_array() {
+        for value in arr.iter() {
+            visit_json_objects(value, path, visit);
+        }
+        return;
+    }
+    visit(path, json);
+}
+
 #[allow(unused)]
-pub fn assert_soft_errors_in_minidump<'a, 'b, T, I>(
+#[derive(Debug)]
+pub struct ErrorPattern {
+    value: serde_json::Value,
+    ancestor: Option<String>,
+}
+
+#[allow(unused)]
+impl ErrorPattern {
+    pub fn value(value: impl Serialize) -> Self {
+        Self {
+            value: serde_json::to_value(value).unwrap(),
+            ancestor: None,
+        }
+    }
+    pub fn with_ancestor(mut self, ancestor: impl ToString) -> Self {
+        self.ancestor = Some(ancestor.to_string());
+        self
+    }
+
+    fn matches(&self, value: &serde_json::Value, path: &[String]) -> bool {
+        &self.value == value
+            && match &self.ancestor {
+                None => true,
+                Some(ancestor) => path.contains(ancestor),
+            }
+    }
+}
+
+#[allow(unused)]
+pub(crate) fn assert_minidump_soft_errors_match_all<'a, T>(
     dump: &minidump::Minidump<'a, T>,
-    expected_errors: I,
+    patterns: &[ErrorPattern],
 ) where
     T: std::ops::Deref<Target = [u8]> + 'a,
-    I: IntoIterator<Item = &'b serde_json::Value>,
 {
     let actual_json = read_minidump_soft_errors_or_panic(dump);
-    let actual_errors = actual_json.as_array().unwrap();
 
-    // Ensure that every error we expect is in the actual list somewhere
-    for expected_error in expected_errors {
-        assert!(
-            actual_errors
-                .iter()
-                .any(|actual_error| actual_error == expected_error),
-            "soft error list missing expected error `{expected_error:#?}`\nError_list: {actual_errors:#?}"
-        );
+    let mut path = vec![];
+    // We can't use a HashSet because remove() is too greedy in terms of
+    // lifetime.
+    let mut expected: Vec<_> = patterns.iter().collect();
+
+    visit_json_objects(&actual_json, &mut path, &mut |path, value| {
+        for i in 0..expected.len() {
+            let pattern = &expected[i];
+            if pattern.matches(value, path) {
+                expected.remove(i);
+                return;
+            }
+        }
+    });
+
+    if !expected.is_empty() {
+        panic!("Soft errors patterns not found: {:?}", expected);
+    }
+}
+
+/// Asserts that the soft-error stream contains an error named `variant` anywhere
+/// in its (possibly nested) structure. Data-carrying variants appear as object
+/// keys and unit variants as strings, so both forms are matched.
+#[allow(unused)]
+pub fn assert_minidump_contains_soft_error<'a, T>(dump: &minidump::Minidump<'a, T>, variant: &str)
+where
+    T: std::ops::Deref<Target = [u8]> + 'a,
+{
+    let errors = read_minidump_soft_errors_or_panic(dump);
+    assert!(
+        soft_errors_contain(&errors, variant),
+        "soft error list missing expected error `{variant}`\nError_list: {errors:#?}"
+    );
+}
+
+fn soft_errors_contain(value: &serde_json::Value, variant: &str) -> bool {
+    match value {
+        serde_json::Value::String(s) => s == variant,
+        serde_json::Value::Array(items) => {
+            items.iter().any(|item| soft_errors_contain(item, variant))
+        }
+        serde_json::Value::Object(map) => {
+            map.contains_key(variant) || map.values().any(|v| soft_errors_contain(v, variant))
+        }
+        _ => false,
     }
 }
 
@@ -152,7 +259,10 @@ pub use linux::*;
 #[allow(unused)]
 mod linux {
     use {
-        minidump_writer::module_reader::{self, ModuleMemoryReadError, ReadModuleMemory},
+        minidump_writer::{
+            CrashContextExt, Pid,
+            module_reader::{self, ModuleMemoryReadError, ReadModuleMemory},
+        },
         std::borrow::Cow,
     };
     pub struct SliceModuleMemoryReader<'a>(pub &'a [u8]);
@@ -190,6 +300,39 @@ mod linux {
         }
         fn is_process_memory(&self) -> bool {
             false
+        }
+    }
+
+    pub fn get_dummy_crash_context(tid: Pid) -> CrashContextExt {
+        let siginfo: libc::signalfd_siginfo = unsafe { std::mem::zeroed() };
+        let context = unsafe { std::mem::zeroed() };
+        #[cfg(not(target_arch = "arm"))]
+        let float_state = unsafe { std::mem::zeroed() };
+        CrashContextExt {
+            inner: crash_context::CrashContext {
+                siginfo,
+                pid: std::process::id() as _,
+                tid,
+                context,
+                #[cfg(not(target_arch = "arm"))]
+                float_state,
+            },
+        }
+    }
+}
+
+fn print_stdio(bytes: &[u8]) {
+    if let Ok(s) = str::from_utf8(bytes) {
+        print!("{s}");
+    } else {
+        for (idx, b) in bytes.iter().enumerate() {
+            if idx == 0 {
+                print!("{b:02x}");
+            } else if idx % 16 == 0 {
+                print!("\n{b:02x}");
+            } else {
+                print!(" {b:02x}");
+            }
         }
     }
 }

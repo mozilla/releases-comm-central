@@ -3,13 +3,14 @@
 
 pub use {
     maps_reader::LINUX_GATE_LIBRARY_NAME,
-    process_inspection::{Error as BackendError, process_reader},
+    process_inspection::{Error as BackendError, ProcessReaderKind, process_reader},
 };
 
 pub mod app_memory;
-pub mod crash_context;
+mod crash_context_ext;
 pub mod maps_reader;
 pub mod minidump_writer;
+pub mod module_list;
 pub mod module_reader;
 pub mod thread_info;
 
@@ -24,3 +25,4 @@ mod serializers;
 mod android;
 
 pub type Pid = i32;
+pub use crash_context_ext::CrashContextExt;

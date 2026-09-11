@@ -1,6 +1,6 @@
 use {
     super::*,
-    crate::{linux::process_inspection, mem_writer::MemoryWriter},
+    crate::{linux::process_inspection::ProcessInspector, mem_writer::MemoryWriter},
     std::{
         ffi::OsStr,
         mem,
@@ -9,14 +9,14 @@ use {
 };
 
 fn descriptor_from_path(
-    process_inspector: &ProcessInspector,
+    process_inspector: &dyn ProcessInspector,
     buffer: &mut DumpBuf,
     path: &Path,
 ) -> Option<MDRawHandleDescriptor> {
     let handle = filename_to_fd(path.file_name().unwrap())?;
-    let realpath = process_inspector.read_link(path).ok()?;
+    let realpath = process_inspector.read_link(path.into()).ok()?;
     let path_rva = write_string_to_location(buffer, realpath.to_string_lossy().as_ref()).ok()?;
-    let stat = process_inspector.stat_file(path).ok()?;
+    let stat = process_inspector.stat_file(path.into()).ok()?;
 
     // TODO: We store the contents of `st_mode` into the `attributes` field, but
     // we could also store a human-readable string of the file type inside
@@ -67,13 +67,13 @@ impl MinidumpWriter {
         let proc_fd_path = PathBuf::from(format!("/proc/{}/fd", self.process_id));
         let proc_fd_iter = self
             .process_inspector
-            .read_dir(&proc_fd_path)
+            .read_dir(proc_fd_path.clone())
             .map_err(SectionHandleDataStreamError::ReadDirFailed)?;
         let descriptors: Vec<_> = proc_fd_iter
             .filter_map(|filename| filename.ok())
             .filter_map(|filename| {
                 let path = proc_fd_path.join(filename);
-                descriptor_from_path(&self.process_inspector, buffer, &path)
+                descriptor_from_path(self.process_inspector.as_ref(), buffer, &path)
             })
             .collect();
         let number_of_descriptors = descriptors.len() as u32;

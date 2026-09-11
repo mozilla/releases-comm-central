@@ -1,12 +1,13 @@
 //! This module corresponds to `mach/vm_attributes.h`.
+use core::ffi::{c_int, c_uint};
 
-pub type vm_machine_attribute_t = ::libc::c_uint;
+pub type vm_machine_attribute_t = c_uint;
 
 pub const MATTR_CACHE: vm_machine_attribute_t = 1;
 pub const MATTR_MIGRATE: vm_machine_attribute_t = 1 << 1;
 pub const MATTR_REPLICATE: vm_machine_attribute_t = 1 << 2;
 
-pub type vm_machine_attribute_val_t = ::libc::c_int;
+pub type vm_machine_attribute_val_t = c_int;
 
 pub const MATTR_VAL_OFF: vm_machine_attribute_val_t = 0;
 pub const MATTR_VAL_ON: vm_machine_attribute_val_t = 1;

@@ -1,12 +1,12 @@
 [graph]
 targets = [
-    { triple = "x86_64-unknown-linux-gnu" },
-    { triple = "x86_64-unknown-linux-musl" },
-    { triple = "x86_64-pc-windows-msvc" },
-    { triple = "x86_64-apple-darwin" },
-    { triple = "aarch64-apple-darwin" },
-    { triple = "aarch64-linux-android" },
-    { triple = "x86_64-linux-android" },
+    "x86_64-unknown-linux-gnu",
+    "x86_64-unknown-linux-musl",
+    "x86_64-pc-windows-msvc",
+    "x86_64-apple-darwin",
+    "aarch64-apple-darwin",
+    "aarch64-linux-android",
+    "x86_64-linux-android",
 ]
 
 [advisories]
@@ -16,6 +16,9 @@ ignore = []
 multiple-versions = "deny"
 deny = [
     { crate = "chrono", use-instead = "time", reason = "unneccessary dependency" },
+]
+skip = [
+    { crate = "syn:2.0", reason = "syn 3.0 was released, but naturally most crates will be on 2.0 for a while" },
 ]
 skip-tree = []
 

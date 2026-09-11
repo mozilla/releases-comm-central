@@ -1,11 +1,12 @@
 //! This module corresponds to `mach/thread_policy.h`.
 
-use boolean::boolean_t;
-use kern_return::kern_return_t;
-use libc::thread_policy_t;
-use mach_types::thread_t;
-use message::mach_msg_type_number_t;
-use vm_types::{integer_t, natural_t};
+use crate::boolean::boolean_t;
+use crate::kern_return::kern_return_t;
+use crate::mach_types::thread_t;
+use crate::message::mach_msg_type_number_t;
+use crate::vm_types::{integer_t, natural_t};
+
+pub type thread_policy_t = *mut integer_t;
 
 pub type thread_policy_flavor_t = natural_t;
 
@@ -101,16 +102,14 @@ pub const THREAD_LATENCY_QOS_POLICY_COUNT: mach_msg_type_number_t =
 pub const THREAD_THROUGHPUT_QOS_POLICY_COUNT: mach_msg_type_number_t =
     (core::mem::size_of::<thread_throughput_qos_policy>() / core::mem::size_of::<integer_t>()) as _;
 
-extern "C" {
+unsafe extern "C" {
     pub fn thread_policy_set(
         thread: thread_t,
         flavor: thread_policy_flavor_t,
         policy_info: thread_policy_t,
         count: mach_msg_type_number_t,
     ) -> kern_return_t;
-}
 
-extern "C" {
     pub fn thread_policy_get(
         thread: thread_t,
         flavor: thread_policy_flavor_t,

@@ -87,7 +87,7 @@ pub struct AuxvDumpInfo {
 impl AuxvDumpInfo {
     pub fn try_filling_missing_info(
         &mut self,
-        process_inspector: &ProcessInspector,
+        process_inspector: &dyn ProcessInspector,
         pid: Pid,
         mut soft_errors: impl WriteErrorList<AuxvError>,
     ) -> Result<(), AuxvError> {
@@ -97,7 +97,7 @@ impl AuxvDumpInfo {
 
         let auxv_path = format!("/proc/{pid}/auxv");
         let auxv_file = process_inspector
-            .read_file(&auxv_path)
+            .read_file(auxv_path.clone().into())
             .map_err(|e| AuxvError::OpenError(auxv_path, e))?;
 
         for pair_result in ProcfsAuxvIter::new(BufReader::new(auxv_file)) {

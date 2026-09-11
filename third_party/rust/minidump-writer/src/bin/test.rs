@@ -10,7 +10,7 @@ mod linux {
         super::*,
         error_graph::ErrorList,
         minidump_writer::{
-            LINUX_GATE_LIBRARY_NAME,
+            LINUX_GATE_LIBRARY_NAME, ProcessReaderKind,
             minidump_writer::{MinidumpWriter, MinidumpWriterConfig},
         },
         std::ptr,
@@ -73,7 +73,7 @@ mod linux {
         use minidump_writer::process_reader::ProcessReader;
 
         let ppid = getppid();
-        let dumper = fail_on_soft_error!(
+        let mut dumper = fail_on_soft_error!(
             soft_errors,
             MinidumpWriterConfig::new(ppid, ppid).build_for_testing(&mut soft_errors)?
         );
@@ -99,25 +99,41 @@ mod linux {
 
         // virtual mem
         {
-            validate(ProcessReader::for_virtual_mem(&dumper.process_inspector))
+            dumper
+                .process_inspector
+                .force_process_reader_kind(ProcessReaderKind::VirtualMem)
+                .unwrap();
+            validate(dumper.process_inspector.process_reader())
                 .map_err(|err| format!("failed to validate memory: {err}"))?;
         }
 
         // file
         {
-            let reader = ProcessReader::for_file(&dumper.process_inspector)
-                .map_err(|err| format!("failed to open `/proc/{ppid}/mem`: {err}"))?;
-            validate(reader).map_err(|err| format!("failed to validate memory: {err}"))?;
+            dumper
+                .process_inspector
+                .force_process_reader_kind(ProcessReaderKind::File)
+                .unwrap();
+            validate(dumper.process_inspector.process_reader())
+                .map_err(|err| format!("failed to validate memory: {err}"))?;
         }
 
         // ptrace
         {
-            validate(ProcessReader::for_ptrace(&dumper.process_inspector))
+            dumper
+                .process_inspector
+                .force_process_reader_kind(ProcessReaderKind::Ptrace)
+                .unwrap();
+            validate(dumper.process_inspector.process_reader())
                 .map_err(|err| format!("failed to validate memory: {err}"))?;
         }
 
+        dumper
+            .process_inspector
+            .force_process_reader_kind(ProcessReaderKind::Unspecified)
+            .unwrap();
+
         let stack_res = MinidumpWriter::copy_from_process(
-            &dumper.process_inspector,
+            dumper.process_inspector.as_ref(),
             stack_var,
             std::mem::size_of::<usize>(),
         )?;
@@ -125,7 +141,7 @@ mod linux {
         test!(stack_res == expected_stack, "stack var not correct");
 
         let heap_res = MinidumpWriter::copy_from_process(
-            &dumper.process_inspector,
+            dumper.process_inspector.as_ref(),
             heap_var,
             std::mem::size_of::<usize>(),
         )?;
@@ -161,20 +177,17 @@ mod linux {
         let exe_link = format!("/proc/{ppid}/exe");
         let exe_name = std::fs::read_link(exe_link)?.into_os_string();
 
-        let mut dumper = fail_on_soft_error!(
+        let dumper = fail_on_soft_error!(
             soft_errors,
             MinidumpWriterConfig::new(ppid, ppid).build_for_testing(&mut soft_errors)?
         );
 
-        let mut found_exe = None;
-        for (idx, mapping) in dumper.mappings.iter().enumerate() {
-            if mapping.name.as_ref().map(|x| x.into()).as_ref() == Some(&exe_name) {
-                found_exe = Some(idx);
-                break;
-            }
-        }
-        let idx = found_exe.unwrap();
-        let id = dumper.build_id_from_process_memory_for_index(idx)?;
+        let exe_mapping = dumper
+            .mappings
+            .iter()
+            .find(|mapping| mapping.name.as_ref().map(|x| x.into()).as_ref() == Some(&exe_name))
+            .unwrap();
+        let id = dumper.build_id_from_process_memory(exe_mapping.start_address)?;
 
         drop(dumper);
 
@@ -210,24 +223,19 @@ mod linux {
 
     fn test_linux_gate_mapping_id() -> Result<()> {
         let ppid = getppid();
-        let mut dumper = fail_on_soft_error!(
+        let dumper = fail_on_soft_error!(
             soft_errors,
             MinidumpWriterConfig::new(ppid, ppid).build_for_testing(&mut soft_errors)?
         );
-        let mut found_linux_gate = false;
-        for idx in 0..dumper.mappings.len() {
-            if dumper.mappings[idx].name == Some(LINUX_GATE_LIBRARY_NAME.into()) {
-                found_linux_gate = true;
+        let linux_gate = dumper
+            .mappings
+            .iter()
+            .find(|mapping| mapping.name == Some(LINUX_GATE_LIBRARY_NAME.into()));
+        test!(linux_gate.is_some(), "found no linux_gate");
 
-                let id = dumper.build_id_from_process_memory_for_index(idx)?;
-
-                test!(!id.is_empty(), "id-vec is empty");
-                test!(id.iter().any(|&x| x > 0), "all id elements are 0");
-                drop(dumper);
-                break;
-            }
-        }
-        test!(found_linux_gate, "found no linux_gate");
+        let id = dumper.build_id_from_process_memory(linux_gate.unwrap().start_address)?;
+        test!(!id.is_empty(), "id-vec is empty");
+        test!(id.iter().any(|&x| x > 0), "all id elements are 0");
         Ok(())
     }
 
@@ -492,7 +500,7 @@ mod mac {
 
     #[inline(never)]
     pub(super) fn real_main(args: Vec<String>) -> Result<()> {
-        let port_name = args.get(0).ok_or("mach port name not specified")?;
+        let port_name = args.first().ok_or("mach port name not specified")?;
         let exception: u32 = args.get(1).ok_or("exception code not specified")?.parse()?;
 
         let client =

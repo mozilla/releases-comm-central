@@ -6,10 +6,9 @@ use {
     minidump::*,
     minidump_common::format::{GUID, MINIDUMP_STREAM_TYPE::*},
     minidump_writer::{
-        Pid,
+        CrashContextExt, Pid,
         app_memory::AppMemory,
-        crash_context::CrashContext,
-        maps_reader::{MappingEntry, MappingInfo, SystemMappingInfo},
+        maps_reader::{MappingEntry, MappingInfo},
         minidump_writer::{MinidumpWriter, MinidumpWriterConfig, errors::WriterError},
         module_reader::{self},
     },
@@ -35,38 +34,10 @@ impl Context {
     pub fn minidump_writer(&self, pid: Pid) -> MinidumpWriterConfig {
         let mut mw = MinidumpWriterConfig::new(pid, pid);
         if self == &Context::With {
-            let crash_context = get_crash_context(pid);
+            let crash_context = get_dummy_crash_context(pid);
             mw.set_crash_context(crash_context);
         }
         mw
-    }
-}
-
-fn get_ucontext() -> Result<crash_context::ucontext_t> {
-    let mut context = std::mem::MaybeUninit::uninit();
-    unsafe {
-        let res = crash_context::crash_context_getcontext(context.as_mut_ptr());
-        if res == -1 {
-            Err(std::io::Error::last_os_error())?;
-        }
-        Ok(context.assume_init())
-    }
-}
-
-fn get_crash_context(tid: Pid) -> CrashContext {
-    let siginfo: libc::signalfd_siginfo = unsafe { std::mem::zeroed() };
-    let context = get_ucontext().expect("Failed to get ucontext");
-    #[cfg(not(target_arch = "arm"))]
-    let float_state = unsafe { std::mem::zeroed() };
-    CrashContext {
-        inner: crash_context::CrashContext {
-            siginfo,
-            pid: std::process::id() as _,
-            tid,
-            context,
-            #[cfg(not(target_arch = "arm"))]
-            float_state,
-        },
     }
 }
 
@@ -156,10 +127,6 @@ contextual_test! {
             offset: 0,
             permissions: MMPermissions::READ | MMPermissions::WRITE,
             name: Some("a fake mapping".into()),
-            system_mapping_info: SystemMappingInfo {
-                start_address: mmap_addr,
-                end_address: mmap_addr + memory_size,
-            },
         };
 
         let identifier = vec![
@@ -233,6 +200,51 @@ contextual_test! {
     }
 }
 
+/// A module list starts with the executable and doesn't have overlaps
+#[test]
+fn module_list_properties() {
+    let mut child = start_child_and_wait_for_threads(1);
+    let pid = child.id() as i32;
+
+    let executable = std::fs::read_link(format!("/proc/{pid}/exe")).expect("failed to read exe");
+
+    let mut tmpfile = tempfile::Builder::new()
+        .prefix("module_list")
+        .tempfile()
+        .unwrap();
+
+    MinidumpWriterConfig::new(pid, pid)
+        .write(&mut tmpfile)
+        .expect("could not write minidump");
+
+    child.kill().expect("Failed to kill process");
+    child.wait().expect("Failed to wait for child");
+
+    let dump = Minidump::read_path(tmpfile.path()).expect("failed to read minidump");
+    let module_list: MinidumpModuleList = dump
+        .get_stream()
+        .expect("Couldn't find stream MinidumpModuleList");
+    let modules: Vec<_> = module_list.iter().collect();
+    assert!(!modules.is_empty(), "no modules in the dump");
+
+    // Executable is first
+    assert_eq!(modules[0].code_file(), executable.to_string_lossy());
+
+    // Get the ranges ordered by their start
+    let mut ranges: Vec<_> = modules
+        .iter()
+        .map(|module| (module.base_address(), module.size()))
+        .collect();
+    ranges.sort_unstable();
+
+    // Test for overlap
+    for pair in ranges.windows(2) {
+        let (base, size) = pair[0];
+        let (next_base, _) = pair[1];
+        assert!(base + size <= next_base);
+    }
+}
+
 contextual_test! {
     fn write_with_additional_memory(context: Context) {
         let mut child = start_child_and_return(&["spawn_alloc_wait"]);
@@ -300,9 +312,7 @@ contextual_test! {
 contextual_test! {
     fn skip_if_requested(context: Context) {
         let expected_errors = vec![
-            json!({
-                "InitErrors": ["PrincipalMappingNotReferenced"]
-            }),
+            ErrorPattern::value("PrincipalMappingNotReferenced").with_ancestor("InitErrors")
         ];
 
         let num_of_threads = 1;
@@ -340,7 +350,7 @@ contextual_test! {
 
         // Ensure the MozSoftErrors stream contains the expected errors
         let dump = Minidump::read_path(tmpfile.path()).expect("failed to read minidump");
-        assert_soft_errors_in_minidump(&dump, &expected_errors);
+        assert_minidump_soft_errors_match_all(&dump, &expected_errors);
     }
 }
 

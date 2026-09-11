@@ -1,10 +1,10 @@
-use {
-    super::{Error, OwnedFd, SyscallInvoker, errno},
-    core::{
-        ffi::{CStr, c_void},
-        mem, ptr,
-    },
+use super::super::local;
+use crate::wrapper::{OwnedFd, errno};
+use core::{
+    ffi::{CStr, c_void},
+    mem, ptr,
 };
+use local::{Error, Result, SyscallInvoker};
 
 #[derive(Debug)]
 pub struct MappedModuleMemoryReader {
@@ -14,11 +14,24 @@ pub struct MappedModuleMemoryReader {
 }
 
 impl MappedModuleMemoryReader {
-    pub fn new(
+    pub fn read_at(&self, offset: usize, length: usize) -> Result<&[u8]> {
+        let s = self.as_slice();
+        let requested_end = offset.checked_add(length).ok_or(Error::IndexOutOfBounds)?;
+        let maximum_end = s.len();
+        let end = usize::min(requested_end, maximum_end);
+        s.get(offset..end).ok_or(Error::IndexOutOfBounds)
+    }
+    pub fn len(&self) -> usize {
+        self.as_slice().len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.as_slice().is_empty()
+    }
+    pub(crate) fn new(
         syscall_invoker: &mut SyscallInvoker,
         path: &CStr,
         start_position: u64,
-    ) -> Result<Self, Error> {
+    ) -> Result<Self> {
         let fd = Self::open_file(syscall_invoker, path)?;
 
         // So far, we only ever map files from the start position to EOF - We never specify a
@@ -51,22 +64,7 @@ impl MappedModuleMemoryReader {
 
         Ok(MappedModuleMemoryReader { mapped, ptr, len })
     }
-    pub fn read(&self, offset: u64, length: u64) -> Result<&[u8], Error> {
-        (|| {
-            let offset = usize::try_from(offset).ok()?;
-            let length = usize::try_from(length).ok()?;
-            let end = offset.checked_add(length)?;
-            self.as_slice().get(offset..end)
-        })()
-        .ok_or(Error::IndexOutOfBounds)
-    }
-    pub fn len(&self) -> Result<usize, Error> {
-        Ok(self.as_slice().len())
-    }
-    pub fn is_empty(&self) -> Result<bool, Error> {
-        self.len().map(|l| l == 0)
-    }
-    fn open_file(syscall_invoker: &mut SyscallInvoker, path: &CStr) -> Result<OwnedFd, Error> {
+    fn open_file(syscall_invoker: &mut SyscallInvoker, path: &CStr) -> Result<OwnedFd> {
         syscall_invoker
             .invoke_standard(|| unsafe {
                 libc::open(path.as_ptr(), libc::O_RDONLY | libc::O_CLOEXEC, 0)
@@ -74,7 +72,7 @@ impl MappedModuleMemoryReader {
             .map(|fd| unsafe { OwnedFd::new(fd) })
             .map_err(Error::OpenFileFailed)
     }
-    fn get_file_size(syscall_invoker: &mut SyscallInvoker, fd: &OwnedFd) -> Result<u64, Error> {
+    fn get_file_size(syscall_invoker: &mut SyscallInvoker, fd: &OwnedFd) -> Result<u64> {
         let mut stat: libc::stat = unsafe { mem::zeroed() };
 
         syscall_invoker
@@ -93,7 +91,7 @@ impl MappedModuleMemoryReader {
         fd: &OwnedFd,
         page_aligned_start_position: u64,
         len: usize,
-    ) -> Result<Mapped, Error> {
+    ) -> Result<Mapped> {
         // Linux requires the mapping length to be non-zero, even though we want to support
         // zero-length mappings -- So we just make it a one-byte mapping (and ignore the byte).
         let len = usize::max(len, 1);
@@ -139,6 +137,23 @@ impl MappedModuleMemoryReader {
     }
 }
 
+impl crate::MappedModuleMemoryReader for MappedModuleMemoryReader {
+    fn read_at(&self, offset: usize, buf: &mut [u8]) -> core::result::Result<usize, crate::Error> {
+        let bytes = MappedModuleMemoryReader::read_at(self, offset, buf.len())
+            .map_err(crate::Error::Local)?;
+        buf[0..bytes.len()].copy_from_slice(bytes);
+        Ok(bytes.len())
+    }
+
+    fn len(&self) -> core::result::Result<usize, crate::Error> {
+        Ok(MappedModuleMemoryReader::len(self))
+    }
+
+    fn is_empty(&self) -> core::result::Result<bool, crate::Error> {
+        Ok(MappedModuleMemoryReader::is_empty(self))
+    }
+}
+
 #[derive(Debug)]
 struct Mapped {
     ptr: *mut c_void,
@@ -149,7 +164,7 @@ impl Drop for Mapped {
     fn drop(&mut self) {
         let rv = unsafe { libc::munmap(self.ptr, self.len) };
         if rv == -1 {
-            log::error!("failed to unmap memory: {}", errno());
+            report_drop_failed!("failed to unmap memory: {}", errno());
         }
     }
 }

@@ -27,7 +27,7 @@ impl MinidumpWriter {
         let path = format!("/proc/{}/maps", self.blamed_thread);
         let reader = self
             .process_inspector
-            .read_file(&path)
+            .read_file(path.into())
             .map_err(SectionMemInfoListError::ReadFileFailed)?;
         let maps = procfs_core::process::MemoryMaps::from_read(reader)?;
 

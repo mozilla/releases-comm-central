@@ -13,13 +13,14 @@
 edition = "2024"
 rust-version = "1.88.0"
 name = "process-backend"
-version = "0.0.0"
+version = "0.1.0"
 build = false
 autolib = false
 autobins = false
 autoexamples = false
 autotests = false
 autobenches = false
+description = "Providers helpers for reading process memory specialized for minidump-writer"
 homepage = "https://github.com/rust-minidump/minidump-writer"
 readme = false
 license = "MIT"
@@ -34,11 +35,10 @@ path = "src/lib.rs"
 
 [target.'cfg(any(target_os = "linux", target_os = "android"))'.dependencies.libc]
 version = "0.2"
-
-[target.'cfg(any(target_os = "linux", target_os = "android"))'.dependencies.log]
-version = "0.4"
+default-features = false
 
 [target.'cfg(any(target_os = "linux", target_os = "android"))'.dependencies.process-reader]
+version = "0.1.0"
 path = "../../process-reader"
 features = ["serde"]
 

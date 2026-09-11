@@ -5,7 +5,7 @@ impl MinidumpWriter {
     pub fn write_app_memory(&mut self, buffer: &mut DumpBuf) -> Result<(), CopyFromProcessError> {
         for app_memory in &self.app_memory {
             let data_copy = Self::copy_from_process(
-                &self.process_inspector,
+                self.process_inspector.as_ref(),
                 app_memory.ptr,
                 app_memory.length,
             )?;

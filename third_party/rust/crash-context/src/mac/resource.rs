@@ -17,7 +17,7 @@ pub enum ResourceException {
     Cpu(CpuResourceException),
     /// This is sent by the kernel when the platform idle wakeups monitor is tripped. Possibly fatal.
     Wakeups(WakeupsResourceException),
-    /// This is sent by the kernel when a task crosses its high watermark memory limit. Never fatal at least on current MacOS versions.
+    /// This is sent by the kernel when a task crosses its high watermark memory limit. Never fatal at least on current `MacOS` versions.
     Memory(MemoryResourceException),
     /// This is sent by the kernel when a task crosses its I/O limits. Never fatal.
     Io(IoResourceException),
@@ -27,7 +27,7 @@ pub enum ResourceException {
     /// filled its port space. Always fatal.
     Ports(PortsResourceException),
     /// An unknown resource kind due to an addition to the set of possible
-    /// resource exception kinds in exc_resource.h
+    /// resource exception kinds in `exc_resource.h`
     Unknown { kind: u8, flavor: u8 },
 }
 

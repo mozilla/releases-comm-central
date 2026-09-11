@@ -1,7 +1,7 @@
 use {
     super::{
-        maps_reader::MappingInfo, minidump_writer::MinidumpWriter,
-        process_inspection::ProcessInspector, process_reader::CopyFromProcessError,
+        minidump_writer::MinidumpWriter, process_inspection::ProcessInspector,
+        process_reader::CopyFromProcessError,
     },
     goblin::elf,
 };
@@ -49,7 +49,7 @@ struct DynVaddresses {
 }
 
 fn has_android_packed_relocations(
-    process_inspector: &ProcessInspector,
+    process_inspector: &dyn ProcessInspector,
     load_bias: usize,
     vaddrs: DynVaddresses,
 ) -> Result<()> {
@@ -71,7 +71,7 @@ fn has_android_packed_relocations(
 }
 
 fn get_effective_load_bias(
-    process_inspector: &ProcessInspector,
+    process_inspector: &dyn ProcessInspector,
     ehdr: &elf_header::Header,
     address: usize,
 ) -> usize {
@@ -91,7 +91,7 @@ fn get_effective_load_bias(
 }
 
 fn parse_loaded_elf_program_headers(
-    process_inspector: &ProcessInspector,
+    process_inspector: &dyn ProcessInspector,
     ehdr: &elf_header::Header,
     address: usize,
 ) -> DynVaddresses {
@@ -130,38 +130,26 @@ fn parse_loaded_elf_program_headers(
     }
 }
 
-pub fn late_process_mappings(
-    process_inspector: &ProcessInspector,
-    mappings: &mut [MappingInfo],
-) -> Result<()> {
-    // Only consider exec mappings that indicate a file path was mapped, and
-    // where the ELF header indicates a mapped shared library.
-    for map in mappings
-        .iter_mut()
-        .filter(|m| m.is_executable() && m.name_is_path())
-    {
-        let ehdr_opt = MinidumpWriter::copy_from_process(
-            process_inspector,
-            map.start_address,
-            elf_header::SIZEOF_EHDR,
-        )
-        .ok()
-        .and_then(|x| elf_header::Header::parse(&x).ok());
+/// Compute the effective load base of the ELF library pointed at by `elf_header_addr`.
+/// In most cases it would be the same as that address, but libraries that use
+/// Android packed relocations might need some tweaking.
+pub fn effective_load_base(
+    process_inspector: &dyn ProcessInspector,
+    elf_header_addr: usize,
+) -> usize {
+    let ehdr = MinidumpWriter::copy_from_process(
+        process_inspector,
+        elf_header_addr,
+        elf_header::SIZEOF_EHDR,
+    )
+    .ok()
+    .and_then(|v| elf_header::Header::parse(&v).ok());
 
-        if let Some(ehdr) = ehdr_opt {
-            if ehdr.e_type == elf_header::ET_DYN {
-                // Compute the effective load bias for this mapped library, and update
-                // the mapping to hold that rather than |start_addr|, at the same time
-                // adjusting |size| to account for the change in |start_addr|. Where
-                // the library does not contain Android packed relocations,
-                // GetEffectiveLoadBias() returns |start_addr| and the mapping entry
-                // is not changed.
-                let load_bias =
-                    get_effective_load_bias(process_inspector, &ehdr, map.start_address);
-                map.size += map.start_address - load_bias;
-                map.start_address = load_bias;
-            }
+    match ehdr {
+        // Only a relocatable object can have been packed.
+        Some(ehdr) if ehdr.e_type == elf_header::ET_DYN => {
+            get_effective_load_bias(process_inspector, &ehdr, elf_header_addr)
         }
+        _ => elf_header_addr,
     }
-    Ok(())
 }

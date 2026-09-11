@@ -1,6 +1,4 @@
-use {super::CrashContext, crate::minidump_cpu::RawContextCPU};
-
-impl CrashContext {
+impl super::CrashContextExt {
     pub fn get_instruction_pointer(&self) -> usize {
         self.inner.context.uc_mcontext.arm_pc as usize
     }
@@ -9,7 +7,7 @@ impl CrashContext {
         self.inner.context.uc_mcontext.arm_sp as usize
     }
 
-    pub fn fill_cpu_context(&self, out: &mut RawContextCPU) {
+    pub fn fill_cpu_context(&self, out: &mut super::RawContextCPU) {
         out.context_flags =
             crate::minidump_format::format::ContextFlagsArm::CONTEXT_ARM_FULL.bits();
 

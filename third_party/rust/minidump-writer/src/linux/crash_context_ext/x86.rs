@@ -1,12 +1,11 @@
 use {
-    super::CrashContext,
-    crate::{minidump_cpu::RawContextCPU, minidump_format::format::ContextFlagsX86},
+    crate::minidump_format::format::ContextFlagsX86,
     libc::{
         REG_CS, REG_DS, REG_EAX, REG_EBP, REG_EBX, REG_ECX, REG_EDI, REG_EDX, REG_EFL, REG_EIP,
         REG_ES, REG_ESI, REG_ESP, REG_FS, REG_GS, REG_SS, REG_UESP,
     },
 };
-impl CrashContext {
+impl super::CrashContextExt {
     pub fn get_instruction_pointer(&self) -> usize {
         self.inner.context.uc_mcontext.gregs[REG_EIP as usize] as usize
     }
@@ -15,7 +14,7 @@ impl CrashContext {
         self.inner.context.uc_mcontext.gregs[REG_ESP as usize] as usize
     }
 
-    pub fn fill_cpu_context(&self, out: &mut RawContextCPU) {
+    pub fn fill_cpu_context(&self, out: &mut super::RawContextCPU) {
         out.context_flags = ContextFlagsX86::CONTEXT_X86_FULL.bits()
             | ContextFlagsX86::CONTEXT_X86_FLOATING_POINT.bits();
 

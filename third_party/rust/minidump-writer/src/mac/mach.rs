@@ -639,8 +639,7 @@ pub fn sysctl_string(name: &[u8]) -> String {
             return String::new();
         }
 
-        let mut buff = Vec::new();
-        buff.resize(buf_len, 0);
+        let mut buff = vec![0; buf_len];
 
         if libc::sysctlbyname(
             name.as_ptr().cast(),

@@ -10,7 +10,7 @@ pub struct CrashContext {
     ///
     /// Note that we use [`crate::ucontext_t`] instead of [`libc::ucontext_t`]
     /// as libc's differs between glibc and musl <https://github.com/rust-lang/libc/pull/1646>
-    /// even though the ucontext_t received from a signal will be the same
+    /// even though the `ucontext_t` received from a signal will be the same
     /// regardless of the libc implementation used as it is only arch specific
     /// and not libc specific
     ///
@@ -52,7 +52,7 @@ impl CrashContext {
             return None;
         }
 
-        unsafe { Some((*bytes.as_ptr().cast::<Self>()).clone()) }
+        unsafe { Some(std::ptr::read_unaligned(bytes.as_ptr().cast::<Self>())) }
     }
 }
 
@@ -87,6 +87,8 @@ cfg_if::cfg_if! {
             pub uc_mcontext: mcontext_t,
             pub uc_sigmask: sigset_t,
             __private: [u8; 512],
+            /// Shadow stack
+            __ssp: [u64; 4],
         }
 
         #[repr(C)]
@@ -256,6 +258,175 @@ cfg_if::cfg_if! {
             pub arm_cpsr: u32,
             pub fault_address: u32,
         }
+    } else if #[cfg(target_arch = "riscv64")] {
+        #[repr(C)]
+        #[derive(Clone)]
+        #[doc(hidden)]
+        pub struct ucontext_t {
+            pub __uc_flags: u64,
+            pub uc_link: *mut ucontext_t,
+            pub uc_stack: stack_t,
+            pub uc_sigmask: sigset_t,
+            pub uc_mcontext: mcontext_t,
+        }
+
+        #[repr(C, align(16))]
+        #[derive(Clone)]
+        #[doc(hidden)]
+        pub struct mcontext_t {
+            pub __gregs: [u64; 32],
+            pub __fpregs: __riscv_mc_fp_state,
+        }
+
+        #[repr(C)]
+        #[derive(Clone, Copy)]
+        #[doc(hidden)]
+        pub union __riscv_mc_fp_state {
+            pub __f: __riscv_mc_f_ext_state,
+            pub __d: __riscv_mc_d_ext_state,
+            pub __q: __riscv_mc_q_ext_state,
+        }
+
+        #[repr(C)]
+        #[derive(Clone, Copy)]
+        #[doc(hidden)]
+        pub struct __riscv_mc_f_ext_state {
+            pub __f: [u32; 32],
+            pub __fcsr: u32,
+        }
+
+        #[repr(C)]
+        #[derive(Clone, Copy)]
+        #[doc(hidden)]
+        pub struct __riscv_mc_d_ext_state {
+            pub __f: [u64; 32],
+            pub __fcsr: u32,
+        }
+
+        #[repr(C, align(16))]
+        #[derive(Clone, Copy)]
+        #[doc(hidden)]
+        pub struct __riscv_mc_q_ext_state {
+            pub __f: [u64; 64],
+            pub __fcsr: u32,
+            pub __reserved: [u32; 3],
+        }
+
+        pub type fpregset_t = __riscv_mc_fp_state;
+    } else if #[cfg(target_arch = "s390x")] {
+        #[repr(C)]
+        #[derive(Clone)]
+        #[doc(hidden)]
+        pub struct ucontext_t {
+            pub uc_flags: u64,
+            pub uc_link: *mut ucontext_t,
+            pub uc_stack: stack_t,
+            pub uc_mcontext: mcontext_t,
+            pub uc_sigmask: sigset_t,
+        }
+
+        #[repr(C, align(8))]
+        #[derive(Clone,Copy)]
+        #[doc(hidden)]
+        pub struct mcontext_t {
+            pub psw: psw_t,
+            pub gregs: [u64; 16],
+            pub aregs: [u32; 16],
+            pub __fpregs: fpregset_t,
+        }
+
+        #[repr(C)]
+        #[derive(Clone,Copy)]
+        #[doc(hidden)]
+        pub struct fpregset_t {
+            pub fpc: u32,
+            __pad: u32,
+            pub fprs: [fpreg_t; 16],
+        }
+
+        #[repr(C)]
+        #[derive(Clone,Copy)]
+        #[doc(hidden)]
+        pub struct fpreg_t {
+            pub d: f64,
+            // pub f: f32,
+        }
+
+        #[repr(C)]
+        #[derive(Clone,Copy)]
+        #[doc(hidden)]
+        pub struct psw_t {
+            pub mask: u64,
+            pub addr: u64,
+        }
+    } else if #[cfg(target_arch = "loongarch64")] {
+        pub const SC_USED_FP: u32 = 1;
+        pub const FPU_CTX_MAGIC: u32 = 0x46505501;
+        pub const FPU_CTX_ALIGN: usize = 8;
+        pub const LSX_CTX_MAGIC: u32 = 0x53580001;
+        pub const LSX_CTX_ALIGN: usize = 16;
+        pub const LASX_CTX_MAGIC: u32 = 0x41535801;
+        pub const LASX_CTX_ALIGN: usize = 32;
+
+        #[repr(C)]
+        #[derive(Clone)]
+        #[doc(hidden)]
+        pub struct ucontext_t {
+            pub uc_flags: u64,
+            pub uc_link: *mut ucontext_t,
+            pub uc_stack: stack_t,
+            pub uc_sigmask: sigset_t,
+            pub uc_mcontext: mcontext_t,
+        }
+
+        #[repr(C, align(16))]
+        #[derive(Clone,Copy)]
+        #[doc(hidden)]
+        pub struct mcontext_t {
+            pub __pc: u64,
+            pub __gregs: [u64; 32],
+            pub __flags: u32,
+            pub __extcontext: [u64; 0],
+        }
+
+        #[repr(C, align(16))]
+        #[derive(Clone,Copy)]
+        #[doc(hidden)]
+        pub struct sctx_info {
+            pub magic: u32,
+            pub size: u32,
+            padding: u64,
+        }
+
+        #[repr(C, align(8))]
+        #[derive(Clone,Copy)]
+        #[doc(hidden)]
+        pub struct fpu_context {
+            pub regs: [u64; 32],
+            pub fcc: u64,
+            pub fcsr: u32,
+        }
+
+        #[repr(C, align(16))]
+        #[derive(Clone,Copy)]
+        #[doc(hidden)]
+        pub struct lsx_context {
+            pub regs: [u64; 2*32],
+            pub fcc: u64,
+            pub fcsr: u32,
+        }
+
+        #[repr(C, align(32))]
+        #[derive(Clone,Copy)]
+        #[doc(hidden)]
+        pub struct lasx_context {
+            pub regs: [u64; 4*32],
+            pub fcc: u64,
+            pub fcsr: u32,
+        }
+
+        #[doc(hidden)]
+        pub type fpregset_t = fpu_context;
     }
 }
 

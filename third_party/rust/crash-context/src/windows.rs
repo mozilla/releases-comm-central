@@ -5,7 +5,7 @@ pub struct CrashContext {
     /// Note that this is a pointer into the actual memory of the crashed process,
     /// and is a pointer to an [EXCEPTION_POINTERS](https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-exception_pointers)
     pub exception_pointers: *const EXCEPTION_POINTERS,
-    /// The top level exception code from the exception_pointers. This is provided
+    /// The top level exception code from the `exception_pointers`. This is provided
     /// so that external processes don't need to use `ReadProcessMemory` to inspect
     /// the exception code
     pub exception_code: i32,
@@ -16,7 +16,7 @@ pub struct CrashContext {
 }
 
 #[link(name = "kernel32")]
-extern "system" {
+unsafe extern "system" {
     #[link_name = "RtlCaptureContext"]
     pub fn capture_context(ctx_rec: *mut CONTEXT);
 }

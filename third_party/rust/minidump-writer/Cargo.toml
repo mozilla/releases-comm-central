@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.88.0"
 name = "minidump-writer"
-version = "0.12.0"
+version = "0.13.0"
 authors = ["Martin Sirringhaus"]
 build = "build.rs"
 autolib = false
@@ -69,13 +69,18 @@ path = "tests/windows_minidump_writer.rs"
 
 [dependencies]
 bitflags = "2.10"
-cfg-if = "1.0"
-crash-context = "0.6"
 failspot = "0.2.0"
 goblin = "0.9.2"
 minidump-common = "0.26"
 scroll = "0.12"
 serde_json = "1.0.116"
+
+[dependencies.cfg-if]
+version = "1.0"
+
+[dependencies.crash-context]
+version = "0.8"
+path = "crates/crash-context"
 
 [dependencies.error-graph]
 version = "0.1.1"
@@ -114,7 +119,12 @@ failspot = "0.2.0"
 version = "0.1.1"
 features = ["serde"]
 
+[target.'cfg(any(target_os = "linux", target_os = "android"))'.dependencies.plain]
+version = "0.2.3"
+default-features = false
+
 [target.'cfg(any(target_os = "linux", target_os = "android"))'.dependencies.process-backend]
+version = "0.1.0"
 path = "crates/linux/process-backend"
 features = ["testing"]
 
@@ -123,8 +133,8 @@ version = "0.18"
 features = ["serde1"]
 default-features = false
 
-[target.'cfg(target_os = "macos")'.dependencies]
-mach2 = "0.4"
+[target.'cfg(target_os = "macos")'.dependencies.mach2]
+version = "0.6"
 
 [target.'cfg(target_os = "macos")'.dev-dependencies]
 similar-asserts = "1.6"
@@ -146,11 +156,13 @@ memmap2 = "0.9"
 
 [target."cfg(unix)".dependencies.libc]
 version = "0.2"
+default-features = false
 
 [workspace]
 members = [
-    "crates/process-reader",
+    "crates/crash-context",
     "crates/linux/process-backend",
+    "crates/process-reader",
 ]
 resolver = "3"
 
@@ -162,9 +174,14 @@ edition = "2024"
 rust-version = "1.88.0"
 
 [workspace.dependencies]
-libc = "0.2"
+cfg-if = "1.0"
 log = "0.4"
+mach2 = "0.6"
 thiserror = "2.0"
+
+[workspace.dependencies.libc]
+version = "0.2"
+default-features = false
 
 [workspace.dependencies.serde]
 version = "1.0.208"

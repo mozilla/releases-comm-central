@@ -32,8 +32,14 @@ pub enum ThreadInfoError {
         #[serde(skip)]
         std::num::ParseIntError,
     ),
-    #[error("ptrace error")]
-    PtraceError(#[source] process_inspection::Error),
+    #[error("failed to get general-purpose registers")]
+    GetGenRegsFailed(#[source] process_inspection::Error),
+    #[error("failed to get floating-point registers")]
+    GetFpRegsFailed(#[source] process_inspection::Error),
+    #[error("failed to get floating-point register extended info")]
+    GetFpxRegsFailed(#[source] process_inspection::Error),
+    #[error("failed to get debug registers")]
+    GetDebugRegsFailed(#[source] process_inspection::Error),
     #[error("Invalid line in /proc/{0}/status: {1}")]
     InvalidProcStatusFile(Pid, String),
 }
@@ -54,7 +60,7 @@ cfg_if::cfg_if! {
     }
 }
 
-fn get_ppid_and_tgid(process_inspector: &ProcessInspector, tid: Pid) -> Result<(Pid, Pid)> {
+fn get_ppid_and_tgid(process_inspector: &dyn ProcessInspector, tid: Pid) -> Result<(Pid, Pid)> {
     let mut ppid = -1;
     let mut tgid = -1;
 

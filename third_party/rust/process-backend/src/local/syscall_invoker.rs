@@ -1,7 +1,8 @@
-use {super::errno, core::ffi::c_int};
+use crate::wrapper::errno;
+use core::ffi::c_int;
 
 #[derive(Debug, Default)]
-pub struct SyscallInvoker(Option<c_int>);
+pub(crate) struct SyscallInvoker(Option<c_int>);
 
 impl SyscallInvoker {
     /// Helper function to invoke a syscall and capture errno if it fails
@@ -12,7 +13,7 @@ impl SyscallInvoker {
     ///
     /// If testing requests a failure, will never actually make the syscall and just returns
     /// the errno requested by testing
-    pub fn invoke<T, F>(&mut self, f: F) -> Result<T, c_int>
+    pub(crate) fn invoke<T, F>(&mut self, f: F) -> Result<T, c_int>
     where
         F: FnOnce() -> Result<T, ()>,
     {
@@ -24,7 +25,7 @@ impl SyscallInvoker {
     }
 
     /// Ergonomics for `invoke` for the standard case where `-1` indicates the syscall failed
-    pub fn invoke_standard<T, F>(&mut self, f: F) -> Result<T, c_int>
+    pub(crate) fn invoke_standard<T, F>(&mut self, f: F) -> Result<T, c_int>
     where
         F: FnOnce() -> T,
         T: From<i8> + core::cmp::PartialEq,
@@ -40,7 +41,7 @@ impl SyscallInvoker {
 
     /// Force the next syscall to fail with the given errno
     #[cfg(feature = "testing")]
-    pub fn fail_one_syscall_with(&mut self, errno: c_int) {
+    pub(crate) fn fail_one_syscall_with(&mut self, errno: c_int) {
         self.0 = Some(errno);
     }
 }

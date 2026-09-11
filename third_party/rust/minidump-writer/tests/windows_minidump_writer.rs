@@ -171,7 +171,11 @@ fn dump_external_process() {
         .expect("failed to write minidump");
 
     child.kill().expect("failed to kill child");
+    // Reap child
+    child.wait().expect("Failed to wait for child");
 
+    // Clean up the zombie child.
+    child.wait().expect("failed to wait child");
     let md = Minidump::read_path(tmpfile.path()).expect("failed to read minidump");
 
     let _: MinidumpThreadList = md.get_stream().expect("Couldn't find MinidumpThreadList");
