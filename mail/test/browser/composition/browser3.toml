@@ -63,6 +63,8 @@ support-files = [
 
 ["browser_forwardRFC822Attach.js"]
 
+["browser_forwardSignature.js"]
+
 ["browser_forwardUTF8.js"]
 
 ["browser_forwardedContent.js"]

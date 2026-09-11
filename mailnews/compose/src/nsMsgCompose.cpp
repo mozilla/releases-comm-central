@@ -692,20 +692,23 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
             // Sadly the M-C editor inserts a <br> between the <div> for the
             // signature and this <div>, so remove the <br> we don't want.
             nsCOMPtr<nsINode> brBeforeDiv;
-            nsAutoString tagLocalName;
             brBeforeDiv = divElem->GetPreviousSibling();
             if (brBeforeDiv) {
-              tagLocalName = brBeforeDiv->LocalName();
-              if (tagLocalName.EqualsLiteral("br")) {
+              if (brBeforeDiv->IsHTMLElement(nsGkAtoms::br)) {
                 rv = htmlEditor->DeleteNode(brBeforeDiv, false, 1);
                 NS_ENSURE_SUCCESS(rv, rv);
               }
             }
           }
 
-          // Clean up the <br> we inserted.
-          rv = htmlEditor->DeleteNode(extraBr, false, 1);
-          NS_ENSURE_SUCCESS(rv, rv);
+          // Clean up the trailing <br>. That is the placeholder we inserted
+          // above, unless the editor has replaced it with a padding <br> of
+          // its own while inserting the text.
+          nsCOMPtr<nsINode> brAtEndOfDiv = divElem->GetLastChild();
+          if (brAtEndOfDiv && brAtEndOfDiv->IsHTMLElement(nsGkAtoms::br)) {
+            rv = htmlEditor->DeleteNode(brAtEndOfDiv, false, 1);
+            NS_ENSURE_SUCCESS(rv, rv);
+          }
         }
 
         // Use our own function instead of nsEditor::EndOfDocument() because
@@ -4765,7 +4768,6 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity* aIdentity) {
   nsCOMPtr<nsINode> lastNode;
   nsCOMPtr<nsINode> node;
   nsCOMPtr<nsINode> tempNode;
-  nsAutoString tagLocalName;
 
   RefPtr<nsINode> rootElement2 = rootElement;
   lastNode = rootElement2->GetLastChild();
@@ -4804,8 +4806,7 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity* aIdentity) {
 
       // Also, remove the <br> right before the signature.
       if (tempNode) {
-        tagLocalName = tempNode->LocalName();
-        if (tagLocalName.EqualsLiteral("br"))
+        if (tempNode->IsHTMLElement(nsGkAtoms::br))
           editor->DeleteNode(tempNode, false, 1);
       }
       editor->EndTransaction();
