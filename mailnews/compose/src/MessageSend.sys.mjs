@@ -13,6 +13,11 @@ ChromeUtils.defineESModuleGetters(lazy, {
   jsmime: "resource:///modules/jsmime.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["messenger/messageSend.ftl"], true)
+);
 
 // nsMsgKey_None from MailNewsTypes.h.
 const nsMsgKey_None = 0xffffffff;
@@ -90,21 +95,13 @@ export class MessageSend {
     this._sendReport = Cc[
       "@mozilla.org/messengercompose/sendreport;1"
     ].createInstance(Ci.nsIMsgSendReport);
-    this._composeBundle = Services.strings.createBundle(
-      "chrome://messenger/locale/messengercompose/composeMsgs.properties"
-    );
-
     // Initialize the error reporting mechanism.
     this.sendReport.reset();
     this.sendReport.deliveryMode = deliverMode;
-    this._setStatusMessage(
-      this._composeBundle.GetStringFromName("assemblingMailInformation")
-    );
+    this._setStatusMessage("send-progress-assembling-mail-information");
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_BuildMessage;
 
-    this._setStatusMessage(
-      this._composeBundle.GetStringFromName("assemblingMessage")
-    );
+    this._setStatusMessage("send-progress-assembling-message");
 
     this._fcc = await lazy.MsgUtils.getFcc(
       userIdentity,
@@ -140,9 +137,7 @@ export class MessageSend {
 
     this._messageKey = nsMsgKey_None;
 
-    this._setStatusMessage(
-      this._composeBundle.GetStringFromName("creatingMailMessage")
-    );
+    this._setStatusMessage("send-progress-creating-mail-message");
     lazy.MsgUtils.sendLogger.debug("Creating message file");
     let messageFile;
     try {
@@ -152,18 +147,15 @@ export class MessageSend {
       lazy.MsgUtils.sendLogger.error(e);
       let errorMsg = "";
       if (e.result == Cr.NS_ERROR_FILE_NOT_FOUND) {
-        errorMsg = this._composeBundle.formatStringFromName(
-          "errorAttachingFile",
-          [e.data.name || e.data.url]
-        );
+        errorMsg = lazy.l10n.formatValueSync("send-error-attaching-file", {
+          filename: e.data.name || e.data.url,
+        });
       }
       this.fail(e.result || Cr.NS_ERROR_FAILURE, errorMsg);
       this.notifyListenerOnStopSending(null, e.result, null, null);
       throw e;
     }
-    this._setStatusMessage(
-      this._composeBundle.GetStringFromName("assemblingMessageDone")
-    );
+    this._setStatusMessage("send-progress-assembling-message-done");
     lazy.MsgUtils.sendLogger.debug("Message file created");
     return this._deliverMessage(messageFile);
   }
@@ -217,21 +209,14 @@ export class MessageSend {
     this._sendReport = Cc[
       "@mozilla.org/messengercompose/sendreport;1"
     ].createInstance(Ci.nsIMsgSendReport);
-    this._composeBundle = Services.strings.createBundle(
-      "chrome://messenger/locale/messengercompose/composeMsgs.properties"
-    );
 
     // Initialize the error reporting mechanism.
     this.sendReport.reset();
     this.sendReport.deliveryMode = deliverMode;
-    this._setStatusMessage(
-      this._composeBundle.GetStringFromName("assemblingMailInformation")
-    );
+    this._setStatusMessage("send-progress-assembling-mail-information");
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_BuildMessage;
 
-    this._setStatusMessage(
-      this._composeBundle.GetStringFromName("assemblingMessage")
-    );
+    this._setStatusMessage("send-progress-assembling-message");
 
     this._fcc = await lazy.MsgUtils.getFcc(
       userIdentity,
@@ -265,9 +250,6 @@ export class MessageSend {
     this._sendReport = Cc[
       "@mozilla.org/messengercompose/sendreport;1"
     ].createInstance(Ci.nsIMsgSendReport);
-    this._composeBundle = Services.strings.createBundle(
-      "chrome://messenger/locale/messengercompose/composeMsgs.properties"
-    );
 
     // Initialize the error reporting mechanism.
     this.sendReport.reset();
@@ -413,11 +395,9 @@ export class MessageSend {
 
     if (!this._isRetry) {
       const statusMsgEntry = Components.isSuccessCode(status)
-        ? "copyMessageComplete"
-        : "copyMessageFailed";
-      this._setStatusMessage(
-        this._composeBundle.GetStringFromName(statusMsgEntry)
-      );
+        ? "send-progress-copy-complete"
+        : "send-progress-copy-failed";
+      this._setStatusMessage(statusMsgEntry);
     } else if (Components.isSuccessCode(status)) {
       // We got here via retry and the save to sent, drafts or template
       // succeeded so take down our progress dialog. We don't need it any more.
@@ -436,49 +416,42 @@ export class MessageSend {
         return;
       }
 
-      const params = [
-        folder.localizedName,
-        accountName,
-        localFoldersAccountName,
-      ];
-      let promptMsg;
+      const params = {
+        folder: folder.localizedName,
+        account: accountName,
+        localFolder: localFoldersAccountName,
+      };
+      let promptId;
       switch (this._deliverMode) {
         case Ci.nsIMsgSend.nsMsgDeliverNow:
         case Ci.nsIMsgSend.nsMsgSendUnsent:
-          promptMsg = this._composeBundle.formatStringFromName(
-            "promptToSaveSentLocally2",
-            params
-          );
+          promptId = "send-error-save-sent-locally";
           break;
         case Ci.nsIMsgSend.nsMsgSaveAsDraft:
-          promptMsg = this._composeBundle.formatStringFromName(
-            "promptToSaveDraftLocally2",
-            params
-          );
+          promptId = "send-error-save-draft-locally";
           break;
         case Ci.nsIMsgSend.nsMsgSaveAsTemplate:
-          promptMsg = this._composeBundle.formatStringFromName(
-            "promptToSaveTemplateLocally2",
-            params
-          );
+          promptId = "send-error-save-template-locally";
           break;
       }
-      if (promptMsg) {
+      if (promptId) {
         const showCheckBox = { value: false };
         const buttonFlags =
           Ci.nsIPrompt.BUTTON_POS_0 * Ci.nsIPrompt.BUTTON_TITLE_IS_STRING +
           Ci.nsIPrompt.BUTTON_POS_1 * Ci.nsIPrompt.BUTTON_TITLE_DONT_SAVE +
           Ci.nsIPrompt.BUTTON_POS_2 * Ci.nsIPrompt.BUTTON_TITLE_SAVE;
-        const dialogTitle =
-          this._composeBundle.GetStringFromName("SaveDialogTitle");
-        const buttonLabelRety =
-          this._composeBundle.GetStringFromName("buttonLabelRetry2");
+        const [promptMsg, dialogTitle, retryButtonLabel] =
+          lazy.l10n.formatValuesSync([
+            { id: promptId, args: params },
+            "send-dialog-save-title",
+            "send-dialog-retry",
+          ]);
         const buttonPressed = Services.prompt.confirmEx(
           this._parentWindow,
           dialogTitle,
           promptMsg,
           buttonFlags,
-          buttonLabelRety,
+          retryButtonLabel,
           null,
           null,
           null,
@@ -534,7 +507,7 @@ export class MessageSend {
             Services.prompt.alert(
               this._parentWindow,
               null,
-              this._composeBundle.GetStringFromName("saveToLocalFoldersFailed")
+              lazy.l10n.formatValueSync("send-error-save-to-local-folders")
             );
           }
         }
@@ -600,18 +573,13 @@ export class MessageSend {
   async onStopOperation(status) {
     lazy.MsgUtils.sendLogger.debug(`onStopOperation; status=${status}`);
     if (Components.isSuccessCode(status)) {
-      this._setStatusMessage(
-        this._composeBundle.GetStringFromName("filterMessageComplete")
-      );
+      this._setStatusMessage("send-progress-filter-complete");
     } else {
-      this._setStatusMessage(
-        this._composeBundle.GetStringFromName("filterMessageFailed")
+      this._setStatusMessage("send-progress-filter-failed");
+      const errorMessage = lazy.l10n.formatValueSync(
+        "send-error-filtering-message"
       );
-      Services.prompt.alert(
-        this._parentWindow,
-        null,
-        this._composeBundle.GetStringFromName("errorFilteringMsg")
-      );
+      Services.prompt.alert(this._parentWindow, null, errorMessage);
     }
 
     try {
@@ -680,7 +648,7 @@ export class MessageSend {
         ) {
           errorMsg = lazy.MsgUtils.formatStringWithSMTPHostName(
             this._userIdentity,
-            this._composeBundle,
+            lazy.l10n,
             errorName
           );
         } else if (errMsg) {
@@ -688,22 +656,21 @@ export class MessageSend {
           // error message from SMTP server.
           errorMsg = errMsg;
         } else {
-          // May be the default string "sendFailed". Should be and error that
+          // May be the default ID "send-error-failed". Should be an error that
           //  does require the server name to be encoded.
-          errorMsg = this._composeBundle.GetStringFromName(errorName);
+          errorMsg = lazy.l10n.formatValueSync(errorName);
         }
       } else {
         // This is a server security issue as determined by the Mozilla
         // platform. To the Mozilla security message string, appended a string
         // having additional information with the server name encoded.
         errorMsg = nssErrorsService.getErrorMessage(exitCode);
-        errorMsg +=
-          "\n" +
-          lazy.MsgUtils.formatStringWithSMTPHostName(
-            this._userIdentity,
-            this._composeBundle,
-            "smtpSecurityIssue"
-          );
+        const securityIssue = lazy.MsgUtils.formatStringWithSMTPHostName(
+          this._userIdentity,
+          lazy.l10n,
+          "send-error-smtp-security-issue"
+        );
+        errorMsg += "\n" + securityIssue;
       }
       this.notifyListenerOnStopSending(null, exitCode, null, null);
       this.fail(exitCode, errorMsg);
@@ -749,7 +716,7 @@ export class MessageSend {
         exitCode != Cr.NS_ERROR_ABORT
       ) {
         exitCode = Cr.NS_ERROR_FAILURE;
-        errMsg = this._composeBundle.GetStringFromName("postFailed");
+        errMsg = lazy.l10n.formatValueSync("send-error-post-failed");
       }
       return await this._deliveryExitProcessing(
         serverURI,
@@ -794,10 +761,18 @@ export class MessageSend {
     return this._sendReport;
   }
 
-  _setStatusMessage(msg) {
-    if (this._sendProgress) {
-      this._sendProgress.onStatusChange(null, null, Cr.NS_OK, msg);
+  /**
+   * Set a localized status message on the send progress.
+   *
+   * @param {string} id - Fluent message ID.
+   * @param {object} [args] - Fluent message arguments.
+   */
+  _setStatusMessage(id, args) {
+    if (!this._sendProgress) {
+      return;
     }
+    const message = lazy.l10n.formatValueSync(id, args);
+    this._sendProgress.onStatusChange(null, null, Cr.NS_OK, message);
   }
 
   /**
@@ -831,10 +806,9 @@ export class MessageSend {
       const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
         Ci.nsIMessenger
       );
-      const msg = this._composeBundle.formatStringFromName(
-        "largeMessageSendWarning",
-        [messenger.formatFileSize(file.fileSize)]
-      );
+      const msg = lazy.l10n.formatValueSync("send-warning-large-message", {
+        size: messenger.formatFileSize(file.fileSize),
+      });
       if (!Services.prompt.confirm(this._parentWindow, null, msg)) {
         this.fail(Cr.NS_ERROR_ABORT);
         throw Components.Exception(
@@ -1050,11 +1024,9 @@ export class MessageSend {
       this._folderUri
     );
     folder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
-    const statusMsg = this._composeBundle.formatStringFromName(
-      "copyMessageStart",
-      [folder?.localizedName || "?"]
-    );
-    this._setStatusMessage(statusMsg);
+    this._setStatusMessage("send-progress-copy-start", {
+      folder: folder?.localizedName || "?",
+    });
     lazy.MsgUtils.sendLogger.debug("startCopyOperation");
     try {
       this._msgCopy.startCopyOperation(
@@ -1155,9 +1127,7 @@ export class MessageSend {
    */
   async _deliverAsMail() {
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_SMTP;
-    this._setStatusMessage(
-      this._composeBundle.GetStringFromName("sendingMessage")
-    );
+    this._setStatusMessage("send-progress-sending-message");
 
     // Turn the `to` and `cc` comp fields (which are both strings) into one
     // continuous string, filtering out either of them if it's empty.
@@ -1732,50 +1702,48 @@ export class MessageSendReport {
     }
     this.#alreadyDisplayed = true;
 
-    const composeBundle = Services.strings.createBundle(
-      "chrome://messenger/locale/messengercompose/composeMsgs.properties"
-    );
-
     if (
       this.deliveryMode == Ci.nsIMsgCompDeliverMode.Now ||
       this.deliveryMode == Ci.nsIMsgCompDeliverMode.SendUnsent
     ) {
-      const title = composeBundle.GetStringFromName("sendMessageErrorTitle");
-      let str = "sendFailed";
+      const title = lazy.l10n.formatValueSync("send-error-title");
+      let str = "send-error-failed";
       switch (this.#currentProcess) {
         case Ci.nsIMsgSendReport.process_SMTP:
-          str = this.#nntpProcessed ? "sendFailedButNntpOk" : "sendFailed";
+          str = this.#nntpProcessed
+            ? "send-error-nntp-ok"
+            : "send-error-failed";
           break;
         case Ci.nsIMsgSendReport.process_Copy:
         case Ci.nsIMsgSendReport.process_FCC:
-          str = "failedCopyOperation";
+          str = "send-error-copy-operation";
           break;
       }
-      let message = composeBundle.GetStringFromName(str);
+      let message = lazy.l10n.formatValueSync(str);
       if (this.errMessage) {
         message += "\n" + this.errMessage;
       }
       Services.prompt.alert(win, title, message);
     } else {
-      let titleStr = "sendMessageErrorTitle";
-      let str = "sendFailed";
+      let titleStr = "send-error-title";
+      let str = "send-error-failed";
       switch (this.deliveryMode) {
         case Ci.nsIMsgCompDeliverMode.Later:
-          titleStr = "sendLaterErrorTitle";
-          str = "unableToSendLater";
+          titleStr = "send-later-error-title";
+          str = "send-unable-to-send-later";
           break;
         case Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft:
         case Ci.nsIMsgCompDeliverMode.SaveAsDraft:
-          titleStr = "saveDraftErrorTitle";
-          str = "unableToSaveDraft";
+          titleStr = "send-save-draft-error-title";
+          str = "send-unable-to-save-draft";
           break;
         case Ci.nsIMsgCompDeliverMode.SaveAsTemplate:
-          titleStr = "saveTemplateErrorTitle";
-          str = "unableToSaveTemplate";
+          titleStr = "send-save-template-error-title";
+          str = "send-unable-to-save-template";
           break;
       }
-      const title = composeBundle.GetStringFromName(titleStr);
-      let message = composeBundle.GetStringFromName(str);
+      const title = lazy.l10n.formatValueSync(titleStr);
+      let message = lazy.l10n.formatValueSync(str);
       if (this.errMessage) {
         message += "\n" + this.errMessage;
       }

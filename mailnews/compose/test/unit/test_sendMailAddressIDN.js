@@ -20,20 +20,15 @@ var kToInvalidWithoutDomain = "b\u00F8rken.to";
 // for alertTestUtils.js
 let resolveAlert;
 function alertPS(parent, aDialogText, aText) {
-  var composeProps = Services.strings.createBundle(
-    "chrome://messenger/locale/messengercompose/composeMsgs.properties"
-  );
+  const sendL10n = new Localization(["messenger/messageSend.ftl"], true);
   var expectedAlertMessage =
-    composeProps.GetStringFromName("sendFailed") +
+    sendL10n.formatValueSync("send-error-failed") +
     "\n" +
-    composeProps.GetStringFromName(
-      test == kToInvalidWithoutDomain
-        ? "noRecipients"
-        : "errorIllegalLocalPart2"
-    );
-  if (test != kToInvalidWithoutDomain) {
-    expectedAlertMessage = expectedAlertMessage.replace("%s", test);
-  }
+    (test == kToInvalidWithoutDomain
+      ? sendL10n.formatValueSync("smtp-error-no-recipients")
+      : sendL10n.formatValueSync("smtp-error-illegal-local-part", {
+          recipient: test,
+        }));
 
   // we should only get here for the kToInvalid test case
   Assert.equal(aText, expectedAlertMessage);

@@ -7,6 +7,13 @@ import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { MailUtils } from "resource:///modules/MailUtils.sys.mjs";
 import { jsmime } from "resource:///modules/jsmime.sys.mjs";
 
+const lazy = {};
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["messenger/messageSend.ftl"], true)
+);
+
 /**
  * Collection of helper functions for message sending process.
  */
@@ -178,7 +185,7 @@ export var MsgUtils = {
 
   /**
    * Get the To header value. When we don't have disclosed recipient but only
-   * Bcc, use the undisclosedRecipients entry from composeMsgs.properties as the
+   * Bcc, use the localized undisclosed-recipients value as the
    * To header value to prevent problem with some servers.
    *
    * @param {nsIMsgCompFields} compFields - The compose fields.
@@ -203,11 +210,8 @@ export var MsgUtils = {
     ) {
       return "";
     }
-    const composeBundle = Services.strings.createBundle(
-      "chrome://messenger/locale/messengercompose/composeMsgs.properties"
-    );
-    const undisclosedRecipients = composeBundle.GetStringFromName(
-      "undisclosedRecipients"
+    const undisclosedRecipients = lazy.l10n.formatValueSync(
+      "send-undisclosed-recipients"
     );
     const recipients = MailServices.headerParser.makeGroupObject(
       undisclosedRecipients,
@@ -780,39 +784,38 @@ export var MsgUtils = {
   },
 
   /**
-   * Get the error string name of an exit code. The name will corresponds to an
-   * entry in composeMsgs.properties.
+   * Get the Fluent error message ID for an exit code.
    *
    * @param {nsresult} exitCode - Exit code of sending mail process.
    * @returns {string}
    */
   getErrorStringName(exitCode) {
     const codeNameMap = {
-      [Cr.NS_ERROR_FILE_NOT_FOUND]: "errorAttachingFile",
-      [Cr.NS_ERROR_UNKNOWN_HOST]: "smtpSendFailedUnknownServer",
-      [Cr.NS_ERROR_UNKNOWN_PROXY_HOST]: "smtpSendFailedUnknownServer",
-      [Cr.NS_ERROR_CONNECTION_REFUSED]: "smtpSendRequestRefused",
-      [Cr.NS_ERROR_PROXY_CONNECTION_REFUSED]: "smtpSendRequestRefused",
-      [Cr.NS_ERROR_NET_INTERRUPT]: "smtpSendInterrupted",
-      [Cr.NS_ERROR_NET_TIMEOUT]: "smtpSendTimeout",
-      [Cr.NS_ERROR_NET_RESET]: "smtpSendTimeout",
+      [Cr.NS_ERROR_FILE_NOT_FOUND]: "send-error-attaching-file",
+      [Cr.NS_ERROR_UNKNOWN_HOST]: "send-error-smtp-unknown-server",
+      [Cr.NS_ERROR_UNKNOWN_PROXY_HOST]: "send-error-smtp-unknown-server",
+      [Cr.NS_ERROR_CONNECTION_REFUSED]: "send-error-smtp-request-refused",
+      [Cr.NS_ERROR_PROXY_CONNECTION_REFUSED]: "send-error-smtp-request-refused",
+      [Cr.NS_ERROR_NET_INTERRUPT]: "send-error-smtp-interrupted",
+      [Cr.NS_ERROR_NET_TIMEOUT]: "send-error-smtp-timeout",
+      [Cr.NS_ERROR_NET_RESET]: "send-error-smtp-timeout",
     };
-    return codeNameMap[exitCode] || "sendFailed";
+    return codeNameMap[exitCode] || "send-error-failed";
   },
 
   /**
    * Format the error message that will be shown to the user.
    *
    * @param {nsIMsgIdentity} userIdentity - User identity.
-   * @param {nsIStringBundle} composeBundle - Localized string bundle.
-   * @param {string} errorName - The error name derived from an exit code.
+   * @param {Localization} l10n - Fluent localization object.
+   * @param {string} errorName - The Fluent ID derived from an exit code.
    * @returns {string}
    */
-  formatStringWithSMTPHostName(userIdentity, composeBundle, errorName) {
+  formatStringWithSMTPHostName(userIdentity, l10n, errorName) {
     const smtpServer =
       MailServices.outgoingServer.getServerByIdentity(userIdentity);
     const smtpHostname = smtpServer.serverURI.host;
-    return composeBundle.formatStringFromName(errorName, [smtpHostname]);
+    return l10n.formatValueSync(errorName, { hostname: smtpHostname });
   },
 
   /**

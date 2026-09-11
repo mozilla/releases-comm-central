@@ -47,9 +47,6 @@ function setupMessageSend(fakeSend) {
     "@mozilla.org/messengercompose/sendreport;1"
   ].createInstance(Ci.nsIMsgSendReport);
   msgSend._sendReport.deliveryMode = Ci.nsIMsgSend.nsMsgDeliverNow;
-  msgSend._composeBundle = Services.strings.createBundle(
-    "chrome://messenger/locale/messengercompose/composeMsgs.properties"
-  );
   msgSend._deliverMode = Ci.nsIMsgSend.nsMsgDeliverNow;
   msgSend._compType = Ci.nsIMsgCompType.New;
   progress.registerListener(msgSend);

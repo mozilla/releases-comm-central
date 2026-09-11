@@ -31,6 +31,13 @@ import { MsgUtils } from "resource:///modules/MimeMessageUtils.sys.mjs";
 import { setTimeout, clearTimeout } from "resource://gre/modules/Timer.sys.mjs";
 import { SmtpAuthenticator } from "resource:///modules/MailAuthenticator.sys.mjs";
 
+const lazy = {};
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["messenger/messageSend.ftl"], true)
+);
+
 // How long to wait for the server to close the connection after we send QUIT.
 // Per RFC 5321 the server does the closing, but a server we can no longer reach
 // never will, so we force close it here to avoid keeping a dead socket around for reuse.
@@ -283,7 +290,7 @@ export class SmtpClient {
         if (firstInvalid != null) {
           if (!lastAt) {
             // Invalid char found in the localpart, throw error until we implement RFC 6532.
-            this._onNsError("errorIllegalLocalPart2", recipient);
+            this._onNsError("smtp-error-illegal-local-part", null, recipient);
             return;
           }
           // Invalid char found in the domainpart, convert it to ACE.
@@ -305,7 +312,7 @@ export class SmtpClient {
     this._envelope.responseQueue = [];
 
     if (!this._envelope.rcptQueue.length) {
-      this._onNsError("noRecipients");
+      this._onNsError("smtp-error-no-recipients");
       return;
     }
 
@@ -550,12 +557,12 @@ export class SmtpClient {
   /**
    * Error handler. Emits an nsresult value.
    *
-   * @param {string} error - An error code for l10n.
-   * @param {string} errorParam - Param to form the error message.
-   * @param {string} [extra] - Some messages take two arguments to format.
+   * @param {string} error - Fluent message ID.
+   * @param {?string} [serverResponse] - Response from the SMTP server.
+   * @param {?string} [recipient] - Recipient associated with the error.
    * @param {number} [statusCode] - Only needed when checking need to retry.
    */
-  _onNsError(error, errorParam, extra, statusCode) {
+  _onNsError(error, serverResponse, recipient, statusCode) {
     // First check if handling an error response that might need a retry.
     if ([this._actionMAIL, this._actionRCPT].includes(this._currentAction)) {
       if (statusCode >= 400 && statusCode < 500) {
@@ -579,12 +586,13 @@ export class SmtpClient {
     // A failed retry run must not suppress retries for later unrelated messages.
     this.isRetry = false;
 
-    const bundle = Services.strings.createBundle(
-      "chrome://messenger/locale/messengercompose/composeMsgs.properties"
-    );
     this.onerror(
       Cr.NS_ERROR_FAILURE,
-      bundle.formatStringFromName(error, [errorParam, extra])
+      lazy.l10n.formatValueSync(error, {
+        hostname: this._server.hostname,
+        recipient: recipient || "",
+        serverResponse: serverResponse || "",
+      })
     );
     this.close();
   }
@@ -856,17 +864,17 @@ export class SmtpClient {
             Ci.nsMsgSocketType.alwaysSTARTTLS,
             Ci.nsMsgSocketType.SSL,
           ].includes(this._server.socketType)
-            ? "smtpHintAuthEncryptToPlainSsl"
-            : "smtpHintAuthEncryptToPlainNoSsl";
+            ? "smtp-auth-hint-encrypt-to-plain-ssl"
+            : "smtp-auth-hint-encrypt-to-plain-no-ssl";
         } else if (
           this._server.authMethod == Ci.nsMsgAuthMethod.passwordCleartext &&
           this._supportedAuthMethods.includes("CRAM-MD5")
         ) {
           // Pref has plaintext password, server claims to support encrypted
           // password.
-          err = "smtpHintAuthPlainToEncrypt";
+          err = "smtp-auth-hint-plain-to-encrypt";
         } else {
-          err = "smtpAuthMechNotSupported";
+          err = "smtp-auth-mechanism-not-supported";
         }
         this._onNsError(err);
         return;
@@ -882,7 +890,7 @@ export class SmtpClient {
     } else if (action == 1) {
       // Cancel button pressed.
       this.logger.error(`Authentication failed: ${command.data}`);
-      this._onNsError("smtpAuthFailure");
+      this._onNsError("smtp-auth-failure");
       return;
     } else if (action == 2) {
       // 'New password' button pressed. Forget cached password, new password
@@ -932,7 +940,7 @@ export class SmtpClient {
    */
   _actionGreeting(command) {
     if (command.statusCode !== 220) {
-      this._onNsError("smtpServerError", command.data);
+      this._onNsError("smtp-server-error", command.data);
       return;
     }
 
@@ -952,7 +960,7 @@ export class SmtpClient {
    */
   _actionLHLO(command) {
     if (!command.success) {
-      this._onNsError("smtpServerError", command.data);
+      this._onNsError("smtp-server-error", command.data);
       return;
     }
 
@@ -970,7 +978,7 @@ export class SmtpClient {
       // EHLO is not implemented by the server.
       if (this.options.alwaysSTARTTLS) {
         // If alwaysSTARTTLS is set by the user, EHLO is required to advertise it.
-        this._onNsError("startTlsFailed", this._server.hostname);
+        this._onNsError("smtp-starttls-failed");
         return;
       }
 
@@ -985,7 +993,7 @@ export class SmtpClient {
       return;
     } else if (!command.success) {
       // 501 Syntax error or some other error.
-      this._onNsError("smtpServerError", command.data);
+      this._onNsError("smtp-server-error", command.data);
       return;
     }
 
@@ -1013,7 +1021,7 @@ export class SmtpClient {
         return;
       }
       // STARTTLS is required but not advertised.
-      this._onNsError("startTlsFailed", this._server.hostname);
+      this._onNsError("smtp-starttls-failed");
       return;
     }
 
@@ -1049,7 +1057,7 @@ export class SmtpClient {
    */
   _actionSTARTTLS(command) {
     if (!command.success) {
-      this._onNsError("smtpServerError", command.data);
+      this._onNsError("smtp-server-error", command.data);
       return;
     }
 
@@ -1068,7 +1076,7 @@ export class SmtpClient {
    */
   _actionHELO(command) {
     if (!command.success) {
-      this._onNsError("smtpServerError", command.data);
+      this._onNsError("smtp-server-error", command.data);
       return;
     }
     this._authenticateUser();
@@ -1082,7 +1090,7 @@ export class SmtpClient {
    */
   _actionCLIENTID(command) {
     if (!command.success) {
-      this._onNsError("smtpServerError", command.data);
+      this._onNsError("smtp-server-error", command.data);
       return;
     }
     this._authenticateUser();
@@ -1115,7 +1123,7 @@ export class SmtpClient {
    */
   _actionAUTH_LOGIN_USER(command) {
     if (command.statusCode !== 334) {
-      this._onNsError("smtpAuthFailure", command.data);
+      this._onNsError("smtp-auth-failure", command.data);
       return;
     }
     this.logger.debug("AUTH LOGIN USER");
@@ -1132,7 +1140,7 @@ export class SmtpClient {
    */
   _actionAUTH_LOGIN_PASS(command) {
     if (command.statusCode !== 334) {
-      this._onNsError("smtpAuthFailure", command.data);
+      this._onNsError("smtp-auth-failure", command.data);
       return;
     }
     this.logger.debug("AUTH LOGIN PASS");
@@ -1150,7 +1158,7 @@ export class SmtpClient {
    */
   async _actionAUTH_CRAM(command) {
     if (command.statusCode !== 334) {
-      this._onNsError("smtpAuthFailure", command.data);
+      this._onNsError("smtp-auth-failure", command.data);
       return;
     }
     this._currentAction = this._actionAUTHComplete;
@@ -1188,7 +1196,7 @@ export class SmtpClient {
       return;
     }
     if (command.statusCode !== 334) {
-      this._onNsError("smtpAuthGssapi", command.data);
+      this._onNsError("smtp-auth-gssapi", command.data);
       return;
     }
     let token;
@@ -1216,7 +1224,7 @@ export class SmtpClient {
       return;
     }
     if (command.statusCode !== 334) {
-      this._onNsError("smtpAuthFailure", command.data);
+      this._onNsError("smtp-auth-failure", command.data);
       return;
     }
     const token = this._authenticator.getNextNtlmToken(command.data);
@@ -1249,7 +1257,7 @@ export class SmtpClient {
    * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionIdle(command) {
-    this._onNsError("smtpServerError", command.data);
+    this._onNsError("smtp-server-error", command.data);
   }
 
   /**
@@ -1259,15 +1267,15 @@ export class SmtpClient {
    */
   _actionMAIL(command) {
     if (!command.success) {
-      let error = "errorSendingFromCommand"; // default error message
+      let error = "smtp-error-sending-from-command"; // default error message
       if (command.statusCode == 552) {
         // Too much mail data indicated by "size" parameter of MAIL FROM.
         // @see https://datatracker.ietf.org/doc/html/rfc5321#section-4.5.3.1.9
-        error = "smtpPermSizeExceeded2";
+        error = "smtp-permanent-size-exceeded";
       }
       if (command.statusCode == 452 || command.statusCode == 451) {
         // @see https://datatracker.ietf.org/doc/html/rfc5321#section-4.5.3.1.10
-        error = "smtpTooManyRecipients";
+        error = "smtp-too-many-recipients";
       }
       this._onNsError(error, command.data, null, command.statusCode);
       return;
@@ -1321,7 +1329,7 @@ export class SmtpClient {
   _actionRCPT(command) {
     if (!command.success) {
       this._onNsError(
-        "errorSendingRcptCommand",
+        "smtp-error-sending-recipient-command",
         command.data,
         this._envelope.curRecipient,
         command.statusCode
@@ -1357,7 +1365,7 @@ export class SmtpClient {
     // response should be 354 but according to this issue https://github.com/eleith/emailjs/issues/24
     // some servers might use 250 instead
     if (![250, 354].includes(command.statusCode)) {
-      this._onNsError("errorSendingDataCommand", command.data);
+      this._onNsError("smtp-error-sending-data-command", command.data);
       return;
     }
 
@@ -1451,7 +1459,7 @@ export class SmtpClient {
       if (command.success) {
         this.ondone();
       } else {
-        this._onNsError("errorSendingMessage", command.data);
+        this._onNsError("smtp-error-sending-message", command.data);
       }
     }
 
