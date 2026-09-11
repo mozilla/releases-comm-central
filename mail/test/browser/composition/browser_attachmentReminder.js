@@ -200,6 +200,36 @@ add_task(async function test_attachment_reminder_appears_properly() {
 });
 
 /**
+ * Test that customized reply and forward separators exclude quoted content
+ * from the attachment reminder check.
+ */
+add_task(async function test_customized_message_separators() {
+  for (const [prefName, separator] of [
+    ["mailnews.reply_header_originalmessage", "Custom reply separator"],
+    ["mailnews.forward_header_originalmessage", "Custom forward separator"],
+  ]) {
+    await SpecialPowers.pushPrefEnv({ set: [[prefName, separator]] });
+
+    const cwc = await open_compose_new_mail();
+    await setup_msg_contents(
+      cwc,
+      "test@example.org",
+      "No reminder expected",
+      `Own message\n${separator}\nSee the attachment`
+    );
+
+    Assert.deepEqual(
+      await cwc.gAttachmentNotifier.checkForAttachmentKeywords(),
+      [],
+      `Content after the customized ${prefName} should be ignored`
+    );
+
+    await close_compose_window(cwc);
+    await SpecialPowers.popPrefEnv();
+  }
+});
+
+/**
  * Test that the alert appears normally, but not after closing the
  * notification.
  */

@@ -9,6 +9,133 @@ compose-message-cancelling = Cancelling…
 compose-message-attachment-name = Attached Message
 
 
+## Compose window
+
+compose-initialization-error-title = Message Compose
+compose-initialization-error = An error occurred while creating a message compose window. Please try again.
+
+compose-default-subject = (no subject)
+
+# Variables:
+# $subject - message subject
+# $brand - application name
+compose-window-title = Write: { $subject } - { $brand }
+
+compose-save-message-title = Save Message
+
+# Variables:
+# $folder - configured drafts folder name
+compose-save-message-prompt = Save this message to your drafts folder ({ $folder }) and close the Write window?
+
+compose-discard-changes-button = &Discard changes
+
+compose-send-confirm-title = Send Message
+compose-send-confirm-prompt = Are you sure you are ready to send this message?
+compose-send-confirm-button = Send
+
+compose-do-not-show-again = Do not show me this dialog box again.
+
+compose-empty-subject-title = Subject Reminder
+compose-empty-subject-prompt = Your message doesn’t have a subject.
+compose-empty-subject-send-button = &Send Without Subject
+compose-empty-subject-cancel-button = &Cancel Sending
+
+compose-attachment-reminder-title = Attachment Reminder
+compose-attachment-reminder-prompt = Did you forget to add an attachment?
+compose-attachment-reminder-send-button = No, Send Now
+compose-attachment-reminder-add-button = Oh, I did!
+
+compose-newsgroups-not-supported-title = Newsgroups Not Supported
+compose-newsgroups-not-supported = This account only supports email recipients. Continuing will ignore newsgroups.
+
+compose-invalid-address-title = Invalid Recipient Address
+compose-no-recipients = No recipients were specified. Please enter a recipient or newsgroup in the addressing area.
+
+# Variables:
+# $address - invalid email address
+compose-invalid-address = { $address } is not a valid email address because it is not of the form user@host. You must correct it before sending the email.
+
+compose-quit-sending-title = Sending Message
+compose-quit-saving-title = Saving Message
+
+# Variables:
+# $brand - application name
+compose-quit-sending-prompt = { $brand } is currently in the process of sending a message.
+    Would you like to wait until the message has been sent before quitting or quit now?
+
+# Variables:
+# $brand - application name
+compose-quit-saving-prompt = { $brand } is currently in the process of saving a message.
+    Would you like to wait until the message has been saved before quitting or quit now?
+
+compose-quit-button = &Quit
+compose-wait-button = &Wait
+
+compose-attach-file-picker-title = Attach File(s)
+
+compose-attach-page-title = Please specify a location to attach
+compose-attach-page-prompt = Web Page (URL):
+
+compose-message-part-attachment-name = Attached Message Part
+
+compose-attachment-bucket-attach-files-tooltip = Attach File(s)
+compose-attachment-bucket-clear-selection-tooltip = Clear Selection
+
+# Variables:
+# $filename - name of the file that could not be found
+compose-file-attachment-not-found = The file { $filename } does not exist so could not be attached to the message.
+
+compose-file-attachment-error-title = File Attach
+compose-message-file-error-title = Message File
+
+# Variables:
+# $filename - name of the file that could not be found
+compose-message-file-not-found = The file { $filename } does not exist and could not be used as message body.
+
+# Variables:
+# $filename - name of the file that could not be loaded
+compose-message-file-load-error = The file { $filename } could not be loaded as message body.
+
+compose-save-success-title = Save Message
+
+# Variables:
+# $folder - folder in which the message was saved
+# $server - server on which the folder is located
+compose-save-success-message = Your message has been saved to the folder { $folder } under { $server }.
+
+compose-rename-attachment-title = Rename Attachment
+compose-rename-attachment-prompt = New attachment name:
+
+remind-later-button =
+    .label = Remind Me Later
+    .accesskey = L
+
+disable-attachment-reminder-menu-item =
+    .label = Disable attachment reminder for current message
+
+find-replace-button =
+    .label = Replace…
+    .accesskey = x
+    .tooltiptext = Show the Find and Replace dialog
+
+# Variables:
+# $identity - identity address that would otherwise be used
+compose-custom-from-address-placeholder = Enter custom From address to be used instead of { $identity }
+
+compose-custom-from-address-title = Customize From Address
+compose-custom-from-address-warning = If your email provider supports it, Customize From Address allows you to make a one-off minor alteration to your From address without having to create a new identity in Account Settings. For example, if your From address is John Doe <john@example.com> you may want to change it to John Doe <john+doe@example.com> or John <john@example.com>.
+compose-custom-from-address-ignore = Never notify me of this again
+
+compose-blocked-content-options-button = Options
+compose-blocked-content-options-accesskey = O
+compose-blocked-content-preferences-button = Preferences
+compose-blocked-content-preferences-accesskey = P
+
+# Variables:
+# $url - URL of the blocked resource
+compose-unblock-resource =
+    .label = Unblock { $url }
+
 ## Send Format
 
 compose-send-format-menu =
@@ -32,6 +159,16 @@ compose-send-plain-menu-item =
     .accesskey = P
 
 ## Addressing widget
+
+# Variables:
+# $field - name of the addressing field being removed
+compose-remove-address-row-title = Remove { $field } Addresses
+
+# Variables:
+# $field - name of the addressing field being removed
+compose-remove-address-row-prompt = Are you sure you want to remove the { $field } addresses?
+
+compose-remove-address-row-button = Remove
 
 #   $type (String) - the type of the addressing row
 remove-address-row-button =
@@ -418,6 +555,43 @@ compose-tool-button-remove-text-styling =
 
 ## Filelink
 
+big-file-learn-more-button =
+    .label = Learn More…
+    .accesskey = m
+
+big-file-link-button =
+    .label = Link
+    .accesskey = l
+
+big-file-ignore-button =
+    .label = Ignore
+    .accesskey = i
+
+big-file-choose-account-title = Choose Account
+big-file-choose-account-prompt = Choose a cloud account to upload the attachment to
+
+big-file-hide-notification-title = Don’t Upload My Files
+big-file-hide-notification-prompt = You won’t be notified if you attach more big files to this message.
+big-file-hide-notification-checkbox = Never notify me of this again.
+
+cloudfile-uploading-stop-button =
+    .label = Never show this again
+    .accesskey = N
+
+cloud-file-privacy-warning = Linking is complete. Please note that linked attachments may be accessible to people who can see or guess the links.
+
+# Variables:
+# $provider - name of the online storage service
+cloud-file-uploading-tooltip = Uploading to { $provider }…
+
+# Variables:
+# $provider - name of the online storage service
+cloud-file-uploaded-tooltip = Uploaded to { $provider }
+
+# Variables:
+# $provider - name of the online storage service
+cloud-file-attach-picker-title = Attach File(s) via { $provider }
+
 # Variables:
 #   $count - the number big attached files
 big-file-notification-text = {
@@ -531,6 +705,46 @@ cloud-file-account-error-title = Filelink Account Error
 # Variables:
 # $filename (string) - name of the file that was renamed and caused the error
 cloud-file-account-error = Failed to update the Filelink attachment { $filename }, because its Filelink account has been deleted.
+
+cloud-file-authentication-error-title = Authentication Error
+
+# Variables:
+# $provider - name of the online storage service
+cloud-file-authentication-error = Unable to authenticate to { $provider }.
+
+cloud-file-upload-error-title = Upload Error
+
+# Variables:
+# $provider - name of the online storage service
+# $filename - name of the file that failed to upload
+cloud-file-upload-error = Unable to upload { $filename } to { $provider }.
+
+cloud-file-quota-error-title = Quota Error
+
+# Variables:
+# $provider - name of the online storage service
+# $filename - name of the file that exceeded the quota
+cloud-file-quota-error = Uploading { $filename } to { $provider } would exceed your space quota.
+
+cloud-file-size-error-title = File Size Error
+
+# Variables:
+# $provider - name of the online storage service
+# $filename - name of the file that exceeded the size limit
+cloud-file-size-error = { $filename } exceeds the maximum size for { $provider }.
+
+cloud-file-unknown-error-title = Unknown Error
+
+# Variables:
+# $provider - name of the online storage service
+cloud-file-unknown-error = An unknown error occurred when communicating with { $provider }.
+
+cloud-file-deletion-error-title = Deletion Error
+
+# Variables:
+# $provider - name of the online storage service
+# $filename - name of the file that could not be deleted
+cloud-file-deletion-error = There was a problem deleting { $filename } from { $provider }.
 
 ## Link Preview
 

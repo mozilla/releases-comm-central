@@ -1,5 +1,4 @@
 [
-  "_gComposeBundle",
   "accountObserver",
   "addAttachCloudMenuItems",
   "AddAttachments",
@@ -129,7 +128,6 @@
   "GenericSendMessage",
   "GetArgs",
   "getBrowser",
-  "getComposeBundle",
   "GetComposeDetails",
   "getCurrentAccountKey",
   "getCurrentIdentityKey",

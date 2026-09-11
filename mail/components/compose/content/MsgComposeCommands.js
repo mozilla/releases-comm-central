@@ -95,6 +95,13 @@ ChromeUtils.defineESModuleGetters(lazy, {
   QuoteSanitizer: "resource:///modules/QuoteSanitizer.sys.mjs",
 });
 
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () =>
+    new Localization(["messenger/messengercompose/messengercompose.ftl"], true)
+);
+
 ChromeUtils.defineLazyGetter(lazy, "taskbarProgress", () => {
   // Once we have this object, we must hold a reference to it until the window
   // closes. Otherwise it could be cleaned up by garbage collection, which
@@ -239,22 +246,6 @@ var gIsDraggingAttachments;
  * @type {boolean}
  */
 var gIsValidInline;
-
-// i18n globals
-var _gComposeBundle;
-function getComposeBundle() {
-  // That one has to be lazy. Getting a reference to an element with a XBL
-  // binding attached will cause the XBL constructors to fire if they haven't
-  // already. If we get a reference to the compose bundle at script load-time,
-  // this will cause the XBL constructor that's responsible for the personas to
-  // fire up, thus executing the personas code while the DOM is not fully built.
-  // Since this <script> comes before the <statusbar>, the Personas code will
-  // fail.
-  if (!_gComposeBundle) {
-    _gComposeBundle = document.getElementById("bundle_composeMsgs");
-  }
-  return _gComposeBundle;
-}
 
 var gLastWindowToHaveFocus;
 var gLastKnownComposeStates;
@@ -459,7 +450,6 @@ function ReleaseGlobalVariables() {
   gMessenger = null;
   gRecipientObserver = null;
   gDisableAttachmentReminder = false;
-  _gComposeBundle = null;
   MailServices.mailSession.RemoveMsgWindow(msgWindow);
 
   msgWindow = null;
@@ -2376,9 +2366,9 @@ async function updateAttachmentItemProperties(attachmentItem) {
     // uploading/renaming
     attachmentItem.setAttribute(
       "tooltiptext",
-      getComposeBundle().getFormattedString("cloudFileUploadingTooltip", [
-        cloudFileAccounts.getDisplayName(attachmentItem.uploading),
-      ])
+      await document.l10n.formatValue("cloud-file-uploading-tooltip", {
+        provider: cloudFileAccounts.getDisplayName(attachmentItem.uploading),
+      })
     );
     gAttachmentBucket.setCloudIcon(attachmentItem, "");
   } else if (attachmentItem.attachment.sendViaCloud) {
@@ -2398,9 +2388,13 @@ async function updateAttachmentItemProperties(attachmentItem) {
     // uploaded
     let tooltiptext;
     if (attachmentItem.cloudFileAccount) {
-      tooltiptext = getComposeBundle().getFormattedString(
-        "cloudFileUploadedTooltip",
-        [cloudFileAccounts.getDisplayName(attachmentItem.cloudFileAccount)]
+      tooltiptext = await document.l10n.formatValue(
+        "cloud-file-uploaded-tooltip",
+        {
+          provider: cloudFileAccounts.getDisplayName(
+            attachmentItem.cloudFileAccount
+          ),
+        }
       );
     } else {
       tooltiptext = tooltipUnknownAccountText;
@@ -2473,113 +2467,84 @@ async function showLocalizedCloudFileAlert(
   provider = ex.cloudProvider,
   filename = ex.cloudFileName
 ) {
-  const bundle = getComposeBundle();
-  let localizedTitle, localizedMessage;
+  let titleId;
+  let titleArgs;
+  let messageId;
+  let messageArgs;
 
   switch (ex.result) {
     case cloudFileAccounts.constants.uploadCancelled:
       // No alerts for cancelled uploads.
       return;
     case cloudFileAccounts.constants.deleteErr:
-      localizedTitle = bundle.getString("errorCloudFileDeletion.title");
-      localizedMessage = bundle.getFormattedString(
-        "errorCloudFileDeletion.message",
-        [provider, filename]
-      );
+      titleId = "cloud-file-deletion-error-title";
+      messageId = "cloud-file-deletion-error";
+      messageArgs = { provider, filename };
       break;
     case cloudFileAccounts.constants.offlineErr:
-      // eslint-disable-next-line mozilla/prefer-formatValues
-      [localizedTitle, localizedMessage] = await document.l10n.formatValues([
-        "cloud-file-connection-error-title",
-        { id: "cloud-file-connection-error", args: { provider } },
-      ]);
+      titleId = "cloud-file-connection-error-title";
+      messageId = "cloud-file-connection-error";
+      messageArgs = { provider };
       break;
     case cloudFileAccounts.constants.authErr:
-      localizedTitle = bundle.getString("errorCloudFileAuth.title");
-      localizedMessage = bundle.getFormattedString(
-        "errorCloudFileAuth.message",
-        [provider]
-      );
+      titleId = "cloud-file-authentication-error-title";
+      messageId = "cloud-file-authentication-error";
+      messageArgs = { provider };
       break;
     case cloudFileAccounts.constants.uploadErrWithCustomMessage:
-      // eslint-disable-next-line mozilla/prefer-formatValues
-      localizedTitle = await document.l10n.formatValue(
-        "cloud-file-upload-error-with-custom-message-title",
-        {
-          provider,
-          filename,
-        }
-      );
-      localizedMessage = ex.message;
+      titleId = "cloud-file-upload-error-with-custom-message-title";
+      titleArgs = { provider, filename };
       break;
     case cloudFileAccounts.constants.uploadErr:
-      localizedTitle = bundle.getString("errorCloudFileUpload.title");
-      localizedMessage = bundle.getFormattedString(
-        "errorCloudFileUpload.message",
-        [provider, filename]
-      );
+      titleId = "cloud-file-upload-error-title";
+      messageId = "cloud-file-upload-error";
+      messageArgs = { provider, filename };
       break;
     case cloudFileAccounts.constants.uploadWouldExceedQuota:
-      localizedTitle = bundle.getString("errorCloudFileQuota.title");
-      localizedMessage = bundle.getFormattedString(
-        "errorCloudFileQuota.message",
-        [provider, filename]
-      );
+      titleId = "cloud-file-quota-error-title";
+      messageId = "cloud-file-quota-error";
+      messageArgs = { provider, filename };
       break;
     case cloudFileAccounts.constants.uploadExceedsFileLimit:
-      localizedTitle = bundle.getString("errorCloudFileLimit.title");
-      localizedMessage = bundle.getFormattedString(
-        "errorCloudFileLimit.message",
-        [provider, filename]
-      );
+      titleId = "cloud-file-size-error-title";
+      messageId = "cloud-file-size-error";
+      messageArgs = { provider, filename };
       break;
     case cloudFileAccounts.constants.renameNotSupported:
-      // eslint-disable-next-line mozilla/prefer-formatValues
-      [localizedTitle, localizedMessage] = await document.l10n.formatValues([
-        "cloud-file-rename-error-title",
-        { id: "cloud-file-rename-not-supported", args: { provider } },
-      ]);
+      titleId = "cloud-file-rename-error-title";
+      messageId = "cloud-file-rename-not-supported";
+      messageArgs = { provider };
       break;
     case cloudFileAccounts.constants.renameErrWithCustomMessage:
-      // eslint-disable-next-line mozilla/prefer-formatValues
-      localizedTitle = await document.l10n.formatValue(
-        "cloud-file-rename-error-with-custom-message-title",
-        {
-          provider,
-          filename,
-        }
-      );
-      localizedMessage = ex.message;
+      titleId = "cloud-file-rename-error-with-custom-message-title";
+      titleArgs = { provider, filename };
       break;
     case cloudFileAccounts.constants.renameErr:
-      // eslint-disable-next-line mozilla/prefer-formatValues
-      [localizedTitle, localizedMessage] = await document.l10n.formatValues([
-        "cloud-file-rename-error-title",
-        { id: "cloud-file-rename-error", args: { provider, filename } },
-      ]);
+      titleId = "cloud-file-rename-error-title";
+      messageId = "cloud-file-rename-error";
+      messageArgs = { provider, filename };
       break;
     case cloudFileAccounts.constants.attachmentErr:
-      // eslint-disable-next-line mozilla/prefer-formatValues
-      [localizedTitle, localizedMessage] = await document.l10n.formatValue(
-        "cloud-file-attachment-error-title",
-        { id: "cloud-file-attachment-error", args: { filename } }
-      );
+      titleId = "cloud-file-attachment-error-title";
+      messageId = "cloud-file-attachment-error";
+      messageArgs = { filename };
       break;
     case cloudFileAccounts.constants.accountErr:
-      // eslint-disable-next-line mozilla/prefer-formatValues
-      [localizedTitle, localizedMessage] = await document.l10n.formatValues([
-        "cloud-file-account-error-title",
-        { id: "cloud-file-account-error", args: { filename } },
-      ]);
+      titleId = "cloud-file-account-error-title";
+      messageId = "cloud-file-account-error";
+      messageArgs = { filename };
       break;
     default:
-      localizedTitle = bundle.getString("errorCloudFileOther.title");
-      localizedMessage = bundle.getFormattedString(
-        "errorCloudFileOther.message",
-        [provider]
-      );
+      titleId = "cloud-file-unknown-error-title";
+      messageId = "cloud-file-unknown-error";
+      messageArgs = { provider };
   }
 
+  const [localizedTitle, localizedMessage = ex.message] =
+    await document.l10n.formatValues([
+      { id: titleId, args: titleArgs },
+      ...(messageId ? [{ id: messageId, args: messageArgs }] : []),
+    ]);
   Services.prompt.alert(window, localizedTitle, localizedMessage);
 }
 
@@ -2913,9 +2878,9 @@ async function attachToCloudNew(aAccount) {
   var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
   fp.init(
     window.browsingContext,
-    getComposeBundle().getFormattedString("chooseFileToAttachViaCloud", [
-      cloudFileAccounts.getDisplayName(aAccount),
-    ]),
+    await document.l10n.formatValue("cloud-file-attach-picker-title", {
+      provider: cloudFileAccounts.getDisplayName(aAccount),
+    }),
     Ci.nsIFilePicker.modeOpenMultiple
   );
 
@@ -3125,7 +3090,7 @@ function DoCommandPrint() {
 
   editorBrowser.contentDocument.title =
     document.getElementById("msgSubject").value.trim() ||
-    getComposeBundle().getString("defaultSubject");
+    lazy.l10n.formatValueSync("compose-default-subject");
   PrintUtils.startPrintWindow(editorBrowser.browsingContext, {});
 }
 
@@ -3430,9 +3395,9 @@ function manageAttachmentNotification(force = false) {
   remindLaterMenuPopup.id = "reminderBarPopup";
   const disableAttachmentReminder = document.createXULElement("menuitem");
   disableAttachmentReminder.id = "disableReminder";
-  disableAttachmentReminder.setAttribute(
-    "label",
-    getComposeBundle().getString("disableAttachmentReminderButton")
+  document.l10n.setAttributes(
+    disableAttachmentReminder,
+    "disable-attachment-reminder-menu-item"
   );
   disableAttachmentReminder.addEventListener("command", event => {
     gDisableAttachmentReminder = true;
@@ -3447,14 +3412,7 @@ function manageAttachmentNotification(force = false) {
     is: "toolbarbutton-menu-button",
   });
   remindButton.classList.add("notification-button", "small-button");
-  remindButton.setAttribute(
-    "accessKey",
-    getComposeBundle().getString("remindLaterButton.accesskey")
-  );
-  remindButton.setAttribute(
-    "label",
-    getComposeBundle().getString("remindLaterButton")
-  );
+  document.l10n.setAttributes(remindButton, "remind-later-button");
   remindButton.addEventListener("command", function () {
     toggleAttachmentReminder(true);
   });
@@ -4620,18 +4578,7 @@ async function ComposeStartup() {
     const replaceButton = document.createXULElement("toolbarbutton");
     replaceButton.setAttribute("id", "findbar-replaceButton");
     replaceButton.setAttribute("class", "toolbarbutton-1 tabbable");
-    replaceButton.setAttribute(
-      "label",
-      getComposeBundle().getString("replaceButton.label")
-    );
-    replaceButton.setAttribute(
-      "accesskey",
-      getComposeBundle().getString("replaceButton.accesskey")
-    );
-    replaceButton.setAttribute(
-      "tooltiptext",
-      getComposeBundle().getString("replaceButton.tooltip")
-    );
+    document.l10n.setAttributes(replaceButton, "find-replace-button");
     replaceButton.setAttribute("oncommand", "findbarFindReplace();");
 
     const findbar = document.getElementById("FindToolbar");
@@ -4800,11 +4747,13 @@ async function ComposeStartup() {
           if (attachment) {
             composeFields.addAttachment(attachment);
           } else {
-            const title = getComposeBundle().getString("errorFileAttachTitle");
-            const msg = getComposeBundle().getFormattedString(
-              "errorFileAttachMessage",
-              [attachmentName]
-            );
+            const [title, msg] = await document.l10n.formatValues([
+              "compose-file-attachment-error-title",
+              {
+                id: "compose-file-attachment-not-found",
+                args: { filename: attachmentName },
+              },
+            ]);
             Services.prompt.alert(null, title, msg);
           }
         }
@@ -4823,11 +4772,13 @@ async function ComposeStartup() {
         msgFile.initWithPath(args.message);
 
         if (!msgFile.exists()) {
-          const title = getComposeBundle().getString("errorFileMessageTitle");
-          const msg = getComposeBundle().getFormattedString(
-            "errorFileMessageMessage",
-            [args.message]
-          );
+          const [title, msg] = await document.l10n.formatValues([
+            "compose-message-file-error-title",
+            {
+              id: "compose-message-file-not-found",
+              args: { filename: args.message },
+            },
+          ]);
           Services.prompt.alert(null, title, msg);
         } else {
           let data = "";
@@ -4853,11 +4804,13 @@ async function ComposeStartup() {
               data += str.value;
             } while (read != 0);
           } catch (e) {
-            const title = getComposeBundle().getString("errorFileMessageTitle");
-            const msg = getComposeBundle().getFormattedString(
-              "errorLoadFileMessageMessage",
-              [args.message]
-            );
+            const [title, msg] = await document.l10n.formatValues([
+              "compose-message-file-error-title",
+              {
+                id: "compose-message-file-load-error",
+                args: { filename: args.message },
+              },
+            ]);
             Services.prompt.alert(null, title, msg);
           } finally {
             if (cstream) {
@@ -5618,11 +5571,11 @@ async function ComposeLoad() {
     await ComposeStartup();
   } catch (ex) {
     console.error(ex);
-    Services.prompt.alert(
-      window,
-      getComposeBundle().getString("initErrorDlogTitle"),
-      getComposeBundle().getString("initErrorDlgMessage")
-    );
+    const [title, message] = await document.l10n.formatValues([
+      "compose-initialization-error-title",
+      "compose-initialization-error",
+    ]);
+    Services.prompt.alert(window, title, message);
 
     window.close();
     return;
@@ -6237,7 +6190,7 @@ async function GenericSendMessage(msgType) {
       expandRecipients();
       // Check if e-mail addresses are complete, in case user turned off
       // autocomplete to local domain.
-      if (!CheckValidEmailAddress(msgCompFields)) {
+      if (!(await CheckValidEmailAddress(msgCompFields))) {
         throw new Error(`Send aborted: invalid recipient address found`);
       }
 
@@ -6289,17 +6242,24 @@ async function GenericSendMessage(msgType) {
 
       // Remind the person if there isn't a subject
       if (subject == "") {
+        const [title, message, sendButton, cancelButton] =
+          await document.l10n.formatValues([
+            "compose-empty-subject-title",
+            "compose-empty-subject-prompt",
+            "compose-empty-subject-send-button",
+            "compose-empty-subject-cancel-button",
+          ]);
         if (
           Services.prompt.confirmEx(
             window,
-            getComposeBundle().getString("subjectEmptyTitle"),
-            getComposeBundle().getString("subjectEmptyMessage"),
+            title,
+            message,
             Services.prompt.BUTTON_TITLE_IS_STRING *
               Services.prompt.BUTTON_POS_0 +
               Services.prompt.BUTTON_TITLE_IS_STRING *
                 Services.prompt.BUTTON_POS_1,
-            getComposeBundle().getString("sendWithEmptySubjectButton"),
-            getComposeBundle().getString("cancelSendingButton"),
+            sendButton,
+            cancelButton,
             null,
             null,
             { value: 0 }
@@ -6328,13 +6288,20 @@ async function GenericSendMessage(msgType) {
           Services.prompt.BUTTON_POS_0 *
             Services.prompt.BUTTON_TITLE_IS_STRING +
           Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING;
+        const [title, message, sendButton, addButton] =
+          await document.l10n.formatValues([
+            "compose-attachment-reminder-title",
+            "compose-attachment-reminder-prompt",
+            "compose-attachment-reminder-send-button",
+            "compose-attachment-reminder-add-button",
+          ]);
         const hadForgotten = Services.prompt.confirmEx(
           window,
-          getComposeBundle().getString("attachmentReminderTitle"),
-          getComposeBundle().getString("attachmentReminderMsg"),
+          title,
+          message,
           flags,
-          getComposeBundle().getString("attachmentReminderFalseAlarm"),
-          getComposeBundle().getString("attachmentReminderYesIForgot"),
+          sendButton,
+          addButton,
           null,
           null,
           { value: 0 }
@@ -6416,11 +6383,17 @@ async function GenericSendMessage(msgType) {
         const dontAskAgain = Services.prefs.getBoolPref(kDontAskAgainPref);
         if (!dontAskAgain) {
           const checkbox = { value: false };
+          const [title, message, checkboxLabel] =
+            await document.l10n.formatValues([
+              "compose-newsgroups-not-supported-title",
+              "compose-newsgroups-not-supported",
+              "compose-do-not-show-again",
+            ]);
           const okToProceed = Services.prompt.confirmCheck(
             window,
-            getComposeBundle().getString("noNewsgroupSupportTitle"),
-            getComposeBundle().getString("recipientDlogMessage"),
-            getComposeBundle().getString("CheckMsg"),
+            title,
+            message,
+            checkboxLabel,
             checkbox
           );
           if (!okToProceed) {
@@ -6756,8 +6729,9 @@ function updateSendLock() {
  * Check if the entered addresses are valid and alert the user if they are not.
  *
  * @param {nsIMsgCompFields} aMsgCompFields - Fields containing the fields to check.
+ * @returns {Promise<boolean>} Whether all entered addresses are valid.
  */
-function CheckValidEmailAddress(aMsgCompFields) {
+async function CheckValidEmailAddress(aMsgCompFields) {
   let invalidStr;
   let recipientCount = 0;
   // Check that each of the To, CC, and BCC recipients contains a '@'.
@@ -6780,20 +6754,23 @@ function CheckValidEmailAddress(aMsgCompFields) {
   }
 
   if (recipientCount == 0 && aMsgCompFields.newsgroups.trim() == "") {
-    Services.prompt.alert(
-      window,
-      getComposeBundle().getString("addressInvalidTitle"),
-      getComposeBundle().getString("noRecipients")
-    );
+    const [title, message] = await document.l10n.formatValues([
+      "compose-invalid-address-title",
+      "compose-no-recipients",
+    ]);
+    Services.prompt.alert(window, title, message);
     return false;
   }
 
   if (invalidStr) {
-    Services.prompt.alert(
-      window,
-      getComposeBundle().getString("addressInvalidTitle"),
-      getComposeBundle().getFormattedString("addressInvalid", [invalidStr], 1)
-    );
+    const [title, message] = await document.l10n.formatValues([
+      "compose-invalid-address-title",
+      {
+        id: "compose-invalid-address",
+        args: { address: invalidStr },
+      },
+    ]);
+    Services.prompt.alert(window, title, message);
     return false;
   }
 
@@ -7155,18 +7132,24 @@ async function SendMessageWithCheck() {
   var warn = Services.prefs.getBoolPref("mail.warn_on_send_accel_key");
 
   if (warn) {
-    const bundle = getComposeBundle();
     const checkValue = { value: false };
+    const [title, message, sendButton, checkboxLabel] =
+      await document.l10n.formatValues([
+        "compose-send-confirm-title",
+        "compose-send-confirm-prompt",
+        "compose-send-confirm-button",
+        "compose-do-not-show-again",
+      ]);
     const buttonPressed = Services.prompt.confirmEx(
       window,
-      bundle.getString("sendMessageCheckWindowTitle"),
-      bundle.getString("sendMessageCheckLabel"),
+      title,
+      message,
       Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
         Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1,
-      bundle.getString("sendMessageCheckSendButtonLabel"),
+      sendButton,
       null,
       null,
-      bundle.getString("CheckMsg"),
+      checkboxLabel,
       checkValue
     );
     if (buttonPressed != 0) {
@@ -7955,13 +7938,13 @@ function AdjustFocus() {
 function SetComposeWindowTitle() {
   const subject =
     document.getElementById("msgSubject").value.trim() ||
-    getComposeBundle().getString("defaultSubject");
+    lazy.l10n.formatValueSync("compose-default-subject");
   const brandBundle = document.getElementById("brandBundle");
   const brandShortName = brandBundle.getString("brandShortName");
-  const newTitle = getComposeBundle().getFormattedString("windowTitleWrite", [
+  const newTitle = lazy.l10n.formatValueSync("compose-window-title", {
     subject,
-    brandShortName,
-  ]);
+    brand: brandShortName,
+  });
   document.title = newTitle;
   if (AppConstants.platform == "macosx") {
     document.getElementById("titlebar-title-label").value = newTitle;
@@ -7986,25 +7969,17 @@ function ComposeCanClose() {
     const brandBundle = document.getElementById("brandBundle");
     const brandShortName = brandBundle.getString("brandShortName");
     const promptTitle = gSendOperationInProgress
-      ? getComposeBundle().getString("quitComposeWindowTitle")
-      : getComposeBundle().getString("quitComposeWindowSaveTitle");
+      ? lazy.l10n.formatValueSync("compose-quit-sending-title")
+      : lazy.l10n.formatValueSync("compose-quit-saving-title");
     const promptMsg = gSendOperationInProgress
-      ? getComposeBundle().getFormattedString(
-          "quitComposeWindowMessage2",
-          [brandShortName],
-          1
-        )
-      : getComposeBundle().getFormattedString(
-          "quitComposeWindowSaveMessage",
-          [brandShortName],
-          1
-        );
-    const quitButtonLabel = getComposeBundle().getString(
-      "quitComposeWindowQuitButtonLabel2"
-    );
-    const waitButtonLabel = getComposeBundle().getString(
-      "quitComposeWindowWaitButtonLabel2"
-    );
+      ? lazy.l10n.formatValueSync("compose-quit-sending-prompt", {
+          brand: brandShortName,
+        })
+      : lazy.l10n.formatValueSync("compose-quit-saving-prompt", {
+          brand: brandShortName,
+        });
+    const quitButtonLabel = lazy.l10n.formatValueSync("compose-quit-button");
+    const waitButtonLabel = lazy.l10n.formatValueSync("compose-wait-button");
 
     const result = Services.prompt.confirmEx(
       window,
@@ -8052,16 +8027,16 @@ function ComposeCanClose() {
     }
     const result = Services.prompt.confirmEx(
       window,
-      getComposeBundle().getString("saveDlogTitle"),
-      getComposeBundle().getFormattedString("saveDlogMessages3", [
-        draftsFolderName,
-      ]),
+      lazy.l10n.formatValueSync("compose-save-message-title"),
+      lazy.l10n.formatValueSync("compose-save-message-prompt", {
+        folder: draftsFolderName,
+      }),
       Services.prompt.BUTTON_TITLE_SAVE * Services.prompt.BUTTON_POS_0 +
         Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1 +
         Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_2,
       null,
       null,
-      getComposeBundle().getString("discardButtonLabel"),
+      lazy.l10n.formatValueSync("compose-discard-changes-button"),
       null,
       { value: 0 }
     );
@@ -8179,7 +8154,7 @@ function AttachFile() {
   const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
   fp.init(
     window.browsingContext,
-    getComposeBundle().getString("chooseFileToAttach"),
+    lazy.l10n.formatValueSync("compose-attach-file-picker-title"),
     Ci.nsIFilePicker.modeOpenMultiple
   );
 
@@ -8317,14 +8292,16 @@ async function AddAttachments(aAttachments, aContentChanged = true) {
     if (
       /^mailbox-message:|^imap-message:|^news-message:/i.test(attachment.name)
     ) {
-      attachment.name = getComposeBundle().getString(
-        "messageAttachmentSafeName"
+      attachment.name = await document.l10n.formatValue(
+        "compose-message-attachment-name"
       );
     } else if (/^file:|^mailbox:|^imap:|^s?news:/i.test(attachment.name)) {
       const ext = attachment.name.includes(".")
         ? attachment.name.split(".").pop()
         : null;
-      attachment.name = getComposeBundle().getString("partAttachmentSafeName");
+      attachment.name = await document.l10n.formatValue(
+        "compose-message-part-attachment-name"
+      );
       if (ext && !ext.includes(" ")) {
         attachment.name += `.${ext}`;
       }
@@ -8564,8 +8541,8 @@ function AttachPage() {
   if (
     Services.prompt.prompt(
       window,
-      getComposeBundle().getString("attachPageDlogTitle"),
-      getComposeBundle().getString("attachPageDlogMessage"),
+      lazy.l10n.formatValueSync("compose-attach-page-title"),
+      lazy.l10n.formatValueSync("compose-attach-page-prompt"),
       result,
       null,
       { value: 0 }
@@ -8772,8 +8749,8 @@ async function RenameSelectedAttachment() {
   if (
     Services.prompt.prompt(
       window,
-      getComposeBundle().getString("renameAttachmentTitle"),
-      getComposeBundle().getString("renameAttachmentMessage"),
+      lazy.l10n.formatValueSync("compose-rename-attachment-title"),
+      lazy.l10n.formatValueSync("compose-rename-attachment-prompt"),
       attachmentName,
       null,
       { value: 0 }
@@ -9363,12 +9340,12 @@ function attachmentBucketOnSelect() {
 function attachmentBucketUpdateTooltips() {
   // Attachment pane whitespace tooltip
   if (gAttachmentBucket.selectedCount) {
-    gAttachmentBucket.tooltipText = getComposeBundle().getString(
-      "attachmentBucketClearSelectionTooltip"
+    gAttachmentBucket.tooltipText = lazy.l10n.formatValueSync(
+      "compose-attachment-bucket-clear-selection-tooltip"
     );
   } else {
-    gAttachmentBucket.tooltipText = getComposeBundle().getString(
-      "attachmentBucketAttachFilesTooltip"
+    gAttachmentBucket.tooltipText = lazy.l10n.formatValueSync(
+      "compose-attachment-bucket-attach-files-tooltip"
     );
   }
 }
@@ -9789,9 +9766,9 @@ function LoadIdentity(startup) {
   // If the From field is editable, reset the address from the identity.
   if (identityElement.editable) {
     identityElement.value = identityElement.selectedItem.value;
-    identityElement.placeholder = getComposeBundle().getFormattedString(
-      "msgIdentityPlaceholder",
-      [identityElement.selectedItem.value]
+    identityElement.placeholder = lazy.l10n.formatValueSync(
+      "compose-custom-from-address-placeholder",
+      { identity: identityElement.selectedItem.value }
     );
   }
 
@@ -9809,7 +9786,6 @@ function LoadIdentity(startup) {
 }
 
 function MakeFromFieldEditable(ignoreWarning) {
-  const bundle = getComposeBundle();
   if (
     !ignoreWarning &&
     !Services.prefs.getBoolPref("mail.compose.warned_about_customize_from")
@@ -9818,15 +9794,15 @@ function MakeFromFieldEditable(ignoreWarning) {
     if (
       Services.prompt.confirmEx(
         window,
-        bundle.getString("customizeFromAddressTitle"),
-        bundle.getString("customizeFromAddressWarning"),
+        lazy.l10n.formatValueSync("compose-custom-from-address-title"),
+        lazy.l10n.formatValueSync("compose-custom-from-address-warning"),
         Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_OK +
           Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL +
           Services.prompt.BUTTON_POS_1_DEFAULT,
         null,
         null,
         null,
-        bundle.getString("customizeFromAddressIgnore"),
+        lazy.l10n.formatValueSync("compose-custom-from-address-ignore"),
         check
       ) != 0
     ) {
@@ -9850,9 +9826,9 @@ function MakeFromFieldEditable(ignoreWarning) {
   identityElement.focus();
   identityElement.value = identityElement.selectedItem.value;
   identityElement.select();
-  identityElement.placeholder = bundle.getFormattedString(
-    "msgIdentityPlaceholder",
-    [identityElement.selectedItem.value]
+  identityElement.placeholder = lazy.l10n.formatValueSync(
+    "compose-custom-from-address-placeholder",
+    { identity: identityElement.selectedItem.value }
   );
 }
 
@@ -10619,18 +10595,22 @@ function DisplaySaveFolderDlg(folderURI) {
       return;
     }
     const checkbox = { value: 0 };
-    const bundle = getComposeBundle();
-    const SaveDlgTitle = bundle.getString("SaveDialogTitle");
-    const dlgMsg = bundle.getFormattedString("SaveDialogMsg", [
-      msgfolder.localizedName,
-      msgfolder.server.prettyName,
-    ]);
+    const saveDialogTitle = lazy.l10n.formatValueSync(
+      "compose-save-success-title"
+    );
+    const dialogMessage = lazy.l10n.formatValueSync(
+      "compose-save-success-message",
+      {
+        folder: msgfolder.localizedName,
+        server: msgfolder.server.prettyName,
+      }
+    );
 
     Services.prompt.alertCheck(
       window,
-      SaveDlgTitle,
-      dlgMsg,
-      bundle.getString("CheckMsg"),
+      saveDialogTitle,
+      dialogMessage,
+      lazy.l10n.formatValueSync("compose-do-not-show-again"),
       checkbox
     );
     try {
@@ -11079,19 +11059,22 @@ var gAttachmentNotifier = {
       mailData = mailData.substring(0, sigIndex);
     }
 
+    const repText = Services.prefs.getComplexValue(
+      "mailnews.reply_header_originalmessage",
+      Ci.nsIPrefLocalizedString
+    ).data;
+    const fwdText = Services.prefs.getComplexValue(
+      "mailnews.forward_header_originalmessage",
+      Ci.nsIPrefLocalizedString
+    ).data;
+
     // Ignore replied messages (plain text and html compose mode).
-    const repText = getComposeBundle().getString(
-      "mailnews.reply_header_originalmessage"
-    );
     const repIndex = mailData.indexOf(repText);
     if (repIndex > 0) {
       mailData = mailData.substring(0, repIndex);
     }
 
     // Ignore forwarded messages (plain text and html compose mode).
-    const fwdText = getComposeBundle().getString(
-      "mailnews.forward_header_originalmessage"
-    );
     const fwdIndex = mailData.indexOf(fwdText);
     if (fwdIndex > 0) {
       mailData = mailData.substring(0, fwdIndex);
@@ -11482,16 +11465,14 @@ var gComposeNotificationBar = {
   },
 
   async setBlockedContent(aBlockedURI) {
-    const buttonLabel = getComposeBundle().getString(
+    const [buttonLabel, buttonAccesskey] = await document.l10n.formatValues([
       AppConstants.platform == "win"
-        ? "blockedContentPrefLabel"
-        : "blockedContentPrefLabelUnix"
-    );
-    const buttonAccesskey = getComposeBundle().getString(
+        ? "compose-blocked-content-options-button"
+        : "compose-blocked-content-preferences-button",
       AppConstants.platform == "win"
-        ? "blockedContentPrefAccesskey"
-        : "blockedContentPrefAccesskeyUnix"
-    );
+        ? "compose-blocked-content-options-accesskey"
+        : "compose-blocked-content-preferences-accesskey",
+    ]);
 
     const buttons = [
       {
@@ -11601,10 +11582,7 @@ function onBlockedContentOptionsShowing(aEvent) {
   // ... and in with the new.
   for (const url of urls) {
     const menuitem = document.createXULElement("menuitem");
-    menuitem.setAttribute(
-      "label",
-      getComposeBundle().getFormattedString("blockedAllowResource", [url])
-    );
+    document.l10n.setAttributes(menuitem, "compose-unblock-resource", { url });
     menuitem.setAttribute("crop", "center");
     menuitem.setAttribute("value", url);
     menuitem.setAttribute(

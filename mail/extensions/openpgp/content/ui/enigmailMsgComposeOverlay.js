@@ -53,6 +53,10 @@ var l10nOpenPGP = new Localization(["messenger/openpgp/openpgp.ftl"]);
 var Enigmail = {};
 
 Enigmail.msg = {
+  composeL10n: new Localization(
+    ["messenger/messengercompose/messengercompose.ftl"],
+    true
+  ),
   editor: null,
   dirty: 0,
   // dirty means: composer contents were modified by this code, right?
@@ -1435,18 +1439,17 @@ Enigmail.msg = {
         var checkValue = {
           value: false,
         };
-        var bundle = document.getElementById("bundle_composeMsgs");
         var buttonPressed = Services.prompt.confirmEx(
           window,
-          bundle.getString("sendMessageCheckWindowTitle"),
-          bundle.getString("sendMessageCheckLabel"),
+          this.composeL10n.formatValueSync("compose-send-confirm-title"),
+          this.composeL10n.formatValueSync("compose-send-confirm-prompt"),
           Services.prompt.BUTTON_TITLE_IS_STRING *
             Services.prompt.BUTTON_POS_0 +
             Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1,
-          bundle.getString("sendMessageCheckSendButtonLabel"),
+          this.composeL10n.formatValueSync("compose-send-confirm-button"),
           null,
           null,
-          bundle.getString("CheckMsg"),
+          this.composeL10n.formatValueSync("compose-do-not-show-again"),
           checkValue
         );
         if (buttonPressed !== 0) {

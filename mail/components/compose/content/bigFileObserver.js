@@ -131,19 +131,34 @@ var gBigFileObserver = {
 
       const buttons = [
         {
-          label: getComposeBundle().getString("learnMore.label"),
-          accessKey: getComposeBundle().getString("learnMore.accesskey"),
+          "l10n-id": "big-file-learn-more-button",
           callback: this.openLearnMore.bind(this),
         },
         {
-          label: getComposeBundle().getString("bigFileShare.label"),
-          accessKey: getComposeBundle().getString("bigFileShare.accesskey"),
-          callback: this.convertAttachments.bind(this),
+          "l10n-id": "big-file-link-button",
+          callback: notification => {
+            this.convertAttachments()
+              .then(keepOpen => {
+                if (!keepOpen) {
+                  notification.close();
+                }
+              })
+              .catch(console.error);
+            return true;
+          },
         },
         {
-          label: getComposeBundle().getString("bigFileAttach.label"),
-          accessKey: getComposeBundle().getString("bigFileAttach.accesskey"),
-          callback: this.hideBigFileNotification.bind(this),
+          "l10n-id": "big-file-ignore-button",
+          callback: notification => {
+            this.hideBigFileNotification()
+              .then(keepOpen => {
+                if (!keepOpen) {
+                  notification.close();
+                }
+              })
+              .catch(console.error);
+            return true;
+          },
         },
       ];
       this._bigFileNotification = gComposeNotification
@@ -171,7 +186,7 @@ var gBigFileObserver = {
     return true;
   },
 
-  convertAttachments() {
+  async convertAttachments() {
     let account;
     const accounts = cloudFileAccounts.configuredAccounts;
 
@@ -186,10 +201,14 @@ var gBigFileObserver = {
 
       const names = accounts.map(i => cloudFileAccounts.getDisplayName(i));
       const icons = accounts.map(i => i.iconURL);
+      const [title, text] = await document.l10n.formatValues([
+        "big-file-choose-account-title",
+        "big-file-choose-account-prompt",
+      ]);
       const args = {
         promptType: "select",
-        title: getComposeBundle().getString("bigFileChooseAccount.title"),
-        text: getComposeBundle().getString("bigFileChooseAccount.text"),
+        title,
+        text,
         list: names,
         icons,
         selected: -1,
@@ -220,16 +239,15 @@ var gBigFileObserver = {
     return false;
   },
 
-  hideBigFileNotification() {
+  async hideBigFileNotification() {
     const never = {};
+    const [title, message, checkboxLabel] = await document.l10n.formatValues([
+      "big-file-hide-notification-title",
+      "big-file-hide-notification-prompt",
+      "big-file-hide-notification-checkbox",
+    ]);
     if (
-      Services.prompt.confirmCheck(
-        window,
-        getComposeBundle().getString("bigFileHideNotification.title"),
-        getComposeBundle().getString("bigFileHideNotification.text"),
-        getComposeBundle().getString("bigFileHideNotification.check"),
-        never
-      )
+      Services.prompt.confirmCheck(window, title, message, checkboxLabel, never)
     ) {
       this.hide(never.value);
       return false;
@@ -290,12 +308,7 @@ var gBigFileObserver = {
     }
 
     const showUploadButton = {
-      accessKey: getComposeBundle().getString(
-        "stopShowingUploadingNotification.accesskey"
-      ),
-      label: getComposeBundle().getString(
-        "stopShowingUploadingNotification.label"
-      ),
+      "l10n-id": "cloudfile-uploading-stop-button",
       callback() {
         Services.prefs.setBoolPref(
           "mail.compose.big_attachments.insert_notification",
@@ -355,15 +368,11 @@ var gBigFileObserver = {
       return;
     }
 
-    const message = getComposeBundle().getString(
-      "cloudFilePrivacyNotification"
-    );
-
     await gComposeNotification
       .appendNotification(
         kPrivacyWarningNotificationValue,
         {
-          label: message,
+          label: { "l10n-id": "cloud-file-privacy-warning" },
           priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
         },
         null

@@ -1243,8 +1243,9 @@ function updateRecipientsVisibility() {
  * @param {("next"|"previous")} [focusType="next"] - How to move focus after
  *   hiding the address row: try to focus the input of an available next sibling
  *   row (for [x] or DEL) or previous sibling row (for BACKSPACE).
+ * @returns {Promise<void>}
  */
-function hideAddressRowFromWithin(element, focusType = "next") {
+async function hideAddressRowFromWithin(element, focusType = "next") {
   const addressRow = element.closest(".address-row");
 
   // Prevent address row removal when sending (disable-on-send).
@@ -1267,17 +1268,18 @@ function hideAddressRowFromWithin(element, focusType = "next") {
     const fieldName = addressRow.querySelector(
       ".address-label-container > label"
     );
-    const confirmTitle = getComposeBundle().getFormattedString(
-      "confirmRemoveRecipientRowTitle2",
-      [fieldName.value]
-    );
-    const confirmBody = getComposeBundle().getFormattedString(
-      "confirmRemoveRecipientRowBody2",
-      [fieldName.value]
-    );
-    const confirmButton = getComposeBundle().getString(
-      "confirmRemoveRecipientRowButton"
-    );
+    const [confirmTitle, confirmBody, confirmButton] =
+      await document.l10n.formatValues([
+        {
+          id: "compose-remove-address-row-title",
+          args: { field: fieldName.value },
+        },
+        {
+          id: "compose-remove-address-row-prompt",
+          args: { field: fieldName.value },
+        },
+        "compose-remove-address-row-button",
+      ]);
 
     const result = Services.prompt.confirmEx(
       window,

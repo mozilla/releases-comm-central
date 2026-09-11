@@ -40,6 +40,18 @@ add_task(async function test_customHeaders() {
 
   // Set values to custom headers.
   let cwc = await open_compose_new_mail();
+  const addressingLabelWidth =
+    cwc.document.getElementById("identityLabel-box").style.width;
+  for (const labelContainer of cwc.document.querySelectorAll(
+    ".address-row-raw .address-label-container"
+  )) {
+    Assert.equal(
+      labelContainer.style.width,
+      addressingLabelWidth,
+      "custom header label should use the localized addressing label width"
+    );
+  }
+
   const inputs = cwc.document.querySelectorAll(".address-row-raw input");
   inputs[0].value = "Test äöü";
   inputs[1].value = "Test 😃";

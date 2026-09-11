@@ -6,8 +6,8 @@
 // but the linter is unhappy.
 /* globals addressInputOnBeforeHandleKeyDown, addressInputOnBlur,
    addressInputOnFocus, addressInputOnInput, addressRowAddRecipientsArray,
-   closeLabelOnClick, focusAddressInputOnClick, getComposeBundle,
-   otherHeaderInputOnKeyDown, showAndFocusAddressRow,
+   closeLabelOnClick, focusAddressInputOnClick, otherHeaderInputOnKeyDown,
+   showAndFocusAddressRow,
    updateAriaLabelsAndTooltipsOfAllAddressRows, updateAriaLabelsOfAddressRow */
 
 /* global MozXULElement */
@@ -818,10 +818,9 @@ class MailRecipientsArea extends MozXULElement {
     labelContainer.setAttribute("align", "top");
     labelContainer.setAttribute("pack", "end");
     labelContainer.classList.add("address-label-container");
-    labelContainer.setAttribute(
-      "style",
-      getComposeBundle().getString("headersSpaceStyle")
-    );
+    // Match the locale-specific width used by the existing addressing labels.
+    labelContainer.style.width =
+      document.getElementById("identityLabel-box").style.width;
 
     const label = document.createXULElement("label");
     label.setAttribute("id", recipient.labelId);
