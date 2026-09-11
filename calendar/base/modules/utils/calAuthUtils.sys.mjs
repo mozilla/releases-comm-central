@@ -138,8 +138,8 @@ export var auth = {
    * be used by providers and other components that handle authentication using
    * nsIAuthPrompt2 and friends.
    *
-   * This implementation guarantees there are no request loops when an invalid
-   * password is stored in the login-manager.
+   * A saved login that the server rejects is dropped, so a wrong stored
+   * password cannot loop.
    *
    * There is one instance of that object per calendar provider.
    */
@@ -148,25 +148,17 @@ export var auth = {
 
     constructor() {
       this.mWindow = lazy.cal.window.getCalendarWindow();
-      this.mReturnedLogins = {};
+      this.mSuppliedPasswords = new WeakMap();
       this.mProvider = null;
     }
-
-    /**
-     * @typedef {object} PasswordInfo
-     * @property {boolean} found        True, if the password was found
-     * @property {?string} username     The found username
-     * @property {?string} password     The found password
-     */
 
     /**
      * Retrieve password information from the login manager.
      *
      * @param {nsIChannel} channel - The channel that requires authentication.
-     * @param {nsIAuthInformation} authInfo - Authentication information object.
-     *   If a suitable login exists in the login manager, `authInfo` will be
-     *   filled with the username and password.
-     * @returns {boolean} - If a login was found in the login manager.
+     * @param {nsIAuthInformation} authInfo - Filled in with the username, and
+     *   with the password if a usable login was found.
+     * @returns {boolean} - If a usable login was found in the login manager.
      */
     async #getPasswordInfo(channel, authInfo) {
       const prePath = channel.URI.prePath;
@@ -175,7 +167,6 @@ export var auth = {
         channel.loadInfo.originAttributes.userContextId
       );
 
-      // Prefill aRequestedUser, so it will be used in the prompter.
       let password;
       let found = false;
 
@@ -191,32 +182,37 @@ export var auth = {
           break;
         }
       }
-      if (found) {
-        const keyStr = prePath + ":" + realm + ":" + username;
-        const now = new Date();
-        // Remove the saved password if it was already returned less
-        // than 60 seconds ago. The reason for the timestamp check is that
-        // nsIHttpChannel can call the nsIAuthPrompt2 interface
-        // again in some situation. ie: When using Digest auth token
-        // expires.
-        if (
-          this.mReturnedLogins[keyStr] &&
-          now.getTime() - this.mReturnedLogins[keyStr].getTime() < 60000
-        ) {
-          lazy.log.debug(
+
+      authInfo.username = username;
+
+      if (!found) {
+        return false;
+      }
+
+      // Only drop what we handed out and the server then rejected. PREVIOUS_FAILED
+      // belongs to one request, so the record has to as well: a retry may run on a
+      // new channel, but it keeps the load info of the request it retries.
+      const request = channel.loadInfo;
+      const key = prePath + ":" + realm + ":" + username;
+      const supplied = this.mSuppliedPasswords.get(request);
+      if (
+        authInfo.flags & Ci.nsIAuthInformation.PREVIOUS_FAILED &&
+        supplied?.key === key &&
+        supplied.password === password
+      ) {
+        this.mSuppliedPasswords.delete(request);
+        if (username) {
+          lazy.log.warn(
             "Credentials removed for: user=" + username + ", host=" + prePath + ", realm=" + realm
           );
-
-          delete this.mReturnedLogins[keyStr];
           await auth.passwordManagerRemove(username, prePath, realm);
-          return { found: false, username };
         }
-        this.mReturnedLogins[keyStr] = now;
-
-        authInfo.username = username;
-        authInfo.password = password;
+        return false;
       }
-      return found;
+
+      this.mSuppliedPasswords.set(request, { key, password });
+      authInfo.password = password;
+      return true;
     }
 
     /**
