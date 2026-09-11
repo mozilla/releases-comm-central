@@ -239,6 +239,10 @@ const smimeSink = {
 const gTextAliceBob = "This is a test message from Alice to Bob.";
 const gTextFran = "This is a test message to Fran.";
 
+const gCertBob = "bob@example.com";
+const gCertFran = "fran@example.com";
+const gCertFranEc = "fran-ec@example.com";
+
 /**
  * Note on FILENAMES taken from the NSS test suite:
  * - env: CMS enveloped (encrypted)
@@ -267,6 +271,10 @@ const gTextFran = "This is a test message to Fran.";
  * - dave: If true, we expect that the outermost message was done by
  *         Dave's certificate.
  *         (default is false, which means we expect Alice's cert.)
+ * - enc_cert: The email address of the certificate that we expect to be
+ *             reported as the recipient certificate of an encrypted
+ *             message.
+ *             (default is Bob's address.)
  */
 
 var gMessages = [
@@ -752,31 +760,37 @@ var gMessages = [
     filename: "../smime-interop/fran-oaep_ossl.env",
     enc: true,
     check_text: gTextFran,
+    enc_cert: gCertFran,
   },
   {
     filename: "../smime-interop/fran-oaep-label_ossl.env",
     enc: true,
     check_text: gTextFran,
+    enc_cert: gCertFran,
   },
   {
     filename: "../smime-interop/fran-oaep-sha256hash_ossl.env",
     enc: true,
     check_text: gTextFran,
+    enc_cert: gCertFran,
   },
   {
     filename: "../smime-interop/fran-oaep-sha256hash-sha256mgf_ossl.env",
     enc: true,
     check_text: gTextFran,
+    enc_cert: gCertFran,
   },
   {
     filename: "../smime-interop/fran-ec_ossl-aes128-sha256.env",
     enc: true,
     check_text: gTextFran,
+    enc_cert: gCertFranEc,
   },
   {
     filename: "../smime-interop/fran-ec_ossl-aes256-sha512.env",
     enc: true,
     check_text: gTextFran,
+    enc_cert: gCertFranEc,
   },
 ];
 
@@ -855,7 +869,9 @@ add_task(async function check_smime_message() {
     if (msg.enc) {
       Assert.equal(r[0].type, "encrypted");
       Assert.equal(r[0].status, 0);
-      Assert.equal(r[0].certificate, null);
+      const encCert = r[0].certificate;
+      Assert.notEqual(encCert, null, "should have reported a recipient cert");
+      Assert.equal(encCert.emailAddress, msg.enc_cert || gCertBob);
       sigIndex = 1;
     } else {
       Assert.notEqual(r[0].type, "encrypted");

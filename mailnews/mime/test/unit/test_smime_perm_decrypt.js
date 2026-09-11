@@ -261,7 +261,12 @@ add_task(async function check_smime_message() {
     if (msg.enc) {
       Assert.equal(r[0].type, "encrypted");
       Assert.equal(r[0].status, 0);
-      Assert.equal(r[0].certificate, null);
+      Assert.notEqual(
+        r[0].certificate,
+        null,
+        "should have reported a recipient cert"
+      );
+      Assert.equal(r[0].certificate.emailAddress, "bob@example.com");
     }
 
     if (msg.sentDate) {

@@ -40,6 +40,7 @@ class nsCMSMessage : public nsICMSMessage {
   NSSCMSMessage* m_cmsMsg;
   NSSCMSSignerInfo* GetTopLevelSignerInfo();
   NSSCMSContentInfo* GetEncryptionContentInfo();
+  NSSCMSRecipientInfo** GetEnvelopedRecipientInfos();
 
   SignatureVerificationResult CommonVerifySignature(
       int32_t verifyFlags, const nsTArray<uint8_t>& aDigestData,

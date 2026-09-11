@@ -307,6 +307,23 @@ add_task(async function testMessageSecurityShortcut() {
   // The Message Security popup panel should show up.
   await popupshown;
 
+  // The message was encrypted to Bob, whose certificate and key we have,
+  // so the panel must show Bob as the recipient.
+  Assert.ok(
+    !aboutMessage.document.getElementById("encryptionCert").collapsed,
+    "the encryption certificate section should be shown"
+  );
+  Assert.equal(
+    aboutMessage.document.getElementById("encryptedFor").textContent,
+    "Bob",
+    "should show the name of the recipient certificate"
+  );
+  Assert.equal(
+    aboutMessage.document.getElementById("recipientEmail").textContent,
+    "bob@example.com",
+    "should show the email address of the recipient certificate"
+  );
+
   // Select the row again since the focus moved to the popup panel.
   await select_click_row(-1);
   // Delete the message.

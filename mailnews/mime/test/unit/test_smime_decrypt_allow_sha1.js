@@ -756,7 +756,9 @@ add_task(async function check_smime_message() {
     if (msg.enc) {
       Assert.equal(r[0].type, "encrypted");
       Assert.equal(r[0].status, 0);
-      Assert.equal(r[0].certificate, null);
+      const encCert = r[0].certificate;
+      Assert.notEqual(encCert, null, "should have reported a recipient cert");
+      Assert.equal(encCert.emailAddress, "bob@example.com");
       sigIndex = 1;
     } else {
       Assert.notEqual(r[0].type, "encrypted");

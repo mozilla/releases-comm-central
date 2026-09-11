@@ -21,6 +21,8 @@
 #include "nsNSSComponent.h"
 #include "nsServiceManagerUtils.h"
 #include "ScopedNSSTypes.h"
+#include "cert.h"
+#include "pk11pub.h"
 #include "secasn1.h"
 #include "secerr.h"
 #include "sechash.h"
@@ -147,8 +149,84 @@ NS_IMETHODIMP nsCMSMessage::GetSignerCert(nsIX509Cert** scert) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsCMSMessage::GetEncryptionCert(nsIX509Cert**) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+// Look up a cert by a recipient identifier and return it only if we
+// hold its private key.
+static UniqueCERTCertificate FindOwnRecipientCert(CERTIssuerAndSN* issuerAndSN,
+                                                  SECItem* subjectKeyID) {
+  CERTCertDBHandle* db = CERT_GetDefaultCertDB();
+  UniqueCERTCertificate cert;
+  if (issuerAndSN) {
+    cert.reset(CERT_FindCertByIssuerAndSN(db, issuerAndSN));
+  } else if (subjectKeyID) {
+    cert.reset(CERT_FindCertBySubjectKeyID(db, subjectKeyID));
+  }
+  if (!cert) {
+    return nullptr;
+  }
+  UniqueSECKEYPrivateKey key(PK11_FindKeyByAnyCert(cert.get(), nullptr));
+  if (!key) {
+    return nullptr;
+  }
+  return cert;
+}
+
+NS_IMETHODIMP nsCMSMessage::GetEncryptionCert(nsIX509Cert** ecert) {
+  NS_ENSURE_ARG(ecert);
+  *ecert = nullptr;
+
+  NSSCMSRecipientInfo** recipientInfos = GetEnvelopedRecipientInfos();
+  if (!recipientInfos) {
+    return NS_OK;
+  }
+
+  // Find an encryption cert based on recipient identifiers.
+  UniqueCERTCertificate found;
+  for (int i = 0; recipientInfos[i] && !found; i++) {
+    NSSCMSRecipientInfo* ri = recipientInfos[i];
+    switch (ri->recipientInfoType) {
+      case NSSCMSRecipientInfoID_KeyTrans: {
+        NSSCMSRecipientIdentifier* rid =
+            &ri->ri.keyTransRecipientInfo.recipientIdentifier;
+        found = FindOwnRecipientCert(
+            rid->identifierType == NSSCMSRecipientID_IssuerSN
+                ? rid->id.issuerAndSN
+                : nullptr,
+            rid->identifierType == NSSCMSRecipientID_SubjectKeyID
+                ? rid->id.subjectKeyID
+                : nullptr);
+        break;
+      }
+      case NSSCMSRecipientInfoID_KeyAgree: {
+        NSSCMSRecipientEncryptedKey** reks =
+            ri->ri.keyAgreeRecipientInfo.recipientEncryptedKeys;
+        for (int j = 0; reks && reks[j] && !found; j++) {
+          NSSCMSKeyAgreeRecipientIdentifier* rid =
+              &reks[j]->recipientIdentifier;
+          found = FindOwnRecipientCert(
+              rid->identifierType == NSSCMSKeyAgreeRecipientID_IssuerSN
+                  ? rid->id.issuerAndSN
+                  : nullptr,
+              rid->identifierType == NSSCMSKeyAgreeRecipientID_RKeyID
+                  ? rid->id.recipientKeyIdentifier.subjectKeyIdentifier
+                  : nullptr);
+        }
+        break;
+      }
+      default:
+        // KEK recipients use a pre-shared key and carry no certificate.
+        break;
+    }
+  }
+
+  if (!found) {
+    return NS_OK;
+  }
+
+  nsTArray<uint8_t> certBytes;
+  certBytes.AppendElements(found->derCert.data, found->derCert.len);
+  nsCOMPtr<nsIX509Cert> cert = new nsNSSCertificate(std::move(certBytes));
+  cert.forget(ecert);
+  return NS_OK;
 }
 
 static void AppendMGFFromParams(PLArenaPool* arena, const SECItem& params,
@@ -287,6 +365,33 @@ NSSCMSContentInfo* nsCMSMessage::GetEncryptionContentInfo() {
   return nullptr;
 }
 
+// Return the recipientInfos of the EnvelopedData layer, or null if the
+// message has no such layer. EncryptedData is not considered because it
+// has no RecipientInfo (it uses pre-shared keys).
+NSSCMSRecipientInfo** nsCMSMessage::GetEnvelopedRecipientInfos() {
+  if (!m_cmsMsg) {
+    return nullptr;
+  }
+  int levels = NSS_CMSMessage_ContentLevelCount(m_cmsMsg);
+  for (int i = 0; i < levels; i++) {
+    NSSCMSContentInfo* cinfo = NSS_CMSMessage_ContentLevel(m_cmsMsg, i);
+    if (!cinfo) {
+      return nullptr;
+    }
+    if (NSS_CMSContentInfo_GetContentTypeTag(cinfo) ==
+        SEC_OID_PKCS7_ENVELOPED_DATA) {
+      void* content = NSS_CMSContentInfo_GetContent(cinfo);
+      // Use information from the outermost enveloped layer.
+      // Don't use data from nested enveloped layers.
+      if (!content) {
+        return nullptr;
+      }
+      return static_cast<NSSCMSEnvelopedData*>(content)->recipientInfos;
+    }
+  }
+  return nullptr;
+}
+
 NS_IMETHODIMP nsCMSMessage::GetContentEncAlgorithmName(nsACString& aResult) {
   NSSCMSContentInfo* cinfo = GetEncryptionContentInfo();
   if (!cinfo) {
@@ -347,32 +452,7 @@ NS_IMETHODIMP nsCMSMessage::GetContentEncKeySizeBits(int32_t* aKeySize) {
 }
 
 NS_IMETHODIMP nsCMSMessage::GetKeyEncAlgorithmName(nsACString& aResult) {
-  if (!m_cmsMsg) {
-    aResult.Truncate();
-    return NS_OK;
-  }
-
-  NSSCMSRecipientInfo** recipientInfos = nullptr;
-  int levels = NSS_CMSMessage_ContentLevelCount(m_cmsMsg);
-  for (int i = 0; i < levels; i++) {
-    NSSCMSContentInfo* cinfo = NSS_CMSMessage_ContentLevel(m_cmsMsg, i);
-    if (!cinfo) {
-      break;
-    }
-    SECOidTag typeTag = NSS_CMSContentInfo_GetContentTypeTag(cinfo);
-    void* content = NSS_CMSContentInfo_GetContent(cinfo);
-    if (!content) {
-      continue;
-    }
-    // SEC_OID_PKCS7_ENCRYPTED_DATA is not checked here because
-    // EncryptedData has no RecipientInfo (uses pre-shared keys).
-    if (typeTag == SEC_OID_PKCS7_ENVELOPED_DATA) {
-      recipientInfos =
-          static_cast<NSSCMSEnvelopedData*>(content)->recipientInfos;
-      break;
-    }
-  }
-
+  NSSCMSRecipientInfo** recipientInfos = GetEnvelopedRecipientInfos();
   if (!recipientInfos || !recipientInfos[0]) {
     aResult.Truncate();
     return NS_OK;

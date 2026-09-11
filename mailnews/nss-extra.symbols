@@ -1,5 +1,6 @@
 BTOA_ConvertItemToAscii
 CERT_CreateName
+CERT_FindCertBySubjectKeyID
 CERT_GetCertNicknames
 CERT_VerifyCert
 HASH_GetHashOidTagByHashType_Util
