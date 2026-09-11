@@ -51,6 +51,7 @@
 #include "mozilla/HTMLEditor.h"
 #include "mozilla/Components.h"
 #include "mozilla/Services.h"
+#include "mozilla/intl/Localization.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/ErrorResult.h"
@@ -74,7 +75,6 @@
 #include "nsIFileURL.h"
 #include "nsTextNode.h"  // from dom/base
 #include "nsIParserUtils.h"
-#include "nsIStringBundle.h"
 #include "nsPIDOMWindowInlines.h"  // For nsPIDOMWindowOuter::GetDocShell - see bug 2046012
 #include "nsWeakReference.h"
 
@@ -83,6 +83,22 @@ using namespace mozilla::dom;
 using namespace mozilla::mailnews;
 
 LazyLogModule Compose("Compose");
+
+static nsresult FormatComposeString(const nsACString& aL10nId,
+                                    nsAString& aValue) {
+  RefPtr<mozilla::intl::Localization> l10n =
+      mozilla::intl::Localization::Create(
+          {"messenger/messengercompose/messengercompose.ftl"_ns}, true);
+  NS_ENSURE_TRUE(l10n, NS_ERROR_UNEXPECTED);
+
+  nsAutoCString value;
+  mozilla::ErrorResult error;
+  l10n->FormatValueSync(aL10nId, {}, value, error);
+  NS_ENSURE_TRUE(!error.Failed(), error.StealNSResult());
+
+  CopyUTF8toUTF16(value, aValue);
+  return NS_OK;
+}
 
 static nsresult GetReplyHeaderInfo(int32_t* reply_header_type,
                                    nsString& reply_header_authorwrote,
@@ -1294,22 +1310,24 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
       } else {
         // Some send modes may fail before nsMsgSend creates its detailed
         // report. Fall back to the mode-specific generic error.
+        nsAutoCString fluentId;
         switch (deliverMode) {
           case nsIMsgCompDeliverMode::Later:
-            nsMsgDisplayMessageByName("unableToSendLater");
+            fluentId.AssignLiteral("send-unable-to-send-later");
             break;
           case nsIMsgCompDeliverMode::AutoSaveAsDraft:
           case nsIMsgCompDeliverMode::SaveAsDraft:
-            nsMsgDisplayMessageByName("unableToSaveDraft");
+            fluentId.AssignLiteral("send-unable-to-save-draft");
             break;
           case nsIMsgCompDeliverMode::SaveAsTemplate:
-            nsMsgDisplayMessageByName("unableToSaveTemplate");
+            fluentId.AssignLiteral("send-unable-to-save-template");
             break;
 
           default:
-            nsMsgDisplayMessageByName("sendFailed");
+            fluentId.AssignLiteral("send-error-failed");
             break;
         }
+        ShowSendAlert(fluentId);
       }
     }
     if (self->mProgress) self->mProgress->CloseProgressDialog(true);
@@ -1788,18 +1806,9 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
 
             // copy subject string to sanitizedSubj, use default if empty
             if (subject.IsEmpty()) {
-              nsresult rv;
-              nsCOMPtr<nsIStringBundleService> bundleService =
-                  mozilla::components::StringBundle::Service();
-              NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
-              nsCOMPtr<nsIStringBundle> composeBundle;
-              rv = bundleService->CreateBundle(
-                  "chrome://messenger/locale/messengercompose/"
-                  "composeMsgs.properties",
-                  getter_AddRefs(composeBundle));
+              rv = FormatComposeString("compose-message-attachment-name"_ns,
+                                       sanitizedSubj);
               NS_ENSURE_SUCCESS(rv, rv);
-              composeBundle->GetStringFromName("messageAttachmentSafeName",
-                                               sanitizedSubj);
             } else
               sanitizedSubj.Assign(subject);
 
@@ -2388,7 +2397,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
       if (!followUpTo.IsEmpty()) {
         // Handle "followup-to: poster" magic keyword here
         if (followUpTo.EqualsLiteral("poster")) {
-          nsMsgDisplayMessageByName("followupToSenderMessage");
+          ShowSendAlert("send-alert-followup-to-sender"_ns);
 
           if (!replyTo.IsEmpty()) {
             compFields->SetTo(replyTo);
@@ -3356,18 +3365,10 @@ NS_IMETHODIMP nsMsgComposeSendListener::OnStateChange(
         bool bCanceled = false;
         progress->GetProcessCanceledByUser(&bCanceled);
         if (bCanceled) {
-          nsresult rv;
-          nsCOMPtr<nsIStringBundleService> bundleService =
-              mozilla::components::StringBundle::Service();
-          NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
-          nsCOMPtr<nsIStringBundle> bundle;
-          rv = bundleService->CreateBundle(
-              "chrome://messenger/locale/messengercompose/"
-              "composeMsgs.properties",
-              getter_AddRefs(bundle));
-          NS_ENSURE_SUCCESS(rv, rv);
           nsString msg;
-          bundle->GetStringFromName("msgCancelling", msg);
+          nsresult rv =
+              FormatComposeString("compose-message-cancelling"_ns, msg);
+          NS_ENSURE_SUCCESS(rv, rv);
           progress->OnStatusChange(nullptr, nullptr, NS_OK, msg.get());
         }
       }

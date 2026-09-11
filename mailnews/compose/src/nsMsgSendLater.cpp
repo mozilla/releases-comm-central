@@ -210,7 +210,7 @@ nsMsgSendLater::OnStopRequest(nsIRequest* request, nsresult status) {
         EndSendMessages(rv, nullptr, mTotalSendCount, mTotalSentSuccessfully);
     }
   } else {
-    nsMsgDisplayMessageByName("errorQueuedDeliveryFailed");
+    ShowSendAlert("send-alert-queued-delivery-failed"_ns);
 
     // Getting the data failed, but we will still keep trying to send the
     // rest...

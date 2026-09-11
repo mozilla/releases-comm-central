@@ -27,6 +27,7 @@
 #include "nsIMsgDatabase.h"
 #include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/intl/Localization.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsIPromptService.h"
 #include "nsEmbedCID.h"
@@ -928,28 +929,27 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnSendStop(nsIURI* aServerURI,
 
   if (NS_SUCCEEDED(aExitCode)) return NS_OK;
 
-  const char* exitString;
+  nsAutoCString fluentId;
 
   switch (aExitCode) {
     case NS_ERROR_UNKNOWN_HOST:
     case NS_ERROR_UNKNOWN_PROXY_HOST:
-      exitString = "smtpSendFailedUnknownServer";
+      fluentId.AssignLiteral("send-error-smtp-unknown-server");
       break;
     case NS_ERROR_CONNECTION_REFUSED:
     case NS_ERROR_PROXY_CONNECTION_REFUSED:
-      exitString = "smtpSendRequestRefused";
+      fluentId.AssignLiteral("send-error-smtp-request-refused");
       break;
     case NS_ERROR_NET_INTERRUPT:
-    case NS_ERROR_ABORT:  // we have no proper string for error code
-                          // NS_ERROR_ABORT in compose bundle
-      exitString = "smtpSendInterrupted";
+    case NS_ERROR_ABORT:  // We have no specific string for NS_ERROR_ABORT.
+      fluentId.AssignLiteral("send-error-smtp-interrupted");
       break;
     case NS_ERROR_NET_TIMEOUT:
     case NS_ERROR_NET_RESET:
-      exitString = "smtpSendTimeout";
+      fluentId.AssignLiteral("send-error-smtp-timeout");
       break;
     default:
-      exitString = "sendFailed";
+      fluentId.AssignLiteral("send-error-failed");
       break;
   }
 
@@ -963,23 +963,19 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnSendStop(nsIURI* aServerURI,
       m_identity, getter_AddRefs(outgoingServer));
   if (NS_SUCCEEDED(rv)) outgoingServer->GetDisplayname(outgoingDisplayName);
 
-  AutoTArray<nsString, 1> params;
-  CopyASCIItoUTF16(outgoingDisplayName, *params.AppendElement());
+  RefPtr<mozilla::intl::Localization> l10n =
+      mozilla::intl::Localization::Create({"messenger/messageSend.ftl"_ns},
+                                          true);
+  NS_ENSURE_TRUE(l10n, NS_ERROR_UNEXPECTED);
 
-  nsCOMPtr<nsIStringBundle> bundle;
-  nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::components::StringBundle::Service();
-  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
-
-  rv = bundleService->CreateBundle(
-      "chrome://messenger/locale/messengercompose/composeMsgs.properties",
-      getter_AddRefs(bundle));
+  nsAutoCString failedMsg;
+  rv = LocalizeMessage(l10n, fluentId, {{"hostname"_ns, outgoingDisplayName}},
+                       failedMsg);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsString failed_msg, dialogTitle;
-
-  bundle->FormatStringFromName(exitString, params, failed_msg);
-  bundle->GetStringFromName("sendMessageErrorTitle", dialogTitle);
+  nsAutoCString dialogTitle;
+  rv = LocalizeMessage(l10n, "send-error-title"_ns, {}, dialogTitle);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<mozIDOMWindowProxy> domWindow;
   nsCOMPtr<nsIWindowMediator> winMed =
@@ -991,7 +987,8 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnSendStop(nsIURI* aServerURI,
       do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  dlgService->Alert(domWindow, dialogTitle.get(), failed_msg.get());
+  dlgService->Alert(domWindow, NS_ConvertUTF8toUTF16(dialogTitle).get(),
+                    NS_ConvertUTF8toUTF16(failedMsg).get());
 
   return NS_OK;
 }

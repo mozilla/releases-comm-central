@@ -4,69 +4,23 @@
 
 #include "nsMsgPrompts.h"
 
-#include "nsIWindowWatcher.h"
-#include "nsIWindowMediator.h"
-#include "nsIStringBundle.h"
-#include "nsServiceManagerUtils.h"
-#include "nsMsgUtils.h"
-#include "mozilla/Components.h"
-#include "nsIPromptService.h"
+#include "mozilla/ErrorResult.h"
+#include "mozilla/intl/Localization.h"
 #include "nsEmbedCID.h"
+#include "nsIPromptService.h"
+#include "nsIWindowMediator.h"
+#include "nsServiceManagerUtils.h"
 
-nsresult nsMsgGetMessageByName(const char* aName, nsString& aResult) {
-  nsresult rv;
-  nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::components::StringBundle::Service();
-  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
+nsresult ShowSendAlert(const nsACString& aL10nId) {
+  RefPtr<mozilla::intl::Localization> l10n =
+      mozilla::intl::Localization::Create({"messenger/messageSend.ftl"_ns},
+                                          true);
+  NS_ENSURE_TRUE(l10n, NS_ERROR_UNEXPECTED);
 
-  nsCOMPtr<nsIStringBundle> bundle;
-  rv = bundleService->CreateBundle(
-      "chrome://messenger/locale/messengercompose/composeMsgs.properties",
-      getter_AddRefs(bundle));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return bundle->GetStringFromName(aName, aResult);
-}
-
-static nsresult nsMsgBuildMessageByName(const char* aName, nsIFile* aFile,
-                                        nsString& aResult) {
-  NS_ENSURE_ARG_POINTER(aFile);
-  nsresult rv;
-  nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::components::StringBundle::Service();
-  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
-
-  nsCOMPtr<nsIStringBundle> bundle;
-  rv = bundleService->CreateBundle(
-      "chrome://messenger/locale/messengercompose/composeMsgs.properties",
-      getter_AddRefs(bundle));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsString path;
-  aFile->GetPath(path);
-
-  AutoTArray<nsString, 1> params = {path};
-  return bundle->FormatStringFromName(aName, params, aResult);
-}
-
-nsresult nsMsgBuildMessageWithFile(nsIFile* aFile, nsString& aResult) {
-  return nsMsgBuildMessageByName("unableToOpenFile", aFile, aResult);
-}
-
-nsresult nsMsgBuildMessageWithTmpFile(nsIFile* aFile, nsString& aResult) {
-  return nsMsgBuildMessageByName("unableToOpenTmpFile", aFile, aResult);
-}
-
-nsresult nsMsgDisplayMessageByName(const char* aName,
-                                   const char16_t* windowTitle) {
-  nsString msg;
-  nsMsgGetMessageByName(aName, msg);
-  return nsMsgDisplayMessageByString(msg.get(), windowTitle);
-}
-
-nsresult nsMsgDisplayMessageByString(const char16_t* msg,
-                                     const char16_t* windowTitle) {
-  NS_ENSURE_ARG_POINTER(msg);
+  nsAutoCString message;
+  mozilla::ErrorResult error;
+  l10n->FormatValueSync(aL10nId, {}, message, error);
+  NS_ENSURE_TRUE(!error.Failed(), error.StealNSResult());
 
   nsresult rv;
   nsCOMPtr<nsIPromptService> dlgService(
@@ -79,5 +33,6 @@ nsresult nsMsgDisplayMessageByString(const char16_t* msg,
   NS_ENSURE_SUCCESS(rv, rv);
   winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
 
-  return dlgService->Alert(domWindow, windowTitle, msg);
+  return dlgService->Alert(domWindow, nullptr,
+                           NS_ConvertUTF8toUTF16(message).get());
 }
