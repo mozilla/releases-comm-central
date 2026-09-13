@@ -5,6 +5,7 @@
 #include "nsImapProtocol.h"
 
 #include "msgCore.h"  // for pre-compiled headers
+#include "nsMsgDBFolder.h"
 #include "nsMsgUtils.h"
 #include "nsIFeedbackService.h"
 
@@ -2307,6 +2308,11 @@ class UrlListenerNotifierEvent : public mozilla::Runnable {
 };
 
 bool nsImapProtocol::TryToRunUrlLocally(nsIURI* aURL, nsISupports* aConsumer) {
+  // NOTE: This is called by LoadImapUrl(), as part of the setup on the main
+  // thread. But really, the protocol code shouldn't access the database or
+  // local message store at all! See
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=2070757
+  MOZ_ASSERT(NS_IsMainThread());
   nsresult rv;
   nsCOMPtr<nsIImapUrl> imapUrl(do_QueryInterface(aURL, &rv));
   NS_ENSURE_SUCCESS(rv, false);
@@ -2322,8 +2328,27 @@ bool nsImapProtocol::TryToRunUrlLocally(nsIURI* aURL, nsISupports* aConsumer) {
     mailnewsUrl->GetFolder(getter_AddRefs(folder));
     NS_ENSURE_TRUE(folder, false);
 
-    folder->HasMsgOffline(strtoul(messageIdString.get(), nullptr, 10),
-                          &useLocalCache);
+    // Need the message key.
+    ImapUid uid = strtoul(messageIdString.get(), nullptr, 10);
+    nsCOMPtr<nsIMsgDatabase> db;
+    rv = folder->GetMsgDatabase(getter_AddRefs(db));
+    NS_ENSURE_SUCCESS(rv, false);
+    auto lookup = MsgKeyFromUid(db, uid);
+    if (lookup.isErr()) {
+      MOZ_LOG_FMT(IMAP, LogLevel::Error,
+                  "TryToRunUrlLocally() - {}: Database error ({})",
+                  folder->URI(), lookup.unwrapErr());
+      return false;
+    }
+    nsMsgKey msgKey = lookup.unwrap();
+    if (msgKey == nsMsgKey_None) {
+      MOZ_LOG_FMT(IMAP, LogLevel::Error,
+                  "TryToRunUrlLocally() - {}: Couldn't find UID {}",
+                  folder->URI(), uid);
+      return false;
+    }
+
+    folder->HasMsgOffline(msgKey, &useLocalCache);
     mailnewsUrl->SetMsgIsInLocalCache(useLocalCache);
     // We're downloading a single message for offline use, and it's
     // already offline. So we shouldn't do anything, but we do
