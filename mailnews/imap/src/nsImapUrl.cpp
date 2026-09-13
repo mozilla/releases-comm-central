@@ -1188,24 +1188,6 @@ void nsImapUrl::ParseNumBytes() {
 
 // nsIMsgI18NUrl support
 
-nsresult nsImapUrl::GetMsgFolder(nsIMsgFolder** msgFolder) {
-  // if we have a RDF URI, then try to get the folder for that URI and then ask
-  // the folder for it's charset....
-
-  nsCString uri;
-  GetUri(uri);
-  NS_ENSURE_TRUE(!uri.IsEmpty(), NS_ERROR_FAILURE);
-
-  nsCOMPtr<nsIMsgDBHdr> msg;
-  GetMsgDBHdrFromURI(uri, getter_AddRefs(msg));
-  NS_ENSURE_TRUE(msg, NS_ERROR_FAILURE);
-  nsresult rv = msg->GetFolder(msgFolder);
-  NS_ENSURE_SUCCESS(rv, rv);
-  NS_ENSURE_TRUE(msgFolder, NS_ERROR_FAILURE);
-
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsImapUrl::GetAutodetectCharset(bool* aAutodetectCharset) {
   *aAutodetectCharset = mAutodetectCharset;
   return NS_OK;

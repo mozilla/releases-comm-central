@@ -63,8 +63,6 @@ class nsImapUrl : public nsIImapUrl,
   void ParseCustomMsgFetchAttribute();
   void ParseNumBytes();
 
-  nsresult GetMsgFolder(nsIMsgFolder** msgFolder);
-
   char* m_sourceCanonicalFolderPathSubString;
   char* m_destinationCanonicalFolderPathSubString;
   char* m_tokenPlaceHolder;
