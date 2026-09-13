@@ -100,6 +100,9 @@ tasks:
                                   - - ".arcconfig"
                                     - THUNDERBIRDDESKTOPMAIN
                                     - THUNDERBIRDDESKTOPBETA
+                                  - - ".gecko_rev.yml"
+                                    - "GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/mozilla-central"
+                                    - "GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/mozilla-beta"
                               base-tag: "BETA_{major_version}_BASE"
                               end-tag: "BETA_{major_version}_END"
                               from-branch: "main"
@@ -138,6 +141,9 @@ tasks:
                                   - - ".arcconfig"
                                     - THUNDERBIRDDESKTOPBETA
                                     - THUNDERBIRDDESKTOPRELEASE
+                                  - - ".gecko_rev.yml"
+                                    - "GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/mozilla-beta"
+                                    - "GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/mozilla-release"
                               base-tag: "RELEASE_{major_version}_BASE"
                               end-tag: "RELEASE_{major_version}_END"
                               from-branch: "beta"
