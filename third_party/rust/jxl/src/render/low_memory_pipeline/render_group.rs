@@ -3,23 +3,20 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-use crate::util::sync::{RwLock, RwLockReadGuard};
 use std::ops::Range;
 
-use crate::{
-    error::Result,
-    image::{DataTypeTag, OwnedRawImage, Rect},
-    render::{
-        buffer_splitter::OutputChannelRef,
-        internal::{ChannelInfo, Stage},
-        low_memory_pipeline::{
-            LowMemoryRenderPipelinePerThread, helpers::get_distinct_indices, run_stage::ExtraInfo,
-        },
-    },
-    util::{ChannelVec, ShiftRightCeil, mirror, tracing_wrappers::*},
-};
-
-use super::{LowMemoryRenderPipeline, row_buffers::RowBuffer};
+use super::LowMemoryRenderPipeline;
+use super::row_buffers::RowBuffer;
+use crate::error::Result;
+use crate::image::{DataTypeTag, OwnedRawImage, Rect};
+use crate::render::buffer_splitter::OutputChannelRef;
+use crate::render::internal::{ChannelInfo, Stage};
+use crate::render::low_memory_pipeline::LowMemoryRenderPipelinePerThread;
+use crate::render::low_memory_pipeline::helpers::get_distinct_indices;
+use crate::render::low_memory_pipeline::run_stage::ExtraInfo;
+use crate::util::sync::{RwLock, RwLockReadGuard};
+use crate::util::tracing_wrappers::*;
+use crate::util::{ChannelVec, ShiftRightCeil, SmallVec, mirror};
 
 fn apply_x_padding(
     input_type: DataTypeTag,
@@ -335,6 +332,9 @@ impl LowMemoryRenderPipeline {
             .map(|c| BufferFiller::new(self, c, (x0, xsize), (gx, gy), y0..image_area.end().1))
             .collect();
 
+        let mut previous_call_was_previous_row: SmallVec<bool, 32> =
+            std::iter::repeat_n(false, self.shared.stages.len()).collect();
+
         for vy in vy0..vy1 {
             let mut current_origin = (0, 0);
             let mut current_size = self.shared.input_size;
@@ -405,6 +405,7 @@ impl LowMemoryRenderPipeline {
                             &mut data.row_buffers,
                             &self.sorted_buffer_indices[i],
                         );
+                        let prev = std::mem::replace(&mut previous_call_was_previous_row[i], true);
                         s.run_stage_on(
                             ExtraInfo {
                                 xsize: shifted_xsize,
@@ -414,6 +415,7 @@ impl LowMemoryRenderPipeline {
                                 start_of_row,
                                 end_of_row,
                                 image_height: shifted_ysize,
+                                previous_call_was_previous_row: prev,
                             },
                             &mut buffers,
                             data.local_states[i].as_deref_mut(),
@@ -484,6 +486,7 @@ impl LowMemoryRenderPipeline {
                             .iter()
                             .map(|(si, ci)| &inb[*si][*ci])
                             .collect();
+                        let prev = std::mem::replace(&mut previous_call_was_previous_row[i], true);
                         s.run_stage_on(
                             ExtraInfo {
                                 xsize: shifted_xsize,
@@ -493,6 +496,7 @@ impl LowMemoryRenderPipeline {
                                 start_of_row,
                                 end_of_row,
                                 image_height: shifted_ysize,
+                                previous_call_was_previous_row: prev,
                             },
                             &input_data,
                             &mut outb[0][..],
@@ -519,6 +523,9 @@ impl LowMemoryRenderPipeline {
         let y0 = yrange.start;
         let xsize = xrange.clone().count();
         let ysize = yrange.clone().count();
+        let mut previous_call_was_previous_row: SmallVec<bool, 32> =
+            std::iter::repeat_n(false, self.shared.stages.len()).collect();
+
         // Significantly simplified version of render_group.
         for y in yrange.clone() {
             let extend = self.shared.extend_stage_index.unwrap();
@@ -542,6 +549,7 @@ impl LowMemoryRenderPipeline {
                             &mut data.row_buffers,
                             &self.sorted_buffer_indices[i],
                         );
+                        let prev = std::mem::replace(&mut previous_call_was_previous_row[i], true);
                         s.run_stage_on(
                             ExtraInfo {
                                 xsize,
@@ -551,6 +559,7 @@ impl LowMemoryRenderPipeline {
                                 start_of_row: false,
                                 end_of_row: false,
                                 image_height: self.shared.input_size.1,
+                                previous_call_was_previous_row: prev,
                             },
                             &mut buffers,
                             data.local_states[i].as_deref_mut(),
@@ -588,6 +597,7 @@ impl LowMemoryRenderPipeline {
                             .iter()
                             .map(|(si, ci)| &inb[*si][*ci])
                             .collect();
+                        let prev = std::mem::replace(&mut previous_call_was_previous_row[i], true);
                         s.run_stage_on(
                             ExtraInfo {
                                 xsize,
@@ -597,6 +607,7 @@ impl LowMemoryRenderPipeline {
                                 start_of_row: false,
                                 end_of_row: false,
                                 image_height: self.shared.input_size.1,
+                                previous_call_was_previous_row: prev,
                             },
                             &input_data,
                             &mut outb[0][..],

@@ -3,32 +3,26 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-use std::{
-    collections::{HashSet, VecDeque},
-    io::IoSliceMut,
-};
+use std::collections::{HashSet, VecDeque};
+use std::io::IoSliceMut;
 
-use crate::{
-    api::{
-        JxlColorProfile, JxlDecoderOptions, JxlOutputBuffer, JxlParallelRunner, JxlPixelFormat,
-        inner::{
-            CodestreamParser,
-            box_parser::CodestreamInput,
-            codestream_parser::{ProcessMode, check_size_limit, validate_output_buffers},
-            process::SmallBuffer,
-        },
-    },
-    bit_reader::BitReader,
-    error::{Error, Result},
-    frame::{DecoderState, Frame, HfMetaSplitter, LfImageSplitter, Section},
-    headers::{
-        FileHeader,
-        encodings::UnconditionalCoder,
-        frame_header::{Encoding, FrameHeader, FrameType},
-        toc::{IncrementalTocReader, Toc},
-    },
-    util::NewWithCapacity,
+use crate::api::inner::CodestreamParser;
+use crate::api::inner::box_parser::CodestreamInput;
+use crate::api::inner::codestream_parser::{
+    ProcessMode, check_size_limit, validate_output_buffers,
 };
+use crate::api::inner::process::SmallBuffer;
+use crate::api::{
+    JxlColorProfile, JxlDecoderOptions, JxlOutputBuffer, JxlParallelRunner, JxlPixelFormat,
+};
+use crate::bit_reader::BitReader;
+use crate::error::{Error, Result};
+use crate::frame::{DecoderState, Frame, HfMetaSplitter, LfImageSplitter, Section};
+use crate::headers::FileHeader;
+use crate::headers::encodings::UnconditionalCoder;
+use crate::headers::frame_header::{Encoding, FrameHeader, FrameType};
+use crate::headers::toc::{IncrementalTocReader, Toc};
+use crate::util::NewWithCapacity;
 
 struct SectionBuffer {
     len: usize,
@@ -66,7 +60,7 @@ pub struct FrameInfo {
 
     // Section information.
     sections: VecDeque<SectionBuffer>,
-    section_size: usize,
+    section_size: u64,
     ready_section_data: usize,
     section_state: SectionState,
 
@@ -81,6 +75,8 @@ pub struct FrameInfo {
 
     #[cfg(test)]
     pub use_simple_pipeline: bool,
+    #[cfg(test)]
+    pub allow_16bit_modular_buffers: bool,
 }
 
 impl FrameInfo {
@@ -101,7 +97,14 @@ impl FrameInfo {
             pixels_dirty: false,
             #[cfg(test)]
             use_simple_pipeline: false,
+            #[cfg(test)]
+            allow_16bit_modular_buffers: true,
         }
+    }
+
+    #[cfg(test)]
+    pub fn disable_16bit_modular_buffers(&mut self) {
+        self.allow_16bit_modular_buffers = false;
     }
 
     pub fn clear(&mut self, clear_frame: bool) {
@@ -150,7 +153,7 @@ impl FrameInfo {
         frame_header.postprocess(&nonserialized);
         check_size_limit(
             decode_options.sample_limit,
-            frame_header.size(),
+            frame_header.size_upsampled(),
             frame_header.num_extra_channels as usize,
         )?;
 
@@ -171,10 +174,7 @@ impl FrameInfo {
             match toc_parser.read_step(br) {
                 Ok(()) => *bits = br.total_bits_read(),
                 Err(Error::OutOfBounds(c)) => {
-                    // Estimate >= 16 bits per remaining entry to read.
-                    return Err(Error::OutOfBounds(
-                        c + toc_parser.remaining_entries() as usize * 2,
-                    ));
+                    return Err(Error::OutOfBounds(c));
                 }
                 Err(e) => return Err(e),
             }
@@ -195,7 +195,7 @@ impl FrameInfo {
         output_profile: &JxlColorProfile,
         process_mode: ProcessMode,
     ) -> Result<()> {
-        self.section_size = toc.entries.iter().map(|x| *x as usize).sum();
+        self.section_size = toc.entries.iter().map(|x| *x as u64).sum();
         self.ready_section_data = 0;
 
         self.lf_global_section = None;
@@ -210,13 +210,19 @@ impl FrameInfo {
             // We finalize the previous frame here to allow progressive rendering
             // to work properly if a flush is requested while we parse a frame
             // header.
-            let decoder_state = self
+            #[allow(unused_mut)]
+            let mut decoder_state = self
                 .frame
                 .take()
                 .map(|x| x.finalize())
                 .transpose()?
                 .flatten()
                 .unwrap_or_else(|| DecoderState::new(file_header.clone(), decode_options));
+            #[cfg(test)]
+            {
+                decoder_state.use_simple_pipeline = self.use_simple_pipeline;
+                decoder_state.allow_16bit_modular_buffers = self.allow_16bit_modular_buffers;
+            }
             let mut frame =
                 Frame::from_header_and_toc(self.frame_header.take().unwrap(), toc, decoder_state)?;
 
@@ -292,7 +298,7 @@ impl FrameInfo {
             frame.prepare_render_pipeline(pixel_format, output_profile)?;
             self.frame = Some(frame);
         } else {
-            let num = cbuf.len().min(self.section_size);
+            let num = (cbuf.len() as u64).min(self.section_size) as usize;
             cbuf.consume(num);
             self.ready_section_data += num;
         }
@@ -339,12 +345,15 @@ impl FrameInfo {
         buf: &mut SmallBuffer,
     ) -> Result<()> {
         let total_size = self.section_size;
-        let need_skip = total_size - self.ready_section_data;
+        let need_skip =
+            (total_size - self.ready_section_data as u64).min(usize::MAX as u64) as usize;
         let skipped = input.skip(need_skip)?;
         buf.mark_consumed(skipped as u64);
         self.ready_section_data += skipped;
-        if self.ready_section_data < total_size {
-            Err(Error::OutOfBounds(total_size - self.ready_section_data))
+        if (self.ready_section_data as u64) < total_size {
+            Err(Error::OutOfBounds(
+                (total_size - self.ready_section_data as u64).min(usize::MAX as u64) as usize,
+            ))
         } else {
             self.sections.clear();
             Ok(())
@@ -508,22 +517,26 @@ impl FrameInfo {
             let decoder_state = &frame.decoder_state;
             let lf_global = frame.lf_global.as_ref().unwrap();
 
-            parallel_runner.run(self.lf_sections.len(), &|i: usize| -> Result<()> {
-                let lf_section = &self.lf_sections[i];
-                let Section::Lf { group } = &lf_section.section else {
-                    unreachable!()
-                };
-                Frame::decode_lf_group(
-                    header,
-                    decoder_state,
-                    lf_global,
-                    *group,
-                    &mut BitReader::new(&lf_section.data),
-                    lf_splitter.as_ref(),
-                    hf_meta_splitter.as_ref(),
-                )?;
-                Ok(())
-            })?;
+            parallel_runner.run_ordered(
+                self.lf_sections.len(),
+                None,
+                &|i: usize| -> Result<()> {
+                    let lf_section = &self.lf_sections[i];
+                    let Section::Lf { group } = &lf_section.section else {
+                        unreachable!()
+                    };
+                    Frame::decode_lf_group(
+                        header,
+                        decoder_state,
+                        lf_global,
+                        *group,
+                        &mut BitReader::new(&lf_section.data),
+                        lf_splitter.as_ref(),
+                        hf_meta_splitter.as_ref(),
+                    )?;
+                    Ok(())
+                },
+            )?;
         }
 
         for lf_section in self.lf_sections.drain(..) {

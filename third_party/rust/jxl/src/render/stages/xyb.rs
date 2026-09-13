@@ -3,6 +3,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+use jxl_simd::{F32SimdVec, simd_function};
+
 use crate::api::{
     JxlColorEncoding, JxlPrimaries, JxlTransferFunction, JxlWhitePoint, adapt_to_xyz_d50,
     primaries_to_xyz, primaries_to_xyz_d50,
@@ -12,7 +14,6 @@ use crate::headers::{FileHeader, OpsinInverseMatrix};
 use crate::render::stages::from_linear;
 use crate::render::{ErasedLocalState, RenderPipelineInPlaceStage};
 use crate::util::{Matrix3x3, inv_3x3_matrix, mul_3x3_matrix};
-use jxl_simd::{F32SimdVec, simd_function};
 
 const SRGB_LUMINANCES: [f32; 3] = [0.2126, 0.7152, 0.0722];
 
@@ -250,6 +251,7 @@ impl RenderPipelineInPlaceStage for XybStage {
         xsize: usize,
         row: &mut [&mut [f32]],
         _state: Option<&mut ErasedLocalState>,
+        _previous_call_was_previous_row: bool,
     ) {
         let [row_x, row_y, row_b] = row else {
             panic!(
@@ -264,6 +266,7 @@ impl RenderPipelineInPlaceStage for XybStage {
 
 #[cfg(test)]
 mod test {
+    use jxl_simd::{ScalarDescriptor, SimdDescriptor, test_all_instruction_sets};
     use test_log::test;
 
     use super::*;
@@ -273,7 +276,6 @@ mod test {
     use crate::render::test::make_and_run_simple_pipeline;
     use crate::tests::assert_close;
     use crate::util::round_up_size_to_cache_line;
-    use jxl_simd::{ScalarDescriptor, SimdDescriptor, test_all_instruction_sets};
 
     #[test]
     fn consistency() -> Result<()> {
@@ -351,7 +353,7 @@ mod test {
                     let max = simd.abs().max(scalar.abs());
                     let rel = abs / max;
                     assert!(
-                        abs < 1e-3 || rel < 1e-3,
+                        abs < 2e-3 || rel < 2e-3,
                         "simd {simd}, scalar {scalar}, abs {abs:?} rel {rel:?}",
                     );
                 }

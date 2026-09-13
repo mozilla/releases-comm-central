@@ -3,12 +3,13 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+use num_traits::abs;
+
 use crate::api::JxlParallelRunner;
 use crate::error::Result;
 use crate::headers::frame_header::FrameHeader;
 use crate::image::Image;
 use crate::render::buffer_splitter::OutputChannelSplitter;
-use num_traits::abs;
 
 #[allow(clippy::excessive_precision)]
 const W_SIDE: f32 = 0.20345139757231578;
@@ -60,7 +61,7 @@ pub fn adaptive_lf_smoothing(
 
     let num_lf_groups = frame_header.num_lf_groups();
 
-    parallel_runner.run(num_lf_groups, &|g| {
+    parallel_runner.run_ordered(num_lf_groups, None, &|g| {
         let r = frame_header.lf_group_rect(g);
         let mut out_ref_0 = splitter0.borrow_typed_rect::<f32>(r);
         let mut out_ref_1 = splitter1.borrow_typed_rect::<f32>(r);

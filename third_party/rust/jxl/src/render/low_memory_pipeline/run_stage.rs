@@ -3,18 +3,12 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-use crate::{
-    render::{
-        Channels, ChannelsMut, ErasedLocalState, RunInPlaceStage,
-        internal::{PipelineBuffer, RunInOutStage},
-    },
-    util::{ChannelVec, ShiftRightCeil, SmallVec, StackOnly, mirror, tracing_wrappers::*},
-};
-
-use super::{
-    super::{RenderPipelineInOutStage, RenderPipelineInPlaceStage},
-    row_buffers::RowBuffer,
-};
+use super::super::{RenderPipelineInOutStage, RenderPipelineInPlaceStage};
+use super::row_buffers::RowBuffer;
+use crate::render::internal::{PipelineBuffer, RunInOutStage};
+use crate::render::{Channels, ChannelsMut, ErasedLocalState, RunInPlaceStage};
+use crate::util::tracing_wrappers::*;
+use crate::util::{ChannelVec, ShiftRightCeil, SmallVec, StackOnly, mirror};
 
 pub struct ExtraInfo {
     // Number of *input* pixels to process (ignoring additional border pixels).
@@ -26,6 +20,7 @@ pub struct ExtraInfo {
     pub(super) start_of_row: bool,
     pub(super) end_of_row: bool,
     pub(super) image_height: usize,
+    pub(super) previous_call_was_previous_row: bool,
 }
 
 impl PipelineBuffer for RowBuffer {
@@ -45,6 +40,7 @@ impl<T: RenderPipelineInPlaceStage> RunInPlaceStage<RowBuffer> for T {
             image_height: _,
             start_of_row,
             end_of_row,
+            previous_call_was_previous_row,
         }: ExtraInfo,
         buffers: &mut [&mut RowBuffer],
         state: Option<&mut ErasedLocalState>,
@@ -63,6 +59,7 @@ impl<T: RenderPipelineInPlaceStage> RunInPlaceStage<RowBuffer> for T {
             xend - xstart,
             &mut rows[..],
             state,
+            previous_call_was_previous_row,
         );
     }
 }
@@ -79,6 +76,7 @@ impl<T: RenderPipelineInOutStage> RunInOutStage<RowBuffer> for T {
             image_height,
             start_of_row,
             end_of_row,
+            previous_call_was_previous_row,
         }: ExtraInfo,
         input_buffers: &[&RowBuffer],
         output_buffers: &mut [RowBuffer],
@@ -146,6 +144,7 @@ impl<T: RenderPipelineInOutStage> RunInOutStage<RowBuffer> for T {
             &input_rows,
             &mut output_rows,
             state,
+            previous_call_was_previous_row,
         );
     }
 }

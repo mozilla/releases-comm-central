@@ -3,22 +3,16 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-use std::{
-    io::IoSliceMut,
-    ops::{Deref, Range},
-};
+use std::io::IoSliceMut;
+use std::ops::{Deref, Range};
 
-use crate::{
-    api::{
-        JxlBitstreamInput, JxlDecoderInner, JxlOutputBuffer, ProcessingResult,
-        inner::box_parser::CodestreamInput,
-    },
-    bit_reader::BitReader,
+use crate::api::inner::box_parser::CodestreamInput;
+use crate::api::{
+    JxlBitstreamInput, JxlDecoderInner, JxlOutputBuffer, JxlParallelRunner, JxlParallelRunnerFun,
+    ProcessingResult,
 };
-use crate::{
-    api::{JxlParallelRunner, JxlParallelRunnerFun},
-    error::Result,
-};
+use crate::bit_reader::BitReader;
+use crate::error::Result;
 
 /// A small buffer, that guarantees to never use more than twice the maximum
 /// amount of bytes that were simultaneously present in it.
@@ -139,11 +133,12 @@ impl Deref for SmallBuffer {
 pub(crate) struct SequentialRunner;
 
 impl JxlParallelRunner for SequentialRunner {
-    fn run(&mut self, num: usize, fun: &JxlParallelRunnerFun) -> Result<()> {
-        for i in 0..num {
-            fun(i)?
-        }
-        Ok(())
+    fn run(&mut self, _num: usize, _fun: &JxlParallelRunnerFun) -> Result<()> {
+        unreachable!("jxl-rs should only use run_ordered!")
+    }
+
+    fn num_threads(&self) -> usize {
+        1
     }
 }
 
@@ -166,6 +161,19 @@ impl JxlDecoderInner {
             buffers,
             parallel_runner.unwrap_or(&mut SequentialRunner),
         ))
+    }
+
+    #[inline(never)]
+    pub fn process_trailing_data(
+        &mut self,
+        input: &mut dyn JxlBitstreamInput,
+    ) -> Result<ProcessingResult<(), ()>> {
+        assert!(
+            !self.codestream_parser.has_more_frames(),
+            "API usage error: cannot consume trailing data while codestream is incomplete",
+        );
+        let mut input = CodestreamInput::new(&mut self.box_parser, input);
+        ProcessingResult::new(input.consume_trailing_data())
     }
 
     /// Draws all the pixels we have data for. Returns `true` if any new pixels

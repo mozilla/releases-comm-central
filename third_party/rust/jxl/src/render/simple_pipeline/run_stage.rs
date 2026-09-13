@@ -5,14 +5,14 @@
 
 #![allow(clippy::needless_range_loop)]
 
-use crate::{
-    image::{Image, ImageDataType},
-    render::{
-        ErasedLocalState, RenderPipelineInOutStage, RenderPipelineInPlaceStage, RunInOutStage,
-        RunInPlaceStage, internal::PipelineBuffer,
-    },
-    util::{SmallVec, StackOnly, mirror, round_up_size_to_cache_line, tracing_wrappers::*},
+use crate::image::{Image, ImageDataType};
+use crate::render::internal::PipelineBuffer;
+use crate::render::{
+    ErasedLocalState, RenderPipelineInOutStage, RenderPipelineInPlaceStage, RunInOutStage,
+    RunInPlaceStage,
 };
+use crate::util::tracing_wrappers::*;
+use crate::util::{SmallVec, StackOnly, mirror, round_up_size_to_cache_line};
 
 impl PipelineBuffer for Image<f64> {
     type InPlaceExtraInfo = usize;
@@ -51,7 +51,7 @@ impl<T: RenderPipelineInPlaceStage> RunInPlaceStage<Image<f64>> for T {
                     }
                 }
                 let mut row: Vec<_> = buffer.iter_mut().map(|x| x as &mut [_]).collect();
-                self.process_row_chunk((x, y), xsize, &mut row, state.as_deref_mut());
+                self.process_row_chunk((x, y), xsize, &mut row, state.as_deref_mut(), false);
                 for c in 0..numc {
                     let out_row = buffers[c].row_mut(y);
                     for ix in 0..xsize {
@@ -99,8 +99,8 @@ impl<T: RenderPipelineInOutStage> RunInOutStage<Image<f64>> for T {
                 vec![
                     T::InputT::default();
                     // Double rounding make sure that we always have enough buffer for reading a whole SIMD lane.
-                    round_up_size_to_cache_line::<T::OutputT>(
-                        round_up_size_to_cache_line::<T::OutputT>(chunk_size)
+                    round_up_size_to_cache_line::<T::InputT>(
+                        round_up_size_to_cache_line::<T::InputT>(chunk_size)
                             + T::BORDER.0 as usize * 2
                     )
                 ];
@@ -181,6 +181,7 @@ impl<T: RenderPipelineInOutStage> RunInOutStage<Image<f64>> for T {
                         &input_rows,
                         &mut output_rows,
                         state.as_deref_mut(),
+                        false,
                     );
                 }
 

@@ -3,34 +3,32 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-use crate::util::sync::Arc;
 use std::collections::{BTreeSet, HashSet};
 
-use crate::{
-    api::{JxlDecoderOptions, JxlParallelRunner},
-    entropy_coding::decode::Histograms,
-    error::Result,
-    features::{noise::Noise, patches::PatchesDictionary, spline::Splines},
-    headers::{
-        FileHeader,
-        extra_channels::ExtraChannelInfo,
-        frame_header::{Encoding, FrameHeader, FrameType},
-        permutation::Permutation,
-        toc::Toc,
-    },
-    image::{Image, Rect},
-    render::buffer_splitter::{OutputChannelRef, OutputChannelSplitter},
-    util::{PerThreadStorage, tracing_wrappers::*},
-};
 use adaptive_lf_smoothing::adaptive_lf_smoothing;
 use block_context_map::BlockContextMap;
 use color_correlation_map::ColorCorrelationParams;
-use modular::{FullModularImage, Tree};
+use modular::{FullModularImage, ModularStorage, Tree};
 use quant_weights::DequantMatrices;
 use quantizer::{LfQuantFactors, QuantizerParams};
 
+use crate::api::{JxlDecoderOptions, JxlParallelRunner};
+use crate::entropy_coding::decode::Histograms;
+use crate::error::Result;
 use crate::features::epf::SigmaSource;
-use crate::util::sync::{Mutex, RwLock};
+use crate::features::noise::Noise;
+use crate::features::patches::PatchesDictionary;
+use crate::features::spline::Splines;
+use crate::headers::FileHeader;
+use crate::headers::extra_channels::ExtraChannelInfo;
+use crate::headers::frame_header::{Encoding, FrameHeader, FrameType};
+use crate::headers::permutation::Permutation;
+use crate::headers::toc::Toc;
+use crate::image::{BufferRecycler, Image, Rect};
+use crate::render::buffer_splitter::{OutputChannelRef, OutputChannelSplitter};
+use crate::util::PerThreadStorage;
+use crate::util::sync::{Arc, Mutex, RwLock};
+use crate::util::tracing_wrappers::*;
 
 mod adaptive_lf_smoothing;
 mod block_context_map;
@@ -68,11 +66,14 @@ pub struct PassState {
     histograms: Histograms,
 }
 
+use crate::util::CacheLine;
+
 pub struct HfGlobalState {
     num_histograms: u32,
     passes: Vec<PassState>,
     dequant_matrices: DequantMatrices,
-    hf_coefficients: Vec<Mutex<Vec<i32>>>,
+    hf_coefficients: Vec<Mutex<Vec<CacheLine>>>,
+    use_i16: bool,
 }
 
 #[derive(Debug)]
@@ -123,10 +124,16 @@ pub struct DecoderState {
     pub render_spotcolors: bool,
     #[cfg(test)]
     pub use_simple_pipeline: bool,
+    #[cfg(test)]
+    pub allow_16bit_modular_buffers: bool,
     pub visible_frame_index: usize,
     pub nonvisible_frame_index: usize,
     pub high_precision: bool,
     pub premultiply_output: bool,
+    pub force_level5_splines: bool,
+    pub force_level5_patches: bool,
+    pub force_level5_modular: bool,
+    pub sample_limit: Option<usize>,
     // Whether the latest level 1 LF frame was fully rendered.
     // If this is set to `true`, early flushing in the main frame
     // (before HF is available) will do nothing.
@@ -145,11 +152,29 @@ impl DecoderState {
             render_spotcolors: options.render_spot_colors,
             #[cfg(test)]
             use_simple_pipeline: false,
+            #[cfg(test)]
+            allow_16bit_modular_buffers: true,
             visible_frame_index: 0,
             nonvisible_frame_index: 0,
             high_precision: options.high_precision,
             premultiply_output: options.premultiply_output,
+            force_level5_splines: options.force_level5_splines,
+            force_level5_patches: options.force_level5_patches,
+            force_level5_modular: options.force_level5_modular,
+            sample_limit: options.sample_limit,
             lf_frame_was_rendered: false,
+        }
+    }
+
+    pub fn modular_storage(&self) -> ModularStorage {
+        #[cfg(test)]
+        if !self.allow_16bit_modular_buffers {
+            return ModularStorage::I32;
+        }
+        if self.file_header.image_metadata.modular_16bit_sufficient {
+            ModularStorage::I16
+        } else {
+            ModularStorage::I32
         }
     }
 
@@ -165,6 +190,11 @@ impl DecoderState {
     #[cfg(test)]
     pub fn set_use_simple_pipeline(&mut self, u: bool) {
         self.use_simple_pipeline = u;
+    }
+
+    #[cfg(test)]
+    pub fn disable_16bit_modular_buffers(&mut self) {
+        self.allow_16bit_modular_buffers = false;
     }
 }
 
@@ -309,6 +339,9 @@ pub struct Frame {
     // LF groups that received data and thus should trigger a modular
     // re-render of the corresponding groups.
     dirty_lf_groups: BTreeSet<usize>,
+    buffer_recycler: Arc<BufferRecycler>,
+    // LF groups that received data or have modified neighbors and need to be previewed.
+    lf_preview_dirty_groups: BTreeSet<usize>,
 }
 
 impl Frame {
@@ -318,10 +351,6 @@ impl Frame {
 
     pub fn header(&self) -> &FrameHeader {
         &self.header
-    }
-
-    pub fn total_bytes_in_toc(&self) -> usize {
-        self.toc.entries.iter().map(|x| *x as usize).sum()
     }
 
     #[instrument(level = "debug", skip(self), ret)]

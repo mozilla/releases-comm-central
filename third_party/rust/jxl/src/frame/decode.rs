@@ -3,57 +3,53 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-use crate::util::sync::Arc;
 use std::collections::BTreeSet;
 
-use super::render::pipeline;
-use super::{
-    HfMetaSplitter, HfMetaViews, LfImageSplitter,
-    block_context_map::BlockContextMap,
-    coeff_order::decode_coeff_orders,
-    color_correlation_map::ColorCorrelationParams,
-    group::decode_vardct_group,
-    modular::{FullModularImage, ModularStreamId, Tree, decode_hf_metadata, decode_vardct_lf},
-    quant_weights::DequantMatrices,
-    quantizer::{LfQuantFactors, QuantizerParams},
+use jxl_simd::{SimdDescriptor, simd_function};
+use jxl_transforms::transform_map::*;
+
+use super::block_context_map::BlockContextMap;
+use super::coeff_order::decode_coeff_orders;
+use super::color_correlation_map::ColorCorrelationParams;
+use super::group::decode_vardct_group;
+use super::modular::{
+    FullModularImage, ModularStreamId, Tree, decode_hf_metadata, decode_vardct_lf,
 };
-use crate::error::Error;
+use super::quant_weights::DequantMatrices;
+use super::quantizer::{LfQuantFactors, QuantizerParams};
+use super::render::pipeline;
+use super::{HfMetaSplitter, HfMetaViews, LfImageSplitter};
+use crate::GROUP_DIM;
+use crate::bit_reader::BitReader;
+use crate::entropy_coding::decode::Histograms;
+use crate::error::{Error, Result};
 use crate::features::epf::SigmaSource;
+use crate::features::noise::Noise;
+use crate::features::patches::PatchesDictionary;
+use crate::features::spline::Splines;
 use crate::frame::block_context_map::{ZERO_DENSITY_CONTEXT_COUNT, ZERO_DENSITY_CONTEXT_LIMIT};
 use crate::frame::group::VarDctBuffers;
-use crate::frame::{DataStatus, GroupStatus};
-use crate::headers::frame_header::FrameType;
-use crate::image::Rect;
+use crate::frame::modular::ModularStorage;
+use crate::frame::{
+    DataStatus, DecoderState, Frame, GroupStatus, HfGlobalState, HfMetadata, LfGlobalState,
+    PassState, coeff_order,
+};
+use crate::headers::CustomTransformData;
+use crate::headers::color_encoding::ColorSpace;
+use crate::headers::frame_header::{Encoding, FrameHeader, FrameType};
+use crate::headers::toc::Toc;
+use crate::image::{BufferRecycler, Image, OwnedRawImage, Rect};
 #[cfg(test)]
 use crate::render::SimpleRenderPipeline;
 use crate::render::buffer_splitter::BufferSplitter;
-use crate::util::sync::{Mutex, RwLock};
-use crate::util::{NewWithCapacity, PerThreadStorage};
-use crate::util::{ShiftRightCeil, mirror};
-use crate::{
-    GROUP_DIM,
-    bit_reader::BitReader,
-    entropy_coding::decode::Histograms,
-    error::Result,
-    features::{noise::Noise, patches::PatchesDictionary, spline::Splines},
-    frame::{
-        DecoderState, Frame, HfGlobalState, HfMetadata, LfGlobalState, PassState, coeff_order,
-    },
-    headers::{
-        color_encoding::ColorSpace,
-        frame_header::{Encoding, FrameHeader},
-        toc::Toc,
-    },
-    image::Image,
-    render::RenderPipeline,
-    util::{CeilLog2, Xorshift128Plus, tracing_wrappers::*},
-};
-use jxl_transforms::transform_map::*;
-
-use crate::headers::CustomTransformData;
-use crate::render::RenderPipelineInOutStage;
 use crate::render::stages::Upsample8x;
-use crate::render::{Channels, ChannelsMut};
+use crate::render::{Channels, ChannelsMut, RenderPipeline, RenderPipelineInOutStage};
+use crate::util::sync::{Arc, Mutex, RwLock};
+use crate::util::tracing_wrappers::*;
+use crate::util::{
+    CacheLine, CeilLog2, NewWithCapacity, PerThreadStorage, ShiftRightCeil, Xorshift128Plus,
+    mirror, num_cache_lines_for,
+};
 
 fn upsample_lf_group(
     group: usize,
@@ -93,7 +89,7 @@ fn upsample_lf_group(
         let lf_y0 = gy * lf_group_dim_y;
 
         let lf_width = lf_img.size().0.shrc(hs);
-        let lf_height = lf_img.size().1.shrc(hs);
+        let lf_height = lf_img.size().1.shrc(vs);
 
         let start_x = lf_x0.saturating_sub(2);
         let lf_x1 = (lf_x0 + lf_group_dim_x).min(lf_width);
@@ -115,13 +111,12 @@ fn upsample_lf_group(
                 storage[save_start..save_end].copy_from_slice(&lf_img.row(iy)[start_x..end_x]);
 
                 if start_x == lf_x0 {
-                    storage[0] = storage[2 + mirror(-2, copy_width)];
-                    storage[1] = storage[2 + mirror(-1, copy_width)];
+                    storage[1] = storage[2];
+                    storage[0] = storage[if copy_width >= 2 { 3 } else { 2 }];
                 }
                 if end_x == lf_x1 {
-                    storage[save_end] = storage[save_start + mirror(save_end as isize, save_end)];
-                    storage[save_end + 1] =
-                        storage[save_start + mirror(save_end as isize + 1, save_end)];
+                    storage[save_end] = storage[save_end - 1];
+                    storage[save_end + 1] = storage[save_end.saturating_sub(2)];
                 }
             }
 
@@ -139,6 +134,7 @@ fn upsample_lf_group(
                     &input_channels,
                     &mut output_channels,
                     Some(state.as_mut()),
+                    false,
                 );
             }
 
@@ -154,6 +150,47 @@ fn upsample_lf_group(
     }
     Ok(())
 }
+
+#[inline(always)]
+fn render_noise_subregion_channel_simd_impl<D: SimdDescriptor>(
+    d: D,
+    rng: &mut Xorshift128Plus,
+    buf: &mut Image<u16>,
+    sub_x0: usize,
+    sub_y0: usize,
+    sub_xsize: usize,
+    sub_ysize: usize,
+) {
+    for y in 0..sub_ysize {
+        let mut chunks = buf.row_mut(sub_y0 + y)[sub_x0..sub_x0 + sub_xsize].chunks_exact_mut(16);
+        for chunk in &mut chunks {
+            rng.fill_u16_simd(d, chunk);
+        }
+        let rem = chunks.into_remainder();
+        if !rem.is_empty() {
+            let mut temp = [0u16; 16];
+            rng.fill_u16_simd(d, &mut temp);
+            rem.copy_from_slice(&temp[..rem.len()]);
+        }
+    }
+}
+
+simd_function!(
+    render_noise_subregion_channel_dispatch,
+    d: D,
+    fn render_noise_subregion_channel_simd(
+        rng: &mut Xorshift128Plus,
+        buf: &mut Image<u16>,
+        sub_x0: usize,
+        sub_y0: usize,
+        sub_xsize: usize,
+        sub_ysize: usize,
+    ) {
+        render_noise_subregion_channel_simd_impl(
+            d, rng, buf, sub_x0, sub_y0, sub_xsize, sub_ysize,
+        );
+    }
+);
 
 impl Frame {
     pub fn from_header_and_toc(
@@ -243,6 +280,8 @@ impl Frame {
 
         let num_extra_channels = image_metadata.extra_channel_info.len();
 
+        let group_dim = frame_header.group_dim();
+
         Ok(Self {
             #[cfg(test)]
             use_simple_pipeline: decoder_state.use_simple_pipeline,
@@ -267,6 +306,8 @@ impl Frame {
             color_correlation_params: Arc::new(RwLock::new(ColorCorrelationParams::default())),
             epf_sigma: Arc::new(RwLock::new(SigmaSource::default())),
             dirty_lf_groups: BTreeSet::new(),
+            buffer_recycler: Arc::new(BufferRecycler::new(group_dim)),
+            lf_preview_dirty_groups: BTreeSet::new(),
         })
     }
 
@@ -321,12 +362,13 @@ impl Frame {
 
             if self.header.has_patches() {
                 info!("decoding patches");
-                let p = PatchesDictionary::read(
+                let p = PatchesDictionary::read_internal(
                     br,
                     self.header.size_padded().0,
                     self.header.size_padded().1,
                     self.decoder_state.extra_channel_info().len(),
                     &self.decoder_state.reference_frames[..],
+                    self.decoder_state.force_level5_patches,
                 )?;
                 *self.patches.try_write().unwrap() = p;
             }
@@ -381,6 +423,7 @@ impl Frame {
                     self.header.size().1 as u64,
                     &color_correlation_params,
                     self.decoder_state.high_precision,
+                    self.decoder_state.force_level5_splines,
                 )?;
             }
 
@@ -401,6 +444,10 @@ impl Frame {
                 &self.decoder_state.file_header.image_metadata,
                 self.modular_color_channels(),
                 br,
+                self.buffer_recycler.clone(),
+                self.decoder_state.sample_limit,
+                self.decoder_state.modular_storage(),
+                self.decoder_state.force_level5_modular,
             )?;
 
             // Ensure that, if we call this function again, we resume from just after
@@ -459,6 +506,7 @@ impl Frame {
                 splitter_lf.borrow_rect(2, r),
             ];
             let mut quant_lf_view = splitter_hf.quant_lf.borrow_typed_rect::<u8>(r);
+            let mut scratch = lf_global.modular_global.get_scratch_space();
             decode_vardct_lf(
                 group,
                 header,
@@ -471,6 +519,9 @@ impl Frame {
                 &mut lf_views,
                 &mut quant_lf_view,
                 br,
+                decoder_state.modular_storage(),
+                &mut scratch,
+                decoder_state.force_level5_modular,
             )?;
         }
 
@@ -491,6 +542,7 @@ impl Frame {
                 transform_map: splitter_hf.transform_map.borrow_typed_rect::<u8>(r),
                 epf_map: splitter_hf.epf_map.borrow_typed_rect::<u8>(r),
             };
+            let mut scratch = lf_global.modular_global.get_scratch_space();
             decode_hf_metadata(
                 group,
                 header,
@@ -498,6 +550,9 @@ impl Frame {
                 &lf_global.tree,
                 &mut hf_views,
                 br,
+                decoder_state.modular_storage(),
+                &mut scratch,
+                decoder_state.force_level5_modular,
             )?;
         }
         Ok(())
@@ -549,16 +604,30 @@ impl Frame {
                     histograms,
                 });
             }
+            let max_num_bits = passes
+                .iter()
+                .enumerate()
+                .map(|(pass, p)| {
+                    let shift = self.header.passes.shift.get(pass).copied().unwrap_or(0);
+                    p.histograms.max_num_bits().saturating_add(shift as usize)
+                })
+                .max()
+                .unwrap_or(0);
+            let use_i16 = max_num_bits < 16;
             // Since the render pipeline keeps finalized channels, we don't need to store
             // HF coefficients if there is a single pass.
             let hf_coefficients = if passes.len() <= 1 {
                 vec![]
             } else {
+                let num_cache_lines = if use_i16 {
+                    num_cache_lines_for::<i16>(GROUP_DIM * GROUP_DIM * 3)
+                } else {
+                    num_cache_lines_for::<i32>(GROUP_DIM * GROUP_DIM * 3)
+                };
                 (0..self.header.num_groups())
                     .map(|_| {
-                        let sz = GROUP_DIM * GROUP_DIM * 3;
-                        let mut v = Vec::new_with_capacity(sz)?;
-                        v.resize(sz, 0);
+                        let mut v = Vec::new_with_capacity(num_cache_lines)?;
+                        v.resize(num_cache_lines, CacheLine::default());
                         Ok(Mutex::new(v))
                     })
                     .collect::<Result<_>>()?
@@ -569,6 +638,7 @@ impl Frame {
                 passes,
                 dequant_matrices,
                 hf_coefficients,
+                use_i16,
             });
         }
         // Set EPF sigma values to the correct values if we are doing EPF.
@@ -589,7 +659,6 @@ impl Frame {
         buffer_splitter: &BufferSplitter,
     ) -> Result<()> {
         // TODO(sboukortt): consider making this a dedicated stage
-        // TODO(veluca): SIMD.
         let num_channels = self.header.num_extra_channels as usize + 3;
 
         let group_dim = self.header.group_dim() as u32;
@@ -605,18 +674,12 @@ impl Frame {
         let buf_xsize = buf_x1.min(upsampled_size.0) - (gx * upsampling * group_dim) as usize;
         let buf_ysize = buf_y1.min(upsampled_size.1) - (gy * upsampling * group_dim) as usize;
 
-        let bits_to_float = |bits: u32| f32::from_bits((bits >> 9) | 0x3F800000);
-
         // Get all 3 noise channel buffers upfront
-        let mut bufs = [
+        let mut bufs: [Image<u16>; 3] = [
             pipeline!(self, p, p.get_buffer(num_channels)?),
             pipeline!(self, p, p.get_buffer(num_channels + 1)?),
             pipeline!(self, p, p.get_buffer(num_channels + 2)?),
         ];
-
-        const FLOATS_PER_BATCH: usize =
-            Xorshift128Plus::N * std::mem::size_of::<u64>() / std::mem::size_of::<f32>();
-        let mut batch = [0u64; Xorshift128Plus::N];
 
         // libjxl iterates through upsampling subdivisions with separate RNG seeds.
         // For each subregion, a single RNG is shared across all 3 channels.
@@ -651,25 +714,9 @@ impl Frame {
 
                 // Fill all 3 channels with this subregion's noise, sharing the RNG
                 for buf in &mut bufs {
-                    for y in 0..sub_ysize {
-                        let row = buf.row_mut(sub_y0 + y);
-                        for batch_index in 0..sub_xsize.div_ceil(FLOATS_PER_BATCH) {
-                            rng.fill(&mut batch);
-                            let batch_size =
-                                (sub_xsize - batch_index * FLOATS_PER_BATCH).min(FLOATS_PER_BATCH);
-                            for i in 0..batch_size {
-                                let x = sub_x0 + FLOATS_PER_BATCH * batch_index + i;
-                                let k = i / 2;
-                                let high_bytes = i % 2 != 0;
-                                let bits = if high_bytes {
-                                    ((batch[k] & 0xFFFFFFFF00000000) >> 32) as u32
-                                } else {
-                                    (batch[k] & 0xFFFFFFFF) as u32
-                                };
-                                row[x] = bits_to_float(bits);
-                            }
-                        }
-                    }
+                    render_noise_subregion_channel_dispatch(
+                        &mut rng, buf, sub_x0, sub_y0, sub_xsize, sub_ysize,
+                    );
                 }
             }
         }
@@ -807,16 +854,30 @@ impl Frame {
 
         self.decode_and_render_varct_and_noise(group, passes, buffer_splitter, force_render)?;
 
-        let pass_to_pipeline = |chan, group, complete, image: Image<i32>| {
-            pipeline!(
-                self,
-                p,
-                p.set_buffer_for_group(chan, group, complete, image, &*buffer_splitter)?
-            );
+        let lf_global = self.lf_global.as_ref().unwrap();
+        let storage = lf_global.modular_global.storage();
+        let pass_to_pipeline = |chan, group, complete, raw_image: OwnedRawImage| {
+            match storage {
+                ModularStorage::I16 => {
+                    let image = Image::<i16>::from_raw(raw_image);
+                    pipeline!(
+                        self,
+                        p,
+                        p.set_buffer_for_group(chan, group, complete, image, &*buffer_splitter)?
+                    );
+                }
+                ModularStorage::I32 => {
+                    let image = Image::<i32>::from_raw(raw_image);
+                    pipeline!(
+                        self,
+                        p,
+                        p.set_buffer_for_group(chan, group, complete, image, &*buffer_splitter)?
+                    );
+                }
+            }
             Ok(())
         };
 
-        let lf_global = self.lf_global.as_ref().unwrap();
         for (pass, br) in passes.iter_mut() {
             lf_global.modular_global.read_stream(
                 ModularStreamId::ModularHF { group, pass: *pass },

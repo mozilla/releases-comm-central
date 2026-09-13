@@ -3,20 +3,18 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-use std::{
-    f32::consts::{FRAC_1_SQRT_2, PI, SQRT_2},
-    iter::{self, zip},
-    ops,
-};
+use std::f32::consts::{FRAC_1_SQRT_2, PI, SQRT_2};
+use std::iter::{self, zip};
+use std::ops;
 
-use crate::{
-    bit_reader::BitReader,
-    entropy_coding::decode::{Histograms, SymbolReader, unpack_signed},
-    error::{Error, Result},
-    frame::color_correlation_map::ColorCorrelationParams,
-    util::{CeilLog2, NewWithCapacity, fast_cos, fast_erff_simd, tracing_wrappers::*},
-};
 use jxl_simd::{F32SimdVec, SimdDescriptor, simd_function};
+
+use crate::bit_reader::BitReader;
+use crate::entropy_coding::decode::{Histograms, SymbolReader, unpack_signed};
+use crate::error::{Error, Result};
+use crate::frame::color_correlation_map::ColorCorrelationParams;
+use crate::util::tracing_wrappers::*;
+use crate::util::{CeilLog2, NewWithCapacity, fast_cos, fast_erff_simd};
 const MAX_NUM_CONTROL_POINTS: u32 = 1 << 20;
 const MAX_NUM_CONTROL_POINTS_PER_PIXEL_RATIO: u32 = 2;
 const DELTA_LIMIT: i64 = 1 << 30;
@@ -172,12 +170,18 @@ fn validate_spline_point_pos<T: num_traits::ToPrimitive>(x: T, y: T) -> Result<(
 
 const CHANNEL_WEIGHT: [f32; 4] = [0.0042, 0.075, 0.07, 0.3333];
 
-fn area_limit(image_size: u64) -> u64 {
+fn area_limit(image_size: u64, force_level5: bool) -> u64 {
     // Use saturating arithmetic to prevent overflow
-    1024u64
-        .saturating_mul(image_size)
-        .saturating_add(1u64 << 32)
-        .min(1u64 << 42)
+    if force_level5 {
+        8u64.saturating_mul(image_size)
+            .saturating_add(1u64 << 25)
+            .min(1u64 << 30)
+    } else {
+        1024u64
+            .saturating_mul(image_size)
+            .saturating_add(1u64 << 32)
+            .min(1u64 << 42)
+    }
 }
 
 impl QuantizedSpline {
@@ -191,7 +195,12 @@ impl QuantizedSpline {
     ) -> Result<QuantizedSpline> {
         let num_control_points =
             splines_reader.read_unsigned(splines_histograms, br, NUM_CONTROL_POINTS_CONTEXT);
-        *total_num_control_points += num_control_points;
+        *total_num_control_points = total_num_control_points
+            .checked_add(num_control_points)
+            .ok_or(Error::SplinesTooManyControlPoints(
+                u32::MAX,
+                max_control_points,
+            ))?;
         if *total_num_control_points > max_control_points {
             return Err(Error::SplinesTooManyControlPoints(
                 *total_num_control_points,
@@ -240,10 +249,8 @@ impl QuantizedSpline {
         quantization_adjustment: i32,
         y_to_x: f32,
         y_to_b: f32,
-        image_size: u64,
+        area_limit: u64,
     ) -> Result<Spline> {
-        let area_limit = area_limit(image_size);
-
         let mut result = Spline {
             control_points: Vec::new_with_capacity(self.control_points.len() + 1)?,
             ..Default::default()
@@ -302,20 +309,22 @@ impl QuantizedSpline {
             result.color_dct[2].0[i] += y_to_b * result.color_dct[1].0[i];
         }
 
-        let mut width_estimate = 0;
+        let mut width_estimate = 0u64;
         let mut color = [0u64; 3];
 
         for (c, color_val) in color.iter_mut().enumerate() {
             for i in 0..32 {
-                *color_val += (inv_quant * self.color_dct[c][i].abs() as f32).ceil() as u64;
+                *color_val = color_val.saturating_add(
+                    (inv_quant * self.color_dct[c][i].unsigned_abs() as f32).ceil() as u64,
+                );
             }
         }
 
-        color[0] += y_to_x.abs().ceil() as u64 * color[1];
-        color[2] += y_to_b.abs().ceil() as u64 * color[1];
+        color[0] = color[0].saturating_add((y_to_x.abs().ceil() as u64).saturating_mul(color[1]));
+        color[2] = color[2].saturating_add((y_to_b.abs().ceil() as u64).saturating_mul(color[1]));
 
         let max_color = color[0].max(color[1]).max(color[2]);
-        let logcolor = 1u64.max((1u64 + max_color).ceil_log2());
+        let logcolor = 1u64.max(1u64.saturating_add(max_color).ceil_log2());
 
         let weight_limit =
             (((area_limit as f32 / logcolor as f32) / manhattan_distance.max(1) as f32).sqrt())
@@ -326,12 +335,13 @@ impl QuantizedSpline {
             result.sigma_dct.0[i] =
                 self.sigma_dct[i] as f32 * inv_dct_factor * CHANNEL_WEIGHT[3] * inv_quant;
 
-            let weight_f = (inv_quant * self.sigma_dct[i].abs() as f32).ceil();
+            let weight_f = (inv_quant * self.sigma_dct[i].unsigned_abs() as f32).ceil();
             let weight = weight_limit.min(weight_f.max(1.0)) as u64;
-            width_estimate += weight * weight * logcolor;
+            width_estimate = width_estimate
+                .saturating_add(weight.saturating_mul(weight).saturating_mul(logcolor));
         }
 
-        result.estimated_area_reached = width_estimate * manhattan_distance;
+        result.estimated_area_reached = width_estimate.saturating_mul(manhattan_distance);
 
         Ok(result)
     }
@@ -738,19 +748,20 @@ impl Splines {
         image_ysize: u64,
         color_correlation_params: &ColorCorrelationParams,
         high_precision: bool,
+        force_level5: bool,
     ) -> Result<()> {
         let mut total_estimated_area_reached = 0u64;
         let mut splines = Vec::new();
         // Use saturating_mul to prevent overflow with malicious image dimensions
         let image_area = image_xsize.saturating_mul(image_ysize);
-        let area_limit = area_limit(image_area);
+        let area_limit = area_limit(image_area, force_level5);
         for (index, qspline) in self.splines.iter().enumerate() {
             let spline = qspline.dequantize(
                 &self.starting_points[index],
                 self.quantization_adjustment,
                 color_correlation_params.y_to_x_lf(),
                 color_correlation_params.y_to_b_lf(),
-                image_area,
+                area_limit,
             )?;
             total_estimated_area_reached += spline.estimated_area_reached;
             if total_estimated_area_reached > area_limit {
@@ -898,21 +909,20 @@ impl Splines {
 #[cfg(test)]
 #[allow(clippy::excessive_precision)]
 mod test_splines {
-    use std::{f32::consts::SQRT_2, iter::zip};
-    use test_log::test;
+    use std::f32::consts::SQRT_2;
+    use std::iter::zip;
 
-    use crate::{
-        error::{Error, Result},
-        features::spline::SplineSegment,
-        frame::color_correlation_map::ColorCorrelationParams,
-        tests::assert_close,
-    };
+    use test_log::test;
 
     use super::{
         DCT_MULTIPLIERS, DESIRED_RENDERING_DISTANCE, Dct32, Point, PrecomputedCosines,
-        QuantizedSpline, Spline, Splines, draw_centripetal_catmull_rom_spline,
+        QuantizedSpline, Spline, Splines, area_limit, draw_centripetal_catmull_rom_spline,
         for_each_equally_spaced_point,
     };
+    use crate::error::{Error, Result};
+    use crate::features::spline::SplineSegment;
+    use crate::frame::color_correlation_map::ColorCorrelationParams;
+    use crate::tests::assert_close;
     use crate::util::fast_cos;
 
     impl Dct32 {
@@ -1491,7 +1501,7 @@ mod test_splines {
                 0,
                 0.0,
                 1.0,
-                2u64 << 30,
+                area_limit(2u64 << 30, false),
             )?;
             assert_eq!(
                 got_dequantized.control_points.len(),
@@ -1926,6 +1936,23 @@ mod test_splines {
             starting_points: vec![Point { x: 10.0, y: 20.0 }, Point { x: 5.0, y: 40.0 }],
             ..Default::default()
         };
+        let err = splines
+            .initialize_draw_cache(
+                1 << 15,
+                1 << 15,
+                &ColorCorrelationParams {
+                    color_factor: 1,
+                    base_correlation_x: 0.0,
+                    base_correlation_b: 0.0,
+                    ytox_lf: 0,
+                    ytob_lf: 0,
+                },
+                true,
+                true,
+            )
+            .unwrap_err();
+        assert!(matches!(err, Error::SplinesAreaTooLarge(..)));
+
         splines.initialize_draw_cache(
             1 << 15,
             1 << 15,
@@ -1937,6 +1964,7 @@ mod test_splines {
                 ytob_lf: 0,
             },
             true,
+            false,
         )?;
         assert_eq!(splines.segments.len(), 1940);
         let want_segments_sample = [

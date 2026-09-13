@@ -3,8 +3,9 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-use crate::render::{Channels, ChannelsMut, ErasedLocalState, RenderPipelineInOutStage};
 use jxl_simd::{F32SimdVec, simd_function};
+
+use crate::render::{Channels, ChannelsMut, ErasedLocalState, RenderPipelineInOutStage};
 
 /// Apply Gabor-like filter to a channel.
 #[derive(Debug)]
@@ -104,6 +105,7 @@ impl RenderPipelineInOutStage for GaborishStage {
         input_rows: &Channels<f32>,
         output_rows: &mut ChannelsMut<f32>,
         _state: Option<&mut ErasedLocalState>,
+        _previous_call_was_previous_row: bool,
     ) {
         gaborish_process_dispatch(self, xsize, input_rows, output_rows);
     }

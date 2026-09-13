@@ -8,7 +8,8 @@ use std::fmt::Debug;
 use crate::bit_reader::BitReader;
 use crate::entropy_coding::decode::*;
 use crate::error::{Error, Result};
-use crate::util::{CeilLog2, NewWithCapacity, tracing_wrappers::*};
+use crate::util::tracing_wrappers::*;
+use crate::util::{CeilLog2, NewWithCapacity};
 
 pub const HUFFMAN_MAX_BITS: usize = 15;
 const TABLE_BITS: usize = 8;
@@ -81,7 +82,7 @@ impl Table {
             }
             *symbol = sym as u16;
         }
-        if (0..num_symbols - 1).any(|i| symbols[..i].contains(&symbols[i + 1])) {
+        if (0..num_symbols - 1).any(|i| symbols[..=i].contains(&symbols[i + 1])) {
             return Err(Error::InvalidHuffman);
         }
 
@@ -460,6 +461,7 @@ impl Table {
 #[derive(Debug)]
 pub struct HuffmanCodes {
     tables: Vec<Table>,
+    alphabet_sizes: Vec<usize>,
 }
 
 impl HuffmanCodes {
@@ -475,7 +477,10 @@ impl HuffmanCodes {
             .iter()
             .map(|sz| Table::decode(*sz, br))
             .collect::<Result<_>>()?;
-        Ok(HuffmanCodes { tables })
+        Ok(HuffmanCodes {
+            tables,
+            alphabet_sizes,
+        })
     }
 
     #[inline]
@@ -489,6 +494,10 @@ impl HuffmanCodes {
         } else {
             None
         }
+    }
+
+    pub fn max_symbol_for_cluster(&self, cluster: usize) -> u32 {
+        self.alphabet_sizes[cluster].saturating_sub(1) as u32
     }
 
     pub(crate) fn table(&self, ctx: usize) -> &Table {
@@ -507,8 +516,9 @@ impl HuffmanCodes {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use test_log::test;
+
+    use super::*;
 
     #[test]
     fn byte_histogram() {
@@ -557,5 +567,17 @@ mod test {
             1791,
             &mut br,
         );
+    }
+
+    #[test]
+    fn test_simple_table_duplicate_symbols() {
+        // Simple table header: num_symbols = 2 (coded as 1 -> bits '01'), symbols: 0, 0 (max_bits for alphabet 256 is 8)
+        // Bit stream: 2 bits for (num_symbols - 1) = 1 (binary 01), symbol 0 = 0x00, symbol 1 = 0x00
+        let data = [0b00000001, 0b00000000, 0b00000000];
+        let mut br = BitReader::new(&data);
+        assert!(matches!(
+            Table::decode_simple_table(256, &mut br),
+            Err(Error::InvalidHuffman)
+        ));
     }
 }

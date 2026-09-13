@@ -56,6 +56,13 @@ impl Codes {
             Self::Ans(ans) => ans.single_symbol(ctx),
         }
     }
+
+    fn max_symbol_for_cluster(&self, cluster: usize) -> u32 {
+        match self {
+            Self::Huffman(hc) => hc.max_symbol_for_cluster(cluster),
+            Self::Ans(ans) => ans.max_symbol_for_cluster(cluster),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -111,7 +118,10 @@ impl Lz77State {
             distance
         } else {
             let (offset, dist) = Lz77State::SPECIAL_DISTANCES[distance_sym as usize];
-            let dist = (self.dist_multiplier * dist as u32).checked_add_signed(offset as i32 - 1);
+            let dist = self
+                .dist_multiplier
+                .checked_mul(dist as u32)
+                .and_then(|d| d.checked_add_signed(offset as i32 - 1));
             dist.unwrap_or(0)
         };
 
@@ -519,18 +529,16 @@ impl Histograms {
         } else {
             br.read(2)? as usize + 5
         };
-        let num_histograms = *context_map.iter().max().unwrap() + 1;
+        // Note: cluster indices are u8, so a context map that uses cluster 255
+        // yields 256 histograms; compute the count in usize to avoid overflow.
+        let num_histograms = *context_map.iter().max().unwrap() as usize + 1;
         let uint_configs = ((0..num_histograms).map(|_| HybridUint::decode(log_alpha_size, br)))
             .collect::<Result<_>>()?;
 
         let codes = if use_prefix_code {
-            Codes::Huffman(HuffmanCodes::decode(num_histograms as usize, br)?)
+            Codes::Huffman(HuffmanCodes::decode(num_histograms, br)?)
         } else {
-            Codes::Ans(AnsCodes::decode(
-                num_histograms as usize,
-                log_alpha_size,
-                br,
-            )?)
+            Codes::Ans(AnsCodes::decode(num_histograms, log_alpha_size, br)?)
         };
 
         Ok(Histograms {
@@ -563,6 +571,27 @@ impl Histograms {
         !self.lz77_params.enabled && self.uint_configs.iter().all(|cfg| cfg.is_config_420())
     }
 
+    pub fn max_num_bits(&self) -> usize {
+        let mut max_bits = 0;
+        let lz_min_sym = if self.lz77_params.enabled {
+            self.lz77_params.min_symbol.unwrap()
+        } else {
+            u32::MAX
+        };
+        for cluster in 0..self.uint_configs.len() {
+            if self.lz77_params.enabled && cluster as u8 == self.lz_dist_cluster {
+                continue;
+            }
+            let uint = &self.uint_configs[cluster];
+            let mut max_symbol = self.codes.max_symbol_for_cluster(cluster);
+            if self.lz77_params.enabled {
+                max_symbol = max_symbol.min(lz_min_sym.saturating_sub(1));
+            }
+            max_bits = max_bits.max(uint.max_bits_for_symbol(max_symbol));
+        }
+        max_bits
+    }
+
     pub fn single_symbol(&self, ctx: usize) -> Option<u32> {
         self.codes.single_symbol(ctx)
     }
@@ -571,7 +600,14 @@ impl Histograms {
         &self.codes
     }
 
+    /// Whether every LZ77 copy has distance 1, i.e. the stream is a plain run-length
+    /// encoding. False without LZ77: there is no distance cluster then (`lz_dist_cluster`
+    /// falls back to cluster 0, which holds real data), and the parameters an RLE decoder
+    /// needs (`min_symbol`, `min_length`, `lz77_length_uint`) are `None`.
     pub fn is_rle(&self) -> bool {
+        if !self.lz77_params.enabled {
+            return false;
+        }
         let lz_dist_cluster = self.lz_dist_cluster as usize;
         let lz_conf = &self.uint_configs[lz_dist_cluster];
         self.codes.single_symbol(lz_dist_cluster) == Some(1) && lz_conf.is_split_exponent_zero()
@@ -604,4 +640,48 @@ pub struct Checkpoint<const N: usize> {
     state: StateCheckpoint<N>,
     ans_reader: AnsReader,
     errors: ErrorState,
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_histograms_max_num_bits() {
+        let huff = HuffmanCodes::byte_histogram();
+        let uint_config = HybridUint::new(4, 2, 0);
+        let histograms = Histograms {
+            lz77_params: Lz77Params {
+                enabled: false,
+                min_symbol: None,
+                min_length: None,
+            },
+            lz77_length_uint: None,
+            context_map: vec![0],
+            lz_dist_cluster: 0,
+            log_alpha_size: 15,
+            uint_configs: vec![uint_config],
+            codes: Codes::Huffman(huff),
+        };
+        assert_eq!(histograms.max_num_bits(), 32);
+
+        // With LZ77 enabled and min_symbol = 16, non-LZ symbols are restricted to < 16.
+        let huff_lz = HuffmanCodes::byte_histogram();
+        let histograms_lz = Histograms {
+            lz77_params: Lz77Params {
+                enabled: true,
+                min_symbol: Some(16),
+                min_length: Some(3),
+            },
+            lz77_length_uint: None,
+            context_map: vec![0],
+            lz_dist_cluster: 1, // cluster 1 is dist cluster, cluster 0 is data
+            log_alpha_size: 15,
+            uint_configs: vec![uint_config, uint_config],
+            codes: Codes::Huffman(huff_lz),
+        };
+        // Max symbol for data cluster 0 is clamped to min_symbol - 1 = 15.
+        // For symbol 15 with config (4,2,0), max_bits is 4.
+        assert_eq!(histograms_lz.max_num_bits(), 4);
+    }
 }

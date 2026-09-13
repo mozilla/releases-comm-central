@@ -3,18 +3,13 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-use crate::util::sync::{Arc, RwLock};
-
-use crate::{
-    BLOCK_DIM, MIN_SIGMA,
-    features::epf::SigmaSource,
-    render::{
-        Channels, ChannelsMut, ErasedLocalState, RenderPipelineInOutStage,
-        stages::epf::common::{get_sigma, prepare_sad_mul_storage},
-    },
-};
-
 use jxl_simd::{F32SimdVec, SimdMask, simd_function};
+
+use crate::features::epf::SigmaSource;
+use crate::render::stages::epf::common::{get_sigma, prepare_sad_mul_storage};
+use crate::render::{Channels, ChannelsMut, ErasedLocalState, RenderPipelineInOutStage};
+use crate::util::sync::{Arc, RwLock};
+use crate::{BLOCK_DIM, MIN_SIGMA};
 
 /// 3x3 plus-shaped kernel with 1 SAD per pixel. So this makes this filter a 3x3 filter.
 pub struct Epf2Stage {
@@ -152,6 +147,7 @@ impl RenderPipelineInOutStage for Epf2Stage {
         input_rows: &Channels<f32>,
         output_rows: &mut ChannelsMut<f32>,
         _state: Option<&mut ErasedLocalState>,
+        _previous_call_was_previous_row: bool,
     ) {
         epf2_process_row_chunk_dispatch(self, (xpos, ypos), xsize, input_rows, output_rows);
     }

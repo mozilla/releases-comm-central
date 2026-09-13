@@ -6,16 +6,14 @@
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 
-use crate::{
-    bit_reader::BitReader,
-    entropy_coding::decode::Histograms,
-    entropy_coding::decode::SymbolReader,
-    error::{Error, Result},
-    features::blending::perform_blending,
-    frame::{DecoderState, ReferenceFrame},
-    headers::extra_channels::ExtraChannelInfo,
-    util::{NewWithCapacity, slice, tracing_wrappers::*},
-};
+use crate::bit_reader::BitReader;
+use crate::entropy_coding::decode::{Histograms, SymbolReader};
+use crate::error::{Error, Result};
+use crate::features::blending::perform_blending;
+use crate::frame::{DecoderState, ReferenceFrame};
+use crate::headers::extra_channels::ExtraChannelInfo;
+use crate::util::tracing_wrappers::*;
+use crate::util::{NewWithCapacity, slice};
 
 // Context numbers as specified in Section C.4.5, Listing C.2:
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -277,12 +275,19 @@ impl PatchesDictionary {
 
         // Count the number of patches for each row.
         sort_by_y1(&mut intervals, 0, intervals_len);
-        self.num_patches
-            .resize(intervals.last().map_or(0, |iv| iv.y1), 0); //Safe last()
+        let max_y1 = intervals.last().map_or(0, |iv| iv.y1);
+        self.num_patches.try_reserve(max_y1)?;
+        self.num_patches.resize(max_y1, 0);
+        let mut diff: Vec<isize> = Vec::new_with_capacity(max_y1 + 1)?;
+        diff.resize(max_y1 + 1, 0);
         for iv in &intervals {
-            for y in iv.y0..iv.y1 {
-                self.num_patches[y] += 1;
-            }
+            diff[iv.y0] += 1;
+            diff[iv.y1] -= 1;
+        }
+        let mut count = 0isize;
+        for (diff, num) in diff.iter().zip(self.num_patches.iter_mut()) {
+            count += *diff;
+            *num = count as usize;
         }
 
         let root = PatchTreeNode {
@@ -360,13 +365,30 @@ impl PatchesDictionary {
         Ok(())
     }
 
-    #[instrument(level = "debug", skip(br), ret, err)]
+    fn area_limit(num_pixels: usize, force_level5: bool) -> usize {
+        let mult: usize = if force_level5 { 8 } else { 1024 };
+        mult.saturating_mul(num_pixels).max(1 << 20)
+    }
+
+    // TODO(veluca): remove this in v0.8.0.
     pub fn read(
         br: &mut BitReader,
         xsize: usize,
         ysize: usize,
         num_extra_channels: usize,
         reference_frames: &[Option<ReferenceFrame>],
+    ) -> Result<PatchesDictionary> {
+        Self::read_internal(br, xsize, ysize, num_extra_channels, reference_frames, true)
+    }
+
+    #[instrument(level = "debug", skip(br), ret, err)]
+    pub(crate) fn read_internal(
+        br: &mut BitReader,
+        xsize: usize,
+        ysize: usize,
+        num_extra_channels: usize,
+        reference_frames: &[Option<ReferenceFrame>],
+        force_level5: bool,
     ) -> Result<PatchesDictionary> {
         let blendings_stride = num_extra_channels + 1;
         let patches_histograms = Histograms::decode(PatchContext::NUM, br, true)?;
@@ -392,6 +414,8 @@ impl PatchesDictionary {
         let mut positions: Vec<PatchPosition> = Vec::new();
         let mut blendings = Vec::new();
         let mut ref_positions = Vec::new_with_capacity(num_ref_patch)?;
+        let max_patch_area = Self::area_limit(num_pixels, force_level5);
+        let mut total_patch_area = 0usize;
         for _ in 0..num_ref_patch {
             let reference = patches_reader.read_unsigned(
                 &patches_histograms,
@@ -468,6 +492,15 @@ impl PatchesDictionary {
                 ));
             }
             total_patches += id_count;
+            let patch_area = id_count.saturating_mul(ref_pos_xsize.saturating_mul(ref_pos_ysize));
+            total_patch_area = total_patch_area.saturating_add(patch_area);
+            if total_patch_area > max_patch_area {
+                return Err(Error::PatchesTooMany(
+                    "patch area".to_string(),
+                    total_patch_area,
+                    max_patch_area,
+                ));
+            }
 
             if total_patches > max_patches {
                 return Err(Error::PatchesTooMany(
@@ -766,18 +799,20 @@ impl PatchesDictionary {
 mod tests {
 
     mod read_patches_tests {
-        use super::super::*;
         use test_log::test;
+
+        use super::super::*;
 
         #[test]
         fn read_single_patch_dict() -> Result<()> {
             let mut br = BitReader::new(&[0x12, 0x4a, 0x8c, 0x63, 0x13, 0x01, 0xa6, 0x53, 0x01]);
-            let got_dict = PatchesDictionary::read(
+            let got_dict = PatchesDictionary::read_internal(
                 &mut br,
                 1024,
                 1024,
                 0,
                 &[Some(ReferenceFrame::blank(1024, 1024, 1, true).unwrap())],
+                true,
             )?;
             let want_dict = PatchesDictionary {
                 positions: vec![PatchPosition {
@@ -820,12 +855,13 @@ mod tests {
             let mut br = BitReader::new(&[
                 0x12, 0xc6, 0x26, 0x3f, 0x08, 0x4e, 0xb6, 0x0d, 0xf2, 0xde, 0xb6, 0x6d,
             ]);
-            let got_dict = PatchesDictionary::read(
+            let got_dict = PatchesDictionary::read_internal(
                 &mut br,
                 1024,
                 1024,
                 2,
                 &[Some(ReferenceFrame::blank(1024, 1024, 1, true).unwrap())],
+                true,
             )?;
             let want_dict = PatchesDictionary {
                 positions: vec![
@@ -918,12 +954,13 @@ mod tests {
             let mut br = BitReader::new(&[
                 0x12, 0x4e, 0x50, 0x76, 0xeb, 0x41, 0x0d, 0x7e, 0xe5, 0x8e, 0xd2, 0x5d, 0x01,
             ]);
-            let got_dict = PatchesDictionary::read(
+            let got_dict = PatchesDictionary::read_internal(
                 &mut br,
                 1024,
                 1024,
                 1,
                 &[Some(ReferenceFrame::blank(1024, 1024, 1, true).unwrap())],
+                true,
             )?;
             let want_dict = PatchesDictionary {
                 positions: vec![PatchPosition {
@@ -978,12 +1015,13 @@ mod tests {
         #[test]
         fn read_clamped_patch_dict() -> Result<()> {
             let mut br = BitReader::new(&[0x12, 0xc6, 0x26, 0x1f, 0x70, 0xce, 0x06]);
-            let got_dict = PatchesDictionary::read(
+            let got_dict = PatchesDictionary::read_internal(
                 &mut br,
                 1024,
                 1024,
                 0,
                 &[Some(ReferenceFrame::blank(1024, 1024, 1, true).unwrap())],
+                true,
             )?;
             let want_dict = PatchesDictionary {
                 positions: vec![PatchPosition {
@@ -1022,12 +1060,13 @@ mod tests {
         #[test]
         fn read_dup_patch_dict() -> Result<()> {
             let mut br = BitReader::new(&[0x12, 0x0a, 0x8d, 0x88, 0x03, 0x31, 0xd7, 0x35]);
-            let got_dict = PatchesDictionary::read(
+            let got_dict = PatchesDictionary::read_internal(
                 &mut br,
                 1024,
                 1024,
                 0,
                 &[Some(ReferenceFrame::blank(1024, 1024, 1, true).unwrap())],
+                true,
             )?;
             let want_dict = PatchesDictionary {
                 positions: vec![
@@ -1085,11 +1124,28 @@ mod tests {
             assert_eq!(got_dict, want_dict);
             Ok(())
         }
+
+        #[test]
+        fn test_patch_area_limit() {
+            // Level 5 limit: (8 * num_pixels).max(1 << 20)
+            assert_eq!(PatchesDictionary::area_limit(0, true), 1 << 20);
+            assert_eq!(PatchesDictionary::area_limit(100, true), 1 << 20);
+            assert_eq!(PatchesDictionary::area_limit(1 << 20, true), 8 * (1 << 20));
+
+            // Level 10 limit: (1024 * num_pixels).max(1 << 20)
+            assert_eq!(PatchesDictionary::area_limit(0, false), 1 << 20);
+            assert_eq!(PatchesDictionary::area_limit(100, false), 1 << 20);
+            assert_eq!(
+                PatchesDictionary::area_limit(1 << 20, false),
+                1024 * (1 << 20)
+            );
+        }
     }
 
     mod set_patches_for_row_tests {
-        use super::super::*;
         use test_log::test;
+
+        use super::super::*;
 
         // Helper to create a PatchesDictionary for tests
         fn create_dictionary(
@@ -1458,11 +1514,10 @@ mod tests {
 
     mod add_one_row_tests {
         use super::super::*;
-        use crate::{
-            headers::{bit_depth::BitDepth, extra_channels::ExtraChannel},
-            image::Image,
-            tests::assert_close,
-        };
+        use crate::headers::bit_depth::BitDepth;
+        use crate::headers::extra_channels::ExtraChannel;
+        use crate::image::Image;
+        use crate::tests::assert_close;
 
         const MAX_ABS_DELTA: f32 = 1e-6; // Adjusted for typical f32 comparisons
 

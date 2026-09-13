@@ -5,22 +5,22 @@
 
 #![allow(clippy::needless_range_loop)]
 
-use crate::util::sync::{Mutex, atomic::Ordering};
 use std::fmt::Debug;
 
 use row_buffers::RowBuffer;
 
+use super::RenderPipeline;
+use super::internal::{RenderPipelineShared, RunInOutStage, RunInPlaceStage};
 use crate::api::JxlOutputBuffer;
 use crate::error::Result;
-use crate::image::{DataTypeTag, Image, ImageDataType, OwnedRawImage, Rect};
+use crate::image::{DataTypeTag, Image, ImageDataType, Rect};
 use crate::render::buffer_splitter::{BufferSplitter, SaveStageBufferInfo};
 use crate::render::internal::Stage;
 use crate::render::low_memory_pipeline::input_buffers::InputBuffers;
 use crate::render::{ErasedLocalState, MAX_BORDER};
-use crate::util::{PerThreadStorage, ShiftRightCeil, tracing_wrappers::*};
-
-use super::RenderPipeline;
-use super::internal::{RenderPipelineShared, RunInOutStage, RunInPlaceStage};
+use crate::util::sync::atomic::Ordering;
+use crate::util::tracing_wrappers::*;
+use crate::util::{PerThreadStorage, ShiftRightCeil};
 
 mod group_scheduler;
 mod helpers;
@@ -55,7 +55,8 @@ impl LowMemoryRenderPipelinePerThread {
                 p.next_border_and_cur_downsample[0][chan].0 as usize,
                 0,
                 0,
-                p.shared.chunk_size >> p.shared.channel_info[0][chan].downsample.0,
+                (p.shared.chunk_size + 2 * p.border_size.0)
+                    >> p.shared.channel_info[0][chan].downsample.0,
             )?);
         }
         self.row_buffers = vec![initial_buffers];
@@ -69,7 +70,7 @@ impl LowMemoryRenderPipelinePerThread {
                     *next_y_border as usize,
                     stage.shift().1 as usize,
                     stage.shift().0 as usize,
-                    p.shared.chunk_size >> *dsx,
+                    (p.shared.chunk_size + 2 * p.border_size.0) >> *dsx,
                 )?);
             }
             self.row_buffers.push(stage_buffers);
@@ -112,10 +113,6 @@ pub struct LowMemoryRenderPipeline {
     opaque_alpha_buffers: Vec<Option<RowBuffer>>,
     // Sorted indices to call get_distinct_indices.
     sorted_buffer_indices: Vec<Vec<(usize, usize, usize)>>,
-    // Indexed by [3*channel] = center, [3*channel+1] = topbottom, [3*channel+2] = leftright.
-    scratch_channel_buffers: Mutex<Vec<Vec<OwnedRawImage>>>,
-    // TODO(veluca): get rid of this when switching to global recycling of scratch buffers.
-    group_scratch_buffers_limit: Option<usize>,
 }
 
 impl RenderPipeline for LowMemoryRenderPipeline {
@@ -301,22 +298,17 @@ impl RenderPipeline for LowMemoryRenderPipeline {
             stage_output_border_pixels: border_pixels_per_stage,
             border_size,
             input_border_pixels: border_pixels,
-            group_scratch_buffers_limit: shared.group_scratch_buffers_limit,
             shared,
             downsampling_for_stage,
             opaque_alpha_buffers,
             sorted_buffer_indices,
-            scratch_channel_buffers: Mutex::new((0..nc * 3).map(|_| vec![]).collect()),
         })
     }
 
     #[instrument(skip_all, err)]
     fn get_buffer<T: ImageDataType>(&self, channel: usize) -> Result<Image<T>> {
-        if let Some(b) = self.maybe_get_scratch_buffer(channel, 0) {
-            return Ok(Image::from_raw(b));
-        }
         let sz = self.shared.group_size_for_channel(channel, T::DATA_TYPE_ID);
-        Image::<T>::new(sz)
+        self.shared.buffer_recycler.get_buffer(sz)
     }
 
     fn set_buffer_for_group<T: ImageDataType>(

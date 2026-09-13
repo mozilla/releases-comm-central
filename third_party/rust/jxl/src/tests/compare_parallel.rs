@@ -3,11 +3,13 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-use crate::api::JxlParallelRunner;
-use crate::error::Error;
-use crate::image::Image;
-use crate::tests::decode::{compare_frames, decode_internal};
 use std::path::Path;
+#[cfg(not(feature = "shuttle"))]
+use std::sync::Mutex;
+#[cfg(not(feature = "shuttle"))]
+use std::sync::atomic::{AtomicUsize, Ordering};
+#[cfg(not(feature = "shuttle"))]
+use std::thread;
 
 #[cfg(feature = "shuttle")]
 use shuttle::sync::Mutex;
@@ -16,15 +18,13 @@ use shuttle::sync::atomic::{AtomicUsize, Ordering};
 #[cfg(feature = "shuttle")]
 use shuttle::thread;
 
-#[cfg(not(feature = "shuttle"))]
-use std::sync::Mutex;
-#[cfg(not(feature = "shuttle"))]
-use std::sync::atomic::{AtomicUsize, Ordering};
-#[cfg(not(feature = "shuttle"))]
-use std::thread;
+use crate::api::JxlParallelRunner;
+use crate::error::Error;
+use crate::image::Image;
+use crate::tests::decode::{compare_frames, decode_internal};
 
 pub struct TestParallelRunner {
-    pub max_threads: usize,
+    max_threads: usize,
 }
 
 impl JxlParallelRunner for TestParallelRunner {
@@ -74,6 +74,10 @@ impl JxlParallelRunner for TestParallelRunner {
             Ok(())
         }
     }
+
+    fn num_threads(&self) -> usize {
+        self.max_threads
+    }
 }
 
 fn clone_images(imgs: &[Image<f32>]) -> Vec<Image<f32>> {
@@ -93,7 +97,7 @@ pub fn run_oneshot(path: &Path) {
 
     // Oneshot sequential decode
     let (_, seq_frames) =
-        decode_internal(&file, usize::MAX, false, false, None, None, None).unwrap();
+        decode_internal(&file, usize::MAX, false, false, None, None, None, false).unwrap();
 
     if seq_frames.is_empty() {
         return;
@@ -116,6 +120,7 @@ pub fn run_oneshot(path: &Path) {
         None,
         None,
         Some(&mut runner),
+        false,
     )
     .unwrap();
 
@@ -152,6 +157,7 @@ pub fn run_progressive(path: &Path) {
         None,
         Some(&mut seq_callback),
         None,
+        false,
     );
 
     let mut par_flushes: Vec<(usize, usize, Vec<Image<f32>>)> = Vec::new();
@@ -178,6 +184,7 @@ pub fn run_progressive(path: &Path) {
         None,
         Some(&mut par_callback),
         Some(&mut runner),
+        false,
     );
 
     assert_eq!(
@@ -238,7 +245,8 @@ pub fn run_shuttle_test(path: std::path::PathBuf, f: fn(&Path)) {
         Ok("replay") => {
             let schedule =
                 std::fs::read_to_string(std::env::var("SHUTTLE_REPLAY_FILE").unwrap()).unwrap();
-            shuttle::replay(test, schedule.trim());
+            let scheduler = shuttle::scheduler::ReplayScheduler::new_from_encoded(schedule.trim());
+            shuttle::Runner::new(scheduler, config).run(test);
         }
         Ok("pct") => {
             let depth = std::env::var("SHUTTLE_PCT_DEPTH")

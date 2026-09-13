@@ -1,7 +1,7 @@
 [package]
 name = "jxl_transforms"
 description = "High performance Rust implementation of a JPEG XL decoder - Transforms"
-version = "0.6.0"
+version = "0.7.2"
 readme = "../README.md"
 keywords = ["jpeg-xl", "simd", "dct"]
 categories = ["multimedia::images"]
@@ -9,9 +9,10 @@ authors = ["Luca Versari <veluca93@gmail.com>"]
 repository = "https://github.com/libjxl/jxl-rs"
 edition = "2021"
 license = "BSD-3-Clause"
+rust-version.workspace = true
 
 [dependencies]
-jxl_simd = { path = "../jxl_simd", version = "=0.6.0" }
+jxl_simd = { path = "../jxl_simd", version = "=0.7.2" }
 
 [dev-dependencies]
 test-log = "0.2.14"
@@ -21,7 +22,11 @@ rand_chacha = "0.9.0"
 
 # rayon doesn't support wasm32
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
-criterion = { version = "0.7.0", default-features = false, features = ["html_reports", "plotters", "cargo_bench_support"] }
+criterion = { version = "0.7.0", default-features = false, features = [
+  "html_reports",
+  "plotters",
+  "cargo_bench_support",
+] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 criterion = { version = "0.7.0", features = ["html_reports"] }
