@@ -49,6 +49,7 @@ add_setup(async function () {
   );
   gIdentity = MailServices.accounts.createIdentity();
   gIdentity.email = "alice@openpgp.example";
+  gIdentity.fullName = "Alice";
   gAccount.addIdentity(gIdentity);
 
   await SpecialPowers.pushPrefEnv({
@@ -94,6 +95,119 @@ add_task(async function check_clean_keylist() {
     true,
     "The openPgpNone radio option is currently selected"
   );
+});
+
+/**
+ * Test that stepping forward and back always leaves exactly one section of the
+ * wizard visible. See bug 2069581.
+ */
+add_task(async function switch_sections() {
+  // Leave no dialog behind, a stuck one would fail every following task.
+  let dialog;
+  try {
+    // Open the key wizard from the "Add Key" button.
+    const button = tabDocument.getElementById("addOpenPgpButton");
+    EventUtils.synthesizeMouseAtCenter(button, {}, tabWindow);
+
+    const wizard = await wait_for_frame_load(
+      gTab.browser.contentWindow.gSubDialog._topDialog._frame,
+      "chrome://openpgp/content/ui/keyWizard.xhtml"
+    );
+    const doc = wizard.document;
+    dialog = doc.documentElement.querySelector("dialog");
+
+    const startView = doc.getElementById("wizardStart");
+    const keyGenView = doc.getElementById("wizardCreateKey");
+
+    // Suppress the transition so that no transitionend is fired. The section
+    // switching must not depend on it.
+    startView.style.transition = "none";
+
+    // Accept the dialog since the first option should be automatically
+    // selected.
+    dialog.acceptDialog();
+    await TestUtils.waitForCondition(
+      () => wizard.getComputedStyle(keyGenView).opacity == 1,
+      "Timeout waiting for the #wizardCreateKey to appear"
+    );
+    Assert.ok(startView.hidden, "the start section should be hidden");
+    Assert.greater(
+      keyGenView.getBoundingClientRect().height,
+      0,
+      "the create key section should have a height"
+    );
+
+    // Return to the first screen.
+    dialog.getButton("extra1").click();
+    await TestUtils.waitForCondition(
+      () => wizard.getComputedStyle(startView).opacity == 1,
+      "Timeout waiting for the #wizardStart to reappear"
+    );
+    Assert.ok(keyGenView.hidden, "the create key section should be hidden");
+    Assert.greater(
+      startView.getBoundingClientRect().height,
+      0,
+      "the start section should have a height"
+    );
+  } finally {
+    dialog?.cancelDialog();
+  }
+});
+
+/**
+ * Test that an identity without a name only warns, and that the secret key
+ * protection section stays hidden while the pref is off. See bug 2069581.
+ */
+add_task(async function missing_identity_name() {
+  gIdentity.fullName = "";
+
+  // Leave no dialog behind, and restore the name, a nameless identity would
+  // fail every following task.
+  let dialog;
+  try {
+    // Open the key wizard from the "Add Key" button.
+    const button = tabDocument.getElementById("addOpenPgpButton");
+    EventUtils.synthesizeMouseAtCenter(button, {}, tabWindow);
+
+    const wizard = await wait_for_frame_load(
+      gTab.browser.contentWindow.gSubDialog._topDialog._frame,
+      "chrome://openpgp/content/ui/keyWizard.xhtml"
+    );
+    const doc = wizard.document;
+    dialog = doc.documentElement.querySelector("dialog");
+
+    const keyGenView = doc.getElementById("wizardCreateKey");
+
+    // Accept the dialog since the first option should be automatically
+    // selected.
+    dialog.acceptDialog();
+    await TestUtils.waitForCondition(
+      () => wizard.getComputedStyle(keyGenView).opacity == 1,
+      "Timeout waiting for the #wizardCreateKey to appear"
+    );
+
+    Assert.ok(
+      doc.getElementById("keygenPassphraseSection").hidden,
+      "the secret key protection section should be hidden"
+    );
+
+    await TestUtils.waitForCondition(
+      () => !doc.getElementById("openPgpWarning").collapsed,
+      "Timeout waiting for the missing name warning to appear"
+    );
+    Assert.equal(
+      doc.getElementById("openPgpWarningDescription").dataset.l10nId,
+      "openpgp-keygen-missing-username",
+      "the warning should be about the missing name"
+    );
+    Assert.ok(
+      !dialog.getButton("accept").disabled,
+      "the Generate key button should still be enabled"
+    );
+  } finally {
+    dialog?.cancelDialog();
+    gIdentity.fullName = "Alice";
+  }
 });
 
 /**

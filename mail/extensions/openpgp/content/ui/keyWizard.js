@@ -37,7 +37,6 @@ ChromeUtils.defineESModuleGetters(this, {
 var gIdentity;
 var gIdentityList;
 var gSubDialog;
-var kStartSection;
 var kDialog;
 var kCurrentSection = "start";
 var kGenerating = false;
@@ -67,7 +66,6 @@ async function initKeyWiz() {
   gIdentity = window.arguments[0].identity || null;
   gIdentityList = document.getElementById("userIdentity");
 
-  kStartSection = document.getElementById("wizardStart");
   kDialog = document.querySelector("dialog");
 
   await initIdentity();
@@ -88,12 +86,9 @@ async function initKeyWiz() {
   setTimeout(() => {
     // Check if the attribute is not null. This can be removed after the full
     // conversion of the Key Manager into a SubDialog in Bug 1652537.
-    if (gSubDialog) {
+    if (gSubDialog?._topDialog) {
       gSubDialog._topDialog._removeDialogEventListeners();
-      gSubDialog._topDialog._closeButton.remove();
-      for (const section of document.querySelectorAll(".wizard-section")) {
-        section.classList.add("in-subdialog");
-      }
+      gSubDialog._topDialog._closeButton?.remove();
       resizeWindow();
     }
   }, 150);
@@ -223,23 +218,16 @@ function wizardContinue(event) {
   // Disable the `Continue` button.
   kDialog.getButton("accept").disabled = true;
 
-  kStartSection.addEventListener(
-    "transitionend",
-    switchSection.bind(null, false),
-    {
-      once: true,
-    }
-  );
-  kStartSection.classList.add("hide");
+  switchSection(false);
 }
 
 /**
- * Separated method dealing with the section switching to allow the removal of
- * the event listener to prevent stacking.
+ * Show the section matching the current radiogroup selection.
+ *
+ * @param {boolean} isKeyManager - If the wizard was opened from the Key
+ *   Manager, which doesn't offer the `Go Back` step.
  */
 function switchSection(isKeyManager = false) {
-  kStartSection.toggleAttribute("hidden", true);
-
   // Save the current label of the accept button in order to restore it later.
   kButtonLabel = kDialog.getButton("accept").label;
 
@@ -292,18 +280,6 @@ async function wizardNextStep() {
  * Go back to the initial view of the wizard.
  */
 function goBack() {
-  const section = document.querySelector(".wizard-section:not([hidden])");
-  section.addEventListener("transitionend", backToStart, { once: true });
-  section.classList.add("hide-reverse");
-}
-
-/**
- * Hide the currently visible section at the end of the animation, remove the
- * listener to prevent stacking, and trigger the reveal of the first section.
- *
- * @param {Event} event - The DOM Event.
- */
-function backToStart(event) {
   // Hide the `Go Back` button.
   kDialog.getButton("extra1").hidden = true;
 
@@ -317,8 +293,6 @@ function backToStart(event) {
   clearImportWarningNotifications();
   document.getElementById("importKeyIntro").hidden = false;
   document.getElementById("importKeyListContainer").collapsed = true;
-
-  event.target.toggleAttribute("hidden", true);
 
   // Reset section key.
   kCurrentSection = "start";
@@ -398,15 +372,6 @@ async function wizardCreateKey() {
   );
   kDialog.getButton("accept").classList.add("primary");
 
-  if (!gIdentity.fullName) {
-    document.getElementById("openPgpWarning").collapsed = false;
-    document.l10n.setAttributes(
-      document.getElementById("openPgpWarningDescription"),
-      "openpgp-keygen-long-expiry"
-    );
-    return;
-  }
-
   const sepPassphraseEnabled = Services.prefs.getBoolPref(
     "mail.openpgp.passphrases.enabled"
   );
@@ -432,6 +397,16 @@ async function wizardCreateKey() {
 
   // This also handles enable/disabling the accept/ok button.
   onProtectionChange();
+
+  if (!gIdentity.fullName) {
+    document.getElementById("openPgpWarning").collapsed = false;
+    document.l10n.setAttributes(
+      document.getElementById("openPgpWarningDescription"),
+      "openpgp-keygen-missing-username"
+    );
+  }
+
+  resizeWindow();
 }
 
 /**
@@ -477,19 +452,22 @@ async function wizardExternalKey() {
 }
 
 /**
- * Animate the reveal of a section of the wizard.
+ * Reveal a section of the wizard and hide all the others.
  *
- * @param {string} id - The id of the section to reveal.
+ * @param {string} id - The id of the section to reveal. It can also be a
+ *   subsection nested inside one of the wizard sections.
  */
 function revealSection(id) {
   const section = document.getElementById(id);
-  section.addEventListener("transitionend", resizeWindow, { once: true });
-  section.removeAttribute("hidden");
-
-  // Timeout to animate after the hidden attribute has been removed.
-  setTimeout(() => {
-    section.classList.remove("hide", "hide-reverse");
-  });
+  for (const other of document.querySelectorAll(
+    ".wizard-section:not(.overlay)"
+  )) {
+    if (other != section && !other.contains(section)) {
+      other.hidden = true;
+    }
+  }
+  section.hidden = false;
+  resizeWindow();
 }
 
 /**
@@ -623,8 +601,7 @@ async function openPgpKeygenStart() {
   // This should be moved after the Services.prompt.confirmEx() method
   // once Bug 1617444 is implemented.
   const overlay = document.getElementById("wizardOverlay");
-  overlay.removeAttribute("hidden");
-  overlay.classList.remove("hide");
+  overlay.hidden = false;
 
   // Ask for confirmation before triggering the generation of a new key.
   document.l10n.setAttributes(
@@ -776,20 +753,16 @@ function closeOverlay() {
   document.getElementById("openPgpKeygenConfirm").removeAttribute("collapsed");
   document.getElementById("openPgpKeygenProcess").collapsed = true;
 
-  const overlay = document.getElementById("wizardOverlay");
-
-  overlay.addEventListener("transitionend", hideOverlay, { once: true });
-  overlay.classList.add("hide");
+  hideOverlay(document.getElementById("wizardOverlay"));
 }
 
 /**
- * Add the "hidden" attribute tot he processing wizard overlay after the CSS
- * transition ended.
+ * Hide a wizard overlay.
  *
- * @param {Event} event - The DOM Event.
+ * @param {Element} overlay - The overlay to hide.
  */
-function hideOverlay(event) {
-  event.target.toggleAttribute("hidden", true);
+function hideOverlay(overlay) {
+  overlay.hidden = true;
   resizeWindow();
 }
 
@@ -935,8 +908,7 @@ async function openPgpImportStart() {
 
   // Show the overlay.
   const overlay = document.getElementById("wizardImportOverlay");
-  overlay.removeAttribute("hidden");
-  overlay.classList.remove("hide");
+  overlay.hidden = false;
 
   // Clear and hide the warning notification section.
   clearImportWarningNotifications();
@@ -1014,10 +986,8 @@ async function openPgpImportStart() {
   }
 
   // Hide the loading overlay.
-  overlay.addEventListener("transitionend", hideOverlay, { once: true });
-  overlay.classList.add("hide");
+  hideOverlay(overlay);
 
-  resizeWindow();
   kGenerating = false;
 }
 
@@ -1147,9 +1117,7 @@ function passphrasePromptCallback(win, promptString, resultFlags) {
   );
 
   if (!prompt) {
-    const overlay = document.getElementById("wizardImportOverlay");
-    overlay.addEventListener("transitionend", hideOverlay, { once: true });
-    overlay.classList.add("hide");
+    hideOverlay(document.getElementById("wizardImportOverlay"));
     kGenerating = false;
   }
 

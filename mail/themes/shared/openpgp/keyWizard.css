@@ -25,18 +25,14 @@ description {
   color: var(--color-text-base);
 }
 
-.wizard-section {
-  transition:
-    transform 230ms ease,
-    opacity 230ms ease;
-
-  &.hide {
-    transform: translateY(-100%);
-    opacity: 0;
+@media (prefers-reduced-motion: no-preference) {
+  .wizard-section:not([hidden]) {
+    animation: wizard-section-reveal 230ms ease;
   }
+}
 
-  &.hide-reverse {
-    transform: translateY(100%);
+@keyframes wizard-section-reveal {
+  from {
     opacity: 0;
   }
 }
@@ -77,14 +73,6 @@ description {
   block-size: 16px;
   -moz-context-properties: fill;
   fill: var(--selected-item-color);
-}
-
-#wizardCreateKey.in-subdialog {
-  /*
-   * Prevent the subdialog from growing too tall if the section doesn't have
-   * an initial height.
-   */
-  block-size: 1px;
 }
 
 /* Import key list */
