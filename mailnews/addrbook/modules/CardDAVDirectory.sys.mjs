@@ -67,21 +67,15 @@ export class CardDAVDirectory extends SQLiteDirectory {
     }
 
     const uidsToSync = this.getStringValue("carddav.uidsToSync", "");
+    this._uidsToSync = new Set(uidsToSync.split(" ").filter(Boolean));
     if (uidsToSync) {
-      this._uidsToSync = new Set(uidsToSync.split(" ").filter(Boolean));
-      this.setStringValue("carddav.uidsToSync", "");
       log.debug(`Retrieved list of cards to sync: ${uidsToSync}`);
-    } else {
-      this._uidsToSync = new Set();
     }
 
     const hrefsToRemove = this.getStringValue("carddav.hrefsToRemove", "");
+    this._hrefsToRemove = new Set(hrefsToRemove.split(" ").filter(Boolean));
     if (hrefsToRemove) {
-      this._hrefsToRemove = new Set(hrefsToRemove.split(" ").filter(Boolean));
-      this.setStringValue("carddav.hrefsToRemove", "");
       log.debug(`Retrieved list of cards to remove: ${hrefsToRemove}`);
-    } else {
-      this._hrefsToRemove = new Set();
     }
   }
   async cleanUp() {
@@ -90,17 +84,6 @@ export class CardDAVDirectory extends SQLiteDirectory {
     if (this._syncTimer) {
       lazy.clearInterval(this._syncTimer);
       this._syncTimer = null;
-    }
-
-    if (this._uidsToSync.size) {
-      const uidsToSync = [...this._uidsToSync].join(" ");
-      this.setStringValue("carddav.uidsToSync", uidsToSync);
-      log.debug(`Stored list of cards to sync: ${uidsToSync}`);
-    }
-    if (this._hrefsToRemove.size) {
-      const hrefsToRemove = [...this._hrefsToRemove].join(" ");
-      this.setStringValue("carddav.hrefsToRemove", hrefsToRemove);
-      log.debug(`Stored list of cards to remove: ${hrefsToRemove}`);
     }
   }
 
@@ -155,6 +138,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
     for (const card of cards) {
       this._uidsToSync.delete(card.UID);
     }
+    this._saveUidsToSync();
   }
   addMailList() {
     throw Components.Exception(
@@ -183,6 +167,19 @@ export class CardDAVDirectory extends SQLiteDirectory {
   }
   set _syncToken(value) {
     this.setStringValue("carddav.token", value);
+  }
+
+  // Storing these lists when they change, rather than when the directory
+  // shuts down, keeps them from outliving a directory that has been deleted
+  // and being inherited by the next one with the same name.
+  _saveUidsToSync() {
+    this.setStringValue("carddav.uidsToSync", [...this._uidsToSync].join(" "));
+  }
+  _saveHrefsToRemove() {
+    this.setStringValue(
+      "carddav.hrefsToRemove",
+      [...this._hrefsToRemove].join(" ")
+    );
   }
   get _multigetBatchSize() {
     return Math.max(
@@ -442,6 +439,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
     } catch (ex) {
       Services.obs.notifyObservers(this, "addrbook-directory-sync-failed");
       this._uidsToSync.add(card.UID);
+      this._saveUidsToSync();
       throw ex;
     }
 
@@ -521,6 +519,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
     } catch (ex) {
       Services.obs.notifyObservers(this, "addrbook-directory-sync-failed");
       this._hrefsToRemove.add(href);
+      this._saveHrefsToRemove();
       throw ex;
     }
   }
@@ -691,17 +690,19 @@ export class CardDAVDirectory extends SQLiteDirectory {
         await this._deleteCardFromServer(href);
       }
       this._hrefsToRemove.clear();
+      this._saveHrefsToRemove();
 
-      // Now update any cards that were modified while not connected to the server.
+      // Now update any cards that were modified while not connected to the
+      // server. A card deleted since then has nothing to send, and getCard
+      // would hand us an empty one.
       for (const uid of this._uidsToSync) {
         const card = this.getCard(uid);
-        // The card may no longer exist. It shouldn't still be listed to send,
-        // but it might be.
-        if (card) {
+        if (card.getProperty("_vCard", "")) {
           await this._sendCardToServer(card);
         }
       }
       this._uidsToSync.clear();
+      this._saveUidsToSync();
 
       if (this._syncToken) {
         await this.updateAllFromServerV2();

@@ -564,6 +564,12 @@ export var CardDAVServer = {
     }
 
     const vCard = CommonUtils.readBytesFromInputStream(request.bodyInputStream);
+    if (!/^BEGIN:VCARD/im.test(vCard)) {
+      // Real servers refuse something that isn't a vCard.
+      response.setStatusLine("1.1", 415, "Unsupported Media Type");
+      return;
+    }
+
     if (this.mimicGoogle && !/^N[;:]/im.test(vCard)) {
       response.setStatusLine("1.1", 400, "Bad Request");
       return;

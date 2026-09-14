@@ -80,3 +80,35 @@ add_task(async function protectBuiltIns() {
     "jsaddrbook://history.sqlite"
   );
 });
+
+add_task(async function clearCardDAVPrefs() {
+  // An earlier session left work waiting for the server.
+  Services.prefs.setStringPref(
+    "ldap_2.servers.leftovers.carddav.uidsToSync",
+    "a-card"
+  );
+  Services.prefs.setStringPref(
+    "ldap_2.servers.leftovers.carddav.hrefsToRemove",
+    "/addressbooks/me/test/another-card.vcf"
+  );
+
+  const dirPrefId = MailServices.ab.newAddressBook(
+    "leftovers",
+    "",
+    Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE
+  );
+  Assert.equal(
+    dirPrefId,
+    "ldap_2.servers.leftovers",
+    "the new address book should use the preference branch prepared above"
+  );
+
+  const book = MailServices.ab.getDirectoryFromId(dirPrefId);
+  await promiseDirectoryRemoved(book.URI);
+
+  Assert.deepEqual(
+    Services.prefs.getChildList(`${dirPrefId}.`),
+    [],
+    "deleting the address book should leave no preferences behind"
+  );
+});

@@ -24,3 +24,5 @@ requesttimeoutfactor = 6 # Takes a long time on Windows.
 ["test_cardDAV_syncV1.js"]
 
 ["test_cardDAV_syncV2.js"]
+
+["test_cardDAV_uploadQueue.js"]
