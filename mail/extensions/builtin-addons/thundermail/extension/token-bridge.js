@@ -167,6 +167,9 @@ browser.runtime.onMessage.addListener((message) => {
         type: LOGIN_STATE_RESPONSE,
         isLoggedIn: message.isLoggedIn,
         username: message.username,
+        // "storage unavailable" is not the same as "signed out" — the Send app
+        // must not act on a signed-out answer we are not sure about.
+        storageUnavailable: message.storageUnavailable ?? false,
       },
       window.location.origin
     );

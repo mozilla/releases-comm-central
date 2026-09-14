@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = "undefined" != typeof window ? window : "undefined" != typeof global ? global : "undefined" != typeof globalThis ? globalThis : "undefined" != typeof self ? self : {};
-		e.SENTRY_RELEASE = { id: "7c32f9769816d000db14315d9a381168500e294f" };
+		e.SENTRY_RELEASE = { id: "b176dfd3c64497d2b1be4a2214ce45ca1cae3b4d" };
 		e._sentryModuleMetadata = e._sentryModuleMetadata || {}, e._sentryModuleMetadata[new e.Error().stack] = function(e) {
 			for (var n = 1; n < arguments.length; n++) {
 				var a = arguments[n];
@@ -10,11 +10,11 @@
 			}
 			return e;
 		}({}, e._sentryModuleMetadata[new e.Error().stack], {
-			"version": "2.0.11",
+			"version": "2.0.13",
 			"appHost": "management"
 		});
 		var n = new e.Error().stack;
-		n && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[n] = "e7517d88-5e69-45bf-8fad-b833cdf9dbf9", e._sentryDebugIdIdentifier = "sentry-dbid-e7517d88-5e69-45bf-8fad-b833cdf9dbf9");
+		n && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[n] = "e63417e9-bf2a-479f-aecf-aa6b8ec1a0d6", e._sentryDebugIdIdentifier = "sentry-dbid-e63417e9-bf2a-479f-aecf-aa6b8ec1a0d6");
 	} catch (e) {}
 })();
 var __create$2 = Object.create;
@@ -10611,6 +10611,24 @@ function buildApiUrl(serverUrl, path) {
 	if (!url.pathname.startsWith("/api/")) throw new Error("Invalid API path");
 	return url.toString();
 }
+function delay$2(ms) {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+/**
+* Parse an HTTP `Retry-After` header into milliseconds.
+*
+* Supports both forms the spec allows: a number of seconds (`"3"`) and an
+* HTTP-date (`"Wed, 21 Oct 2026 07:28:00 GMT"`). Returns null when the header is
+* absent or unparseable, and clamps negatives to 0 (a past date means "now").
+*/
+function parseRetryAfterMs(header) {
+	if (!header) return null;
+	const trimmed = header.trim();
+	if (/^\d+$/.test(trimmed)) return Number(trimmed) * 1e3;
+	const dateMs = Date.parse(trimmed);
+	if (!Number.isNaN(dateMs)) return Math.max(0, dateMs - Date.now());
+	return null;
+}
 var ApiConnection = class {
 	constructor(serverUrl) {
 		if (!serverUrl) throw Error("No Server URL provided.");
@@ -10708,6 +10726,30 @@ var ApiConnection = class {
 				error
 			});
 			return null;
+		}
+		if (resp.status === 429) {
+			const waitMs = parseRetryAfterMs(resp.headers?.get?.("retry-after"));
+			if (waitMs !== null && waitMs <= 1e4) {
+				await delay$2(waitMs);
+				try {
+					resp = await fetch(url, opts);
+				} catch (error) {
+					options?.onFailure?.({
+						kind: "network",
+						status: null,
+						error
+					});
+					return null;
+				}
+			}
+			if (resp.status === 429) {
+				options?.onFailure?.({
+					kind: "rate_limited",
+					status: 429,
+					retryAfterMs: waitMs
+				});
+				return null;
+			}
 		}
 		if (!resp.ok) {
 			let body;
@@ -16495,7 +16537,10 @@ async function sendBlob(blob, aesKey, api, progressTracker, options = {}) {
 	const { signal, onUploadId } = options;
 	const stream = blobStream(blob);
 	try {
-		const { id, url } = await api.call("uploads/signed", { type: "application/octet-stream" }, "POST");
+		const { id, url } = await api.call("uploads/signed", {
+			type: "application/octet-stream",
+			size: blob.size
+		}, "POST");
 		onUploadId?.(id);
 		progressTracker.setProcessStage("encrypting");
 		progressTracker.setText("Encrypting file");
@@ -26540,7 +26585,13 @@ var CLIENT_MESSAGES = {
 	SHOULD_LOG_IN: `You need to log into your mozilla account. Make sure you're in the allow list for alpha access.`,
 	FILE_TOO_BIG: `Your file size is not supported, please try with files smaller than ${MAX_FILE_SIZE_HUMAN_READABLE}`,
 	UPLOAD_FAILED: `Upload failed. Please try again.`,
-	STORAGE_LIMIT_EXCEEDED: `Uploading this file would exceed your storage limit. Please delete some files and try again.`
+	STORAGE_LIMIT_EXCEEDED: `Uploading this file would exceed your storage limit. Please delete some files and try again.`,
+	COOKIES_BLOCKED_TITLE: `Thunderbird is blocking cookies for Send`,
+	COOKIES_BLOCKED_BANNER_BODY: "Send stores a cookie to keep you signed in, and your browser is currently refusing it. Open Settings → Privacy & Security → Web Content and turn on \"Accept cookies from sites\". If that is already on, also set \"Accept third-party cookies\" to \"From visited\". Then choose \"Retry\".",
+	STORAGE_BLOCKED_TITLE: `Thunderbird is blocking storage for Send`,
+	STORAGE_BLOCKED_BODY: "Send keeps your sign-in state and encryption keys in browser storage, and your browser is refusing access to it. This happens when all cookies are blocked. Open Settings → Privacy & Security → Web Content and turn on \"Accept cookies from sites\", then choose \"Retry\".",
+	APP_LOAD_FAILED_TITLE: `Send could not start`,
+	APP_LOAD_FAILED_BODY: "The application failed to load. Choose \"Retry\" to reload the page. If this keeps happening, please let us know."
 };
 //#endregion
 //#region ../send/frontend/src/lib/folderView.ts
@@ -32971,6 +33022,7 @@ var Ra, Pa = (Ra = In[Un] = new qn(), function() {
 var initialized$1 = false;
 function initPosthog() {
 	if (initialized$1) return;
+	if (!config.posthogProjectKey) return;
 	Pa.init(config.posthogProjectKey, {
 		api_host: config.posthogHost,
 		persistence: "memory"
@@ -33243,6 +33295,21 @@ var useStatusStore = defineStore("status", () => {
 });
 //#endregion
 //#region ../send/frontend/src/apps/send/stores/folder-store.ts
+/**
+* Picks the folder to treat as the user's default (root) folder.
+*
+* Prefers the newest folder whose key is present in the keychain so we never
+* route the UI to an orphaned container (one whose key was lost, e.g. after a
+* failed provisioning — #1116) while init.ts reconciles it. Falls back to the
+* newest folder when none are openable, which lets the existing
+* delete-and-recreate branch in init.ts detect the missing key and repair it.
+*/
+function selectDefaultFolder(folders, keychainKeys) {
+	const total = folders.length;
+	if (total === 0) return null;
+	for (let i = total - 1; i >= 0; i--) if (keychainKeys[folders[i].id]) return folders[i];
+	return folders[total - 1];
+}
 var useFolderStore = defineStore("folderManager", () => {
 	const { api } = useApiStore();
 	const { user, populateFromBackend } = useUserStore();
@@ -33272,8 +33339,7 @@ var useFolderStore = defineStore("folderManager", () => {
 	}
 	const defaultFolder = computed(() => {
 		if (!folders?.value) return null;
-		const total = folders.value.length;
-		return total === 0 ? null : folders.value[total - 1];
+		return selectDefaultFolder(folders.value, keychain.keys);
 	});
 	const visibleFolders = computed(() => {
 		if (folders.value.length === 0) return [];
@@ -33294,8 +33360,22 @@ var useFolderStore = defineStore("folderManager", () => {
 		selectedFolderId.value = null;
 		selectedFileId.value = null;
 	}
-	async function fetchSubtree(rootFolderId) {
-		const tree = await api.call(`containers/${rootFolderId}/`);
+	async function fetchSubtree(folderId) {
+		let failure = null;
+		const tree = await api.call(`containers/${folderId}/`, {}, "GET", {}, { onFailure: (f) => {
+			failure = f;
+		} });
+		if (!tree || !tree.children) {
+			console.error(`Failed to fetch subtree for container ${folderId}`, failure);
+			folders.value = [];
+			rootFolder.value = null;
+			const status = failure && failure.kind === "http" ? failure.status : null;
+			if ((status === 403 || status === 404) && rootFolderId.value === folderId) {
+				rootFolderId.value = null;
+				await fetchUserFolders();
+			}
+			return;
+		}
 		folders.value = tree.children;
 		rootFolder.value = tree;
 	}
@@ -33658,7 +33738,7 @@ var _hoisted_1$13 = {
 var VersionTag_vue_vue_type_script_setup_true_lang_default = /*@__PURE__*/ defineComponent({
 	__name: "VersionTag",
 	setup(__props) {
-		const version = "2.0.11";
+		const version = "2.0.13";
 		return (_ctx, _cache) => {
 			return openBlock(), createElementBlock("span", _hoisted_1$13, " v" + toDisplayString$1(unref(version)), 1);
 		};
@@ -41038,7 +41118,7 @@ var initSentry = (app) => {
 };
 //#endregion
 //#region ../send/frontend/src/lib/logger.ts
-var version = "2.0.11";
+var version = "2.0.13";
 var LOG_LEVELS = {
 	debug: 0,
 	info: 1,
