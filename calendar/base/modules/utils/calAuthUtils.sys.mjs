@@ -153,6 +153,7 @@ export var auth = {
       this.mWindow = lazy.cal.window.getCalendarWindow();
       this.mSuppliedPasswords = new WeakMap();
       this.mProvider = provider;
+      this.mEnteredUsernames = new WeakMap();
     }
 
     /**
@@ -166,9 +167,17 @@ export var auth = {
     async #getPasswordInfo(channel, authInfo) {
       const prePath = channel.URI.prePath;
       const realm = authInfo.realm;
-      let username = lazy.cal.auth.containerMap.getUsernameForUserContextId(
-        channel.loadInfo.originAttributes.userContextId
-      );
+      // The container was built from the calendar's name when the request went
+      // out, so it is a snapshot. Ask the calendar, and fall back to the
+      // container only for providers that keep no name of their own.
+      let username;
+      if (this.#supportsUsername()) {
+        username = this.mProvider.getProperty("username") || "";
+      } else {
+        username = lazy.cal.auth.containerMap.getUsernameForUserContextId(
+          channel.loadInfo.originAttributes.userContextId
+        );
+      }
 
       let password;
       let found = false;
@@ -262,7 +271,58 @@ export var auth = {
           aAuthInfo.realm
         );
       }
+      if (returnValue) {
+        this.#noteUsername(aChannel, aAuthInfo.username);
+      }
       return returnValue;
+    }
+
+    /**
+     * Whether the calendar keeps a username of its own. Only CalDAV does.
+     *
+     * @returns {boolean}
+     */
+    #supportsUsername() {
+      return this.mProvider?.getProperty("capabilities.username.supported") === true;
+    }
+
+    /**
+     * Remembers a username from the dialog if it differs from the one the
+     * calendar carries - an empty one included, which is a field waiting to be
+     * filled in. saveUsername() stores it once the request it was entered for
+     * has gone through. A calendar can have several requests out at once, so
+     * the record belongs to one of them.
+     *
+     * @param {nsIChannel} channel - The channel that asked.
+     * @param {string} username - The username that was entered.
+     */
+    #noteUsername(channel, username) {
+      if (
+        !username ||
+        !this.#supportsUsername() ||
+        this.mProvider.getProperty("username") == username
+      ) {
+        return;
+      }
+      this.mEnteredUsernames.set(channel.loadInfo, username);
+    }
+
+    /**
+     * Stores the username from the dialog on the calendar. The login is saved
+     * under that name, and the next lookup searches for whatever the calendar
+     * says, so the two have to agree.
+     *
+     * Call this once the server has accepted the credentials, so a name that
+     * does not work is not stored.
+     *
+     * @param {nsIChannel} channel - The channel the server answered.
+     */
+    saveUsername(channel) {
+      const username = this.mEnteredUsernames.get(channel.loadInfo);
+      if (username) {
+        this.mProvider.setProperty("username", username);
+        this.mEnteredUsernames.delete(channel.loadInfo);
+      }
     }
 
     /**
@@ -343,6 +403,9 @@ export var auth = {
             aAuthInfo.username = authInfo.username;
             aAuthInfo.password = authInfo.password;
           }
+          // Calendars sharing an account share one dialog, and only one of them
+          // ran it. Whoever gets the answer remembers the name that came with it.
+          self.#noteUsername(aChannel, aAuthInfo.username);
           aCallback.onAuthAvailable(aContext, aAuthInfo);
         },
 

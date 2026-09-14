@@ -125,6 +125,12 @@ class CalDavRequestBase {
 
     await this.response.responded;
 
+    if (this.response.ok) {
+      // The server took the credentials, so a username entered for them is
+      // worth keeping.
+      this.calendar?.calAuthPrompt?.saveUsername(this.channel);
+    }
+
     const text = this.response.text;
     if (text) {
       lazy.log.debug(`S: ${text}`);
@@ -598,6 +604,10 @@ class LegacySAXResponse extends CalDavResponseBase {
         QueryInterface: ChromeUtils.generateQI(["nsIRequestObserver", "nsIStreamListener"]),
 
         onStartRequest: aRequest => {
+          // Without this the base class has nothing to report the status from.
+          if (aRequest instanceof Ci.nsIHttpChannel) {
+            this.nsirequest = aRequest;
+          }
           try {
             const result = this.request._handler.onStartRequest(aRequest);
             this._onresponded();

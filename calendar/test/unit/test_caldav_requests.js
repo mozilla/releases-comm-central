@@ -11,6 +11,7 @@ var { MockRegistrar } = ChromeUtils.importESModule(
 
 var {
   CalDavGenericRequest,
+  CalDavLegacySAXRequest,
   CalDavItemRequest,
   CalDavDeleteItemRequest,
   CalDavPropfindRequest,
@@ -962,4 +963,62 @@ add_task(async function test_caldav_sync_utf16() {
     "イベント",
     "UTF-16 encoded sync response should be parsed correctly"
   );
+});
+
+/**
+ * A username entered in the auth dialog is only worth keeping once the server
+ * has taken the credentials it came with.
+ */
+add_task(async function test_username_stored_only_after_the_server_accepted() {
+  gServer.reset();
+  let stored = 0;
+  const calendar = { calAuthPrompt: { saveUsername: () => stored++ } };
+
+  const accepted = await new CalDavGenericRequest(
+    gServer.session,
+    calendar,
+    "GET",
+    gServer.uri("/requests/accepted")
+  ).commit();
+  ok(accepted.ok, "the request should succeed");
+  equal(stored, 1, "the entered username should be stored");
+
+  const rejected = await new CalDavGenericRequest(
+    gServer.session,
+    calendar,
+    "GET",
+    gServer.uri("/requests/rejected/500")
+  ).commit();
+  ok(!rejected.ok, "the request should fail");
+  equal(stored, 1, "a failed request should not store a username");
+});
+
+/**
+ * The requests a synchronization makes are legacy ones, whose response did not
+ * record the channel and therefore reported no status at all.
+ */
+add_task(async function test_legacy_request_reports_its_status() {
+  gServer.reset();
+  let stored = 0;
+  const calendar = { calAuthPrompt: { saveUsername: () => stored++ } };
+  const handler = {
+    onStartRequest() {},
+    onStopRequest() {},
+    onDataAvailable(request, stream, offset, count) {
+      NetUtil.readInputStreamToString(stream, count);
+    },
+  };
+
+  const response = await new CalDavLegacySAXRequest(
+    gServer.session,
+    calendar,
+    gServer.uri("/requests/legacy"),
+    null,
+    null,
+    handler
+  ).commit();
+
+  equal(response.status, 200, "the response should report the status the server sent");
+  ok(response.ok, "the response should count as successful");
+  equal(stored, 1, "the entered username should be stored");
 });
