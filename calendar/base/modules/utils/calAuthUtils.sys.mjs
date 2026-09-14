@@ -459,60 +459,6 @@ export var auth = {
   },
 
   /**
-   * Tries to get the username/password combination of a specific calendar name from the password
-   * manager or asks the user.
-   *
-   * @param {string} aTitle - The dialog title.
-   * @param {string} aCalendarName - The calendar name or url to look up. Can be null.
-   * @param {{value: string}} aUsername        The username that belongs to the calendar.
-   * @param {{value: string}} aPassword        The password that belongs to the calendar.
-   * @param {{value: string}} aSavePassword    Should the password be saved?
-   * @param {boolean} aFixedUsername - Whether the user name is fixed or editable
-   * @returns {boolean} Could a password be retrieved?
-   */
-  getCredentials(aTitle, aCalendarName, aUsername, aPassword, aSavePassword, aFixedUsername) {
-    if (
-      typeof aUsername != "object" ||
-      typeof aPassword != "object" ||
-      typeof aSavePassword != "object"
-    ) {
-      throw new Components.Exception("", Cr.NS_ERROR_XPC_NEED_OUT_OBJECT);
-    }
-
-    // Only show the save password box if we are supposed to.
-    let savepassword = null;
-    if (Services.prefs.getBoolPref("signon.rememberSignons", true)) {
-      savepassword = lazy.MsgAuthPrompt.l10n.formatValueSync("remember-password-checkbox-label");
-    }
-
-    let aText;
-    if (aFixedUsername) {
-      aText = lazy.l10n.formatValueSync("calendar-auth-enter-password-for", {
-        username: aUsername.value,
-        location: aCalendarName,
-      });
-      return new lazy.MsgAuthPrompt().promptPassword(
-        aTitle,
-        aText,
-        aPassword,
-        savepassword,
-        aSavePassword
-      );
-    }
-    aText = lazy.l10n.formatValueSync("calendar-auth-enter-user-password-for", {
-      location: aCalendarName,
-    });
-    return new lazy.MsgAuthPrompt().promptUsernameAndPassword(
-      aTitle,
-      aText,
-      aUsername,
-      aPassword,
-      savepassword,
-      aSavePassword
-    );
-  },
-
-  /**
    * Helper to insert/update an entry to the password manager.
    *
    * @param {string} aUsername - The username to insert
