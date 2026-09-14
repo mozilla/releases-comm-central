@@ -52,6 +52,8 @@ var gCurrentTheme = null;
 
 function getChromeFile(aURI) {
   try {
+    // Most message style files are optional and fall back to other templates.
+    // Use TYPE_FETCH so probing for them does not report expected missing URLs.
     const channel = Services.io.newChannel(
       aURI,
       null,
@@ -60,7 +62,7 @@ function getChromeFile(aURI) {
       Services.scriptSecurityManager.getSystemPrincipal(),
       null,
       Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-      Ci.nsIContentPolicy.TYPE_OTHER
+      Ci.nsIContentPolicy.TYPE_FETCH
     );
     const stream = channel.open();
     const sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
@@ -101,7 +103,7 @@ function HTMLTheme(aBaseURI) {
     }
   }
 
-  if (!("incomingContent" in files)) {
+  if (!Object.hasOwn(this, "incomingContent")) {
     throw new Error("Invalid theme: Incoming/Content.html is missing!");
   }
 }
