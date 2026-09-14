@@ -111,10 +111,41 @@ var gPermissionManager = {
     return string;
   },
 
+  _addPrincipalToList(principals, uri) {
+    const principal = Services.scriptSecurityManager.createContentPrincipal(
+      uri,
+      {}
+    );
+    // If we have ended up with an unknown scheme, the following will throw.
+    principal.origin;
+    principals.push(principal);
+  },
+
+  async _addOrModifyPermission(principal, capability, capabilityString) {
+    // Check whether the permission already exists, and modify it if needed.
+    const existingPermission = this._permissions.find(
+      permission => permission.principal.origin == principal.origin
+    );
+    const permissionParams = {
+      principal,
+      type: this._type,
+      capability,
+    };
+
+    if (!existingPermission) {
+      this._permissionsToAdd.set(principal.origin, permissionParams);
+      await this._addPermission(permissionParams);
+    } else if (existingPermission.capability != capabilityString) {
+      existingPermission.capability = capabilityString;
+      this._permissionsToAdd.set(principal.origin, permissionParams);
+      this._handleCapabilityChange();
+    }
+  },
+
   async addPermission(aCapability) {
     var textbox = document.getElementById("url");
     var input_url = textbox.value.trim();
-    let principal;
+    const principals = [];
     try {
       // The origin accessor on the principal object will throw if the
       // principal doesn't have a canonical origin representation. This will
@@ -126,24 +157,23 @@ var gPermissionManager = {
       let uri;
       try {
         uri = Services.io.newURI(input_url);
-        principal = Services.scriptSecurityManager.createContentPrincipal(
-          uri,
-          {}
-        );
-        // If we have ended up with an unknown scheme, the following will throw.
-        principal.origin;
+        this._addPrincipalToList(principals, uri);
       } catch (ex) {
-        const scheme =
-          this._type != "image" || !input_url.includes("@")
-            ? "http://"
-            : MAILURI_BASE;
-        uri = Services.io.newURI(scheme + input_url);
-        principal = Services.scriptSecurityManager.createContentPrincipal(
-          uri,
-          {}
-        );
-        // If we have ended up with an unknown scheme, the following will throw.
-        principal.origin;
+        if (this._type == "image" && input_url.includes("@")) {
+          this._addPrincipalToList(
+            principals,
+            Services.io.newURI(MAILURI_BASE + input_url)
+          );
+        } else {
+          this._addPrincipalToList(
+            principals,
+            Services.io.newURI("http://" + input_url)
+          );
+          this._addPrincipalToList(
+            principals,
+            Services.io.newURI("https://" + input_url)
+          );
+        }
       }
     } catch (ex) {
       const [title, message] = await document.l10n.formatValues([
@@ -155,33 +185,12 @@ var gPermissionManager = {
     }
 
     var capabilityString = await this._getCapabilityString(aCapability);
-
-    // check whether the permission already exists, if not, add it
-    let permissionExists = false;
-    let capabilityExists = false;
-    for (var i = 0; i < this._permissions.length; ++i) {
-      // Thunderbird compares origins, not principals here.
-      if (this._permissions[i].principal.origin == principal.origin) {
-        permissionExists = true;
-        capabilityExists = this._permissions[i].capability == capabilityString;
-        if (!capabilityExists) {
-          this._permissions[i].capability = capabilityString;
-        }
-        break;
-      }
-    }
-
-    const permissionParams = {
-      principal,
-      type: this._type,
-      capability: aCapability,
-    };
-    if (!permissionExists) {
-      this._permissionsToAdd.set(principal.origin, permissionParams);
-      this._addPermission(permissionParams);
-    } else if (!capabilityExists) {
-      this._permissionsToAdd.set(principal.origin, permissionParams);
-      this._handleCapabilityChange();
+    for (const principal of principals) {
+      await this._addOrModifyPermission(
+        principal,
+        aCapability,
+        capabilityString
+      );
     }
 
     textbox.value = "";
@@ -220,8 +229,8 @@ var gPermissionManager = {
     this._tree.invalidate();
   },
 
-  _addPermission(aPermission) {
-    this._addPermissionToList(aPermission);
+  async _addPermission(aPermission) {
+    await this._addPermissionToList(aPermission);
     ++this._view._rowCount;
     this._tree.rowCountChanged(this._view.rowCount - 1, 1);
     // Re-do the sort, since we inserted this new item at the end.

@@ -125,6 +125,18 @@ add_task(async () => {
   });
 });
 
+function assertPermission(origin, type, capability) {
+  const principal = Services.scriptSecurityManager.createContentPrincipal(
+    Services.io.newURI(origin),
+    {}
+  );
+  Assert.equal(
+    Services.perms.testExactPermissionFromPrincipal(principal, type),
+    capability,
+    `${origin} should have the expected ${type} permission`
+  );
+}
+
 /**
  * Tests the remote content dialog.
  */
@@ -152,8 +164,8 @@ add_task(async function testRemoteContentDialog() {
       Assert.equal(url.value, "", "url input should be cleared");
       Assert.equal(
         permissionsTree.view.rowCount,
-        1,
-        "new entry should be added to list"
+        2,
+        "HTTP and HTTPS entries should be added to the list"
       );
 
       Assert.ok(
@@ -171,35 +183,53 @@ add_task(async function testRemoteContentDialog() {
       Assert.equal(url.value, "", "url input should be cleared");
       Assert.equal(
         permissionsTree.view.rowCount,
-        2,
-        "new entry should be added to list"
+        4,
+        "HTTP and HTTPS entries should be added to the list"
+      );
+
+      EventUtils.sendString("sender@example.invalid", dialogWindow);
+      EventUtils.synthesizeMouseAtCenter(
+        dialogDocument.getElementById("btnAllow"),
+        {},
+        dialogWindow
+      );
+      await new Promise(f => setTimeout(f));
+      Assert.equal(url.value, "", "url input should be cleared");
+      Assert.equal(
+        permissionsTree.view.rowCount,
+        5,
+        "one email address entry should be added to the list"
       );
     },
     "btnApplyChanges"
   );
 
-  // eslint-disable-next-line sdl/no-insecure-url
-  const acceptURI = Services.io.newURI("http://accept.invalid/");
-  const acceptPrincipal = Services.scriptSecurityManager.createContentPrincipal(
-    acceptURI,
-    {}
+  assertPermission(
+    // eslint-disable-next-line sdl/no-insecure-url
+    "http://accept.invalid",
+    "image",
+    Ci.nsIPermissionManager.ALLOW_ACTION
   );
-  Assert.equal(
-    Services.perms.testPermissionFromPrincipal(acceptPrincipal, "image"),
-    Ci.nsIPermissionManager.ALLOW_ACTION,
-    "accept permission should exist for accept.invalid"
+  assertPermission(
+    // eslint-disable-next-line sdl/no-insecure-url
+    "http://block.invalid",
+    "image",
+    Ci.nsIPermissionManager.DENY_ACTION
   );
-
-  // eslint-disable-next-line sdl/no-insecure-url
-  const blockURI = Services.io.newURI("http://block.invalid/");
-  const blockPrincipal = Services.scriptSecurityManager.createContentPrincipal(
-    blockURI,
-    {}
+  assertPermission(
+    "https://accept.invalid",
+    "image",
+    Ci.nsIPermissionManager.ALLOW_ACTION
   );
-  Assert.equal(
-    Services.perms.testPermissionFromPrincipal(blockPrincipal, "image"),
-    Ci.nsIPermissionManager.DENY_ACTION,
-    "block permission should exist for block.invalid"
+  assertPermission(
+    "https://block.invalid",
+    "image",
+    Ci.nsIPermissionManager.DENY_ACTION
+  );
+  assertPermission(
+    "chrome://messenger/content/email=sender@example.invalid",
+    "image",
+    Ci.nsIPermissionManager.ALLOW_ACTION
   );
 
   await promiseSubDialog(
@@ -211,7 +241,7 @@ add_task(async function testRemoteContentDialog() {
 
       Assert.equal(
         permissionsTree.view.rowCount,
-        2,
+        5,
         "list should be populated"
       );
 
@@ -223,7 +253,7 @@ add_task(async function testRemoteContentDialog() {
       );
       Assert.equal(
         permissionsTree.view.rowCount,
-        1,
+        4,
         "row should be removed from list"
       );
 
@@ -241,16 +271,17 @@ add_task(async function testRemoteContentDialog() {
     "btnApplyChanges"
   );
 
-  Assert.equal(
-    Services.perms.testPermissionFromPrincipal(acceptPrincipal, "image"),
-    Ci.nsIPermissionManager.UNKNOWN_ACTION,
-    "permission should be removed for accept.invalid"
-  );
-  Assert.equal(
-    Services.perms.testPermissionFromPrincipal(blockPrincipal, "image"),
-    Ci.nsIPermissionManager.UNKNOWN_ACTION,
-    "permission should be removed for block.invalid"
-  );
+  for (const origin of [
+    // eslint-disable-next-line sdl/no-insecure-url
+    "http://accept.invalid",
+    // eslint-disable-next-line sdl/no-insecure-url
+    "http://block.invalid",
+    "https://accept.invalid",
+    "https://block.invalid",
+    "chrome://messenger/content/email=sender@example.invalid",
+  ]) {
+    assertPermission(origin, "image", Ci.nsIPermissionManager.UNKNOWN_ACTION);
+  }
 
   await closePrefsTab();
 });
@@ -283,8 +314,8 @@ add_task(async function testCookiesDialog() {
       Assert.equal(url.value, "", "url input should be cleared");
       Assert.equal(
         permissionsTree.view.rowCount,
-        1,
-        "new entry should be added to list"
+        2,
+        "HTTP and HTTPS entries should be added to the list"
       );
 
       EventUtils.sendString("session.invalid", dialogWindow);
@@ -297,8 +328,8 @@ add_task(async function testCookiesDialog() {
       Assert.equal(url.value, "", "url input should be cleared");
       Assert.equal(
         permissionsTree.view.rowCount,
-        2,
-        "new entry should be added to list"
+        4,
+        "HTTP and HTTPS entries should be added to the list"
       );
 
       EventUtils.sendString("block.invalid", dialogWindow);
@@ -311,45 +342,45 @@ add_task(async function testCookiesDialog() {
       Assert.equal(url.value, "", "url input should be cleared");
       Assert.equal(
         permissionsTree.view.rowCount,
-        3,
-        "new entry should be added to list"
+        6,
+        "HTTP and HTTPS entries should be added to the list"
       );
     },
     "btnApplyChanges"
   );
 
-  // eslint-disable-next-line sdl/no-insecure-url
-  const acceptURI = Services.io.newURI("http://accept.invalid/");
-  const acceptPrincipal = Services.scriptSecurityManager.createContentPrincipal(
-    acceptURI,
-    {}
+  assertPermission(
+    // eslint-disable-next-line sdl/no-insecure-url
+    "http://accept.invalid",
+    "cookie",
+    Ci.nsIPermissionManager.ALLOW_ACTION
   );
-  Assert.equal(
-    Services.perms.testPermissionFromPrincipal(acceptPrincipal, "cookie"),
-    Ci.nsIPermissionManager.ALLOW_ACTION,
-    "accept permission should exist for accept.invalid"
+  assertPermission(
+    // eslint-disable-next-line sdl/no-insecure-url
+    "http://session.invalid",
+    "cookie",
+    Ci.nsICookiePermission.ACCESS_SESSION
   );
-
-  // eslint-disable-next-line sdl/no-insecure-url
-  const sessionURI = Services.io.newURI("http://session.invalid/");
-  const sessionPrincipal =
-    Services.scriptSecurityManager.createContentPrincipal(sessionURI, {});
-  Assert.equal(
-    Services.perms.testPermissionFromPrincipal(sessionPrincipal, "cookie"),
-    Ci.nsICookiePermission.ACCESS_SESSION,
-    "session permission should exist for session.invalid"
+  assertPermission(
+    // eslint-disable-next-line sdl/no-insecure-url
+    "http://block.invalid",
+    "cookie",
+    Ci.nsIPermissionManager.DENY_ACTION
   );
-
-  // eslint-disable-next-line sdl/no-insecure-url
-  const blockURI = Services.io.newURI("http://block.invalid/");
-  const blockPrincipal = Services.scriptSecurityManager.createContentPrincipal(
-    blockURI,
-    {}
+  assertPermission(
+    "https://accept.invalid",
+    "cookie",
+    Ci.nsIPermissionManager.ALLOW_ACTION
   );
-  Assert.equal(
-    Services.perms.testPermissionFromPrincipal(blockPrincipal, "cookie"),
-    Ci.nsIPermissionManager.DENY_ACTION,
-    "block permission should exist for block.invalid"
+  assertPermission(
+    "https://session.invalid",
+    "cookie",
+    Ci.nsICookiePermission.ACCESS_SESSION
+  );
+  assertPermission(
+    "https://block.invalid",
+    "cookie",
+    Ci.nsIPermissionManager.DENY_ACTION
   );
 
   await promiseSubDialog(
@@ -361,7 +392,7 @@ add_task(async function testCookiesDialog() {
 
       Assert.equal(
         permissionsTree.view.rowCount,
-        3,
+        6,
         "list should be populated"
       );
 
@@ -373,7 +404,7 @@ add_task(async function testCookiesDialog() {
       );
       Assert.equal(
         permissionsTree.view.rowCount,
-        2,
+        5,
         "row should be removed from list"
       );
 
@@ -391,21 +422,19 @@ add_task(async function testCookiesDialog() {
     "btnApplyChanges"
   );
 
-  Assert.equal(
-    Services.perms.testPermissionFromPrincipal(acceptPrincipal, "cookie"),
-    Ci.nsIPermissionManager.UNKNOWN_ACTION,
-    "permission should be removed for accept.invalid"
-  );
-  Assert.equal(
-    Services.perms.testPermissionFromPrincipal(sessionPrincipal, "cookie"),
-    Ci.nsIPermissionManager.UNKNOWN_ACTION,
-    "permission should be removed for session.invalid"
-  );
-  Assert.equal(
-    Services.perms.testPermissionFromPrincipal(blockPrincipal, "cookie"),
-    Ci.nsIPermissionManager.UNKNOWN_ACTION,
-    "permission should be removed for block.invalid"
-  );
+  for (const origin of [
+    // eslint-disable-next-line sdl/no-insecure-url
+    "http://accept.invalid",
+    // eslint-disable-next-line sdl/no-insecure-url
+    "http://session.invalid",
+    // eslint-disable-next-line sdl/no-insecure-url
+    "http://block.invalid",
+    "https://accept.invalid",
+    "https://session.invalid",
+    "https://block.invalid",
+  ]) {
+    assertPermission(origin, "cookie", Ci.nsIPermissionManager.UNKNOWN_ACTION);
+  }
 
   await promiseSubDialog(
     prefsDocument.getElementById("showCookiesButton"),
