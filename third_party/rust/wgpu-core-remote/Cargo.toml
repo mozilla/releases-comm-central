@@ -63,6 +63,7 @@ default-features = false
 [dependencies.wgpu-core]
 version = "30.0.0"
 path = "../wgpu-core"
+default-features = false
 
 [dependencies.wgpu-core-remote-types]
 version = "30.0.0"
@@ -71,6 +72,7 @@ path = "../wgpu-core-remote-types"
 [dependencies.wgpu-hal]
 version = "30.0.0"
 path = "../wgpu-hal"
+default-features = false
 
 [dependencies.wgpu-types]
 version = "30.0.0"

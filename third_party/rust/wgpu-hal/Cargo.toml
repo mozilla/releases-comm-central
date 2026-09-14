@@ -59,7 +59,6 @@ dx12 = [
     "dep:ordered-float",
     "dep:profiling",
     "dep:range-alloc",
-    "dep:wgpu-sync",
     "dep:windows-core",
     "gpu-allocator/d3d12",
     "naga/hlsl-out",
@@ -95,7 +94,6 @@ gles = [
     "dep:wasm-bindgen",
     "dep:wayland-sys",
     "dep:web-sys",
-    "dep:wgpu-sync",
     "dep:windows-result",
     "naga/glsl-out",
     "wgpu-sync/std",
@@ -123,21 +121,14 @@ metal = [
     "dep:profiling",
     "dep:smallvec",
     "dep:raw-window-metal",
-    "dep:wgpu-sync",
 ]
-portable-atomic = [
-    "dep:portable-atomic",
-    "dep:portable-atomic-util",
-]
+portable-atomic = ["wgpu-sync/portable-atomic"]
 renderdoc = [
     "dep:libloading",
     "dep:renderdoc-sys",
 ]
 static-dxc = ["dep:mach-dxcompiler-rs"]
-validation_canary = [
-    "dep:wgpu-sync",
-    "wgpu-sync/std",
-]
+validation_canary = ["wgpu-sync/std"]
 vulkan = [
     "naga/spv-out",
     "wgpu-sync/std",
@@ -151,7 +142,6 @@ vulkan = [
     "dep:profiling",
     "dep:raw-window-metal",
     "dep:smallvec",
-    "dep:wgpu-sync",
     "dep:windows",
     "dep:windows-core",
     "gpu-allocator/vulkan",
@@ -251,7 +241,6 @@ path = "../wgpu-naga-bridge"
 [dependencies.wgpu-sync]
 version = "30.0.0"
 path = "../wgpu-sync"
-optional = true
 default-features = false
 
 [dependencies.wgpu-types]
@@ -313,10 +302,6 @@ version = "0.1.4"
 optional = true
 default-features = false
 
-[target.'cfg(any(not(target_has_atomic = "64"), not(target_has_atomic = "ptr")))'.dependencies.portable-atomic]
-version = "1.10"
-optional = true
-
 [target.'cfg(not(any(target_family = "wasm", target_os = "ios", target_os = "visionos", target_env = "ohos")))'.dev-dependencies.glutin]
 version = "0.32"
 features = [
@@ -363,11 +348,6 @@ optional = true
 [target.'cfg(not(target_family = "wasm"))'.dependencies.smallvec]
 version = "1.14"
 features = ["union"]
-optional = true
-
-[target.'cfg(not(target_has_atomic = "ptr"))'.dependencies.portable-atomic-util]
-version = "0.2.4"
-features = ["alloc"]
 optional = true
 
 [target.'cfg(target_os = "android")'.dependencies.android_system_properties]
