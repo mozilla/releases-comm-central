@@ -17,6 +17,11 @@
   "properties": {
     "3rdparty": {
       "type": "object",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "78" },
+        "thunderbird_esr": { "version_added": "78" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true,
       "properties": {
         "Extensions": {
@@ -33,18 +38,41 @@
 
     "AppAutoUpdate": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "75" },
+        "thunderbird_esr": { "version_added": "75" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "AppUpdatePin": {
       "type": "string",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "104" },
+        "thunderbird_esr": { "version_added": "104" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
-    "AppUpdateURL": { "x-restart-required": true, "$ref": "#/definitions/url" },
+    "AppUpdateURL": {
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": false }
+      },
+      "x-restart-required": true,
+      "$ref": "#/definitions/url"
+    },
 
     "Authentication": {
       "type": "object",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "78" },
+        "thunderbird_esr": { "version_added": "78" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true,
       "properties": {
         "SPNEGO": {
@@ -100,36 +128,71 @@
 
     "BackgroundAppUpdate": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "91" },
+        "thunderbird_esr": { "version_added": "91" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "BlockAboutAddons": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "BlockAboutConfig": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": false
     },
 
     "BlockAboutProfiles": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": false }
+      },
       "x-restart-required": true
     },
 
     "BlockAboutSupport": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": false
     },
 
     "CaptivePortal": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "78" },
+        "thunderbird_esr": { "version_added": "78" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "Certificates": {
       "type": "object",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true,
       "properties": {
         "ImportEnterpriseRoots": {
@@ -146,6 +209,11 @@
 
     "Cookies": {
       "type": "object",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "78" },
+        "thunderbird_esr": { "version_added": "78" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": false,
       "properties": {
         "Allow": {
@@ -179,30 +247,60 @@
 
     "DefaultDownloadDirectory": {
       "type": "string",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "78" },
+        "thunderbird_esr": { "version_added": "78" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "DisableAppUpdate": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "DisableBuiltinPDFViewer": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "91" },
+        "thunderbird_esr": { "version_added": "91" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "DisableChat": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "157" },
+        "thunderbird_esr": { "version_added": "157" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "DisableDataCollectionSettings": {
-      "type": "boolean"
+      "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "156" },
+        "thunderbird_esr": { "version_added": "156" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      }
     },
 
     "DisabledCiphers": {
       "type": "object",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "76" },
+        "thunderbird_esr": { "version_added": "76" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true,
       "properties": {
         "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256": {
@@ -261,42 +359,87 @@
 
     "DisableDeveloperTools": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": false
     },
 
     "DisableExperimentalFeatures": {
-      "type": "boolean"
+      "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "155" },
+        "thunderbird_esr": { "version_added": "155" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      }
     },
 
     "DisableFileLink": {
-      "type": "boolean"
+      "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "157" },
+        "thunderbird_esr": { "version_added": "157" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      }
     },
 
     "DisableMasterPasswordCreation": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": false }
+      },
       "x-restart-required": true
     },
 
     "DisableMessageForwardingFilters": {
-      "type": "boolean"
+      "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "156" },
+        "thunderbird_esr": { "version_added": "156" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      }
     },
 
     "DisablePasswordReveal": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "78" },
+        "thunderbird_esr": { "version_added": "78" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "DisableQRExport": {
-      "type": "boolean"
+      "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "155" },
+        "thunderbird_esr": { "version_added": "155" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      }
     },
 
     "DisableSafeMode": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "78" },
+        "thunderbird_esr": { "version_added": "78" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "DisableSecurityBypass": {
       "type": "object",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true,
       "properties": {
         "InvalidCertificate": {
@@ -311,20 +454,40 @@
 
     "DisableSystemAddonUpdate": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "77" },
+        "thunderbird_esr": { "version_added": "77" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "DisableTelemetry": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "78" },
+        "thunderbird_esr": { "version_added": "78" },
+        "thunderbird_enterprise": { "version_added": false }
+      },
       "x-restart-required": true
     },
 
     "DisableUpdateSettings": {
-      "type": "boolean"
+      "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "156" },
+        "thunderbird_esr": { "version_added": "156" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      }
     },
 
     "DNSOverHTTPS": {
       "type": "object",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "91" },
+        "thunderbird_esr": { "version_added": "91" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true,
       "properties": {
         "Enabled": {
@@ -345,11 +508,21 @@
 
     "DownloadDirectory": {
       "type": "string",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "78" },
+        "thunderbird_esr": { "version_added": "78" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "Extensions": {
       "type": "object",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": false }
+      },
       "x-restart-required": true,
       "properties": {
         "Install": {
@@ -375,6 +548,11 @@
 
     "ExtensionSettings": {
       "type": "object",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": false,
       "contentMediaType": "application/json",
       "properties": {
@@ -443,11 +621,21 @@
 
     "ExtensionUpdate": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "Handlers": {
       "type": "object",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "91" },
+        "thunderbird_esr": { "version_added": "91" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true,
       "contentMediaType": "application/json",
       "patternProperties": {
@@ -490,11 +678,21 @@
 
     "HardwareAcceleration": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "78" },
+        "thunderbird_esr": { "version_added": "78" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "InAppNotification": {
       "type": "object",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "139" },
+        "thunderbird_esr": { "version_added": "139" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "properties": {
         "DonationEnabled": {
           "type": "boolean"
@@ -513,6 +711,11 @@
 
     "InstallAddonsPermission": {
       "type": "object",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true,
       "properties": {
         "Allow": {
@@ -527,31 +730,61 @@
 
     "ManualAppUpdateOnly": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "91" },
+        "thunderbird_esr": { "version_added": "91" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "NetworkPrediction": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "91" },
+        "thunderbird_esr": { "version_added": "91" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "OfferToSaveLogins": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "91" },
+        "thunderbird_esr": { "version_added": "91" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "OfferToSaveLoginsDefault": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "91" },
+        "thunderbird_esr": { "version_added": "91" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "PasswordManagerEnabled": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "78" },
+        "thunderbird_esr": { "version_added": "78" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "PDFjs": {
       "type": "object",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "91" },
+        "thunderbird_esr": { "version_added": "91" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true,
       "properties": {
         "Enabled": {
@@ -565,6 +798,11 @@
 
     "Preferences": {
       "type": "object",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true,
       "contentMediaType": "application/json",
       "patternProperties": {
@@ -585,16 +823,31 @@
 
     "PrimaryPassword": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "91" },
+        "thunderbird_esr": { "version_added": "91" },
+        "thunderbird_enterprise": { "version_added": false }
+      },
       "x-restart-required": true
     },
 
     "PromptForDownloadLocation": {
       "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "78" },
+        "thunderbird_esr": { "version_added": "78" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true
     },
 
     "Proxy": {
       "type": "object",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": false,
       "properties": {
         "Mode": {
@@ -649,6 +902,11 @@
 
     "RequestedLocales": {
       "type": ["string", "array"],
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true,
       "items": {
         "type": "string"
@@ -659,6 +917,11 @@
       "enterprise_only": true,
 
       "type": "object",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "108" },
+        "thunderbird_esr": { "version_added": "108" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true,
       "properties": {
         "Add": {
@@ -717,6 +980,11 @@
 
     "SecurityDevices": {
       "type": "object",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "152" },
+        "thunderbird_esr": { "version_added": "152" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true,
       "patternProperties": {
         "^(?!Add$|Delete$).*$": { "type": "string" }
@@ -739,12 +1007,22 @@
 
     "SSLVersionMax": {
       "type": "string",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true,
       "enum": ["tls1", "tls1.1", "tls1.2", "tls1.3"]
     },
 
     "SSLVersionMin": {
       "type": "string",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "68" },
+        "thunderbird_esr": { "version_added": "68" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
       "x-restart-required": true,
       "enum": ["tls1", "tls1.1", "tls1.2", "tls1.3"]
     }
