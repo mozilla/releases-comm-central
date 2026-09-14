@@ -165,6 +165,9 @@ export var provider = {
    * will be appended to the realm. If you need that feature disabled, see the
    * capabilities section of calICalendar.idl
    *
+   * The calendar is also what the auth prompt names when it asks for
+   * credentials.
+   *
    * @param {nsIIDRef} aIID - The interface ID to return
    * @returns {nsISupports} The requested interface
    */
@@ -175,7 +178,7 @@ export var provider = {
       // Support Auth Prompt Interfaces
       if (aIID.equals(Ci.nsIAuthPrompt2)) {
         if (!this.calAuthPrompt) {
-          this.calAuthPrompt = new lazy.cal.auth.Prompt();
+          this.calAuthPrompt = new lazy.cal.auth.Prompt(this);
         }
         return this.calAuthPrompt;
       } else if (aIID.equals(Ci.nsIAuthPromptProvider) || aIID.equals(Ci.nsIPrompt)) {

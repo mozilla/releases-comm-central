@@ -146,10 +146,13 @@ export var auth = {
   Prompt: class {
     QueryInterface = ChromeUtils.generateQI(["nsIAuthPrompt2"]);
 
-    constructor() {
+    /**
+     * @param {?calICalendar} provider - The calendar the credentials are for.
+     */
+    constructor(provider = null) {
       this.mWindow = lazy.cal.window.getCalendarWindow();
       this.mSuppliedPasswords = new WeakMap();
-      this.mProvider = null;
+      this.mProvider = provider;
     }
 
     /**
@@ -243,12 +246,13 @@ export var auth = {
         );
       }
       const savePassword = {};
-      const returnValue = new lazy.MsgAuthPrompt().promptAuth(
+      const returnValue = this._showAuthDialog(
         aChannel,
         aLevel,
         aAuthInfo,
         savePasswordLabel,
-        savePassword
+        savePassword,
+        this.#dialogText(aChannel)
       );
       if (savePassword.value) {
         auth.passwordManagerSave(
@@ -259,6 +263,41 @@ export var auth = {
         );
       }
       return returnValue;
+    }
+
+    /**
+     * The text the dialog asks with. Null when we don't know which calendar the
+     * request belongs to, in which case the dialog names the server only.
+     *
+     * @param {nsIChannel} channel - The channel that requires authentication.
+     * @returns {?string}
+     */
+    #dialogText(channel) {
+      const name = this.mProvider?.name;
+      if (!name) {
+        return null;
+      }
+      return lazy.l10n.formatValueSync("calendar-auth-enter-user-password-for-calendar", {
+        calendarName: name,
+        location: channel.URI.prePath,
+      });
+    }
+
+    /**
+     * Asks the user for credentials.
+     *
+     * @see MsgAuthPrompt.promptAuth for the arguments.
+     * @returns {boolean} Whether the user confirmed the dialog.
+     */
+    _showAuthDialog(aChannel, aLevel, aAuthInfo, aSavePasswordLabel, aSavePassword, aText) {
+      return new lazy.MsgAuthPrompt().promptAuth(
+        aChannel,
+        aLevel,
+        aAuthInfo,
+        aSavePasswordLabel,
+        aSavePassword,
+        aText
+      );
     }
 
     /**

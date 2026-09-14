@@ -480,17 +480,20 @@ export class MsgAuthPrompt {
    * @param {object} checkValue
    *        Contains the initial checked state of the checkbox when this method
    *        is called and the final checked state after this method returns.
+   * @param {?string} [promptText] - Text to ask with. Without it the dialog
+   *   names the server the channel points at.
    * @returns {boolean} true for OK, false for Cancel.
    */
-  promptAuth(channel, level, authInfo, checkboxLabel, checkValue) {
+  promptAuth(channel, level, authInfo, checkboxLabel, checkValue, promptText) {
     const title = lazy.dialogsBundle.formatStringFromName(
       "PromptUsernameAndPassword3",
       [lazy.brandFullName]
     );
-    const text = lazy.dialogsBundle.formatStringFromName(
-      "EnterUserPasswordFor2",
-      [`${channel.URI.scheme}://${channel.URI.host}`]
-    );
+    const text =
+      promptText ||
+      lazy.dialogsBundle.formatStringFromName("EnterUserPasswordFor2", [
+        `${channel.URI.scheme}://${channel.URI.host}`,
+      ]);
 
     const username = { value: authInfo.username || "" };
     const password = { value: authInfo.password || "" };

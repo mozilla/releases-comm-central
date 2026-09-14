@@ -6,7 +6,9 @@ const USERNAME = "fred";
 const PASSWORD = "********";
 const NEW_PASSWORD = "########";
 const ORIGIN = "https://origin";
+const ORIGIN_WITH_PORT = "https://origin:8443";
 const REALM = "realm";
+const CALENDAR_NAME = "Work";
 const AUTH_HOST = Ci.nsIAuthInformation.AUTH_HOST;
 const PREVIOUS_FAILED = Ci.nsIAuthInformation.PREVIOUS_FAILED;
 
@@ -18,6 +20,19 @@ function run_test() {
 async function checkLoginCount(total) {
   Assert.equal(total, await Services.logins.countLoginsAsync("", "", ""));
 }
+
+add_setup(async function () {
+  await Services.logins.initializationPromise;
+
+  // xpcshell has no calendar window for the prompt to queue its dialog on.
+  const getCalendarWindow = cal.window.getCalendarWindow;
+  cal.window.getCalendarWindow = () => ({ document: { readyState: "complete" } });
+
+  registerCleanupFunction(async () => {
+    cal.window.getCalendarWindow = getCalendarWindow;
+    await Services.logins.removeAllLoginsAsync();
+  });
+});
 
 /**
  * Tests the passwordManager{Get,Save,Remove} functions
@@ -158,24 +173,34 @@ function makePrompt(entered = false) {
   return prompt;
 }
 
+/**
+ * Creates a cal.auth.Prompt with a stubbed dialog, so everything around the
+ * dialog runs for real.
+ *
+ * @param {?object} calendar - The calendar the prompt belongs to.
+ * @param {string} [entered] - The username the user types, empty if they cancel
+ *   the dialog.
+ * @returns {object} The prompt, with the text the dialog asked with in `text`.
+ */
+function makeDialogPrompt(calendar, entered = USERNAME) {
+  const prompt = new cal.auth.Prompt(calendar);
+  prompt._showAuthDialog = (channel, level, authInfo, label, savePassword, text) => {
+    prompt.text = text;
+    if (!entered) {
+      return false;
+    }
+    authInfo.username = entered;
+    authInfo.password = NEW_PASSWORD;
+    return true;
+  };
+  return prompt;
+}
+
 /** Empties the login manager, so one failing test cannot fail the next. */
 async function resetLogins() {
   await Services.logins.removeAllLoginsAsync();
   await checkLoginCount(0);
 }
-
-add_setup(async function () {
-  await Services.logins.initializationPromise;
-
-  // xpcshell has no calendar window for the prompt to queue its dialog on.
-  const getCalendarWindow = cal.window.getCalendarWindow;
-  cal.window.getCalendarWindow = () => ({ document: { readyState: "complete" } });
-
-  registerCleanupFunction(async () => {
-    cal.window.getCalendarWindow = getCalendarWindow;
-    await Services.logins.removeAllLoginsAsync();
-  });
-});
 
 /** Concurrent challenges say nothing about the login, so it must survive. */
 add_task(async function test_prompt_keeps_a_login_that_was_not_rejected() {
@@ -300,4 +325,43 @@ add_task(async function test_prompt_keeps_a_login_another_request_uses() {
   Assert.equal(second.password, NEW_PASSWORD, "the replacement password should be used");
   Assert.equal(prompt.asked, 0, "the user should not be asked while an untried login exists");
   await checkLoginCount(1);
+});
+
+/** With several calendars subscribed, the dialog has to say which one it is. */
+add_task(async function test_prompt_names_the_calendar_it_asks_for() {
+  await resetLogins();
+
+  const prompt = makeDialogPrompt({ name: CALENDAR_NAME });
+  // A server on a port other than the default, because that is part of its name.
+  const channel = { URI: Services.io.newURI(ORIGIN_WITH_PORT), loadInfo: { originAttributes: {} } };
+
+  const authInfo = { realm: REALM, flags: AUTH_HOST, username: "", password: "" };
+  Assert.ok(
+    await promptAuth(prompt, authInfo, channel),
+    "the entered credentials should be handed out"
+  );
+  Assert.ok(prompt.text.includes(CALENDAR_NAME), "the dialog should name the calendar");
+  Assert.ok(prompt.text.includes(ORIGIN_WITH_PORT), "the dialog should name the server");
+});
+
+/** Without a calendar there is no name to add, so the dialog keeps its own text. */
+add_task(async function test_prompt_without_a_calendar_asks_with_the_default_text() {
+  await resetLogins();
+
+  const prompt = makeDialogPrompt(null);
+
+  const authInfo = { realm: REALM, flags: AUTH_HOST, username: "", password: "" };
+  Assert.ok(await promptAuth(prompt, authInfo), "the entered credentials should be handed out");
+  Assert.equal(prompt.text, null, "the dialog should be left to name the server itself");
+});
+
+/** The prompt only knows the calendar if the provider hands it over. */
+add_task(function test_provider_hands_its_calendar_to_the_prompt() {
+  const calendar = {
+    name: CALENDAR_NAME,
+    QueryInterface: ChromeUtils.generateQI([]),
+  };
+
+  const prompt = cal.provider.InterfaceRequestor_getInterface.call(calendar, Ci.nsIAuthPrompt2);
+  Assert.equal(prompt.mProvider, calendar, "the prompt should know which calendar it asks for");
 });
