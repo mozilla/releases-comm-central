@@ -274,7 +274,8 @@ MessageArchiver.prototype = {
     // createSubfolder. For local, createSubfolder is synchronous.
     if (archiveFolder.canCreateSubfolders && batch.keepFolderStructure) {
       // Collect in-order list of folders of source folder structure,
-      // excluding top-level INBOX folder
+      // excluding top-level INBOX folder. Use the localized names so that the
+      // archive structure matches what the user sees in the folder pane.
       const folderNames = [];
       const rootFolder = srcFolder.server.rootFolder;
       const inboxFolder = lazy.MailUtils.getInboxFolder(srcFolder.server);
@@ -283,7 +284,7 @@ MessageArchiver.prototype = {
         folder != rootFolder &&
         (folder != inboxFolder || batch.recreateInbox)
       ) {
-        folderNames.unshift(folder.name);
+        folderNames.unshift(folder.localizedName);
         folder = folder.parent;
       }
       // Determine Archive folder structure.

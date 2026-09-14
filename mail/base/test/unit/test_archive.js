@@ -33,6 +33,9 @@ const synMessage2 = generator.makeMessage({
 const synMessage3 = generator.makeMessage({
   date: new Date(2023, 7, 14, 18, 0),
 });
+const synMessage4 = generator.makeMessage({
+  date: new Date(2024, 1, 29, 9, 15),
+});
 
 add_task(async function testLocal() {
   const account = MailServices.accounts.createLocalMailAccount();
@@ -85,6 +88,7 @@ add_task(async function testImap() {
   );
 
   await subtest(account);
+  await subtestInboxStructure(account, imapServer);
 });
 
 async function subtest(account) {
@@ -139,5 +143,49 @@ async function subtest(account) {
   Assert.equal(
     archives2023Folder.getChildNamed("2023-08").getTotalMessages(false),
     1
+  );
+}
+
+/**
+ * Archiving with "keep folder structure" and "recreate inbox" enabled should
+ * name the recreated folder after the inbox's localized name, not the name it
+ * has on the server, which for IMAP is "INBOX".
+ */
+async function subtestInboxStructure(account, imapServer) {
+  const rootFolder = account.incomingServer.rootFolder;
+  const inboxFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+  Assert.equal(inboxFolder.name, "INBOX", "the inbox should be named INBOX");
+  Assert.notEqual(
+    inboxFolder.localizedName,
+    inboxFolder.name,
+    "the inbox's localized name should differ from its name"
+  );
+  await imapServer.addMessages(inboxFolder, [synMessage4], true);
+
+  account.defaultIdentity.archiveGranularity =
+    Ci.nsIMsgIdentity.singleArchiveFolder;
+  account.defaultIdentity.archiveKeepFolderStructure = true;
+  account.defaultIdentity.archiveRecreateInbox = true;
+
+  const deferred = Promise.withResolvers();
+  const archiver = new MessageArchiver();
+  archiver.oncomplete = deferred.resolve;
+  archiver.archiveMessages([...inboxFolder.messages]);
+  await deferred.promise;
+
+  const archivesFolder = rootFolder.getChildNamed("Archives");
+  const archivedInboxFolder = archivesFolder.getChildNamed(
+    inboxFolder.localizedName
+  );
+  Assert.ok(archivedInboxFolder, "the archived inbox folder should exist");
+  Assert.equal(
+    archivedInboxFolder.name,
+    inboxFolder.localizedName,
+    "the archived inbox folder should use the inbox's localized name"
+  );
+  Assert.equal(
+    archivedInboxFolder.getTotalMessages(false),
+    1,
+    "the archived inbox folder should contain the archived message"
   );
 }
