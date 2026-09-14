@@ -456,16 +456,14 @@
     <menuitem id="calendar-view-context-menu-next"
               command="calendar_view_next_command"/>
     <menuseparator id="calendar-item-context-separator-cutcopypaste"/>
-    <!-- Cut and copy doesn't make sense in the views, but only showing paste
-        makes it look like something is missing. Disable by default. -->
     <menuitem id="calendar-view-context-menu-cut-menuitem"
               data-l10n-id="calendar-context-cut"
               key="key_cut"
-              disabled=""/>
+              command="cmd_cut"/>
     <menuitem id="calendar-view-context-menu-copy-menuitem"
               data-l10n-id="calendar-context-copy"
               key="key_copy"
-              disabled=""/>
+              command="cmd_copy"/>
     <menuitem id="calendar-view-context-menu-paste-menuitem"
               data-l10n-id="calendar-context-paste"
               key="key_paste"
