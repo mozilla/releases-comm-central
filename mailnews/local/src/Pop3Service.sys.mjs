@@ -59,6 +59,12 @@ export class Pop3Service {
   }
 
   _getMail(downloadNewMail, msgWindow, urlListener, inbox, server) {
+    if (Services.io.offline) {
+      throw Components.Exception(
+        "Cannot get mail while offline",
+        Cr.NS_MSG_ERROR_OFFLINE
+      );
+    }
     server.wrappedJSObject.withClient(client => {
       client.runningUri.msgWindow = msgWindow;
       client.urlListener = urlListener;

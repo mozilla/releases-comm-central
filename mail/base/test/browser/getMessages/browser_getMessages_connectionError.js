@@ -194,3 +194,25 @@ add_task(async function testConnectionRefused() {
   await promiseServerIdle(pop3Account.incomingServer);
   await promiseServerIdle(nntpAccount.incomingServer);
 });
+
+add_task(async function testBackgroundConnectionRefusedIsSilent() {
+  const { promise, resolve } = Promise.withResolvers();
+
+  MailServices.pop3.GetNewMail(
+    null,
+    {
+      OnStartRunningUrl() {},
+      OnStopRunningUrl: resolve,
+    },
+    pop3Account.incomingServer.rootMsgFolder.getFolderWithFlags(
+      Ci.nsMsgFolderFlags.Inbox
+    ),
+    pop3Account.incomingServer
+  );
+
+  await promise;
+  Assert.ok(
+    !MockAlertsService.alert,
+    "a background connection failure should not show an alert"
+  );
+});

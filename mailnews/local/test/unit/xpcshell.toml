@@ -91,6 +91,8 @@ requesttimeoutfactor = 12
 
 ["test_pop3MultiCopy2.js"]
 
+["test_pop3Offline.js"]
+
 ["test_pop3Password.js"]
 
 ["test_pop3Password3.js"]

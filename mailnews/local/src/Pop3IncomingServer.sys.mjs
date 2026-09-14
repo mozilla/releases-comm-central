@@ -120,11 +120,16 @@ export class Pop3IncomingServer extends MsgIncomingServer {
       Ci.nsMsgFolderFlags.Inbox
     );
     const urlListener = inbox.QueryInterface(Ci.nsIUrlListener);
-    // Occurs on biff for an individual server.
-    if (this.downloadOnBiff) {
-      MailServices.pop3.GetNewMail(msgWindow, urlListener, inbox, this);
-    } else {
-      MailServices.pop3.CheckForNewMail(msgWindow, urlListener, inbox, this);
+    try {
+      // Occurs on biff for an individual server.
+      if (this.downloadOnBiff) {
+        MailServices.pop3.GetNewMail(msgWindow, urlListener, inbox, this);
+      } else {
+        MailServices.pop3.CheckForNewMail(msgWindow, urlListener, inbox, this);
+      }
+    } catch (error) {
+      this.performingBiff = false;
+      throw error;
     }
   }
 

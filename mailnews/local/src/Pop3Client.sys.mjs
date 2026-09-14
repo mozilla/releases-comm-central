@@ -412,13 +412,13 @@ export class Pop3Client {
       // Otherwise (i.e. if the getter for `msgWindow` raised
       // `NS_ERROR_NULL_POINTER`), this is a background operation and we should
       // tell the mail session to only call the listeners but not alert.
-      let silent = false;
+      let silent = true;
       try {
         this.runningUri.msgWindow;
         silent = false;
       } catch (ex) {
         if (
-          !(ex instanceof Ci.nsIException) &&
+          !(ex instanceof Ci.nsIException) ||
           ex.result != Cr.NS_ERROR_NULL_POINTER
         ) {
           throw ex;
@@ -923,13 +923,13 @@ export class Pop3Client {
       // Otherwise (i.e. if the getter for `msgWindow` raised
       // `NS_ERROR_NULL_POINTER`), this is a background operation and we should
       // tell the mail session to only call the listeners but not alert.
-      let silent = false;
+      let silent = true;
       try {
         this.runningUri.msgWindow;
         silent = false;
       } catch (ex) {
         if (
-          !(ex instanceof Ci.nsIException) &&
+          !(ex instanceof Ci.nsIException) ||
           ex.result != Cr.NS_ERROR_NULL_POINTER
         ) {
           throw ex;
