@@ -349,3 +349,26 @@ li[is="calendar-dialog-attachment"] {
     flex: 1 auto;
   }
 }
+
+[is="calendar-event-create-edit-dialog"] {
+  /* Unset Firefox dialog styles */
+  position: relative;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  flex-direction: column;
+  background-color: var(--color-surface-base);
+  min-inline-size: 424px;
+  block-size: 100%;
+  z-index: 999;
+
+  &[open] {
+    display: flex;
+  }
+
+  & .calendar-event-create-edit-dialog-body {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    overflow-block: auto;
+  }
+}

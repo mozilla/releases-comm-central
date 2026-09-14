@@ -27,6 +27,8 @@ export class CalendarEventCreateEditDialog extends PositionedDialog {
     );
     this.append(template.content.cloneNode(true));
 
+    this.setAttribute("is", "calendar-event-create-edit-dialog");
+
     window.MozXULElement?.insertFTLIfNeeded("messenger/calendarDialog.ftl");
     document.l10n.setAttributes(this, "calendar-event-create-edit-dialog");
   }

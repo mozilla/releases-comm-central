@@ -4,6 +4,10 @@
     <meta charset="utf-8" />
     <title>Calendar Event Create/Edit Dialog Test</title>
     <link rel="localization" href="messenger/calendarDialog.ftl" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/calendar/calendarDialog.css"
+    />
     <script
       type="module"
       src="moz-src:///comm/mail/components/calendar/content/calendar-event-create-edit-dialog.mjs"
@@ -25,6 +29,8 @@
       </main>
       <footer class="calendar-event-create-edit-dialog-footer"></footer>
     </template>
-    <dialog is="calendar-event-create-edit-dialog"></dialog>
+    <div id="dialog-container">
+      <dialog is="calendar-event-create-edit-dialog"></dialog>
+    </div>
   </body>
 </html>
