@@ -33,10 +33,11 @@ treeherder:
         'TLA64': 'Toolchain builds for Linux AArch64'
         'TM': 'Toolchain builds for macOS'
         'TMA64': 'Toolchain builds for macOS Aarch64'
-        'TMW': 'Toolchain builds for Windows MinGW'
         'TW32': 'Toolchain builds for Windows 32-bits'
         'TW64': 'Toolchain builds for Windows 64-bits'
         'TWA64': 'Toolchain builds for Windows AArch64'
+        'TWM': 'Toolchain builds for Windows MinGW'
+        'WASI': 'Toolchain builds for WASI'
 
         # Release promotion
         'BM': 'Beetmover'
