@@ -1888,9 +1888,15 @@ MatrixAccount.prototype = {
 
   /**
    * Create a new client.
+   *
+   * @param {string} [transientAccessToken] - Access token to inject when
+   *   it is not persisted in prefs (saveToken off).
    */
-  async createClient() {
+  async createClient(transientAccessToken) {
     const opts = this.getClientOptions();
+    if (transientAccessToken && !opts.accessToken) {
+      opts.accessToken = transientAccessToken;
+    }
     this._client = lazy.MatrixSDK.createClient(opts);
     await Promise.all([opts.store.startup(), opts.cryptoStore.startup()]);
   },
@@ -1919,7 +1925,7 @@ MatrixAccount.prototype = {
       this.storeSessionInformation(data);
       // Need to create a new client with the device ID set.
       this._client.stopClient();
-      this.createClient();
+      this.createClient(data.access_token);
       if (!this._client.isLoggedIn()) {
         throw new Error("Client has no access token after login");
       }
