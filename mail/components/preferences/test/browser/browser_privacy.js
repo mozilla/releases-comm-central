@@ -154,6 +154,36 @@ add_task(async function testRemoteContentDialog() {
       const url = dialogDocument.getElementById("url");
       const permissionsTree = dialogDocument.getElementById("permissionsTree");
 
+      for (const invalidOrigin of [
+        "*.example.invalid",
+        "https://*.example.invalid",
+      ]) {
+        url.value = invalidOrigin;
+        url.dispatchEvent(new Event("input", { bubbles: true }));
+
+        const alertPromise = BrowserTestUtils.promiseAlertDialog(
+          "accept",
+          "chrome://global/content/commonDialog.xhtml"
+        );
+        const addPermissionPromise =
+          dialogWindow.gPermissionManager.addPermission(
+            Ci.nsIPermissionManager.ALLOW_ACTION
+          );
+        await alertPromise;
+        await addPermissionPromise;
+
+        Assert.equal(
+          permissionsTree.view.rowCount,
+          0,
+          `${invalidOrigin} should not be added to the list`
+        );
+      }
+
+      await SimpleTest.promiseFocus(dialogWindow);
+      url.value = "";
+      url.dispatchEvent(new Event("input", { bubbles: true }));
+      url.focus();
+
       EventUtils.sendString("accept.invalid", dialogWindow);
       EventUtils.synthesizeMouseAtCenter(
         dialogDocument.getElementById("btnAllow"),

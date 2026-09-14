@@ -112,6 +112,9 @@ var gPermissionManager = {
   },
 
   _addPrincipalToList(principals, uri) {
+    if (uri instanceof Ci.nsIURL && uri.host.includes("*")) {
+      throw new Error("Wildcard in host");
+    }
     const principal = Services.scriptSecurityManager.createContentPrincipal(
       uri,
       {}
@@ -159,6 +162,11 @@ var gPermissionManager = {
         uri = Services.io.newURI(input_url);
         this._addPrincipalToList(principals, uri);
       } catch (ex) {
+        // A wildcard host is invalid and must not be treated as a scheme-less
+        // input that can be fixed by prepending a scheme.
+        if (uri instanceof Ci.nsIURL && uri.host.includes("*")) {
+          throw ex;
+        }
         if (this._type == "image" && input_url.includes("@")) {
           this._addPrincipalToList(
             principals,
