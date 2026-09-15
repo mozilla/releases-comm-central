@@ -36,6 +36,8 @@ tags = [
 
 ["test_searchCustomTerm.js"]
 
+["test_searchDiacritics.js"]
+
 ["test_searchJunk.js"]
 
 ["test_searchLocalizationStrings.js"]

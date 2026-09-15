@@ -248,6 +248,16 @@ nsresult MsgEscapeURL(const nsACString& aStr, uint32_t aFlags,
                       nsACString& aResult);
 
 /**
+ * Copy aIn to aOut with diacritics stripped, so that "Paris" and "París"
+ * compare equal. Precomposed characters are mapped to their base character,
+ * combining marks are dropped, and letters with a single-character ASCII
+ * fallback (ø, ł, đ, ...) are mapped to it. Letters whose fallback is more than
+ * one character (æ, ß, ...) are left alone, since folding them would change the
+ * length of the string. This is the same folding the Firefox find bar uses.
+ */
+void NS_MsgStripDiacritics(const nsAString& aIn, nsString& aOut);
+
+/**
  * Given a message db and a set of keys, fetch the corresponding message
  * headers.
  * If a key cannot be found in the database, it will be ignored. So the

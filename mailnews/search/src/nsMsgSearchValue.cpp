@@ -57,6 +57,7 @@ nsMsgSearchValueImpl::SetStr(const nsAString& aValue) {
   NS_ENSURE_TRUE(IS_STRING_ATTRIBUTE(mValue.attribute), NS_ERROR_ILLEGAL_VALUE);
   CopyUTF16toUTF8(aValue, mValue.utf8String);
   mValue.utf16String = aValue;
+  NS_MsgStripDiacritics(aValue, mValue.utf16StringNoDiacritics);
   return NS_OK;
 }
 

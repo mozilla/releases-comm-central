@@ -55,9 +55,11 @@
 #include "nsIChannel.h"
 #include "nsIURIMutator.h"
 #include "nsReadableUtils.h"
+#include "nsUnicharUtils.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/Encoding.h"
 #include "mozilla/EncodingDetector.h"
+#include "mozilla/TextUtils.h"
 #include "mozilla/UniquePtr.h"
 #include "mozilla/Utf8.h"
 #include "mozilla/Buffer.h"
@@ -262,6 +264,14 @@ static uint32_t StringHash(const char* ubuf, int32_t len = -1) {
 inline uint32_t StringHash(const nsString& str) {
   const char16_t* strbuf = str.get();
   return StringHash(reinterpret_cast<const char*>(strbuf), str.Length() * 2);
+}
+
+void NS_MsgStripDiacritics(const nsAString& aIn, nsString& aOut) {
+  aOut = aIn;
+  // ToNaked() leaves ASCII alone, so skip the walk for the common case.
+  if (!mozilla::IsAscii(aIn)) {
+    ToNaked(aOut);
+  }
 }
 
 const static uint32_t MAX_LEN = 55;

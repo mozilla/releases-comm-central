@@ -31,6 +31,17 @@
   value: 0
   mirror: always
 
+# How search, quick filter and filters treat diacritics. Mirrors the meaning of
+# findbar.matchdiacritics.
+# - 0: never, i.e. always ignore diacritics ("för" also finds "for")
+# - 1: always, i.e. diacritics must match exactly
+# - other: auto, ignore diacritics unless the search term itself has some, so
+#   "paris" finds "París" but "París" doesn't find "paris"
+- name: mail.matchdiacritics
+  type: int32_t
+  value: 2
+  mirror: always
+
 # If special folders (trash, drafts, etc.) on remote servers should use names
 # provided by localizers, instead of names from the server.
 - name: mail.useLocalizedFolderNames

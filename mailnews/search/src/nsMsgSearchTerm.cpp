@@ -35,6 +35,8 @@
 #include "mozilla/Components.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/StaticPrefs_mail.h"
+#include "mozilla/TextUtils.h"
 #include "mozilla/Utf8.h"
 
 using mozilla::Preferences;
@@ -506,6 +508,7 @@ nsresult nsMsgSearchTerm::ParseValue(char* inStream) {
 
     m_value.utf8String.Assign(inStream, valueLen);
     CopyUTF8toUTF16(m_value.utf8String, m_value.utf16String);
+    NS_MsgStripDiacritics(m_value.utf16String, m_value.utf16StringNoDiacritics);
   } else {
     switch (m_attribute) {
       case nsMsgSearchAttrib::Date:
@@ -973,45 +976,72 @@ nsresult nsMsgSearchTerm::MatchString(const nsAString& utf16StrToMatch,
   bool result = false;
 
   nsresult rv = NS_OK;
-  auto needle = m_value.utf16String;
+
+  // Only strip diacritics off the haystack when they aren't significant for
+  // this term, otherwise "för" would also find "for".
+  bool ignoreDiacritics;
+  switch (mozilla::StaticPrefs::mail_matchdiacritics()) {
+    case 1:  // Always match diacritics.
+      ignoreDiacritics = false;
+      break;
+    case 0:  // Never match diacritics.
+      ignoreDiacritics = true;
+      break;
+    default:  // Auto: significant only if the user typed some.
+      ignoreDiacritics =
+          m_value.utf16StringNoDiacritics.Equals(m_value.utf16String);
+      break;
+  }
+
+  const nsAString& needle =
+      ignoreDiacritics ? m_value.utf16StringNoDiacritics : m_value.utf16String;
+
+  nsAutoString strippedStrToMatch;
+  const nsAString* haystack = &utf16StrToMatch;
+  if (ignoreDiacritics && !mozilla::IsAscii(utf16StrToMatch)) {
+    strippedStrToMatch = utf16StrToMatch;
+    ToNaked(strippedStrToMatch);
+    haystack = &strippedStrToMatch;
+  }
 
   switch (m_operator) {
     case nsMsgSearchOp::Contains:
       // An empty needle means "no match".
       if (!needle.IsEmpty() &&
-          CaseInsensitiveFindInReadable(needle, utf16StrToMatch)) {
+          CaseInsensitiveFindInReadable(needle, *haystack)) {
         result = true;
       }
       break;
     case nsMsgSearchOp::DoesntContain:
       // An empty needle means "always match".
       if (needle.IsEmpty() ||
-          !CaseInsensitiveFindInReadable(needle, utf16StrToMatch)) {
+          !CaseInsensitiveFindInReadable(needle, *haystack)) {
         result = true;
       }
       break;
     case nsMsgSearchOp::Is:
-      if (needle.Equals(utf16StrToMatch, nsCaseInsensitiveStringComparator))
+      if (needle.Equals(*haystack, nsCaseInsensitiveStringComparator))
         result = true;
       break;
     case nsMsgSearchOp::Isnt:
-      if (!needle.Equals(utf16StrToMatch, nsCaseInsensitiveStringComparator))
+      if (!needle.Equals(*haystack, nsCaseInsensitiveStringComparator))
         result = true;
       break;
     case nsMsgSearchOp::IsEmpty:
+      // Emptiness is a property of the original string: a value consisting
+      // only of combining marks isn't empty, even though it strips to nothing.
       if (utf16StrToMatch.IsEmpty()) result = true;
       break;
     case nsMsgSearchOp::IsntEmpty:
       if (!utf16StrToMatch.IsEmpty()) result = true;
       break;
     case nsMsgSearchOp::BeginsWith:
-      if (StringBeginsWith(utf16StrToMatch, needle,
+      if (StringBeginsWith(*haystack, needle,
                            nsCaseInsensitiveStringComparator))
         result = true;
       break;
     case nsMsgSearchOp::EndsWith:
-      if (StringEndsWith(utf16StrToMatch, needle,
-                         nsCaseInsensitiveStringComparator))
+      if (StringEndsWith(*haystack, needle, nsCaseInsensitiveStringComparator))
         result = true;
       break;
     default:
@@ -1753,6 +1783,7 @@ nsresult nsMsgResultElement::AssignValues(nsIMsgSearchValue* src,
         rv = src->GetStr(unicodeString);
         CopyUTF16toUTF8(unicodeString, dst->utf8String);
         dst->utf16String = unicodeString;
+        NS_MsgStripDiacritics(unicodeString, dst->utf16StringNoDiacritics);
       } else
         rv = NS_ERROR_INVALID_ARG;
   }

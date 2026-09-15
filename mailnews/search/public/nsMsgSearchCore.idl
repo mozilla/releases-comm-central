@@ -181,9 +181,13 @@ typedef struct nsMsgSearchValue
       uint32_t junkStatus;
       uint32_t junkPercent;
     } u;
-    // We keep two versions of the string to avoid conversion at "search time".
+    // We keep several versions of the string to avoid conversion at
+    // "search time". Anything assigning to these must keep them in sync;
+    // utf16StringNoDiacritics is utf16String passed through
+    // NS_MsgStripDiacritics().
     nsCString utf8String;
     nsString utf16String;
+    nsString utf16StringNoDiacritics;
 } nsMsgSearchValue;
 %}
 
