@@ -736,7 +736,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
 
       // MacOS-only variation necessary to send messages via Cmd+[Shift]+Enter
       // since autocomplete input fields prevent that by default (bug 1682147).
-      if (event.metaKey) {
+      if (!event.repeat && event.metaKey) {
         // Cmd+[Shift]+Enter: Send message [later].
         const sendCmd = event.shiftKey ? "cmd_sendLater" : "cmd_sendWithCheck";
         goDoCommand(sendCmd);

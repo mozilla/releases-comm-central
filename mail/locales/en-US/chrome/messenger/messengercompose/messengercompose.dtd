@@ -37,12 +37,7 @@
 <!ENTITY saveAsDraftCmd.accesskey "D">
 <!ENTITY saveAsTemplateCmd.label "Template">
 <!ENTITY saveAsTemplateCmd.accesskey "T">
-<!ENTITY sendNowCmd.label "Send Now">
-<!ENTITY sendCmd.keycode "VK_RETURN">
-<!ENTITY sendNowCmd.accesskey "d">
-<!ENTITY sendLaterCmd.label "Send Later">
 <!ENTITY sendLaterCmd.keycode "VK_RETURN">
-<!ENTITY sendLaterCmd.accesskey "L">
 <!ENTITY printCmd.label "Print…">
 <!ENTITY printCmd.key "P">
 <!ENTITY printCmd.accesskey "P">
@@ -186,7 +181,6 @@
 <!ENTITY windowMenu.label "Window">
 
 <!-- Mail Toolbar -->
-<!ENTITY sendButton.label "Send">
 <!ENTITY quoteButton.label "Quote">
 <!ENTITY addressButton.label "Contacts">
 <!ENTITY spellingButton.label "Spelling">
@@ -194,8 +188,6 @@
 <!ENTITY printButton.label "Print">
 
 <!-- Mail Toolbar Tooltips -->
-<!ENTITY sendButton.tooltip "Send this message now">
-<!ENTITY sendlaterButton.tooltip "Send this message later">
 <!ENTITY quoteButton.tooltip "Quote the previous message">
 <!ENTITY addressButton.tooltip "Select a recipient from an Address Book">
 <!ENTITY spellingButton.tooltip "Check spelling of selection or entire message">

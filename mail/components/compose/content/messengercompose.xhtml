@@ -59,6 +59,7 @@
   <link rel="stylesheet" href="chrome://messenger/skin/inContentDialog.css" />
 
   <link rel="localization" href="branding/brand.ftl"/>
+  <link rel="localization" href="messenger/shortcuts.ftl" />
   <link rel="localization" href="messenger/messenger.ftl" />
   <link rel="localization" href="messenger/messengercompose/messengercompose.ftl" />
   <link rel="localization" href="messenger/menubar.ftl" />
@@ -386,7 +387,6 @@
   <key id="key_newMessage" key="&newMessageCmd2.key;" oncommand="goOpenNewMessage(null);" modifiers="accel"/>
   <key id="key_close" key="&closeCmd.key;" command="cmd_close"  modifiers="accel"/>
   <key id="key_save" key="&saveCmd.key;" command="cmd_saveDefault" modifiers="accel"/>
-  <key id="key_send" keycode="&sendCmd.keycode;" observes="cmd_sendWithCheck" modifiers="accel"/>
   <key id="key_sendLater" keycode="&sendLaterCmd.keycode;" observes="cmd_sendLater" modifiers="accel, shift"/>
   <key id="key_print" key="&printCmd.key;" command="cmd_print" modifiers="accel"/>
   <key id="printKb" key="&printCmd.key;" command="cmd_print" modifiers="accel"/>
@@ -923,11 +923,14 @@
             </menupopup>
           </menu>
           <menuseparator/>
-          <menuitem label="&sendNowCmd.label;"
-                    accesskey="&sendNowCmd.accesskey;" key="key_send"
-                    command="cmd_sendNow" id="menu-item-send-now"/>
-          <menuitem label="&sendLaterCmd.label;"
-                    accesskey="&sendLaterCmd.accesskey;" key="key_sendLater"
+          <menuitem id="menu-item-send-now"
+                    data-l10n-id="compose-menu-item-send"
+                    command="cmd_sendNow"
+                    data-l10n-attrs="acceltext"/>
+          <menuitem id="menu-item-send-later"
+                    data-l10n-id="compose-menu-item-send-later"
+                    data-l10n-attrs="acceltext"
+                    key="key_sendLater"
                     command="cmd_sendLater"/>
           <menuseparator/>
           <menuitem id="printMenuItem"
@@ -1831,14 +1834,10 @@
 
   <toolbarpalette id="MsgComposeToolbarPalette">
 
-    <toolbarbutton class="toolbarbutton-1"
-               id="button-send" label="&sendButton.label;"
-               tooltiptext="&sendButton.tooltip;"
-               command="cmd_sendButton"
-               now_label="&sendButton.label;"
-               now_tooltiptext="&sendButton.tooltip;"
-               later_label="&sendLaterCmd.label;"
-               later_tooltiptext="&sendlaterButton.tooltip;">
+    <toolbarbutton id="button-send"
+                   class="toolbarbutton-1"
+                   data-l10n-id="compose-button-send"
+                   command="cmd_sendButton">
     </toolbarbutton>
 
     <toolbarbutton class="toolbarbutton-1"

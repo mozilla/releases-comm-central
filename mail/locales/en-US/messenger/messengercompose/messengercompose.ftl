@@ -761,3 +761,25 @@ spell-add-dictionaries =
 
 subject-encription-icon =
     .title = Subject will not be encrypted
+
+## Compose toolbar buttons
+
+compose-button-send =
+    .label = Send
+    .tooltiptext = Send this message now
+
+compose-button-send-later =
+    .label = Send Later
+    .tooltiptext = Send this message later
+
+## Compose menubar
+
+compose-menu-item-send =
+    .label = Send
+    .tooltiptext = Send this message now
+    .accesskey = d
+
+compose-menu-item-send-later =
+    .label = Send Later
+    .tooltiptext = Send this message later
+    .accesskey = L

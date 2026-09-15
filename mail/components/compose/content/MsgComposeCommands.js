@@ -102,6 +102,15 @@ ChromeUtils.defineLazyGetter(
     new Localization(["messenger/messengercompose/messengercompose.ftl"], true)
 );
 
+ChromeUtils.defineESModuleGetters(
+  lazy,
+  {
+    ComposeShortcuts:
+      "moz-src:///comm/mail/components/compose/content/modules/composeShortcuts.mjs",
+  },
+  { global: "current" }
+);
+
 ChromeUtils.defineLazyGetter(lazy, "taskbarProgress", () => {
   // Once we have this object, we must hold a reference to it until the window
   // closes. Otherwise it could be cleaned up by garbage collection, which
@@ -139,7 +148,6 @@ var defaultSaveOperation;
 var gSendOperationInProgress;
 var gSaveOperationInProgress;
 var gCloseWindowAfterSave;
-var gSavedSendNowKey;
 var gContextMenu;
 var gLastFocusElement = null;
 var gLoadingComplete = false;
@@ -272,6 +280,7 @@ window.addEventListener("unload", () => {
 });
 window.addEventListener("load", () => {
   ComposeLoad();
+  lazy.ComposeShortcuts.setup();
 });
 window.addEventListener("close", event => {
   if (!ComposeCanClose()) {
@@ -283,6 +292,11 @@ window.addEventListener("focus", () => {
 });
 window.addEventListener("click", event => {
   composeWindowOnClick(event);
+});
+window.addEventListener("send-message", () => {
+  if (defaultController.isCommandEnabled("cmd_sendWithCheck")) {
+    goDoCommand("cmd_sendWithCheck");
+  }
 });
 
 document.addEventListener("focusin", event => {
@@ -418,7 +432,6 @@ function InitializeGlobalVariables() {
   gSaveOperationInProgress = false;
   gAutoSaving = false;
   gCloseWindowAfterSave = false;
-  gSavedSendNowKey = null;
   gManualAttachmentReminder = false;
   gDisableAttachmentReminder = false;
   gLanguageObserver = null;
@@ -3014,6 +3027,10 @@ var messageComposeOfflineQuitObserver = {
     // sanity checks
     if (aTopic == "network:offline-status-changed") {
       MessageComposeOfflineStateChanged(Services.io.offline);
+      // Refresh the button shortcut outside of the
+      // `MessageComposeOfflineStateChanged` method because it gets called on
+      // window load.
+      lazy.ComposeShortcuts.refreshButtonShortcut("send-message");
     } else if (
       aTopic == "quit-application-requested" &&
       aSubject instanceof Ci.nsISupportsPRBool &&
@@ -3051,35 +3068,25 @@ function RemoveMessageComposeOfflineQuitObserver() {
   );
 }
 
+/**
+ * Update the send toolbar button and menu item when the online state of the
+ * application changes.
+ *
+ * @param {boolean} goingOffline
+ */
 function MessageComposeOfflineStateChanged(goingOffline) {
   try {
-    var sendButton = document.getElementById("button-send");
-    var sendNowMenuItem = document.getElementById("menu-item-send-now");
-
-    if (!gSavedSendNowKey) {
-      gSavedSendNowKey = sendNowMenuItem.getAttribute("key");
-    }
-
-    // don't use goUpdateCommand here ... the defaultController might not be installed yet
+    // Don't use goUpdateCommand here as the defaultController might not be
+    // installed yet.
     updateSendCommands(false);
 
-    if (goingOffline) {
-      sendButton.label = sendButton.getAttribute("later_label");
-      sendButton.setAttribute(
-        "tooltiptext",
-        sendButton.getAttribute("later_tooltiptext")
-      );
-      sendNowMenuItem.removeAttribute("key");
-    } else {
-      sendButton.label = sendButton.getAttribute("now_label");
-      sendButton.setAttribute(
-        "tooltiptext",
-        sendButton.getAttribute("now_tooltiptext")
-      );
-      if (gSavedSendNowKey) {
-        sendNowMenuItem.setAttribute("key", gSavedSendNowKey);
-      }
-    }
+    document.l10n.setAttributes(
+      document.getElementById("button-send"),
+      goingOffline ? "compose-button-send-later" : "compose-button-send"
+    );
+    document
+      .getElementById("menu-item-send-now")
+      .toggleAttribute("disabled", goingOffline);
   } catch (e) {}
 }
 

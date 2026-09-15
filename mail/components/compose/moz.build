@@ -12,3 +12,7 @@ JS_PREFERENCE_PP_FILES += ["composer.js"]
 BROWSER_CHROME_MANIFESTS += [
     "test/browser/browser.toml",
 ]
+
+MOZ_SRC_FILES += [
+    "content/modules/composeShortcuts.mjs",
+]

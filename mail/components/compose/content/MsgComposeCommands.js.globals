@@ -162,7 +162,6 @@
   "gReceiptOptionChanged",
   "gRecipientKeysObserver",
   "gRecipientObserver",
-  "gSavedSendNowKey",
   "gSaveOperationInProgress",
   "gSelectedTechnologyIsPGP",
   "gSendEncrypted",

@@ -13,16 +13,27 @@ import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 
 export const ShortcutsManager = {
   /**
-   * Fluent strings mapping to allow updating strings without changing all the
+   * Fluent modifiers mapping to allow updating strings without changing all the
    * IDs in the shortcuts.ftl file. This is needed because the IDs are
    * dynamically generated.
    *
    * @type {object}
    */
-  fluentMapping: {
+  fluentModifiersMapping: {
     "meta-shift-alt-shortcut-key": "meta-shift-alt-shortcut-key2",
     "ctrl-shift-alt-shortcut-key": "ctrl-shift-alt-shortcut-key2",
     "meta-ctrl-shift-alt-shortcut-key": "meta-ctrl-shift-alt-shortcut-key2",
+  },
+
+  /**
+   * Fluent key mapping to allow using the localized version of specific keys.
+   * This map will not list all keys used because strings like numbers or
+   * special international characters won't need to be translated. But keys like
+   * "Enter", "Del", "Spacebar", etc., will need a localized version to be used
+   * in tooltips or acceltext.
+   */
+  fluentKeyMapping: {
+    enter: "shortcut-key-enter",
   },
 
   /**
@@ -228,13 +239,40 @@ export const ShortcutsManager = {
       },
       context: [],
     },
+    /* Compose window */
+    {
+      id: "send-message",
+      name: "Send the currently composing message",
+      key: "Enter",
+      modifiers: {
+        win: {
+          metaKey: false,
+          ctrlKey: true,
+          shiftKey: false,
+          altKey: false,
+        },
+        macosx: {
+          metaKey: true,
+          ctrlKey: false,
+          shiftKey: false,
+          altKey: false,
+        },
+        linux: {
+          metaKey: false,
+          ctrlKey: true,
+          shiftKey: false,
+          altKey: false,
+        },
+      },
+      context: ["compose"],
+    },
     /* Special characters. */
   ],
 
   /**
    * Find the matching shortcut from a keydown DOM Event.
    *
-   * @param {Event} event - The keydown DOM Event.
+   * @param {KeyboardEvent} event - The keyboard event to match.
    * @param {?string} context - The context string to filter out duplicated
    *   shortcuts, if necessary.
    * @returns {?Shortcut} - The matching shortcut, or null if nothing matches.
@@ -345,14 +383,24 @@ export const ShortcutsManager = {
       aria.push("Alt");
     }
     string.push("shortcut-key");
-    aria.push(shortcut.key.toUpperCase());
+
+    // If the shortcut used is only a single letter, always uppercase it.
+    let keyToPrint = shortcut.key.toUpperCase();
+    // Check if the used shortcut is localizable and use the formatted value.
+    // E.g.: Enter, Del, Space.
+    if (this.fluentKeyMapping[shortcut.key.toLowerCase()]) {
+      keyToPrint = await this.l10n.formatValue(
+        `shortcut-key-${shortcut.key.toLowerCase()}`
+      );
+    }
+    aria.push(keyToPrint);
 
     // Check if the ID was updated in the fluent file and replace it.
     let stringId = string.join("-");
-    stringId = this.fluentMapping[stringId] || stringId;
+    stringId = this.fluentModifiersMapping[stringId] || stringId;
 
     const value = await this.l10n.formatValue(stringId, {
-      key: shortcut.key.toUpperCase(),
+      key: keyToPrint,
     });
 
     return { localizedShortcut: value, ariaKeyShortcuts: aria.join("+") };
