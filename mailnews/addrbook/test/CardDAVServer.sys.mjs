@@ -28,6 +28,19 @@ export var CardDAVServer = {
   server: null,
   isOpen: false,
 
+  /**
+   * The "current-user-privilege-set" in responses. Set to null to have no
+   * privilege set.
+   */
+  privileges: "<d:privilege><d:all/></d:privilege>",
+
+  /**
+   * If true, put the propstat listing the properties this server doesn't have
+   * before the propstat with the properties it does have. Both orders are
+   * valid (RFC 4918).
+   */
+  notFoundPropstatFirst: false,
+
   open(username, password, port = -1) {
     this.server = new HttpServer();
     this.server.start(port);
@@ -50,6 +63,8 @@ export var CardDAVServer = {
     this.cards.clear();
     this.deletedCards.clear();
     this.changeCount = 0;
+    this.privileges = "<d:privilege><d:all/></d:privilege>";
+    this.notFoundPropstatFirst = false;
     this.resetHandlers();
   },
 
@@ -240,8 +255,7 @@ export var CardDAVServer = {
           ${this._outputProps(propNames, {
             "d:resourcetype": "<collection/><card:addressbook/>",
             "d:displayname": name,
-            "d:current-user-privilege-set":
-              "<d:privilege><d:all/></d:privilege>",
+            "d:current-user-privilege-set": this.privileges ?? undefined,
           })}
         </response>`;
     }
@@ -351,7 +365,7 @@ export var CardDAVServer = {
       "cs:getctag": this.changeCount,
       "d:displayname": isRealDirectory ? "CardDAV Test" : "Not This One",
       "d:resourcetype": "<collection/><card:addressbook/>",
-      "d:current-user-privilege-set": "<d:privilege><d:all/></d:privilege>",
+      "d:current-user-privilege-set": this.privileges ?? undefined,
     };
     if (!this.mimicYahoo) {
       propValues["d:sync-token"] = `http://mochi.test/sync/${this.changeCount}`;
@@ -486,22 +500,28 @@ export var CardDAVServer = {
       }
     }
 
-    if (found.length > 0) {
-      output += `<propstat>
+    const foundPropstat =
+      found.length > 0
+        ? `<propstat>
         <prop>
           ${found.join("\n")}
         </prop>
         <status>HTTP/1.1 200 OK</status>
-      </propstat>`;
-    }
-    if (notFound.length > 0) {
-      output += `<propstat>
+      </propstat>`
+        : "";
+    const notFoundPropstat =
+      notFound.length > 0
+        ? `<propstat>
         <prop>
           ${notFound.join("\n")}
         </prop>
         <status>HTTP/1.1 404 Not Found</status>
-      </propstat>`;
-    }
+      </propstat>`
+        : "";
+
+    output += this.notFoundPropstatFirst
+      ? notFoundPropstat + foundPropstat
+      : foundPropstat + notFoundPropstat;
 
     return output;
   },

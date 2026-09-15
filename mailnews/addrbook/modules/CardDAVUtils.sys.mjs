@@ -45,6 +45,16 @@ const writePrivs = ["write", "write-content", "bind", "all"];
 const readPrivs = ["read", "all"];
 
 /**
+ * Whether a DAV:status value reports success.
+ *
+ * @param {string} [status] - The text content of a DAV:status element.
+ * @returns {boolean}
+ */
+function isOK(status) {
+  return /^HTTP\/\d+(\.\d+)? 200\b/.test(status?.trim() ?? "");
+}
+
+/**
  * Thrown when the server rejected the credentials it was sent.
  */
 export class AuthorizationError extends Error {
@@ -496,16 +506,28 @@ export var CardDAVUtils = {
 
     const foundBooks = [];
     for (const r of response.dom.querySelectorAll("response")) {
-      if (r.querySelector("status")?.textContent != "HTTP/1.1 200 OK") {
+      // Only the properties in a propstat the server reported with a 200
+      // status were actually returned. A property named in any other propstat
+      // (typically 404 Not Found) is one the server doesn't have, which is not
+      // the same as the property having an empty value.
+      const okProps = Array.from(r.querySelectorAll("propstat"))
+        .filter(propstat => isOK(propstat.querySelector("status")?.textContent))
+        .map(propstat => propstat.querySelector("prop"))
+        .filter(Boolean);
+      if (!okProps.length) {
         continue;
       }
-      if (!r.querySelector("resourcetype addressbook")) {
+      if (
+        !okProps.some(prop => prop.querySelector("resourcetype addressbook"))
+      ) {
         continue;
       }
 
       // If the server provided ACL information, skip address books that we do
       // not have read privileges to.
-      const privNode = r.querySelector("current-user-privilege-set");
+      const privNode = okProps
+        .map(prop => prop.querySelector("current-user-privilege-set"))
+        .find(Boolean);
       let isWritable = false;
       let isReadable = false;
       if (privNode) {
@@ -522,7 +544,9 @@ export var CardDAVUtils = {
       }
 
       url = new URL(r.querySelector("href").textContent, url);
-      let name = r.querySelector("displayname")?.textContent;
+      let name = okProps
+        .map(prop => prop.querySelector("displayname"))
+        .find(Boolean)?.textContent;
       if (!name) {
         // The server didn't give a name, let's make one from the path.
         name = url.pathname.replace(/\/$/, "").split("/").slice(-1)[0];

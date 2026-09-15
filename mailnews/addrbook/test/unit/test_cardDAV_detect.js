@@ -183,6 +183,179 @@ add_task(async function test_credentialsInTheURLAreStored() {
   }
 });
 
+/**
+ * Writability is derived from "current-user-privilege-set" per RFC 3744. The
+ * DTD is `<!ELEMENT privilege ANY>`, so a server may report each granted
+ * privilege in its own <privilege> element, or group several of them inside a
+ * single <privilege> element. Both forms must be understood.
+ *
+ * A privilege set the server did return, but which grants no read access, means
+ * the address book is not ours to use and discovery should not offer it at all.
+ */
+add_task(async function test_privilegeSetShapes() {
+  const cases = [
+    {
+      desc: "one privilege per element, granting write",
+      privileges:
+        "<d:privilege><d:read/></d:privilege><d:privilege><d:write/></d:privilege>",
+      readOnly: false,
+    },
+    {
+      desc: "several privileges grouped in one element, granting write",
+      privileges: `<d:privilege>
+        <d:read-current-user-privilege-set/>
+        <d:read/>
+        <d:write-properties/>
+        <d:write/>
+        <d:bind/>
+        <d:unbind/>
+        <d:write-content/>
+        <d:read-acl/>
+        <d:write-acl/>
+      </d:privilege>`,
+      readOnly: false,
+    },
+    {
+      desc: "one privilege per element, granting no write",
+      privileges:
+        "<d:privilege><d:read/></d:privilege><d:privilege><d:write-properties/></d:privilege>",
+      readOnly: true,
+    },
+    {
+      desc: "several privileges grouped in one element, granting no write",
+      privileges:
+        "<d:privilege><d:read/><d:write-properties/><d:read-acl/></d:privilege>",
+      readOnly: true,
+    },
+    {
+      desc: "no privilege set at all",
+      privileges: null,
+      readOnly: false,
+    },
+    {
+      desc: "an empty privilege set, granting nothing",
+      privileges: "",
+      excluded: true,
+    },
+    {
+      desc: "privileges that grant neither read nor write",
+      privileges:
+        "<d:privilege><d:write-properties/></d:privilege><d:privilege><d:read-acl/></d:privilege>",
+      excluded: true,
+    },
+  ];
+
+  try {
+    for (const { desc, privileges, readOnly, excluded } of cases) {
+      info(`Testing a privilege set with ${desc}.`);
+      CardDAVServer.privileges = privileges;
+
+      const books = await CardDAVUtils.detectAddressBooks(
+        "bob",
+        "bob",
+        CardDAVServer.url,
+        false,
+        false
+      );
+
+      if (excluded) {
+        Assert.deepEqual(
+          books.map(book => book.url.href),
+          [],
+          `discovery should not offer the address book with ${desc}`
+        );
+        continue;
+      }
+
+      Assert.deepEqual(
+        books.map(book => book.url.href),
+        [CardDAVServer.url],
+        `discovery should find the address book with ${desc}`
+      );
+
+      const directory = await createBook(
+        books[0],
+        "creating the found book should not throw"
+      );
+      Assert.equal(
+        directory.readOnly,
+        readOnly,
+        `a book with ${desc} should${readOnly ? "" : " not"} be read-only`
+      );
+
+      await deleteCardDAVBooks();
+    }
+  } finally {
+    CardDAVServer.privileges = "<d:privilege><d:all/></d:privilege>";
+    await deleteCardDAVBooks();
+  }
+});
+
+/**
+ * A server may list the properties it doesn't have in a propstat before the
+ * propstat with the properties it does have. Discovery must not read the
+ * privilege set from a propstat the server reported as 404, nor give up on the
+ * whole response because the first propstat it sees isn't a 200.
+ *
+ * The case where the server has no privilege set to report, so that the 404
+ * propstat both comes first and is the one naming the privilege set, is the
+ * response from bug 1973205.
+ */
+add_task(async function test_notFoundPropstatFirst() {
+  const cases = [
+    {
+      desc: "the privilege set was returned in the 200 propstat",
+      privileges: "<d:privilege><d:all/></d:privilege>",
+    },
+    {
+      desc: "the privilege set was reported in the 404 propstat",
+      privileges: null,
+    },
+  ];
+
+  CardDAVServer.notFoundPropstatFirst = true;
+
+  try {
+    for (const { desc, privileges } of cases) {
+      info(`Testing a 404 propstat before the 200 propstat, where ${desc}.`);
+      CardDAVServer.privileges = privileges;
+
+      const books = await CardDAVUtils.detectAddressBooks(
+        "bob",
+        "bob",
+        CardDAVServer.url,
+        false,
+        false
+      );
+      Assert.deepEqual(
+        books.map(book => book.url.href),
+        [CardDAVServer.url],
+        `discovery should find the address book when the 404 propstat comes first and ${desc}`
+      );
+
+      const directory = await createBook(
+        books[0],
+        "creating the found book should not throw"
+      );
+      Assert.ok(
+        !directory.readOnly,
+        `a book should not be read-only when the 404 propstat comes first and ${desc}`
+      );
+      Assert.equal(
+        directory.dirName,
+        "CardDAV Test",
+        "the name should come from the displayname the server did return"
+      );
+
+      await deleteCardDAVBooks();
+    }
+  } finally {
+    CardDAVServer.notFoundPropstatFirst = false;
+    CardDAVServer.privileges = "<d:privilege><d:all/></d:privilege>";
+    await deleteCardDAVBooks();
+  }
+});
+
 add_task(async function test_theURLDoesNotOverrideGivenCredentials() {
   const location = new URL(CardDAVServer.url);
   location.username = "wrong";
