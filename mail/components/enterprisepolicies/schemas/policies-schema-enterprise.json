@@ -285,6 +285,16 @@
       "x-restart-required": true
     },
 
+    "DisableCommunity": {
+      "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "158" },
+        "thunderbird_esr": { "version_added": "158" },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
+      "x-restart-required": true
+    },
+
     "DisableDataCollectionSettings": {
       "type": "boolean",
       "x-compatibility": {
