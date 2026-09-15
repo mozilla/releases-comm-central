@@ -198,7 +198,7 @@ export var WinUnreadBadge = {
    * @param {number} unreadTooltip - Unread message count tooltip.
    */
   async updateUnreadCount(unreadCount, unreadTooltip) {
-    const window = Services.wm.getMostRecentBrowserWindow();
+    const window = Services.wm.getMostRecentWindow("mail:3pane");
     if (!window) {
       return;
     }

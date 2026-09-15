@@ -160,7 +160,8 @@ nsresult nsMsgComposeService::GetTo3PaneWindow() {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<mozIDOMWindowProxy> domWindow;
-  rv = windowMediator->GetMostRecentBrowserWindow(getter_AddRefs(domWindow));
+  rv = windowMediator->GetMostRecentWindow(u"mail:3pane",
+                                           getter_AddRefs(domWindow));
   NS_ENSURE_SUCCESS(rv, NS_ERROR_ABORT);
   nsCOMPtr<nsPIDOMWindowOuter> outerWin = nsPIDOMWindowOuter::From(domWindow);
   if (outerWin) {

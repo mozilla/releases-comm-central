@@ -139,7 +139,8 @@ nsresult nsMessengerWinIntegration::HandleIconActivate(
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<mozIDOMWindowProxy> domWindow;
-    rv = windowMediator->GetMostRecentBrowserWindow(getter_AddRefs(domWindow));
+    rv = windowMediator->GetMostRecentWindow(u"mail:3pane",
+                                             getter_AddRefs(domWindow));
     NS_ENSURE_SUCCESS(rv, rv);
     if (domWindow) {
       activateWindow(domWindow);
