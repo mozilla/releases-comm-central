@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "msgCore.h"
+#include "mozilla/CheckedInt.h"
 #include "prlog.h"
 #include "prmem.h"
 #include "nsMsgLineBuffer.h"
@@ -31,12 +32,15 @@ nsresult nsByteArray::GrowBuffer(uint64_t desired_size, uint32_t quantum) {
     if (increment < quantum) /* always grow by a minimum of N bytes */
       increment = quantum;
 
-    new_buf =
-        (m_buffer ? (char*)PR_REALLOC(m_buffer, (m_bufferSize + increment))
-                  : (char*)PR_MALLOC(m_bufferSize + increment));
+    mozilla::CheckedInt<uint32_t> new_size =
+        mozilla::CheckedInt<uint32_t>(m_bufferSize) + increment;
+    if (!new_size.isValid()) return NS_ERROR_OUT_OF_MEMORY;
+
+    new_buf = (m_buffer ? (char*)PR_REALLOC(m_buffer, new_size.value())
+                        : (char*)PR_MALLOC(new_size.value()));
     if (!new_buf) return NS_ERROR_OUT_OF_MEMORY;
     m_buffer = new_buf;
-    m_bufferSize += increment;
+    m_bufferSize = new_size.value();
   }
   return NS_OK;
 }
@@ -48,8 +52,8 @@ nsresult nsByteArray::AppendString(const char* string) {
 
 nsresult nsByteArray::AppendBuffer(const char* buffer, uint32_t length) {
   nsresult ret = NS_OK;
-  if (m_bufferPos + length > m_bufferSize)
-    ret = GrowBuffer(m_bufferPos + length, 1024);
+  uint64_t desired = (uint64_t)m_bufferPos + length;
+  if (desired > m_bufferSize) ret = GrowBuffer(desired, 1024);
   if (NS_SUCCEEDED(ret)) {
     memcpy(m_buffer + m_bufferPos, buffer, length);
     m_bufferPos += length;
