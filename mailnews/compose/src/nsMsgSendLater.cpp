@@ -4,6 +4,7 @@
 
 #include "nsMsgSendLater.h"
 
+#include "mozilla/CheckedInt.h"
 #include "nsCOMPtr.h"
 #include "nsComponentManagerUtils.h"
 #include "nsDebug.h"
@@ -1012,29 +1013,30 @@ nsresult nsMsgSendLater::BuildHeaders() {
 
 nsresult DoGrowBuffer(int32_t desired_size, int32_t element_size,
                       int32_t quantum, char** buffer, int32_t* size) {
+  /* A negative *size means an earlier growth wrapped it. Refuse, rather than
+     treat it as room and skip the growth below. */
+  if (*size < 0) return NS_ERROR_OUT_OF_MEMORY;
+
   if (*size <= desired_size) {
     char* new_buf;
     int32_t increment = desired_size - *size;
     if (increment < quantum)  // always grow by a minimum of N bytes
       increment = quantum;
 
-    new_buf =
-        (*buffer ? (char*)PR_Realloc(*buffer, (*size + increment) *
-                                                  (element_size / sizeof(char)))
-                 : (char*)PR_Malloc((*size + increment) *
-                                    (element_size / sizeof(char))));
+    /* The size is tracked in an int32_t, so refuse what it cannot hold. */
+    mozilla::CheckedInt<int32_t> new_size =
+        (mozilla::CheckedInt<int32_t>(*size) + increment) *
+        (element_size / (int32_t)sizeof(char));
+    if (!new_size.isValid()) return NS_ERROR_OUT_OF_MEMORY;
+
+    new_buf = (*buffer ? (char*)PR_Realloc(*buffer, new_size.value())
+                       : (char*)PR_Malloc(new_size.value()));
     if (!new_buf) return NS_ERROR_OUT_OF_MEMORY;
     *buffer = new_buf;
     *size += increment;
   }
   return NS_OK;
 }
-
-#define do_grow_headers(desired_size)                                 \
-  (((desired_size) >= m_headersSize)                                  \
-       ? DoGrowBuffer((desired_size), sizeof(char), 1024, &m_headers, \
-                      &m_headersSize)                                 \
-       : NS_OK)
 
 nsresult nsMsgSendLater::DeliverQueuedLine(const char* line, int32_t length) {
   int32_t flength = length;
@@ -1107,7 +1109,8 @@ nsresult nsMsgSendLater::DeliverQueuedLine(const char* line, int32_t length) {
       else if (m_headersFP == 0)
         m_flagsPosition = 0;
 
-      nsresult status = do_grow_headers(length + m_headersFP + 10);
+      nsresult status = DoGrowBuffer(length + m_headersFP + 10, sizeof(char),
+                                     1024, &m_headers, &m_headersSize);
       if (NS_FAILED(status)) return status;
 
       memcpy(m_headers + m_headersFP, line, length);

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsCOMPtr.h"
+#include "mozilla/CheckedInt.h"
 #include "mimepbuf.h"
 #include "prmem.h"
 #include "prio.h"
@@ -151,10 +152,12 @@ int MimePartBufferWrite(MimePartBufferData* data, const char* buf,
 
   /* If this buf will fit in the memory buffer, put it there.
    */
-  if (data->part_buffer &&
-      data->part_buffer_fp + size < data->part_buffer_size) {
+  mozilla::CheckedInt<int32_t> new_fp =
+      mozilla::CheckedInt<int32_t>(data->part_buffer_fp) + size;
+  if (data->part_buffer && new_fp.isValid() &&
+      new_fp.value() < data->part_buffer_size) {
     memcpy(data->part_buffer + data->part_buffer_fp, buf, size);
-    data->part_buffer_fp += size;
+    data->part_buffer_fp = new_fp.value();
   }
 
   /* Otherwise it won't fit; write it to the file instead. */

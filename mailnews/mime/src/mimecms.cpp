@@ -8,6 +8,7 @@
 #include "mimemoz2.h"
 #include "mimemsg.h"
 #include "mimemsig.h"
+#include "mozilla/CheckedInt.h"
 #include "mozilla/Logging.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
@@ -123,26 +124,50 @@ static void MimeCMS_content_callback(void* arg, const char* buf,
 
   PR_SetError(0, 0);
 
+  /* decoded_bytes is a uint32_t and PR_Malloc/PR_Realloc take a PRUint32, so
+     every size fed to them is checked: an unchecked 64-bit product would be
+     truncated at the allocation while the recorded capacity and the memcpy kept
+     the full width, shrinking the live buffer and overrunning it. */
   if (!data->decoded_buffer) {
-    data->decoded_buffer_space = PR_MAX(4096, length * 2);
-    data->decoded_buffer = (char*)PR_Malloc(data->decoded_buffer_space);
+    mozilla::CheckedInt<uint32_t> space =
+        mozilla::CheckedInt<uint32_t>(length) * 2;
+    if (!space.isValid()) {
+      PR_SetError(PR_OUT_OF_MEMORY_ERROR, 0);
+      data->output_fn = 0;
+      return;
+    }
+    if (space.value() < 4096) space = 4096;
+    data->decoded_buffer = (char*)PR_Malloc(space.value());
     if (!data->decoded_buffer) {
       PR_SetError(PR_OUT_OF_MEMORY_ERROR, 0);
       data->output_fn = 0;
       return;
     }
+    data->decoded_buffer_space = space.value();
     memcpy(data->decoded_buffer, buf, length);
   } else {
-    size_t needed = data->decoded_bytes + length;
-    if (data->decoded_buffer_space < needed) {
-      size_t new_space = needed * 2;
-      char* new_buffer = (char*)PR_Realloc(data->decoded_buffer, new_space);
+    mozilla::CheckedInt<uint32_t> needed =
+        mozilla::CheckedInt<uint32_t>(data->decoded_bytes) + length;
+    if (!needed.isValid()) {
+      PR_SetError(PR_OUT_OF_MEMORY_ERROR, 0);
+      data->output_fn = 0;
+      return;
+    }
+    if (data->decoded_buffer_space < needed.value()) {
+      mozilla::CheckedInt<uint32_t> new_space = needed * 2;
+      if (!new_space.isValid()) {
+        PR_SetError(PR_OUT_OF_MEMORY_ERROR, 0);
+        data->output_fn = 0;
+        return;
+      }
+      char* new_buffer =
+          (char*)PR_Realloc(data->decoded_buffer, new_space.value());
       if (!new_buffer) {
         PR_SetError(PR_OUT_OF_MEMORY_ERROR, 0);
         data->output_fn = 0;
         return;
       }
-      data->decoded_buffer_space = new_space;
+      data->decoded_buffer_space = new_space.value();
       data->decoded_buffer = new_buffer;
     }
     memcpy(data->decoded_buffer + data->decoded_bytes, buf, length);

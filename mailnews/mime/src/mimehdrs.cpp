@@ -135,7 +135,14 @@ MimeHeaders* MimeHeaders_copy(MimeHeaders* hdrs) {
 
   if (hdrs->heads) {
     int i;
-    hdrs2->heads = (char**)PR_MALLOC(hdrs->heads_size * sizeof(*hdrs->heads));
+    mozilla::CheckedInt<uint32_t> heads_bytes =
+        mozilla::CheckedInt<uint32_t>(hdrs->heads_size) * sizeof(*hdrs->heads);
+    if (hdrs->heads_size < 0 || !heads_bytes.isValid()) {
+      PR_FREEIF(hdrs2->all_headers);
+      PR_Free(hdrs2);
+      return 0;
+    }
+    hdrs2->heads = (char**)PR_MALLOC(heads_bytes.value());
     if (!hdrs2->heads) {
       PR_FREEIF(hdrs2->all_headers);
       PR_Free(hdrs2);
@@ -240,10 +247,15 @@ int MimeHeaders_build_heads_list(MimeHeaders* hdrs) {
   find_header_starts(hdrs, true);
 
   /* Now allocate storage for the pointers to each of those headers.
-   */
-  hdrs->heads = (char**)PR_MALLOC((hdrs->heads_size) * sizeof(char*));
+   The byte count is checked because PR_MALLOC takes a PRUint32: an unchecked
+   64-bit product would be truncated at the call while the memset below still
+   used the full width, zeroing past the allocation. */
+  mozilla::CheckedInt<uint32_t> heads_bytes =
+      mozilla::CheckedInt<uint32_t>(hdrs->heads_size) * sizeof(char*);
+  if (hdrs->heads_size < 0 || !heads_bytes.isValid()) return MIME_OUT_OF_MEMORY;
+  hdrs->heads = (char**)PR_MALLOC(heads_bytes.value());
   if (!hdrs->heads) return MIME_OUT_OF_MEMORY;
-  memset(hdrs->heads, 0, (hdrs->heads_size) * sizeof(char*));
+  memset(hdrs->heads, 0, heads_bytes.value());
 
   /* Now make another pass through the headers, and this time, record the
    starting position of each header.
