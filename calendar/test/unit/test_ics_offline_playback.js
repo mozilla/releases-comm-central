@@ -5,8 +5,9 @@
 /**
  * Tests that changes made to a cached ICS calendar while offline are played
  * back to the server by the next synchronization instead of being silently
- * discarded (bug 2052714), and that the playback does not corrupt other
- * events in the cache.
+ * discarded (bug 2052714), that the playback does not corrupt other events in
+ * the cache, that the refill survives an item the cache refuses, and that the
+ * playback does not run a callback left over from an earlier addition.
  *
  * Also tests the conflict prompt the synchronization raises when the server
  * copy has moved on in the meantime (bug 2059370): when it appears, what it is
@@ -26,6 +27,8 @@ const WAIT_TRIES = 100;
 const UID_A = "event-a";
 const UID_B = "event-b";
 const UID_C = "event-c";
+const UID_NEW = "event-new";
+const UID_ONLINE = "event-online";
 
 // LAST-MODIFIED decides which copy the synchronization considers the newer one.
 // It defaults to the past, so an offline edit always wins and the plain modify
@@ -85,23 +88,35 @@ async function registerTestCalendar() {
  */
 function waitForLoad(calendar) {
   return new Promise(resolve => {
-    const observer = {
-      QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
-      onStartBatch() {},
-      onEndBatch() {},
-      onAddItem() {},
-      onModifyItem() {},
-      onDeleteItem() {},
-      onError() {},
-      onPropertyChanged() {},
-      onPropertyDeleting() {},
+    const observer = calendarObserver({
       onLoad() {
         calendar.removeObserver(observer);
         resolve();
       },
-    };
+    });
     calendar.addObserver(observer);
   });
+}
+
+/**
+ * @param {object} handlers - The calIObserver methods to implement; the rest
+ *   are stubbed out.
+ * @returns {calIObserver}
+ */
+function calendarObserver(handlers) {
+  return {
+    QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
+    onStartBatch() {},
+    onEndBatch() {},
+    onAddItem() {},
+    onModifyItem() {},
+    onDeleteItem() {},
+    onError() {},
+    onPropertyChanged() {},
+    onPropertyDeleting() {},
+    onLoad() {},
+    ...handlers,
+  };
 }
 
 /**
@@ -264,6 +279,50 @@ async function refreshAndWait(calendar) {
   await waitForSyncSettled(calendar);
 }
 
+/**
+ * Rejects the next addition the cache is asked for, the way a storage failure
+ * would.
+ *
+ * @param {calICalendar} calendar - The registered cached calendar.
+ * @returns {object} The refusal, naming the item it hit in `id`.
+ */
+function refuseOneCacheAddition(calendar) {
+  const cache = calendar.wrappedJSObject.mCachedCalendar?.wrappedJSObject;
+  Assert.ok(cache, "the cached calendar exposes its cache");
+  Assert.ok(!Object.hasOwn(cache, "addItem"), "the cache inherits addItem");
+  const addItem = cache.addItem;
+  const refusal = { id: null };
+  let refused = false;
+  cache.addItem = function (item) {
+    if (refused) {
+      return addItem.call(this, item);
+    }
+    refused = true;
+    refusal.id = item.id;
+    return Promise.reject(new Error("the cache refuses " + item.id));
+  };
+  registerCleanupFunction(() => delete cache.addItem);
+  return refusal;
+}
+
+/**
+ * Collects the ids of the items the calendar announces from now on.
+ *
+ * @param {calICalendar} calendar - The registered cached calendar.
+ * @returns {object} The record, with the ids in `ids`.
+ */
+function recordAddedItems(calendar) {
+  const record = { ids: [] };
+  const observer = calendarObserver({
+    onAddItem(item) {
+      record.ids.push(item.id);
+    },
+  });
+  calendar.addObserver(observer);
+  registerCleanupFunction(() => calendar.removeObserver(observer));
+  return record;
+}
+
 add_setup(async function () {
   do_get_profile();
   ICSServer.open();
@@ -354,7 +413,7 @@ add_task(async function testOfflineCreate() {
 
   // Create an event while offline.
   await whileOffline(async () => {
-    const event = new CalEvent(buildIcs(buildVEvent("event-new", "N", "19")));
+    const event = new CalEvent(buildIcs(buildVEvent(UID_NEW, "N", "19")));
     await calendar.addItem(event);
   });
 
@@ -364,17 +423,17 @@ add_task(async function testOfflineCreate() {
 
   // Check the events are correct on the server and in the cache.
   await TestUtils.waitForCondition(
-    () => ICSServer.ics.includes("UID:event-new"),
+    () => ICSServer.ics.includes("UID:" + UID_NEW),
     "waiting for the offline created event to reach the server",
     WAIT_INTERVAL,
     WAIT_TRIES
   );
 
-  Assert.ok(await calendar.getItem("event-new"), "the created event is in the cache");
+  Assert.ok(await calendar.getItem(UID_NEW), "the created event is in the cache");
   Assert.ok(await calendar.getItem(UID_A), "the existing event survived");
   const all = await calendar.getItemsAsArray(Ci.calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null);
   Assert.equal(
-    all.filter(item => item.id == "event-new").length,
+    all.filter(item => item.id == UID_NEW).length,
     1,
     "exactly one copy of the new event"
   );
@@ -620,6 +679,100 @@ add_task(async function testModifyVsServerDeleteDeclined() {
     [UID_A],
     "B should stay deleted in the cache"
   );
+
+  cal.manager.unregisterCalendar(calendar);
+});
+
+/**
+ * One item the cache refuses must not cost the whole refill: the other server
+ * items still have to arrive, and the offline changes still have to reach the
+ * server.
+ */
+add_task(async function testRefillSurvivesARefusedItem() {
+  MockConflictPrompt.reset(false);
+
+  // Put events A and B on the server and subscribe to the calendar.
+  await ICSServer.putICSInternal(
+    buildIcs(buildVEvent(UID_A, "A", "17"), buildVEvent(UID_B, "B", "18"))
+  );
+  const calendar = await registerTestCalendar();
+
+  // Create an event while offline. An aborted refill takes this with it.
+  await whileOffline(async () => {
+    await calendar.addItem(new CalEvent(buildIcs(buildVEvent(UID_NEW, "N", "19"))));
+  });
+
+  // Add an event to the server, so that a refresh is necessary, and refresh
+  // with the cache refusing the first item it is handed.
+  const refusal = refuseOneCacheAddition(calendar);
+  await addEventCOnServer();
+  await refreshAndWait(calendar);
+  Assert.ok(
+    [UID_A, UID_B, UID_C].includes(refusal.id),
+    "the cache should have refused one of the server items"
+  );
+
+  Assert.ok(
+    ICSServer.ics.includes("UID:" + UID_NEW),
+    "the offline created event should still reach the server"
+  );
+  const all = await calendar.getItemsAsArray(Ci.calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null);
+  Assert.deepEqual(
+    all.map(item => item.id).sort(),
+    [UID_A, UID_B, UID_C, UID_NEW].filter(id => id != refusal.id).sort(),
+    "the refused item should be the only one missing from the cache"
+  );
+
+  assertNoConflictRaised();
+
+  cal.manager.unregisterCalendar(calendar);
+});
+
+/**
+ * The cache hands the ICS calendar a callback to run once an online addition
+ * has reached the server. The playback of an offline creation calls the
+ * provider directly, without one, so a callback left over from an earlier
+ * addition would run there and add the played back event twice.
+ */
+add_task(async function testPlaybackDoesNotRunAnEarlierAddCallback() {
+  MockConflictPrompt.reset(false);
+
+  // Put event A on the server and subscribe to the calendar.
+  await ICSServer.putICSInternal(buildIcs(buildVEvent(UID_A, "A", "17")));
+  const calendar = await registerTestCalendar();
+
+  // Add an event while online. Its callback must not survive into the playback.
+  await calendar.addItem(new CalEvent(buildIcs(buildVEvent(UID_ONLINE, "O", "18"))));
+  await waitForSyncSettled(calendar);
+
+  // Create an event while offline.
+  await whileOffline(async () => {
+    await calendar.addItem(new CalEvent(buildIcs(buildVEvent(UID_NEW, "N", "19"))));
+  });
+
+  // Add an event to the server, so that a refresh is necessary, and refresh
+  // while recording what the calendar announces.
+  const added = recordAddedItems(calendar);
+  await addEventCOnServer();
+  await refreshAndWait(calendar);
+
+  Assert.deepEqual(
+    added.ids.filter(id => id == UID_NEW),
+    [UID_NEW],
+    "the played back event should reach the cache once"
+  );
+  Assert.ok(
+    ICSServer.ics.includes("UID:" + UID_NEW),
+    "the offline created event should reach the server"
+  );
+  const all = await calendar.getItemsAsArray(Ci.calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null);
+  Assert.deepEqual(
+    all.map(item => item.id).sort(),
+    [UID_A, UID_C, UID_NEW, UID_ONLINE].sort(),
+    "every event should be in the cache exactly once"
+  );
+
+  assertNoConflictRaised();
 
   cal.manager.unregisterCalendar(calendar);
 });
