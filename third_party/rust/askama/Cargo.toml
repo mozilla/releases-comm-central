@@ -10,10 +10,10 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
-edition = "2021"
-rust-version = "1.83"
+edition = "2024"
+rust-version = "1.88"
 name = "askama"
-version = "0.14.0"
+version = "0.16.0"
 build = false
 autolib = false
 autobins = false
@@ -21,7 +21,7 @@ autoexamples = false
 autotests = false
 autobenches = false
 description = "Type-safe, compiled Jinja-like templates for Rust"
-homepage = "https://askama.readthedocs.io/"
+homepage = "https://askama.rs/"
 readme = "README.md"
 keywords = [
     "markup",
@@ -32,6 +32,7 @@ keywords = [
 categories = ["template-engine"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/askama-rs/askama"
+resolver = "2"
 
 [package.metadata.docs.rs]
 features = ["full"]
@@ -45,44 +46,44 @@ status = "actively-developed"
 
 [features]
 alloc = [
-    "askama_derive?/alloc",
+    "askama_macros?/alloc",
     "serde?/alloc",
     "serde_json?/alloc",
     "percent-encoding?/alloc",
 ]
-blocks = ["askama_derive?/blocks"]
-code-in-doc = ["askama_derive?/code-in-doc"]
-config = ["askama_derive?/config"]
+code-in-doc = ["askama_macros?/code-in-doc"]
+config = ["askama_macros?/config"]
 default = [
     "config",
     "derive",
     "std",
     "urlencode",
-    "askama_derive?/default",
 ]
-derive = ["dep:askama_derive"]
+derive = [
+    "dep:askama_macros",
+    "dep:askama_macros",
+]
 full = [
     "default",
-    "blocks",
     "code-in-doc",
     "serde_json",
-    "askama_derive?/full",
 ]
+nightly-spans = ["askama_macros/nightly-spans"]
 serde_json = [
     "std",
-    "askama_derive?/serde_json",
+    "askama_macros?/serde_json",
     "dep:serde",
     "dep:serde_json",
 ]
 std = [
     "alloc",
-    "askama_derive?/std",
+    "askama_macros?/std",
     "serde?/std",
     "serde_json?/std",
     "percent-encoding?/std",
 ]
 urlencode = [
-    "askama_derive?/urlencode",
+    "askama_macros?/urlencode",
     "dep:percent-encoding",
 ]
 
@@ -101,8 +102,8 @@ path = "benches/to-json.rs"
 harness = false
 required-features = ["serde_json"]
 
-[dependencies.askama_derive]
-version = "=0.14.0"
+[dependencies.askama_macros]
+version = "=0.16.0"
 optional = true
 default-features = false
 
@@ -128,4 +129,4 @@ default-features = false
 version = "1.5.0"
 
 [dev-dependencies.criterion]
-version = "0.5"
+version = "0.8"

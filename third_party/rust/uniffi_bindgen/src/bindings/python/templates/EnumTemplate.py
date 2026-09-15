@@ -18,7 +18,7 @@ class {{ type_name }}(enum.Enum):
 
     {%- for meth in e.methods -%}
     {%- let callable = meth.callable %}
-    {% if callable.is_async %}async {% endif %}def {{ callable.name }}(self, {% include "CallableArgs.py" %}) -> {{ callable.return_type.type_name }}:
+    {% if callable.is_async() %}async {% endif %}def {{ callable.name }}(self, {% include "CallableArgs.py" %}) -> {{ callable.return_type.type_name }}:
         {{ meth.docstring|docstring(8) -}}
         {%- filter indent(8) %}
         {%- include "CallableBody.py" %}
@@ -67,7 +67,7 @@ class {{ type_name }}:
 
     {%-  else %}
         def __init__(self, {% for field in variant.fields %}
-        {{- field.name }}: {{- field.ty.type_name}}
+        {{- field.name }}: {{- field.type_annotation}}
         {%- if let Some(default) = field.default %} = {{ default.arg_literal }}{% endif %}
         {%- if !loop.last %}, {% endif %}
         {%- endfor %}):
@@ -76,7 +76,7 @@ class {{ type_name }}:
             {%- when None %}
             self.{{ field.name }} = {{ field.name }}
             {%- when Some(default) %}
-            {%- if default.is_arg_literal %}
+            {%- if default.is_arg_literal() %}
             self.{{ field.name }} = {{ field.name }}
             {%- else %}
             if {{ field.name }} is {{ default.arg_literal }}:
@@ -129,7 +129,7 @@ class {{ type_name }}:
 
     {%- for meth in e.methods -%}
     {%- let callable = meth.callable %}
-    {% if callable.is_async %}async {% endif %}def {{ callable.name }}(self, {% include "CallableArgs.py" %}) -> {{ callable.return_type.type_name }}:
+    {% if callable.is_async() %}async {% endif %}def {{ callable.name }}(self, {% include "CallableArgs.py" %}) -> {{ callable.return_type.type_name }}:
         {{ meth.docstring|docstring(8) -}}
         {%- filter indent(8) %}
         {%- include "CallableBody.py" %}

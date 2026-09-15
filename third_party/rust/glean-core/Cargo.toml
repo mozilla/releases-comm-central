@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.90"
 name = "glean-core"
-version = "68.0.1"
+version = "70.0.0"
 authors = [
     "Jan-Erik Rediger <jrediger@mozilla.com>",
     "The Glean Team <glean-team@mozilla.com>",
@@ -41,7 +41,7 @@ license = "MPL-2.0"
 repository = "https://github.com/mozilla/glean"
 
 [package.metadata.glean]
-glean-parser = "20.0.0"
+glean-parser = "20.1.0"
 
 [badges.circle-ci]
 branch = "main"
@@ -54,6 +54,7 @@ status = "actively-developed"
 benchmark = []
 enable_env_logger = ["env_logger"]
 gecko = []
+mozbuild-rustlib = []
 
 [lib]
 name = "glean_core"
@@ -136,6 +137,14 @@ name = "session"
 path = "tests/session.rs"
 
 [[test]]
+name = "sqlite"
+path = "tests/sqlite.rs"
+
+[[test]]
+name = "sqlite_migration"
+path = "tests/sqlite_migration.rs"
+
+[[test]]
 name = "storage"
 path = "tests/storage.rs"
 
@@ -201,6 +210,13 @@ version = "0.20.0"
 features = ["malloc-size-of"]
 default-features = false
 
+[dependencies.rmp-serde]
+version = "1.3.1"
+
+[dependencies.rusqlite]
+version = "0.37.0"
+features = ["bundled"]
+
 [dependencies.serde]
 version = "1.0.104"
 features = ["derive"]
@@ -212,7 +228,7 @@ version = "1.0.44"
 version = "2"
 
 [dependencies.uniffi]
-version = "0.31.0"
+version = "0.32.0"
 default-features = false
 
 [dependencies.uuid]
@@ -249,8 +265,11 @@ version = "0.2.7"
 [dev-dependencies.yaml-rust2]
 version = "0.10"
 
+[build-dependencies.mozbuild]
+version = "0.1.0"
+
 [build-dependencies.uniffi]
-version = "0.31.0"
+version = "0.32.0"
 features = ["build"]
 default-features = false
 

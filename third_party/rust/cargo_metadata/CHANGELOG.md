@@ -10,9 +10,7 @@
 
 ### Changed
 
-- Updated dependencies:
-  - `thiserror` from `1.0.31` to `2.0.3`
-  - `derive_builder` from `0.12` to `0.20`
+- n/a
 
 ### Removed
 
@@ -21,6 +19,37 @@
 ### Fixed
 
 - n/a
+
+## [0.23.1] - 2025-11-11
+
+### Changed
+
+- Stabilized `build_directory`
+
+## [0.23.0] - 2025-09-27
+
+### Added
+
+- Added `FeatureName` and `PackageName` newtype wrappers.
+
+## [0.22.0] - 2025-08-18
+
+### Added
+
+- Added `pub fn env_remove<K: Into<OsString>>(&mut self, key: K) -> &mut MetadataCommand` to `MetadataCommand`.
+- Added export of `cargo_platform` at crate's root module.
+
+### Changed
+
+- Updated dependencies:
+  - `camino` from `1.0.7` to `1.1.10`
+  - `cargo_platform` from `0.2.0` to `0.3.0`
+  - `derive_builder` from `0.12` to `0.20`
+  - `semver` from `1.0.7` to `1.0.26`
+  - `serde_json` from `1.0.118` to `1.0.142`
+  - `serde` from `1.0.136` to `1.0.219`
+  - `thiserror` from `2.0.3` to `2.0.12`
+- Made `Dependency`'s `source` member the same type as `Package`'s `source` member: `Option<Source>`.
 
 ## [0.19.0] - 2024-11-20
 

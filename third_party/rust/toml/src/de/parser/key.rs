@@ -1,10 +1,10 @@
 use serde_spanned::Spanned;
 
 use crate::alloc_prelude::*;
-use crate::de::parser::prelude::*;
 use crate::de::DeString;
+use crate::de::parser::prelude::*;
 
-/// ```bnf
+/// ```abnf
 /// key = simple-key / dotted-key
 /// dotted-key = simple-key 1*( dot-sep simple-key )
 /// ```

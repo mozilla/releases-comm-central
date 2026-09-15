@@ -1,14 +1,14 @@
 use serde_spanned::Spanned;
 
 use crate::alloc_prelude::*;
-use crate::de::parser::array::on_array;
-use crate::de::parser::inline_table::on_inline_table;
-use crate::de::parser::prelude::*;
 use crate::de::DeFloat;
 use crate::de::DeInteger;
 use crate::de::DeValue;
+use crate::de::parser::array::on_array;
+use crate::de::parser::inline_table::on_inline_table;
+use crate::de::parser::prelude::*;
 
-/// ```bnf
+/// ```abnf
 /// val = string / boolean / array / inline-table / date-time / float / integer
 /// ```
 pub(crate) fn value<'i>(

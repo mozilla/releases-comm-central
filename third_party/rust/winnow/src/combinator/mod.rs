@@ -26,7 +26,6 @@
 //! |---|---|---|---|---|---|
 //! | [`alt`] | `alt(("ab", "cd"))` |  `"cdef"` |  `"ef"` | `Ok("cd")` |Try a list of parsers and return the result of the first successful one|
 //! | [`dispatch`] | \- | \- | \- | \- | `match` for parsers |
-//! | [`permutation`] | `permutation(("ab", "cd", "12"))` | `"cd12abc"` | `"c"` | `Ok(("ab", "cd", "12"))` |Succeeds when all its child parser have succeeded, whatever the order|
 //!
 //! ## Sequence combinators
 //!
@@ -113,7 +112,9 @@
 //! - [`hex_uint`][crate::ascii::hex_uint]: Decode a variable-width, hexadecimal integer
 //!
 //! - [`take_escaped`][crate::ascii::take_escaped]: Recognize the input slice with escaped characters
-//! - [`escaped_transform`][crate::ascii::escaped_transform]: Parse escaped characters, unescaping them
+//! - [`escaped`][crate::ascii::escaped]: Parse escaped characters, unescaping them
+//!
+//! - [`expression()`]: Parse an operator precedence expression with Pratt parsing
 //!
 //! ### Character test functions
 //!
@@ -162,19 +163,34 @@
 mod branch;
 mod core;
 mod debug;
+mod expression;
 mod multi;
 mod sequence;
 
-#[cfg(test)]
+#[cfg(all(test, feature = "ascii", feature = "binary"))]
 mod tests;
 
 pub mod impls;
 
-pub use self::branch::*;
-pub use self::core::*;
-pub use self::debug::*;
-pub use self::multi::*;
-pub use self::sequence::*;
+#[doc(inline)]
+pub use crate::dispatch;
+#[doc(inline)]
+pub use crate::seq;
+#[doc(inline)]
+pub use crate::unordered_seq;
+
+pub use self::branch::{alt, Alt};
+pub use self::core::{backtrack_err, cond, cut_err, empty, eof, fail, not, opt, peek, todo};
+pub use self::debug::trace;
+pub use self::expression::{expression, Expression, Infix, Postfix, Prefix};
+#[cfg(feature = "alloc")]
+pub use self::multi::separated_foldr1;
+pub use self::multi::{
+    fill, iterator, repeat, repeat_till, separated, separated_foldl1, ParserIterator, Repeat,
+};
+pub use self::sequence::{delimited, preceded, separated_pair, terminated};
+
+pub(crate) use self::debug::{trace_result, DisplayDebug};
 
 #[allow(unused_imports)]
 use crate::Parser;

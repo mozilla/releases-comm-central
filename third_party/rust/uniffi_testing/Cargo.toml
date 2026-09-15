@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "uniffi_testing"
-version = "0.31.0"
+version = "0.32.0"
 build = false
 autolib = false
 autobins = false
@@ -43,10 +43,10 @@ version = "1"
 version = "1.0.8"
 
 [dependencies.cargo_metadata]
-version = "0.19"
+version = "0.23.1"
 
 [dependencies.fs-err]
-version = "2.7.0"
+version = "3.3.0"
 
 [dependencies.once_cell]
 version = "1.12"

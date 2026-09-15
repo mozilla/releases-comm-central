@@ -6,6 +6,8 @@ use std::path::{Path, PathBuf};
 use std::task::{ready, Context, Poll};
 use tokio::fs;
 
+/// Returns a stream over the entries within a directory.
+///
 /// Wrapper for [`tokio::fs::read_dir`].
 #[cfg_attr(docsrs, doc(cfg(feature = "tokio")))]
 pub async fn read_dir(path: impl AsRef<Path>) -> io::Result<ReadDir> {
@@ -31,6 +33,8 @@ pub struct ReadDir {
 }
 
 impl ReadDir {
+    /// Returns the next entry in the directory stream.
+    ///
     /// Wrapper around [`tokio::fs::ReadDir::next_entry`].
     pub async fn next_entry(&mut self) -> io::Result<Option<DirEntry>> {
         match self.tokio.next_entry().await {
@@ -39,6 +43,8 @@ impl ReadDir {
         }
     }
 
+    /// Polls for the next directory entry in the stream.
+    ///
     /// Wrapper around [`tokio::fs::ReadDir::poll_next_entry`].
     pub fn poll_next_entry(&mut self, cx: &mut Context<'_>) -> Poll<io::Result<Option<DirEntry>>> {
         Poll::Ready(match ready!(self.tokio.poll_next_entry(cx)) {
@@ -58,16 +64,23 @@ pub struct DirEntry {
 }
 
 impl DirEntry {
+    /// Returns the full path to the file that this entry represents.
+    ///
     /// Wrapper around [`tokio::fs::DirEntry::path`].
     pub fn path(&self) -> PathBuf {
         self.tokio.path()
     }
 
+    /// Returns the bare file name of this directory entry without any other
+    /// leading path component.
+    ///
     /// Wrapper around [`tokio::fs::DirEntry::file_name`].
     pub fn file_name(&self) -> OsString {
         self.tokio.file_name()
     }
 
+    /// Returns the metadata for the file that this entry points at.
+    ///
     /// Wrapper around [`tokio::fs::DirEntry::metadata`].
     pub async fn metadata(&self) -> io::Result<Metadata> {
         self.tokio
@@ -76,6 +89,8 @@ impl DirEntry {
             .map_err(|err| Error::build(err, ErrorKind::Metadata, self.path()))
     }
 
+    /// Returns the file type for the file that this entry points at.
+    ///
     /// Wrapper around [`tokio::fs::DirEntry::file_type`].
     pub async fn file_type(&self) -> io::Result<FileType> {
         self.tokio
@@ -87,6 +102,8 @@ impl DirEntry {
 
 #[cfg(unix)]
 impl DirEntry {
+    /// Returns the underlying `d_ino` field in the contained `dirent` structure.
+    ///
     /// Wrapper around [`tokio::fs::DirEntry::ino`].
     pub fn ino(&self) -> u64 {
         self.tokio.ino()

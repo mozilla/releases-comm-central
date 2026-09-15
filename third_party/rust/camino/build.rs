@@ -10,6 +10,18 @@ use std::{env, process::Command, str};
 // opening a GitHub issue if your build environment requires some way to enable
 // these cfgs other than by executing our build script.
 fn main() {
+    println!("cargo:rerun-if-changed=build.rs");
+
+    // Required by Rust 1.79+.
+    println!("cargo:rustc-check-cfg=cfg(doc_cfg)");
+    println!("cargo:rustc-check-cfg=cfg(path_buf_deref_mut)");
+    println!("cargo:rustc-check-cfg=cfg(try_reserve_2)");
+    println!("cargo:rustc-check-cfg=cfg(os_str_bytes)");
+    println!("cargo:rustc-check-cfg=cfg(os_string_pathbuf_leak)");
+    println!("cargo:rustc-check-cfg=cfg(absolute_path)");
+    println!("cargo:rustc-check-cfg=cfg(path_add_extension)");
+    println!("cargo:rustc-check-cfg=cfg(pathbuf_const_new)");
+
     let compiler = match rustc_version() {
         Some(compiler) => compiler,
         None => return,
@@ -18,18 +30,45 @@ fn main() {
     // NOTE:
     // Adding a new cfg gated by Rust version MUST be accompanied by an addition to the matrix in
     // .github/workflows/ci.yml.
-    if compiler.minor >= 44 {
-        println!("cargo:rustc-cfg=path_buf_capacity");
-    }
-    if compiler.minor >= 56 {
-        println!("cargo:rustc-cfg=shrink_to");
-    }
-    // Stable and beta 1.63 have a stable try_reserve_2.
+    //
+    // try_reserve_2 was added in a 1.63 nightly.
     if (compiler.minor >= 63
         && (compiler.channel == ReleaseChannel::Stable || compiler.channel == ReleaseChannel::Beta))
         || compiler.minor >= 64
     {
         println!("cargo:rustc-cfg=try_reserve_2");
+    }
+    // path_buf_deref_mut was added in a 1.68 nightly.
+    if (compiler.minor >= 68
+        && (compiler.channel == ReleaseChannel::Stable || compiler.channel == ReleaseChannel::Beta))
+        || compiler.minor >= 69
+    {
+        println!("cargo:rustc-cfg=path_buf_deref_mut");
+    }
+    // os_str_bytes was added in 1.74.
+    if (compiler.minor >= 74 && compiler.channel == ReleaseChannel::Stable) || compiler.minor >= 75
+    {
+        println!("cargo:rustc-cfg=os_str_bytes");
+    }
+    // absolute_path was added in 1.79.
+    if (compiler.minor >= 79 && compiler.channel == ReleaseChannel::Stable) || compiler.minor >= 80
+    {
+        println!("cargo:rustc-cfg=absolute_path");
+    }
+    // os_string_pathbuf_leak was added in 1.89.
+    if (compiler.minor >= 89 && compiler.channel == ReleaseChannel::Stable) || compiler.minor >= 90
+    {
+        println!("cargo:rustc-cfg=os_string_pathbuf_leak");
+    }
+    // path_add_extension was added in 1.91.
+    if (compiler.minor >= 91 && compiler.channel == ReleaseChannel::Stable) || compiler.minor >= 92
+    {
+        println!("cargo:rustc-cfg=path_add_extension");
+    }
+    // pathbuf_const_new was added in 1.91.
+    if (compiler.minor >= 91 && compiler.channel == ReleaseChannel::Stable) || compiler.minor >= 92
+    {
+        println!("cargo:rustc-cfg=pathbuf_const_new");
     }
 }
 

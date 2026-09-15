@@ -1,16 +1,19 @@
-use std::fmt::{Arguments, Display, Write};
+use std::fmt::Display;
+use std::mem::take;
+use std::str::FromStr;
 
-use proc_macro2::{TokenStream, TokenTree};
-use quote::{ToTokens, quote};
+use parser::PathComponent;
+use proc_macro2::{Literal, Span, TokenStream, TokenTree};
+use quote::{ToTokens, quote_spanned};
 use syn::spanned::Spanned;
 use syn::{
-    Data, DeriveInput, Fields, GenericParam, Generics, Ident, Lifetime, LifetimeParam, Token, Type,
-    Variant, parse_quote,
+    Data, DeriveInput, Fields, GenericParam, Generics, Ident, Lifetime, LifetimeParam, LitStr,
+    Token, Type, Variant, parse_quote,
 };
 
 use crate::generator::TmplKind;
 use crate::input::{PartialTemplateArgs, TemplateArgs};
-use crate::{CompileError, build_template_item};
+use crate::{CompileError, Context, Print, SizeHint, build_template_item, field_new, quote_into};
 
 /// Implement every integration for the given item
 pub(crate) fn impl_everything(ast: &DeriveInput, buf: &mut Buffer) {
@@ -19,210 +22,250 @@ pub(crate) fn impl_everything(ast: &DeriveInput, buf: &mut Buffer) {
 }
 
 /// Writes header for the `impl` for `TraitFromPathName` or `Template` for the given item
-pub(crate) fn write_header(ast: &DeriveInput, buf: &mut Buffer, target: impl Display) {
+pub(crate) fn write_header(ast: &DeriveInput, buf: &mut Buffer, target: TokenStream) {
     let (impl_generics, orig_ty_generics, where_clause) = ast.generics.split_for_impl();
 
     let ident = &ast.ident;
-    buf.write(format_args!(
-        "impl {} {} for {} {{",
-        quote!(#impl_generics),
-        target,
-        quote!(#ident #orig_ty_generics #where_clause),
-    ));
+    let span = Span::call_site();
+    quote_into!(buf, span, {
+        #[automatically_derived]
+        impl #impl_generics #target for #ident #orig_ty_generics #where_clause
+    });
 }
 
 /// Implement `Display` for the given item.
 fn impl_display(ast: &DeriveInput, buf: &mut Buffer) {
     let ident = &ast.ident;
-    buf.write(format_args!(
-        "\
-        /// Implement the [`format!()`][askama::helpers::std::format] trait for [`{}`]\n\
-        ///\n\
-        /// Please be aware of the rendering performance notice in the \
-            [`Template`][askama::Template] trait.\n\
-        ",
-        quote!(#ident),
-    ));
-    write_header(ast, buf, "askama::helpers::core::fmt::Display");
-    buf.write(
-        "\
-            #[inline]\
-            fn fmt(\
-                &self,\
-                f: &mut askama::helpers::core::fmt::Formatter<'_>\
-            ) -> askama::helpers::core::fmt::Result {\
-                askama::Template::render_into(self, f)\
-                    .map_err(|_| askama::helpers::core::fmt::Error)\
-            }\
-        }",
+    let span = Span::call_site();
+    let msg =
+        format!(" Implement the [`format!()`][askama::helpers::std::format] trait for [`{ident}`]");
+    quote_into!(buf, span, {
+        #[doc = #msg]
+        ///
+        /// Please be aware of the rendering performance notice in the [`Template`][askama::Template] trait.
+    });
+    write_header(
+        ast,
+        buf,
+        quote_spanned!(span => askama::helpers::core::fmt::Display),
     );
+    quote_into!(buf, span, {
+        {
+            #[inline]
+            fn fmt(
+                &self,
+                f: &mut askama::helpers::core::fmt::Formatter<'_>,
+            ) -> askama::helpers::core::fmt::Result {
+                askama::Template::render_into(self, f)
+                    .map_err(|_| askama::helpers::core::fmt::Error)
+            }
+        }
+    });
 }
 
 /// Implement `FastWritable` for the given item.
 fn impl_fast_writable(ast: &DeriveInput, buf: &mut Buffer) {
-    write_header(ast, buf, "askama::FastWritable");
-    buf.write(
-        "\
-            #[inline]\
-            fn write_into<AskamaW>(\
-                &self,\
-                dest: &mut AskamaW,\
-                values: &dyn askama::Values\
-            ) -> askama::Result<()> \
-            where \
-                AskamaW: askama::helpers::core::fmt::Write + ?askama::helpers::core::marker::Sized,\
-            {\
-                askama::Template::render_into_with_values(self, dest, values)\
-            }\
-        }",
-    );
+    let span = Span::call_site();
+    write_header(ast, buf, quote_spanned!(span => askama::FastWritable));
+    quote_into!(buf, span, {
+        {
+            #[inline]
+            fn write_into(
+                &self,
+                dest: &mut dyn askama::helpers::core::fmt::Write,
+                values: &dyn askama::Values,
+            ) -> askama::Result<()> {
+                askama::Template::render_into_with_values(self, dest, values)
+            }
+        }
+    });
 }
 
 #[derive(Debug)]
 pub(crate) struct Buffer {
     // The buffer to generate the code into
-    buf: String,
+    buf: TokenStream,
     discard: bool,
-    last_was_write_str: bool,
+    string_literals: Vec<(String, proc_macro2::Span)>,
 }
 
 impl Display for Buffer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.buf)
+        f.write_str(self.buf.to_string().as_str())
+    }
+}
+
+impl ToTokens for Buffer {
+    #[inline]
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        self.buf.to_tokens(tokens);
+    }
+
+    #[inline]
+    fn to_token_stream(&self) -> TokenStream {
+        self.buf.clone()
+    }
+
+    #[inline]
+    fn into_token_stream(self) -> TokenStream {
+        self.buf
+    }
+}
+
+impl IntoIterator for Buffer {
+    type Item = <TokenStream as IntoIterator>::Item;
+    type IntoIter = <TokenStream as IntoIterator>::IntoIter;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        self.buf.into_iter()
     }
 }
 
 impl Buffer {
     pub(crate) fn new() -> Self {
         Self {
-            buf: String::new(),
+            buf: TokenStream::new(),
             discard: false,
-            last_was_write_str: false,
+            string_literals: Vec::new(),
         }
     }
 
-    pub(crate) fn into_string(self) -> String {
+    fn handle_str_lit(&mut self) {
+        let Some((literal, span)) = take(&mut self.string_literals).into_iter().reduce(
+            |(mut acc_lit, acc_span), (literal, span)| {
+                acc_lit.push_str(&literal);
+                (acc_lit, acc_span.join(span).unwrap_or(acc_span))
+            },
+        ) else {
+            return;
+        };
+
+        let mut literal: Literal = format!(r#""{literal}""#).parse().unwrap();
+        literal.set_span(span);
+        let askama_writer = crate::var_writer();
+        self.buf.extend(quote_spanned! {
+            span =>
+            #askama_writer.write_str(#literal)?;
+        });
+    }
+
+    pub(crate) fn write_str_lit(&mut self, literal: String, span: proc_macro2::Span) {
+        if self.discard || literal.is_empty() {
+            return;
+        }
+        self.string_literals.push((literal, span));
+    }
+
+    #[inline]
+    pub(crate) fn into_token_stream(mut self) -> TokenStream {
+        self.handle_str_lit();
         self.buf
     }
 
+    #[inline]
     pub(crate) fn is_discard(&self) -> bool {
         self.discard
     }
 
+    #[inline]
     pub(crate) fn set_discard(&mut self, discard: bool) {
         self.discard = discard;
-        self.last_was_write_str = false;
     }
 
-    pub(crate) fn write(&mut self, src: impl BufferFmt) {
+    #[inline]
+    pub(crate) fn write_tokens(&mut self, src: impl IntoIterator<Item = TokenTree>) {
         if self.discard {
             return;
         }
-        self.last_was_write_str = false;
-
-        src.append_to(&mut self.buf);
+        self.handle_str_lit();
+        self.buf.extend(src);
     }
 
-    pub(crate) fn write_separated_path(&mut self, path: &[&str]) {
+    pub(crate) fn write_token<F, T>(&mut self, token: F, span: proc_macro2::Span)
+    where
+        F: Fn(proc_macro2::Span) -> T,
+        T: syn::token::Token + ToTokens,
+    {
         if self.discard {
             return;
         }
-        self.last_was_write_str = false;
+        self.handle_str_lit();
+        token(span).to_tokens(&mut self.buf);
+    }
 
+    pub(crate) fn write_literal(&mut self, repr: &str, span: proc_macro2::Span) {
+        if self.discard {
+            return;
+        }
+        self.handle_str_lit();
+        self._write_literal_repr(repr, span);
+    }
+
+    fn _write_literal_repr(&mut self, repr: &str, span: proc_macro2::Span) {
+        let mut literal: Literal = repr.parse().unwrap();
+        literal.set_span(span);
+        literal.to_tokens(&mut self.buf);
+    }
+
+    pub(crate) fn write_field(&mut self, name: &str, span: proc_macro2::Span) {
+        if self.discard {
+            return;
+        }
+        self.handle_str_lit();
+        self.buf.extend(field_new(name, span));
+    }
+
+    pub(crate) fn write_separated_path(&mut self, ctx: &Context<'_>, path: &[PathComponent<'_>]) {
+        if self.discard {
+            return;
+        }
+
+        self.handle_str_lit();
         for (idx, item) in path.iter().enumerate() {
+            let span = ctx.span_for_node(item.name.span());
             if idx > 0 {
-                self.buf.push_str("::");
+                Token![::](span).to_tokens(&mut self.buf);
             }
-            self.buf.push_str(item);
+            if !item.name.is_empty() {
+                Ident::new(*item.name, span).to_tokens(&mut self.buf);
+            }
         }
     }
 
-    pub(crate) fn write_escaped_str(&mut self, s: &str) {
+    pub(crate) fn write_escaped_str(&mut self, s: &str, span: proc_macro2::Span) {
         if self.discard {
             return;
         }
-        self.last_was_write_str = false;
-
-        self.buf.push('"');
-        string_escape(&mut self.buf, s);
-        self.buf.push('"');
-    }
-
-    pub(crate) fn write_writer(&mut self, s: &str) -> usize {
-        const OPEN: &str = r#"__askama_writer.write_str(""#;
-        const CLOSE: &str = r#"")?;"#;
-
-        if !s.is_empty() && !self.discard {
-            if !self.last_was_write_str {
-                self.last_was_write_str = true;
-                self.buf.push_str(OPEN);
-            } else {
-                // strip trailing `")?;`, leaving an unterminated string
-                self.buf.truncate(self.buf.len() - CLOSE.len());
-            }
-            string_escape(&mut self.buf, s);
-            self.buf.push_str(CLOSE);
-        }
-        s.len()
+        self.handle_str_lit();
+        LitStr::new(s, span).to_tokens(&mut self.buf);
     }
 
     pub(crate) fn clear(&mut self) {
-        self.buf.clear();
-        self.last_was_write_str = false;
+        self.string_literals.clear();
+        self.buf = TokenStream::new();
     }
 
-    pub(crate) fn get_mark(&mut self) -> usize {
-        self.buf.len()
-    }
-
-    pub(crate) fn marked_text(&self, mark: usize) -> &str {
-        &self.buf[..mark]
-    }
-}
-
-pub(crate) trait BufferFmt {
-    fn append_to(&self, buf: &mut String);
-}
-
-impl<T: BufferFmt + ?Sized> BufferFmt for &T {
-    fn append_to(&self, buf: &mut String) {
-        T::append_to(self, buf);
-    }
-}
-
-impl BufferFmt for char {
-    fn append_to(&self, buf: &mut String) {
-        buf.push(*self);
-    }
-}
-
-impl BufferFmt for str {
-    fn append_to(&self, buf: &mut String) {
-        buf.push_str(self);
-    }
-}
-
-impl BufferFmt for String {
-    fn append_to(&self, buf: &mut String) {
-        buf.push_str(self);
-    }
-}
-
-impl BufferFmt for Arguments<'_> {
-    fn append_to(&self, buf: &mut String) {
-        buf.write_fmt(*self).unwrap();
-    }
-}
-
-impl BufferFmt for TokenStream {
-    fn append_to(&self, buf: &mut String) {
-        write!(buf, "{self}").unwrap();
+    pub(crate) fn write_buf(
+        &mut self,
+        Buffer {
+            buf,
+            string_literals,
+            ..
+        }: Buffer,
+    ) {
+        if self.discard {
+            return;
+        }
+        self.handle_str_lit();
+        self.buf.extend(buf);
+        self.string_literals.extend(string_literals);
     }
 }
 
 /// Similar to `write!(dest, "{src:?}")`, but only escapes the strictly needed characters,
 /// and without the surrounding `"…"` quotation marks.
-fn string_escape(dest: &mut String, src: &str) {
+pub(crate) fn string_escape(dest: &mut String, src: &str) {
     // SAFETY: we will only push valid str slices
     let dest = unsafe { dest.as_mut_vec() };
     let src = src.as_bytes();
@@ -243,16 +286,18 @@ fn string_escape(dest: &mut String, src: &str) {
     dest.extend(&src[last..]);
 }
 
+// FIXME: Add span
 pub(crate) fn build_template_enum(
     buf: &mut Buffer,
     enum_ast: &DeriveInput,
     mut enum_args: Option<PartialTemplateArgs>,
     vars_args: Vec<Option<PartialTemplateArgs>>,
     has_default_impl: bool,
-) -> Result<usize, CompileError> {
+) -> Result<SizeHint, CompileError> {
     let Data::Enum(enum_data) = &enum_ast.data else {
         unreachable!();
     };
+    let span = enum_ast.span();
 
     impl_everything(enum_ast, buf);
 
@@ -271,7 +316,7 @@ pub(crate) fn build_template_enum(
         .params
         .insert(0, GenericParam::Lifetime(LifetimeParam::new(lifetime)));
 
-    let mut biggest_size_hint = 0;
+    let mut biggest_size_hint = SizeHint::EMPTY;
     let mut render_into_arms = TokenStream::new();
     let mut size_hint_arms = TokenStream::new();
     for (var, var_args) in enum_data.variants.iter().zip(vars_args) {
@@ -279,8 +324,8 @@ pub(crate) fn build_template_enum(
             continue;
         };
 
-        let var_ast = type_for_enum_variant(enum_ast, &generics, var);
-        buf.write(quote!(#var_ast));
+        let (var_ast, deref_impl) = type_for_enum_variant(enum_ast, &generics, var);
+        quote_into!(buf, span, { #var_ast #deref_impl });
 
         // not inherited: template, meta_docs, block, print
         if let Some(enum_args) = &mut enum_args {
@@ -308,6 +353,11 @@ pub(crate) fn build_template_enum(
             &mut size_hint_arms,
         );
     }
+    let print_code = enum_args.as_ref().is_some_and(|args| {
+        args.print
+            .is_some_and(|print| print == Print::Code || print == Print::All)
+    });
+
     if has_default_impl {
         let size_hint = build_template_item(
             buf,
@@ -318,61 +368,69 @@ pub(crate) fn build_template_enum(
         )?;
         biggest_size_hint = biggest_size_hint.max(size_hint);
 
-        render_into_arms.extend(quote! {
-            ref __askama_arg => {
+        let var_arg = crate::var_arg();
+        let var_writer = crate::var_writer();
+        let var_values = crate::var_values();
+        render_into_arms.extend(quote_spanned! {
+            span =>
+            ref #var_arg => {
                 <_ as askama::helpers::EnumVariantTemplate>::render_into_with_values(
-                    __askama_arg,
-                    __askama_writer,
-                    __askama_values,
+                    #var_arg,
+                    #var_writer,
+                    #var_values,
                 )
             }
         });
-        size_hint_arms.extend(quote! {
+        size_hint_arms.extend(quote_spanned! {
+            span =>
             _ => {
                 #size_hint
             }
         });
     }
 
-    write_header(enum_ast, buf, "askama::Template");
-    buf.write(format_args!(
-        "\
-        fn render_into_with_values<AskamaW>(\
-            &self,\
-            __askama_writer: &mut AskamaW,\
-            __askama_values: &dyn askama::Values,\
-        ) -> askama::Result<()>\
-        where \
-            AskamaW: askama::helpers::core::fmt::Write + ?askama::helpers::core::marker::Sized\
-        {{\
-            match *self {{\
-                {render_into_arms}\
-            }}\
-        }}",
+    let mut methods = TokenStream::new();
+    let var_writer = crate::var_writer();
+    let var_values = crate::var_values();
+    methods.extend(quote_spanned!(span =>
+        fn render_into_with_values(
+            &self,
+            #var_writer: &mut dyn askama::helpers::core::fmt::Write,
+            #var_values: &dyn askama::Values,
+        ) -> askama::Result<()> {
+            match *self {
+                #render_into_arms
+            }
+        }
     ));
 
     #[cfg(feature = "alloc")]
-    buf.write(format_args!(
-        "\
-        fn render_with_values(\
-            &self,\
-            __askama_values: &dyn askama::Values,\
-        ) -> askama::Result<askama::helpers::alloc::string::String> {{\
-            let size_hint = match self {{\
-                {size_hint_arms}\
-            }};\
-            let mut buf = askama::helpers::alloc::string::String::new();\
-            let _ = buf.try_reserve(size_hint);\
-            self.render_into_with_values(&mut buf, __askama_values)?;\
-            askama::Result::Ok(buf)\
-        }}",
+    methods.extend(quote_spanned!(
+        span =>
+        fn render_with_values(
+            &self,
+            #var_values: &dyn askama::Values,
+        ) -> askama::Result<askama::helpers::alloc::string::String> {
+            let size_hint = match self {
+                #size_hint_arms
+            };
+            let mut buf = askama::helpers::alloc::string::String::new();
+            let _ = buf.try_reserve(size_hint);
+            self.render_into_with_values(&mut buf, #var_values)?;
+            askama::Result::Ok(buf)
+        }
     ));
 
-    buf.write(format_args!(
-        "\
-        const SIZE_HINT: askama::helpers::core::primitive::usize = {biggest_size_hint}usize;\
-        }}",
-    ));
+    write_header(enum_ast, buf, quote_spanned!(span => askama::Template));
+    quote_into!(buf, span, {
+        {
+            #methods
+            const SIZE_HINT: askama::helpers::core::primitive::usize = #biggest_size_hint;
+        }
+    });
+    if print_code {
+        eprintln!("{buf}");
+    }
     Ok(biggest_size_hint)
 }
 
@@ -382,10 +440,10 @@ where
     A: FnMut(&mut S) -> &mut Option<T>,
 {
     let dest = access(dest);
-    if dest.is_none() {
-        if let Some(parent) = access(parent) {
-            *dest = Some(parent.clone());
-        }
+    if dest.is_none()
+        && let Some(parent) = access(parent)
+    {
+        *dest = Some(parent.clone());
     }
 }
 
@@ -394,28 +452,42 @@ fn type_for_enum_variant(
     enum_ast: &DeriveInput,
     enum_generics: &Generics,
     var: &Variant,
-) -> DeriveInput {
+) -> (DeriveInput, TokenStream) {
     let enum_id = &enum_ast.ident;
-    let (_, ty_generics, _) = enum_ast.generics.split_for_impl();
     let lt = enum_generics.params.first().unwrap();
+    let (_, ty_generics, _) = enum_ast.generics.split_for_impl();
+    let mut generics = enum_ast.generics.clone();
+    generics.params.insert(0, lt.clone());
 
     let id = &var.ident;
     let span = id.span();
     let id = Ident::new(&format!("__Askama__{enum_id}__{id}"), span);
 
-    let phantom: Type = parse_quote! {
-        askama::helpers::core::marker::PhantomData < &#lt #enum_id #ty_generics >
+    let field: Type = parse_quote! {
+        &#lt #enum_id #ty_generics
     };
-    let fields = match &var.fields {
+    let (impl_generics, ty_generics, _) = generics.split_for_impl();
+
+    let (fields, deref_impl) = match &var.fields {
         Fields::Named(fields) => {
             let mut fields = fields.clone();
             for f in fields.named.iter_mut() {
                 let ty = &f.ty;
                 f.ty = parse_quote!(&#lt #ty);
             }
-            let id = Ident::new(&format!("__Askama__{enum_id}__phantom"), span);
-            fields.named.push(parse_quote!(#id: #phantom));
-            Fields::Named(fields)
+            let field_name = Ident::new(&format!("__Askama__{enum_id}__phantom"), span);
+            fields.named.push(parse_quote!(#field_name: #field));
+            let deref_impl = quote_spanned! {
+                span=>
+                impl #impl_generics askama::helpers::core::ops::Deref for #id #ty_generics {
+                    type Target = #field;
+
+                    fn deref(&self) -> &Self::Target {
+                        &self.#field_name
+                    }
+                }
+            };
+            (Fields::Named(fields), deref_impl)
         }
         Fields::Unnamed(fields) => {
             let mut fields = fields.clone();
@@ -423,25 +495,52 @@ fn type_for_enum_variant(
                 let ty = &f.ty;
                 f.ty = parse_quote!(&#lt #ty);
             }
-            fields.unnamed.push(parse_quote!(#phantom));
-            Fields::Unnamed(fields)
+            fields.unnamed.push(parse_quote!(#field));
+            let idx = TokenStream::from_str(&format!("self.{}", fields.unnamed.len() - 1)).unwrap();
+            let deref_impl = quote_spanned! {
+                span=>
+                impl #impl_generics askama::helpers::core::ops::Deref for #id #ty_generics {
+                    type Target = #field;
+
+                    fn deref(&self) -> &Self::Target {
+                        &#idx
+                    }
+                }
+            };
+            (Fields::Unnamed(fields), deref_impl)
         }
-        Fields::Unit => Fields::Unnamed(parse_quote!((#phantom))),
+        Fields::Unit => {
+            let fields = Fields::Unnamed(parse_quote!((#field)));
+            let deref_impl = quote_spanned! {
+                span=>
+                impl #impl_generics askama::helpers::core::ops::Deref for #id #ty_generics {
+                    type Target = #field;
+
+                    fn deref(&self) -> &Self::Target {
+                        &self.0
+                    }
+                }
+            };
+            (fields, deref_impl)
+        }
     };
     let semicolon = match &var.fields {
         Fields::Named(_) => None,
         _ => Some(Token![;](span)),
     };
 
-    parse_quote! {
-        #[askama::helpers::core::prelude::rust_2021::derive(
-            askama::helpers::core::prelude::rust_2021::Clone,
-            askama::helpers::core::prelude::rust_2021::Copy,
-            askama::helpers::core::prelude::rust_2021::Debug
-        )]
-        #[allow(dead_code, non_camel_case_types, non_snake_case)]
-        struct #id #enum_generics #fields #semicolon
-    }
+    let span = enum_ast.span().resolved_at(proc_macro2::Span::call_site());
+    (
+        syn::parse_quote_spanned! {
+            span=>
+            #[askama::helpers::core::prelude::rust_2021::derive(
+                askama::helpers::core::prelude::rust_2021::Clone,
+                askama::helpers::core::prelude::rust_2021::Copy,
+            )]
+            struct #id #enum_generics #fields #semicolon
+        },
+        deref_impl,
+    )
 }
 
 /// Generates a `match` arm for an `enum` variant, that calls `<_ as EnumVariantTemplate>::render_into()`
@@ -449,7 +548,7 @@ fn type_for_enum_variant(
 fn variant_as_arm(
     var_ast: &DeriveInput,
     var: &Variant,
-    size_hint: usize,
+    size_hint: SizeHint,
     render_into_arms: &mut TokenStream,
     size_hint_arms: &mut TokenStream,
 ) {
@@ -481,8 +580,8 @@ fn variant_as_arm(
             for (idx, field) in fields.named.iter().enumerate() {
                 let arg = Ident::new(&format!("__askama_arg_{idx}"), field.span());
                 let id = field.ident.as_ref().unwrap();
-                src.extend(quote!(#id: ref #arg,));
-                this.extend(quote!(#id: #arg,));
+                src.extend(quote_spanned!(span => #id: ref #arg,));
+                this.extend(quote_spanned!(span => #id: #arg,));
             }
 
             let phantom = match &ast_data.fields {
@@ -496,7 +595,9 @@ fn variant_as_arm(
                     .unwrap(),
                 Fields::Unnamed(_) | Fields::Unit => unreachable!(),
             };
-            this.extend(quote!(#phantom: askama::helpers::core::marker::PhantomData {},));
+            this.extend(quote_spanned!(
+                span => #phantom: &self,
+            ));
         }
 
         Fields::Unnamed(fields) => {
@@ -504,27 +605,31 @@ fn variant_as_arm(
                 let span = field.ident.span();
                 let arg = Ident::new(&format!("__askama_arg_{idx}"), span);
                 let idx = syn::LitInt::new(&format!("{idx}"), span);
-                src.extend(quote!(#idx: ref #arg,));
-                this.extend(quote!(#idx: #arg,));
+                src.extend(quote_spanned!(span => #idx: ref #arg,));
+                this.extend(quote_spanned!(span => #idx: #arg,));
             }
             let idx = syn::LitInt::new(&format!("{}", fields.unnamed.len()), span);
-            this.extend(quote!(#idx: askama::helpers::core::marker::PhantomData {},));
+            this.extend(quote_spanned!(span => #idx: &self,));
         }
 
         Fields::Unit => {
-            this.extend(quote!(0: askama::helpers::core::marker::PhantomData {},));
+            this.extend(quote_spanned!(span => 0: &self,));
         }
     };
-    render_into_arms.extend(quote! {
+    let var_writer = crate::var_writer();
+    let var_values = crate::var_values();
+    render_into_arms.extend(quote_spanned! {
+        span =>
         Self :: #ident { #src } => {
             <_ as askama::helpers::EnumVariantTemplate>::render_into_with_values(
                 & #var_id #ty_generics { #this },
-                __askama_writer,
-                __askama_values,
+                #var_writer,
+                #var_values,
             )
         }
     });
-    size_hint_arms.extend(quote! {
+    size_hint_arms.extend(quote_spanned! {
+        span =>
         Self :: #ident { .. } => {
             #size_hint
         }

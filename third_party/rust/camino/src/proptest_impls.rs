@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 //! [proptest::Arbitrary](Arbitrary) implementation for `Utf8PathBuf` and `Box<Utf8Path>`.  Note
-//! that implementions for `Rc<Utf8Path>` and `Arc<Utf8Path>` are not currently possible due to
+//! that implementations for `Rc<Utf8Path>` and `Arc<Utf8Path>` are not currently possible due to
 //! orphan rules - this crate doesn't define `Rc`/`Arc` nor `Arbitrary`, so it can't define those
 //! implementations.
 
@@ -30,12 +30,12 @@ impl Arbitrary for Utf8PathBuf {
             prop::collection::vec(any_with::<String>(args), 0..8),
         )
             .prop_map(|(is_relative, components)| {
-                let initial_component =
-                    is_relative.then(|| format!("{}", std::path::MAIN_SEPARATOR));
-                initial_component
-                    .into_iter()
-                    .chain(components.into_iter())
-                    .collect()
+                let initial_component = if is_relative {
+                    Some(format!("{}", std::path::MAIN_SEPARATOR))
+                } else {
+                    None
+                };
+                initial_component.into_iter().chain(components).collect()
             })
             .boxed()
     }

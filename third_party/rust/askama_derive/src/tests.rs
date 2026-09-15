@@ -1,21 +1,30 @@
 //! Files containing tests for generated code.
 
 use std::fmt;
-use std::path::Path;
+use std::path::{Path, absolute};
 
 use console::style;
 use prettyplease::unparse;
+use proc_macro2::TokenStream;
+use quote::quote;
 use similar::{Algorithm, ChangeTag, TextDiffConfig};
+use syn::parse_quote;
 
-use crate::AnyTemplateArgs;
 use crate::integration::Buffer;
+use crate::{AnyTemplateArgs, derive_template};
 
 #[track_caller]
-fn build_template(ast: &syn::DeriveInput) -> Result<String, crate::CompileError> {
+fn build_template(ast: &syn::DeriveInput) -> Result<TokenStream, crate::CompileError> {
     let mut buf = Buffer::new();
     let args = AnyTemplateArgs::new(ast)?;
-    crate::build_template(&mut buf, ast, args)?;
-    Ok(buf.into_string())
+    let _: crate::SizeHint = crate::build_template(&mut buf, ast, args)?;
+    Ok(buf.into_token_stream())
+}
+
+fn import_askama() -> TokenStream {
+    quote! {
+        extern crate askama;
+    }
 }
 
 // This function makes it much easier to compare expected code by adding the wrapping around
@@ -33,19 +42,19 @@ fn compare_ex(
     size_hint: usize,
     prefix: &str,
 ) {
-    let generated = jinja_to_rust(jinja, fields, prefix).unwrap();
+    let generated = jinja_to_rust(jinja, fields, prefix);
 
-    let expected: proc_macro2::TokenStream = expected.parse().unwrap();
+    let expected: TokenStream = expected
+        .parse()
+        .expect("`TokenStream` failed to parse input");
     let expected: syn::File = syn::parse_quote! {
+        #[automatically_derived]
         impl askama::Template for Foo {
-            fn render_into_with_values<AskamaW>(
+            fn render_into_with_values(
                 &self,
-                __askama_writer: &mut AskamaW,
+                __askama_writer: &mut dyn askama::helpers::core::fmt::Write,
                 __askama_values: &dyn askama::Values,
-            ) -> askama::Result<()>
-            where
-                AskamaW: askama::helpers::core::fmt::Write + ?askama::helpers::core::marker::Sized,
-            {
+            ) -> askama::Result<()> {
                 #[allow(unused_imports)]
                 use askama::{
                     filters::{AutoEscape as _, WriteWritable as _},
@@ -60,6 +69,7 @@ fn compare_ex(
         /// Implement the [`format!()`][askama::helpers::std::format] trait for [`Foo`]
         ///
         /// Please be aware of the rendering performance notice in the [`Template`][askama::Template] trait.
+        #[automatically_derived]
         impl askama::helpers::core::fmt::Display for Foo {
             #[inline]
             fn fmt(&self, f: &mut askama::helpers::core::fmt::Formatter<'_>) -> askama::helpers::core::fmt::Result {
@@ -67,16 +77,14 @@ fn compare_ex(
             }
         }
 
+        #[automatically_derived]
         impl askama::FastWritable for Foo {
             #[inline]
-            fn write_into<AskamaW>(
+            fn write_into(
                 &self,
-                dest: &mut AskamaW,
+                dest: &mut dyn askama::helpers::core::fmt::Write,
                 values: &dyn askama::Values,
-            ) -> askama::Result<()>
-            where
-                AskamaW: askama::helpers::core::fmt::Write + ?askama::helpers::core::marker::Sized,
-            {
+            ) -> askama::Result<()> {
                 askama::Template::render_into_with_values(self, dest, values)
             }
         }
@@ -135,7 +143,7 @@ fn compare_ex(
     }
 }
 
-fn jinja_to_rust(jinja: &str, fields: &[(&str, &str)], prefix: &str) -> syn::Result<syn::File> {
+fn jinja_to_rust(jinja: &str, fields: &[(&str, &str)], prefix: &str) -> syn::File {
     let jinja = format!(
         r##"#[template(source = {jinja:?}, ext = "txt")]
 {prefix}
@@ -147,8 +155,11 @@ struct Foo {{ {} }}"##,
             .join(","),
     );
 
-    let generated = build_template(&syn::parse_str::<syn::DeriveInput>(&jinja).unwrap()).unwrap();
-    let generated = match generated.parse() {
+    let generated = build_template(
+        &syn::parse_str::<syn::DeriveInput>(&jinja).expect("`syn` failed to parse code"),
+    )
+    .expect("`build_template` failed");
+    match syn::parse2(generated.clone()) {
         Ok(generated) => generated,
         Err(err) => panic!(
             "\n\
@@ -160,8 +171,7 @@ struct Foo {{ {} }}"##,
             \n\
             {err}"
         ),
-    };
-    syn::parse2(generated)
+    }
 }
 
 #[test]
@@ -173,8 +183,8 @@ fn check_if_let() {
     match (
         &((&&askama::filters::AutoEscaper::new(&(query), askama::filters::Text)).askama_auto_escape()?),
     ) {
-        (expr0,) => {
-            (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+        (__askama_expr0,) => {
+            (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
         }
     }
 }",
@@ -190,8 +200,8 @@ fn check_if_let() {
     match (
         &((&&askama::filters::AutoEscaper::new(&(s), askama::filters::Text)).askama_auto_escape()?),
     ) {
-        (expr0,) => {
-            (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+        (__askama_expr0,) => {
+            (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
         }
     }
 }",
@@ -207,8 +217,8 @@ fn check_if_let() {
     match (
         &((&&askama::filters::AutoEscaper::new(&(s), askama::filters::Text)).askama_auto_escape()?),
     ) {
-        (expr0,) => {
-            (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+        (__askama_expr0,) => {
+            (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
         }
     }
 }",
@@ -231,10 +241,10 @@ fn check_if_let_chain() {
         &((&&askama::filters::AutoEscaper::new(&(blob), askama::filters::Text))
             .askama_auto_escape()?),
     ) {
-        (expr0, expr2) => {
-            (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+        (__askama_expr0, __askama_expr2) => {
+            (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
             __askama_writer.write_str(" ")?;
-            (&&&askama::filters::Writable(expr2)).askama_write(__askama_writer, __askama_values)?;
+            (&&&askama::filters::Writable(__askama_expr2)).askama_write(__askama_writer, __askama_values)?;
         }
     }
 }"#,
@@ -256,10 +266,10 @@ fn check_if_let_chain() {
         &((&&askama::filters::AutoEscaper::new(&(blob), askama::filters::Text))
             .askama_auto_escape()?),
     ) {
-        (expr0, expr2) => {
-            (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+        (__askama_expr0, __askama_expr2) => {
+            (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
             __askama_writer.write_str(" ")?;
-            (&&&askama::filters::Writable(expr2)).askama_write(__askama_writer, __askama_values)?;
+            (&&&askama::filters::Writable(__askama_expr2)).askama_write(__askama_writer, __askama_values)?;
         }
     }
 }"#,
@@ -285,10 +295,10 @@ fn check_if_let_chain() {
         &((&&askama::filters::AutoEscaper::new(&(z), askama::filters::Text))
             .askama_auto_escape()?),
     ) {
-        (expr0, expr2) => {
-            (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+        (__askama_expr0, __askama_expr2) => {
+            (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
             __askama_writer.write_str(" ")?;
-            (&&&askama::filters::Writable(expr2)).askama_write(__askama_writer, __askama_values)?;
+            (&&&askama::filters::Writable(__askama_expr2)).askama_write(__askama_writer, __askama_values)?;
         }
     }
 }"#,
@@ -312,10 +322,10 @@ fn check_if_let_chain() {
         &((&&askama::filters::AutoEscaper::new(&(z), askama::filters::Text))
             .askama_auto_escape()?),
     ) {
-        (expr0, expr2) => {
-            (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+        (__askama_expr0, __askama_expr2) => {
+            (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
             __askama_writer.write_str(" ")?;
-            (&&&askama::filters::Writable(expr2)).askama_write(__askama_writer, __askama_values)?;
+            (&&&askama::filters::Writable(__askama_expr2)).askama_write(__askama_writer, __askama_values)?;
         }
     }
 }"#,
@@ -328,9 +338,9 @@ fn check_if_let_chain() {
 fn check_includes_only_once() {
     // In this test we make sure that every used template gets referenced exactly once.
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("templates");
-    let path1 = path.join("include1.html").canonicalize().unwrap();
-    let path2 = path.join("include2.html").canonicalize().unwrap();
-    let path3 = path.join("include3.html").canonicalize().unwrap();
+    let path1 = absolute(path.join("include1.html")).unwrap();
+    let path2 = absolute(path.join("include2.html")).unwrap();
+    let path3 = absolute(path.join("include3.html")).unwrap();
     compare(
         r#"{% include "include1.html" %}"#,
         &format!(
@@ -449,8 +459,8 @@ __askama_writer.write_str("12")?;
     match (
         &((&&askama::filters::AutoEscaper::new(&(self.x), askama::filters::Text)).askama_auto_escape()?),
     ) {
-        (expr0,) => {
-            (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+        (__askama_expr0,) => {
+            (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
         }
     }
 }
@@ -463,8 +473,8 @@ __askama_writer.write_str("12")?;
         r"match (
     &((&&askama::filters::AutoEscaper::new(&(self.x), askama::filters::Text)).askama_auto_escape()?),
 ) {
-    (expr0,) => {
-        (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+    (__askama_expr0,) => {
+        (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
     }
 }
 ",
@@ -494,8 +504,8 @@ if askama::helpers::as_bool(&(self.y == 12)) {
         ))
             .askama_auto_escape()?),
     ) {
-        (expr0,) => {
-            (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+        (__askama_expr0,) => {
+            (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
         }
     }
 } else {
@@ -516,8 +526,8 @@ match (
     ))
         .askama_auto_escape()?),
 ) {
-    (expr0,) => {
-        (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+    (__askama_expr0,) => {
+        (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
     }
 }
 ",
@@ -636,8 +646,8 @@ fn check_bool_conditions() {
         r"match (
     &((&&askama::filters::AutoEscaper::new(&(self.x), askama::filters::Text)).askama_auto_escape()?),
 ) {
-    (expr0,) => {
-        (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+    (__askama_expr0,) => {
+        (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
     }
 }
 ",
@@ -654,8 +664,8 @@ fn check_bool_conditions() {
         ))
             .askama_auto_escape()?),
     ) {
-        (expr0,) => {
-            (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+        (__askama_expr0,) => {
+            (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
         }
     }
 }
@@ -670,7 +680,7 @@ fn check_bool_conditions() {
     // condition.
     compare(
         "{% if y == 3 || (true || x == 12) %}{{x}}{% endif %}",
-        r"if askama::helpers::as_bool(&(self.y == 3)) || (true) {
+        r"if askama::helpers::as_bool(&(self.y == 3)) || true {
     match (
         &((&&askama::filters::AutoEscaper::new(
             &(self.x),
@@ -678,8 +688,8 @@ fn check_bool_conditions() {
         ))
             .askama_auto_escape()?),
     ) {
-        (expr0,) => {
-            (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+        (__askama_expr0,) => {
+            (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
         }
     }
 }
@@ -698,8 +708,8 @@ fn check_bool_conditions() {
     ))
         .askama_auto_escape()?),
 ) {
-    (expr0,) => {
-        (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+    (__askama_expr0,) => {
+        (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
     }
 }
 ",
@@ -719,8 +729,8 @@ if askama::helpers::as_bool(&(self.y == 3))
         ))
             .askama_auto_escape()?),
     ) {
-        (expr0,) => {
-            (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+        (__askama_expr0,) => {
+            (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
         }
     }
 }
@@ -796,10 +806,10 @@ A
     );
 
     compare(
-        r"{{ 1_2_3_4 }} {{ 4e3 }} {{ false }}",
-        r#"__askama_writer.write_str("1234 4000 false")?;"#,
+        r"{{ 1_2_3_4 }} {{ 4e3 }} {{ false }} {{0x1_1}} {{0o10}} {{0b11}}",
+        r#"__askama_writer.write_str("1234 4000 false 17 8 3")?;"#,
         &[],
-        15,
+        22,
     );
 }
 
@@ -814,7 +824,7 @@ fn test_code_in_comment() {
         struct Tmpl;
     "#;
     let ast = syn::parse_str(ts).unwrap();
-    let generated = build_template(&ast).unwrap();
+    let generated = build_template(&ast).unwrap().to_string();
     assert!(generated.contains("Hello world!"));
     assert!(!generated.contains("compile_error"));
 
@@ -827,7 +837,7 @@ fn test_code_in_comment() {
         struct Tmpl;
     "#;
     let ast = syn::parse_str(ts).unwrap();
-    let generated = build_template(&ast).unwrap();
+    let generated = build_template(&ast).unwrap().to_string();
     assert!(generated.contains("Hello\nworld!"));
     assert!(!generated.contains("compile_error"));
 
@@ -840,7 +850,7 @@ fn test_code_in_comment() {
         struct Tmpl;
     "#;
     let ast = syn::parse_str(ts).unwrap();
-    let generated = build_template(&ast).unwrap();
+    let generated = build_template(&ast).unwrap().to_string();
     assert!(generated.contains("Hello\nworld!"));
     assert!(!generated.contains("compile_error"));
 
@@ -857,7 +867,7 @@ fn test_code_in_comment() {
         struct Tmpl;
     "#;
     let ast = syn::parse_str(ts).unwrap();
-    let generated = build_template(&ast).unwrap();
+    let generated = build_template(&ast).unwrap().to_string();
     assert!(generated.contains("Hello\nworld!"));
     assert!(!generated.contains("compile_error"));
 
@@ -867,7 +877,7 @@ fn test_code_in_comment() {
         struct Tmpl;
     ";
     let ast = syn::parse_str(ts).unwrap();
-    let generated = build_template(&ast).unwrap();
+    let generated = build_template(&ast).unwrap().to_string();
     assert!(generated.contains("Hello\nworld!"));
     assert!(!generated.contains("compile_error"));
 
@@ -898,7 +908,7 @@ fn test_code_in_comment() {
         struct BlockOnBlock;
     ";
     let ast = syn::parse_str(ts).unwrap();
-    let generated = build_template(&ast).unwrap();
+    let generated = build_template(&ast).unwrap().to_string();
     assert!(!generated.contains("compile_error"));
 }
 
@@ -919,10 +929,10 @@ fn test_pluralize() {
                 askama::filters::Safe("s"),
             )?),
         ) {
-            (expr0, expr3) => {
-                (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+            (__askama_expr0, __askama_expr3) => {
+                (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
                 __askama_writer.write_str(" dog")?;
-                (&&&askama::filters::Writable(expr3)).askama_write(__askama_writer, __askama_values)?;
+                (&&&askama::filters::Writable(__askama_expr3)).askama_write(__askama_writer, __askama_values)?;
             }
         }"#,
         &[("dogs", "i8")],
@@ -943,10 +953,10 @@ fn test_pluralize() {
                 askama::filters::Safe("s"),
             )?),
         ) {
-            (expr0, expr3) => {
-                (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+            (__askama_expr0, __askama_expr3) => {
+                (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
                 __askama_writer.write_str(" dog")?;
-                (&&&askama::filters::Writable(expr3)).askama_write(__askama_writer, __askama_values)?;
+                (&&&askama::filters::Writable(__askama_expr3)).askama_write(__askama_writer, __askama_values)?;
             }
         }"#,
         &[("dogs", "i8")],
@@ -967,10 +977,10 @@ fn test_pluralize() {
                 askama::filters::Safe("mice"),
             )?),
         ) {
-            (expr0, expr2) => {
-                (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+            (__askama_expr0, __askama_expr2) => {
+                (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
                 __askama_writer.write_str(" ")?;
-                (&&&askama::filters::Writable(expr2)).askama_write(__askama_writer, __askama_values)?;
+                (&&&askama::filters::Writable(__askama_expr2)).askama_write(__askama_writer, __askama_values)?;
             }
         }"#,
         &[("dogs", "i8")],
@@ -995,8 +1005,8 @@ fn test_pluralize() {
                     .askama_auto_escape()?,
             )?),
         ) {
-            (expr0,) => {
-                (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+            (__askama_expr0,) => {
+                (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
             }
         }
         ",
@@ -1011,8 +1021,8 @@ fn test_pluralize() {
             &((&&askama::filters::AutoEscaper::new(&(self.pl), askama::filters::Text))
                 .askama_auto_escape()?),
         ) {
-            (expr0,) => {
-                (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+            (__askama_expr0,) => {
+                (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
             }
         }
         ",
@@ -1026,8 +1036,8 @@ fn test_pluralize() {
             &((&&askama::filters::AutoEscaper::new(&(self.sg), askama::filters::Text))
                 .askama_auto_escape()?),
         ) {
-            (expr0,) => {
-                (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+            (__askama_expr0,) => {
+                (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
             }
         }
         ",
@@ -1039,8 +1049,8 @@ fn test_pluralize() {
         r#"{{0|pluralize("sg", "pl")}}"#,
         r#"
         match (&(askama::filters::Safe("pl")),) {
-            (expr0,) => {
-                (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+            (__askama_expr0,) => {
+                (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
             }
         }
         "#,
@@ -1051,8 +1061,8 @@ fn test_pluralize() {
         r#"{{1|pluralize("sg", "pl")}}"#,
         r#"
         match (&(askama::filters::Safe("sg")),) {
-            (expr0,) => {
-                (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+            (__askama_expr0,) => {
+                (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
             }
         }
         "#,
@@ -1064,8 +1074,8 @@ fn test_pluralize() {
         r"{{0|pluralize}}",
         r#"
         match (&(askama::filters::Safe("s")),) {
-            (expr0,) => {
-                (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+            (__askama_expr0,) => {
+                (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
             }
         }
         "#,
@@ -1076,8 +1086,8 @@ fn test_pluralize() {
         r"{{1|pluralize}}",
         r"
         match (&(askama::helpers::Empty),) {
-            (expr0,) => {
-                (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+            (__askama_expr0,) => {
+                (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
             }
         }
         ",
@@ -1098,10 +1108,10 @@ fn test_concat() {
                 &((&&askama::filters::AutoEscaper::new(&(self.b), askama::filters::Text))
                     .askama_auto_escape()?),
             ) {
-                (expr1, expr3) => {
-                    (&&&askama::filters::Writable(expr1)).askama_write(__askama_writer, __askama_values)?;
+                (__askama_expr1, __askama_expr3) => {
+                    (&&&askama::filters::Writable(__askama_expr1)).askama_write(__askama_writer, __askama_values)?;
                     __askama_writer.write_str("|")?;
-                    (&&&askama::filters::Writable(expr3)).askama_write(__askama_writer, __askama_values)?;
+                    (&&&askama::filters::Writable(__askama_expr3)).askama_write(__askama_writer, __askama_values)?;
                 }
             }
             __askama_writer.write_str(">")?;
@@ -1125,8 +1135,8 @@ fn test_concat() {
                 ))
                     .askama_auto_escape()?),
             ) {
-                (expr0,) => {
-                    (&&&askama::filters::Writable(expr0)).askama_write(__askama_writer, __askama_values)?;
+                (__askama_expr0,) => {
+                    (&&&askama::filters::Writable(__askama_expr0)).askama_write(__askama_writer, __askama_values)?;
                 }
             }
         "#,
@@ -1139,14 +1149,14 @@ fn test_concat() {
 fn extends_with_whitespace_control() {
     const CONTROL: &[&str] = &["", "\t", "-", "+", "~"];
 
-    let expected = jinja_to_rust(r#"front {% extends "a.html" %} back"#, &[], "").unwrap();
+    let expected = jinja_to_rust(r#"{% extends "a.html" %} back"#, &[], "");
     let expected = unparse(&expected);
     for front in CONTROL {
         for back in CONTROL {
-            let src = format!(r#"front {{%{front} extends "a.html" {back}%}} back"#);
-            let actual = jinja_to_rust(&src, &[], "").unwrap();
+            let src = format!(r#"{{%{front} extends "a.html" {back}%}} back"#);
+            let actual = jinja_to_rust(&src, &[], "");
             let actual = unparse(&actual);
-            assert_eq!(expected, actual, "source: {:?}", src);
+            assert_eq!(expected, actual, "source: {src:?}");
         }
     }
 }
@@ -1167,5 +1177,426 @@ fn test_with_config() {
         &[],
         0,
         r#"#[template(config = "empty_test_config.toml")]"#,
+    );
+}
+
+#[test]
+fn test_generated_with_error() {
+    // Ensure that the generated code on errors can still be parsed by syn.
+    let ts = quote! {
+        #[derive(Template)]
+        #[template(ext = "txt", source = "test {#")]
+        struct HelloWorld;
+    };
+    let ts = derive_template(ts, import_askama);
+    let _: syn::File = syn::parse2(ts).unwrap();
+}
+
+#[test]
+fn test_filter_with_path() {
+    compare(
+        r"{{ a | b::c::d }}",
+        r#"
+        match (
+            &((&&askama::filters::AutoEscaper::new(
+                &({
+                    askama::filters::ValidFilterInvocation::wrap(b::c::d::default())
+                        .execute(&(self.a), __askama_values)?
+                }),
+                askama::filters::Text,
+            ))
+                .askama_auto_escape()?),
+        ) {
+            (__askama_expr0,) => {
+                (&&&askama::filters::Writable(__askama_expr0))
+                    .askama_write(__askama_writer, __askama_values)?;
+            }
+        }"#,
+        &[("a", "i8")],
+        3,
+    );
+}
+
+#[test]
+fn fuzzed_0b85() -> Result<(), syn::Error> {
+    let input = quote! {
+        #[template(
+            ext = "",
+            source = "\u{c}{{vSelf&&h<6-0b85%04540736.66609.500804540736.660<c7~}}2/3\0{w66hi%e<a}}"
+        )]
+        struct a {}
+    };
+    let output = derive_template(input, import_askama);
+    let _: syn::File = syn::parse2(output)?;
+    Ok(())
+}
+
+#[test]
+fn fuzzed_comparator_chain() -> Result<(), syn::Error> {
+    let input = quote! {
+        #[template(
+            ext = "",
+            source = "\u{c}{{vu7218/63e3666663-666/3330e633/63e3666663666/3333<c\"}\u{1}2}\0\"<c7}}2\"\"\"\"\0\0\0\0"
+        )]
+        enum fff {}
+    };
+    let output = derive_template(input, import_askama);
+    let _: syn::File = syn::parse2(output)?;
+    Ok(())
+}
+
+#[test]
+fn test_macro_names_that_need_escaping() {
+    // Cannot be raw identifiers: ["crate", "self", "Self", "super"]
+    // Never parsed as identifiers: ["false", "true"]
+
+    const KEYWORDS: &[&str] = &[
+        "abstract", "as", "async", "await", "become", "box", "break", "const", "continue", "do",
+        "dyn", "else", "enum", "extern", "final", "fn", "for", "gen", "if", "impl", "in", "let",
+        "loop", "macro", "match", "mod", "move", "mut", "override", "priv", "pub", "ref", "return",
+        "static", "struct", "trait", "try", "type", "typeof", "unsafe", "unsized", "use",
+        "virtual", "where", "while", "yield",
+    ];
+
+    for keyword in KEYWORDS {
+        compare(
+            &format!(r"{{{{ {keyword}!() }}}}"),
+            &format!(
+                "
+                match (
+                    &((&&askama::filters::AutoEscaper::new(
+                        &(r#{keyword}!()),
+                        askama::filters::Text,
+                    ))
+                        .askama_auto_escape()?),
+                ) {{
+                    (__askama_expr0,) => {{
+                        (&&&askama::filters::Writable(__askama_expr0))
+                            .askama_write(__askama_writer, __askama_values)?;
+                    }}
+                }}"
+            ),
+            &[],
+            3,
+        );
+    }
+}
+
+#[test]
+fn test_macro_calls_need_proper_tokens() -> Result<(), syn::Error> {
+    // Regression test for fuzzed error <https://github.com/askama-rs/askama/issues/459>.
+    // Macro calls can contains any valid tokens, but only valid tokens.
+    // Invalid tokens will be rejected by rust, so we must not emit them.
+
+    #[rustfmt::skip] // FIXME: rustfmt bug <https://github.com/rust-lang/rustfmt/issues/5489>
+    let input = quote! {
+        #[template(
+            ext = "",
+            source = "\u{c}awtraitaitA{{override\u{c}!  \u{c} (\u{1f}  \u{c}\u{c})\u{c}}}"
+//                                      ^^^^^^^^               ^^^^^^
+//                                      illegal identifier     illegal token
+        )]
+        struct f {}
+    };
+    let output = derive_template(input, import_askama);
+    assert!(
+        output
+            .to_string()
+            .contains("expected valid tokens in macro call")
+    );
+    let _: syn::File = syn::parse2(output)?;
+    Ok(())
+}
+
+#[test]
+fn test_macro_call_raw_prefix_without_data() -> Result<(), syn::Error> {
+    // Regression test for <https://github.com/askama-rs/askama/issues/475>.
+    // The parser must reject wrong usage of raw prefixes.
+    let input = quote! {
+        #[template(ext = "", source = "{{ z!{r#} }}")]
+        enum q {}
+    };
+    let output = derive_template(input, import_askama);
+    assert!(
+        output
+            .to_string()
+            .contains("prefix `r#` is only allowed with raw identifiers and raw strings")
+    );
+    let _: syn::File = syn::parse2(output)?;
+    Ok(())
+}
+
+#[test]
+fn test_macro_call_reserved_prefix() -> Result<(), syn::Error> {
+    // The parser must reject reserved prefixes.
+    let input = quote! {
+        #[template(ext = "", source = "{{ z!{hello#world} }}")]
+        enum q {}
+    };
+    let output = derive_template(input, import_askama);
+    assert!(output.to_string().contains("reserved prefix `hello#`"));
+    let _: syn::File = syn::parse2(output)?;
+    Ok(())
+}
+
+#[test]
+fn test_macro_call_valid_raw_cstring() -> Result<(), syn::Error> {
+    // Regression test for <https://github.com/askama-rs/askama/issues/478>.
+    // CString literals must not contain NULs.
+
+    #[rustfmt::skip] // FIXME: rustfmt bug <https://github.com/rust-lang/rustfmt/issues/5489>
+    let input = quote! {
+        #[template(ext = "", source = "{{ c\"\0\" }}")]
+//                                           ^^ NUL is not allowed in cstring literals
+        enum l {}
+    };
+    let output = derive_template(input, import_askama);
+    assert!(
+        output
+            .to_string()
+            .contains("null characters in C string literals are not supported")
+    );
+    let _: syn::File = syn::parse2(output)?;
+    Ok(())
+}
+
+#[test]
+fn test_bare_cr_doc_comment() -> Result<(), syn::Error> {
+    // Regression test for <https://issues.oss-fuzz.com/issues/431448399>.
+    // Doc comment `///` must not contain bare CRs, except a CRLF to end the comment.
+
+    #[rustfmt::skip] // FIXME: rustfmt bug <https://github.com/rust-lang/rustfmt/issues/5489>
+    let input = quote! {
+        #[template(ext = "", source = "{{ e!(/// \r \n) }}")]
+//                                               ^^ CR not directly followed by LF
+        enum l {}
+    };
+    let output = derive_template(input, import_askama);
+    assert!(
+        output
+            .to_string()
+            .contains("bare CR not allowed in doc comment")
+    );
+    let _: syn::File = syn::parse2(output)?;
+
+    #[rustfmt::skip] // FIXME: rustfmt bug <https://github.com/rust-lang/rustfmt/issues/5489>
+    let input = quote! {
+        #[template(ext = "", source = "{{ e!(/** \r */) }}")]
+//                                               ^^ CR not directly followed by LF
+        enum l {}
+    };
+    let output = derive_template(input, import_askama);
+    assert!(
+        output
+            .to_string()
+            .contains("bare CR not allowed in doc comment")
+    );
+    let _: syn::File = syn::parse2(output)?;
+
+    #[rustfmt::skip] // FIXME: rustfmt bug <https://github.com/rust-lang/rustfmt/issues/5489>
+    let input = quote! {
+        #[template(ext = "", source = "{{ e!(/// \r\n) }}")]
+//                                               ^^^^ CR is directly followed by LF
+        enum l {}
+    };
+    let output = derive_template(input, import_askama);
+    assert!(!output.to_string().contains("compile_error"));
+    let _: syn::File = syn::parse2(output)?;
+
+    #[rustfmt::skip] // FIXME: rustfmt bug <https://github.com/rust-lang/rustfmt/issues/5489>
+    let input = quote! {
+        #[template(ext = "", source = "{{ e!(/** \r\n */) }}")]
+//                                               ^^^^ CR is directly followed by LF
+        enum l {}
+    };
+    let output = derive_template(input, import_askama);
+    assert!(!output.to_string().contains("compile_error"));
+    let _: syn::File = syn::parse2(output)?;
+
+    Ok(())
+}
+
+#[test]
+fn check_expr_ungrouping() {
+    // In this test we ensure that superfluous parentheses around expressions are stripped before
+    // handling the expression.
+
+    compare(
+        r#"{{ ("hello") }}"#,
+        r#"__askama_writer.write_str("hello")?;"#,
+        &[],
+        5,
+    );
+    compare(
+        r#"{{ ("hello") ~ " " ~ ("world") }}"#,
+        r#"__askama_writer.write_str("hello world")?;"#,
+        &[],
+        11,
+    );
+    compare(
+        r#"{{ ("hello") ~ (" " ~ ("world")) }}"#,
+        r#"__askama_writer.write_str("hello world")?;"#,
+        &[],
+        11,
+    );
+    compare(
+        r#"{{ ((((((((((("hello") ~ " ")))) ~ ((("world"))))))))) }}"#,
+        r#"__askama_writer.write_str("hello world")?;"#,
+        &[],
+        11,
+    );
+}
+
+#[test]
+fn regression_tests_span_change() {
+    // This test contains regression test for errors occurred during the big refactoring:
+    // "Add a nightly feature which allows to manipulate spans to underline which part of the
+    // template is failing compilation" <https://github.com/askama-rs/askama/issues/420>
+
+    // Custom filters with and without generics.
+    compare(
+        "Hello, {{ user | cased }}!",
+        r#"
+            __askama_writer.write_str("Hello, ")?;
+            match (
+                &((&&askama::filters::AutoEscaper::new(
+                &({
+                    askama::filters::ValidFilterInvocation::wrap(
+                            filters::cased::default(),
+                        )
+                        .execute(&(self.user), __askama_values)?
+                }),
+                    askama::filters::Text,
+                ))
+                    .askama_auto_escape()?),
+            ) {
+                (__askama_expr2,) => {
+                    (&&&askama::filters::Writable(__askama_expr2))
+                        .askama_write(__askama_writer, __askama_values)?;
+                }
+            }
+            __askama_writer.write_str("!")?;
+        "#,
+        &[],
+        11,
+    );
+    compare(
+        "Hello, {{ user | cased::<> }}!",
+        r#"
+            __askama_writer.write_str("Hello, ")?;
+            match (
+                &((&&askama::filters::AutoEscaper::new(
+                &({
+                    askama::filters::ValidFilterInvocation::wrap(
+                            filters::cased::default(),
+                        )
+                        .execute(&(self.user), __askama_values)?
+                }),
+                    askama::filters::Text,
+                ))
+                    .askama_auto_escape()?),
+            ) {
+                (__askama_expr2,) => {
+                    (&&&askama::filters::Writable(__askama_expr2))
+                        .askama_write(__askama_writer, __askama_values)?;
+                }
+            }
+            __askama_writer.write_str("!")?;
+        "#,
+        &[],
+        11,
+    );
+
+    let _ = build_template(&parse_quote! {
+        #[template(source = "{{ \"x\" | ΔxΔyΔ }}", ext = "txt")]
+        struct Foo;
+    });
+    let _ = build_template(&parse_quote! {
+        #[template(source = r"{{ "x" | ΔxΔyΔ }}", ext = "txt")]
+        struct Foo;
+    });
+    let _ = build_template(&parse_quote! {
+        #[template(source = r#"{{ "x" | ΔxΔyΔ }}"#, ext = "txt")]
+        struct Foo;
+    });
+
+    let _ = build_template(&parse_quote! {
+        #[template(source = "{{ \"ΔxΔyΔ\" | x }}", ext = "txt")]
+        struct Foo;
+    });
+    let _ = build_template(&parse_quote! {
+        #[template(source = r"{{ "ΔxΔyΔ" | x }}", ext = "txt")]
+        struct Foo;
+    });
+    let _ = build_template(&parse_quote! {
+        #[template(source = r#"{{ "ΔxΔyΔ" | x }}"#, ext = "txt")]
+        struct Foo;
+    });
+}
+
+#[test]
+fn test_compound_assignment() {
+    for op in [
+        "=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>=",
+    ] {
+        let jinja = r#"
+            {%- let mut prefixsum = 0 -%}
+            {%- for i in 0..limit -%}
+                {%- mut prefixsum @= i -%}
+                {{ prefixsum }}.
+            {%- endfor -%}
+        "#
+        .replace("@=", op);
+
+        let expected = r#"
+            let mut prefixsum = 0;
+            let __askama_iter = 0..self.limit;
+            for (i, __askama_item) in askama::helpers::TemplateLoop::new(__askama_iter) {
+                prefixsum @= i;
+                match (
+                    &((&&askama::filters::AutoEscaper::new(&(prefixsum), askama::filters::Text))
+                        .askama_auto_escape()?),
+                ) {
+                    (__askama_expr0,) => {
+                        (&&&askama::filters::Writable(__askama_expr0))
+                            .askama_write(__askama_writer, __askama_values)?;
+                    }
+                }
+                __askama_writer.write_str(".")?;
+            }
+        "#
+        .replace("@=", op);
+
+        compare(&jinja, &expected, &[("limit", "u32")], 6);
+    }
+}
+
+#[test]
+fn check_size_hint() {
+    compare(
+        r#"{% for _ in .. %} Hello {% break %} {% endfor %}"#,
+        r#"
+            let __askama_iter = ..;
+            for (_, __askama_item) in askama::helpers::TemplateLoop::new(__askama_iter) {
+                __askama_writer.write_str(" Hello ")?;
+                break;
+                __askama_writer.write_str(" ")?;
+            }
+        "#,
+        &[],
+        12,
+    );
+    compare(
+        r#"{% for _ in .. %} Hello {% continue %} {% endfor %}"#,
+        r#"
+            let __askama_iter = ..;
+            for (_, __askama_item) in askama::helpers::TemplateLoop::new(__askama_iter) {
+                __askama_writer.write_str(" Hello ")?;
+                continue;
+                __askama_writer.write_str(" ")?;
+            }
+        "#,
+        &[],
+        12,
     );
 }

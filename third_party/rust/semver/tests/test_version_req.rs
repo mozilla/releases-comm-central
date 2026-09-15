@@ -2,6 +2,7 @@
     clippy::missing_panics_doc,
     clippy::shadow_unrelated,
     clippy::toplevel_ref_arg,
+    clippy::uninlined_format_args,
     clippy::wildcard_imports
 )]
 
@@ -17,7 +18,7 @@ use node::{req, VersionReq};
 #[cfg(not(test_node_semver))]
 use semver::VersionReq;
 
-#[cfg_attr(not(no_track_caller), track_caller)]
+#[track_caller]
 fn assert_match_all(req: &VersionReq, versions: &[&str]) {
     for string in versions {
         let parsed = version(string);
@@ -25,7 +26,7 @@ fn assert_match_all(req: &VersionReq, versions: &[&str]) {
     }
 }
 
-#[cfg_attr(not(no_track_caller), track_caller)]
+#[track_caller]
 fn assert_match_none(req: &VersionReq, versions: &[&str]) {
     for string in versions {
         let parsed = version(string);
@@ -42,7 +43,6 @@ fn test_basic() {
 }
 
 #[test]
-#[cfg(not(no_const_vec_new))]
 fn test_default() {
     let ref r = VersionReq::default();
     assert_eq!(r, &VersionReq::STAR);
@@ -168,6 +168,9 @@ pub fn test_multiple() {
     // https://github.com/steveklabnik/semver/issues/56
     let err = req_err("1.2.3 - 2.3.4");
     assert_to_string(err, "expected comma after patch version number, found '-'");
+
+    let err = req_err(">1, >2, >3, >4, >5, >6, >7, >8, >9, >10, >11, >12, >13, >14, >15, >16, >17, >18, >19, >20, >21, >22, >23, >24, >25, >26, >27, >28, >29, >30, >31, >32, >33");
+    assert_to_string(err, "excessive number of version comparators");
 }
 
 #[test]
@@ -316,12 +319,7 @@ pub fn test_logical_or() {
 
 #[test]
 pub fn test_any() {
-    #[cfg(not(no_const_vec_new))]
     let ref r = VersionReq::STAR;
-    #[cfg(no_const_vec_new)]
-    let ref r = VersionReq {
-        comparators: Vec::new(),
-    };
     assert_match_all(r, &["0.0.1", "0.1.0", "1.0.0"]);
 }
 
@@ -332,7 +330,7 @@ pub fn test_pre() {
 }
 
 #[test]
-pub fn test_parse_errors() {
+pub fn test_parse() {
     let err = req_err("\0");
     assert_to_string(
         err,
@@ -365,6 +363,45 @@ pub fn test_parse_errors() {
         err,
         "unexpected end of input while parsing major version number",
     );
+}
+
+#[test]
+fn test_comparator_parse() {
+    let parsed = comparator("1.2.3-alpha");
+    assert_to_string(parsed, "^1.2.3-alpha");
+
+    let parsed = comparator("2.X");
+    assert_to_string(parsed, "2.*");
+
+    let parsed = comparator("2");
+    assert_to_string(parsed, "^2");
+
+    let parsed = comparator("2.x.x");
+    assert_to_string(parsed, "2.*");
+
+    let err = comparator_err("1.2.3-01");
+    assert_to_string(err, "invalid leading zero in pre-release identifier");
+
+    let err = comparator_err("1.2.3+4.");
+    assert_to_string(err, "empty identifier segment in build metadata");
+
+    let err = comparator_err(">");
+    assert_to_string(
+        err,
+        "unexpected end of input while parsing major version number",
+    );
+
+    let err = comparator_err("1.");
+    assert_to_string(
+        err,
+        "unexpected end of input while parsing minor version number",
+    );
+
+    let err = comparator_err("1.*.");
+    assert_to_string(err, "unexpected character after wildcard in version req");
+
+    let err = comparator_err("1.2.3+4ÿ");
+    assert_to_string(err, "unexpected character 'ÿ' after build metadata");
 }
 
 #[test]

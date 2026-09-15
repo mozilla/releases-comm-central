@@ -60,7 +60,7 @@ class {{ type_name }}:  # type: ignore
 
     {%-     for meth in e.methods -%}
     {%-     let callable = meth.callable %}
-        {% if callable.is_async %}async {% endif %}def {{ callable.name }}(self, {% include "CallableArgs.py" %}) -> {{ callable.return_type.type_name }}:
+        {% if callable.is_async() %}async {% endif %}def {{ callable.name }}(self, {% include "CallableArgs.py" %}) -> {{ callable.return_type.type_name }}:
             {{ meth.docstring|docstring(12) -}}
     {%-         filter indent(12) %}
     {%-         include "CallableBody.py" %}
@@ -83,7 +83,7 @@ class {{ e.self_type.ffi_converter_name }}(_UniffiConverterRustBuffer):
         if variant == {{ loop.index }}:
             return {{ type_name }}.{{ variant.name }}(
                 {%- if e.is_flat %}
-                {{ string_type_node.ffi_converter_name }}.read(buf),
+                {{ builtin_types.string.ffi_converter_name }}.read(buf),
                 {%- else %}
                 {%- for field in variant.fields %}
                 {{ field.ty.ffi_converter_name }}.read(buf),

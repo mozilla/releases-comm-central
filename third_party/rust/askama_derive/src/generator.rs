@@ -1,45 +1,45 @@
 mod expr;
 mod filter;
+mod helpers;
 mod node;
 
 use std::borrow::Cow;
-use std::collections::hash_map::HashMap;
 use std::ops::Deref;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::str;
 use std::sync::Arc;
 
-use parser::node::{Macro, Whitespace};
-use parser::{
-    CharLit, Expr, FloatKind, IntKind, MAX_RUST_KEYWORD_LEN, Num, RUST_KEYWORDS, StrLit, WithSpan,
-};
-use rustc_hash::FxBuildHasher;
+use parser::node::{Call, Macro, Whitespace};
+use parser::{CharLit, Expr, FloatKind, IntKind, Num, StrLit, WithSpan};
+use proc_macro2::{Span, TokenStream};
+use quote::{ToTokens, quote_spanned};
+use syn::Token;
 
-use crate::ascii_str::{AsciiChar, AsciiStr};
+use crate::generator::helpers::{clean_path, diff_paths};
 use crate::heritage::{Context, Heritage};
 use crate::html::write_escaped_str;
 use crate::input::{Source, TemplateInput};
 use crate::integration::{Buffer, impl_everything, write_header};
-use crate::{CompileError, FileInfo};
+use crate::{CompileError, FileInfo, HashMap, SizeHint, field_new, quote_into};
 
 pub(crate) fn template_to_string(
     buf: &mut Buffer,
     input: &TemplateInput<'_>,
-    contexts: &HashMap<&Arc<Path>, Context<'_>, FxBuildHasher>,
+    contexts: &HashMap<&Arc<Path>, Context<'_>>,
     heritage: Option<&Heritage<'_, '_>>,
     tmpl_kind: TmplKind<'_>,
-) -> Result<usize, CompileError> {
+) -> Result<SizeHint, CompileError> {
     let generator = Generator::new(
         input,
         contexts,
         heritage,
         MapChain::default(),
         input.block.is_some(),
-        0,
+        BlockInfo::new(),
     );
     let size_hint = match generator.impl_template(buf, tmpl_kind) {
         Err(mut err) if err.span.is_none() => {
-            err.span = input.source_span;
+            err.span = Some(input.source_span.config_span());
             Err(err)
         }
         result => result,
@@ -58,15 +58,52 @@ pub(crate) enum TmplKind<'a> {
     /// [`askama::helpers::EnumVariantTemplate`]
     Variant,
     /// Used in `blocks` implementation
-    #[allow(unused)]
     Block(&'a str),
+}
+
+/// This enum allows to know if we render the "first phase" of an `extends`, (the `Extends` variant)
+/// meaning generating all variables and method/function calls and nothing else. The second one
+/// (`Template`) is the "default", we generate everything.
+#[derive(Default, Clone, Copy, PartialEq)]
+enum RenderFor {
+    #[default]
+    Template,
+    Extends,
+}
+
+#[derive(Clone, Copy)]
+struct BlockInfo {
+    block_name: &'static str,
+    level: usize,
+}
+
+impl BlockInfo {
+    fn new() -> Self {
+        Self {
+            block_name: "",
+            level: 0,
+        }
+    }
+
+    // FIXME: Instead of this error-prone API, we should use something relying on `Drop` to
+    // decrement, or use a callback which would decrement on exit.
+    fn increase(&mut self, block_name: &'static str) {
+        if self.level == 0 {
+            self.block_name = block_name;
+        }
+        self.level += 1;
+    }
+
+    fn decrease(&mut self) {
+        self.level -= 1;
+    }
 }
 
 struct Generator<'a, 'h> {
     /// The template input state: original struct AST and attributes
     input: &'a TemplateInput<'a>,
     /// All contexts, keyed by the package-relative template path
-    contexts: &'a HashMap<&'a Arc<Path>, Context<'a>, FxBuildHasher>,
+    contexts: &'a HashMap<&'a Arc<Path>, Context<'a>>,
     /// The heritage contains references to blocks and their ancestry
     heritage: Option<&'h Heritage<'a, 'h>>,
     /// Variables accessible directly from the current scope (not redirected to context)
@@ -74,7 +111,7 @@ struct Generator<'a, 'h> {
     /// Suffix whitespace from the previous literal. Will be flushed to the
     /// output buffer unless suppressed by whitespace suppression on the next
     /// non-literal.
-    next_ws: Option<&'a str>,
+    next_ws: Option<WithSpan<&'a str>>,
     /// Whitespace suppression from the previous non-literal. Will be used to
     /// determine whether to flush prefix whitespace from the next literal.
     skip_ws: Whitespace,
@@ -82,20 +119,28 @@ struct Generator<'a, 'h> {
     super_block: Option<(&'a str, usize)>,
     /// Buffer for writable
     buf_writable: WritableBuffer<'a>,
-    /// Used in blocks to check if we are inside a filter block.
-    is_in_filter_block: usize,
+    /// Used in blocks to check if we are inside a filter/let block.
+    is_in_block: BlockInfo,
     /// Set of called macros we are currently in. Used to prevent (indirect) recursions.
-    seen_macros: Vec<(&'a Macro<'a>, Option<FileInfo<'a>>)>,
+    seen_callers: Vec<(&'a Macro<'a>, Option<FileInfo<'a>>)>,
+    /// The directory path of the calling file.
+    caller_dir: CallerDir,
+}
+
+enum CallerDir {
+    Valid(PathBuf),
+    Invalid,
+    Unresolved,
 }
 
 impl<'a, 'h> Generator<'a, 'h> {
     fn new(
         input: &'a TemplateInput<'a>,
-        contexts: &'a HashMap<&'a Arc<Path>, Context<'a>, FxBuildHasher>,
+        contexts: &'a HashMap<&'a Arc<Path>, Context<'a>>,
         heritage: Option<&'h Heritage<'a, 'h>>,
         locals: MapChain<'a>,
         buf_writable_discard: bool,
-        is_in_filter_block: usize,
+        is_in_block: BlockInfo,
     ) -> Self {
         Self {
             input,
@@ -109,8 +154,43 @@ impl<'a, 'h> Generator<'a, 'h> {
                 discard: buf_writable_discard,
                 ..Default::default()
             },
-            is_in_filter_block,
-            seen_macros: Vec::new(),
+            is_in_block,
+            seen_callers: Vec::new(),
+            caller_dir: CallerDir::Unresolved,
+        }
+    }
+
+    fn rel_path<'p>(&mut self, path: &'p Path) -> Cow<'p, Path> {
+        self.caller_dir()
+            .and_then(|caller_dir| {
+                diff_paths(path, caller_dir, std::env::var("CARGO_MANIFEST_DIR").ok())
+            })
+            .map_or(Cow::Borrowed(path), Cow::Owned)
+    }
+
+    fn caller_dir(&mut self) -> Option<&Path> {
+        match self.caller_dir {
+            CallerDir::Valid(ref caller_dir) => return Some(caller_dir.as_path()),
+            CallerDir::Invalid => return None,
+            CallerDir::Unresolved => {}
+        }
+
+        if proc_macro::is_available()
+            && let Some(mut local_file) = proc_macro::Span::call_site().local_file()
+        {
+            local_file.pop();
+            if !local_file.is_absolute() {
+                local_file = Path::new(".").join(local_file);
+            }
+
+            self.caller_dir = CallerDir::Valid(clean_path(&local_file));
+            match &self.caller_dir {
+                CallerDir::Valid(caller_dir) => Some(caller_dir.as_path()),
+                _ => None, // unreachable
+            }
+        } else {
+            self.caller_dir = CallerDir::Invalid;
+            None
         }
     }
 
@@ -119,73 +199,93 @@ impl<'a, 'h> Generator<'a, 'h> {
         mut self,
         buf: &mut Buffer,
         tmpl_kind: TmplKind<'a>,
-    ) -> Result<usize, CompileError> {
+    ) -> Result<SizeHint, CompileError> {
         let ctx = &self.contexts[&self.input.path];
 
+        let span = Span::call_site();
         let target = match tmpl_kind {
-            TmplKind::Struct => "askama::Template",
-            TmplKind::Variant => "askama::helpers::EnumVariantTemplate",
-            TmplKind::Block(trait_name) => trait_name,
+            TmplKind::Struct => quote_spanned!(span=> askama::Template),
+            TmplKind::Variant => quote_spanned!(span=> askama::helpers::EnumVariantTemplate),
+            TmplKind::Block(trait_name) => field_new(trait_name, span),
         };
-        write_header(self.input.ast, buf, target);
-        buf.write(
-            "fn render_into_with_values<AskamaW>(\
-                &self,\
-                __askama_writer: &mut AskamaW,\
-                __askama_values: &dyn askama::Values\
-            ) -> askama::Result<()>\
-            where \
-                AskamaW: askama::helpers::core::fmt::Write + ?askama::helpers::core::marker::Sized\
-            {\
-                #[allow(unused_imports)]\
-                use askama::{\
-                    filters::{AutoEscape as _, WriteWritable as _},\
-                    helpers::{ResultConverter as _, core::fmt::Write as _},\
-                };",
-        );
+
+        let mut paths_ts = TokenStream::new();
 
         if let Some(full_config_path) = &self.input.config.full_config_path {
-            buf.write(format_args!(
-                "const _: &[askama::helpers::core::primitive::u8] =\
-                askama::helpers::core::include_bytes!({:?});",
-                full_config_path.display()
+            let full_config_path = self.rel_path(full_config_path).display().to_string();
+            paths_ts.extend(quote_spanned!(span =>
+                const _: &[askama::helpers::core::primitive::u8] =
+                    askama::helpers::core::include_bytes!(#full_config_path);
             ));
         }
 
         // Make sure the compiler understands that the generated code depends on the template files.
         let mut paths = self
             .contexts
-            .keys()
-            .map(|path| -> &Path { path })
+            .iter()
+            .map(|(path, _ctx)| {
+                (
+                    &***path,
+                    #[cfg(not(feature = "external-sources"))]
+                    (),
+                    #[cfg(feature = "external-sources")]
+                    _ctx,
+                )
+            })
+            .filter(|&(path, _)| {
+                // Skip the fake path of templates defined in rust source.
+                match self.input.source {
+                    #[cfg(feature = "external-sources")]
+                    Source::Path(_) => true,
+                    Source::Source(_) => *path != *self.input.path,
+                }
+            })
             .collect::<Vec<_>>();
-        paths.sort();
-        for path in paths {
-            // Skip the fake path of templates defined in rust source.
-            let path_is_valid = match self.input.source {
-                Source::Path(_) => true,
-                Source::Source(_) => path != &*self.input.path,
-            };
-            if path_is_valid {
-                buf.write(format_args!(
-                    "const _: &[askama::helpers::core::primitive::u8] =\
-                        askama::helpers::core::include_bytes!({:#?});",
-                    path.canonicalize().as_deref().unwrap_or(path),
-                ));
-            }
-        }
-
-        let size_hint = self.impl_template_inner(ctx, buf)?;
-
-        buf.write("askama::Result::Ok(()) }");
-        if tmpl_kind == TmplKind::Struct {
-            buf.write(format_args!(
-                "const SIZE_HINT: askama::helpers::core::primitive::usize = {size_hint}usize;",
+        paths.sort_by_key(|&(path, _)| path);
+        for (path, _ctx) in paths {
+            let path = self.rel_path(path).display().to_string();
+            paths_ts.extend(quote_spanned!(span=>
+                const _: &[askama::helpers::core::primitive::u8] =
+                    askama::helpers::core::include_bytes!(#path);
             ));
+
+            #[cfg(all(feature = "external-sources", feature = "nightly-spans"))]
+            _ctx.resolve_path(&path);
         }
 
-        buf.write('}');
+        let mut content = Buffer::new();
+        let size_hint = self.impl_template_inner(ctx, &mut content)?;
+        let content = content.into_token_stream();
 
-        #[cfg(feature = "blocks")]
+        let mut size_hint_s = TokenStream::new();
+        if tmpl_kind == TmplKind::Struct {
+            size_hint_s = quote_spanned!(span=>
+                const SIZE_HINT: askama::helpers::core::primitive::usize = #size_hint;
+            );
+        }
+
+        write_header(self.input.ast, buf, target);
+        let var_writer = crate::var_writer();
+        let var_values = crate::var_values();
+        quote_into!(buf, span, { {
+            fn render_into_with_values(
+                &self,
+                #var_writer: &mut dyn askama::helpers::core::fmt::Write,
+                #var_values: &dyn askama::Values,
+            ) -> askama::Result<()> {
+                #[allow(unused_imports)]
+                use askama::{
+                    filters::{AutoEscape as _, WriteWritable as _},
+                    helpers::{ResultConverter as _, core::fmt::Write as _},
+                };
+
+                #paths_ts
+                #content
+                askama::Result::Ok(())
+            }
+            #size_hint_s
+        } });
+
         for block in self.input.blocks {
             self.impl_block(buf, block)?;
         }
@@ -193,7 +293,6 @@ impl<'a, 'h> Generator<'a, 'h> {
         Ok(size_hint)
     }
 
-    #[cfg(feature = "blocks")]
     fn impl_block(
         &self,
         buf: &mut Buffer,
@@ -205,16 +304,9 @@ impl<'a, 'h> Generator<'a, 'h> {
         // - impl Template for __Askama__Self__as__block__Wrapper { fn render_into_with_values() } ->
         // - impl __Askama__Self__as__block for Self { render_into_with_values() }
 
-        use quote::quote_spanned;
         use syn::{GenericParam, Ident, Lifetime, LifetimeParam, Token};
 
-        let span = block.span;
-        buf.write(
-            "\
-            #[allow(missing_docs, non_camel_case_types, non_snake_case, unreachable_pub)]\
-            const _: () = {",
-        );
-
+        let span = Span::call_site();
         let ident = &self.input.ast.ident;
 
         let doc = format!(
@@ -251,98 +343,103 @@ impl<'a, 'h> Generator<'a, 'h> {
             blocks: &[],
             ..self.input.clone()
         };
+        let mut template_buf = Buffer::new();
         let size_hint = template_to_string(
-            buf,
+            &mut template_buf,
             &input,
             self.contexts,
             self.heritage,
             TmplKind::Block(&trait_name),
         )?;
 
-        buf.write(quote_spanned! {
-            span =>
-            pub trait #trait_id {
-                fn render_into_with_values<AskamaW>(
-                    &self,
-                    writer: &mut AskamaW,
-                    values: &dyn askama::Values,
-                ) -> askama::Result<()>
-                where
-                    AskamaW:
-                        askama::helpers::core::fmt::Write + ?askama::helpers::core::marker::Sized;
-            }
+        let template_buf = template_buf.into_token_stream();
+        quote_into!(buf, span, {
+            #[allow(missing_docs, non_camel_case_types, non_snake_case, unreachable_pub)]
+            const _: () = {
+                #template_buf
 
-            impl #impl_generics #ident #ty_generics #where_clause {
-                #[inline]
-                #[doc = #doc]
-                pub fn #method_id(&self) -> impl askama::Template + '_ {
-                    #wrapper_id {
-                        this: self,
+                pub trait #trait_id {
+                    fn render_into_with_values(
+                        &self,
+                        writer: &mut dyn askama::helpers::core::fmt::Write,
+                        values: &dyn askama::Values,
+                    ) -> askama::Result<()>;
+                }
+
+                impl #impl_generics #ident #ty_generics #where_clause {
+                    #[inline]
+                    #[doc = #doc]
+                    pub fn #method_id(&self) -> impl askama::Template + '_ {
+                        #wrapper_id {
+                            this: self,
+                        }
                     }
                 }
-            }
 
-            #[askama::helpers::core::prelude::rust_2021::derive(
-                askama::helpers::core::prelude::rust_2021::Clone,
-                askama::helpers::core::prelude::rust_2021::Copy
-            )]
-            pub struct #wrapper_id #wrapper_generics #wrapper_where_clause {
-                this: &#self_lt #ident #ty_generics,
-            }
-
-            impl #wrapper_impl_generics askama::Template
-            for #wrapper_id #wrapper_ty_generics #wrapper_where_clause {
-                #[inline]
-                fn render_into_with_values<AskamaW>(
-                    &self,
-                    writer: &mut AskamaW,
-                    values: &dyn askama::Values
-                ) -> askama::Result<()>
-                where
-                    AskamaW: askama::helpers::core::fmt::Write + ?askama::helpers::core::marker::Sized
-                {
-                    <_ as #trait_id>::render_into_with_values(self.this, writer, values)
+                #[askama::helpers::core::prelude::rust_2021::derive(
+                    askama::helpers::core::prelude::rust_2021::Clone,
+                    askama::helpers::core::prelude::rust_2021::Copy
+                )]
+                pub struct #wrapper_id #wrapper_generics #wrapper_where_clause {
+                    this: &#self_lt #ident #ty_generics,
                 }
 
-                const SIZE_HINT: askama::helpers::core::primitive::usize = #size_hint;
-            }
+                impl #wrapper_impl_generics askama::Template
+                for #wrapper_id #wrapper_ty_generics #wrapper_where_clause {
+                    #[inline]
+                    fn render_into_with_values(
+                        &self,
+                        writer: &mut dyn askama::helpers::core::fmt::Write,
+                        values: &dyn askama::Values
+                    ) -> askama::Result<()> {
+                        <_ as #trait_id>::render_into_with_values(self.this, writer, values)
+                    }
 
-            // cannot use `crate::integrations::impl_fast_writable()` w/o cloning the struct
-            impl #wrapper_impl_generics askama::FastWritable
-            for #wrapper_id #wrapper_ty_generics #wrapper_where_clause {
-                #[inline]
-                fn write_into<AskamaW>(
-                    &self,
-                    dest: &mut AskamaW,
-                    values: &dyn askama::Values,
-                ) -> askama::Result<()>
-                where
-                    AskamaW: askama::helpers::core::fmt::Write + ?askama::helpers::core::marker::Sized
-                {
-                    <_ as askama::Template>::render_into_with_values(self, dest, values)
+                    const SIZE_HINT: askama::helpers::core::primitive::usize = #size_hint;
                 }
-            }
 
-            // cannot use `crate::integrations::impl_display()` w/o cloning the struct
-            impl #wrapper_impl_generics askama::helpers::core::fmt::Display
-            for #wrapper_id #wrapper_ty_generics #wrapper_where_clause {
-                #[inline]
-                fn fmt(
-                    &self,
-                    f: &mut askama::helpers::core::fmt::Formatter<'_>
-                ) -> askama::helpers::core::fmt::Result {
-                    <_ as askama::Template>::render_into(self, f)
-                        .map_err(|_| askama::helpers::core::fmt::Error)
+                // cannot use `crate::integrations::impl_fast_writable()` w/o cloning the struct
+                impl #wrapper_impl_generics askama::FastWritable
+                for #wrapper_id #wrapper_ty_generics #wrapper_where_clause {
+                    #[inline]
+                    fn write_into(
+                        &self,
+                        dest: &mut dyn askama::helpers::core::fmt::Write,
+                        values: &dyn askama::Values,
+                    ) -> askama::Result<()> {
+                        <_ as askama::Template>::render_into_with_values(self, dest, values)
+                    }
                 }
-            }
+
+                // cannot use `crate::integrations::impl_display()` w/o cloning the struct
+                impl #wrapper_impl_generics askama::helpers::core::fmt::Display
+                for #wrapper_id #wrapper_ty_generics #wrapper_where_clause {
+                    #[inline]
+                    fn fmt(
+                        &self,
+                        f: &mut askama::helpers::core::fmt::Formatter<'_>
+                    ) -> askama::helpers::core::fmt::Result {
+                        <_ as askama::Template>::render_into(self, f)
+                            .map_err(|_| askama::helpers::core::fmt::Error)
+                    }
+                }
+            };
         });
 
-        buf.write("};");
         Ok(())
     }
 
     fn is_var_defined(&self, var_name: &str) -> bool {
-        self.locals.get(var_name).is_some() || self.input.fields.iter().any(|f| f == var_name)
+        self.locals.get_any(var_name).is_some() || self.input.fields.iter().any(|f| f == var_name)
+    }
+
+    /// Like [`is_var_defined()`], but not true for a forward declaration `{% let var %}`.
+    fn is_var_assigned(&self, var_name: &str) -> bool {
+        if let Some(meta) = self.locals.get(var_name) {
+            meta.initialized
+        } else {
+            self.input.fields.iter().any(|f| f == var_name)
+        }
     }
 }
 
@@ -371,7 +468,7 @@ const _: () = {
 
 /// In here, we inspect in the expression if it is a literal, and if it is, whether it
 /// can be escaped at compile time.
-fn compile_time_escape<'a>(expr: &Expr<'a>, escaper: &str) -> Option<Writable<'a>> {
+fn compile_time_escape<'a>(expr: &WithSpan<Box<Expr<'a>>>, escaper: &str) -> Option<Writable<'a>> {
     // we only optimize for known escapers
     enum OutputKind {
         Html,
@@ -386,10 +483,11 @@ fn compile_time_escape<'a>(expr: &Expr<'a>, escaper: &str) -> Option<Writable<'a
     };
 
     // for now, we only escape strings, chars, numbers, and bools at compile time
-    let value = match *expr {
+    let value = match ***expr {
         Expr::StrLit(StrLit {
             prefix: None,
             content,
+            ..
         }) => {
             if content.find('\\').is_none() {
                 // if the literal does not contain any backslashes, then it does not need unescaping
@@ -436,7 +534,19 @@ fn compile_time_escape<'a>(expr: &Expr<'a>, escaper: &str) -> Option<Writable<'a
                 from_str_radix: impl Fn(&str, u32) -> Result<T, E>,
                 value: &str,
             ) -> Option<String> {
-                Some(from_str_radix(value, 10).ok()?.to_string())
+                let mut chars = value.chars();
+                let (value, radix) = if let Some('0') = chars.next() {
+                    match chars.next() {
+                        Some('x') => (&value[2..], 16),
+                        Some('o') => (&value[2..], 8),
+                        Some('b') => (&value[2..], 2),
+                        Some(_) | None => (value, 10),
+                    }
+                } else {
+                    (value, 10)
+                };
+
+                Some(from_str_radix(value, radix).ok()?.to_string())
             }
 
             let value = match kind {
@@ -475,42 +585,86 @@ fn compile_time_escape<'a>(expr: &Expr<'a>, escaper: &str) -> Option<Writable<'a
 
     // escape the un-string-escaped input using the selected escaper
     Some(Writable::Lit(match output {
-        OutputKind::Text => value,
+        OutputKind::Text => WithSpan::new(value, expr.span()),
         OutputKind::Html => {
             let mut escaped = String::with_capacity(value.len() + 20);
             write_escaped_str(&mut escaped, &value).ok()?;
             match escaped == value {
-                true => value,
-                false => Cow::Owned(escaped),
+                true => WithSpan::new(value, expr.span()),
+                false => WithSpan::new(Cow::Owned(escaped), expr.span()),
             }
         }
     }))
 }
 
-#[derive(Clone, Default)]
-struct LocalMeta {
+#[derive(Clone, Default, Debug)]
+struct LocalVariableMeta {
     refs: Option<String>,
     initialized: bool,
 }
 
-impl LocalMeta {
-    fn initialized() -> Self {
-        Self {
-            refs: None,
-            initialized: true,
-        }
-    }
+#[derive(Clone)]
+struct LocalCallerMeta<'a> {
+    def: &'a Call<'a>,
+    call_ctx: Context<'a>,
+}
 
-    fn with_ref(refs: String) -> Self {
-        Self {
-            refs: Some(refs),
-            initialized: true,
-        }
+impl core::fmt::Debug for LocalCallerMeta<'_> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("LocalCallerMeta")
+            .field("def", &self.def)
+            .finish()
     }
 }
 
+#[derive(Clone, Debug)]
+enum LocalMeta<'a> {
+    /// Normal variable
+    Variable(LocalVariableMeta),
+
+    /// This special variable is a caller alias. It's another name for caller().
+    CallerAlias(LocalCallerMeta<'a>),
+
+    /// Represents a "negative" local variable. Meaning: When the resolve methods
+    /// encounters a negative on its path down the stack of scopes, it will immediately
+    /// return without result. This is required to "block out" variables outside of a certain scope
+    Negative,
+}
+
+impl<'a> LocalMeta<'a> {
+    /// Variable declaration only - no value yet.
+    const fn var_decl() -> Self {
+        Self::Variable(LocalVariableMeta {
+            refs: None,
+            initialized: false,
+        })
+    }
+
+    /// Variable definition - fully initialized.
+    const fn var_def() -> Self {
+        Self::Variable(LocalVariableMeta {
+            refs: None,
+            initialized: true,
+        })
+    }
+
+    /// Variable referencing another
+    const fn var_with_ref(refs: String) -> Self {
+        Self::Variable(LocalVariableMeta {
+            refs: Some(refs),
+            initialized: true,
+        })
+    }
+
+    /// Special variable aliasing a `caller()`
+    const fn caller(def: &'a Call<'a>, call_ctx: Context<'a>) -> Self {
+        Self::CallerAlias(LocalCallerMeta { def, call_ctx })
+    }
+}
+
+#[derive(Debug)]
 struct MapChain<'a> {
-    scopes: Vec<HashMap<Cow<'a, str>, LocalMeta, FxBuildHasher>>,
+    scopes: Vec<HashMap<Cow<'a, str>, LocalMeta<'a>>>,
 }
 
 impl<'a> MapChain<'a> {
@@ -518,17 +672,48 @@ impl<'a> MapChain<'a> {
         Self { scopes: vec![] }
     }
 
-    /// Iterates the scopes in reverse and returns `Some(LocalMeta)`
-    /// from the first scope where `key` exists.
-    fn get<'b>(&'b self, key: &str) -> Option<&'b LocalMeta> {
-        self.scopes.iter().rev().find_map(|set| set.get(key))
+    /// Iterates the scopes in reverse and searches for a local variable (of any kind) with the given key.
+    ///
+    /// # Returns
+    /// - `Some(LocalMeta)` if any kind of local entry (except negative) with the key was found.
+    /// - `None` otherwise
+    fn get_any<'b>(&'b self, key: &str) -> Option<&'b LocalMeta<'a>> {
+        match self.scopes.iter().rev().find_map(|set| set.get(key)) {
+            Some(LocalMeta::Negative) => None,
+            Some(local) => Some(local),
+            _ => None,
+        }
+    }
+
+    /// Iterates the scopes in reverse and searches for a local variable with the given key.
+    ///
+    /// # Returns
+    /// - `Some(LocalVariableMeta)` if the first encountered entry for key was a variable
+    /// - `None` otherwise
+    fn get<'b>(&'b self, key: &str) -> Option<&'b LocalVariableMeta> {
+        match self.scopes.iter().rev().find_map(|set| set.get(key)) {
+            Some(LocalMeta::Variable(var)) => Some(var),
+            _ => None,
+        }
+    }
+
+    /// Iterates the scopes in reverse and searches for a `CallerAlias`
+    ///
+    /// # Returns
+    /// - `Some(LocalCallerMeta)` if the first encountered entry for key was a caller alias
+    /// - `None` otherwise
+    fn get_caller<'b>(&'b self, key: &str) -> Option<&'b LocalCallerMeta<'a>> {
+        match self.scopes.iter().rev().find_map(|set| set.get(key)) {
+            Some(LocalMeta::CallerAlias(caller)) => Some(caller),
+            _ => None,
+        }
     }
 
     fn is_current_empty(&self) -> bool {
         self.scopes.last().unwrap().is_empty()
     }
 
-    fn insert(&mut self, key: Cow<'a, str>, val: LocalMeta) {
+    fn insert(&mut self, key: Cow<'a, str>, val: LocalMeta<'a>) {
         self.scopes.last_mut().unwrap().insert(key, val);
 
         // Note that if `insert` returns `Some` then it implies
@@ -539,11 +724,10 @@ impl<'a> MapChain<'a> {
     }
 
     fn insert_with_default(&mut self, key: Cow<'a, str>) {
-        self.insert(key, LocalMeta::default());
+        self.insert(key, LocalMeta::var_decl());
     }
 
     fn resolve(&self, name: &str) -> Option<String> {
-        let name = normalize_identifier(name);
         self.get(&Cow::Borrowed(name)).map(|meta| match &meta.refs {
             Some(expr) => expr.clone(),
             None => name.to_string(),
@@ -551,8 +735,15 @@ impl<'a> MapChain<'a> {
     }
 
     fn resolve_or_self(&self, name: &str) -> String {
-        let name = normalize_identifier(name);
         self.resolve(name).unwrap_or_else(|| format!("self.{name}"))
+    }
+
+    fn stack_push(&mut self) {
+        self.scopes.push(HashMap::default());
+    }
+
+    fn stack_pop(&mut self) {
+        self.scopes.pop().unwrap();
     }
 }
 
@@ -576,9 +767,10 @@ fn is_copyable_within_op(expr: &Expr<'_>, within_op: bool) -> bool {
         | Expr::NumLit(_, _)
         | Expr::StrLit(_)
         | Expr::CharLit(_)
-        | Expr::BinOp(_, _, _) => true,
+        | Expr::BinOp(_)
+        | Expr::Range(..) => true,
         Expr::Unary(.., expr) => is_copyable_within_op(expr, true),
-        Expr::Range(..) => true,
+        Expr::NamedArgument(_, expr) => is_copyable_within_op(expr, true),
         // The result of a call likely doesn't need to be borrowed,
         // as in that case the call is more likely to return a
         // reference in the first place then.
@@ -589,22 +781,22 @@ fn is_copyable_within_op(expr: &Expr<'_>, within_op: bool) -> bool {
         // will solve that issue. However, if the operand is
         // implicitly borrowed, then it's likely not even possible
         // to get the template to compile.
-        _ => within_op && is_attr_self(expr),
+        _ => within_op && is_associated_item_self(expr),
     }
 }
 
-/// Returns `true` if this is an `Attr` where the `obj` is `"self"`.
-fn is_attr_self(mut expr: &Expr<'_>) -> bool {
+/// Returns `true` if this is an `AssociatedItem` where the `obj` is `"self"`.
+fn is_associated_item_self(mut expr: &Expr<'_>) -> bool {
     loop {
         match expr {
-            Expr::Attr(obj, _) if matches!(***obj, Expr::Var("self")) => return true,
-            Expr::Attr(obj, _) if matches!(***obj, Expr::Attr(..)) => expr = obj,
+            Expr::AssociatedItem(obj, _) if matches!(***obj, Expr::Var("self")) => return true,
+            Expr::AssociatedItem(obj, _) if matches!(***obj, Expr::AssociatedItem(..)) => {
+                expr = obj
+            }
             _ => return false,
         }
     }
 }
-
-const FILTER_SOURCE: &str = "__askama_filter_block";
 
 #[derive(Clone, Copy, Debug)]
 enum DisplayWrap {
@@ -629,47 +821,51 @@ impl<'a> WritableBuffer<'a> {
 impl<'a> Deref for WritableBuffer<'a> {
     type Target = [Writable<'a>];
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
-        &self.buf[..]
+        self.buf.as_slice()
     }
 }
 
 #[derive(Debug)]
 enum Writable<'a> {
-    Lit(Cow<'a, str>),
-    Expr(&'a WithSpan<'a, Expr<'a>>),
+    Lit(WithSpan<Cow<'a, str>>),
+    Expr(&'a WithSpan<Box<Expr<'a>>>),
 }
 
-/// Identifiers to be replaced with raw identifiers, so as to avoid
-/// collisions between template syntax and Rust's syntax. In particular
-/// [Rust keywords](https://doc.rust-lang.org/reference/keywords.html)
-/// should be replaced, since they're not reserved words in Askama
-/// syntax but have a high probability of causing problems in the
-/// generated code.
-///
-/// This list excludes the Rust keywords *self*, *Self*, and *super*
-/// because they are not allowed to be raw identifiers, and *loop*
-/// because it's used something like a keyword in the template
-/// language.
-fn normalize_identifier(ident: &str) -> &str {
-    // This table works for as long as the replacement string is the original string
-    // prepended with "r#". The strings get right-padded to the same length with b'_'.
-    // While the code does not need it, please keep the list sorted when adding new
-    // keywords.
-
-    if ident.len() > MAX_RUST_KEYWORD_LEN {
-        return ident;
-    }
-    let kws = RUST_KEYWORDS[ident.len()];
-
-    let mut padded_ident = [0; MAX_RUST_KEYWORD_LEN];
-    padded_ident[..ident.len()].copy_from_slice(ident.as_bytes());
-
-    // Since the individual buckets are quite short, a linear search is faster than a binary search.
-    for probe in kws {
-        if padded_ident == *AsciiChar::slice_as_bytes(probe[2..].try_into().unwrap()) {
-            return AsciiStr::from_slice(&probe[..ident.len() + 2]);
+macro_rules! make_token_match {
+    ($op:ident @ $span:ident => $($tt:tt)+) => {
+        match $op {
+            $(stringify!($tt) => Token![$tt]($span).into_token_stream(),)+
+            _ => unreachable!(),
         }
-    }
-    ident
+    };
+}
+
+#[inline]
+#[track_caller]
+fn logic_op(op: &str, span: proc_macro2::Span) -> TokenStream {
+    make_token_match!(op @ span => && || ^)
+}
+
+#[inline]
+#[track_caller]
+fn unary_op(op: &str, span: proc_macro2::Span) -> TokenStream {
+    make_token_match!(op @ span => - ! * &)
+}
+
+#[inline]
+#[track_caller]
+fn range_op(op: &str, span: proc_macro2::Span) -> TokenStream {
+    make_token_match!(op @ span => .. ..=)
+}
+
+#[inline]
+#[track_caller]
+fn binary_op(op: &str, span: proc_macro2::Span) -> TokenStream {
+    make_token_match!(
+        op @ span =>
+        * / % + - << >> & ^ | == != < > <= >= && || .. ..=
+        = += -= *= /= %= &= |= ^= <<= >>=
+    )
 }

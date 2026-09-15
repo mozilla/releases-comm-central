@@ -10,36 +10,33 @@
 //! - [Custom stream types][crate::_topic::stream]
 
 use core::hash::BuildHasher;
+use core::iter::{Cloned, Enumerate};
 use core::num::NonZeroUsize;
-
-use crate::ascii::Caseless as AsciiCaseless;
-use crate::error::Needed;
-use crate::lib::std::iter::{Cloned, Enumerate};
-use crate::lib::std::slice::Iter;
-use crate::lib::std::str::from_utf8;
-use crate::lib::std::str::CharIndices;
-use crate::lib::std::str::FromStr;
+use core::slice::Iter;
+use core::str::from_utf8;
+use core::str::CharIndices;
+use core::str::FromStr;
 
 #[allow(unused_imports)]
 #[cfg(any(feature = "unstable-doc", feature = "unstable-recover"))]
 use crate::error::ErrMode;
 
 #[cfg(feature = "alloc")]
-use crate::lib::std::borrow::Cow;
+use alloc::borrow::Cow;
 #[cfg(feature = "alloc")]
-use crate::lib::std::collections::BTreeMap;
+use alloc::collections::BTreeMap;
 #[cfg(feature = "alloc")]
-use crate::lib::std::collections::BTreeSet;
+use alloc::collections::BTreeSet;
+#[cfg(feature = "alloc")]
+use alloc::collections::VecDeque;
+#[cfg(feature = "alloc")]
+use alloc::string::String;
+#[cfg(feature = "alloc")]
+use alloc::vec::Vec;
 #[cfg(feature = "std")]
-use crate::lib::std::collections::HashMap;
+use std::collections::HashMap;
 #[cfg(feature = "std")]
-use crate::lib::std::collections::HashSet;
-#[cfg(feature = "alloc")]
-use crate::lib::std::collections::VecDeque;
-#[cfg(feature = "alloc")]
-use crate::lib::std::string::String;
-#[cfg(feature = "alloc")]
-use crate::lib::std::vec::Vec;
+use std::collections::HashSet;
 
 mod bstr;
 mod bytes;
@@ -73,13 +70,6 @@ pub trait SliceLen {
     /// Calculates the input length, as indicated by its name,
     /// and the name of the trait itself
     fn slice_len(&self) -> usize;
-}
-
-impl<S: SliceLen> SliceLen for AsciiCaseless<S> {
-    #[inline(always)]
-    fn slice_len(&self) -> usize {
-        self.0.slice_len()
-    }
 }
 
 impl<T> SliceLen for &[T] {
@@ -135,21 +125,21 @@ where
 }
 
 /// Core definition for parser input state
-pub trait Stream: Offset<<Self as Stream>::Checkpoint> + crate::lib::std::fmt::Debug {
+pub trait Stream: Offset<<Self as Stream>::Checkpoint> + core::fmt::Debug {
     /// The smallest unit being parsed
     ///
     /// Example: `u8` for `&[u8]` or `char` for `&str`
-    type Token: crate::lib::std::fmt::Debug;
+    type Token: core::fmt::Debug;
     /// Sequence of `Token`s
     ///
     /// Example: `&[u8]` for `LocatingSlice<&[u8]>` or `&str` for `LocatingSlice<&str>`
-    type Slice: crate::lib::std::fmt::Debug;
+    type Slice: core::fmt::Debug;
 
     /// Iterate with the offset from the current location
     type IterOffsets: Iterator<Item = (usize, Self::Token)>;
 
     /// A parse location within the stream
-    type Checkpoint: Offset + Clone + crate::lib::std::fmt::Debug;
+    type Checkpoint: Offset + Clone + core::fmt::Debug;
 
     /// Iterate with the offset from the current location
     fn iter_offsets(&self) -> Self::IterOffsets;
@@ -256,20 +246,55 @@ pub trait Stream: Offset<<Self as Stream>::Checkpoint> + crate::lib::std::fmt::D
     /// May panic if an invalid [`Self::Checkpoint`] is provided
     fn reset(&mut self, checkpoint: &Self::Checkpoint);
 
-    /// Deprecated for callers as of 0.7.10, instead call [`Stream::trace`]
-    #[deprecated(since = "0.7.10", note = "Replaced with `Stream::trace`")]
-    fn raw(&self) -> &dyn crate::lib::std::fmt::Debug;
-
     /// Write out a single-line summary of the current parse location
-    fn trace(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        #![allow(deprecated)]
-        write!(f, "{:#?}", self.raw())
+    fn trace(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result;
+}
+
+/// Contains information on needed data if a parser returned `Incomplete`
+///
+/// <div class="warning">
+///
+/// **Note:** This is only possible for `Stream` that are [partial][`crate::stream::StreamIsPartial`],
+/// like [`Partial`].
+///
+/// </div>
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum Needed {
+    /// Needs more data, but we do not know how much
+    Unknown,
+    /// Contains a lower bound on the buffer offset needed to finish parsing
+    ///
+    /// For byte/`&str` streams, this translates to bytes
+    Size(NonZeroUsize),
+}
+
+impl Needed {
+    /// Creates `Needed` instance, returns `Needed::Unknown` if the argument is zero
+    pub fn new(s: usize) -> Self {
+        match NonZeroUsize::new(s) {
+            Some(sz) => Needed::Size(sz),
+            None => Needed::Unknown,
+        }
+    }
+
+    /// Indicates if we know how many bytes we need
+    pub fn is_known(&self) -> bool {
+        *self != Needed::Unknown
+    }
+
+    /// Maps a `Needed` to `Needed` by applying a function to a contained `Size` value.
+    #[inline]
+    pub fn map<F: Fn(NonZeroUsize) -> usize>(self, f: F) -> Needed {
+        match self {
+            Needed::Unknown => Needed::Unknown,
+            Needed::Size(n) => Needed::new(f(n)),
+        }
     }
 }
 
 impl<'i, T> Stream for &'i [T]
 where
-    T: Clone + crate::lib::std::fmt::Debug,
+    T: Clone + core::fmt::Debug,
 {
     type Token = T;
     type Slice = &'i [T];
@@ -357,11 +382,6 @@ where
     #[inline(always)]
     fn reset(&mut self, checkpoint: &Self::Checkpoint) {
         *self = checkpoint.inner;
-    }
-
-    #[inline(always)]
-    fn raw(&self) -> &dyn crate::lib::std::fmt::Debug {
-        self
     }
 
     fn trace(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -470,166 +490,8 @@ impl<'i> Stream for &'i str {
         *self = checkpoint.inner;
     }
 
-    #[inline(always)]
-    fn raw(&self) -> &dyn crate::lib::std::fmt::Debug {
-        self
-    }
-}
-
-impl<I> Stream for (I, usize)
-where
-    I: Stream<Token = u8> + Clone,
-{
-    type Token = bool;
-    type Slice = (I::Slice, usize, usize);
-
-    type IterOffsets = BitOffsets<I>;
-
-    type Checkpoint = Checkpoint<(I::Checkpoint, usize), Self>;
-
-    #[inline(always)]
-    fn iter_offsets(&self) -> Self::IterOffsets {
-        BitOffsets {
-            i: self.clone(),
-            o: 0,
-        }
-    }
-    #[inline(always)]
-    fn eof_offset(&self) -> usize {
-        let offset = self.0.eof_offset() * 8;
-        if offset == 0 {
-            0
-        } else {
-            offset - self.1
-        }
-    }
-
-    #[inline(always)]
-    fn next_token(&mut self) -> Option<Self::Token> {
-        next_bit(self)
-    }
-
-    #[inline(always)]
-    fn peek_token(&self) -> Option<Self::Token> {
-        peek_bit(self)
-    }
-
-    #[inline(always)]
-    fn offset_for<P>(&self, predicate: P) -> Option<usize>
-    where
-        P: Fn(Self::Token) -> bool,
-    {
-        self.iter_offsets()
-            .find_map(|(o, b)| predicate(b).then_some(o))
-    }
-    #[inline(always)]
-    fn offset_at(&self, tokens: usize) -> Result<usize, Needed> {
-        if let Some(needed) = tokens
-            .checked_sub(self.eof_offset())
-            .and_then(NonZeroUsize::new)
-        {
-            Err(Needed::Size(needed))
-        } else {
-            Ok(tokens)
-        }
-    }
-    #[inline(always)]
-    fn next_slice(&mut self, offset: usize) -> Self::Slice {
-        let byte_offset = (offset + self.1) / 8;
-        let end_offset = (offset + self.1) % 8;
-        let s = self.0.next_slice(byte_offset);
-        let start_offset = self.1;
-        self.1 = end_offset;
-        (s, start_offset, end_offset)
-    }
-    #[inline(always)]
-    fn peek_slice(&self, offset: usize) -> Self::Slice {
-        let byte_offset = (offset + self.1) / 8;
-        let end_offset = (offset + self.1) % 8;
-        let s = self.0.peek_slice(byte_offset);
-        let start_offset = self.1;
-        (s, start_offset, end_offset)
-    }
-
-    #[inline(always)]
-    fn checkpoint(&self) -> Self::Checkpoint {
-        Checkpoint::<_, Self>::new((self.0.checkpoint(), self.1))
-    }
-    #[inline(always)]
-    fn reset(&mut self, checkpoint: &Self::Checkpoint) {
-        self.0.reset(&checkpoint.inner.0);
-        self.1 = checkpoint.inner.1;
-    }
-
-    #[inline(always)]
-    fn raw(&self) -> &dyn crate::lib::std::fmt::Debug {
-        &self.0
-    }
-}
-
-/// Iterator for [bit][crate::binary::bits] stream (`(I, usize)`)
-pub struct BitOffsets<I> {
-    i: (I, usize),
-    o: usize,
-}
-
-impl<I> Iterator for BitOffsets<I>
-where
-    I: Stream<Token = u8> + Clone,
-{
-    type Item = (usize, bool);
-    fn next(&mut self) -> Option<Self::Item> {
-        let b = next_bit(&mut self.i)?;
-        let o = self.o;
-
-        self.o += 1;
-
-        Some((o, b))
-    }
-}
-
-fn next_bit<I>(i: &mut (I, usize)) -> Option<bool>
-where
-    I: Stream<Token = u8> + Clone,
-{
-    if i.eof_offset() == 0 {
-        return None;
-    }
-    let offset = i.1;
-
-    let mut next_i = i.0.clone();
-    let byte = next_i.next_token()?;
-    let bit = (byte >> offset) & 0x1 == 0x1;
-
-    let next_offset = offset + 1;
-    if next_offset == 8 {
-        i.0 = next_i;
-        i.1 = 0;
-        Some(bit)
-    } else {
-        i.1 = next_offset;
-        Some(bit)
-    }
-}
-
-fn peek_bit<I>(i: &(I, usize)) -> Option<bool>
-where
-    I: Stream<Token = u8> + Clone,
-{
-    if i.eof_offset() == 0 {
-        return None;
-    }
-    let offset = i.1;
-
-    let mut next_i = i.0.clone();
-    let byte = next_i.next_token()?;
-    let bit = (byte >> offset) & 0x1 == 0x1;
-
-    let next_offset = offset + 1;
-    if next_offset == 8 {
-        Some(bit)
-    } else {
-        Some(bit)
+    fn trace(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "{self:#?}")
     }
 }
 
@@ -707,30 +569,6 @@ impl<E> Recover<E> for &str {
     }
 }
 
-#[cfg(feature = "unstable-recover")]
-#[cfg(feature = "std")]
-impl<I, E> Recover<E> for (I, usize)
-where
-    I: Recover<E>,
-    I: Stream<Token = u8> + Clone,
-{
-    #[inline(always)]
-    fn record_err(
-        &mut self,
-        _token_start: &Self::Checkpoint,
-        _err_start: &Self::Checkpoint,
-        err: E,
-    ) -> Result<(), E> {
-        Err(err)
-    }
-
-    /// Report whether the [`Stream`] can save off errors for recovery
-    #[inline(always)]
-    fn is_recovery_supported() -> bool {
-        false
-    }
-}
-
 /// Marks the input as being the complete buffer or a partial buffer for streaming input
 ///
 /// See [`Partial`] for marking a presumed complete buffer type as a streaming buffer.
@@ -787,33 +625,6 @@ impl StreamIsPartial for &str {
     }
 }
 
-impl<I> StreamIsPartial for (I, usize)
-where
-    I: StreamIsPartial,
-{
-    type PartialState = I::PartialState;
-
-    #[inline]
-    fn complete(&mut self) -> Self::PartialState {
-        self.0.complete()
-    }
-
-    #[inline]
-    fn restore_partial(&mut self, state: Self::PartialState) {
-        self.0.restore_partial(state);
-    }
-
-    #[inline(always)]
-    fn is_partial_supported() -> bool {
-        I::is_partial_supported()
-    }
-
-    #[inline(always)]
-    fn is_partial(&self) -> bool {
-        self.0.is_partial()
-    }
-}
-
 /// Useful functions to calculate the offset between slices and show a hexdump of a slice
 pub trait Offset<Start = Self> {
     /// Offset between the first byte of `start` and the first byte of `self`a
@@ -837,13 +648,13 @@ impl<T> Offset for &[T] {
             fst <= snd,
             "`Offset::offset_from({snd:?}, {fst:?})` only accepts slices of `self`"
         );
-        (snd as usize - fst as usize) / crate::lib::std::mem::size_of::<T>()
+        (snd as usize - fst as usize) / core::mem::size_of::<T>()
     }
 }
 
 impl<'a, T> Offset<<&'a [T] as Stream>::Checkpoint> for &'a [T]
 where
-    T: Clone + crate::lib::std::fmt::Debug,
+    T: Clone + core::fmt::Debug,
 {
     #[inline(always)]
     fn offset_from(&self, other: &<&'a [T] as Stream>::Checkpoint) -> usize {
@@ -861,26 +672,6 @@ impl Offset for &str {
 impl<'a> Offset<<&'a str as Stream>::Checkpoint> for &'a str {
     #[inline(always)]
     fn offset_from(&self, other: &<&'a str as Stream>::Checkpoint) -> usize {
-        self.checkpoint().offset_from(other)
-    }
-}
-
-impl<I> Offset for (I, usize)
-where
-    I: Offset,
-{
-    #[inline(always)]
-    fn offset_from(&self, start: &Self) -> usize {
-        self.0.offset_from(&start.0) * 8 + self.1 - start.1
-    }
-}
-
-impl<I> Offset<<(I, usize) as Stream>::Checkpoint> for (I, usize)
-where
-    I: Stream<Token = u8> + Clone,
-{
-    #[inline(always)]
-    fn offset_from(&self, other: &<(I, usize) as Stream>::Checkpoint) -> usize {
         self.checkpoint().offset_from(other)
     }
 }
@@ -962,34 +753,10 @@ impl<'b> Compare<&'b [u8]> for &[u8] {
     }
 }
 
-impl<'b> Compare<AsciiCaseless<&'b [u8]>> for &[u8] {
-    #[inline]
-    fn compare(&self, t: AsciiCaseless<&'b [u8]>) -> CompareResult {
-        if t.0
-            .iter()
-            .zip(*self)
-            .any(|(a, b)| !a.eq_ignore_ascii_case(b))
-        {
-            CompareResult::Error
-        } else if self.len() < t.slice_len() {
-            CompareResult::Incomplete
-        } else {
-            CompareResult::Ok(t.slice_len())
-        }
-    }
-}
-
 impl<const LEN: usize> Compare<[u8; LEN]> for &[u8] {
     #[inline(always)]
     fn compare(&self, t: [u8; LEN]) -> CompareResult {
         self.compare(&t[..])
-    }
-}
-
-impl<const LEN: usize> Compare<AsciiCaseless<[u8; LEN]>> for &[u8] {
-    #[inline(always)]
-    fn compare(&self, t: AsciiCaseless<[u8; LEN]>) -> CompareResult {
-        self.compare(AsciiCaseless(&t.0[..]))
     }
 }
 
@@ -1000,24 +767,10 @@ impl<'b, const LEN: usize> Compare<&'b [u8; LEN]> for &[u8] {
     }
 }
 
-impl<'b, const LEN: usize> Compare<AsciiCaseless<&'b [u8; LEN]>> for &[u8] {
-    #[inline(always)]
-    fn compare(&self, t: AsciiCaseless<&'b [u8; LEN]>) -> CompareResult {
-        self.compare(AsciiCaseless(&t.0[..]))
-    }
-}
-
 impl<'b> Compare<&'b str> for &[u8] {
     #[inline(always)]
     fn compare(&self, t: &'b str) -> CompareResult {
         self.compare(t.as_bytes())
-    }
-}
-
-impl<'b> Compare<AsciiCaseless<&'b str>> for &[u8] {
-    #[inline(always)]
-    fn compare(&self, t: AsciiCaseless<&'b str>) -> CompareResult {
-        self.compare(AsciiCaseless(t.0.as_bytes()))
     }
 }
 
@@ -1032,17 +785,6 @@ impl Compare<u8> for &[u8] {
     }
 }
 
-impl Compare<AsciiCaseless<u8>> for &[u8] {
-    #[inline]
-    fn compare(&self, t: AsciiCaseless<u8>) -> CompareResult {
-        match self.first() {
-            Some(c) if t.0.eq_ignore_ascii_case(c) => CompareResult::Ok(t.slice_len()),
-            Some(_) => CompareResult::Error,
-            None => CompareResult::Incomplete,
-        }
-    }
-}
-
 impl Compare<char> for &[u8] {
     #[inline(always)]
     fn compare(&self, t: char) -> CompareResult {
@@ -1050,23 +792,9 @@ impl Compare<char> for &[u8] {
     }
 }
 
-impl Compare<AsciiCaseless<char>> for &[u8] {
-    #[inline(always)]
-    fn compare(&self, t: AsciiCaseless<char>) -> CompareResult {
-        self.compare(AsciiCaseless(t.0.encode_utf8(&mut [0; 4]).as_bytes()))
-    }
-}
-
 impl<'b> Compare<&'b str> for &str {
     #[inline(always)]
     fn compare(&self, t: &'b str) -> CompareResult {
-        self.as_bytes().compare(t.as_bytes())
-    }
-}
-
-impl<'b> Compare<AsciiCaseless<&'b str>> for &str {
-    #[inline(always)]
-    fn compare(&self, t: AsciiCaseless<&'b str>) -> CompareResult {
         self.as_bytes().compare(t.as_bytes())
     }
 }
@@ -1078,39 +806,29 @@ impl Compare<char> for &str {
     }
 }
 
-impl Compare<AsciiCaseless<char>> for &str {
-    #[inline(always)]
-    fn compare(&self, t: AsciiCaseless<char>) -> CompareResult {
-        self.as_bytes().compare(t)
-    }
-}
-
 /// Look for a slice in self
 pub trait FindSlice<T> {
     /// Returns the offset of the slice if it is found
-    fn find_slice(&self, substr: T) -> Option<crate::lib::std::ops::Range<usize>>;
+    fn find_slice(&self, substr: T) -> Option<core::ops::Range<usize>>;
 }
 
 impl<'s> FindSlice<&'s [u8]> for &[u8] {
     #[inline(always)]
-    fn find_slice(&self, substr: &'s [u8]) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: &'s [u8]) -> Option<core::ops::Range<usize>> {
         memmem(self, substr)
     }
 }
 
 impl<'s> FindSlice<(&'s [u8],)> for &[u8] {
     #[inline(always)]
-    fn find_slice(&self, substr: (&'s [u8],)) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: (&'s [u8],)) -> Option<core::ops::Range<usize>> {
         memmem(self, substr.0)
     }
 }
 
 impl<'s> FindSlice<(&'s [u8], &'s [u8])> for &[u8] {
     #[inline(always)]
-    fn find_slice(
-        &self,
-        substr: (&'s [u8], &'s [u8]),
-    ) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: (&'s [u8], &'s [u8])) -> Option<core::ops::Range<usize>> {
         memmem2(self, substr)
     }
 }
@@ -1120,14 +838,14 @@ impl<'s> FindSlice<(&'s [u8], &'s [u8], &'s [u8])> for &[u8] {
     fn find_slice(
         &self,
         substr: (&'s [u8], &'s [u8], &'s [u8]),
-    ) -> Option<crate::lib::std::ops::Range<usize>> {
+    ) -> Option<core::ops::Range<usize>> {
         memmem3(self, substr)
     }
 }
 
 impl FindSlice<char> for &[u8] {
     #[inline(always)]
-    fn find_slice(&self, substr: char) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: char) -> Option<core::ops::Range<usize>> {
         let mut b = [0; 4];
         let substr = substr.encode_utf8(&mut b);
         self.find_slice(&*substr)
@@ -1136,7 +854,7 @@ impl FindSlice<char> for &[u8] {
 
 impl FindSlice<(char,)> for &[u8] {
     #[inline(always)]
-    fn find_slice(&self, substr: (char,)) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: (char,)) -> Option<core::ops::Range<usize>> {
         let mut b = [0; 4];
         let substr0 = substr.0.encode_utf8(&mut b);
         self.find_slice((&*substr0,))
@@ -1145,7 +863,7 @@ impl FindSlice<(char,)> for &[u8] {
 
 impl FindSlice<(char, char)> for &[u8] {
     #[inline(always)]
-    fn find_slice(&self, substr: (char, char)) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: (char, char)) -> Option<core::ops::Range<usize>> {
         let mut b = [0; 4];
         let substr0 = substr.0.encode_utf8(&mut b);
         let mut b = [0; 4];
@@ -1156,7 +874,7 @@ impl FindSlice<(char, char)> for &[u8] {
 
 impl FindSlice<(char, char, char)> for &[u8] {
     #[inline(always)]
-    fn find_slice(&self, substr: (char, char, char)) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: (char, char, char)) -> Option<core::ops::Range<usize>> {
         let mut b = [0; 4];
         let substr0 = substr.0.encode_utf8(&mut b);
         let mut b = [0; 4];
@@ -1169,59 +887,56 @@ impl FindSlice<(char, char, char)> for &[u8] {
 
 impl FindSlice<u8> for &[u8] {
     #[inline(always)]
-    fn find_slice(&self, substr: u8) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: u8) -> Option<core::ops::Range<usize>> {
         memchr(substr, self).map(|i| i..i + 1)
     }
 }
 
 impl FindSlice<(u8,)> for &[u8] {
     #[inline(always)]
-    fn find_slice(&self, substr: (u8,)) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: (u8,)) -> Option<core::ops::Range<usize>> {
         memchr(substr.0, self).map(|i| i..i + 1)
     }
 }
 
 impl FindSlice<(u8, u8)> for &[u8] {
     #[inline(always)]
-    fn find_slice(&self, substr: (u8, u8)) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: (u8, u8)) -> Option<core::ops::Range<usize>> {
         memchr2(substr, self).map(|i| i..i + 1)
     }
 }
 
 impl FindSlice<(u8, u8, u8)> for &[u8] {
     #[inline(always)]
-    fn find_slice(&self, substr: (u8, u8, u8)) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: (u8, u8, u8)) -> Option<core::ops::Range<usize>> {
         memchr3(substr, self).map(|i| i..i + 1)
     }
 }
 
 impl<'s> FindSlice<&'s str> for &[u8] {
     #[inline(always)]
-    fn find_slice(&self, substr: &'s str) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: &'s str) -> Option<core::ops::Range<usize>> {
         self.find_slice(substr.as_bytes())
     }
 }
 
 impl<'s> FindSlice<(&'s str,)> for &[u8] {
     #[inline(always)]
-    fn find_slice(&self, substr: (&'s str,)) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: (&'s str,)) -> Option<core::ops::Range<usize>> {
         memmem(self, substr.0.as_bytes())
     }
 }
 
 impl<'s> FindSlice<(&'s str, &'s str)> for &[u8] {
     #[inline(always)]
-    fn find_slice(&self, substr: (&'s str, &'s str)) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: (&'s str, &'s str)) -> Option<core::ops::Range<usize>> {
         memmem2(self, (substr.0.as_bytes(), substr.1.as_bytes()))
     }
 }
 
 impl<'s> FindSlice<(&'s str, &'s str, &'s str)> for &[u8] {
     #[inline(always)]
-    fn find_slice(
-        &self,
-        substr: (&'s str, &'s str, &'s str),
-    ) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: (&'s str, &'s str, &'s str)) -> Option<core::ops::Range<usize>> {
         memmem3(
             self,
             (
@@ -1235,59 +950,56 @@ impl<'s> FindSlice<(&'s str, &'s str, &'s str)> for &[u8] {
 
 impl<'s> FindSlice<&'s str> for &str {
     #[inline(always)]
-    fn find_slice(&self, substr: &'s str) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: &'s str) -> Option<core::ops::Range<usize>> {
         self.as_bytes().find_slice(substr)
     }
 }
 
 impl<'s> FindSlice<(&'s str,)> for &str {
     #[inline(always)]
-    fn find_slice(&self, substr: (&'s str,)) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: (&'s str,)) -> Option<core::ops::Range<usize>> {
         self.as_bytes().find_slice(substr)
     }
 }
 
 impl<'s> FindSlice<(&'s str, &'s str)> for &str {
     #[inline(always)]
-    fn find_slice(&self, substr: (&'s str, &'s str)) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: (&'s str, &'s str)) -> Option<core::ops::Range<usize>> {
         self.as_bytes().find_slice(substr)
     }
 }
 
 impl<'s> FindSlice<(&'s str, &'s str, &'s str)> for &str {
     #[inline(always)]
-    fn find_slice(
-        &self,
-        substr: (&'s str, &'s str, &'s str),
-    ) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: (&'s str, &'s str, &'s str)) -> Option<core::ops::Range<usize>> {
         self.as_bytes().find_slice(substr)
     }
 }
 
 impl FindSlice<char> for &str {
     #[inline(always)]
-    fn find_slice(&self, substr: char) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: char) -> Option<core::ops::Range<usize>> {
         self.as_bytes().find_slice(substr)
     }
 }
 
 impl FindSlice<(char,)> for &str {
     #[inline(always)]
-    fn find_slice(&self, substr: (char,)) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: (char,)) -> Option<core::ops::Range<usize>> {
         self.as_bytes().find_slice(substr)
     }
 }
 
 impl FindSlice<(char, char)> for &str {
     #[inline(always)]
-    fn find_slice(&self, substr: (char, char)) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: (char, char)) -> Option<core::ops::Range<usize>> {
         self.as_bytes().find_slice(substr)
     }
 }
 
 impl FindSlice<(char, char, char)> for &str {
     #[inline(always)]
-    fn find_slice(&self, substr: (char, char, char)) -> Option<crate::lib::std::ops::Range<usize>> {
+    fn find_slice(&self, substr: (char, char, char)) -> Option<core::ops::Range<usize>> {
         self.as_bytes().find_slice(substr)
     }
 }
@@ -1323,7 +1035,7 @@ pub trait UpdateSlice: Stream {
 
 impl<T> UpdateSlice for &[T]
 where
-    T: Clone + crate::lib::std::fmt::Debug,
+    T: Clone + core::fmt::Debug,
 {
     #[inline(always)]
     fn update_slice(self, inner: Self::Slice) -> Self {
@@ -1340,12 +1052,12 @@ impl UpdateSlice for &str {
 
 /// Ensure checkpoint details are kept private
 pub struct Checkpoint<T, S> {
-    inner: T,
+    pub(crate) inner: T,
     stream: core::marker::PhantomData<S>,
 }
 
 impl<T, S> Checkpoint<T, S> {
-    fn new(inner: T) -> Self {
+    pub(crate) fn new(inner: T) -> Self {
         Self {
             inner,
             stream: Default::default(),
@@ -1388,14 +1100,15 @@ impl<T: PartialEq, S> PartialEq for Checkpoint<T, S> {
 
 impl<T: Eq, S> Eq for Checkpoint<T, S> {}
 
-impl<T: crate::lib::std::fmt::Debug, S> crate::lib::std::fmt::Debug for Checkpoint<T, S> {
-    fn fmt(&self, f: &mut crate::lib::std::fmt::Formatter<'_>) -> crate::lib::std::fmt::Result {
+impl<T: core::fmt::Debug, S> core::fmt::Debug for Checkpoint<T, S> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         self.inner.fmt(f)
     }
 }
 
 /// Abstracts something which can extend an `Extend`.
-/// Used to build modified input slices in `escaped_transform`
+///
+/// Used to build modified input slices in [`escaped`][crate::ascii::escaped].
 pub trait Accumulate<T>: Sized {
     /// Create a new `Extend` of the correct type
     fn initial(capacity: Option<usize>) -> Self;
@@ -1512,9 +1225,65 @@ impl Accumulate<String> for String {
 }
 
 #[cfg(feature = "alloc")]
+impl Accumulate<char> for Cow<'_, str> {
+    #[inline(always)]
+    fn initial(_capacity: Option<usize>) -> Self {
+        Cow::Borrowed("")
+    }
+    #[inline(always)]
+    fn accumulate(&mut self, acc: char) {
+        self.to_mut().accumulate(acc);
+    }
+}
+
+#[cfg(feature = "alloc")]
+impl<'i> Accumulate<&'i str> for Cow<'i, str> {
+    #[inline(always)]
+    fn initial(_capacity: Option<usize>) -> Self {
+        Cow::Borrowed("")
+    }
+    #[inline(always)]
+    fn accumulate(&mut self, acc: &'i str) {
+        if self.as_ref().is_empty() {
+            *self = Cow::Borrowed(acc);
+        } else {
+            self.to_mut().accumulate(acc);
+        }
+    }
+}
+
+#[cfg(feature = "alloc")]
+impl<'i> Accumulate<Cow<'i, str>> for Cow<'i, str> {
+    #[inline(always)]
+    fn initial(_capacity: Option<usize>) -> Self {
+        Cow::Borrowed("")
+    }
+    #[inline(always)]
+    fn accumulate(&mut self, acc: Cow<'i, str>) {
+        if self.as_ref().is_empty() {
+            *self = acc;
+        } else {
+            self.to_mut().accumulate(acc);
+        }
+    }
+}
+
+#[cfg(feature = "alloc")]
+impl Accumulate<String> for Cow<'_, str> {
+    #[inline(always)]
+    fn initial(_capacity: Option<usize>) -> Self {
+        Cow::Borrowed("")
+    }
+    #[inline(always)]
+    fn accumulate(&mut self, acc: String) {
+        self.to_mut().accumulate(acc);
+    }
+}
+
+#[cfg(feature = "alloc")]
 impl<K, V> Accumulate<(K, V)> for BTreeMap<K, V>
 where
-    K: crate::lib::std::cmp::Ord,
+    K: core::cmp::Ord,
 {
     #[inline(always)]
     fn initial(_capacity: Option<usize>) -> Self {
@@ -1529,7 +1298,7 @@ where
 #[cfg(feature = "std")]
 impl<K, V, S> Accumulate<(K, V)> for HashMap<K, V, S>
 where
-    K: crate::lib::std::cmp::Eq + crate::lib::std::hash::Hash,
+    K: core::cmp::Eq + core::hash::Hash,
     S: BuildHasher + Default,
 {
     #[inline(always)]
@@ -1551,7 +1320,7 @@ where
 #[cfg(feature = "alloc")]
 impl<K> Accumulate<K> for BTreeSet<K>
 where
-    K: crate::lib::std::cmp::Ord,
+    K: core::cmp::Ord,
 {
     #[inline(always)]
     fn initial(_capacity: Option<usize>) -> Self {
@@ -1566,7 +1335,7 @@ where
 #[cfg(feature = "std")]
 impl<K, S> Accumulate<K> for HashSet<K, S>
 where
-    K: crate::lib::std::cmp::Eq + crate::lib::std::hash::Hash,
+    K: core::cmp::Eq + core::hash::Hash,
     S: BuildHasher + Default,
 {
     #[inline(always)]
@@ -1612,8 +1381,7 @@ pub(crate) fn clamp_capacity<T>(capacity: usize) -> usize {
     /// of elements regardless of the capacity cap.
     const MAX_INITIAL_CAPACITY_BYTES: usize = 65536;
 
-    let max_initial_capacity =
-        MAX_INITIAL_CAPACITY_BYTES / crate::lib::std::mem::size_of::<T>().max(1);
+    let max_initial_capacity = MAX_INITIAL_CAPACITY_BYTES / core::mem::size_of::<T>().max(1);
     capacity.min(max_initial_capacity)
 }
 
@@ -1681,14 +1449,7 @@ pub trait AsChar {
     /// ```
     fn as_char(self) -> char;
 
-    /// Tests that self is an alphabetic character
-    ///
-    /// <div class="warning">
-    ///
-    /// **Warning:** for `&str` it matches alphabetic
-    /// characters outside of the 52 ASCII letters
-    ///
-    /// </div>
+    /// Tests that self is an ASCII alphabetic character
     fn is_alpha(self) -> bool;
 
     /// Tests that self is an alphabetic character
@@ -1877,6 +1638,7 @@ impl AsChar for &char {
 ///
 /// For example, you could implement `hex_digit0` as:
 /// ```
+/// # #[cfg(feature = "parser")] {
 /// # use winnow::prelude::*;
 /// # use winnow::{error::ErrMode, error::ContextError};
 /// # use winnow::token::take_while;
@@ -1887,6 +1649,7 @@ impl AsChar for &char {
 /// assert_eq!(hex_digit1.parse_peek("21cZ"), Ok(("Z", "21c")));
 /// assert!(hex_digit1.parse_peek("H2").is_err());
 /// assert!(hex_digit1.parse_peek("").is_err());
+/// # }
 /// ```
 pub trait ContainsToken<T> {
     /// Returns true if self contains the token
@@ -1935,7 +1698,7 @@ impl<C, F: Fn(C) -> bool> ContainsToken<C> for F {
     }
 }
 
-impl<C1: AsChar, C2: AsChar + Clone> ContainsToken<C1> for crate::lib::std::ops::Range<C2> {
+impl<C1: AsChar, C2: AsChar + Clone> ContainsToken<C1> for core::ops::Range<C2> {
     #[inline(always)]
     fn contains_token(&self, token: C1) -> bool {
         let start = self.start.clone().as_char();
@@ -1944,9 +1707,7 @@ impl<C1: AsChar, C2: AsChar + Clone> ContainsToken<C1> for crate::lib::std::ops:
     }
 }
 
-impl<C1: AsChar, C2: AsChar + Clone> ContainsToken<C1>
-    for crate::lib::std::ops::RangeInclusive<C2>
-{
+impl<C1: AsChar, C2: AsChar + Clone> ContainsToken<C1> for core::ops::RangeInclusive<C2> {
     #[inline(always)]
     fn contains_token(&self, token: C1) -> bool {
         let start = self.start().clone().as_char();
@@ -1955,7 +1716,7 @@ impl<C1: AsChar, C2: AsChar + Clone> ContainsToken<C1>
     }
 }
 
-impl<C1: AsChar, C2: AsChar + Clone> ContainsToken<C1> for crate::lib::std::ops::RangeFrom<C2> {
+impl<C1: AsChar, C2: AsChar + Clone> ContainsToken<C1> for core::ops::RangeFrom<C2> {
     #[inline(always)]
     fn contains_token(&self, token: C1) -> bool {
         let start = self.start.clone().as_char();
@@ -1963,7 +1724,7 @@ impl<C1: AsChar, C2: AsChar + Clone> ContainsToken<C1> for crate::lib::std::ops:
     }
 }
 
-impl<C1: AsChar, C2: AsChar + Clone> ContainsToken<C1> for crate::lib::std::ops::RangeTo<C2> {
+impl<C1: AsChar, C2: AsChar + Clone> ContainsToken<C1> for core::ops::RangeTo<C2> {
     #[inline(always)]
     fn contains_token(&self, token: C1) -> bool {
         let end = self.end.clone().as_char();
@@ -1971,9 +1732,7 @@ impl<C1: AsChar, C2: AsChar + Clone> ContainsToken<C1> for crate::lib::std::ops:
     }
 }
 
-impl<C1: AsChar, C2: AsChar + Clone> ContainsToken<C1>
-    for crate::lib::std::ops::RangeToInclusive<C2>
-{
+impl<C1: AsChar, C2: AsChar + Clone> ContainsToken<C1> for core::ops::RangeToInclusive<C2> {
     #[inline(always)]
     fn contains_token(&self, token: C1) -> bool {
         let end = self.end.clone().as_char();
@@ -1981,7 +1740,7 @@ impl<C1: AsChar, C2: AsChar + Clone> ContainsToken<C1>
     }
 }
 
-impl<C1: AsChar> ContainsToken<C1> for crate::lib::std::ops::RangeFull {
+impl<C1: AsChar> ContainsToken<C1> for core::ops::RangeFull {
     #[inline(always)]
     fn contains_token(&self, _token: C1) -> bool {
         true
@@ -2000,7 +1759,7 @@ impl<C: AsChar> ContainsToken<C> for &'_ [char] {
     #[inline]
     fn contains_token(&self, token: C) -> bool {
         let token = token.as_char();
-        self.iter().any(|t| *t == token)
+        self.contains(&token)
     }
 }
 
@@ -2016,7 +1775,7 @@ impl<const LEN: usize, C: AsChar> ContainsToken<C> for &'_ [char; LEN] {
     #[inline]
     fn contains_token(&self, token: C) -> bool {
         let token = token.as_char();
-        self.iter().any(|t| *t == token)
+        self.contains(&token)
     }
 }
 
@@ -2032,7 +1791,7 @@ impl<const LEN: usize, C: AsChar> ContainsToken<C> for [char; LEN] {
     #[inline]
     fn contains_token(&self, token: C) -> bool {
         let token = token.as_char();
-        self.iter().any(|t| *t == token)
+        self.contains(&token)
     }
 }
 
@@ -2044,20 +1803,20 @@ impl<T> ContainsToken<T> for () {
 }
 
 macro_rules! impl_contains_token_for_tuple {
-  ($($haystack:ident),+) => (
-    #[allow(non_snake_case)]
-    impl<T, $($haystack),+> ContainsToken<T> for ($($haystack),+,)
-    where
-    T: Clone,
-      $($haystack: ContainsToken<T>),+
-    {
-    #[inline]
-      fn contains_token(&self, token: T) -> bool {
-        let ($(ref $haystack),+,) = *self;
-        $($haystack.contains_token(token.clone()) || )+ false
-      }
-    }
-  )
+    ($($haystack:ident),+) => (
+        #[allow(non_snake_case)]
+        impl<T, $($haystack),+> ContainsToken<T> for ($($haystack),+,)
+        where
+            T: Clone,
+            $($haystack: ContainsToken<T>),+
+        {
+            #[inline]
+            fn contains_token(&self, token: T) -> bool {
+                let ($(ref $haystack),+,) = *self;
+                $($haystack.contains_token(token.clone()) || )+ false
+            }
+        }
+    )
 }
 
 macro_rules! impl_contains_token_for_tuples {
@@ -2073,9 +1832,7 @@ macro_rules! impl_contains_token_for_tuples {
     }
 }
 
-impl_contains_token_for_tuples!(
-    F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15, F16, F17, F18, F19, F20, F21
-);
+impl_contains_token_for_tuples!(F1, F2, F3, F4, F5, F6, F7, F8, F9, F10);
 
 #[cfg(feature = "simd")]
 #[inline(always)]
@@ -2116,7 +1873,7 @@ fn memchr3(token: (u8, u8, u8), slice: &[u8]) -> Option<usize> {
 }
 
 #[inline(always)]
-fn memmem(slice: &[u8], literal: &[u8]) -> Option<crate::lib::std::ops::Range<usize>> {
+fn memmem(slice: &[u8], literal: &[u8]) -> Option<core::ops::Range<usize>> {
     match literal.len() {
         0 => Some(0..0),
         1 => memchr(literal[0], slice).map(|i| i..i + 1),
@@ -2125,7 +1882,7 @@ fn memmem(slice: &[u8], literal: &[u8]) -> Option<crate::lib::std::ops::Range<us
 }
 
 #[inline(always)]
-fn memmem2(slice: &[u8], literal: (&[u8], &[u8])) -> Option<crate::lib::std::ops::Range<usize>> {
+fn memmem2(slice: &[u8], literal: (&[u8], &[u8])) -> Option<core::ops::Range<usize>> {
     match (literal.0.len(), literal.1.len()) {
         (0, _) | (_, 0) => Some(0..0),
         (1, 1) => memchr2((literal.0[0], literal.1[0]), slice).map(|i| i..i + 1),
@@ -2134,10 +1891,7 @@ fn memmem2(slice: &[u8], literal: (&[u8], &[u8])) -> Option<crate::lib::std::ops
 }
 
 #[inline(always)]
-fn memmem3(
-    slice: &[u8],
-    literal: (&[u8], &[u8], &[u8]),
-) -> Option<crate::lib::std::ops::Range<usize>> {
+fn memmem3(slice: &[u8], literal: (&[u8], &[u8], &[u8])) -> Option<core::ops::Range<usize>> {
     match (literal.0.len(), literal.1.len(), literal.2.len()) {
         (0, _, _) | (_, 0, _) | (_, _, 0) => Some(0..0),
         (1, 1, 1) => memchr3((literal.0[0], literal.1[0], literal.2[0]), slice).map(|i| i..i + 1),
@@ -2147,7 +1901,7 @@ fn memmem3(
 
 #[cfg(feature = "simd")]
 #[inline(always)]
-fn memmem_(slice: &[u8], literal: &[u8]) -> Option<crate::lib::std::ops::Range<usize>> {
+fn memmem_(slice: &[u8], literal: &[u8]) -> Option<core::ops::Range<usize>> {
     let &prefix = match literal.first() {
         Some(x) => x,
         None => return Some(0..0),
@@ -2163,7 +1917,7 @@ fn memmem_(slice: &[u8], literal: &[u8]) -> Option<crate::lib::std::ops::Range<u
 }
 
 #[cfg(feature = "simd")]
-fn memmem2_(slice: &[u8], literal: (&[u8], &[u8])) -> Option<crate::lib::std::ops::Range<usize>> {
+fn memmem2_(slice: &[u8], literal: (&[u8], &[u8])) -> Option<core::ops::Range<usize>> {
     let prefix = match (literal.0.first(), literal.1.first()) {
         (Some(&a), Some(&b)) => (a, b),
         _ => return Some(0..0),
@@ -2184,10 +1938,7 @@ fn memmem2_(slice: &[u8], literal: (&[u8], &[u8])) -> Option<crate::lib::std::op
 }
 
 #[cfg(feature = "simd")]
-fn memmem3_(
-    slice: &[u8],
-    literal: (&[u8], &[u8], &[u8]),
-) -> Option<crate::lib::std::ops::Range<usize>> {
+fn memmem3_(slice: &[u8], literal: (&[u8], &[u8], &[u8])) -> Option<core::ops::Range<usize>> {
     let prefix = match (literal.0.first(), literal.1.first(), literal.2.first()) {
         (Some(&a), Some(&b), Some(&c)) => (a, b, c),
         _ => return Some(0..0),
@@ -2212,7 +1963,7 @@ fn memmem3_(
 }
 
 #[cfg(not(feature = "simd"))]
-fn memmem_(slice: &[u8], literal: &[u8]) -> Option<crate::lib::std::ops::Range<usize>> {
+fn memmem_(slice: &[u8], literal: &[u8]) -> Option<core::ops::Range<usize>> {
     for i in 0..slice.len() {
         let subslice = &slice[i..];
         if subslice.starts_with(literal) {
@@ -2224,7 +1975,7 @@ fn memmem_(slice: &[u8], literal: &[u8]) -> Option<crate::lib::std::ops::Range<u
 }
 
 #[cfg(not(feature = "simd"))]
-fn memmem2_(slice: &[u8], literal: (&[u8], &[u8])) -> Option<crate::lib::std::ops::Range<usize>> {
+fn memmem2_(slice: &[u8], literal: (&[u8], &[u8])) -> Option<core::ops::Range<usize>> {
     for i in 0..slice.len() {
         let subslice = &slice[i..];
         if subslice.starts_with(literal.0) {
@@ -2240,10 +1991,7 @@ fn memmem2_(slice: &[u8], literal: (&[u8], &[u8])) -> Option<crate::lib::std::op
 }
 
 #[cfg(not(feature = "simd"))]
-fn memmem3_(
-    slice: &[u8],
-    literal: (&[u8], &[u8], &[u8]),
-) -> Option<crate::lib::std::ops::Range<usize>> {
+fn memmem3_(slice: &[u8], literal: (&[u8], &[u8], &[u8])) -> Option<core::ops::Range<usize>> {
     for i in 0..slice.len() {
         let subslice = &slice[i..];
         if subslice.starts_with(literal.0) {

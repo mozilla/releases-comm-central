@@ -164,7 +164,7 @@ pub fn custom_newtype(tokens: TokenStream) -> TokenStream {
 /// implements the FFI traits for the local UniFfiTag.
 ///
 /// Use this to wrap the definition of an item defined in a remote crate.
-/// See `<https://mozilla.github.io/uniffi-rs/udl/remote_ext_types.html>` for details.
+/// See `<https://mozilla.github.io/uniffi-rs/latest/types/remote_ext_types.html>` for details.
 #[doc(hidden)]
 #[proc_macro_attribute]
 pub fn remote(attrs: TokenStream, input: TokenStream) -> TokenStream {
@@ -240,7 +240,7 @@ pub fn include_scaffolding(udl_stem: TokenStream) -> TokenStream {
             Ok(path) => path.display().to_string(),
             Err(_) => {
                 return quote! {
-                    compile_error!("This macro assumes the crate has a build.rs script, but $OUT_DIR is not present");
+                    compile_error!("This macro assumes to be run as part of the crate build, but `CARGO_MANIFEST_DIR` is not present");
                 }.into();
             }
         };
@@ -265,7 +265,7 @@ pub fn include_scaffolding(udl_stem: TokenStream) -> TokenStream {
 
 /// Use the FFI trait implementations defined in another crate for a remote type
 ///
-/// See `<https://mozilla.github.io/uniffi-rs/udl/remote_ext_types.html>` for details.
+/// See `<https://mozilla.github.io/uniffi-rs/latest/types/remote_ext_types.html>` for details.
 #[proc_macro]
 pub fn use_remote_type(tokens: TokenStream) -> TokenStream {
     remote::expand_remote_type(parse_macro_input!(tokens)).into()

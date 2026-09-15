@@ -63,6 +63,9 @@
 {# Type::Simple shouldn't hold any other Type variants #}
 {%- endmatch %}
 
+{%- when TypeDefinition::Box(box_) %}
+{%- include "BoxTemplate.py" %}
+
 {%- when TypeDefinition::Optional(opt) %}
 {%- include "OptionalTemplate.py" %}
 
@@ -71,6 +74,9 @@
 
 {%- when TypeDefinition::Map(map) %}
 {%- include "MapTemplate.py" %}
+
+{%- when TypeDefinition::Set(set) %}
+{%- include "SetTemplate.py" %}
 
 {%- when TypeDefinition::Enum(e) %}
 {# For enums, there are either an error *or* an enum, they can't be both. #}

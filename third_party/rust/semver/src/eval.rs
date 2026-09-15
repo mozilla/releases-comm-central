@@ -36,8 +36,6 @@ fn matches_impl(cmp: &Comparator, ver: &Version) -> bool {
         Op::LessEq => matches_exact(cmp, ver) || matches_less(cmp, ver),
         Op::Tilde => matches_tilde(cmp, ver),
         Op::Caret => matches_caret(cmp, ver),
-        #[cfg(no_non_exhaustive)]
-        Op::__NonExhaustive => unreachable!(),
     }
 }
 
@@ -138,20 +136,16 @@ fn matches_caret(cmp: &Comparator, ver: &Version) -> bool {
         return false;
     }
 
-    let minor = match cmp.minor {
-        None => return true,
-        Some(minor) => minor,
+    let Some(minor) = cmp.minor else {
+        return true;
     };
 
-    let patch = match cmp.patch {
-        None => {
-            if cmp.major > 0 {
-                return ver.minor >= minor;
-            } else {
-                return ver.minor == minor;
-            }
+    let Some(patch) = cmp.patch else {
+        if cmp.major > 0 {
+            return ver.minor >= minor;
+        } else {
+            return ver.minor == minor;
         }
-        Some(patch) => patch,
     };
 
     if cmp.major > 0 {

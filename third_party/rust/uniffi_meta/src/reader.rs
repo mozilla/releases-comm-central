@@ -54,8 +54,11 @@ impl<'a> MetadataReader<'a> {
             codes::RECORD => self.read_record()?.into(),
             codes::ENUM => self.read_enum()?.into(),
             codes::INTERFACE => self.read_object(ObjectImpl::Struct)?.into(),
-            codes::TRAIT_INTERFACE => self.read_object(ObjectImpl::Trait)?.into(),
-            codes::CALLBACK_TRAIT_INTERFACE => self.read_object(ObjectImpl::CallbackTrait)?.into(),
+            codes::TRAIT_INTERFACE => {
+                let mut obj = self.read_object(ObjectImpl::Struct)?;
+                obj.imp = ObjectImpl::Trait(self.read_trait_kind()?);
+                obj.into()
+            }
             codes::CALLBACK_INTERFACE => self.read_callback_interface()?.into(),
             codes::TRAIT_METHOD => self.read_trait_method()?.into(),
             codes::UNIFFI_TRAIT => self.read_uniffi_trait()?.into(),
@@ -119,6 +122,11 @@ impl<'a> MetadataReader<'a> {
         String::from_utf8(slice.into()).context("Invalid string data")
     }
 
+    fn read_optional_string(&mut self) -> Result<Option<String>> {
+        let is_some = self.read_bool()?;
+        is_some.then(|| self.read_string()).transpose()
+    }
+
     fn read_long_string(&mut self) -> Result<String> {
         let size = self.read_u16()? as usize;
         let slice;
@@ -160,16 +168,16 @@ impl<'a> MetadataReader<'a> {
                 name: self.read_string()?,
                 imp: ObjectImpl::Struct,
             },
-            codes::TYPE_TRAIT_INTERFACE => Type::Object {
-                module_path: self.read_string()?,
-                name: self.read_string()?,
-                imp: ObjectImpl::Trait,
-            },
-            codes::TYPE_CALLBACK_TRAIT_INTERFACE => Type::Object {
-                module_path: self.read_string()?,
-                name: self.read_string()?,
-                imp: ObjectImpl::CallbackTrait,
-            },
+            codes::TYPE_TRAIT_INTERFACE => {
+                let module_path = self.read_string()?;
+                let name = self.read_string()?;
+                let kind = self.read_trait_kind()?;
+                Type::Object {
+                    module_path,
+                    name,
+                    imp: ObjectImpl::Trait(kind),
+                }
+            }
             codes::TYPE_CALLBACK_INTERFACE => Type::CallbackInterface {
                 module_path: self.read_string()?,
                 name: self.read_string()?,
@@ -180,6 +188,9 @@ impl<'a> MetadataReader<'a> {
                 builtin: Box::new(self.read_type()?),
             },
             codes::TYPE_OPTION => Type::Optional {
+                inner_type: Box::new(self.read_type()?),
+            },
+            codes::TYPE_BOX => Type::Box {
                 inner_type: Box::new(self.read_type()?),
             },
             codes::TYPE_VEC => {
@@ -195,6 +206,9 @@ impl<'a> MetadataReader<'a> {
             codes::TYPE_HASH_MAP => Type::Map {
                 key_type: Box::new(self.read_type()?),
                 value_type: Box::new(self.read_type()?),
+            },
+            codes::TYPE_HASH_SET => Type::Set {
+                inner_type: Box::new(self.read_type()?),
             },
             codes::TYPE_UNIT => bail!("Unexpected TYPE_UNIT"),
             codes::TYPE_RESULT => bail!("Unexpected TYPE_RESULT"),
@@ -229,6 +243,7 @@ impl<'a> MetadataReader<'a> {
     fn read_func(&mut self) -> Result<FnMetadata> {
         let module_path = self.read_string()?;
         let name = self.read_string()?;
+        let orig_name = self.read_optional_string()?;
         let is_async = self.read_bool()?;
         let inputs = self.read_inputs()?;
         let (return_type, throws) = self.read_return_type()?;
@@ -236,6 +251,7 @@ impl<'a> MetadataReader<'a> {
         Ok(FnMetadata {
             module_path,
             name,
+            orig_name,
             is_async,
             inputs,
             return_type,
@@ -249,25 +265,31 @@ impl<'a> MetadataReader<'a> {
         let module_path = self.read_string()?;
         let self_name = self.read_string()?;
         let name = self.read_string()?;
+        let orig_name = self.read_optional_string()?;
         let is_async = self.read_bool()?;
         let inputs = self.read_inputs()?;
         let (return_type, throws) = self.read_return_type()?;
         let docstring = self.read_optional_long_string()?;
 
-        return_type
-            .filter(|t| {
-                matches!(
-                    t,
-                    Type::Object { name, imp: ObjectImpl::Struct, .. } if name == &self_name
-                )
-            })
-            .context("Constructor return type must be Self or Arc<Self>")?;
+        match return_type {
+            None => bail!("Constructor return type must be Self or Arc<Self>"),
+            Some(t) => match t {
+                Type::Object {
+                    name,
+                    imp: ObjectImpl::Struct,
+                    ..
+                } if name == self_name => {}
+                Type::Object { .. } => bail!("Constructor return type must be Self or Arc<Self>"),
+                _ => bail!("Only interfaces can have constructors"),
+            },
+        };
 
         Ok(ConstructorMetadata {
             module_path,
             self_name,
             is_async,
             name,
+            orig_name,
             inputs,
             throws,
             checksum: self.calc_checksum(),
@@ -279,6 +301,7 @@ impl<'a> MetadataReader<'a> {
         let self_module_path = self.read_string()?;
         let self_name = self.read_string()?;
         let name = self.read_string()?;
+        let orig_name = self.read_optional_string()?;
         let is_async = self.read_bool()?;
         let inputs = self.read_inputs()?;
         let (return_type, throws) = self.read_return_type()?;
@@ -287,6 +310,7 @@ impl<'a> MetadataReader<'a> {
             module_path: self_module_path,
             self_name,
             name,
+            orig_name,
             is_async,
             inputs,
             return_type,
@@ -301,6 +325,7 @@ impl<'a> MetadataReader<'a> {
         Ok(RecordMetadata {
             module_path: self.read_string()?,
             name: self.read_string()?,
+            orig_name: self.read_optional_string()?,
             remote: false, // only used when generating scaffolding from UDL
             fields: self.read_fields()?,
             docstring: self.read_optional_long_string()?,
@@ -310,6 +335,7 @@ impl<'a> MetadataReader<'a> {
     fn read_enum(&mut self) -> Result<EnumMetadata> {
         let module_path = self.read_string()?;
         let name = self.read_string()?;
+        let orig_name = self.read_optional_string()?;
         let shape = EnumShape::from(self.read_u8()?)?;
         let discr_type = if self.read_bool()? {
             Some(self.read_type()?)
@@ -324,6 +350,7 @@ impl<'a> MetadataReader<'a> {
         Ok(EnumMetadata {
             module_path,
             name,
+            orig_name,
             shape,
             remote: false, // only used when generating scaffolding from UDL
             discr_type,
@@ -333,10 +360,20 @@ impl<'a> MetadataReader<'a> {
         })
     }
 
+    fn read_trait_kind(&mut self) -> Result<TraitKind> {
+        Ok(match self.read_u8()? {
+            codes::TRAIT_KIND_RUST_ONLY => TraitKind::RustOnly,
+            codes::TRAIT_KIND_BOTH => TraitKind::Both,
+            codes::TRAIT_KIND_FOREIGN_ONLY => TraitKind::ForeignOnly,
+            other => bail!("Unknown trait kind: {other}"),
+        })
+    }
+
     fn read_object(&mut self, imp: ObjectImpl) -> Result<ObjectMetadata> {
         Ok(ObjectMetadata {
             module_path: self.read_string()?,
             name: self.read_string()?,
+            orig_name: self.read_optional_string()?,
             remote: false, // only used when generating scaffolding from UDL
             imp,
             docstring: self.read_optional_long_string()?,
@@ -347,6 +384,9 @@ impl<'a> MetadataReader<'a> {
         Ok(CustomTypeMetadata {
             module_path: self.read_string()?,
             name: self.read_string()?,
+            // `orig_name` is always None since there's currently no way to change the name using
+            // the macro code
+            orig_name: None,
             builtin: self.read_type()?,
             docstring: self.read_optional_long_string()?,
         })
@@ -393,6 +433,7 @@ impl<'a> MetadataReader<'a> {
         let trait_name = self.read_string()?;
         let index = self.read_u32()?;
         let name = self.read_string()?;
+        let orig_name = self.read_optional_string()?;
         let is_async = self.read_bool()?;
         let inputs = self.read_inputs()?;
         let (return_type, throws) = self.read_return_type()?;
@@ -402,6 +443,7 @@ impl<'a> MetadataReader<'a> {
             trait_name,
             index,
             name,
+            orig_name,
             is_async,
             inputs,
             return_type,
@@ -424,10 +466,12 @@ impl<'a> MetadataReader<'a> {
         (0..len)
             .map(|_| {
                 let name = self.read_string()?;
+                let orig_name = self.read_optional_string()?;
                 let ty = self.read_type()?;
                 let default = self.read_optional_default(&name, &ty)?;
                 Ok(FieldMetadata {
                     name,
+                    orig_name,
                     ty,
                     default,
                     docstring: self.read_optional_long_string()?,
@@ -442,6 +486,7 @@ impl<'a> MetadataReader<'a> {
             .map(|_| {
                 Ok(VariantMetadata {
                     name: self.read_string()?,
+                    orig_name: self.read_optional_string()?,
                     discr: self.read_optional_literal("<variant-value>", &Type::UInt64)?,
                     fields: self.read_fields()?,
                     docstring: self.read_optional_long_string()?,
@@ -456,6 +501,7 @@ impl<'a> MetadataReader<'a> {
             .map(|_| {
                 Ok(VariantMetadata {
                     name: self.read_string()?,
+                    orig_name: self.read_optional_string()?,
                     discr: None,
                     fields: vec![],
                     docstring: self.read_optional_long_string()?,
@@ -470,13 +516,13 @@ impl<'a> MetadataReader<'a> {
             .map(|_| {
                 let name = self.read_string()?;
                 let ty = self.read_type()?;
+                let by_ref = self.read_bool()?;
                 let default = self.read_optional_default(&name, &ty)?;
                 Ok(FnParamMetadata {
                     name,
                     ty,
                     default,
-                    // not emitted by macros
-                    by_ref: false,
+                    by_ref,
                     optional: false,
                 })
             })
@@ -598,6 +644,7 @@ impl<'a> MetadataReader<'a> {
             },
             codes::LIT_EMPTY_SEQ => LiteralMetadata::EmptySequence,
             codes::LIT_EMPTY_MAP => LiteralMetadata::EmptyMap,
+            codes::LIT_EMPTY_SET => LiteralMetadata::EmptySet,
             _ => bail!("Unexpected literal kind code: {literal_kind:?}"),
         })
     }

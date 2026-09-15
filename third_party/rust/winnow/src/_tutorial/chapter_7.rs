@@ -714,12 +714,13 @@
 //!
 //! To add spans to your parsed data for inclusion in semantic errors, see [`Parser::with_span`].
 //!
-//! For richer syntactic with spans,
+//! For richer syntactic errors with spans,
 //! consider separating lexing and parsing and annotating your tokens with [`Parser::with_span`].
 
 #![allow(unused_imports)]
 use super::chapter_1;
 use super::chapter_3;
+use crate::_topic;
 use crate::combinator::alt;
 use crate::combinator::cut_err;
 use crate::combinator::fail;
@@ -729,7 +730,6 @@ use crate::error::ErrMode::*;
 use crate::ModalResult;
 use crate::Parser;
 use crate::Result;
-use crate::_topic;
 
 pub use super::chapter_6 as previous;
 pub use super::chapter_8 as next;

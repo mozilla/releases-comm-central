@@ -1,3 +1,5 @@
+import ctypes
+import struct
 
 class _UniffiRustBuffer(ctypes.Structure):
     _fields_ = [
@@ -77,6 +79,49 @@ class _UniffiForeignBytes(ctypes.Structure):
 
     def __str__(self):
         return "_UniffiForeignBytes(len={}, data={})".format(self.len, self.data[0:self.len])
+
+
+class _UniffiFfiConverterByRefBytes:
+    """Zero-copy converter for `&[u8]` / `[ByRef] bytes` arguments.
+
+    Only `lower` and `check_lower` are valid — zero-copy byte buffers only
+    flow foreign -> Rust, and only in argument position. `lift`, `read`, and
+    `write` have no sound implementation here.
+
+    CPython `bytes` objects are immutable and their internal buffer doesn't
+    move for the lifetime of the object; the caller must keep the source
+    `bytes` alive for the duration of the FFI call.
+    """
+
+    @staticmethod
+    def check_lower(value):
+        # Tighter than `bytes-like`: `lower` uses `ctypes.c_char_p` which only
+        # accepts `bytes`/`None`, so fail fast with a matching check.
+        if not isinstance(value, bytes):
+            raise TypeError("a bytes object is required, not {!r}".format(type(value).__name__))
+
+    @staticmethod
+    def lower(value):
+        fb = _UniffiForeignBytes()
+        if len(value) == 0:
+            fb.len = 0
+            fb.data = None
+        else:
+            fb.len = len(value)
+            fb.data = ctypes.cast(ctypes.c_char_p(value), ctypes.POINTER(ctypes.c_char))
+        return fb
+
+    @staticmethod
+    def lift(value):
+        raise NotImplementedError("ByRef bytes cannot be lifted: zero-copy &[u8] only flows foreign->Rust")
+
+    @staticmethod
+    def read(buf):
+        raise NotImplementedError("ByRef bytes cannot be read from a buffer: zero-copy &[u8] is only supported in argument position, not nested in records/options/etc.")
+
+    @staticmethod
+    def write(value, buf):
+        raise NotImplementedError("ByRef bytes cannot be written to a buffer: zero-copy &[u8] is only supported in argument position, not nested in records/options/etc.")
 
 
 class _UniffiRustBufferStream:
@@ -169,14 +214,15 @@ class _UniffiRustBufferBuilder:
 
     def _pack_into(self, size, format, value):
         with self._reserve(size):
-            # XXX TODO: I feel like I should be able to use `struct.pack_into` here but can't figure it out.
-            for i, byte in enumerate(struct.pack(format, value)):
-                self.rbuf.data[self.rbuf.len + i] = byte
-
+            packed = struct.pack(format, value)
+            if size > 0:
+                ctypes.memmove(ctypes.addressof(self.rbuf.data.contents) + self.rbuf.len, packed, size)
+    
     def write(self, value):
-        with self._reserve(len(value)):
-            for i, byte in enumerate(value):
-                self.rbuf.data[self.rbuf.len + i] = byte
+        length = len(value)
+        with self._reserve(length):
+            if length > 0:
+                ctypes.memmove(ctypes.addressof(self.rbuf.data.contents) + self.rbuf.len, value, length)
 
     def write_i8(self, v):
         self._pack_into(1, ">b", v)

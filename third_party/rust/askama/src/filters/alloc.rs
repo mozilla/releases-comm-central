@@ -1,14 +1,8 @@
-use alloc::borrow::Cow;
 use alloc::str;
 use alloc::string::String;
-use core::cell::Cell;
 use core::convert::Infallible;
 use core::fmt::{self, Write};
-use core::ops::Deref;
-use core::pin::Pin;
 
-use super::MAX_LEN;
-use super::escape::HtmlSafeOutput;
 use crate::{FastWritable, Result};
 
 /// Return an ephemeral `&str` for `$src: impl fmt::Display`
@@ -100,175 +94,6 @@ pub fn fmt() {}
 /// Compare with [fmt](./fn.fmt.html).
 pub fn format() {}
 
-/// Replaces line breaks in plain text with appropriate HTML
-///
-/// A single newline becomes an HTML line break `<br>` and a new line
-/// followed by a blank line becomes a paragraph break `<p>`.
-///
-/// ```
-/// # #[cfg(feature = "code-in-doc")] {
-/// # use askama::Template;
-/// /// ```jinja
-/// /// <div>{{ example|linebreaks }}</div>
-/// /// ```
-/// #[derive(Template)]
-/// #[template(ext = "html", in_doc = true)]
-/// struct Example<'a> {
-///     example: &'a str,
-/// }
-///
-/// assert_eq!(
-///     Example { example: "Foo\nBar\n\nBaz" }.to_string(),
-///     "<div><p>Foo<br/>Bar</p><p>Baz</p></div>"
-/// );
-/// # }
-/// ```
-#[inline]
-pub fn linebreaks<S: fmt::Display>(source: S) -> Result<HtmlSafeOutput<Linebreaks<S>>, Infallible> {
-    Ok(HtmlSafeOutput(Linebreaks(source)))
-}
-
-pub struct Linebreaks<S>(S);
-
-impl<S: fmt::Display> fmt::Display for Linebreaks<S> {
-    #[inline]
-    fn fmt(&self, dest: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut buffer;
-        flush_linebreaks(dest, try_to_str!(self.0 => buffer))
-    }
-}
-
-impl<S: FastWritable> FastWritable for Linebreaks<S> {
-    #[inline]
-    fn write_into<W: fmt::Write + ?Sized>(
-        &self,
-        dest: &mut W,
-        values: &dyn crate::Values,
-    ) -> crate::Result<()> {
-        let mut buffer = String::new();
-        self.0.write_into(&mut buffer, values)?;
-        Ok(flush_linebreaks(dest, &buffer)?)
-    }
-}
-
-fn flush_linebreaks(dest: &mut (impl fmt::Write + ?Sized), s: &str) -> fmt::Result {
-    let linebroken = s.replace("\n\n", "</p><p>").replace('\n', "<br/>");
-    write!(dest, "<p>{linebroken}</p>")
-}
-
-/// Converts all newlines in a piece of plain text to HTML line breaks
-///
-/// ```
-/// # #[cfg(feature = "code-in-doc")] {
-/// # use askama::Template;
-/// /// ```jinja
-/// /// <div>{{ lines|linebreaksbr }}</div>
-/// /// ```
-/// #[derive(Template)]
-/// #[template(ext = "html", in_doc = true)]
-/// struct Example<'a> {
-///     lines: &'a str,
-/// }
-///
-/// assert_eq!(
-///     Example { lines: "a\nb\nc" }.to_string(),
-///     "<div>a<br/>b<br/>c</div>"
-/// );
-/// # }
-/// ```
-#[inline]
-pub fn linebreaksbr<S: fmt::Display>(
-    source: S,
-) -> Result<HtmlSafeOutput<Linebreaksbr<S>>, Infallible> {
-    Ok(HtmlSafeOutput(Linebreaksbr(source)))
-}
-
-pub struct Linebreaksbr<S>(S);
-
-impl<S: fmt::Display> fmt::Display for Linebreaksbr<S> {
-    #[inline]
-    fn fmt(&self, dest: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut buffer;
-        flush_linebreaksbr(dest, try_to_str!(self.0 => buffer))
-    }
-}
-
-impl<S: FastWritable> FastWritable for Linebreaksbr<S> {
-    #[inline]
-    fn write_into<W: fmt::Write + ?Sized>(
-        &self,
-        dest: &mut W,
-        values: &dyn crate::Values,
-    ) -> crate::Result<()> {
-        let mut buffer = String::new();
-        self.0.write_into(&mut buffer, values)?;
-        Ok(flush_linebreaksbr(dest, &buffer)?)
-    }
-}
-
-fn flush_linebreaksbr(dest: &mut (impl fmt::Write + ?Sized), s: &str) -> fmt::Result {
-    dest.write_str(&s.replace('\n', "<br/>"))
-}
-
-/// Replaces only paragraph breaks in plain text with appropriate HTML
-///
-/// A new line followed by a blank line becomes a paragraph break `<p>`.
-/// Paragraph tags only wrap content; empty paragraphs are removed.
-/// No `<br/>` tags are added.
-///
-/// ```
-/// # #[cfg(feature = "code-in-doc")] {
-/// # use askama::Template;
-/// /// ```jinja
-/// /// {{ lines|paragraphbreaks }}
-/// /// ```
-/// #[derive(Template)]
-/// #[template(ext = "html", in_doc = true)]
-/// struct Example<'a> {
-///     lines: &'a str,
-/// }
-///
-/// assert_eq!(
-///     Example { lines: "Foo\nBar\n\nBaz" }.to_string(),
-///     "<p>Foo\nBar</p><p>Baz</p>"
-/// );
-/// # }
-/// ```
-#[inline]
-pub fn paragraphbreaks<S: fmt::Display>(
-    source: S,
-) -> Result<HtmlSafeOutput<Paragraphbreaks<S>>, Infallible> {
-    Ok(HtmlSafeOutput(Paragraphbreaks(source)))
-}
-
-pub struct Paragraphbreaks<S>(S);
-
-impl<S: fmt::Display> fmt::Display for Paragraphbreaks<S> {
-    #[inline]
-    fn fmt(&self, dest: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut buffer;
-        flush_paragraphbreaks(dest, try_to_str!(self.0 => buffer))
-    }
-}
-
-impl<S: FastWritable> FastWritable for Paragraphbreaks<S> {
-    #[inline]
-    fn write_into<W: fmt::Write + ?Sized>(
-        &self,
-        dest: &mut W,
-        values: &dyn crate::Values,
-    ) -> crate::Result<()> {
-        let mut buffer = String::new();
-        self.0.write_into(&mut buffer, values)?;
-        Ok(flush_paragraphbreaks(dest, &buffer)?)
-    }
-}
-
-fn flush_paragraphbreaks(dest: &mut (impl fmt::Write + ?Sized), s: &str) -> fmt::Result {
-    let linebroken = s.replace("\n\n", "</p><p>").replace("<p></p>", "");
-    write!(dest, "<p>{linebroken}</p>")
-}
-
 /// Converts to lowercase
 ///
 /// ```
@@ -311,9 +136,9 @@ impl<S: fmt::Display> fmt::Display for Lower<S> {
 
 impl<S: FastWritable> FastWritable for Lower<S> {
     #[inline]
-    fn write_into<W: fmt::Write + ?Sized>(
+    fn write_into(
         &self,
-        dest: &mut W,
+        dest: &mut dyn fmt::Write,
         values: &dyn crate::Values,
     ) -> crate::Result<()> {
         let mut buffer = String::new();
@@ -398,9 +223,9 @@ impl<S: fmt::Display> fmt::Display for Upper<S> {
 
 impl<S: FastWritable> FastWritable for Upper<S> {
     #[inline]
-    fn write_into<W: fmt::Write + ?Sized>(
+    fn write_into(
         &self,
-        dest: &mut W,
+        dest: &mut dyn fmt::Write,
         values: &dyn crate::Values,
     ) -> crate::Result<()> {
         let mut buffer = String::new();
@@ -481,9 +306,9 @@ impl<S: fmt::Display> fmt::Display for Trim<S> {
 
 impl<S: FastWritable> FastWritable for Trim<S> {
     #[inline]
-    fn write_into<W: fmt::Write + ?Sized>(
+    fn write_into(
         &self,
-        dest: &mut W,
+        dest: &mut dyn fmt::Write,
         values: &dyn crate::Values,
     ) -> crate::Result<()> {
         let mut collector = TrimCollector(String::new());
@@ -505,125 +330,6 @@ impl fmt::Write for TrimCollector {
 
 fn flush_trim(dest: &mut (impl fmt::Write + ?Sized), collector: TrimCollector) -> fmt::Result {
     dest.write_str(collector.0.trim_end())
-}
-
-/// Indent lines with spaces or a prefix.
-///
-/// The first line and blank lines are not indented by default.
-/// The filter has two optional [`bool`] arguments, `first` and `blank`, that can be set to `true`
-/// to indent the first and blank lines, resp.
-///
-/// ### Example of `indent` with spaces
-///
-/// ```
-/// # #[cfg(feature = "code-in-doc")] {
-/// # use askama::Template;
-/// /// ```jinja
-/// /// <div>{{ example|indent(4) }}</div>
-/// /// ```
-/// #[derive(Template)]
-/// #[template(ext = "html", in_doc = true)]
-/// struct Example<'a> {
-///     example: &'a str,
-/// }
-///
-/// assert_eq!(
-///     Example { example: "hello\nfoo\nbar" }.to_string(),
-///     "<div>hello\n    foo\n    bar</div>"
-/// );
-/// # }
-/// ```
-///
-/// ### Example of `indent` with prefix a custom prefix
-///
-/// ```
-/// # #[cfg(feature = "code-in-doc")] {
-/// # use askama::Template;
-/// /// ```jinja
-/// /// <div>{{ example|indent("$$$ ") }}</div>
-/// /// ```
-/// #[derive(Template)]
-/// #[template(ext = "html", in_doc = true)]
-/// struct Example<'a> {
-///     example: &'a str,
-/// }
-///
-/// assert_eq!(
-///     Example { example: "hello\nfoo\nbar" }.to_string(),
-///     "<div>hello\n$$$ foo\n$$$ bar</div>"
-/// );
-/// # }
-/// ```
-#[inline]
-pub fn indent<S, I: AsIndent>(
-    source: S,
-    indent: I,
-    first: bool,
-    blank: bool,
-) -> Result<Indent<S, I>, Infallible> {
-    Ok(Indent {
-        source,
-        indent,
-        first,
-        blank,
-    })
-}
-
-pub struct Indent<S, I> {
-    source: S,
-    indent: I,
-    first: bool,
-    blank: bool,
-}
-
-impl<S: fmt::Display, I: AsIndent> fmt::Display for Indent<S, I> {
-    fn fmt(&self, dest: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let indent = self.indent.as_indent();
-        if indent.len() >= MAX_LEN || indent.is_empty() {
-            write!(dest, "{}", self.source)
-        } else {
-            let mut buffer;
-            let buffer = try_to_str!(self.source => buffer);
-            flush_indent(dest, indent, buffer, self.first, self.blank)
-        }
-    }
-}
-
-impl<S: FastWritable, I: AsIndent> FastWritable for Indent<S, I> {
-    fn write_into<W: fmt::Write + ?Sized>(
-        &self,
-        dest: &mut W,
-        values: &dyn crate::Values,
-    ) -> crate::Result<()> {
-        let indent = self.indent.as_indent();
-        if indent.len() >= MAX_LEN || indent.is_empty() {
-            self.source.write_into(dest, values)
-        } else {
-            let mut buffer = String::new();
-            self.source.write_into(&mut buffer, values)?;
-            Ok(flush_indent(dest, indent, &buffer, self.first, self.blank)?)
-        }
-    }
-}
-
-fn flush_indent(
-    dest: &mut (impl fmt::Write + ?Sized),
-    indent: &str,
-    s: &str,
-    first: bool,
-    blank: bool,
-) -> fmt::Result {
-    if s.len() >= MAX_LEN {
-        return dest.write_str(s);
-    }
-
-    for (idx, line) in s.split_inclusive('\n').enumerate() {
-        if (first || idx > 0) && (blank || !matches!(line, "\n" | "\r\n")) {
-            dest.write_str(indent)?;
-        }
-        dest.write_str(line)?;
-    }
-    Ok(())
 }
 
 /// Capitalize a value. The first character will be uppercase, all others lowercase.
@@ -668,9 +374,9 @@ impl<S: fmt::Display> fmt::Display for Capitalize<S> {
 
 impl<S: FastWritable> FastWritable for Capitalize<S> {
     #[inline]
-    fn write_into<W: fmt::Write + ?Sized>(
+    fn write_into(
         &self,
-        dest: &mut W,
+        dest: &mut dyn fmt::Write,
         values: &dyn crate::Values,
     ) -> crate::Result<()> {
         let mut buffer = String::new();
@@ -690,77 +396,6 @@ fn flush_capitalize(dest: &mut (impl fmt::Write + ?Sized), s: &str) -> fmt::Resu
         )
     } else {
         Ok(())
-    }
-}
-
-/// Count the words in that string.
-///
-/// ```
-/// # #[cfg(feature = "code-in-doc")] {
-/// # use askama::Template;
-/// /// ```jinja
-/// /// <div>{{ example|wordcount }}</div>
-/// /// ```
-/// #[derive(Template)]
-/// #[template(ext = "html", in_doc = true)]
-/// struct Example<'a> {
-///     example: &'a str,
-/// }
-///
-/// assert_eq!(
-///     Example { example: "askama is sort of cool" }.to_string(),
-///     "<div>5</div>"
-/// );
-/// # }
-/// ```
-#[inline]
-pub fn wordcount<S>(source: S) -> Wordcount<S> {
-    Wordcount(Cell::new(Some(WordcountInner {
-        source,
-        buffer: String::new(),
-    })))
-}
-
-pub struct Wordcount<S>(Cell<Option<WordcountInner<S>>>);
-
-struct WordcountInner<S> {
-    source: S,
-    buffer: String,
-}
-
-impl<S: fmt::Display> fmt::Display for Wordcount<S> {
-    #[inline]
-    fn fmt(&self, _: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if let Some(mut inner) = self.0.take() {
-            write!(inner.buffer, "{}", inner.source)?;
-            self.0.set(Some(inner));
-        }
-        Ok(())
-    }
-}
-
-impl<S: FastWritable> FastWritable for Wordcount<S> {
-    #[inline]
-    fn write_into<W: fmt::Write + ?Sized>(
-        &self,
-        _: &mut W,
-        values: &dyn crate::Values,
-    ) -> crate::Result<()> {
-        if let Some(mut inner) = self.0.take() {
-            inner.source.write_into(&mut inner.buffer, values)?;
-            self.0.set(Some(inner));
-        }
-        Ok(())
-    }
-}
-
-impl<S> Wordcount<S> {
-    pub fn into_count(self) -> usize {
-        if let Some(inner) = self.0.into_inner() {
-            inner.buffer.split_whitespace().count()
-        } else {
-            0
-        }
     }
 }
 
@@ -802,9 +437,9 @@ impl<S: fmt::Display> fmt::Display for Title<S> {
 
 impl<S: FastWritable> FastWritable for Title<S> {
     #[inline]
-    fn write_into<W: fmt::Write + ?Sized>(
+    fn write_into(
         &self,
-        dest: &mut W,
+        dest: &mut dyn fmt::Write,
         values: &dyn crate::Values,
     ) -> crate::Result<()> {
         let mut buffer = String::new();
@@ -845,139 +480,11 @@ pub fn titlecase<S: fmt::Display>(source: S) -> Result<Title<S>, Infallible> {
     title(source)
 }
 
-/// A prefix usable for indenting [prettified JSON data](super::json::json_pretty) and
-/// [`|indent`](indent)
-///
-/// ```
-/// # use askama::filters::AsIndent;
-/// assert_eq!(4.as_indent(), "    ");
-/// assert_eq!(" -> ".as_indent(), " -> ");
-/// ```
-pub trait AsIndent {
-    /// Borrow `self` as prefix to use.
-    fn as_indent(&self) -> &str;
-}
-
-impl AsIndent for str {
-    #[inline]
-    fn as_indent(&self) -> &str {
-        self
-    }
-}
-
-#[cfg(feature = "alloc")]
-impl AsIndent for alloc::string::String {
-    #[inline]
-    fn as_indent(&self) -> &str {
-        self
-    }
-}
-
-impl AsIndent for usize {
-    #[inline]
-    fn as_indent(&self) -> &str {
-        spaces(*self)
-    }
-}
-
-impl AsIndent for core::num::Wrapping<usize> {
-    #[inline]
-    fn as_indent(&self) -> &str {
-        spaces(self.0)
-    }
-}
-
-impl AsIndent for core::num::NonZeroUsize {
-    #[inline]
-    fn as_indent(&self) -> &str {
-        spaces(self.get())
-    }
-}
-
-fn spaces(width: usize) -> &'static str {
-    const MAX_SPACES: usize = 16;
-    const SPACES: &str = match str::from_utf8(&[b' '; MAX_SPACES]) {
-        Ok(spaces) => spaces,
-        Err(_) => panic!(),
-    };
-
-    &SPACES[..width.min(SPACES.len())]
-}
-
-#[cfg(feature = "alloc")]
-impl<T: AsIndent + alloc::borrow::ToOwned + ?Sized> AsIndent for Cow<'_, T> {
-    #[inline]
-    fn as_indent(&self) -> &str {
-        T::as_indent(self)
-    }
-}
-
-crate::impl_for_ref! {
-    impl AsIndent for T {
-        #[inline]
-        fn as_indent(&self) -> &str {
-            <T>::as_indent(self)
-        }
-    }
-}
-
-impl<T> AsIndent for Pin<T>
-where
-    T: Deref,
-    <T as Deref>::Target: AsIndent,
-{
-    #[inline]
-    fn as_indent(&self) -> &str {
-        self.as_ref().get_ref().as_indent()
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use alloc::string::ToString;
-    use std::borrow::ToOwned;
 
     use super::*;
-    use crate::NO_VALUES;
-
-    #[test]
-    fn test_linebreaks() {
-        assert_eq!(
-            linebreaks("Foo\nBar Baz").unwrap().to_string(),
-            "<p>Foo<br/>Bar Baz</p>"
-        );
-        assert_eq!(
-            linebreaks("Foo\nBar\n\nBaz").unwrap().to_string(),
-            "<p>Foo<br/>Bar</p><p>Baz</p>"
-        );
-    }
-
-    #[test]
-    fn test_linebreaksbr() {
-        assert_eq!(linebreaksbr("Foo\nBar").unwrap().to_string(), "Foo<br/>Bar");
-        assert_eq!(
-            linebreaksbr("Foo\nBar\n\nBaz").unwrap().to_string(),
-            "Foo<br/>Bar<br/><br/>Baz"
-        );
-    }
-
-    #[test]
-    fn test_paragraphbreaks() {
-        assert_eq!(
-            paragraphbreaks("Foo\nBar Baz").unwrap().to_string(),
-            "<p>Foo\nBar Baz</p>"
-        );
-        assert_eq!(
-            paragraphbreaks("Foo\nBar\n\nBaz").unwrap().to_string(),
-            "<p>Foo\nBar</p><p>Baz</p>"
-        );
-        assert_eq!(
-            paragraphbreaks("Foo\n\n\n\n\nBar\n\nBaz")
-                .unwrap()
-                .to_string(),
-            "<p>Foo</p><p>\nBar</p><p>Baz</p>"
-        );
-    }
 
     #[test]
     fn test_lower() {
@@ -1001,122 +508,6 @@ mod tests {
     }
 
     #[test]
-    fn test_indent() {
-        assert_eq!(
-            indent("hello", 2, false, false).unwrap().to_string(),
-            "hello"
-        );
-        assert_eq!(
-            indent("hello\n", 2, false, false).unwrap().to_string(),
-            "hello\n"
-        );
-        assert_eq!(
-            indent("hello\nfoo", 2, false, false).unwrap().to_string(),
-            "hello\n  foo"
-        );
-        assert_eq!(
-            indent("hello\nfoo\n bar", 4, false, false)
-                .unwrap()
-                .to_string(),
-            "hello\n    foo\n     bar"
-        );
-        assert_eq!(
-            indent("hello", 267_332_238_858, false, false)
-                .unwrap()
-                .to_string(),
-            "hello"
-        );
-
-        assert_eq!(
-            indent("hello\n\n bar", 4, false, false)
-                .unwrap()
-                .to_string(),
-            "hello\n\n     bar"
-        );
-        assert_eq!(
-            indent("hello\n\n bar", 4, false, true).unwrap().to_string(),
-            "hello\n    \n     bar"
-        );
-        assert_eq!(
-            indent("hello\n\n bar", 4, true, false).unwrap().to_string(),
-            "    hello\n\n     bar"
-        );
-        assert_eq!(
-            indent("hello\n\n bar", 4, true, true).unwrap().to_string(),
-            "    hello\n    \n     bar"
-        );
-    }
-
-    #[test]
-    fn test_indent_str() {
-        assert_eq!(
-            indent("hello\n\n bar", "❗❓", false, false)
-                .unwrap()
-                .to_string(),
-            "hello\n\n❗❓ bar"
-        );
-        assert_eq!(
-            indent("hello\n\n bar", "❗❓", false, true)
-                .unwrap()
-                .to_string(),
-            "hello\n❗❓\n❗❓ bar"
-        );
-        assert_eq!(
-            indent("hello\n\n bar", "❗❓", true, false)
-                .unwrap()
-                .to_string(),
-            "❗❓hello\n\n❗❓ bar"
-        );
-        assert_eq!(
-            indent("hello\n\n bar", "❗❓", true, true)
-                .unwrap()
-                .to_string(),
-            "❗❓hello\n❗❓\n❗❓ bar"
-        );
-    }
-
-    #[test]
-    #[allow(clippy::arc_with_non_send_sync)] // it's only a test, it does not have to make sense
-    #[allow(clippy::type_complexity)] // it's only a test, it does not have to be pretty
-    fn test_indent_complicated() {
-        use std::boxed::Box;
-        use std::cell::{RefCell, RefMut};
-        use std::rc::Rc;
-        use std::sync::{Arc, Mutex, MutexGuard, RwLock, RwLockWriteGuard};
-
-        let prefix = Mutex::new(Box::pin("❗❓".to_owned()));
-        let prefix = RefCell::new(Arc::new(prefix.try_lock().unwrap()));
-        let prefix = RwLock::new(Rc::new(prefix.borrow_mut()));
-        let prefix: RwLockWriteGuard<'_, Rc<RefMut<'_, Arc<MutexGuard<'_, Pin<Box<String>>>>>>> =
-            prefix.try_write().unwrap();
-
-        assert_eq!(
-            indent("hello\n\n bar", &prefix, false, false)
-                .unwrap()
-                .to_string(),
-            "hello\n\n❗❓ bar"
-        );
-        assert_eq!(
-            indent("hello\n\n bar", &prefix, false, true)
-                .unwrap()
-                .to_string(),
-            "hello\n❗❓\n❗❓ bar"
-        );
-        assert_eq!(
-            indent("hello\n\n bar", &prefix, true, false)
-                .unwrap()
-                .to_string(),
-            "❗❓hello\n\n❗❓ bar"
-        );
-        assert_eq!(
-            indent("hello\n\n bar", &prefix, true, true)
-                .unwrap()
-                .to_string(),
-            "❗❓hello\n❗❓\n❗❓ bar"
-        );
-    }
-
-    #[test]
     fn test_capitalize() {
         assert_eq!(capitalize("foo").unwrap().to_string(), "Foo".to_string());
         assert_eq!(capitalize("f").unwrap().to_string(), "F".to_string());
@@ -1136,25 +527,6 @@ mod tests {
     }
 
     #[test]
-    fn test_wordcount() {
-        for &(word, count) in &[
-            ("", 0),
-            (" \n\t", 0),
-            ("foo", 1),
-            ("foo bar", 2),
-            ("foo  bar", 2),
-        ] {
-            let w = wordcount(word);
-            let _ = w.to_string();
-            assert_eq!(w.into_count(), count, "fmt: {word:?}");
-
-            let w = wordcount(word);
-            w.write_into(&mut String::new(), NO_VALUES).unwrap();
-            assert_eq!(w.into_count(), count, "FastWritable: {word:?}");
-        }
-    }
-
-    #[test]
     fn test_title() {
         assert_eq!(&title("").unwrap().to_string(), "");
         assert_eq!(&title(" \n\t").unwrap().to_string(), " \n\t");
@@ -1171,11 +543,5 @@ mod tests {
                 .to_string(),
             "Fo\x0bOo\x0cOo\u{2002}Oo\u{3000}Bar"
         );
-    }
-
-    #[test]
-    fn fuzzed_indent_filter() {
-        let s = "hello\nfoo\nbar".to_string().repeat(1024);
-        assert_eq!(indent(s.clone(), 4, false, false).unwrap().to_string(), s);
     }
 }

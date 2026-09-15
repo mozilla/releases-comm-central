@@ -1,14 +1,14 @@
 [package]
 name = "askama"
-version = "0.14.0"
+version.workspace = true
 description = "Type-safe, compiled Jinja-like templates for Rust"
 keywords = ["markup", "template", "jinja2", "html"]
 categories = ["template-engine"]
-homepage = "https://askama.readthedocs.io/"
-repository = "https://github.com/askama-rs/askama"
-license = "MIT OR Apache-2.0"
-edition = "2021"
-rust-version = "1.83"
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 
 [package.metadata.docs.rs]
 features = ["full"]
@@ -27,7 +27,7 @@ harness = false
 itoa = "1.0.11"
 
 # needed by feature "derive"
-askama_derive = { version = "=0.14.0", path = "../askama_derive", default-features = false, optional = true }
+askama_macros = { version = "=0.16.0", path = "../askama_macros", default-features = false, optional = true }
 
 # needed by feature "serde_json"
 serde = { version = "1.0", optional = true, default-features = false }
@@ -38,31 +38,31 @@ percent-encoding = { version = "2.1.0", optional = true, default-features = fals
 
 [dev-dependencies]
 assert_matches = "1.5.0"
-criterion = "0.5"
+criterion = "0.8"
 
 [badges]
 maintenance = { status = "actively-developed" }
 
 [features]
-default = ["config", "derive", "std", "urlencode", "askama_derive?/default"]
-full = ["default", "blocks", "code-in-doc", "serde_json", "askama_derive?/full"]
+default = ["config", "derive", "std", "urlencode"]
+full = ["default", "code-in-doc", "serde_json"]
 
 alloc = [
-    "askama_derive?/alloc",
+    "askama_macros?/alloc",
     "serde?/alloc",
     "serde_json?/alloc",
     "percent-encoding?/alloc",
 ]
-blocks = ["askama_derive?/blocks"]
-code-in-doc = ["askama_derive?/code-in-doc"]
-config = ["askama_derive?/config"]
-derive = ["dep:askama_derive"]
-serde_json = ["std", "askama_derive?/serde_json", "dep:serde", "dep:serde_json"]
+code-in-doc = ["askama_macros?/code-in-doc"]
+config = ["askama_macros?/config"]
+derive = ["dep:askama_macros", "dep:askama_macros"]
+nightly-spans = ["askama_macros/nightly-spans"]
+serde_json = ["std", "askama_macros?/serde_json", "dep:serde", "dep:serde_json"]
 std = [
     "alloc",
-    "askama_derive?/std",
+    "askama_macros?/std",
     "serde?/std",
     "serde_json?/std",
     "percent-encoding?/std",
 ]
-urlencode = ["askama_derive?/urlencode", "dep:percent-encoding"]
+urlencode = ["askama_macros?/urlencode", "dep:percent-encoding"]

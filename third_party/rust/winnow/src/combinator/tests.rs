@@ -9,16 +9,16 @@ use crate::binary::u8;
 use crate::binary::Endianness;
 use crate::error::ErrMode;
 use crate::error::ParserError;
-#[cfg(feature = "alloc")]
-use crate::lib::std::borrow::ToOwned;
 use crate::prelude::*;
 use crate::stream::Stream;
 use crate::token::take;
 use crate::ModalResult;
 use crate::Partial;
+#[cfg(feature = "alloc")]
+use alloc::borrow::ToOwned;
 
 #[cfg(feature = "alloc")]
-use crate::lib::std::vec::Vec;
+use alloc::vec::Vec;
 
 #[test]
 fn eof_on_slices() {
@@ -108,7 +108,7 @@ Ok(
     );
 }
 
-use crate::lib::std::convert::From;
+use ::core::convert::From;
 impl From<u32> for CustomError {
     fn from(_: u32) -> Self {
         CustomError
@@ -1255,8 +1255,8 @@ Err(
 fn alt_test() {
     #[cfg(feature = "alloc")]
     use crate::{
+        alloc::{fmt::Debug, string::String},
         error::ParserError,
-        lib::std::{fmt::Debug, string::String},
     };
 
     #[cfg(feature = "alloc")]
@@ -1622,171 +1622,6 @@ Ok(
             101,
             102,
         ],
-    ),
-)
-
-"#]]
-        .raw()
-    );
-}
-
-#[test]
-fn permutation_test() {
-    #[allow(clippy::type_complexity)]
-    fn perm<'i>(
-        i: &mut Partial<&'i [u8]>,
-    ) -> TestResult<Partial<&'i [u8]>, (&'i [u8], &'i [u8], &'i [u8])> {
-        permutation(("abcd", "efg", "hi")).parse_next(i)
-    }
-
-    let a = &b"abcdefghijk"[..];
-    assert_parse!(
-        perm.parse_peek(Partial::new(a)),
-        str![[r#"
-Ok(
-    (
-        Partial {
-            input: [
-                106,
-                107,
-            ],
-            partial: true,
-        },
-        (
-            [
-                97,
-                98,
-                99,
-                100,
-            ],
-            [
-                101,
-                102,
-                103,
-            ],
-            [
-                104,
-                105,
-            ],
-        ),
-    ),
-)
-
-"#]]
-        .raw()
-    );
-    let b = &b"efgabcdhijk"[..];
-    assert_parse!(
-        perm.parse_peek(Partial::new(b)),
-        str![[r#"
-Ok(
-    (
-        Partial {
-            input: [
-                106,
-                107,
-            ],
-            partial: true,
-        },
-        (
-            [
-                97,
-                98,
-                99,
-                100,
-            ],
-            [
-                101,
-                102,
-                103,
-            ],
-            [
-                104,
-                105,
-            ],
-        ),
-    ),
-)
-
-"#]]
-        .raw()
-    );
-    let c = &b"hiefgabcdjk"[..];
-    assert_parse!(
-        perm.parse_peek(Partial::new(c)),
-        str![[r#"
-Ok(
-    (
-        Partial {
-            input: [
-                106,
-                107,
-            ],
-            partial: true,
-        },
-        (
-            [
-                97,
-                98,
-                99,
-                100,
-            ],
-            [
-                101,
-                102,
-                103,
-            ],
-            [
-                104,
-                105,
-            ],
-        ),
-    ),
-)
-
-"#]]
-        .raw()
-    );
-
-    let d = &b"efgxyzabcdefghi"[..];
-    assert_parse!(
-        perm.parse_peek(Partial::new(d)),
-        str![[r#"
-Err(
-    Backtrack(
-        InputError {
-            input: Partial {
-                input: [
-                    120,
-                    121,
-                    122,
-                    97,
-                    98,
-                    99,
-                    100,
-                    101,
-                    102,
-                    103,
-                    104,
-                    105,
-                ],
-                partial: true,
-            },
-        },
-    ),
-)
-
-"#]]
-        .raw()
-    );
-
-    let e = &b"efgabc"[..];
-    assert_parse!(
-        perm.parse_peek(Partial::new(e)),
-        str![[r#"
-Err(
-    Incomplete(
-        Unknown,
     ),
 )
 
@@ -3396,21 +3231,6 @@ Ok(
 "#]]
         .raw()
     );
-}
-
-#[derive(Debug, Clone, Eq, PartialEq)]
-struct NilError;
-
-impl<I: Stream> ParserError<I> for NilError {
-    type Inner = Self;
-
-    fn from_input(_: &I) -> NilError {
-        NilError
-    }
-
-    fn into_inner(self) -> Result<Self::Inner, Self> {
-        Ok(self)
-    }
 }
 
 #[test]

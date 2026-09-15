@@ -177,6 +177,9 @@ fn normalize_type_module_path(ty: &Type) -> Type {
             key_type: Box::new(normalize_type_module_path(key_type)),
             value_type: Box::new(normalize_type_module_path(value_type)),
         },
+        Type::Set { inner_type } => Type::Set {
+            inner_type: Box::new(normalize_type_module_path(inner_type)),
+        },
         Type::Custom {
             name,
             builtin,
@@ -186,6 +189,7 @@ fn normalize_type_module_path(ty: &Type) -> Type {
             name: name.clone(),
             builtin: Box::new(normalize_type_module_path(builtin)),
         },
+        Type::Box { inner_type } => normalize_type_module_path(inner_type),
     }
 }
 

@@ -3,6 +3,9 @@ use winnow::stream::Stream as _;
 use winnow::stream::TokenSlice;
 
 use super::EventReceiver;
+use crate::ErrorSink;
+use crate::Expected;
+use crate::ParseError;
 #[cfg(feature = "debug")]
 use crate::debug::DebugErrorSink;
 #[cfg(feature = "debug")]
@@ -10,9 +13,6 @@ use crate::debug::DebugEventReceiver;
 use crate::decoder::Encoding;
 use crate::lexer::Token;
 use crate::lexer::TokenKind;
-use crate::ErrorSink;
-use crate::Expected;
-use crate::ParseError;
 
 /// Parse lexed tokens into [`Event`][super::Event]s
 pub fn parse_document(
@@ -89,7 +89,7 @@ type Stream<'i> = TokenSlice<'i, Token>;
 /// Only the order of [`Event`][super::Event]s is validated and not [`Event`][super::Event] content nor semantics like duplicate
 /// keys.
 ///
-/// ```bnf
+/// ```abnf
 /// toml = expression *( newline expression )
 ///
 /// expression =  ws [ comment ]
@@ -99,17 +99,18 @@ type Stream<'i> = TokenSlice<'i, Token>;
 /// ;; Key-Value pairs
 ///
 /// keyval = key keyval-sep val
-///
 /// key = simple-key / dotted-key
+/// val = string / boolean / array / inline-table / date-time / float / integer
+///
 /// simple-key = quoted-key / unquoted-key
+///
+/// ;; Quoted and dotted key
 ///
 /// quoted-key = basic-string / literal-string
 /// dotted-key = simple-key 1*( dot-sep simple-key )
 ///
 /// dot-sep   = ws %x2E ws  ; . Period
 /// keyval-sep = ws %x3D ws ; =
-///
-/// val = string / boolean / array / inline-table / date-time / float / integer
 ///
 /// ;; Array
 ///
@@ -133,9 +134,10 @@ type Stream<'i> = TokenSlice<'i, Token>;
 ///
 /// ;; Inline Table
 ///
-/// inline-table = inline-table-open [ inline-table-keyvals ] inline-table-close
+/// inline-table = inline-table-open [ inline-table-keyvals ] ws-comment-newline inline-table-close
 ///
-/// inline-table-keyvals = keyval [ inline-table-sep inline-table-keyvals ]
+/// inline-table-keyvals =  ws-comment-newline keyval ws-comment-newline inline-table-sep inline-table-keyvals
+/// inline-table-keyvals =/ ws-comment-newline keyval ws-comment-newline [ inline-table-sep ]
 ///
 /// ;; Array Table
 ///
@@ -203,7 +205,7 @@ fn document(tokens: &mut Stream<'_>, receiver: &mut dyn EventReceiver, error: &m
 ///
 /// This eats to EOL
 ///
-/// ```bnf
+/// ```abnf
 /// ;; Table
 ///
 /// table = std-table / array-table
@@ -295,11 +297,14 @@ fn on_table(
 
 /// Parse a TOML key
 ///
-/// ```bnf
+/// ```abnf
 /// ;; Key-Value pairs
 ///
 /// key = simple-key / dotted-key
+///
 /// simple-key = quoted-key / unquoted-key
+///
+/// ;; Quoted and dotted key
 ///
 /// quoted-key = basic-string / literal-string
 /// dotted-key = simple-key 1*( dot-sep simple-key )
@@ -453,10 +458,12 @@ fn on_expression_key_val_sep<'i>(
 
 /// Parse a TOML simple key
 ///
-/// ```bnf
+/// ```abnf
 /// ;; Key-Value pairs
 ///
 /// simple-key = quoted-key / unquoted-key
+///
+/// ;; Quoted and dotted key
 ///
 /// quoted-key = basic-string / literal-string
 /// ```
@@ -543,7 +550,10 @@ fn simple_key(
 ///
 /// ```abnf
 /// key = simple-key / dotted-key
+///
 /// simple-key = quoted-key / unquoted-key
+///
+/// ;; Quoted and dotted key
 ///
 /// quoted-key = basic-string / literal-string
 /// dotted-key = simple-key 1*( dot-sep simple-key )
@@ -616,27 +626,40 @@ fn opt_dot_keys(
 /// val = string / boolean / array / inline-table / date-time / float / integer
 /// ```
 fn value(tokens: &mut Stream<'_>, receiver: &mut dyn EventReceiver, error: &mut dyn ErrorSink) {
-    let Some(current_token) = tokens.next_token() else {
-        let previous_span = tokens
-            .previous_tokens()
-            .find(|t| {
-                !matches!(
-                    t.kind(),
-                    TokenKind::Whitespace
-                        | TokenKind::Comment
-                        | TokenKind::Newline
-                        | TokenKind::Eof
-                )
-            })
-            .map(|t| t.span())
-            .unwrap_or_default();
+    // Skip extra `=` tokens.
+    let current_token = loop {
+        let Some(current_token) = tokens.next_token() else {
+            let previous_span = tokens
+                .previous_tokens()
+                .find(|t| {
+                    !matches!(
+                        t.kind(),
+                        TokenKind::Whitespace
+                            | TokenKind::Comment
+                            | TokenKind::Newline
+                            | TokenKind::Eof
+                    )
+                })
+                .map(|t| t.span())
+                .unwrap_or_default();
+            error.report_error(
+                ParseError::new("missing value")
+                    .with_context(previous_span)
+                    .with_expected(&[Expected::Description("value")])
+                    .with_unexpected(previous_span.after()),
+            );
+            return;
+        };
+        if current_token.kind() != TokenKind::Equals {
+            break current_token;
+        }
         error.report_error(
-            ParseError::new("missing value")
-                .with_context(previous_span)
-                .with_expected(&[Expected::Description("value")])
-                .with_unexpected(previous_span.after()),
+            ParseError::new("extra `=`")
+                .with_context(current_token.span())
+                .with_expected(&[])
+                .with_unexpected(current_token.span()),
         );
-        return;
+        receiver.error(current_token.span(), error);
     };
 
     match current_token.kind() {
@@ -650,16 +673,8 @@ fn value(tokens: &mut Stream<'_>, receiver: &mut dyn EventReceiver, error: &mut 
             receiver.scalar(fake_key, encoding, error);
             seek(tokens, -1);
         }
-        TokenKind::Equals => {
-            error.report_error(
-                ParseError::new("extra `=`")
-                    .with_context(current_token.span())
-                    .with_expected(&[])
-                    .with_unexpected(current_token.span()),
-            );
-            receiver.error(current_token.span(), error);
-            value(tokens, receiver, error);
-        }
+        // Handled by the while loop above
+        TokenKind::Equals => unreachable!(),
         TokenKind::LeftCurlyBracket => {
             on_inline_table_open(tokens, current_token, receiver, error);
         }
@@ -807,14 +822,7 @@ fn on_array_open(
                 receiver.newline(current_token.span(), error);
             }
             TokenKind::Eof => {
-                error.report_error(
-                    ParseError::new("unclosed array")
-                        .with_context(array_open.span())
-                        .with_expected(&[Expected::Literal("]")])
-                        .with_unexpected(current_token.span()),
-                );
-                receiver.array_close(current_token.span().before(), error);
-                return;
+                break;
             }
             TokenKind::Comma => match state {
                 State::NeedsValue => {
@@ -946,9 +954,10 @@ fn on_array_open(
 /// ```abnf
 /// ;; Inline Table
 ///
-/// inline-table = inline-table-open [ inline-table-keyvals ] inline-table-close
+/// inline-table = inline-table-open [ inline-table-keyvals ] ws-comment-newline inline-table-close
 ///
-/// inline-table-keyvals = keyval [ inline-table-sep inline-table-keyvals ]
+/// inline-table-keyvals =  ws-comment-newline keyval ws-comment-newline inline-table-sep inline-table-keyvals
+/// inline-table-keyvals =/ ws-comment-newline keyval ws-comment-newline [ inline-table-sep ]
 /// ```
 fn on_inline_table_open(
     tokens: &mut Stream<'_>,
@@ -981,43 +990,20 @@ fn on_inline_table_open(
         }
     }
 
-    let mut empty = true;
     let mut state = State::NeedsKey;
     while let Some(current_token) = tokens.next_token() {
         match current_token.kind() {
             TokenKind::Comment => {
-                error.report_error(
-                    ParseError::new("comments are unsupported in inline tables")
-                        .with_context(inline_table_open.span())
-                        .with_expected(&[])
-                        .with_unexpected(current_token.span()),
-                );
-
                 on_comment(tokens, current_token, receiver, error);
             }
             TokenKind::Whitespace => {
                 receiver.whitespace(current_token.span(), error);
             }
             TokenKind::Newline => {
-                error.report_error(
-                    ParseError::new("newlines are unsupported in inline tables")
-                        .with_context(inline_table_open.span())
-                        .with_expected(&[])
-                        .with_unexpected(current_token.span()),
-                );
-
                 receiver.newline(current_token.span(), error);
             }
             TokenKind::Eof => {
-                error.report_error(
-                    ParseError::new("unclosed inline table")
-                        .with_context(inline_table_open.span())
-                        .with_expected(&[Expected::Literal("}")])
-                        .with_unexpected(current_token.span()),
-                );
-
-                receiver.inline_table_close(current_token.span().before(), error);
-                return;
+                break;
             }
             TokenKind::Comma => match state {
                 State::NeedsKey | State::NeedsEquals | State::NeedsValue => {
@@ -1043,13 +1029,11 @@ fn on_inline_table_open(
 
                     receiver.key_val_sep(current_token.span(), error);
 
-                    empty = false;
                     state = State::NeedsValue;
                 }
                 State::NeedsEquals => {
                     receiver.key_val_sep(current_token.span(), error);
 
-                    empty = false;
                     state = State::NeedsValue;
                 }
                 State::NeedsValue | State::NeedsComma => {
@@ -1083,29 +1067,33 @@ fn on_inline_table_open(
 
                     on_inline_table_open(tokens, current_token, receiver, error);
 
-                    empty = false;
                     state = State::NeedsComma;
                 }
                 State::NeedsValue => {
                     on_inline_table_open(tokens, current_token, receiver, error);
 
-                    empty = false;
                     state = State::NeedsComma;
                 }
             },
             TokenKind::RightCurlyBracket => {
-                if !empty && !matches!(state, State::NeedsComma) {
-                    let unexpected = tokens
-                        .previous_tokens()
-                        .find(|t| t.kind() == TokenKind::Comma)
-                        .map(|t| t.span())
-                        .unwrap_or_else(|| current_token.span().before());
-                    error.report_error(
-                        ParseError::new("trailing commas are not supported in inline tables")
-                            .with_context(inline_table_open.span())
-                            .with_expected(&[])
-                            .with_unexpected(unexpected),
-                    );
+                match state {
+                    State::NeedsKey => {}
+                    State::NeedsEquals => {
+                        receiver.key_val_sep(current_token.span().before(), error);
+                        receiver.scalar(
+                            current_token.span().before(),
+                            Some(Encoding::LiteralString),
+                            error,
+                        );
+                    }
+                    State::NeedsValue => {
+                        receiver.scalar(
+                            current_token.span().before(),
+                            Some(Encoding::LiteralString),
+                            error,
+                        );
+                    }
+                    State::NeedsComma => {}
                 }
                 receiver.inline_table_close(current_token.span(), error);
 
@@ -1132,13 +1120,11 @@ fn on_inline_table_open(
 
                     on_array_open(tokens, current_token, receiver, error);
 
-                    empty = false;
                     state = State::NeedsComma;
                 }
                 State::NeedsValue => {
                     on_array_open(tokens, current_token, receiver, error);
 
-                    empty = false;
                     state = State::NeedsComma;
                 }
             },
@@ -1163,7 +1149,6 @@ fn on_inline_table_open(
                     let _ = receiver.array_open(current_token.span().before(), error);
                     receiver.array_close(current_token.span(), error);
 
-                    empty = false;
                     state = State::NeedsComma;
                 }
             },
@@ -1182,7 +1167,6 @@ fn on_inline_table_open(
                         );
                         seek(tokens, -1);
                         opt_dot_keys(tokens, receiver, error);
-                        empty = false;
                         state = State::NeedsEquals;
                     } else {
                         receiver.simple_key(
@@ -1191,7 +1175,6 @@ fn on_inline_table_open(
                             error,
                         );
                         opt_dot_keys(tokens, receiver, error);
-                        empty = false;
                         state = State::NeedsEquals;
                     }
                 }
@@ -1205,13 +1188,11 @@ fn on_inline_table_open(
 
                     on_scalar(tokens, current_token, receiver, error);
 
-                    empty = false;
                     state = State::NeedsComma;
                 }
                 State::NeedsValue => {
                     on_scalar(tokens, current_token, receiver, error);
 
-                    empty = false;
                     state = State::NeedsComma;
                 }
                 State::NeedsComma => {
@@ -1230,7 +1211,6 @@ fn on_inline_table_open(
                         );
                         seek(tokens, -1);
                         opt_dot_keys(tokens, receiver, error);
-                        empty = false;
                         state = State::NeedsEquals;
                     } else {
                         receiver.simple_key(
@@ -1239,7 +1219,6 @@ fn on_inline_table_open(
                             error,
                         );
                         opt_dot_keys(tokens, receiver, error);
-                        empty = false;
                         state = State::NeedsEquals;
                     }
                 }
@@ -1257,18 +1236,29 @@ fn on_inline_table_open(
         })
         .map(|t| t.span())
         .unwrap_or_default();
+    match state {
+        State::NeedsKey => {}
+        State::NeedsEquals => {
+            receiver.key_val_sep(previous_span.after(), error);
+            receiver.scalar(previous_span.after(), Some(Encoding::LiteralString), error);
+        }
+        State::NeedsValue => {
+            receiver.scalar(previous_span.after(), Some(Encoding::LiteralString), error);
+        }
+        State::NeedsComma => {}
+    }
     error.report_error(
         ParseError::new("unclosed inline table")
             .with_context(inline_table_open.span())
             .with_expected(&[Expected::Literal("}")])
             .with_unexpected(previous_span.after()),
     );
-    receiver.array_close(previous_span.after(), error);
+    receiver.inline_table_close(previous_span.after(), error);
 }
 
 /// Parse whitespace, if present
 ///
-/// ```bnf
+/// ```abnf
 /// ws = *wschar
 /// ```
 fn opt_whitespace(
@@ -1283,7 +1273,7 @@ fn opt_whitespace(
 
 /// Parse EOL decor, if present
 ///
-/// ```bnf
+/// ```abnf
 /// toml = expression *( newline expression )
 ///
 /// expression =  ws [ on_comment ]

@@ -12,7 +12,7 @@
 [package]
 edition = "2024"
 name = "glean-sym"
-version = "0.1.0"
+version = "70.0.0"
 authors = ["The Glean Team <glean-team@mozilla.com>"]
 build = false
 autolib = false
@@ -24,6 +24,10 @@ description = "A Rust API on top of the Glean UniFFI C FFI"
 readme = false
 license = "MPL-2.0"
 repository = "https://github.com/mozilla/glean"
+resolver = "2"
+
+[features]
+active = []
 
 [lib]
 name = "glean_sym"
@@ -33,20 +37,18 @@ path = "src/lib.rs"
 name = "parser"
 path = "tests/parser.rs"
 
-[dependencies]
-libloading = "0.8.0"
-once_cell = "1.21.3"
-uniffi = "0.31.0"
+[dependencies.libloading]
+version = "0.8.0"
+
+[dependencies.once_cell]
+version = "1.21.3"
 
 [dependencies.serde]
 version = "1.0.228"
 features = ["derive"]
 
-[dev-dependencies]
-xshell = "0.2.7"
+[dependencies.uniffi]
+version = "0.32.0"
 
-[dev-dependencies.glean-core]
-path = "../"
-
-[dev-dependencies.glean-sym-parser]
-path = "../../tools/glean-sym-parser"
+[dev-dependencies.xshell]
+version = "0.2.7"

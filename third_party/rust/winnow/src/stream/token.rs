@@ -1,10 +1,8 @@
-use crate::error::Needed;
-use crate::lib::std::iter::Enumerate;
-use crate::lib::std::slice::Iter;
 use crate::stream::Checkpoint;
 use crate::stream::Compare;
 use crate::stream::CompareResult;
 use crate::stream::Location;
+use crate::stream::Needed;
 use crate::stream::Offset;
 #[cfg(feature = "unstable-recover")]
 #[cfg(feature = "std")]
@@ -13,6 +11,8 @@ use crate::stream::SliceLen;
 use crate::stream::Stream;
 use crate::stream::StreamIsPartial;
 use crate::stream::UpdateSlice;
+use core::iter::Enumerate;
+use core::slice::Iter;
 
 /// Specialized input for parsing lexed tokens
 ///
@@ -32,7 +32,7 @@ pub struct TokenSlice<'t, T> {
 
 impl<'t, T> TokenSlice<'t, T>
 where
-    T: crate::lib::std::fmt::Debug + Clone,
+    T: core::fmt::Debug + Clone,
 {
     /// Make a stream to parse tokens
     #[inline]
@@ -85,14 +85,14 @@ where
 
 impl<T> Default for TokenSlice<'_, T>
 where
-    T: crate::lib::std::fmt::Debug + Clone,
+    T: core::fmt::Debug + Clone,
 {
     fn default() -> Self {
         Self::new(&[])
     }
 }
 
-impl<T> crate::lib::std::ops::Deref for TokenSlice<'_, T> {
+impl<T> core::ops::Deref for TokenSlice<'_, T> {
     type Target = [T];
 
     fn deref(&self) -> &Self::Target {
@@ -115,7 +115,7 @@ impl<T> SliceLen for TokenSlice<'_, T> {
 
 impl<'t, T> Stream for TokenSlice<'t, T>
 where
-    T: crate::lib::std::fmt::Debug + Clone,
+    T: core::fmt::Debug + Clone,
 {
     type Token = &'t T;
     type Slice = &'t [T];
@@ -184,12 +184,6 @@ where
         self.input = checkpoint.inner;
     }
 
-    #[inline(always)]
-    fn raw(&self) -> &dyn crate::lib::std::fmt::Debug {
-        #![allow(deprecated)]
-        self.input.raw()
-    }
-
     fn trace(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         self.input.trace(f)
     }
@@ -217,7 +211,7 @@ where
 #[cfg(feature = "std")]
 impl<T, E> Recover<E> for TokenSlice<'_, T>
 where
-    T: crate::lib::std::fmt::Debug + Clone,
+    T: core::fmt::Debug + Clone,
 {
     #[inline(always)]
     fn record_err(
@@ -238,7 +232,7 @@ where
 
 impl<'t, T> StreamIsPartial for TokenSlice<'t, T>
 where
-    T: crate::lib::std::fmt::Debug + Clone,
+    T: core::fmt::Debug + Clone,
 {
     type PartialState = <&'t [T] as StreamIsPartial>::PartialState;
 
@@ -266,7 +260,7 @@ where
 
 impl<T> Offset for TokenSlice<'_, T>
 where
-    T: crate::lib::std::fmt::Debug + Clone,
+    T: core::fmt::Debug + Clone,
 {
     #[inline(always)]
     fn offset_from(&self, other: &Self) -> usize {
@@ -276,7 +270,7 @@ where
 
 impl<T> Offset<<TokenSlice<'_, T> as Stream>::Checkpoint> for TokenSlice<'_, T>
 where
-    T: crate::lib::std::fmt::Debug + Clone,
+    T: core::fmt::Debug + Clone,
 {
     #[inline(always)]
     fn offset_from(&self, other: &<TokenSlice<'_, T> as Stream>::Checkpoint) -> usize {
@@ -304,7 +298,7 @@ where
 
 impl<T> UpdateSlice for TokenSlice<'_, T>
 where
-    T: crate::lib::std::fmt::Debug + Clone,
+    T: core::fmt::Debug + Clone,
 {
     #[inline(always)]
     fn update_slice(mut self, inner: Self::Slice) -> Self {

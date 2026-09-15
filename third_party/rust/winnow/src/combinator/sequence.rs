@@ -1,14 +1,11 @@
 use crate::combinator::trace;
 use crate::error::ParserError;
 use crate::stream::Stream;
-use crate::*;
-
-#[doc(inline)]
-pub use crate::seq;
+use crate::Parser;
 
 /// Sequence two parsers, only returning the output from the second.
 ///
-/// See also [`seq`] to generalize this across any number of fields.
+/// See also [`seq`][crate::combinator::seq] to generalize this across any number of fields.
 ///
 /// # Example
 ///
@@ -46,7 +43,7 @@ where
 
 /// Sequence two parsers, only returning the output of the first.
 ///
-/// See also [`seq`] to generalize this across any number of fields.
+/// See also [`seq`][crate::combinator::seq] to generalize this across any number of fields.
 ///
 /// # Example
 ///
@@ -84,7 +81,7 @@ where
 
 /// Sequence three parsers, only returning the values of the first and third.
 ///
-/// See also [`seq`] to generalize this across any number of fields.
+/// See also [`seq`][crate::combinator::seq] to generalize this across any number of fields.
 ///
 /// # Example
 ///
@@ -124,7 +121,7 @@ where
 
 /// Sequence three parsers, only returning the output of the second.
 ///
-/// See also [`seq`] to generalize this across any number of fields.
+/// See also [`seq`][crate::combinator::seq] to generalize this across any number of fields.
 ///
 /// # Example
 ///

@@ -237,6 +237,7 @@ fn experimentation_id_is_set_correctly() {
         session_mode: crate::session::SessionMode::Auto,
         session_sample_rate: 1.0,
         session_inactivity_timeout_ms: 1_800_000,
+        events_ping_acceleration_factor: None,
     })
     .unwrap();
 
@@ -1209,10 +1210,10 @@ fn records_database_file_size() {
     // We should see the database containing some data.
     assert!(data.sum > 0);
 
-    let rkv_load_state = &glean.database_metrics.rkv_load_error;
-    let rkv_load_error = rkv_load_state.get_value(&glean, "metrics");
+    let load_state = &glean.database_metrics.load_error;
+    let load_error = load_state.get_value(&glean, "metrics");
 
-    assert_eq!(rkv_load_error, None);
+    assert_eq!(load_error, None);
 }
 
 #[cfg(not(target_os = "windows"))]

@@ -4,7 +4,7 @@ use std::io::Write;
 
 use crate::error::ParserError;
 use crate::stream::Stream;
-use crate::*;
+use crate::{Parser, Result};
 
 pub(crate) struct Trace<P, D, I, O, E>
 where
@@ -16,9 +16,7 @@ where
     parser: P,
     name: D,
     call_count: usize,
-    i: core::marker::PhantomData<I>,
-    o: core::marker::PhantomData<O>,
-    e: core::marker::PhantomData<E>,
+    marker: core::marker::PhantomData<(I, O, E)>,
 }
 
 impl<P, D, I, O, E> Trace<P, D, I, O, E>
@@ -34,9 +32,7 @@ where
             parser,
             name,
             call_count: 0,
-            i: Default::default(),
-            o: Default::default(),
-            e: Default::default(),
+            marker: Default::default(),
         }
     }
 }
@@ -99,7 +95,7 @@ impl AsRef<usize> for Depth {
     }
 }
 
-impl crate::lib::std::ops::Deref for Depth {
+impl core::ops::Deref for Depth {
     type Target = usize;
 
     #[inline(always)]
@@ -130,7 +126,7 @@ impl Severity {
 
 pub(crate) fn start<I: Stream>(
     depth: usize,
-    name: &dyn crate::lib::std::fmt::Display,
+    name: &dyn core::fmt::Display,
     count: usize,
     input: &I,
 ) {
@@ -183,7 +179,7 @@ pub(crate) fn start<I: Stream>(
 
 pub(crate) fn end(
     depth: usize,
-    name: &dyn crate::lib::std::fmt::Display,
+    name: &dyn core::fmt::Display,
     count: usize,
     consumed: usize,
     severity: Severity,
@@ -231,7 +227,7 @@ pub(crate) fn end(
     );
 }
 
-pub(crate) fn result(depth: usize, name: &dyn crate::lib::std::fmt::Display, severity: Severity) {
+pub(crate) fn result(depth: usize, name: &dyn core::fmt::Display, severity: Severity) {
     let gutter_style = anstyle::Style::new().bold();
 
     let (call_width, _) = column_widths();
@@ -275,9 +271,7 @@ fn column_widths() -> (usize, usize) {
     let min_call_width = 40;
     let min_input_width = 20;
     let decor_width = 3;
-    let extra_width = term_width
-        .checked_sub(min_call_width + min_input_width + decor_width)
-        .unwrap_or_default();
+    let extra_width = term_width.saturating_sub(min_call_width + min_input_width + decor_width);
     let call_width = min_call_width + 2 * extra_width / 3;
     let input_width = min_input_width + extra_width / 3;
 

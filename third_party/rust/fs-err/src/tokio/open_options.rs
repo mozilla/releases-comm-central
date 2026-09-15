@@ -18,7 +18,7 @@ impl OpenOptions {
     ///
     /// All options are initially set to `false`.
     ///
-    /// This is a wrapped version of [`tokio::fs::OpenOptions::new`]
+    /// This is a wrapped version of [`tokio::fs::OpenOptions::new`].
     ///
     /// # Examples
     ///
@@ -34,42 +34,56 @@ impl OpenOptions {
         }
     }
 
+    /// Sets the option for read access.
+    ///
     /// Wrapper for [`tokio::fs::OpenOptions::read`].
     pub fn read(&mut self, read: bool) -> &mut OpenOptions {
         self.tokio.read(read);
         self
     }
 
+    /// Sets the option for write access.
+    ///
     /// Wrapper for [`tokio::fs::OpenOptions::write`].
     pub fn write(&mut self, write: bool) -> &mut OpenOptions {
         self.tokio.write(write);
         self
     }
 
+    /// Sets the option for the append mode.
+    ///
     /// Wrapper for [`tokio::fs::OpenOptions::append`].
     pub fn append(&mut self, append: bool) -> &mut OpenOptions {
         self.tokio.append(append);
         self
     }
 
+    /// Sets the option for truncating a previous file.
+    ///
     /// Wrapper for [`tokio::fs::OpenOptions::truncate`].
     pub fn truncate(&mut self, truncate: bool) -> &mut OpenOptions {
         self.tokio.truncate(truncate);
         self
     }
 
+    /// Sets the option for creating a new file.
+    ///
     /// Wrapper for [`tokio::fs::OpenOptions::create`].
     pub fn create(&mut self, create: bool) -> &mut OpenOptions {
         self.tokio.create(create);
         self
     }
 
+    /// Sets the option to always create a new file.
+    ///
     /// Wrapper for [`tokio::fs::OpenOptions::create_new`].
     pub fn create_new(&mut self, create_new: bool) -> &mut OpenOptions {
         self.tokio.create_new(create_new);
         self
     }
 
+    /// Opens a file at `path` with the options specified by `self`.
+    ///
     /// Wrapper for [`tokio::fs::OpenOptions::open`].
     pub async fn open(&self, path: impl AsRef<Path>) -> io::Result<File> {
         let path = path.as_ref();
@@ -83,12 +97,16 @@ impl OpenOptions {
 
 #[cfg(unix)]
 impl OpenOptions {
+    /// Sets the mode bits that a new file will be created with.
+    ///
     /// Wrapper for [`tokio::fs::OpenOptions::mode`].
     pub fn mode(&mut self, mode: u32) -> &mut OpenOptions {
         self.tokio.mode(mode);
         self
     }
 
+    /// Passes custom flags to the `flags` argument of `open`.
+    ///
     /// Wrapper for [`tokio::fs::OpenOptions::custom_flags`].
     pub fn custom_flags(&mut self, flags: i32) -> &mut OpenOptions {
         self.tokio.custom_flags(flags);

@@ -63,13 +63,14 @@ macro_rules! cmd {
 /// ```
 pub struct VirtualEnv<'a> {
     shell: &'a Shell,
+    dir: PathBuf,
     _env: Vec<PushEnv<'a>>,
 }
 
 fn guess_python(sh: &Shell) -> Result<&'static str, Error> {
     #[cfg(windows)]
     {
-        if xshell::cmd!(sh, "python3.exe --version").run().is_ok() {
+        if xshell::cmd!(sh, "python3.exe --version").read().is_ok() {
             return Ok("python3.exe");
         }
 
@@ -80,7 +81,7 @@ fn guess_python(sh: &Shell) -> Result<&'static str, Error> {
         }
     }
 
-    if xshell::cmd!(sh, "python3 --version").run().is_ok() {
+    if xshell::cmd!(sh, "python3 --version").read().is_ok() {
         return Ok("python3");
     }
 
@@ -111,8 +112,8 @@ fn create_venv(sh: &Shell, path: &Path) -> Result<(), Error> {
     }
 
     // Work is done. Drop the lock.
-    sh.remove_path(lock_path)?;
     drop(lock);
+    sh.remove_path(lock_path)?;
 
     Ok(())
 }
@@ -120,27 +121,14 @@ fn create_venv(sh: &Shell, path: &Path) -> Result<(), Error> {
 fn find_directory(name: &str) -> PathBuf {
     #[allow(clippy::never_loop)]
     let mut venv_dir = loop {
-        // May be set by the user.
-        if let Ok(target_dir) = env::var("CARGO_TARGET_DIR") {
-            break PathBuf::from(target_dir);
-        }
-
-        // Find the `target/<arch>?/<profile> directory.`
-        // `OUT_DIR` is usually something like
-        // target/<arch>/debug/build/$cratename-$hash/out/,
-        // so we strip out the last 3 ancestors.
-        // This will be correct for plain crates, for workspaces
-        // and even if the `TARGET_DIR` is not nested within the workspace.
-        // Putting it there also means the venv stays available across builds.
+        // xshell-venv wants to be a good citizen,
+        // so by default it now writes into the folder it's supposed to write: `OUT_DIR`.
+        //
+        // This way different crates can depend on same-named venvs, that are entirely separate, as
+        // they should be.
+        // No more trying to find the directory and sharing that across multiple crates.
         if let Ok(out_dir) = env::var("OUT_DIR") {
-            let path = Path::new(&out_dir);
-            let path = path
-                .parent()
-                .and_then(|p| p.parent())
-                .and_then(|p| p.parent());
-            if let Some(out_dir) = path {
-                break PathBuf::from(out_dir);
-            }
+            break PathBuf::from(out_dir);
         }
 
         // Create a `target/$venv` path next to where the project's `Cargo.toml` is located.
@@ -151,6 +139,11 @@ fn find_directory(name: &str) -> PathBuf {
             let mut p = PathBuf::from(manifest_dir);
             p.push("target");
             break p;
+        }
+
+        // May be set by the user.
+        if let Ok(target_dir) = env::var("CARGO_TARGET_DIR") {
+            break PathBuf::from(target_dir);
         }
 
         // As a last resort we use the host's temporary directory,
@@ -238,7 +231,16 @@ impl<'a> VirtualEnv<'a> {
         env.push(shell.push_env("VIRTUAL_ENV", format!("{}", venv_dir.display())));
         env.push(shell.push_env("PATH", path));
 
-        Ok(VirtualEnv { shell, _env: env })
+        Ok(VirtualEnv {
+            shell,
+            dir: venv_dir.to_path_buf(),
+            _env: env,
+        })
+    }
+
+    /// Get the path of virtual environment directory.
+    pub fn dir(&self) -> &Path {
+        &self.dir
     }
 
     /// Install a Python package in this virtual environment.
@@ -255,9 +257,9 @@ impl<'a> VirtualEnv<'a> {
     /// let sh = Shell::new()?;
     /// let venv = VirtualEnv::new(&sh, "py3")?;
     ///
-    /// venv.pip_install("flake8")?;
-    /// let output = venv.run_module("flake8", &["--version"])?;
-    /// assert!(output.contains("flake"));
+    /// venv.pip_install("ty")?;
+    /// let output = venv.run_module("ty", &["--version"])?;
+    /// assert!(output.contains("ty"));
     /// # Ok(())
     /// # }
     /// ```
@@ -280,13 +282,13 @@ impl<'a> VirtualEnv<'a> {
     /// let sh = Shell::new()?;
     /// let venv = VirtualEnv::new(&sh, "py3")?;
     ///
-    /// venv.pip_install("flake8==3.9.2")?;
-    /// let output = venv.run_module("flake8", &["--version"])?;
-    /// assert!(output.contains("3.9.2"), "Expected `3.9.2` in output. Got: {}", output);
+    /// venv.pip_install("ty==0.0.64")?;
+    /// let output = venv.run_module("ty", &["--version"])?;
+    /// assert!(output.contains("0.0.64"), "Expected `0.0.64` in output. Got: {}", output);
     ///
-    /// venv.pip_upgrade("flake8")?;
-    /// let output = venv.run_module("flake8", &["--version"])?;
-    /// assert!(!output.contains("3.9.2"), "Expected `3.9.2` NOT in output. Got: {}", output);
+    /// venv.pip_upgrade("ty")?;
+    /// let output = venv.run_module("ty", &["--version"])?;
+    /// assert!(!output.contains("0.0.64"), "Expected `0.0.64` NOT in output. Got: {}", output);
     /// # Ok(())
     /// # }
     /// ```

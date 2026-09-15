@@ -1,3 +1,4 @@
+#![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(missing_docs)]
 //! Structured access to the output of `cargo metadata` and `cargo --message-format=json`.
 //! Usually used from within a `cargo-*` executable
@@ -7,12 +8,23 @@
 //!
 //! ## Examples
 //!
+//! Get the current crate's metadata without default features but with all dependency information.
+//!
 //! ```rust
-//! # extern crate cargo_metadata;
+//! # use std::path::Path;
+//! # use cargo_metadata::{MetadataCommand, CargoOpt};
+//! let _metadata = MetadataCommand::new().exec().unwrap();
+//! ```
+//!
+//!
+//! If you have a program that takes `--manifest-path` as an argument, you can forward that
+//! to [MetadataCommand]:
+//!
+//! ```rust
+//! # use cargo_metadata::MetadataCommand;
 //! # use std::path::Path;
 //! let mut args = std::env::args().skip_while(|val| !val.starts_with("--manifest-path"));
-//!
-//! let mut cmd = cargo_metadata::MetadataCommand::new();
+//! let mut cmd = MetadataCommand::new();
 //! let manifest_path = match args.next() {
 //!     Some(ref p) if p == "--manifest-path" => {
 //!         cmd.manifest_path(args.next().unwrap());
@@ -26,30 +38,24 @@
 //! let _metadata = cmd.exec().unwrap();
 //! ```
 //!
-//! Pass features flags
+//! Pass features flags, e.g. `--all-features`.
 //!
 //! ```rust
-//! # // This should be kept in sync with the equivalent example in the readme.
-//! # extern crate cargo_metadata;
 //! # use std::path::Path;
-//! # fn main() {
-//! use cargo_metadata::{MetadataCommand, CargoOpt};
-//!
+//! # use cargo_metadata::{MetadataCommand, CargoOpt};
 //! let _metadata = MetadataCommand::new()
 //!     .manifest_path("./Cargo.toml")
 //!     .features(CargoOpt::AllFeatures)
 //!     .exec()
 //!     .unwrap();
-//! # }
 //! ```
 //!
-//! Parse message-format output:
+//! Parse message-format output produced by other cargo commands.
+//! It is recommended to use crates like `escargot` to produce the [Command].
 //!
 //! ```
-//! # extern crate cargo_metadata;
-//! use std::process::{Stdio, Command};
-//! use cargo_metadata::Message;
-//!
+//! # use std::process::{Stdio, Command};
+//! # use cargo_metadata::Message;
 //! let mut command = Command::new("cargo")
 //!     .args(&["build", "--message-format=json-render-diagnostics"])
 //!     .stdout(Stdio::piped())
@@ -91,6 +97,7 @@ use std::process::{Command, Stdio};
 use std::str::{from_utf8, FromStr};
 
 pub use camino;
+pub use cargo_platform;
 pub use semver;
 use semver::Version;
 
@@ -120,6 +127,108 @@ mod errors;
 #[cfg(feature = "unstable")]
 pub mod libtest;
 mod messages;
+
+macro_rules! str_newtype {
+    (
+        $(#[doc = $docs:literal])*
+        $name:ident
+    ) => {
+        $(#[doc = $docs])*
+        #[derive(Serialize, Debug, Clone, Eq, PartialOrd, Ord, Hash)]
+        #[serde(transparent)]
+        pub struct $name<T: AsRef<str> = String>(T);
+
+        impl<T: AsRef<str>> $name<T> {
+            /// Convert the wrapped string into its inner type `T`
+            pub fn into_inner(self) -> T {
+                self.0
+            }
+        }
+
+        impl<T: AsRef<str>> AsRef<str> for $name<T> {
+            fn as_ref(&self) -> &str {
+                self.0.as_ref()
+            }
+        }
+
+        impl<T: AsRef<str>> std::ops::Deref for $name<T> {
+            type Target = T;
+
+            fn deref(&self) -> &Self::Target {
+                &self.0
+            }
+        }
+
+        impl<T: AsRef<str>> std::borrow::Borrow<str> for $name<T> {
+            fn borrow(&self) -> &str {
+                self.0.as_ref()
+            }
+        }
+
+        impl<'a> std::str::FromStr for $name<String> {
+            type Err = std::convert::Infallible;
+
+            fn from_str(value: &str) -> Result<Self, Self::Err> {
+                Ok(Self::new(value.to_owned()))
+            }
+        }
+
+        impl<'de, T: AsRef<str> + serde::Deserialize<'de>> serde::Deserialize<'de> for $name<T> {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                let inner = T::deserialize(deserializer)?;
+                Ok(Self::new(inner))
+            }
+        }
+
+        impl<T: AsRef<str>> fmt::Display for $name<T> {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                self.0.as_ref().fmt(f)
+            }
+        }
+
+        // Note: The next two implementations are not based on Cargo string newtype implementations.
+
+        impl<T: AsRef<str>> $name<T> {
+            /// Create a new wrapped string
+            pub fn new(name: T) -> Self {
+                Self(name)
+            }
+        }
+
+        impl<T: AsRef<str>, Rhs: AsRef<str>> PartialEq<Rhs> for $name<T> {
+            fn eq(&self, other: &Rhs) -> bool {
+                self.as_ref() == other.as_ref()
+            }
+        }
+    };
+}
+
+str_newtype!(
+    /// Feature name newtype
+    ///
+    /// Based on [cargo-util-schema's string newtype] but with two crucial differences:
+    ///
+    /// - This newtype does not verify the wrapped string.
+    /// - This newtype allows comparison with arbitrary types that implement `AsRef<str>`.
+    ///
+    /// [cargo-util-schema's string newtype]: https://github.com/epage/cargo/blob/d8975d2901e132c02b3f6b1d107f2f50b275a058/crates/cargo-util-schemas/src/manifest/mod.rs#L1355-L1413
+    FeatureName
+);
+
+str_newtype!(
+    /// Package name newtype
+    ///
+    /// Based on [cargo-util-schema's string newtype] but with two crucial differences:
+    ///
+    /// - This newtype does not verify the wrapped string.
+    /// - This newtype allows comparison with arbitrary types that implement `AsRef<str>`.
+    ///
+    /// [cargo-util-schema's string newtype]: https://github.com/epage/cargo/blob/d8975d2901e132c02b3f6b1d107f2f50b275a058/crates/cargo-util-schemas/src/manifest/mod.rs#L1355-L1413
+    PackageName
+);
 
 /// An "opaque" identifier for a package.
 ///
@@ -167,8 +276,11 @@ pub struct Metadata {
     pub resolve: Option<Resolve>,
     /// Workspace root
     pub workspace_root: Utf8PathBuf,
-    /// Build directory
+    /// Target directory
     pub target_directory: Utf8PathBuf,
+    /// Build directory
+    // TODO: This should become non optional once the MSRV is at or above `1.91.0`
+    pub build_directory: Option<Utf8PathBuf>,
     /// The workspace-level metadata object. Null if non-existent.
     #[serde(rename = "metadata", default, skip_serializing_if = "is_null")]
     pub workspace_metadata: serde_json::Value,
@@ -223,7 +335,7 @@ impl<'a> std::ops::Index<&'a PackageId> for Metadata {
         self.packages
             .iter()
             .find(|p| p.id == *idx)
-            .unwrap_or_else(|| panic!("no package with this id: {:?}", idx))
+            .unwrap_or_else(|| panic!("no package with this id: {idx:?}"))
     }
 }
 
@@ -296,7 +408,7 @@ impl<'a> std::ops::Index<&'a PackageId> for Resolve {
         self.nodes
             .iter()
             .find(|p| p.id == *idx)
-            .unwrap_or_else(|| panic!("no Node with this id: {:?}", idx))
+            .unwrap_or_else(|| panic!("no Node with this id: {idx:?}"))
     }
 }
 
@@ -320,7 +432,7 @@ pub struct Node {
 
     /// Features enabled on the crate
     #[serde(default)]
-    pub features: Vec<String>,
+    pub features: Vec<FeatureName>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
@@ -331,6 +443,12 @@ pub struct Node {
 pub struct NodeDep {
     /// The name of the dependency's library target.
     /// If the crate was renamed, it is the new name.
+    ///
+    /// If -Zbindeps is enabled local references may result in an empty
+    /// string.
+    ///
+    /// After -Zbindeps gets stabilized, cargo has indicated this field
+    /// will become deprecated.
     pub name: String,
     /// Package ID (opaque unique identifier)
     pub pkg: PackageId,
@@ -375,7 +493,7 @@ pub struct DepKindInfo {
 pub struct Package {
     /// The [`name` field](https://doc.rust-lang.org/cargo/reference/manifest.html#the-name-field) as given in the `Cargo.toml`
     // (We say "given in" instead of "specified in" since the `name` key cannot be inherited from the workspace.)
-    pub name: String,
+    pub name: PackageName,
     /// The [`version` field](https://doc.rust-lang.org/cargo/reference/manifest.html#the-version-field) as specified in the `Cargo.toml`
     pub version: Version,
     /// The [`authors` field](https://doc.rust-lang.org/cargo/reference/manifest.html#the-authors-field) as specified in the `Cargo.toml`
@@ -386,6 +504,7 @@ pub struct Package {
     pub id: PackageId,
     /// The source of the package, e.g.
     /// crates.io or `None` for local projects.
+    // Note that this is NOT the same as cargo_util_schemas::RegistryName
     #[cfg_attr(feature = "builder", builder(default))]
     pub source: Option<Source>,
     /// The [`description` field](https://doc.rust-lang.org/cargo/reference/manifest.html#the-description-field) as specified in the `Cargo.toml`
@@ -498,7 +617,7 @@ pub struct Package {
 impl PackageBuilder {
     /// Construct a new `PackageBuilder` with all required fields.
     pub fn new(
-        name: impl Into<String>,
+        name: impl Into<PackageName>,
         version: impl Into<Version>,
         id: impl Into<PackageId>,
         path: impl Into<Utf8PathBuf>,
@@ -819,12 +938,14 @@ impl fmt::Display for CrateType {
 
 /// The Rust edition
 ///
-/// As of writing this comment rust editions 2024, 2027 and 2030 are not actually a thing yet but are parsed nonetheless for future proofing.
+/// As of writing this comment rust editions 2027 and 2030 are not actually a thing yet but are parsed nonetheless for future proofing.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[non_exhaustive]
+#[derive(Default)]
 pub enum Edition {
     /// Edition 2015
     #[serde(rename = "2015")]
+    #[default]
     E2015,
     /// Edition 2018
     #[serde(rename = "2018")]
@@ -864,12 +985,6 @@ impl fmt::Display for Edition {
     }
 }
 
-impl Default for Edition {
-    fn default() -> Self {
-        Self::E2015
-    }
-}
-
 fn default_true() -> bool {
     true
 }
@@ -904,12 +1019,13 @@ pub struct MetadataCommand {
     all_features: bool,
     /// Latched `CargoOpt::NoDefaultFeatures`
     no_default_features: bool,
-    /// Arbitrary command line flags to pass to `cargo`.  These will be added
+    /// Arbitrary command line flags to pass to `cargo`. These will be added
     /// to the end of the command line invocation.
     other_options: Vec<String>,
-    /// Arbitrary environment variables to set when running `cargo`.  These will be merged into
-    /// the calling environment, overriding any which clash.
-    env: BTreeMap<OsString, OsString>,
+    /// Arbitrary environment variables to set or remove (depending on
+    /// [`Option`] value) when running `cargo`. These will be merged into the
+    /// calling environment, overriding any which clash.
+    env: BTreeMap<OsString, Option<OsString>>,
     /// Show stderr
     verbose: bool,
 }
@@ -1029,7 +1145,26 @@ impl MetadataCommand {
         key: K,
         val: V,
     ) -> &mut MetadataCommand {
-        self.env.insert(key.into(), val.into());
+        self.env.insert(key.into(), Some(val.into()));
+        self
+    }
+
+    /// Arbitrary environment variables to remove when running `cargo`.  These will be merged into
+    /// the calling environment, overriding any which clash.
+    ///
+    /// Some examples of when you may want to use this:
+    /// - Removing inherited environment variables in build scripts that can cause an error
+    ///   when calling `cargo metadata` (for example, when cross-compiling).
+    ///
+    /// ```no_run
+    /// # use cargo_metadata::{CargoOpt, MetadataCommand};
+    /// MetadataCommand::new()
+    ///     .env_remove("CARGO_ENCODED_RUSTFLAGS")
+    ///     // ...
+    ///     # ;
+    /// ```
+    pub fn env_remove<K: Into<OsString>>(&mut self, key: K) -> &mut MetadataCommand {
+        self.env.insert(key.into(), None);
         self
     }
 
@@ -1073,7 +1208,12 @@ impl MetadataCommand {
         }
         cmd.args(&self.other_options);
 
-        cmd.envs(&self.env);
+        for (key, val) in &self.env {
+            match val {
+                Some(val) => cmd.env(key, val),
+                None => cmd.env_remove(key),
+            };
+        }
 
         cmd
     }
@@ -1180,5 +1320,11 @@ mod test {
             bare_version_err("1.2.0+123"),
             "build metadata is not supported in rust-version"
         );
+    }
+
+    #[test]
+    fn package_name_eq() {
+        let my_package_name = super::PackageName::new("my_package");
+        assert_eq!(my_package_name, "my_package");
     }
 }

@@ -14,11 +14,21 @@
 # helpers directly inline like we're doing here.
 
 require 'ffi'
+require 'set'
 
+{%- if ci.has_callback_definitions() || ci.has_async_fns() %}
+require 'monitor'
+{%- endif %}
 
 module {{ ci.namespace()|class_name_rb }}
   {% include "Helpers.rb" %}
 
+  {%- if ci.has_callback_definitions() %}
+  {% include "HandleMap.rb" %}
+  {%- endif %}
+  {%- if ci.has_async_fns() && !ci.has_callback_definitions() %}
+  {% include "HandleMap.rb" %}
+  {%- endif %}
   {% include "RustBufferTemplate.rb" %}
   {% include "RustBufferStream.rb" %}
   {% include "RustBufferBuilder.rb" %}
@@ -27,6 +37,37 @@ module {{ ci.namespace()|class_name_rb }}
   {% include "ErrorTemplate.rb" %}
 
   {% include "NamespaceLibraryTemplate.rb" %}
+  {%- if ci.has_async_fns() %}
+  {% include "Async.rb" %}
+  {%- endif %}
+  {%- if ci.has_callback_definitions() %}
+  {% include "CallbackInterfaceRuntime.rb" %}
+  {%- endif %}
+
+  # Custom type definitions.
+
+  {%- for type_ in ci.iter_local_types() -%}
+  {%- match type_ -%}
+  {%- when Type::Custom { name, builtin, .. } -%}
+  {%- if !ci.is_external(type_) %}
+  {% include "CustomTypeTemplate.rb" %}
+  {%- else -%}
+  {%- match config.custom_types.get(name.as_str()) %}
+  {%- when Some(cfg) %}
+  {%- match cfg.imports %}
+  {%- when Some(imports) %}
+  # External custom type `{{ name }}`: importing configured dependencies.
+  {%- for import_name in imports %}
+  require '{{ import_name }}'
+  {%- endfor %}
+  {%- when None %}
+  {%- endmatch %}
+  {%- when None %}
+  {%- endmatch %}
+  {%- endif %}
+  {%- else -%}
+  {%- endmatch %}
+  {%- endfor %}
 
   # Public interface members begin here.
 
@@ -46,6 +87,11 @@ module {{ ci.namespace()|class_name_rb }}
 
   {% for obj in ci.object_definitions() %}
   {% include "ObjectTemplate.rb" %}
+  {% endfor %}
+
+  {% for cbi in ci.callback_interface_definitions() %}
+  {%- let name = cbi.name() %}
+  {% include "CallbackInterfaceTemplate.rb" %}
   {% endfor %}
 end
 

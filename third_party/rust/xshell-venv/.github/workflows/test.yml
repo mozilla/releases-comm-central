@@ -4,6 +4,8 @@ on:
   push:
     branches: main
 
+permissions: {}
+
 env:
   CARGO_INCREMENTAL: 0
   CARGO_NET_RETRY: 10
@@ -26,6 +28,7 @@ jobs:
     - uses: actions/checkout@v6
       with:
         fetch-depth: 0
+        persist-credentials: false
     - uses: dtolnay/rust-toolchain@stable
     - uses: Swatinem/rust-cache@v2
     - run: cargo test

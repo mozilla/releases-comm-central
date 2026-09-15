@@ -7,7 +7,7 @@
 //! - [Tutorial][_tutorial::chapter_0]
 //! - [Special Topics][_topic]
 //! - [Discussions](https://github.com/winnow-rs/winnow/discussions)
-//! - [CHANGELOG](https://github.com/winnow-rs/winnow/blob/v0.7.13/CHANGELOG.md) (includes major version migration
+//! - [CHANGELOG](https://github.com/winnow-rs/winnow/blob/v1.0.3/CHANGELOG.md) (includes major version migration
 //!   guides)
 //!
 //! ## Aspirations
@@ -26,7 +26,7 @@
 //! - Resilient maintainership, including
 //!   - Willing to break compatibility rather than batching up breaking changes in large releases
 //!   - Leverage feature flags to keep one active branch
-//! - We will support the last 6 months of rust releases (MSRV, currently 1.64.0)
+//! - We will support the last 6 months of rust releases (MSRV)
 //!
 //! See also [Special Topic: Why winnow?][crate::_topic::why]
 //!
@@ -39,14 +39,13 @@
 //!
 //! Then use it to parse:
 //! ```rust
-//! # #[cfg(feature = "alloc")] {
+//! # #[cfg(all(feature = "alloc", feature = "parser"))] {
 #![doc = include_str!("../examples/css/parser.rs")]
 //! # }
 //! ```
 //!
 //! See also the [Tutorial][_tutorial::chapter_0] and [Special Topics][_topic]
 
-#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![cfg_attr(docsrs, feature(extended_key_value_attributes))]
 #![cfg_attr(all(not(feature = "std"), not(test)), no_std)]
@@ -64,44 +63,6 @@ extern crate alloc;
 #[doc = include_str!("../README.md")]
 #[cfg(doctest)]
 pub struct ReadmeDoctests;
-
-/// Lib module to re-export everything needed from `std` or `core`/`alloc`. This is how `serde` does
-/// it, albeit there it is not public.
-#[doc(hidden)]
-pub(crate) mod lib {
-    #![allow(unused_imports)]
-
-    /// `std` facade allowing `std`/`core` to be interchangeable. Reexports `alloc` crate optionally,
-    /// as well as `core` or `std`
-    #[cfg(not(feature = "std"))]
-    /// internal std exports for no_std compatibility
-    pub(crate) mod std {
-        #[doc(hidden)]
-        #[cfg(not(feature = "alloc"))]
-        pub(crate) use core::borrow;
-
-        #[cfg(feature = "alloc")]
-        #[doc(hidden)]
-        pub(crate) use alloc::{borrow, boxed, collections, string, vec};
-
-        #[doc(hidden)]
-        pub(crate) use core::{
-            cmp, convert, fmt, hash, iter, mem, ops, option, result, slice, str,
-        };
-    }
-
-    #[cfg(feature = "std")]
-    /// internal std exports for `no_std` compatibility
-    pub(crate) mod std {
-        #![allow(clippy::std_instead_of_core)]
-        #![allow(clippy::std_instead_of_alloc)]
-        #[doc(hidden)]
-        pub(crate) use std::{
-            borrow, boxed, cmp, collections, convert, fmt, hash, iter, mem, ops, result, slice,
-            str, string, vec,
-        };
-    }
-}
 
 pub(crate) mod util {
     #[allow(dead_code)]
@@ -138,15 +99,21 @@ pub(crate) mod util {
 mod macros;
 
 #[macro_use]
+#[cfg(feature = "parser")]
 pub mod error;
 
+#[cfg(feature = "parser")]
 mod parser;
 
 pub mod stream;
 
+#[cfg(feature = "ascii")]
 pub mod ascii;
+#[cfg(feature = "binary")]
 pub mod binary;
+#[cfg(feature = "parser")]
 pub mod combinator;
+#[cfg(feature = "parser")]
 pub mod token;
 
 #[cfg(feature = "unstable-doc")]
@@ -163,6 +130,7 @@ pub mod _tutorial;
 /// ## Example
 ///
 /// ```rust
+/// # #[cfg(feature = "ascii")] {
 /// use winnow::prelude::*;
 ///
 /// fn parse_data(input: &mut &str) -> ModalResult<u64> {
@@ -174,28 +142,42 @@ pub mod _tutorial;
 ///   let result = parse_data.parse("100");
 ///   assert_eq!(result, Ok(100));
 /// }
+/// # }
 /// ```
 pub mod prelude {
+    #[cfg(feature = "parser")]
     pub use crate::error::ModalError as _;
+    #[cfg(feature = "parser")]
     pub use crate::error::ParserError as _;
     pub use crate::stream::AsChar as _;
     pub use crate::stream::ContainsToken as _;
     pub use crate::stream::Stream as _;
     pub use crate::stream::StreamIsPartial as _;
+    #[cfg(feature = "parser")]
     pub use crate::ModalParser;
+    #[cfg(feature = "parser")]
     pub use crate::ModalResult;
+    #[cfg(feature = "parser")]
     pub use crate::Parser;
     #[cfg(feature = "unstable-recover")]
     #[cfg(feature = "std")]
+    #[cfg(feature = "parser")]
     pub use crate::RecoverableParser as _;
 
-    #[cfg(test)]
+    #[cfg(all(test, feature = "parser"))]
     pub(crate) use crate::TestResult;
 }
 
+#[cfg(feature = "parser")]
 pub use error::ModalResult;
+#[cfg(feature = "parser")]
 pub use error::Result;
-pub use parser::*;
+#[cfg(feature = "unstable-recover")]
+#[cfg(feature = "std")]
+#[cfg(feature = "parser")]
+pub use parser::RecoverableParser;
+#[cfg(feature = "parser")]
+pub use parser::{ModalParser, Parser};
 pub use stream::BStr;
 pub use stream::Bytes;
 pub use stream::LocatingSlice;
@@ -203,5 +185,5 @@ pub use stream::Partial;
 pub use stream::Stateful;
 pub use stream::Str;
 
-#[cfg(test)]
+#[cfg(all(test, feature = "parser"))]
 pub(crate) use error::TestResult;

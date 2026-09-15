@@ -1,81 +1,98 @@
 use std::{fs, io, path::PathBuf};
+
+use crate::errors::{Error, ErrorKind};
+
 #[derive(Clone, Debug)]
-/// Wrapper around [`std::fs::OptionOptions`](https://doc.rust-lang.org/std/fs/struct.OpenOptions.html)
+/// Wrapper for [`std::fs::OpenOptions`].
 pub struct OpenOptions(fs::OpenOptions);
 
 impl OpenOptions {
-    /// Wrapper for [`std::fs::OpenOptions::new`](https://doc.rust-lang.org/std/fs/struct.OpenOptions.html#method.new)
+    /// Creates a blank new set of options ready for configuration.
+    ///
+    /// Wrapper for [`std::fs::OpenOptions::new`].
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         OpenOptions(fs::OpenOptions::new())
     }
 
-    /// Wrapper for [`std::fs::OpenOptions::read`](https://doc.rust-lang.org/std/fs/struct.OpenOptions.html#method.read)
+    /// Sets the option for read access.
+    ///
+    /// Wrapper for [`std::fs::OpenOptions::read`].
     pub fn read(&mut self, read: bool) -> &mut Self {
         self.0.read(read);
         self
     }
 
-    /// Wrapper for [`std::fs::OpenOptions::write`](https://doc.rust-lang.org/std/fs/struct.OpenOptions.html#method.write)
+    /// Sets the option for write access.
+    ///
+    /// Wrapper for [`std::fs::OpenOptions::write`].
     pub fn write(&mut self, write: bool) -> &mut Self {
         self.0.write(write);
         self
     }
 
-    /// Wrapper for [`std::fs::OpenOptions::append`](https://doc.rust-lang.org/std/fs/struct.OpenOptions.html#method.append)
+    /// Sets the option for the append mode.
+    ///
+    /// Wrapper for [`std::fs::OpenOptions::append`].
     pub fn append(&mut self, append: bool) -> &mut Self {
         self.0.append(append);
         self
     }
 
-    /// Wrapper for [`std::fs::OpenOptions::truncate`](https://doc.rust-lang.org/std/fs/struct.OpenOptions.html#method.truncate)
+    /// Sets the option for truncating a previous file.
+    ///
+    /// Wrapper for [`std::fs::OpenOptions::truncate`].
     pub fn truncate(&mut self, truncate: bool) -> &mut Self {
         self.0.truncate(truncate);
         self
     }
 
-    /// Wrapper for [`std::fs::OpenOptions::create`](https://doc.rust-lang.org/std/fs/struct.OpenOptions.html#method.create)
+    /// Sets the option to create a new file, or open it if it already exists.
+    ///
+    /// Wrapper for [`std::fs::OpenOptions::create`].
     pub fn create(&mut self, create: bool) -> &mut Self {
         self.0.create(create);
         self
     }
 
-    /// Wrapper for [`std::fs::OpenOptions::create_new`](https://doc.rust-lang.org/std/fs/struct.OpenOptions.html#method.create_new)
+    /// Sets the option to create a new file, failing if it already exists.
+    ///
+    /// Wrapper for [`std::fs::OpenOptions::create_new`].
     pub fn create_new(&mut self, create_new: bool) -> &mut Self {
         self.0.create_new(create_new);
         self
     }
 
-    /// Wrapper for [`std::fs::OpenOptions::open`](https://doc.rust-lang.org/std/fs/struct.OpenOptions.html#method.open)
+    /// Opens a file at `path` with the options specified by `self`.
+    ///
+    /// Wrapper for [`std::fs::OpenOptions::open`].
     pub fn open<P>(&self, path: P) -> io::Result<crate::File>
     where
         P: Into<PathBuf>,
     {
-        // We have to either duplicate the logic or call the deprecated method here.
-        // We can't let the deprecated function call this method, because we can't construct
-        // `&fs_err::OpenOptions` from `&fs::OpenOptions` without cloning
-        // (although cloning would probably be cheap).
-        #[allow(deprecated)]
-        crate::File::from_options(path.into(), self.options())
+        let path = path.into();
+        match self.0.open(&path) {
+            Ok(file) => Ok(crate::File::from_parts(file, path)),
+            Err(source) => Err(Error::build(source, ErrorKind::OpenFile, path)),
+        }
     }
 }
 
-/// Methods added by fs-err that are not available on
-/// [`std::fs::OpenOptions`](https://doc.rust-lang.org/stable/std/fs/struct.OpenOptions.html).
+/// Methods added by fs-err that are not available on [`std::fs::OpenOptions`].
 impl OpenOptions {
-    /// Constructs `Self` from [`std::fs::OpenOptions`](https://doc.rust-lang.org/stable/std/fs/struct.OpenOptions.html)
+    /// Constructs `Self` from [`std::fs::OpenOptions`].
     pub fn from_options(options: fs::OpenOptions) -> Self {
         Self(options)
     }
 
-    /// Returns a reference to the underlying [`std::fs::OpenOptions`](https://doc.rust-lang.org/stable/std/fs/struct.OpenOptions.html).
+    /// Returns a reference to the underlying [`std::fs::OpenOptions`].
     ///
     /// Note that calling `open()` on this reference will NOT give you the improved errors from fs-err.
     pub fn options(&self) -> &fs::OpenOptions {
         &self.0
     }
 
-    /// Returns a mutable reference to the underlying [`std::fs::OpenOptions`](https://doc.rust-lang.org/stable/std/fs/struct.OpenOptions.html).
+    /// Returns a mutable reference to the underlying [`std::fs::OpenOptions`].
     ///
     /// This allows you to change settings that don't yet have wrappers in fs-err.
     /// Note that calling `open()` on this reference will NOT give you the improved errors from fs-err.

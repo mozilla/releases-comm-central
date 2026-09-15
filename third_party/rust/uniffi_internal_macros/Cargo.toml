@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "uniffi_internal_macros"
-version = "0.31.0"
+version = "0.32.0"
 build = false
 autolib = false
 autobins = false

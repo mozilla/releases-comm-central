@@ -67,13 +67,11 @@
 // allows size_of::<Version>() == size_of::<Option<Version>>().
 
 use crate::alloc::alloc::{alloc, dealloc, handle_alloc_error, Layout};
-use core::isize;
 use core::mem;
 use core::num::{NonZeroU64, NonZeroUsize};
 use core::ptr::{self, NonNull};
 use core::slice;
 use core::str;
-use core::usize;
 
 const PTR_BYTES: usize = mem::size_of::<NonNull<u8>>();
 
@@ -163,8 +161,6 @@ impl Identifier {
             0x100_0000_0000_0000..=0xffff_ffff_ffff_ffff => {
                 unreachable!("please refrain from storing >64 petabytes of text in semver version");
             }
-            #[cfg(no_exhaustive_int_match)] // rustc <1.33
-            _ => unreachable!(),
         }
     }
 
@@ -199,6 +195,10 @@ impl Identifier {
             // SAFETY: repr is in the heap allocated representation.
             unsafe { ptr_as_str(&self.head) }
         }
+    }
+
+    pub(crate) fn ptr_eq(&self, rhs: &Self) -> bool {
+        self.head == rhs.head && self.tail == rhs.tail
     }
 }
 
@@ -248,7 +248,7 @@ impl Drop for Identifier {
         let size = bytes_for_varint(len) + len.get();
         let align = 2;
         // SAFETY: align is not zero, align is a power of two, and rounding
-        // size up to align does not overflow usize::MAX. These guarantees were
+        // size up to align does not overflow isize::MAX. These guarantees were
         // made when originally allocating this memory.
         let layout = unsafe { Layout::from_size_align_unchecked(size, align) };
         // SAFETY: ptr was previously allocated by the same allocator with the
@@ -259,10 +259,10 @@ impl Drop for Identifier {
 
 impl PartialEq for Identifier {
     fn eq(&self, rhs: &Self) -> bool {
-        if self.is_empty_or_inline() {
+        if self.ptr_eq(rhs) {
             // Fast path (most common)
-            self.head == rhs.head && self.tail == rhs.tail
-        } else if rhs.is_empty_or_inline() {
+            true
+        } else if self.is_empty_or_inline() || rhs.is_empty_or_inline() {
             false
         } else {
             // SAFETY: both reprs are in the heap allocated representation.
@@ -306,7 +306,7 @@ fn repr_to_ptr(modified: NonNull<u8>) -> *const u8 {
 }
 
 fn repr_to_ptr_mut(repr: NonNull<u8>) -> *mut u8 {
-    repr_to_ptr(repr) as *mut u8
+    repr_to_ptr(repr).cast_mut()
 }
 
 // Compute the length of the inline string, assuming the argument is in short
@@ -318,14 +318,7 @@ unsafe fn inline_len(repr: &Identifier) -> NonZeroUsize {
     // SAFETY: Identifier's layout is align(8) and at least size 8. We're doing
     // an aligned read of the first 8 bytes from it. The bytes are not all zero
     // because inline strings are at least 1 byte long and cannot contain \0.
-    let repr = unsafe { ptr::read(repr as *const Identifier as *const NonZeroU64) };
-
-    // Rustc >=1.53 has intrinsics for counting zeros on a non-zeroable integer.
-    // On many architectures these are more efficient than counting on ordinary
-    // zeroable integers (bsf vs cttz). On rustc <1.53 without those intrinsics,
-    // we count zeros in the u64 rather than the NonZeroU64.
-    #[cfg(no_nonzero_bitscan)]
-    let repr = repr.get();
+    let repr = unsafe { ptr::addr_of!(*repr).cast::<NonZeroU64>().read() };
 
     #[cfg(target_endian = "little")]
     let zero_bits_on_string_end = repr.leading_zeros();
@@ -342,7 +335,7 @@ unsafe fn inline_len(repr: &Identifier) -> NonZeroUsize {
 // SAFETY: repr must be in the inline representation, i.e. at least 1 and at
 // most 8 nonzero ASCII bytes padded on the end with \0 bytes.
 unsafe fn inline_as_str(repr: &Identifier) -> &str {
-    let ptr = repr as *const Identifier as *const u8;
+    let ptr = ptr::addr_of!(*repr).cast::<u8>();
     let len = unsafe { inline_len(repr) }.get();
     // SAFETY: we are viewing the nonzero ASCII prefix of the inline repr's
     // contents as a slice of bytes. Input/output lifetimes are correctly
@@ -364,7 +357,7 @@ unsafe fn decode_len(ptr: *const u8) -> NonZeroUsize {
     // SAFETY: There is at least one byte of varint followed by at least 9 bytes
     // of string content, which is at least 10 bytes total for the allocation,
     // so reading the first two is no problem.
-    let [first, second] = unsafe { ptr::read(ptr as *const [u8; 2]) };
+    let [first, second] = unsafe { ptr.cast::<[u8; 2]>().read() };
     if second < 0x80 {
         // SAFETY: the length of this heap allocated string has been encoded as
         // one base-128 digit, so the length is at least 9 and at most 127. It
@@ -413,9 +406,6 @@ unsafe fn ptr_as_str(repr: &NonNull<u8>) -> &str {
 
 // Number of base-128 digits required for the varint representation of a length.
 fn bytes_for_varint(len: NonZeroUsize) -> usize {
-    #[cfg(no_nonzero_bitscan)] // rustc <1.53
-    let len = len.get();
-
     let usize_bits = mem::size_of::<usize>() * 8;
     let len_bits = usize_bits - len.leading_zeros() as usize;
     (len_bits + 6) / 7

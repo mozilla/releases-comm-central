@@ -15,7 +15,7 @@ use malloc_size_of_derive::MallocSizeOf;
 use once_cell::sync::OnceCell;
 use uuid::Uuid;
 
-use crate::database::Database;
+use crate::database::sqlite::{Database, MigrationResult};
 use crate::debug::DebugOptions;
 use crate::error::ClientIdFileError;
 use crate::event_database::EventDatabase;
@@ -30,7 +30,7 @@ use crate::ping::PingMaker;
 use crate::session::{self, EventSessionContext, SessionManager, SessionMode, SessionState};
 use crate::storage::{StorageManager, INTERNAL_STORAGE};
 use crate::upload::{PingUploadManager, PingUploadTask, UploadResult, UploadTaskAction};
-use crate::util::{local_now_with_offset, sanitize_application_id};
+use crate::util::{local_now_with_offset, sanitize_application_id, truncate_string_at_boundary};
 use crate::{
     scheduler, system, AttributionMetrics, CommonMetricData, DistributionMetrics, ErrorKind,
     InternalConfiguration, Lifetime, PingRateLimit, Result, DEFAULT_MAX_EVENTS,
@@ -145,6 +145,7 @@ where
 ///     session_mode: glean_core::SessionMode::Auto,
 ///     session_sample_rate: 1.0,
 ///     session_inactivity_timeout_ms: 1_800_000,
+///     events_ping_acceleration_factor: None,
 /// };
 /// let mut glean = Glean::new(cfg).unwrap();
 /// let ping = PingType::new("sample", true, false, true, true, true, vec![], vec![], true, vec![]);
@@ -194,6 +195,7 @@ pub struct Glean {
     pub(crate) ping_schedule: HashMap<String, Vec<String>>,
     #[ignore_malloc_size_of = "TODO: Expose session memory allocations (bug 2043355)"]
     pub(crate) session_manager: SessionManager,
+    events_ping_acceleration_factor: Option<usize>,
 }
 
 impl Glean {
@@ -274,6 +276,9 @@ impl Glean {
                 cfg.session_sample_rate,
                 std::time::Duration::from_millis(cfg.session_inactivity_timeout_ms),
             ),
+            events_ping_acceleration_factor: cfg
+                .events_ping_acceleration_factor
+                .map(|x| x as usize),
         };
 
         // Ensuring these pings are registered.
@@ -306,6 +311,31 @@ impl Glean {
             ping_lifetime_threshold,
             ping_lifetime_max_time,
         )?);
+
+        if let Some(state) = glean.data_store.as_mut().unwrap().migration_state.take() {
+            glean
+                .database_metrics
+                .migrated_metrics
+                .add_sync(&glean, state.migrated_metrics);
+            glean
+                .database_metrics
+                .metrics_in_sqlite
+                .add_sync(&glean, state.metrics_in_sql);
+            glean
+                .database_metrics
+                .failed_metrics
+                .add_sync(&glean, state.failed_metrics);
+
+            let duration_ns = state.duration.as_nanos().try_into().unwrap_or(u64::MAX);
+            glean
+                .database_metrics
+                .migration_duration
+                .accumulate_raw_samples_nanos_sync(&glean, &[duration_ns]);
+        }
+
+        if glean.data_store.as_mut().unwrap().migration_error == MigrationResult::Error {
+            glean.database_metrics.migration_error.add_sync(&glean, 1);
+        }
 
         glean.restore_session_state_from_storage();
 
@@ -369,7 +399,7 @@ impl Glean {
 
         {
             let data_store = glean.data_store.as_ref().unwrap();
-            let file_size = data_store.file_size.map(|n| n.get()).unwrap_or(0);
+            let file_size = data_store.file_size().map(|n| n.get()).unwrap_or(0);
 
             // If we have a client ID on disk, we check the database
             if let Some(stored_client_id) = stored_client_id {
@@ -573,6 +603,7 @@ impl Glean {
             session_mode: SessionMode::Auto,
             session_sample_rate: 1.0,
             session_inactivity_timeout_ms: 1_800_000,
+            events_ping_acceleration_factor: None,
         };
 
         let mut glean = Self::new(cfg).unwrap();
@@ -583,10 +614,10 @@ impl Glean {
         glean
     }
 
-    /// Destroys the database.
+    /// Close the database connection.
     ///
     /// After this Glean needs to be reinitialized.
-    pub fn destroy_db(&mut self) {
+    pub fn close_db(&mut self) {
         self.data_store = None;
     }
 
@@ -713,14 +744,14 @@ impl Glean {
                 .accumulate_sync(self, size.get() as i64)
         }
 
-        if let Some(rkv_load_state) = self
+        if let Some(load_state) = self
             .data_store
             .as_ref()
-            .and_then(|database| database.rkv_load_state())
+            .and_then(|database| database.load_state())
         {
-            self.database_metrics
-                .rkv_load_error
-                .set_sync(self, rkv_load_state)
+            use crate::metrics::string::MAX_LENGTH_VALUE;
+            let load_state = truncate_string_at_boundary(load_state, MAX_LENGTH_VALUE);
+            self.database_metrics.load_error.set_sync(self, load_state)
         }
     }
 
@@ -911,13 +942,34 @@ impl Glean {
         // Note that this also includes the ping sequence numbers, so it has
         // the effect of resetting those to their initial values.
         if let Some(data) = self.data_store.as_ref() {
-            _ = data.clear_lifetime_storage(Lifetime::User, "glean_internal_info");
-            _ = data.remove_single_metric(Lifetime::User, "glean_client_info", "client_id");
+            let warn_on_error = |result, msg| {
+                if let Err(e) = result {
+                    log::warn!("{msg}: {e}");
+                }
+            };
+
+            warn_on_error(
+                data.clear_lifetime_storage(Lifetime::User, INTERNAL_STORAGE),
+                "failed to clear internal storage",
+            );
+            warn_on_error(
+                data.remove_single_metric(Lifetime::User, "glean_client_info", "client_id"),
+                "failed to clear internal client info storage",
+            );
             for (ping_name, ping) in &self.ping_registry {
                 if ping.follows_collection_enabled() {
-                    _ = data.clear_ping_lifetime_storage(ping_name);
-                    _ = data.clear_lifetime_storage(Lifetime::User, ping_name);
-                    _ = data.clear_lifetime_storage(Lifetime::Application, ping_name);
+                    warn_on_error(
+                        data.clear_ping_lifetime_storage(ping_name),
+                        "failed to clear ping lifetime storage",
+                    );
+                    warn_on_error(
+                        data.clear_lifetime_storage(Lifetime::User, ping_name),
+                        "failed to clear user lifetime storage",
+                    );
+                    warn_on_error(
+                        data.clear_lifetime_storage(Lifetime::Application, ping_name),
+                        "failed to clear application lifetime storage",
+                    );
                 }
             }
         }
@@ -974,6 +1026,17 @@ impl Glean {
             max_events as usize
         } else {
             self.max_events as usize
+        }
+    }
+
+    /// Gets the number of "events" pings to accelerate each session, plus one.
+    pub fn get_events_ping_acceleration_factor(&self) -> usize {
+        let remote_settings_config = self.remote_settings_config.lock().unwrap();
+
+        if let Some(factor) = remote_settings_config.events_ping_acceleration_factor {
+            factor
+        } else {
+            self.events_ping_acceleration_factor.unwrap_or(1)
         }
     }
 
@@ -1203,6 +1266,9 @@ impl Glean {
                 clamped
             });
 
+            remote_settings_config.events_ping_acceleration_factor =
+                cfg.events_ping_acceleration_factor;
+
             // Store the Server Knobs configuration as an ObjectMetric
             // Since RemoteSettingsConfig only contains maps with string keys and primitives,
             // serialization via the derived Serialize impl cannot fail so it is safe to unwrap.
@@ -1355,12 +1421,10 @@ impl Glean {
     /// Checks the stored value of the "dirty flag".
     pub fn is_dirty_flag_set(&self) -> bool {
         let dirty_bit_metric = self.get_dirty_bit_metric();
-        match StorageManager.snapshot_metric(
-            self.storage(),
-            INTERNAL_STORAGE,
-            &dirty_bit_metric.meta().identifier(self),
-            dirty_bit_metric.meta().inner.lifetime,
-        ) {
+        match self
+            .storage()
+            .get_metric(dirty_bit_metric.meta(), INTERNAL_STORAGE)
+        {
             Some(Metric::Boolean(b)) => b,
             _ => false,
         }
@@ -1847,7 +1911,7 @@ impl Glean {
                 _ = data.remove_single_metric(
                     meta.inner.lifetime,
                     &meta.storage_names()[0],
-                    &meta.identifier(self),
+                    &meta.base_identifier(),
                 );
             });
         }
@@ -1913,7 +1977,7 @@ impl Glean {
             _ = data.remove_single_metric(
                 meta.inner.lifetime,
                 &meta.storage_names()[0],
-                &meta.identifier(self),
+                &meta.base_identifier(),
             );
         }
     }

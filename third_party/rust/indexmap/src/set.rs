@@ -13,14 +13,14 @@ pub use self::iter::{
 pub use self::mutable::MutableValues;
 pub use self::slice::Slice;
 
+use crate::TryReserveError;
 #[cfg(feature = "rayon")]
 pub use crate::rayon::set as rayon;
-use crate::TryReserveError;
 
 #[cfg(feature = "std")]
-use std::collections::hash_map::RandomState;
+use std::hash::RandomState;
 
-use crate::util::try_simplify_range;
+use crate::util::{assert_index_lt, try_simplify_range};
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 use core::cmp::Ordering;
@@ -904,6 +904,31 @@ impl<T, S> IndexSet<T, S> {
         self.map.pop().map(|(x, ())| x)
     }
 
+    /// Removes and returns the last value from a set if the predicate
+    /// returns `true`, or [`None`] if the predicate returns false or the set
+    /// is empty (the predicate will not be called in that case).
+    ///
+    /// This preserves the order of the remaining elements.
+    ///
+    /// Computes in **O(1)** time (average).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use indexmap::IndexSet;
+    ///
+    /// let mut set = IndexSet::from([1, 2, 3, 4]);
+    /// let pred = |x: &i32| *x % 2 == 0;
+    ///
+    /// assert_eq!(set.pop_if(pred), Some(4));
+    /// assert_eq!(set.as_slice(), &[1, 2, 3]);
+    /// assert_eq!(set.pop_if(pred), None);
+    /// ```
+    pub fn pop_if(&mut self, predicate: impl FnOnce(&T) -> bool) -> Option<T> {
+        let last = self.last()?;
+        if predicate(last) { self.pop() } else { None }
+    }
+
     /// Scan through each value in the set and keep those where the
     /// closure `keep` returns `true`.
     ///
@@ -1256,14 +1281,8 @@ impl<T, S> Index<usize> for IndexSet<T, S> {
     ///
     /// ***Panics*** if `index` is out of bounds.
     fn index(&self, index: usize) -> &T {
-        if let Some(value) = self.get_index(index) {
-            value
-        } else {
-            panic!(
-                "index out of bounds: the len is {len} but the index is {index}",
-                len = self.len()
-            );
-        }
+        assert_index_lt(index, self.len());
+        &self.map.as_entries()[index].key
     }
 }
 

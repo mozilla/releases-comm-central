@@ -81,9 +81,9 @@ git = "https://github.com/mozilla/cubeb-pulse-rs"
 rev = "88194f91c8778fa608a19af7b91306094525595d"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/glean?tag=v68.0.0"]
+[source."git+https://github.com/mozilla/glean?tag=v70.0.0"]
 git = "https://github.com/mozilla/glean"
-tag = "v68.0.0"
+tag = "v70.0.0"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/happy-eyeballs?tag=v1.0.0"]

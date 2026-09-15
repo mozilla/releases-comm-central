@@ -89,7 +89,7 @@ localization-ffi = { path = "../../../intl/l10n/rust/localization-ffi" }
 lockstore_ffi = { path = "../../../security/lockstore/lockstore_ffi" }
 log = { version = "0.4", features = ['release_max_level_info'] }
 mapped_hyph = { git = "https://github.com/jfkthame/mapped_hyph.git", rev = "eff105f6ad7ec9b79816cfc1985a28e5340ad14b" }
-mdns_service = { path = "../../../dom/media/webrtc/transport/mdns_service", optional = true }
+mdns_service = { path = "../../../dom/media/webrtc/transport/mdns_service", features = ['profiler'], optional = true }
 midir_impl = { path = "../../../dom/midi/midir_impl", optional = true }
 mime-guess-ffi = { path = "../../../dom/fs/parent/rust/mime-guess-ffi" }
 mls_gk = { path = "../../../security/mls/mls_gk" }

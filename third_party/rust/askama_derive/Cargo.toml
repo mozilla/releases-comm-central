@@ -10,21 +10,22 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
-edition = "2021"
-rust-version = "1.83"
+edition = "2024"
+rust-version = "1.88"
 name = "askama_derive"
-version = "0.14.0"
+version = "0.16.0"
 build = false
 autolib = false
 autobins = false
 autoexamples = false
 autotests = false
 autobenches = false
-description = "Procedural macro package for Askama"
+description = "Code generator of Askama templating engine"
 homepage = "https://github.com/askama-rs/askama"
 readme = "README.md"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/askama-rs/askama"
+resolver = "2"
 
 [package.metadata.docs.rs]
 all-features = true
@@ -35,27 +36,28 @@ rustdoc-args = [
 
 [features]
 alloc = []
-blocks = ["syn/full"]
 code-in-doc = ["dep:pulldown-cmark"]
 config = [
+    "external-sources",
     "dep:basic-toml",
+    "dep:glob",
     "dep:serde",
     "dep:serde_derive",
     "parser/config",
 ]
 default = [
+    "alloc",
+    "code-in-doc",
     "config",
-    "derive",
+    "external-sources",
+    "proc-macro",
+    "serde_json",
     "std",
     "urlencode",
 ]
-derive = []
-full = [
-    "default",
-    "blocks",
-    "code-in-doc",
-    "serde_json",
-]
+external-sources = []
+nightly-spans = []
+proc-macro = ["proc-macro2/proc-macro"]
 serde_json = []
 std = ["alloc"]
 urlencode = []
@@ -63,21 +65,35 @@ urlencode = []
 [lib]
 name = "askama_derive"
 path = "src/lib.rs"
-proc-macro = true
+
+[[bench]]
+name = "complex-expression"
+path = "benches/complex-expression.rs"
+harness = false
+
+[[bench]]
+name = "derive-template"
+path = "benches/derive-template.rs"
+harness = false
 
 [dependencies.basic-toml]
 version = "0.1.1"
+optional = true
+
+[dependencies.glob]
+version = "0.3.3"
 optional = true
 
 [dependencies.memchr]
 version = "2"
 
 [dependencies.parser]
-version = "=0.14.0"
+version = "=0.16.0"
 package = "askama_parser"
 
 [dependencies.proc-macro2]
 version = "1"
+default-features = false
 
 [dependencies.pulldown-cmark]
 version = "0.13.0"
@@ -100,29 +116,30 @@ version = "1.0"
 optional = true
 
 [dependencies.syn]
-version = "2.0.41"
+version = "2.0.3"
 features = [
     "clone-impls",
     "derive",
+    "full",
     "parsing",
     "printing",
 ]
 default-features = false
 
 [dev-dependencies.console]
-version = "0.15.8"
+version = "0.16.0"
+
+[dev-dependencies.criterion]
+version = "0.8"
 
 [dev-dependencies.prettyplease]
 version = "0.2.20"
 
+[dev-dependencies.rand]
+version = "0.10.0"
+
+[dev-dependencies.rand_xoshiro]
+version = "0.8.0"
+
 [dev-dependencies.similar]
 version = "2.6.0"
-
-[dev-dependencies.syn]
-version = "2.0.41"
-features = ["full"]
-
-[lints.rust.unexpected_cfgs]
-level = "allow"
-priority = 0
-check-cfg = ['cfg(feature, values("__standalone"))']

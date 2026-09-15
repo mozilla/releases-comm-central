@@ -2,10 +2,13 @@
 //!
 //! Functions recognizing specific characters
 
+mod caseless;
 #[cfg(test)]
 mod tests;
 
-use crate::lib::std::ops::{Add, Shl};
+pub use self::caseless::Caseless;
+
+use core::ops::{Add, Shl};
 
 use crate::combinator::alt;
 use crate::combinator::dispatch;
@@ -25,34 +28,6 @@ use crate::token::take_until;
 use crate::token::take_while;
 use crate::Parser;
 use crate::Result;
-
-/// Mark a value as case-insensitive for ASCII characters
-///
-/// # Example
-/// ```rust
-/// # use winnow::prelude::*;
-/// # use winnow::ascii::Caseless;
-///
-/// fn parser<'s>(s: &mut &'s str) -> ModalResult<&'s str> {
-///   Caseless("hello").parse_next(s)
-/// }
-///
-/// assert_eq!(parser.parse_peek("Hello, World!"), Ok((", World!", "Hello")));
-/// assert_eq!(parser.parse_peek("hello, World!"), Ok((", World!", "hello")));
-/// assert_eq!(parser.parse_peek("HeLlo, World!"), Ok((", World!", "HeLlo")));
-/// assert!(parser.parse_peek("Some").is_err());
-/// assert!(parser.parse_peek("").is_err());
-/// ```
-#[derive(Copy, Clone, Debug)]
-pub struct Caseless<T>(pub T);
-
-impl Caseless<&str> {
-    /// Get the byte-representation of this case-insensitive value
-    #[inline(always)]
-    pub fn as_bytes(&self) -> Caseless<&[u8]> {
-        Caseless(self.0.as_bytes())
-    }
-}
 
 /// Recognizes the string `"\r\n"`.
 ///
@@ -780,7 +755,7 @@ where
     <Input as Stream>::Token: AsChar,
     Error: ParserError<Input>,
 {
-    trace("oct_digit0", take_while(1.., AsChar::is_oct_digit)).parse_next(input)
+    trace("oct_digit1", take_while(1.., AsChar::is_oct_digit)).parse_next(input)
 }
 
 /// Recognizes zero or more ASCII numerical and alphabetic characters: `'a'..='z'`, `'A'..='Z'`, `'0'..='9'`
@@ -1117,8 +1092,7 @@ where
             .take()
             .verify_map(|s: <Input as Stream>::Slice| {
                 let s = s.as_bstr();
-                // SAFETY: Only 7-bit ASCII characters are parsed
-                let s = unsafe { crate::lib::std::str::from_utf8_unchecked(s) };
+                let s = core::str::from_utf8(s).ok()?;
                 Output::try_from_dec_uint(s)
             })
             .parse_next(input)
@@ -1207,8 +1181,7 @@ where
             .take()
             .verify_map(|s: <Input as Stream>::Slice| {
                 let s = s.as_bstr();
-                // SAFETY: Only 7-bit ASCII characters are parsed
-                let s = unsafe { crate::lib::std::str::from_utf8_unchecked(s) };
+                let s = core::str::from_utf8(s).ok()?;
                 Output::try_from_dec_int(s)
             })
             .parse_next(input)
@@ -1317,10 +1290,7 @@ where
 {
     trace("hex_uint", move |input: &mut Input| {
         let invalid_offset = input
-            .offset_for(|c| {
-                let c = c.as_char();
-                !"0123456789abcdefABCDEF".contains(c)
-            })
+            .offset_for(|c| !c.is_hex_digit())
             .unwrap_or_else(|| input.eof_offset());
         let max_nibbles = Output::max_nibbles(sealed::SealedMarker);
         let max_offset = input.offset_at(max_nibbles);
@@ -1352,9 +1322,13 @@ where
         let parsed = input.next_slice(offset);
 
         let mut res = Output::default();
-        for c in parsed.as_bstr() {
-            let nibble = *c as char;
-            let nibble = nibble.to_digit(16).unwrap_or(0) as u8;
+        for &c in parsed.as_bstr() {
+            let nibble = match c {
+                b'0'..=b'9' => c - b'0',
+                b'a'..=b'f' => c - b'a' + 10,
+                b'A'..=b'F' => c - b'A' + 10,
+                _ => unreachable!(),
+            };
             let nibble = Output::from(nibble);
             res = (res << Output::from(4)) + nibble;
         }
@@ -1464,7 +1438,7 @@ impl HexUint for u128 {
 #[allow(clippy::trait_duplication_in_bounds)] // HACK: clippy 1.64.0 bug
 pub fn float<Input, Output, Error>(input: &mut Input) -> Result<Output, Error>
 where
-    Input: StreamIsPartial + Stream + Compare<Caseless<&'static str>> + Compare<char> + AsBStr,
+    Input: StreamIsPartial + Stream + Compare<Caseless<&'static str>> + Compare<char>,
     <Input as Stream>::Slice: ParseSlice<Output>,
     <Input as Stream>::Token: AsChar + Clone,
     <Input as Stream>::IterOffsets: Clone,
@@ -1487,7 +1461,6 @@ where
     I: Compare<char>,
     <I as Stream>::Token: AsChar + Clone,
     <I as Stream>::IterOffsets: Clone,
-    I: AsBStr,
 {
     dispatch! {opt(peek(any).map(AsChar::as_char));
         Some('N') | Some('n') => Caseless("nan").void(),
@@ -1507,7 +1480,6 @@ where
     I: Compare<char>,
     <I as Stream>::Token: AsChar + Clone,
     <I as Stream>::IterOffsets: Clone,
-    I: AsBStr,
 {
     dispatch! {opt(peek(any).map(AsChar::as_char));
         Some('I') | Some('i') => (Caseless("inf"), opt(Caseless("inity"))).void(),
@@ -1525,7 +1497,6 @@ where
     I: Compare<char>,
     <I as Stream>::Token: AsChar + Clone,
     <I as Stream>::IterOffsets: Clone,
-    I: AsBStr,
 {
     dispatch! {opt(peek(any).map(AsChar::as_char));
         Some('E') | Some('e') => (one_of(['e', 'E']), opt(one_of(['+', '-'])), digit1).void(),
@@ -1543,11 +1514,11 @@ where
 /// - `escape`: parse and transform the escaped character
 ///
 /// Parsing ends when:
-/// - `alt(normal, control._char)` [`Backtrack`s][crate::error::ErrMode::Backtrack]
+/// - `alt(normal, control_char)` [`Backtrack`s][crate::error::ErrMode::Backtrack]
 /// - `normal` doesn't advance the input stream
 /// - *(complete)* input stream is exhausted
 ///
-/// See also [`escaped_transform`]
+/// See also [`escaped`]
 ///
 /// <div class="warning">
 ///
@@ -1592,47 +1563,57 @@ where
 /// assert_eq!(esc.parse_peek(Partial::new("12\\\"34;")), Ok((Partial::new(";"), "12\\\"34")));
 /// ```
 #[inline(always)]
-pub fn take_escaped<Input, Error, Normal, Escapable, NormalOutput, EscapableOutput>(
+pub fn take_escaped<
+    Input,
+    Error,
+    Normal,
+    ControlChar,
+    Escapable,
+    NormalOutput,
+    ControlCharOutput,
+    EscapableOutput,
+>(
     mut normal: Normal,
-    control_char: char,
+    mut control_char: ControlChar,
     mut escapable: Escapable,
 ) -> impl Parser<Input, <Input as Stream>::Slice, Error>
 where
-    Input: StreamIsPartial + Stream + Compare<char>,
+    Input: StreamIsPartial + Stream,
     Normal: Parser<Input, NormalOutput, Error>,
+    ControlChar: Parser<Input, ControlCharOutput, ()>,
     Escapable: Parser<Input, EscapableOutput, Error>,
     Error: ParserError<Input>,
 {
     trace("take_escaped", move |input: &mut Input| {
         if <Input as StreamIsPartial>::is_partial_supported() && input.is_partial() {
-            escaped_internal::<_, _, _, _, _, _, true>(
+            escaped_internal::<_, _, _, _, _, _, _, _, true>(
                 input,
                 &mut normal,
-                control_char,
+                &mut control_char,
                 &mut escapable,
             )
         } else {
-            escaped_internal::<_, _, _, _, _, _, false>(
+            escaped_internal::<_, _, _, _, _, _, _, _, false>(
                 input,
                 &mut normal,
-                control_char,
+                &mut control_char,
                 &mut escapable,
             )
         }
     })
 }
 
-fn escaped_internal<I, Error, F, G, O1, O2, const PARTIAL: bool>(
+fn escaped_internal<I, Error, F, ControlChar, G, O1, O2, O3, const PARTIAL: bool>(
     input: &mut I,
     normal: &mut F,
-    control_char: char,
+    control_char: &mut ControlChar,
     escapable: &mut G,
 ) -> Result<<I as Stream>::Slice, Error>
 where
     I: StreamIsPartial,
     I: Stream,
-    I: Compare<char>,
     F: Parser<I, O1, Error>,
+    ControlChar: Parser<I, O3, ()>,
     G: Parser<I, O2, Error>,
     Error: ParserError<I>,
 {
@@ -1652,7 +1633,7 @@ where
                 }
             }
             None => {
-                if opt(control_char).parse_next(input)?.is_some() {
+                if control_char.by_ref().parse_next(input).is_ok() {
                     let _ = escapable.parse_next(input)?;
                 } else {
                     let offset = input.offset_from(&start);
@@ -1671,25 +1652,6 @@ where
     }
 }
 
-/// Deprecated, replaed with [`escaped`]
-#[inline(always)]
-#[deprecated(since = "7.0.0", note = "replaced with `escaped`")]
-pub fn escaped_transform<Input, Error, Normal, NormalOutput, Escape, EscapeOutput, Output>(
-    normal: Normal,
-    control_char: char,
-    escape: Escape,
-) -> impl Parser<Input, Output, Error>
-where
-    Input: StreamIsPartial + Stream + Compare<char>,
-    Normal: Parser<Input, NormalOutput, Error>,
-    Escape: Parser<Input, EscapeOutput, Error>,
-    Output: crate::stream::Accumulate<NormalOutput>,
-    Output: crate::stream::Accumulate<EscapeOutput>,
-    Error: ParserError<Input>,
-{
-    escaped(normal, control_char, escape)
-}
-
 /// Parse escaped characters, unescaping them
 ///
 /// Arguments:
@@ -1699,14 +1661,14 @@ where
 /// - `escape`: parse and transform the escaped character
 ///
 /// Parsing ends when:
-/// - `alt(normal, control._char)` [`Backtrack`s][crate::error::ErrMode::Backtrack]
+/// - `alt(normal, control_char)` [`Backtrack`s][crate::error::ErrMode::Backtrack]
 /// - `normal` doesn't advance the input stream
 /// - *(complete)* input stream is exhausted
 ///
 /// <div class="warning">
 ///
-/// **Warning:** If the `normal` parser passed to `escaped_transform` accepts empty inputs
-/// (like `alpha0` or `digit0`), `escaped_transform` will return an error,
+/// **Warning:** If the `normal` parser passed to `escaped` accepts empty inputs
+/// (like `alpha0` or `digit0`), `escaped` will return an error,
 /// to prevent going into an infinite loop.
 ///
 /// </div>
@@ -1718,12 +1680,12 @@ where
 /// # use winnow::prelude::*;
 /// # use std::str::from_utf8;
 /// use winnow::token::literal;
-/// use winnow::ascii::escaped_transform;
+/// use winnow::ascii::escaped;
 /// use winnow::ascii::alpha1;
 /// use winnow::combinator::alt;
 ///
 /// fn parser<'s>(input: &mut &'s str) -> ModalResult<String> {
-///   escaped_transform(
+///   escaped(
 ///     alpha1,
 ///     '\\',
 ///     alt((
@@ -1746,12 +1708,12 @@ where
 /// # use std::str::from_utf8;
 /// # use winnow::Partial;
 /// use winnow::token::literal;
-/// use winnow::ascii::escaped_transform;
+/// use winnow::ascii::escaped;
 /// use winnow::ascii::alpha1;
 /// use winnow::combinator::alt;
 ///
 /// fn parser<'s>(input: &mut Partial<&'s str>) -> ModalResult<String> {
-///   escaped_transform(
+///   escaped(
 ///     alpha1,
 ///     '\\',
 ///     alt((
@@ -1766,14 +1728,25 @@ where
 /// # }
 /// ```
 #[inline(always)]
-pub fn escaped<Input, Error, Normal, NormalOutput, Escape, EscapeOutput, Output>(
+pub fn escaped<
+    Input,
+    Error,
+    Normal,
+    ControlChar,
+    Escape,
+    NormalOutput,
+    ControlCharOutput,
+    EscapeOutput,
+    Output,
+>(
     mut normal: Normal,
-    control_char: char,
+    mut control_char: ControlChar,
     mut escape: Escape,
 ) -> impl Parser<Input, Output, Error>
 where
-    Input: StreamIsPartial + Stream + Compare<char>,
+    Input: StreamIsPartial + Stream,
     Normal: Parser<Input, NormalOutput, Error>,
+    ControlChar: Parser<Input, ControlCharOutput, ()>,
     Escape: Parser<Input, EscapeOutput, Error>,
     Output: crate::stream::Accumulate<NormalOutput>,
     Output: crate::stream::Accumulate<EscapeOutput>,
@@ -1781,17 +1754,17 @@ where
 {
     trace("escaped", move |input: &mut Input| {
         if <Input as StreamIsPartial>::is_partial_supported() && input.is_partial() {
-            escaped_transform_internal::<_, _, _, _, _, _, _, true>(
+            escaped_transform_internal::<_, _, _, _, _, _, _, _, _, true>(
                 input,
                 &mut normal,
-                control_char,
+                &mut control_char,
                 &mut escape,
             )
         } else {
-            escaped_transform_internal::<_, _, _, _, _, _, _, false>(
+            escaped_transform_internal::<_, _, _, _, _, _, _, _, _, false>(
                 input,
                 &mut normal,
-                control_char,
+                &mut control_char,
                 &mut escape,
             )
         }
@@ -1803,6 +1776,8 @@ fn escaped_transform_internal<
     Error,
     F,
     NormalOutput,
+    ControlChar,
+    ControlCharOutput,
     G,
     EscapeOutput,
     Output,
@@ -1810,16 +1785,16 @@ fn escaped_transform_internal<
 >(
     input: &mut I,
     normal: &mut F,
-    control_char: char,
+    control_char: &mut ControlChar,
     transform: &mut G,
 ) -> Result<Output, Error>
 where
     I: StreamIsPartial,
     I: Stream,
-    I: Compare<char>,
     Output: crate::stream::Accumulate<NormalOutput>,
     Output: crate::stream::Accumulate<EscapeOutput>,
     F: Parser<I, NormalOutput, Error>,
+    ControlChar: Parser<I, ControlCharOutput, ()>,
     G: Parser<I, EscapeOutput, Error>,
     Error: ParserError<I>,
 {
@@ -1836,12 +1811,12 @@ where
                 if input.eof_offset() == current_len {
                     return Err(ParserError::assert(
                         input,
-                        "`escaped_transform` parsers must always consume",
+                        "`escaped` parsers must always consume",
                     ));
                 }
             }
             None => {
-                if opt(control_char).parse_next(input)?.is_some() {
+                if control_char.by_ref().parse_next(input).is_ok() {
                     let o = transform.parse_next(input)?;
                     res.accumulate(o);
                 } else {

@@ -1,18 +1,18 @@
 //! Parsers extracting tokens from the stream
 
-#[cfg(test)]
+#[cfg(all(test, feature = "ascii"))]
 mod tests;
 
 use crate::combinator::trace;
 use crate::combinator::DisplayDebug;
 use crate::error::Needed;
 use crate::error::ParserError;
-use crate::lib::std::result::Result::Ok;
 use crate::stream::Range;
 use crate::stream::{Compare, CompareResult, ContainsToken, FindSlice, Stream};
 use crate::stream::{StreamIsPartial, ToUsize};
 use crate::Parser;
 use crate::Result;
+use core::result::Result::Ok;
 
 /// Matches one token
 ///
@@ -138,6 +138,7 @@ where
 /// ```
 ///
 /// ```rust
+/// # #[cfg(feature = "ascii")] {
 /// # use winnow::{error::ErrMode, error::ContextError, error::Needed};
 /// # use winnow::prelude::*;
 /// use winnow::token::literal;
@@ -152,6 +153,7 @@ where
 /// assert_eq!(parser.parse_peek("HeLlO, World!"), Ok((", World!", "HeLlO")));
 /// assert!(parser.parse_peek("Something").is_err());
 /// assert!(parser.parse_peek("").is_err());
+/// # }
 /// ```
 #[inline(always)]
 #[doc(alias = "tag")]
@@ -162,7 +164,7 @@ pub fn literal<Literal, Input, Error>(
 ) -> impl Parser<Input, <Input as Stream>::Slice, Error>
 where
     Input: StreamIsPartial + Stream + Compare<Literal>,
-    Literal: Clone + crate::lib::std::fmt::Debug,
+    Literal: Clone + core::fmt::Debug,
     Error: ParserError<Input>,
 {
     trace(DisplayDebug(literal.clone()), move |i: &mut Input| {
@@ -182,7 +184,7 @@ fn literal_<T, I, Error: ParserError<I>, const PARTIAL: bool>(
 where
     I: StreamIsPartial,
     I: Stream + Compare<T>,
-    T: crate::lib::std::fmt::Debug,
+    T: core::fmt::Debug,
 {
     match i.compare(t) {
         CompareResult::Ok(len) => Ok(i.next_slice(len)),

@@ -6,12 +6,13 @@ use crate::{
     ffiops,
     util::{
         create_metadata_items, either_attribute_arg, extract_docstring, ident_to_string, kw,
-        mod_path, wasm_single_threaded_annotation, AttributeSliceExt, UniffiAttributeArgs,
+        mod_path, orig_name_metadata, wasm_single_threaded_annotation, AttributeSliceExt,
+        UniffiAttributeArgs,
     },
     DeriveOptions,
 };
 use syn::{parse::ParseStream, LitStr, Token};
-use uniffi_meta::ObjectImpl;
+use uniffi_meta::{ObjectImpl, TraitKind};
 
 /// Handle #[uniffi(...)] attributes for objects
 #[derive(Clone, Default)]
@@ -93,8 +94,13 @@ pub fn expand_object(input: DeriveInput, options: DeriveOptions) -> syn::Result<
         Span::call_site(),
     );
     let meta_static_var = options.generate_metadata.then(|| {
-        interface_meta_static_var(name, ObjectImpl::Struct, object.docstring())
-            .unwrap_or_else(syn::Error::into_compile_error)
+        interface_meta_static_var(
+            name,
+            orig_name_metadata(object.attr.name.is_some(), ident),
+            ObjectImpl::Struct,
+            object.docstring(),
+        )
+        .unwrap_or_else(syn::Error::into_compile_error)
     });
     let interface_impl = interface_impl(&object, &options);
 
@@ -249,14 +255,22 @@ fn interface_impl(object: &ObjectItem, options: &DeriveOptions) -> TokenStream {
 
 pub(crate) fn interface_meta_static_var(
     name: &str,
+    orig_name_metadata: TokenStream,
     imp: ObjectImpl,
     docstring: &str,
 ) -> syn::Result<TokenStream> {
-    let code = match imp {
-        ObjectImpl::Struct => quote! { ::uniffi::metadata::codes::INTERFACE },
-        ObjectImpl::Trait => quote! { ::uniffi::metadata::codes::TRAIT_INTERFACE },
-        ObjectImpl::CallbackTrait => quote! { ::uniffi::metadata::codes::CALLBACK_TRAIT_INTERFACE },
+    let (code, trait_kind_code) = match imp {
+        ObjectImpl::Struct => (uniffi_meta::codes::INTERFACE, None),
+        ObjectImpl::Trait(kind) => {
+            let trait_kind_code = match kind {
+                TraitKind::RustOnly => uniffi_meta::codes::TRAIT_KIND_RUST_ONLY,
+                TraitKind::Both => uniffi_meta::codes::TRAIT_KIND_BOTH,
+                TraitKind::ForeignOnly => uniffi_meta::codes::TRAIT_KIND_FOREIGN_ONLY,
+            };
+            (uniffi_meta::codes::TRAIT_INTERFACE, Some(trait_kind_code))
+        }
     };
+    let trait_kind_concat = trait_kind_code.map(|c| quote! { .concat_value(#c) });
 
     Ok(create_metadata_items(
         "interface",
@@ -265,7 +279,9 @@ pub(crate) fn interface_meta_static_var(
             ::uniffi::MetadataBuffer::from_code(#code)
                 .concat_str(module_path!())
                 .concat_str(#name)
+                #orig_name_metadata
                 .concat_long_str(#docstring)
+                #trait_kind_concat
         },
         None,
     ))

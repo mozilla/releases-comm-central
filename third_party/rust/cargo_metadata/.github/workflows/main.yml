@@ -8,7 +8,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install rust
-      run: rustup update --no-self-update stable && rustup default stable
+      run: rustup update --no-self-update stable && rustup default stable && rustup component add rustfmt --toolchain stable
     - name: Check formatting
       run: cargo fmt -- --check
 
@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install rust
-        run: rustup update --no-self-update stable && rustup default stable
+        run: rustup update --no-self-update stable && rustup default stable && rustup component add clippy --toolchain stable
       - name: Clippy check
         run: cargo clippy --all-features -- -Dwarnings
 
@@ -31,7 +31,7 @@ jobs:
           - rust: stable
           - rust: beta
           - rust: nightly
-          - rust: 1.78.0
+          - rust: 1.86.0
     steps:
     - uses: actions/checkout@v2
     - name: Install rust
@@ -42,5 +42,11 @@ jobs:
         cargo build --verbose --no-default-features
         cargo test --verbose
         cargo test --verbose --no-default-features
-        cargo test --verbose --all-features
 
+        # Test with all features. But do not use the `unstable` feature on non-nightly toolchains
+        if [ "${{ matrix.rust }}" = "nightly" ]; then
+          cargo test --verbose --all-features
+        else
+          ALL_FEATURES_EXCEPT_UNSTABLE=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].features | keys | .[]' | grep -v 'unstable' | tr '\n' ' ')
+          cargo test --features "$ALL_FEATURES_EXCEPT_UNSTABLE"
+        fi

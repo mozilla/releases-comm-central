@@ -1,6 +1,8 @@
 //! This example demonstrates how to filter a Platform based on the current
 //! host target.
 
+#![allow(clippy::print_stdout)]
+
 use cargo_platform::{Cfg, Platform};
 use std::process::Command;
 use std::str::FromStr;
@@ -35,8 +37,8 @@ fn get_target() -> String {
         .expect("rustc failed to run");
     let stdout = String::from_utf8(output.stdout).unwrap();
     for line in stdout.lines() {
-        if line.starts_with("host: ") {
-            return String::from(&line[6..]);
+        if let Some(line) = line.strip_prefix("host: ") {
+            return String::from(line);
         }
     }
     panic!("Failed to find host: {}", stdout);

@@ -1,16 +1,25 @@
+{%- if func.is_async() %}
+
+def self.{{ func.name()|fn_name_rb }}({%- call rb::arg_list_decl(func) %}{% endcall -%})
+  {%- call rb::setup_args(func) %}{% endcall %}
+  {% call rb::to_ffi_call_async(func) %}{% endcall %}
+end
+{%- else %}
+
 {%- match func.return_type() -%}
 {%- when Some with (return_type) %}
 
-def self.{{ func.name()|fn_name_rb }}({%- call rb::arg_list_decl(func) -%})
-  {%- call rb::setup_args(func) %}
-  result = {% call rb::to_ffi_call(func) %}
-  return {{ "result"|lift_rb(return_type) }}
+def self.{{ func.name()|fn_name_rb }}({%- call rb::arg_list_decl(func) %}{% endcall -%})
+  {%- call rb::setup_args(func) %}{% endcall %}
+  result = {% call rb::to_ffi_call(func) %}{% endcall %}
+  return {{ "result"|lift_rb(return_type, config) }}
 end
 
 {% when None %}
 
-def self.{{ func.name()|fn_name_rb }}({%- call rb::arg_list_decl(func) -%})
-  {%- call rb::setup_args(func) %}
-  {% call rb::to_ffi_call(func) %}
+def self.{{ func.name()|fn_name_rb }}({%- call rb::arg_list_decl(func) %}{% endcall -%})
+  {%- call rb::setup_args(func) %}{% endcall %}
+  {% call rb::to_ffi_call(func) %}{% endcall %}
 end
 {% endmatch %}
+{%- endif %}

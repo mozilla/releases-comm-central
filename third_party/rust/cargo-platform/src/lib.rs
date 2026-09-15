@@ -6,15 +6,19 @@
 //!
 //! See `examples/matches.rs` for an example of how to match against a `Platform`.
 //!
+//! > This crate is maintained by the Cargo team for use by the wider
+//! > ecosystem. This crate follows semver compatibility for its APIs.
+//!
 //! [`Platform`]: enum.Platform.html
 
-use std::fmt;
 use std::str::FromStr;
+use std::{fmt, path::Path};
 
 mod cfg;
 mod error;
 
-pub use cfg::{Cfg, CfgExpr};
+use cfg::KEYWORDS;
+pub use cfg::{Cfg, CfgExpr, Ident};
 pub use error::{ParseError, ParseErrorKind};
 
 /// Platform definition.
@@ -94,6 +98,7 @@ impl Platform {
                         ))
                     },
                 }
+                CfgExpr::True | CfgExpr::False => {},
             }
         }
 
@@ -101,24 +106,56 @@ impl Platform {
             check_cfg_expr(cfg, warnings);
         }
     }
+
+    pub fn check_cfg_keywords(&self, warnings: &mut Vec<String>, path: &Path) {
+        fn check_cfg_expr(expr: &CfgExpr, warnings: &mut Vec<String>, path: &Path) {
+            match *expr {
+                CfgExpr::Not(ref e) => check_cfg_expr(e, warnings, path),
+                CfgExpr::All(ref e) | CfgExpr::Any(ref e) => {
+                    for e in e {
+                        check_cfg_expr(e, warnings, path);
+                    }
+                }
+                CfgExpr::True | CfgExpr::False => {}
+                CfgExpr::Value(ref e) => match e {
+                    Cfg::Name(name) | Cfg::KeyPair(name, _) => {
+                        if !name.raw && KEYWORDS.contains(&name.as_str()) {
+                            warnings.push(format!(
+                                "[{}] future-incompatibility: `cfg({e})` is deprecated as `{name}` is a keyword \
+                                 and not an identifier and should not have have been accepted in this position.\n \
+                                 | this was previously accepted by Cargo but is being phased out; it will become a hard error in a future release!\n \
+                                 |\n \
+                                 | help: use raw-idents instead: `cfg(r#{name})`",
+                                 path.display()
+                            ));
+                        }
+                    }
+                },
+            }
+        }
+
+        if let Platform::Cfg(cfg) = self {
+            check_cfg_expr(cfg, warnings, path);
+        }
+    }
 }
 
-impl serde::Serialize for Platform {
+impl serde_core::Serialize for Platform {
     fn serialize<S>(&self, s: S) -> Result<S::Ok, S::Error>
     where
-        S: serde::Serializer,
+        S: serde_core::Serializer,
     {
         self.to_string().serialize(s)
     }
 }
 
-impl<'de> serde::Deserialize<'de> for Platform {
+impl<'de> serde_core::Deserialize<'de> for Platform {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
-        D: serde::Deserializer<'de>,
+        D: serde_core::Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        FromStr::from_str(&s).map_err(serde::de::Error::custom)
+        FromStr::from_str(&s).map_err(serde_core::de::Error::custom)
     }
 }
 
@@ -126,8 +163,7 @@ impl FromStr for Platform {
     type Err = ParseError;
 
     fn from_str(s: &str) -> Result<Platform, ParseError> {
-        if s.starts_with("cfg(") && s.ends_with(')') {
-            let s = &s[4..s.len() - 1];
+        if let Some(s) = s.strip_prefix("cfg(").and_then(|s| s.strip_suffix(')')) {
             s.parse().map(Platform::Cfg)
         } else {
             Platform::validate_named_platform(s)?;

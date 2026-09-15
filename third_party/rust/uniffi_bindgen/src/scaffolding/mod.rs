@@ -23,7 +23,28 @@ impl<'a> RustScaffolding<'a> {
 mod filters {
     use super::*;
 
+    #[askama::filter_fn]
     pub fn type_rs(type_: &Type, _values: &dyn askama::Values) -> Result<String, askama::Error> {
+        type_rs_inner(type_)
+    }
+
+    /// Render the Rust type of a function/method/constructor argument.
+    /// `[ByRef] bytes` lowers to `&[u8]` so scaffolding matches the
+    /// zero-copy FFI path; other by-ref args get a plain `&` prefix.
+    #[askama::filter_fn]
+    pub fn arg_rs(arg: &Argument, _values: &dyn askama::Values) -> Result<String, askama::Error> {
+        if arg.is_borrowed_bytes() {
+            return Ok("&[u8]".to_string());
+        }
+        let rendered = type_rs_inner(&arg.as_type())?;
+        Ok(if arg.by_ref() {
+            format!("&{rendered}")
+        } else {
+            rendered
+        })
+    }
+
+    fn type_rs_inner(type_: &Type) -> Result<String, askama::Error> {
         Ok(match type_ {
             Type::Int8 => "i8".into(),
             Type::UInt8 => "u8".into(),
@@ -45,20 +66,29 @@ mod filters {
                 format!("::std::sync::Arc<{}>", imp.rust_name_for(name))
             }
             Type::CallbackInterface { name, .. } => format!("Box<dyn r#{name}>"),
+            Type::Box { inner_type } => {
+                format!("::std::boxed::Box<{}>", type_rs_inner(inner_type)?,)
+            }
             Type::Optional { inner_type } => {
-                format!("::std::option::Option<{}>", type_rs(inner_type, _values)?)
+                format!("::std::option::Option<{}>", type_rs_inner(inner_type)?)
             }
             Type::Sequence { inner_type } => {
-                format!("std::vec::Vec<{}>", type_rs(inner_type, _values)?)
+                format!("std::vec::Vec<{}>", type_rs_inner(inner_type)?)
             }
             Type::Map {
                 key_type,
                 value_type,
             } => format!(
                 "::std::collections::HashMap<{}, {}>",
-                type_rs(key_type, _values)?,
-                type_rs(value_type, _values)?
+                type_rs_inner(key_type)?,
+                type_rs_inner(value_type)?
             ),
+            Type::Set { inner_type } => {
+                format!(
+                    "::std::collections::HashSet<{}>",
+                    type_rs_inner(inner_type)?
+                )
+            }
             Type::Custom { name, .. } => format!("r#{name}"),
         })
     }

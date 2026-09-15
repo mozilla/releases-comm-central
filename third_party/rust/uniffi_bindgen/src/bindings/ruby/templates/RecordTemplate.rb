@@ -4,7 +4,7 @@ class {{ rec.name()|class_name_rb }}
 
   def initialize({% for field in rec.fields() %}{{ field.name()|var_name_rb -}}:
         {%- match field.default_value() %}
-        {%- when Some(default) %} {{ default|default_rb }}
+        {%- when Some(_) %} {{ field|field_default_rb }}
         {%- else %}
         {%- endmatch %}
   {%- if loop.last %}{% else %}, {% endif -%}{% endfor %})
@@ -13,6 +13,11 @@ class {{ rec.name()|class_name_rb }}
     {%- endfor %}
   end
 
+  {%- let methods = rec.methods() %}
+  {%- include "MethodImpls.rb" %}
+
+  {%- let trait_methods = rec.uniffi_trait_methods() %}
+  {%- if trait_methods.eq_eq.is_none() %}
   def ==(other)
     {%- for field in rec.fields() %}
     if @{{ field.name()|var_name_rb }} != other.{{ field.name()|var_name_rb }}
@@ -22,4 +27,6 @@ class {{ rec.name()|class_name_rb }}
 
     true
   end
+  {% endif %}
+  {%- include "UniffiTraitImpls.rb" %}
 end

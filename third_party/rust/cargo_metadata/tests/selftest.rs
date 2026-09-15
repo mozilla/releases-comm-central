@@ -17,7 +17,7 @@ fn metadata() {
     let metadata = MetadataCommand::new().no_deps().exec().unwrap();
 
     let this = &metadata.packages[0];
-    assert_eq!(this.name, "cargo_metadata");
+    assert_eq!(this.name.as_str(), "cargo_metadata");
     assert_eq!(this.targets.len(), 3);
 
     let lib = this
@@ -37,7 +37,8 @@ fn metadata() {
         .metadata
         .as_object()
         .expect("package.metadata must be a table.");
-    assert_eq!(package_metadata.len(), 1);
+    // The second field is docs.rs metadata, ignore it
+    assert_eq!(package_metadata.len(), 2);
 
     let value = package_metadata.get("cargo_metadata_test").unwrap();
     let test_package_metadata: TestPackageMetadata = serde_json::from_value(value.clone()).unwrap();
@@ -83,11 +84,13 @@ fn builder_interface() {
 
 #[test]
 fn error1() {
+    let manifest_path = current_dir().unwrap().join("foo");
+    let error = "error: the manifest-path must be a path to a Cargo.toml file";
+    let error_with_path = format!("{error}: `{}`", manifest_path.display());
     match MetadataCommand::new().manifest_path("foo").exec() {
-        Err(Error::CargoMetadata { stderr }) => assert_eq!(
-            stderr.trim(),
-            "error: the manifest-path must be a path to a Cargo.toml file"
-        ),
+        Err(Error::CargoMetadata { stderr }) => {
+            assert!([error, &error_with_path].contains(&stderr.trim()))
+        }
         _ => unreachable!(),
     }
 }
@@ -130,7 +133,7 @@ fn metadata_deps() {
         .expect("Did not find ourselves");
     let this = &metadata[this_id];
 
-    assert_eq!(this.name, "cargo_metadata");
+    assert_eq!(this.name.as_str(), "cargo_metadata");
 
     let workspace_packages = metadata.workspace_packages();
     assert_eq!(workspace_packages.len(), 1);
@@ -174,5 +177,38 @@ fn workspace_default_packages() {
     if metadata.workspace_default_members.is_available() {
         let default_packages = metadata.workspace_default_packages();
         assert_eq!(default_packages, workspace_packages);
+    }
+}
+
+fn cargo_version() -> semver::Version {
+    let output = std::process::Command::new("cargo")
+        .arg("-V")
+        .output()
+        .expect("Failed to exec cargo.");
+    let out = std::str::from_utf8(&output.stdout)
+        .expect("invalid utf8")
+        .trim();
+    let split: Vec<&str> = out.split_whitespace().collect();
+    assert!(split.len() >= 2, "cargo -V output is unexpected: {}", out);
+    let mut ver = semver::Version::parse(split[1]).expect("cargo -V semver could not be parsed");
+    // Don't care about metadata, it is awkward to compare.
+    ver.pre = semver::Prerelease::EMPTY;
+    ver.build = semver::BuildMetadata::EMPTY;
+    ver
+}
+
+#[test]
+fn build_dir() {
+    let metadata = MetadataCommand::new().no_deps().exec().unwrap();
+    let ver = cargo_version();
+    let minimum = semver::Version::parse("1.91.0").unwrap();
+    if ver >= minimum {
+        assert!(&metadata.build_directory.is_some());
+        assert!(&metadata
+            .build_directory
+            .unwrap()
+            .ends_with("cargo_metadata/target"));
+    } else {
+        assert!(&metadata.build_directory.is_none());
     }
 }

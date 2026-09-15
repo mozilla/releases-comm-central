@@ -2,6 +2,7 @@ use crate::parse::Error;
 use core::fmt::{self, Debug, Display};
 
 pub(crate) enum ErrorKind {
+    Empty,
     UnexpectedEnd(Position),
     UnexpectedChar(Position, char),
     UnexpectedCharAfter(Position, char),
@@ -25,12 +26,13 @@ pub(crate) enum Position {
 }
 
 #[cfg(feature = "std")]
-#[cfg_attr(doc_cfg, doc(cfg(feature = "std")))]
+#[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl std::error::Error for Error {}
 
 impl Display for Error {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         match &self.kind {
+            ErrorKind::Empty => formatter.write_str("empty string, expected a semver version"),
             ErrorKind::UnexpectedEnd(pos) => {
                 write!(formatter, "unexpected end of input while parsing {}", pos)
             }

@@ -3,9 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use crate::{
-    bindings::GenerateOptions, interface::rename, BindgenLoader, Component, ComponentInterface,
-    Result,
+    bindings::GenerateOptions,
+    interface::{apply_exclusions, rename},
+    BindgenLoader, Component, ComponentInterface, Result,
 };
+use anyhow::bail;
 use camino::{Utf8Path, Utf8PathBuf};
 use fs_err as fs;
 use std::collections::HashMap;
@@ -19,12 +21,31 @@ pub mod test;
 /// Generate Kotlin bindings
 pub fn generate(loader: &BindgenLoader, options: GenerateOptions) -> Result<()> {
     let metadata = loader.load_metadata(&options.source)?;
+    if let Some(crate_filter) = &options.crate_filter {
+        if !metadata.contains_key(crate_filter) {
+            bail!("No UniFFI metadata found for crate {crate_filter}");
+        }
+    }
+
     let cis = loader.load_cis(metadata)?;
     let cdylib = loader.library_name(&options.source).map(|l| l.to_string());
     let mut components =
         loader.load_components(cis, |ci, toml| parse_config(ci, toml, cdylib.clone()))?;
     apply_renames(&mut components);
 
+    // Check for primary constructors after `apply_renames` is called, so that we honor exclusions.
+    for c in components.iter() {
+        for o in c.ci.object_definitions() {
+            for cons in o.constructors() {
+                if cons.is_async() && cons.is_primary_constructor() {
+                    bail!(
+                        "Async primary constructors not supported but {} has one",
+                        o.name()
+                    );
+                }
+            }
+        }
+    }
     for c in components.iter_mut() {
         // Call derive_ffi_functions after `apply_renames`
         c.ci.derive_ffi_funcs()?;
@@ -84,6 +105,11 @@ fn parse_config(
 
 // A helper for renaming items.
 fn apply_renames(components: &mut Vec<Component<Config>>) {
+    // Remove excluded items, this happens before renaming
+    for c in components.iter_mut() {
+        apply_exclusions(&mut c.ci, &c.config.exclude);
+    }
+
     // Collect all rename configurations from all components, keyed by module_path
     let mut module_renames = HashMap::new();
     for c in components.iter() {

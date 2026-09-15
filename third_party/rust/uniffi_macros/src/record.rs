@@ -7,7 +7,8 @@ use crate::{
     ffiops,
     util::{
         create_metadata_items, either_attribute_arg, extract_docstring, ident_to_string, kw,
-        try_metadata_value_from_usize, try_read_field, AttributeSliceExt, UniffiAttributeArgs,
+        orig_name_metadata, try_metadata_value_from_usize, try_read_field, AttributeSliceExt,
+        UniffiAttributeArgs,
     },
     DeriveOptions,
 };
@@ -147,32 +148,48 @@ fn write_field(f: &Field) -> TokenStream {
 #[derive(Default)]
 pub struct FieldAttributeArguments {
     pub(crate) default: Option<DefaultValue>,
+    pub(crate) name: Option<String>,
 }
 
 impl UniffiAttributeArgs for FieldAttributeArguments {
     fn parse_one(input: ParseStream<'_>) -> syn::Result<Self> {
-        let _: kw::default = input.parse()?;
         let lookahead = input.lookahead1();
-        let default = if lookahead.peek(Token![=]) {
+        if lookahead.peek(kw::default) {
+            let _: kw::default = input.parse()?;
+            let default = Some(if input.peek(Token![=]) {
+                let _: Token![=] = input.parse()?;
+                input.parse()?
+            } else {
+                DefaultValue::Default
+            });
+            Ok(Self {
+                default,
+                ..Self::default()
+            })
+        } else if lookahead.peek(kw::name) {
+            let _: kw::name = input.parse()?;
             let _: Token![=] = input.parse()?;
-            input.parse()?
+            let name = Some(input.parse::<LitStr>()?.value());
+            Ok(Self {
+                name,
+                ..Self::default()
+            })
         } else {
-            DefaultValue::Default
-        };
-        Ok(Self {
-            default: Some(default),
-        })
+            Err(lookahead.error())
+        }
     }
 
     fn merge(self, other: Self) -> syn::Result<Self> {
         Ok(Self {
             default: either_attribute_arg(self.default, other.default)?,
+            name: either_attribute_arg(self.name, other.name)?,
         })
     }
 }
 
 fn record_meta_static_var(record: &RecordItem) -> syn::Result<TokenStream> {
     let name = &record.foreign_name();
+    let rec_orig_name_metadata = orig_name_metadata(record.attr.name.is_some(), &record.ident);
     let docstring = record.docstring();
     let fields_len = try_metadata_value_from_usize(
         record.struct_().fields.len(),
@@ -187,8 +204,15 @@ fn record_meta_static_var(record: &RecordItem) -> syn::Result<TokenStream> {
             let attrs = f
                 .attrs
                 .parse_uniffi_attr_args::<FieldAttributeArguments>()?;
-
-            let name = ident_to_string(f.ident.as_ref().unwrap());
+            let orig_name_metadata = match &f.ident {
+                Some(ident) => orig_name_metadata(attrs.name.is_some(), ident),
+                None => quote! {
+                    .concat_bool(false)
+                },
+            };
+            let name = attrs
+                .name
+                .unwrap_or(ident_to_string(f.ident.as_ref().unwrap()));
             let docstring = extract_docstring(&f.attrs)?;
             let default = default_value_metadata_calls(&attrs.default)?;
             let type_id_meta = ffiops::type_id_meta(&f.ty);
@@ -197,6 +221,7 @@ fn record_meta_static_var(record: &RecordItem) -> syn::Result<TokenStream> {
             // TYPE_ID_META should be the same for both traits.
             Ok(quote! {
                 .concat_str(#name)
+                #orig_name_metadata
                 .concat(#type_id_meta)
                 #default
                 .concat_long_str(#docstring)
@@ -211,6 +236,7 @@ fn record_meta_static_var(record: &RecordItem) -> syn::Result<TokenStream> {
             ::uniffi::MetadataBuffer::from_code(::uniffi::metadata::codes::RECORD)
                 .concat_str(module_path!())
                 .concat_str(#name)
+                #rec_orig_name_metadata
                 .concat_value(#fields_len)
                 #concat_fields
                 .concat_long_str(#docstring)

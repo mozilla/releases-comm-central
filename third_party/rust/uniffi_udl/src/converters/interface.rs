@@ -8,8 +8,7 @@ use crate::{converters::convert_docstring, InterfaceCollector};
 use anyhow::{bail, Result};
 use std::collections::HashSet;
 use uniffi_meta::{
-    ConstructorMetadata, FnParamMetadata, MethodMetadata, ObjectImpl, ObjectMetadata, Type,
-    UniffiTraitMetadata,
+    ConstructorMetadata, FnParamMetadata, MethodMetadata, ObjectMetadata, Type, UniffiTraitMetadata,
 };
 
 impl APIConverter<ObjectMetadata> for weedle::InterfaceDefinition<'_> {
@@ -31,7 +30,7 @@ impl APIConverter<ObjectMetadata> for weedle::InterfaceDefinition<'_> {
             match member {
                 weedle::interface::InterfaceMember::Constructor(t) => {
                     let mut cons: ConstructorMetadata = t.convert(ci)?;
-                    if object_impl == ObjectImpl::Trait {
+                    if object_impl.is_trait_interface() {
                         bail!(
                             "Trait interfaces can not have constructors: \"{}\"",
                             cons.name
@@ -64,6 +63,7 @@ impl APIConverter<ObjectMetadata> for weedle::InterfaceDefinition<'_> {
                 module_path: ci.module_path(),
                 self_name: object_name.to_string(),
                 name: name.to_string(),
+                orig_name: None,
                 is_async: false,
                 inputs,
                 return_type,
@@ -148,6 +148,7 @@ impl APIConverter<ObjectMetadata> for weedle::InterfaceDefinition<'_> {
         Ok(ObjectMetadata {
             module_path: ci.module_path(),
             name: object_name.to_string(),
+            orig_name: None,
             remote: attributes.contains_remote(),
             imp: object_impl,
             docstring: self.docstring.as_ref().map(|v| convert_docstring(&v.0)),

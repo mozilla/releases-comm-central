@@ -43,3 +43,9 @@ fn test_eq() {
     assert_ne!(prerelease("aaaaaaaaa"), prerelease("bbbbbbbbb"));
     assert_ne!(build_metadata("1"), build_metadata("001"));
 }
+
+#[test]
+fn test_prerelease() {
+    let err = prerelease_err("1.b\0");
+    assert_to_string(err, "unexpected character in pre-release identifier");
+}

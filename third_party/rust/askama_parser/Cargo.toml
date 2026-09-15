@@ -10,10 +10,10 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
-edition = "2021"
-rust-version = "1.83"
+edition = "2024"
+rust-version = "1.88"
 name = "askama_parser"
-version = "0.14.0"
+version = "0.16.0"
 build = false
 autolib = false
 autobins = false
@@ -21,7 +21,7 @@ autoexamples = false
 autotests = false
 autobenches = false
 description = "Parser for Askama templates"
-homepage = "https://github.com/askama-rs/askama"
+homepage = "https://askama.rs/"
 documentation = "https://docs.rs/askama"
 readme = "README.md"
 keywords = [
@@ -33,6 +33,7 @@ keywords = [
 categories = ["template-engine"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/askama-rs/askama"
+resolver = "2"
 
 [package.metadata.docs.rs]
 all-features = true
@@ -56,8 +57,13 @@ name = "from_str"
 path = "benches/from_str.rs"
 harness = false
 
-[dependencies.memchr]
-version = "2"
+[[bench]]
+name = "parse-complex-expression"
+path = "benches/parse-complex-expression.rs"
+harness = false
+
+[dependencies.rustc-hash]
+version = "2.0.0"
 
 [dependencies.serde]
 version = "1.0"
@@ -67,8 +73,18 @@ optional = true
 version = "1.0"
 optional = true
 
+[dependencies.unicode-ident]
+version = "1.0.12"
+
 [dependencies.winnow]
-version = "0.7.0"
+version = "1.0.0"
+features = ["simd"]
 
 [dev-dependencies.criterion]
-version = "0.5"
+version = "0.8"
+
+[dev-dependencies.rand]
+version = "0.10.0"
+
+[dev-dependencies.rand_xoshiro]
+version = "0.8.0"

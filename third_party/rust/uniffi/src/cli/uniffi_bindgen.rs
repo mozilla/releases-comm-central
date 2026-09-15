@@ -5,9 +5,11 @@
 use camino::Utf8PathBuf;
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use std::fmt;
-// TODO: remove blanket import
-use uniffi_bindgen::bindings::*;
-use uniffi_bindgen::pipeline::initial;
+use uniffi_bindgen::{
+    bindings::{generate, python, GenerateOptions, TargetLanguage},
+    pipeline::initial,
+    GlobalConfig,
+};
 use uniffi_pipeline::PrintOptions;
 
 /// TargetLanguage uniffi_bindgen, with a `clap::ValueEnum` derive.
@@ -70,7 +72,8 @@ enum Commands {
         #[clap(long, short)]
         no_format: bool,
 
-        /// Path to optional uniffi config file. This config is merged with the `uniffi.toml` config present in each crate, with its values taking precedence.
+        /// Path to a global config file. Supports [defaults]s, [crates.<name>], and [crate-roots].
+        /// [default]s are merged with per-crate `uniffi.toml` files, then with [crates.<name>] overrides here.
         #[clap(long, short)]
         config: Option<Utf8PathBuf>,
 
@@ -203,13 +206,14 @@ pub fn run_main() -> anyhow::Result<()> {
         }
         Commands::Pipeline(args) => {
             let mut paths = uniffi_bindgen::BindgenPaths::default();
+            let global_config = GlobalConfig::default();
             #[cfg(feature = "cargo-metadata")]
             paths.add_cargo_metadata_layer(args.metadata_no_deps)?;
 
             let initial_root = if args.library_mode {
-                initial::Root::from_library(paths, &args.source, args.crate_name)?
+                initial::Root::from_library(&paths, &global_config, &args.source, args.crate_name)?
             } else {
-                initial::Root::from_udl(paths, &args.source, args.crate_name)?
+                initial::Root::from_udl(&paths, &global_config, &args.source, args.crate_name)?
             };
 
             let opts = PrintOptions {

@@ -1,9 +1,8 @@
-use crate::backport::*;
 use crate::identifier::Identifier;
 use crate::{BuildMetadata, Comparator, Prerelease, VersionReq};
+use alloc::vec::Vec;
 use core::cmp::Ordering;
 use core::hash::{Hash, Hasher};
-use core::iter::FromIterator;
 use core::ops::Deref;
 
 impl Default for Identifier {
@@ -38,20 +37,23 @@ impl Deref for BuildMetadata {
 
 impl PartialOrd for Prerelease {
     fn partial_cmp(&self, rhs: &Self) -> Option<Ordering> {
-        Some(Ord::cmp(self, rhs))
+        Some(self.cmp(rhs))
     }
 }
 
 impl PartialOrd for BuildMetadata {
     fn partial_cmp(&self, rhs: &Self) -> Option<Ordering> {
-        Some(Ord::cmp(self, rhs))
+        Some(self.cmp(rhs))
     }
 }
 
 impl Ord for Prerelease {
     fn cmp(&self, rhs: &Self) -> Ordering {
+        if self.identifier.ptr_eq(&rhs.identifier) {
+            return Ordering::Equal;
+        }
+
         match self.is_empty() {
-            true if rhs.is_empty() => return Ordering::Equal,
             // A real release compares greater than prerelease.
             true => return Ordering::Greater,
             // Prerelease compares less than the real release.
@@ -63,12 +65,11 @@ impl Ord for Prerelease {
         let mut rhs = rhs.as_str().split('.');
 
         for lhs in lhs {
-            let rhs = match rhs.next() {
+            let Some(rhs) = rhs.next() else {
                 // Spec: "A larger set of pre-release fields has a higher
                 // precedence than a smaller set, if all of the preceding
                 // identifiers are equal."
-                None => return Ordering::Greater,
-                Some(rhs) => rhs,
+                return Ordering::Greater;
             };
 
             let string_cmp = || Ord::cmp(lhs, rhs);
@@ -105,13 +106,16 @@ impl Ord for Prerelease {
 
 impl Ord for BuildMetadata {
     fn cmp(&self, rhs: &Self) -> Ordering {
+        if self.identifier.ptr_eq(&rhs.identifier) {
+            return Ordering::Equal;
+        }
+
         let lhs = self.as_str().split('.');
         let mut rhs = rhs.as_str().split('.');
 
         for lhs in lhs {
-            let rhs = match rhs.next() {
-                None => return Ordering::Greater,
-                Some(rhs) => rhs,
+            let Some(rhs) = rhs.next() else {
+                return Ordering::Greater;
             };
 
             let is_ascii_digit = |b: u8| b.is_ascii_digit();

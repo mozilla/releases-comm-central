@@ -60,36 +60,34 @@
 //!
 //! [Specifying Dependencies]: https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html
 
-#![doc(html_root_url = "https://docs.rs/semver/1.0.16")]
-#![cfg_attr(doc_cfg, feature(doc_cfg))]
-#![cfg_attr(all(not(feature = "std"), not(no_alloc_crate)), no_std)]
-#![cfg_attr(not(no_unsafe_op_in_unsafe_fn_lint), deny(unsafe_op_in_unsafe_fn))]
-#![cfg_attr(no_unsafe_op_in_unsafe_fn_lint, allow(unused_unsafe))]
-#![cfg_attr(no_str_strip_prefix, allow(unstable_name_collisions))]
+#![doc(html_root_url = "https://docs.rs/semver/1.0.28")]
+#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(not(feature = "std"), no_std)]
+#![deny(unsafe_op_in_unsafe_fn)]
 #![allow(
     clippy::cast_lossless,
     clippy::cast_possible_truncation,
+    clippy::checked_conversions,
     clippy::doc_markdown,
+    clippy::incompatible_msrv,
     clippy::items_after_statements,
     clippy::manual_map,
+    clippy::manual_range_contains,
     clippy::match_bool,
     clippy::missing_errors_doc,
     clippy::must_use_candidate,
     clippy::needless_doctest_main,
-    clippy::option_if_let_else,
-    clippy::ptr_as_ptr,
     clippy::redundant_else,
     clippy::semicolon_if_nothing_returned, // https://github.com/rust-lang/rust-clippy/issues/7324
     clippy::similar_names,
+    clippy::uninlined_format_args,
     clippy::unnested_or_patterns,
     clippy::unseparated_literal_suffix,
     clippy::wildcard_imports
 )]
 
-#[cfg(not(no_alloc_crate))]
 extern crate alloc;
 
-mod backport;
 mod display;
 mod error;
 mod eval;
@@ -100,12 +98,10 @@ mod parse;
 #[cfg(feature = "serde")]
 mod serde;
 
-use crate::alloc::vec::Vec;
 use crate::identifier::Identifier;
+use alloc::vec::Vec;
+use core::cmp::Ordering;
 use core::str::FromStr;
-
-#[allow(unused_imports)]
-use crate::backport::*;
 
 pub use crate::parse::Error;
 
@@ -135,10 +131,10 @@ pub use crate::parse::Error;
 /// comparison operators.
 ///
 /// - The major, minor, and patch number are compared numerically from left to
-/// right, lexicographically ordered as a 3-tuple of integers. So for example
-/// version `1.5.0` is less than version `1.19.0`, despite the fact that
-/// "1.19.0" &lt; "1.5.0" as ASCIIbetically compared strings and 1.19 &lt; 1.5
-/// as real numbers.
+///   right, lexicographically ordered as a 3-tuple of integers. So for example
+///   version `1.5.0` is less than version `1.19.0`, despite the fact that
+///   "1.19.0" &lt; "1.5.0" as ASCIIbetically compared strings and 1.19 &lt; 1.5
+///   as real numbers.
 ///
 /// - When major, minor, and patch are equal, a pre-release version is
 ///   considered less than the ordinary release:&ensp;version `1.0.0-alpha.1` is
@@ -185,7 +181,6 @@ pub struct Version {
 ///   not permitted within a partial version, i.e. anywhere between the major
 ///   version number and its minor, patch, pre-release, or build metadata.
 #[derive(Clone, Eq, PartialEq, Hash, Debug)]
-#[cfg_attr(no_const_vec_new, derive(Default))]
 pub struct VersionReq {
     pub comparators: Vec<Comparator>,
 }
@@ -249,7 +244,7 @@ pub struct Comparator {
 /// - &ensp;**`I.J.*`**&emsp;&mdash;&emsp;equivalent to `=I.J`
 /// - &ensp;**`I.*`**&ensp;or&ensp;**`I.*.*`**&emsp;&mdash;&emsp;equivalent to `=I`
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
-#[cfg_attr(not(no_non_exhaustive), non_exhaustive)]
+#[non_exhaustive]
 pub enum Op {
     Exact,
     Greater,
@@ -259,10 +254,6 @@ pub enum Op {
     Tilde,
     Caret,
     Wildcard,
-
-    #[cfg(no_non_exhaustive)] // rustc <1.40
-    #[doc(hidden)]
-    __NonExhaustive,
 }
 
 /// Optional pre-release identifier on a version string. This comes after `-` in
@@ -431,6 +422,53 @@ impl Version {
     pub fn parse(text: &str) -> Result<Self, Error> {
         Version::from_str(text)
     }
+
+    /// Compare the major, minor, patch, and pre-release value of two versions,
+    /// disregarding build metadata. Versions that differ only in build metadata
+    /// are considered equal. This comparison is what the SemVer spec refers to
+    /// as "precedence".
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use semver::Version;
+    ///
+    /// let mut versions = [
+    ///     "1.20.0+c144a98".parse::<Version>().unwrap(),
+    ///     "1.20.0".parse().unwrap(),
+    ///     "1.0.0".parse().unwrap(),
+    ///     "1.0.0-alpha".parse().unwrap(),
+    ///     "1.20.0+bc17664".parse().unwrap(),
+    /// ];
+    ///
+    /// // This is a stable sort, so it preserves the relative order of equal
+    /// // elements. The three 1.20.0 versions differ only in build metadata so
+    /// // they are not reordered relative to one another.
+    /// versions.sort_by(Version::cmp_precedence);
+    /// assert_eq!(versions, [
+    ///     "1.0.0-alpha".parse().unwrap(),
+    ///     "1.0.0".parse().unwrap(),
+    ///     "1.20.0+c144a98".parse().unwrap(),
+    ///     "1.20.0".parse().unwrap(),
+    ///     "1.20.0+bc17664".parse().unwrap(),
+    /// ]);
+    ///
+    /// // Totally order the versions, including comparing the build metadata.
+    /// versions.sort();
+    /// assert_eq!(versions, [
+    ///     "1.0.0-alpha".parse().unwrap(),
+    ///     "1.0.0".parse().unwrap(),
+    ///     "1.20.0".parse().unwrap(),
+    ///     "1.20.0+bc17664".parse().unwrap(),
+    ///     "1.20.0+c144a98".parse().unwrap(),
+    /// ]);
+    /// ```
+    pub fn cmp_precedence(&self, other: &Self) -> Ordering {
+        Ord::cmp(
+            &(self.major, self.minor, self.patch, &self.pre),
+            &(other.major, other.minor, other.patch, &other.pre),
+        )
+    }
 }
 
 impl VersionReq {
@@ -447,7 +485,6 @@ impl VersionReq {
     /// pre-release component. Since `*` is not written with an explicit major,
     /// minor, and patch version, and does not contain a nonempty pre-release
     /// component, it does not match any pre-release versions.
-    #[cfg(not(no_const_vec_new))] // rustc <1.39
     pub const STAR: Self = VersionReq {
         comparators: Vec::new(),
     };
@@ -479,7 +516,6 @@ impl VersionReq {
 }
 
 /// The default VersionReq is the same as [`VersionReq::STAR`].
-#[cfg(not(no_const_vec_new))]
 impl Default for VersionReq {
     fn default() -> Self {
         VersionReq::STAR

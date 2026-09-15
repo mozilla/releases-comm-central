@@ -7,11 +7,15 @@ use crate::Error;
 pub const NO_VALUES: &dyn Values = &();
 
 /// Try to find `key` in `values` and then to convert it to `T`.
+#[inline]
 pub fn get_value<T: Any>(values: &dyn Values, key: impl AsRef<str>) -> Result<&T, Error> {
-    let Some(src) = values.get_value(key.as_ref()) else {
-        return Err(Error::ValueMissing);
-    };
+    values
+        .get_value(key.as_ref())
+        .ok_or(Error::ValueMissing)
+        .and_then(convert_value)
+}
 
+fn convert_value<T: Any>(src: &dyn Any) -> Result<&T, Error> {
     if let Some(value) = src.downcast_ref::<T>() {
         return Ok(value);
     } else if let Some(value) = src.downcast_ref::<&T>() {
@@ -90,6 +94,7 @@ where
     K: Borrow<str>,
     V: Value,
 {
+    #[inline]
     fn get_value<'a>(&'a self, key: &str) -> Option<&'a dyn Any> {
         find_value_linear(self.iter(), key)
     }

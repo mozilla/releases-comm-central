@@ -4,7 +4,7 @@
 
 use std::borrow::Borrow;
 use std::cell::RefCell;
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fmt::Debug;
 
 use askama::Template;
@@ -71,6 +71,8 @@ pub struct Config {
     pub(super) cdylib_name: Option<String>,
     generate_immutable_records: Option<bool>,
     #[serde(default)]
+    mutable_records: HashSet<String>,
+    #[serde(default)]
     omit_checksums: bool,
     #[serde(default)]
     custom_types: HashMap<String, CustomTypeConfig>,
@@ -86,6 +88,8 @@ pub struct Config {
     disable_java_cleaner: bool,
     #[serde(default)]
     pub(super) rename: toml::Table,
+    #[serde(default)]
+    pub(super) exclude: Vec<String>,
 }
 
 impl Config {
@@ -200,8 +204,15 @@ impl Config {
     }
 
     /// Whether to generate immutable records (`val` instead of `var`)
-    pub fn generate_immutable_records(&self) -> bool {
+    fn generate_immutable_records(&self) -> bool {
         self.generate_immutable_records.unwrap_or(false)
+    }
+
+    /// Whether a specific record should be generated with immutable fields.
+    /// A record is immutable only if `generate_immutable_records` is enabled
+    /// and the record is not listed in `mutable_records`.
+    pub fn is_record_immutable(&self, name: &str) -> bool {
+        self.generate_immutable_records() && !self.mutable_records.contains(name)
     }
 
     pub fn disable_java_cleaner(&self) -> bool {
@@ -493,6 +504,20 @@ impl KotlinCodeOracle {
         }
     }
 
+    /// Kotlin/JNA direct mapping can mis-handle unsigned 8/16-bit direct return values
+    /// on some runtimes, so widen the raw carrier to Int and let the generated
+    /// converters lift it back into the public UByte/UShort API types.
+    fn ffi_type_label_for_direct_return(
+        &self,
+        ffi_type: &FfiType,
+        ci: &ComponentInterface,
+    ) -> String {
+        match ffi_type {
+            FfiType::UInt8 | FfiType::UInt16 => "Int".to_string(),
+            _ => self.ffi_type_label_by_value(ffi_type, ci),
+        }
+    }
+
     /// FFI type name to use inside structs
     ///
     /// The main requirement here is that all types must have default values or else the struct
@@ -623,9 +648,11 @@ impl<T: AsType> AsCodeType for T {
                 key_type,
                 value_type,
             } => Box::new(compounds::MapCodeType::new(*key_type, *value_type)),
+            Type::Set { inner_type } => Box::new(compounds::SetCodeType::new(*inner_type)),
             Type::Custom { name, builtin, .. } => {
                 Box::new(custom::CustomCodeType::new(name, builtin.as_codetype()))
             }
+            Type::Box { inner_type } => inner_type.as_codetype(),
         }
     }
 }
@@ -634,6 +661,7 @@ mod filters {
     use super::*;
     use uniffi_meta::LiteralMetadata;
 
+    #[askama::filter_fn]
     pub(super) fn type_name(
         as_ct: &impl AsCodeType,
         _: &dyn askama::Values,
@@ -642,6 +670,7 @@ mod filters {
         Ok(as_ct.as_codetype().type_label(ci))
     }
 
+    #[askama::filter_fn]
     pub(super) fn canonical_name(
         as_ct: &impl AsCodeType,
         _: &dyn askama::Values,
@@ -649,6 +678,7 @@ mod filters {
         Ok(as_ct.as_codetype().canonical_name())
     }
 
+    #[askama::filter_fn]
     pub(super) fn qualified_type_name<T>(
         as_type: &T,
         _: &dyn askama::Values,
@@ -662,6 +692,7 @@ mod filters {
             .map_err(|err| to_askama_error(&err))
     }
 
+    #[askama::filter_fn]
     pub(super) fn ffi_converter_name(
         as_ct: &impl AsCodeType,
         _: &dyn askama::Values,
@@ -669,6 +700,7 @@ mod filters {
         Ok(as_ct.as_codetype().ffi_converter_name())
     }
 
+    #[askama::filter_fn]
     pub(super) fn ffi_type(
         type_: &impl AsType,
         _: &dyn askama::Values,
@@ -676,6 +708,7 @@ mod filters {
         Ok(type_.as_type().into())
     }
 
+    #[askama::filter_fn]
     pub(super) fn lower_fn(
         as_ct: &impl AsCodeType,
         _: &dyn askama::Values,
@@ -686,6 +719,7 @@ mod filters {
         ))
     }
 
+    #[askama::filter_fn]
     pub(super) fn allocation_size_fn(
         as_ct: &impl AsCodeType,
         _: &dyn askama::Values,
@@ -696,6 +730,7 @@ mod filters {
         ))
     }
 
+    #[askama::filter_fn]
     pub(super) fn write_fn(
         as_ct: &impl AsCodeType,
         _: &dyn askama::Values,
@@ -706,6 +741,7 @@ mod filters {
         ))
     }
 
+    #[askama::filter_fn]
     pub(super) fn lift_fn(
         as_ct: &impl AsCodeType,
         _: &dyn askama::Values,
@@ -713,6 +749,7 @@ mod filters {
         Ok(format!("{}.lift", as_ct.as_codetype().ffi_converter_name()))
     }
 
+    #[askama::filter_fn]
     pub(super) fn read_fn(
         as_ct: &impl AsCodeType,
         _: &dyn askama::Values,
@@ -742,6 +779,10 @@ mod filters {
                 fully_qualified_type_label(key_type, ci, config)?,
                 fully_qualified_type_label(value_type, ci, config)?
             )),
+            Type::Set { inner_type } => Ok(format!(
+                "Set<{}>",
+                fully_qualified_type_label(inner_type, ci, config)?
+            )),
             Type::Enum { .. }
             | Type::Record { .. }
             | Type::Object { .. }
@@ -770,10 +811,11 @@ mod filters {
         }
     }
 
-    pub fn render_default(
+    #[askama::filter_fn]
+    pub fn render_default<T: AsType>(
         default: &DefaultValue,
         _: &dyn askama::Values,
-        as_ct: &impl AsType,
+        as_ct: &T,
         ci: &ComponentInterface,
     ) -> Result<String, askama::Error> {
         as_ct
@@ -800,6 +842,7 @@ mod filters {
     }
 
     // Get the idiomatic Kotlin rendering of an individual enum variant's discriminant
+    #[askama::filter_fn]
     pub fn variant_discr_literal(
         e: &Enum,
         _: &dyn askama::Values,
@@ -817,6 +860,7 @@ mod filters {
         }
     }
 
+    #[askama::filter_fn]
     pub fn ffi_type_name_by_value(
         type_: &FfiType,
         _: &dyn askama::Values,
@@ -825,6 +869,16 @@ mod filters {
         Ok(KotlinCodeOracle.ffi_type_label_by_value(type_, ci))
     }
 
+    #[askama::filter_fn]
+    pub fn ffi_type_name_for_direct_return(
+        type_: &FfiType,
+        _: &dyn askama::Values,
+        ci: &ComponentInterface,
+    ) -> Result<String, askama::Error> {
+        Ok(KotlinCodeOracle.ffi_type_label_for_direct_return(type_, ci))
+    }
+
+    #[askama::filter_fn]
     pub fn ffi_type_name_for_ffi_struct(
         type_: &FfiType,
         _: &dyn askama::Values,
@@ -833,6 +887,7 @@ mod filters {
         Ok(KotlinCodeOracle.ffi_type_label_for_ffi_struct(type_, ci))
     }
 
+    #[askama::filter_fn]
     pub fn ffi_default_value(
         type_: FfiType,
         _: &dyn askama::Values,
@@ -841,6 +896,7 @@ mod filters {
     }
 
     /// Get the idiomatic Kotlin rendering of a function name.
+    #[askama::filter_fn]
     pub fn class_name<S: AsRef<str>>(
         nm: S,
         _: &dyn askama::Values,
@@ -850,16 +906,19 @@ mod filters {
     }
 
     /// Get the idiomatic Kotlin rendering of a function name.
+    #[askama::filter_fn]
     pub fn fn_name<S: AsRef<str>>(nm: S, _: &dyn askama::Values) -> Result<String, askama::Error> {
         Ok(KotlinCodeOracle.fn_name(nm.as_ref()))
     }
 
     /// Get the idiomatic Kotlin rendering of a variable name.
+    #[askama::filter_fn]
     pub fn var_name<S: AsRef<str>>(nm: S, _: &dyn askama::Values) -> Result<String, askama::Error> {
         Ok(KotlinCodeOracle.var_name(nm.as_ref()))
     }
 
     /// Get the idiomatic Kotlin rendering of a variable name.
+    #[askama::filter_fn]
     pub fn var_name_raw<S: AsRef<str>>(
         nm: S,
         _: &dyn askama::Values,
@@ -867,11 +926,46 @@ mod filters {
         Ok(KotlinCodeOracle.var_name_raw(nm.as_ref()))
     }
 
+    /// Per-argument override of `type_name` for the foreign->Rust (lower)
+    /// direction only. Routes borrowed `Bytes` to `java.nio.ByteBuffer` —
+    /// the only Kotlin type JNA can expose a native pointer to. Other args
+    /// take the per-Type `type_name` path. Not used for Rust->Kotlin
+    /// (callback / lift) positions.
+    #[askama::filter_fn]
+    pub(super) fn lower_type_name_for_arg(
+        arg: &Argument,
+        _: &dyn askama::Values,
+        ci: &ComponentInterface,
+    ) -> Result<String, askama::Error> {
+        if arg.is_borrowed_bytes() {
+            Ok("java.nio.ByteBuffer".to_string())
+        } else {
+            Ok(arg.as_codetype().type_label(ci))
+        }
+    }
+
+    /// Per-argument override of `lower_fn` that routes borrowed `Bytes`
+    /// through `FfiConverterByRefBytes.lower` (zero-copy). Other args take
+    /// the per-Type `lower_fn` path.
+    #[askama::filter_fn]
+    pub(super) fn lower_fn_for_arg(
+        arg: &Argument,
+        _: &dyn askama::Values,
+    ) -> Result<String, askama::Error> {
+        if arg.is_borrowed_bytes() {
+            Ok("FfiConverterByRefBytes.lower".to_string())
+        } else {
+            Ok(format!("{}.lower", arg.as_codetype().ffi_converter_name()))
+        }
+    }
+
     /// Get a String representing the name used for an individual enum variant.
+    #[askama::filter_fn]
     pub fn variant_name(v: &Variant, _: &dyn askama::Values) -> Result<String, askama::Error> {
         Ok(KotlinCodeOracle.enum_variant_name(v.name()))
     }
 
+    #[askama::filter_fn]
     pub fn error_variant_name(
         v: &Variant,
         _: &dyn askama::Values,
@@ -881,6 +975,7 @@ mod filters {
     }
 
     /// Get the idiomatic Kotlin rendering of an FFI callback function name
+    #[askama::filter_fn]
     pub fn ffi_callback_name<S: AsRef<str>>(
         nm: S,
         _: &dyn askama::Values,
@@ -889,6 +984,7 @@ mod filters {
     }
 
     /// Get the idiomatic Kotlin rendering of an FFI struct name
+    #[askama::filter_fn]
     pub fn ffi_struct_name<S: AsRef<str>>(
         nm: S,
         _: &dyn askama::Values,
@@ -896,6 +992,7 @@ mod filters {
         Ok(KotlinCodeOracle.ffi_struct_name(nm.as_ref()))
     }
 
+    #[askama::filter_fn]
     pub fn async_poll(
         callable: impl Callable,
         _: &dyn askama::Values,
@@ -907,6 +1004,7 @@ mod filters {
         ))
     }
 
+    #[askama::filter_fn]
     pub fn async_complete(
         callable: impl Callable,
         _: &dyn askama::Values,
@@ -914,23 +1012,24 @@ mod filters {
     ) -> Result<String, askama::Error> {
         let ffi_func = callable.ffi_rust_future_complete(ci);
         let call = format!("UniffiLib.{ffi_func}(future, continuation)");
-        // May need to convert the RustBuffer from our package to the RustBuffer of the external package
+        // May need to convert the RustBuffer from our package to the RustBuffer of the external package.
         let call = match callable.return_type() {
-            Some(return_type) if ci.is_external(return_type) => {
-                let ffi_type = FfiType::from(return_type);
-                match ffi_type {
-                    FfiType::RustBuffer(Some(ExternalFfiMetadata { name, .. })) => {
-                        let suffix = KotlinCodeOracle.class_name(ci, &name);
-                        format!("{call}.let {{ RustBuffer{suffix}.create(it.capacity.toULong(), it.len.toULong(), it.data) }}")
-                    }
-                    _ => call,
+            Some(return_type) => match FfiType::from(return_type) {
+                FfiType::RustBuffer(Some(external_meta))
+                    if external_meta.crate_name() != ci.crate_name() =>
+                {
+                    let ExternalFfiMetadata { name, .. } = external_meta;
+                    let suffix = KotlinCodeOracle.class_name(ci, &name);
+                    format!("{call}.let {{ RustBuffer{suffix}.create(it.capacity.toULong(), it.len.toULong(), it.data) }}")
                 }
-            }
+                _ => call,
+            },
             _ => call,
         };
         Ok(format!("{{ future, continuation -> {call} }}"))
     }
 
+    #[askama::filter_fn]
     pub fn async_free(
         callable: impl Callable,
         _: &dyn askama::Values,
@@ -945,11 +1044,13 @@ mod filters {
     /// These are used to avoid name clashes with kotlin identifiers, but sometimes you want to
     /// render the name unquoted.  One example is the message property for errors where we want to
     /// display the name for the user.
+    #[askama::filter_fn]
     pub fn unquote<S: AsRef<str>>(nm: S, _: &dyn askama::Values) -> Result<String, askama::Error> {
         Ok(nm.as_ref().trim_matches('`').to_string())
     }
 
     /// Get the idiomatic Kotlin rendering of docstring
+    #[askama::filter_fn]
     pub fn docstring<S: AsRef<str>>(
         docstring: S,
         _: &dyn askama::Values,
@@ -987,5 +1088,42 @@ mod test {
         assert!(KotlinVersion::new(1, 2, 3) > KotlinVersion::new(0, 1, 2));
         assert!(KotlinVersion::new(1, 2, 3) > KotlinVersion::new(0, 100, 0));
         assert!(KotlinVersion::new(10, 0, 0) > KotlinVersion::new(1, 10, 0));
+    }
+
+    #[test]
+    fn checksum_functions_use_direct_return_carriers() {
+        let ci = ComponentInterface::from_webidl(
+            r#"
+            namespace test_crate {
+                u16 get_value();
+            };
+            "#,
+            "test_crate",
+        )
+        .unwrap();
+        let config = Config {
+            package_name: Some("uniffi.test_crate".to_string()),
+            cdylib_name: Some("test_crate".to_string()),
+            ..Config::default()
+        };
+
+        let bindings = generate_bindings(&config, &ci).unwrap();
+        let checksum_checks = bindings
+            .split("private fun uniffiCheckApiChecksums")
+            .nth(1)
+            .expect("generated checksum checks")
+            .split("/**")
+            .next()
+            .expect("end of generated checksum checks");
+
+        assert!(
+            bindings
+                .contains("external fun uniffi_test_crate_checksum_func_get_value(\n    ): Int"),
+            "checksum functions should use Int as the JNA direct return carrier"
+        );
+        assert!(
+            !checksum_checks.contains(".toShort())"),
+            "checksum comparisons should compare the widened Int carrier directly"
+        );
     }
 }

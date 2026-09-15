@@ -6,13 +6,13 @@ use std::{future::Future, sync::Arc};
 
 mod future;
 mod scheduler;
-use future::*;
-use scheduler::*;
 
 #[cfg(test)]
 mod tests;
 
 use crate::{FfiDefault, Handle, LiftArgsError, LowerReturn, RustCallStatus};
+pub(crate) use future::RustFuture;
+pub use scheduler::{RustFutureCallback, Scheduler};
 
 /// Result code for [rust_future_poll].  This is passed to the continuation function.
 #[repr(i8)]
@@ -29,6 +29,12 @@ pub enum RustFuturePoll {
 /// The Rust side of things calls this when the foreign side should call [rust_future_poll] again
 /// to continue progress on the future.
 pub type RustFutureContinuationCallback = extern "C" fn(callback_data: u64, RustFuturePoll);
+
+/// RustFutureContinuationCallback and data bound together
+pub struct RustFutureContinuationBoundCallback {
+    callback: RustFutureContinuationCallback,
+    data: u64,
+}
 
 /// This marker trait allows us to put different bounds on the `Future`s we
 /// support, based on `#[cfg(..)]` configuration.
@@ -47,12 +53,15 @@ pub trait FutureLowerReturn<UT>: LowerReturn<UT> {}
 
 /// The `Send` bound is required because the Foreign code may call the
 /// `rust_future_*` methods from different threads.
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(not(all(target_arch = "wasm32", feature = "wasm-unstable-single-threaded")))]
 impl<T, F> UniffiCompatibleFuture<T> for F where F: Future<Output = T> + Send {}
 #[cfg(not(all(target_arch = "wasm32", feature = "wasm-unstable-single-threaded")))]
 impl<UT, LR> FutureLowerReturn<UT> for LR where LR: LowerReturn<UT> + Send {}
 
-/// `Future`'s on WASM32 are not `Send` because it's a single threaded environment.
+/// `Future`'s on WASM32 are typically not `Send` because it's a single threaded environment.
+///
+/// Users can opt into allowing non-Send futures by using the `wasm-unstable-single-threaded`
+/// feature.  This creates a `UniffiCompatibleFuture` impl for non-Send futures.
 ///
 /// # Safety:
 ///
@@ -91,8 +100,7 @@ impl<UT, LR> FutureLowerReturn<UT> for LR where LR: LowerReturn<UT> + Send {}
 /// [transferable]: (https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects
 #[cfg(all(target_arch = "wasm32", feature = "wasm-unstable-single-threaded"))]
 pub trait UniffiCompatibleFuture<T>: Future<Output = T> {}
-
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "wasm-unstable-single-threaded"))]
 impl<T, F> UniffiCompatibleFuture<T> for F where F: Future<Output = T> {}
 #[cfg(all(target_arch = "wasm32", feature = "wasm-unstable-single-threaded"))]
 impl<UT, LR> FutureLowerReturn<UT> for LR where LR: LowerReturn<UT> {}
@@ -103,17 +111,16 @@ impl<UT, LR> FutureLowerReturn<UT> for LR where LR: LowerReturn<UT> {}
 ///
 /// For each exported async function, UniFFI will create a scaffolding function that uses this to
 /// create the [Handle] to pass to the foreign code.
-// Need to allow let_and_return, or clippy complains when the `ffi-trace` feature is disabled.
-#[allow(clippy::let_and_return)]
 pub fn rust_future_new<F, T, UT>(future: F, tag: UT) -> Handle
 where
     F: UniffiCompatibleFuture<Result<T, LiftArgsError>> + 'static,
     T: FutureLowerReturn<UT> + 'static,
 {
-    let rust_future = Arc::new(RustFuture::new(future, tag));
+    let rust_future = Arc::new(RustFuture::<_, RustFutureContinuationBoundCallback>::new(
+        future, tag,
+    ));
     let handle = Handle::from_arc(rust_future);
-    trace!("rust_future_new: {handle:?}");
-    handle
+    trace_and_return!(handle, "rust_future_new: {handle:?}")
 }
 
 /// Poll a Rust future
@@ -127,11 +134,15 @@ where
 /// The [Handle] must not previously have been passed to [rust_future_free]
 pub unsafe fn rust_future_poll<FfiType>(
     handle: Handle,
-    callback: RustFutureContinuationCallback,
+    callback: extern "C" fn(callback_data: u64, RustFuturePoll),
     data: u64,
 ) {
-    trace!("rust_future_poll: {handle:?}");
-    Handle::into_arc_borrowed::<RustFuture<FfiType>>(handle).poll(callback, data)
+    #[cfg(feature = "ffi-trace")]
+    let raw_handle = handle.as_raw();
+    trace!("rust_future_poll: {raw_handle:x}");
+    Handle::into_arc_borrowed::<RustFuture<FfiType>>(handle)
+        .poll(RustFutureContinuationBoundCallback { callback, data });
+    trace!("rust_future_poll returning: {raw_handle:x}");
 }
 
 /// Cancel a Rust future
@@ -178,5 +189,5 @@ where
 /// The [Handle] must not previously have been passed to [rust_future_free]
 pub unsafe fn rust_future_free<FfiType>(handle: Handle) {
     trace!("rust_future_free: {handle:?}");
-    Handle::into_arc_borrowed::<RustFuture<FfiType>>(handle).free()
+    Handle::into_arc::<RustFuture<FfiType>>(handle).free()
 }

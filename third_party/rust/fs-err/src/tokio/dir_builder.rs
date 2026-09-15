@@ -15,7 +15,7 @@ impl DirBuilder {
     /// Creates a new set of options with default mode/security settings for all
     /// platforms and also non-recursive.
     ///
-    /// This is a wrapper version of [`tokio::fs::DirBuilder::new`]
+    /// This is a wrapper version of [`tokio::fs::DirBuilder::new`].
     ///
     /// # Examples
     ///
@@ -28,12 +28,18 @@ impl DirBuilder {
         Default::default()
     }
 
+    /// Indicates whether to create directories recursively (including all parent
+    /// directories). Parents that do not exist are created with the same security and
+    /// permissions settings.
+    ///
     /// Wrapper around [`tokio::fs::DirBuilder::recursive`].
     pub fn recursive(&mut self, recursive: bool) -> &mut Self {
         self.inner.recursive(recursive);
         self
     }
 
+    /// Creates the specified directory with the configured options.
+    ///
     /// Wrapper around [`tokio::fs::DirBuilder::create`].
     pub async fn create(&self, path: impl AsRef<Path>) -> io::Result<()> {
         let path = path.as_ref();
@@ -46,6 +52,8 @@ impl DirBuilder {
 
 #[cfg(unix)]
 impl DirBuilder {
+    /// Sets the mode to create new directories with.
+    ///
     /// Wrapper around [`tokio::fs::DirBuilder::mode`].
     pub fn mode(&mut self, mode: u32) -> &mut Self {
         self.inner.mode(mode);

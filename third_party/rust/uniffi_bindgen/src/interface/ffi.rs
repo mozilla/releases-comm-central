@@ -134,6 +134,7 @@ impl From<&Type> for FfiType {
             Type::Optional { .. }
             | Type::Sequence { .. }
             | Type::Map { .. }
+            | Type::Set { .. }
             | Type::Timestamp
             | Type::Duration => FfiType::RustBuffer(None),
             Type::Custom {
@@ -154,6 +155,7 @@ impl From<&Type> for FfiType {
                     t => t,
                 }
             }
+            Type::Box { inner_type } => (&**inner_type).into(),
         }
     }
 }

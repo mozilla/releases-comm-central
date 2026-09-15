@@ -10,19 +10,19 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
-edition = "2021"
-rust-version = "1.76"
+edition = "2024"
+rust-version = "1.85"
 name = "toml_writer"
-version = "1.0.4"
+version = "1.1.2+spec-1.1.0"
 build = false
 include = [
-    "build.rs",
-    "src/**/*",
-    "Cargo.toml",
-    "Cargo.lock",
-    "LICENSE*",
-    "README.md",
-    "examples/**/*",
+    "/build.rs",
+    "/src/**/*",
+    "/Cargo.toml",
+    "/Cargo.lock",
+    "/LICENSE*",
+    "/README.md",
+    "/examples/**/*",
 ]
 autolib = false
 autobins = false
@@ -93,10 +93,10 @@ path = "src/lib.rs"
 [dependencies]
 
 [dev-dependencies.proptest]
-version = "1.7.0"
+version = "1.10.0"
 
 [dev-dependencies.snapbox]
-version = "0.6.21"
+version = "1.1.0"
 
 [dev-dependencies.toml_old]
 version = "0.5.11"
@@ -107,11 +107,12 @@ bool_assert_comparison = "allow"
 branches_sharing_code = "allow"
 checked_conversions = "warn"
 collapsible_else_if = "allow"
+collapsible_match = "allow"
 create_dir = "warn"
 dbg_macro = "warn"
 debug_assert_with_mut_call = "warn"
 doc_markdown = "warn"
-empty_enum = "warn"
+empty_enums = "warn"
 enum_glob_use = "warn"
 expl_impl_clone_on_copy = "warn"
 explicit_deref_methods = "warn"
@@ -157,7 +158,6 @@ str_to_string = "warn"
 string_add = "warn"
 string_add_assign = "warn"
 string_lit_as_bytes = "warn"
-string_to_string = "warn"
 todo = "warn"
 trait_duplication_in_bounds = "warn"
 uninlined_format_args = "warn"

@@ -173,6 +173,8 @@ pub struct Config {
     omit_checksums: bool,
     omit_argument_labels: Option<bool>,
     generate_immutable_records: Option<bool>,
+    #[serde(default)]
+    mutable_records: HashSet<String>,
     omit_localized_error_conformance: Option<bool>,
     generate_case_iterable_conformance: Option<bool>,
     generate_codable_conformance: Option<bool>,
@@ -180,6 +182,8 @@ pub struct Config {
     custom_types: HashMap<String, CustomTypeConfig>,
     #[serde(default)]
     link_frameworks: Vec<String>,
+    #[serde(default)]
+    pub(super) exclude: Vec<String>,
     #[serde(default)]
     pub(super) rename: toml::Table,
 }
@@ -262,8 +266,15 @@ impl Config {
     }
 
     /// Whether to generate immutable records (`let` instead of `var`)
-    pub fn generate_immutable_records(&self) -> bool {
+    fn generate_immutable_records(&self) -> bool {
         self.generate_immutable_records.unwrap_or(false)
+    }
+
+    /// Whether a specific record should be generated with immutable fields.
+    /// A record is immutable only if `generate_immutable_records` is enabled
+    /// and the record is not listed in `mutable_records`.
+    pub fn is_record_immutable(&self, name: &str) -> bool {
+        self.generate_immutable_records() && !self.mutable_records.contains(name)
     }
 
     /// Whether to make generated error types conform to `LocalizedError`. Default: false.
@@ -748,10 +759,12 @@ impl SwiftCodeOracle {
                 key_type,
                 value_type,
             } => Box::new(compounds::MapCodeType::new(*key_type, *value_type)),
+            Type::Set { inner_type } => Box::new(compounds::SetCodeType::new(*inner_type)),
             Type::Custom { name, builtin, .. } => Box::new(custom::CustomCodeType::new(
                 name,
                 self.create_code_type(*builtin),
             )),
+            Type::Box { inner_type } => self.create_code_type(*inner_type),
         }
     }
 
@@ -876,6 +889,7 @@ pub mod filters {
         &SwiftCodeOracle
     }
 
+    #[askama::filter_fn]
     pub fn type_name(
         as_type: &impl AsType,
         _: &dyn askama::Values,
@@ -883,6 +897,7 @@ pub mod filters {
         Ok(oracle().find(&as_type.as_type()).type_label())
     }
 
+    #[askama::filter_fn]
     pub fn return_type_name(
         as_type: Option<&impl AsType>,
         _: &dyn askama::Values,
@@ -893,6 +908,7 @@ pub mod filters {
         })
     }
 
+    #[askama::filter_fn]
     pub fn canonical_name(
         as_type: &impl AsType,
         _: &dyn askama::Values,
@@ -900,6 +916,7 @@ pub mod filters {
         Ok(oracle().find(&as_type.as_type()).canonical_name())
     }
 
+    #[askama::filter_fn]
     pub fn ffi_converter_name(
         as_type: &impl AsType,
         _: &dyn askama::Values,
@@ -907,6 +924,7 @@ pub mod filters {
         Ok(oracle().find(&as_type.as_type()).ffi_converter_name())
     }
 
+    #[askama::filter_fn]
     pub fn ffi_error_converter_name(
         as_type: &impl AsType,
         _: &dyn askama::Values,
@@ -919,6 +937,7 @@ pub mod filters {
         Ok(name)
     }
 
+    #[askama::filter_fn]
     pub(super) fn ffi_type(
         type_: &impl AsType,
         _: &dyn askama::Values,
@@ -929,6 +948,7 @@ pub mod filters {
     // To better support external types, we always call the "public" lift and lower functions for
     // "named" types, regardless of whether they are being called from a type in the same crate
     // (ie, a "local" type) or from a different crate (ie, an "external" type)
+    #[askama::filter_fn]
     pub fn lower_fn(
         as_type: &impl AsType,
         _: &dyn askama::Values,
@@ -941,6 +961,7 @@ pub mod filters {
         })
     }
 
+    #[askama::filter_fn]
     pub fn write_fn(
         as_type: &impl AsType,
         _: &dyn askama::Values,
@@ -951,6 +972,7 @@ pub mod filters {
     }
 
     // See above re lower_fn - we always use the public version for named types.
+    #[askama::filter_fn]
     pub fn lift_fn(as_type: &impl AsType, _: &dyn askama::Values) -> Result<String, askama::Error> {
         let ty = &as_type.as_type();
         let ffi_converter_name = oracle().find(ty).ffi_converter_name();
@@ -960,16 +982,18 @@ pub mod filters {
         })
     }
 
+    #[askama::filter_fn]
     pub fn read_fn(as_type: &impl AsType, _: &dyn askama::Values) -> Result<String, askama::Error> {
         let ty = &as_type.as_type();
         let ffi_converter_name = oracle().find(ty).ffi_converter_name();
         Ok(format!("{}.read", ffi_converter_name))
     }
 
-    pub fn default_swift(
+    #[askama::filter_fn]
+    pub fn default_swift<T: AsType>(
         default: &DefaultValue,
         _: &dyn askama::Values,
-        as_type: &impl AsType,
+        as_type: &T,
     ) -> Result<String, askama::Error> {
         Ok(oracle()
             .find(&as_type.as_type())
@@ -978,6 +1002,7 @@ pub mod filters {
     }
 
     // Get the idiomatic Swift rendering of an individual enum variant's discriminant
+    #[askama::filter_fn]
     pub fn variant_discr_literal(
         e: &Enum,
         _: &dyn askama::Values,
@@ -992,6 +1017,7 @@ pub mod filters {
     }
 
     /// Get the Swift type for an FFIType
+    #[askama::filter_fn]
     pub fn ffi_type_name(
         ffi_type: &FfiType,
         _: &dyn askama::Values,
@@ -999,6 +1025,7 @@ pub mod filters {
         Ok(oracle().ffi_type_label(ffi_type))
     }
 
+    #[askama::filter_fn]
     pub fn ffi_default_value(
         return_type: Option<FfiType>,
         _: &dyn askama::Values,
@@ -1008,10 +1035,15 @@ pub mod filters {
 
     /// Like `ffi_type_name`, but used in `BridgingHeaderTemplate.h` which uses a slightly different
     /// names.
+    #[askama::filter_fn]
     pub fn header_ffi_type_name(
         ffi_type: &FfiType,
         _values: &dyn askama::Values,
     ) -> Result<String, askama::Error> {
+        header_ffi_type_name_inner(ffi_type)
+    }
+
+    fn header_ffi_type_name_inner(ffi_type: &FfiType) -> Result<String, askama::Error> {
         Ok(match ffi_type {
             FfiType::Int8 => "int8_t".into(),
             FfiType::UInt8 => "uint8_t".into(),
@@ -1032,37 +1064,78 @@ pub mod filters {
             }
             FfiType::Struct(name) => SwiftCodeOracle.ffi_struct_name(name),
             FfiType::Reference(inner) => {
-                format!("const {}* _Nonnull", header_ffi_type_name(inner, _values)?)
+                format!("const {}* _Nonnull", header_ffi_type_name_inner(inner)?)
             }
             FfiType::MutReference(inner) => {
-                format!("{}* _Nonnull", header_ffi_type_name(inner, _values)?)
+                format!("{}* _Nonnull", header_ffi_type_name_inner(inner)?)
             }
             FfiType::VoidPointer => "void* _Nonnull".into(),
         })
     }
 
     /// Get the idiomatic Swift rendering of a class name (for enums, records, errors, etc).
+    #[askama::filter_fn]
     pub fn class_name(nm: &str, _: &dyn askama::Values) -> Result<String, askama::Error> {
         Ok(oracle().class_name(nm))
     }
 
     /// Get the idiomatic Swift rendering of a function name.
+    #[askama::filter_fn]
     pub fn fn_name(nm: &str, _: &dyn askama::Values) -> Result<String, askama::Error> {
         Ok(quote_general_keyword(oracle().fn_name(nm)))
     }
 
     /// Get the idiomatic Swift rendering of a variable name.
+    #[askama::filter_fn]
     pub fn var_name(nm: &str, _: &dyn askama::Values) -> Result<String, askama::Error> {
         Ok(quote_general_keyword(oracle().var_name(nm)))
     }
 
+    /// Returns `true` if an argument is a `&[u8]` / borrowed `Bytes`.
+    ///
+    /// Used by the `to_ffi_call` macro to decide whether to wrap the
+    /// FFI call in a `FfiConverterByRefBytes.lower(...) { ... }` closure
+    /// so a `ForeignBytes` can be passed across the FFI boundary without
+    /// copying the underlying buffer.
+    #[askama::filter_fn]
+    pub fn is_borrowed_bytes(
+        arg: &Argument,
+        _: &dyn askama::Values,
+    ) -> Result<bool, askama::Error> {
+        Ok(arg.is_borrowed_bytes())
+    }
+
+    /// Swift expression to emit at an argument's position in an FFI call.
+    ///
+    /// For borrowed `Bytes` (`&[u8]`), this is a bare reference to the
+    /// `{name}Fb` variable bound by the outer `FfiConverterByRefBytes.lower`
+    /// scope (see `to_ffi_call`). For every other argument, this is the
+    /// standard `{FfiConverter}.lower({name})` expression.
+    #[askama::filter_fn]
+    pub fn arg_expr(arg: &Argument, _: &dyn askama::Values) -> Result<String, askama::Error> {
+        let name = quote_general_keyword(oracle().var_name(arg.name()));
+        if arg.is_borrowed_bytes() {
+            Ok(format!("{name}Fb"))
+        } else {
+            let ty = arg.as_type();
+            let ffi_converter_name = oracle().find(&ty).ffi_converter_name();
+            let lower = match ty.name() {
+                Some(_) => format!("{ffi_converter_name}_lower"),
+                None => format!("{ffi_converter_name}.lower"),
+            };
+            Ok(format!("{lower}({name})"))
+        }
+    }
+
     /// Get the idiomatic Swift rendering of an arguments name.
     /// This is the same as the var name but quoting is not required.
+    #[askama::filter_fn]
     pub fn arg_name(nm: &str, _: &dyn askama::Values) -> Result<String, askama::Error> {
         Ok(quote_arg_keyword(oracle().var_name(nm)))
     }
 
     /// Get the idiomatic Swift rendering of an individual enum variant, quoted if it is a keyword (for use in e.g. declarations)
+    #[askama::filter_fn]
     pub fn enum_variant_swift_quoted(
         nm: &str,
         _: &dyn askama::Values,
@@ -1071,6 +1144,7 @@ pub mod filters {
     }
 
     /// Like enum_variant_swift_quoted, but a class name.
+    #[askama::filter_fn]
     pub fn error_variant_swift_quoted(
         nm: &str,
         _: &dyn askama::Values,
@@ -1079,21 +1153,25 @@ pub mod filters {
     }
 
     /// Get the idiomatic Swift rendering of an FFI callback function name
+    #[askama::filter_fn]
     pub fn ffi_callback_name(nm: &str, _: &dyn askama::Values) -> Result<String, askama::Error> {
         Ok(oracle().ffi_callback_name(nm))
     }
 
     /// Get the idiomatic Swift rendering of an FFI struct name
+    #[askama::filter_fn]
     pub fn ffi_struct_name(nm: &str, _: &dyn askama::Values) -> Result<String, askama::Error> {
         Ok(oracle().ffi_struct_name(nm))
     }
 
     /// Get the idiomatic Swift rendering of an if guard name
+    #[askama::filter_fn]
     pub fn if_guard_name(nm: &str, _: &dyn askama::Values) -> Result<String, askama::Error> {
         Ok(oracle().if_guard_name(nm))
     }
 
     /// Get the idiomatic Swift rendering of docstring
+    #[askama::filter_fn]
     pub fn docstring(
         docstring: &str,
         _: &dyn askama::Values,
@@ -1106,6 +1184,7 @@ pub mod filters {
         Ok(textwrap::indent(&wrapped, &" ".repeat(spaces)))
     }
 
+    #[askama::filter_fn]
     pub fn object_names(
         obj: &Object,
         _: &dyn askama::Values,

@@ -136,6 +136,20 @@ pub fn create_metadata_items(
     }
 }
 
+pub fn orig_name_metadata(name_from_attrs: bool, ident: &Ident) -> TokenStream {
+    if name_from_attrs {
+        let orig_name = ident_to_string(ident);
+        quote! {
+            .concat_bool(true)
+            .concat_str(#orig_name)
+        }
+    } else {
+        quote! {
+            .concat_bool(false)
+        }
+    }
+}
+
 pub fn try_metadata_value_from_usize(value: usize, error_message: &str) -> syn::Result<u8> {
     value
         .try_into()
@@ -247,6 +261,8 @@ pub mod kw {
     syn::custom_keyword!(async_runtime);
     syn::custom_keyword!(callback_interface);
     syn::custom_keyword!(with_foreign);
+    syn::custom_keyword!(rust);
+    syn::custom_keyword!(foreign);
     syn::custom_keyword!(default);
     syn::custom_keyword!(flat_error);
     syn::custom_keyword!(None);

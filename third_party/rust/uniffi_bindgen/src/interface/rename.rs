@@ -24,8 +24,9 @@ struct TomlRenamer<'a> {
 
 impl TomlRenamer<'_> {
     fn new_name(&self, module_path: &str, name: &str) -> Option<String> {
+        let crate_name = module_path.split("::").next().unwrap();
         self.renames
-            .get(module_path)
+            .get(crate_name)
             .and_then(|rename_table| rename_table.get(name))
             .and_then(|v| v.as_str())
             .map(|s| s.to_string())
@@ -88,7 +89,8 @@ impl VisitMut for TomlRenamer<'_> {
 
     fn visit_type(&self, type_: &mut Type) {
         let module_path = type_.module_path().unwrap_or(&self.this_module_path);
-        let self_renames = self.renames.get(module_path);
+        let crate_name = module_path.split("::").next().unwrap();
+        let self_renames = self.renames.get(crate_name);
         type_.rename_recursive(&|name| {
             self_renames
                 .and_then(|renames| renames.get(name))
@@ -164,9 +166,11 @@ mod tests {
         let record_meta = RecordMetadata {
             module_path: "test_crate".to_string(),
             name: "OldRecord".to_string(),
+            orig_name: None,
             remote: false,
             fields: vec![FieldMetadata {
                 name: "field".to_string(),
+                orig_name: None,
                 ty: Type::Optional {
                     inner_type: Box::new(Type::Enum {
                         module_path: "test_crate".to_string(),
@@ -185,6 +189,7 @@ mod tests {
         let object_meta = ObjectMetadata {
             module_path: "test_crate".to_string(),
             name: "OldObject".to_string(),
+            orig_name: None,
             imp: ObjectImpl::Struct,
             remote: false,
             docstring: None,
@@ -196,14 +201,17 @@ mod tests {
         let enum_meta = EnumMetadata {
             module_path: "test_crate".to_string(),
             name: "OldEnum".to_string(),
+            orig_name: None,
             shape: EnumShape::Enum,
             discr_type: None,
             non_exhaustive: false,
             remote: false,
             variants: vec![VariantMetadata {
                 name: "WithRecord".to_string(),
+                orig_name: None,
                 fields: vec![FieldMetadata {
                     name: "record".to_string(),
+                    orig_name: None,
                     ty: Type::Optional {
                         inner_type: Box::new(Type::Record {
                             module_path: "test_crate".to_string(),
@@ -225,6 +233,7 @@ mod tests {
         let function_meta = FnMetadata {
             module_path: "test_crate".to_string(),
             name: "old_function".to_string(),
+            orig_name: None,
             is_async: false,
             inputs: vec![FnParamMetadata {
                 name: "arg".to_string(),

@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use std::{collections::BTreeMap, hash::Hasher};
-pub use uniffi_internal_macros::{Checksum, Node};
+pub use uniffi_internal_macros::Checksum;
+pub use uniffi_pipeline::{MapNode, Node};
 
 mod ffi_names;
 pub use ffi_names::*;
@@ -15,9 +16,10 @@ mod reader;
 pub use reader::{read_metadata, read_metadata_type};
 
 mod types;
-pub use types::{AsType, ObjectImpl, Type, TypeIterator};
+pub use types::{AsType, ObjectImpl, TraitKind, Type, TypeIterator};
 
 mod metadata;
+pub use metadata::codes;
 
 // This needs to match the minor version of the `uniffi` crate.  See
 // `docs/uniffi-versioning.md` for details.
@@ -116,7 +118,7 @@ impl Checksum for &str {
 // The namespace of a Component interface.
 //
 // This is used to match up the macro metadata with the UDL items.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Node)]
+#[derive(Clone, Default, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct NamespaceMetadata {
     pub crate_name: String,
     pub name: String,
@@ -125,7 +127,7 @@ pub struct NamespaceMetadata {
 // UDL file included with `include_scaffolding!()`
 //
 // This is to find the UDL files in library mode generation
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct UdlFile {
     // The module path specified when the UDL file was parsed.
     pub module_path: String,
@@ -134,10 +136,12 @@ pub struct UdlFile {
     pub file_stub: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct FnMetadata {
     pub module_path: String,
     pub name: String,
+    // Original name, if this was renamed
+    pub orig_name: Option<String>,
     pub is_async: bool,
     pub inputs: Vec<FnParamMetadata>,
     pub return_type: Option<Type>,
@@ -156,11 +160,13 @@ impl FnMetadata {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ConstructorMetadata {
     pub module_path: String,
     pub self_name: String,
     pub name: String,
+    // Original name, if this was renamed
+    pub orig_name: Option<String>,
     pub is_async: bool,
     pub inputs: Vec<FnParamMetadata>,
     pub throws: Option<Type>,
@@ -182,11 +188,13 @@ impl ConstructorMetadata {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct MethodMetadata {
     pub module_path: String,
     pub self_name: String,
     pub name: String,
+    // Original name, if this was renamed
+    pub orig_name: Option<String>,
     pub is_async: bool,
     pub inputs: Vec<FnParamMetadata>,
     pub return_type: Option<Type>,
@@ -206,7 +214,7 @@ impl MethodMetadata {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TraitMethodMetadata {
     pub module_path: String,
     pub trait_name: String,
@@ -214,6 +222,8 @@ pub struct TraitMethodMetadata {
     // ordered correctly in MetadataGroup.items
     pub index: u32,
     pub name: String,
+    // Original name, if this was renamed
+    pub orig_name: Option<String>,
     pub is_async: bool,
     pub inputs: Vec<FnParamMetadata>,
     pub return_type: Option<Type>,
@@ -239,6 +249,7 @@ impl From<TraitMethodMetadata> for MethodMetadata {
             module_path: meta.module_path,
             self_name: meta.trait_name,
             name: meta.name,
+            orig_name: meta.orig_name,
             is_async: meta.is_async,
             inputs: meta.inputs,
             return_type: meta.return_type,
@@ -250,7 +261,7 @@ impl From<TraitMethodMetadata> for MethodMetadata {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct FnParamMetadata {
     pub name: String,
     pub ty: Type,
@@ -271,7 +282,7 @@ impl FnParamMetadata {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Checksum, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Checksum)]
 pub enum LiteralMetadata {
     Boolean(bool),
     String(String),
@@ -288,6 +299,7 @@ pub enum LiteralMetadata {
     Enum(String, Type),
     EmptySequence,
     EmptyMap,
+    EmptySet,
     None,
     Some { inner: Box<DefaultValueMetadata> },
 }
@@ -303,14 +315,14 @@ impl LiteralMetadata {
 
 // Represent the radix of integer literal values.
 // We preserve the radix into the generated bindings for readability reasons.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Checksum, Node)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Checksum, Node, MapNode)]
 pub enum Radix {
     Decimal = 10,
     Octal = 8,
     Hexadecimal = 16,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Checksum, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Checksum)]
 pub enum DefaultValueMetadata {
     // unspecified default value
     Default,
@@ -318,24 +330,28 @@ pub enum DefaultValueMetadata {
     Literal(LiteralMetadata),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct RecordMetadata {
     pub module_path: String,
     pub name: String,
+    // Original name, if this was renamed
+    pub orig_name: Option<String>,
     pub remote: bool, // only used when generating scaffolding from UDL
     pub fields: Vec<FieldMetadata>,
     pub docstring: Option<String>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct FieldMetadata {
     pub name: String,
+    // Original name, if this was renamed
+    pub orig_name: Option<String>,
     pub ty: Type,
     pub default: Option<DefaultValueMetadata>,
     pub docstring: Option<String>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Checksum, Node)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Checksum, Node, MapNode)]
 pub enum EnumShape {
     Enum,
     Error { flat: bool },
@@ -358,12 +374,18 @@ impl EnumShape {
             _ => anyhow::bail!("invalid enum shape discriminant {v}"),
         })
     }
+
+    pub fn is_error(&self) -> bool {
+        matches!(self, Self::Error { .. })
+    }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct EnumMetadata {
     pub module_path: String,
     pub name: String,
+    // Original name, if this was renamed
+    pub orig_name: Option<String>,
     pub shape: EnumShape,
     pub remote: bool, // only used when generating scaffolding from UDL
     pub variants: Vec<VariantMetadata>,
@@ -372,24 +394,28 @@ pub struct EnumMetadata {
     pub docstring: Option<String>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct VariantMetadata {
     pub name: String,
+    // Original name, if this was renamed
+    pub orig_name: Option<String>,
     pub discr: Option<LiteralMetadata>,
     pub fields: Vec<FieldMetadata>,
     pub docstring: Option<String>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ObjectMetadata {
     pub module_path: String,
     pub name: String,
+    // Original name, if this was renamed
+    pub orig_name: Option<String>,
     pub remote: bool, // only used when generating scaffolding from UDL
     pub imp: types::ObjectImpl,
     pub docstring: Option<String>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct CallbackInterfaceMetadata {
     pub module_path: String,
     pub name: String,
@@ -417,7 +443,7 @@ impl ObjectMetadata {
 /// Some interesting overlap with ObjectTraitImplMetadata, but quite different
 /// implementations for now.
 #[allow(clippy::large_enum_variant)]
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum UniffiTraitMetadata {
     Debug {
         fmt: MethodMetadata,
@@ -473,7 +499,7 @@ impl UniffiTraitMetadata {
 }
 
 #[repr(u8)]
-#[derive(Debug, Eq, PartialEq, Hash, Node)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum UniffiTraitDiscriminants {
     Debug,
     Display,
@@ -497,7 +523,7 @@ impl UniffiTraitDiscriminants {
 
 /// This notes that a type implements a Trait.
 /// eg, an `impl Tr for Ob` block.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ObjectTraitImplMetadata {
     pub ty: Type,
     pub trait_ty: Type,
@@ -510,10 +536,11 @@ impl Checksum for ObjectTraitImplMetadata {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct CustomTypeMetadata {
     pub module_path: String,
     pub name: String,
+    pub orig_name: Option<String>,
     pub builtin: Type,
     pub docstring: Option<String>,
 }
@@ -530,7 +557,7 @@ pub fn checksum<T: Checksum>(val: &T) -> u16 {
 
 /// Enum covering all the possible metadata types
 #[allow(clippy::large_enum_variant)]
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Node)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Metadata {
     Namespace(NamespaceMetadata),
     UdlFile(UdlFile),

@@ -1,34 +1,38 @@
-#![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(elided_lifetimes_in_paths)]
 #![deny(unreachable_pub)]
+#![allow(clippy::vec_box)] // intentional, less copying
+#![doc = include_str!("../README.md")]
 
-pub mod ascii_str;
+mod ascii_str;
 pub mod expr;
-mod memchr_splitter;
 pub mod node;
 mod target;
 #[cfg(test)]
 mod tests;
 
-use std::borrow::Cow;
+use std::borrow::{Borrow, BorrowMut, Cow};
 use std::cell::Cell;
 use std::env::current_dir;
-use std::ops::{Deref, DerefMut};
+use std::ops::{Deref, DerefMut, Range};
 use std::path::Path;
 use std::sync::Arc;
 use std::{fmt, str};
 
+use rustc_hash::FxBuildHasher;
 use winnow::ascii::take_escaped;
-use winnow::combinator::{alt, cut_err, delimited, fail, not, opt, peek, preceded, repeat};
-use winnow::error::FromExternalError;
-use winnow::stream::{AsChar, Stream as _};
-use winnow::token::{any, one_of, take_till, take_while};
-use winnow::{ModalParser, Parser};
+use winnow::combinator::{
+    alt, cond, cut_err, delimited, empty, fail, not, opt, peek, preceded, repeat, terminated,
+};
+use winnow::error::ErrMode;
+use winnow::stream::{AsChar, Location, Stream};
+use winnow::token::{any, none_of, one_of, take, take_while};
+use winnow::{LocatingSlice, ModalParser, ModalResult, Parser, Stateful};
 
 use crate::ascii_str::{AsciiChar, AsciiStr};
-pub use crate::expr::{Attr, Expr, Filter, TyGenerics};
-pub use crate::node::Node;
-pub use crate::target::Target;
+pub use crate::expr::{AssociatedItem, Expr, Filter, PathComponent, TyGenerics, TyGenericsKind};
+pub use crate::node::{LetValueOrBlock, Node};
+pub use crate::target::{NamedTarget, Target};
 
 mod _parsed {
     use std::path::Path;
@@ -63,7 +67,7 @@ mod _parsed {
 
         // The return value's lifetime must be limited to `self` to uphold the unsafe invariant.
         #[must_use]
-        pub fn nodes(&self) -> &[Node<'_>] {
+        pub fn nodes(&self) -> &[Box<Node<'_>>] {
             &self.ast.nodes
         }
 
@@ -99,99 +103,177 @@ mod _parsed {
 
 pub use _parsed::Parsed;
 
+type InputStream<'a, 'l> = Stateful<LocatingSlice<&'a str>, &'l State<'l>>;
+
 #[derive(Debug, Default)]
 pub struct Ast<'a> {
-    nodes: Vec<Node<'a>>,
+    nodes: Vec<Box<Node<'a>>>,
 }
 
 impl<'a> Ast<'a> {
     /// If `file_path` is `None`, it means the `source` is an inline template. Therefore, if
     /// a parsing error occurs, we won't display the path as it wouldn't be useful.
     pub fn from_str(
-        mut src: &'a str,
+        src: &'a str,
         file_path: Option<Arc<Path>>,
         syntax: &Syntax<'_>,
-    ) -> Result<Self, ParseError> {
-        let start = src;
-        let level = Cell::new(Level::MAX_DEPTH);
+    ) -> Result<Ast<'a>, ParseError> {
         let state = State {
-            syntax,
-            loop_depth: Cell::new(0),
-            level: Level(&level),
+            syntax: *syntax,
+            ..State::default()
         };
-        match Node::parse_template(&mut src, &state) {
+        let mut src = InputStream {
+            input: LocatingSlice::new(src),
+            state: &state,
+        };
+        match Node::parse_template(&mut src) {
             Ok(nodes) if src.is_empty() => Ok(Self { nodes }),
-            Ok(_) | Err(winnow::error::ErrMode::Incomplete(_)) => unreachable!(),
+            Ok(_) | Err(ErrMode::Incomplete(_)) => unreachable!(),
             Err(
-                winnow::error::ErrMode::Backtrack(ErrorContext { span, message, .. })
-                | winnow::error::ErrMode::Cut(ErrorContext { span, message, .. }),
+                ErrMode::Backtrack(ErrorContext { span, message, .. })
+                | ErrMode::Cut(ErrorContext { span, message, .. }),
             ) => Err(ParseError {
                 message,
-                offset: span.offset_from(start).unwrap_or_default(),
+                offset: span.start,
                 file_path,
             }),
         }
     }
 
     #[must_use]
-    pub fn nodes(&self) -> &[Node<'a>] {
+    pub fn nodes(&self) -> &[Box<Node<'a>>] {
         &self.nodes
     }
 }
 
+#[derive(Clone, Copy)]
 /// Struct used to wrap types with their associated "span" which is used when generating errors
 /// in the code generation.
-pub struct WithSpan<'a, T> {
+#[repr(C)] // rationale: `WithSpan<Box<T>` needs to have the same layout as `WithSpan<&T>`.
+pub struct WithSpan<T> {
     inner: T,
-    span: Span<'a>,
+    span: Span,
 }
 
-/// An location in `&'a str`
+/// A location in `&'a str`
 #[derive(Debug, Clone, Copy)]
-pub struct Span<'a>(&'a [u8; 0]);
+pub struct Span {
+    start: usize,
+    end: usize,
+}
 
-impl Default for Span<'static> {
+impl Default for Span {
     #[inline]
     fn default() -> Self {
-        Self::empty()
+        Self::no_span()
     }
 }
 
-impl<'a> Span<'a> {
+impl From<&InputStream<'_, '_>> for Span {
     #[inline]
-    pub const fn empty() -> Self {
-        Self(&[])
+    fn from(i: &InputStream<'_, '_>) -> Self {
+        (*i).into()
     }
+}
 
-    pub fn offset_from(self, start: &'a str) -> Option<usize> {
-        let start_range = start.as_bytes().as_ptr_range();
-        let this_ptr = self.0.as_slice().as_ptr();
-        match start_range.contains(&this_ptr) {
-            // SAFETY: we just checked that `this_ptr` is inside `start_range`
-            true => Some(unsafe { this_ptr.offset_from(start_range.start) as usize }),
-            false => None,
-        }
-    }
-
-    pub fn as_suffix_of(self, start: &'a str) -> Option<&'a str> {
-        let offset = self.offset_from(start)?;
-        match start.is_char_boundary(offset) {
-            true => Some(&start[offset..]),
-            false => None,
+impl From<InputStream<'_, '_>> for Span {
+    #[inline]
+    fn from(mut i: InputStream<'_, '_>) -> Self {
+        let start = i.current_token_start();
+        i.finish();
+        Self {
+            start,
+            end: i.current_token_start(),
         }
     }
 }
 
-impl<'a> From<&'a str> for Span<'a> {
+impl From<Range<usize>> for Span {
     #[inline]
-    fn from(value: &'a str) -> Self {
-        Self(value.as_bytes()[..0].try_into().unwrap())
+    #[track_caller]
+    fn from(range: Range<usize>) -> Self {
+        Span::new(range)
     }
 }
 
-impl<'a, T> WithSpan<'a, T> {
+impl Span {
     #[inline]
-    pub fn new(inner: T, span: impl Into<Span<'a>>) -> Self {
+    pub const fn no_span() -> Span {
+        Self {
+            start: usize::MAX,
+            end: usize::MAX,
+        }
+    }
+
+    #[inline]
+    #[track_caller]
+    pub fn new(range: Range<usize>) -> Self {
+        let Range { start, end } = range;
+        debug_assert!(start <= end);
+        Span { start, end }
+    }
+
+    #[inline]
+    pub fn byte_range(self) -> Option<Range<usize>> {
+        (self.start != usize::MAX).then_some(self.start..self.end)
+    }
+
+    /// Returns an empty [`Span`] that points to the start of `self`.
+    #[inline]
+    pub fn start(self) -> Self {
+        Self {
+            start: self.start,
+            end: self.start,
+        }
+    }
+
+    /// Returns an empty [`Span`] that points to the end of `self`.
+    #[inline]
+    pub fn end(self) -> Self {
+        Self {
+            start: self.end,
+            end: self.end,
+        }
+    }
+
+    /// Splits `self` at `mid` into two spanned strings.
+    #[track_caller]
+    pub fn split_at(self, mid: usize) -> (Self, Self) {
+        let Some(Range { start, end }) = self.byte_range() else {
+            return (self, self);
+        };
+
+        let mid = start.checked_add(mid).unwrap();
+        assert!(mid <= end);
+
+        let start = Self { start, end: mid };
+        let end = Self { start: mid, end };
+        (start, end)
+    }
+
+    /// The substring in `source` contained in [`self.byte_range()`][Self::byte_range].
+    #[inline]
+    pub fn as_infix_of<'a>(&self, source: &'a str) -> Option<&'a str> {
+        self.byte_range().and_then(|range| source.get(range))
+    }
+
+    /// The substring in `source` starting from `self.start`.
+    #[inline]
+    pub fn as_suffix_of<'a>(&self, source: &'a str) -> Option<&'a str> {
+        // No need to check if `self.start != usize::MAX`:
+        // `source` cannot be longer than `isize::MAX`, cf. [`std::alloc`].
+        source.get(self.start..)
+    }
+
+    pub fn is_overlapping(&self, other: Span) -> bool {
+        (self.start < other.end) & (other.start < self.end)
+    }
+}
+
+impl<T> WithSpan<T> {
+    #[inline]
+    #[track_caller]
+    pub fn new(inner: T, span: impl Into<Span>) -> Self {
         Self {
             inner,
             span: span.into(),
@@ -199,58 +281,121 @@ impl<'a, T> WithSpan<'a, T> {
     }
 
     #[inline]
-    pub const fn new_without_span(inner: T) -> Self {
+    pub const fn no_span(inner: T) -> Self {
         Self {
             inner,
-            span: Span::empty(),
+            span: Span::no_span(),
         }
     }
 
     #[inline]
-    pub fn span(&self) -> Span<'a> {
+    pub fn span(&self) -> Span {
         self.span
     }
 
     #[inline]
-    pub fn deconstruct(self) -> (T, Span<'a>) {
+    pub fn deconstruct(self) -> (T, Span) {
         let Self { inner, span } = self;
         (inner, span)
     }
 }
 
-impl<T> Deref for WithSpan<'_, T> {
+impl WithSpan<&str> {
+    /// Returns an empty [`Span`] that points to the start of the contained string.
+    #[inline]
+    pub fn start(self) -> Self {
+        let (inner, span) = self.deconstruct();
+        Self::new(&inner[..0], span.start())
+    }
+
+    /// Returns an empty [`Span`] that points to the end of the contained string.
+    #[inline]
+    pub fn end(self) -> Self {
+        let (inner, span) = self.deconstruct();
+        Self::new(&inner[inner.len()..], span.end())
+    }
+
+    /// Splits `self` at `mid` into two spanned strings.
+    #[track_caller]
+    pub fn split_at(self, mid: usize) -> (Self, Self) {
+        let (inner, span) = self.deconstruct();
+        let (front, back) = inner.split_at(mid);
+        let (front_span, back_span) = span.split_at(mid);
+        (Self::new(front, front_span), Self::new(back, back_span))
+    }
+}
+
+impl<T> Deref for WithSpan<T> {
     type Target = T;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl<T> DerefMut for WithSpan<'_, T> {
+impl<T> DerefMut for WithSpan<T> {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }
 }
 
-impl<T: fmt::Debug> fmt::Debug for WithSpan<'_, T> {
+impl<T: fmt::Debug> fmt::Debug for WithSpan<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self.inner)
+        self.inner.fmt(f)
     }
 }
 
-impl<T: Clone> Clone for WithSpan<'_, T> {
-    fn clone(&self) -> Self {
-        Self {
-            inner: self.inner.clone(),
-            span: self.span,
-        }
-    }
-}
-
-impl<T: PartialEq> PartialEq for WithSpan<'_, T> {
-    fn eq(&self, other: &Self) -> bool {
+impl<T: PartialEq, R: AsRef<T>> PartialEq<R> for WithSpan<T> {
+    #[inline]
+    fn eq(&self, other: &R) -> bool {
         // We never want to compare the span information.
-        self.inner == other.inner
+        self.inner == *other.as_ref()
+    }
+}
+
+impl<T: PartialOrd, R: AsRef<T>> PartialOrd<R> for WithSpan<T> {
+    #[inline]
+    fn partial_cmp(&self, other: &R) -> Option<std::cmp::Ordering> {
+        self.inner.partial_cmp(other.as_ref())
+    }
+}
+
+impl<T: Eq> Eq for WithSpan<T> {}
+
+impl<T: Ord> Ord for WithSpan<T> {
+    #[inline]
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.inner.cmp(&other.inner)
+    }
+}
+
+impl<T: std::hash::Hash> std::hash::Hash for WithSpan<T> {
+    #[inline]
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.inner.hash(state);
+    }
+}
+
+impl<T> AsRef<T> for WithSpan<T> {
+    #[inline]
+    fn as_ref(&self) -> &T {
+        &self.inner
+    }
+}
+
+impl<T> Borrow<T> for WithSpan<T> {
+    #[inline]
+    fn borrow(&self) -> &T {
+        &self.inner
+    }
+}
+
+impl<T> BorrowMut<T> for WithSpan<T> {
+    #[inline]
+    fn borrow_mut(&mut self) -> &mut T {
+        &mut self.inner
     }
 }
 
@@ -285,7 +430,7 @@ impl fmt::Display for ParseError {
     }
 }
 
-pub(crate) type ParseErr<'a> = winnow::error::ErrMode<ErrorContext<'a>>;
+pub(crate) type ParseErr<'a> = ErrMode<ErrorContext>;
 pub(crate) type ParseResult<'a, T = &'a str> = Result<T, ParseErr<'a>>;
 
 /// This type is used to handle `nom` errors and in particular to add custom error messages.
@@ -294,38 +439,47 @@ pub(crate) type ParseResult<'a, T = &'a str> = Result<T, ParseErr<'a>>;
 /// It cannot be used to replace `ParseError` because it expects a generic, which would make
 /// `askama`'s users experience less good (since this generic is only needed for `nom`).
 #[derive(Debug)]
-pub(crate) struct ErrorContext<'a> {
-    pub(crate) span: Span<'a>,
+pub(crate) struct ErrorContext {
+    pub(crate) span: Span,
     pub(crate) message: Option<Cow<'static, str>>,
 }
 
-impl<'a> ErrorContext<'a> {
-    fn unclosed(kind: &str, tag: &str, span: impl Into<Span<'a>>) -> Self {
-        Self::new(format!("unclosed {kind}, missing {tag:?}"), span)
+impl ErrorContext {
+    #[cold]
+    fn unclosed(kind: &str, tag: &str, span: impl Into<Span>) -> Self {
+        Self {
+            span: span.into(),
+            message: Some(format!("unclosed {kind}, missing {tag:?}").into()),
+        }
     }
 
-    fn new(message: impl Into<Cow<'static, str>>, span: impl Into<Span<'a>>) -> Self {
+    #[cold]
+    #[inline]
+    fn new(message: impl Into<Cow<'static, str>>, span: impl Into<Span>) -> Self {
         Self {
             span: span.into(),
             message: Some(message.into()),
         }
     }
 
-    fn backtrack(self) -> winnow::error::ErrMode<Self> {
-        winnow::error::ErrMode::Backtrack(self)
+    #[inline]
+    fn backtrack(self) -> ErrMode<Self> {
+        ErrMode::Backtrack(self)
     }
 
-    fn cut(self) -> winnow::error::ErrMode<Self> {
-        winnow::error::ErrMode::Cut(self)
+    #[inline]
+    fn cut(self) -> ErrMode<Self> {
+        ErrMode::Cut(self)
     }
 }
 
-impl<'a> winnow::error::ParserError<&'a str> for ErrorContext<'a> {
+impl<'a: 'l, 'l> winnow::error::ParserError<InputStream<'a, 'l>> for ErrorContext {
     type Inner = Self;
 
-    fn from_input(input: &&'a str) -> Self {
+    #[inline]
+    fn from_input(input: &InputStream<'a, 'l>) -> Self {
         Self {
-            span: (*input).into(),
+            span: input.into(),
             message: None,
         }
     }
@@ -336,79 +490,35 @@ impl<'a> winnow::error::ParserError<&'a str> for ErrorContext<'a> {
     }
 }
 
-impl<'a, E: std::fmt::Display> FromExternalError<&'a str, E> for ErrorContext<'a> {
-    fn from_external_error(input: &&'a str, e: E) -> Self {
-        Self {
-            span: (*input).into(),
-            message: Some(Cow::Owned(e.to_string())),
-        }
-    }
+fn skip_ws0<'a: 'l, 'l>(i: &mut InputStream<'a, 'l>) -> ParseResult<'a, ()> {
+    take_while(0.., |c: char| c.is_ascii_whitespace())
+        .void()
+        .parse_next(i)
 }
 
-#[inline]
-fn skip_ws0<'a>(i: &mut &'a str) -> ParseResult<'a, ()> {
-    *i = i.trim_ascii_start();
-    Ok(())
+fn skip_ws1<'a: 'l, 'l>(i: &mut InputStream<'a, 'l>) -> ParseResult<'a, ()> {
+    take_while(1.., |c: char| c.is_ascii_whitespace())
+        .void()
+        .parse_next(i)
 }
 
-#[inline]
-fn skip_ws1<'a>(i: &mut &'a str) -> ParseResult<'a, ()> {
-    let j = i.trim_ascii_start();
-    if i.len() != j.len() {
-        *i = i.trim_ascii_start();
-        Ok(())
-    } else {
-        fail.parse_next(i)
-    }
-}
-
-fn ws<'a, O>(
-    inner: impl ModalParser<&'a str, O, ErrorContext<'a>>,
-) -> impl ModalParser<&'a str, O, ErrorContext<'a>> {
+fn ws<'a: 'l, 'l, O>(
+    inner: impl ModalParser<InputStream<'a, 'l>, O, ErrorContext>,
+) -> impl ModalParser<InputStream<'a, 'l>, O, ErrorContext> {
     delimited(skip_ws0, inner, skip_ws0)
 }
 
-/// Skips input until `end` was found, but does not consume it.
-/// Returns tuple that would be returned when parsing `end`.
-fn skip_till<'a, 'b, O>(
-    candidate_finder: impl crate::memchr_splitter::Splitter,
-    end: impl ModalParser<&'a str, O, ErrorContext<'a>>,
-) -> impl ModalParser<&'a str, (&'a str, O), ErrorContext<'a>> {
-    let mut next = alt((end.map(Some), any.map(|_| None)));
-    move |i: &mut &'a str| loop {
-        *i = match candidate_finder.split(i) {
-            Some((_, i)) => i,
-            None => {
-                return Err(winnow::error::ErrMode::Backtrack(ErrorContext::new(
-                    "`end` not found`",
-                    *i,
-                )));
-            }
-        };
-        let exclusive = *i;
-        if let Some(lookahead) = next.parse_next(i)? {
-            let inclusive = *i;
-            *i = exclusive;
-            return Ok((inclusive, lookahead));
-        }
-    }
-}
-
-fn keyword(k: &str) -> impl ModalParser<&str, &str, ErrorContext<'_>> {
+fn keyword<'a: 'l, 'l>(k: &str) -> impl ModalParser<InputStream<'a, 'l>, &'a str, ErrorContext> {
     identifier.verify(move |v: &str| v == k)
 }
 
-fn identifier<'i>(input: &mut &'i str) -> ParseResult<'i> {
-    let start = take_while(1.., |c: char| c.is_alpha() || c == '_' || c >= '\u{0080}');
-
-    let tail = take_while(1.., |c: char| {
-        c.is_alphanum() || c == '_' || c >= '\u{0080}'
-    });
-
-    (start, opt(tail)).take().parse_next(input)
+fn identifier<'a: 'l, 'l>(input: &mut InputStream<'a, 'l>) -> ParseResult<'a> {
+    let head = any.verify(|&c| c == '_' || unicode_ident::is_xid_start(c));
+    let tail = take_while(.., unicode_ident::is_xid_continue);
+    (head, tail).take().parse_next(input)
 }
 
-fn bool_lit<'i>(i: &mut &'i str) -> ParseResult<'i> {
+fn bool_lit<'a: 'l, 'l>(i: &mut InputStream<'a, 'l>) -> ParseResult<'a> {
     alt((keyword("false"), keyword("true"))).parse_next(i)
 }
 
@@ -418,14 +528,42 @@ pub enum Num<'a> {
     Float(&'a str, Option<FloatKind>),
 }
 
-fn num_lit<'a>(i: &mut &'a str) -> ParseResult<'a, Num<'a>> {
-    fn num_lit_suffix<'a, T: Copy>(
+fn check_base_digits<'a>(digits: &'a str, base: u32, span: Range<usize>) -> ParseResult<'a, ()> {
+    let allowed_digits: &[char] = match base {
+        2 => &['0', '1'],
+        8 => &['0', '1', '2', '3', '4', '5', '6', '7'],
+        16 => &[
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
+        ],
+        _ => panic!("unsupported base `{base}`"),
+    };
+
+    for digit in digits.chars() {
+        let lower = digit.to_ascii_lowercase();
+        if lower != '_' && !allowed_digits.iter().any(|c| *c == digit || *c == lower) {
+            let allowed = allowed_digits.iter().collect::<String>();
+            let base = match base {
+                2 => 'b',
+                8 => 'o',
+                16 => 'x',
+                _ => unreachable!(),
+            };
+            return cut_error!(
+                format!("only expected `{allowed}` digits for `0{base}` integers, found `{digit}`"),
+                span,
+            );
+        }
+    }
+    Ok(())
+}
+
+fn num_lit<'a: 'l, 'l>(i: &mut InputStream<'a, 'l>) -> ParseResult<'a, Num<'a>> {
+    fn num_lit_suffix<'a: 'l, 'l, T: Copy>(
         kind: &'a str,
         list: &[(&str, T)],
-        start: &'a str,
-        i: &mut &'a str,
+        i: &mut InputStream<'a, 'l>,
     ) -> ParseResult<'a, T> {
-        let suffix = identifier.parse_next(i)?;
+        let (suffix, span) = identifier.with_span().parse_next(i)?;
         if let Some(value) = list
             .iter()
             .copied()
@@ -433,68 +571,59 @@ fn num_lit<'a>(i: &mut &'a str) -> ParseResult<'a, Num<'a>> {
         {
             Ok(value)
         } else {
-            Err(winnow::error::ErrMode::Cut(ErrorContext::new(
-                format!("unknown {kind} suffix `{suffix}`"),
-                start,
-            )))
+            cut_error!(format!("unknown {kind} suffix `{suffix}`"), span)
         }
     }
 
-    let start = *i;
-
     // Equivalent to <https://github.com/rust-lang/rust/blob/e3f909b2bbd0b10db6f164d466db237c582d3045/compiler/rustc_lexer/src/lib.rs#L587-L620>.
     let int_with_base = (opt('-'), |i: &mut _| {
-        let (base, kind) = preceded('0', alt(('b'.value(2), 'o'.value(8), 'x'.value(16))))
+        let ((base, kind), span) = preceded('0', alt(('b'.value(2), 'o'.value(8), 'x'.value(16))))
             .with_taken()
+            .with_span()
             .parse_next(i)?;
-        match opt(separated_digits(base, false)).parse_next(i)? {
-            Some(_) => Ok(()),
-            None => Err(winnow::error::ErrMode::Cut(ErrorContext::new(
-                format!("expected digits after `{kind}`"),
-                start,
-            ))),
+        match opt(separated_digits(if base == 16 { base } else { 10 }, false)).parse_next(i)? {
+            Some(digits) => check_base_digits(digits, base, span),
+            None => cut_error!(format!("expected digits after `{kind}`"), span),
         }
     });
 
     // Equivalent to <https://github.com/rust-lang/rust/blob/e3f909b2bbd0b10db6f164d466db237c582d3045/compiler/rustc_lexer/src/lib.rs#L626-L653>:
     // no `_` directly after the decimal point `.`, or between `e` and `+/-`.
-    let float = |i: &mut &'a str| -> ParseResult<'a, ()> {
+    let float = |i: &mut InputStream<'a, 'l>| -> ParseResult<'a, ()> {
         let has_dot = opt(('.', separated_digits(10, true))).parse_next(i)?;
         let has_exp = opt(|i: &mut _| {
-            let (kind, op) = (one_of(['e', 'E']), opt(one_of(['+', '-']))).parse_next(i)?;
+            let ((kind, op), span) = (one_of(['e', 'E']), opt(one_of(['+', '-'])))
+                .with_span()
+                .parse_next(i)?;
             match opt(separated_digits(10, op.is_none())).parse_next(i)? {
                 Some(_) => Ok(()),
-                None => Err(winnow::error::ErrMode::Cut(ErrorContext::new(
-                    format!("expected decimal digits, `+` or `-` after exponent `{kind}`"),
-                    start,
-                ))),
+                None => {
+                    cut_error!(
+                        format!("expected decimal digits, `+` or `-` after exponent `{kind}`"),
+                        span,
+                    )
+                }
             }
         })
         .parse_next(i)?;
         match (has_dot, has_exp) {
             (Some(_), _) | (_, Some(())) => Ok(()),
-            _ => {
-                *i = start;
-                fail.parse_next(i)
-            }
+            _ => fail(i),
         }
     };
 
-    let num = if let Ok(Some(num)) = opt(int_with_base.take()).parse_next(i) {
-        let suffix =
-            opt(|i: &mut _| num_lit_suffix("integer", INTEGER_TYPES, start, i)).parse_next(i)?;
+    let num = if let Some(num) = opt(int_with_base.take()).parse_next(i)? {
+        let suffix = opt(|i: &mut _| num_lit_suffix("integer", INTEGER_TYPES, i)).parse_next(i)?;
         Num::Int(num, suffix)
     } else {
         let (float, num) = preceded((opt('-'), separated_digits(10, true)), opt(float))
             .with_taken()
             .parse_next(i)?;
         if float.is_some() {
-            let suffix =
-                opt(|i: &mut _| num_lit_suffix("float", FLOAT_TYPES, start, i)).parse_next(i)?;
+            let suffix = opt(|i: &mut _| num_lit_suffix("float", FLOAT_TYPES, i)).parse_next(i)?;
             Num::Float(num, suffix)
         } else {
-            let suffix =
-                opt(|i: &mut _| num_lit_suffix("number", NUM_TYPES, start, i)).parse_next(i)?;
+            let suffix = opt(|i: &mut _| num_lit_suffix("number", NUM_TYPES, i)).parse_next(i)?;
             match suffix {
                 Some(NumKind::Int(kind)) => Num::Int(num, Some(kind)),
                 Some(NumKind::Float(kind)) => Num::Float(num, Some(kind)),
@@ -507,15 +636,12 @@ fn num_lit<'a>(i: &mut &'a str) -> ParseResult<'a, Num<'a>> {
 
 /// Underscore separated digits of the given base, unless `start` is true this may start
 /// with an underscore.
-fn separated_digits<'a>(
+fn separated_digits<'a: 'l, 'l>(
     radix: u32,
     start: bool,
-) -> impl ModalParser<&'a str, &'a str, ErrorContext<'a>> {
+) -> impl ModalParser<InputStream<'a, 'l>, &'a str, ErrorContext> {
     (
-        move |i: &mut &'a _| match start {
-            true => Ok(()),
-            false => repeat(0.., '_').parse_next(i),
-        },
+        cond(!start, repeat(0.., '_').map(|()| ())),
         one_of(move |ch: char| ch.is_digit(radix)),
         repeat(0.., one_of(move |ch: char| ch == '_' || ch.is_digit(radix))).map(|()| ()),
     )
@@ -548,28 +674,189 @@ impl fmt::Display for StrPrefix {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct StrLit<'a> {
-    pub prefix: Option<StrPrefix>,
+    /// the unparsed (but validated) content
     pub content: &'a str,
+    /// whether the string literal is unprefixed, a cstring or binary slice
+    pub prefix: Option<StrPrefix>,
+    /// contains a NUL character, either escaped `'\0'` or the very characters;
+    /// not allowed in cstring literals
+    pub contains_null: bool,
+    /// contains a non-ASCII character, either as `\u{123456}` or as an unescaped character;
+    /// not allowed in binary slices
+    pub contains_unicode_character: bool,
+    /// contains unicode escape sequences like `\u{12}` (regardless of its range);
+    /// not allowed in binary slices
+    pub contains_unicode_escape: bool,
+    /// contains a non-ASCII range escape sequence like `\x80`;
+    /// not allowed in unprefix strings
+    pub contains_high_ascii: bool,
 }
 
-fn str_lit_without_prefix<'a>(i: &mut &'a str) -> ParseResult<'a> {
-    let s = delimited(
-        '"',
-        opt(take_escaped(take_till(1.., ['\\', '"']), '\\', any)),
-        '"',
+fn str_lit<'a: 'l, 'l>(i: &mut InputStream<'a, 'l>) -> ParseResult<'a, StrLit<'a>> {
+    // <https://doc.rust-lang.org/reference/tokens.html#r-lex.token.literal.str.syntax>
+
+    fn inner<'a: 'l, 'l>(i: &mut InputStream<'a, 'l>) -> ParseResult<'a, StrLit<'a>> {
+        #[derive(Debug, Clone, PartialEq, Eq)]
+        enum Sequence<'a> {
+            Text(&'a str),
+            Close,
+            Escape,
+            CrLf,
+            Cr(Range<usize>),
+        }
+
+        let mut contains_null = false;
+        let mut contains_unicode_character = false;
+        let mut contains_unicode_escape = false;
+        let mut contains_high_ascii = false;
+
+        while !i.is_empty() {
+            let seq = alt((
+                repeat::<_, _, (), _, _>(1.., none_of(['\r', '\\', '"']))
+                    .take()
+                    .map(Sequence::Text),
+                ('\r'.span(), opt('\n')).map(|(span, has_lf)| match has_lf {
+                    Some(_) => Sequence::CrLf,
+                    None => Sequence::Cr(span),
+                }),
+                '\\'.value(Sequence::Escape),
+                peek('"').value(Sequence::Close),
+            ))
+            .parse_next(i)?;
+
+            match seq {
+                Sequence::Text(s) => {
+                    contains_unicode_character =
+                        contains_unicode_character || s.bytes().any(|c: u8| !c.is_ascii());
+                    contains_null = contains_null || s.bytes().any(|c: u8| c == 0);
+                    continue;
+                }
+                Sequence::CrLf => continue,
+                Sequence::Cr(span) => {
+                    return cut_error!(
+                        "a bare CR (Mac linebreak) is not allowed in string literals, \
+                        use NL (Unix linebreak) or CRNL (Windows linebreak) instead, \
+                        or type `\\r` explicitly",
+                        span,
+                    );
+                }
+                Sequence::Close => break,
+                Sequence::Escape => {}
+            }
+
+            match any.parse_next(i)? {
+                '\'' | '"' | 'n' | 'r' | 't' | '\\' => continue,
+                '0' => {
+                    contains_null = true;
+                    continue;
+                }
+                'x' => {
+                    let code = take_while(2, AsChar::is_hex_digit).parse_next(i)?;
+                    match u8::from_str_radix(code, 16).unwrap() {
+                        0 => contains_null = true,
+                        128.. => contains_high_ascii = true,
+                        _ => {}
+                    }
+                }
+                'u' => {
+                    contains_unicode_escape = true;
+                    let (code, span) = delimited('{', take_while(1..=6, AsChar::is_hex_digit), '}')
+                        .with_span()
+                        .parse_next(i)?;
+                    match u32::from_str_radix(code, 16).unwrap() {
+                        0 => contains_null = true,
+                        0xd800..0xe000 => {
+                            return cut_error!("unicode escape must not be a surrogate", span);
+                        }
+                        0x110000.. => {
+                            return cut_error!("unicode escape must be at most 10FFFF", span);
+                        }
+                        128.. => contains_unicode_character = true,
+                        _ => {}
+                    }
+                }
+                _ => return fail(i),
+            }
+        }
+
+        Ok(StrLit {
+            content: "",
+            prefix: None,
+            contains_null,
+            contains_unicode_character,
+            contains_unicode_escape,
+            contains_high_ascii,
+        })
+    }
+
+    let ((prefix, lit), span) = (
+        terminated(
+            opt(alt((
+                'b'.value(StrPrefix::Binary),
+                'c'.value(StrPrefix::CLike),
+            ))),
+            '"',
+        ),
+        opt(terminated(inner.with_taken(), '"')),
     )
-    .parse_next(i)?;
-    Ok(s.unwrap_or_default())
+        .with_span()
+        .parse_next(i)?;
+
+    let Some((mut lit, content)) = lit else {
+        return cut_error!("unclosed or broken string", span);
+    };
+    lit.content = content;
+    lit.prefix = prefix;
+
+    let msg = match prefix {
+        Some(StrPrefix::Binary) => {
+            if lit.contains_unicode_character {
+                Some("non-ASCII character in byte string literal")
+            } else if lit.contains_unicode_escape {
+                Some("unicode escape in byte string")
+            } else {
+                None
+            }
+        }
+        Some(StrPrefix::CLike) => lit
+            .contains_null
+            .then_some("null characters in C string literals are not supported"),
+        None => lit.contains_high_ascii.then_some("out of range hex escape"),
+    };
+    if let Some(msg) = msg {
+        return cut_error!(msg, span);
+    }
+
+    not_suffix_with_hash(i)?;
+    Ok(lit)
 }
 
-fn str_lit<'a>(i: &mut &'a str) -> ParseResult<'a, StrLit<'a>> {
-    let (prefix, content) = (opt(alt(('b', 'c'))), str_lit_without_prefix).parse_next(i)?;
-    let prefix = match prefix {
-        Some('b') => Some(StrPrefix::Binary),
-        Some('c') => Some(StrPrefix::CLike),
-        _ => None,
+fn not_suffix_with_hash<'a: 'l, 'l>(i: &mut InputStream<'a, 'l>) -> ParseResult<'a, ()> {
+    if let Some(span) = opt(identifier.span()).parse_next(i)? {
+        return cut_error!(
+            "you are missing a space to separate two string literals",
+            span,
+        );
+    }
+    Ok(())
+}
+
+fn str_lit_without_prefix<'a: 'l, 'l>(i: &mut InputStream<'a, 'l>) -> ParseResult<'a> {
+    let (lit, span) = str_lit.with_span().parse_next(i)?;
+
+    let kind = match lit.prefix {
+        Some(StrPrefix::Binary) => Some("binary slice"),
+        Some(StrPrefix::CLike) => Some("cstring"),
+        None => None,
     };
-    Ok(StrLit { prefix, content })
+    if let Some(kind) = kind {
+        return cut_error!(
+            format!("expected an unprefixed normal string, not a {kind}"),
+            span,
+        );
+    }
+
+    Ok(lit.content)
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -585,41 +872,70 @@ pub struct CharLit<'a> {
 
 // Information about allowed character escapes is available at:
 // <https://doc.rust-lang.org/reference/tokens.html#character-literals>.
-fn char_lit<'a>(i: &mut &'a str) -> ParseResult<'a, CharLit<'a>> {
-    let start = i.checkpoint();
-    let (b_prefix, s) = (
-        opt('b'),
-        delimited(
-            '\'',
-            opt(take_escaped(take_till(1.., ['\\', '\'']), '\\', any)),
-            '\'',
-        ),
+fn char_lit<'a: 'l, 'l>(i: &mut InputStream<'a, 'l>) -> ParseResult<'a, CharLit<'a>> {
+    let ((prefix, _, content, is_closed), span) = (
+        alt(('b'.value(Some(CharPrefix::Binary)), empty.value(None))),
+        '\'',
+        opt(take_escaped(none_of(['\\', '\'']), '\\', any)),
+        opt('\''),
     )
+        .with_span()
         .parse_next(i)?;
 
-    let Some(s) = s else {
-        i.reset(&start);
-        return Err(winnow::error::ErrMode::Cut(ErrorContext::new(
-            "empty character literal",
-            *i,
-        )));
-    };
-    let mut is = s;
-    let Ok(c) = Char::parse(&mut is) else {
-        i.reset(&start);
-        return Err(winnow::error::ErrMode::Cut(ErrorContext::new(
-            "invalid character",
-            *i,
-        )));
+    if is_closed.is_none() {
+        if let Some(prefix) = prefix {
+            return cut_error!(
+                match prefix {
+                    CharPrefix::Binary => "unterminated byte literal",
+                },
+                span,
+            );
+        } else {
+            return fail(i);
+        }
+    }
+
+    let content = match content.unwrap_or_default() {
+        "" => {
+            return cut_error!(
+                match prefix {
+                    Some(CharPrefix::Binary) => "empty byte literal",
+                    None => "empty character literal",
+                },
+                span,
+            );
+        }
+        content => content,
     };
 
+    let mut content_i = content;
+    let Ok(c) = Char::parse(&mut content_i) else {
+        return cut_error!("invalid character", span);
+    };
+    if !content_i.is_empty() {
+        let (c, s) = match prefix {
+            Some(CharPrefix::Binary) => ("byte", "binary string"),
+            None => ("character", "string"),
+        };
+        return cut_error!(
+            format!(
+                "cannot have multiple characters in a {c} literal, use `{}\"...\"` to write a {s}",
+                match prefix {
+                    Some(CharPrefix::Binary) => "b",
+                    None => "",
+                }
+            ),
+            span,
+        );
+    }
+
     let (nb, max_value, err1, err2) = match c {
-        Char::Literal | Char::Escaped => {
-            return Ok(CharLit {
-                prefix: b_prefix.map(|_| CharPrefix::Binary),
-                content: s,
-            });
-        }
+        Char::Literal(c) | Char::Escaped(c) => match prefix {
+            Some(CharPrefix::Binary) if !c.is_ascii() => {
+                return cut_error!("non-ASCII character in byte literal", span);
+            }
+            _ => return Ok(CharLit { prefix, content }),
+        },
         Char::AsciiEscape(nb) => (
             nb,
             // `0x7F` is the maximum value for a `\x` escaped character.
@@ -627,37 +943,42 @@ fn char_lit<'a>(i: &mut &'a str) -> ParseResult<'a, CharLit<'a>> {
             "invalid character in ascii escape",
             "must be a character in the range [\\x00-\\x7f]",
         ),
-        Char::UnicodeEscape(nb) => (
-            nb,
-            // `0x10FFFF` is the maximum value for a `\u` escaped character.
-            0x0010_FFFF,
-            "invalid character in unicode escape",
-            "unicode escape must be at most 10FFFF",
-        ),
+        Char::UnicodeEscape(nb) => {
+            match prefix {
+                Some(CharPrefix::Binary) => {
+                    return cut_error!(
+                        "cannot use unicode escape in byte string in byte literal",
+                        span,
+                    );
+                }
+                None => (
+                    nb,
+                    // `0x10FFFF` is the maximum value for a `\u` escaped character.
+                    0x0010_FFFF,
+                    "invalid character in unicode escape",
+                    "unicode escape must be at most 10FFFF",
+                ),
+            }
+        }
     };
 
     let Ok(nb) = u32::from_str_radix(nb, 16) else {
-        i.reset(&start);
-        return Err(winnow::error::ErrMode::Cut(ErrorContext::new(err1, *i)));
+        return cut_error!(err1, span);
     };
     if nb > max_value {
-        i.reset(&start);
-        return Err(winnow::error::ErrMode::Cut(ErrorContext::new(err2, *i)));
+        return cut_error!(err2, span);
     }
 
-    Ok(CharLit {
-        prefix: b_prefix.map(|_| CharPrefix::Binary),
-        content: s,
-    })
+    Ok(CharLit { prefix, content })
 }
 
 /// Represents the different kinds of char declarations:
 #[derive(Copy, Clone)]
 enum Char<'a> {
     /// Any character that is not escaped.
-    Literal,
+    Literal(char),
     /// An escaped character (like `\n`) which doesn't require any extra check.
-    Escaped,
+    Escaped(char),
     /// Ascii escape (like `\x12`).
     AsciiEscape(&'a str),
     /// Unicode escape (like `\u{12}`).
@@ -665,21 +986,19 @@ enum Char<'a> {
 }
 
 impl<'a> Char<'a> {
-    fn parse(i: &mut &'a str) -> ParseResult<'a, Self> {
-        if i.chars().count() == 1 {
-            return any.value(Self::Literal).parse_next(i);
-        }
-        (
+    fn parse(i: &mut &'a str) -> ModalResult<Self, ()> {
+        let unescaped = none_of(('\\', '\'')).map(Self::Literal);
+        let escaped = preceded(
             '\\',
             alt((
-                'n'.value(Self::Escaped),
-                'r'.value(Self::Escaped),
-                't'.value(Self::Escaped),
-                '\\'.value(Self::Escaped),
-                '0'.value(Self::Escaped),
-                '\''.value(Self::Escaped),
+                'n'.value(Self::Escaped('\n')),
+                'r'.value(Self::Escaped('\r')),
+                't'.value(Self::Escaped('\t')),
+                '\\'.value(Self::Escaped('\\')),
+                '0'.value(Self::Escaped('\0')),
+                '\''.value(Self::Escaped('\'')),
                 // Not useful but supported by rust.
-                '"'.value(Self::Escaped),
+                '"'.value(Self::Escaped('"')),
                 ('x', take_while(2, |c: char| c.is_ascii_hexdigit()))
                     .map(|(_, s)| Self::AsciiEscape(s)),
                 (
@@ -689,99 +1008,108 @@ impl<'a> Char<'a> {
                 )
                     .map(|(_, s, _)| Self::UnicodeEscape(s)),
             )),
-        )
-            .map(|(_, ch)| ch)
-            .parse_next(i)
+        );
+        alt((unescaped, escaped)).parse_next(i)
     }
 }
 
-enum PathOrIdentifier<'a> {
-    Path(Vec<&'a str>),
-    Identifier(&'a str),
+#[derive(Clone, Debug, PartialEq)]
+pub enum PathOrIdentifier<'a> {
+    Path(Vec<PathComponent<'a>>),
+    Identifier(WithSpan<&'a str>),
 }
 
-fn path_or_identifier<'a>(i: &mut &'a str) -> ParseResult<'a, PathOrIdentifier<'a>> {
-    let root = ws(opt("::"));
-    let tail = opt(repeat(1.., preceded(ws("::"), identifier)).map(|v: Vec<_>| v));
+fn path_or_identifier<'a: 'l, 'l>(
+    i: &mut InputStream<'a, 'l>,
+) -> ParseResult<'a, PathOrIdentifier<'a>> {
+    let mut p = |i: &mut _| {
+        let root = ws(opt(terminated(empty.span(), "::")));
+        let start = PathComponent::parse;
+        let tail = opt(repeat(1.., preceded(ws("::"), PathComponent::parse)).map(|v: Vec<_>| v));
 
-    let (root, start, rest) = (root, identifier, tail).parse_next(i)?;
-    let rest = rest.as_deref().unwrap_or_default();
+        let (root, start, rest) = (root, start, tail).parse_next(i)?;
+        Ok((root, start, rest.unwrap_or_default()))
+    };
+    let (root, start, rest) = p.parse_next(i)?;
 
     // The returned identifier can be assumed to be path if:
     // - it is an absolute path (starts with `::`), or
     // - it has multiple components (at least one `::`), or
     // - the first letter is uppercase
     match (root, start, rest) {
-        (Some(_), start, tail) => {
-            let mut path = Vec::with_capacity(2 + tail.len());
-            path.push("");
-            path.push(start);
-            path.extend(rest);
-            Ok(PathOrIdentifier::Path(path))
-        }
-        (None, name, [])
-            if name
-                .chars()
-                .next()
-                .is_none_or(|c| c == '_' || c.is_lowercase()) =>
+        (None, arg, tail)
+            if tail.is_empty()
+                && arg.generics.is_none()
+                && arg
+                    .name
+                    .chars()
+                    .next()
+                    .is_none_or(|c| c == '_' || c.is_lowercase()) =>
         {
-            Ok(PathOrIdentifier::Identifier(name))
+            Ok(PathOrIdentifier::Identifier(arg.name))
         }
-        (None, start, tail) => {
-            let mut path = Vec::with_capacity(1 + tail.len());
+        (root, start, tail) => {
+            let mut path = if let Some(root) = root {
+                let mut path = Vec::with_capacity(2 + tail.len());
+                path.push(PathComponent {
+                    name: WithSpan::new("", root),
+                    generics: None,
+                });
+                path
+            } else {
+                Vec::with_capacity(1 + tail.len())
+            };
             path.push(start);
-            path.extend(rest);
+            path.extend(tail);
             Ok(PathOrIdentifier::Path(path))
         }
     }
 }
 
-struct State<'a, 'l> {
-    syntax: &'l Syntax<'a>,
+#[derive(Debug, Clone, Default)]
+struct State<'a> {
+    syntax: Syntax<'a>,
     loop_depth: Cell<usize>,
-    level: Level<'l>,
+    level: Level,
 }
 
-impl State<'_, '_> {
-    fn tag_block_start<'i>(&self, i: &mut &'i str) -> ParseResult<'i, ()> {
-        self.syntax.block_start.value(()).parse_next(i)
-    }
+fn block_start<'a: 'l, 'l>(i: &mut InputStream<'a, 'l>) -> ParseResult<'a, ()> {
+    i.state.syntax.block_start.void().parse_next(i)
+}
 
-    fn tag_block_end<'i>(&self, i: &mut &'i str) -> ParseResult<'i, ()> {
-        let control = alt((
-            self.syntax.block_end.value(None),
-            peek(delimited('%', alt(('-', '~', '+')).map(Some), '}')),
-            fail, // rollback on partial matches in the previous line
-        ))
-        .parse_next(i)?;
-        if let Some(control) = control {
-            let message = format!(
-                "unclosed block, you likely meant to apply whitespace control: \"{}{}\"",
-                control.escape_default(),
-                self.syntax.block_end.escape_default(),
-            );
-            Err(ErrorContext::new(message, *i).backtrack())
-        } else {
-            Ok(())
-        }
-    }
+fn block_end<'a: 'l, 'l>(i: &mut InputStream<'a, 'l>) -> ParseResult<'a, ()> {
+    let (control, span) = alt((
+        i.state.syntax.block_end.value(None),
+        peek(delimited('%', alt(('-', '~', '+')).map(Some), '}')),
+        fail, // rollback on partial matches in the previous line
+    ))
+    .with_span()
+    .parse_next(i)?;
 
-    fn tag_comment_start<'i>(&self, i: &mut &'i str) -> ParseResult<'i, ()> {
-        self.syntax.comment_start.value(()).parse_next(i)
-    }
+    let Some(control) = control else {
+        return Ok(());
+    };
 
-    fn tag_comment_end<'i>(&self, i: &mut &'i str) -> ParseResult<'i, ()> {
-        self.syntax.comment_end.value(()).parse_next(i)
-    }
+    let err = ErrorContext::new(
+        format!(
+            "unclosed block, you likely meant to apply whitespace control: \"{}{}\"",
+            control.escape_default(),
+            i.state.syntax.block_end.escape_default(),
+        ),
+        span,
+    );
+    Err(err.backtrack())
+}
 
-    fn tag_expr_start<'i>(&self, i: &mut &'i str) -> ParseResult<'i, ()> {
-        self.syntax.expr_start.value(()).parse_next(i)
-    }
+fn expr_start<'a: 'l, 'l>(i: &mut InputStream<'a, 'l>) -> ParseResult<'a, ()> {
+    i.state.syntax.expr_start.void().parse_next(i)
+}
 
-    fn tag_expr_end<'i>(&self, i: &mut &'i str) -> ParseResult<'i, ()> {
-        self.syntax.expr_end.value(()).parse_next(i)
-    }
+fn expr_end<'a: 'l, 'l>(i: &mut InputStream<'a, 'l>) -> ParseResult<'a, ()> {
+    i.state.syntax.expr_end.void().parse_next(i)
+}
 
+impl State<'_> {
     fn enter_loop(&self) {
         self.loop_depth.set(self.loop_depth.get() + 1);
     }
@@ -891,12 +1219,12 @@ impl<'a> SyntaxBuilder<'a> {
             if s.len() < 2 {
                 return Err(format!(
                     "delimiters must be at least two characters long. \
-                        The {k} delimiter ({s:?}) is too short",
+                    The {k} delimiter ({s:?}) is too short",
                 ));
             } else if s.len() > 32 {
                 return Err(format!(
                     "delimiters must be at most 32 characters long. \
-                        The {k} delimiter ({:?}...) is too long",
+                    The {k} delimiter ({:?}...) is too long",
                     &s[..(16..=s.len())
                         .find(|&i| s.is_char_boundary(i))
                         .unwrap_or(s.len())],
@@ -904,7 +1232,7 @@ impl<'a> SyntaxBuilder<'a> {
             } else if s.chars().any(char::is_whitespace) {
                 return Err(format!(
                     "delimiters may not contain white spaces. \
-                        The {k} delimiter ({s:?}) contains white spaces",
+                    The {k} delimiter ({s:?}) contains white spaces",
                 ));
             } else if is_closing
                 && ['(', '-', '+', '~', '.', '>', '<', '&', '|', '!']
@@ -912,9 +1240,35 @@ impl<'a> SyntaxBuilder<'a> {
             {
                 return Err(format!(
                     "closing delimiters may not start with operators. \
-                        The {k} delimiter ({s:?}) starts with operator `{}`",
+                    The {k} delimiter ({s:?}) starts with operator `{}`",
                     s.chars().next().unwrap(),
                 ));
+            }
+        }
+
+        // likely to cause catastrophic backtracking in the parser
+        for infix in [
+            "&", "&&", "&=", "^", "^=", ",", ".", "..", "...", "..=", "=", "==", ">=", ">", "<=",
+            "<", "-", "-=", "!=", "!", "|", "|=", "||", "%", "%=", "+", "+=", "<<", "<<=", ">>",
+            ">>=", "/", "/=", "*", "*=",
+        ] {
+            match syntax.expr_end.strip_prefix(infix) {
+                Some("") => {
+                    return Err(format!(
+                        "the closing expression delimiter `{}` must not be a string that could be \
+                        mistaken for a binary operator",
+                        syntax.expr_end.escape_debug(),
+                    ));
+                }
+                Some(tail) if tail.as_bytes().iter().all(|c| b"&-!*".contains(c)) => {
+                    return Err(format!(
+                        "the closing expression delimiter `{}` must not be a string that could be \
+                        mistaken for a binary operator `{infix}` followed by a (sequence of) \
+                        prefix operator(s)",
+                        syntax.expr_end.escape_debug(),
+                    ));
+                }
+                _ => continue,
             }
         }
 
@@ -939,7 +1293,7 @@ impl<'a> SyntaxBuilder<'a> {
                 };
                 return Err(format!(
                     "an opening delimiter may not be the prefix of another delimiter. \
-                        The {k1} delimiter ({s1:?}) clashes with the {k2} delimiter ({s2:?})",
+                    The {k1} delimiter ({s1:?}) clashes with the {k2} delimiter ({s2:?})",
                 ));
             }
         }
@@ -954,49 +1308,62 @@ impl<'a> SyntaxBuilder<'a> {
 /// [`Level::nest()`] / [`LevelGuard::nest()`] will return an error. The same [`Level`] instance is
 /// shared across all usages in a [`Parsed::new()`] / [`Ast::from_str()`] call, using a reference
 /// to an interior mutable counter.
-#[derive(Debug, Clone, Copy)]
-struct Level<'l>(&'l Cell<usize>);
+#[derive(Debug, Clone)]
+struct Level(Cell<usize>);
 
-impl Level<'_> {
+impl Default for Level {
+    #[inline]
+    fn default() -> Self {
+        Self(Cell::new(Level::MAX_DEPTH))
+    }
+}
+
+impl Level {
     const MAX_DEPTH: usize = 128;
 
     /// Acquire a [`LevelGuard`] without decrementing the counter, to be used with loops.
     fn guard(&self) -> LevelGuard<'_> {
         LevelGuard {
-            level: *self,
+            level: self,
             count: 0,
         }
     }
 
     /// Decrement the remaining level counter, and return a [`LevelGuard`] that increments it again
     /// when it's dropped.
-    fn nest<'a>(&self, i: &'a str) -> ParseResult<'a, LevelGuard<'_>> {
-        if let Some(new_level) = self.0.get().checked_sub(1) {
+    fn nest<'a: 'l, 'l>(&self, i: &InputStream<'a, 'l>) -> ParseResult<'a, LevelGuard<'_>> {
+        self.nest_multiple(i, 1)
+    }
+
+    /// Decrement the remaining level counter by `count`, and return a [`LevelGuard`] that
+    /// increments it again when it's dropped.
+    fn nest_multiple<'a: 'l, 'l>(
+        &self,
+        i: &InputStream<'a, 'l>,
+        count: usize,
+    ) -> ParseResult<'a, LevelGuard<'_>> {
+        if let Some(new_level) = self.0.get().checked_sub(count) {
             self.0.set(new_level);
-            Ok(LevelGuard {
-                level: *self,
-                count: 1,
-            })
+            Ok(LevelGuard { level: self, count })
         } else {
-            Err(Self::_fail(i))
+            Self::_fail(i)
         }
     }
 
     #[cold]
     #[inline(never)]
-    fn _fail(i: &str) -> ParseErr<'_> {
-        winnow::error::ErrMode::Cut(ErrorContext::new(
-            "your template code is too deeply nested, or the last expression is too complex",
-            i,
-        ))
+    fn _fail<'a: 'l, 'l, T>(i: &InputStream<'a, 'l>) -> ParseResult<'a, T> {
+        let msg = "your template code is too deeply nested, or the last expression is too complex";
+        Err(ErrorContext::new(msg, i).cut())
     }
 }
 
 /// Used to keep track how often [`LevelGuard::nest()`] was called and to re-increment the
 /// remaining level counter when it is dropped / falls out of scope.
 #[must_use]
+#[derive(Debug)]
 struct LevelGuard<'l> {
-    level: Level<'l>,
+    level: &'l Level,
     count: usize,
 }
 
@@ -1008,38 +1375,19 @@ impl Drop for LevelGuard<'_> {
 
 impl LevelGuard<'_> {
     /// Used to decrement the level multiple times, e.g. for every iteration of a loop.
-    fn nest<'a>(&mut self, i: &'a str) -> ParseResult<'a, ()> {
+    fn nest<'a: 'l, 'l>(&mut self, i: &InputStream<'a, 'l>) -> ParseResult<'a, ()> {
         if let Some(new_level) = self.level.0.get().checked_sub(1) {
             self.level.0.set(new_level);
             self.count += 1;
             Ok(())
         } else {
-            Err(Level::_fail(i))
+            Level::_fail(i)
         }
     }
 }
 
-#[allow(clippy::type_complexity)]
-fn filter<'a>(
-    i: &mut &'a str,
-    level: Level<'_>,
-) -> ParseResult<
-    'a,
-    (
-        &'a str,
-        Vec<WithSpan<'a, TyGenerics<'a>>>,
-        Option<Vec<WithSpan<'a, Expr<'a>>>>,
-    ),
-> {
-    ws(('|', not('|'))).parse_next(i)?;
-
-    let _level_guard = level.nest(i)?;
-    cut_err((
-        ws(identifier),
-        opt(|i: &mut _| expr::call_generics(i, level)).map(|generics| generics.unwrap_or_default()),
-        opt(|i: &mut _| Expr::arguments(i, level, true)),
-    ))
-    .parse_next(i)
+fn filter<'a: 'l, 'l>(i: &mut InputStream<'a, 'l>) -> ParseResult<'a, Filter<'a>> {
+    preceded(('|', not(one_of(['|', '=']))), cut_err(Filter::parse)).parse_next(i)
 }
 
 /// Returns the common parts of two paths.
@@ -1080,6 +1428,11 @@ pub fn strip_common(base: &Path, path: &Path) -> String {
     }
 }
 
+#[inline]
+pub(crate) fn can_be_variable_name(name: &str) -> bool {
+    !matches!(name, "self" | "Self" | "super" | "crate")
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum IntKind {
     I8,
@@ -1094,6 +1447,25 @@ pub enum IntKind {
     U64,
     U128,
     Usize,
+}
+
+impl fmt::Display for IntKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            Self::I8 => "i8",
+            Self::I16 => "i16",
+            Self::I32 => "i32",
+            Self::I64 => "i64",
+            Self::I128 => "i128",
+            Self::Isize => "isize",
+            Self::U8 => "u8",
+            Self::U16 => "u16",
+            Self::U32 => "u32",
+            Self::U64 => "u64",
+            Self::U128 => "u128",
+            Self::Usize => "usize",
+        })
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -1169,142 +1541,274 @@ const PRIMITIVE_TYPES: &[&str] = &{
     list
 };
 
-pub const MAX_RUST_KEYWORD_LEN: usize = 8;
-pub const MAX_RUST_RAW_KEYWORD_LEN: usize = MAX_RUST_KEYWORD_LEN + 2;
+const MAX_RUST_KEYWORD_LEN: usize = 8;
 
-pub const RUST_KEYWORDS: &[&[[AsciiChar; MAX_RUST_RAW_KEYWORD_LEN]]; MAX_RUST_KEYWORD_LEN + 1] = &{
-    const NO_KWS: &[[AsciiChar; MAX_RUST_RAW_KEYWORD_LEN]] = &[];
-    const KW2: &[[AsciiChar; MAX_RUST_RAW_KEYWORD_LEN]] = &[
-        AsciiStr::new_sized("r#as"),
-        AsciiStr::new_sized("r#do"),
-        AsciiStr::new_sized("r#fn"),
-        AsciiStr::new_sized("r#if"),
-        AsciiStr::new_sized("r#in"),
+const RUST_KEYWORDS: &[&[[AsciiChar; MAX_RUST_KEYWORD_LEN]]; MAX_RUST_KEYWORD_LEN + 1] = &{
+    const NO_KWS: &[[AsciiChar; MAX_RUST_KEYWORD_LEN]] = &[];
+    const KW2: &[[AsciiChar; MAX_RUST_KEYWORD_LEN]] = &[
+        AsciiStr::new_sized("as"),
+        AsciiStr::new_sized("do"),
+        AsciiStr::new_sized("fn"),
+        AsciiStr::new_sized("if"),
+        AsciiStr::new_sized("in"),
     ];
-    const KW3: &[[AsciiChar; MAX_RUST_RAW_KEYWORD_LEN]] = &[
-        AsciiStr::new_sized("r#box"),
-        AsciiStr::new_sized("r#dyn"),
-        AsciiStr::new_sized("r#for"),
-        AsciiStr::new_sized("r#gen"),
-        AsciiStr::new_sized("r#let"),
-        AsciiStr::new_sized("r#mod"),
-        AsciiStr::new_sized("r#mut"),
-        AsciiStr::new_sized("r#pub"),
-        AsciiStr::new_sized("r#ref"),
-        AsciiStr::new_sized("r#try"),
-        AsciiStr::new_sized("r#use"),
+    const KW3: &[[AsciiChar; MAX_RUST_KEYWORD_LEN]] = &[
+        AsciiStr::new_sized("box"),
+        AsciiStr::new_sized("dyn"),
+        AsciiStr::new_sized("for"),
+        AsciiStr::new_sized("gen"),
+        AsciiStr::new_sized("let"),
+        AsciiStr::new_sized("mod"),
+        AsciiStr::new_sized("mut"),
+        AsciiStr::new_sized("pub"),
+        AsciiStr::new_sized("ref"),
+        AsciiStr::new_sized("try"),
+        AsciiStr::new_sized("use"),
     ];
-    const KW4: &[[AsciiChar; MAX_RUST_RAW_KEYWORD_LEN]] = &[
-        AsciiStr::new_sized("r#else"),
-        AsciiStr::new_sized("r#enum"),
-        AsciiStr::new_sized("r#impl"),
-        AsciiStr::new_sized("r#move"),
-        AsciiStr::new_sized("r#priv"),
-        AsciiStr::new_sized("r#true"),
-        AsciiStr::new_sized("r#type"),
+    const KW4: &[[AsciiChar; MAX_RUST_KEYWORD_LEN]] = &[
+        AsciiStr::new_sized("else"),
+        AsciiStr::new_sized("enum"),
+        AsciiStr::new_sized("impl"),
+        AsciiStr::new_sized("loop"),
+        AsciiStr::new_sized("move"),
+        AsciiStr::new_sized("priv"),
+        AsciiStr::new_sized("self"),
+        AsciiStr::new_sized("Self"),
+        AsciiStr::new_sized("true"),
+        AsciiStr::new_sized("type"),
     ];
-    const KW5: &[[AsciiChar; MAX_RUST_RAW_KEYWORD_LEN]] = &[
-        AsciiStr::new_sized("r#async"),
-        AsciiStr::new_sized("r#await"),
-        AsciiStr::new_sized("r#break"),
-        AsciiStr::new_sized("r#const"),
-        AsciiStr::new_sized("r#crate"),
-        AsciiStr::new_sized("r#false"),
-        AsciiStr::new_sized("r#final"),
-        AsciiStr::new_sized("r#macro"),
-        AsciiStr::new_sized("r#match"),
-        AsciiStr::new_sized("r#trait"),
-        AsciiStr::new_sized("r#where"),
-        AsciiStr::new_sized("r#while"),
-        AsciiStr::new_sized("r#yield"),
+    const KW5: &[[AsciiChar; MAX_RUST_KEYWORD_LEN]] = &[
+        AsciiStr::new_sized("async"),
+        AsciiStr::new_sized("await"),
+        AsciiStr::new_sized("break"),
+        AsciiStr::new_sized("const"),
+        AsciiStr::new_sized("crate"),
+        AsciiStr::new_sized("false"),
+        AsciiStr::new_sized("final"),
+        AsciiStr::new_sized("macro"),
+        AsciiStr::new_sized("match"),
+        AsciiStr::new_sized("super"),
+        AsciiStr::new_sized("trait"),
+        AsciiStr::new_sized("union"),
+        AsciiStr::new_sized("where"),
+        AsciiStr::new_sized("while"),
+        AsciiStr::new_sized("yield"),
     ];
-    const KW6: &[[AsciiChar; MAX_RUST_RAW_KEYWORD_LEN]] = &[
-        AsciiStr::new_sized("r#become"),
-        AsciiStr::new_sized("r#extern"),
-        AsciiStr::new_sized("r#return"),
-        AsciiStr::new_sized("r#static"),
-        AsciiStr::new_sized("r#struct"),
-        AsciiStr::new_sized("r#typeof"),
-        AsciiStr::new_sized("r#unsafe"),
+    const KW6: &[[AsciiChar; MAX_RUST_KEYWORD_LEN]] = &[
+        AsciiStr::new_sized("become"),
+        AsciiStr::new_sized("extern"),
+        AsciiStr::new_sized("return"),
+        AsciiStr::new_sized("static"),
+        AsciiStr::new_sized("struct"),
+        AsciiStr::new_sized("typeof"),
+        AsciiStr::new_sized("unsafe"),
+        AsciiStr::new_sized("caller"),
     ];
-    const KW7: &[[AsciiChar; MAX_RUST_RAW_KEYWORD_LEN]] = &[
-        AsciiStr::new_sized("r#unsized"),
-        AsciiStr::new_sized("r#virtual"),
+    const KW7: &[[AsciiChar; MAX_RUST_KEYWORD_LEN]] = &[
+        AsciiStr::new_sized("unsized"),
+        AsciiStr::new_sized("virtual"),
     ];
-    const KW8: &[[AsciiChar; MAX_RUST_RAW_KEYWORD_LEN]] = &[
-        AsciiStr::new_sized("r#abstract"),
-        AsciiStr::new_sized("r#continue"),
-        AsciiStr::new_sized("r#override"),
+    const KW8: &[[AsciiChar; MAX_RUST_KEYWORD_LEN]] = &[
+        AsciiStr::new_sized("abstract"),
+        AsciiStr::new_sized("continue"),
+        AsciiStr::new_sized("override"),
     ];
 
     [NO_KWS, NO_KWS, KW2, KW3, KW4, KW5, KW6, KW7, KW8]
 };
 
-// These ones are only used in the parser, hence why they're private.
-const KWS_PARSER: &[&[[AsciiChar; MAX_RUST_RAW_KEYWORD_LEN]]; MAX_RUST_KEYWORD_LEN + 1] = &{
-    const KW4: &[[AsciiChar; MAX_RUST_RAW_KEYWORD_LEN]] = &{
-        let mut result = [AsciiStr::new_sized("r#"); RUST_KEYWORDS[4].len() + 3];
-        let mut i = 0;
-        while i < RUST_KEYWORDS[4].len() {
-            result[i] = RUST_KEYWORDS[4][i];
-            i += 1;
-        }
-        result[result.len() - 3] = AsciiStr::new_sized("r#loop");
-        result[result.len() - 2] = AsciiStr::new_sized("r#self");
-        result[result.len() - 1] = AsciiStr::new_sized("r#Self");
-        result
-    };
-    const KW5: &[[AsciiChar; MAX_RUST_RAW_KEYWORD_LEN]] = &{
-        let mut result = [AsciiStr::new_sized("r#"); RUST_KEYWORDS[5].len() + 2];
-        let mut i = 0;
-        while i < RUST_KEYWORDS[5].len() {
-            result[i] = RUST_KEYWORDS[5][i];
-            i += 1;
-        }
-        result[result.len() - 2] = AsciiStr::new_sized("r#super");
-        result[result.len() - 1] = AsciiStr::new_sized("r#union");
-        result
-    };
-
-    [
-        RUST_KEYWORDS[0],
-        RUST_KEYWORDS[1],
-        RUST_KEYWORDS[2],
-        RUST_KEYWORDS[3],
-        KW4,
-        KW5,
-        RUST_KEYWORDS[6],
-        RUST_KEYWORDS[7],
-        RUST_KEYWORDS[8],
-    ]
-};
-
-fn is_rust_keyword(ident: &str) -> bool {
+pub fn is_rust_keyword(ident: &str) -> bool {
     let ident_len = ident.len();
     if ident_len > MAX_RUST_KEYWORD_LEN {
         return false;
     }
-    let kws = KWS_PARSER[ident.len()];
+    let kws = RUST_KEYWORDS[ident.len()];
 
     let mut padded_ident = [0; MAX_RUST_KEYWORD_LEN];
     padded_ident[..ident_len].copy_from_slice(ident.as_bytes());
 
     // Since the individual buckets are quite short, a linear search is faster than a binary search.
     for probe in kws {
-        if padded_ident == *AsciiChar::slice_as_bytes(probe[2..].try_into().unwrap()) {
+        if padded_ident == *AsciiChar::slice_as_bytes(probe) {
             return true;
         }
     }
     false
 }
 
-#[cfg(not(windows))]
+macro_rules! cut_error {
+    ($message:expr, $span:expr $(,)?) => {{
+        use ::std::convert::Into;
+        use ::std::option::Option::Some;
+        use $crate::ErrorContext;
+
+        $crate::cut_context_err(
+            #[cold]
+            #[inline(always)]
+            move || ErrorContext {
+                span: Into::into($span),
+                message: Some(Into::into($message)),
+            },
+        )
+    }};
+}
+
+pub(crate) use cut_error;
+
+#[cold]
+#[inline(never)]
+fn cut_context_err<'a, T>(gen_err: impl FnOnce() -> ErrorContext) -> ParseResult<'a, T> {
+    Err(ErrMode::Cut(gen_err()))
+}
+
+type HashSet<T> = std::collections::hash_set::HashSet<T, FxBuildHasher>;
+
+fn deny_any_rust_token<'a: 'l, 'l>(i: &mut InputStream<'a, 'l>) -> ParseResult<'a, ()> {
+    let (token, span) = any_rust_token.with_span().parse_next(i)?;
+    cut_error!(
+        format!(
+            "the token `{}` was not expected at this point in the expression",
+            token.escape_debug(),
+        ),
+        span
+    )
+}
+
+#[cold]
+#[inline(never)]
+fn any_rust_token<'a: 'l, 'l>(i: &mut InputStream<'a, 'l>) -> ParseResult<'a> {
+    // https://docs.rs/syn/2.0.114/src/syn/token.rs.html#748-795
+    const PUNCTUATIONS: &[&str] = &[
+        "&", "&&", "&=", "@", "^", "^=", ":", ",", "$", ".", "..", "...", "..=", "=", "==", "=>",
+        ">=", ">", "<-", "<=", "<", "-", "-=", "!=", "!", "|", "|=", "||", "::", "%", "%=", "+",
+        "+=", "#", "?", "->", ";", "<<", "<<=", ">>", ">>=", "/", "/=", "*", "*=", "~",
+        // not a punctuation per se, but a likely typo
+        "\"", "'", "(", ")", "[", "]", "{", "}",
+    ];
+
+    const ONE: &[u8] = &{
+        const LEN: usize = {
+            let mut i = 0;
+            let mut o = 0;
+            while i < PUNCTUATIONS.len() {
+                if PUNCTUATIONS[i].len() == 1 {
+                    o += 1;
+                }
+                i += 1;
+            }
+            o
+        };
+
+        let mut result = [0; LEN];
+        let mut i = 0;
+        let mut o = 0;
+        while i < PUNCTUATIONS.len() {
+            if let &[c] = PUNCTUATIONS[i].as_bytes() {
+                result[o] = c;
+                o += 1;
+            }
+            i += 1;
+        }
+        result
+    };
+
+    const TWO: &[[u8; 2]] = &{
+        const LEN: usize = {
+            let mut i = 0;
+            let mut o = 0;
+            while i < PUNCTUATIONS.len() {
+                if PUNCTUATIONS[i].len() == 2 {
+                    o += 1;
+                }
+                i += 1;
+            }
+            o
+        };
+
+        let mut result = [*b"12"; LEN];
+        let mut i = 0;
+        let mut o = 0;
+        while i < PUNCTUATIONS.len() {
+            if let &[a, b] = PUNCTUATIONS[i].as_bytes() {
+                result[o] = [a, b];
+                o += 1;
+            }
+            i += 1;
+        }
+        result
+    };
+
+    const THREE: &[[u8; 3]] = &{
+        const LEN: usize = {
+            let mut i = 0;
+            let mut o = 0;
+            while i < PUNCTUATIONS.len() {
+                if PUNCTUATIONS[i].len() == 3 {
+                    o += 1;
+                }
+                i += 1;
+            }
+            o
+        };
+
+        let mut result = [*b"123"; LEN];
+        let mut i = 0;
+        let mut o = 0;
+        while i < PUNCTUATIONS.len() {
+            if let &[a, b, c] = PUNCTUATIONS[i].as_bytes() {
+                result[o] = [a, b, c];
+                o += 1;
+            }
+            i += 1;
+        }
+        result
+    };
+
+    // https://docs.rs/syn/2.0.114/src/syn/token.rs.html#692-746
+    const KEYWORDS: &[&str] = &[
+        "abstract", "as", "async", "auto", "await", "become", "box", "break", "const", "continue",
+        "crate", "default", "do", "dyn", "else", "enum", "extern", "final", "fn", "for", "if",
+        "impl", "in", "let", "loop", "macro", "match", "mod", "move", "mut", "override", "priv",
+        "pub", "raw", "ref", "return", "Self", "self", "static", "struct", "super", "trait", "try",
+        "type", "typeof", "union", "unsafe", "unsized", "use", "virtual", "where", "while",
+        "yield", // not a keyword in rust, but in askama
+        "is",
+    ];
+
+    alt((
+        take(3usize).verify(|s: &str| {
+            if let Ok(s) = s.as_bytes().try_into() {
+                THREE.contains(&s)
+            } else {
+                false
+            }
+        }),
+        take(2usize).verify(|s: &str| {
+            if let Ok(s) = s.as_bytes().try_into() {
+                TWO.contains(&s)
+            } else {
+                false
+            }
+        }),
+        take(1usize).verify(|s: &str| {
+            if let [c] = s.as_bytes() {
+                ONE.contains(c)
+            } else {
+                false
+            }
+        }),
+        identifier.verify(|s: &str| KEYWORDS.contains(&s)),
+    ))
+    .parse_next(i)
+}
+
 #[cfg(test)]
 mod test {
     use std::path::Path;
 
     use super::*;
 
+    #[cfg(not(windows))]
     #[test]
     fn test_strip_common() {
         // Full path is returned instead of empty when the entire path is in common.
@@ -1331,66 +1835,82 @@ mod test {
         assert_eq!(strip_common(&cwd, Path::new("/a/b/c")), "/a/b/c");
     }
 
+    #[track_caller]
+    fn parse_peek<'a: 'l, 'l, T>(
+        state: &'l State<'l>,
+        parser: impl FnOnce(&mut InputStream<'a, 'l>) -> ParseResult<'a, T>,
+        input: &'a str,
+    ) -> ParseResult<'a, (&'a str, T)> {
+        let mut i = InputStream {
+            input: LocatingSlice::new(input),
+            state,
+        };
+        let value = parser(&mut i)?;
+        Ok((**i, value))
+    }
+
     #[test]
     fn test_num_lit() {
+        let s = State::default();
+
         // Should fail.
-        assert!(num_lit.parse_peek(".").is_err());
+        assert!(parse_peek(&s, num_lit, ".").is_err());
         // Should succeed.
         assert_eq!(
-            num_lit.parse_peek("1.2E-02").unwrap(),
+            parse_peek(&s, num_lit, "1.2E-02").unwrap(),
             ("", Num::Float("1.2E-02", None))
         );
         assert_eq!(
-            num_lit.parse_peek("4e3").unwrap(),
+            parse_peek(&s, num_lit, "4e3").unwrap(),
             ("", Num::Float("4e3", None)),
         );
         assert_eq!(
-            num_lit.parse_peek("4e+_3").unwrap(),
+            parse_peek(&s, num_lit, "4e+_3").unwrap(),
             ("", Num::Float("4e+_3", None)),
         );
         // Not supported because Rust wants a number before the `.`.
-        assert!(num_lit.parse_peek(".1").is_err());
-        assert!(num_lit.parse_peek(".1E-02").is_err());
+        assert!(parse_peek(&s, num_lit, ".1").is_err());
+        assert!(parse_peek(&s, num_lit, ".1E-02").is_err());
         // A `_` directly after the `.` denotes a field.
         assert_eq!(
-            num_lit.parse_peek("1._0").unwrap(),
+            parse_peek(&s, num_lit, "1._0").unwrap(),
             ("._0", Num::Int("1", None))
         );
         assert_eq!(
-            num_lit.parse_peek("1_.0").unwrap(),
+            parse_peek(&s, num_lit, "1_.0").unwrap(),
             ("", Num::Float("1_.0", None))
         );
         // Not supported (voluntarily because of `1..` syntax).
         assert_eq!(
-            num_lit.parse_peek("1.").unwrap(),
+            parse_peek(&s, num_lit, "1.").unwrap(),
             (".", Num::Int("1", None))
         );
         assert_eq!(
-            num_lit.parse_peek("1_.").unwrap(),
+            parse_peek(&s, num_lit, "1_.").unwrap(),
             (".", Num::Int("1_", None))
         );
         assert_eq!(
-            num_lit.parse_peek("1_2.").unwrap(),
+            parse_peek(&s, num_lit, "1_2.").unwrap(),
             (".", Num::Int("1_2", None))
         );
         // Numbers with suffixes
         assert_eq!(
-            num_lit.parse_peek("-1usize").unwrap(),
+            parse_peek(&s, num_lit, "-1usize").unwrap(),
             ("", Num::Int("-1", Some(IntKind::Usize)))
         );
         assert_eq!(
-            num_lit.parse_peek("123_f32").unwrap(),
+            parse_peek(&s, num_lit, "123_f32").unwrap(),
             ("", Num::Float("123_", Some(FloatKind::F32)))
         );
         assert_eq!(
-            num_lit.parse_peek("1_.2_e+_3_f64|into_isize").unwrap(),
+            parse_peek(&s, num_lit, "1_.2_e+_3_f64|into_isize").unwrap(),
             (
                 "|into_isize",
                 Num::Float("1_.2_e+_3_", Some(FloatKind::F64))
             )
         );
         assert_eq!(
-            num_lit.parse_peek("4e3f128").unwrap(),
+            parse_peek(&s, num_lit, "4e3f128").unwrap(),
             ("", Num::Float("4e3", Some(FloatKind::F128))),
         );
     }
@@ -1401,43 +1921,59 @@ mod test {
             prefix: None,
             content: s,
         };
+        let s = State::default();
 
-        assert_eq!(char_lit.parse_peek("'a'").unwrap(), ("", lit("a")));
-        assert_eq!(char_lit.parse_peek("'字'").unwrap(), ("", lit("字")));
+        assert_eq!(parse_peek(&s, char_lit, "'a'").unwrap(), ("", lit("a")));
+        assert_eq!(parse_peek(&s, char_lit, "'字'").unwrap(), ("", lit("字")));
 
         // Escaped single characters.
-        assert_eq!(char_lit.parse_peek("'\\\"'").unwrap(), ("", lit("\\\"")));
-        assert_eq!(char_lit.parse_peek("'\\''").unwrap(), ("", lit("\\'")));
-        assert_eq!(char_lit.parse_peek("'\\t'").unwrap(), ("", lit("\\t")));
-        assert_eq!(char_lit.parse_peek("'\\n'").unwrap(), ("", lit("\\n")));
-        assert_eq!(char_lit.parse_peek("'\\r'").unwrap(), ("", lit("\\r")));
-        assert_eq!(char_lit.parse_peek("'\\0'").unwrap(), ("", lit("\\0")));
+        assert_eq!(
+            parse_peek(&s, char_lit, "'\\\"'").unwrap(),
+            ("", lit("\\\""))
+        );
+        assert_eq!(parse_peek(&s, char_lit, "'\\''").unwrap(), ("", lit("\\'")));
+        assert_eq!(parse_peek(&s, char_lit, "'\\t'").unwrap(), ("", lit("\\t")));
+        assert_eq!(parse_peek(&s, char_lit, "'\\n'").unwrap(), ("", lit("\\n")));
+        assert_eq!(parse_peek(&s, char_lit, "'\\r'").unwrap(), ("", lit("\\r")));
+        assert_eq!(parse_peek(&s, char_lit, "'\\0'").unwrap(), ("", lit("\\0")));
         // Escaped ascii characters (up to `0x7F`).
-        assert_eq!(char_lit.parse_peek("'\\x12'").unwrap(), ("", lit("\\x12")));
-        assert_eq!(char_lit.parse_peek("'\\x02'").unwrap(), ("", lit("\\x02")));
-        assert_eq!(char_lit.parse_peek("'\\x6a'").unwrap(), ("", lit("\\x6a")));
-        assert_eq!(char_lit.parse_peek("'\\x7F'").unwrap(), ("", lit("\\x7F")));
+        assert_eq!(
+            parse_peek(&s, char_lit, "'\\x12'").unwrap(),
+            ("", lit("\\x12"))
+        );
+        assert_eq!(
+            parse_peek(&s, char_lit, "'\\x02'").unwrap(),
+            ("", lit("\\x02"))
+        );
+        assert_eq!(
+            parse_peek(&s, char_lit, "'\\x6a'").unwrap(),
+            ("", lit("\\x6a"))
+        );
+        assert_eq!(
+            parse_peek(&s, char_lit, "'\\x7F'").unwrap(),
+            ("", lit("\\x7F"))
+        );
         // Escaped unicode characters (up to `0x10FFFF`).
         assert_eq!(
-            char_lit.parse_peek("'\\u{A}'").unwrap(),
+            parse_peek(&s, char_lit, "'\\u{A}'").unwrap(),
             ("", lit("\\u{A}"))
         );
         assert_eq!(
-            char_lit.parse_peek("'\\u{10}'").unwrap(),
+            parse_peek(&s, char_lit, "'\\u{10}'").unwrap(),
             ("", lit("\\u{10}"))
         );
         assert_eq!(
-            char_lit.parse_peek("'\\u{aa}'").unwrap(),
+            parse_peek(&s, char_lit, "'\\u{aa}'").unwrap(),
             ("", lit("\\u{aa}"))
         );
         assert_eq!(
-            char_lit.parse_peek("'\\u{10FFFF}'").unwrap(),
+            parse_peek(&s, char_lit, "'\\u{10FFFF}'").unwrap(),
             ("", lit("\\u{10FFFF}"))
         );
 
         // Check with `b` prefix.
         assert_eq!(
-            char_lit.parse_peek("b'a'").unwrap(),
+            parse_peek(&s, char_lit, "b'a'").unwrap(),
             (
                 "",
                 crate::CharLit {
@@ -1448,54 +1984,69 @@ mod test {
         );
 
         // Should fail.
-        assert!(char_lit.parse_peek("''").is_err());
-        assert!(char_lit.parse_peek("'\\o'").is_err());
-        assert!(char_lit.parse_peek("'\\x'").is_err());
-        assert!(char_lit.parse_peek("'\\x1'").is_err());
-        assert!(char_lit.parse_peek("'\\x80'").is_err());
-        assert!(char_lit.parse_peek("'\\u'").is_err());
-        assert!(char_lit.parse_peek("'\\u{}'").is_err());
-        assert!(char_lit.parse_peek("'\\u{110000}'").is_err());
+        assert!(parse_peek(&s, char_lit, "''").is_err());
+        assert!(parse_peek(&s, char_lit, "'\\o'").is_err());
+        assert!(parse_peek(&s, char_lit, "'\\x'").is_err());
+        assert!(parse_peek(&s, char_lit, "'\\x1'").is_err());
+        assert!(parse_peek(&s, char_lit, "'\\x80'").is_err());
+        assert!(parse_peek(&s, char_lit, "'\\u'").is_err());
+        assert!(parse_peek(&s, char_lit, "'\\u{}'").is_err());
+        assert!(parse_peek(&s, char_lit, "'\\u{110000}'").is_err());
     }
 
     #[test]
     fn test_str_lit() {
+        let s = State::default();
         assert_eq!(
-            str_lit.parse_peek(r#"b"hello""#).unwrap(),
+            parse_peek(&s, str_lit, r#"b"hello""#).unwrap(),
             (
                 "",
                 StrLit {
                     prefix: Some(StrPrefix::Binary),
-                    content: "hello"
+                    content: "hello",
+                    contains_null: false,
+                    contains_unicode_character: false,
+                    contains_unicode_escape: false,
+                    contains_high_ascii: false,
                 }
             )
         );
         assert_eq!(
-            str_lit.parse_peek(r#"c"hello""#).unwrap(),
+            parse_peek(&s, str_lit, r#"c"hello""#).unwrap(),
             (
                 "",
                 StrLit {
                     prefix: Some(StrPrefix::CLike),
-                    content: "hello"
+                    content: "hello",
+                    contains_null: false,
+                    contains_unicode_character: false,
+                    contains_unicode_escape: false,
+                    contains_high_ascii: false,
                 }
             )
         );
-        assert!(str_lit.parse_peek(r#"d"hello""#).is_err());
-    }
-
-    #[test]
-    fn assert_span_size() {
-        assert_eq!(
-            std::mem::size_of::<Span<'static>>(),
-            std::mem::size_of::<*const ()>()
-        );
+        assert!(parse_peek(&s, str_lit, r#"d"hello""#).is_err());
     }
 
     #[test]
     fn test_is_rust_keyword() {
+        assert!(is_rust_keyword("caller"));
         assert!(is_rust_keyword("super"));
         assert!(is_rust_keyword("become"));
         assert!(!is_rust_keyword("supeeeer"));
         assert!(!is_rust_keyword("sur"));
+    }
+
+    #[test]
+    fn test_check_base_digits() {
+        assert!(check_base_digits("10", 2, 0..1).is_ok());
+        assert!(check_base_digits("13", 2, 0..1).is_err());
+        assert!(check_base_digits("13", 8, 0..1).is_ok());
+        assert!(check_base_digits("79", 8, 0..1).is_err());
+        // Checking that it's case insensitive.
+        assert!(check_base_digits("13F", 16, 0..1).is_ok());
+        assert!(check_base_digits("13f", 16, 0..1).is_ok());
+        // Checking that `_` is allowed.
+        assert!(check_base_digits("13_f", 16, 0..1).is_ok());
     }
 }
