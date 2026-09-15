@@ -245,41 +245,6 @@ static void MimeMultipartRelated_finalize(MimeObject* obj) {
   ((MimeObjectClass*)&MIME_SUPERCLASS)->finalize(obj);
 }
 
-#define ISHEX(c)                                               \
-  (((c) >= '0' && (c) <= '9') || ((c) >= 'a' && (c) <= 'f') || \
-   ((c) >= 'A' && (c) <= 'F'))
-#define NONHEX(c) (!ISHEX(c))
-
-extern "C" char* escape_unescaped_percents(const char* incomingURL) {
-  const char* inC;
-  char* outC;
-  char* result = (char*)PR_Malloc(strlen(incomingURL) * 3 + 1);
-
-  if (result) {
-    for (inC = incomingURL, outC = result; *inC != '\0'; inC++) {
-      if (*inC == '%') {
-        /* Check if either of the next two characters are non-hex. */
-        if (!*(inC + 1) || NONHEX(*(inC + 1)) || !*(inC + 2) ||
-            NONHEX(*(inC + 2))) {
-          /* Hex characters don't follow, escape the
-             percent char */
-          *outC++ = '%';
-          *outC++ = '2';
-          *outC++ = '5';
-        } else {
-          /* Hex characters follow, so assume the percent
-             is escaping something else */
-          *outC++ = *inC;
-        }
-      } else
-        *outC++ = *inC;
-    }
-    *outC = '\0';
-  }
-
-  return result;
-}
-
 static bool MimeStartParamExists(MimeObject* obj, MimeObject* child) {
   char* ct = MimeHeaders_get(obj->headers, HEADER_CONTENT_TYPE, false, false);
   char* st =
