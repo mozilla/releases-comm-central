@@ -11,6 +11,9 @@ const { MessageGenerator, SyntheticMessageSet } = ChromeUtils.importESModule(
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
+const { SmartMailboxUtils } = ChromeUtils.importESModule(
+  "resource:///modules/SmartMailboxUtils.sys.mjs"
+);
 const { VirtualFolderHelper } = ChromeUtils.importESModule(
   "resource:///modules/VirtualFolderWrapper.sys.mjs"
 );
@@ -1426,6 +1429,87 @@ add_task(async function testGmailFolders() {
 
   await promiseServerIdle(gmailAccount.incomingServer);
   MailServices.accounts.removeAccount(gmailAccount, false);
+});
+
+/**
+ * The [Gmail] folder can end up with a special folder flag, for example if an
+ * identity's archive folder points at it. The folders it contains are then
+ * searched by a unified folder, but [Gmail] is hidden from the folder tree, so
+ * they have no parent row to be added to. Check the unified folders mode still
+ * works.
+ */
+add_task(async function testGmailFolderWithSpecialFlag() {
+  const imapServer = new GmailServer(this);
+  // A folder without a special use flag, so that it is searched by the
+  // unified folder of the type the [Gmail] folder is flagged with.
+  imapServer.daemon.createMailbox("[Gmail]/Important", { subscribed: true });
+
+  const gmailAccount = MailServices.accounts.createAccount();
+  const gmailServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "localhost",
+    "imap"
+  );
+  gmailServer.port = imapServer.port;
+  gmailServer.password = "password";
+  gmailAccount.incomingServer = gmailServer;
+
+  const gmailIdentity = MailServices.accounts.createIdentity();
+  gmailIdentity.email = "imap@invalid";
+  gmailAccount.addIdentity(gmailIdentity);
+  gmailAccount.defaultIdentity = gmailIdentity;
+
+  const gmailRootFolder = gmailServer.rootFolder;
+  gmailServer.performExpand(window.msgWindow);
+  await TestUtils.waitForCondition(
+    () => gmailRootFolder.subFolders.length == 2,
+    "waiting for folders to be created"
+  );
+
+  const gmailGmailFolder = gmailRootFolder.getChildNamed("[Gmail]");
+  await TestUtils.waitForCondition(
+    () => gmailGmailFolder.subFolders.length == 6,
+    "waiting for folders to be created"
+  );
+  const gmailImportantFolder = gmailGmailFolder.getChildNamed("Important");
+
+  gmailGmailFolder.setFlag(Ci.nsMsgFolderFlags.Archive);
+
+  // Recreate the unified folders, so that they search the [Gmail] folder.
+  folderPane.activeModes = ["all"];
+  SmartMailboxUtils.removeAll(true);
+
+  folderPane.activeModes = ["smart"];
+  Assert.deepEqual(
+    folderPane.activeModes,
+    ["smart"],
+    "the folder pane should have switched to unified folders mode"
+  );
+
+  const smartArchivesFolder =
+    getSmartServer().rootFolder.getChildNamed("Archives");
+  Assert.ok(
+    folderPane.getRowForFolder(gmailGmailFolder, "smart"),
+    "the [Gmail] folder should have a row in unified folders mode"
+  );
+  const importantRow = folderPane.getRowForFolder(
+    gmailImportantFolder,
+    "smart"
+  );
+  Assert.ok(
+    importantRow,
+    "the folder in the [Gmail] folder should have a row in unified folders mode"
+  );
+  Assert.equal(
+    importantRow.parentNode.closest("li").uri,
+    smartArchivesFolder.URI,
+    "the folder in the [Gmail] folder should be shown in the unified Archives folder"
+  );
+
+  folderPane.activeModes = ["all"];
+  await promiseServerIdle(gmailAccount.incomingServer);
+  MailServices.accounts.removeAccount(gmailAccount, false);
+  SmartMailboxUtils.removeAll(true);
 });
 
 add_task(async function testAccountOrder() {

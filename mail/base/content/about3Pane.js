@@ -1127,22 +1127,17 @@ var folderPane = {
         this.init();
       },
 
+      /**
+       * Add a searched folder.
+       *
+       * @param {object} folderType - One of the types in `_folderTypes`.
+       * @param {nsIMsgFolder} parentFolder - Parent folder.
+       * @param {nsIMsgFolder} childFolder - Child folder.
+       */
       _addSearchedFolder(folderType, parentFolder, childFolder) {
         if (folderType.flag & childFolder.flags) {
           // The folder has the flag for this type.
-          const smartFolder = this._smartMailbox.getSmartFolder(
-            folderType.name
-          );
-          const folderRow = folderPane._createFolderRow(
-            this.name,
-            childFolder,
-            // If the name is not localised, display the name and server name.
-            childFolder.localizedName == smartFolder.localizedName
-              ? "server"
-              : "both"
-          );
-          folderRow.setAccountIndicatorColor();
-          folderPane._insertInServerOrder(folderType.list, folderRow);
+          this._addSearchedFolderToSmartFolder(folderType, childFolder);
           return;
         }
 
@@ -1166,9 +1161,36 @@ var folderPane = {
           );
           parentRow = folderPane.getRowForFolder(parentFolder, this.name);
         }
+        if (!parentRow) {
+          // There's still no row to add this folder to, because `parentFolder`
+          // can't be displayed either. This happens if the flag of this type
+          // is on a folder we hide, such as the [Gmail] folder. Display the
+          // folder directly under the smart folder instead of losing it.
+          this._addSearchedFolderToSmartFolder(folderType, childFolder);
+          return;
+        }
         parentRow.insertChildInOrder(
           folderPane._createFolderRow(this.name, childFolder)
         );
+      },
+
+      /**
+       * Add a row for a searched folder directly to the smart folder of the
+       * given type.
+       *
+       * @param {object} folderType - One of the types in `_folderTypes`.
+       * @param {nsIMsgFolder} folder - The searched folder.
+       */
+      _addSearchedFolderToSmartFolder(folderType, folder) {
+        const smartFolder = this._smartMailbox.getSmartFolder(folderType.name);
+        const folderRow = folderPane._createFolderRow(
+          this.name,
+          folder,
+          // If the name is not localised, display the name and server name.
+          folder.localizedName == smartFolder.localizedName ? "server" : "both"
+        );
+        folderRow.setAccountIndicatorColor();
+        folderPane._insertInServerOrder(folderType.list, folderRow);
       },
 
       changeSearchedFolders(smartFolder) {
