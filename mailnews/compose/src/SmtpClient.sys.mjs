@@ -814,9 +814,9 @@ export class SmtpClient {
       }
       case "GSSAPI": {
         this.logger.debug("Authentication via AUTH GSSAPI");
-        this._currentAction = this._actionAUTH_GSSAPI;
+        this._currentAction = command => this._actionAUTH_GSSAPI(command, true);
         this._authenticator.initGssapiAuth("smtp");
-        // Don't send first token until we get a 334 continuation response.
+        // Don't send first token until we get a 334 challenge response.
         // This avoids sending a line that is possibly rejected as too long.
         this._sendCommand("AUTH GSSAPI", true);
         return;
@@ -1186,9 +1186,12 @@ export class SmtpClient {
   /**
    * Response to AUTH GSSAPI, if successful expects a base64 encoded challenge.
    *
-   * @param {object} command Parsed command from the server {statusCode, data}
+   * @param {object} command - Parsed command from the server {data, statusCode,
+   *   success}
+   * @param {boolean} [isFirstChallenge=false] - True when handling the 334
+   *   response to the AUTH GSSAPI command itself.
    */
-  _actionAUTH_GSSAPI(command) {
+  _actionAUTH_GSSAPI(command, isFirstChallenge = false) {
     // GSSAPI auth can be multiple steps. We exchange tokens with the server
     // until success or failure.
     if (command.success) {
@@ -1201,7 +1204,13 @@ export class SmtpClient {
     }
     let token;
     try {
-      token = this._authenticator.getNextGssapiToken(command.data);
+      // In GSSAPI the client speaks first, so the first challenge never
+      // carries a token. Ignore whatever the server appended to "334 ":
+      // Exchange sends "334 GSSAPI Supported" in response to "AUTH GSSAPI",
+      // which is not valid base64 and would fail the login if not ignored.
+      token = this._authenticator.getNextGssapiToken(
+        isFirstChallenge ? "" : command.data
+      );
     } catch (e) {
       this.logger.error(e);
       this._actionAUTHComplete({ success: false, data: "AUTH GSSAPI" });
