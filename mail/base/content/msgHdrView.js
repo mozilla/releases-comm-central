@@ -2507,10 +2507,10 @@ function HandleMultipleAttachments(attachments, action) {
       return;
     }
     case "copyUrl":
-      // Copy external http url(s) to clipboard. The menuitem is hidden unless
-      // all selected attachment urls are http.
+      // Copy external url(s) to clipboard. The menuitem is hidden unless all
+      // selected attachments are external (http link or detached file).
       navigator.clipboard.writeText(
-        attachments.map(a => encodeURI(a.name)).join("\n")
+        attachments.map(a => a.displayUrl).join("\n")
       );
       return;
     case "openFolder":

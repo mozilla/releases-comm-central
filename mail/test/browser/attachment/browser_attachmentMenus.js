@@ -599,6 +599,78 @@ for (let i = 0; i < messages.length; i++) {
 }
 
 /**
+ * Select a message, expand the attachment list, and wait for the size of all
+ * attachments to be resolved.
+ *
+ * @param {string} name - The name of the message in |messages|.
+ */
+async function select_message_with_attachments(name) {
+  await be_in_folder(folder);
+  aboutMessage = get_about_message();
+  await select_click_row(messages.findIndex(m => m.name == name));
+  aboutMessage.toggleAttachmentList(true);
+  for (const attachment of aboutMessage.currentAttachments) {
+    await attachment.isEmpty();
+  }
+}
+
+/**
+ * Activate "Copy Link Location" in the context menu of an attachment.
+ *
+ * @param {integer} index - Index of the attachment in the attachmentList.
+ */
+async function activate_copy_attachment_url(index) {
+  const attachmentList = aboutMessage.document.getElementById("attachmentList");
+  const contextMenu = aboutMessage.document.getElementById(
+    "attachmentItemContext"
+  );
+  const shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
+  const node = attachmentList.getItemAtIndex(index);
+  attachmentList.selectItem(node);
+  EventUtils.synthesizeMouseAtCenter(
+    node,
+    { type: "contextmenu" },
+    aboutMessage
+  );
+  await shownPromise;
+
+  assert_shown("context-copyAttachmentUrl", true);
+  const hiddenPromise = BrowserTestUtils.waitForEvent(
+    contextMenu,
+    "popuphidden"
+  );
+  contextMenu.activateItem(
+    aboutMessage.document.getElementById("context-copyAttachmentUrl")
+  );
+  await hiddenPromise;
+}
+
+/**
+ * Tests that "Copy Link Location" copies the location the attachment points
+ * to, and not the attachment's file name.
+ */
+add_task(async function test_copy_attachment_url_detached() {
+  const detachedFile = new FileUtils.File(
+    getTestFilePath("data/attachment.txt")
+  );
+  const expectedUrl = decodeURI(
+    Services.io.newFileURI(detachedFile).displaySpec
+  );
+
+  await select_message_with_attachments("detached_attachment");
+  await SimpleTest.promiseClipboardChange(expectedUrl, () =>
+    activate_copy_attachment_url(0)
+  );
+});
+
+add_task(async function test_copy_attachment_url_link() {
+  await select_message_with_attachments("link_enclosure_valid");
+  await SimpleTest.promiseClipboardChange("https://example.com/", () =>
+    activate_copy_attachment_url(0)
+  );
+});
+
+/**
  * Tests that the "all attachments" commands act on the attachments that are
  * still there, when one of the attachments has already been deleted.
  */
