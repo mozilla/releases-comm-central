@@ -71,6 +71,24 @@ add_task(async function () {
     "update queue should contain all of the folders"
   );
 
+  // Delete the test folders locally, but keep strong references to them. The
+  // autosync queues hold weak references to their owner folders, so these
+  // objects are still observable even though they no longer belong to the
+  // folder tree or lookup cache.
+  const deletedFolders = [];
+  const rootFolder = incomingServer.rootFolder;
+  for (let i = 0; i < MAILBOX_COUNT; i++) {
+    const folder = rootFolder.getChildNamed(`folder${i}`);
+    deletedFolders.push(folder);
+    rootFolder.propagateDelete(folder, true);
+    Assert.equal(folder.parent, null, `${folder.name} should be detached`);
+    Assert.equal(
+      MailServices.folderLookup.getFolderForURL(folder.URI),
+      null,
+      `${folder.name} should be evicted from the folder lookup cache`
+    );
+  }
+
   // Remove the account.
   MailServices.accounts.removeAccount(account, false);
 
@@ -92,4 +110,7 @@ add_task(async function () {
     "discovery queue should be emptied"
   );
   Assert.equal(manager.updateQLength, 0, "update queue should be emptied");
+
+  // Keep the deleted folders alive until after the queues have been checked.
+  Assert.equal(deletedFolders.length, MAILBOX_COUNT);
 });

@@ -4,6 +4,7 @@
 
 #include "nsAutoSyncManager.h"
 #include "nsAutoSyncState.h"
+#include "nsIFolderLookupService.h"
 #include "nsIMsgImapMailFolder.h"
 #include "nsIMsgHdr.h"
 #include "nsIObserverService.h"
@@ -267,32 +268,49 @@ NS_IMETHODIMP nsAutoSyncManager::GetTimerIsRunning(bool* timerIsRunning) {
 }
 
 /**
- * Drops queued auto-sync states whose owner folder no longer exists, for
- * example because the folder was deleted or its account removed. The queues
- * are otherwise only processed one folder per timer callback, so gone folders
- * would keep the timer running for much longer than necessary.
+ * Drops queued auto-sync states whose owner folder no longer exists or is no
+ * longer the live folder registered for its URI. A deleted folder can remain
+ * alive while another reference is held, but deletion evicts it from the
+ * folder lookup service. The queues are otherwise only processed one folder
+ * per timer callback, so gone folders would keep the timer running for much
+ * longer than necessary.
  */
 void nsAutoSyncManager::DiscardGoneFolders() {
-  for (int32_t idx = mDiscoveryQ.Count() - 1; idx >= 0; idx--) {
-    nsCOMPtr<nsIMsgFolder> folder;
-    mDiscoveryQ[idx]->GetOwnerFolder(getter_AddRefs(folder));
-    if (!folder) {
+  nsCOMPtr<nsIFolderLookupService> folderLookup =
+      do_GetService(NS_FOLDERLOOKUPSERVICE_CONTRACTID);
+
+  auto discardGone = [&](nsCOMArray<nsIAutoSyncState>& queue,
+                         const char* queueName) {
+    bool removedFirst = false;
+    for (int32_t idx = queue.Count() - 1; idx >= 0; idx--) {
+      nsCOMPtr<nsIMsgFolder> folder;
+      queue[idx]->GetOwnerFolder(getter_AddRefs(folder));
+
+      bool gone = !folder;
+      if (!gone && folderLookup) {
+        nsCOMPtr<nsIMsgFolder> currentFolder;
+        nsresult rv = folderLookup->GetFolderForURL(
+            folder->URI(), getter_AddRefs(currentFolder));
+        gone = NS_SUCCEEDED(rv) && currentFolder != folder;
+      }
+      if (!gone) {
+        continue;
+      }
+
       MOZ_LOG_FMT(gAutoSyncLog, LogLevel::Debug,
-                  "{}: removing gone folder from the discovery q", __func__);
-      mDiscoveryQ.RemoveObjectAt(idx);
+                  "{}: removing gone folder from the {} q", __func__,
+                  queueName);
+      removedFirst |= idx == 0;
+      queue.RemoveObjectAt(idx);
     }
-  }
-  for (int32_t idx = mUpdateQ.Count() - 1; idx >= 0; idx--) {
-    nsCOMPtr<nsIMsgFolder> folder;
-    mUpdateQ[idx]->GetOwnerFolder(getter_AddRefs(folder));
-    if (!folder) {
-      MOZ_LOG_FMT(gAutoSyncLog, LogLevel::Debug,
-                  "{}: removing gone folder from the update q", __func__);
-      // An update of a folder that is gone never completes, so it won't reset
-      // mUpdateInProgress in OnStopRunningUrl().
-      if (idx == 0) mUpdateInProgress = false;
-      mUpdateQ.RemoveObjectAt(idx);
-    }
+    return removedFirst;
+  };
+
+  discardGone(mDiscoveryQ, "discovery");
+  // An update of a folder that is gone never completes, so it won't reset
+  // mUpdateInProgress in OnStopRunningUrl().
+  if (discardGone(mUpdateQ, "update")) {
+    mUpdateInProgress = false;
   }
 }
 
