@@ -60,7 +60,7 @@
       "x-compatibility": {
         "thunderbird": { "version_added": "68" },
         "thunderbird_esr": { "version_added": "68" },
-        "thunderbird_enterprise": { "version_added": false }
+        "thunderbird_enterprise": { "version_added": "158" }
       },
       "x-restart-required": true,
       "$ref": "#/definitions/url"
