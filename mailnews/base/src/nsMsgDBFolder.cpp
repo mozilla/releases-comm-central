@@ -13,6 +13,7 @@
 #include "nsNetUtil.h"
 #include "nsIMsgFolderCache.h"
 #include "nsIMsgFolderCacheElement.h"
+#include "nsIFolderLookupService.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsMsgDatabase.h"
 #include "nsIMsgAccountManager.h"
@@ -69,10 +70,10 @@
 #include "UrlListener.h"
 #include "nsIMsgCopyService.h"
 #include "nsIMsgImapMailFolder.h"
+#include "nsIMsgLocalMailFolder.h"
 #ifdef MOZ_PANORAMA
 #  include "FolderDatabase.h"
 #  include "DatabaseCore.h"
-#  include "nsIFolderLookupService.h"
 #endif  // MOZ_PANORAMA
 
 using namespace mozilla;
@@ -3401,6 +3402,24 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage) {
     notifier->NotifyFolderDeleted(this);
     rv = DeleteStorage();
   }
+  if (NS_SUCCEEDED(rv)) {
+    bool isTrash = false;
+    GetFlag(nsMsgFolderFlags::Trash, &isTrash);
+    bool isVirtual = false;
+    GetFlag(nsMsgFolderFlags::Virtual, &isVirtual);
+    // EmptyTrash removes and recreates real local Trash using the same object.
+    // Unified Trash is also a local folder, but it is virtual and should be
+    // evicted so that recreating it produces a fresh object.
+    if (!isTrash || isVirtual ||
+        !nsCOMPtr<nsIMsgLocalMailFolder>(
+            do_QueryInterface(static_cast<nsIMsgFolder*>(this)))) {
+      nsCOMPtr<nsIFolderLookupService> folderLookup =
+          do_GetService(NS_FOLDERLOOKUPSERVICE_CONTRACTID);
+      if (folderLookup) {
+        folderLookup->EvictFolder(this);
+      }
+    }
+  }
   return rv;
 }
 
@@ -3535,9 +3554,8 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsACString& name,
     // folder lookup service enforces pointer identity for live (parented)
     // folders, so a folder cached with this folder's URI that is still in the
     // tree will also already be in our children list.
-    // NOTE: The FLS no longer reuses parentless cached virtual folders, which
-    // is a step toward bug 1679333. This branch can be further simplified once
-    // all dangling folder paths are removed.
+    // This branch can be further simplified once all dangling folder paths are
+    // removed. See bug 1679333.
     if (NS_SUCCEEDED(rv)) {
       mSubFolders.AppendObject(folder);
     }

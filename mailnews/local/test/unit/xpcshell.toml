@@ -41,6 +41,12 @@ tags = ["compact"]
 
 ["test_mailboxURL.js"]
 
+["test_maildirFolderReuse.js"]
+prefs = [
+  "mail.serverDefaultStoreContractID=@mozilla.org/msgstore/maildirstore;1",
+]
+tags = ["maildir"]
+
 ["test_mboxMalformed.js"]
 
 ["test_msgCopy.js"]

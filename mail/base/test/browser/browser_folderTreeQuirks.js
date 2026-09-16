@@ -872,6 +872,13 @@ add_task(async function testFolderMove() {
   );
   await copyListener.promise;
 
+  folderB = folderA
+    .getChildNamed("folderTreeQuirksB")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folderC = folderB
+    .getChildNamed("folderTreeQuirksC")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+
   await checkModeListItems("all", [
     rootFolder,
     inboxFolder,
@@ -965,6 +972,10 @@ add_task(async function testFolderMoveSubfolder() {
     window.msgWindow
   );
   await copyListener.promise;
+
+  folderC = folderB
+    .getChildNamed("folderTreeQuirksC")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   await checkModeListItems("all", [
     rootFolder,
@@ -1097,6 +1108,16 @@ add_task(async function testFolderRename() {
   // Rename the folder back to its original name.
 
   renamedFolderA.rename("folderTreeQuirksA", window.msgWindow);
+
+  folderA = rootFolder
+    .getChildNamed("folderTreeQuirksA")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folderB = folderA
+    .getChildNamed("folderTreeQuirksB")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folderC = folderB
+    .getChildNamed("folderTreeQuirksC")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   await checkModeListItems("all", [
     rootFolder,

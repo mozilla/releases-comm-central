@@ -67,6 +67,11 @@ add_task(function () {
   // smart folder shouldn't.
   trashFolder.emptyTrash(null);
   Assert.equal(
+    rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash),
+    trashFolder,
+    "emptying local Trash should preserve its folder object"
+  );
+  Assert.equal(
     virtualFolder.parent,
     null,
     "virtual folder should be removed with last search folder"

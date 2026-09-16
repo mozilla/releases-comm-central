@@ -8,6 +8,9 @@
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
+var { SmartMailboxUtils } = ChromeUtils.importESModule(
+  "resource:///modules/SmartMailboxUtils.sys.mjs"
+);
 var kRootURI = "mailbox://nobody@Local%20Folders";
 
 add_task(async function test_fls_basics() {
@@ -116,6 +119,74 @@ add_task(async function test_create_folder_with_percent() {
   );
 });
 
+add_task(function test_folder_not_reused_after_delete() {
+  localAccountUtils.loadLocalMailAccount();
+  const root = localAccountUtils.rootFolder;
+  const folderName = "DeletedFolder";
+  const folder = root.createLocalSubfolder(folderName);
+  const uri = folder.URI;
+
+  root.propagateDelete(folder, true);
+  Assert.equal(folder.parent, null, "deleted folder should have no parent");
+
+  const recreated = root.createLocalSubfolder(folderName);
+  Assert.notEqual(
+    recreated,
+    folder,
+    "recreated folder should be a fresh object"
+  );
+  Assert.equal(
+    MailServices.folderLookup.getFolderForURL(uri),
+    recreated,
+    "lookup should return the recreated folder"
+  );
+  MailServices.folderLookup.evictFolder(folder);
+  Assert.equal(
+    MailServices.folderLookup.getFolderForURL(uri),
+    recreated,
+    "retiring the old object should not evict its replacement"
+  );
+});
+
+add_task(function test_descendants_not_reused_after_parent_rename() {
+  localAccountUtils.loadLocalMailAccount();
+  const root = localAccountUtils.rootFolder;
+  const parentName = "ParentToRename";
+  const childName = "ChildToRecreate";
+  const parent = root.createLocalSubfolder(parentName);
+  parent.createSubfolder(childName, null);
+  const child = parent.getChildNamed(childName);
+  const parentURI = parent.URI;
+  const childURI = child.URI;
+
+  parent.rename("RenamedParent", null);
+  Assert.equal(parent.parent, null, "renamed parent should be detached");
+  Assert.equal(child.parent, null, "renamed descendant should be detached");
+
+  const recreatedParent = root.createLocalSubfolder(parentName);
+  const recreatedChild = recreatedParent.addSubfolder(childName);
+  Assert.notEqual(
+    recreatedParent,
+    parent,
+    "recreated parent should be a fresh object"
+  );
+  Assert.notEqual(
+    recreatedChild,
+    child,
+    "recreated descendant should be a fresh object"
+  );
+  Assert.equal(
+    MailServices.folderLookup.getFolderForURL(parentURI),
+    recreatedParent,
+    "lookup should return the recreated parent"
+  );
+  Assert.equal(
+    MailServices.folderLookup.getFolderForURL(childURI),
+    recreatedChild,
+    "lookup should return the recreated descendant"
+  );
+});
+
 add_task(async function test_virtual_folder_not_reused_after_delete() {
   localAccountUtils.loadLocalMailAccount();
   const root = localAccountUtils.rootFolder;
@@ -167,4 +238,41 @@ add_task(async function test_virtual_folder_not_reused_by_get_or_create() {
     !got.getFlag(Ci.nsMsgFolderFlags.Virtual),
     "fresh object should not inherit the Virtual flag"
   );
+});
+
+add_task(function test_unified_trash_not_reused_after_delete() {
+  localAccountUtils.loadLocalMailAccount();
+  const smartMailbox = SmartMailboxUtils.getSmartMailbox();
+  const unifiedTrash = smartMailbox.getSmartFolder("Trash");
+  const uri = unifiedTrash.URI;
+  Assert.ok(
+    unifiedTrash.getFlag(Ci.nsMsgFolderFlags.Virtual),
+    "Unified Trash should be virtual"
+  );
+  Assert.ok(
+    unifiedTrash.getFlag(Ci.nsMsgFolderFlags.Trash),
+    "Unified Trash should have the Trash flag"
+  );
+
+  unifiedTrash.deleteSelf(null);
+  Assert.equal(
+    unifiedTrash.parent,
+    null,
+    "deleted Unified Trash should be detached"
+  );
+
+  smartMailbox.getSmartFolder("Trash");
+  const recreated = smartMailbox.rootFolder.getChildWithURI(uri, false, true);
+  Assert.notEqual(
+    recreated,
+    unifiedTrash,
+    "recreated Unified Trash should be a fresh folder object"
+  );
+  Assert.equal(
+    MailServices.folderLookup.getFolderForURL(uri),
+    recreated,
+    "lookup should return the recreated Unified Trash"
+  );
+
+  SmartMailboxUtils.removeAll(false);
 });

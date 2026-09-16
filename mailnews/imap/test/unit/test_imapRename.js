@@ -36,6 +36,7 @@ add_setup(async function () {
 add_task(async function test_rename() {
   const rootFolder = IMAPPump.incomingServer.rootFolder;
   const targetFolder = rootFolder.getChildNamed("folder 1");
+  const oldURI = targetFolder.URI;
   applySettings(targetFolder);
 
   targetFolder.rename("folder \u00e1", null);
@@ -58,6 +59,25 @@ add_task(async function test_rename() {
   Assert.ok(
     !decodedSummaryFile.exists(),
     "no summary file for a second folder"
+  );
+
+  Assert.equal(
+    targetFolder.parent,
+    null,
+    "the folder object at the old URI should be detached"
+  );
+  const folderAdded = PromiseTestUtils.promiseFolderAdded("folder 1");
+  rootFolder.createSubfolder("folder 1", null);
+  const recreatedFolder = await folderAdded;
+  Assert.notEqual(
+    recreatedFolder,
+    targetFolder,
+    "recreating the old URI should create a fresh folder object"
+  );
+  Assert.equal(
+    MailServices.folderLookup.getFolderForURL(oldURI),
+    recreatedFolder,
+    "lookup should return the recreated folder"
   );
 });
 
@@ -133,6 +153,7 @@ add_task(async function test_moveKeepsSettings() {
   folderAdded = PromiseTestUtils.promiseFolderAdded("to move");
   rootFolder.createSubfolder("to move", null);
   const folder = await folderAdded;
+  const oldURI = folder.URI;
   applySettings(folder);
 
   // Move it, which is what dragging it in the folder pane does.
@@ -141,6 +162,25 @@ add_task(async function test_moveKeepsSettings() {
   await copyListener.promise;
 
   assertSettings(destination.getChildNamed("to move"), "the moved folder");
+
+  Assert.equal(
+    folder.parent,
+    null,
+    "the folder object at the old URI should be detached"
+  );
+  folderAdded = PromiseTestUtils.promiseFolderAdded("to move");
+  rootFolder.createSubfolder("to move", null);
+  const recreatedFolder = await folderAdded;
+  Assert.notEqual(
+    recreatedFolder,
+    folder,
+    "recreating the old URI after a move should create a fresh folder object"
+  );
+  Assert.equal(
+    MailServices.folderLookup.getFolderForURL(oldURI),
+    recreatedFolder,
+    "lookup should return the recreated folder"
+  );
 });
 
 // Deleting a folder moves it to the trash, which is a rename as well. A folder

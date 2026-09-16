@@ -171,6 +171,54 @@ add_task(async function test_hard_delete_graph() {
   await runHardDeleteTest(graphServer, incomingGraphServer);
 });
 
+async function runDeleteRecreateFolderIdentityTest(mockServer, incomingServer) {
+  incomingServer.QueryInterface(Ci.IExchangeIncomingServer).deleteModel =
+    Ci.IExchangeIncomingServer.PERMANENTLY_DELETE;
+  const folderName = "folder_to_delete_and_recreate";
+  mockServer.appendRemoteFolder(
+    new RemoteFolder(folderName, "root", folderName, folderName)
+  );
+
+  const rootFolder = incomingServer.rootFolder;
+  await syncFolder(incomingServer, rootFolder);
+  const folder = rootFolder.getChildNamed(folderName);
+  Assert.ok(folder, "the original folder should exist");
+  const oldURI = folder.URI;
+
+  folder.deleteSelf(null);
+  await TestUtils.waitForCondition(
+    () => rootFolder.getChildNamed(folderName) == null,
+    "the original folder should eventually be deleted"
+  );
+
+  const recreatedId = `${folderName}-recreated`;
+  mockServer.appendRemoteFolder(
+    new RemoteFolder(recreatedId, "root", folderName, recreatedId)
+  );
+  await syncFolder(incomingServer, rootFolder);
+  const recreatedFolder = rootFolder.getChildNamed(folderName);
+  Assert.ok(recreatedFolder, "the recreated folder should exist");
+
+  Assert.notEqual(
+    recreatedFolder,
+    folder,
+    "recreating the old URI should create a fresh folder object"
+  );
+  Assert.equal(
+    MailServices.folderLookup.getFolderForURL(oldURI),
+    recreatedFolder,
+    "lookup should return the recreated folder"
+  );
+}
+
+add_task(async function test_delete_recreate_folder_identity_ews() {
+  await runDeleteRecreateFolderIdentityTest(ewsServer, incomingEwsServer);
+});
+
+add_task(async function test_delete_recreate_folder_identity_graph() {
+  await runDeleteRecreateFolderIdentityTest(graphServer, incomingGraphServer);
+});
+
 async function runDeleteFromTrashTest(mockServer, incomingServer) {
   // Set the delete model for the server to soft delete.
   incomingServer.QueryInterface(Ci.IExchangeIncomingServer).deleteModel =

@@ -68,6 +68,14 @@ interface nsIFolderLookupService : nsISupports
   void cache(in AUTF8String aUrl, in nsIMsgFolder aFolder);
 
   /**
+   * Evict a folder if the cache entry for its URL refers to the same folder
+   * object.
+   *
+   * @param aFolder - The folder to remove.
+   */
+  void evictFolder(in nsIMsgFolder aFolder);
+
+  /**
    * Empty the folder cache.
    *
    * This is generally for use in testing, when a test wants to ensure that no
