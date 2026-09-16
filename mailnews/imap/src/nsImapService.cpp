@@ -2221,14 +2221,26 @@ nsresult nsImapService::NewURI(const nsACString& aSpec,
 
       (void)SetImapUrlSink(folder, aImapUrl);
 
+      // Need messagekey to see if folder has an offline copy.
+      // If any part of this fails, we'll just assume there's no offline copy
+      // stashed locally.
+      bool useLocalCache = false;
       nsCString messageIdString;
       aImapUrl->GetListOfMessageIds(messageIdString);
       if (!messageIdString.IsEmpty()) {
-        bool useLocalCache = false;
-        folder->HasMsgOffline(strtoul(messageIdString.get(), nullptr, 10),
-                              &useLocalCache);
-        mailnewsUrl->SetMsgIsInLocalCache(useLocalCache);
+        ImapUid uid = (ImapUid)strtoul(messageIdString.get(), nullptr, 10);
+        if (uid != 0) {
+          nsCOMPtr<nsIMsgDatabase> db;
+          rv = folder->GetMsgDatabase(getter_AddRefs(db));
+          if (NS_SUCCEEDED(rv)) {
+            nsMsgKey msgKey = MsgKeyFromUid(db, uid).unwrapOr(nsMsgKey_None);
+            if (msgKey != nsMsgKey_None) {
+              folder->HasMsgOffline(msgKey, &useLocalCache);
+            }
+          }
+        }
       }
+      mailnewsUrl->SetMsgIsInLocalCache(useLocalCache);
     }
   }
 
