@@ -272,9 +272,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetServer(
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIURL> url;
-  rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-           .SetSpec(urlstr)
-           .Finalize(url);
+  rv = MsgNewStandardURL(urlstr, getter_AddRefs(url));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString scheme;
@@ -459,9 +457,7 @@ uint32_t nsMsgMailNewsUrl::SpecHash() {
 
 nsresult nsMsgMailNewsUrl::CreateURL(const nsACString& aSpec, nsIURL** aURL) {
   nsCOMPtr<nsIURL> url;
-  nsresult rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-                    .SetSpec(aSpec)
-                    .Finalize(url);
+  nsresult rv = MsgNewStandardURL(aSpec, getter_AddRefs(url));
   NS_ENSURE_SUCCESS(rv, rv);
   url.forget(aURL);
   return NS_OK;

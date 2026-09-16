@@ -2824,9 +2824,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetPath(nsACString& path) {
 nsresult nsMsgDBFolder::parseURI(bool needServer) {
   nsresult rv;
   nsCOMPtr<nsIURL> url;
-  rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-           .SetSpec(mURI)
-           .Finalize(url);
+  rv = MsgNewStandardURL(mURI, getter_AddRefs(url));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // empty path tells us it's a server.

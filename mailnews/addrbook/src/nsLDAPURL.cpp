@@ -9,12 +9,17 @@
 #include "nsNetCID.h"
 #include "nsComponentManagerUtils.h"
 #include "nsIStandardURL.h"
+#include "nsIURL.h"
+#include "nsMsgUtils.h"
+#include "nsURLHelper.h"
 #include "mozilla/Encoding.h"
 
-// The two schemes we support, LDAP and LDAPS
+// The two schemes we support, LDAP and LDAPS, and their default ports.
 //
 constexpr auto LDAP_SCHEME = "ldap"_ns;
 constexpr auto LDAP_SSL_SCHEME = "ldaps"_ns;
+constexpr int32_t LDAP_DEFAULT_PORT = 389;
+constexpr int32_t LDAP_SSL_DEFAULT_PORT = 636;
 
 NS_IMPL_ISUPPORTS(nsLDAPURL, nsILDAPURL, nsIURI, nsIIPCSerializableURI,
                   nsIURIWithSizeOf)
@@ -110,23 +115,23 @@ nsLDAPURL::GetSpec(nsACString& _retval) {
 nsresult nsLDAPURL::SetSpecInternal(const nsACString& aSpec) {
   if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
-  // Cache the original spec in case we don't like what we've been passed and
-  // need to reset ourselves.
-  nsCString originalSpec;
-  nsresult rv = mBaseURL->GetSpec(originalSpec);
+  nsAutoCString scheme;
+  nsresult rv = net_ExtractURLScheme(aSpec, scheme);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = NS_MutateURI(mBaseURL).SetSpec(aSpec).Finalize(mBaseURL);
+  nsCOMPtr<nsIURL> baseURL;
+  rv = MsgNewStandardURL(aSpec, getter_AddRefs(baseURL),
+                         scheme.Equals(LDAP_SSL_SCHEME) ? LDAP_SSL_DEFAULT_PORT
+                                                        : LDAP_DEFAULT_PORT);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // Only take on the new spec once we know the LDAP-specific parts of it parse,
+  // so that a bad spec leaves us untouched rather than half-updated.
   rv = SetPathInternal(PromiseFlatCString(aSpec));
-  if (NS_FAILED(rv)) {
-    nsresult rv2 =
-        NS_MutateURI(mBaseURL).SetSpec(originalSpec).Finalize(mBaseURL);
-    NS_ENSURE_SUCCESS(rv2, rv2);
-  }
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  return rv;
+  mBaseURL = baseURL;
+  return NS_OK;
 }
 
 uint32_t nsLDAPURL::SpecHash() {

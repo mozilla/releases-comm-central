@@ -5,7 +5,6 @@
 #include "nsNewMailnewsURI.h"
 #include "nsURLHelper.h"
 #include "nsSimpleURI.h"
-#include "nsStandardURL.h"
 #include "nsThreadUtils.h"
 #include "MainThreadUtils.h"
 #include "mozilla/SyncRunnable.h"
@@ -79,9 +78,11 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
     return rv;
   }
   if (scheme.EqualsLiteral("smtp") || scheme.EqualsLiteral("smtps")) {
-    return NS_MutateURI(new nsMsgMailNewsUrl::Mutator())
-        .SetSpec(aSpec)
-        .Finalize(aURI);
+    RefPtr<nsMsgMailNewsUrl> url = new nsMsgMailNewsUrl();
+    rv = url->SetSpecInternal(aSpec);
+    NS_ENSURE_SUCCESS(rv, rv);
+    url.forget(aURI);
+    return NS_OK;
   }
   if (scheme.EqualsLiteral("mailto")) {
     return NS_MutateURI(new mozilla::net::nsSimpleURI::Mutator())
@@ -125,26 +126,24 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
         .SetSpec(aSpec)
         .Finalize(aURI);
   }
-  if (scheme.EqualsLiteral("moz-cal-handle-itip")) {
-    return NS_MutateURI(new mozilla::net::nsStandardURL::Mutator())
-        .SetSpec(aSpec)
-        .Finalize(aURI);
-  }
-  if (scheme.EqualsLiteral("webcal") || scheme.EqualsLiteral("webcals")) {
-    return NS_MutateURI(new mozilla::net::nsStandardURL::Mutator())
-        .SetSpec(aSpec)
-        .Finalize(aURI);
+  if (scheme.EqualsLiteral("moz-cal-handle-itip") ||
+      scheme.EqualsLiteral("webcal") || scheme.EqualsLiteral("webcals")) {
+    nsCOMPtr<nsIURL> url;
+    rv = MsgNewStandardURL(aSpec, getter_AddRefs(url));
+    NS_ENSURE_SUCCESS(rv, rv);
+    url.forget(aURI);
+    return NS_OK;
   }
 
   if (scheme.EqualsLiteral("ews") || scheme.EqualsLiteral("ews-message") ||
       scheme.EqualsLiteral("graph") || scheme.EqualsLiteral("graph-message") ||
       scheme.EqualsLiteral("x-moz-ews") ||
       scheme.EqualsLiteral("x-moz-graph")) {
-        RefPtr<ExchangeUrl> url = new ExchangeUrl();
-        url->SetSpecInternal(aSpec);
-        url.forget(aURI);
-        return NS_OK;
-      }
+    RefPtr<ExchangeUrl> url = new ExchangeUrl();
+    url->SetSpecInternal(aSpec);
+    url.forget(aURI);
+    return NS_OK;
+  }
 
   rv = NS_ERROR_UNKNOWN_PROTOCOL;  // Let M-C handle it by default.
 

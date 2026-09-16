@@ -24,6 +24,7 @@ class nsIStreamListener;
 class nsICancelable;
 class nsIProtocolProxyCallback;
 class nsIMsgSearchTerm;
+class nsIURL;
 
 namespace mozilla::intl {
 class Localization;
@@ -560,6 +561,18 @@ inline bool IsNewsScheme(const nsACString& scheme) {
          scheme.EqualsLiteral("nntp") || scheme.EqualsLiteral("nntps") ||
          scheme.EqualsLiteral("news-message");
 }
+
+/**
+ * Create a plain standard URL for the given spec, rather than the
+ * scheme-specific `nsIURI` implementation `NS_NewURI()` would hand out. This is
+ * how mailnews code picks apart server, folder and message URIs without
+ * involving the protocol handler for their scheme.
+ *
+ * @param aDefaultPort - The port to treat as the default for the URL's scheme,
+ *                       so that it is left out of the canonical spec.
+ */
+nsresult MsgNewStandardURL(const nsACString& aSpec, nsIURL** aURL,
+                           int32_t aDefaultPort = -1);
 
 /**
  * Our code loves to have the query and ref parts of the URL in the wrong order

@@ -2963,9 +2963,7 @@ nsMsgLocalMailFolder::GetIncomingServerType(nsACString& aServerType) {
   nsresult rv;
   if (mType.IsEmpty()) {
     nsCOMPtr<nsIURL> url;
-    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-             .SetSpec(mURI)
-             .Finalize(url);
+    rv = MsgNewStandardURL(mURI, getter_AddRefs(url));
     if (NS_FAILED(rv)) return rv;
 
     nsCOMPtr<nsIMsgAccountManager> accountManager =

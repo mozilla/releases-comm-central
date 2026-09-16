@@ -448,9 +448,7 @@ nsresult MessageFolderIsLocal(nsIMsgIdentity* userIdentity,
   if (!aFolderURI) return NS_ERROR_NULL_POINTER;
 
   nsCOMPtr<nsIURL> url;
-  rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-           .SetSpec(nsDependentCString(aFolderURI))
-           .Finalize(url);
+  rv = MsgNewStandardURL(nsDependentCString(aFolderURI), getter_AddRefs(url));
   if (NS_FAILED(rv)) return rv;
 
   /* mailbox:/ means its local (on disk) */

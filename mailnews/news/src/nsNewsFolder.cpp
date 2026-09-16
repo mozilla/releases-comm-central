@@ -867,14 +867,10 @@ NS_IMETHODIMP nsMsgNewsFolder::GetUrlForSignon(nsAString& result) {
     rv = server->GetHostname(hostname);
     NS_ENSURE_SUCCESS(rv, rv);
     serverURI.Append(hostname);
-    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-             .SetSpec(serverURI)
-             .Finalize(url);
+    rv = MsgNewStandardURL(serverURI, getter_AddRefs(url));
     NS_ENSURE_SUCCESS(rv, rv);
   } else {
-    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-             .SetSpec(mURI)
-             .Finalize(url);
+    rv = MsgNewStandardURL(mURI, getter_AddRefs(url));
     NS_ENSURE_SUCCESS(rv, rv);
   }
 

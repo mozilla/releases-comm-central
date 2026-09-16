@@ -24,9 +24,7 @@ static nsresult nsGetMailboxServer(const char* uriStr,
   nsresult rv = NS_OK;
 
   nsCOMPtr<nsIURL> url;
-  rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-           .SetSpec(nsDependentCString(uriStr))
-           .Finalize(url);
+  rv = MsgNewStandardURL(nsDependentCString(uriStr), getter_AddRefs(url));
   if (NS_FAILED(rv)) return rv;
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =

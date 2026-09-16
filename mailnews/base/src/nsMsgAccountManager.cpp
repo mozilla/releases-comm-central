@@ -442,9 +442,7 @@ nsMsgAccountManager::CreateIncomingServer(const nsACString& username,
     nsresult rv = NS_DomainToASCII(hostname, unused);
     NS_ENSURE_SUCCESS(rv, NS_ERROR_MALFORMED_URI);
     nsCOMPtr<nsIURL> url;
-    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-             .SetSpec("imap://"_ns + hostname)
-             .Finalize(url);
+    rv = MsgNewStandardURL("imap://"_ns + hostname, getter_AddRefs(url));
     NS_ENSURE_SUCCESS(rv, NS_ERROR_MALFORMED_URI);
   }
 
@@ -718,9 +716,7 @@ nsresult nsMsgAccountManager::createKeyedServer(
     rv = NS_DomainToASCII(hostname, unused);
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIURL> url;
-      rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-               .SetSpec("imap://"_ns + hostname)
-               .Finalize(url);
+      rv = MsgNewStandardURL("imap://"_ns + hostname, getter_AddRefs(url));
     }
     if (NS_FAILED(rv)) {
       // In case of failure, use a <key>.invalid hostname instead
@@ -2009,9 +2005,7 @@ nsresult nsMsgAccountManager::findServerInternal(
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIURL> url;
-  rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-           .SetSpec("imap://"_ns + hostname)
-           .Finalize(url);
+  rv = MsgNewStandardURL("imap://"_ns + hostname, getter_AddRefs(url));
   if (NS_SUCCEEDED(rv)) {
     rv = url->GetHost(hostname);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -2042,9 +2036,8 @@ nsresult nsMsgAccountManager::findServerInternal(
     // URI. We need to use the normalized version to find the server.
     // Create an imap url to see what it's normalized to. The normalization
     // is the same for all protocols.
-    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-             .SetSpec("imap://"_ns + normalizedHostname)
-             .Finalize(url);
+    rv = MsgNewStandardURL("imap://"_ns + normalizedHostname,
+                           getter_AddRefs(url));
     if (NS_SUCCEEDED(rv)) {
       rv = url->GetHost(normalizedHostname);
       if (NS_FAILED(rv)) continue;

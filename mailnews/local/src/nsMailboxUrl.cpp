@@ -144,9 +144,7 @@ nsresult nsMailboxUrl::CreateURL(const nsACString& aSpec, nsIURL** aURL) {
   // mailbox://user@domain@server/folder?number=nn and contains a hostname.
   // Check for format lacking absolute path.
   if (PromiseFlatCString(aSpec).Find("///") == kNotFound) {
-    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-             .SetSpec(aSpec)
-             .Finalize(url);
+    rv = MsgNewStandardURL(aSpec, getter_AddRefs(url));
     NS_ENSURE_SUCCESS(rv, rv);
   } else {
     // The URL is more like a file URL without a hostname.

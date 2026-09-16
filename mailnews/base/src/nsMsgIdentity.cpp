@@ -515,9 +515,7 @@ nsresult nsMsgIdentity::getOrCreateFolderAsync(const char* prefName,
   // Can we get a server that matches the preference?
   if (!prefValue.IsEmpty()) {
     nsCOMPtr<nsIURL> url;
-    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-             .SetSpec(prefValue)
-             .Finalize(url);
+    rv = MsgNewStandardURL(prefValue, getter_AddRefs(url));
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIMsgIncomingServer> server;
 
