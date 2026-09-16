@@ -356,6 +356,10 @@ static void UpdateCachedName(nsIMsgDBHdr* aHdr, const char* header_field,
 }
 
 nsresult nsMsgDBView::FetchAuthor(nsIMsgDBHdr* aHdr, nsAString& aSenderString) {
+  // Anything the caller left in here would be mistaken for an address book
+  // display name below, and then cached as this message's sender.
+  aSenderString.Truncate();
+
   nsCString unparsedAuthor;
   int32_t currentDisplayNameVersion =
       mozilla::StaticPrefs::mail_displayname_version();
@@ -471,6 +475,9 @@ nsresult nsMsgDBView::FetchServerKey(nsIMsgDBHdr* aHdr, nsAString& aServerKey) {
 
 nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr* aHdr,
                                       nsAString& aRecipientsString) {
+  // The recipients are appended below, so don't keep what the caller left here.
+  aRecipientsString.Truncate();
+
   nsCString recipients;
   int32_t currentDisplayNameVersion =
       mozilla::StaticPrefs::mail_displayname_version();
@@ -3544,6 +3551,10 @@ nsresult nsMsgDBView::GetCollationKey(nsIMsgDBHdr* msgHdr,
                                       nsIMsgCustomColumnHandler* colHandler) {
   nsresult rv = NS_ERROR_UNEXPECTED;
   NS_ENSURE_ARG_POINTER(msgHdr);
+
+  // Callers reuse the same IdKey (and hence the same string) for successive
+  // headers, so never let a previous header's key leak into this one.
+  result.Truncate();
 
   switch (sortType) {
     case nsMsgViewSortType::bySubject:

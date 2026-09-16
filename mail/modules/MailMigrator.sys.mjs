@@ -29,7 +29,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 63;
+    const UI_VERSION = 64;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -507,6 +507,15 @@ export var MailMigrator = {
 
       if (currentUIVersion < 63) {
         this._migrateSmtpUsernamesToUtf8();
+      }
+
+      if (currentUIVersion < 64) {
+        // Bug 2069089 caused wrong sender/recipient names to be cached in the
+        // summary files. Bumping the version discards every cached name.
+        Services.prefs.setIntPref(
+          "mail.displayname.version",
+          Services.prefs.getIntPref("mail.displayname.version", 0) + 1
+        );
       }
 
       // Migration tasks that may take a long time are not run immediately, but

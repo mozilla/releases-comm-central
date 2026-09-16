@@ -176,6 +176,8 @@ tags = ["oauth"]
 ["test_threadMsgCounts.js"]
 tags = ["virtualfolders"]
 
+["test_viewSenderNameCache.js"]
+
 ["test_viewSortByAddresses.js"]
 
 ["test_virtualFolders1.js"]
