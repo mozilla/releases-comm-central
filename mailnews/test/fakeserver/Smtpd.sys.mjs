@@ -323,3 +323,45 @@ export class SMTP_OAUTH2_handler extends SMTP_RFC2821_handler {
     return "334 " + btoa('{"status":"401","schemes":"bearer"}');
   }
 }
+
+/**
+ * Implements GSSAPI authentication. The tokens exchanged are not real GSSAPI
+ * tokens, so this needs to be paired with a mock nsIMailAuthModule.
+ *
+ * @see RFC 4752
+ */
+export class SMTP_GSSAPI_handler extends SMTP_RFC2821_handler {
+  kAuthSchemes = ["GSSAPI"];
+  /**
+   * Text appended to the first "334 " continuation response. RFC 4954 only
+   * allows base64 there, but Exchange sends a human readable string which the
+   * client is expected to ignore.
+   */
+  kFirstChallengeText = "";
+  /** The challenge sent in response to the client's first token. */
+  kSecondChallenge = btoa("server-token");
+
+  constructor(daemon, options) {
+    super(daemon, options);
+    this.kAuthRequired = true;
+    this.resetTest();
+    this._kAuthSchemeStartFunction.GSSAPI = this.authGSSAPIStart;
+  }
+
+  authGSSAPIStart() {
+    this._nextAuthFunction = this.authGSSAPIFirstToken;
+    this._multiline = true;
+    return `334 ${this.kFirstChallengeText}`;
+  }
+
+  authGSSAPIFirstToken() {
+    this._nextAuthFunction = this.authGSSAPISecondToken;
+    this._multiline = true;
+    return `334 ${this.kSecondChallenge}`;
+  }
+
+  authGSSAPISecondToken() {
+    this._state = kStateAuthenticated;
+    return "235 2.7.0 Logged in";
+  }
+}
