@@ -10,5 +10,7 @@ RUST_TEST_FEATURES.remove("crashreporter/mock")
 
 # Defined in /toolkit/library/rust/moz.build
 RUST_TESTS.clear()
+RUST_TEST_FEATURES.remove("crashping/gecko_tests")
+RUST_TEST_FEATURES.remove("firefox-on-glean/gecko_tests")
 
 RUST_TESTS.extend(["gkrust"])
