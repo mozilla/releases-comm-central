@@ -4,6 +4,7 @@
 
 #include "nsNewMailnewsURI.h"
 #include "nsURLHelper.h"
+#include "nsIStandardURL.h"
 #include "nsSimpleURI.h"
 #include "nsThreadUtils.h"
 #include "MainThreadUtils.h"
