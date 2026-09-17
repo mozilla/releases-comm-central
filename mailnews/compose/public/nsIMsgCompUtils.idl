@@ -28,7 +28,7 @@ interface nsIMsgCompUtils : nsISupports {
   /**
    * Detect the text encoding of an input string. This is a wrapper of
    * mozilla::EncodingDetector to be used by JavaScript code. For C++, use
-   * MsgDetectCharsetFromFile from nsMsgUtils.cpp instead.
+   * DetectCharsetFromString from nsMsgCompUtils.h instead.
    *
    * @param aContent The string to detect charset.
    *

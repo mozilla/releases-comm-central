@@ -4,7 +4,6 @@
 
 #include "nsIMsgHdr.h"
 #include "nsMsgUtils.h"
-#include "nsISeekableStream.h"
 #include "nsIStringStream.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgMessageFlags.h"
@@ -55,7 +54,6 @@
 #include "nsUnicharUtils.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/Encoding.h"
-#include "mozilla/EncodingDetector.h"
 #include "mozilla/TextUtils.h"
 #include "mozilla/UniquePtr.h"
 #include "mozilla/Utf8.h"
@@ -1363,60 +1361,6 @@ nsresult MsgStreamMsgHeaders(nsIInputStream* aInputStream,
   NS_ENSURE_SUCCESS(rv, rv);
 
   return pump->AsyncRead(aConsumer);
-}
-
-nsresult MsgDetectCharsetFromFile(nsIFile* aFile, nsACString& aCharset) {
-  // We do the detection in this order:
-  // Check BOM.
-  // If no BOM, run localized detection (Russian, Ukrainian or Japanese).
-  // We need to run this first, since ISO-2022-JP is 7bit ASCII and would be
-  // detected as UTF-8. If ISO-2022-JP not detected, check for UTF-8. If no
-  // UTF-8, but detector detected something, use that, otherwise return an
-  // error.
-  aCharset.Truncate();
-
-  nsresult rv;
-  nsCOMPtr<nsIInputStream> inputStream;
-  rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), aFile);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Check the BOM.
-  char sniffBuf[3];
-  uint32_t numRead;
-  rv = inputStream->Read(sniffBuf, sizeof(sniffBuf), &numRead);
-
-  if (numRead >= 2 && sniffBuf[0] == (char)0xfe && sniffBuf[1] == (char)0xff) {
-    aCharset = "UTF-16BE";
-  } else if (numRead >= 2 && sniffBuf[0] == (char)0xff &&
-             sniffBuf[1] == (char)0xfe) {
-    aCharset = "UTF-16LE";
-  } else if (numRead >= 3 && sniffBuf[0] == (char)0xef &&
-             sniffBuf[1] == (char)0xbb && sniffBuf[2] == (char)0xbf) {
-    aCharset = "UTF-8";
-  }
-  if (!aCharset.IsEmpty()) return NS_OK;
-
-  // Position back to the beginning.
-  nsCOMPtr<nsISeekableStream> seekStream = do_QueryInterface(inputStream);
-  if (seekStream) seekStream->Seek(nsISeekableStream::NS_SEEK_SET, 0);
-
-  // Use detector.
-  mozilla::UniquePtr<mozilla::EncodingDetector> detector =
-      mozilla::EncodingDetector::Create(true);
-  char buffer[1024];
-  numRead = 0;
-  while (NS_SUCCEEDED(inputStream->Read(buffer, sizeof(buffer), &numRead))) {
-    mozilla::Span<const uint8_t> src =
-        mozilla::AsBytes(mozilla::Span(buffer, numRead));
-    (void)detector->Feed(src, false);
-    if (numRead == 0) {
-      break;
-    }
-  }
-  (void)detector->Feed(nullptr, true);
-  auto encoding = detector->Guess(nullptr, true);
-  encoding->Name(aCharset);
-  return NS_OK;
 }
 
 /*

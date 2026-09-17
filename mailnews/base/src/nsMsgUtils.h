@@ -290,14 +290,6 @@ nsresult MsgStreamMsgHeaders(nsIInputStream* aInputStream,
  */
 uint64_t ParseUint64Str(const char* str);
 
-/**
- * Detect charset of file
- *
- * @param      aFile    The target of nsIFile
- * @param[out] aCharset The charset string
- */
-nsresult MsgDetectCharsetFromFile(nsIFile* aFile, nsACString& aCharset);
-
 /*
  * Converts a buffer to plain text. Some conversions may
  * or may not work with certain end charsets which is why we

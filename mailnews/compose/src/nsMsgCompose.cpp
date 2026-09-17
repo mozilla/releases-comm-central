@@ -3481,8 +3481,7 @@ nsresult nsMsgCompose::LoadDataFromFile(nsIFile* file, nsString& sigData,
     } else {
       // Autodetect encoding for plain text files w/o meta charset
       nsAutoCString textFileCharset;
-      rv = MsgDetectCharsetFromFile(file, textFileCharset);
-      NS_ENSURE_SUCCESS(rv, rv);
+      DetectCharsetFromString(data, textFileCharset);
       sigEncoding.Assign(textFileCharset);
     }
   }

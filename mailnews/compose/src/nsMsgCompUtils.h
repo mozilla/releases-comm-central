@@ -40,6 +40,11 @@ class nsMsgCompUtils : public nsIMsgCompUtils {
 already_AddRefed<nsIArray> GetEmbeddedObjects(
     mozilla::dom::Document* aDocument);
 
+/**
+ * Detect the charset of a string using mozilla::EncodingDetector.
+ */
+void DetectCharsetFromString(const nsACString& aContent, nsACString& aCharset);
+
 PR_BEGIN_EXTERN_C
 
 //

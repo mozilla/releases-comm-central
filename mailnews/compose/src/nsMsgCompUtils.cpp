@@ -30,6 +30,16 @@ static void msg_generate_message_id(nsIMsgIdentity* identity,
                                     const nsACString& customHost,
                                     nsACString& messageID);
 
+void DetectCharsetFromString(const nsACString& aContent, nsACString& aCharset) {
+  mozilla::UniquePtr<mozilla::EncodingDetector> detector =
+      mozilla::EncodingDetector::Create(true);
+  mozilla::Span<const uint8_t> src = mozilla::AsBytes(
+      mozilla::Span(aContent.BeginReading(), aContent.Length()));
+  (void)detector->Feed(src, true);
+  auto encoding = detector->Guess(nullptr, true);
+  encoding->Name(aCharset);
+}
+
 NS_IMPL_ISUPPORTS(nsMsgCompUtils, nsIMsgCompUtils)
 
 nsMsgCompUtils::nsMsgCompUtils() {}
@@ -49,13 +59,7 @@ NS_IMETHODIMP nsMsgCompUtils::MsgGenerateMessageId(nsIMsgIdentity* identity,
 NS_IMETHODIMP
 nsMsgCompUtils::DetectCharset(const nsACString& aContent,
                               nsACString& aCharset) {
-  mozilla::UniquePtr<mozilla::EncodingDetector> detector =
-      mozilla::EncodingDetector::Create(true);
-  mozilla::Span<const uint8_t> src = mozilla::AsBytes(
-      mozilla::Span(ToNewCString(aContent), aContent.Length()));
-  (void)detector->Feed(src, true);
-  auto encoding = detector->Guess(nullptr, true);
-  encoding->Name(aCharset);
+  DetectCharsetFromString(aContent, aCharset);
   return NS_OK;
 }
 
