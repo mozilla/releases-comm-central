@@ -11,6 +11,7 @@ doc_trees:
     calendar: calendar/docs
     cxx: docs/cxx
     documentation: docs/docs
+    exchange: mailnews/protocols/exchange/docs
     frontend: mail/base/docs
     inappnotifications: mail/components/inappnotifications/docs
     l10n: docs/l10n
