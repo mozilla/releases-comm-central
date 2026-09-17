@@ -313,8 +313,7 @@ char* MakeAbsoluteURL(char* base_url, char* relative_url) {
   if (!base_url || !relative_url) {
     if (!relative_url) return nullptr;
 
-    NS_MsgSACopy(&retString, relative_url);
-    return retString;
+    return PL_strdup(relative_url);
   }
 
   nsresult err = nsMimeNewURI(&base, base_url, nullptr);

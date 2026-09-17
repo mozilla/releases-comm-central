@@ -53,6 +53,24 @@
 using mozilla::Preferences;
 using namespace mozilla::mailnews;
 
+namespace {
+
+/* Again like strdup but it concatenates and frees and uses Realloc. */
+char* NS_MsgSACat(char** destination, const char* source) {
+  if (source && *source) {
+    int destLength = *destination ? PL_strlen(*destination) : 0;
+    char* newDestination =
+        (char*)PR_Realloc(*destination, destLength + PL_strlen(source) + 1);
+    if (newDestination == nullptr) return nullptr;
+
+    *destination = newDestination;
+    PL_strcpy(*destination + destLength, source);
+  }
+  return *destination;
+}
+
+}  // namespace
+
 //
 // Header strings...
 //
@@ -676,11 +694,11 @@ static void mime_insert_all_headers(char** body, MimeHeaders* headers,
   nsCString replyHeader;
   MimeGetForwardHeaderDelimiter(replyHeader);
   if (htmlEdit) {
-    NS_MsgSACopy(&(newBody), MIME_FORWARD_HTML_PREFIX);
+    newBody = PL_strdup(MIME_FORWARD_HTML_PREFIX);
     NS_MsgSACat(&newBody, replyHeader.get());
     NS_MsgSACat(&newBody, MIME_HEADER_TABLE);
   } else {
-    NS_MsgSACopy(&(newBody), MSG_LINEBREAK MSG_LINEBREAK);
+    newBody = PL_strdup(MSG_LINEBREAK MSG_LINEBREAK);
     NS_MsgSACat(&newBody, replyHeader.get());
   }
 
@@ -804,11 +822,11 @@ static void mime_insert_normal_headers(char** body, MimeHeaders* headers,
   nsCString replyHeader;
   MimeGetForwardHeaderDelimiter(replyHeader);
   if (htmlEdit) {
-    NS_MsgSACopy(&(newBody), MIME_FORWARD_HTML_PREFIX);
+    newBody = PL_strdup(MIME_FORWARD_HTML_PREFIX);
     NS_MsgSACat(&newBody, replyHeader.get());
     NS_MsgSACat(&newBody, MIME_HEADER_TABLE);
   } else {
-    NS_MsgSACopy(&(newBody), MSG_LINEBREAK MSG_LINEBREAK);
+    newBody = PL_strdup(MSG_LINEBREAK MSG_LINEBREAK);
     NS_MsgSACat(&newBody, replyHeader.get());
   }
   if (subject)
@@ -942,11 +960,11 @@ static void mime_insert_micro_headers(char** body, MimeHeaders* headers,
   nsCString replyHeader;
   MimeGetForwardHeaderDelimiter(replyHeader);
   if (htmlEdit) {
-    NS_MsgSACopy(&(newBody), MIME_FORWARD_HTML_PREFIX);
+    newBody = PL_strdup(MIME_FORWARD_HTML_PREFIX);
     NS_MsgSACat(&newBody, replyHeader.get());
     NS_MsgSACat(&newBody, MIME_HEADER_TABLE);
   } else {
-    NS_MsgSACopy(&(newBody), MSG_LINEBREAK MSG_LINEBREAK);
+    newBody = PL_strdup(MSG_LINEBREAK MSG_LINEBREAK);
     NS_MsgSACat(&newBody, replyHeader.get());
   }
 

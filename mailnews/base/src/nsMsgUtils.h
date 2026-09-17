@@ -91,10 +91,6 @@ nsresult NS_MsgCreatePathStringFromFolderURI(const char* aFolderURI,
  */
 bool NS_MsgStripRE(const nsCString& subject, nsCString& modifiedSubject);
 
-char* NS_MsgSACopy(char** destination, const char* source);
-
-char* NS_MsgSACat(char** destination, const char* source);
-
 bool WeAreOffline();
 
 // Get a folder by Uri, returning null if it doesn't exist (or if some

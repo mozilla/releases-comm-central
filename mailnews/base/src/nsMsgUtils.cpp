@@ -546,39 +546,6 @@ AGAIN:
   return true;
 }
 
-/*  Very similar to strdup except it free's too
- */
-char* NS_MsgSACopy(char** destination, const char* source) {
-  if (*destination) {
-    PR_Free(*destination);
-    *destination = 0;
-  }
-  if (!source)
-    *destination = nullptr;
-  else {
-    *destination = (char*)PR_Malloc(PL_strlen(source) + 1);
-    if (*destination == nullptr) return (nullptr);
-
-    PL_strcpy(*destination, source);
-  }
-  return *destination;
-}
-
-/*  Again like strdup but it concatenates and free's and uses Realloc.
- */
-char* NS_MsgSACat(char** destination, const char* source) {
-  if (source && *source) {
-    int destLength = *destination ? PL_strlen(*destination) : 0;
-    char* newDestination =
-        (char*)PR_Realloc(*destination, destLength + PL_strlen(source) + 1);
-    if (newDestination == nullptr) return nullptr;
-
-    *destination = newDestination;
-    PL_strcpy(*destination + destLength, source);
-  }
-  return *destination;
-}
-
 bool WeAreOffline() {
   bool offline = false;
 
