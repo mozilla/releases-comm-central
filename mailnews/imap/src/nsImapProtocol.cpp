@@ -59,6 +59,7 @@
 #include "nsImapUtils.h"
 #include "nsIStreamConverterService.h"
 #include "nsIProxyInfo.h"
+#include "nsProtocolProxyService.h"
 #include "nsITLSSocketControl.h"
 #include "nsITransportSecurityInfo.h"
 #include "nsProxyRelease.h"
@@ -951,8 +952,17 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
     bool proxyCallback = false;
     if (m_runningUrl && !m_transport /* and we don't have a transport yet */) {
       if (m_mockChannel) {
-        rv = MsgExamineForProxyAsync(m_mockChannel, this,
-                                     getter_AddRefs(m_proxyRequest));
+#ifdef DEBUG
+        nsCOMPtr<nsIURI> uri;
+        nsresult uriRv = m_mockChannel->GetURI(getter_AddRefs(uri));
+        NS_ASSERTION(
+            NS_SUCCEEDED(uriRv) && uri,
+            "The URI needs to be set before calling the proxy service");
+#endif
+        nsCOMPtr<nsIProtocolProxyService> pps =
+            mozilla::components::ProtocolProxy::Service();
+        rv = pps->AsyncResolve(m_mockChannel, 0, this, nullptr,
+                               getter_AddRefs(m_proxyRequest));
         if (NS_FAILED(rv)) {
           rv = SetupWithUrlCallback(nullptr);
         } else {

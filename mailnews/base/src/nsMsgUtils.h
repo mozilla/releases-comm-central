@@ -12,7 +12,6 @@
 #include "nsIFile.h"
 #include "nsEscape.h"
 
-class nsIChannel;
 class nsIPrefBranch;
 class nsIMsgFolder;
 class nsIMsgMessageService;
@@ -21,8 +20,6 @@ class nsIOutputStream;
 class nsIInputStream;
 class nsIMsgDatabase;
 class nsIStreamListener;
-class nsICancelable;
-class nsIProtocolProxyCallback;
 class nsIMsgSearchTerm;
 class nsIURL;
 
@@ -265,10 +262,6 @@ nsresult MsgGetHeadersFromKeys(nsIMsgDatabase* aDB,
  */
 mozilla::Result<nsTArray<nsMsgKey>, nsresult> MsgGetKeysFromHdrs(
     nsTArray<RefPtr<nsIMsgDBHdr>> const& hdrs);
-
-nsresult MsgExamineForProxyAsync(nsIChannel* channel,
-                                 nsIProtocolProxyCallback* listener,
-                                 nsICancelable** result);
 
 /**
  * Calculate a PRTime value used to determine if a date is XX

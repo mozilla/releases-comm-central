@@ -34,9 +34,6 @@
 #include "nsIFileURL.h"
 #include "nsLocalFile.h"
 #include "nsNetUtil.h"
-#include "nsProtocolProxyService.h"
-#include "nsIProtocolProxyCallback.h"
-#include "nsICancelable.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIStringBundle.h"
@@ -51,7 +48,6 @@
 #include "locale.h"
 #include "nsIInputStreamPump.h"
 #include "nsIInputStream.h"
-#include "nsIChannel.h"
 #include "nsIStandardURL.h"
 #include "nsNetCID.h"
 #include "nsIURIMutator.h"
@@ -1257,21 +1253,6 @@ mozilla::Result<nsTArray<nsMsgKey>, nsresult> MsgGetKeysFromHdrs(
     keys.AppendElement(key);
   }
   return keys;
-}
-
-nsresult MsgExamineForProxyAsync(nsIChannel* channel,
-                                 nsIProtocolProxyCallback* listener,
-                                 nsICancelable** result) {
-#ifdef DEBUG
-  nsCOMPtr<nsIURI> uri;
-  nsresult rv = channel->GetURI(getter_AddRefs(uri));
-  NS_ASSERTION(NS_SUCCEEDED(rv) && uri,
-               "The URI needs to be set before calling the proxy service");
-#endif
-
-  nsCOMPtr<nsIProtocolProxyService> pps =
-      mozilla::components::ProtocolProxy::Service();
-  return pps->AsyncResolve(channel, 0, listener, nullptr, result);
 }
 
 PRTime MsgConvertAgeInDaysToCutoffDate(int32_t ageInDays) {
