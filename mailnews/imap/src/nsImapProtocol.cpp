@@ -5937,10 +5937,10 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
       NS_ENSURE_SUCCESS(rv, rv);
       NS_ENSURE_TRUE(digest, NS_ERROR_NULL_POINTER);
       // The encoded digest is the hexadecimal representation of
-      // DIGEST_LENGTH characters, so it will be twice that length.
-      nsAutoCStringN<2 * DIGEST_LENGTH> encodedDigest;
+      // kCramMD5DigestLength characters, so it will be twice that length.
+      nsAutoCStringN<2 * kCramMD5DigestLength> encodedDigest;
 
-      for (uint32_t j = 0; j < DIGEST_LENGTH; j++) {
+      for (uint32_t j = 0; j < kCramMD5DigestLength; j++) {
         char hexVal[3];
         PR_snprintf(hexVal, 3, "%.2x", 0x0ff & (unsigned short)(digest[j]));
         encodedDigest.Append(hexVal);

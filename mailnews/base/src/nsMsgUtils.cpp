@@ -24,7 +24,6 @@
 #include "mozilla/nsRelativeFilePref.h"
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsISpamSettings.h"
-#include "nsICryptoHash.h"
 #include "nsDirectoryServiceUtils.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsIRssIncomingServer.h"
@@ -880,85 +879,6 @@ nsresult IsRSSArticle(nsIURI* aMsgURI, bool* aIsRSSArticle) {
 
     if (rssServer) *aIsRSSArticle = true;
   }
-
-  return rv;
-}
-
-// digest needs to be a pointer to a DIGEST_LENGTH (16) byte buffer
-nsresult MSGCramMD5(const char* text, int32_t text_len, const char* key,
-                    int32_t key_len, unsigned char* digest) {
-  nsresult rv;
-
-  nsAutoCString hash;
-  nsCOMPtr<nsICryptoHash> hasher =
-      do_CreateInstance("@mozilla.org/security/hash;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // this code adapted from
-  // http://www.cis.ohio-state.edu/cgi-bin/rfc/rfc2104.html
-
-  char innerPad[65]; /* inner padding - key XORd with innerPad */
-  char outerPad[65]; /* outer padding - key XORd with outerPad */
-  int i;
-  /* if key is longer than 64 bytes reset it to key=MD5(key) */
-  if (key_len > 64) {
-    rv = hasher->Init(nsICryptoHash::MD5);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = hasher->Update((const uint8_t*)key, key_len);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = hasher->Finish(false, hash);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    key = hash.get();
-    key_len = DIGEST_LENGTH;
-  }
-
-  /*
-   * the HMAC_MD5 transform looks like:
-   *
-   * MD5(K XOR outerPad, MD5(K XOR innerPad, text))
-   *
-   * where K is an n byte key
-   * innerPad is the byte 0x36 repeated 64 times
-   * outerPad is the byte 0x5c repeated 64 times
-   * and text is the data being protected
-   */
-
-  /* start out by storing key in pads */
-  memset(innerPad, 0, sizeof innerPad);
-  memset(outerPad, 0, sizeof outerPad);
-  memcpy(innerPad, key, key_len);
-  memcpy(outerPad, key, key_len);
-
-  /* XOR key with innerPad and outerPad values */
-  for (i = 0; i < 64; i++) {
-    innerPad[i] ^= 0x36;
-    outerPad[i] ^= 0x5c;
-  }
-  /*
-   * perform inner MD5
-   */
-  nsAutoCString result;
-  rv = hasher->Init(nsICryptoHash::MD5); /* init context for 1st pass */
-  rv = hasher->Update((const uint8_t*)innerPad, 64); /* start with inner pad */
-  rv = hasher->Update((const uint8_t*)text,
-                      text_len);      /* then text of datagram */
-  rv = hasher->Finish(false, result); /* finish up 1st pass */
-
-  /*
-   * perform outer MD5
-   */
-  hasher->Init(nsICryptoHash::MD5); /* init context for 2nd pass */
-  rv = hasher->Update((const uint8_t*)outerPad, 64); /* start with outer pad */
-  rv = hasher->Update((const uint8_t*)result.get(),
-                      16);            /* then results of 1st hash */
-  rv = hasher->Finish(false, result); /* finish up 2nd pass */
-
-  if (result.Length() != DIGEST_LENGTH) return NS_ERROR_UNEXPECTED;
-
-  memcpy(digest, result.get(), DIGEST_LENGTH);
 
   return rv;
 }

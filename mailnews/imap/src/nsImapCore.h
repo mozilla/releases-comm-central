@@ -144,6 +144,8 @@ const eIMAPCapabilityFlag kHasXOAuth2Capability =         0x800000000LL;  /* AUT
 const eIMAPCapabilityFlag kHasClientIDCapability =        0x1000000000LL; /* ClientID capability */
 const eIMAPCapabilityFlag kHasUTF8AcceptCapability =      0x2000000000LL; /* RFC 6855: UTF8=ACCEPT */
 
+// CRAM-MD5 produces a 16-byte MD5 digest.
+constexpr uint32_t kCramMD5DigestLength = 16;
 
 // this used to be part of the connection object class - maybe we should move it into
 // something similar

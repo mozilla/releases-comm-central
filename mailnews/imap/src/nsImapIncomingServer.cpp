@@ -26,6 +26,7 @@
 #include "nsIImapService.h"
 #include "nsMsgI18N.h"
 #include "nsIImapMockChannel.h"
+#include "nsICryptoHash.h"
 // for the memory cache...
 #include "nsICacheEntry.h"
 #include "nsImapUrl.h"
@@ -46,6 +47,103 @@
 
 using namespace mozilla;
 using mozilla::net::LoadInfo;
+
+namespace {
+
+// digest needs to be a pointer to a kCramMD5DigestLength byte buffer
+nsresult MSGCramMD5(const char* text, int32_t text_len, const char* key,
+                    int32_t key_len, unsigned char* digest) {
+  nsresult rv;
+
+  nsAutoCString hash;
+  nsCOMPtr<nsICryptoHash> hasher =
+      do_CreateInstance("@mozilla.org/security/hash;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // this code adapted from
+  // http://www.cis.ohio-state.edu/cgi-bin/rfc/rfc2104.html
+
+  char innerPad[65]; /* inner padding - key XORd with innerPad */
+  char outerPad[65]; /* outer padding - key XORd with outerPad */
+  int i;
+  /* if key is longer than 64 bytes reset it to key=MD5(key) */
+  if (key_len > 64) {
+    rv = hasher->Init(nsICryptoHash::MD5);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = hasher->Update((const uint8_t*)key, key_len);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = hasher->Finish(false, hash);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    key = hash.get();
+    key_len = kCramMD5DigestLength;
+  }
+
+  /*
+   * the HMAC_MD5 transform looks like:
+   *
+   * MD5(K XOR outerPad, MD5(K XOR innerPad, text))
+   *
+   * where K is an n byte key
+   * innerPad is the byte 0x36 repeated 64 times
+   * outerPad is the byte 0x5c repeated 64 times
+   * and text is the data being protected
+   */
+
+  /* start out by storing key in pads */
+  memset(innerPad, 0, sizeof innerPad);
+  memset(outerPad, 0, sizeof outerPad);
+  memcpy(innerPad, key, key_len);
+  memcpy(outerPad, key, key_len);
+
+  /* XOR key with innerPad and outerPad values */
+  for (i = 0; i < 64; i++) {
+    innerPad[i] ^= 0x36;
+    outerPad[i] ^= 0x5c;
+  }
+  /*
+   * perform inner MD5
+   */
+  nsAutoCString result;
+  rv = hasher->Init(nsICryptoHash::MD5); /* init context for 1st pass */
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = hasher->Update((const uint8_t*)innerPad, 64); /* start with inner pad */
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = hasher->Update((const uint8_t*)text,
+                      text_len); /* then text of datagram */
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = hasher->Finish(false, result); /* finish up 1st pass */
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  /*
+   * perform outer MD5
+   */
+  rv = hasher->Init(nsICryptoHash::MD5); /* init context for 2nd pass */
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = hasher->Update((const uint8_t*)outerPad, 64); /* start with outer pad */
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = hasher->Update((const uint8_t*)result.get(),
+                      kCramMD5DigestLength); /* then results of 1st hash */
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = hasher->Finish(false, result); /* finish up 2nd pass */
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (result.Length() != kCramMD5DigestLength) return NS_ERROR_UNEXPECTED;
+
+  memcpy(digest, result.get(), kCramMD5DigestLength);
+
+  return rv;
+}
+
+}  // namespace
 
 // Despite its name, this contains a folder path, for example INBOX/Trash.
 #define PREF_TRASH_FOLDER_PATH "trash_folder_name"
@@ -2891,12 +2989,12 @@ nsImapIncomingServer::CramMD5Hash(const char* decodedChallenge, const char* key,
   NS_ENSURE_ARG_POINTER(decodedChallenge);
   NS_ENSURE_ARG_POINTER(key);
 
-  unsigned char resultDigest[DIGEST_LENGTH];
+  unsigned char resultDigest[kCramMD5DigestLength];
   nsresult rv = MSGCramMD5(decodedChallenge, strlen(decodedChallenge), key,
                            strlen(key), resultDigest);
   NS_ENSURE_SUCCESS(rv, rv);
-  *result = (char*)malloc(DIGEST_LENGTH);
-  if (*result) memcpy(*result, resultDigest, DIGEST_LENGTH);
+  *result = (char*)malloc(kCramMD5DigestLength);
+  if (*result) memcpy(*result, resultDigest, kCramMD5DigestLength);
   return (*result) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 

@@ -178,12 +178,6 @@ nsresult GetOrCreateJunkFolder(const nsACString& aURI,
 // Returns true if the nsIURI is a message under an RSS account
 nsresult IsRSSArticle(nsIURI* aMsgURI, bool* aIsRSSArticle);
 
-// digest needs to be a pointer to a 16 byte buffer
-#define DIGEST_LENGTH 16
-
-nsresult MSGCramMD5(const char* text, int32_t text_len, const char* key,
-                    int32_t key_len, unsigned char* digest);
-
 // helper functions to convert a 64bits PRTime into a 32bits value (compatible
 // time_t) and vice versa.
 void PRTime2Seconds(PRTime prTime, uint32_t* seconds);
