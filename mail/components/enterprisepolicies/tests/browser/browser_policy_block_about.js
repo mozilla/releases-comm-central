@@ -22,12 +22,6 @@ const policiesToTest = [
     },
     urls: ["about:config"],
   },
-  {
-    policies: {
-      BlockAboutProfiles: true,
-    },
-    urls: ["about:profiles"],
-  },
 
   {
     policies: {
@@ -42,13 +36,27 @@ const policiesToTest = [
     },
     urls: ["about:debugging", "about:devtools-toolbox"],
   },
-  {
-    policies: {
-      DisableTelemetry: true,
-    },
-    urls: ["about:telemetry"],
-  },
 ];
+
+if (!AppConstants.MOZ_ENTERPRISE) {
+  // policies-schema-enterprise.json marks these as unsupported
+  // ("thunderbird_enterprise": { "version_added": false }), so the engine
+  // ignores them on enterprise builds and the pages stay reachable.
+  policiesToTest.push(
+    {
+      policies: {
+        BlockAboutProfiles: true,
+      },
+      urls: ["about:profiles"],
+    },
+    {
+      policies: {
+        DisableTelemetry: true,
+      },
+      urls: ["about:telemetry"],
+    }
+  );
+}
 
 add_task(async function testAboutTask() {
   for (const policyToTest of policiesToTest) {
