@@ -940,3 +940,56 @@ add_task(function testGoogleEscaping() {
   propertyArrayEqual(goodProperties.entries, data);
   Assert.equal(goodProperties.toVCard(), goodVCard);
 });
+
+/**
+ * Tests that a REV timestamp survives a round trip. RFC 6350 requires the
+ * basic ISO 8601 format, but the extended format is commonly used, so we must
+ * read both without mangling them.
+ */
+add_task(function testTimestamp() {
+  // [value as read, value of the entry, value as written].
+  const tests = [
+    ["20260914T101520Z", "2026-09-14T10:15:20Z", "20260914T101520Z"],
+    ["2026-09-14T10:15:20Z", "2026-09-14T10:15:20Z", "20260914T101520Z"],
+    [
+      "20260914T101520+0200",
+      "2026-09-14T10:15:20+02:00",
+      "20260914T101520+0200",
+    ],
+    [
+      "2026-09-14T10:15:20+02:00",
+      "2026-09-14T10:15:20+02:00",
+      "20260914T101520+0200",
+    ],
+    ["20260914T101520", "2026-09-14T10:15:20", "20260914T101520"],
+  ];
+
+  for (const [inRev, entryValue, outRev] of tests) {
+    const properties = VCardProperties.fromVCard(formatVCard`
+      BEGIN:VCARD
+      VERSION:4.0
+      FN:Mike Test
+      REV:${inRev}
+      END:VCARD`);
+    propertyEqual(
+      properties.getFirstEntry("rev"),
+      {
+        name: "rev",
+        params: {},
+        type: "timestamp",
+        value: entryValue,
+      },
+      `REV:${inRev} should be parsed as a timestamp`
+    );
+    Assert.equal(
+      properties.toVCard(),
+      formatVCard`
+        BEGIN:VCARD
+        VERSION:4.0
+        FN:Mike Test
+        REV:${outRev}
+        END:VCARD`,
+      `REV:${inRev} should be reproduced in the basic format`
+    );
+  }
+});

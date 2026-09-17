@@ -6874,7 +6874,22 @@ const vcardValues = extend(commonValues, {
 
     }
   },
-  timestamp: icalValues['date-time'],
+  // Local patch for https://github.com/kewisch/ical.js/issues/1028: the
+  // iCalendar date-time conversions insert and remove the separators at fixed
+  // offsets, which mangles a timestamp already in the extended format. RFC 6350
+  // only allows the basic format here, but the extended format is widely used,
+  // so reuse the date-and-or-time conversions, which accept both (bug 2072471).
+  timestamp: {
+    ...icalValues['date-time'],
+
+    fromICAL: function(aValue) {
+      return vcardValues['date-and-or-time'].fromICAL(aValue);
+    },
+
+    toICAL: function(aValue) {
+      return vcardValues['date-and-or-time'].toICAL(aValue);
+    }
+  },
   "language-tag": {
     matches: /^[a-zA-Z0-9-]+$/ // Could go with a more strict regex here
   },
