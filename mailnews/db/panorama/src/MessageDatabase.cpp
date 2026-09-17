@@ -175,6 +175,12 @@ nsresult MessageDatabase::GetMessage(nsMsgKey key, Message** message) {
   return NS_OK;
 }
 
+NS_IMETHODIMP MessageDatabase::GetMessage(nsMsgKey key, nsIMsgDBHdr** message) {
+  *message = new Message(key);
+  NS_IF_ADDREF(*message);
+  return NS_OK;
+}
+
 nsresult MessageDatabase::MessageExists(nsMsgKey key, bool& exists) {
   if (mMsgCache.has(key)) {
     exists = true;
@@ -822,6 +828,10 @@ nsresult MessageDatabase::GetMessageFolderId(nsMsgKey key, uint64_t& folderId) {
 nsresult MessageDatabase::SetMessageFlags(nsMsgKey key, uint32_t newFlags) {
   uint32_t oldFlags;
   MOZ_TRY(GetMessageFlags(key, oldFlags));
+
+  if (NS_WARN_IF(oldFlags == newFlags)) {
+    return NS_OK;
+  }
 
   // Update in DB.
   {

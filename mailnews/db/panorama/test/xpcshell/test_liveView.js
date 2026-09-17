@@ -397,6 +397,13 @@ add_task(function testListener() {
       );
       this._removedMessage = message;
     },
+    onMessageFlagsChanged(message, oldFlags) {
+      Assert.ok(
+        !this._change,
+        "there should be only one call to onMessageFlagsChanged"
+      );
+      this._change = { message, oldFlags };
+    },
   };
   const liveView = new LiveView();
   liveView.setListener(listener);
@@ -418,6 +425,27 @@ add_task(function testListener() {
   Assert.equal(listener._addedMessage.subject, "subject");
   Assert.equal(listener._addedMessage.flags, 0);
   Assert.equal(listener._addedMessage.tags, "$label4");
+
+  const message = messageDB.getMessage(addedId);
+  message.flags = 1;
+  Assert.equal(listener._change.message.id, addedId);
+  Assert.equal(listener._change.message.flags, 1);
+  Assert.equal(listener._change.oldFlags, 0);
+  delete listener._change;
+
+  message.orFlags(4);
+  Assert.equal(listener._change.message.id, addedId);
+  Assert.equal(listener._change.message.flags, 5);
+  Assert.equal(listener._change.oldFlags, 1);
+  delete listener._change;
+
+  message.flags = 5;
+  Assert.ok(!listener._change);
+
+  message.andFlags(4);
+  Assert.equal(listener._change.message.id, addedId);
+  Assert.equal(listener._change.message.flags, 4);
+  Assert.equal(listener._change.oldFlags, 5);
 
   messageDB.removeMessage(earlierId);
   Assert.equal(listener._removedMessage.id, earlierId);

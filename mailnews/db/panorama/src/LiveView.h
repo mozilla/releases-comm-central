@@ -66,9 +66,6 @@ class LiveView : public nsILiveView, public MessageListener {
 
   // The one and only listener for this live view, if set.
   nsCOMPtr<nsILiveViewListener> mListener;
-  // The JS context containing `mListener`. Used for creating JS objects to
-  // pass to the listener.
-  JSContext* mCx;
 };
 
 void CreateJSMessage(uint64_t id, uint64_t folderId, const char* messageId,

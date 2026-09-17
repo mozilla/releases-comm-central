@@ -38,6 +38,8 @@ using mozilla::LogLevel;
 using mozilla::dom::AutoJSAPI;
 using mozilla::dom::Promise;
 using xpc::CurrentNativeGlobal;
+using xpc::IsInAutomation;
+using xpc::PrivilegedJunkScope;
 
 namespace mozilla::mailnews {
 
@@ -176,7 +178,7 @@ nsCString LiveView::GetSQLClause() {
 }
 
 NS_IMETHODIMP LiveView::GetSqlClauseForTests(nsACString& sqlClauseForTests) {
-  if (!xpc::IsInAutomation()) {
+  if (!IsInAutomation()) {
     return NS_ERROR_NOT_AVAILABLE;
   }
 
@@ -186,7 +188,7 @@ NS_IMETHODIMP LiveView::GetSqlClauseForTests(nsACString& sqlClauseForTests) {
 
 NS_IMETHODIMP LiveView::GetSqlParamsForTests(
     nsTArray<RefPtr<nsIVariant>>& sqlParamsForTests) {
-  if (!xpc::IsInAutomation()) {
+  if (!IsInAutomation()) {
     return NS_ERROR_NOT_AVAILABLE;
   }
 
@@ -763,37 +765,65 @@ NS_IMETHODIMP LiveView::SelectMessagesInGroup(const nsACString& group,
 }
 
 void LiveView::OnMessageAdded(Message* aMessage) {
-  if (!mListener || !mCx || !Matches(*aMessage)) {
+  if (!mListener || !Matches(*aMessage)) {
     return;
   }
 
-  Rooted<JSObject*> obj(mCx);
-  CreateJSMessage(aMessage, mCx, obj);
-  Rooted<Value> message(mCx, ObjectValue(*obj));
+  AutoJSAPI jsapi;
+  if (!jsapi.Init(PrivilegedJunkScope())) {
+    return;
+  }
+  JSContext* cx = jsapi.cx();
+
+  Rooted<JSObject*> obj(cx);
+  CreateJSMessage(aMessage, cx, obj);
+  Rooted<Value> message(cx, ObjectValue(*obj));
   MutableHandle<Value> handle(&message);
   mListener->OnMessageAdded(handle);
 }
 
 void LiveView::OnMessageRemoved(Message* aMessage, uint32_t oldFlags) {
-  if (!mListener || !mCx || !Matches(*aMessage)) {
+  if (!mListener || !Matches(*aMessage)) {
     return;
   }
 
-  Rooted<JSObject*> obj(mCx);
-  CreateJSMessage(aMessage, mCx, obj);
-  Rooted<Value> message(mCx, ObjectValue(*obj));
+  AutoJSAPI jsapi;
+  if (!jsapi.Init(PrivilegedJunkScope())) {
+    return;
+  }
+  JSContext* cx = jsapi.cx();
+
+  Rooted<JSObject*> obj(cx);
+  CreateJSMessage(aMessage, cx, obj);
+  Rooted<Value> message(cx, ObjectValue(*obj));
   MutableHandle<Value> handle(&message);
   mListener->OnMessageRemoved(handle);
 }
 
-void LiveView::OnMessageFlagsChanged(Message* message, uint32_t oldFlags,
-                                     uint32_t newFlags) {}
+void LiveView::OnMessageFlagsChanged(Message* aMessage, uint32_t oldFlags,
+                                     uint32_t newFlags) {
+  // TODO: If the message did match but doesn't now, or if it didn't match
+  // but does now. This isn't currently a problem for any existing filters.
+  if (!mListener || !Matches(*aMessage)) {
+    return;
+  }
 
-NS_IMETHODIMP LiveView::SetListener(nsILiveViewListener* aListener,
-                                    JSContext* aCx) {
+  AutoJSAPI jsapi;
+  if (!jsapi.Init(PrivilegedJunkScope())) {
+    return;
+  }
+  JSContext* cx = jsapi.cx();
+
+  Rooted<JSObject*> obj(cx);
+  CreateJSMessage(aMessage, cx, obj);
+  Rooted<Value> message(cx, ObjectValue(*obj));
+  MutableHandle<Value> handle(&message);
+  mListener->OnMessageFlagsChanged(handle, oldFlags);
+}
+
+NS_IMETHODIMP LiveView::SetListener(nsILiveViewListener* aListener) {
   bool hadListener = mListener;
   mListener = aListener;
-  mCx = aCx;
 
   if (!hadListener && aListener) {
     MessageDB().AddMessageListener(this);
@@ -807,7 +837,6 @@ NS_IMETHODIMP LiveView::ClearListener(nsILiveViewListener* aListener) {
   }
 
   mListener = nullptr;
-  mCx = nullptr;
 
   MessageDB().RemoveMessageListener(this);
   return NS_OK;

@@ -90,7 +90,6 @@ interface nsILiveView : nsISupports {
   /**
    * Register as the one and only listener for this live view.
    */
-  [implicit_jscontext]
   void setListener(in nsILiveViewListener listener);
 
   /**
@@ -123,6 +122,8 @@ interface nsILiveViewListener : nsISupports {
    * A message matching the live view's filters was removed from the database.
    */
   void onMessageRemoved(in jsval message);
+
+  void onMessageFlagsChanged(in jsval message, in unsigned long oldFlags);
 
   /**
    * Partial results from a `selectMessages` or `selectMessagesInGroup` query.

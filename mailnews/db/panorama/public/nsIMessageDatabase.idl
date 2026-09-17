@@ -5,6 +5,8 @@
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"
 
+interface nsIMsgDBHdr;
+
 %{C++
 namespace mozilla::mailnews {
 class MessageListener;
@@ -39,6 +41,11 @@ interface nsIMessageDatabase : nsISupports {
    * Remove a message from the database.
    */
   void removeMessage(in nsMsgKey id);
+
+  /**
+   * Retrieve a message from the database.
+   */
+  nsIMsgDBHdr getMessage(in nsMsgKey id);
 
   /**
    * Get any message property from the message_properties table.
