@@ -695,21 +695,6 @@ nsresult FolderPathInServer(nsIMsgFolder* folder, nsACString& path) {
                            nsINetUtil::ESCAPE_URL_PATH, path);
 }
 
-nsresult IsRFC822HeaderFieldName(const char* aHdr, bool* aResult) {
-  NS_ENSURE_ARG_POINTER(aHdr);
-  NS_ENSURE_ARG_POINTER(aResult);
-  uint32_t length = strlen(aHdr);
-  for (uint32_t i = 0; i < length; i++) {
-    char c = aHdr[i];
-    if (c < '!' || c == ':' || c > '~') {
-      *aResult = false;
-      return NS_OK;
-    }
-  }
-  *aResult = true;
-  return NS_OK;
-}
-
 /* NOTE: ~copied from uriloader/base/nsDocLoader.cpp */
 /* static */
 mozilla::Maybe<nsLiteralCString> StatusCodeToL10nId(nsresult aStatus) {

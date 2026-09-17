@@ -42,6 +42,19 @@
 using mozilla::Preferences;
 using namespace mozilla::mailnews;
 
+namespace {
+
+bool IsValidRFC822HeaderFieldName(const char* aHdr) {
+  if (!aHdr || !*aHdr) return false;
+
+  for (const auto* p = reinterpret_cast<const unsigned char*>(aHdr); *p; ++p) {
+    if (*p < '!' || *p == ':' || *p > '~') return false;
+  }
+  return true;
+}
+
+}  // namespace
+
 //---------------------------------------------------------------------------
 // nsMsgSearchTerm specifies one criterion, e.g. name contains phil
 //---------------------------------------------------------------------------
@@ -121,9 +134,8 @@ nsresult NS_MsgGetAttributeFromString(const char* string,
   }
 
   if (!found) {
-    bool goodHdr;
-    IsRFC822HeaderFieldName(string, &goodHdr);
-    if (!goodHdr) return NS_MSG_INVALID_CUSTOM_HEADER;
+    if (!IsValidRFC822HeaderFieldName(string))
+      return NS_MSG_INVALID_CUSTOM_HEADER;
     // 49 is for showing customize... in ui, headers start from 50 onwards up
     // until 99.
     *attrib = nsMsgSearchAttrib::OtherHeader + 1;

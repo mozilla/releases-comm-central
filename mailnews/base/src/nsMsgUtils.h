@@ -157,8 +157,6 @@ nsresult NS_SetPersistentFile(const char* relPrefName, const char* absPrefName,
                               nsIFile* aFile,
                               nsIPrefBranch* prefBranch = nullptr);
 
-nsresult IsRFC822HeaderFieldName(const char* aHdr, bool* aResult);
-
 nsresult NS_GetLocalizedUnicharPreferenceWithDefault(const char* prefName,
                                                      const nsAString& defValue,
                                                      nsAString& prefValue);
