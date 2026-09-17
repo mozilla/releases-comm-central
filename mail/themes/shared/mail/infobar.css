@@ -9,8 +9,15 @@
   border-width: 0;
 
   --icon-size: 16px;
-  --button-background-color-ghost-hover: color-mix(in srgb, currentColor 15%, transparent);
-  --button-background-color-ghost-active: color-mix(in srgb, currentColor 25%, transparent);
+  --button-background-color-ghost: transparent;
+  --button-background-color-ghost-hover: var(--button-background-color-hover);
+  --button-background-color-ghost-active: var(--button-background-color-active);
+  --button-border-color-ghost: var(--button-border-color);
+  --button-border-color-ghost-hover: var(--button-border-color-hover);
+  --button-border-color-ghost-active: var(--button-border-color-active);
+  --button-text-color-ghost: inherit;
+  --button-text-color-ghost-hover: var(--button-text-color-hover);
+  --button-text-color-ghost-active: var(--button-text-color-active);
   --close-icon-size: 32px;
   --message-bar-background-color: var(--background-color-box-info);
   --message-bar-text-color: var(--color-text-base);
@@ -36,6 +43,7 @@
     --button-text-color-hover: SelectedItemText;
     --button-background-color-hover: SelectedItem;
     --button-border-color-active: ThreeDFace;
+    --button-border-color-ghost: currentColor;
     --button-text-color-active: SelectedItemText;
     --button-background-color-active: SelectedItem;
     --background-color-box-info: hsla(0, 0%, 50%, 0.15);
@@ -134,6 +142,7 @@ div.container {
 div.content {
   /* Ensure that the message bar content is wrapped. */
   word-break: break-word;
+  padding: 0;
 }
 
 div.icon-container {
@@ -178,33 +187,17 @@ img.icon {
 
 /* Close icon styles */
 
-.close {
+moz-button.close {
   display: flex;
-}
+  margin: 0;
 
-moz-button::part(button) {
-  background-image: var(--icon-close) !important;
-  -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
-  inline-size: var(--close-icon-size);
-  block-size: var(--close-icon-size);
-}
-
-@media (prefers-contrast) {
-  moz-button::part(button) {
-    color: var(--button-text-color);
-  }
-
-  moz-button::part(button):hover {
-    color: var(--button-text-color-hover);
-    --button-background-color-ghost-hover: var(--button-hover-background-color);
-  }
-
-  moz-button::part(button):hover:active {
-    color: var(--button-text-color-hover);
-    --button-background-color-ghost-active: var(--button-hover-background-color);
-    --button-border-color-ghost-active: var(--button-text-color-hover);
+  &::part(button) {
+    background-image: var(--icon-close) !important;
+    -moz-context-properties: fill, stroke;
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
+    inline-size: var(--close-icon-size);
+    block-size: var(--close-icon-size);
   }
 }
 
