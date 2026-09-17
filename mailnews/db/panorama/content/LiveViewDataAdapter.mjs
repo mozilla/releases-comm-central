@@ -236,6 +236,20 @@ export class LiveViewDataAdapter extends TreeDataAdapter {
     });
   }
 
+  onMessageFlagsChanged(message, oldFlags) {
+    // Hope _flatRowCache exists.
+    const index = this._flatRowCache.findIndex(r => r.message.id == message.id);
+    const row = this._flatRowCache[index];
+    row._initFromMessage(message);
+
+    // Only invalidate the tree for flags we care about.
+    const changedFlags = oldFlags ^ message.flags;
+    const interestingFlags = Ci.nsMsgMessageFlags.Read;
+    if (changedFlags & interestingFlags) {
+      this._tree?.invalidateRow(index);
+    }
+  }
+
   onSelectedChunk(messages, startIndex, endIndex) {
     for (let index = startIndex; index <= endIndex; index++) {
       const message = messages[index];
@@ -642,6 +656,8 @@ class LiveViewDataRow extends TreeDataRow {
     });
     this.values = { date: message.date.valueOf() };
     this.message = message;
+
+    this.toggleProperty("unread", !(message.flags & Ci.nsMsgMessageFlags.Read));
   }
 }
 

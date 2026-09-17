@@ -30,7 +30,7 @@ add_setup(async function () {
  * Test that we have the right values to display on the screen.
  */
 add_task(async function testColumnContents() {
-  const { adapter } = await setUpAdapter("date", "descending");
+  const { adapter, tree } = await setUpAdapter("date", "descending");
 
   try {
     const row2 = adapter.rowAt(2);
@@ -45,6 +45,7 @@ add_task(async function testColumnContents() {
     Assert.equal(row2.getText("unread"), "1");
     Assert.equal(row2.getText("flagged"), "0");
     Assert.equal(row2.getText("tags"), "$label1");
+    Assert.deepEqual([...row2.properties], ["unread"]);
 
     const row6 = adapter.rowAt(6);
     Assert.equal(row6.message.id, 4, "message 4 should be at row 6");
@@ -59,6 +60,13 @@ add_task(async function testColumnContents() {
     Assert.equal(row6.getText("unread"), "0");
     Assert.equal(row6.getText("flagged"), "1");
     Assert.equal(row6.getText("tags"), "");
+    Assert.deepEqual([...row6.properties], []);
+
+    messageDB.getMessage(4).andFlags(~Ci.nsMsgMessageFlags.Read);
+    Assert.equal(row6.getText("flags"), "4");
+    Assert.equal(row6.getText("unread"), "1");
+    Assert.deepEqual([...row6.properties], ["unread"]);
+    tree.assertInvalidated(6, 6);
   } finally {
     adapter.setTree(null);
   }
