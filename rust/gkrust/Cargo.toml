@@ -30,7 +30,6 @@ mailnews_ui_glue = { version = "0.1.0", path = "../mailnews_ui_glue" }
 sys_tray = { version = "0.1.0", path = "../sys_tray" }
 aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "5776bdfc8ad664a1503db668fab397d818a5f98a" }
 abridged_certs = { path = "../../../security/manager/ssl/abridged_certs" }
-adblock = { version = "0.12.1", features = ['full-regex-handling', 'single-thread'], default-features = false }
 app_collator_glue = { path = "../../../intl/app_collator_glue" }
 audio_thread_priority = { version = "0.37" }
 audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "d3c9825", optional = true }
@@ -59,6 +58,7 @@ dom_push = { path = "../../../dom/push/rust" }
 dom_speculationrules = { path = "../../../dom/base/speculationrules" }
 encoding_glue = { path = "../../../intl/encoding_glue" }
 etagere = { version = "0.2.13", features = ['ffi'] }
+etp_engine = { path = "../../../toolkit/components/content-classifier/etp_engine", features = ['full-regex-handling', 'single-thread'] }
 fluent = { version = "0.17.0", features = ['fluent-pseudo'] }
 fluent-fallback = { version = "0.7.0" }
 fluent-ffi = { path = "../../../intl/l10n/rust/fluent-ffi" }
