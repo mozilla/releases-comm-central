@@ -2650,6 +2650,7 @@ dependencies = [
  "mp4parse_capi",
  "neqo_glue",
  "netwerk_helper",
+ "noise",
  "nserror",
  "nsstring",
  "oblivious_http",
@@ -2776,6 +2777,7 @@ dependencies = [
  "mp4parse_capi",
  "neqo_glue",
  "netwerk_helper",
+ "noise",
  "nserror",
  "nsstring",
  "oblivious_http",
@@ -4554,7 +4556,7 @@ dependencies = [
 [[package]]
 name = "mp4parse"
 version = "0.17.0"
-source = "git+https://github.com/mozilla/mp4parse-rust?rev=215e238e633fa0df42cc25bfcf43a0f902692691#215e238e633fa0df42cc25bfcf43a0f902692691"
+source = "git+https://github.com/mozilla/mp4parse-rust?rev=f0c80783227a1fb46f34cb04e10607045eac4297#f0c80783227a1fb46f34cb04e10607045eac4297"
 dependencies = [
  "bitreader",
  "byteorder",
@@ -4571,7 +4573,7 @@ version = "0.1.0"
 [[package]]
 name = "mp4parse_capi"
 version = "0.17.0"
-source = "git+https://github.com/mozilla/mp4parse-rust?rev=215e238e633fa0df42cc25bfcf43a0f902692691#215e238e633fa0df42cc25bfcf43a0f902692691"
+source = "git+https://github.com/mozilla/mp4parse-rust?rev=f0c80783227a1fb46f34cb04e10607045eac4297#f0c80783227a1fb46f34cb04e10607045eac4297"
 dependencies = [
  "byteorder",
  "fallible_collections",
@@ -4811,6 +4813,17 @@ dependencies = [
  "cfg_aliases",
  "libc",
  "memoffset 0.9.0",
+]
+
+[[package]]
+name = "noise"
+version = "0.1.0"
+dependencies = [
+ "libc",
+ "mozbuild",
+ "nss-rs",
+ "sha2",
+ "thiserror 2.0.12",
 ]
 
 [[package]]
@@ -6856,9 +6869,9 @@ dependencies = [
 
 [[package]]
 name = "thin-vec"
-version = "0.2.16"
+version = "0.2.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "259cdf8ed4e4aca6f1e9d011e10bd53f524a2d0637d7b28450f6c64ac298c4c6"
+checksum = "4568d7e143ec86d2021c338bae2afa88699e84b8e0af523626654fe6f03a1748"
 dependencies = [
  "serde",
 ]
