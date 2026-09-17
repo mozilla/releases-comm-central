@@ -393,7 +393,6 @@ class nsMsgDBView : public nsIMsgDBView,
   nsresult ToggleMessageKilled(nsTArray<nsMsgViewIndex> const& selection,
                                nsMsgViewIndex* resultIndex,
                                bool* resultToggleState);
-  bool OfflineMsgSelected(nsTArray<nsMsgViewIndex> const& selection);
   bool NonDummyMsgSelected(nsTArray<nsMsgViewIndex> const& selection);
   static void GetString(mozilla::intl::Localization* l10n, nsACString const& id,
                         nsAString& value);

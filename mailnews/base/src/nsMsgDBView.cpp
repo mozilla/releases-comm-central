@@ -2361,7 +2361,6 @@ nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
     case nsMsgViewCommandType::flagMessages:
     case nsMsgViewCommandType::unflagMessages:
     case nsMsgViewCommandType::deleteMsg:
-    case nsMsgViewCommandType::undeleteMsg:
     case nsMsgViewCommandType::deleteNoTrash:
     case nsMsgViewCommandType::markThreadRead:
     case nsMsgViewCommandType::junk:
@@ -2498,15 +2497,6 @@ nsMsgDBView::GetCommandStatus(nsMsgViewCommandTypeValue command, bool* status) {
       // XXX todo, check that we have JMC enabled?
       *status = GetSize() && JunkControlsEnabled(nsMsgViewIndex_None);
       break;
-    case nsMsgViewCommandType::deleteJunk: {
-      // Disable if no messages, or if we can't delete (like news and
-      // certain imap folders).
-      bool canDelete;
-      *status = GetSize() && m_folder &&
-                NS_SUCCEEDED(m_folder->GetCanDeleteMessages(&canDelete)) &&
-                canDelete;
-      break;
-    }
     case nsMsgViewCommandType::markMessagesRead:
     case nsMsgViewCommandType::markMessagesUnread:
     case nsMsgViewCommandType::toggleMessageRead:
@@ -2521,10 +2511,6 @@ nsMsgDBView::GetCommandStatus(nsMsgViewCommandTypeValue command, bool* status) {
     case nsMsgViewCommandType::unjunk:
       *status = haveSelection && !selection.IsEmpty() &&
                 JunkControlsEnabled(selection[0]);
-      break;
-    case nsMsgViewCommandType::cmdRequiringMsgBody:
-      *status =
-          haveSelection && (!WeAreOffline() || OfflineMsgSelected(selection));
       break;
     case nsMsgViewCommandType::downloadFlaggedForOffline:
     case nsMsgViewCommandType::markAllRead:
@@ -2762,7 +2748,6 @@ nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
                                    nsIJunkMailPlugin::GOOD);
           break;
         case nsMsgViewCommandType::toggleMessageRead:
-        case nsMsgViewCommandType::undeleteMsg:
         case nsMsgViewCommandType::markMessagesRead:
         case nsMsgViewCommandType::markMessagesUnread:
         case nsMsgViewCommandType::unflagMessages:
@@ -6259,33 +6244,6 @@ nsMsgDBView::OnDeleteCompleted(bool aSucceeded) {
 
   m_deletingRows = false;
   return NS_OK;
-}
-
-bool nsMsgDBView::OfflineMsgSelected(
-    nsTArray<nsMsgViewIndex> const& selection) {
-  nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(m_folder);
-  if (localFolder) {
-    return true;
-  }
-
-  for (nsMsgViewIndex viewIndex : selection) {
-    // For cross-folder saved searches, we need to check if any message
-    // is in a local folder.
-    if (!m_folder) {
-      nsCOMPtr<nsIMsgFolder> folder = GetFolderForViewIndex(viewIndex);
-      nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(folder);
-      if (localFolder) {
-        return true;
-      }
-    }
-
-    uint32_t flags = m_flags[viewIndex];
-    if ((flags & nsMsgMessageFlags::Offline)) {
-      return true;
-    }
-  }
-
-  return false;
 }
 
 bool nsMsgDBView::NonDummyMsgSelected(

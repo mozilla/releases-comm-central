@@ -9198,10 +9198,6 @@ NS_IMETHODIMP nsImapMailFolder::HandleViewCommand(
       flags |= kImapMsgSeenFlag;
       addFlags = true;
       break;
-    case nsMsgViewCommandType::undeleteMsg:
-      flags = kImapMsgDeletedFlag;
-      addFlags = false;
-      break;
     case nsMsgViewCommandType::junk:
       return StoreCustomKeywords(window, "Junk"_ns, "NonJunk"_ns, messageKeys,
                                  nullptr);
