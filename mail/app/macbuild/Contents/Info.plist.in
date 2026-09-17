@@ -139,5 +139,44 @@
 	</array>
 	<key>NSContactsUsageDescription</key>
 	<string>Use your macOS contacts in @MAC_APP_NAME@.</string>
+
+	<key>NSCameraUsageDescription</key>
+	<string>Only sites you allow within @MAC_APP_NAME@ will be able to use the camera.</string>
+
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Only sites you allow within @MAC_APP_NAME@ will be able to use the microphone.</string>
+
+	<key>NSCameraReactionEffectGesturesEnabledDefault</key>
+	<false/>
+
+	<key>NSLocationUsageDescription</key>
+	<string>Only sites you allow within @MAC_APP_NAME@ will be able to use location services.</string>
+
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Only sites you allow within @MAC_APP_NAME@ will be able to use location services.</string>
+
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Only sites you allow within @MAC_APP_NAME@ will be able to use location services.</string>
+
+	<key>NSAppleEventsUsageDescription</key>
+	<string>@MAC_APP_NAME@ uses Apple Events to communicate with other applications.</string>
+
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>@MAC_APP_NAME@ needs access to your Downloads folder to save and manage attachments and downloaded files.</string>
+
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>@MAC_APP_NAME@ needs access to your Documents folder to open and save files at your request.</string>
+
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>@MAC_APP_NAME@ needs access to your Desktop folder to open and save files at your request.</string>
+
+	<key>NSRemovableVolumesUsageDescription</key>
+	<string>@MAC_APP_NAME@ needs access to removable volumes to open and save files at your request.</string>
+
+	<key>NSNetworkVolumesUsageDescription</key>
+	<string>@MAC_APP_NAME@ needs access to network volumes to open and save files at your request.</string>
+
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>@MAC_APP_NAME@ needs this access to connect to mail, calendar and directory servers on your network.</string>
 </dict>
 </plist>
