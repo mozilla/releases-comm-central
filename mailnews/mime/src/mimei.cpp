@@ -68,6 +68,7 @@
 #include "nsIURIMutator.h"
 #include "nsMimeStringResources.h"
 #include "nsMimeTypes.h"
+#include "nsMsgUtils.h"
 #include "nsSimpleMimeConverterStub.h"
 #include "nsTArray.h"
 #include "nsURLHelper.h"
