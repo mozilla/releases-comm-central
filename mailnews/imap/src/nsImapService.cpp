@@ -931,10 +931,7 @@ NS_IMETHODIMP nsImapService::StreamMessage(
   rv = AddImapFetchToUrl(mailnewsurl, folder, msgIds, additionalHeader);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgIncomingServer> aMsgIncomingServer;
-
   mailnewsurl->SetMsgWindow(aMsgWindow);
-  rv = mailnewsurl->GetServer(getter_AddRefs(aMsgIncomingServer));
 
   // Try to check if the message is offline
   bool hasMsgOffline = false;
