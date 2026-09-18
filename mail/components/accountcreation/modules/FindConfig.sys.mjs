@@ -213,8 +213,10 @@ async function* parallelAutoDiscovery(
  * use with our internal Exchange Web Services implementation.
  *
  * @param {AccountConfig} config - The configuration to revise.
+ * @param {boolean} [includeExchangeAddon=true] - Whether to retain the
+ *   add-on-based Exchange configuration.
  */
-function ewsifyConfig(config) {
+function ewsifyConfig(config, includeExchangeAddon = true) {
   // At present, account setup code uses the "exchange" incoming server type
   // to store a configuration suitable for OWL. In order to avoid breaking
   // OWL (which uses some config fields in an idiosyncratic manner), we use
@@ -236,7 +238,17 @@ function ewsifyConfig(config) {
   // one, and for Exchange the incoming config is used for the outgoing config.
   ewsIncoming.useGlobalPreferredServer = false;
 
-  config.incomingAlternatives.push(ewsIncoming);
+  // When add-ons are enabled, offer native EWS alongside add-on-based Exchange.
+  // Otherwise, replace the add-on-based configuration with native EWS wherever
+  // it appears.
+  if (includeExchangeAddon) {
+    config.incomingAlternatives.push(ewsIncoming);
+  } else if (config.incoming === exchangeIncoming) {
+    config.incoming = ewsIncoming;
+  } else {
+    const exchangeIndex = config.incomingAlternatives.indexOf(exchangeIncoming);
+    config.incomingAlternatives.splice(exchangeIndex, 1, ewsIncoming);
+  }
 }
 
 /**
