@@ -29,7 +29,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 64;
+    const UI_VERSION = 65;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -518,6 +518,11 @@ export var MailMigrator = {
         );
       }
 
+      if (currentUIVersion < 65) {
+        // Bug 2069949 - don't list half baked smtp servers.
+        this._removeUnconfiguredSmtpServers();
+      }
+
       // Migration tasks that may take a long time are not run immediately, but
       // added to the MigrationTasks object then run at the end.
       //
@@ -538,6 +543,48 @@ export var MailMigrator = {
           " -- " +
           "Will reattempt on next start."
       );
+    }
+  },
+
+  /**
+   * Interrupted account creation could leave behind an SMTP server with no
+   * hostname. Such a server holds no useful configuration and used to be
+   * impossible to remove through the UI, so drop them.
+   */
+  _removeUnconfiguredSmtpServers() {
+    const defaultServerKey = Services.prefs.getCharPref(
+      "mail.smtp.defaultserver",
+      ""
+    );
+    const removedKeys = [];
+    for (const server of [...MailServices.outgoingServer.servers]) {
+      // NOTE: A server with no hostname is invalid. An empty username is normal
+      // for Ci.nsMsgAuthMethod.none.
+      if (
+        server.type == "smtp" &&
+        !server.QueryInterface(Ci.nsISmtpServer).hostname
+      ) {
+        removedKeys.push(server.key);
+        server.clearAllValues();
+        MailServices.outgoingServer.deleteServer(server);
+      }
+    }
+    if (!removedKeys.length) {
+      return;
+    }
+
+    // Leave the identities that used one of these pointing at nothing, so they
+    // fall back to the default server instead of to a key that resolves to no
+    // server at all.
+    for (const identity of MailServices.accounts.allIdentities) {
+      if (removedKeys.includes(identity.smtpServerKey)) {
+        identity.smtpServerKey = "";
+      }
+    }
+    if (removedKeys.includes(defaultServerKey)) {
+      // Clearing the pref makes the service pick a new default from the
+      // servers that are left.
+      MailServices.outgoingServer.defaultServer = null;
     }
   },
 

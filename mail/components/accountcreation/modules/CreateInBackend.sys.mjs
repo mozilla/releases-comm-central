@@ -202,11 +202,8 @@ async function createAccountInBackend(config) {
 
     outServer.description = config.displayName;
 
-    // If this is the first SMTP server, set it as default
-    if (
-      !MailServices.outgoingServer.defaultServer ||
-      !MailServices.outgoingServer.defaultServer.serverURI.host
-    ) {
+    // If there is no usable outgoing server set as default yet, use this one.
+    if (!MailServices.outgoingServer.defaultServer?.serverURI?.host) {
       MailServices.outgoingServer.defaultServer = outServer;
     }
   }
@@ -413,11 +410,16 @@ function checkIncomingServerAlreadyExists(config) {
 function checkOutgoingServerAlreadyExists(config) {
   lazy.AccountCreationUtils.assert(config instanceof lazy.AccountConfig);
   for (const existingServer of MailServices.outgoingServer.servers) {
+    const existingURI = existingServer.serverURI;
+    if (!existingURI) {
+      // Not fully configured, so it can't be a match.
+      continue;
+    }
     // TODO check username with full email address, too, like for incoming
     if (
       existingServer.type == config.outgoing.type &&
-      existingServer.serverURI.host == config.outgoing.hostname &&
-      existingServer.serverURI.port == config.outgoing.port &&
+      existingURI.host == config.outgoing.hostname &&
+      existingURI.port == config.outgoing.port &&
       existingServer.username == config.outgoing.username
     ) {
       return existingServer;

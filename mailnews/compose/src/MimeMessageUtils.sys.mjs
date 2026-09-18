@@ -814,7 +814,7 @@ export var MsgUtils = {
   formatStringWithSMTPHostName(userIdentity, l10n, errorName) {
     const smtpServer =
       MailServices.outgoingServer.getServerByIdentity(userIdentity);
-    const smtpHostname = smtpServer.serverURI.host;
+    const smtpHostname = smtpServer?.serverURI?.host ?? "";
     return l10n.formatValueSync(errorName, { hostname: smtpHostname });
   },
 

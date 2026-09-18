@@ -166,3 +166,41 @@ add_task(async function test_createAccountWithoutPorts() {
   MailServices.accounts.removeAccount(account, true);
   MailServices.outgoingServer.deleteServer(outgoingServer);
 });
+
+/**
+ * An outgoing server left behind unconfigured by an earlier, interrupted setup
+ * must not block the creation of new accounts (bug 2069949).
+ */
+add_task(function test_checkOutgoingServerAlreadyExistsSkipsUnconfigured() {
+  const unconfigured = MailServices.outgoingServer.createServer("smtp");
+  // An empty hostname next to a username is what makes the URI malformed.
+  unconfigured.username = "test@example.com";
+  const existing = MailServices.outgoingServer.createServer("smtp");
+  existing.QueryInterface(Ci.nsISmtpServer).hostname = "smtp.example.com";
+  existing.QueryInterface(Ci.nsISmtpServer).port = 587;
+  existing.username = "test@example.com";
+
+  const config = new AccountConfig();
+  config.outgoing.type = "smtp";
+  config.outgoing.hostname = "smtp.example.com";
+  config.outgoing.port = 587;
+  config.outgoing.username = "test@example.com";
+
+  try {
+    Assert.equal(
+      CreateInBackend.checkOutgoingServerAlreadyExists(config)?.key,
+      existing.key,
+      "the matching server should be found past the unconfigured one"
+    );
+
+    config.outgoing.hostname = "smtp.example.net";
+    Assert.equal(
+      CreateInBackend.checkOutgoingServerAlreadyExists(config),
+      null,
+      "a config that matches nothing should not match the unconfigured server"
+    );
+  } finally {
+    MailServices.outgoingServer.deleteServer(unconfigured);
+    MailServices.outgoingServer.deleteServer(existing);
+  }
+});

@@ -46,15 +46,28 @@ function onAccept(event) {
 
   // If we didn't have an SMTP server to initialize with,
   // we must be creating one.
+  let newServer = null;
   try {
     if (!gSmtpServer) {
-      gSmtpServer = MailServices.outgoingServer.createServer("smtp");
+      newServer = MailServices.outgoingServer.createServer("smtp");
+      gSmtpServer = newServer;
       window.arguments[0].addSmtpServer = gSmtpServer.key;
     }
 
     saveSmtpSettings(gSmtpServer);
   } catch (ex) {
     console.error("Error saving smtp server: ", ex);
+    if (newServer) {
+      // createServer() already persisted the server, so drop it again rather
+      // than leaving an unconfigured one behind.
+      newServer.clearAllValues();
+      MailServices.outgoingServer.deleteServer(newServer);
+      gSmtpServer = null;
+      window.arguments[0].addSmtpServer = null;
+    }
+    window.arguments[0].result = false;
+    event.preventDefault();
+    return;
   }
 
   window.arguments[0].result = true;
@@ -116,7 +129,7 @@ function initSmtpSettings(server) {
   }
 
   // Hide OAuth2 option if we can't use it.
-  const details = server
+  const details = server?.serverURI
     ? OAuth2Providers.getHostnameDetails(server.serverURI.host, "smtp")
     : null;
   document.getElementById("authMethod-oauth2").hidden = !details;

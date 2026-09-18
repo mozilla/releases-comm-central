@@ -128,3 +128,88 @@ add_task(async function testUID() {
     "server C's UID should be unchangeable after it is set"
   );
 });
+
+/**
+ * A server whose creation was interrupted has no hostname, and therefore no
+ * URI that can be built. Accessing serverURI must not throw, or such a server
+ * can no longer be listed, edited or deleted (bug 2069949).
+ */
+add_task(async function test_unconfiguredServerURI() {
+  const unconfigured = MailServices.outgoingServer.createServer("smtp");
+  // "smtp://" on its own parses; it takes a username or a port next to the
+  // empty hostname to make the URI malformed.
+  unconfigured.username = "username";
+  unconfigured.QueryInterface(Ci.nsISmtpServer).port = 587;
+
+  Assert.equal(
+    unconfigured.serverURI,
+    null,
+    "a server without a hostname should report no URI"
+  );
+
+  const configured = MailServices.outgoingServer.createServer("smtp");
+  configured.QueryInterface(Ci.nsISmtpServer).hostname = "smtp.test.invalid";
+  configured.username = "username";
+
+  Assert.equal(
+    MailServices.outgoingServer.findServer(
+      "username",
+      "smtp.test.invalid",
+      "smtp"
+    )?.key,
+    configured.key,
+    "findServer should skip the unconfigured server and find the configured one"
+  );
+
+  MailServices.outgoingServer.deleteServer(unconfigured);
+  MailServices.outgoingServer.deleteServer(configured);
+});
+
+/**
+ * A stored hostname that doesn't produce a parseable URI should also report no
+ * URI instead of throwing. A host:port pair in the hostname field is turned
+ * into "smtp://[host:port]", which is not a valid IPv6 literal.
+ */
+add_task(async function test_unparseableHostnameServerURI() {
+  const server = MailServices.outgoingServer.createServer("smtp");
+  server.QueryInterface(Ci.nsISmtpServer).hostname = "127.0.0.1:1025";
+
+  Assert.equal(
+    server.serverURI,
+    null,
+    "a server with an unparseable hostname should report no URI"
+  );
+
+  MailServices.outgoingServer.deleteServer(server);
+});
+
+/**
+ * An identity may name an outgoing server that no longer exists, for instance
+ * because the server was removed by hand from prefs.js. It should fall back to
+ * the default server rather than resolving to nothing, which would make
+ * sending fail outright. See bug 2069799.
+ */
+add_task(async function test_identityWithDanglingServerKey() {
+  const server = MailServices.outgoingServer.createServer("smtp");
+  server.QueryInterface(Ci.nsISmtpServer).hostname = "smtp.test.invalid";
+  MailServices.outgoingServer.defaultServer = server;
+
+  const identity = MailServices.accounts.createIdentity();
+  identity.smtpServerKey = "smtp-does-not-exist";
+
+  Assert.equal(
+    MailServices.outgoingServer.getServerByIdentity(identity)?.key,
+    server.key,
+    "an identity with an unresolvable server key should get the default server"
+  );
+
+  identity.smtpServerKey = server.key;
+  Assert.equal(
+    MailServices.outgoingServer.getServerByIdentity(identity)?.key,
+    server.key,
+    "an identity with a resolvable server key should still get that server"
+  );
+
+  MailServices.outgoingServer.defaultServer = null;
+  MailServices.outgoingServer.deleteServer(server);
+});

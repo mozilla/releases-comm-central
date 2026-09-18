@@ -117,7 +117,8 @@ interface nsIMsgOutgoingServer : nsISupports {
   attribute nsMsgSocketTypeValue socketType;
 
   /**
-   * Returns the URI of the server.
+   * Returns the URI of the server, or null if the server is not configured
+   * enough to have one, e.g. because it has no hostname yet.
    */
   readonly attribute nsIURI serverURI;
 

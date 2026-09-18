@@ -120,7 +120,14 @@ ServerStore.prototype = {
       return;
     }
 
-    const [, hostname, port] = /^(.*):(\d+)$/.exec(record.location);
+    const location = /^(.*):(\d+)$/.exec(record.location);
+    if (!location) {
+      this._log.warn(
+        `Skipping creation of ${record.id}: unusable location "${record.location}"`
+      );
+      return;
+    }
+    const [, hostname, port] = location;
 
     if (record.type == "smtp") {
       const smtpServer = MailServices.outgoingServer.createServer("smtp");

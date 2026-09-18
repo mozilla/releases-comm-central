@@ -530,9 +530,13 @@ function loadSMTPServerList() {
     } else if (server.username) {
       serverName = server.username + " - ";
     }
-    serverName += server.serverURI.host;
+    serverName +=
+      server.serverURI?.host ||
+      document
+        .getElementById("bundle_messenger")
+        .getString("smtpServerList-NotSpecified");
 
-    if (defaultServer.key == server.key) {
+    if (defaultServer?.key == server.key) {
       serverName +=
         " " +
         document

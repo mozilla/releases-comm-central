@@ -42,6 +42,8 @@ skip-if = [
 
 ["test_migrateTryStartTLS.js"]
 
+["test_migrateUnconfiguredSmtpServers.js"]
+
 ["test_mozIconUtils.js"]
 
 ["test_qrExport.js"]

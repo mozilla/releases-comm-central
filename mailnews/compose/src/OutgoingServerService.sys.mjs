@@ -65,9 +65,11 @@ export class OutgoingServerService {
    * @see nsIMsgOutgoingServerService
    */
   getServerByIdentity(userIdentity) {
-    return userIdentity.smtpServerKey
-      ? this.getServerByKey(userIdentity.smtpServerKey)
-      : this.defaultServer;
+    return (
+      (userIdentity.smtpServerKey &&
+        this.getServerByKey(userIdentity.smtpServerKey)) ||
+      this.defaultServer
+    );
   }
 
   /**

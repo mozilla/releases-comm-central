@@ -59,7 +59,10 @@ var gSmtpServerListWindow = {
       this.mBundle.getString("smtpServers-confirmServerDeletionTitle"),
       this.mBundle.getFormattedString(
         "smtpServers-confirmServerDeletion",
-        [server.serverURI.host],
+        [
+          server.serverURI?.host ||
+            this.mBundle.getString("smtpServerList-NotSpecified"),
+        ],
         1
       ),
       Services.prompt.STD_YES_NO_BUTTONS,
@@ -80,7 +83,7 @@ var gSmtpServerListWindow = {
 
       // If this was the default server, reset it to the first
       // available server.
-      if (MailServices.outgoingServer.defaultServer.key === server.key) {
+      if (MailServices.outgoingServer.defaultServer?.key === server.key) {
         // If there are other servers available, choose the first one as default.
         if (MailServices.outgoingServer.servers.length >= 2) {
           const newDefault = MailServices.outgoingServer.servers.find(
@@ -152,22 +155,25 @@ var gSmtpServerListWindow = {
       serverType = aServer.type;
     }
 
+    const serverURI = aServer.serverURI;
+
     document.getElementById("typeValue").textContent = serverType;
-    document.getElementById("nameValue").textContent = aServer.serverURI.host;
+    document.getElementById("nameValue").textContent =
+      serverURI?.host || noneSelected;
     document.getElementById("descriptionValue").textContent =
       aServer.description || noneSelected;
     // `nsIURI` uses -1 as the port when it's left to the default value.
     document.getElementById("portValue").textContent =
-      aServer.serverURI.port > 0 ? aServer.serverURI.port : noneSelected;
+      serverURI?.port > 0 ? serverURI.port : noneSelected;
     document.getElementById("userNameValue").textContent =
       aServer.username || noneSelected;
     document.getElementById("useSecureConnectionValue").textContent =
       this.mBundle.getString(
         "smtpServer-ConnectionSecurityType-" + aServer.socketType
       );
-    if (aServer.socketType != Ci.nsMsgSocketType.plain) {
-      let port = aServer.serverURI.port;
-      if (port == -1 && aServer.serverURI.schemeIs("https")) {
+    if (serverURI && aServer.socketType != Ci.nsMsgSocketType.plain) {
+      let port = serverURI.port;
+      if (port == -1 && serverURI.schemeIs("https")) {
         port = 443;
       }
       if (port != -1) {
@@ -176,7 +182,7 @@ var gSmtpServerListWindow = {
           .getElementById("useSecureConnectionValue")
           .appendChild(certCheck);
         certCheck.init(
-          aServer.serverURI.host,
+          serverURI.host,
           port,
           aServer.type,
           aServer.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS
@@ -260,7 +266,9 @@ var gSmtpServerListWindow = {
       serverName = aServer.username + " - ";
     }
 
-    serverName += aServer.serverURI.host;
+    serverName +=
+      aServer.serverURI?.host ||
+      this.mBundle.getString("smtpServerList-NotSpecified");
 
     if (aIsDefault) {
       serverName += " " + this.mBundle.getString("defaultServerTag");

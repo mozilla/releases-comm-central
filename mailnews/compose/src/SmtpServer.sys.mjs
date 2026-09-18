@@ -233,8 +233,20 @@ export class SmtpServer {
     // propagate to the console and user). This would not work if we were
     // recreating the nsIURI on each access.
     if (!this._uri) {
+      if (!this.hostname) {
+        // Looks like we're not fully set up yet. There's no URI to hand out.
+        return null;
+      }
       const spec = this._getServerURISpec(true, true);
-      this._uri = Services.io.newURI(spec);
+      try {
+        this._uri = Services.io.newURI(spec);
+      } catch (e) {
+        // The stored hostname doesn't produce a parseable URI. Don't throw:
+        // one unusable server must not break every consumer walking the
+        // server list, or the server can no longer even be deleted.
+        console.error(`Ignoring unusable outgoing server URI ${spec}:`, e);
+        return null;
+      }
     }
 
     return this._uri;
