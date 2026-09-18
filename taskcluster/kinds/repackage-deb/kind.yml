@@ -37,8 +37,7 @@ tasks:
             docker-image:
                 in-tree: debian12-repackage
         mozharness:
-            run-as-root: true
-            use-caches: false
+            use-caches: [checkout]
             comm-checkout: true
             clone-with: hg
             config-paths:
