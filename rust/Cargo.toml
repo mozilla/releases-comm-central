@@ -62,7 +62,7 @@ uniffi = { version = "0.32" }
 uniffi_bindgen = { version = "0.32" }
 uniffi_pipeline = { version = "0.32" }
 rusqlite = { version = "0.37" }
-glean = { version = "=70.0.0" }
+glean = { version = "=70.1.0" }
 
 [target."cfg(windows)".dependencies.scopeguard]
 version = "1"
