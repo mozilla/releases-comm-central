@@ -68,6 +68,43 @@ export var autosyncModule = {
     }
   },
 
+  /**
+   * Get the activity state for a folder, creating it if necessary.
+   *
+   * AutoSync notifications are not guaranteed to start with a priority-queue
+   * notification. In particular, the activity listener can begin observing an
+   * operation after the folder was queued. Recover when a download notification
+   * is the first event we see for a folder.
+   *
+   * @param {nsIMsgFolder} folder
+   * @param {number} pendingMsgCount
+   * @returns {object}
+   */
+  getOrCreateSyncItem(folder, pendingMsgCount) {
+    let syncItem = this._syncInfoPerFolder.get(folder.URI);
+    if (syncItem) {
+      return syncItem;
+    }
+
+    syncItem = {
+      syncFolder: folder,
+      activity: this.createSyncMailProcess(folder),
+      percentComplete: 0,
+      totalDownloaded: 0,
+      pendingMsgCount,
+    };
+    this._syncInfoPerFolder.set(folder.URI, syncItem);
+
+    if (!this._syncInfoPerServer.has(folder.server)) {
+      this._syncInfoPerServer.set(folder.server, {
+        startTime: Date.now(),
+        totalDownloads: 0,
+      });
+    }
+
+    return syncItem;
+  },
+
   createSyncMailProcess(folder) {
     try {
       // create an activity process for this folder
@@ -170,7 +207,9 @@ export var autosyncModule = {
         folder instanceof Ci.nsIMsgFolder &&
         queue == Ci.nsIAutoSyncMgrListener.PriorityQueue
       ) {
-        this._inQFolderList.push(folder);
+        if (!this._inQFolderList.includes(folder)) {
+          this._inQFolderList.push(folder);
+        }
         this.log.info(
           "Auto_Sync OnFolderAddedIntoQ [" +
             this._inQFolderList.length +
@@ -179,30 +218,10 @@ export var autosyncModule = {
             " of " +
             folder.server.prettyName
         );
-        // create an activity process for this folder
-        const process = this.createSyncMailProcess(folder);
-
-        // create a sync object to keep track of the process of this folder
-        const syncItem = {
-          syncFolder: folder,
-          activity: process,
-          percentComplete: 0,
-          totalDownloaded: 0,
-          pendingMsgCount: folder.autoSyncStateObj.pendingMessageCount,
-        };
-
-        // if this is the first folder of this server in the queue, then set the sync start time
-        // for activity event
-        if (!this._syncInfoPerServer.has(folder.server)) {
-          this._syncInfoPerServer.set(folder.server, {
-            startTime: Date.now(),
-            totalDownloads: 0,
-          });
-        }
-
-        // associate the sync object with the folder in question
-        // use folder.URI as key
-        this._syncInfoPerFolder.set(folder.URI, syncItem);
+        this.getOrCreateSyncItem(
+          folder,
+          folder.autoSyncStateObj.pendingMessageCount
+        );
       }
     } catch (e) {
       this.log.error("onFolderAddedIntoQ: " + e);
@@ -231,11 +250,22 @@ export var autosyncModule = {
         );
 
         const syncItem = this._syncInfoPerFolder.get(folder.URI);
+        if (!syncItem) {
+          this.log.debug(
+            `Ignoring removal of untracked AutoSync folder: ${folder.URI}`
+          );
+          return;
+        }
         const process = syncItem.activity;
         let canceled = false;
         if (process instanceof Ci.nsIActivityProcess) {
           canceled = process.state == Ci.nsIActivityProcess.STATE_CANCELED;
-          process.state = Ci.nsIActivityProcess.STATE_COMPLETED;
+          if (
+            !canceled &&
+            process.state != Ci.nsIActivityProcess.STATE_COMPLETED
+          ) {
+            process.state = Ci.nsIActivityProcess.STATE_COMPLETED;
+          }
 
           try {
             this.activityMgr.removeActivity(process.id);
@@ -250,10 +280,10 @@ export var autosyncModule = {
             // Log a warning, but do not throw an error.
             this.log.warn("onFolderRemovedFromQ: " + e);
           }
-
-          // remove the folder/syncItem association from the table
-          this._syncInfoPerFolder.delete(folder.URI);
         }
+
+        // remove the folder/syncItem association from the table
+        this._syncInfoPerFolder.delete(folder.URI);
 
         // if this is the last folder of this server in the queue
         // create a sync event and clean the sync start time
@@ -269,7 +299,7 @@ export var autosyncModule = {
         );
         if (!found) {
           // create an sync event for the completed process if it's not canceled
-          if (!canceled) {
+          if (!canceled && this._syncInfoPerServer.has(folder.server)) {
             const key = folder.server.prettyName;
             if (
               this._lastMessage.has(key) &&
@@ -305,7 +335,10 @@ export var autosyncModule = {
             "\n"
         );
 
-        const syncItem = this._syncInfoPerFolder.get(folder.URI);
+        const syncItem = this.getOrCreateSyncItem(folder, totalPending);
+        if (!this._inQFolderList.includes(folder)) {
+          this._inQFolderList.push(folder);
+        }
         const process = syncItem.activity;
 
         // Update the totalPending number. if new messages have been discovered in the folder
@@ -372,7 +405,14 @@ export var autosyncModule = {
             folder.server.prettyName
         );
 
-        const process = this._syncInfoPerFolder.get(folder.URI).activity;
+        const syncItem = this._syncInfoPerFolder.get(folder.URI);
+        if (!syncItem) {
+          this.log.debug(
+            `Ignoring completion of untracked AutoSync folder: ${folder.URI}`
+          );
+          return;
+        }
+        const process = syncItem.activity;
         if (process instanceof Ci.nsIActivityProcess && !this._running) {
           this.log.info(
             "OnDownloadCompleted: Auto-Sync Manager is paused, pausing the process"

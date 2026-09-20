@@ -34,3 +34,5 @@ JAR_MANIFESTS += ["jar.mn"]
 XPCOM_MANIFESTS += [
     "components.conf",
 ]
+
+XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.toml"]
