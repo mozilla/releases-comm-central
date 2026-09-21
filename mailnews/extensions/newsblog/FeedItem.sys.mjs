@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
+import { MailStringUtils } from "resource:///modules/MailStringUtils.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
@@ -242,11 +243,14 @@ FeedItem.prototype = {
       this.keywords
     );
 
+    const tagKeys = this.getTagKeys(this.keywords).join(" ");
+    const status = Ci.nsMsgMessageFlags.FeedMsg.toString(16).padStart(4, "0");
+
     let source =
-      "X-Mozilla-Status: 0000\n" +
+      `X-Mozilla-Status: ${status}\n` +
       "X-Mozilla-Status2: 00000000\n" +
       "X-Mozilla-Keys: " +
-      " ".repeat(80) +
+      tagKeys.padEnd(80, " ") +
       "\n" +
       "Received: by localhost; " +
       lazy.FeedUtils.getValidRFC5322Date() +
@@ -311,13 +315,11 @@ FeedItem.prototype = {
     const folder = this.feed.folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
     const msgFolder = folder.QueryInterface(Ci.nsIMsgFolder);
     msgFolder.gettingNewMessages = true;
-    // Source is a unicode js string, as UTF-16, and we want to save a
-    // char * cpp |string| as UTF-8 bytes. The source xml doc encoding is utf8.
-    source = unescape(encodeURIComponent(source));
-    const msgDBHdr = folder.addMessage(source);
-    msgDBHdr.orFlags(Ci.nsMsgMessageFlags.FeedMsg);
-    msgFolder.gettingNewMessages = false;
-    this.tagItem(msgDBHdr, this.keywords);
+    try {
+      folder.addMessage(MailStringUtils.stringToByteString(source));
+    } finally {
+      msgFolder.gettingNewMessages = false;
+    }
   },
 
   /**
@@ -367,16 +369,15 @@ FeedItem.prototype = {
   },
 
   /**
-   * Autotag messages.
+   * Create tags for feed categories and return their keys.
    *
-   * @param  {nsIMsgDBHdr} aMsgDBHdr - message to tag
-   * @param  {Array} aKeywords       - keywords (tags)
-   * @returns {void}
+   * @param {string[]} aKeywords - Keywords (tags).
+   * @returns {string[]} The tag keys.
    */
-  tagItem(aMsgDBHdr, aKeywords) {
+  getTagKeys(aKeywords) {
     const category = this.feed.options.category;
     if (!aKeywords.length || !category.enabled) {
-      return;
+      return [];
     }
 
     const prefix = category.prefixEnabled ? category.prefix : "";
@@ -393,13 +394,12 @@ FeedItem.prototype = {
       }
 
       // Add the tag key to the keys array.
-      keys.push(keyForTag);
+      if (keyForTag && !keys.includes(keyForTag)) {
+        keys.push(keyForTag);
+      }
     }
 
-    if (keys.length) {
-      // Add the keys to the message.
-      aMsgDBHdr.folder.addKeywordsToMessages([aMsgDBHdr], keys.join(" "));
-    }
+    return keys;
   },
 
   htmlEscape(s) {

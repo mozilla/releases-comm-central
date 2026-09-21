@@ -2,4 +2,6 @@
 head = "head_feeds.js"
 support-files = ["resources/*"]
 
+["test_feeditem.js"]
+
 ["test_feedparser.js"]
