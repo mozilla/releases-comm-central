@@ -6,6 +6,7 @@
 
 #include "ExchangeMessageChannel.h"
 #include "nsIMsgIncomingServer.h"
+#include "nsMsgUtils.h"
 
 nsresult NS_CreateEwsProtocolHandler(REFNSIID aIID, void** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
@@ -67,14 +68,7 @@ NS_IMETHODIMP ExchangeProtocolHandler::NewChannel(nsIURI* aURI,
       new ExchangeMessageChannel(aURI, convert);
   MOZ_TRY(channel->SetLoadInfo(aLoadinfo));
 
-  // Add the attachment disposition. This forces docShell to open the
-  // attachment instead of displaying it. Content types we have special
-  // handlers for are white-listed. This white list also exists in
-  // nsImapService::NewChannel, nsMailboxService::NewChannel and
-  // nsNntpService::NewChannel, so if you're changing this, update those too.
-  if (spec.Find("part=") >= 0 && spec.Find("type=message/rfc822") < 0 &&
-      spec.Find("type=application/x-message-display") < 0 &&
-      spec.Find("type=application/pdf") < 0) {
+  if (MsgPartUrlNeedsAttachmentDisposition(aURI)) {
     MOZ_TRY(channel->SetContentDisposition(nsIChannel::DISPOSITION_ATTACHMENT));
   }
 

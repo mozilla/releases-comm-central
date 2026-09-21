@@ -103,6 +103,11 @@ add_task(async function test_open_pdf_attachment_in_content_tab() {
         "the PDF document loaded in the content tab"
       );
     });
+    Assert.deepEqual(
+      URL.parse(contentTab.browser.currentURI.spec).searchParams.getAll("type"),
+      ["application/pdf"],
+      "the URL should have the content type exactly once"
+    );
   } finally {
     tabmail.closeTab(contentTab);
   }

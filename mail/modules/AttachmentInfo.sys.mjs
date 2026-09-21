@@ -415,11 +415,13 @@ export class AttachmentInfo {
         handlerInfo.preferredAction == Ci.nsIHandlerInfo.handleInternally
       ) {
         // Add the content type to avoid a "how do you want to open this?"
-        // dialog. The type may already be there, but that doesn't matter.
+        // dialog. For most attachments the MIME code has already put it in the
+        // URL, but not for external attachments.
         let url = this.url;
-        if (!url.includes("type=application/pdf")) {
-          url += url.includes("?") ? "&" : "?";
-          url += "type=application/pdf";
+        const parsedURL = URL.parse(url);
+        if (parsedURL && !parsedURL.searchParams.has("type")) {
+          parsedURL.searchParams.set("type", "application/pdf");
+          url = parsedURL.href;
         }
         let tabmail = win.document.getElementById("tabmail");
         if (!tabmail) {

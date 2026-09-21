@@ -857,7 +857,7 @@ var specialTabs = {
       );
 
       // For pdf.js use the aboutPagesContext context menu.
-      if (aArgs.url.includes("type=application/pdf")) {
+      if (URL.parse(aArgs.url)?.searchParams.get("type") == "application/pdf") {
         aTab.browser.setAttribute("context", "aboutPagesContext");
       }
 

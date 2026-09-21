@@ -14,12 +14,17 @@ export class Pop3ProtocolHandler {
 
   newChannel(uri, loadInfo) {
     const channel = new Pop3Channel(uri, loadInfo);
-    const spec = uri.spec;
+    // The type parameter may be escaped, so get the unescaped value rather
+    // than searching the spec for it. The same logic exists in
+    // MsgPartUrlNeedsAttachmentDisposition.
+    const type = new URLSearchParams(uri.query).get("type");
     if (
-      spec.includes("part=") &&
-      !spec.includes("type=message/rfc822") &&
-      !spec.includes("type=application/x-message-display") &&
-      !spec.includes("type=application/pdf")
+      uri.spec.includes("part=") &&
+      ![
+        "message/rfc822",
+        "application/x-message-display",
+        "application/pdf",
+      ].includes(type?.toLowerCase())
     ) {
       channel.contentDisposition = Ci.nsIChannel.DISPOSITION_ATTACHMENT;
     } else {

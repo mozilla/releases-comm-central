@@ -479,14 +479,7 @@ NS_IMETHODIMP nsMailboxService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
   rv = protocol->SetLoadInfo(aLoadInfo);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Add the attachment disposition. This forces docShell to open the
-  // attachment instead of displaying it. Content types we have special
-  // handlers for are white-listed. This white list also exists in
-  // nsImapService::NewChannel, EwsProtocolHandler::NewChannel and
-  // nsNntpService::NewChannel, so if you're changing this, update those too.
-  if (spec.Find("part=") >= 0 && spec.Find("type=message/rfc822") < 0 &&
-      spec.Find("type=application/x-message-display") < 0 &&
-      spec.Find("type=application/pdf") < 0) {
+  if (MsgPartUrlNeedsAttachmentDisposition(aURI)) {
     rv = protocol->SetContentDisposition(nsIChannel::DISPOSITION_ATTACHMENT);
     NS_ENSURE_SUCCESS(rv, rv);
   }

@@ -340,6 +340,15 @@ nsCString MsgExtractQueryPart(const nsACString& spec,
 void MsgRemoveQueryPart(nsCString& aSpec);
 
 /**
+ * Whether a channel for the given message part URL should get an attachment
+ * content disposition, which forces docShell to open the part instead of
+ * displaying it. Content types we have special handlers for are excluded.
+ * The same logic exists in Pop3ProtocolHandler and NntpProtocolHandler, so if
+ * you're changing this, update those too.
+ */
+bool MsgPartUrlNeedsAttachmentDisposition(nsIURI* aUrl);
+
+/**
  * Helper macro for defining getter/setters. Ported from nsISupportsObsolete.h
  */
 #define NS_IMPL_GETSET(clazz, attr, type, member) \
