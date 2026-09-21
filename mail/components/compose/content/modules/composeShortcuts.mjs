@@ -2,12 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
+);
 const { ShortcutsManager } = ChromeUtils.importESModule(
   "resource:///modules/ShortcutsManager.sys.mjs"
 );
 
 const BUTTONS = { "send-message": ["button-send"] };
 const MENUITEMS = { "send-message": ["menu-item-send-now"] };
+const isMACOS = AppConstants.platform == "macosx";
 
 export const ComposeShortcuts = {
   setup() {
@@ -107,23 +111,49 @@ async function setMenuitemShortcuts(ids, shortcut) {
  * Sets up the keyup event to intercept shortcuts.
  */
 function setupEventListener() {
-  window.addEventListener("keyup", event => {
-    const shortcut = ShortcutsManager.matches(event, "compose");
-    // Bail out if no shortcut matches or it has been disabled.
-    if (!shortcut) {
+  // Unique variation for macOS in case the metaKey is used for shortcuts.
+  // macOS doesn't fire any keyboard key on `keyup` if the metaKey is pressed,
+  // therefore we need to listen to the keydown event.
+  // This workaround can be removed if bug 1299553 is fixed in core.
+  window.addEventListener("keydown", event => {
+    if (!isMACOS || !event.metaKey || event.key === "Meta") {
+      // Bail out if we're not on macOS or the metaKey is not pressed.
       return;
     }
-    event.preventDefault();
-    event.stopPropagation();
-
-    switch (shortcut.id) {
-      case "send-message":
-        window.dispatchEvent(
-          new CustomEvent("send-message", { bubbles: true })
-        );
-        break;
-      default:
-        break;
-    }
+    dispatchShortcutEvent(event);
   });
+
+  window.addEventListener("keyup", event => {
+    if (isMACOS && event.metaKey) {
+      // Bail out if we're on macOS and the metaKey is pressed, because we can't
+      // handle any keyup. This is also needed for the tests since the
+      // { accelKey: true } of the EventUtils.synthesizeKey() is not bound by
+      // the macOS metaKey issue.
+      return;
+    }
+    dispatchShortcutEvent(event);
+  });
+}
+
+/**
+ * Process the keyboard shortcut event and dispatch the proper event if found.
+ *
+ * @param {KeyboardEvent} event
+ */
+function dispatchShortcutEvent(event) {
+  const shortcut = ShortcutsManager.matches(event, "compose");
+  // Bail out if no shortcut matches or it has been disabled.
+  if (!shortcut) {
+    return;
+  }
+  event.preventDefault();
+  event.stopPropagation();
+
+  switch (shortcut.id) {
+    case "send-message":
+      window.dispatchEvent(new CustomEvent("send-message", { bubbles: true }));
+      break;
+    default:
+      break;
+  }
 }

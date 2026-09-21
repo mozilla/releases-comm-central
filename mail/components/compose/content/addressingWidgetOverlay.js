@@ -728,18 +728,8 @@ function addressInputOnBeforeHandleKeyDown(event) {
       break;
     }
     case "Enter": {
-      // Break if unrelated modifier keys are used. The toolkit hack for Mac
-      // will consume metaKey, and we'll exclude shiftKey after that.
-      if (event.ctrlKey || event.altKey) {
-        break;
-      }
-
-      // MacOS-only variation necessary to send messages via Cmd+[Shift]+Enter
-      // since autocomplete input fields prevent that by default (bug 1682147).
-      if (!event.repeat && event.metaKey) {
-        // Cmd+[Shift]+Enter: Send message [later].
-        const sendCmd = event.shiftKey ? "cmd_sendLater" : "cmd_sendWithCheck";
-        goDoCommand(sendCmd);
+      // Break if unrelated modifier keys are used.
+      if (event.ctrlKey || event.altKey || event.metaKey) {
         break;
       }
 
