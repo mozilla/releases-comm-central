@@ -48,54 +48,59 @@ add_task(async function testNoPrimaryPasswordPolicyRememberPasswordSaves() {
 /**
  * Tests that the PrimaryPassword enterprise policy prevents saving a new mail
  * account password when no primary password is set, by prompting to set one.
+ *
+ * Skipped on enterprise builds, PrimaryPassword policy is not supported.
  */
-add_task(async function testPrimaryPasswordPolicyPreventsSave() {
-  await EnterprisePolicyTesting.setupPolicyEngineWithJson({
-    policies: { PrimaryPassword: true },
-  });
+add_task(
+  { skip_if: () => AppConstants.MOZ_ENTERPRISE },
+  async function testPrimaryPasswordPolicyPreventsSave() {
+    await EnterprisePolicyTesting.setupPolicyEngineWithJson({
+      policies: { PrimaryPassword: true },
+    });
 
-  const pkcsToken = Cc[
-    "@mozilla.org/security/internalkeytoken;1"
-  ].createInstance(Ci.nsIPKCS11Token);
-  Assert.ok(!pkcsToken.hasPassword, "no primary password should be set");
-  Assert.ok(
-    !Services.policies.isAllowed("removeMasterPassword"),
-    "removeMasterPassword should be disallowed with PrimaryPassword policy"
-  );
-
-  const testServer = MailServices.accounts.createIncomingServer(
-    "testuser",
-    "test.example.com",
-    "imap"
-  );
-
-  try {
-    // With the policy active and no primary password, rememberPassword should
-    // open the changemp.xhtml dialog. Cancelling must prevent save.
-    const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
-      undefined,
-      "chrome://mozapps/content/preferences/changemp.xhtml",
-      {
-        async callback(win) {
-          win.document.querySelector("dialog").getButton("cancel").click();
-        },
-      }
+    const pkcsToken = Cc[
+      "@mozilla.org/security/internalkeytoken;1"
+    ].createInstance(Ci.nsIPKCS11Token);
+    Assert.ok(!pkcsToken.hasPassword, "no primary password should be set");
+    Assert.ok(
+      !Services.policies.isAllowed("removeMasterPassword"),
+      "removeMasterPassword should be disallowed with PrimaryPassword policy"
     );
 
-    const savePromise = Promise.resolve().then(() =>
-      CreateInBackend.rememberPassword(testServer, "testpassword")
+    const testServer = MailServices.accounts.createIncomingServer(
+      "testuser",
+      "test.example.com",
+      "imap"
     );
-    await dialogPromise;
-    await savePromise;
 
-    Assert.equal(
-      (await Services.logins.getAllLogins()).length,
-      0,
-      "no login should be saved when primary password dialog is cancelled"
-    );
-  } finally {
-    MailServices.accounts.removeIncomingServer(testServer, true);
-    await EnterprisePolicyTesting.setupPolicyEngineWithJson("");
-    await Services.logins.removeAllLoginsAsync();
+    try {
+      // With the policy active and no primary password, rememberPassword should
+      // open the changemp.xhtml dialog. Cancelling must prevent save.
+      const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
+        undefined,
+        "chrome://mozapps/content/preferences/changemp.xhtml",
+        {
+          async callback(win) {
+            win.document.querySelector("dialog").getButton("cancel").click();
+          },
+        }
+      );
+
+      const savePromise = Promise.resolve().then(() =>
+        CreateInBackend.rememberPassword(testServer, "testpassword")
+      );
+      await dialogPromise;
+      await savePromise;
+
+      Assert.equal(
+        (await Services.logins.getAllLogins()).length,
+        0,
+        "no login should be saved when primary password dialog is cancelled"
+      );
+    } finally {
+      MailServices.accounts.removeIncomingServer(testServer, true);
+      await EnterprisePolicyTesting.setupPolicyEngineWithJson("");
+      await Services.logins.removeAllLoginsAsync();
+    }
   }
-});
+);
