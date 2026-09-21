@@ -2119,15 +2119,6 @@ if (AppConstants.MOZ_ENTERPRISE) {
     },
   };
 
-  Policies.EnterpriseStorageEncryption = {
-    onBeforeUIStartup(manager, param) {
-      lazy.PoliciesUtils.setAndLockPref(
-        "security.storage.encryption.enabled",
-        param
-      );
-    },
-  };
-
   Policies.ExtensionSettings = {
     onBeforeAddons(manager, param) {
       try {
