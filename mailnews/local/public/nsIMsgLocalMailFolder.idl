@@ -82,7 +82,9 @@ interface nsIMsgLocalMailFolder : nsISupports {
    * Adds a message to the end of the folder, parsing it as it goes, and
    * applying filters, if applicable.
    * @param aMessage string containing the entire body of the message to add
-   * @return the nsIMsgDBHdr of the added message
+   * @return The header if it is still in this folder's database when the call
+   *         completes, or null if already removed. A pending move may remove
+   *         a returned header later.
    */
   nsIMsgDBHdr addMessage(in string aMessage);
 
@@ -93,10 +95,10 @@ interface nsIMsgLocalMailFolder : nsISupports {
    *
    * Filters are applied, if applicable.
    *
-   * @param aMessageCount The number of messages.
-   * @param aMessages An array of pointers to strings containing entire message
-   *                  bodies.
-   * @return an array of nsIMsgDBHdr of the added messages
+   * @param aMessages Strings containing the complete messages to add.
+   * @return Headers in input order, with null for any header already removed
+   *         from this folder's database. A pending move may remove a returned
+   *         header later.
    */
   Array<nsIMsgDBHdr> addMessageBatch(in Array<ACString> aMessages);
 

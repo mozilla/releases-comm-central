@@ -3304,7 +3304,7 @@ nsMsgLocalMailFolder::AddMessage(const char* aMessage, nsIMsgDBHdr** aHdr) {
   nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
   nsresult rv = AddMessageBatch(aMessages, hdrs);
   NS_ENSURE_SUCCESS(rv, rv);
-  NS_ADDREF(*aHdr = hdrs[0]);
+  NS_IF_ADDREF(*aHdr = hdrs[0]);
   return rv;
 }
 
@@ -3385,6 +3385,16 @@ nsMsgLocalMailFolder::AddMessageBatch(
       NS_ENSURE_SUCCESS(rv, rv);
       newMailParser->DoneParsing();
       newMailParser->EndMsgDownload();
+      // Synchronous filtering may already have removed the source header.
+      // A queued move can still remove it after this method returns.
+      bool isLive = false;
+      rv = newHdr->GetIsLive(&isLive);
+      if (NS_FAILED(rv)) {
+        break;
+      }
+      if (!isLive) {
+        newHdr = nullptr;
+      }
       aHdrArray.AppendElement(newHdr);
     }
   }

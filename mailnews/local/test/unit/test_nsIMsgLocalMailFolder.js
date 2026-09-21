@@ -377,6 +377,57 @@ function test_unsafe_characters(root) {
   Assert.equal(newFolderAlpha.filePath.parent.leafName, `${safeDelta}.sbd`);
 }
 
+function test_filtered_message_return_values(root, server) {
+  const source = root
+    .createLocalSubfolder("filter source")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  const destination = root.createLocalSubfolder("filter destination");
+  const filterList = server.getFilterList(null);
+  const filter = filterList.createFilter("Move matching messages");
+  const term = filter.createTerm();
+  term.attrib = Ci.nsMsgSearchAttrib.Subject;
+  term.op = Ci.nsMsgSearchOp.Contains;
+  const value = term.value;
+  value.str = "move me";
+  term.value = value;
+  filter.appendTerm(term);
+  const action = filter.createAction();
+  action.type = Ci.nsMsgFilterAction.MoveToFolder;
+  action.targetFolderUri = destination.URI;
+  filter.appendAction(action);
+  filter.enabled = true;
+  filter.filterType = Ci.nsMsgFilterType.InboxRule;
+  filterList.insertFilterAt(0, filter);
+
+  const generator = new MessageGenerator();
+  const message = subject =>
+    generator.makeMessage({ subject }).toMessageString();
+  source.gettingNewMessages = true;
+  try {
+    const kept = source.addMessage(message("keep single"));
+    Assert.equal(kept.subject, "keep single");
+    Assert.ok(kept.isLive);
+    Assert.equal(source.addMessage(message("move me single")), null);
+
+    const headers = source.addMessageBatch([
+      message("keep batch first"),
+      message("move me batch"),
+      message("keep batch last"),
+    ]);
+    Assert.equal(headers.length, 3);
+    Assert.equal(headers[0].subject, "keep batch first");
+    Assert.equal(headers[1], null);
+    Assert.equal(headers[2].subject, "keep batch last");
+    Assert.ok(headers[0].isLive);
+    Assert.ok(headers[2].isLive);
+    Assert.equal([...source.messages].length, 3);
+    Assert.equal([...destination.messages].length, 2);
+  } finally {
+    source.gettingNewMessages = false;
+    filterList.removeFilterAt(0);
+  }
+}
+
 add_task(function testMbox() {
   Services.prefs.setCharPref(
     "mail.serverDefaultStoreContractID",
@@ -408,4 +459,5 @@ function run_all_tests(aHostName) {
   test_parse_uri(root);
   test_store_rename(root);
   test_unsafe_characters(root);
+  test_filtered_message_return_values(root, server);
 }
