@@ -44,8 +44,8 @@ pub enum EcError {
     EcKeyNotSignature,
     #[cfg_attr(feature = "std", error(transparent))]
     TryFromSliceError(TryFromSliceError),
-    #[cfg_attr(feature = "std", error("rand error: {0:?}"))]
-    RandCoreError(rand_core::Error),
+    #[cfg_attr(feature = "std", error("getrandom error: {0:?}"))]
+    RandError(getrandom::Error),
     #[cfg_attr(feature = "std", error("ecdh key type mismatch"))]
     EcdhKeyTypeMismatch,
     #[cfg_attr(feature = "std", error("ec key is not an ecdh key"))]
@@ -60,9 +60,9 @@ pub const DER_INTEGER: u8 = 0x02;
 pub const DER_BITSTRING: u8 = 0x03;
 pub const DER_OCTETSTRING: u8 = 0x04;
 
-impl From<rand_core::Error> for EcError {
-    fn from(value: rand_core::Error) -> Self {
-        EcError::RandCoreError(value)
+impl From<getrandom::Error> for EcError {
+    fn from(value: getrandom::Error) -> Self {
+        EcError::RandError(value)
     }
 }
 

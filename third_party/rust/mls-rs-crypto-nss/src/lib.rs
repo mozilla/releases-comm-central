@@ -23,11 +23,10 @@ use mls_rs_crypto_hpke::{
     hpke::{Hpke, HpkeError},
 };
 use mls_rs_crypto_traits::{AeadType, KdfType, KemId, KemType};
-use rand_core::{OsRng, RngCore};
 
 use mls_rs_core::{
     crypto::{
-        CipherSuite, CipherSuiteProvider, CryptoProvider, HpkeCiphertext, HpkePublicKey,
+        CipherSuite, CipherSuiteProvider, CryptoProvider, HpkeCiphertext, HpkePsk, HpkePublicKey,
         HpkeSecretKey, SignaturePublicKey, SignatureSecretKey,
     },
     error::{AnyError, IntoAnyError},
@@ -48,14 +47,14 @@ pub enum NssCryptoError {
     KdfError(AnyError),
     #[cfg_attr(feature = "std", error(transparent))]
     HashError(HashError),
-    #[cfg_attr(feature = "std", error("rand core error: {0:?}"))]
-    RandError(rand_core::Error),
+    #[cfg_attr(feature = "std", error("getrandom error: {0:?}"))]
+    RandError(getrandom::Error),
     #[cfg_attr(feature = "std", error(transparent))]
     EcSignerError(EcSignerError),
 }
 
-impl From<rand_core::Error> for NssCryptoError {
-    fn from(value: rand_core::Error) -> Self {
+impl From<getrandom::Error> for NssCryptoError {
+    fn from(value: getrandom::Error) -> Self {
         NssCryptoError::RandError(value)
     }
 }
@@ -179,7 +178,7 @@ where
     }
 
     pub fn random_bytes(&self, out: &mut [u8]) -> Result<(), NssCryptoError> {
-        OsRng.try_fill_bytes(out).map_err(Into::into)
+        getrandom::fill(out).map_err(Into::into)
     }
 }
 
@@ -282,6 +281,17 @@ where
         Ok(self.hpke.seal(remote_key, info, None, aad, pt).await?)
     }
 
+    async fn hpke_seal_psk(
+        &self,
+        remote_key: &HpkePublicKey,
+        info: &[u8],
+        aad: Option<&[u8]>,
+        pt: &[u8],
+        psk: HpkePsk<'_>,
+    ) -> Result<HpkeCiphertext, Self::Error> {
+        Ok(self.hpke.seal(remote_key, info, Some(psk), aad, pt).await?)
+    }
+
     async fn hpke_open(
         &self,
         ciphertext: &HpkeCiphertext,
@@ -293,6 +303,21 @@ where
         Ok(self
             .hpke
             .open(ciphertext, local_secret, local_public, info, None, aad)
+            .await?)
+    }
+
+    async fn hpke_open_psk(
+        &self,
+        ciphertext: &HpkeCiphertext,
+        local_secret: &HpkeSecretKey,
+        local_public: &HpkePublicKey,
+        info: &[u8],
+        aad: Option<&[u8]>,
+        psk: HpkePsk<'_>,
+    ) -> Result<Zeroizing<Vec<u8>>, Self::Error> {
+        Ok(self
+            .hpke
+            .open(ciphertext, local_secret, local_public, info, Some(psk), aad)
             .await?)
     }
 

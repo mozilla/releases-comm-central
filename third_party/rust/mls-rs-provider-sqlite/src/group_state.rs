@@ -137,6 +137,9 @@ impl SqLiteGroupStateStorage {
     fn max_epoch_id(&self, group_id: &[u8]) -> Result<Option<u64>, SqLiteDataStorageError> {
         let connection = self.connection.lock().unwrap();
 
+        let alternative_gid = self.alternative_group_id(group_id)?;
+        let group_id = alternative_gid.as_deref().unwrap_or(group_id);
+
         connection
             .query_row(
                 "SELECT MAX(epoch_id) FROM epoch WHERE group_id = ?",
@@ -298,6 +301,14 @@ mod tests {
     fn get_test_storage() -> SqLiteGroupStateStorage {
         SqLiteDataStorageEngine::new(MemoryStrategy)
             .unwrap()
+            .group_state_storage()
+            .unwrap()
+    }
+
+    fn get_test_storage_with_context(context: &[u8]) -> SqLiteGroupStateStorage {
+        SqLiteDataStorageEngine::new(MemoryStrategy)
+            .unwrap()
+            .with_context(context.to_vec())
             .group_state_storage()
             .unwrap()
     }
@@ -494,6 +505,27 @@ mod tests {
         let res = storage.max_epoch_id(group_id).unwrap();
 
         assert!(res.is_none())
+    }
+
+    #[test]
+    fn max_epoch_can_be_calculated_with_state_context() {
+        let storage = get_test_storage_with_context(b"some context");
+        let group_id = b"test";
+
+        storage
+            .update_group_state(
+                group_id,
+                &[0, 1, 2],
+                (0..3).map(test_epoch).collect(),
+                vec![],
+            )
+            .unwrap();
+
+        // The group id is rewritten using the state context on write, so every
+        // read path must apply the same rewrite.
+        assert_eq!(storage.max_epoch_id(group_id).unwrap(), Some(2));
+        assert!(storage.get_snapshot_data(group_id).unwrap().is_some());
+        assert!(storage.get_epoch_data(group_id, 2).unwrap().is_some());
     }
 
     #[test]

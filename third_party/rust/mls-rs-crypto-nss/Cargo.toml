@@ -37,7 +37,6 @@ std = [
     "mls-rs-crypto-hpke/std",
     "mls-rs-crypto-traits/std",
     "getrandom/std",
-    "rand_core/std",
     "dep:thiserror",
 ]
 
@@ -49,7 +48,7 @@ path = "src/lib.rs"
 maybe-async = "0.2"
 
 [dependencies.getrandom]
-version = "0.2"
+version = "0.3"
 default-features = false
 
 [dependencies.hex]
@@ -57,25 +56,20 @@ version = "0.4"
 features = ["serde"]
 
 [dependencies.mls-rs-core]
-version = "0.26"
+version = "0.27"
 default-features = false
 
 [dependencies.mls-rs-crypto-hpke]
-version = "0.20"
+version = "0.21"
 default-features = false
 
 [dependencies.mls-rs-crypto-traits]
-version = "0.21"
+version = "0.22"
 default-features = false
 
 [dependencies.nss-rs]
 version = "0.14"
 git = "https://github.com/mozilla/nss-rs"
-default-features = false
-
-[dependencies.rand_core]
-version = "0.6"
-features = ["alloc"]
 default-features = false
 
 [dependencies.serde]
@@ -98,11 +92,11 @@ default-features = false
 assert_matches = "1.5.0"
 
 [dev-dependencies.mls-rs-core]
-version = "0.26"
+version = "0.27"
 features = ["test_suite"]
 
 [dev-dependencies.mls-rs-crypto-hpke]
-version = "0.20"
+version = "0.21"
 features = ["test_utils"]
 default-features = false
 

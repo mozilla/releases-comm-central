@@ -980,6 +980,7 @@ dependencies = [
  "nserror",
  "nsstring",
  "thin-vec",
+ "wr_malloc_size_of",
  "xpcom",
 ]
 
@@ -1879,6 +1880,7 @@ dependencies = [
  "serde_json",
  "thiserror 1.999.999",
  "url",
+ "wr_malloc_size_of",
 ]
 
 [[package]]
@@ -4281,8 +4283,8 @@ dependencies = [
 
 [[package]]
 name = "mls-platform-api"
-version = "0.2.0"
-source = "git+https://github.com/mozilla/mls-platform-api?rev=eb1c880304127bcb7d0ee6d701fd4ca9ebc73403#eb1c880304127bcb7d0ee6d701fd4ca9ebc73403"
+version = "0.42.0"
+source = "git+https://github.com/mozilla/mls-platform-api?tag=0.42.0#6e6d1ad67f957faf64823d703fc32885c90115cf"
 dependencies = [
  "bincode",
  "hex",
@@ -4291,15 +4293,14 @@ dependencies = [
  "mls-rs-provider-sqlite",
  "serde",
  "serde_json",
- "sha2",
  "thiserror 2.0.12",
 ]
 
 [[package]]
 name = "mls-rs"
-version = "0.54.0"
+version = "0.56.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "210707fc5b5109801dc32cff1563f7d56568f04757bf92df9c23b2de8c2caacf"
+checksum = "4392c3b3ed7d835ca8f318f85ca65d3f0d3e879538d6e70679827a2f3af72029"
 dependencies = [
  "async-trait",
  "cfg-if",
@@ -4349,9 +4350,9 @@ dependencies = [
 
 [[package]]
 name = "mls-rs-core"
-version = "0.26.0"
+version = "0.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a39fcfdd769f82037ef92052b6cfc3061822f220767227b56bda73208cc59a7e"
+checksum = "e282079e5bd2fe95a009ac8af6a8e510924d876234ee494cd97f15f52de53cb0"
 dependencies = [
  "async-trait",
  "hex",
@@ -4366,9 +4367,9 @@ dependencies = [
 
 [[package]]
 name = "mls-rs-crypto-hpke"
-version = "0.20.0"
+version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c1f63b7c46e7f40b6ca6ef3a14362abc5617048d6e9f24ea53c7a4922d7fbcf"
+checksum = "b53db9a20568dec53e4f280ec8152c862b98efe105894e378d996be3305f32f2"
 dependencies = [
  "async-trait",
  "cfg-if",
@@ -4382,16 +4383,15 @@ dependencies = [
 [[package]]
 name = "mls-rs-crypto-nss"
 version = "0.2.1"
-source = "git+https://github.com/mozilla/mls-platform-api?rev=eb1c880304127bcb7d0ee6d701fd4ca9ebc73403#eb1c880304127bcb7d0ee6d701fd4ca9ebc73403"
+source = "git+https://github.com/mozilla/mls-platform-api?tag=0.42.0#6e6d1ad67f957faf64823d703fc32885c90115cf"
 dependencies = [
- "getrandom 0.2.999",
+ "getrandom 0.3.3",
  "hex",
  "maybe-async",
  "mls-rs-core",
  "mls-rs-crypto-hpke",
  "mls-rs-crypto-traits",
  "nss-rs",
- "rand_core",
  "serde",
  "thiserror 2.0.12",
  "zeroize",
@@ -4399,9 +4399,9 @@ dependencies = [
 
 [[package]]
 name = "mls-rs-crypto-traits"
-version = "0.21.0"
+version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d70626f39505eaeda9b90429665cb8fdc56538a0b3e357a636125662b6cb80ab"
+checksum = "49171fd5c7c77cd29ec452dcc6f537b8c568084b97023dcc5c0d41140da8ceb4"
 dependencies = [
  "async-trait",
  "maybe-async",
@@ -4411,9 +4411,9 @@ dependencies = [
 
 [[package]]
 name = "mls-rs-identity-x509"
-version = "0.20.0"
+version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a6ab2bf0bae192901fc53a87536381c5d26263cfe1bb0907ee88675998469ffc"
+checksum = "ec1ecb6a61a296b8240cea19171477293663dcc6540353dc8cbcda2d9f61039b"
 dependencies = [
  "async-trait",
  "maybe-async",
@@ -4424,8 +4424,8 @@ dependencies = [
 
 [[package]]
 name = "mls-rs-provider-sqlite"
-version = "0.22.0"
-source = "git+https://github.com/mozilla/mls-platform-api?rev=eb1c880304127bcb7d0ee6d701fd4ca9ebc73403#eb1c880304127bcb7d0ee6d701fd4ca9ebc73403"
+version = "0.23.0"
+source = "git+https://github.com/mozilla/mls-platform-api?tag=0.42.0#6e6d1ad67f957faf64823d703fc32885c90115cf"
 dependencies = [
  "async-trait",
  "hex",
