@@ -416,6 +416,12 @@ int main(int argc, char* argv[], char* envp[]) {
     auto result = mozilla::WindowsDpiInitialization();
     (void)result;  // Ignore errors since some tools block DPI calls
   }
+
+  // Preload cryptbase.dll from the system directory to avoid loading a
+  // planted one. This used to be done unconditionally in mozglue's DllMain;
+  // it's now parent-only, as child processes either don't need it, or by
+  // the time they do the sandbox already guarantees PreferSystem32Images.
+  ::LoadLibraryExW(L"cryptbase.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
 #endif
 
   nsresult rv = InitXPCOMGlue(LibLoadingStrategy::NoReadAhead);
