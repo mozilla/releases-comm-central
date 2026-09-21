@@ -44,6 +44,7 @@ skip-if = [
 ["browser_policy_downloads.js"]
 
 ["browser_policy_extensions.js"]
+skip-if = ["enterprise"] # Extensions is not a supported policy in Enterprise builds
 
 ["browser_policy_extensionsettings.js"]
 https_first_disabled = true
