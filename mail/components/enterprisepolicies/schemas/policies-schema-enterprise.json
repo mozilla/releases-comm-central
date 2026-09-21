@@ -245,6 +245,31 @@
       }
     },
 
+    "CrashReportsSubmit": {
+      "type": "object",
+      "x-category": "Cloud reporting",
+      "x-compatibility": {
+        "thunderbird": { "version_added": false },
+        "thunderbird_esr": { "version_added": false },
+        "thunderbird_enterprise": { "version_added": "158" }
+      },
+      "x-restart-required": false,
+      "description": "Configure crash report submission settings.",
+      "examples": [
+        {
+          "Enabled": false
+        },
+        {
+          "Enabled": true
+        }
+      ],
+      "properties": {
+        "Enabled": {
+          "type": "boolean"
+        }
+      }
+    },
+
     "DefaultDownloadDirectory": {
       "type": "string",
       "x-compatibility": {

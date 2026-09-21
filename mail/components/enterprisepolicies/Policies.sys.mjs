@@ -2018,6 +2018,79 @@ if (AppConstants.MOZ_ENTERPRISE) {
     },
   };
 
+  Policies.CrashReportsSubmit = {
+    onBeforeAddons(_manager, param) {
+      if ("Enabled" in param) {
+        if (param.Enabled) {
+          lazy.PoliciesUtils.setAndLockPref(
+            "browser.crashReports.unsubmittedCheck.autoSubmit2",
+            true
+          );
+          lazy.PoliciesUtils.setAndLockPref(
+            "browser.crashReports.unsubmittedCheck.enabled",
+            true
+          );
+          lazy.PoliciesUtils.setEnvVar("MOZ_CRASHREPORTER_NO_REPORT", "");
+          lazy.PoliciesUtils.setEnvVar(
+            "MOZ_CRASHREPORTER_POLICY_AUTO_SUBMIT",
+            "1"
+          );
+        } else {
+          lazy.PoliciesUtils.setAndLockPref(
+            "browser.crashReports.unsubmittedCheck.autoSubmit2",
+            false
+          );
+          lazy.PoliciesUtils.setAndLockPref(
+            "browser.crashReports.unsubmittedCheck.enabled",
+            false
+          );
+          lazy.PoliciesUtils.setEnvVar("MOZ_CRASHREPORTER_NO_REPORT", "1");
+          lazy.PoliciesUtils.setEnvVar(
+            "MOZ_CRASHREPORTER_POLICY_AUTO_SUBMIT",
+            ""
+          );
+        }
+      } else {
+        lazy.PoliciesUtils.unsetAndUnlockPref(
+          "browser.crashReports.unsubmittedCheck.autoSubmit2"
+        );
+        lazy.PoliciesUtils.unsetAndUnlockPref(
+          "browser.crashReports.unsubmittedCheck.enabled"
+        );
+        lazy.PoliciesUtils.unsetEnvVar("MOZ_CRASHREPORTER_POLICY_AUTO_SUBMIT");
+        lazy.PoliciesUtils.unsetEnvVar("MOZ_CRASHREPORTER_NO_REPORT");
+      }
+      // The crash callback reads a cached, signal-safe atomic; tell it to
+      // re-read the env vars now that we've changed them.
+      try {
+        Services.appinfo
+          .QueryInterface(Ci.nsICrashReporter)
+          .updateShouldReport();
+      } catch (e) {
+        // nsICrashReporter is unavailable in builds without the crash reporter.
+      }
+    },
+    onRemove(_manager, _oldParams) {
+      lazy.PoliciesUtils.unsetAndUnlockPref(
+        "browser.crashReports.unsubmittedCheck.autoSubmit2"
+      );
+      lazy.PoliciesUtils.unsetAndUnlockPref(
+        "browser.crashReports.unsubmittedCheck.enabled"
+      );
+      lazy.PoliciesUtils.unsetEnvVar("MOZ_CRASHREPORTER_POLICY_AUTO_SUBMIT");
+      lazy.PoliciesUtils.unsetEnvVar("MOZ_CRASHREPORTER_NO_REPORT");
+      // The crash callback reads a cached, signal-safe atomic; tell it to
+      // re-read the env vars now that we've changed them.
+      try {
+        Services.appinfo
+          .QueryInterface(Ci.nsICrashReporter)
+          .updateShouldReport();
+      } catch (e) {
+        // nsICrashReporter is unavailable in builds without the crash reporter.
+      }
+    },
+  };
+
   Policies.DisableDeveloperTools = {
     onBeforeAddons(manager, param) {
       if (param) {
