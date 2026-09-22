@@ -7,6 +7,12 @@ const { LoginTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/LoginTestUtils.sys.mjs"
 );
 
+// policies-schema-enterprise.json marks PrimaryPassword as unsupported
+// ("thunderbird_enterprise": { "version_added": false }), so the engine rejects
+// it on enterprise builds and neither removeMasterPassword nor
+// createMasterPassword gets disallowed.
+const primaryPasswordEnforced = !AppConstants.MOZ_ENTERPRISE;
+
 // Test that once a password is set, you can't unset it
 add_task(async function test_policy_masterpassword_set() {
   await setupPolicyEngineWithJson({
@@ -30,8 +36,10 @@ add_task(async function test_policy_masterpassword_set() {
 
   is(
     contentDocument.getElementById("useMasterPassword").disabled,
-    true,
-    "Primary Password checkbox should be disabled"
+    primaryPasswordEnforced,
+    `Primary Password checkbox should be ${
+      primaryPasswordEnforced ? "disabled" : "enabled"
+    }`
   );
 
   const tabmail = document.getElementById("tabmail");
@@ -69,8 +77,10 @@ add_task(async function test_policy_nochangemp() {
   is(
     changeMPWindow.document.getElementById("changemp").getButton("accept")
       .disabled,
-    true,
-    "OK button should not be enabled if there is an old password."
+    primaryPasswordEnforced,
+    `OK button should ${
+      primaryPasswordEnforced ? "not " : ""
+    }be enabled if there is an old password.`
   );
 
   await BrowserTestUtils.closeWindow(changeMPWindow);
@@ -95,9 +105,10 @@ add_task(async function test_policy_admin() {
 
   is(
     changeMPWindow.document.getElementById("admin").hidden,
-    false,
-    true,
-    "Admin message should not be hidden because there is not a password."
+    !primaryPasswordEnforced,
+    `Admin message should ${
+      primaryPasswordEnforced ? "not " : ""
+    }be hidden because there is not a password.`
   );
 
   await BrowserTestUtils.closeWindow(changeMPWindow);
