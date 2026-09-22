@@ -34,9 +34,7 @@ fn request_quit() -> Result<(), nsresult> {
     let service = get_service::<nsIAppStartup>(c"@mozilla.org/toolkit/app-startup;1")
         .ok_or(nserror::NS_ERROR_NO_INTERFACE)?;
     unsafe {
-        service
-            .Quit(nsIAppStartup::eAttemptQuit, 0)
-            .to_result()?;
+        service.Quit(nsIAppStartup::eAttemptQuit, 0).to_result()?;
     }
     Ok(())
 }
