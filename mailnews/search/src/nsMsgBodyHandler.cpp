@@ -12,6 +12,7 @@
 #include "nsICMSMessage.h"
 #include "nsICMSDecoder.h"
 #include "nsMsgI18N.h"
+#include "mozilla/Base64.h"
 #include "mozilla/StaticPrefs_mail.h"
 #include "mozilla/Utf8.h"
 #include "mime_closure.h"
@@ -646,7 +647,7 @@ void nsMsgBodyHandler::DecryptPGP(const nsCString& aEncrypted,
   decryptor->Write(aEncrypted.get(), aEncrypted.Length());
   decryptor->Finish();
   decryptor->RemoveMimeCallback();
-  aDecrypted.Assign(mDecrypted.get());  // Make a copy.
+  aDecrypted.Assign(mDecrypted);  // Make a copy.
 }
 
 void nsMsgBodyHandler::DecryptSMIME(const nsCString& aEncrypted,
@@ -684,7 +685,7 @@ void nsMsgBodyHandler::DecryptSMIME(const nsCString& aEncrypted,
   nsCOMPtr<nsICMSMessage> cinfo;
   rv = decryptor->Finish(getter_AddRefs(cinfo));
   NS_ENSURE_SUCCESS_VOID(rv);
-  aDecrypted.Assign(mDecrypted.get());  // Make a copy.
+  aDecrypted.Assign(mDecrypted);  // Make a copy.
 }
 
 void nsMsgBodyHandler::GetRelevantTextParts(const nsCString& aInput,
@@ -867,15 +868,17 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString& line) {
  * @param pBufInOut   (inout) a buffer of the string
  */
 void nsMsgBodyHandler::Base64Decode(nsCString& pBufInOut) {
-  char* decodedBody =
-      PL_Base64Decode(pBufInOut.get(), pBufInOut.Length(), nullptr);
-  if (decodedBody) {
-    // Replace CR LF with spaces.
-    char* q = decodedBody;
-    while (*q) {
-      if (*q == '\n' || *q == '\r') *q = ' ';
-      q++;
-    }
-    pBufInOut.Adopt(decodedBody);
+  // Decoded text can contain NUL bytes itself, UTF-16 for instance, so
+  // everything here has to go by the length and not by NUL termination.
+  nsCString decoded;
+  if (NS_FAILED(mozilla::Base64Decode(pBufInOut, decoded))) {
+    // Not valid base64, so leave the buffer as it was.
+    return;
   }
+  // Replace CR LF with spaces. Byte by byte, which is only sound for a charset
+  // where a CR or LF byte can't be part of another character. UTF-16 is the
+  // exception that matters, and there a character like U+250A ends up as a
+  // different one. Rare enough not to be worth converting the part for.
+  decoded.ReplaceChar("\r\n", ' ');
+  pBufInOut.Assign(std::move(decoded));
 }

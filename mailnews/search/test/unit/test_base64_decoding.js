@@ -19,6 +19,7 @@ var Files = [
   "../../../data/bugmail1",
   "../../../data/bodySearchCrash", // Test for bug 465805.
   "../../../data/base64-with-whitespace.eml", // Test for bug 1487421.
+  "../../../data/base64-utf16.eml", // Test for bug 2073247.
 ];
 
 var Tests = [
@@ -32,6 +33,22 @@ var Tests = [
   {
     // this appears in base64-with-whitespace.eml
     value: "abcdefghijklmnopqrstuvwxyz",
+    attrib: Body,
+    op: Contains,
+    count: 1,
+  },
+  {
+    // this appears in base64-utf16.eml, whose body decodes to UTF-16 and so
+    // contains NUL bytes that must not truncate it
+    value: "utf16Marker",
+    attrib: Body,
+    op: Contains,
+    count: 1,
+  },
+  {
+    // in base64-utf16.eml the two words are separated by a line break, whose
+    // CR and LF each become a space, even though they follow a NUL byte
+    value: "eins  zwei",
     attrib: Body,
     op: Contains,
     count: 1,
