@@ -164,9 +164,9 @@ FEATURES_TO_PRESERVE = [
 
 MS_GRAPH_OPENAPI_URL = (
     "https://github.com/microsoftgraph/msgraph-metadata/raw/"
-    "bf874d5c4968ff78fe4f78915d648550f271ea73/openapi/v1.0/openapi.yaml"
+    "de1a61e44c3794b8818cf6455b0fb089d0e5e1c9/openapi/v1.0/openapi.yaml"
 )
-MS_GRAPH_OPENAPI_SHA256 = "31f91828701fd0ec1045008dd3b7bfac04475e444de90bd522d50ecb81346142"
+MS_GRAPH_OPENAPI_SHA256 = "6e3a4c9bab98c7c759742769fae115e8c50241674ffc99d834d223ab93c91889"
 
 def get_cargo(command_context):
     """

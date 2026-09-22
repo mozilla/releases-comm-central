@@ -23,7 +23,7 @@ fn format_path(template_expressions: &TemplateExpressions) -> String {
     let endpoint = endpoint.trim_end_matches('/');
     format!("{endpoint}/me/mailFolders")
 }
-#[doc = "List mailFolders\n\nGet the mail folder collection directly under the root folder of the signed-in user. The returned collection includes any mail search folders directly under the root. By default, this operation does not return hidden folders. Use a query parameter includeHiddenFolders to include them in the response. This operation does not return all mail folders in a mailbox, only the child folders of the root folder. To return all mail folders in a mailbox, each child folder must be traversed separately.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-list-mailfolders?view=graph-rest-1.0)."]
+#[doc = "List mailFolders\n\nGet the mail folder collection directly under the root folder of the signed-in user. The returned collection includes any mail search folders directly under the root. By default, this operation doesn't return hidden folders. Use a query parameter includeHiddenFolders to include them in the response. This operation doesn't return all mail folders in a mailbox, only the child folders of the root folder. To return all mail folders in a mailbox, each child folder must be traversed separately.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-list-mailfolders?view=graph-rest-1.0)."]
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,

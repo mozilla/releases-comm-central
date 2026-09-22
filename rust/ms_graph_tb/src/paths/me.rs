@@ -82,7 +82,7 @@ impl Expand for Get {
         self.expansion.extend(properties);
     }
 }
-#[doc = "Update user\n\nUpdate the properties of a user object.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-update?view=graph-rest-1.0)."]
+#[doc = "Update user\n\nUpdate the properties of a user object. To use this API to update an agentUser, specify an @odata.type property with a value of #microsoft.graph.agentUser in the request body.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-update?view=graph-rest-1.0)."]
 #[derive(Debug)]
 pub struct Patch {
     template_expressions: TemplateExpressions,

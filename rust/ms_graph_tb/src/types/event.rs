@@ -96,11 +96,11 @@ pub struct Event {
     pub body_preview: Option<Nullable<String>>,
     #[doc = "The calendar that contains the event.\n\n Navigation property. Read-only."]
     pub calendar: Option<Calendar>,
-    #[doc = "Contains occurrenceId property values of canceled instances in a recurring series, if the event is the series master.\n\n Instances in a recurring series that are canceled are called canceled occurences.Returned only on `$select` in a Get operation which specifies the ID (seriesMasterId property value) of a series master event."]
+    #[doc = "Contains occurrenceId property values of canceled instances in a recurring series, if the event is the series master.\n\n Instances in a recurring series that are canceled are called canceled occurences.Requires `$select` to retrieve. Only returned in a Get operation that specifies the ID (seriesMasterId property value) of a series master event."]
     pub cancelled_occurrences: Option<Vec<String>>,
     #[doc = "The date, time, and time zone that the event ends.\n\n By default, the end time is in UTC."]
     pub end: Option<DateTimeTimeZone>,
-    #[doc = "Contains the id property values of the event instances that are exceptions in a recurring series.Exceptions can differ from other occurrences in a recurring series, such as the subject, start or end times, or attendees.\n\n Exceptions don't include canceled occurrences.Returned only on `$select` and `$expand` in a GET operation that specifies the ID (seriesMasterId property value) of a series master event."]
+    #[doc = "Contains the id property values of the event instances that are exceptions in a recurring series.Exceptions can differ from other occurrences in a recurring series, such as the subject, start or end times, or attendees.\n\n Exceptions don't include canceled occurrences.Requires `$select` and `$expand` to retrieve. Only returned in a GET operation that specifies the ID (seriesMasterId property value) of a series master event."]
     pub exception_occurrences: Option<Vec<Event>>,
     #[doc = "Set to true if the event has attachments."]
     pub has_attachments: Option<Nullable<bool>>,

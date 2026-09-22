@@ -96,7 +96,7 @@ pub struct Message {
     pub has_attachments: Option<Nullable<bool>>,
     #[doc = "The importance of the message.\n\n The possible values are: low, normal, and high."]
     pub importance: Option<Importance>,
-    #[doc = "A collection of message headers defined by RFC5322.\n\n The set includes message headers indicating the network path taken by a message from the sender to the recipient. It can also contain custom message headers that hold app data for the message.  Returned only on applying a `$select` query option. Read-only."]
+    #[doc = "A collection of message headers defined by RFC5322.\n\n The set includes message headers indicating the network path taken by a message from the sender to the recipient. It can also contain custom message headers that hold app data for the message.  Requires `$select` to retrieve. Read-only."]
     pub internet_message_headers: Option<Vec<InternetMessageHeader>>,
     #[doc = "The message ID in the format specified by RFC2822."]
     pub internet_message_id: Option<Nullable<String>>,
