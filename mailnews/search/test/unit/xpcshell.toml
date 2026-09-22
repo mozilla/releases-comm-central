@@ -30,6 +30,8 @@ tags = [
   "smime",
 ]
 
+["test_searchBodyLimit.js"]
+
 ["test_searchBoolean.js"]
 
 ["test_searchChaining.js"]

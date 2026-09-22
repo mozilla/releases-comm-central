@@ -42,6 +42,16 @@
   value: 2
   mirror: always
 
+# The most body text, in bytes, that a body search looks at in one piece.
+# Body text is matched in memory, and matching needs a UTF-16 copy of it on
+# top of the decoded text itself, so without a limit a single huge message can
+# exhaust the available memory. Text past the limit in an encoded or HTML part
+# is not searched. The default is 20 MiB.
+- name: mail.search_max_body_bytes
+  type: uint32_t
+  value: 20971520
+  mirror: always
+
 # If special folders (trash, drafts, etc.) on remote servers should use names
 # provided by localizers, instead of names from the server.
 - name: mail.useLocalizedFolderNames

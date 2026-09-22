@@ -62,8 +62,11 @@ nsresult nsMsgI18NConvertToUnicode(const nsACString& aCharset,
     return NS_OK;
   }
   if (aCharset.IsEmpty()) {
-    // Despite its name, it also works for Latin-1.
-    CopyASCIItoUTF16(inString, outString);
+    // Despite its name, it also works for Latin-1. Fallibly, because callers
+    // pass whole message bodies, which can be arbitrarily large.
+    if (!CopyASCIItoUTF16(inString, outString, mozilla::fallible)) {
+      return NS_ERROR_OUT_OF_MEMORY;
+    }
     return NS_OK;
   }
 
