@@ -14,7 +14,8 @@ interface IGraphCalendarClient : nsISupports
     void detectCalendars(in IGraphCalendarDiscoveryListener listener);
     void syncCalendarEvents(
         in AUTF8String calendarId,
-        in IGraphCalendarEventListener listener);
+        in IGraphCalendarEventListener listener,
+        in AUTF8String syncState);
 };
 
 [scriptable, uuid(54e4b644-a8a3-4d46-8920-81880f9208ec)]
@@ -31,6 +32,7 @@ interface IGraphCalendarEventListener : nsISupports {
       in AUTF8String title,
       in AUTF8String startDateTime,
       in AUTF8String endDateTime);
-
+    void onEventDeleted(in AUTF8String id);
     void onComplete(in nsresult statusCode);
+    void onSyncStateTokenChanged(in AUTF8String syncStateToken);
 };

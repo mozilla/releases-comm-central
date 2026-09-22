@@ -24,6 +24,10 @@ add_task(async function test_detectCalendars() {
   Assert.equal(calendar.name, "New Calendar", "Calendar name should match.");
   Assert.ok(!calendar.readOnly, "Calendar should not be readonly.");
 
+  // Chaos mode gets angry if the register-triggered refresh isn't finished when
+  // tearing down, so just disable for this test.
+  calendar.setProperty("disabled", true);
+
   // Register the resulting calendar.
   cal.manager.registerCalendar(calendar);
 

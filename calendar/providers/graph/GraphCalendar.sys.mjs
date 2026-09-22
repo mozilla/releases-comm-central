@@ -6,6 +6,15 @@ import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 import { CalEvent } from "resource:///modules/CalEvent.sys.mjs";
 import { GraphProvider } from "./GraphProvider.sys.mjs";
 
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
+
 /**
  * GraphCalendar class implementing calICalendar
  */
@@ -23,6 +32,16 @@ export class GraphCalendar extends cal.provider.BaseClass {
   #observer;
 
   /**
+   * @type {calIOperation | null}
+   */
+  #syncOperation;
+
+  /**
+   * @type {string}
+   */
+  syncStateToken;
+
+  /**
    * Constructor for GraphCalendar.
    */
   constructor() {
@@ -30,6 +49,8 @@ export class GraphCalendar extends cal.provider.BaseClass {
     this.initProviderBase();
     this.#memoryCalendar = null;
     this.#observer = null;
+    this.#syncOperation = null;
+    this.syncStateToken = "";
 
     // TODO: https://bugzilla.mozilla.org/show_bug.cgi?id=2058691
     // We use a transient memory calendar because we're just retrieving the full
@@ -95,7 +116,7 @@ export class GraphCalendar extends cal.provider.BaseClass {
     return this;
   }
 
-  set superCalendar(value) {}
+  set superCalendar(_value) {}
 
   /**
    * Get whether refresh is supported.
@@ -207,6 +228,10 @@ export class GraphCalendar extends cal.provider.BaseClass {
    * @returns {calIOperation}
    */
   refresh() {
+    if (this.#syncOperation?.isPending) {
+      return this.#syncOperation;
+    }
+
     // TODO: https://bugzilla.mozilla.org/show_bug.cgi?id=2052326 We're
     // currently using a transient client per refresh, but when we start sharing
     // clients to unify error handling and connection throttling, we'll need to
@@ -216,81 +241,166 @@ export class GraphCalendar extends cal.provider.BaseClass {
       this.location
     ).graphCalendarClient;
     const listener = new EventSyncListener(this, client);
-    client.syncCalendarEvents(this.id, listener);
-    this.#observer.onLoad(this);
+    this.#syncOperation = listener;
+    this.startBatch();
+
+    try {
+      client.syncCalendarEvents(this.id, listener, this.syncStateToken);
+    } catch (error) {
+      listener.onComplete(error?.result ?? Cr.NS_ERROR_FAILURE);
+    }
     return listener;
   }
 
   /**
-   * Start batch mode.
+   * Notify this calendar that a refresh has completed.
+   *
+   * @param {number} status - A Components.results result
+   * @param {*} errorDetail - Error information to pass to
+   *   `notifyOperationComplete`
    */
-  startBatch() {
-    throw new Components.Exception("startBatch", Cr.NS_ERROR_NOT_IMPLEMENTED);
-  }
-
-  /**
-   * End batch mode.
-   */
-  endBatch() {
-    throw new Components.Exception("endBatch", Cr.NS_ERROR_NOT_IMPLEMENTED);
+  notifyRefreshComplete(status, errorDetail) {
+    this.#syncOperation = null;
+    this.notifyOperationComplete(null, status, Ci.calIOperationListener.GET, null, errorDetail);
+    this.#observer.onLoad(this);
   }
 }
 
-class EventSyncListener {
+class EventSyncListener extends cal.data.OperationGroup {
   QueryInterface = ChromeUtils.generateQI(["IGraphCalendarEventListener", "calIOperation"]);
 
   #calendar = null;
   #client = null;
-  #isPending = true;
-  #status = Cr.NS_ERROR_UNEXPECTED;
+
+  /**
+   * Resolves after all the queued changes for this sync have finished.
+   *
+   * @type {Promise<void>}
+   */
+  #pendingChanges = Promise.resolve();
+
+  /**
+   * Stores the first error encountered as #pendingChanges apply. Once set,
+   * prevents further changes from attempting.
+   */
+  #pendingError = null;
+
+  /**
+   * The sync state token from this sync. This isn't committed back to the
+   * calendar until the local operations have all succeeded.
+   *
+   * @type {string | null}
+   */
+  #nextSyncStateToken = null;
 
   constructor(calendar, client) {
+    super();
     this.#calendar = calendar;
     this.#client = client;
-    this.#isPending = true;
+  }
+
+  #queueChange(callback) {
+    this.#pendingChanges = this.#pendingChanges.then(async () => {
+      if (this.#pendingError) {
+        return;
+      }
+
+      try {
+        await callback();
+      } catch (error) {
+        this.#pendingError = error;
+      }
+    });
   }
 
   onEventPresent(id, title, startDateTime, endDateTime) {
-    const newEvent = new CalEvent();
-    newEvent.id = id;
-    newEvent.title = title;
-    // TODO: https://bugzilla.mozilla.org/show_bug.cgi?id=2058697
-    // Right now, we're assuming all times coming from Graph are UTC.
-    // We need to handle different time zone specifications coming from graph
-    newEvent.startDate = cal.dtz.fromRFC3339(startDateTime, cal.dtz.UTC);
-    newEvent.endDate = cal.dtz.fromRFC3339(endDateTime, cal.dtz.UTC);
-    this.#calendar.memoryCalendar.addItem(newEvent);
-    this.#calendar.notifyOperationComplete(
-      null,
-      Cr.NS_OK,
-      Ci.calIOperationListener.ADD,
-      null,
-      null
-    );
+    this.#queueChange(async () => {
+      const oldEvent = await this.#calendar.memoryCalendar.getItem(id);
+      const newEvent = oldEvent?.clone() ?? new CalEvent();
+      newEvent.id = id;
+      newEvent.title = title;
+      // TODO: https://bugzilla.mozilla.org/show_bug.cgi?id=2058697
+      // Right now, we're assuming all times coming from Graph are UTC.
+      // We need to handle different time zone specifications coming from graph
+      newEvent.startDate = cal.dtz.fromRFC3339(startDateTime, cal.dtz.UTC);
+      newEvent.endDate = cal.dtz.fromRFC3339(endDateTime, cal.dtz.UTC);
+
+      if (oldEvent) {
+        await this.#calendar.memoryCalendar.modifyItem(newEvent, oldEvent);
+      } else {
+        await this.#calendar.memoryCalendar.addItem(newEvent);
+      }
+    });
+  }
+
+  onEventDeleted(id) {
+    this.#queueChange(async () => {
+      const eventToDelete = await this.#calendar.memoryCalendar.getItem(id);
+      if (eventToDelete) {
+        await this.#calendar.memoryCalendar.deleteItem(eventToDelete);
+      }
+      // No else/error case, to be more lenient with items deleted in prior
+      // partially successful syncs that are being retried.
+    });
+  }
+
+  onSyncStateTokenChanged(syncStateToken) {
+    this.#nextSyncStateToken = syncStateToken;
   }
 
   onComplete(status) {
-    this.#calendar.notifyOperationComplete(null, status, Ci.calIOperationListener.ADD, null, null);
-    const exchangeClient = this.#client.QueryInterface(Ci.IExchangeClient);
-    exchangeClient.shutdown();
-    this.#status = status;
-    this.#isPending = false;
+    // Do the pending work in an async context.
+    void this.#finish(status).catch(error => {
+      lazy.log.error("Unexpected rejection from Graph sync #finish", error);
+    });
   }
 
-  get id() {
-    return "fixme";
-  }
+  async #finish(status) {
+    let finalStatus = status;
+    let errorDetail = null;
 
-  get isPending() {
-    return this.#isPending;
-  }
+    if (!Components.isSuccessCode(status) && !this.#pendingError) {
+      this.#pendingError = { result: status, message: "protocol handler encountered an error" };
+    }
 
-  get status() {
-    return this.#status;
+    try {
+      await this.#pendingChanges;
+      if (this.#pendingError) {
+        throw this.#pendingError;
+      }
+
+      if (Components.isSuccessCode(status)) {
+        if (!this.#nextSyncStateToken) {
+          throw new Components.Exception(
+            "Successful delta sync without a delta link",
+            Cr.NS_ERROR_UNEXPECTED
+          );
+        }
+        this.#calendar.syncStateToken = this.#nextSyncStateToken;
+      }
+    } catch (error) {
+      finalStatus = error.result || Cr.NS_ERROR_FAILURE;
+      errorDetail = error;
+    }
+
+    this.#calendar.endBatch();
+    this.notifyCompleted(finalStatus);
+
+    try {
+      this.#client.QueryInterface(Ci.IExchangeClient).shutdown();
+    } catch (error) {
+      lazy.log.error("Failed to shut down Graph calendar client", error);
+    }
+
+    try {
+      this.#calendar.notifyRefreshComplete(finalStatus, errorDetail);
+    } catch (error) {
+      lazy.log.error("Failed to notify Graph refresh listener", error);
+    }
   }
 
   cancel(_status) {
-    // No-op;
+    // No-op; the Rust implementation doesn't currently support cancellation.
   }
 }
 
@@ -328,7 +438,7 @@ class GraphCalendarObserver {
     this.#calendar.observers.notify("onDeleteItem", [aDeletedItem]);
   }
 
-  onError(aCalendar, aErrNo, aMessage) {
+  onError(_aCalendar, aErrNo, aMessage) {
     this.#calendar.readOnly = true;
     this.#calendar.notifyError(aErrNo, aMessage);
   }

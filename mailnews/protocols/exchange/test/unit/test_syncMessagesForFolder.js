@@ -239,7 +239,7 @@ async function testMessageBatching(mockServer, client) {
   mockServer.clearItems();
   mockServer.maxSyncItems = 4;
 
-  const messages = generator.makeMessages({});
+  const messages = generator.makeMessages({ count: 6 });
   mockServer.addMessages("inbox", messages);
 
   const listener = new ExchangeMessageCallbackListener();

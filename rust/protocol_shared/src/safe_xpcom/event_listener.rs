@@ -35,10 +35,27 @@ impl SafeGraphCalendarEventListener {
         }
     }
 
+    /// Convert types and forward to [`IGraphCalendarEventListener::OnEventDeleted`]`.
+    pub fn on_event_deleted(&self, event_id: impl AsRef<str>) -> Result<(), nsresult> {
+        let id = nsCString::from(event_id.as_ref());
+        // SAFETY: We have converted all of the inputs into the appropriate
+        // types to cross the Rust/C++ boundary.
+        unsafe { self.0.OnEventDeleted(&raw const *id) }.to_result()
+    }
+
     /// Convert types and forward to [`IGraphCalendarEventListener::OnComplete`].
     pub fn on_complete(&self, status_code: nsresult) -> nsresult {
         // SAFETY: all types here are safe across the Rust/C++ boundary
         unsafe { self.0.OnComplete(status_code) }
+    }
+
+    /// Convert types and forward to
+    /// [`IGraphCalendarEventListener::OnSyncStateTokenChanged`].
+    pub fn on_sync_state_token_changed(&self, sync_state_token: &str) -> Result<(), nsresult> {
+        let sync_state = nsCString::from(sync_state_token);
+        // SAFETY: We have converted all of the inputs into the appropriate
+        // types to cross the Rust/C++ boundary.
+        unsafe { self.0.OnSyncStateTokenChanged(&raw const *sync_state) }.to_result()
     }
 }
 

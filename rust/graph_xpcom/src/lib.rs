@@ -606,20 +606,28 @@ impl XpcomGraphBridge {
 
     xpcom_method!(sync_calendar_events => SyncCalendarEvents(
         calendar_id: *const nsACString,
-        listener: *const IGraphCalendarEventListener
+        listener: *const IGraphCalendarEventListener,
+        sync_state: *const nsACString
     ));
     fn sync_calendar_events(
         &self,
         calendar_id: &nsACString,
         listener: &IGraphCalendarEventListener,
+        sync_state: &nsACString,
     ) -> Result<(), nsresult> {
         let client = self.client()?;
 
         let listener = SafeGraphCalendarEventListener::new(listener);
 
+        let sync_state = if sync_state.is_empty() {
+            None
+        } else {
+            Some(sync_state.to_utf8().to_string())
+        };
+
         moz_task::spawn_local(
             "sync_calendar_items",
-            client.sync_calendar_items(listener, calendar_id.to_string()),
+            client.sync_calendar_items(listener, calendar_id.to_string(), sync_state),
         )
         .detach();
 

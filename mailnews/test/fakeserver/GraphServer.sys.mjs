@@ -9,6 +9,7 @@ import {
   RemoteFolder,
 } from "resource://testing-common/mailnews/MockServer.sys.mjs";
 
+import { Assert } from "resource://testing-common/Assert.sys.mjs";
 import { CommonUtils } from "resource://services-common/utils.sys.mjs";
 
 import { SyntheticMessage } from "resource://testing-common/mailnews/MessageGenerator.sys.mjs";
@@ -77,6 +78,37 @@ export class GraphMessage {
     this.bccRecipients = bccRecipients;
     this.dsnRequested = dsnRequested;
     this.content = content;
+  }
+}
+
+export class GraphCalendarEvent {
+  /**
+   * @param {string} id - Graph ID (same space as message IDs)
+   * @param {string} subject
+   * @param {string} startDateTime
+   * @param {string} endDateTime
+   */
+  constructor(id, subject, startDateTime, endDateTime) {
+    this.id = id;
+    this.subject = subject;
+    this.startDateTime = startDateTime;
+    this.endDateTime = endDateTime;
+  }
+
+  toJSON() {
+    return {
+      "@odata.type": "#microsoft.graph.event",
+      id: this.id,
+      subject: this.subject,
+      start: {
+        dateTime: this.startDateTime,
+        timeZone: "UTC",
+      },
+      end: {
+        dateTime: this.endDateTime,
+        timeZone: "UTC",
+      },
+    };
   }
 }
 
@@ -165,6 +197,13 @@ export class GraphServer extends MockServer {
    */
   #lastSentGraphMessage = null;
 
+  /**
+   * A map from calendar event IDs to the event data.
+   *
+   * @type {Map<string, GraphCalendarEvent>}
+   */
+  #calendarEventsById = new Map();
+
   constructor({
     hostname,
     port,
@@ -241,6 +280,43 @@ export class GraphServer extends MockServer {
 
   get lastSentGraphMessage() {
     return this.#lastSentGraphMessage;
+  }
+
+  /**
+   * Add the given event to the calendar with the given ID.
+   *
+   * @param {string} calendarId - Graph ID of the calendar (same space as folder
+   *   IDs)
+   * @param {GraphCalendarEvent} calendarEvent
+   */
+  addCalendarEvent(calendarId, calendarEvent) {
+    this.addItemToFolder(calendarEvent.id, calendarId, null);
+    this.#calendarEventsById.set(calendarEvent.id, calendarEvent);
+  }
+
+  /**
+   * Update the given (already existing) event.
+   *
+   * @param {GraphCalendarEvent} calendarEvent
+   */
+  updateCalendarEvent(calendarEvent) {
+    const itemInfo = this.getItemInfo(calendarEvent.id);
+    if (!itemInfo) {
+      throw new Error(`Cannot find calendar event with ID ${calendarEvent.id}`);
+    }
+
+    this.#calendarEventsById.set(calendarEvent.id, calendarEvent);
+    this.itemChanges.push(["update", itemInfo.parentId, calendarEvent.id]);
+  }
+
+  /**
+   * Delete the event with the given ID.
+   *
+   * @param {string} eventId
+   */
+  deleteCalendarEvent(eventId) {
+    this.#calendarEventsById.delete(eventId);
+    this.deleteItem(eventId);
   }
 
   /**
@@ -393,6 +469,17 @@ export class GraphServer extends MockServer {
           responseJsonObject = this.#me();
         } else if (resourcePath === "/me/calendars") {
           responseJsonObject = this.#calendars();
+        } else if (
+          (pathMatch = /\/me\/calendars\/([0-9a-zA-Z=]+)\/events\/delta/.exec(
+            resourcePath
+          ))
+        ) {
+          const calendarId = pathMatch[1];
+          responseJsonObject = this.#syncCalendarEvents(
+            requestHeaders,
+            calendarId,
+            resourceQuery
+          );
         } else if (
           (pathMatch = /\/me\/calendars\/([0-9a-zA-Z=]+)\/events/.exec(
             resourcePath
@@ -567,6 +654,76 @@ export class GraphServer extends MockServer {
     return {
       value: [],
     };
+  }
+
+  /**
+   * Handles GET /me/calendars/{calendarId}/events/delta
+   *
+   * @param {Map<string, string>} requestHeaders - The map of headers included
+   *   in the request.
+   * @param {string} calendarId
+   * @param {string} queryString - The query parameters from the request.
+   * @returns {object}
+   */
+  #syncCalendarEvents(requestHeaders, calendarId, queryString) {
+    const preferHeaderValue = requestHeaders.get("prefer");
+    let maxPageSizeMatch;
+    if (
+      (maxPageSizeMatch = /odata\.maxpagesize=([0-9]+)/.exec(preferHeaderValue))
+    ) {
+      this.lastMaxMessagePageSize = parseInt(maxPageSizeMatch[1]);
+    } else {
+      this.lastMaxMessagePageSize = null;
+    }
+
+    const params = new URLSearchParams(queryString);
+    const nextParams = new URLSearchParams(params);
+    let offset;
+    if (params.has("$skiptoken")) {
+      offset = parseInt(params.get("$skiptoken"));
+    } else if (params.has("$deltatoken")) {
+      offset = parseInt(params.get("$deltatoken"));
+    } else {
+      offset = 0;
+    }
+
+    const context = `${this.#endpoint}/$metadata#Collection(event)`;
+
+    const [changes, truncated] = this.getChangesSince(
+      offset,
+      calendarId,
+      this.maxSyncItems
+    );
+    const page = [];
+    for (const [changeType, itemCalendarId, eventId] of changes) {
+      Assert.equal(
+        calendarId,
+        itemCalendarId,
+        "all retrieved items should be from the same calendar"
+      );
+      if (changeType == "create" || changeType == "update") {
+        page.push(this.#calendarEventsById.get(eventId).toJSON());
+      } else if (changeType == "delete") {
+        page.push({
+          id: eventId,
+          "@removed": { reason: "deleted" },
+        });
+      }
+    }
+
+    const result = {
+      "@odata.context": context,
+      value: page,
+    };
+
+    const [tokenKey, newToken, odataKey] = truncated
+      ? ["$skiptoken", offset + this.maxSyncItems, "@odata.nextLink"]
+      : ["$deltatoken", this.itemChanges.length, "@odata.deltaLink"];
+    nextParams.set(tokenKey, `${newToken}`);
+    result[odataKey] =
+      `${this.#endpoint}/me/calendars/${calendarId}/events/delta?${nextParams}`;
+
+    return result;
   }
 
   /**

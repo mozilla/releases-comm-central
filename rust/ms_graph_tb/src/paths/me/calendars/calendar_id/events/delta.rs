@@ -4,15 +4,14 @@
 
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
-#![doc = "Provides operations to manage the events property of the microsoft.graph.calendar entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-pub mod delta;
+#![doc = "Provides operations to call the delta method.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 use crate::odata::{ExpansionList, FilterExpression, FilterQuery, Selection};
-use crate::pagination::Paginated;
+use crate::pagination::DeltaResponse;
 use crate::types::event::{Event, EventExpand, EventSelection};
-use crate::types::event_collection_response::EventCollectionResponse;
-use crate::{Error, Expand, Filter, Operation, OperationBody, Select};
+use crate::{Error, Expand, Filter, Operation, Select};
 use form_urlencoded::Serializer;
 use http::method::Method;
+use std::str::FromStr;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
@@ -24,15 +23,16 @@ fn format_path(template_expressions: &TemplateExpressions) -> String {
         calendar_id,
     } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/calendars/{calendar_id}/events")
+    format!("{endpoint}/me/calendars/{calendar_id}/events/delta()")
 }
-#[doc = "Get events from me\n\nThe events in the calendar. Navigation property. Read-only."]
+#[doc = "Invoke function delta\n\nGet a set of event resources that have been added, deleted, or updated in a calendarView (a range of events defined by start and end dates) of the user's primary calendar. Typically, synchronizing events in a calendarView in a local store entails a round of multiple delta function calls. The initial call is a full synchronization, and every subsequent delta call in the same round gets the incremental changes (additions, deletions, or updates). This allows you to maintain and synchronize a local store of events in the specified calendarView, without having to fetch all the events of that calendar from the server every time.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/event-delta?view=graph-rest-1.0)."]
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,
     selection: Selection<EventSelection>,
     expansion: ExpansionList<EventExpand>,
     filter: FilterQuery,
+    max_page_size: Option<u16>,
 }
 impl Get {
     #[must_use]
@@ -45,12 +45,18 @@ impl Get {
             selection: Selection::default(),
             expansion: ExpansionList::default(),
             filter: FilterQuery::default(),
+            max_page_size: None,
         }
+    }
+    #[doc = r"Sets the page size to request from the server (via the `Prefer:"]
+    #[doc = r" odata.maxpagesize=x` header)."]
+    pub fn set_max_page_size(&mut self, size: u16) {
+        self.max_page_size = Some(size);
     }
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Response = Paginated<EventCollectionResponse>;
+    type Response = DeltaResponse<Event>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -71,7 +77,10 @@ impl Operation for Get {
                 .parse::<http::uri::Uri>()
                 .unwrap()
         };
-        let request = http::Request::builder().uri(uri).method(Self::METHOD);
+        let mut request = http::Request::builder().uri(uri).method(Self::METHOD);
+        if let Some(page_size) = self.max_page_size {
+            request = request.header("Prefer", format!("odata.maxpagesize={page_size}"));
+        }
         let request = request.body(vec![])?;
         Ok(request)
     }
@@ -99,63 +108,42 @@ impl Filter for Get {
         self.filter.set(expression);
     }
 }
-#[doc = "Create event\n\nUse this API to create a new event in a calendar. The calendar can be one for a user, or the default calendar of a Microsoft 365 group.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/calendar-post-events?view=graph-rest-1.0)."]
+#[doc = r"Retrieve delta changes using an opaque token from a previous"]
+#[doc = r" delta response. The caller must ensure only tokens from this"]
+#[doc = r" path are used."]
 #[derive(Debug)]
-pub struct Post {
-    template_expressions: TemplateExpressions,
-    body: OperationBody<Event>,
-    selection: Selection<EventSelection>,
+pub struct GetDelta {
+    token: http::Uri,
+    max_page_size: Option<u16>,
 }
-impl Post {
-    #[must_use]
-    pub fn new(endpoint: String, calendar_id: String, body: OperationBody<Event>) -> Self {
-        Self {
-            template_expressions: TemplateExpressions {
-                endpoint,
-                calendar_id,
-            },
-            body,
-            selection: Selection::default(),
-        }
+impl GetDelta {
+    #[doc = r"Sets the page size to request from the server (via the `Prefer:"]
+    #[doc = r" odata.maxpagesize=x` header)."]
+    pub fn set_max_page_size(&mut self, size: u16) {
+        self.max_page_size = Some(size);
     }
 }
-impl Operation for Post {
-    const METHOD: Method = Method::POST;
-    type Response = Event;
+impl TryFrom<&str> for GetDelta {
+    type Error = Error;
+    fn try_from(token: &str) -> Result<Self, Self::Error> {
+        let token = http::Uri::from_str(token)?;
+        Ok(Self {
+            token,
+            max_page_size: None,
+        })
+    }
+}
+impl Operation for GetDelta {
+    const METHOD: Method = Method::GET;
+    type Response = DeltaResponse<Event>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
-        let mut params = Serializer::new(String::new());
-        if let Some((select, selection)) = self.selection.pair() {
-            params.append_pair(select, &selection);
+        let mut request = http::Request::builder()
+            .uri(&self.token)
+            .method(Self::METHOD);
+        if let Some(page_size) = self.max_page_size {
+            request = request.header("Prefer", format!("odata.maxpagesize={page_size}"));
         }
-        let params = params.finish();
-        let path = format_path(&self.template_expressions);
-        let uri = if params.is_empty() {
-            path.parse::<http::uri::Uri>().unwrap()
-        } else {
-            format!("{path}?{params}")
-                .parse::<http::uri::Uri>()
-                .unwrap()
-        };
-        let (body, content_type) = match self.body {
-            OperationBody::JSON(body) => {
-                (serde_json::to_vec(&body)?, String::from("application/json"))
-            }
-            OperationBody::Other { body, content_type } => (body, content_type),
-        };
-        let request = http::Request::builder()
-            .uri(uri)
-            .method(Self::METHOD)
-            .header("Content-Type", content_type);
-        let request = request.body(body)?;
+        let request = request.body(vec![])?;
         Ok(request)
-    }
-}
-impl Select for Post {
-    type Properties = EventSelection;
-    fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
-        self.selection.select(properties);
-    }
-    fn extend_selection<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
-        self.selection.extend(properties);
     }
 }

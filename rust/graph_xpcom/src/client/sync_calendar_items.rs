@@ -4,9 +4,15 @@
 
 use std::sync::Arc;
 
-use ms_graph_tb::{notnull, paths::me::calendars};
+use ms_graph_tb::{
+    Select, notnull,
+    pagination::{DeltaItem, DeltaResponse},
+    paths::me::calendars::calendar_id::events,
+    types::event::EventSelection,
+};
 use protocol_shared::{
-    ServerType, client::DoOperation, safe_xpcom::event_listener::SafeGraphCalendarEventListener,
+    EXCHANGE_MAX_PAGE_SIZE, ServerType, client::DoOperation,
+    safe_xpcom::event_listener::SafeGraphCalendarEventListener,
 };
 
 use crate::{client::XpComGraphClient, error::XpComGraphError};
@@ -14,6 +20,7 @@ use crate::{client::XpComGraphClient, error::XpComGraphError};
 struct DoSyncCalendarItems<'a> {
     pub listener: &'a SafeGraphCalendarEventListener,
     pub calendar_id: String,
+    pub sync_state_token: Option<String>,
 }
 
 impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
@@ -27,53 +34,84 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         &mut self,
         client: &XpComGraphClient<ServerT>,
     ) -> Result<Self::Okay, XpComGraphError> {
-        // TODO: https://bugzilla.mozilla.org/show_bug.cgi?id=2058691
-        // Right now, we are just listing events. This needs to be a delta
-        // request with a sync token so we can incrementally sync events.
-        // However, it's not clear whether graph supports per-calendar delta
-        // requests. See the referenced issue.
-        let base_url = client.base_api_url()?;
+        let mut response = match self.sync_state_token {
+            Some(ref token) => {
+                let mut request = events::delta::GetDelta::try_from(token.as_str())?;
+                request.set_max_page_size(EXCHANGE_MAX_PAGE_SIZE);
+                client
+                    .send_request_json_response(request, Default::default())
+                    .await?
+            }
+            None => {
+                let select_properties = vec![
+                    EventSelection::Subject,
+                    EventSelection::Start,
+                    EventSelection::End,
+                ];
+                let base_url = client.base_api_url()?;
+                let mut request =
+                    events::delta::Get::new(base_url.to_string(), self.calendar_id.clone());
+                request.set_max_page_size(EXCHANGE_MAX_PAGE_SIZE);
+                request.select(select_properties);
+                client
+                    .send_request_json_response(request, Default::default())
+                    .await?
+            }
+        };
 
-        let request = calendars::calendar_id::events::Get::new(
-            base_url.to_string(),
-            self.calendar_id.clone(),
-        );
-        let response = client
-            .send_request_json_response(request, Default::default())
-            .await?;
+        loop {
+            let events = response.extract_response();
 
-        let events = response.response;
+            for event in events {
+                match event {
+                    DeltaItem::Present(event) => {
+                        let id =
+                            event
+                                .outlook_item
+                                .entity
+                                .id
+                                .ok_or(XpComGraphError::Processing {
+                                    message: "Event ID is not present.".to_string(),
+                                })?;
+                        let title = match event.subject {
+                            notnull!(title) => title,
+                            _ => String::new(),
+                        };
 
-        for event in events.value.ok_or(XpComGraphError::Processing {
-            message: "Failed to get event list.".to_string(),
-        })? {
-            let id = event
-                .outlook_item
-                .entity
-                .id
-                .ok_or(XpComGraphError::Processing {
-                    message: "Event ID is not present.".to_string(),
-                })?;
-            let title = match event.subject {
-                notnull!(title) => title,
-                _ => String::new(),
-            };
+                        let start_date_time = event.start.and_then(|start| start.date_time).ok_or(
+                            XpComGraphError::Processing {
+                                message: "Event start time not present.".to_string(),
+                            },
+                        )?;
+                        let end_date_time = event.end.and_then(|end| end.date_time).ok_or(
+                            XpComGraphError::Processing {
+                                message: "Event end time not present.".to_string(),
+                            },
+                        )?;
 
-            let start_date_time = event.start.and_then(|start| start.date_time).ok_or(
-                XpComGraphError::Processing {
-                    message: "Event start time not present.".to_string(),
-                },
-            )?;
-            let end_date_time =
-                event
-                    .end
-                    .and_then(|end| end.date_time)
-                    .ok_or(XpComGraphError::Processing {
-                        message: "Event end time not present.".to_string(),
-                    })?;
-
-            self.listener
-                .on_event_present(id, title, start_date_time, end_date_time);
+                        self.listener
+                            .on_event_present(id, title, start_date_time, end_date_time);
+                    }
+                    DeltaItem::Removed(event) => {
+                        let event_id = event.id().to_string();
+                        log::debug!("Deleting event with id {event_id}");
+                        self.listener.on_event_deleted(event_id)?;
+                    }
+                }
+            }
+            match response {
+                DeltaResponse::NextLink { mut next_page, .. } => {
+                    next_page.set_max_page_size(EXCHANGE_MAX_PAGE_SIZE);
+                    response = client
+                        .send_request_json_response(next_page, Default::default())
+                        .await?;
+                }
+                DeltaResponse::DeltaLink { delta_link, .. } => {
+                    self.listener.on_sync_state_token_changed(&delta_link)?;
+                    self.sync_state_token = Some(delta_link);
+                    break;
+                }
+            }
         }
 
         Ok(())
@@ -89,10 +127,12 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         self: Arc<XpComGraphClient<ServerT>>,
         listener: SafeGraphCalendarEventListener,
         calendar_id: String,
+        sync_state_token: Option<String>,
     ) {
         let operation = DoSyncCalendarItems {
             listener: &listener,
             calendar_id,
+            sync_state_token,
         };
 
         operation.handle_operation(&self, &listener).await;
