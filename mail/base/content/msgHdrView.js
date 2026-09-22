@@ -440,7 +440,7 @@ async function OnLoadMsgHeaderPane() {
   // Set the flag/star button on click listener.
   document
     .getElementById("starMessageButton")
-    .addEventListener("click", MsgMarkAsFlagged);
+    .addEventListener("click", () => goDoCommand("cmd_markAsFlagged"));
 
   // Dispatch an event letting any listeners know that we have loaded
   // the message pane.
@@ -2634,7 +2634,7 @@ function onShowOtherActionsPopup() {
   } else {
     tagsItem.disabled = false;
     markAsReadItem.disabled = false;
-    if (SelectedMessagesAreRead()) {
+    if (gMessage.isRead) {
       markAsReadItem.toggleAttribute("hidden", true);
       markAsUnreadItem.removeAttribute("hidden");
     } else {
@@ -3512,23 +3512,6 @@ window.addEventListener(
   true
 );
 
-function MarkSelectedMessagesRead(markRead) {
-  ClearPendingReadTimer();
-  gDBView.doCommand(
-    markRead
-      ? Ci.nsMsgViewCommandType.markMessagesRead
-      : Ci.nsMsgViewCommandType.markMessagesUnread
-  );
-}
-
-function MarkSelectedMessagesFlagged(markFlagged) {
-  gDBView.doCommand(
-    markFlagged
-      ? Ci.nsMsgViewCommandType.flagMessages
-      : Ci.nsMsgViewCommandType.unflagMessages
-  );
-}
-
 /**
  * @param {nsMimeHeaderDisplayTypes} headermode
  */
@@ -3687,23 +3670,6 @@ function updateComposeButtons() {
   }
 }
 
-function SelectedMessagesAreJunk() {
-  try {
-    const junkScore = gMessage.getStringProperty("junkscore");
-    return junkScore != "" && junkScore != "0";
-  } catch (ex) {
-    return false;
-  }
-}
-
-function SelectedMessagesAreRead() {
-  return gMessage?.isRead;
-}
-
-function SelectedMessagesAreFlagged() {
-  return gMessage?.isFlagged;
-}
-
 function MsgReplySender(event) {
   commandController._composeMsgByType(Ci.nsIMsgCompType.ReplyToSender, event);
 }
@@ -3794,23 +3760,6 @@ function updateHeaderToolbarButtons() {
     isIMAPDeleted ? "message-header-undelete" : "message-header-delete"
   );
   trashButton.dataset.imapDeleted = !!isIMAPDeleted;
-}
-
-/**
- * Marks the selected messages as read or unread
- *
- * @param {boolean} [read] - true if trying to mark messages as read,
- *  false if marking unread, undefined if toggling the read status.
- */
-function MsgMarkMsgAsRead(read) {
-  if (read == undefined) {
-    read = !gMessage.isRead;
-  }
-  MarkSelectedMessagesRead(read);
-}
-
-function MsgMarkAsFlagged() {
-  MarkSelectedMessagesFlagged(!SelectedMessagesAreFlagged());
 }
 
 /**
@@ -4458,7 +4407,7 @@ function HandleMDNResponse(mimeHeaders) {
 
   // if the message is marked as junk, do NOT attempt to process a return receipt
   // in order to better protect the user
-  if (SelectedMessagesAreJunk()) {
+  if (!["", "0"].includes(gMessage.getStringProperty("junkscore"))) {
     return;
   }
 
