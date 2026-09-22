@@ -15,11 +15,13 @@ ChromeUtils.defineLazyGetter(lazy, "log", () => {
   });
 });
 
+const SYNC_TOKEN_METADATA_KEY = "graph-sync-state-token";
+
 /**
  * GraphCalendar class implementing calICalendar
  */
 export class GraphCalendar extends cal.provider.BaseClass {
-  QueryInterface = ChromeUtils.generateQI(["calICalendar", "IGraphCalendar"]);
+  QueryInterface = ChromeUtils.generateQI(["calICalendar", "calIChangeLog", "IGraphCalendar"]);
 
   /**
    * @type {calICalendar}
@@ -32,6 +34,11 @@ export class GraphCalendar extends cal.provider.BaseClass {
   #observer;
 
   /**
+   * @type {calISyncWriteCalendar}
+   */
+  #offlineStorage;
+
+  /**
    * @type {calIOperation | null}
    */
   #syncOperation;
@@ -39,7 +46,7 @@ export class GraphCalendar extends cal.provider.BaseClass {
   /**
    * @type {string}
    */
-  syncStateToken;
+  #syncStateToken;
 
   /**
    * Constructor for GraphCalendar.
@@ -51,12 +58,16 @@ export class GraphCalendar extends cal.provider.BaseClass {
     this.#observer = null;
     this.#syncOperation = null;
     this.syncStateToken = "";
-
-    // TODO: https://bugzilla.mozilla.org/show_bug.cgi?id=2058691
-    // We use a transient memory calendar because we're just retrieving the full
-    // list of calendar events. When we move to updating persistent storage,
-    // we'll want something persistent here.
     this.resetMemoryCalendar();
+  }
+
+  /**
+   * Get the preferred underlying calendar to apply operations to.
+   *
+   * @returns {calICalendar}
+   */
+  get backingCalendar() {
+    return this.#offlineStorage || this.#memoryCalendar;
   }
 
   resetMemoryCalendar() {
@@ -87,6 +98,35 @@ export class GraphCalendar extends cal.provider.BaseClass {
 
   set location(location) {
     this.setProperty("location", location);
+  }
+
+  get syncStateToken() {
+    return this.#syncStateToken;
+  }
+
+  /**
+   * @param {string} token
+   */
+  set syncStateToken(token) {
+    this.#syncStateToken = token;
+    this.offlineStorage?.setMetaData(SYNC_TOKEN_METADATA_KEY, token);
+  }
+
+  get offlineStorage() {
+    return this.#offlineStorage;
+  }
+
+  /**
+   * @param {calISyncWriteCalendar} storage
+   */
+  set offlineStorage(storage) {
+    this.#offlineStorage = storage;
+    this.#syncStateToken = storage.getMetaData(SYNC_TOKEN_METADATA_KEY) || "";
+  }
+
+  resetLog() {
+    this.syncStateToken = "";
+    this.#offlineStorage?.deleteMetaData(SYNC_TOKEN_METADATA_KEY);
   }
 
   /**
@@ -124,7 +164,7 @@ export class GraphCalendar extends cal.provider.BaseClass {
    * @returns {boolean}
    */
   get canRefresh() {
-    return true;
+    return !this.#offlineStorage;
   }
 
   /**
@@ -206,7 +246,7 @@ export class GraphCalendar extends cal.provider.BaseClass {
    * @returns {ReadableStream<calIItemBase>}
    */
   getItems(itemFilter, count, rangeStart, rangeEnd) {
-    return this.#memoryCalendar.getItems(itemFilter, count, rangeStart, rangeEnd);
+    return this.backingCalendar.getItems(itemFilter, count, rangeStart, rangeEnd);
   }
 
   /**
@@ -219,7 +259,7 @@ export class GraphCalendar extends cal.provider.BaseClass {
    * @returns {Promise<Array<calIItemBase>>}
    */
   async getItemsAsArray(itemFilter, count, rangeStart, rangeEndEx) {
-    return this.#memoryCalendar.getItemsAsArray(itemFilter, count, rangeStart, rangeEndEx);
+    return this.backingCalendar.getItemsAsArray(itemFilter, count, rangeStart, rangeEndEx);
   }
 
   /**
@@ -228,7 +268,16 @@ export class GraphCalendar extends cal.provider.BaseClass {
    * @returns {calIOperation}
    */
   refresh() {
+    return this.replayChangesOn(null);
+  }
+
+  /**
+   * @param {calIGenericOperationListener | null} changeLogListener
+   * @returns {calIOperation}
+   */
+  replayChangesOn(changeLogListener) {
     if (this.#syncOperation?.isPending) {
+      this.#syncOperation.addListener(changeLogListener);
       return this.#syncOperation;
     }
 
@@ -241,6 +290,7 @@ export class GraphCalendar extends cal.provider.BaseClass {
       this.location
     ).graphCalendarClient;
     const listener = new EventSyncListener(this, client);
+    listener.addListener(changeLogListener);
     this.#syncOperation = listener;
     this.startBatch();
 
@@ -258,11 +308,16 @@ export class GraphCalendar extends cal.provider.BaseClass {
    * @param {number} status - A Components.results result
    * @param {*} errorDetail - Error information to pass to
    *   `notifyOperationComplete`
+   * @param {bool} notifyOnLoad - Whether the observer's `onLoad` should be
+   *   invoked here; false if it will be handled elsewhere
    */
-  notifyRefreshComplete(status, errorDetail) {
+  notifyRefreshComplete(status, errorDetail, notifyOnLoad) {
     this.#syncOperation = null;
     this.notifyOperationComplete(null, status, Ci.calIOperationListener.GET, null, errorDetail);
-    this.#observer.onLoad(this);
+
+    if (notifyOnLoad) {
+      this.#observer.onLoad(this);
+    }
   }
 }
 
@@ -293,6 +348,13 @@ class EventSyncListener extends cal.data.OperationGroup {
    */
   #nextSyncStateToken = null;
 
+  /**
+   * Additional listeners that will need to be notified of completion.
+   *
+   * @type {Set<calIGenericOperationListener>}
+   */
+  #additionalListeners = new Set();
+
   constructor(calendar, client) {
     super();
     this.#calendar = calendar;
@@ -308,14 +370,16 @@ class EventSyncListener extends cal.data.OperationGroup {
       try {
         await callback();
       } catch (error) {
-        this.#pendingError = error;
+        if (!this.#pendingError) {
+          this.#pendingError = error;
+        }
       }
     });
   }
 
   onEventPresent(id, title, startDateTime, endDateTime) {
     this.#queueChange(async () => {
-      const oldEvent = await this.#calendar.memoryCalendar.getItem(id);
+      const oldEvent = await this.#calendar.backingCalendar.getItem(id);
       const newEvent = oldEvent?.clone() ?? new CalEvent();
       newEvent.id = id;
       newEvent.title = title;
@@ -326,18 +390,18 @@ class EventSyncListener extends cal.data.OperationGroup {
       newEvent.endDate = cal.dtz.fromRFC3339(endDateTime, cal.dtz.UTC);
 
       if (oldEvent) {
-        await this.#calendar.memoryCalendar.modifyItem(newEvent, oldEvent);
+        await this.#calendar.backingCalendar.modifyItem(newEvent, oldEvent);
       } else {
-        await this.#calendar.memoryCalendar.addItem(newEvent);
+        await this.#calendar.backingCalendar.addItem(newEvent);
       }
     });
   }
 
   onEventDeleted(id) {
     this.#queueChange(async () => {
-      const eventToDelete = await this.#calendar.memoryCalendar.getItem(id);
+      const eventToDelete = await this.#calendar.backingCalendar.getItem(id);
       if (eventToDelete) {
-        await this.#calendar.memoryCalendar.deleteItem(eventToDelete);
+        await this.#calendar.backingCalendar.deleteItem(eventToDelete);
       }
       // No else/error case, to be more lenient with items deleted in prior
       // partially successful syncs that are being retried.
@@ -393,14 +457,37 @@ class EventSyncListener extends cal.data.OperationGroup {
     }
 
     try {
-      this.#calendar.notifyRefreshComplete(finalStatus, errorDetail);
+      this.#calendar.notifyRefreshComplete(
+        finalStatus,
+        errorDetail,
+        this.#additionalListeners.size == 0
+      );
     } catch (error) {
       lazy.log.error("Failed to notify Graph refresh listener", error);
+    }
+
+    for (const listener of this.#additionalListeners) {
+      try {
+        listener.onResult(this, finalStatus);
+      } catch (error) {
+        lazy.log.error("Failed to notify Graph replay listener", error);
+      }
     }
   }
 
   cancel(_status) {
     // No-op; the Rust implementation doesn't currently support cancellation.
+  }
+
+  /**
+   * Adds an additional listener that will be notified on completion.
+   *
+   * @param {calIGenericOperationListener | null} listener
+   */
+  addListener(listener) {
+    if (listener) {
+      this.#additionalListeners.add(listener);
+    }
   }
 }
 

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../head.js */
+
 var { GraphServer } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/GraphServer.sys.mjs"
 );
@@ -51,4 +53,40 @@ function setupBasicGraphTestServer() {
   });
 
   return [graphServer, incomingServer];
+}
+
+/**
+ * A wrapper for ../head.js's `createCalendar` with graph-specific overrides.
+ *
+ * @param {nsIMsgIncomingServer} incomingServer
+ * @param {boolean} useCache
+ * @param {nsIRUI | null} uri
+ * @returns {calICalendar}
+ */
+function createGraphCalendar(incomingServer, useCache, uri = null) {
+  if (!uri) {
+    uri = Services.io.newURI(incomingServer.getStringValue("ews_url"));
+  }
+  const calendar = cal.manager.createCalendar("graph", uri);
+
+  calendar.id = "AAMkAGI2TGuLAAA=";
+  calendar.setProperty("username", "user");
+  calendar.setProperty("location", "localhost");
+  calendar.setProperty("cache.enabled", useCache);
+  calendar.setProperty("refreshInterval", "0");
+
+  cal.manager.registerCalendar(calendar);
+
+  const registered = cal.manager.getCalendarById(calendar.id);
+  calendarObserver._expectedCalendar = registered;
+  return registered;
+}
+
+/**
+ * @param {calICalendar} calendar
+ * @returns {GraphCalendar}
+ */
+function getGraphCalendar(calendar) {
+  const wrapped = calendar.wrappedJSObject;
+  return wrapped.mUncachedCalendar?.wrappedJSObject ?? wrapped;
 }

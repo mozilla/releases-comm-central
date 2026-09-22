@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-const { GraphCalendar } = ChromeUtils.importESModule("resource:///modules/GraphCalendar.sys.mjs");
+/* import-globals-from ../head.js */
+
 const { GraphCalendarEvent } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/GraphServer.sys.mjs"
 );
 
 let graphServer;
 let incomingServer;
-let graphCalendar;
 
 let nextEventIndex = 0;
 
@@ -36,28 +35,64 @@ function generateEvents(calendarId, count) {
   });
 }
 
-function basicCalendar() {
-  const calendar = new GraphCalendar();
-
-  calendar.id = "AAMkAGI2TGuLAAA=";
-  calendar.username = "user";
-  calendar.location = "localhost";
-
-  return calendar;
+async function refreshAndCheck(calendar) {
+  calendarObserver._onLoadPromise = Promise.withResolvers();
+  calendar.refresh();
+  await calendarObserver._onLoadPromise.promise;
+  Assert.equal(
+    calendar.getProperty("currentStatus"),
+    Cr.NS_OK,
+    "Should have completed successfully"
+  );
 }
 
 add_setup(async function () {
   [graphServer, incomingServer] = setupBasicGraphTestServer();
 });
 
-add_task(async function testMaxPageGraph() {
-  await testMaxPage(graphServer, basicCalendar());
+// Test memory-backed calendar.
+
+async function testMemoryCalendar(testFn) {
+  const calendar = createGraphCalendar(incomingServer, false);
+  try {
+    await testFn(graphServer, calendar);
+  } finally {
+    cal.manager.unregisterCalendar(calendar);
+  }
+}
+
+add_task(async function testMaxPageGraphMem() {
+  await testMemoryCalendar(testMaxPage);
 });
-add_task(async function testEventBatchingGraph() {
-  await testEventBatching(graphServer, basicCalendar());
+add_task(async function testEventBatchingGraphMem() {
+  await testMemoryCalendar(testEventBatching);
 });
-add_task(async function testSyncChangesWithClientGraph() {
-  await testSyncChangesWithClient(graphServer, basicCalendar());
+add_task(async function testSyncChangesWithClientGraphMem() {
+  await testMemoryCalendar(testSyncChangesWithClient);
+});
+
+// Test local storage-backed calendar.
+
+async function testCachedCalendar(testFn) {
+  const calendar = createGraphCalendar(incomingServer, true);
+  try {
+    await testFn(graphServer, calendar);
+  } finally {
+    cal.manager.unregisterCalendar(calendar);
+  }
+}
+
+add_task(async function testMaxPageGraphCached() {
+  await testCachedCalendar(testMaxPage);
+});
+add_task(async function testEventBatchingGraphCached() {
+  await testCachedCalendar(testEventBatching);
+});
+add_task(async function testSyncChangesWithClientGraphCached() {
+  await testCachedCalendar(testSyncChangesWithClient);
+});
+add_task(async function testPersistanceGraphCached() {
+  await testPersistence(graphServer);
 });
 
 /**
@@ -76,9 +111,7 @@ async function testMaxPage(server, calendar) {
   // Case 1: No sync state token, too few items to sync to warrant more pages.
   generateEvents(calendar.id, expectedMaxPageSize);
 
-  const op1 = calendar.refresh();
-  await TestUtils.waitForCondition(() => !op1.isPending, "Wait for refresh to complete");
-  Assert.equal(op1.status, Cr.NS_OK, "Should have completed successfully");
+  await refreshAndCheck(calendar);
 
   Assert.equal(
     server.lastMaxMessagePageSize,
@@ -86,14 +119,13 @@ async function testMaxPage(server, calendar) {
     "initial calendar sync should be performed with the expected maximum page size"
   );
 
-  Assert.ok(calendar.syncStateToken, "initial sync should generate token");
+  const graphCal = getGraphCalendar(calendar);
+  Assert.ok(graphCal.syncStateToken, "initial sync should generate token");
 
   // Case 2: Sync state token, too few items to sync to warrant more pages.
   generateEvents(calendar.id, expectedMaxPageSize);
 
-  const op2 = calendar.refresh();
-  await TestUtils.waitForCondition(() => !op2.isPending, "Wait for refresh to complete");
-  Assert.equal(op2.status, Cr.NS_OK, "Should have completed successfully");
+  await refreshAndCheck(calendar);
 
   Assert.equal(
     server.lastMaxMessagePageSize,
@@ -104,9 +136,7 @@ async function testMaxPage(server, calendar) {
   // Case 3: Enough items to sync to warrant more pages.
   generateEvents(calendar.id, expectedMaxPageSize + 8);
 
-  const op3 = calendar.refresh();
-  await TestUtils.waitForCondition(() => !op3.isPending, "Wait for refresh to complete");
-  Assert.equal(op3.status, Cr.NS_OK, "Should have completed successfully");
+  await refreshAndCheck(calendar);
 
   Assert.equal(
     server.lastMaxMessagePageSize,
@@ -125,9 +155,7 @@ async function testEventBatching(server, calendar) {
 
   const events = generateEvents(calendar.id, 6);
 
-  const op = calendar.refresh();
-  await TestUtils.waitForCondition(() => !op.isPending, "Wait for refresh to complete");
-  Assert.equal(op.status, Cr.NS_OK, "Should have completed successfully");
+  await refreshAndCheck(calendar);
 
   const items = await calendar.getItemsAsArray(Ci.calICalendar.ITEM_FILTER_TYPE_ALL, 0, null, null);
 
@@ -142,7 +170,9 @@ async function testEventBatching(server, calendar) {
     events.map(e => e.subject),
     "events should have been created with expected titles"
   );
-  Assert.ok(calendar.syncStateToken, "the sync token should have been recorded");
+
+  const graphCal = getGraphCalendar(calendar);
+  Assert.ok(graphCal.syncStateToken, "the sync token should have been recorded");
 
   server.maxSyncItems = Infinity;
 }
@@ -157,9 +187,7 @@ async function testSyncChangesWithClient(server, calendar) {
 
   // Initial sync.
 
-  const op1 = calendar.refresh();
-  await TestUtils.waitForCondition(() => !op1.isPending, "Wait for refresh to complete");
-  Assert.equal(op1.status, Cr.NS_OK, "Should have completed successfully");
+  await refreshAndCheck(calendar);
 
   const items1 = await calendar.getItemsAsArray(
     Ci.calICalendar.ITEM_FILTER_TYPE_ALL,
@@ -179,8 +207,10 @@ async function testSyncChangesWithClient(server, calendar) {
     events.map(e => e.subject),
     "events should have been created with expected titles"
   );
-  Assert.ok(calendar.syncStateToken, "the sync token should have been recorded");
-  const syncStateToken = calendar.syncStateToken;
+
+  const graphCal = getGraphCalendar(calendar);
+  Assert.ok(graphCal.syncStateToken, "the sync token should have been recorded");
+  const syncStateToken = graphCal.syncStateToken;
 
   // Change an event, delete an event.
 
@@ -193,9 +223,7 @@ async function testSyncChangesWithClient(server, calendar) {
 
   // Sync again to pick up the changes.
 
-  const op2 = calendar.refresh();
-  await TestUtils.waitForCondition(() => !op2.isPending, "Wait for refresh to complete");
-  Assert.equal(op2.status, Cr.NS_OK, "Should have completed successfully");
+  await refreshAndCheck(calendar);
 
   const items2 = await calendar.getItemsAsArray(
     Ci.calICalendar.ITEM_FILTER_TYPE_ALL,
@@ -215,10 +243,91 @@ async function testSyncChangesWithClient(server, calendar) {
     events.map(e => e.subject),
     "events should still have matching titles"
   );
-  Assert.ok(calendar.syncStateToken, "the sync token should have been recorded");
+
+  Assert.ok(graphCal.syncStateToken, "the sync token should have been recorded");
   Assert.notEqual(
-    calendar.syncStateToken,
+    graphCal.syncStateToken,
     syncStateToken,
     "the sync token should differ from the previous one"
   );
+}
+
+/**
+ * Test that changes to the calendar persist when reopened
+ */
+async function testPersistence(server) {
+  const calendar = createGraphCalendar(incomingServer, true);
+  const calUri = calendar.uri;
+
+  let syncStateToken;
+  let events;
+  try {
+    server.clearItems();
+
+    events = generateEvents(calendar.id, 6);
+
+    // Initial sync.
+
+    await refreshAndCheck(calendar);
+
+    const items1 = await calendar.getItemsAsArray(
+      Ci.calICalendar.ITEM_FILTER_TYPE_ALL,
+      0,
+      null,
+      null
+    );
+
+    Assert.equal(items1.length, events.length, "all of the created items should have been synced");
+    Assert.deepEqual(
+      items1.map(e => e.id),
+      events.map(e => e.id),
+      "events should have been created with expected IDs"
+    );
+    Assert.deepEqual(
+      items1.map(e => e.title),
+      events.map(e => e.subject),
+      "events should have been created with expected titles"
+    );
+
+    const graphCal = getGraphCalendar(calendar);
+    Assert.ok(graphCal.syncStateToken, "the sync token should have been recorded");
+
+    syncStateToken = graphCal.syncStateToken;
+  } finally {
+    // Tear down the calendar and reopen it.
+    cal.manager.unsetupCalendar(calendar);
+  }
+
+  const reopened = createGraphCalendar(incomingServer, true, calUri);
+
+  try {
+    const items2 = await reopened.getItemsAsArray(
+      Ci.calICalendar.ITEM_FILTER_TYPE_ALL,
+      0,
+      null,
+      null
+    );
+
+    Assert.equal(items2.length, events.length, "all items should still remain");
+    Assert.deepEqual(
+      items2.map(e => e.id),
+      events.map(e => e.id),
+      "events should still have matching IDs"
+    );
+    Assert.deepEqual(
+      items2.map(e => e.title),
+      events.map(e => e.subject),
+      "events should still have matching titles"
+    );
+
+    const graphCal = getGraphCalendar(reopened);
+    Assert.ok(graphCal.syncStateToken, "the sync token should have been recorded");
+    Assert.equal(
+      graphCal.syncStateToken,
+      syncStateToken,
+      "the sync token should be the same as the saved one"
+    );
+  } finally {
+    cal.manager.unregisterCalendar(reopened);
+  }
 }
