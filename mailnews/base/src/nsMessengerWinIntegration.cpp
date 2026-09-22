@@ -218,8 +218,7 @@ nsresult nsMessengerWinIntegration::HandleIconContextMenu(int xPos, int yPos) {
       nsCOMPtr<nsIAppStartup> appStartup = components::AppStartup::Service();
       NS_ENSURE_TRUE(appStartup, NS_ERROR_FAILURE);
 
-      bool userAllowedQuit = true;
-      appStartup->Quit(nsIAppStartup::eAttemptQuit, 0, &userAllowedQuit);
+      appStartup->Quit(nsIAppStartup::eAttemptQuit, 0);
     }
   }
 

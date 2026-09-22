@@ -31,12 +31,11 @@ pub(crate) fn handle_action(action: Action) -> Result<(), nsresult> {
 ///
 /// This can only be called on the main thread.
 fn request_quit() -> Result<(), nsresult> {
-    let mut cancelled = false;
     let service = get_service::<nsIAppStartup>(c"@mozilla.org/toolkit/app-startup;1")
         .ok_or(nserror::NS_ERROR_NO_INTERFACE)?;
     unsafe {
         service
-            .Quit(nsIAppStartup::eAttemptQuit, 0, &raw mut cancelled)
+            .Quit(nsIAppStartup::eAttemptQuit, 0)
             .to_result()?;
     }
     Ok(())
