@@ -9,9 +9,6 @@ var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
-var { ConversationOpener } = ChromeUtils.importESModule(
-  "resource:///modules/ConversationOpener.sys.mjs"
-);
 var { Gloda } = ChromeUtils.importESModule(
   "resource:///modules/gloda/Gloda.sys.mjs"
 );
@@ -20,7 +17,46 @@ var { GlodaIndexer } = ChromeUtils.importESModule(
 );
 
 const tabmail = document.getElementById("tabmail");
+const about3Pane = tabmail.currentAbout3Pane;
+const { messageBrowser, threadTree } = about3Pane;
+const aboutMessage1 = messageBrowser.contentWindow;
+
 let testFolder, testMessages;
+
+const helper = new ContextMenuTestHelper(undefined, {
+  otherActionsRedirect: {},
+  otherActionsOpenConversation: {},
+  otherActionsOpenInNewWindow: {},
+  otherActionsOpenInNewTab: {},
+  otherActionsTag: {},
+  "hdrTagDropdown-addNewTag": {},
+  manageTags: {},
+  "hdrTagDropdown-tagRemoveAll": {},
+  markAsReadMenuItem: { hidden: true },
+  markAsUnreadMenuItem: {},
+  saveAsMenuItem: {},
+  otherActionsPrint: {},
+  "otherActions-calendar-convert-menu": { hidden: true },
+  "otherActions-calendar-convert-event-menuitem": {},
+  "otherActions-calendar-convert-task-menuitem": {},
+  otherActionsCopyMessageLink: {},
+  otherActionsCopyNewsLink: { hidden: true },
+  viewSourceMenuItem: {},
+  charsetRepairMenuitem: {},
+  otherActionsMessageBodyAs: {},
+  otherActionsMenu_bodyAllowHTML: { checked: true },
+  otherActionsMenu_bodySanitized: {},
+  otherActionsMenu_bodyAsPlaintext: {},
+  otherActionsMenu_bodyAllParts: { hidden: true },
+  otherActionsFeedBodyAs: { hidden: true },
+  otherActionsMenu_bodyFeedGlobalWebPage: {},
+  otherActionsMenu_bodyFeedGlobalSummary: {},
+  otherActionsMenu_bodyFeedPerFolderPref: {},
+  otherActionsMenu_bodyFeedSummaryAllowHTML: {},
+  otherActionsMenu_bodyFeedSummarySanitized: {},
+  otherActionsMenu_bodyFeedSummaryAsPlaintext: {},
+  messageHeaderMoreMenuCustomize: {},
+});
 
 add_setup(async function () {
   const generator = new MessageGenerator();
@@ -38,14 +74,19 @@ add_setup(async function () {
   testFolder.addMessageBatch(messageStrings);
   testMessages = [...testFolder.messages];
 
-  // Fool Gloda into thinking the user is always idle. This makes it index
-  // changes straight away and we don't have to wait ages for it.
   GlodaTestHelper.prepareIndexerForTesting();
+  testFolder.updateFolder(null);
+  await TestUtils.waitForCondition(
+    () => !GlodaIndexer.indexing,
+    "waiting for Gloda to finish indexing"
+  );
 
   // Clear persisted position/size possibly left from earlier tests.
   Services.xulStore.removeDocument(
     "chrome://messenger/content/messageWindow.xhtml"
   );
+
+  about3Pane.restoreState({ messagePaneVisible: true, folderURI: testFolder });
 
   registerCleanupFunction(() => {
     for (const folder of MailServices.accounts.allFolders) {
@@ -55,40 +96,29 @@ add_setup(async function () {
   });
 });
 
-add_task(async function () {
-  const about3Pane = tabmail.currentAbout3Pane;
-  about3Pane.restoreState({ messagePaneVisible: true, folderURI: testFolder });
-
-  const { gDBView, messageBrowser, threadTree } = about3Pane;
-  const aboutMessage = messageBrowser.contentWindow;
-  const messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
-
-  const loadedPromise = BrowserTestUtils.browserLoaded(
-    messagePaneBrowser,
-    undefined,
-    url => url.endsWith(gDBView.getKeyAt(0))
-  );
+add_task(async function testAllMenuItems() {
   threadTree.selectedIndex = 0;
-  await loadedPromise;
+  await messageLoadedInBrowser(aboutMessage1.getMessagePaneBrowser());
 
-  await TestUtils.waitForCondition(
-    () =>
-      ConversationOpener.isMessageIndexed(testMessages[0]) &&
-      !GlodaIndexer.indexing,
-    "waiting for Gloda to finish indexing"
-  );
+  helper.menu = await openHeaderPopup(aboutMessage1);
+  await helper.checkMenuitems("actions");
+});
 
-  let mainPopup = await openHeaderPopup(aboutMessage);
-  checkHeaderPopup(mainPopup, true, true, true);
+add_task(async function testOpenActions() {
+  threadTree.selectedIndex = 0;
+  await messageLoadedInBrowser(aboutMessage1.getMessagePaneBrowser());
+
+  const actionsPopup1 = await openHeaderPopup(aboutMessage1);
+  checkHeaderPopup(actionsPopup1, true, true, true);
 
   // Open in new window. Test the menu in the new window.
   info("Will open in new window.");
 
   const winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
-  mainPopup.activateItem(
-    mainPopup.querySelector("#otherActionsOpenInNewWindow")
+  actionsPopup1.activateItem(
+    actionsPopup1.querySelector("#otherActionsOpenInNewWindow")
   );
-  await BrowserTestUtils.waitForPopupEvent(mainPopup, "hidden");
+  await BrowserTestUtils.waitForPopupEvent(actionsPopup1, "hidden");
   const win = await winPromise;
   await messageLoadedIn(win.messageBrowser);
   await SimpleTest.promiseFocus(win);
@@ -103,9 +133,11 @@ add_task(async function () {
   // Open in new tab. Test the menu in the new tab.
   info("Will open in new tab.");
 
-  mainPopup = await openHeaderPopup(aboutMessage);
+  await openHeaderPopup(aboutMessage1);
   let tabPromise = BrowserTestUtils.waitForEvent(window, "aboutMessageLoaded");
-  mainPopup.activateItem(mainPopup.querySelector("#otherActionsOpenInNewTab"));
+  actionsPopup1.activateItem(
+    actionsPopup1.querySelector("#otherActionsOpenInNewTab")
+  );
   const { target: aboutMessage3 } = await tabPromise;
   Assert.equal(tabmail.currentTabInfo.mode.name, "mailMessageTab");
   await messageLoadedInBrowser(aboutMessage3.getMessagePaneBrowser());
@@ -121,16 +153,56 @@ add_task(async function () {
 
   // Open conversation.
 
-  mainPopup = await openHeaderPopup(aboutMessage);
+  await openHeaderPopup(aboutMessage1);
   tabPromise = BrowserTestUtils.waitForEvent(window, "aboutMessageLoaded");
-  mainPopup.activateItem(
-    mainPopup.querySelector("#otherActionsOpenConversation")
+  actionsPopup1.activateItem(
+    actionsPopup1.querySelector("#otherActionsOpenConversation")
   );
   const { target: aboutMessage4 } = await tabPromise;
   Assert.equal(tabmail.currentTabInfo.mode.name, "mail3PaneTab");
   await messageLoadedInBrowser(aboutMessage4.getMessagePaneBrowser());
 
   tabmail.closeOtherTabs(0);
+});
+
+add_task(async function testMarkActions() {
+  threadTree.selectedIndex = 0;
+  await messageLoadedInBrowser(aboutMessage1.getMessagePaneBrowser());
+
+  Assert.ok(testMessages[0].isRead);
+
+  const actionsPopup = await openHeaderPopup(aboutMessage1);
+  actionsPopup.activateItem(
+    actionsPopup.querySelector("#markAsUnreadMenuItem")
+  );
+  await BrowserTestUtils.waitForPopupEvent(actionsPopup, "hidden");
+  Assert.ok(!testMessages[0].isRead);
+
+  helper.menu = await openHeaderPopup(aboutMessage1);
+  await helper.checkMenuitems("actions", {
+    markAsReadMenuItem: {},
+    markAsUnreadMenuItem: { hidden: true },
+  });
+
+  await openHeaderPopup(aboutMessage1);
+  actionsPopup.activateItem(actionsPopup.querySelector("#markAsReadMenuItem"));
+  await BrowserTestUtils.waitForPopupEvent(actionsPopup, "hidden");
+  Assert.ok(testMessages[0].isRead);
+
+  const starButton = aboutMessage1.document.getElementById("starMessageButton");
+  Assert.ok(!starButton.classList.contains("flagged"));
+  Assert.equal(starButton.ariaPressed, "false");
+  Assert.ok(!testMessages[0].isFlagged);
+
+  EventUtils.synthesizeMouseAtCenter(starButton, {}, aboutMessage1);
+  Assert.ok(starButton.classList.contains("flagged"));
+  Assert.equal(starButton.ariaPressed, "true");
+  Assert.ok(testMessages[0].isFlagged);
+
+  EventUtils.synthesizeMouseAtCenter(starButton, {}, aboutMessage1);
+  Assert.ok(!starButton.classList.contains("flagged"));
+  Assert.equal(starButton.ariaPressed, "false");
+  Assert.ok(!testMessages[0].isFlagged);
 });
 
 /**
