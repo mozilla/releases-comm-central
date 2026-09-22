@@ -499,3 +499,8 @@
 ; Shipped so that Glean tests are enabled on CI even if we have disabled
 ; them during regular usage.
 @RESPATH@/interesting_serverknobs.json
+
+#ifdef MOZ_ARTIFACT_BUILDS
+; Test workers unpack artifact build packages and need `jogfile.json`
+@RESPATH@/jogfile.json
+#endif
