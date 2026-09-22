@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.90"
 name = "glean-core"
-version = "70.1.0"
+version = "70.2.0"
 authors = [
     "Jan-Erik Rediger <jrediger@mozilla.com>",
     "The Glean Team <glean-team@mozilla.com>",
@@ -55,6 +55,7 @@ benchmark = []
 enable_env_logger = ["env_logger"]
 gecko = []
 mozbuild-rustlib = []
+sqlite = ["dep:rusqlite"]
 
 [lib]
 name = "glean_core"
@@ -216,6 +217,7 @@ version = "1.3.1"
 [dependencies.rusqlite]
 version = "0.37.0"
 features = ["bundled"]
+optional = true
 
 [dependencies.serde]
 version = "1.0.104"
