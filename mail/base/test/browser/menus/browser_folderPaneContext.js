@@ -18,74 +18,71 @@ const { VirtualFolderHelper } = ChromeUtils.importESModule(
 const servers = ["server", "nntpRoot", "rssRoot"];
 const realFolders = ["plain", "inbox", "junk", "trash", "rssFeed"];
 const virtualFolders = ["virtual", "virtualFiltered"];
+const folders = [...realFolders, ...virtualFolders];
 
-const folderPaneContextData = {
-  "folderPaneContext-getMessages": [...servers, "nntpGroup", "rssFeed"],
-  "folderPaneContext-pauseAllUpdates": ["rssRoot"],
-  "folderPaneContext-pauseUpdates": ["rssFeed"],
-  "folderPaneContext-openNewTab": true,
-  "folderPaneContext-openNewWindow": true,
-  "folderPaneContext-searchMessages": [...servers, ...realFolders, "nntpGroup"],
-  "folderPaneContext-subscribe": ["nntpRoot", "rssRoot", "rssFeed"],
-  "folderPaneContext-newsUnsubscribe": ["nntpGroup"],
-  "folderPaneContext-new": ["server", "rssRoot", ...realFolders],
-  "folderPaneContext-remove": [
-    "plain",
-    ...virtualFolders,
-    "rssFeed",
-    "multiselect-plain",
-  ],
-  "folderPaneContext-rename": ["plain", ...virtualFolders, "rssFeed"],
-  "folderPaneContext-moveMenu": [
-    "plain",
-    ...virtualFolders,
-    "rssFeed",
-    "multiselect-plain",
-  ],
-  "folderPaneContext-copyMenu": ["plain", "rssFeed", "multiselect-plain"],
-  "folderPaneContext-compact": [
-    ...realFolders,
-    "multiselect-plain",
-    "multiselect",
-  ],
-  "folderPaneContext-compactAll": ["server", "rssRoot"],
-  "folderPaneContext-markMailFolderAllRead": [
-    ...realFolders,
-    "virtual",
-    "multiselect",
-    "multiselect-plain",
-    "multiselect-minimal",
-    "unified",
-  ],
-  "folderPaneContext-markNewsgroupAllRead": ["nntpGroup"],
-  "folderPaneContext-emptyTrash": ["trash"],
-  "folderPaneContext-emptyJunk": ["junk"],
-  "folderPaneContext-sendUnsentMessages": [],
-  "folderPaneContext-favoriteFolder": [
-    ...realFolders,
-    ...virtualFolders,
-    "nntpGroup",
-    "unified",
-  ],
-  "folderPaneContext-properties": [
-    ...realFolders,
-    ...virtualFolders,
-    "nntpGroup",
-    "unified",
-  ],
-  "folderPaneContext-markAllFoldersRead": [...servers],
-  "folderPaneContext-settings": [...servers],
-  "folderPaneContext-filters": [...servers],
-  "folderPaneContext-manageTags": ["tags"],
-  "folderPaneContext-resetSort": [...servers],
-};
+const tabmail = document.getElementById("tabmail");
+const about3Pane = tabmail.currentAbout3Pane;
+const context = about3Pane.document.getElementById("folderPaneContext");
+
+const helper = new ContextMenuTestHelper(
+  "folderPaneContext",
+  {
+    "folderPaneContext-getMessages": {
+      shown: [...servers, "nntpGroup", "rssFeed"],
+    },
+    "folderPaneContext-pauseAllUpdates": { shown: ["rssRoot"] },
+    "folderPaneContext-pauseUpdates": { shown: ["rssFeed"] },
+    "folderPaneContext-openNewTab": {},
+    "folderPaneContext-openNewWindow": {},
+    "folderPaneContext-searchMessages": {
+      shown: [...servers, ...realFolders, "nntpGroup"],
+    },
+    "folderPaneContext-subscribe": {
+      shown: ["nntpRoot", "rssRoot", "rssFeed"],
+    },
+    "folderPaneContext-newsUnsubscribe": { shown: ["nntpGroup"] },
+    "folderPaneContext-new": { shown: ["server", "rssRoot", ...realFolders] },
+    "folderPaneContext-remove": {
+      shown: ["plain", ...virtualFolders, "rssFeed", "multiselect-plain"],
+    },
+    "folderPaneContext-rename": {
+      shown: ["plain", ...virtualFolders, "rssFeed"],
+    },
+    "folderPaneContext-moveMenu": {
+      shown: ["plain", ...virtualFolders, "rssFeed", "multiselect-plain"],
+    },
+    "folderPaneContext-copyMenu": {
+      shown: ["plain", "rssFeed", "multiselect-plain"],
+    },
+    "folderPaneContext-compact": {
+      shown: [...realFolders, "multiselect-plain", "multiselect"],
+    },
+    "folderPaneContext-compactAll": { shown: ["server", "rssRoot"] },
+    "folderPaneContext-markMailFolderAllRead": {
+      hidden: [...servers, "virtualFiltered", "nntpGroup", "tags"],
+    },
+    "folderPaneContext-markNewsgroupAllRead": { shown: ["nntpGroup"] },
+    "folderPaneContext-emptyTrash": { shown: ["trash"] },
+    "folderPaneContext-emptyJunk": { shown: ["junk"] },
+    "folderPaneContext-sendUnsentMessages": { hidden: true },
+    "folderPaneContext-favoriteFolder": {
+      shown: [...folders, "nntpGroup", "unified"],
+    },
+    "folderPaneContext-properties": {
+      shown: [...folders, "nntpGroup", "unified"],
+    },
+    "folderPaneContext-markAllFoldersRead": { shown: servers },
+    "folderPaneContext-settings": { shown: servers },
+    "folderPaneContext-filters": { shown: servers },
+    "folderPaneContext-manageTags": { shown: ["tags"] },
+    "folderPaneContext-resetSort": { shown: servers },
+  },
+  about3Pane.document
+);
 
 let nntpServer;
 
 const generator = new MessageGenerator();
-const tabmail = document.getElementById("tabmail");
-const about3Pane = tabmail.currentAbout3Pane;
-const context = about3Pane.document.getElementById("folderPaneContext");
 let account;
 let rootFolder,
   plainFolder,
@@ -1046,57 +1043,7 @@ async function rightClickOn(folder, mode) {
     about3Pane
   );
   await BrowserTestUtils.waitForPopupEvent(context, "shown");
-  checkMenuitems(context, mode);
-  context.hidePopup();
-  await BrowserTestUtils.waitForPopupEvent(context, "hidden");
-}
-
-function checkMenuitems(menu, mode) {
-  if (!mode) {
-    // Menu should not be shown.
-    Assert.equal(menu.state, "closed");
-    return;
-  }
-
-  Assert.notEqual(menu.state, "closed");
-
-  const expectedItems = [];
-  for (const [id, modes] of Object.entries(folderPaneContextData)) {
-    if (modes === true || modes.includes(mode)) {
-      expectedItems.push(id);
-    }
-  }
-
-  const actualItems = [];
-  for (const item of menu.children) {
-    if (["menu", "menuitem"].includes(item.localName) && !item.hidden) {
-      actualItems.push(item.id);
-    }
-  }
-
-  const notFoundItems = expectedItems.filter(i => !actualItems.includes(i));
-  if (notFoundItems.length) {
-    Assert.report(
-      true,
-      undefined,
-      undefined,
-      "items expected but not found: " + notFoundItems.join(", ")
-    );
-  }
-
-  const unexpectedItems = actualItems.filter(i => !expectedItems.includes(i));
-  if (unexpectedItems.length) {
-    Assert.report(
-      true,
-      undefined,
-      undefined,
-      "items found but not expected: " + unexpectedItems.join(", ")
-    );
-  }
-
-  if (notFoundItems.length + unexpectedItems.length == 0) {
-    Assert.report(false, undefined, undefined, `all ${mode} items are correct`);
-  }
+  await helper.checkMenuitems(mode);
 }
 
 async function rightClickAndActivate(folder, idToActivate, activateOptions) {

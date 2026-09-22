@@ -121,6 +121,8 @@ class MenuTestHelper {
    * @typedef {object} MenuItemData
    * @property {boolean|string[]} [hidden] - true if the item should be hidden
    *   in all modes, or a list of modes in which it should be hidden.
+   * @property {string[]} [shown] - a list of modes in which the item should
+   *   be shown, only used if `hidden` is not set.
    * @property {boolean|string[]} [disabled] - true if the item should be
    *   disabled in all modes, or a list of modes in which it should be
    *   disabled. If the item should be hidden this property is ignored.
@@ -145,7 +147,9 @@ class MenuTestHelper {
   baseData;
 
   constructor(menuID, baseData, doc = document) {
-    this.menu = doc.getElementById(menuID);
+    if (menuID) {
+      this.menu = doc.getElementById(menuID);
+    }
     this.baseData = baseData;
   }
 
@@ -169,7 +173,7 @@ class MenuTestHelper {
       !!expected.hidden,
       `${actual.id} hidden`
     );
-    if (!expected.hidden) {
+    if (!expected.hidden && actual.localName != "menugroup") {
       Assert.equal(
         actual.disabled,
         !!expected.disabled,
@@ -202,6 +206,23 @@ class MenuTestHelper {
    *   in `data` will be ignored.
    */
   async iterate(popup, data, itemsMustBeInData = false) {
+    const checkItemOuter = item => {
+      if (!(item.id in data)) {
+        if (itemsMustBeInData) {
+          Assert.report(
+            true,
+            undefined,
+            undefined,
+            `item ${item.id} not in data`
+          );
+        }
+        return;
+      }
+      const itemData = data[item.id];
+      this.checkItem(item, itemData);
+      delete data[item.id];
+    };
+
     await BrowserTestUtils.waitForPopupEvent(popup, "shown");
 
     for (const item of popup.children) {
@@ -209,17 +230,13 @@ class MenuTestHelper {
         continue;
       }
 
-      if (!(item.id in data)) {
-        if (itemsMustBeInData) {
-          Assert.report(true, undefined, undefined, `${item.id} in data`);
-        }
-        continue;
-      }
-      const itemData = data[item.id];
-      this.checkItem(item, itemData);
-      delete data[item.id];
+      checkItemOuter(item);
 
-      if (item.localName == "menu") {
+      if (item.localName == "menugroup") {
+        for (const groupItem of item.querySelectorAll("menuitem")) {
+          checkItemOuter(groupItem);
+        }
+      } else if (item.localName == "menu") {
         if (BrowserTestUtils.isVisible(item) && !item.disabled) {
           item.openMenu(true);
           await this.iterate(item.menupopup, data, itemsMustBeInData);
@@ -243,16 +260,11 @@ class MenuTestHelper {
    *   values from `baseData`.
    */
   async testAllItems(mode) {
+    info(`Checking menu items for mode ${mode}`);
     // Get the data for just this mode.
     const data = {};
     for (const [id, itemData] of Object.entries(this.baseData)) {
-      data[id] = {
-        ...itemData,
-        hidden: itemData.hidden === true || itemData.hidden?.includes(mode),
-        disabled:
-          itemData.disabled === true || itemData.disabled?.includes(mode),
-        checked: itemData.checked === true || itemData.checked?.includes(mode),
-      };
+      data[id] = this.convertItemData(itemData, mode);
     }
 
     // Open the menu and all submenus and check the items.
@@ -302,6 +314,71 @@ class MenuTestHelper {
     this.menu.menupopup.activateItem(item);
     await BrowserTestUtils.waitForPopupEvent(this.menu.menupopup, "hidden");
     await new Promise(resolve => setTimeout(resolve));
+  }
+
+  /**
+   * Converts one MenuItemData object to another where the `hidden`,
+   * `checked`, and `disabled` values are either true or false, depending on
+   * the value of `mode`.
+   *
+   * @param {MenuItemData} itemData
+   * @param {string} mode
+   * @returns {MenuItemData}
+   */
+  convertItemData(itemData, mode) {
+    return {
+      ...itemData,
+      hidden:
+        itemData.hidden === true ||
+        (Array.isArray(itemData.hidden) && itemData.hidden.includes(mode)) ||
+        (Array.isArray(itemData.shown) && !itemData.shown.includes(mode)),
+      disabled: itemData.disabled === true || itemData.disabled?.includes(mode),
+      checked: itemData.checked === true || itemData.checked?.includes(mode),
+    };
+  }
+}
+
+class ContextMenuTestHelper extends MenuTestHelper {
+  /**
+   * Checks every item in the menu and submenus against the expected states.
+   * The menu must be open (unless `mode` is falsy), and will be closed before
+   * this function returns.
+   *
+   * @param {string} [mode] - The current mode, used to select the right
+   *   expected values from `baseData`.
+   * @param {MenuData} [overrides] - Additional menu item data, which overrides
+   *   the corresponding data in `baseData`.
+   */
+  async checkMenuitems(mode, overrides = {}) {
+    if (!mode) {
+      // Menu should not be shown.
+      Assert.equal(this.menu.state, "closed", "menu should be closed");
+      return;
+    }
+
+    info(`Checking menu items for mode ${mode}`);
+    Assert.notEqual(this.menu.state, "closed", "menu should be open");
+
+    // Get the data for just this mode.
+    const data = {};
+    for (const [id, itemData] of Object.entries({
+      ...this.baseData,
+      ...overrides,
+    })) {
+      data[id] = this.convertItemData(itemData, mode);
+    }
+
+    // Open the menu and all submenus and check the items.
+    await this.iterate(this.menu, data, true);
+
+    // Report any unexpected items.
+    for (const id of Object.keys(data)) {
+      Assert.report(true, undefined, undefined, `extra item ${id} in data`);
+    }
+
+    info("Closing the menu");
+    this.menu.hidePopup();
+    await BrowserTestUtils.waitForPopupEvent(this.menu, "hidden");
   }
 }
 

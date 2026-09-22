@@ -16,9 +16,6 @@ var { MessageGenerator } = ChromeUtils.importESModule(
 var { cal } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calUtils.sys.mjs"
 );
-var { ConversationOpener } = ChromeUtils.importESModule(
-  "resource:///modules/ConversationOpener.sys.mjs"
-);
 var { Gloda } = ChromeUtils.importESModule(
   "resource:///modules/gloda/Gloda.sys.mjs"
 );
@@ -44,276 +41,142 @@ var { VirtualFolderHelper } = ChromeUtils.importESModule(
 const tabmail = document.getElementById("tabmail");
 let testFolder, testMessages;
 let draftsFolder, draftsMessages;
-let templatesFolder, templatesMessages;
-let listFolder, listMessages;
-let virtualFolder;
+let templatesFolder, listFolder, virtualFolder;
 
-const singleSelectionMessagePane = [
-  "singleMessage",
-  "draftsFolder",
-  "templatesFolder",
-  "listFolder",
-  "syntheticFolderDraft",
-  "syntheticFolder",
-];
-const singleSelectionThreadPane = [
-  "singleMessageTree",
-  "draftsFolderTree",
-  "templatesFolderTree",
-  "listFolderTree",
-  "singleMessageTreeXFVF",
-  "syntheticFolderDraftTree",
-  "syntheticFolderTree",
-];
-const onePane = ["messageTab", "messageWindow"];
-const external = ["externalMessageTab", "externalMessageWindow"];
-const allSingleSelection = [
-  ...singleSelectionMessagePane,
-  ...singleSelectionThreadPane,
-  "singleMessageTreeXFVF",
-  ...onePane,
-  ...external,
-];
-const allThreePane = [
-  ...singleSelectionMessagePane,
-  ...singleSelectionThreadPane,
-  "multipleMessagesTree",
-  "collapsedThreadTree",
-  "multipleDraftsFolderTree",
-  "multipleTemplatesFolderTree",
-  "multipleMessagesTreeXFVF",
-];
-const noCollapsedThreads = [
-  ...singleSelectionMessagePane,
-  ...singleSelectionThreadPane,
-  "singleMessageTreeXFVF",
-  "multipleMessagesTree",
-  "multipleDraftsFolderTree",
-  "multipleTemplatesFolderTree",
-  "multipleMessagesTreeXFVF",
-  ...onePane,
-  ...external,
-];
-const notExternal = [...allThreePane, ...onePane];
-const singleNotExternal = [
-  ...singleSelectionMessagePane,
-  ...singleSelectionThreadPane,
-  "singleMessageTreeXFVF",
-  ...onePane,
-];
-const notSyntheticNotXFVF = [
-  "singleMessage",
-  "draftsFolder",
-  "templatesFolder",
-  "listFolder",
-  "singleMessageTree",
-  "draftsFolderTree",
-  "templatesFolderTree",
-  "listFolderTree",
-  "multipleMessagesTree",
-  "collapsedThreadTree",
-  "multipleDraftsFolderTree",
-  "multipleTemplatesFolderTree",
-];
-const notSynthetic = [
-  ...notSyntheticNotXFVF,
-  "singleMessageTreeXFVF",
-  "multipleMessagesTreeXFVF",
-];
+// The checkMenuitems function will be called with one of these modes:
+// - singleMessage (the menu is open in the message pane)
+// - singleTree (the menu is open in the tree, and one message is selected)
+// - multipleTree (same, but multiple messages are selected)
 
-const mailContextData = {
-  "mailContext-navigation": true,
-  "navContext-markRead": true,
-  "navContext-markUnread": true,
-  "navContext-reply": noCollapsedThreads,
-  "navContext-archive": notExternal,
-  "navContext-markAsJunk": true,
-  "navContext-markAsNotJunk": [],
-  "navContext-delete": notExternal,
-  "mailContext-openInBrowser": [],
-  "mailContext-openLinkInBrowser": [],
-  "mailContext-copylink": [],
-  "mailContext-savelink": [],
-  "mailContext-reportPhishingURL": [],
-  "mailContext-addemail": [],
-  "mailContext-composeemailto": [],
-  "mailContext-copyemail": [],
-  "mailContext-copyimage": [],
-  "mailContext-saveimage": [],
-  "mailContext-copy": [],
-  "mailContext-selectall": [
-    ...singleSelectionMessagePane,
-    ...onePane,
-    ...external,
-  ],
-  "mailContext-searchTheWeb": [],
-  "mailContext-editDraftMsg": [
-    "draftsFolder",
-    "draftsFolderTree",
-    "multipleDraftsFolderTree",
-    "syntheticFolderDraft",
-    "syntheticFolderDraftTree",
-  ],
-  "mailContext-newMsgFromTemplate": [
-    "templatesFolder",
-    "templatesFolderTree",
-    "multipleTemplatesFolderTree",
-  ],
-  "mailContext-editTemplateMsg": [
-    "templatesFolder",
-    "templatesFolderTree",
-    "multipleTemplatesFolderTree",
-  ],
-  "mailContext-open": [...singleNotExternal, "collapsedThreadTree"],
-  "mailContext-openNewTab": singleSelectionThreadPane,
-  "mailContext-openNewWindow": singleSelectionThreadPane,
-  "mailContext-openConversation": [
-    ...singleSelectionMessagePane,
-    ...singleSelectionThreadPane,
-    ...onePane,
-    "collapsedThreadTree",
-  ],
-  "mailContext-openContainingFolder": [
-    "syntheticFolderDraft",
-    "syntheticFolderDraftTree",
-    "syntheticFolder",
-    "syntheticFolderTree",
-    ...onePane,
-  ],
-  "mailContext-reply": noCollapsedThreads,
-  "mailContext-replyNewsgroup": [],
-  "mailContext-replySender": noCollapsedThreads,
-  "mailContext-replyAll": noCollapsedThreads,
-  "mailContext-replyList": ["listFolder", "listFolderTree"],
-  "mailContext-forwardRedirect": noCollapsedThreads,
-  "mailContext-forward": allSingleSelection,
-  "mailContext-forwardAsInline": allSingleSelection,
-  "mailContext-forwardAsAttachment": noCollapsedThreads,
-  "mailContext-redirect": noCollapsedThreads,
-  "mailContext-cancel": [],
-  "mailContext-editAsNew": noCollapsedThreads,
-  "mailContext-moveToFolderAgain": [],
-  "mailContext-moveMenu": notExternal,
-  "mailContext-copyMenu": true,
-  "mailContext-tags": notExternal,
-  "mailContext-addNewTag": notExternal,
-  "mailContext-manageTags": notExternal,
-  "mailContext-tagRemoveAll": notExternal,
-  "mailContext-mark": notExternal,
-  "mailContext-markRead": notExternal,
-  "mailContext-markUnread": notExternal,
-  "mailContext-markThreadAsRead": notExternal,
-  "mailContext-markReadByDate": notExternal,
-  "mailContext-markAllRead": notExternal,
-  "mailContext-markFlagged": notExternal,
-  "mailContext-markAsJunk": notExternal,
-  "mailContext-markAsNotJunk": notExternal,
-  "mailContext-recalculateJunkScore": notExternal,
-  "mailContext-organize": notExternal,
-  "mailContext-archive": notExternal,
-  "mailContext-decryptToFolder": [
-    "multipleMessagesTree",
-    "collapsedThreadTree",
-    "multipleDraftsFolderTree",
-    "multipleTemplatesFolderTree",
-    "multipleMessagesTreeXFVF",
-  ],
-  "mailContext-calendar-convert-menu": singleNotExternal,
-  "mailContext-copyMessageLink": singleNotExternal,
-  "mailContext-copyNewsLink": [],
-  "mailContext-threads": [...notSyntheticNotXFVF, ...onePane],
-  "mailContext-ignoreThread": notSyntheticNotXFVF,
-  "mailContext-ignoreSubthread": notSyntheticNotXFVF,
-  "mailContext-watchThread": [...notSyntheticNotXFVF, ...onePane],
-  "mailContext-saveAs": true,
-  "mailContext-print": true,
-  "mailContext-downloadSelected": [
-    "multipleMessagesTree",
-    "collapsedThreadTree",
-    "multipleDraftsFolderTree",
-    "multipleTemplatesFolderTree",
-    "multipleMessagesTreeXFVF",
-  ],
+const helper = new ContextMenuTestHelper(undefined, {
+  "mailContext-navigation": {},
+  "navContext-markRead": { hidden: true },
+  "navContext-markUnread": {},
+  "navContext-reply": {},
+  "navContext-archive": {},
+  "navContext-markAsJunk": {},
+  "navContext-markAsNotJunk": { hidden: true },
+  "navContext-delete": {},
+  "mailContext-openInBrowser": { hidden: true },
+  "mailContext-openLinkInBrowser": { hidden: true },
+  "mailContext-copylink": { hidden: true },
+  "mailContext-savelink": { hidden: true },
+  "mailContext-reportPhishingURL": { hidden: true },
+  "mailContext-addemail": { hidden: true },
+  "mailContext-composeemailto": { hidden: true },
+  "mailContext-copyemail": { hidden: true },
+  "mailContext-copyimage": { hidden: true },
+  "mailContext-saveimage": { hidden: true },
+  "mailContext-copy": { hidden: true },
+  "mailContext-selectall": {
+    hidden: ["singleTree", "multipleTree"],
+  },
+  "mailContext-searchTheWeb": { hidden: true },
+  "mailContext-editDraftMsg": { hidden: true },
+  "mailContext-newMsgFromTemplate": { hidden: true },
+  "mailContext-editTemplateMsg": { hidden: true },
+  "mailContext-open": { hidden: ["multipleTree"] },
+  "mailContext-openNewTab": {
+    hidden: ["singleMessage", "multipleTree"],
+  },
+  "mailContext-openNewWindow": {
+    hidden: ["singleMessage", "multipleTree"],
+  },
+  "mailContext-openConversation": { hidden: ["multipleTree"] },
+  "mailContext-openContainingFolder": { hidden: true },
+  "mailContext-reply": {},
+  "mailContext-replyNewsgroup": { hidden: true },
+  "mailContext-replySender": {},
+  "mailContext-replyAll": {},
+  "mailContext-replyList": { hidden: true },
+  "mailContext-forwardRedirect": {},
+  "mailContext-forward": { hidden: ["multipleTree"] },
+  "mailContext-forwardAsInline": { hidden: ["multipleTree"] },
+  "mailContext-forwardAsAttachment": {},
+  "mailContext-redirect": {},
+  "mailContext-cancel": { hidden: true },
+  "mailContext-editAsNew": {},
+  "mailContext-moveToFolderAgain": { hidden: true },
+  "mailContext-moveMenu": {},
+  "mailContext-copyMenu": {},
+  "mailContext-tags": {},
+  "mailContext-addNewTag": {},
+  "mailContext-manageTags": {},
+  "mailContext-tagRemoveAll": {},
+  "mailContext-mark": {},
+  "mailContext-markRead": { disabled: true },
+  "mailContext-markUnread": {},
+  "mailContext-markThreadAsRead": { disabled: true },
+  "mailContext-markReadByDate": {},
+  "mailContext-markAllRead": {},
+  "mailContext-markFlagged": {},
+  "mailContext-markAsJunk": {},
+  "mailContext-markAsNotJunk": {},
+  "mailContext-recalculateJunkScore": {},
+  "mailContext-organize": {},
+  "mailContext-archive": {},
+  "mailContext-decryptToFolder": {
+    hidden: ["singleMessage", "singleTree"],
+  },
+  "mailContext-calendar-convert-menu": { hidden: ["multipleTree"] },
+  "mailContext-calendar-convert-event-menuitem": {},
+  "mailContext-calendar-convert-task-menuitem": {},
+  "mailContext-copyMessageLink": { hidden: ["multipleTree"] },
+  "mailContext-copyNewsLink": { hidden: true },
+  "mailContext-threads": {},
+  "mailContext-ignoreThread": {},
+  "mailContext-ignoreSubthread": {},
+  "mailContext-watchThread": {},
+  "mailContext-saveAs": {},
+  "mailContext-print": {},
+  "mailContext-downloadSelected": {
+    hidden: ["singleMessage", "singleTree"],
+  },
+});
+
+// Applies when the selected message is unread.
+const unreadOverride = {
+  "navContext-markRead": {},
+  "navContext-markUnread": { hidden: true },
+  "mailContext-markRead": {},
+  "mailContext-markUnread": { disabled: true },
+  "mailContext-markThreadAsRead": {},
 };
-
-async function checkMenuitems(menu, mode) {
-  if (!mode) {
-    // Menu should not be shown.
-    Assert.equal(menu.state, "closed");
-    return;
-  }
-
-  info(`Checking menus for ${mode} ...`);
-
-  await BrowserTestUtils.waitForPopupEvent(menu, "shown");
-
-  const expectedItems = [];
-  for (const [id, modes] of Object.entries(mailContextData)) {
-    if (modes === true || modes.includes(mode)) {
-      expectedItems.push(id);
-    }
-  }
-
-  const actualItems = [];
-  for (const item of menu.children) {
-    if (
-      ["menu", "menuitem", "menugroup"].includes(item.localName) &&
-      !item.hidden
-    ) {
-      actualItems.push(item.id);
-
-      if (item.localName == "menu" && !item.disabled) {
-        item.openMenu(true);
-        await BrowserTestUtils.waitForPopupEvent(item.menupopup, "shown");
-        for (const subItem of item.menupopup.children) {
-          if (
-            ["menu", "menuitem"].includes(subItem.localName) &&
-            subItem.id &&
-            !subItem.hidden
-          ) {
-            actualItems.push(subItem.id);
-          }
-        }
-        item.menupopup.hidePopup();
-        await BrowserTestUtils.waitForPopupEvent(item.menupopup, "hidden");
-      } else if (item.localName == "menugroup") {
-        actualItems.push(
-          ...Array.from(item.children)
-            .filter(
-              subItem =>
-                subItem.localName == "menuitem" && subItem.id && !subItem.hidden
-            )
-            .map(subItem => subItem.id)
-        );
-      }
-    }
-  }
-
-  const notFoundItems = expectedItems.filter(i => !actualItems.includes(i));
-  if (notFoundItems.length) {
-    Assert.report(
-      true,
-      undefined,
-      undefined,
-      "items expected but not found: " + notFoundItems.join(", ")
-    );
-  }
-
-  const unexpectedItems = actualItems.filter(i => !expectedItems.includes(i));
-  if (unexpectedItems.length) {
-    Assert.report(
-      true,
-      undefined,
-      undefined,
-      "items found but not expected: " + unexpectedItems.join(", ")
-    );
-  }
-
-  Assert.deepEqual(actualItems, expectedItems, `Mode: ${mode}`);
-
-  menu.hidePopup();
-  await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
-}
+// Applies when the selected message is a draft.
+const draftsOverride = {
+  "mailContext-editDraftMsg": {},
+};
+// Applies when in a message tab or window.
+const messageOnlyOverride = {
+  "mailContext-openContainingFolder": {},
+  "mailContext-recalculateJunkScore": { disabled: true },
+  "mailContext-ignoreThread": { hidden: true },
+  "mailContext-ignoreSubthread": { hidden: true },
+};
+// Applies when the displayed message is from a file.
+const externalOverride = {
+  "navContext-markRead": { hidden: true },
+  "navContext-markUnread": { hidden: true },
+  "navContext-archive": { hidden: true },
+  "navContext-markAsJunk": { hidden: true },
+  "navContext-delete": { hidden: true },
+  "mailContext-open": { hidden: true },
+  "mailContext-moveMenu": { hidden: true },
+  "mailContext-tags": { hidden: true },
+  "mailContext-addNewTag": { hidden: true },
+  "mailContext-manageTags": { hidden: true },
+  "mailContext-tagRemoveAll": { hidden: true },
+  "mailContext-mark": { hidden: true },
+  "mailContext-markReadByDate": { hidden: true },
+  "mailContext-markAllRead": { hidden: true },
+  "mailContext-markFlagged": { hidden: true },
+  "mailContext-markAsJunk": { hidden: true },
+  "mailContext-markAsNotJunk": { hidden: true },
+  "mailContext-recalculateJunkScore": { hidden: true },
+  "mailContext-organize": { hidden: true },
+  "mailContext-archive": { hidden: true },
+  "mailContext-threads": { hidden: true },
+};
 
 add_setup(async function () {
   await SpecialPowers.pushPrefEnv({
@@ -359,7 +222,6 @@ add_setup(async function () {
       .makeMessages({ count: 5 })
       .map(message => message.toMessageString())
   );
-  templatesMessages = [...templatesFolder.messages];
 
   listFolder = rootFolder
     .createLocalSubfolder("mailContextMailingList")
@@ -377,7 +239,6 @@ add_setup(async function () {
       })
       .toMessageString()
   );
-  listMessages = [...listFolder.messages];
 
   virtualFolder = VirtualFolderHelper.createNewVirtualFolder(
     "mailContextVirtual",
@@ -395,9 +256,15 @@ add_setup(async function () {
   // Enable home calendar.
   cal.manager.getCalendars()[0].setProperty("disabled", false);
 
-  // Fool Gloda into thinking the user is always idle. This makes it index
-  // changes straight away and we don't have to wait ages for it.
   GlodaTestHelper.prepareIndexerForTesting();
+  testFolder.updateFolder(null);
+  draftsFolder.updateFolder(null);
+  templatesFolder.updateFolder(null);
+  listFolder.updateFolder(null);
+  await TestUtils.waitForCondition(
+    () => !GlodaIndexer.indexing,
+    "waiting for Gloda to finish indexing"
+  );
 
   // Clear persisted position/size possibly left from earlier tests.
   Services.xulStore.removeDocument(
@@ -438,7 +305,8 @@ add_task(async function testNoMessages() {
     about3Pane.document.getElementById("messagePane"),
     { type: "contextmenu" }
   );
-  await checkMenuitems(mailContext);
+  helper.menu = mailContext;
+  await helper.checkMenuitems();
 
   // Open the menu from an empty part of the thread pane.
 
@@ -450,7 +318,7 @@ add_task(async function testNoMessages() {
     { type: "contextmenu" },
     about3Pane
   );
-  await checkMenuitems(mailContext);
+  await helper.checkMenuitems();
 });
 
 /**
@@ -458,13 +326,6 @@ add_task(async function testNoMessages() {
  * message is selected.
  */
 add_task(async function testSingleMessage() {
-  await TestUtils.waitForCondition(
-    () =>
-      ConversationOpener.isMessageIndexed(testMessages[0]) &&
-      !GlodaIndexer.indexing,
-    "waiting for Gloda to finish indexing"
-  );
-
   const about3Pane = tabmail.currentAbout3Pane;
   const mailContext = about3Pane.document.getElementById("mailContext");
   const { gDBView, messageBrowser, threadTree } = about3Pane;
@@ -492,7 +353,8 @@ add_task(async function testSingleMessage() {
     { type: "contextmenu" },
     messagePaneBrowser
   );
-  await checkMenuitems(mailContext, "singleMessage");
+  helper.menu = mailContext;
+  await helper.checkMenuitems("singleMessage");
 
   // Open the menu from the thread pane.
 
@@ -501,7 +363,7 @@ add_task(async function testSingleMessage() {
     "waiting for rows to be added"
   );
   EventUtils.synthesizeMouseAtCenter(row0, { type: "contextmenu" }, about3Pane);
-  await checkMenuitems(mailContext, "singleMessageTree");
+  await helper.checkMenuitems("singleTree");
 
   // Open the menu from an unselected row of the thread pane.
 
@@ -510,7 +372,7 @@ add_task(async function testSingleMessage() {
     "waiting for rows to be added"
   );
   EventUtils.synthesizeMouseAtCenter(row2, { type: "contextmenu" }, about3Pane);
-  await checkMenuitems(mailContext, "singleMessageTree");
+  await helper.checkMenuitems("singleTree", unreadOverride);
 
   // Check that the selection was restored.
 
@@ -611,13 +473,6 @@ add_task(async function testSingleMessage() {
  * selected.
  */
 add_task(async function testMultipleMessages() {
-  await TestUtils.waitForCondition(
-    () =>
-      ConversationOpener.isMessageIndexed(testMessages[5]) &&
-      !GlodaIndexer.indexing,
-    "waiting for Gloda to finish indexing"
-  );
-
   const about3Pane = tabmail.currentAbout3Pane;
   const mailContext = about3Pane.document.getElementById("mailContext");
   const { messageBrowser, multiMessageBrowser, threadTree } = about3Pane;
@@ -643,7 +498,8 @@ add_task(async function testMultipleMessages() {
   );
 
   EventUtils.synthesizeMouseAtCenter(row2, { type: "contextmenu" }, about3Pane);
-  await checkMenuitems(mailContext, "multipleMessagesTree");
+  helper.menu = mailContext;
+  await helper.checkMenuitems("multipleTree", unreadOverride);
 
   // Open the menu from an unselected row of the thread pane.
 
@@ -652,7 +508,7 @@ add_task(async function testMultipleMessages() {
     "waiting for rows to be added"
   );
   EventUtils.synthesizeMouseAtCenter(row4, { type: "contextmenu" }, about3Pane);
-  await checkMenuitems(mailContext, "singleMessageTree");
+  await helper.checkMenuitems("singleTree", unreadOverride);
 
   // Check that the selection was restored.
 
@@ -672,7 +528,15 @@ add_task(async function testMultipleMessages() {
     "waiting for rows to be added"
   );
   EventUtils.synthesizeMouseAtCenter(row5, { type: "contextmenu" }, about3Pane);
-  await checkMenuitems(mailContext, "collapsedThreadTree");
+  await helper.checkMenuitems("multipleTree", {
+    ...unreadOverride,
+    "navContext-reply": { hidden: true },
+    "mailContext-open": {},
+    "mailContext-openConversation": {},
+    "mailContext-reply": { hidden: true },
+    "mailContext-forwardRedirect": { hidden: true },
+    "mailContext-editAsNew": { hidden: true },
+  });
 
   // Open the menu in the thread pane on a message scrolled out of view.
 
@@ -709,13 +573,6 @@ add_task(async function testDraftsFolder() {
   const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.restoreState({ folderURI: draftsFolder.URI });
 
-  await TestUtils.waitForCondition(
-    () =>
-      ConversationOpener.isMessageIndexed(draftsMessages[1]) &&
-      !GlodaIndexer.indexing,
-    "waiting for Gloda to finish indexing"
-  );
-
   const mailContext = about3Pane.document.getElementById("mailContext");
   const { gDBView, messageBrowser, threadTree } = about3Pane;
   const messagePaneBrowser =
@@ -740,7 +597,8 @@ add_task(async function testDraftsFolder() {
     { type: "contextmenu" },
     messagePaneBrowser
   );
-  await checkMenuitems(mailContext, "draftsFolder");
+  helper.menu = mailContext;
+  await helper.checkMenuitems("singleMessage", draftsOverride);
 
   // Open the menu from the thread pane.
 
@@ -749,7 +607,7 @@ add_task(async function testDraftsFolder() {
     "waiting for rows to be added"
   );
   EventUtils.synthesizeMouseAtCenter(row0, { type: "contextmenu" }, about3Pane);
-  await checkMenuitems(mailContext, "draftsFolderTree");
+  await helper.checkMenuitems("singleTree", draftsOverride);
 
   threadTree.scrollToIndex(1, true);
   threadTree.selectedIndices = [1, 2, 3];
@@ -759,7 +617,10 @@ add_task(async function testDraftsFolder() {
     "waiting for rows to be added"
   );
   EventUtils.synthesizeMouseAtCenter(row2, { type: "contextmenu" }, about3Pane);
-  await checkMenuitems(mailContext, "multipleDraftsFolderTree");
+  await helper.checkMenuitems("multipleTree", {
+    ...unreadOverride,
+    ...draftsOverride,
+  });
 });
 
 /**
@@ -770,13 +631,6 @@ add_task(async function testTemplatesFolder() {
   const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.restoreState({ folderURI: templatesFolder.URI });
 
-  await TestUtils.waitForCondition(
-    () =>
-      ConversationOpener.isMessageIndexed(templatesMessages[1]) &&
-      !GlodaIndexer.indexing,
-    "waiting for Gloda to finish indexing"
-  );
-
   const mailContext = about3Pane.document.getElementById("mailContext");
   const { gDBView, messageBrowser, threadTree } = about3Pane;
   const messagePaneBrowser =
@@ -790,6 +644,12 @@ add_task(async function testTemplatesFolder() {
   threadTree.selectedIndex = 0;
   await loadedPromise;
 
+  // Applies to messages that are templates.
+  const templatesOverride = {
+    "mailContext-newMsgFromTemplate": {},
+    "mailContext-editTemplateMsg": {},
+  };
+
   // Open the menu from the message pane.
 
   Assert.ok(
@@ -801,7 +661,8 @@ add_task(async function testTemplatesFolder() {
     { type: "contextmenu" },
     messagePaneBrowser
   );
-  await checkMenuitems(mailContext, "templatesFolder");
+  helper.menu = mailContext;
+  await helper.checkMenuitems("singleMessage", templatesOverride);
 
   // Open the menu from the thread pane.
 
@@ -810,7 +671,7 @@ add_task(async function testTemplatesFolder() {
     "waiting for rows to be added"
   );
   EventUtils.synthesizeMouseAtCenter(row0, { type: "contextmenu" }, about3Pane);
-  await checkMenuitems(mailContext, "templatesFolderTree");
+  await helper.checkMenuitems("singleTree", templatesOverride);
 
   threadTree.scrollToIndex(1, true);
   threadTree.selectedIndices = [1, 2, 3];
@@ -820,7 +681,10 @@ add_task(async function testTemplatesFolder() {
     "waiting for rows to be added"
   );
   EventUtils.synthesizeMouseAtCenter(row2, { type: "contextmenu" }, about3Pane);
-  await checkMenuitems(mailContext, "multipleTemplatesFolderTree");
+  await helper.checkMenuitems("multipleTree", {
+    ...unreadOverride,
+    ...templatesOverride,
+  });
 });
 
 /**
@@ -831,13 +695,6 @@ add_task(async function testListMessage() {
   const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.restoreState({ folderURI: listFolder.URI });
 
-  await TestUtils.waitForCondition(
-    () =>
-      ConversationOpener.isMessageIndexed(listMessages[0]) &&
-      !GlodaIndexer.indexing,
-    "waiting for Gloda to finish indexing"
-  );
-
   const mailContext = about3Pane.document.getElementById("mailContext");
   const { gDBView, messageBrowser, threadTree } = about3Pane;
   const messagePaneBrowser =
@@ -851,6 +708,14 @@ add_task(async function testListMessage() {
   threadTree.selectedIndex = 0;
   await loadedPromise;
 
+  // Applies to messages in a mailing list.
+  const listOverride = {
+    "mailContext-replyList": {},
+    // There's only one message here, and it's already marked as read.
+    "mailContext-markAllRead": { disabled: true },
+    "mailContext-markReadByDate": { disabled: true },
+  };
+
   // Open the menu from the message pane.
 
   Assert.ok(
@@ -862,7 +727,8 @@ add_task(async function testListMessage() {
     { type: "contextmenu" },
     messagePaneBrowser
   );
-  await checkMenuitems(mailContext, "listFolder");
+  helper.menu = mailContext;
+  await helper.checkMenuitems("singleMessage", listOverride);
 
   // Open the menu from the thread pane.
 
@@ -871,7 +737,7 @@ add_task(async function testListMessage() {
     "waiting for rows to be added"
   );
   EventUtils.synthesizeMouseAtCenter(row0, { type: "contextmenu" }, about3Pane);
-  await checkMenuitems(mailContext, "listFolderTree");
+  await helper.checkMenuitems("singleTree", listOverride);
 });
 
 /**
@@ -890,6 +756,13 @@ add_task(async function testVirtualFolder() {
   threadTree.scrollToIndex(1, true);
   threadTree.selectedIndices = [1, 2, 3];
 
+  // Applies to messages in a multi-folder virtual folder.
+  const xfvfOverride = {
+    ...unreadOverride,
+    "mailContext-recalculateJunkScore": { disabled: true },
+    "mailContext-threads": { hidden: true },
+  };
+
   // Open the menu from the thread pane.
 
   const row2 = await TestUtils.waitForCondition(
@@ -898,7 +771,8 @@ add_task(async function testVirtualFolder() {
   );
 
   EventUtils.synthesizeMouseAtCenter(row2, { type: "contextmenu" }, about3Pane);
-  await checkMenuitems(mailContext, "multipleMessagesTreeXFVF");
+  helper.menu = mailContext;
+  await helper.checkMenuitems("multipleTree", xfvfOverride);
 
   // Open the menu from an unselected row of the thread pane.
 
@@ -907,7 +781,7 @@ add_task(async function testVirtualFolder() {
     "waiting for rows to be added"
   );
   EventUtils.synthesizeMouseAtCenter(row4, { type: "contextmenu" }, about3Pane);
-  await checkMenuitems(mailContext, "singleMessageTreeXFVF");
+  await helper.checkMenuitems("singleTree", xfvfOverride);
 
   // Check that the selection was restored.
 
@@ -924,13 +798,6 @@ add_task(async function testVirtualFolder() {
  * should be the same).
  */
 add_task(async function testSyntheticFolder() {
-  await TestUtils.waitForCondition(
-    () =>
-      ConversationOpener.isMessageIndexed(testMessages[5]) &&
-      !GlodaIndexer.indexing,
-    "waiting for Gloda to finish indexing"
-  );
-
   const tabPromise = BrowserTestUtils.waitForEvent(
     window,
     "aboutMessageLoaded"
@@ -963,6 +830,15 @@ add_task(async function testSyntheticFolder() {
     url => url.endsWith(gDBView.getKeyAt(9))
   );
 
+  // Applies to messages in a synthetic view.
+  const syntheticOverride = {
+    "mailContext-openContainingFolder": {},
+    "mailContext-markReadByDate": { disabled: true },
+    "mailContext-markAllRead": { disabled: true },
+    "mailContext-recalculateJunkScore": { disabled: true },
+    "mailContext-threads": { hidden: true },
+  };
+
   // Select a draft. Open the menu from the message pane.
 
   threadTree.selectedIndex = 9;
@@ -977,7 +853,11 @@ add_task(async function testSyntheticFolder() {
     { type: "contextmenu" },
     messagePaneBrowser
   );
-  await checkMenuitems(mailContext, "syntheticFolderDraft");
+  helper.menu = mailContext;
+  await helper.checkMenuitems("singleMessage", {
+    ...draftsOverride,
+    ...syntheticOverride,
+  });
 
   // Open the menu from the thread pane.
 
@@ -986,7 +866,10 @@ add_task(async function testSyntheticFolder() {
     "waiting for rows to be added"
   );
   EventUtils.synthesizeMouseAtCenter(row9, { type: "contextmenu" }, about3Pane);
-  await checkMenuitems(mailContext, "syntheticFolderDraftTree");
+  await helper.checkMenuitems("singleTree", {
+    ...draftsOverride,
+    ...syntheticOverride,
+  });
 
   // Select an ordinary message. Open the menu from the message pane.
 
@@ -1007,7 +890,7 @@ add_task(async function testSyntheticFolder() {
     { type: "contextmenu" },
     messagePaneBrowser
   );
-  await checkMenuitems(mailContext, "syntheticFolder");
+  await helper.checkMenuitems("singleMessage", syntheticOverride);
 
   // Open the menu from the thread pane.
 
@@ -1016,7 +899,7 @@ add_task(async function testSyntheticFolder() {
     "waiting for rows to be added"
   );
   EventUtils.synthesizeMouseAtCenter(row4, { type: "contextmenu" }, about3Pane);
-  await checkMenuitems(mailContext, "syntheticFolderTree");
+  await helper.checkMenuitems("singleTree", syntheticOverride);
 
   // Open the menu from an unselected row of the thread pane.
 
@@ -1025,7 +908,10 @@ add_task(async function testSyntheticFolder() {
     "waiting for rows to be added"
   );
   EventUtils.synthesizeMouseAtCenter(row3, { type: "contextmenu" }, about3Pane);
-  await checkMenuitems(mailContext, "syntheticFolderTree");
+  await helper.checkMenuitems("singleTree", {
+    ...unreadOverride,
+    ...syntheticOverride,
+  });
 
   // Check that the selection was restored.
 
@@ -1131,7 +1017,8 @@ add_task(async function testMessageTab() {
     { type: "contextmenu" },
     aboutMessage.getMessagePaneBrowser()
   );
-  await checkMenuitems(mailContext, "messageTab");
+  helper.menu = mailContext;
+  await helper.checkMenuitems("singleMessage", messageOnlyOverride);
 
   tabmail.closeOtherTabs(0);
 });
@@ -1168,7 +1055,8 @@ add_task(async function testExternalMessageTab() {
     { type: "contextmenu" },
     aboutMessage.getMessagePaneBrowser()
   );
-  await checkMenuitems(mailContext, "externalMessageTab");
+  helper.menu = mailContext;
+  await helper.checkMenuitems("singleMessage", externalOverride);
 
   tabmail.closeOtherTabs(0);
 });
@@ -1191,7 +1079,8 @@ add_task(async function testMessageWindow() {
     { type: "contextmenu" },
     aboutMessage.getMessagePaneBrowser()
   );
-  await checkMenuitems(mailContext, "messageWindow");
+  helper.menu = mailContext;
+  await helper.checkMenuitems("singleMessage", messageOnlyOverride);
 
   await BrowserTestUtils.closeWindow(win);
 });
@@ -1226,7 +1115,8 @@ add_task(async function testExternalMessageWindow() {
     { type: "contextmenu" },
     aboutMessage.getMessagePaneBrowser()
   );
-  await checkMenuitems(mailContext, "externalMessageWindow");
+  helper.menu = mailContext;
+  await helper.checkMenuitems("singleMessage", externalOverride);
 
   await BrowserTestUtils.closeWindow(win);
 });

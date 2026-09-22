@@ -14,8 +14,8 @@ const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
-const { ConversationOpener } = ChromeUtils.importESModule(
-  "resource:///modules/ConversationOpener.sys.mjs"
+const { GlodaIndexer } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaIndexer.sys.mjs"
 );
 
 const tabmail = document.getElementById("tabmail");
@@ -50,14 +50,17 @@ add_setup(async function () {
   );
   testMessages = [...testFolder.messages];
 
+  GlodaTestHelper.prepareIndexerForTesting();
+  testFolder.updateFolder(null);
+  await TestUtils.waitForCondition(
+    () => !GlodaIndexer.indexing,
+    "waiting for Gloda to finish indexing"
+  );
+
   tabmail.currentAbout3Pane.restoreState({
     folderURI: testFolder.URI,
     messagePaneVisible: true,
   });
-
-  // Fool Gloda into thinking the user is always idle. This makes it index
-  // changes straight away and we don't have to wait ages for it.
-  GlodaTestHelper.prepareIndexerForTesting();
 
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
@@ -113,14 +116,10 @@ add_task(async function testOpenNewWindow() {
   await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
   Assert.equal(aboutMessage.gMessage, testMessages[0]);
   await BrowserTestUtils.closeWindow(win);
+  await SimpleTest.promiseFocus();
 });
 
 add_task(async function testOpenConversation() {
-  await TestUtils.waitForCondition(
-    () => testMessages.every(m => ConversationOpener.isMessageIndexed(m)),
-    "waiting for Gloda to finish indexing"
-  );
-
   const tabPromise = BrowserTestUtils.waitForEvent(
     tabmail.tabContainer,
     "TabOpen"
