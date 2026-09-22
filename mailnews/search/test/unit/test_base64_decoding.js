@@ -20,6 +20,7 @@ var Files = [
   "../../../data/bodySearchCrash", // Test for bug 465805.
   "../../../data/base64-with-whitespace.eml", // Test for bug 1487421.
   "../../../data/base64-utf16.eml", // Test for bug 2073247.
+  "../../../data/not-really-base64.eml", // Test for bug 2073247.
 ];
 
 var Tests = [
@@ -52,6 +53,15 @@ var Tests = [
     attrib: Body,
     op: Contains,
     count: 1,
+  },
+  {
+    // not-really-base64.eml claims to be base64 but isn't, so there is nothing
+    // we can decode and nothing to match. What the reader sees is whatever the
+    // MIME parser makes of it, not this text.
+    value: "notActuallyBase64",
+    attrib: Body,
+    op: Contains,
+    count: 0,
   },
 ];
 

@@ -124,7 +124,7 @@ class nsMsgBodyHandler {
                                bool& needsQPReset);
   void SniffPossibleMIMEHeader(const nsCString& line);
   static void StripHtml(nsCString& buf);
-  static void Base64Decode(nsCString& buf);
+  static bool Base64Decode(nsCString& buf);
   void DecryptPGP(const nsCString& aEncrypted, nsCString& aDecrypted);
   void DecryptSMIME(const nsCString& aEncrypted, nsCString& aDecrypted);
   static int OutputFunctionPGP(const char* buf, int32_t buf_size,

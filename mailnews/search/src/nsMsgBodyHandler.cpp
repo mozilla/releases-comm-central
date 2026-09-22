@@ -98,7 +98,9 @@ int32_t nsMsgBodyHandler::GetNextLine(nsCString& buf, nsCString& charset,
 
   // For non-multipart messages, the entire message minus headers is encoded.
   if (!m_isMultipart && !m_partIsSMIME && m_base64part) {
-    Base64Decode(buf);
+    if (!Base64Decode(buf)) {
+      NS_WARNING("Message claims to be base64 but isn't, nothing to search");
+    }
     outLength = buf.Length();
     m_base64part = false;
   }
@@ -235,9 +237,11 @@ int32_t nsMsgBodyHandler::ApplyTransformations(const nsCString& line,
   }
   if (matchedBoundary) {
     if (m_base64part && m_partIsText) {
-      Base64Decode(buf);
-      // Work on the parsed string
-      if (!buf.Length()) {
+      if (!Base64Decode(buf)) {
+        NS_WARNING("Part claims to be base64 but isn't, nothing to search");
+        eatThisLine = true;
+      } else if (buf.IsEmpty()) {
+        // Work on the parsed string
         NS_WARNING("Trying to transform an empty buffer");
         eatThisLine = true;
       } else {
@@ -863,17 +867,23 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString& line) {
 /**
  * Decodes the given base64 string.
  *
- * It returns its decoded string in its input.
+ * It returns its decoded string in its input. The buffer is emptied if the
+ * string isn't valid base64, so callers which ignore the return value still
+ * won't search undecoded text.
  *
  * @param pBufInOut   (inout) a buffer of the string
+ * @returns false if the string wasn't valid base64.
  */
-void nsMsgBodyHandler::Base64Decode(nsCString& pBufInOut) {
+bool nsMsgBodyHandler::Base64Decode(nsCString& pBufInOut) {
   // Decoded text can contain NUL bytes itself, UTF-16 for instance, so
   // everything here has to go by the length and not by NUL termination.
   nsCString decoded;
   if (NS_FAILED(mozilla::Base64Decode(pBufInOut, decoded))) {
-    // Not valid base64, so leave the buffer as it was.
-    return;
+    // Not valid base64. Don't leave the encoded text to be searched: it isn't
+    // what the message says, so matching it would produce hits for text the
+    // reader can't see.
+    pBufInOut.Truncate();
+    return false;
   }
   // Replace CR LF with spaces. Byte by byte, which is only sound for a charset
   // where a CR or LF byte can't be part of another character. UTF-16 is the
@@ -881,4 +891,5 @@ void nsMsgBodyHandler::Base64Decode(nsCString& pBufInOut) {
   // different one. Rare enough not to be worth converting the part for.
   decoded.ReplaceChar("\r\n", ' ');
   pBufInOut.Assign(std::move(decoded));
+  return true;
 }
