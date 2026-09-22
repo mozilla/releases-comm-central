@@ -40,6 +40,7 @@ skip-if = [
 ["browser_policy_disable_safemode.js"]
 
 ["browser_policy_disable_telemetry.js"]
+skip-if = ["enterprise"] # DisableTelemetry is not a supported policy in Enterprise builds
 
 ["browser_policy_downloads.js"]
 
