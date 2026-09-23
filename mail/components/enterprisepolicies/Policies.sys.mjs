@@ -34,8 +34,10 @@ ChromeUtils.defineESModuleGetters(lazy, {
   blockAboutPage: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   clearBlockedAboutPages: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   clearRunOnceModification: "resource://gre/modules/PoliciesHelpers.sys.mjs",
+  discardAMOUpdateURLs: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   installAddonFromURL: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   installAddonFromRepository: "resource://gre/modules/PoliciesHelpers.sys.mjs",
+  installAddonFromUpdateURL: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   pemToBase64: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   processMIMEInfo: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   replacePathVariables: "resource://gre/modules/PoliciesHelpers.sys.mjs",
@@ -1011,6 +1013,7 @@ export var Policies = {
 
   ExtensionSettings: {
     onBeforeAddons(manager, param) {
+      lazy.discardAMOUpdateURLs(param, "ExtensionSettings");
       try {
         manager.setExtensionSettings(param);
       } catch (e) {
@@ -1088,7 +1091,20 @@ export var Policies = {
                 "ExtensionSettings"
               );
             } else if (!existingAddon) {
-              lazy.installAddonFromRepository(extensionID, "ExtensionSettings");
+              // An unusable update_url is an error, not a reason to install a
+              // different build of the add-on from AMO.
+              if (extensionSettings[extensionID].update_url) {
+                lazy.installAddonFromUpdateURL(
+                  extensionSettings[extensionID].update_url,
+                  extensionID,
+                  "ExtensionSettings"
+                );
+              } else {
+                lazy.installAddonFromRepository(
+                  extensionID,
+                  "ExtensionSettings"
+                );
+              }
             }
             manager.disallowFeature(`uninstall-extension:${extensionID}`);
             if (
