@@ -1239,31 +1239,29 @@ sync-disconnected-turn-on-sync = Turn on Syncing…
 
 ## Mobile QR Export Pane
 
-qr-export-pane-header = Export accounts to { -brand-product-name } Mobile
+qr-export-pane-header-mobile = Export to { -brand-product-name } mobile
 
-qr-export-description = Quickly transfer your account settings from desktop to mobile by generating a QR code. Select which accounts to include, decide if you want to transfer your password, and scan the code with your mobile device. Fast, secure, and simple.
+qr-export-description-email-accounts = Transfer your email accounts from this computer to { -brand-product-name } on your phone using a QR code.
 
-qr-export-get-app = Don’t have { -brand-product-name } on mobile yet? <a data-l10n-name="app-link">Get it on Google Play</a>
+qr-export-get-app-google-play = <a data-l10n-name="app-link">Get { -brand-product-name } on Google Play</a>
 
-qr-export-create = Create a QR code to export your accounts
+qr-export-select-accounts-title = Select accounts to export:
 
-qr-export-select-accounts = Select which accounts to export:
-
-qr-export-no-accounts = Not seeing all your accounts? Some accounts may be disabled because they are not supported by { -brand-product-name } for Android. <a data-l10n-name="account-support-link">Support</a>
+qr-export-missing-accounts-support = Missing an account? Accounts that are not supported on { -brand-product-name } for Android cannot be selected. <a data-l10n-name="account-support-link">Learn which account types are supported</a>
 
 qr-export-accounts-legend = Email accounts
 
 qr-export-select-all-accounts = Select all
 
-qr-export-security-legend = Security
+qr-export-passwords-legend = Passwords
 
-qr-export-include-passwords = Include all accounts passwords
+qr-export-include-passwords-label = Include account passwords in the QR code
 
-qr-export-oauth-warning = Some of your accounts use an authentication method that may require re-authentication on your mobile device. You may need to enter your passwords again during this process.
+qr-export-web-sign-in-note = <strong>Note:</strong> Accounts that use web sign-in (like Gmail or Yahoo), require authentication again on your device.
 
-qr-export-security-hint = By scanning the following QR codes, your account settings—including your email and password—will be transferred securely. We do not collect, store, or share any of this data during the process. The transfer occurs directly between your devices.
+qr-export-private-transfer-note = <strong>Private transfer:</strong> Your settings and passwords move directly from this computer to your phone. Nothing is sent to or stored on Mozilla servers.
 
-qr-export-security-warning = For your security, please ensure you are in a private setting and only scan QR codes from trusted sources.
+qr-export-screen-privacy-tip = <strong>Tip:</strong> Keep your screen hidden from others while the QR code is displayed.
 
 qr-export-start-export = Export
 

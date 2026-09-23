@@ -1220,10 +1220,6 @@ calendar-notifications-setting {
     }
   }
 
-  .qr-warn {
-    font-weight: bold;
-  }
-
   .qr-nav {
     display: flex;
     justify-content: space-between;

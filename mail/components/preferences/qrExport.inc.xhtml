@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 <html:template id="paneQrExport" xmlns="http://www.w3.org/1999/xhtml">
   <div class="subcategory" data-category="paneQrExport">
-    <h1 data-l10n-id="qr-export-pane-header"></h1>
+    <h1 data-l10n-id="qr-export-pane-header-mobile"></h1>
   </div>
 # groupbox and xul label for search functionality.
   <xul:groupbox
@@ -12,22 +12,21 @@
     data-hidden-from-search="true"
   >
     <xul:label class="search-header" hidden="hidden">
-      <h2 data-l10n-id="qr-export-pane-header"></h2>
+      <h2 data-l10n-id="qr-export-pane-header-mobile"></h2>
     </xul:label>
     <section id="qrExportIntro">
-      <p data-l10n-id="qr-export-description"></p>
+      <p data-l10n-id="qr-export-description-email-accounts"></p>
       <p
         class="qr-small"
-        data-l10n-id="qr-export-get-app"
+        data-l10n-id="qr-export-get-app-google-play"
       >
         <a
           data-l10n-name="app-link"
           href="https://play.google.com/store/apps/details?id=net.thunderbird.android&amp;referrer=utm_campaign%3Dcross_device_import%26utm_medium%3Ddesktop%26utm_source%3Dthunderbird%26utm_content%3Dlink"
         ></a>
       </p>
-      <h2 data-l10n-id="qr-export-create"></h2>
       <form id="qrExportIntroForm" class="qr-panel" action="">
-        <h3 data-l10n-id="qr-export-select-accounts"></h3>
+        <h3 data-l10n-id="qr-export-select-accounts-title"></h3>
         <section class="qr-subpanel">
           <header class="inset">
             <h4
@@ -45,7 +44,7 @@
           <ul id="qrExportAccountsList" class="inset"></ul>
           <p
             id="qrExportNoAccounts"
-            data-l10n-id="qr-export-no-accounts"
+            data-l10n-id="qr-export-missing-accounts-support"
             class="qr-small inset"
           >
             <a
@@ -58,7 +57,7 @@
           <h4
             id="qrExportSecurityLegend"
             class="inset inset-icon"
-            data-l10n-id="qr-export-security-legend"
+            data-l10n-id="qr-export-passwords-legend"
           ></h4>
           <div class="inset">
             <input
@@ -67,21 +66,21 @@
               checked="checked"
             /><label
               for="qrExportIncludePasswords"
-              data-l10n-id="qr-export-include-passwords"
+              data-l10n-id="qr-export-include-passwords-label"
             ></label>
           </div>
           <p
             id="qrExportOauthWarning"
             class="inset inset-icon"
-            data-l10n-id="qr-export-oauth-warning"
+            data-l10n-id="qr-export-web-sign-in-note"
             hidden="hidden"
           ></p>
           <p
             id="qrExportSecurityHint"
             class="inset inset-icon"
-            data-l10n-id="qr-export-security-hint"
+            data-l10n-id="qr-export-private-transfer-note"
           ></p>
-          <p data-l10n-id="qr-export-security-warning" class="qr-warn inset"></p>
+          <p data-l10n-id="qr-export-screen-privacy-tip" class="inset"></p>
         </section>
         <div class="qr-nav">
           <button
