@@ -15,6 +15,7 @@ interface nsICertPickDialogs : nsISupports
   /**
    * General purpose certificate prompter.
    */
+  [can_run_script]
   void pickCertificate(in nsIInterfaceRequestor ctx,
                        in Array<AString> certNickList,
                        in Array<AString> certDetailsList,

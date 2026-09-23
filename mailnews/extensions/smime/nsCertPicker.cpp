@@ -271,12 +271,10 @@ nsCertPicker::PickCertificate(nsIInterfaceRequestor* ctx,
   return rv;
 }
 
-NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor* ctx,
-                                        const char16_t* selectedNickname,
-                                        int32_t certUsage, bool allowInvalid,
-                                        bool allowDuplicateNicknames,
-                                        const nsAString& emailAddress,
-                                        bool* canceled, nsIX509Cert** _retval) {
+MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsCertPicker::PickByUsage(
+    nsIInterfaceRequestor* ctx, const char16_t* selectedNickname,
+    int32_t certUsage, bool allowInvalid, bool allowDuplicateNicknames,
+    const nsAString& emailAddress, bool* canceled, nsIX509Cert** _retval) {
   int32_t selectedIndex = -1;
   bool selectionFound = false;
   CERTCertListNode* node = nullptr;

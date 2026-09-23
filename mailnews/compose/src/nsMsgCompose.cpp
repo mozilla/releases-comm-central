@@ -1147,11 +1147,9 @@ nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode,
   return rv;
 }
 
-NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
-                                    nsIMsgIdentity* identity,
-                                    const char* accountKey,
-                                    nsIMsgProgress* progress,
-                                    Promise** aPromise) {
+MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCompose::SendMsg(
+    MSG_DeliverMode deliverMode, nsIMsgIdentity* identity,
+    const char* accountKey, nsIMsgProgress* progress, Promise** aPromise) {
   NS_ENSURE_TRUE(m_compFields, NS_ERROR_NOT_INITIALIZED);
   nsresult rv = NS_OK;
 
@@ -1218,7 +1216,8 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
         nsCOMPtr<mozIDOMWindowProxy> domWindow;
         winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
         if (domWindow) {
-          mProgress->OpenProgressDialog(
+          nsCOMPtr<nsIMsgProgress> msgProgress = mProgress;
+          msgProgress->OpenProgressDialog(
               domWindow,
               "chrome://messenger/content/messengercompose/sendProgress.xhtml",
               params);

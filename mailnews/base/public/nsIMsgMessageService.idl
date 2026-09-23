@@ -81,6 +81,7 @@ interface nsIMsgMessageService : nsISupports {
    * @param aUrlListener
    * @param aAutodetectCharset Whether the characterset should be auto-detected.
    */
+  [can_run_script]
   void loadMessage(in AUTF8String aMessageURI,
                    in nsIDocShell aDocShell,
                    in nsIMsgWindow aMsgWindow,

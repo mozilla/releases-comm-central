@@ -76,9 +76,10 @@ nsresult nsMsgComposeContentHandler::GetBestIdentity(
   return rv;
 }
 
-NS_IMETHODIMP nsMsgComposeContentHandler::HandleContent(
-    const char* aContentType, nsIInterfaceRequestor* aWindowContext,
-    nsIRequest* request) {
+MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP
+nsMsgComposeContentHandler::HandleContent(const char* aContentType,
+                                          nsIInterfaceRequestor* aWindowContext,
+                                          nsIRequest* request) {
   nsresult rv = NS_OK;
   if (!request) return NS_ERROR_NULL_POINTER;
 

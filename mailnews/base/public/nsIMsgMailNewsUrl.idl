@@ -147,8 +147,9 @@ interface nsIMsgMailNewsUrl : nsIURL {
    *                     LOAD_FLAGS_IS_LINK is needed, but there are eleven
    *                     other allowed sets of flags. See nsDocShellLoadTypes.h
    */
-   void loadURI(in nsIDocShell docshell,
-                in unsigned long aLoadFlags);
+  [can_run_script]
+  void loadURI(in nsIDocShell docshell,
+               in unsigned long aLoadFlags);
 
 };
 

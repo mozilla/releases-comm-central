@@ -50,7 +50,7 @@ class nsMailboxService : public nsIMsgMessageService,
   nsresult RunMailboxUrl(nsIURI* aMailboxUrl,
                          nsISupports* aDisplayConsumer = nullptr);
 
-  nsresult FetchMessage(
+  MOZ_CAN_RUN_SCRIPT_BOUNDARY nsresult FetchMessage(
       const nsACString& aMessageURI, nsISupports* aDisplayConsumer,
       nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener,
       const char* aFileName, /* only used by open attachment */

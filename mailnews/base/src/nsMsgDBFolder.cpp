@@ -1560,8 +1560,11 @@ class AutoCompactEvent : public mozilla::Runnable {
         mMsgWindow(aMsgWindow),
         mFolder(aFolder) {}
 
-  NS_IMETHOD Run() {
-    if (mFolder) mFolder->HandleAutoCompactEvent(mMsgWindow);
+  MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHOD Run() override {
+    if (RefPtr<nsMsgDBFolder> folder = mFolder) {
+      nsCOMPtr<nsIMsgWindow> msgWindow = mMsgWindow;
+      folder->HandleAutoCompactEvent(msgWindow);
+    }
     return NS_OK;
   }
 

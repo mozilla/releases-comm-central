@@ -19,8 +19,8 @@ class nsMapiHook {
   static bool IsBlindSendAllowed();
   static nsresult BlindSendMail(unsigned long aSession,
                                 nsIMsgCompFields* aCompFields);
-  static nsresult ShowComposerWindow(unsigned long aSession,
-                                     nsIMsgCompFields* aCompFields);
+  MOZ_CAN_RUN_SCRIPT_BOUNDARY static nsresult ShowComposerWindow(
+      unsigned long aSession, nsIMsgCompFields* aCompFields);
   static nsresult PopulateCompFieldsWithConversion(
       lpnsMapiMessage aMessage, nsIMsgCompFields* aCompFields);
   static nsresult PopulateCompFieldsW(lpnsMapiMessageW aMessage,

@@ -101,7 +101,7 @@ class JaCppUrlDelegator : public JaBaseCppUrl, public msgIOverride {
     NS_FORWARD_NSISUPPORTSWEAKREFERENCE(mFakeThis->JaBaseCppUrl::)
    private:
     virtual ~Super() {}
-    JaCppUrlDelegator* mFakeThis;
+    MOZ_KNOWN_LIVE JaCppUrlDelegator* mFakeThis;
   };
 
  private:

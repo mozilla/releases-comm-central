@@ -244,13 +244,11 @@ nsresult CreateComposeParams(nsCOMPtr<nsIMsgComposeParams>& pMsgComposeParams,
   return NS_OK;
 }
 
-nsresult CreateTheComposeWindow(nsIMsgCompFields* compFields,
-                                nsMsgAttachmentData* attachmentList,
-                                MSG_ComposeType composeType,
-                                MSG_ComposeFormat composeFormat,
-                                nsIMsgIdentity* identity,
-                                const nsACString& originalMsgURI,
-                                nsIMsgDBHdr* origMsgHdr) {
+MOZ_CAN_RUN_SCRIPT_BOUNDARY nsresult CreateTheComposeWindow(
+    nsIMsgCompFields* compFields, nsMsgAttachmentData* attachmentList,
+    MSG_ComposeType composeType, MSG_ComposeFormat composeFormat,
+    nsIMsgIdentity* identity, const nsACString& originalMsgURI,
+    nsIMsgDBHdr* origMsgHdr) {
   nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams;
   nsresult rv = CreateComposeParams(pMsgComposeParams, compFields,
                                     attachmentList, composeType, composeFormat,

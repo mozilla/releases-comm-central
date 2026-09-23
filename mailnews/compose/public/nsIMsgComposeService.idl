@@ -63,12 +63,14 @@ interface nsIMsgComposeService : nsISupports {
    *                            containing 'html-body' or 'html-part' fields
    *                            are always opened in HTML mode.
    */
+  [can_run_script]
   void OpenComposeWindowWithURI(in string msgComposeWindowURL,
                                 in nsIURI URI,
                                 [optional] in nsIMsgIdentity identity,
                                 [optional] in MSG_ComposeFormat format);
 
   /* ... */
+  [can_run_script]
   void OpenComposeWindowWithParams(in string msgComposeWindowURL, in nsIMsgComposeParams params);
 
   /**

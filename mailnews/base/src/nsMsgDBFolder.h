@@ -112,7 +112,7 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult GetBackupSummaryFile(nsIFile** result, const nsACString& newName);
   nsresult GetMsgPreviewTextFromStream(nsIMsgDBHdr* msgHdr,
                                        nsIInputStream* stream);
-  nsresult HandleAutoCompactEvent(nsIMsgWindow* aMsgWindow);
+  MOZ_CAN_RUN_SCRIPT nsresult HandleAutoCompactEvent(nsIMsgWindow* aMsgWindow);
 
  protected:
   virtual ~nsMsgDBFolder();

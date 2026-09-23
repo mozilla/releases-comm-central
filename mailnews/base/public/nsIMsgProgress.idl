@@ -16,6 +16,7 @@ interface nsIMsgProgress: nsIWebProgressListener {
   /**
    * Open the progress dialog, you can specify parameters through an xpcom object
    */
+  [can_run_script]
   void openProgressDialog(in mozIDOMWindowProxy parent,
                           in string dialogURL,
                           in nsIMsgComposeProgressParams composeParams);
