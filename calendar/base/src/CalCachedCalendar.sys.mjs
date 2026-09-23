@@ -161,21 +161,22 @@ calCachedCalendar.prototype = {
     }
   },
 
-  setupCachedCalendar() {
+  async setupCachedCalendar() {
     try {
       if (this.mCachedCalendar) {
         // this is actually a resetupCachedCalendar:
         // TODO put changes into a different calendar and delete
         // afterwards.
-        this.mCachedCalendar
+        await this.mCachedCalendar
           .QueryInterface(Ci.calICalendarProvider)
-          .deleteCalendar(this.mCachedCalendar)
-          .catch(error => lazy.log.error(error));
+          .deleteCalendar(this.mCachedCalendar);
         if (this.supportsChangeLog) {
           // start with full sync:
           this.mUncachedCalendar.resetLog();
         }
       } else {
+        // This branch has to stay synchronous: the constructor calls us
+        // without awaiting and reads mCachedCalendar right after.
         const calType = Services.prefs.getStringPref("calendar.cache.type", "storage");
         // While technically, the above deleteCalendar should delete the
         // whole calendar, this is nothing more than deleting all events
@@ -334,7 +335,13 @@ calCachedCalendar.prototype = {
     // TODO instead of deleting the calendar and creating a new
     // one, maybe we want to do a "real" sync between the
     // existing local calendar and the remote calendar.
-    this.setupCachedCalendar();
+    const cachedCalendar = this.mCachedCalendar;
+    await this.setupCachedCalendar();
+    if (this.mCachedCalendar != cachedCalendar) {
+      // Unregistered while the wipe was running.
+      clearPending();
+      return;
+    }
 
     const modifiedTimes = {};
     const pendingAdditions = [];

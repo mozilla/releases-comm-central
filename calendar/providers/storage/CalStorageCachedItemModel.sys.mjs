@@ -201,6 +201,17 @@ export class CalStorageCachedItemModel extends CalStorageItemModel {
   }
 
   /**
+   * Overridden here to empty the item caches along with the database. The
+   * offline flag caches are left alone on purpose - nothing refills them.
+   */
+  async deleteCalendar() {
+    await super.deleteCalendar();
+    this.itemCache.clear();
+    this.#recurringEventsCache.clear();
+    this.#recurringTodosCache.clear();
+  }
+
+  /**
    * Adds an item to the relevant caches.
    *
    * @param {calIItemBase} item

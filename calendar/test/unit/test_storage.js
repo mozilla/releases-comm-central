@@ -128,3 +128,114 @@ add_task(async function testModifyDropsOldPropertyParameters() {
   );
   equal(item.descriptionHTML, "new text", "HTML description should be updated");
 });
+
+/**
+ * Tests that wiping the calendar empties the item caches along with the
+ * database. Whatever they keep reappears as an item the server no longer has.
+ */
+add_task(async function testDeleteCalendarEmptiesTheCaches() {
+  do_get_profile(true);
+
+  const storage = getStorageCal();
+  const ids = ["plainEvent", "plainTodo", "repeatingEvent", "repeatingTodo"];
+  const items = [
+    createEventFromIcalString(
+      ["BEGIN:VEVENT", "UID:plainEvent", "DTSTART:20250101T010101Z", "END:VEVENT"].join("\r\n")
+    ),
+    createEventFromIcalString(
+      [
+        "BEGIN:VEVENT",
+        "UID:repeatingEvent",
+        "DTSTART:20250101T010101Z",
+        "RRULE:FREQ=DAILY;COUNT=3",
+        "END:VEVENT",
+      ].join("\r\n")
+    ),
+    createTodoFromIcalString(
+      ["BEGIN:VTODO", "UID:plainTodo", "DTSTAMP:20250101T010101Z", "END:VTODO"].join("\r\n")
+    ),
+    createTodoFromIcalString(
+      [
+        "BEGIN:VTODO",
+        "UID:repeatingTodo",
+        "DTSTAMP:20250101T010101Z",
+        "DTSTART:20250101T010101Z",
+        "RRULE:FREQ=DAILY;COUNT=3",
+        "END:VTODO",
+      ].join("\r\n")
+    ),
+  ];
+  for (const item of items) {
+    await storage.addItem(item);
+  }
+
+  // Build the caches from the rows that are about to go.
+  const filter = Ci.calICalendar.ITEM_FILTER_ALL_ITEMS;
+  const storedIds = (await storage.getItemsAsArray(filter, 0, null, null)).map(item => item.id);
+  Assert.deepEqual(storedIds.sort(), [...ids].sort(), "all four items should be stored");
+
+  await storage.QueryInterface(Ci.calICalendarProvider).deleteCalendar(storage);
+
+  for (const id of ids) {
+    Assert.equal(await storage.getItem(id), null, `${id} should be gone after the wipe`);
+  }
+  Assert.deepEqual(
+    (await storage.getItemsAsArray(filter, 0, null, null)).map(item => item.id),
+    [],
+    "no item should be left after the wipe"
+  );
+});
+
+/**
+ * Tests that wiping the calendar keeps the offline flags of recurring items
+ * readable. Nothing rebuilds those caches, and the playback of offline changes
+ * looks a recurring item's flag up there.
+ */
+add_task(async function testDeleteCalendarKeepsOfflineFlagsReadable() {
+  do_get_profile(true);
+
+  const series = createEventFromIcalString(
+    [
+      "BEGIN:VEVENT",
+      "UID:offlineSeries",
+      "DTSTART:20250101T010101Z",
+      "RRULE:FREQ=DAILY;COUNT=3",
+      "END:VEVENT",
+    ].join("\r\n")
+  );
+
+  const first = getStorageCal();
+  await first.addItem(series);
+  await first.QueryInterface(Ci.calIOfflineStorage).addOfflineItem(series);
+
+  // Reopen the same calendar, the way a restart does. Only a model built from
+  // rows that already carry a flag ever holds one.
+  const storage = Cc["@mozilla.org/calendar/calendar;1?type=storage"].createInstance(
+    Ci.calISyncWriteCalendar
+  );
+  storage.uri = first.uri;
+  storage.id = first.id;
+  const offlineStorage = storage.QueryInterface(Ci.calIOfflineStorage);
+
+  const filter =
+    Ci.calICalendar.ITEM_FILTER_ALL_ITEMS | Ci.calICalendar.ITEM_FILTER_OFFLINE_CREATED;
+  const offlineIds = async () =>
+    (await storage.getItemsAsArray(filter, 0, null, null)).map(item => item.id);
+
+  Assert.deepEqual(
+    await offlineIds(),
+    ["offlineSeries"],
+    "the offline flag of a series should be readable before the wipe"
+  );
+
+  // What a synchronization does: wipe, then put the offline change back.
+  await storage.QueryInterface(Ci.calICalendarProvider).deleteCalendar(storage);
+  await storage.addItem(series);
+  await offlineStorage.addOfflineItem(series);
+
+  Assert.deepEqual(
+    await offlineIds(),
+    ["offlineSeries"],
+    "the offline flag of a series should still be readable after the wipe"
+  );
+});
