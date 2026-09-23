@@ -1449,16 +1449,10 @@ pref("prompts.defaultModalType", 3);
 // The URL for the privacy policy related to recommended extensions.
 pref("extensions.recommendations.privacyPolicyUrl", "https://www.mozilla.org/en-US/privacy/thunderbird/#addons");
 
-// Used by pdf.js to know the first time Thunderbird is run with it installed
-// so it can become the default pdf viewer.
-pref("pdfjs.firstRun", true);
 // The values of preferredAction and alwaysAskBeforeHandling before pdf.js
 // became the default.
 pref("pdfjs.previousHandler.preferredAction", 0);
 pref("pdfjs.previousHandler.alwaysAskBeforeHandling", false);
-
-// Enable signatures in PDF.js viewer in Thunderbird.
-pref("pdfjs.enableSignatureEditor", true);
 
 pref("mail.activity.loglevel", "Warn");
 

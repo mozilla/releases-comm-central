@@ -33,6 +33,9 @@ tags = ["oauth"]
 
 ["browser_paneFocus.js"]
 
+["browser_pdfAttachmentSelection.js"]
+skip-if = ["headless"] # Needs a real compositor to check what is painted.
+
 ["browser_preferDisplayName.js"]
 
 ["browser_quota.js"]
