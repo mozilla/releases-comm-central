@@ -366,6 +366,23 @@ li[is="calendar-dialog-attachment"] {
     display: flex;
   }
 
+  & .calendar-event-create-edit-dialog-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: calc(var(--space-step) * 3);
+
+    & .calendar-name {
+      display: flex;
+      flex: 1 1 auto;
+    }
+
+    & .event-title {
+      display: flex;
+      flex: 1 0 100%;
+    }
+  }
+
   & .calendar-event-create-edit-dialog-body {
     flex: 1 1 auto;
     min-block-size: 0;

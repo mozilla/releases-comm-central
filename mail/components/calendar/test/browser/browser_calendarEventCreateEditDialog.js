@@ -152,9 +152,10 @@ add_task(async function test_bodyScrollsWhenContentIsTooTall() {
     ".calendar-event-create-edit-dialog-footer"
   );
   const rows = dialog.querySelector(".calendar-event-create-edit-dialog-rows");
+  const headerContent = dialogHeader.querySelector(".calendar-name");
   const tallContent = doc.createElement("div");
 
-  dialogHeader.textContent = "Header content";
+  headerContent.textContent = "Header content";
   dialogFooter.textContent = "Footer content";
 
   // Limit the size of the dialog container, to mimic a limited size in the
@@ -273,7 +274,7 @@ add_task(async function test_bodyScrollsWhenContentIsTooTall() {
       "The footer bottom edge stays inside the dialog after the body scrolls"
     );
   } finally {
-    dialogHeader.textContent = "";
+    headerContent.textContent = "";
     dialogFooter.textContent = "";
     tallContent.remove();
     dialogBody.scrollTop = 0;
