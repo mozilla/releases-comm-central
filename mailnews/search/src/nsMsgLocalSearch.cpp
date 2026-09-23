@@ -618,7 +618,7 @@ nsresult nsMsgSearchOfflineMail::Search(bool* aDone) {
   RefPtr<nsIMsgSearchAdapter> kungFuDeathGrip(this);
   NS_ENSURE_ARG(aDone);
   *aDone = false;
-  const uint32_t kTimeSliceInMS = 200;
+  const uint32_t kTimeSliceInMS = 50;
   nsresult err = NS_OK;
 
   if (!m_db) {

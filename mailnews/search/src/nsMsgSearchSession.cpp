@@ -397,6 +397,7 @@ nsresult nsMsgSearchSession::GetNextUrl() {
 
 /* static */
 void nsMsgSearchSession::TimerCallback(nsITimer* aTimer, void* aClosure) {
+  AUTO_PROFILER_LABEL("nsMsgSearchSession::TimerCallback", MAILNEWS);
   NS_ENSURE_TRUE_VOID(aClosure);
   nsMsgSearchSession* searchSession = (nsMsgSearchSession*)aClosure;
 

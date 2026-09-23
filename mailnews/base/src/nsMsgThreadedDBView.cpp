@@ -60,8 +60,7 @@ nsMsgThreadedDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
   // headers are in the db so we have no business setting the cache size.
   if (totalMessages > 0) m_db->SetMsgHdrCacheSize((uint32_t)totalMessages);
 
-  int32_t count;
-  rv = InitThreadedView(count);
+  rv = InitThreadedView();
 
   // This is a hack, but we're trying to find a way to correct
   // incorrect total and unread msg counts w/o paying a big
@@ -88,8 +87,7 @@ NS_IMETHODIMP
 nsMsgThreadedDBView::Close() { return nsMsgDBView::Close(); }
 
 // Populate the view with the ids of the first message in each thread.
-nsresult nsMsgThreadedDBView::InitThreadedView(int32_t& count) {
-  count = 0;
+nsresult nsMsgThreadedDBView::InitThreadedView() {
   m_keys.Clear();
   m_flags.Clear();
   m_levels.Clear();
@@ -181,8 +179,6 @@ nsresult nsMsgThreadedDBView::InitThreadedView(int32_t& count) {
         msgFlags & nsMsgMessageFlags::Elided) {
       ExpandByIndex(m_keys.Length() - 1, nullptr);
     }
-
-    count++;
   }
 
   rv = InitSort(m_sortType, m_sortOrder);
@@ -328,8 +324,7 @@ nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType,
       } else {
         // Set sort info in anticipation of what Init will do.
         // Build up thread list.
-        int32_t unused;  // count.
-        InitThreadedView(unused);
+        InitThreadedView();
         if (sortOrder != nsMsgViewSortOrder::ascending)
           Sort(sortType, sortOrder);
 

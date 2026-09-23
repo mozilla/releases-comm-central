@@ -28,7 +28,7 @@ class nsMsgThreadedDBView : public nsMsgGroupView {
                              nsIDBChangeListener* aInstigator) override;
 
  protected:
-  nsresult InitThreadedView(int32_t& count);
+  nsresult InitThreadedView();
   virtual nsresult OnNewHeader(nsIMsgDBHdr* newHdr, nsMsgKey aParentKey,
                                bool ensureListed) override;
   virtual nsresult AddMsgToThreadNotInView(nsIMsgThread* threadHdr,

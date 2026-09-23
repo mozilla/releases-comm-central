@@ -54,6 +54,7 @@ class nsMsgQuickSearchDBView : public nsMsgThreadedDBView,
 
  protected:
   virtual ~nsMsgQuickSearchDBView();
+  nsresult InitThreadedView();
   nsWeakPtr m_searchSession;
   nsTArray<nsMsgKey> m_origKeys;
   bool m_usingCachedHits;

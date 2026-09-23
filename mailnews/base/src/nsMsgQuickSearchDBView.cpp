@@ -36,9 +36,22 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::Open(nsIMsgFolder* folder,
   if (!m_db) return NS_ERROR_NULL_POINTER;
   m_viewFolder = nullptr;
 
-  int32_t count;
-  rv = InitThreadedView(count);
-  return rv;
+  return InitThreadedView();
+}
+
+// Like nsMsgThreadedDBView::InitThreadedView (which we inherit), but without
+// the "loading in all the messages and sorting them" bits, since we're going to
+// immediately forget about them anyway.
+nsresult nsMsgQuickSearchDBView::InitThreadedView() {
+  m_keys.Clear();
+  m_flags.Clear();
+  m_levels.Clear();
+  m_prevKeys.Clear();
+  m_prevFlags.Clear();
+  m_prevLevels.Clear();
+  m_havePrevView = false;
+
+  return NS_OK;
 }
 
 NS_IMETHODIMP
