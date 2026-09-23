@@ -33,9 +33,6 @@ export class GraphCalendar extends cal.provider.BaseClass {
    */
   #observer;
 
-  /**
-   * @type {calISyncWriteCalendar}
-   */
   #offlineStorage;
 
   /**
@@ -43,9 +40,6 @@ export class GraphCalendar extends cal.provider.BaseClass {
    */
   #syncOperation;
 
-  /**
-   * @type {string}
-   */
   #syncStateToken;
 
   /**
