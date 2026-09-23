@@ -62,6 +62,14 @@ let gOkButton;
 
 let gPrivateKeyTrackers = [];
 
+// One of "unprotected", "primary-password", "user-passphrase", as
+// detected by loadPassphraseProtection().
+let gProtectionMode;
+
+// The pref only controls whether we offer to set a separate passphrase.
+// A key may already be protected by one even when the pref is disabled.
+let gAllowSetPassphrase = false;
+
 window.addEventListener("DOMContentLoaded", onLoad);
 window.addEventListener("unload", onUnload);
 
@@ -91,13 +99,31 @@ async function onLoad() {
 
   await reloadData(true);
 
-  const sepPassphraseEnabled =
-    gModePersonal &&
-    Services.prefs.getBoolPref("mail.openpgp.passphrases.enabled");
-  document.getElementById("passphraseTab").hidden = !sepPassphraseEnabled;
-  document.getElementById("passphrasePanel").hidden = !sepPassphraseEnabled;
-  if (sepPassphraseEnabled) {
+  gAllowSetPassphrase = Services.prefs.getBoolPref(
+    "mail.openpgp.passphrases.enabled"
+  );
+
+  if (gModePersonal) {
     await loadPassphraseProtection();
+  }
+
+  // Offer the passphrase tab if the user has opted in to separate
+  // passphrases, or if this key is already protected by one. The latter
+  // is possible even with the pref disabled, because the pref doesn't
+  // change how already existing secret keys are protected. Without
+  // this, such a key couldn't be unlocked using this dialog, and the
+  // user would have no way to return it to automatic protection.
+  const showPassphraseTab =
+    gModePersonal &&
+    (gAllowSetPassphrase || gProtectionMode == "user-passphrase");
+
+  document.getElementById("passphraseTab").hidden = !showPassphraseTab;
+  document.getElementById("passphrasePanel").hidden = !showPassphraseTab;
+
+  if (!showPassphraseTab) {
+    // Don't keep the secret keys unlocked for the lifetime of a dialog
+    // that doesn't offer any passphrase management.
+    releasePrivateKeys();
   }
 
   onAcceptanceChanged();
@@ -168,6 +194,9 @@ async function loadPassphraseProtection() {
     await primaryKey.unlock();
     canUnlockSecretForPrimary = primaryKey.isUnlocked();
     gPrivateKeyTrackers.push(primaryKey);
+  } else {
+    // Not tracked, so release the key handle immediately.
+    primaryKey.release();
   }
 
   let countSubkeysWithSecretAvailable = 0;
@@ -186,12 +215,14 @@ async function loadPassphraseProtection() {
         countSubkeysCanAutoUnlock++;
       }
       gPrivateKeyTrackers.push(subKey);
+    } else {
+      // Not tracked, so release the key handle immediately.
+      subKey.release();
     }
   }
 
   const userPassphraseMode = "user-passphrase";
   const usingPP = LoginHelper.isPrimaryPasswordSet();
-  let protectionMode;
 
   // Could we use the automatic passphrase to unlock all secret keys for
   // which the key material is available?
@@ -200,10 +231,17 @@ async function loadPassphraseProtection() {
     (!isSecretForPrimaryAvailable || canUnlockSecretForPrimary) &&
     countSubkeysWithSecretAvailable == countSubkeysCanAutoUnlock
   ) {
-    protectionMode = usingPP ? "primary-password" : "unprotected";
+    gProtectionMode = usingPP ? "primary-password" : "unprotected";
   } else {
-    protectionMode = userPassphraseMode;
+    gProtectionMode = userPassphraseMode;
   }
+
+  // With the pref disabled we offer neither unlocking nor setting a
+  // passphrase. The only action we offer for a key that already uses a
+  // passphrase is to remove it and return it to the default protection,
+  // and that action unlocks the key on demand.
+  const offerRemovalOnly =
+    !gAllowSetPassphrase && gProtectionMode == userPassphraseMode;
 
   // Strings used here:
   //   openpgp-passphrase-status-unprotected
@@ -211,28 +249,38 @@ async function loadPassphraseProtection() {
   //   openpgp-passphrase-status-user-passphrase
   document.l10n.setAttributes(
     document.getElementById("passphraseStatus"),
-    `openpgp-passphrase-status-${protectionMode}`
+    `openpgp-passphrase-status-${gProtectionMode}`
   );
 
-  // Strings used here:
-  //   openpgp-passphrase-instruction-unprotected
-  //   openpgp-passphrase-instruction-primary-password
-  //   openpgp-passphrase-instruction-user-passphrase
-  document.l10n.setAttributes(
-    document.getElementById("passphraseInstruction"),
-    `openpgp-passphrase-instruction-${protectionMode}`
-  );
+  if (!offerRemovalOnly) {
+    // Strings used here:
+    //   openpgp-passphrase-instruction-unprotected
+    //   openpgp-passphrase-instruction-primary-password
+    //   openpgp-passphrase-instruction-user-passphrase
+    document.l10n.setAttributes(
+      document.getElementById("passphraseInstruction"),
+      `openpgp-passphrase-instruction-${gProtectionMode}`
+    );
+  }
+
+  // All remaining instructions explain how to set a passphrase, which
+  // we don't offer with the pref disabled. The status line above is
+  // sufficient in that case.
+  document.getElementById("passphraseInstruction").hidden =
+    !gAllowSetPassphrase || offerRemovalOnly;
 
   document.getElementById("unlockBox").hidden =
-    protectionMode != userPassphraseMode;
+    !gAllowSetPassphrase || gProtectionMode != userPassphraseMode;
   document.getElementById("lockBox").hidden =
-    protectionMode == userPassphraseMode;
-  document.getElementById("usePrimaryPassword").hidden = true;
-  document.getElementById("removeProtection").hidden = true;
+    !gAllowSetPassphrase || gProtectionMode == userPassphraseMode;
+  document.getElementById("usePrimaryPassword").hidden =
+    !offerRemovalOnly || !usingPP;
+  document.getElementById("removeProtection").hidden =
+    !offerRemovalOnly || usingPP;
 
   document.l10n.setAttributes(
     document.getElementById("setPassphrase"),
-    protectionMode == userPassphraseMode
+    gProtectionMode == userPassphraseMode
       ? "openpgp-passphrase-change"
       : "openpgp-passphrase-set"
   );
@@ -241,7 +289,14 @@ async function loadPassphraseProtection() {
   document.getElementById("passwordConfirm").value = "";
 }
 
-async function unlock() {
+/**
+ * Unlock the primary key and all subkeys that this dialog tracks,
+ * prompting the user for a passphrase if necessary. Already unlocked
+ * keys are skipped.
+ *
+ * @returns {Promise<boolean>} - true if all tracked keys are unlocked
+ */
+async function unlockAllPrivateKeys() {
   const pwCache = {
     passwords: [],
   };
@@ -252,8 +307,24 @@ async function unlock() {
     tracker.setPasswordCache(pwCache);
     await tracker.unlock();
     if (!tracker.isUnlocked()) {
-      return;
+      // Either the user cancelled, or a key requires a passphrase that
+      // we couldn't obtain. Report it, because earlier keys of this key
+      // pair may have been unlocked successfully, and the user would
+      // otherwise assume that unlocking had worked.
+      document.getElementById("passphraseInstruction").hidden = false;
+      document.l10n.setAttributes(
+        document.getElementById("passphraseInstruction"),
+        "openpgp-passphrase-unlock-failed"
+      );
+      return false;
     }
+  }
+  return true;
+}
+
+async function unlock() {
+  if (!(await unlockAllPrivateKeys())) {
+    return;
   }
 
   document.l10n.setAttributes(
@@ -261,7 +332,7 @@ async function unlock() {
     "openpgp-passphrase-unlocked"
   );
   document.getElementById("unlockBox").hidden = true;
-  document.getElementById("lockBox").hidden = false;
+  document.getElementById("lockBox").hidden = !gAllowSetPassphrase;
   document.getElementById("passwordInput").value = "";
   document.getElementById("passwordConfirm").value = "";
 
@@ -295,17 +366,24 @@ async function setPassphrase() {
   await RNP.saveKeyRings();
 
   releasePrivateKeys();
-  loadPassphraseProtection();
+  await loadPassphraseProtection();
 }
 
 async function useAutoPassphrase() {
+  // Unlock all keys before changing the protection of any of them.
+  // Otherwise a cancelled passphrase prompt could leave this key pair
+  // with a mixture of the old passphrase and the automatic passphrase.
+  if (!(await unlockAllPrivateKeys())) {
+    return;
+  }
+
   for (const tracker of gPrivateKeyTrackers) {
     await tracker.setAutoPassphrase();
   }
   await RNP.saveKeyRings();
 
   releasePrivateKeys();
-  loadPassphraseProtection();
+  await loadPassphraseProtection();
 }
 
 function onAcceptanceChanged() {
@@ -459,7 +537,11 @@ async function reloadData(firstLoad) {
         document.getElementById("acceptanceIntro"),
         "key-accept-personal"
       );
-      document.getElementById("changeExpiryButton").hidden = false;
+      // Changing an expiration date requires a new signature by the
+      // primary key, which is impossible without its key material.
+      const expiryButton = document.getElementById("changeExpiryButton");
+      expiryButton.hidden = false;
+      expiryButton.disabled = !keyObj.secretMaterial;
     }
   } else {
     const isStillValid = !(

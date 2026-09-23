@@ -66,6 +66,7 @@ export class RnpPrivateKeyUnlockTracker {
   #rememberUnlockPasswordForUnprotect = false;
   #unlockPassword = null;
   #isLocked = true;
+  #secretMaterialAvailable = false;
 
   /**
    * Initialize this object as a tracker for the private key identified
@@ -120,6 +121,7 @@ export class RnpPrivateKeyUnlockTracker {
       // call the .available() and the .release() methods.
       this.#isLocked = false;
     } else {
+      this.#secretMaterialAvailable = true;
       const is_locked = new lazy.ctypes.bool();
       if (RNPLib.rnp_key_is_locked(this.#rnpKeyHandle, is_locked.address())) {
         throw new Error("rnp_key_is_locked failed");
@@ -380,10 +382,16 @@ export class RnpPrivateKeyUnlockTracker {
   }
 
   /**
-   * @returns {boolean} - true if the tracked key is currently unlocked.
+   * A key without secret key material available cannot be unlocked, and
+   * cannot be used for operations that require the secret key. Such a
+   * key is tracked as not locked, to allow automatic handle releasing,
+   * so the locked flag alone isn't sufficient to answer this question.
+   *
+   * @returns {boolean} - true if the tracked key is a private key with
+   *   its key material available, and is currently unlocked.
    */
   isUnlocked() {
-    return !this.#isLocked;
+    return this.#secretMaterialAvailable && !this.#isLocked;
   }
 
   /**
@@ -4149,6 +4157,9 @@ export var RNP = {
           }
 
           await signingKeyTrackerReference.unlock();
+          if (!signingKeyTrackerReference.isUnlocked()) {
+            throw new Error("failed to unlock the signing key");
+          }
 
           if (args.encrypt) {
             if (
@@ -5325,11 +5336,16 @@ export var RNP = {
     try {
       for (const fp of fingerprintsToUnlock) {
         const tracker = RnpPrivateKeyUnlockTracker.constructFromFingerprint(fp);
+        keyTrackers.push(tracker);
+        if (!tracker.available()) {
+          // The secret key material isn't available locally, we cannot
+          // sign the changed expiration date.
+          return false;
+        }
         tracker.setAllowPromptingUserForPassword(true);
         tracker.setAllowAutoUnlockWithCachedPasswords(true);
         tracker.setPasswordCache(pwCache);
         await tracker.unlock();
-        keyTrackers.push(tracker);
         if (!tracker.isUnlocked()) {
           // Unlock failed.
           return false;

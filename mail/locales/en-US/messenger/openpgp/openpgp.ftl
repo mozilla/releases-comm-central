@@ -373,6 +373,7 @@ openpgp-passphrase-instruction-user-passphrase = Unlock this key to change its p
 
 openpgp-passphrase-unlock = Unlock
 openpgp-passphrase-unlocked = Key successfully unlocked.
+openpgp-passphrase-unlock-failed = The key, or subordinate parts of the key, could not be unlocked.
 
 openpgp-remove-protection = Remove passphrase protection
 openpgp-use-primary-password = Remove passphrase and protect with Primary Password

@@ -28,6 +28,8 @@ tags = ["openpgp"]
 
 ["browser_inlineOpenPGP.js"]
 
+["browser_keyDetailsPassphrase.js"]
+
 ["browser_keyWizard.js"]
 run-if = [
   "!headless",
