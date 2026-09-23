@@ -2,15 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-spam-settings-title = Spam Settings
+manage-spam-title = Manage spam
 
-dialog-header-title =
-  .value = Spam Settings
+manage-spam-header =
+  .value = Manage spam
 
-training-description-spam = If enabled, you must first train { -brand-short-name } to identify spam by using the Spam toolbar button to mark messages as spam or not. You need to identify both spam and non spam messages. After that { -brand-short-name } will be able to mark spam automatically.
+training-description-learns = When turned on, { -brand-short-name } learns from the messages you mark as spam or not spam. The more you train it, the better { -brand-short-name } gets at detecting spam.
 
-spam-level-checkbox =
-  .label = Enable adaptive spam controls for this account
+spam-auto-detection-checkbox =
+  .label = Turn on automatic spam detection for this account
   .accesskey = E
 
 move-spam-message-menuitem =
@@ -32,8 +32,8 @@ automatic-spam-purge-checkbox =
 automatic-spam-purge-label =
   .value = days
 
-allowlist-header-label =
-  .value = Do not automatically mark mail as spam if the sender is in:
+trust-addresses-header-label =
+  .value = Trust email addresses in these address books:
   .accesskey = D
 
 isp-headers-checkbox =
@@ -42,10 +42,10 @@ isp-headers-checkbox =
 
 isp-warning-description = If enabled, { -brand-short-name } will automatically consider messages marked by this external classifier as spam.
 
-spam-classification-legend = Selection
+spam-detecting-legend = Detecting spam
 
-spam-actions-legend = Destination and Retention
+spam-storage-deletion-legend = Storage and deletion
 
 global-spam-preferences-button =
-  .label = Global Spam Settings…
+  .label = Global spam settings…
   .accesskey = G

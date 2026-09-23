@@ -2,23 +2,23 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-receipts-dialog-title = Return Receipts
+read-receipts-dialog-title = Read receipts
 
-return-receipt-checkbox-control =
-    .label = When sending messages, always request a return receipt
+return-receipt-request-control =
+    .label = Always request a return receipt when sending emails
     .accesskey = W
 
 receipt-arrive-label = When a receipt arrives:
 
-receipt-leave-radio-control =
-    .label = Leave it in my Inbox
+receipt-leave-inbox-control =
+    .label = Leave in Inbox
     .accesskey = i
 
-receipt-move-radio-control =
-    .label = Move it to my “Sent” folder
+receipt-move-sent-control =
+    .label = Move to Sent folder
     .accesskey = m
 
-receipt-request-label = When I receive a request for a return receipt:
+receipt-sender-request-label = When a sender requests a return receipt:
 
 receipt-return-never-radio-control =
     .label = Never send a return receipt
@@ -28,8 +28,8 @@ receipt-return-some-radio-control =
     .label = Allow return receipts for some messages
     .accesskey = r
 
-receipt-not-to-cc-label =
-    .value = If I’m not in the To or Cc of the message:
+receipt-not-listed-cc-label =
+    .value = If not listed in To or CC field:
     .accesskey = f
 
 receipt-send-never-label =
@@ -41,8 +41,8 @@ receipt-send-always-label =
 receipt-send-ask-label =
     .label = Ask me
 
-sender-outside-domain-label =
-    .value = If the sender is outside my domain:
+sender-outside-company-label =
+    .value = If sender is outside company or domain:
     .accesskey = t
 
 other-cases-text-label =

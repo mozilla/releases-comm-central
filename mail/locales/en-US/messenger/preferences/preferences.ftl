@@ -99,11 +99,11 @@ collection-backlogged-crash-reports-link = Learn more
 
 privacy-security-header = Security
 
-privacy-scam-detection-title = Scam Detection
+privacy-scam-detection-title = Scam detection
 
 privacy-anti-virus-title = Antivirus
 
-privacy-certificates-title = Certificates
+privacy-security-certificates-title = Security certificates
 
 chat-pane-header = Chat
 
@@ -891,31 +891,31 @@ reset-spam-button =
     .label = Reset Training Data
     .accesskey = R
 
-phishing-description = { -brand-short-name } can analyze messages for suspected email scams by looking for common techniques used to deceive you.
+scam-detection-description = { -brand-short-name } checks messages for phishing links and common signs of email scams.
 
-phishing-label =
-    .label = Tell me if the message I’m reading is a suspected email scam
+scam-detection-label =
+    .label = Warn when reading an email that looks like a scam
     .accesskey = T
 
-antivirus-description = { -brand-short-name } can make it easy for antivirus software to analyze incoming mail messages for viruses before they are stored locally.
+antivirus-check-description = Allows antivirus software to check incoming messages individually before they are saved to your computer.
 
-antivirus-label =
-    .label = Allow antivirus clients to quarantine individual incoming messages
+antivirus-isolate-label =
+    .label = Allow antivirus software to isolate infected incoming emails
     .accesskey = A
 
-certificate-description = When a server requests my personal certificate:
+certificate-verify-description = When a server asks for a certificate to verify your identity:
 
-certificate-auto =
-    .label = Select one automatically
-    .accesskey = S
+certificate-choose-auto =
+    .label = Choose a certificate automatically
+    .accesskey = h
 
-certificate-ask =
-    .label = Ask me every time
+certificate-ask-every =
+    .label = Ask every time
     .accesskey = A
 
-ocsp-label =
-    .label = Query OCSP responder servers to confirm the current validity of certificates
-    .accesskey = Q
+ocsp-check-label =
+    .label = Check certificate validation servers (OCSP) to confirm certificates are still correct.
+    .accesskey = v
 
 certificate-button =
     .label = Manage Certificates…
@@ -925,32 +925,27 @@ security-devices-button =
     .label = Security Devices…
     .accesskey = D
 
-email-e2ee-header = Email End-To-End Encryption
+email-e2ee-header = Email end-to-end encryption
 
 account-settings = Account Settings
 
-email-e2ee-enable-accounts-info =
-    Set up email accounts and identities for End-To-End Encryption in the <a data-l10n-name="account-settings-url">Account Settings</a>.
+email-e2ee-accounts-info = Encrypted emails can only be read by you and your recipients. Set up email accounts and identities for end-to-end encryption in the <a data-l10n-name="account-settings-url">Account settings</a>.
 
-email-e2ee-automatism = Automatic Use of Encryption
-email-e2ee-automatism-pre =
-    { -brand-short-name } can assist by automatically enabling or disabling encryption while composing an email.
-    Auto enabling/disabling is based on the availability of valid and accepted correspondents’ keys or certificates.
-email-e2ee-auto-on =
-    .label = Automatically enable encryption when possible
-email-e2ee-auto-off =
-    .label = Automatically disable encryption when recipients change and encryption is no longer possible
-email-e2ee-auto-off-notify =
-    .label = Show a notification whenever encryption is disabled automatically
-email-e2ee-automatism-post =
-    Automatic decisions may be overridden by manually enabling or disabling encryption when composing a message.
-    Note: encryption is always automatically enabled when replying to an encrypted message.
+email-e2ee-automatism = Automatic use of encryption
+email-e2ee-automatism-intro = { -brand-short-name } can turn encryption on if valid accepted keys or certificates are available for all recipients of a message.
+email-e2ee-turn-on =
+    .label = Automatically turn on encryption when possible
+email-e2ee-turn-off =
+    .label = Automatically turn off encryption when recipients change and encryption is no longer possible
+email-e2ee-turn-off-notify =
+    .label = Show a notification whenever encryption is turned off automatically
+email-e2ee-automatism-note = Note: You can also manually turn encryption on or off while writing a message. Replying to an encrypted messages always turns on encryption.
 
 ## DoH Section
 
-preferences-doh-header = DNS over HTTPS
+preferences-doh-secure-header = Secure DNS (DNS over HTTPS)
 
-preferences-doh-description = Domain Name System (DNS) over HTTPS sends your request for a domain name through an encrypted connection, providing a secure DNS and making it harder for others to see which website you’re about to access.
+preferences-doh-secure-description = Secure DNS encrypts the lookup requests { -brand-short-name } sends to find websites, keeping your browsing activity private from any network monitoring.
 
 # Variables:
 #   $status (string) - The status of the DoH connection
@@ -974,10 +969,10 @@ preferences-doh-group-message = Enable DNS over HTTPS using:
 preferences-doh-expand-section =
   .tooltiptext = More information
 
-preferences-doh-setting-default =
-  .label = Default Protection
+preferences-doh-setting-automatic =
+  .label = Automatic protection (Recommended)
   .accesskey = D
-preferences-doh-default-desc = { -brand-short-name } decides when to use secure DNS to protect your privacy.
+preferences-doh-automatic-desc = { -brand-short-name } automatically encrypts address lookups when available. Switches back to standard network lookups if there’s a connection issue or if a VPN/managed network requires it.
 preferences-doh-default-detailed-desc-1 = Use secure DNS in regions where it’s available
 preferences-doh-default-detailed-desc-2 = Use your default DNS resolver if there is a problem with the secure DNS provider
 preferences-doh-default-detailed-desc-3 = Use a local provider, if possible
@@ -985,16 +980,16 @@ preferences-doh-default-detailed-desc-4 = Turn off when VPN, parental control, o
 preferences-doh-default-detailed-desc-5 = Turn off when a network tells { -brand-short-name } it shouldn’t use secure DNS
 
 preferences-doh-setting-enabled =
-  .label = Increased Protection
+  .label = Increased protection
   .accesskey = I
-preferences-doh-enabled-desc = You control when to use secure DNS and choose your provider.
+preferences-doh-increased-desc = Always uses chosen provider. Uses standard connection only if secure provider fails.
 preferences-doh-enabled-detailed-desc-1 = Use the provider you select
 preferences-doh-enabled-detailed-desc-2 = Only use your default DNS resolver if there is a problem with secure DNS
 
-preferences-doh-setting-strict =
-  .label = Max Protection
+preferences-doh-setting-maximum =
+  .label = Maximum protection
   .accesskey = M
-preferences-doh-strict-desc = { -brand-short-name } will always use secure DNS. You’ll see a security risk warning before we use your system DNS.
+preferences-doh-maximum-desc = Strictly requires encrypted DNS. Websites will not load if secure connection fails.
 preferences-doh-strict-detailed-desc-1 = Only use the provider you select
 preferences-doh-strict-detailed-desc-2 = Always warn if secure DNS isn’t available
 preferences-doh-strict-detailed-desc-3 = If secure DNS is not available sites will not load or function properly
@@ -1002,7 +997,7 @@ preferences-doh-strict-detailed-desc-3 = If secure DNS is not available sites wi
 preferences-doh-setting-off =
   .label = Off
   .accesskey = O
-preferences-doh-off-desc = Use your default DNS resolver
+preferences-doh-off-standard-desc = Uses standard internet provider or network to look up web addresses
 
 preferences-doh-checkbox-warn =
     .label = Warn if a third party actively prevents secure DNS

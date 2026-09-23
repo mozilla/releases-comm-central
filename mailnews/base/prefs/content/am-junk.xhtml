@@ -12,7 +12,7 @@
   xmlns:html="http://www.w3.org/1999/xhtml"
 >
   <head>
-    <title data-l10n-id="spam-settings-title"></title>
+    <title data-l10n-id="manage-spam-title"></title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
@@ -45,12 +45,12 @@
       />
 
       <hbox class="dialogheader">
-        <label class="dialogheader-title" data-l10n-id="dialog-header-title" />
+        <label class="dialogheader-title" data-l10n-id="manage-spam-header" />
       </hbox>
 
       <html:div>
         <html:fieldset>
-          <html:legend data-l10n-id="spam-classification-legend"></html:legend>
+          <html:legend data-l10n-id="spam-detecting-legend"></html:legend>
 
           <label
             hidden="hidden"
@@ -106,13 +106,13 @@
           <checkbox
             id="server.spamLevel.visible"
             oncommand="updateSpamLevel(this.checked)"
-            data-l10n-id="spam-level-checkbox"
+            data-l10n-id="spam-auto-detection-checkbox"
             prefstring="mail.server.%serverkey%.spamLevel"
           />
 
           <separator class="thin" />
 
-          <description data-l10n-id="training-description-spam"></description>
+          <description data-l10n-id="training-description-learns"></description>
 
           <separator class="thin" />
           <spacer height="3" />
@@ -129,7 +129,7 @@
             />
             <label
               id="whiteListLabel"
-              data-l10n-id="allowlist-header-label"
+              data-l10n-id="trust-addresses-header-label"
               control="whiteListAbURI"
             />
             <richlistbox id="whiteListAbURI" height="200px" />
@@ -171,7 +171,9 @@
 
       <html:div>
         <html:fieldset>
-          <html:legend data-l10n-id="spam-actions-legend"></html:legend>
+          <html:legend
+            data-l10n-id="spam-storage-deletion-legend"
+          ></html:legend>
 
           <checkbox
             id="server.moveOnSpam"

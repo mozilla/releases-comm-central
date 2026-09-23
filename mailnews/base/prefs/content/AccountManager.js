@@ -1829,7 +1829,7 @@ var gAccountTree = {
           server.type != "im"
         ) {
           panels.push({
-            string: await document.l10n.formatValue("panel-settings-spam"),
+            string: await document.l10n.formatValue("panel-manage-spam"),
             src: "am-junk.xhtml",
           });
         }

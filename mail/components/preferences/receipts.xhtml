@@ -12,7 +12,7 @@
   type="child"
 >
   <head>
-    <title data-l10n-id="receipts-dialog-title"></title>
+    <title data-l10n-id="read-receipts-dialog-title"></title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
@@ -36,7 +36,7 @@
       <vbox id="returnReceiptSettings" align="start">
         <checkbox
           id="alwaysRequest"
-          data-l10n-id="return-receipt-checkbox-control"
+          data-l10n-id="return-receipt-request-control"
           preference="mail.receipt.request_return_receipt_on"
         />
       </vbox>
@@ -51,15 +51,18 @@
         class="indent"
         preference="mail.incorporate.return_receipt"
       >
-        <radio value="0" data-l10n-id="receipt-leave-radio-control" />
-        <radio value="1" data-l10n-id="receipt-move-radio-control" />
+        <radio value="0" data-l10n-id="receipt-leave-inbox-control" />
+        <radio value="1" data-l10n-id="receipt-move-sent-control" />
       </radiogroup>
 
       <separator class="thin" />
       <separator class="groove" />
       <separator class="thin" />
 
-      <label control="receiptSend" data-l10n-id="receipt-request-label" />
+      <label
+        control="receiptSend"
+        data-l10n-id="receipt-sender-request-label"
+      />
       <radiogroup
         id="receiptSend"
         class="indent"
@@ -78,7 +81,7 @@
               <label
                 id="notInToCcLabel"
                 class="wrap"
-                data-l10n-id="receipt-not-to-cc-label"
+                data-l10n-id="receipt-not-listed-cc-label"
                 control="notInToCcPref"
               />
             </hbox>
@@ -98,7 +101,7 @@
               <label
                 id="outsideDomainLabel"
                 class="wrap"
-                data-l10n-id="sender-outside-domain-label"
+                data-l10n-id="sender-outside-company-label"
                 control="outsideDomainPref"
               />
             </hbox>
