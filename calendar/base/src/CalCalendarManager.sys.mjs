@@ -528,7 +528,7 @@ export const CalCalendarManager = new (class {
     // For deleting, we also call the deleteCalendar method from the provider.
     if (removeModes.has("delete") && (mode & Ci.calICalendarManager.REMOVE_NO_DELETE) == 0) {
       const wrappedCalendar = calendar.QueryInterface(Ci.calICalendarProvider);
-      wrappedCalendar.deleteCalendar(calendar, null);
+      wrappedCalendar.deleteCalendar(calendar).catch(error => lazy.log.error(error));
     }
   }
 

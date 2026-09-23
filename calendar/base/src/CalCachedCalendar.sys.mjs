@@ -147,20 +147,17 @@ calCachedCalendar.prototype = {
 
   onCalendarUnregistering() {
     if (this.mCachedCalendar) {
-      const self = this;
-      this.mCachedCalendar.removeObserver(this.mCachedObserver);
+      const cachedCalendar = this.mCachedCalendar;
+      cachedCalendar.removeObserver(this.mCachedObserver);
       // TODO put changes into a different calendar and delete
       // afterwards.
-
-      const listener = {
-        onDeleteCalendar() {
-          self.mCachedCalendar = null;
-        },
-      };
-
-      this.mCachedCalendar
+      cachedCalendar
         .QueryInterface(Ci.calICalendarProvider)
-        .deleteCalendar(this.mCachedCalendar, listener);
+        .deleteCalendar(cachedCalendar)
+        .then(() => {
+          this.mCachedCalendar = null;
+        })
+        .catch(error => lazy.log.error(error));
     }
   },
 
@@ -168,13 +165,12 @@ calCachedCalendar.prototype = {
     try {
       if (this.mCachedCalendar) {
         // this is actually a resetupCachedCalendar:
-        // Although this doesn't really follow the spec, we know the
-        // storage calendar's deleteCalendar method is synchronous.
         // TODO put changes into a different calendar and delete
         // afterwards.
         this.mCachedCalendar
           .QueryInterface(Ci.calICalendarProvider)
-          .deleteCalendar(this.mCachedCalendar, null);
+          .deleteCalendar(this.mCachedCalendar)
+          .catch(error => lazy.log.error(error));
         if (this.supportsChangeLog) {
           // start with full sync:
           this.mUncachedCalendar.resetLog();

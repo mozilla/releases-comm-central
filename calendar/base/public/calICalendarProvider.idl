@@ -4,10 +4,7 @@
 
 #include "nsISupports.idl"
 
-interface nsIURI;
 interface calICalendar;
-interface nsIVariant;
-interface calIProviderListener;
 
 /**
  * High-level interface to allow providers to be pluggable.
@@ -41,10 +38,10 @@ interface calICalendarProvider : nsISupports
    * could be (for example) a file or a calendar on a server
    *
    * @param aCalendar   the calendar to delete
-   * @param aListener   where to call the results back to
+   * @return            Promise resolved once the calendar is deleted, or
+   *                      rejected with the error.
    */
-  void deleteCalendar(in calICalendar aCalendar,
-                      in calIProviderListener aListener);
+  Promise deleteCalendar(in calICalendar aCalendar);
 
   /**
    * Detect calendars using the given parameters (location, username, etc.).
@@ -63,26 +60,4 @@ interface calICalendarProvider : nsISupports
   Promise detectCalendars(in AUTF8String username, in AUTF8String password,
                           in AUTF8String location, in boolean savePassword,
                           [optional] in jsval extraProperties);
-};
-
-[scriptable, uuid(0eebe99e-a22d-11d9-87a6-000b7d081f44)]
-interface calIProviderListener : nsISupports
-{
-  /**
-   * @param aStatus         status code summarizing what happened
-   * @param aDetail         not yet fully specified.  If aStatus is an error
-   *                        result, this will probably be an extended error
-   *                        string (eg one returned by a server).
-   */
-  void onCreateCalendar(in calICalendar aCalendar, in nsresult aStatus,
-                        in nsIVariant aDetail);
-
-  /**
-   * @param aStatus         status code summarizing what happened
-   * @param aDetail         not yet fully specified.  If aStatus is an error
-   *                        result, this will probably be an extended error
-   *                        string (eg one returned by a server).
-   */
-  void onDeleteCalendar(in calICalendar aCalendar, in nsresult aStatus,
-                        in nsIVariant aDetail);
 };

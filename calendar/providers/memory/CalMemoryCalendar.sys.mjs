@@ -56,16 +56,10 @@ CalMemoryCalendar.prototype = {
     return this.displayName;
   },
 
-  deleteCalendar(calendar, listener) {
+  async deleteCalendar(calendar) {
     calendar = calendar.wrappedJSObject;
     calendar.mItems = {};
     calendar.mMetaData = new Map();
-
-    try {
-      listener.onDeleteCalendar(calendar, Cr.NS_OK, null);
-    } catch (ex) {
-      // Don't bail out if the listener fails
-    }
   },
 
   detectCalendars() {

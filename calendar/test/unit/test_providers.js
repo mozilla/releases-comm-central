@@ -323,12 +323,7 @@ add_task(async function testMetaData() {
 
     aCalendar.setMetaData("item2", "meta2");
     equal(aCalendar.getMetaData("item2"), "meta2");
-    await new Promise(resolve => {
-      aCalendar.QueryInterface(Ci.calICalendarProvider).deleteCalendar(aCalendar, {
-        onCreateCalendar: () => {},
-        onDeleteCalendar: resolve,
-      });
-    });
+    await aCalendar.QueryInterface(Ci.calICalendarProvider).deleteCalendar(aCalendar);
     values = aCalendar.getAllMetaDataValues();
     ids = aCalendar.getAllMetaDataIds();
     equal(values.length, 0);

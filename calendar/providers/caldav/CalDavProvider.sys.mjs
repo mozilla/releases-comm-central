@@ -37,7 +37,7 @@ export var CalDavProvider = {
     return "CalDAV";
   },
 
-  deleteCalendar() {
+  async deleteCalendar() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 

@@ -38,7 +38,7 @@ export var CalICSProvider = {
     return "ICS";
   },
 
-  deleteCalendar() {
+  async deleteCalendar() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 

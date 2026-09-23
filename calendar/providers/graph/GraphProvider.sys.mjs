@@ -32,10 +32,9 @@ export class GraphProvider {
    * Not implemented for Graph.
    *
    * @param {calICalendar} _calendar - The calendar to delete
-   * @param {calIProviderListener} _listener - Callback for results
    * @returns {Promise}
    */
-  static async deleteCalendar(_calendar, _listener) {
+  static async deleteCalendar(_calendar) {
     throw new Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 

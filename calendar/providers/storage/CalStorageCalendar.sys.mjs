@@ -62,15 +62,8 @@ CalStorageCalendar.prototype = {
     return "SQLite";
   },
 
-  async deleteCalendar(aCalendar, listener) {
+  async deleteCalendar() {
     await this.mItemModel.deleteCalendar();
-    try {
-      if (listener) {
-        listener.onDeleteCalendar(aCalendar, Cr.NS_OK, null);
-      }
-    } catch (ex) {
-      this.mStorageDb.logError("error calling listener.onDeleteCalendar", ex);
-    }
   },
 
   detectCalendars() {
