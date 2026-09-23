@@ -29,6 +29,7 @@
 #include "nsIMsgWindow.h"
 #include "nsStreamUtils.h"
 #include "nsIScriptError.h"
+#include "nsQueryObject.h"
 
 using namespace mozilla;
 
@@ -75,7 +76,10 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
     //  "\\steal-your-stuff.com\bob\mail/Inbox"  -> NO!
     //            unless "steal-your-stuff.com" is in `mail.allowed_unc_hosts`.
 
-    m_runningUrl = static_cast<nsMailboxUrl*>(aURL);
+    m_runningUrl = do_QueryObject(aURL);
+    if (!m_runningUrl) {
+      return NS_ERROR_INVALID_ARG;
+    }
     nsCString filePath;
     rv = aURL->GetFilePath(filePath);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -355,7 +359,7 @@ nsresult nsMailboxProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
   if (consumer) m_channelListener = consumer;
 
   if (aURL) {
-    m_runningUrl = static_cast<nsMailboxUrl*>(aURL);
+    m_runningUrl = do_QueryObject(aURL);
     if (m_runningUrl) {
       // find out from the url what action we are supposed to perform...
       rv = m_runningUrl->GetMailboxAction(&m_mailboxAction);

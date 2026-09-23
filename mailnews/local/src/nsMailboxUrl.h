@@ -21,10 +21,17 @@ enum class MailboxAction : int32_t {
   FetchPart = 6,
 };
 
+#define NS_MAILBOXURL_IID \
+  {0xbe04d087, 0x1a7b, 0x4052, {0x9b, 0x42, 0x14, 0xc5, 0xdf, 0x5d, 0x2f, 0x58}}
+
 class nsMailboxUrl : public nsMsgMailNewsUrl,
                      public nsIMsgMessageUrl,
                      public nsIMsgI18NUrl {
  public:
+  // Lets a caller holding an nsIURI recover the concrete class safely, with
+  // do_QueryObject().
+  NS_INLINE_DECL_STATIC_IID(NS_MAILBOXURL_IID)
+
   // nsIMsgMailNewsUrl override
   nsresult SetSpecInternal(const nsACString& aSpec) override;
   nsresult SetQuery(const nsACString& aQuery) override;

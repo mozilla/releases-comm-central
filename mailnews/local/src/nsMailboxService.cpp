@@ -28,6 +28,7 @@
 #include "nsLocalMailFolder.h"
 #include "nsIMsgAccountManager.h"
 #include "mozilla/Components.h"
+#include "nsQueryObject.h"
 
 using mozilla::net::LoadInfo;
 
@@ -75,7 +76,8 @@ nsresult nsMailboxService::CopyMessages(
       if (NS_SUCCEEDED(rv)) {
         nsCOMPtr<nsIURI> url = mailboxurl;
         nsCOMPtr<nsIMsgMailNewsUrl> msgUrl(do_QueryInterface(url));
-        nsMailboxUrl* mailboxUrl = static_cast<nsMailboxUrl*>(url.get());
+        RefPtr<nsMailboxUrl> mailboxUrl = do_QueryObject(url);
+        NS_ENSURE_TRUE(mailboxUrl, NS_ERROR_UNEXPECTED);
         msgUrl->SetMsgWindow(aMsgWindow);
 
         mailboxUrl->SetMoveCopyMsgKeys(aMsgKeys);
@@ -311,6 +313,9 @@ nsresult nsMailboxService::PrepareMessageUrl(
   nsCOMPtr<nsIMsgMailNewsUrl> url =
       do_CreateInstance("@mozilla.org/messenger/mailboxurl;1", &rv);
   if (NS_SUCCEEDED(rv) && url) {
+    RefPtr<nsMailboxUrl> mailboxUrl = do_QueryObject(url);
+    NS_ENSURE_TRUE(mailboxUrl, NS_ERROR_UNEXPECTED);
+
     // Standalone .eml files opened via file:// URIs: build a mailbox:// URL
     // with number=0 so the mailbox protocol treats it as a raw file.
     if (StringBeginsWith(aSrcMsgMailboxURI, "file:"_ns)) {
@@ -336,7 +341,6 @@ nsresult nsMailboxService::PrepareMessageUrl(
       rv = url->SetSpecInternal(mailboxSpec);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      nsMailboxUrl* mailboxUrl = static_cast<nsMailboxUrl*>(url.get());
       mailboxUrl->SetMailboxAction(aMailboxAction);
       mailboxUrl->SetMessageSize((uint32_t)fileSize);
 
@@ -386,7 +390,6 @@ nsresult nsMailboxService::PrepareMessageUrl(
 
       PR_smprintf_free(urlSpec);
 
-      nsMailboxUrl* mailboxUrl = static_cast<nsMailboxUrl*>(url.get());
       mailboxUrl->SetMailboxAction(aMailboxAction);
 
       // set up the url listener
