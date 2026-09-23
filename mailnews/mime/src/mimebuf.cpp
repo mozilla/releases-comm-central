@@ -99,6 +99,13 @@ static int convert_and_send_buffer(char* buf, int length,
   }
 #endif
 
+  /* The conversion above moves the end of the line, so the NUL that
+     mime_LineBuffer() placed at the old end is now either stale data inside
+     the line or gone entirely. Re-terminate, so that a per_line_fn scanning
+     forward from `buf` cannot walk past `buf + length`. mime_LineBuffer()
+     reserves the extra byte this needs. */
+  buf[length] = '\0';
+
   return (*per_line_fn)(buf, length, closure);
 }
 
@@ -154,8 +161,11 @@ extern "C" int mime_LineBuffer(const char* net_buffer, int32_t net_buffer_size,
      chunk of data to it. */
     {
       const char* end = (newline ? newline : net_buffer_end);
+      /* Two bytes of slack, not one: convert_and_send_buffer() may grow the
+         line by one when converting the terminator, and still needs to be
+         able to NUL-terminate one past the result. */
       mozilla::CheckedInt<int32_t> desired_size =
-          mozilla::CheckedInt<int32_t>(*buffer_fpP) + (end - net_buffer) + 1;
+          mozilla::CheckedInt<int32_t>(*buffer_fpP) + (end - net_buffer) + 2;
       if (!desired_size.isValid()) return MIME_OUT_OF_MEMORY;
 
       if (desired_size.value() >= *buffer_sizeP) {

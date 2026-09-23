@@ -352,14 +352,16 @@ static bool MimeUntypedText_uu_begin_line_p(const char* line, int32_t length,
                                             MimeDisplayOptions* opt,
                                             char** type_ret, char** name_ret) {
   const char* s;
+  const char* endofline = line + length;
   char* name = 0;
   char* type = 0;
 
   if (type_ret) *type_ret = 0;
   if (name_ret) *name_ret = 0;
 
-  if (strncmp(line, "begin ", 6)) return false;
-  /* ...then three or four octal digits. */
+  /* "begin ", then three or four octal digits, then a space: ten characters
+     at minimum. */
+  if (length < 10 || strncmp(line, "begin ", 6)) return false;
   s = line + 6;
   if (*s < '0' || *s > '7') return false;
   s++;
@@ -372,27 +374,28 @@ static bool MimeUntypedText_uu_begin_line_p(const char* line, int32_t length,
   else {
     if (*s < '0' || *s > '7') return false;
     s++;
-    if (*s != ' ') return false;
+    if (s == endofline || *s != ' ') return false;
   }
 
-  while (IS_SPACE(*s)) s++;
+  /* IS_SPACE() matches CR and LF, so bound this on the length rather than
+     relying on the caller to have NUL-terminated at line[length]: a stale
+     whitespace byte there would drive name_len negative, and the memcpy()
+     below off the end of the heap. */
+  while (s < endofline && IS_SPACE(*s)) s++;
 
-  int name_len = (line + length) - s;
+  int name_len = endofline - s;
 
   name = (char*)PR_MALLOC(name_len + 1);
   if (!name) return false; /* grr... */
   memcpy(name, s, name_len);
   name[name_len] = 0;
 
-  if (name_len) {
-    /* take off newline. */
-    if (name_len && name[name_len - 1] == '\n') {
-      name[name_len] = 0;
-      name_len--;
-    }
-    if (name_len && name[name_len - 1] == '\r') {
-      name[name_len] = 0;
-    }
+  /* take off the line terminator. */
+  if (name_len && name[name_len - 1] == '\n') {
+    name[--name_len] = 0;
+  }
+  if (name_len && name[name_len - 1] == '\r') {
+    name[--name_len] = 0;
   }
 
   /* Now try and figure out a type.
@@ -484,15 +487,12 @@ static bool MimeUntypedText_yenc_begin_line_p(const char* line, int32_t length,
   memcpy(name, s, name_len);
   name[name_len] = 0;
 
-  if (name_len) {
-    /* take off newline. */
-    if (name_len && name[name_len - 1] == '\n') {
-      name[name_len] = 0;
-      name_len--;
-    }
-    if (name_len && name[name_len - 1] == '\r') {
-      name[name_len] = 0;
-    }
+  /* take off the line terminator. */
+  if (name_len && name[name_len - 1] == '\n') {
+    name[--name_len] = 0;
+  }
+  if (name_len && name[name_len - 1] == '\r') {
+    name[--name_len] = 0;
   }
 
   /* Now try and figure out a type.

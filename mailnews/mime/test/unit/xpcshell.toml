@@ -77,3 +77,5 @@ run-sequentially = true  # Because it set's a pref that must not be active for o
 ["test_text_attachment.js"]
 
 ["test_trailingBlankLines.js"]
+
+["test_uuencode_begin_line.js"]
