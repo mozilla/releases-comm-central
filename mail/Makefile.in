@@ -6,12 +6,15 @@ include $(topsrcdir)/config/config.mk
 include $(topsrcdir)/config/rules.mk
 
 ifdef MAKENSISU
+ifdef MOZ_USE_MAKEFILE_INSTALLER_BUILD
+
 # For Windows build the uninstaller during the application build since the
 # uninstaller is included with the application for mar file generation.
 libs::
 	$(MAKE) -C installer/windows uninstaller
 ifdef MOZ_MAINTENANCE_SERVICE
 	$(MAKE) -C installer/windows maintenanceservice_installer
+endif
 endif
 endif
 

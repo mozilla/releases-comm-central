@@ -26,7 +26,13 @@ hg-bundle::
 wget-en-US:
 	$(MAKE) -C comm/mail/locales wget-en-US
 
-merge-% post-merge-% installers-% langpack-% chrome-%:
+# TODO there might be a dependency on the stamp here for the
+# non-MOZ_USE_MAKEFILE_INSTALLER_BUILD path.
+
+installers-%: $(INSTALLER_REPACK_DEPS)
+	$(MAKE) -C comm/mail/locales $@
+
+merge-% langpack-% chrome-%:
 	$(MAKE) -C comm/mail/locales $@
 
 ifdef ENABLE_TESTS
