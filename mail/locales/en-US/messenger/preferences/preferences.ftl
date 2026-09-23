@@ -75,25 +75,26 @@ privacy-passwords-header = Passwords
 
 privacy-spam-header = Spam
 
-collection-header = { -brand-short-name } Data Collection and Use
+collection-improve-header = Data collected to improve { -brand-short-name }
 
-collection-description = We strive to provide you with choices and collect only what we need to provide and improve { -brand-short-name } for everyone. We always ask permission before receiving personal information.
-collection-privacy-notice = Privacy Notice
+collection-community-description = { -brand-short-name } is built by a global community. Sharing anonymous performance data helps us fix bugs faster and make the app faster for everyone.
+collection-privacy-policy = Read our privacy policy
 
-collection-health-report-telemetry-disabled = You’re no longer allowing { -vendor-short-name } to capture technical and interaction data. All past data will be deleted within 30 days.
+collection-data-sharing-off = <strong>Data sharing is turned off.</strong> Past usage data will be permanently deleted from { -vendor-short-name } servers within 30 days.
 collection-health-report-telemetry-disabled-link = Learn more
 
-collection-health-report =
-    .label = Allow { -brand-short-name } to send technical and interaction data to { -vendor-short-name }
+collection-share-performance =
+    .label = Share anonymous performance data with { -vendor-short-name }
     .accesskey = r
+collection-share-performance-description = (Includes basic technical info like your operating system, memory usage, and feature activity. { -brand-short-name } never collects email content, contacts, or personal messages.)
 collection-health-report-link = Learn more
 
 # This message is displayed above disabled data sharing options in developer builds
 # or builds with no Telemetry support available.
 collection-health-report-disabled = Data reporting is disabled for this build configuration
 
-collection-backlogged-crash-reports =
-    .label = Allow { -brand-short-name } to send backlogged crash reports on your behalf
+collection-share-crash-data =
+    .label = Send anonymous crash reports to { -vendor-short-name }
     .accesskey = c
 collection-backlogged-crash-reports-link = Learn more
 
@@ -783,19 +784,19 @@ cloud-account-description = Add a new Filelink storage service
 
 ## Privacy Tab
 
-mail-content = Mail Content
+email-content = Email content
 
-remote-content-label =
-    .label = Allow remote content in messages
+remote-content-images-label =
+    .label = Allow remote content (images and styles)
     .accesskey = m
 
 exceptions-button =
     .label = Exceptions…
     .accesskey = E
 
-remote-content-privacy-info = Learn more about the privacy issues of remote content
+remote-content-privacy-link = How remote content affects privacy
 
-web-content = Web Content
+web-content = Web content
 
 history-label =
     .label = Remember websites and links I’ve visited
@@ -813,8 +814,8 @@ third-party-always =
     .label = Always
 third-party-never =
     .label = Never
-third-party-visited =
-    .label = From visited
+third-party-visited-only =
+    .label = From visited sites only
 
 cookies-button =
     .label = Show Cookies…
@@ -825,22 +826,22 @@ cookies-button =
 # included to facilitate power-user search of the about:preferences page.
 global-privacy-control-search = Global Privacy Control (GPC)
 
-global-privacy-control-description =
-    .label = Tell websites not to sell or share my data
+global-privacy-control-label =
+    .label = Ask websites not to sell or share personal data
     .accesskey = n
 
 do-not-track-removal = We no longer support the “Do Not Track” signal
 
-passwords-description = { -brand-short-name } can remember passwords for all of your accounts.
+passwords-registered-description = { -brand-short-name } can save passwords for registered accounts.
 
-passwords-button =
-    .label = Saved Passwords…
+view-saved-passwords-button =
+    .label = View Saved Passwords…
     .accesskey = S
 
-primary-password-description = A Primary Password protects all your passwords, but you must enter it once per session.
+primary-password-session-description = A Primary Password protects all passwords and is entered once per session.
 
-primary-password-label =
-    .label = Use a Primary Password
+use-primary-password-label =
+    .label = Use Primary Password
     .accesskey = U
 
 # This operation requires the user to authenticate with the operating system (device sign-in)
@@ -855,32 +856,32 @@ forms-primary-pw-fips-title = You are currently in FIPS mode. FIPS requires a no
 forms-master-pw-fips-desc = Password Change Failed
 
 
-spam-description = Set your default spam settings. Account-specific spam settings can be configured in Account Settings.
+spam-accounts-description = These settings apply to all accounts. Individual account options can be changed in Account Settings.
 
 spam-marked-label =
     .label = When messages are marked as spam:
     .accesskey = W
 
-spam-move-label =
-    .label = Move them to the account’s “Spam” folder
+spam-move-folder-label =
+    .label = Move to the Spam folder
     .accesskey = o
 
-spam-delete-label =
-    .label = Delete them
+spam-delete-immediately-label =
+    .label = Delete immediately
     .accesskey = D
 
 spam-read-description = Mark messages as read
 
-spam-read-manual-label =
-    .label = When manually marked as spam
+spam-marked-manually-label =
+    .label = When marked manually
     .accesskey = M
 
-spam-read-auto-label =
-    .label = When { -brand-short-name } determines that they are spam
+spam-detected-auto-label =
+    .label = When detected automatically by { -brand-short-name }
     .accesskey = T
 
-spam-log-label =
-    .label = Enable adaptive spam filter logging
+spam-log-keep-label =
+    .label = Keep a log of automatic spam detection
     .accesskey = E
 
 spam-log-button =

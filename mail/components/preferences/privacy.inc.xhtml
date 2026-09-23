@@ -14,11 +14,11 @@
     <!-- Mail Content -->
     <html:div data-category="panePrivacy">
     <html:fieldset id="mailContentGroup" data-category="panePrivacy">
-      <html:legend data-l10n-id="mail-content"></html:legend>
+      <html:legend data-l10n-id="email-content"></html:legend>
       <hbox id="remoteContentBox">
         <checkbox id="acceptRemoteContent"
                   preference="mailnews.message_display.disable_remote_image"
-                  data-l10n-id="remote-content-label"/>
+                  data-l10n-id="remote-content-images-label"/>
         <spacer flex="1"/>
         <hbox>
           <button is="highlightable-button" id="remoteContentExceptions"
@@ -47,7 +47,7 @@
       <hbox>
         <html:a id="acceptRemoteContentInfo"
                 href="https://support.mozilla.org/kb/remote-content-in-messages"
-                data-l10n-id="remote-content-privacy-info"/>
+                data-l10n-id="remote-content-privacy-link"/>
       </hbox>
     </html:fieldset>
     </html:div>
@@ -97,7 +97,7 @@
             <menulist id="acceptThirdPartyMenu" preference="network.cookie.cookieBehavior">
               <menupopup>
                 <menuitem data-l10n-id="third-party-always" value="always"/>
-                <menuitem data-l10n-id="third-party-visited" value="visited"/>
+                <menuitem data-l10n-id="third-party-visited-only" value="visited"/>
                 <menuitem data-l10n-id="third-party-never" value="never"/>
               </menupopup>
             </menulist>
@@ -112,7 +112,7 @@
                   search-l10n-ids="
                     cookies-dialog-title,
                     filter-search-label.value,
-                    cookies-on-system-label,
+                    cookies-stored-label,
                     treecol-site-header.label,
                     treecol-name-header.label,
                     props-name-label.value,
@@ -134,7 +134,7 @@
         <checkbox id="globalPrivacyControlCheckbox"
                   class="tail-with-learn-more"
                   preference="privacy.globalprivacycontrol.enabled"
-                  data-l10n-id="global-privacy-control-description"
+                  data-l10n-id="global-privacy-control-label"
                   search-l10n-ids="global-privacy-control-search" />
         <html:a id="globalPrivacyControlLearnMoreLink"
                 data-l10n-id="moz-support-link-text"
@@ -160,11 +160,11 @@
     <html:div data-category="panePrivacy">
     <html:fieldset data-category="panePrivacy">
       <hbox align="center">
-        <description data-l10n-id="passwords-description"/>
+        <description data-l10n-id="passwords-registered-description"/>
         <spacer flex="1"/>
         <hbox>
           <button is="highlightable-button" id="showPasswords"
-                  data-l10n-id="passwords-button"
+                  data-l10n-id="view-saved-passwords-button"
                   oncommand="gPrivacyPane.showPasswords();"
                   preference="pref.privacy.disable_button.view_passwords"
                   search-l10n-ids="
@@ -207,10 +207,10 @@
 
       <separator class="thin"/>
 
-      <description data-l10n-id="primary-password-description"/>
+      <description data-l10n-id="primary-password-session-description"/>
       <hbox>
         <checkbox id="useMasterPassword"
-                  data-l10n-id="primary-password-label"
+                  data-l10n-id="use-primary-password-label"
                   oncommand="gPrivacyPane.updateMasterPasswordButton();"/>
         <spacer flex="1"/>
         <button is="highlightable-button" id="changeMasterPassword"
@@ -236,7 +236,7 @@
 
     <html:div data-category="panePrivacy">
     <html:fieldset data-category="panePrivacy">
-      <description data-l10n-id="spam-description"/>
+      <description data-l10n-id="spam-accounts-description"/>
       <separator class="thin"/>
       <hbox>
         <checkbox id="manualMark"
@@ -252,13 +252,13 @@
         <hbox>
           <radio id="manualMarkMode0"
                  value="0"
-                 data-l10n-id="spam-move-label"/>
+                 data-l10n-id="spam-move-folder-label"/>
           <spacer flex="1"/>
         </hbox>
         <hbox>
           <radio id="manualMarkMode1"
                  value="1"
-                 data-l10n-id="spam-delete-label"/>
+                 data-l10n-id="spam-delete-immediately-label"/>
           <spacer flex="1"/>
         </hbox>
       </radiogroup>
@@ -266,14 +266,14 @@
       <description data-l10n-id="spam-read-description"></description>
       <checkbox class="indent"
                 id="manualMarkAsJunkMarksRead"
-                data-l10n-id="spam-read-manual-label"
+                data-l10n-id="spam-marked-manually-label"
                 preference="mailnews.ui.junk.manualMarkAsJunkMarksRead" />
       <checkbox class="indent"
                 id="markAsReadOnSpam"
-                data-l10n-id="spam-read-auto-label"
+                data-l10n-id="spam-detected-auto-label"
                 preference="mail.spam.markAsReadOnSpam" />
       <hbox align="start">
-        <checkbox id="enableJunkLogging" data-l10n-id="spam-log-label"
+        <checkbox id="enableJunkLogging" data-l10n-id="spam-log-keep-label"
                   oncommand="gPrivacyPane.updateJunkLogButton(this.checked);"
                   preference="mail.spam.logging.enabled"/>
         <spacer flex="1"/>
@@ -294,16 +294,16 @@
     <hbox id="privacyDataCollectionCategory"
           class="subcategory"
           data-category="panePrivacy">
-      <html:h1 data-l10n-id="collection-header"></html:h1>
+      <html:h1 data-l10n-id="collection-improve-header"></html:h1>
     </hbox>
 
     <html:div id="dataCollectionGroup" data-category="panePrivacy">
     <html:fieldset data-category="panePrivacy">
       <description>
-        <label class="tail-with-learn-more" data-l10n-id="collection-description"/>
+        <label class="tail-with-learn-more" data-l10n-id="collection-community-description"/>
         <label id="dataCollectionPrivacyNotice"
                class="learnMore" is="text-link"
-               data-l10n-id="collection-privacy-notice"/>
+               data-l10n-id="collection-privacy-policy"/>
       </description>
       <description>
         <html:div id="telemetry-container" hidden="hidden">
@@ -311,7 +311,7 @@
                     src="chrome://global/skin/icons/info.svg" />
           <html:span id="telemetryDisabledDescription"
                      class="tail-with-learn-more"
-                     data-l10n-id="collection-health-report-telemetry-disabled">
+                     data-l10n-id="collection-data-sharing-off">
           </html:span>
           <button id="telemetryDataDeletionLearnMore"
                   class="learnMore" is="text-link"
@@ -321,12 +321,14 @@
       <vbox data-subcategory="reports">
         <hbox align="center">
           <checkbox id="submitHealthReportBox"
-                    data-l10n-id="collection-health-report"
+                    data-l10n-id="collection-share-performance"
                     class="tail-with-learn-more"/>
           <label id="FHRLearnMore"
                  class="learnMore" is="text-link"
                  data-l10n-id="collection-health-report-link"/>
         </hbox>
+        <description class="indent tip-caption"
+                     data-l10n-id="collection-share-performance-description"/>
 #ifndef MOZ_TELEMETRY_REPORTING
         <description id="TelemetryDisabledDesc"
           class="indent tip-caption" control="telemetryGroup"
@@ -338,7 +340,7 @@
         <checkbox id="automaticallySubmitCrashesBox"
                   class="tail-with-learn-more"
                   preference="browser.crashReports.unsubmittedCheck.autoSubmit2"
-                  data-l10n-id="collection-backlogged-crash-reports"/>
+                  data-l10n-id="collection-share-crash-data"/>
         <label id="crashReporterLearnMore"
                class="learnMore" is="text-link" data-l10n-id="collection-backlogged-crash-reports-link"/>
       </hbox>
