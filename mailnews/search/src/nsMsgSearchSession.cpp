@@ -227,6 +227,8 @@ NS_IMETHODIMP nsMsgSearchSession::Search(nsIMsgWindow* aWindow) {
 
 NS_IMETHODIMP nsMsgSearchSession::InterruptSearch() {
   AUTO_PROFILER_LABEL("nsMsgSearchSession::InterruptSearch", MAILNEWS);
+  // NotifyListenersDone() may lead to the last reference to us being dropped.
+  RefPtr<nsIMsgSearchSession> kungFuDeathGrip(this);
   nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
   if (msgWindow) {
     EnableFolderNotifications(true);

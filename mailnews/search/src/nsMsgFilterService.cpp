@@ -558,6 +558,7 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnSearchDone(nsresult status) {
     return m_searchHits.IsEmpty() ? RunNextFilter() : ApplyFilter();
 
   mFinalResult = status;
+  if (status == NS_MSG_SEARCH_INTERRUPTED) return OnEndExecution();
   if (m_msgWindow && !ContinueExecutionPrompt()) return OnEndExecution();
 
   // The search failed, so move on to the next filter.
