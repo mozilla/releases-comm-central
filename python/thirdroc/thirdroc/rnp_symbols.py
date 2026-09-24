@@ -13,8 +13,12 @@ Limitations: The regex that captures the function name is very basic and may nee
 the third_party/rnp/include/rnp/rnp.h format changes too much.
 
 The header file is run through Clang's preprocessor so that functions within #ifdef #endif blocks
-are handled correctly. Currently RNP_EXPERIMENTAL_PQC and RNP_EXPERIMENTAL_CRYPTO_REFRESH
-are filtered out. (Clang is run with -DRNP_EXPORT so that the 'RNP_API' macro is not expanded.)
+are handled correctly. (Clang is run with -DRNP_EXPORT so that the 'RNP_API' macro is not
+expanded. That also skips rnp_export.h, so experimental features enabled in that header are not
+picked up and have to be repeated with -D.)
+
+Experimental features such as RNP_EXPERIMENTAL_PQC and RNP_EXPERIMENTAL_CRYPTO_REFRESH are
+filtered out unless they are named with -D.
 
 Dependencies: Only Python 3
 
@@ -36,6 +40,7 @@ import os
 import pathlib
 import re
 import subprocess
+import sys
 
 HERE = os.path.dirname(__file__)
 TOPSRCDIR = os.path.abspath(os.path.join(HERE, "../../../../"))
@@ -48,9 +53,18 @@ SYMBOLS_FILE = os.path.join(THIRD_SRCDIR, SYMBOLS_FILE_REL)
 FUNC_DECL_RE = re.compile(r"^RNP_API\s+.*?([a-zA-Z0-9_]+)\(.*$")
 
 
-def preprocess_header(header_file):
+def preprocess_header(header_file, defines=()):
     """Execute clang preprocessor on the header file and yield each line."""
-    cmd = ["clang", "-E", "-DRNP_EXPORT", header_file]
+    cmd = ["clang", "-E", "-DRNP_EXPORT"]
+    cmd += [f"-D{d}" for d in defines]
+    cmd.append(header_file)
+    # rnp.h includes <rnp/rnp_export.h>, which is deliberately not on the include
+    # path. clang calls that a fatal error but still preprocesses the whole file.
+    print(
+        "note: the following clang error about 'rnp/rnp_export.h' is expected, "
+        "it does not affect the generated symbols",
+        file=sys.stderr,
+    )
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, text=True)
     for line in proc.stdout:
         yield line.rstrip()
@@ -68,11 +82,11 @@ def get_func_name(line):
     return m.group(1)
 
 
-def extract_func_defs(filearg):
+def extract_func_defs(filearg, defines=()):
     """
     Look for RNP_API in the header file to find the names of the symbols that should be exported
     """
-    for line in preprocess_header(filearg):
+    for line in preprocess_header(filearg, defines):
         if line.startswith("RNP_API") and "RNP_DEPRECATED" not in line:
             func_name = get_func_name(line)
             yield func_name
@@ -98,8 +112,17 @@ if __name__ == "__main__":
         help=f"output path to symbols file (default: {SYMBOLS_FILE_REL})",
     )
 
+    parser.add_argument(
+        "-D",
+        action="append",
+        dest="defines",
+        default=[],
+        metavar="MACRO",
+        help="Additional macro to define, for experimental features guarded in rnp.h",
+    )
+
     args = parser.parse_args()
 
     with args.symbols_file.open("w") as out_fp:
-        for symbol in sorted(list(extract_func_defs(args.header_file))):
+        for symbol in sorted(list(extract_func_defs(args.header_file, args.defines))):
             out_fp.write(f"{symbol}\n")

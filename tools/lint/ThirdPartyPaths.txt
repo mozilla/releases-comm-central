@@ -18,6 +18,7 @@ comm/third_party/python/
 comm/third_party/qrcode/
 comm/third_party/redux/
 comm/third_party/rnp/
+comm/third_party/rnp_experimental/
 comm/third_party/rust/
 comm/third_party/sax-js/
 comm/third_party/zlib/

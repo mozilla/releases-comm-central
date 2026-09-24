@@ -3,7 +3,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Library("bz2")
-FINAL_LIBRARY = "rnp"
 
 # Honor --with-system-bz2
 if CONFIG["MZLA_SYSTEM_BZIP2"]:

@@ -3,7 +3,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Library("botan")
-FINAL_LIBRARY = "rnp"
 
 # Honor --with-system-botan
 if CONFIG["MZLA_SYSTEM_BOTAN"]:

@@ -1,0 +1,29 @@
+Directory ./rnp_experimental contains a second copy of rnp which has been
+obtained from:
+https://github.com/rnpgp/rnp
+
+[commit 0]
+
+rnp_experimental is used to test an unreleased RNP upstream snapshot
+in Thunderbird Daily builds.
+
+For licensing information, please refer to the included documentation.
+
+Updates to this copy are managed by "mach vendor". The configuration file is
+at rnp_experimental/moz.yaml. Unlike ./rnp, this copy does not update
+MIN_RNP_VERSION in RNPLib.sys.mjs.
+
+    > cd comm/third_party/rnp_experimental
+
+    # validate the YAML config file
+    > mach vendor -v ./moz.yaml
+    ./moz.yaml: OK
+
+    # update to a specific upstream commit
+    > mach vendor -r <commit> ./moz.yaml
+
+    # If there are patches to apply in moz.yaml, the process is a little different
+    > mach vendor ./moz.yaml --patch-mode none
+    # followed by
+    > mach vendor ./moz.yaml --patch-mode only
+

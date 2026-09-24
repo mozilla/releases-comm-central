@@ -56,6 +56,13 @@ def main(output, *argv):
         "-b", type=str, dest="crypto_backend_version", help="Crypto backend version"
     )
     parser.add_argument(
+        "-s",
+        type=str,
+        dest="variant",
+        default=None,
+        help="Use this name for a second copy of the RNP library",
+    )
+    parser.add_argument(
         "-D",
         type=define_type,
         action="append",
@@ -71,6 +78,7 @@ def main(output, *argv):
         args.thunderbird_version,
         args.crypto_backend,
         args.crypto_backend_version,
+        args.variant,
     )
 
     # "output" is an open filedescriptor for version.h

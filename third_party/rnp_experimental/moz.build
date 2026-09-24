@@ -2,9 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-SharedLibrary("rnp")
+SharedLibrary("rnp_experimental")
 
 include("../rnpdefs.mozbuild")
+include("experimental-features.mozbuild")
+
 
 
 @template
@@ -65,6 +67,8 @@ rnp_defines = {
     "ENABLE_BLOWFISH": True,
     "ENABLE_CAST5": True,
     "ENABLE_RIPEMD160": True,
+    "ENABLE_PQC": True,
+    "ENABLE_CRYPTO_REFRESH": False,
     "PACKAGE_BUGREPORT": '"https://bugzilla.mozilla.org/enter_bug.cgi?product=Thunderbird"',
 }
 crypto_backend = CONFIG["MZLA_LIBRNP_BACKEND"]
@@ -114,6 +118,7 @@ GeneratedFile(
     inputs=["src/lib/version.h.in", "src/lib/config.h.in"],
     flags=["-V", f"{SRCDIR}/version.txt",
            "-m", CONFIG["MOZ_APP_VERSION_DISPLAY"],
+           "-s", "experimental",
            "-c", crypto_backend,
            "-b", crypto_backend_version] + gen_files_flags
 )
@@ -123,18 +128,15 @@ if CONFIG["MOZ_SYSTEM_ZLIB"]:
 else:
     LOCAL_INCLUDES += ["../zlib"]
 
-if CONFIG["MZLA_SYSTEM_JSONC"]:
-    CXXFLAGS += CONFIG["MZLA_JSONC_CFLAGS"]
-else:
-    IQuote("{}/../json-c".format(OBJDIR))
-    LOCAL_INCLUDES += ["!../json-c", "../json-c"]
+# Upstream replaced json-c with the bundled header-only nlohmann/json.
+LOCAL_INCLUDES += ["src/lib/nlohmann"]
 
 if CONFIG["MZLA_SYSTEM_BZIP2"]:
     CXXFLAGS += CONFIG["MZLA_BZIP2_CFLAGS"]
 else:
     LOCAL_INCLUDES += ["../bzip2"]
 
-SYMBOLS_FILE = "rnp.symbols"
+SYMBOLS_FILE = "rnp_experimental.symbols"
 
 
 SOURCES += [
@@ -202,18 +204,28 @@ if CONFIG["MZLA_LIBRNP_BACKEND"] == "botan":
         "src/lib/crypto/ecdh.cpp",
         "src/lib/crypto/ecdh_utils.cpp",
         "src/lib/crypto/ecdsa.cpp",
+        "src/lib/crypto/ed25519_ed448.cpp",
         "src/lib/crypto/eddsa.cpp",
         "src/lib/crypto/elgamal.cpp",
+        "src/lib/crypto/exdsa_ecdhkem.cpp",
         "src/lib/crypto/hash.cpp",
         "src/lib/crypto/hash_common.cpp",
+        "src/lib/crypto/hkdf.cpp",
+        "src/lib/crypto/hkdf_botan.cpp",
+        "src/lib/crypto/kem_combiner.cpp",
+        "src/lib/crypto/kyber.cpp",
+        "src/lib/crypto/kyber_common.cpp",
+        "src/lib/crypto/kyber_ecdh_composite.cpp",
         "src/lib/crypto/mem.cpp",
         "src/lib/crypto/mpi.cpp",
         "src/lib/crypto/rng.cpp",
         "src/lib/crypto/rsa.cpp",
         "src/lib/crypto/s2k.cpp",
+        "src/lib/crypto/secure_bytes.cpp",
         "src/lib/crypto/signatures.cpp",
         "src/lib/crypto/symmetric.cpp",
         "src/lib/crypto/symmetric_common.cpp",
+        "src/lib/crypto/x25519_x448.cpp",
     ]
 if CONFIG["MZLA_LIBRNP_BACKEND"] == "openssl":
     SOURCES += [
@@ -249,5 +261,9 @@ if CONFIG["MOZ_STDCXX_COMPAT"] and (CONFIG["MOZ_ASAN"] or CONFIG["MOZ_TSAN"]):
     ]
 
 DIRS += ["src/rnp", "src/rnpkeys"]
+
+if CONFIG["CC_TYPE"] == "clang-cl":
+    # SHGetFolderPathW
+    OS_LIBS += ["shell32"]
 
 USE_LIBS += ["botan", "bz2", "rnpzlib"]

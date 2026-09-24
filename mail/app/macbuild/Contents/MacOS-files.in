@@ -10,8 +10,10 @@
 #endif
 /pingsender
 /pk12util
-/rnp-cli
-/rnpkeys
+#ifdef NIGHTLY_BUILD
+/rnp-cli-experimental
+/rnpkeys-experimental
+#endif
 /ssltunnel
 /xpcshell
 /XUL

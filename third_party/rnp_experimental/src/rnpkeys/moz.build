@@ -1,0 +1,52 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+Program("rnpkeys-experimental")
+
+include("../../../rnpdefs.mozbuild")
+include("../../experimental-features.mozbuild")
+
+USE_LIBS += ["rnp_experimental"]
+
+LOCAL_INCLUDES += [
+    "!../lib",
+    "..",
+    "../../include",
+    "../common",
+    "../lib",
+]
+
+if CONFIG["OS_TARGET"] == "WINNT":
+    CXXFLAGS += ["/std:c++20"]
+else:
+    CXXFLAGS += ["-std=c++20"]
+
+# More recent versions of RNP replaced json-c with the bundled header-only nlohmann/json.
+LOCAL_INCLUDES += ["../lib/nlohmann"]
+LDFLAGS += ["-Wl,-rpath,$ORIGIN"]
+
+SOURCES += [
+    "../common/file-utils.cpp",
+    "../common/str-utils.cpp",
+    "../common/time-utils.cpp",
+    "../lib/logging.cpp",
+    "../rnp/fficli.cpp",
+    "../rnp/rnpcfg.cpp",
+    "main.cpp",
+    "rnpkeys.cpp",
+    "tui.cpp",
+]
+
+if CONFIG["CC_TYPE"] == "clang-cl":
+    OS_LIBS += ["shell32"]
+
+    SOURCES += [
+        "/comm/third_party/niwcompat/getopt.c",
+    ]
+    SOURCES["../rnp/rnpcfg.cpp"].flags += [
+        "-FI",
+        "%s/comm/third_party/niwcompat/extra_include.h" % TOPSRCDIR,
+    ]
+    DEFINES["MOZILLA_CONFIG_H"] = True
+    DEFINES["_CRT_SECURE_NO_WARNINGS"] = True

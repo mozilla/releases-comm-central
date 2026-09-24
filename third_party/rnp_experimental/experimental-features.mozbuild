@@ -1,0 +1,10 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# rnp.h guards its experimental API on these macros. Upstream's build appends
+# them to the generated rnp/rnp_export.h; define them here instead, for every
+# directory that compiles against rnp.h, so the vendored copy needs no change.
+# They must agree with the matching ENABLE_* macros in config.h, which rnp.cpp
+# verifies, and with the -D list passed to rnp_symbols.py in moz.yaml.
+DEFINES["RNP_EXPERIMENTAL_PQC"] = True

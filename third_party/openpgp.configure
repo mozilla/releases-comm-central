@@ -316,6 +316,10 @@ with only_when(in_tree_librnp):
                     "x25519",
                 )
             )
+            # PQC modules, needed by rnp_experimental only. Must stay in sync with
+            # the conditional source list in third_party/botan/botan.mozbuild.
+            if milestone.is_nightly:
+                botan_modules += ",ed448,legacy_ec_point,ml_kem,x448"
 
             # Initialize abi_flags with existing compiler flags to preserve target/sysroot settings.
             abi_flags = list(getattr(cxx_compiler, "flags", []))

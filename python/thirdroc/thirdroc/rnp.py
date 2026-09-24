@@ -20,20 +20,25 @@ def rnp_version(version_file):
     return version_str, parse(version_str)
 
 
-def rnp_version_defines(version_file, thunderbird_version, crypto_backend, crypto_backend_version):
+def rnp_version_defines(
+    version_file, thunderbird_version, crypto_backend, crypto_backend_version, variant=None
+):
     """
     Get DEFINES needed for RNP includes generated at build time
     :param string version_file:
     :param string thunderbird_version:
     :param string crypto_backend:
+    :param string variant: Use this name for a second copy of the RNP library
     """
     version_str, version = rnp_version(version_file)
     version_major = version.major
     version_minor = version.minor
     version_patch = version.micro
 
+    variant_part = f".{variant}" if variant else ""
     version_full = (
-        f"{version_str}.MZLA.{thunderbird_version}.{crypto_backend}.{crypto_backend_version}"
+        f"{version_str}.MZLA.{thunderbird_version}{variant_part}"
+        f".{crypto_backend}.{crypto_backend_version}"
     )
 
     defines = dict(

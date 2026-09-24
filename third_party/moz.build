@@ -24,6 +24,8 @@ if CONFIG["MZLA_LIBRNP"]:
         "rnp",
         "zlib",
     ]
+    if CONFIG["NIGHTLY_BUILD"]:
+        DIRS += ["rnp_experimental"]
     if CONFIG["MZLA_LIBRNP_BACKEND"] == "botan":
         DIRS += ["botan"]
 

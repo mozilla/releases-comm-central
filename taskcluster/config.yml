@@ -372,6 +372,15 @@ mac-signing:
                 - deep: false
                   runtime: true
                   force: true
+                  # rnp_experimental is only packaged in the daily channel
+                  globs:
+                      - "/Contents/MacOS/rnp-cli-experimental"
+                      - "/Contents/MacOS/rnpkeys-experimental"
+                  only-if-milestone-is-nightly: true
+
+                - deep: false
+                  runtime: true
+                  force: true
                   entitlements:
                       by-build-platform:
                           .*enterprise.*: public/build/security/thunderbirdenterprise.browser.xml
@@ -416,6 +425,16 @@ mac-signing:
                       - "/Contents/Library/Spotlight/thunderbird.mdimporter"
                       - "/Contents/MacOS/pingsender"
                       - "/Contents/Frameworks/ChannelPrefs.framework"
+
+                - deep: false
+                  runtime: true
+                  force: true
+                  entitlements: public/build/security/utility.xml
+                  # rnp_experimental is only packaged in the daily channel
+                  globs:
+                      - "/Contents/MacOS/rnp-cli-experimental"
+                      - "/Contents/MacOS/rnpkeys-experimental"
+                  only-if-milestone-is-nightly: true
 
                 - deep: false
                   runtime: true

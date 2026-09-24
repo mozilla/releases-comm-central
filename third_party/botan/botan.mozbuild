@@ -14,7 +14,7 @@ LOCAL_INCLUDES += ["!build/include/internal"]
 
 # This list was obtained by running Botan's configure script with the desired options
 # and extracting the source files from the generated build_config.json.
-# jq  .test_srcs build/build_config.json
+# jq -r '.lib_srcs[]' build/build_config.json
 SOURCES += [
     "src/lib/asn1/alg_id.cpp",
     "src/lib/asn1/asn1_obj.cpp",
@@ -62,6 +62,7 @@ SOURCES += [
     "src/lib/ffi/ffi_srp6.cpp",
     "src/lib/ffi/ffi_totp.cpp",
     "src/lib/ffi/ffi_tpm2.cpp",
+    "src/lib/ffi/ffi_xof.cpp",
     "src/lib/ffi/ffi_zfec.cpp",
     "src/lib/hash/checksum/crc24/crc24.cpp",
     "src/lib/hash/hash.cpp",
@@ -200,6 +201,28 @@ SOURCES += [
     "src/lib/xof/cshake_xof/cshake_xof.cpp",
     "src/lib/xof/xof.cpp"
 ]
+
+# Sources pulled in by the extra Botan modules that rnp_experimental needs for
+# PQC. Must stay in sync with the module list in third_party/openpgp.configure.
+if CONFIG["NIGHTLY_BUILD"]:
+    SOURCES += [
+        "src/lib/hash/shake/shake.cpp",
+        "src/lib/pubkey/curve448/curve448_gf.cpp",
+        "src/lib/pubkey/curve448/curve448_scalar.cpp",
+        "src/lib/pubkey/curve448/ed448/ed448.cpp",
+        "src/lib/pubkey/curve448/ed448/ed448_internal.cpp",
+        "src/lib/pubkey/curve448/x448/x448.cpp",
+        "src/lib/pubkey/curve448/x448/x448_internal.cpp",
+        "src/lib/pubkey/ec_group/legacy_ec_point/ec_inner_bn.cpp",
+        "src/lib/pubkey/ec_group/legacy_ec_point/ec_point.cpp",
+        "src/lib/pubkey/ec_group/legacy_ec_point/point_mul.cpp",
+        "src/lib/pubkey/kyber/kyber_common/kyber.cpp",
+        "src/lib/pubkey/kyber/kyber_common/kyber_algos.cpp",
+        "src/lib/pubkey/kyber/kyber_common/kyber_constants.cpp",
+        "src/lib/pubkey/kyber/kyber_common/kyber_keys.cpp",
+        "src/lib/pubkey/kyber/ml_kem/ml_kem_impl.cpp",
+        "src/lib/xof/shake_xof/shake_xof.cpp",
+    ]
 
 if CONFIG["CC_TYPE"] == "clang-cl":
     SOURCES += [
