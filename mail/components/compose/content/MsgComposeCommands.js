@@ -7965,6 +7965,13 @@ function SetComposeWindowTitle() {
  * @returns {boolean} true if the window can go ahead and close.
  */
 function ComposeCanClose() {
+  // The enterprise shutdown hook already attempted to preserve this compose
+  // state. Do not let a prompt block the administrator-requested forced quit.
+  if (document.documentElement.dataset.enterpriseForcedShutdown === "true") {
+    delete document.documentElement.dataset.enterpriseForcedShutdown;
+    return true;
+  }
+
   // No open compose window?
   if (!gMsgCompose) {
     return true;

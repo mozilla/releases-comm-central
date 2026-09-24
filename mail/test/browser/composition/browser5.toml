@@ -82,4 +82,8 @@ skip-if = [
 
 ["browser_replySignature.js"]
 
+["browser_enterpriseForcedShutdown.js"]
+environment = ["MOZ_BYPASS_FELT=1"]
+skip-if = ["!enterprise"]
+
 ["browser_saveChangesOnQuit.js"]

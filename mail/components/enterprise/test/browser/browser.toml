@@ -1,0 +1,17 @@
+[DEFAULT]
+environment = ["MOZ_BYPASS_FELT=1"]
+prefs = [
+  "enterprise.console.address=https://console.example.com/",
+  "enterprise.log_level=Debug",
+  "mail.inappnotifications.enabled=false",
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.shell.checkDefaultClient=false",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.database.global.indexer.enabled=false",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+]
+subsuite = "thunderbird"
+
+["browser_relaunchWarning.js"]
