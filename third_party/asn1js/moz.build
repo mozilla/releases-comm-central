@@ -5,3 +5,13 @@
 EXTRA_JS_MODULES += [
     "asn1js.mjs",
 ]
+
+LICENSES += ["asn1js"]
+LICENSES["asn1js"].title = "ASN1.js License"
+LICENSES["asn1js"].notice = """
+<p>This license applies to the following files:</p>
+"""
+
+LICENSED_UNDER = [
+    "asn1js",
+]

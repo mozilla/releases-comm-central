@@ -4,3 +4,10 @@
 
 with Files("**"):
     BUG_COMPONENT = ("Mailnews Core", "Simple MAPI")
+
+LICENSED_UNDER += [
+    "mit",
+]
+LICENSED_UNDER["mit"].paths = [
+    "include",
+]

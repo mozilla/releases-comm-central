@@ -181,3 +181,11 @@ XPCOM_MANIFESTS += [
 
 # Add libFuzzer configuration directives
 include("/tools/fuzzing/libfuzzer-config.mozbuild")
+
+LICENSED_UNDER += [
+    "mit",
+]
+
+LICENSED_UNDER["mit"].paths = [
+    "MorkParser.sys.mjs",
+]

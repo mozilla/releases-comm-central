@@ -267,3 +267,18 @@ if CONFIG["CC_TYPE"] == "clang-cl":
     OS_LIBS += ["shell32"]
 
 USE_LIBS += ["botan", "bz2", "rnpzlib"]
+
+LICENSES += ["rnpexperimental"]
+LICENSES["rnpexperimental"].title = "RNP (Experimental version) Licenses"
+LICENSES["rnpexperimental"].notice = """
+<p>These licenses apply to files in <code>third_party/rnp_experimental</code>.</p>
+"""
+
+LICENSES += ["rnpexperimentalocb"]
+LICENSES["rnpexperimentalocb"].title = "OCB Patent License for Ribose Inc. (Experimental RNP version)"
+LICENSES["rnpexperimentalocb"].text = "LICENSE-OCB.md"
+
+LICENSED_UNDER += [
+    "rnpexperimental",
+    "rnpexperimentalocb",
+]

@@ -72,3 +72,13 @@ else:
         "random_seed.c",
         "strerror_override.c",
     ]
+
+LICENSES += ["jsonc"]
+LICENSES["jsonc"].title = "Json-C License"
+LICENSES["jsonc"].notice = """
+<p>This license applies to files in <code>third_party/json-c</code>.</p>
+"""
+
+LICENSED_UNDER += [
+    "jsonc"
+]

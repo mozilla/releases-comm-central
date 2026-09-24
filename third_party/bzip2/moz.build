@@ -23,3 +23,14 @@ else:
         "huffman.c",
         "randtable.c",
     ]
+
+LICENSES += ["bzip2"]
+LICENSES["bzip2"].title = "Bzip2 License"
+LICENSES["bzip2"].text = "LICENSE"
+LICENSES["bzip2"].notice = """
+<p>This license applies to files in <code>third_party/bzip2</code>.</p>
+"""
+
+LICENSED_UNDER += [
+    "bzip2",
+]

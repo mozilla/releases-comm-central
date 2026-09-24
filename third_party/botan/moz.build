@@ -9,3 +9,13 @@ if CONFIG["MZLA_SYSTEM_BOTAN"]:
     OS_LIBS += CONFIG["MZLA_BOTAN_LIBS"]
 else:
     include("./botan.mozbuild")
+
+LICENSES += ["botan"]
+LICENSES["botan"].title = "Botan License"
+LICENSES["botan"].notice = """
+<p>This license applies to files in <code>third_party/botan</code>.</p>
+"""
+
+LICENSED_UNDER += [
+    "botan",
+]

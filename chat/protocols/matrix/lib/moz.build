@@ -424,3 +424,49 @@ EXTRA_JS_MODULES.matrix.sdp_transform += [
     "sdp-transform/parser.js",
     "sdp-transform/writer.js",
 ]
+
+LICENSES += ["unhomoglyph"]
+LICENSES["unhomoglyph"].title = "unhomoglyph License"
+LICENSES["unhomoglyph"].text = "unhomoglyph/LICENSE"
+LICENSES["unhomoglyph"].spdx = "MIT"
+LICENSES["unhomoglyph"].notice = """
+<p>This license applies to the following files:</p>
+"""
+
+LICENSES += ["retry"]
+LICENSES["retry"].title = "retry License"
+LICENSES["retry"].text = "retry/License"
+LICENSES["retry"].spdx = "MIT"
+LICENSES["retry"].notice = """
+<p>This license applies to the following files:</p>
+"""
+
+LICENSED_UNDER += [
+    "apache",
+    "mit",
+    "retry",
+    "unhomoglyph",
+]
+LICENSED_UNDER["apache"].paths = [
+    "@matrix-org/olm",
+    "another-json",
+    "matrix-events-sdk",
+    "matrix-sdk",
+    "matrix-widget-api",
+    "oidc-client-ts",
+]
+LICENSED_UNDER["mit"].paths = [
+    "base-x",
+    "bs58",
+    "content-type",
+    "events",
+    "jwt-decode",
+    "p-retry",
+    "sdp-transform",
+]
+LICENSED_UNDER["retry"].paths = [
+    "retry",
+]
+LICENSED_UNDER["unhomoglyph"].paths = [
+    "unhomoglyph",
+]

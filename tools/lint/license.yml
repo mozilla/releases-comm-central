@@ -16,8 +16,6 @@ license:
         - comm/build/macosx/hardenedruntime/v2/production/security-module-helper.xml
         # License not super clear, Firefox excludes its branding
         - comm/mail/branding/
-        # Mostly empty file
-        - comm/mail/base/content/overrides/app-license-name.html
         # Need to verify
         - comm/mail/components/im/messages
         # License file in directory

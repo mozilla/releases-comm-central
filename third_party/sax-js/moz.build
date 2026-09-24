@@ -9,3 +9,13 @@ EXTRA_JS_MODULES += [
 EXTRA_JS_MODULES.sax += [
     "sax.js",
 ]
+
+LICENSES += ["sax"]
+LICENSES["sax"].title = "sax License"
+LICENSES["sax"].notice = """
+<p>This license applies to the following files:</p>
+"""
+
+LICENSED_UNDER = [
+    "sax",
+]

@@ -28,9 +28,6 @@ GENERATED_FILES["license.html"].inputs = [
     "/toolkit/content/license.html.mako",
     "!/licenses.json",
     "content/overrides/app-license.html",
-    "content/overrides/app-license-list.html",
-    "content/overrides/app-license-body.html",
-    "content/overrides/app-license-name.html",
 ]
 
 if CONFIG["MOZILLA_OFFICIAL"]:

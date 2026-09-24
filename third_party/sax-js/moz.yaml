@@ -17,6 +17,7 @@ origin:
   revision: v1.2.4
 
   license: ISC
+  license-file: LICENSE
 
 vendoring:
   url: https://github.com/isaacs/sax-js

@@ -22,6 +22,7 @@ origin:
   # Must be a long or short commit SHA (long preferred)
 
   license: BSD-2-Clause
+  license-file: LICENSE
 
 vendoring:
   # Information needed to update the library automatically.

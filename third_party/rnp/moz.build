@@ -251,3 +251,18 @@ if CONFIG["MOZ_STDCXX_COMPAT"] and (CONFIG["MOZ_ASAN"] or CONFIG["MOZ_TSAN"]):
 DIRS += ["src/rnp", "src/rnpkeys"]
 
 USE_LIBS += ["botan", "bz2", "rnpzlib"]
+
+LICENSES += ["rnp"]
+LICENSES["rnp"].title = "RNP Licenses"
+LICENSES["rnp"].notice = """
+<p>These licenses apply to files in <code>third_party/rnp</code>.</p>
+"""
+
+LICENSES += ["rnpocb"]
+LICENSES["rnpocb"].title = "OCB Patent License for Ribose Inc."
+LICENSES["rnpocb"].text = "LICENSE-OCB.md"
+
+LICENSED_UNDER += [
+    "rnp",
+    "rnpocb",
+]
