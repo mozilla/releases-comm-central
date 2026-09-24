@@ -1340,6 +1340,9 @@ Enigmail.msg = {
    */
   movePEPsubject() {
     const bodyElement = this.getBodyElement();
+    if (!bodyElement) {
+      return;
+    }
     if (
       bodyElement.textContent.search(/^\r?\n?Subject: [^\r\n]+\r?\n\r?\n/i) ===
         0 &&
