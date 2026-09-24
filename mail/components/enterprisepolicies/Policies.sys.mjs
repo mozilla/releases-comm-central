@@ -43,6 +43,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   replacePathVariables: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   runOncePerModification: "resource://gre/modules/PoliciesHelpers.sys.mjs",
   unblockAboutPage: "resource://gre/modules/PoliciesHelpers.sys.mjs",
+  uninstallListedAddons: "resource://gre/modules/PoliciesHelpers.sys.mjs",
 });
 
 const PREF_LOGLEVEL = "browser.policies.loglevel";
@@ -937,67 +938,51 @@ export var Policies = {
 
   Extensions: {
     onBeforeUIStartup(manager, param) {
-      let uninstallingPromise = Promise.resolve();
+      let uninstallingPromise = Promise.resolve(false);
       let installingPromise = Promise.resolve();
       if ("Uninstall" in param) {
-        uninstallingPromise = lazy.runOncePerModification(
-          "extensionsUninstall",
-          JSON.stringify(param.Uninstall),
-          async () => {
-            // If we're uninstalling add-ons, re-run the extensionsInstall runOnce even if it hasn't
-            // changed, which will allow add-ons to be updated.
-            Services.prefs.clearUserPref(
-              "browser.policies.runOncePerModification.extensionsInstall"
-            );
-            const addons = await lazy.AddonManager.getAddonsByIDs(
-              param.Uninstall
-            );
-            for (const addon of addons) {
-              if (addon) {
-                try {
-                  await addon.uninstall();
-                } catch (e) {
-                  // This can fail for add-ons that can't be uninstalled.
-                  lazy.log.debug(
-                    `Add-on ID (${addon.id}) couldn't be uninstalled.`
-                  );
-                }
-              }
-            }
-          }
+        uninstallingPromise = lazy.uninstallListedAddons(
+          param.Uninstall,
+          param.Install
         );
       }
       if ("Install" in param) {
-        installingPromise = lazy.runOncePerModification(
-          "extensionsInstall",
-          JSON.stringify(param.Install),
-          async () => {
-            await uninstallingPromise;
-            for (const location of param.Install) {
-              let uri;
-              try {
-                // We need to try as a file first because
-                // Windows paths are valid URIs.
-                // This is done for legacy support (old API)
-                const xpiFile = new lazy.FileUtils.File(location);
-                uri = Services.io.newFileURI(xpiFile);
-              } catch (e) {
-                try {
-                  uri = Services.io.newURI(location);
-                } catch (ex) {
-                  // Keep going so that one bad location doesn't discard the
-                  // add-ons that come after it.
-                  lazy.reportFailure(
-                    "Extensions",
-                    `Invalid add-on location (${location})`
-                  );
-                  continue;
-                }
-              }
-              lazy.installAddonFromURL(uri.spec, null, null, "Extensions");
-            }
+        installingPromise = uninstallingPromise.then(uninstallListChanged => {
+          if (uninstallListChanged) {
+            // Re-run the install even if its list hasn't changed, which is how
+            // an add-on listed in both Uninstall and Install gets updated.
+            lazy.clearRunOnceModification("extensionsInstall");
           }
-        );
+          return lazy.runOncePerModification(
+            "extensionsInstall",
+            JSON.stringify(param.Install),
+            () => {
+              for (const location of param.Install) {
+                let uri;
+                try {
+                  // We need to try as a file first because
+                  // Windows paths are valid URIs.
+                  // This is done for legacy support (old API)
+                  const xpiFile = new lazy.FileUtils.File(location);
+                  uri = Services.io.newFileURI(xpiFile);
+                } catch (e) {
+                  try {
+                    uri = Services.io.newURI(location);
+                  } catch (ex) {
+                    // Keep going so that one bad location doesn't discard the
+                    // add-ons that come after it.
+                    lazy.reportFailure(
+                      "Extensions",
+                      `Invalid add-on location (${location})`
+                    );
+                    continue;
+                  }
+                }
+                lazy.installAddonFromURL(uri.spec, null, null, "Extensions");
+              }
+            }
+          );
+        });
       }
       if ("Locked" in param) {
         for (const ID of param.Locked) {
