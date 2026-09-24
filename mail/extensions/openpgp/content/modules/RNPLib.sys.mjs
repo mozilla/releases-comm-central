@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ctypes } from "resource://gre/modules/ctypes.sys.mjs";
+import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
@@ -19,6 +20,14 @@ var abi = ctypes.default_abi;
 // Open librnp. Determine the path to the chrome directory and look for it
 // there first. If not, fallback to searching the standard locations.
 var librnp, librnpPath;
+
+// True if the alternative "rnp_experimental" library should be used
+// instead of the regular one. Resolved once, because the decision must
+// stay consistent with the set of functions that enableRNPLibJS()
+// declares, which happens only at startup.
+const usingExperimental =
+  AppConstants.NIGHTLY_BUILD &&
+  Services.prefs.getBoolPref("mail.openpgp.use_rnp_experimental", false);
 
 function tryLoadRNP(name, suffix) {
   const filename = ctypes.libraryName(name) + suffix;
@@ -40,28 +49,30 @@ function tryLoadRNP(name, suffix) {
 }
 
 function loadExternalRNPLib() {
+  const name = usingExperimental ? "rnp_experimental" : "rnp";
+
   if (!librnp) {
     // Try loading librnp.so, librnp.dylib, or rnp.dll first
-    tryLoadRNP("rnp", "");
+    tryLoadRNP(name, "");
   }
 
   if (!librnp && (systemOS === "winnt" || systemOS === "darwin")) {
     // rnp.0.dll or rnp.0.dylib
-    tryLoadRNP("rnp.0", "");
+    tryLoadRNP(`${name}.0`, "");
   }
 
   if (!librnp) {
-    tryLoadRNP("rnp-0", "");
+    tryLoadRNP(`${name}-0`, "");
   }
 
   if (!librnp && systemOS === "winnt") {
     // librnp-0.dll
-    tryLoadRNP("librnp-0", "");
+    tryLoadRNP(`lib${name}-0`, "");
   }
 
   if (!librnp && !(systemOS === "winnt") && !(systemOS === "darwin")) {
     // librnp.so.0
-    tryLoadRNP("rnp", ".0");
+    tryLoadRNP(name, ".0");
   }
 }
 
@@ -173,6 +184,10 @@ function enableRNPLibJS() {
     loadErrorReason: "",
     expectedVersion: "",
     loadedVersion: "",
+
+    // True if the experimental RNP library was loaded. Code that uses
+    // functions which only exist there must check this.
+    usingExperimental,
 
     getRNPLibStatus() {
       return {

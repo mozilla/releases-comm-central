@@ -111,6 +111,12 @@ pref("mail.smime.accept_insecure_sha1_message_signatures", false);
 // When sending, encrypt to this additional key. Not available in release channel builds.
 pref("mail.openpgp.debug.extra_encryption_key", "");
 
+#ifdef NIGHTLY_BUILD
+// Load the alternative RNP library "rnp_experimental".
+// Requires a restart to take effect. Ignored in beta and release/esr builds.
+pref("mail.openpgp.use_rnp_experimental", false);
+#endif
+
 // Hide prefs and menu entries from non-advanced users
 pref("temp.openpgp.advancedUser", false);
 
