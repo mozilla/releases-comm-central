@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-  <menupopup id="messageIdContext">
+  <menupopup id="messageIdContext" accesskey-conflicts-bug="2075260">
     <menuitem id="messageIdContext-messageIdTarget" disabled=""/>
     <menuseparator id="messageIdContext-separator"/>
     <menuitem id="messageIdContext-openMessageForMsgId"
@@ -105,7 +105,8 @@
 
   <menupopup id="emailAddressPopup"
              position="after_start"
-             class="no-icon-menupopup">
+             class="no-icon-menupopup"
+             accesskey-conflicts-bug="2075228">
     <menuitem id="emailAddressPlaceHolder"
               class="menuitem-iconic"
               disabled=""/>
@@ -168,7 +169,8 @@
   <menupopup id="listIdPopup"
              position="after_start"
              class="no-icon-menupopup"
-             oncommand="gMessageHeader.openListURL(event);">
+             oncommand="gMessageHeader.openListURL(event);"
+             accesskey-conflicts-bug="2075230">
     <menuitem id="listIdPlaceHolder"
               class="menuitem-iconic"
               disabled=""/>
@@ -239,7 +241,8 @@
   </menupopup>
 
   <menupopup id="remoteContentOptions" value=""
-             onpopupshowing="onRemoteContentOptionsShowing(event);">
+             onpopupshowing="onRemoteContentOptionsShowing(event);"
+             accesskey-conflicts-bug="2075259">
     <menuitem id="remoteContentOptionAllowForMsg"
               label="&remoteContentOptionsAllowForMsg.label;"
               accesskey="&remoteContentOptionsAllowForMsg.accesskey;"

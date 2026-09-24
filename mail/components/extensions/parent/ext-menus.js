@@ -375,6 +375,7 @@ var gMenuBuilder = {
     }
 
     element.setAttribute("id", item.elementId);
+    element.classList.add("webextension-menuitem");
 
     if ("icons" in item) {
       if (item.icons) {
@@ -507,9 +508,9 @@ var gMenuBuilder = {
     const resolvedURL = extension.baseURI.resolve(icon);
 
     if (element.localName == "menu") {
-      element.setAttribute("class", "menu-iconic");
+      element.classList.add("menu-iconic");
     } else if (element.localName == "menuitem") {
-      element.setAttribute("class", "menuitem-iconic");
+      element.classList.add("menuitem-iconic");
     }
 
     element.setAttribute("image", ChromeUtils.encodeURIForSrcset(resolvedURL));
@@ -532,7 +533,7 @@ var gMenuBuilder = {
 
   // Undo changes from setMenuItemIcon.
   removeMenuItemIcon(element) {
-    element.removeAttribute("class");
+    element.classList.remove("menu-iconic", "menuitem-iconic");
     element.removeAttribute("image");
   },
 

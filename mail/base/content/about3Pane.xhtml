@@ -362,7 +362,7 @@
 #include templates/conversationViewTemplate.inc.xhtml
 </body>
 <popupset xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <menupopup id="folderPaneContext" class="gutter-popup">
+  <menupopup id="folderPaneContext" class="gutter-popup" accesskey-conflicts-bug="2075226">
     <menuitem id="folderPaneContext-getMessages"
               label="&folderContextGetMessages.label;"
               accesskey="&folderContextGetMessages.accesskey;"/>
@@ -583,7 +583,8 @@
   </menupopup>
   <menupopup id="folderPaneModeContext"
              class="no-accel-menupopup"
-             position="bottomleft topleft">
+             position="bottomleft topleft"
+             accesskey-conflicts-bug="2075257">
     <menuitem id="folderPaneModeMoveUp"
              class="folder-pane-mode"
              value="moveup"
@@ -605,7 +606,8 @@
   <menupopup id="threadPaneDisplayContext"
              class="no-accel-menupopup"
              position="bottomleft topleft"
-             onpopupshowing="threadPaneHeader.updateDisplayContextMenu(event);">
+             onpopupshowing="threadPaneHeader.updateDisplayContextMenu(event);"
+             accesskey-conflicts-bug="2075215">
     <menuitem id="threadPaneTableView"
               class="thread-view-option"
               type="radio"
@@ -628,7 +630,8 @@
           label="&sortMenu.label;">
       <menupopup id="menu_threadPaneSortPopup"
                  oncommand="goDoCommand('cmd_sort', event);"
-                 onpopupshowing="threadPaneHeader.updateThreadPaneSortMenu(event);">
+                 onpopupshowing="threadPaneHeader.updateThreadPaneSortMenu(event);"
+                 accesskey-conflicts-bug="2075233">
         <menuitem id="threadPaneSortByDateMenuitem"
                   type="radio"
                   name="sortby"
@@ -759,7 +762,8 @@
   <menupopup id="folderPaneGetMessagesContext"
              class="no-accel-menupopup"
              position="bottomleft topleft"
-             onpopupshowing="folderPane.updateGetMessagesContextMenu();">
+             onpopupshowing="folderPane.updateGetMessagesContextMenu();"
+             accesskey-conflicts-bug="2075235">
     <menuitem id="itemGetAllNewMessages"
               class="menuitem-iconic"
               data-l10n-id="folder-pane-get-all-messages-menuitem"

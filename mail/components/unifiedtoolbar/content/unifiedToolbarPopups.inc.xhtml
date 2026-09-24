@@ -1,7 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-<menupopup id="unifiedToolbarMenu" class="gutter-popup">
+<menupopup id="unifiedToolbarMenu" class="gutter-popup" accesskey-conflicts-bug="2075219">
   <menuitem id="menuBarToggleVisible"
             type="checkbox"
             label="&menubarCmd.label;"
@@ -46,7 +46,8 @@
            showFileHereLabel="true"/>
 <menupopup id="toolbarTagPopup"
            class="gutter-popup"
-           onpopupshowing="InitMessageTags(this);">
+           onpopupshowing="InitMessageTags(this);"
+           accesskey-conflicts-bug="2075263">
   <menuitem id="button-addNewTag"
             data-l10n-id="tags-add-new"
             command="cmd_addTag"/>
@@ -135,7 +136,8 @@
 </menupopup>
 <menupopup id="toolbarGetMessagesContext"
            class="no-accel-menupopup"
-           position="bottomleft topleft">
+           position="bottomleft topleft"
+           accesskey-conflicts-bug="2075235">
     <menuitem id="toolbarContextGetAllNewMessages"
               class="menuitem-iconic"
               data-l10n-id="toolbar-get-all-messages-menuitem"

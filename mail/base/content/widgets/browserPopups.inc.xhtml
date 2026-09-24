@@ -4,7 +4,8 @@
 
 #ifndef NO_BROWSERCONTEXT
   <menupopup id="browserContext"
-             class="no-icon-menupopup">
+             class="no-icon-menupopup"
+             accesskey-conflicts-bug="2075212">
     <!-- Browser navigation -->
     <menugroup id="context-navigation">
         <menuitem id="browserContext-back"
@@ -85,7 +86,7 @@
               oncommand="gContextMenu.addDictionaries();"/>
     <menu id="browserContext-spell-dictionaries"
           data-l10n-id="text-action-spell-dictionaries">
-        <menupopup id="browserContext-spell-dictionaries-menu">
+        <menupopup id="browserContext-spell-dictionaries-menu" accesskey-conflicts-bug="2075212">
             <menuseparator id="browserContext-spell-language-separator"/>
             <menuitem id="browserContext-spell-add-dictionaries"
                       label="&spellAddDictionaries.label;"

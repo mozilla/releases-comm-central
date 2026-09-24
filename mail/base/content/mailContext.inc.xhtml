@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-  <menupopup id="mailContext" class="no-icon-menupopup">
+  <menupopup id="mailContext" class="no-icon-menupopup" accesskey-conflicts-bug="2075216">
     <!-- Browser navigation -->
     <menugroup id="mailContext-navigation">
       <menuitem id="navContext-markRead"
@@ -110,7 +110,8 @@
           data-l10n-id="mail-context-menu-open"
           data-l10n-attrs="accesskey">
       <menupopup id="mailContext-openPopup"
-                 class="no-icon-menupopup">
+                 class="no-icon-menupopup"
+                 accesskey-conflicts-bug="2075330">
         <menuitem id="mailContext-openNewTab"
                   class="menuitem-iconic"
                   label="&contextOpenNewTab.label;"
@@ -160,7 +161,8 @@
           data-l10n-id="mail-context-menu-forward-redirect"
           data-l10n-attrs="accesskey">
       <menupopup id="mailContext-forwardRedirectPopup"
-                 class="no-icon-menupopup">
+                 class="no-icon-menupopup"
+                 accesskey-conflicts-bug="2075236">
         <menuitem id="mailContext-forward"
                   class="menuitem-iconic"
                   data-l10n-id="mail-context-menu-forward-forward"
@@ -215,7 +217,7 @@
           class="menu-iconic"
           label="&tagMenu.label;"
           accesskey="&tagMenu.accesskey;">
-      <menupopup id="mailContext-tagpopup" class="gutter-popup">
+      <menupopup id="mailContext-tagpopup" class="gutter-popup" accesskey-conflicts-bug="2075263">
         <menuitem id="mailContext-addNewTag"
                   data-l10n-id="tags-add-new"/>
         <menuitem id="mailContext-manageTags"
@@ -232,7 +234,7 @@
           class="menu-iconic"
           label="&markMenu.label;"
           accesskey="&markMenu.accesskey;">
-      <menupopup id="mailContext-markPopup" class="gutter-popup">
+      <menupopup id="mailContext-markPopup" class="gutter-popup" accesskey-conflicts-bug="2075232">
         <menuitem id="mailContext-markRead"
                   label="&markAsReadCmd.label;"
                   accesskey="&markAsReadCmd.accesskey;"/>
@@ -269,7 +271,8 @@
           data-l10n-id="mail-context-menu-organize"
           data-l10n-attrs="accesskey">
       <menupopup id="mailContext-organizePopup"
-                 class="no-icon-menupopup">
+                 class="no-icon-menupopup"
+                 accesskey-conflicts-bug="2075329">
         <menuitem id="mailContext-archive"
                   class="menuitem-iconic"
                   label="&contextArchive.label;"
@@ -316,7 +319,7 @@
           class="menu-iconic"
           data-l10n-id="mail-context-menu-threads"
           data-l10n-attrs="accesskey">
-      <menupopup id="mailContext-threadsPopup">
+      <menupopup id="mailContext-threadsPopup" accesskey-conflicts-bug="2075256">
         <menuitem id="mailContext-ignoreThread"
                   type="checkbox"
                   label="&contextKillThreadMenu.label;"

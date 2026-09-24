@@ -30,7 +30,8 @@
 
   <menupopup id="chatConversationContextMenu"
              onpopupshowing="if (event.target != this) { return true; } gChatContextMenu = new imContextMenu(this); return gChatContextMenu.shouldDisplay;"
-             onpopuphiding="if (event.target == this &amp;&amp; gChatContextMenu) { gChatContextMenu.cleanup(); gChatContextMenu = null; }">
+             onpopuphiding="if (event.target == this &amp;&amp; gChatContextMenu) { gChatContextMenu.cleanup(); gChatContextMenu = null; }"
+             accesskey-conflicts-bug="2075237">
     <menuitem id="context-openlink"
               label="&openLinkCmd.label;"
               accesskey="&openLinkCmd.accesskey;"
@@ -90,7 +91,7 @@
               oncommand="enableInlineSpellCheck(!gChatSpellChecker.enabled);"/>
     <menu id="spellCheckDictionaries"
           data-l10n-id="text-action-spell-dictionaries">
-      <menupopup id="spellCheckDictionariesMenu">
+      <menupopup id="spellCheckDictionariesMenu" accesskey-conflicts-bug="2075212">
         <menuseparator id="spellCheckLanguageSeparator"/>
         <menuitem id="spellCheckAddDictionaries"
                   label="&spellAddDictionaries.label;"

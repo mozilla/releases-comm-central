@@ -143,7 +143,8 @@
                      class="toolbarbutton-1 message-header-view-button hdrMoreButton">
         <menupopup id="otherActionsPopup"
                    class="no-icon-menupopup"
-                   onpopupshowing="onShowOtherActionsPopup();">
+                   onpopupshowing="onShowOtherActionsPopup();"
+                   accesskey-conflicts-bug="2075217">
           <menuitem id="otherActionsRedirect"
                     class="menuitem-iconic"
                     data-l10n-id="other-action-redirect-msg"
@@ -170,7 +171,8 @@
                 label="&tagMenu.label;"
                 accesskey="&tagMenu.accesskey;">
             <menupopup id="hdrTagDropdown" class="gutter-popup"
-                       onpopupshowing="window.top.InitMessageTags(this);">
+                       onpopupshowing="window.top.InitMessageTags(this);"
+                       accesskey-conflicts-bug="2075263">
               <menuitem id="hdrTagDropdown-addNewTag"
                         data-l10n-id="tags-add-new"
                         oncommand="goDoCommand('cmd_addTag');"/>

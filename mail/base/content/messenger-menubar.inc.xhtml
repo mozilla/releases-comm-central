@@ -7,11 +7,11 @@
     <menu id="menu_File"
           label="&fileMenu.label;"
           accesskey="&fileMenu.accesskey;">
-      <menupopup id="menu_FilePopup" onpopupshowing="file_init();">
+      <menupopup id="menu_FilePopup" onpopupshowing="file_init();" accesskey-conflicts-bug="2075295">
       <menu id="menu_New"
             label="&newMenu.label;"
             accesskey="&newMenu.accesskey;">
-        <menupopup id="menu_NewPopup" onpopupshowing="menu_new_init();">
+        <menupopup id="menu_NewPopup" onpopupshowing="menu_new_init();" accesskey-conflicts-bug="2075322">
           <menuitem id="menu_newNewMsgCmd" label="&newNewMsgCmd.label;"
                     accesskey="&newNewMsgCmd.accesskey;"
                     key="key_newMessage2"
@@ -144,7 +144,8 @@
         <menupopup is="folder-menupopup" id="menu_getAllNewMsgPopup"
                    mode="getMail"
                    expandFolders="false"
-                   oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();">
+                   oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();"
+                   accesskey-conflicts-bug="2075235">
           <menuitem id="menu_getnewmsgs_all_accounts"
                     label="&getAllNewMsgCmdPopupMenu.label;"
                     accesskey="&getAllNewMsgCmdPopupMenu.accesskey;"
@@ -235,7 +236,7 @@
       label="&editMenu.label;"
       accesskey="&editMenu.accesskey;"
       oncommand="CommandUpdate_UndoRedo();">
-  <menupopup id="menu_EditPopup" onpopupshowing="InitEditMessagesMenu()">
+  <menupopup id="menu_EditPopup" onpopupshowing="InitEditMessagesMenu()" accesskey-conflicts-bug="2075293">
     <menuitem id="menu_undo"
               label="&undoDefaultCmd.label;"
               accesskey="&undoDefaultCmd.accesskey;"
@@ -283,7 +284,8 @@
     <menu id="menu_find"
           label="&findMenu.label;" accesskey="&findMenu.accesskey;">
       <menupopup id="menu_FindPopup"
-                  onpopupshowing="initSearchMessagesMenu()">
+                  onpopupshowing="initSearchMessagesMenu()"
+                  accesskey-conflicts-bug="2075327">
         <menuitem id="menu_findCmd"
                   label="&findCmd.label;"
                   key="key_find"
@@ -341,7 +343,7 @@
 <menu id="menu_View"
       label="&viewMenu.label;"
       accesskey="&viewMenu.accesskey;">
-  <menupopup id="menu_View_Popup" onpopupshowing="view_init(event);">
+  <menupopup id="menu_View_Popup" onpopupshowing="view_init(event);" accesskey-conflicts-bug="2075287">
     <menu id="menu_Toolbars"
           label="&viewToolbarsMenu.label;"
           accesskey="&viewToolbarsMenu.accesskey;"
@@ -511,7 +513,7 @@
 
     <menuseparator id="viewSortMenuSeparator"/>
     <menu id="viewSortMenu" accesskey="&sortMenu.accesskey;" label="&sortMenu.label;">
-      <menupopup id="menu_viewSortPopup" oncommand="goDoCommand('cmd_sort', event);" onpopupshowing="InitViewSortByMenu()">
+      <menupopup id="menu_viewSortPopup" oncommand="goDoCommand('cmd_sort', event);" onpopupshowing="InitViewSortByMenu()" accesskey-conflicts-bug="2075319">
         <menuitem id="sortByDateMenuitem"
                   type="radio"
                   name="sortby"
@@ -756,7 +758,7 @@
     <menu id="menu_Go" label="&goMenu.label;" accesskey="&goMenu.accesskey;">
       <menupopup id="menu_GoPopup" onpopupshowing="InitGoMessagesMenu();">
       <menu id="goNextMenu" label="&nextMenu.label;" accesskey="&nextMenu.accesskey;">
-        <menupopup id="menu_GoNextPopup">
+        <menupopup id="menu_GoNextPopup" accesskey-conflicts-bug="2075290">
           <menuitem id="menu_nextMsg"
                     label="&nextMsgCmd.label;"
                     accesskey="&nextMsgCmd.accesskey;"
@@ -801,7 +803,7 @@
         </menupopup>
       </menu>
       <menu id="goPreviousMenu" label="&prevMenu.label;" accesskey="&prevMenu.accesskey;">
-        <menupopup id="menu_GoPreviousPopup">
+        <menupopup id="menu_GoPreviousPopup" accesskey-conflicts-bug="2075290">
           <menuitem id="menu_prevMsg"
                     label="&prevMsgCmd.label;"
                     accesskey="&prevMsgCmd.accesskey;"
@@ -889,7 +891,7 @@
 
     <!-- Message -->
     <menu id="messageMenu" label="&msgMenu.label;" accesskey="&msgMenu.accesskey;">
-      <menupopup id="messageMenuPopup" onpopupshowing="InitMessageMenu();">
+      <menupopup id="messageMenuPopup" onpopupshowing="InitMessageMenu();" accesskey-conflicts-bug="2075343">
         <menuitem id="newMsgCmd" label="&newMsgCmd.label;"
                   accesskey="&newMsgCmd.accesskey;"
                   key="key_newMessage2"
@@ -1135,7 +1137,7 @@
 
 <!-- Tools -->
 <menu id="tasksMenu" label="&tasksMenu.label;" accesskey="&tasksMenu.accesskey;">
-  <menupopup id="taskPopup" onpopupshowing="document.commandDispatcher.updateCommands('create-menu-tasks')">
+  <menupopup id="taskPopup" onpopupshowing="document.commandDispatcher.updateCommands('create-menu-tasks')" accesskey-conflicts-bug="2075292">
     <menuitem hidden="hidden" accesskey="&messengerCmd.accesskey;" label="&messengerCmd.label;"
               key="key_mail" oncommand="toMessengerWindow();" id="tasksMenuMail"/>
 #ifndef XP_MACOSX

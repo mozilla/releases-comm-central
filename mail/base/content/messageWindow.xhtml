@@ -206,7 +206,8 @@
                    onpopupshowing="getMsgToolbarMenu_init();"
                    oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();"
                    expandFolders="false"
-                   mode="getMail">
+                   mode="getMail"
+                   accesskey-conflicts-bug="2075235">
           <menuitem id="button-getAllNewMsg"
                     class="menuitem-iconic folderMenuItem"
                     label="&getAllNewMsgCmd.label;"
@@ -346,7 +347,8 @@
                      tooltiptext="&tagButton.tooltip;"
                      command="cmd_tag">
         <menupopup id="button-tagpopup"
-                   onpopupshowing="InitMessageTags(this);">
+                   onpopupshowing="InitMessageTags(this);"
+                   accesskey-conflicts-bug="2075263">
           <menuitem id="button-addNewTag"
                     data-l10n-id="tags-add-new"
                     command="cmd_addTag"/>

@@ -624,7 +624,8 @@
 
 <menupopup id="msgComposeContext"
            onpopupshowing="msgComposeContextOnShowing(event);"
-           onpopuphiding="msgComposeContextOnHiding(event);">
+           onpopuphiding="msgComposeContextOnHiding(event);"
+           accesskey-conflicts-bug="2075212">
 
   <!-- Spellchecking menu items -->
   <menuitem id="spellCheckNoSuggestions"
@@ -664,7 +665,7 @@
             oncommand="openDictionaryList();"/>
   <menu id="spellCheckDictionaries"
         data-l10n-id="text-action-spell-dictionaries">
-    <menupopup id="spellCheckDictionariesMenu">
+    <menupopup id="spellCheckDictionariesMenu" accesskey-conflicts-bug="2075212">
       <menuseparator id="spellCheckLanguageSeparator"/>
       <menuitem id="spellCheckAddDictionaries"
                 label="&spellAddDictionaries.label;"
@@ -789,7 +790,8 @@
 
 <menupopup id="emailAddressPillPopup"
            class="emailAddressPopup"
-           onpopupshowing="onPillPopupShowing(event);">
+           onpopupshowing="onPillPopupShowing(event);"
+           accesskey-conflicts-bug="2075238">
   <menuitem id="editAddressPill"
             class="pill-action-edit"
             data-l10n-id="pill-action-edit"
@@ -873,7 +875,7 @@
         <menupopup id="menu_FilePopup">
           <menu id="menu_New"
                 label="&newMenu.label;" accesskey="&newMenu.accesskey;">
-            <menupopup id="menu_NewPopup">
+            <menupopup id="menu_NewPopup" accesskey-conflicts-bug="2075322">
               <menuitem id="menu_NewMessage"
                         label="&newMessage.label;" accesskey="&newMessage.accesskey;"
                         key="key_newMessage" oncommand="goOpenNewMessage(event);"/>
@@ -1181,7 +1183,8 @@
                        oncommand="if (event.target.localName == 'menuitem') {
                                     doStatefulCommand('cmd_fontFace', event.target.getAttribute('value'));
                                   }"
-                       onpopupshowing="initFontFaceMenu(this);">
+                       onpopupshowing="initFontFaceMenu(this);"
+                       accesskey-conflicts-bug="2075297">
               <menuitem id="menu_fontFaceVarWidth"
                         label="&fontVarWidth.label;"
                         accesskey="&fontVarWidth.accesskey;"
@@ -1950,7 +1953,8 @@
                  oncommand="ChangeLanguage(event);"
                  onpopupshowing="OnShowDictionaryMenu(event.target);"
                  onpopupshown="languageMenuListOpened();"
-                 onpopuphidden="languageMenuListClosed();">
+                 onpopuphidden="languageMenuListClosed();"
+                 accesskey-conflicts-bug="2075212">
       </menupopup>
     </toolbarbutton>
 
