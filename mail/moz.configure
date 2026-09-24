@@ -213,9 +213,6 @@ imply_option(
 include("../../toolkit/moz.configure")
 
 @depends("--enable-maintenance-service", when=target_is_windows)
-
-# TODO this is inlining construction of the files variable that should come from
-# a installer_files method in the nsis python module instead.
 def nsis_installer_files(maintenance_service):
     _INSTALLER_BASE_FILES = (
         "app.tag",
@@ -228,16 +225,12 @@ def nsis_installer_files(maintenance_service):
     if bool(maintenance_service):
         files = _INSTALLER_BASE_FILES + ("nsis/maintenanceservice_installer.nsi",)
     return list(files)
-    #return list(installer_files(maintenance_service=bool(maintenance_service)))
 
 
 set_config("NSIS_INSTALLER_FILES", nsis_installer_files)
 
 
 @depends(when=target_is_windows)
-
-# TODO this is inlining NSIS_BRANDING_FILES that should come from a nsis python
-# module instead.
 def nsis_branding_files():
     NSIS_BRANDING_FILES = (
         "branding.nsi",
@@ -253,11 +246,7 @@ set_config("NSIS_BRANDING_FILES", nsis_branding_files)
 
 @depends(target, when=target_is_windows)
 def nsis_sfx_module(target):
-# TODO separate ARM 7zip SFX?
-#    if target.cpu == "aarch64":
-#        return "other-licenses/7zstub/thunderbird/7zSD.ARM64.sfx"
-#    return "other-licenses/7zstub/thunderbird/7zSD.Win32.sfx"
-    return "other-licenses/7zstub/thunderbird/7zSD.sfx"
+    return "comm/other-licenses/7zstub/thunderbird/7zSD.sfx"
 
 
 set_config("NSIS_SFX_MODULE", nsis_sfx_module)
@@ -281,7 +270,6 @@ def nsis_installer_defines(
         f"-DMOZ_APP_NAME={app_name}",
         f"-DMOZ_TOAST_APP_NAME={app_name.title()}",
         f"-DMOZ_APP_DISPLAYNAME={app_displayname}",
-        f"-DPRE_RELEASE_SUFFIX=",
     ]
     # Quote each define so values containing spaces remain one argument.
     return " ".join(shlex.quote(d) for d in defines)

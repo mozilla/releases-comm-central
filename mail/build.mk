@@ -26,8 +26,11 @@ hg-bundle::
 wget-en-US:
 	$(MAKE) -C comm/mail/locales wget-en-US
 
-# TODO there might be a dependency on the stamp here for the
-# non-MOZ_USE_MAKEFILE_INSTALLER_BUILD path.
+ifdef MAKENSISU
+ifndef MOZ_USE_MAKEFILE_INSTALLER_BUILD
+INSTALLER_REPACK_DEPS = comm/mail/installer/windows/nsis-stage.stamp
+endif
+endif
 
 installers-%: $(INSTALLER_REPACK_DEPS)
 	$(MAKE) -C comm/mail/locales $@
