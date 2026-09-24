@@ -27,6 +27,9 @@ var l10n = new Localization(["messenger/openpgp/openpgp.ftl"]);
 
 const RNP_PHOTO_USERID_ID = "(photo)"; // string is hardcoded inside RNP
 
+// The only post-quantum encryption algorithm we support.
+const PQC_ENCRYPTION_ALGO = "ML-KEM-768+X25519";
+
 var RNPLib;
 
 /**
@@ -67,6 +70,7 @@ export class RnpPrivateKeyUnlockTracker {
   #unlockPassword = null;
   #isLocked = true;
   #secretMaterialAvailable = false;
+  #allowRelockToCapturePassword = false;
 
   /**
    * Initialize this object as a tracker for the private key identified
@@ -189,6 +193,22 @@ export class RnpPrivateKeyUnlockTracker {
   }
 
   /**
+   * Allow this object to lock the tracked key, if it is found already
+   * unlocked, so that unlock() can learn the passphrase that protects
+   * it. Without this, a key that other code has already unlocked cannot
+   * report its passphrase, because this object never saw it, and
+   * getUnlockPassword() returns null.
+   * Only useful in combination with setRememberUnlockPassword(true).
+   * The key is left unlocked when this object is released, because the
+   * code that unlocked it may still be relying on that.
+   *
+   * @param {boolean} isAllowed - True if allowed, false if forbidden
+   */
+  setAllowRelockToCapturePassword(isAllowed) {
+    this.#allowRelockToCapturePassword = isAllowed;
+  }
+
+  /**
    * Registers a reference to shared object that implements an optional
    * password cache. Will be used to look up passwords if
    * #allowAutoUnlockWithCachedPasswords is set to true. Will be used
@@ -245,11 +265,7 @@ export class RnpPrivateKeyUnlockTracker {
     this.#wasUnlocked = false;
 
     if (!RNPLib.rnp_key_unlock(this.#rnpKeyHandle, pass)) {
-      this.#isLocked = false;
-      this.#wasUnlocked = true;
-      if (this.#rememberUnlockPasswordForUnprotect) {
-        this.#unlockPassword = pass;
-      }
+      this.#noteUnlocked(pass, false);
     }
   }
 
@@ -269,35 +285,52 @@ export class RnpPrivateKeyUnlockTracker {
    * @param {rnp_ffi_t} ffi - An optional specific FFI.
    */
   async unlock(ffi = RNPLib.ffi) {
-    if (!this.#rnpKeyHandle || !this.#isLocked) {
+    if (!this.#rnpKeyHandle) {
+      return;
+    }
+
+    // If the key is already unlocked, we never saw the passphrase, so we
+    // cannot remember it. Lock the key first, to obtain the passphrase
+    // below. Remember that we found it unlocked, so that release() will
+    // leave it unlocked for whichever code unlocked it.
+    let foundUnlocked = false;
+    if (
+      !this.#isLocked &&
+      this.#secretMaterialAvailable &&
+      this.#allowRelockToCapturePassword &&
+      this.#rememberUnlockPasswordForUnprotect &&
+      this.#unlockPassword === null
+    ) {
+      RNPLib.rnp_key_lock(this.#rnpKeyHandle);
+      this.#isLocked = true;
+      foundUnlocked = true;
+    }
+
+    if (!this.#isLocked) {
       return;
     }
     this.#wasUnlocked = false;
     const autoPassword = await lazy.OpenPGPMasterpass.retrieveOpenPGPPassword();
 
     if (!RNPLib.rnp_key_unlock(this.#rnpKeyHandle, autoPassword)) {
-      this.#isLocked = false;
-      this.#wasUnlocked = true;
-      if (this.#rememberUnlockPasswordForUnprotect) {
-        this.#unlockPassword = autoPassword;
-      }
+      this.#noteUnlocked(autoPassword, foundUnlocked);
       return;
     }
 
     if (this.#allowAutoUnlockWithCachedPasswords && this.#passwordCache) {
       for (const pw of this.#passwordCache.passwords) {
         if (!RNPLib.rnp_key_unlock(this.#rnpKeyHandle, pw)) {
-          this.#isLocked = false;
-          this.#wasUnlocked = true;
-          if (this.#rememberUnlockPasswordForUnprotect) {
-            this.#unlockPassword = pw;
-          }
+          this.#noteUnlocked(pw, foundUnlocked);
           return;
         }
       }
     }
 
     if (!this.#allowPromptingUserForPassword) {
+      if (foundUnlocked) {
+        // Restore the state we found, we couldn't obtain the passphrase.
+        RNPLib.rnp_key_unlock(this.#rnpKeyHandle, autoPassword);
+      }
       return;
     }
 
@@ -315,17 +348,29 @@ export class RnpPrivateKeyUnlockTracker {
       }
 
       if (!RNPLib.rnp_key_unlock(this.#rnpKeyHandle, pass)) {
-        this.#isLocked = false;
-        this.#wasUnlocked = true;
-        if (this.#rememberUnlockPasswordForUnprotect) {
-          this.#unlockPassword = pass;
-        }
+        this.#noteUnlocked(pass, foundUnlocked);
 
         if (this.#passwordCache) {
           this.#passwordCache.passwords.push(pass);
         }
         return;
       }
+    }
+  }
+
+  /**
+   * Record that the tracked key was unlocked using the given passphrase.
+   *
+   * @param {string} pass - The passphrase that unlocked the key.
+   * @param {boolean} foundUnlocked - True if this object had found the
+   *   key already unlocked and locked it only to learn the passphrase.
+   *   In that case release() must not lock the key again.
+   */
+  #noteUnlocked(pass, foundUnlocked) {
+    this.#isLocked = false;
+    this.#wasUnlocked = !foundUnlocked;
+    if (this.#rememberUnlockPasswordForUnprotect) {
+      this.#unlockPassword = pass;
     }
   }
 
@@ -635,6 +680,20 @@ export var RNP = {
       throw new Error("rnp_key_get_creation failed");
     }
     return key_creation.value;
+  },
+
+  /**
+   * @param {rnp_key_handle_t} handle - RNP key handle.
+   * @returns {string} - The key's algorithm, e.g. "EDDSA" or "ECDH".
+   */
+  getAlgoFromHandle(handle) {
+    const algo = new lazy.ctypes.char.ptr();
+    if (RNPLib.rnp_key_get_alg(handle, algo.address())) {
+      throw new Error("rnp_key_get_alg failed");
+    }
+    const algoStr = algo.readString();
+    RNPLib.rnp_buffer_destroy(algo);
+    return algoStr;
   },
 
   addKeyAttributes(handle, meta, keyObj, is_subkey, forListing) {
@@ -3800,7 +3859,15 @@ export var RNP = {
 
       if (!skip) {
         const created = this.getKeyCreatedValueFromHandle(sub_handle);
-        if (!newest_handle || created > newest_created) {
+        // A PQC subkey is usually added to an existing key, and may
+        // have been created in the same second as another subkey.
+        // Prefer the PQC subkey in that case, don't rely on the order
+        // in which RNP happens to report the subkeys.
+        const better =
+          created > newest_created ||
+          (created == newest_created &&
+            this.getAlgoFromHandle(sub_handle) == PQC_ENCRYPTION_ALGO);
+        if (!newest_handle || better) {
           if (newest_handle) {
             RNPLib.rnp_key_handle_destroy(newest_handle);
           }
@@ -4054,6 +4121,13 @@ export var RNP = {
         RNPLib.rnp_op_encrypt_create(op.address(), RNPLib.ffi, input, output)
       ) {
         throw new Error("rnp_op_encrypt_create failed");
+      }
+      if (RNPLib.usingExperimental) {
+        // If a recipient has both an ECC and a PQC encryption subkey,
+        // encrypt to the PQC one.
+        if (RNPLib.rnp_op_encrypt_prefer_pqc_enc_subkey(op)) {
+          throw new Error("rnp_op_encrypt_prefer_pqc_enc_subkey failed");
+        }
       }
     } else if (args.sign && !args.senderKeyIsExternal) {
       op = new RNPLib.rnp_op_sign_t();
@@ -5386,6 +5460,245 @@ export var RNP = {
         throw new Error(`rnp_key_set_expiration failed for ${fingerprint}`);
       }
       RNPLib.rnp_key_handle_destroy(handle);
+    }
+
+    await this.saveKeyRings();
+    return true;
+  },
+
+  /**
+   * Like canGenerateV4PQCEncryptionSubkey, but for a fingerprint.
+   * Returns false, rather than throwing, if the key cannot be found.
+   *
+   * @param {string} fpr - Fingerprint of a primary key, without "0x".
+   * @returns {boolean} - true if a PQC encryption subkey may be added
+   */
+  canGenerateV4PQCEncryptionSubkeyByFpr(fpr) {
+    const handle = this.getKeyHandleByKeyIdOrFingerprint(
+      RNPLib.ffi,
+      `0x${fpr}`
+    );
+    if (!handle || handle.isNull()) {
+      return false;
+    }
+    try {
+      return this.canGenerateV4PQCEncryptionSubkey(handle);
+    } finally {
+      RNPLib.rnp_key_handle_destroy(handle);
+    }
+  },
+
+  /**
+   * Test whether a v4 post-quantum encryption subkey may be added to the
+   * given primary key. This is the only place that defines the policy,
+   * both the UI and addV4PQCEncryptionSubkey() must use it.
+   *
+   * @param {rnp_key_handle_t} primaryHandle - Handle of a primary key.
+   * @returns {boolean} - true if a PQC encryption subkey may be added
+   */
+  canGenerateV4PQCEncryptionSubkey(primaryHandle) {
+    // Generating an ML-KEM subkey requires the experimental library.
+    if (!RNPLib.usingExperimental) {
+      return false;
+    }
+
+    // The secret key material of the primary key is required, because
+    // the new subkey must be bound to the primary key by a signature.
+    if (
+      !RNPLib.getSecretAvailableFromHandle(primaryHandle) ||
+      !RNPLib.isSecretKeyMaterialAvailable(primaryHandle)
+    ) {
+      lazy.log.warn("secret key material not available");
+      return false;
+    }
+
+    const isRevoked = new lazy.ctypes.bool();
+    if (RNPLib.rnp_key_is_revoked(primaryHandle, isRevoked.address())) {
+      throw new Error("rnp_key_is_revoked failed");
+    }
+    if (isRevoked.value) {
+      lazy.log.warn("primary key is revoked");
+      return false;
+    }
+
+    // An expired primary key would produce an unusable subkey, and we
+    // couldn't derive an expiration date for the new subkey either.
+    const expiration = new lazy.ctypes.uint32_t();
+    if (RNPLib.rnp_key_get_expiration(primaryHandle, expiration.address())) {
+      throw new Error("rnp_key_get_expiration failed");
+    }
+    if (expiration.value) {
+      const created = this.getKeyCreatedValueFromHandle(primaryHandle);
+      if (created + expiration.value <= Math.floor(Date.now() / 1000)) {
+        lazy.log.warn("primary key is expired");
+        return false;
+      }
+    }
+
+    const version = new lazy.ctypes.uint32_t();
+    if (RNPLib.rnp_key_get_version(primaryHandle, version.address())) {
+      throw new Error("rnp_key_get_version failed");
+    }
+    if (version.value != 4) {
+      lazy.log.warn("primary key is not v4");
+      return false;
+    }
+
+    // Require a classic ECC signing primary key, reject RSA/DSA/Elgamal.
+    const primaryAlgo = this.getAlgoFromHandle(primaryHandle);
+    if (!["ECDSA", "EDDSA", "ED25519"].includes(primaryAlgo)) {
+      lazy.log.warn(`unsupported primary key algorithm ${primaryAlgo}`);
+      return false;
+    }
+
+    // While this is a test feature, require an opt-in email address,
+    // with a local part ending in either "+pqc-test" or "-pqc-test",
+    // e.g. "alice-pqc-test@example.com".
+    if (!this._haveTestPqcUserId(primaryHandle)) {
+      lazy.log.warn("no pqc-test user ID");
+      return false;
+    }
+
+    let havePQC = false;
+    let haveEccEncryptionSubkey = false;
+    const subCount = new lazy.ctypes.size_t();
+    if (RNPLib.rnp_key_get_subkey_count(primaryHandle, subCount.address())) {
+      throw new Error("rnp_key_get_subkey_count failed");
+    }
+    for (let i = 0; i < subCount.value; i++) {
+      const subHandle = new RNPLib.rnp_key_handle_t();
+      if (RNPLib.rnp_key_get_subkey_at(primaryHandle, i, subHandle.address())) {
+        throw new Error("rnp_key_get_subkey_at failed");
+      }
+      const subAlgo = this.getAlgoFromHandle(subHandle);
+      RNPLib.rnp_key_handle_destroy(subHandle);
+
+      if (subAlgo == PQC_ENCRYPTION_ALGO) {
+        havePQC = true;
+      } else if (["ECDH", "X25519"].includes(subAlgo)) {
+        haveEccEncryptionSubkey = true;
+      }
+    }
+
+    if (havePQC) {
+      lazy.log.warn("key already has a pqc subkey");
+      return false;
+    }
+    if (!haveEccEncryptionSubkey) {
+      lazy.log.warn("no supported ECC encryption subkey");
+      return false;
+    }
+
+    return true;
+  },
+
+  /**
+   * @param {rnp_key_handle_t} handle - RNP key handle.
+   * @returns {boolean} - true if the key has a user ID whose email
+   *   address opts in to the PQC test feature.
+   */
+  _haveTestPqcUserId(handle) {
+    const count = new lazy.ctypes.size_t();
+    if (RNPLib.rnp_key_get_uid_count(handle, count.address())) {
+      throw new Error("rnp_key_get_uid_count failed");
+    }
+
+    for (let i = 0; i < count.value; i++) {
+      const uid = new lazy.ctypes.char.ptr();
+      if (RNPLib.rnp_key_get_uid_at(handle, i, uid.address())) {
+        throw new Error("rnp_key_get_uid_at failed");
+      }
+      const uidStr = uid.readString();
+      RNPLib.rnp_buffer_destroy(uid);
+
+      let email;
+      try {
+        email = lazy.EnigmailFuncs.getEmailFromUserID(uidStr);
+      } catch (e) {
+        continue;
+      }
+      if (!email) {
+        continue;
+      }
+      const at = email.lastIndexOf("@");
+      if (at > 0 && /[+-]pqc-test$/i.test(email.slice(0, at))) {
+        return true;
+      }
+    }
+    return false;
+  },
+
+  /**
+   * Add a v4 post-quantum (ML-KEM-768+X25519) encryption subkey to the
+   * given primary key. The primary key is unlocked on demand, which may
+   * prompt the user for a passphrase. The new subkey is protected with
+   * the same passphrase that protects the primary key.
+   *
+   * @param {string} primaryFpr - Fingerprint of the primary key.
+   * @param {integer} expirySeconds - Seconds until the new subkey
+   *   expires, or 0 if it should never expire.
+   * @returns {Promise<boolean>} - true if a subkey was added, false if
+   *   the preconditions weren't met or the user cancelled.
+   */
+  async addV4PQCEncryptionSubkey(primaryFpr, expirySeconds) {
+    if (!Number.isInteger(expirySeconds) || expirySeconds < 0) {
+      throw new Error(`invalid expirySeconds ${expirySeconds}`);
+    }
+
+    const tracker =
+      RnpPrivateKeyUnlockTracker.constructFromFingerprint(primaryFpr);
+    try {
+      if (!tracker.available()) {
+        return false;
+      }
+      if (!this.canGenerateV4PQCEncryptionSubkey(tracker.getHandle())) {
+        return false;
+      }
+
+      tracker.setAllowPromptingUserForPassword(true);
+      tracker.setAllowAutoUnlockWithCachedPasswords(true);
+      tracker.setPasswordCache({ passwords: [] });
+      tracker.setRememberUnlockPassword(true);
+      // We must learn the passphrase, to protect the new subkey with it.
+      tracker.setAllowRelockToCapturePassword(true);
+      await tracker.unlock();
+      if (!tracker.isUnlocked()) {
+        return false;
+      }
+
+      const passphrase = tracker.getUnlockPassword();
+      if (passphrase === null) {
+        throw new Error(
+          `cannot determine the passphrase protecting key ${primaryFpr}`
+        );
+      }
+
+      const genOp = new RNPLib.rnp_op_generate_t();
+      if (
+        RNPLib.rnp_op_generate_subkey_create(
+          genOp.address(),
+          RNPLib.ffi,
+          tracker.getHandle(),
+          PQC_ENCRYPTION_ALGO
+        )
+      ) {
+        throw new Error("rnp_op_generate_subkey_create failed");
+      }
+      try {
+        if (RNPLib.rnp_op_generate_set_protection_password(genOp, passphrase)) {
+          throw new Error("rnp_op_generate_set_protection_password failed");
+        }
+        if (RNPLib.rnp_op_generate_set_expiration(genOp, expirySeconds)) {
+          throw new Error("rnp_op_generate_set_expiration failed");
+        }
+        if (RNPLib.rnp_op_generate_execute(genOp)) {
+          throw new Error("rnp_op_generate_execute failed");
+        }
+      } finally {
+        RNPLib.rnp_op_generate_destroy(genOp);
+      }
+    } finally {
+      tracker.release();
     }
 
     await this.saveKeyRings();

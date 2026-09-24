@@ -2096,6 +2096,17 @@ function enableRNPLibJS() {
       ctypes.uint32_t.ptr
     ),
 
+    // Declared by the header of the regular library, too, but only
+    // exported by the experimental one.
+    ...(usingExperimental && {
+      rnp_op_encrypt_prefer_pqc_enc_subkey: librnp.declare(
+        "rnp_op_encrypt_prefer_pqc_enc_subkey",
+        abi,
+        rnp_result_t,
+        rnp_op_encrypt_t
+      ),
+    }),
+
     rnp_result_t,
     rnp_ffi_t,
     rnp_password_cb_t,

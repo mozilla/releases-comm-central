@@ -70,6 +70,13 @@ let gProtectionMode;
 // A key may already be protected by one even when the pref is disabled.
 let gAllowSetPassphrase = false;
 
+// True if this dialog offers the passphrase tab, which means it keeps
+// gPrivateKeyTrackers for the primary key and all subkeys.
+let gShowPassphraseTab = false;
+
+// True if the key is eligible for adding a PQC encryption subkey.
+let gCanAddPQCSubkey = false;
+
 window.addEventListener("DOMContentLoaded", onLoad);
 window.addEventListener("unload", onUnload);
 
@@ -113,20 +120,37 @@ async function onLoad() {
   // change how already existing secret keys are protected. Without
   // this, such a key couldn't be unlocked using this dialog, and the
   // user would have no way to return it to automatic protection.
-  const showPassphraseTab =
+  gShowPassphraseTab =
     gModePersonal &&
     (gAllowSetPassphrase || gProtectionMode == "user-passphrase");
 
-  document.getElementById("passphraseTab").hidden = !showPassphraseTab;
-  document.getElementById("passphrasePanel").hidden = !showPassphraseTab;
+  document.getElementById("passphraseTab").hidden = !gShowPassphraseTab;
+  document.getElementById("passphrasePanel").hidden = !gShowPassphraseTab;
 
-  if (!showPassphraseTab) {
+  if (!gShowPassphraseTab) {
     // Don't keep the secret keys unlocked for the lifetime of a dialog
     // that doesn't offer any passphrase management.
     releasePrivateKeys();
   }
 
+  // The tabpanels element fires "select" when the active tab changes.
+  document.getElementById("mainTabPanel").addEventListener("select", event => {
+    if (event.target.id == "mainTabPanel") {
+      updatePQCSubkeyButton();
+    }
+  });
+
   onAcceptanceChanged();
+}
+
+/**
+ * Show the button to add a PQC subkey only while the structure tab, which
+ * lists the key's subkeys, is the active tab.
+ */
+function updatePQCSubkeyButton() {
+  document.getElementById("addPQCSubkeyButton").hidden =
+    !gCanAddPQCSubkey ||
+    document.getElementById("mainTabs").selectedTab?.id != "structureTab";
 }
 
 async function changeExpiry() {
@@ -158,6 +182,99 @@ async function changeExpiry() {
     "dialog,modal,centerscreen,resizable",
     args
   );
+}
+
+/**
+ * Determine the expiration date to use for a newly added encryption
+ * subkey: the latest expiration date among the existing usable
+ * encryption subkeys, or the primary key's expiration if there is none.
+ *
+ * @param {object} keyObj - The primary key.
+ * @returns {integer} - Seconds until expiration, 0 for no expiration.
+ */
+function newEncryptionSubkeyExpirySeconds(keyObj) {
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  let reference = 0;
+
+  for (const subkey of keyObj.subKeys) {
+    // Ignore subkeys that cannot be used to encrypt new messages.
+    // If a subkey has expired, the user is expected to extend its
+    // expiration date first.
+    if (
+      !/e/.test(subkey.keyUseFor) ||
+      /r/i.test(subkey.keyTrust) ||
+      (subkey.expiryTime && subkey.expiryTime <= nowSeconds)
+    ) {
+      continue;
+    }
+    if (!subkey.expiryTime) {
+      // Never expires, we can stop comparing.
+      return 0;
+    }
+    reference = Math.max(reference, subkey.expiryTime);
+  }
+
+  if (!reference) {
+    if (!keyObj.expiryTime) {
+      return 0;
+    }
+    reference = keyObj.expiryTime;
+  }
+
+  // The caller has verified that the primary key hasn't expired, and
+  // expired subkeys were skipped, so this cannot be negative.
+  return reference - nowSeconds;
+}
+
+async function addPQCSubkey() {
+  const keyObj = EnigmailKeyRing.getKeyById(gKeyId);
+  if (!keyObj) {
+    return;
+  }
+
+  const button = document.getElementById("addPQCSubkeyButton");
+  if (
+    !Services.prompt.confirm(
+      window,
+      null,
+      l10n.formatValueSync("openpgp-pqc-confirm-generate")
+    )
+  ) {
+    return;
+  }
+
+  button.disabled = true;
+  let added = false;
+  try {
+    added = await RNP.addV4PQCEncryptionSubkey(
+      keyObj.fpr,
+      newEncryptionSubkeyExpirySeconds(keyObj)
+    );
+  } catch (e) {
+    console.warn("Generating a PQC encryption subkey FAILED!", e);
+    Services.prompt.alert(
+      window,
+      null,
+      l10n.formatValueSync("openpgp-pqc-generate-failed")
+    );
+    button.disabled = false;
+    return;
+  }
+
+  button.disabled = false;
+  if (!added) {
+    return;
+  }
+
+  if (gShowPassphraseTab) {
+    // Pick up the new subkey, so that a later passphrase change covers
+    // it too, instead of leaving it on the current passphrase.
+    releasePrivateKeys();
+    await loadPassphraseProtection();
+  }
+
+  // The key now has a PQC subkey, so the button must disappear.
+  onDataModified();
 }
 
 async function refreshOnline() {
@@ -425,6 +542,7 @@ function isAccepted(value) {
 
 async function reloadData(firstLoad) {
   gUserId = null;
+  gCanAddPQCSubkey = false;
 
   var treeChildren = document.getElementById("keyListChildren");
 
@@ -542,6 +660,8 @@ async function reloadData(firstLoad) {
       const expiryButton = document.getElementById("changeExpiryButton");
       expiryButton.hidden = false;
       expiryButton.disabled = !keyObj.secretMaterial;
+
+      gCanAddPQCSubkey = RNP.canGenerateV4PQCEncryptionSubkeyByFpr(keyObj.fpr);
     }
   } else {
     const isStillValid = !(
@@ -624,6 +744,8 @@ async function reloadData(firstLoad) {
 
   document.getElementById("key-detail-has-insecure").hidden =
     !keyObj.hasIgnoredAttributes;
+
+  updatePQCSubkeyButton();
 }
 
 function setOkButtonState() {
