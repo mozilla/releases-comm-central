@@ -74,6 +74,7 @@ treeherder:
         'l10n': 'Localization checks'
         'misc': 'Misc checks'
         'pedantic': 'pedantic checks'
+        'legal': 'Licensing and legal checks'
         'py': 'Python checks'
         'rust': 'Rust checks'
         'text': 'Check on texts'

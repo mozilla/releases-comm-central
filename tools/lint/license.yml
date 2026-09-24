@@ -41,13 +41,17 @@ license:
         - .java
         - .js
         - .jsx
+        - .kt
         - .m
-        - .mjs
         - .mm
+        - .mjs
+        - .nsh
+        - .nsi
         - .properties
         - .py
         - .rs
         - .svg
+        - .webidl
         - .xhtml
         - .xml
     support-files:
@@ -57,3 +61,20 @@ license:
     payload: commlint:lint_wrapper
     wraps: mozcheck:lint
     check: license
+
+---
+license-declarations:
+    description: |
+        Checks that every LICENSED_UNDER id in a moz.build has a matching
+        LICENSES declaration somewhere in the tree, and that every `spdx`
+        flag is a valid SPDX expression.
+    include:
+        - comm/
+    extensions:
+        - build
+        - mozbuild
+    support-files:
+        - 'tools/lint/license/**'
+    type: global
+    payload: commlint:lint_wrapper
+    wraps: license:lint

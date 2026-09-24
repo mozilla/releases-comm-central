@@ -126,9 +126,9 @@ fluent-lint:
         skip-unless-mozlint: fluent-lint.yml
 
 license:
-    description: Check for license blocks in source files.
+    description: Check for license blocks in source files and lint the moz.build license declarations.
     treeherder:
-        symbol: pedantic(license)
+        symbol: legal(license)
     run:
         mach: >
             commlint -v -l license -f treeherder
