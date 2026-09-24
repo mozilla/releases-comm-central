@@ -322,6 +322,8 @@ logins = { path = "../../third_party/application-services/components/logins" }
 autofill = { path = "../../third_party/application-services/components/autofill" }
 init_rust_components = { path = "../../third_party/application-services/components/init_rust_components" }
 breach-alerts = { path = "../../third_party/application-services/components/breach-alerts" }
+db-crypto = { path = "../../third_party/application-services/components/support/db-crypto" }
+fxcontainers = { path = "../../third_party/application-services/components/fxcontainers" }
 ohttp = { git = "https://github.com/martinthomson/ohttp", rev = "600931b5a1e947776cbaad931ed78f1e89005352" }
 zip = { path = "../../third_party/rust/zip" }
 cssparser = { git = "https://github.com/servo/rust-cssparser", rev = "ddccc070a0261cb94195ed0f74095c67b86a8550" }
