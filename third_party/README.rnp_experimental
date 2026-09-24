@@ -2,7 +2,7 @@ Directory ./rnp_experimental contains a second copy of rnp which has been
 obtained from:
 https://github.com/rnpgp/rnp
 
-[commit 0]
+[commit 4f5c4e6e9b9a895762290bf03ed342ea8e69bbd2]
 
 rnp_experimental is used to test an unreleased RNP upstream snapshot
 in Thunderbird Daily builds.

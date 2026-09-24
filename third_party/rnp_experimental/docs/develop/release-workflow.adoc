@@ -1,0 +1,150 @@
+= Releases
+
+== General notes
+
+* Avoid tagging commits in the `main` branch.
+* Release branches should have annotated tags and a `CHANGELOG.md`.
+* Release branches have names of the form `release/N.x`, where N is the major
+  version (and `x` is a literal -- not a placeholder).
+* Pushing an annotated tag `vX.Y.Z` triggers the
+  link:.github/workflows/release.yml[`release` GitHub Actions workflow],
+  which builds the source tarball and publishes the GitHub release
+  automatically.
+
+== Creating an initial release
+
+=== Update documentation
+
+Update references to version numbers in relevant documentation to the new
+version you intend to release.
+
+[source,console]
+----
+git checkout main
+vim docs/installation.adoc
+git add docs/installation.adoc
+git commit -m "docs: update version references for X.Y.Z"
+git push
+----
+
+=== Create branch
+
+[source,console]
+----
+git checkout -b release/1.x main
+----
+
+[[update-changelog-and-version]]
+=== Update CHANGELOG and version
+
+[source,console]
+----
+vim CHANGELOG.md
+# Add/update CHANGELOG entry for the new version
+git add CHANGELOG.md
+
+echo 1.0.0 > version.txt
+git add -f version.txt
+
+git commit -m "release: prepare v1.0.0"
+----
+
+=== Tag and push
+
+Create and push an annotated tag. The `release` workflow will build the
+source tarball (`rnp-vX.Y.Z.tar.gz` plus `rnp-vX.Y.Z.sha256`) and create the
+GitHub release using the matching `CHANGELOG.md` section.
+
+[source,console]
+----
+git tag -a v1.0.0 -m 'Release v1.0.0'
+
+# push the branch
+git push origin release/1.x
+
+# push the tag (triggers the release workflow)
+git push origin v1.0.0
+----
+
+=== Verify the GitHub release
+
+Wait for the `release` workflow to finish, then check the release assets:
+
+[source,console]
+----
+gh run list --workflow=release --branch release/1.x
+gh release view v1.0.0
+----
+
+The release should contain:
+
+* `rnp-v1.0.0.tar.gz`
+* `rnp-v1.0.0.sha256`
+* Release notes extracted from `CHANGELOG.md`
+
+== Creating a new release
+
+Maintaining a release branch involves cherry-picking hotfixes and
+similar commits from the `main` branch, while following the rules for
+Semantic Versioning.
+
+The steps below show the release of version `1.0.1` on the `release/1.x`
+branch.
+
+=== Add desired changes
+
+Cherry-pick the appropriate commits into the appropriate `release/N.x` branch.
+
+To see what commits are in `main` that are not in the release branch, you
+can observe the lines starting with `+` in:
+
+[source,console]
+----
+git cherry -v release/1.x main
+----
+
+It is often useful to pick a range of commits. For example:
+
+[source,console]
+----
+git checkout release/0.x
+git cherry-pick a57b36f^..e23352c
+----
+
+If there are merge commits in this range, this will not work.
+Instead, try:
+
+[source,console]
+----
+git checkout release/0.x
+git cherry release/0.x main | grep '^+ ' | cut -c 3-9 | \
+  while read commit; do git cherry-pick $commit; done
+----
+
+From here, follow the steps for an initial release,
+starting with <<update-changelog-and-version>>.
+
+== Post-release: downstream channels
+
+After the GitHub release is published, update the distribution channels.
+The canonical source for all package recipes is the release tarball built by
+`ci/build_tarball.sh`.
+
+* **Source tarball** -- published automatically by the `release` workflow.
+* **Homebrew** -- open a bump PR, e.g.
+  `brew bump-formula-pr rnp --version=1.0.1`.
+* **Chocolatey** -- update `rnpgp/chocolatey-rnp` (bump the nuspec version
+  and merge; the package is built and pushed to chocolatey.org on `main`).
+* **vcpkg** -- open a version-bump PR in `microsoft/vcpkg` for
+  `ports/rnp`.
+* **Linux distros / Conan** -- coordinate with downstream maintainers.
+
+== Release checklist
+
+* [ ] Version numbers updated in docs.
+* [ ] `CHANGELOG.md` updated for the release.
+* [ ] `version.txt` updated on the release branch.
+* [ ] Annotated tag `vX.Y.Z` pushed.
+* [ ] `release` workflow completed successfully.
+* [ ] GitHub release contains the tarball and SHA256 checksum.
+* [ ] Downstream channels (Homebrew, Chocolatey, vcpkg, ...) updated.

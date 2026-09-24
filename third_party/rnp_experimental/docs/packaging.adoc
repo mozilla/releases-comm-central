@@ -1,0 +1,304 @@
+= Consuming librnp in downstream projects
+
+This document describes how to use `librnp` — the RNP OpenPGP library — as a
+dependency of your own project: via CMake `find_package`, via pkg-config, via
+a package manager, or by embedding the sources.
+
+The public C API is declared in `include/rnp/rnp.h`, which is installed as
+`<prefix>/include/rnp/rnp.h` together with `rnp_err.h`, `rnp_export.h` and
+`rnp_ver.h`. See link:c-usage.adoc[C API usage] for an introduction.
+
+== Choosing a crypto backend
+
+librnp is built against one crypto backend, selected at build time with
+`-DCRYPTO_BACKEND=`:
+
+* `botan` (default) — Botan 2.14 or later; use `botan3` to require Botan 3.x.
+  Supports all features.
+* `openssl` — OpenSSL 1.1.1 or later. Some features are unsupported with this
+  backend: SM2, Twofish, crypto-refresh (v6) support and PQC.
+
+The backend choice is recorded in the installed CMake and pkg-config files,
+so consumers automatically get the matching dependency (Botan or OpenSSL).
+
+== Shared vs static
+
+By default (`-DBUILD_SHARED_LIBS=ON`, the common case for packaged
+installations) librnp is installed as a shared library and linking
+`rnp::librnp` (CMake) or `-lrnp` (pkg-config/manual) is all a consumer needs.
+
+With `-DBUILD_SHARED_LIBS=OFF` a static `librnp.a` is installed, and
+consumers must also link the transitive dependencies (the crypto backend,
+zlib, bzip2 and sexpp). With CMake this happens automatically — see
+below. A static librnp built with the bundled sexpp sources installs
+`libsexpp.a` next to it and exports it as `rnp::sexpp`, so no separate sexpp
+installation is needed (unless rnp was built with `-DSYSTEM_LIBSEXPP=ON`, in
+which case the sexpp package is required at consume time).
+
+Note that librnp is written in C++. When linking the *static* library from a
+C project, the C++ runtime must be linked as well: with CMake enable the CXX
+language in your project, with manual flags link via the C++ compiler driver
+or add the C++ standard library explicitly (`-lc++` or `-lstdc++`).
+
+== CMake find_package
+
+The installed CMake package (`<prefix>/lib/cmake/rnp/rnp-config.cmake`)
+resolves all transitive dependencies via `find_dependency()` and provides
+the imported target `rnp::librnp`:
+
+[source,cmake]
+--
+cmake_minimum_required(VERSION 3.18)
+# CXX is only needed to link a static librnp (see above)
+project(example C CXX)
+
+find_package(rnp REQUIRED)
+
+add_executable(example main.c)
+target_link_libraries(example PRIVATE rnp::librnp)
+--
+
+If rnp or its dependencies are installed in non-standard prefixes, list them
+in `CMAKE_PREFIX_PATH`:
+
+[source,console]
+--
+cmake -B build -DCMAKE_PREFIX_PATH="/opt/rnp;/opt/botan"
+--
+
+== pkg-config
+
+A pkg-config file is installed as `<prefix>/lib/pkgconfig/librnp.pc`:
+
+[source,console]
+--
+export PKG_CONFIG_PATH=/opt/rnp/lib/pkgconfig
+cc $(pkg-config --cflags librnp) main.c $(pkg-config --libs librnp) -o example
+--
+
+For a static librnp, use `--static` to also get the private dependencies and
+link with the C++ driver:
+
+[source,console]
+--
+cc $(pkg-config --cflags librnp) -c main.c
+c++ main.o $(pkg-config --libs --static librnp) -o example
+--
+
+== vcpkg
+
+A vcpkg port for rnp is being prepared. Until it lands, install rnp from
+source and consume it via `find_package(rnp)` or pkg-config as described
+above — with vcpkg's CMake toolchain, adding the rnp installation prefix to
+`CMAKE_PREFIX_PATH` is enough for `find_package(rnp)` to work.
+
+== Prebuilt static libraries (release assets)
+
+Each librnp GitHub release ships per-target static-library tarballs alongside
+the source tarball. Each tarball bundles `librnp.a` plus a curated static
+build of every transitive dependency (sexpp, Botan or OpenSSL, zlib,
+bzip2), so downstream consumers can link against librnp without compiling
+the C++ + Botan stack from source and without any system package
+dependencies.
+
+This is intended for build systems that cannot reach a system package
+manager — Cargo `--features vendored`, embedded cross-compile targets,
+Windows app vendors, and CI pipelines that pin a specific librnp version.
+For conventional Linux distro consumers, the system packages described
+above remain the recommended path.
+
+=== Asset naming
+
+Each tarball follows the convention:
+
+----
+rnp-v<version>-<target>-<backend>.tar.gz
+rnp-v<version>-<target>-<backend>.sha256
+----
+
+For example:
+
+----
+rnp-v0.18.1-x86_64-unknown-linux-gnu-botan.tar.gz
+rnp-v0.18.1-aarch64-apple-darwin-openssl.tar.gz
+----
+
+=== Available targets
+
+[cols="2,1,1,2", options="header"]
+|===
+| Target triple | Backend(s) | CI runner | Notes
+
+| `x86_64-unknown-linux-gnu`  | botan, openssl | `ubuntu-latest`     | glibc; broadest Linux compatibility
+| `aarch64-unknown-linux-gnu` | botan, openssl | `ubuntu-24.04-arm`  | glibc ARM64
+| `x86_64-unknown-linux-musl` | botan, openssl | `ubuntu-latest` (alpine container) | static libc; Alpine / Docker
+| `aarch64-unknown-linux-musl`| botan, openssl | `ubuntu-24.04-arm` (alpine container) | static libc ARM64
+| `aarch64-apple-darwin`      | botan, openssl | `macos-14`          | Apple Silicon; `MACOSX_DEPLOYMENT_TARGET=12.0`
+| `x86_64-pc-windows-msvc`    | openssl        | `windows-latest`    | MSVC 2022, `/MT` static runtime, via vcpkg
+|===
+
+11 tarballs per release. Windows + botan is not currently shipped: vcpkg's botan port for the x64-windows-static triplet declares the C FFI symbols with `__declspec(dllimport)`, so the MSVC linker emits unresolved `__imp_botan_*` externals when rnp links statically. Fixing it needs an upstream vcpkg port change or a from-source Botan build on Windows; tracked as follow-up.
+
+=== Tarball layout
+
+----
+include/
+  rnp/             public FFI headers (rnp.h, rnp_err.h, rnp_export.h, rnp_ver.h)
+  botan-3/         (botan backend) or openssl/ (openssl backend)
+  bzlib.h
+  zlib.h
+lib/
+  librnp.a
+  libsexpp.a
+  libbotan-3.a     (botan backend) or libcrypto.a + libssl.a (openssl backend)
+  libz.a
+  libbz2.a
+  cmake/rnp/       CMake config (find_package(rnp))
+  pkgconfig/       pkg-config files
+MANIFEST.txt       human-readable summary, dependency versions, link flags
+----
+
+NOTE: sexpp's headers are not included in the tarball. They are not needed
+by C API consumers (the public rnp FFI is pure C). C++ consumers that use
+rnp's internal C++ API additionally need sexpp's headers from a separate
+sexpp installation.
+
+=== Consuming a prebuilt tarball
+
+Extract the tarball anywhere on disk and point your build system at the
+`include/` and `lib/` directories.
+
+CMake:
+
+[source,cmake]
+--
+cmake_minimum_required(VERSION 3.18)
+project(example C CXX)
+
+# Unpack the tarball to /opt/rnp-prebuilt, then:
+set(rnp_PREBUILT_DIR /opt/rnp-prebuilt CACHE PATH "Path to rnp prebuilt bundle")
+list(APPEND CMAKE_PREFIX_PATH "${rnp_PREBUILT_DIR}")
+
+find_package(rnp REQUIRED)
+
+add_executable(example main.c)
+target_link_libraries(example PRIVATE rnp::librnp)
+--
+
+Or with raw compiler flags (see `MANIFEST.txt` inside the tarball for the
+exact list, since it depends on backend and target):
+
+[source,console]
+----
+tar xzf rnp-v0.18.1-aarch64-apple-darwin-botan.tar.gz
+cc -I rnp-v0.18.1-aarch64-apple-darwin-botan/include \
+   -L rnp-v0.18.1-aarch64-apple-darwin-botan/lib \
+   main.c -o example \
+   -lrnp -lsexpp -lbotan-3 -lz -lbz2 \
+   -lc++ -framework Security -framework CoreFoundation
+----
+
+=== Verifying integrity
+
+Each tarball ships with a `.sha256` sidecar:
+
+[source,console]
+----
+sha256sum -c rnp-v0.18.1-x86_64-unknown-linux-gnu-botan.sha256
+----
+
+When the project's release signing key is configured in CI (via the
+`RNP_RELEASE_GPG_KEY` and `RNP_RELEASE_GPG_PASSPHRASE` repository
+secrets), each tarball also ships with a `.asc` detached signature.
+Verify with the project's published signing key fingerprint:
+
+[source,console]
+----
+gpg --verify rnp-v0.18.1-x86_64-unknown-linux-gnu-botan.tar.gz.asc \
+             rnp-v0.18.1-x86_64-unknown-linux-gnu-botan.tar.gz
+----
+
+Tarballs without a sidecar `.asc` were published before signing was
+configured; rely on the `.sha256` instead.
+
+=== Reproducibility
+
+The tarball contents are reproducible to the extent the underlying
+compilers and libc allow:
+
+* `SOURCE_DATE_EPOCH=0` is exported for every dependency build, so
+  tools that embed build timestamps (gzip header, libtool archives,
+  Python bytecode) produce identical output across runs on the same
+  platform.
+* The gzip wrapper header is normalized via `GZIP=-n`.
+
+Two known sources of non-reproducibility remain:
+
+* `.a` archive members retain their per-object mtime, which `ar`
+  embeds in the archive index. GNU `ar -D` (deterministic mode) would
+  fix this; wiring it through CMake across every dep is follow-up.
+* Compiled object files embed the absolute build path in some debug
+  info sections. `-ffile-prefix-map=$WORK=.` would fix this; same
+  follow-up scope.
+
+Cross-platform reproducibility (Linux build == macOS build) is not
+achievable since the binary contents differ by definition.
+
+=== How the tarballs are built
+
+The build is driven by two scripts:
+
+* `ci/build_prebuilt.sh` — Linux glibc, Linux musl, macOS. Downloads
+  pinned versions of each dependency (zlib, bzip2, Botan or
+  OpenSSL), builds them as static libraries into a temporary prefix,
+  builds librnp against that prefix, and stages the resulting headers
+  and archives into the tarball layout shown above.
+* `ci/build_prebuilt.ps1` — Windows MSVC. Uses vcpkg's
+  `x64-windows-static` triplet to install the dependency stack, then
+  builds librnp against it via CMake.
+
+The matrix itself lives in `.github/workflows/prebuilt.yml`, a
+reusable workflow with three triggers:
+
+* `pull_request` — runs on PRs touching `ci/build_prebuilt.*` or
+  the workflow itself, so changes to the static-build machinery get
+  end-to-end validation before merge. Uploads the resulting tarballs
+  as workflow artifacts (downloadable from the PR checks page under
+  the `prebuilt-<target>-<backend>` artifact name) instead of
+  attaching to a release.
+* `workflow_call` — invoked by `release.yml` after the source tarball
+  is published. Attaches the resulting tarballs to the release.
+* `workflow_dispatch` — manual run against an existing release tag,
+  for re-building prebuilts for an older release without re-pushing
+  the tag.
+
+The Botan module set (Linux/macOS) is in `ci/botan3-pqc-modules`.
+
+== Embedding the sources
+
+rnp can also be built as part of your own CMake project with
+`add_subdirectory`:
+
+[source,cmake]
+--
+add_subdirectory(rnp)
+target_link_libraries(example PRIVATE librnp)
+--
+
+sexpp (a required dependency) can be provided in two ways:
+
+* bundled: clone rnp with `--recurse-submodules` or run
+  `git submodule update --init` — the `src/libsexpp` submodule is then built
+  together with librnp and nothing else is needed;
+* system-wide: configure rnp with `-DSYSTEM_LIBSEXPP=ON` to use an installed
+  sexpp (0.8.7 or later). The sexpp CMake package (target `sexpp::sexpp`,
+  available since sexpp 0.9.1) is preferred, with a pkg-config fallback for
+  older installations.
+
+== Smoke test
+
+The script `ci/tests/downstream-consumer.sh` builds and installs rnp (shared
+and static) and compiles a minimal consumer program against each
+installation in all three ways described above (CMake `find_package`,
+pkg-config and raw compiler flags). It can be used to verify a local
+installation end to end.
