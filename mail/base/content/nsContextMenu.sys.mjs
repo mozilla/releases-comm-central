@@ -365,10 +365,14 @@ export class nsContextMenu {
       const hasError =
         this.target.error != null ||
         this.target.networkState == this.target.NETWORK_NO_SOURCE;
-      this.setItemAttr("browserContext-media-play", "disabled", hasError);
-      this.setItemAttr("browserContext-media-pause", "disabled", hasError);
-      this.setItemAttr("browserContext-media-mute", "disabled", hasError);
-      this.setItemAttr("browserContext-media-unmute", "disabled", hasError);
+      this.document.getElementById("browserContext-media-play").disabled =
+        hasError;
+      this.document.getElementById("browserContext-media-pause").disabled =
+        hasError;
+      this.document.getElementById("browserContext-media-mute").disabled =
+        hasError;
+      this.document.getElementById("browserContext-media-unmute").disabled =
+        hasError;
     }
   }
   initBackForwardMenuItemTooltip(menuItemId, l10nId, shortcutId) {
@@ -629,29 +633,6 @@ export class nsContextMenu {
         ? this.document.getElementById(aItemOrId)
         : aItemOrId;
     item.disabled = !aEnabled;
-  }
-
-  /**
-   * Set given attribute of specified context-menu item. If the
-   * value is null, then it removes the attribute (which works
-   * nicely for the disabled attribute).
-   *
-   * @param {string} aId - The id of an element.
-   * @param {string} aAttr - The attribute name.
-   * @param {?string} aVal - The value to set the attribute to, or null to
-   *   remove the attribute.
-   */
-  setItemAttr(aId, aAttr, aVal) {
-    var elem = this.document.getElementById(aId);
-    if (elem) {
-      if (aVal == null) {
-        // null indicates attr should be removed.
-        elem.removeAttribute(aAttr);
-      } else {
-        // Set attr=val.
-        elem.setAttribute(aAttr, aVal);
-      }
-    }
   }
 
   /**

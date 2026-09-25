@@ -58,12 +58,12 @@
                      align="center">
           <stack id="ColorButtons">
             <box class="color-button" id="BackgroundColorButton"
-                 onclick="if (!this.hasAttribute('disabled') || this.getAttribute('disabled') != 'true') { EditorSelectColor('', event); }"
+                 onclick="if (!this.hasAttribute('disabled')) { EditorSelectColor('', event); }"
                  tooltiptext="&BackgroundColorButton.tooltip;"
                  observes="cmd_backgroundColor"
                  oncommand="/* See MsgComposeCommands.js::updateAllItems for why this attribute is needed here. */"/>
             <box class="color-button" id="TextColorButton"
-                 onclick="if (!this.hasAttribute('disabled') || this.getAttribute('disabled') != 'true') { EditorSelectColor('Text', event); }"
+                 onclick="if (!this.hasAttribute('disabled')) { EditorSelectColor('Text', event); }"
                  tooltiptext="&TextColorButton.tooltip;"
                  observes="cmd_fontColor"
                  oncommand="/* See MsgComposeCommands.js::updateAllItems for why this attribute is needed here. */"/>

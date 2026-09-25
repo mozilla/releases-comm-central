@@ -467,6 +467,55 @@ add_task(async function test_attachment_right_click_multiple() {
   );
 });
 
+add_task(async function test_attachment_bar_start_expanded_preference() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.attachments.display.start_expanded", false]],
+  });
+
+  const aboutMessage = get_about_message();
+  const attachmentBar = aboutMessage.document.getElementById("attachmentBar");
+  const contextMenu = aboutMessage.document.getElementById(
+    "attachment-toolbar-context-menu"
+  );
+  const expandItem = aboutMessage.document.getElementById(
+    "context-expandAttachmentBar"
+  );
+
+  for (const expanded of [true, false]) {
+    const shownPromise = BrowserTestUtils.waitForEvent(
+      contextMenu,
+      "popupshown"
+    );
+    EventUtils.synthesizeMouseAtCenter(
+      attachmentBar,
+      { type: "contextmenu" },
+      aboutMessage
+    );
+    await shownPromise;
+
+    Assert.equal(
+      expandItem.hasAttribute("checked"),
+      !expanded,
+      "The menu item should reflect the current preference"
+    );
+
+    const hiddenPromise = BrowserTestUtils.waitForEvent(
+      contextMenu,
+      "popuphidden"
+    );
+    EventUtils.synthesizeMouseAtCenter(expandItem, {}, aboutMessage);
+    await hiddenPromise;
+
+    Assert.equal(
+      Services.prefs.getBoolPref("mailnews.attachments.display.start_expanded"),
+      expanded,
+      "Activating the menu item should update the preference"
+    );
+  }
+
+  await SpecialPowers.popPrefEnv();
+});
+
 /**
  * Test that clicking on various elements in the attachment bar toggles the
  * attachment list.

@@ -264,6 +264,13 @@ async function create_simple_filter() {
     fec.document.getElementById("searchOp0").value = Ci.nsMsgSearchOp.Is;
     const searchVal = fec.document.getElementById("searchVal0").input;
     searchVal.setAttribute("value", "test@foo.invalid");
+    const firstRemoveButton = fec.document
+      .getElementById("searchRow0")
+      .getElementsByClassName("small-button")[1];
+    Assert.ok(
+      firstRemoveButton.disabled,
+      "The only search row should not be removable"
+    );
 
     const filterActions = fec.document.getElementById("filterActionList");
     const firstAction = filterActions.getItemAtIndex(0);
@@ -274,6 +281,10 @@ async function create_simple_filter() {
     EventUtils.synthesizeMouseAtCenter(searchVal, {}, fec);
     EventUtils.synthesizeKey("KEY_Enter", {}, fec);
     await new Promise(resolve => requestIdleCallback(resolve));
+    Assert.ok(
+      !firstRemoveButton.disabled,
+      "The first search row should be removable when another row exists"
+    );
     EventUtils.synthesizeMouseAtCenter(
       fec.document
         .getElementById("searchRow1")

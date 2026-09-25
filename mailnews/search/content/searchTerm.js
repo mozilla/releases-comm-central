@@ -222,7 +222,7 @@ function updateSearchTermsListbox(matchAllValue) {
 function updateRemoveRowButton() {
   var firstListItem = gSearchTermList.getItemAtIndex(0);
   if (firstListItem) {
-    firstListItem.lastElementChild.lastElementChild.setAttribute(
+    firstListItem.lastElementChild.lastElementChild.toggleAttribute(
       "disabled",
       gTotalSearchTerms == 1
     );
