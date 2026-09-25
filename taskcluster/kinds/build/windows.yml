@@ -89,6 +89,7 @@ win32-shippable/opt:
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            MOZ_GENERATE_SBOM: "1"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -301,6 +302,7 @@ win64-shippable/opt:
             PERFHERDER_EXTRA_OPTIONS: cross
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             RUST_MIN_STACK: "16777216"
+            MOZ_GENERATE_SBOM: "1"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -358,6 +360,7 @@ win64-enterprise-shippable/opt:
             PERFHERDER_EXTRA_OPTIONS: cross
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             RUST_MIN_STACK: "16777216"
+            MOZ_GENERATE_SBOM: "1"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -929,6 +932,7 @@ win64-aarch64-shippable/opt:
             PERFHERDER_EXTRA_OPTIONS: aarch64
             RUST_MIN_STACK: "16777216"
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            MOZ_GENERATE_SBOM: "1"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]

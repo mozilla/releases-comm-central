@@ -185,6 +185,7 @@ macosx64-x64-shippable/opt:
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            MOZ_GENERATE_SBOM: "1"
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
@@ -217,6 +218,7 @@ macosx64-x64-enterprise-shippable/opt:
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            MOZ_GENERATE_SBOM: "1"
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
@@ -385,6 +387,7 @@ macosx64-aarch64-shippable/opt:
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             PERFHERDER_EXTRA_OPTIONS: aarch64
+            MOZ_GENERATE_SBOM: "1"
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
@@ -421,6 +424,7 @@ macosx64-aarch64-enterprise-shippable/opt:
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             PERFHERDER_EXTRA_OPTIONS: aarch64
+            MOZ_GENERATE_SBOM: "1"
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
@@ -458,6 +462,8 @@ macosx64-shippable/opt:
     run-on-projects: ['release']
     worker:
         max-run-time: 1800
+        # No MOZ_GENERATE_SBOM, it's already provided by platform-specific
+        # builds
     run:
         job-script: taskcluster/scripts/misc/unify.sh
         config:
@@ -568,6 +574,8 @@ macosx64-enterprise-shippable/opt:
     run-on-repo-type: ["git"]
     worker:
         max-run-time: 1800
+        # No MOZ_GENERATE_SBOM, it's already provided by platform-specific
+        # builds
     run:
         job-script: taskcluster/scripts/misc/unify.sh
         config:

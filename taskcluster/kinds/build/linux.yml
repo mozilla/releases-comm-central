@@ -105,6 +105,7 @@ linux64-shippable/opt:
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            MOZ_GENERATE_SBOM: "1"
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
@@ -140,6 +141,7 @@ linux64-enterprise-shippable/opt:
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            MOZ_GENERATE_SBOM: "1"
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
@@ -419,6 +421,7 @@ linux64-aarch64-shippable/opt:
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             MOZ_ENABLE_FULL_SYMBOLS: "1"
+            MOZ_GENERATE_SBOM: "1"
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
@@ -459,6 +462,7 @@ linux64-aarch64-enterprise-shippable/opt:
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            MOZ_GENERATE_SBOM: "1"
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
