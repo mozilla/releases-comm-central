@@ -4,3 +4,4 @@
 
 messenger.jar:
   content/messenger/eventDescription.html                                          (content/eventDescription.html)
+  content/messenger/calendarPrompt.xhtml                                           (content/dialogs/calendarPrompt.xhtml)

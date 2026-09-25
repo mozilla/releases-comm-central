@@ -210,6 +210,8 @@ calendar-event-prompt-delete-title = Delete event
 
 calendar-event-prompt-delete-header = Permanently remove the following event(s)?
 
+calendar-single-event-prompt-delete-header = Permanently remove this event?
+
 calendar-prompt-this-event =
   .label = This event
 

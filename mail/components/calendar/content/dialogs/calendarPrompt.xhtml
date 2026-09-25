@@ -29,15 +29,16 @@
       defer="defer"
       src="chrome://messenger/content/dialogShadowDom.js"
     ></script>
+    <script
+      type="module"
+      src="moz-src:///comm/mail/components/calendar/content/dialogs/calendar-prompt.mjs"
+    ></script>
   </head>
   <html:body
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   >
     <dialog buttons="cancel">
-      <html:p
-        id="calendarPromptHeader"
-        data-l10n-id="calendar-event-prompt-delete-header"
-      ></html:p>
+      <html:p id="calendarPromptHeader"></html:p>
 
       <radiogroup id="calendarPromptRadioOptions">
         <radio

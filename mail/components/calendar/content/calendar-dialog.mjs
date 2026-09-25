@@ -21,9 +21,10 @@ const { openLinkExternally } = ChromeUtils.importESModule(
 const { cal } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calUtils.sys.mjs"
 );
-const { recurrenceStringFromItem } = ChromeUtils.importESModule(
-  "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
-);
+const { recurrenceStringFromItem, countOccurrences } =
+  ChromeUtils.importESModule(
+    "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
+  );
 
 const { extractJoinLink } = ChromeUtils.importESModule(
   "resource:///modules/calendar/JoinLinkParser.sys.mjs"
@@ -306,7 +307,10 @@ export class CalendarDialog extends PositionedDialog {
     this.removeAttribute("calendar-id");
     if (event.recurrenceId) {
       this.setAttribute("recurrence-id", event.recurrenceId.nativeTime);
+    } else {
+      this.removeAttribute("recurrence-id");
     }
+
     this.setAttribute("event-id", event.id);
     this.setAttribute("calendar-id", event.calendar.id);
   }
@@ -655,16 +659,70 @@ export class CalendarDialog extends PositionedDialog {
   }
 
   /**
-   * Opens a modal prompt about deleting the event.
+   * Opens a modal prompt about deleting the event. The prompt can handle
+   * recurring events, being able to delete a single occurrence or all
+   * occurrences (the whole event), as well as delete a standalone event.
    */
-  #deleteEvent() {
-    const rv = {};
+  async #deleteEvent() {
+    const calendar = cal.manager.getCalendarById(
+      this.getAttribute("calendar-id")
+    );
+    const event = await calendar.getItem(this.getAttribute("event-id"));
+    const isRecurring =
+      this.hasAttribute("recurrence-id") && countOccurrences(event) > 1;
+    const extResponse = { responseMode: Ci.calIItipItem.USER };
+
+    const CANCEL = 0;
+    const DELETE_OCCURRENCE = 1;
+    const DELETE_FOLLOWING = 2;
+    const DELETE_ALL = 3;
+
+    let response = CANCEL;
+
+    const returnValue = { value: CANCEL, isRecurring };
     window.openDialog(
       "chrome://messenger/content/calendarPrompt.xhtml",
       "_blank",
       "centerscreen,chrome,titlebar,modal",
-      rv
+      returnValue
     );
+    response = returnValue.value;
+    this.close();
+
+    switch (response) {
+      case DELETE_ALL:
+        // eslint-disable-next-line no-undef
+        doTransaction("delete", event, calendar, null, null, extResponse);
+        break;
+      case DELETE_FOLLOWING:
+        // TODO: Add functionality to only delete all following events.
+        break;
+      case DELETE_OCCURRENCE:
+        if (isRecurring) {
+          const eventCopy = event.parentItem.clone();
+          const recurrenceId = cal.createDateTime();
+          recurrenceId.nativeTime = this.getAttribute("recurrence-id");
+
+          eventCopy.recurrenceInfo.removeOccurrenceAt(recurrenceId);
+
+          // eslint-disable-next-line no-undef
+          doTransaction(
+            "modify",
+            eventCopy,
+            eventCopy.calendar,
+            event.parentItem,
+            null,
+            extResponse
+          );
+          break;
+        }
+
+        // eslint-disable-next-line no-undef
+        doTransaction("delete", event, calendar, null, null, extResponse);
+        break;
+      case CANCEL:
+        break;
+    }
   }
 }
 

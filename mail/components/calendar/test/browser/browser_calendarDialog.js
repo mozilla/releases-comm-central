@@ -8,6 +8,10 @@ const { MockExternalProtocolService } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
 );
 
+const { sinon } = ChromeUtils.importESModule(
+  "resource://testing-common/Sinon.sys.mjs"
+);
+
 const { recurrenceStringFromItem } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
 );
@@ -34,6 +38,7 @@ add_setup(async function () {
   browser = tab.browser;
   cal.view.colorTracker.registerWindow(browser.contentWindow);
   dialog = browser.contentWindow.document.querySelector("dialog");
+  browser.contentWindow.openDialog = sinon.spy();
 
   const beforeUnloadGuard = () => {
     info("Unloading!");
@@ -1631,12 +1636,6 @@ add_task(async function test_calendarDialogDeleteEvent() {
   );
 
   menu.activateItem(menu.querySelector("#deleteEvent"));
-  await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
-  Assert.ok(
-    BrowserTestUtils.isHidden(menu),
-    "The menupopup should be hidden after clicking delete on the menu"
-  );
-
   await deleteEventPromise;
 
   // Clean up.

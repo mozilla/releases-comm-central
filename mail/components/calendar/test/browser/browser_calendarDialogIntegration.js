@@ -262,7 +262,7 @@ add_task(async function test_attachmentLinkClick() {
 
 add_task(async function test_dialogDeleteMenuItem() {
   await createEvent({ calendar });
-  const testDate = new Date(2026, 8, 16, 10);
+  const testDate = new Date();
   const eventBox = await openAndShowEvent({ baseDate: testDate });
 
   const dialog = document.getElementById("calendarDialog");
@@ -293,6 +293,101 @@ add_task(async function test_dialogDeleteMenuItem() {
   await deletePromptPromise;
 
   await cleanUp(dialog, eventBox);
+});
+
+add_task(async function test_dialogDeleteMenuSingleEvent() {
+  await createEvent({ calendar });
+  const testDate = new Date();
+  await openAndShowEvent({ baseDate: testDate });
+
+  const dialog = document.getElementById("calendarDialog");
+  const eventId = dialog.getAttribute("event-id");
+
+  const deletePromptPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    "delete",
+    "chrome://messenger/content/calendarPrompt.xhtml"
+  );
+  await subtestDeleteEventPrompt(deletePromptPromise, testDate.getDay() + 1);
+
+  const event = await calendar.getItem(eventId);
+  Assert.ok(!event, "The event in the calendar should have been deleted");
+
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector(".close-button"),
+    {},
+    window
+  );
+});
+
+add_task(async function test_dialogDeleteMenuRecurringEvents() {
+  await createEvent({ calendar, repeats: true });
+  const testDate = new Date();
+  await openAndShowEvent({ baseDate: testDate });
+
+  const dialog = document.getElementById("calendarDialog");
+  const eventId = dialog.getAttribute("event-id");
+  Assert.ok(
+    weekView.getEventBoxAt(window, testDate.getDay() + 2, 1),
+    "The following day calendar event box should exist"
+  );
+
+  const deleteAllEventsPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    null,
+    "chrome://messenger/content/calendarPrompt.xhtml",
+    {
+      async callback(win) {
+        const promptDialog = win.document.querySelector("dialog");
+        const allEventsRadioOption = promptDialog.querySelector(
+          "#allEventsRadioOption"
+        );
+        const deleteButton = promptDialog.querySelector("#delete");
+        EventUtils.synthesizeMouseAtCenter(allEventsRadioOption, {}, win);
+        EventUtils.synthesizeMouseAtCenter(deleteButton, {}, win);
+      },
+    }
+  );
+  await subtestDeleteEventPrompt(deleteAllEventsPromise, testDate.getDay() + 1);
+
+  Assert.ok(
+    !weekView.getEventBoxAt(window, testDate.getDay() + 2, 1),
+    "The following day calendar event box should be removed"
+  );
+
+  const event = await calendar.getItem(eventId);
+  Assert.ok(!event, "The event in the calendar should have been deleted");
+
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector(".close-button"),
+    {},
+    window
+  );
+});
+
+add_task(async function test_dialogDeleteMenuSingleOccurence() {
+  await createEvent({ calendar, repeats: true });
+  const testDate = new Date();
+  await openAndShowEvent({ baseDate: testDate, offset: 1 });
+
+  const dialog = document.getElementById("calendarDialog");
+  const eventId = dialog.getAttribute("event-id");
+
+  const deletePromptPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    "delete",
+    "chrome://messenger/content/calendarPrompt.xhtml"
+  );
+
+  await subtestDeleteEventPrompt(deletePromptPromise, testDate.getDay() + 2);
+
+  const event = await calendar.getItem(eventId);
+  Assert.ok(event, "The event in the calendar should still exist");
+
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector(".close-button"),
+    {},
+    window
+  );
+
+  await calendar.deleteItem(event);
 });
 
 add_task(async function test_closeDialogOnTabSwitch() {
@@ -464,3 +559,43 @@ add_task(async function test_setFullDescription() {
   );
   window.launchBrowser = originalLaunchBrowser;
 });
+
+/**
+ * Open the menu in the dialog and select "Delete Event", and use the
+ * promptPromise to interact with the calendar modal to delete an event.
+ *
+ * @param {Promise} promptPromise - The promise for the prompt to delete an event.
+ * @param {number} eventBoxDay - The day number in the week that is used to
+ * find the event box.
+ */
+async function subtestDeleteEventPrompt(promptPromise, eventBoxDay) {
+  const dialog = document.getElementById("calendarDialog");
+  const menu = dialog.querySelector("menupopup");
+
+  const menuShownPromise = BrowserTestUtils.waitForPopupEvent(menu, "shown");
+  EventUtils.synthesizeMouseAtCenter(dialog.querySelector(".menu-button"), {});
+  await menuShownPromise;
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(menu),
+    "The menupopup should visible after clicking menu button"
+  );
+
+  const deleteEventPromise = BrowserTestUtils.waitForEvent(
+    dialog,
+    "command",
+    true
+  );
+
+  const eventBoxRemovalPromise = BrowserTestUtils.waitForMutationCondition(
+    weekView.getColumnContainer(window, eventBoxDay),
+    { childList: true, subtree: true },
+    () => !weekView.getEventBoxAt(window, eventBoxDay, 1),
+    "Calendar event box should be removed"
+  );
+
+  menu.activateItem(menu.querySelector("#deleteEvent"));
+  await deleteEventPromise;
+  await promptPromise;
+  await eventBoxRemovalPromise;
+}
