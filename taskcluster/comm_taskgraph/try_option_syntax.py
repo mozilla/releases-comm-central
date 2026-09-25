@@ -12,7 +12,6 @@ from collections import defaultdict
 
 from gecko_taskgraph.target_tasks import (
     filter_by_uncommon_try_tasks,
-    filter_unsupported_artifact_builds,
 )
 
 logger = logging.getLogger(__name__)
@@ -628,7 +627,6 @@ def _try_cc_option_syntax(full_task_graph, parameters, graph_config):
         for t in full_task_graph.tasks.values()
         if options.task_matches(t)
         and filter_by_uncommon_try_tasks(t.label)
-        and filter_unsupported_artifact_builds(t, parameters)
     ]
 
     attributes = {
