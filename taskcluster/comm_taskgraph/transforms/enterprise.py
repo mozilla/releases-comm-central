@@ -35,8 +35,9 @@ def rewrite_mozharness_configs(config, jobs):
             job["mozharness"]["config-paths"] = config.config["task-defaults"]["mozharness"]["config-paths"]
         elif "enterprise-repack" in config.kind:
             job["run"]["comm-checkout"] = True
-            job["run"]["config-paths"] = config.config["task-defaults"]["run"]["config-paths"]
-            job["run"]["config"] = config.config["task-defaults"]["run"]["config"]
+            job.setdefault("worker", {}).setdefault("env", {}).update(
+                config.config["task-defaults"]["worker"]["env"]
+            )
         yield job
 
 

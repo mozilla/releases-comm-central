@@ -35,8 +35,8 @@ task-defaults:
     run-on-projects: ["enterprise-thunderbird"]
     shipping-product: thunderbird-enterprise
     shipping-phase: build
-    run:
-        config-paths:
-            - comm/testing/mozharness/configs
-        config:
-            - partner_repacks/enterprise_thunderbird.py
+    worker:
+        env:
+            LINUX_DEST_DIR: "thunderbird"
+            MAC_DEST_DIR: "Contents/Resources"
+            WINDOWS_DEST_DIR: "thunderbird"
