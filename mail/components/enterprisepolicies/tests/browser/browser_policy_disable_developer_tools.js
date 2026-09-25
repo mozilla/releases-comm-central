@@ -3,6 +3,14 @@
 
 "use strict";
 
+add_setup(async function () {
+  await setupPolicyEngineWithJson({
+    policies: {
+      DisableDeveloperTools: true,
+    },
+  });
+});
+
 add_task(async function test_updates_post_policy() {
   is(
     Services.policies.isAllowed("devtools"),
@@ -26,12 +34,30 @@ add_task(async function test_updates_post_policy() {
     "devtools dedicated disabled pref can not be updated"
   );
 
+  is(
+    Services.prefs.getBoolPref("remote.policy.disabled"),
+    true,
+    "remote automation should be disabled by policy"
+  );
+
   await expectErrorPage("about:devtools-toolbox");
   await expectErrorPage("about:debugging");
 
-  info("Check that devtools menu items are hidden");
-  const devtoolsMenu = window.document.getElementById("devtoolsMenu");
+  info("Check that the Web Developer menu is hidden in a newly opened window");
+
+  const policyWindow = window.openDialog(
+    "chrome://messenger/content/messenger.xhtml",
+    "_blank",
+    "chrome,all,dialog=no"
+  );
+  await BrowserTestUtils.waitForEvent(policyWindow, "load");
+
+  const devtoolsMenu = policyWindow.document.getElementById("devtoolsMenu");
   ok(devtoolsMenu.hidden, "The Web Developer item of the tools menu is hidden");
+
+  await BrowserTestUtils.closeWindow(policyWindow);
+
+  info("Check that the App Menu Developer Tools items are hidden");
 
   const appMenuButton = document.getElementById("button-appmenu");
   const appMenuPopup = document.getElementById("appMenu-popup");
