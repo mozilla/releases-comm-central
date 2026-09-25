@@ -122,11 +122,8 @@ add_task(
         const goodKeys = [
           "TestKey",
           "Test_Key",
-          "Test\\Key",
-          "Test}Key",
           "Test&Key",
           "Test!Key",
-          "Test§Key",
           "Test$Key",
           "Test=Key",
           "Test?Key",
@@ -328,16 +325,32 @@ add_task(
           "Bad/Key",
           "Bad*Key",
           'Bad"Key',
+          "Bad\\Key",
+          "Bad[Key]",
+          "Bad]Key",
           "Bad{Key}",
+          "Bad}Key",
           "Bad(Key)",
           "Bad<Key>",
+          "Bad;Key",
+          "BädKey",
         ];
         for (const badKey of badKeys) {
           await browser.test.assertThrows(
             () =>
               browser.messages.createTag(badKey, "Important Stuff", "#223344"),
             /Type error for parameter key/,
-            `Should reject creating an invalid key: ${badKey}`
+            `createTag() should reject an invalid key: ${badKey}`
+          );
+          await browser.test.assertThrows(
+            () =>
+              browser.messages.tags.create(
+                badKey,
+                "Important Stuff",
+                "#223344"
+              ),
+            /Type error for parameter key/,
+            `tags.create() should reject an invalid key: ${badKey}`
           );
         }
 

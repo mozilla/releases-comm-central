@@ -1711,8 +1711,8 @@
           {
             "type": "string",
             "name": "key",
-            "description": "Unique tag identifier (will be converted to lower case). Must not include <var>()<>{/%*\"</var> or spaces.",
-            "pattern": "^[^ ()/{%*<>\"]+$"
+            "description": "Unique tag identifier (will be converted to lower case). Must be an ASCII string that is safe to use as an IMAP keyword.",
+            "pattern": "^[!#$&'+,\\-.0-9:=?@A-Z^_`a-z|~]+$"
           },
           {
             "type": "string",
@@ -1958,8 +1958,8 @@
             "type": "string",
             "name": "key",
             "optional": true,
-            "description": "Unique tag identifier (will be converted to lower case). Must not include <var>()<>{/%*\"</var> or spaces. Will be auto-generated if not provided.",
-            "pattern": "^[^ ()/{%*<>\"]+$"
+            "description": "Unique tag identifier (will be converted to lower case). Must be an ASCII string that is safe to use as an IMAP keyword. Will be auto-generated if not provided.",
+            "pattern": "^[!#$&'+,\\-.0-9:=?@A-Z^_`a-z|~]+$"
           },
           {
             "type": "string",
