@@ -387,12 +387,19 @@ export class MessageSend {
     }
   }
 
-  async notifyListenerOnStopCopy(status) {
+  notifyListenerOnStopCopy(status) {
     lazy.MsgUtils.sendLogger.debug(
       `notifyListenerOnStopCopy; status=${status}`
     );
-    this._msgCopy = null;
+    this._copyCompletionResolver?.(status);
+  }
 
+  /**
+   * Update the UI after a copy attempt completes.
+   *
+   * @param {nsresult} status - The copy completion status.
+   */
+  _updateCopyStatus(status) {
     if (!this._isRetry) {
       const statusMsgEntry = Components.isSuccessCode(status)
         ? "send-progress-copy-complete"
@@ -405,119 +412,132 @@ export class MessageSend {
       this._sendProgress.closeProgressDialog(false);
       this._isRetry = false;
     }
+  }
 
-    if (!Components.isSuccessCode(status)) {
-      const localFoldersAccountName =
-        MailServices.accounts.localFoldersServer.prettyName;
-      const folder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
-      const accountName = folder?.server.prettyName;
-      if (!this._fcc || !localFoldersAccountName || !accountName) {
-        this.fail(Cr.NS_OK, null);
-        return;
-      }
-
-      const params = {
-        folder: folder.localizedName,
-        account: accountName,
-        localFolder: localFoldersAccountName,
-      };
-      let promptId;
-      switch (this._deliverMode) {
-        case Ci.nsIMsgSend.nsMsgDeliverNow:
-        case Ci.nsIMsgSend.nsMsgSendUnsent:
-          promptId = "send-error-save-sent-locally";
-          break;
-        case Ci.nsIMsgSend.nsMsgSaveAsDraft:
-          promptId = "send-error-save-draft-locally";
-          break;
-        case Ci.nsIMsgSend.nsMsgSaveAsTemplate:
-          promptId = "send-error-save-template-locally";
-          break;
-      }
-      if (promptId) {
-        const showCheckBox = { value: false };
-        const buttonFlags =
-          Ci.nsIPrompt.BUTTON_POS_0 * Ci.nsIPrompt.BUTTON_TITLE_IS_STRING +
-          Ci.nsIPrompt.BUTTON_POS_1 * Ci.nsIPrompt.BUTTON_TITLE_DONT_SAVE +
-          Ci.nsIPrompt.BUTTON_POS_2 * Ci.nsIPrompt.BUTTON_TITLE_SAVE;
-        const [promptMsg, dialogTitle, retryButtonLabel] =
-          lazy.l10n.formatValuesSync([
-            { id: promptId, args: params },
-            "send-dialog-save-title",
-            "send-dialog-retry",
-          ]);
-        const buttonPressed = Services.prompt.confirmEx(
-          this._parentWindow,
-          dialogTitle,
-          promptMsg,
-          buttonFlags,
-          retryButtonLabel,
-          null,
-          null,
-          null,
-          showCheckBox
-        );
-        if (buttonPressed == 0) {
-          // retry button clicked
-          if (
-            this._sendProgress?.processCanceledByUser &&
-            Services.prefs.getBoolPref("mailnews.show_send_progress")
-          ) {
-            // We had a progress dialog and the user cancelled it, create a
-            // new one.
-            const progress = Cc[
-              "@mozilla.org/messenger/progress;1"
-            ].createInstance(Ci.nsIMsgProgress);
-
-            const composeParams = Cc[
-              "@mozilla.org/messengercompose/composeprogressparameters;1"
-            ].createInstance(Ci.nsIMsgComposeProgressParams);
-            composeParams.subject =
-              this._parentWindow.gMsgCompose.compFields.subject;
-            composeParams.deliveryMode = this._deliverMode;
-
-            progress.openProgressDialog(
-              this._parentWindow,
-              "chrome://messenger/content/messengercompose/sendProgress.xhtml",
-              composeParams
-            );
-
-            progress.onStateChange(
-              null,
-              null,
-              Ci.nsIWebProgressListener.STATE_START,
-              Cr.NS_OK
-            );
-
-            // We want to hear when this is cancelled.
-            progress.registerListener(this);
-
-            this._sendProgress = progress;
-            this._isRetry = true;
-          }
-          await this._mimeDoFcc();
-          return;
-        } else if (buttonPressed == 2) {
-          try {
-            // Try to save to Local Folders/<account name>. Pass null to save
-            // to local folders and not the configured fcc.
-            await this._mimeDoFcc(null, true, Ci.nsIMsgSend.nsMsgDeliverNow);
-            return;
-          } catch (e) {
-            Services.prompt.alert(
-              this._parentWindow,
-              null,
-              lazy.l10n.formatValueSync("send-error-save-to-local-folders")
-            );
-          }
-        }
-      }
-      // A failed or declined primary FCC copy must not skip the additional
-      // folder copy.
-      await this._doFcc2();
+  /**
+   * Reopen the send progress dialog if it was cancelled before retrying.
+   */
+  _prepareFccRetry() {
+    if (
+      !this._sendProgress?.processCanceledByUser ||
+      !Services.prefs.getBoolPref("mailnews.show_send_progress")
+    ) {
       return;
     }
 
+    const progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
+      Ci.nsIMsgProgress
+    );
+    const composeParams = Cc[
+      "@mozilla.org/messengercompose/composeprogressparameters;1"
+    ].createInstance(Ci.nsIMsgComposeProgressParams);
+    composeParams.subject = this._parentWindow.gMsgCompose.compFields.subject;
+    composeParams.deliveryMode = this._deliverMode;
+
+    progress.openProgressDialog(
+      this._parentWindow,
+      "chrome://messenger/content/messengercompose/sendProgress.xhtml",
+      composeParams
+    );
+    progress.onStateChange(
+      null,
+      null,
+      Ci.nsIWebProgressListener.STATE_START,
+      Cr.NS_OK
+    );
+    progress.registerListener(this);
+
+    this._sendProgress = progress;
+    this._isRetry = true;
+  }
+
+  /**
+   * Ask how to recover from a failed copy.
+   *
+   * @param {string} folderUri - The failed destination folder URI.
+   * @param {nsMsgDeliverMode} deliverMode - The mode used for the failed copy.
+   * @returns {?number} The selected button, or null if recovery is impossible.
+   */
+  _promptForFccRecovery(folderUri, deliverMode) {
+    let promptId;
+    switch (deliverMode) {
+      case Ci.nsIMsgSend.nsMsgDeliverNow:
+      case Ci.nsIMsgSend.nsMsgSendUnsent:
+        promptId = "send-error-save-sent-locally";
+        break;
+      case Ci.nsIMsgSend.nsMsgSaveAsDraft:
+        promptId = "send-error-save-draft-locally";
+        break;
+      case Ci.nsIMsgSend.nsMsgSaveAsTemplate:
+        promptId = "send-error-save-template-locally";
+        break;
+      default:
+        return null;
+    }
+
+    if (!folderUri) {
+      return null;
+    }
+    const localFoldersAccountName =
+      MailServices.accounts.localFoldersServer?.prettyName;
+    if (!localFoldersAccountName) {
+      return null;
+    }
+    const folder = lazy.MailUtils.getOrCreateFolder(folderUri);
+    const accountName = folder?.server.prettyName;
+    if (!accountName) {
+      return null;
+    }
+
+    const params = {
+      folder: folder.localizedName,
+      account: accountName,
+      localFolder: localFoldersAccountName,
+    };
+    const buttonFlags =
+      Ci.nsIPrompt.BUTTON_POS_0 * Ci.nsIPrompt.BUTTON_TITLE_IS_STRING +
+      Ci.nsIPrompt.BUTTON_POS_1 * Ci.nsIPrompt.BUTTON_TITLE_DONT_SAVE +
+      Ci.nsIPrompt.BUTTON_POS_2 * Ci.nsIPrompt.BUTTON_TITLE_SAVE;
+    const [promptMsg, dialogTitle, retryButtonLabel] =
+      lazy.l10n.formatValuesSync([
+        { id: promptId, args: params },
+        "send-dialog-save-title",
+        "send-dialog-retry",
+      ]);
+    return Services.prompt.confirmEx(
+      this._parentWindow,
+      dialogTitle,
+      promptMsg,
+      buttonFlags,
+      retryButtonLabel,
+      null,
+      null,
+      null,
+      { value: false }
+    );
+  }
+
+  /**
+   * Get a stable local fallback URI for a failed destination.
+   *
+   * @param {string} folderUri - The failed destination folder URI.
+   * @returns {string} A URI below Local Folders.
+   */
+  _getLocalFallbackUri(folderUri) {
+    const folder = lazy.MailUtils.getOrCreateFolder(folderUri);
+    const rootFolder = MailServices.accounts.localFoldersServer.rootMsgFolder;
+    const name = `${folder.localizedName}-${folder.server.prettyName}`;
+    return `${rootFolder.URI}/${encodeURIComponent(name)}`;
+  }
+
+  /**
+   * Continue processing after a successful FCC copy (or when no copy is
+   * required).
+   *
+   * @param {nsresult} status - The successful completion status.
+   */
+  async _handleSuccessfulFccCopy(status) {
+    this._updateCopyStatus(status);
     if (
       !this._fcc2Handled &&
       this._messageKey != nsMsgKey_None &&
@@ -895,16 +915,27 @@ export class MessageSend {
     // Create a separate copy file when there are extra headers.
     const copyFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
     copyFile.append("nscopy.tmp");
-    copyFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
-    await IOUtils.writeUTF8(copyFile.path, contentToWrite);
-    await IOUtils.write(
-      copyFile.path,
-      await IOUtils.read(this._messageFile.path),
-      {
-        mode: "append",
+    let created = false;
+    try {
+      copyFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
+      created = true;
+      await IOUtils.writeUTF8(copyFile.path, contentToWrite);
+      await IOUtils.write(
+        copyFile.path,
+        await IOUtils.read(this._messageFile.path),
+        {
+          mode: "append",
+        }
+      );
+      return copyFile;
+    } catch (e) {
+      if (created) {
+        await IOUtils.remove(copyFile.path, { ignoreAbsent: true }).catch(
+          removalError => lazy.MsgUtils.sendLogger.error(removalError)
+        );
       }
-    );
-    return copyFile;
+      throw e;
+    }
   }
 
   /**
@@ -912,33 +943,107 @@ export class MessageSend {
    */
   async _doFcc() {
     if (!this._fcc || !lazy.MsgUtils.canSaveToFolder(this._fcc)) {
-      await this.notifyListenerOnStopCopy(Cr.NS_OK);
-      return;
+      return this._handleSuccessfulFccCopy(Cr.NS_OK);
     }
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_Copy;
-    await this._mimeDoFcc(this._fcc, false, Ci.nsIMsgSend.nsMsgDeliverNow);
+    return this._mimeDoFcc(this._fcc, Ci.nsIMsgSend.nsMsgDeliverNow);
   }
 
   /**
-   * Copy a message to a folder, or fallback to a folder depending on pref and
-   * deliverMode, usually Drafts/Sent.
+   * Copy a message to a folder and handle a failed attempt through the normal
+   * FCC recovery flow.
    *
    * @param {string} [fccHeader=this._fcc] - The target folder uri to copy the
    * message to.
-   * @param {boolean} [throwOnError=false] - By default notifyListenerOnStopCopy
-   * is called on error. When throwOnError is true, the caller can handle the
-   * error by itself.
    * @param {nsMsgDeliverMode} [deliverMode=this._deliverMode] - The deliver mode.
    */
-  async _mimeDoFcc(
+  async _mimeDoFcc(fccHeader = this._fcc, deliverMode = this._deliverMode) {
+    let failedFolderUri;
+    let fallbackUri;
+    let originalError;
+    let useLocalFallback = false;
+    while (true) {
+      let status;
+      try {
+        if (useLocalFallback) {
+          fallbackUri ??= this._getLocalFallbackUri(failedFolderUri);
+          status = await this._copyToFcc(
+            fallbackUri,
+            Ci.nsIMsgSend.nsMsgDeliverNow,
+            true
+          );
+        } else {
+          status = await this._copyToFcc(fccHeader, deliverMode);
+        }
+      } catch (e) {
+        if (useLocalFallback) {
+          lazy.MsgUtils.sendLogger.warn(
+            "Saving the message to Local Folders failed",
+            e
+          );
+          Services.prompt.alert(
+            this._parentWindow,
+            null,
+            lazy.l10n.formatValueSync("send-error-save-to-local-folders")
+          );
+        } else {
+          lazy.MsgUtils.sendLogger.warn("FCC copy failed", e);
+          originalError = e;
+          failedFolderUri ??= this._folderUri;
+          this._updateCopyStatus(e?.result ?? Cr.NS_ERROR_FAILURE);
+        }
+
+        const buttonPressed = this._promptForFccRecovery(
+          failedFolderUri,
+          deliverMode
+        );
+        if (buttonPressed === null) {
+          throw originalError ?? e;
+        }
+        if (buttonPressed == 0) {
+          this._prepareFccRetry();
+          useLocalFallback = false;
+          continue;
+        }
+        if (buttonPressed == 2) {
+          useLocalFallback = true;
+          continue;
+        }
+
+        // Continue with FCC2, or finalize if it has already been handled.
+        await this._doFcc2();
+        return;
+      }
+      await this._handleSuccessfulFccCopy(status);
+      return;
+    }
+  }
+
+  /**
+   * Make one attempt to copy a message to a folder. A failed attempt always
+   * rejects with an exception, leaving recovery to the caller.
+   *
+   * @param {string} [fccHeader=this._fcc] - The target folder uri to copy the
+   * message to.
+   * @param {nsMsgDeliverMode} [deliverMode=this._deliverMode] - The deliver mode.
+   * @param {boolean} [createTarget=false] - Whether to create a folder object
+   * for an explicit target that does not exist yet.
+   * @returns {Promise<nsresult>} The successful completion status.
+   */
+  async _copyToFcc(
     fccHeader = this._fcc,
-    throwOnError = false,
-    deliverMode = this._deliverMode
+    deliverMode = this._deliverMode,
+    createTarget = false
   ) {
+    // Do not let a destination from an earlier attempt make a folder lookup
+    // failure appear recoverable.
+    this._folderUri = null;
     let folder;
     let folderUri;
     if (fccHeader) {
-      folder = lazy.MailUtils.getExistingFolder(fccHeader);
+      folder = createTarget
+        ? lazy.MailUtils.getOrCreateFolder(fccHeader)
+        : lazy.MailUtils.getExistingFolder(fccHeader);
     }
     if (
       [Ci.nsIMsgSend.nsMsgDeliverNow, Ci.nsIMsgSend.nsMsgSendUnsent].includes(
@@ -947,36 +1052,6 @@ export class MessageSend {
       folder
     ) {
       this._folderUri = fccHeader;
-    } else if (fccHeader == null) {
-      // Set fcc_header to a special folder in Local Folders "account" since can't
-      // save to Sent mbox, typically because imap connection is down. This
-      // folder is created if it doesn't yet exist.
-      const rootFolder = MailServices.accounts.localFoldersServer.rootMsgFolder;
-      folderUri = rootFolder.URI + "/";
-
-      // Now append the special folder name folder to the local folder uri.
-      if (
-        [
-          Ci.nsIMsgSend.nsMsgDeliverNow,
-          Ci.nsIMsgSend.nsMsgSendUnsent,
-          Ci.nsIMsgSend.nsMsgSaveAsDraft,
-          Ci.nsIMsgSend.nsMsgSaveAsTemplate,
-        ].includes(this._deliverMode)
-      ) {
-        // Typically, this appends "Sent-", "Drafts-" or "Templates-" to folder
-        // and then has the account name appended, e.g., .../Sent-MyImapAccount.
-        const localFolder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
-        folderUri += localFolder.localizedName + "-";
-      }
-      if (this._fcc) {
-        // Get the account name where the "save to" failed.
-        const accountName = lazy.MailUtils.getOrCreateFolder(this._fcc).server
-          .prettyName;
-
-        // Now append the imap account name (escaped) to the folder uri.
-        folderUri += accountName;
-        this._folderUri = folderUri;
-      }
     } else {
       this._folderUri = await lazy.MsgUtils.getMsgFolderURIFromPrefs(
         this._userIdentity,
@@ -1012,39 +1087,58 @@ export class MessageSend {
       `Processing fcc; folderUri=${this._folderUri}`
     );
 
-    this._msgCopy = Cc[
-      "@mozilla.org/messengercompose/msgcopy;1"
-    ].createInstance(Ci.nsIMsgCopy);
-    this._copyFile = await this._createCopyFile();
-    lazy.MsgUtils.sendLogger.debug("fcc file created");
-
-    // Notify nsMsgCompose about the saved folder.
-    this._sendListener?.onGetDraftFolderURI(
-      this._compFields.messageId,
-      this._folderUri
-    );
-    folder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
-    this._setStatusMessage("send-progress-copy-start", {
-      folder: folder?.localizedName || "?",
-    });
-    lazy.MsgUtils.sendLogger.debug("startCopyOperation");
+    let msgCopy;
+    let copyFile;
     try {
-      this._msgCopy.startCopyOperation(
+      msgCopy = Cc["@mozilla.org/messengercompose/msgcopy;1"].createInstance(
+        Ci.nsIMsgCopy
+      );
+      this._msgCopy = msgCopy;
+      copyFile = await this._createCopyFile();
+      this._copyFile = copyFile;
+      lazy.MsgUtils.sendLogger.debug("fcc file created");
+
+      // Notify nsMsgCompose about the saved folder.
+      this._sendListener?.onGetDraftFolderURI(
+        this._compFields.messageId,
+        this._folderUri
+      );
+      folder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
+      this._setStatusMessage("send-progress-copy-start", {
+        folder: folder?.localizedName || "?",
+      });
+      lazy.MsgUtils.sendLogger.debug("startCopyOperation");
+
+      // Local copies can notify completion and then throw. Settle the attempt
+      // once, and handle recovery after the native call has returned.
+      const { promise, resolve } = Promise.withResolvers();
+      this._copyCompletionResolver = resolve;
+      msgCopy.startCopyOperation(
         this._userIdentity,
-        this._copyFile,
+        copyFile,
         deliverMode,
         this,
         this._folderUri,
         this._msgToReplace
       );
-    } catch (e) {
-      lazy.MsgUtils.sendLogger.warn(
-        `startCopyOperation failed with ${e.result}`
-      );
-      if (throwOnError) {
-        throw Components.Exception("startCopyOperation failed", e.result);
+      const status = await promise;
+      if (!Components.isSuccessCode(status)) {
+        throw new Components.Exception("Copy failed", status);
       }
-      await this.notifyListenerOnStopCopy(e.result);
+      return status;
+    } finally {
+      this._copyCompletionResolver = null;
+      if (this._msgCopy == msgCopy) {
+        this._msgCopy = null;
+      }
+      if (copyFile && copyFile != this._messageFile) {
+        await IOUtils.remove(copyFile.path, { ignoreAbsent: true }).catch(e =>
+          lazy.MsgUtils.sendLogger.error(e)
+        );
+      }
+      if (this._copyFile == copyFile) {
+        this._copyFile = null;
+      }
     }
   }
 
@@ -1065,7 +1159,6 @@ export class MessageSend {
       this._fcc2Handled = true;
       await this._mimeDoFcc(
         this._compFields.fcc2,
-        false,
         Ci.nsIMsgSend.nsMsgDeliverNow
       );
       return;
@@ -1109,15 +1202,21 @@ export class MessageSend {
   _cleanup() {
     lazy.MsgUtils.sendLogger.debug("Clean up temporary files");
     if (this._copyFile && this._copyFile != this._messageFile) {
-      IOUtils.remove(this._copyFile.path).catch(console.error);
+      IOUtils.remove(this._copyFile.path).catch(e =>
+        lazy.MsgUtils.sendLogger.error(e)
+      );
       this._copyFile = null;
     }
     if (this._deliveryFile && this._deliveryFile != this._messageFile) {
-      IOUtils.remove(this._deliveryFile.path).catch(console.error);
+      IOUtils.remove(this._deliveryFile.path).catch(e =>
+        lazy.MsgUtils.sendLogger.error(e)
+      );
       this._deliveryFile = null;
     }
     if (this._messageFile && this._shouldRemoveMessageFile) {
-      IOUtils.remove(this._messageFile.path).catch(console.error);
+      IOUtils.remove(this._messageFile.path).catch(e =>
+        lazy.MsgUtils.sendLogger.error(e)
+      );
       this._messageFile = null;
     }
   }

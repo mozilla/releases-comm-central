@@ -29,6 +29,8 @@ run-if = [
 
 ["test_fcc2.js"]
 
+["test_fccFailure.js"]
+
 ["test_fccReply.js"]
 
 ["test_forwardInlineAllHeaders.js"]
