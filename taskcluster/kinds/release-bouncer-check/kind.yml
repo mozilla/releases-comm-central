@@ -25,9 +25,7 @@ task-defaults:
             - release-level
         substitution-fields:
             - run.config
-            - run.bouncer-prefix
-            - run.locales
-            - run.cdn-urls
+            - run.extra-config
     run-on-projects: []  # to make sure this never runs as part of CI
     shipping-phase: push
     worker-type: b-linux
@@ -35,27 +33,21 @@ task-defaults:
         max-run-time: 1800
         docker-image: {in-tree: "update-verify"}
     run:
-        sparse-profile: mach
+        sparse-profile: mozharness
         comm-checkout: true
         clone-with: hg
         config:
             - comm/testing/mozharness/configs/releases/bouncer_thunderbird.py
-        bouncer-prefix:
+        extra-config:
             by-release-level:
-                production: "https://download.mozilla.org/"
-                staging: "https://dev.bouncer.nonprod.webservices.mozgcp.net/"
-        locales:
-            by-release-level:
-                production: []
+                production:
+                    locales: ['en-US', 'fr', 'de']
+                    bouncer_prefix: "https://download.mozilla.org/"
                 staging:
-                    - en-US
-                    - fr
-                    - de
-        cdn-urls:
-            by-release-level:
-                production: []
-                staging:
-                    - ftp.stage.mozaws.net
+                    locales: ['en-US', 'fr', 'de']
+                    bouncer_prefix: "https://dev.bouncer.nonprod.webservices.mozgcp.net/"
+                    cdn_urls:
+                        - ftp.stage.mozaws.net
     attributes:
         build_platform: linux64
         build_type: opt
@@ -73,9 +65,13 @@ tasks:
         run:
             config:
                 by-release-type:
-                    beta: comm/testing/mozrelease/configs/releases/thunderbird_beta.yml
-                    release: comm/testing/mozrelease/configs/releases/thunderbird_release.yml
-                    esr.*: comm/testing/mozrelease/configs/releases/thunderbird_esr.yml
-                    default: comm/testing/mozrelease/configs/releases/thunderbird_beta.yml
+                    beta:
+                        - comm/testing/mozharness/configs/releases/bouncer_thunderbird_beta.py
+                    release:
+                        - comm/testing/mozharness/configs/releases/bouncer_thunderbird_release.py
+                    esr.*:
+                        - comm/testing/mozharness/configs/releases/bouncer_thunderbird_esr.py
+                    default:
+                        - comm/testing/mozharness/configs/releases/bouncer_thunderbird_beta.py
         treeherder:
             platform: thunderbird-release/opt
