@@ -1,0 +1,94 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+@import url("chrome://global/skin/in-content/common.css");
+:root {
+  --critical-button-color: light-dark(var(--color-text-base-dark), var(--color-text-base-light));
+  --critical-button-background: var(--color-critical-default);
+  --critical-button-background-hover: var(--color-critical-hover);
+  --critical-button-background-active: var(--color-critical-pressed);
+  --critical-button-background-focus: var(--color-critical-hover);
+  --critical-button-border: var(--color-critical-hover);
+  --critical-button-border-active: var(--color-critical-pressed);
+}
+
+/* Font-size and density changes don't affect the dialog */
+
+dialog {
+  min-inline-size: 422px;
+  padding: 12px;
+}
+
+#calendarPromptHeader {
+  margin: 0;
+  font-size: 13px;
+}
+
+radiogroup {
+  padding-block: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin: 0;
+  padding-inline: 0;
+
+  & radio {
+    margin: 0;
+  }
+
+  & .radio-label {
+    font-size: 13px;
+  }
+}
+
+.radio-check {
+  radiogroup:focus-visible radio[focused] > & {
+    outline-style: none;
+  }
+}
+
+.button-container {
+  display: flex;
+  justify-content: end;
+  gap: 12px;
+  padding-block-start: 12px;
+}
+
+.button {
+  padding: 12px 24px;
+  margin: 0;
+  font-size: 13px;
+  min-inline-size: 128px;
+  min-block-size: 40px;
+  text-align: center;
+
+  &.button-critical {
+    background-color: var(--critical-button-background);
+    color: var(--critical-button-color);
+    border-color: var(--critical-button-border);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.12);
+
+    &:hover {
+      background-color: var(--critical-button-background-hover);
+      color: var(--critical-button-color);
+      border-color: var(--critical-button-border);
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+
+      &:active {
+        background-color: var(--critical-button-background-active);
+        color: var(--critical-button-color);
+        border-color: var(--critical-button-border-active);
+        box-shadow: none;
+      }
+    }
+
+    &:focus {
+      background-color: var(--critical-button-background-focus);
+      color: var(--critical-button-color);
+      outline: 2px solid var(--color-critical-pressed);
+      outline-offset: 1px;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+      border-color: var(--critical-button-border);
+    }
+  }
+}

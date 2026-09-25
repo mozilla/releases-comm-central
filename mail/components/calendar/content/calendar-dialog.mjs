@@ -155,6 +155,8 @@ export class CalendarDialog extends PositionedDialog {
         this
       );
 
+      this.addEventListener("command", this);
+
       this.querySelector(".back-button").hidden =
         this.#subviewManager.isDefaultSubviewVisible();
 
@@ -180,8 +182,7 @@ export class CalendarDialog extends PositionedDialog {
   }
 
   /**
-   * The handlers are matched based on the selector in the key
-   * applying to the target of the click event.
+   * Maps selectors for click events to their handler functions.
    *
    * @type {Record<string,Function>}
    */
@@ -201,6 +202,16 @@ export class CalendarDialog extends PositionedDialog {
       this.#subviewManager.showSubview("calendarAttachmentsSubview"),
     "#expandAttendees": () =>
       this.#subviewManager.showSubview("calendarAttendeesSubview"),
+    "#deleteEvent": () => this.#deleteEvent(),
+  };
+
+  /**
+   * Maps selectors for command events to their handler functions.
+   *
+   * @type {Record<string,Function>}
+   */
+  #commandHandlers = {
+    "#deleteEvent": () => this.#deleteEvent(),
   };
 
   handleEvent(event) {
@@ -210,6 +221,16 @@ export class CalendarDialog extends PositionedDialog {
         break;
       case "click":
         for (const [selector, handler] of Object.entries(this.#clickHandlers)) {
+          if (event.target.closest(selector)) {
+            handler(event);
+            break;
+          }
+        }
+        break;
+      case "command":
+        for (const [selector, handler] of Object.entries(
+          this.#commandHandlers
+        )) {
           if (event.target.closest(selector)) {
             handler(event);
             break;
@@ -630,6 +651,19 @@ export class CalendarDialog extends PositionedDialog {
     this.querySelector("menupopup").openPopup(
       this.querySelector(".menu-button"),
       "after_end"
+    );
+  }
+
+  /**
+   * Opens a modal prompt about deleting the event.
+   */
+  #deleteEvent() {
+    const rv = {};
+    window.openDialog(
+      "chrome://messenger/content/calendarPrompt.xhtml",
+      "_blank",
+      "centerscreen,chrome,titlebar,modal",
+      rv
     );
   }
 }

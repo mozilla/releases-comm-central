@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE html>
+<html
+  id="calendarPrompt"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  lightweightthemes="true"
+  scrolling="false"
+>
+  <head>
+    <title data-l10n-id="calendar-event-prompt-delete-title"></title>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:"
+    />
+    <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/calendar/calendarPrompt.css"
+    />
+    <link rel="localization" href="messenger/calendarDialog.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog buttons="cancel">
+      <html:p
+        id="calendarPromptHeader"
+        data-l10n-id="calendar-event-prompt-delete-header"
+      ></html:p>
+
+      <radiogroup id="calendarPromptRadioOptions">
+        <radio
+          id="thisEventRadioOption"
+          data-l10n-id="calendar-prompt-this-event"
+          value="1"
+        />
+        <!-- TODO BUG:XXXXXX - Add Option for "This and future events" -->
+        <radio
+          id="allEventsRadioOption"
+          data-l10n-id="calendar-prompt-all-events"
+          value="3"
+        />
+      </radiogroup>
+      <!-- TODO: BUG:XXXXXX - Add checkbox to notify guests -->
+
+      <html:div class="button-container">
+        <button
+          id="cancel"
+          type="button"
+          dlgtype="cancel"
+          class="button"
+        ></button>
+        <!-- Using html:button here avoids any styling conflicts with the XUL Button styling -->
+        <html:button
+          id="delete"
+          type="button"
+          data-l10n-id="calendar-prompt-delete-button"
+          class="button button-critical"
+        ></html:button>
+      </html:div>
+    </dialog>
+  </html:body>
+</html>

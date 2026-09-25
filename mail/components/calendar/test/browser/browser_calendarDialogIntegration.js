@@ -260,6 +260,41 @@ add_task(async function test_attachmentLinkClick() {
   MockExternalProtocolService.reset();
 });
 
+add_task(async function test_dialogDeleteMenuItem() {
+  await createEvent({ calendar });
+  const testDate = new Date(2026, 8, 16, 10);
+  const eventBox = await openAndShowEvent({ baseDate: testDate });
+
+  const dialog = document.getElementById("calendarDialog");
+  const menu = dialog.querySelector("menupopup");
+
+  const menuShownPromise = BrowserTestUtils.waitForPopupEvent(menu, "shown");
+  EventUtils.synthesizeMouseAtCenter(dialog.querySelector(".menu-button"), {});
+  await menuShownPromise;
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(menu),
+    "The menupopup should visible after clicking menu button"
+  );
+
+  const deleteEventPromise = BrowserTestUtils.waitForEvent(
+    dialog,
+    "command",
+    true
+  );
+  const deletePromptPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    "cancel",
+    "chrome://messenger/content/calendarPrompt.xhtml"
+  );
+
+  menu.activateItem(menu.querySelector("#deleteEvent"));
+
+  await deleteEventPromise;
+  await deletePromptPromise;
+
+  await cleanUp(dialog, eventBox);
+});
+
 add_task(async function test_closeDialogOnTabSwitch() {
   await createEvent({ calendar });
   const eventBox = await openAndShowEvent();

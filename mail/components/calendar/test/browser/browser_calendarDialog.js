@@ -1588,3 +1588,58 @@ add_task(async function test_calendarDialogMenu() {
   calendar.setProperty("organizerId", "");
   resetDialog();
 });
+
+add_task(async function test_calendarDialogDeleteEvent() {
+  const title = dialog.querySelector(".calendar-dialog-title");
+  const menu = dialog.querySelector("menupopup");
+
+  dialog.setCalendarEvent(calendarEvent);
+  await dialog.show();
+
+  await BrowserTestUtils.waitForMutationCondition(
+    title,
+    {
+      subtree: true,
+      childList: true,
+      characterData: true,
+    },
+    () => title.textContent == calendarEvent.title
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(menu),
+    "The menupopup should initially be hidden"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector(".menu-button"),
+    {},
+    browser.contentWindow
+  );
+
+  await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(menu),
+    "The menupopup should be visible after clicking menu button"
+  );
+
+  const deleteEventPromise = BrowserTestUtils.waitForEvent(
+    dialog,
+    "command",
+    true
+  );
+
+  menu.activateItem(menu.querySelector("#deleteEvent"));
+  await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+  Assert.ok(
+    BrowserTestUtils.isHidden(menu),
+    "The menupopup should be hidden after clicking delete on the menu"
+  );
+
+  await deleteEventPromise;
+
+  // Clean up.
+  calendar.setProperty("organizerId", "");
+  resetDialog();
+});

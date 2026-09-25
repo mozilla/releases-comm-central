@@ -488,6 +488,7 @@
   skin/classic/messenger/calendar/calendarDialogAttendees.css   (../shared/mail/calendar/calendarDialogAttendees.css)
   skin/classic/messenger/calendar/calendarDialogCategories.css  (../shared/mail/calendar/calendarDialogCategories.css)
   skin/classic/messenger/calendar/calendarDialogRow.css         (../shared/mail/calendar/calendarDialogRow.css)
+  skin/classic/messenger/calendar/calendarPrompt.css            (../shared/mail/calendar/calendarPrompt.css)
 
 # Illustrations
   skin/classic/messenger/illustrations/accounts.svg           (../shared/mail/illustrations/accounts.svg)
