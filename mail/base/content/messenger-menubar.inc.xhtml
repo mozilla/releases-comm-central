@@ -1016,7 +1016,8 @@
         <menuseparator id="messageAfterAttachmentMenuSeparator"/>
         <menu id="tagMenu" label="&tagMenu.label;" accesskey="&tagMenu.accesskey;" command="cmd_tag">
           <menupopup id="tagMenu-tagpopup"
-                     onpopupshowing="InitMessageTags(this);">
+                     onpopupshowing="InitMessageTags(this);"
+                     accesskey-conflicts-bug="2075263">
             <menuitem id="tagMenu-addNewTag"
                       data-l10n-id="tags-add-new"
                       command="cmd_addTag"/>
@@ -1031,7 +1032,7 @@
           </menupopup>
         </menu>
         <menu id="markMenu" label="&markMenu.label;" accesskey="&markMenu.accesskey;">
-          <menupopup id="menu_MarkPopup" onpopupshowing="InitMessageMark()">
+          <menupopup id="menu_MarkPopup" onpopupshowing="InitMessageMark()" accesskey-conflicts-bug="2075447">
             <menuitem id="markReadMenuItem" label="&markAsReadCmd.label;"
                       accesskey="&markAsReadCmd.accesskey;"
                       key="key_toggleRead"
