@@ -7,6 +7,7 @@
 #include "nsIMsgDatabase.h"
 #include "nsIRandomAccessStream.h"
 #include "HeaderReader.h"
+#include "nsCharSeparatedTokenizer.h"
 #include "nsMailHeaders.h"
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsMsgMessageFlags.h"

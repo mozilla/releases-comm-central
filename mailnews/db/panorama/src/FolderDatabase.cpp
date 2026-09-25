@@ -13,6 +13,7 @@
 #include "mozIStorageStatement.h"
 #include "mozStorageHelper.h"
 #include "nsCOMPtr.h"
+#include "nsCharSeparatedTokenizer.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsMsgFolderFlags.h"

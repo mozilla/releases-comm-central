@@ -7,6 +7,7 @@
 #include "nsIStringStream.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgMessageFlags.h"
+#include "nsCharSeparatedTokenizer.h"
 #include "nsString.h"
 #include "nsCOMPtr.h"
 #include "nsIFolderLookupService.h"

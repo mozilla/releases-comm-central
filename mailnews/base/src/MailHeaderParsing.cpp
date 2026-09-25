@@ -7,6 +7,7 @@
 #include "MailNewsTypes.h"
 #include "nsMsgMessageFlags.h"
 #include "nsMsgUtils.h"
+#include "nsCharSeparatedTokenizer.h"
 #include "nsReadableUtils.h"
 #include "nsURLHelper.h"  // For net_ParseContentType().
 #include "HeaderReader.h"

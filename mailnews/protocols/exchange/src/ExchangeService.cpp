@@ -16,6 +16,7 @@
 #include "nsIStreamListener.h"
 #include "nsIURIMutator.h"
 #include "nsIWebNavigation.h"
+#include "nsCharSeparatedTokenizer.h"
 #include "nsContentUtils.h"
 #include "nsDocShellLoadState.h"
 #include "nsMsgUtils.h"
