@@ -418,7 +418,7 @@ add_task(async function test_css_variables_resolved() {
     );
     Assert.equal(
       textStyle.color,
-      "rgb(238, 238, 240)",
+      "rgb(247, 247, 248)",
       "The message text should inherit the dark reader color"
     );
   } finally {
@@ -574,7 +574,7 @@ async function assert_dark_style() {
       );
       Assert.equal(
         headStyle.color,
-        "rgb(238, 238, 240)",
+        "rgb(247, 247, 248)",
         "The #headStyle should have a light grey color"
       );
 
@@ -633,7 +633,7 @@ async function assert_dark_style() {
       );
       Assert.equal(
         style.color,
-        "rgb(238, 238, 240)",
+        "rgb(247, 247, 248)",
         "The paragraph styled via CSS class should inherit the light grey body color."
       );
 

@@ -532,7 +532,7 @@ div:has(legend) {
   }
 
   & .config-option {
-    background-color: light-dark(rgba(254, 255, 255, 0.5), rgba(26, 32, 44, 0.5));
+    background-color: color-mix(in srgb, var(--color-surface-base) 50%, transparent);
     display: flex;
     flex-direction: column;
     border-radius: 10px;
@@ -1076,7 +1076,7 @@ button.account-hub-option-button {
     grid-column: 1;
     grid-row: 1 / span 2;
     -moz-context-properties: fill, stroke;
-    fill: light-dark(color-mix(in srgb, #feffff 20%, transparent), color-mix(in srgb, #1a202c 20%, transparent));
+    fill: color-mix(in srgb, var(--color-surface-base) 20%, transparent);
     stroke: var(--color-surface-base);
     align-self: center;
     line-height: 0;

@@ -78,13 +78,13 @@
    * Bolt Colors
    * https://bolt.thunderbird.net/8b179dbfd/p/61e4c7-color
    */
-  --color-surface-base-light: #feffff;
-  --color-surface-raised-light: #feffff;
-  --color-surface-subtle-light: #f7f7f7;
-  --color-surface-lower-light: #f7f7f7;
-  --color-surface-deep-light: #d9d9de;
+  --color-surface-base-light: #fcfcfd;
+  --color-surface-raised-light: #ffffff;
+  --color-surface-subtle-light: #efeff1;
+  --color-surface-lower-light: #f7f7f8;
+  --color-surface-deep-light: #e4e4e7;
   --color-surface-border-light: #d9d9de;
-  --color-surface-border-intense-light: #91939f;
+  --color-surface-border-intense-light: #a1a1aa;
   --color-primary-soft-light: #f0f8ff;
   --color-primary-default-light: #1373d9;
   --color-primary-hover-light: #175fb6;
@@ -105,14 +105,16 @@
   --color-critical-hover-light: #7f1d1d;
   --color-critical-default-light: #991b1b;
   --color-critical-pressed-light: #450a0a;
-  --color-text-base-light: #1a202c;
-  --color-text-secondary-light: #4c4d58;
-  --color-text-muted-light: #737584;
-  --color-text-brand-light: #19518f;
+  --color-text-base-light: #18181b;
+  --color-text-base-inverted-light: #fcfcfd;
+  --color-text-secondary-light: #52525b;
+  --color-text-muted-light: #71717a;
+  --color-text-brand-light: #0b5cbd;
   --color-text-highlight-light: #1373d9;
   --color-text-warning-light: #713f12;
-  --color-text-critical-light: #dc2626;
-  --color-text-success-light: #1d783b;
+  --color-text-critical-light: #b91c1c;
+  --color-text-success-light: #1c5f32;
+  --color-text-disabled-light: #a1a1aa;
   --color-accent-teal-light: #25a6a0;
   --color-accent-blue-light: #58c9ff;
   --color-accent-purple-light: #ae55f7;
@@ -120,13 +122,13 @@
   --color-accent-pink-light: #e247c4;
   --color-accent-ink-light: #6e6f9b;
 
-  --color-surface-base-dark: #1a202c;
-  --color-surface-raised-dark: #262d3b;
-  --color-surface-subtle-dark: #262d3b;
-  --color-surface-deep-dark: #3d4d67;
-  --color-surface-border-dark: #3d4d67;
-  --color-surface-border-intense-dark: #5e7799;
-  --color-surface-lower-dark: #18181b;
+  --color-surface-base-dark: #18181b;
+  --color-surface-raised-dark: #2b2b2f;
+  --color-surface-subtle-dark: #232326;
+  --color-surface-deep-dark: #3f3f46;
+  --color-surface-border-dark: #52525b;
+  --color-surface-border-intense-dark: #71717a;
+  --color-surface-lower-dark: #111113;
   --color-primary-soft-dark: #262c40;
   --color-primary-default-dark: #58c9ff;
   --color-primary-hover-dark: #32aeff;
@@ -138,7 +140,7 @@
   --color-success-soft-dark: #082b16;
   --color-success-default-dark: #defae7;
   --color-success-hover-dark: #c0f2cf;
-  --color-success-pressed-dark: #81d4b5;
+  --color-success-pressed-dark: #8ee7aa;
   --color-warning-soft-dark: #423606;
   --color-warning-default-dark: #fef2c3;
   --color-warning-hover-dark: #fee78a;
@@ -146,15 +148,17 @@
   --color-critical-soft-dark: #7f1d1d;
   --color-critical-hover-dark: #f87171;
   --color-critical-default-dark: #fca5a5;
-  --color-critical-pressed-dark: #ef4444;
-  --color-text-base-dark: #eeeef0;
-  --color-text-secondary-dark: #e4e4e7;
-  --color-text-muted-dark: #7f94ac;
-  --color-text-brand-dark: #1b90f5;
+  --color-critical-pressed-dark: #f05252;
+  --color-text-base-dark: #f7f7f8;
+  --color-text-base-inverted-dark: #18181b;
+  --color-text-secondary-dark: #d4d4d8;
+  --color-text-muted-dark: #a1a1aa;
+  --color-text-brand-dark: #32aeff;
   --color-text-highlight-dark: #58c9ff;
   --color-text-warning-dark: #fee78a;
-  --color-text-critical-dark: #f05252;
+  --color-text-critical-dark: #f87171;
   --color-text-success-dark: #55d37e;
+  --color-text-disabled-dark: #71717a;
   --color-accent-teal-dark: #a3ece3;
   --color-accent-blue-dark: #58c9ff;
   --color-accent-purple-dark: #8022ce;
@@ -190,6 +194,7 @@
   --color-critical-default: light-dark(var(--color-critical-default-light), var(--color-critical-default-dark));
   --color-critical-pressed: light-dark(var(--color-critical-pressed-light), var(--color-critical-pressed-dark));
   --color-text-base: light-dark(var(--color-text-base-light), var(--color-text-base-dark));
+  --color-text-base-inverted: light-dark(var(--color-text-base-inverted-light), var(--color-text-base-inverted-dark));
   --color-text-secondary: light-dark(var(--color-text-secondary-light), var(--color-text-secondary-dark));
   --color-text-muted: light-dark(var(--color-text-muted-light), var(--color-text-muted-dark));
   --color-text-brand: light-dark(var(--color-text-brand-light), var(--color-text-brand-dark));
@@ -197,6 +202,7 @@
   --color-text-warning: light-dark(var(--color-text-warning-light), var(--color-text-warning-dark));
   --color-text-critical: light-dark(var(--color-text-critical-light), var(--color-text-critical-dark));
   --color-text-success: light-dark(var(--color-text-success-light), var(--color-text-success-dark));
+  --color-text-disabled: light-dark(var(--color-text-disabled-light), var(--color-text-disabled-dark));
   --color-accent-teal: light-dark(var(--color-accent-teal-light), var(--color-accent-teal-dark));
   --color-accent-blue: light-dark(var(--color-accent-blue-light), var(--color-accent-blue-dark));
   --color-accent-purple: light-dark(var(--color-accent-purple-light), var(--color-accent-purple-dark));
