@@ -38,8 +38,6 @@ task-defaults:
         sparse-profile: mach
         comm-checkout: true
         clone-with: hg
-        config:
-            - comm/testing/mozharness/configs/releases/bouncer_thunderbird.py
         bouncer-prefix:
             by-release-level:
                 production: "https://download.mozilla.org/"
@@ -73,9 +71,9 @@ tasks:
         run:
             config:
                 by-release-type:
-                    beta: comm/testing/mozrelease/configs/releases/thunderbird_beta.yml
-                    release: comm/testing/mozrelease/configs/releases/thunderbird_release.yml
-                    esr.*: comm/testing/mozrelease/configs/releases/thunderbird_esr.yml
-                    default: comm/testing/mozrelease/configs/releases/thunderbird_beta.yml
+                    beta: comm/testing/mozrelease/configs/bouncer/thunderbird_beta.yml
+                    release: comm/testing/mozrelease/configs/bouncer/thunderbird_release.yml
+                    esr.*: comm/testing/mozrelease/configs/bouncer/thunderbird_esr.yml
+                    default: comm/testing/mozrelease/configs/bouncer/thunderbird_beta.yml
         treeherder:
             platform: thunderbird-release/opt

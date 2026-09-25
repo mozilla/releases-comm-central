@@ -22,7 +22,7 @@ products:
       - win
       - win64
   installer-next-latest:
-    product-name: Thunderbird-esr-latest
+    product-name: Thunderbird-esr-next-latest
     platforms:
       - linux64
       - osx
@@ -43,7 +43,7 @@ products:
       - win
       - win64
   installer-next-latest-ssl:
-    product-name: Thunderbird-esr-latest-SSL
+    product-name: Thunderbird-esr-next-latest-SSL
     platforms:
       - linux64
       - osx
@@ -60,7 +60,7 @@ products:
       - win
       - win64
   msi-next-latest:
-    product-name: Thunderbird-esr-msi-latest-SSL
+    product-name: Thunderbird-esr-next-msi-latest-SSL
     platforms:
       - win
       - win64
@@ -75,7 +75,7 @@ products:
       - win
       - win64
   msix-next-latest:
-    product-name: Thunderbird-esr-msix-latest-SSL
+    product-name: Thunderbird-esr-next-msix-latest-SSL
     platforms:
       - win
       - win64
@@ -88,7 +88,7 @@ products:
     platforms:
       - osx
   pkg-next-latest:
-    product-name: Thunderbird-esr-pkg-latest-SSL
+    product-name: Thunderbird-esr-next-pkg-latest-SSL
     platforms:
       - osx
   complete-mar:
