@@ -419,12 +419,6 @@ nsresult NS_MsgCreatePathStringFromFolderURI(const char* aFolderURI,
         path.AppendLiteral(FOLDER_SUFFIX "/");
       }
 
-      if (aIsNewsFolder) {
-        nsAutoCString tmp;
-        CopyUTF16toMUTF7(pathPiece, tmp);
-        CopyASCIItoUTF16(tmp, pathPiece);
-      }
-
       // To handle safely creating database folders, some paths need to be
       // hashed. Hashing operates on an unescaped string, so we unescape each
       // string individually. We need to do this here because if we were to
@@ -433,7 +427,14 @@ nsresult NS_MsgCreatePathStringFromFolderURI(const char* aFolderURI,
       nsAutoCString unescapedPathPiece;
       MsgUnescapeString(NS_ConvertUTF16toUTF8(pathPiece), 0,
                         unescapedPathPiece);
-      path += NS_MsgHashIfNecessary(unescapedPathPiece);
+      CopyUTF8toUTF16(unescapedPathPiece, pathPiece);
+
+      if (aIsNewsFolder) {
+        nsAutoCString tmp;
+        CopyUTF16toMUTF7(pathPiece, tmp);
+        CopyASCIItoUTF16(tmp, pathPiece);
+      }
+      path += NS_MsgHashIfNecessary(pathPiece);
       haveFirst = true;
     }
     // look for the next slash

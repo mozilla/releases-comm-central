@@ -9,6 +9,49 @@
 // Invocation:
 // $ ./mach gtest "TestMsgUtils.*"
 
+TEST(TestMsgUtils, NewsgroupPathEncoding)
+{
+  const struct {
+    const char* uri;
+    nsLiteralString expected;
+  } cases[] = {
+      // Canonically equivalent names must retain their distinct legacy paths.
+      {"/trigofacile.test.%CE%B1%CC%94%CC%81%CD%85",
+       u"trigofacile.test.&A7EDFAMBA0U-"_ns},
+      {"/trigofacile.test.%E1%BC%85%CD%85", u"trigofacile.test.&HwUDRQ-"_ns},
+      {"/trigofacile.test.%E1%BE%81%CC%81", u"trigofacile.test.&H4EDAQ-"_ns},
+      {"/trigofacile.test.%E1%BE%85", u"trigofacile.test.&H4U-"_ns},
+      {"/test.ascii", u"test.ascii"_ns},
+      {"/test.%26", u"test.&-"_ns},
+      {"/test.%2526", u"test.%26"_ns},
+  };
+
+  for (const auto& test : cases) {
+    SCOPED_TRACE(test.uri);
+    nsAutoString path;
+    ASSERT_EQ(NS_MsgCreatePathStringFromFolderURI(test.uri, path, true), NS_OK);
+    EXPECT_EQ(path, test.expected);
+  }
+}
+
+TEST(TestMsgUtils, FolderPathEscaping)
+{
+  nsAutoString path;
+  ASSERT_EQ(
+      NS_MsgCreatePathStringFromFolderURI("/caf%C3%A9/child", path, false),
+      NS_OK);
+  EXPECT_EQ(path, u"caf\u00e9.sbd/child"_ns);
+
+  nsAutoString expected(NS_MsgHashIfNecessary(u"foo/bar"_ns));
+  expected.AppendLiteral(".sbd/child");
+  for (bool isNews : {false, true}) {
+    ASSERT_EQ(
+        NS_MsgCreatePathStringFromFolderURI("/foo%2Fbar/child", path, isNews),
+        NS_OK);
+    EXPECT_EQ(path, expected);
+  }
+}
+
 // Test PercentEncode().
 TEST(TestMsgUtils, PercentEncode)
 {
