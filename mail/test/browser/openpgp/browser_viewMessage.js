@@ -1131,6 +1131,27 @@ add_task(async function testOpenAliceToBobEncryptedNonASCII() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon should be displayed"
   );
+  const hdr = aboutMessage.gMessage;
+  const otherFlags = hdr.flags & ~Ci.nsMsgMessageFlags.HasRe;
+  for (const [subject, expected, hasRe] of [
+    ["Re[2]:Re:kod blå", "kod blå", true],
+    ["ersatt ämne", "ersatt ämne", false],
+    ["Re: =?UTF-8?Q?literal?=", "=?UTF-8?Q?literal?=", true],
+  ]) {
+    aboutMessage.Enigmail.hdrView.setSubject(subject, hdr);
+    Assert.equal(hdr.mime2DecodedSubject, expected);
+    Assert.equal(
+      hdr.flags,
+      otherFlags | (hasRe ? Ci.nsMsgMessageFlags.HasRe : 0)
+    );
+    const displayed = (hasRe ? "Re: " : "") + expected;
+    Assert.equal(aboutMessage.document.title, displayed);
+    Assert.equal(
+      aboutMessage.document.getElementById("expandedsubjectBox").value
+        .textContent,
+      displayed
+    );
+  }
   await BrowserTestUtils.closeWindow(msgc);
 });
 

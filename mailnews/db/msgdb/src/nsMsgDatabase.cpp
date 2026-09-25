@@ -40,6 +40,7 @@
 #include "mozilla/ProfilerMarkers.h"
 #include "mozilla/ScopeExit.h"
 #include "mozilla/StaticPrefs_mail.h"
+#include "mozilla/mailnews/MsgSubjectUtils.h"
 
 using namespace mozilla::mailnews;
 using namespace mozilla;
@@ -2806,7 +2807,16 @@ nsresult ApplyRawHdrToDbHdr(RawHdr const& raw, nsIMsgDBHdr* hdr) {
     NS_ENSURE_SUCCESS(rv, rv);
   }
   if (!raw.subject.IsEmpty()) {
-    rv = hdr->SetSubject(raw.subject);
+    // Legacy databases MIME-decode subjects when reading them back. Protect
+    // decoded text that happens to look like an encoded word.
+    nsAutoCString subject;
+    if (raw.subject.Find("=?") != kNotFound) {
+      rv = EncodeSubjectForLegacyStorage(raw.subject, subject);
+      NS_ENSURE_SUCCESS(rv, rv);
+    } else {
+      subject = raw.subject;
+    }
+    rv = hdr->SetSubject(subject);
     NS_ENSURE_SUCCESS(rv, rv);
   }
   if (!raw.recipients.IsEmpty()) {

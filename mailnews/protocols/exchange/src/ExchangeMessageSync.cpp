@@ -192,7 +192,7 @@ class ExchangeMessageSyncHandler : public IExchangeMessageSyncListener,
 
     // The headers _could_ include an `X-Mozilla-Status/Status2` field
     // containing flags, but we should _actively_ ignore for it EWS.
-    raw.flags = 0;
+    raw.flags &= nsMsgMessageFlags::HasRe;
     if (isRead) {
       raw.flags |= nsMsgMessageFlags::Read;
     } else {
@@ -280,7 +280,11 @@ class ExchangeMessageSyncHandler : public IExchangeMessageSyncListener,
     } else {
       flags &= ~nsMsgMessageFlags::Marked;
     }
-    updated.flags = flags;  // Ignore any X-Mozilla-Status values.
+    // Use the parsed subject for HasRe, but ignore X-Mozilla-Status for all
+    // other flags.
+    flags = (flags & ~nsMsgMessageFlags::HasRe) |
+            (updated.flags & nsMsgMessageFlags::HasRe);
+    updated.flags = flags;
 
     // We need the old flags to notify listeners.
     uint32_t oldFlags;
@@ -289,6 +293,11 @@ class ExchangeMessageSyncHandler : public IExchangeMessageSyncListener,
     // Update the database entry, then notify any listener to let them know
     // about the changes.
     MOZ_TRY(ApplyRawHdrToDbHdr(updated, msgHdr));
+    // ApplyRawHdrToDbHdr skips empty subjects. A subject containing only a
+    // reply prefix has an empty stored value and must replace the old one.
+    if (updated.subject.IsEmpty() && (flags & nsMsgMessageFlags::HasRe)) {
+      MOZ_TRY(msgHdr->SetSubject(""_ns));
+    }
 
     // Setting `instigator` (the 4th argument to `NotifyHdrChangeAll`) to
     // nullptr should be fine here, the only listener that actually cares about

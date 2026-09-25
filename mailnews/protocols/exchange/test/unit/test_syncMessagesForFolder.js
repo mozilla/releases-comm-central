@@ -161,6 +161,14 @@ add_task(async function testSyncChangesWithRealFolderGraph() {
   await testSyncChangesWithRealFolder(graphServer, incomingGraphServer);
 });
 
+add_task(async function testReplySubjectsEws() {
+  await testReplySubjects(ewsServer, incomingEwsServer);
+});
+
+add_task(async function testReplySubjectsGraph() {
+  await testReplySubjects(graphServer, incomingGraphServer);
+});
+
 add_task(async function testSyncRecipientsEws() {
   await testSyncRecipients(ewsServer, incomingEwsServer);
 });
@@ -689,6 +697,44 @@ async function testSyncChangesWithRealFolder(mockServer, incomingServer) {
     movedMessage.messageId,
     "the message should be the right message"
   );
+}
+
+async function testReplySubjects(mockServer, incomingServer) {
+  mockServer.clearItems();
+  const folderName = `${incomingServer.type}_reply_subject`;
+  mockServer.appendRemoteFolder(
+    new RemoteFolder(folderName, "root", folderName, folderName)
+  );
+
+  const rootFolder = incomingServer.rootFolder;
+  await syncFolder(incomingServer, rootFolder);
+  const folder = rootFolder.getChildNamed(folderName);
+  const message = generator.makeMessage({ subject: "Re: topic" });
+  mockServer.addMessages(folderName, [message]);
+  await syncFolder(incomingServer, folder);
+
+  const getMessageHeader = () =>
+    folder.msgDatabase.getMsgHdrForMessageID(message.messageId);
+  Assert.equal(getMessageHeader().subject, "topic");
+  Assert.ok(getMessageHeader().flags & Ci.nsMsgMessageFlags.HasRe);
+
+  message.subject = "replacement";
+  mockServer.itemChanges.push(["update", folderName, message.messageId]);
+  await syncFolder(incomingServer, folder);
+  Assert.equal(getMessageHeader().subject, "replacement");
+  Assert.ok(!(getMessageHeader().flags & Ci.nsMsgMessageFlags.HasRe));
+
+  message.subject = "Re:";
+  mockServer.itemChanges.push(["update", folderName, message.messageId]);
+  await syncFolder(incomingServer, folder);
+  Assert.equal(getMessageHeader().subject, "");
+  Assert.ok(getMessageHeader().flags & Ci.nsMsgMessageFlags.HasRe);
+
+  message.subject = "Re: =?UTF-8?Q?=3D=3FUTF-8=3FQ=3Fhello=3F=3D?=";
+  mockServer.itemChanges.push(["update", folderName, message.messageId]);
+  await syncFolder(incomingServer, folder);
+  Assert.equal(getMessageHeader().mime2DecodedSubject, "=?UTF-8?Q?hello?=");
+  Assert.ok(getMessageHeader().flags & Ci.nsMsgMessageFlags.HasRe);
 }
 
 /**

@@ -766,7 +766,19 @@ MimeDecryptHandler.prototype = {
         const msgDbHdr = this.uri.QueryInterface(
           Ci.nsIMsgMessageUrl
         ).messageHeader;
-        msgDbHdr.subject = this.decryptedHeaders.get("subject");
+        const originalSubject = this.decryptedHeaders.get("subject");
+        const subject =
+          MailServices.subjects.stripReplyPrefixes(originalSubject);
+        const hadReplyPrefix = subject != originalSubject;
+        msgDbHdr.subject = Services.prefs.getBoolPref(
+          "mail.panorama.enabled",
+          false
+        )
+          ? subject
+          : MailServices.subjects.encodeForLegacyStorage(subject);
+        msgDbHdr.flags =
+          (msgDbHdr.flags & ~Ci.nsMsgMessageFlags.HasRe) |
+          (hadReplyPrefix ? Ci.nsMsgMessageFlags.HasRe : 0);
       } catch (e) {
         lazy.log.error(`Updating subject FAILED for ${this.uri.spec}`);
       }

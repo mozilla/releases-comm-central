@@ -76,18 +76,6 @@ nsresult NS_MsgCreatePathStringFromFolderURI(const char* aFolderURI,
                                              nsString& aPathString,
                                              bool aIsNewsFolder = false);
 
-/**
- * Given a string and a length, removes any "Re:" strings from the front.
- * It also deals with that dumbass "Re[2]:" thing that some losing mailers do.
- *
- * If mailnews.localizedRe is set, it will also remove localized "Re:" strings.
- *
- * @return true if it made a change (in which case the caller should look to
- *         modifiedSubject for the result) and false otherwise (in which
- *         case the caller should look at subject for the result)
- */
-bool NS_MsgStripRE(const nsCString& subject, nsCString& modifiedSubject);
-
 bool WeAreOffline();
 
 // Get a folder by Uri, returning null if it doesn't exist (or if some

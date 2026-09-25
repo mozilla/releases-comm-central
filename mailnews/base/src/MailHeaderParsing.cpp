@@ -13,6 +13,7 @@
 #include "IHeaderBlock.h"
 #include "nsIMimeConverter.h"
 #include "mozilla/Components.h"
+#include "mozilla/mailnews/MsgSubjectUtils.h"
 
 // Attempt to extract a timestamp from a "Received:" header value, e.g:
 // "from bar.com by foo.com ; Thu, 21 May 1998 05:33:29 -0700".
@@ -37,8 +38,6 @@ static PRTime TimestampFromReceived(nsACString const& received) {
 //  - RawHdr.dateReceived is from the first "Received:" header, else 0.
 // Any fallback policy (e.g. to mbox timestamp or PR_Now()) is left up to
 // the caller.
-//
-// Does not strip "Re:" off subject.
 //
 // Does not generate missing Message-Id (nsParseMailMessageState uses an
 // md5sum of the header block).
@@ -222,6 +221,13 @@ RawHdr ParseRawMailHeaders(mozilla::Span<const char> raw) {
     // Only upper 16 bits used for "X-Mozilla-Status2:".
     xflags |= xflags & 0xFFFF0000;
     out.flags |= xflags;
+  }
+
+  // The parsed subject takes precedence over HasRe from X-Mozilla-Status.
+  if (mozilla::mailnews::StripSubjectReplyPrefixes(out.subject)) {
+    out.flags |= nsMsgMessageFlags::HasRe;
+  } else {
+    out.flags &= ~nsMsgMessageFlags::HasRe;
   }
 
   // TODO: nsParseMailMessageState leaves replyTo unset if "Reply-To:" is

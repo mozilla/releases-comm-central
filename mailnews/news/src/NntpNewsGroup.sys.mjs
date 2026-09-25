@@ -114,29 +114,32 @@ export class NntpNewsGroup {
   }
 
   /**
-   * Strip multiple localized Re: prefixes and set the subject and the hasRe
-   * flag. This emulates NS_MsgStripRE()
+   * Set a message subject and its HasRe flag.
    *
-   * @param {nsIMsgDBHdr} msgHdr - The nsIMsgDBHdr to update
-   * @param {string} subject - The unprocessed subject
+   * @param {nsIMsgDBHdr} msgHdr - The message header to update.
+   * @param {string} subject - The unprocessed subject.
    */
   setSubject(msgHdr, subject) {
-    const prefixes = Services.prefs
-      .getComplexValue("mailnews.localizedRe", Ci.nsIPrefLocalizedString)
-      .data.split(",")
-      .filter(Boolean);
-    if (!prefixes.includes("Re")) {
-      prefixes.push("Re");
+    const hasEncodedWords = subject.includes("=?");
+    const decodedSubject = hasEncodedWords
+      ? MailServices.mimeConverter.decodeMimeHeader(subject, null, false, true)
+      : subject;
+    const strippedSubject =
+      MailServices.subjects.stripReplyPrefixes(decodedSubject);
+    const hadReplyPrefix = strippedSubject != decodedSubject;
+    if (Services.prefs.getBoolPref("mail.panorama.enabled", false)) {
+      msgHdr.subject = strippedSubject;
+    } else if (hadReplyPrefix && hasEncodedWords) {
+      msgHdr.subject =
+        MailServices.subjects.encodeForLegacyStorage(strippedSubject);
+    } else if (hadReplyPrefix) {
+      msgHdr.subject = strippedSubject;
+    } else {
+      msgHdr.subject = subject;
     }
-    // Construct a regular expression like this: ^(Re: |Aw: )+
-    const newSubject = subject.replace(
-      new RegExp(`^(${prefixes.join(": |")}: )+`, "i"),
-      ""
-    );
-    msgHdr.subject = newSubject;
-    if (newSubject != subject) {
-      msgHdr.orFlags(Ci.nsMsgMessageFlags.HasRe);
-    }
+    msgHdr.flags =
+      (msgHdr.flags & ~Ci.nsMsgMessageFlags.HasRe) |
+      (hadReplyPrefix ? Ci.nsMsgMessageFlags.HasRe : 0);
   }
 
   /**

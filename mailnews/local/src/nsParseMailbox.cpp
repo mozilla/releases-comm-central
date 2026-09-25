@@ -31,17 +31,18 @@
 #include "nsIMsgCopyService.h"
 #include "nsICryptoHash.h"
 #include "nsIMsgFilterCustomAction.h"
-#include <ctype.h>
 #include "nsIMsgPluggableStore.h"
 #include "nsReadableUtils.h"
 #include "nsURLHelper.h"  // For net_ParseContentType().
-#include "mozilla/Span.h"
 #include "HeaderReader.h"
 #include "IHeaderBlock.h"
 #include "nsIMimeConverter.h"
 #include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/ScopeExit.h"
+#include "mozilla/StaticPrefs_mail.h"
+#include "mozilla/Utf8.h"
+#include "mozilla/mailnews/MsgSubjectUtils.h"
 
 using namespace mozilla;
 
@@ -542,35 +543,50 @@ nsresult nsParseMailMessageState::ParseHeaders() {
 }
 
 nsresult nsParseMailMessageState::InternSubject(HeaderData* header) {
-  if (!header || header->length == 0) {
-    m_newMsgHdr->SetSubject(""_ns);
-    return NS_OK;
+  nsAutoCString rawSubject;
+  if (header && header->length) {
+    rawSubject.Assign(header->value, header->length);
   }
 
-  nsCString key(header->value, header->length);
+  nsAutoCString decodedSubject;
+  nsresult rv = NS_OK;
+  const bool panorama = StaticPrefs::mail_panorama_enabled_AtStartup();
+  if (rawSubject.Find("=?") != kNotFound || (panorama && !IsUtf8(rawSubject))) {
+    nsCOMPtr<nsIMimeConverter> mimeConverter =
+        components::MimeConverter::Service();
+    NS_ENSURE_TRUE(mimeConverter, NS_ERROR_FAILURE);
+    rv = mimeConverter->DecodeMimeHeaderToUTF8(rawSubject, nullptr, false, true,
+                                               decodedSubject);
+    NS_ENSURE_SUCCESS(rv, rv);
+  } else {
+    decodedSubject = rawSubject;
+  }
 
+  bool hasRe = mailnews::StripSubjectReplyPrefixes(decodedSubject);
+
+  nsAutoCString storedSubject;
+  if (panorama) {
+    storedSubject = decodedSubject;
+  } else if (hasRe && rawSubject.Find("=?") != kNotFound) {
+    rv = mailnews::EncodeSubjectForLegacyStorage(decodedSubject, storedSubject);
+    NS_ENSURE_SUCCESS(rv, rv);
+  } else if (hasRe) {
+    storedSubject = decodedSubject;
+  } else {
+    // Keep an unchanged MIME subject byte-for-byte in a legacy database.
+    storedSubject = rawSubject;
+  }
+
+  rv = m_newMsgHdr->SetSubject(storedSubject);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // The parsed subject takes precedence over HasRe from X-Mozilla-Status.
   uint32_t flags;
-  (void)m_newMsgHdr->GetFlags(&flags);
-  /* strip "Re: " */
-  /**
-        We trust the X-Mozilla-Status line to be the smartest in almost
-        all things.  One exception, however, is the HAS_RE flag.  Since
-         we just parsed the subject header anyway, we expect that parsing
-         to be smartest.  (After all, what if someone just went in and
-        edited the subject line by hand?)
-     */
-  nsCString modifiedSubject;
-  bool strippedRE = NS_MsgStripRE(key, modifiedSubject);
-  if (strippedRE)
-    flags |= nsMsgMessageFlags::HasRe;
-  else
-    flags &= ~nsMsgMessageFlags::HasRe;
-  m_newMsgHdr->SetFlags(flags);  // this *does not* update the mozilla-status
-                                 // header in the local folder
-
-  m_newMsgHdr->SetSubject(strippedRE ? modifiedSubject : key);
-
-  return NS_OK;
+  rv = m_newMsgHdr->GetFlags(&flags);
+  NS_ENSURE_SUCCESS(rv, rv);
+  flags = hasRe ? flags | nsMsgMessageFlags::HasRe
+                : flags & ~nsMsgMessageFlags::HasRe;
+  return m_newMsgHdr->SetFlags(flags);
 }
 
 // we've reached the end of the envelope, and need to turn all our accumulated

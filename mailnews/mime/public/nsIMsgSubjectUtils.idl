@@ -1,0 +1,32 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+/**
+ * Utilities for converting message subjects between their decoded form and
+ * the representation used by message databases.
+ */
+[scriptable, uuid(230b6c9b-9ba4-42a0-8412-7d0fd0f4b91a)]
+interface nsIMsgSubjectUtils : nsISupports {
+  /**
+   * Remove leading reply prefixes from a decoded subject.
+   *
+   * The prefixes include "Re", counters such as "Re[2]", and the localized
+   * prefixes from mailnews.localizedRe.
+   *
+   * @param subject An RFC 2047-decoded subject.
+   * @return        The subject without its reply prefixes.
+   */
+  AUTF8String stripReplyPrefixes(in AUTF8String subject);
+
+  /**
+   * Encode a decoded subject for storage in a legacy message database.
+   *
+   * Unlike nsIMimeConverter.encodeMimePartIIStr_UTF8, this also protects
+   * literal text that looks like an RFC 2047 encoded word from being decoded
+   * when read back.
+   */
+  AUTF8String encodeForLegacyStorage(in AUTF8String subject);
+};

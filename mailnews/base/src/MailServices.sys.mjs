@@ -143,6 +143,13 @@ XPCOMUtils.defineLazyServiceGetter(
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
+  "subjects",
+  "@mozilla.org/messenger/subject-utils;1",
+  Ci.nsIMsgSubjectUtils
+);
+
+XPCOMUtils.defineLazyServiceGetter(
+  MailServices,
   "tags",
   "@mozilla.org/messenger/tagservice;1",
   Ci.nsIMsgTagService

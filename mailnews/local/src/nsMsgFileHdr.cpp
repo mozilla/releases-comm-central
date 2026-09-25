@@ -332,15 +332,11 @@ NS_IMETHODIMP nsMsgFileHdr::GetSubject(nsACString& aSubject) {
 
 NS_IMETHODIMP nsMsgFileHdr::SetSubject(const nsACString& aSubject) {
   mSubject = aSubject;
-  bool strippedRE = NS_MsgStripRE(mSubject, mSubject);
   nsCOMPtr<nsIMimeConverter> mimeConverter =
       mozilla::components::MimeConverter::Service();
   NS_ENSURE_TRUE(mimeConverter, NS_ERROR_FAILURE);
   mimeConverter->DecodeMimeHeader(mSubject.get(), "UTF-8", false, true,
                                   mDecodedSubject);
-  if (strippedRE) {
-    mFlags |= nsMsgMessageFlags::HasRe;
-  }
   return NS_OK;
 }
 

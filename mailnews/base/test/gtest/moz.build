@@ -14,6 +14,6 @@ UNIFIED_SOURCES += [
     "TestMsgI18N.cpp",
     "TestMsgMboxRead.cpp",
     "TestMsgMboxWrite.cpp",
-    "TestMsgStripRE.cpp",
     "TestMsgUtils.cpp",
+    "TestStripSubjectReplyPrefixes.cpp",
 ]

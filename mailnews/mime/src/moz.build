@@ -27,6 +27,7 @@ EXPORTS += [
 EXPORTS.mozilla.mailnews += [
     "MimeEncoder.h",
     "MimeHeaderParser.h",
+    "MsgSubjectUtils.h",
 ]
 
 UNIFIED_SOURCES += [
@@ -71,6 +72,7 @@ UNIFIED_SOURCES += [
     "mimetpla.cpp",
     "mimetric.cpp",
     "mimeunty.cpp",
+    "MsgSubjectUtils.cpp",
     "nsMimeObjectClassAccess.cpp",
     "nsSimpleMimeConverterStub.cpp",
     "nsStreamConverter.cpp",

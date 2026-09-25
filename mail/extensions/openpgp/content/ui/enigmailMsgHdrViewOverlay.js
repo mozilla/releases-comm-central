@@ -514,26 +514,19 @@ Enigmail.hdrView = {
    * @param {nsIMsgDBHdr} hdr - The message we're setting subject for.
    */
   setSubject(subject, hdr) {
-    // Strip multiple localized Re: prefixes. This emulates NS_MsgStripRE().
-    const prefixes = Services.prefs
-      .getComplexValue("mailnews.localizedRe", Ci.nsIPrefLocalizedString)
-      .data.split(",")
-      .filter(Boolean);
-    if (!prefixes.includes("Re")) {
-      prefixes.push("Re");
-    }
-    // Construct a regular expression like this: ^(Re: |Aw: )+
-    let newSubject = subject.replace(
-      new RegExp(`^(${prefixes.join(": |")}: )+`, "i"),
-      ""
-    );
-    const hadRe = newSubject != subject;
+    const oldFlags = hdr.flags;
+    const subjectBefore = subject;
+    subject = MailServices.subjects.stripReplyPrefixes(subject);
+    const hadReplyPrefix = subject != subjectBefore;
+    hdr.subject = Services.prefs.getBoolPref("mail.panorama.enabled", false)
+      ? subject
+      : MailServices.subjects.encodeForLegacyStorage(subject);
+    hdr.flags =
+      (hdr.flags & ~Ci.nsMsgMessageFlags.HasRe) |
+      (hadReplyPrefix ? Ci.nsMsgMessageFlags.HasRe : 0);
 
-    // Update the message.
-    hdr.subject = newSubject;
-    const oldFlags = gMessage.flags;
-    if (hadRe) {
-      hdr.flags |= Ci.nsMsgMessageFlags.HasRe;
+    let newSubject = hdr.mime2DecodedSubject;
+    if (hadReplyPrefix) {
       newSubject = "Re: " + newSubject;
     }
 
