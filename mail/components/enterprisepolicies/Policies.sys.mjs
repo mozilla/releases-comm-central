@@ -2103,7 +2103,6 @@ if (AppConstants.MOZ_ENTERPRISE) {
       } else {
         // Only unblocking devtools; not-force enabling devtools.chrome.enabled
         lazy.PoliciesUtils.setAndLockPref("devtools.policy.disabled", false);
-        lazy.PoliciesUtils.setAndLockPref("remote.policy.disabled", false);
 
         manager.allowFeature("devtools");
         lazy.unblockAboutPage(manager, "about:debugging");
@@ -2113,7 +2112,6 @@ if (AppConstants.MOZ_ENTERPRISE) {
     onRemove(manager, _) {
       lazy.PoliciesUtils.unsetAndUnlockPref("devtools.policy.disabled");
       lazy.PoliciesUtils.unsetAndUnlockPref("devtools.chrome.enabled");
-      lazy.PoliciesUtils.unsetAndUnlockPref("remote.policy.disabled");
 
       manager.allowFeature("devtools");
       lazy.unblockAboutPage(manager, "about:debugging");
