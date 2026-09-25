@@ -680,6 +680,7 @@ function findCalendars(password, savePassword = false) {
       password,
       locationValue,
       savePassword,
+      null,
       gProviderUsage.preDetectFilters,
       {}
     )

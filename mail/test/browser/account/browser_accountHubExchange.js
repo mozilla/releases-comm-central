@@ -155,7 +155,7 @@ add_task(async function test_exchange_requires_credentials_account_creation() {
   const emailTemplate = dialog.querySelector("email-auto-form");
   const footerForward = dialog.querySelector("#emailFooter #forward");
 
-  await fillUserInformation(emailTemplate);
+  await fillUserInformation(emailTemplate, emailUser);
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
   // Click continue and wait for config found template to be in view.
@@ -394,7 +394,7 @@ add_task(async function test_exchange_manual_configuration() {
   const emailTemplate = dialog.querySelector("email-auto-form");
   const footerForward = dialog.querySelector("#emailFooter #forward");
 
-  await fillUserInformation(emailTemplate);
+  await fillUserInformation(emailTemplate, emailUser);
 
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
@@ -487,7 +487,7 @@ add_task(async function test_exchange_ews_advanced_configuration() {
   const emailTemplate = dialog.querySelector("email-auto-form");
   const footerForward = dialog.querySelector("#emailFooter #forward");
 
-  await fillUserInformation(emailTemplate);
+  await fillUserInformation(emailTemplate, emailUser);
 
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
@@ -538,7 +538,7 @@ add_task(async function test_exchange_graph_advanced_configuration() {
     "Manual configuration button should be invisible."
   );
 
-  await fillUserInformation(emailTemplate);
+  await fillUserInformation(emailTemplate, emailUser);
 
   Assert.ok(
     BrowserTestUtils.isVisible(manualConfigurationButton),
@@ -862,7 +862,7 @@ add_task(async function test_exchange_back_to_manual_configuration() {
   const emailTemplate = dialog.querySelector("email-auto-form");
   const footerForward = dialog.querySelector("#emailFooter #forward");
 
-  await fillUserInformation(emailTemplate);
+  await fillUserInformation(emailTemplate, emailUser);
 
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
@@ -976,43 +976,6 @@ add_task(async function test_exchange_back_to_manual_configuration() {
   needsAuthentication = true;
   await SpecialPowers.popPrefEnv();
 });
-
-/**
- * Fills the name and email inputs in the first step of account hub
- * email setup.
- *
- * @param {HTMLElement} emailStep - The email step HTML element.
- * @param {object} [userDetails] - Details to enter for the user. Defaults to the
- * emailUser object.
- */
-async function fillUserInformation(emailStep, userDetails = emailUser) {
-  const nameInput = emailStep.querySelector("#realName");
-  const emailInput = emailStep.querySelector("#email");
-
-  // Ensure fields are empty.
-  nameInput.value = "";
-  emailInput.value = "";
-
-  EventUtils.synthesizeMouseAtCenter(nameInput, {});
-  let inputEvent = BrowserTestUtils.waitForEvent(
-    nameInput,
-    "input",
-    false,
-    event => event.target.value === userDetails.name
-  );
-  EventUtils.sendString(userDetails.name, window);
-  await inputEvent;
-
-  EventUtils.synthesizeMouseAtCenter(emailInput, {});
-  inputEvent = BrowserTestUtils.waitForEvent(
-    emailInput,
-    "input",
-    false,
-    event => event.target.value === userDetails.email
-  );
-  EventUtils.sendString(userDetails.email, window);
-  await inputEvent;
-}
 
 /**
  * Fills the password input in the password step of account hub email setup.

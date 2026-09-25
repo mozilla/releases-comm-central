@@ -6,6 +6,7 @@ import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 import { DNS } from "resource:///modules/DNS.sys.mjs";
 import { CalDavPropfindRequest } from "resource:///modules/caldav/CalDavRequest.sys.mjs";
 import { CalDavDetectionSession } from "resource:///modules/caldav/CalDavSession.sys.mjs";
+import { OAuth2Module } from "resource:///modules/OAuth2Module.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
@@ -41,7 +42,24 @@ export var CalDavProvider = {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
-  async detectCalendars(username, password, location = null, savePassword = false) {
+  async detectCalendars(
+    username,
+    password,
+    location = null,
+    savePassword = false,
+    authMethod = null
+  ) {
+    // Bail out if the CalDAV scope wasn't granted.
+    if (authMethod && authMethod == Ci.nsMsgAuthMethod.OAuth2) {
+      const oAuth2 = new OAuth2Module();
+      if (
+        !oAuth2.initFromHostname(location, username, "caldav") ||
+        !(await oAuth2.getRefreshToken())
+      ) {
+        return [];
+      }
+    }
+
     const uri = cal.provider.detection.locationToUri(location);
     if (!uri) {
       throw new Error("Could not infer location from username");

@@ -112,6 +112,9 @@ tags = ["accounthub"]
 ["browser_accountHubSyncAccounts.js"]
 tags = ["accounthub"]
 
+["browser_accountHubSyncCalendarExchange.js"]
+tags = ["accounthub"]
+
 ["browser_accountOrder.js"]
 
 ["browser_accountTelemetry.js"]

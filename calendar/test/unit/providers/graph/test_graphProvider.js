@@ -15,7 +15,14 @@ add_task(async function test_detectCalendars() {
   const serverUrl = incomingServer.getStringValue("ews_url");
   info(`Server URL: ${serverUrl}`);
 
-  const calendars = await GraphProvider.detectCalendars("user", "password", "localhost", false, {});
+  const calendars = await GraphProvider.detectCalendars(
+    "user",
+    "password",
+    "localhost",
+    false,
+    null,
+    {}
+  );
 
   Assert.equal(calendars.length, 1, "Should be 1 calendar.");
   const calendar = calendars[0];

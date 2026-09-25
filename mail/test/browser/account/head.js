@@ -522,6 +522,42 @@ function removeAccountInternal(tab, account) {
   win.replaceWithDefaultSmtpServer(smtpKey);
 }
 
+/**
+ * Fills the name and email inputs in the first step of account hub
+ * email setup.
+ *
+ * @param {HTMLElement} emailStep - The email step HTML element.
+ * @param {object} [userDetails] - Details to enter for the user.
+ */
+async function fillUserInformation(emailStep, userDetails) {
+  const nameInput = emailStep.querySelector("#realName");
+  const emailInput = emailStep.querySelector("#email");
+
+  // Ensure fields are empty.
+  nameInput.value = "";
+  emailInput.value = "";
+
+  EventUtils.synthesizeMouseAtCenter(nameInput, {});
+  let inputEvent = BrowserTestUtils.waitForEvent(
+    nameInput,
+    "input",
+    false,
+    event => event.target.value === userDetails.name
+  );
+  EventUtils.sendString(userDetails.name, window);
+  await inputEvent;
+
+  EventUtils.synthesizeMouseAtCenter(emailInput, {});
+  inputEvent = BrowserTestUtils.waitForEvent(
+    emailInput,
+    "input",
+    false,
+    event => event.target.value === userDetails.email
+  );
+  EventUtils.sendString(userDetails.email, window);
+  await inputEvent;
+}
+
 // Report and remove any accounts/servers that aren't in the test manifest.
 // If we register a cleanup function here, it will run before any other
 // cleanup function has had a chance to run. Instead, when it runs register

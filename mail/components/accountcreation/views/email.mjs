@@ -1890,8 +1890,9 @@ class AccountHubEmail extends HTMLElement {
       );
 
       // We'll look for address books and calendars at the domain of the email
-      // address and, if it's different but is at the same site according to
-      // the eTLD service, the domain of the incoming mail server.
+      // address, the incoming mail server's hostname, and, if it's different
+      // but is at the same site according to the eTLD service, the domain of
+      // the incoming mail server.
       const hostnames = [this.#email.split("@")[1]];
       const incomingHostname = this.#currentConfig.incoming.hostname;
       if (
@@ -1901,6 +1902,13 @@ class AccountHubEmail extends HTMLElement {
       ) {
         hostnames.push(incomingHostname);
       }
+
+      // If this is a graph email server, then we want to pass the incoming
+      // server's hostname in for calendar discovery as well.
+      if (this.#currentConfig.incoming.type === "graph") {
+        hostnames.push(incomingHostname);
+      }
+
       gAccountSetupLogger.debug(
         `Discovering address books and calendars at ${hostnames.join(", ")}.`
       );
@@ -2215,21 +2223,6 @@ class AccountHubEmail extends HTMLElement {
    * @returns {Array} - The calendars associated with the account.
    */
   async #getCalendars(hostnames, password, rememberPassword) {
-    // Bail out if the CalDAV scope wasn't granted.
-    if (this.#currentConfig.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
-      const oAuth2 = new lazy.OAuth2Module();
-      if (
-        !oAuth2.initFromHostname(
-          this.#currentConfig.incoming.hostname,
-          this.#currentConfig.incoming.username,
-          "caldav"
-        ) ||
-        !(await oAuth2.getRefreshToken())
-      ) {
-        return [];
-      }
-    }
-
     let calendarEntries;
     for (const hostname of hostnames) {
       try {
@@ -2238,6 +2231,7 @@ class AccountHubEmail extends HTMLElement {
           password,
           `https://${hostname}`,
           rememberPassword,
+          this.#currentConfig.incoming.auth,
           [],
           {}
         );

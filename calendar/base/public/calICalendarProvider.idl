@@ -4,6 +4,8 @@
 
 #include "nsISupports.idl"
 
+#include "MailNewsTypes2.idl"
+
 interface calICalendar;
 
 /**
@@ -51,6 +53,7 @@ interface calICalendarProvider : nsISupports
    * @param location          The location to use. It could be a hostname, a
    *                            specific URL, the origin URL, etc.
    * @param savePassword      Whether to save the password or not.
+   * @param authMethod        The authentication method for the server, if known, otherwise null.
    * @param extraProperties   Any additional properties needed.
    * @return                  Promise resolved with an array of found calendars.
    *                            (Array<calICalendar>). If no calendars were
@@ -59,5 +62,6 @@ interface calICalendarProvider : nsISupports
    */
   Promise detectCalendars(in AUTF8String username, in AUTF8String password,
                           in AUTF8String location, in boolean savePassword,
+                          in nsMsgAuthMethod authMethod,
                           [optional] in jsval extraProperties);
 };

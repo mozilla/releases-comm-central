@@ -718,6 +718,8 @@ NS_IMETHODIMP ExchangeIncomingServer::GetProtocolClient(
     rv = GetExchangeOverrideOAuthDetails(&overrideOAuth);
     NS_ENSURE_SUCCESS(rv, rv);
 
+    MOZ_LOG_FMT(gExchangeLog, LogLevel::Debug, "Initializing Exchange server with endpoint {}", endpoint);
+
     // Set up the client object with access details.
     rv = tempClient->Initialize(endpoint, this);
     NS_ENSURE_SUCCESS(rv, rv);

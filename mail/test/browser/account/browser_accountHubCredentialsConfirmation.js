@@ -152,7 +152,7 @@ add_task(async function test_credentials_confirmation_manual_configuration() {
   const emailTemplate = dialog.querySelector("email-auto-form");
   const footerForward = dialog.querySelector("#emailFooter #forward");
 
-  await fillUserInformation(emailTemplate);
+  await fillUserInformation(emailTemplate, emailUser);
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
   // Click continue and wait for credentials confirmation step to be in view.
@@ -202,7 +202,7 @@ add_task(
     const emailTemplate = dialog.querySelector("email-auto-form");
     const footerForward = dialog.querySelector("#emailFooter #forward");
 
-    await fillUserInformation(emailTemplate);
+    await fillUserInformation(emailTemplate, emailUser);
     Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
     // Click continue and wait for credentials confirmation step to be in view.
@@ -300,7 +300,7 @@ add_task(async function test_cancel_credentials_confirmation() {
   const footerForward = dialog.querySelector("#emailFooter #forward");
   const footerBack = dialog.querySelector("#emailFooter #back");
 
-  await fillUserInformation(emailTemplate);
+  await fillUserInformation(emailTemplate, emailUser);
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
   // Click continue and wait for config found template to be in view.
@@ -345,7 +345,7 @@ add_task(async function test_credentials_confirmation() {
   const emailTemplate = dialog.querySelector("email-auto-form");
   const footerForward = dialog.querySelector("#emailFooter #forward");
 
-  await fillUserInformation(emailTemplate);
+  await fillUserInformation(emailTemplate, emailUser);
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
   // Click continue and wait for credentials confirmation step to be in view.
@@ -471,7 +471,7 @@ add_task(async function test_credentials_confirmation_to_manual_config() {
   const autodiscoverResonse = AUTODISCOVER_RESPONSE;
   AUTODISCOVER_RESPONSE = "";
 
-  await fillUserInformation(emailTemplate);
+  await fillUserInformation(emailTemplate, emailUser);
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
   // Click continue and wait for credentials confirmation step to be in view.
@@ -559,41 +559,4 @@ async function subtest_drag_select_protocol(protocolSelectTemplate, protocol) {
     protocolInput.checked,
     `${protocol} should be selected after a moved click on its card`
   );
-}
-
-/**
- * Fills the name and email inputs in the first step of account hub
- * email setup.
- *
- * @param {HTMLElement} emailStep - The email step HTML element.
- * @param {object} [userDetails] - Details to enter for the user. Defaults to the
- * emailUser object.
- */
-async function fillUserInformation(emailStep, userDetails = emailUser) {
-  const nameInput = emailStep.querySelector("#realName");
-  const emailInput = emailStep.querySelector("#email");
-
-  // Ensure fields are empty.
-  nameInput.value = "";
-  emailInput.value = "";
-
-  EventUtils.synthesizeMouseAtCenter(nameInput, {});
-  let inputEvent = BrowserTestUtils.waitForEvent(
-    nameInput,
-    "input",
-    false,
-    event => event.target.value === userDetails.name
-  );
-  EventUtils.sendString(userDetails.name, window);
-  await inputEvent;
-
-  EventUtils.synthesizeMouseAtCenter(emailInput, {});
-  inputEvent = BrowserTestUtils.waitForEvent(
-    emailInput,
-    "input",
-    false,
-    event => event.target.value === userDetails.email
-  );
-  EventUtils.sendString(userDetails.email, window);
-  await inputEvent;
 }

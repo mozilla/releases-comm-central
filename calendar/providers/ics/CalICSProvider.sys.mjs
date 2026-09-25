@@ -42,7 +42,13 @@ export var CalICSProvider = {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
-  async detectCalendars(username, password, location = null, savePassword = false) {
+  async detectCalendars(
+    username,
+    password,
+    location = null,
+    savePassword = false,
+    _authMethod = null
+  ) {
     const uri = cal.provider.detection.locationToUri(location);
     if (!uri) {
       throw new Error("Could not infer location from username");
