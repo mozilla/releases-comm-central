@@ -11,6 +11,7 @@
 #include "mozilla/Preferences.h"
 #include "mozilla/TextUtils.h"
 #include "nsCOMPtr.h"
+#include "nsCharSeparatedTokenizer.h"
 #include "nsIMimeConverter.h"
 #include "nsTArray.h"
 
