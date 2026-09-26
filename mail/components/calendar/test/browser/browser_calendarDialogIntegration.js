@@ -53,6 +53,17 @@ async function cleanUp(dialog, eventBox) {
   await calendar.deleteItem(eventBox.occurrence);
 }
 
+/**
+ * Get the week view column of the day after the given date, wrapping from
+ * Saturday to Sunday.
+ *
+ * @param {Date} date
+ * @returns {number}
+ */
+function nextDayColumn(date) {
+  return ((date.getDay() + 1) % 7) + 1;
+}
+
 add_task(async function test_calendarDialogOpenAndClose() {
   let dialog = document.querySelector('[is="calendar-dialog"]');
 
@@ -320,14 +331,18 @@ add_task(async function test_dialogDeleteMenuSingleEvent() {
 });
 
 add_task(async function test_dialogDeleteMenuRecurringEvents() {
-  await createEvent({ calendar, repeats: true });
-  const testDate = new Date();
+  // The following day's occurrence has to be in the displayed week.
+  const testDate = new Date(todayDate);
+  if (testDate.getDay() == 6) {
+    testDate.setDate(testDate.getDate() - 1);
+  }
+  await createEvent({ calendar, repeats: true, baseDate: testDate });
   await openAndShowEvent({ baseDate: testDate });
 
   const dialog = document.getElementById("calendarDialog");
   const eventId = dialog.getAttribute("event-id");
   Assert.ok(
-    weekView.getEventBoxAt(window, testDate.getDay() + 2, 1),
+    weekView.getEventBoxAt(window, nextDayColumn(testDate), 1),
     "The following day calendar event box should exist"
   );
 
@@ -349,7 +364,7 @@ add_task(async function test_dialogDeleteMenuRecurringEvents() {
   await subtestDeleteEventPrompt(deleteAllEventsPromise, testDate.getDay() + 1);
 
   Assert.ok(
-    !weekView.getEventBoxAt(window, testDate.getDay() + 2, 1),
+    !weekView.getEventBoxAt(window, nextDayColumn(testDate), 1),
     "The following day calendar event box should be removed"
   );
 
@@ -376,7 +391,7 @@ add_task(async function test_dialogDeleteMenuSingleOccurence() {
     "chrome://messenger/content/calendarPrompt.xhtml"
   );
 
-  await subtestDeleteEventPrompt(deletePromptPromise, testDate.getDay() + 2);
+  await subtestDeleteEventPrompt(deletePromptPromise, nextDayColumn(testDate));
 
   const event = await calendar.getItem(eventId);
   Assert.ok(event, "The event in the calendar should still exist");
