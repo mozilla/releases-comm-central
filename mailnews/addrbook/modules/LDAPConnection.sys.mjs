@@ -20,6 +20,10 @@ export class LDAPConnection {
     return this._bindName;
   }
 
+  get url() {
+    return this._url;
+  }
+
   init(url, bindName, listener) {
     const useSecureTransport = url.scheme == "ldaps";
     let port = url.port;

@@ -171,6 +171,17 @@ export var LDAPServer = {
     this.write(message.getBytes());
   },
   /**
+   * Sends a SearchResultReference to the application.
+   * See RFC 4511 section 4.5.3.
+   *
+   * @param {string} url - The LDAP URL to refer the application to.
+   */
+  writeSearchResultReference(url) {
+    const message = new Sequence(0x30, new IntegerValue(this._lastMessageID));
+    message.children.push(new Sequence(0x73, new StringValue(url)));
+    this.write(message.getBytes());
+  },
+  /**
    * Sends a SearchResultDone to the application.
    * See RFC 4511 section 4.5.2.
    */

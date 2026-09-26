@@ -8,18 +8,24 @@
 export class LDAPURLParser {
   QueryInterface = ChromeUtils.generateQI(["nsILDAPURLParser"]);
 
+  /**
+   * @param {string} spec - The LDAP URL to parse.
+   * @returns {nsILDAPURLParserResult}
+   */
   parse(spec) {
     // The url is in the form of scheme://hostport/dn?attributes?scope?filter,
     // see RFC2255.
     const matches =
-      /^(ldaps?):\/\/\[?([^\s\]/]+)\]?:?(\d*)\/([^\s?]*)\??(.*)$/.exec(spec);
+      /^(ldaps?):\/\/(?:\[([^\s\]/]+)\]|([^\s:/]+))(?::(\d*))?\/([^\s?]*)\??(.*)$/.exec(
+        spec
+      );
     if (!matches) {
       throw Components.Exception(
         `Invalid LDAP URL: ${spec}`,
         Cr.NS_ERROR_ILLEGAL_VALUE
       );
     }
-    const [, scheme, host, port, dn, query] = matches;
+    const [, scheme, ipv6Host, host, port, dn, query] = matches;
     const [attributes, scopeString, filter] = query.split("?");
     const scope =
       {
@@ -28,8 +34,8 @@ export class LDAPURLParser {
       }[scopeString] || Ci.nsILDAPURL.SCOPE_BASE;
     return {
       QueryInterface: ChromeUtils.generateQI(["nsILDAPURLParserResult"]),
-      host,
-      port,
+      host: ipv6Host ?? host,
+      port: port ? parseInt(port) : -1,
       dn: decodeURIComponent(dn),
       attributes,
       scope,
