@@ -873,8 +873,8 @@ const allowedSchemaDifferences = {
     "          },",
     '          "install_url": {',
     "  ...",
-    '          "update_url": {',
-    '            "$ref": "#/definitions/url"',
+    '            "format": "moz-url",',
+    '            "pattern": "^[^%]*(?:%[0-9A-Fa-f]{2}[^%]*)*$"',
     "          },",
     '-         "default_area": {',
     '-           "type": "string",',
@@ -1168,7 +1168,7 @@ if (AppConstants.MOZ_ENTERPRISE) {
     "-   },",
     '    "origin": {',
     '      "type": "string",',
-    '      "format": "uri",',
+    '      "format": "moz-url",',
     "  ...",
   ];
 

@@ -324,8 +324,8 @@ function generateErrors() {
 // This is a display-only transform. Consumers that need machine-readable
 // metadata (e.g. a policy editor) should use the canonical schema instead.
 function legacyType(node) {
-  if (node.format === "uri") {
-    return node.pattern ? "origin" : "URL";
+  if (node.format === "moz-url") {
+    return node.pattern?.includes("://") ? "origin" : "URL";
   }
   if (node.contentMediaType === "application/json") {
     if (Array.isArray(node.type)) {
@@ -351,7 +351,7 @@ function legacySchemaForDisplay(node) {
 
   if (node.anyOf) {
     // A string that is a uri or empty -> "URLorEmpty".
-    if (node.anyOf.some(branch => branch.format === "uri")) {
+    if (node.anyOf.some(branch => branch.format === "moz-url")) {
       return { type: "URLorEmpty" };
     }
     // A "boolean or enumerated string" policy -> {type: [...], enum: [...]}.

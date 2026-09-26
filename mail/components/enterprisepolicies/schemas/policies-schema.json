@@ -1,15 +1,15 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$comment": "Validation uses standard JSON Schema. Before validating, Thunderbird normalizes platform input in PolicySchemaValidator.sys.mjs: a value delivered as a JSON string is parsed where contentMediaType is application/json, and 0/1 integers become booleans. After validation, strings with format uri become URL objects, and a list entry that fails validation is dropped and logged rather than discarding the whole policy.",
+  "$comment": "Validation uses standard JSON Schema. Before validating, Thunderbird normalizes platform input in PolicySchemaValidator.sys.mjs: a value delivered as a JSON string is parsed where contentMediaType is application/json, and 0/1 integers become booleans. After validation, strings with format moz-url (any string the WHATWG URL parser accepts) become URL objects, and a list entry that fails validation is dropped and logged rather than discarding the whole policy.",
   "definitions": {
-    "url": { "type": "string", "format": "uri" },
+    "url": { "type": "string", "format": "moz-url" },
     "urlOrEmpty": {
       "type": "string",
-      "anyOf": [{ "format": "uri" }, { "maxLength": 0 }]
+      "anyOf": [{ "format": "moz-url" }, { "maxLength": 0 }]
     },
     "origin": {
       "type": "string",
-      "format": "uri",
+      "format": "moz-url",
       "pattern": "^([Ff][Ii][Ll][Ee]://.*|[Hh][Tt][Tt][Pp][Ss]?://[^/]+/?)$"
     }
   },
@@ -408,7 +408,11 @@
             "updates_disabled": {
               "type": "boolean"
             },
-            "update_url": { "$ref": "#/definitions/url" },
+            "update_url": {
+              "type": "string",
+              "format": "moz-url",
+              "pattern": "^[^%]*(?:%[0-9A-Fa-f]{2}[^%]*)*$"
+            },
             "private_browsing": {
               "type": "boolean"
             }
