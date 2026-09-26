@@ -31,8 +31,8 @@ const CONTACT = {
  * @param {nsIURI} [options.directoryUrl] - Pretend the directory was
  *   configured with this URL instead of the test server URL.
  * @returns {object} The LDAPOperation as `operation`, and as `result` a
- *   promise resolving with the found entries and the result code when the
- *   search is finished.
+ *   promise resolving with the found entries and either the result code when
+ *   the search is finished, or the status of an LDAP error.
  */
 function startSearch({ directoryUrl } = {}) {
   const entries = [];
@@ -62,7 +62,7 @@ function startSearch({ directoryUrl } = {}) {
       }
     },
     onLDAPError(status) {
-      Assert.ok(false, `LDAP error ${status.toString(16)} should not happen`);
+      resolve({ entries, status });
     },
   };
   conn.init(
@@ -263,4 +263,46 @@ add_task(async function test_abandonDuringReferral() {
     "Abandoned referral should be unbound instead of searched"
   );
   Assert.ok(!finished, "Abandoned search should not report a result");
+});
+
+add_task(async function test_serverClosesConnection() {
+  const { result } = startSearch();
+  await LDAPServer.read(LDAPServer.BindRequest);
+  LDAPServer.writeBindResponse();
+  await LDAPServer.read(LDAPServer.SearchRequest);
+  LDAPServer.writeSearchResultEntry(CONTACT);
+  LDAPServer.closeConnection();
+
+  const { entries, status } = await result;
+  Assert.deepEqual(entries, ["Sherlock Holmes"], "Entry should be found");
+  Assert.equal(
+    status,
+    Cr.NS_ERROR_NET_INTERRUPT,
+    "Closed connection should be reported as an error"
+  );
+});
+
+add_task(async function test_referralClosesConnection() {
+  const { result } = startSearch();
+  await LDAPServer.read(LDAPServer.BindRequest);
+  LDAPServer.writeBindResponse();
+  await LDAPServer.read(LDAPServer.SearchRequest);
+  LDAPServer.writeSearchResultReference(
+    `ldap://localhost:${LDAPServer.port}/o=referral`
+  );
+  LDAPServer.writeSearchResultDone();
+
+  await LDAPServer.read(LDAPServer.BindRequest);
+  LDAPServer.writeBindResponse();
+  await LDAPServer.read(LDAPServer.SearchRequest);
+  LDAPServer.writeSearchResultEntry(CONTACT);
+  LDAPServer.closeConnection();
+
+  const { entries, errorCode } = await result;
+  Assert.deepEqual(entries, ["Sherlock Holmes"], "Entry should be found");
+  Assert.equal(
+    errorCode,
+    Ci.nsILDAPErrors.SUCCESS,
+    "Search should finish with the result of the directory"
+  );
 });

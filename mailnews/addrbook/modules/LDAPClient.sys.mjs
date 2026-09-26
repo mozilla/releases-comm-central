@@ -42,6 +42,8 @@ export class LDAPClient {
     });
 
     this._dataEventsQueue = [];
+    this._closing = false;
+    this._socketClosed = false;
   }
 
   connect() {
@@ -121,6 +123,7 @@ export class LDAPClient {
    * Send an unbind request to the server.
    */
   unbind() {
+    this._closing = true;
     return this._send(new UnbindRequest(), () => this._socket.close());
   }
 
@@ -210,6 +213,7 @@ export class LDAPClient {
       this._callbackMap.clear();
       this._dataEventsQueue.length = 0;
       this._processingData = false;
+      this._closing = true;
       this._socket.close();
       return;
     }
@@ -271,6 +275,25 @@ export class LDAPClient {
     const next = this._dataEventsQueue.shift();
     if (next) {
       this._onData(next);
+    } else {
+      this._maybeReportServerClosed();
+    }
+  }
+
+  /**
+   * Report an error if the server closed the connection while we were still
+   * waiting for a response, once all received data has been processed.
+   */
+  _maybeReportServerClosed() {
+    if (
+      this._socketClosed &&
+      !this._closing &&
+      !this._processingData &&
+      this._callbackMap.size
+    ) {
+      this._closing = true;
+      this._callbackMap.clear();
+      this.onError(Cr.NS_ERROR_NET_INTERRUPT);
     }
   }
 
@@ -279,6 +302,8 @@ export class LDAPClient {
    */
   _onClose = () => {
     this._logger.debug("Connection closed");
+    this._socketClosed = true;
+    this._maybeReportServerClosed();
   };
 
   /**
@@ -288,6 +313,7 @@ export class LDAPClient {
    */
   _onError = async event => {
     this._logger.error(event);
+    this._closing = true;
     this._socket.close();
     this.onError(
       event.errorCode,

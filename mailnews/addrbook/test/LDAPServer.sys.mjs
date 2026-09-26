@@ -196,6 +196,14 @@ export var LDAPServer = {
     message.children.push(person);
     this.write(message.getBytes());
   },
+  /**
+   * Closes the connection to the application, after sending any data that
+   * was written.
+   */
+  closeConnection() {
+    this._outputStream.close();
+    this._inputStream.close();
+  },
 
   /**
    * nsIServerSocketListener.onSocketAccepted
@@ -215,6 +223,7 @@ export var LDAPServer = {
       this._socketConnectedResolve();
       delete this._socketConnectedResolve;
     }
+    this._inputStream = inputStream;
     inputStream.asyncWait(this, 0, 0, Services.tm.mainThread);
   },
   /**
