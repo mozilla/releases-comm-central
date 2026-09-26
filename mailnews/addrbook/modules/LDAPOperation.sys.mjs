@@ -41,6 +41,7 @@ export class LDAPOperation {
     this._referenceUrls = [];
     this._referralCount = 0;
     this._searchResultCode = null;
+    this._abandoned = false;
 
     // Cache request arguments to use when searching references.
     this._password = null;
@@ -180,6 +181,8 @@ export class LDAPOperation {
   }
 
   abandonExt() {
+    this._abandoned = true;
+    this._referenceUrls = [];
     if (this._messageId) {
       this._client.abandon(this._messageId);
     }
@@ -187,14 +190,14 @@ export class LDAPOperation {
 
   /**
    * Decide what to do on a bind response. When searching a reference url,
-   * trigger a new search, or skip to the next reference if the bind failed.
-   * Otherwise, emit a message to this._listener.
+   * trigger a new search, or skip to the next reference if the bind failed or
+   * the operation was abandoned. Otherwise, emit a message to this._listener.
    *
    * @param {number} errorCode - The result code of BindResponse.
    */
   _onBindResponse(errorCode) {
     if (this._searchingReference) {
-      if (errorCode != Ci.nsILDAPErrors.SUCCESS) {
+      if (this._abandoned || errorCode != Ci.nsILDAPErrors.SUCCESS) {
         this._client.onError = () => {};
         this._client.unbind();
         this._searchNextReference();
@@ -215,6 +218,9 @@ export class LDAPOperation {
    * this._listener if there is none left.
    */
   _searchNextReference() {
+    if (this._abandoned) {
+      return;
+    }
     while (this._referenceUrls.length) {
       if (this._searchReference(this._referenceUrls.shift())) {
         return;
@@ -267,7 +273,10 @@ export class LDAPOperation {
     this._referenceDN = url.dn;
     this._client = new lazy.LDAPClient(url.host, port, useSecureTransport);
     this._client.onOpen = () => {
-      if (!sameHost) {
+      if (this._abandoned) {
+        this._client.onError = () => {};
+        this._client.unbind();
+      } else if (!sameHost) {
         this._client.bind("", "", res =>
           this._onBindResponse(res.result.resultCode)
         );

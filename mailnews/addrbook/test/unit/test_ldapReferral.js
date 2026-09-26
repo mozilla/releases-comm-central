@@ -30,8 +30,9 @@ const CONTACT = {
  * @param {object} [options]
  * @param {nsIURI} [options.directoryUrl] - Pretend the directory was
  *   configured with this URL instead of the test server URL.
- * @returns {Promise<object>} Resolves with the found entries and the result
- *   code when the search is finished.
+ * @returns {object} The LDAPOperation as `operation`, and as `result` a
+ *   promise resolving with the found entries and the result code when the
+ *   search is finished.
  */
 function startSearch({ directoryUrl } = {}) {
   const entries = [];
@@ -72,7 +73,7 @@ function startSearch({ directoryUrl } = {}) {
   if (directoryUrl) {
     Object.defineProperty(conn, "url", { value: directoryUrl });
   }
-  return promise;
+  return { operation: op, result: promise };
 }
 
 /**
@@ -105,7 +106,7 @@ add_task(function test_parseReferralUrl() {
 });
 
 add_task(async function test_sameHostReferral() {
-  const searchPromise = startSearch();
+  const { result } = startSearch();
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
   await LDAPServer.read(LDAPServer.SearchRequest);
@@ -129,13 +130,13 @@ add_task(async function test_sameHostReferral() {
   LDAPServer.writeSearchResultEntry(CONTACT);
   LDAPServer.writeSearchResultDone();
 
-  const { entries, errorCode } = await searchPromise;
+  const { entries, errorCode } = await result;
   Assert.deepEqual(entries, ["Sherlock Holmes"], "Entry should be found");
   Assert.equal(errorCode, Ci.nsILDAPErrors.SUCCESS, "Search should succeed");
 });
 
 add_task(async function test_otherHostReferral() {
-  const searchPromise = startSearch();
+  const { result } = startSearch();
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
   await LDAPServer.read(LDAPServer.SearchRequest);
@@ -159,12 +160,12 @@ add_task(async function test_otherHostReferral() {
   LDAPServer.writeSearchResultEntry(CONTACT);
   LDAPServer.writeSearchResultDone();
 
-  const { entries } = await searchPromise;
+  const { entries } = await result;
   Assert.deepEqual(entries, ["Sherlock Holmes"], "Entry should be found");
 });
 
 add_task(async function test_insecureReferral() {
-  const searchPromise = startSearch({
+  const { result } = startSearch({
     directoryUrl: Services.io.newURI(`ldaps://localhost/o=test`),
   });
   await LDAPServer.read(LDAPServer.BindRequest);
@@ -175,13 +176,13 @@ add_task(async function test_insecureReferral() {
   );
   LDAPServer.writeSearchResultDone();
 
-  const { entries, errorCode } = await searchPromise;
+  const { entries, errorCode } = await result;
   Assert.deepEqual(entries, [], "Insecure referral should not be followed");
   Assert.equal(errorCode, Ci.nsILDAPErrors.SUCCESS, "Search should succeed");
 });
 
 add_task(async function test_referralDepth() {
-  const searchPromise = startSearch();
+  const { result } = startSearch();
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
   await LDAPServer.read(LDAPServer.SearchRequest);
@@ -200,13 +201,13 @@ add_task(async function test_referralDepth() {
   LDAPServer.writeSearchResultEntry(CONTACT);
   LDAPServer.writeSearchResultDone();
 
-  const { entries, errorCode } = await searchPromise;
+  const { entries, errorCode } = await result;
   Assert.deepEqual(entries, ["Sherlock Holmes"], "Entry should be found");
   Assert.equal(errorCode, Ci.nsILDAPErrors.SUCCESS, "Search should finish");
 });
 
 add_task(async function test_referralLimit() {
-  const searchPromise = startSearch();
+  const { result } = startSearch();
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
   await LDAPServer.read(LDAPServer.SearchRequest);
@@ -231,6 +232,35 @@ add_task(async function test_referralLimit() {
     LDAPServer.writeSearchResultDone();
   }
 
-  const { errorCode } = await searchPromise;
+  const { errorCode } = await result;
   Assert.equal(errorCode, Ci.nsILDAPErrors.SUCCESS, "Search should finish");
+});
+
+add_task(async function test_abandonDuringReferral() {
+  const { operation, result } = startSearch();
+  let finished = false;
+  result.then(() => (finished = true));
+  await LDAPServer.read(LDAPServer.BindRequest);
+  LDAPServer.writeBindResponse();
+  await LDAPServer.read(LDAPServer.SearchRequest);
+  LDAPServer.writeSearchResultReference(
+    `ldap://[127.0.0.1]:${LDAPServer.port}/o=referral`
+  );
+  LDAPServer.writeSearchResultDone();
+
+  await LDAPServer.read(LDAPServer.BindRequest);
+  operation.abandonExt();
+  LDAPServer.writeBindResponse();
+
+  // Skip the unbind of the first connection (message 3), which may arrive late.
+  let data;
+  do {
+    data = await LDAPServer.read();
+  } while (data[4] == 3);
+  Assert.equal(
+    data[5],
+    LDAPServer.UnbindRequest,
+    "Abandoned referral should be unbound instead of searched"
+  );
+  Assert.ok(!finished, "Abandoned search should not report a result");
 });
