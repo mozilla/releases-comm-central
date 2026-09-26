@@ -75,11 +75,11 @@ void nsLDAPURL::GetPathInternal(nsCString& aPath) {
   }
 }
 
-nsresult nsLDAPURL::SetPathInternal(const nsCString& aPath) {
+nsresult nsLDAPURL::ParseLDAPSpec(const nsCString& aSpec) {
   nsCOMPtr<nsILDAPURLParser> parser =
       do_CreateInstance("@mozilla.org/network/ldap-url-parser;1");
   nsCOMPtr<nsILDAPURLParserResult> parserResult;
-  nsresult rv = parser->Parse(aPath, getter_AddRefs(parserResult));
+  nsresult rv = parser->Parse(aSpec, getter_AddRefs(parserResult));
   NS_ENSURE_SUCCESS(rv, rv);
 
   parserResult->GetDn(mDN);
@@ -96,7 +96,6 @@ nsresult nsLDAPURL::SetPathInternal(const nsCString& aPath) {
     mAttributes.Append(attributes);
     mAttributes.Append(',');
   }
-
   return NS_OK;
 }
 
@@ -127,7 +126,7 @@ nsresult nsLDAPURL::SetSpecInternal(const nsACString& aSpec) {
 
   // Only take on the new spec once we know the LDAP-specific parts of it parse,
   // so that a bad spec leaves us untouched rather than half-updated.
-  rv = SetPathInternal(PromiseFlatCString(aSpec));
+  rv = ParseLDAPSpec(PromiseFlatCString(aSpec));
   NS_ENSURE_SUCCESS(rv, rv);
 
   mBaseURL = baseURL;
@@ -237,10 +236,20 @@ NS_IMETHODIMP nsLDAPURL::GetPathQueryRef(nsACString& _retval) {
 nsresult nsLDAPURL::SetPathQueryRef(const nsACString& aPath) {
   if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
-  nsresult rv = SetPathInternal(PromiseFlatCString(aPath));
+  nsCOMPtr<nsIURI> baseURL;
+  nsresult rv = NS_MutateURI(mBaseURL).SetPathQueryRef(aPath).Finalize(baseURL);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return NS_MutateURI(mBaseURL).SetPathQueryRef(aPath).Finalize(mBaseURL);
+  // The parser needs the full URL, not just the path.
+  nsAutoCString spec;
+  rv = baseURL->GetSpec(spec);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = ParseLDAPSpec(spec);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  mBaseURL = baseURL;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsLDAPURL::GetAsciiSpec(nsACString& _retval) {

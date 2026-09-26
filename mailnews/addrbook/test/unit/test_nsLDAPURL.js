@@ -406,6 +406,21 @@ function run_test() {
   Assert.equal(attrs.length, 0);
   Assert.equal(url.spec, "ldap://localhost/dc=short??one?(objectclass=*)");
 
+  // Test - path
+
+  url = Services.io
+    .newURI("ldap://localhost/dc=short??one?(objectclass=*)")
+    .mutate()
+    .setPathQueryRef("/o=test%20org?cn,mail?sub?(cn=a*)")
+    .finalize()
+    .QueryInterface(Ci.nsILDAPURL);
+
+  Assert.equal(url.spec, "ldap://localhost/o=test%20org?cn,mail?sub?(cn=a*)");
+  Assert.equal(url.dn, "o=test org");
+  Assert.equal(url.attributes, "cn,mail");
+  Assert.equal(url.scope, Ci.nsILDAPURL.SCOPE_SUBTREE);
+  Assert.equal(url.filter, "(cn=a*)");
+
   // Test - clone
 
   url = Services.io.newURI(

@@ -91,7 +91,8 @@ class nsLDAPURL : public nsILDAPURL,
   virtual ~nsLDAPURL();
 
   void GetPathInternal(nsCString& aPath);
-  nsresult SetPathInternal(const nsCString& aPath);
+
+  nsresult ParseLDAPSpec(const nsCString& aSpec);
 
   nsCString mDN;      // Base Distinguished Name (Base DN)
   int32_t mScope;     // Search scope (base, one or sub)
