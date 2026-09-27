@@ -11,6 +11,7 @@
 #include "mozilla/Logging.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/storage/Variant.h"
+#include "nsCRTGlue.h"
 #include "mozIStorageStatement.h"
 #include "nsIAbCard.h"
 #include "nsILiveView.h"

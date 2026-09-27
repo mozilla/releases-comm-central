@@ -7,6 +7,7 @@
 #include "../public/nsIImapHostSessionList.h"
 #include "nsImapCore.h"
 #include "nsImapUrl.h"
+#include "nsCRTGlue.h"
 #include "nsServiceManagerUtils.h"
 #include "nsString.h"
 #include "plstr.h"

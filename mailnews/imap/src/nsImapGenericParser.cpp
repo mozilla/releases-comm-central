@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsImapGenericParser.h"
+#include "nsCRTGlue.h"
 #include "nsString.h"
 #include "plstr.h"
 #include "prmem.h"
