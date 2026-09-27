@@ -224,6 +224,68 @@ add_task(async function () {
     "locationCol",
   ]);
 
+  // Test the toggle button columns.
+
+  Assert.equal(
+    threadTree.view.rowCount,
+    10,
+    "all of the search results should be displayed"
+  );
+
+  Assert.ok(
+    !threadTree.view.getMsgHdrAt(1).isRead,
+    "message 1 should be not marked as read"
+  );
+  Assert.ok(
+    !threadTree.view.getMsgHdrAt(2).isFlagged,
+    "message 2 should not be flagged"
+  );
+  Assert.equal(
+    threadTree.view.getMsgHdrAt(3).getStringProperty("junkscore"),
+    "",
+    "message 3 should not be marked as spam"
+  );
+
+  treeClick(1, "unreadButtonColHeader", {});
+  treeClick(2, "flaggedCol", {});
+  treeClick(3, "junkStatusCol", {});
+  Assert.ok(
+    threadTree.view.getMsgHdrAt(1).isRead,
+    "message 1 should be marked as read"
+  );
+  Assert.ok(
+    threadTree.view.getMsgHdrAt(2).isFlagged,
+    "message 2 should be flagged"
+  );
+  Assert.equal(
+    threadTree.view.getMsgHdrAt(3).getStringProperty("junkscore"),
+    "100",
+    "message 3 should be marked as spam"
+  );
+
+  treeClick(1, "unreadButtonColHeader", {});
+  treeClick(2, "flaggedCol", {});
+  treeClick(3, "junkStatusCol", {});
+  Assert.ok(
+    !threadTree.view.getMsgHdrAt(1).isRead,
+    "message 1 should be not marked as read"
+  );
+  Assert.ok(
+    !threadTree.view.getMsgHdrAt(2).isFlagged,
+    "message 2 should not be flagged"
+  );
+  Assert.equal(
+    threadTree.view.getMsgHdrAt(3).getStringProperty("junkscore"),
+    "0",
+    "message 3 should not be marked as spam"
+  );
+
+  Assert.equal(
+    threadTree.view.rowCount,
+    10,
+    "all of the search results should still be displayed"
+  );
+
   // Test message selection with the select column.
 
   treeClick(0, "subjectCol", {});

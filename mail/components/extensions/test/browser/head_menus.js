@@ -13,8 +13,6 @@ var { mailTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
 );
 
-const treeClick = mailTestUtils.treeClick.bind(null, EventUtils, window);
-
 const URL_BASE =
   "http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data";
 
