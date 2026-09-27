@@ -285,11 +285,13 @@ body {
       --icon-color: var(--primary);
     }
 
-    &:is([data-server-type="imap"], [data-server-type="pop3"], [data-server-type="ews"]) > .container > .icon {
+    &:is([data-server-type="imap"], [data-server-type="pop3"], [data-server-type="ews"], [data-server-type="graph"]) > .container > .icon {
       content: var(--icon-mail);
     }
 
-    &:is([data-server-type="imap"], [data-server-type="pop3"], [data-server-type="ews"])[data-server-secure="true"] > .container > .icon {
+    &:is([data-server-type="imap"], [data-server-type="pop3"], [data-server-type="ews"], [data-server-type="graph"])[data-server-secure="true"]
+      > .container
+      > .icon {
       content: var(--icon-mail-secure);
     }
 
