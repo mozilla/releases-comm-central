@@ -156,7 +156,7 @@ dependencies = [
 
 [[package]]
 name = "uniffi_core"
-version = "0.32.0"
+version = "0.32.2"
 dependencies = [
  "anyhow",
  "async-compat",

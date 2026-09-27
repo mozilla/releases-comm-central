@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "uniffi"
-version = "0.32.0"
+version = "0.32.2"
 build = false
 autolib = false
 autobins = false
@@ -110,22 +110,22 @@ optional = true
 default-features = false
 
 [dependencies.uniffi_bindgen]
-version = "=0.32.0"
+version = "=0.32.2"
 optional = true
 default-features = false
 
 [dependencies.uniffi_build]
-version = "=0.32.0"
+version = "=0.32.2"
 optional = true
 
 [dependencies.uniffi_core]
-version = "=0.32.0"
+version = "=0.32.2"
 
 [dependencies.uniffi_macros]
-version = "=0.32.0"
+version = "=0.32.2"
 
 [dependencies.uniffi_pipeline]
-version = "=0.32.0"
+version = "=0.32.2"
 
 [dev-dependencies.trybuild]
 version = "1"

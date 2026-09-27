@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "uniffi_bindgen"
-version = "0.32.0"
+version = "0.32.2"
 build = false
 autolib = false
 autobins = false
@@ -100,17 +100,17 @@ default-features = false
 version = ">=0.9, <2"
 
 [dependencies.uniffi_internal_macros]
-version = "=0.32.0"
+version = "=0.32.2"
 
 [dependencies.uniffi_meta]
-version = "=0.32.0"
+version = "=0.32.2"
 
 [dependencies.uniffi_pipeline]
-version = "=0.32.0"
+version = "=0.32.2"
 
 [dependencies.uniffi_testing]
-version = "=0.32.0"
+version = "=0.32.2"
 optional = true
 
 [dependencies.uniffi_udl]
-version = "=0.32.0"
+version = "=0.32.2"
