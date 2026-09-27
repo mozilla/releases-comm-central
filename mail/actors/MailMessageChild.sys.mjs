@@ -30,10 +30,10 @@ export class MailMessageChild extends JSWindowActorChild {
   }
 
   onClick(event) {
-    const target = event.target;
+    const { button, target } = event;
 
     // Is this an image that we might want to scale?
-    if (HTMLImageElement.isInstance(target) && target.src) {
+    if (button == 0 && HTMLImageElement.isInstance(target) && target.src) {
       // Make sure it loaded successfully. No action if not or a broken link.
       const req = target.getRequest(Ci.nsIImageLoadingContent.CURRENT_REQUEST);
       if (!req || req.imageStatus & Ci.imgIRequest.STATUS_ERROR) {
