@@ -15,5 +15,4 @@ config = {
         "LC_ALL": "C",
         "MOZ_OBJDIR": "%(abs_obj_dir)s",
     },
-    "src_mozconfig": "comm/mail/config/mozconfigs/linux64/source",
 }

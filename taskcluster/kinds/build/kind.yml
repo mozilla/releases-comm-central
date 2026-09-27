@@ -15,6 +15,7 @@ transforms:
     - comm_taskgraph.transforms.enterprise:remove_enterprise_builds
     - gecko_taskgraph.transforms.build_lints:transforms
     - comm_taskgraph.transforms.enterprise:add_tbrust_vendor
+    - gecko_taskgraph.transforms.mozconfig:transforms
     - gecko_taskgraph.transforms.job:transforms
     - comm_taskgraph.transforms.tb_build:transforms
     - gecko_taskgraph.transforms.artifact:transforms
@@ -31,8 +32,8 @@ task-defaults:
         env:
             MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE: system
     use-python: default
-    run:
-        mozconfig-variant:
+    mozconfig:
+        variant:
             by-release-type:
                 beta: release
                 release.*: release
@@ -41,6 +42,7 @@ task-defaults:
                 beta-enterprise: beta-enterprise
                 nightly-enterprise: nightly-enterprise
                 default: nightly
+    run:
         # Note: These settings are only honored by nightly (i.e. shipping) builds
         update-channel:
             by-release-type:

@@ -69,11 +69,12 @@ linux64-enterprise/opt:
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+    mozconfig:
+        variant: enterprise
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
-        mozconfig-variant: enterprise
     run-on-projects: ["enterprise-thunderbird"]
     run-on-repo-type: ["git"]
     use-sccache: true
@@ -142,12 +143,13 @@ linux64-enterprise-shippable/opt:
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             MOZ_GENERATE_SBOM: "1"
+    mozconfig:
+        variant: enterprise
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
             - taskcluster_nightly.py
-        mozconfig-variant: enterprise
     run-on-projects: ["enterprise-thunderbird"]
     run-on-repo-type: ["git"]
     optimization:
@@ -173,12 +175,13 @@ linux64/debug:
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+    mozconfig:
+        variant: debug
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
         custom-build-variant-cfg: debug
-        mozconfig-variant: debug
     use-sccache: true
     optimization:
         never: null
@@ -206,12 +209,13 @@ linux64-enterprise/debug:
         env:
             PERFHERDER_EXTRA_OPTIONS: enterprise
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+    mozconfig:
+        variant: enterprise-debug
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
         custom-build-variant-cfg: debug
-        mozconfig-variant: enterprise-debug
     run-on-projects: ["enterprise-thunderbird"]
     run-on-repo-type: ["git"]
     use-sccache: true
@@ -238,12 +242,13 @@ linux64-asan/opt:
             ASAN_OPTIONS: "detect_leaks=0"
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
         max-run-time: 5400
+    mozconfig:
+        variant: nightly-asan
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
         custom-build-variant-cfg: asan-tc
-        mozconfig-variant: nightly-asan
         tooltool-downloads: public
     run-on-projects: ['comm-central']
     use-sccache: true
@@ -275,12 +280,13 @@ linux64-asan-fuzzing/opt:
             ASAN_OPTIONS: "detect_leaks=0"
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
         max-run-time: 5400
+    mozconfig:
+        variant: nightly-fuzzing-asan
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
         custom-build-variant-cfg: fuzzing-asan-tc
-        mozconfig-variant: nightly-fuzzing-asan
         tooltool-downloads: public
     run-on-projects: ['comm-central']
     use-sccache: true
@@ -309,12 +315,13 @@ linux64-tsan/opt:
             LSAN_OPTIONS: "verbosity=1:log_threads=1"
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
         max-run-time: 5400
+    mozconfig:
+        variant: tsan
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
         custom-build-variant-cfg: tsan-tc
-        mozconfig-variant: tsan
         tooltool-downloads: public
     run-on-projects: ['comm-central']
     use-sccache: true
@@ -342,13 +349,13 @@ linux64-aarch64/opt:
         tier: 2
     worker:
         max-run-time: 7200
+    mozconfig:
+        variant: opt
+        platform: linux64-aarch64
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
-        extra-config:
-            mozconfig_platform: linux64-aarch64
-        mozconfig-variant: opt
         tooltool-downloads: public
     run-on-projects: ['comm-central']
     use-sccache: true
@@ -377,15 +384,16 @@ linux64-aarch64/debug:
         tier: 2
     worker:
         max-run-time: 7200
+    mozconfig:
+        variant: debug
+        platform: linux64-aarch64
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
         extra-config:
-            mozconfig_platform: linux64-aarch64
             stage_platform: linux64-aarch64-debug
         custom-build-variant-cfg: debug
-        mozconfig-variant: debug
         tooltool-downloads: public
     run-on-projects: ['comm-central']
     use-sccache: true
@@ -422,13 +430,13 @@ linux64-aarch64-shippable/opt:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             MOZ_ENABLE_FULL_SYMBOLS: "1"
             MOZ_GENERATE_SBOM: "1"
+    mozconfig:
+        platform: linux64-aarch64
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
             - taskcluster_nightly.py
-        extra-config:
-            mozconfig_platform: linux64-aarch64
         tooltool-downloads: public
     run-on-projects: ['comm-central']
     run-on-releases: [nightly]
@@ -463,14 +471,14 @@ linux64-aarch64-enterprise-shippable/opt:
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             MOZ_GENERATE_SBOM: "1"
+    mozconfig:
+        variant: enterprise
+        platform: linux64-aarch64
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
             - taskcluster_nightly.py
-        extra-config:
-            mozconfig_platform: linux64-aarch64
-        mozconfig-variant: enterprise
         tooltool-downloads: public
     run-on-projects: ["enterprise-thunderbird"]
     run-on-repo-type: ["git"]
@@ -506,6 +514,8 @@ linux64-ccov/opt:
             RUSTC_BOOTSTRAP: '1'
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     worker-type: b-linux-docker-large-amd
+    mozconfig:
+        variant: code-coverage-opt
     run:
         using: mozharness
         comm-checkout: true
@@ -514,7 +524,6 @@ linux64-ccov/opt:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
         custom-build-variant-cfg: code-coverage-opt
-        mozconfig-variant: code-coverage-opt
     use-sccache: false
     optimization:
         never: null
@@ -540,12 +549,13 @@ linux64-ccov/debug:
         max-run-time: 7200
         env:
             RUSTC_BOOTSTRAP: '1'
+    mozconfig:
+        variant: code-coverage-debug
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
         custom-build-variant-cfg: code-coverage-debug
-        mozconfig-variant: code-coverage-debug
     use-sccache: false
     optimization:
         never: null

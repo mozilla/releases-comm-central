@@ -35,6 +35,8 @@ win32/opt:
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+    mozconfig:
+        platform: win32
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -44,7 +46,6 @@ win32/opt:
             - builds/releng_base_linux_64_builds.py
         extra-config:
             stage_platform: win32
-            mozconfig_platform: win32
     use-sccache: true
     optimization:
         never: null
@@ -90,6 +91,8 @@ win32-shippable/opt:
             PERFHERDER_EXTRA_OPTIONS: cross
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             MOZ_GENERATE_SBOM: "1"
+    mozconfig:
+        platform: win32
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -100,7 +103,6 @@ win32-shippable/opt:
             - taskcluster_nightly.py
         extra-config:
             stage_platform: win32
-            mozconfig_platform: win32
     run-on-projects: ['release']
     optimization:
         never: null
@@ -140,6 +142,9 @@ win32/debug:
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+    mozconfig:
+        variant: debug
+        platform: win32
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -148,9 +153,6 @@ win32/debug:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
             - builds/taskcluster_sub_win32/debug.py
-        mozconfig-variant: debug
-        extra-config:
-            mozconfig_platform: win32
     use-sccache: true
     optimization:
         never: null
@@ -191,6 +193,8 @@ win64/opt:
             PERFHERDER_EXTRA_OPTIONS: cross
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             RUST_MIN_STACK: "16777216"
+    mozconfig:
+        platform: win64
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -200,7 +204,6 @@ win64/opt:
             - builds/releng_base_linux_64_builds.py
         extra-config:
             stage_platform: win64
-            mozconfig_platform: win64
     use-sccache: true
     optimization:
         never: null
@@ -244,6 +247,9 @@ win64-enterprise/opt:
             PERFHERDER_EXTRA_OPTIONS: cross
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             RUST_MIN_STACK: "16777216"
+    mozconfig:
+        variant: enterprise
+        platform: win64
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -253,8 +259,6 @@ win64-enterprise/opt:
             - builds/releng_base_linux_64_builds.py
         extra-config:
             stage_platform: win64
-            mozconfig_platform: win64
-        mozconfig-variant: enterprise
     run-on-projects: ["enterprise-thunderbird"]
     run-on-repo-type: ["git"]
     use-sccache: true
@@ -303,6 +307,8 @@ win64-shippable/opt:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             RUST_MIN_STACK: "16777216"
             MOZ_GENERATE_SBOM: "1"
+    mozconfig:
+        platform: win64
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -313,7 +319,6 @@ win64-shippable/opt:
             - taskcluster_nightly.py
         extra-config:
             stage_platform: win64
-            mozconfig_platform: win64
     run-on-projects: ['release']
     optimization:
         never: null
@@ -361,6 +366,9 @@ win64-enterprise-shippable/opt:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             RUST_MIN_STACK: "16777216"
             MOZ_GENERATE_SBOM: "1"
+    mozconfig:
+        variant: enterprise
+        platform: win64
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -371,8 +379,6 @@ win64-enterprise-shippable/opt:
             - taskcluster_nightly.py
         extra-config:
             stage_platform: win64
-            mozconfig_platform: win64
-        mozconfig-variant: enterprise
     run-on-projects: ["enterprise-thunderbird"]
     run-on-repo-type: ["git"]
     optimization:
@@ -414,6 +420,9 @@ win64/debug:
             PERFHERDER_EXTRA_OPTIONS: cross
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             RUST_MIN_STACK: "16777216"
+    mozconfig:
+        variant: debug
+        platform: win64
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -422,9 +431,6 @@ win64/debug:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
             - builds/taskcluster_sub_win64/debug.py
-        mozconfig-variant: debug
-        extra-config:
-            mozconfig_platform: win64
     use-sccache: true
     optimization:
         never: null
@@ -467,6 +473,9 @@ win64-enterprise/debug:
             PERFHERDER_EXTRA_OPTIONS: cross
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             RUST_MIN_STACK: "16777216"
+    mozconfig:
+        variant: enterprise-debug
+        platform: win64
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -475,9 +484,6 @@ win64-enterprise/debug:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
             - builds/taskcluster_sub_win64/debug.py
-        extra-config:
-            mozconfig_platform: win64
-        mozconfig-variant: enterprise-debug
     run-on-projects: ["enterprise-thunderbird"]
     run-on-repo-type: ["git"]
     use-sccache: true
@@ -517,6 +523,8 @@ win64-plain/debug:
         env:
             PERFHERDER_EXTRA_OPTIONS: plain
             RUST_MIN_STACK: "16777216"
+    mozconfig:
+        variant: plain-debug
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -528,7 +536,6 @@ win64-plain/debug:
         extra-config:
             disable_package_metrics: true
             stage_platform: win64
-        mozconfig-variant: plain-debug
     run-on-projects: ['comm-central']
     optimization:
         skip-unless-backstop: null
@@ -561,6 +568,8 @@ win64-plain/opt:
         env:
             PERFHERDER_EXTRA_OPTIONS: plain
             RUST_MIN_STACK: "16777216"
+    mozconfig:
+        variant: plain-opt
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -572,7 +581,6 @@ win64-plain/opt:
         extra-config:
             disable_package_metrics: true
             stage_platform: win64
-        mozconfig-variant: plain-opt
     run-on-projects: ['comm-central']
     optimization:
         skip-unless-backstop: null
@@ -606,6 +614,9 @@ win64-asan/opt:
             PERFHERDER_EXTRA_OPTIONS: "opt asan"
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             RUST_MIN_STACK: "16777216"
+    mozconfig:
+        variant: nightly-asan
+        platform: win64
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -615,8 +626,6 @@ win64-asan/opt:
             - builds/releng_base_linux_64_builds.py
         extra-config:
             stage_platform: win64-asan
-            mozconfig_platform: win64
-        mozconfig-variant: nightly-asan
     run-on-projects: ['comm-central']
     use-sccache: true
     optimization:
@@ -664,6 +673,8 @@ win64-ccov/opt:
             RUSTC_BOOTSTRAP: '1'
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             RUST_MIN_STACK: "16777216"
+    mozconfig:
+        variant: code-coverage
     run:
         using: mozharness
         comm-checkout: true
@@ -678,7 +689,6 @@ win64-ccov/opt:
             - builds/taskcluster_base_windows.py
             - builds/taskcluster_base_win64.py
             - builds/taskcluster_sub_win64/ccov_opt.py
-        mozconfig-variant: code-coverage
     run-on-projects: ['comm-central']
     use-sccache: false
     optimization:
@@ -718,6 +728,9 @@ win64-aarch64/debug:
         env:
             PERFHERDER_EXTRA_OPTIONS: aarch64
             RUST_MIN_STACK: "16777216"
+    mozconfig:
+        variant: debug
+        platform: win64-aarch64
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -726,9 +739,6 @@ win64-aarch64/debug:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
             - builds/taskcluster_sub_win64/debug.py
-        extra-config:
-            mozconfig_platform: win64-aarch64
-        mozconfig-variant: debug
     run-on-projects: ['comm-central']
     use-sccache: true
     fetches:
@@ -770,6 +780,9 @@ win64-aarch64-enterprise/debug:
         env:
             PERFHERDER_EXTRA_OPTIONS: aarch64
             RUST_MIN_STACK: "16777216"
+    mozconfig:
+        variant: enterprise-debug
+        platform: win64-aarch64
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -778,9 +791,6 @@ win64-aarch64-enterprise/debug:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
             - builds/taskcluster_sub_win64/debug.py
-        extra-config:
-            mozconfig_platform: win64-aarch64
-        mozconfig-variant: enterprise-debug
     run-on-projects: ["enterprise-thunderbird"]
     run-on-repo-type: ["git"]
     use-sccache: true
@@ -822,6 +832,8 @@ win64-aarch64/opt:
         env:
             PERFHERDER_EXTRA_OPTIONS: aarch64
             RUST_MIN_STACK: "16777216"
+    mozconfig:
+        platform: win64-aarch64
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -831,7 +843,6 @@ win64-aarch64/opt:
             - builds/releng_base_linux_64_builds.py
         extra-config:
             stage_platform: win64-aarch64
-            mozconfig_platform: win64-aarch64
     run-on-projects: ['comm-central']
     use-sccache: true
     fetches:
@@ -874,6 +885,9 @@ win64-aarch64-enterprise/opt:
         env:
             PERFHERDER_EXTRA_OPTIONS: aarch64
             RUST_MIN_STACK: "16777216"
+    mozconfig:
+        variant: enterprise
+        platform: win64-aarch64
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -883,8 +897,6 @@ win64-aarch64-enterprise/opt:
             - builds/releng_base_linux_64_builds.py
         extra-config:
             stage_platform: win64-aarch64
-            mozconfig_platform: win64-aarch64
-        mozconfig-variant: enterprise
     run-on-projects: ["enterprise-thunderbird"]
     run-on-repo-type: ["git"]
     use-sccache: true
@@ -933,6 +945,8 @@ win64-aarch64-shippable/opt:
             RUST_MIN_STACK: "16777216"
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             MOZ_GENERATE_SBOM: "1"
+    mozconfig:
+        platform: win64-aarch64
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -943,7 +957,6 @@ win64-aarch64-shippable/opt:
             - taskcluster_nightly.py
         extra-config:
             stage_platform: win64-aarch64
-            mozconfig_platform: win64-aarch64
     run-on-projects: ['comm-central']
     run-on-releases: [nightly]
     optimization:

@@ -11,6 +11,7 @@ transforms:
     - gecko_taskgraph.transforms.build:transforms
     - gecko_taskgraph.transforms.build_attrs:transforms
     - gecko_taskgraph.transforms.build_lints:transforms
+    - gecko_taskgraph.transforms.mozconfig:transforms
     - gecko_taskgraph.transforms.job:transforms
     - gecko_taskgraph.transforms.task:transforms
 
@@ -26,6 +27,9 @@ task-defaults:
             PKG_SRCPACK_BASENAME: source
     attributes:
         shippable: true
+    mozconfig:
+        variant: source
+        platform: linux64
     run:
         using: mozharness
         comm-checkout: true

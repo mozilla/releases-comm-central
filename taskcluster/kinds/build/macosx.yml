@@ -61,12 +61,13 @@ macosx64/debug:
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+    mozconfig:
+        variant: debug
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_mac_64_cross_builds.py
         custom-build-variant-cfg: cross-debug
-        mozconfig-variant: debug
     use-sccache: true
     fetches:
         toolchain:
@@ -91,12 +92,13 @@ macosx64-enterprise/debug:
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+    mozconfig:
+        variant: enterprise-debug
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_mac_64_cross_builds.py
         custom-build-variant-cfg: cross-debug
-        mozconfig-variant: enterprise-debug
     run-on-projects: ["enterprise-thunderbird"]
     run-on-repo-type: ["git"]
     use-sccache: true
@@ -150,11 +152,12 @@ macosx64-enterprise/opt:
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+    mozconfig:
+        variant: enterprise
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_mac_64_cross_builds.py
-        mozconfig-variant: enterprise
     run-on-projects: ["enterprise-thunderbird"]
     run-on-repo-type: ["git"]
     use-sccache: true
@@ -219,12 +222,13 @@ macosx64-x64-enterprise-shippable/opt:
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             MOZ_GENERATE_SBOM: "1"
+    mozconfig:
+        variant: enterprise
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_mac_64_cross_builds.py
             - taskcluster_nightly.py
-        mozconfig-variant: enterprise
     run-on-projects: ["enterprise-thunderbird"]
     run-on-repo-type: ["git"]
     fetches:
@@ -249,15 +253,13 @@ macosx64-aarch64/debug:
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             PERFHERDER_EXTRA_OPTIONS: aarch64
+    mozconfig:
+        variant: debug
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_mac_64_cross_builds.py
         custom-build-variant-cfg: cross-debug
-        mozconfig-variant: debug
-        extra-config:
-            extra_mozconfig_content:
-                - ac_add_options --target=aarch64-apple-darwin
     use-sccache: true
     fetches:
         toolchain:
@@ -282,15 +284,13 @@ macosx64-aarch64-enterprise/debug:
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             PERFHERDER_EXTRA_OPTIONS: aarch64
+    mozconfig:
+        variant: enterprise-debug
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_mac_64_cross_builds.py
         custom-build-variant-cfg: cross-debug
-        mozconfig-variant: enterprise-debug
-        extra-config:
-            extra_mozconfig_content:
-                - ac_add_options --target=aarch64-apple-darwin
     run-on-projects: ["enterprise-thunderbird"]
     run-on-repo-type: ["git"]
     use-sccache: true
@@ -316,13 +316,17 @@ macosx64-aarch64/opt:
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             PERFHERDER_EXTRA_OPTIONS: aarch64
+    mozconfig:
+        variant:
+            by-release-type:
+                beta: opt-release
+                release.*: opt-release
+                esr.*: opt-release
+                default: opt
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_mac_64_cross_builds.py
-        extra-config:
-            extra_mozconfig_content:
-                - ac_add_options --target=aarch64-apple-darwin
     use-sccache: true
     fetches:
         toolchain:
@@ -348,14 +352,12 @@ macosx64-aarch64-enterprise/opt:
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             PERFHERDER_EXTRA_OPTIONS: aarch64
+    mozconfig:
+        variant: enterprise-opt
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_mac_64_cross_builds.py
-        extra-config:
-            extra_mozconfig_content:
-                - ac_add_options --target=aarch64-apple-darwin
-        mozconfig-variant: enterprise
     run-on-projects: ["enterprise-thunderbird"]
     run-on-repo-type: ["git"]
     use-sccache: true
@@ -388,13 +390,13 @@ macosx64-aarch64-shippable/opt:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             PERFHERDER_EXTRA_OPTIONS: aarch64
             MOZ_GENERATE_SBOM: "1"
+    mozconfig:
+        platform: macosx64-aarch64
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_mac_64_cross_builds.py
             - taskcluster_nightly.py
-        extra-config:
-            mozconfig_platform: macosx64-aarch64
         script: "mozharness/scripts/fx_desktop_build.py"
     fetches:
         toolchain:
@@ -425,15 +427,15 @@ macosx64-aarch64-enterprise-shippable/opt:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             PERFHERDER_EXTRA_OPTIONS: aarch64
             MOZ_GENERATE_SBOM: "1"
+    mozconfig:
+        variant: enterprise
+        platform: macosx64-aarch64
     run:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_mac_64_cross_builds.py
             - taskcluster_nightly.py
-        extra-config:
-            mozconfig_platform: macosx64-aarch64
         script: "mozharness/scripts/fx_desktop_build.py"
-        mozconfig-variant: enterprise
     run-on-projects: ["enterprise-thunderbird"]
     run-on-repo-type: ["git"]
     fetches:
@@ -464,6 +466,7 @@ macosx64-shippable/opt:
         max-run-time: 1800
         # No MOZ_GENERATE_SBOM, it's already provided by platform-specific
         # builds
+    mozconfig: null
     run:
         job-script: taskcluster/scripts/misc/unify.sh
         config:
@@ -576,6 +579,7 @@ macosx64-enterprise-shippable/opt:
         max-run-time: 1800
         # No MOZ_GENERATE_SBOM, it's already provided by platform-specific
         # builds
+    mozconfig: null
     run:
         job-script: taskcluster/scripts/misc/unify.sh
         config:

@@ -12,6 +12,7 @@ transforms:
     - gecko_taskgraph.transforms.build:transforms
     - gecko_taskgraph.transforms.build_attrs:transforms
     - gecko_taskgraph.transforms.build_lints:transforms
+    - gecko_taskgraph.transforms.mozconfig:transforms
     - gecko_taskgraph.transforms.job:transforms
     - gecko_taskgraph.transforms.task:transforms
 
@@ -40,6 +41,8 @@ tasks:
             env:
                 PERFHERDER_EXTRA_OPTIONS: searchfox
                 MOZSEARCH_PLATFORM: "linux"
+        mozconfig:
+            variant: debug-searchfox-clang
         run:
             using: mozharness
             comm-checkout: true
@@ -78,6 +81,8 @@ tasks:
             env:
                 PERFHERDER_EXTRA_OPTIONS: searchfox
                 MOZSEARCH_PLATFORM: "macosx"
+        mozconfig:
+            variant: debug-searchfox
         run:
             using: mozharness
             comm-checkout: true
@@ -119,6 +124,8 @@ tasks:
             env:
                 PERFHERDER_EXTRA_OPTIONS: searchfox
                 MOZSEARCH_PLATFORM: "windows"
+        mozconfig:
+            variant: debug-searchfox
         run:
             using: mozharness
             comm-checkout: true
@@ -133,8 +140,6 @@ tasks:
                 - builds/releng_base_linux_64_builds.py
                 - builds/taskcluster_sub_win64/searchfox_debug.py
             tooltool-downloads: internal
-            extra-config:
-                mozconfig_platform: win64
         fetches:
             toolchain:
                 - linux64-7zz
