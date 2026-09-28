@@ -513,7 +513,6 @@ linux64-ccov/opt:
         env:
             RUSTC_BOOTSTRAP: '1'
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
-    worker-type: b-linux-docker-large-amd
     mozconfig:
         variant: code-coverage-opt
     run:
