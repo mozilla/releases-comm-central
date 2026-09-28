@@ -515,6 +515,7 @@ linux64-ccov/opt:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     mozconfig:
         variant: code-coverage-opt
+    worker-type: b-linux-docker-large-amd
     run:
         using: mozharness
         comm-checkout: true

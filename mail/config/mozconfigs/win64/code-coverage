@@ -9,6 +9,7 @@ ac_add_options --disable-warnings-as-errors
 ac_add_options --without-wasm-sandboxed-libraries
 ac_add_options --enable-coverage
 ac_add_options --enable-rust-tests
+ac_add_options --disable-unified-build
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
