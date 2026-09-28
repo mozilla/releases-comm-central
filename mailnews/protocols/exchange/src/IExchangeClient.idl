@@ -451,6 +451,9 @@ interface IExchangeMessageSyncListener : nsISupports
    * then this method will be called, otherwise only `onMessageUpdated` will be
    * called.
    *
+   * Implementations are expected to return `NS_MSG_MESSAGE_NOT_FOUND` if the
+   * message does not exist locally.
+   *
    * @param id - The ID for the updated message.
    * @param IsRead - The new read/unread status for the message.
    */

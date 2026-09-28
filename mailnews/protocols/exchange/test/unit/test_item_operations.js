@@ -579,6 +579,48 @@ add_task(async function test_mark_as_read_graph() {
 });
 
 /**
+ * Tests that a read status change for a message which is no longer in the
+ * database doesn't abort the sync, and that the changes following it are still
+ * applied.
+ */
+add_task(async function test_read_status_change_for_missing_message_ews() {
+  const folderName = "read_status_missing_ews";
+  ewsServer.appendRemoteFolder(new RemoteFolder(folderName, "root"));
+  const [existingMessage] = generator.makeMessages({ count: 1 });
+  ewsServer.addMessages(folderName, [existingMessage]);
+
+  const rootFolder = ewsIncomingServer.rootFolder;
+  await syncFolder(ewsIncomingServer, rootFolder);
+  const folder = rootFolder.getChildNamed(folderName);
+  await syncFolder(ewsIncomingServer, folder);
+
+  const header = [...folder.messages][0];
+  Assert.equal(
+    header.subject,
+    existingMessage.subject,
+    "the message should have been synced"
+  );
+
+  // Drop the message from the database without telling the server about it,
+  // then have the server report a read status change for it, followed by the
+  // creation of a new message so that both land in the same batch of changes.
+  const ewsId = header.getStringProperty(ewsIdPropertyName);
+  folder.msgDatabase.deleteMessages([header.messageKey], null);
+
+  ewsServer.itemChanges.push(["readflag", folderName, ewsId]);
+  const [newMessage] = generator.makeMessages({ count: 1 });
+  ewsServer.addMessages(folderName, [newMessage]);
+
+  await syncFolder(ewsIncomingServer, folder);
+
+  Assert.deepEqual(
+    [...folder.messages].map(message => message.subject),
+    [newMessage.subject],
+    "the message created after the read status change should have been synced"
+  );
+});
+
+/**
  * Set up the structure required for the folder copy/move tests.
  *
  * This creates `<prefix>_parent1` and `<prefix>_parent2` in the root folder,

@@ -325,7 +325,11 @@ class ExchangeMessageSyncHandler : public IExchangeMessageSyncListener,
         mDB->GetMsgHdrForEwsItemID(ewsId, getter_AddRefs(existingHeader));
     NS_ENSURE_SUCCESS(rv, rv);
     if (!existingHeader) {
-      return NS_ERROR_NOT_AVAILABLE;
+      // The message might have been deleted locally before we got around to
+      // processing the read status change (as happens when a draft is replaced
+      // by a newer revision of itself). Let the consumer decide what to do
+      // about it.
+      return NS_MSG_MESSAGE_NOT_FOUND;
     }
 
     return existingHeader->MarkRead(isRead);

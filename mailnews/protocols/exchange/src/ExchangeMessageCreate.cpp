@@ -9,7 +9,6 @@
 #include "IExchangeIncomingServer.h"
 #include "MailHeaderParsing.h"  // For ParseHeaderBlock().
 #include "MailStream.h"
-#include "mozilla/Buffer.h"
 #include "mozilla/Components.h"
 #include "nsAutoSyncState.h"
 #include "nsMsgDatabase.h"  // For ApplyRawHdrToDbHdr().

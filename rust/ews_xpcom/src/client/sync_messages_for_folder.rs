@@ -273,7 +273,18 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
                         let id = item_id.id;
 
                         // Mark the messages as read in the folder's database.
-                        self.listener.on_read_status_changed(id, is_read)?;
+                        if let Err(rv) = self.listener.on_read_status_changed(&id, is_read) {
+                            if rv != nserror::NS_MSG_MESSAGE_NOT_FOUND {
+                                return Err(rv.into());
+                            }
+                            // The message isn't in the DB, so there's no read
+                            // status to change. This can happen if it was
+                            // deleted locally before we got to process this
+                            // change.
+                            log::warn!(
+                                "Ignoring read status change for a message not in the DB. ewsId={id}"
+                            );
+                        }
                     }
                 }
             }
