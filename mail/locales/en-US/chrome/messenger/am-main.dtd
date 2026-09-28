@@ -26,7 +26,6 @@
 <!ENTITY signatureHtml.accesskey "L">
 <!ENTITY signatureFile.label "Attach the signature from a file instead (text, HTML, or image):">
 <!ENTITY signatureFile.accesskey "t">
-<!ENTITY edit.label "Edit…">
 <!ENTITY choose.label "Choose…">
 <!ENTITY choose.accesskey "C">
 <!ENTITY editVCard.label "Edit Card…">

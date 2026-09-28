@@ -35,17 +35,7 @@
 <!ENTITY hdrFollowupButton1.tooltip "Post a followup to this newsgroup">
 <!ENTITY hdrForwardButton1.label "Forward">
 <!ENTITY hdrForwardButton1.tooltip "Forward this message">
-<!ENTITY hdrTrashButton1.label "Delete">
-<!ENTITY hdrTrashButton1.tooltip "Delete this message">
 
-<!ENTITY hdrViewToolbarShowFull.label "Show Icons and Text">
-<!ENTITY hdrViewToolbarShowFull.accesskey "a">
-<!ENTITY hdrViewToolbarShowIcons.label "Show Icons Only">
-<!ENTITY hdrViewToolbarShowIcons.accesskey "I">
-<!ENTITY hdrViewToolbarShowText.label "Show Text Only">
-<!ENTITY hdrViewToolbarShowText.accesskey "T">
-<!ENTITY hdrViewToolbarAlwaysReplySender.label "Always Show Reply to Sender">
-<!ENTITY hdrViewToolbarAlwaysReplySender.accesskey "R">
 
 <!ENTITY otherActionsButton2.label "More">
 <!ENTITY otherActionsButton.tooltip "More actions">

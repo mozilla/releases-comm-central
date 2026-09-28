@@ -4,8 +4,6 @@
 
 <!--LOCALIZATION NOTE msgViewPickerOverlay.dtd UI for showing various views on a folder -->
 
-<!ENTITY viewPicker.label "View:">
-<!ENTITY viewPicker.accesskey "i">
 <!ENTITY viewAll.label "All">
 <!ENTITY viewAll.accesskey "A">
 <!ENTITY viewUnread.label "Unread">

@@ -7,7 +7,6 @@
 <!-- Edit menu items -->
 <!ENTITY pasteNoFormatting.label "Paste Without Formatting">
 <!ENTITY pasteNoFormatting.accesskey "n">
-<!ENTITY pasteNoFormatting.key "V">
 <!ENTITY pasteAsQuotationCmd.label "Paste As Quotation">
 <!ENTITY pasteAsQuotationCmd.accesskey "Q">
 
@@ -34,12 +33,6 @@
 <!ENTITY insertBreakAllCmd.label "Break Below Image(s)">
 <!ENTITY insertBreakAllCmd.accesskey "k">
 
-<!-- Used just in context popup. -->
-<!ENTITY createLinkCmd.label "Create Link…">
-<!ENTITY createLinkCmd.accesskey "k">
-<!ENTITY editLinkCmd.label "Edit Link in New Composer">
-<!ENTITY editLinkCmd.accesskey "i">
-
 <!-- Font Face SubMenu -->
 <!ENTITY FontFaceSelect.tooltip "Choose a font">
 <!ENTITY fontfaceMenu.label "Font">
@@ -57,7 +50,6 @@
 <!ENTITY fontCourier.accesskey "C">
 
 <!-- Font Size SubMenu -->
-<!ENTITY FontSizeSelect.tooltip "Choose a font size">
 <!ENTITY decreaseFontSize.label "Smaller">
 <!ENTITY decreaseFontSize.accesskey "r">
 <!ENTITY decrementFontSize.key "&lt;">
@@ -177,16 +169,12 @@
 <!ENTITY alignMenu.accesskey "A">
 <!ENTITY alignLeft.label "Left">
 <!ENTITY alignLeft.accesskey "L">
-<!ENTITY alignLeft.tooltip "Align Left">
 <!ENTITY alignCenter.label "Center">
 <!ENTITY alignCenter.accesskey "C">
-<!ENTITY alignCenter.tooltip "Align Center">
 <!ENTITY alignRight.label "Right">
 <!ENTITY alignRight.accesskey "R">
-<!ENTITY alignRight.tooltip "Align Right">
 <!ENTITY alignJustify.label "Justify">
 <!ENTITY alignJustify.accesskey "J">
-<!ENTITY alignJustify.tooltip "Align Justified">
 
 <!ENTITY increaseIndent.label "Increase Indent">
 <!ENTITY increaseIndent.accesskey "I">
@@ -205,13 +193,6 @@
 <!-- Select Submenu -->
 <!ENTITY tableSelectMenu.label "Select">
 <!ENTITY tableSelectMenu.accesskey "S">
-
-<!ENTITY tableSelectMenu2.label "Table Select">
-<!ENTITY tableSelectMenu2.accesskey "S">
-<!ENTITY tableInsertMenu2.label "Table Insert">
-<!ENTITY tableInsertMenu2.accesskey "I">
-<!ENTITY tableDeleteMenu2.label "Table Delete">
-<!ENTITY tableDeleteMenu2.accesskey "D">
 
 <!-- Insert SubMenu -->
 <!ENTITY tableInsertMenu.label "Insert">

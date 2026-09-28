@@ -31,10 +31,6 @@
 
 <!ENTITY showUnifinderCmd.label                 "Find Events">
 <!ENTITY showUnifinderCmd.accesskey             "F">
-<!ENTITY showUnifinderCmd.tooltip               "Toggle the find events pane">
-
-<!ENTITY calendar.displaytodos.checkbox.label       "Show Tasks in Calendar">
-<!ENTITY calendar.displaytodos.checkbox.accesskey   "T">
 
 <!ENTITY goTodayCmd.label                       "Today">
 <!ENTITY goTodayCmd.accesskey                   "T">

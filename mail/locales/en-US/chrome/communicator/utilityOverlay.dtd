@@ -11,12 +11,6 @@
 
 <!ENTITY editMenu.label          "Edit">
 <!ENTITY editMenu.accesskey        "E">
-<!ENTITY undoCmd.label            "Undo">
-<!ENTITY undoCmd.accesskey          "U">
-<!ENTITY redoCmd.label            "Redo">
-<!ENTITY redoCmd.accesskey          "R">
-<!ENTITY customizeCmd.label "Customize">
-<!ENTITY customizeCmd.accesskey "t">
 
 <!ENTITY viewMenu.label          "View">
 <!ENTITY viewMenu.accesskey        "V">

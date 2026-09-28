@@ -7,8 +7,3 @@
 
 <!-- Search Bar -->
 <!ENTITY SearchNameOrEmail.label                        "Name or Email">
-
-<!-- Results Pane -->
-<!ENTITY Addrbook.label                                 "Address Book">
-<!ENTITY GeneratedName.label                            "Name">
-<!ENTITY PrimaryEmail.label                             "Email">

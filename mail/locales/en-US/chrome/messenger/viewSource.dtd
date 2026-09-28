@@ -51,8 +51,6 @@ you can use these alternative items. Otherwise, their values should be empty.  -
 <!ENTITY reloadCmd.commandkey "r">
 <!ENTITY menu_wrapLongLines.title "Wrap Long Lines">
 <!ENTITY menu_wrapLongLines.accesskey "W">
-<!ENTITY menu_highlightSyntax.label "Syntax Highlighting">
-<!ENTITY menu_highlightSyntax.accesskey "H">
 <!ENTITY menu_textSize.label "Text Size">
 <!ENTITY menu_textSize.accesskey "Z">
 <!ENTITY menu_textEnlarge.label "Increase">
@@ -62,8 +60,6 @@ you can use these alternative items. Otherwise, their values should be empty.  -
 <!ENTITY menu_textReset.label "Normal">
 <!ENTITY menu_textReset.accesskey "N">
 
-<!ENTITY findOnCmd.label     "Find in This Page…">
-<!ENTITY findOnCmd.accesskey "F">
 <!ENTITY findOnCmd.commandkey "f">
 <!ENTITY findAgainCmd.label  "Find Again">
 <!ENTITY findAgainCmd.accesskey "g">
@@ -71,10 +67,6 @@ you can use these alternative items. Otherwise, their values should be empty.  -
 <!ENTITY findAgainCmd.commandkey2 "VK_F3">
 <!ENTITY findSelectionCmd.commandkey "e">
 
-<!ENTITY backCmd.label "Back">
-<!ENTITY backCmd.accesskey "B">
-<!ENTITY forwardCmd.label "Forward">
-<!ENTITY forwardCmd.accesskey "F">
 <!ENTITY goBackCmd.commandKey "[">
 <!ENTITY goForwardCmd.commandKey "]">
 

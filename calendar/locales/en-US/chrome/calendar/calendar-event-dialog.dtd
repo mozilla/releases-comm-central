@@ -63,8 +63,6 @@
 <!ENTITY  event.menu.item.new.task.accesskey              "T">
 <!ENTITY  event.menu.item.new.message.label               "Message">
 <!ENTITY  event.menu.item.new.message.accesskey           "M">
-<!ENTITY  event.menu.item.new.contact.label               "Address Book Contact">
-<!ENTITY  event.menu.item.new.contact.accesskey           "C">
 <!ENTITY  event.menu.item.close.label                     "Close">
 <!ENTITY  event.menu.item.close.accesskey                 "C">
 
@@ -321,10 +319,6 @@
 
 <!-- Attendees dialog -->
 <!ENTITY invite.title.label                     "Invite Attendees">
-<!ENTITY event.organizer.label                  "Organizer">
-<!ENTITY event.freebusy.suggest.slot            "Suggest time slot:">
-<!ENTITY event.freebusy.button.next.slot        "Next slot">
-<!ENTITY event.freebusy.button.previous.slot    "Previous slot">
 <!ENTITY event.freebusy.zoom                    "Zoom:">
 <!ENTITY event.freebusy.legend.free             "Free" >
 <!ENTITY event.freebusy.legend.busy             "Busy" >
@@ -339,7 +333,6 @@
 <!ENTITY event.attendee.usertype.group          "Group">
 <!ENTITY event.attendee.usertype.resource       "Resource">
 <!ENTITY event.attendee.usertype.room           "Room">
-<!ENTITY event.attendee.usertype.unknown        "Unknown">
 
 <!-- Timezone dialog -->
 <!ENTITY timezone.title.label            "Please Specify the Timezone">

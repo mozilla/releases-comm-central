@@ -18,7 +18,6 @@
 
 <!ENTITY chat.participants             "Participants:">
 <!ENTITY chat.previousConversations    "Previous Conversations:">
-<!ENTITY chat.ongoingConversation      "Ongoing conversation">
 
 <!ENTITY openConversationCmd.label     "Start a Conversation">
 <!ENTITY openConversationCmd.accesskey "c">

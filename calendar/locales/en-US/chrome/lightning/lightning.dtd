@@ -7,9 +7,6 @@
    - your editor isn't using UTF-8 encoding and may munge up the document!
   -->
 
-<!-- Tools menu -->
-<!ENTITY lightning.preferencesLabel "Calendar">
-
 <!-- New menu popup in File menu -->
 <!ENTITY lightning.menupopup.new.event.label    "Event…">
 <!ENTITY lightning.menupopup.new.event.accesskey "E">
@@ -39,11 +36,8 @@
      displayed when setting/using a caldav calendar -->
 <!ENTITY lightning.calendarproperties.email.label                           "Email:">
 <!ENTITY lightning.calendarproperties.forceEmailScheduling.label            "Prefer client-side email scheduling">
-<!-- LOCALIZATON NOTE(lightning.calendarproperties.forceEmailScheduling.tooltiptext1,
-     lightning.calendarproperties.forceEmailScheduling.tooltiptext2)
-     - tooltiptext1 is used in the calendar wizard when setting a new caldav calendar
-     - tooltiptext2 is used in the calendar properties dialog for caldav calendars -->
-<!ENTITY lightning.calendarproperties.forceEmailScheduling.tooltiptext1     "For now, you can only enable this after setting up this calendar in its property dialog if the calendar server takes care of scheduling.">
+<!-- LOCALIZATON NOTE(lightning.calendarproperties.forceEmailScheduling.tooltiptext2)
+     This is used in the calendar properties dialog for caldav calendars. -->
 <!ENTITY lightning.calendarproperties.forceEmailScheduling.tooltiptext2     "This option is only available if the calendar server handles scheduling. Enabling will allow to fall back to the standard email based scheduling instead of leaving it to the server.">
 
 <!-- The notifications settings in the properties dialog -->
@@ -96,9 +90,6 @@
 <!-- Lightning specific keybindings -->
 <!ENTITY lightning.keys.event.new "I">
 <!ENTITY lightning.keys.todo.new "D">
-
-<!-- Account Central page -->
-<!ENTITY lightning.acctCentral.newCalendar.label "Create a new calendar">
 
 <!-- today-pane-specific -->
 <!ENTITY todaypane.showMinimonth.label "Show Mini-Month">

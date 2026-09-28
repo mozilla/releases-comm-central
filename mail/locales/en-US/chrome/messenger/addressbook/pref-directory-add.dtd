@@ -8,8 +8,6 @@
 <!ENTITY directoryHostname.accesskey       "o">
 <!ENTITY directoryBaseDN.label             "Base DN: ">
 <!ENTITY directoryBaseDN.accesskey         "b">
-<!ENTITY findButton.label                  "Find">
-<!ENTITY findButton.accesskey              "f">
 <!ENTITY directorySecure.label             "Use secure connection (SSL)">
 <!ENTITY directorySecure.accesskey         "U">
 <!ENTITY directoryLogin.label              "Bind DN: ">

@@ -32,8 +32,6 @@
 <!ENTITY newIMContactCmd.accesskey "h">
 <!ENTITY  newMessageCmd2.key "N">
 <!ENTITY  newMessageCmd.key "M">
-<!ENTITY  newMessageCmd.label "Message">
-<!ENTITY  newMessageCmd.accesskey "m">
 <!ENTITY  newContactCmd.label "Address Book Contact…">
 <!ENTITY  newContactCmd.accesskey "C">
 <!ENTITY openMenuCmd.label "Open">
@@ -55,8 +53,6 @@
 <!ENTITY sendUnsentCmd.accesskey "d">
 <!ENTITY subscribeCmd.label "Subscribe…">
 <!ENTITY subscribeCmd.accesskey "b">
-<!ENTITY deleteFolder.label "Delete Folder">
-<!ENTITY deleteFolder.accesskey "e">
 <!ENTITY renameFolder.label "Rename Folder…">
 <!ENTITY renameFolder.accesskey "R">
 <!ENTITY renameFolder.key "VK_F2">
@@ -126,14 +122,6 @@
 
 <!ENTITY folderView.label "Folders">
 <!ENTITY folderView.accesskey "F">
-<!ENTITY unifiedFolders.label "Unified">
-<!ENTITY unifiedFolders.accesskey "n">
-<!ENTITY allFolders.label "All">
-<!ENTITY allFolders.accesskey "A">
-<!ENTITY unreadFolders.label "Unread">
-<!ENTITY unreadFolders.accesskey "U">
-<!ENTITY compactVersion.label "Compact View">
-<!ENTITY compactVersion.accesskey "C">
 
 <!-- Sort Menu -->
 <!ENTITY sortMenu.label "Sort by">
@@ -395,7 +383,6 @@
 <!ENTITY addressBookCmd.label "Address Book">
 <!ENTITY addressBookCmd.accesskey "B">
 <!ENTITY addressBookCmd.key "B">
-<!ENTITY addonNoPrefs.label "No Add-on settings found.">
 <!ENTITY activitymanager.label "Activity Manager">
 <!ENTITY activitymanager.accesskey "v">
 <!ENTITY imAccountsStatus.label "Chat status">
@@ -446,12 +433,7 @@
 <!-- Mail Toolbar -->
 <!ENTITY getMsgButton1.label "Get Messages">
 <!ENTITY newMsgButton.label "Write">
-<!ENTITY replyButton.label "Reply">
-<!ENTITY replyAllButton.label "Reply All">
-<!ENTITY replyListButton.label "Reply to List">
-<!ENTITY forwardButton.label "Forward">
 <!ENTITY fileButton.label "File">
-<!ENTITY archiveButton.label "Archive">
 <!ENTITY openConversationButton.label "Conversation">
 <!ENTITY nextButton.label "Next">
 <!ENTITY nextButtonToolbarItem.label "Next Unread">
@@ -461,35 +443,21 @@
 <!ENTITY previousMsgButton.label "Previous">
 <!ENTITY backButton1.label "Back">
 <!ENTITY goForwardButton1.label "Forward">
-<!ENTITY deleteItem.title "Delete">
 <!ENTITY markButton.label "Mark">
 <!ENTITY printButton.label "Print">
 <!ENTITY stopButton.label "Stop">
 <!ENTITY throbberItem.title "Activity Indicator">
 <!ENTITY addressBookButton.label "Address Book">
 <!ENTITY chatButton.label "Chat">
-<!ENTITY glodaSearch.title "Global Search">
-<!ENTITY searchItem.title "Quick Search">
-<!ENTITY mailViewsToolbarItem.title "Mail Views">
-<!ENTITY folderLocationToolbarItem.title "Folder Location">
 <!ENTITY tagButton.label "Tag">
-<!ENTITY compactButton.label "Compact">
 <!ENTITY appmenuButton.label "AppMenu">
 
 <!-- Mail Toolbar Tooltips-->
-<!ENTITY advancedButton.tooltip "Advanced message search">
 <!ENTITY getMsgButton.tooltip "Get new messages">
 <!ENTITY getAllNewMsgCmd.label "Get All New Messages">
 <!ENTITY getAllNewMsgCmd.accesskey "G">
 <!ENTITY newMsgButton.tooltip "Create a new message">
-<!ENTITY replyButton.tooltip "Reply to the message">
-<!ENTITY replyAllButton.tooltip "Reply to sender and all recipients">
-<!ENTITY replyListButton.tooltip "Reply to mailing list">
-<!ENTITY forwardButton.tooltip "Forward selected message">
-<!ENTITY forwardAsInline.tooltip "Forward selected message as inline text">
-<!ENTITY forwardAsAttachment.tooltip "Forward selected message as an attachment">
 <!ENTITY fileButton.tooltip "File selected message">
-<!ENTITY archiveButton.tooltip "Archive selected messages">
 <!ENTITY openMsgConversationButton.tooltip "Show conversation of selected message">
 <!ENTITY nextButton.tooltip "Move to the next unread message">
 <!ENTITY nextMsgButton.tooltip "Move to the next message">
@@ -499,16 +467,10 @@
 <!ENTITY goBackButton.tooltip "Go back one message">
 <!ENTITY markButton.tooltip "Mark messages">
 <!ENTITY printButton.tooltip "Print this message">
-<!ENTITY stopButton.tooltip "Stop the current transfer">
 <!ENTITY addressBookButton.tooltip "Go to the address book">
 <!ENTITY chatButton.tooltip "Show the Chat tab">
 <!ENTITY tagButton.tooltip "Tag messages">
-<!ENTITY compactButton.tooltip "Remove deleted messages from selected folder">
 <!ENTITY appmenuButton1.tooltip "Display the &brandShortName; Menu">
-
-<!-- Toolbar Button Popup -->
-<!ENTITY buttonMenuForwardAsInline.label "Forward Inline">
-<!ENTITY buttonMenuForwardAsAttachment.label "Forward As Attachment">
 
 <!-- Remote Content Button Popup -->
 <!ENTITY remoteContentOptionsAllowForMsg.label "Show remote content in this message">
@@ -527,15 +489,7 @@
 <!ENTITY phishingOptionSettingsUnix.accesskey "d">
 
 <!-- AppMenu Popup -->
-<!ENTITY appmenuNewMsgCmd.label "New Message">
-<!ENTITY appmenuNewContactCmd.label "Address Book Contact…">
 <!ENTITY appmenuToolbarLayout.label "Toolbar Layout…">
-
-<!-- Folder Pane -->
-<!ENTITY folderNameColumn.label "Name">
-<!ENTITY folderUnreadColumn.label "Unread">
-<!ENTITY folderTotalColumn.label "Total">
-<!ENTITY folderSizeColumn.label "Size">
 
 <!-- Folder Pane Context Menu -->
 <!ENTITY folderContextGetMessages.label "Get Messages">
@@ -575,23 +529,9 @@
 
 <!-- Search Bar -->
 <!ENTITY SearchNameOrEmail.label "Name or Email contains:">
-<!ENTITY SearchNameOrEmail.accesskey "N">
-
-<!-- Gloda Search Bar -->
-<!ENTITY glodaSearchBar.placeholder "Search messages…">
-
-<!-- Quick Search Menu Bar -->
-<!ENTITY searchSubjectMenu.label "Subject">
-<!ENTITY searchFromMenu.label "From">
-<!ENTITY searchSubjectOrFromMenu.label "Subject or From">
-<!ENTITY searchRecipient.label "To or Cc">
-<!ENTITY searchSubjectOrRecipientMenu.label "Subject, To or Cc">
-<!ENTITY searchMessageBody.label "Entire Message">
-<!ENTITY saveAsVirtualFolderMenu.label "Save Search as a Folder…">
 
 <!-- Thread Pane -->
 <!ENTITY selectColumn.label "Select Messages">
-<!ENTITY threadColumn.label "Thread">
 <!ENTITY fromColumn.label "From">
 <!ENTITY recipientColumn.label "Recipient">
 <!ENTITY correspondentColumn.label "Correspondents">
@@ -615,7 +555,6 @@
 <!-- Thread Pane Tooltips -->
 <!ENTITY columnChooser2.tooltip "Select columns to display">
 <!ENTITY selectColumn.tooltip "Toggle select all messages">
-<!ENTITY threadColumn2.tooltip "Display message threads">
 <!ENTITY fromColumn2.tooltip "Sort by from">
 <!ENTITY recipientColumn2.tooltip "Sort by recipient">
 <!ENTITY correspondentColumn2.tooltip "Sort by correspondents">
@@ -679,48 +618,6 @@
 <!ENTITY contextSaveAs.accesskey "S">
 <!ENTITY contextPrint.label "Print…">
 <!ENTITY contextPrint.accesskey "P">
-<!ENTITY contextPrintPreview.label "Print Preview">
-<!ENTITY contextPrintPreview.accesskey "v">
-
-<!-- LOCALIZATION NOTE (columnPicker.applyTo.label):
-     This option in the thread pane column picker pops up a sub-menu containing
-     the "columnPicker.applyToFolder.label" and
-     "columnPicker.applyToFolderAndChildren.label" options. This item indicates
-     a desire to apply the currently displayed set of columns to some other
-     folder(s). The sub-menu items indicate whether we want to apply it to just
-     a folder or also its children.
-  -->
-<!ENTITY columnPicker.applyTo.label "Apply columns to…">
-<!-- LOCALIZATION NOTE (columnPicker.applyToFolder.label):
-     This option in the thread pane column picker is found on a sub-menu beneath
-     the "columnPicker.applyTo.label" alongside
-     "columnPicker.applyToFolderAndChildren.label". It indicates a desire to
-     apply the currently display thread pane column settings to a single folder
-     that the user selects using the same widget as the move to/copy to
-     mechanism (via a series of popups).
-  -->
-<!ENTITY columnPicker.applyToFolder.label "Folder…">
-<!-- LOCALIZATION NOTE (columnPicker.applyToFolderAndChildren.label):
-     This option in the thread pane column picker is found on a sub-menu beneath
-     the "columnPicker.applyTo.label" alongside
-     "columnPicker.applyToFolder.label". It indicates a desire to
-     apply the currently display thread pane column settings to a folder and all
-     of its descendents. The user selects the folder using the same widget as the
-     move to/copy to mechanism (via a series of popups).
-  -->
-<!ENTITY columnPicker.applyToFolderAndChildren.label "Folder and its children…">
-<!-- LOCALIZATION NOTE (columnPicker.thisFolder.label):
-     This is used in the folder selection widget for the
-     "columnPicker.applyToFolder.label" and
-     "columnPicker.applyToFolderAndChildren.label" menu options. Whenever
-     a folder has children, it results in a menu popup; the first menu item
-     in that popup is given this label to indicate that that folder should be
-     selected. For example, if folder "A" has two children, "B" and "C", then
-     when the user hovers over "A", a new popup menu will be displayed whose
-     items are "This folder", "B", and "C". This is the equivalent of the
-     "File here" option for the move to/copy to widget.
-  -->
-<!ENTITY columnPicker.thisFolder.label "This folder">
 
 <!-- Media (video/audio) controls -->
 <!ENTITY contextPlay.label "Play">
@@ -817,7 +714,6 @@
 <!ENTITY zoomWindow.label "Zoom">
 
 <!-- Mac OS X Application Menu (Cocoa widgets) -->
-<!ENTITY preferencesCmdMac2.label       "Preferences">
 <!ENTITY preferencesCmdMac.commandkey   ",">
 <!ENTITY preferencesCmdMac.modifiers    "accel">
 <!ENTITY servicesMenuMac.label          "Services">
