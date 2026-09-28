@@ -2148,8 +2148,16 @@ void nsImapServerResponseParser::myrights_data(bool unsolicited) {
     // an unsolicited myrights response won't have the mailbox name in
     // the response, so we use the selected mailbox name.
     if (unsolicited) {
-      mozilla::MutexAutoLock mon(mLock);
-      mailboxName = strdup(fSelectedMailboxName);
+      {
+        mozilla::MutexAutoLock mon(mLock);
+        mailboxName =
+            fSelectedMailboxName ? strdup(fSelectedMailboxName) : nullptr;
+      }
+      // Without a selected mailbox there is nothing to apply the rights to.
+      if (!mailboxName) {
+        skip_to_CRLF();
+        return;
+      }
     } else {
       mailboxName = CreateAstring();
       if (mailboxName) AdvanceToNextToken();

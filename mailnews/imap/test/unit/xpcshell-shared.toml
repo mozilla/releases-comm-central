@@ -93,6 +93,8 @@ tags = ["foldernames"]
 
 ["test_imapMoveWhileOffline.js"]
 
+["test_imapMyRightsNoSelectedMailbox.js"]
+
 ["test_imapPasswordFailure.js"]
 
 ["test_imapProtocols.js"]
