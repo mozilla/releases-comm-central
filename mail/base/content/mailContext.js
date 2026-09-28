@@ -367,7 +367,9 @@ var mailContextMenu = {
     const message =
       gFolder || gViewWrapper.isSynthetic
         ? gDBView?.hdrForFirstSelectedMessage
-        : top.messenger.msgHdrFromURI(window.gMessageURI);
+        : MailServices.messageServiceFromURI(
+            window.gMessageURI
+          ).messageURIToMsgHdr(window.gMessageURI);
     const folder = message?.folder;
     const isDummyMessage = !gViewWrapper.isSynthetic && !folder;
 

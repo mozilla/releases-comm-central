@@ -561,10 +561,9 @@ export class MessengerContentHandler {
         )
       ) {
         getOrOpen3PaneWindow().then(() => {
-          const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-            Ci.nsIMessenger
+          lazy.MailUtils.displayMessage(
+            MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(uri)
           );
-          lazy.MailUtils.displayMessage(messenger.msgHdrFromURI(uri));
         });
       } else if (url?.protocol == "imap:") {
         getOrOpen3PaneWindow().then(() => {

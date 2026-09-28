@@ -72,21 +72,6 @@ export class SearchSupport {
   _msgHdrsToIndex = [];
 
   /**
-   * Messenger object, used primarily to get message URIs
-   *
-   * @type {?nsIMessenger}
-   */
-  #messenger = null;
-  get _messenger() {
-    if (!this.#messenger) {
-      this.#messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-        Ci.nsIMessenger
-      );
-    }
-    return this.#messenger;
-  }
-
-  /**
    * The preferences branch to use.
    *
    * @type {?nsIPrefBranch}
@@ -576,7 +561,8 @@ export class SearchSupport {
       this.#cancelTimer();
     } else if (aTopic == "MsgMsgDisplayed") {
       this._log.debug("topic = " + aTopic + " uri = " + aData);
-      const msgHdr = this._messenger.msgHdrFromURI(aData);
+      const msgHdr =
+        MailServices.messageServiceFromURI(aData).messageURIToMsgHdr(aData);
       const reindexTime = this._getLastReindexTime(msgHdr.folder);
       this._log.debug("Reindex time for this folder is " + reindexTime);
       if (msgHdr.getUint32Property(this._hdrIndexedProperty) < reindexTime) {

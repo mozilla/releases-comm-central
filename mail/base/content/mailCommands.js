@@ -210,7 +210,9 @@ async function ComposeMessage(
         hdr =
           messageArray.length > 1
             ? null
-            : messenger.msgHdrFromURI(messageArray[0]);
+            : MailServices.messageServiceFromURI(
+                messageArray[0]
+              ).messageURIToMsgHdr(messageArray[0]);
         MailServices.compose.OpenComposeWindow(
           null,
           hdr,
@@ -235,7 +237,10 @@ async function ComposeMessage(
       }
 
       for (const messageUri of messageArray) {
-        hdr = messenger.msgHdrFromURI(messageUri);
+        hdr =
+          MailServices.messageServiceFromURI(messageUri).messageURIToMsgHdr(
+            messageUri
+          );
 
         if (
           [
@@ -534,7 +539,7 @@ async function SaveAsTemplate(uri) {
     return;
   }
 
-  const hdr = messenger.msgHdrFromURI(uri);
+  const hdr = MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(uri);
   const [identity] = MailUtils.getIdentityForHeader(
     hdr,
     Ci.nsIMsgCompType.Template

@@ -107,7 +107,8 @@ Enigmail.msg = {
           /(^mailbox(-message)?:.*\?.*\bnumber=0(\D|$))/.test(msgUri)
         )
       ) {
-        const msgHdr = gMessenger.msgHdrFromURI(msgUri);
+        const msgHdr =
+          MailServices.messageServiceFromURI(msgUri).messageURIToMsgHdr(msgUri);
         if (msgHdr) {
           properties = msgHdr.getUint32Property("enigmail");
         }

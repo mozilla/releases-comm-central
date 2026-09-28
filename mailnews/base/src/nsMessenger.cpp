@@ -43,8 +43,6 @@
 #include "nsIMsgImapMailFolder.h"
 #include "nsIMsgMessageService.h"
 
-#include "nsIMsgHdr.h"
-
 // draft/folders/sendlater/etc
 #include "nsIMsgCopyService.h"
 #include "nsIMsgCopyServiceListener.h"
@@ -665,17 +663,6 @@ nsresult nsMessenger::Alert(const char* stringName) {
     }
   }
   return rv;
-}
-
-NS_IMETHODIMP
-nsMessenger::MsgHdrFromURI(const nsACString& aUri, nsIMsgDBHdr** aMsgHdr) {
-  NS_ENSURE_ARG_POINTER(aMsgHdr);
-  nsCOMPtr<nsIMsgMessageService> msgService;
-  nsresult rv;
-
-  rv = GetMessageServiceFromURI(aUri, getter_AddRefs(msgService));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return msgService->MessageURIToMsgHdr(aUri, aMsgHdr);
 }
 
 NS_IMETHODIMP nsMessenger::GetUndoTransactionType(uint32_t* txnType) {

@@ -302,8 +302,9 @@ var calendarTaskButtonDNDObserver;
      * @param {string} data
      */
     async handleString(data) {
-      const messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-      this.listener.onDropMessage(messenger.msgHdrFromURI(data));
+      this.listener.onDropMessage(
+        MailServices.messageServiceFromURI(data).messageURIToMsgHdr(data)
+      );
     }
   }
 

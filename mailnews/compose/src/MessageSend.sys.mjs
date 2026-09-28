@@ -1064,16 +1064,15 @@ export class MessageSend {
           this._compFields.templateId)
       ) {
         // Turn the draft/template ID into a folder URI string.
-        const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-          Ci.nsIMessenger
-        );
         try {
           // This can fail if the user renames/removed/moved the folder.
-          folderUri = messenger.msgHdrFromURI(
+          const uri =
             this._deliverMode == Ci.nsIMsgSend.nsMsgSaveAsDraft
               ? this._compFields.draftId
-              : this._compFields.templateId
-          ).folder.URI;
+              : this._compFields.templateId;
+          folderUri =
+            MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(uri)
+              .folder.URI;
         } catch (ex) {
           console.warn(ex);
         }

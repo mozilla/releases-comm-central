@@ -3221,9 +3221,9 @@ var folderPane = {
         return;
       }
       for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
-        const msgHdr = top.messenger.msgHdrFromURI(
-          event.dataTransfer.mozGetDataAt("text/x-moz-message", i)
-        );
+        const uri = event.dataTransfer.mozGetDataAt("text/x-moz-message", i);
+        const msgHdr =
+          MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(uri);
         // Don't allow drop onto original folder.
         if (msgHdr.folder == targetFolder) {
           return;
@@ -3510,9 +3510,9 @@ var folderPane = {
       const array = [];
       let sourceFolder;
       for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
-        const msgHdr = top.messenger.msgHdrFromURI(
-          event.dataTransfer.mozGetDataAt("text/x-moz-message", i)
-        );
+        const uri = event.dataTransfer.mozGetDataAt("text/x-moz-message", i);
+        const msgHdr =
+          MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(uri);
         if (!i) {
           sourceFolder = msgHdr.folder;
         }

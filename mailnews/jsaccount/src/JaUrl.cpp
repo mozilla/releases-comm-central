@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "JaUrl.h"
-#include "nsComponentManagerUtils.h"
 #include "nsIFile.h"
-#include "nsIMessenger.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgUtils.h"
 
@@ -107,15 +105,11 @@ NS_IMETHODIMP JaBaseCppUrl::GetNormalizedSpec(nsACString& aPrincipalSpec) {
 }
 
 NS_IMETHODIMP JaBaseCppUrl::GetMessageHeader(nsIMsgDBHdr** aMessageHeader) {
-  // This routine does a lookup using messenger, assuming that the message URI
-  // has been set in mUri.
+  // This routine does a lookup assuming that the message URI has been set in
+  // mUri.
   NS_ENSURE_TRUE(!mUri.IsEmpty(), NS_ERROR_NOT_INITIALIZED);
-  nsresult rv;
-  nsCOMPtr<nsIMessenger> messenger(
-      do_CreateInstance("@mozilla.org/messenger;1", &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  rv = messenger->MsgHdrFromURI(mUri, getter_AddRefs(msgHdr));
+  nsresult rv = GetMsgDBHdrFromURI(mUri, getter_AddRefs(msgHdr));
   NS_ENSURE_SUCCESS(rv, rv);
   msgHdr.forget(aMessageHeader);
   return NS_OK;

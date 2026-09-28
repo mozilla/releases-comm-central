@@ -7,7 +7,6 @@
 #include "nsIMsgWindow.idl"
 #include "nsIMsgIdentity.idl"
 
-interface nsIMsgDBHdr;
 interface mozIDOMWindowProxy;
 interface nsITransactionManager;
 interface nsIMsgMessageService;
@@ -62,8 +61,6 @@ interface nsIMessenger : nsISupports {
      */
     void saveMessages(in Array<AString> filenameArray,
                       in Array<AUTF8String> messageUriArray);
-
-    nsIMsgDBHdr msgHdrFromURI(in AUTF8String aUri);
 
     AString formatFileSize(in unsigned long long aPos, [optional] in boolean aUseKB);
 };

@@ -380,9 +380,9 @@ function convertComposeDetails(composeWindow, extension) {
   if (composeWindow.gMsgCompose.originalMsgURI && extension.messageManager) {
     try {
       // This throws for messages opened from file and then being replied to.
-      const relatedMsgHdr = composeWindow.gMessenger.msgHdrFromURI(
+      const relatedMsgHdr = MailServices.messageServiceFromURI(
         composeWindow.gMsgCompose.originalMsgURI
-      );
+      ).messageURIToMsgHdr(composeWindow.gMsgCompose.originalMsgURI);
       const relatedMessage = extension.messageManager.convert(relatedMsgHdr);
       if (relatedMessage) {
         relatedMessageId = relatedMessage.id;
