@@ -1561,7 +1561,6 @@
         const recipientsNode = this.recipients;
         if (message.recipients) {
           const MAX_RECIPIENTS = 3;
-          const totalRecipientCount = message.recipients.length;
 
           const formatter = new Intl.ListFormat(
             Services.locale.appLocaleAsBCP47,
@@ -1570,29 +1569,33 @@
               type: "conjunction",
             }
           );
+          // Gloda identities expose the display name as contact.name.
+          // Recipients without one are not shown, but still count towards
+          // the "N others" total so that it matches the number of
+          // recipients that were left out.
           const contactNames = message.recipients
-            .map(contact => contact.name)
-            .slice(0, MAX_RECIPIENTS - 1);
-          if (contactNames.length > MAX_RECIPIENTS) {
+            .map(recipient => recipient.contact?.name)
+            .filter(Boolean)
+            .slice(0, MAX_RECIPIENTS);
+          const otherCount = message.recipients.length - contactNames.length;
+          if (otherCount > 0) {
             contactNames.push(
               lazy.l10n.formatValueSync("facet-view-and-others", {
-                count: totalRecipientCount - MAX_RECIPIENTS,
+                count: otherCount,
               })
             );
           }
-          const parts = formatter.formatToParts(
-            message.recipients.map(contact => contact.name).filter(Boolean)
-          );
-          let separator = false;
+          const parts = formatter.formatToParts(contactNames);
           for (const part of parts) {
             const recipNode = document.createElement("span");
             recipNode.setAttribute(
               "class",
-              separator ? "message-recipient-separator" : "message-recipient"
+              part.type == "element"
+                ? "message-recipient"
+                : "message-recipient-separator"
             );
             recipNode.textContent = part.value;
             recipientsNode.appendChild(recipNode);
-            separator = !separator;
           }
         }
       } catch (e) {

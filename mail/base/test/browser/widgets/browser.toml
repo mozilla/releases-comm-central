@@ -40,6 +40,8 @@ support-files = ["head_formPickers.js"]
 support-files = ["head_formPickers.js"]
 tags = ["webextensions"]
 
+["browser_glodaFacetResultMessage.js"]
+
 ["browser_linkHandler.js"]
 https_first_disabled = true
 
