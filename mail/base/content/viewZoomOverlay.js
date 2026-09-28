@@ -111,7 +111,7 @@ var ZoomManager = {
   },
 
   toggleZoom(browser = getBrowser()) {
-    const zoomLevel = this.getZoomForBrowser();
+    const zoomLevel = this.getZoomForBrowser(browser);
 
     this.useFullZoom = !this.useFullZoom;
     this.setZoomForBrowser(browser, zoomLevel);

@@ -119,3 +119,25 @@ add_task(async function testMultiMessageZoom() {
     "zoom value should be less than before keyboard event"
   );
 });
+
+/**
+ * Tests that toggling between full zoom and text zoom keeps the zoom level.
+ */
+add_task(async function testToggleZoom() {
+  await SpecialPowers.pushPrefEnv({ set: [["browser.zoom.full", true]] });
+  const browser = about3Pane.multiMessageBrowser;
+  top.ZoomManager.setZoomForBrowser(browser, 1.5);
+
+  top.ZoomManager.toggleZoom(browser);
+  Assert.ok(!top.ZoomManager.useFullZoom, "text zoom should be in use");
+  Assert.equal(browser.textZoom, 1.5, "text zoom should keep the zoom level");
+  Assert.equal(browser.fullZoom, 1, "full zoom should be reset");
+
+  top.ZoomManager.toggleZoom(browser);
+  Assert.ok(top.ZoomManager.useFullZoom, "full zoom should be in use");
+  Assert.equal(browser.fullZoom, 1.5, "full zoom should keep the zoom level");
+  Assert.equal(browser.textZoom, 1, "text zoom should be reset");
+
+  top.ZoomManager.reset(browser);
+  await SpecialPowers.popPrefEnv();
+});
