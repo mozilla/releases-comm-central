@@ -969,6 +969,7 @@ pref("intl.regional_prefs.use_os_locales", false);
 //  *.liveReload - Switching a langpack will change the language without a restart.
 //  *.liveReloadBidirectional - Allows switching when moving between LTR and RTL
 //      languages without a full restart.
+#if !defined(MOZ_ENTERPRISE)
 pref("intl.multilingual.enabled", true);
 #if defined(RELEASE_OR_BETA)
 pref("intl.multilingual.downloadEnabled", true);
@@ -979,6 +980,12 @@ pref("intl.multilingual.downloadEnabled", false);
 pref("intl.multilingual.liveReload", false);
 pref("intl.multilingual.liveReloadBidirectional", false);
 #endif
+#else // !defined(MOZ_ENTERPRISE)
+pref("intl.multilingual.enabled", false);
+pref("intl.multilingual.downloadEnabled", false);
+pref("intl.multilingual.liveReload", false);
+pref("intl.multilingual.liveReloadBidirectional", false);
+#endif // !defined(MOZ_ENTERPRISE)
 
 // if true, use full page zoom instead of text zoom
 pref("browser.zoom.full", true);
