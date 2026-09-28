@@ -20,6 +20,30 @@ ChromeUtils.defineLazyGetter(lazy, "log", () => {
 // references returned by the configured directory are followed.
 const MAX_REFERRALS = 5;
 
+// Secure ports to use instead of insecure ports in references, when the
+// directory uses a secure connection. -1 is the default port. 389/636 are
+// LDAP/LDAPS, 3268/3269 are the same for the Global Catalog of Active
+// Directory, which holds a partial copy of all objects of the forest.
+// @see https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/service-overview-and-network-port-requirements
+const SECURE_PORTS = new Map([
+  [-1, 636],
+  [389, 636],
+  [3268, 3269],
+]);
+
+/**
+ * @param {string} host - A host name or IP address.
+ * @returns {string} The base domain of the host, e.g. example.com for
+ *   ldap.example.com, or the host itself if it has none.
+ */
+function getBaseDomain(host) {
+  try {
+    return Services.eTLD.getBaseDomainFromHost(host);
+  } catch (e) {
+    return host.toLowerCase();
+  }
+}
+
 /**
  * A module to manage LDAP operation.
  *
@@ -234,9 +258,12 @@ export class LDAPOperation {
 
   /**
    * Connect to a reference url and continue the search. The credentials of
-   * the directory are only sent if the reference points to the same host,
-   * other hosts are bound to anonymously. References that would downgrade a
-   * secure connection to an insecure one are ignored.
+   * the directory are only sent to hosts in the same base domain as the
+   * directory, other hosts are bound to anonymously, so that a reference to a
+   * third party doesn't leak them. References to insecure ports are upgraded
+   * to the matching secure port if the directory uses a secure connection, or
+   * ignored if there is none. References to the DNS partitions of Active
+   * Directory are ignored, as they don't contain any people.
    *
    * @param {string} urlStr - A url string we get from SearchResultReference.
    * @returns {boolean} Whether the reference is being followed.
@@ -256,17 +283,29 @@ export class LDAPOperation {
       lazy.log.error(e);
       return false;
     }
-    const directoryUrl = this._connection.wrappedJSObject.url;
-    const useSecureTransport = !!(url.options & Ci.nsILDAPURL.OPT_SECURE);
-    if (directoryUrl.scheme == "ldaps" && !useSecureTransport) {
-      lazy.log.warn(`Ignoring insecure LDAP referral ${urlStr}`);
+    if (/^dc=(forest|domain)dnszones,/i.test(url.dn)) {
+      lazy.log.debug(`Ignoring LDAP referral to DNS partition ${urlStr}`);
       return false;
     }
-    const sameHost = url.host.toLowerCase() == directoryUrl.host.toLowerCase();
+    let useSecureTransport = !!(url.options & Ci.nsILDAPURL.OPT_SECURE);
     let port = url.port;
-    if (port == -1) {
+    if (
+      this._connection.wrappedJSObject.url.scheme == "ldaps" &&
+      !useSecureTransport
+    ) {
+      port = SECURE_PORTS.get(port);
+      if (!port) {
+        lazy.log.warn(`Ignoring insecure LDAP referral ${urlStr}`);
+        return false;
+      }
+      useSecureTransport = true;
+    } else if (port == -1) {
       port = useSecureTransport ? 636 : 389;
     }
+
+    const sameBaseDomain =
+      getBaseDomain(url.host) ==
+      getBaseDomain(this._connection.wrappedJSObject.url.host);
 
     this._referralCount++;
     this._searchingReference = true;
@@ -276,12 +315,13 @@ export class LDAPOperation {
       if (this._abandoned) {
         this._client.onError = () => {};
         this._client.unbind();
-      } else if (!sameHost) {
+      } else if (!sameBaseDomain) {
         this._client.bind("", "", res =>
           this._onBindResponse(res.result.resultCode)
         );
       } else if (this._saslBindArgs) {
-        this.saslBind(...this._saslBindArgs);
+        const [, mechanism, authModuleType] = this._saslBindArgs;
+        this.saslBind(`ldap@${url.host}`, mechanism, authModuleType);
       } else {
         this.simpleBind(this._password);
       }

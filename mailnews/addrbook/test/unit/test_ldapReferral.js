@@ -135,7 +135,7 @@ add_task(async function test_sameHostReferral() {
   Assert.equal(errorCode, Ci.nsILDAPErrors.SUCCESS, "Search should succeed");
 });
 
-add_task(async function test_otherHostReferral() {
+add_task(async function test_otherBaseDomainReferral() {
   const { result } = startSearch();
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
@@ -149,11 +149,11 @@ add_task(async function test_otherHostReferral() {
   const bind = bytesToString(await LDAPServer.read(LDAPServer.BindRequest));
   Assert.ok(
     !bind.includes(BIND_DN),
-    "Bind DN should not be sent to another host"
+    "Bind DN should not be sent to a host in another base domain"
   );
   Assert.ok(
     !bind.includes(PASSWORD),
-    "Password should not be sent to another host"
+    "Password should not be sent to a host in another base domain"
   );
   LDAPServer.writeBindResponse();
   await LDAPServer.read(LDAPServer.SearchRequest);
@@ -162,6 +162,64 @@ add_task(async function test_otherHostReferral() {
 
   const { entries } = await result;
   Assert.deepEqual(entries, ["Sherlock Holmes"], "Entry should be found");
+});
+
+add_task(async function test_sameBaseDomainReferral() {
+  Services.prefs.setStringPref("network.dns.localDomains", "dc2.example.com");
+  registerCleanupFunction(() =>
+    Services.prefs.clearUserPref("network.dns.localDomains")
+  );
+  const { result } = startSearch({
+    directoryUrl: Services.io.newURI("ldap://dc1.example.com/o=test"),
+  });
+  await LDAPServer.read(LDAPServer.BindRequest);
+  LDAPServer.writeBindResponse();
+  await LDAPServer.read(LDAPServer.SearchRequest);
+  LDAPServer.writeSearchResultReference(
+    `ldap://dc2.example.com:${LDAPServer.port}/o=referral`
+  );
+  LDAPServer.writeSearchResultDone();
+
+  const bind = bytesToString(await LDAPServer.read(LDAPServer.BindRequest));
+  Assert.ok(
+    bind.includes(BIND_DN),
+    "Bind DN should be sent to a host in the same base domain"
+  );
+  Assert.ok(
+    bind.includes(PASSWORD),
+    "Password should be sent to a host in the same base domain"
+  );
+  LDAPServer.writeBindResponse();
+  await LDAPServer.read(LDAPServer.SearchRequest);
+  LDAPServer.writeSearchResultEntry(CONTACT);
+  LDAPServer.writeSearchResultDone();
+
+  const { entries } = await result;
+  Assert.deepEqual(entries, ["Sherlock Holmes"], "Entry should be found");
+});
+
+add_task(async function test_upgradedReferral() {
+  const { operation, result } = startSearch({
+    directoryUrl: Services.io.newURI(`ldaps://localhost/o=test`),
+  });
+  await LDAPServer.read(LDAPServer.BindRequest);
+  LDAPServer.writeBindResponse();
+  await LDAPServer.read(LDAPServer.SearchRequest);
+  LDAPServer.writeSearchResultReference(`ldap://localhost/o=referral`);
+  LDAPServer.writeSearchResultDone();
+
+  // Nothing listens on the LDAPS port, so the referral is skipped.
+  const { errorCode } = await result;
+  Assert.equal(errorCode, Ci.nsILDAPErrors.SUCCESS, "Search should succeed");
+  Assert.equal(
+    operation._client._port,
+    636,
+    "Referral should be upgraded to the LDAPS port"
+  );
+  Assert.ok(
+    operation._client._useSecureTransport,
+    "Referral should be upgraded to a secure connection"
+  );
 });
 
 add_task(async function test_insecureReferral() {
@@ -177,8 +235,42 @@ add_task(async function test_insecureReferral() {
   LDAPServer.writeSearchResultDone();
 
   const { entries, errorCode } = await result;
-  Assert.deepEqual(entries, [], "Insecure referral should not be followed");
+  Assert.deepEqual(
+    entries,
+    [],
+    "Insecure referral without a secure port should not be followed"
+  );
   Assert.equal(errorCode, Ci.nsILDAPErrors.SUCCESS, "Search should succeed");
+});
+
+add_task(async function test_dnsPartitionReferral() {
+  const { result } = startSearch();
+  await LDAPServer.read(LDAPServer.BindRequest);
+  LDAPServer.writeBindResponse();
+  await LDAPServer.read(LDAPServer.SearchRequest);
+  LDAPServer.writeSearchResultReference(
+    `ldap://localhost:${LDAPServer.port}/DC=ForestDnsZones,DC=example`
+  );
+  LDAPServer.writeSearchResultReference(
+    `ldap://localhost:${LDAPServer.port}/DC=DomainDnsZones,DC=example`
+  );
+  LDAPServer.writeSearchResultReference(
+    `ldap://localhost:${LDAPServer.port}/o=referral`
+  );
+  LDAPServer.writeSearchResultDone();
+
+  await LDAPServer.read(LDAPServer.BindRequest);
+  LDAPServer.writeBindResponse();
+  const search = bytesToString(await LDAPServer.read(LDAPServer.SearchRequest));
+  Assert.ok(
+    search.includes("o=referral"),
+    "Only the referral outside the DNS partitions should be followed"
+  );
+  LDAPServer.writeSearchResultEntry(CONTACT);
+  LDAPServer.writeSearchResultDone();
+
+  const { entries } = await result;
+  Assert.deepEqual(entries, ["Sherlock Holmes"], "Entry should be found");
 });
 
 add_task(async function test_referralDepth() {
