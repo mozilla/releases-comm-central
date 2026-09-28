@@ -171,6 +171,39 @@ from a `LiveView` is *not* live. However you can register a single JS listener t
 `LiveViewDataAdapter` is a JS component for connecting a `LiveView` to a `TreeView`. It maintains a
 sparse array of messages that is populated on demand.
 
+## Conventions and guidelines
+
+### Integer types
+
+SQLite only provides one integer type (`INTEGER`), which size is determined
+automatically by the database engine based on the value itself. This means we
+cannot rely on it preventing us from e.g. storing a 64-bit integer where we
+expect a 32-bit one. Therefore extra care should be applied when introducing new
+code that writes and reads integers to and from the database.
+
+Here are a few guidelines to follow:
+
+* writing to, and reading from an integer column should use the same integer
+  type
+* when introducing a new integer value that doesn't exist in the legacy API (e.g.
+  `folderId`), prefer 64-bit integers to minimize the risk of roll-over
+* when using an integer value that already exists in the legacy API (e.g.
+  `flags` or `priority`), prefer the type used by the public API (32-bit in both
+  cases here) to minimise casts when setting and getting column values
+
+Similarly, the SQLite C API only supports signed integers. This should be fine
+as long as a we're careful to set and read values using the same types (e.g.
+implicitly cast from `uint64_t` to `int64_t` when setting, and doing the
+opposite when reading).
+
+Technically speaking, it may not matter much which type we use when writing the
+integer as long as it can be read as the intended type later on (e.g. writing as
+`uint32_t` and reading as `int64_t`). However, using a consistent type for a
+given column/value helps make the code easier to reason with and (hopefully)
+reduce future issues such as integer roll-over. We'll probably eventually move
+most integers we use to be written over 64 bits, but this will take time (see
+the `nsMsgKeys` issue below, as an example).
+
 ## Known issues
 
 This is a list of issues we know we'll have to confront at some point, but we're ignoring for now.
@@ -186,7 +219,7 @@ For now we'll probably leave the nsMsgKey at 32 bits while Panorama is in it's d
 
 ### Definition of `nsMsgKey_None` as 0xFFFFFFFF.
 
-`nsMsgKey_None` is currently defined as `0xFFFFFFFF` (AKA `uint32_t` -1).
+`nsMsgKey_None` is currently defined as `0xFFFFFFFF` (AKA `uint32_t` 4294967295).
 
 A value of `0` is probably better for Panorama (SQL databases tend not to use `0` for auto-assigned
 primary keys).

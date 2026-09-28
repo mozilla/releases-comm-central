@@ -61,7 +61,7 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
     nsTArray<nsCString> const& aReferences, PRTime aDate,
     const nsACString& aSender, const nsACString& aRecipients,
     const nsACString& aCcList, const nsACString& aBccList,
-    const nsACString& aSubject, uint64_t aFlags, const nsACString& aTags,
+    const nsACString& aSubject, uint32_t aFlags, const nsACString& aTags,
     nsMsgPriorityValue aPriority, nsMsgKey* aKey) {
   NS_ENSURE_ARG_POINTER(aKey);
 
@@ -93,8 +93,8 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
     mozStorageStatementScoper scoper(stmt);
 
     stmt->BindInt64ByName("folderId"_ns, aFolderId);
-    stmt->BindInt64ByName("threadId"_ns, threadId);
-    stmt->BindInt64ByName("threadParent"_ns, parentId);
+    stmt->BindInt32ByName("threadId"_ns, threadId);
+    stmt->BindInt32ByName("threadParent"_ns, parentId);
     stmt->BindUTF8StringByName("messageId"_ns,
                                MOZ_TRY(DatabaseUtils::Normalize(aMessageId)));
     stmt->BindInt64ByName("date"_ns, aDate);
@@ -108,7 +108,7 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
                                MOZ_TRY(DatabaseUtils::Normalize(aBccList)));
     stmt->BindUTF8StringByName("subject"_ns,
                                MOZ_TRY(DatabaseUtils::Normalize(aSubject)));
-    stmt->BindInt64ByName("flags"_ns, aFlags);
+    stmt->BindInt32ByName("flags"_ns, aFlags);
     stmt->BindUTF8StringByName("tags"_ns,
                                MOZ_TRY(DatabaseUtils::Normalize(aTags)));
     stmt->BindInt32ByName("priority"_ns, aPriority);

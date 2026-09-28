@@ -33,7 +33,7 @@ interface nsIMessageDatabase : nsISupports {
                       in AUTF8String ccList,
                       in AUTF8String bccList,
                       in AUTF8String subject,
-                      in unsigned long long flags,
+                      in unsigned long flags,
                       in AUTF8String tags,
                       in nsMsgPriorityValue priority);
 

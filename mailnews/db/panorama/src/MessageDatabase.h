@@ -142,7 +142,7 @@ class MessageDatabase : public nsIMessageDatabase {
     nsAutoCString ccList;
     nsAutoCString bccList;
     nsAutoCString subject;
-    uint64_t flags{0};
+    uint32_t flags{0};
     nsAutoCString tags;
     nsMsgPriorityValue priority{0};
   };
