@@ -6963,11 +6963,16 @@ commandController.registerCallback(
     // Multiple messages. Get the printer settings, then load the messages into
     // a hidden browser and print them one at a time.
     const ps = PrintUtils.getPrintSettings();
-    Cc["@mozilla.org/widget/printdialog-service;1"]
-      .getService(Ci.nsIPrintDialogService)
-      .showPrintDialog(window, false, ps);
-    if (ps.isCancelled) {
-      return;
+    try {
+      await Cc["@mozilla.org/widget/printdialog-service;1"]
+        .getService(Ci.nsIPrintDialogService)
+        .showPrintDialog(window, false, ps);
+    } catch (ex) {
+      if (ex.result == Cr.NS_ERROR_ABORT) {
+        // User cancelled the dialog.
+        return;
+      }
+      throw ex;
     }
     ps.printSilent = true;
 
