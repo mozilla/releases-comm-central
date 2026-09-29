@@ -1681,7 +1681,11 @@ void nsImapProtocol::EstablishServerConnection() {
   if (!PL_strncasecmp(serverResponse, ESC_OK, ESC_OK_LEN)) {
     SetConnectionStatus(NS_OK);
 
-    if (!PL_strncasecmp(serverResponse, ESC_CAPABILITY_GREETING,
+    // With STARTTLS the greeting is sent before TLS is established, so its
+    // capabilities could have been injected. They are requested once TLS is
+    // established instead.
+    if (m_socketType != nsMsgSocketType::alwaysSTARTTLS &&
+        !PL_strncasecmp(serverResponse, ESC_CAPABILITY_GREETING,
                         ESC_CAPABILITY_GREETING_LEN)) {
       nsAutoCString tmpstr(serverResponse);
       int32_t endIndex = tmpstr.FindChar(']', ESC_CAPABILITY_GREETING_LEN);
@@ -1935,8 +1939,15 @@ bool nsImapProtocol::ProcessCurrentURL() {
             // enable other auth features (e.g. remove LOGINDISABLED
             // and add AUTH=PLAIN). Sending imap data here first triggers
             // the TLS negotiation handshakes.
+            GetServerStateParser().ResetStateAfterStartTLS();
             Capability();
-
+            if (NS_SUCCEEDED(GetConnectionStatus()) &&
+                GetServerStateParser().GetCapabilityFlag() ==
+                    kCapabilityUndefined) {
+              rv = NS_ERROR_FAILURE;
+            }
+          }
+          if (NS_SUCCEEDED(rv) && NS_SUCCEEDED(GetConnectionStatus())) {
             // Courier imap doesn't return STARTTLS capability if we've done
             // a STARTTLS! But we need to remember this capability so we'll
             // try to use STARTTLS next time.

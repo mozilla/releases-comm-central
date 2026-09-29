@@ -98,7 +98,9 @@ class nsImapServerResponseParser : public nsImapGenericParser {
     return ((fCapabilityFlag & kXServerInfoCapability) != 0);
   }
   void SetFetchingFlags(bool aFetchFlags) { fFetchingAllFlags = aFetchFlags; }
-  void ResetCapabilityFlag();
+  // Forgets what the server told us before TLS was established, as it could
+  // have been injected (RFC 9051, Section 6.2.1).
+  void ResetStateAfterStartTLS();
 
   nsCString& GetMailAccountUrl() { return fMailAccountUrl; }
   const char* GetXSenderInfo() { return fXSenderInfo; }

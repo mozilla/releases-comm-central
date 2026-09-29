@@ -3,13 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
- * Regression test for unsolicited FETCH responses with huge sequence
- * numbers, sent with the response to CAPABILITY:
- *
- *   * 16777217 FETCH (UID 1 FLAGS ())<CR><LF>
- *   * 1073741823 FETCH (UID 1 FLAGS ())<CR><LF>
- *
- * The responses must now be ignored, leaving the connection usable.
+ * Test that untagged responses that don't apply before authentication are
+ * ignored when sent before login.
  */
 
 var server, incomingServer;
@@ -18,9 +13,14 @@ add_setup(function () {
   const daemon = new ImapDaemon();
   server = makeServer(daemon, "", {
     CAPABILITY() {
+      // Only inject while not authenticated.
+      if (this._state != 0) {
+        return IMAP_RFC3501_handler.prototype.CAPABILITY.call(this);
+      }
       return (
-        "* 16777217 FETCH (UID 1 FLAGS ())\0" +
-        "* 1073741823 FETCH (UID 1 FLAGS ())\0" +
+        '* LIST () "/" Injected\0' +
+        "* 1 FETCH (UID 5 FLAGS (\\Deleted))\0" +
+        "* OK [MYRIGHTS lrswipkxtecda] hi\0" +
         IMAP_RFC3501_handler.prototype.CAPABILITY.call(this)
       );
     },
@@ -28,7 +28,7 @@ add_setup(function () {
   incomingServer = createLocalIMAPServer(server.port);
 });
 
-add_task(function connectWithHugeFetchIndex() {
+add_task(function preAuthListIgnored() {
   incomingServer.performExpand(null);
   server.performTest("LSUB");
 
@@ -36,6 +36,14 @@ add_task(function connectWithHugeFetchIndex() {
     server.playTransaction(),
     ["capability", "authenticate PLAIN", "capability", "list", "lsub"],
     false
+  );
+  Assert.ok(
+    incomingServer.rootFolder.containsChildNamed("INBOX"),
+    "INBOX should have been discovered"
+  );
+  Assert.ok(
+    !incomingServer.rootFolder.containsChildNamed("Injected"),
+    "folder listed before authentication should not have been created"
   );
 });
 

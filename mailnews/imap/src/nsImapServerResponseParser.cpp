@@ -455,6 +455,16 @@ void nsImapServerResponseParser::response_data() {
   AdvanceToNextToken();
 
   if (ContinueParse()) {
+    // Only a few responses are valid before authentication (RFC 9051,
+    // Section 3.1), so ignore the rest.
+    if (fIMAPstate == kNonAuthenticated && PL_strcasecmp(fNextToken, "OK") &&
+        PL_strcasecmp(fNextToken, "NO") && PL_strcasecmp(fNextToken, "BAD") &&
+        PL_strcasecmp(fNextToken, "BYE") &&
+        PL_strcasecmp(fNextToken, "CAPABILITY")) {
+      skip_to_CRLF();
+      return;
+    }
+
     // Instead of comparing lots of strings and make function calls, try to
     // pre-flight the possibilities based on the first letter of the token.
     switch (NS_ToUpper(fNextToken[0])) {
@@ -1583,8 +1593,14 @@ void nsImapServerResponseParser::resp_text_code() {
     AdvanceToNextToken();
 
   if (ContinueParse()) {
-    if (!PL_strcasecmp(fNextToken, "ALERT]") ||
-        !PL_strcasecmp(fNextToken, "UNAVAILABLE]")) {
+    if (fIMAPstate == kNonAuthenticated &&
+        PL_strcasecmp(fNextToken, "ALERT]") &&
+        PL_strcasecmp(fNextToken, "UNAVAILABLE]") &&
+        PL_strcasecmp(fNextToken, "CAPABILITY")) {
+      // Other response codes don't apply before authentication.
+      skip_to_CRLF();
+    } else if (!PL_strcasecmp(fNextToken, "ALERT]") ||
+               !PL_strcasecmp(fNextToken, "UNAVAILABLE]")) {
       // Treat ALERT and UNAVAILABLE response codes similarly. Show response
       // code string in pop-up. See RFC 5530 "IMAP Response Codes".
       char* alertMsg = fCurrentTokenPlaceHolder;  // advance past ALERT/UNAVAIL
@@ -2283,7 +2299,19 @@ bool nsImapServerResponseParser::GetDownloadingHeaders() {
   return fDownloadingHeaders;
 }
 
-void nsImapServerResponseParser::ResetCapabilityFlag() {}
+void nsImapServerResponseParser::ResetStateAfterStartTLS() {
+  fCapabilityFlag = kCapabilityUndefined;
+  fUtf8AcceptEnabled = false;
+  fServerIsNetscape3xServer = false;
+  fServerUnavailable = false;
+  fServerIdResponse.Truncate();
+  fMailAccountUrl.Truncate();
+  fManageListsUrl.Truncate();
+  fManageFiltersUrl.Truncate();
+  PR_FREEIF(fNetscapeServerVersionString);
+  PR_FREEIF(fLastAlert);
+  PR_FREEIF(fAuthChallenge);
+}
 
 /*
    literal ::= "{" number "}" CRLF *CHAR8
