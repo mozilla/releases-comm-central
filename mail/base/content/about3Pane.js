@@ -6605,12 +6605,18 @@ commandController.registerCallback(
 );
 commandController.registerCallback(
   "cmd_selectThread",
-  () => gDBView.doCommand(Ci.nsMsgViewCommandType.selectThread),
+  () => {
+    gDBView.doCommand(Ci.nsMsgViewCommandType.selectThread);
+    threadTree.dispatchEvent(new CustomEvent("select"));
+  },
   () => gDBView && !gViewWrapper.showGroupedBySort
 );
 commandController.registerCallback(
   "cmd_selectFlagged",
-  () => gDBView.doCommand(Ci.nsMsgViewCommandType.selectFlagged),
+  () => {
+    gDBView.doCommand(Ci.nsMsgViewCommandType.selectFlagged);
+    threadTree.dispatchEvent(new CustomEvent("select"));
+  },
   () => !!gDBView
 );
 commandController.registerCallback(

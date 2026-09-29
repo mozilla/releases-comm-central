@@ -47,6 +47,11 @@ run-if = [
   "os != 'mac'",
 ]
 
+["browser_editMenu_select_items.js"]
+run-if = [
+  "os != 'mac'",
+]
+
 ["browser_fileMenu.js"]
 run-if = [
   "os != 'mac'",
