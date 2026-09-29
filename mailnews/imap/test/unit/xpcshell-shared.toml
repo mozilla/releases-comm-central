@@ -61,6 +61,8 @@ tags = ["foldernames"]
 
 ["test_imapCopyTimeout.js"]
 
+["test_imapCramMD5NoChallenge.js"]
+
 ["test_imapFilterActions.js"]
 
 ["test_imapFilterActionsPostplugin.js"]
@@ -78,6 +80,8 @@ tags = ["foldernames"]
 ["test_imapHdrStreaming.js"]
 
 ["test_imapHighWater.js"]
+
+["test_imapHugeFetchIndex.js"]
 
 ["test_imapID.js"]
 

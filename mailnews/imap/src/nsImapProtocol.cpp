@@ -5939,6 +5939,8 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
     if (GetServerStateParser().LastCommandSuccessful()) {
       char* digest = nullptr;
       char* cramDigest = GetServerStateParser().fAuthChallenge;
+      // The server may have answered OK without sending a challenge.
+      NS_ENSURE_TRUE(cramDigest, NS_ERROR_FAILURE);
       char* decodedChallenge =
           PL_Base64Decode(cramDigest, strlen(cramDigest), nullptr);
       rv = m_imapServerSink->CramMD5Hash(decodedChallenge, password.get(),

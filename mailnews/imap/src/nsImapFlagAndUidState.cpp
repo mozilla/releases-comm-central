@@ -10,6 +10,9 @@
 #include "nsImapFlagAndUidState.h"
 #include "prcmon.h"
 #include "nspr.h"
+#include <algorithm>
+
+static const uint32_t kMaxMessageIndex = 1 << 24;
 
 NS_IMPL_ISUPPORTS(nsImapFlagAndUidState, nsIImapFlagAndUidState)
 
@@ -131,14 +134,25 @@ NS_IMETHODIMP nsImapFlagAndUidState::AddUidFlagPair(ImapUid uid,
   // Not valid to store flags on non-messages.
   NS_ENSURE_TRUE(uid != 0, NS_ERROR_UNEXPECTED);
 
-  // check for potential overflow in buffer size for uid array
-  if (zeroBasedIndex > 0x3FFFFFFF) return NS_ERROR_INVALID_ARG;
+  // The index is the server's message sequence number, so cap it to keep a
+  // bogus number from making us allocate huge arrays.
+  if (zeroBasedIndex >= kMaxMessageIndex) return NS_ERROR_INVALID_ARG;
   PR_CEnterMonitor(this);
   // make sure there is room for this pair
   if (zeroBasedIndex >= fUids.Length()) {
-    int32_t sizeToGrowBy = zeroBasedIndex - fUids.Length() + 1;
-    fUids.InsertElementsAt(fUids.Length(), sizeToGrowBy, 0);
-    fFlags.InsertElementsAt(fFlags.Length(), sizeToGrowBy, 0);
+    uint32_t oldLength = fUids.Length();
+    int32_t sizeToGrowBy = zeroBasedIndex - oldLength + 1;
+    ImapUid* newUids = fUids.AppendElements(sizeToGrowBy, mozilla::fallible);
+    imapMessageFlagsType* newFlags =
+        newUids ? fFlags.AppendElements(sizeToGrowBy, mozilla::fallible)
+                : nullptr;
+    if (!newFlags) {
+      fUids.TruncateLength(oldLength);
+      PR_CExitMonitor(this);
+      return NS_ERROR_OUT_OF_MEMORY;
+    }
+    std::fill_n(newUids, sizeToGrowBy, 0);
+    std::fill_n(newFlags, sizeToGrowBy, 0);
     if (fStartCapture) {
       // A new partial (CONDSTORE/CHANGEDSINCE) fetch response is occurring
       // so need to start the count of number of uid/flag combos added.
