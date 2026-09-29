@@ -25,6 +25,8 @@ tags = ["dataadapter"]
 
 ["browser_tabIcon.js"]
 
+["browser_tableView.js"]
+
 ["browser_tagsMode.js"]
 tags = ["virtualfolders"]
 
