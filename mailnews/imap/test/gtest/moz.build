@@ -5,6 +5,7 @@
 FINAL_LIBRARY = "xul-gtest"
 
 UNIFIED_SOURCES += [
+    "TestImapSearchResults.cpp",
     "TestImapUtils.cpp",
 ]
 

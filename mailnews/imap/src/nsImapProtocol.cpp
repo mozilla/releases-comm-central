@@ -4197,9 +4197,9 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
   if (DeathSignalReceived()) return;
 
   // Update quota information
-  char* boxName;
+  char* boxName = nullptr;
   GetSelectedMailboxName(&boxName);
-  GetQuotaDataIfSupported(boxName);
+  if (boxName) GetQuotaDataIfSupported(boxName);
   PR_Free(boxName);
 
   // fetch the flags and uids of all existing messages or new ones
@@ -4818,6 +4818,7 @@ NS_IMETHODIMP nsImapProtocol::ResetToAuthenticatedState() {
 
 NS_IMETHODIMP nsImapProtocol::GetSelectedMailboxName(char** folderName) {
   if (!folderName) return NS_ERROR_NULL_POINTER;
+  *folderName = nullptr;
   if (GetServerStateParser().GetSelectedMailboxName())
     *folderName = PL_strdup((GetServerStateParser().GetSelectedMailboxName()));
   return NS_OK;
@@ -8764,9 +8765,8 @@ bool nsImapProtocol::TryToLogon() {
 void nsImapProtocol::UpdateFolderQuotaData(nsImapQuotaAction aAction,
                                            nsCString& aQuotaRoot,
                                            uint64_t aUsed, uint64_t aMax) {
-  NS_ASSERTION(m_imapMailFolderSink, "m_imapMailFolderSink is null!");
-
-  m_imapMailFolderSink->SetFolderQuotaData(aAction, aQuotaRoot, aUsed, aMax);
+  if (m_imapMailFolderSink)
+    m_imapMailFolderSink->SetFolderQuotaData(aAction, aQuotaRoot, aUsed, aMax);
 }
 
 void nsImapProtocol::GetQuotaDataIfSupported(const char* aBoxName) {

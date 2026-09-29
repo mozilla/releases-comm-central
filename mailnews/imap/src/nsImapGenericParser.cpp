@@ -44,7 +44,7 @@ void nsImapGenericParser::SetSyntaxError(bool error, const char* msg) {
     fParserState |= stateSyntaxErrorFlag;
   else
     fParserState &= ~stateSyntaxErrorFlag;
-  NS_ASSERTION(!error, "syntax error in generic parser");
+  NS_WARNING_ASSERTION(!error, "syntax error in generic parser");
 }
 
 void nsImapGenericParser::SetConnected(bool connected) {

@@ -54,16 +54,16 @@ ImapUid nsImapSearchResultIterator::GetNextMatchUid() {
     returnValue = strtoul(fPositionInCurrentLine, nullptr, 10);
 
     // eat the current number
-    while (isdigit(*++fPositionInCurrentLine)) {
+    while (isdigit(*fPositionInCurrentLine)) {
+      fPositionInCurrentLine++;
     }
 
-    if (*fPositionInCurrentLine == 0xD)  // found CR, no more digits on line
-    {
+    if (*fPositionInCurrentLine == ' ') {
+      fPositionInCurrentLine++;
+    } else {
+      // no more digits on line
       fCurrentLine = (char*)fSequence.SafeElementAt(++fSequenceIndex);
       fPositionInCurrentLine = fCurrentLine;
-    } else {
-      // eat the space
-      fPositionInCurrentLine++;
     }
   }
 

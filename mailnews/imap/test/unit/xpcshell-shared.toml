@@ -28,6 +28,8 @@ tags = ["compact"]
 
 ["test_fetchCustomAttribute.js"]
 
+["test_fetchCustomAttributeMalformed.js"]
+
 ["test_filterCustomHeaders.js"]
 
 ["test_filterNeedsBody.js"]
@@ -109,6 +111,8 @@ tags = ["foldernames"]
 
 ["test_imapSearch.js"]
 
+["test_imapSelectFailedMyRights.js"]
+
 ["test_imapStatusCloseDBs.js"]
 
 ["test_imapStoreMsgOffline.js"]
@@ -116,6 +120,8 @@ tags = ["foldernames"]
 ["test_imapTruncatedOfflineBody.js"]
 
 ["test_imapUndo.js"]
+
+["test_imapUnsolicitedXDuringIdle.js"]
 
 ["test_imapUrls.js"]
 
