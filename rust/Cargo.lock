@@ -2821,6 +2821,7 @@ dependencies = [
  "profiler_helper",
  "qcms",
  "qwac-trust-anchors",
+ "remotecerts",
  "rsdparsa_capi",
  "rure",
  "rusqlite",
@@ -5945,6 +5946,17 @@ dependencies = [
  "uniffi",
  "url",
  "viaduct",
+]
+
+[[package]]
+name = "remotecerts"
+version = "0.1.0"
+dependencies = [
+ "env_logger",
+ "log",
+ "pkcs11-bindings",
+ "rsclientcerts",
+ "rsclientcerts-util",
 ]
 
 [[package]]
