@@ -1748,7 +1748,11 @@ void nsImapProtocol::EstablishServerConnection() {
       SetConnectionStatus(NS_ERROR_FAILURE);  // stop netlib
     }
   } else if (!PL_strncasecmp(serverResponse, ESC_BYE, ESC_BYE_LEN)) {
-    if (m_imapServerSink) {
+    // With STARTTLS the greeting is sent before TLS is established, so its
+    // text could have been injected and must not be shown as the server's.
+    if (m_socketType == nsMsgSocketType::alwaysSTARTTLS) {
+      AlertUserEventUsingName("imapServerDisconnected");
+    } else if (m_imapServerSink) {
       nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningUrl);
       m_imapServerSink->FEAlertFromServer(nsDependentCString(serverResponse),
                                           mailnewsUrl, true);

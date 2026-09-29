@@ -7,6 +7,9 @@
  * before the TLS handshake, which could have been injected, is not used.
  */
 
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
+load("../../../resources/alertTestUtils.js");
+
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
 );
@@ -18,6 +21,12 @@ const { CAPABILITY, onStartup } = IMAP_RFC3501_handler.prototype;
 Services.env.set("MOZ_IGNORE_NSS_SHUTDOWN_LEAKS", "1");
 
 let imapServer, incomingServer;
+let alerts = [];
+
+/* exported alertPS to alertTestUtils.js */
+function alertPS(parent, title, text) {
+  alerts.push(text);
+}
 
 add_setup(async function () {
   imapServer = await ServerTestUtils.createServer({
@@ -37,6 +46,7 @@ add_setup(async function () {
   incomingServer.password = "password";
   incomingServer.port = 143;
   incomingServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
+  registerAlertTestUtils();
 
   registerCleanupFunction(() => {
     IMAP_RFC3501_handler.prototype.CAPABILITY = CAPABILITY;
@@ -51,7 +61,7 @@ async function discoverFolders() {
   MailServices.imap.discoverAllFolders(
     incomingServer.rootFolder,
     listener,
-    null
+    gDummyMsgWindow
   );
   try {
     await listener.promise;
@@ -68,6 +78,36 @@ add_task(async function testStartTLS() {
     "INBOX should have been discovered"
   );
   incomingServer.closeCachedConnections();
+});
+
+add_task(async function testByeGreeting() {
+  IMAP_RFC3501_handler.prototype.onStartup = function () {
+    onStartup.call(this);
+    return "* BYE Call 555-0100 to restore your account";
+  };
+
+  alerts = [];
+  Assert.ok(!(await discoverFolders()), "connecting should fail");
+  Assert.equal(alerts.length, 1, "one alert should have been shown");
+  Assert.ok(
+    !alerts[0].includes("555-0100"),
+    "the plaintext BYE text should not be shown with STARTTLS"
+  );
+  Assert.ok(
+    alerts[0].includes("has disconnected"),
+    "the generic disconnection alert should be shown instead"
+  );
+
+  incomingServer.socketType = Ci.nsMsgSocketType.plain;
+  alerts = [];
+  Assert.ok(!(await discoverFolders()), "connecting should fail");
+  Assert.equal(alerts.length, 1, "one alert should have been shown");
+  Assert.ok(
+    alerts[0].includes("555-0100"),
+    "the BYE text should be shown without STARTTLS"
+  );
+  incomingServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
+  IMAP_RFC3501_handler.prototype.onStartup = onStartup;
 });
 
 add_task(async function testCapabilitiesFromBeforeStartTLS() {
