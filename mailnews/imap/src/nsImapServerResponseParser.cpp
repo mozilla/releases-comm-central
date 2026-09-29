@@ -2179,6 +2179,11 @@ void nsImapServerResponseParser::myrights_data(bool unsolicited) {
       if (ContinueParse()) {
         char* myrights = CreateAstring();
         if (myrights) {
+          if (unsolicited) {
+            // The rights end the response code, e.g. "[MYRIGHTS lrs]".
+            char* end = PL_strchr(myrights, ']');
+            if (end) *end = '\0';
+          }
           nsImapProtocol* navCon = &fServerConnection;
           NS_ASSERTION(
               navCon, "null connection parsing my rights");  // we should always
