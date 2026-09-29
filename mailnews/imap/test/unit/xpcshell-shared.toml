@@ -49,6 +49,8 @@ tags = ["foldernames"]
 
 ["test_ignoreSubscription.js"]
 
+["test_imapAlertRepeated.js"]
+
 ["test_imapAttachmentSaves.js"]
 
 ["test_imapAutoSync.js"]

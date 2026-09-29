@@ -1614,13 +1614,14 @@ void nsImapServerResponseParser::resp_text_code() {
       // Treat ALERT and UNAVAILABLE response codes similarly. Show response
       // code string in pop-up. See RFC 5530 "IMAP Response Codes".
       char* alertMsg = fCurrentTokenPlaceHolder;  // advance past ALERT/UNAVAIL
-      if (alertMsg && *alertMsg &&
-          (!fLastAlert || PL_strcmp(fNextToken, fLastAlert))) {
-        fServerConnection.AlertUserEvent(alertMsg);
-        PR_Free(fLastAlert);
-        fLastAlert = PL_strdup(alertMsg);
+      if (alertMsg && *alertMsg) {
         // If UNAVAILABLE, flag this to prevent a possible password prompt
         fServerUnavailable = (NS_ToUpper(fNextToken[0]) == 'U');
+        if (!fLastAlert || PL_strcmp(alertMsg, fLastAlert)) {
+          fServerConnection.AlertUserEvent(alertMsg);
+          PR_Free(fLastAlert);
+          fLastAlert = PL_strdup(alertMsg);
+        }
       }
       AdvanceToNextToken();
     } else if (!PL_strcasecmp(fNextToken, "PARSE]")) {
