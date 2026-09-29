@@ -522,7 +522,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
   nsCString m_ownerUserName;  // username of the "other user," as in
   // "Other Users' Mailboxes"
 
-  nsCString m_adminUrl;  // url to run to set admin privileges for this folder
   nsImapNamespace* m_namespace;
   bool m_verifiedAsOnlineFolder;
   bool m_explicitlyVerify;  // whether or not we need to explicitly verify this

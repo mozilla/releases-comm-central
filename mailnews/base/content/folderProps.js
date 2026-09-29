@@ -456,7 +456,8 @@ function onOfflineFolderDownload() {
 /** Open the folder privileges management url. */
 function onFolderPrivileges() {
   openLinkExternally(
-    gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder).adminUrl
+    gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder).imapIncomingServer
+      .manageMailAccountUrl
   );
   window.close();
 }

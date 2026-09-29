@@ -26,7 +26,6 @@ interface nsIImapIncomingServer : nsISupports {
   attribute long maximumConnectionsNumber;
   attribute boolean forceSelect;
   attribute long timeOutLimits;
-  attribute AUTF8String adminUrl;
   attribute ACString serverDirectory;
   /// RFC 2971 ID response stored as a pref
   attribute AUTF8String serverIDPref;

@@ -26,6 +26,8 @@ support-files = [
 
 ["browser_folderColorPersistence.js"]
 
+["browser_folderPropsPrivileges.js"]
+
 ["browser_folderTreeProperties.js"]
 tags = ["virtualfolders"]
 

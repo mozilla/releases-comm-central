@@ -383,8 +383,6 @@ NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, ForceSelect, "force_select_imap")
 NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, DualUseFolders,
                         "dual_use_folders")
 
-NS_IMPL_SERVERPREF_STR(nsImapIncomingServer, AdminUrl, "admin_url")
-
 NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, CleanupInboxOnExit,
                         "cleanup_inbox_on_exit")
 

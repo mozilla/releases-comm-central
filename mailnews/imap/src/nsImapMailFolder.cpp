@@ -4036,16 +4036,6 @@ NS_IMETHODIMP nsImapMailFolder::GetHasAdminUrl(bool* aBool) {
   return rv;
 }
 
-NS_IMETHODIMP nsImapMailFolder::GetAdminUrl(nsACString& aResult) {
-  aResult = m_adminUrl;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsImapMailFolder::SetAdminUrl(const nsACString& adminUrl) {
-  m_adminUrl = adminUrl;
-  return NS_OK;
-}
-
 // this is used to issue an arbitrary imap command on the passed in msgs.
 // It assumes the command needs to be run in the selected state.
 NS_IMETHODIMP nsImapMailFolder::IssueCommandOnMsgs(const nsACString& command,
