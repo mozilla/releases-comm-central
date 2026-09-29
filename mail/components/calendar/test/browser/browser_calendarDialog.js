@@ -1510,7 +1510,7 @@ add_task(async function test_userAttendanceResponse() {
 
   const calEvent = await createEvent(calendarEventData);
   dialog.setCalendarEvent(calEvent);
-  dialog.show();
+  await dialog.show();
   await statusPromise;
 
   // Acceptance widget should have "going" checked.
@@ -1519,6 +1519,8 @@ add_task(async function test_userAttendanceResponse() {
     "ACCEPTED",
     "Going should be checked in the acceptance widget"
   );
+
+  browser.contentWindow.doTransaction = async () => {};
 
   // Clicking "maybe" should fire setEventResponse and update the status attribute of
   // the acceptance widget.
@@ -1529,7 +1531,7 @@ add_task(async function test_userAttendanceResponse() {
   statusPromise = BrowserTestUtils.waitForAttribute("status", acceptanceWidget);
   await new Promise(resolve => setTimeout(resolve));
   EventUtils.synthesizeMouseAtCenter(
-    acceptanceWidget.shadowRoot.querySelector("#maybe"),
+    acceptanceWidget.shadowRoot.querySelector('label[for="maybe"]'),
     {},
     browser.contentWindow
   );
@@ -1545,6 +1547,8 @@ add_task(async function test_userAttendanceResponse() {
     "TENTATIVE",
     "Maybe should be checked in the acceptance widget"
   );
+
+  delete browser.contentWindow.doTransaction;
 
   // Clean up.
   calendar.setProperty("organizerId", "");
