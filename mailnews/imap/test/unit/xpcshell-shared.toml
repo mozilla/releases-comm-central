@@ -115,6 +115,8 @@ tags = ["foldernames"]
 
 ["test_imapSelectFailedMyRights.js"]
 
+["test_imapStartTLS.js"]
+
 ["test_imapStatusCloseDBs.js"]
 
 ["test_imapStoreMsgOffline.js"]

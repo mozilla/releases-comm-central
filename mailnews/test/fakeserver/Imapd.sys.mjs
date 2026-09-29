@@ -757,8 +757,9 @@ function formatArg(argument, spec) {
 // KNOWN DEVIATIONS FROM RFC 3501:
 // + The autologout timer is 3 minutes, not 30 minutes. A test with a logout
 //   of 30 minutes would take a very long time if it failed.
-// + SEARCH (except for UNDELETED) and STARTTLS are not supported,
-//   nor is all of FETCH.
+// + SEARCH (except for UNDELETED) is not supported, nor is all of FETCH.
+//   STARTTLS is only supported if the handler's supportsStartTLS is set and
+//   the server has a startTLSCert.
 // + Concurrent mailbox access is probably compliant with a rather liberal
 //   implementation of RFC 3501, although probably not what one would expect,
 //   and certainly not what the Dovecot IMAP server tests expect.
@@ -789,6 +790,9 @@ export class IMAP_RFC3501_handler {
     this._reader = null;
     this.closing = false;
     this.dropOnStartTLS = false;
+    // Set to support STARTTLS. The server must have a startTLSCert.
+    this.supportsStartTLS = false;
+    this._tlsActive = false;
     // map: property = auth scheme {String}, value = start function on this obj
     this._kAuthSchemeStartFunction = {};
 
@@ -1098,6 +1102,9 @@ export class IMAP_RFC3501_handler {
 
   CAPABILITY() {
     var capa = "* CAPABILITY IMAP4rev1 " + this.kCapabilities.join(" ");
+    if (this.supportsStartTLS && !this._tlsActive) {
+      capa += " STARTTLS";
+    }
     if (this.kAuthSchemes.length > 0) {
       capa += " AUTH=" + this.kAuthSchemes.join(" AUTH=");
     }
@@ -1124,7 +1131,11 @@ export class IMAP_RFC3501_handler {
       this.closing = true;
       return "";
     }
-    return "BAD maild doesn't support TLS ATM";
+    if (!this.supportsStartTLS || this._tlsActive) {
+      return "BAD STARTTLS not supported";
+    }
+    this._startTLSPending = true;
+    return "OK Begin TLS negotiation now";
   }
   _nextAuthFunction = undefined;
   AUTHENTICATE(args) {
@@ -1645,6 +1656,11 @@ export class IMAP_RFC3501_handler {
     if (this.closing) {
       this.closing = false;
       reader.closeSocket();
+    }
+    if (this._startTLSPending) {
+      this._startTLSPending = false;
+      this._tlsActive = true;
+      reader.startTLS();
     }
     if (this.sendingLiteral) {
       reader.preventLFMunge();

@@ -31,6 +31,34 @@ var BinaryInputStream = Components.Constructor(
 var TIMEOUT = 3 * 60 * 1000;
 
 /**
+ * Copies everything arriving on an input stream to an output stream.
+ *
+ * @param {nsIAsyncInputStream} input
+ * @param {nsIOutputStream} output
+ * @param {Function} onClose - Called once either stream is closed.
+ */
+function pumpStream(input, output, onClose) {
+  const callback = {
+    onInputStreamReady(stream) {
+      try {
+        const available = stream.available();
+        if (available) {
+          const data = new BinaryInputStream(stream).readBytes(available);
+          output.write(data, data.length);
+          output.flush();
+        }
+      } catch (e) {
+        onClose();
+        return;
+      }
+      stream.asyncWait(callback, 0, 0, Services.tm.mainThread);
+    },
+    QueryInterface: ChromeUtils.generateQI(["nsIInputStreamCallback"]),
+  };
+  input.asyncWait(callback, 0, 0, Services.tm.mainThread);
+}
+
+/**
  * The main server handling class. A fake server consists of three parts, this
  * server implementation (which handles the network communication), the handler
  * (which handles the state for a connection), and the daemon (which handles
@@ -112,6 +140,68 @@ export class nsMailServer {
      * get GCed
      */
     this._inputStreams = [];
+
+    /**
+     * If set, the certificate used for connections upgraded with STARTTLS.
+     * The server itself listens without TLS.
+     *
+     * @type {?nsIX509Cert}
+     */
+    this.startTLSCert = null;
+
+    /**
+     * Readers waiting for their connection to the STARTTLS socket to be
+     * accepted.
+     *
+     * @type {nsMailReader[]}
+     */
+    this._startTLSReaders = [];
+  }
+
+  /**
+   * Returns the TLS socket that connections upgraded with STARTTLS are relayed
+   * to, creating it if needed. There is no way to upgrade an accepted socket
+   * to TLS, so after STARTTLS the bytes are passed between the client and a
+   * new connection to this socket, which does the TLS handshake with the
+   * client.
+   *
+   * @returns {nsITLSServerSocket}
+   */
+  _getStartTLSSocket() {
+    if (!this._startTLSSocket) {
+      const socket = new TLSServerSocket(-1, true, -1);
+      socket.setVersionRange(
+        Ci.nsITLSClientStatus.TLS_VERSION_1_2,
+        Ci.nsITLSClientStatus.TLS_VERSION_1_3
+      );
+      socket.serverCert = this.startTLSCert;
+      socket.asyncListen({
+        onSocketAccepted: (serverSocket, trans) => {
+          // Match the relay by port. Its address may not be known yet if it
+          // is still connecting, in which case take the oldest such relay.
+          const ports = this._startTLSReaders.map(reader => {
+            try {
+              return reader._relayTransport.getScriptableSelfAddr().port;
+            } catch (e) {
+              return null;
+            }
+          });
+          let index = ports.indexOf(trans.port);
+          if (index == -1) {
+            index = ports.indexOf(null);
+          }
+          if (index == -1) {
+            trans.close(Cr.NS_ERROR_UNEXPECTED);
+            return;
+          }
+          this._startTLSReaders.splice(index, 1)[0]._onStartTLSAccepted(trans);
+        },
+        onStopListening() {},
+        QueryInterface: ChromeUtils.generateQI(["nsIServerSocketListener"]),
+      });
+      this._startTLSSocket = socket;
+    }
+    return this._startTLSSocket;
   }
 
   onSocketAccepted(socket, trans) {
@@ -214,6 +304,9 @@ export class nsMailServer {
 
     this._socket.close();
     this._socket = null;
+    this._startTLSSocket?.close();
+    this._startTLSSocket = null;
+    this._startTLSReaders = [];
 
     for (const reader of this._readers) {
       await reader._realCloseSocket();
@@ -503,6 +596,12 @@ class nsMailReader {
         this._realCloseSocket();
         this._signalStop = false;
       }
+
+      if (this._startTLSPending) {
+        this._startTLSPending = false;
+        this._beginStartTLS(stream);
+        return;
+      }
     }
 
     if (this._isRunning) {
@@ -517,6 +616,92 @@ class nsMailReader {
 
   closeSocket() {
     this._signalStop = true;
+  }
+
+  /**
+   * Switches the connection to TLS once the response to the current command
+   * has been sent. Any further lines already received are discarded.
+   */
+  startTLS() {
+    if (!this._server.startTLSCert) {
+      throw new Error("The server has no startTLSCert");
+    }
+    this._startTLSPending = true;
+  }
+
+  /**
+   * Starts relaying the client connection to the STARTTLS socket.
+   *
+   * @param {nsIAsyncInputStream} clientInput
+   */
+  _beginStartTLS(clientInput) {
+    this.timer.cancel();
+    this._lines = [];
+
+    const relay = Cc["@mozilla.org/network/socket-transport-service;1"]
+      .getService(Ci.nsISocketTransportService)
+      .createTransport(
+        [],
+        "127.0.0.1",
+        this._server._getStartTLSSocket().port,
+        null,
+        null
+      );
+    const relayOutput = relay.openOutputStream(
+      Ci.nsITransport.OPEN_BLOCKING,
+      0,
+      0
+    );
+    const relayInput = relay
+      .openInputStream(0, 0, 0)
+      .QueryInterface(Ci.nsIAsyncInputStream);
+    this._server._inputStreams.push(relayInput);
+
+    const close = () => this._realCloseSocket();
+    this._buffer = [];
+    pumpStream(clientInput, relayOutput, close);
+    pumpStream(relayInput, this._output, close);
+
+    this._clientTransport = this._transport;
+    this._relayTransport = relay;
+    this._transport = null;
+    this._output = null;
+    this._server._startTLSReaders.push(this);
+  }
+
+  /**
+   * Continues the session on the connection accepted by the STARTTLS socket,
+   * once the TLS handshake with the client is done.
+   *
+   * @param {nsISocketTransport} trans
+   */
+  _onStartTLSAccepted(trans) {
+    const input = trans
+      .openInputStream(0, 1024, 1024)
+      .QueryInterface(Ci.nsIAsyncInputStream);
+    this._server._inputStreams.push(input);
+    this._transport = trans;
+    this._output = trans.openOutputStream(
+      Ci.nsITransport.OPEN_BLOCKING,
+      1024,
+      4096
+    );
+
+    trans.securityCallbacks
+      .getInterface(Ci.nsITLSServerConnectionInfo)
+      .setSecurityObserver({
+        onHandshakeDone: () => {
+          input.asyncWait(this, 0, 0, Services.tm.mainThread);
+          this.timer.initWithCallback(
+            this.observer,
+            TIMEOUT,
+            Ci.nsITimer.TYPE_ONE_SHOT
+          );
+        },
+        QueryInterface: ChromeUtils.generateQI([
+          "nsITLSServerSecurityObserver",
+        ]),
+      });
   }
 
   /**
@@ -559,6 +744,10 @@ class nsMailReader {
   async _realCloseSocket() {
     this._isRunning = false;
     this._server.stopTest();
+    const index = this._server._startTLSReaders.indexOf(this);
+    if (index != -1) {
+      this._server._startTLSReaders.splice(index, 1);
+    }
 
     // Wait a moment, then close the connection. Closing immediately can
     // prevent the last output stream message from reaching the client
@@ -567,6 +756,10 @@ class nsMailReader {
     this._transport?.close(Cr.NS_OK);
     this._transport = null;
     this._output = null;
+    this._relayTransport?.close(Cr.NS_OK);
+    this._relayTransport = null;
+    this._clientTransport?.close(Cr.NS_OK);
+    this._clientTransport = null;
   }
 
   setMultiline(multi) {

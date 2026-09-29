@@ -24,7 +24,9 @@ export class IMAPServer {
     }
     this.server = new nsMailServer(daemon => {
       const handler = new IMAP_RFC3501_handler(daemon, this.options);
-      if (this.options.offerStartTLS) {
+      if (this.options.startTLS) {
+        handler.supportsStartTLS = true;
+      } else if (this.options.offerStartTLS) {
         // List startTLS as a capability, even though we don't support it.
         handler.kCapabilities.push("STARTTLS");
       }
@@ -33,7 +35,11 @@ export class IMAPServer {
       }
       return handler;
     }, this.daemon);
-    this.server.tlsCert = this.options.tlsCert;
+    if (this.options.startTLS) {
+      this.server.startTLSCert = this.options.tlsCert;
+    } else {
+      this.server.tlsCert = this.options.tlsCert;
+    }
     this.server.start();
     dump(`IMAP server at localhost:${this.server.port} opened\n`);
 
