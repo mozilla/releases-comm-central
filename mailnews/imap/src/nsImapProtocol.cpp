@@ -5568,13 +5568,14 @@ void nsImapProtocol::StartTLS() {
     nsCString expectOkResponse = tag + " OK "_ns;
     nsCString expectNoResponse = tag + " NO "_ns;
     nsCString expectBadResponse = tag + " BAD "_ns;
-    char* serverResponse = nullptr;
+    bool gotLine;
     do {
       // This reads and discards lines not starting with "<tag> OK ",
       // "<tag> NO " or "<tag> BAD " and exits when one is found. Otherwise,
       // this exits on timeout when all lines in the buffer are read causing
       // serverResponse to be set null. Usually just "<tag> OK " is present.
-      serverResponse = CreateNewLineFromSocket();
+      char* serverResponse = CreateNewLineFromSocket();
+      gotLine = serverResponse;
       ok = serverResponse &&
            !PL_strncasecmp(serverResponse, expectOkResponse.get(),
                            expectOkResponse.Length());
@@ -5588,7 +5589,7 @@ void nsImapProtocol::StartTLS() {
         break;
       }
       PR_Free(serverResponse);
-    } while (serverResponse && !ok);
+    } while (gotLine && !ok);
   }
   // ok == false implies a "<tag> NO " or "<tag> BAD " response or time out on
   // socket read. It could also be due to failure on SendData() above.
