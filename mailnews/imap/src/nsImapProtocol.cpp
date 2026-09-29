@@ -5566,30 +5566,32 @@ void nsImapProtocol::StartTLS() {
   bool ok = false;
   if (NS_SUCCEEDED(rv)) {
     nsCString expectOkResponse = tag + " OK "_ns;
+    nsCString expectNoResponse = tag + " NO "_ns;
+    nsCString expectBadResponse = tag + " BAD "_ns;
     char* serverResponse = nullptr;
     do {
-      // This reads and discards lines not starting with "<tag> OK " or
-      // "<tag> BAD " and exits when when either are found. Otherwise, this
-      // exits on timeout when all lines in the buffer are read causing
+      // This reads and discards lines not starting with "<tag> OK ",
+      // "<tag> NO " or "<tag> BAD " and exits when one is found. Otherwise,
+      // this exits on timeout when all lines in the buffer are read causing
       // serverResponse to be set null. Usually just "<tag> OK " is present.
       serverResponse = CreateNewLineFromSocket();
       ok = serverResponse &&
            !PL_strncasecmp(serverResponse, expectOkResponse.get(),
                            expectOkResponse.Length());
-      if (!ok && serverResponse) {
-        // Check for possible BAD response, e.g., server not STARTTLS capable.
-        nsCString expectBadResponse = tag + " BAD "_ns;
-        if (!PL_strncasecmp(serverResponse, expectBadResponse.get(),
-                            expectBadResponse.Length())) {
-          PR_Free(serverResponse);
-          break;
-        }
+      if (!ok && serverResponse &&
+          (!PL_strncasecmp(serverResponse, expectNoResponse.get(),
+                           expectNoResponse.Length()) ||
+           !PL_strncasecmp(serverResponse, expectBadResponse.get(),
+                           expectBadResponse.Length()))) {
+        // The server refused, e.g. because it isn't STARTTLS capable.
+        PR_Free(serverResponse);
+        break;
       }
       PR_Free(serverResponse);
     } while (serverResponse && !ok);
   }
-  // ok == false implies a "<tag> BAD " response or time out on socket read.
-  // It could also be due to failure on SendData() above.
+  // ok == false implies a "<tag> NO " or "<tag> BAD " response or time out on
+  // socket read. It could also be due to failure on SendData() above.
   GetServerStateParser().SetCommandFailed(!ok);
 }
 

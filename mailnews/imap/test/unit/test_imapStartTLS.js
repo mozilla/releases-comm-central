@@ -14,7 +14,7 @@ const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
 );
 
-const { CAPABILITY, onStartup } = IMAP_RFC3501_handler.prototype;
+const { CAPABILITY, STARTTLS, onStartup } = IMAP_RFC3501_handler.prototype;
 
 // Something about the TLS connections to the fake server causes NSS shutdown
 // to fail. Ignore it, like test_guessConfig.js does.
@@ -50,6 +50,7 @@ add_setup(async function () {
 
   registerCleanupFunction(() => {
     IMAP_RFC3501_handler.prototype.CAPABILITY = CAPABILITY;
+    IMAP_RFC3501_handler.prototype.STARTTLS = STARTTLS;
     IMAP_RFC3501_handler.prototype.onStartup = onStartup;
     incomingServer.closeCachedConnections();
     MailServices.accounts.removeAccount(account, false);
@@ -77,6 +78,21 @@ add_task(async function testStartTLS() {
     incomingServer.rootFolder.containsChildNamed("INBOX"),
     "INBOX should have been discovered"
   );
+  incomingServer.closeCachedConnections();
+});
+
+add_task(async function testStartTLSRefused() {
+  IMAP_RFC3501_handler.prototype.STARTTLS = function () {
+    return "NO STARTTLS is not available right now";
+  };
+  const start = Date.now();
+  Assert.ok(!(await discoverFolders()), "connecting should fail");
+  Assert.less(
+    Date.now() - start,
+    30000,
+    "connecting should fail without waiting for the socket to time out"
+  );
+  IMAP_RFC3501_handler.prototype.STARTTLS = STARTTLS;
   incomingServer.closeCachedConnections();
 });
 
