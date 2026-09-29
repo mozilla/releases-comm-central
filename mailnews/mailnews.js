@@ -1090,4 +1090,8 @@ pref("experimental.mail.ews.overrideOAuth.enabled", true);
 pref("mail.microsoft.useM365Sandbox", false);
 
 // Enable Graph API calendar support.
+#ifdef NIGHTLY_BUILD
+pref("calendar.graph.enabled", true);
+#else
 pref("calendar.graph.enabled", false);
+#endif  
