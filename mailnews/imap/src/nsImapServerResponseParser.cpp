@@ -364,6 +364,16 @@ const char* nsImapServerResponseParser::GetSelectedMailboxName() {
   return fSelectedMailboxName;
 }
 
+bool nsImapServerResponseParser::GetSelectedMailboxName(nsACString& aName) {
+  mozilla::MutexAutoLock mon(mLock);
+  if (!fSelectedMailboxName) {
+    aName.Truncate();
+    return false;
+  }
+  aName.Assign(fSelectedMailboxName);
+  return true;
+}
+
 nsImapSearchResultIterator*
 nsImapServerResponseParser::CreateSearchResultIterator() {
   return new nsImapSearchResultIterator(*fSearchResults);

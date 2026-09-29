@@ -44,7 +44,10 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   virtual bool WaitingForMoreClientInput() {
     return fWaitingForMoreClientInput;
   }
-  const char* GetSelectedMailboxName();  // can be NULL
+  // Can be NULL. Only use this on the IMAP thread, which may free the name.
+  const char* GetSelectedMailboxName();
+  // Copies the selected mailbox name. Returns false if there is none.
+  bool GetSelectedMailboxName(nsACString& aName);
   bool IsStdJunkNotJunkUseOk() { return fStdJunkNotJunkUseOk; }
 
   // if we get a PREAUTH greeting from the server, initialize the parser to

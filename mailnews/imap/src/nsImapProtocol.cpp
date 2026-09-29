@@ -2555,11 +2555,11 @@ NS_IMETHODIMP nsImapProtocol::IsBusy(bool* aIsConnectionBusy,
       *aIsConnectionBusy = true;
     }
 
+    nsAutoCString selectedMailboxName;
     if (GetServerStateParser().GetIMAPstate() ==
             nsImapServerResponseParser::kFolderSelected &&
-        GetServerStateParser().GetSelectedMailboxName() &&
-        PL_strcasecmp(GetServerStateParser().GetSelectedMailboxName(),
-                      "Inbox") == 0)
+        GetServerStateParser().GetSelectedMailboxName(selectedMailboxName) &&
+        selectedMailboxName.LowerCaseEqualsLiteral("inbox"))
       *isInboxConnection = true;
   }
   return rv;
@@ -2600,7 +2600,7 @@ NS_IMETHODIMP nsImapProtocol::CanHandleUrl(nsIImapUrl* aImapUrl,
   nsAutoCString curSelectedUrlFolderName;
   nsAutoCString pendingUrlFolderName;
   if (inSelectedState)
-    curSelectedUrlFolderName = GetServerStateParser().GetSelectedMailboxName();
+    GetServerStateParser().GetSelectedMailboxName(curSelectedUrlFolderName);
 
   if (isBusy) {
     nsImapState curUrlImapState;
@@ -4705,20 +4705,22 @@ void nsImapProtocol::Log(const char* logSubName, const char* extraInfo,
       lastLineEnd = logDataLen;
     }
     switch (GetServerStateParser().GetIMAPstate()) {
-      case nsImapServerResponseParser::kFolderSelected:
+      case nsImapServerResponseParser::kFolderSelected: {
+        // This can be called on the main thread, so copy the name.
+        nsAutoCString selectedMailboxName;
+        GetServerStateParser().GetSelectedMailboxName(selectedMailboxName);
         if (extraInfo)
           MOZ_LOG(IMAP, LogLevel::Info,
                   ("%p:%s:%s-%s:%s:%s: %.400s", this, hostname.get(),
-                   selectedStateName,
-                   GetServerStateParser().GetSelectedMailboxName(), logSubName,
+                   selectedStateName, selectedMailboxName.get(), logSubName,
                    extraInfo, logDataToLog));
         else
           MOZ_LOG(IMAP, LogLevel::Info,
                   ("%p:%s:%s-%s:%s: %.400s", this, hostname.get(),
-                   selectedStateName,
-                   GetServerStateParser().GetSelectedMailboxName(), logSubName,
+                   selectedStateName, selectedMailboxName.get(), logSubName,
                    logDataToLog));
         break;
+      }
       case nsImapServerResponseParser::kNonAuthenticated:
       case nsImapServerResponseParser::kAuthenticated: {
         const char* stateName = (GetServerStateParser().GetIMAPstate() ==
@@ -4834,8 +4836,9 @@ NS_IMETHODIMP nsImapProtocol::ResetToAuthenticatedState() {
 NS_IMETHODIMP nsImapProtocol::GetSelectedMailboxName(char** folderName) {
   if (!folderName) return NS_ERROR_NULL_POINTER;
   *folderName = nullptr;
-  if (GetServerStateParser().GetSelectedMailboxName())
-    *folderName = PL_strdup((GetServerStateParser().GetSelectedMailboxName()));
+  nsAutoCString name;
+  if (GetServerStateParser().GetSelectedMailboxName(name))
+    *folderName = ToNewCString(name);
   return NS_OK;
 }
 
