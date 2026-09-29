@@ -175,6 +175,7 @@ export class nsMailServer {
         Ci.nsITLSClientStatus.TLS_VERSION_1_3
       );
       socket.serverCert = this.startTLSCert;
+      socket.setSessionTickets(false);
       socket.asyncListen({
         onSocketAccepted: (serverSocket, trans) => {
           // Match the relay by port. Its address may not be known yet if it
@@ -289,6 +290,7 @@ export class nsMailServer {
         Ci.nsITLSClientStatus.TLS_VERSION_1_3
       );
       socket.serverCert = this.tlsCert;
+      socket.setSessionTickets(false);
     } else {
       socket = new ServerSocket(this._port, true, -1);
     }

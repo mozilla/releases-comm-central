@@ -31,9 +31,6 @@ const certOverrideService = Cc[
 ].getService(Ci.nsICertOverrideService);
 let tlsCert, expiredCert;
 
-// Something in this test causes NSS shutdown to fail. Ignore it.
-Services.env.set("MOZ_IGNORE_NSS_SHUTDOWN_LEAKS", "1");
-
 add_setup(async function () {
   do_get_profile();
   tlsCert = await getCertificate("valid");

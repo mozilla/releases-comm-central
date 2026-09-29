@@ -16,10 +16,6 @@ const { ServerTestUtils } = ChromeUtils.importESModule(
 
 const { CAPABILITY, STARTTLS, onStartup } = IMAP_RFC3501_handler.prototype;
 
-// Something about the TLS connections to the fake server causes NSS shutdown
-// to fail. Ignore it, like test_guessConfig.js does.
-Services.env.set("MOZ_IGNORE_NSS_SHUTDOWN_LEAKS", "1");
-
 let imapServer, incomingServer;
 let alerts = [];
 
