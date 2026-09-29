@@ -5384,9 +5384,6 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
             SetMsgDatabase(nullptr);
           }
           break;
-        case nsIImapUrl::nsImapRefreshFolderUrls:
-          // we finished getting an admin url for the folder.
-          break;
         case nsIImapUrl::nsImapCreateFolder:
           if (NS_FAILED(aExitCode))  // if success notification already done
           {

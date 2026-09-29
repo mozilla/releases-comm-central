@@ -37,7 +37,6 @@ nsImapServerResponseParser::nsImapServerResponseParser(
       fServerConnection(imapProtocolConnection),
       fHostSessionList(nullptr) {
   fSearchResults = nsImapSearchResultSequence::CreateSearchResultSequence();
-  fFolderAdminUrl = nullptr;
   fNetscapeServerVersionString = nullptr;
   fXSenderInfo = nullptr;
   fSupportsUserDefinedFlags = 0;
@@ -79,7 +78,6 @@ nsImapServerResponseParser::nsImapServerResponseParser(
 nsImapServerResponseParser::~nsImapServerResponseParser() {
   PR_Free(fCurrentCommandTag);
   delete fSearchResults;
-  PR_Free(fFolderAdminUrl);
   PR_Free(fNetscapeServerVersionString);
   PR_Free(fXSenderInfo);
   PR_Free(fLastAlert);
@@ -615,8 +613,6 @@ void nsImapServerResponseParser::response_data() {
       case 'X':
         if (!PL_strcasecmp(fNextToken, "XSERVERINFO"))
           xserverinfo_data();
-        else if (!PL_strcasecmp(fNextToken, "XMAILBOXINFO"))
-          xmailboxinfo_data();
         else if (!PL_strcasecmp(fNextToken, "XLIST"))
           mailbox_data();
         else {
@@ -1985,28 +1981,6 @@ void nsImapServerResponseParser::capability_data() {
     fServerConnection.SetCapabilityResponseOccurred();
   }
   skip_to_CRLF();
-}
-
-void nsImapServerResponseParser::xmailboxinfo_data() {
-  AdvanceToNextToken();
-  if (!fNextToken) return;
-
-  char* mailboxName = CreateAstring();  // PL_strdup(fNextToken);
-  if (mailboxName) {
-    do {
-      AdvanceToNextToken();
-      if (fNextToken) {
-        if (!PL_strcmp("MANAGEURL", fNextToken)) {
-          AdvanceToNextToken();
-          fFolderAdminUrl = CreateAstring();
-        } else if (!PL_strcmp("POSTURL", fNextToken)) {
-          AdvanceToNextToken();
-          // ignore this for now...
-        }
-      }
-    } while (fNextToken && !fAtEndOfLine && ContinueParse());
-  }
-  PR_FREEIF(mailboxName);
 }
 
 void nsImapServerResponseParser::xserverinfo_data() {

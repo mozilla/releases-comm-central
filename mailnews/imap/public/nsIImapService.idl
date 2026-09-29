@@ -211,10 +211,6 @@ interface nsIImapService : nsISupports
                           in nsIUrlListener aUrlListener);
 
 
-  nsIURI getFolderAdminUrl(in nsIMsgFolder aMailFolder,
-                           in nsIMsgWindow   aMsgWindow,
-                           in nsIUrlListener aUrlListener);
-
   nsIURI issueCommandOnMsgs(in nsIMsgFolder aMailFolder,
                             in nsIMsgWindow aMsgWindow,
                             in ACString aCommand,

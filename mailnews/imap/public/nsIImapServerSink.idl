@@ -38,7 +38,6 @@ interface nsIImapServerSink : nsISupports {
   void onlineFolderCreateFailed(in AUTF8String aFolderName);
   void onlineFolderRename(in nsIMsgWindow msgWindow, in AUTF8String oldName, in AUTF8String newName);
   boolean folderIsNoSelect(in AUTF8String folderName);
-  void setFolderAdminURL(in AUTF8String folderName, in AUTF8String adminUrl);
   boolean folderVerifiedOnline(in AUTF8String folderName);
 
   void setCapability(in unsigned long long capability);

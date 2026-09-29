@@ -105,7 +105,6 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   void FreeXSenderInfo() { PR_FREEIF(fXSenderInfo); }
   nsCString& GetManageListsUrl() { return fManageListsUrl; }
   nsCString& GetManageFiltersUrl() { return fManageFiltersUrl; }
-  const char* GetManageFolderUrl() { return fFolderAdminUrl; }
   nsCString& GetServerID() { return fServerIdResponse; }
 
   // Call this when adding a pipelined command to the session
@@ -161,7 +160,6 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   virtual void numeric_mailbox_data();
   virtual void capability_data();
   virtual void xserverinfo_data();
-  virtual void xmailboxinfo_data();
   virtual void namespace_data();
   virtual void myrights_data(bool unsolicited);
   virtual void acl_data();
@@ -258,7 +256,6 @@ class nsImapServerResponseParser : public nsImapGenericParser {
                        removed while passing to hashTable ]*/
   nsCString fManageListsUrl;
   nsCString fManageFiltersUrl;
-  char* fFolderAdminUrl;
   nsCString fServerIdResponse;  // RFC
 
   int32_t fFetchResponseIndex;

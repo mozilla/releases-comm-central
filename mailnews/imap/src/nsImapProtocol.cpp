@@ -6776,19 +6776,6 @@ void nsImapProtocol::Netscape() {
   if (NS_SUCCEEDED(rv)) ParseIMAPandCheckForNewMail();
 }
 
-void nsImapProtocol::XMailboxInfo(const char* mailboxName) {
-  ProgressEventFunctionUsingName("imapGettingMailboxInfo");
-  IncrementCommandTagNumber();
-  nsCString command(GetServerCommandTag());
-
-  command.AppendLiteral(" XMAILBOXINFO \"");
-  command.Append(mailboxName);
-  command.AppendLiteral("\" MANAGEURL POSTURL" CRLF);
-
-  nsresult rv = SendData(command.get());
-  if (NS_SUCCEEDED(rv)) ParseIMAPandCheckForNewMail();
-}
-
 void nsImapProtocol::Namespace() {
   IncrementCommandTagNumber();
 
@@ -6939,29 +6926,6 @@ bool nsImapProtocol::MailboxIsNoSelectMailbox(const nsACString& mailboxName) {
   NS_ASSERTION(m_imapServerSink,
                "unexpected, no imap server sink, see bug #194335");
   if (m_imapServerSink) m_imapServerSink->FolderIsNoSelect(name, &rv);
-  return rv;
-}
-
-nsresult nsImapProtocol::SetFolderAdminUrl(const char* mailboxName) {
-  nsresult rv =
-      NS_ERROR_NULL_POINTER;  // if m_imapServerSink is null, rv will be this.
-
-  nsImapNamespace* nsForMailbox = nullptr;
-  m_hostSessionList->GetNamespaceForMailboxForHost(GetImapServerKey(),
-                                                   mailboxName, nsForMailbox);
-
-  nsCString name;
-
-  if (nsForMailbox)
-    m_runningUrl->AllocateCanonicalPath(nsDependentCString(mailboxName),
-                                        nsForMailbox->GetDelimiter(), name);
-  else
-    m_runningUrl->AllocateCanonicalPath(nsDependentCString(mailboxName),
-                                        kOnlineHierarchySeparatorUnknown, name);
-
-  if (m_imapServerSink)
-    rv = m_imapServerSink->SetFolderAdminURL(
-        name, nsDependentCString(GetServerStateParser().GetManageFolderUrl()));
   return rv;
 }
 
@@ -8113,12 +8077,6 @@ void nsImapProtocol::ProcessAuthenticatedStateURL() {
     case nsIImapUrl::nsImapFolderStatus:
       sourceMailbox = OnCreateServerSourceFolderPathString();
       OnStatusForFolder(sourceMailbox.get());
-      break;
-    case nsIImapUrl::nsImapRefreshFolderUrls:
-      sourceMailbox = OnCreateServerSourceFolderPathString();
-      XMailboxInfo(sourceMailbox.get());
-      if (GetServerStateParser().LastCommandSuccessful())
-        SetFolderAdminUrl(sourceMailbox.get());
       break;
     case nsIImapUrl::nsImapDeleteFolder:
       sourceMailbox = OnCreateServerSourceFolderPathString();

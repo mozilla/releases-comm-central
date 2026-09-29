@@ -1356,23 +1356,6 @@ NS_IMETHODIMP nsImapIncomingServer::FolderIsNoSelect(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapIncomingServer::SetFolderAdminURL(
-    const nsACString& aFolderName, const nsACString& aFolderAdminUrl) {
-  nsCOMPtr<nsIMsgFolder> rootFolder;
-  nsresult rv = GetRootFolder(getter_AddRefs(rootFolder));
-  if (NS_SUCCEEDED(rv) && rootFolder) {
-    nsCOMPtr<nsIMsgImapMailFolder> imapRoot = do_QueryInterface(rootFolder);
-    if (imapRoot) {
-      nsCOMPtr<nsIMsgImapMailFolder> foundFolder;
-      rv = imapRoot->FindOnlineSubFolder(aFolderName,
-                                         getter_AddRefs(foundFolder));
-      if (NS_SUCCEEDED(rv) && foundFolder)
-        return foundFolder->SetAdminUrl(aFolderAdminUrl);
-    }
-  }
-  return rv;
-}
-
 NS_IMETHODIMP nsImapIncomingServer::FolderVerifiedOnline(
     const nsACString& folderName, bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);

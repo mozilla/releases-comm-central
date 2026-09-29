@@ -328,7 +328,6 @@ class nsImapProtocol : public nsIImapProtocol,
   void Noop();
   void XServerInfo();
   void Netscape();
-  void XMailboxInfo(const char* mailboxName);
   void MailboxData();
   void GetMyRightsForFolder(const char* mailboxName);
   void Bodystructure(const nsCString& messageId, bool idIsUid);
@@ -353,7 +352,6 @@ class nsImapProtocol : public nsIImapProtocol,
   void RefreshFolderACLView(const char* mailboxName,
                             nsImapNamespace* nsForMailbox);
 
-  nsresult SetFolderAdminUrl(const char* mailboxName);
   void HandleMemoryFailure();
   void HandleCurrentUrlError();
 

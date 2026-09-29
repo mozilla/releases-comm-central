@@ -149,7 +149,6 @@ interface nsIImapUrl : nsISupports
   const long nsImapListFolder  = 0x00000014;
   const long nsImapUpgradeToSubscription = 0x00000015;
   const long nsImapFolderStatus  = 0x00000016;
-  const long nsImapRefreshFolderUrls = 0x00000017;
   const long nsImapEnsureExistsFolder = 0x00000018;
   const long nsImapOfflineToOnlineCopy = 0x00000019;
   const long nsImapOfflineToOnlineMove = 0x0000001A;

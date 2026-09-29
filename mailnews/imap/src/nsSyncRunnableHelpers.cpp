@@ -422,8 +422,6 @@ NS_SYNCRUNNABLEMETHOD3(ImapServerSink, OnlineFolderRename, nsIMsgWindow*,
                        const nsACString&, const nsACString&)
 NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FolderIsNoSelect, const nsACString&,
                        bool*)
-NS_SYNCRUNNABLEMETHOD2(ImapServerSink, SetFolderAdminURL, const nsACString&,
-                       const nsACString&)
 NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FolderVerifiedOnline, const nsACString&,
                        bool*)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SetCapability, eIMAPCapabilityFlags)

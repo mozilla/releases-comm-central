@@ -555,9 +555,6 @@ void nsImapUrl::ParseImapPart(char* imapPartOfUrl) {
     } else if (!PL_strcasecmp(m_urlidSubString, "refreshacl")) {
       m_imapAction = nsImapRefreshACL;
       ParseFolderPath(&m_sourceCanonicalFolderPathSubString);
-    } else if (!PL_strcasecmp(m_urlidSubString, "refreshfolderurls")) {
-      m_imapAction = nsImapRefreshFolderUrls;
-      ParseFolderPath(&m_sourceCanonicalFolderPathSubString);
     } else if (!PL_strcasecmp(m_urlidSubString, "refreshallacls")) {
       m_imapAction = nsImapRefreshAllACLs;
     } else if (!PL_strcasecmp(m_urlidSubString, "listfolder")) {

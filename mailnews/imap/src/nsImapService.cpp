@@ -2454,16 +2454,6 @@ NS_IMETHODIMP nsImapService::UnsubscribeFolder(nsIMsgFolder* aFolder,
                                   aUrlListener, aUrl);
 }
 
-NS_IMETHODIMP nsImapService::GetFolderAdminUrl(nsIMsgFolder* aImapMailFolder,
-                                               nsIMsgWindow* aMsgWindow,
-                                               nsIUrlListener* aUrlListener,
-                                               nsIURI** aURL) {
-  NS_ENSURE_ARG_POINTER(aImapMailFolder);
-
-  return FolderCommand(aImapMailFolder, aUrlListener, "/refreshfolderurls>",
-                       nsIImapUrl::nsImapRefreshFolderUrls, aMsgWindow, aURL);
-}
-
 NS_IMETHODIMP nsImapService::IssueCommandOnMsgs(nsIMsgFolder* anImapFolder,
                                                 nsIMsgWindow* aMsgWindow,
                                                 const nsACString& aCommand,
