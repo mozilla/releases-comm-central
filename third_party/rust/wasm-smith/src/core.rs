@@ -15,8 +15,8 @@ use std::ops::Range;
 use std::rc::Rc;
 use std::str::{self, FromStr};
 use wasm_encoder::{
-    AbstractHeapType, ArrayType, BlockType, ConstExpr, ExportKind, FieldType, HeapType, RefType,
-    StorageType, StructType, ValType,
+    AbstractHeapType, ArrayType, BlockType, ConstExpr, Encode, ExportKind, FieldType, HeapType,
+    RefType, StorageType, StructType, ValType,
 };
 pub(crate) use wasm_encoder::{GlobalType, MemoryType, TableType};
 
@@ -73,7 +73,7 @@ pub struct Module {
     /// All of this module's imports. These don't have their own index space,
     /// but instead introduce entries to each imported entity's associated index
     /// space.
-    imports: Vec<Import>,
+    imports: Vec<Imports>,
 
     /// Whether we should encode an imports section, even if `self.imports` is
     /// empty.
@@ -144,10 +144,6 @@ pub struct Module {
     /// Names currently exported from this module.
     export_names: HashSet<String>,
 
-    /// Reusable buffer in `self.arbitrary_const_expr` to amortize the cost of
-    /// allocation.
-    const_expr_choices: Vec<Box<dyn Fn(&mut Unstructured, ValType) -> Result<ConstExpr>>>,
-
     /// What the maximum type index that can be referenced is.
     max_type_limit: MaxTypeLimit,
 
@@ -175,6 +171,13 @@ impl fmt::Debug for Module {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum DuplicateImportsBehavior {
     Allowed,
+    #[cfg_attr(
+        not(feature = "component-model"),
+        expect(
+            dead_code,
+            reason = "Core WebAssembly permits duplicate import module/name pairs"
+        )
+    )]
     Disallowed,
 }
 
@@ -246,7 +249,6 @@ impl Module {
             data: Vec::new(),
             type_size: 0,
             export_names: HashSet::new(),
-            const_expr_choices: Vec::new(),
             max_type_limit: MaxTypeLimit::ModuleTypes,
             interesting_values32: Vec::new(),
             interesting_values64: Vec::new(),
@@ -365,6 +367,27 @@ pub(crate) struct Import {
     pub(crate) entity_type: EntityType,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub(crate) enum Imports {
+    Single(Import),
+    Compact1 {
+        module: String,
+        items: Vec<Import>,
+    },
+    Compact2 {
+        module: String,
+        entity_type: EntityType,
+        names: Vec<String>,
+    },
+}
+
+#[derive(Arbitrary)]
+enum ImportsKind {
+    Single,
+    Compact1,
+    Compact2,
+}
+
 /// Type of an entity.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub(crate) enum EntityType {
@@ -458,6 +481,9 @@ impl Module {
         // must have those populated for all function/etc. imports, no matter what.
         //
         // This can affect the available capacity for types and such.
+        //
+        // Conversely, `arbitrary_imports` must follow `arbitrary_types`,
+        // since it uses the generated function and tag types.
         if self.arbitrary_imports_from_available(u)? {
             generate_arbitrary_imports = false;
         }
@@ -1258,7 +1284,7 @@ impl Module {
 
         let mut required_types: Vec<SubType> = Vec::new();
         let mut required_recgrps: Vec<usize> = Vec::new();
-        let mut required_imports: Vec<wasmparser::Import> = Vec::new();
+        let mut required_imports: Vec<wasmparser::Imports> = Vec::new();
         let mut required_exports: Vec<wasmparser::Export> = Vec::new();
         let mut validator = wasmparser::Validator::new();
         validator
@@ -1280,9 +1306,8 @@ impl Module {
                     }
                 }
                 wasmparser::Payload::ImportSection(import_reader) => {
-                    for im in import_reader.into_imports() {
-                        let im = im.expect("could not read import");
-                        required_imports.push(im);
+                    for imports in import_reader {
+                        required_imports.push(imports.expect("could not read imports"));
                     }
                 }
                 wasmparser::Payload::ExportSection(export_reader) => {
@@ -1345,85 +1370,118 @@ impl Module {
         let mut imported_tables: Vec<wasmparser::TableType> = Vec::new();
         let mut imported_globals: Vec<wasmparser::GlobalType> = Vec::new();
         let mut imported_memories: Vec<wasmparser::MemoryType> = Vec::new();
-        let mut new_imports = Vec::with_capacity(required_imports.len());
-        for import in required_imports {
-            let entity_type = match &import.ty {
+        fn entity_type(ty: wasmparser::TypeRef, required_types: &[SubType]) -> EntityType {
+            match ty {
                 wasmparser::TypeRef::Func(sig_idx) => {
-                    imported_funcs.push(*sig_idx);
-                    match required_types.get(*sig_idx as usize) {
-                        None => panic!("signature index refers to a type out of bounds"),
-                        Some(ty) => match &ty.composite_type.inner {
-                            CompositeInnerType::Func(func_type) => {
-                                let entity = EntityType::Func(*sig_idx, Rc::clone(func_type));
-                                self.funcs.push((*sig_idx, Rc::clone(func_type)));
-                                entity
-                            }
-                            _ => panic!("a function type is required for function import"),
-                        },
-                    }
+                    let ty = required_types
+                        .get(sig_idx as usize)
+                        .expect("signature index refers to a type out of bounds");
+                    EntityType::Func(sig_idx, Rc::clone(ty.composite_type.unwrap_func()))
                 }
-
                 wasmparser::TypeRef::FuncExact(_) => panic!("Unexpected func_exact import"),
-
-                wasmparser::TypeRef::Tag(wasmparser::TagType {
-                    kind,
-                    func_type_idx,
-                }) => {
-                    imported_tags.push(wasmparser::TagType {
-                        kind: *kind,
-                        func_type_idx: *func_type_idx,
-                    });
-                    match required_types.get(*func_type_idx as usize) {
-                        None => {
-                            panic!("function type index for tag refers to a type out of bounds")
-                        }
-                        Some(ty) => match &ty.composite_type.inner {
-                            CompositeInnerType::Func(func_type) => {
-                                let tag_type = TagType {
-                                    func_type_idx: *func_type_idx,
-                                    func_type: Rc::clone(func_type),
-                                };
-                                let entity = EntityType::Tag(tag_type.clone());
-                                self.tags.push(tag_type);
-                                entity
-                            }
-                            _ => panic!("a function type is required for tag import"),
-                        },
-                    }
+                wasmparser::TypeRef::Tag(ty) => {
+                    let func_type = required_types
+                        .get(ty.func_type_idx as usize)
+                        .expect("function type index for tag refers to a type out of bounds")
+                        .composite_type
+                        .unwrap_func();
+                    EntityType::Tag(TagType {
+                        func_type_idx: ty.func_type_idx,
+                        func_type: Rc::clone(func_type),
+                    })
                 }
-
-                wasmparser::TypeRef::Table(table_ty) => {
-                    imported_tables.push(*table_ty);
-                    let table_ty = TableType::try_from(*table_ty).unwrap();
-                    let entity = EntityType::Table(table_ty);
-                    self.tables.push(table_ty);
-                    entity
+                wasmparser::TypeRef::Table(ty) => EntityType::Table(ty.try_into().unwrap()),
+                wasmparser::TypeRef::Memory(ty) => EntityType::Memory(ty.into()),
+                wasmparser::TypeRef::Global(ty) => EntityType::Global(ty.try_into().unwrap()),
+            }
+        }
+        let mut translate_import = |import: wasmparser::Import| {
+            let parser_ty = import.ty;
+            let ty = entity_type(parser_ty, &required_types);
+            match (parser_ty, &ty) {
+                (wasmparser::TypeRef::Func(sig_idx), EntityType::Func(_, func_type)) => {
+                    imported_funcs.push(sig_idx);
+                    self.funcs.push((sig_idx, Rc::clone(func_type)));
                 }
-
-                wasmparser::TypeRef::Memory(memory_ty) => {
-                    imported_memories.push(*memory_ty);
-                    let memory_ty = MemoryType::from(*memory_ty);
-                    let entity = EntityType::Memory(memory_ty);
-                    self.memories.push(memory_ty);
-                    entity
+                (wasmparser::TypeRef::Tag(parser_ty), EntityType::Tag(tag_type)) => {
+                    imported_tags.push(parser_ty);
+                    self.tags.push(tag_type.clone());
                 }
-
-                wasmparser::TypeRef::Global(global_ty) => {
-                    imported_globals.push(*global_ty);
-                    let global_ty = GlobalType::try_from(*global_ty).unwrap();
-                    let entity = EntityType::Global(global_ty);
-                    self.globals.push(global_ty);
-                    entity
+                (wasmparser::TypeRef::Table(parser_ty), EntityType::Table(ty)) => {
+                    imported_tables.push(parser_ty);
+                    self.tables.push(*ty);
                 }
-            };
-            new_imports.push(Import {
+                (wasmparser::TypeRef::Memory(parser_ty), EntityType::Memory(ty)) => {
+                    imported_memories.push(parser_ty);
+                    self.memories.push(*ty);
+                }
+                (wasmparser::TypeRef::Global(parser_ty), EntityType::Global(ty)) => {
+                    imported_globals.push(parser_ty);
+                    self.globals.push(*ty);
+                }
+                _ => unreachable!(),
+            }
+            self.num_imports += 1;
+            Import {
                 module: import.module.to_string(),
                 name: import.name.to_string(),
-                entity_type,
-            });
-            self.num_imports += 1;
+                entity_type: ty,
+            }
+        };
+
+        for imports in required_imports {
+            match imports {
+                wasmparser::Imports::Single(_, import) => {
+                    self.imports.push(Imports::Single(translate_import(import)));
+                }
+                wasmparser::Imports::Compact1 { module, items } => {
+                    let items = items
+                        .into_iter()
+                        .map(|item| {
+                            let item = item.expect("could not read compact import");
+                            translate_import(wasmparser::Import {
+                                module,
+                                name: item.name,
+                                ty: item.ty,
+                            })
+                        })
+                        .collect::<Vec<_>>();
+                    if self.config.compact_imports_enabled {
+                        if !items.is_empty() {
+                            self.imports.push(Imports::Compact1 {
+                                module: module.to_string(),
+                                items,
+                            });
+                        }
+                    } else {
+                        self.imports.extend(items.into_iter().map(Imports::Single));
+                    }
+                }
+                wasmparser::Imports::Compact2 { module, ty, names } => {
+                    let items = names
+                        .into_iter()
+                        .map(|name| {
+                            translate_import(wasmparser::Import {
+                                module,
+                                name: name.expect("could not read compact import name"),
+                                ty,
+                            })
+                        })
+                        .collect::<Vec<_>>();
+                    if self.config.compact_imports_enabled {
+                        if !items.is_empty() {
+                            self.imports.push(Imports::Compact2 {
+                                module: module.to_string(),
+                                entity_type: entity_type(ty, &required_types),
+                                names: items.into_iter().map(|item| item.name).collect(),
+                            });
+                        }
+                    } else {
+                        self.imports.extend(items.into_iter().map(Imports::Single));
+                    }
+                }
+            }
         }
-        self.imports.extend(new_imports);
         available_tags.splice(0..0, imported_tags);
         available_funcs.splice(0..0, imported_funcs);
         available_tables.splice(0..0, imported_tables);
@@ -1508,98 +1566,207 @@ impl Module {
     }
 
     fn arbitrary_imports(&mut self, u: &mut Unstructured) -> Result<()> {
-        if self.config.max_type_size < self.type_size {
-            return Ok(());
+        if self.num_imports > self.config.max_imports || self.type_size > self.config.max_type_size
+        {
+            return Err(arbitrary::Error::IncorrectFormat);
         }
 
-        let mut import_strings = HashSet::new();
-        let mut choices: Vec<fn(&mut Unstructured, &mut Module) -> Result<EntityType>> =
-            Vec::with_capacity(5);
-        let min = self.config.min_imports.saturating_sub(self.num_imports);
-        let max = self.config.max_imports.saturating_sub(self.num_imports);
-        arbitrary_loop(u, min, max, |u| {
-            choices.clear();
-            if self.can_add_local_or_import_tag() {
-                choices.push(|u, m| {
-                    let ty = m.arbitrary_tag_type(u)?;
-                    Ok(EntityType::Tag(ty))
-                });
-            }
-            if self.can_add_local_or_import_func() {
-                choices.push(|u, m| {
-                    let idx = *u.choose(&m.func_types)?;
-                    let ty = m.func_type(idx).clone();
-                    Ok(EntityType::Func(idx, ty))
-                });
-            }
-            if self.can_add_local_or_import_global() {
-                choices.push(|u, m| {
-                    let ty = m.arbitrary_global_type(u)?;
-                    Ok(EntityType::Global(ty))
-                });
-            }
-            if self.can_add_local_or_import_memory() {
-                choices.push(|u, m| {
-                    let ty = arbitrary_memtype(u, m.config())?;
-                    Ok(EntityType::Memory(ty))
-                });
-            }
-            if self.can_add_local_or_import_table() {
-                choices.push(|u, m| {
-                    let ty = arbitrary_table_type(u, m.config(), Some(m))?;
-                    Ok(EntityType::Table(ty))
-                });
-            }
-
-            if choices.is_empty() {
-                // We are out of choices. If we have not have reached the
-                // minimum yet, then we have no way to satisfy the constraint,
-                // but we follow max-constraints before the min-import
-                // constraint.
-                return Ok(false);
-            }
-
-            // Generate a type to import, but only actually add the item if the
-            // type size budget allows us to.
-            let f = u.choose(&choices)?;
-            let entity_type = f(u, self)?;
-            let budget = self.config.max_type_size - self.type_size;
-            if entity_type.size() + 1 > budget {
-                return Ok(false);
-            }
-            self.type_size += entity_type.size() + 1;
-
-            // Generate an arbitrary module/name pair to name this import.
-            let mut import_pair = unique_import_strings(1_000, u)?;
-            if self.duplicate_imports_behavior == DuplicateImportsBehavior::Disallowed {
-                while import_strings.contains(&import_pair) {
-                    use std::fmt::Write;
-                    write!(&mut import_pair.1, "{}", import_strings.len()).unwrap();
+        let mut import_names = HashSet::new();
+        let mut entity_generation_failed = false;
+        while !entity_generation_failed && self.num_imports < self.config.max_imports {
+            let reached_min_imports = self.num_imports >= self.config.min_imports;
+            if reached_min_imports {
+                let keep_going = u.arbitrary().unwrap_or(false);
+                if !keep_going {
+                    break;
                 }
-                import_strings.insert(import_pair.clone());
-            }
-            let (module, name) = import_pair;
-
-            // Once our name is determined, then we push the typed item into the
-            // appropriate namespace.
-            match &entity_type {
-                EntityType::Tag(ty) => self.tags.push(ty.clone()),
-                EntityType::Func(idx, ty) => self.funcs.push((*idx, ty.clone())),
-                EntityType::Global(ty) => self.globals.push(*ty),
-                EntityType::Table(ty) => self.tables.push(*ty),
-                EntityType::Memory(ty) => self.memories.push(*ty),
             }
 
-            self.num_imports += 1;
-            self.imports.push(Import {
-                module,
-                name,
-                entity_type,
+            let import_kind = self.arbitrary_import_group_kind(u)?;
+            let module = limited_string(1_000, u)?;
+            match import_kind {
+                ImportsKind::Single => {
+                    let Some(entity_type) = self.arbitrary_import_entity_type(u)? else {
+                        break;
+                    };
+                    let name = self.arbitrary_import_name(&module, &mut import_names, u)?;
+                    self.commit_entity_type(&entity_type);
+                    self.imports.push(Imports::Single(Import {
+                        module,
+                        name,
+                        entity_type,
+                    }));
+                }
+                ImportsKind::Compact1 => {
+                    let mut items = Vec::new();
+                    while self.num_imports < self.config.max_imports {
+                        let keep_going = u.arbitrary().unwrap_or(false);
+                        if !keep_going {
+                            break;
+                        }
+
+                        let Some(entity_type) = self.arbitrary_import_entity_type(u)? else {
+                            // No entity kind is available, or generated entity hits config.max_type_size.
+                            // We push the in-progress import entry, and stop generating imports.
+                            entity_generation_failed = true;
+                            break;
+                        };
+                        let name = self.arbitrary_import_name(&module, &mut import_names, u)?;
+                        self.commit_entity_type(&entity_type);
+                        items.push(Import {
+                            module: module.clone(),
+                            name,
+                            entity_type,
+                        });
+                    }
+                    if !items.is_empty() {
+                        self.imports.push(Imports::Compact1 { module, items });
+                    }
+                }
+                ImportsKind::Compact2 => {
+                    let Some(entity_type) = self.arbitrary_import_entity_type(u)? else {
+                        break;
+                    };
+
+                    let mut names = Vec::new();
+                    while self.num_imports < self.config.max_imports {
+                        let keep_going = u.arbitrary().unwrap_or(false);
+                        if !keep_going {
+                            break;
+                        }
+
+                        let remaining_type_size = self.config.max_type_size - self.type_size;
+                        let import_type_size = entity_type.size() + 1;
+                        if import_type_size > remaining_type_size
+                            || !self.can_push_entity_type(&entity_type)
+                        {
+                            entity_generation_failed = true;
+                            break;
+                        }
+
+                        let name = self.arbitrary_import_name(&module, &mut import_names, u)?;
+                        self.commit_entity_type(&entity_type);
+                        names.push(name);
+                    }
+
+                    if !names.is_empty() {
+                        self.imports.push(Imports::Compact2 {
+                            module,
+                            entity_type,
+                            names,
+                        });
+                    }
+                }
+            }
+        }
+
+        if self.num_imports < self.config.min_imports {
+            Err(arbitrary::Error::IncorrectFormat)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn arbitrary_import_group_kind(&self, u: &mut Unstructured) -> Result<ImportsKind> {
+        if self.config.compact_imports_enabled {
+            u.arbitrary()
+        } else {
+            Ok(ImportsKind::Single)
+        }
+    }
+
+    /// Generate an entity type for an import.
+    ///
+    /// Returns `Ok(None)` if no supported entity kind can currently be added,
+    /// or if the generated entity would exceed the remaining type-size budget.
+    ///
+    /// Returns an error if the input does not contain enough valid data to
+    /// generate the entity.
+    fn arbitrary_import_entity_type(&mut self, u: &mut Unstructured) -> Result<Option<EntityType>> {
+        // Make a list of all currently-allowed entities, and choose one arbitrarily.
+        type GenerateEntity = fn(&mut Unstructured, &mut Module) -> Result<EntityType>;
+
+        let mut choices: Vec<GenerateEntity> = Vec::new();
+        if self.can_add_local_or_import_tag() {
+            choices.push(|u, module| Ok(EntityType::Tag(module.arbitrary_tag_type(u)?)));
+        }
+        if self.can_add_local_or_import_func() {
+            choices.push(|u, module| {
+                let idx = *u.choose(&module.func_types)?;
+                Ok(EntityType::Func(idx, Rc::clone(module.func_type(idx))))
             });
-            Ok(true)
-        })?;
+        }
+        if self.can_add_local_or_import_global() {
+            choices.push(|u, module| Ok(EntityType::Global(module.arbitrary_global_type(u)?)));
+        }
+        if self.can_add_local_or_import_memory() {
+            choices
+                .push(|u, module| Ok(EntityType::Memory(arbitrary_memtype(u, module.config())?)));
+        }
+        if self.can_add_local_or_import_table() {
+            choices.push(|u, module| {
+                Ok(EntityType::Table(arbitrary_table_type(
+                    u,
+                    module.config(),
+                    Some(module),
+                )?))
+            });
+        }
 
-        Ok(())
+        if choices.is_empty() {
+            return Ok(None);
+        }
+        let generate = *u.choose(&choices)?;
+        let entity_type = generate(u, self)?;
+
+        // Check that we have space for the type size of the chosen entity.
+        let remaining_type_size = self.config.max_type_size - self.type_size;
+        let import_type_size = entity_type.size() + 1;
+        Ok((import_type_size <= remaining_type_size).then_some(entity_type))
+    }
+
+    fn arbitrary_import_name(
+        &self,
+        module: &str,
+        import_names: &mut HashSet<(String, String)>,
+        u: &mut Unstructured,
+    ) -> Result<String> {
+        let mut import = (module.to_owned(), limited_string(1_000, u)?);
+        match self.duplicate_imports_behavior {
+            DuplicateImportsBehavior::Allowed => Ok(import.1),
+            DuplicateImportsBehavior::Disallowed => {
+                while import_names.contains(&import) {
+                    use std::fmt::Write;
+                    write!(&mut import.1, "{}", import_names.len()).unwrap();
+                }
+                import_names.insert(import.clone());
+                Ok(import.1)
+            }
+        }
+    }
+
+    /// Does the given `EntityType` have remaining capacity?
+    fn can_push_entity_type(&self, entity_type: &EntityType) -> bool {
+        match entity_type {
+            EntityType::Tag(_) => self.tags.len() < self.config.max_tags,
+            EntityType::Func(_, _) => self.funcs.len() < self.config.max_funcs,
+            EntityType::Global(_) => self.globals.len() < self.config.max_globals,
+            EntityType::Table(_) => self.tables.len() < self.config.max_tables,
+            EntityType::Memory(_) => self.memories.len() < self.config.max_memories,
+        }
+    }
+
+    /// Push the given entity type, incrementing `self.type_size` and `self.num_imports`
+    fn commit_entity_type(&mut self, entity_type: &EntityType) {
+        self.type_size += entity_type.size() + 1;
+        match entity_type {
+            EntityType::Tag(ty) => self.tags.push(ty.clone()),
+            EntityType::Func(idx, ty) => self.funcs.push((*idx, Rc::clone(ty))),
+            EntityType::Global(ty) => self.globals.push(*ty),
+            EntityType::Table(ty) => self.tables.push(*ty),
+            EntityType::Memory(ty) => self.memories.push(*ty),
+        }
+        self.num_imports += 1;
     }
 
     /// Generate some arbitrary imports from the list of available imports.
@@ -1789,8 +1956,58 @@ impl Module {
         for ty in available_types {
             self.add_type(ty);
         }
-        self.imports.extend(new_imports);
+        self.push_arbitrary_import_groups(new_imports, u)?;
 
+        Ok(())
+    }
+
+    /// Adds given imports to this module.
+    ///
+    /// If [`crate::Config::compact_imports_enabled`] is `true`,
+    /// arbitrarily chooses a single import or a compact group,
+    /// and arbitrarily collates consecutive imports with matching module
+    /// and/or type into the same import group.
+    ///
+    /// If [`crate::Config::compact_imports_enabled`] is `false`,
+    /// produces only single imports.
+    #[cfg(feature = "wasmparser")]
+    fn push_arbitrary_import_groups(
+        &mut self,
+        imports: Vec<Import>,
+        u: &mut Unstructured,
+    ) -> Result<()> {
+        let mut imports = imports.into_iter().peekable();
+        while let Some(import) = imports.next() {
+            match self.arbitrary_import_group_kind(u)? {
+                ImportsKind::Single => self.imports.push(Imports::Single(import)),
+                ImportsKind::Compact1 => {
+                    let module = import.module.clone();
+                    let mut items = vec![import];
+                    while imports.peek().is_some_and(|import| import.module == module)
+                        && u.arbitrary().unwrap_or(false)
+                    {
+                        items.push(imports.next().unwrap());
+                    }
+                    self.imports.push(Imports::Compact1 { module, items });
+                }
+                ImportsKind::Compact2 => {
+                    let module = import.module.clone();
+                    let entity_type = import.entity_type.clone();
+                    let mut names = vec![import.name];
+                    while imports.peek().is_some_and(|import| {
+                        import.module == module && import.entity_type == entity_type
+                    }) && u.arbitrary().unwrap_or(false)
+                    {
+                        names.push(imports.next().unwrap().name);
+                    }
+                    self.imports.push(Imports::Compact2 {
+                        module,
+                        entity_type,
+                        names,
+                    });
+                }
+            }
+        }
         Ok(())
     }
 
@@ -1801,7 +2018,7 @@ impl Module {
             ExportKind::Table => EntityType::Table(self.tables[index as usize]),
             ExportKind::Func => {
                 let (_idx, ty) = &self.funcs[index as usize];
-                EntityType::Func(u32::max_value(), ty.clone())
+                EntityType::Func(u32::MAX, ty.clone())
             }
             ExportKind::Tag => EntityType::Tag(self.tags[index as usize].clone()),
         }
@@ -2049,92 +2266,34 @@ impl Module {
         u: &mut Unstructured,
         allow_defined_globals: bool,
     ) -> Result<ConstExpr> {
-        let mut choices = mem::take(&mut self.const_expr_choices);
-        choices.clear();
-
-        // MVP wasm can `global.get` any immutable imported global in a
-        // constant expression, and the GC proposal enables this for all
-        // globals, so make all matching globals a candidate.
-        for i in self.globals_for_const_expr(ty, allow_defined_globals) {
-            choices.push(Box::new(move |_, _| Ok(ConstExpr::global_get(i))));
+        #[derive(Clone, Copy)]
+        enum Choice {
+            GlobalGet(u32),
+            I32Const,
+            I64Const,
+            F32Const,
+            F64Const,
+            V128Const,
+            ExtendedConst,
+            RefNull(HeapType),
+            RefFunc(u32),
+            StructNew(u32),
+            StructNewDefault(u32),
+            ArrayNew(u32),
+            ArrayNewDefault(u32),
+            ArrayNewFixed(u32),
+            RefI31 { shared: bool },
+            AnyConvertExtern { nullable: bool, shared: bool },
+            ExternConvertAny { nullable: bool, shared: bool },
         }
 
-        // Another option for all types is to have an actual value of each type.
-        // Change `ty` to any valid subtype of `ty` and then generate a matching
-        // type of that value.
-        let ty = self.arbitrary_matching_val_type(u, ty)?;
-        match ty {
-            ValType::I32 => {
-                choices.push(Box::new(|u, _| Ok(ConstExpr::i32_const(u.arbitrary()?))));
-                if self.config.extended_const_enabled {
-                    choices.push(Box::new(arbitrary_extended_const));
-                }
+        fn encode_instrs(instrs: impl IntoIterator<Item = Instruction>) -> Vec<u8> {
+            let mut bytes = Vec::new();
+            for instr in instrs {
+                instr.encode(&mut bytes);
             }
-            ValType::I64 => {
-                choices.push(Box::new(|u, _| Ok(ConstExpr::i64_const(u.arbitrary()?))));
-                if self.config.extended_const_enabled {
-                    choices.push(Box::new(arbitrary_extended_const));
-                }
-            }
-            ValType::F32 => choices.push(Box::new(|u, _| {
-                Ok(ConstExpr::f32_const(u.arbitrary::<f32>()?.into()))
-            })),
-            ValType::F64 => choices.push(Box::new(|u, _| {
-                Ok(ConstExpr::f64_const(u.arbitrary::<f64>()?.into()))
-            })),
-            ValType::V128 => {
-                choices.push(Box::new(|u, _| Ok(ConstExpr::v128_const(u.arbitrary()?))))
-            }
-
-            ValType::Ref(ty) => {
-                if ty.nullable {
-                    choices.push(Box::new(move |_, _| Ok(ConstExpr::ref_null(ty.heap_type))));
-                }
-
-                match ty.heap_type {
-                    HeapType::Abstract {
-                        ty: AbstractHeapType::Func,
-                        shared,
-                    } => {
-                        let num_funcs = self
-                            .funcs
-                            .iter()
-                            .filter(|(t, _)| shared == self.is_shared_type(*t))
-                            .count();
-                        if num_funcs > 0 {
-                            let pick = u.int_in_range(0..=num_funcs - 1)?;
-                            let (i, _) = self
-                                .funcs
-                                .iter()
-                                .map(|(t, _)| *t)
-                                .enumerate()
-                                .filter(|(_, t)| shared == self.is_shared_type(*t))
-                                .nth(pick)
-                                .unwrap();
-                            choices.push(Box::new(move |_, _| Ok(ConstExpr::ref_func(i as u32))));
-                        }
-                    }
-
-                    HeapType::Concrete(ty) => {
-                        for (i, fty) in self.funcs.iter().map(|(t, _)| *t).enumerate() {
-                            if ty != fty {
-                                continue;
-                            }
-                            choices.push(Box::new(move |_, _| Ok(ConstExpr::ref_func(i as u32))));
-                        }
-                    }
-
-                    // TODO: fill out more GC types e.g `array.new` and
-                    // `struct.new`
-                    _ => {}
-                }
-            }
+            bytes
         }
-
-        let f = u.choose(&choices)?;
-        let ret = f(u, ty);
-        self.const_expr_choices = choices;
-        return ret;
 
         /// Implementation of generation of expressions from the
         /// `extended-const` proposal to WebAssembly. This proposal enabled
@@ -2143,7 +2302,7 @@ impl Module {
         /// time this doesn't use the full expression generator in
         /// `code_builder.rs` but instead inlines just what's necessary for
         /// constant expressions here.
-        fn arbitrary_extended_const(u: &mut Unstructured<'_>, ty: ValType) -> Result<ConstExpr> {
+        fn arbitrary_extended_const(u: &mut Unstructured<'_>, ty: ValType) -> Result<Vec<u8>> {
             use wasm_encoder::Instruction::*;
 
             // This only works for i32/i64, would need refactoring for different
@@ -2152,12 +2311,11 @@ impl Module {
             let add = if ty == ValType::I32 { I32Add } else { I64Add };
             let sub = if ty == ValType::I32 { I32Sub } else { I64Sub };
             let mul = if ty == ValType::I32 { I32Mul } else { I64Mul };
-            let const_: fn(&mut Unstructured<'_>) -> Result<wasm_encoder::Instruction<'static>> =
-                if ty == ValType::I32 {
-                    |u| u.arbitrary().map(I32Const)
-                } else {
-                    |u| u.arbitrary().map(I64Const)
-                };
+            let const_: fn(&mut Unstructured<'_>) -> Result<Instruction> = if ty == ValType::I32 {
+                |u| u.arbitrary().map(I32Const)
+            } else {
+                |u| u.arbitrary().map(I64Const)
+            };
 
             // Here `instrs` is the list of instructions, in reverse order, that
             // are going to be emitted. The `needed` value keeps track of how
@@ -2194,8 +2352,295 @@ impl Module {
                     _ => unreachable!(),
                 }
             }
-            Ok(ConstExpr::extended(instrs.into_iter().rev()))
+            Ok(encode_instrs(instrs.into_iter().rev()))
         }
+
+        fn abstract_ref(nullable: bool, shared: bool, ty: AbstractHeapType) -> RefType {
+            RefType::new_abstract(ty, nullable, shared)
+        }
+
+        fn concrete_ref(nullable: bool, ty: u32) -> RefType {
+            RefType {
+                nullable,
+                heap_type: HeapType::Concrete(ty),
+            }
+        }
+
+        fn type_is_defaultable(field: StorageType) -> bool {
+            field.unpack().is_defaultable()
+        }
+
+        fn can_use_struct_new(ty: &SubType) -> bool {
+            ty.composite_type.descriptor.is_none()
+        }
+
+        fn can_use_struct_new_default(ty: &SubType) -> bool {
+            can_use_struct_new(ty)
+                && ty
+                    .unwrap_struct()
+                    .fields
+                    .iter()
+                    .all(|f| type_is_defaultable(f.element_type))
+        }
+
+        fn const_expr_bytes_for_array_length(
+            module: &mut Module,
+            u: &mut Unstructured<'_>,
+            allow_defined_globals: bool,
+            fuel: &mut u32,
+        ) -> Result<Vec<u8>> {
+            if module.config.limit_arrays_in_const_exprs {
+                let size = u.int_in_range(0..=*fuel)?;
+                *fuel -= size;
+                return Ok(encode_instrs([Instruction::I32Const(size as i32)]));
+            }
+
+            const_expr_bytes(module, ValType::I32, u, allow_defined_globals, fuel)
+        }
+
+        fn const_expr_bytes(
+            module: &mut Module,
+            ty: ValType,
+            u: &mut Unstructured<'_>,
+            allow_defined_globals: bool,
+            fuel: &mut u32,
+        ) -> Result<Vec<u8>> {
+            let mut choices = Vec::new();
+
+            for i in module.globals_for_const_expr(ty, allow_defined_globals) {
+                choices.push(Choice::GlobalGet(i));
+            }
+
+            let ty = match ty {
+                ValType::Ref(_) => ty,
+                _ => module.arbitrary_matching_val_type(u, ty)?,
+            };
+            match ty {
+                ValType::I32 => {
+                    choices.push(Choice::I32Const);
+                    if module.config.extended_const_enabled {
+                        choices.push(Choice::ExtendedConst);
+                    }
+                }
+                ValType::I64 => {
+                    choices.push(Choice::I64Const);
+                    if module.config.extended_const_enabled {
+                        choices.push(Choice::ExtendedConst);
+                    }
+                }
+                ValType::F32 => choices.push(Choice::F32Const),
+                ValType::F64 => choices.push(Choice::F64Const),
+                ValType::V128 => choices.push(Choice::V128Const),
+                ValType::Ref(ref_ty) => {
+                    if ref_ty.nullable {
+                        choices.push(Choice::RefNull(ref_ty.heap_type));
+                    }
+
+                    for (func_idx, (type_idx, _)) in module.funcs.iter().enumerate() {
+                        let produced = concrete_ref(false, *type_idx);
+                        if module.ref_type_is_sub_type(produced, ref_ty) {
+                            choices.push(Choice::RefFunc(func_idx as u32));
+                        }
+                    }
+
+                    if module.config.gc_enabled {
+                        for &type_idx in &module.struct_types {
+                            let produced = concrete_ref(false, type_idx);
+                            if !module.ref_type_is_sub_type(produced, ref_ty) {
+                                continue;
+                            }
+                            if can_use_struct_new(module.ty(type_idx))
+                                && (*fuel > 0
+                                    || module.ty(type_idx).unwrap_struct().fields.is_empty())
+                            {
+                                choices.push(Choice::StructNew(type_idx));
+                            }
+                            if can_use_struct_new_default(module.ty(type_idx)) {
+                                choices.push(Choice::StructNewDefault(type_idx));
+                            }
+                        }
+
+                        for &type_idx in &module.array_types {
+                            let produced = concrete_ref(false, type_idx);
+                            if !module.ref_type_is_sub_type(produced, ref_ty) {
+                                continue;
+                            }
+                            if *fuel > 0 {
+                                choices.push(Choice::ArrayNew(type_idx));
+                                choices.push(Choice::ArrayNewFixed(type_idx));
+                                if type_is_defaultable(
+                                    module.ty(type_idx).unwrap_array().0.element_type,
+                                ) {
+                                    choices.push(Choice::ArrayNewDefault(type_idx));
+                                }
+                            }
+                        }
+
+                        let produced_i31 = abstract_ref(false, false, AbstractHeapType::I31);
+                        if *fuel > 0 && module.ref_type_is_sub_type(produced_i31, ref_ty) {
+                            choices.push(Choice::RefI31 { shared: false });
+                        }
+
+                        if module.config.shared_everything_threads_enabled {
+                            let produced_i31 = abstract_ref(false, true, AbstractHeapType::I31);
+                            if *fuel > 0 && module.ref_type_is_sub_type(produced_i31, ref_ty) {
+                                choices.push(Choice::RefI31 { shared: true });
+                            }
+                        }
+
+                        match ref_ty.heap_type {
+                            HeapType::Abstract {
+                                shared,
+                                ty: AbstractHeapType::Any,
+                            } if *fuel > 0 => {
+                                choices.push(Choice::AnyConvertExtern {
+                                    nullable: ref_ty.nullable,
+                                    shared,
+                                });
+                            }
+                            HeapType::Abstract {
+                                shared,
+                                ty: AbstractHeapType::Extern,
+                            } if *fuel > 0 => {
+                                choices.push(Choice::ExternConvertAny {
+                                    nullable: ref_ty.nullable,
+                                    shared,
+                                });
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+            }
+
+            let choice = *u.choose(&choices)?;
+            *fuel = fuel.saturating_sub(1);
+            Ok(match choice {
+                Choice::GlobalGet(i) => encode_instrs([Instruction::GlobalGet(i)]),
+                Choice::I32Const => encode_instrs([Instruction::I32Const(u.arbitrary()?)]),
+                Choice::I64Const => encode_instrs([Instruction::I64Const(u.arbitrary()?)]),
+                Choice::F32Const => {
+                    encode_instrs([Instruction::F32Const(u.arbitrary::<f32>()?.into())])
+                }
+                Choice::F64Const => {
+                    encode_instrs([Instruction::F64Const(u.arbitrary::<f64>()?.into())])
+                }
+                Choice::V128Const => encode_instrs([Instruction::V128Const(u.arbitrary()?)]),
+                Choice::ExtendedConst => arbitrary_extended_const(u, ty)?,
+                Choice::RefNull(heap_type) => encode_instrs([Instruction::RefNull(heap_type)]),
+                Choice::RefFunc(i) => encode_instrs([Instruction::RefFunc(i)]),
+                Choice::StructNew(type_idx) => {
+                    let mut bytes = Vec::new();
+                    let field_types: Vec<_> = module
+                        .ty(type_idx)
+                        .unwrap_struct()
+                        .fields
+                        .iter()
+                        .map(|field| field.element_type.unpack())
+                        .collect();
+                    for field_ty in field_types {
+                        bytes.extend(const_expr_bytes(
+                            module,
+                            field_ty,
+                            u,
+                            allow_defined_globals,
+                            fuel,
+                        )?);
+                    }
+                    bytes.extend(encode_instrs([Instruction::StructNew(type_idx)]));
+                    bytes
+                }
+                Choice::StructNewDefault(type_idx) => {
+                    encode_instrs([Instruction::StructNewDefault(type_idx)])
+                }
+                Choice::ArrayNew(type_idx) => {
+                    let mut bytes = Vec::new();
+                    let elem_ty = module.ty(type_idx).unwrap_array().0.element_type.unpack();
+                    bytes.extend(const_expr_bytes(
+                        module,
+                        elem_ty,
+                        u,
+                        allow_defined_globals,
+                        fuel,
+                    )?);
+                    bytes.extend(const_expr_bytes_for_array_length(
+                        module,
+                        u,
+                        allow_defined_globals,
+                        fuel,
+                    )?);
+                    bytes.extend(encode_instrs([Instruction::ArrayNew(type_idx)]));
+                    bytes
+                }
+                Choice::ArrayNewDefault(type_idx) => {
+                    let mut bytes =
+                        const_expr_bytes_for_array_length(module, u, allow_defined_globals, fuel)?;
+                    bytes.extend(encode_instrs([Instruction::ArrayNewDefault(type_idx)]));
+                    bytes
+                }
+                Choice::ArrayNewFixed(type_idx) => {
+                    let array_size = u.int_in_range(0..=3)?;
+                    let array_size = u32::try_from(array_size).unwrap();
+                    let elem_ty = module.ty(type_idx).unwrap_array().0.element_type.unpack();
+                    let mut bytes = Vec::new();
+                    for _ in 0..array_size {
+                        bytes.extend(const_expr_bytes(
+                            module,
+                            elem_ty,
+                            u,
+                            allow_defined_globals,
+                            fuel,
+                        )?);
+                    }
+                    bytes.extend(encode_instrs([Instruction::ArrayNewFixed {
+                        array_type_index: type_idx,
+                        array_size,
+                    }]));
+                    bytes
+                }
+                Choice::RefI31 { shared } => {
+                    let mut bytes =
+                        const_expr_bytes(module, ValType::I32, u, allow_defined_globals, fuel)?;
+                    bytes.extend(encode_instrs([if shared {
+                        Instruction::RefI31Shared
+                    } else {
+                        Instruction::RefI31
+                    }]));
+                    bytes
+                }
+                Choice::AnyConvertExtern { nullable, shared } => {
+                    let mut bytes = const_expr_bytes(
+                        module,
+                        ValType::Ref(abstract_ref(nullable, shared, AbstractHeapType::Extern)),
+                        u,
+                        allow_defined_globals,
+                        fuel,
+                    )?;
+                    bytes.extend(encode_instrs([Instruction::AnyConvertExtern]));
+                    bytes
+                }
+                Choice::ExternConvertAny { nullable, shared } => {
+                    let mut bytes = const_expr_bytes(
+                        module,
+                        ValType::Ref(abstract_ref(nullable, shared, AbstractHeapType::Any)),
+                        u,
+                        allow_defined_globals,
+                        fuel,
+                    )?;
+                    bytes.extend(encode_instrs([Instruction::ExternConvertAny]));
+                    bytes
+                }
+            })
+        }
+
+        let mut fuel = self.config.const_expr_fuel;
+        Ok(ConstExpr::raw(const_expr_bytes(
+            self,
+            ty,
+            u,
+            allow_defined_globals,
+            &mut fuel,
+        )?))
     }
 
     fn arbitrary_globals(&mut self, u: &mut Unstructured) -> Result<()> {
@@ -2545,6 +2990,8 @@ impl Module {
             return Ok(());
         }
 
+        let mut total_elements = 0_usize;
+
         arbitrary_loop(
             u,
             self.config.min_element_segments,
@@ -2555,7 +3002,7 @@ impl Module {
                 let (kind, max_size_hint) = u.choose(&choices)?(u)?;
                 let max = max_size_hint
                     .map(|i| usize::try_from(i).unwrap())
-                    .unwrap_or_else(|| self.config.max_elements);
+                    .unwrap_or(self.config.max_elements);
 
                 // Infer, from the kind of segment, the type of the element
                 // segment. Passive/declared segments can be declared with any
@@ -2598,6 +3045,11 @@ impl Module {
                     }
                 }
 
+                // Clamp the max elements for this segment based on the
+                // configuration's maximum number of elements for the entire
+                // module minus what we've generated so far.
+                let max = (total_elements.saturating_sub(self.config.max_elements)).min(max);
+
                 // And finally actually generate the arbitrary elements of this
                 // element segment. Function indices are used if they're either
                 // forced or allowed, and otherwise expressions are used
@@ -2613,6 +3065,7 @@ impl Module {
                             Ok(true)
                         })?;
                     }
+                    total_elements += init.len();
                     Elements::Functions(init)
                 } else {
                     let mut init = vec![];
@@ -2620,6 +3073,7 @@ impl Module {
                         init.push(self.arbitrary_const_expr(ValType::Ref(ty), u, true)?);
                         Ok(true)
                     })?;
+                    total_elements += init.len();
                     Elements::Expressions(init)
                 };
 
@@ -2684,21 +3138,24 @@ impl Module {
             return Ok(());
         }
         let disallow_traps = self.config.disallow_traps;
-        let mut choices32: Vec<Box<dyn Fn(&mut Unstructured, u64, usize) -> Result<Offset>>> =
-            vec![];
-        choices32.push(Box::new(|u, min_size, data_len| {
-            let min = u32::try_from(min_size.saturating_mul(64 * 1024))
-                .unwrap_or(u32::MAX)
-                .into();
+        let mut choices32: Vec<
+            Box<dyn Fn(&mut Unstructured, &MemoryType, usize) -> Result<Offset>>,
+        > = vec![];
+        fn min(ty: &MemoryType) -> u64 {
+            ty.minimum.saturating_mul(u64::from(ty.page_size()))
+        }
+        choices32.push(Box::new(|u, ty, data_len| {
+            let min = u32::try_from(min(ty)).unwrap_or(u32::MAX).into();
             let max = if disallow_traps { min } else { u32::MAX.into() };
             Ok(Offset::Const32(
                 arbitrary_offset(u, min, max, data_len)? as i32
             ))
         }));
-        let mut choices64: Vec<Box<dyn Fn(&mut Unstructured, u64, usize) -> Result<Offset>>> =
-            vec![];
-        choices64.push(Box::new(|u, min_size, data_len| {
-            let min = min_size.saturating_mul(64 * 1024);
+        let mut choices64: Vec<
+            Box<dyn Fn(&mut Unstructured, &MemoryType, usize) -> Result<Offset>>,
+        > = vec![];
+        choices64.push(Box::new(|u, ty, data_len| {
+            let min = min(ty);
             let max = if disallow_traps { min } else { u64::MAX };
             Ok(Offset::Const64(
                 arbitrary_offset(u, min, max, data_len)? as i64
@@ -2754,14 +3211,15 @@ impl Module {
                         } else {
                             u.choose(&choices32)?
                         };
-                        let mut offset = f(u, mem.minimum, init.len())?;
+                        let mut offset = f(u, mem, init.len())?;
 
                         // If traps are disallowed then truncate the size of the
                         // data segment to the minimum size of memory to guarantee
                         // it will fit. Afterwards ensure that the offset of the
                         // data segment is in-bounds by clamping it to the
                         if self.config.disallow_traps {
-                            let max_size = (u64::MAX / 64 / 1024).min(mem.minimum) * 64 * 1024;
+                            let page_size = u64::from(mem.page_size());
+                            let max_size = (u64::MAX / page_size).min(mem.minimum) * page_size;
                             init.truncate(max_size as usize);
                             let max_offset = max_size - init.len() as u64;
                             match &mut offset {
@@ -2916,7 +3374,7 @@ impl Module {
 
         // Interesting values related to memory bounds.
         for m in self.memories.iter() {
-            let min = m.minimum.saturating_mul(crate::page_size(m).into());
+            let min = m.minimum.saturating_mul(m.page_size().into());
             interesting(min);
             for i in 0..5 {
                 if let Some(x) = min.checked_add(1 << i) {
@@ -2928,7 +3386,7 @@ impl Module {
             }
 
             if let Some(max) = m.maximum {
-                let max = max.saturating_mul(crate::page_size(m).into());
+                let max = max.saturating_mul(m.page_size().into());
                 interesting(max);
                 for i in 0..5 {
                     if let Some(x) = max.checked_add(1 << i) {
@@ -3108,7 +3566,11 @@ pub(crate) fn arbitrary_table_type(
     // keep the "inbounds" limit here a bit smaller.
     let max_inbounds = 10_000;
     let min_elements = if config.disallow_traps { Some(1) } else { None };
-    let max_elements = min_elements.unwrap_or(0).max(config.max_table_elements);
+    let mut max_elements = min_elements.unwrap_or(0).max(config.max_table_elements);
+    // Further limit by the table's type if necessary.
+    if !table64 {
+        max_elements = max_elements.min(u64::from(u32::MAX));
+    }
     let (minimum, maximum) = arbitrary_limits64(
         u,
         min_elements,
@@ -3340,12 +3802,6 @@ fn arbitrary_offset(
     }
 }
 
-fn unique_import_strings(max_size: usize, u: &mut Unstructured) -> Result<(String, String)> {
-    let module = limited_string(max_size, u)?;
-    let field = limited_string(max_size, u)?;
-    Ok((module, field))
-}
-
 fn arbitrary_vec_u8(u: &mut Unstructured) -> Result<Vec<u8>> {
     let size = u.arbitrary_len::<u8>()?;
     Ok(u.bytes(size)?.to_vec())
@@ -3469,6 +3925,7 @@ impl FromStr for InstructionKind {
             "memory_non_float" => Ok(InstructionKind::MemoryInt),
             "memory" => Ok(InstructionKind::Memory),
             "control" => Ok(InstructionKind::Control),
+            "aggregate" => Ok(InstructionKind::Aggregate),
             _ => Err(format!("unknown instruction kind: {s}")),
         }
     }

@@ -16,8 +16,8 @@
 use core::mem;
 
 use crate::{
-    BinaryReader, BinaryReaderError, ExternalKind, FromReader, GlobalType, MemoryType, Result,
-    SectionLimited, SectionLimitedIntoIterWithOffsets, TableType, TagType,
+    BinaryReader, Error, ExternalKind, FromReader, GlobalType, MemoryType, Result, SectionLimited,
+    SectionLimitedIntoIterWithOffsets, TableType, TagType,
 };
 
 /// Represents a reference to a type definition in a WebAssembly module.
@@ -45,7 +45,7 @@ pub enum TypeRef {
 #[derive(Debug, Clone)]
 pub enum Imports<'a> {
     /// The group contains a single import.
-    Single(usize, Import<'a>),
+    Single(u64, Import<'a>),
     /// The group contains many imports that share the same module name, but have different types.
     Compact1 {
         /// The module being imported from.
@@ -95,13 +95,13 @@ impl<'a> FromReader<'a> for Imports<'a> {
         let discriminator = reader.peek_bytes(1)?[0];
         match (single_item_name, discriminator) {
             ("", 0x7F) => {
-                if !reader.compact_imports() {
-                    bail!(
-                        reader.original_position(),
-                        "invalid leading byte 0x7F with compact imports \
-                         proposal disabled"
-                    );
-                }
+                #[cfg(feature = "features")]
+                crate::require_feature::compact_imports(
+                    reader.features(),
+                    "invalid leading byte 0x7F with compact imports \
+                     proposal disabled",
+                    reader.original_position(),
+                )?;
                 // Compact encoding 1: one module name, many item names / types
                 reader.read_bytes(1)?;
                 // FIXME(#188) shouldn't need to skip here
@@ -119,13 +119,13 @@ impl<'a> FromReader<'a> for Imports<'a> {
                 })
             }
             ("", 0x7E) => {
-                if !reader.compact_imports() {
-                    bail!(
-                        reader.original_position(),
-                        "invalid leading byte 0x7E with compact imports \
-                         proposal disabled"
-                    );
-                }
+                #[cfg(feature = "features")]
+                crate::require_feature::compact_imports(
+                    reader.features(),
+                    "invalid leading byte 0x7E with compact imports \
+                     proposal disabled",
+                    reader.original_position(),
+                )?;
                 // Compact encoding 2: one module name / type, many item names
                 reader.read_bytes(1)?;
                 let ty: TypeRef = reader.read()?;
@@ -200,7 +200,7 @@ impl<'a> SectionLimited<'a, Imports<'a>> {
 
     /// Converts the section into an iterator over individual [`Import`]s and their offsets,
     /// flattening any groups of compact imports.
-    pub fn into_imports_with_offsets(self) -> impl Iterator<Item = Result<(usize, Import<'a>)>> {
+    pub fn into_imports_with_offsets(self) -> impl Iterator<Item = Result<(u64, Import<'a>)>> {
         self.into_iter().flat_map(|res| match res {
             Ok(imports) => imports.into_iter(),
             Err(e) => ImportsIter {
@@ -211,7 +211,7 @@ impl<'a> SectionLimited<'a, Imports<'a>> {
 }
 
 impl<'a> IntoIterator for Imports<'a> {
-    type Item = Result<(usize, Import<'a>)>;
+    type Item = Result<(u64, Import<'a>)>;
     type IntoIter = ImportsIter<'a>;
 
     fn into_iter(self) -> Self::IntoIter {
@@ -243,8 +243,8 @@ pub struct ImportsIter<'a> {
 
 enum ImportsIterState<'a> {
     Done,
-    Error(BinaryReaderError),
-    Single(usize, Import<'a>),
+    Error(Error),
+    Single(u64, Import<'a>),
     Compact1 {
         module: &'a str,
         iter: SectionLimitedIntoIterWithOffsets<'a, ImportItemCompact<'a>>,
@@ -257,7 +257,7 @@ enum ImportsIterState<'a> {
 }
 
 impl<'a> Iterator for ImportsIter<'a> {
-    type Item = Result<(usize, Import<'a>)>;
+    type Item = Result<(u64, Import<'a>)>;
 
     fn next(&mut self) -> Option<Self::Item> {
         match &mut self.state {

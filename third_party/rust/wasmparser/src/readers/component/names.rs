@@ -1,4 +1,4 @@
-use crate::{BinaryReader, BinaryReaderError, NameMap, Result, Subsection, Subsections};
+use crate::{BinaryReader, Error, NameMap, Result, Subsection, Subsections};
 use core::ops::Range;
 
 /// Type used to iterate and parse the contents of the `component-name` custom
@@ -11,7 +11,7 @@ pub type ComponentNameSectionReader<'a> = Subsections<'a, ComponentName<'a>>;
 pub enum ComponentName<'a> {
     Component {
         name: &'a str,
-        name_range: Range<usize>,
+        name_range: Range<u64>,
     },
     CoreFuncs(NameMap<'a>),
     CoreGlobals(NameMap<'a>),
@@ -35,19 +35,18 @@ pub enum ComponentName<'a> {
         data: &'a [u8],
         /// The range of bytes, relative to the start of the original data
         /// stream, that the contents of this subsection reside in.
-        range: Range<usize>,
+        range: Range<u64>,
     },
 }
 
 impl<'a> Subsection<'a> for ComponentName<'a> {
     fn from_reader(id: u8, mut reader: BinaryReader<'a>) -> Result<Self> {
-        let data = reader.remaining_buffer();
-        let offset = reader.original_position();
         Ok(match id {
             0 => {
+                let offset = reader.original_position();
                 let name = reader.read_unlimited_string()?;
                 if !reader.eof() {
-                    return Err(BinaryReaderError::new(
+                    return Err(Error::new(
                         "trailing data at the end of a name",
                         reader.original_position(),
                     ));
@@ -71,8 +70,8 @@ impl<'a> Subsection<'a> for ComponentName<'a> {
                         _ => {
                             return Ok(ComponentName::Unknown {
                                 ty: 1,
-                                data,
-                                range: offset..offset + data.len(),
+                                data: reader.remaining_buffer(),
+                                range: reader.remaining_range(),
                             });
                         }
                     },
@@ -84,8 +83,8 @@ impl<'a> Subsection<'a> for ComponentName<'a> {
                     _ => {
                         return Ok(ComponentName::Unknown {
                             ty: 1,
-                            data,
-                            range: offset..offset + data.len(),
+                            data: reader.remaining_buffer(),
+                            range: reader.remaining_range(),
                         });
                     }
                 };
@@ -93,8 +92,8 @@ impl<'a> Subsection<'a> for ComponentName<'a> {
             }
             ty => ComponentName::Unknown {
                 ty,
-                data,
-                range: offset..offset + data.len(),
+                data: reader.remaining_buffer(),
+                range: reader.remaining_range(),
             },
         })
     }

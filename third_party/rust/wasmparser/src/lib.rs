@@ -42,7 +42,6 @@ extern crate std;
 /// like `String`. This custom prelude helps bring those types into scope to
 /// avoid having to import each of them manually.
 mod prelude {
-    pub use alloc::borrow::ToOwned;
     pub use alloc::boxed::Box;
     pub use alloc::format;
     pub use alloc::string::{String, ToString};
@@ -303,18 +302,18 @@ macro_rules! _for_each_operator_group {
                 StructNewDesc { struct_type_index: u32 } => visit_struct_new_desc (arity custom)
                 StructNewDefaultDesc { struct_type_index: u32 } => visit_struct_new_default_desc (arity 1 -> 1)
                 RefGetDesc { type_index: u32 } => visit_ref_get_desc (arity 1 -> 1)
-                RefCastDescNonNull { hty: $crate::HeapType } => visit_ref_cast_desc_non_null (arity 2 -> 1)
-                RefCastDescNullable { hty: $crate::HeapType } => visit_ref_cast_desc_nullable (arity 2 -> 1)
-                BrOnCastDesc {
+                RefCastDescEqNonNull { hty: $crate::HeapType } => visit_ref_cast_desc_eq_non_null (arity 2 -> 1)
+                RefCastDescEqNullable { hty: $crate::HeapType } => visit_ref_cast_desc_eq_nullable (arity 2 -> 1)
+                BrOnCastDescEq {
                     relative_depth: u32,
                     from_ref_type: $crate::RefType,
                     to_ref_type: $crate::RefType
-                } => visit_br_on_cast_desc (arity custom)
-                BrOnCastDescFail {
+                } => visit_br_on_cast_desc_eq (arity custom)
+                BrOnCastDescEqFail {
                     relative_depth: u32,
                     from_ref_type: $crate::RefType,
                     to_ref_type: $crate::RefType
-                } => visit_br_on_cast_desc_fail (arity custom)
+                } => visit_br_on_cast_desc_eq_fail (arity custom)
             }
 
             // 0xFC operators
@@ -788,6 +787,7 @@ macro_rules! _for_each_operator_group {
                 Suspend { tag_index: u32 } => visit_suspend (arity custom)
                 Resume { cont_type_index: u32, resume_table: $crate::ResumeTable } => visit_resume (arity custom)
                 ResumeThrow { cont_type_index: u32, tag_index: u32, resume_table: $crate::ResumeTable } => visit_resume_throw (arity custom)
+                ResumeThrowRef { cont_type_index: u32, resume_table: $crate::ResumeTable } => visit_resume_throw_ref (arity custom)
                 Switch { cont_type_index: u32, tag_index: u32 } => visit_switch (arity custom)
             }
 
@@ -1297,7 +1297,7 @@ pub use _for_each_visit_simd_operator_impl as for_each_visit_simd_operator;
 
 macro_rules! format_err {
     ($offset:expr, $($arg:tt)*) => {
-        crate::BinaryReaderError::fmt(format_args!($($arg)*), $offset)
+        crate::Error::fmt(format_args!($($arg)*), $offset)
     }
 }
 
@@ -1315,15 +1315,21 @@ macro_rules! ensure {
 }
 
 pub use crate::arity::*;
-pub use crate::binary_reader::{BinaryReader, BinaryReaderError, Result};
+pub use crate::binary_reader::BinaryReader;
+pub use crate::error::{Error, Result};
 pub use crate::features::*;
 pub use crate::parser::*;
 pub use crate::readers::*;
 
+/// Aliases [`Error`] for backward compatibility.
+pub type BinaryReaderError = Error;
+
 mod arity;
 mod binary_reader;
+mod error;
 mod features;
 mod limits;
+mod offsets;
 mod parser;
 mod readers;
 

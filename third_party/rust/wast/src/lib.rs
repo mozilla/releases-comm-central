@@ -396,7 +396,9 @@ pub mod kw {
     custom_keyword!(assert_exception);
     custom_keyword!(assert_exhaustion);
     custom_keyword!(assert_invalid);
+    custom_keyword!(assert_invalid_custom);
     custom_keyword!(assert_malformed);
+    custom_keyword!(assert_malformed_custom);
     custom_keyword!(assert_return);
     custom_keyword!(assert_trap);
     custom_keyword!(assert_unlinkable);
@@ -452,6 +454,7 @@ pub mod kw {
     custom_keyword!(i8);
     custom_keyword!(i8x16);
     custom_keyword!(import);
+    custom_keyword!(implements);
     custom_keyword!(instance);
     custom_keyword!(instantiate);
     custom_keyword!(interface);
@@ -522,7 +525,6 @@ pub mod kw {
     custom_keyword!(u64);
     custom_keyword!(char);
     custom_keyword!(case);
-    custom_keyword!(refines);
     custom_keyword!(record);
     custom_keyword!(string);
     custom_keyword!(bool_ = "bool");
@@ -568,7 +570,6 @@ pub mod kw {
     custom_keyword!(backpressure_dec = "backpressure.dec");
     custom_keyword!(task_return = "task.return");
     custom_keyword!(task_cancel = "task.cancel");
-    custom_keyword!(thread_yield = "thread.yield");
     custom_keyword!(subtask_drop = "subtask.drop");
     custom_keyword!(subtask_cancel = "subtask.cancel");
     custom_keyword!(stream_new = "stream.new");
@@ -604,11 +605,16 @@ pub mod kw {
     custom_keyword!(context_set = "context.set");
     custom_keyword!(thread_index = "thread.index");
     custom_keyword!(thread_new_indirect = "thread.new-indirect");
-    custom_keyword!(thread_switch_to = "thread.switch-to");
-    custom_keyword!(thread_suspend = "thread.suspend");
     custom_keyword!(thread_resume_later = "thread.resume-later");
-    custom_keyword!(thread_yield_to = "thread.yield-to");
+    custom_keyword!(thread_suspend = "thread.suspend");
+    custom_keyword!(thread_yield = "thread.yield");
+    custom_keyword!(thread_suspend_then_resume = "thread.suspend-then-resume");
+    custom_keyword!(thread_yield_then_resume = "thread.yield-then-resume");
+    custom_keyword!(thread_suspend_then_promote = "thread.suspend-then-promote");
+    custom_keyword!(thread_yield_then_promote = "thread.yield-then-promote");
     custom_keyword!(cancellable);
+    custom_keyword!(versionsuffix);
+    custom_keyword!(external_id = "external-id");
 }
 
 /// Common annotations used to parse WebAssembly text files.

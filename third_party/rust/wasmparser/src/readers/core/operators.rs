@@ -15,7 +15,7 @@
 
 use crate::limits::{MAX_WASM_CATCHES, MAX_WASM_HANDLERS};
 use crate::prelude::*;
-use crate::{BinaryReader, BinaryReaderError, FromReader, Result, ValType};
+use crate::{BinaryReader, Error, FromReader, Result, ValType};
 use core::{fmt, mem};
 
 /// Represents a block type.
@@ -182,7 +182,7 @@ impl<'a> Iterator for BrTableTargets<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         if self.remaining == 0 {
             if !self.reader.eof() {
-                return Some(Err(BinaryReaderError::new(
+                return Some(Err(Error::new(
                     "trailing data in br_table",
                     self.reader.original_position(),
                 )));
@@ -295,6 +295,18 @@ impl From<V128> for u128 {
     }
 }
 
+impl From<i128> for V128 {
+    fn from(value: i128) -> Self {
+        V128(i128::to_le_bytes(value))
+    }
+}
+
+impl From<u128> for V128 {
+    fn from(value: u128) -> Self {
+        V128(u128::to_le_bytes(value))
+    }
+}
+
 /// Represents the memory ordering for atomic instructions.
 ///
 /// For an in-depth explanation of memory orderings, see the C++ documentation
@@ -344,7 +356,7 @@ pub trait FrameStack {
 /// The Wasm control stack for the [`OperatorsReader`].
 #[derive(Debug, Default, Clone)]
 pub struct ControlStack {
-    /// All frames on the control stack exclusing the top-most frame.
+    /// All frames on the control stack excluding the top-most frame.
     frames: Vec<FrameKind>,
     /// The top-most frame on the control stack if any.
     top: Option<FrameKind>,
@@ -463,7 +475,7 @@ impl<'a> OperatorsReader<'a> {
     }
 
     /// Gets the original position of the reader.
-    pub fn original_position(&self) -> usize {
+    pub fn original_position(&self) -> u64 {
         self.reader.original_position()
     }
 
@@ -520,7 +532,7 @@ impl<'a> OperatorsReader<'a> {
     /// }
     ///
     /// struct Dumper {
-    ///     offset: usize
+    ///     offset: u64
     /// }
     ///
     /// macro_rules! define_visit_operator {
@@ -550,7 +562,7 @@ impl<'a> OperatorsReader<'a> {
     }
 
     /// Reads an operator with its offset.
-    pub fn read_with_offset(&mut self) -> Result<(Operator<'a>, usize)> {
+    pub fn read_with_offset(&mut self) -> Result<(Operator<'a>, u64)> {
         let pos = self.reader.original_position();
         Ok((self.read()?, pos))
     }
@@ -668,7 +680,7 @@ impl<'a> OperatorsIteratorWithOffsets<'a> {
 }
 
 impl<'a> Iterator for OperatorsIteratorWithOffsets<'a> {
-    type Item = Result<(Operator<'a>, usize)>;
+    type Item = Result<(Operator<'a>, u64)>;
 
     /// Reads content of the code section with offsets.
     ///
@@ -682,7 +694,7 @@ impl<'a> Iterator for OperatorsIteratorWithOffsets<'a> {
     /// for body in code_reader {
     ///     let body = body.expect("function body");
     ///     let mut op_reader = body.get_operators_reader().expect("op reader");
-    ///     let ops = op_reader.into_iter_with_offsets().collect::<Result<Vec<(Operator, usize)>>>().expect("ops");
+    ///     let ops = op_reader.into_iter_with_offsets().collect::<Result<Vec<(Operator, u64)>>>().expect("ops");
     ///     assert!(
     ///         if let [(Operator::Nop, 23), (Operator::End, 24)] = ops.as_slice() { true } else { false },
     ///         "found {:?}",

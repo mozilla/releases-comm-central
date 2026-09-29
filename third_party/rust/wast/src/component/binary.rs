@@ -98,13 +98,11 @@ fn encode_defined_type(encoder: ComponentDefinedTypeEncoder, ty: &ComponentDefin
             encoder.record(r.fields.iter().map(|f| (f.name, &f.ty)));
         }
         ComponentDefinedType::Variant(v) => {
-            encoder.variant(v.cases.iter().map(|c| {
-                (
-                    c.name,
-                    c.ty.as_ref().map(Into::into),
-                    c.refines.as_ref().map(Into::into),
-                )
-            }));
+            encoder.variant(
+                v.cases
+                    .iter()
+                    .map(|c| (c.name, c.ty.as_ref().map(Into::into))),
+            );
         }
         ComponentDefinedType::List(l) => {
             encoder.list(l.element.as_ref());
@@ -112,8 +110,8 @@ fn encode_defined_type(encoder: ComponentDefinedTypeEncoder, ty: &ComponentDefin
         ComponentDefinedType::Map(m) => {
             encoder.map(m.key.as_ref(), m.value.as_ref());
         }
-        ComponentDefinedType::FixedSizeList(l) => {
-            encoder.fixed_size_list(l.element.as_ref(), l.elements);
+        ComponentDefinedType::FixedLengthList(l) => {
+            encoder.fixed_length_list(l.element.as_ref(), l.elements);
         }
         ComponentDefinedType::Tuple(t) => {
             encoder.tuple(t.fields.iter());
@@ -281,7 +279,7 @@ impl<'a> Encoder<'a> {
             InstanceKind::BundleOfExports(exports) => {
                 self.instances.export_items(exports.iter().map(|e| {
                     let (kind, index) = (&e.kind).into();
-                    (e.name.0, kind, index)
+                    (e.name, kind, index)
                 }));
             }
         }
@@ -346,28 +344,24 @@ impl<'a> Encoder<'a> {
                 }
                 CoreFuncKind::ResourceNew(info) => {
                     self.core_func_names.push(name);
-                    self.funcs.resource_new(info.ty.into());
+                    self.funcs.resource_new((&info.ty).into());
                 }
                 CoreFuncKind::ResourceDrop(info) => {
                     self.core_func_names.push(name);
-                    if info.async_ {
-                        self.funcs.resource_drop_async(info.ty.into());
-                    } else {
-                        self.funcs.resource_drop(info.ty.into());
-                    }
+                    self.funcs.resource_drop((&info.ty).into());
                 }
                 CoreFuncKind::ResourceRep(info) => {
                     self.core_func_names.push(name);
-                    self.funcs.resource_rep(info.ty.into());
+                    self.funcs.resource_rep((&info.ty).into());
                 }
                 CoreFuncKind::ThreadSpawnRef(info) => {
                     self.core_func_names.push(name);
-                    self.funcs.thread_spawn_ref(info.ty.into());
+                    self.funcs.thread_spawn_ref(info.ty.idx.into());
                 }
                 CoreFuncKind::ThreadSpawnIndirect(info) => {
                     self.core_func_names.push(name);
                     self.funcs
-                        .thread_spawn_indirect(info.ty.into(), info.table.idx.into());
+                        .thread_spawn_indirect(info.ty.idx.into(), info.table.idx.into());
                 }
                 CoreFuncKind::ThreadAvailableParallelism(_info) => {
                     self.core_func_names.push(name);
@@ -394,17 +388,13 @@ impl<'a> Encoder<'a> {
                     self.core_func_names.push(name);
                     self.funcs.task_cancel();
                 }
-                CoreFuncKind::ContextGet(i) => {
+                CoreFuncKind::ContextGet(ty, i) => {
                     self.core_func_names.push(name);
-                    self.funcs.context_get(*i);
+                    self.funcs.context_get((*ty).into(), *i);
                 }
-                CoreFuncKind::ContextSet(i) => {
+                CoreFuncKind::ContextSet(ty, i) => {
                     self.core_func_names.push(name);
-                    self.funcs.context_set(*i);
-                }
-                CoreFuncKind::ThreadYield(info) => {
-                    self.core_func_names.push(name);
-                    self.funcs.thread_yield(info.cancellable);
+                    self.funcs.context_set((*ty).into(), *i);
                 }
                 CoreFuncKind::SubtaskDrop => {
                     self.core_func_names.push(name);
@@ -416,63 +406,67 @@ impl<'a> Encoder<'a> {
                 }
                 CoreFuncKind::StreamNew(info) => {
                     self.core_func_names.push(name);
-                    self.funcs.stream_new(info.ty.into());
+                    self.funcs.stream_new((&info.ty).into());
                 }
                 CoreFuncKind::StreamRead(info) => {
                     self.core_func_names.push(name);
                     self.funcs
-                        .stream_read(info.ty.into(), info.opts.iter().map(Into::into));
+                        .stream_read((&info.ty).into(), info.opts.iter().map(Into::into));
                 }
                 CoreFuncKind::StreamWrite(info) => {
                     self.core_func_names.push(name);
                     self.funcs
-                        .stream_write(info.ty.into(), info.opts.iter().map(Into::into));
+                        .stream_write((&info.ty).into(), info.opts.iter().map(Into::into));
                 }
                 CoreFuncKind::StreamCancelRead(info) => {
                     self.core_func_names.push(name);
-                    self.funcs.stream_cancel_read(info.ty.into(), info.async_);
+                    self.funcs
+                        .stream_cancel_read((&info.ty).into(), info.async_);
                 }
                 CoreFuncKind::StreamCancelWrite(info) => {
                     self.core_func_names.push(name);
-                    self.funcs.stream_cancel_write(info.ty.into(), info.async_);
+                    self.funcs
+                        .stream_cancel_write((&info.ty).into(), info.async_);
                 }
                 CoreFuncKind::StreamDropReadable(info) => {
                     self.core_func_names.push(name);
-                    self.funcs.stream_drop_readable(info.ty.into());
+                    self.funcs.stream_drop_readable((&info.ty).into());
                 }
                 CoreFuncKind::StreamDropWritable(info) => {
                     self.core_func_names.push(name);
-                    self.funcs.stream_drop_writable(info.ty.into());
+                    self.funcs.stream_drop_writable((&info.ty).into());
                 }
                 CoreFuncKind::FutureNew(info) => {
                     self.core_func_names.push(name);
-                    self.funcs.future_new(info.ty.into());
+                    self.funcs.future_new((&info.ty).into());
                 }
                 CoreFuncKind::FutureRead(info) => {
                     self.core_func_names.push(name);
                     self.funcs
-                        .future_read(info.ty.into(), info.opts.iter().map(Into::into));
+                        .future_read((&info.ty).into(), info.opts.iter().map(Into::into));
                 }
                 CoreFuncKind::FutureWrite(info) => {
                     self.core_func_names.push(name);
                     self.funcs
-                        .future_write(info.ty.into(), info.opts.iter().map(Into::into));
+                        .future_write((&info.ty).into(), info.opts.iter().map(Into::into));
                 }
                 CoreFuncKind::FutureCancelRead(info) => {
                     self.core_func_names.push(name);
-                    self.funcs.future_cancel_read(info.ty.into(), info.async_);
+                    self.funcs
+                        .future_cancel_read((&info.ty).into(), info.async_);
                 }
                 CoreFuncKind::FutureCancelWrite(info) => {
                     self.core_func_names.push(name);
-                    self.funcs.future_cancel_write(info.ty.into(), info.async_);
+                    self.funcs
+                        .future_cancel_write((&info.ty).into(), info.async_);
                 }
                 CoreFuncKind::FutureDropReadable(info) => {
                     self.core_func_names.push(name);
-                    self.funcs.future_drop_readable(info.ty.into());
+                    self.funcs.future_drop_readable((&info.ty).into());
                 }
                 CoreFuncKind::FutureDropWritable(info) => {
                     self.core_func_names.push(name);
-                    self.funcs.future_drop_writable(info.ty.into());
+                    self.funcs.future_drop_writable((&info.ty).into());
                 }
                 CoreFuncKind::ErrorContextNew(info) => {
                     self.core_func_names.push(name);
@@ -494,13 +488,11 @@ impl<'a> Encoder<'a> {
                 }
                 CoreFuncKind::WaitableSetWait(info) => {
                     self.core_func_names.push(name);
-                    self.funcs
-                        .waitable_set_wait(info.async_, info.memory.idx.into());
+                    self.funcs.waitable_set_wait(info.memory.idx.into());
                 }
                 CoreFuncKind::WaitableSetPoll(info) => {
                     self.core_func_names.push(name);
-                    self.funcs
-                        .waitable_set_poll(info.async_, info.memory.idx.into());
+                    self.funcs.waitable_set_poll(info.memory.idx.into());
                 }
                 CoreFuncKind::WaitableSetDrop => {
                     self.core_func_names.push(name);
@@ -517,23 +509,35 @@ impl<'a> Encoder<'a> {
                 CoreFuncKind::ThreadNewIndirect(info) => {
                     self.core_func_names.push(name);
                     self.funcs
-                        .thread_new_indirect(info.ty.into(), info.table.idx.into());
-                }
-                CoreFuncKind::ThreadSwitchTo(info) => {
-                    self.core_func_names.push(name);
-                    self.funcs.thread_switch_to(info.cancellable);
-                }
-                CoreFuncKind::ThreadSuspend(info) => {
-                    self.core_func_names.push(name);
-                    self.funcs.thread_suspend(info.cancellable);
+                        .thread_new_indirect(info.ty.idx.into(), info.table.idx.into());
                 }
                 CoreFuncKind::ThreadResumeLater => {
                     self.core_func_names.push(name);
                     self.funcs.thread_resume_later();
                 }
-                CoreFuncKind::ThreadYieldTo(info) => {
+                CoreFuncKind::ThreadSuspend => {
                     self.core_func_names.push(name);
-                    self.funcs.thread_yield_to(info.cancellable);
+                    self.funcs.thread_suspend();
+                }
+                CoreFuncKind::ThreadYield => {
+                    self.core_func_names.push(name);
+                    self.funcs.thread_yield();
+                }
+                CoreFuncKind::ThreadSuspendThenResume => {
+                    self.core_func_names.push(name);
+                    self.funcs.thread_suspend_then_resume();
+                }
+                CoreFuncKind::ThreadYieldThenResume => {
+                    self.core_func_names.push(name);
+                    self.funcs.thread_yield_then_resume();
+                }
+                CoreFuncKind::ThreadSuspendThenPromote => {
+                    self.core_func_names.push(name);
+                    self.funcs.thread_suspend_then_promote();
+                }
+                CoreFuncKind::ThreadYieldThenPromote => {
+                    self.core_func_names.push(name);
+                    self.funcs.thread_yield_then_promote();
                 }
             },
         }
@@ -544,8 +548,7 @@ impl<'a> Encoder<'a> {
     fn encode_import(&mut self, import: &ComponentImport<'a>) {
         let name = get_name(&import.item.id, &import.item.name);
         self.names_for_item_kind(&import.item.kind).push(name);
-        self.imports
-            .import(import.name.0, (&import.item.kind).into());
+        self.imports.import(import.name, (&import.item.kind).into());
         self.flush(Some(self.imports.id()));
     }
 
@@ -553,7 +556,7 @@ impl<'a> Encoder<'a> {
         let name = get_name(&export.id, &export.debug_name);
         let (kind, index) = (&export.kind).into();
         self.exports.export(
-            export.name.0,
+            export.name,
             kind,
             index,
             export.ty.as_ref().map(|ty| (&ty.0.kind).into()),
@@ -827,15 +830,6 @@ impl From<PrimitiveValType> for wasm_encoder::PrimitiveValType {
     }
 }
 
-impl From<&Refinement<'_>> for u32 {
-    fn from(r: &Refinement) -> Self {
-        match r {
-            Refinement::Index(..) => unreachable!("should be resolved by now"),
-            Refinement::Resolved(i) => *i,
-        }
-    }
-}
-
 impl From<&ItemSigKind<'_>> for wasm_encoder::ComponentTypeRef {
     fn from(k: &ItemSigKind) -> Self {
         match k {
@@ -870,10 +864,10 @@ impl From<&ComponentType<'_>> for wasm_encoder::ComponentType {
                     encoded.alias((&a.target).into());
                 }
                 ComponentTypeDecl::Import(i) => {
-                    encoded.import(i.name.0, (&i.item.kind).into());
+                    encoded.import(i.name, (&i.item.kind).into());
                 }
                 ComponentTypeDecl::Export(e) => {
-                    encoded.export(e.name.0, (&e.item.kind).into());
+                    encoded.export(e.name, (&e.item.kind).into());
                 }
             }
         }
@@ -898,7 +892,7 @@ impl From<&InstanceType<'_>> for wasm_encoder::InstanceType {
                     encoded.alias((&a.target).into());
                 }
                 InstanceTypeDecl::Export(e) => {
-                    encoded.export(e.name.0, (&e.item.kind).into());
+                    encoded.export(e.name, (&e.item.kind).into());
                 }
             }
         }
@@ -1051,6 +1045,17 @@ impl<'a> From<&AliasTarget<'a>> for wasm_encoder::Alias<'a> {
                 kind: (*kind).into(),
                 index: (*index).into(),
             },
+        }
+    }
+}
+
+impl<'a> From<ComponentExternName<'a>> for wasm_encoder::ComponentExternName<'a> {
+    fn from(name: ComponentExternName<'a>) -> Self {
+        wasm_encoder::ComponentExternName {
+            name: name.name.into(),
+            implements: name.implements.map(|i| i.into()),
+            version_suffix: name.version_suffix.map(|i| i.into()),
+            external_id: name.external_id.map(|i| i.into()),
         }
     }
 }

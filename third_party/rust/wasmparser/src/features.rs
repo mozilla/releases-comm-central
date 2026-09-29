@@ -27,7 +27,7 @@ macro_rules! define_wasm_features {
         /// This is the disabled zero-size version of this structure because the
         /// `features` feature was disabled at compile time of this crate.
         #[cfg(not(feature = "features"))]
-        #[derive(Clone, Debug, Default, Hash, Copy)]
+        #[derive(Clone, Debug, Default, Hash, Copy, PartialEq)]
         pub struct WasmFeatures {
             _priv: (),
         }
@@ -105,6 +105,34 @@ macro_rules! define_wasm_features {
             }
         }
         pub(crate) use foreach_wasm_feature;
+
+        #[allow(dead_code)]
+        pub(crate) mod require_feature {
+            use crate::Error;
+            use super::WasmFeatures;
+
+            $(
+                #[inline]
+                #[doc = "Returns an error if [`WasmFeatures::"]
+                #[doc = stringify!($const)]
+                #[doc = "`] is not enabled in `features`."]
+                pub fn $field(
+                    features: WasmFeatures,
+                    msg: impl core::fmt::Display,
+                    offset: u64,
+                ) -> Result<(), Error> {
+                    if features.$field() {
+                        Ok(())
+                    } else {
+                        #[cfg(feature = "features")]
+                        let feature = WasmFeatures::$const;
+                        #[cfg(not(feature = "features"))]
+                        let feature = WasmFeatures::default();
+                        Err(Error::wasm_feature(feature, msg, offset))
+                    }
+                }
+            )*
+        }
     };
 }
 
@@ -237,7 +265,7 @@ define_wasm_features! {
         /// The WebAssembly [stack-switching proposal](https://github.com/WebAssembly/stack-switching).
         pub stack_switching: STACK_SWITCHING(1 << 25) = false;
         /// The WebAssembly [wide-arithmetic proposal](https://github.com/WebAssembly/wide-arithmetic).
-        pub wide_arithmetic: WIDE_ARITHMETIC(1 << 26) = false;
+        pub wide_arithmetic: WIDE_ARITHMETIC(1 << 26) = true;
 
         /// Support for the `value` type in the component model proposal.
         ///
@@ -253,18 +281,18 @@ define_wasm_features! {
         ///
         /// Corresponds to the 🔀 character in
         /// <https://github.com/WebAssembly/component-model/blob/main/design/mvp/Explainer.md>.
-        pub cm_async: CM_ASYNC(1 << 27) = false;
+        pub cm_async: CM_ASYNC(1 << 27) = true;
         /// Gates the "stackful ABI" in the component model async proposal.
         ///
         /// Corresponds to the 🚟 character in
         /// <https://github.com/WebAssembly/component-model/blob/main/design/mvp/Explainer.md>.
         pub cm_async_stackful: CM_ASYNC_STACKFUL(1 << 28) = false;
-        /// Gates some intrinsics being marked with `async` in the component
+        /// Gates some intrinsics and options on intrinsics in the component
         /// model async proposal.
         ///
         /// Corresponds to the 🚝 character in
         /// <https://github.com/WebAssembly/component-model/blob/main/design/mvp/Explainer.md>.
-        pub cm_async_builtins: CM_ASYNC_BUILTINS(1 << 29) = false;
+        pub cm_more_async_builtins: CM_MORE_ASYNC_BUILTINS(1 << 29) = false;
         /// Support for threading in the component model proposal.
         ///
         /// Corresponds to the 🧵 character in
@@ -276,11 +304,11 @@ define_wasm_features! {
         /// Corresponds to the 📝 character in
         /// <https://github.com/WebAssembly/component-model/blob/main/design/mvp/Explainer.md>.
         pub cm_error_context: CM_ERROR_CONTEXT(1 << 31) = false;
-        /// Support for fixed size lists
+        /// Support for fixed-length lists
         ///
         /// Corresponds to the 🔧 character in
         /// <https://github.com/WebAssembly/component-model/blob/main/design/mvp/Explainer.md>.
-        pub cm_fixed_size_list: CM_FIXED_SIZE_LIST(1 << 32) = false;
+        pub cm_fixed_length_lists: CM_FIXED_LENGTH_LISTS(1 << 32) = false;
         /// Support for Wasm GC in the component model proposal.
         ///
         /// Corresponds to the 🛸 character in
@@ -305,13 +333,31 @@ define_wasm_features! {
         pub custom_descriptors: CUSTOM_DESCRIPTORS(1 << 36) = false;
 
         // Compact import section proposal.
-        pub compact_imports: COMPACT_IMPORTS(1 << 37) = false;
+        pub compact_imports: COMPACT_IMPORTS(1 << 37) = true;
 
         /// Support for maps in the component model proposal.
         ///
         /// Corresponds to the 🗺️ character in
         /// <https://github.com/WebAssembly/component-model/blob/main/design/mvp/Explainer.md>.
-        pub cm_map: CM_MAP(1 << 38) = false;
+        pub cm_map: CM_MAP(1 << 38) = true;
+
+        /// Support for 64-bit contexts in the component model proposal.
+        ///
+        /// Corresponds to the 🐘 character in
+        /// <https://github.com/WebAssembly/component-model/blob/main/design/mvp/Explainer.md>.
+        pub cm64: CM64(1 << 39) = false;
+
+        /// Support for the `(implements "...")` directive in the component model
+        ///
+        /// Corresponds to the 🏷️ character in
+        /// <https://github.com/WebAssembly/component-model/blob/main/design/mvp/Explainer.md>.
+        pub cm_implements: CM_IMPLEMENTS(1 << 40) = true;
+
+        /// Support for the `(versionsuffix "...")` directive in the component model
+        ///
+        /// Corresponds to the 🔗 character in
+        /// <https://github.com/WebAssembly/component-model/blob/main/design/mvp/Explainer.md>.
+        pub cm_canon_names: CM_CANON_NAMES(1 << 41) = false;
     }
 }
 

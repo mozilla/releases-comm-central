@@ -5367,10 +5367,10 @@ fn memory_offset(u: &mut Unstructured, module: &Module, memory_index: u32) -> Re
     let memory_type = &module.memories[memory_index as usize];
     let min = memory_type
         .minimum
-        .saturating_mul(crate::page_size(memory_type).into());
+        .saturating_mul(memory_type.page_size().into());
     let max = memory_type
         .maximum
-        .map(|max| max.saturating_mul(crate::page_size(memory_type).into()))
+        .map(|max| max.saturating_mul(memory_type.page_size().into()))
         .unwrap_or(u64::MAX);
 
     let (min, max, true_max) = match (memory_type.memory64, module.config.disallow_traps) {
@@ -5627,9 +5627,7 @@ fn ref_cast(
 
 #[inline]
 fn ref_is_null_valid(module: &Module, builder: &mut CodeBuilder) -> bool {
-    module.config.reference_types_enabled
-        && (builder.type_on_stack(module, ValType::EXTERNREF)
-            || builder.type_on_stack(module, ValType::FUNCREF))
+    module.config.reference_types_enabled && builder.ref_type_on_stack().is_some()
 }
 
 fn ref_is_null(

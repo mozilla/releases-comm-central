@@ -28,6 +28,161 @@ Released YYYY-MM-DD.
 
 --------------------------------------------------------------------------------
 
+## 3.20.3
+
+Released 2026-05-22.
+
+### Fixed
+
+* Fixed the `try_alloc_slice_fill_with`, `alloc_slice_try_fill_with`,
+  `alloc_slice_fill_with` methods to properly rewind the bump pointer on
+  allocation, initialization, and panic failure and avoid wasting bump capacity.
+* Fixed a drop bug in `bumpalo::collections::vec::DrainFilter` (used by `retain`
+  and `retain_mut`) when the predicate panics.
+
+--------------------------------------------------------------------------------
+
+## 3.20.2
+
+Released 2026-02-19.
+
+### Fixed
+
+* Restored `Send` and `Sync` implementations for `Box<T>` for `T: ?Sized` types
+  as well.
+
+--------------------------------------------------------------------------------
+
+## 3.20.1
+
+Released 2026-02-18.
+
+### Fixed
+
+* Restored `Send` and `Sync` implementations for `Box<T>` when `T: Send` and `T:
+  Sync` respectively.
+
+--------------------------------------------------------------------------------
+
+## 3.20.0
+
+Released 2026-02-18.
+
+### Added
+
+* Added the `bumpalo::collections::Vec::pop_if` method.
+
+### Fixed
+
+* Fixed a bug in the `bumpalo::collections::String::retain` method in the face
+  of panics.
+* Made `bumpalo::collections::Box<T>` covariant with `T` (just like
+  `std::boxed::Box<T>`).
+
+--------------------------------------------------------------------------------
+
+## 3.19.1
+
+Released 2025-12-16.
+
+### Changed
+
+* Annotated `bumpalo::collections::String::from_str_in` as `#[inline]`.
+
+### Fixed
+
+* Fixed compilation failures with the latest nightly Rust when enabling the
+  unstable `allocator_api` feature.
+
+--------------------------------------------------------------------------------
+
+## 3.19.0
+
+Released 2025-06-24.
+
+### Added
+
+* Added `bumpalo::collections::Vec::retain_mut`, similar to
+  `std::vec::Vec::retain_mut`.
+
+--------------------------------------------------------------------------------
+
+## 3.18.1
+
+Released 2025-06-05.
+
+### Removed
+
+* Removed the `allocator-api2` version bump from 3.18.0, as it was not actually
+  semver compatible.
+
+--------------------------------------------------------------------------------
+
+## 3.18.0 (yanked)
+
+Released 2025-06-05.
+
+### Added
+
+* Added support for enforcing a minimum alignment on all allocations inside a
+  `Bump` arena, which can provide speed ups when allocating objects whose
+  alignment is less than or equal to that minimum.
+* Added `serde` serialization support for `bumpalo::collections::String`.
+* Added some missing fallible slice allocation function variants.
+
+### Changed
+
+* Replaced `extend_from_slice` implementation with a formally-verified version
+  that is also faster and more-optimizable for LLVM.
+* Updated `allocator-api2` support to version `0.3.*`.
+
+### Fixed
+
+* Fixed a bug where the `allocated_bytes` metrics helper was accidentally
+  including the size of `bumpalo`'s footer, rather than just reporting the
+  user-allocated bytes.
+
+--------------------------------------------------------------------------------
+
+## 3.17.0
+
+Released 2025-01-28.
+
+### Added
+
+* Added a bunch of `try_` allocation methods for slices and `str`:
+  * `try_alloc_slice_fill_default`
+  * `try_alloc_slice_fill_iter`
+  * `try_alloc_slice_fill_clone`
+  * `try_alloc_slice_fill_copy`
+  * `try_alloc_slice_fill_with`
+  * `try_alloc_str`
+  * `try_alloc_slice_clone`
+  * `try_alloc_slice_copy`
+
+### Changed
+
+* Minimum supported Rust version reduced to 1.71.1
+
+### Fixed
+
+* Fixed a stacked-borrows MIRI bug in `dealloc`
+
+--------------------------------------------------------------------------------
+
+## 3.16.0
+
+Released 2024-04-08.
+
+### Added
+
+* Added an optional, off-by-default dependency on the `serde` crate. Enabling
+  this dependency allows you to serialize Bumpalo's collection and box
+  types. Deserialization is not implemented, due to constraints of the
+  deserialization trait.
+
+--------------------------------------------------------------------------------
+
 ## 3.15.4
 
 Released 2024-03-07.

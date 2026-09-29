@@ -24,12 +24,12 @@
 
 #[cfg(feature = "simd")]
 use crate::VisitSimdOperator;
+use crate::features::require_feature;
 use crate::{
-    AbstractHeapType, BinaryReaderError, BlockType, BrTable, Catch, ContType, FieldType, FrameKind,
-    FrameStack, FuncType, GlobalType, Handle, HeapType, Ieee32, Ieee64, MemArg, ModuleArity,
-    RefType, Result, ResumeTable, StorageType, StructType, SubType, TableType, TryTable,
-    UnpackedIndex, ValType, VisitOperator, WasmFeatures, WasmModuleResources,
-    limits::MAX_WASM_FUNCTION_LOCALS,
+    AbstractHeapType, BlockType, BrTable, Catch, ContType, Error, FieldType, FrameKind, FrameStack,
+    FuncType, GlobalType, Handle, HeapType, Ieee32, Ieee64, MemArg, ModuleArity, RefType, Result,
+    ResumeTable, StorageType, StructType, SubType, TableType, TryTable, UnpackedIndex, ValType,
+    VisitOperator, WasmFeatures, WasmModuleResources, limits::MAX_WASM_FUNCTION_LOCALS,
 };
 use crate::{CompositeInnerType, Ordering, prelude::*};
 use core::ops::{Deref, DerefMut};
@@ -38,6 +38,16 @@ use core::{cmp, iter, mem};
 #[cfg(feature = "simd")]
 mod simd;
 
+#[cfg(feature = "try-op")]
+mod transaction;
+#[cfg(not(feature = "try-op"))]
+mod transaction_disabled;
+#[cfg(not(feature = "try-op"))]
+use transaction_disabled as transaction;
+
+use transaction::{RollbackLogAllocations, Transaction};
+
+#[derive(Clone, PartialEq)]
 pub(crate) struct OperatorValidator {
     pub(super) locals: Locals,
     local_inits: LocalInits,
@@ -63,9 +73,15 @@ pub(crate) struct OperatorValidator {
     /// "pop".
     #[cfg(debug_assertions)]
     pub(crate) pop_push_log: Vec<bool>,
+
+    /// When "try-op" validation of an operator is pending, this is a trace
+    /// of discarded info that can restore the OperatorValidator to its
+    /// pre-operator state if necessary.
+    transaction: Transaction,
 }
 
 /// Captures the initialization of non-defaultable locals.
+#[derive(Clone, PartialEq)]
 struct LocalInits {
     /// Records if a local is already initialized.
     local_inits: Vec<bool>,
@@ -116,7 +132,7 @@ impl LocalInits {
         self.local_inits.resize(new_len, is_defaultable);
     }
 
-    /// Returns `true` if the local at `local_index` has already been initialized.
+    /// Returns `true` if the local at `local_index` has not been initialized.
     #[inline]
     pub fn is_uninit(&self, local_index: u32) -> bool {
         if local_index < self.first_non_default_local {
@@ -134,18 +150,22 @@ impl LocalInits {
         }
     }
 
-    /// Registers a new control frame and returns its `height`.
-    pub fn push_ctrl(&mut self) -> usize {
+    /// Returns the current `height` (number of local inits).
+    pub fn height(&self) -> usize {
         self.inits.len()
     }
 
     /// Pops a control frame via its `height`.
     ///
-    /// This uninitializes all locals that have been initialized within it.
-    pub fn pop_ctrl(&mut self, height: usize) {
-        for local_index in self.inits.split_off(height) {
-            self.local_inits[local_index as usize] = false;
+    /// This uninitializes all locals that have been initialized within it
+    /// and returns their indexes.
+    #[inline]
+    pub fn pop_ctrl(&mut self, height: usize) -> Vec<u32> {
+        let inits = self.inits.split_off(height);
+        for local_index in &inits {
+            self.local_inits[*local_index as usize] = false;
         }
+        inits
     }
 
     /// Clears the [`LocalInits`].
@@ -167,6 +187,7 @@ impl LocalInits {
 // it if you so like.
 const MAX_LOCALS_TO_TRACK: u32 = 50;
 
+#[derive(Clone, PartialEq)]
 pub(super) struct Locals {
     // Total number of locals in the function.
     num_locals: u32,
@@ -196,7 +217,7 @@ pub(super) struct Locals {
 //
 // This structure corresponds to `ctrl_frame` as specified at in the validation
 // appendix of the wasm spec
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Frame {
     /// Indicator for what kind of instruction pushed this frame.
     pub kind: FrameKind,
@@ -212,7 +233,7 @@ pub struct Frame {
 }
 
 struct OperatorValidatorTemp<'validator, 'resources, T> {
-    offset: usize,
+    offset: u64,
     inner: &'validator mut OperatorValidator,
     resources: &'resources T,
 }
@@ -225,6 +246,7 @@ pub struct OperatorValidatorAllocations {
     local_inits: LocalInits,
     locals_first: Vec<ValType>,
     locals_uncached: Vec<(u32, ValType)>,
+    rollback_log: RollbackLogAllocations,
 }
 
 /// Type storage within the validator.
@@ -233,7 +255,7 @@ pub struct OperatorValidatorAllocations {
 /// fully know an operand's type. this unknown state is known as the `bottom`
 /// type in the WebAssembly specification. Validating further instructions may
 /// give us more information; either partial (`PartialRef`) or fully known.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 enum MaybeType<T = ValType> {
     /// The operand has no available type information due to unreachable code.
     ///
@@ -330,11 +352,11 @@ impl OperatorValidator {
             local_inits,
             locals_first,
             locals_uncached,
+            rollback_log,
         } = allocs;
         debug_assert!(popped_types_tmp.is_empty());
         debug_assert!(control.is_empty());
         debug_assert!(operands.is_empty());
-        debug_assert!(local_inits.is_empty());
         debug_assert!(local_inits.is_empty());
         debug_assert!(locals_first.is_empty());
         debug_assert!(locals_uncached.is_empty());
@@ -352,6 +374,7 @@ impl OperatorValidator {
             shared: false,
             #[cfg(debug_assertions)]
             pop_push_log: vec![],
+            transaction: Transaction::new(rollback_log),
         }
     }
 
@@ -362,7 +385,7 @@ impl OperatorValidator {
     /// `ty`.
     pub fn new_func<T>(
         ty: u32,
-        offset: usize,
+        offset: u64,
         features: &WasmFeatures,
         resources: &T,
         allocs: OperatorValidatorAllocations,
@@ -427,7 +450,7 @@ impl OperatorValidator {
 
     pub fn define_locals(
         &mut self,
-        offset: usize,
+        offset: u64,
         count: u32,
         mut ty: ValType,
         resources: &impl WasmModuleResources,
@@ -437,10 +460,7 @@ impl OperatorValidator {
             return Ok(());
         }
         if !self.locals.define(count, ty) {
-            return Err(BinaryReaderError::new(
-                "too many locals: locals exceed maximum",
-                offset,
-            ));
+            return Err(Error::new("too many locals: locals exceed maximum", offset));
         }
         self.local_inits.define_locals(count, ty);
         Ok(())
@@ -492,7 +512,7 @@ impl OperatorValidator {
     pub fn with_resources<'a, 'validator, 'resources, T>(
         &'validator mut self,
         resources: &'resources T,
-        offset: usize,
+        offset: u64,
     ) -> impl VisitOperator<'a, Output = Result<()>> + ModuleArity + FrameStack + 'validator
     where
         T: WasmModuleResources,
@@ -511,7 +531,7 @@ impl OperatorValidator {
     pub fn with_resources_simd<'a, 'validator, 'resources, T>(
         &'validator mut self,
         resources: &'resources T,
-        offset: usize,
+        offset: u64,
     ) -> impl VisitSimdOperator<'a, Output = Result<()>> + ModuleArity + 'validator
     where
         T: WasmModuleResources,
@@ -539,10 +559,18 @@ impl OperatorValidator {
             },
             locals_first: clear(self.locals.first),
             locals_uncached: clear(self.locals.uncached),
+            rollback_log: self.transaction.into_allocations(),
         }
     }
 
-    fn record_pop(&mut self) {
+    // records a pop that mutated the operand stack
+    fn record_pop(&mut self, ty: MaybeType) {
+        self.transaction.map(|log| log.record_pop(ty));
+        self.record_any_pop();
+    }
+
+    // records any pop, including a Bottom synthesized from an empty polymorphic operand stack
+    fn record_any_pop(&mut self) {
         #[cfg(debug_assertions)]
         {
             self.pop_push_log.push(false);
@@ -550,10 +578,66 @@ impl OperatorValidator {
     }
 
     fn record_push(&mut self) {
+        self.transaction.map(|log| log.record_push());
         #[cfg(debug_assertions)]
         {
             self.pop_push_log.push(true);
         }
+    }
+
+    #[allow(dead_code)]
+    pub(super) fn begin_try_op(&mut self) {
+        self.transaction.begin(self.local_inits.height());
+    }
+
+    #[allow(dead_code)]
+    pub(super) fn commit(&mut self) {
+        self.transaction.end();
+    }
+
+    /// Reverse the actions in the rollback log. This is used by `FuncValidator::try_op()`
+    /// if validating the operator fails. The rollback log is sufficient to handle
+    /// the mutations of any individual operator (but not necessarily multiple operators).
+    #[cfg(feature = "try-op")]
+    pub(super) fn rollback(&mut self) {
+        let Transaction::Active(rollback_log) = &self.transaction else {
+            panic!("no transaction pending");
+        };
+
+        if rollback_log.unreachable {
+            self.control.last_mut().unwrap().unreachable = false;
+        }
+
+        for x in rollback_log.operands.iter().rev() {
+            match x {
+                None => {
+                    self.operands.pop();
+                }
+                Some(mt) => self.operands.push(*mt),
+            }
+        }
+
+        for x in rollback_log.frames.iter().rev() {
+            match x {
+                None => {
+                    let frame = self.control.pop().unwrap();
+                    self.local_inits.pop_ctrl(frame.init_height);
+                }
+                Some(frame) => {
+                    self.control.push(*frame);
+                }
+            }
+        }
+
+        for idx in &rollback_log.inits {
+            self.local_inits.set_init(*idx);
+        }
+
+        if self.local_inits.height() > rollback_log.init_height {
+            self.local_inits.pop_ctrl(rollback_log.init_height);
+        }
+
+        self.transaction.end();
     }
 }
 
@@ -727,7 +811,7 @@ where
                 if Some(actual_ty) == expected {
                     if let Some(control) = self.control.last() {
                         if self.operands.len() >= control.height {
-                            self.record_pop();
+                            self.record_pop(MaybeType::Known(actual_ty));
                             return Ok(MaybeType::Known(actual_ty));
                         }
                     }
@@ -752,6 +836,7 @@ where
         self.operands.extend(popped);
         let control = self.control.last().unwrap();
         let actual = if self.operands.len() == control.height && control.unreachable {
+            self.record_any_pop();
             MaybeType::Bottom
         } else {
             if self.operands.len() == control.height {
@@ -764,7 +849,9 @@ where
                     "type mismatch: expected {desc} but nothing on stack"
                 )
             } else {
-                self.operands.pop().unwrap()
+                let ty = self.operands.pop().unwrap();
+                self.record_pop(ty);
+                ty
             }
         };
         if let Some(expected) = expected {
@@ -775,7 +862,7 @@ where
                 // The "heap bottom" type only matches other references types,
                 // but not any integer types. Note that if the heap bottom is
                 // known to have a specific abstract heap type then a subtype
-                // check is performed against hte expected type.
+                // check is performed against the expected type.
                 (MaybeType::UnknownRef(actual_ty), ValType::Ref(expected)) => {
                     if let Some(actual) = actual_ty {
                         let expected_shared = self.resources.is_shared(expected);
@@ -824,16 +911,11 @@ where
                 }
             }
         }
-        self.record_pop();
         Ok(actual)
     }
 
     /// Match expected vs. actual operand.
-    fn match_operand(
-        &mut self,
-        actual: ValType,
-        expected: ValType,
-    ) -> Result<(), BinaryReaderError> {
+    fn match_operand(&mut self, actual: ValType, expected: ValType) -> Result<(), Error> {
         self.push_operand(actual)?;
         self.pop_operand(Some(expected))?;
         Ok(())
@@ -937,9 +1019,21 @@ where
     /// Flags the current control frame as unreachable, additionally truncating
     /// the currently active operand stack.
     fn unreachable(&mut self) -> Result<()> {
+        if !self.control.last().unwrap().unreachable {
+            self.transaction.map(|log| log.set_unreachable());
+        }
+
         let control = self.control.last_mut().unwrap();
         control.unreachable = true;
         let new_height = control.height;
+
+        let operands = self.operands.split_off(new_height);
+        self.transaction.map(|log| {
+            for op in operands.iter().rev() {
+                log.record_pop(*op);
+            }
+        });
+
         self.operands.truncate(new_height);
         Ok(())
     }
@@ -951,10 +1045,22 @@ where
     /// breaks interact with this block's type. Additionally the type signature
     /// of the block is specified by `ty`.
     fn push_ctrl(&mut self, kind: FrameKind, ty: BlockType) -> Result<()> {
+        self.push_bare_ctrl(kind, ty);
+        // All of the parameters are now also available in this control frame,
+        // so we push them here in order.
+        for ty in self.params(ty)? {
+            self.push_operand(ty)?;
+        }
+        Ok(())
+    }
+
+    /// Pushes a new frame onto the control stack, without its block params.
+    /// This is used by `push_ctrl` above and directly by LegacyCatch and LegacyCatchAll.
+    fn push_bare_ctrl(&mut self, kind: FrameKind, ty: BlockType) {
         // Push a new frame which has a snapshot of the height of the current
         // operand stack.
         let height = self.operands.len();
-        let init_height = self.local_inits.push_ctrl();
+        let init_height = self.local_inits.height();
         self.control.push(Frame {
             kind,
             block_type: ty,
@@ -962,12 +1068,7 @@ where
             unreachable: false,
             init_height,
         });
-        // All of the parameters are now also available in this control frame,
-        // so we push them here in order.
-        for ty in self.params(ty)? {
-            self.push_operand(ty)?;
-        }
-        Ok(())
+        self.transaction.map(|log| log.push_ctrl());
     }
 
     /// Pops a frame from the control stack.
@@ -980,10 +1081,6 @@ where
         let frame = self.control.last().unwrap();
         let ty = frame.block_type;
         let height = frame.height;
-        let init_height = frame.init_height;
-
-        // reset_locals in the spec
-        self.local_inits.pop_ctrl(init_height);
 
         // Pop all the result types, in reverse order, from the operand stack.
         // These types will, possibly, be transferred to the next frame.
@@ -1000,8 +1097,12 @@ where
             );
         }
 
-        // And then we can remove it!
-        Ok(self.control.pop().unwrap())
+        // And then we can remove it and reset_locals.
+        let frame = self.control.pop().unwrap();
+        let _inits = self.local_inits.pop_ctrl(frame.init_height);
+        self.transaction.map(|log| log.pop_ctrl(frame, _inits));
+
+        Ok(frame)
     }
 
     /// Validates a relative jump to the `depth` specified.
@@ -1041,9 +1142,11 @@ where
     }
 
     fn check_floats_enabled(&self) -> Result<()> {
-        if !self.features.floats() {
-            bail!(self.offset, "floating-point instruction disallowed");
-        }
+        require_feature::floats(
+            self.features,
+            "floating-point instruction disallowed",
+            self.offset,
+        )?;
         Ok(())
     }
 
@@ -1054,7 +1157,7 @@ where
                 "atomic instructions must always specify maximum alignment"
             );
         }
-        self.check_memory_index(memarg.memory)
+        self.check_memarg(memarg)
     }
 
     /// Validates a block type, primarily with various in-flight proposals.
@@ -1065,13 +1168,12 @@ where
                 .resources
                 .check_value_type(t, &self.features, self.offset),
             BlockType::FuncType(idx) => {
-                if !self.features.multi_value() {
-                    bail!(
-                        self.offset,
-                        "blocks, loops, and ifs may only produce a resulttype \
-                         when multi-value is not enabled",
-                    );
-                }
+                require_feature::multi_value(
+                    self.features,
+                    "blocks, loops, and ifs may only produce a resulttype \
+                     when multi-value is not enabled",
+                    self.offset,
+                )?;
                 self.func_type_at(*idx)?;
                 Ok(())
             }
@@ -1310,14 +1412,31 @@ where
         self.resources
             .check_heap_type(&mut heap_type, self.offset)?;
 
-        let sub_ty = RefType::new(nullable, heap_type).ok_or_else(|| {
-            BinaryReaderError::new("implementation limit: type index too large", self.offset)
-        })?;
-        let sup_ty = RefType::new(true, self.resources.top_type(&heap_type))
-            .expect("can't panic with non-concrete heap types");
+        let sub_ty = RefType::new(nullable, heap_type)
+            .ok_or_else(|| Error::new("implementation limit: type index too large", self.offset))?;
+        let top = self.resources.top_type(&heap_type);
+        self.check_cast_to_allowed(top)?;
+        let sup_ty = RefType::new(true, top).expect("can't panic with non-concrete heap types");
 
         self.pop_ref(Some(sup_ty))?;
         Ok(sub_ty)
+    }
+
+    fn check_cast_to_allowed(&self, ty: HeapType) -> Result<()> {
+        let top = self.resources.top_type(&ty);
+        if matches!(
+            top,
+            HeapType::Abstract {
+                ty: AbstractHeapType::Cont,
+                ..
+            }
+        ) {
+            bail!(
+                self.offset,
+                "invalid cast: cannot cast to a continuation type"
+            );
+        }
+        Ok(())
     }
 
     /// Common helper for both nullable and non-nullable variants of `ref.test`
@@ -1355,6 +1474,8 @@ where
             }
             return Ok(());
         }
+
+        self.check_cast_to_allowed(to_ref_type.heap_type())?;
 
         if !self
             .resources
@@ -1419,7 +1540,7 @@ where
 
     /// Common helper for both nullable and non-nullable variants of `ref.cast_desc`
     /// instructions.
-    fn check_ref_cast_desc(&mut self, nullable: bool, heap_type: HeapType) -> Result<()> {
+    fn check_ref_cast_desc_eq(&mut self, nullable: bool, heap_type: HeapType) -> Result<()> {
         let is_exact = self.check_maybe_exact_descriptor_ref(heap_type)?;
 
         self.check_downcast(nullable, heap_type)?;
@@ -1431,10 +1552,7 @@ where
             match heap_type {
                 HeapType::Concrete(index) | HeapType::Exact(index) => {
                     index.pack().ok_or_else(|| {
-                        BinaryReaderError::new(
-                            "implementation limit: type index too large",
-                            self.offset,
-                        )
+                        Error::new("implementation limit: type index too large", self.offset)
                     })?
                 }
                 _ => panic!(),
@@ -1451,7 +1569,14 @@ where
     /// Common helper for checking the types of globals accessed with atomic RMW
     /// instructions, which only allow `i32` and `i64`.
     fn check_atomic_global_rmw_ty(&self, global_index: u32) -> Result<ValType> {
-        let ty = self.global_type_at(global_index)?.content_type;
+        let global = self.global_type_at(global_index)?;
+        if !global.mutable {
+            bail!(
+                self.offset,
+                "global is immutable: cannot modify it with `global.atomic.rmw.*`"
+            );
+        }
+        let ty = global.content_type;
         if !(ty == ValType::I32 || ty == ValType::I64) {
             bail!(
                 self.offset,
@@ -1541,16 +1666,13 @@ where
     }
 
     fn struct_field_at(&self, struct_type_index: u32, field_index: u32) -> Result<FieldType> {
-        let field_index = usize::try_from(field_index).map_err(|_| {
-            BinaryReaderError::new("unknown field: field index out of bounds", self.offset)
-        })?;
+        let field_index = usize::try_from(field_index)
+            .map_err(|_| Error::new("unknown field: field index out of bounds", self.offset))?;
         self.struct_type_at(struct_type_index)?
             .fields
             .get(field_index)
             .copied()
-            .ok_or_else(|| {
-                BinaryReaderError::new("unknown field: field index out of bounds", self.offset)
-            })
+            .ok_or_else(|| Error::new("unknown field: field index out of bounds", self.offset))
     }
 
     fn mutable_struct_field_at(
@@ -1727,77 +1849,87 @@ where
         table: ResumeTable,
         type_index: u32, // The type index annotation on the `resume` instruction, which `table` appears on.
     ) -> Result<&'resources FuncType> {
-        let cont_ty = self.cont_type_at(type_index)?;
+        // Note that comments here and type annotations come from the current
+        // overview of the stack-switching proposal at
+        // https://github.com/WebAssembly/stack-switching/blob/main/proposals/stack-switching/Explainer.md#instructions
+
         // ts1 -> ts2
+        let cont_ty = self.cont_type_at(type_index)?;
         let old_func_ty = self.func_type_of_cont_type(cont_ty);
+
         for handle in table.handlers {
             match handle {
                 Handle::OnLabel { tag, label } => {
-                    // ts1' -> ts2'
+                    // [t1*] -> [t2*]
                     let tag_ty = self.tag_at(tag)?;
-                    // ts1'' (ref (cont $ft))
-                    let block = self.jump(label)?;
-                    // Pop the continuation reference.
-                    match self.label_types(block.0, block.1)?.last() {
-                        Some(ValType::Ref(rt)) if rt.is_concrete_type_ref() => {
-                            let sub_ty = self.resources.sub_type_at_id(
-                                rt.type_index()
-                                    .unwrap()
-                                    .as_core_type_id()
-                                    .expect("canonicalized index"),
-                            );
-                            let new_cont = if let CompositeInnerType::Cont(cont) =
-                                &sub_ty.composite_type.inner
-                            {
-                                cont
-                            } else {
-                                bail!(self.offset, "non-continuation type");
-                            };
-                            let new_func_ty = self.func_type_of_cont_type(&new_cont);
-                            // Check that (ts2' -> ts2) <: $ft
-                            if new_func_ty.params().len() != tag_ty.results().len()
-                                || !self.is_subtype_many(new_func_ty.params(), tag_ty.results())
-                                || old_func_ty.results().len() != new_func_ty.results().len()
-                                || !self
-                                    .is_subtype_many(old_func_ty.results(), new_func_ty.results())
-                            {
-                                bail!(self.offset, "type mismatch in continuation type")
-                            }
-                            let expected_nargs = tag_ty.params().len() + 1;
-                            let actual_nargs = self.label_types(block.0, block.1)?.len();
-                            if actual_nargs != expected_nargs {
-                                bail!(
-                                    self.offset,
-                                    "type mismatch: expected {expected_nargs} label result(s), but label is annotated with {actual_nargs} results"
-                                )
-                            }
+                    let (ty, kind) = self.jump(label)?;
 
-                            let labeltys =
-                                self.label_types(block.0, block.1)?.take(expected_nargs - 1);
-
-                            // Check that ts1'' <: ts1'.
-                            for (tagty, &lblty) in labeltys.zip(tag_ty.params()) {
-                                if !self.resources.is_subtype(lblty, tagty) {
-                                    bail!(
-                                        self.offset,
-                                        "type mismatch between tag type and label type"
-                                    )
-                                }
-                            }
-                        }
-                        Some(ty) => {
-                            bail!(self.offset, "type mismatch: {}", ty_to_str(ty))
-                        }
-                        _ => bail!(
+                    // Check `C.labels[$label] = [t1'* (ref null? $ct)]`
+                    let mut label_tys = self.label_types(ty, kind)?;
+                    let ct = match label_tys.next_back() {
+                        Some(ValType::Ref(rt)) if rt.is_concrete_type_ref() => rt,
+                        Some(ty) => bail!(self.offset, "type mismatch: {}", ty_to_str(ty)),
+                        None => bail!(
                             self.offset,
                             "type mismatch: instruction requires continuation reference type but label has none"
                         ),
+                    };
+                    // Check `t1* <: t1'*`
+                    if tag_ty.params().len() != label_tys.len()
+                        || tag_ty
+                            .params()
+                            .iter()
+                            .copied()
+                            .zip(label_tys)
+                            .any(|(t1, t2)| !self.resources.is_subtype(t1, t2))
+                    {
+                        bail!(self.offset, "type mismatch between tag type and label type")
+                    }
+
+                    // Check `C.types[$ct] ~~ cont [t2'*] -> [t'*]`
+                    let sub_ty = self.resources.sub_type_at_id(
+                        ct.type_index()
+                            .unwrap()
+                            .as_core_type_id()
+                            .expect("canonicalized index"),
+                    );
+                    let new_cont =
+                        if let CompositeInnerType::Cont(cont) = &sub_ty.composite_type.inner {
+                            cont
+                        } else {
+                            bail!(self.offset, "non-continuation type");
+                        };
+                    let new_func_ty = self.func_type_of_cont_type(&new_cont);
+
+                    // Check `[t2*] -> [t*] <: [t2'*] -> [t'*]`
+                    if !self.is_func_subtype(
+                        (tag_ty.results(), old_func_ty.results()),
+                        (new_func_ty.params(), new_func_ty.results()),
+                    ) {
+                        bail!(self.offset, "type mismatch in continuation type")
                     }
                 }
                 Handle::OnSwitch { tag } => {
                     let tag_ty = self.tag_at(tag)?;
-                    if tag_ty.params().len() != 0 {
-                        bail!(self.offset, "type mismatch: non-empty tag parameter type")
+                    // The tag's type must be *equivalent* to (not merely a
+                    // subtype of) `[] -> [old results]`: the handler judgment
+                    // has no subsumption rule, so `(on tu switch) : t*` together
+                    // with the required `hdl : t2*` forces `t* = t2*`. Checking
+                    // subtyping in both directions gives equivalence, and also
+                    // pins the tag to zero parameters (via the param-length
+                    // check inside `is_func_subtype`).
+                    let tag_matches = self.is_func_subtype(
+                        (tag_ty.params(), tag_ty.results()),
+                        (&[], old_func_ty.results()),
+                    ) && self.is_func_subtype(
+                        (&[], old_func_ty.results()),
+                        (tag_ty.params(), tag_ty.results()),
+                    );
+                    if !tag_matches {
+                        bail!(
+                            self.offset,
+                            "type mismatch: switch tag does not match continuation"
+                        )
                     }
                 }
             }
@@ -1805,13 +1937,24 @@ where
         Ok(old_func_ty)
     }
 
-    /// Applies `is_subtype` pointwise two equally sized collections
-    /// (i.e. equally sized after skipped elements).
-    fn is_subtype_many(&mut self, ts1: &[ValType], ts2: &[ValType]) -> bool {
-        debug_assert!(ts1.len() == ts2.len());
-        ts1.iter()
-            .zip(ts2.iter())
-            .all(|(ty1, ty2)| self.resources.is_subtype(*ty1, *ty2))
+    /// Tests whether `[p1] -> [r1] <: [p2] -> [r2]`
+    fn is_func_subtype(
+        &mut self,
+        (p1, r1): (&[ValType], &[ValType]),
+        (p2, r2): (&[ValType], &[ValType]),
+    ) -> bool {
+        // Note that the order of params/results is intentionally swapped
+        // and matches the variance needed for this subtyping check.
+        p1.len() == p2.len()
+            && p1
+                .iter()
+                .zip(p2.iter())
+                .all(|(t1, t2)| self.resources.is_subtype(*t2, *t1))
+            && r1.len() == r2.len()
+            && r1
+                .iter()
+                .zip(r2.iter())
+                .all(|(r1, r2)| self.resources.is_subtype(*r1, *r2))
     }
 
     fn check_binop128(&mut self) -> Result<()> {
@@ -1830,13 +1973,6 @@ where
         self.push_operand(ValType::I64)?;
         self.push_operand(ValType::I64)?;
         Ok(())
-    }
-
-    fn check_enabled(&self, flag: bool, desc: &str) -> Result<()> {
-        if flag {
-            return Ok(());
-        }
-        bail!(self.offset, "{desc} support is not enabled");
     }
 }
 
@@ -1883,7 +2019,11 @@ macro_rules! validate_proposal {
     (validate self $proposal:ident / MemoryCopy) => {};
 
     (validate $self:ident $proposal:ident / $op:ident) => {
-        $self.0.check_enabled($self.0.features.$proposal(), validate_proposal!(desc $proposal))?
+        require_feature::$proposal(
+            $self.0.features,
+            concat!(validate_proposal!(desc $proposal), " support is not enabled"),
+            $self.0.offset,
+        )?
     };
 
     (desc simd) => ("SIMD");
@@ -1987,9 +2127,7 @@ where
     }
     fn visit_else(&mut self) -> Self::Output {
         let frame = self.pop_ctrl()?;
-        if frame.kind != FrameKind::If {
-            bail!(self.offset, "else found outside of an `if` block");
-        }
+        debug_assert_eq!(frame.kind, FrameKind::If); // syntactic requirement, enforced by reader
         self.push_ctrl(FrameKind::Else, frame.block_type)?;
         Ok(())
     }
@@ -2090,8 +2228,10 @@ where
     fn visit_end(&mut self) -> Self::Output {
         let mut frame = self.pop_ctrl()?;
 
-        // Note that this `if` isn't included in the appendix right
-        // now, but it's used to allow for `if` statements that are
+        // Note that this `if` isn't included in the appendix;
+        // the `if ... end` abbreviation for `if ... else [] end`
+        // is part of the binary and text formats.
+        // This is used to allow for `if` statements that are
         // missing an `else` block which have the same parameter/return
         // types on the block (since that's valid).
         if frame.kind == FrameKind::If {
@@ -2344,7 +2484,14 @@ where
         _ordering: crate::Ordering,
         global_index: u32,
     ) -> Self::Output {
-        let ty = self.global_type_at(global_index)?.content_type;
+        let global = self.global_type_at(global_index)?;
+        if !global.mutable {
+            bail!(
+                self.offset,
+                "global is immutable: cannot modify it with `global.atomic.rmw.xchg`"
+            );
+        }
+        let ty = global.content_type;
         if !(ty == ValType::I32
             || ty == ValType::I64
             || self.resources.is_subtype(ty, RefType::ANYREF.into()))
@@ -2361,7 +2508,14 @@ where
         _ordering: crate::Ordering,
         global_index: u32,
     ) -> Self::Output {
-        let ty = self.global_type_at(global_index)?.content_type;
+        let global = self.global_type_at(global_index)?;
+        if !global.mutable {
+            bail!(
+                self.offset,
+                "global is immutable: cannot modify it with `global.atomic.rmw.cmpxchg`"
+            );
+        }
+        let ty = global.content_type;
         if !(ty == ValType::I32
             || ty == ValType::I64
             || self.resources.is_subtype(ty, RefType::EQREF.into()))
@@ -3155,9 +3309,7 @@ where
     }
     fn visit_ref_null(&mut self, mut heap_type: HeapType) -> Self::Output {
         if let Some(ty) = RefType::new(true, heap_type) {
-            self.features
-                .check_ref_type(ty)
-                .map_err(|e| BinaryReaderError::new(e, self.offset))?;
+            self.features.check_ref_type(ty, self.offset)?;
         }
         self.resources
             .check_heap_type(&mut heap_type, self.offset)?;
@@ -3228,7 +3380,7 @@ where
             HeapType::Concrete(index)
         };
         let ty = ValType::Ref(RefType::new(false, hty).ok_or_else(|| {
-            BinaryReaderError::new("implementation limit: type index too large", self.offset)
+            Error::new("implementation limit: type index too large", self.offset)
         })?);
         self.push_operand(ty)?;
         Ok(())
@@ -3267,7 +3419,11 @@ where
         Ok(())
     }
     fn visit_memory_copy(&mut self, dst: u32, src: u32) -> Self::Output {
-        self.check_enabled(self.features.bulk_memory_opt(), "bulk memory")?;
+        require_feature::bulk_memory_opt(
+            self.features,
+            "bulk memory support is not enabled",
+            self.offset,
+        )?;
         let dst_ty = self.check_memory_index(dst)?;
         let src_ty = self.check_memory_index(src)?;
 
@@ -3285,7 +3441,11 @@ where
         Ok(())
     }
     fn visit_memory_fill(&mut self, mem: u32) -> Self::Output {
-        self.check_enabled(self.features.bulk_memory_opt(), "bulk memory")?;
+        require_feature::bulk_memory_opt(
+            self.features,
+            "bulk memory support is not enabled",
+            self.offset,
+        )?;
         let ty = self.check_memory_index(mem)?;
         self.pop_operand(Some(ty))?;
         self.pop_operand(Some(ValType::I32))?;
@@ -3601,7 +3761,7 @@ where
         struct_type_index: u32,
         field_index: u32,
     ) -> Self::Output {
-        self.visit_struct_get_s(struct_type_index, field_index)?;
+        self.visit_struct_get_u(struct_type_index, field_index)?;
         // This instruction has the same type restrictions as the non-`atomic` version.
         debug_assert!(matches!(
             self.struct_field_at(struct_type_index, field_index)?
@@ -4210,20 +4370,9 @@ where
     }
     fn visit_catch(&mut self, index: u32) -> Self::Output {
         let frame = self.pop_ctrl()?;
-        if frame.kind != FrameKind::LegacyTry && frame.kind != FrameKind::LegacyCatch {
-            bail!(self.offset, "catch found outside of an `try` block");
-        }
-        // Start a new frame and push `exnref` value.
-        let height = self.operands.len();
-        let init_height = self.local_inits.push_ctrl();
-        self.control.push(Frame {
-            kind: FrameKind::LegacyCatch,
-            block_type: frame.block_type,
-            height,
-            unreachable: false,
-            init_height,
-        });
-        // Push exception argument types.
+        debug_assert!(frame.kind == FrameKind::LegacyTry || frame.kind == FrameKind::LegacyCatch);
+        // Start a new frame and push exception argument types.
+        self.push_bare_ctrl(FrameKind::LegacyCatch, frame.block_type);
         let ty = self.exception_tag_at(index)?;
         for ty in ty.params() {
             self.push_operand(*ty)?;
@@ -4245,9 +4394,7 @@ where
     }
     fn visit_delegate(&mut self, relative_depth: u32) -> Self::Output {
         let frame = self.pop_ctrl()?;
-        if frame.kind != FrameKind::LegacyTry {
-            bail!(self.offset, "delegate found outside of an `try` block");
-        }
+        debug_assert_eq!(frame.kind, FrameKind::LegacyTry);
         // This operation is not a jump, but we need to check the
         // depth for validity
         let _ = self.jump(relative_depth)?;
@@ -4258,20 +4405,8 @@ where
     }
     fn visit_catch_all(&mut self) -> Self::Output {
         let frame = self.pop_ctrl()?;
-        if frame.kind == FrameKind::LegacyCatchAll {
-            bail!(self.offset, "only one catch_all allowed per `try` block");
-        } else if frame.kind != FrameKind::LegacyTry && frame.kind != FrameKind::LegacyCatch {
-            bail!(self.offset, "catch_all found outside of a `try` block");
-        }
-        let height = self.operands.len();
-        let init_height = self.local_inits.push_ctrl();
-        self.control.push(Frame {
-            kind: FrameKind::LegacyCatchAll,
-            block_type: frame.block_type,
-            height,
-            unreachable: false,
-            init_height,
-        });
+        debug_assert!(frame.kind == FrameKind::LegacyTry || frame.kind == FrameKind::LegacyCatch);
+        self.push_bare_ctrl(FrameKind::LegacyCatchAll, frame.block_type);
         Ok(())
     }
     fn visit_cont_new(&mut self, type_index: u32) -> Self::Output {
@@ -4298,10 +4433,10 @@ where
         let argcnt = arg_func.params().len() - res_func.params().len();
 
         // Check that [ts1'] -> [ts2] <: [ts1''] -> [ts2']
-        if !self.is_subtype_many(res_func.params(), &arg_func.params()[argcnt..])
-            || arg_func.results().len() != res_func.results().len()
-            || !self.is_subtype_many(arg_func.results(), res_func.results())
-        {
+        if !self.is_func_subtype(
+            (&arg_func.params()[argcnt..], arg_func.results()),
+            (res_func.params(), res_func.results()),
+        ) {
             bail!(self.offset, "type mismatch in continuation types");
         }
 
@@ -4353,9 +4488,6 @@ where
         let ft = self.check_resume_table(table, type_index)?;
         // [ts1'] -> []
         let tag_ty = self.exception_tag_at(tag_index)?;
-        if tag_ty.results().len() != 0 {
-            bail!(self.offset, "type mismatch: non-empty tag result type")
-        }
         self.pop_concrete_ref(true, type_index)?;
         // Check that ts1' are available on the stack.
         for &ty in tag_ty.params().iter().rev() {
@@ -4365,6 +4497,16 @@ where
         // Make ts2 available on the stack.
         for &ty in ft.results() {
             self.push_operand(ty)?;
+        }
+        Ok(())
+    }
+    fn visit_resume_throw_ref(&mut self, type_index: u32, table: ResumeTable) -> Self::Output {
+        let ft = self.check_resume_table(table, type_index)?;
+        self.pop_concrete_ref(true, type_index)?;
+        self.pop_operand(Some(ValType::EXNREF))?;
+
+        for &ty in ft.results() {
+            self.push_operand(ty)?
         }
         Ok(())
     }
@@ -4394,11 +4536,10 @@ where
                         bail!(self.offset, "non-continuation type");
                     };
                 let other_func_ty = self.func_type_of_cont_type(&other_cont_ty);
-                if func_ty.results().len() != tag_ty.results().len()
-                    || !self.is_subtype_many(func_ty.results(), tag_ty.results())
-                    || other_func_ty.results().len() != tag_ty.results().len()
-                    || !self.is_subtype_many(tag_ty.results(), other_func_ty.results())
-                {
+                if !self.is_func_subtype(
+                    (tag_ty.results(), tag_ty.results()),
+                    (func_ty.results(), other_func_ty.results()),
+                ) {
                     bail!(self.offset, "type mismatch in continuation types")
                 }
 
@@ -4456,13 +4597,13 @@ where
         }
     }
 
-    fn visit_ref_cast_desc_non_null(&mut self, heap_type: HeapType) -> Self::Output {
-        self.check_ref_cast_desc(false, heap_type)
+    fn visit_ref_cast_desc_eq_non_null(&mut self, heap_type: HeapType) -> Self::Output {
+        self.check_ref_cast_desc_eq(false, heap_type)
     }
-    fn visit_ref_cast_desc_nullable(&mut self, heap_type: HeapType) -> Self::Output {
-        self.check_ref_cast_desc(true, heap_type)
+    fn visit_ref_cast_desc_eq_nullable(&mut self, heap_type: HeapType) -> Self::Output {
+        self.check_ref_cast_desc_eq(true, heap_type)
     }
-    fn visit_br_on_cast_desc(
+    fn visit_br_on_cast_desc_eq(
         &mut self,
         relative_depth: u32,
         mut from_ref_type: RefType,
@@ -4502,7 +4643,7 @@ where
         self.push_operand(diff_ty)?;
         Ok(())
     }
-    fn visit_br_on_cast_desc_fail(
+    fn visit_br_on_cast_desc_eq_fail(
         &mut self,
         relative_depth: u32,
         mut from_ref_type: RefType,

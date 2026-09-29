@@ -4,7 +4,6 @@ version.workspace = true
 authors = ["Yury Delendik <ydelendik@mozilla.com>"]
 license.workspace = true
 repository = "https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasmparser"
-homepage = "https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasmparser"
 keywords = ["parser", "WebAssembly", "wasm"]
 description = """
 A simple event-driven library for parsing WebAssembly binary files.
@@ -87,3 +86,7 @@ component-model = ['dep:semver']
 # proposals for WebAssembly. This is enabled by default but if your use case is
 # only interested in working on non-SIMD code then this feature can be disabled.
 simd = []
+
+# A feature that allows validating an operator atomically, leaving the validator
+# unchanged if the operator is invalid.
+try-op = []

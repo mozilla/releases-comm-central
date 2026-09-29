@@ -1,7 +1,8 @@
 #![cfg(feature = "wasmparser")]
 
 use arbitrary::Unstructured;
-use rand::{RngCore, SeedableRng, rngs::SmallRng};
+use rand::{Rng, SeedableRng, rngs::SmallRng};
+use wasm_encoder::{ImportCompact, ImportSection, Imports, MemoryType};
 use wasm_smith::{Config, Module};
 use wasmparser::{Parser, Validator, WasmFeatures, types::EntityType};
 
@@ -12,6 +13,98 @@ use common::validate;
 struct WasmExport(String, EntityType);
 #[derive(Debug, PartialEq)]
 struct WasmImport(String, String, EntityType);
+
+fn compact_module_shape() -> Vec<u8> {
+    let compact1_memory = MemoryType {
+        minimum: 2,
+        maximum: None,
+        memory64: false,
+        shared: false,
+        page_size_log2: None,
+    };
+    let memory = MemoryType {
+        minimum: 1,
+        maximum: None,
+        memory64: false,
+        shared: false,
+        page_size_log2: None,
+    };
+    let mut imports = ImportSection::new();
+    imports.imports(Imports::Compact1 {
+        module: "compact1",
+        items: vec![ImportCompact {
+            name: "memory",
+            ty: compact1_memory.into(),
+        }]
+        .into(),
+    });
+    imports.imports(Imports::Compact1 {
+        module: "empty-compact1",
+        items: Vec::new().into(),
+    });
+    imports.imports(Imports::Compact2 {
+        module: "compact2",
+        ty: memory.into(),
+        names: vec!["memory1", "memory2"].into(),
+    });
+    imports.imports(Imports::Compact2 {
+        module: "empty-compact2",
+        ty: memory.into(),
+        names: Vec::new().into(),
+    });
+
+    let mut module = wasm_encoder::Module::new();
+    module.section(&imports);
+    module.finish()
+}
+
+fn import_group_sizes(wasm: &[u8]) -> Vec<(u8, usize)> {
+    for payload in Parser::new(0).parse_all(wasm) {
+        if let wasmparser::Payload::ImportSection(imports) = payload.unwrap() {
+            return imports
+                .into_iter()
+                .map(|imports| match imports.unwrap() {
+                    wasmparser::Imports::Single(_, _) => (0, 1),
+                    wasmparser::Imports::Compact1 { items, .. } => (1, items.count() as usize),
+                    wasmparser::Imports::Compact2 { names, .. } => (2, names.count() as usize),
+                })
+                .collect();
+        }
+    }
+    Vec::new()
+}
+
+#[test]
+fn module_shape_preserves_compact_import_groups_when_enabled() {
+    let module_shape = compact_module_shape();
+    let mut config = Config::default();
+    config.module_shape = Some(module_shape.clone());
+    config.compact_imports_enabled = true;
+    config.max_memories = 3;
+    let mut u = Unstructured::new(&[0; 512]);
+
+    let module = Module::new(config, &mut u).unwrap();
+    let generated = module.to_bytes();
+
+    assert_eq!(import_group_sizes(&generated), vec![(1, 1), (2, 2)]);
+    assert_eq!(
+        get_imports_exports(WasmFeatures::default(), &module_shape).0,
+        get_imports_exports(WasmFeatures::default(), &generated).0,
+    );
+}
+
+#[test]
+fn module_shape_flattens_compact_import_groups_when_disabled() {
+    let mut config = Config::default();
+    config.module_shape = Some(compact_module_shape());
+    config.compact_imports_enabled = false;
+    config.max_memories = 3;
+    let mut u = Unstructured::new(&[0; 512]);
+
+    let module = Module::new(config, &mut u).unwrap();
+
+    assert_eq!(import_group_sizes(&module.to_bytes()), vec![(0, 1); 3]);
+}
 
 #[test]
 fn smoke_test_module_shape_with_gc_types() {
@@ -43,6 +136,22 @@ fn smoke_test_module_shape_with_gc_types() {
         )
         "#;
     smoke_test_imports_exports(test, 42);
+}
+
+#[test]
+fn smoke_test_module_shape_with_non_null_gc_const_exprs() {
+    let test = r#"
+        (module
+            (type $s (struct (field i32)))
+            (type $a (array i64))
+            (table (export "ti31") 1 1 i31ref i32.const 0 ref.i31)
+            (table (export "ts") 1 1 (ref $s) struct.new_default $s)
+            (table (export "ta") 1 1 (ref $a) i32.const 0 array.new_default $a)
+        )
+        "#;
+    smoke_test_imports_exports_with(test, 44, |config, _| {
+        config.max_element_segments = 0;
+    });
 }
 
 #[test]
@@ -102,6 +211,14 @@ fn get_imports_exports(
 }
 
 fn smoke_test_imports_exports(module_shape_test_case: &str, seed: u64) {
+    smoke_test_imports_exports_with(module_shape_test_case, seed, |_, _| {});
+}
+
+fn smoke_test_imports_exports_with(
+    module_shape_test_case: &str,
+    seed: u64,
+    configure: impl Fn(&mut Config, &mut Unstructured<'_>),
+) {
     let mut rng = SmallRng::seed_from_u64(seed);
     let mut buf = vec![0; 512];
     let wasm = wat::parse_str(module_shape_test_case).unwrap();
@@ -115,6 +232,7 @@ fn smoke_test_imports_exports(module_shape_test_case: &str, seed: u64) {
         let mut config = Config::default();
         config.max_memories = u.int_in_range(2..=5).unwrap();
         config.module_shape = Some(wasm.clone());
+        configure(&mut config, &mut u);
 
         let features = config.features();
         let module = Module::new(config, &mut u).unwrap();
