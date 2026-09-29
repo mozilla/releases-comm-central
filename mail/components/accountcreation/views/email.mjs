@@ -819,7 +819,13 @@ class AccountHubEmail extends HTMLElement {
           newManualConfigPref &&
           this.#currentState == "emailConfigFoundSubview"
         ) {
-          this.#initManualConfig(this.#currentConfig.incoming.type, {
+          const incomingType = this.#currentConfig.incoming.type;
+          const manualConfigProtocol = ["exchange", "ews", "graph"].includes(
+            incomingType
+          )
+            ? "microsoft"
+            : incomingType;
+          this.#initManualConfig(manualConfigProtocol, {
             previousStep: "emailConfigFoundSubview",
           });
           break;
