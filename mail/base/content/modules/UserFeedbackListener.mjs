@@ -26,10 +26,10 @@ export const UserFeedbackListener = {
     return false;
   },
 
-  async onCertError(securityInfo, uri) {
+  async onCertError(securityInfo, uri, serverKey) {
     let server;
     try {
-      server = MailServices.accounts.findServerByURI(uri);
+      server = MailServices.accounts.getIncomingServer(serverKey);
     } catch (ex) {
       console.error(ex);
       return;

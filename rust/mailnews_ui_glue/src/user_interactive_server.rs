@@ -7,10 +7,10 @@ use std::ptr;
 use nserror::nsresult;
 use nsstring::{nsCString, nsString};
 use xpcom::interfaces::{
-    nsIIOService, nsIMsgIncomingServer, nsIMsgOutgoingServer, nsIURI, nsMsgAuthMethod,
-    nsMsgAuthMethodValue,
+    IExchangeIncomingServer, IExchangeOutgoingServer, nsIIOService, nsIMsgIncomingServer,
+    nsIMsgOutgoingServer, nsIURI, nsMsgAuthMethod, nsMsgAuthMethodValue,
 };
-use xpcom::{RefPtr, getter_addrefs};
+use xpcom::{RefPtr, XpCom, getter_addrefs};
 
 /// The outcome of a password prompt.
 pub enum PasswordPromptResult {
@@ -25,11 +25,17 @@ pub enum PasswordPromptResult {
 
 /// A server capable of prompting the user for a password.
 pub trait UserInteractiveServer {
+    /// Get the server key that can be used to look up the incoming server object.
+    fn server_key(&self) -> Result<String, nsresult>;
+
     /// Get the server's authentication method.
     fn auth_method(&self) -> Result<nsMsgAuthMethodValue, nsresult>;
 
-    /// Get the server's parsed URI.
-    fn uri(&self) -> Result<RefPtr<nsIURI>, nsresult>;
+    /// Get the parsed URI for the server's application-internal URI representation.
+    fn internal_uri(&self) -> Result<RefPtr<nsIURI>, nsresult>;
+
+    /// Get the parsed URI for the server's remote endpoint.
+    fn endpoint_uri(&self) -> Result<RefPtr<nsIURI>, nsresult>;
 
     /// Get the server's display name.
     fn display_name(&self) -> Result<String, nsresult>;
@@ -62,15 +68,38 @@ pub trait UserInteractiveServer {
 }
 
 impl UserInteractiveServer for nsIMsgIncomingServer {
+    fn server_key(&self) -> Result<String, nsresult> {
+        let mut value = nsCString::new();
+        unsafe { self.GetKey(&raw mut *value) }.to_result()?;
+        Ok(value.to_string())
+    }
+
     fn auth_method(&self) -> Result<nsMsgAuthMethodValue, nsresult> {
         let mut auth_method = nsMsgAuthMethod::none;
         unsafe { self.GetAuthMethod(&raw mut auth_method) }.to_result()?;
         Ok(auth_method)
     }
 
-    fn uri(&self) -> Result<RefPtr<nsIURI>, nsresult> {
+    fn internal_uri(&self) -> Result<RefPtr<nsIURI>, nsresult> {
         let mut uri = nsCString::new();
+
         unsafe { self.GetServerURI(&raw mut *uri) }.to_result()?;
+
+        let io_service = xpcom::get_service::<nsIIOService>(c"@mozilla.org/network/io-service;1")
+            .ok_or(nserror::NS_ERROR_FAILURE)?;
+
+        getter_addrefs(|p| unsafe {
+            io_service.NewURI(&raw const *uri, ptr::null(), ptr::null(), p)
+        })
+    }
+
+    fn endpoint_uri(&self) -> Result<RefPtr<nsIURI>, nsresult> {
+        let mut uri = nsCString::new();
+
+        let exchange_server = self
+            .query_interface::<IExchangeIncomingServer>()
+            .ok_or(nserror::NS_ERROR_UNEXPECTED)?;
+        unsafe { exchange_server.GetExchangeUrl(&raw mut *uri) }.to_result()?;
 
         let io_service = xpcom::get_service::<nsIIOService>(c"@mozilla.org/network/io-service;1")
             .ok_or(nserror::NS_ERROR_FAILURE)?;
@@ -144,14 +173,24 @@ impl UserInteractiveServer for nsIMsgIncomingServer {
 }
 
 impl UserInteractiveServer for nsIMsgOutgoingServer {
+    fn server_key(&self) -> Result<String, nsresult> {
+        let mut value = nsCString::new();
+        unsafe { self.GetKey(&raw mut *value) }.to_result()?;
+        Ok(value.to_string())
+    }
+
     fn auth_method(&self) -> Result<nsMsgAuthMethodValue, nsresult> {
         let mut auth_method = nsMsgAuthMethod::none;
         unsafe { self.GetAuthMethod(&raw mut auth_method) }.to_result()?;
         Ok(auth_method)
     }
 
-    fn uri(&self) -> Result<RefPtr<nsIURI>, nsresult> {
+    fn internal_uri(&self) -> Result<RefPtr<nsIURI>, nsresult> {
         getter_addrefs(|p| unsafe { self.GetServerURI(p) })
+    }
+
+    fn endpoint_uri(&self) -> Result<RefPtr<nsIURI>, nsresult> {
+        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
     }
 
     fn display_name(&self) -> Result<String, nsresult> {

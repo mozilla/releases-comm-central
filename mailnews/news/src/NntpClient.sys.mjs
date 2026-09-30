@@ -367,7 +367,11 @@ export class NntpClient {
           nssErrorsService.getErrorClass(event.errorCode) ==
           Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT
         ) {
-          MailServices.mailSession.alertCertError(secInfo, this.runningUri);
+          MailServices.mailSession.alertCertError(
+            secInfo,
+            this.runningUri,
+            this._server.key
+          );
         }
       } catch (e) {
         // Not an NSS error.

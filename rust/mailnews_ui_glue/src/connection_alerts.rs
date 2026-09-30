@@ -5,6 +5,7 @@
 use thin_vec::thin_vec;
 
 use nserror::nsresult;
+use nsstring::nsCString;
 use std::ptr;
 use xpcom::interfaces::{nsIMsgIncomingServer, nsIObserverService};
 use xpcom::{RefCounted, RefPtr, components};
@@ -84,8 +85,8 @@ where
     let name = server.host_name()?;
     let message = get_formatted_string(&bundle, message_name, thin_vec![name])?;
 
-    let uri = server.uri()?;
-    register_alert(message, uri, behavior)
+    let key = nsCString::from(server.server_key()?);
+    register_alert(message, key, behavior)
 }
 
 pub fn report_connection_success<ServerT>(server: RefPtr<ServerT>) -> Result<(), nsresult>
@@ -93,7 +94,7 @@ where
     ServerT: UserInteractiveServer + RefCounted,
 {
     let obs_svc: RefPtr<nsIObserverService> = components::Observer::service()?;
-    let uri = server.uri()?;
+    let uri = server.internal_uri()?;
 
     // SAFETY: uri is a valid object, `aTopic` is constructed inline, and `someData` is optional
     unsafe {

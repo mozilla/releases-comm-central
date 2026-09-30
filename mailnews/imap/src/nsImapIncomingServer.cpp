@@ -1818,7 +1818,14 @@ nsresult nsImapIncomingServer::AlertUser(const nsAString& aString,
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  return mailSession->AlertUser(aString, aUrl, silent);
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  rv = aUrl->GetServer(getter_AddRefs(server));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsAutoCString serverKey;
+  rv = server->GetKey(serverKey);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return mailSession->AlertUser(aString, serverKey, silent);
 }
 
 NS_IMETHODIMP
@@ -1931,7 +1938,7 @@ NS_IMETHODIMP nsImapIncomingServer::FEAlertCertError(
     nsITransportSecurityInfo* securityInfo, nsIMsgMailNewsUrl* url) {
   nsCOMPtr<nsIMsgMailSession> mailSession =
       mozilla::components::MailSession::Service();
-  mailSession->AlertCertError(securityInfo, url);
+  mailSession->AlertCertError(securityInfo, url, m_serverKey);
   return NS_OK;
 }
 

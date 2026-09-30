@@ -55,8 +55,8 @@ export var alertHook = {
 
   // nsIMsgUserFeedbackListener
 
-  onAlert(message, url, silent) {
-    const cookie = `${url.hostPort} alert`;
+  onAlert(message, serverKey, silent) {
+    const cookie = `${serverKey} alert`;
     if (activeAlerts.has(cookie)) {
       return true;
     }
@@ -73,7 +73,7 @@ export var alertHook = {
 
     warning.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_STANDALONE;
     try {
-      const server = MailServices.accounts.findServerByURI(url);
+      const server = MailServices.accounts.getIncomingServer(serverKey);
 
       warning.contextDisplayText = server.prettyName;
       warning.contextObj = server;
@@ -124,8 +124,8 @@ export var alertHook = {
     return true;
   },
 
-  async onCertError(securityInfo, uri) {
-    const cookie = `${uri.hostPort} certError`;
+  async onCertError(securityInfo, uri, serverKey) {
+    const cookie = `${serverKey} certError`;
     if (activeAlerts.has(cookie)) {
       return;
     }
@@ -200,26 +200,20 @@ export var alertHook = {
         if (!params.exceptionAdded) {
           return;
         }
-        let server, protocol, port;
+        let server;
         try {
-          // If it's an incoming server reporting the error, record the
-          // protocol and port of the server...
-          server = MailServices.accounts.findServerByURI(uri);
-          protocol = server.type;
-          port = server.port;
+          server = MailServices.accounts.getIncomingServer(serverKey);
         } catch (ex) {
-          // ... otherwise use the protocol and port of the URI itself.
-          // (If we start using this for outgoing servers we'll need to deal
-          // with them separately.)
-          protocol = uri.scheme;
-          port = uri.port;
-          if (port == -1) {
-            port = Services.io.getDefaultPort(uri.scheme);
-          }
+          console.error(ex);
+          return;
+        }
+        let port = uri.port;
+        if (port == -1) {
+          port = Services.io.getDefaultPort(uri.scheme);
         }
         Glean.mail.certificateExceptionAdded.record({
           error_category: securityInfo.errorCodeString,
-          protocol,
+          protocol: server.type,
           port,
           ui: "certificate-error-notification",
         });

@@ -267,7 +267,14 @@ void nsMsgProtocol::ShowAlertMessage(nsIMsgMailNewsUrl* aMsgUrl,
     NS_ENSURE_SUCCESS_VOID(rv);
   }
 
-  mailSession->AlertUser(errorMsg, aMsgUrl, silent);
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  rv = aMsgUrl->GetServer(getter_AddRefs(server));
+  NS_ENSURE_SUCCESS_VOID(rv);
+  nsAutoCString serverKey;
+  rv = server->GetKey(serverKey);
+  NS_ENSURE_SUCCESS_VOID(rv);
+
+  mailSession->AlertUser(errorMsg, serverKey, silent);
 }
 
 // stop binding is a "notification" informing us that the stream associated with

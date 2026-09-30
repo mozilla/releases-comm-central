@@ -7,7 +7,7 @@ use std::ptr;
 use thin_vec::thin_vec;
 
 use nserror::nsresult;
-use nsstring::nsString;
+use nsstring::{nsCString, nsString};
 use xpcom::interfaces::{nsIMsgIncomingServer, nsIPrompt, nsIPromptService, nsMsgAuthMethod};
 use xpcom::{RefCounted, RefPtr, get_service};
 
@@ -114,10 +114,10 @@ where
     ServerT: UserInteractiveServer + RefCounted,
 {
     let host_name = server.host_name()?;
-    let uri = server.uri()?;
+    let key = nsCString::from(server.server_key()?);
     let bundle = get_string_bundle(IMAP_MSG_STRING_BUNDLE)?;
     let message = get_formatted_string(&bundle, c"imapOAuth2Error", thin_vec![host_name])?;
-    register_alert(message, uri, behavior)?;
+    register_alert(message, key, behavior)?;
     Ok(AuthErrorOutcome::ABORT)
 }
 

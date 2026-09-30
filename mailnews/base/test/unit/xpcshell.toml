@@ -142,7 +142,6 @@ tags = ["compact"]
 ["test_nsMsgDBView_headerValues.js"]
 
 ["test_nsMsgMailSession_Alerts.js"]
-disabled = "See bug 1418063."
 
 ["test_nsMsgMailSession_Listeners.js"]
 

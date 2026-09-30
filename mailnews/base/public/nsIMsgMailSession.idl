@@ -60,27 +60,28 @@ interface nsIMsgMailSession : nsISupports {
    * or the listeners do not handle the alert, then this function will present
    * the user with a modal dialog if `aSilent` isn't true.
    *
-   * @param aMessage    The localized message string to alert.
-   * @param aUri        The URI relevant to the operation which caused the alert
-   *                    to be generated.
-   * @param aSilent     If true, this method will notify listener (so they can
-   *                    e.g. store the alert in the activity manager) but will
-   *                    not result in a visible alert to the user. This can be
-   *                    needed for background operations where we don't want to
-   *                    notify the user in the same way as "normal" operations.
+   * @param message - The localized message string to alert.
+   * @param serverKey - The key of the server to with this error.
+   * @param silent - If true, this method will notify listeners (so they can
+   *   e.g. store the alert in the activity manager) but will not result in a
+   *   visible alert to the user. This can be needed for background operations
+   *   where we don't want to notify the user in the same way as "normal"
+   *   operations.
    */
-  void alertUser(in AString aMessage, in nsIURI aUri, in boolean aSilent);
+  void alertUser(in AString message, in ACString serverKey, in boolean silent);
 
   /**
    * Call to inform the listeners of a certificate error. The listener should
    * alert the user about the error and (if appropriate) allow the user to add
    * a certificate override.
    *
-   * @param securityInfo  The security information about the operation.
-   * @param uri           The URI relevant to the operation.
+   * @param securityInfo - The security information about the operation.
+   * @param uri - URI which is relevant to the operation.
+   * @param serverKey - The key of the server to with this error.
    */
   void alertCertError(in nsITransportSecurityInfo securityInfo,
-                      in nsIURI uri);
+                      in nsIURI uri,
+                      in ACString serverKey);
 
   readonly attribute nsIMsgWindow topmostMsgWindow;
   void AddMsgWindow(in nsIMsgWindow msgWindow);

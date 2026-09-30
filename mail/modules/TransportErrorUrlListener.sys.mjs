@@ -36,7 +36,11 @@ export class TransportErrorUrlListener {
         // All protocols except Exchange currently set the `failedSecInfo` field
         // in order to report this certificate error.
         if (secInfo) {
-          MailServices.mailSession.alertCertError(secInfo, mailNewsUrl);
+          MailServices.mailSession.alertCertError(
+            secInfo,
+            mailNewsUrl,
+            mailNewsUrl.server.key
+          );
         }
       }
     } catch (e) {

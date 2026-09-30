@@ -173,8 +173,8 @@ nsMsgMailSession::RemoveUserFeedbackListener(
 }
 
 NS_IMETHODIMP
-nsMsgMailSession::AlertUser(const nsAString& aMessage, nsIURI* aUri,
-                            bool aSilent) {
+nsMsgMailSession::AlertUser(const nsAString& message,
+                            const nsACString& serverKey, bool silent) {
   bool handledByListener = false;
   nsTObserverArray<nsCOMPtr<nsIMsgUserFeedbackListener>>::ForwardIterator iter(
       mFeedbackListeners);
@@ -183,7 +183,7 @@ nsMsgMailSession::AlertUser(const nsAString& aMessage, nsIURI* aUri,
   while (iter.HasMore()) {
     bool handled = false;
     listener = iter.GetNext();
-    listener->OnAlert(aMessage, aUri, aSilent, &handled);
+    listener->OnAlert(message, serverKey, silent, &handled);
 
     // If the alert was handled by at least one listener, we don't want to
     // notify the user any further.
@@ -194,7 +194,7 @@ nsMsgMailSession::AlertUser(const nsAString& aMessage, nsIURI* aUri,
   // the alert should be silent (e.g. it was a generated as a result of
   // background activity like autosync, biff, etc.), or if alerts are disabled
   // entirely, we also shouldn't notify.
-  if (handledByListener || aSilent ||
+  if (handledByListener || silent ||
       Preferences::GetBool("mail.suppressAlertsForTests")) {
     return NS_OK;
   }
@@ -204,20 +204,20 @@ nsMsgMailSession::AlertUser(const nsAString& aMessage, nsIURI* aUri,
       do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  dlgService->Alert(nullptr, nullptr, PromiseFlatString(aMessage).get());
+  dlgService->Alert(nullptr, nullptr, PromiseFlatString(message).get());
 
   return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMsgMailSession::AlertCertError(nsITransportSecurityInfo* securityInfo,
-                                 nsIURI* url) {
+                                 nsIURI* url, const nsACString& serverKey) {
   nsTObserverArray<nsCOMPtr<nsIMsgUserFeedbackListener>>::ForwardIterator iter(
       mFeedbackListeners);
   nsCOMPtr<nsIMsgUserFeedbackListener> listener;
   while (iter.HasMore()) {
     listener = iter.GetNext();
-    listener->OnCertError(securityInfo, url);
+    listener->OnCertError(securityInfo, url, serverKey);
   }
 
   return NS_OK;

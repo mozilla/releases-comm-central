@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use nserror::nsresult;
+use nsstring::nsCString;
 use xpcom::interfaces::{nsIMsgIncomingServer, nsIMsgMailSession, nsITransportSecurityInfo};
 use xpcom::{RefCounted, RefPtr, get_service};
 
@@ -46,12 +47,14 @@ pub fn handle_transport_sec_failure<ServerT>(
 where
     ServerT: UserInteractiveServer + RefCounted,
 {
-    let uri = server.uri()?;
-
     let mail_session =
         get_service::<nsIMsgMailSession>(c"@mozilla.org/messenger/services/session;1")
             .ok_or(nserror::NS_ERROR_UNEXPECTED)?;
 
+    let uri = server.endpoint_uri()?;
+    let key = nsCString::from(server.server_key()?);
+
     // SAFETY: sec_info and uri both point to valid objects
-    unsafe { mail_session.AlertCertError(sec_info.coerce(), uri.coerce()) }.to_result()
+    unsafe { mail_session.AlertCertError(sec_info.coerce(), uri.coerce(), &raw const *key) }
+        .to_result()
 }

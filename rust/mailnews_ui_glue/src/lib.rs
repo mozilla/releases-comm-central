@@ -5,9 +5,9 @@
 use std::ffi::CStr;
 
 use nserror::nsresult;
-use nsstring::nsString;
+use nsstring::{nsCString, nsString};
 use thin_vec::ThinVec;
-use xpcom::interfaces::{nsIMsgMailSession, nsIStringBundle, nsIStringBundleService, nsIURI};
+use xpcom::interfaces::{nsIMsgMailSession, nsIStringBundle, nsIStringBundleService};
 use xpcom::{RefPtr, get_service, getter_addrefs};
 
 mod authentication_alerts;
@@ -80,7 +80,7 @@ pub enum ErrorBehavior {
 /// the user or not.
 pub fn register_alert(
     message: String,
-    uri: RefPtr<nsIURI>,
+    key: nsCString,
     behavior: ErrorBehavior,
 ) -> Result<(), nsresult> {
     let mail_session =
@@ -93,7 +93,8 @@ pub fn register_alert(
     };
 
     let message = nsString::from(&message);
-    unsafe { mail_session.AlertUser(&raw const *message, &raw const *uri, silent) }.to_result()?;
+
+    unsafe { mail_session.AlertUser(&raw const *message, &raw const *key, silent) }.to_result()?;
 
     Ok(())
 }

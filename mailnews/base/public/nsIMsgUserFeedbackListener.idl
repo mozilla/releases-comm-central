@@ -17,18 +17,17 @@ interface nsIMsgUserFeedbackListener : nsISupports {
   /**
    * Called when an alert from a protocol level implementation is generated.
    *
-   * @param aMessage    The localized message string to alert.
-   * @param aUri        The URI relevant to the operation which caused the alert
-   *                    to be generated.
-   * @param aSilent     If true, this method will notify listeners (so they can
-   *                    e.g. store the alert in the activity manager) but will
-   *                    not result in a visible alert to the user. This can be
-   *                    needed for background operations where we don't want to
-   *                    notify the user in the same way as "normal" operations.
-   * @return            True if the alert was serviced and it does not need
-   *                    to be prompted to the user separately.
+   * @param message - The localized message string to alert.
+   * @param serverKey - The key of the server to with this error.
+   * @param silent - If true, this method will notify listeners (so they can
+   *   e.g. store the alert in the activity manager) but will not result in a
+   *   visible alert to the user. This can be needed for background operations
+   *   where we don't want to notify the user in the same way as "normal"
+   *   operations.
+   * @returns True if the alert was serviced and it does not need to be
+   *   prompted to the user separately.
    */
-  boolean onAlert(in AString aMessage, in nsIURI aUri, in boolean aSilent);
+  boolean onAlert(in AString message, in ACString serverKey, in boolean silent);
 
   /**
    * Call to inform the listeners of a certificate error. The listener should
@@ -37,7 +36,9 @@ interface nsIMsgUserFeedbackListener : nsISupports {
    *
    * @param securityInfo - The security information about the operation.
    * @param uri - URI which is relevant to the operation.
+   * @param serverKey - The key of the server to with this error.
    */
   void onCertError(in nsITransportSecurityInfo securityInfo,
-                   in nsIURI url);
+                   in nsIURI url,
+                   in ACString serverKey);
 };
