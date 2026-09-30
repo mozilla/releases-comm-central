@@ -186,6 +186,36 @@ var messages = [
     ],
     allMenuStates: { open: false, save: false, detach: false, delete_: false },
   },
+  {
+    name: "attachments_with_unsafe_names",
+    attachments: [
+      { body: textAttachment, filename: "../ubik.txt", format: "" },
+      { body: textAttachment, filename: "sub/ubik2.txt", format: "" },
+      { body: textAttachment, filename: "..", format: "" },
+    ],
+    menuStates: [
+      { open: true, save: true, detach: true, delete_: true },
+      { open: true, save: true, detach: true, delete_: true },
+      { open: true, save: true, detach: true, delete_: true },
+    ],
+    allMenuStates: { open: true, save: true, detach: true, delete_: true },
+  },
+  {
+    name: "attachments_with_colliding_names",
+    attachments: [
+      { body: "first", filename: "ubik.txt", format: "" },
+      { body: "second", filename: "ubik.txt", format: "" },
+      { body: "third", filename: "UBIK.txt", format: "" },
+      { body: "fourth", filename: "ubik(1).txt", format: "" },
+    ],
+    menuStates: [
+      { open: true, save: true, detach: true, delete_: true },
+      { open: true, save: true, detach: true, delete_: true },
+      { open: true, save: true, detach: true, delete_: true },
+      { open: true, save: true, detach: true, delete_: true },
+    ],
+    allMenuStates: { open: true, save: true, detach: true, delete_: true },
+  },
 ];
 
 add_setup(async function () {
@@ -736,6 +766,163 @@ add_task(async function test_all_commands_with_deleted_attachment() {
   await confirmed;
 
   MockFilePicker.cleanup();
+});
+
+/**
+ * Tests that "Save All" saves attachments with names that aren't valid file
+ * names inside the chosen directory, under sanitized names.
+ */
+add_task(async function test_save_all_unsafe_names() {
+  await select_message_with_attachments("attachments_with_unsafe_names");
+
+  const parentDir = Services.dirsvc.get("TmpD", Ci.nsIFile);
+  parentDir.append("save-all-unsafe");
+  if (parentDir.exists()) {
+    parentDir.remove(true);
+  }
+  const saveDir = parentDir.clone();
+  saveDir.append("chosen");
+  saveDir.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+  registerCleanupFunction(() => parentDir.remove(true));
+
+  MockFilePicker.init();
+  MockFilePicker.returnValue = MockFilePicker.returnOK;
+  MockFilePicker.useDirectory(saveDir.path);
+  const saved = BrowserTestUtils.waitForEvent(window, "attachmentsSaved");
+  EventUtils.synthesizeMouseAtCenter(
+    aboutMessage.document.getElementById("attachmentSaveAllMultiple"),
+    {},
+    aboutMessage
+  );
+  await saved;
+  MockFilePicker.cleanup();
+
+  Assert.deepEqual(
+    (await IOUtils.getChildren(parentDir.path)).map(p => PathUtils.filename(p)),
+    ["chosen"],
+    "Nothing should have been saved outside the chosen directory"
+  );
+  Assert.deepEqual(
+    (await IOUtils.getChildren(saveDir.path))
+      .map(p => PathUtils.filename(p))
+      .sort(),
+    ["_ubik.txt", "attachment", "sub_ubik2.txt"],
+    "All attachments should have been saved under sanitized names"
+  );
+});
+
+/**
+ * Tests that "Save All" saves attachments with colliding names to separate,
+ * numbered files.
+ */
+add_task(async function test_save_all_colliding_names() {
+  await select_message_with_attachments("attachments_with_colliding_names");
+
+  const saveDir = Services.dirsvc.get("TmpD", Ci.nsIFile);
+  saveDir.append("save-all-colliding");
+  if (saveDir.exists()) {
+    saveDir.remove(true);
+  }
+  saveDir.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+  registerCleanupFunction(() => saveDir.remove(true));
+
+  MockFilePicker.init();
+  MockFilePicker.returnValue = MockFilePicker.returnOK;
+  MockFilePicker.useDirectory(saveDir.path);
+  const saved = BrowserTestUtils.waitForEvent(window, "attachmentsSaved");
+  EventUtils.synthesizeMouseAtCenter(
+    aboutMessage.document.getElementById("attachmentSaveAllMultiple"),
+    {},
+    aboutMessage
+  );
+  await saved;
+  MockFilePicker.cleanup();
+
+  Assert.equal(
+    await IOUtils.readUTF8(PathUtils.join(saveDir.path, "ubik.txt")),
+    "first",
+    "The first attachment should keep its name"
+  );
+  Assert.equal(
+    await IOUtils.readUTF8(PathUtils.join(saveDir.path, "ubik(2).txt")),
+    "second",
+    "The second attachment should have been saved under a numbered name"
+  );
+  Assert.equal(
+    await IOUtils.readUTF8(PathUtils.join(saveDir.path, "UBIK(3).txt")),
+    "third",
+    "The third attachment should have been saved under a numbered name"
+  );
+  Assert.equal(
+    await IOUtils.readUTF8(PathUtils.join(saveDir.path, "ubik(1).txt")),
+    "fourth",
+    "An attachment whose name doesn't collide should keep its name"
+  );
+});
+
+/**
+ * Tests that "Detach All" leaves an existing file alone if the user declines
+ * replacing it.
+ */
+add_task(async function test_detach_all_decline_replace() {
+  const detachFolder = await create_folder("AttachmentMenusDetach");
+  registerCleanupFunction(() => detachFolder.deleteSelf(null));
+  await add_message_to_folder(
+    [detachFolder],
+    create_message({
+      attachments: [
+        { body: "first", filename: "ubik.txt", format: "" },
+        { body: "second", filename: "other.txt", format: "" },
+      ],
+    })
+  );
+  await be_in_folder(detachFolder);
+  aboutMessage = get_about_message();
+  await select_click_row(0);
+  aboutMessage.toggleAttachmentList(true);
+  for (const attachment of aboutMessage.currentAttachments) {
+    await attachment.isEmpty();
+  }
+
+  const detachDir = Services.dirsvc.get("TmpD", Ci.nsIFile);
+  detachDir.append("detach-all-decline");
+  if (detachDir.exists()) {
+    detachDir.remove(true);
+  }
+  detachDir.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+  registerCleanupFunction(() => detachDir.remove(true));
+  const existingPath = PathUtils.join(detachDir.path, "ubik.txt");
+  await IOUtils.writeUTF8(existingPath, "existing");
+
+  MockFilePicker.init();
+  MockFilePicker.returnValue = MockFilePicker.returnOK;
+  MockFilePicker.useDirectory(detachDir.path);
+  const replacePrompt = BrowserTestUtils.promiseAlertDialogOpen("cancel");
+  aboutMessage.goDoCommand("cmd_detachAllAttachments");
+  await replacePrompt;
+  await BrowserTestUtils.promiseAlertDialogOpen("accept");
+  MockFilePicker.cleanup();
+
+  const detachedPath = PathUtils.join(detachDir.path, "other.txt");
+  await TestUtils.waitForCondition(
+    () =>
+      [existingPath, detachedPath].every(path =>
+        aboutMessage.currentAttachments?.some(
+          a => a.url == PathUtils.toFileURI(path)
+        )
+      ),
+    "the detached attachments should link to their files"
+  );
+  Assert.equal(
+    await IOUtils.readUTF8(existingPath),
+    "existing",
+    "The existing file should not have been replaced"
+  );
+  Assert.equal(
+    await IOUtils.readUTF8(detachedPath),
+    "second",
+    "The other attachment should have been saved"
+  );
 });
 
 /**

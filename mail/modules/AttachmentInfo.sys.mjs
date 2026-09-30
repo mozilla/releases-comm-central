@@ -113,6 +113,49 @@ export class AttachmentInfo {
   }
 
   /**
+   * A filename, based on the attachment name, that is safe to use as a single
+   * path component.
+   *
+   * @type {string}
+   */
+  get #filename() {
+    return lazy.DownloadPaths.sanitize(this.name) || "attachment";
+  }
+
+  /**
+   * Get a filename for each attachment, numbering names that would otherwise
+   * collide, so that no two attachments are saved to the same file.
+   *
+   * @param {AttachmentInfo[]} attachments - The attachments to name.
+   * @returns {Map<string,string>} map of attachment URL to filename.
+   */
+  static #uniqueFilenames(attachments) {
+    const filenames = new Map();
+    const reservedNames = new Set(
+      attachments.map(a => a.#filename.toLowerCase())
+    );
+    const usedNames = new Set();
+    for (const attachment of attachments) {
+      let filename = attachment.#filename;
+      if (usedNames.has(filename.toLowerCase())) {
+        const [base, ext] =
+          lazy.DownloadPaths.splitBaseNameAndExtension(filename);
+        for (
+          let i = 1;
+          reservedNames.has(filename.toLowerCase()) ||
+          usedNames.has(filename.toLowerCase());
+          i++
+        ) {
+          filename = `${base}(${i})${ext}`;
+        }
+      }
+      usedNames.add(filename.toLowerCase());
+      filenames.set(attachment.url, filename);
+    }
+    return filenames;
+  }
+
+  /**
    * Save this attachment to a file.
    *
    * @param {BrowsingContext} browsingContext - The browsing context to use.
@@ -219,13 +262,15 @@ export class AttachmentInfo {
 
     Services.prefs.setComplexValue("messenger.save.dir", Ci.nsIFile, fp.file);
 
+    const filenames = AttachmentInfo.#uniqueFilenames(attachments);
     try {
       for (const attachment of attachments) {
-        const path = PathUtils.join(fp.file.path, attachment.name);
+        const filename = filenames.get(attachment.url);
+        const path = PathUtils.join(fp.file.path, filename);
         if (await IOUtils.exists(path)) {
           const message = await lazy.l10n.formatValue(
             "attachment-file-exists",
-            { filename: attachment.name }
+            { filename }
           );
           if (!Services.prompt.confirm(browsingContext.window, null, message)) {
             // Skip if the user choose not to replace the existing.
@@ -722,14 +767,18 @@ export class AttachmentInfo {
         return;
       }
     }
+    const filenames = AttachmentInfo.#uniqueFilenames(attachments);
     const attachmentsMap = new Map(
-      attachments.map(a => [a.url, PathUtils.join(detachDir, a.name)])
+      attachments.map(a => [
+        a.url,
+        PathUtils.join(detachDir, filenames.get(a.url)),
+      ])
     );
-    for (const attachment of attachments) {
-      await attachment.saveToFile(attachmentsMap.get(attachment.url));
-    }
-
-    if (!silent) {
+    if (silent) {
+      for (const attachment of attachments) {
+        await attachment.saveToFile(attachmentsMap.get(attachment.url));
+      }
+    } else {
       // Non-silent mode. Confirm before delete.
       const message = await lazy.l10n.formatValue("attachment-detach-confirm", {
         attachments: attachments.map(a => a.name).join("\n"),
