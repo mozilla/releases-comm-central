@@ -818,9 +818,6 @@ class MailRecipientsArea extends MozXULElement {
     labelContainer.setAttribute("align", "top");
     labelContainer.setAttribute("pack", "end");
     labelContainer.classList.add("address-label-container");
-    // Match the locale-specific width used by the existing addressing labels.
-    labelContainer.style.width =
-      document.getElementById("identityLabel-box").style.width;
 
     const label = document.createXULElement("label");
     label.setAttribute("id", recipient.labelId);

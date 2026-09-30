@@ -469,7 +469,16 @@
   grid-area: headers;
   display: grid;
   grid-template-rows: min-content minmax(0, min-content) min-content;
-  grid-template-columns: auto;
+  grid-template-columns: auto fit-content(11.5rem) minmax(0, 1fr);
+}
+
+#top-gradient-box,
+#recipientsContainer,
+.address-row,
+#subject-box {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
 }
 
 #FormatToolbox {
@@ -767,8 +776,26 @@ toolbarbutton.formatting-button {
   text-align: end;
 }
 
+#identityLabel-box,
+#subjectLabel-box,
+.address-label-container {
+  min-inline-size: 0;
+  max-inline-size: 11.5rem;
+
+  & > label {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
 #top-gradient-box.address-identity-recipient {
   overflow: hidden;
+}
+
+#identity-container {
+  min-inline-size: 0;
 }
 
 #msgIdentity {
@@ -949,14 +976,13 @@ toolbarbutton.formatting-button {
 }
 
 .recipients-container {
-  display: block;
+  align-content: start;
+  row-gap: 6px;
+  padding-block: 6px;
   overflow-y: auto;
 }
 
 .address-row {
-  display: flex;
-  flex: 1;
-  margin-block: 6px;
   margin-inline-end: 8px;
   align-items: self-start;
 
@@ -973,14 +999,6 @@ toolbarbutton.formatting-button {
 
   &:where(:hover, :focus, :focus-within) > .aw-firstColBox {
     opacity: 1;
-  }
-
-  & > .address-label-container {
-    flex: 0 0 auto;
-  }
-
-  & > .address-container {
-    flex: 1 1 auto;
   }
 }
 

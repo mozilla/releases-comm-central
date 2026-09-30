@@ -186,9 +186,6 @@
 <!ENTITY printButton.tooltip "Print this message">
 
 <!-- Headers -->
-<!--LOCALIZATION NOTE headersSpaces.style is for aligning  the From:, To: and
-    Subject: rows. It should be larger than the largest Header label  -->
-<!ENTITY headersSpace2.style "width: 8em;">
 <!ENTITY fromAddr2.label "From">
 <!ENTITY fromAddr.accesskey "r">
 <!ENTITY replyAddr2.label "Reply-To">
