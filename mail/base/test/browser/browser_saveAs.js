@@ -38,15 +38,21 @@ add_setup(async function () {
  *
  * @param {number} index - An integer between 0 and 9.
  * @param {string} extension
- * @returns {string} The saved file content.
+ * @param {string} [leafName] - The file name to pick in the file picker.
+ * @returns {{savedText: string, picker: nsIFilePicker}} The saved file
+ *   content, and the file picker used.
  */
-async function subtestSingle(index, extension) {
+async function subtestSingle(
+  index,
+  extension,
+  leafName = `saveAsFile.${extension}`
+) {
   about3Pane.threadTree.selectedIndex = index;
   await messageLoadedIn(about3Pane.messageBrowser);
 
   const targetPath = await IOUtils.createUniqueFile(
     PathUtils.tempDir,
-    `saveAsFile.${extension}`
+    leafName
   );
   await IOUtils.remove(targetPath);
   const targetFile = await IOUtils.getFile(targetPath);
@@ -89,11 +95,11 @@ async function subtestSingle(index, extension) {
 
   const savedText = await IOUtils.readUTF8(targetPath);
   await IOUtils.remove(targetPath);
-  return savedText;
+  return { savedText, picker };
 }
 
 add_task(async function testSingleEML() {
-  const savedText = await subtestSingle(0, "eml");
+  const { savedText } = await subtestSingle(0, "eml");
 
   // This is a local date, so the value varies by timezone.
   // It will always be at this date and time, as that's when MessageGenerator
@@ -121,7 +127,7 @@ add_task(async function testSingleEML() {
 });
 
 add_task(async function testSingleHTML() {
-  const savedText = await subtestSingle(4, "html");
+  const { savedText } = await subtestSingle(4, "html");
 
   Assert.equal(
     savedText.slice(0, 25),
@@ -146,7 +152,7 @@ add_task(async function testSingleHTML() {
 });
 
 add_task(async function testSingleTXT() {
-  const savedText = await subtestSingle(5, "txt");
+  const { savedText } = await subtestSingle(5, "txt");
   const end = AppConstants.platform == "win" ? "\r\n" : "\n";
 
   Assert.stringContains(
@@ -159,6 +165,107 @@ add_task(async function testSingleTXT() {
     `Subject: ${testMessages[5].subject}${end}`,
     "file content should include the subject"
   );
+});
+
+add_task(async function testLongFileName() {
+  const { savedText, picker } = await subtestSingle(
+    7,
+    "eml",
+    `${"x".repeat(96)}.eml`
+  );
+  Assert.equal(
+    picker.defaultString.length,
+    85,
+    "suggested file name should be shortened"
+  );
+  Assert.ok(
+    picker.defaultString.endsWith("... - 2000-02-01 0700.eml"),
+    "suggested file name should be shortened in the middle, keeping the date"
+  );
+  // subtestSingle waits for the picked path, so the long name was kept.
+  Assert.stringContains(
+    savedText,
+    `Subject: ${testMessages[7].subject}\r\n`,
+    "message should be saved to the picked file name"
+  );
+});
+
+add_task(async function testRetryKeepsChoices() {
+  about3Pane.threadTree.selectedIndex = 4;
+  await messageLoadedIn(about3Pane.messageBrowser);
+
+  // Saving fails if the parent is a file instead of a directory.
+  const notADirPath = await IOUtils.createUniqueFile(
+    PathUtils.tempDir,
+    "saveAsNotADir"
+  );
+  const badFile = await IOUtils.getFile(notADirPath);
+  badFile.append("saveAsRetry.html");
+
+  // Without an extension, the file type comes from the picked filter.
+  const goodPath = await IOUtils.createUniqueFile(
+    PathUtils.tempDir,
+    "saveAsRetry"
+  );
+  await IOUtils.remove(goodPath);
+  const goodFile = await IOUtils.getFile(goodPath);
+
+  const pickers = [];
+  SpecialPowers.MockFilePicker.init(window.browsingContext);
+  SpecialPowers.MockFilePicker.returnData = [{ nsIFile: badFile }];
+  SpecialPowers.MockFilePicker.showCallback = picker => {
+    pickers.push({
+      defaultString: picker.defaultString,
+      filterIndex: picker.filterIndex,
+    });
+    if (pickers.length == 1) {
+      // Pick the HTML filter.
+      picker.filterIndex = 1;
+    } else {
+      SpecialPowers.MockFilePicker.returnData = [{ nsIFile: goodFile }];
+    }
+    return Ci.nsIFilePicker.returnOk;
+  };
+  const alertPromise = BrowserTestUtils.promiseAlertDialog("accept");
+
+  const mailContext = about3Pane.document.getElementById("mailContext");
+  EventUtils.synthesizeMouseAtCenter(
+    about3Pane.threadTree.getRowAtIndex(4),
+    { type: "contextmenu" },
+    about3Pane
+  );
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
+  mailContext.activateItem(
+    about3Pane.document.getElementById("mailContext-saveAs")
+  );
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "hidden");
+
+  await alertPromise;
+  await TestUtils.waitForCondition(
+    async () =>
+      (await IOUtils.exists(goodPath)) && (await IOUtils.stat(goodPath)).size,
+    "waiting for the message to be saved to file"
+  );
+
+  Assert.equal(pickers.length, 2, "file picker should open again on failure");
+  Assert.equal(
+    pickers[1].defaultString,
+    "saveAsRetry.html",
+    "file picker should suggest the previously picked file name"
+  );
+  Assert.equal(
+    pickers[1].filterIndex,
+    1,
+    "file picker should keep the previously picked filter"
+  );
+  const savedText = await IOUtils.readUTF8(goodPath);
+  Assert.stringContains(
+    savedText,
+    `\r\n<title>${testMessages[4].subject}</title>\r\n`,
+    "message should be saved as HTML"
+  );
+  await IOUtils.remove(goodPath);
+  await IOUtils.remove(notADirPath);
 });
 
 add_task(async function testMultiple() {

@@ -13,6 +13,7 @@ var { MailServices } = ChromeUtils.importESModule(
 ChromeUtils.defineESModuleGetters(this, {
   FeedUtils: "resource:///modules/FeedUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  MessageSaver: "moz-src:///comm/mail/modules/MessageSaver.sys.mjs",
   MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
 });
@@ -470,7 +471,7 @@ function SaveAsFile(uris) {
       const fileName = decodeURIComponent(
         url.QueryInterface(Ci.nsIFileURL).fileName
       );
-      messenger.saveAs(uris[0], null, fileName);
+      MessageSaver.saveAs(window.browsingContext, uris[0], fileName);
       return;
     }
   }
@@ -493,9 +494,9 @@ function SaveAsFile(uris) {
   }
 
   if (uris.length == 1) {
-    messenger.saveAs(uris[0], null, filenames[0]);
+    MessageSaver.saveAs(window.browsingContext, uris[0], filenames[0]);
   } else {
-    messenger.saveMessages(filenames, uris);
+    MessageSaver.saveMessages(window.browsingContext, uris, filenames);
   }
 }
 

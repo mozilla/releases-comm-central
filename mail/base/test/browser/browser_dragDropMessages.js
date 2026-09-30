@@ -174,6 +174,29 @@ add_task(async function testDragMessageSource() {
         }\r\n`,
         "message written to file"
       );
+
+      const numberedPath = PathUtils.join(
+        tempFile.parent.path,
+        `${header.subject}-1.eml`
+      );
+      await IOUtils.remove(numberedPath, { ignoreAbsent: true });
+      const secondWritePromise = TestUtils.topicObserved("message-saved");
+      flavorDataProvider.getFlavorData(
+        transferable,
+        "application/x-moz-file-promise"
+      );
+      await secondWritePromise;
+      Assert.equal(
+        await IOUtils.readUTF8(tempFile.path),
+        fileContent,
+        "existing file should not be overwritten"
+      );
+      Assert.equal(
+        await IOUtils.readUTF8(numberedPath),
+        fileContent,
+        "message should be written to a numbered file"
+      );
+      await IOUtils.remove(numberedPath);
     }
 
     Assert.equal(

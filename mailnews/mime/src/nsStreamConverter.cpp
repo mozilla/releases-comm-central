@@ -277,7 +277,7 @@ nsresult nsStreamConverter::DetermineOutputFormat(nsIURI* uri,
         {"quotebody", "text/html", nsMimeOutput::nsMimeMessageBodyQuoting},
         // nsMsgQuote::QuoteMessage
         {"quote", "text/html", nsMimeOutput::nsMimeMessageQuoting},
-        // nsMessenger::SaveAs
+        // MessageSaver.saveAs via StreamMessage
         {"saveas", "text/html", nsMimeOutput::nsMimeMessageSaveAs},
         // AttachmentInfo.stripAttachments via StreamMessage
         {"attach", "raw", nsMimeOutput::nsMimeMessageAttach}};

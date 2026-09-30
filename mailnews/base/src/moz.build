@@ -107,10 +107,10 @@ UNIFIED_SOURCES += [
 ]
 
 if CONFIG["OS_ARCH"] == "WINNT":
-    UNIFIED_SOURCES += [
-        "nsMessengerWinIntegration.cpp",
-    ]
+    # Not unified, as nsMessengerWinIntegration.cpp includes windowsx.h, whose
+    # macros break DOM headers included by other files.
     SOURCES += [
+        "nsMessengerWinIntegration.cpp",
         "nsUserInfoWin.cpp",
     ]
 elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":

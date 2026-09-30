@@ -51,6 +51,7 @@ ChromeUtils.defineESModuleGetters(this, {
   MailNotificationManager:
     "resource:///modules/MailNotificationManager.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  MessageSaver: "moz-src:///comm/mail/modules/MessageSaver.sys.mjs",
   PeriodicFilterManager: "resource:///modules/PeriodicFilterManager.sys.mjs",
   SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
   SessionStoreManager: "resource:///modules/SessionStoreManager.sys.mjs",
@@ -916,17 +917,14 @@ messageFlavorDataProvider.prototype = {
     );
     destDir.value.QueryInterface(Ci.nsIFile);
 
-    const file = destDir.value.clone();
-    file.append(fileName.value.data);
-
     const messageURI = {};
     aTransferable.getTransferData("text/plain", messageURI);
     messageURI.value.QueryInterface(Ci.nsISupportsString);
 
-    const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-      Ci.nsIMessenger
-    );
-    messenger.saveAs(messageURI.value.data, null, file.path, true);
+    // Don't overwrite an existing file, use a numbered file name instead.
+    IOUtils.createUniqueFile(destDir.value.path, fileName.value.data)
+      .then(path => MessageSaver.saveToFile(messageURI.value.data, path))
+      .catch(console.error);
   },
 };
 

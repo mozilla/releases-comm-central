@@ -5,7 +5,6 @@
 #include "nsISupports.idl"
 #include "nsrootidl.idl"
 #include "nsIMsgWindow.idl"
-#include "nsIMsgIdentity.idl"
 
 interface mozIDOMWindowProxy;
 interface nsITransactionManager;
@@ -32,35 +31,6 @@ interface nsIMessenger : nsISupports {
     unsigned long getRedoTransactionType();
     void undo(in nsIMsgWindow msgWindow);
     void redo(in nsIMsgWindow msgWindow);
-
-    /**
-     * Saves a given message to a file.
-     *
-     * @param aURI         The URI of the message to save
-     * @param aIdentity    When saving as a template, this is used to determine
-     *                     the location to save the template to.
-     * @param aMsgFilename When saving as a file, the filename to save the
-     *                     message as, or the default filename for the file
-     *                     picker.
-     * @param aBypassFilePicker
-     *                     If not specified or false, this function will show
-     *                     a file picker when saving as a file. If true, no
-     *                     file picker will be shown.
-     */
-    void saveAs(in AUTF8String aURI,
-                in nsIMsgIdentity aIdentity,
-                in AString aMsgFilename,
-                [optional] in boolean aBypassFilePicker);
-
-    /**
-     * Save the given messages as files in a folder - the user will be prompted
-     * for which folder to use.
-     * @param count message count
-     * @param filenameArray the filenames to use
-     * @param messageUriArray uris of the messages to save
-     */
-    void saveMessages(in Array<AString> filenameArray,
-                      in Array<AUTF8String> messageUriArray);
 
     AString formatFileSize(in unsigned long long aPos, [optional] in boolean aUseKB);
 };

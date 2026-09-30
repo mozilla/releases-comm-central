@@ -40,14 +40,6 @@ class SaveAsListener : public nsIStreamListener {
   virtual ~SaveAsListener() = default;
 
  private:
-  /**
-   * Opens an `nsIOutputStream` for the output file. This also creates the file.
-   *
-   * If the file already exists, it's first removed to ensure its content is
-   * overwritten with the message's content.
-   */
-  nsresult SetupMsgOutputStream();
-
   // The parameters for saving the file.
   bool mUseCanonicalLineEnding;
 

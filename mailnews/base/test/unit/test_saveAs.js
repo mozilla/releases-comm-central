@@ -3,12 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Invokes nsMessenger::saveAs with the bypass of the File Picker to check if
- * the saved file as .eml .html or .txt contains certain strings (header, body, ...).
+ * Invokes MessageSaver.saveToFile to check if the saved file as .eml .html or
+ * .txt contains certain strings (header, body, ...).
  *
  * See `checkedContent` for the compared strings.
  */
 
+var { MessageSaver } = ChromeUtils.importESModule(
+  "moz-src:///comm/mail/modules/MessageSaver.sys.mjs"
+);
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
@@ -24,15 +27,10 @@ var { ImapMessage } = ChromeUtils.importESModule(
 var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/IMAPpump.sys.mjs"
 );
-var { TestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/TestUtils.sys.mjs"
-);
 
 var { FileTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/FileTestUtils.sys.mjs"
 );
-
-var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 setupIMAPPump();
 
@@ -95,14 +93,9 @@ async function saveAndLoad(fileEnding) {
   const hdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   const uri = IMAPPump.inbox.getUriForMsg(hdr);
 
-  // nsMessenger::saveAs
-  messenger.saveAs(uri, null, tmpFile.path, true);
+  await MessageSaver.saveToFile(uri, tmpFile.path);
   info(`File saved at ${tmpFile.path}`);
 
-  await TestUtils.waitForCondition(
-    () => IOUtils.exists(tmpFile.path),
-    "wait for nsMessenger::saveAs file exists"
-  );
   const fileContent = await IOUtils.readUTF8(tmpFile.path);
   return fileContent;
 }

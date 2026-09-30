@@ -61,6 +61,9 @@ var { click_menus_in_sequence } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+var { MessageSaver } = ChromeUtils.importESModule(
+  "moz-src:///comm/mail/modules/MessageSaver.sys.mjs"
+);
 
 var folder = null;
 var gMsgNo = -1; // msg index in folder
@@ -445,18 +448,12 @@ async function checkEMLMessageWindow(test, emlFile) {
  */
 async function saveAsEMLFile(msgNo) {
   const msgHdr = await select_click_row(msgNo, AccessibilityUtils);
-  const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
+  const path = PathUtils.join(
+    PathUtils.profileDir,
+    `content-policy-test-${msgNo}.eml`
   );
-  const profD = Services.dirsvc.get("ProfD", Ci.nsIFile);
-  var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-  file.initWithFile(profD);
-  file.append("content-policy-test-" + msgNo + ".eml");
-  messenger.saveAs(msgHdr.folder.getUriForMsg(msgHdr), null, file.path, true);
-  // no listener for saveAs, though we should add one.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 5000));
-  return file;
+  await MessageSaver.saveToFile(msgHdr.folder.getUriForMsg(msgHdr), path);
+  return IOUtils.getFile(path);
 }
 
 /**

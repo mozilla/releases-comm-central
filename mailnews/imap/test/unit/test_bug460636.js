@@ -7,6 +7,7 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
 );
 
 var gSavedMsgFile;
+var gReservedPermissions;
 
 var gIMAPService = Cc[
   "@mozilla.org/messenger/messageservice;1?type=imap"
@@ -44,6 +45,13 @@ async function setup() {
   gSavedMsgFile = Services.dirsvc.get("IMapMD", Ci.nsIFile);
   gSavedMsgFile.append(gFileName + ".eml");
 
+  // The front end reserves the file name before saving by creating the file.
+  // The save has to write into that file in place, keeping both the
+  // reservation and its permissions, rather than replacing it.
+  await IOUtils.writeUTF8(gSavedMsgFile.path, "reserved by the caller\n");
+  await IOUtils.setPermissions(gSavedMsgFile.path, 0o640);
+  gReservedPermissions = (await IOUtils.stat(gSavedMsgFile.path)).permissions;
+
   const msg = [...IMAPPump.inbox.messages][0];
 
   const promiseUrlListener2 = new PromiseTestUtils.PromiseUrlListener();
@@ -62,6 +70,14 @@ async function checkSavedMessage() {
     await IOUtils.readUTF8(gMsgFile.path),
     await IOUtils.readUTF8(gSavedMsgFile.path)
   );
+  // Windows does not have POSIX permissions.
+  if (Services.appinfo.OS != "WINNT") {
+    Assert.equal(
+      (await IOUtils.stat(gSavedMsgFile.path)).permissions,
+      gReservedPermissions,
+      "permissions of the reserved file should be kept"
+    );
+  }
 }
 
 function teardown() {

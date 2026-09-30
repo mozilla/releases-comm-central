@@ -62,6 +62,7 @@ ChromeUtils.defineESModuleGetters(this, {
   Gloda: "resource:///modules/gloda/GlodaPublic.sys.mjs",
   MailE10SUtils: "resource:///modules/MailE10SUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  MessageSaver: "moz-src:///comm/mail/modules/MessageSaver.sys.mjs",
   SmartMailboxUtils: "resource:///modules/SmartMailboxUtils.sys.mjs",
   TagUtils: "resource:///modules/TagUtils.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
@@ -5128,14 +5129,14 @@ var threadPane = {
       );
       destDir.value.QueryInterface(Ci.nsIFile);
 
-      const file = destDir.value.clone();
-      file.append(fileName.value.data);
-
       const messageURI = {};
       transferable.getTransferData("text/plain", messageURI);
       messageURI.value.QueryInterface(Ci.nsISupportsString);
 
-      top.messenger.saveAs(messageURI.value.data, null, file.path, true);
+      // Don't overwrite an existing file, use a numbered file name instead.
+      IOUtils.createUniqueFile(destDir.value.path, fileName.value.data)
+        .then(path => MessageSaver.saveToFile(messageURI.value.data, path))
+        .catch(console.error);
     },
   },
 

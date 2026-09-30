@@ -5,6 +5,7 @@
 MOZ_SRC_FILES += [
     "AccountColorUtils.sys.mjs",
     "AccountManagerUtils.sys.mjs",
+    "MessageSaver.sys.mjs",
     "QRExport.sys.mjs",
 ]
 

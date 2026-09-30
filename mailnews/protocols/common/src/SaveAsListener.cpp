@@ -43,7 +43,11 @@ NS_IMETHODIMP SaveAsListener::OnDataAvailable(nsIRequest* request,
   rv = inStream->Available(&available);
   if (!mWrittenData) {
     mWrittenData = true;
-    rv = SetupMsgOutputStream();
+    // Write into the file in place rather than replacing it, so that a file
+    // created beforehand to reserve the name stays reserved, with its
+    // permissions. The stream truncates any existing content.
+    rv = MsgNewBufferedFileOutputStream(getter_AddRefs(mOutputStream),
+                                        mOutputFile, -1, 0644);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
@@ -110,19 +114,4 @@ NS_IMETHODIMP SaveAsListener::OnDataAvailable(nsIRequest* request,
   }
 
   return rv;
-}
-
-nsresult SaveAsListener::SetupMsgOutputStream() {
-  // If the file already exists, delete it, but do this before getting the
-  // outputstream.
-  // Due to bug 328027, the `nsSaveMsgListener` created in `nsMessenger::SaveAs`
-  // now opens the stream on the nsIFile object, thus creating an empty file.
-  // Actual save operations for IMAP, EWS and NNTP use this `SaveAsListener`
-  // here, though, so we have to close the stream before deleting the file, else
-  // data would still be written happily into a now non-existing file. (Windows
-  // doesn't care, btw, just unixoids do...)
-  mOutputFile->Remove(false);
-
-  return MsgNewBufferedFileOutputStream(getter_AddRefs(mOutputStream),
-                                        mOutputFile, -1, 0666);
 }
