@@ -486,7 +486,7 @@ nsCString DecodeFilename(nsAString const& filename);
  * "<foo bar>" => ???
  * etc...
  */
-nsTArray<nsCString> ParseIdentificationFields(nsACString const& m);
+nsTArray<nsCString> ParseIdentificationFields(nsACString const& header);
 
 /**
  * Helper for formatting text with intl::Localization.

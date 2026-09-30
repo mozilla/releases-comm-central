@@ -1591,7 +1591,7 @@ nsCString DecodeFilename(nsAString const& filename) {
   return out;
 }
 
-nsTArray<nsCString> ParseIdentificationFields(nsACString const& m) {
+nsTArray<nsCString> ParseIdentificationFields(nsACString const& header) {
   nsTArray<nsCString> out;
   // TODO: implement a proper parser?
   // This adhoc mess should be fine for most cases, but we're not exactly
@@ -1599,10 +1599,12 @@ nsTArray<nsCString> ParseIdentificationFields(nsACString const& m) {
   // Noting that we also have to account for real-world messiness.
   // See also nsMsgHdr::GetNextReference().
 
-  for (auto part : m.Split(' ')) {
+  nsAutoCString h(header);
+  h.ReplaceChar("\r\n\t", ' ');
+  for (auto part : h.Split(' ')) {
     nsAutoCString s(part);
 
-    s.Trim(" \t");  // Trim WSP.
+    s.Trim(" ");  // Trim WSP.
 
     // Strip (optional) angle brackets.
     size_t len = s.Length();
