@@ -1,0 +1,71 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/folderColors.css");
+
+#feedSubscriptions {
+  min-inline-size: 60em;
+  min-block-size: 40em;
+}
+
+#rssSubscriptionsList {
+  & treechildren::-moz-tree-image {
+    inline-size: 16px;
+    block-size: 16px;
+    margin-inline-end: 2px;
+    -moz-context-properties: fill, fill-opacity, stroke;
+    fill: color-mix(in srgb, var(--default) 20%, transparent);
+    stroke: var(--default);
+  }
+
+  & treechildren::-moz-tree-image(selected, focus) {
+    fill: color-mix(in srgb, var(--select-focus-text-color) 20%, transparent) !important;
+    stroke: var(--select-focus-text-color) !important;
+  }
+
+  & treechildren::-moz-tree-image(isServer-true) {
+    list-style-image: var(--folder-pane-rss);
+    fill: color-mix(in srgb, var(--color-primary-default) 20%, transparent);
+    stroke: var(--color-primary-default);
+  }
+
+  & treechildren::-moz-tree-cell-text(isServer-true) {
+    font-weight: bold;
+  }
+
+  & treechildren::-moz-tree-image(isFeedFolder-true) {
+    list-style-image: var(--folder-pane-folder-rss);
+    fill: color-mix(in srgb, var(--folder-color-folder-rss) 20%, transparent);
+    stroke: var(--folder-color-folder-rss);
+  }
+
+  & treechildren::-moz-tree-image(isFeed-true) {
+    list-style-image: var(--folder-pane-rss);
+    fill: color-mix(in srgb, var(--folder-color-rss) 20%, transparent);
+    stroke: var(--folder-color-rss);
+  }
+}
+
+#folderNameCol {
+  flex: 2 2;
+}
+
+#rssFeedInfoBox {
+  border: 1px solid var(--sidebar-border);
+  margin: 4px;
+  padding-block-start: 4px;
+  background-color: rgba(0, 0, 0, 0.05);
+
+  :root[lwt-tree-brighttext] & {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+#autotagPrefix {
+  max-inline-size: 15em;
+}
+
+#statusContainerBox {
+  block-size: 2.4em;
+}
