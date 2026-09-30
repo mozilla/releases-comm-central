@@ -105,8 +105,7 @@ body {
       stroke: var(--icon-color);
     }
 
-    &.serverType-imap.isSecure .icon,
-    &.serverType-pop3.isSecure .icon {
+    &:is(.serverType-imap, .serverType-pop3, .serverType-ews, .serverType-graph).isSecure .icon {
       background-image: var(--icon-mail-secure);
     }
 

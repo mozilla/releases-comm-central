@@ -68,12 +68,12 @@
     --menuitem-icon: var(--icon-folder-filter);
   }
 
-  /* IMAP/POP server */
+  /* Server */
   &[IsServer="true"] {
     --menuitem-icon: var(--icon-mail);
 
-    /* IMAP/POP secure server */
-    &:is([ServerType="imap"], [ServerType="pop3"])[IsSecure="true"] {
+    /* Secure server */
+    &:is([ServerType="imap"], [ServerType="pop3"], [ServerType="ews"], [ServerType="graph"])[IsSecure="true"] {
       --menuitem-icon: var(--icon-mail-secure);
     }
 
