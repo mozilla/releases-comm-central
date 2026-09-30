@@ -941,6 +941,10 @@ const JsMIMEheaderparser = function () {
      * @param {string} addrEmail - addr-spec as per RFC 5322
      */
     function addToAddrList(addrName, addrEmail) {
+      // Unfold the addr-spec. Line breaks can remain in quoted-strings and
+      // domain-literals, and would break the address wherever it's written out.
+      addrEmail = addrEmail.replace(/[\r\n]/g, "");
+
       // Keep the local-part quoted if it needs to be.
       const lp = addrEmail.substring(0, addrEmail.lastIndexOf("@"));
       if (/[ !()<>\[\]:;@\\,"]/.exec(lp) !== null) {

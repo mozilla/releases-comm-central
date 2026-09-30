@@ -474,8 +474,8 @@ add_task(async function testAuthLoginFailure() {
 });
 
 /**
- * Test that envelope addresses with line breaks are refused, so they can't be
- * used to send arbitrary commands, also when the server supports SMTPUTF8.
+ * Test that envelope addresses with line breaks can't be used to send
+ * arbitrary commands, also when the server supports SMTPUTF8.
  */
 add_task(async function testLineBreakInEnvelopeAddress() {
   const utf8Server = setupServerDaemon(d => {
@@ -487,39 +487,56 @@ add_task(async function testLineBreakInEnvelopeAddress() {
   registerCleanupFunction(() => utf8Server.stop());
 
   const kInjected = '"a\r\nRCPT TO:<attacker@evil.invalid>"@foo.invalid';
-  for (const { label, to, from } of [
-    { label: "recipient", to: kInjected, from: "from@foo.invalid" },
-    { label: "sender", to: "to@foo.invalid", from: kInjected },
-  ]) {
-    utf8Server.resetTest();
+  const send = (recipients, from) => {
     const smtpServer = getBasicSmtpServer(utf8Server.port);
     const identity = getSmtpIdentity(from, smtpServer);
-
     const listener = new PromiseTestUtils.PromiseMsgOutgoingListener();
     smtpServer.sendMailMessage(
       do_get_file("data/message1.eml"),
-      MailServices.headerParser.parseEncodedHeaderW(to),
+      recipients,
       [],
       identity,
       from,
       null,
       null,
       false,
-      `<${label}@foo.invalid>`,
+      "<linebreak@foo.invalid>",
       listener
     );
+    return { smtpServer, promise: listener.promise };
+  };
 
-    await Assert.rejects(
-      listener.promise,
-      err => err.message == Cr.NS_ERROR_ILLEGAL_VALUE,
-      `sending with a line break in the ${label} should fail`
-    );
-    const commands = [utf8Server.playTransaction()].flat().flatMap(t => t.them);
-    Assert.ok(
-      !commands.some(c => c.startsWith("MAIL") || c.startsWith("RCPT")),
-      `no envelope should be sent for a line break in the ${label}`
-    );
+  // The header parser unfolds addresses, so construct the recipient directly
+  // to check SmtpClient refuses it.
+  utf8Server.resetTest();
+  let { smtpServer, promise } = send(
+    [MailServices.headerParser.makeMailboxObject("", kInjected)],
+    "from@foo.invalid"
+  );
+  await Assert.rejects(
+    promise,
+    err => err.message == Cr.NS_ERROR_ILLEGAL_VALUE,
+    "sending with a line break in the recipient should fail"
+  );
+  let commands = [utf8Server.playTransaction()].flat().flatMap(t => t.them);
+  Assert.ok(
+    !commands.some(c => c.startsWith("MAIL") || c.startsWith("RCPT")),
+    "no envelope should be sent for a line break in the recipient"
+  );
+  smtpServer.closeCachedConnections();
 
-    smtpServer.closeCachedConnections();
-  }
+  // The sender is always parsed, which unfolds it.
+  utf8Server.resetTest();
+  ({ smtpServer, promise } = send(
+    MailServices.headerParser.parseEncodedHeaderW("to@foo.invalid"),
+    kInjected
+  ));
+  await promise;
+  commands = [utf8Server.playTransaction()].flat().flatMap(t => t.them);
+  Assert.deepEqual(
+    commands.filter(c => c.startsWith("RCPT")),
+    ["RCPT TO:<to@foo.invalid>"],
+    "no recipient should be injected through the sender"
+  );
+  smtpServer.closeCachedConnections();
 });

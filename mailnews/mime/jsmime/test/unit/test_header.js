@@ -776,6 +776,26 @@ define(function (require) {
             },
           ],
         ],
+        [
+          '"a\r\nRCPT TO:<attacker@example.com>"@example.com',
+          [
+            {
+              name: "",
+              email: '"aRCPT TO:<attacker@example.com>"@example.com',
+            },
+          ],
+        ],
+        [
+          'Folded <"a\r\n b"@example.com>',
+          [{ name: "Folded", email: '"a b"@example.com' }],
+        ],
+        [
+          'Name <"a\nb"@example.com>, c@[127.0.0.1\r\nRCPT]',
+          [
+            { name: "Name", email: "ab@example.com" },
+            { name: "", email: "c@[127.0.0.1RCPT]" },
+          ],
+        ],
       ];
       header_tests.forEach(function (data) {
         arrayTest(data, function () {
@@ -967,6 +987,24 @@ define(function (require) {
         [
           "This\u200D \u200D \u200D \u200Dis bad",
           [{ name: "This is bad", email: "" }],
+        ],
+        // Line breaks from encoded-words should be removed from the addr-spec.
+        [
+          "=?UTF-8?Q?a=0D=0ARCPT_TO:<attacker@example.com>?=@example.com",
+          [
+            {
+              name: "",
+              email: '"aRCPT TO:<attacker@example.com>"@example.com',
+            },
+          ],
+        ],
+        [
+          "Name <=?UTF-8?Q?a=0D=0Ab?=@example.com>",
+          [{ name: "Name", email: "ab@example.com" }],
+        ],
+        [
+          '"=?UTF-8?Q?a=0Ab?="@example.com',
+          [{ name: "", email: "ab@example.com" }],
         ],
       ];
       header_tests.forEach(function (data) {
