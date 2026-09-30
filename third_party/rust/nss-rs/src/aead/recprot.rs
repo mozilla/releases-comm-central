@@ -17,8 +17,8 @@ use crate::{
     Cipher, Error, Res, SECItemBorrowed, SymKey, Version,
     err::{sec::SEC_ERROR_BAD_DATA, secstatus_to_res},
     p11::{
-        CK_ATTRIBUTE_TYPE, CK_GENERATOR_FUNCTION, CK_MECHANISM_TYPE, CKG_NO_GENERATE, Context,
-        PK11_AEADOp, PK11_CreateContextBySymKey,
+        CK_ATTRIBUTE_TYPE, CK_MECHANISM_TYPE, CKG_NO_GENERATE, Context, PK11_AEADOp,
+        PK11_CreateContextBySymKey,
     },
 };
 
@@ -72,7 +72,7 @@ unsafe fn aead_op(
     secstatus_to_res(unsafe {
         PK11_AEADOp(
             **ctx,
-            CK_GENERATOR_FUNCTION::from(CKG_NO_GENERATE),
+            CKG_NO_GENERATE,
             c_int_len(NONCE_LEN - COUNTER_LEN)?,
             nonce.as_mut_ptr(),
             c_int_len(NONCE_LEN)?,

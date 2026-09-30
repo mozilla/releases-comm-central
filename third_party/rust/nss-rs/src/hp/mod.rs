@@ -15,18 +15,20 @@ use crate::{
     p11::{CK_MECHANISM_TYPE, PK11SymKey, SymKey},
 };
 
-experimental_api!(SSL_HkdfExpandLabelWithMech(
-    version: Version,
-    cipher: Cipher,
-    prk: *mut PK11SymKey,
-    handshake_hash: *const u8,
-    handshake_hash_len: c_uint,
-    label: *const c_char,
-    label_len: c_uint,
-    mech: CK_MECHANISM_TYPE,
-    key_size: c_uint,
-    secret: *mut *mut PK11SymKey,
-));
+experimental_api! {
+    SSL_HkdfExpandLabelWithMech(
+        version: Version,
+        cipher: Cipher,
+        prk: *mut PK11SymKey,
+        handshake_hash: *const u8,
+        handshake_hash_len: c_uint,
+        label: *const c_char,
+        label_len: c_uint,
+        mech: CK_MECHANISM_TYPE,
+        key_size: c_uint,
+        secret: *mut *mut PK11SymKey,
+    );
+}
 
 #[cfg_attr(feature = "blapi", path = "header_protection_blapi.rs")]
 mod header_protection;

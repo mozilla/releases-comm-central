@@ -4,7 +4,7 @@ use nss_rs::{
     AuthenticationStatus, Client, Error, HandshakeState, Res, SecretAgentPreInfo, Server,
     TLS_AES_128_GCM_SHA256, TLS_CHACHA20_POLY1305_SHA256, TLS_GRP_EC_SECP256R1, TLS_GRP_EC_X25519,
     TLS_SIG_ECDSA_SECP256R1_SHA256, TLS_VERSION_1_3, ZeroRttCheckResult, ZeroRttChecker,
-    agent::CertificateCompressor, generate_ech_keys,
+    cert::CertificateCompressor, generate_ech_keys,
 };
 
 mod handshake;
@@ -76,6 +76,30 @@ fn basic() {
         TLS_SIG_ECDSA_SECP256R1_SHA256,
         server_info.signature_scheme()
     );
+}
+
+#[test]
+fn reject_certificate_fails_handshake() {
+    fixture_init();
+    let mut client = Client::new("server.example", true).expect("should create client");
+    let mut server = Server::new(&["key"]).expect("should create server");
+
+    let bytes = client.handshake(now(), &[]).expect("send CH");
+    let bytes = server
+        .handshake(now(), &bytes[..])
+        .expect("read CH, send SH");
+    let bytes = client.handshake(now(), &bytes[..]).expect("send CF");
+    assert!(bytes.is_empty());
+    assert_eq!(*client.state(), HandshakeState::AuthenticationPending);
+
+    // Reject the peer certificate.
+    client.authenticated(AuthenticationStatus::CertRevoked);
+    assert!(matches!(client.state(), HandshakeState::Authenticated(err) if *err != 0));
+
+    // Continuing must not report a completed handshake.
+    assert!(client.handshake(now(), &[]).is_err());
+    assert!(!client.state().is_connected());
+    assert!(matches!(client.state(), HandshakeState::Failed(_)));
 }
 
 fn check_client_preinfo(client_preinfo: &SecretAgentPreInfo) {

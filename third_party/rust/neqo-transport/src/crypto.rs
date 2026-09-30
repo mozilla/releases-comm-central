@@ -44,8 +44,7 @@ use crate::{
     ConnectionParameters, Error, Res,
     cid::ConnectionIdRef,
     frame::{FrameEncoder as _, FrameType},
-    packet::{self},
-    recovery,
+    packet, recovery,
     recv_stream::RxStreamOrderer,
     send_stream::TxBuffer,
     sni::find_sni,
@@ -150,6 +149,11 @@ impl Crypto {
         &self.protocols
     }
 
+    /// Whether the local role is that of a server.
+    const fn is_server(&self) -> bool {
+        matches!(self.tls, Agent::Server(_))
+    }
+
     pub fn server_enable_0rtt<Z: ZeroRttChecker + 'static>(
         &mut self,
         tphandler: TpHandler,
@@ -204,7 +208,7 @@ impl Crypto {
     ) -> Res<&HandshakeState> {
         let input = data.map(|d| {
             #[cfg(feature = "build-fuzzing-corpus")]
-            if space == PacketNumberSpace::Initial && matches!(self.tls, Agent::Server(_)) {
+            if space == PacketNumberSpace::Initial && self.is_server() {
                 neqo_common::write_item_to_fuzzing_corpus("find_sni", d);
             }
             let rec = Record {
@@ -233,22 +237,23 @@ impl Crypto {
     }
 
     /// Enable 0-RTT and return `true` if it is enabled successfully.
-    pub fn enable_0rtt(&mut self, version: Version, role: Role) -> Res<bool> {
+    pub fn enable_0rtt(&mut self, version: Version) -> Res<bool> {
         let info = self.tls.preinfo()?;
         // `info.early_data()` returns false for a server,
         // so use `early_data_cipher()` to tell if 0-RTT is enabled.
         let Some(cipher) = info.early_data_cipher() else {
             return Ok(false);
         };
-        let (dir, secret) = match role {
-            Role::Client => (
-                CryptoDxDirection::Write,
-                self.tls.write_secret(Epoch::ZeroRtt),
-            ),
-            Role::Server => (
+        let (dir, secret) = if self.is_server() {
+            (
                 CryptoDxDirection::Read,
                 self.tls.read_secret(Epoch::ZeroRtt),
-            ),
+            )
+        } else {
+            (
+                CryptoDxDirection::Write,
+                self.tls.write_secret(Epoch::ZeroRtt),
+            )
         };
         let secret = secret.ok_or(Error::Internal)?;
         self.states.set_0rtt_keys(version, dir, &secret, cipher)?;
@@ -263,12 +268,12 @@ impl Crypto {
     }
 
     /// Returns true if new handshake keys were installed.
-    pub fn install_keys(&mut self, role: Role) -> Res<bool> {
+    pub fn install_keys(&mut self) -> Res<bool> {
         if self.tls.state().is_final() {
             Ok(false)
         } else {
             let installed_hs = self.install_handshake_keys()?;
-            if role == Role::Server {
+            if self.is_server() {
                 self.maybe_install_application_write_key(self.version)?;
             }
             Ok(installed_hs)
@@ -349,24 +354,22 @@ impl Crypto {
             .write_frame(space, sni_slicing, builder, tokens, stats);
     }
 
-    pub fn acked(&mut self, token: &CryptoRecoveryToken) {
+    pub fn acked(&mut self, space: PacketNumberSpace, token: &CryptoRecoveryToken) {
         qdebug!(
-            "Acked crypto frame space={} offset={} length={}",
-            token.space,
+            "Acked crypto frame space={space} offset={} length={}",
             token.offset,
             token.length
         );
-        self.streams.acked(token);
+        self.streams.acked(space, token);
     }
 
-    pub fn lost(&mut self, token: &CryptoRecoveryToken) {
+    pub fn lost(&mut self, space: PacketNumberSpace, token: &CryptoRecoveryToken) {
         qinfo!(
-            "Lost crypto frame space={} offset={} length={}",
-            token.space,
+            "Lost crypto frame space={space} offset={} length={}",
             token.offset,
             token.length
         );
-        self.streams.lost(token);
+        self.streams.lost(space, token);
     }
 
     /// Mark any outstanding frames in the indicated space as "lost" so
@@ -1576,15 +1579,15 @@ impl CryptoStreams {
             .read_to_end(buf))
     }
 
-    pub fn acked(&mut self, token: &CryptoRecoveryToken) {
-        if let Some(cs) = self.get_mut(token.space) {
+    pub fn acked(&mut self, space: PacketNumberSpace, token: &CryptoRecoveryToken) {
+        if let Some(cs) = self.get_mut(space) {
             cs.tx.mark_as_acked(token.offset, token.length);
         }
     }
 
-    pub fn lost(&mut self, token: &CryptoRecoveryToken) {
+    pub fn lost(&mut self, space: PacketNumberSpace, token: &CryptoRecoveryToken) {
         // See BZ 1624800, ignore lost packets in spaces we've dropped keys
-        if let Some(cs) = self.get_mut(token.space) {
+        if let Some(cs) = self.get_mut(space) {
             cs.tx.mark_as_lost(token.offset, token.length);
         }
     }
@@ -1688,7 +1691,6 @@ impl CryptoStreams {
             cs.tx.mark_as_sent(offset, len);
             qdebug!("CRYPTO for {space} offset={offset}, len={len}");
             tokens.push(recovery::Token::Crypto(CryptoRecoveryToken {
-                space,
                 offset,
                 length: len,
             }));
@@ -1783,9 +1785,10 @@ impl Default for CryptoStreams {
     }
 }
 
+/// The packet number space is not recorded because it can be derived from the carrying packet's
+/// type.
 #[derive(Debug, Clone)]
 pub struct CryptoRecoveryToken {
-    space: PacketNumberSpace,
     offset: u64,
     length: usize,
 }

@@ -37,6 +37,8 @@ pub struct SelfEncrypt {
 impl SelfEncrypt {
     const VERSION: u8 = 1;
     const SALT_LENGTH: usize = 16;
+    /// Version, key ID, and salt.
+    const HEADER_LEN: usize = 2 + Self::SALT_LENGTH;
 
     /// # Errors
     ///
@@ -93,25 +95,23 @@ impl SelfEncrypt {
         // AAD covers the entire header, plus the value of the AAD parameter that is provided.
         let salt = random::<{ Self::SALT_LENGTH }>();
         let cipher = self.make_aead(&self.key, &salt, Mode::Encrypt)?;
-        let encoded_len = 2 + salt.len() + plaintext.len() + cipher.expansion();
+        let encoded_len = Self::HEADER_LEN + plaintext.len() + cipher.expansion();
 
-        let mut enc = Vec::<u8>::with_capacity(encoded_len);
-        enc.write_all(&[Self::VERSION])
-            .unwrap_or_else(|_| unreachable!("Buffer has enough capacity."));
-        enc.write_all(&[self.key_id])
-            .unwrap_or_else(|_| unreachable!("Buffer has enough capacity."));
-        enc.write_all(&salt)
-            .unwrap_or_else(|_| unreachable!("Buffer has enough capacity."));
+        let mut extended_aad = Vec::<u8>::with_capacity(Self::HEADER_LEN + aad.len());
+        extended_aad.push(Self::VERSION);
+        extended_aad.push(self.key_id);
+        extended_aad.extend_from_slice(&salt);
+        extended_aad.extend_from_slice(aad);
 
-        let mut extended_aad = enc.clone();
-        extended_aad
-            .write_all(aad)
-            .unwrap_or_else(|_| unreachable!("Buffer has enough capacity."));
-
-        let offset = enc.len();
-        let mut output: Vec<u8> = enc;
+        let mut output = Vec::<u8>::with_capacity(encoded_len);
+        output.extend_from_slice(&extended_aad[..Self::HEADER_LEN]);
         output.resize(encoded_len, 0);
-        cipher.encrypt(0, extended_aad.as_ref(), plaintext, &mut output[offset..])?;
+        cipher.encrypt(
+            0,
+            extended_aad.as_ref(),
+            plaintext,
+            &mut output[Self::HEADER_LEN..],
+        )?;
         trace!(
             "[SelfEncrypt] seal {} {} -> {}",
             hex(aad),
@@ -142,18 +142,19 @@ impl SelfEncrypt {
     /// when the keys have been rotated; or when NSS fails.
     #[expect(clippy::similar_names, reason = "aad is similar to aead.")]
     pub fn open(&self, aad: &[u8], ciphertext: &[u8]) -> Res<Vec<u8>> {
-        const OFFSET: usize = 2 + SelfEncrypt::SALT_LENGTH;
         if *ciphertext.first().ok_or(Error::SelfEncrypt)? != Self::VERSION {
             return Err(Error::SelfEncrypt);
         }
         let Some(key) = self.select_key(*ciphertext.get(1).ok_or(Error::SelfEncrypt)?) else {
             return Err(Error::SelfEncrypt);
         };
-        let salt = ciphertext.get(2..OFFSET).ok_or(Error::SelfEncrypt)?;
+        let salt = ciphertext
+            .get(2..Self::HEADER_LEN)
+            .ok_or(Error::SelfEncrypt)?;
 
-        let mut extended_aad = Vec::<u8>::with_capacity(OFFSET + aad.len());
+        let mut extended_aad = Vec::<u8>::with_capacity(Self::HEADER_LEN + aad.len());
         extended_aad
-            .write_all(&ciphertext[..OFFSET])
+            .write_all(&ciphertext[..Self::HEADER_LEN])
             .unwrap_or_else(|_| unreachable!("Buffer has enough capacity."));
         extended_aad
             .write_all(aad)
@@ -161,10 +162,14 @@ impl SelfEncrypt {
 
         let aead = self.make_aead(key, salt, Mode::Decrypt)?;
         // NSS insists on having extra space available for decryption.
-        let padded_len = ciphertext.len() - OFFSET;
+        let padded_len = ciphertext.len() - Self::HEADER_LEN;
         let mut output = vec![0; padded_len];
-        let decrypted =
-            aead.decrypt(0, extended_aad.as_ref(), &ciphertext[OFFSET..], &mut output)?;
+        let decrypted = aead.decrypt(
+            0,
+            extended_aad.as_ref(),
+            &ciphertext[Self::HEADER_LEN..],
+            &mut output,
+        )?;
         let final_len = decrypted.len();
         output.truncate(final_len);
         trace!(

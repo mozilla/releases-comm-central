@@ -27,7 +27,7 @@ use neqo_transport::{
     AppError, Connection, ConnectionEvent, ConnectionId, ConnectionIdGenerator, Output,
     OutputBatch, Stats as TransportStats, StreamId, StreamType, Version, ZeroRttState,
 };
-use nss::{AuthenticationStatus, ResumptionToken, SecretAgentInfo, agent::CertificateInfo};
+use nss::{AuthenticationStatus, ResumptionToken, SecretAgentInfo, cert::CertificateInfo};
 
 use crate::{
     Error, Http3Parameters, NewStreamType, Priority, ReceiveOutput, Res, SendGroupId,
@@ -915,6 +915,9 @@ impl Http3Client {
                 ConnectionEvent::Datagram(dgram) => {
                     self.base_handler.handle_datagram(dgram);
                 }
+                ConnectionEvent::OutgoingDatagramSpaceAvailable => {
+                    self.events.datagram_space_available();
+                }
                 ConnectionEvent::SendStreamComplete { .. }
                 | ConnectionEvent::OutgoingDatagramOutcome { .. }
                 | ConnectionEvent::SconeUpdated(_)
@@ -1016,7 +1019,7 @@ impl Http3Client {
             Http3State::Closing(..) | Http3State::Closed(..)
         ) {
             for session_id in self.base_handler.drain_webtransport_sessions() {
-                self.events.insert(Http3ClientEvent::WebTransport(
+                self.events.push(Http3ClientEvent::WebTransport(
                     WebTransportEvent::Draining {
                         stream_id: session_id,
                     },
@@ -1284,7 +1287,8 @@ mod tests {
                 conn: default_server_h3(),
                 control_stream_id: None,
                 encoder: Rc::clone(&qpack),
-                encoder_receiver: EncoderRecvStream::new(CLIENT_SIDE_DECODER_STREAM_ID, qpack),
+                encoder_receiver: EncoderRecvStream::new(CLIENT_SIDE_DECODER_STREAM_ID, qpack)
+                    .unwrap(),
                 encoder_stream_id: None,
                 decoder_stream_id: None,
             }
@@ -1305,7 +1309,8 @@ mod tests {
                 conn,
                 control_stream_id: None,
                 encoder: Rc::clone(&qpack),
-                encoder_receiver: EncoderRecvStream::new(CLIENT_SIDE_DECODER_STREAM_ID, qpack),
+                encoder_receiver: EncoderRecvStream::new(CLIENT_SIDE_DECODER_STREAM_ID, qpack)
+                    .unwrap(),
                 encoder_stream_id: None,
                 decoder_stream_id: None,
             }
@@ -1316,7 +1321,8 @@ mod tests {
             self.encoder_stream_id = Some(self.conn.stream_create(StreamType::UniDi).unwrap());
             self.encoder
                 .borrow_mut()
-                .add_send_stream(self.encoder_stream_id.unwrap());
+                .add_send_stream(self.encoder_stream_id.unwrap())
+                .unwrap();
             self.encoder
                 .borrow_mut()
                 .send_encoder_updates(&mut self.conn)
@@ -4270,6 +4276,26 @@ mod tests {
                 HSetting::new(HSettingType::BlockedStreams, 100),
                 HSetting::new(HSettingType::MaxHeaderListSize, 10000),
                 HSetting::new(HSettingType::EnableWebTransport, 0),
+            ],
+            &Http3State::Closing(CloseReason::Application(265)),
+            ENCODER_STREAM_DATA_WITH_CAP_INSTRUCTION,
+        );
+    }
+
+    #[test]
+    fn zero_rtt_extended_connect_disabled() {
+        // The server advertised SETTINGS_ENABLE_CONNECT_PROTOCOL=1 before, and now withholds it.
+        zero_rtt_change_settings(
+            &[
+                HSetting::new(HSettingType::MaxTableCapacity, 100),
+                HSetting::new(HSettingType::BlockedStreams, 100),
+                HSetting::new(HSettingType::MaxHeaderListSize, 10000),
+                HSetting::new(HSettingType::EnableConnect, 1),
+            ],
+            &[
+                HSetting::new(HSettingType::MaxTableCapacity, 100),
+                HSetting::new(HSettingType::BlockedStreams, 100),
+                HSetting::new(HSettingType::MaxHeaderListSize, 10000),
             ],
             &Http3State::Closing(CloseReason::Application(265)),
             ENCODER_STREAM_DATA_WITH_CAP_INSTRUCTION,

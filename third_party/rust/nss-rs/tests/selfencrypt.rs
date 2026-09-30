@@ -62,10 +62,11 @@ fn damage_version() {
     assert_eq!(res.unwrap_err(), Error::SelfEncrypt);
 }
 
-fn assert_bad_data<T>(res: Result<T, Error>) {
-    if let Err(Error::Nss { name, .. }) = res {
-        assert_eq!(name, "SEC_ERROR_BAD_DATA");
-    }
+fn assert_bad_data<T: std::fmt::Debug>(res: Result<T, Error>) {
+    let Err(Error::Nss { name, .. }) = res else {
+        panic!("expected SEC_ERROR_BAD_DATA, got {res:?}");
+    };
+    assert_eq!(name, "SEC_ERROR_BAD_DATA");
 }
 
 #[test]

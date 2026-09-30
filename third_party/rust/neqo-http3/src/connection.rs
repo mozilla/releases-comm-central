@@ -380,10 +380,10 @@ impl Http3Connection {
         qdebug!("[{self}] create_qpack_streams");
         self.qpack_encoder
             .borrow_mut()
-            .add_send_stream(conn.stream_create(StreamType::UniDi)?);
+            .add_send_stream(conn.stream_create(StreamType::UniDi)?)?;
         self.qpack_decoder
             .borrow_mut()
-            .add_send_stream(conn.stream_create(StreamType::UniDi)?);
+            .add_send_stream(conn.stream_create(StreamType::UniDi)?)?;
         Ok(())
     }
 
@@ -723,7 +723,7 @@ impl Http3Connection {
                     Box::new(DecoderRecvStream::new(
                         stream_id,
                         Rc::clone(&self.qpack_decoder),
-                    )),
+                    )?),
                 );
             }
             NewStreamType::Encoder => {
@@ -734,7 +734,7 @@ impl Http3Connection {
                     Box::new(EncoderRecvStream::new(
                         stream_id,
                         Rc::clone(&self.qpack_encoder),
-                    )),
+                    )?),
                 );
             }
             NewStreamType::Http(_) => {
@@ -778,7 +778,7 @@ impl Http3Connection {
         qdebug!("[{self}] Close connection error {error:?}");
         self.state = Http3State::Closing(CloseReason::Application(error));
         if (!self.send_streams.is_empty() || !self.recv_streams.is_empty()) && (error == 0) {
-            qwarn!("close(0) called when streams still active");
+            qdebug!("close(0) called when streams still active");
         }
         self.send_streams.clear();
         self.recv_streams.clear();
@@ -914,9 +914,7 @@ impl Http3Connection {
             _ => {}
         }
 
-        let id = conn
-            .stream_create(StreamType::BiDi)
-            .map_err(|e| Error::map_stream_create_errors(&e))?;
+        let id = conn.stream_create(StreamType::BiDi)?;
         conn.stream_keep_alive(id, true)?;
         Ok(id)
     }
@@ -1526,9 +1524,7 @@ impl Http3Connection {
             return Err(Error::InvalidState);
         }
 
-        let stream_id = conn
-            .stream_create(stream_type)
-            .map_err(|e| Error::map_stream_create_errors(&e))?;
+        let stream_id = conn.stream_create(stream_type)?;
         // Set outgoing WebTransport streams to be fair (share bandwidth)
         conn.stream_fairness(stream_id, true)?;
         // Register the stream with its send group in the transport scheduler so that
@@ -1540,7 +1536,6 @@ impl Http3Connection {
         self.webtransport_create_stream_internal(
             wt,
             stream_id,
-            session_id,
             (send_events, recv_events),
             true,
             send_group,
@@ -1562,7 +1557,6 @@ impl Http3Connection {
         self.webtransport_create_stream_internal(
             wt,
             stream_id,
-            session_id,
             (send_events, recv_events),
             false,
             None,
@@ -1574,7 +1568,6 @@ impl Http3Connection {
         &mut self,
         webtransport_session: Rc<RefCell<extended_connect::session::Session>>,
         stream_id: StreamId,
-        session_id: StreamId,
         events: (Box<dyn SendStreamEvents>, Box<dyn RecvStreamEvents>),
         local: bool,
         send_group: Option<SendGroupId>,
@@ -1590,7 +1583,6 @@ impl Http3Connection {
                     stream_id,
                     Box::new(WebTransportSendStream::new(
                         stream_id,
-                        session_id,
                         send_events,
                         webtransport_session,
                         true,
@@ -1602,7 +1594,6 @@ impl Http3Connection {
                     stream_id,
                     Box::new(WebTransportRecvStream::new(
                         stream_id,
-                        session_id,
                         recv_events,
                         webtransport_session,
                     )),
@@ -1613,7 +1604,6 @@ impl Http3Connection {
                 stream_id,
                 Box::new(WebTransportSendStream::new(
                     stream_id,
-                    session_id,
                     send_events,
                     Rc::clone(&webtransport_session),
                     local,
@@ -1621,7 +1611,6 @@ impl Http3Connection {
                 )),
                 Box::new(WebTransportRecvStream::new(
                     stream_id,
-                    session_id,
                     recv_events,
                     webtransport_session,
                 )),
@@ -1630,6 +1619,7 @@ impl Http3Connection {
         Ok(())
     }
 
+    /// Returns `Ok(false)` when the outgoing QUIC datagram queue is full.
     pub(crate) fn extended_connect_send_datagram<I: Into<DatagramTracking>>(
         &self,
         session_id: StreamId,
@@ -1637,7 +1627,7 @@ impl Http3Connection {
         buf: &[u8],
         id: I,
         now: Instant,
-    ) -> Res<()> {
+    ) -> Res<bool> {
         self.validate_extended_connect_session(session_id)?
             .borrow_mut()
             .send_datagram(conn, buf, id, now)
@@ -1699,6 +1689,7 @@ impl Http3Connection {
                     HSettingType::MaxHeaderListSize,
                     HSettingType::MaxTableCapacity,
                     HSettingType::BlockedStreams,
+                    HSettingType::EnableConnect,
                     // [RFC 9297, Section 2.1.1](https://www.rfc-editor.org/rfc/rfc9297.html#section-2.1.1)
                     // requires a client that stored SETTINGS_H3_DATAGRAM with its
                     // 0-RTT state to terminate the connection with H3_SETTINGS_ERROR

@@ -4,21 +4,28 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::{convert::TryFrom as _, ptr::NonNull};
+use std::{
+    ffi::{CStr, c_uint},
+    ptr::{NonNull, null_mut},
+    slice,
+};
 
 use log::error;
 
 use crate::{
-    SECItem, SECItemArray, ScopedSECItemArray, ScopedSECItemArrayIterator, experimental_api,
-    null_safe_slice,
+    Res, SECItem, SECItemArray, ScopedSECItemArray, ScopedSECItemArrayIterator, experimental_api,
+    nss_prelude::SECStatus,
+    null_safe_slice, p11,
     prio::PRFileDesc,
-    ssl::{SSL_PeerSignedCertTimestamps, SSL_PeerStapledOCSPResponses},
+    ssl::{self, SSL_PeerSignedCertTimestamps, SSL_PeerStapledOCSPResponses},
 };
 
-experimental_api!(SSL_PeerCertificateChainDER(
-    fd: *mut PRFileDesc,
-    out: *mut *mut SECItemArray,
-));
+experimental_api! {
+    SSL_PeerCertificateChainDER(
+        fd: *mut PRFileDesc,
+        out: *mut *mut SECItemArray,
+    );
+}
 
 pub struct CertificateInfo {
     certs: ScopedSECItemArray,
@@ -30,7 +37,7 @@ pub struct CertificateInfo {
 }
 
 fn peer_certificate_chain(fd: *mut PRFileDesc) -> Option<ScopedSECItemArray> {
-    let mut chain_ptr: *mut SECItemArray = std::ptr::null_mut();
+    let mut chain_ptr: *mut SECItemArray = null_mut();
     let rv = unsafe { SSL_PeerCertificateChainDER(fd, &raw mut chain_ptr) };
     if rv.is_ok() {
         ScopedSECItemArray::from_ptr(chain_ptr).ok()
@@ -100,5 +107,138 @@ impl CertificateInfo {
     #[must_use]
     pub fn signed_cert_timestamp(&self) -> Option<&[u8]> {
         self.signed_cert_timestamp.as_deref()
+    }
+}
+
+/// Private trait for Certificate Compression implementation
+/// Use [`CertificateCompressor`] to implement an encoder/decoder instead.
+pub(crate) trait UnsafeCertCompression {
+    extern "C" fn decode_callback(
+        input: *const SECItem,
+        output: *mut ::std::os::raw::c_uchar,
+        output_len: usize,
+        used_len: *mut usize,
+    ) -> SECStatus;
+
+    extern "C" fn encode_callback(input: *const SECItem, output: *mut SECItem) -> SECStatus;
+}
+
+/// The trait is used to represent a certificate compression data structure
+/// Used in order to enable Certificate Compression extension during TLS connection
+pub trait CertificateCompressor {
+    /// Certificate Compression identifier as in RFC8879
+    const ID: u16;
+    /// Certification Compression name (used only for logging/debugging)
+    const NAME: &CStr;
+    /// Certificate Compression could be used to encode and decode a certificate
+    /// though the encoding is not frequently used
+    /// Enable decoding field is used to signal to the implementation
+    /// to use the encoding as well
+    const ENABLE_ENCODING: bool = false;
+
+    /// Certificate Compression encoding function
+    ///
+    /// This default implementation effectively does nothing.
+    /// However, this is only run if `ENABLE_ENCODING` is `true`.
+    /// Implementations that set `ENABLE_ENCODING` to `true` need to implement this function.
+    ///
+    /// # Errors
+    /// Encoding was unsuccessful, for example, not enough memory
+    fn encode(input: &[u8], output: &mut [u8]) -> Res<usize> {
+        let len = std::cmp::min(input.len(), output.len());
+        output[..len].copy_from_slice(&input[..len]);
+        Ok(len)
+    }
+
+    /// Certificate Compression decoding function.
+    /// # Errors
+    /// Decoding was unsuccessful.
+    /// We require a decoder internally to check the length of the decoded buffer.
+    /// If the decoded length is not equal to the length of the provided slice
+    /// the decoder should return an error.
+    fn decode(input: &[u8], output: &mut [u8]) -> Res<()>;
+}
+
+/// The trait is responsible for calling `CertificateCompression` encoding and decoding
+/// functions using the NSS types
+impl<T: CertificateCompressor> UnsafeCertCompression for T {
+    extern "C" fn decode_callback(
+        input: *const SECItem,
+        output: *mut ::std::os::raw::c_uchar,
+        output_len: usize,
+        used_len: *mut usize,
+    ) -> SECStatus {
+        let Some(input) = NonNull::new(input.cast_mut()) else {
+            return ssl::SECFailure;
+        };
+        if unsafe { input.as_ref().data.is_null() || input.as_ref().len == 0 } {
+            return ssl::SECFailure;
+        }
+
+        let input_slice = unsafe { null_safe_slice(input.as_ref().data, input.as_ref().len) };
+        let output_slice = unsafe { slice::from_raw_parts_mut(output, output_len) };
+
+        if T::decode(input_slice, output_slice).is_err() {
+            return ssl::SECFailure;
+        }
+
+        unsafe {
+            *used_len = output_len;
+        }
+        ssl::SECSuccess
+    }
+
+    extern "C" fn encode_callback(input: *const SECItem, output: *mut SECItem) -> SECStatus {
+        let Some(input) = NonNull::new(input.cast_mut()) else {
+            return ssl::SECFailure;
+        };
+
+        let (input_data, input_len) = unsafe {
+            let input_ref = input.as_ref();
+            (input_ref.data, input_ref.len)
+        };
+
+        if input_data.is_null() || input_len == 0 {
+            return ssl::SECFailure;
+        }
+        let input_slice = unsafe { null_safe_slice(input_data, input_len) };
+
+        unsafe {
+            p11::SECITEM_AllocItem(
+                null_mut(),
+                // p11::SECItem is the same as ssl::SECItem
+                output.cast::<crate::nss_prelude::SECItemStr>(),
+                // Compression shouldn't make the thing *longer*,
+                // but allocate one extra byte anyway to enable simple testing modes.
+                input_len + 1,
+            );
+        }
+
+        if unsafe { (*output).data.is_null() } {
+            return ssl::SECFailure;
+        }
+
+        let Ok(output_len) = usize::try_from(unsafe { (*output).len }) else {
+            return ssl::SECFailure;
+        };
+
+        let output_slice = unsafe { slice::from_raw_parts_mut((*output).data, output_len) };
+
+        let Ok(encoded_len) = T::encode(input_slice, output_slice) else {
+            return ssl::SECFailure;
+        };
+
+        if encoded_len == 0 || encoded_len > output_len {
+            return ssl::SECFailure;
+        }
+
+        let Ok(encoded_len) = c_uint::try_from(encoded_len) else {
+            return ssl::SECFailure;
+        };
+
+        unsafe {
+            (*output).len = encoded_len;
+        }
+        ssl::SECSuccess
     }
 }

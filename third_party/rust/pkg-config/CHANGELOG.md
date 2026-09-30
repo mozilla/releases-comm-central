@@ -5,6 +5,84 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.34] - 2026-08-14
+
+### Changed
+
+- Update README.md (#190).
+
+- Update MSRV to 1.63 and remove `lazy_static` dependency (#191).
+
+- Fix various clippy warnings (#193).
+
+### Added
+
+- Allow disabling passing --cflags to pkg-config (#183).
+
+- Make Library::extract_lib_from_filename public (#192).
+
+## [0.3.33] - 2026-04-12
+
+### Changed
+
+- Error output from `pkg-config` is included in the message again to
+  help with finding the cause (#187)
+
+## [0.3.32] - 2025-03-03
+
+### Fixed
+
+- Suggest installing pkgconf via homebrew on macOS instead of pkg-config (#173)
+
+- Quote failed pkg-config command correctly in error messages to allow for
+  directly copy&pasting it into a shell (#175)
+
+## [0.3.31] - 2024-09-23
+
+### Fixed
+
+- Remove double `cargo:` prefix from linker line (#168).
+
+## [0.3.30] - 2024-02-14
+
+### Changed
+
+- Update documentation for cross-compilation (#161).
+
+- Update GitHub Action CI (#160).
+
+## [0.3.29] - 2024-01-17
+
+### Fixed
+
+- Detection and usage of Windows static libraries (#154).
+
+- Passing `-Wl,-u` to the linker if specified in the pkg-config file (#154).
+
+## [0.3.28] - 2023-12-20
+
+### Fixed
+
+- Pass -l:libfoo.a to linker directly (#149).
+
+### Changed
+
+- Improve error message when library not found (#158).
+
+## [0.3.27] - 2023-05-03
+
+### Added
+
+- Support falling back to `pkgconf` if `pkg-config` is not available (#145).
+
+### Changed
+
+- Simplify running `pkg-config` (#144).
+
+- Document MSRV in `Cargo.toml` via `rust-version`.
+
+- Fix a couple of minor clippy warnings (#147).
+
 ## [0.3.26] - 2022-10-26
 
 ### Added

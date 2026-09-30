@@ -270,7 +270,6 @@ goblin = { path = "../../build/rust/goblin" }
 getrandom = { path = "../../build/rust/getrandom" }
 procfs-core = { path = "../../build/rust/procfs-core" }
 rustc-hash = { path = "../../build/rust/rustc-hash" }
-memoffset = { path = "../../build/rust/memoffset" }
 hashbrown_0_13 = { package = "hashbrown", path = "../../build/rust/hashbrown-0.13" }
 hashbrown_0_14 = { package = "hashbrown", path = "../../build/rust/hashbrown-0.14" }
 hashbrown_0_15 = { package = "hashbrown", path = "../../build/rust/hashbrown-0.15" }

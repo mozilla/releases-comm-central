@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "nss-rs"
-version = "0.14.6"
+version = "0.16.1"
 authors = [
     "Martin Thomson <mt@lowentropy.net>",
     "Andy Leiserson <aleiserson@mozilla.com>",
@@ -25,7 +25,11 @@ build = "build.rs"
 exclude = [
     ".deny.toml",
     ".github",
+    ".tombi.toml",
     "Cargo.lock",
+    "bindings/bindings.schema.json",
+    "package-lock.json",
+    "package.json",
     "renovate.json",
 ]
 autolib = false
@@ -36,10 +40,10 @@ autobenches = false
 description = "Gecko API for NSS"
 readme = "README.md"
 keywords = [
-    "nss",
     "crypto",
-    "mozilla",
     "firefox",
+    "mozilla",
+    "nss",
 ]
 categories = [
     "network-programming",
@@ -55,7 +59,7 @@ sha256 = "c95a4cf93d6939000642254422d71dffccb5c017d0f40733d3e2be18aa93f1be"
 [package.metadata.cargo-machete]
 ignored = [
     "bindgen",
-    "semver",
+    "pkg-config",
     "serde",
     "serde_derive",
     "toml",
@@ -64,6 +68,7 @@ ignored = [
 [features]
 bench = ["log/release_max_level_info"]
 blapi = ["dep:zeroize"]
+default = []
 disable-encryption = []
 disable-random = []
 gecko = ["mozbuild"]
@@ -114,9 +119,18 @@ name = "selfencrypt"
 path = "tests/selfencrypt.rs"
 
 [dependencies]
-once_cell = "1"
-pkcs11-bindings = ">= 0.1.3"
 thiserror = "2"
+
+[dependencies.derive_more]
+version = "2"
+features = [
+    "as_ref",
+    "deref",
+    "deref_mut",
+    "from",
+    "into_iterator",
+]
+default-features = false
 
 [dependencies.enum-map]
 version = "2.7"
@@ -150,9 +164,8 @@ version = "0.1"
 optional = true
 default-features = false
 
-[build-dependencies.semver]
-version = "1"
-features = ["std"]
+[build-dependencies.pkg-config]
+version = "0.3.33"
 default-features = false
 
 [build-dependencies.serde]

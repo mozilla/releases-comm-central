@@ -6,27 +6,51 @@
 
 #[macro_export]
 macro_rules! experimental_api {
-    ( $n:ident ( $( $a:ident : $t:ty ),* $(,)? ) ) => {
-        #[expect(non_snake_case, reason = "Inherent in macro use.")]
-        #[allow(clippy::allow_attributes, clippy::too_many_arguments, reason = "Inherent in macro use.")]
-        #[allow(clippy::allow_attributes, clippy::missing_safety_doc, reason = "Inherent in macro use.")]
-        #[allow(clippy::allow_attributes, clippy::missing_errors_doc, reason = "Inherent in macro use.")]
-        pub unsafe fn $n ( $( $a : $t ),* ) -> Result<(), $crate::err::Error> { unsafe {
-            struct ExperimentalAPI(*mut std::ffi::c_void);
-            unsafe impl Send for ExperimentalAPI {}
-            unsafe impl Sync for ExperimentalAPI {}
-            static EXP_API: ::std::sync::OnceLock<ExperimentalAPI> = ::std::sync::OnceLock::new();
-            let f = EXP_API.get_or_init(|| {
-                const EXP_FUNCTION: &str = stringify!($n);
-                let Ok(n) = ::std::ffi::CString::new(EXP_FUNCTION) else { return ExperimentalAPI(std::ptr::null_mut()); };
-                ExperimentalAPI($crate::ssl::SSL_GetExperimentalAPI(n.as_ptr()))
-            });
-            if f.0.is_null() {
-                return Err($crate::err::Error::Internal);
-            }
-            let f: unsafe extern "C" fn( $( $t ),* ) -> $crate::SECStatus = ::std::mem::transmute(f.0);
-            let rv = f( $( $a ),* );
-            $crate::err::secstatus_to_res(rv)
-        }}
+    ( $( $(#[$m:meta])* $n:ident ( $( $a:ident : $t:ty ),* $(,)? ); )+ ) => {
+        $(
+            $(#[$m])*
+            #[expect(non_snake_case, reason = "Inherent in macro use.")]
+            #[allow(clippy::allow_attributes, clippy::too_many_arguments, reason = "Inherent in macro use.")]
+            #[allow(clippy::allow_attributes, clippy::missing_safety_doc, reason = "Inherent in macro use.")]
+            #[allow(clippy::allow_attributes, clippy::missing_errors_doc, reason = "Inherent in macro use.")]
+            pub unsafe fn $n ( $( $a : $t ),* ) -> Result<(), $crate::err::Error> { unsafe {
+                struct ExperimentalAPI(*mut ::std::ffi::c_void);
+                unsafe impl Send for ExperimentalAPI {}
+                unsafe impl Sync for ExperimentalAPI {}
+                static EXP_API: ::std::sync::OnceLock<ExperimentalAPI> = ::std::sync::OnceLock::new();
+                let f = EXP_API.get_or_init(|| {
+                    const EXP_FUNCTION: &str = stringify!($n);
+                    let Ok(n) = ::std::ffi::CString::new(EXP_FUNCTION) else {
+                        return ExperimentalAPI(::std::ptr::null_mut());
+                    };
+                    ExperimentalAPI($crate::ssl::SSL_GetExperimentalAPI(n.as_ptr()))
+                });
+                if f.0.is_null() {
+                    return Err($crate::err::Error::Internal);
+                }
+                let f: unsafe extern "C" fn( $( $t ),* ) -> $crate::SECStatus = ::std::mem::transmute(f.0);
+                let rv = f( $( $a ),* );
+                $crate::err::secstatus_to_res(rv)
+            }}
+        )+
     };
+}
+
+#[cfg(test)]
+#[cfg_attr(coverage_nightly, coverage(off))]
+mod test {
+    use crate::err::Error;
+
+    experimental_api! {
+        /// This one has a doc comment.
+        SSL_NonexistentFunction(x: ::std::ffi::c_uint);
+        #[expect(dead_code)]
+        SSL_UnusedFunction();
+    }
+
+    #[test]
+    fn nonexistent_fn() {
+        // No need to initialize the fixture for this test.
+        assert_eq!(unsafe { SSL_NonexistentFunction(12) }, Err(Error::Internal));
+    }
 }

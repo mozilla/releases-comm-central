@@ -11,7 +11,6 @@
 
 use std::{
     cell::RefCell,
-    convert::TryFrom as _,
     fmt::{self, Debug, Formatter},
     os::raw::{c_uint, c_void},
     pin::Pin,
@@ -32,19 +31,20 @@ use crate::{
     },
 };
 
-experimental_api!(SSL_InstallExtensionHooks(
-    fd: *mut PRFileDesc,
-    extension: u16,
-    writer: SSLExtensionWriter,
-    writer_arg: *mut c_void,
-    handler: SSLExtensionHandler,
-    handler_arg: *mut c_void,
-));
-
-experimental_api!(SSL_CallExtensionWriterOnEchInner(
-    fd: *mut PRFileDesc,
-    enabled: PRBool,
-));
+experimental_api! {
+    SSL_InstallExtensionHooks(
+        fd: *mut PRFileDesc,
+        extension: u16,
+        writer: SSLExtensionWriter,
+        writer_arg: *mut c_void,
+        handler: SSLExtensionHandler,
+        handler_arg: *mut c_void,
+    );
+    SSL_CallExtensionWriterOnEchInner(
+        fd: *mut PRFileDesc,
+        enabled: PRBool,
+    );
+}
 
 pub enum ExtensionWriterResult {
     Write(usize),

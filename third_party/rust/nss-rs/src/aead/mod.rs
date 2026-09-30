@@ -22,9 +22,9 @@ use crate::{
     constants::{TLS_AES_128_GCM_SHA256, TLS_AES_256_GCM_SHA384, TLS_CHACHA20_POLY1305_SHA256},
     err::{Error, Res, sec::SEC_ERROR_BAD_DATA},
     p11::{
-        self, CK_ATTRIBUTE_TYPE, CK_GENERATOR_FUNCTION, CK_MECHANISM_TYPE, CKA_DECRYPT,
-        CKA_ENCRYPT, CKA_NSS_MESSAGE, CKG_GENERATE_COUNTER_XOR, CKG_NO_GENERATE, CKM_AES_GCM,
-        CKM_CHACHA20_POLY1305, Context, PK11_AEADOp, PK11_CreateContextBySymKey,
+        self, CK_ATTRIBUTE_TYPE, CK_MECHANISM_TYPE, CKA_DECRYPT, CKA_ENCRYPT, CKA_NSS_MESSAGE,
+        CKG_GENERATE_COUNTER_XOR, CKG_NO_GENERATE, CKM_AES_GCM, CKM_CHACHA20_POLY1305, Context,
+        PK11_AEADOp, PK11_CreateContextBySymKey,
     },
     secstatus_to_res,
 };
@@ -128,14 +128,7 @@ fn expand_hkdf_label(
     label: &str,
     key_len: c_uint,
 ) -> Res<SymKey> {
-    expand_label(
-        version,
-        cipher,
-        secret,
-        label,
-        CK_MECHANISM_TYPE::from(CKM_HKDF_DATA),
-        key_len,
-    )
+    expand_label(version, cipher, secret, label, CKM_HKDF_DATA, key_len)
 }
 
 /// Derive a fixed-size raw key buffer using HKDF-Data.  The const generic `N`
@@ -203,14 +196,12 @@ pub enum Mode {
 }
 
 impl Mode {
-    fn p11mode(self) -> CK_ATTRIBUTE_TYPE {
-        CK_ATTRIBUTE_TYPE::from(
-            CKA_NSS_MESSAGE
-                | match self {
-                    Self::Encrypt => CKA_ENCRYPT,
-                    Self::Decrypt => CKA_DECRYPT,
-                },
-        )
+    const fn p11mode(self) -> CK_ATTRIBUTE_TYPE {
+        CKA_NSS_MESSAGE
+            | match self {
+                Self::Encrypt => CKA_ENCRYPT,
+                Self::Decrypt => CKA_DECRYPT,
+            }
     }
 }
 
@@ -231,11 +222,11 @@ impl AeadAlgorithms {
     }
 
     #[must_use]
-    pub fn p11_mech(self) -> CK_MECHANISM_TYPE {
-        CK_MECHANISM_TYPE::from(match self {
+    pub const fn p11_mech(self) -> CK_MECHANISM_TYPE {
+        match self {
             Self::Aes128Gcm | Self::Aes256Gcm => CKM_AES_GCM,
             Self::ChaCha20Poly1305 => CKM_CHACHA20_POLY1305,
-        })
+        }
     }
 }
 
@@ -269,7 +260,7 @@ impl Aead {
                 *slot,
                 algorithm.p11_mech(),
                 p11::PK11Origin::PK11_OriginUnwrap,
-                CK_ATTRIBUTE_TYPE::from(CKA_ENCRYPT | CKA_DECRYPT),
+                CKA_ENCRYPT | CKA_DECRYPT,
                 key_item_ptr,
                 null_mut(),
             )
@@ -306,33 +297,31 @@ impl Aead {
         assert_eq!(self.mode, Mode::Encrypt);
         // A copy for the nonce generator to write into.  But we don't use the value.
         let mut nonce = self.nonce_base;
-        // Ciphertext with enough space for the tag.
-        // Even though we give the operation a separate buffer for the tag,
-        // reserve the capacity on allocation.
-        let mut ct = vec![0; pt.len() + TAG_LEN];
+        let mut ct = vec![0; pt.len() + TAG_LEN]; // Tag is written directly into the tail.
         let mut ct_len: c_int = 0;
-        let mut tag = vec![0; TAG_LEN];
+        let ct_ptr = ct.as_mut_ptr();
         secstatus_to_res(unsafe {
             PK11_AEADOp(
                 *self.ctx,
-                CK_GENERATOR_FUNCTION::from(CKG_GENERATE_COUNTER_XOR),
+                CKG_GENERATE_COUNTER_XOR,
                 c_int_len(NONCE_LEN - COUNTER_LEN)?, // Fixed portion of the nonce.
                 nonce.as_mut_ptr(),
                 c_int_len(nonce.len())?,
                 aad.as_ptr(),
                 c_int_len(aad.len())?,
-                ct.as_mut_ptr(),
+                ct_ptr,
                 &raw mut ct_len,
                 c_int_len(ct.len())?, // signed :(
-                tag.as_mut_ptr(),
-                c_int_len(tag.len())?,
+                ct_ptr.add(pt.len()),
+                c_int_len(TAG_LEN)?,
                 pt.as_ptr(),
                 c_int_len(pt.len())?,
             )
         })?;
-        ct.truncate(usize::try_from(ct_len).map_err(|_| Error::IntegerOverflow)?);
-        debug_assert_eq!(ct.len(), pt.len());
-        ct.append(&mut tag);
+        let len = usize::try_from(ct_len)?;
+        if len != pt.len() {
+            return Err(Error::Internal);
+        }
         Ok(ct)
     }
 
@@ -351,30 +340,31 @@ impl Aead {
 
         assert_eq!(self.mode, Mode::Encrypt);
         let mut nonce = xor_nonce(&self.nonce_base, seq);
-        let mut ct = vec![0; pt.len() + TAG_LEN];
+        let mut ct = vec![0; pt.len() + TAG_LEN]; // Tag is written directly into the tail.
         let mut ct_len: c_int = 0;
-        let mut tag = vec![0; TAG_LEN];
+        let ct_ptr = ct.as_mut_ptr();
         secstatus_to_res(unsafe {
             PK11_AEADOp(
                 *self.ctx,
-                CK_GENERATOR_FUNCTION::from(CKG_NO_GENERATE),
+                CKG_NO_GENERATE,
                 c_int_len(NONCE_LEN - COUNTER_LEN)?,
                 nonce.as_mut_ptr(),
                 c_int_len(nonce.len())?,
                 aad.as_ptr(),
                 c_int_len(aad.len())?,
-                ct.as_mut_ptr(),
+                ct_ptr,
                 &raw mut ct_len,
                 c_int_len(ct.len())?,
-                tag.as_mut_ptr(),
-                c_int_len(tag.len())?,
+                ct_ptr.add(pt.len()),
+                c_int_len(TAG_LEN)?,
                 pt.as_ptr(),
                 c_int_len(pt.len())?,
             )
         })?;
-        ct.truncate(usize::try_from(ct_len).map_err(|_| Error::IntegerOverflow)?);
-        debug_assert_eq!(ct.len(), pt.len());
-        ct.append(&mut tag);
+        let len = usize::try_from(ct_len)?;
+        if len != pt.len() {
+            return Err(Error::Internal);
+        }
         Ok(ct)
     }
 
@@ -394,7 +384,7 @@ impl Aead {
         secstatus_to_res(unsafe {
             PK11_AEADOp(
                 *self.ctx,
-                CK_GENERATOR_FUNCTION::from(CKG_NO_GENERATE),
+                CKG_NO_GENERATE,
                 c_int_len(NONCE_LEN - COUNTER_LEN)?, // Fixed portion of the nonce.
                 nonce.as_mut_ptr(),
                 c_int_len(nonce.len())?,
@@ -439,9 +429,17 @@ mod test {
         let ciphertext = enc.encrypt(aad, pt).unwrap();
         assert_eq!(&ciphertext[..], ct);
 
+        // A fresh context's internal counter starts at zero, so this must match `encrypt`.
+        let mut enc_seq = Aead::new(Mode::Encrypt, algorithm, &k, *nonce).unwrap();
+        assert_eq!(enc_seq.encrypt_with_seq(aad, 0, pt).unwrap(), ciphertext);
+
         let mut dec = Aead::new(Mode::Decrypt, algorithm, &k, *nonce).unwrap();
         let plaintext = dec.decrypt(aad, 0, ct).unwrap();
         assert_eq!(&plaintext[..], pt);
+
+        let mut tampered = ct.to_vec();
+        *tampered.last_mut().unwrap() ^= 0xff;
+        assert!(dec.decrypt(aad, 0, &tampered).is_err());
     }
 
     fn decrypt(

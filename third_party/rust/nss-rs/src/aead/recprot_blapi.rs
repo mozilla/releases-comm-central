@@ -25,6 +25,7 @@ use crate::{
     Cipher, Error, Res, SymKey, Version,
     err::{sec::SEC_ERROR_BAD_DATA, secstatus_to_res},
     freebl::{self, AesCtx, ChaCha20Ctx, ChaChaOpFn},
+    p11::{CK_GCM_MESSAGE_PARAMS, CKG_NO_GENERATE},
 };
 
 // Compile-time C-type conversions for the constants used in every freebl call.
@@ -60,7 +61,7 @@ const TAG_BITS_UL: c_ulong = (TAG_LEN * 8) as c_ulong;
     clippy::cast_possible_truncation,
     reason = "CK_GCM_MESSAGE_PARAMS is a small fixed struct"
 )]
-const GCM_PARAMS_LEN_C: c_uint = size_of::<freebl::CK_GCM_MESSAGE_PARAMS>() as c_uint;
+const GCM_PARAMS_LEN_C: c_uint = size_of::<CK_GCM_MESSAGE_PARAMS>() as c_uint;
 
 enum RecordCipher {
     // AES-GCM bakes direction into the context at creation time via the
@@ -96,11 +97,11 @@ unsafe fn aead_op(
     let aad_len = c_uint::try_from(aad.len())?;
     match cipher {
         RecordCipher::Aes(ctx) => {
-            let mut params = freebl::CK_GCM_MESSAGE_PARAMS {
+            let mut params = CK_GCM_MESSAGE_PARAMS {
                 pIv: nonce.as_ptr().cast_mut(), // NSS only reads pIv for CKG_NO_GENERATE
                 ulIvLen: NONCE_LEN_UL,
                 ulIvFixedBits: 0,
-                ivGenerator: 0,
+                ivGenerator: CKG_NO_GENERATE,
                 pTag: tag,
                 ulTagBits: TAG_BITS_UL,
             };

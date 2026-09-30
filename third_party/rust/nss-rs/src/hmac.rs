@@ -6,17 +6,16 @@
 
 #![allow(non_camel_case_types)]
 
-use std::{convert::TryFrom as _, ptr};
-
-use pkcs11_bindings::CKA_SIGN;
+use std::ptr;
 
 use crate::{
     Error, SECItemBorrowed,
     err::IntoResult as _,
     hash::{self, HashAlgorithm},
     p11::{
-        self, PK11_CreateContextBySymKey, PK11_DigestFinal, PK11_DigestOp, PK11_ImportSymKey,
-        PK11Origin, SECOidTag, Slot,
+        CK_MECHANISM_TYPE, CKA_SIGN, CKM_SHA256_HMAC, CKM_SHA384_HMAC, CKM_SHA512_HMAC,
+        PK11_CreateContextBySymKey, PK11_DigestFinal, PK11_DigestOp, PK11_ImportSymKey, PK11Origin,
+        SECOidTag, Slot,
     },
 };
 
@@ -30,13 +29,11 @@ pub enum HmacAlgorithm {
     HMAC_SHA2_512,
 }
 
-#[allow(clippy::allow_attributes)]
-#[allow(clippy::useless_conversion)]
-fn hmac_alg_to_ckm(alg: &HmacAlgorithm) -> p11::CK_MECHANISM_TYPE {
+const fn hmac_alg_to_ckm(alg: &HmacAlgorithm) -> CK_MECHANISM_TYPE {
     match alg {
-        HmacAlgorithm::HMAC_SHA2_256 => p11::CKM_SHA256_HMAC.into(),
-        HmacAlgorithm::HMAC_SHA2_384 => p11::CKM_SHA384_HMAC.into(),
-        HmacAlgorithm::HMAC_SHA2_512 => p11::CKM_SHA512_HMAC.into(),
+        HmacAlgorithm::HMAC_SHA2_256 => CKM_SHA256_HMAC,
+        HmacAlgorithm::HMAC_SHA2_384 => CKM_SHA384_HMAC,
+        HmacAlgorithm::HMAC_SHA2_512 => CKM_SHA512_HMAC,
     }
 }
 

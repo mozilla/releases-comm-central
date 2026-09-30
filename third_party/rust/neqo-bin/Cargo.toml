@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-bin"
-version = "0.31.1"
+version = "0.32.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = "build.rs"
 autolib = false
@@ -22,7 +22,6 @@ autoexamples = false
 autotests = false
 autobenches = false
 description = "A basic QUIC HTTP/0.9 and HTTP/3 client and server."
-homepage = "https://github.com/mozilla/neqo/"
 readme = "../README.md"
 keywords = [
     "quic",
@@ -58,8 +57,10 @@ bench = [
     "neqo-bin/bench",
     "neqo-http3/bench",
     "neqo-transport/bench",
-    "log/release_max_level_info",
+    "log/release_max_level_warn",
 ]
+blapi = ["neqo-transport/blapi"]
+default = ["blapi"]
 draft-29 = [
     "neqo-http3/draft-29",
     "neqo-transport/draft-29",
@@ -134,12 +135,13 @@ path = "./../neqo-http3"
 
 [dependencies.neqo-transport]
 path = "./../neqo-transport"
+default-features = false
 
 [dependencies.neqo-udp]
 path = "./../neqo-udp"
 
 [dependencies.nss]
-version = "0.14"
+version = "0.16"
 git = "https://github.com/mozilla/nss-rs"
 package = "nss-rs"
 
@@ -162,6 +164,11 @@ default-features = false
 
 [dependencies.rustc-hash]
 version = "2.1"
+features = ["std"]
+default-features = false
+
+[dependencies.serde_json]
+version = "1.0"
 features = ["std"]
 default-features = false
 
@@ -193,6 +200,7 @@ package = "codspeed-criterion-compat"
 [dev-dependencies.neqo-bin]
 path = "."
 features = ["draft-29"]
+default-features = false
 
 [dev-dependencies.test-fixture]
 path = "../test-fixture"
@@ -205,6 +213,9 @@ default-features = false
 [build-dependencies.cfg_aliases]
 version = "0.2.2"
 default-features = false
+
+[lints.cargo]
+non_kebab_case_bins = "allow"
 
 [lints.clippy]
 allow_attributes = "warn"

@@ -5,6 +5,7 @@
 // except according to those terms.
 
 #include "cert.h"
+#include "hasht.h"
 #include "keyhi.h"
 #include "pk11pub.h"
 #include "pkcs11t.h"

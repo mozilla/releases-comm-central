@@ -14,7 +14,6 @@ use std::{
     convert::{TryFrom as _, TryInto as _},
     fmt::{self, Display, Formatter},
     mem,
-    ops::Deref,
     os::raw::{c_uint, c_void},
     pin::Pin,
     ptr::{null, null_mut},
@@ -88,8 +87,10 @@ impl fmt::Debug for Record {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, derive_more::Deref, derive_more::IntoIterator)]
+#[deref(forward)]
 pub struct RecordList {
+    #[into_iterator(owned)]
     records: Vec<Record>,
 }
 
@@ -127,30 +128,6 @@ impl RecordList {
             ssl::SSL_RecordLayerWriteCallback(fd, Some(Self::ingest), as_c_void(&mut records))
         }?;
         Ok(records)
-    }
-}
-
-impl Deref for RecordList {
-    type Target = [Record];
-    fn deref(&self) -> &[Record] {
-        &self.records
-    }
-}
-
-pub struct RecordListIter(std::vec::IntoIter<Record>);
-
-impl Iterator for RecordListIter {
-    type Item = Record;
-    fn next(&mut self) -> Option<Self::Item> {
-        self.0.next()
-    }
-}
-
-impl IntoIterator for RecordList {
-    type Item = Record;
-    type IntoIter = RecordListIter;
-    fn into_iter(self) -> Self::IntoIter {
-        RecordListIter(self.records.into_iter())
     }
 }
 

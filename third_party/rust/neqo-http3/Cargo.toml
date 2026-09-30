@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-http3"
-version = "0.31.1"
+version = "0.32.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = false
 autolib = false
@@ -22,7 +22,6 @@ autoexamples = false
 autotests = false
 autobenches = false
 description = "Neqo, the Mozilla implementation of QUIC in Rust."
-homepage = "https://github.com/mozilla/neqo/"
 readme = "../README.md"
 keywords = [
     "quic",
@@ -64,7 +63,7 @@ bench = [
     "neqo-qpack/bench",
     "neqo-transport/bench",
     "test-fixture/bench",
-    "log/release_max_level_info",
+    "log/release_max_level_warn",
 ]
 build-fuzzing-corpus = [
     "neqo-common/build-fuzzing-corpus",
@@ -149,7 +148,7 @@ path = "./../neqo-transport"
 default-features = false
 
 [dependencies.nss]
-version = "0.14"
+version = "0.16"
 git = "https://github.com/mozilla/nss-rs"
 package = "nss-rs"
 
@@ -192,6 +191,9 @@ default-features = false
 
 [dev-dependencies.test-fixture]
 path = "../test-fixture"
+
+[lints.cargo]
+non_kebab_case_bins = "allow"
 
 [lints.clippy]
 allow_attributes = "warn"

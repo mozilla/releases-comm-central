@@ -6,7 +6,7 @@
 
 #![allow(clippy::unwrap_used)] // Let's assume the use of `unwrap` was checked when the use of `unsafe` was reviewed.
 
-use std::{convert::TryFrom as _, mem, os::raw::c_void, pin::Pin};
+use std::{mem, os::raw::c_void, pin::Pin};
 
 use enum_map::EnumMap;
 use log::debug;
@@ -21,11 +21,13 @@ use crate::{
     ssl::{SSLSecretCallback, SSLSecretDirection},
 };
 
-experimental_api!(SSL_SecretCallback(
-    fd: *mut PRFileDesc,
-    cb: SSLSecretCallback,
-    arg: *mut c_void,
-));
+experimental_api! {
+    SSL_SecretCallback(
+        fd: *mut PRFileDesc,
+        cb: SSLSecretCallback,
+        arg: *mut c_void,
+    );
+}
 
 #[derive(Clone, Copy, Debug, FromRepr)]
 // Use i32 for Windows MSVC, unless it is MinGW (see

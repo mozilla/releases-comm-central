@@ -31,6 +31,7 @@ ignored = ["log"]
 
 [features]
 bench = ["nss-rs/bench"]
+default = []
 disable-random = []
 
 [lib]

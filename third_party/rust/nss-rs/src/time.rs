@@ -11,13 +11,11 @@
 
 use std::{
     convert::{TryFrom as _, TryInto as _},
-    ops::Deref,
     os::raw::c_void,
     pin::Pin,
+    sync::OnceLock,
     time::{Duration, Instant},
 };
-
-use once_cell::sync::OnceCell;
 
 use crate::{
     agent::as_c_void,
@@ -28,11 +26,13 @@ use crate::{
 
 include!(concat!(env!("OUT_DIR"), "/nspr_time.rs"));
 
-experimental_api!(SSL_SetTimeFunc(
-    fd: *mut PRFileDesc,
-    cb: SSLTimeFunc,
-    arg: *mut c_void,
-));
+experimental_api! {
+    SSL_SetTimeFunc(
+        fd: *mut PRFileDesc,
+        cb: SSLTimeFunc,
+        arg: *mut c_void,
+    );
+}
 
 /// This struct holds the zero time used for converting between `Instant` and `PRTime`.
 #[derive(Debug)]
@@ -63,7 +63,7 @@ impl TimeZero {
                 prtime: prnow,
             }
         } else {
-            let elapsed = Interval::from(now.duration_since(now));
+            let elapsed = Interval::from(now.duration_since(t));
             // An error from these unwrap functions would require
             // ridiculously long application running time.
             let prelapsed: PRTime = elapsed.try_into().unwrap();
@@ -75,7 +75,7 @@ impl TimeZero {
     }
 }
 
-static BASE_TIME: OnceCell<TimeZero> = OnceCell::new();
+static BASE_TIME: OnceLock<TimeZero> = OnceLock::new();
 
 fn get_base() -> &'static TimeZero {
     BASE_TIME.get_or_init(|| TimeZero {
@@ -93,16 +93,9 @@ pub fn init() {
 }
 
 /// Time wraps Instant and provides conversion functions into `PRTime`.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, derive_more::Deref)]
 pub struct Time {
     t: Instant,
-}
-
-impl Deref for Time {
-    type Target = Instant;
-    fn deref(&self) -> &Self::Target {
-        &self.t
-    }
 }
 
 impl From<Instant> for Time {
@@ -159,7 +152,7 @@ impl From<Time> for Instant {
 }
 
 /// Interval wraps Duration and provides conversion functions into `PRTime`.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, derive_more::From)]
 pub struct Interval {
     d: Duration,
 }
@@ -170,12 +163,6 @@ impl TryFrom<PRTime> for Interval {
         Ok(Self {
             d: Duration::from_micros(u64::try_from(prtime)?),
         })
-    }
-}
-
-impl From<Duration> for Interval {
-    fn from(d: Duration) -> Self {
-        Self { d }
     }
 }
 
@@ -276,6 +263,32 @@ mod test {
     fn timezero_baseline_past() {
         let past = Instant::now().checked_sub(Duration::from_secs(5)).unwrap();
         assert_eq!(TimeZero::baseline(past).instant, past);
+    }
+
+    #[test]
+    #[expect(clippy::disallowed_methods, reason = "Test for special time handling")]
+    fn timezero_baseline_past_prtime() {
+        // A past seed instant must be paired with a `prtime` back-dated by the
+        // same amount, so `instant` and `prtime` name the same moment. Seed two
+        // baselines back-to-back with instants that differ by a known gap: the
+        // gap between their `prtime`s must match. If `elapsed` ignores the seed,
+        // both `prtime`s collapse to "now" and the gap vanishes.
+        const NEAR: Duration = Duration::from_secs(2);
+        const FAR: Duration = Duration::from_secs(8);
+        // The only jitter is the few clock reads between the two calls.
+        const TOLERANCE: Duration = Duration::from_millis(100);
+        let now = Instant::now();
+        let tz_near = TimeZero::baseline(now.checked_sub(NEAR).unwrap());
+        let tz_far = TimeZero::baseline(now.checked_sub(FAR).unwrap());
+
+        // Older seed => earlier prtime, so near - far ~= FAR - NEAR = 6s.
+        let gap = tz_near.prtime - tz_far.prtime;
+        let expected = PRTime::try_from(FAR.checked_sub(NEAR).unwrap().as_micros()).unwrap();
+        let tolerance = PRTime::try_from(TOLERANCE.as_micros()).unwrap();
+        assert!(
+            (expected - tolerance..expected + tolerance).contains(&gap),
+            "prtime not back-dated per seed: gap={gap}us, expected ~{expected}us"
+        );
     }
 
     #[test]

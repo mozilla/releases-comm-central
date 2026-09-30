@@ -14,7 +14,7 @@
 #[cfg(feature = "gecko")]
 use std::ffi::CStr;
 use std::{
-    os::raw::{c_int, c_uchar, c_uint, c_ulong, c_void},
+    os::raw::{c_int, c_uchar, c_uint, c_void},
     sync::OnceLock,
 };
 
@@ -37,32 +37,6 @@ pub struct AESContext {
 pub struct ChaCha20Poly1305Context {
     _private: [u8; 0],
 }
-
-// GCM message-level params (PKCS#11 v3, pkcs11t.h).
-// For CKG_NO_GENERATE (ivGenerator = 0), pIv/ulIvLen supply the full nonce.
-// For encrypt, pTag is the output tag buffer; for decrypt, pTag is the input
-// tag to verify. ulTagBits = TAG_LEN * 8 = 128.
-//
-// NSS's pkcs11t.h pulls in pkcs11p.h which applies `#pragma pack(push,
-// cryptoki, 1)` on all platforms.  On LP64 all six fields are 8 bytes wide so
-// packing is a no-op (sizeof = 48).  On Windows LLP64 (CK_ULONG = 4 bytes)
-// packing removes the natural 4-byte padding before `pTag` (sizeof = 32).
-#[repr(C, packed)]
-#[derive(Copy, Clone)]
-#[expect(non_snake_case, reason = "PKCS#11 naming conventions.")]
-pub struct CK_GCM_MESSAGE_PARAMS {
-    pub pIv: *mut c_uchar,
-    pub ulIvLen: c_ulong,
-    pub ulIvFixedBits: c_ulong,
-    pub ivGenerator: c_ulong, // CK_GENERATOR_FUNCTION; 0 = CKG_NO_GENERATE
-    pub pTag: *mut c_uchar,
-    pub ulTagBits: c_ulong,
-}
-
-// LP64: pointer == c_ulong == 8 bytes, no padding even packed → size = 6 × 8.
-// Windows LLP64: packed size = 32, which != 6 × 4 = 24, so skip the check.
-#[cfg(not(target_os = "windows"))]
-const _: () = assert!(size_of::<CK_GCM_MESSAGE_PARAMS>() == 6 * size_of::<c_ulong>());
 
 // Encrypt and decrypt share this signature; direction is baked in at
 // construction time by storing either pointer.

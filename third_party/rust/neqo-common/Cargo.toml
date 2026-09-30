@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-common"
-version = "0.31.1"
+version = "0.32.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = "build.rs"
 autolib = false
@@ -22,7 +22,6 @@ autoexamples = false
 autotests = false
 autobenches = false
 description = "Neqo, the Mozilla implementation of QUIC in Rust."
-homepage = "https://github.com/mozilla/neqo/"
 readme = "../README.md"
 keywords = [
     "quic",
@@ -52,7 +51,7 @@ memory = false
 [features]
 bench = [
     "test-fixture/bench",
-    "log/release_max_level_info",
+    "log/release_max_level_warn",
 ]
 build-fuzzing-corpus = [
     "hex/alloc",
@@ -97,6 +96,14 @@ default-features = false
 version = "0.16.0"
 default-features = false
 
+[dependencies.serde]
+version = "1.0"
+features = [
+    "derive",
+    "std",
+]
+default-features = false
+
 [dependencies.sha1]
 version = "0.10"
 optional = true
@@ -123,10 +130,21 @@ package = "codspeed-criterion-compat"
 [dev-dependencies.test-fixture]
 path = "../test-fixture"
 
+[target.'cfg(target_os = "macos")'.dependencies.libc]
+version = "0.2"
+default-features = false
+
+[target.'cfg(target_os = "macos")'.dependencies.mach2]
+version = "0.4.1"
+default-features = false
+
 [target."cfg(windows)".dependencies.windows]
 version = ">=0.60,<0.63"
 features = ["Win32_Media"]
 default-features = false
+
+[lints.cargo]
+non_kebab_case_bins = "allow"
 
 [lints.clippy]
 allow_attributes = "warn"

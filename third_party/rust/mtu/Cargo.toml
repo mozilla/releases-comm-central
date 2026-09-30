@@ -22,7 +22,6 @@ autoexamples = false
 autotests = false
 autobenches = false
 description = "Obtain the local network interface MTU towards a given IP address."
-homepage = "https://github.com/mozilla/neqo/"
 readme = "README.md"
 keywords = [
     "mozilla",
@@ -75,6 +74,9 @@ features = [
     "Win32_Networking_WinSock",
 ]
 default-features = false
+
+[lints.cargo]
+non_kebab_case_bins = "allow"
 
 [lints.clippy]
 allow_attributes = "warn"

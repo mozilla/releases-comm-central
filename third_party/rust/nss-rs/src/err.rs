@@ -70,8 +70,6 @@ pub enum Error {
     CreateSslSocket,
     #[error("ECH error, retry needed")]
     EchRetry(Vec<u8>),
-    #[error("HKDF error")]
-    Hkdf,
     #[error("Internal error")]
     Internal,
     #[error("Integer overflow")]

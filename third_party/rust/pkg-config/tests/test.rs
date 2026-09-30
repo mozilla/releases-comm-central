@@ -1,15 +1,9 @@
-extern crate pkg_config;
-#[macro_use]
-extern crate lazy_static;
-
 use pkg_config::Error;
 use std::env;
 use std::path::PathBuf;
 use std::sync::Mutex;
 
-lazy_static! {
-    static ref LOCK: Mutex<()> = Mutex::new(());
-}
+static LOCK: Mutex<()> = Mutex::new(());
 
 fn reset() {
     for (k, _) in env::vars() {
@@ -24,10 +18,7 @@ fn reset() {
     }
     env::remove_var("TARGET");
     env::remove_var("HOST");
-    env::set_var(
-        "PKG_CONFIG_PATH",
-        &env::current_dir().unwrap().join("tests"),
-    );
+    env::set_var("PKG_CONFIG_PATH", env::current_dir().unwrap().join("tests"));
 }
 
 fn find(name: &str) -> Result<pkg_config::Library, Error> {

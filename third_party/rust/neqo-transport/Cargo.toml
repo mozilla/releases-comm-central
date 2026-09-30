@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-transport"
-version = "0.31.1"
+version = "0.32.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = false
 autolib = false
@@ -22,7 +22,6 @@ autoexamples = false
 autotests = false
 autobenches = false
 description = "Neqo, the Mozilla implementation of QUIC in Rust."
-homepage = "https://github.com/mozilla/neqo/"
 readme = "../README.md"
 keywords = [
     "quic",
@@ -110,10 +109,9 @@ mode = "simulation"
 [features]
 bench = [
     "neqo-common/bench",
-    "nss/bench",
     "blapi",
     "test-fixture/bench",
-    "log/release_max_level_info",
+    "log/release_max_level_warn",
 ]
 blapi = ["nss/blapi"]
 build-fuzzing-corpus = [
@@ -243,7 +241,7 @@ path = "../mtu"
 path = "../neqo-common"
 
 [dependencies.nss]
-version = "0.14"
+version = "0.16"
 git = "https://github.com/mozilla/nss-rs"
 package = "nss-rs"
 
@@ -254,6 +252,19 @@ default-features = false
 [dependencies.rustc-hash]
 version = "2.1"
 features = ["std"]
+default-features = false
+
+[dependencies.serde]
+version = "1.0"
+features = [
+    "derive",
+    "std",
+]
+default-features = false
+
+[dependencies.serde_with]
+version = "3.12"
+features = ["macros"]
 default-features = false
 
 [dependencies.smallvec]
@@ -287,8 +298,16 @@ path = "."
 features = ["draft-29"]
 default-features = false
 
+[dev-dependencies.serde_json]
+version = "1.0"
+features = ["std"]
+default-features = false
+
 [dev-dependencies.test-fixture]
 path = "../test-fixture"
+
+[lints.cargo]
+non_kebab_case_bins = "allow"
 
 [lints.clippy]
 allow_attributes = "warn"

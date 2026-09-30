@@ -29,12 +29,6 @@ pub enum KdfError {
     UnsupportedCipherSuite,
 }
 
-impl From<nss_rs::hkdf::HkdfError> for KdfError {
-    fn from(_value: nss_rs::hkdf::HkdfError) -> Self {
-        KdfError::InvalidInput
-    }
-}
-
 impl From<nss_rs::Error> for KdfError {
     fn from(_value: nss_rs::Error) -> Self {
         KdfError::InternalError
@@ -86,7 +80,7 @@ impl KdfType for Kdf {
         // Expand
         let r = hkdf
             .expand_data(&prk_symkey, info, len)
-            .expect("HkdfError::InternalError");
+            .expect("internal error");
         Ok(r)
     }
 

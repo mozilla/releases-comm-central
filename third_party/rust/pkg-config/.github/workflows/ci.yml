@@ -18,23 +18,20 @@ jobs:
       fail-fast: false
       matrix:
         rust:
-          - 1.30.0
+          - 1.63.0
           - stable
           - beta
           - nightly
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions-rs/toolchain@v1
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@master
       with:
         toolchain: ${{ matrix.rust }}
-        default: true
-        profile: minimal
-    - run: rustup component add rustfmt-preview
-    - name: cargo fmt --all -- --check if stable
+    - name: cargo fmt --all -- --check
       run: |
-        if [ "${{ matrix.rust }}" = "stable" ]; then
-          cargo fmt --all -- --check
-        fi
+        rustup component add rustfmt-preview
+        cargo fmt --all -- --check
+      if: matrix.rust == 'stable'
     - run: |
         cargo build --verbose
     - run: |

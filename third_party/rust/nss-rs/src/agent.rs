@@ -11,14 +11,13 @@
 
 use std::{
     cell::RefCell,
-    convert::{TryFrom as _, TryInto as _},
     ffi::{CStr, CString},
     fmt::{self, Debug, Display, Formatter, Write as _},
     mem::MaybeUninit,
     ops::{Deref, DerefMut},
     os::raw::{c_uint, c_void},
     pin::Pin,
-    ptr::{NonNull, null, null_mut},
+    ptr::{null, null_mut},
     rc::Rc,
     slice,
     time::Instant,
@@ -26,18 +25,20 @@ use std::{
 
 use log::{debug, info, trace, warn};
 
+pub use crate::agentio::{Record, RecordList, as_c_void};
 use crate::{
     SECItem, SECItemArray, SECItemBorrowed, SECStatus,
     agentio::{AgentIo, METHODS},
     assert_initialized,
     auth::AuthenticationStatus,
+    cert::{CertificateCompressor, CertificateInfo, UnsafeCertCompression},
     constants::{
         Alert, Cipher, Epoch, Extension, Group, SignatureScheme, TLS_VERSION_1_3, Version,
     },
     ech,
     err::{Error, PRErrorCode, Res, is_blocked, secstatus_to_res},
     ext::{ExtensionHandler, ExtensionTracker, SSL_CallExtensionWriterOnEchInner},
-    nss_prelude::{SECItemStr, SECWouldBlock},
+    nss_prelude::SECWouldBlock,
     null_safe_slice,
     p11::{self, PrivateKey, PublicKey, hex_with_len},
     prio,
@@ -46,143 +47,6 @@ use crate::{
     ssl::{self, PRBool},
     time::{Time, TimeHolder},
 };
-pub use crate::{
-    agentio::{Record, RecordList, as_c_void},
-    cert::CertificateInfo,
-};
-
-/// Private trait for Certificate Compression implementation
-/// Use `SafeCertCompression` to implement an encoder/decoder instead.
-trait UnsafeCertCompression {
-    extern "C" fn decode_callback(
-        input: *const SECItem,
-        output: *mut ::std::os::raw::c_uchar,
-        output_len: usize,
-        used_len: *mut usize,
-    ) -> SECStatus;
-
-    extern "C" fn encode_callback(input: *const SECItem, output: *mut SECItem) -> SECStatus;
-}
-
-/// The trait is used to represent a certificate compression data structure
-/// Used in order to enable Certificate Compression extension during TLS connection
-pub trait CertificateCompressor {
-    /// Certificate Compression identifier as in RFC8879
-    const ID: u16;
-    /// Certification Compression name (used only for logging/debugging)
-    const NAME: &CStr;
-    /// Certificate Compression could be used to encode and decode a certificate
-    /// though the encoding is not frequently used
-    /// Enable decoding field is used to signal to the implementation
-    /// to use the encoding as well
-    const ENABLE_ENCODING: bool = false;
-
-    /// Certificate Compression encoding function
-    ///
-    /// This default implementation effectively does nothing.
-    /// However, this is only run if `ENABLE_ENCODING` is `true`.
-    /// Implementations that set `ENABLE_ENCODING` to `true` need to implement this function.
-    ///
-    /// # Errors
-    /// Encoding was unsuccessful, for example, not enough memory
-    fn encode(input: &[u8], output: &mut [u8]) -> Res<usize> {
-        let len = std::cmp::min(input.len(), output.len());
-        output[..len].copy_from_slice(&input[..len]);
-        Ok(len)
-    }
-
-    /// Certificate Compression decoding function.
-    /// # Errors
-    /// Decoding was unsuccessful.
-    /// We require a decoder internally to check the length of the decoded buffer.
-    /// If the decoded length is not equal to the length of the provided slice
-    /// the decoder should return an error.
-    fn decode(input: &[u8], output: &mut [u8]) -> Res<()>;
-}
-
-/// The trait is responsible for calling `CertificateCompression` encoding and decoding
-/// functions using the NSS types
-impl<T: CertificateCompressor> UnsafeCertCompression for T {
-    extern "C" fn decode_callback(
-        input: *const SECItem,
-        output: *mut ::std::os::raw::c_uchar,
-        output_len: usize,
-        used_len: *mut usize,
-    ) -> SECStatus {
-        let Some(input) = NonNull::new(input.cast_mut()) else {
-            return ssl::SECFailure;
-        };
-        if unsafe { input.as_ref().data.is_null() || input.as_ref().len == 0 } {
-            return ssl::SECFailure;
-        }
-
-        let input_slice = unsafe { null_safe_slice(input.as_ref().data, input.as_ref().len) };
-        let output_slice = unsafe { slice::from_raw_parts_mut(output, output_len) };
-
-        if T::decode(input_slice, output_slice).is_err() {
-            return ssl::SECFailure;
-        }
-
-        unsafe {
-            *used_len = output_len;
-        }
-        ssl::SECSuccess
-    }
-
-    extern "C" fn encode_callback(input: *const SECItem, output: *mut SECItem) -> SECStatus {
-        let Some(input) = NonNull::new(input.cast_mut()) else {
-            return ssl::SECFailure;
-        };
-
-        let (input_data, input_len) = unsafe {
-            let input_ref = input.as_ref();
-            (input_ref.data, input_ref.len)
-        };
-
-        if input_data.is_null() || input_len == 0 {
-            return ssl::SECFailure;
-        }
-        let input_slice = unsafe { null_safe_slice(input_data, input_len) };
-
-        unsafe {
-            p11::SECITEM_AllocItem(
-                null_mut(),
-                // p11::SECItem is the same as ssl::SECItem
-                output.cast::<SECItemStr>(),
-                // Compression shouldn't make the thing *longer*,
-                // but allocate one extra byte anyway to enable simple testing modes.
-                input_len + 1,
-            );
-        }
-
-        if unsafe { (*output).data.is_null() } {
-            return ssl::SECFailure;
-        }
-
-        let Ok(output_len) = (unsafe { (*output).len.try_into() }) else {
-            return ssl::SECFailure;
-        };
-
-        let output_slice = unsafe { slice::from_raw_parts_mut((*output).data, output_len) };
-
-        let Ok(encoded_len) = T::encode(input_slice, output_slice) else {
-            return ssl::SECFailure;
-        };
-
-        if encoded_len == 0 || encoded_len > output_len {
-            return ssl::SECFailure;
-        }
-
-        let Ok(encoded_len) = encoded_len.try_into() else {
-            return ssl::SECFailure;
-        };
-
-        unsafe {
-            (*output).len = encoded_len;
-        }
-        ssl::SECSuccess
-    }
-}
 
 /// The maximum number of tickets to remember for a given connection.
 const MAX_TICKETS: usize = 4;
@@ -921,9 +785,19 @@ impl SecretAgent {
             // Within this scope, _h maintains a mutable reference to self.io.
             let _h = self.io.wrap(input);
             match self.state {
-                HandshakeState::Authenticated(err) => unsafe {
-                    ssl::SSL_AuthCertificateComplete(self.fd, err)
-                },
+                HandshakeState::Authenticated(err) => {
+                    let rv = unsafe { ssl::SSL_AuthCertificateComplete(self.fd, err) };
+                    // SSL_AuthCertificateComplete reports SECSuccess even when
+                    // `err` rejects the certificate, so its result cannot stand
+                    // in for handshake progress. When the certificate was
+                    // rejected, force the handshake so the failure surfaces
+                    // instead of a bogus completion.
+                    if err == 0 {
+                        rv
+                    } else {
+                        unsafe { ssl::SSL_ForceHandshake(self.fd) }
+                    }
+                }
                 _ => unsafe { ssl::SSL_ForceHandshake(self.fd) },
             }
         };
@@ -1047,8 +921,9 @@ impl Display for SecretAgent {
     }
 }
 
-#[derive(PartialOrd, Ord, PartialEq, Eq, Clone)]
+#[derive(PartialOrd, Ord, PartialEq, Eq, Clone, derive_more::AsRef)]
 pub struct ResumptionToken {
+    #[as_ref([u8])]
     token: Vec<u8>,
     expiration_time: Instant,
 }
@@ -1059,12 +934,6 @@ impl Debug for ResumptionToken {
             .field("token", &hex_snip_middle(&self.token))
             .field("expiration_time", &self.expiration_time)
             .finish()
-    }
-}
-
-impl AsRef<[u8]> for ResumptionToken {
-    fn as_ref(&self) -> &[u8] {
-        &self.token
     }
 }
 
@@ -1084,8 +953,10 @@ impl ResumptionToken {
 }
 
 /// A TLS Client.
-#[derive(Debug)]
+#[derive(Debug, derive_more::Deref, derive_more::DerefMut)]
 pub struct Client {
+    #[deref]
+    #[deref_mut]
     agent: SecretAgent,
 
     /// The name of the server we're attempting a connection to.
@@ -1239,19 +1110,6 @@ impl Client {
     }
 }
 
-impl Deref for Client {
-    type Target = SecretAgent;
-    fn deref(&self) -> &SecretAgent {
-        &self.agent
-    }
-}
-
-impl DerefMut for Client {
-    fn deref_mut(&mut self) -> &mut SecretAgent {
-        &mut self.agent
-    }
-}
-
 impl Display for Client {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "Client {:p}", self.agent.fd)
@@ -1302,8 +1160,10 @@ impl ZeroRttCheckState {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, derive_more::Deref, derive_more::DerefMut)]
 pub struct Server {
+    #[deref]
+    #[deref_mut]
     agent: SecretAgent,
     /// This holds the HRR callback context.
     zero_rtt_check: Option<Pin<Box<ZeroRttCheckState>>>,
@@ -1503,19 +1363,6 @@ impl Server {
     }
 }
 
-impl Deref for Server {
-    type Target = SecretAgent;
-    fn deref(&self) -> &SecretAgent {
-        &self.agent
-    }
-}
-
-impl DerefMut for Server {
-    fn deref_mut(&mut self) -> &mut SecretAgent {
-        &mut self.agent
-    }
-}
-
 impl Display for Server {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "Server {:p}", self.agent.fd)
@@ -1523,7 +1370,7 @@ impl Display for Server {
 }
 
 /// A generic container for Client or Server.
-#[derive(Debug)]
+#[derive(Debug, derive_more::From)]
 pub enum Agent {
     Client(Client),
     Server(Server),
@@ -1545,18 +1392,6 @@ impl DerefMut for Agent {
             Self::Client(c) => c,
             Self::Server(s) => s,
         }
-    }
-}
-
-impl From<Client> for Agent {
-    fn from(c: Client) -> Self {
-        Self::Client(c)
-    }
-}
-
-impl From<Server> for Agent {
-    fn from(s: Server) -> Self {
-        Self::Server(s)
     }
 }
 
