@@ -3350,7 +3350,7 @@ export var GlodaDatastore = {
     }
 
     if (aItem.id != null) {
-      dbMeta.clearAttrstatement.bindByIndex(0, aItem.id);
+      dbMeta.clearAttrStatement.bindByIndex(0, aItem.id);
       dbMeta.clearAttrStatement.executeAsync(this.trackAsync());
     }
   },
