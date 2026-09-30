@@ -837,62 +837,55 @@ export class EwsServer extends MockServer {
       "m:SyncFolderItemsResponseMessage"
     )[0];
 
-    const [changes, truncated] = this.getChangesSince(
+    const { changes, hasMore, nextOffset } = this.getChangesSince(
       offset,
       syncFolderId,
       this.maxSyncItems
     );
 
-    if (truncated) {
+    if (hasMore) {
       responseMessageEl.getElementsByTagName(
         "m:IncludesLastItemInRange"
       )[0].textContent = "false";
     }
 
-    let mostRecentChangeIdx;
-    if (truncated) {
-      mostRecentChangeIdx = offset + this.maxSyncItems;
-    } else {
-      mostRecentChangeIdx = this.itemChanges.length;
-    }
-
     const resSyncStateEl = resDoc.createElement("m:SyncState");
-    resSyncStateEl.textContent = mostRecentChangeIdx;
+    resSyncStateEl.textContent = nextOffset;
     responseMessageEl.appendChild(resSyncStateEl);
 
     const changesEl = resDoc.getElementsByTagName("m:Changes")[0];
-    changes.forEach(([changeType, parentId, itemId]) => {
-      if (changeType == "create") {
+    changes.forEach(({ kind, parentId, id }) => {
+      if (kind == "create") {
         const messageEl = changesEl
           .appendChild(resDoc.createElement("t:Create"))
           .appendChild(resDoc.createElement("t:Message"));
         messageEl
           .appendChild(resDoc.createElement("t:ItemId"))
-          .setAttribute("Id", itemId);
+          .setAttribute("Id", id);
         messageEl
           .appendChild(resDoc.createElement("t:ParentFolderId"))
           .setAttribute("Id", parentId);
-      } else if (changeType == "readflag") {
-        const item = this.getItemInfo(itemId);
+      } else if (kind == "readflag") {
+        const item = this.getItemInfo(id);
         const changeEl = changesEl.appendChild(
           resDoc.createElement("t:ReadFlagChange")
         );
         const itemEl = changeEl.appendChild(resDoc.createElement("t:ItemId"));
-        itemEl.setAttribute("Id", itemId);
+        itemEl.setAttribute("Id", id);
         itemEl.setAttribute("ChangeKey", "abc12345");
         changeEl.appendChild(resDoc.createElement("t:IsRead")).textContent =
           item.syntheticMessage.metaState.read;
-      } else if (changeType == "update") {
+      } else if (kind == "update") {
         changesEl
           .appendChild(resDoc.createElement("t:Update"))
           .appendChild(resDoc.createElement("t:Message"))
           .appendChild(resDoc.createElement("t:ItemId"))
-          .setAttribute("Id", itemId);
-      } else if (changeType == "delete") {
+          .setAttribute("Id", id);
+      } else if (kind == "delete") {
         changesEl
           .appendChild(resDoc.createElement("t:Delete"))
           .appendChild(resDoc.createElement("t:ItemId"))
-          .setAttribute("Id", itemId);
+          .setAttribute("Id", id);
       }
     });
 
@@ -936,24 +929,24 @@ export class EwsServer extends MockServer {
     responseMessageEl.appendChild(resSyncStateEl);
 
     const changesEl = resDoc.getElementsByTagName("m:Changes")[0];
-    changes.forEach(([changeType, folderId]) => {
-      if (changeType == "create") {
+    changes.forEach(({ kind, id }) => {
+      if (kind == "create") {
         changesEl
           .appendChild(resDoc.createElement("t:Create"))
           .appendChild(resDoc.createElement("t:Folder"))
           .appendChild(resDoc.createElement("t:FolderId"))
-          .setAttribute("Id", folderId);
-      } else if (changeType == "update") {
+          .setAttribute("Id", id);
+      } else if (kind == "update") {
         changesEl
           .appendChild(resDoc.createElement("t:Update"))
           .appendChild(resDoc.createElement("t:Folder"))
           .appendChild(resDoc.createElement("t:FolderId"))
-          .setAttribute("Id", folderId);
-      } else if (changeType == "delete") {
+          .setAttribute("Id", id);
+      } else if (kind == "delete") {
         changesEl
           .appendChild(resDoc.createElement("t:Delete"))
           .appendChild(resDoc.createElement("t:FolderId"))
-          .setAttribute("Id", folderId);
+          .setAttribute("Id", id);
       }
     });
 
@@ -1264,7 +1257,11 @@ export class EwsServer extends MockServer {
       const isReadEl = itemChange.getElementsByTagName("t:IsRead")[0];
       if (isReadEl) {
         item.syntheticMessage.metaState.read = isReadEl.textContent == "true";
-        this.itemChanges.push(["readflag", item.parentId, itemId]);
+        this.itemChanges.push({
+          kind: "readflag",
+          parentId: item.parentId,
+          id: itemId,
+        });
       }
 
       // This is replicating observed behavior in M365. To change
@@ -1732,7 +1729,11 @@ export class EwsServer extends MockServer {
       if (folder) {
         this.getItemsInFolder(folder.id).forEach(item => {
           item.syntheticMessage.metaState.read = markRead;
-          this.itemChanges.push(["readflag", item.parentId, item.id]);
+          this.itemChanges.push({
+            kind: "readflag",
+            parentId: item.parentId,
+            id: item.id,
+          });
         });
 
         if (!success) {

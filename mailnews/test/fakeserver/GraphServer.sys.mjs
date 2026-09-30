@@ -9,125 +9,15 @@ import {
   RemoteFolder,
 } from "resource://testing-common/mailnews/MockServer.sys.mjs";
 
-import { Assert } from "resource://testing-common/Assert.sys.mjs";
+import {
+  Recipient,
+  GraphMessage,
+  HttpResponseData,
+} from "resource://testing-common/mailnews/GraphTypes.sys.mjs";
+
 import { CommonUtils } from "resource://services-common/utils.sys.mjs";
 
 import { SyntheticMessage } from "resource://testing-common/mailnews/MessageGenerator.sys.mjs";
-
-/**
- * A recipient to a `GraphMessage`. Note that the structure of this class does
- * *not* match the structure of the `recipient` type from the Graph API.
- */
-export class Recipient {
-  /**
-   * The recipient's name.
-   *
-   * @type {string}
-   */
-  name;
-
-  /**
-   * The recipient's email address.
-   *
-   * @type {string}
-   */
-  address;
-
-  constructor(name, address) {
-    this.name = name;
-    this.address = address;
-  }
-}
-
-/**
- * A message created on a Graph server. Note that the structure of this class
- * does *not* match the structure of the `message` type from the Graph API.
- */
-export class GraphMessage {
-  /**
-   * The unique identifier for this message.
-   *
-   * @type {string}
-   */
-  id;
-
-  /**
-   * The message's Bcc recipients.
-   *
-   * @type {Array<Recipient>}
-   */
-  bccRecipients = [];
-
-  /**
-   * Whether the user has requested DSN (Delivery Status Notification) for this
-   * message.
-   *
-   * @type {bool}
-   */
-  dsnRequested = false;
-
-  /**
-   * The raw RFC822 content for this message.
-   *
-   * @type {string}
-   */
-  content;
-
-  constructor(id, bccRecipients, dsnRequested, content) {
-    this.id = id;
-    this.bccRecipients = bccRecipients;
-    this.dsnRequested = dsnRequested;
-    this.content = content;
-  }
-}
-
-export class GraphCalendarEvent {
-  /**
-   * @param {string} id - Graph ID (same space as message IDs)
-   * @param {string} subject
-   * @param {string} startDateTime
-   * @param {string} endDateTime
-   */
-  constructor(id, subject, startDateTime, endDateTime) {
-    this.id = id;
-    this.subject = subject;
-    this.startDateTime = startDateTime;
-    this.endDateTime = endDateTime;
-  }
-
-  toJSON() {
-    return {
-      "@odata.type": "#microsoft.graph.event",
-      id: this.id,
-      subject: this.subject,
-      start: {
-        dateTime: this.startDateTime,
-        timeZone: "UTC",
-      },
-      end: {
-        dateTime: this.endDateTime,
-        timeZone: "UTC",
-      },
-    };
-  }
-}
-
-/**
- * A simple class to hold the data associated with an HTTP response.
- */
-class HttpResponseData {
-  constructor(
-    statusCode,
-    statusMessage,
-    bodyContent = "",
-    httpVersion = "1.1"
-  ) {
-    this.httpVersion = httpVersion;
-    this.statusCode = statusCode;
-    this.statusMessage = statusMessage;
-    this.bodyContent = bodyContent;
-  }
-}
 
 /**
  * A mock server to mimic operations with Graph API.
@@ -357,7 +247,11 @@ export class GraphServer extends MockServer {
     }
 
     this.#calendarEventsById.set(calendarEvent.id, calendarEvent);
-    this.itemChanges.push(["update", itemInfo.parentId, calendarEvent.id]);
+    this.itemChanges.push({
+      kind: "update",
+      parentId: itemInfo.parentId,
+      id: calendarEvent.id,
+    });
   }
 
   /**
@@ -512,7 +406,8 @@ export class GraphServer extends MockServer {
    * @param {string} resourcePath
    * @param {string} resourceQuery
    * @param {string} requestBody
-   * @returns {HttpResponseData} The response status code and content for the request.
+   * @returns {HttpResponseData} The response status code and content for the
+   *   request.
    */
   #dispatchRequest(
     requestMethod,
@@ -571,7 +466,10 @@ export class GraphServer extends MockServer {
             resourceQuery
           );
         } else if (resourcePath === "/me/mailFolders/delta()") {
-          responseJsonObject = this.#mailFoldersDelta(resourceQuery);
+          responseJsonObject = this.#mailFoldersDelta(
+            requestHeaders,
+            resourceQuery
+          );
         } else if (resourcePath.startsWith("/me/mailFolders/")) {
           responseJsonObject = this.#mailFolder(resourcePath.substring(16));
         } else if (
@@ -718,76 +616,6 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handles GET /me/calendars/{calendarId}/events/delta
-   *
-   * @param {Map<string, string>} requestHeaders - The map of headers included
-   *   in the request.
-   * @param {string} calendarId
-   * @param {string} queryString - The query parameters from the request.
-   * @returns {object}
-   */
-  #syncCalendarEvents(requestHeaders, calendarId, queryString) {
-    const preferHeaderValue = requestHeaders.get("prefer");
-    let maxPageSizeMatch;
-    if (
-      (maxPageSizeMatch = /odata\.maxpagesize=([0-9]+)/.exec(preferHeaderValue))
-    ) {
-      this.lastMaxMessagePageSize = parseInt(maxPageSizeMatch[1]);
-    } else {
-      this.lastMaxMessagePageSize = null;
-    }
-
-    const params = new URLSearchParams(queryString);
-    const nextParams = new URLSearchParams(params);
-    let offset;
-    if (params.has("$skiptoken")) {
-      offset = parseInt(params.get("$skiptoken"));
-    } else if (params.has("$deltatoken")) {
-      offset = parseInt(params.get("$deltatoken"));
-    } else {
-      offset = 0;
-    }
-
-    const context = `${this.#apparentEndpoint}/$metadata#Collection(event)`;
-
-    const [changes, truncated] = this.getChangesSince(
-      offset,
-      calendarId,
-      this.maxSyncItems
-    );
-    const page = [];
-    for (const [changeType, itemCalendarId, eventId] of changes) {
-      Assert.equal(
-        calendarId,
-        itemCalendarId,
-        "all retrieved items should be from the same calendar"
-      );
-      if (changeType == "create" || changeType == "update") {
-        page.push(this.#calendarEventsById.get(eventId).toJSON());
-      } else if (changeType == "delete") {
-        page.push({
-          id: eventId,
-          "@removed": { reason: "deleted" },
-        });
-      }
-    }
-
-    const result = {
-      "@odata.context": context,
-      value: page,
-    };
-
-    const [tokenKey, newToken, odataKey] = truncated
-      ? ["$skiptoken", offset + this.maxSyncItems, "@odata.nextLink"]
-      : ["$deltatoken", this.itemChanges.length, "@odata.deltaLink"];
-    nextParams.set(tokenKey, `${newToken}`);
-    result[odataKey] =
-      `${this.#apparentEndpoint}/me/calendars/${calendarId}/events/delta?${nextParams}`;
-
-    return result;
-  }
-
-  /**
    * Handle GET /me/mailFolders/{mailFolderId}.
    *
    * @param {string} folderId
@@ -795,19 +623,8 @@ export class GraphServer extends MockServer {
    */
   #mailFolder(folderId) {
     const decodedFolderId = decodeURIComponent(folderId);
-    const folder =
-      this.getDistinguishedFolder(decodedFolderId) ||
-      this.getFolder(decodedFolderId);
-    if (!folder) {
-      throw new Error(`Unexpected folder id: ${decodedFolderId}`);
-    }
 
-    return {
-      "@odata.context": `${this.#apparentEndpoint}/$metadata#users('me')/mailFolders/$entity`,
-      id: folder.id,
-      displayName: folder.displayName,
-      parentFolderId: folder.parentId,
-    };
+    return this.#folderToJSON(decodedFolderId);
   }
 
   /**
@@ -886,63 +703,6 @@ export class GraphServer extends MockServer {
         parentFolderId: parentFolder.id,
       })
     );
-  }
-
-  /**
-   * Handle GET /me/mailFolders/delta().
-   *
-   * @param {string} queryString
-   * @returns {object}
-   */
-  #mailFoldersDelta(queryString) {
-    const params = new URLSearchParams(queryString);
-    const context = `${this.#apparentEndpoint}/$metadata#users('me')/mailFolders`;
-    const nextDelta = `${this.#apparentEndpoint}/me/mailFolders/delta()?$deltatoken=${this.deletedFolders.length}`;
-    const deletedOffset = Number.parseInt(params.get("$deltatoken") ?? "0", 10);
-    const liveFolders = this.folders
-      .filter(folder => folder.distinguishedId != "msgfolderroot")
-      .map(folder => ({
-        id: folder.id,
-        displayName: folder.displayName,
-        parentFolderId: folder.parentId,
-      }));
-    const removedItems = this.deletedFolders
-      .slice(deletedOffset)
-      .map(folder => ({
-        id: folder.id,
-        "@removed": { reason: "changed" },
-      }));
-    const folders = removedItems.concat(liveFolders);
-    const skipCount = Number.parseInt(params.get("$skiptoken") ?? "0", 10);
-
-    if (!Number.isFinite(this.maxSyncItems) || this.maxSyncItems <= 0) {
-      return {
-        "@odata.context": context,
-        value: folders,
-        "@odata.deltaLink": nextDelta,
-      };
-    }
-
-    const page = folders.slice(skipCount, skipCount + this.maxSyncItems);
-    const nextSkipCount = skipCount + this.maxSyncItems;
-    if (nextSkipCount < folders.length) {
-      const nextParams = new URLSearchParams();
-      nextParams.set("$skiptoken", `${nextSkipCount}`);
-      if (params.has("$deltatoken")) {
-        nextParams.set("$deltatoken", `${deletedOffset}`);
-      }
-      return {
-        "@odata.context": context,
-        value: page,
-        "@odata.nextLink": `${this.#apparentEndpoint}/me/mailFolders/delta()?${nextParams}`,
-      };
-    }
-
-    return {
-      "@odata.context": context,
-      value: page,
-      "@odata.deltaLink": nextDelta,
-    };
   }
 
   /**
@@ -1045,7 +805,11 @@ export class GraphServer extends MockServer {
         parsedReq.flag.flagStatus;
       item.syntheticMessage.metaState.flagged =
         parsedReq.flag.flagStatus == "flagged";
-      this.itemChanges.push(["update", item.parentId, messageId]);
+      this.itemChanges.push({
+        kind: "update",
+        parentId: item.parentId,
+        id: messageId,
+      });
     }
 
     // Note: returning only the ID should be fine for now because we don't
@@ -1086,7 +850,8 @@ export class GraphServer extends MockServer {
    *
    * @param {string} requestPath
    *
-   * @returns {[string, number, string]} The resulting HTTP status [version, statusCode, message].
+   * @returns {Array<string|number>} The resulting HTTP status: version,
+   *   status code, and message, in that order.
    */
   #sendMessage(requestPath) {
     const messageId = /\/me\/messages\/(.+)\/send/.exec(requestPath)[1];
@@ -1106,7 +871,7 @@ export class GraphServer extends MockServer {
    *
    * @param {string} queryString
    * @param {string} propId
-   * @returns {bool}
+   * @returns {boolean}
    */
   #requestsExtendedProperty(queryString, propId) {
     const params = new URLSearchParams(queryString);
@@ -1148,6 +913,43 @@ export class GraphServer extends MockServer {
   }
 
   /**
+   * Handles GET /me/calendars/{calendarId}/events/delta
+   *
+   * @param {Map<string, string>} requestHeaders - The map of headers included
+   *   in the request.
+   * @param {string} calendarId
+   * @param {string} queryString - The query parameters from the request.
+   * @returns {object}
+   */
+  #syncCalendarEvents(requestHeaders, calendarId, queryString) {
+    return this.#handleDeltaRequest(requestHeaders, calendarId, queryString, {
+      odataType: "event",
+      itemToJSON: (_parentId, itemId) => this.#calendarEventsById.get(itemId),
+      getChanges: (offset, calendar, maxItems) =>
+        this.getChangesSince(offset, calendar, maxItems),
+      deltaPath: `/me/calendars/${calendarId}/events/delta`,
+    });
+  }
+
+  /**
+   * Handle GET /me/mailFolders/delta().
+   *
+   * @param {Map<string, string>} requestHeaders - The map of headers included
+   *   in the request.
+   * @param {string} queryString
+   * @returns {object}
+   */
+  #mailFoldersDelta(requestHeaders, queryString) {
+    return this.#handleDeltaRequest(requestHeaders, null, queryString, {
+      odataType: "mailFolder",
+      itemToJSON: (_parentId, folderId) => this.#folderToJSON(folderId),
+      getChanges: (offset, _parentId, maxItems) =>
+        this.getFolderChangesSince(offset, maxItems),
+      deltaPath: `/me/mailFolders/delta()`,
+    });
+  }
+
+  /**
    * Handles GET /me/mailFolders/{folderId}/delta
    *
    * @param {Map<string, string>} requestHeaders - The map of headers included
@@ -1156,6 +958,38 @@ export class GraphServer extends MockServer {
    * @param {string} queryString - The query parameters from the request.
    */
   #syncFolderMessages(requestHeaders, folderName, queryString) {
+    return this.#handleDeltaRequest(requestHeaders, folderName, queryString, {
+      odataType: "message",
+      itemToJSON: (parentId, itemId) => this.#messageToJSON(parentId, itemId),
+      getChanges: (offset, parentId, maxItems) =>
+        this.getChangesSince(offset, parentId, maxItems),
+      deltaPath: `/me/mailFolders('${folderName}')/messages/delta`,
+    });
+  }
+
+  /**
+   * Handles a delta request generically.
+   *
+   * @param {Map<string, string>} requestHeaders - The map of headers included
+   *   in the request.
+   * @param {?string} containerName - Name of the folder or calendar to sync, or
+   *   null when syncing the folder hierarchy.
+   * @param {string} queryString - The query parameters from the request.
+   * @param {object} options
+   * @param {string} options.odataType - The Graph type of the returned items.
+   * @param {function(string, string):object} options.itemToJSON - Convert a
+   *   parent ID and item ID to the item's Graph JSON representation.
+   * @param {function(number, ?string, number):ChangePage} options.getChanges -
+   *   Get a page of changes from the appropriate log.
+   * @param {string} options.deltaPath - The path for continuation links.
+   * @returns {object} - Object corresponding to JSON of the delta response.
+   */
+  #handleDeltaRequest(
+    requestHeaders,
+    containerName,
+    queryString,
+    { odataType, itemToJSON, getChanges, deltaPath }
+  ) {
     const preferHeaderValue = requestHeaders.get("prefer");
     let maxPageSizeMatch;
     if (
@@ -1176,54 +1010,30 @@ export class GraphServer extends MockServer {
       offset = 0;
     }
 
-    const context = `${this.#apparentEndpoint}/$metadata#Collection(message)`;
+    const context = `${this.#apparentEndpoint}/$metadata#Collection(${odataType})`;
 
-    const [changes, truncated] = this.getChangesSince(
+    const { changes, hasMore, nextOffset } = getChanges(
       offset,
-      folderName,
+      containerName,
       this.maxSyncItems
     );
 
     const page = [];
-    for (const [changeType, parentId, itemId] of changes) {
+    for (const { kind, parentId, id } of changes) {
       // Graph doesn't differentiate between creation, update and read flag
       // updates, they all appear the same in delta responses.
-      if (
-        changeType == "create" ||
-        changeType == "update" ||
-        changeType == "readflag"
-      ) {
-        const item = this.getItemInfo(itemId);
-        const itemData = {
-          "@odata.type": "#microsoft.graph.message",
-          id: itemId,
-          parentFolderId: parentId,
-          internetMessageId: item.syntheticMessage.messageId,
-          subject: item.syntheticMessage.subject,
-          bodyPreview: item.syntheticMessage.bodyPart
-            .toMessageString()
-            .slice(0, 10),
-          isRead: item.syntheticMessage.metaState.read,
-          flag: {
-            flagStatus:
-              item.syntheticMessage.metaState.graphFlagStatus ??
-              (item.syntheticMessage.metaState.flagged
-                ? "flagged"
-                : "notFlagged"),
-          },
-          toRecipients: syntheticRecipientsToGraph(item.syntheticMessage.to),
-          ccRecipients: syntheticRecipientsToGraph(item.syntheticMessage.cc),
-        };
+      if (kind == "create" || kind == "update" || kind == "readflag") {
+        const itemData = itemToJSON(parentId, id);
         this.#appendExpandedSingleValueExtendedProperties(
           itemData,
-          itemId,
+          id,
           queryString
         );
         page.push(itemData);
-      } else if (changeType == "delete") {
+      } else if (kind == "delete") {
         const itemData = {
-          "@odata.type": "#microsoft.graph.message",
-          id: itemId,
+          "@odata.type": `#microsoft.graph.${odataType}`,
+          id,
           "@removed": { reason: "deleted" },
         };
         page.push(itemData);
@@ -1235,29 +1045,16 @@ export class GraphServer extends MockServer {
       value: page,
     };
 
-    if (truncated) {
-      // We have at least one more page of data. Send a nextLink.
-      const newToken = offset + this.maxSyncItems;
-      const nextParams = new URLSearchParams(params);
-      nextParams.delete("$skiptoken");
-      nextParams.delete("$deltatoken");
-      nextParams.delete("skiptoken");
-      nextParams.delete("deltatoken");
-      nextParams.set("$skiptoken", `${newToken}`);
-      result["@odata.nextLink"] =
-        `${this.#apparentEndpoint}/me/mailFolders('${folderName}')/messages/delta?${nextParams}`;
-    } else {
-      // We are up to date. Send a deltaLink.
-      const newToken = this.itemChanges.length;
-      const nextParams = new URLSearchParams(params);
-      nextParams.delete("$skiptoken");
-      nextParams.delete("$deltatoken");
-      nextParams.delete("skiptoken");
-      nextParams.delete("deltatoken");
-      nextParams.set("$deltatoken", `${newToken}`);
-      result["@odata.deltaLink"] =
-        `${this.#apparentEndpoint}/me/mailFolders('${folderName}')/messages/delta?${nextParams}`;
-    }
+    const nextParams = new URLSearchParams(params);
+    nextParams.delete("$skiptoken");
+    nextParams.delete("$deltatoken");
+    nextParams.delete("skiptoken");
+    nextParams.delete("deltatoken");
+    const [tokenKey, odataKey] = hasMore
+      ? ["$skiptoken", "@odata.nextLink"]
+      : ["$deltatoken", "@odata.deltaLink"];
+    nextParams.set(tokenKey, `${nextOffset}`);
+    result[odataKey] = `${this.#apparentEndpoint}${deltaPath}?${nextParams}`;
 
     return result;
   }
@@ -1411,6 +1208,59 @@ export class GraphServer extends MockServer {
     const hostname = this.#apparentHostname ?? "127.0.0.1";
     return `${protocol}://${hostname}:${port}/v1.0`;
   }
+
+  /**
+   * Helper to get a folder by its ID, and return an object structured the same
+   * as its Graph JSON representation.
+   *
+   * @param {string} folderId
+   * @returns {object}
+   */
+  #folderToJSON(folderId) {
+    const folder =
+      this.getDistinguishedFolder(folderId) ||
+      this.folders.find(f => f.id == folderId);
+    if (!folder) {
+      throw new Error(`Unexpected folder id: ${folderId}`);
+    }
+
+    return {
+      "@odata.context": `${this.#apparentEndpoint}/$metadata#users('me')/mailFolders/$entity`,
+      id: folder.id,
+      displayName: folder.displayName,
+      parentFolderId: folder.parentId,
+    };
+  }
+
+  /**
+   * Helper to get a message and return an object structured the same as its
+   * Graph JSON representation.
+   *
+   * @param {string} parentId
+   * @param {string} itemId
+   * @returns {object}
+   */
+  #messageToJSON(parentId, itemId) {
+    const item = this.getItemInfo(itemId);
+    return {
+      "@odata.type": "#microsoft.graph.message",
+      id: itemId,
+      parentFolderId: parentId,
+      internetMessageId: item.syntheticMessage.messageId,
+      subject: item.syntheticMessage.subject,
+      bodyPreview: item.syntheticMessage.bodyPart
+        .toMessageString()
+        .slice(0, 10),
+      isRead: item.syntheticMessage.metaState.read,
+      flag: {
+        flagStatus:
+          item.syntheticMessage.metaState.graphFlagStatus ??
+          (item.syntheticMessage.metaState.flagged ? "flagged" : "notFlagged"),
+      },
+      toRecipients: syntheticRecipientsToGraph(item.syntheticMessage.to),
+      ccRecipients: syntheticRecipientsToGraph(item.syntheticMessage.cc),
+    };
+  }
 }
 
 /**
@@ -1429,12 +1279,8 @@ function syntheticRecipientsToGraph(recipients) {
     return [];
   }
 
-  return recipients.map(recipient => {
-    return {
-      emailAddress: {
-        name: recipient[0],
-        address: recipient[1],
-      },
-    };
+  return recipients.map(recipientArray => {
+    const recipient = new Recipient(recipientArray[0], recipientArray[1]);
+    return recipient.toJSON();
   });
 }

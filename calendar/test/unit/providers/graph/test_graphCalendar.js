@@ -5,7 +5,7 @@
 /* import-globals-from ../head.js */
 
 const { GraphCalendarEvent } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/GraphServer.sys.mjs"
+  "resource://testing-common/mailnews/GraphTypes.sys.mjs"
 );
 
 let graphServer;

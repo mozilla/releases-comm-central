@@ -214,17 +214,27 @@ async function runSecondSyncRequiredTest(syncServer, syncClient) {
 }
 
 /**
- * Test initial Graph sync when there is already a removed (restorable) item.
+ * Test initial sync when there is already a removed (restorable) item.
+ *
+ * This is only documented Graph behavior, but we test both because `MockServer`
+ * can generate deletes without creates on some paginated responses (see the
+ * implementation of `#getChangesFromLog` for details).
  */
-add_task(async function testInitialGraphSyncWithRemovedItem() {
-  graphServer.setRemoteFolders(graphServer.getWellKnownFolders());
-  graphServer.appendRemoteFolder(
-    new RemoteFolder("restorable-folder", "root", "Restorable Folder")
-  );
-  graphServer.deleteRemoteFolderById("restorable-folder");
+add_task(async function testInitialSyncWithRemovedItem() {
+  await runInitialSyncWithRemovedItemTest(ewsServer, ewsClient);
+  await runInitialSyncWithRemovedItemTest(graphServer, graphClient);
+});
 
-  const listener = new GraphInitialSyncListener();
-  graphClient.syncFolderHierarchy(listener, null);
+async function runInitialSyncWithRemovedItemTest(syncServer, syncClient) {
+  syncServer.setRemoteFolders(syncServer.getWellKnownFolders());
+  syncServer.folderChanges.push({
+    kind: "delete",
+    parentId: "root",
+    id: "restorable-folder",
+  });
+
+  const listener = new InitialDeleteSyncListener();
+  syncClient.syncFolderHierarchy(listener, null);
   await listener._deferred.promise;
 
   Assert.deepEqual(
@@ -246,7 +256,7 @@ add_task(async function testInitialGraphSyncWithRemovedItem() {
     "initial sync should surface removed Graph items as deletes"
   );
   Assert.ok(listener._syncStateToken, "sync token should exist");
-});
+}
 
 class EwsFolderCallbackListener {
   QueryInterface = ChromeUtils.generateQI([
@@ -296,7 +306,7 @@ class EwsFolderCallbackListener {
   }
 }
 
-class GraphInitialSyncListener extends EwsFolderCallbackListener {
+class InitialDeleteSyncListener extends EwsFolderCallbackListener {
   constructor() {
     super();
     this._deletedFolderIds = [];

@@ -358,7 +358,11 @@ async function testSyncChangesWithClient(
   const messageIdToUpdate = messages[5].messageId;
   const itemIdToUpdate = messages[5].messageId;
   messages[5].subject = "Scary Monster Under Your Bed";
-  mockServer.itemChanges.push(["update", "inbox", itemIdToUpdate]);
+  mockServer.itemChanges.push({
+    kind: "update",
+    parentId: "inbox",
+    id: itemIdToUpdate,
+  });
   info(`Updating subject of message ${itemIdToUpdate}`);
 
   const itemIdToMove = messages[4].messageId;
@@ -372,13 +376,21 @@ async function testSyncChangesWithClient(
 
   const itemIdToMarkRead = messages[1].messageId;
   messages[1].metaState.read = true;
-  mockServer.itemChanges.push(["readflag", "inbox", itemIdToMarkRead]);
+  mockServer.itemChanges.push({
+    kind: "readflag",
+    parentId: "inbox",
+    id: itemIdToMarkRead,
+  });
   info(`Marking message ${itemIdToMarkRead} as read`);
 
   const messageIdToFlag = messages[0].messageId;
   const itemIdToFlag = messages[0].messageId;
   messages[0].metaState.flagged = true;
-  mockServer.itemChanges.push(["update", "inbox", itemIdToFlag]);
+  mockServer.itemChanges.push({
+    kind: "update",
+    parentId: "inbox",
+    id: itemIdToFlag,
+  });
   info(`Flagging message ${itemIdToFlag}`);
 
   // Sync again to pick up the changes.
@@ -617,7 +629,11 @@ async function testSyncChangesWithRealFolder(mockServer, incomingServer) {
   const itemIdToUpdate = messages[5].messageId;
   messages[5].subject = "Scary Monster Under Your Bed";
   messages[5].bodyPart.body = `Kia ora ${originalGreeting[1]}!`;
-  mockServer.itemChanges.push(["update", folderName, itemIdToUpdate]);
+  mockServer.itemChanges.push({
+    kind: "update",
+    parentId: folderName,
+    id: itemIdToUpdate,
+  });
 
   const itemIdToMove = messages[4].messageId;
   mockServer.moveItemToFolder(itemIdToMove, moveDestinationFolderName);
@@ -629,12 +645,20 @@ async function testSyncChangesWithRealFolder(mockServer, incomingServer) {
 
   const itemIdToMarkRead = messages[1].messageId;
   messages[1].metaState.read = true;
-  mockServer.itemChanges.push(["readflag", folderName, itemIdToMarkRead]);
+  mockServer.itemChanges.push({
+    kind: "readflag",
+    parentId: folderName,
+    id: itemIdToMarkRead,
+  });
 
   const messageIdToFlag = messages[0].messageId;
   const itemIdToFlag = messages[0].messageId;
   messages[0].metaState.flagged = true;
-  mockServer.itemChanges.push(["update", folderName, itemIdToFlag]);
+  mockServer.itemChanges.push({
+    kind: "update",
+    parentId: folderName,
+    id: itemIdToFlag,
+  });
 
   // Sync again to pick up the changes.
 
@@ -719,19 +743,31 @@ async function testReplySubjects(mockServer, incomingServer) {
   Assert.ok(getMessageHeader().flags & Ci.nsMsgMessageFlags.HasRe);
 
   message.subject = "replacement";
-  mockServer.itemChanges.push(["update", folderName, message.messageId]);
+  mockServer.itemChanges.push({
+    kind: "update",
+    parentId: folderName,
+    id: message.messageId,
+  });
   await syncFolder(incomingServer, folder);
   Assert.equal(getMessageHeader().subject, "replacement");
   Assert.ok(!(getMessageHeader().flags & Ci.nsMsgMessageFlags.HasRe));
 
   message.subject = "Re:";
-  mockServer.itemChanges.push(["update", folderName, message.messageId]);
+  mockServer.itemChanges.push({
+    kind: "update",
+    parentId: folderName,
+    id: message.messageId,
+  });
   await syncFolder(incomingServer, folder);
   Assert.equal(getMessageHeader().subject, "");
   Assert.ok(getMessageHeader().flags & Ci.nsMsgMessageFlags.HasRe);
 
   message.subject = "Re: =?UTF-8?Q?=3D=3FUTF-8=3FQ=3Fhello=3F=3D?=";
-  mockServer.itemChanges.push(["update", folderName, message.messageId]);
+  mockServer.itemChanges.push({
+    kind: "update",
+    parentId: folderName,
+    id: message.messageId,
+  });
   await syncFolder(incomingServer, folder);
   Assert.equal(getMessageHeader().mime2DecodedSubject, "=?UTF-8?Q?hello?=");
   Assert.ok(getMessageHeader().flags & Ci.nsMsgMessageFlags.HasRe);
