@@ -213,6 +213,34 @@ add_task(async function test_no_prompt_on_close_for_unmodified() {
 });
 
 /**
+ * Tests that we don't get a prompt to save for unmodified messages when not
+ * using paragraph mode.
+ */
+add_task(async function test_no_prompt_on_close_for_unmodified_no_paragraph() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.compose.default_to_paragraph", false]],
+  });
+  await be_in_folder(folder);
+  const msg = await select_click_row(0);
+  await assert_selected_and_displayed(window, msg);
+
+  for (const openCompose of [
+    open_compose_new_mail,
+    open_compose_with_reply,
+    open_compose_with_forward,
+  ]) {
+    const cwc = await openCompose();
+    await new Promise(resolve => cwc.setTimeout(resolve));
+    Assert.ok(
+      !cwc.gMsgCompose.bodyModified,
+      `body should not be modified after ${openCompose.name}`
+    );
+    await close_compose_window(cwc, false);
+  }
+  await SpecialPowers.popPrefEnv();
+});
+
+/**
  * Tests that we get a prompt to save if the user made changes to the message
  * before trying to close it.
  */
