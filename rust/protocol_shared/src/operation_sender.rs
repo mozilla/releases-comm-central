@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::{cell::RefCell, ffi::CString, ops::ControlFlow, sync::Arc, time::Duration};
+use std::{
+    cell::{Cell, RefCell},
+    ffi::CString,
+    ops::ControlFlow,
+    sync::Arc,
+    time::Duration,
+};
 
 use async_lock::Mutex;
 use http::Request;
@@ -167,8 +173,9 @@ pub struct OperationSender<ServerT: RefCounted + 'static> {
     server: Mutex<Option<RefPtr<ServerT>>>,
 
     // The observers we've registered at startup, so we can de-register them at
-    // shutdown.
-    observers_registrations: Vec<RegisteredObserver>,
+    // shutdown. We hold this list in a `Cell` so we can drop it at shutdown.
+    // See the documentation for `shutdown()` for more information.
+    observers_registrations: Cell<Vec<RegisteredObserver>>,
 }
 
 impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
@@ -247,7 +254,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             server: Mutex::new(Some(server)),
             client: moz_http::Client::new(),
             error_handling_line: Line::new(),
-            observers_registrations,
+            observers_registrations: Cell::new(observers_registrations),
         })
     }
 
@@ -258,7 +265,8 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     /// The server holds a reference on the client, and the client (through
     /// `OperationSender`) also holds a reference on the server. Thus, dropping
     /// the reference on the server is necessary so they don't prevent each
-    /// other from being dropped (and leak memory).
+    /// other from being dropped (and leak memory). We need to do the same for
+    /// the observers since some of them also hold references to the server.
     pub async fn shutdown(&self) {
         let Some(server) = self.server.lock().await.take() else {
             log::warn!(
@@ -288,7 +296,12 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                 return;
             }
         };
-        for obs_reg in &self.observers_registrations {
+
+        // Take the interior value of the observers so the observers are dropped
+        // when this scope exits.
+        let observers_registrations = self.observers_registrations.take();
+
+        for obs_reg in &observers_registrations {
             match obs_reg.target {
                 ObserverRegistrationTarget::Pref(prop) => {
                     if let Err(err) = server.stop_observing(prop, obs_reg.obs.clone()) {

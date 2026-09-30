@@ -392,6 +392,7 @@ nsMsgIncomingServer::GetServerURI(nsACString& aResult) {
     // not all servers have a hostname
     aResult.Append(escapedHostname);
   }
+
   return NS_OK;
 }
 

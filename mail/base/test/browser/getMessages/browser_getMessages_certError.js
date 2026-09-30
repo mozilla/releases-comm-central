@@ -114,11 +114,12 @@ async function subtest(
   expectedErrorCategory,
   expectedCert
 ) {
-  const [imapServer, pop3Server, ewsServer, nntpServer] =
+  const [imapServer, pop3Server, ewsServer, graphServer, nntpServer] =
     await ServerTestUtils.createServers([
       ServerTestUtils.serverDefs.imap[serverDef],
       ServerTestUtils.serverDefs.pop3[serverDef],
       ServerTestUtils.serverDefs.ews[serverDef],
+      ServerTestUtils.serverDefs.graph[serverDef],
       ServerTestUtils.serverDefs.nntp[serverDef],
     ]);
 
@@ -173,15 +174,42 @@ async function subtest(
   const ewsRootFolder = ewsAccount.incomingServer.rootFolder;
   await subsubtest(
     ewsRootFolder,
-    async () => {
-      ewsAccount.incomingServer.performExpand(null);
-    },
+    async () => ewsAccount.incomingServer.performExpand(null),
     expectedAlertText,
     expectedDialogText,
     expectedErrorCategory,
     expectedCert
   );
   const ewsInbox = ewsRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+
+  const graphAccount = MailServices.accounts.createAccount();
+  graphAccount.addIdentity(MailServices.accounts.createIdentity());
+  graphAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    hostname,
+    "graph"
+  );
+  graphAccount.incomingServer.port = 8443;
+  graphAccount.incomingServer.password = "password";
+  graphAccount.incomingServer.setStringValue(
+    "ews_url",
+    `https://${hostname}:8443/`
+  );
+  graphAccount.incomingServer.prettyName = "Graph Account";
+  graphAccount.incomingServer.socketType = Ci.nsMsgSocketType.SSL;
+
+  const graphRootFolder = graphAccount.incomingServer.rootFolder;
+  await subsubtest(
+    graphRootFolder,
+    async () => graphAccount.incomingServer.performExpand(null),
+    expectedAlertText,
+    expectedDialogText,
+    expectedErrorCategory,
+    expectedCert
+  );
+  const graphInbox = graphRootFolder.getFolderWithFlags(
+    Ci.nsMsgFolderFlags.Inbox
+  );
 
   nntpServer.addGroup("test.nntpcerterror");
   const nntpAccount = MailServices.accounts.createAccount();
@@ -197,7 +225,13 @@ async function subtest(
   nntpRootFolder.createSubfolder("test.nntpcerterror", null);
   const nntpFolder = nntpRootFolder.getChildNamed("test.nntpcerterror");
 
-  for (const inbox of [imapInbox, pop3Inbox, ewsInbox, nntpFolder]) {
+  for (const inbox of [
+    imapInbox,
+    pop3Inbox,
+    ewsInbox,
+    graphInbox,
+    nntpFolder,
+  ]) {
     Assert.equal(
       inbox.getNumUnread(false),
       0,
@@ -208,13 +242,20 @@ async function subtest(
   await imapServer.addMessages(imapInbox, generator.makeMessages({}), false);
   pop3Server.addMessages(generator.makeMessages({}));
   ewsServer.addMessages("inbox", generator.makeMessages({}));
+  graphServer.addMessages("inbox", generator.makeMessages({}));
   nntpServer.addMessages(
     "test.nntpcerterror",
     generator.makeMessages({}),
     false
   );
 
-  for (const inbox of [imapInbox, pop3Inbox, ewsInbox, nntpFolder]) {
+  for (const inbox of [
+    imapInbox,
+    pop3Inbox,
+    ewsInbox,
+    graphInbox,
+    nntpFolder,
+  ]) {
     await subsubtest(
       inbox,
       async function () {
@@ -240,8 +281,9 @@ async function subtest(
 
   await imapServer.addMessages(imapInbox, generator.makeMessages({}), false);
   ewsServer.addMessages("inbox", generator.makeMessages({}));
+  graphServer.addMessages("inbox", generator.makeMessages({}));
 
-  for (const inbox of [imapInbox, ewsInbox]) {
+  for (const inbox of [imapInbox, ewsInbox, graphInbox]) {
     await subsubtest(
       inbox,
       function () {
@@ -258,6 +300,7 @@ async function subtest(
   MailServices.accounts.removeAccount(imapAccount, false);
   MailServices.accounts.removeAccount(pop3Account, false);
   MailServices.accounts.removeAccount(ewsAccount, false);
+  MailServices.accounts.removeAccount(graphAccount, false);
   MailServices.accounts.removeAccount(nntpAccount, false);
 }
 
@@ -330,7 +373,6 @@ async function subsubtest(
   );
 
   // Run the callback and wait for a notification.
-
   await testCallback();
 
   const alert = await TestUtils.waitForCondition(
@@ -454,8 +496,8 @@ async function subsubtest(
   // Now that we have an exception, connect to the server again.
 
   if (folder.isServer) {
-    // If folder is the root folder (EWS), we don't have an inbox yet, so
-    // this is an additional operation to fetch it. Do that now.
+    // If folder is the root folder (EWS, Graph), we don't have an inbox yet,
+    // so this is an additional operation to fetch it. Do that now.
     server.performExpand(null);
     await TestUtils.waitForCondition(
       () => folder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox),

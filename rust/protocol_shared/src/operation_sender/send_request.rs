@@ -49,6 +49,7 @@ where
 
     let method = request.method();
     let url = Url::parse(&request.uri().to_string())?;
+
     let mut request_builder = client.request(method, &url)?;
 
     log::info!("Making operation request {operation_id}: {operation_name}");

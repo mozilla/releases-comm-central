@@ -36,6 +36,7 @@ let localAccount, localRootFolder;
 let imapServer, imapAccount, imapRootFolder, imapInbox;
 let pop3Server, pop3Account, pop3RootFolder, pop3Inbox;
 let ewsServer, ewsAccount, ewsRootFolder, ewsInbox;
+let graphServer, graphAccount, graphRootFolder, graphInbox;
 let nntpServer, nntpAccount, nntpRootFolder, nntpFolder;
 
 const allInboxes = [];
@@ -53,11 +54,12 @@ add_setup(async function () {
   localAccount = MailServices.accounts.createLocalMailAccount();
   localRootFolder = localAccount.incomingServer.rootFolder;
 
-  [imapServer, pop3Server, ewsServer, nntpServer] =
+  [imapServer, pop3Server, ewsServer, graphServer, nntpServer] =
     await ServerTestUtils.createServers([
       ServerTestUtils.serverDefs.imap.plain,
       ServerTestUtils.serverDefs.pop3.plain,
       ServerTestUtils.serverDefs.ews.plain,
+      ServerTestUtils.serverDefs.graph.plain,
       ServerTestUtils.serverDefs.nntp.plain,
     ]);
   nntpServer.addGroup("getmessages.newsgroup");
@@ -111,6 +113,27 @@ add_setup(async function () {
   );
   allInboxes.push(ewsInbox);
 
+  graphAccount = MailServices.accounts.createAccount();
+  graphAccount.addIdentity(MailServices.accounts.createIdentity());
+  graphAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "test.test",
+    "graph"
+  );
+  graphAccount.incomingServer.setStringValue(
+    "ews_url",
+    "http://test.test:8080/"
+  );
+  graphAccount.incomingServer.prettyName = "Graph Account";
+  await addLoginInfo("graph://test.test", "user", "password");
+  graphRootFolder = graphAccount.incomingServer.rootFolder;
+  graphAccount.incomingServer.performExpand(null);
+  graphInbox = await TestUtils.waitForCondition(
+    () => graphRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox),
+    "waiting for Graph folders to sync"
+  );
+  allInboxes.push(graphInbox);
+
   nntpAccount = MailServices.accounts.createAccount();
   nntpAccount.incomingServer = MailServices.accounts.createIncomingServer(
     "user",
@@ -142,6 +165,7 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(imapAccount, false);
     MailServices.accounts.removeAccount(pop3Account, false);
     MailServices.accounts.removeAccount(ewsAccount, false);
+    MailServices.accounts.removeAccount(graphAccount, false);
     MailServices.accounts.removeAccount(nntpAccount, false);
     storeState({});
     await Services.logins.removeAllLoginsAsync();
@@ -156,6 +180,8 @@ async function addMessagesToServer(type) {
     await pop3Server.addMessages(messages);
   } else if (type == "ews") {
     await ewsServer.addMessages("inbox", messages);
+  } else if (type == "graph") {
+    await graphServer.addMessages("inbox", messages);
   } else if (type == "nntp") {
     await nntpServer.addMessages("getmessages.newsgroup", messages);
   }

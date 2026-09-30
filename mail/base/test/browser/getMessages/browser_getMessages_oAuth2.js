@@ -30,6 +30,7 @@ let localAccount, localRootFolder;
 let imapServer, imapAccount, imapRootFolder, imapInbox;
 let pop3Server, pop3Account, pop3RootFolder, pop3Inbox;
 let ewsServer, ewsAccount, ewsRootFolder, ewsInbox;
+let graphServer, graphAccount, graphRootFolder, graphInbox;
 let oAuth2Server;
 
 const allInboxes = [];
@@ -53,11 +54,13 @@ add_setup(async function () {
   localAccount = MailServices.accounts.createLocalMailAccount();
   localRootFolder = localAccount.incomingServer.rootFolder;
 
-  [imapServer, pop3Server, ewsServer] = await ServerTestUtils.createServers([
-    ServerTestUtils.serverDefs.imap.oAuth,
-    ServerTestUtils.serverDefs.pop3.oAuth,
-    ServerTestUtils.serverDefs.ews.oAuth,
-  ]);
+  [imapServer, pop3Server, ewsServer, graphServer] =
+    await ServerTestUtils.createServers([
+      ServerTestUtils.serverDefs.imap.oAuth,
+      ServerTestUtils.serverDefs.pop3.oAuth,
+      ServerTestUtils.serverDefs.ews.oAuth,
+      ServerTestUtils.serverDefs.graph.oAuth,
+    ]);
 
   imapAccount = MailServices.accounts.createAccount();
   imapAccount.addIdentity(MailServices.accounts.createIdentity());
@@ -87,8 +90,6 @@ add_setup(async function () {
   pop3Inbox = pop3RootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   allInboxes.push(pop3Inbox);
 
-  oAuth2Server = await OAuth2TestUtils.startServer();
-
   ewsAccount = MailServices.accounts.createAccount();
   ewsAccount.addIdentity(MailServices.accounts.createIdentity());
   ewsAccount.incomingServer = MailServices.accounts.createIncomingServer(
@@ -108,6 +109,27 @@ add_setup(async function () {
   // time, the root folder will be replaced by the inbox in `allInboxes`.
   allInboxes.push(ewsRootFolder);
 
+  graphAccount = MailServices.accounts.createAccount();
+  graphAccount.addIdentity(MailServices.accounts.createIdentity());
+  graphAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "test.test",
+    "graph"
+  );
+  graphAccount.incomingServer.setStringValue(
+    "ews_url",
+    "http://test.test:8080/"
+  );
+  graphAccount.incomingServer.prettyName = "Graph Account";
+  graphAccount.incomingServer.authMethod = Ci.nsMsgAuthMethod.OAuth2;
+  graphRootFolder = graphAccount.incomingServer.rootFolder;
+  // Add the *root folder* to the list of inboxes so that we don't have to
+  // connect now to get the inbox. Once the connection is made for the first
+  // time, the root folder will be replaced by the inbox in `allInboxes`.
+  allInboxes.push(graphRootFolder);
+
+  oAuth2Server = await OAuth2TestUtils.startServer();
+
   MockAlertsService.init();
 
   registerCleanupFunction(async () => {
@@ -115,6 +137,7 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(imapAccount, false);
     MailServices.accounts.removeAccount(pop3Account, false);
     MailServices.accounts.removeAccount(ewsAccount, false);
+    MailServices.accounts.removeAccount(graphAccount, false);
 
     await Services.logins.removeAllLoginsAsync();
 
@@ -131,6 +154,8 @@ async function addMessagesToServer(type) {
     await pop3Server.addMessages(messages);
   } else if (type == "ews") {
     await ewsServer.addMessages("inbox", messages);
+  } else if (type == "graph") {
+    await graphServer.addMessages("inbox", messages);
   }
 }
 
@@ -160,6 +185,18 @@ async function waitForMessages(inbox) {
 
     allInboxes[allInboxes.indexOf(ewsRootFolder)] = ewsInbox;
     inbox = ewsInbox;
+  } else if (inbox == graphRootFolder) {
+    // We don't have an inbox yet, but we *are* expecting to connect to the
+    // server at this point. So connect, sync the folders, and replace the
+    // root folder with the inbox in `allInboxes`.
+    graphAccount.incomingServer.performExpand(null);
+    graphInbox = await TestUtils.waitForCondition(
+      () => graphRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox),
+      "waiting for Graph folders to sync"
+    );
+
+    allInboxes[allInboxes.indexOf(graphRootFolder)] = graphInbox;
+    inbox = graphInbox;
   }
 
   await TestUtils.waitForCondition(

@@ -25,6 +25,7 @@ let localAccount,
   pop3Account,
   ewsAccount,
   ewsAccountInvalidPath,
+  graphAccount,
   nntpAccount;
 
 const allServers = [];
@@ -109,6 +110,20 @@ add_setup(async function () {
     "EWS Account - Invalid Path";
   allServers.push(ewsAccountInvalidPath.incomingServer);
 
+  graphAccount = MailServices.accounts.createAccount();
+  graphAccount.addIdentity(MailServices.accounts.createIdentity());
+  graphAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    "user0",
+    "localhost",
+    "graph"
+  );
+  graphAccount.incomingServer.setStringValue(
+    "ews_url",
+    "http://localhost:10000/"
+  );
+  graphAccount.incomingServer.prettyName = "Graph Account";
+  allServers.push(graphAccount.incomingServer);
+
   nntpAccount = MailServices.accounts.createAccount();
   nntpAccount.incomingServer = MailServices.accounts.createIncomingServer(
     "user",
@@ -133,6 +148,7 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(pop3Account, false);
     MailServices.accounts.removeAccount(ewsAccount, false);
     MailServices.accounts.removeAccount(ewsAccountInvalidPath, false);
+    MailServices.accounts.removeAccount(graphAccount, false);
     MailServices.accounts.removeAccount(nntpAccount, false);
     ewsServer.stop();
     MockAlertsService.cleanup();

@@ -875,4 +875,10 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
 
         self.store_string_pref(PrefName::EwsUrl, endpoint_url)
     }
+
+    xpcom_method!(exchange_url => GetExchangeUrl() -> nsACString);
+    fn exchange_url(&self) -> Result<nsCString, nsresult> {
+        let url = self.endpoint_url()?;
+        Ok(nsCString::from(url.to_string()))
+    }
 }

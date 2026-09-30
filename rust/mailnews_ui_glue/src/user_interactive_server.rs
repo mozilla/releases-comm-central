@@ -190,7 +190,19 @@ impl UserInteractiveServer for nsIMsgOutgoingServer {
     }
 
     fn endpoint_uri(&self) -> Result<RefPtr<nsIURI>, nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        let mut uri = nsCString::new();
+
+        let exchange_server = self
+            .query_interface::<IExchangeOutgoingServer>()
+            .ok_or(nserror::NS_ERROR_UNEXPECTED)?;
+        unsafe { exchange_server.GetExchangeUrl(&raw mut *uri) }.to_result()?;
+
+        let io_service = xpcom::get_service::<nsIIOService>(c"@mozilla.org/network/io-service;1")
+            .ok_or(nserror::NS_ERROR_FAILURE)?;
+
+        getter_addrefs(|p| unsafe {
+            io_service.NewURI(&raw const *uri, ptr::null(), ptr::null(), p)
+        })
     }
 
     fn display_name(&self) -> Result<String, nsresult> {

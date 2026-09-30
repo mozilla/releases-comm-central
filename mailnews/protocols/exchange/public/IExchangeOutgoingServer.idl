@@ -16,4 +16,9 @@ interface IExchangeOutgoingServer : nsISupports {
    *   this Exchange server.
    */
   void initialize(in AUTF8String apiBaseURL);
+
+  /**
+   * The endpoint URL for the server.
+   */
+  readonly attribute AUTF8String exchangeUrl;
 };

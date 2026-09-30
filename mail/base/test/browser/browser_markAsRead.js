@@ -7,7 +7,7 @@
  * background tab.
  */
 
-requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 2 : 1);
+requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 3 : 2);
 
 const { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
@@ -20,8 +20,8 @@ const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
-let imapServer, ewsServer;
-let localTestFolder, imapTestFolder, ewsTestFolder;
+let imapServer, ewsServer, graphServer;
+let localTestFolder, imapTestFolder, ewsTestFolder, graphTestFolder;
 
 add_setup(async function () {
   // We need to get messages directly from the server when displaying them,
@@ -44,9 +44,10 @@ add_setup(async function () {
     generator.makeMessages({}).map(message => message.toMessageString())
   );
 
-  [imapServer, ewsServer] = await ServerTestUtils.createServers([
+  [imapServer, ewsServer, graphServer] = await ServerTestUtils.createServers([
     ServerTestUtils.serverDefs.imap.plain,
     ServerTestUtils.serverDefs.ews.plain,
+    ServerTestUtils.serverDefs.graph.plain,
   ]);
 
   const imapAccount = MailServices.accounts.createAccount();
@@ -90,10 +91,37 @@ add_setup(async function () {
     () => ewsTestFolder.getTotalMessages(false) == 10
   );
 
+  const graphAccount = MailServices.accounts.createAccount();
+  graphAccount.addIdentity(MailServices.accounts.createIdentity());
+  graphAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "test.test",
+    "graph"
+  );
+  graphAccount.incomingServer.setStringValue(
+    "ews_url",
+    `http://localhost:${graphServer.port}/`
+  );
+  graphAccount.incomingServer.prettyName = "Graph Account";
+  graphAccount.incomingServer.username = "user";
+  graphAccount.incomingServer.password = "password";
+  const graphRootFolder = graphAccount.incomingServer.rootFolder;
+  graphAccount.incomingServer.performExpand(null);
+  graphTestFolder = await TestUtils.waitForCondition(
+    () => graphRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox),
+    "waiting for Graph folders to sync"
+  );
+  await graphServer.addMessages("inbox", generator.makeMessages({}));
+  graphAccount.incomingServer.getNewMessages(graphRootFolder, null, null);
+  await TestUtils.waitForCondition(
+    () => graphTestFolder.getTotalMessages(false) == 10
+  );
+
   registerCleanupFunction(function () {
     MailServices.accounts.removeAccount(account, false);
     MailServices.accounts.removeAccount(imapAccount, false);
     MailServices.accounts.removeAccount(ewsAccount, false);
+    MailServices.accounts.removeAccount(graphAccount, false);
   });
 });
 
@@ -111,6 +139,10 @@ add_task(async function testEWS() {
   await subtest(ewsTestFolder);
 });
 
+add_task(async function testGraph() {
+  await subtest(graphTestFolder);
+});
+
 function checkReadFlags(message, shouldBeRead, description) {
   Assert.equal(message.isRead, shouldBeRead, `in the database, ${description}`);
 
@@ -125,6 +157,15 @@ function checkReadFlags(message, shouldBeRead, description) {
     );
   } else if (message.folder.incomingServerType == "ews") {
     const serverMessage = ewsServer.getItemInfo(
+      message.getStringProperty("ewsId")
+    );
+    Assert.equal(
+      serverMessage.syntheticMessage.metaState.read,
+      shouldBeRead,
+      `on the server, ${description}`
+    );
+  } else if (message.folder.incomingServerType == "graph") {
+    const serverMessage = graphServer.getItemInfo(
       message.getStringProperty("ewsId")
     );
     Assert.equal(

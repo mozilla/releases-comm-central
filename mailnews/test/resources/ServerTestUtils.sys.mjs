@@ -425,6 +425,56 @@ const serverDefs = {
       // The EWS server is already on port 80, so we need to pick another one.
       port: 8080,
     },
+    tls: {
+      type: "graph",
+      baseOptions: {
+        username: "user",
+        password: "password",
+        tlsCertFile: "valid",
+      },
+      hostname: "mitm.test.test",
+      port: 8443,
+      aliases: [["mitm.test.test", 8443]],
+    },
+    expiredTLS: {
+      type: "graph",
+      baseOptions: {
+        username: "user",
+        password: "password",
+        tlsCertFile: "expired",
+      },
+      hostname: "expired.test.test",
+      port: 8443,
+      aliases: [["expired.test.test", 8443]],
+    },
+    notYetValidTLS: {
+      type: "graph",
+      baseOptions: {
+        username: "user",
+        password: "password",
+        tlsCertFile: "notyetvalid",
+      },
+      hostname: "notyetvalid.test.test",
+      port: 8443,
+      aliases: [["notyetvalid.test.test", 8443]],
+    },
+    selfSignedTLS: {
+      type: "graph",
+      baseOptions: {
+        username: "user",
+        password: "password",
+        tlsCertFile: "selfsigned",
+      },
+      hostname: "selfsigned.test.test",
+      port: 8443,
+      aliases: [["selfsigned.test.test", 8443]],
+    },
+    oAuth: {
+      type: "graph",
+      baseOptions: {},
+      hostname: "test.test",
+      port: 8080,
+    },
   },
 };
 

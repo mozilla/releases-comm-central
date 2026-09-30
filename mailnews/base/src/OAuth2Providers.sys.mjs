@@ -129,6 +129,7 @@ var kHostnames = new Map([
         pop3: "test_mail",
         smtp: "test_mail",
         ews: "test_mail",
+        graph: "test_mail",
         carddav: "test_addressbook",
         caldav: "test_calendar",
       },

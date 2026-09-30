@@ -171,6 +171,24 @@ export class GraphServer extends MockServer {
   #password;
 
   /**
+   * A network proxy to turn this HTTP server into an HTTPS server.
+   *
+   * @type {HttpsProxy}
+   * @name EwsServer.httpsProxy
+   * @private
+   */
+  #httpsProxy;
+
+  /**
+   * Certificate to use for HTTPS requests. See ServerTestUtils.getCertificate.
+   *
+   * @type {nsIX509Cert}
+   * @name EwsServer.tlsCert
+   * @private
+   */
+  #tlsCert;
+
+  /**
    * The port for the server to listen on.
    *
    * @type {number}
@@ -204,9 +222,28 @@ export class GraphServer extends MockServer {
    */
   #calendarEventsById = new Map();
 
+  /**
+   * The hostname to use when constructing context and link responses.
+   *
+   * Note: This may not match the listen hostname depending upon proxying.
+   *
+   * @type {string}
+   */
+  #apparentHostname = null;
+
+  /**
+   * The port to use when constructing context and link responses.
+   *
+   * Note: This may not match the listen port depending upon proxying.
+   *
+   * @type {number}
+   */
+  #apparentPort = -1;
+
   constructor({
     hostname,
     port,
+    tlsCert,
     username = "user",
     password = "password",
     listenPort = -1,
@@ -225,12 +262,16 @@ export class GraphServer extends MockServer {
       // Used by ServerTestUtils to make this server appear at hostname:port.
       // This doesn't mean the HTTP server is listening on that host and port.
       this.#httpServer.identity.add(
-        port == 443 ? "https" : "http",
+        port == 443 || port == 8443 ? "https" : "http",
         hostname,
         port
       );
+
+      this.#apparentHostname = hostname;
+      this.#apparentPort = port;
     }
 
+    this.#tlsCert = tlsCert;
     this.#username = username;
     this.#password = password;
     this.#listenPort = listenPort;
@@ -261,6 +302,15 @@ export class GraphServer extends MockServer {
    */
   start() {
     this.#httpServer.start(this.#listenPort);
+    if (this.#tlsCert) {
+      const { HttpsProxy } = ChromeUtils.importESModule(
+        "resource://testing-common/mailnews/HttpsProxy.sys.mjs"
+      );
+      this.#httpsProxy = new HttpsProxy(
+        this.#httpServer.identity.primaryPort,
+        this.#tlsCert
+      );
+    }
   }
 
   /**
@@ -268,6 +318,7 @@ export class GraphServer extends MockServer {
    */
   stop() {
     this.#httpServer.stop();
+    this.#httpsProxy?.destroy();
   }
 
   /**
@@ -275,7 +326,7 @@ export class GraphServer extends MockServer {
    * passed to the class constructor.
    */
   get port() {
-    return this.#httpServer.identity.primaryPort;
+    return this.#httpsProxy?.port ?? this.#httpServer.identity.primaryPort;
   }
 
   get lastSentGraphMessage() {
@@ -336,6 +387,16 @@ export class GraphServer extends MockServer {
           authorizationValue.substring(6)
         ).split(":");
         if (username != this.#username || password != this.#password) {
+          response.setStatusLine("1.1", 401, "Unauthorized");
+          response.setHeader("WWW-Authenticate", `Basic realm="test"`);
+          return;
+        }
+      } else if (authorizationValue.startsWith("Bearer ")) {
+        const token = authorizationValue.substring(7);
+        const { OAuth2TestUtils } = ChromeUtils.importESModule(
+          "resource://testing-common/mailnews/OAuth2TestUtils.sys.mjs"
+        );
+        if (!OAuth2TestUtils.validateToken(token, "test_mail")) {
           response.setStatusLine("1.1", 401, "Unauthorized");
           response.setHeader("WWW-Authenticate", `Basic realm="test"`);
           return;
@@ -620,7 +681,7 @@ export class GraphServer extends MockServer {
    */
   #calendars() {
     return {
-      "@odata.context": `${this.endpoint}/v1.0/$metadata#me/calendars`,
+      "@odata.context": `${this.#apparentEndpoint}/v1.0/$metadata#me/calendars`,
       value: [
         {
           id: "AAMkAGI2TGuLAAA=",
@@ -687,7 +748,7 @@ export class GraphServer extends MockServer {
       offset = 0;
     }
 
-    const context = `${this.#endpoint}/$metadata#Collection(event)`;
+    const context = `${this.#apparentEndpoint}/$metadata#Collection(event)`;
 
     const [changes, truncated] = this.getChangesSince(
       offset,
@@ -721,7 +782,7 @@ export class GraphServer extends MockServer {
       : ["$deltatoken", this.itemChanges.length, "@odata.deltaLink"];
     nextParams.set(tokenKey, `${newToken}`);
     result[odataKey] =
-      `${this.#endpoint}/me/calendars/${calendarId}/events/delta?${nextParams}`;
+      `${this.#apparentEndpoint}/me/calendars/${calendarId}/events/delta?${nextParams}`;
 
     return result;
   }
@@ -742,7 +803,7 @@ export class GraphServer extends MockServer {
     }
 
     return {
-      "@odata.context": `${this.#endpoint}/$metadata#users('me')/mailFolders/$entity`,
+      "@odata.context": `${this.#apparentEndpoint}/$metadata#users('me')/mailFolders/$entity`,
       id: folder.id,
       displayName: folder.displayName,
       parentFolderId: folder.parentId,
@@ -819,7 +880,7 @@ export class GraphServer extends MockServer {
       201,
       "Created",
       JSON.stringify({
-        "@odata.context": `${this.#endpoint}/$metadata#users('me')/mailFolders/$entity`,
+        "@odata.context": `${this.#apparentEndpoint}/$metadata#users('me')/mailFolders/$entity`,
         id: folderId,
         displayName: folderName,
         parentFolderId: parentFolder.id,
@@ -835,8 +896,8 @@ export class GraphServer extends MockServer {
    */
   #mailFoldersDelta(queryString) {
     const params = new URLSearchParams(queryString);
-    const context = `${this.#endpoint}/$metadata#users('me')/mailFolders`;
-    const nextDelta = `${this.#endpoint}/me/mailFolders/delta()?$deltatoken=${this.deletedFolders.length}`;
+    const context = `${this.#apparentEndpoint}/$metadata#users('me')/mailFolders`;
+    const nextDelta = `${this.#apparentEndpoint}/me/mailFolders/delta()?$deltatoken=${this.deletedFolders.length}`;
     const deletedOffset = Number.parseInt(params.get("$deltatoken") ?? "0", 10);
     const liveFolders = this.folders
       .filter(folder => folder.distinguishedId != "msgfolderroot")
@@ -873,7 +934,7 @@ export class GraphServer extends MockServer {
       return {
         "@odata.context": context,
         value: page,
-        "@odata.nextLink": `${this.#endpoint}/me/mailFolders/delta()?${nextParams}`,
+        "@odata.nextLink": `${this.#apparentEndpoint}/me/mailFolders/delta()?${nextParams}`,
       };
     }
 
@@ -1115,7 +1176,7 @@ export class GraphServer extends MockServer {
       offset = 0;
     }
 
-    const context = `${this.#endpoint}/$metadata#Collection(message)`;
+    const context = `${this.#apparentEndpoint}/$metadata#Collection(message)`;
 
     const [changes, truncated] = this.getChangesSince(
       offset,
@@ -1184,7 +1245,7 @@ export class GraphServer extends MockServer {
       nextParams.delete("deltatoken");
       nextParams.set("$skiptoken", `${newToken}`);
       result["@odata.nextLink"] =
-        `${this.#endpoint}/me/mailFolders('${folderName}')/messages/delta?${nextParams}`;
+        `${this.#apparentEndpoint}/me/mailFolders('${folderName}')/messages/delta?${nextParams}`;
     } else {
       // We are up to date. Send a deltaLink.
       const newToken = this.itemChanges.length;
@@ -1195,7 +1256,7 @@ export class GraphServer extends MockServer {
       nextParams.delete("deltatoken");
       nextParams.set("$deltatoken", `${newToken}`);
       result["@odata.deltaLink"] =
-        `${this.#endpoint}/me/mailFolders('${folderName}')/messages/delta?${nextParams}`;
+        `${this.#apparentEndpoint}/me/mailFolders('${folderName}')/messages/delta?${nextParams}`;
     }
 
     return result;
@@ -1341,8 +1402,14 @@ export class GraphServer extends MockServer {
     this.deleteItem(messageId);
   }
 
-  get #endpoint() {
-    return `http://127.0.0.1:${this.port}/v1.0`;
+  get #apparentEndpoint() {
+    const protocol =
+      this.#apparentPort == 443 || this.#apparentPort == 8443
+        ? "https"
+        : "http";
+    const port = this.#apparentPort > -1 ? this.#apparentPort : this.port;
+    const hostname = this.#apparentHostname ?? "127.0.0.1";
+    return `${protocol}://${hostname}:${port}/v1.0`;
   }
 }
 
