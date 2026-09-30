@@ -472,3 +472,54 @@ add_task(async function testAuthLoginFailure() {
   smtpServer.closeCachedConnections();
   authServer.stop();
 });
+
+/**
+ * Test that envelope addresses with line breaks are refused, so they can't be
+ * used to send arbitrary commands, also when the server supports SMTPUTF8.
+ */
+add_task(async function testLineBreakInEnvelopeAddress() {
+  const utf8Server = setupServerDaemon(d => {
+    const handler = new SMTP_RFC2821_handler(d);
+    handler.kCapabilities = ["8BITMIME", "SIZE", "SMTPUTF8"];
+    return handler;
+  });
+  utf8Server.start();
+  registerCleanupFunction(() => utf8Server.stop());
+
+  const kInjected = '"a\r\nRCPT TO:<attacker@evil.invalid>"@foo.invalid';
+  for (const { label, to, from } of [
+    { label: "recipient", to: kInjected, from: "from@foo.invalid" },
+    { label: "sender", to: "to@foo.invalid", from: kInjected },
+  ]) {
+    utf8Server.resetTest();
+    const smtpServer = getBasicSmtpServer(utf8Server.port);
+    const identity = getSmtpIdentity(from, smtpServer);
+
+    const listener = new PromiseTestUtils.PromiseMsgOutgoingListener();
+    smtpServer.sendMailMessage(
+      do_get_file("data/message1.eml"),
+      MailServices.headerParser.parseEncodedHeaderW(to),
+      [],
+      identity,
+      from,
+      null,
+      null,
+      false,
+      `<${label}@foo.invalid>`,
+      listener
+    );
+
+    await Assert.rejects(
+      listener.promise,
+      err => err.message == Cr.NS_ERROR_ILLEGAL_VALUE,
+      `sending with a line break in the ${label} should fail`
+    );
+    const commands = [utf8Server.playTransaction()].flat().flatMap(t => t.them);
+    Assert.ok(
+      !commands.some(c => c.startsWith("MAIL") || c.startsWith("RCPT")),
+      `no envelope should be sent for a line break in the ${label}`
+    );
+
+    smtpServer.closeCachedConnections();
+  }
+});

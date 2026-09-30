@@ -262,6 +262,19 @@ export class SmtpClient {
       this._envelope.from || "anonymous@" + this._getHelloArgument()
     )[0];
 
+    if (
+      [this._envelope.from, ...(this._envelope.to ?? [])].some(address =>
+        /[\r\n]/.test(address ?? "")
+      )
+    ) {
+      // Line breaks would let the rest of the address be sent as separate
+      // commands.
+      this.logger.error("Envelope address cannot contain line breaks");
+      this.onerror(Cr.NS_ERROR_ILLEGAL_VALUE);
+      this.close();
+      return;
+    }
+
     if (!this._capabilities.includes("SMTPUTF8")) {
       // If server doesn't support SMTPUTF8, check if addresses contain invalid
       // characters.
@@ -697,7 +710,7 @@ export class SmtpClient {
   }
 
   /**
-   * Send a string command to the server, also append CRLF if needed.
+   * Send a string command to the server, also append CRLF.
    *
    * @param {string} str - String to be sent to the server.
    * @param {boolean} [suppressLogging=false] - If true and not in dev mode,
@@ -713,6 +726,13 @@ export class SmtpClient {
       }
       return;
     }
+    if (/[\r\n]/.test(str)) {
+      // Line breaks would let the rest of str be sent as separate commands.
+      this.logger.error("Command cannot contain line breaks");
+      this.onerror(Cr.NS_ERROR_ILLEGAL_VALUE);
+      this.close();
+      return;
+    }
 
     // "C: " is used to denote that this is data from the Client.
     if (suppressLogging && AppConstants.MOZ_UPDATE_CHANNEL != "default") {
@@ -722,10 +742,7 @@ export class SmtpClient {
     } else {
       this.logger.debug(`C: ${str}`);
     }
-    this.waitDrain = this._send(
-      new TextEncoder().encode(str + (str.substr(-2) !== "\r\n" ? "\r\n" : ""))
-        .buffer
-    );
+    this.waitDrain = this._send(new TextEncoder().encode(str + "\r\n").buffer);
   }
 
   _send(buffer) {
