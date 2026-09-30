@@ -125,6 +125,7 @@ const testRunner = {
     } else {
       [x, y] = [otherPosition, position];
     }
+    AccessibilityUtils.suppressClickHandling(true);
     EventUtils.synthesizeMouse(
       this.splitter.parentNode,
       x,
@@ -132,6 +133,7 @@ const testRunner = {
       { type, buttons: 1 },
       win
     );
+    AccessibilityUtils.suppressClickHandling(false);
 
     if (MOUSE_DELAY) {
       // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
@@ -176,6 +178,78 @@ add_setup(async function () {
   registerCleanupFunction(() => {
     window.windowUtils.disableNonTestMouseEvents(false);
   });
+});
+
+add_task(async function testAccessibilityState() {
+  const splitter = doc.getElementById("splitter1");
+  Assert.equal(
+    splitter.getAttribute("role"),
+    "separator",
+    "pane splitter should expose separator semantics"
+  );
+  Assert.equal(
+    splitter.getAttribute("aria-orientation"),
+    "vertical",
+    "horizontal resize splitter should expose a vertical separator"
+  );
+  Assert.equal(
+    splitter.tabIndex,
+    0,
+    "standalone pane splitter should be reachable from the keyboard"
+  );
+
+  const selfResizeSplitter = doc.getElementById("splitter7");
+  Assert.equal(
+    selfResizeSplitter.tabIndex,
+    -1,
+    "embedded resize handles should not enter the normal tab order"
+  );
+});
+
+add_task(async function testKeyboardResize() {
+  const splitter = doc.getElementById("splitter1");
+  const resized = doc.getElementById("splitter1-before");
+  const eventTypes = [
+    "splitter-before-resize",
+    "splitter-resizing",
+    "splitter-resize-end",
+    "splitter-resized",
+  ];
+  const events = [];
+  const listener = event => events.push(event.type);
+  for (const eventType of eventTypes) {
+    splitter.addEventListener(eventType, listener);
+  }
+
+  splitter.focus();
+  Assert.equal(
+    doc.activeElement,
+    splitter,
+    "standalone pane splitter should receive keyboard focus"
+  );
+  EventUtils.synthesizeKey("KEY_ArrowRight", { repeat: 3 }, win);
+
+  Assert.equal(
+    resized.getBoundingClientRect().width,
+    230,
+    "typematic input should resize for every repeated keydown"
+  );
+  Assert.equal(
+    splitter.getAttribute("aria-valuenow"),
+    "230",
+    "accessible value should match the resized pane"
+  );
+  Assert.deepEqual(
+    events,
+    eventTypes,
+    "typematic input should send one resize lifecycle"
+  );
+
+  for (const eventType of eventTypes) {
+    splitter.removeEventListener(eventType, listener);
+  }
+  splitter.width = null;
+  await nextFrame();
 });
 
 add_task(async function testHorizontalBefore() {
@@ -428,6 +502,7 @@ add_task(async function testResizeWithWindowHorizontal() {
     "flexible element should not be locked before a resize-with-window drag"
   );
 
+  AccessibilityUtils.suppressClickHandling(true);
   EventUtils.synthesizeMouseAtPoint(
     dragStartX,
     dragStartY,
@@ -473,6 +548,7 @@ add_task(async function testResizeWithWindowHorizontal() {
     { type: "mouseup" },
     win
   );
+  AccessibilityUtils.suppressClickHandling(false);
   await nextFrame();
   Assert.equal(
     before.style.getPropertyPriority("width"),
@@ -599,6 +675,7 @@ add_task(async function testResizeWithWindowVertical() {
   const dragStartY = splitterRect.top + splitterRect.height / 2;
   const dragDelta = 40;
 
+  AccessibilityUtils.suppressClickHandling(true);
   EventUtils.synthesizeMouseAtPoint(
     dragStartX,
     dragStartY,
@@ -625,6 +702,7 @@ add_task(async function testResizeWithWindowVertical() {
     { type: "mouseup" },
     win
   );
+  AccessibilityUtils.suppressClickHandling(false);
   await nextFrame();
   Assert.equal(
     outer.style.getPropertyValue("--splitter6-height"),

@@ -325,34 +325,54 @@ add_task(async function enter_msg_hdr_toolbar() {
   );
   const headerButtons = headerToolbar.querySelectorAll(BUTTONS_SELECTOR);
 
+  function isButtonFocused(button) {
+    return (
+      button == aboutMessage.document.activeElement ||
+      button.contains(aboutMessage.document.activeElement)
+    );
+  }
+
+  function assertButtonFocused(button, message) {
+    Assert.ok(isButtonFocused(button), message);
+  }
+
+  function synthesizeKeyInFocusedWindow(key, modifiers = {}) {
+    EventUtils.synthesizeKey(
+      key,
+      modifiers,
+      Services.focus.focusedWindow || about3Pane
+    );
+  }
+
+  function synthesizeKeyInMessageHeader(key, modifiers = {}) {
+    EventUtils.synthesizeKey(key, modifiers, aboutMessage);
+  }
+
   // Create an array of all the menu popups on message header.
   const msgHdrMenupopups = headerToolbar.querySelectorAll(".no-icon-menupopup");
   let menupopupToOpen, msgHdrActiveElement;
 
-  // Press tab while on the message selected.
-  EventUtils.synthesizeKey("KEY_Tab", {}, about3Pane);
-  Assert.equal(
-    headerButtons[0].id,
-    aboutMessage.document.activeElement.id,
+  // Reach the message header toolbar from the keyboard. Focusable pane
+  // splitters may be between the selected message and the message pane.
+  for (let i = 0; i < 5 && !isButtonFocused(headerButtons[0]); i++) {
+    synthesizeKeyInFocusedWindow("KEY_Tab");
+  }
+  assertButtonFocused(
+    headerButtons[0],
     "focused on first msgHdr toolbar button"
   );
 
   // Simulate the Arrow Right keypress to make sure the correct button gets the
   // focus.
   for (let i = 1; i < headerButtons.length; i++) {
-    const previousElement = document.activeElement;
-    EventUtils.synthesizeKey("KEY_ArrowRight", {}, about3Pane);
-    Assert.equal(
-      aboutMessage.document.activeElement.id,
-      headerButtons[i].id,
-      "The next button is focused"
-    );
+    const previousElement = headerButtons[i - 1];
+    synthesizeKeyInMessageHeader("KEY_ArrowRight");
+    assertButtonFocused(headerButtons[i], "The next button is focused");
     Assert.ok(
-      aboutMessage.document.activeElement.tabIndex == 0 &&
-        previousElement.tabIndex == -1,
+      headerButtons[i].tabIndex == 0 && previousElement.tabIndex == -1,
       "The roving tab index was updated"
     );
-    msgHdrActiveElement = aboutMessage.document.activeElement;
+    msgHdrActiveElement = headerButtons[i];
 
     // Simulate Enter and Space keypress events to ensure the menus in the
     // message header buttons area are keyboard accessible.
@@ -376,36 +396,35 @@ add_task(async function enter_msg_hdr_toolbar() {
         menupopupToOpen,
         "popupshown"
       );
-      EventUtils.synthesizeKey("KEY_Enter", {}, about3Pane);
+      synthesizeKeyInMessageHeader("KEY_Enter");
       await menupopupOpenEnterPromise;
 
       const menupopupClosePromise = BrowserTestUtils.waitForEvent(
         menupopupToOpen,
         "popuphidden"
       );
-      EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+      synthesizeKeyInMessageHeader("KEY_Escape");
       await menupopupClosePromise;
 
-      Assert.equal(
-        msgHdrActiveElement.id,
-        headerButtons[i].id,
-        "The correct button is focused"
-      );
+      assertButtonFocused(msgHdrActiveElement, "The correct button is focused");
 
       const menupopupOpenSpacePromise = BrowserTestUtils.waitForEvent(
         menupopupToOpen,
         "popupshown"
       );
       // Simulate Space keypress.
-      EventUtils.synthesizeKey(" ", {}, about3Pane);
+      synthesizeKeyInMessageHeader(" ");
       await menupopupOpenSpacePromise;
 
-      EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-      await menupopupClosePromise;
+      const menupopupCloseSpacePromise = BrowserTestUtils.waitForEvent(
+        menupopupToOpen,
+        "popuphidden"
+      );
+      synthesizeKeyInMessageHeader("KEY_Escape");
+      await menupopupCloseSpacePromise;
 
-      Assert.equal(
-        msgHdrActiveElement.id,
-        headerButtons[i].id,
+      assertButtonFocused(
+        msgHdrActiveElement,
         "The correct button is focused after opening and closing the menupopup"
       );
     }
@@ -414,23 +433,18 @@ add_task(async function enter_msg_hdr_toolbar() {
   // Simulate the Arrow Left keypress to make sure the correct button gets the
   // focus.
   for (let i = headerButtons.length - 2; i > -1; i--) {
-    const previousElement = document.activeElement;
-    EventUtils.synthesizeKey("KEY_ArrowLeft", {}, about3Pane);
-    Assert.equal(
-      aboutMessage.document.activeElement.id,
-      headerButtons[i].id,
-      "The previous button is focused"
-    );
+    const previousElement = headerButtons[i + 1];
+    synthesizeKeyInMessageHeader("KEY_ArrowLeft");
+    assertButtonFocused(headerButtons[i], "The previous button is focused");
     Assert.ok(
-      aboutMessage.document.activeElement.tabIndex == 0 &&
-        previousElement.tabIndex == -1,
+      headerButtons[i].tabIndex == 0 && previousElement.tabIndex == -1,
       "The roving tab index was updated"
     );
   }
-  EventUtils.synthesizeKey("KEY_Tab", {}, about3Pane);
-  Assert.equal(
-    aboutMessage.document.activeElement.id,
-    "fromRecipient0",
+  synthesizeKeyInMessageHeader("KEY_Tab");
+  const fromRecipient = aboutMessage.document.getElementById("fromRecipient0");
+  Assert.ok(
+    fromRecipient.contains(aboutMessage.document.activeElement),
     "The sender is now focused"
   );
 

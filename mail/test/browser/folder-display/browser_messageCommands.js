@@ -412,40 +412,55 @@ add_task(async function roving_multi_message_buttons() {
   const curMessages = await select_shift_click_row(1);
   await assert_selected_and_displayed(curMessages);
 
-  const multiMsgView = get_about_3pane().multiMessageBrowser;
+  const about3Pane = get_about_3pane();
+  const multiMsgView = about3Pane.multiMessageBrowser;
   const BUTTONS_SELECTOR = `toolbarbutton:not([hidden]`;
   const headerToolbar = multiMsgView.contentDocument.getElementById(
     "header-view-toolbar"
   );
   const headerButtons = headerToolbar.querySelectorAll(BUTTONS_SELECTOR);
 
-  // Press tab while on the message selected to access the multi message view
-  // header buttons.
-  if (
-    !Services.prefs.getBoolPref("dom.disable_tab_focus_to_root_element", true)
-  ) {
-    EventUtils.synthesizeKey("KEY_Tab", {});
+  function isButtonFocused(button) {
+    return (
+      button == multiMsgView.contentDocument.activeElement ||
+      button.contains(multiMsgView.contentDocument.activeElement)
+    );
   }
-  EventUtils.synthesizeKey("KEY_Tab", {});
-  Assert.equal(
-    headerButtons[0].id,
-    multiMsgView.contentDocument.activeElement.id,
+
+  function assertButtonFocused(button, message) {
+    Assert.ok(isButtonFocused(button), message);
+  }
+
+  function synthesizeKeyInFocusedWindow(key, modifiers = {}) {
+    EventUtils.synthesizeKey(
+      key,
+      modifiers,
+      Services.focus.focusedWindow || about3Pane
+    );
+  }
+
+  function synthesizeKeyInMultiMessageView(key, modifiers = {}) {
+    EventUtils.synthesizeKey(key, modifiers, multiMsgView.contentWindow);
+  }
+
+  // Reach the multi message header toolbar from the keyboard. Focusable pane
+  // splitters may be between the selected messages and the message pane.
+  for (let i = 0; i < 5 && !isButtonFocused(headerButtons[0]); i++) {
+    synthesizeKeyInFocusedWindow("KEY_Tab");
+  }
+  assertButtonFocused(
+    headerButtons[0],
     "focused on first msgHdr toolbar button"
   );
 
   // Simulate the Arrow Right keypress to make sure the correct button gets the
   // focus.
   for (let i = 1; i < headerButtons.length; i++) {
-    const previousElement = document.activeElement;
-    EventUtils.synthesizeKey("KEY_ArrowRight", {});
-    Assert.equal(
-      multiMsgView.contentDocument.activeElement.id,
-      headerButtons[i].id,
-      "The next button is focused"
-    );
+    const previousElement = headerButtons[i - 1];
+    synthesizeKeyInMultiMessageView("KEY_ArrowRight");
+    assertButtonFocused(headerButtons[i], "The next button is focused");
     Assert.ok(
-      multiMsgView.contentDocument.activeElement.tabIndex == 0 &&
-        previousElement.tabIndex == -1,
+      headerButtons[i].tabIndex == 0 && previousElement.tabIndex == -1,
       "The roving tab index was updated"
     );
   }
@@ -453,24 +468,19 @@ add_task(async function roving_multi_message_buttons() {
   // Simulate the Arrow Left keypress to make sure the correct button gets the
   // focus.
   for (let i = headerButtons.length - 2; i > -1; i--) {
-    const previousElement = document.activeElement;
-    EventUtils.synthesizeKey("KEY_ArrowLeft", {});
-    Assert.equal(
-      multiMsgView.contentDocument.activeElement.id,
-      headerButtons[i].id,
-      "The previous button is focused"
-    );
+    const previousElement = headerButtons[i + 1];
+    synthesizeKeyInMultiMessageView("KEY_ArrowLeft");
+    assertButtonFocused(headerButtons[i], "The previous button is focused");
     Assert.ok(
-      multiMsgView.contentDocument.activeElement.tabIndex == 0 &&
-        previousElement.tabIndex == -1,
+      headerButtons[i].tabIndex == 0 && previousElement.tabIndex == -1,
       "The roving tab index was updated"
     );
   }
 
   // Check that once the Escape key is pressed twice, focus will move back to
   // the selected messages.
-  EventUtils.synthesizeKey("KEY_Escape", {});
-  EventUtils.synthesizeKey("KEY_Escape", {});
+  synthesizeKeyInMultiMessageView("KEY_Escape");
+  synthesizeKeyInMultiMessageView("KEY_Escape");
   await assert_selected_and_displayed(curMessages);
 }).skip(AppConstants.platform == "macosx");
 

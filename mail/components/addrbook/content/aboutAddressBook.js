@@ -2890,7 +2890,12 @@ var detailsPane = {
     updateAbCommands();
 
     // Remove these elements from (or add them back to) the tab focus cycle.
-    for (const id of ["booksPane", "cardsPane"]) {
+    for (const id of [
+      "booksPane",
+      "booksSplitter",
+      "cardsPane",
+      "sharedSplitter",
+    ]) {
       document.getElementById(id).inert = editing;
     }
 

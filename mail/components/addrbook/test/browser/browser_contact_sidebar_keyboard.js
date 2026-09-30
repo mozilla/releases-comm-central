@@ -165,10 +165,20 @@ add_task(async function testSidebar() {
   Assert.ok(ccButton.disabled, "cc button disabled with no contact selected");
   Assert.ok(bccButton.disabled, "bcc button disabled with no contact selected");
 
-  // Select a contact via the keyboard (5 back tabs then down) and check that the buttons are enabled. Bug 1912727
-  for (let i = 0; i < 5; i++) {
+  // Select a contact via the keyboard and check that the buttons are enabled.
+  // Bug 1912727
+  for (
+    let i = 0;
+    i < 10 && sidebarDocument.activeElement != cardsList.table.body;
+    i++
+  ) {
     EventUtils.synthesizeKey("KEY_Tab", { shiftKey: true }, composeWindow);
   }
+  Assert.equal(
+    sidebarDocument.activeElement,
+    cardsList.table.body,
+    "cards list should be reachable with Shift+Tab"
+  );
   EventUtils.synthesizeKey("KEY_ArrowDown", {}, composeWindow);
 
   // Wait for the selection to be updated.

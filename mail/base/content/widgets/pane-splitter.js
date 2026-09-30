@@ -42,6 +42,7 @@
       "resize-id",
       "resize-with-window",
       "resize-lock-ids",
+      "disabled",
       "id",
     ];
 
@@ -117,11 +118,23 @@
      */
     #skipResizeWithWindowRestore = false;
 
+    /**
+     * The arrow key that began an in-progress keyboard resize.
+     *
+     * @type {?string}
+     */
+    #keyResizeKey = null;
+
     connectedCallback() {
       this.addEventListener("mousedown", this);
+      this.addEventListener("keydown", this);
+      this.addEventListener("keyup", this);
+      this.addEventListener("blur", this);
+      this.setAttribute("role", "separator");
       // Try and find the _resizeElement from the resize-id attribute.
       this._updateResizeElement();
       this._updateStyling();
+      this.#updateAccessibility();
       this.#updateResizeWithWindow();
     }
 
@@ -145,6 +158,9 @@
           this.#updateLockElements({
             lock: this.#resizeWithWindowActive && !this.isCollapsed,
           });
+          break;
+        case "disabled":
+          this.#updateAccessibility();
           break;
         case "id":
           this._updateStyling();
@@ -481,6 +497,7 @@
       // The resize direction has changed. To be safe, make sure we're no longer
       // resizing.
       this.endResize();
+      this.#updateAccessibility();
       const forceSize =
         this.resizeWithWindow &&
         !this.isCollapsed &&
@@ -575,6 +592,7 @@
         "collapsed-by-splitter"
       );
       this._updateStyling();
+      this.#updateAccessibility();
 
       this.#updateResizeWithWindow();
     }
@@ -638,6 +656,7 @@
         return;
       }
       this[field] = size;
+      this.#updateAccessibility();
 
       const forceSize = this.resizeWithWindow && size != null;
       const isResizing = !!this._dragStartInfo;
@@ -705,6 +724,40 @@
       // Now that the width or height has been updated, fetch the size the
       // element actually took after CSS layout constraints were applied.
       this[this.#resizeProperty] = this.#getElementSize(this.resizeElement);
+      this.#updateAccessibility();
+    }
+
+    /**
+     * Update the accessible separator state.
+     */
+    #updateAccessibility() {
+      const size = this.isCollapsed
+        ? 0
+        : this.#getElementSize(this._resizeElement);
+      const resizesOwnContainer = this.resizeElement == this.parentNode;
+      this.tabIndex =
+        this.resizeElement && !this.isDisabled && !resizesOwnContainer ? 0 : -1;
+      // aria-orientation describes the separator's axis, not the resized axis.
+      this.setAttribute(
+        "aria-orientation",
+        this.resizeDirection == "horizontal" ? "vertical" : "horizontal"
+      );
+      if (this.isDisabled) {
+        this.setAttribute("aria-disabled", "true");
+      } else {
+        this.removeAttribute("aria-disabled");
+      }
+      if (this._resizeElement?.id) {
+        this.setAttribute("aria-controls", this._resizeElement.id);
+      } else {
+        this.removeAttribute("aria-controls");
+      }
+      this.setAttribute("aria-valuemin", "0");
+      if (Number.isFinite(size)) {
+        this.setAttribute("aria-valuenow", Math.round(size));
+      } else {
+        this.removeAttribute("aria-valuenow");
+      }
     }
 
     /**
@@ -755,6 +808,7 @@
       const forceSize = !collapse && this.#forceSizeOnNextExpand;
       this._isCollapsed = collapse;
       this._updateStyling(forceSize);
+      this.#updateAccessibility();
       if (forceSize) {
         this.#finishResizeWithWindowRestore();
       } else if (this.#resizeWithWindowActive && !this.isCollapsed) {
@@ -894,6 +948,13 @@
           break;
         case "mouseup":
           this._onMouseUp(event);
+          break;
+        case "keydown":
+          this._onKeyDown(event);
+          break;
+        case "keyup":
+        case "blur":
+          this._onKeyUpOrBlur(event);
           break;
         case "splitter-before-resize":
         case "splitter-resize-end":
@@ -1073,6 +1134,88 @@
       document.documentElement.style.pointerEvents = "none";
       this._updateDragCursor();
       this.classList.add("splitter-resizing");
+    }
+
+    /**
+     * Handles keyboard resizing on the splitter.
+     *
+     * @param {KeyboardEvent} event
+     */
+    _onKeyDown(event) {
+      if (
+        !this.resizeElement ||
+        this.isDisabled ||
+        event.altKey ||
+        event.metaKey
+      ) {
+        return;
+      }
+
+      const vertical = this.resizeDirection == "vertical";
+      const arrowKeys = vertical
+        ? ["ArrowUp", "ArrowDown"]
+        : ["ArrowLeft", "ArrowRight"];
+      if (!arrowKeys.includes(event.key)) {
+        return;
+      }
+
+      const ltrDir = this.parentNode.matches(":dir(ltr)");
+      const negative = vertical
+        ? this._beforeElement
+        : this._beforeElement == ltrDir;
+      const coordinateDelta =
+        event.key == "ArrowDown" || event.key == "ArrowRight" ? 1 : -1;
+      const sizeDelta =
+        coordinateDelta * (negative ? -1 : 1) * (event.shiftKey ? 50 : 10);
+      const size = this.#getElementSize(this._resizeElement);
+      if (!Number.isFinite(size)) {
+        return;
+      }
+
+      event.preventDefault();
+      if (!this.#keyResizeKey) {
+        this.#keyResizeKey = event.key;
+        this.dispatchEvent(
+          new CustomEvent("splitter-before-resize", { bubbles: true })
+        );
+        this.dispatchEvent(
+          new CustomEvent("splitter-resizing", { bubbles: true })
+        );
+      }
+
+      const maxSize =
+        this.resizeWithWindow || this.parentNode == this.resizeElement
+          ? null
+          : this.#getElementSize(this.parentNode);
+      this._updateSize(
+        Math.max(0, Math.min(maxSize ?? Infinity, size + sizeDelta))
+      );
+    }
+
+    /**
+     * Completes keyboard resizing when its initiating key is released or the
+     * splitter loses focus.
+     *
+     * @param {KeyboardEvent|FocusEvent} event
+     */
+    _onKeyUpOrBlur(event) {
+      if (
+        !this.#keyResizeKey ||
+        (event.type == "keyup" && event.key != this.#keyResizeKey)
+      ) {
+        return;
+      }
+
+      this.dispatchEvent(
+        new CustomEvent("splitter-resize-end", { bubbles: true })
+      );
+
+      // Make sure our property corresponds to the actual final size.
+      this._updateSize();
+      this.#keyResizeKey = null;
+      this.dispatchEvent(
+        new CustomEvent("splitter-resized", { bubbles: true })
+      );
     }
 
     _updateDragCursor() {
