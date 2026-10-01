@@ -161,11 +161,16 @@ export class NntpChannel extends MailChannel {
     return true;
   }
 
+  /**
+   * @see nsIChannel
+   * @returns {nsIInputStream} A stream that blocks until data is available.
+   */
   open() {
-    throw Components.Exception(
-      `${this.constructor.name}.open not implemented`,
-      Cr.NS_ERROR_NOT_IMPLEMENTED
-    );
+    const listener = Cc[
+      "@mozilla.org/network/sync-stream-listener;1"
+    ].createInstance(Ci.nsISyncStreamListener);
+    this.asyncOpen(listener);
+    return listener.inputStream;
   }
 
   asyncOpen(listener) {

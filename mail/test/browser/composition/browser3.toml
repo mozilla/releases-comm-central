@@ -83,6 +83,8 @@ support-files = [
 
 ["browser_inlineRelatedAttachmentEws.js"]
 
+["browser_inlineRelatedAttachmentNntp.js"]
+
 ["browser_malformedMultipartMixedForward.js"]
 
 ["browser_sandwichedImageForward.js"]

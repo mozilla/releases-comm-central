@@ -230,8 +230,8 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   // mail message content     | load if same  | don't load   | don't load
   // mailbox, imap, JsAccount | message (1)   | (2)          | (3)
   // -------------------------+---------------+--------------+------------------
-  // news message             | don't load (4)| load if same | load (6)
-  //                          |               | server (5)   |
+  // news message             | don't load (4)| load if same | don't load
+  //                          |               | server (5)   | (6)
   // -------------------------+---------------+--------------+------------------
   // http(s)/data, etc.       | (default)     | (default)    | (default)
   // -------------------------+---------------+--------------+------------------
@@ -262,10 +262,9 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
     // Don't accept request coming from a mail message since it would
     // access the news server (4). Such a load would bypass remote content
     // blocking and could be used to track when the message is read.
-    nsCOMPtr<nsIMsgMessageUrl> requestURL(
-        do_QueryInterface(aRequestingLocation));
-    if (requestURL) return NS_OK;  // (4)
-    return acceptContent();        // (6)
+    // Other requesters, like the compose window, don't get to load news
+    // message content either (6), same as for mail message content (3).
+    return NS_OK;
   }
 
   nsCOMPtr<nsIMsgMessageUrl> contentURL(do_QueryInterface(aContentLocation));

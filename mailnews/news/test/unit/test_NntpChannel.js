@@ -218,3 +218,16 @@ add_task(async function test_cancelReadingFromCache() {
     "second request should be served from the cache"
   );
 });
+
+/**
+ * Test reading an article with a synchronous open().
+ */
+add_task(function test_open() {
+  const stream = newMessageIdChannel("5@regular.invalid").open();
+  const data = NetUtil.readInputStreamToString(stream, stream.available());
+  Assert.stringContains(
+    data,
+    "Message-ID: <5@regular.invalid>",
+    "article should be read"
+  );
+});
