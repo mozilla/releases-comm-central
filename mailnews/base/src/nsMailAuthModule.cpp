@@ -21,7 +21,9 @@ NS_IMETHODIMP
 nsMailAuthModule::Init(const char* type, const nsACString& serviceName,
                        uint32_t serviceFlags, const nsAString& domain,
                        const nsAString& username, const nsAString& password) {
+  // This fails e.g. for NTLM in FIPS mode.
   mAuthModule = nsIAuthModule::CreateInstance(type);
+  NS_ENSURE_TRUE(mAuthModule, NS_ERROR_FAILURE);
   return mAuthModule->Init(serviceName, serviceFlags, domain, username,
                            password);
 }
@@ -35,19 +37,18 @@ nsMailAuthModule::Init(const char* type, const nsACString& serviceName,
 NS_IMETHODIMP
 nsMailAuthModule::GetNextToken(const nsACString& inToken,
                                nsACString& outToken) {
+  NS_ENSURE_TRUE(mAuthModule, NS_ERROR_NOT_INITIALIZED);
+
   nsresult rv;
   void *inBuf, *outBuf;
   uint32_t inBufLen = 0, outBufLen = 0;
+
+  // Strip off any padding (see bug 230351).
+  const char* challenge = inToken.BeginReading();
   uint32_t len = inToken.Length();
+  while (len > 0 && challenge[len - 1] == '=') len--;
+
   if (len > 0) {
-    // Decode into the input buffer.
-    inBufLen = (len * 3) / 4;  // sufficient size (see plbase64.h)
-    inBuf = moz_xmalloc(inBufLen);
-
-    // Strip off any padding (see bug 230351).
-    char* challenge = ToNewCString(inToken);
-    while (challenge[len - 1] == '=') len--;
-
     // We need to know the exact length of the decoded string to give to
     // the GSSAPI libraries. But NSPR's base64 routine doesn't seem capable
     // of telling us that. So, we figure it out for ourselves.
@@ -58,10 +59,12 @@ nsMailAuthModule::GetNextToken(const nsACString& inToken,
     // 1 remaining is an error
     inBufLen =
         (len / 4) * 3 + ((len % 4 == 3) ? 2 : 0) + ((len % 4 == 2) ? 1 : 0);
-    PL_Base64Decode(challenge, len, (char*)inBuf);
-    free(challenge);
+    inBuf = moz_xmalloc(inBufLen);
+    if (!PL_Base64Decode(challenge, len, (char*)inBuf)) {
+      free(inBuf);
+      return NS_ERROR_FAILURE;
+    }
   } else {
-    inBufLen = 0;
     inBuf = NULL;
   }
 

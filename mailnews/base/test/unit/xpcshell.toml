@@ -107,6 +107,8 @@ tags = ["spam"]
 ["test_loadVirtualFolders.js"]
 tags = ["virtualfolders"]
 
+["test_mailAuthModule.js"]
+
 ["test_mailServices.js"]
 
 ["test_mailstoreConverter.js"]
