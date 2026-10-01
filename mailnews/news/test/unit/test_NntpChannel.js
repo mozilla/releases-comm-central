@@ -87,3 +87,134 @@ add_task(async function test_unknownServerCreatedOnOpen() {
   Assert.equal(newServer.port, NNTP_PORT, "server should use the uri port");
   MailServices.accounts.removeIncomingServer(newServer, false);
 });
+
+/**
+ * A stream listener that records how many times data was delivered and
+ * resolves with the status passed to onStopRequest.
+ */
+class StatusListener {
+  QueryInterface = ChromeUtils.generateQI([
+    "nsIStreamListener",
+    "nsIRequestObserver",
+  ]);
+
+  dataCount = 0;
+
+  /**
+   * @param {object} callbacks
+   * @param {Function} [callbacks.onStart] - Called from onStartRequest.
+   * @param {Function} [callbacks.onData] - Called from onDataAvailable.
+   */
+  constructor({ onStart, onData } = {}) {
+    this._onStart = onStart;
+    this._onData = onData;
+    this.promise = new Promise(resolve => (this._resolve = resolve));
+  }
+
+  onStartRequest(request) {
+    this._onStart?.(request);
+  }
+
+  onDataAvailable(request, stream, offset, count) {
+    this.dataCount++;
+    NetUtil.readInputStreamToString(stream, count);
+    this._onData?.(request);
+  }
+
+  onStopRequest(request, status) {
+    this._resolve(status);
+  }
+}
+
+/**
+ * @param {string} messageId
+ * @returns {nsIChannel}
+ */
+function newMessageIdChannel(messageId) {
+  return NetUtil.newChannel({
+    uri: `news://localhost:${NNTP_PORT}/${encodeURIComponent(messageId)}`,
+    loadUsingSystemPrincipal: true,
+  });
+}
+
+/**
+ * @param {string} messageId
+ * @returns {integer} How many times the article was requested from the server.
+ */
+function articleRequestCount(messageId) {
+  return [server.playTransaction()]
+    .flat()
+    .flatMap(t => t.them)
+    .filter(command => command == `ARTICLE <${messageId}>`).length;
+}
+
+/**
+ * Test that the request is stopped with the listener's error if the listener
+ * throws while reading from the server, and that the connection is released.
+ */
+add_task(async function test_listenerThrowsReadingFromServer() {
+  const listener = new StatusListener({
+    onData() {
+      throw Components.Exception("Aborted", Cr.NS_BINDING_ABORTED);
+    },
+  });
+  const channel = newMessageIdChannel("1@regular.invalid");
+  channel.asyncOpen(listener);
+  Assert.equal(
+    await listener.promise,
+    Cr.NS_BINDING_ABORTED,
+    "request should stop with the listener's error"
+  );
+  Assert.equal(listener.dataCount, 1, "no data should follow the error");
+  Assert.equal(channel.status, Cr.NS_BINDING_ABORTED);
+
+  const streamListener = new PromiseTestUtils.PromiseStreamListener();
+  newMessageIdChannel("2@regular.invalid").asyncOpen(streamListener);
+  await streamListener.promise;
+});
+
+/**
+ * Test cancelling the request while reading from the server.
+ */
+add_task(async function test_cancelReadingFromServer() {
+  const listener = new StatusListener({
+    onStart(request) {
+      request.cancel(Cr.NS_BINDING_ABORTED);
+    },
+  });
+  const channel = newMessageIdChannel("3@regular.invalid");
+  channel.asyncOpen(listener);
+  Assert.equal(
+    await listener.promise,
+    Cr.NS_BINDING_ABORTED,
+    "request should stop with the cancel status"
+  );
+  Assert.equal(listener.dataCount, 0, "no data should be delivered");
+});
+
+/**
+ * Test cancelling the request while reading from the memory cache.
+ */
+add_task(async function test_cancelReadingFromCache() {
+  const streamListener = new PromiseTestUtils.PromiseStreamListener();
+  newMessageIdChannel("4@regular.invalid").asyncOpen(streamListener);
+  await streamListener.promise;
+
+  const listener = new StatusListener({
+    onStart(request) {
+      request.cancel(Cr.NS_BINDING_ABORTED);
+    },
+  });
+  newMessageIdChannel("4@regular.invalid").asyncOpen(listener);
+  Assert.equal(
+    await listener.promise,
+    Cr.NS_BINDING_ABORTED,
+    "request should stop with the cancel status"
+  );
+  Assert.equal(listener.dataCount, 0, "no data should be delivered");
+  Assert.equal(
+    articleRequestCount("4@regular.invalid"),
+    1,
+    "second request should be served from the cache"
+  );
+});

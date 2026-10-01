@@ -934,17 +934,22 @@ export class NntpClient {
     const lineSeparator = AppConstants.platform == "win" ? "\r\n" : "\n";
 
     let article = "";
-    this._lineReader.read(
-      data,
-      line => {
-        article += line.slice(0, -2) + lineSeparator;
-        this.onData(line);
-      },
-      () => {
-        this._newsFolder?.notifyArticleDownloaded(this._articleNumber, article);
-        this._actionDone();
-      }
-    );
+    this._lineReader
+      .read(
+        data,
+        line => {
+          article += line.slice(0, -2) + lineSeparator;
+          this.onData(line);
+        },
+        () => {
+          this._newsFolder?.notifyArticleDownloaded(
+            this._articleNumber,
+            article
+          );
+          this._actionDone();
+        }
+      )
+      .catch(this._actionReadDataFailed);
   };
 
   /**
@@ -954,8 +959,21 @@ export class NntpClient {
    * @param {NntpResponse} res - Response received from the server.
    */
   _actionReadData({ data }) {
-    this._lineReader.read(data, this.onData, this._actionDone);
+    this._lineReader
+      .read(data, this.onData, this._actionDone)
+      .catch(this._actionReadDataFailed);
   }
+
+  /**
+   * Handle an exception thrown while processing a multi-line response, so that
+   * the connection doesn't stay busy forever.
+   *
+   * @param {Error} e
+   */
+  _actionReadDataFailed = e => {
+    this._logger.error("Failed to process multi-line response.", e);
+    this._actionDone(Cr.NS_ERROR_FAILURE);
+  };
 
   /**
    * Handle POST response.

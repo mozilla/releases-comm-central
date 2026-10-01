@@ -98,6 +98,18 @@ export class NntpChannel extends MailChannel {
   }
 
   /**
+   * @see nsIRequest
+   * @param {nsresult} status
+   */
+  cancel(status) {
+    if (!Components.isSuccessCode(this._status)) {
+      return;
+    }
+    this._status = status;
+    this._pump?.cancel(status);
+  }
+
+  /**
    * @see nsICacheEntryOpenCallback
    */
   onCacheEntryAvailable(entry, isNew, status) {
@@ -242,6 +254,7 @@ export class NntpChannel extends MailChannel {
     this.contentLength = 0;
     this._contentType = "";
     pump.init(cacheStream, 0, 0, true);
+    this._pump = pump;
     pump.asyncRead({
       onStartRequest: () => {
         this._listener.onStartRequest(this);
@@ -249,6 +262,7 @@ export class NntpChannel extends MailChannel {
         this._pending = true;
       },
       onStopRequest: (request, status) => {
+        this._pump = null;
         this._listener.onStopRequest(this, status);
         this.URI.SetUrlState(false, status);
         try {
@@ -314,12 +328,22 @@ export class NntpChannel extends MailChannel {
       };
 
       client.onData = data => {
+        if (!Components.isSuccessCode(this._status)) {
+          return;
+        }
         this.contentLength += data.length;
         outputStream.write(data, data.length);
-        this._listener.onDataAvailable(this, inputStream, 0, data.length);
+        try {
+          this._listener.onDataAvailable(this, inputStream, 0, data.length);
+        } catch (e) {
+          this.cancel(e.result ?? Cr.NS_ERROR_FAILURE);
+        }
       };
 
       client.onDone = status => {
+        if (!Components.isSuccessCode(this._status)) {
+          status = this._status;
+        }
         try {
           this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
         } catch (e) {}
