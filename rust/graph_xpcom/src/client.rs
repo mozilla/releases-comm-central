@@ -255,14 +255,13 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         let op_sender = OperationSender::new(base_url.clone(), server)?;
         let op_sender = Arc::new(op_sender);
 
-        // Start the queue with a few runners. We're picking 5 here as an
-        // arbitrary number, without a strong reason for it (beyond being higher
-        // than 1). In the future, we could maybe move
-        // `maximumConnectionsNumber` from `nsIImapIncomingServer` to
-        // `nsIMsgIncomingServer` and use its value here.
+        // According to
+        // https://learn.microsoft.com/en-us/graph/throttling-limits#outlook-service-limits
+        // The maximum number of concurrent connections allowed per mailbox is
+        // 4.
         let queue =
             OperationQueue::new(|fut| moz_task::spawn_local("graph_operation_queue", fut).detach());
-        queue.start(5).map_err(ProtocolError::from)?;
+        queue.start(4).map_err(ProtocolError::from)?;
 
         Ok(XpComGraphClient { queue, op_sender })
     }
