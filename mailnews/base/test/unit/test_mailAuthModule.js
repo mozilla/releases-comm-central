@@ -65,14 +65,12 @@ add_task(function testInvalidChallenge() {
 });
 
 /**
- * Creates an NTLM type 2 message whose target info follows the header.
+ * Creates an NTLM type 2 message header whose target info follows it.
  *
  * @param {number} targetInfoLength - The length claimed for the target info.
- * @param {string} targetInfo - The base64 appended to the header, which may
- *   not be valid.
- * @returns {string} The base64 encoded message.
+ * @returns {Uint8Array} The header.
  */
-function createNtlmChallengeWithTargetInfo(targetInfoLength, targetInfo) {
+function createNtlmChallengeHeader(targetInfoLength) {
   const header = new Uint8Array(48);
   header.set([..."NTLMSSP\0\x02"].map(c => c.charCodeAt(0)));
   // Flags: NTLMSSP_NEGOTIATE_UNICODE and NTLMSSP_NEGOTIATE_NTLM.
@@ -82,8 +80,35 @@ function createNtlmChallengeWithTargetInfo(targetInfoLength, targetInfo) {
   view.setUint16(40, targetInfoLength, true);
   view.setUint16(42, targetInfoLength, true);
   view.setUint32(44, header.length, true);
+  return header;
+}
+
+/**
+ * Creates an NTLM type 2 message whose target info follows the header.
+ *
+ * @param {number} targetInfoLength - The length claimed for the target info.
+ * @param {string} targetInfo - The base64 appended to the header, which may
+ *   not be valid.
+ * @returns {string} The base64 encoded message.
+ */
+function createNtlmChallengeWithTargetInfo(targetInfoLength, targetInfo) {
+  const header = createNtlmChallengeHeader(targetInfoLength);
   return btoa(String.fromCharCode(...header)) + targetInfo;
 }
+
+add_task(function testPaddedChallenge() {
+  // 50 bytes, so the base64 ends with padding.
+  const challenge = btoa(
+    String.fromCharCode(...createNtlmChallengeHeader(2), 0, 0)
+  );
+  Assert.ok(challenge.endsWith("="), "challenge should end with padding");
+
+  const authModule = createNtlmModule();
+  Assert.ok(
+    atob(authModule.getNextToken(challenge)).startsWith("NTLMSSP\0\x03"),
+    "answer to a padded challenge should be an NTLM authenticate message"
+  );
+});
 
 add_task(function testUndecodedTargetInfo() {
   // NTLMv2, the default, echoes the target info back to the server.
