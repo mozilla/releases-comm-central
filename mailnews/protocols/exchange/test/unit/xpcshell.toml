@@ -42,6 +42,8 @@ tags = ["foldernames"]
 
 ["test_lockedFlagsExchange.js"]
 
+["test_outgoingServerValidation.js"]
+
 ["test_saveDraft.js"]
 
 ["test_save_to_file.js"]

@@ -158,53 +158,18 @@ async function createAccountInBackend(config) {
   ) {
     // Create the server and define some protocol-specific settings.
     outServer = MailServices.outgoingServer.createServer(config.outgoing.type);
-    if (config.outgoing.type == "smtp") {
-      const smtpServer = outServer.QueryInterface(Ci.nsISmtpServer);
-      smtpServer.hostname = config.outgoing.hostname;
-      // If the outgoing port is unknown, don't set a port so the default port
-      // will be used.
-      if (config.outgoing.port != lazy.GuessConfig.UNKNOWN) {
-        smtpServer.port = config.outgoing.port;
-      }
-
-      // Note: The client ID will only be set on the server if either its own
-      // `clientidEnabled` pref, or the default SMTP pref with the same name, is
-      // set to true.
-      smtpServer.clientid = newOutgoingClientid;
-
-      // Setting the socket type only makes sense with SMTP, since for other
-      // types (e.g. EWS) it is derived from the URL used to configure the
-      // server.
-      outServer.socketType = config.outgoing.socketType;
-    } else if (
-      config.outgoing.type == "ews" ||
-      config.outgoing.type == "graph"
-    ) {
-      const ewsServer = outServer.QueryInterface(Ci.IExchangeOutgoingServer);
-      ewsServer.initialize(config.outgoing.exchangeURL);
-    } else {
-      // Note: createServer should already have thrown if given a type we don't
-      // support, so if we're able to reach this then something has gone very
-      // wrong.
-      throw new Error(
-        `unexpected outgoing server type ${config.outgoing.type}`
+    try {
+      await configureOutgoingServer(
+        outServer,
+        config,
+        newOutgoingClientid,
+        username
       );
-    }
-
-    outServer.authMethod = config.outgoing.auth;
-    if (config.outgoing.auth != Ci.nsMsgAuthMethod.none) {
-      outServer.username = username;
-      outServer.password = config.outgoing.password;
-      if (config.rememberPassword && config.outgoing.password) {
-        await rememberPassword(outServer, config.outgoing.password);
-      }
-    }
-
-    outServer.description = config.displayName;
-
-    // If there is no usable outgoing server set as default yet, use this one.
-    if (!MailServices.outgoingServer.defaultServer?.serverURI?.host) {
-      MailServices.outgoingServer.defaultServer = outServer;
+    } catch (e) {
+      // Something went wrong, but createServer already added the outgoing
+      // server to the list. Remove it.
+      MailServices.outgoingServer.deleteServer(outServer);
+      throw e;
     }
   }
 
@@ -294,6 +259,66 @@ async function createAccountInBackend(config) {
     );
   }
   return account;
+}
+
+/**
+ * Create and configure a new outgoing server for the given configuration,
+ * client id, and username.
+ *
+ * @param {nsIMsgOutGoingServer} outServer
+ * @param {AccountConfig} config
+ * @param {string} newOutgoingClientid
+ * @param {string} username
+ */
+async function configureOutgoingServer(
+  outServer,
+  config,
+  newOutgoingClientid,
+  username
+) {
+  if (config.outgoing.type == "smtp") {
+    const smtpServer = outServer.QueryInterface(Ci.nsISmtpServer);
+    smtpServer.hostname = config.outgoing.hostname;
+    // If the outgoing port is unknown, don't set a port so the default port
+    // will be used.
+    if (config.outgoing.port != lazy.GuessConfig.UNKNOWN) {
+      smtpServer.port = config.outgoing.port;
+    }
+
+    // Note: The client ID will only be set on the server if either its own
+    // `clientidEnabled` pref, or the default SMTP pref with the same name, is
+    // set to true.
+    smtpServer.clientid = newOutgoingClientid;
+
+    // Setting the socket type only makes sense with SMTP, since for other
+    // types (e.g. EWS) it is derived from the URL used to configure the
+    // server.
+    outServer.socketType = config.outgoing.socketType;
+  } else if (config.outgoing.type == "ews" || config.outgoing.type == "graph") {
+    const ewsServer = outServer.QueryInterface(Ci.IExchangeOutgoingServer);
+    ewsServer.exchangeUrl = config.outgoing.exchangeURL;
+  } else {
+    // Note: createServer should already have thrown if given a type we don't
+    // support, so if we're able to reach this then something has gone very
+    // wrong.
+    throw new Error(`unexpected outgoing server type ${config.outgoing.type}`);
+  }
+
+  outServer.authMethod = config.outgoing.auth;
+  if (config.outgoing.auth != Ci.nsMsgAuthMethod.none) {
+    outServer.username = username;
+    outServer.password = config.outgoing.password;
+    if (config.rememberPassword && config.outgoing.password) {
+      await rememberPassword(outServer, config.outgoing.password);
+    }
+  }
+
+  outServer.description = config.displayName;
+
+  // If there is no usable outgoing server set as default yet, use this one.
+  if (!MailServices.outgoingServer.defaultServer?.serverURI?.host) {
+    MailServices.outgoingServer.defaultServer = outServer;
+  }
 }
 
 /**

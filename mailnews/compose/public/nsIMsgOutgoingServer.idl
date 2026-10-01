@@ -59,7 +59,7 @@ interface nsIMsgOutgoingServer : nsISupports {
   /*
    * A unique identifier for the server.
    */
-  attribute AUTF8String key;
+  readonly attribute AUTF8String key;
 
   /**
    * A unique identifier for this server that can be used for the same
@@ -126,6 +126,20 @@ interface nsIMsgOutgoingServer : nsISupports {
    * Limit of concurrent connections to a server.
    */
   attribute long maximumConnectionsNumber;
+
+  /**
+   * Initialize the server with the specified unique key.
+   *
+   * This method will return an error if the outgoing server cannot
+   * be initialized. Implementations may perform additional validation to ensure
+   * they are in a valid state (e.g. they're not missing some attributes while
+   * others are present), which can fail and return an error.
+   *
+   * @param key       The unique key for the server configuration.
+   * @param newServer Whether this is a new server being added, as opposed to an
+   *                  existing server being "loaded" from prefs.
+   */
+  void initialize(in AUTF8String key, in boolean newServer);
 
   /**
    * Sends a mail message via the given parameters.

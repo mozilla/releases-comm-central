@@ -9,16 +9,11 @@
  */
 [scriptable, uuid(09f44948-e01d-40a7-af19-13dbb6ae1fb5)]
 interface IExchangeOutgoingServer : nsISupports {
-  /*
-   * Initialize the configuration for this Exchange server.
-   *
-   * @param apiBaseURL - The base URL for the API we can use to interact with
-   *   this Exchange server.
-   */
-  void initialize(in AUTF8String apiBaseURL);
-
   /**
    * The endpoint URL for the server.
+   *
+   * The setter can only be called once in the server's lifetime, and errors
+   * with `NS_ERROR_ALREADY_INITIALIZED` on subsequent calls.
    */
-  readonly attribute AUTF8String exchangeUrl;
+  attribute AUTF8String exchangeUrl;
 };

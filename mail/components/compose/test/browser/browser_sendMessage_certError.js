@@ -175,7 +175,7 @@ async function subtest(
     port = 465;
   } else if (serverDef.type == "ews") {
     outgoingServer.QueryInterface(Ci.IExchangeOutgoingServer);
-    outgoingServer.initialize(`https://${hostname}/EWS/Exchange.asmx`);
+    outgoingServer.exchangeUrl = `https://${hostname}/EWS/Exchange.asmx`;
     identity = ewsIdentity;
     port = 443;
   }

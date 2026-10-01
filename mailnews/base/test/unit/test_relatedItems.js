@@ -137,7 +137,7 @@ add_task(async function () {
 
   const outgoingC1 = MailServices.outgoingServer.createServer("ews");
   outgoingC1.QueryInterface(Ci.IExchangeOutgoingServer);
-  outgoingC1.initialize("https://localhost/EWS/Exchange.asmx");
+  outgoingC1.exchangeUrl = "https://localhost/EWS/Exchange.asmx";
   outgoingC1.username = "cindy";
 
   const identityC1 = MailServices.accounts.createIdentity();
@@ -209,7 +209,7 @@ add_task(async function () {
 
   const outgoingB1 = MailServices.outgoingServer.createServer("ews");
   outgoingB1.QueryInterface(Ci.IExchangeOutgoingServer);
-  outgoingB1.initialize("https://test.test/EWS/Exchange.asmx");
+  outgoingB1.exchangeUrl = "https://test.test/EWS/Exchange.asmx";
   outgoingB1.authMethod = Ci.nsMsgAuthMethod.OAuth2;
   outgoingB1.username = "bobby";
 

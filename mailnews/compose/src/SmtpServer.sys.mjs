@@ -92,7 +92,13 @@ export class SmtpServer {
     return this._key;
   }
 
-  set key(key) {
+  initialize(key) {
+    if (this._key) {
+      throw new Components.Exception(
+        `Server already initialized for key ${key}`,
+        Cr.NS_ERROR_ALREADY_INITIALIZED
+      );
+    }
     this._key = key;
     this._loadPrefs();
   }

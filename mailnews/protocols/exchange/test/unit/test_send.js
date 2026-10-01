@@ -59,15 +59,13 @@ add_setup(async () => {
   let exchangeOutgoingServer = ewsOutgoingServer.QueryInterface(
     Ci.IExchangeOutgoingServer
   );
-  exchangeOutgoingServer.initialize(
-    `http://127.0.0.1:${ewsServer.port}/EWS/Exchange.asmx`
-  );
+  exchangeOutgoingServer.exchangeUrl = `http://127.0.0.1:${ewsServer.port}/EWS/Exchange.asmx`;
 
   graphOutgoingServer = MailServices.outgoingServer.createServer("graph");
   exchangeOutgoingServer = graphOutgoingServer.QueryInterface(
     Ci.IExchangeOutgoingServer
   );
-  exchangeOutgoingServer.initialize(`http://127.0.0.1:${graphServer.port}/`);
+  exchangeOutgoingServer.exchangeUrl = `http://127.0.0.1:${graphServer.port}/`;
 
   // Configure the outgoing servers to use Basic/password auth (which we map to
   // `nsMsgAuthMethod.passwordCleartext`).

@@ -128,7 +128,7 @@ add_setup(async () => {
 
   ewsOutgoingTLS = MailServices.outgoingServer.createServer("ews");
   ewsOutgoingTLS.QueryInterface(Ci.IExchangeOutgoingServer);
-  ewsOutgoingTLS.initialize("https://test.test/EWS/Exchange.asmx");
+  ewsOutgoingTLS.exchangeUrl = "https://test.test/EWS/Exchange.asmx";
   ewsOutgoingTLS.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
   ewsOutgoingTLS.username = "user";
 

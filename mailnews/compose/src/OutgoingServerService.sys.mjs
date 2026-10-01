@@ -56,7 +56,9 @@ export class OutgoingServerService {
   get servers() {
     if (!this._servers.length) {
       // Load outgoing servers from prefs.
-      this._servers = this._getServerKeys().map(key => this._keyToServer(key));
+      this._servers = this._getServerKeys()
+        .map(key => this._keyToServer(key, false))
+        .filter(Boolean);
     }
     return this._servers;
   }
@@ -105,7 +107,7 @@ export class OutgoingServerService {
     Services.prefs.setCharPref(`mail.smtpserver.${key}.type`, type);
 
     this._saveServerKeys(serverKeys);
-    this._servers.push(this._keyToServer(key));
+    this._servers.push(this._keyToServer(key, true));
     return this.servers.at(-1);
   }
 
@@ -116,11 +118,19 @@ export class OutgoingServerService {
     const serverKeys = this._getServerKeys().filter(k => k != server.key);
     this._servers = this.servers.filter(s => s.key != server.key);
     this._saveServerKeys(serverKeys);
+
     Services.obs.notifyObservers(
       server,
       "message-smtpserver-removed",
       server.key
     );
+
+    // Also instruct the outgoing server to delete all of its prefs. Once the
+    // server is removed another one might get its key, so this ensures the new
+    // server doesn't mistakenly try to use the previous one's settings.
+    // We do this after notifying, so that the observers can access the server's
+    // properties as they need.
+    server.clearAllValues();
   }
 
   /**
@@ -169,26 +179,33 @@ export class OutgoingServerService {
    * Create an nsIMsgOutgoingServer from a key.
    *
    * @param {string} key - The key for the outgoing server.
+   * @param {boolean} newServer - Whether we're creating a new server, as
+   *   opposed to loading one from prefs.
    * @returns {nsIMsgOutgoingServer}
    */
-  _keyToServer(key) {
+  _keyToServer(key, newServer) {
     // Ideally we should be failing early if we can't figure out the type,
     // because we might be trying to configure the server for the wrong
     // protocol. However, We might be currently migrating an old profile that
     // predates this pref being introduced, in which case we'll try to read this
     // pref before the profile migration code has had a chance to set it. In
     // which case, it's likely safe to assume the server's type is SMTP.
-    const serverType = Services.prefs.getCharPref(
-      `mail.smtpserver.${key}.type`,
-      "smtp"
-    );
+    try {
+      const serverType = Services.prefs.getCharPref(
+        `mail.smtpserver.${key}.type`,
+        "smtp"
+      );
 
-    const server = Cc[OUTGOING_CONTRACT_ID_PREFIX + serverType].createInstance(
-      Ci.nsIMsgOutgoingServer
-    );
-    // Setting the server key will set up all of its other properties by
-    // reading them from the prefs.
-    server.key = key;
-    return server;
+      const server = Cc[
+        OUTGOING_CONTRACT_ID_PREFIX + serverType
+      ].createInstance(Ci.nsIMsgOutgoingServer);
+      // Setting the server key will set up all of its other properties by
+      // reading them from the prefs.
+      server.initialize(key, newServer);
+      return server;
+    } catch (e) {
+      console.warn(`Failed to initialize server with key ${key}:`, e);
+      return null;
+    }
   }
 }

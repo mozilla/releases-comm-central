@@ -412,6 +412,44 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
         Ok(url)
     }
 
+    /// Checks that all properties we need for this [`OutgoingServer`] to work
+    /// are present and accessible.
+    ///
+    /// More specifically, this checks the presence of the username, the auth
+    /// method and the endpoint URL. We don't check for a password here, because
+    /// we can recover from a missing password (by asking the user to enter a
+    /// new one).
+    fn all_required_properties_present(&self) -> bool {
+        let username_present = self
+            .username()
+            .map_err(|err| {
+                log::debug!("failed to get username: {err}");
+                err
+            })
+            .ok()
+            .is_some();
+        let auth_method_present = self
+            .auth_method()
+            .map_err(|err| {
+                log::debug!("failed to get auth method: {err}");
+                err
+            })
+            .ok()
+            .is_some();
+        // The endpoint URL is set in a slightly different way than the other
+        // properties, but it should be set around the same time.
+        let endpoint_url_present = self
+            .endpoint_url()
+            .map_err(|err| {
+                log::debug!("failed to get endpoint URL: {err}");
+                err
+            })
+            .ok()
+            .is_some();
+
+        return username_present && auth_method_present && endpoint_url_present;
+    }
+
     ///////////////////////////////////////////////////////////
     // Getters / setters for nsIMsgOutgoingServer attributes //
     ///////////////////////////////////////////////////////////
@@ -426,19 +464,6 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
             .get()
             .ok_or(nserror::NS_ERROR_NOT_INITIALIZED)
             .map(nsCString::clone)
-    }
-
-    xpcom_method!(set_key => SetKey(key: *const nsACString));
-    fn set_key(&self, key: &nsACString) -> Result<(), nsresult> {
-        self.key
-            .set(key.into())
-            .or(Err(nserror::NS_ERROR_ALREADY_INITIALIZED))?;
-
-        self.store_string_pref(PrefName::Key, key)?;
-
-        // Also set the key on the password module, so that we correctly notify
-        // when the password changes.
-        unsafe { self.password_module.borrow().SetKey(key) }.to_result()
     }
 
     // UID
@@ -662,6 +687,40 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
     // Methods for nsIMsgOutgoingServer //
     //////////////////////////////////////
 
+    xpcom_method!(initialize => Initialize(key: *const nsACString, newServer: bool));
+    fn initialize(&self, key: &nsACString, new_server: bool) -> Result<(), nsresult> {
+        self.key
+            .set(key.into())
+            .or(Err(nserror::NS_ERROR_ALREADY_INITIALIZED))?;
+
+        self.store_string_pref(PrefName::Key, key)?;
+
+        // Also set the key on the password module, so that we correctly notify
+        // when the password changes.
+        unsafe { self.password_module.borrow().SetKey(key) }.to_result()?;
+
+        // We're in the middle of creating a new server with
+        // `nsIMsgOutgoingServerService::CreateServer`, in which case performing
+        // validation doesn't make sense since we haven't set the data we want
+        // to validate yet.
+        if new_server {
+            log::debug!("skipping validation while creating outgoing server {key}");
+            return Ok(());
+        }
+
+        // If we're not in the middle of creating a new server, we're loading
+        // one from prefs, and this one should have all of its properties
+        // already set.
+        if self.all_required_properties_present() {
+            Ok(())
+        } else {
+            log::error!(
+                "failed to initialize outgoing server {key} due to missing or invalid required attributes"
+            );
+            Err(nserror::NS_ERROR_UNEXPECTED)
+        }
+    }
+
     xpcom_method!(forget_password => ForgetPassword());
     fn forget_password(&self) -> Result<(), nsresult> {
         let username = self.username()?;
@@ -711,6 +770,11 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
         message_id: &nsACString,
         listener: &nsIMsgOutgoingListener,
     ) -> Result<(), nsresult> {
+        if !self.all_required_properties_present() {
+            log::error!("trying to send mail but some properties are missing, aborting");
+            return Err(nserror::NS_ERROR_UNEXPECTED);
+        }
+
         let message_content = xpcom_io::read_file(file_path)?;
         let message_content =
             String::from_utf8(message_content).or(Err(nserror::NS_ERROR_FAILURE))?;
@@ -771,7 +835,19 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
 
     xpcom_method!(clear_all => ClearAllValues());
     fn clear_all(&self) -> Result<(), nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        // Due to https://bugzilla.mozilla.org/show_bug.cgi?id=2067685, prefs
+        // for this server can start with either `mail.smtpserver` or
+        // `mail.outgoingserver`, so we need to clear both.
+        let prev_svc = components::Preferences::service::<nsIPrefService>()?;
+        let smtp_pref_branch = format!("mail.smtpserver.{}", self.key()?);
+        let smtp_pref_branch =
+            CString::new(smtp_pref_branch).or(Err(nserror::NS_ERROR_UNEXPECTED))?;
+        let smtp_pref_branch =
+            getter_addrefs(|p| unsafe { prev_svc.GetBranch(smtp_pref_branch.as_ptr(), p) })?;
+        unsafe { smtp_pref_branch.DeleteBranch(c"".as_ptr()) }.to_result()?;
+
+        let branch = self.pref_branch()?;
+        unsafe { branch.DeleteBranch(c"".as_ptr()) }.to_result()
     }
 
     // Using `xpcom_method!` isn't possible here, because we might need to
@@ -861,8 +937,8 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
     // IExchangeOutgoingServer implementation //
     ////////////////////////////////////////////
 
-    xpcom_method!(initialize => Initialize(endpoint_url: *const nsACString));
-    fn initialize(&self, endpoint_url: &nsACString) -> Result<(), nsresult> {
+    xpcom_method!(set_exchange_url => SetExchangeUrl(endpoint_url: *const nsACString));
+    fn set_exchange_url(&self, endpoint_url: &nsACString) -> Result<(), nsresult> {
         let key = self.key()?;
 
         log::debug!("Creating new outgoing server for {endpoint_url} ({key})");

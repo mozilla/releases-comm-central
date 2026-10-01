@@ -45,7 +45,7 @@ add_setup(async function () {
   ewsServer.authMethod = Ci.nsMsgAuthMethod.OAuth2;
 
   const ewsServer2 = ewsServer.QueryInterface(Ci.IExchangeOutgoingServer);
-  ewsServer2.initialize("https://local-ews.test/EWS/Exchange.asmx");
+  ewsServer2.exchangeUrl = "https://local-ews.test/EWS/Exchange.asmx";
 
   registerCleanupFunction(() => {
     MailServices.outgoingServer.deleteServer(smtpServer);
