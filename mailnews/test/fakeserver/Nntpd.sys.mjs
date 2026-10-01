@@ -80,6 +80,19 @@ export class NntpDaemon {
   }
 }
 
+/**
+ * Prepare text to be sent as a multi-line response: dot-stuff it, and make
+ * sure it ends with a line break so that the terminating dot is on a line of
+ * its own.
+ *
+ * @param {string} text
+ * @returns {string}
+ */
+function dotStuff(text) {
+  text = text.replace(/^\./gm, "..");
+  return !text || text.endsWith("\n") ? text : text + "\n";
+}
+
 export function NewsArticle(text) {
   this.headers = new Map();
   this.body = "";
@@ -182,7 +195,7 @@ export class NNTP_RFC977_handler {
     }
 
     var response = info[1] + "\n";
-    response += info[0].fullText.replace(/^\./gm, "..");
+    response += dotStuff(info[0].fullText);
     response += ".";
     return response;
   }
@@ -193,7 +206,7 @@ export class NNTP_RFC977_handler {
     }
 
     var response = info[1] + "\n";
-    response += info[0].body.replace(/^\./gm, "..");
+    response += dotStuff(info[0].body);
     response += ".";
     return response;
   }

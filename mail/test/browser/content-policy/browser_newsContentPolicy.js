@@ -59,17 +59,6 @@ function makeImageMessage(src) {
 }
 
 /**
- * The fake NNTP server doesn't end the article with a line break before the
- * terminating dot, so make sure the message text ends with one.
- *
- * @param {SyntheticMessage} message
- * @returns {object} An object that can be passed to NNTPServer.addMessages.
- */
-function asArticle(message) {
-  return { toMessageString: () => message.toMessageString() + "\r\n" };
-}
-
-/**
  * @param {NNTPServer} server
  * @returns {string[]} All commands the server has received.
  */
@@ -112,9 +101,9 @@ add_setup(async function () {
   });
   targetMessageId = targetMessage.messageId;
   newsServer.addGroup(GROUP);
-  newsServer.addMessages(GROUP, [asArticle(targetMessage)]);
+  newsServer.addMessages(GROUP, [targetMessage]);
   trackerServer.addGroup(GROUP);
-  trackerServer.addMessages(GROUP, [asArticle(targetMessage)]);
+  trackerServer.addMessages(GROUP, [targetMessage]);
 
   newsAccount = MailServices.accounts.createAccount();
   newsAccount.incomingServer = MailServices.accounts.createIncomingServer(
@@ -145,7 +134,7 @@ add_setup(async function () {
  */
 async function setupNewsFolder(group, message) {
   newsServer.addGroup(group);
-  newsServer.addMessages(group, [asArticle(message)]);
+  newsServer.addMessages(group, [message]);
   const rootFolder = newsAccount.incomingServer.rootFolder;
   rootFolder.createSubfolder(group, null);
   const folder = rootFolder.getChildNamed(group);
