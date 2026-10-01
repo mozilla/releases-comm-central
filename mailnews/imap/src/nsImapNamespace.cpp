@@ -207,30 +207,6 @@ nsImapNamespace* nsImapNamespaceList::GetNamespaceForMailbox(
 
 #define SERIALIZER_SEPARATORS ","
 
-/**
- * If len is one, copies the first element of prefixes into
- * serializedNamespaces. If len > 1, copies len strings from prefixes into
- * serializedNamespaces as a comma-separated list of quoted strings.
- */
-nsresult nsImapNamespaceList::SerializeNamespaces(
-    char** prefixes, int len, nsCString& serializedNamespaces) {
-  if (len <= 0) return NS_OK;
-
-  if (len == 1) {
-    serializedNamespaces.Assign(prefixes[0]);
-    return NS_OK;
-  }
-
-  for (int i = 0; i < len; i++) {
-    if (i > 0) serializedNamespaces.Append(',');
-
-    serializedNamespaces.Append('"');
-    serializedNamespaces.Append(prefixes[i]);
-    serializedNamespaces.Append('"');
-  }
-  return NS_OK;
-}
-
 /* str is the string which needs to be unserialized.
    If prefixes is NULL, simply returns the number of namespaces in str.  (len is
    ignored) If prefixes is not NULL, it should be an array of length len which
