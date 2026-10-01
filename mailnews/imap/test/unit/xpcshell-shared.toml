@@ -107,6 +107,8 @@ tags = ["foldernames"]
 
 ["test_imapMyRightsResponseCode.js"]
 
+["test_imapNamespaceComma.js"]
+
 ["test_imapNtlmNoChallenge.js"]
 
 ["test_imapPasswordFailure.js"]

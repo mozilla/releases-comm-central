@@ -270,7 +270,8 @@ int nsImapNamespaceList::UnserializeNamespaces(const char* str, char** prefixes,
     while ((count < len) && (token != nullptr)) {
       char *current = PL_strdup(token), *where = current;
       if (where[0] == '"') where++;
-      if (where[PL_strlen(where) - 1] == '"') where[PL_strlen(where) - 1] = 0;
+      uint32_t whereLen = PL_strlen(where);
+      if (whereLen && where[whereLen - 1] == '"') where[whereLen - 1] = 0;
       prefixes[count] = PL_strdup(where);
       PR_FREEIF(current);
       token = NS_strtok(SERIALIZER_SEPARATORS, &ourstr);
