@@ -29,12 +29,6 @@ class nsMsgComposeService : public nsIMsgComposeService,
 
   nsresult GetTo3PaneWindow();
 
-  nsresult LoadDraftOrTemplate(
-      const nsACString& aMsgURI, nsMimeOutputType aOutType,
-      nsIMsgIdentity* aIdentity, const nsACString& aOriginalMsgURI,
-      nsIMsgDBHdr* aOrigMsgHdr, bool aForwardInline, bool overrideComposeFormat,
-      nsIMsgWindow* aMsgWindow, bool autodetectCharset);
-
   nsresult RunMessageThroughMimeDraft(
       const nsACString& aMsgURI, nsMimeOutputType aOutType,
       nsIMsgIdentity* aIdentity, const nsACString& aOriginalMsgURI,

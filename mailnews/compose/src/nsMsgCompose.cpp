@@ -1645,7 +1645,7 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
   // All other processing.
 
   // Note the following:
-  // LoadDraftOrTemplate() is run in nsMsgComposeService::OpenComposeWindow()
+  // nsMsgComposeService::OpenComposeWindow() uses RunMessageThroughMimeDraft()
   // for five compose types: ForwardInline, ReplyWithTemplate (both covered
   // in the code block above) and Draft, Template and Redirect. For these
   // compose types, the charset is already correct (incl. MIME-applied override)

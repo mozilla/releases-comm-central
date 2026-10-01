@@ -214,15 +214,20 @@ nsMsgComposeService::OpenComposeWindow(
       uriToOpen.AppendLiteral("edittempl=true");
     }
 
-    return LoadDraftOrTemplate(
-        uriToOpen,
-        type == nsIMsgCompType::ForwardInline || type == nsIMsgCompType::Draft
-            ? nsMimeOutput::nsMimeMessageDraftOrTemplate
-            : nsMimeOutput::nsMimeMessageEditorTemplate,
-        identity, originalMsgURI, origMsgHdr,
-        type == nsIMsgCompType::ForwardInline,
-        format == nsIMsgCompFormat::OppositeOfDefault, aMsgWindow,
-        autodetectCharset);
+    nsMimeOutputType outputType;
+    if (type == nsIMsgCompType::ForwardInline ||
+        type == nsIMsgCompType::Draft) {
+      outputType = nsMimeOutput::nsMimeMessageDraftOrTemplate;
+    } else {
+      outputType = nsMimeOutput::nsMimeMessageEditorTemplate;
+    }
+    bool forwardInline = (type == nsIMsgCompType::ForwardInline);
+    bool overrideComposeFormat =
+        (format == nsIMsgCompFormat::OppositeOfDefault);
+    return RunMessageThroughMimeDraft(
+        uriToOpen, outputType, identity, originalMsgURI, origMsgHdr,
+        forwardInline, EmptyString(), /* aForwardTo */
+        overrideComposeFormat, aMsgWindow, autodetectCharset);
   }
 
   nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams(
@@ -1039,22 +1044,6 @@ nsMsgComposeService::GetMsgComposeForDocShell(nsIDocShell* aDocShell,
 
   NS_IF_ADDREF(*aComposeObject = msgCompose);
   return rv;
-}
-
-/**
- * LoadDraftOrTemplate
- *   Helper routine used to run msgURI through libmime in order to fetch the
- * contents for a draft or template.
- */
-nsresult nsMsgComposeService::LoadDraftOrTemplate(
-    const nsACString& aMsgURI, nsMimeOutputType aOutType,
-    nsIMsgIdentity* aIdentity, const nsACString& aOriginalMsgURI,
-    nsIMsgDBHdr* aOrigMsgHdr, bool aForwardInline, bool overrideComposeFormat,
-    nsIMsgWindow* aMsgWindow, bool autodetectCharset) {
-  return RunMessageThroughMimeDraft(
-      aMsgURI, aOutType, aIdentity, aOriginalMsgURI, aOrigMsgHdr,
-      aForwardInline, EmptyString(), overrideComposeFormat, aMsgWindow,
-      autodetectCharset);
 }
 
 /**
