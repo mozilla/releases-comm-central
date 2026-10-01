@@ -34,17 +34,18 @@ export class NntpChannel extends MailChannel {
    */
   constructor(uri, loadInfo) {
     super();
+    // If there's no server for this host, one is only created once the load
+    // has passed the security checks, see _readFromServer.
     this._server = lazy.NntpUtils.findServer(uri.asciiHost);
-    if (!this._server) {
-      this._server = MailServices.accounts
-        .createIncomingServer("", uri.asciiHost, "nntp")
-        .QueryInterface(Ci.nsINntpIncomingServer);
-      this._server.port = uri.port;
-    }
 
     if (uri.port < 1) {
       // Ensure the uri has a port so that memory cache works.
-      uri = uri.mutate().setPort(this._server.port).finalize();
+      uri = uri
+        .mutate()
+        .setPort(
+          this._server?.port ?? Ci.nsINntpIncomingServer.DEFAULT_NNTP_PORT
+        )
+        .finalize();
     }
 
     // Two forms of the uri:
@@ -53,7 +54,7 @@ export class NntpChannel extends MailChannel {
     const url = new URL(uri.spec);
     this._groupName = url.searchParams.get("group");
     if (this._groupName) {
-      this._newsFolder = this._server.rootFolder.getChildNamed(
+      this._newsFolder = this._server?.rootFolder.getChildNamed(
         decodeURIComponent(url.searchParams.get("group"))
       );
       this._articleNumber = url.searchParams.get("key");
@@ -273,6 +274,12 @@ export class NntpChannel extends MailChannel {
    */
   _readFromServer() {
     this._logger.debug("Read from server");
+    if (!this._server) {
+      this._server = MailServices.accounts
+        .createIncomingServer("", this.URI.asciiHost, "nntp")
+        .QueryInterface(Ci.nsINntpIncomingServer);
+      this._server.port = this.URI.port;
+    }
     const pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
     pipe.init(true, true, 0, 0);
     const inputStream = pipe.inputStream;

@@ -5,6 +5,9 @@
 var { NetUtil } = ChromeUtils.importESModule(
   "resource://gre/modules/NetUtil.sys.mjs"
 );
+var { NntpUtils } = ChromeUtils.importESModule(
+  "resource:///modules/NntpUtils.sys.mjs"
+);
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
@@ -53,4 +56,34 @@ add_task(async function test_fetchArticle() {
     "GROUP test.filter",
     "ARTICLE 1",
   ]);
+});
+
+/**
+ * Test that a server for an unknown host is only created when the channel is
+ * opened, not when it's constructed.
+ */
+add_task(async function test_unknownServerCreatedOnOpen() {
+  const uri = Services.io.newURI(
+    `news://127.0.0.1:${NNTP_PORT}/TSS1%40nntp.invalid`
+  );
+  const channel = NetUtil.newChannel({ uri, loadUsingSystemPrincipal: true });
+  Assert.equal(
+    NntpUtils.findServer("127.0.0.1"),
+    null,
+    "no server should be created when constructing the channel"
+  );
+
+  const streamListener = new PromiseTestUtils.PromiseStreamListener();
+  channel.asyncOpen(streamListener);
+  const data = await streamListener.promise;
+  Assert.stringContains(
+    data,
+    "What does the acronym H2G2 stand for?",
+    "article should be fetched"
+  );
+
+  const newServer = NntpUtils.findServer("127.0.0.1");
+  Assert.ok(newServer, "server should be created when opening the channel");
+  Assert.equal(newServer.port, NNTP_PORT, "server should use the uri port");
+  MailServices.accounts.removeIncomingServer(newServer, false);
 });

@@ -19,6 +19,9 @@ var { MailServices } = ChromeUtils.importESModule(
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+var { NntpUtils } = ChromeUtils.importESModule(
+  "resource:///modules/NntpUtils.sys.mjs"
+);
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
@@ -126,7 +129,7 @@ add_setup(async function () {
   registerCleanupFunction(() => {
     mailFolder.deleteSelf(null);
     MailServices.accounts.removeAccount(newsAccount, false);
-    const stray = MailServices.accounts.findServer("", "tracker.test", "nntp");
+    const stray = NntpUtils.findServer("tracker.test");
     if (stray) {
       MailServices.accounts.removeIncomingServer(stray, false);
     }
@@ -171,6 +174,11 @@ add_task(async function testNewsImageInMailMessage() {
     [],
     "tracker server should not be contacted from a mail message"
   );
+  Assert.equal(
+    NntpUtils.findServer("tracker.test"),
+    null,
+    "no server should be created for tracker.test"
+  );
 });
 
 /**
@@ -205,5 +213,10 @@ add_task(async function testOtherServerNewsImageInNewsMessage() {
     receivedCommands(trackerServer),
     [],
     "tracker server should not be contacted from a news message"
+  );
+  Assert.equal(
+    NntpUtils.findServer("tracker.test"),
+    null,
+    "no server should be created for tracker.test"
   );
 });
