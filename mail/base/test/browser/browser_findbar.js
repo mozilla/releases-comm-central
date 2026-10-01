@@ -11,6 +11,7 @@ const { ensure_cards_view } = ChromeUtils.importESModule(
 
 const TEST_DOCUMENT_URL = "http://mochi.test:8888/";
 let about3Pane;
+let testFolder;
 
 add_setup(async function () {
   // Reduce animations to prevent intermittent fails due to findbar collapsing
@@ -30,7 +31,7 @@ add_setup(async function () {
   const rootFolder = account.incomingServer.rootFolder.QueryInterface(
     Ci.nsIMsgLocalMailFolder
   );
-  const testFolder = rootFolder
+  testFolder = rootFolder
     .createLocalSubfolder("findbar")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
@@ -58,6 +59,122 @@ add_setup(async function () {
 });
 
 /**
+ * Tests that delayed actor registration does not reclaim ownership after the
+ * real findbar has been materialized.
+ */
+add_task(async function testMaterializedFindbarOwnsRegistration() {
+  const tabmail = document.getElementById("tabmail");
+  const tab = tabmail.openTab("mail3PaneTab", { folderURI: testFolder.URI });
+  await BrowserTestUtils.browserLoaded(tab.chromeBrowser);
+
+  const testAbout3Pane = tab.chromeBrowser.contentWindow;
+  await testAbout3Pane.hasDOMContentLoaded.promise;
+
+  const { messagePane, webBrowser } = testAbout3Pane;
+  const lazyFindbar = messagePane.webFindbar;
+  Assert.ok(
+    !lazyFindbar.firstElementChild,
+    "The web browser findbar should not be initialized yet"
+  );
+
+  const findbar = lazyFindbar.findbar;
+  Assert.ok(findbar, "The real findbar should be materialized");
+
+  const getBrowser = lazyFindbar._getBrowser;
+  let browserWasRequested = false;
+  lazyFindbar._getBrowser = function () {
+    browserWasRequested = true;
+    return getBrowser.call(this);
+  };
+
+  // Simulate the nodefaultsrc browser's pending load callback. The callback
+  // should return before looking up the browser once a real findbar exists.
+  webBrowser.dispatchEvent(new testAbout3Pane.Event("load"));
+  Assert.ok(
+    !browserWasRequested,
+    "Deferred registration should not replace a materialized findbar"
+  );
+
+  // A materialized wrapper can also be reconnected without registration work.
+  lazyFindbar.connectedCallback();
+  Assert.ok(
+    !browserWasRequested,
+    "Reconnecting should not register over a materialized findbar"
+  );
+
+  tabmail.closeTab(tab);
+});
+
+/**
+ * Tests that manual find-as-you-type materializes a fresh lazy findbar and
+ * that subsequent quick finds reuse it.
+ */
+add_task(async function testFindAsYouTypeInFreshBrowser() {
+  const tabmail = document.getElementById("tabmail");
+  const tab = tabmail.openTab("mail3PaneTab", { folderURI: testFolder.URI });
+  await BrowserTestUtils.browserLoaded(tab.chromeBrowser);
+
+  const testAbout3Pane = tab.chromeBrowser.contentWindow;
+  await testAbout3Pane.hasDOMContentLoaded.promise;
+
+  const { messagePane, webBrowser } = testAbout3Pane;
+  const lazyFindbar = messagePane.webFindbar;
+  Assert.ok(
+    !lazyFindbar.firstElementChild,
+    "The web browser findbar should not be initialized yet"
+  );
+  lazyFindbar.onMouseUp();
+  Assert.ok(
+    !lazyFindbar.firstElementChild,
+    "A mouseup should not materialize a findbar"
+  );
+
+  // Loading the nodefaultsrc browser exercises the lazy findbar's deferred
+  // registration with the FindBar actor.
+  const loadedPromise = BrowserTestUtils.browserLoaded(
+    webBrowser,
+    undefined,
+    url => url != "about:blank"
+  );
+  messagePane.displayWebPage(TEST_DOCUMENT_URL);
+  await loadedPromise;
+
+  await SimpleTest.promiseFocus(webBrowser);
+  let findbarOpen = BrowserTestUtils.waitForEvent(lazyFindbar, "findbaropen");
+  await BrowserTestUtils.sendChar("/", webBrowser);
+  await findbarOpen;
+
+  const findbar = lazyFindbar.firstElementChild;
+  Assert.ok(
+    findbar && BrowserTestUtils.isVisible(findbar),
+    "Manual FAYT should materialize and show the web browser findbar"
+  );
+  Assert.equal(
+    findbar.findMode,
+    findbar.FIND_TYPEAHEAD,
+    "The findbar should be in find-as-you-type mode"
+  );
+
+  const findbarClose = BrowserTestUtils.waitForEvent(
+    lazyFindbar,
+    "findbarclose"
+  );
+  lazyFindbar.close();
+  await findbarClose;
+
+  findbarOpen = BrowserTestUtils.waitForEvent(lazyFindbar, "findbaropen");
+  await BrowserTestUtils.sendChar("/", webBrowser);
+  await findbarOpen;
+  Assert.equal(
+    lazyFindbar.firstElementChild,
+    findbar,
+    "A subsequent manual FAYT should reuse the existing findbar"
+  );
+
+  tabmail.closeTab(tab);
+});
+
+/**
  * Tests opening the find toolbars on the webBrowser, multiMessageBrowser, and
  * messageBrowser (in order).
  */
@@ -77,6 +194,11 @@ add_task(async function testMessagePaneFindToolbars() {
   Assert.ok(
     BrowserTestUtils.isVisible(about3Pane.webBrowser),
     "webBrowser should be visible"
+  );
+
+  Assert.ok(
+    !about3Pane.messagePane.webFindbar.firstElementChild,
+    "The web browser findbar should not be initialized yet"
   );
 
   // Emulate the find command.
