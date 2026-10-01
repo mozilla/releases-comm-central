@@ -66,14 +66,9 @@ export class Pop3Client {
     this._authenticator = new Pop3Authenticator(server);
     this._noopRespPending = false;
 
-    // Somehow, Services.io.newURI("pop3://localhost") doesn't work, what we
-    // need is just a valid nsIMsgMailNewsUrl to propagate OnStopRunningUrl and
-    // secInfo.
+    // A nsIMsgMailNewsUrl to propagate OnStopRunningUrl and secInfo.
     this.runningUri = Services.io
-      .newURI(`smtp://${this._server.hostname}:${this._server.port}`)
-      .mutate()
-      .setScheme("pop3")
-      .finalize()
+      .newURI(`pop3://${this._server.hostname}:${this._server.port}`)
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
 
     // A list of auth methods detected from the EHLO response.

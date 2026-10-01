@@ -117,6 +117,8 @@ requesttimeoutfactor = 12
 
 ["test_pop3StateDeadlock.js"]
 
+["test_pop3Url.js"]
+
 ["test_preview.js"]
 
 ["test_saveMessage.js"]

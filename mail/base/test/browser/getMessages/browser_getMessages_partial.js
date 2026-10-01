@@ -127,6 +127,40 @@ add_task(async function testEmbeddedDownloadLink() {
 });
 
 /**
+ * A message must not be able to download the rest of a partial message using
+ * a pop: URL directly.
+ */
+add_task(async function testEmbeddedPopURL() {
+  const partialDoc = await displayOnlyMessage(pop3Inbox);
+  const link = partialDoc.querySelector("a[href*='uidl=']");
+  const uidl = new URL(link.href).searchParams.get("uidl");
+  const src = `pop://user@test.test:110/?uidl=${uidl}&number=1&folderURI=${pop3Inbox.URI}`;
+
+  const folder = localAccount.incomingServer.rootFolder
+    .QueryInterface(Ci.nsIMsgLocalMailFolder)
+    .createLocalSubfolder("getMessagesPartialPop")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folder.addMessage(
+    generator
+      .makeMessage({
+        body: {
+          body: `<html><body><img src="${src}"></body></html>\n`,
+          contentType: "text/html",
+        },
+      })
+      .toMessageString()
+  );
+  await displayOnlyMessage(folder);
+  await promiseServerIdle(pop3Account.incomingServer);
+
+  Assert.equal(retrCount(), 0, "no message should be retrieved");
+  Assert.ok(
+    [...pop3Inbox.messages][0].flags & Ci.nsMsgMessageFlags.Partial,
+    "message should still be partially downloaded"
+  );
+});
+
+/**
  * Clicking the link in a partial message downloads the rest of it.
  */
 add_task(async function testClickDownloadLink() {

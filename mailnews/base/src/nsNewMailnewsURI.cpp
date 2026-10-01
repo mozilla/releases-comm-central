@@ -90,10 +90,8 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
         .SetSpec(aSpec)
         .Finalize(aURI);
   }
-  if (scheme.EqualsLiteral("pop") || scheme.EqualsLiteral("pop3")) {
-    return nsMailboxService::CreatePop3URI(aSpec, aBaseURI, aURI);
-  }
-  if (IsNewsScheme(scheme)) {
+  if (IsNewsScheme(scheme) || scheme.EqualsLiteral("pop") ||
+      scheme.EqualsLiteral("pop3")) {
     nsCOMPtr<nsIMsgMailNewsUrl> uri =
         do_CreateInstance("@mozilla.org/messenger/msgmailnewsurl;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
