@@ -6041,6 +6041,10 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
     }
   } else if (flag & (kHasAuthNTLMCapability | kHasAuthMSNCapability)) {
     MOZ_LOG(IMAP, LogLevel::Debug, ("NTLM auth"));
+    nsAutoCString cmd;
+    rv = DoNtlmStep1(nsDependentCString(userName), aPassword, cmd);
+    NS_ENSURE_SUCCESS(rv, rv);
+
     nsAutoCString command(GetServerCommandTag());
     command.Append((flag & kHasAuthNTLMCapability) ? " authenticate NTLM" CRLF
                                                    : " authenticate MSN" CRLF);
@@ -6048,9 +6052,6 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
     ParseIMAPandCheckForNewMail(
         "AUTH NTLM");  // this just waits for ntlm step 1
     if (GetServerStateParser().LastCommandSuccessful()) {
-      nsAutoCString cmd;
-      rv = DoNtlmStep1(nsDependentCString(userName), aPassword, cmd);
-      NS_ENSURE_SUCCESS(rv, rv);
       cmd += CRLF;
       rv = SendData(cmd.get());
       NS_ENSURE_SUCCESS(rv, rv);

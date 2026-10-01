@@ -684,8 +684,8 @@ nsresult nsMsgProtocol::DoGSSAPIStep1(const nsACString& service,
                                       nsCString& response) {
   nsresult rv;
 
-  // if this fails, then it means that we cannot do GSSAPI SASL.
   m_authModule = nsIAuthModule::CreateInstance("sasl-gssapi");
+  NS_ENSURE_TRUE(m_authModule, NS_ERROR_FAILURE);
 
   m_authModule->Init(service, nsIAuthModule::REQ_DEFAULT, u""_ns,
                      NS_ConvertUTF8toUTF16(username), u""_ns);
@@ -702,6 +702,7 @@ nsresult nsMsgProtocol::DoGSSAPIStep1(const nsACString& service,
     free(outBuf);
   }
 
+  // If this fails, then it means that we cannot do GSSAPI SASL.
   return rv;
 }
 
@@ -762,7 +763,9 @@ nsresult nsMsgProtocol::DoNtlmStep1(const nsACString& username,
                                     nsCString& response) {
   nsresult rv;
 
+  // This fails in FIPS mode, where NTLM is disabled.
   m_authModule = nsIAuthModule::CreateInstance("ntlm");
+  NS_ENSURE_TRUE(m_authModule, NS_ERROR_FAILURE);
 
   m_authModule->Init(""_ns, 0, u""_ns, NS_ConvertUTF8toUTF16(username),
                      PromiseFlatString(password));
