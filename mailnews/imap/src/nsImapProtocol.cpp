@@ -68,6 +68,7 @@
 #include "nsMsgCompressOStream.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/ScopeExit.h"
 #include "nsIPrincipal.h"
 #include "nsContentSecurityManager.h"
 
@@ -5931,6 +5932,9 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
   IncrementCommandTagNumber();
   // Don't let a failed attempt's challenge be reused by the next method.
   PR_FREEIF(GetServerStateParser().fAuthChallenge);
+  // The NTLM and GSSAPI auth modules are not thread-safe, so release them here
+  // on the IMAP thread rather than when this object is destroyed.
+  auto releaseAuthModule = MakeScopeExit([&] { m_authModule = nullptr; });
 
   char* currentCommand = nullptr;
   NS_ConvertUTF16toUTF8 password(aPassword);
