@@ -91,7 +91,7 @@ static int MimeInlineTextHTMLParsed_parse_eof(MimeObject* obj, bool abort_p) {
   // Remove meta http-equiv="refresh".
   RefPtr<mozilla::dom::ContentList> metas =
       document->GetElementsByTagName(u"meta"_ns);
-  uint32_t length = metas->Length(true);
+  uint32_t length = metas->Length();
   for (uint32_t i = length; i > 0; i--) {
     RefPtr<nsGenericHTMLElement> node =
         nsGenericHTMLElement::FromNodeOrNull(metas->Item(i - 1));
