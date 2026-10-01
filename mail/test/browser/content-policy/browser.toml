@@ -37,4 +37,6 @@ skip-if = [
 
 ["browser_jsContentPolicy.js"]
 
+["browser_newsContentPolicy.js"]
+
 ["browser_pluginsPolicy.js"]

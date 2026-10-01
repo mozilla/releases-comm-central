@@ -6,7 +6,6 @@ import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  NntpChannel: "resource:///modules/NntpChannel.sys.mjs",
   NntpUtils: "resource:///modules/NntpUtils.sys.mjs",
 });
 
@@ -41,7 +40,14 @@ class BaseMessageService {
       const streamListener = displayConsumer.QueryInterface(
         Ci.nsIStreamListener
       );
-      const channel = new lazy.NntpChannel(uri);
+      const channel = Services.io.newChannelFromURI(
+        uri,
+        null,
+        Services.scriptSecurityManager.getSystemPrincipal(),
+        null,
+        Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+        Ci.nsIContentPolicy.TYPE_OTHER
+      );
       channel.asyncOpen(streamListener);
     }
   }
@@ -152,7 +158,14 @@ class BaseMessageService {
     }
 
     const streamListener = consumer.QueryInterface(Ci.nsIStreamListener);
-    const channel = new lazy.NntpChannel(uri);
+    const channel = Services.io.newChannelFromURI(
+      uri,
+      null,
+      Services.scriptSecurityManager.getSystemPrincipal(),
+      null,
+      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+      Ci.nsIContentPolicy.TYPE_OTHER
+    );
     let listener = streamListener;
     if (convertData) {
       const converter = Cc["@mozilla.org/streamConverters;1"].getService(

@@ -230,7 +230,8 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   // mail message content     | load if same  | don't load   | don't load
   // mailbox, imap, JsAccount | message (1)   | (2)          | (3)
   // -------------------------+---------------+--------------+------------------
-  // news message             | don't load (4)| load (5)     | load (6)
+  // news message             | don't load (4)| load if same | load (6)
+  //                          |               | server (5)   |
   // -------------------------+---------------+--------------+------------------
   // http(s)/data, etc.       | (default)     | (default)    | (default)
   // -------------------------+---------------+--------------+------------------
@@ -241,18 +242,30 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   if (NS_SUCCEEDED(aContentLocation->GetScheme(contentScheme)) &&
       IsNewsScheme(contentScheme)) {
     // News message content requested (4), (5), (6).
+    nsAutoCString requestScheme;
+    if (NS_SUCCEEDED(aRequestingLocation->GetScheme(requestScheme)) &&
+        IsNewsScheme(requestScheme)) {
+      // Only accept content from the news server the requesting message came
+      // from (5). News articles are public, so this isn't about tracking, but
+      // we shouldn't contact (and implicitly create) servers the user hasn't
+      // set up.
+      nsAutoCString contentHost, requestHost;
+      if (NS_SUCCEEDED(aContentLocation->GetAsciiHost(contentHost)) &&
+          NS_SUCCEEDED(aRequestingLocation->GetAsciiHost(requestHost)) &&
+          contentHost.Equals(requestHost, nsCaseInsensitiveCStringComparator) &&
+          NS_GetRealPort(aContentLocation) ==
+              NS_GetRealPort(aRequestingLocation)) {
+        return acceptContent();
+      }
+      return NS_OK;
+    }
     // Don't accept request coming from a mail message since it would
-    // access the news server (4).
+    // access the news server (4). Such a load would bypass remote content
+    // blocking and could be used to track when the message is read.
     nsCOMPtr<nsIMsgMessageUrl> requestURL(
         do_QueryInterface(aRequestingLocation));
-    if (requestURL) {
-      nsAutoCString requestScheme;
-      bool requestIsNews =
-          NS_SUCCEEDED(aRequestingLocation->GetScheme(requestScheme)) &&
-          IsNewsScheme(requestScheme);
-      if (!requestIsNews) return NS_OK;  // (4)
-    }
-    return acceptContent();  // (5) and (6)
+    if (requestURL) return NS_OK;  // (4)
+    return acceptContent();        // (6)
   }
 
   nsCOMPtr<nsIMsgMessageUrl> contentURL(do_QueryInterface(aContentLocation));
