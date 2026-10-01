@@ -53,6 +53,8 @@ tags = ["foldernames"]
 
 ["test_imapAttachmentSaves.js"]
 
+["test_imapAuthStaleChallenge.js"]
+
 ["test_imapAutoSync.js"]
 
 ["test_imapBiff.js"]

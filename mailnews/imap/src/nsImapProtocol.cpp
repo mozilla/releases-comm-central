@@ -5929,6 +5929,8 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
 
   ProgressEventFunctionUsingName("imapStatusSendingAuthLogin");
   IncrementCommandTagNumber();
+  // Don't let a failed attempt's challenge be reused by the next method.
+  PR_FREEIF(GetServerStateParser().fAuthChallenge);
 
   char* currentCommand = nullptr;
   NS_ConvertUTF16toUTF8 password(aPassword);
