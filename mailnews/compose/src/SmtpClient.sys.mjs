@@ -846,7 +846,7 @@ export class SmtpClient {
         try {
           token = this._authenticator.getNextNtlmToken("");
         } catch (e) {
-          this.logger.error(e);
+          this.logger.error("Getting NTLM token FAILED!", e);
           this._actionAUTHComplete({ success: false, data: "AUTH NTLM" });
           return;
         }
@@ -1253,7 +1253,14 @@ export class SmtpClient {
       this._onNsError("smtp-auth-failure", command.data);
       return;
     }
-    const token = this._authenticator.getNextNtlmToken(command.data);
+    let token;
+    try {
+      token = this._authenticator.getNextNtlmToken(command.data);
+    } catch (e) {
+      this.logger.error(e);
+      this._actionAUTHComplete({ success: false, data: "AUTH NTLM" });
+      return;
+    }
     this._currentAction = this._actionAUTH_NTLM;
     this._sendCommand(token, true);
   }
