@@ -34,3 +34,5 @@ tags = [
 ]
 
 ["browser_getMessages_offline.js"]
+
+["browser_getMessages_partial.js"]

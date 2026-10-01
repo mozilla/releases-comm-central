@@ -67,6 +67,9 @@ export class Pop3Channel {
 
   asyncOpen(listener) {
     this._logger.debug(`asyncOpen ${this.URI.spec}`);
+    listener = Cc["@mozilla.org/contentsecuritymanager;1"]
+      .getService(Ci.nsIContentSecurityManager)
+      .performSecurityCheck(this, listener);
 
     if (Services.io.offline) {
       throw Components.Exception(
