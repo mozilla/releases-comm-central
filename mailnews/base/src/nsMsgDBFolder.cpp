@@ -3588,7 +3588,6 @@ nsresult nsMsgDBFolder::CheckIfFolderExists(const nsACString& newFolderName,
     msgFolder->GetName(folderName);
     if (folderName.Equals(newFolderName,
                           nsCaseInsensitiveUTF8StringComparator)) {
-      ThrowAlertMsg("folderExists", msgWindow);
       return NS_MSG_FOLDER_EXISTS;
     }
   }
@@ -3776,7 +3775,6 @@ NS_IMETHODIMP nsMsgDBFolder::Rename(const nsACString& aNewName,
   nsString newDiskName = NS_MsgHashIfNecessary(aNewName);
 
   if (mName.Equals(aNewName, nsCaseInsensitiveUTF8StringComparator)) {
-    rv = ThrowAlertMsg("folderExists", msgWindow);
     return NS_MSG_FOLDER_EXISTS;
   } else {
     nsCOMPtr<nsIFile> parentPathFile;
@@ -3801,7 +3799,6 @@ NS_IMETHODIMP nsMsgDBFolder::Rename(const nsACString& aNewName,
     newDiskName.AppendLiteral(SUMMARY_SUFFIX);
     oldSummaryFile->MoveTo(nullptr, newDiskName);
   } else {
-    ThrowAlertMsg("folderRenameFailed", msgWindow);
     return rv;
   }
 
@@ -3844,6 +3841,54 @@ NS_IMETHODIMP nsMsgDBFolder::Rename(const nsACString& aNewName,
 nsresult nsMsgDBFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
                                          nsIMsgFolder* oldFolder) {
   return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP nsMsgDBFolder::RenameWithListener(const nsACString& aNewName,
+                                                nsIUrlListener* aListener) {
+  // The base implementation is synchronous, so the listener can be notified
+  // as soon as Rename() returns. Backends which rename on a server
+  // override this and notify once the server has answered.
+  nsresult rv = Rename(aNewName, nullptr);
+  if (aListener) {
+    // Defer, so that a caller sees the same ordering whether the rename ran
+    // locally or against a server.
+    NS_DispatchToMainThread(NS_NewRunnableFunction(
+        "Notify folder rename", [listener = RefPtr(aListener), rv] {
+          listener->OnStopRunningUrl(nullptr, rv);
+        }));
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgDBFolder::RenameAsync(const nsACString& aNewName,
+                                         JSContext* cx,
+                                         mozilla::dom::Promise** aPromise) {
+  ErrorResult result;
+  RefPtr<Promise> promise =
+      Promise::Create(xpc::CurrentNativeGlobal(cx), result);
+  if (result.Failed()) {
+    return result.StealNSResult();
+  }
+
+  nsMainThreadPtrHandle<Promise> promiseHolder(
+      new nsMainThreadPtrHolder<Promise>("RenameAsync promise", promise));
+
+  RefPtr<UrlListener> listener = new UrlListener();
+  listener->mStopFn = [promiseHolder = std::move(promiseHolder)](
+                          nsIURI* url, nsresult rv) -> nsresult {
+    if (NS_FAILED(rv)) {
+      promiseHolder.get()->MaybeReject(rv);
+    } else {
+      promiseHolder.get()->MaybeResolveWithUndefined();
+    }
+    return NS_OK;
+  };
+
+  // RenameWithListener() reports everything through the listener, so there is
+  // no second error channel to handle here.
+  RenameWithListener(aNewName, listener);
+  promise.forget(aPromise);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::ContainsChildNamed(const nsACString& name,
@@ -5094,60 +5139,6 @@ NS_IMETHODIMP nsMsgDBFolder::ConfirmFolderDeletionForFilter(
       "confirmFolderDeletionForFilter", confirmString);
   NS_ENSURE_SUCCESS(rv, rv);
   return ThrowConfirmationPrompt(msgWindow, confirmString, confirmed);
-}
-
-NS_IMETHODIMP nsMsgDBFolder::ThrowAlertMsg(const char* msgName,
-                                           nsIMsgWindow* msgWindow) {
-  if (!msgWindow) {
-    return NS_OK;
-  }
-
-  nsCOMPtr<nsIStringBundle> bundle;
-  nsresult rv = GetBaseStringBundle(getter_AddRefs(bundle));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Assemble a pretty folder identifier including its path, e.g.
-  // "Inbox/Subfolder on bob@example.com".
-  nsAutoString ident;
-  nsAutoCString folderPath;
-  GetPrettyPath(folderPath);
-  nsAutoCString serverName;
-  nsCOMPtr<nsIMsgIncomingServer> server;
-  if (NS_SUCCEEDED(GetServer(getter_AddRefs(server)))) {
-    server->GetPrettyName(serverName);
-    bundle->FormatStringFromName(
-        "verboseFolderFormat",
-        {NS_ConvertUTF8toUTF16(folderPath), NS_ConvertUTF8toUTF16(serverName)},
-        ident);
-  }
-  if (ident.IsEmpty()) {
-    CopyUTF8toUTF16(folderPath, ident);  // Fallback, just in case.
-  }
-
-  // Format the actual error message (NOTE: not all error messages use the
-  // params - extra values are just ignored).
-  nsAutoString alertString;
-  rv = bundle->FormatStringFromName(msgName, {ident, kLocalizedBrandShortName},
-                                    alertString);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Include the folder identifier in the alert title for good measure,
-  // because not all the error messages include the folder.
-  nsAutoString title;
-  bundle->FormatStringFromName("folderErrorAlertTitle", {ident}, title);
-
-  nsCOMPtr<mozIDOMWindowProxy> domWindow;
-  nsCOMPtr<nsIWindowMediator> winMed =
-      do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
-
-  nsCOMPtr<nsIPromptService> dlgService(
-      do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return dlgService->Alert(domWindow, title.IsEmpty() ? nullptr : title.get(),
-                           alertString.get());
 }
 
 NS_IMETHODIMP nsMsgDBFolder::AlertFilterChanged(nsIMsgWindow* msgWindow) {

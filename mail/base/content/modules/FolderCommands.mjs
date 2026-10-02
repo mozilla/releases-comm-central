@@ -26,12 +26,50 @@ ChromeUtils.defineLazyGetter(lazy, "messengerBundle", () =>
 );
 
 /**
+ * Tell the user about a folder-level failure, via nsIMsgMailSession so that
+ * the front end presents it as a notification. The JS counterpart of the C++
+ * AlertFolderError() in nsMsgUtils.
+ *
+ * @param {nsIMsgFolder} folder - The folder the failure relates to.
+ * @param {string} stringName - Name of the messenger.properties string.
+ */
+function alertFolderError(folder, stringName) {
+  MailServices.mailSession.alertUser(
+    lazy.messengerBundle.GetStringFromName(stringName),
+    folder.server.key,
+    false
+  );
+}
+
+/**
+ * Report a failed folder create or rename to the user. The caller is expected
+ * to offer its dialog again afterwards, so that the name does not have to be
+ * typed a second time.
+ *
+ * @param {Error} ex - The rejection from createSubfolderAsync/renameAsync.
+ * @param {string} fallbackName - Name of the messenger.properties string to
+ *   use for failures we have no more specific message for.
+ */
+function alertFolderNameFailure(ex, fallbackName) {
+  console.warn("Folder action FAILED!", ex);
+  const stringName =
+    ex.result == Cr.NS_MSG_FOLDER_EXISTS ? "folderExists" : fallbackName;
+  Services.prompt.alert(
+    window,
+    null,
+    lazy.messengerBundle.GetStringFromName(stringName)
+  );
+}
+
+/**
  * Opens the dialog to create a new sub-folder, and creates it if the user
  * accepts.
  *
  * @param {nsIMsgFolder} folder - The parent for the new subfolder.
+ * @param {string} [folderName] - Initial value for the name field. Used to
+ *   offer the dialog again after a failure.
  */
-function newFolder(folder) {
+function newFolder(folder, folderName = "") {
   // Make sure we actually can create subfolders.
   if (!folder.canCreateSubfolders) {
     // Check if we can create them at the root, otherwise use the default
@@ -51,7 +89,12 @@ function newFolder(folder) {
     "chrome://messenger/content/newFolderDialog.xhtml",
     "",
     "chrome,modal,resizable=no,centerscreen",
-    { folder, dualUseFolders, okCallback: newFolderOkCallback }
+    {
+      folder,
+      dualUseFolders,
+      name: folderName,
+      okCallback: newFolderOkCallback,
+    }
   );
 }
 
@@ -62,28 +105,19 @@ function newFolder(folder) {
  * @param {nsIMsgFolder} parentFolder
  */
 async function newFolderOkCallback(subfolderName, parentFolder) {
-  // TODO: Rewrite this logic and also move the opening of alert dialogs from
-  // nsMsgLocalMailFolder::CreateSubfolderInternal to here (bug 831190#c16).
   if (!subfolderName) {
     return;
   }
 
-  const promiseNewFolder = new Promise(resolve => {
-    const listener = {
-      folderAdded: addedFolder => {
-        if (addedFolder.localizedName == subfolderName) {
-          MailServices.mfn.removeListener(listener);
-          resolve(addedFolder);
-        }
-      },
-    };
-    MailServices.mfn.addListener(
-      listener,
-      Ci.nsIMsgFolderNotificationService.folderAdded
-    );
-  });
-  parentFolder.createSubfolder(subfolderName, top.msgWindow);
-  const folder = await promiseNewFolder;
+  let folder;
+  try {
+    folder = await parentFolder.createSubfolderAsync(subfolderName);
+  } catch (ex) {
+    alertFolderNameFailure(ex, "folderCreationFailed");
+    newFolder(parentFolder, subfolderName);
+    return;
+  }
+
   if (!parentFolder.isServer) {
     // Inherit view/sort/columns from parent folder.
     const parentInfo = parentFolder.msgDatabase.dBFolderInfo;
@@ -131,15 +165,21 @@ function newVirtualFolder(defaultName, searchTerms, parentFolder) {
  * the user clicks OK in that dialog
  *
  * @param {nsIMsgFolder} folder - The folder to rename.
+ * @param {string} [folderName] - Initial value for the name field. Used to
+ *   offer the dialog again after a failure.
  */
-function renameFolder(folder) {
-  function renameCallback(newName, uri) {
+function renameFolder(folder, folderName = folder.localizedName) {
+  async function renameCallback(newName, uri) {
     if (uri != folder.URI) {
       console.error("got back a different folder to rename!");
     }
 
-    // Actually do the rename.
-    folder.rename(newName, top.msgWindow);
+    try {
+      await folder.renameAsync(newName);
+    } catch (ex) {
+      alertFolderNameFailure(ex, "folderRenameFailed");
+      renameFolder(folder, newName);
+    }
   }
 
   top.openDialog(
@@ -149,7 +189,7 @@ function renameFolder(folder) {
     {
       preselectedURI: folder.URI,
       okCallback: renameCallback,
-      name: folder.localizedName,
+      name: folderName,
     }
   );
 }
@@ -181,9 +221,15 @@ function editFolder(folder, tabID) {
   const prevFocusedElement = document.activeElement;
   document.documentElement.setAttribute("inert", "true");
 
-  function editFolderCallback(newName, oldName) {
+  async function editFolderCallback(newName, oldName) {
     if (newName != oldName) {
-      folder.rename(newName, top.msgWindow);
+      try {
+        await folder.renameAsync(newName);
+      } catch (ex) {
+        alertFolderNameFailure(ex, "folderRenameFailed");
+        // Rethrow so the properties dialog stays open for a second attempt.
+        throw ex;
+      }
     }
   }
 
@@ -238,7 +284,7 @@ function editVirtualFolder(folder) {
 
 async function rebuildFolderSummary(folder) {
   if (folder.locked) {
-    folder.throwAlertMsg("operationFailedFolderBusy", top.msgWindow);
+    alertFolderError(folder, "operationFailedFolderBusy");
     return;
   }
   if (folder.supportsOffline) {
@@ -355,13 +401,12 @@ function deleteFolder(folder) {
     folder.deleteSelf(top.msgWindow);
   } catch (ex) {
     // Ignore known errors from canceled warning dialogs.
-    const NS_MSG_ERROR_COPY_FOLDER_ABORTED = 0x8055001a;
-    if (ex.result != NS_MSG_ERROR_COPY_FOLDER_ABORTED) {
+    if (ex.result != Cr.NS_MSG_ERROR_COPY_FOLDER_ABORTED) {
       if (ex.result == Cr.NS_ERROR_FILE_NO_DEVICE_SPACE) {
         // folder could not be deleted due to low space
         // outOfDiskSpace message is too restricted to downloading
         // operation so we created a new generic message, outOfDiskSpaceGeneric
-        folder.throwAlertMsg("outOfDiskSpaceGeneric", top.msgWindow);
+        alertFolderError(folder, "outOfDiskSpaceGeneric");
       } else {
         throw ex;
       }

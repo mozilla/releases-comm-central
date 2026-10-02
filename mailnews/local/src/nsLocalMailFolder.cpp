@@ -623,13 +623,10 @@ nsresult nsMsgLocalMailFolder::CreateSubfolderInternal(
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
+  // NS_MSG_ERROR_INVALID_FOLDER_NAME and NS_MSG_FOLDER_EXISTS (which may
+  // happen here due to localized folder name vs. name on disk) are reported
+  // to the caller, which is responsible for telling the user.
   rv = msgStore->CreateFolder(this, folderName, aNewFolder);
-  if (rv == NS_MSG_ERROR_INVALID_FOLDER_NAME) {
-    ThrowAlertMsg("folderCreationFailed", msgWindow);
-  } else if (rv == NS_MSG_FOLDER_EXISTS) {
-    // May happen here due to localized folder name vs. name on disk.
-    ThrowAlertMsg("folderExists", msgWindow);
-  }
 
   if (NS_SUCCEEDED(rv)) {
     // We need to notify explicitly the flag change because it failed when we
@@ -875,10 +872,6 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsACString& aNewName,
   NS_ENSURE_SUCCESS(rv, rv);
   rv = msgStore->RenameFolder(this, aNewName, getter_AddRefs(newFolder));
   if (NS_FAILED(rv)) {
-    if (msgWindow)
-      (void)ThrowAlertMsg(
-          (rv == NS_MSG_FOLDER_EXISTS) ? "folderExists" : "folderRenameFailed",
-          msgWindow);
     return rv;
   }
 
@@ -1445,7 +1438,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
     // messages is posted.
     if (needOfflineBodies && !hasMsgOffline) {
       if (isMove) srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
-      ThrowAlertMsg("cantMoveMsgWOBodyOffline", msgWindow);
+      AlertFolderError(this, "cantMoveMsgWOBodyOffline"_ns);
       return OnCopyCompleted(srcSupport, false);
     }
   }

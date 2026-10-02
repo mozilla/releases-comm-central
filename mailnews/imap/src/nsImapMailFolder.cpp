@@ -35,6 +35,7 @@
 #include "nsImapStringBundle.h"
 #include "nsIMsgFolderCacheElement.h"
 #include "nsTextFormatter.h"
+#include "nsThreadUtils.h"
 #include "nsMsgI18N.h"
 #include "nsIMsgFilter.h"
 #include "nsIMsgFilterService.h"
@@ -803,13 +804,11 @@ NS_IMETHODIMP nsImapMailFolder::CreateSubfolder(const nsACString& folderName,
   GetTrashFolderName(trashName);
   if (folderName.Equals(trashName))  // Trash , a special folder
   {
-    ThrowAlertMsg("folderExists", msgWindow);
     return NS_MSG_FOLDER_EXISTS;
   }
   if (mIsServer &&
       folderName.LowerCaseEqualsLiteral("inbox"))  // Inbox, a special folder
   {
-    ThrowAlertMsg("folderExists", msgWindow);
     return NS_MSG_FOLDER_EXISTS;
   }
 
@@ -1642,6 +1641,29 @@ NS_IMETHODIMP nsImapMailFolder::Rename(const nsACString& newName,
 
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
   return imapService->RenameLeaf(this, newName, this, msgWindow);
+}
+
+NS_IMETHODIMP nsImapMailFolder::RenameWithListener(const nsACString& aNewName,
+                                                   nsIUrlListener* aListener) {
+  if (mFlags & nsMsgFolderFlags::Virtual) {
+    return nsMsgDBFolder::RenameWithListener(aNewName, aListener);
+  }
+
+  m_renameListener = aListener;
+  nsresult rv = Rename(aNewName, nullptr);
+  if (NS_FAILED(rv)) {
+    // We failed before getting as far as running a URL, so nothing else is
+    // going to notify the listener. Defer, so that the caller cannot be
+    // called back before this returns.
+    m_renameListener = nullptr;
+    if (aListener) {
+      NS_DispatchToMainThread(NS_NewRunnableFunction(
+          "Notify imap folder rename", [listener = RefPtr(aListener), rv] {
+            listener->OnStopRunningUrl(nullptr, rv);
+          }));
+    }
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsImapMailFolder::RecursiveCloseActiveConnections(
@@ -5310,6 +5332,10 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
         case nsIImapUrl::nsImapRenameFolder:
           if (NS_FAILED(aExitCode)) {
             NotifyFolderEvent(kRenameCompleted);
+          }
+          if (m_renameListener) {
+            nsCOMPtr<nsIUrlListener> listener = std::move(m_renameListener);
+            listener->OnStopRunningUrl(nullptr, aExitCode);
           }
           break;
         case nsIImapUrl::nsImapDeleteAllMsgs:

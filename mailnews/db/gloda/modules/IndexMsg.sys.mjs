@@ -30,9 +30,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
 });
 
-// Cr does not have mailnews error codes!
-var NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE = 0x80550005;
-
 var GLODA_MESSAGE_ID_PROPERTY = "gloda-id";
 /**
  * Message header property to track dirty status; one of
@@ -650,7 +647,7 @@ export var GlodaMsgIndexer = {
         //  be permuted into an NS_ERROR_NOT_INITIALIZED.)
         if (
           e.result == Cr.NS_ERROR_NOT_INITIALIZED ||
-          e.result == NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE
+          e.result == Cr.NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE
         ) {
           // this means that we need to pend on the update; the listener for
           //  FolderLoaded events will call _indexerCompletePendingFolderEntry.

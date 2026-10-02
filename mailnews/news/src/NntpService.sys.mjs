@@ -77,11 +77,10 @@ export class NntpService {
    */
   getNewNews(server, uri, getOld, urlListener, msgWindow) {
     if (Services.io.offline) {
-      const NS_MSG_ERROR_OFFLINE = 0x80550014;
       // @see nsMsgNewsFolder::UpdateFolder
       throw Components.Exception(
         "Cannot get news while offline",
-        NS_MSG_ERROR_OFFLINE
+        Cr.NS_MSG_ERROR_OFFLINE
       );
     }
     // The uri is in the form of news://news.mozilla.org/mozilla.accessibility

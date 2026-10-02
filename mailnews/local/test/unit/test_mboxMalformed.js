@@ -92,7 +92,6 @@ add_task(async function test_badStoreTokens() {
   }
 
   // Check that message reads fail.
-  const NS_MSG_ERROR_MBOX_MALFORMED = 0x80550024;
   for (const msg of inbox.messages) {
     const streamListener = new PromiseTestUtils.PromiseStreamListener();
     const uri = inbox.getUriForMsg(msg);
@@ -104,7 +103,7 @@ add_task(async function test_badStoreTokens() {
     } catch (e) {
       Assert.equal(
         e.message,
-        NS_MSG_ERROR_MBOX_MALFORMED,
+        Cr.NS_MSG_ERROR_MBOX_MALFORMED,
         "Bad read causes NS_MSG_ERROR_MBOX_MALFORMED"
       );
     }
@@ -153,7 +152,6 @@ add_task(async function test_badMessageSizes() {
   }
 
   // Check that the size check triggers and the read fails.
-  const NS_MSG_ERROR_UNEXPECTED_SIZE = 0x80550023;
   for (const msg of inbox.messages) {
     const streamListener = new PromiseTestUtils.PromiseStreamListener();
     const uri = inbox.getUriForMsg(msg);
@@ -165,7 +163,7 @@ add_task(async function test_badMessageSizes() {
     } catch (e) {
       Assert.equal(
         e.message,
-        NS_MSG_ERROR_UNEXPECTED_SIZE,
+        Cr.NS_MSG_ERROR_UNEXPECTED_SIZE,
         "Messages that don't end at expected place should cause NS_MSG_ERROR_UNEXPECTED_SIZE"
       );
     }

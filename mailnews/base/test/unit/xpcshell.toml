@@ -169,6 +169,8 @@ tags = ["virtualfolders"]
 
 ["test_relatedItems.js"]
 
+["test_renameFolder.js"]
+
 ["test_retention.js"]
 
 ["test_saveAs.js"]

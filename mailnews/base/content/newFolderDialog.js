@@ -18,6 +18,8 @@ function onLoad() {
   dialog = {};
 
   dialog.nameField = document.getElementById("name");
+  dialog.nameField.value = windowArgs.name ?? "";
+  dialog.nameField.select();
   dialog.nameField.focus();
 
   // call this when OK is pressed

@@ -83,7 +83,6 @@ add_task(
     }
 
     // Make sure message reading fails.
-    const NS_MSG_ERROR_MBOX_MALFORMED = 0x80550024;
     for (const msg of inbox.messages) {
       const streamListener = new PromiseTestUtils.PromiseStreamListener();
       const uri = inbox.getUriForMsg(msg);
@@ -103,7 +102,7 @@ add_task(
       } catch (e) {
         Assert.equal(
           e.message,
-          NS_MSG_ERROR_MBOX_MALFORMED,
+          Cr.NS_MSG_ERROR_MBOX_MALFORMED,
           "Bad storeToken causes NS_MSG_ERROR_MBOX_MALFORMED for mbox"
         );
       }

@@ -180,15 +180,17 @@ function folderPropsOKButton(event) {
     Services.obs.notifyObservers(gMsgFolder, "folder-color-changed", color);
   }
 
-  try {
-    // This throws an exception when an illegal folder name was entered.
-    top.okCallback(
+  // okCallback() fails when the folder could not be renamed. Hold the dialog
+  // open until we know, so that the name can be corrected without having to
+  // reopen it and start over.
+  event.preventDefault();
+  (async () => {
+    await top.okCallback(
       document.getElementById("name").value,
       window.arguments[0].name
     );
-  } catch (e) {
-    event.preventDefault();
-  }
+    window.close();
+  })().catch(() => {});
 }
 
 function folderCancelButton() {

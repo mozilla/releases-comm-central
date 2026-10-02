@@ -9,8 +9,8 @@ import { EventEmitter } from "resource://gre/modules/EventEmitter.sys.mjs";
 export var cloudFileAccounts = new (class extends EventEmitter {
   get constants() {
     return {
-      offlineErr: 0x80550014, // NS_MSG_ERROR_OFFLINE
-      authErr: 0x8055001e, // NS_MSG_USER_NOT_AUTHENTICATED
+      offlineErr: Cr.NS_MSG_ERROR_OFFLINE,
+      authErr: Cr.NS_MSG_USER_NOT_AUTHENTICATED,
       uploadErr: Cr.NS_ERROR_FILE_NOT_FOUND,
       uploadWouldExceedQuota: 0x8055311b,
       uploadExceedsFileLimit: 0x8055311c,
