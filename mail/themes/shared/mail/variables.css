@@ -146,6 +146,16 @@
 
   --drop-indicator-z-index: 3;
 
+  --panel-background-color-dimmed: color-mix(in srgb, currentColor 17%, transparent);
+  --panel-background-color-dimmed-further: color-mix(in srgb, currentColor 30%, transparent);
+
+  @media not ((forced-colors) or (-moz-native-theme)) {
+    &:where([theme-in-app], :not([lwtheme])) {
+      --panel-background-color-dimmed: light-dark(color-mix(in srgb, currentColor 12%, transparent), color-mix(in srgb, currentColor 17%, transparent));
+      --panel-background-color-dimmed-further: light-dark(color-mix(in srgb, currentColor 20%, transparent), color-mix(in srgb, currentColor 14%, transparent));
+    }
+  }
+
   & :is(menupopup, panel):not(.autoscroller) {
     --panel-background-color: var(--color-surface-subtle);
     --panel-text-color: var(--color-text-base);
