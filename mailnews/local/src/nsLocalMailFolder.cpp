@@ -639,7 +639,8 @@ nsresult nsMsgLocalMailFolder::CreateSubfolderInternal(
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener* aListener,
-                                               nsIMsgWindow* aMsgWindow) {
+                                               nsIMsgWindow* aMsgWindow,
+                                               bool expunge) {
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgFolder> rootFolder;
   rv = GetRootFolder(getter_AddRefs(rootFolder));
@@ -671,12 +672,12 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener* aListener,
     }
   }
 
-  return AsyncCompactFolders(folderArray, aListener, aMsgWindow);
+  return AsyncCompactFolders(folderArray, aListener);
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::Compact(nsIUrlListener* aListener,
                                             nsIMsgWindow* aMsgWindow) {
-  return AsyncCompactFolders({this}, aListener, aMsgWindow);
+  return AsyncCompactFolders({this}, aListener);
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::EmptyTrash(nsIUrlListener* aListener) {
@@ -1110,7 +1111,7 @@ nsMsgLocalMailFolder::DeleteMessages(
       // NOTE: This reenabling also forces immediate recount + notification.
       EnableNotifications(allMessageCountNotifications, true);
       if (msgWindow) {
-        AutoCompact(msgWindow);
+        AutoCompact();
       }
     }
   }
@@ -2454,7 +2455,7 @@ nsMsgLocalMailFolder::EndMove(bool moveSucceeded) {
     rv = srcFolder->DeleteMessages(mCopyState->m_messages,
                                    mCopyState->m_msgWindow, true, true, nullptr,
                                    mCopyState->m_allowUndo);
-    AutoCompact(mCopyState->m_msgWindow);
+    AutoCompact();
 
     // enable the dest folder
     EnableNotifications(allMessageCountNotifications, true);

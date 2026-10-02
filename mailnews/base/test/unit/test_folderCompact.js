@@ -206,7 +206,7 @@ add_task(async function testCompactAllFolders() {
   const expungedBytes = gInbox.expungedBytes + gFolder2.expungedBytes;
 
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  gInbox.compactAll(listener, null);
+  gInbox.compactAll(listener, null, false);
   await listener.promise;
 
   const keysAfter = Array.from(gFolder2.messages, m => m.messageKey);

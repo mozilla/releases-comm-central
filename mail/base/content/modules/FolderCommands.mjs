@@ -672,7 +672,7 @@ function compactFolder(folder) {
  * @param {nsIMsgFolder} folder
  */
 function compactAllFoldersForAccount(folder) {
-  folder.rootFolder.compactAll(null, top.msgWindow);
+  folder.rootFolder.compactAll(null, top.msgWindow, true);
 }
 
 export const FolderCommands = {

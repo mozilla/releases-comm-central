@@ -780,7 +780,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
     }
 
     // Allow IMAP folder auto-compact to occur when online or offline.
-    if (aMsgWindow) AutoCompact(aMsgWindow);
+    AutoCompact();
 
     if (rv == NS_MSG_ERROR_OFFLINE || rv == NS_BINDING_ABORTED) {
       rv = NS_OK;
@@ -1346,7 +1346,7 @@ nsresult nsImapMailFolder::ExpungeAndCompact(nsIUrlListener* aListener,
     bool storeSupportsCompaction;
     msgStore->GetSupportsCompaction(&storeSupportsCompaction);
     if (storeSupportsCompaction && folder->mFlags & nsMsgFolderFlags::Offline) {
-      return AsyncCompactFolders({folder}, finalListener, msgWindow);
+      return AsyncCompactFolders({folder}, finalListener);
     }
     // Not going to run a compaction, so signal that we're all done.
     if (finalListener) {
@@ -1408,7 +1408,8 @@ NS_IMETHODIMP nsImapMailFolder::Expunge(nsIUrlListener* aListener,
 }
 
 NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener* aListener,
-                                           nsIMsgWindow* aMsgWindow) {
+                                           nsIMsgWindow* aMsgWindow,
+                                           bool expunge) {
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> rootFolder;
   rv = GetRootFolder(getter_AddRefs(rootFolder));
@@ -1442,7 +1443,7 @@ NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener* aListener,
         foldersToCompact.AppendElement(folder);
       }
     }
-    nsresult rv = AsyncCompactFolders(foldersToCompact, listener, msgWindow);
+    nsresult rv = AsyncCompactFolders(foldersToCompact, listener);
     if (NS_FAILED(rv) && listener) {
       // Make sure the listener hears about the failure.
       // A bit icky... but we're combined with IMAP expunge.
@@ -1451,6 +1452,12 @@ NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener* aListener,
       listener->OnStopRunningUrl(nullptr, rv);
     }
   };
+
+  if (!expunge) {
+    // Compacting to reclaim local space only; leave the server alone.
+    doCompact();
+    return NS_OK;
+  }
 
   // Collect all the expungeable folders.
   nsTArray<RefPtr<nsIMsgImapMailFolder>> foldersToExpunge;

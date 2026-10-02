@@ -44,8 +44,8 @@ static nsresult BuildKeepMap(nsIMsgDatabase* db,
                              mozilla::HashMap<nsCString, nsMsgKey>& keepMap);
 static nsresult SpaceRequiredToCompact(nsIMsgFolder* folder,
                                        int64_t* extraSpace);
-static void GUIShowCompactingMsg(nsIMsgWindow* window, nsIMsgFolder* folder);
-static void GUIShowDoneMsg(nsIMsgWindow* window, int64_t totalBytesRecovered);
+static void GUIShowCompactingMsg(nsIMsgFolder* folder);
+static void GUIShowDoneMsg(int64_t totalBytesRecovered);
 
 /**
  * Helper class to compact a single folder.
@@ -771,7 +771,7 @@ class BatchCompactor {
 
   BatchCompactor() = delete;
   explicit BatchCompactor(nsTArray<RefPtr<nsIMsgFolder>> const& folders,
-                          nsIUrlListener* finalListener, nsIMsgWindow* window);
+                          nsIUrlListener* finalListener);
 
   // Kick off the compaction.
   nsresult Begin();
@@ -804,8 +804,6 @@ class BatchCompactor {
   nsTArray<nsresult> mFailedCodes;
   // OnStopRunningUrl() is called when it's all done.
   nsCOMPtr<nsIUrlListener> mFinalListener;
-  // We show alert boxes and status/progress updates.
-  nsCOMPtr<nsIMsgWindow> mWindow;
   // Keep a refcount upon ourself until we're done.
   RefPtr<BatchCompactor> mKungFuDeathGrip;
   // Running total of bytes saved.
@@ -813,12 +811,10 @@ class BatchCompactor {
 };
 
 BatchCompactor::BatchCompactor(nsTArray<RefPtr<nsIMsgFolder>> const& folders,
-                               nsIUrlListener* finalListener,
-                               nsIMsgWindow* window)
+                               nsIUrlListener* finalListener)
     : mRetryTimer(NS_NewTimer()),
       mComplete(folders.Length()),
-      mFinalListener(finalListener),
-      mWindow(window) {
+      mFinalListener(finalListener) {
   mQueue = folders.Clone();
   mQueue.Reverse();
 }
@@ -972,9 +968,7 @@ void BatchCompactor::StartNext() {
     }
 
     // We've successfully set a compaction running!
-    if (mWindow) {
-      GUIShowCompactingMsg(mWindow, mQueue.LastElement());
-    }
+    GUIShowCompactingMsg(mQueue.LastElement());
     return;
   }  // End of loop.
 
@@ -983,9 +977,7 @@ void BatchCompactor::StartNext() {
   MOZ_ASSERT(mRetry.IsEmpty());
   MOZ_ASSERT(mFailed.Length() == mFailedCodes.Length());
 
-  if (mWindow) {
-    GUIShowDoneMsg(mWindow, mTotalBytesRecovered);
-  }
+  GUIShowDoneMsg(mTotalBytesRecovered);
 
   // There _may_ be failures.
 
@@ -1061,8 +1053,7 @@ void BatchCompactor::OnDone(nsresult status, int64_t bytesRecovered) {
   StartNext();
 }
 
-static void GUIShowCompactingMsg(nsIMsgWindow* window, nsIMsgFolder* folder) {
-  MOZ_ASSERT(window);
+static void GUIShowCompactingMsg(nsIMsgFolder* folder) {
   nsresult rv;
 
   // Get our localised strings.
@@ -1104,8 +1095,7 @@ static void GUIShowCompactingMsg(nsIMsgWindow* window, nsIMsgFolder* folder) {
   }
 }
 
-static void GUIShowDoneMsg(nsIMsgWindow* window, int64_t totalBytesRecovered) {
-  MOZ_ASSERT(window);
+static void GUIShowDoneMsg(int64_t totalBytesRecovered) {
   nsresult rv;
 
   // Get our localised strings.
@@ -1136,7 +1126,7 @@ static void GUIShowDoneMsg(nsIMsgWindow* window, int64_t totalBytesRecovered) {
 
 // This is the sole public-facing function.
 nsresult AsyncCompactFolders(nsTArray<RefPtr<nsIMsgFolder>> const& folders,
-                             nsIUrlListener* listener, nsIMsgWindow* window) {
+                             nsIUrlListener* listener) {
   // Filter out noncompactable folders and ones with zero .expungedBytes.
   nsTArray<RefPtr<nsIMsgFolder>> filteredFolders;
   for (nsIMsgFolder* f : folders) {
@@ -1177,8 +1167,7 @@ nsresult AsyncCompactFolders(nsTArray<RefPtr<nsIMsgFolder>> const& folders,
           ("AsyncCompactFolders() starting compaction of %d folders",
            (int)filteredFolders.Length()));
 
-  RefPtr<BatchCompactor> batch =
-      new BatchCompactor(filteredFolders, listener, window);
+  RefPtr<BatchCompactor> batch = new BatchCompactor(filteredFolders, listener);
   nsresult rv = batch->Begin();
   NS_ENSURE_SUCCESS(rv, rv);
   return NS_OK;

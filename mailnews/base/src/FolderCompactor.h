@@ -46,6 +46,6 @@ enum class nsresult : uint32_t;
  *                   indicates the success or failure of the operation.
  */
 nsresult AsyncCompactFolders(nsTArray<RefPtr<nsIMsgFolder>> const& folders,
-                             nsIUrlListener* listener, nsIMsgWindow* window);
+                             nsIUrlListener* listener);
 
 #endif  // COMM_MAILNEWS_BASE_SRC_FOLDERCOMPACTOR_H_

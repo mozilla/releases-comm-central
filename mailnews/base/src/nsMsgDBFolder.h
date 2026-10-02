@@ -112,7 +112,7 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult GetBackupSummaryFile(nsIFile** result, const nsACString& newName);
   nsresult GetMsgPreviewTextFromStream(nsIMsgDBHdr* msgHdr,
                                        nsIInputStream* stream);
-  MOZ_CAN_RUN_SCRIPT nsresult HandleAutoCompactEvent(nsIMsgWindow* aMsgWindow);
+  MOZ_CAN_RUN_SCRIPT nsresult HandleAutoCompactEvent();
 
  protected:
   virtual ~nsMsgDBFolder();
@@ -186,7 +186,7 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult StartNewOfflineMessage();
   nsresult EndNewOfflineMessage(nsresult status);
 
-  nsresult AutoCompact(nsIMsgWindow* aWindow);
+  nsresult AutoCompact();
   // this is a helper routine that ignores whether nsMsgMessageFlags::Offline is
   // set for the folder
   nsresult MsgFitsDownloadCriteria(nsMsgKey msgKey, bool* result);

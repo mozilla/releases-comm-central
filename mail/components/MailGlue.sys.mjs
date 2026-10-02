@@ -37,6 +37,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   ExtensionSupport: "resource:///modules/ExtensionSupport.sys.mjs",
   checkInstalledExtensions: "resource:///modules/ExtensionUtilities.sys.mjs",
   ExtensionsUI: "resource:///modules/ExtensionsUI.sys.mjs",
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
   InAppNotifications:
     "moz-src:///comm/mail/components/inappnotifications/modules/InAppNotifications.sys.mjs",
   LightweightThemeConsumer:
@@ -439,6 +440,7 @@ MailGlue.prototype = {
     Services.obs.addObserver(this, "content-document-global-created");
     Services.obs.addObserver(this, "document-element-inserted");
     Services.obs.addObserver(this, "handlersvc-store-initialized");
+    Services.obs.addObserver(this, "mail:auto-compact-threshold-reached");
 
     // Call the lazy getter to ensure ActorManagerParent is initialized.
     lazy.ActorManagerParent;
@@ -452,6 +454,56 @@ MailGlue.prototype = {
 
     lazy.ActorManagerParent.addJSProcessActors(JSPROCESSACTORS);
     lazy.ActorManagerParent.addJSWindowActors(JSWINDOWACTORS);
+  },
+
+  /**
+   * Ask whether to compact now, and do it if the user agrees. Called when the
+   * backend reports that enough deleted space has built up to be worth it.
+   *
+   * @see nsMsgDBFolder::HandleAutoCompactEvent()
+   * @param {number} totalExpungedBytes - How much space would be reclaimed.
+   */
+  _promptForAutoCompact(totalExpungedBytes) {
+    const win = Services.wm.getMostRecentWindow("mail:3pane");
+    if (!win) {
+      // Nothing to ask with. We'll be told again next time.
+      return;
+    }
+
+    const props = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
+      Ci.nsIWritablePropertyBag2
+    );
+    props.setPropertyAsAString(
+      "compactSize",
+      lazy.MailUtils.formatFileSize(totalExpungedBytes, true)
+    );
+    win.openDialog(
+      "chrome://messenger/content/compactFoldersDialog.xhtml",
+      "",
+      "chrome,dialog,modal,centerscreen",
+      props
+    );
+
+    if (props.getPropertyAsInt32("buttonNumClicked") != 0) {
+      return;
+    }
+    if (props.getPropertyAsBool("checked")) {
+      // [X] Remove deletions automatically and do not ask.
+      Services.prefs.setBoolPref("mail.purge.ask", false);
+    }
+    for (const server of lazy.MailServices.accounts.allServers) {
+      try {
+        // Reclaiming local space only - this must not expunge anything on an
+        // IMAP server.
+        server.rootFolder.compactAll(null, null, false);
+      } catch (ex) {
+        // Backends that can't compact (news, for one) throw
+        // NS_ERROR_NOT_IMPLEMENTED; skip them rather than abandoning the rest.
+        if (ex.result != Cr.NS_ERROR_NOT_IMPLEMENTED) {
+          console.error(ex);
+        }
+      }
+    }
   },
 
   // cleanup (called at shutdown)
@@ -470,6 +522,7 @@ MailGlue.prototype = {
     Services.obs.removeObserver(this, "content-document-global-created");
     Services.obs.removeObserver(this, "document-element-inserted");
     Services.obs.removeObserver(this, "handlersvc-store-initialized");
+    Services.obs.removeObserver(this, "mail:auto-compact-threshold-reached");
 
     lazy.ExtensionSupport.unregisterWindowListener(
       "Thunderbird-internal-BrowserConsole"
@@ -570,6 +623,9 @@ MailGlue.prototype = {
         break;
       case "xpcom-shutdown":
         this._dispose();
+        break;
+      case "mail:auto-compact-threshold-reached":
+        this._promptForAutoCompact(Number(aData));
         break;
       case "intl:app-locales-changed": {
         Cc["@mozilla.org/msgFolder/msgFolderService;1"]

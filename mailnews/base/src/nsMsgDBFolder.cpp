@@ -36,6 +36,8 @@
 #include <time.h>
 #include "nsIMsgDBView.h"
 #include "nsIMsgFolderNotificationService.h"
+#include "nsIObserverService.h"
+#include "mozilla/Services.h"
 #include "nsIMimeHeaders.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsIMsgTraitService.h"
@@ -1542,25 +1544,21 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage(nsresult status) {
 
 class AutoCompactEvent : public mozilla::Runnable {
  public:
-  AutoCompactEvent(nsIMsgWindow* aMsgWindow, nsMsgDBFolder* aFolder)
-      : mozilla::Runnable("AutoCompactEvent"),
-        mMsgWindow(aMsgWindow),
-        mFolder(aFolder) {}
+  explicit AutoCompactEvent(nsMsgDBFolder* aFolder)
+      : mozilla::Runnable("AutoCompactEvent"), mFolder(aFolder) {}
 
   MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHOD Run() override {
     if (RefPtr<nsMsgDBFolder> folder = mFolder) {
-      nsCOMPtr<nsIMsgWindow> msgWindow = mMsgWindow;
-      folder->HandleAutoCompactEvent(msgWindow);
+      folder->HandleAutoCompactEvent();
     }
     return NS_OK;
   }
 
  private:
-  nsCOMPtr<nsIMsgWindow> mMsgWindow;
   RefPtr<nsMsgDBFolder> mFolder;
 };
 
-nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
+nsresult nsMsgDBFolder::HandleAutoCompactEvent() {
   MOZ_LOG(gCompactLog, LogLevel::Debug, ("Performing AutoCompactEvent check"));
 
   // Prevent re-entrant auto-compaction. The compact dialog is modal and
@@ -1643,55 +1641,28 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
 
     if (totalExpungedBytes > ((int64_t)purgeThreshold * 1024)) {
       bool okToCompact = false;
-      bool askBeforePurge = Preferences::GetBool(PREF_MAIL_PURGE_ASK);
-      if (askBeforePurge && aWindow) {
-        nsCOMPtr<nsIStringBundle> bundle;
-        rv = GetBaseStringBundle(getter_AddRefs(bundle));
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        nsAutoString compactSize;
-        FormatFileSize(totalExpungedBytes, true, compactSize);
-
-        bool neverAsk = false;  // "Do not ask..." - unchecked by default.
-        int32_t buttonPressed = 0;
-
-        nsCOMPtr<nsIWindowWatcher> ww =
-            mozilla::components::WindowWatcher::Service();
-        nsCOMPtr<nsIWritablePropertyBag2> props(
-            do_CreateInstance("@mozilla.org/hash-property-bag;1"));
-        props->SetPropertyAsAString(u"compactSize"_ns, compactSize);
-        nsCOMPtr<mozIDOMWindowProxy> migrateWizard;
-        rv = ww->OpenWindow(
-            nullptr, "chrome://messenger/content/compactFoldersDialog.xhtml"_ns,
-            u"_blank"_ns, "chrome,dialog,modal,centerscreen"_ns, props,
-            getter_AddRefs(migrateWizard));
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        rv = props->GetPropertyAsBool(u"checked"_ns, &neverAsk);
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        rv = props->GetPropertyAsInt32(u"buttonNumClicked"_ns, &buttonPressed);
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        if (buttonPressed == 0) {
-          okToCompact = true;
-          if (neverAsk)  // [X] Remove deletions automatically and do not ask
-            Preferences::SetBool(PREF_MAIL_PURGE_ASK, false);
+      if (Preferences::GetBool(PREF_MAIL_PURGE_ASK)) {
+        // Let the front end ask; it runs the compaction itself if the user
+        // agrees. Nothing happens if no window is around to ask.
+        nsCOMPtr<nsIObserverService> obs =
+            mozilla::services::GetObserverService();
+        if (obs) {
+          obs->NotifyObservers(
+              nullptr, "mail:auto-compact-threshold-reached",
+              NS_ConvertUTF8toUTF16(
+                  nsPrintfCString("%" PRId64, totalExpungedBytes))
+                  .get());
         }
       } else {
-        okToCompact = aWindow || !askBeforePurge;
+        okToCompact = true;
       }
-
-      MOZ_LOG(gCompactLog, LogLevel::Info,
-              ("AutoCompactEvent check: okToCompact=%s",
-               okToCompact ? "true" : " false"));
 
       if (okToCompact) {
         if (localExpungedBytes > 0 || offlineExpungedBytes > 0) {
           for (nsIMsgFolder* f : offlineFolderArray) {
             folderArray.AppendElement(f);
           }
-          rv = AsyncCompactFolders(folderArray, nullptr, aWindow);
+          rv = AsyncCompactFolders(folderArray, nullptr);
         }
       }
     } else {
@@ -1704,9 +1675,7 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
   return rv;
 }
 
-nsresult nsMsgDBFolder::AutoCompact(nsIMsgWindow* aWindow) {
-  // we don't check for null aWindow, because this routine can get called
-  // in unit tests where we have no window. Just assume not OK if no window.
+nsresult nsMsgDBFolder::AutoCompact() {
   bool prompt;
   nsresult rv = GetPromptPurgeThreshold(&prompt);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1740,7 +1709,7 @@ nsresult nsMsgDBFolder::AutoCompact(nsIMsgWindow* aWindow) {
 
   if (timeAfterOneHourOfLastPurgeCheck < timeNow && prompt) {
     gtimeOfLastPurgeCheck = timeNow;
-    nsCOMPtr<nsIRunnable> event = new AutoCompactEvent(aWindow, this);
+    nsCOMPtr<nsIRunnable> event = new AutoCompactEvent(this);
     // Post this as an event because it can put up an alert, which
     // might cause issues depending on the stack when we are called.
     if (event) NS_DispatchToCurrentThread(event);
@@ -3561,7 +3530,8 @@ NS_IMETHODIMP nsMsgDBFolder::Compact(nsIUrlListener* aListener,
 }
 
 NS_IMETHODIMP nsMsgDBFolder::CompactAll(nsIUrlListener* aListener,
-                                        nsIMsgWindow* aMsgWindow) {
+                                        nsIMsgWindow* aMsgWindow,
+                                        bool expunge) {
   NS_ASSERTION(false, "should be overridden by child class");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
