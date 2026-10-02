@@ -1476,9 +1476,6 @@ pref("print.print_headerleft", "");
 pref("print.print_headercenter", "&T");
 pref("print.print_headerright", "");
 
-// Enable Masonry Layout for AddressBook.
-pref("layout.css.grid-template-masonry-value.enabled", true);
-
 #ifdef MOZ_SERVICES_SYNC
 // If set to false, FxAccounts and Sync will be unavailable.
 // A restart is mandatory after flipping that preference.

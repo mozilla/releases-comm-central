@@ -666,8 +666,8 @@ body:not(.is-editing) #editContactForm {
 
 #detailsBody {
   display: grid;
+  display: grid-lanes;
   grid-template-columns: repeat(auto-fill, minmax(31.5em, 1fr));
-  grid-template-rows: masonry;
   gap: 1em;
 
   & section {

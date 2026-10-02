@@ -48,9 +48,9 @@ vcard-special-date select:not([size], [multiple]) {
 
 vcard-edit {
   display: grid;
+  display: grid-lanes;
   grid-template-columns: repeat(auto-fill, minmax(30em, 1fr));
   column-gap: 2em;
-  grid-template-rows: masonry;
   row-gap: var(--vcard-edit-row-gap);
   color: var(--sidebar-color);
   --input-border-density: 1px;
