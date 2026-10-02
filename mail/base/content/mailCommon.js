@@ -46,6 +46,48 @@ const nsMsgKey_None = 0xffffffff;
 
 var gFolder, gViewWrapper;
 
+/**
+ * A listener for a filter run started from the message list.
+ *
+ * @param {nsIMsgFolder} folder - The folder the filters ran on.
+ * @returns {nsIMsgOperationListener}
+ */
+function filterRunListener(folder) {
+  return {
+    async onStopOperation(status) {
+      if (Components.isSuccessCode(status)) {
+        return;
+      }
+      const [message, openLogLabel] = await document.l10n.formatValues([
+        "apply-filters-failed",
+        "apply-filters-failed-open-log-button",
+      ]);
+      if (
+        !Services.prompt.confirmEx(
+          window.top,
+          null,
+          message,
+          Services.prompt.BUTTON_TITLE_IS_STRING *
+            Services.prompt.BUTTON_POS_0 +
+            Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1,
+          openLogLabel,
+          null,
+          null,
+          null,
+          {}
+        )
+      ) {
+        window.top.openDialog(
+          "chrome://messenger/content/viewLog.xhtml",
+          "FilterLog",
+          "chrome,dependent,titlebar,resizable,centerscreen",
+          { filterList: folder.getFilterList(window.top.msgWindow) }
+        );
+      }
+    },
+  };
+}
+
 var commandController = {
   _composeCommands: {
     cmd_editDraftMsg: Ci.nsIMsgCompType.Draft,
@@ -375,7 +417,8 @@ var commandController = {
       MailServices.filters.applyFiltersToFolders(
         tempFilterList,
         [gFolder],
-        top.msgWindow
+        top.msgWindow,
+        filterRunListener(gFolder)
       );
     },
     cmd_applyFiltersToSelection() {
@@ -386,7 +429,8 @@ var commandController = {
           selectedMessages,
           [],
           gFolder,
-          top.msgWindow
+          top.msgWindow,
+          filterRunListener(gFolder)
         );
       }
     },

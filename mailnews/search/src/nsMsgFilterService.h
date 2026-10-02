@@ -23,9 +23,9 @@ class nsMsgFilterService : public nsIMsgFilterService {
   // nsMsgFilter. These are manipulated by the front end as a result of user
   // interaction with dialog boxes.
 
-  nsresult BackUpFilterFile(nsIFile* aFilterFile, nsIMsgWindow* aMsgWindow);
+  nsresult BackUpFilterFile(nsIFile* aFilterFile, nsIMsgFolder* rootFolder);
   nsresult ThrowFilterAlertMsg(const nsACString& fluentID,
-                               nsIMsgWindow* aMsgWindow);
+                               nsIMsgFolder* rootFolder);
 
  protected:
   virtual ~nsMsgFilterService();

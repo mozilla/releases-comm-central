@@ -751,7 +751,7 @@ function runSelectedFilters() {
     [folder],
     gFilterListMsgWindow,
     {
-      onStopOperation(_status) {
+      onStopOperation(status) {
         gRunningFilters = false;
 
         // If the user closed the dialog while filters were running,
@@ -770,6 +770,33 @@ function runSelectedFilters() {
           window.progressMeterVisible = false;
         }
         document.getElementById("statusText").setAttribute("value", "");
+
+        // Reset the progress UI above before prompting: confirmEx blocks
+        // until dismissed, and the meter would sit there looking live.
+        if (!Components.isSuccessCode(status)) {
+          const [message, openLogLabel] = l10n.formatValuesSync([
+            "filter-run-failed",
+            "filter-run-failed-open-log-button",
+          ]);
+          if (
+            !Services.prompt.confirmEx(
+              window,
+              null,
+              message,
+              Services.prompt.BUTTON_TITLE_IS_STRING *
+                Services.prompt.BUTTON_POS_0 +
+                Services.prompt.BUTTON_TITLE_CANCEL *
+                  Services.prompt.BUTTON_POS_1,
+              openLogLabel,
+              null,
+              null,
+              null,
+              {}
+            )
+          ) {
+            viewLog();
+          }
+        }
       },
     }
   );

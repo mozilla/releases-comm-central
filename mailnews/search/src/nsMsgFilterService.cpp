@@ -25,6 +25,7 @@
 #include "nsNetUtil.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgMailSession.h"
+#include "nsIMsgIncomingServer.h"
 #include "nsIFile.h"
 #include "nsIMsgFilterCustomAction.h"
 #include "nsMsgMessageFlags.h"
@@ -56,16 +57,15 @@ LazyLogModule FILTERLOGMODULE("Filters");
     break;                                                             \
   }
 
-#define CONTINUE_IF_FAILURE(_rv, _text)                                     \
-  if (NS_FAILED(_rv)) {                                                     \
-    MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,                             \
-            ("(Post) Filter problem: %s", _text));                          \
-    m_filters->LogFilterMessage(NS_LITERAL_STRING_FROM_CSTRING(_text),      \
-                                m_curFilter);                               \
-    NS_WARNING(_text);                                                      \
-    mFinalResult = _rv;                                                     \
-    if (m_msgWindow && !ContinueExecutionPrompt()) return OnEndExecution(); \
-    continue;                                                               \
+#define CONTINUE_IF_FAILURE(_rv, _text)                                \
+  if (NS_FAILED(_rv)) {                                                \
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,                        \
+            ("(Post) Filter problem: %s", _text));                     \
+    m_filters->LogFilterMessage(NS_LITERAL_STRING_FROM_CSTRING(_text), \
+                                m_curFilter);                          \
+    NS_WARNING(_text);                                                 \
+    mFinalResult = _rv;                                                \
+    continue;                                                          \
   }
 
 #define BREAK_IF_FALSE(_assertTrue, _text)                             \
@@ -79,26 +79,24 @@ LazyLogModule FILTERLOGMODULE("Filters");
     break;                                                             \
   }
 
-#define CONTINUE_IF_FALSE(_assertTrue, _text)                               \
-  if (MOZ_UNLIKELY(!(_assertTrue))) {                                       \
-    MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,                             \
-            ("(Post) Filter problem: %s", _text));                          \
-    m_filters->LogFilterMessage(NS_LITERAL_STRING_FROM_CSTRING(_text),      \
-                                m_curFilter);                               \
-    NS_WARNING(_text);                                                      \
-    mFinalResult = NS_ERROR_FAILURE;                                        \
-    if (m_msgWindow && !ContinueExecutionPrompt()) return OnEndExecution(); \
-    continue;                                                               \
+#define CONTINUE_IF_FALSE(_assertTrue, _text)                          \
+  if (MOZ_UNLIKELY(!(_assertTrue))) {                                  \
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,                        \
+            ("(Post) Filter problem: %s", _text));                     \
+    m_filters->LogFilterMessage(NS_LITERAL_STRING_FROM_CSTRING(_text), \
+                                m_curFilter);                          \
+    NS_WARNING(_text);                                                 \
+    mFinalResult = NS_ERROR_FAILURE;                                   \
+    continue;                                                          \
   }
 
-#define BREAK_ACTION(_text)                                               \
-  MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,                               \
-          ("(Post) Filter Error: %s", _text));                            \
-  if (loggingEnabled)                                                     \
-    m_filters->LogFilterMessage(NS_LITERAL_STRING_FROM_CSTRING(_text),    \
-                                m_curFilter);                             \
-  NS_WARNING(_text);                                                      \
-  if (m_msgWindow && !ContinueExecutionPrompt()) return OnEndExecution(); \
+#define BREAK_ACTION(_text)                                            \
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,                            \
+          ("(Post) Filter Error: %s", _text));                         \
+  if (loggingEnabled)                                                  \
+    m_filters->LogFilterMessage(NS_LITERAL_STRING_FROM_CSTRING(_text), \
+                                m_curFilter);                          \
+  NS_WARNING(_text);                                                   \
   break;
 
 #define BREAK_ACTION_IF_FALSE(_assertTrue, _text) \
@@ -174,16 +172,16 @@ NS_IMETHODIMP nsMsgFilterService::OpenFilterList(
     filterList->GetVersion(&version);
     if (version != kFileVersion) SaveFilterList(filterList, aFilterFile);
   } else {
-    if (rv == NS_MSG_FILTER_PARSE_ERROR && aMsgWindow) {
-      rv = BackUpFilterFile(aFilterFile, aMsgWindow);
+    if (rv == NS_MSG_FILTER_PARSE_ERROR) {
+      rv = BackUpFilterFile(aFilterFile, rootFolder);
       NS_ENSURE_SUCCESS(rv, rv);
       rv = aFilterFile->SetFileSize(0);
       NS_ENSURE_SUCCESS(rv, rv);
       return OpenFilterList(aFilterFile, rootFolder, aMsgWindow,
                             resultFilterList);
     }
-    if (rv == NS_MSG_INVALID_CUSTOM_HEADER && aMsgWindow) {
-      ThrowFilterAlertMsg("filter-invalid-custom-header"_ns, aMsgWindow);
+    if (rv == NS_MSG_INVALID_CUSTOM_HEADER) {
+      ThrowFilterAlertMsg("filter-invalid-custom-header"_ns, rootFolder);
     }
   }
 
@@ -231,8 +229,8 @@ NS_IMETHODIMP nsMsgFilterService::SaveFilterList(nsIMsgFilterList* filterList,
 }
 
 nsresult nsMsgFilterService::BackUpFilterFile(nsIFile* aFilterFile,
-                                              nsIMsgWindow* aMsgWindow) {
-  ThrowFilterAlertMsg("filter-list-backup-message"_ns, aMsgWindow);
+                                              nsIMsgFolder* rootFolder) {
+  ThrowFilterAlertMsg("filter-list-backup-message"_ns, rootFolder);
 
   nsCOMPtr<nsIFile> localParentDir;
   nsresult rv = aFilterFile->GetParent(getter_AddRefs(localParentDir));
@@ -251,7 +249,7 @@ nsresult nsMsgFilterService::BackUpFilterFile(nsIFile* aFilterFile,
 }
 
 nsresult nsMsgFilterService::ThrowFilterAlertMsg(const nsACString& fluentID,
-                                                 nsIMsgWindow* aMsgWindow) {
+                                                 nsIMsgFolder* rootFolder) {
   RefPtr<mozilla::intl::Localization> l10n =
       mozilla::intl::Localization::Create({"messenger/filterEditor.ftl"_ns},
                                           true);
@@ -259,17 +257,19 @@ nsresult nsMsgFilterService::ThrowFilterAlertMsg(const nsACString& fluentID,
   nsresult rv = LocalizeMessage(l10n, fluentID, {}, alertString);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<mozIDOMWindowProxy> domWindow;
-  nsCOMPtr<nsIWindowMediator> winMed =
-      do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
+  nsAutoCString serverKey;
+  if (rootFolder) {
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    if (NS_SUCCEEDED(rootFolder->GetServer(getter_AddRefs(server)))) {
+      server->GetKey(serverKey);
+    }
+  }
 
-  nsCOMPtr<nsIPromptService> dlgService(
-      do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return dlgService->Alert(domWindow, nullptr,
-                           NS_ConvertUTF8toUTF16(alertString).get());
+  nsCOMPtr<nsIMsgMailSession> mailSession =
+      mozilla::components::MailSession::Service();
+  NS_ENSURE_TRUE(mailSession, NS_ERROR_UNEXPECTED);
+  return mailSession->AlertUser(NS_ConvertUTF8toUTF16(alertString), serverKey,
+                                false);
 }
 
 // this class is used to run filters after the fact, i.e., after new mail has
@@ -317,7 +317,6 @@ class nsMsgFilterAfterTheFact : public nsIUrlListener,
    */
   nsresult ApplyFilter();
   nsresult OnEndExecution();  // do what we have to do to cleanup.
-  bool ContinueExecutionPrompt();
   nsCOMPtr<nsIMsgWindow> m_msgWindow;
   nsCOMPtr<nsIMsgFilterList> m_filters;
   nsTArray<RefPtr<nsIMsgFolder>> m_folders;
@@ -373,8 +372,7 @@ nsresult nsMsgFilterAfterTheFact::OnEndExecution() {
   if (m_callback) (void)m_callback->OnStopOperation(mFinalResult);
 
   nsresult rv = mFinalResult;
-  // OnEndExecution() can be called a second time when a rule execution fails
-  // and the user is prompted whether he wants to continue.
+  // OnEndExecution() can be called a second time when a rule execution fails.
   if (mNeedsRelease) {
     NS_RELEASE_THIS();  // release ourselves.
     mNeedsRelease = false;
@@ -512,11 +510,7 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnStopRunningUrl(nsIURI* aUrl,
   if (NS_SUCCEEDED(aExitCode)) return RunNextFilter();
 
   mFinalResult = aExitCode;
-  // If m_msgWindow then we are in a context where the user can deal with
-  //  errors. Put up a prompt, and exit if user wants.
-  if (!ContinueExecutionPrompt()) return OnEndExecution();
-
-  // folder parse failed, so stop processing this folder.
+  // Folder parse failed, so stop processing this folder.
   return AdvanceToNextFolder();
 }
 
@@ -559,7 +553,6 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnSearchDone(nsresult status) {
 
   mFinalResult = status;
   if (status == NS_MSG_SEARCH_INTERRUPTED) return OnEndExecution();
-  if (m_msgWindow && !ContinueExecutionPrompt()) return OnEndExecution();
 
   // The search failed, so move on to the next filter.
   return RunNextFilter();
@@ -1315,42 +1308,6 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnStopCopy(nsresult aStatus) {
            static_cast<uint32_t>(aStatus)));
 
   mFinalResult = aStatus;
-  if (!ContinueExecutionPrompt()) return OnEndExecution();
-
   // Copy failed, so run the next filter
   return RunNextFilter();
-}
-
-bool nsMsgFilterAfterTheFact::ContinueExecutionPrompt() {
-  if (!m_curFilter) return false;
-
-  nsAutoString filterName;
-  m_curFilter->GetFilterName(filterName);
-
-  RefPtr<mozilla::intl::Localization> l10n =
-      mozilla::intl::Localization::Create({"messenger/filterEditor.ftl"_ns},
-                                          true);
-  nsCString confirmText;
-  nsresult rv = LocalizeMessage(
-      l10n, "filter-continue-execution"_ns,
-      {{"filterName"_ns, NS_ConvertUTF16toUTF8(filterName)}}, confirmText);
-  if (NS_FAILED(rv)) return false;
-
-  nsCOMPtr<mozIDOMWindowProxy> domWindow;
-  nsCOMPtr<nsIWindowMediator> winMed =
-      do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, false);
-  winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
-
-  nsCOMPtr<nsIPromptService> dlgService(
-      do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, false);
-  bool returnVal = false;
-  dlgService->Confirm(domWindow, nullptr,
-                      NS_ConvertUTF8toUTF16(confirmText).get(), &returnVal);
-  if (!returnVal) {
-    MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,
-            ("(Post) User aborted further filter execution on prompt"));
-  }
-  return returnVal;
 }

@@ -540,6 +540,12 @@ no-reply-reply-anyway-button = Reply Anyway
 
 ## error messages
 
+# Shown once at the end of a filter run the user started from the message
+# list, when at least one filter or action failed.
+apply-filters-failed = The filter run did not complete successfully. Check the filter log for details.
+
+apply-filters-failed-open-log-button = Open Filter Log
+
 # Variables:
 # $failures (Number) - Number of messages that could not be decrypted.
 # $total (Number) - Total number of messages that were attempted to be decrypted.
