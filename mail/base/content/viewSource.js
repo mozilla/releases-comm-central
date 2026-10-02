@@ -79,14 +79,13 @@ var viewSourceChrome = {
   },
 
   toggleWrapping() {
-    const state = gBrowser.contentDocument.body.classList.toggle("wrap");
-    if (state) {
-      document
-        .getElementById("cmd_wrapLongLines")
-        .toggleAttribute("checked", true);
-    } else {
-      document.getElementById("cmd_wrapLongLines").removeAttribute("checked");
-    }
+    const state = !Services.prefs.getBoolPref(
+      "view_source.wrap_long_lines",
+      false
+    );
+    document
+      .getElementById("cmd_wrapLongLines")
+      .toggleAttribute("checked", state);
     Services.prefs.setBoolPref("view_source.wrap_long_lines", state);
   },
 

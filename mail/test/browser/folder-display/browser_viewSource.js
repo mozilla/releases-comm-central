@@ -67,6 +67,47 @@ add_task(async function utf8Header_with_utf8Body() {
   await subtest(3, contentReadable, contentGarbled);
 });
 
+/** Wrap Long Lines should toggle wrapping when the window opens wrapped. */
+add_task(async function toggleWrappingFromOn() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["view_source.wrap_long_lines", true]],
+  });
+  await select_click_row(0);
+
+  const viewSourcePromise = promise_new_window("navigator:view-source");
+  EventUtils.synthesizeKey("U", { shiftKey: false, accelKey: true });
+  const viewSourceWin = await viewSourcePromise;
+  const browser = viewSourceWin.document.getElementById("content");
+  await TestUtils.waitForCondition(
+    () => browser.contentDocument.querySelector("pre") != null,
+    "Timeout waiting for the view-source document to load."
+  );
+  const pre = browser.contentDocument.querySelector("pre");
+  const command = viewSourceWin.document.getElementById("cmd_wrapLongLines");
+  Assert.equal(
+    browser.contentWindow.getComputedStyle(pre).whiteSpace,
+    "pre-wrap",
+    "Source should be wrapped when the window opens with wrapping on"
+  );
+
+  command.doCommand();
+  Assert.ok(
+    !Services.prefs.getBoolPref("view_source.wrap_long_lines"),
+    "Pref should be off after turning wrapping off"
+  );
+  Assert.ok(
+    !command.hasAttribute("checked"),
+    "Command should be unchecked after turning wrapping off"
+  );
+  await TestUtils.waitForCondition(
+    () => browser.contentWindow.getComputedStyle(pre).whiteSpace == "pre",
+    "Source should not be wrapped after turning wrapping off"
+  );
+
+  await BrowserTestUtils.closeWindow(viewSourceWin);
+  await SpecialPowers.popPrefEnv();
+});
+
 function addToFolder(subject, charset, body) {
   const msgId = Services.uuid.generateUUID() + "@invalid";
 
