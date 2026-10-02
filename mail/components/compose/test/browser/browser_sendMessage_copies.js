@@ -276,9 +276,7 @@ async function removeFolder(folder) {
   const rootFolder = folder.rootFolder;
   if (folder.incomingServerType == "imap") {
     const deletedPromise = PromiseTestUtils.promiseFolderDeleted(folder);
-    const promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
     folder.deleteSelf(null);
-    await promptPromise;
     await deletedPromise;
   } else {
     folder.deleteSelf(null);

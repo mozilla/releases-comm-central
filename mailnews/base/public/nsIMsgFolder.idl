@@ -782,7 +782,6 @@ interface nsIMsgFolder : nsISupports {
   boolean isCommandEnabled(in ACString command);
   boolean matchOrChangeFilterDestination(in nsIMsgFolder folder,
                                          in boolean caseInsensitive);
-  boolean confirmFolderDeletionForFilter(in nsIMsgWindow msgWindow);
   AString getStringWithFolderNameFromBundle(in string msgName);
 
   /**

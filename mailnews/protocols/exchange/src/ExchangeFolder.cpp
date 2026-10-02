@@ -576,6 +576,17 @@ NS_IMETHODIMP ExchangeFolder::UpdateFolder(nsIMsgWindow* aWindow) {
   return SyncMessages(aWindow, nullptr);
 }
 
+// FIXME: This completes asynchronously, but there is no RenameWithListener()
+// override to go with it, so nsMsgDBFolder's notifies the caller as soon as
+// the request has been dispatched. Anything waiting on the result - such as
+// nsIMsgFolder.renameAsync() - therefore sees success even when the rename
+// later fails, for instance when the new name is already taken and
+// LocalRenameOrReparentFolder() returns NS_MSG_FOLDER_EXISTS. Fixing this
+// needs UpdateFolder() to report failures, which means moving it from
+// IExchangeSimpleOperationListener (success only, by design) to
+// IExchangeFallibleOperationListener, after which the override can settle the
+// listener in both directions. The same gap existed before renameAsync() was
+// added: the front end simply discarded the error.
 NS_IMETHODIMP ExchangeFolder::Rename(const nsACString& aNewName,
                                      nsIMsgWindow* msgWindow) {
   // Virtual folders are just a local operation.

@@ -1597,43 +1597,10 @@ NS_IMETHODIMP nsImapMailFolder::Rename(const nsACString& newName,
                                        nsIMsgWindow* msgWindow) {
   if (mFlags & nsMsgFolderFlags::Virtual)
     return nsMsgDBFolder::Rename(newName, msgWindow);
-  nsresult rv;
   nsAutoCString newNameStr(newName);
   if (newNameStr.FindChar(m_hierarchyDelimiter, 0) != kNotFound) {
-    nsCOMPtr<nsIStringBundle> bundle;
-    rv = IMAPGetStringBundle(getter_AddRefs(bundle));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    AutoTArray<nsString, 1> formatStrings;
-    formatStrings.AppendElement()->Append(m_hierarchyDelimiter);
-    nsString alertString;
-    rv = bundle->FormatStringFromName("imapSpecialChar2", formatStrings,
-                                      alertString);
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIMsgIncomingServer> server;
-    rv = GetServer(getter_AddRefs(server));
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsString dialogTitle;
-    nsAutoCString accountName;
-    rv = server->GetPrettyName(accountName);
-    NS_ENSURE_SUCCESS(rv, rv);
-    AutoTArray<nsString, 1> titleParams = {NS_ConvertUTF8toUTF16(accountName)};
-    rv = bundle->FormatStringFromName("imapAlertDialogTitle", titleParams,
-                                      dialogTitle);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<mozIDOMWindowProxy> domWindow;
-    nsCOMPtr<nsIWindowMediator> winMed =
-        do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
-
-    nsCOMPtr<nsIPromptService> dlgService(
-        do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-    dlgService->Alert(domWindow, dialogTitle.get(), alertString.get());
-
-    return NS_ERROR_FAILURE;
+    // The caller reports this to the user.
+    return NS_MSG_ERROR_INVALID_FOLDER_NAME;
   }
   nsCOMPtr<nsIImapIncomingServer> incomingImapServer;
   GetImapIncomingServer(getter_AddRefs(incomingImapServer));
@@ -2256,7 +2223,6 @@ nsImapMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
 
   // "this" is the folder we're deleting from
   bool deleteNoTrash = TrashOrDescendantOfTrash(this) || !DeleteIsMoveToTrash();
-  bool confirmDeletion = true;
 
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
   if (!deleteNoTrash) {
@@ -2277,79 +2243,13 @@ nsImapMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
       if (!serverSupportsDualUseFolders) canHaveSubFoldersOfTrash = false;
     }
     if (!canHaveSubFoldersOfTrash) deleteNoTrash = true;
-    confirmDeletion =
-        Preferences::GetBool("mailnews.confirm.moveFoldersToTrash");
   }
 
-  // If we are deleting folder immediately, ask user for confirmation.
-  bool confirmed = false;
-  if (confirmDeletion || deleteNoTrash) {
-    nsCOMPtr<nsIStringBundle> bundle;
-    rv = IMAPGetStringBundle(getter_AddRefs(bundle));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsAutoString localizedName;
-    rv = GetLocalizedName(localizedName);
-    NS_ENSURE_SUCCESS(rv, rv);
-    AutoTArray<nsString, 1> formatStrings = {localizedName};
-
-    nsAutoString deleteFolderDialogTitle;
-    rv = bundle->GetStringFromName("imapDeleteFolderDialogTitle",
-                                   deleteFolderDialogTitle);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsAutoString deleteFolderButtonLabel;
-    rv = bundle->GetStringFromName("imapDeleteFolderButtonLabel",
-                                   deleteFolderButtonLabel);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsAutoString confirmationStr;
-    rv = bundle->FormatStringFromName(
-        (deleteNoTrash) ? "imapDeleteNoTrash" : "imapMoveFolderToTrash",
-        formatStrings, confirmationStr);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<mozIDOMWindowProxy> domWindow;
-    nsCOMPtr<nsIWindowMediator> winMed =
-        do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
-
-    nsCOMPtr<nsIPromptService> dlgService(
-        do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    int32_t buttonPressed = 0;
-    // Default the dialog to "cancel".
-    const uint32_t buttonFlags =
-        (nsIPrompt::BUTTON_TITLE_IS_STRING * nsIPrompt::BUTTON_POS_0) +
-        (nsIPrompt::BUTTON_TITLE_CANCEL * nsIPrompt::BUTTON_POS_1);
-
-    bool dummyValue = false;
-    rv = dlgService->ConfirmEx(domWindow, deleteFolderDialogTitle.get(),
-                               confirmationStr.get(), buttonFlags,
-                               deleteFolderButtonLabel.get(), nullptr, nullptr,
-                               nullptr, &dummyValue, &buttonPressed);
-    NS_ENSURE_SUCCESS(rv, rv);
-    confirmed = !buttonPressed;  // "ok" is in position 0
+  if (deleteNoTrash) {
+    rv = imapService->DeleteFolder(this, this, msgWindow);
+    nsMsgDBFolder::DeleteSelf(msgWindow);
   } else {
-    confirmed = true;
-  }
-
-  if (confirmed) {
-    if (deleteNoTrash) {
-      rv = imapService->DeleteFolder(this, this, msgWindow);
-      nsMsgDBFolder::DeleteSelf(msgWindow);
-    } else {
-      bool match = false;
-      rv = MatchOrChangeFilterDestination(nullptr, false, &match);
-      if (match) {
-        bool confirm = false;
-        ConfirmFolderDeletionForFilter(msgWindow, &confirm);
-        if (!confirm) return NS_OK;
-      }
-      rv = imapService->MoveFolder(this, trashFolder, this, msgWindow);
-    }
+    rv = imapService->MoveFolder(this, trashFolder, this, msgWindow);
   }
   return rv;
 }
@@ -7501,17 +7401,6 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
     // non-virtual folder
     nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
     nsCOMPtr<nsISupports> srcSupport = do_QueryInterface(srcFolder);
-    bool match = false;
-    bool confirmed = false;
-    if (mFlags & nsMsgFolderFlags::Trash) {
-      rv = srcFolder->MatchOrChangeFilterDestination(nullptr, false, &match);
-      if (match) {
-        srcFolder->ConfirmFolderDeletionForFilter(msgWindow, &confirmed);
-        // should we return an error to copy service?
-        // or send a notification?
-        if (!confirmed) return NS_OK;
-      }
-    }
     rv = InitCopyState(srcSupport, {}, false, false, false, 0, EmptyCString(),
                        listener, msgWindow, false);
     if (NS_FAILED(rv)) return OnCopyCompleted(srcSupport, rv);

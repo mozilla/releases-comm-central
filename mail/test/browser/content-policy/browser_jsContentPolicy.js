@@ -37,9 +37,7 @@ const aboutMessage = get_about_message();
 
 var folder;
 registerCleanupFunction(async () => {
-  const promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   folder.deleteSelf(window.msgWindow);
-  await promptPromise;
 
   Services.focus.focusedWindow = window;
 });

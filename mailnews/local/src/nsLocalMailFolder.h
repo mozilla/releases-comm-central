@@ -198,8 +198,6 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
 
   nsresult IsChildOfTrash(bool* result);
   nsresult RecursiveSetDeleteIsMoveTrash(bool bVal);
-  nsresult ConfirmFolderDeletion(nsIMsgWindow* aMsgWindow,
-                                 nsIMsgFolder* aFolder, bool* aResult);
 
   nsresult GetDatabase() override;
   // this will set mDatabase, if successful. It will also create a .msf file

@@ -846,7 +846,7 @@ var folderPaneContextMenu = {
    * @param {nsIMsgFolder} targetFolder
    * @param {nsIMsgCopyServiceListener} [listener]
    */
-  transferFolder(isMove, sourceFolder, targetFolder, listener = null) {
+  async transferFolder(isMove, sourceFolder, targetFolder, listener = null) {
     // Listen for any event coming from the nsIMsgCopyServiceListener and
     // trigger the needed operations after the copy service did its job.
     if (listener) {
@@ -861,6 +861,14 @@ var folderPaneContextMenu = {
         { once: true }
       );
     }
+    if (
+      isMove &&
+      targetFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true) &&
+      !(await FolderCommands.confirmFolderDeletion(sourceFolder, true))
+    ) {
+      return;
+    }
+
     // Do the transfer. A slight delay in calling copyFolder() helps the
     // folder-menupopup chain of items get properly closed so the next folder
     // context popup can occur.
@@ -6472,17 +6480,18 @@ commandController.registerCallback("cmd_newVirtualFolder", (folder = gFolder) =>
 );
 commandController.registerCallback(
   "cmd_deleteFolder",
-  (folder = gFolder) => {
+  async (folder = gFolder) => {
     if (folder) {
-      FolderCommands.deleteFolder(folder);
+      await FolderCommands.deleteFolder(folder);
       return;
     }
     // gFolder is not defined and the folder is null, which means a DELETE
     // keyboard shortcut was triggered for a multiselection. Loop through
-    // all currently selected folders and delete them.
-    for (const row of folderTree.selection.values()) {
+    // all currently selected folders and delete them. The selection is
+    // snapshotted because deleting a folder updates it.
+    for (const row of [...folderTree.selection.values()]) {
       folder = MailServices.folderLookup.getFolderForURL(row.uri);
-      FolderCommands.deleteFolder(folder);
+      await FolderCommands.deleteFolder(folder);
     }
   },
   () => folderPaneContextMenu.getCommandState("cmd_deleteFolder")

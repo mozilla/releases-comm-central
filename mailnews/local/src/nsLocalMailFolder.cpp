@@ -789,71 +789,6 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
   return rv;
 }
 
-nsresult nsMsgLocalMailFolder::ConfirmFolderDeletion(nsIMsgWindow* aMsgWindow,
-                                                     nsIMsgFolder* aFolder,
-                                                     bool* aResult) {
-  NS_ENSURE_ARG(aResult);
-  NS_ENSURE_ARG(aMsgWindow);
-  NS_ENSURE_ARG(aFolder);
-  if (Preferences::GetBool("mailnews.confirm.moveFoldersToTrash", true)) {
-    nsCOMPtr<nsIStringBundleService> bundleService =
-        mozilla::components::StringBundle::Service();
-    NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
-    nsCOMPtr<nsIStringBundle> bundle;
-    nsresult rv = bundleService->CreateBundle(
-        "chrome://messenger/locale/localMsgs.properties",
-        getter_AddRefs(bundle));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsAutoCString folderName;
-    rv = aFolder->GetName(folderName);
-    NS_ENSURE_SUCCESS(rv, rv);
-    AutoTArray<nsString, 1> formatStrings = {NS_ConvertUTF8toUTF16(folderName)};
-
-    nsAutoString deleteFolderDialogTitle;
-    rv = bundle->GetStringFromName("pop3DeleteFolderDialogTitle",
-                                   deleteFolderDialogTitle);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsAutoString deleteFolderButtonLabel;
-    rv = bundle->GetStringFromName("pop3DeleteFolderButtonLabel",
-                                   deleteFolderButtonLabel);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsAutoString confirmationStr;
-    rv = bundle->FormatStringFromName("pop3MoveFolderToTrash", formatStrings,
-                                      confirmationStr);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<mozIDOMWindowProxy> domWindow;
-    nsCOMPtr<nsIWindowMediator> winMed =
-        do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
-
-    nsCOMPtr<nsIPromptService> dlgService(
-        do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    int32_t buttonPressed = 0;
-    // Default the dialog to "cancel".
-    const uint32_t buttonFlags =
-        (nsIPrompt::BUTTON_TITLE_IS_STRING * nsIPrompt::BUTTON_POS_0) +
-        (nsIPrompt::BUTTON_TITLE_CANCEL * nsIPrompt::BUTTON_POS_1);
-    bool dummyValue = false;
-    rv = dlgService->ConfirmEx(domWindow, deleteFolderDialogTitle.get(),
-                               confirmationStr.get(), buttonFlags,
-                               deleteFolderButtonLabel.get(), nullptr, nullptr,
-                               nullptr, &dummyValue, &buttonPressed);
-    NS_ENSURE_SUCCESS(rv, rv);
-    *aResult = !buttonPressed;  // "ok" is in position 0
-
-  } else {
-    *aResult = true;
-  }
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsACString& aNewName,
                                            nsIMsgWindow* msgWindow) {
   // Renaming to the same name is easy
@@ -1694,23 +1629,9 @@ nsMsgLocalMailFolder::CopyFolderLocal(nsIMsgFolder* srcFolder,
     // do it just for the parent folder (isMoveFolder is true for parent only)
     // if we are deleting/moving a folder tree don't confirm for rss folders.
     if (isMoveFolder) {
-      // if there's a msgWindow, confirm the deletion
-      if (msgWindow) {
-        bool okToDelete = false;
-        ConfirmFolderDeletion(msgWindow, srcFolder, &okToDelete);
-        if (!okToDelete) return NS_MSG_ERROR_COPY_FOLDER_ABORTED;
-      }
       // if we are moving a favorite folder to trash, we should clear the
       // favorites flag so it gets removed from the view.
       srcFolder->ClearFlag(nsMsgFolderFlags::Favorite);
-    }
-
-    bool match = false;
-    srcFolder->MatchOrChangeFilterDestination(nullptr, false, &match);
-    if (match && msgWindow) {
-      bool confirmed = false;
-      srcFolder->ConfirmFolderDeletionForFilter(msgWindow, &confirmed);
-      if (!confirmed) return NS_MSG_ERROR_COPY_FOLDER_ABORTED;
     }
   }
 
