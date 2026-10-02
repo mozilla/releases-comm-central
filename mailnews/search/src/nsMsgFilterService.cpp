@@ -703,7 +703,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           if (parentFolder) destIFolder->GetCanFileMessages(&canFileMessages);
           if (!parentFolder || !canFileMessages) {
             curFilter->SetEnabled(false);
-            destIFolder->ThrowAlertMsg("filterDisabled", m_msgWindow);
+            AlertFolderError(destIFolder, "filterDisabled"_ns);
             // we need to explicitly save the filter file.
             m_filters->SaveToDefaultFile();
             // In the case of applying multiple filters

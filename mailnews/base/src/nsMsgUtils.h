@@ -133,6 +133,14 @@ nsresult CreateRootFolderAndCache(const nsACString& folderName,
 /// the server root folder.
 nsresult FolderPathInServer(nsIMsgFolder* folder, nsACString& path);
 
+/// Tell the user about a folder-level failure.
+///
+/// `msgName` names a string in messenger.properties, which is formatted with
+/// the folder's identity and the brand name. The result is handed to
+/// nsIMsgMailSession.alertUser() so that the front end can present it as a
+/// notification.
+nsresult AlertFolderError(nsIMsgFolder* folder, const nsACString& msgName);
+
 nsresult NS_GetPersistentFile(const char* relPrefName, const char* absPrefName,
                               const char* dirServiceProp,  // Can be NULL
                               bool& gotRelPref, nsIFile** aFile,

@@ -1005,9 +1005,9 @@ void BatchCompactor::StartNext() {
       // NOTE: NS_MSG_ codes are not actually nsresult, so can't use switch
       // statement here (see Bug 1927029).
       if (status == NS_ERROR_FILE_NO_DEVICE_SPACE) {
-        folder->ThrowAlertMsg("compactFolderInsufficientSpace", mWindow);
+        AlertFolderError(folder, "compactFolderInsufficientSpace"_ns);
       } else if (status == NS_MSG_FOLDER_BUSY) {
-        folder->ThrowAlertMsg("compactFolderDeniedLock", mWindow);
+        AlertFolderError(folder, "compactFolderDeniedLock"_ns);
       } else if (status == NS_MSG_ERROR_MBOX_MALFORMED) {
         // Uhoh... looks like the mbox was bad.
         // It does seem like there are old mboxes in the wild which don't
@@ -1023,13 +1023,13 @@ void BatchCompactor::StartNext() {
         } else {
           // For local folders, there's not much we can do. If compact can't
           // scan the mbox, then local folder repair won't be able to either.
-          folder->ThrowAlertMsg("compactFolderStorageCorruption", mWindow);
+          AlertFolderError(folder, "compactFolderStorageCorruption"_ns);
         }
       } else if (status == NS_MSG_ERROR_BLOCKED_COMPACTION) {
         // Do nothing and trust the offline/pseudo ops are clear next time.
       } else {
         // Show a catch-all error message.
-        folder->ThrowAlertMsg("compactFolderWriteFailed", mWindow);
+        AlertFolderError(folder, "compactFolderWriteFailed"_ns);
       }
     }
   }

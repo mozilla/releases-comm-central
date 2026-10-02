@@ -706,7 +706,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
 
   rv = GetDatabase();
   if (NS_FAILED(rv)) {
-    ThrowAlertMsg("errorGettingDB", aMsgWindow);
+    AlertFolderError(this, "errorGettingDB"_ns);
     return rv;
   }
 
@@ -4063,7 +4063,7 @@ nsresult nsImapMailFolder::MoveIncorporatedMessage(
       if (filter && (!parentFolder || !canFileMessages)) {
         filter->SetEnabled(false);
         m_filterList->SaveToDefaultFile();
-        destIFolder->ThrowAlertMsg("filterDisabled", msgWindow);
+        AlertFolderError(destIFolder, "filterDisabled"_ns);
         return NS_MSG_NOT_A_MAIL_FOLDER;
       }
       // put the header into the source db, since it needs to be there when we
@@ -4374,7 +4374,7 @@ NS_IMETHODIMP nsImapMailFolder::DownloadMessagesForOffline(
       AcquireSemaphore(static_cast<nsIMsgFolder*>(this),
                        "nsImapMailFolder::DownloadMessagesForOffline"_ns);
   if (NS_FAILED(rv)) {
-    ThrowAlertMsg("operationFailedFolderBusy", window);
+    AlertFolderError(this, "operationFailedFolderBusy"_ns);
     return rv;
   }
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
@@ -4397,7 +4397,7 @@ NS_IMETHODIMP nsImapMailFolder::DownloadAllForOffline(nsIUrlListener* listener,
                           "nsImapMailFolder::DownloadAllForOffline"_ns);
     if (NS_FAILED(rv)) {
       m_downloadingFolderForOfflineUse = false;
-      ThrowAlertMsg("operationFailedFolderBusy", msgWindow);
+      AlertFolderError(this, "operationFailedFolderBusy"_ns);
       return rv;
     }
     nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();

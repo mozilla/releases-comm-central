@@ -1222,8 +1222,7 @@ void nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
             case nsIMsgIncomingServer::deleteDups: {
               if (NS_FAILED(HardDeleteDetachedMessage(m_downloadFolder,
                                                       m_mailDB, m_newMsgHdr))) {
-                m_rootFolder->ThrowAlertMsg("dupDeleteFolderTruncateFailed",
-                                            msgWindow);
+                NS_WARNING("Failed to delete duplicate message");
               }
             } break;
 
@@ -1875,7 +1874,7 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
       filter->SetEnabled(false);
       // we need to explicitly save the filter file.
       if (m_filterList) m_filterList->SaveToDefaultFile();
-      destIFolder->ThrowAlertMsg("filterDisabled", msgWindow);
+      AlertFolderError(destIFolder, "filterDisabled"_ns);
     }
     return NS_MSG_NOT_A_MAIL_FOLDER;
   }
@@ -1901,7 +1900,7 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
   if (NS_FAILED(rv = destIFolder->AcquireSemaphore(
                     myISupports,
                     "nsParseNewMailState::MoveIncorporatedMessage"_ns))) {
-    destIFolder->ThrowAlertMsg("filterFolderDeniedLocked", msgWindow);
+    AlertFolderError(destIFolder, "filterFolderDeniedLocked"_ns);
     return rv;
   }
 
@@ -1938,11 +1937,11 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
   }
 
   if (NS_FAILED(rv)) {
-    destIFolder->ThrowAlertMsg("filterFolderHdrAddFailed", msgWindow);
+    AlertFolderError(destIFolder, "filterFolderHdrAddFailed"_ns);
   } else {
     rv = WriteMsgFromStream(inputStream, newHdr, destIFolder);
     if (NS_FAILED(rv)) {
-      destIFolder->ThrowAlertMsg("filterFolderWriteFailed", msgWindow);
+      AlertFolderError(destIFolder, "filterFolderWriteFailed"_ns);
     }
   }
 
@@ -1979,7 +1978,7 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
   }
 
   if (NS_FAILED(rv)) {
-    destIFolder->ThrowAlertMsg("filterFolderHdrAddFailed", msgWindow);
+    AlertFolderError(destIFolder, "filterFolderHdrAddFailed"_ns);
     // Remove the orphaned message from the destination folder.
     nsCOMPtr<nsIMsgPluggableStore> destStore;
     if (NS_SUCCEEDED(destIFolder->GetMsgStore(getter_AddRefs(destStore)))) {
