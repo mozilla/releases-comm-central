@@ -1,0 +1,77 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+loader: taskgraph.loader.transform:loader
+
+transforms:
+    - gecko_taskgraph.transforms.release_deps:transforms
+    - comm_taskgraph.transforms.release_smoke_test_notify:transforms
+    - gecko_taskgraph.transforms.release_notifications:transforms
+    - comm_taskgraph.transforms.release_smoke_test_notify:strip_transforms
+    - gecko_taskgraph.transforms.task:transforms
+
+kind-dependencies:
+    - post-balrog-dummy
+    - post-beetmover-dummy
+    - release-early-tagging
+
+task-defaults:
+    run-on-repo-type: [hg]
+    name: notify-smoke-test
+    description: Sends email to testers telling them a candidate build is available for smoke testing.
+    run-on-projects: []
+    shipping-phase: promote
+    worker-type: succeed
+    notifications:
+        subject: "{task[shipping-product]!t} {release_config[version]} build{release_config[build_number]} available for smoke testing"
+        message: |
+            Hi Folks,
+
+            Thunderbird {release_config[version]} build{release_config[build_number]} is now available for smoke testing.
+
+            Please see the pushlogs and release notes for further details.
+
+            Detailed test instructions provided below.
+
+            ## How to report your results
+
+            This is a group activity. So everyone can be informed of issues and progress, please email everyone your single line summary. Example:
+
+            "SUCCESS, windows 11, Thunderbird en-GB, tested calendar, tested PGP"
+
+            - Report "FAIL" if severe issues, with the bug#(s) you filed: major breakage, crashes and hangs, etc.
+            - Report "SUCCESS" if no major issue found.
+            - Please state OS, language used and whether calendar or PGP is tested.
+            - On additional lines a) state specific issues that would force you to stop using this build, because we try to not ship with big bugs (but we do ship with non-severe bugs) b) list bug reports you filed against this build, from each bug.
+
+            ## About this build
+
+            **Changes since prior release:**
+            - Pushlogs: [link]({task[smoke-test][pushlog-url]})
+            - Draft release notes (scroll to "New, Changed, and Fixed"): [link]({task[smoke-test][release-notes-url]})
+
+            **More:**
+            - Click [here](https://bugzilla.mozilla.org/enter_bug.cgi?product=Thunderbird) to report a bug. Add details, steps to reproduce and screen shot. Please remove regression keywords if not a regression, then clicking Submit.
+            - Test the update process using the "-localtest" channel (see detailed test instructions) or install from (use NON-en-US if possible) [FTP {release_config[version]}-build{release_config[build_number]}](https://ftp.mozilla.org/pub/thunderbird/candidates/{release_config[version]}-candidates/build{release_config[build_number]}/)
+            - Pick a bug from release notes/bug list, test that it works and has no regressions, comment in the bug report or include results in your reply to this email. If you do not have editbugs privileges to be able to comment in a closed bug, ask for privileges.
+
+            ## Detailed test instructions
+
+            Please find the detailed test instructions [here](https://thunderbird.github.io/thunderbird-release-docs/processes/releases/testing/smoke_test.html).
+
+            Thanks for testing!
+
+            Thunderbird Release Engineering
+
+            ---
+
+        emails:
+            by-project:
+                comm-(beta|release|esr.*): ["release-testing@thunderbird.net"]
+                try-comm-central: ["{config[params][owner]}"]
+                default: []
+
+tasks:
+    thunderbird:
+        shipping-product: thunderbird
