@@ -193,8 +193,8 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult GetPromptPurgeThreshold(bool* aPrompt);
   nsresult GetPurgeThreshold(int32_t* aThreshold);
   nsresult ApplyRetentionSettings(bool deleteViaFolder);
-  MOZ_CAN_RUN_SCRIPT_BOUNDARY nsresult AddMarkAllReadUndoAction(
-      nsIMsgWindow* msgWindow, nsMsgKey* thoseMarked, uint32_t numMarked);
+  MOZ_CAN_RUN_SCRIPT_BOUNDARY nsresult
+  AddMarkAllReadUndoAction(nsMsgKey* thoseMarked, uint32_t numMarked);
 
   nsresult PerformBiffNotifications(
       void);  // if there are new, non spam messages, do biff

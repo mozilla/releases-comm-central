@@ -1267,11 +1267,8 @@ nsMsgDBFolder::AddMessageDispositionState(
   return NS_OK;
 }
 
-nsresult nsMsgDBFolder::AddMarkAllReadUndoAction(nsIMsgWindow* msgWindow,
-                                                 nsMsgKey* thoseMarked,
+nsresult nsMsgDBFolder::AddMarkAllReadUndoAction(nsMsgKey* thoseMarked,
                                                  uint32_t numMarked) {
-  NS_ENSURE_ARG_POINTER(msgWindow);
-
   nsCOMPtr<nsITransactionManager> txnMgr;
   nsCOMPtr<nsIMsgTransactionService> txns =
       mozilla::components::Txns::Service();
@@ -1306,8 +1303,8 @@ nsMsgDBFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Setup a undo-state
-    if (aMsgWindow && thoseMarked.Length() > 0)
-      rv = AddMarkAllReadUndoAction(aMsgWindow, thoseMarked.Elements(),
+    if (thoseMarked.Length() > 0)
+      rv = AddMarkAllReadUndoAction(thoseMarked.Elements(),
                                     thoseMarked.Length());
   }
 

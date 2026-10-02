@@ -527,11 +527,9 @@ NS_IMETHODIMP ExchangeFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
             rv = self->mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
             NS_ENSURE_SUCCESS(rv, rv);
 
-            if (window) {
-              rv = self->AddMarkAllReadUndoAction(
-                  window, thoseMarked.Elements(), thoseMarked.Length());
-              NS_ENSURE_SUCCESS(rv, rv);
-            }
+            rv = self->AddMarkAllReadUndoAction(thoseMarked.Elements(),
+                                                thoseMarked.Length());
+            NS_ENSURE_SUCCESS(rv, rv);
           }
         } else {
           // server doesn't support marking folders, find unread messages and do

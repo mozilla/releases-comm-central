@@ -1180,7 +1180,7 @@ nsMsgLocalMailFolder::DeleteMessages(
     }
   }
 
-  if (msgWindow && !isMove && (deleteStorage || isTrashFolder)) {
+  if (!isMove && (deleteStorage || isTrashFolder)) {
     // Clear undo and redo stack.
     nsCOMPtr<nsITransactionManager> txnMgr;
     nsCOMPtr<nsIMsgTransactionService> txns =
@@ -1276,9 +1276,7 @@ nsMsgLocalMailFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
   mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
 
   // Setup a undo-state
-  if (aMsgWindow)
-    rv = AddMarkAllReadUndoAction(aMsgWindow, thoseMarked.Elements(),
-                                  thoseMarked.Length());
+  rv = AddMarkAllReadUndoAction(thoseMarked.Elements(), thoseMarked.Length());
 
   return rv;
 }
@@ -1459,7 +1457,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
                               getter_AddRefs(undoTxn), &storeDidCopy);
   if (storeDidCopy) {
     NS_ASSERTION(undoTxn, "if store does copy, it needs to add undo action");
-    if (msgWindow && undoTxn) {
+    if (allowUndo && undoTxn) {
       nsCOMPtr<nsITransactionManager> txnMgr;
       nsCOMPtr<nsIMsgTransactionService> txns =
           mozilla::components::Txns::Service();
@@ -2453,7 +2451,7 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
       // If this is done on move of selected messages between "mailbox" folders,
       // the source messages are never deleted. So do this only on msg copy.
       if (!mCopyState->m_isMove) {
-        if (mCopyState->m_msgWindow && mCopyState->m_undoMsgTxn) {
+        if (mCopyState->m_undoMsgTxn) {
           nsCOMPtr<nsITransactionManager> txnMgr;
           nsCOMPtr<nsIMsgTransactionService> txns =
               mozilla::components::Txns::Service();
@@ -2545,8 +2543,7 @@ nsMsgLocalMailFolder::EndMove(bool moveSucceeded) {
     srcFolder->NotifyFolderEvent(NS_SUCCEEDED(rv) ? kDeleteOrMoveMsgCompleted
                                                   : kDeleteOrMoveMsgFailed);
 
-    if (NS_SUCCEEDED(rv) && mCopyState->m_msgWindow &&
-        mCopyState->m_undoMsgTxn) {
+    if (NS_SUCCEEDED(rv) && mCopyState->m_undoMsgTxn) {
       nsCOMPtr<nsITransactionManager> txnMgr;
       nsCOMPtr<nsIMsgTransactionService> txns =
           mozilla::components::Txns::Service();
