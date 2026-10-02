@@ -134,8 +134,6 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult ThrowConfirmationPrompt(nsIMsgWindow* msgWindow,
                                    const nsAString& confirmString,
                                    bool* confirmed);
-  nsresult GetWarnFilterChanged(bool* aVal);
-  nsresult SetWarnFilterChanged(bool aVal);
   nsresult CreateCollationKey(const nsCString& aSource, uint8_t** aKey,
                               uint32_t* aLength);
 

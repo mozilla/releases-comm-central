@@ -888,7 +888,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsACString& aNewName,
     bool changed = false;
     MatchOrChangeFilterDestination(newFolder, true /*case-insensitive*/,
                                    &changed);
-    if (changed) AlertFilterChanged(msgWindow);
+    if (changed) AlertFilterChanged(this);
 
     if (count > 0) {
       // The store creates the new folder with our parent's AddSubfolder(),
@@ -942,7 +942,7 @@ nsresult nsMsgLocalMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
       bool changed = false;
       msgFolder->MatchOrChangeFilterDestination(
           newFolder, true /*case-insensitive*/, &changed);
-      if (changed) msgFolder->AlertFilterChanged(msgWindow);
+      if (changed) AlertFilterChanged(msgFolder);
       static_cast<nsMsgLocalMailFolder*>(newFolder.get())
           ->RenameSubFolders(msgWindow, msgFolder);
     }

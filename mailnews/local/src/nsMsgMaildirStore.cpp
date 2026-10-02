@@ -674,7 +674,7 @@ NS_IMETHODIMP nsMsgMaildirStore::CopyFolder(
   newMsgFolder->SetFlags(flags);
   bool changed = false;
   rv = aSrcFolder->MatchOrChangeFilterDestination(newMsgFolder, true, &changed);
-  if (changed) aSrcFolder->AlertFilterChanged(aMsgWindow);
+  if (changed) AlertFilterChanged(aSrcFolder);
 
   nsTArray<RefPtr<nsIMsgFolder>> subFolders;
   rv = aSrcFolder->GetSubFolders(subFolders);

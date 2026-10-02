@@ -141,6 +141,10 @@ nsresult FolderPathInServer(nsIMsgFolder* folder, nsACString& path);
 /// notification.
 nsresult AlertFolderError(nsIMsgFolder* folder, const nsACString& msgName);
 
+/// Tell the user that filters pointing at this folder have been updated to
+/// follow it.
+nsresult AlertFilterChanged(nsIMsgFolder* folder);
+
 nsresult NS_GetPersistentFile(const char* relPrefName, const char* absPrefName,
                               const char* dirServiceProp,  // Can be NULL
                               bool& gotRelPref, nsIFile** aFile,

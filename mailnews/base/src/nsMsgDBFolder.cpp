@@ -94,7 +94,6 @@ static bool gAutoCompactInProgress;
 #define PREF_MAIL_PROMPT_PURGE_THRESHOLD "mail.prompt_purge_threshold"
 #define PREF_MAIL_PURGE_THRESHOLD_MB "mail.purge_threshold_mb"
 #define PREF_MAIL_PURGE_ASK "mail.purge.ask"
-#define PREF_MAIL_WARN_FILTER_CHANGED "mail.warn_filter_changed"
 
 const char* kUseServerRetentionProp = "useServerRetention";
 
@@ -3819,7 +3818,7 @@ NS_IMETHODIMP nsMsgDBFolder::Rename(const nsACString& aNewName,
       bool changed = false;
       MatchOrChangeFilterDestination(newFolder, true /*case-insensitive*/,
                                      &changed);
-      if (changed) AlertFilterChanged(msgWindow);
+      if (changed) AlertFilterChanged(this);
 
       if (count > 0) {
         // Our parent's AddSubfolder() creates a folder of our own type.
@@ -5139,46 +5138,6 @@ NS_IMETHODIMP nsMsgDBFolder::ConfirmFolderDeletionForFilter(
       "confirmFolderDeletionForFilter", confirmString);
   NS_ENSURE_SUCCESS(rv, rv);
   return ThrowConfirmationPrompt(msgWindow, confirmString, confirmed);
-}
-
-NS_IMETHODIMP nsMsgDBFolder::AlertFilterChanged(nsIMsgWindow* msgWindow) {
-  NS_ENSURE_ARG(msgWindow);
-  nsresult rv = NS_OK;
-  bool checkBox = false;
-  GetWarnFilterChanged(&checkBox);
-  if (checkBox) {
-    return NS_OK;
-  }
-
-  nsString alertString;
-  rv = GetStringFromBundle("alertFilterChanged", alertString);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsString alertCheckbox;
-  rv = GetStringFromBundle("alertFilterCheckbox", alertCheckbox);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<mozIDOMWindowProxy> domWindow;
-  nsCOMPtr<nsIWindowMediator> winMed =
-      do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  winMed->GetMostRecentWindow(nullptr, getter_AddRefs(domWindow));
-
-  nsCOMPtr<nsIPromptService> dlgService(
-      do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  dlgService->AlertCheck(domWindow, nullptr, alertString.get(),
-                         alertCheckbox.get(), &checkBox);
-  SetWarnFilterChanged(checkBox);
-  return rv;
-}
-
-nsresult nsMsgDBFolder::GetWarnFilterChanged(bool* aVal) {
-  NS_ENSURE_ARG(aVal);
-  return Preferences::GetBool(PREF_MAIL_WARN_FILTER_CHANGED, aVal);
-}
-
-nsresult nsMsgDBFolder::SetWarnFilterChanged(bool aVal) {
-  return Preferences::SetBool(PREF_MAIL_WARN_FILTER_CHANGED, aVal);
 }
 
 NS_IMETHODIMP nsMsgDBFolder::NotifyAboutToCompact() {
