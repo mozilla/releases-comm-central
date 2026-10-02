@@ -171,8 +171,10 @@ class MailAuthenticator {
 
   /**
    * Init a nsIMailAuthModule instance for NTLM auth.
+   *
+   * @param {string} password - The server password.
    */
-  initNtlmAuth() {
+  initNtlmAuth(password) {
     this._authModule = Cc["@mozilla.org/mail/auth-module;1"].createInstance(
       Ci.nsIMailAuthModule
     );
@@ -182,7 +184,7 @@ class MailAuthenticator {
       0, // nsIAuthModule::REQ_DEFAULT
       null, // domain
       this.username,
-      this.getPassword()
+      password
     );
   }
 

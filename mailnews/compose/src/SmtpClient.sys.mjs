@@ -832,7 +832,13 @@ export class SmtpClient {
       case "GSSAPI": {
         this.logger.debug("Authentication via AUTH GSSAPI");
         this._currentAction = command => this._actionAUTH_GSSAPI(command, true);
-        this._authenticator.initGssapiAuth("smtp");
+        try {
+          this._authenticator.initGssapiAuth("smtp");
+        } catch (e) {
+          this.logger.error("Init GSSAPI FAILED!", e);
+          this._actionAUTHComplete({ success: false, data: "AUTH GSSAPI" });
+          return;
+        }
         // Don't send first token until we get a 334 challenge response.
         // This avoids sending a line that is possibly rejected as too long.
         this._sendCommand("AUTH GSSAPI", true);
@@ -840,10 +846,14 @@ export class SmtpClient {
       }
       case "NTLM": {
         this.logger.debug("Authentication via AUTH NTLM");
+        const password = this._getPassword();
+        if (password == null) {
+          return;
+        }
         this._currentAction = this._actionAUTH_NTLM;
-        this._authenticator.initNtlmAuth("smtp");
         let token;
         try {
+          this._authenticator.initNtlmAuth(password);
           token = this._authenticator.getNextNtlmToken("");
         } catch (e) {
           this.logger.error("Getting NTLM token FAILED!", e);

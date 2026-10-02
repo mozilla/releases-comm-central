@@ -816,8 +816,8 @@ export class Pop3Client {
         break;
       }
       case "GSSAPI": {
-        this._authenticator.initGssapiAuth("pop");
         try {
+          this._authenticator.initGssapiAuth("pop");
           const token = this._authenticator.getNextGssapiToken("");
           this._nextAction = res => this._actionAuthGssapi(res, token);
         } catch (e) {
@@ -829,8 +829,10 @@ export class Pop3Client {
         break;
       }
       case "NTLM": {
-        this._authenticator.initNtlmAuth("pop");
         try {
+          this._authenticator.initNtlmAuth(
+            await this._authenticator.getPassword()
+          );
           const token = this._authenticator.getNextNtlmToken("");
           this._nextAction = res => this._actionAuthNtlm(res, token);
         } catch (e) {

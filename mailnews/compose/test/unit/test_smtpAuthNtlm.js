@@ -4,11 +4,15 @@
 
 /**
  * Tests that AUTH NTLM for SMTP fails the login, rather than stalling, when the
- * server sends a challenge the NTLM auth module rejects.
+ * server sends a challenge the NTLM auth module rejects, when the auth module
+ * can't be initialized, or when the user cancels the password prompt.
  */
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
+);
+var { MockRegistrar } = ChromeUtils.importESModule(
+  "resource://testing-common/MockRegistrar.sys.mjs"
 );
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
@@ -20,12 +24,13 @@ load("../../../resources/alertTestUtils.js");
 // The challenge the server sends in response to AUTH NTLM.
 var gChallenge;
 var gAuthFailedPrompts = 0;
+var gPasswordPrompts = 0;
 
 var gServer;
 var gSmtpServer;
 var gIdentity;
 
-/* exported alert, confirmEx */
+/* exported alert, confirmExPS, promptPasswordPS */
 // for alertTestUtils.js
 function alert() {}
 
@@ -33,6 +38,12 @@ function confirmExPS() {
   gAuthFailedPrompts++;
   // Cancel.
   return 1;
+}
+
+function promptPasswordPS() {
+  gPasswordPrompts++;
+  // Cancel.
+  return false;
 }
 
 add_setup(function () {
@@ -63,12 +74,12 @@ add_setup(function () {
 });
 
 /**
- * Sends a message and checks that the login failed.
+ * Sends a message, which should fail.
  *
- * @param {string} challenge - The challenge the server should send.
+ * @param {string} description - What the test is about.
+ * @returns {string[]} The commands the server received.
  */
-async function checkLoginFails(challenge) {
-  gChallenge = challenge;
+async function sendMessageAndFail(description) {
   gAuthFailedPrompts = 0;
   gServer.resetTest();
 
@@ -91,15 +102,30 @@ async function checkLoginFails(challenge) {
   await Assert.rejects(
     listener.promise,
     /./,
-    `sending should fail for challenge ${challenge}`
+    `sending should fail ${description}`
   );
+
+  gSmtpServer.closeCachedConnections();
+  let transaction = gServer.playTransaction();
+  if (Array.isArray(transaction)) {
+    transaction = transaction.at(-1);
+  }
+  return transaction.them;
+}
+
+/**
+ * Sends a message and checks that the login failed.
+ *
+ * @param {string} challenge - The challenge the server should send.
+ */
+async function checkLoginFails(challenge) {
+  gChallenge = challenge;
+  await sendMessageAndFail(`for challenge ${challenge}`);
   Assert.equal(
     gAuthFailedPrompts,
     1,
     `the user should be asked once what to do for challenge ${challenge}`
   );
-
-  gSmtpServer.closeCachedConnections();
 }
 
 add_task(async function testPaddingOnlyChallenge() {
@@ -108,4 +134,51 @@ add_task(async function testPaddingOnlyChallenge() {
 
 add_task(async function testInvalidChallenge() {
   await checkLoginFails("!!!!");
+});
+
+add_task(async function testInitFailure() {
+  const mockCid = MockRegistrar.register("@mozilla.org/mail/auth-module;1", {
+    QueryInterface: ChromeUtils.generateQI(["nsIMailAuthModule"]),
+    init() {
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
+    },
+  });
+
+  try {
+    const them = await sendMessageAndFail("when the auth module fails");
+    Assert.equal(
+      gAuthFailedPrompts,
+      1,
+      "the user should be asked once what to do when the auth module fails"
+    );
+    Assert.ok(
+      !them.some(command => command.startsWith("AUTH NTLM")),
+      "AUTH NTLM should not be sent when the auth module fails"
+    );
+  } finally {
+    MockRegistrar.unregister(mockCid);
+  }
+});
+
+add_task(async function testPasswordPromptCancelled() {
+  gSmtpServer.password = "";
+  gPasswordPrompts = 0;
+
+  try {
+    const them = await sendMessageAndFail(
+      "when the password prompt is cancelled"
+    );
+    Assert.equal(gPasswordPrompts, 1, "the password should be asked for");
+    Assert.equal(
+      gAuthFailedPrompts,
+      0,
+      "the user should not be asked what to do after cancelling"
+    );
+    Assert.ok(
+      !them.some(command => command.startsWith("AUTH NTLM")),
+      "AUTH NTLM should not be sent after cancelling"
+    );
+  } finally {
+    gSmtpServer.password = "smtptest";
+  }
 });
