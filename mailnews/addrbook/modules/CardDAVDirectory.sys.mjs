@@ -199,6 +199,12 @@ export class CardDAVDirectory extends SQLiteDirectory {
    */
   async _makeRequest(path, details = {}) {
     const serverURI = Services.io.newURI(this._serverURL);
+    if (!this._isOnServer(path)) {
+      throw Components.Exception(
+        `Refusing to send a request for ${path} to a different server than ${serverURI.prePath}`,
+        Cr.NS_ERROR_ABORT
+      );
+    }
     const uri = serverURI.resolve(path);
     const username = this.getStringValue("carddav.username", "");
 
@@ -273,6 +279,39 @@ export class CardDAVDirectory extends SQLiteDirectory {
   }
 
   /**
+   * Checks that a path or URL, resolved against this directory's server URL,
+   * has the same origin as the server URL. Anything else must not be
+   * requested, as the server's credentials would go with the request.
+   *
+   * @param {string} href
+   * @returns {boolean}
+   */
+  _isOnServer(href) {
+    const serverURL = new URL(this._serverURL);
+    return URL.parse(href, serverURL)?.origin == serverURL.origin;
+  }
+
+  /**
+   * Makes sure an href from the server refers to this directory's server.
+   * Some servers (e.g. behind a proxy) give URLs with a different origin, of
+   * which only the path is used.
+   *
+   * @param {string} href
+   * @returns {?string} The href, or null if it is not a valid URL.
+   */
+  _toServerHref(href) {
+    const serverURL = new URL(this._serverURL);
+    const url = URL.parse(href, serverURL);
+    if (!url) {
+      return null;
+    }
+    if (url.origin == serverURL.origin) {
+      return href;
+    }
+    return url.pathname + url.search;
+  }
+
+  /**
    * Gets or creates the path for storing this card on the server. Cards that
    * already exist on the server have this value in the _href property.
    *
@@ -280,7 +319,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
    * @returns {string}
    */
   _getCardHref(card) {
-    let href = card.getProperty("_href", "");
+    let href = this._toServerHref(card.getProperty("_href", ""));
     if (href) {
       return href;
     }
@@ -376,10 +415,24 @@ export class CardDAVDirectory extends SQLiteDirectory {
       );
     }
 
+    let warned = false;
     for (const r of dom.querySelectorAll("response")) {
       const response = {
         href: r.querySelector("href")?.textContent,
       };
+      if (response.href) {
+        const href = this._toServerHref(response.href);
+        if (!href) {
+          continue;
+        }
+        if (href != response.href && !warned) {
+          log.warn(
+            `${response.href} is not on this server, using only the paths of such hrefs.`
+          );
+          warned = true;
+        }
+        response.href = href;
+      }
 
       const responseStatus = r.querySelector("response > status");
       if (responseStatus?.textContent.startsWith("HTTP/1.1 404")) {
@@ -509,6 +562,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
     } else {
       href = cardOrHRef.getProperty("_href", "");
     }
+    href = this._toServerHref(href);
     if (!href) {
       return;
     }
@@ -555,8 +609,9 @@ export class CardDAVDirectory extends SQLiteDirectory {
   _getCardsByHref() {
     const cardsByHref = new Map();
     for (const [uid, properties] of this.cards) {
-      if (properties.has("_href")) {
-        cardsByHref.set(properties.get("_href"), {
+      const href = this._toServerHref(properties.get("_href") ?? "");
+      if (href) {
+        cardsByHref.set(href, {
           uid,
           etag: properties.get("_etag"),
         });
@@ -760,7 +815,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
     const hrefsToFetch = [];
     const cardsToDelete = [];
     for (const card of this.childCards) {
-      const href = card.getProperty("_href", "");
+      const href = this._toServerHref(card.getProperty("_href", ""));
       const etag = card.getProperty("_etag", "");
 
       if (!href || !etag) {
