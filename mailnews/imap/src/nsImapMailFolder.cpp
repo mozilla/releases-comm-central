@@ -649,11 +649,6 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
                 ("(Imap) Loading of filter list failed"));
       }
     }
-
-    // if there's no msg window, but someone is updating the inbox, we're
-    // doing something biff-like, and may download headers, so make biff notify.
-    if (!aMsgWindow && mFlags & nsMsgFolderFlags::Inbox)
-      SetPerformingBiff(true);
   }
 
   if (m_filterList) {
@@ -1512,19 +1507,10 @@ NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener* aListener,
 
 NS_IMETHODIMP nsImapMailFolder::UpdateStatus(nsIUrlListener* aListener,
                                              nsIMsgWindow* aMsgWindow) {
-  nsresult rv;
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
 
   nsCOMPtr<nsIURI> uri;
-  rv = imapService->UpdateFolderStatus(this, aListener, getter_AddRefs(uri));
-  if (uri && !aMsgWindow) {
-    nsCOMPtr<nsIMsgMailNewsUrl> mailNewsUrl = do_QueryInterface(uri, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    // if no msg window, we won't put up error messages (this is almost
-    // certainly a biff-inspired status)
-    mailNewsUrl->SetSuppressErrorMsgs(true);
-  }
-  return rv;
+  return imapService->UpdateFolderStatus(this, aListener, getter_AddRefs(uri));
 }
 
 NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIUrlListener* aListener) {

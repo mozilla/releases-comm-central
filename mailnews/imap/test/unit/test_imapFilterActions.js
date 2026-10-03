@@ -456,6 +456,9 @@ async function setupTest(aFilter, ...aActions) {
     new ImapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
   );
   const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  // Simulate new mail arriving: the real biff, IDLE and STATUS paths all set
+  // this before updating, and it is what drives the new-message accounting.
+  IMAPPump.inbox.performingBiff = true;
   IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
   await promiseUrlListener.promise;
   await PromiseTestUtils.promiseDelay(200);

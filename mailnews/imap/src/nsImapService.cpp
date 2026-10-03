@@ -180,9 +180,6 @@ NS_IMETHODIMP nsImapService::SelectFolder(nsIMsgFolder* aImapMailFolder,
     rv = imapUrl->SetImapAction(nsIImapUrl::nsImapSelectFolder);
 
     nsCOMPtr<nsIMsgMailNewsUrl> mailNewsUrl = do_QueryInterface(imapUrl);
-    // if no msg window, we won't put up error messages (this is almost
-    // certainly a biff-inspired get new msgs)
-    if (!aMsgWindow) mailNewsUrl->SetSuppressErrorMsgs(true);
     mailNewsUrl->SetMsgWindow(aMsgWindow);
     mailNewsUrl->SetUpdatingFolder(true);
     rv = SetImapUrlSink(aImapMailFolder, imapUrl);
@@ -612,8 +609,6 @@ NS_IMETHODIMP nsImapService::Search(nsIMsgSearchSession* aSearchSession,
     GetFolderName(aMsgFolder, folderName);
 
     nsCOMPtr<nsIMsgMailNewsUrl> mailNewsUrl = do_QueryInterface(imapUrl);
-    if (!aMsgWindow) mailNewsUrl->SetSuppressErrorMsgs(true);
-
     urlSpec.AppendLiteral("/search>UID>");
     urlSpec.Append(hierarchyDelimiter);
     urlSpec.Append(folderName);
