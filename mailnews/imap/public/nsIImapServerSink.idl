@@ -80,12 +80,10 @@ interface nsIImapServerSink : nsISupports {
    * Alerts the user that the login to the IMAP server failed. Asks whether the
    * connection should: retry, cancel, or request a new password.
    *
-   * @param aMsgWindow The message window associated with this action (cannot
-   *                   be null).
-   * @return           The button pressed. 0 for retry, 1 for cancel,
-   *                   2 for enter a new password.
+   * @return The button pressed. 0 for retry, 1 for cancel, 2 for enter a new
+   *         password.
    */
-  int32_t promptLoginFailed(in nsIMsgWindow aMsgWindow);
+  int32_t promptLoginFailed();
 
   /**
    * Alerts the user with the given string (FE = 'Front End').

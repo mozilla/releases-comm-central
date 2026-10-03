@@ -8723,7 +8723,7 @@ bool nsImapProtocol::TryToLogon() {
         // if there's no msg window, don't forget the password
         if (!msgWindow) break;
         int32_t buttonPressed = 1;
-        rv = m_imapServerSink->PromptLoginFailed(msgWindow, &buttonPressed);
+        rv = m_imapServerSink->PromptLoginFailed(&buttonPressed);
         if (NS_FAILED(rv)) break;
         if (buttonPressed == 2)  // 'New password' button
         {

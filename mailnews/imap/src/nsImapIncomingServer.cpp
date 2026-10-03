@@ -1722,8 +1722,7 @@ bool nsImapIncomingServer::AllDescendantsAreNoSelect(
 
 /** Prompt upon failed login. */
 NS_IMETHODIMP
-nsImapIncomingServer::PromptLoginFailed(nsIMsgWindow* aMsgWindow,
-                                        int32_t* aResult) {
+nsImapIncomingServer::PromptLoginFailed(int32_t* aResult) {
   nsAutoCString hostname;
   GetHostname(hostname);
 

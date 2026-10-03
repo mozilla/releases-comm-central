@@ -436,8 +436,7 @@ NS_SYNCRUNNABLEMETHOD2(ImapServerSink, RetryUrl, nsIImapUrl*,
 NS_SYNCRUNNABLEMETHOD0(ImapServerSink, AbortQueuedUrls)
 NS_SYNCRUNNABLEMETHOD2(ImapServerSink, GetImapStringByName, const nsACString&,
                        nsAString&)
-NS_SYNCRUNNABLEMETHOD2(ImapServerSink, PromptLoginFailed, nsIMsgWindow*,
-                       int32_t*)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, PromptLoginFailed, int32_t*)
 NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FEAlert, const nsAString&,
                        nsIMsgMailNewsUrl*)
 NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FEAlertWithName, const char*,
