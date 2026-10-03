@@ -72,11 +72,13 @@ export class CalDavSession {
       const oAuth = new lazy.OAuth2Module();
       if (oAuth.initFromHostname(aChannel.URI.host, this.username, "caldav")) {
         this._oAuth = oAuth;
+        this._oAuthOrigin = aChannel.URI.prePath;
       } else {
         this._oAuth = null; // Prevents this block from running again.
       }
     }
-    if (this._oAuth) {
+    // The token is only for the server it was obtained for.
+    if (this._oAuth && aChannel.URI.prePath == this._oAuthOrigin) {
       const deferred = Promise.withResolvers();
       this._oAuth.getAccessToken({
         onSuccess: deferred.resolve,
@@ -105,6 +107,14 @@ export class CalDavDetectionSession extends CalDavSession {
   isDetectionSession = true;
 
   /**
+   * The sites (as returned by nsIEffectiveTLDService.getSite) the password
+   * may be used for.
+   *
+   * @type {Set<string>}
+   */
+  passwordSites = new Set();
+
+  /**
    * Create a new caldav detection session.
    *
    * @param {string} aUserName - The username for the session.
@@ -124,6 +134,21 @@ export class CalDavDetectionSession extends CalDavSession {
    */
   toBaseSession() {
     return new CalDavSession(this.username);
+  }
+
+  /**
+   * Checks if the password may be sent to a server. A site given as http also
+   * allows https on the same site, but not the other way around.
+   *
+   * @param {nsIURI} aUri - The URI of the server.
+   * @returns {boolean}
+   */
+  isPasswordSite(aUri) {
+    const site = Services.eTLD.getSite(aUri);
+    return (
+      this.passwordSites.has(site) ||
+      (aUri.schemeIs("https") && this.passwordSites.has(site.replace(/^https:/, "http:")))
+    );
   }
 
   /**
@@ -154,7 +179,7 @@ export class CalDavDetectionSession extends CalDavSession {
    * @see {nsIAuthPrompt2}
    */
   promptAuth(aChannel, aLevel, aAuthInfo) {
-    if (!this.password) {
+    if (!this.password || !this.isPasswordSite(aChannel.URI)) {
       return false;
     }
 

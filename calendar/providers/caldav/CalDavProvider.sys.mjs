@@ -66,6 +66,7 @@ export var CalDavProvider = {
     }
 
     const detector = new CalDavDetector(username, password, savePassword);
+    detector.session.passwordSites.add(Services.eTLD.getSite(uri));
 
     for (const method of [
       "attemptGoogleOauth",
@@ -179,6 +180,11 @@ class CalDavDetector {
       return null;
     }
     dnsres.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
+
+    // The DNS records of the entered domain decide where its password may go.
+    this.session.passwordSites.add(
+      Services.eTLD.getSite(Services.io.newURI(`http${secure}://${dnsres[0].host}`))
+    );
 
     // Determine path from TXT, if available.
     const txtRecords = await DNS.txt(host);
