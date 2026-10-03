@@ -5,13 +5,20 @@
 // Tests which credentials a directory uses when a password is saved for the
 // server and an OAuth2 refresh token could be used as well. Some providers
 // accept both mechanisms, and the saved password must win. Also tests that an
-// OAuth2 token is not sent to other servers during address book discovery.
+// OAuth2 token, or a password given by the user, is not sent to other servers
+// during address book discovery.
 
 const { CardDAVUtils } = ChromeUtils.importESModule(
   "resource:///modules/CardDAVUtils.sys.mjs"
 );
 const { HttpServer } = ChromeUtils.importESModule(
   "resource://testing-common/httpd.sys.mjs"
+);
+const { NotificationCallbacks } = ChromeUtils.importESModule(
+  "resource:///modules/CardDAVUtils.sys.mjs"
+);
+const { MsgAuthPrompt } = ChromeUtils.importESModule(
+  "resource:///modules/MsgAsyncPrompter.sys.mjs"
 );
 const { NetworkTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/NetworkTestUtils.sys.mjs"
@@ -27,6 +34,10 @@ const LoginInfo = Components.Constructor(
 );
 
 const HOSTNAME = "test.test";
+// Hosts with no OAuth2 issuer, for testing passwords.
+const BASIC_HOSTNAME = "example.org";
+const BASIC_ORIGIN = `http://${BASIC_HOSTNAME}`;
+const SAME_SITE_HOSTNAME = "dav.example.org";
 const ORIGIN = `http://${HOSTNAME}`;
 const REALM = "test";
 const OAUTH_ORIGIN = "oauth://test.test";
@@ -52,6 +63,24 @@ add_setup(async function () {
       </current-user-principal>`
     )
   );
+  server.registerPathHandler("/basic-same-site/", (request, response) =>
+    basicDiscoveryHandler(
+      request,
+      response,
+      `<current-user-principal>
+        <href>http://${SAME_SITE_HOSTNAME}/basic-principals/</href>
+      </current-user-principal>`
+    )
+  );
+  server.registerPathHandler("/basic-other-site/", (request, response) =>
+    basicDiscoveryHandler(
+      request,
+      response,
+      `<current-user-principal>
+        <href>http://localhost:${otherServer.identity.primaryPort}/basic-principals/</href>
+      </current-user-principal>`
+    )
+  );
   server.start(-1);
   otherServer = new HttpServer();
   otherServer.registerPathHandler("/principals/", (request, response) =>
@@ -70,13 +99,39 @@ add_setup(async function () {
       "/books/other/"
     )
   );
+  for (const s of [server, otherServer]) {
+    s.registerPathHandler("/basic-principals/", (request, response) =>
+      basicDiscoveryHandler(
+        request,
+        response,
+        `<card:addressbook-home-set>
+          <href>/basic-books/</href>
+        </card:addressbook-home-set>`
+      )
+    );
+    s.registerPathHandler("/basic-books/", (request, response) =>
+      basicDiscoveryHandler(
+        request,
+        response,
+        `<resourcetype><collection/><card:addressbook/></resourcetype>
+        <displayname>Basic</displayname>`,
+        "/basic-books/basic/"
+      )
+    );
+  }
   otherServer.start(-1);
   server.identity.add("http", HOSTNAME, 80);
   NetworkTestUtils.configureProxy(HOSTNAME, 80, server.identity.primaryPort);
+  for (const hostname of [BASIC_HOSTNAME, SAME_SITE_HOSTNAME]) {
+    server.identity.add("http", hostname, 80);
+    NetworkTestUtils.configureProxy(hostname, 80, server.identity.primaryPort);
+  }
   await OAuth2TestUtils.startServer();
 
   registerCleanupFunction(async function () {
     NetworkTestUtils.unconfigureProxy(HOSTNAME, 80);
+    NetworkTestUtils.unconfigureProxy(BASIC_HOSTNAME, 80);
+    NetworkTestUtils.unconfigureProxy(SAME_SITE_HOSTNAME, 80);
     OAuth2TestUtils.stopServer();
     await new Promise(resolve => server.stop(resolve));
     await new Promise(resolve => otherServer.stop(resolve));
@@ -113,6 +168,7 @@ function authHeadersHandler(request, response) {
  */
 function discoveryHandler(request, response, props, href = request.path) {
   discoveryRequests.push({
+    host: request.host,
     path: request.path,
     authorization: request.hasHeader("Authorization")
       ? request.getHeader("Authorization")
@@ -132,6 +188,27 @@ function discoveryHandler(request, response, props, href = request.path) {
       </response>
     </multistatus>`
   );
+}
+
+/**
+ * Like discoveryHandler, but requires the user's password.
+ *
+ * @param {nsIHttpRequest} request - The received HTTP request.
+ * @param {nsIHttpResponse} response - The HTTP response to populate.
+ * @param {string} props - The contents of the <prop> element to respond with.
+ * @param {string} [href] - The href to respond with, if not the request path.
+ */
+function basicDiscoveryHandler(request, response, props, href) {
+  if (
+    !request.hasHeader("Authorization") ||
+    request.getHeader("Authorization") !=
+      `Basic ${btoa(`${USERNAME}:${PASSWORD}`)}`
+  ) {
+    response.setStatusLine("1.1", 401, "Unauthorized");
+    response.setHeader("WWW-Authenticate", `Basic realm="${REALM}"`);
+    return;
+  }
+  discoveryHandler(request, response, props, href);
 }
 
 /**
@@ -243,12 +320,144 @@ add_task(async function testDiscoveryOnOtherServer() {
   Assert.deepEqual(
     discoveryRequests,
     [
-      { path: "/dav/", authorization: "Bearer access_token" },
-      { path: "/principals/", authorization: null },
-      { path: "/books/", authorization: null },
+      {
+        host: HOSTNAME,
+        path: "/dav/",
+        authorization: "Bearer access_token",
+      },
+      { host: "localhost", path: "/principals/", authorization: null },
+      { host: "localhost", path: "/books/", authorization: null },
     ],
     "the token should only be sent to the server it was obtained for"
   );
 
   OAuth2TestUtils.forgetObjects();
+});
+
+/** Discovery leads to a server on the same site the password was given for. */
+add_task(async function testDiscoveryPasswordOnSameSite() {
+  await setLogins([]);
+  discoveryRequests.length = 0;
+
+  const books = await CardDAVUtils.detectAddressBooks(
+    USERNAME,
+    PASSWORD,
+    `${BASIC_ORIGIN}/basic-same-site/`
+  );
+  Assert.deepEqual(
+    books.map(book => book.url.href),
+    [`http://${SAME_SITE_HOSTNAME}/basic-books/basic/`],
+    "the address book on the same site should be found"
+  );
+  Assert.deepEqual(
+    discoveryRequests.map(r => `${r.host}${r.path}`),
+    [
+      `${BASIC_HOSTNAME}/basic-same-site/`,
+      `${SAME_SITE_HOSTNAME}/basic-principals/`,
+      `${SAME_SITE_HOSTNAME}/basic-books/`,
+    ],
+    "the password should be sent to servers on the same site"
+  );
+});
+
+/** Discovery leads to a different site than the password was given for. */
+add_task(async function testDiscoveryPasswordOnOtherSite() {
+  await setLogins([]);
+  discoveryRequests.length = 0;
+
+  const prompts = [];
+  const originalPromptAuth = MsgAuthPrompt.prototype.promptAuth;
+  MsgAuthPrompt.prototype.promptAuth = function (channel, level, authInfo) {
+    prompts.push({
+      host: channel.URI.host,
+      username: authInfo.username,
+      hasPassword: !!authInfo.password,
+    });
+    return false;
+  };
+  registerCleanupFunction(() => {
+    MsgAuthPrompt.prototype.promptAuth = originalPromptAuth;
+  });
+
+  await Assert.rejects(
+    CardDAVUtils.detectAddressBooks(
+      USERNAME,
+      PASSWORD,
+      `${BASIC_ORIGIN}/basic-other-site/`
+    ),
+    /Authorization failure/,
+    "discovery should fail when the user does not give a password"
+  );
+  MsgAuthPrompt.prototype.promptAuth = originalPromptAuth;
+
+  Assert.deepEqual(
+    prompts,
+    [{ host: "localhost", username: USERNAME, hasPassword: false }],
+    "the user should be asked, without the password filled in"
+  );
+  Assert.deepEqual(
+    discoveryRequests.map(r => `${r.host}${r.path}`),
+    [`${BASIC_HOSTNAME}/basic-other-site/`],
+    "the password should not be sent to a server on another site"
+  );
+});
+
+/** A server on the same site, but with or without TLS, asks for the password. */
+add_task(async function testPasswordSiteScheme() {
+  await setLogins([]);
+
+  const prompts = [];
+  const originalPromptAuth = MsgAuthPrompt.prototype.promptAuth;
+  MsgAuthPrompt.prototype.promptAuth = function (channel, level, authInfo) {
+    prompts.push({
+      host: channel.URI.host,
+      hasPassword: !!authInfo.password,
+    });
+    return false;
+  };
+  registerCleanupFunction(() => {
+    MsgAuthPrompt.prototype.promptAuth = originalPromptAuth;
+  });
+
+  const callbacks = new NotificationCallbacks(USERNAME, PASSWORD);
+  callbacks.passwordSite = `https://${BASIC_HOSTNAME}`;
+  const promptAuth = uri => {
+    const authInfo = { flags: 0, username: "", password: "", realm: REALM };
+    const ok = callbacks.promptAuth(
+      { URI: Services.io.newURI(uri) },
+      Ci.nsIAuthPrompt2.LEVEL_NONE,
+      authInfo
+    );
+    return ok ? authInfo.password : null;
+  };
+
+  Assert.equal(
+    promptAuth(`https://${SAME_SITE_HOSTNAME}:8443/`),
+    PASSWORD,
+    "the password should be used for the same site"
+  );
+  Assert.equal(
+    promptAuth(`http://${SAME_SITE_HOSTNAME}/`),
+    null,
+    "the password should not be used without TLS"
+  );
+
+  callbacks.passwordSite = `http://${BASIC_HOSTNAME}`;
+  Assert.equal(
+    promptAuth(`http://${SAME_SITE_HOSTNAME}/`),
+    PASSWORD,
+    "the password should be used for a site given without TLS"
+  );
+  Assert.equal(
+    promptAuth(`https://${SAME_SITE_HOSTNAME}/`),
+    PASSWORD,
+    "the password should be used with TLS on a site given without TLS"
+  );
+  MsgAuthPrompt.prototype.promptAuth = originalPromptAuth;
+
+  Assert.deepEqual(
+    prompts,
+    [{ host: SAME_SITE_HOSTNAME, hasPassword: false }],
+    "the user should only be asked, without the password filled in, for the server without TLS"
+  );
 });

@@ -376,6 +376,9 @@ export var CardDAVUtils = {
       forcePrompt,
       storePassword
     );
+    callbacks.passwordSite = Services.eTLD.getSite(
+      Services.io.newURI(url.href)
+    );
 
     const requestParams = {
       method: "PROPFIND",
@@ -627,6 +630,17 @@ export class NotificationCallbacks {
     this.forcePrompt = forcePrompt;
     this.storePasswordOverride = storePasswordOverride;
   }
+
+  /**
+   * If set, the password given to the constructor is only used for servers
+   * with this site (as returned by nsIEffectiveTLDService.getSite). A site
+   * given as http also allows https on the same site, but not the other way
+   * around.
+   *
+   * @type {?string}
+   */
+  passwordSite = null;
+
   QueryInterface = ChromeUtils.generateQI([
     "nsIInterfaceRequestor",
     "nsIAuthPrompt2",
@@ -644,10 +658,19 @@ export class NotificationCallbacks {
     this.origin = channel.URI.prePath;
     this.authInfo = authInfo;
 
+    const site = Services.eTLD.getSite(channel.URI);
+    const password =
+      !this.passwordSite ||
+      site == this.passwordSite ||
+      (channel.URI.schemeIs("https") &&
+        site.replace(/^https:/, "http:") == this.passwordSite)
+        ? this.password
+        : null;
+
     if (!this.forcePrompt) {
-      if (this.username && this.password) {
+      if (this.username && password) {
         authInfo.username = this.username;
-        authInfo.password = this.password;
+        authInfo.password = password;
         this.shouldSaveAuth = this.storePasswordOverride ?? true;
         return true;
       }
@@ -672,7 +695,7 @@ export class NotificationCallbacks {
     }
 
     authInfo.username = this.username;
-    authInfo.password = this.password;
+    authInfo.password = password;
 
     let savePasswordLabel = null;
     const savePassword = {};
