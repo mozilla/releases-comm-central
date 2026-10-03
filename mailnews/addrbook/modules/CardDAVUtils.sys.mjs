@@ -116,14 +116,13 @@ export var CardDAVUtils = {
     }
     const {
       method = "GET",
-      headers = {},
       body = null,
       contentType = "text/xml",
       oAuth = null,
       callbacks = new NotificationCallbacks(),
       userContextId = Ci.nsIScriptSecurityManager.DEFAULT_USER_CONTEXT_ID,
     } = details;
-    headers["Content-Type"] = contentType;
+    const headers = { ...details.headers, "Content-Type": contentType };
     if (oAuth) {
       headers.Authorization = await new Promise((resolve, reject) => {
         oAuth.getAccessToken({
@@ -397,16 +396,18 @@ export var CardDAVUtils = {
     };
 
     let oAuth = new lazy.OAuth2Module();
-    if (oAuth.initFromHostname(url.host, username, "carddav")) {
-      requestParams.oAuth = oAuth;
-    } else {
+    if (!oAuth.initFromHostname(url.host, username, "carddav")) {
       oAuth = null;
     }
+    const oAuthOrigin = url.origin;
 
     let response;
     async function tryURL(urlCandidate) {
       log.log(`Attempting to connect to ${urlCandidate}`);
       try {
+        // The token is only for the server it was obtained for.
+        requestParams.oAuth =
+          new URL(urlCandidate).origin == oAuthOrigin ? oAuth : null;
         response = await CardDAVUtils.makeRequest(urlCandidate, requestParams);
         if (response.status == 207 && response.dom) {
           log.log(`${urlCandidate} ... success`);

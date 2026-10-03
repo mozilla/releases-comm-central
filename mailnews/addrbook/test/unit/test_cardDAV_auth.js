@@ -4,8 +4,12 @@
 
 // Tests which credentials a directory uses when a password is saved for the
 // server and an OAuth2 refresh token could be used as well. Some providers
-// accept both mechanisms, and the saved password must win.
+// accept both mechanisms, and the saved password must win. Also tests that an
+// OAuth2 token is not sent to other servers during address book discovery.
 
+const { CardDAVUtils } = ChromeUtils.importESModule(
+  "resource:///modules/CardDAVUtils.sys.mjs"
+);
 const { HttpServer } = ChromeUtils.importESModule(
   "resource://testing-common/httpd.sys.mjs"
 );
@@ -33,11 +37,40 @@ const PASSWORD = "password";
 const VALID_TOKEN = "refresh_token";
 
 let server;
+let otherServer;
+const discoveryRequests = [];
 
 add_setup(async function () {
   server = new HttpServer();
   server.registerPathHandler("/auth_headers", authHeadersHandler);
+  server.registerPathHandler("/dav/", (request, response) =>
+    discoveryHandler(
+      request,
+      response,
+      `<current-user-principal>
+        <href>http://localhost:${otherServer.identity.primaryPort}/principals/</href>
+      </current-user-principal>`
+    )
+  );
   server.start(-1);
+  otherServer = new HttpServer();
+  otherServer.registerPathHandler("/principals/", (request, response) =>
+    discoveryHandler(
+      request,
+      response,
+      `<card:addressbook-home-set><href>/books/</href></card:addressbook-home-set>`
+    )
+  );
+  otherServer.registerPathHandler("/books/", (request, response) =>
+    discoveryHandler(
+      request,
+      response,
+      `<resourcetype><collection/><card:addressbook/></resourcetype>
+      <displayname>Other</displayname>`,
+      "/books/other/"
+    )
+  );
+  otherServer.start(-1);
   server.identity.add("http", HOSTNAME, 80);
   NetworkTestUtils.configureProxy(HOSTNAME, 80, server.identity.primaryPort);
   await OAuth2TestUtils.startServer();
@@ -46,6 +79,7 @@ add_setup(async function () {
     NetworkTestUtils.unconfigureProxy(HOSTNAME, 80);
     OAuth2TestUtils.stopServer();
     await new Promise(resolve => server.stop(resolve));
+    await new Promise(resolve => otherServer.stop(resolve));
   });
 });
 
@@ -65,6 +99,38 @@ function authHeadersHandler(request, response) {
   response.setHeader("Content-Type", "application/json", false);
   response.write(
     JSON.stringify({ authorization: request.getHeader("Authorization") })
+  );
+}
+
+/**
+ * Records the authorization header of a discovery request, and responds with
+ * the given properties.
+ *
+ * @param {nsIHttpRequest} request - The received HTTP request.
+ * @param {nsIHttpResponse} response - The HTTP response to populate.
+ * @param {string} props - The contents of the <prop> element to respond with.
+ * @param {string} [href] - The href to respond with, if not the request path.
+ */
+function discoveryHandler(request, response, props, href = request.path) {
+  discoveryRequests.push({
+    path: request.path,
+    authorization: request.hasHeader("Authorization")
+      ? request.getHeader("Authorization")
+      : null,
+  });
+
+  response.setStatusLine("1.1", 207, "Multi-Status");
+  response.setHeader("Content-Type", "text/xml");
+  response.write(
+    `<multistatus xmlns="DAV:" xmlns:card="urn:ietf:params:xml:ns:carddav">
+      <response>
+        <href>${href}</href>
+        <propstat>
+          <prop>${props}</prop>
+          <status>HTTP/1.1 200 OK</status>
+        </propstat>
+      </response>
+    </multistatus>`
   );
 }
 
@@ -147,6 +213,41 @@ add_task(async function testSavedPasswordOtherUser() {
     await requestAuthorization("savedPasswordOtherUser"),
     "Bearer access_token",
     "a password saved for another user should not be used"
+  );
+
+  OAuth2TestUtils.forgetObjects();
+});
+
+/** Discovery leads to a different server than the token was obtained for. */
+add_task(async function testDiscoveryOnOtherServer() {
+  await setLogins([
+    {
+      origin: OAUTH_ORIGIN,
+      realm: SCOPE,
+      username: USERNAME,
+      password: VALID_TOKEN,
+    },
+  ]);
+
+  const books = await CardDAVUtils.detectAddressBooks(
+    USERNAME,
+    null,
+    `${ORIGIN}/dav/`
+  );
+  Assert.deepEqual(
+    books.map(book => book.url.href),
+    [`http://localhost:${otherServer.identity.primaryPort}/books/other/`],
+    "the address book on the other server should be found"
+  );
+
+  Assert.deepEqual(
+    discoveryRequests,
+    [
+      { path: "/dav/", authorization: "Bearer access_token" },
+      { path: "/principals/", authorization: null },
+      { path: "/books/", authorization: null },
+    ],
+    "the token should only be sent to the server it was obtained for"
   );
 
   OAuth2TestUtils.forgetObjects();
