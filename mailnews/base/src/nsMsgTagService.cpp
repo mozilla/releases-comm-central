@@ -7,6 +7,7 @@
 #include "mozilla/Preferences.h"
 #include "nsMsgUtils.h"
 #include "mozilla/intl/Localization.h"
+#include "nsICryptoHash.h"
 
 using mozilla::Preferences;
 
@@ -16,6 +17,39 @@ using mozilla::Preferences;
 #define TAG_PREF_SUFFIX_TAG ".tag"
 #define TAG_PREF_SUFFIX_COLOR ".color"
 #define TAG_PREF_SUFFIX_ORDINAL ".ordinal"
+
+namespace {
+
+// Dovecot's default maximum IMAP keyword length is 50 characters.
+// No lower limit is known to be required by commonly used servers that
+// support arbitrary keywords.
+constexpr uint32_t kMaxGeneratedTagKeyLength = 50;
+constexpr auto kHashedTagKeyPrefix = "&x-moz-"_ns;
+constexpr uint32_t kHashedTagKeyByteLength = 16;
+
+nsresult MakeHashedTagKey(const nsACString& utf8Tag, nsACString& key) {
+  nsCOMPtr<nsICryptoHash> hasher;
+  nsresult rv = NS_NewCryptoHash(nsICryptoHash::SHA256, getter_AddRefs(hasher));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = hasher->Update(reinterpret_cast<const uint8_t*>(utf8Tag.BeginReading()),
+                      utf8Tag.Length());
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString digest;
+  rv = hasher->Finish(false, digest);
+  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(digest.Length() >= kHashedTagKeyByteLength,
+                 NS_ERROR_UNEXPECTED);
+
+  key.Assign(kHashedTagKeyPrefix);
+  for (uint32_t i = 0; i < kHashedTagKeyByteLength; ++i) {
+    key.AppendPrintf("%02x", static_cast<unsigned char>(digest[i]));
+  }
+  return NS_OK;
+}
+
+}  // namespace
 
 // Comparator to set sort order in GetAllTags().
 struct CompareMsgTags {
@@ -191,6 +225,15 @@ NS_IMETHODIMP nsMsgTagService::AddTagForKey(const nsACString& key,
 NS_IMETHODIMP nsMsgTagService::AddTag(const nsAString& tag,
                                       const nsACString& color,
                                       const nsACString& ordinal) {
+  // Reuse existing mappings before deriving a key. In particular, this keeps
+  // legacy readable keys which are longer than the current generation limit.
+  nsAutoCString existingKey;
+  nsresult rv = GetKeyForTag(tag, existingKey);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!existingKey.IsEmpty()) {
+    return AddTagForKey(existingKey, tag, color, ordinal);
+  }
+
   nsAutoCString key;
 
   // Convert the UTF-16 tag string to UTF-8.
@@ -237,8 +280,16 @@ NS_IMETHODIMP nsMsgTagService::AddTag(const nsAString& tag,
   uint32_t suffixCount = 1;
 
   while (true) {
+    if (prefName.Length() > kMaxGeneratedTagKeyLength) {
+      // '&' is escaped by the readable encoder, reserving this hash prefix.
+      rv = MakeHashedTagKey(utf8Tag, key);
+      NS_ENSURE_SUCCESS(rv, rv);
+      prefName = key;
+      suffixCount = 1;
+    }
+
     nsAutoString tagValue;
-    nsresult rv = GetTagForKey(prefName, tagValue);
+    rv = GetTagForKey(prefName, tagValue);
 
     // If we couldn't find an existing tag for this key, or the existing key
     // happens to map to the exact same display string, we use it.
@@ -248,14 +299,11 @@ NS_IMETHODIMP nsMsgTagService::AddTag(const nsAString& tag,
 
     // Collision detected. Reset prefName back to the base key and append an
     // incrementing number. (e.g., my_tag_1)
+    NS_ENSURE_TRUE(suffixCount, NS_ERROR_UNEXPECTED);
     prefName = key;
     prefName.AppendLiteral("_");
-    prefName.AppendInt(suffixCount);
-    suffixCount++;
+    prefName.AppendInt(suffixCount++);
   }
-
-  NS_ASSERTION(false, "can't get here");
-  return NS_ERROR_UNEXPECTED;
 }
 
 /* long getColorForKey (in string key); */

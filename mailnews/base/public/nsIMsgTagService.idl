@@ -13,12 +13,9 @@
  * Tags are the user visible representation of keys, and are full unicode
  * strings. Tags should allow any unicode character.
  *
- * This service will do the mapping between keys and tags. When a tag
- * is added, we'll need to "compute" the corresponding key to use. This
- * will probably entail replacing illegal ascii characters (' ', '/', etc)
- * with '_' and then converting to imap mod utf7. We'll then need to make
- * sure that no other keyword has the same value since that algorithm
- * doesn't guarantee a unique mapping.
+ * This service maps keys to tags. When a tag is added, it derives a readable
+ * key of at most 50 characters, falling back to a hash when needed. Existing
+ * mappings are preserved, including when a tag is renamed.
  *
  * Tags are sorted internally by 'importance' by their ordinal strings (which by
  * default are equal to a tag's key and thus only stored if different).
