@@ -66,7 +66,10 @@ export var CalDavProvider = {
     }
 
     const detector = new CalDavDetector(username, password, savePassword);
-    detector.session.passwordSites.add(Services.eTLD.getSite(uri));
+    // Only HTTP URLs have a site. Requests to anything else fail anyway.
+    if (uri.schemeIs("http") || uri.schemeIs("https")) {
+      detector.session.passwordSites.add(Services.eTLD.getSite(uri));
+    }
 
     for (const method of [
       "attemptGoogleOauth",

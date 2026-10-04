@@ -376,9 +376,12 @@ export var CardDAVUtils = {
       forcePrompt,
       storePassword
     );
-    callbacks.passwordSite = Services.eTLD.getSite(
-      Services.io.newURI(url.href)
-    );
+    // Only HTTP URLs have a site. Requests to anything else fail anyway.
+    if (url.protocol == "http:" || url.protocol == "https:") {
+      callbacks.passwordSite = Services.eTLD.getSite(
+        Services.io.newURI(url.href)
+      );
+    }
 
     const requestParams = {
       method: "PROPFIND",
