@@ -79,9 +79,10 @@ FeedItem.prototype = {
 
   normalizeMessageID(messageID) {
     // Escape occurrences of message ID meta characters <, >, and @.
-    messageID.replace(/</g, "%3C");
-    messageID.replace(/>/g, "%3E");
-    messageID.replace(/@/g, "%40");
+    messageID = messageID
+      .replace(/</g, "%3C")
+      .replace(/>/g, "%3E")
+      .replace(/@/g, "%40");
     messageID = "<" + messageID.trim() + "@localhost.localdomain>";
 
     lazy.FeedUtils.log.trace(

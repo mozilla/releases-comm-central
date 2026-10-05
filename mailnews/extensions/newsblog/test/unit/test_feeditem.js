@@ -138,3 +138,42 @@ add_task(function test_feed_category_tag_survives_incoming_filter_move() {
 
   assertMovedAndTagged(source, destination);
 });
+
+add_task(function test_normalizeMessageID_escapes_meta_characters() {
+  const item = new FeedItem();
+  Assert.equal(
+    item.normalizeMessageID(" victim-real-id@example.com> "),
+    "<victim-real-id%40example.com%3E@localhost.localdomain>",
+    "message ID meta characters should be escaped"
+  );
+  Assert.equal(
+    item.normalizeMessageID("<a@b><c@d>"),
+    "<%3Ca%40b%3E%3Cc%40d%3E@localhost.localdomain>",
+    "all occurrences of message ID meta characters should be escaped"
+  );
+});
+
+add_task(function test_message_id_header_escapes_item_id() {
+  const account = FeedUtils.createRssAccount("message id account");
+  const rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
+  const folder = rootFolder.createLocalSubfolder("message id folder");
+
+  writeFeedItem(folder, "victim-real-id@example.com>");
+
+  const messages = [...folder.messages];
+  Assert.equal(messages.length, 1, "folder should contain the feed item");
+  Assert.equal(
+    messages[0].messageId,
+    "victim-real-id%40example.com%3E@localhost.localdomain",
+    "stored message ID should be the escaped item id"
+  );
+  const storedMessage = mailTestUtils.loadMessageToString(folder, messages[0]);
+  Assert.ok(
+    storedMessage.includes(
+      "Message-Id: <victim-real-id%40example.com%3E@localhost.localdomain>\n"
+    ),
+    "Message-Id header should contain the escaped item id"
+  );
+});
