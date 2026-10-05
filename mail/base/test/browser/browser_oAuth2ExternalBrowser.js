@@ -167,6 +167,7 @@ add_task(async function test_promptBeforeReauthRejected() {
 });
 
 add_task(async function test_restoresWindowAndReturnsFocus() {
+  await SimpleTest.promiseFocus(window);
   const module = new OAuth2Module();
   Assert.ok(
     module.initFromHostname("external.test", "julia@foo.invalid", "imap")
@@ -186,13 +187,11 @@ add_task(async function test_restoresWindowAndReturnsFocus() {
 
   const url = await externalOAuthURL;
   Assert.notEqual(window.windowState, window.STATE_MINIMIZED);
-  const windowMinimized = BrowserTestUtils.waitForEvent(window, "blur");
   window.minimize();
-  info("Waiting for blur...");
-  await windowMinimized;
+  info("Waiting for minimize...");
   await TestUtils.waitForCondition(
-    () => window.document.hidden,
-    "window is minimized"
+    () => window.document.hidden && Services.focus.activeWindow != window,
+    "window should be minimized and lose focus"
   );
 
   const otherWindows = new Set();
@@ -200,13 +199,12 @@ add_task(async function test_restoresWindowAndReturnsFocus() {
     info("Cleaning up focus on another window...");
     const otherWindow = Services.focus.activeWindow;
     otherWindows.add(otherWindow);
-    const windowBlurred = BrowserTestUtils.waitForEvent(otherWindow, "blur");
     otherWindow.minimize();
-    info("Waiting for blur...");
-    await windowBlurred;
     await TestUtils.waitForCondition(
-      () => otherWindow.document.hidden,
-      "window is hidden"
+      () =>
+        otherWindow.document.hidden &&
+        Services.focus.activeWindow != otherWindow,
+      "other window should be minimized and lose focus"
     );
   }
 
