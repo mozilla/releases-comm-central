@@ -2089,16 +2089,6 @@ nsImapMailFolder::GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
   return rv;
 }
 
-nsresult nsImapMailFolder::MarkMessagesImapDeleted(nsTArray<nsMsgKey>* keyArray,
-                                                   bool deleted,
-                                                   nsIMsgDatabase* db) {
-  for (uint32_t kindex = 0; kindex < keyArray->Length(); kindex++) {
-    nsMsgKey key = keyArray->ElementAt(kindex);
-    db->MarkImapDeleted(key, deleted, nullptr);
-  }
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
     nsTArray<RefPtr<nsIMsgDBHdr>> const& msgHeaders, nsIMsgWindow* msgWindow,
     bool deleteStorage, bool isMove, nsIMsgCopyServiceListener* listener,
@@ -2185,9 +2175,11 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
     if (NS_SUCCEEDED(rv)) {
       if (mDatabase) {
         nsCOMPtr<nsIMsgDatabase> database(mDatabase);
-        if (deleteModel == nsMsgImapDeleteModels::IMAPDelete)
-          MarkMessagesImapDeleted(&srcKeyArray, deleteMsgs, database);
-        else {
+        if (deleteModel == nsMsgImapDeleteModels::IMAPDelete) {
+          for (nsMsgKey key : srcKeyArray) {
+            database->MarkImapDeleted(key, deleteMsgs, nullptr);
+          }
+        } else {
           EnableNotifications(allMessageCountNotifications,
                               false);  //"remove it immediately" model
           // Notify if this is an actual delete.
@@ -5152,7 +5144,9 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
                     DeleteStoreMessages(srcKeyArray, srcFolder);
                     srcDB->DeleteMessages(srcKeyArray, nullptr);
                   } else {
-                    MarkMessagesImapDeleted(&srcKeyArray, true, srcDB);
+                    for (nsMsgKey key : srcKeyArray) {
+                      srcDB->MarkImapDeleted(key, true, nullptr);
+                    }
                   }
                 }
                 srcFolder->EnableNotifications(allMessageCountNotifications,
@@ -5224,7 +5218,9 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
               nsCString keyString;
               imapUrl->GetListOfMessageIds(keyString);
               ParseUidString(keyString.get(), keyArray);
-              MarkMessagesImapDeleted(&keyArray, false, db);
+              for (nsMsgKey key : keyArray) {
+                db->MarkImapDeleted(key, false, nullptr);
+              }
               db->Commit(nsMsgDBCommitType::kLargeCommit);
             }
           }

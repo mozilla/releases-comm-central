@@ -401,9 +401,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
    */
   nsresult CopyFileToOfflineStore(nsIFile* srcFile, nsMsgKey msgKey);
 
-  nsresult MarkMessagesImapDeleted(nsTArray<nsMsgKey>* keyArray, bool deleted,
-                                   nsIMsgDatabase* db);
-
   // Notifies imap autosync that it should update this folder when it
   // gets a chance.
   void NotifyHasPendingMsgs();
