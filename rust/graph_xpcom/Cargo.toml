@@ -6,6 +6,7 @@ rust-version.workspace = true
 
 [dependencies]
 base64 = "0.21.3"
+firefox-on-glean = { version = "0.1.0", path = "../../../toolkit/components/glean/api" }
 fxhash = "0.2.1"
 http = "0.2.9"
 log = "0.4.21"

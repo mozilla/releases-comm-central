@@ -38,6 +38,7 @@ use crate::client::XpComGraphClient;
 mod client;
 mod error;
 mod outgoing;
+pub mod telemetry_recorder;
 
 /// Creates a new instance of the XPCOM/Graph bridge interface [`XpcomGraphBridge`].
 ///
@@ -83,11 +84,6 @@ impl XpcomGraphBridge {
         };
 
         Ok(client.idle())
-    }
-
-    xpcom_method!(record_telemetry => RecordTelemetry(server_url: *const nsACString));
-    fn record_telemetry(&self, _server_url: &nsACString) -> Result<(), nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
     }
 
     xpcom_method!(initialize => Initialize(

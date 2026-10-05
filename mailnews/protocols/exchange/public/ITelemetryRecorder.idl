@@ -1,0 +1,18 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(15bcdd81-7d02-42c5-ba3c-0214ce80c7cb)]
+interface ITelemetryRecorder : nsISupports {
+
+  /**
+   * Record implementation-defined data in telemetry (Glean) for the server
+   * with the given endpoint.
+   *
+   * @param endpoint - The full URL to the server's endpoint.
+   */
+  void recordTelemetry(in AUTF8String endpoint);
+
+};

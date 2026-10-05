@@ -1139,7 +1139,8 @@ MailGlue.prototype = {
         preferenceTelemetry.reportPreferences();
         preferenceTelemetry.registerPrefObservers();
         reportUIConfiguration();
-        reportEwsAccounts();
+        reportExchangeAccounts("ews");
+        reportExchangeAccounts("graph");
       },
     ];
 
@@ -1725,28 +1726,28 @@ function reportUIConfiguration() {
 }
 
 /**
- * Record EWS-specific telemetry (server version, on-premise, etc.) from the
- * existing EWS accounts.
+ * Record account telemetry for Exchange accounts of the given type.
+ *
+ * @param {string} type
  */
-function reportEwsAccounts() {
+function reportExchangeAccounts(type) {
   // Filter out non-EWS servers, and return early if there aren't any.
   const servers = lazy.MailServices.accounts.accounts
     .map(a => a.incomingServer)
-    .filter(s => s.type == "ews");
+    .filter(s => s.type == type);
   if (!servers) {
     return;
   }
 
-  // We typically don't reuse EWS clients when using them in e.g. `ExchangeFolder` or
-  // `ExchangeIncomingServer`, but the implementation of the *telemetry* method if
-  // `IExchangeClient` is completely stateless, so client reuse is not an issue here.
-  const ewsClient = Cc["@mozilla.org/messenger/ews-client;1"].createInstance(
-    Ci.IExchangeClient
-  );
+  const telemetryRecorder = Cc[
+    `@mozilla.org/messenger/telemetry-recorder;1?type=${type}`
+  ].createInstance(Ci.ITelemetryRecorder);
 
   for (const server of servers) {
+    // "ews_url" is used here for historical reasons since it actually
+    // represents the general endpoint url for exchange protocols.
     const ewsUrl = server.getStringValue("ews_url");
-    ewsClient.recordTelemetry(ewsUrl);
+    telemetryRecorder.recordTelemetry(ewsUrl);
   }
 }
 
@@ -1762,5 +1763,5 @@ export var MailTelemetryForTests = {
   reportCalendars,
   reportPreferences: () => new PreferenceTelemetry().reportPreferences(),
   reportUIConfiguration,
-  reportEwsAccounts,
+  reportExchangeAccounts,
 };

@@ -221,20 +221,20 @@ async function set_version_and_verify(version, expected) {
 /**
  * Test that EWS-specific telemetry data is correctly recorded.
  */
-add_task(async function test_telemetry() {
+add_task(async function test_telemetry_ews() {
   // Test that each version gets correctly recorded.
-  set_version_telemetry_and_verify(null);
-  set_version_telemetry_and_verify("Exchange2007");
-  set_version_telemetry_and_verify("Exchange2007_SP1");
-  set_version_telemetry_and_verify("Exchange2010");
-  set_version_telemetry_and_verify("Exchange2010_SP1");
-  set_version_telemetry_and_verify("Exchange2010_SP2");
-  set_version_telemetry_and_verify("Exchange2013");
-  set_version_telemetry_and_verify("Exchange2013_SP1");
+  set_ews_version_telemetry_and_verify(null);
+  set_ews_version_telemetry_and_verify("Exchange2007");
+  set_ews_version_telemetry_and_verify("Exchange2007_SP1");
+  set_ews_version_telemetry_and_verify("Exchange2010");
+  set_ews_version_telemetry_and_verify("Exchange2010_SP1");
+  set_ews_version_telemetry_and_verify("Exchange2010_SP2");
+  set_ews_version_telemetry_and_verify("Exchange2013");
+  set_ews_version_telemetry_and_verify("Exchange2013_SP1");
 
   // Test that accounts on an on-premise server are reported as such.
   Services.fog.testResetFOG();
-  MailTelemetryForTests.reportEwsAccounts();
+  MailTelemetryForTests.reportExchangeAccounts("ews");
 
   Assert.equal(
     Glean.mailnewsEws.serverType.OnPremise.testGetValue(),
@@ -249,7 +249,7 @@ add_task(async function test_telemetry() {
 
   // Test that accounts on Office365 server are reported as such.
   Services.fog.testResetFOG();
-  MailTelemetryForTests.reportEwsAccounts();
+  MailTelemetryForTests.reportExchangeAccounts("ews");
 
   const originalEwsUrl = incomingServer.getStringValue("ews_url");
   incomingServer.setStringValue(
@@ -258,7 +258,7 @@ add_task(async function test_telemetry() {
   );
 
   Services.fog.testResetFOG();
-  MailTelemetryForTests.reportEwsAccounts();
+  MailTelemetryForTests.reportExchangeAccounts("ews");
 
   Assert.equal(
     Glean.mailnewsEws.serverType.OnPremise.testGetValue(),
@@ -284,7 +284,7 @@ add_task(async function test_telemetry() {
  *   pref, and expect in the telemetry data. If `null`, no version is stored in
  *   the pref.
  */
-function set_version_telemetry_and_verify(expectedVersion) {
+function set_ews_version_telemetry_and_verify(expectedVersion) {
   // The asserts below can be a bit noisy, and we'll run this function a bunch
   // of time, so logging each version here makes the output a bit more
   // digestible.
@@ -300,7 +300,7 @@ function set_version_telemetry_and_verify(expectedVersion) {
   }
   Services.prefs.setCharPref(EWS_SERVER_VERSION_PREF, prefContent);
 
-  MailTelemetryForTests.reportEwsAccounts();
+  MailTelemetryForTests.reportExchangeAccounts("ews");
 
   // Iterate over each supported version to make sure we don't report anything
   // but the expected one.
@@ -320,3 +320,37 @@ function set_version_telemetry_and_verify(expectedVersion) {
     );
   }
 }
+
+add_task(async function test_telemetry_graph() {
+  Services.fog.testResetFOG();
+
+  // Create a new mock Graph server, and start it.
+  const graphServer = new GraphServer();
+  graphServer.start();
+
+  // Create and configure 5 Graph incoming servers.
+  const graphIncomingServers = [];
+  for (let i = 0; i < 5; i++) {
+    const newGraphIncomingServer = localAccountUtils.create_incoming_server(
+      "graph",
+      graphServer.port,
+      `user${i}`,
+      "password"
+    );
+    incomingServer.setStringValue(
+      "ews_url",
+      `http://127.0.0.1:${graphServer.port}/`
+    );
+    graphIncomingServers.push(newGraphIncomingServer);
+  }
+
+  MailTelemetryForTests.reportExchangeAccounts("graph");
+
+  Assert.equal(
+    Glean.mailnewsGraph.graphAccounts.testGetValue(),
+    5,
+    "Glean should have recorded 5 graph servers."
+  );
+
+  graphServer.stop();
+});

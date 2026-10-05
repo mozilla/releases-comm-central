@@ -4,6 +4,9 @@
 
 XPIDL_MODULE = "msgews"
 
-XPIDL_SOURCES += ["IExchangeOutgoingServer.idl"]
+XPIDL_SOURCES += [
+    "IExchangeOutgoingServer.idl",
+    "ITelemetryRecorder.idl"
+    ]
 
 FINAL_LIBRARY = "mail"

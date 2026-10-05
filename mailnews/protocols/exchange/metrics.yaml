@@ -51,3 +51,18 @@ mailnews_ews:
     labels:
       - OnPremise
       - Office365
+
+mailnews_graph:
+  graph_accounts:
+    type: counter
+    description: >
+      Records the number of Microsoft Graph servers a user has configured.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2077224
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2077224
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
