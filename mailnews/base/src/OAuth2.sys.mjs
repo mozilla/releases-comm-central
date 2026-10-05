@@ -247,6 +247,7 @@ OAuth2.prototype = {
         authEndpointURL.toString()
     );
 
+    Services.obs.addObserver(this, "quit-application-granted");
     if (lazy.useExternalBrowser && this.useExternalBrowser) {
       if (isReauthentication) {
         const [title, description] = lazy.l10n.formatValuesSync([
@@ -297,7 +298,6 @@ OAuth2.prototype = {
       this.request.redirectURI
     );
 
-    Services.obs.addObserver(this, "quit-application-granted");
     if (!this.request.start(authEndpointURL)) {
       this.finishAuthorizationRequest();
       // Only the ExternalRequest construction is fallible here.

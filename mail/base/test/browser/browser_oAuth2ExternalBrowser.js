@@ -156,13 +156,9 @@ add_task(async function test_promptBeforeReauthRejected() {
     "Title should be a non-empty string"
   );
 
+  const failure = deferred.promise.catch(error => error);
   await PromptTestUtils.handlePrompt(prompt, { buttonNumClick: 1 });
-
-  await Assert.rejects(
-    deferred.promise,
-    error => error == Cr.NS_ERROR_ABORT,
-    "Should reject with an abort"
-  );
+  Assert.equal(await failure, Cr.NS_ERROR_ABORT, "Should reject with an abort");
 
   OAuth2TestUtils.forgetObjects();
   await Services.logins.removeAllLoginsAsync();
