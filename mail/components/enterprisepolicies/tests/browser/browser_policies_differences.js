@@ -600,6 +600,20 @@ if (AppConstants.MOZ_ENTERPRISE) {
   );
 }
 
+// Thunderbird Policies.sys.mjs policies which knowingly do not exist in
+// Firefox. Built the same way as allowedPoliciesMissing.
+const allowedThunderbirdOnlyPolicies = [
+  "DisableChat",
+  "DisableCommunity",
+  "DisableDataCollectionSettings",
+  "DisableExperimentalFeatures",
+  "DisableFileLink",
+  "DisableMessageForwardingFilters",
+  "DisableQRExport",
+  "DisableUpdateSettings",
+  "InAppNotification",
+];
+
 // Differences in policies-schema.json from Firefox we knowingly accept, keyed
 // by policy name (or by root level schema key). Built and updated the same way
 // as allowedPoliciesDifferences.
@@ -1354,6 +1368,20 @@ const allowedSchemaMissing = [
   "XSLTEnabled",
 ];
 
+// Thunderbird policies-schema.json entries which knowingly do not exist in
+// Firefox. Built the same way as allowedPoliciesMissing.
+const allowedThunderbirdOnlySchema = [
+  "DisableChat",
+  "DisableCommunity",
+  "DisableDataCollectionSettings",
+  "DisableExperimentalFeatures",
+  "DisableFileLink",
+  "DisableMessageForwardingFilters",
+  "DisableQRExport",
+  "DisableUpdateSettings",
+  "InAppNotification",
+];
+
 // Keys the Firefox schema carries only for documentation and downstream
 // tooling (see policies-schema.meta.json) and that the Thunderbird schema does
 // not duplicate. Comparing them would bury the structural differences.
@@ -1708,6 +1736,50 @@ function findMissing(
   return missing;
 }
 
+// Returns the Thunderbird entries Firefox does not have and that are not
+// listed in `allowedList` (named `allowedName` in the logs). Also reports
+// listed entries which are present in Firefox or not present in Thunderbird.
+function findThunderbirdOnly(
+  tbirdEntries,
+  browserEntries,
+  allowedList,
+  allowedName,
+  skipped = []
+) {
+  const thunderbirdOnly = [];
+
+  for (const name of allowedList) {
+    if (!(name in tbirdEntries)) {
+      ok(
+        false,
+        `${name} listed in ${allowedName} but not present in Thunderbird. Please fix.`
+      );
+    }
+  }
+
+  for (const name in tbirdEntries) {
+    if (skipped.includes(name)) {
+      continue;
+    }
+    if (allowedList.includes(name)) {
+      if (name in browserEntries) {
+        ok(
+          false,
+          `${name} listed in ${allowedName} but present in Firefox. Please fix.`
+        );
+      }
+
+      info(`Skipping ${name}: Thunderbird only allowed`);
+      continue;
+    }
+    if (!(name in browserEntries)) {
+      thunderbirdOnly.push(name);
+    }
+  }
+
+  return thunderbirdOnly;
+}
+
 add_task(function test_check_common_policies() {
   const realDifferences = findRealDifferences(
     getPolicyEntries(THUNDERBIRD_POLICIES_URL),
@@ -1769,5 +1841,38 @@ add_task(async function test_check_missing_policies_schema() {
     missing.length,
     0,
     `Browser schema policies are missing: ${missingStr}`
+  );
+});
+
+add_task(function test_check_thunderbird_only_policies() {
+  const thunderbirdOnly = findThunderbirdOnly(
+    getPolicyEntries(THUNDERBIRD_POLICIES_URL),
+    getPolicyEntries(FIREFOX_POLICIES_URL),
+    allowedThunderbirdOnlyPolicies,
+    "allowedThunderbirdOnlyPolicies",
+    ["_cleanup"]
+  );
+
+  const thunderbirdOnlyStr = thunderbirdOnly.map(m => `"${m}"`);
+  Assert.equal(
+    thunderbirdOnly.length,
+    0,
+    `Thunderbird only policies: ${thunderbirdOnlyStr}`
+  );
+});
+
+add_task(async function test_check_thunderbird_only_policies_schema() {
+  const thunderbirdOnly = findThunderbirdOnly(
+    await getSchemaEntries(THUNDERBIRD_SCHEMA_URL),
+    await getSchemaEntries(FIREFOX_SCHEMA_URL),
+    allowedThunderbirdOnlySchema,
+    "allowedThunderbirdOnlySchema"
+  );
+
+  const thunderbirdOnlyStr = thunderbirdOnly.map(m => `"${m}"`);
+  Assert.equal(
+    thunderbirdOnly.length,
+    0,
+    `Thunderbird only schema policies: ${thunderbirdOnlyStr}`
   );
 });
