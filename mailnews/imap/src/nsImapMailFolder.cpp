@@ -5214,10 +5214,11 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
             nsCOMPtr<nsIMsgDatabase> db;
             rv = GetMsgDatabase(getter_AddRefs(db));
             if (NS_SUCCEEDED(rv) && db) {
-              nsTArray<nsMsgKey> keyArray;
-              nsCString keyString;
-              imapUrl->GetListOfMessageIds(keyString);
-              ParseUidString(keyString.get(), keyArray);
+              nsCString uidSet;
+              imapUrl->GetListOfMessageIds(uidSet);
+              nsTArray<ImapUid> uids;
+              ParseUidString(uidSet.get(), uids);
+              nsTArray<nsMsgKey> keyArray = MOZ_TRY(MsgKeysFromUids(db, uids));
               for (nsMsgKey key : keyArray) {
                 db->MarkImapDeleted(key, false, nullptr);
               }
@@ -5235,18 +5236,20 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
               nsCOMPtr<nsIMsgDatabase> db;
               rv = GetMsgDatabase(getter_AddRefs(db));
               if (NS_SUCCEEDED(rv) && db) {
-                nsTArray<nsMsgKey> keyArray;
-                nsCString keyString;
-                imapUrl->GetListOfMessageIds(keyString);
-                ParseUidString(keyString.get(), keyArray);
-
+                nsCString uidSet;
+                imapUrl->GetListOfMessageIds(uidSet);
+                nsTArray<ImapUid> uids;
+                ParseUidString(uidSet.get(), uids);
+                nsTArray<nsMsgKey> keyArray =
+                    MOZ_TRY(MsgKeysFromUids(db, uids));
                 // For pluggable stores that do not support compaction, we need
                 // to delete the messages now.
                 bool supportsCompaction = false;
                 nsCOMPtr<nsIMsgPluggableStore> offlineStore;
                 (void)GetMsgStore(getter_AddRefs(offlineStore));
-                if (offlineStore)
+                if (offlineStore) {
                   offlineStore->GetSupportsCompaction(&supportsCompaction);
+                }
 
                 nsTArray<RefPtr<nsIMsgDBHdr>> msgHdrs;
                 if (notifier || !supportsCompaction) {
@@ -5262,8 +5265,9 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
                   notifier->NotifyMsgsDeleted(msgHdrs);
                 }
 
-                if (!supportsCompaction && !msgHdrs.IsEmpty())
+                if (!supportsCompaction && !msgHdrs.IsEmpty()) {
                   DeleteStoreMessages(msgHdrs);
+                }
 
                 db->DeleteMessages(keyArray, nullptr);
                 db->SetSummaryValid(true);
