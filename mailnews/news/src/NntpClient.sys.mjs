@@ -429,6 +429,13 @@ export class NntpClient {
       }
       return;
     }
+    if (/[\r\n]/.test(str)) {
+      // Line breaks would let the rest of str be sent as separate commands.
+      this._logger.error("Command cannot contain line breaks");
+      this.close();
+      this._actionDone(Cr.NS_ERROR_ILLEGAL_VALUE);
+      return;
+    }
     if (suppressLogging && AppConstants.MOZ_UPDATE_CHANNEL != "default") {
       this._logger.debug(
         "C: Logging suppressed (it probably contained auth information)"

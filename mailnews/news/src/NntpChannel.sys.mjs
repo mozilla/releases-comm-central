@@ -181,6 +181,16 @@ export class NntpChannel extends MailChannel {
     listener = Cc["@mozilla.org/contentsecuritymanager;1"]
       .getService(Ci.nsIContentSecurityManager)
       .performSecurityCheck(this, listener);
+    if (
+      [this._messageId, this._groupName, this._articleNumber].some(value =>
+        /[\r\n\0]/.test(value ?? "")
+      )
+    ) {
+      throw Components.Exception(
+        `Invalid news URI: ${this.URI.spec}`,
+        Cr.NS_ERROR_MALFORMED_URI
+      );
+    }
     const url = new URL(this.URI.spec);
     this._listener = listener;
 

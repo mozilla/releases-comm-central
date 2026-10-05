@@ -278,3 +278,58 @@ add_task(function test_open() {
     "article should be read"
   );
 });
+
+/**
+ * @returns {string[]} All commands the server has received.
+ */
+function receivedCommands() {
+  return [server.playTransaction()].flat().flatMap(t => t.them);
+}
+
+/**
+ * Test that a news uri with line breaks in the message id or article number
+ * is refused, so the rest of it can't be sent as separate commands.
+ */
+add_task(function test_lineBreakInUri() {
+  _server.closeCachedConnections();
+  for (const spec of [
+    `news://localhost:${NNTP_PORT}/x%0D%0AINJECTED%3Ca%40b`,
+    `news://localhost:${NNTP_PORT}/x%0AINJECTED%40b`,
+    `news://localhost:${NNTP_PORT}?group=test.filter&key=1%0D%0AINJECTED`,
+  ]) {
+    const channel = NetUtil.newChannel({
+      uri: spec,
+      loadUsingSystemPrincipal: true,
+    });
+    Assert.throws(
+      () => channel.asyncOpen(new PromiseTestUtils.PromiseStreamListener()),
+      /NS_ERROR_MALFORMED_URI/,
+      `opening ${spec} should fail`
+    );
+  }
+});
+
+/**
+ * Test that NntpClient refuses to send a command containing line breaks.
+ */
+add_task(async function test_lineBreakInCommand() {
+  _server.closeCachedConnections();
+  const status = await new Promise(resolve => {
+    _server.wrappedJSObject.withClient(client => {
+      client.startRunningUrl(null, null);
+      client.onOpen = () => {
+        client._sendCommand("ARTICLE <x\r\nINJECTED@b>");
+      };
+      client.onDone = resolve;
+    });
+  });
+  Assert.equal(
+    status,
+    Cr.NS_ERROR_ILLEGAL_VALUE,
+    "request should fail with NS_ERROR_ILLEGAL_VALUE"
+  );
+  Assert.ok(
+    !receivedCommands().some(command => command.includes("INJECTED")),
+    "no part of the command should be sent"
+  );
+});
