@@ -52,15 +52,17 @@ add_setup(async function () {
   for (const srcRoot of srcRoots) {
     for (const destRoot of destRoots) {
       const moveName = `move_from_${srcRoot.server.type}_to_${destRoot.server.type}`;
-      const moveSrcFolder = await createFolder(srcRoot, moveName);
+      const moveSrcFolder = await srcRoot.createSubfolderAsync(moveName);
       await addMessages(moveSrcFolder, 10);
-      const moveSrcSubfolder = await createFolder(moveSrcFolder, "subfolder");
+      const moveSrcSubfolder =
+        await moveSrcFolder.createSubfolderAsync("subfolder");
       await addMessages(moveSrcSubfolder, 3);
 
       const copyName = `copy_from_${srcRoot.server.type}_to_${destRoot.server.type}`;
-      const copySrcFolder = await createFolder(srcRoot, copyName);
+      const copySrcFolder = await srcRoot.createSubfolderAsync(copyName);
       await addMessages(copySrcFolder, 7);
-      const copySrcSubfolder = await createFolder(copySrcFolder, "subfolder");
+      const copySrcSubfolder =
+        await copySrcFolder.createSubfolderAsync("subfolder");
       await addMessages(copySrcSubfolder, 2);
 
       // Hack to give the added tasks names.
@@ -79,12 +81,12 @@ add_setup(async function () {
 });
 
 /**
- * Set up a new incoming server.
+ * Set up a new incoming server and returns its root folder.
  *
  * @param {string} username
  * @param {string} type
  * @param {number} port
- * @returns {nsIMsgIncomingServer}
+ * @returns {nsIMsgFolder}
  */
 async function createServer(username, type, port) {
   const incomingServer = MailServices.accounts.createIncomingServer(
@@ -107,19 +109,6 @@ async function createServer(username, type, port) {
   const account = MailServices.accounts.createAccount();
   account.incomingServer = incomingServer;
   return incomingServer.rootFolder;
-}
-
-/**
- * Create a new folder.
- *
- * @param {nsIMsgFolder} parent
- * @param {string} name
- * @returns {nsIMsgFolder}
- */
-async function createFolder(parent, name) {
-  const addedPromise = PromiseTestUtils.promiseFolderAdded(name);
-  parent.createSubfolder(name, null);
-  return await addedPromise;
 }
 
 /**
