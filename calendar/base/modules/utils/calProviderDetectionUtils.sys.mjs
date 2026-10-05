@@ -60,6 +60,38 @@ export var detection = {
   googleOAuthDomains: new Set(["gmail.com", "googlemail.com", "apidata.googleusercontent.com"]),
 
   /**
+   * Gets the site of a location, which a password given for the location may
+   * be sent to.
+   *
+   * @param {nsIURI} uri - The location.
+   * @returns {?string} The site (as returned by nsIEffectiveTLDService.getSite),
+   *   or null if the location is not HTTP.
+   */
+  getPasswordSite(uri) {
+    if (!uri.schemeIs("http") && !uri.schemeIs("https")) {
+      return null;
+    }
+    return Services.eTLD.getSite(uri);
+  },
+
+  /**
+   * Checks if a password may be sent to a server. A site given as http also
+   * allows https on the same site, but not the other way around.
+   *
+   * @param {Set<string>} sites - The sites the password may be sent to, as
+   *   returned by getPasswordSite.
+   * @param {nsIURI} uri - The URI of the server.
+   * @returns {boolean}
+   */
+  isPasswordSite(sites, uri) {
+    const site = this.getPasswordSite(uri);
+    return (
+      !!site &&
+      (sites.has(site) || (uri.schemeIs("https") && sites.has(site.replace(/^https:/, "http:"))))
+    );
+  },
+
+  /**
    * Translate location and username to an uri. If the location is empty, the
    * domain part of the username is taken. If the location is a hostname it is
    * converted to a https:// uri, if it is an uri string then use that.

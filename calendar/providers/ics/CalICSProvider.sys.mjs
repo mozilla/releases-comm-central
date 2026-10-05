@@ -55,6 +55,10 @@ export var CalICSProvider = {
     }
 
     const detector = new ICSDetector(username, password, savePassword);
+    const site = cal.provider.detection.getPasswordSite(uri);
+    if (site) {
+      detector.session.passwordSites.add(site);
+    }
 
     // To support ics files hosted by simple HTTP server, attempt HEAD/GET
     // before PROPFIND.
@@ -128,6 +132,14 @@ class ICSDetectionSession {
   isDetectionSession = true;
 
   /**
+   * The sites the password may be used for, as returned by
+   * cal.provider.detection.getPasswordSite.
+   *
+   * @type {Set<string>}
+   */
+  passwordSites = new Set();
+
+  /**
    * Create a new ICS detection session.
    *
    * @param {string} aSessionId - The session id, used in the password manager.
@@ -189,7 +201,10 @@ class ICSDetectionSession {
    * @see {nsIAuthPrompt2}
    */
   promptAuth(aChannel, aLevel, aAuthInfo) {
-    if (!this.password) {
+    if (
+      !this.password ||
+      !cal.provider.detection.isPasswordSite(this.passwordSites, aChannel.URI)
+    ) {
       return false;
     }
 

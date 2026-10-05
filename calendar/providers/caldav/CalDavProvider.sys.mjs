@@ -66,9 +66,9 @@ export var CalDavProvider = {
     }
 
     const detector = new CalDavDetector(username, password, savePassword);
-    // Only HTTP URLs have a site. Requests to anything else fail anyway.
-    if (uri.schemeIs("http") || uri.schemeIs("https")) {
-      detector.session.passwordSites.add(Services.eTLD.getSite(uri));
+    const site = cal.provider.detection.getPasswordSite(uri);
+    if (site) {
+      detector.session.passwordSites.add(site);
     }
 
     for (const method of [
@@ -186,7 +186,9 @@ class CalDavDetector {
 
     // The DNS records of the entered domain decide where its password may go.
     this.session.passwordSites.add(
-      Services.eTLD.getSite(Services.io.newURI(`http${secure}://${dnsres[0].host}`))
+      cal.provider.detection.getPasswordSite(
+        Services.io.newURI(`http${secure}://${dnsres[0].host}`)
+      )
     );
 
     // Determine path from TXT, if available.

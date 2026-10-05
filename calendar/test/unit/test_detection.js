@@ -12,6 +12,18 @@ var { ICSServer } = ChromeUtils.importESModule(
 var { detection } = ChromeUtils.importESModule(
   "resource:///modules/calendar/utils/calProviderDetectionUtils.sys.mjs"
 );
+var { HttpServer } = ChromeUtils.importESModule("resource://testing-common/httpd.sys.mjs");
+var { NetworkTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/NetworkTestUtils.sys.mjs"
+);
+
+const USERNAME = "user";
+const PASSWORD = "password";
+// The entered location, a server on the same site, and one on another site.
+const HOSTNAMES = ["example.org", "dav.example.org", "example.com"];
+
+let redirectServer;
+const authorizations = [];
 
 add_setup(async () => {
   do_get_profile();
@@ -30,6 +42,36 @@ add_setup(async () => {
       `
   );
   registerCleanupFunction(() => ICSServer.close());
+
+  redirectServer = new HttpServer();
+  redirectServer.registerPathHandler("/redirect", (request, response) => {
+    response.setStatusLine("1.1", 302, "Found");
+    response.setHeader("Location", `http://${request.queryString}/test.ics`);
+  });
+  redirectServer.registerPathHandler("/test.ics", (request, response) => {
+    const authorization = request.hasHeader("Authorization")
+      ? request.getHeader("Authorization")
+      : null;
+    authorizations.push({ host: request.host, authorization });
+    if (authorization != `Basic ${btoa(`${USERNAME}:${PASSWORD}`)}`) {
+      response.setStatusLine("1.1", 401, "Unauthorized");
+      response.setHeader("WWW-Authenticate", `Basic realm="test"`);
+      return;
+    }
+    response.setHeader("Content-Type", "text/calendar");
+    response.write("BEGIN:VCALENDAR\r\nEND:VCALENDAR\r\n");
+  });
+  redirectServer.start(-1);
+  for (const hostname of HOSTNAMES) {
+    redirectServer.identity.add("http", hostname, 80);
+    NetworkTestUtils.configureProxy(hostname, 80, redirectServer.identity.primaryPort);
+  }
+  registerCleanupFunction(async () => {
+    for (const hostname of HOSTNAMES) {
+      NetworkTestUtils.unconfigureProxy(hostname, 80);
+    }
+    await new Promise(resolve => redirectServer.stop(resolve));
+  });
 });
 
 add_task(async function testIcsDetection() {
@@ -50,4 +92,30 @@ add_task(async function testIcsDetection302() {
   Assert.equal(detectedCals.size, 1, "should find one calendar");
   const icsCal = detectedCals.values().next().value[0];
   Assert.equal(icsCal.uri.spec, url, "should have expected uri");
+});
+
+add_task(async function testIcsDetectionPasswordRedirectSameSite() {
+  authorizations.length = 0;
+  const calendars = await detection.providers
+    .get("ics")
+    .detectCalendars(USERNAME, PASSWORD, "http://example.org/redirect?dav.example.org", false);
+  Assert.equal(calendars.length, 1, "should find the calendar on the same site");
+  Assert.ok(
+    authorizations.some(a => a.host == "dav.example.org" && a.authorization),
+    "should send the password to a server on the same site"
+  );
+});
+
+add_task(async function testIcsDetectionPasswordRedirectOtherSite() {
+  authorizations.length = 0;
+  await detection.providers
+    .get("ics")
+    .detectCalendars(USERNAME, PASSWORD, "http://example.org/redirect?example.com", false)
+    .catch(() => {});
+  Assert.ok(authorizations.length, "should have tried the server on another site");
+  Assert.deepEqual(
+    authorizations.filter(a => a.authorization),
+    [],
+    "should not send the password to a server on another site"
+  );
 });

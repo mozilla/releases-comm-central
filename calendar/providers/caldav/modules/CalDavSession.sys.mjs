@@ -107,8 +107,8 @@ export class CalDavDetectionSession extends CalDavSession {
   isDetectionSession = true;
 
   /**
-   * The sites (as returned by nsIEffectiveTLDService.getSite) the password
-   * may be used for.
+   * The sites the password may be used for, as returned by
+   * cal.provider.detection.getPasswordSite.
    *
    * @type {Set<string>}
    */
@@ -134,21 +134,6 @@ export class CalDavDetectionSession extends CalDavSession {
    */
   toBaseSession() {
     return new CalDavSession(this.username);
-  }
-
-  /**
-   * Checks if the password may be sent to a server. A site given as http also
-   * allows https on the same site, but not the other way around.
-   *
-   * @param {nsIURI} aUri - The URI of the server.
-   * @returns {boolean}
-   */
-  isPasswordSite(aUri) {
-    const site = Services.eTLD.getSite(aUri);
-    return (
-      this.passwordSites.has(site) ||
-      (aUri.schemeIs("https") && this.passwordSites.has(site.replace(/^https:/, "http:")))
-    );
   }
 
   /**
@@ -179,7 +164,10 @@ export class CalDavDetectionSession extends CalDavSession {
    * @see {nsIAuthPrompt2}
    */
   promptAuth(aChannel, aLevel, aAuthInfo) {
-    if (!this.password || !this.isPasswordSite(aChannel.URI)) {
+    if (
+      !this.password ||
+      !cal.provider.detection.isPasswordSite(this.passwordSites, aChannel.URI)
+    ) {
       return false;
     }
 
