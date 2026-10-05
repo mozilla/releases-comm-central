@@ -9,7 +9,7 @@
     cfg_attr(all(), doc = include_str!("../README.md"))
 )]
 #![cfg_attr(feature = "better-docs",
-    feature(doc_auto_cfg),
+    feature(doc_cfg),
 )]
 #![no_std]
 #![forbid(unsafe_code)]
@@ -563,6 +563,6 @@ mod nested_derive {
 #[doc(hidden)] /** Not part of the public API */ pub
 mod ඞ {
     pub use {
-        ::paste::paste,
+        ::pastey::paste,
     };
 }

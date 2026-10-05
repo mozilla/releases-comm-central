@@ -4,7 +4,7 @@ path = "mod.rs"
 
 [package]
 name = "macro_rules_attribute-proc_macro"
-version = "0.2.2"  # Keep in sync
+version = "0.2.3"  # Keep in sync
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 edition = "2018"
 

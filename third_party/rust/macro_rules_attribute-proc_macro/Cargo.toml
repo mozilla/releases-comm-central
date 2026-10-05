@@ -12,7 +12,7 @@
 [package]
 edition = "2018"
 name = "macro_rules_attribute-proc_macro"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 description = "Use declarative macros as proc_macro attributes or derives"
 license = "Apache-2.0 OR MIT OR Zlib"

@@ -12,7 +12,7 @@
 [package]
 edition = "2018"
 name = "macro_rules_attribute"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>"]
 exclude = ["*.sh"]
 description = "Use declarative macros in attribute or derive position"
@@ -38,10 +38,10 @@ rustdoc-args = [
 ]
 
 [dependencies.macro_rules_attribute-proc_macro]
-version = "=0.2.2"
+version = "=0.2.3"
 
-[dependencies.paste]
-version = "1.0.7"
+[dependencies.pastey]
+version = "0.2.3"
 
 [dev-dependencies.once_cell]
 version = "1.10.0"
