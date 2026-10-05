@@ -801,7 +801,7 @@ int ConvertToUTF8(const char* stringToUse, int32_t inLength,
                   const char* input_charset, nsACString& outString) {
   nsresult rv = NS_OK;
 
-  // Look up Thunderbird's special aliases from charsetalias.properties.
+  // Look up Thunderbird's special charset aliases.
   nsCOMPtr<nsICharsetConverterManager> ccm =
       do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, -1);

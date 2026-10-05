@@ -74,7 +74,7 @@ nsresult nsMsgI18NConvertToUnicode(const nsACString& aCharset,
     return UTF_8_ENCODING->DecodeWithBOMRemoval(inString, outString);
   }
 
-  // Look up Thunderbird's special aliases from charsetalias.properties.
+  // Look up Thunderbird's special charset aliases.
   nsresult rv;
   nsCOMPtr<nsICharsetConverterManager> ccm =
       do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);

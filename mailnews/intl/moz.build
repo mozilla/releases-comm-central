@@ -23,13 +23,6 @@ LOCAL_INCLUDES += [
     "/intl/locale",
 ]
 
-GENERATED_FILES += [
-    "charsetalias.properties.h",
-]
-charsetalias = GENERATED_FILES["charsetalias.properties.h"]
-charsetalias.script = "props2arrays.py"
-charsetalias.inputs = ["charsetalias.properties"]
-
 FINAL_LIBRARY = "mail"
 
 # Tests need more attention before they can be enabled.

@@ -11,20 +11,105 @@ add_task(async function test_getCharsetAlias() {
   const manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
     Ci.nsICharsetConverterManager
   );
-  Assert.equal(manager.getCharsetAlias("UtF-7"), "UTF-7");
-  Assert.equal(manager.getCharsetAlias("utF-8"), "UTF-8");
-  Assert.equal(manager.getCharsetAlias("iso8859_1"), "windows-1252");
-  Assert.equal(manager.getCharsetAlias("CP936"), "GBK");
-  Assert.equal(manager.getCharsetAlias("X-User-Defined"), "x-user-defined");
+  const aliases = new Map([
+    ["5601", "EUC-KR"],
+    ["646", "windows-1252"],
+    ["ansi-1251", "windows-1251"],
+    ["big5_hkscs", "Big5"],
+    ["cp-866", "IBM866"],
+    ["cp874", "windows-874"],
+    ["cp932", "Shift_JIS"],
+    ["cp936", "GBK"],
+    ["cp949", "EUC-KR"],
+    ["cp950", "Big5"],
+    ["csiso2022jp2", "ISO-2022-JP"],
+    ["csunicode", "UTF-16LE"],
+    ["csunicode11", "UTF-16BE"],
+    ["csunicode11utf7", "UTF-7"],
+    ["csunicodeascii", "UTF-16BE"],
+    ["csunicodelatin1", "UTF-16BE"],
+    ["euc_cn", "GBK"],
+    ["euc_jp", "EUC-JP"],
+    ["euc_kr", "EUC-KR"],
+    ["iso-10646", "UTF-16BE"],
+    ["iso-10646-j-1", "UTF-16BE"],
+    ["iso-10646-ucs-2", "UTF-16LE"],
+    ["iso-10646-ucs-basic", "UTF-16BE"],
+    ["iso-10646-unicode-latin1", "UTF-16BE"],
+    ["iso-2022-jp-2", "ISO-2022-JP"],
+    ["iso-8859-8i", "ISO-8859-8-I"],
+    ["iso2022jp", "ISO-2022-JP"],
+    ["iso8859_1", "windows-1252"],
+    ["iso8859_13", "ISO-8859-13"],
+    ["iso8859_15", "ISO-8859-15"],
+    ["iso8859_2", "ISO-8859-2"],
+    ["iso8859_3", "ISO-8859-3"],
+    ["iso8859_4", "ISO-8859-4"],
+    ["iso8859_5", "ISO-8859-5"],
+    ["iso8859_6", "ISO-8859-6"],
+    ["iso8859_7", "ISO-8859-7"],
+    ["iso8859_9", "windows-1254"],
+    ["koi8r", "KOI8-R"],
+    ["ms874", "windows-874"],
+    ["ms936", "GBK"],
+    ["ms949", "EUC-KR"],
+    ["ms950", "Big5"],
+    ["ms950_hkscs", "Big5"],
+    ["tis620", "windows-874"],
+    ["unicode-1-1-utf-7", "UTF-7"],
+    ["unicode-2-0-utf-7", "UTF-7"],
+    ["utf-7", "UTF-7"],
+    ["windows-936", "GBK"],
+    ["x-iso-10646-ucs-2-be", "UTF-16BE"],
+    ["x-iso-10646-ucs-2-le", "UTF-16LE"],
+    ["x-unicode-2-0-utf-7", "UTF-7"],
+    ["x-windows-949", "EUC-KR"],
+    ["zh_tw-big5", "Big5"],
+  ]);
+  for (const [label, name] of aliases) {
+    for (const input of [label, label.toUpperCase()]) {
+      Assert.equal(
+        manager.getCharsetAlias(input),
+        name,
+        `${input} should resolve to ${name}`
+      );
+    }
+  }
+  for (const [label, name] of [
+    ["utF-8", "UTF-8"],
+    ["iso-8859-1", "windows-1252"],
+    ["X-User-Defined", "x-user-defined"],
+    [" \tUtF-8\r\n", "UTF-8"],
+  ]) {
+    Assert.equal(
+      manager.getCharsetAlias(label),
+      name,
+      `${JSON.stringify(label)} should resolve to ${name}`
+    );
+  }
+  for (const label of [
+    "replacement",
+    "ISO-2022-CN",
+    "ISO-2022-KR",
+    "HZ-GB-2312",
+  ]) {
+    Assert.throws(
+      () => manager.getCharsetAlias(label),
+      /Component returned failure code: 0x80500001/,
+      `${label} should throw NS_ERROR_UCONV_NOCONV`
+    );
+  }
+  for (const label of ["this-shouldnt-exist", " ", " utf-7 ", " cp936 "]) {
+    Assert.throws(
+      () => manager.getCharsetAlias(label),
+      /Component returned failure code: 0x80040111/,
+      `${JSON.stringify(label)} should throw NS_ERROR_NOT_AVAILABLE`
+    );
+  }
   Assert.throws(
-    () => manager.getCharsetAlias("replacement"),
-    /Component returned failure code: 0x80500001/,
-    `"replacement" should throw NS_ERROR_UCONV_NOCONV"`
-  );
-  Assert.throws(
-    () => manager.getCharsetAlias("this-shouldnt-exist"),
-    /Component returned failure code: 0x80040111/,
-    `non-existent label should throw NS_ERROR_NOT_AVAILABLE`
+    () => manager.getCharsetAlias(""),
+    /Component returned failure code: 0x80070057/,
+    "An empty label should throw NS_ERROR_ILLEGAL_VALUE"
   );
 });
 
