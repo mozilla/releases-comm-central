@@ -43,7 +43,10 @@ export class NntpChannel extends MailChannel {
       uri = uri
         .mutate()
         .setPort(
-          this._server?.port ?? Ci.nsINntpIncomingServer.DEFAULT_NNTP_PORT
+          this._server?.port ??
+            (uri.scheme == "snews"
+              ? Ci.nsINntpIncomingServer.DEFAULT_NNTPS_PORT
+              : Ci.nsINntpIncomingServer.DEFAULT_NNTP_PORT)
         )
         .finalize();
     }
@@ -297,6 +300,9 @@ export class NntpChannel extends MailChannel {
       this._server = MailServices.accounts
         .createIncomingServer("", this.URI.asciiHost, "nntp")
         .QueryInterface(Ci.nsINntpIncomingServer);
+      if (this.URI.scheme == "snews") {
+        this._server.socketType = Ci.nsMsgSocketType.SSL;
+      }
       this._server.port = this.URI.port;
     }
     const pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);

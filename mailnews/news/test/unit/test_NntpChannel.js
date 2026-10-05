@@ -11,6 +11,9 @@ var { NntpUtils } = ChromeUtils.importESModule(
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
+var { ServerTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
+);
 
 let server;
 
@@ -125,6 +128,50 @@ class StatusListener {
     this._resolve(status);
   }
 }
+
+/**
+ * Test that a server created for an snews: URI with no port uses TLS on the
+ * default port.
+ */
+add_task(async function test_unknownServerSnews() {
+  const tlsServer = await ServerTestUtils.createServer(
+    ServerTestUtils.serverDefs.nntp.tls
+  );
+  tlsServer.daemon.addArticle(
+    new NewsArticle(
+      "Newsgroups: test.snews\nMessage-ID: <snews@nntp.invalid>\n\nThis article was fetched over TLS.\n"
+    )
+  );
+
+  const channel = NetUtil.newChannel({
+    uri: "snews://test.test/snews%40nntp.invalid",
+    loadUsingSystemPrincipal: true,
+  });
+  const streamListener = new PromiseTestUtils.PromiseStreamListener();
+  channel.asyncOpen(streamListener);
+  const data = await streamListener.promise;
+  Assert.stringContains(
+    data,
+    "This article was fetched over TLS.",
+    "article should be fetched"
+  );
+
+  const newServer = NntpUtils.findServer("test.test");
+  Assert.ok(newServer, "server should be created when opening the channel");
+  Assert.equal(
+    newServer.socketType,
+    Ci.nsMsgSocketType.SSL,
+    "server should use TLS"
+  );
+  Assert.equal(
+    newServer.port,
+    Ci.nsINntpIncomingServer.DEFAULT_NNTPS_PORT,
+    "server should use the default NNTPS port"
+  );
+  newServer.closeCachedConnections();
+  MailServices.accounts.removeIncomingServer(newServer, false);
+  tlsServer.close();
+});
 
 /**
  * @param {string} messageId

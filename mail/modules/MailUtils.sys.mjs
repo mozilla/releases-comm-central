@@ -888,9 +888,12 @@ export var MailUtils = {
       return;
     }
 
-    // Treat deprecated 'snews' URIs exactly as 'news' URIs.
+    // Deprecated 'snews' URIs are 'news' URIs using NNTP over TLS. Configured
+    // servers use their own security settings, so this only matters when
+    // connecting to an unknown server.
     // @see {@link https://datatracker.ietf.org/doc/html/rfc5538#section-8.1}
-    if (url.protocol == "snews:") {
+    const secure = url.protocol == "snews:";
+    if (secure) {
       url.protocol = "news:";
     }
 
@@ -938,16 +941,43 @@ export var MailUtils = {
 
     // URIs that contain a message-ID.
 
-    if (!url.hostname) {
-      if (!firstNntpServer) {
-        console.warn("No news server set up.");
+    const server = url.hostname
+      ? lazy.MailServices.accounts.findServer(
+          "",
+          url.hostname,
+          "nntp",
+          Number(url.port) || 0
+        )
+      : firstNntpServer;
+    if (server) {
+      url.hostname = server.hostname;
+      url.port = server.port;
+    } else if (!url.hostname) {
+      console.warn("No news server set up.");
+      return;
+    } else {
+      // This URL is for a server that we don't know. Prompt the user for
+      // confirmation before sending any traffic to it, and set the port to the
+      // correct default value the default (based on whether we were given a
+      // 'news:' or an 'snews:' URI) if it's missing.
+      if (secure) {
+        url.protocol = "snews:";
+      }
+      if (!url.port) {
+        url.port = secure
+          ? Ci.nsINntpIncomingServer.DEFAULT_NNTPS_PORT
+          : Ci.nsINntpIncomingServer.DEFAULT_NNTP_PORT;
+      }
+      const result = Services.prompt.confirm(
+        win,
+        null,
+        lazy.l10n.formatValueSync("unknown-news-server-text", {
+          server: url.host,
+        })
+      );
+      if (!result) {
         return;
       }
-      url.hostname = firstNntpServer.hostname;
-      url.port = firstNntpServer.port;
-    }
-    if (!url.port) {
-      url.port = Ci.nsINntpIncomingServer.DEFAULT_NNTP_PORT;
     }
 
     const tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
