@@ -405,8 +405,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
   // gets a chance.
   void NotifyHasPendingMsgs();
   void UpdatePendingCounts();
-  void SetIMAPDeletedFlag(nsIMsgDatabase* mailDB,
-                          const nsTArray<nsMsgKey>& msgids, bool markDeleted);
   virtual bool ShowDeletedMessages();
   virtual bool DeleteIsMoveToTrash();
   nsresult GetFolder(const nsACString& name, nsIMsgFolder** pFolder);

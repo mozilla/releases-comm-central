@@ -4877,23 +4877,20 @@ nsImapMailFolder::NotifyMessageDeleted(const char* onlineFolderName,
                                        bool deleteAllMsgs,
                                        const char* msgIdString) {
   if (deleteAllMsgs) return NS_OK;
-
   if (!msgIdString) return NS_OK;
 
-  nsTArray<nsMsgKey> affectedMessages;
-  ParseUidString(msgIdString, affectedMessages);
-
-  if (!ShowDeletedMessages()) {
-    GetDatabase();
-    NS_ENSURE_TRUE(mDatabase, NS_OK);
-    if (!ShowDeletedMessages()) {
-      if (!affectedMessages.IsEmpty())  // perhaps Search deleted these messages
-      {
-        DeleteStoreMessages(affectedMessages);
-        mDatabase->DeleteMessages(affectedMessages, nullptr);
-      }
-    } else  // && !imapDeleteIsMoveToTrash // TODO: can this ever be executed?
-      SetIMAPDeletedFlag(mDatabase, affectedMessages, false);
+  if (ShowDeletedMessages()) {
+    return NS_OK;
+  }
+  GetDatabase();
+  NS_ENSURE_TRUE(mDatabase, NS_OK);
+  nsTArray<ImapUid> uids;
+  ParseUidString(msgIdString, uids);
+  nsTArray<nsMsgKey> affected = MOZ_TRY(MsgKeysFromUids(mDatabase, uids));
+  if (!affected.IsEmpty())  // perhaps Search deleted these messages
+  {
+    DeleteStoreMessages(affected);
+    mDatabase->DeleteMessages(affected, nullptr);
   }
   return NS_OK;
 }
@@ -4934,19 +4931,6 @@ nsresult nsImapMailFolder::GetTrashFolder(nsIMsgFolder** pTrashFolder) {
     if (!*pTrashFolder) rv = NS_ERROR_FAILURE;
   }
   return rv;
-}
-
-// store nsMsgMessageFlags::IMAPDeleted in the specified mailhdr records
-void nsImapMailFolder::SetIMAPDeletedFlag(nsIMsgDatabase* mailDB,
-                                          const nsTArray<nsMsgKey>& msgids,
-                                          bool markDeleted) {
-  nsresult markStatus = NS_OK;
-  uint32_t total = msgids.Length();
-
-  for (uint32_t msgIndex = 0; NS_SUCCEEDED(markStatus) && (msgIndex < total);
-       msgIndex++)
-    markStatus =
-        mailDB->MarkImapDeleted(msgids[msgIndex], markDeleted, nullptr);
 }
 
 // nsIImapMessageSink.getMessageSizeFromDB() implementation.
