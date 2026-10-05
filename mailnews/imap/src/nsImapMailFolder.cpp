@@ -2106,9 +2106,7 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
   // *** jt - assuming delete is move to the trash folder for now
   nsAutoCString uri;
   bool deleteImmediatelyNoTrash = false;
-  bool deleteMsgs = true;  // used for toggling delete status - default is true
   nsMsgImapDeleteModel deleteModel = nsMsgImapDeleteModels::MoveToTrash;
-  imapMessageFlagsType messageFlags = kImapMsgDeletedFlag;
 
   nsCOMPtr<nsIImapIncomingServer> imapServer;
   nsresult rv = GetFlag(nsMsgFolderFlags::Trash, &deleteImmediatelyNoTrash);
@@ -2161,6 +2159,8 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
       txns->GetTransactionManager(getter_AddRefs(txnMgr));
       if (txnMgr) txnMgr->DoTransaction(undoMsgTxn);
     }
+    bool deleteMsgs =
+        true;  // used for toggling delete status - default is true
     if (deleteModel == nsMsgImapDeleteModels::IMAPDelete && !deleteStorage) {
       deleteMsgs = false;
       for (nsIMsgDBHdr* msgHdr : msgHeaders) {
@@ -2178,6 +2178,7 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
     // if copy service listener is also a url listener, pass that
     // url listener into StoreImapFlags.
     nsCOMPtr<nsIUrlListener> urlListener = do_QueryInterface(listener);
+    imapMessageFlagsType messageFlags = kImapMsgDeletedFlag;
     if (deleteMsgs) messageFlags |= kImapMsgSeenFlag;
     rv = StoreImapFlags(messageFlags, deleteMsgs, srcKeyArray, urlListener);
 
