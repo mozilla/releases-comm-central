@@ -1,0 +1,12 @@
+[package]
+name = "gleam"
+version = "0.16.0"
+authors = ["The Servo Project Developers"]
+description = "Generated OpenGL bindings and wrapper for Servo."
+documentation = "https://docs.rs/gleam"
+repository = "https://github.com/servo/gleam"
+license = "MIT OR Apache-2.0"
+build = "build.rs"
+
+[build-dependencies]
+gl_generator = "0.14"
