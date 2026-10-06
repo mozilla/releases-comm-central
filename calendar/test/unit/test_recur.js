@@ -819,6 +819,18 @@ function test_rules() {
     "20170618T100000"
   );
 
+  // A yearly rule expands the sub-day parts too.
+  check_recur(
+    makeEvent(
+      "DESCRIPTION:Twice on the 15th of June every year\n" +
+        "RRULE:FREQ=YEARLY;BYMONTH=6;BYMONTHDAY=15;BYHOUR=9,17;COUNT=4\n" +
+        "DTSTART:20160615T090000\n" +
+        "DTEND:20160615T100000\n"
+    ),
+    ["20160615T090000", "20160615T170000", "20170615T090000", "20170615T170000"],
+    "20170615T180000"
+  );
+
   // Unsupported SECONDLY FREQ value.
   item = makeEvent(
     "DESCRIPTION:bug 1770984\nRRULE:FREQ=SECONDLY;COUNT=60\nDTSTART:20220606T114500Z\n"
