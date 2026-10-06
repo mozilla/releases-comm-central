@@ -177,6 +177,14 @@ add_task(async function testSyncRecipientsGraph() {
   await testSyncRecipients(graphServer, incomingGraphServer);
 });
 
+add_task(async function testHeaderInjectionEws() {
+  await testHeaderInjection(ewsServer, incomingEwsServer);
+});
+
+add_task(async function testHeaderInjectionGraph() {
+  await testHeaderInjection(graphServer, incomingGraphServer);
+});
+
 /**
  * Test that we message sync requests that are sent request a correct number of
  * messages to be included in responses.
@@ -828,6 +836,57 @@ async function testSyncRecipients(mockServer, incomingServer) {
     message.ccList,
     '"Bob" <bob@foo.invalid>',
     "the ccList property on the message should match the ones in the message"
+  );
+}
+
+/**
+ * Test that line breaks in server-provided header values can't inject extra
+ * header fields, and that local-only header fields from the server are
+ * ignored.
+ *
+ * @param {MockServer} mockServer - The `MockServer` instance that implements
+ *   the protocol being tested.
+ * @param {nsIMsgIncomingServer} incomingServer - The incoming server to sync.
+ */
+async function testHeaderInjection(mockServer, incomingServer) {
+  const folderName = "headerInjection";
+  mockServer.appendRemoteFolder(
+    new RemoteFolder(folderName, "root", folderName, null)
+  );
+
+  const msg = generator.makeMessage({
+    from: ["Alice", "alice@foo.invalid"],
+    subject: "Totally legit\nFrom: spoof@evil.invalid\r\nX-Injected: yes",
+    clobberHeaders: { "X-Mozilla-Keys": "$label1" },
+  });
+  mockServer.addMessages(folderName, [msg]);
+
+  const rootFolder = incomingServer.rootFolder;
+  incomingServer.getNewMessages(rootFolder, null, null);
+
+  const folder = await TestUtils.waitForCondition(
+    () => rootFolder.getChildNamed(folderName),
+    "waiting for folder to exist"
+  );
+  await TestUtils.waitForCondition(
+    () => folder.getTotalMessages(false) == 1,
+    "waiting for the message to exist"
+  );
+
+  const message = [...folder.messages][0];
+  Assert.equal(
+    message.subject,
+    "Totally legit From: spoof@evil.invalid X-Injected: yes",
+    "line breaks in the subject should be replaced with spaces"
+  );
+  Assert.ok(
+    !message.author.includes("evil.invalid"),
+    "the author should not be overridden by an injected header"
+  );
+  Assert.equal(
+    message.getStringProperty("keywords"),
+    "",
+    "keywords should not be set from a server-provided X-Mozilla-Keys header"
   );
 }
 

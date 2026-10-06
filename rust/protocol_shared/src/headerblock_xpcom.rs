@@ -20,6 +20,27 @@ pub mod rfc5322_header {
     pub const PRIORITY: &str = "Priority";
 }
 
+/// Header fields which are only ever written locally, and must not be accepted
+/// from a server.
+const LOCAL_ONLY_HEADERS: [&str; 4] = [
+    "X-Mozilla-Status",
+    "X-Mozilla-Status2",
+    "X-Mozilla-Keys",
+    "X-Account-Key",
+];
+
+/// Whether `name` is a valid RFC5322 field name (printable US-ASCII, except
+/// colon).
+fn is_valid_header_name(name: &str) -> bool {
+    !name.is_empty() && name.bytes().all(|b| (33..=126).contains(&b) && b != b':')
+}
+
+/// Remove line breaks from a header value, so it can't spill over into
+/// additional header fields once serialized.
+fn sanitize_header_value(value: &str) -> String {
+    value.replace('\r', "").replace('\n', " ")
+}
+
 /// A simple IHeaderBlock implementation.
 ///
 /// Just holds a list of name->value mail header pairs.
@@ -31,8 +52,21 @@ pub struct HeaderBlock {
 }
 
 impl HeaderBlock {
+    /// Create a HeaderBlock from server-provided header fields. Fields with
+    /// invalid or local-only names are dropped, and line breaks in values are
+    /// replaced with spaces.
     pub fn new(hdrs: Vec<(String, String)>) -> RefPtr<Self> {
-        HeaderBlock::allocate(InitHeaderBlock { headers: hdrs })
+        let headers = hdrs
+            .into_iter()
+            .filter(|(name, _)| {
+                is_valid_header_name(name)
+                    && !LOCAL_ONLY_HEADERS
+                        .iter()
+                        .any(|local| local.eq_ignore_ascii_case(name))
+            })
+            .map(|(name, value)| (name, sanitize_header_value(&value)))
+            .collect();
+        HeaderBlock::allocate(InitHeaderBlock { headers })
     }
 
     xpcom_method!(num_headers => GetNumHeaders() -> u32);
