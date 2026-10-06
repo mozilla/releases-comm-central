@@ -32,7 +32,8 @@ class TestCardRow extends customElements.get("tree-view-table-row") {
     this.threader.textContent = "↳";
     this.threader.classList.add("tree-button-thread");
 
-    this.twisty = container.appendChild(document.createElement("div"));
+    this.twisty = container.appendChild(document.createElement("button"));
+    this.twisty.type = "button";
     this.twisty.textContent = "v";
     this.twisty.classList.add("twisty");
 
@@ -47,6 +48,10 @@ class TestCardRow extends customElements.get("tree-view-table-row") {
     this.classList.remove("level0", "level1", "level2");
     this.classList.add(`level${this.view.getLevel(this._index)}`);
     this.d2.textContent = this.view.getCellText(this._index, "text");
+    this.twisty.ariaLabel = this.d2.textContent;
+    this.twisty.ariaExpanded = this.view.isContainer(this._index)
+      ? this.view.isContainerOpen(this._index)
+      : null;
   }
 }
 customElements.define("test-row", TestCardRow, { extends: "tr" });

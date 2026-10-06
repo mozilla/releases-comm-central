@@ -53,10 +53,12 @@ async function runTestInSandbox(test, filenameFragment, sandboxArgs = []) {
  * Checks that interactions with the widget do as expected.
  */
 add_task(async function testKeyboardAndMouse() {
+  AccessibilityUtils.setEnv({ mustHaveAccessibleRule: false });
   for (const variant of TEST_VARIANTS) {
     info(`Running keyboard and mouse test for ${variant}`);
     await runTestInSandbox(subtestKeyboardAndMouse, variant, [variant]);
   }
+  AccessibilityUtils.resetEnv();
 });
 
 async function subtestKeyboardAndMouse(variant) {

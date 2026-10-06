@@ -41,8 +41,7 @@ add_task(async () => {
 
   // Okay, let's check the focus order.
   const testBrowser = document.getElementById("tabmail").currentTabInfo.browser;
-  EventUtils.synthesizeMouseAtCenter(testBrowser, { clickCount: 1 });
-  await new Promise(resolve => setTimeout(resolve));
+  await SimpleTest.promiseFocus(testBrowser);
 
   const beforeButton = testDocument.querySelector("button#before");
   beforeButton.focus();
