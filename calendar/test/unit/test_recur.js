@@ -23,6 +23,7 @@ function really_run_test() {
   test_rules();
   test_failures();
   test_limit();
+  test_expansion_limit();
   test_startdate_change();
   test_idchange();
   test_rrule_icalstring();
@@ -823,6 +824,102 @@ function test_limit() {
 
   equal(recdates.length, 3);
   equal(occurrences.length, 3);
+}
+
+function test_expansion_limit() {
+  function occurrenceCount(rrule, dtstart = "20260101T000000Z") {
+    const item = makeEvent(`RRULE:${rrule}\nDTSTART:${dtstart}\n`);
+    return item.recurrenceInfo.getOccurrenceDates(createDate(1990, 0, 1), createDate(2060, 0, 1), 0)
+      .length;
+  }
+
+  const allMonths = "1,2,3,4,5,6,7,8,9,10,11,12";
+  const allMonthDays = Array.from({ length: 31 }, (_, i) => i + 1).join(",");
+  const allHours = Array.from({ length: 24 }, (_, i) => i).join(",");
+  const allMinutes = Array.from({ length: 60 }, (_, i) => i).join(",");
+  const allSeconds = Array.from({ length: 60 }, (_, i) => i).join(",");
+
+  // Rules expanding to more instances per period than we support are not
+  // expanded at all, rather than tying up the application for minutes on end.
+  // Only the event's own start date is left. Bug 2058960.
+  equal(
+    occurrenceCount(
+      `FREQ=YEARLY;BYMONTH=${allMonths};BYMONTHDAY=${allMonthDays};BYHOUR=${allHours};` +
+        `BYMINUTE=${allMinutes};BYSECOND=${allSeconds};BYSETPOS=1,-1;UNTIL=20360101T000000Z`
+    ),
+    1,
+    "a yearly rule expanding to every second of the year should be refused"
+  );
+  equal(
+    occurrenceCount(
+      `FREQ=MONTHLY;BYMONTHDAY=${allMonthDays};BYHOUR=${allHours};BYMINUTE=${allMinutes};` +
+        `BYSECOND=${allSeconds};UNTIL=20360101T000000Z`
+    ),
+    1,
+    "a monthly rule expanding to every second of the month should be refused"
+  );
+  equal(
+    occurrenceCount(`FREQ=DAILY;BYHOUR=${allHours};BYMINUTE=${allMinutes};BYSECOND=${allSeconds}`),
+    1,
+    "a daily rule expanding to every second of the day should be refused"
+  );
+  equal(
+    occurrenceCount(`FREQ=DAILY;BYHOUR=${allHours};BYMINUTE=${allMinutes}`),
+    1,
+    "a daily rule expanding to every minute of the day should be refused"
+  );
+
+  // Rules no denser than the hourly frequency still expand.
+  equal(
+    occurrenceCount("FREQ=DAILY;BYHOUR=0,12;COUNT=4"),
+    4,
+    "a daily rule with two hours should be expanded"
+  );
+  equal(
+    occurrenceCount("FREQ=DAILY;BYHOUR=0;BYMINUTE=0,30;COUNT=4"),
+    4,
+    "a daily rule with two minutes should be expanded"
+  );
+  equal(
+    occurrenceCount(
+      `FREQ=YEARLY;BYMONTH=${allMonths};BYMONTHDAY=${allMonthDays};BYHOUR=${allHours};COUNT=4`
+    ),
+    4,
+    "a yearly rule expanding to every hour of the year should be expanded"
+  );
+
+  // A rule that is dense enough to outlast the query is cut short instead of
+  // being iterated to its end.
+  equal(
+    occurrenceCount(`FREQ=DAILY;BYHOUR=${allHours}`),
+    10000,
+    "an hourly rule spanning decades should be cut short"
+  );
+
+  // A rule whose BY* parts can never all be satisfied gives up rather than
+  // searching for ever. Bug 2058960.
+  equal(
+    occurrenceCount("FREQ=DAILY;BYMONTH=2;BYMONTHDAY=30"),
+    1,
+    "a rule asking for a day that does not exist should give up"
+  );
+  equal(
+    occurrenceCount("FREQ=HOURLY;BYMONTH=2;BYMONTHDAY=30"),
+    1,
+    "an hourly rule asking for a day that does not exist should give up"
+  );
+
+  // Rules that only match many periods from now are still found.
+  equal(
+    occurrenceCount("FREQ=DAILY;BYMONTH=2;BYMONTHDAY=29;COUNT=2"),
+    2,
+    "a rule matching only on a leap day should be expanded"
+  );
+  equal(
+    occurrenceCount("FREQ=DAILY;BYMONTH=2;BYMONTHDAY=29;BYDAY=MO;COUNT=2"),
+    2,
+    "a rule matching only on a leap day falling on a Monday should be expanded"
+  );
 }
 
 function test_clone(event) {

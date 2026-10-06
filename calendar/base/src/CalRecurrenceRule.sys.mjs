@@ -18,6 +18,50 @@ ChromeUtils.defineESModuleGetters(lazy, {
   CalIcalProperty: "resource:///modules/CalICSService.sys.mjs",
 });
 
+/**
+ * The BY* parts that expand the recurrence set of each supported frequency,
+ * rather than limiting it. See RFC 5545, section 3.3.10, table 1.
+ */
+const EXPANDING_PARTS = {
+  HOURLY: ["BYMINUTE", "BYSECOND"],
+  DAILY: ["BYHOUR", "BYMINUTE", "BYSECOND"],
+  WEEKLY: ["BYDAY", "BYHOUR", "BYMINUTE", "BYSECOND"],
+  MONTHLY: ["BYMONTHDAY", "BYDAY", "BYHOUR", "BYMINUTE", "BYSECOND"],
+  YEARLY: [
+    "BYMONTH",
+    "BYWEEKNO",
+    "BYYEARDAY",
+    "BYMONTHDAY",
+    "BYDAY",
+    "BYHOUR",
+    "BYMINUTE",
+    "BYSECOND",
+  ],
+};
+
+/** The longest a single period of each supported frequency can be, in hours. */
+const PERIOD_HOURS = {
+  HOURLY: 1,
+  DAILY: 24,
+  WEEKLY: 7 * 24,
+  MONTHLY: 31 * 24,
+  YEARLY: 366 * 24,
+};
+
+/**
+ * How many instances a rule may expand to per hour of its period. Hourly is
+ * the shortest frequency we support, and the BY* parts of a rule cannot be
+ * counted exactly without expanding them, so allow twice that.
+ */
+const MAX_INSTANCES_PER_HOUR = 2;
+
+/**
+ * The most occurrences a single rule will produce while answering one query.
+ * A rule reaching this is malformed or hostile; iterating it to the end would
+ * exhaust memory and hang the application.
+ */
+const MAX_OCCURRENCES_PER_QUERY = 10000;
+
 export function CalRecurrenceRule(innerObject) {
   this.innerObject = innerObject || new ICAL.Recur();
   this.wrappedJSObject = this;
@@ -56,16 +100,39 @@ CalRecurrenceRule.prototype = {
   },
 
   /**
-   * Tests whether the "FREQ" value for this rule is supported or not. A warning
-   * is logged if an unsupported value ("SECONDLY"|"MINUTELY") is encountered.
+   * Tests whether this rule is one we are able to expand. A warning is logged
+   * for every rule that isn't, and no occurrences are generated for it.
+   *
+   * Unsupported are the "SECONDLY" and "MINUTELY" frequencies, and rules whose
+   * BY* parts expand a single period into far more instances than the shortest
+   * frequency we do support would. The latter can be written in about a
+   * kilobyte and expand to hundreds of millions of instances.
    *
    * @returns {boolean}
    */
-  freqSupported() {
-    const { freq } = this.innerObject;
-    if (freq == "SECONDLY" || freq == "MINUTELY") {
+  isSupported() {
+    const { freq, interval, parts } = this.innerObject;
+    if (!(freq in EXPANDING_PARTS)) {
       lazy.log.warn(
         `The frequency value "${freq}" is currently not supported. No occurrences will be generated.`
+      );
+      return false;
+    }
+
+    let instances = 1;
+    for (const part of EXPANDING_PARTS[freq]) {
+      // Given a BYMONTHDAY or BYYEARDAY part, BYDAY limits the set instead of
+      // expanding it.
+      if (part == "BYDAY" && (parts.BYMONTHDAY || parts.BYYEARDAY)) {
+        continue;
+      }
+      instances *= parts[part]?.length || 1;
+    }
+    const maxInstances = MAX_INSTANCES_PER_HOUR * PERIOD_HOURS[freq] * Math.max(interval || 1, 1);
+    if (instances > maxInstances) {
+      lazy.log.warn(
+        `The rule "${this.innerObject}" expands to ${instances} instances per period, ` +
+          `more than the ${maxInstances} supported. No occurrences will be generated.`
       );
       return false;
     }
@@ -73,18 +140,37 @@ CalRecurrenceRule.prototype = {
   },
 
   getNextOccurrence(aStartTime, aRecId) {
-    if (!this.freqSupported()) {
+    if (!this.isSupported()) {
       return null;
     }
     aStartTime = aStartTime.wrappedJSObject.innerObject;
     aRecId = aRecId.wrappedJSObject.innerObject;
-    const val = this.innerObject.getNextOccurrence(aStartTime, aRecId);
+
+    // This is ICAL.Recur.getNextOccurrence, which searches from the start of
+    // the series, spelled out here so that the search can be given a budget.
+    const iter = this.innerObject.iterator(aStartTime);
+    let val;
+    let count = 0;
+    do {
+      if (++count > MAX_OCCURRENCES_PER_QUERY) {
+        lazy.log.warn(
+          `Gave up looking for the occurrence of "${this.innerObject}" after ${aRecId}, ` +
+            `it is more than ${MAX_OCCURRENCES_PER_QUERY} occurrences from ${aStartTime}.`
+        );
+        return null;
+      }
+      val = iter.next();
+    } while (val && val.compare(aRecId) <= 0);
+
+    if (val && aRecId.zone) {
+      val.zone = aRecId.zone;
+    }
     return val ? new lazy.CalDateTime(val) : null;
   },
 
   cachingIterator: null,
   getOccurrences(aStartTime, aRangeStart, aRangeEnd, aMaxCount) {
-    if (!this.freqSupported()) {
+    if (!this.isSupported()) {
       return [];
     }
     aStartTime = aStartTime.wrappedJSObject.innerObject;
@@ -154,7 +240,16 @@ CalRecurrenceRule.prototype = {
       iter = this.cachingIterator.newInstance();
     }
 
+    let count = 0;
     for (const next of iter) {
+      if (++count > MAX_OCCURRENCES_PER_QUERY) {
+        lazy.log.warn(
+          `The rule "${this.innerObject}" produced more than ${MAX_OCCURRENCES_PER_QUERY} ` +
+            `occurrences from ${aStartTime}, ignoring the rest.`
+        );
+        break;
+      }
+
       let dtNext;
       if (next.isDate) {
         dtNext = next.clone();
