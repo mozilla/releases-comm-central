@@ -3,34 +3,100 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { PositionedDialog } from "./positioned-dialog.mjs";
+import { CalendarEventDialogSourceMixin } from "./calendar-event-dialog-source-mixin.mjs";
 
 /**
- * Static shell for the calendar event create/edit dialog.
+ * The static shell for the calendar event create/edit dialog.
  *
- * The shell deliberately owns only the dialog's common structure. Routing,
- * positioning, sizing, header controls, field rows, and event data belong to
- * their respective follow-up components.
+ * The dialog reads route attributes and loads event data. Other components add
+ * position, size, header controls, field rows, and event data mapping.
  *
  * Template ID: #calendarEventCreateEditDialogTemplate
  *
  * @tagname calendar-event-create-edit-dialog
  */
-export class CalendarEventCreateEditDialog extends PositionedDialog {
+export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixin(
+  PositionedDialog
+) {
+  /**
+   * The current dialog mode. It is "create", "edit", or null.
+   *
+   * @type {"create"|"edit"|null}
+   */
+  #mode = null;
+
+  /**
+   * Create the dialog content and start route observation.
+   */
   connectedCallback() {
-    if (this.hasConnected) {
-      return;
+    if (!this.hasConnected) {
+      this.hasConnected = true;
+
+      const template = document.getElementById(
+        "calendarEventCreateEditDialogTemplate"
+      );
+      this.append(template.content.cloneNode(true));
+
+      this.setAttribute("is", "calendar-event-create-edit-dialog");
+
+      window.MozXULElement?.insertFTLIfNeeded("messenger/calendarDialog.ftl");
+      document.l10n.setAttributes(this, "calendar-event-create-edit-dialog");
     }
-    this.hasConnected = true;
+    this.initializeCalendarEventRoute();
+  }
 
-    const template = document.getElementById(
-      "calendarEventCreateEditDialogTemplate"
-    );
-    this.append(template.content.cloneNode(true));
+  /**
+   * The current dialog mode.
+   *
+   * "create" has an empty route. "edit" has a complete event route. null
+   * means the route is incomplete, cleared, or failed.
+   *
+   * @returns {"create"|"edit"|null}
+   */
+  get mode() {
+    return this.#mode;
+  }
 
-    this.setAttribute("is", "calendar-event-create-edit-dialog");
+  /**
+   * Allow an empty route to open this dialog in create mode.
+   *
+   * @returns {boolean}
+   */
+  get allowsEmptyCalendarEventRoute() {
+    return true;
+  }
 
-    window.MozXULElement?.insertFTLIfNeeded("messenger/calendarDialog.ftl");
-    document.l10n.setAttributes(this, "calendar-event-create-edit-dialog");
+  /**
+   * Clear the dialog mode after a route error.
+   */
+  onCalendarEventRouteError() {
+    this.#mode = null;
+  }
+
+  /**
+   * Clear the dialog mode after the route is cleared.
+   */
+  onCalendarEventRouteCleared() {
+    this.#mode = null;
+  }
+
+  /**
+   * Set create mode for an empty route.
+   *
+   * @param {CalendarEventDialogRouteRequest} _route
+   */
+  async onEmptyCalendarEventRoute(_route) {
+    this.#mode = "create";
+  }
+
+  /**
+   * Set edit mode before an event source starts to load.
+   *
+   * @param {CalendarEventSourceIdentity} _identity
+   * @param {CalendarEventDialogRouteRequest} _route
+   */
+  async onCalendarEventSourceLoadStart(_identity, _route) {
+    this.#mode = "edit";
   }
 }
 

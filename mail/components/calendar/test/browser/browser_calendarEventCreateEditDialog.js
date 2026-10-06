@@ -13,6 +13,9 @@ let browser;
 let doc;
 let dialog;
 let dialogContainer;
+let calendar;
+let calendarEvent;
+let recurringEvent;
 
 add_setup(async function () {
   const tab = tabmail.openTab("contentTab", {
@@ -29,6 +32,17 @@ add_setup(async function () {
   dialog = doc.querySelector('[is="calendar-event-create-edit-dialog"]');
   dialog.container = dialogContainer;
 
+  calendar = createCalendar();
+  calendarEvent = await createEvent({
+    calendar,
+    name: "Create/Edit Loader Event",
+  });
+  recurringEvent = await createEvent({
+    calendar,
+    name: "Create/Edit Loader Recurring Event",
+    repeats: true,
+  });
+
   await startAxeMutationObserver(browser, {
     message:
       "The create/edit dialog shell stayed axe-clean while the test mutated it",
@@ -37,8 +51,89 @@ add_setup(async function () {
 
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 });
+
+function waitForNextSourceLoad(element = dialog) {
+  const { promise, resolve, reject } = Promise.withResolvers();
+  const originalSourceLoaded = element.onCalendarEventSourceLoaded;
+  element.onCalendarEventSourceLoaded = async source => {
+    try {
+      await originalSourceLoaded.call(element, source);
+      resolve(source);
+    } catch (error) {
+      reject(error);
+      throw error;
+    }
+  };
+  return promise.finally(() => {
+    element.onCalendarEventSourceLoaded = originalSourceLoaded;
+  });
+}
+
+function waitForNextSourceError(element = dialog) {
+  const { promise, resolve } = Promise.withResolvers();
+  const originalRouteError = element.onCalendarEventRouteError;
+  element.onCalendarEventRouteError = error => {
+    originalRouteError.call(element, error);
+    resolve(error);
+  };
+  return promise.finally(() => {
+    element.onCalendarEventRouteError = originalRouteError;
+  });
+}
+
+async function waitForMode(mode, element = dialog) {
+  await TestUtils.waitForCondition(
+    () => element.mode == mode,
+    `Waiting for the create/edit dialog to enter ${mode} mode`
+  );
+}
+
+async function resetToCreateMode(element = dialog) {
+  element.setCalendarEventRoute();
+  await waitForMode("create", element);
+}
+
+async function createAdditionalDialog() {
+  const element = browser.contentWindow.document.createElement("dialog", {
+    is: "calendar-event-create-edit-dialog",
+  });
+  element.container = dialogContainer;
+  browser.contentWindow.document.body.append(element);
+  await waitForMode("create", element);
+  return element;
+}
+
+function delayCalendarEventLoad(eventId) {
+  const calendarObject = calendar.wrappedJSObject;
+  const originalGetItem = calendarObject.getItem;
+  const requestStarted = Promise.withResolvers();
+  const releaseRequest = Promise.withResolvers();
+  let delayed = true;
+
+  calendarObject.getItem = async id => {
+    if (delayed && id == eventId) {
+      requestStarted.resolve();
+      await releaseRequest.promise;
+    }
+    return originalGetItem.call(calendarObject, id);
+  };
+
+  return {
+    release() {
+      delayed = false;
+      releaseRequest.resolve();
+    },
+    restore() {
+      calendarObject.getItem = originalGetItem;
+    },
+    waitForRequest() {
+      return requestStarted.promise;
+    },
+  };
+}
 
 add_task(async function test_registration_and_structure() {
   const { customElements } = browser.contentWindow;
@@ -46,10 +141,17 @@ add_task(async function test_registration_and_structure() {
     customElements.get("calendar-event-create-edit-dialog"),
     "The create/edit dialog custom element is registered"
   );
-  Assert.equal(
-    Object.getPrototypeOf(dialog.constructor.prototype),
-    customElements.get("positioned-dialog").prototype,
-    "The create/edit dialog extends PositionedDialog"
+  Assert.ok(
+    dialog instanceof customElements.get("positioned-dialog"),
+    "The create/edit dialog extends PositionedDialog through the shared source mixin"
+  );
+  Assert.ok(
+    !("sourceState" in dialog),
+    "Create/edit does not expose a pull-based source-state API"
+  );
+  Assert.ok(
+    !("sourceEvent" in dialog),
+    "Create/edit does not expose a pull-based raw-event API"
   );
 
   Assert.equal(
@@ -110,7 +212,7 @@ add_task(async function test_dialogVisibilityChecks() {
     "The dialog is hidden before it is opened"
   );
 
-  dialog.show();
+  await dialog.show();
 
   Assert.ok(
     BrowserTestUtils.isVisible(dialog),
@@ -126,7 +228,7 @@ add_task(async function test_dialogVisibilityChecks() {
 });
 
 add_task(async function test_dialogHasMinimumWidth() {
-  dialog.show();
+  await dialog.show();
 
   try {
     await TestUtils.waitForCondition(
@@ -166,7 +268,7 @@ add_task(async function test_bodyScrollsWhenContentIsTooTall() {
   const shortHeaderRect = dialogHeader.getBoundingClientRect();
   const shortFooterRect = dialogFooter.getBoundingClientRect();
 
-  dialog.show();
+  await dialog.show();
 
   try {
     Assert.ok(
@@ -300,7 +402,7 @@ add_task(async function test_rowsExpandAndCollapseWithinAvailableSpace() {
   row.append(details);
   rows.append(row);
 
-  dialog.show();
+  await dialog.show();
 
   try {
     const collapsedHeight = dialog.getBoundingClientRect().height;
@@ -353,7 +455,7 @@ add_task(async function test_rowsScrollWhenAvailableSpaceIsConstrained() {
   dialogContainer.style.blockSize = "160px";
   rows.append(row);
 
-  dialog.show();
+  await dialog.show();
 
   try {
     const constrainedHeight = dialogContainer.getBoundingClientRect().height;
@@ -400,3 +502,490 @@ add_task(async function test_rowsScrollWhenAvailableSpaceIsConstrained() {
     dialog.close();
   }
 });
+
+add_task(async function test_create_route_does_not_load_a_source_event() {
+  await resetToCreateMode();
+
+  const originalSourceLoaded = dialog.onCalendarEventSourceLoaded;
+  let sourceLoaded = false;
+  dialog.onCalendarEventSourceLoaded = async source => {
+    sourceLoaded = true;
+    await originalSourceLoaded.call(dialog, source);
+  };
+
+  try {
+    Assert.equal(
+      await dialog.show(),
+      true,
+      "A create route can show without a source event"
+    );
+    Assert.equal(
+      dialog.mode,
+      "create",
+      "The empty route remains in create mode"
+    );
+    Assert.ok(!sourceLoaded, "The create route does not load a source event");
+  } finally {
+    dialog.onCalendarEventSourceLoaded = originalSourceLoaded;
+    dialog.close();
+  }
+});
+
+add_task(async function test_attribute_driven_source_loader() {
+  await resetToCreateMode();
+
+  const sourceLoaded = waitForNextSourceLoad();
+  dialog.setAttribute("calendar-id", calendar.id);
+  dialog.setAttribute("event-id", calendarEvent.id);
+  const source = await sourceLoaded;
+
+  Assert.equal(
+    dialog.mode,
+    "edit",
+    "The identifying attributes select edit mode"
+  );
+  Assert.equal(
+    source.identity.calendarId,
+    calendar.id,
+    "The source transition retains the calendar identity"
+  );
+  Assert.equal(
+    source.identity.eventId,
+    calendarEvent.id,
+    "The source transition retains the event identity"
+  );
+  Assert.equal(
+    source.snapshot.event.title,
+    calendarEvent.title,
+    "The source transition carries a serializable event snapshot"
+  );
+  Assert.ok(
+    !("event" in source),
+    "The Redux create/edit consumer does not receive a raw platform event"
+  );
+  const serializedSnapshot = JSON.stringify(source.snapshot);
+  Assert.equal(
+    JSON.parse(serializedSnapshot).event.title,
+    calendarEvent.title,
+    "The snapshot passed through the state transition is serializable"
+  );
+
+  const nextOccurrence = recurringEvent.recurrenceInfo.getNextOccurrence(
+    recurringEvent.startDate
+  );
+  Assert.ok(nextOccurrence, "The recurring event has a next occurrence");
+  const expectedRecurrenceId = String(nextOccurrence.recurrenceId.nativeTime);
+  const expectedOccurrenceStartNativeTime = String(
+    nextOccurrence.startDate.nativeTime
+  );
+  const recurringSourceLoaded = waitForNextSourceLoad();
+  dialog.setAttribute("event-id", recurringEvent.id);
+  dialog.setAttribute("recurrence-id", expectedRecurrenceId);
+  const recurringSource = await recurringSourceLoaded;
+
+  Assert.strictEqual(
+    recurringSource.identity.recurrenceId,
+    expectedRecurrenceId,
+    "The source transition accepts recurrence-id as the route's native-time value"
+  );
+  Assert.strictEqual(
+    recurringSource.snapshot.event.recurrenceId,
+    expectedRecurrenceId,
+    "The snapshot identifies the requested occurrence"
+  );
+  Assert.strictEqual(
+    recurringSource.snapshot.event.start.nativeTime,
+    expectedOccurrenceStartNativeTime,
+    "The source snapshot represents the requested occurrence"
+  );
+
+  await resetToCreateMode();
+});
+
+add_task(async function test_atomic_route_updates_clear_mode_and_recurrence() {
+  await resetToCreateMode();
+
+  const recurringSourceLoaded = waitForNextSourceLoad();
+  dialog.setCalendarEventRoute({
+    calendarId: calendar.id,
+    eventId: recurringEvent.id,
+    recurrenceId: String(recurringEvent.startDate.nativeTime),
+  });
+  await recurringSourceLoaded;
+  Assert.equal(dialog.mode, "edit", "The atomic route selects edit mode");
+
+  const sourceLoaded = waitForNextSourceLoad();
+  dialog.setCalendarEventRoute({
+    calendarId: calendar.id,
+    eventId: calendarEvent.id,
+  });
+  Assert.equal(
+    dialog.getAttribute("recurrence-id"),
+    null,
+    "An atomic non-recurring route removes the prior recurrence ID"
+  );
+  const source = await sourceLoaded;
+  Assert.equal(
+    source.snapshot.event.eventId,
+    calendarEvent.id,
+    "The new route loads without the prior occurrence selector"
+  );
+
+  dialog.setCalendarEventRoute();
+  Assert.equal(
+    dialog.mode,
+    null,
+    "Clearing a route resets edit mode immediately"
+  );
+  await waitForMode("create");
+});
+
+add_task(async function test_loading_state_drives_edit_presentation() {
+  await resetToCreateMode();
+
+  const delayedLoad = delayCalendarEventLoad(calendarEvent.id);
+  const originalSourceLoaded = dialog.onCalendarEventSourceLoaded;
+  const sourceLoaded = Promise.withResolvers();
+  dialog.onCalendarEventSourceLoaded = async source => {
+    sourceLoaded.resolve(source);
+    await originalSourceLoaded.call(dialog, source);
+  };
+
+  try {
+    dialog.setCalendarEventRoute({
+      calendarId: calendar.id,
+      eventId: calendarEvent.id,
+    });
+    await delayedLoad.waitForRequest();
+    await waitForMode("edit");
+
+    Assert.ok(
+      !dialog.open,
+      "The loading state selects edit presentation before the source is ready"
+    );
+
+    delayedLoad.release();
+    const source = await sourceLoaded.promise;
+    Assert.equal(
+      source.snapshot.event.eventId,
+      calendarEvent.id,
+      "The ready transition receives the event after the loading transition"
+    );
+  } finally {
+    delayedLoad.release();
+    delayedLoad.restore();
+    dialog.onCalendarEventSourceLoaded = originalSourceLoaded;
+    await resetToCreateMode();
+  }
+});
+
+add_task(async function test_superseded_source_hook_cannot_apply_stale_state() {
+  await resetToCreateMode();
+
+  const originalSourceLoaded = dialog.onCalendarEventSourceLoaded;
+  const firstHookStarted = Promise.withResolvers();
+  const releaseFirstHook = Promise.withResolvers();
+  const currentSourceLoaded = Promise.withResolvers();
+  let renderedEventId = null;
+  let firstHookWasCurrent = true;
+
+  dialog.onCalendarEventSourceLoaded = async source => {
+    if (source.snapshot.event.eventId == calendarEvent.id) {
+      firstHookStarted.resolve();
+      await releaseFirstHook.promise;
+      firstHookWasCurrent = source.isCurrent();
+    }
+    if (source.isCurrent()) {
+      renderedEventId = source.snapshot.event.eventId;
+      if (source.snapshot.event.eventId == recurringEvent.id) {
+        currentSourceLoaded.resolve();
+      }
+    }
+  };
+
+  try {
+    dialog.setCalendarEventRoute({
+      calendarId: calendar.id,
+      eventId: calendarEvent.id,
+    });
+    await firstHookStarted.promise;
+
+    dialog.setCalendarEventRoute({
+      calendarId: calendar.id,
+      eventId: recurringEvent.id,
+      recurrenceId: String(recurringEvent.startDate.nativeTime),
+    });
+    await currentSourceLoaded.promise;
+    Assert.equal(
+      renderedEventId,
+      recurringEvent.id,
+      "The current route renders while the old hook is pending"
+    );
+
+    releaseFirstHook.resolve();
+    await new Promise(browser.contentWindow.requestAnimationFrame);
+    Assert.ok(!firstHookWasCurrent, "The superseded hook is marked stale");
+    Assert.equal(
+      renderedEventId,
+      recurringEvent.id,
+      "The stale hook does not overwrite current presentation state"
+    );
+  } finally {
+    dialog.onCalendarEventSourceLoaded = originalSourceLoaded;
+    await resetToCreateMode();
+  }
+});
+
+add_task(
+  async function test_stale_calendar_lookup_cannot_replace_current_route() {
+    await resetToCreateMode();
+
+    const delayedLoad = delayCalendarEventLoad(calendarEvent.id);
+    const originalSourceLoaded = dialog.onCalendarEventSourceLoaded;
+    const currentSourceLoaded = Promise.withResolvers();
+    const sourceSnapshotEventIds = [];
+    dialog.onCalendarEventSourceLoaded = async source => {
+      sourceSnapshotEventIds.push(source.snapshot.event.eventId);
+      if (source.snapshot.event.eventId == recurringEvent.id) {
+        currentSourceLoaded.resolve(source);
+      }
+    };
+
+    try {
+      dialog.setCalendarEventRoute({
+        calendarId: calendar.id,
+        eventId: calendarEvent.id,
+      });
+      await delayedLoad.waitForRequest();
+
+      dialog.setCalendarEventRoute({
+        calendarId: calendar.id,
+        eventId: recurringEvent.id,
+        recurrenceId: String(recurringEvent.startDate.nativeTime),
+      });
+      const currentSource = await currentSourceLoaded.promise;
+      Assert.equal(
+        currentSource.snapshot.event.eventId,
+        recurringEvent.id,
+        "The replacement route receives its own source snapshot"
+      );
+
+      delayedLoad.release();
+      await new Promise(browser.contentWindow.requestAnimationFrame);
+      await new Promise(browser.contentWindow.requestAnimationFrame);
+      Assert.deepEqual(
+        sourceSnapshotEventIds,
+        [recurringEvent.id],
+        "The stale calendar lookup cannot render over the current route"
+      );
+    } finally {
+      delayedLoad.release();
+      delayedLoad.restore();
+      dialog.onCalendarEventSourceLoaded = originalSourceLoaded;
+      await resetToCreateMode();
+    }
+  }
+);
+
+add_task(
+  async function test_dialog_sessions_are_isolated_and_reloaded_after_close() {
+    await resetToCreateMode();
+    const otherDialog = await createAdditionalDialog();
+
+    try {
+      const firstSourceLoaded = waitForNextSourceLoad();
+      const secondSourceLoaded = waitForNextSourceLoad(otherDialog);
+      dialog.setCalendarEventRoute({
+        calendarId: calendar.id,
+        eventId: calendarEvent.id,
+      });
+      otherDialog.setCalendarEventRoute({
+        calendarId: calendar.id,
+        eventId: recurringEvent.id,
+        recurrenceId: String(recurringEvent.startDate.nativeTime),
+      });
+
+      const [firstSource, secondSource] = await Promise.all([
+        firstSourceLoaded,
+        secondSourceLoaded,
+      ]);
+      Assert.equal(
+        firstSource.snapshot.event.eventId,
+        calendarEvent.id,
+        "The first dialog receives its own source snapshot"
+      );
+      Assert.equal(
+        secondSource.snapshot.event.eventId,
+        recurringEvent.id,
+        "The second dialog receives its own source snapshot"
+      );
+
+      Assert.equal(await dialog.show(), true, "The first dialog opens");
+      dialog.close();
+      Assert.ok(!dialog.open, "Closing clears the first dialog session");
+
+      Assert.equal(
+        await otherDialog.show(),
+        true,
+        "Closing one dialog does not invalidate another dialog's source session"
+      );
+      Assert.ok(otherDialog.open, "The isolated second dialog opens");
+      otherDialog.close();
+
+      const reloadedSource = waitForNextSourceLoad();
+      const reopened = dialog.show();
+      Assert.ok(
+        !dialog.open,
+        "The closed dialog waits for a fresh source load"
+      );
+      const source = await reloadedSource;
+      Assert.equal(
+        source.snapshot.event.eventId,
+        calendarEvent.id,
+        "The closed dialog reloads its own source before reopening"
+      );
+      Assert.equal(
+        await reopened,
+        true,
+        "The first dialog reopens after reload"
+      );
+    } finally {
+      if (dialog.open) {
+        dialog.close();
+      }
+      if (otherDialog.open) {
+        otherDialog.close();
+      }
+      otherDialog.remove();
+      await resetToCreateMode();
+    }
+  }
+);
+
+add_task(async function test_show_waits_for_the_current_source_route() {
+  await resetToCreateMode();
+
+  const sourceLoaded = waitForNextSourceLoad();
+  dialog.setAttribute("calendar-id", calendar.id);
+  dialog.setAttribute("event-id", calendarEvent.id);
+  const showPromise = dialog.show();
+
+  Assert.ok(
+    !dialog.open,
+    "The dialog is not shown before the source route has loaded"
+  );
+  await sourceLoaded;
+  await showPromise;
+  Assert.ok(dialog.open, "The dialog opens after the source route is ready");
+
+  dialog.close();
+});
+
+add_task(async function test_incomplete_source_identity_is_not_loaded() {
+  await resetToCreateMode();
+
+  const sourceError = waitForNextSourceError();
+  dialog.setAttribute("calendar-id", calendar.id);
+  const error = await sourceError;
+
+  Assert.equal(
+    dialog.mode,
+    null,
+    "An incomplete route selects neither dialog mode"
+  );
+  Assert.equal(
+    error.code,
+    "incomplete-identity",
+    "The incomplete route is reported without a calendar lookup"
+  );
+
+  Assert.equal(
+    await dialog.show(),
+    false,
+    "An incomplete route resolves without opening the dialog"
+  );
+  Assert.ok(!dialog.open, "The failed route did not show the dialog");
+
+  await resetToCreateMode();
+});
+
+add_task(
+  async function test_missing_or_invalid_source_failures_are_controlled() {
+    await resetToCreateMode();
+
+    const missingCalendar = waitForNextSourceError();
+    dialog.setCalendarEventRoute({
+      calendarId: "missing-calendar",
+      eventId: calendarEvent.id,
+    });
+    const missingCalendarError = await missingCalendar;
+    Assert.equal(
+      missingCalendarError.code,
+      "calendar-not-found",
+      "A missing calendar has a controlled Redux error"
+    );
+    Assert.equal(
+      await dialog.show(),
+      false,
+      "A missing calendar does not reject a fire-and-forget show call"
+    );
+
+    const missingEvent = waitForNextSourceError();
+    dialog.setCalendarEventRoute({
+      calendarId: calendar.id,
+      eventId: "missing-event",
+    });
+    const missingEventError = await missingEvent;
+    Assert.equal(
+      missingEventError.code,
+      "event-not-found",
+      "A missing event has a controlled Redux error"
+    );
+    Assert.equal(
+      await dialog.show(),
+      false,
+      "A missing event does not reject a fire-and-forget show call"
+    );
+
+    const invalidRecurrence = waitForNextSourceError();
+    dialog.setCalendarEventRoute({
+      calendarId: calendar.id,
+      eventId: recurringEvent.id,
+      recurrenceId: "not-a-native-time",
+    });
+    const invalidRecurrenceError = await invalidRecurrence;
+    Assert.equal(
+      invalidRecurrenceError.code,
+      "invalid-recurrence-id",
+      "An invalid recurrence identity has a controlled error"
+    );
+    Assert.equal(
+      await dialog.show(),
+      false,
+      "An invalid recurrence identity does not show the dialog"
+    );
+
+    const missingOccurrence = waitForNextSourceError();
+    dialog.setCalendarEventRoute({
+      calendarId: calendar.id,
+      eventId: recurringEvent.id,
+      recurrenceId: String(
+        Number(recurringEvent.startDate.nativeTime) +
+          90 * 24 * 60 * 60 * 1_000_000
+      ),
+    });
+    const missingOccurrenceError = await missingOccurrence;
+    Assert.equal(
+      missingOccurrenceError.code,
+      "occurrence-not-found",
+      "A missing recurrence occurrence has a controlled error"
+    );
+    Assert.equal(
+      await dialog.show(),
+      false,
+      "A missing recurrence occurrence does not show the dialog"
+    );
+
+    await resetToCreateMode();
+  }
+);

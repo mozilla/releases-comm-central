@@ -2,6 +2,10 @@
 
 ["test_calendarAttachmentUtils.js"]
 
+["test_calendarEventDialogRouteController.js"]
+
+["test_calendarEventSourceState.js"]
+
 ["test_dialog_position.js"]
 
 ["test_joinLinkParser.js"]
