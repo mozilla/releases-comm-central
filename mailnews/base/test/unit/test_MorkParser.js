@@ -447,3 +447,44 @@ add_task(async function testUnescapedParenthesisInRowCell() {
     "Should not generate malformed cell warnings for unescaped parentheses"
   );
 });
+
+add_task(async function testUnterminatedBlocks() {
+  // Without caching, each unterminated block rescans to the end of the
+  // content, which would make this take minutes.
+  const count = 200000;
+  for (const char of ["<", "{", "["]) {
+    const parser = new MorkParser();
+    parser.parseContent(char.repeat(count));
+    Assert.equal(
+      parser.warnings.length,
+      count,
+      `should warn once per unterminated ${char} block`
+    );
+  }
+
+  const parser = new MorkParser();
+  parser.parseContent(`{1:^80 ${"[".repeat(count)} }`);
+  Assert.equal(parser.total, 0, "should not find rows in unterminated blocks");
+});
+
+add_task(async function testUnterminatedTableRecovery() {
+  // A truncated table: the outer { is never closed, but the rows nested in
+  // it should still be found.
+  const msfData = `< <(a=c)>(80=ns:msg:db:row:scope:msgs:all)(81=subject)>
+{1:^80 {(k^96:c)(s=9)}
+  [1:^80(^81=One)]
+  [2:^80(^81=Two)]
+  [3:^80(^81=Three)]
+`;
+
+  const parser = new MorkParser();
+  const parsed = parser.parseContent(msfData);
+  const msgTable = parsed.find(
+    t => t["@id"] === "ns:msg:db:row:scope:msgs:all"
+  ).data;
+  Assert.deepEqual(
+    msgTable.map(row => row.subject),
+    ["One", "Two", "Three"],
+    "should recover rows from an unterminated table"
+  );
+});

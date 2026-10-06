@@ -295,6 +295,8 @@ export class MorkParser {
     let section = "top level";
     const length = body.length;
 
+    const blockCache = new Map();
+
     // Hoist the sticky regex to avoid GC pressure during the parsing loop
     const markerRegex = /@\$\$(\{|\})([\dA-F]+)(\{|\})@/iy;
 
@@ -338,7 +340,7 @@ export class MorkParser {
 
       // 4. Key and Value Tables (<...>)
       if (char === "<") {
-        const block = this.consumeBlock(body, pos, "<", ">");
+        const block = this.consumeBlock(body, pos, "<", ">", blockCache);
         if (!block) {
           this.warnings.push(
             `[Section ${section}] Unterminated < block at pos ${pos}. Recovering.`
@@ -366,7 +368,7 @@ export class MorkParser {
 
       // 5. Tables ({...})
       if (char === "{") {
-        const block = this.consumeBlock(body, pos, "{", "}");
+        const block = this.consumeBlock(body, pos, "{", "}", blockCache);
         if (!block) {
           this.warnings.push(
             `[Section ${section}] Unterminated { block at pos ${pos}. Recovering.`
@@ -381,7 +383,7 @@ export class MorkParser {
 
       // 6. Rows ([...])
       if (char === "[") {
-        const block = this.consumeBlock(body, pos, "[", "]");
+        const block = this.consumeBlock(body, pos, "[", "]", blockCache);
         if (!block) {
           this.warnings.push(
             `[Section ${section}] Unterminated [ block at pos ${pos}. Recovering.`
@@ -464,11 +466,23 @@ export class MorkParser {
    *   (e.g., '{', '[', '<').
    * @param {string} closeChar - The character that closes the block
    *   (e.g., '}', ']', '>').
+   * @param {Map} [cache] - Per-body cache. When a block is found to be
+   *   unterminated, the positions of all blocks nested in it are stored here,
+   *   so that later calls for the same body don't rescan to the end.
    * @returns {{text: string, nextPos: number}|null} An object containing the
    *   extracted text and the next cursor position, or null if the block is
    *   unterminated.
    */
-  consumeBlock(body, startPos, openChar, closeChar) {
+  consumeBlock(body, startPos, openChar, closeChar, cache) {
+    const cached = cache?.get(openChar);
+    if (cached && startPos >= cached.from) {
+      const end = cached.ends.get(startPos);
+      if (end === undefined) {
+        return null;
+      }
+      return { text: body.substring(startPos, end + 1), nextPos: end + 1 };
+    }
+
     let depth = 0;
     let inParens = false;
     let i = startPos;
@@ -506,7 +520,52 @@ export class MorkParser {
       }
       i++;
     }
+    cache?.set(openChar, {
+      from: startPos,
+      ends: this.mapNestedBlocks(body, startPos, openChar, closeChar),
+    });
     return null; // Unterminated block
+  }
+
+  /**
+   * Helper: Finds the end position of every block opened from startPos to the
+   * end of body, using the same rules as consumeBlock().
+   *
+   * @param {string} body
+   * @param {number} startPos
+   * @param {string} openChar
+   * @param {string} closeChar
+   * @returns {Map<number, number>} Map of block start position to the position
+   *   of its closing character. Unterminated blocks are not included.
+   */
+  mapNestedBlocks(body, startPos, openChar, closeChar) {
+    const ends = new Map();
+    const stack = [];
+    let inParens = false;
+    let i = startPos;
+    const length = body.length;
+
+    while (i < length) {
+      const char = body[i];
+      if (char === "\\") {
+        i += 2;
+        continue;
+      }
+      if (char === "(") {
+        inParens = true;
+      } else if (char === ")") {
+        inParens = false;
+      }
+      if (!inParens) {
+        if (char === openChar) {
+          stack.push(i);
+        } else if (char === closeChar && stack.length) {
+          ends.set(stack.pop(), i);
+        }
+      }
+      i++;
+    }
+    return ends;
   }
 
   /**
@@ -555,11 +614,12 @@ export class MorkParser {
     let lastId = "";
     let pos = 0;
     const length = table_part.length;
+    const blockCache = new Map();
 
     // State machine row extractor (Immune to the [127.0.0.1] bracket bug)
     while (pos < length) {
       if (table_part[pos] === "[") {
-        const block = this.consumeBlock(table_part, pos, "[", "]");
+        const block = this.consumeBlock(table_part, pos, "[", "]", blockCache);
         if (!block) {
           pos++;
           continue;
