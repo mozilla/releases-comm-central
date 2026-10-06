@@ -6,6 +6,7 @@
 
 #include "DatabaseCore.h"
 #include "DatabaseUtils.h"
+#include "DetachedMsgHdr.h"
 #include "Message.h"
 #include "mozilla/Logging.h"
 #include "mozilla/ResultExtensions.h"
