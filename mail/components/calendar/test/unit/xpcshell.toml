@@ -2,6 +2,8 @@
 
 ["test_calendarAttachmentUtils.js"]
 
+["test_calendarEventCreateEditState.js"]
+
 ["test_calendarEventDialogRouteController.js"]
 
 ["test_calendarEventSourceState.js"]

@@ -135,7 +135,7 @@ function delayCalendarEventLoad(eventId) {
   };
 }
 
-add_task(async function test_registration_and_structure() {
+add_task(async function test_registrationAndStructure() {
   const { customElements } = browser.contentWindow;
   Assert.ok(
     customElements.get("calendar-event-create-edit-dialog"),
@@ -176,7 +176,7 @@ add_task(async function test_registration_and_structure() {
   );
 });
 
-add_task(async function test_shared_row_and_subview_scaffolding() {
+add_task(async function test_sharedRowAndSubviewScaffolding() {
   const body = dialog.querySelector(".calendar-event-create-edit-dialog-body");
   const subview = body.querySelector(
     "#calendarEventCreateEditDialogMainSubview[data-subview='main']"
@@ -188,7 +188,7 @@ add_task(async function test_shared_row_and_subview_scaffolding() {
   Assert.equal(rows.childElementCount, 0, "The static shell has no field rows");
 });
 
-add_task(async function test_accessible_static_dialog_shell() {
+add_task(async function test_accessibleStaticDialogShell() {
   dialog.showModal();
 
   try {
@@ -502,8 +502,7 @@ add_task(async function test_rowsScrollWhenAvailableSpaceIsConstrained() {
     dialog.close();
   }
 });
-
-add_task(async function test_create_route_does_not_load_a_source_event() {
+add_task(async function test_createRouteDoesNotLoadASourceEvent() {
   await resetToCreateMode();
 
   const originalSourceLoaded = dialog.onCalendarEventSourceLoaded;
@@ -530,8 +529,7 @@ add_task(async function test_create_route_does_not_load_a_source_event() {
     dialog.close();
   }
 });
-
-add_task(async function test_attribute_driven_source_loader() {
+add_task(async function test_attributeDrivenSourceLoader() {
   await resetToCreateMode();
 
   const sourceLoaded = waitForNextSourceLoad();
@@ -602,7 +600,7 @@ add_task(async function test_attribute_driven_source_loader() {
   await resetToCreateMode();
 });
 
-add_task(async function test_atomic_route_updates_clear_mode_and_recurrence() {
+add_task(async function test_atomicRouteUpdatesClearModeAndRecurrence() {
   await resetToCreateMode();
 
   const recurringSourceLoaded = waitForNextSourceLoad();
@@ -640,7 +638,7 @@ add_task(async function test_atomic_route_updates_clear_mode_and_recurrence() {
   await waitForMode("create");
 });
 
-add_task(async function test_loading_state_drives_edit_presentation() {
+add_task(async function test_loadingStateDrivesEditPresentation() {
   await resetToCreateMode();
 
   const delayedLoad = delayCalendarEventLoad(calendarEvent.id);
@@ -679,7 +677,7 @@ add_task(async function test_loading_state_drives_edit_presentation() {
   }
 });
 
-add_task(async function test_superseded_source_hook_cannot_apply_stale_state() {
+add_task(async function test_supersededSourceHookCannotApplyStaleState() {
   await resetToCreateMode();
 
   const originalSourceLoaded = dialog.onCalendarEventSourceLoaded;
@@ -736,133 +734,200 @@ add_task(async function test_superseded_source_hook_cannot_apply_stale_state() {
   }
 });
 
-add_task(
-  async function test_stale_calendar_lookup_cannot_replace_current_route() {
-    await resetToCreateMode();
+add_task(async function test_staleCalendarLookupCannotReplaceCurrentRoute() {
+  await resetToCreateMode();
 
-    const delayedLoad = delayCalendarEventLoad(calendarEvent.id);
-    const originalSourceLoaded = dialog.onCalendarEventSourceLoaded;
-    const currentSourceLoaded = Promise.withResolvers();
-    const sourceSnapshotEventIds = [];
-    dialog.onCalendarEventSourceLoaded = async source => {
-      sourceSnapshotEventIds.push(source.snapshot.event.eventId);
-      if (source.snapshot.event.eventId == recurringEvent.id) {
-        currentSourceLoaded.resolve(source);
-      }
-    };
-
-    try {
-      dialog.setCalendarEventRoute({
-        calendarId: calendar.id,
-        eventId: calendarEvent.id,
-      });
-      await delayedLoad.waitForRequest();
-
-      dialog.setCalendarEventRoute({
-        calendarId: calendar.id,
-        eventId: recurringEvent.id,
-        recurrenceId: String(recurringEvent.startDate.nativeTime),
-      });
-      const currentSource = await currentSourceLoaded.promise;
-      Assert.equal(
-        currentSource.snapshot.event.eventId,
-        recurringEvent.id,
-        "The replacement route receives its own source snapshot"
-      );
-
-      delayedLoad.release();
-      await new Promise(browser.contentWindow.requestAnimationFrame);
-      await new Promise(browser.contentWindow.requestAnimationFrame);
-      Assert.deepEqual(
-        sourceSnapshotEventIds,
-        [recurringEvent.id],
-        "The stale calendar lookup cannot render over the current route"
-      );
-    } finally {
-      delayedLoad.release();
-      delayedLoad.restore();
-      dialog.onCalendarEventSourceLoaded = originalSourceLoaded;
-      await resetToCreateMode();
+  const delayedLoad = delayCalendarEventLoad(calendarEvent.id);
+  const originalSourceLoaded = dialog.onCalendarEventSourceLoaded;
+  const currentSourceLoaded = Promise.withResolvers();
+  const sourceSnapshotEventIds = [];
+  dialog.onCalendarEventSourceLoaded = async source => {
+    sourceSnapshotEventIds.push(source.snapshot.event.eventId);
+    if (source.snapshot.event.eventId == recurringEvent.id) {
+      currentSourceLoaded.resolve(source);
     }
-  }
-);
+  };
 
-add_task(
-  async function test_dialog_sessions_are_isolated_and_reloaded_after_close() {
+  try {
+    dialog.setCalendarEventRoute({
+      calendarId: calendar.id,
+      eventId: calendarEvent.id,
+    });
+    await delayedLoad.waitForRequest();
+
+    dialog.setCalendarEventRoute({
+      calendarId: calendar.id,
+      eventId: recurringEvent.id,
+      recurrenceId: String(recurringEvent.startDate.nativeTime),
+    });
+    const currentSource = await currentSourceLoaded.promise;
+    Assert.equal(
+      currentSource.snapshot.event.eventId,
+      recurringEvent.id,
+      "The replacement route receives its own source snapshot"
+    );
+
+    delayedLoad.release();
+    await new Promise(browser.contentWindow.requestAnimationFrame);
+    await new Promise(browser.contentWindow.requestAnimationFrame);
+    Assert.deepEqual(
+      sourceSnapshotEventIds,
+      [recurringEvent.id],
+      "The stale calendar lookup cannot render over the current route"
+    );
+  } finally {
+    delayedLoad.release();
+    delayedLoad.restore();
+    dialog.onCalendarEventSourceLoaded = originalSourceLoaded;
     await resetToCreateMode();
-    const otherDialog = await createAdditionalDialog();
+  }
+});
 
-    try {
-      const firstSourceLoaded = waitForNextSourceLoad();
-      const secondSourceLoaded = waitForNextSourceLoad(otherDialog);
-      dialog.setCalendarEventRoute({
-        calendarId: calendar.id,
-        eventId: calendarEvent.id,
-      });
-      otherDialog.setCalendarEventRoute({
-        calendarId: calendar.id,
-        eventId: recurringEvent.id,
-        recurrenceId: String(recurringEvent.startDate.nativeTime),
-      });
+add_task(async function test_dialogSessionsAreIsolatedAndReloadedAfterClose() {
+  await resetToCreateMode();
+  const otherDialog = await createAdditionalDialog();
 
-      const [firstSource, secondSource] = await Promise.all([
-        firstSourceLoaded,
-        secondSourceLoaded,
-      ]);
-      Assert.equal(
-        firstSource.snapshot.event.eventId,
-        calendarEvent.id,
-        "The first dialog receives its own source snapshot"
-      );
-      Assert.equal(
-        secondSource.snapshot.event.eventId,
-        recurringEvent.id,
-        "The second dialog receives its own source snapshot"
-      );
+  try {
+    const firstSourceLoaded = waitForNextSourceLoad();
+    const secondSourceLoaded = waitForNextSourceLoad(otherDialog);
+    dialog.setCalendarEventRoute({
+      calendarId: calendar.id,
+      eventId: calendarEvent.id,
+    });
+    otherDialog.setCalendarEventRoute({
+      calendarId: calendar.id,
+      eventId: recurringEvent.id,
+      recurrenceId: String(recurringEvent.startDate.nativeTime),
+    });
 
-      Assert.equal(await dialog.show(), true, "The first dialog opens");
+    const [firstSource, secondSource] = await Promise.all([
+      firstSourceLoaded,
+      secondSourceLoaded,
+    ]);
+    Assert.equal(
+      firstSource.snapshot.event.eventId,
+      calendarEvent.id,
+      "The first dialog receives its own source snapshot"
+    );
+    Assert.equal(
+      secondSource.snapshot.event.eventId,
+      recurringEvent.id,
+      "The second dialog receives its own source snapshot"
+    );
+
+    Assert.equal(await dialog.show(), true, "The first dialog opens");
+    dialog.close();
+    Assert.ok(!dialog.open, "Closing clears the first dialog session");
+
+    Assert.equal(
+      await otherDialog.show(),
+      true,
+      "Closing one dialog does not invalidate another dialog's source session"
+    );
+    Assert.ok(otherDialog.open, "The isolated second dialog opens");
+    otherDialog.close();
+
+    const reloadedSource = waitForNextSourceLoad();
+    const reopened = dialog.show();
+    Assert.ok(!dialog.open, "The closed dialog waits for a fresh source load");
+    const source = await reloadedSource;
+    Assert.equal(
+      source.snapshot.event.eventId,
+      calendarEvent.id,
+      "The closed dialog reloads its own source before reopening"
+    );
+    Assert.equal(await reopened, true, "The first dialog reopens after reload");
+  } finally {
+    if (dialog.open) {
       dialog.close();
-      Assert.ok(!dialog.open, "Closing clears the first dialog session");
-
-      Assert.equal(
-        await otherDialog.show(),
-        true,
-        "Closing one dialog does not invalidate another dialog's source session"
-      );
-      Assert.ok(otherDialog.open, "The isolated second dialog opens");
-      otherDialog.close();
-
-      const reloadedSource = waitForNextSourceLoad();
-      const reopened = dialog.show();
-      Assert.ok(
-        !dialog.open,
-        "The closed dialog waits for a fresh source load"
-      );
-      const source = await reloadedSource;
-      Assert.equal(
-        source.snapshot.event.eventId,
-        calendarEvent.id,
-        "The closed dialog reloads its own source before reopening"
-      );
-      Assert.equal(
-        await reopened,
-        true,
-        "The first dialog reopens after reload"
-      );
-    } finally {
-      if (dialog.open) {
-        dialog.close();
-      }
-      if (otherDialog.open) {
-        otherDialog.close();
-      }
-      otherDialog.remove();
-      await resetToCreateMode();
     }
+    if (otherDialog.open) {
+      otherDialog.close();
+    }
+    otherDialog.remove();
+    await resetToCreateMode();
   }
-);
+});
 
-add_task(async function test_show_waits_for_the_current_source_route() {
+add_task(async function test_createAndEditDraftLifecycle() {
+  await resetToCreateMode();
+
+  Assert.deepEqual(
+    dialog.draft,
+    {},
+    "Create mode starts with an empty draft before fields set defaults"
+  );
+  dialog.resetCreateDraft({
+    calendarId: calendar.id,
+    title: "Field provider title",
+  });
+  Assert.deepEqual(
+    dialog.draft,
+    {
+      calendarId: calendar.id,
+      title: "Field provider title",
+    },
+    "Create draft accepts values from field defaults"
+  );
+  Assert.ok(!dialog.isDirty, "Create defaults set the starting values");
+
+  const sourceLoaded = waitForNextSourceLoad();
+  dialog.setAttribute("calendar-id", calendar.id);
+  dialog.setAttribute("event-id", calendarEvent.id);
+  const source = await sourceLoaded;
+  await TestUtils.waitForCondition(
+    () => dialog.draft?.title == calendarEvent.title,
+    "Waiting for source data to set the edit draft"
+  );
+
+  Assert.deepEqual(
+    dialog.draft,
+    {
+      calendarId: calendar.id,
+      end: source.snapshot.event.end,
+      start: source.snapshot.event.start,
+      title: calendarEvent.title,
+    },
+    "Edit mode copies source data into a draft"
+  );
+  Assert.ok(!dialog.isDirty, "A newly loaded edit draft is clean");
+
+  dialog.updateDraftSection("title", { title: "Unsaved title" });
+  Assert.equal(dialog.draft.title, "Unsaved title", "The draft changes");
+  Assert.deepEqual(
+    dialog.dirtySections,
+    ["title"],
+    "The dirty section is tracked"
+  );
+  Assert.equal(
+    source.snapshot.event.title,
+    calendarEvent.title,
+    "Draft input does not change copied source data"
+  );
+
+  const recurringSourceLoaded = waitForNextSourceLoad();
+  dialog.setAttribute("event-id", recurringEvent.id);
+  dialog.setAttribute("recurrence-id", recurringEvent.startDate.nativeTime);
+  await recurringSourceLoaded;
+  await TestUtils.waitForCondition(
+    () => dialog.draft?.title == recurringEvent.title,
+    "Waiting for new source data to reset the draft"
+  );
+  Assert.deepEqual(
+    dialog.dirtySections,
+    [],
+    "Loading new source data clears old changed state"
+  );
+
+  await resetToCreateMode();
+  Assert.deepEqual(
+    dialog.draft,
+    {},
+    "Clearing an edit route removes its draft and starts a clean create draft"
+  );
+});
+
+add_task(async function test_showWaitsForTheCurrentSourceRoute() {
   await resetToCreateMode();
 
   const sourceLoaded = waitForNextSourceLoad();
@@ -881,7 +946,7 @@ add_task(async function test_show_waits_for_the_current_source_route() {
   dialog.close();
 });
 
-add_task(async function test_incomplete_source_identity_is_not_loaded() {
+add_task(async function test_incompleteSourceIdentityIsNotLoaded() {
   await resetToCreateMode();
 
   const sourceError = waitForNextSourceError();
@@ -909,83 +974,81 @@ add_task(async function test_incomplete_source_identity_is_not_loaded() {
   await resetToCreateMode();
 });
 
-add_task(
-  async function test_missing_or_invalid_source_failures_are_controlled() {
-    await resetToCreateMode();
+add_task(async function test_missingOrInvalidSourceFailuresAreControlled() {
+  await resetToCreateMode();
 
-    const missingCalendar = waitForNextSourceError();
-    dialog.setCalendarEventRoute({
-      calendarId: "missing-calendar",
-      eventId: calendarEvent.id,
-    });
-    const missingCalendarError = await missingCalendar;
-    Assert.equal(
-      missingCalendarError.code,
-      "calendar-not-found",
-      "A missing calendar has a controlled Redux error"
-    );
-    Assert.equal(
-      await dialog.show(),
-      false,
-      "A missing calendar does not reject a fire-and-forget show call"
-    );
+  const missingCalendar = waitForNextSourceError();
+  dialog.setCalendarEventRoute({
+    calendarId: "missing-calendar",
+    eventId: calendarEvent.id,
+  });
+  const missingCalendarError = await missingCalendar;
+  Assert.equal(
+    missingCalendarError.code,
+    "calendar-not-found",
+    "A missing calendar has a controlled Redux error"
+  );
+  Assert.equal(
+    await dialog.show(),
+    false,
+    "A missing calendar does not reject a fire-and-forget show call"
+  );
 
-    const missingEvent = waitForNextSourceError();
-    dialog.setCalendarEventRoute({
-      calendarId: calendar.id,
-      eventId: "missing-event",
-    });
-    const missingEventError = await missingEvent;
-    Assert.equal(
-      missingEventError.code,
-      "event-not-found",
-      "A missing event has a controlled Redux error"
-    );
-    Assert.equal(
-      await dialog.show(),
-      false,
-      "A missing event does not reject a fire-and-forget show call"
-    );
+  const missingEvent = waitForNextSourceError();
+  dialog.setCalendarEventRoute({
+    calendarId: calendar.id,
+    eventId: "missing-event",
+  });
+  const missingEventError = await missingEvent;
+  Assert.equal(
+    missingEventError.code,
+    "event-not-found",
+    "A missing event has a controlled Redux error"
+  );
+  Assert.equal(
+    await dialog.show(),
+    false,
+    "A missing event does not reject a fire-and-forget show call"
+  );
 
-    const invalidRecurrence = waitForNextSourceError();
-    dialog.setCalendarEventRoute({
-      calendarId: calendar.id,
-      eventId: recurringEvent.id,
-      recurrenceId: "not-a-native-time",
-    });
-    const invalidRecurrenceError = await invalidRecurrence;
-    Assert.equal(
-      invalidRecurrenceError.code,
-      "invalid-recurrence-id",
-      "An invalid recurrence identity has a controlled error"
-    );
-    Assert.equal(
-      await dialog.show(),
-      false,
-      "An invalid recurrence identity does not show the dialog"
-    );
+  const invalidRecurrence = waitForNextSourceError();
+  dialog.setCalendarEventRoute({
+    calendarId: calendar.id,
+    eventId: recurringEvent.id,
+    recurrenceId: "not-a-native-time",
+  });
+  const invalidRecurrenceError = await invalidRecurrence;
+  Assert.equal(
+    invalidRecurrenceError.code,
+    "invalid-recurrence-id",
+    "An invalid recurrence identity has a controlled error"
+  );
+  Assert.equal(
+    await dialog.show(),
+    false,
+    "An invalid recurrence identity does not show the dialog"
+  );
 
-    const missingOccurrence = waitForNextSourceError();
-    dialog.setCalendarEventRoute({
-      calendarId: calendar.id,
-      eventId: recurringEvent.id,
-      recurrenceId: String(
-        Number(recurringEvent.startDate.nativeTime) +
-          90 * 24 * 60 * 60 * 1_000_000
-      ),
-    });
-    const missingOccurrenceError = await missingOccurrence;
-    Assert.equal(
-      missingOccurrenceError.code,
-      "occurrence-not-found",
-      "A missing recurrence occurrence has a controlled error"
-    );
-    Assert.equal(
-      await dialog.show(),
-      false,
-      "A missing recurrence occurrence does not show the dialog"
-    );
+  const missingOccurrence = waitForNextSourceError();
+  dialog.setCalendarEventRoute({
+    calendarId: calendar.id,
+    eventId: recurringEvent.id,
+    recurrenceId: String(
+      Number(recurringEvent.startDate.nativeTime) +
+        90 * 24 * 60 * 60 * 1_000_000
+    ),
+  });
+  const missingOccurrenceError = await missingOccurrence;
+  Assert.equal(
+    missingOccurrenceError.code,
+    "occurrence-not-found",
+    "A missing recurrence occurrence has a controlled error"
+  );
+  Assert.equal(
+    await dialog.show(),
+    false,
+    "A missing recurrence occurrence does not show the dialog"
+  );
 
-    await resetToCreateMode();
-  }
-);
+  await resetToCreateMode();
+});

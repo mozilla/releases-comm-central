@@ -34,7 +34,10 @@ MOZ_SRC_FILES += [
     "content/dialog-position.mjs",
     "content/dialogs/calendar-prompt.mjs",
     "content/positioned-dialog.mjs",
+    "content/state/calendar-event-create-edit-selectors.mjs",
     "content/state/calendar-event-source-state.mjs",
+    "content/state/calendarEventCreateEditSessionSlice.mjs",
+    "content/state/calendarEventDraftSlice.mjs",
     "modules/CalendarAttachmentUtils.sys.mjs",
 ]
 
