@@ -250,6 +250,13 @@ export class LiveViewDataAdapter extends TreeDataAdapter {
     }
   }
 
+  onMessageTagsChanged(message, _oldTags) {
+    const index = this._flatRowCache.findIndex(r => r.message.id == message.id);
+    const row = this._flatRowCache[index];
+    row._initFromMessage(message);
+    this._tree?.invalidateRow(index);
+  }
+
   onSelectedChunk(messages, startIndex, endIndex) {
     for (let index = startIndex; index <= endIndex; index++) {
       const message = messages[index];

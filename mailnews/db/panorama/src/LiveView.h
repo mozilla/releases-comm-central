@@ -32,6 +32,9 @@ class LiveView : public nsILiveView, public MessageListener {
   void OnMessageRemoved(Message* message, uint32_t oldFlags) override;
   void OnMessageFlagsChanged(Message* message, uint32_t oldFlags,
                              uint32_t newFlags) override;
+  void OnMessageTagsChanged(nsIMsgDBHdr* oldMessage, Message* message,
+                            const nsACString& oldTags,
+                            const nsACString& newTags) override;
 
  private:
   virtual ~LiveView() {
@@ -48,7 +51,11 @@ class LiveView : public nsILiveView, public MessageListener {
   void ResetStatements();
   nsCString GetSQLClause();
   void PrepareStatement(mozIStorageStatement* aStatement);
-  bool Matches(Message& aMessage);
+
+  // Are we interested in this message?
+  bool Matches(nsIMsgDBHdr* aMessage);
+  // Should we fire a notification to the listener?
+  bool CheckIfChangeMatches(nsIMsgDBHdr* oldMessage, Message* newMessage);
 
   nsAutoCString mClause;
   nsTArray<RefPtr<nsIVariant>> mParams;

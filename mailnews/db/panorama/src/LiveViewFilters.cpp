@@ -187,4 +187,45 @@ void VirtualFolderFilter::Refresh() {
   mSQLClause.Append(")");
 }
 
+bool TaggedMessagesFilter::Matches(nsIMsgDBHdr* aMessage) {
+  // This logic is also in TagsMatchFunction::OnFunctionCall.
+  bool found = false;
+
+  nsAutoCString haystack;
+  aMessage->GetStringProperty("keywords", haystack);
+  size_t haystackLength = haystack.Length();
+  size_t h = 0;
+
+  nsAutoCString needle(mTag);
+  size_t needleLength = needle.Length();
+  size_t n = 0;
+
+  bool matchingStart = true;
+  for (; h < haystackLength; ++h) {
+    char c = haystack[h];
+    if (c == ' ') {
+      // At the end of a token.
+      if (n == needleLength) {
+        // Found the needle. Stop.
+        found = true;
+        break;
+      }
+      // Reset.
+      matchingStart = true;
+      n = 0;
+    } else if (matchingStart && n < needleLength && c == needle[n]) {
+      // In a token and it matches the needle so far.
+      n++;
+    } else {
+      // In a token and it doesn't match the needle.
+      matchingStart = false;
+    }
+  }
+  if (h == haystackLength && n == needleLength) {
+    found = true;
+  }
+
+  return found == mWanted;
+}
+
 }  // namespace mozilla::mailnews

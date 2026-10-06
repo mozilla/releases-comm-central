@@ -1016,7 +1016,9 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(
   for (auto msgHdr : aHdrArray) {
     nsAutoCString storeToken;
     rv = msgHdr->GetStoreToken(storeToken);
-    NS_ENSURE_SUCCESS(rv, rv);
+    if (NS_WARN_IF(NS_FAILED(rv) || storeToken.IsEmpty())) {
+      continue;
+    }
     uint64_t msgStart = storeToken.ToInteger64(&rv);
     NS_ENSURE_SUCCESS(rv, rv);
     stream->Seek(nsISeekableStream::NS_SEEK_SET, msgStart);

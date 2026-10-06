@@ -115,15 +115,27 @@ interface nsILiveView : nsISupports {
 interface nsILiveViewListener : nsISupports {
   /**
    * A message matching the live view's filters was added to the database.
+   * This includes messages that didn't match the filters, but now matches the
+   * filters due to a change.
    */
   void onMessageAdded(in jsval message);
 
   /**
    * A message matching the live view's filters was removed from the database.
+   * This includes messages that matched the filters, but now doesn't match
+   * the filters due to a change.
    */
   void onMessageRemoved(in jsval message);
 
+  /**
+   * A message matching the live view's filters had its flags changed.
+   */
   void onMessageFlagsChanged(in jsval message, in unsigned long oldFlags);
+
+  /**
+   * A message matching the live view's filters had its tags changed.
+   */
+  void onMessageTagsChanged(in jsval message, in AUTF8String oldTags);
 
   /**
    * Partial results from a `selectMessages` or `selectMessagesInGroup` query.

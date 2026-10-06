@@ -12,6 +12,7 @@
 #include "mozilla/storage/Variant.h"
 #include "mozIStorageStatement.h"
 #include "nsCOMPtr.h"
+#include "nsIMsgHdr.h"
 #include "nsIVariant.h"
 #include "nsMsgMessageFlags.h"
 #include "nsString.h"
@@ -28,7 +29,7 @@ class LiveViewFilter {
   LiveViewFilter() {}
   virtual ~LiveViewFilter() {}
 
-  virtual bool Matches(Message& aMessage) { return false; }
+  virtual bool Matches(nsIMsgDBHdr* aMessage) { return false; }
   virtual void Refresh() {}
 
  protected:
@@ -43,7 +44,13 @@ class SingleFolderFilter final : public LiveViewFilter {
     mSQLClause.AppendInt(mFolderId);
   }
 
-  bool Matches(Message& aMessage) { return aMessage.FolderId() == mFolderId; }
+  bool Matches(nsIMsgDBHdr* message) {
+    nsCOMPtr<nsIMsgFolder> folder;
+    message->GetFolder(getter_AddRefs(folder));
+    uint64_t folderId;
+    folder->GetId(&folderId);
+    return folderId == mFolderId;
+  }
 
  protected:
   uint64_t mFolderId;
@@ -64,8 +71,12 @@ class MultiFolderFilter final : public LiveViewFilter {
     mSQLClause.Append(")");
   }
 
-  bool Matches(Message& aMessage) {
-    return mFolderIds.Contains(aMessage.FolderId());
+  bool Matches(nsIMsgDBHdr* message) {
+    nsCOMPtr<nsIMsgFolder> folder;
+    message->GetFolder(getter_AddRefs(folder));
+    uint64_t folderId;
+    folder->GetId(&folderId);
+    return mFolderIds.Contains(folderId);
   }
 
  protected:
@@ -81,10 +92,14 @@ class VirtualFolderFilter final : public LiveViewFilter {
 
   void Refresh();
 
-  bool Matches(Message& message) {
+  bool Matches(nsIMsgDBHdr* message) {
+    nsCOMPtr<nsIMsgFolder> folder;
+    message->GetFolder(getter_AddRefs(folder));
+    uint64_t folderId;
+    folder->GetId(&folderId);
     // TODO: This is incomplete. We haven't matched the message against the
     // search terms.
-    return mSearchFolderIds.Contains(message.FolderId());
+    return mSearchFolderIds.Contains(folderId);
   }
 
  protected:
@@ -101,9 +116,9 @@ class ConversationFilter final : public LiveViewFilter {
     mSQLClause.AppendInt(conversationId);
   }
 
-  bool Matches(Message& message) {
+  bool Matches(nsIMsgDBHdr* message) {
     nsMsgKey threadId;
-    message.GetThreadId(&threadId);
+    message->GetThreadId(&threadId);
     return threadId == mConversationId;
   }
 
@@ -119,6 +134,8 @@ class TaggedMessagesFilter final : public LiveViewFilter {
                               : "TAGS_EXCLUDE(tags, ?)");
     mSQLParams.AppendElement(new mozilla::storage::UTF8TextVariant(mTag));
   }
+
+  bool Matches(nsIMsgDBHdr* message);
 
  protected:
   nsAutoCString mTag;

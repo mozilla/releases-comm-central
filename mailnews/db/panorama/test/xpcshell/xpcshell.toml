@@ -35,6 +35,8 @@ tags = ["dataadapter"]
 ["test_liveViewGroupedDataAdapter.js"]
 tags = ["dataadapter"]
 
+["test_liveViewListener.js"]
+
 ["test_liveViewSQL.js"]
 
 ["test_liveViewThreadedDataAdapter.js"]

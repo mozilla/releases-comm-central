@@ -65,6 +65,7 @@ NS_IMETHODIMP TagsMatchFunction::OnFunctionCall(
       return NS_ERROR_UNEXPECTED;
     }
 
+    // This logic is also in TaggedMessagesFilter::Matches.
     nsAutoCString haystack;
     aArguments->GetUTF8String(0, haystack);
     size_t haystackLength = haystack.Length();

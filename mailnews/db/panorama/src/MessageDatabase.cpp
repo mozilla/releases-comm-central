@@ -1116,6 +1116,19 @@ nsresult MessageDatabase::SetMessageRecipients(nsMsgKey key,
 }
 
 nsresult MessageDatabase::SetMessageTags(nsMsgKey key, nsACString const& tags) {
+  nsAutoCString oldTags;
+  MOZ_TRY(GetMessageTags(key, oldTags));
+
+  if (NS_WARN_IF(oldTags.Equals(tags))) {
+    return NS_OK;
+  }
+
+  uint64_t folderId;
+  GetMessageFolderId(key, folderId);
+  RefPtr<DetachedMsgHdr> oldMessage = new DetachedMsgHdr(folderId);
+  // TODO: This'll need filling properly once we have more complex filters.
+  oldMessage->SetStringProperty("keywords", oldTags);
+
   // Update DB.
   {
     nsCOMPtr<mozIStorageStatement> stmt;
@@ -1138,7 +1151,11 @@ nsresult MessageDatabase::SetMessageTags(nsMsgKey key, nsACString const& tags) {
     p->value().tags = tags;
   }
 
-  // TODO: notifications.
+  // Notify.
+  RefPtr<Message> message = new Message(key);
+  for (MessageListener* listener : mMessageListeners.EndLimitedRange()) {
+    listener->OnMessageTagsChanged(oldMessage, message, oldTags, tags);
+  }
   return NS_OK;
 }
 
