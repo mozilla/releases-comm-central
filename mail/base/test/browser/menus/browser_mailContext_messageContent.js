@@ -388,6 +388,9 @@ add_setup(async function () {
   await SpecialPowers.pushPrefEnv({
     set: [
       ["browser.safebrowsing.reportPhishURL", "https://phish.invalid/?a=b"],
+      // Right-clicking text selects the word under the cursor on macOS, which
+      // would add a selection this test does not expect.
+      ["ui.mouse.right_click.select_under_cursor", false],
     ],
   });
 

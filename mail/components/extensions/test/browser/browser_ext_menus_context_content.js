@@ -21,6 +21,13 @@ Services.scriptloader.loadSubScript(
 let gAccount, gFolders, gMessage;
 
 add_setup(async () => {
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      // Right-clicking text selects the word under the cursor on macOS, which
+      // would add a selection this test does not expect.
+      ["ui.mouse.right_click.select_under_cursor", false],
+    ],
+  });
   await lazy.SearchService.init();
 
   gAccount = createAccount();

@@ -178,6 +178,14 @@ async function checkABrowser(browser, doc = browser.ownerDocument) {
 }
 
 add_setup(async function () {
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      // Right-clicking text selects the word under the cursor on macOS, which
+      // would add a selection this test does not expect.
+      ["ui.mouse.right_click.select_under_cursor", false],
+    ],
+  });
+
   const account = MailServices.accounts.createAccount();
   const identity = MailServices.accounts.createIdentity();
   identity.email = "mochitest@localhost";
