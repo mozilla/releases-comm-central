@@ -65,7 +65,7 @@ policy-DisableMasterPasswordCreation = If true, a master password can’t be cre
 
 policy-DisableMessageForwardingFilters = Prevent message filters from automatically forwarding messages.
 
-policy-DisablePasswordReveal = Do not allow passwords to be revealed in saved logins.
+policy-DisablePasswordReveal2 = Do not allow passwords to be revealed in saved logins or password fields.
 
 policy-DisableProfileImport = Disable the menu command to Import data from another application.
 

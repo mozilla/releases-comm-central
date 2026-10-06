@@ -63,3 +63,40 @@ add_task(async function test_password_reveal_policy() {
     "even if the button is made visible again, clicking it should no-op"
   );
 });
+
+add_task(async function test_context_menus_hide_reveal_password() {
+  await setupPolicyEngineWithJson({
+    policies: {
+      DisablePasswordReveal: true,
+    },
+  });
+
+  const input = document.createElementNS(
+    "http://www.w3.org/1999/xhtml",
+    "input"
+  );
+  input.type = "password";
+  document.documentElement.appendChild(input);
+  const popup = EditContextMenu._ensurePopup();
+  const popupShown = BrowserTestUtils.waitForEvent(popup, "popupshown");
+  EditContextMenu.open(input, new PointerEvent("contextmenu"));
+  await popupShown;
+  Assert.ok(
+    popup.querySelector("#edit-contextmenu-reveal-password").hidden,
+    "Reveal Password should be hidden in the chrome text context menu"
+  );
+  const popupHidden = BrowserTestUtils.waitForEvent(popup, "popuphidden");
+  popup.hidePopup();
+  await popupHidden;
+  input.remove();
+
+  Assert.equal(
+    Services.prefs.getBoolPref("layout.forms.reveal-password-button.enabled"),
+    false,
+    "Reveal password button pref should be false"
+  );
+  Assert.ok(
+    Services.prefs.prefIsLocked("layout.forms.reveal-password-button.enabled"),
+    "Reveal password button pref should be locked"
+  );
+});

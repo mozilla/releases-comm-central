@@ -1207,11 +1207,12 @@ policies:
         }
       }
   DisablePasswordReveal:
-    toc: 'Do not allow passwords to be revealed in saved logins.'
+    toc: 'Do not allow passwords to be revealed in saved logins or password fields.'
     content: |
-      Do not allow passwords to be shown in saved logins
+      Do not allow passwords to be shown in saved logins or password fields
     cck2Equivalent:
     preferencesAffected:
+      - layout.forms.reveal-password-button.enabled
     gpo:
       - key: 'Software\Policies\Mozilla\Thunderbird\DisablePasswordReveal'
         type: 'REG_DWORD'
