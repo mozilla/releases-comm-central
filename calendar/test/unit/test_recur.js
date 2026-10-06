@@ -916,6 +916,14 @@ function test_expansion_limit() {
     1,
     "a daily rule expanding to every minute of the day should be refused"
   );
+  equal(
+    occurrenceCount(
+      `FREQ=YEARLY;INTERVAL=1000;BYMONTH=${allMonths};BYMONTHDAY=${allMonthDays};` +
+        `BYHOUR=${allHours};BYMINUTE=${allMinutes}`
+    ),
+    1,
+    "a yearly rule expanding to every minute of the year should be refused despite its interval"
+  );
 
   // Rules no denser than the hourly frequency still expand.
   equal(

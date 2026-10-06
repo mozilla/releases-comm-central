@@ -111,7 +111,7 @@ CalRecurrenceRule.prototype = {
    * @returns {boolean}
    */
   isSupported() {
-    const { freq, interval, parts } = this.innerObject;
+    const { freq, parts } = this.innerObject;
     if (!(freq in EXPANDING_PARTS)) {
       lazy.log.warn(
         `The frequency value "${freq}" is currently not supported. No occurrences will be generated.`
@@ -128,7 +128,7 @@ CalRecurrenceRule.prototype = {
       }
       instances *= parts[part]?.length || 1;
     }
-    const maxInstances = MAX_INSTANCES_PER_HOUR * PERIOD_HOURS[freq] * Math.max(interval || 1, 1);
+    const maxInstances = MAX_INSTANCES_PER_HOUR * PERIOD_HOURS[freq];
     if (instances > maxInstances) {
       lazy.log.warn(
         `The rule "${this.innerObject}" expands to ${instances} instances per period, ` +
