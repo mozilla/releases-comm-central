@@ -783,6 +783,42 @@ function test_rules() {
   );
   check_recur(item, ["20020401T114500", "20020403T114500"], "20020403T094500");
 
+  // BYSETPOS numbers the instances of each period of the rule. The example
+  // is the one given for it in RFC 5545, section 3.8.5.3.
+  check_recur(
+    makeEvent(
+      "DESCRIPTION:The second-to-last weekday of the month\n" +
+        "RRULE:FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR;BYSETPOS=-2;COUNT=4\n" +
+        "DTSTART:19970929T090000\n" +
+        "DTEND:19970929T100000\n"
+    ),
+    ["19970929T090000", "19971030T090000", "19971127T090000", "19971230T090000"],
+    "19971230T100000"
+  );
+
+  check_recur(
+    makeEvent(
+      "DESCRIPTION:The last of the hours of each day\n" +
+        "RRULE:FREQ=DAILY;BYHOUR=9,12,17;BYSETPOS=-1;COUNT=3\n" +
+        "DTSTART:20020401T170000\n" +
+        "DTEND:20020401T180000\n"
+    ),
+    ["20020401T170000", "20020402T170000", "20020403T170000"],
+    "20020403T180000"
+  );
+
+  // A yearly period is the whole year, not each of the months in it.
+  check_recur(
+    makeEvent(
+      "DESCRIPTION:The second and second-to-last Sunday of March and June\n" +
+        "RRULE:FREQ=YEARLY;BYMONTH=3,6;BYDAY=SU;BYSETPOS=2,-2;COUNT=4\n" +
+        "DTSTART:20160313T090000\n" +
+        "DTEND:20160313T100000\n"
+    ),
+    ["20160313T090000", "20160619T090000", "20170312T090000", "20170618T090000"],
+    "20170618T100000"
+  );
+
   // Unsupported SECONDLY FREQ value.
   item = makeEvent(
     "DESCRIPTION:bug 1770984\nRRULE:FREQ=SECONDLY;COUNT=60\nDTSTART:20220606T114500Z\n"
