@@ -83,6 +83,12 @@ function testKeyboardCycle(key, goForward = true) {
   checkSelectionState(expectedCards[0].value);
 }
 
+function synthesizeRadioCardClick(card) {
+  AccessibilityUtils.suppressClickHandling(true);
+  EventUtils.synthesizeMouseAtCenter(card, {}, browser.contentWindow);
+  AccessibilityUtils.suppressClickHandling(false);
+}
+
 add_task(function test_initialization() {
   for (const card of cards) {
     Assert.equal(
@@ -100,15 +106,15 @@ add_task(function test_initialization() {
 });
 
 add_task(function test_radioBehaviorMouse() {
-  EventUtils.synthesizeMouseAtCenter(cards[1], {}, browser.contentWindow);
+  synthesizeRadioCardClick(cards[1]);
 
   checkSelectionState("second");
 
-  EventUtils.synthesizeMouseAtCenter(cards[2], {}, browser.contentWindow);
+  synthesizeRadioCardClick(cards[2]);
 
   checkSelectionState("last");
 
-  EventUtils.synthesizeMouseAtCenter(cards[0], {}, browser.contentWindow);
+  synthesizeRadioCardClick(cards[0]);
 
   checkSelectionState("first");
 });
@@ -153,7 +159,7 @@ add_task(function test_keyboardSelect() {
 add_task(async function test_changeEventOnMouseSelect() {
   const changeEvent = BrowserTestUtils.waitForEvent(cards[1], "change");
 
-  EventUtils.synthesizeMouseAtCenter(cards[1], {}, browser.contentWindow);
+  synthesizeRadioCardClick(cards[1]);
 
   const event = await changeEvent;
   Assert.equal(event.target, cards[1], "Selected card should emit change");

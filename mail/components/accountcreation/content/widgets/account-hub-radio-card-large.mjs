@@ -66,6 +66,10 @@ class AccountHubRadioCardLarge extends HTMLElement {
     style.href = "chrome://messenger/skin/accountHubRadioCardLarge.css";
     style.rel = "stylesheet";
     shadowRoot.append(style, template);
+    this.#updateAccessibleName();
+    for (const slot of shadowRoot.querySelectorAll("slot")) {
+      slot.addEventListener("slotchange", () => this.#updateAccessibleName());
+    }
 
     this.addEventListener("keydown", this);
     this.addEventListener("click", this);
@@ -110,6 +114,15 @@ class AccountHubRadioCardLarge extends HTMLElement {
    */
   #dispatchChange() {
     this.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  #updateAccessibleName() {
+    const label = this.textContent.trim().replace(/\s+/g, " ");
+    if (label) {
+      this.ariaLabel = label;
+    } else {
+      this.removeAttribute("aria-label");
+    }
   }
 
   /**
