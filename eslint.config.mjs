@@ -68,6 +68,17 @@ export default [
     ignores: [...globalIgnores, ...ignorePatterns],
   },
   {
+    name: "all-files",
+    linterOptions: {
+      // With this option on, if an inline comment disables a rule, and the
+      // rule is able to be automatically fixed, then ESLint will remove the
+      // inline comment and apply the fix. We don't want this because we have
+      // some rules that intentionally need to be turned off in specific cases,
+      // e.g. sdl/no-insecure-url.
+      reportUnusedDisableDirectives: "off",
+    },
+  },
+  {
     name: "source-type-script",
     files: ["**/*.{js,json,html,sjs,xhtml,globals}"],
     languageOptions: {
