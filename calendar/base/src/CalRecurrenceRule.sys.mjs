@@ -62,6 +62,13 @@ const MAX_INSTANCES_PER_HOUR = 2;
  */
 const MAX_OCCURRENCES_PER_QUERY = 10000;
 
+/**
+ * The largest COUNT supported, the most the recurrence dialog allows. A rule
+ * with a COUNT is iterated from its start date, as its instances have to be
+ * counted, so this bounds how long that takes.
+ */
+const MAX_COUNT = 32767;
+
 /** The length of the period of each frequency with a fixed length, in seconds. */
 const PERIOD_SECONDS = {
   HOURLY: 60 * 60,
@@ -113,12 +120,13 @@ CalRecurrenceRule.prototype = {
    * Unsupported are the "SECONDLY" and "MINUTELY" frequencies, and rules whose
    * BY* parts expand a single period into far more instances than the shortest
    * frequency we do support would. The latter can be written in about a
-   * kilobyte and expand to hundreds of millions of instances.
+   * kilobyte and expand to hundreds of millions of instances. Also unsupported
+   * are rules with a COUNT above MAX_COUNT.
    *
    * @returns {boolean}
    */
   isSupported() {
-    const { freq, parts } = this.innerObject;
+    const { freq, parts, count } = this.innerObject;
     if (!(freq in EXPANDING_PARTS)) {
       lazy.log.warn(
         `The frequency value "${freq}" is currently not supported. No occurrences will be generated.`
@@ -140,6 +148,13 @@ CalRecurrenceRule.prototype = {
       lazy.log.warn(
         `The rule "${this.innerObject}" expands to ${instances} instances per period, ` +
           `more than the ${maxInstances} supported. No occurrences will be generated.`
+      );
+      return false;
+    }
+    if (count > MAX_COUNT) {
+      lazy.log.warn(
+        `The rule "${this.innerObject}" has a COUNT above the ${MAX_COUNT} supported. ` +
+          `No occurrences will be generated.`
       );
       return false;
     }

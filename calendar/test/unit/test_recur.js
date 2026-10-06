@@ -1069,6 +1069,29 @@ function test_long_running_series() {
     );
   }
 
+  // Rules with a COUNT have to be iterated from their start, so a COUNT above
+  // what the recurrence dialog allows is refused.
+  const yearly = makeEvent("RRULE:FREQ=YEARLY;COUNT=32767\nDTSTART:20260101T000000Z\n");
+  equal(
+    yearly.recurrenceInfo.getOccurrenceDates(
+      cal.createDateTime("20260101T000000Z"),
+      cal.createDateTime("20300101T000000Z"),
+      0
+    ).length,
+    4,
+    "a rule with the largest COUNT supported should be expanded"
+  );
+  const counted = makeEvent("RRULE:FREQ=HOURLY;COUNT=32768\nDTSTART:20260101T003000Z\n");
+  equal(
+    counted.recurrenceInfo.getOccurrenceDates(
+      cal.createDateTime("20260101T000000Z"),
+      cal.createDateTime("20260102T000000Z"),
+      0
+    ).length,
+    1,
+    "a rule with a COUNT above the largest supported should be refused"
+  );
+
   const hourly = makeEvent("RRULE:FREQ=HOURLY\nDTSTART:19000101T003000Z\n");
   equal(
     hourly.recurrenceInfo.getOccurrenceDates(
