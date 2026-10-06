@@ -178,3 +178,30 @@ export const Badge = () => html`
     <span class="badge alpha inverted" role="presentation">Alpha</span>
   </p>
 `;
+
+export const ToggleCheckbox = () => html`
+  <p>
+    <label class="toggle-group">
+      <input type="checkbox" class="toggle-checkbox" />
+      <span class="toggle-label">Toggle</span>
+    </label>
+    <label class="toggle-group">
+      <input type="checkbox" class="toggle-checkbox" checked />
+      <span class="toggle-label">Toggle</span>
+    </label>
+  </p>
+  <p>
+    <label class="toggle-group">
+      <input type="checkbox" class="toggle-checkbox toggle-checkbox-sm" />
+      <span class="toggle-label">Small toggle</span>
+    </label>
+    <label class="toggle-group">
+      <input
+        type="checkbox"
+        class="toggle-checkbox toggle-checkbox-sm"
+        checked
+      />
+      <span class="toggle-label">Small toggle</span>
+    </label>
+  </p>
+`;
