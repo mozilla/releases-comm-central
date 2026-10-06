@@ -62,10 +62,7 @@ add_task(async function testFolderMethods() {
   Assert.equal(header.date, new Date("2019-11-03T12:34:56Z").valueOf() * 1000);
   Assert.equal(header.author, '"Eliseo Bauch" <eliseo@bauch.invalid>');
   Assert.equal(header.subject, "Proactive intermediate collaboration");
-  Assert.equal(
-    header.flags,
-    Ci.nsMsgMessageFlags.Read | Ci.nsMsgMessageFlags.Marked
-  );
+  Assert.equal(header.flags, Ci.nsMsgMessageFlags.Marked);
 
   Assert.throws(
     () => folderDatabase.getMsgHdrForMessageID("message7@invalid"),
@@ -74,7 +71,7 @@ add_task(async function testFolderMethods() {
   );
 
   // Test getting and changing message flags.
-  Assert.ok(folderDatabase.isRead(4));
+  Assert.ok(!folderDatabase.isRead(4));
   Assert.ok(!folderDatabase.isIgnored(4));
   Assert.ok(!folderDatabase.isWatched(4));
   Assert.ok(folderDatabase.isMarked(4));

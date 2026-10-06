@@ -68,7 +68,7 @@ add_task(async function testInitWithFolder() {
   );
   Assert.equal(
     await liveView.countUnreadMessages(),
-    2,
+    3,
     "countUnreadMessages should return the number of unread messages"
   );
   Assert.deepEqual(
@@ -107,7 +107,7 @@ add_task(async function testInitWithFolders() {
   );
   Assert.equal(
     await liveView.countUnreadMessages(),
-    5,
+    6,
     "countUnreadMessages should return the number of unread messages"
   );
   Assert.deepEqual(
@@ -215,10 +215,84 @@ add_task(async function testInitWithTag() {
     "selectMessages with no arguments should return all the messages"
   );
 
-  Assert.equal(liveView.sqlClauseForTests, "TAGS_INCLUDE(tags, ?)");
-  Assert.deepEqual(liveView.sqlParamsForTests, "$label1");
-
   assertInitFails(liveView);
+});
+
+add_task(async function testInitWithUnreadMessages() {
+  const liveView = new LiveView();
+  liveView.initWithUnreadMessages();
+
+  Assert.equal(
+    await liveView.countMessages(),
+    6,
+    "countMessages should return the total number of messages"
+  );
+  Assert.equal(
+    await liveView.countUnreadMessages(),
+    6,
+    "countUnreadMessages should return the number of unread messages"
+  );
+  Assert.deepEqual(
+    Array.from(await liveView.selectMessages(), m => m.id),
+    [9, 8, 7, 4, 2, 1],
+    "selectMessages with no arguments should return all the messages"
+  );
+});
+
+add_task(async function testInitWithFlaggedMessages() {
+  const liveView = new LiveView();
+  liveView.initWithFlaggedMessages();
+
+  Assert.equal(
+    await liveView.countMessages(),
+    3,
+    "countMessages should return the total number of messages"
+  );
+  Assert.equal(
+    await liveView.countUnreadMessages(),
+    1,
+    "countUnreadMessages should return the number of unread messages"
+  );
+  Assert.deepEqual(
+    Array.from(await liveView.selectMessages(), m => m.id),
+    [10, 4, 3],
+    "selectMessages with no arguments should return all the messages"
+  );
+});
+
+add_task(async function testInitWithDateRange() {
+  let liveView = new LiveView();
+  liveView.initWithDateRange(0, Date.now() * 1000);
+
+  Assert.equal(
+    await liveView.countMessages(),
+    10,
+    "countMessages should return the total number of messages"
+  );
+  Assert.equal(
+    await liveView.countUnreadMessages(),
+    6,
+    "countUnreadMessages should return the number of unread messages"
+  );
+  Assert.deepEqual(
+    Array.from(await liveView.selectMessages(), m => m.id),
+    [10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
+    "selectMessages with no arguments should return all the messages"
+  );
+
+  liveView = new LiveView();
+  liveView.initWithDateRange(0, 1600000000000000);
+
+  Assert.equal(
+    await liveView.countMessages(),
+    4,
+    "countMessages should return the total number of messages"
+  );
+  Assert.deepEqual(
+    await Array.from(await liveView.selectMessages(), m => m.id),
+    [4, 3, 2, 1],
+    "selectMessages with no arguments should return all the messages"
+  );
 });
 
 add_task(async function testSort() {
@@ -339,7 +413,7 @@ add_task(async function testSort() {
       await liveView.selectMessages(),
       m => m.flags & Ci.nsMsgMessageFlags.Read
     ),
-    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+    [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
     "messages should be sorted with unread messages last"
   );
 
@@ -349,7 +423,7 @@ add_task(async function testSort() {
       await liveView.selectMessages(),
       m => m.flags & Ci.nsMsgMessageFlags.Read
     ),
-    [0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
     "messages should be sorted with unread messages first"
   );
 

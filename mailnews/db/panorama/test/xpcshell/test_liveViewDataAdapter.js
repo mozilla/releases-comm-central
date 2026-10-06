@@ -56,16 +56,17 @@ add_task(async function testColumnContents() {
       row6.getText("subject"),
       "Proactive intermediate collaboration"
     );
-    Assert.equal(row6.getText("flags"), "5");
-    Assert.equal(row6.getText("unread"), "0");
-    Assert.equal(row6.getText("flagged"), "1");
-    Assert.equal(row6.getText("tags"), "");
-    Assert.deepEqual([...row6.properties], []);
-
-    messageDB.getMessage(4).andFlags(~Ci.nsMsgMessageFlags.Read);
     Assert.equal(row6.getText("flags"), "4");
-    Assert.equal(row6.getText("unread"), "1");
+    Assert.equal(row6.getText("unread"), true);
+    Assert.equal(row6.getText("flagged"), true);
+    Assert.equal(row6.getText("tags"), "");
     Assert.deepEqual([...row6.properties], ["unread"]);
+
+    messageDB.getMessage(4).orFlags(Ci.nsMsgMessageFlags.Read);
+    Assert.equal(row6.getText("flags"), "5");
+    Assert.equal(row6.getText("unread"), false);
+    Assert.equal(row6.getText("flagged"), true);
+    Assert.deepEqual([...row6.properties], []);
     tree.assertInvalidated(6, 6);
   } finally {
     adapter.setTree(null);

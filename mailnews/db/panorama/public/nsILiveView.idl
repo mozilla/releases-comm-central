@@ -21,6 +21,12 @@ interface nsILiveView : nsISupports {
   // `conversationId` is a message's thread id (nsIMsgDBHdr.threadId)
   void initWithConversation(in unsigned long long conversationId);
 
+  // Temporary, just for testing the filter types until we get other ways to
+  // use them:
+  void initWithUnreadMessages();
+  void initWithFlaggedMessages();
+  void initWithDateRange(in PRTime startDate, in PRTime endDate);
+
   cenum SortColumn : 8 {
     DATE = 1,
     SUBJECT = 2,

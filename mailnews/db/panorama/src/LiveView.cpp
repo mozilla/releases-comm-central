@@ -108,6 +108,36 @@ NS_IMETHODIMP LiveView::InitWithConversation(uint64_t aConversationId) {
   return NS_OK;
 }
 
+NS_IMETHODIMP LiveView::InitWithUnreadMessages() {
+  if (mFolderFilter) {
+    NS_WARNING("folder filter already set");
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  mFolderFilter = new UnreadMessagesFilter();
+  return NS_OK;
+}
+
+NS_IMETHODIMP LiveView::InitWithFlaggedMessages() {
+  if (mFolderFilter) {
+    NS_WARNING("folder filter already set");
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  mFolderFilter = new FlaggedMessagesFilter();
+  return NS_OK;
+}
+
+NS_IMETHODIMP LiveView::InitWithDateRange(PRTime aStartDate, PRTime aEndDate) {
+  if (mFolderFilter) {
+    NS_WARNING("folder filter already set");
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  mFolderFilter = new DateRangeFilter(aStartDate, aEndDate);
+  return NS_OK;
+}
+
 NS_IMETHODIMP LiveView::GetSortColumn(nsILiveView::SortColumn* aSortColumn) {
   *aSortColumn = mSortColumn;
   return NS_OK;

@@ -84,6 +84,26 @@ add_task(function testBasicAddRemove() {
   });
 
   const listener = new LiveViewListener("all messages listener");
+  const unreadListener = new LiveViewListener(
+    "unread messages listener",
+    "initWithUnreadMessages"
+  );
+  const flaggedListener = new LiveViewListener(
+    "flagged messages listener",
+    "initWithFlaggedMessages"
+  );
+  const year2024Listener = new LiveViewListener(
+    "year 2024 listener",
+    "initWithDateRange",
+    Date.UTC(2024, 0, 1) * 1000,
+    Date.UTC(2025, 0, 1) * 1000
+  );
+  const year2025Listener = new LiveViewListener(
+    "year 2025 listener",
+    "initWithDateRange",
+    Date.UTC(2025, 0, 1) * 1000,
+    Date.UTC(2026, 0, 1) * 1000
+  );
 
   const addedId = addMessage({
     folderId: 4,
@@ -103,6 +123,15 @@ add_task(function testBasicAddRemove() {
   Assert.equal(listener._addedMessage.flags, 0);
   Assert.equal(listener._addedMessage.tags, "$label4");
   delete listener._addedMessage;
+  // The added message is unread.
+  Assert.equal(unreadListener._addedMessage.id, addedId);
+  delete unreadListener._addedMessage;
+  // The added message is not flagged.
+  flaggedListener.assertNoChanges();
+  // The added message is dated 2025.
+  year2024Listener.assertNoChanges();
+  Assert.equal(year2025Listener._addedMessage.id, addedId);
+  delete year2025Listener._addedMessage;
 
   messageDB.removeMessage(earlierId);
   Assert.equal(listener._removedMessage.id, earlierId);
@@ -117,8 +146,20 @@ add_task(function testBasicAddRemove() {
   Assert.equal(listener._removedMessage.flags, 1);
   Assert.equal(listener._removedMessage.tags, "");
   delete listener._removedMessage;
+  // The removed message was not unread.
+  unreadListener.assertNoChanges();
+  // The removed message was not flagged.
+  flaggedListener.assertNoChanges();
+  // The removed message is dated 2024.
+  Assert.equal(year2024Listener._removedMessage.id, earlierId);
+  delete year2024Listener._removedMessage;
+  year2025Listener.assertNoChanges();
 
   listener.stopListening();
+  unreadListener.stopListening();
+  flaggedListener.stopListening();
+  year2024Listener.stopListening();
+  year2025Listener.stopListening();
 
   // If the listener was not cleared these calls would cause failures.
   const laterId = addMessage({ folderId: 3, messageId: "later-message" });
@@ -126,6 +167,10 @@ add_task(function testBasicAddRemove() {
   messageDB.removeMessage(laterId);
 
   listener.assertNoChanges();
+  unreadListener.assertNoChanges();
+  flaggedListener.assertNoChanges();
+  year2024Listener.assertNoChanges();
+  year2025Listener.assertNoChanges();
 });
 
 add_task(async function testFlagsChange() {

@@ -28,6 +28,22 @@ add_setup(async function () {
   folderC = rootFolder.createLocalSubfolder("folderC");
 });
 
+add_task(function testFolder() {
+  const liveView = new LiveView();
+  liveView.initWithFolder(2);
+  const clause = liveView.sqlClauseForTests;
+  Assert.equal(clause, "folderId = 2");
+  Assert.deepEqual(liveView.sqlParamsForTests, []);
+});
+
+add_task(function testFolders() {
+  const liveView = new LiveView();
+  liveView.initWithFolders([2, 4]);
+  const clause = liveView.sqlClauseForTests;
+  Assert.equal(clause, "folderId IN (2, 4)");
+  Assert.deepEqual(liveView.sqlParamsForTests, []);
+});
+
 add_task(function testVirtualFolder() {
   const wrapper = VirtualFolderHelper.createNewVirtualFolder(
     "virtual",
@@ -163,4 +179,47 @@ add_task(function testVirtualFolder() {
     Assert.equal(clause.replace(/^.* AND (\(.*\))$/, "$1"), expectedClause);
     Assert.deepEqual(liveView.sqlParamsForTests, expectedParams);
   }
+});
+
+add_task(function testTag() {
+  const liveView = new LiveView();
+  liveView.initWithTag("$label2");
+  const clause = liveView.sqlClauseForTests;
+  Assert.equal(clause, "TAGS_INCLUDE(tags, ?)");
+  Assert.deepEqual(liveView.sqlParamsForTests, ["$label2"]);
+});
+
+add_task(function testConversation() {
+  const liveView = new LiveView();
+  liveView.initWithConversation(9);
+  const clause = liveView.sqlClauseForTests;
+  Assert.equal(clause, "threadId = 9");
+  Assert.deepEqual(liveView.sqlParamsForTests, []);
+});
+
+add_task(function testUnreadMessages() {
+  const liveView = new LiveView();
+  liveView.initWithUnreadMessages();
+  const clause = liveView.sqlClauseForTests;
+  Assert.equal(clause, "flags & 1 = 0");
+  Assert.deepEqual(liveView.sqlParamsForTests, []);
+});
+
+add_task(function testFlaggedMessages() {
+  const liveView = new LiveView();
+  liveView.initWithFlaggedMessages();
+  const clause = liveView.sqlClauseForTests;
+  Assert.equal(clause, "flags & 4 = 4");
+  Assert.deepEqual(liveView.sqlParamsForTests, []);
+});
+
+add_task(function testDateRange() {
+  const liveView = new LiveView();
+  liveView.initWithDateRange(1528668000000000, 1790841000000000);
+  const clause = liveView.sqlClauseForTests;
+  Assert.equal(clause, "date BETWEEN ? AND ?");
+  Assert.deepEqual(
+    liveView.sqlParamsForTests,
+    [1528668000000000, 1790841000000000]
+  );
 });

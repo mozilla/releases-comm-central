@@ -126,6 +126,39 @@ class ConversationFilter final : public LiveViewFilter {
   uint64_t mConversationId;
 };
 
+class MessageFlagsFilter : public LiveViewFilter {
+ public:
+  MessageFlagsFilter(uint64_t aFlag, uint64_t aWanted)
+      : mFlag(aFlag), mWanted(aWanted) {
+    mSQLClause.Assign("flags & ");
+    mSQLClause.AppendInt(aFlag);
+    mSQLClause.Append(" = ");
+    mSQLClause.AppendInt(aWanted);
+  }
+
+  bool Matches(nsIMsgDBHdr* message) {
+    uint32_t flags;
+    message->GetFlags(&flags);
+    return (flags & mFlag) == mWanted;
+  }
+
+ protected:
+  uint64_t mFlag;
+  uint64_t mWanted;
+};
+
+class UnreadMessagesFilter final : public MessageFlagsFilter {
+ public:
+  UnreadMessagesFilter() : MessageFlagsFilter(nsMsgMessageFlags::Read, 0) {}
+};
+
+class FlaggedMessagesFilter final : public MessageFlagsFilter {
+ public:
+  FlaggedMessagesFilter()
+      : MessageFlagsFilter(nsMsgMessageFlags::Marked,
+                           nsMsgMessageFlags::Marked) {}
+};
+
 class TaggedMessagesFilter final : public LiveViewFilter {
  public:
   explicit TaggedMessagesFilter(const nsACString& aTag, bool aWanted)
@@ -140,6 +173,26 @@ class TaggedMessagesFilter final : public LiveViewFilter {
  protected:
   nsAutoCString mTag;
   bool mWanted;
+};
+
+class DateRangeFilter final : public LiveViewFilter {
+ public:
+  explicit DateRangeFilter(PRTime aStartDate, PRTime aEndDate)
+      : mStartDate(aStartDate), mEndDate(aEndDate) {
+    mSQLClause.Assign("date BETWEEN ? AND ?");
+    mSQLParams.AppendElement(new mozilla::storage::IntegerVariant(mStartDate));
+    mSQLParams.AppendElement(new mozilla::storage::IntegerVariant(mEndDate));
+  }
+
+  bool Matches(nsIMsgDBHdr* message) {
+    PRTime date;
+    message->GetDate(&date);
+    return date >= mStartDate && date <= mEndDate;
+  }
+
+ protected:
+  PRTime mStartDate;
+  PRTime mEndDate;
 };
 
 }  // namespace mozilla::mailnews
