@@ -217,7 +217,9 @@ add_task(async function testRowsAndColumns() {
 
   // Okay, everything is set up correctly. Let's try sorting.
 
+  AccessibilityUtils.suppressClickHandling(true);
   EventUtils.synthesizeMouseAtCenter(tree.getRowAtIndex(0), {}, win);
+  AccessibilityUtils.suppressClickHandling(false);
 
   function checkHeaderSortClasses(sortColumnIndex, sortDirection) {
     updateHeaderButtons();
@@ -648,6 +650,7 @@ add_task(async function testRowsAndColumns() {
     const y = splitterRect.y + splitterRect.height / 2;
     const step = change / 4;
 
+    AccessibilityUtils.suppressClickHandling(true);
     EventUtils.synthesizeMouseAtPoint(
       x,
       y,
@@ -670,6 +673,7 @@ add_task(async function testRowsAndColumns() {
       { type: "mouseup", buttons: 1 },
       win
     );
+    AccessibilityUtils.suppressClickHandling(false);
   }
   const widthBefore = headerButtons[2].closest("th").clientWidth;
   await resizeColumn(2, 20);

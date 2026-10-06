@@ -445,7 +445,7 @@ class AutoTreeView extends TreeView {
         );
         twistyButton.type = "button";
         twistyButton.classList.add("button", "button-flat", "twisty");
-        twistyButton.ariaHidden = "hidden";
+        twistyButton.hidden = true;
         twistyButton.tabIndex = -1;
       }
       if (column.cellIcon) {
@@ -485,7 +485,10 @@ class AutoTreeViewTableRow extends TreeViewTableRow {
 
     this.setAttribute("draggable", "true");
     this.classList.add("table-layout");
-    this.role = this.list.table.body.role === "treegrid" ? "row" : "option";
+    this.role =
+      this.list.table.body.getAttribute("role") === "treegrid"
+        ? "row"
+        : "option";
     this.append(this.list.rowFragment.cloneNode(true));
   }
 
@@ -527,25 +530,12 @@ class AutoTreeViewTableRow extends TreeViewTableRow {
 
     for (const column of this.list.table.columns) {
       const cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
-      if (column.hidden) {
-        cell.hidden = true;
-        continue;
-      }
-
       cell.ariaLabel = null;
       cell.title = "";
 
-      if (column.twisty) {
-        // Add the twisty icon here (instead of once in `connectedCallback`)
-        // every time so that the animation doesn't happen when the row gets
-        // recycled. But not if we actually want it to animate.
-        if (!this._twistyAnimating) {
-          const twistyButton = cell.querySelector("button.twisty");
-          const twistyIcon = document.createElement("img");
-          twistyIcon.classList.add("twisty-icon");
-          twistyButton.replaceChildren(twistyIcon);
-        }
-        delete this._twistyAnimating;
+      if (column.hidden) {
+        cell.hidden = true;
+        continue;
       }
 
       if (column.checkbox) {
@@ -559,6 +549,24 @@ class AutoTreeViewTableRow extends TreeViewTableRow {
       }
 
       const text = viewRow.getText(column.id);
+
+      if (column.twisty) {
+        // Add the twisty icon here (instead of once in `connectedCallback`)
+        // every time so that the animation doesn't happen when the row gets
+        // recycled. But not if we actually want it to animate.
+        const twistyButton = cell.querySelector("button.twisty");
+        twistyButton.hidden = !isGroup;
+        twistyButton.tabIndex = isGroup ? 0 : -1;
+        twistyButton.ariaExpanded = isGroup ? isGroupOpen : null;
+        twistyButton.ariaLabel = isGroup ? text : null;
+        if (!this._twistyAnimating) {
+          const twistyIcon = document.createElement("img");
+          twistyIcon.classList.add("twisty-icon");
+          twistyButton.replaceChildren(twistyIcon);
+        }
+        delete this._twistyAnimating;
+      }
+
       let container = cell.querySelector("div.container") || cell;
       if (column.twisty) {
         container.style.paddingInlineStart = viewRow.level * 16 + "px";
