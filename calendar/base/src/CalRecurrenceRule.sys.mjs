@@ -62,6 +62,13 @@ const MAX_INSTANCES_PER_HOUR = 2;
  */
 const MAX_OCCURRENCES_PER_QUERY = 10000;
 
+/** The length of the period of each frequency with a fixed length, in seconds. */
+const PERIOD_SECONDS = {
+  HOURLY: 60 * 60,
+  DAILY: 24 * 60 * 60,
+  WEEKLY: 7 * 24 * 60 * 60,
+};
+
 export function CalRecurrenceRule(innerObject) {
   this.innerObject = innerObject || new ICAL.Recur();
   this.wrappedJSObject = this;
@@ -139,13 +146,79 @@ CalRecurrenceRule.prototype = {
     return true;
   },
 
+  /**
+   * Finds a start date to iterate the rule from that gives the same
+   * occurrences as the real start date from some time before the target on,
+   * so that a long-running series doesn't have to be iterated from its very
+   * beginning. The start date is moved forward a whole number of intervals,
+   * which keeps the periods aligned and keeps every value the iterator takes
+   * from the start date in place.
+   *
+   * @param {ICAL.Time} aStartTime - The start date of the series.
+   * @param {ICAL.Time} aTarget - The time occurrences are needed from.
+   * @returns {ICAL.Time} The start date to iterate from.
+   */
+  iterationStart(aStartTime, aTarget) {
+    const { freq, count } = this.innerObject;
+    const interval = Math.max(this.innerObject.interval || 1, 1);
+    if (count) {
+      return aStartTime;
+    }
+
+    let units;
+    if (freq in PERIOD_SECONDS) {
+      if (freq == "HOURLY" && aStartTime.isDate) {
+        return aStartTime;
+      }
+      units = Math.floor((aTarget.toUnixTime() - aStartTime.toUnixTime()) / PERIOD_SECONDS[freq]);
+    } else if (freq == "MONTHLY" || freq == "YEARLY") {
+      units = aTarget.year - aStartTime.year;
+      if (freq == "MONTHLY") {
+        units = units * 12 + aTarget.month - aStartTime.month;
+      }
+    } else {
+      return aStartTime;
+    }
+
+    // Stay a couple of intervals clear of the target, so that daylight saving
+    // time, time zones and periods spilling into the next one, like the last
+    // week of a year, can't move any occurrence the target needs out of reach.
+    let steps = Math.floor(units / interval) - 2;
+    let start;
+    if (freq == "MONTHLY" || freq == "YEARLY") {
+      // The day of the month mustn't change, so step back to a month that has
+      // it, like the series itself skips the months that don't. Only long
+      // intervals can run out of tries, and those have few periods to iterate.
+      for (let tries = 0; steps > 0 && tries < 10; steps--, tries++) {
+        const months = steps * interval * (freq == "MONTHLY" ? 1 : 12);
+        const year = aStartTime.year + Math.floor((aStartTime.month - 1 + months) / 12);
+        const month = ((aStartTime.month - 1 + months) % 12) + 1;
+        if (aStartTime.day <= ICAL.Time.daysInMonth(month, year)) {
+          start = aStartTime.clone();
+          start.year = year;
+          start.month = month;
+          break;
+        }
+      }
+    } else if (steps > 0) {
+      start = aStartTime.clone();
+      const shift = steps * interval;
+      if (freq == "HOURLY") {
+        start.adjust(0, shift, 0, 0);
+      } else {
+        start.adjust(shift * (freq == "WEEKLY" ? 7 : 1), 0, 0, 0);
+      }
+    }
+    return start && start.compare(aTarget) < 0 ? start : aStartTime;
+  },
+
   getNextOccurrence(aStartTime, aRecId) {
     if (!this.isSupported()) {
       return null;
     }
     aStartTime = aStartTime.wrappedJSObject.innerObject;
     aRecId = aRecId.wrappedJSObject.innerObject;
-    const val = this.innerObject.getNextOccurrence(aStartTime, aRecId);
+    const val = this.innerObject.getNextOccurrence(this.iterationStart(aStartTime, aRecId), aRecId);
     return val ? new lazy.CalDateTime(val) : null;
   },
 
@@ -178,9 +251,11 @@ CalRecurrenceRule.prototype = {
       }
     }
 
+    const iterationStart = this.iterationStart(aStartTime, rangeStart);
+
     let iter;
-    if (this.isMutable) {
-      const _iter = this.innerObject.iterator(aStartTime);
+    if (this.isMutable || iterationStart != aStartTime) {
+      const _iter = this.innerObject.iterator(iterationStart);
       iter = (function* () {
         for (let next = _iter.next(); next; next = _iter.next()) {
           next = next.clone();

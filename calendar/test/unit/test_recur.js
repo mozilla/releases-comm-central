@@ -5,8 +5,10 @@
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 ChromeUtils.defineESModuleGetters(this, {
+  CalDateTime: "resource:///modules/CalDateTime.sys.mjs",
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
 });
+const { default: ICAL } = ChromeUtils.importESModule("resource:///modules/calendar/Ical.sys.mjs");
 
 function makeEvent(str) {
   return createEventFromIcalString("BEGIN:VEVENT\n" + str + "END:VEVENT");
@@ -24,6 +26,7 @@ function really_run_test() {
   test_failures();
   test_limit();
   test_expansion_limit();
+  test_long_running_series();
   test_startdate_change();
   test_idchange();
   test_rrule_icalstring();
@@ -994,6 +997,87 @@ function test_expansion_limit() {
     occurrenceCount("FREQ=DAILY;BYMONTH=2;BYMONTHDAY=29;BYDAY=MO;COUNT=2"),
     2,
     "a rule matching only on a leap day falling on a Monday should be expanded"
+  );
+}
+
+function test_long_running_series() {
+  const rangeStart = cal.createDateTime("20260901T000000Z");
+  const rangeEnd = cal.createDateTime("20270201T000000Z");
+
+  // Long-running series are iterated from a later start date, which should
+  // give exactly the occurrences iterating from the real start date does.
+  const data = [
+    ["FREQ=HOURLY", "DTSTART:20200101T001500Z"],
+    ["FREQ=HOURLY;INTERVAL=5;BYMINUTE=0,30", "DTSTART:20200101T001500Z"],
+    ["FREQ=HOURLY;INTERVAL=7", "DTSTART;TZID=Europe/Berlin:20200101T013000"],
+    ["FREQ=DAILY;INTERVAL=3", "DTSTART:19800105T090000Z"],
+    ["FREQ=DAILY;BYDAY=MO,WE;BYHOUR=9,17", "DTSTART:19800105T090000Z"],
+    ["FREQ=DAILY;UNTIL=20261015T090000Z", "DTSTART:19800105T090000Z"],
+    ["FREQ=DAILY", "DTSTART;TZID=Europe/Berlin:19800105T023000"],
+    ["FREQ=WEEKLY;INTERVAL=2;BYDAY=TU,FR", "DTSTART:19800105T090000Z"],
+    ["FREQ=WEEKLY;INTERVAL=3;WKST=SU;BYDAY=SU,SA", "DTSTART:19800105T090000Z"],
+    ["FREQ=WEEKLY;INTERVAL=2", "DTSTART;VALUE=DATE:19800101"],
+    ["FREQ=MONTHLY;INTERVAL=5", "DTSTART:19800115T090000Z"],
+    ["FREQ=MONTHLY;BYDAY=-1FR", "DTSTART:19800115T090000Z"],
+    ["FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR;BYSETPOS=-1", "DTSTART:19800115T090000Z"],
+    ["FREQ=MONTHLY;INTERVAL=7;BYMONTHDAY=1,-1", "DTSTART:19800115T090000Z"],
+    ["FREQ=MONTHLY", "DTSTART:19800131T090000Z"],
+    ["FREQ=YEARLY;INTERVAL=2;BYMONTH=10;BYDAY=2SU", "DTSTART:19800115T090000Z"],
+    ["FREQ=YEARLY;BYWEEKNO=1,52,53;BYDAY=MO,SU", "DTSTART:19800115T090000Z"],
+    ["FREQ=YEARLY", "DTSTART:19801231T090000Z"],
+    ["FREQ=MONTHLY;INTERVAL=2", "DTSTART:19800131T090000Z"],
+    ["FREQ=MONTHLY;BYHOUR=0,12", "DTSTART:19800229T000000Z"],
+    ["FREQ=YEARLY;BYMONTH=2,12", "DTSTART:19800229T090000Z"],
+  ];
+
+  const describe = date => `${date.icalString} ${date.timezone.tzid}`;
+  for (const [rrule, dtstart] of data) {
+    const item = makeEvent(`RRULE:${rrule}\n${dtstart}\n`);
+    const startDate = item.startDate;
+
+    const expected = [];
+    let following;
+    const iter = ICAL.Recur.fromString(rrule).iterator(startDate.wrappedJSObject.innerObject);
+    for (let next = iter.next(); next; next = iter.next()) {
+      const date = new CalDateTime(next.clone());
+      if (date.compare(rangeEnd) >= 0) {
+        following = date;
+        break;
+      }
+      if (date.compare(rangeStart) >= 0) {
+        expected.push(date);
+      }
+    }
+    Assert.greater(expected.length, 0, `"${rrule}" should have occurrences in the range`);
+
+    const rule = item.recurrenceInfo.getRecurrenceItemAt(0);
+    const immutableRule = rule.clone();
+    immutableRule.makeImmutable();
+    for (const r of [rule, immutableRule]) {
+      deepEqual(
+        r.getOccurrences(startDate, rangeStart, rangeEnd, 0).map(describe),
+        expected.map(describe),
+        `"${rrule}" from ${dtstart} should have the same occurrences as iterating from the start`
+      );
+    }
+
+    const next = rule.getNextOccurrence(startDate, expected[0]);
+    equal(
+      next && describe(next),
+      describe(expected[1] ?? following),
+      `"${rrule}" from ${dtstart} should have the same next occurrence as iterating from the start`
+    );
+  }
+
+  const hourly = makeEvent("RRULE:FREQ=HOURLY\nDTSTART:19000101T003000Z\n");
+  equal(
+    hourly.recurrenceInfo.getOccurrenceDates(
+      cal.createDateTime("20261001T000000Z"),
+      cal.createDateTime("20261101T000000Z"),
+      0
+    ).length,
+    744,
+    "an hourly series started a century earlier should have all its occurrences"
   );
 }
 
