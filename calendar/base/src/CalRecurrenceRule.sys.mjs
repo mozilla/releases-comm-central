@@ -56,7 +56,7 @@ const PERIOD_HOURS = {
 const MAX_INSTANCES_PER_HOUR = 2;
 
 /**
- * The most occurrences a single rule will produce while answering one query.
+ * The most occurrences a single rule will return while answering one query.
  * A rule reaching this is malformed or hostile; iterating it to the end would
  * exhaust memory and hang the application.
  */
@@ -145,26 +145,7 @@ CalRecurrenceRule.prototype = {
     }
     aStartTime = aStartTime.wrappedJSObject.innerObject;
     aRecId = aRecId.wrappedJSObject.innerObject;
-
-    // This is ICAL.Recur.getNextOccurrence, which searches from the start of
-    // the series, spelled out here so that the search can be given a budget.
-    const iter = this.innerObject.iterator(aStartTime);
-    let val;
-    let count = 0;
-    do {
-      if (++count > MAX_OCCURRENCES_PER_QUERY) {
-        lazy.log.warn(
-          `Gave up looking for the occurrence of "${this.innerObject}" after ${aRecId}, ` +
-            `it is more than ${MAX_OCCURRENCES_PER_QUERY} occurrences from ${aStartTime}.`
-        );
-        return null;
-      }
-      val = iter.next();
-    } while (val && val.compare(aRecId) <= 0);
-
-    if (val && aRecId.zone) {
-      val.zone = aRecId.zone;
-    }
+    const val = this.innerObject.getNextOccurrence(aStartTime, aRecId);
     return val ? new lazy.CalDateTime(val) : null;
   },
 
@@ -240,16 +221,7 @@ CalRecurrenceRule.prototype = {
       iter = this.cachingIterator.newInstance();
     }
 
-    let count = 0;
     for (const next of iter) {
-      if (++count > MAX_OCCURRENCES_PER_QUERY) {
-        lazy.log.warn(
-          `The rule "${this.innerObject}" produced more than ${MAX_OCCURRENCES_PER_QUERY} ` +
-            `occurrences from ${aStartTime}, ignoring the rest.`
-        );
-        break;
-      }
-
       let dtNext;
       if (next.isDate) {
         dtNext = next.clone();
@@ -263,6 +235,14 @@ CalRecurrenceRule.prototype = {
       }
 
       if (dtend && dtNext.compare(dtend) >= 0) {
+        break;
+      }
+
+      if (occurrences.length >= MAX_OCCURRENCES_PER_QUERY) {
+        lazy.log.warn(
+          `The rule "${this.innerObject}" has more than ${MAX_OCCURRENCES_PER_QUERY} ` +
+            `occurrences in the range, ignoring the rest.`
+        );
         break;
       }
 

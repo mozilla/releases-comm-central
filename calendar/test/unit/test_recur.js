@@ -944,6 +944,25 @@ function test_expansion_limit() {
     "an hourly rule spanning decades should be cut short"
   );
 
+  // A series iterated from its start, as one with a COUNT is, keeps the
+  // occurrences that come after more than the limit's worth of earlier ones.
+  const counted = makeEvent("RRULE:FREQ=HOURLY;COUNT=30000\nDTSTART:20250101T003000Z\n");
+  equal(
+    counted.recurrenceInfo.getOccurrenceDates(
+      cal.createDateTime("20261001T000000Z"),
+      cal.createDateTime("20261101T000000Z"),
+      0
+    ).length,
+    744,
+    "a counted series should have its occurrences far from its start"
+  );
+  equal(
+    counted.recurrenceInfo.getNextOccurrence(cal.createDateTime("20261001T000000Z")).recurrenceId
+      .icalString,
+    "20261001T003000Z",
+    "the next occurrence of a counted series far from its start should be found"
+  );
+
   // A rule whose BY* parts can never all be satisfied gives up rather than
   // searching for ever. Bug 2058960.
   equal(
