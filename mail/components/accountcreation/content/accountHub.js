@@ -54,6 +54,13 @@ class AccountHubControllerClass {
   #currentView = null;
 
   /**
+   * The key in #views for the current visible view.
+   *
+   * @type {?string}
+   */
+  #currentViewType = null;
+
+  /**
    * If this is the first time user experience.
    *
    * @type {boolean}
@@ -270,12 +277,14 @@ class AccountHubControllerClass {
    * @param {?string} type - Which account flow to load when the modal opens.
    */
   async open(type = "MAIL") {
-    // If the dialog is currently minimized, restore it instead of loading a new
+    // If the dialog is currently minimized, restore it if it's is the same
     // view.
-    if (this.#minimized) {
+    if (this.#minimized && this.#currentViewType === type) {
       this.#toggle();
       return;
     }
+
+    this.#currentViewType = type;
 
     // Interrupt if something went wrong while cleaning up a previously loaded
     // view.
