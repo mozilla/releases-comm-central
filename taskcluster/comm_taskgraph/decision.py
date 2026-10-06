@@ -15,7 +15,7 @@ from taskgraph.util.vcs import get_repository
 from gecko_taskgraph.decision import ARTIFACTS_DIR, write_artifact
 from gecko_taskgraph.parameters import get_app_version, get_version
 from gecko_taskgraph.util.backstop import is_backstop
-from gecko_taskgraph.util.hg import get_hg_revision_info
+from gecko_taskgraph.util.hg import get_hg_revision_metadata
 from gecko_taskgraph.util.partials import populate_release_history
 from gecko_taskgraph.util.taskgraph import (
     find_decision_task,
@@ -237,9 +237,8 @@ def get_decision_parameters(graph_config, parameters):
         parameters["comm_head_git_repository"] = (
             "https://github.com/thunderbird/thunderbird-desktop"
         )
-        if comm_head_git_rev := get_hg_revision_info(
-            COMM, revision=parameters["comm_head_rev"], info="extras.git_commit"
-        ):
+        metadata = get_hg_revision_metadata(COMM, parameters["comm_head_rev"])
+        if comm_head_git_rev := metadata["extras"].get("git_commit"):
             parameters["comm_head_git_rev"] = comm_head_git_rev
 
     # Calculate changed files here. Already have gecko's changed files when this
