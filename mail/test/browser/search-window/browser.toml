@@ -29,4 +29,6 @@ subsuite = "thunderbird"
 
 ["browser_searchFromSyntheticView.js"]
 
+["browser_searchMessagesMenu.js"]
+
 ["browser_searchWindow.js"]

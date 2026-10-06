@@ -256,8 +256,14 @@ function initSearchMessagesMenu() {
     "mailnews.database.global.indexer.enabled"
   );
   document.getElementById("glodaSearchCmd").hidden = !glodaEnabled;
+  const tab = document.getElementById("tabmail")?.currentTabInfo;
+  const folder =
+    tab?.mode.name == "mail3PaneTab"
+      ? tab.chromeBrowser.contentWindow.gFolder
+      : null;
   document.getElementById("searchMailCmd").disabled =
-    !MailServices.accounts.accounts.length;
+    !MailServices.accounts.accounts.length ||
+    folder?.getFlag(Ci.nsMsgFolderFlags.Virtual);
 }
 
 function InitGoMessagesMenu() {
