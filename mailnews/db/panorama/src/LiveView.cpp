@@ -837,11 +837,10 @@ bool LiveView::CheckIfChangeMatches(nsIMsgDBHdr* oldMessage,
   return false;
 }
 
-void LiveView::OnMessageFlagsChanged(Message* aMessage, uint32_t oldFlags,
+void LiveView::OnMessageFlagsChanged(nsIMsgDBHdr* oldMessage,
+                                     Message* newMessage, uint32_t oldFlags,
                                      uint32_t newFlags) {
-  // TODO: If the message did match but doesn't now, or if it didn't match
-  // but does now. This isn't currently a problem for any existing filters.
-  if (!mListener || !Matches((nsIMsgDBHdr*)aMessage)) {
+  if (!mListener || !CheckIfChangeMatches(oldMessage, newMessage)) {
     return;
   }
 
@@ -852,7 +851,7 @@ void LiveView::OnMessageFlagsChanged(Message* aMessage, uint32_t oldFlags,
   JSContext* cx = jsapi.cx();
 
   Rooted<JSObject*> obj(cx);
-  CreateJSMessage(aMessage, cx, obj);
+  CreateJSMessage(newMessage, cx, obj);
   Rooted<Value> message(cx, ObjectValue(*obj));
   MutableHandle<Value> handle(&message);
   mListener->OnMessageFlagsChanged(handle, oldFlags);

@@ -130,6 +130,16 @@ add_task(function testBasicAddRemove() {
 
 add_task(async function testFlagsChange() {
   const listener = new LiveViewListener("all messages listener");
+  const thisFolderListener = new LiveViewListener(
+    "this folder listener",
+    "initWithFolder",
+    4
+  );
+  const otherFolderListener = new LiveViewListener(
+    "other folder listener",
+    "initWithFolder",
+    2
+  );
 
   const message = messageDB.getMessage(7);
   Assert.equal(message.flags, 0);
@@ -139,22 +149,43 @@ add_task(async function testFlagsChange() {
   Assert.equal(listener._change.message.flags, 1);
   Assert.equal(listener._change.oldFlags, 0);
   delete listener._change;
+  // Message is in this folder.
+  Assert.equal(thisFolderListener._change.message.id, 7);
+  delete thisFolderListener._change;
+  // Message is not in other folder.
+  otherFolderListener.assertNoChanges();
 
   message.orFlags(4);
   Assert.equal(listener._change.message.id, 7);
   Assert.equal(listener._change.message.flags, 5);
   Assert.equal(listener._change.oldFlags, 1);
   delete listener._change;
+  // Message is in this folder.
+  Assert.equal(thisFolderListener._change.message.id, 7);
+  delete thisFolderListener._change;
+  // Message is not in other folder.
+  otherFolderListener.assertNoChanges();
 
   message.flags = 5;
   Assert.ok(!listener._change);
+  Assert.ok(!thisFolderListener._change);
+  // Message is not in other folder.
+  otherFolderListener.assertNoChanges();
 
   message.andFlags(4);
   Assert.equal(listener._change.message.id, 7);
   Assert.equal(listener._change.message.flags, 4);
   Assert.equal(listener._change.oldFlags, 5);
+  delete listener._change;
+  // Message is in this folder.
+  Assert.equal(thisFolderListener._change.message.id, 7);
+  delete thisFolderListener._change;
+  // Message is not in other folder.
+  otherFolderListener.assertNoChanges();
 
   listener.stopListening();
+  thisFolderListener.stopListening();
+  otherFolderListener.stopListening();
 });
 
 add_task(async function testTagsChange() {

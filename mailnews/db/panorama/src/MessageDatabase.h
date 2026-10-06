@@ -21,9 +21,10 @@ class MessageListener : public nsISupports {
  public:
   virtual void OnMessageAdded(Message* message) = 0;
   virtual void OnMessageRemoved(Message* message, uint32_t oldFlags) = 0;
-  virtual void OnMessageFlagsChanged(Message* message, uint32_t oldFlags,
-                                     uint32_t newFlags) = 0;
-  virtual void OnMessageTagsChanged(nsIMsgDBHdr* oldMessage, Message* message, const nsACString& oldTags,
+  virtual void OnMessageFlagsChanged(nsIMsgDBHdr* oldMessage, Message* message,
+                                     uint32_t oldFlags, uint32_t newFlags) = 0;
+  virtual void OnMessageTagsChanged(nsIMsgDBHdr* oldMessage, Message* message,
+                                    const nsACString& oldTags,
                                     const nsACString& newTags) = 0;
   virtual ~MessageListener() {};
 };

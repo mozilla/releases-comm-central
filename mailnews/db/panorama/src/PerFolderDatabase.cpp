@@ -44,7 +44,8 @@ void PerFolderDatabase::OnMessageRemoved(Message* message, uint32_t oldFlags) {
   }
 }
 
-void PerFolderDatabase::OnMessageFlagsChanged(Message* message,
+void PerFolderDatabase::OnMessageFlagsChanged(nsIMsgDBHdr* oldMessage,
+                                              Message* message,
                                               uint32_t oldFlags,
                                               uint32_t newFlags) {
   uint64_t msgFolderId;
@@ -55,7 +56,8 @@ void PerFolderDatabase::OnMessageFlagsChanged(Message* message,
   }
 }
 
-void PerFolderDatabase::OnMessageTagsChanged(nsIMsgDBHdr* oldMessage, Message* message,
+void PerFolderDatabase::OnMessageTagsChanged(nsIMsgDBHdr* oldMessage,
+                                             Message* message,
                                              const nsACString& oldTags,
                                              const nsACString& newTags) {
   uint64_t msgFolderId;

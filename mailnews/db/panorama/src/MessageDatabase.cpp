@@ -833,6 +833,12 @@ nsresult MessageDatabase::SetMessageFlags(nsMsgKey key, uint32_t newFlags) {
     return NS_OK;
   }
 
+  uint64_t folderId;
+  GetMessageFolderId(key, folderId);
+  RefPtr<DetachedMsgHdr> oldMessage = new DetachedMsgHdr(folderId);
+  // TODO: This'll need filling properly once we have more complex filters.
+  oldMessage->SetFlags(oldFlags);
+
   // Update in DB.
   {
     nsCOMPtr<mozIStorageStatement> stmt;
@@ -858,7 +864,7 @@ nsresult MessageDatabase::SetMessageFlags(nsMsgKey key, uint32_t newFlags) {
   // Notify.
   RefPtr<Message> message = new Message(key);
   for (MessageListener* listener : mMessageListeners.EndLimitedRange()) {
-    listener->OnMessageFlagsChanged(message, oldFlags, newFlags);
+    listener->OnMessageFlagsChanged(oldMessage, message, oldFlags, newFlags);
   }
   return NS_OK;
 }
