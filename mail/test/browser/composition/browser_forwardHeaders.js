@@ -76,18 +76,28 @@ async function forward_selected_messages_and_go_to_drafts_folder(callback) {
   await make_display_unthreaded();
 }
 
+async function selectPassiveThreadRow(index) {
+  // The row selects a message but is not a separate focusable control.
+  AccessibilityUtils.suppressClickHandling(true);
+  try {
+    return await select_click_row(index);
+  } finally {
+    AccessibilityUtils.suppressClickHandling(false);
+  }
+}
+
 add_task(async function test_forward_inline() {
   await be_in_folder(folder);
   await make_display_unthreaded();
   // original message header
-  const oMsgHdr = await select_click_row(0);
+  const oMsgHdr = await selectPassiveThreadRow(0);
 
   await forward_selected_messages_and_go_to_drafts_folder(
     open_compose_with_forward
   );
 
   // forwarded message header
-  const fMsgHdr = await select_click_row(0);
+  const fMsgHdr = await selectPassiveThreadRow(0);
 
   Assert.greater(
     fMsgHdr.numReferences,
@@ -121,8 +131,8 @@ add_task(async function test_forward_as_attachments() {
   await make_display_unthreaded();
 
   // original message header
-  const oMsgHdr0 = await select_click_row(0);
-  const oMsgHdr1 = await select_click_row(1);
+  const oMsgHdr0 = await selectPassiveThreadRow(0);
+  const oMsgHdr1 = await selectPassiveThreadRow(1);
   await select_shift_click_row(0);
 
   await forward_selected_messages_and_go_to_drafts_folder(
@@ -130,7 +140,7 @@ add_task(async function test_forward_as_attachments() {
   );
 
   // forwarded message header
-  const fMsgHdr = await select_click_row(0);
+  const fMsgHdr = await selectPassiveThreadRow(0);
 
   Assert.greater(
     fMsgHdr.numReferences,

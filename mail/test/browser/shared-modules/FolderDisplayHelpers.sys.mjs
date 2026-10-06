@@ -641,9 +641,22 @@ export async function select_click_row(aViewIndex, aAccessibilityUtils) {
   const accessibilityUtils = aAccessibilityUtils?.setEnv
     ? aAccessibilityUtils
     : null;
+  const exposeCardRowForA11yClick =
+    accessibilityUtils && row.classList.contains("card-layout");
+  const previousTabIndex = row.getAttribute("tabindex");
+  if (exposeCardRowForA11yClick) {
+    row.tabIndex = 0;
+  }
   await prepare_thread_row_descendant_click(row, accessibilityUtils);
   EventUtils.synthesizeMouseAtCenter(row, {}, row.documentGlobal);
   accessibilityUtils?.resetEnv();
+  if (exposeCardRowForA11yClick) {
+    if (previousTabIndex === null) {
+      row.removeAttribute("tabindex");
+    } else {
+      row.setAttribute("tabindex", previousTabIndex);
+    }
+  }
   await TestUtils.waitForTick();
 
   await wait_for_message_display_completion(undefined, true);

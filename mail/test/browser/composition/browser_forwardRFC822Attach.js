@@ -29,6 +29,16 @@ var {
 
 var gDrafts;
 
+async function selectPassiveThreadRow(index) {
+  // The row selects a message but is not a separate focusable control.
+  AccessibilityUtils.suppressClickHandling(true);
+  try {
+    return await select_click_row(index);
+  } finally {
+    AccessibilityUtils.suppressClickHandling(false);
+  }
+}
+
 add_setup(async function () {
   gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 });
@@ -44,7 +54,7 @@ async function forwardDirect(aFilePath, aExpectedText) {
   await BrowserTestUtils.closeWindow(msgc);
 
   await be_in_folder(gDrafts);
-  const draftMsg = await select_click_row(0);
+  const draftMsg = await selectPassiveThreadRow(0);
 
   const draftMsgContent = await get_msg_source(draftMsg);
 

@@ -22,6 +22,16 @@ var { wait_for_notification_to_show } = ChromeUtils.importESModule(
   "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs"
 );
 
+async function selectPassiveThreadRow(index) {
+  // The row selects a message but is not a separate focusable control.
+  AccessibilityUtils.suppressClickHandling(true);
+  try {
+    return await select_click_row(index);
+  } finally {
+    AccessibilityUtils.suppressClickHandling(false);
+  }
+}
+
 async function selectDraftBySubject(subject) {
   const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   const folder = about3Pane.gDBView.msgFolder;
@@ -29,7 +39,9 @@ async function selectDraftBySubject(subject) {
   while (enumerator.hasMoreElements()) {
     const hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     if (hdr.subject == subject) {
-      return select_click_row(about3Pane.gDBView.findIndexOfMsgHdr(hdr, false));
+      return selectPassiveThreadRow(
+        about3Pane.gDBView.findIndexOfMsgHdr(hdr, false)
+      );
     }
   }
   throw new Error(`Could not find draft with subject: ${subject}`);
@@ -50,7 +62,7 @@ add_task(async function test_edit_draft_keeps_related_inline_pdf_attachment() {
   await be_in_folder(draftsFolder);
   await make_display_unthreaded();
 
-  const draftMsg = await select_click_row(0);
+  const draftMsg = await selectPassiveThreadRow(0);
   await assert_selected_and_displayed(window, draftMsg);
   await wait_for_notification_to_show(
     get_about_message(),
