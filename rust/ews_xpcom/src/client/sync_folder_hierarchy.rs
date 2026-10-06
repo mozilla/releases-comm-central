@@ -61,6 +61,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
                     // contacts, etc., which we aren't trying to support yet.
                     id: EXCHANGE_ROOT_FOLDER.to_string(),
                     change_key: None,
+                    mailbox: None,
                 }),
                 sync_state: self.sync_state_token.clone(),
             };
@@ -347,6 +348,7 @@ async fn get_well_known_folder_map<ServerT: ServerType>(
         .map(|id| BaseFolderId::DistinguishedFolderId {
             id: id.to_string(),
             change_key: None,
+            mailbox: None,
         })
         .collect();
 

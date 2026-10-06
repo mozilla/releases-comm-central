@@ -84,7 +84,7 @@ pub struct RootFolder {
 mod tests {
     use crate::{
         test_utils::{assert_deserialized_content, assert_serialized_content, minify_xml},
-        BasePoint, BaseShape, Groups, ItemId, Items, Message, RealItem, ResponseClass,
+        BasePoint, BaseShape, Groups, ItemId, Items, Mailbox, Message, RealItem, ResponseClass,
         ResponseMessages,
     };
 
@@ -98,10 +98,7 @@ mod tests {
                 base_shape: BaseShape::IdOnly,
                 ..Default::default()
             },
-            parent_folder_ids: vec![BaseFolderId::DistinguishedFolderId {
-                id: "deleteditems".to_string(),
-                change_key: None,
-            }],
+            parent_folder_ids: vec![BaseFolderId::new_distinguished("deleteditems")],
             view: Some(View::IndexedPageItemView {
                 max_entries_returned: Some(6),
                 offset: 0,
@@ -117,7 +114,7 @@ mod tests {
               </ItemShape>
               <IndexedPageItemView MaxEntriesReturned="6" BasePoint="Beginning" Offset="0"/>
               <ParentFolderIds>
-                <t:DistinguishedFolderId Id="deleteditems"/>
+                <t:DistinguishedFolderId Id="deleteditems"></t:DistinguishedFolderId>
               </ParentFolderIds>
             </FindItem>"#,
         );
@@ -133,10 +130,7 @@ mod tests {
                 base_shape: BaseShape::IdOnly,
                 ..Default::default()
             },
-            parent_folder_ids: vec![BaseFolderId::DistinguishedFolderId {
-                id: "inbox".to_string(),
-                change_key: None,
-            }],
+            parent_folder_ids: vec![BaseFolderId::new_distinguished("inbox")],
             view: Some(View::FractionalPageItemView {
                 max_entries_returned: Some(12),
                 numerator: 2,
@@ -152,7 +146,7 @@ mod tests {
               </ItemShape>
               <FractionalPageItemView MaxEntriesReturned="12" Numerator="2" Denominator="3"/>
               <ParentFolderIds>
-                <t:DistinguishedFolderId Id="inbox"/>
+                <t:DistinguishedFolderId Id="inbox"></t:DistinguishedFolderId>
               </ParentFolderIds>
             </FindItem>"#,
         );
@@ -167,10 +161,7 @@ mod tests {
                 base_shape: BaseShape::IdOnly,
                 ..Default::default()
             },
-            parent_folder_ids: vec![BaseFolderId::DistinguishedFolderId {
-                id: "calendar".to_string(),
-                change_key: None,
-            }],
+            parent_folder_ids: vec![BaseFolderId::new_distinguished("calendar")],
             view: Some(View::CalendarView {
                 max_entries_returned: Some(2),
                 start_date: "2006-05-18T00:00:00-08:00".to_string(),
@@ -186,7 +177,49 @@ mod tests {
               </ItemShape>
               <CalendarView MaxEntriesReturned="2" StartDate="2006-05-18T00:00:00-08:00" EndDate="2006-05-19T00:00:00-08:00"/>
               <ParentFolderIds>
-                <t:DistinguishedFolderId Id="calendar"/>
+                <t:DistinguishedFolderId Id="calendar"></t:DistinguishedFolderId>
+              </ParentFolderIds>
+            </FindItem>"#,
+        );
+
+        assert_serialized_content(&find_item, "FindItem", &expected);
+    }
+
+    #[test]
+    fn test_serialize_find_item_calendar_view_with_mailbox() {
+        let find_item = FindItem {
+            traversal: Traversal::Shallow,
+            item_shape: ItemShape {
+                base_shape: BaseShape::IdOnly,
+                ..Default::default()
+            },
+            parent_folder_ids: vec![BaseFolderId::new_distinguished_in_mailbox(
+                "calendar",
+                Mailbox {
+                    email_address: Some("room@example.com".to_string()),
+                    ..Default::default()
+                },
+            )],
+            view: Some(View::CalendarView {
+                max_entries_returned: Some(2),
+                start_date: "2006-05-18T00:00:00-08:00".to_string(),
+                end_date: "2006-05-19T00:00:00-08:00".to_string(),
+            }),
+        };
+
+        let expected = minify_xml(
+            r#"
+            <FindItem xmlns="http://schemas.microsoft.com/exchange/services/2006/messages" Traversal="Shallow">
+              <ItemShape>
+                <t:BaseShape>IdOnly</t:BaseShape>
+              </ItemShape>
+              <CalendarView MaxEntriesReturned="2" StartDate="2006-05-18T00:00:00-08:00" EndDate="2006-05-19T00:00:00-08:00"/>
+              <ParentFolderIds>
+                <t:DistinguishedFolderId Id="calendar">
+                  <t:Mailbox>
+                    <t:EmailAddress>room@example.com</t:EmailAddress>
+                  </t:Mailbox>
+                </t:DistinguishedFolderId>
               </ParentFolderIds>
             </FindItem>"#,
         );
@@ -202,10 +235,7 @@ mod tests {
                 base_shape: BaseShape::IdOnly,
                 ..Default::default()
             },
-            parent_folder_ids: vec![BaseFolderId::DistinguishedFolderId {
-                id: "contacts".to_string(),
-                change_key: None,
-            }],
+            parent_folder_ids: vec![BaseFolderId::new_distinguished("contacts")],
             view: Some(View::ContactsView {
                 max_entries_returned: Some(3),
                 initial_name: Some("Kelly Rollin".to_string()),
@@ -221,7 +251,7 @@ mod tests {
               </ItemShape>
               <ContactsView MaxEntriesReturned="3" InitialName="Kelly Rollin"/>
               <ParentFolderIds>
-                <t:DistinguishedFolderId Id="contacts"/>
+                <t:DistinguishedFolderId Id="contacts"></t:DistinguishedFolderId>
               </ParentFolderIds>
             </FindItem>"#,
         );

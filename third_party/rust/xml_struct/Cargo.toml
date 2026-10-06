@@ -12,8 +12,7 @@
 [package]
 edition = "2021"
 name = "xml_struct"
-version = "1.0.0"
-authors = ["The Thunderbird Project Developers"]
+version = "1.0.1"
 build = false
 exclude = [
     ".github",
@@ -42,7 +41,7 @@ path = "src/lib.rs"
 version = "1.0.69"
 
 [dependencies.quick-xml]
-version = "0.31.0"
+version = "0.41.0"
 
 [dependencies.thiserror]
 version = "1.0.56"

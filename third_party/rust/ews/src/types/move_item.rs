@@ -35,10 +35,7 @@ mod test {
     fn test_serialize_move_item() {
         let move_item = MoveItem {
             inner: CopyMoveItemData {
-                to_folder_id: BaseFolderId::DistinguishedFolderId {
-                    id: "drafts".to_string(),
-                    change_key: None,
-                },
+                to_folder_id: BaseFolderId::new_distinguished("drafts"),
                 item_ids: vec![BaseItemId::ItemId {
                     id: "AAAtAEF/swbAAA=".to_string(),
                     change_key: Some("EwAAABYA/s4b".to_string()),
@@ -51,7 +48,7 @@ mod test {
             r#"
             <MoveItem xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
               <ToFolderId>
-                <t:DistinguishedFolderId Id="drafts"/>
+                <t:DistinguishedFolderId Id="drafts"></t:DistinguishedFolderId>
               </ToFolderId>
               <ItemIds>
                 <t:ItemId Id="AAAtAEF/swbAAA=" ChangeKey="EwAAABYA/s4b"/>

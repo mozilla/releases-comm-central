@@ -31,10 +31,7 @@ mod test {
     fn test_serialize_move_folder() {
         let move_folder = MoveFolder {
             inner: CopyMoveFolderData {
-                to_folder_id: BaseFolderId::DistinguishedFolderId {
-                    id: "junkemail".to_string(),
-                    change_key: None,
-                },
+                to_folder_id: BaseFolderId::new_distinguished("junkemail"),
                 folder_ids: vec![BaseFolderId::FolderId {
                     id: "AScAc".to_string(),
                     change_key: None,
@@ -46,7 +43,7 @@ mod test {
             r#"
             <MoveFolder xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
               <ToFolderId>
-                <t:DistinguishedFolderId Id="junkemail"/>
+                <t:DistinguishedFolderId Id="junkemail"></t:DistinguishedFolderId>
               </ToFolderId>
               <FolderIds>
                 <t:FolderId Id="AScAc"/>

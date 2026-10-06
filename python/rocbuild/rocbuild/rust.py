@@ -345,6 +345,7 @@ def run_tb_cargo_sync(command_context):
 
 def run_tb_rust_vendor(command_context):
     cargo = get_cargo(command_context)
+    command_context.log(logging.INFO, "tb-rust", {}, f"[INFO] Using Cargo: {cargo}")
 
     run_tb_cargo_sync(command_context)
     workspace = mozpath.join(command_context.topsrcdir, "comm", "rust")

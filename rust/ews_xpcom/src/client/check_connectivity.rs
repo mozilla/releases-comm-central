@@ -52,6 +52,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
             folder_ids: vec![BaseFolderId::DistinguishedFolderId {
                 id: EXCHANGE_ROOT_FOLDER.to_string(),
                 change_key: None,
+                mailbox: None,
             }],
         };
 

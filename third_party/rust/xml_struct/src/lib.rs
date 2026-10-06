@@ -29,6 +29,8 @@
 mod impls;
 mod tests;
 
+use std::io;
+
 use quick_xml::{
     events::{BytesEnd, BytesStart, Event},
     Writer,
@@ -127,12 +129,15 @@ pub trait XmlSerializeAttr {
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum Error {
-    #[error("failed to process XML document")]
+    #[error("I/O error: {0}")]
+    Io(#[from] io::Error),
+
+    #[error("failed to process XML document: {0}")]
     Xml(#[from] quick_xml::Error),
 
     /// An error representing a failure in formatting a data structure prior to
     /// serializing it into XML. Its inner type is generic on purpose, as the
     /// specific error type might be defined by a third-party crate.
-    #[error("failed to serialize value as text")]
+    #[error("failed to serialize value as text: {0}")]
     Value(#[from] anyhow::Error),
 }

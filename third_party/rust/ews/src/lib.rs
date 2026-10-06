@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::io;
+
 use thiserror::Error;
 
 #[cfg(test)]
@@ -16,13 +18,16 @@ pub mod interop;
 
 #[derive(Debug, Error)]
 pub enum Error {
-    #[error("failed to serialize structure as XML")]
+    #[error("failed to serialize structure as XML: {0}")]
     Serialize(#[from] xml_struct::Error),
 
-    #[error("failed to deserialize structure from XML")]
+    #[error("failed to deserialize structure from XML: {0}")]
     Deserialize(#[from] serde_path_to_error::Error<quick_xml::DeError>),
 
-    #[error("invalid XML document")]
+    #[error("I/O error: {0}")]
+    Io(#[from] io::Error),
+
+    #[error("invalid XML document: {0}")]
     InvalidXml(#[from] quick_xml::Error),
 
     #[error("unexpected response body")]

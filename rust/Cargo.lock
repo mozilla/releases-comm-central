@@ -1932,9 +1932,9 @@ dependencies = [
 
 [[package]]
 name = "ews"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0704203211f5a0284e53173e6f6df1f24ebc522c3048aa27a07c7d0eb008fe94"
+checksum = "b4e811b2a45e6150a69f752adeef691a356eb1e07f894fc795876b23c74d3de5"
 dependencies = [
  "ews_proc_macros",
  "quick-xml",
@@ -5687,9 +5687,9 @@ checksum = "a1d01941d82fa2ab50be1e79e6714289dd7cde78eba4c074bc5a4374f650dfe0"
 
 [[package]]
 name = "quick-xml"
-version = "0.31.0"
+version = "0.41.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1004a344b30a54e2ee58d66a71b32d2db2feb0a31f9a2d302bf0536f15de2a33"
+checksum = "e660451e55124f798a69a5af3f49ccfbefbd41910eefd25caf2393e1f3473ec1"
 dependencies = [
  "memchr",
  "serde",
@@ -8222,9 +8222,9 @@ checksum = "d2d7d3948613f75c98fd9328cfdcc45acc4d360655289d0a7d4ec931392200a3"
 
 [[package]]
 name = "xml_struct"
-version = "1.0.0"
+version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "746ddda2602e8f9c27a628a8e7ce12c1b5048de5e2a3f0d1509ad7ae46dd8c4f"
+checksum = "43059d8e1ecbf98bccea1f80a43144c76267059b4015018338fc7df53e9181b5"
 dependencies = [
  "anyhow",
  "quick-xml",

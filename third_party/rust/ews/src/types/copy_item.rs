@@ -31,10 +31,7 @@ mod test {
     fn test_serialize_copy_item() {
         let request = CopyItem {
             inner: CopyMoveItemData {
-                to_folder_id: BaseFolderId::DistinguishedFolderId {
-                    id: "inbox".to_string(),
-                    change_key: None,
-                },
+                to_folder_id: BaseFolderId::new_distinguished("inbox"),
                 item_ids: vec![BaseItemId::ItemId {
                     id: "AS4AUnV=".to_string(),
                     change_key: None,
@@ -47,7 +44,7 @@ mod test {
             r#"
             <CopyItem xmlns="http://schemas.microsoft.com/exchange/services/2006/messages">
               <ToFolderId>
-                <t:DistinguishedFolderId Id="inbox"/>
+                <t:DistinguishedFolderId Id="inbox"></t:DistinguishedFolderId>
               </ToFolderId>
               <ItemIds>
                 <t:ItemId Id="AS4AUnV="/>

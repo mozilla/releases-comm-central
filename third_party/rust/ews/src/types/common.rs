@@ -324,7 +324,48 @@ pub enum BaseFolderId {
 
         #[xml_struct(attribute)]
         change_key: Option<String>,
+
+        /// The mailbox that owns this distinguished folder.
+        ///
+        /// Required when referencing a distinguished folder in a mailbox
+        /// other than the one associated with the account making the
+        /// request, e.g. a shared or resource mailbox.
+        #[xml_struct(ns_prefix = "t")]
+        mailbox: Option<Mailbox>,
     },
+}
+
+impl BaseFolderId {
+    /// Creates a [`BaseFolderId::FolderId`] referencing an arbitrary folder
+    /// by its identifier.
+    pub fn new_folder(id: impl Into<String>) -> Self {
+        BaseFolderId::FolderId {
+            id: id.into(),
+            change_key: None,
+        }
+    }
+
+    /// Creates a [`BaseFolderId::DistinguishedFolderId`] referencing a
+    /// well-known folder (e.g. `"calendar"` or `"inbox"`) in the requesting
+    /// account's own mailbox.
+    pub fn new_distinguished(id: impl Into<String>) -> Self {
+        BaseFolderId::DistinguishedFolderId {
+            id: id.into(),
+            change_key: None,
+            mailbox: None,
+        }
+    }
+
+    /// Creates a [`BaseFolderId::DistinguishedFolderId`] referencing a
+    /// well-known folder in another mailbox, e.g. a shared or resource
+    /// mailbox, identified by `mailbox`.
+    pub fn new_distinguished_in_mailbox(id: impl Into<String>, mailbox: Mailbox) -> Self {
+        BaseFolderId::DistinguishedFolderId {
+            id: id.into(),
+            change_key: None,
+            mailbox: Some(mailbox),
+        }
+    }
 }
 
 /// The unique identifier of a folder.
