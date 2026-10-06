@@ -34,6 +34,12 @@ registerCleanupFunction(async () => {
   await CalendarTestUtils.restoreCalendarViewsState(window, calendarViewsInitialState);
 });
 
+function synthesizeCalendarViewSetupClick(target, event = {}, win = window) {
+  AccessibilityUtils.suppressClickHandling(true);
+  EventUtils.synthesizeMouseAtCenter(target, event, win);
+  AccessibilityUtils.suppressClickHandling(false);
+}
+
 function openAttendeesWindow(eventWindowOrArgs) {
   const attendeesWindowPromise = BrowserTestUtils.promiseAlertDialogOpen(
     null,

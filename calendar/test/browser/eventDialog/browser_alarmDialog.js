@@ -29,7 +29,7 @@ add_task(async function testAlarmDialog() {
 
   const allDayHeader = dayView.getAllDayHeader(window);
   Assert.ok(allDayHeader);
-  EventUtils.synthesizeMouseAtCenter(allDayHeader, {}, window);
+  synthesizeCalendarViewSetupClick(allDayHeader);
 
   // Create a new all-day event tomorrow.
 

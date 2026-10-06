@@ -61,7 +61,7 @@ add_task(async function testEventDialog() {
   firstEventStart = nextHour.clone();
 
   // Create new event on first day in view.
-  EventUtils.synthesizeMouseAtCenter(monthView.getDayBox(window, 1, 1), {}, window);
+  synthesizeCalendarViewSetupClick(monthView.getDayBox(window, 1, 1));
 
   const { dialogWindow, iframeWindow, dialogDocument, iframeDocument } =
     await CalendarTestUtils.editNewEvent(window);

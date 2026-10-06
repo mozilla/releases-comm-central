@@ -115,14 +115,18 @@
           this.editingTimer = null;
         }
 
-        if (this.calendarView && this.calendarView.controller) {
-          const item = event.ctrlKey ? this.mOccurrence.parentItem : this.mOccurrence;
-          if (Services.prefs.getBoolPref("calendar.events.defaultActionEdit", true)) {
-            this.calendarView.controller.modifyOccurrence(item);
-            return;
-          }
-          this.calendarView.controller.viewOccurrence(item, event);
+        this.activate(event);
+      });
+
+      this.addEventListener("keydown", event => {
+        if (this.mEditing || (event.key != " " && event.key != "Enter")) {
+          return;
         }
+
+        event.preventDefault();
+        event.stopPropagation();
+        this.select(event);
+        this.activate(event);
       });
 
       this.addEventListener("mouseover", event => {
@@ -171,10 +175,15 @@
       this.classList.add("calendar-color-box", "calendar-item-container");
       this.style.pointerEvents = "auto";
       this.setAttribute("tooltip", "itemTooltip");
-      this.setAttribute("tabindex", "-1");
-      this.initializeItemAccessibility();
+      this.initializeA11y();
       this.addEventNameTextboxListener();
       this.initializeAttributeInheritance();
+    }
+
+    initializeA11y() {
+      this.setAttribute("role", "option");
+      this.setAttribute("aria-selected", String(this.selected));
+      this.tabIndex = 0;
     }
 
     set parentBox(val) {
@@ -234,10 +243,17 @@
       return this.querySelector(".event-name-input");
     }
 
-    initializeItemAccessibility() {
-      this.setAttribute("role", "option");
-      this.setAttribute("aria-selected", String(this.selected));
-      this.tabIndex = 0;
+    activate(event) {
+      if (!this.calendarView?.controller || !this.mOccurrence) {
+        return;
+      }
+
+      const item = event.ctrlKey ? this.mOccurrence.parentItem : this.mOccurrence;
+      if (Services.prefs.getBoolPref("calendar.events.defaultActionEdit", true)) {
+        this.calendarView.controller.modifyOccurrence(item);
+        return;
+      }
+      this.calendarView.controller.viewOccurrence(item, event);
     }
 
     addEventNameTextboxListener() {

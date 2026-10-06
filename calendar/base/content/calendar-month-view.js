@@ -355,7 +355,7 @@
       this.classList.add("calendar-color-box", "calendar-item-flex");
       this.style.pointerEvents = "auto";
       this.setAttribute("tooltip", "itemTooltip");
-      this.initializeItemAccessibility();
+      this.initializeA11y();
       this.addEventNameTextboxListener();
       this.initializeAttributeInheritance();
     }
