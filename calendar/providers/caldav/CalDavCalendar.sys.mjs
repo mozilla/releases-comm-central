@@ -1370,45 +1370,62 @@ CalDavCalendar.prototype = {
     }
     const request = new CalDavPropfindRequest(this.session, this, this.makeUri(), ["CS:getctag"]);
 
-    request.commit().then(response => {
-      lazy.log.debug(`CalDAV: Status ${response.status} checking ctag for calendar ${this.name}`);
+    request.commit().then(
+      response => {
+        lazy.log.debug(`CalDAV: Status ${response.status} checking ctag for calendar ${this.name}`);
 
-      if (response.status == -1) {
-        notifyListener(Cr.NS_OK);
-        return;
-      } else if (response.notFound) {
-        lazy.log.debug(`CalDAV: Disabling calendar ${this.name} due to 404`);
-        notifyListener(Cr.NS_ERROR_FAILURE);
-        return;
-      } else if (response.ok && this.mDisabledByDavError) {
-        // Looks like the calendar is there again, check its resource
-        // type first.
-        this.checkDavResourceType(aChangeLogListener);
-        return;
-      } else if (!response.ok) {
-        lazy.log.debug("CalDAV: Failed to get ctag from server for calendar " + this.name);
-        notifyListener(Cr.NS_OK);
-        return;
-      }
+        if (response.status == -1) {
+          notifyListener(Cr.NS_OK);
+          return;
+        } else if (response.notFound) {
+          lazy.log.debug(`CalDAV: Disabling calendar ${this.name} due to 404`);
+          notifyListener(Cr.NS_ERROR_FAILURE);
+          return;
+        } else if (response.ok && this.mDisabledByDavError) {
+          // Looks like the calendar is there again, check its resource
+          // type first.
+          this.checkDavResourceType(aChangeLogListener);
+          return;
+        } else if (!response.ok) {
+          lazy.log.debug("CalDAV: Failed to get ctag from server for calendar " + this.name);
+          notifyListener(Cr.NS_OK);
+          return;
+        }
 
-      const ctag = response.firstProps["CS:getctag"];
-      if (!ctag || ctag != this.mCtag) {
-        // ctag mismatch, need to fetch calendar-data
-        this.mProposedCtag = ctag;
-        this.getUpdatedItems(this.calendarUri, aChangeLogListener);
-        lazy.log.debug("CalDAV: ctag mismatch on refresh, fetching data for calendar " + this.name);
-      } else {
-        lazy.log.debug("CalDAV: ctag matches, no need to fetch data for calendar " + this.name);
+        const ctag = response.firstProps["CS:getctag"];
+        if (!ctag || ctag != this.mCtag) {
+          // ctag mismatch, need to fetch calendar-data
+          this.mProposedCtag = ctag;
+          this.getUpdatedItems(this.calendarUri, aChangeLogListener);
+          lazy.log.debug(
+            "CalDAV: ctag mismatch on refresh, fetching data for calendar " + this.name
+          );
+        } else {
+          lazy.log.debug("CalDAV: ctag matches, no need to fetch data for calendar " + this.name);
 
-        // Notify the listener, but don't return just yet...
-        notifyListener(Cr.NS_OK);
+          // Notify the listener, but don't return just yet...
+          notifyListener(Cr.NS_OK);
 
-        // ...we may still need to poll the inbox
-        if (this.firstInRealm()) {
-          this.pollInbox();
+          // ...we may still need to poll the inbox
+          if (this.firstInRealm()) {
+            this.pollInbox();
+          }
+        }
+      },
+      e => {
+        lazy.log.warn(`CalDAV: Error checking ctag for calendar ${this.name}`);
+        try {
+          this.reportDavError(
+            Ci.calIErrors.DAV_REPORT_ERROR,
+            undefined,
+            undefined,
+            e.streamError?.result
+          );
+        } finally {
+          notifyListener(Cr.NS_ERROR_FAILURE);
         }
       }
-    });
+    );
   },
 
   refresh() {

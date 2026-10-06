@@ -284,6 +284,63 @@ add_task(async function testConnectionError1() {
   await runConnectionError1(CalDAVServer, "caldav", true);
 });
 
+/**
+ * Tests that a calendar keeps syncing after a connection error while checking
+ * the ctag. Only servers without sync-collection get a ctag check, and only
+ * after a sync that fetched an item.
+ */
+add_task(async function testConnectionErrorCheckingCtag() {
+  const event = uid => CalendarTestUtils.dedent`
+    BEGIN:VCALENDAR
+    BEGIN:VEVENT
+    UID:${uid}
+    SUMMARY:${uid}
+    DTSTART:20210401T120000Z
+    DTEND:20210401T130000Z
+    END:VEVENT
+    END:VCALENDAR
+    `;
+  CalDAVServer.canDoSyncCollection = false;
+  await CalDAVServer.putItemInternal("/calendars/alice/test/existing.ics", event("existing"));
+
+  calendarObserver._onLoadPromise = Promise.withResolvers();
+  const calendar = createCalendar("caldav", `${CalDAVServer.origin}/calendars/alice/test/`, true);
+  await calendarObserver._onLoadPromise.promise;
+
+  info("refreshing with the server down");
+  MockAlertsService.init();
+  const shownPromise = MockAlertsService.promiseShown();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
+  await CalDAVServer.close();
+  calendar.refresh();
+  await Promise.all([calendarObserver._onLoadPromise.promise, shownPromise]);
+  Assert.equal(
+    calendar.getProperty("currentStatus"),
+    Ci.calIErrors.READ_FAILED,
+    "the calendar should report the failed sync while the server is down"
+  );
+
+  info("refreshing with the server back up");
+  CalDAVServer.open("alice", "alice");
+  // open() clears the items.
+  await CalDAVServer.putItemInternal("/calendars/alice/test/existing.ics", event("existing"));
+  await CalDAVServer.putItemInternal("/calendars/alice/test/new.ics", event("new"));
+  const closedPromise = MockAlertsService.promiseClosed();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
+  calendar.refresh();
+  await Promise.all([calendarObserver._onLoadPromise.promise, closedPromise]);
+  const items = await calendar.getItemsAsArray(Ci.calICalendar.ITEM_FILTER_TYPE_ALL, 0, null, null);
+  Assert.deepEqual(
+    items.map(item => item.id).sort(),
+    ["existing", "new"],
+    "a new event on the server should arrive once the server is back"
+  );
+
+  cal.manager.unregisterCalendar(calendar);
+  MockAlertsService.cleanup();
+  CalDAVServer.canDoSyncCollection = true;
+});
+
 add_task(async function testConnectionError2() {
   await runConnectionError2(CalDAVServer, "caldav", true);
 });
