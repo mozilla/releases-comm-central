@@ -15,6 +15,7 @@ var { SelectionUtils } = ChromeUtils.importESModule(
 );
 
 ChromeUtils.defineESModuleGetters(this, {
+  assignAutoAccessKeys: "chrome://global/content/elements/auto-accesskey.mjs",
   ExtensionMenus: "resource://gre/modules/ExtensionMenus.sys.mjs",
 });
 
@@ -344,7 +345,6 @@ var gMenuBuilder = {
         }
         return nextChar;
       });
-      element.setAttribute("accesskey", accessKey || "");
 
       if (contextData.isTextSelected && label.includes("%s")) {
         let selection = contextData.selectionText.trim();
@@ -372,6 +372,12 @@ var gMenuBuilder = {
       }
 
       element.setAttribute("label", label);
+      if (accessKey) {
+        element.setAttribute("accesskey", accessKey);
+        element.toggleAttribute("intended-duplicate-accesskey", true);
+      } else {
+        element.toggleAttribute("auto-accesskey", true);
+      }
     }
 
     element.setAttribute("id", item.elementId);
@@ -560,6 +566,8 @@ var gMenuBuilder = {
     if (root) {
       this.createAndInsertTopLevelElements(root, contextData, nextSibling);
     }
+
+    assignAutoAccessKeys(this.xulMenu);
     this.removeSeparatorIfNoTopLevelItems();
   },
 
