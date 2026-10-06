@@ -9,9 +9,11 @@
 
 extern "C" {
 // Instantiates a new ITelemetryRecorder for EWS with a Rust implementation.
-MOZ_EXPORT nsresult NS_CreateEwsTelemetryRecorder(REFNSIID aIID, void** aResult);
+MOZ_EXPORT nsresult NS_CreateEwsTelemetryRecorder(REFNSIID aIID,
+                                                  void** aResult);
 // Instantiates a new ITelemetryRecorder for Graph with a Rust implementation.
-MOZ_EXPORT nsresult NS_CreateGraphTelemetryRecorder(REFNSIID aIID, void** aResult);
+MOZ_EXPORT nsresult NS_CreateGraphTelemetryRecorder(REFNSIID aIID,
+                                                    void** aResult);
 }
 
 #endif  // COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EWSCLIENT_H_

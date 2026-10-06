@@ -130,7 +130,7 @@ class MimeDisplayOptions {
             completes (possibly at the same time as the
             MimeDisplayOptions itself.) */
 
-  MimeHeadersState headers; /* How headers should be displayed. */
+  MimeHeadersState headers;        /* How headers should be displayed. */
   bool variable_width_plaintext_p; /* Whether text/plain messages should
                                       be in variable width, or fixed. */
   bool wrap_long_lines_p;          /* Whether to wrap long lines in text/plain

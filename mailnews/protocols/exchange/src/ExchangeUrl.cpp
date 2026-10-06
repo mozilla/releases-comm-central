@@ -10,9 +10,7 @@ NS_IMPL_ISUPPORTS_INHERITED(ExchangeUrl, nsMsgMailNewsUrl, nsIMsgMessageUrl)
 
 ExchangeUrl::ExchangeUrl() : nsMsgMailNewsUrl() {}
 
-NS_IMETHODIMP ExchangeUrl::GetUri(nsACString& uri) {
-  return GetSpec(uri);
-}
+NS_IMETHODIMP ExchangeUrl::GetUri(nsACString& uri) { return GetSpec(uri); }
 
 NS_IMETHODIMP ExchangeUrl::SetUri(const nsACString& uri) {
   return SetSpecInternal(uri);

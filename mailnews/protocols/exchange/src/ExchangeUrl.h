@@ -16,17 +16,17 @@
  */
 class ExchangeUrl : public nsMsgMailNewsUrl, public nsIMsgMessageUrl {
  public:
-   NS_DECL_ISUPPORTS_INHERITED
-   NS_DECL_NSIMSGMESSAGEURL
+  NS_DECL_ISUPPORTS_INHERITED
+  NS_DECL_NSIMSGMESSAGEURL
 
-   ExchangeUrl();
+  ExchangeUrl();
 
  protected:
-   virtual ~ExchangeUrl() = default;
+  virtual ~ExchangeUrl() = default;
 
  private:
-   nsCOMPtr<nsIFile> mMessageFile;
-   bool mCanonicalLineEnding;
+  nsCOMPtr<nsIFile> mMessageFile;
+  bool mCanonicalLineEnding;
 };
 
 #endif  // COMM_MAILNEWS_PROTOCOLS_EXCHANGE_SRC_EXCHANGEURL_H_

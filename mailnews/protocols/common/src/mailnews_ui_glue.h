@@ -33,8 +33,8 @@ enum class AuthErrorOutcome {
  * silently.
  */
 enum class ErrorBehavior {
-    NOTIFY,
-    SILENT,
+  NOTIFY,
+  SILENT,
 };
 
 extern "C" {
@@ -47,7 +47,8 @@ extern "C" {
  * is that we failed to authenticate against the remote server.
  */
 nsresult handle_auth_failure_from_incoming_server(
-    const nsIMsgIncomingServer* incoming_server, AuthErrorOutcome* action, ErrorBehavior behavior);
+    const nsIMsgIncomingServer* incoming_server, AuthErrorOutcome* action,
+    ErrorBehavior behavior);
 
 /**
  * Handle a transport security failure (e.g. bad certificate) that came from the
@@ -65,7 +66,8 @@ nsresult handle_transport_sec_failure_from_incoming_server(
  * notification/modal. Otherwise, this does nothing.
  */
 nsresult maybe_handle_connection_error_from_incoming_server(
-    nsresult error, const nsIMsgIncomingServer* incoming_server, ErrorBehavior behavior);
+    nsresult error, const nsIMsgIncomingServer* incoming_server,
+    ErrorBehavior behavior);
 
 }  // extern "C"
 
