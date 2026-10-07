@@ -342,14 +342,14 @@ export class Pop3Client {
     // Cancel the watchdog timer.
     this._clearCommandTimeout();
 
-    let stringPayload = CommonUtils.arrayBufferToByteString(
+    const chunk = CommonUtils.arrayBufferToByteString(
       new Uint8Array(event.data)
     );
-    this._logger.debug(`S: ${stringPayload}`);
-    if (this._pendingPayload) {
-      stringPayload = this._pendingPayload + stringPayload;
-    }
-    if (stringPayload.includes("\n")) {
+    this._logger.debug(`S: ${chunk}`);
+    const stringPayload = this._pendingPayload + chunk;
+    // _pendingPayload never contains a line break, so only the new chunk needs
+    // to be searched.
+    if (chunk.includes("\n")) {
       // Start parsing if the payload contains at least one line break.
       this._pendingPayload = "";
       if (this._noopRespPending) {

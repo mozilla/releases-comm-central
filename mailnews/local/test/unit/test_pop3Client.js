@@ -143,3 +143,44 @@ add_task(async function testHeadersOnly() {
     "TOP 1 0",
   ]);
 });
+
+/**
+ * Test that a response line split over several data events is only parsed
+ * once complete, and is parsed in full.
+ */
+add_task(async function testSplitLine() {
+  const { Pop3Client } = ChromeUtils.importESModule(
+    "resource:///modules/Pop3Client.sys.mjs"
+  );
+  const { LineReader } = ChromeUtils.importESModule(
+    "resource:///modules/LineReader.sys.mjs"
+  );
+  const incomingServer = createPop3ServerAndLocalFolders(server.port);
+  const client = new Pop3Client(incomingServer);
+  client._lineReader = new LineReader();
+  client._pendingPayload = "";
+  const responses = [];
+  client._nextAction = res => responses.push(res);
+
+  for (const chunk of [
+    "+OK ready ",
+    "<1896.6971",
+    "70952@dbc.mtview.ca.us>\r",
+    "\n",
+  ]) {
+    await client._onData({
+      data: new TextEncoder().encode(chunk).buffer,
+    });
+  }
+
+  Assert.equal(responses.length, 1, "the line should be parsed once");
+  Assert.ok(responses[0].success, "the response should be a success");
+  Assert.equal(
+    responses[0].statusText,
+    "ready <1896.697170952@dbc.mtview.ca.us>",
+    "the status text should be complete"
+  );
+  Assert.equal(client._pendingPayload, "", "nothing should be left pending");
+
+  MailServices.accounts.removeIncomingServer(incomingServer, false);
+});
