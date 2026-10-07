@@ -6,7 +6,6 @@ edition = "2024"
 [dependencies]
 async-lock = "3.4.2"
 base64 = "0.21.3"
-fxhash = "0.2.1"
 log = "0.4.21"
 mail-parser = "0.9.3"
 mail-builder = { version = "0.3.2", default-features = false }
@@ -15,6 +14,7 @@ nserror = { version = "0.1.0", path = "../../../xpcom/rust/nserror" }
 nsstring = { version = "0.1.0", path = "../../../xpcom/rust/nsstring" }
 oneshot = "0.1.11"
 operation-queue = { version = "1.2.0", features = ["line_token"] }
+rustc-hash = "2.1.1"
 thin-vec = { version = "0.2.12", features = ["gecko-ffi"] }
 thiserror = "1.0.56"
 url = "2.5.0"

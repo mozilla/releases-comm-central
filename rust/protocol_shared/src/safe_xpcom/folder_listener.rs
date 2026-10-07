@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use fxhash::FxHashMap;
 use nserror::nsresult;
 use nsstring::nsCString;
+use rustc_hash::FxHashMap;
 use xpcom::interfaces::{IExchangeFolderListener, nsMsgFolderFlagType, nsMsgFolderFlags};
 
 use crate::safe_xpcom::{SafeListener, SafeListenerWrapper};

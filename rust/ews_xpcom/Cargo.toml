@@ -8,7 +8,6 @@ rust-version.workspace = true
 base64 = "0.21.3"
 ews = { version = "0.1.2", features = ["interop"] }
 firefox-on-glean = { version = "0.1.0", path = "../../../toolkit/components/glean/api" }
-fxhash = "0.2.1"
 http = "0.2.9"
 log = "0.4.21"
 moz_http = { version = "0.1.0", path = "../moz_http" }
@@ -18,6 +17,7 @@ nsstring = { version = "0.1.0", path = "../../../xpcom/rust/nsstring" }
 oneshot = "0.1.11"
 operation-queue = "1.2.0"
 protocol_shared = { version = "0.1.0", path = "../protocol_shared" }
+rustc-hash = "2.1.1"
 serde_json = "1.0.140"
 serde_path_to_error = "0.1.11"
 thin-vec = { version = "0.2.12", features = ["gecko-ffi"] }

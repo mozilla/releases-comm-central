@@ -8,11 +8,11 @@ use ews::{
     response::{ResponseCode, ResponseError},
     sync_folder_hierarchy::{self, SyncFolderHierarchy},
 };
-use fxhash::FxHashMap;
 use protocol_shared::{
     EXCHANGE_DISTINGUISHED_IDS, EXCHANGE_ROOT_FOLDER, client::DoOperation,
     safe_xpcom::SafeExchangeFolderListener,
 };
+use rustc_hash::FxHashMap;
 use std::{collections::HashSet, sync::Arc};
 
 use super::{

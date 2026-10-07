@@ -1962,7 +1962,6 @@ dependencies = [
  "base64 0.21.999",
  "ews",
  "firefox-on-glean",
- "fxhash",
  "http 0.2.12",
  "log",
  "moz_http",
@@ -1972,6 +1971,7 @@ dependencies = [
  "oneshot",
  "operation-queue",
  "protocol_shared",
+ "rustc-hash 2.1.1",
  "serde_json",
  "serde_path_to_error",
  "thin-vec",
@@ -2478,15 +2478,6 @@ dependencies = [
  "serde_json",
  "thiserror 2.0.12",
  "uniffi",
-]
-
-[[package]]
-name = "fxhash"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c31b6d751ae2c7f11320402d34e41349dd1016f8d5d45e48c4312bc8625af50c"
-dependencies = [
- "byteorder",
 ]
 
 [[package]]
@@ -3020,7 +3011,6 @@ version = "0.1.0"
 dependencies = [
  "base64 0.21.999",
  "firefox-on-glean",
- "fxhash",
  "http 0.2.12",
  "log",
  "moz_http",
@@ -3031,6 +3021,7 @@ dependencies = [
  "oneshot",
  "operation-queue",
  "protocol_shared",
+ "rustc-hash 2.1.1",
  "serde_json",
  "thin-vec",
  "thiserror 1.999.999",
@@ -5644,7 +5635,6 @@ version = "0.1.0"
 dependencies = [
  "async-lock",
  "base64 0.21.999",
- "fxhash",
  "http 0.2.12",
  "log",
  "mail-builder",
@@ -5657,6 +5647,7 @@ dependencies = [
  "nsstring",
  "oneshot",
  "operation-queue",
+ "rustc-hash 2.1.1",
  "thin-vec",
  "thiserror 1.999.999",
  "url",

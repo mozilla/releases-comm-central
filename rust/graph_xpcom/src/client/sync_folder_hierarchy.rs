@@ -4,7 +4,6 @@
 
 use std::sync::Arc;
 
-use fxhash::FxHashMap;
 use ms_graph_tb::{
     pagination::{DeltaItem, DeltaResponse},
     paths::me::mail_folders,
@@ -13,6 +12,7 @@ use protocol_shared::{
     EXCHANGE_DISTINGUISHED_IDS, EXCHANGE_ROOT_FOLDER, ServerType, client::DoOperation,
     safe_xpcom::SafeExchangeFolderListener,
 };
+use rustc_hash::FxHashMap;
 
 use crate::{client::Required, error::XpComGraphError};
 
