@@ -31,7 +31,12 @@ function checkIsDefaultMenuItemVisible(visibleMenuItemIds) {
 // - overrideContext can be called from shadow DOM.
 add_task(async function overrideContext_in_extension_tab() {
   await SpecialPowers.pushPrefEnv({
-    set: [["security.allow_eval_with_system_principal", true]],
+    set: [
+      ["security.allow_eval_with_system_principal", true],
+      // Right-clicking text selects the word under the cursor on macOS, which
+      // would add a selection this test does not expect.
+      ["ui.mouse.right_click.select_under_cursor", false],
+    ],
   });
 
   async function extensionTabScript() {
