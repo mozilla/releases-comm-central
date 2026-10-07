@@ -37,6 +37,8 @@ run-if = [
 
 ["test_forwardInlineMalformedAttachment.js"]
 
+["test_forwardInlineRelatedAttachment.js"]
+
 ["test_forwardMergeMixedCharsets.js"]
 
 ["test_longLines.js"]

@@ -8,6 +8,7 @@
 #include "prmem.h"
 #include "plstr.h"
 #include "prlog.h"
+#include "nsString.h"
 #include "nsMimeStringResources.h"
 #include "modmimee.h"  // for MimeConverterOutputCallback
 
@@ -193,7 +194,11 @@ int MimeLeaf_parse_buffer_for_size(const char* buffer, int32_t size,
   if (!obj || !mime_subclass_p(obj->clazz, (MimeObjectClass*)&mimeLeafClass))
     return 0;
 
-  return MimeLeaf_decode_buffer(buffer, size, obj, MimeLeaf_discard_decoded);
+  // Decoders overwrite their input. Preserve the encoded content, which
+  // multipart/related may buffer for later replay when composing.
+  nsAutoCStringN<128> bufferCopy(buffer, size);
+  return MimeLeaf_decode_buffer(bufferCopy.BeginWriting(), size, obj,
+                                MimeLeaf_discard_decoded);
 }
 
 static int MimeLeaf_parse_line(const char* line, int32_t length,
