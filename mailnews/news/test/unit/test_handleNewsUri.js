@@ -351,6 +351,24 @@ add_task(function test_messageId_unknown_server_snews_port() {
   );
 });
 
+add_task(function test_messageId_unknown_server_restricted_port() {
+  resetCaptures();
+  gConfirmResult = true;
+
+  for (const uri of [
+    "news://unknown.invalid:25/test-msgid@nntp.invalid",
+    "snews://unknown.invalid:6000/test-msgid@nntp.invalid",
+  ]) {
+    MailUtils.handleNewsUri(uri, null);
+  }
+  Assert.equal(
+    gConfirmCallCount,
+    0,
+    "should not prompt for an unknown server on a restricted port"
+  );
+  Assert.equal(gEmlFilesOpened.length, 0, "should not fetch a message");
+});
+
 add_task(async function test_messageId_unknown_server_accept() {
   resetCaptures();
   gConfirmResult = true;

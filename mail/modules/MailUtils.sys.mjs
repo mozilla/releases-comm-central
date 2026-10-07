@@ -958,8 +958,8 @@ export var MailUtils = {
     } else {
       // This URL is for a server that we don't know. Prompt the user for
       // confirmation before sending any traffic to it, and set the port to the
-      // correct default value the default (based on whether we were given a
-      // 'news:' or an 'snews:' URI) if it's missing.
+      // default (based on whether we were given a 'news:' or an 'snews:' URI)
+      // if it's missing.
       if (secure) {
         url.protocol = "snews:";
       }
@@ -967,6 +967,10 @@ export var MailUtils = {
         url.port = secure
           ? Ci.nsINntpIncomingServer.DEFAULT_NNTPS_PORT
           : Ci.nsINntpIncomingServer.DEFAULT_NNTP_PORT;
+      }
+      if (!Services.io.allowPort(Number(url.port), url.protocol.slice(0, -1))) {
+        console.warn(`Port not allowed for news URI: ${url.host}`);
+        return;
       }
       const result = Services.prompt.confirm(
         win,
