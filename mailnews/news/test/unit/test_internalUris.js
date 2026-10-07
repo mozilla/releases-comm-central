@@ -76,6 +76,30 @@ add_task(async function test_cancel() {
   Assert.ok(article.fullText.startsWith(kCancelArticle));
 });
 
+add_task(function test_cancelLineBreakInMessageId() {
+  const folder = localserver.rootFolder.getChildNamed("test.filter");
+  const hdr = folder.msgDatabase.getMsgHdrForKey(5);
+  const messageId = hdr.messageId;
+  hdr.messageId = "5\r\n.\r\nQUIT@regular.invalid";
+  const articleCount = daemon.getGroup("test.filter").keys.length;
+
+  Assert.throws(
+    () =>
+      folder
+        .QueryInterface(Ci.nsIMsgNewsFolder)
+        .cancelMessage(hdr, new PromiseTestUtils.PromiseUrlListener(), null),
+    /NS_ERROR_ILLEGAL_VALUE/,
+    "cancel should be refused"
+  );
+  Assert.equal(folder.getTotalMessages(false), 7, "message should be kept");
+  Assert.equal(
+    daemon.getGroup("test.filter").keys.length,
+    articleCount,
+    "no cancel article should be posted"
+  );
+  hdr.messageId = messageId;
+});
+
 function generateLongArticle() {
   // After converting to base64, the message body will be 65536 * 4 = 256KB.
   const arr = new Uint8Array(65536);

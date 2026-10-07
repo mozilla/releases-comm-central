@@ -287,14 +287,16 @@ function receivedCommands() {
 }
 
 /**
- * Test that a news uri with line breaks in the message id or article number
- * is refused, so the rest of it can't be sent as separate commands.
+ * Test that a news uri with line breaks in the message id, group or article
+ * number is refused, so the rest of it can't be sent as separate commands.
  */
 add_task(function test_lineBreakInUri() {
   _server.closeCachedConnections();
   for (const spec of [
     `news://localhost:${NNTP_PORT}/x%0D%0AINJECTED%3Ca%40b`,
     `news://localhost:${NNTP_PORT}/x%0AINJECTED%40b`,
+    `news://localhost:${NNTP_PORT}/test.filter%0D%0AINJECTED`,
+    `news://localhost:${NNTP_PORT}?group=test.filter%0D%0AINJECTED&key=1`,
     `news://localhost:${NNTP_PORT}?group=test.filter&key=1%0D%0AINJECTED`,
   ]) {
     const channel = NetUtil.newChannel({
@@ -332,4 +334,8 @@ add_task(async function test_lineBreakInCommand() {
     !receivedCommands().some(command => command.includes("INJECTED")),
     "no part of the command should be sent"
   );
+
+  const streamListener = new PromiseTestUtils.PromiseStreamListener();
+  newMessageIdChannel("7@regular.invalid").asyncOpen(streamListener);
+  await streamListener.promise;
 });

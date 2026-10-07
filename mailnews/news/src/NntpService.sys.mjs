@@ -151,6 +151,15 @@ export class NntpService {
   }
 
   cancelMessage(cancelUrl, messageUri, consumer, urlListener, msgWindow) {
+    // The cancelUrl is in the form of "news://host/message-id?cancel"
+    const url = new URL(cancelUrl);
+    const messageId = "<" + decodeURIComponent(url.pathname.slice(1)) + ">";
+    if (/[\r\n]/.test(messageId)) {
+      throw Components.Exception(
+        "Message-ID cannot contain line breaks",
+        Cr.NS_ERROR_ILLEGAL_VALUE
+      );
+    }
     if (Services.prefs.getBoolPref("news.cancel.confirm")) {
       const result = Services.prompt.confirmEx(
         null,
@@ -168,9 +177,6 @@ export class NntpService {
         return;
       }
     }
-    // The cancelUrl is in the form of "news://host/message-id?cancel"
-    const url = new URL(cancelUrl);
-    const messageId = "<" + decodeURIComponent(url.pathname.slice(1)) + ">";
     const server = MailServices.accounts
       .findServer("", url.host, "nntp")
       .QueryInterface(Ci.nsINntpIncomingServer);
