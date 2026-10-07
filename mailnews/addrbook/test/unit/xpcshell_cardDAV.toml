@@ -21,6 +21,8 @@ prefs = [
 ["test_cardDAV_offline.js"]
 requesttimeoutfactor = 6 # Takes a long time on Windows.
 
+["test_cardDAV_savePassword.js"]
+
 ["test_cardDAV_serverModified.js"]
 
 ["test_cardDAV_syncV1.js"]

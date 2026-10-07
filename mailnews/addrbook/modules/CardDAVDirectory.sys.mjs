@@ -260,6 +260,12 @@ export class CardDAVDirectory extends SQLiteDirectory {
         this.UID
       );
     }
+    if (callbacks.shouldSaveAuth) {
+      // Save before checking the status: a 401 rejects in makeRequest.
+      this.setStringValue("carddav.username", callbacks.authInfo?.username);
+      await callbacks.saveAuth();
+    }
+
     if (
       details.expectedStatuses &&
       !details.expectedStatuses.includes(response.status)
@@ -270,11 +276,6 @@ export class CardDAVDirectory extends SQLiteDirectory {
       );
     }
 
-    if (callbacks.shouldSaveAuth) {
-      // The user was prompted for a username and password. Save the response.
-      this.setStringValue("carddav.username", callbacks.authInfo?.username);
-      await callbacks.saveAuth();
-    }
     return response;
   }
 
