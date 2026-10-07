@@ -286,8 +286,10 @@ export class Pop3Client {
     this._nextAction = res => {
       if (res.success) {
         // See if there is an APOP timestamp.
-        // eslint-disable-next-line no-control-regex
-        const matches = res.statusText.match(/<[\x00-\x7F]+@[\x00-\x7F]+>/);
+        const matches = res.statusText.match(
+          // eslint-disable-next-line no-control-regex
+          /<[^<>@\x00-\x20\x7F-\xFF]+@[^<>@\x00-\x20\x7F-\xFF]+>/
+        );
         if (matches?.[0]) {
           this._apopTimestamp = matches[0];
         }
