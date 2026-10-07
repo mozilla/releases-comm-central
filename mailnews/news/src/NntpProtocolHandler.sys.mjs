@@ -33,8 +33,11 @@ export class NewsProtocolHandler {
     return channel;
   }
 
-  allowPort() {
-    return true;
+  allowPort(port) {
+    return (
+      port == Ci.nsINntpIncomingServer.DEFAULT_NNTP_PORT ||
+      port == Ci.nsINntpIncomingServer.DEFAULT_NNTPS_PORT
+    );
   }
 }
 

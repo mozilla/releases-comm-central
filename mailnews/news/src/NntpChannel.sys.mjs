@@ -191,6 +191,17 @@ export class NntpChannel extends MailChannel {
         Cr.NS_ERROR_MALFORMED_URI
       );
     }
+    // Configured servers may use any port, but don't let a url make us
+    // connect to a port reserved for another service.
+    if (
+      !this._server &&
+      !Services.io.allowPort(this.URI.port, this.URI.scheme)
+    ) {
+      throw Components.Exception(
+        `Port ${this.URI.port} not allowed`,
+        Cr.NS_ERROR_PORT_ACCESS_NOT_ALLOWED
+      );
+    }
     const url = new URL(this.URI.spec);
     this._listener = listener;
 

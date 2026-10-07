@@ -339,3 +339,41 @@ add_task(async function test_lineBreakInCommand() {
   newMessageIdChannel("7@regular.invalid").asyncOpen(streamListener);
   await streamListener.promise;
 });
+
+/**
+ * Test that a url for an unknown server can't use a port reserved for another
+ * service, but a configured server is used whatever port the url has.
+ */
+add_task(async function test_bannedPort() {
+  Assert.ok(Services.io.allowPort(119, "news"), "news port should be allowed");
+  Assert.ok(
+    Services.io.allowPort(563, "snews"),
+    "snews port should be allowed"
+  );
+
+  const channel = NetUtil.newChannel({
+    uri: "news://127.0.0.1:110/3%40regular.invalid",
+    loadUsingSystemPrincipal: true,
+  });
+  Assert.throws(
+    () => channel.asyncOpen(new StatusListener()),
+    /NS_ERROR_PORT_ACCESS_NOT_ALLOWED/,
+    "unknown server on a pop3 port should be refused"
+  );
+  Assert.equal(
+    NntpUtils.findServer("127.0.0.1"),
+    null,
+    "no server should be created"
+  );
+
+  const streamListener = new PromiseTestUtils.PromiseStreamListener();
+  NetUtil.newChannel({
+    uri: "news://localhost:110/3%40regular.invalid",
+    loadUsingSystemPrincipal: true,
+  }).asyncOpen(streamListener);
+  Assert.stringContains(
+    await streamListener.promise,
+    "Message-ID: <3@regular.invalid>",
+    "configured server should be used"
+  );
+});

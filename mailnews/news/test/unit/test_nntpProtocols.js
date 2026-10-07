@@ -39,9 +39,14 @@ function run_test() {
     Assert.equal(Services.io.getProtocolFlags(pH.scheme), defaultProtocolFlags);
 
     // Whip through some of the ports to check we get the right results.
-    // NEWS allows connecting to any port.
+    // NEWS only overrides the restricted port list for its own ports.
     for (let i = 0; i < 1024; ++i) {
-      Assert.ok(pH.allowPort(i, ""));
+      Assert.equal(
+        pH.allowPort(i, ""),
+        i == Ci.nsINntpIncomingServer.DEFAULT_NNTP_PORT ||
+          i == Ci.nsINntpIncomingServer.DEFAULT_NNTPS_PORT,
+        "should only allow nntp ports"
+      );
     }
 
     // Check we get a URI when we ask for one
