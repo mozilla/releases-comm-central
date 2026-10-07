@@ -144,14 +144,13 @@ add_task(async () => {
   await new Promise(resolve => setTimeout(resolve));
   await calendarListContextMenu(calendarList.rows[1]);
   await new Promise(resolve => setTimeout(resolve));
-  Assert.equal(
-    document.getElementById("list-calendars-context-togglevisible").label,
-    "Hide Mochitest 1"
-  );
-  Assert.equal(
-    document.getElementById("list-calendars-context-showonly").label,
-    "Show Only Mochitest 1"
-  );
+  const toggleVisibleItem = document.getElementById("list-calendars-context-togglevisible");
+  const showOnlyItem = document.getElementById("list-calendars-context-showonly");
+  // The labels are set with Fluent while the menu opens, which can finish after
+  // a native macOS menu has been shown.
+  await document.l10n.translateElements([toggleVisibleItem, showOnlyItem]);
+  Assert.equal(toggleVisibleItem.label, "Hide Mochitest 1");
+  Assert.equal(showOnlyItem.label, "Show Only Mochitest 1");
   Assert.ok(
     document.getElementById("list-calendar-context-reload").hidden,
     "Local calendar should have reload menu showing"
