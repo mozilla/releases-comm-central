@@ -1418,7 +1418,13 @@ loser:
 NS_IMPL_ISUPPORTS(nsCMSDecoder, nsICMSDecoder)
 NS_IMPL_ISUPPORTS(nsCMSDecoderJS, nsICMSDecoderJS)
 
-nsCMSDecoder::nsCMSDecoder() : m_dcx(nullptr) {}
+nsCMSDecoder::nsCMSDecoder()
+    : m_dcx(nullptr),
+      mCallback(nullptr),
+      mCallbackArg(nullptr),
+      mUpdating(false),
+      mAborted(false),
+      mFinished(false) {}
 nsCMSDecoderJS::nsCMSDecoderJS() : m_dcx(nullptr) {}
 
 nsCMSDecoder::~nsCMSDecoder() {
@@ -1447,8 +1453,12 @@ nsresult nsCMSDecoderJS::Init() {
 NS_IMETHODIMP nsCMSDecoder::Start(NSSCMSContentCallback cb, void* arg) {
   MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSDecoder::Start"));
   m_ctx = nullptr;
+  mCallback = cb;
+  mCallbackArg = arg;
+  mAborted = false;
 
-  m_dcx = NSS_CMSDecoder_Start(0, cb, arg, 0, m_ctx, 0, 0);
+  m_dcx = NSS_CMSDecoder_Start(0, nsCMSDecoder::ContentCallback, this, 0, m_ctx,
+                               0, 0);
   if (!m_dcx) {
     MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSDecoder::Start - can't start decoder"));
@@ -1457,15 +1467,58 @@ NS_IMETHODIMP nsCMSDecoder::Start(NSSCMSContentCallback cb, void* arg) {
   return NS_OK;
 }
 
+void nsCMSDecoder::ContentCallback(void* aArg, const char* aBuf,
+                                   unsigned long aLen) {
+  nsCMSDecoder* self = static_cast<nsCMSDecoder*>(aArg);
+  if (self->mCallback) {
+    self->mCallback(self->mCallbackArg, aBuf, aLen);
+  }
+}
+
 /* void update (in string bug, in long len); */
 NS_IMETHODIMP nsCMSDecoder::Update(const char* buf, int32_t len) {
+  MOZ_ASSERT(!mUpdating, "Update should not be called re-entrantly");
+  if (!m_dcx || mUpdating) {
+    return NS_ERROR_NOT_AVAILABLE;
+  }
+
+  // Hold an additional reference to (this), to ensure the reference count
+  // cannot drop to zero during the call to NSS_CMSDecoder_Update(),
+  // which prevents destruction of (this) as long as the current scope is alive.
+  RefPtr<nsCMSDecoder> kungFuDeathGrip(this);
+  mUpdating = true;
   NSS_CMSDecoder_Update(m_dcx, (char*)buf, len);
+  mUpdating = false;
+
+  if (mAborted) {
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
+            ("nsCMSDecoder::Update - finished while updating, cancelling"));
+    NSS_CMSDecoder_Cancel(m_dcx);
+    m_dcx = nullptr;
+    return NS_ERROR_ABORT;
+  }
   return NS_OK;
 }
 
 /* void finish (); */
 NS_IMETHODIMP nsCMSDecoder::Finish(nsICMSMessage** aCMSMsg) {
   MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSDecoder::Finish"));
+  MOZ_ASSERT(!mFinished, "Finish should only be called once");
+  mFinished = true;
+  if (!m_dcx) {
+    return NS_ERROR_NOT_AVAILABLE;
+  }
+  if (mUpdating) {
+    // NSS is still using m_dcx further up the stack. Stop delivering content
+    // to the consumer, which may be gone once we return, and let Update()
+    // cancel the decoder when it unwinds.
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
+            ("nsCMSDecoder::Finish - called during Update, deferring"));
+    mCallback = nullptr;
+    mCallbackArg = nullptr;
+    mAborted = true;
+    return NS_ERROR_ABORT;
+  }
   NSSCMSMessage* cmsMsg;
   cmsMsg = NSS_CMSDecoder_Finish(m_dcx);
   m_dcx = nullptr;

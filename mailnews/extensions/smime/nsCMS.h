@@ -67,8 +67,20 @@ class nsCMSDecoder : public nsICMSDecoder {
 
  private:
   virtual ~nsCMSDecoder();
+  static void ContentCallback(void* aArg, const char* aBuf, unsigned long aLen);
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
   NSSCMSDecoderContext* m_dcx;
+  NSSCMSContentCallback mCallback;
+  void* mCallbackArg;
+  // True while NSS_CMSDecoder_Update is on the stack. NSS may spin a nested
+  // event loop (e.g. for a token password prompt) during which the consumer
+  // can finish or drop the decoder.
+  bool mUpdating;
+  // Set when Finish() was called during Update(); the NSS decoder is then
+  // cancelled once Update() unwinds.
+  bool mAborted;
+  // Set once Finish() has been called; it must only be called once.
+  bool mFinished;
 };
 
 class nsCMSDecoderJS : public nsICMSDecoderJS {
