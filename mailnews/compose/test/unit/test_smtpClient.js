@@ -540,3 +540,30 @@ add_task(async function testLineBreakInEnvelopeAddress() {
   );
   smtpServer.closeCachedConnections();
 });
+
+/**
+ * Test that a reply split over several chunks is only handled once complete,
+ * and is handled in full.
+ */
+add_task(async function testSplitReply() {
+  const { SmtpClient } = ChromeUtils.importESModule(
+    "resource:///modules/SmtpClient.sys.mjs"
+  );
+  const smtpServer = getBasicSmtpServer(server.port);
+  const client = new SmtpClient(smtpServer.wrappedJSObject);
+  const responses = [];
+  client._onCommand = res => responses.push(res);
+
+  for (const chunk of ["250-first", " line\r", "\n250 la", "st line\r", "\n"]) {
+    client._parse(chunk);
+  }
+
+  Assert.equal(responses.length, 1, "the reply should be handled once");
+  Assert.equal(responses[0].statusCode, 250, "the status code should be kept");
+  Assert.equal(
+    responses[0].data,
+    "first line\nlast line",
+    "the reply text should be complete"
+  );
+  Assert.equal(client._parseRemainder, "", "nothing should be left pending");
+});

@@ -427,8 +427,15 @@ export class SmtpClient {
    * @param {string} chunk Chunk of data received from the server
    */
   _parse(chunk) {
+    chunk ||= "";
+    // _parseRemainder never contains a line break, so only the new chunk needs
+    // to be searched.
+    if (!chunk.includes("\n")) {
+      this._parseRemainder += chunk;
+      return;
+    }
     // Lines should always end with <CR><LF> but you never know, might be only <LF> as well
-    var lines = (this._parseRemainder + (chunk || "")).split(/\r?\n/);
+    var lines = (this._parseRemainder + chunk).split(/\r?\n/);
     this._parseRemainder = lines.pop(); // not sure if the line has completely arrived yet
 
     for (let i = 0, len = lines.length; i < len; i++) {
