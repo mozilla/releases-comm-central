@@ -1592,6 +1592,10 @@ pref("mail.qrexport.loglevel", "Warn");
 // New calendar dialog
 pref("calendar.dialogs.new.enabled", false);
 
+// New dialog for event create and edit. This pref is separate from the
+// read dialog pref. Test each dialog separately.
+pref("calendar.event.createEditDialog.enabled", false);
+
 // Layout and UI settings.
 // List view style for the thread pane:
 // 0 - Cards view.

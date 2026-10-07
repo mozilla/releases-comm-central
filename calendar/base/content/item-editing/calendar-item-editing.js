@@ -23,6 +23,8 @@ ChromeUtils.defineESModuleGetters(this, {
 
 /* exported modifyEventWithDialog, undo, redo, setContextPartstat */
 
+const CREATE_EDIT_DIALOG_PREF = "calendar.event.createEditDialog.enabled";
+
 /**
  * The global calendar transaction manager.
  *
@@ -418,6 +420,53 @@ function modifyEventWithDialog(aItem, aPromptOccurrence, initialDate = null, aCo
 }
 
 /**
+ * Open the create/edit dialog.
+ *
+ * This passes string id's that identify an existing event.
+ * It passes no identity for a new event.
+ *
+ * @param {?calIEvent} item - The event to edit, or null for a new event.
+ * @param {Event} [event] - The event that opened the dialog.
+ */
+async function showCalendarEventCreateEditDialog(item, event) {
+  await import("moz-src:///comm/mail/components/calendar/content/calendar-event-create-edit-dialog.mjs");
+
+  const dialogRoot = document.querySelector(".calendar-dialog-root");
+  let dialog = document.getElementById("calendarEventCreateEditDialog");
+  if (!dialog) {
+    dialog = document.createElement("dialog", {
+      is: "calendar-event-create-edit-dialog",
+    });
+    dialog.id = "calendarEventCreateEditDialog";
+    dialog.setAttribute("margin", "12");
+    dialog.setAttribute(
+      "trigger-selector",
+      "calendar-event-box,calendar-month-day-box-item,.multiday-event-listitem"
+    );
+    dialogRoot.replaceChildren(dialog);
+  }
+
+  const calendarDisplayBox = document.getElementById("calendarDisplayBox");
+  const calendarDisplayBoxRect = calendarDisplayBox?.getBoundingClientRect();
+  dialog.container =
+    calendarDisplayBoxRect?.width > 0 && calendarDisplayBoxRect.height > 0
+      ? calendarDisplayBox
+      : (document.getElementById("tabpanelcontainer") ?? document.documentElement);
+
+  if (item) {
+    dialog.setCalendarEventRoute({
+      calendarId: item.calendar.id,
+      eventId: item.id,
+      recurrenceId: item.recurrenceId ? String(item.recurrenceId.nativeTime) : undefined,
+    });
+  } else {
+    dialog.setCalendarEventRoute();
+  }
+
+  await dialog.show(event);
+}
+
+/**
  * @callback onDialogComplete
  *
  * @param {calIItemBase} newItem
@@ -568,6 +617,13 @@ function openEventDialog(
 
     // the dialog will reset this to auto when it is done loading.
     window.setCursor("wait");
+  } else if (
+    Services.prefs.getBoolPref(CREATE_EDIT_DIALOG_PREF) &&
+    calendarItem.isEvent() &&
+    (mode === "new" || mode === "modify")
+  ) {
+    const itemToEdit = mode === "modify" ? calendarItem : null;
+    showCalendarEventCreateEditDialog(itemToEdit, event);
   } else if (
     Services.prefs.getBoolPref("calendar.dialogs.new.enabled") &&
     calendarItem.isEvent() &&
