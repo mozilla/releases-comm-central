@@ -25,6 +25,7 @@ exclude = [
     "/inlining",
     "TODO.md",
 ]
+autolib = false
 autobins = false
 autoexamples = false
 autotests = false
@@ -50,16 +51,24 @@ repository = "https://github.com/rusticstuff/simdutf8"
 
 [package.metadata.docs.rs]
 all-features = true
-default-target = "x86_64-unknown-linux-gnu"
 rustdoc-args = [
     "--cfg",
     "docsrs",
 ]
+default-target = "x86_64-unknown-linux-gnu"
 targets = [
     "aarch64-unknown-linux-gnu",
     "wasm32-unknown-unknown",
     "wasm32-wasi",
 ]
+
+[features]
+aarch64_neon = []
+aarch64_neon_prefetch = []
+default = ["std"]
+hints = []
+public_imp = []
+std = []
 
 [lib]
 name = "simdutf8"
@@ -72,11 +81,3 @@ path = "examples/streaming.rs"
 [[test]]
 name = "tests"
 path = "tests/tests.rs"
-
-[features]
-aarch64_neon = []
-aarch64_neon_prefetch = []
-default = ["std"]
-hints = []
-public_imp = []
-std = []

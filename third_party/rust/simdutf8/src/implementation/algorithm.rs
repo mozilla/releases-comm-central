@@ -231,7 +231,7 @@ macro_rules! algorithm_simd {
 
             while idx < iter_lim {
                 if PREFETCH {
-                    simd_prefetch(input.as_ptr().add(idx + SIMD_CHUNK_SIZE * 2));
+                    simd_prefetch(input.as_ptr().wrapping_add(idx + SIMD_CHUNK_SIZE * 2));
                 }
                 let input = SimdInput::new(input.get_unchecked(idx as usize..));
                 algorithm.check_utf8(input);
@@ -303,7 +303,7 @@ macro_rules! algorithm_simd {
                 } else {
                     while idx < iter_lim {
                         if PREFETCH {
-                            simd_prefetch(input.as_ptr().add(idx + SIMD_CHUNK_SIZE * 2));
+                            simd_prefetch(input.as_ptr().wrapping_add(idx + SIMD_CHUNK_SIZE * 2));
                         }
                         let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
                         if simd_input.is_ascii() {
