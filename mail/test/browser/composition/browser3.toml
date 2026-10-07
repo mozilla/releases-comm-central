@@ -85,6 +85,8 @@ support-files = [
 
 ["browser_inlineRelatedAttachmentNntp.js"]
 
+["browser_inlineRelatedAttachmentVisibility.js"]
+
 ["browser_malformedMultipartMixedForward.js"]
 
 ["browser_sandwichedImageForward.js"]

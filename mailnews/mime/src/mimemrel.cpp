@@ -414,10 +414,11 @@ static bool MimeMultipartRelated_output_child_p(MimeObject* obj,
     }
 
     if (!location) {
-      // Without Content-ID or Content-Location this part is unreachable via
-      // cid: rewriting. Output it as a normal attachment so data is not
-      // silently discarded.
-      return true;
+      // Without Content-ID or Content-Location this part cannot be referenced.
+      // Keep it visible as a normal attachment. When composing, defer parsing
+      // to the attachment replay at EOF; parse_begin would otherwise suppress
+      // output and mark the part as hidden.
+      return !(obj->options && obj->options->decompose_file_p);
     }
 
     char* base_url =

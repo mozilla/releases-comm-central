@@ -4,7 +4,8 @@
 
 /**
  * Size accounting must preserve encoded related-part data for compose replay.
- * Forwarding inline should retain every decoded attachment byte. See bug 2077839.
+ * Forwarding inline should retain every decoded attachment byte, including parts
+ * without Content-ID or Content-Location. See bugs 2077839 and 548507.
  */
 
 const { MimeParser } = ChromeUtils.importESModule(
@@ -44,14 +45,28 @@ add_task(async function testForwardInlineKeepsRelatedAttachmentData() {
   localAccountUtils.msgAccount.defaultIdentity = identity;
 
   // Cover memory and temporary-file buffering (50 KiB threshold), including
-  // final base64 tokens with one and two padding characters. The CIDs are
-  // deliberately unreferenced so the parts are replayed as attachments.
-  const attachments = [257, 128 * 1024 + 1, 128 * 1024 + 2].map(size => ({
-    name: `related-${size}.mp4`,
-    body: Array.from({ length: size }, (_, i) =>
+  // final base64 tokens with one and two padding characters. All parts are
+  // unreferenced, and two per size lack both Content-ID and Content-Location.
+  const attachments = [257, 128 * 1024 + 1, 128 * 1024 + 2].flatMap(size => {
+    const body = Array.from({ length: size }, (_, i) =>
       String.fromCharCode(i % 256)
-    ).join(""),
-  }));
+    ).join("");
+    return [
+      {
+        name: `related-${size}.mp4`,
+        body,
+        headers: [`Content-ID: <related-${size}.mp4@example.invalid>`],
+      },
+      { name: `no-cid-${size}.mp4`, body, headers: [] },
+      {
+        name: `attachment-${size}.mp4`,
+        body,
+        headers: [
+          `Content-Disposition: attachment; filename="attachment-${size}.mp4"`,
+        ],
+      },
+    ];
+  });
   const source = [
     "From: sender@example.invalid",
     "To: from@tinderbox.invalid",
@@ -72,11 +87,11 @@ add_task(async function testForwardInlineKeepsRelatedAttachmentData() {
     "",
     "<html><body>Unreferenced related attachments.</body></html>",
     "--alternative--",
-    ...attachments.flatMap(({ name, body }) => [
+    ...attachments.flatMap(({ name, body, headers }) => [
       "--related",
       `Content-Type: video/mp4; name="${name}"`,
       "Content-Transfer-Encoding: base64",
-      `Content-ID: <${name}@example.invalid>`,
+      ...headers,
       "",
       ...btoa(body).match(/.{1,76}/g),
     ]),
