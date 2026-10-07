@@ -8,6 +8,7 @@
 
 #include "mimemoz2.h"
 #include "mozilla/Components.h"
+#include "mozilla/RefPtr.h"
 #include "mozilla/StaticPrefs_mail.h"
 #include "mozITXTToHTMLConv.h"
 #include "nsCOMPtr.h"
@@ -323,6 +324,9 @@ nsStreamConverter::nsStreamConverter() {
   mOverrideComposeFormat = false;
   mOutputType = nsMimeOutput::nsMimeUnknown;
   mPendingRequest = nullptr;
+  mInDataAvailable = false;
+  mStopRequestDeferred = false;
+  mDeferredStopStatus = NS_OK;
 }
 
 nsStreamConverter::~nsStreamConverter() { InternalCleanup(); }
@@ -609,6 +613,9 @@ nsresult nsStreamConverter::OnDataAvailable(nsIRequest* request,
                                             nsIInputStream* aIStream,
                                             uint64_t sourceOffset,
                                             uint32_t aLength) {
+  if (mStopRequestDeferred) {
+    return NS_ERROR_FAILURE;
+  }
   nsresult rc = NS_OK;  // should this be an error instead?
 
   nsCOMPtr<nsIInputStream> stream = aIStream;
@@ -639,6 +646,16 @@ nsresult nsStreamConverter::OnDataAvailable(nsIRequest* request,
     readLen = writePtr - buf;
   }
 
+  if (mInDataAvailable) {
+    mDeferredData.Append(buf, readLen);
+    PR_FREEIF(buf);
+    return NS_OK;
+  }
+
+  NS_ASSERTION(mDeferredData.IsEmpty(), "mDeferredData must be empty");
+  RefPtr<nsStreamConverter> kungFuDeathGrip(this);
+  mInDataAvailable = true;
+
   if (mBridgeStream) {
     nsMIMESession* tSession = (nsMIMESession*)mBridgeStream;
     // XXX Casting int to nsresult
@@ -647,6 +664,26 @@ nsresult nsStreamConverter::OnDataAvailable(nsIRequest* request,
   }
 
   PR_FREEIF(buf);
+
+  // Parsing deferred data can spin another nested event loop, during which
+  // more data gets deferred, so keep going until none is left.
+  while (NS_SUCCEEDED(rc) && mBridgeStream && !mDeferredData.IsEmpty()) {
+    nsCString data = std::move(mDeferredData);
+    nsMIMESession* tSession = (nsMIMESession*)mBridgeStream;
+    rc = static_cast<nsresult>(tSession->put_block(
+        (nsMIMESession*)mBridgeStream, data.get(), data.Length()));
+  }
+  // Clean up potential leftover data that we couldn't send because of a
+  // failure.
+  mDeferredData.Truncate();
+  mInDataAvailable = false;
+
+  if (mStopRequestDeferred) {
+    mStopRequestDeferred = false;
+    nsCOMPtr<nsIRequest> stopRequest = std::move(mDeferredStopRequest);
+    OnStopRequest(stopRequest, mDeferredStopStatus);
+  }
+
   return rc;
 }
 
@@ -690,6 +727,15 @@ nsresult nsStreamConverter::OnStartRequest(nsIRequest* request) {
 //
 nsresult nsStreamConverter::OnStopRequest(nsIRequest* request,
                                           nsresult status) {
+  if (mInDataAvailable) {
+    mStopRequestDeferred = true;
+    mDeferredStopRequest = request;
+    mDeferredStopStatus = status;
+    return NS_OK;
+  }
+
+  RefPtr<nsStreamConverter> kungFuDeathGrip(this);
+
   // Make sure we fire any pending OnStartRequest before we do OnStop.
   FirePendingStartRequest();
 

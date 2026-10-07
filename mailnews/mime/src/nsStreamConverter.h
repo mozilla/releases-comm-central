@@ -88,6 +88,17 @@ class nsStreamConverter : public nsIStreamConverter,
   nsCString mToType;
   nsIRequest* mPendingRequest;  // used when we need to delay to fire
                                 // onStartRequest
+
+  // True while libmime is parsing data from OnDataAvailable. Parsing can spin
+  // a nested event loop (e.g. a PKCS#11 password prompt during S/MIME
+  // decryption); data and OnStopRequest arriving meanwhile are deferred until
+  // the outer OnDataAvailable unwinds, so the libmime objects on the stack
+  // aren't freed under it.
+  bool mInDataAvailable;
+  nsCString mDeferredData;
+  bool mStopRequestDeferred;
+  nsCOMPtr<nsIRequest> mDeferredStopRequest;
+  nsresult mDeferredStopStatus;
 };
 
 #endif  // COMM_MAILNEWS_MIME_SRC_NSSTREAMCONVERTER_H_
