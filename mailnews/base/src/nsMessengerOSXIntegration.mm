@@ -35,8 +35,11 @@ nsresult nsMessengerOSXIntegration::RestoreDockIcon() {
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::UpdateUnreadCount(uint32_t unreadCount,
-                                             const nsAString& unreadTooltip) {
+// Passing const _imgIContainer* imgContainer event if it's unused to conform
+// with IDL signature
+nsMessengerOSXIntegration::UpdateUnreadCount(
+    uint32_t unreadCount, const nsAString& unreadTooltip,
+    imgIContainer* _badgeImgContainer) {
   NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
   if (unreadCount == 0) {

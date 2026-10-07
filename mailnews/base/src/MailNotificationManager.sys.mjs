@@ -21,6 +21,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
   NotificationSounds: "resource:///modules/NotificationSounds.sys.mjs",
+  SystemTrayBadgeManager: "resource:///modules/SystemTrayBadgeManager.sys.mjs",
   WinUnreadBadge: "resource:///modules/WinUnreadBadge.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(
@@ -125,6 +126,7 @@ export const MailNotificationManager = new (class {
     }
     return availableActions;
   }
+
   get enabledActions() {
     return lazy.enabledActions;
   }
@@ -163,8 +165,7 @@ export const MailNotificationManager = new (class {
     // system tray icon.
     this._osIntegration;
 
-    if (["macosx", "win"].includes(AppConstants.platform)) {
-      // We don't have indicator for unread count on Linux yet.
+    if (["macosx", "win", "linux"].includes(AppConstants.platform)) {
       lazy.MailNotificationService.addListener(this);
       Services.obs.addObserver(this, "unread-im-count-changed");
     }
@@ -173,8 +174,8 @@ export const MailNotificationManager = new (class {
       Services.obs.addObserver(this, "new-directed-incoming-message");
     }
 
-    if (AppConstants.platform == "win") {
-      Services.obs.addObserver(this, "windows-refresh-badge-tray");
+    if (["win", "linux"].includes(AppConstants.platform)) {
+      Services.obs.addObserver(this, "refresh-badge-tray");
       Services.prefs.addObserver("mail.biff.show_badge", this);
       Services.prefs.addObserver("mail.biff.show_tray_icon_always", this);
     }
@@ -194,7 +195,7 @@ export const MailNotificationManager = new (class {
       case "new-directed-incoming-messenger":
         this._animateDockIcon();
         return;
-      case "windows-refresh-badge-tray":
+      case "refresh-badge-tray":
         this._updateUnreadCount();
         return;
       case "newmailalert-closed":
@@ -223,7 +224,7 @@ export const MailNotificationManager = new (class {
         }
 
         if (AppConstants.platform == "win") {
-          Services.obs.removeObserver(this, "windows-refresh-badge-tray");
+          Services.obs.removeObserver(this, "refresh-badge-tray");
           Services.prefs.removeObserver("mail.biff.show_badge", this);
           Services.prefs.removeObserver(
             "mail.biff.show_tray_icon_always",
@@ -239,10 +240,15 @@ export const MailNotificationManager = new (class {
    * Following are nsIFolderListener interfaces. Do nothing about them.
    */
   onFolderAdded() {}
+
   onMessageAdded() {}
+
   onFolderRemoved() {}
+
   onMessageRemoved() {}
+
   onFolderPropertyChanged() {}
+
   /**
    * The only nsIFolderListener interface we care about.
    *
@@ -266,8 +272,11 @@ export const MailNotificationManager = new (class {
         break;
     }
   }
+
   onFolderBoolPropertyChanged() {}
+
   onFolderPropertyFlagChanged() {}
+
   onFolderEvent() {}
 
   /**
@@ -285,7 +294,7 @@ export const MailNotificationManager = new (class {
         Ci.nsIMessengerOSIntegration
       );
     } catch (e) {
-      // We don't have OS integration on all platforms, i.e. 32-bit Linux.
+      // We don't have OS integration on all platforms.
       return null;
     }
   }
@@ -652,20 +661,16 @@ export const MailNotificationManager = new (class {
     this._logger.debug(
       `Update unreadMailCount=${this._unreadMailCount}, unreadChatCount=${this._unreadChatCount}`
     );
-    let count = this._unreadMailCount + this._unreadChatCount;
-    let tooltip = "";
+    const count = this._unreadMailCount + this._unreadChatCount;
+    const imgContainer = lazy.SystemTrayBadgeManager.getBadge(count);
+    const tooltip = await lazy.l10n.formatValue("unread-messages-os-tooltip", {
+      count,
+    });
     if (AppConstants.platform == "win") {
-      if (!Services.prefs.getBoolPref("mail.biff.show_badge", true)) {
-        count = 0;
-      }
-      if (count > 0) {
-        tooltip = await lazy.l10n.formatValue("unread-messages-os-tooltip", {
-          count,
-        });
-      }
-      await lazy.WinUnreadBadge.updateUnreadCount(count, tooltip);
+      await lazy.WinUnreadBadge.updateUnreadCount(count, tooltip, imgContainer);
+    } else {
+      this._osIntegration?.updateUnreadCount(count, tooltip, imgContainer);
     }
-    this._osIntegration?.updateUnreadCount(count, tooltip);
 
     this._updatingUnreadCount = false;
     if (this._pendingUpdate) {

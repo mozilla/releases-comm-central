@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use fluent_ffi::{FluentBundleRc, adapt_bundle_for_gecko};
-use ksni::Handle;
 use nserror::{NS_OK, nsresult};
 use nsstring::nsCString;
 use std::ffi::CStr;
@@ -11,7 +10,7 @@ use std::os::raw::c_void;
 use std::rc::Rc;
 use std::thread;
 use system_tray::{SystemTray, TrayItem, XdgIcon};
-use xpcom::interfaces::nsIPrefBranch;
+use xpcom::interfaces::{imgIContainer, nsIPrefBranch};
 use xpcom::{RefPtr, get_service, nsIID, xpcom_method};
 
 use crate::{Action, locales};
@@ -60,7 +59,7 @@ pub unsafe extern "C" fn nsLinuxSysTrayHandlerConstructor(
 /// System tray implementation for Linux
 #[xpcom::xpcom(implement(nsIMessengerOSIntegration), atomic)]
 pub struct LinuxSysTrayHandler {
-    handle: Handle<SystemTray>,
+    handle: ksni::Handle<SystemTray>,
 }
 
 impl LinuxSysTrayHandler {
@@ -75,6 +74,17 @@ impl LinuxSysTrayHandler {
             .add_resource(Rc::new(resource))
             .expect("Failed to add resources to bundle");
 
+        let app_name = bundle
+            .get_message("system-tray-app-name")
+            .expect("Message doesn't exist.")
+            .value()
+            .expect("Message has no value.");
+        let mut errors = vec![];
+        let app_name = bundle.format_pattern(app_name, None, &mut errors);
+        if !errors.is_empty() {
+            log::error!(target: "system_tray", "translation issues: {errors:?}");
+        }
+
         // Grab the quit message
         let msg = bundle
             .get_message("system-tray-menuitem-quit")
@@ -84,17 +94,23 @@ impl LinuxSysTrayHandler {
         let mut errors = vec![];
         let quit_msg = bundle.format_pattern(msg, None, &mut errors);
         if !errors.is_empty() {
-            log::error!("translation issues: {errors:?}");
+            log::error!(target: "system_tray", "translation issues: {errors:?}");
         }
 
-        // Determine correct image
-        let icon = if XdgIcon::requires_symbolic() {
-            system_tray::locate_icon_on_system("TB-symbolic.svg").map(XdgIcon::Path)
-        } else {
-            system_tray::locate_icon_on_system("default256.png").map(XdgIcon::Path)
-        }
-        .ok()
-        .unwrap_or_else(|| XdgIcon::for_desktop("thunderbird"));
+        // We need a PNG image until KDE and Gnome issues with
+        // org.freedesktop.StatusNotifierItem.OverlayIconPixmap have been resolved.
+        // Uncomment this when it has.
+        // let icon = if XdgIcon::requires_symbolic() {
+        //     system_tray::locate_icon_on_system("TB-symbolic.svg").map(XdgIcon::Path)
+        // } else {
+        //     system_tray::locate_icon_on_system("default256.png").map(XdgIcon::Path)
+        // }
+        //     .ok()
+        //     .unwrap_or_else(|| XdgIcon::for_desktop("thunderbird"));
+        let icon = system_tray::locate_icon_on_system("default256.png")
+            .map(XdgIcon::Path)
+            .ok()
+            .unwrap_or_else(|| XdgIcon::for_desktop("thunderbird"));
 
         // Build our menu structure
         let menus = [TrayItem::ActionItem {
@@ -105,26 +121,29 @@ impl LinuxSysTrayHandler {
             visible: true,
         }];
 
-        // Get it executed
-        let tray = SystemTray::new("Thunderbird", icon, "Thunderbird Daily").with_items(menus);
+        let tray = SystemTray::new("Thunderbird", icon, app_name).with_items(menus);
         let service = ksni::TrayService::new(tray);
         let handle = service.handle();
         if get_bool_pref(c"mail.biff.show_tray_icon_always").unwrap_or(true) {
             thread::spawn(|| match service.run_without_dbus_name() {
                 Ok(_) => (),
-                Err(e) => log::error!("Spawning system tray FAILED: {e}"),
+                Err(e) => log::error!(target: "system_tray", "Spawning system tray FAILED: {e}"),
             });
         }
         LinuxSysTrayHandler::allocate(InitLinuxSysTrayHandler { handle })
     }
 
     // Update the unread method count (unimplemented as yet)
-    xpcom_method!(update_unread_count => UpdateUnreadCount(unreadCount: u32, unreadToolTip: *const nsstring::nsAString));
-    fn update_unread_count(
+    xpcom_method!(update_unread_count => UpdateUnreadCount(unreadCount: u32, unreadToolTip: *const nsstring::nsAString, imgContainer: *const imgIContainer));
+    unsafe fn update_unread_count(
         &self,
-        _count: u32,
-        _tooltip: &nsstring::nsAString,
+        count: u32,
+        tooltip: &nsstring::nsAString,
+        img_container: Option<&imgIContainer>,
     ) -> Result<(), nsresult> {
+        self.handle.update(|tray| {
+            tray.update_unread_count(count, tooltip.to_string(), img_container);
+        });
         Ok(())
     }
 

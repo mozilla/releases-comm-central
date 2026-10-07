@@ -1,0 +1,21 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+#include "imgIContainer.idl"
+
+/**
+ * TODO: https://bugzilla.mozilla.org/show_bug.cgi?id=2078843
+ * This interface provides a tool to merge the tray icon with unread
+ * badge on Linux. It's here to circumvent incorrectly or not at all
+ * implemented org.freedesktop.StatusNotifierItem.OverlayIconPixmap
+ * API on KDE and AppIndicator.
+ */
+[scriptable, uuid(06d44cd6-d091-4520-9171-79de804fb483)]
+interface nsIMessengerLinuxTrayIntegration : nsISupports {
+  imgIContainer mergeTrayIconBadge(
+      in Array<octet> iconRgbaData, in long iconWidth, in long iconHeight,
+      in Array<octet> badgeRgbaData, in long badgeWidth, in long badgeHeight
+  );
+};

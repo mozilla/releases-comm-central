@@ -17,6 +17,7 @@ XPIDL_SOURCES += [
     "nsIMailAuthModule.idl",
     "nsIMailChannel.idl",
     "nsIMessenger.idl",
+    "nsIMessengerLinuxTrayIntegration.idl",
     "nsIMessengerOSIntegration.idl",
     "nsIMsgAccount.idl",
     "nsIMsgAccountManager.idl",

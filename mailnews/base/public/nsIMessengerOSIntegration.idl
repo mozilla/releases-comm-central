@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
+#include "imgIContainer.idl"
 
 /**
  * Common interfaces to integrate with different platforms, how they are
@@ -14,9 +15,11 @@ interface nsIMessengerOSIntegration : nsISupports {
    * Update the unread count.
    * @param unreadCount - The number of unread messages.
    * @param unreadTooltip - The tooltip for the unread count.
+   * @param badgeImgContainer - The badge to be overlaid on the system tray icon when there's unread mail.
    */
   void updateUnreadCount(in unsigned long unreadCount,
-                         in AString unreadTooltip);
+                         in AString unreadTooltip,
+                         in imgIContainer badgeImgContainer);
 
   /**
    * Use this to do necessary clean up on exit, e.g. reset the badge/tray icon.

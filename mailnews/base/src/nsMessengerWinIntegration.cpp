@@ -168,7 +168,7 @@ nsresult nsMessengerWinIntegration::HandleIconActivate(
     ::SetForegroundWindow(hwnd);
 
     nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
-    obs->NotifyObservers(window, "windows-refresh-badge-tray", 0);
+    obs->NotifyObservers(window, "refresh-badge-tray", 0);
   }
 
   sHiddenWindows.Clear();
@@ -241,7 +241,7 @@ nsresult nsMessengerWinIntegration::HandleTaskbarRecreated(
       continue;
     }
     nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
-    obs->NotifyObservers(window, "windows-refresh-badge-tray", 0);
+    obs->NotifyObservers(window, "refresh-badge-tray", 0);
   }
 
   return NS_OK;
@@ -369,8 +369,11 @@ nsMessengerWinIntegration::GetIsInDoNotDisturbMode(bool* inDNDMode) {
 }
 
 NS_IMETHODIMP
-nsMessengerWinIntegration::UpdateUnreadCount(uint32_t unreadCount,
-                                             const nsAString& unreadTooltip) {
+// Passing const _imgIContainer* imgContainer event if it's unused to conform
+// with IDL signature
+nsMessengerWinIntegration::UpdateUnreadCount(
+    uint32_t unreadCount, const nsAString& unreadTooltip,
+    imgIContainer* _badgeImgContainer) {
   sUnreadCount = unreadCount;
   mUnreadTooltip = unreadTooltip;
   nsresult rv = UpdateTrayIcon();
