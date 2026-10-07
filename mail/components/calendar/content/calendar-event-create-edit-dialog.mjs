@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { PositionedDialog } from "./positioned-dialog.mjs";
+import {
+  DEFAULT_DIALOG_MARGIN,
+  PositionedDialog,
+} from "./positioned-dialog.mjs";
 import { CalendarEventDialogSourceMixin } from "./calendar-event-dialog-source-mixin.mjs";
 import {
   clearCalendarEventDraft,
@@ -83,6 +86,30 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
    * @type {"create"|"edit"|null}
    */
   #mode = null;
+
+  /**
+   * The margin maintained between this dialog and the visible calendar view.
+   *
+   * @type {number}
+   */
+  margin = DEFAULT_DIALOG_MARGIN;
+
+  /**
+   * Calendar targets that are meaningful placement anchors. Controls such as
+   * menu and toolbar buttons deliberately do not match, so their create
+   * routes center in the calendar view instead.
+   *
+   * @type {string}
+   */
+  triggerSelector =
+    "calendar-event-box,calendar-month-day-box-item,.multiday-event-listitem,calendar-month-day-box,calendar-event-column,.multiday-hour-box,[data-calendar-range-target]";
+
+  /**
+   * Keep the dialog's top edge slightly above an anchored calendar target.
+   *
+   * @type {number}
+   */
+  triggerTopOffset = DEFAULT_DIALOG_MARGIN;
 
   /**
    * Add this dialog's Redux data to the shared source observer. The shared
@@ -262,6 +289,30 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
         validity => validity.valid
       );
     this.#mode = this.#createEditSession?.mode ?? null;
+  }
+
+  /**
+   * Select the visible calendar view before the readiness gate opens this
+   * dialog. A caller can pass a calendar cell or selected-range event target;
+   * menu, toolbar, and keyboard callers pass no matching target and therefore
+   * receive the centered fallback.
+   *
+   * @param {?Event} event
+   * @returns {Promise<boolean>} Whether the dialog was shown.
+   */
+  async show(event) {
+    const calendarDisplayBox = document.getElementById("calendarDisplayBox");
+    const calendarDisplayBoxRect = calendarDisplayBox?.getBoundingClientRect();
+    const hasCalendarDisplayBox =
+      calendarDisplayBoxRect?.width > 0 && calendarDisplayBoxRect.height > 0;
+    const fallbackContainer =
+      document.getElementById("tabpanelcontainer") ?? document.documentElement;
+
+    this.container = hasCalendarDisplayBox
+      ? calendarDisplayBox
+      : fallbackContainer;
+
+    return super.show(event);
   }
 
   /**

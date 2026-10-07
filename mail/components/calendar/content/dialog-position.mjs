@@ -7,6 +7,9 @@
  * @property {number} height - The height of the dialog.
  * @property {number} width - The width of the dialog.
  * @property {number} margin - The margin to maintain around the dialog.
+ * @property {"ltr"|"rtl"} [direction="ltr"] - The container's text direction.
+ * @property {number} [triggerTopOffset=0] - The amount to place the dialog
+ *  above a target when it is displayed alongside it.
  */
 
 /**
@@ -43,8 +46,8 @@
  *    Center the dialog in the viewport.
  *
  * @param {object} options
- * @param {DOMRect} options.trigger - The trigger element's DOMRect for
- *  positioning relative to.
+ * @param {?DOMRect} options.trigger - The trigger element's DOMRect for
+ *  positioning relative to, if there is one.
  * @param {DOMRect} options.container - The container element's DOMRect for
  *  positioning within.
  * @param {dialogProperties} options.dialog - The size of the dialog element to position.
@@ -54,9 +57,32 @@
 export function getIdealDialogPosition({ trigger, container, dialog }) {
   const notVisible = !trigger || trigger.width === 0 || trigger.height === 0;
 
+  const clampToContainer = (value, size, start, end) => {
+    const minimum = start + dialog.margin;
+    const maximum = end - dialog.margin - size;
+
+    // A dialog wider or taller than its container cannot keep the requested
+    // margin. Preserve centering in that constrained case instead of pinning
+    // it to one edge.
+    if (maximum < minimum) {
+      return value;
+    }
+    return Math.min(Math.max(value, minimum), maximum);
+  };
+
   const viewportCenter = {
-    x: `${container.left + container.width / 2 - dialog.width / 2}px`,
-    y: `${container.top + container.height / 2 - dialog.height / 2}px`,
+    x: `${clampToContainer(
+      container.left + container.width / 2 - dialog.width / 2,
+      dialog.width,
+      container.left,
+      container.right
+    )}px`,
+    y: `${clampToContainer(
+      container.top + container.height / 2 - dialog.height / 2,
+      dialog.height,
+      container.top,
+      container.bottom
+    )}px`,
   };
 
   if (notVisible) {
@@ -66,14 +92,19 @@ export function getIdealDialogPosition({ trigger, container, dialog }) {
   const fullMargin = dialog.margin * 2;
   const fullDialogWidth = dialog.width + fullMargin;
   const fullDialogHeight = dialog.height + fullMargin;
-  const startSpace = trigger.left - container.left;
-  const endSpace = container.right - trigger.right;
+  const isRTL = dialog.direction == "rtl";
+  const startSpace = isRTL
+    ? container.right - trigger.right
+    : trigger.left - container.left;
+  const endSpace = isRTL
+    ? trigger.left - container.left
+    : container.right - trigger.right;
   const bottomSpace = container.bottom - trigger.bottom;
   const topSpace = trigger.top - container.top;
   const hasSpaceTop = topSpace >= fullDialogHeight;
   const hasSpaceBottom = bottomSpace >= fullDialogHeight;
-  const hasSpaceStart = startSpace > fullDialogWidth;
-  const hasSpaceEnd = endSpace > fullDialogWidth;
+  const hasSpaceStart = startSpace >= fullDialogWidth;
+  const hasSpaceEnd = endSpace >= fullDialogWidth;
   const hasHorizontalSpace = hasSpaceEnd || hasSpaceStart;
   const hasVerticalSpace = hasSpaceTop || hasSpaceBottom;
   const hasVerticalSpaceNextTo =
@@ -91,9 +122,23 @@ export function getIdealDialogPosition({ trigger, container, dialog }) {
 
   // If we have more end space and have enough end space position at the end.
   if (endSpace > startSpace && hasSpaceEnd) {
-    x = `${Math.max(trigger.right + dialog.margin, container.left + dialog.margin)}px`;
+    x = `${clampToContainer(
+      isRTL
+        ? trigger.left - dialog.margin - dialog.width
+        : trigger.right + dialog.margin,
+      dialog.width,
+      container.left,
+      container.right
+    )}px`;
   } else if (hasSpaceStart) {
-    x = `${Math.min(trigger.left, container.right) - dialog.margin - dialog.width}px`;
+    x = `${clampToContainer(
+      isRTL
+        ? trigger.right + dialog.margin
+        : trigger.left - dialog.margin - dialog.width,
+      dialog.width,
+      container.left,
+      container.right
+    )}px`;
   } else if (canCenterOnTarget) {
     x = `${triggerCenter - dialog.width / 2}px`;
   } else {
@@ -103,7 +148,10 @@ export function getIdealDialogPosition({ trigger, container, dialog }) {
 
   if (hasHorizontalSpace) {
     if (hasVerticalSpaceNextTo) {
-      y = `${trigger.top}px`;
+      y = `${Math.max(
+        trigger.top - (dialog.triggerTopOffset ?? 0),
+        container.top + dialog.margin
+      )}px`;
     } else if (
       container.bottom <= trigger.top &&
       container.height >= fullDialogHeight

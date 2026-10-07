@@ -4,6 +4,8 @@
 
 import { getIdealDialogPosition } from "./dialog-position.mjs";
 
+export const DEFAULT_DIALOG_MARGIN = 12;
+
 /**
  * Base class for a dialog positioned relative to a trigger and restrained by a
  * container. The position is determined by the logic in dialog-position.mjs.
@@ -36,6 +38,15 @@ export class PositionedDialog extends HTMLDialogElement {
    * @type {string}
    */
   triggerSelector;
+
+  /**
+   * Amount in pixels to move the dialog top edge above a trigger. The default
+   * is `0`. When the dialog is beside a trigger, a nonzero value moves its top
+   * edge above the trigger.
+   *
+   * @type {number}
+   */
+  triggerTopOffset = 0;
 
   /**
    * Timeout for window resize debounce.
@@ -99,7 +110,7 @@ export class PositionedDialog extends HTMLDialogElement {
     // to be called in child methods to keep this self contained.
     window.addEventListener("resize", this.#debounceResize);
 
-    if (!this.trigger && event?.target) {
+    if (!this.trigger && event?.target && this.triggerSelector) {
       this.trigger = event.target.closest(this.triggerSelector);
     }
 
@@ -125,8 +136,10 @@ export class PositionedDialog extends HTMLDialogElement {
     const position = getIdealDialogPosition({
       container: containerRect,
       dialog: {
+        direction: getComputedStyle(this.container).direction,
         height: Math.min(dialogRect.height, maxHeight),
         margin: this.margin,
+        triggerTopOffset: this.triggerTopOffset,
         width: dialogRect.width,
       },
       trigger: this.trigger?.getBoundingClientRect(),

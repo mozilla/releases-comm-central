@@ -12,6 +12,56 @@
       type="module"
       src="moz-src:///comm/mail/components/calendar/content/calendar-event-create-edit-dialog.mjs"
     ></script>
+    <style>
+      body {
+        margin: 0;
+      }
+
+      #calendarDisplayBox {
+        position: absolute;
+        inset: 100px auto auto 100px;
+        width: 800px;
+        height: 600px;
+        overflow: auto;
+      }
+
+      #calendarContent {
+        position: relative;
+        width: 100%;
+        height: 1200px;
+      }
+
+      calendar-month-day-box,
+      calendar-event-box,
+      [data-calendar-range-target] {
+        position: absolute;
+        display: block;
+        width: 100px;
+        height: 100px;
+      }
+
+      #calendarCell {
+        inset: 200px auto auto 100px;
+      }
+
+      #calendarEvent {
+        inset: 100px auto auto 600px;
+      }
+
+      #calendarRange {
+        inset: 450px auto auto 600px;
+      }
+
+      [is="calendar-event-create-edit-dialog"] {
+        position: absolute;
+        box-sizing: border-box;
+        width: 200px;
+        height: auto;
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+    </style>
   </head>
   <body>
     <template id="calendarEventCreateEditDialogTemplate">
@@ -37,8 +87,21 @@
       </main>
       <footer class="calendar-event-create-edit-dialog-footer"></footer>
     </template>
-    <div id="dialog-container">
-      <dialog is="calendar-event-create-edit-dialog"></dialog>
+    <button id="menuCreate" type="button">New Event</button>
+    <button id="toolbarCreate" type="button">Create</button>
+    <div id="calendarDisplayBox">
+      <div id="calendarContent">
+        <calendar-month-day-box id="calendarCell">
+          <span id="calendarCellChild"></span>
+        </calendar-month-day-box>
+        <calendar-event-box id="calendarEvent">
+          <span id="calendarEventChild"></span>
+        </calendar-event-box>
+        <div id="calendarRange" data-calendar-range-target="true">
+          <span id="calendarRangeChild"></span>
+        </div>
+      </div>
     </div>
+    <dialog is="calendar-event-create-edit-dialog"></dialog>
   </body>
 </html>

@@ -17,6 +17,8 @@ let calendar;
 let calendarEvent;
 let recurringEvent;
 
+const DIALOG_MARGIN = 12;
+
 add_setup(async function () {
   const tab = tabmail.openTab("contentTab", {
     url: "chrome://mochitests/content/browser/comm/mail/components/calendar/test/browser/files/calendarEventCreateEditDialog.xhtml",
@@ -28,7 +30,7 @@ add_setup(async function () {
   );
   await SimpleTest.promiseFocus(browser);
   doc = browser.contentWindow.document;
-  dialogContainer = doc.getElementById("dialog-container");
+  dialogContainer = doc.getElementById("calendarDisplayBox");
   dialog = doc.querySelector('[is="calendar-event-create-edit-dialog"]');
   dialog.container = dialogContainer;
 
@@ -94,6 +96,51 @@ async function waitForMode(mode, element = dialog) {
 async function resetToCreateMode(element = dialog) {
   element.setCalendarEventRoute();
   await waitForMode("create", element);
+}
+
+async function closeDialog(element = dialog) {
+  if (!element.open) {
+    return;
+  }
+  const closed = BrowserTestUtils.waitForMutationCondition(
+    element,
+    {
+      attributes: true,
+      attributeFilter: ["open"],
+    },
+    () => !element.open,
+    "Waiting for the create/edit dialog to close"
+  );
+  element.close();
+  await closed;
+}
+
+function assertCenteredInCalendarView(message) {
+  const container =
+    browser.contentWindow.document.getElementById("calendarDisplayBox");
+  const containerRect = container.getBoundingClientRect();
+  const dialogRect = dialog.getBoundingClientRect();
+
+  Assert.equal(
+    Math.round(dialogRect.left - containerRect.left),
+    Math.round(containerRect.right - dialogRect.right),
+    `${message}: dialog is horizontally centered in the calendar view`
+  );
+  Assert.equal(
+    Math.round(dialogRect.top - containerRect.top),
+    Math.round(containerRect.bottom - dialogRect.bottom),
+    `${message}: dialog is vertically centered in the calendar view`
+  );
+  Assert.greaterOrEqual(
+    Math.round(dialogRect.left - containerRect.left),
+    DIALOG_MARGIN,
+    `${message}: dialog keeps the inline-start edge padding`
+  );
+  Assert.greaterOrEqual(
+    Math.round(containerRect.right - dialogRect.right),
+    DIALOG_MARGIN,
+    `${message}: dialog keeps the inline-end edge padding`
+  );
 }
 
 async function createAdditionalDialog() {
@@ -453,6 +500,7 @@ add_task(async function test_rowsScrollWhenAvailableSpaceIsConstrained() {
   row.append(details);
 
   dialogContainer.style.blockSize = "160px";
+  dialog.style.blockSize = "100%";
   rows.append(row);
 
   await dialog.show();
@@ -499,6 +547,7 @@ add_task(async function test_rowsScrollWhenAvailableSpaceIsConstrained() {
     row.remove();
     dialogBody.scrollTop = 0;
     dialogContainer.style.removeProperty("block-size");
+    dialog.style.removeProperty("block-size");
     dialog.close();
   }
 });
@@ -529,6 +578,135 @@ add_task(async function test_createRouteDoesNotLoadASourceEvent() {
     dialog.close();
   }
 });
+
+add_task(async function testCreateRouteAnchorsToCalendarTargets() {
+  await resetToCreateMode();
+  const document = browser.contentWindow.document;
+  const calendarCell = document.getElementById("calendarCell");
+  const calendarEventTarget = document.getElementById("calendarEvent");
+  const calendarRange = document.getElementById("calendarRange");
+
+  try {
+    await dialog.show({
+      target: document.getElementById("calendarEventChild"),
+    });
+    let dialogRect = dialog.getBoundingClientRect();
+    let targetRect = calendarEventTarget.getBoundingClientRect();
+    Assert.equal(
+      Math.round(dialogRect.right),
+      Math.round(targetRect.left - DIALOG_MARGIN),
+      "The existing event target anchors the dialog on its inline-start side"
+    );
+    Assert.equal(
+      Math.round(dialogRect.top),
+      Math.round(targetRect.top - DIALOG_MARGIN),
+      "The dialog is slightly above the existing event target"
+    );
+    await closeDialog();
+
+    await dialog.show({ target: document.getElementById("calendarCellChild") });
+    dialogRect = dialog.getBoundingClientRect();
+    targetRect = calendarCell.getBoundingClientRect();
+    Assert.equal(
+      Math.round(dialogRect.left),
+      Math.round(targetRect.right + DIALOG_MARGIN),
+      "The generic calendar cell anchors the dialog on its inline-end side"
+    );
+    Assert.equal(
+      Math.round(dialogRect.top),
+      Math.round(targetRect.top - DIALOG_MARGIN),
+      "The dialog is slightly above the generic calendar cell"
+    );
+    await closeDialog();
+
+    await dialog.show({
+      target: document.getElementById("calendarRangeChild"),
+    });
+    dialogRect = dialog.getBoundingClientRect();
+    targetRect = calendarRange.getBoundingClientRect();
+    Assert.equal(
+      Math.round(dialogRect.right),
+      Math.round(targetRect.left - DIALOG_MARGIN),
+      "The selected range anchors the dialog on its inline-start side"
+    );
+    Assert.equal(
+      Math.round(dialogRect.top),
+      Math.round(targetRect.top - DIALOG_MARGIN),
+      "The dialog is slightly above the selected range"
+    );
+  } finally {
+    await closeDialog();
+  }
+});
+
+add_task(async function testCreateRouteWithoutCalendarTargetCenters() {
+  await resetToCreateMode();
+  const document = browser.contentWindow.document;
+  const container = document.getElementById("calendarDisplayBox");
+
+  try {
+    for (const [entryPoint, event] of [
+      ["Menu create", { target: document.getElementById("menuCreate") }],
+      ["Toolbar create", { target: document.getElementById("toolbarCreate") }],
+      ["Keyboard create", undefined],
+    ]) {
+      await dialog.show(event);
+      assertCenteredInCalendarView(entryPoint);
+      await closeDialog();
+    }
+
+    const containerRect = container.getBoundingClientRect();
+    dialog.style.width = `${containerRect.width - DIALOG_MARGIN * 2}px`;
+    await dialog.show();
+    const dialogRect = dialog.getBoundingClientRect();
+    Assert.equal(
+      Math.round(dialogRect.left - containerRect.left),
+      DIALOG_MARGIN,
+      "The maximum-width dialog has the expected left margin"
+    );
+    Assert.equal(
+      Math.round(containerRect.right - dialogRect.right),
+      DIALOG_MARGIN,
+      "The maximum-width dialog has the expected right margin"
+    );
+  } finally {
+    await closeDialog();
+    dialog.style.removeProperty("width");
+  }
+});
+
+add_task(async function testCreateRouteKeepsItsOpenPositionWhenScrolled() {
+  await resetToCreateMode();
+  const document = browser.contentWindow.document;
+  const container = document.getElementById("calendarDisplayBox");
+
+  try {
+    await dialog.show({
+      target: document.getElementById("calendarCellChild"),
+    });
+    const initialPosition = {
+      left: dialog.style.left,
+      top: dialog.style.top,
+    };
+    container.scrollTop = 100;
+    await new Promise(browser.contentWindow.requestAnimationFrame);
+
+    Assert.equal(
+      dialog.style.left,
+      initialPosition.left,
+      "Scrolling does not recalculate the dialog's horizontal position"
+    );
+    Assert.equal(
+      dialog.style.top,
+      initialPosition.top,
+      "Scrolling does not recalculate the dialog's vertical position"
+    );
+  } finally {
+    container.scrollTop = 0;
+    await closeDialog();
+  }
+});
+
 add_task(async function test_attributeDrivenSourceLoader() {
   await resetToCreateMode();
 

@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { PositionedDialog } from "./positioned-dialog.mjs";
+import {
+  DEFAULT_DIALOG_MARGIN,
+  PositionedDialog,
+} from "./positioned-dialog.mjs";
 import "./calendar-dialog-acceptance.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-subview-manager.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-date-row.mjs"; // eslint-disable-line import/no-unassigned-import
@@ -37,13 +40,13 @@ ChromeUtils.defineESModuleGetters(lazy, {
     "moz-src:///comm/mail/components/calendar/modules/CalendarAttachmentUtils.sys.mjs",
 });
 
-export const DEFAULT_DIALOG_MARGIN = 12;
-
 /**
- * Dialog for calendar. Expects to find an element to anchor to at a selector of the pattern
+ * Read-only calendar event dialog. Expects to find an element to anchor to at
+ * a selector of the pattern
  * `#view-box > :not([hidden]) [data-event-id="${event-id}"][data-recurrence-id="${recurrence-id}"]`.
- * If there is no recurrence ID, that part of the selector is omitted. If no element is found we
- * attempt to fall back to the target of the opening event if possible.
+ * If there is no recurrence ID, that part of the selector is omitted. If no
+ * element is found we attempt to fall back to the target of the opening event
+ * if possible.
  * Template ID: #calendarDialogTemplate
  *
  * @tagname calendar-dialog

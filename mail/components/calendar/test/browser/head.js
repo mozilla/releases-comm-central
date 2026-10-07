@@ -20,7 +20,7 @@ const { CalRecurrenceInfo } = ChromeUtils.importESModule(
   "resource:///modules/CalRecurrenceInfo.sys.mjs"
 );
 const { DEFAULT_DIALOG_MARGIN } = ChromeUtils.importESModule(
-  "moz-src:///comm/mail/components/calendar/content/calendar-dialog.mjs",
+  "moz-src:///comm/mail/components/calendar/content/positioned-dialog.mjs",
   { global: "current" }
 );
 const { CalAlarm } = ChromeUtils.importESModule(
