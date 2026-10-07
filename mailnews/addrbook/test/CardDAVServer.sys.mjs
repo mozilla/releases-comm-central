@@ -12,6 +12,14 @@ const NAMESPACE_STRING = Object.entries(PREFIX_BINDINGS)
   .map(([prefix, url]) => `xmlns:${prefix}="${url}"`)
   .join(" ");
 
+// How the server refuses a sync token it can't parse. Real servers disagree
+// about the status code; they agree on the error document.
+const TOKEN_REJECTION = {
+  status: 400,
+  statusText: "Bad Request",
+  body: `<d:error xmlns:d="${PREFIX_BINDINGS.d}"><d:valid-sync-token/></d:error>`,
+};
+
 import { Assert } from "resource://testing-common/Assert.sys.mjs";
 import { CommonUtils } from "resource://services-common/utils.sys.mjs";
 import { HttpServer } from "resource://testing-common/httpd.sys.mjs";
@@ -25,6 +33,7 @@ export var CardDAVServer = {
   movedCards: new Map(),
   deletedCards: new Map(),
   changeCount: 0,
+  tokenRejection: { ...TOKEN_REJECTION },
   server: null,
   isOpen: false,
 
@@ -65,6 +74,7 @@ export var CardDAVServer = {
     this.changeCount = 0;
     this.privileges = "<d:privilege><d:all/></d:privilege>";
     this.notFoundPropstatFirst = false;
+    this.tokenRejection = { ...TOKEN_REJECTION };
     this.resetHandlers();
   },
 
@@ -393,7 +403,10 @@ export var CardDAVServer = {
       .querySelector("sync-token")
       .textContent.replace(/\D/g, "");
     if (!token) {
-      response.setStatusLine("1.1", 400, "Bad Request");
+      const { status, statusText, body } = this.tokenRejection;
+      response.setStatusLine("1.1", status, statusText);
+      response.setHeader("Content-Type", "text/xml");
+      response.write(body);
       return;
     }
     const propNames = this._inputProps(input);

@@ -374,7 +374,16 @@ add_task(async function testMultigetBatchSize() {
   Services.prefs.clearUserPref("carddav.multiget.batchSize");
 });
 
-add_task(async function testExpiredToken() {
+/**
+ * Check that a sync token the server refuses is replaced by a full sync,
+ * however the refusal is worded.
+ *
+ * @param {object} rejection - See CardDAVServer.tokenRejection.
+ */
+async function expiredTokenSubtest(rejection) {
+  // A failing task must not leave the server set up for the next one.
+  CardDAVServer.reset();
+
   // Put some cards on the server.
   CardDAVServer.putCardInternal(
     "first.vcf",
@@ -413,9 +422,10 @@ add_task(async function testExpiredToken() {
     "third",
   ]);
 
-  // Corrupt the sync token. This will cause a 400 Bad Request response and a
-  // complete resync should happen.
+  // Corrupt the sync token. The server will refuse it and a complete resync
+  // should happen.
 
+  Object.assign(CardDAVServer.tokenRejection, rejection);
   directory._syncToken = "wrong token";
 
   // Make some changes on the server.
@@ -471,6 +481,75 @@ add_task(async function testExpiredToken() {
   Assert.equal(
     directory.childCards.find(c => c.UID == "second").displayName,
     "Second Person, but different"
+  );
+
+  await clearDirectory(directory);
+  CardDAVServer.reset();
+}
+
+add_task(async function testExpiredToken() {
+  await expiredTokenSubtest({ status: 400, statusText: "Bad Request" });
+});
+
+add_task(async function testExpiredTokenForbidden() {
+  // Radicale, verbatim. It names the namespace without a prefix.
+  await expiredTokenSubtest({
+    status: 403,
+    statusText: "Forbidden",
+    body: `<?xml version='1.0' encoding='utf-8'?>
+<error xmlns="DAV:"><valid-sync-token /></error>`,
+  });
+});
+
+add_task(async function testExpiredTokenPreconditionFailed() {
+  await expiredTokenSubtest({
+    status: 412,
+    statusText: "Precondition Failed",
+  });
+});
+
+/**
+ * A refusal that doesn't name the sync token is a real error, not a reason to
+ * download the whole address book again.
+ */
+add_task(async function testRejectionWithoutValidSyncToken() {
+  CardDAVServer.reset();
+  CardDAVServer.putCardInternal(
+    "first.vcf",
+    "BEGIN:VCARD\r\nUID:first\r\nFN:First Person\r\nEND:VCARD\r\n"
+  );
+
+  const directory = await initDirectory();
+  await directory.fetchAllFromServer();
+  Assert.equal(directory.childCardCount, 1, "the card should have arrived");
+
+  // An empty DAV error does occur - the calendar reads it as a rate limit.
+  Object.assign(CardDAVServer.tokenRejection, {
+    status: 403,
+    statusText: "Forbidden",
+    body: `<d:error xmlns:d="DAV:"/>`,
+  });
+  directory._syncToken = "wrong token";
+
+  CardDAVServer.putCardInternal(
+    "second.vcf",
+    "BEGIN:VCARD\r\nUID:second\r\nFN:Second Person\r\nEND:VCARD\r\n"
+  );
+
+  await Assert.rejects(
+    directory.updateAllFromServerV2(),
+    /Incorrect response from server: 403 Forbidden/,
+    "the sync should have failed on a refusal that doesn't name the token"
+  );
+  Assert.equal(
+    directory._syncToken,
+    "wrong token",
+    "the sync token should have been left alone"
+  );
+  Assert.equal(
+    directory.childCardCount,
+    1,
+    "the address book should not have been downloaded again"
   );
 
   await clearDirectory(directory);

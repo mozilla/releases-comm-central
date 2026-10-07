@@ -923,15 +923,27 @@ export class CardDAVDirectory extends SQLiteDirectory {
       headers: {
         Depth: 1, // Only Google seems to need this.
       },
-      expectedStatuses: [207, 400],
     });
 
-    if (response.status == 400) {
+    // RFC 3253 puts the refused condition in a DAV:error body; RFC 6578 answers
+    // a Depth other than 0 with a 400. The status is not specified - 400, 403
+    // and 412 are all in use.
+    if (
+      response.status == 400 ||
+      response.dom?.querySelector("error valid-sync-token")
+    ) {
       log.warn(
         `Server ${this._serverURL} responded with: ${response.status} ${response.statusText}`
       );
       await this.fetchAllFromServer();
       return;
+    }
+
+    if (response.status != 207) {
+      throw Components.Exception(
+        `Incorrect response from server: ${response.status} ${response.statusText}`,
+        Cr.NS_ERROR_FAILURE
+      );
     }
 
     const currentHrefs = this._getCardsByHref();
