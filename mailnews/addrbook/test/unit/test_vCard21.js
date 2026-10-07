@@ -190,3 +190,14 @@ add_task(async () => {
     ]
   );
 });
+
+add_task(async function testManyQuotedPrintableSoftBreaks() {
+  const count = 200000;
+  const vCard = `BEGIN:VCARD\r\nVERSION:2.1\r\nNOTE;ENCODING=QUOTED-PRINTABLE:${"A=\r\n".repeat(count)}B\r\nEND:VCARD\r\n`;
+  const translated = VCardUtils.translateVCard21(vCard);
+  Assert.equal(
+    translated,
+    `BEGIN:VCARD\r\nNOTE;ENCODING=QUOTED-PRINTABLE:${"A".repeat(count)}B\r\nEND:VCARD\r\n`,
+    "soft line breaks should all be joined"
+  );
+});

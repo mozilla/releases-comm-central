@@ -138,12 +138,12 @@ export var VCardUtils = {
     });
 
     // Join quoted-printable wrapped lines together. This regular expression
-    // only matches lines that are quoted-printable and end with `=`.
-    const quotedNewLineRegExp =
-      /(;ENCODING=QUOTED-PRINTABLE[;:][^\r\n]*)=\r?\n/i;
-    while (vCard.match(quotedNewLineRegExp)) {
-      vCard = vCard.replace(quotedNewLineRegExp, "$1");
-    }
+    // only matches lines that are quoted-printable and end with `=`, plus any
+    // following lines that also end with `=`.
+    vCard = vCard.replace(
+      /;ENCODING=QUOTED-PRINTABLE[;:](?:[^\r\n]*=\r?\n)+/gi,
+      match => match.replace(/=\r?\n/g, "")
+    );
 
     // Strip the version.
     return vCard.replace(/(\r?\n)VERSION:2.1\r?\n/i, "$1");
