@@ -13,7 +13,7 @@
 
 :root,
 body {
-  block-size: 100%;
+  min-block-size: 100vh;
   inline-size: 100%;
 }
 
@@ -226,19 +226,21 @@ dd {
   }
 }
 
-#calendar-item-list {
-  block-size: 60vh;
-  overflow: auto;
-  background-color: rgba(215, 215, 219, 0.2);
-  margin-block-start: 1rem;
-  margin-inline: 2px;
+#calendarItemTree {
+  margin-block-start: var(--space-large);
+
+  & .calendaritemimport-column {
+    padding: 0;
+    text-align: center;
+
+    & input {
+      margin-inline: 0;
+    }
+  }
 }
 
-.calendar-item-wrapper {
-  margin: 1rem;
-  padding: 1rem;
-  display: flex;
-  background: var(--color-surface-base);
+#calendarItemDetails {
+  margin-block-start: var(--space-large);
 }
 
 .notificationbox-stack notification-message:last-child {

@@ -172,6 +172,33 @@ calendar-items-title = Select which items to import.
 
 calendar-items-loading = Loading items…
 
+# $count (Number) - The number of items in the calendar file.
+calendar-items-count =
+    { $count ->
+        [one] The file contains { $count } item.
+       *[other] The file contains { $count } items.
+    }
+
+# Column headers of the list of calendar items to import.
+calendar-items-column-title-a11y =
+    .aria-label = Title
+calendar-items-column-title = Title
+    .title = Sort by title
+# The start date and time of each item.
+calendar-items-column-start-a11y =
+    .aria-label = Start
+calendar-items-column-start = Start
+    .title = Sort by start
+# The end date and time of each item.
+calendar-items-column-end-a11y =
+    .aria-label = End
+calendar-items-column-end = End
+    .title = Sort by end
+# The column of checkboxes, to choose which items to import.
+calendar-items-column-import-a11y =
+    .aria-label = Import
+calendar-items-column-import = Import
+
 calendar-items-filter-input2 =
   .label = Filter items
   .placeholder = Filter items…

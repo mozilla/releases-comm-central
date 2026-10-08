@@ -18,14 +18,19 @@
   <link rel="stylesheet" href="chrome://messenger/skin/preferences/preferences.css"/>
   <link rel="stylesheet" href="chrome://calendar/skin/shared/calendar-attendees.css"/>
   <link rel="stylesheet" href="chrome://calendar/skin/shared/calendar-item-summary.css"/>
+  <link rel="stylesheet" href="chrome://messenger/skin/shared/tree-listbox.css"/>
+  <link rel="stylesheet" href="chrome://messenger/skin/splitter.css"/>
   <link rel="stylesheet" href="chrome://messenger/skin/aboutImport.css"/>
   <link rel="localization" href="branding/brand.ftl" />
   <link rel="localization" href="messenger/aboutImport.ftl"/>
+  <link rel="localization" href="messenger/treeView.ftl"/>
   <link rel="icon" href="chrome://messenger/skin/icons/new/compact/import.svg" sizes="any"/>
   <script type="module" src="chrome://messenger/content/search-bar.mjs"></script>
   <script defer="" src="chrome://messenger/content/aboutImport.js"></script>
   <script defer="" src="chrome://messenger/content/csv-field-map.js"></script>
   <script defer="" src="chrome://calendar/content/widgets/calendar-item-summary.js"></script>
+  <script defer="" src="chrome://messenger/content/pane-splitter.js"></script>
+  <script type="module" src="chrome://messenger/content/auto-tree-view.mjs"></script>
 </head>
 <body>
   <main id="main">
@@ -363,6 +368,7 @@
           <dd id="calendarSourcePath"></dd>
         </dl>
         <h2 data-l10n-id="calendar-items-title"></h2>
+        <p id="calendarItemsCount"></p>
         <div id="calendarItemsTools">
           <search-bar id="calendarFilter"
                       data-l10n-id="calendar-items-filter-input2"
@@ -376,7 +382,8 @@
                   data-l10n-id="calendar-select-all-items"
                   onclick="calendarController.selectAllItems(true)"></button>
         </div>
-        <div id="calendar-item-list"></div>
+        <auto-tree-view id="calendarItemTree"></auto-tree-view>
+        <div id="calendarItemDetails"></div>
       </section>
       <section id="calendar-calendars">
         <h1 data-l10n-id="import-calendar-title"></h1>

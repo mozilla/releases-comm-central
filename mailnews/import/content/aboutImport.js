@@ -7,6 +7,10 @@
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
+var { TreeDataAdapter, TreeDataRow } = ChromeUtils.importESModule(
+  "chrome://messenger/content/TreeDataAdapter.mjs",
+  { global: "current" }
+);
 
 ChromeUtils.defineESModuleGetters(this, {
   AddrBookFileImporter: "resource:///modules/AddrBookFileImporter.sys.mjs",
@@ -974,6 +978,97 @@ class AddrBookImporterController extends ImporterController {
 }
 
 /**
+ * A row in the list of calendar items to import. Items to import have the
+ * "import" property.
+ */
+class CalendarImportRow extends TreeDataRow {
+  static #dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
+    dateStyle: "short",
+    timeStyle: "short",
+    timeZone: "UTC",
+  });
+  static #dateFormatter = new Services.intl.DateTimeFormat(undefined, {
+    dateStyle: "short",
+    timeZone: "UTC",
+  });
+
+  /**
+   * The formatted text of each column, as formatting dates is slow when
+   * sorting many rows.
+   *
+   * @type {Map<string, string>}
+   */
+  #textCache = new Map();
+
+  /**
+   * @param {calIItemBase} item
+   */
+  constructor(item) {
+    super({}, {}, ["import"]);
+    this.item = item;
+  }
+
+  getText(columnID) {
+    let text = this.#textCache.get(columnID);
+    if (text === undefined) {
+      text = this.#getText(columnID);
+      this.#textCache.set(columnID, text);
+    }
+    return text;
+  }
+
+  #getText(columnID) {
+    switch (columnID) {
+      case "calendarItemTitle":
+        return this.item.title ?? "";
+      case "calendarItemStart":
+        return this.#formatDate(this.item[cal.dtz.startDateProp(this.item)]);
+      case "calendarItemEnd": {
+        let end = this.item[cal.dtz.endDateProp(this.item)];
+        if (end?.isDate) {
+          // The end of an all-day item is exclusive, show the last day instead.
+          end = end.clone();
+          end.day--;
+        }
+        return this.#formatDate(end);
+      }
+    }
+    return "";
+  }
+
+  getValue(columnID) {
+    switch (columnID) {
+      case "calendarItemTitle":
+        return this.item.title ?? "";
+      case "calendarItemStart":
+        return this.item[cal.dtz.startDateProp(this.item)]?.nativeTime ?? 0;
+      case "calendarItemEnd":
+        return this.item[cal.dtz.endDateProp(this.item)]?.nativeTime ?? 0;
+    }
+    return "";
+  }
+
+  /**
+   * @param {?calIDateTime} date
+   * @returns {string}
+   */
+  #formatDate(date) {
+    if (!date) {
+      return "";
+    }
+    if (!date.isDate) {
+      date = date.getInTimezone(cal.dtz.defaultTimezone);
+    }
+    const jsDate = new Date(
+      Date.UTC(date.year, date.month, date.day, date.hour, date.minute)
+    );
+    return date.isDate
+      ? CalendarImportRow.#dateFormatter.format(jsDate)
+      : CalendarImportRow.#dateTimeFormatter.format(jsDate);
+  }
+}
+
+/**
  * Control the #tabPane-calendar element, to support importing from a calendar
  * file.
  */
@@ -983,6 +1078,72 @@ class CalendarImporterController extends ImporterController {
     const filter = document.getElementById("calendarFilter");
     filter.addEventListener("autocomplete", this.onFilterChange.bind(this));
     filter.addEventListener("search", event => event.preventDefault());
+
+    this._tree = document.getElementById("calendarItemTree");
+    // No column picker, the columns are fixed.
+    this._tree.table.editable = false;
+    this._tree.setAttribute("rows", "auto-tree-view-table-row");
+    const rowHeight = customElements.get("auto-tree-view-table-row").ROW_HEIGHT;
+    this._tree.style.blockSize = `calc(${12 * rowHeight}px + var(--tree-header-table-height))`;
+    this._tree.defaultColumns = [
+      {
+        id: "calendarItemTitle",
+        l10n: {
+          a11y: "calendar-items-column-title-a11y",
+          header: "calendar-items-column-title",
+        },
+        width: 160,
+        picker: false,
+      },
+      {
+        id: "calendarItemStart",
+        l10n: {
+          a11y: "calendar-items-column-start-a11y",
+          header: "calendar-items-column-start",
+        },
+        width: 140,
+        picker: false,
+      },
+      {
+        id: "calendarItemEnd",
+        l10n: {
+          a11y: "calendar-items-column-end-a11y",
+          header: "calendar-items-column-end",
+        },
+        width: 140,
+        picker: false,
+      },
+      {
+        id: "calendarItemImport",
+        l10n: {
+          a11y: "calendar-items-column-import-a11y",
+          header: "calendar-items-column-import",
+        },
+        width: 60,
+        picker: false,
+        sortable: false,
+        checkbox: "import",
+      },
+    ];
+    // Toggling a checkbox changes whether there is anything to import.
+    this._tree.addEventListener("change", () => this._updateNextButton());
+    this._tree.addEventListener("keydown", event => {
+      if (event.key != " " || event.ctrlKey || event.metaKey) {
+        return;
+      }
+      // Toggle whether the selected rows are imported.
+      const rows = this._tree.selectedIndices.map(i =>
+        this._tree.view.rowAt(i)
+      );
+      const checked = !rows.every(row => row.hasProperty("import"));
+      for (const row of rows) {
+        row.toggleProperty("import", checked);
+      }
+      this._tree.invalidate();
+      this._updateNextButton();
+      event.preventDefault();
+    });
+    this._tree.addEventListener("select", () => this._showItemDetails());
   }
 
   next() {
@@ -1016,11 +1177,7 @@ class CalendarImporterController extends ImporterController {
   onFilterChange(event) {
     let searchString = event.detail.trim();
     if (!searchString) {
-      this._filteredItems = [...this._items];
-      for (const item of this._items) {
-        const element = this._itemElements[item.id];
-        element.hidden = false;
-      }
+      this._setShownRows(this._rows);
       return;
     }
 
@@ -1048,12 +1205,10 @@ class CalendarImporterController extends ImporterController {
       searchTokens = searchTokens.concat(searchString.split(/\s+/));
     }
 
-    this._filteredItems = [];
-
-    for (const item of this._items) {
+    const filteredRows = this._rows.filter(({ item }) => {
       const title = item.title.toLowerCase().normalize();
       let description;
-      const matches = searchTokens.every(term => {
+      return searchTokens.every(term => {
         if (title?.includes(term)) {
           return true;
         }
@@ -1066,15 +1221,8 @@ class CalendarImporterController extends ImporterController {
         }
         return description?.includes(term);
       });
-
-      const element = this._itemElements[item.id];
-      if (matches) {
-        element.hidden = false;
-        this._filteredItems.push(item);
-      } else {
-        element.hidden = true;
-      }
-    }
+    });
+    this._setShownRows(filteredRows);
   }
 
   /**
@@ -1083,17 +1231,29 @@ class CalendarImporterController extends ImporterController {
    * @param {boolean} selected - Select all if true, otherwise deselect all.
    */
   selectAllItems(selected) {
-    for (const item of this._filteredItems) {
-      const element = this._itemElements[item.id];
-      element.querySelector("input").checked = selected;
-      if (selected) {
-        this._selectedItems.add(item);
-      } else {
-        this._selectedItems.delete(item);
-      }
+    const view = this._tree.view;
+    for (let i = 0; i < view.rowCount; i++) {
+      view.rowAt(i).toggleProperty("import", selected);
     }
-    document.getElementById("calendarNextButton").disabled =
-      this._selectedItems.size == 0;
+    this._tree.invalidate();
+    this._updateNextButton();
+  }
+
+  /**
+   * The items that will be imported.
+   *
+   * @type {Set<calIItemBase>}
+   */
+  get _selectedItems() {
+    return new Set(
+      this._rows.filter(row => row.hasProperty("import")).map(row => row.item)
+    );
+  }
+
+  _updateNextButton() {
+    document.getElementById("calendarNextButton").disabled = !this._rows.some(
+      row => row.hasProperty("import")
+    );
   }
 
   /**
@@ -1167,13 +1327,15 @@ class CalendarImporterController extends ImporterController {
       2
     );
     document.getElementById("calendarBackButton").hidden = false;
-    const elItemList = document.getElementById("calendar-item-list");
     document.getElementById("calendarItemsTools").hidden = true;
-    document.l10n.setAttributes(elItemList, "calendar-items-loading");
+    this._tree.hidden = true;
+    document.getElementById("calendarItemDetails").replaceChildren();
+    const elItemsCount = document.getElementById("calendarItemsCount");
+    document.l10n.setAttributes(elItemsCount, "calendar-items-loading");
     this.showPane("items");
 
     // Give the UI a chance to render.
-    await document.l10n.translateElements([elItemList]);
+    await document.l10n.translateElements([elItemsCount]);
     await new Promise(resolve => setTimeout(resolve, 100));
 
     try {
@@ -1185,45 +1347,54 @@ class CalendarImporterController extends ImporterController {
 
     document.getElementById("calendarItemsTools").hidden =
       this._items.length < 2;
-    delete elItemList.dataset.l10nId;
-    elItemList.replaceChildren();
-    this._filteredItems = this._items;
-    this._selectedItems = new Set(this._items);
-    this._itemElements = {};
+    document.l10n.setAttributes(elItemsCount, "calendar-items-count", {
+      count: this._items.length,
+    });
+    this._rows = this._items.map(item => new CalendarImportRow(item));
+    this._tree.hidden = false;
+    this._setShownRows(this._rows);
+    this._updateNextButton();
+  }
 
-    for (const item of this._items) {
-      if (!item.id) {
-        item.id = Services.uuid.generateUUID().toString().slice(1, 37);
-      }
-
-      const wrapper = document.createElement("div");
-      wrapper.className = "calendar-item-wrapper";
-      elItemList.appendChild(wrapper);
-      this._itemElements[item.id] = wrapper;
-
-      const summary = document.createXULElement("calendar-item-summary");
-      wrapper.appendChild(summary);
-      summary.item = item;
-      await summary.updateItemDetails();
-
-      const input = document.createElement("input");
-      input.type = "checkbox";
-      input.checked = true;
-      wrapper.appendChild(input);
-
-      wrapper.addEventListener("click", e => {
-        if (e.target != input) {
-          input.checked = !input.checked;
-        }
-        if (input.checked) {
-          this._selectedItems.add(item);
-        } else {
-          this._selectedItems.delete(item);
-        }
-        document.getElementById("calendarNextButton").disabled =
-          this._selectedItems.size == 0;
-      });
+  /**
+   * Show the given rows in the tree.
+   *
+   * @param {CalendarImportRow[]} rows
+   */
+  _setShownRows(rows) {
+    const view = new TreeDataAdapter();
+    for (const row of rows) {
+      view.appendRow(row);
     }
+    this._tree.view = view;
+    if (rows.length) {
+      // Select the first item, so that its details are shown. Setting the
+      // selected index would also scroll to it, which goes wrong while the
+      // tree has just been shown and has no height yet.
+      this._tree.setSelectedIndices([0]);
+    }
+    this._showItemDetails();
+  }
+
+  /**
+   * Show the details of the selected item, if exactly one item is selected.
+   */
+  _showItemDetails() {
+    const details = document.getElementById("calendarItemDetails");
+    const indices = this._tree.selectedIndices;
+    const item =
+      indices.length == 1 ? this._tree.view.rowAt(indices[0])?.item : null;
+    if (!item) {
+      details.replaceChildren();
+      return;
+    }
+    if (details.firstElementChild?.item == item) {
+      return;
+    }
+    const summary = document.createXULElement("calendar-item-summary");
+    details.replaceChildren(summary);
+    summary.item = item;
+    summary.updateItemDetails();
   }
 
   /**
