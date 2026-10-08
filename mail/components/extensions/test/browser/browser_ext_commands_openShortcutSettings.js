@@ -182,10 +182,10 @@ add_task(async function run_test_shortcuts_view() {
       const addonPageHeader =
         content.document.querySelector("addon-page-header");
       const extension1Card = content.document.querySelector(
-        `.card.shortcut[addon-id="${ext1}"]`
+        `moz-card.shortcut[addon-id="${ext1}"]`
       );
       const extension2Card = content.document.querySelector(
-        `.card.shortcut[addon-id="${ext2}"]`
+        `moz-card.shortcut[addon-id="${ext2}"]`
       );
       return {
         view: addonPageHeader?.getAttribute("current-view"),
