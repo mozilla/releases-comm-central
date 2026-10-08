@@ -158,6 +158,142 @@ add_task(async function testDayViewManyAllDayItems() {
   Assert.ok(BrowserTestUtils.isHidden(moreButton), "more button should stay hidden");
 });
 
+add_task(async function testDayViewManyOverlappingItems() {
+  const calendar = CalendarTestUtils.createCalendar("Many Items", "memory");
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await CalendarTestUtils.goToDate(window, 2009, 1, 1);
+
+  const addEvent = (title, start = "20090101T100000Z", end = "20090101T110000Z") => {
+    const event = new CalEvent();
+    event.title = title;
+    event.startDate = cal.createDateTime(start);
+    event.endDate = cal.createDateTime(end);
+    return calendar.addItem(event);
+  };
+  const titles = (from, to) =>
+    Array.from({ length: to - from + 1 }, (_, i) => `Event ${String(from + i).padStart(2, "0")}`);
+
+  await addEvent("Early", "20090101T080000Z", "20090101T090000Z");
+  const items = [];
+  for (let i = 1; i <= 12; i++) {
+    items.push(await addEvent(titles(i, i)[0]));
+  }
+
+  const column = document.getElementById("day-view").dayColumns[0].column;
+  const getTitles = () =>
+    Array.from(CalendarTestUtils.dayView.getEventBoxes(window), box => box.occurrence.title);
+  const getOverflowTexts = () =>
+    Array.from(column.querySelectorAll(".multiday-events-overflow-item"), el => el.textContent);
+
+  await TestUtils.waitForCondition(
+    () => getOverflowTexts()[0] == "… and 5 more",
+    "overflow indicator should count the events not shown"
+  );
+  Assert.deepEqual(
+    getTitles(),
+    ["Early", ...titles(1, 7)],
+    "only the events fitting in the lanes should be shown"
+  );
+  Assert.equal(
+    CalendarTestUtils.dayView.getEventBoxAt(window, 1).parentNode.style.width,
+    "100%",
+    "an event not overlapping others should use the full width"
+  );
+
+  info("deleting a shown event");
+  await calendar.deleteItem(items[0]);
+  await TestUtils.waitForCondition(
+    () => getOverflowTexts()[0] == "… and 4 more",
+    "overflow indicator should update"
+  );
+  Assert.deepEqual(
+    getTitles(),
+    ["Early", ...titles(2, 8)],
+    "an event not shown before should be shown"
+  );
+
+  info("deleting events until all fit");
+  for (const item of items.slice(1, 4)) {
+    await calendar.deleteItem(item);
+  }
+  await TestUtils.waitForCondition(() => getTitles().length == 9, "all events should be shown");
+  Assert.deepEqual(getTitles(), ["Early", ...titles(5, 12)], "all events should be shown");
+  Assert.deepEqual(getOverflowTexts(), [], "there should be no overflow indicator");
+
+  info("removing the calendar");
+  CalendarTestUtils.removeCalendar(calendar);
+  await TestUtils.waitForCondition(() => getTitles().length == 0, "events should be removed");
+});
+
+add_task(async function testDayViewOverflowClusters() {
+  const calendar = CalendarTestUtils.createCalendar("Many Items", "memory");
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await CalendarTestUtils.goToDate(window, 2009, 1, 1);
+
+  const addEvent = (title, start, end) => {
+    const event = new CalEvent();
+    event.title = title;
+    event.startDate = cal.createDateTime(`20090101T${start}00Z`);
+    event.endDate = cal.createDateTime(`20090101T${end}00Z`);
+    return calendar.addItem(event);
+  };
+
+  // All these events are linked by the long event, but only the late events
+  // need more lanes than there are.
+  await addEvent("Long", "0800", "1600");
+  for (let i = 1; i <= 7; i++) {
+    await addEvent(`Early ${i}`, "0800", "0830");
+  }
+  for (let i = 1; i <= 8; i++) {
+    await addEvent(`Late ${i}`, "1400", "1500");
+  }
+
+  const column = document.getElementById("day-view").dayColumns[0].column;
+  const getTitles = () =>
+    Array.from(CalendarTestUtils.dayView.getEventBoxes(window), box => box.occurrence.title);
+  const getOverflowElements = () => [...column.querySelectorAll(".multiday-events-overflow-item")];
+
+  await TestUtils.waitForCondition(
+    () => getOverflowElements()[0]?.textContent == "… and 2 more",
+    "overflow indicator should count the late events not shown"
+  );
+  Assert.equal(getOverflowElements().length, 1, "there should be one overflow indicator");
+  const titles = getTitles();
+  Assert.ok(titles.includes("Early 7"), "the early event in the last lane should be shown");
+  Assert.ok(!titles.includes("Late 7"), "the late event in the last lane should not be shown");
+  Assert.equal(titles.length, 14, "all other events should be shown");
+  const lateBox = [...CalendarTestUtils.dayView.getEventBoxes(window)].find(
+    box => box.occurrence.title == "Late 1"
+  );
+  Assert.equal(
+    getOverflowElements()[0].style.insetBlockStart,
+    lateBox.parentNode.style.insetBlockStart,
+    "the overflow indicator should start with the late events"
+  );
+  Assert.equal(
+    getOverflowElements()[0].style.height,
+    lateBox.parentNode.style.height,
+    "the overflow indicator should end with the late events"
+  );
+
+  info("a new event that is not shown should open in the dialog");
+  const dialogPromise = CalendarTestUtils.waitForEventDialog("edit");
+  column.newEventNeedsEditing = true;
+  await addEvent("New", "1400", "1500");
+  const dialogWindow = await dialogPromise;
+  const iframe = dialogWindow.document.querySelector("#calendar-item-panel-iframe");
+  await TestUtils.waitForCondition(
+    () => iframe.contentDocument?.querySelector("#item-title")?.value == "New",
+    "the dialog should edit the new event"
+  );
+  const dialogClosed = BrowserTestUtils.domWindowClosed(dialogWindow);
+  CalendarTestUtils.items.cancelItemDialog(dialogWindow);
+  await dialogClosed;
+
+  CalendarTestUtils.removeCalendar(calendar);
+  await TestUtils.waitForCondition(() => getTitles().length == 0, "events should be removed");
+});
+
 add_task(async function testDayViewDateLabel() {
   await CalendarTestUtils.setCalendarView(window, "day");
   await CalendarTestUtils.goToDate(window, 2022, 4, 13);

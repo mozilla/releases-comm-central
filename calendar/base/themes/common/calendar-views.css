@@ -408,7 +408,8 @@ calendar-header-container {
   margin: 2px;
 }
 
-.multiday-events-list {
+.multiday-events-list,
+.multiday-events-overflow {
   padding: 0;
   position: relative;
 }
@@ -422,14 +423,26 @@ calendar-header-container {
   box-sizing: border-box;
 }
 
+.multiday-events-overflow-item {
+  position: absolute;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: var(--space-xxsmall) var(--space-xsmall);
+  border: 1px dashed var(--viewBorderColor);
+  border-radius: var(--border-radius-small);
+  background-color: var(--viewBackground);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 /* Margin that allows event creation by click and drag when the time slot is
    full of events. On the right side in normal view ... */
-calendar-event-column .multiday-events-list {
+calendar-event-column :is(.multiday-events-list, .multiday-events-overflow) {
   margin-inline: 0 5px;
   margin-block: 0;
 }
 /* ... and on bottom in rotate view. */
-.multiday-grid-rotated calendar-event-column .multiday-events-list {
+.multiday-grid-rotated calendar-event-column :is(.multiday-events-list, .multiday-events-overflow) {
   margin-block: 0 5px;
   margin-inline: 0;
 }
@@ -1281,6 +1294,7 @@ button.calview-toggle-item[role="tab"][aria-selected="false"]:hover:active {
 }
 
 .multiday-events-list,
+.multiday-events-overflow,
 .timeIndicator {
   pointer-events: none;
 }

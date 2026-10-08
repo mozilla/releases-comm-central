@@ -8,12 +8,16 @@
 /* import-globals-from calendar-ui-utils.js */
 
 /* global calendarNavigationBar, currentView, gCurrentMode, getSelectedCalendar,
-   invokeEventDragSession, MozElements, MozXULElement, timeIndicator */
+   invokeEventDragSession, modifyEventWithDialog, MozElements, MozXULElement,
+   timeIndicator */
 
 // Wrap in a block to prevent leaking to window scope.
 {
   const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
   const MINUTES_IN_DAY = 24 * 60;
+  // The maximum number of lanes that overlapping events are shown in, side by
+  // side. When more are needed, the last lane shows how many are not shown.
+  const MAX_EVENT_LANES = 8;
   const lazy = {};
   ChromeUtils.defineLazyGetter(
     lazy,
@@ -68,6 +72,68 @@
   }
 
   /**
+   * The start and end of an item, relative to a day.
+   *
+   * @typedef {object} RelativeStartEndDates
+   * @property {?calIDateTime} startDate - The start, in the day's timezone.
+   * @property {?calIDateTime} endDate - The end, in the day's timezone.
+   * @property {?number} startMinute - The number of minutes from the start of
+   *   the day to the start.
+   * @property {?number} endMinute - The number of minutes from the start of the
+   *   day to the end.
+   * @property {boolean} startWithinDay - Whether the start is within the day,
+   *   inclusive of midnight at either end.
+   * @property {boolean} endWithinDay - Whether the end is within the day,
+   *   inclusive of midnight at either end.
+   */
+  /**
+   * Get the start and end of an item, relative to a day.
+   *
+   * @param {calItemBase} item - An event or task.
+   * @param {calIDateTime} day - The day.
+   * @returns {RelativeStartEndDates}
+   */
+  function getRelativeStartEndDates(item, day) {
+    // Get closed bounds for the day. I.e. inclusive of midnight the next day.
+    const closedDayStart = day.clone();
+    closedDayStart.isDate = false;
+    const closedDayEnd = day.clone();
+    closedDayEnd.day++;
+    closedDayEnd.isDate = false;
+
+    function relativeTime(date) {
+      if (!date) {
+        return null;
+      }
+      date = date.getInTimezone(day.timezone);
+      return {
+        date,
+        minute: date.subtractDate(closedDayStart).inSeconds / 60,
+        withinClosedDay: date.compare(closedDayStart) >= 0 && date.compare(closedDayEnd) <= 0,
+      };
+    }
+
+    let start;
+    let end;
+    if (item.isEvent()) {
+      start = relativeTime(item.startDate);
+      end = relativeTime(item.endDate);
+    } else {
+      start = relativeTime(item.entryDate);
+      end = relativeTime(item.dueDate);
+    }
+
+    return {
+      startDate: start?.date,
+      endDate: end?.date,
+      startMinute: start?.minute,
+      endMinute: end?.minute,
+      startWithinDay: !!start?.withinClosedDay,
+      endWithinDay: !!end?.withinClosedDay,
+    };
+  }
+
+  /**
    * The MozCalendarEventColumn widget used for displaying event boxes in one column per day.
    * It is used to make the week view layout in the calendar. It manages the layout of the
    * events given via add/deleteEvent.
@@ -86,6 +152,7 @@
           <stack class="multiday-column-box-stack" flex="1" role="presentation">
             <html:div class="multiday-hour-box-container"></html:div>
             <html:ol class="multiday-events-list"></html:ol>
+            <html:div class="multiday-events-overflow"></html:div>
             <box class="timeIndicator" hidden="hidden"/>
             <box class="fgdragcontainer" flex="1">
               <box class="fgdragspacer">
@@ -150,6 +217,7 @@
       }
 
       this.eventsListElement = this.querySelector(".multiday-events-list");
+      this.overflowElement = this.querySelector(".multiday-events-overflow");
       this.eventsListElement.setAttribute("role", "listbox");
       this.eventsListElement.setAttribute("aria-label", lazy.l10n.formatValueSync("events-only"));
 
@@ -241,7 +309,8 @@
        *
        * @typedef {object} EventData
        * @property {calItemBase} eventItem - The event item.
-       * @property {Element} element - The displayed event in this column.
+       * @property {?Element} element - The displayed event in this column, or
+       *   null if the event is not shown.
        * @property {boolean} selected - Whether the event is selected.
        * @property {boolean} needsUpdate - True whilst the eventItem has changed
        *   and we are still pending updating the 'element' property.
@@ -364,9 +433,10 @@
     }
 
     /**
-     * Return all the event items that are displayed in this columns.
+     * Return all the event items in this column, including those that are not
+     * shown.
      *
-     * @returns {calItemBase[]} - An array of all the displayed event items.
+     * @returns {calItemBase[]} - An array of all the event items.
      */
     getAllEventItems() {
       return Array.from(this.eventDataMap.values(), data => data.eventItem);
@@ -417,15 +487,22 @@
       // until we call relayout().
       eventData.eventItem = eventItem;
 
-      if (this.mEventMapTimeout) {
-        clearTimeout(this.mEventMapTimeout);
-      }
-
       if (this.newEventNeedsEditing) {
         this.eventToEdit = eventItem.hashId;
         this.newEventNeedsEditing = false;
       }
 
+      this.#scheduleRelayout();
+    }
+
+    /**
+     * Relayout the column soon, so that many changes in rapid succession only
+     * cause one relayout.
+     */
+    #scheduleRelayout() {
+      if (this.mEventMapTimeout) {
+        clearTimeout(this.mEventMapTimeout);
+      }
       this.mEventMapTimeout = setTimeout(() => this.relayout(), 5);
     }
 
@@ -436,15 +513,35 @@
      * @param {calItemBase} eventItem - The event item to remove the element of.
      */
     deleteEvent(eventItem) {
-      if (this.eventDataMap.delete(eventItem.hashId)) {
-        this.relayout();
+      const eventData = this.eventDataMap.get(eventItem.hashId);
+      if (!eventData) {
+        return;
       }
+      this.eventDataMap.delete(eventItem.hashId);
+      // Remove the element right away, the other events are laid out again later.
+      eventData.element?.parentNode.remove();
+      this.#scheduleRelayout();
+    }
+
+    /**
+     * Remove the displayed calendar-event-box elements for all the event items
+     * of a given calendar.
+     *
+     * @param {string} calendarId
+     */
+    removeItemsFromCalendar(calendarId) {
+      for (const [hashId, eventData] of this.eventDataMap) {
+        if (eventData.eventItem.calendar.id == calendarId) {
+          this.eventDataMap.delete(hashId);
+          eventData.element?.parentNode.remove();
+        }
+      }
+      this.#scheduleRelayout();
     }
 
     _clearElements() {
-      while (this.eventsListElement.hasChildNodes()) {
-        this.eventsListElement.lastChild.remove();
-      }
+      this.eventsListElement.replaceChildren();
+      this.overflowElement.replaceChildren();
     }
 
     /**
@@ -458,6 +555,10 @@
     relayout() {
       if (this.mLayoutBatchCount > 0) {
         return;
+      }
+      if (this.mEventMapTimeout) {
+        clearTimeout(this.mEventMapTimeout);
+        this.mEventMapTimeout = null;
       }
       this._clearElements();
 
@@ -484,83 +585,111 @@
       this.fgboxes.box.setAttribute("orient", orient);
       this.querySelector(".fgdragspacer").setAttribute("orient", orient);
 
+      const { events, overflows } = this.computeEventLayoutInfo(minDuration);
+
+      // Events that are not shown do not keep an element. A new one is created
+      // if they are shown again.
+      const shownEventData = new Set(events.map(eventInfo => eventInfo.eventData));
       for (const eventData of this.eventDataMap.values()) {
-        if (!eventData.needsUpdate) {
-          continue;
+        if (!shownEventData.has(eventData)) {
+          eventData.element = null;
+          eventData.needsUpdate = true;
         }
-        eventData.needsUpdate = false;
-        // Create a new wrapper.
-        const eventElement = document.createElement("li");
-        eventElement.classList.add("multiday-event-listitem");
-        eventElement.setAttribute("role", "presentation");
-        // Set up the event box.
-        const eventBox = document.createXULElement("calendar-event-box");
-        eventElement.appendChild(eventBox);
-
-        // Trigger connectedCallback
-        this.eventsListElement.appendChild(eventElement);
-
-        eventBox.setAttribute(
-          "context",
-          this.getAttribute("item-context") || this.getAttribute("context")
-        );
-
-        eventBox.calendarView = this.calendarView;
-        eventBox.occurrence = eventData.eventItem;
-        eventBox.parentColumn = this;
-        // An event item can technically be 'selected' between a call to
-        // addEvent and this method (because of the setTimeout). E.g. clicking
-        // the event in the unifinder tree will select the item through
-        // selectEvent. If the element wasn't yet created in that method, we set
-        // the selected status here as well.
-        //
-        // Similarly, if an event has the same hashId, we maintain its
-        // selection.
-        // NOTE: In this latter case we are relying on the fact that
-        // eventData.element.selected is never out of sync with
-        // eventData.selected.
-        eventBox.selected = eventData.selected;
-        eventData.element = eventBox;
-
-        // Remove the element to be added again later.
-        eventElement.remove();
       }
 
-      const eventLayoutList = this.computeEventLayoutInfo(minDuration);
+      for (const eventInfo of events) {
+        const eventData = eventInfo.eventData;
+        if (eventData.needsUpdate) {
+          eventData.needsUpdate = false;
+          // Create a new wrapper.
+          const eventElement = document.createElement("li");
+          eventElement.classList.add("multiday-event-listitem");
+          eventElement.setAttribute("role", "presentation");
+          // Set up the event box.
+          const eventBox = document.createXULElement("calendar-event-box");
+          eventElement.appendChild(eventBox);
 
-      for (const eventInfo of eventLayoutList) {
-        // Note that we store the calendar-event-box in the eventInfo, so we
-        // grab its parent to get the wrapper list item.
+          // Trigger connectedCallback
+          this.eventsListElement.appendChild(eventElement);
+
+          eventBox.setAttribute(
+            "context",
+            this.getAttribute("item-context") || this.getAttribute("context")
+          );
+
+          eventBox.calendarView = this.calendarView;
+          eventBox.occurrence = eventData.eventItem;
+          eventBox.parentColumn = this;
+          // An event item can technically be 'selected' between a call to
+          // addEvent and this method (because of the setTimeout). E.g. clicking
+          // the event in the unifinder tree will select the item through
+          // selectEvent. If the element wasn't yet created in that method, we
+          // set the selected status here as well.
+          //
+          // Similarly, if an event has the same hashId, or was not shown
+          // before, we maintain its selection.
+          // NOTE: In this latter case we are relying on the fact that
+          // eventData.element.selected is never out of sync with
+          // eventData.selected.
+          eventBox.selected = eventData.selected;
+          eventData.element = eventBox;
+        }
+        eventData.element.updateRelativeStartEndDates(this.date);
+
         // NOTE: This may be a newly created element or a non-updated element
         // that was removed from the eventsListElement in _clearElements. We
-        // still hold a reference to it, so we can re-add it in the new ordering
-        // and change its dimensions.
-        const eventElement = eventInfo.element.parentNode;
-        // FIXME: offset and length should be in % of parent's dimension, so we
-        // can avoid pixelsPerMinute.
-        const offset = `${eventInfo.start * this.pixelsPerMinute}px`;
-        const length = `${(eventInfo.end - eventInfo.start) * this.pixelsPerMinute}px`;
-        const secondaryOffset = `${eventInfo.secondaryOffset * 100}%`;
-        const secondaryLength = `${eventInfo.secondaryLength * 100}%`;
-        if (orient == "vertical") {
-          eventElement.style.height = length;
-          eventElement.style.width = secondaryLength;
-          eventElement.style.insetBlockStart = offset;
-          eventElement.style.insetInlineStart = secondaryOffset;
-        } else {
-          eventElement.style.width = length;
-          eventElement.style.height = secondaryLength;
-          eventElement.style.insetInlineStart = offset;
-          eventElement.style.insetBlockStart = secondaryOffset;
-        }
+        // re-add it in the new ordering and change its dimensions.
+        const eventElement = eventData.element.parentNode;
+        this.#setLayoutPosition(eventElement, eventInfo, orient);
         this.eventsListElement.appendChild(eventElement);
       }
 
-      const boxToEdit = this.eventDataMap.get(this.eventToEdit)?.element;
-      if (boxToEdit) {
-        boxToEdit.startEditing();
+      for (const overflowInfo of overflows) {
+        const overflowElement = document.createElement("div");
+        overflowElement.classList.add("multiday-events-overflow-item");
+        document.l10n.setAttributes(overflowElement, "calendar-view-more-items", {
+          count: overflowInfo.count,
+        });
+        this.#setLayoutPosition(overflowElement, overflowInfo, orient);
+        this.overflowElement.appendChild(overflowElement);
+      }
+
+      const dataToEdit = this.eventDataMap.get(this.eventToEdit);
+      if (dataToEdit?.element) {
+        dataToEdit.element.startEditing();
+      } else if (dataToEdit) {
+        // The new event is not shown, because there are too many overlapping
+        // events. Edit it in the dialog instead.
+        modifyEventWithDialog(dataToEdit.eventItem, true);
       }
       this.eventToEdit = null;
+    }
+
+    /**
+     * Position an element in the column.
+     *
+     * @param {Element} element - The element to position.
+     * @param {EventLayoutInfo|EventOverflowInfo} layoutInfo - Where to place it.
+     * @param {"vertical"|"horizontal"} orient - The orientation of the column.
+     */
+    #setLayoutPosition(element, layoutInfo, orient) {
+      // FIXME: offset and length should be in % of parent's dimension, so we
+      // can avoid pixelsPerMinute.
+      const offset = `${layoutInfo.start * this.pixelsPerMinute}px`;
+      const length = `${(layoutInfo.end - layoutInfo.start) * this.pixelsPerMinute}px`;
+      const secondaryOffset = `${layoutInfo.secondaryOffset * 100}%`;
+      const secondaryLength = `${layoutInfo.secondaryLength * 100}%`;
+      if (orient == "vertical") {
+        element.style.height = length;
+        element.style.width = secondaryLength;
+        element.style.insetBlockStart = offset;
+        element.style.insetInlineStart = secondaryOffset;
+      } else {
+        element.style.width = length;
+        element.style.height = secondaryLength;
+        element.style.insetInlineStart = offset;
+        element.style.insetBlockStart = secondaryOffset;
+      }
     }
 
     /**
@@ -571,7 +700,7 @@
      * an event can be placed on these axes.
      *
      * @typedef {object} EventLayoutInfo
-     * @property {MozCalendarEventBox} element - The displayed event.
+     * @property {EventData} eventData - The data of the event.
      * @property {number} start - The number of minutes from the start of this
      *   column's day to when the event should start.
      * @property {number} end - The number of minutes from the start of this
@@ -582,19 +711,33 @@
      *   secondary axis (between 0 and 1).
      */
     /**
-     * Get an ordered list of events and their layout information. The list is
-     * ordered relative to the event's layout.
+     * Layout information for showing how many overlapping events are not
+     * shown, because they would need more than MAX_EVENT_LANES lanes. It is
+     * placed on the same axes as EventLayoutInfo, over the time range of the
+     * events that are not shown.
+     *
+     * @typedef {object} EventOverflowInfo
+     * @property {number} count - The number of events not shown.
+     * @property {number} start
+     * @property {number} end
+     * @property {number} secondaryOffset
+     * @property {number} secondaryLength
+     */
+    /**
+     * Get an ordered list of the events to show and their layout information,
+     * and where to show how many events are not shown.
      *
      * @param {number} minDuration - The minimum number of minutes that an event
      *   should be *shown* to last. This should be large enough to ensure that
      *   events are readable in the layout.
      *
-     * @returns {EventLayoutInfo[]} - An ordered list of event layout
-     *   information.
+     * @returns {{events: EventLayoutInfo[], overflows: EventOverflowInfo[]}} -
+     *   The events to show, ordered relative to their layout, and the
+     *   overflow indicators.
      */
     computeEventLayoutInfo(minDuration) {
       if (!this.eventDataMap.size) {
-        return [];
+        return { events: [], overflows: [] };
       }
 
       function sortByStart(aEventInfo, bEventInfo) {
@@ -616,8 +759,8 @@
       // because we want to sort the events relative to their absolute start
       // times.
       const eventList = Array.from(this.eventDataMap.values(), eventData => {
-        const element = eventData.element;
-        let { startDate, endDate, startMinute, endMinute } = element.updateRelativeStartEndDates(
+        let { startDate, endDate, startMinute, endMinute } = getRelativeStartEndDates(
+          eventData.eventItem,
           this.date
         );
         // If there is no startDate, we use the element's endDate for both the
@@ -635,7 +778,7 @@
         const start = Math.max(startMinute, 0);
         // NOTE: The end can overflow the end of the day due to the minDuration.
         const end = Math.max(start + minDuration, Math.min(endMinute, MINUTES_IN_DAY));
-        return { element, startDate, endDate, start, end };
+        return { eventData, startDate, endDate, start, end };
       });
       eventList.sort(sortByStart);
 
@@ -659,27 +802,34 @@
       // Each Column will share the same horizontal width, and will be placed
       // adjacent to each other.
       //
+      // A Block has at most MAX_EVENT_LANES Columns. The Events that do not fit
+      // are not shown. Instead, the last Column shows how many Events are not
+      // shown, over each cluster of overlapping Events that are not shown. The
+      // Events of the last Column that overlap such a cluster are not shown
+      // either.
+      //
       // Note that each Block may have a different number of Columns, and then
       // may not share a common factor, so the Columns may not line up in the
       // view.
 
       // All the event Blocks in this calendar column, ordered by their start
-      // time. Each Block will be an array of Columns, which will in turn be an
-      // array of Events.
+      // time. Each Block has an array of Columns, which will in turn be an
+      // array of Events, and an array of the Events that do not fit in any
+      // Column.
       const allEventBlocks = [];
       // The current Block.
-      let blockColumns = [];
+      let block = { columns: [], overflowing: [] };
       let blockEnd = eventList[0].end;
 
       for (const eventInfo of eventList) {
         const start = eventInfo.start;
-        if (blockColumns.length && start >= blockEnd) {
+        if (block.columns.length && start >= blockEnd) {
           // There is a gap between this Event and the end of the Block. We also
           // know from the ordering of eventList that all other Events start at
           // the same time or later. So there are no more Events that can be
           // added to this Block. So we finish it and start a new one.
-          allEventBlocks.push(blockColumns);
-          blockColumns = [];
+          allEventBlocks.push(block);
+          block = { columns: [], overflowing: [] };
         }
 
         if (eventInfo.end > blockEnd) {
@@ -687,37 +837,34 @@
         }
 
         // Find the earliest Column that the Event fits in.
-        let foundCol = false;
-        for (const column of blockColumns) {
-          // We know from the ordering of eventList that all Events already in a
-          // Column have a start time that is equal to or earlier than this
-          // Event's start time. Therefore, in order for this Event to not
-          // overlap anything else in this Column, it must have a start time
-          // that is later than or equal to the end time of the last Event in
-          // this column.
-          const colEnd = column[column.length - 1].end;
-          if (start >= colEnd) {
-            // It fits in this Column, so we push it to the end (preserving the
-            // eventList ordering within the Column).
-            column.push(eventInfo);
-            foundCol = true;
-            break;
-          }
-        }
-
-        if (!foundCol) {
+        // We know from the ordering of eventList that all Events already in a
+        // Column have a start time that is equal to or earlier than this
+        // Event's start time. Therefore, in order for this Event to not
+        // overlap anything else in this Column, it must have a start time
+        // that is later than or equal to the end time of the last Event in
+        // this column.
+        const column = block.columns.find(col => start >= col[col.length - 1].end);
+        if (column) {
+          // It fits in this Column, so we push it to the end (preserving the
+          // eventList ordering within the Column).
+          column.push(eventInfo);
+        } else if (block.columns.length < MAX_EVENT_LANES) {
           // This Event doesn't fit in any column, so we create a new one.
-          blockColumns.push([eventInfo]);
+          block.columns.push([eventInfo]);
+        } else {
+          block.overflowing.push(eventInfo);
         }
       }
-      if (blockColumns.length) {
-        allEventBlocks.push(blockColumns);
-      }
+      allEventBlocks.push(block);
 
-      for (const column of allEventBlocks) {
-        const totalCols = column.length;
-        for (let colIndex = 0; colIndex < totalCols; colIndex++) {
-          for (const eventInfo of column[colIndex]) {
+      const overflows = [];
+      for (const { columns, overflowing } of allEventBlocks) {
+        if (overflowing.length) {
+          this.#addOverflowsToColumn(columns.at(-1), overflowing);
+        }
+        const totalCols = columns.length;
+        for (let colIndex = 0; colIndex < columns.length; colIndex++) {
+          for (const eventInfo of columns[colIndex]) {
             if (eventInfo.processed) {
               // Already processed this Event in an earlier Column.
               continue;
@@ -732,10 +879,10 @@
             // that we did not fit in the previous Columns.
             for (
               let neighbourColIndex = colIndex + 1;
-              neighbourColIndex < totalCols;
+              neighbourColIndex < columns.length;
               neighbourColIndex++
             ) {
-              const neighbourColumn = column[neighbourColIndex];
+              const neighbourColumn = columns[neighbourColIndex];
               // Test if this Event overlaps any of the other Events in the
               // neighbouring Column.
               let overlapsCol = false;
@@ -778,8 +925,69 @@
             eventInfo.secondaryLength = colSpan / totalCols;
           }
         }
+
+        if (overflowing.length) {
+          overflows.push(...columns.at(-1).filter(entry => !entry.eventData));
+        }
       }
-      return eventList;
+      return { events: eventList.filter(eventInfo => eventInfo.processed), overflows };
+    }
+
+    /**
+     * Put an EventOverflowInfo entry in the last Column of a Block for each
+     * cluster of overlapping Events that do not fit in any Column. The Events
+     * of the Column that overlap a cluster are removed from the Column, and
+     * counted in the cluster.
+     *
+     * @param {object[]} column - The Events of the last Column, ordered by
+     *   start. This is modified.
+     * @param {object[]} overflowing - The Events that do not fit in any Column,
+     *   ordered by start.
+     */
+    #addOverflowsToColumn(column, overflowing) {
+      let clusters = [];
+      for (const { start, end } of overflowing) {
+        const cluster = clusters.at(-1);
+        if (cluster && start < cluster.end) {
+          cluster.count++;
+          cluster.end = Math.max(cluster.end, end);
+        } else {
+          clusters.push({ count: 1, start, end });
+        }
+      }
+
+      const shown = [...column];
+      let changed = true;
+      while (changed) {
+        changed = false;
+        for (let i = shown.length - 1; i >= 0; i--) {
+          const { start, end } = shown[i];
+          const cluster = clusters.find(c => start < c.end && end > c.start);
+          if (cluster) {
+            // Removing an Event can make its cluster longer, so that it
+            // overlaps other Events.
+            shown.splice(i, 1);
+            cluster.count++;
+            cluster.start = Math.min(cluster.start, start);
+            cluster.end = Math.max(cluster.end, end);
+            changed = true;
+          }
+        }
+
+        const merged = [];
+        for (const cluster of clusters.sort((a, b) => a.start - b.start)) {
+          const previous = merged.at(-1);
+          if (previous && cluster.start < previous.end) {
+            previous.count += cluster.count;
+            previous.end = Math.max(previous.end, cluster.end);
+          } else {
+            merged.push(cluster);
+          }
+        }
+        clusters = merged;
+      }
+
+      column.splice(0, column.length, ...[...shown, ...clusters].sort((a, b) => a.start - b.start));
     }
 
     /**
@@ -1888,59 +2096,13 @@
      *
      * @param {calIDateTime} day - The day that this event is shown on.
      *
-     * @returns {object} - The start and end time information.
-     * @property {calIDateTime|undefined} startDate - The start date-time of the
-     *   event in the timezone of the given day. Or the entry date-time for
-     *   tasks, if they have one.
-     * @property {calIDateTime|undefined} endDate - The end date-time of the
-     *   event in the timezone of the given day. Or the due date-time for
-     *   tasks, if they have one.
-     * @property {number} startMinute - The number of minutes since the start of
-     *   the given day that the event starts.
-     * @property {number} endMinute - The number of minutes since the end of the
-     *   given day that the event ends.
+     * @returns {RelativeStartEndDates} - The start and end time information.
      */
     updateRelativeStartEndDates(day) {
-      const item = this.occurrence;
-
-      // Get closed bounds for the day. I.e. inclusive of midnight the next day.
-      const closedDayStart = day.clone();
-      closedDayStart.isDate = false;
-      const closedDayEnd = day.clone();
-      closedDayEnd.day++;
-      closedDayEnd.isDate = false;
-
-      function relativeTime(date) {
-        if (!date) {
-          return null;
-        }
-        date = date.getInTimezone(day.timezone);
-        return {
-          date,
-          minute: date.subtractDate(closedDayStart).inSeconds / 60,
-          withinClosedDay: date.compare(closedDayStart) >= 0 && date.compare(closedDayEnd) <= 0,
-        };
-      }
-
-      let start;
-      let end;
-      if (item.isEvent()) {
-        start = relativeTime(item.startDate);
-        end = relativeTime(item.endDate);
-      } else {
-        start = relativeTime(item.entryDate);
-        end = relativeTime(item.dueDate);
-      }
-
-      this.startGripbar.hidden = !(end && start?.withinClosedDay);
-      this.endGripbar.hidden = !(start && end?.withinClosedDay);
-
-      return {
-        startDate: start?.date,
-        endDate: end?.date,
-        startMinute: start?.minute,
-        endMinute: end?.minute,
-      };
+      const dates = getRelativeStartEndDates(this.occurrence, day);
+      this.startGripbar.hidden = !(dates.endDate && dates.startWithinDay);
+      this.endGripbar.hidden = !(dates.startDate && dates.endWithinDay);
+      return dates;
     }
 
     getOptimalMinSize(orient) {
@@ -3405,11 +3567,7 @@
         this.doResizingHeaderOperation(col.header, () =>
           col.header.removeItemsFromCalendar(calendarId)
         );
-        for (const event of col.column.getAllEventItems()) {
-          if (event.calendar.id == calendarId) {
-            this.doRemoveItem(event);
-          }
-        }
+        col.column.removeItemsFromCalendar(calendarId);
       }
 
       // If a removed event was selected, announce that the selection changed.
