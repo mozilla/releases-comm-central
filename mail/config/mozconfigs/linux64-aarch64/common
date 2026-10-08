@@ -8,6 +8,12 @@ ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 unset NASM
 ac_add_options --target=aarch64
 
+# Point pkg-config at the host sysroot for build scripts; Gecko only configures the target's.
+# See https://bugzilla.mozilla.org/show_bug.cgi?id=2078347
+host_sysroot="$MOZ_FETCHES_DIR/sysroot-x86_64-linux-gnu"
+mk_add_options "export HOST_PKG_CONFIG_SYSROOT_DIR=$host_sysroot"
+mk_add_options "export HOST_PKG_CONFIG_LIBDIR=$host_sysroot/usr/lib/x86_64-linux-gnu/pkgconfig:$host_sysroot/usr/share/pkgconfig"
+
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
 
