@@ -4,8 +4,9 @@
 
 /**
  * Tests that news: URLs embedded in messages can't be used to make the client
- * contact arbitrary news servers (Bug 278176), and that news articles don't
- * run JavaScript.
+ * contact arbitrary news servers (Bug 278176), that news articles don't run
+ * JavaScript, and that news: and nntp: links and nntp: command line URIs are
+ * handled by Thunderbird rather than opened in a content tab.
  */
 
 "use strict";
@@ -344,4 +345,33 @@ add_task(async function testNntpLinkInMailMessage() {
   );
 
   folder.deleteSelf(null);
+});
+
+/**
+ * An nntp: URI passed on the command line must open the newsgroup.
+ */
+add_task(async function testNntpUriFromCommandLine() {
+  const newsFolder = await setupNewsFolder(
+    `${GROUP}.cmdline`,
+    generator.makeMessage()
+  );
+  await be_in_folder(mailFolder);
+
+  const cmdLine = Cu.createCommandLine(
+    [`nntp://test.test:119/${GROUP}.cmdline/1`],
+    null,
+    Ci.nsICommandLine.STATE_REMOTE_EXPLICIT
+  );
+  Cc["@mozilla.org/mail/clh;1"]
+    .getService(Ci.nsICommandLineHandler)
+    .handle(cmdLine);
+  await TestUtils.waitForCondition(
+    () => get_about_3pane().gFolder == newsFolder,
+    "the newsgroup should be displayed"
+  );
+  Assert.equal(
+    document.getElementById("tabmail").tabInfo.length,
+    1,
+    "no tab should be opened"
+  );
 });
