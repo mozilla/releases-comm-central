@@ -14,7 +14,9 @@ add_task(async function testNamespaces() {
   // Like Dovecot or Cyrus, advertise the prefixes with their trailing
   // delimiter.
   await checkRoundTrip({
-    mailboxes: ["shared", "shared/sub", "folder"],
+    // "sha" and "other" only start the prefixes; the other users' namespace
+    // has no root of its own, as when the namespace above it is hidden.
+    mailboxes: ["shared", "shared/sub", "folder", "sha", "other"],
     namespaces: '(("" "/")) (("other/user/" "/")) (("shared/" "/"))',
   });
 });

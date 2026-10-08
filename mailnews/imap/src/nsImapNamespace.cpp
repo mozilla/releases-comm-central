@@ -33,19 +33,20 @@ void nsImapNamespace::SetDelimiter(char delimiter, bool delimiterFilledIn) {
   m_delimiterFilledIn = delimiterFilledIn;
 }
 
-// returns -1 if this box is not part of this namespace,
-// or the length of the prefix if it is part of this namespace
 int nsImapNamespace::MailboxMatchesNamespace(const char* boxname) {
   if (!boxname) return -1;
 
-  // If the namespace is part of the boxname
+  // An empty prefix matches every boxname
   if (!m_prefix || !*m_prefix) return 0;
 
+  // If the boxname lies within the namespace
   if (PL_strstr(boxname, m_prefix) == boxname) return PL_strlen(m_prefix);
 
-  // If the boxname is part of the prefix
+  if (!*boxname) return -1;
+
+  // If the boxname is the root mailbox of the namespace
   // (Used for matching Personal mailbox with Personal/ namespace, etc.)
-  if (PL_strstr(m_prefix, boxname) == m_prefix) return PL_strlen(boxname);
+  if (IsRootMailbox(boxname)) return PL_strlen(boxname);
   return -1;
 }
 
