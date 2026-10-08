@@ -10,6 +10,7 @@
 
 var {
   close_compose_window,
+  open_compose_with_edit_as_new,
   open_compose_with_forward,
   open_compose_with_reply,
 } = ChromeUtils.importESModule(
@@ -178,6 +179,12 @@ add_task(async function test_cid_image_compose_fwd() {
 add_task(async function test_cid_image_compose_re() {
   // Our image should also be in composition when the message is replied.
   const cwc = await open_compose_with_reply();
+  await check_cid_image_compose(cwc);
+  await close_compose_window(cwc);
+});
+
+add_task(async function test_cid_image_compose_edit_as_new() {
+  const cwc = await open_compose_with_edit_as_new();
   await check_cid_image_compose(cwc);
   await close_compose_window(cwc);
 });

@@ -154,6 +154,10 @@ nsresult nsParseLocalMessageURI(const nsACString& uri, nsCString& folderURI,
   if (keySeparator != -1) {
     int32_t keyEndSeparator = uriStr.FindCharInSet("?&", keySeparator);
     folderURI = StringHead(uriStr, keySeparator);
+    // URI query repair can move compose parameters before the message key.
+    // They are not part of the folder name.
+    int32_t querySeparator = folderURI.FindChar('?');
+    if (querySeparator != kNotFound) folderURI.Truncate(querySeparator);
     folderURI.Cut(7, 8);  // cut out the -message part of mailbox-message:
 
     nsAutoCString keyStr;
