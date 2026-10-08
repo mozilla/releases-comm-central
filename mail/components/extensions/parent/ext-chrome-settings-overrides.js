@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global searchInitialized */
-
 // Copy of browser/components/extensions/parent/ext-chrome-settings-overrides.js
 // minus HomePage.sys.mjs (+ dependent ExtensionControlledPopup.sys.mjs and
 // ExtensionPermissions.sys.mjs usage).
@@ -127,8 +125,9 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
     const { manifest } = extension;
     if (manifest.chrome_settings_overrides.search_provider) {
       // Registering a search engine can potentially take a long while,
-      // or not complete at all (when searchInitialized is never resolved),
-      // so we are deliberately not awaiting the returned promise here.
+      // or not complete at all (when SearchService.promiseInitialized is
+      // never resolved), so we are deliberately not awaiting the returned
+      // promise here.
       const searchStartupPromise =
         this.processSearchProviderManifestEntry().finally(() => {
           if (
@@ -248,7 +247,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
       return;
     }
 
-    await searchInitialized;
+    await SearchService.promiseInitialized;
     if (!this.extension) {
       console.error(
         `Extension shut down before search provider was registered`

@@ -22,7 +22,6 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   ExtensionContent: "resource://gre/modules/ExtensionContent.sys.mjs",
-  SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
 });
 
 XPCOMUtils.defineLazyGlobalGetters(this, [
@@ -259,21 +258,6 @@ global.TabContext = class extends EventEmitter {
     this.tabData.delete(keyObject);
   }
 };
-
-/* global searchInitialized */
-// This promise is used to wait for the search service to be initialized.
-// None of the code in the WebExtension modules requests that initialization.
-// It is assumed that it is started at some point. That might never happen,
-// e.g. if the application shuts down before the search service initializes.
-ChromeUtils.defineLazyGetter(global, "searchInitialized", () => {
-  if (SearchService.isInitialized) {
-    return Promise.resolve();
-  }
-  return ExtensionUtils.promiseObserved(
-    "browser-search-service",
-    (_, data) => data == "init-complete"
-  );
-});
 
 /**
  * Returns the WebExtension window type for the given window, or null, if it is
