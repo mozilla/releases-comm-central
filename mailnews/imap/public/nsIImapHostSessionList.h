@@ -93,7 +93,7 @@ class nsIImapHostSessionList : public nsISupports {
   NS_IMETHOD GetNamespaceDetailsForMailboxForHost(
       const char* serverKey, const char* mailboxName,
       EIMAPNamespaceType fallbackType, nsACString& prefix, char& delimiter,
-      bool& found) = 0;
+      EIMAPNamespaceType& type, bool& isRootMailbox, bool& found) = 0;
   NS_IMETHOD SetNamespaceFromPrefForHost(const char* serverKey,
                                          const char* namespacePref,
                                          EIMAPNamespaceType type) = 0;

@@ -95,6 +95,8 @@ tags = ["foldernames"]
 
 ["test_imapIDNoParenGroup.js"]
 
+["test_imapMailboxNameRoundTrip.js"]
+
 ["test_imapMove.js"]
 
 ["test_imapMoveDuringMove.js"]
@@ -108,6 +110,8 @@ tags = ["foldernames"]
 ["test_imapMyRightsResponseCode.js"]
 
 ["test_imapNamespaceComma.js"]
+
+["test_imapNamespaceRootMailbox.js"]
 
 ["test_imapNtlmNoChallenge.js"]
 

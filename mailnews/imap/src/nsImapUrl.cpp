@@ -629,15 +629,26 @@ NS_IMETHODIMP nsImapUrl::AddOnlineDirectoryIfNecessary(
 
   nsAutoCString namespacePrefix;
   char namespaceDelimiter;
+  EIMAPNamespaceType namespaceType;
+  bool isNamespaceRoot;
   bool namespaceFound;
   rv = hostSessionList->GetNamespaceDetailsForMailboxForHost(
       m_serverKey.get(), onlineMailboxName, kPersonalNamespace, namespacePrefix,
-      namespaceDelimiter, namespaceFound);
+      namespaceDelimiter, namespaceType, isNamespaceRoot, namespaceFound);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // The root mailbox of a public or other users' namespace doesn't start with
+  // the prefix, but AllocateCanonicalPath() left it complete.
+  if (onlineDir.IsEmpty() && isNamespaceRoot &&
+      namespaceType != kPersonalNamespace) {
+    if (directory) *directory = nullptr;
+    return NS_OK;
+  }
+
+  // From here on, onlineDir is either the server directory, which
+  // AllocateCanonicalPath() strips, or the namespace prefix, which it keeps.
   if (onlineDir.IsEmpty() && namespaceFound) onlineDir = namespacePrefix;
 
-  // If this host has an online server directory configured
   if (onlineMailboxName && !onlineDir.IsEmpty()) {
     if (PL_strcasecmp(onlineMailboxName, "INBOX")) {
       NS_ASSERTION(namespaceFound, "couldn't find namespace for host");
@@ -695,6 +706,7 @@ NS_IMETHODIMP nsImapUrl::AddOnlineDirectoryIfNecessary(
 
 // Converts from canonical format (hierarchy is indicated by '/' and all real
 // slashes ('/') are escaped) to the real online name on the server.
+// Inverse of AllocateCanonicalPath(), keep both in sync.
 NS_IMETHODIMP nsImapUrl::AllocateServerPath(const nsACString& canonicalPath,
                                             char onlineDelimiter,
                                             nsACString& aAllocatedPath) {
@@ -800,6 +812,7 @@ static void unescapeSlashes(char* path, size_t* newLength) {
 // Converts the real online name on the server to canonical format:
 // result is hierarchy is indicated by '/' and all real slashes ('/') are
 // escaped. This method is only called from the IMAP thread.
+// Inverse of AllocateServerPath(), keep both in sync.
 NS_IMETHODIMP nsImapUrl::AllocateCanonicalPath(const nsACString& serverPath,
                                                char onlineDelimiter,
                                                nsACString& allocatedPath) {
