@@ -121,6 +121,8 @@ tags = ["caldav"]
 
 ["test_items.js"]
 
+["test_items_many_properties.js"]
+
 ["test_itip_message_sender.js"]
 
 ["test_itip_target_calendar.js"]

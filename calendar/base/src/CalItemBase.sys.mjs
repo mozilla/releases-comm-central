@@ -17,6 +17,36 @@ ChromeUtils.defineLazyGetter(lazy, "log", () => {
     maxLogLevelPref: "calendar.loglevel",
   });
 });
+
+/**
+ * Lookup tables for the attendees and attachments of items, so that adding
+ * many of them does not take quadratic time. They are keyed by the arrays of
+ * the items, so that a table is dropped when its array is replaced.
+ */
+const attendeeIndexes = new WeakMap();
+const attachmentHashIds = new WeakMap();
+
+/**
+ * Get a map from lower case attendee IDs to the first attendee with that ID.
+ *
+ * @param {calIAttendee[]} attendees
+ * @returns {Map<string, calIAttendee>}
+ */
+function getAttendeeIndex(attendees) {
+  let index = attendeeIndexes.get(attendees);
+  if (!index) {
+    index = new Map();
+    for (const attendee of attendees) {
+      const id = attendee.id?.toLowerCase();
+      if (!index.has(id)) {
+        index.set(id, attendee);
+      }
+    }
+    attendeeIndexes.set(attendees, index);
+  }
+  return index;
+}
+
 ChromeUtils.defineESModuleGetters(lazy, {
   CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
   CalAlarm: "resource:///modules/CalAlarm.sys.mjs",
@@ -592,16 +622,19 @@ calItemBase.prototype = {
 
   // calIAttendee getAttendeeById(in AUTF8String id);
   getAttendeeById(id) {
-    const attendees = this.getAttendees();
-    const lowerCaseId = id.toLowerCase();
-    for (const attendee of attendees) {
-      // This match must be case insensitive to deal with differing
-      // cases of things like MAILTO:
-      if (attendee.id.toLowerCase() == lowerCaseId) {
-        return attendee;
-      }
+    if (!this.mAttendees && this.mIsProxy) {
+      this.mAttendees = this.mParentItem.getAttendees();
     }
-    return null;
+    if (!this.mAttendees) {
+      return null;
+    }
+    // This match must be case insensitive to deal with differing
+    // cases of things like MAILTO:
+    const lowerCaseId = id.toLowerCase();
+    const attendee = getAttendeeIndex(this.mAttendees).get(lowerCaseId);
+    // Attendee IDs are not expected to change once an attendee is added to an
+    // item.
+    return attendee?.id.toLowerCase() == lowerCaseId ? attendee : null;
   },
 
   // void removeAttendee(in calIAttendee attendee);
@@ -646,7 +679,14 @@ calItemBase.prototype = {
         exists.participationStatus == "NEEDS-ACTION" ||
         attendee.participationStatus == "DECLINED"
       ) {
-        this.removeAttendee(exists);
+        // Remove the existing attendee from the array itself, rather than
+        // copying the array for each duplicate.
+        this.modify();
+        const existingIndex = this.mAttendees.indexOf(exists);
+        if (existingIndex != -1) {
+          this.mAttendees.splice(existingIndex, 1);
+        }
+        attendeeIndexes.get(this.mAttendees)?.delete(exists.id.toLowerCase());
       } else {
         attendee = null;
       }
@@ -669,8 +709,13 @@ calItemBase.prototype = {
         }
       }
       this.modify();
-      this.mAttendees = this.getAttendees();
+      this.mAttendees ??= this.getAttendees();
       this.mAttendees.push(attendee);
+      const index = attendeeIndexes.get(this.mAttendees);
+      const id = attendee.id.toLowerCase();
+      if (index && !index.has(id)) {
+        index.set(id, attendee);
+      }
     }
   },
 
@@ -692,6 +737,7 @@ calItemBase.prototype = {
       if (cal.data.compareObjects(this.mAttachments[attIndex], aAttachment, Ci.calIAttachment)) {
         this.modify();
         this.mAttachments.splice(attIndex, 1);
+        attachmentHashIds.delete(this.mAttachments);
         break;
       }
     }
@@ -700,8 +746,14 @@ calItemBase.prototype = {
   // void addAttachment(in calIAttachment attachment);
   addAttachment(attachment) {
     this.modify();
-    this.mAttachments = this.getAttachments();
-    if (!this.mAttachments.some(x => x.hashId == attachment.hashId)) {
+    this.mAttachments ??= this.getAttachments();
+    let hashIds = attachmentHashIds.get(this.mAttachments);
+    if (!hashIds) {
+      hashIds = new Set(this.mAttachments.map(x => x.hashId));
+      attachmentHashIds.set(this.mAttachments, hashIds);
+    }
+    if (!hashIds.has(attachment.hashId)) {
+      hashIds.add(attachment.hashId);
       this.mAttachments.push(attachment);
     }
   },
@@ -742,7 +794,7 @@ calItemBase.prototype = {
   // void addRelation(in calIRelation relation);
   addRelation(aRelation) {
     this.modify();
-    this.mRelations = this.getRelations();
+    this.mRelations ??= this.getRelations();
     this.mRelations.push(aRelation);
     // XXX ensure that the relation isn't already there?
   },
@@ -1116,7 +1168,7 @@ calItemBase.prototype = {
     }
 
     this.modify();
-    this.mAlarms = this.getAlarms();
+    this.mAlarms ??= this.getAlarms();
     this.mAlarms.push(aAlarm);
   },
 
