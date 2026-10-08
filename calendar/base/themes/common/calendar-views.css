@@ -380,16 +380,12 @@ calendar-header-container {
   display: grid;
 }
 
-.allday-events-list {
-  display: block;
+.allday-events-scroll {
   min-block-size: 30px;
   max-block-size: 120px;
   min-inline-size: 100px;
   overflow-y: auto;
   overflow-x: hidden;
-  margin: 0;
-  padding-block: 0;
-  padding-inline: 1px 6px;
   /* Prevent overscrolling from moving into the parent view.
    * NOTE: This only works if the list is overflowing. For cases where it does
    * not overflow, we must prevent scrolling the parent in javascript. */
@@ -398,6 +394,13 @@ calendar-header-container {
 
 .multiday-grid-rotated .allday-events-list:not(:empty) {
   min-inline-size: 150px;
+}
+
+.allday-events-list {
+  display: block;
+  margin: 0;
+  padding-block: 0;
+  padding-inline: 1px 6px;
 }
 
 .allday-event-listitem {
@@ -810,18 +813,28 @@ calendar-month-day-box {
   margin-inline-start: auto;
 }
 
+.calendar-month-day-box-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1 1 0;
+}
+
 .calendar-month-day-box-list {
   display: block;
   margin: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
   padding: 0;
-  flex: 1 1 0;
 }
 
 .calendar-month-day-box-list-item {
   display: block;
   margin: 2px;
+}
+
+.calendar-item-list-more-button {
+  min-inline-size: 0;
+  min-block-size: auto;
+  margin: var(--space-xxsmall);
+  padding: 0 var(--space-xxsmall);
 }
 
 .calendar-month-day-box-current-month {

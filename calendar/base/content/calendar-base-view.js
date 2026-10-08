@@ -654,4 +654,247 @@
   MozXULElement.implementCustomInterface(CalendarBaseView, [Ci.calICalendarView]);
 
   MozElements.CalendarBaseView = CalendarBaseView;
+
+  /**
+   * A sorted, scrollable list of the calendar items of a day. Only a limited
+   * number of items are rendered at first, followed by a link to render more,
+   * so that days with a very large number of items stay usable.
+   */
+  class CalendarItemList {
+    /**
+     * The number of items rendered at first, and each time the user asks for
+     * more.
+     *
+     * @type {integer}
+     */
+    static BATCH_SIZE = 50;
+
+    /**
+     * All the items, sorted in display order.
+     *
+     * @type {calIItemBase[]}
+     */
+    #items = [];
+
+    /** @type {Set<string>} */
+    #itemIds = new Set();
+
+    /**
+     * The rendered item boxes, keyed by item hashId. Only the first
+     * #renderLimit items are rendered.
+     *
+     * @type {Map<string, Element>}
+     */
+    boxes = new Map();
+
+    #renderLimit = CalendarItemList.BATCH_SIZE;
+    #listItemClass;
+    #createItemBox;
+
+    /**
+     * @param {object} options
+     * @param {string} options.scrollClass - Class of the scrollable element.
+     * @param {string} options.listClass - Class of the list element.
+     * @param {string} options.listItemClass - Class of each list item.
+     * @param {function(calIItemBase, Element):Element} options.createItemBox -
+     *   Creates the box displaying an item, appends it to the given list item,
+     *   which is already in the document, and returns it.
+     */
+    constructor({ scrollClass, listClass, listItemClass, createItemBox }) {
+      this.#listItemClass = listItemClass;
+      this.#createItemBox = createItemBox;
+
+      this.list = document.createElement("ol");
+      this.list.classList.add(listClass);
+      this.list.setAttribute("role", "listbox");
+
+      this.moreButton = document.createElement("button");
+      this.moreButton.classList.add("button", "link-button", "calendar-item-list-more-button");
+      this.moreButton.hidden = true;
+      this.moreButton.addEventListener("click", event => {
+        event.stopPropagation();
+        const firstNewItem = this.#items[this.#renderLimit];
+        this.showMoreItems();
+        // The link may now be hidden, and is below the new items anyway.
+        this.boxes.get(firstNewItem?.hashId)?.focus();
+      });
+      this.moreButton.addEventListener("dblclick", event => event.stopPropagation());
+
+      // The link is kept out of the list, so that the listbox only contains
+      // items.
+      this.element = document.createElement("div");
+      this.element.classList.add(scrollClass);
+      this.element.append(this.list, this.moreButton);
+    }
+
+    /**
+     * All the items, including those not rendered, sorted in display order.
+     * Do not modify.
+     *
+     * @type {calIItemBase[]}
+     */
+    get items() {
+      return this.#items;
+    }
+
+    /**
+     * Add an item, or replace the item with the same hashId.
+     *
+     * @param {calIItemBase} item
+     * @returns {?Element} The box displaying the item, or null if the item is
+     *   not rendered.
+     */
+    addItem(item) {
+      if (this.#itemIds.has(item.hashId)) {
+        this.removeItem(item);
+      }
+
+      const index = Math.max(cal.data.binarySearch(this.#items, item, cal.view.compareItems), 0);
+      this.#items.splice(index, 0, item);
+      this.#itemIds.add(item.hashId);
+
+      let box = null;
+      if (index < this.#renderLimit) {
+        box = this.#renderItem(index);
+        const pushedOut = this.#items[this.#renderLimit];
+        if (pushedOut) {
+          this.#unrenderItem(pushedOut);
+        }
+      }
+      this.#updateMoreButton();
+      return box;
+    }
+
+    /**
+     * @param {calIItemBase} item
+     */
+    removeItem(item) {
+      if (!this.#itemIds.has(item.hashId)) {
+        return;
+      }
+      const index = this.#items.findIndex(i => i.hashId == item.hashId);
+      this.#items.splice(index, 1);
+      this.#itemIds.delete(item.hashId);
+      if (this.boxes.has(item.hashId)) {
+        this.#unrenderItem(item);
+        this.#renderItems();
+      }
+      this.#updateMoreButton();
+    }
+
+    /**
+     * Remove all items for a given calendar.
+     *
+     * @param {string} calendarId
+     */
+    removeItemsFromCalendar(calendarId) {
+      const remaining = [];
+      for (const item of this.#items) {
+        if (item.calendar.id == calendarId) {
+          this.#itemIds.delete(item.hashId);
+          this.#unrenderItem(item);
+        } else {
+          remaining.push(item);
+        }
+      }
+      this.#items = remaining;
+      this.#renderItems();
+      this.#updateMoreButton();
+    }
+
+    clear() {
+      this.#items = [];
+      this.#itemIds.clear();
+      this.boxes.clear();
+      this.#renderLimit = CalendarItemList.BATCH_SIZE;
+      this.list.replaceChildren();
+      this.#updateMoreButton();
+    }
+
+    /**
+     * Make sure an item is rendered, rendering as many more batches as needed.
+     *
+     * @param {calIItemBase} item
+     * @returns {?Element} The box displaying the item, or null if the item is
+     *   not in the list.
+     */
+    showItem(item) {
+      if (!this.#itemIds.has(item.hashId)) {
+        return null;
+      }
+      const index = this.#items.findIndex(i => i.hashId == item.hashId);
+      if (index >= this.#renderLimit) {
+        const batchSize = CalendarItemList.BATCH_SIZE;
+        this.#renderLimit = (Math.floor(index / batchSize) + 1) * batchSize;
+        this.#renderItems();
+        this.#updateMoreButton();
+      }
+      return this.boxes.get(item.hashId);
+    }
+
+    /**
+     * Render the next batch of items that did not fit within the render limit.
+     */
+    showMoreItems() {
+      this.#renderLimit += CalendarItemList.BATCH_SIZE;
+      this.#renderItems();
+      this.#updateMoreButton();
+    }
+
+    /**
+     * Create the box for the item at the given index. The item after it must
+     * already be rendered, unless there is none or it is past the render limit.
+     *
+     * @param {integer} index
+     * @returns {Element}
+     */
+    #renderItem(index) {
+      const item = this.#items[index];
+      const listItem = document.createElement("li");
+      listItem.classList.add(this.#listItemClass);
+      listItem.setAttribute("role", "presentation");
+      const nextItem = this.#items[index + 1];
+      const nextBox = nextItem && this.boxes.get(nextItem.hashId);
+      this.list.insertBefore(listItem, nextBox ? nextBox.parentNode : null);
+
+      const box = this.#createItemBox(item, listItem);
+      this.boxes.set(item.hashId, box);
+      return box;
+    }
+
+    /**
+     * @param {calIItemBase} item
+     */
+    #unrenderItem(item) {
+      const box = this.boxes.get(item.hashId);
+      if (box) {
+        box.parentNode.remove();
+        this.boxes.delete(item.hashId);
+      }
+    }
+
+    /**
+     * Render any items within the render limit that are not rendered yet.
+     */
+    #renderItems() {
+      // Go backwards so that the item after each rendered one already has a box.
+      for (let i = Math.min(this.#items.length, this.#renderLimit) - 1; i >= 0; i--) {
+        if (!this.boxes.has(this.#items[i].hashId)) {
+          this.#renderItem(i);
+        }
+      }
+    }
+
+    #updateMoreButton() {
+      const hiddenCount = this.#items.length - this.#renderLimit;
+      this.moreButton.hidden = hiddenCount <= 0;
+      if (hiddenCount > 0) {
+        document.l10n.setAttributes(this.moreButton, "calendar-view-more-items", {
+          count: hiddenCount,
+        });
+      }
+    }
+  }
+
+  MozElements.CalendarItemList = CalendarItemList;
 }

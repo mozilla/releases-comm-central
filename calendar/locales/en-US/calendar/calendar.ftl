@@ -594,6 +594,16 @@ several-calendar-weeks = CWs: { $startIndex }-{ $endIndex }
 #    $number is a number from 1 to 53 that represents the week number.
 multiweek-view-week = W { $number }
 
+# Shown after the items of a day in the calendar views, when the day has too
+# many items to display at once. Clicking it displays more of them.
+# Variables:
+#   $count (Number) - The number of items in the day that are not displayed.
+calendar-view-more-items =
+    { $count ->
+        [one] … and { $count } more
+       *[other] … and { $count } more
+    }
+
 # Task tree, "Due In" column.
 # LOCALIZATION NOTE (due-in-days, due-in-hours): Semi-colon list of plural
 # forms. See: http://developer.mozilla.org/en/Localization_and_Plurals

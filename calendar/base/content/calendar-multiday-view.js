@@ -1516,14 +1516,15 @@
       // this.hasConnected is set to true in super.connectedCallback.
       super.connectedCallback();
 
-      // Map from an event item's hashId to its calendar-editable-item.
-      this.eventElements = new Map();
-
-      this.eventsListElement = document.createElement("ol");
-      this.eventsListElement.classList.add("allday-events-list");
-      this.eventsListElement.setAttribute("role", "listbox");
+      this.itemList = new MozElements.CalendarItemList({
+        scrollClass: "allday-events-scroll",
+        listClass: "allday-events-list",
+        listItemClass: "allday-event-listitem",
+        createItemBox: (item, listItem) => this.createItemBox(item, listItem),
+      });
+      this.eventsListElement = this.itemList.list;
       this.eventsListElement.setAttribute("aria-label", lazy.l10n.formatValueSync("events-only"));
-      this.appendChild(this.eventsListElement);
+      this.appendChild(this.itemList.element);
     }
 
     /**
@@ -1535,45 +1536,38 @@
      * @returns {Element} - The corresponding element, or undefined if none.
      */
     findElementForEventItem(eventItem) {
-      return this.eventElements.get(eventItem.hashId);
+      return this.itemList.boxes.get(eventItem.hashId);
     }
 
     /**
-     * Return all the event items that are displayed in this columns.
+     * Return all the event items in this header, including those that are not
+     * rendered.
      *
-     * @returns {calItemBase[]} - An array of all the displayed event items.
+     * @returns {calItemBase[]} - An array of all the event items.
      */
     getAllEventItems() {
-      return Array.from(this.eventElements.values(), element => element.occurrence);
+      return [...this.itemList.items];
     }
 
     /**
-     * Create or update a displayed calendar-editable-item element for the given
-     * event item.
+     * Add or update an event item in this header.
      *
-     * @param {calItemBase} eventItem - The event item to create or update an
-     *   element for.
+     * @param {calItemBase} eventItem - The event item to add or update.
      */
     addEvent(eventItem) {
-      const existing = this.eventElements.get(eventItem.hashId);
-      if (existing) {
-        // Remove the wrapper list item. We'll insert a replacement below.
-        existing.parentNode.remove();
-      }
+      this.itemList.addItem(eventItem);
+    }
 
+    /**
+     * Create the calendar-editable-item element displaying an event item.
+     *
+     * @param {calItemBase} eventItem - The event item.
+     * @param {Element} listItem - The list item to append the element to.
+     * @returns {Element} - The new calendar-editable-item.
+     */
+    createItemBox(eventItem, listItem) {
       const itemBox = document.createXULElement("calendar-editable-item");
-      const listItemWrapper = document.createElement("li");
-      listItemWrapper.classList.add("allday-event-listitem");
-      listItemWrapper.setAttribute("role", "presentation");
-      listItemWrapper.appendChild(itemBox);
-      cal.data.binaryInsertNode(
-        this.eventsListElement,
-        listItemWrapper,
-        eventItem,
-        cal.view.compareItems,
-        false,
-        wrapper => wrapper.firstChild.occurrence
-      );
+      listItem.appendChild(itemBox);
 
       itemBox.calendarView = this.calendarView;
       itemBox.occurrence = eventItem;
@@ -1587,34 +1581,33 @@
         itemBox.setAttribute("flashing", "true");
       }
 
-      this.eventElements.set(eventItem.hashId, itemBox);
-
       itemBox.parentBox = this;
+      return itemBox;
     }
 
     /**
-     * Remove the displayed calendar-editable-item element for the given event
-     * item from this column
+     * Remove an event item from this header.
      *
-     * @param {calItemBase} eventItem - The event item to remove the element of.
+     * @param {calItemBase} eventItem - The event item to remove.
      */
     deleteEvent(eventItem) {
-      const current = this.eventElements.get(eventItem.hashId);
-      if (current) {
-        // Need to remove the wrapper list item.
-        current.parentNode.remove();
-        this.eventElements.delete(eventItem.hashId);
-      }
+      this.itemList.removeItem(eventItem);
+    }
+
+    /**
+     * Remove all event items for a given calendar from this header.
+     *
+     * @param {string} calendarId
+     */
+    removeItemsFromCalendar(calendarId) {
+      this.itemList.removeItemsFromCalendar(calendarId);
     }
 
     /**
      * Clear the header of all events.
      */
     clear() {
-      this.eventElements.clear();
-      while (this.eventsListElement.hasChildNodes()) {
-        this.eventsListElement.lastChild.remove();
-      }
+      this.itemList.clear();
     }
 
     /**
@@ -1656,7 +1649,10 @@
      *   as selected.
      */
     selectEvent(eventItem, select) {
-      const element = this.eventElements.get(eventItem.hashId);
+      // A selected item must be visible, even if it is not in the first batch.
+      const element = select
+        ? this.itemList.showItem(eventItem)
+        : this.itemList.boxes.get(eventItem.hashId);
       if (!element) {
         return;
       }
@@ -1697,7 +1693,7 @@
      *   matches its scroll direction.
      */
     wheelOnScrollableArea(event) {
-      const scrollArea = this.eventsListElement;
+      const scrollArea = this.itemList.element;
       return (
         event.deltaY &&
         scrollArea.contains(event.target) &&
@@ -3402,15 +3398,23 @@
      * @param {string} calendarId - The ID of the calendar to remove items from.
      */
     removeItemsFromCalendar(calendarId) {
-      for (const col of this.dayColumns) {
-        // Get all-day events in column header and events within the column.
-        const colEvents = col.header.getAllEventItems().concat(col.column.getAllEventItems());
+      const oldLength = this.mSelectedItems.length;
+      this.mSelectedItems = this.mSelectedItems.filter(item => item.calendar.id != calendarId);
 
-        for (const event of colEvents) {
+      for (const col of this.dayColumns) {
+        this.doResizingHeaderOperation(col.header, () =>
+          col.header.removeItemsFromCalendar(calendarId)
+        );
+        for (const event of col.column.getAllEventItems()) {
           if (event.calendar.id == calendarId) {
             this.doRemoveItem(event);
           }
         }
+      }
+
+      // If a removed event was selected, announce that the selection changed.
+      if (oldLength != this.mSelectedItems.length) {
+        this.fireEvent("itemselect", this.mSelectedItems);
       }
     }
 

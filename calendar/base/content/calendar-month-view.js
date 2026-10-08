@@ -17,6 +17,7 @@
     "l10n",
     () => new Localization(["calendar/calendar.ftl"], true)
   );
+
   /**
    * Implements the Drag and Drop class for the Month Day Box view.
    *
@@ -44,9 +45,9 @@
       }
       // this.hasConnected is set to true in super.connectedCallback.
       super.connectedCallback();
+      MozXULElement.insertFTLIfNeeded("calendar/calendar.ftl");
 
       this.mDate = null;
-      this.mItemHash = {};
       this.mShowMonthLabel = false;
 
       this.setAttribute("orient", "vertical");
@@ -83,13 +84,17 @@
       monthDayLabels.appendChild(weekLabel);
       monthDayLabels.appendChild(dayLabel);
 
-      this.dayList = document.createElement("ol");
-      this.dayList.classList.add("calendar-month-day-box-list");
-      this.dayList.setAttribute("role", "listbox");
+      this.itemList = new MozElements.CalendarItemList({
+        scrollClass: "calendar-month-day-box-scroll",
+        listClass: "calendar-month-day-box-list",
+        listItemClass: "calendar-month-day-box-list-item",
+        createItemBox: (item, listItem) => this.createItemBox(item, listItem),
+      });
+      this.dayList = this.itemList.list;
       this.dayList.setAttribute("aria-label", lazy.l10n.formatValueSync("events-only"));
 
       this.appendChild(monthDayLabels);
-      this.appendChild(this.dayList);
+      this.appendChild(this.itemList.element);
 
       this.initializeAttributeInheritance();
     }
@@ -134,10 +139,7 @@
 
     clear() {
       // Remove all the old events.
-      this.mItemHash = {};
-      while (this.dayList.lastChild) {
-        this.dayList.lastChild.remove();
-      }
+      this.itemList.clear();
     }
 
     setDate(aDate) {
@@ -176,30 +178,24 @@
     }
 
     addItem(aItem) {
-      if (aItem.hashId in this.mItemHash) {
-        this.removeItem(aItem);
-      }
+      return this.itemList.addItem(aItem);
+    }
 
+    /**
+     * Create the box displaying an item.
+     *
+     * @param {calIItemBase} aItem
+     * @param {Element} listItem - The list item to append the box to.
+     * @returns {Element} The new `calendar-month-day-box-item`.
+     */
+    createItemBox(aItem, listItem) {
       const cssSafeId = cal.view.formatStringForCSSRule(aItem.calendar.id);
       const box = document.createXULElement("calendar-month-day-box-item");
       const context = this.getAttribute("item-context") || this.getAttribute("context");
       box.setAttribute("context", context);
       box.style.setProperty("--item-backcolor", `var(--calendar-${cssSafeId}-backcolor)`);
       box.style.setProperty("--item-forecolor", `var(--calendar-${cssSafeId}-forecolor)`);
-
-      const listItemWrapper = document.createElement("li");
-      listItemWrapper.classList.add("calendar-month-day-box-list-item");
-      listItemWrapper.setAttribute("role", "presentation");
-      listItemWrapper.appendChild(box);
-      cal.data.binaryInsertNode(
-        this.dayList,
-        listItemWrapper,
-        aItem,
-        cal.view.compareItems,
-        false,
-        // Access the calendar item from a list item wrapper.
-        wrapper => wrapper.firstChild.item
-      );
+      listItem.appendChild(box);
 
       box.calendarView = this.calendarView;
       box.item = aItem;
@@ -210,30 +206,35 @@
       if (aItem.recurrenceId) {
         box.setAttribute("data-recurrence-id", aItem.recurrenceId.nativeTime);
       }
-
-      this.mItemHash[aItem.hashId] = box;
       return box;
     }
 
     selectItem(aItem) {
-      if (aItem.hashId in this.mItemHash) {
-        this.mItemHash[aItem.hashId].selected = true;
+      // A selected item must be visible, even if it is not in the first batch.
+      const box = this.itemList.showItem(aItem);
+      if (box) {
+        box.selected = true;
       }
     }
 
     unselectItem(aItem) {
-      if (aItem.hashId in this.mItemHash) {
-        this.mItemHash[aItem.hashId].selected = false;
+      const box = this.itemList.boxes.get(aItem.hashId);
+      if (box) {
+        box.selected = false;
       }
     }
 
     removeItem(aItem) {
-      if (aItem.hashId in this.mItemHash) {
-        // Delete the list item wrapper.
-        const node = this.mItemHash[aItem.hashId].parentNode;
-        node.remove();
-        delete this.mItemHash[aItem.hashId];
-      }
+      this.itemList.removeItem(aItem);
+    }
+
+    /**
+     * Remove all items for a given calendar.
+     *
+     * @param {string} calendarId
+     */
+    removeItemsFromCalendar(calendarId) {
+      this.itemList.removeItemsFromCalendar(calendarId);
     }
 
     setDropShadow(on) {
@@ -298,7 +299,8 @@
 
     onWheel(event) {
       if (cal.view.getParentNodeOrThisByAttribute(event.target, "data-label", "day") == null) {
-        if (this.dayList.scrollHeight > this.dayList.clientHeight) {
+        const scrollBox = this.itemList.element;
+        if (scrollBox.scrollHeight > scrollBox.clientHeight) {
           event.stopPropagation();
         }
       }
@@ -1264,14 +1266,7 @@
         return;
       }
       for (const box of this.mDateBoxes) {
-        for (const id in box.mItemHash) {
-          const node = box.mItemHash[id];
-          const item = node.item;
-
-          if (item.calendar.id == calendarId) {
-            box.removeItem(item);
-          }
-        }
+        box.removeItemsFromCalendar(calendarId);
       }
     }
 
@@ -1299,9 +1294,7 @@
       // Make sure the flashing attribute is set or reset on all visible boxes.
       const boxes = this.findDayBoxesForItem(item);
       for (const box of boxes) {
-        for (const id in box.mItemHash) {
-          const itemData = box.mItemHash[id];
-
+        for (const itemData of box.itemList.boxes.values()) {
           if (itemData.item.hasSameIds(item)) {
             if (stop) {
               itemData.removeAttribute("flashing");

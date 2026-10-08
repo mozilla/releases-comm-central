@@ -7,6 +7,7 @@ var { formatDate, formatTime, saveAndCloseItemDialog, setData } = ChromeUtils.im
 );
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
+var { CalEvent } = ChromeUtils.importESModule("resource:///modules/CalEvent.sys.mjs");
 
 const TITLE1 = "Month View Event";
 const TITLE2 = "Month View Event Changed";
@@ -84,6 +85,120 @@ add_task(async function testMonthView() {
   await CalendarTestUtils.monthView.waitForNoItemAt(window, 1, 5, 1);
 
   Assert.ok(true, "Test ran to completion");
+});
+
+add_task(async function testMonthViewManyItems() {
+  const calendar = CalendarTestUtils.createCalendar("Many Items", "memory");
+  await CalendarTestUtils.setCalendarView(window, "month");
+  await CalendarTestUtils.goToDate(window, 2009, 1, 1);
+
+  const addEvent = (title, start = "20090105T100000Z") => {
+    const event = new CalEvent();
+    event.title = title;
+    event.startDate = cal.createDateTime(start);
+    event.endDate = cal.createDateTime("20090105T110000Z");
+    return calendar.addItem(event);
+  };
+  const titles = (from, to) =>
+    Array.from({ length: to - from + 1 }, (_, i) => `Event ${String(from + i).padStart(2, "0")}`);
+
+  const items = [];
+  for (let i = 1; i <= 60; i++) {
+    items.push(await addEvent(titles(i, i)[0]));
+  }
+
+  const dayBox = CalendarTestUtils.monthView.getDayBox(window, 1, 5);
+  const moreButton = dayBox.querySelector(".calendar-item-list-more-button");
+  const getTitles = () =>
+    CalendarTestUtils.monthView.getItemsAt(window, 1, 5).map(box => box.item.title);
+
+  await TestUtils.waitForCondition(() => getTitles().length == 50, "first batch should render");
+  Assert.deepEqual(getTitles(), titles(1, 50), "only the first 50 items should be rendered");
+  Assert.ok(BrowserTestUtils.isVisible(moreButton), "more button should be visible");
+  await TestUtils.waitForCondition(
+    () => moreButton.textContent == "… and 10 more",
+    "more button should count the hidden items"
+  );
+
+  info("adding an item that sorts first");
+  await addEvent("Early", "20090105T090000Z");
+  await TestUtils.waitForCondition(() => getTitles()[0] == "Early", "new item should render");
+  Assert.deepEqual(
+    getTitles(),
+    ["Early", ...titles(1, 49)],
+    "the last rendered item should be pushed out"
+  );
+  await TestUtils.waitForCondition(
+    () => moreButton.textContent == "… and 11 more",
+    "more button should count the pushed out item"
+  );
+
+  info("deleting a rendered item");
+  await calendar.deleteItem(items[0]);
+  await TestUtils.waitForCondition(
+    () => getTitles()[1] == "Event 02",
+    "deleted item should be removed"
+  );
+  Assert.deepEqual(
+    getTitles(),
+    ["Early", ...titles(2, 50)],
+    "the first hidden item should be rendered"
+  );
+  await TestUtils.waitForCondition(
+    () => moreButton.textContent == "… and 10 more",
+    "more button should no longer count the rendered item"
+  );
+
+  info("showing more items");
+  moreButton.scrollIntoView({ block: "nearest" });
+  EventUtils.synthesizeMouseAtCenter(moreButton, {}, window);
+  Assert.deepEqual(getTitles(), ["Early", ...titles(2, 60)], "all items should be rendered");
+  Assert.equal(
+    document.activeElement.item?.title,
+    "Event 51",
+    "the first newly shown item should be focused"
+  );
+  Assert.ok(BrowserTestUtils.isHidden(moreButton), "more button should be hidden");
+
+  info("removing the calendar");
+  CalendarTestUtils.removeCalendar(calendar);
+  await TestUtils.waitForCondition(() => getTitles().length == 0, "items should be removed");
+  Assert.ok(BrowserTestUtils.isHidden(moreButton), "more button should stay hidden");
+});
+
+add_task(async function testMonthViewSelectHiddenItem() {
+  const calendar = CalendarTestUtils.createCalendar("Many Items", "memory");
+  await CalendarTestUtils.setCalendarView(window, "month");
+  await CalendarTestUtils.goToDate(window, 2009, 2, 1);
+
+  const items = [];
+  for (let i = 1; i <= 110; i++) {
+    const event = new CalEvent();
+    event.title = `Event ${String(i).padStart(3, "0")}`;
+    event.startDate = cal.createDateTime("20090205T100000Z");
+    event.endDate = cal.createDateTime("20090205T110000Z");
+    items.push(await calendar.addItem(event));
+  }
+
+  const dayBox = document.querySelector(`#month-view calendar-month-day-box[month="2"][day="5"]`);
+  const moreButton = dayBox.querySelector(".calendar-item-list-more-button");
+  const getBoxes = () => [...dayBox.querySelectorAll("calendar-month-day-box-item")];
+  await TestUtils.waitForCondition(() => getBoxes().length == 50, "first batch should render");
+
+  document.getElementById("month-view").setSelectedItems([items[74]]);
+  Assert.equal(getBoxes().length, 100, "batches up to the selected item should be rendered");
+  Assert.ok(
+    getBoxes().find(box => box.item.title == "Event 075").selected,
+    "the selected item should be rendered as selected"
+  );
+  await TestUtils.waitForCondition(
+    () => moreButton.textContent == "… and 10 more",
+    "more button should count the items still not rendered"
+  );
+
+  document.getElementById("month-view").setSelectedItems([]);
+  CalendarTestUtils.removeCalendar(calendar);
+  await TestUtils.waitForCondition(() => getBoxes().length == 0, "items should be removed");
 });
 
 add_task(async function testMonthViewStartOfWeek() {

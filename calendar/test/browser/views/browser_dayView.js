@@ -7,6 +7,7 @@ var { formatDate, formatTime, saveAndCloseItemDialog, setData } = ChromeUtils.im
 );
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
+var { CalEvent } = ChromeUtils.importESModule("resource:///modules/CalEvent.sys.mjs");
 
 const TITLE1 = "Day View Event";
 const TITLE2 = "Day View Event Changed";
@@ -78,6 +79,83 @@ add_task(async function testDayView() {
   await CalendarTestUtils.dayView.waitForNoEventBoxAt(window, 1);
 
   Assert.ok(true, "Test ran to completion");
+});
+
+add_task(async function testDayViewManyAllDayItems() {
+  const calendar = CalendarTestUtils.createCalendar("Many Items", "memory");
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await CalendarTestUtils.goToDate(window, 2009, 1, 1);
+
+  const addEvent = (title, start = "20090101") => {
+    const event = new CalEvent();
+    event.title = title;
+    event.startDate = cal.createDateTime(start);
+    event.endDate = cal.createDateTime("20090102");
+    return calendar.addItem(event);
+  };
+  const titles = (from, to) =>
+    Array.from({ length: to - from + 1 }, (_, i) => `Event ${String(from + i).padStart(2, "0")}`);
+
+  const items = [];
+  for (let i = 1; i <= 60; i++) {
+    items.push(await addEvent(titles(i, i)[0]));
+  }
+
+  const header = CalendarTestUtils.dayView.getAllDayHeader(window);
+  const moreButton = header.querySelector(".calendar-item-list-more-button");
+  const getTitles = () =>
+    Array.from(header.querySelectorAll("calendar-editable-item"), box => box.occurrence.title);
+
+  await TestUtils.waitForCondition(() => getTitles().length == 50, "first batch should render");
+  Assert.deepEqual(getTitles(), titles(1, 50), "only the first 50 items should be rendered");
+  Assert.ok(BrowserTestUtils.isVisible(moreButton), "more button should be visible");
+  await TestUtils.waitForCondition(
+    () => moreButton.textContent == "… and 10 more",
+    "more button should count the hidden items"
+  );
+
+  info("adding an item that sorts first");
+  await addEvent("Early", "20081231");
+  await TestUtils.waitForCondition(() => getTitles()[0] == "Early", "new item should render");
+  Assert.deepEqual(
+    getTitles(),
+    ["Early", ...titles(1, 49)],
+    "the last rendered item should be pushed out"
+  );
+
+  info("deleting a rendered item");
+  await calendar.deleteItem(items[0]);
+  await TestUtils.waitForCondition(
+    () => getTitles()[1] == "Event 02",
+    "deleted item should be removed"
+  );
+  Assert.deepEqual(
+    getTitles(),
+    ["Early", ...titles(2, 50)],
+    "the first hidden item should be rendered"
+  );
+  await TestUtils.waitForCondition(
+    () => moreButton.textContent == "… and 10 more",
+    "more button should no longer count the rendered item"
+  );
+
+  info("selecting an item that is not rendered");
+  const dayView = document.getElementById("day-view");
+  dayView.setSelectedItems([items[54]]);
+  Assert.deepEqual(getTitles(), ["Early", ...titles(2, 60)], "all items should be rendered");
+  Assert.ok(
+    [...header.querySelectorAll("calendar-editable-item")].find(
+      box => box.occurrence.title == "Event 55"
+    ).selected,
+    "the selected item should be rendered as selected"
+  );
+  Assert.ok(BrowserTestUtils.isHidden(moreButton), "more button should be hidden");
+  dayView.setSelectedItems([]);
+
+  info("removing the calendar");
+  CalendarTestUtils.removeCalendar(calendar);
+  await TestUtils.waitForCondition(() => getTitles().length == 0, "items should be removed");
+  Assert.ok(BrowserTestUtils.isHidden(moreButton), "more button should stay hidden");
 });
 
 add_task(async function testDayViewDateLabel() {
