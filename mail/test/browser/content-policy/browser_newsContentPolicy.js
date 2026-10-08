@@ -4,7 +4,8 @@
 
 /**
  * Tests that news: URLs embedded in messages can't be used to make the client
- * contact arbitrary news servers (Bug 278176).
+ * contact arbitrary news servers (Bug 278176), and that news articles don't
+ * run JavaScript.
  */
 
 "use strict";
@@ -13,6 +14,9 @@ var { be_in_folder, create_folder, get_about_message, select_click_row } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
   );
+var { open_content_tab_with_url } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
+);
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -208,4 +212,43 @@ add_task(async function testOtherServerNewsImageInNewsMessage() {
     null,
     "no server should be created for tracker.test"
   );
+});
+
+/**
+ * A news article opened in a content tab must not run JavaScript.
+ *
+ * Articles shown the normal way (message pane, or news: links via
+ * MailUtils.handleNewsUri) are already sandboxed by displayMessage() in
+ * aboutMessage.js. A raw news: URL loaded into a plain content browser only
+ * gets the protection from nsMsgContentPolicy, which this checks.
+ */
+add_task(async function testNewsArticleInContentTab() {
+  const message = generator.makeMessage({
+    body: {
+      body: `<html><body><script>window.jsIsTurnedOn = true;</script><noscript>noscript</noscript></body></html>`,
+      contentType: "text/html",
+    },
+  });
+  newsServer.addMessages(GROUP, [message]);
+
+  const tab = await open_content_tab_with_url(
+    `news://test.test:119/${encodeURIComponent(message.messageId)}`
+  );
+  const bc = tab.browser.browsingContext;
+  Assert.ok(!bc.allowJavascript, "JavaScript should not be allowed");
+  Assert.notEqual(bc.sandboxFlags, 0, "sandbox flags should be set");
+  await SpecialPowers.spawn(tab.browser, [], () => {
+    Assert.ok(
+      !content.wrappedJSObject.jsIsTurnedOn,
+      "JS should not be turned on in content"
+    );
+    const noscript = content.document.querySelector("noscript");
+    Assert.ok(!!noscript, "noscript element should be found in doc");
+    Assert.equal(
+      content.getComputedStyle(noscript).display,
+      "inline",
+      "noscript display should be 'inline'"
+    );
+  });
+  document.getElementById("tabmail").closeTab(tab);
 });

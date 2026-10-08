@@ -157,12 +157,13 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
       // setting on a subdocument, so we don't worry about TYPE_SUBDOCUMENT
       // here.
 
-      // Assert document mailnews urls are always loaded in the parent process.
-      nsCOMPtr<nsIMsgMessageUrl> msgURL(do_QueryInterface(aContentLocation));
+      // Assert document nsIMsgMailNewsUrls are always loaded in the parent
+      // process.
+      nsCOMPtr<nsIMsgMailNewsUrl> msgURL(do_QueryInterface(aContentLocation));
       if (msgURL) {
         MOZ_RELEASE_ASSERT(
             XRE_IsParentProcess(),
-            "nsIMsgMessageUrls needs to be loaded in the content process");
+            "nsIMsgMailNewsUrls need to be loaded in the parent process");
       }
 
       if (!XRE_IsParentProcess()) {
@@ -745,10 +746,10 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
 
   nsresult rv;
   bool isAllowedContent = !ShouldBlockUnexposedProtocol(aContentLocation);
-  nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(aContentLocation);
-  if (!msgUrl && !isAllowedContent) {
-    // If it's not a mailnews url or allowed content url (http[s]|file) then
-    // bail; otherwise set whether JavaScript is allowed.
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(aContentLocation);
+  if (!mailnewsUrl && !isAllowedContent) {
+    // If it's not an nsIMsgMailNewsUrl or allowed content url (http[s]|file)
+    // then bail; otherwise set whether JavaScript is allowed.
     return NS_OK;
   }
 
