@@ -228,34 +228,40 @@ NS_IMETHODIMP nsImapService::GetUrlForUri(const nsACString& aMessageURI,
   nsCOMPtr<nsIMsgFolder> folder;
   nsMsgKey msgKey;
   nsresult rv = DecomposeImapURI(messageURI, getter_AddRefs(folder), &msgKey);
-  if (NS_SUCCEEDED(rv)) {
-    nsCOMPtr<nsIImapUrl> imapUrl;
-    nsAutoCString urlSpec;
-    char hierarchyDelimiter = GetHierarchyDelimiter(folder);
-    rv = CreateStartOfImapUrl(messageURI, getter_AddRefs(imapUrl), folder,
-                              nullptr, urlSpec, hierarchyDelimiter);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = SetImapUrlSink(folder, imapUrl);
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(imapUrl);
-    bool useLocalCache = false;
-    folder->HasMsgOffline(msgKey, &useLocalCache);
-    mailnewsUrl->SetMsgIsInLocalCache(useLocalCache);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIURI> url = do_QueryInterface(imapUrl);
-    rv = url->GetSpec(urlSpec);
-    NS_ENSURE_SUCCESS(rv, rv);
-    urlSpec.AppendLiteral("fetch>UID>");
-    urlSpec.Append(hierarchyDelimiter);
+  nsCOMPtr<nsIMsgDatabase> db;
+  rv = folder->GetMsgDatabase(getter_AddRefs(db));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    nsAutoCString folderName;
-    GetFolderName(folder, folderName);
-    urlSpec.Append(folderName);
-    urlSpec.Append('>');
-    urlSpec.AppendInt(msgKey);
-    rv = mailnewsUrl->SetSpecInternal(urlSpec);
-    imapUrl->QueryInterface(NS_GET_IID(nsIURI), (void**)aURL);
-  }
+  ImapUid uid = MOZ_TRY(UidFromMsgKey(db, msgKey));
+
+  nsCOMPtr<nsIImapUrl> imapUrl;
+  nsAutoCString urlSpec;
+  char hierarchyDelimiter = GetHierarchyDelimiter(folder);
+  rv = CreateStartOfImapUrl(messageURI, getter_AddRefs(imapUrl), folder,
+                            nullptr, urlSpec, hierarchyDelimiter);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = SetImapUrlSink(folder, imapUrl);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(imapUrl);
+  bool useLocalCache = false;
+  folder->HasMsgOffline(msgKey, &useLocalCache);
+  mailnewsUrl->SetMsgIsInLocalCache(useLocalCache);
+
+  nsCOMPtr<nsIURI> url = do_QueryInterface(imapUrl);
+  rv = url->GetSpec(urlSpec);
+  NS_ENSURE_SUCCESS(rv, rv);
+  urlSpec.AppendLiteral("fetch>UID>");
+  urlSpec.Append(hierarchyDelimiter);
+
+  nsAutoCString folderName;
+  GetFolderName(folder, folderName);
+  urlSpec.Append(folderName);
+  urlSpec.Append('>');
+  urlSpec.AppendInt(uid);
+  rv = mailnewsUrl->SetSpecInternal(urlSpec);
+  imapUrl->QueryInterface(NS_GET_IID(nsIURI), (void**)aURL);
 
   return rv;
 }
