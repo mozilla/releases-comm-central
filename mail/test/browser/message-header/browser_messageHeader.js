@@ -691,6 +691,91 @@ add_task(async function test_msg_id_context_menu() {
 });
 
 /**
+ * Test that a References header without any message ids doesn't break the
+ * display of the other headers.
+ */
+add_task(async function test_references_without_message_ids() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.headers.showReferences", true]],
+  });
+
+  const msg = create_message({
+    clobberHeaders: { References: "no message ids here" },
+  });
+  await add_message_to_folder([folder], msg);
+  await be_in_folder(folder);
+  const msgHdr = folder.msgDatabase.getMsgHdrForMessageID(msg.messageId);
+  await select_click_row(
+    about3Pane.gDBView.findIndexOfMsgHdr(msgHdr, true),
+    AccessibilityUtils
+  );
+
+  Assert.equal(
+    aboutMessage.document.querySelectorAll(
+      "#expandedreferencesBox .header-message-id"
+    ).length,
+    0,
+    "no message ids should be shown"
+  );
+  Assert.equal(
+    aboutMessage.document.getElementById("dateLabel").getAttribute("datetime"),
+    new Date(Math.floor(msg.date / 1000) * 1000).toISOString(),
+    "the date of the message should be shown"
+  );
+
+  await SpecialPowers.popPrefEnv();
+});
+
+/**
+ * Test that References and List-Post headers with many unclosed "<" are
+ * handled.
+ */
+add_task(async function test_unclosed_angle_brackets() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.headers.showReferences", true]],
+  });
+
+  for (const [listPost, replyListShown] of [
+    ["<mailto:list@example.com>", true],
+    ["<mailto:".repeat(20000), false],
+  ]) {
+    const msg = create_message({
+      clobberHeaders: {
+        References: "<a@example.com> " + "<".repeat(50000) + " <b@example.com>",
+        "List-Post": listPost,
+      },
+    });
+    await add_message_to_folder([folder], msg);
+    await be_in_folder(folder);
+    const msgHdr = folder.msgDatabase.getMsgHdrForMessageID(msg.messageId);
+    await select_click_row(
+      about3Pane.gDBView.findIndexOfMsgHdr(msgHdr, true),
+      AccessibilityUtils
+    );
+
+    Assert.deepEqual(
+      Array.from(
+        aboutMessage.document.querySelectorAll(
+          "#expandedreferencesBox .header-message-id"
+        ),
+        li => li.id
+      ),
+      ["<a@example.com>", "<b@example.com>"],
+      "only the complete message ids should be shown"
+    );
+    Assert.equal(
+      BrowserTestUtils.isVisible(
+        aboutMessage.document.getElementById("hdrReplyListButton")
+      ),
+      replyListShown,
+      `reply list should be ${replyListShown ? "shown" : "hidden"}`
+    );
+  }
+
+  await SpecialPowers.popPrefEnv();
+});
+
+/**
  * Test that if a contact belongs to a mailing list within their address book,
  * then the inline contact editor will not allow the user to change what address
  * book the contact belongs to. The editor should also show a message to explain

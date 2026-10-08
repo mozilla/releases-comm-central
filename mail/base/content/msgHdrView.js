@@ -1564,7 +1564,7 @@ function outputTags(headerEntry, headerValue) {
  */
 function outputMessageIds(headerEntry, headerValue) {
   headerEntry.enclosingBox.clear();
-  for (const id of headerValue.match(/<[^>]*>/g)) {
+  for (const id of headerValue.match(/<[^<>]*>/g) ?? []) {
     headerEntry.enclosingBox.addId(id);
   }
   headerEntry.enclosingBox.buildView();
@@ -3592,7 +3592,7 @@ function IsReplyListEnabled() {
   // Until then, we need to keep the following regex in sync with the
   // listPost parsing in nsMsgCompose.cpp's
   // QuotingOutputStreamListener::OnStopRequest.
-  return /<mailto:.+>/.test(listPost.headerValue);
+  return /<mailto:[^<>]+>/.test(listPost.headerValue);
 }
 
 /**
