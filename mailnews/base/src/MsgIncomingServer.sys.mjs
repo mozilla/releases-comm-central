@@ -1268,6 +1268,9 @@ export class MsgIncomingServer {
       deferred.resolve = resolve;
       deferred.reject = reject;
     });
+    // Only concurrent callers wait for this, so don't report a cancelled
+    // prompt as an unhandled rejection when there are none.
+    this._passwordPromise.catch(() => {});
     try {
       this.getPasswordWithUI(message, title);
     } catch (e) {

@@ -107,6 +107,8 @@ requesttimeoutfactor = 12
 
 ["test_pop3Password3.js"]
 
+["test_pop3PasswordCancel.js"]
+
 ["test_pop3PasswordFailure_rfc1939.js"]
 
 ["test_pop3PasswordFailure_rfc2449.js"]
