@@ -90,11 +90,18 @@ class InAppNotificationContainer extends HTMLElement {
         break;
       }
       case "description":
-      case "heading":
         this.shadowRoot.querySelector(
-          `.in-app-notification-${property}`
+          ".in-app-notification-description"
         ).textContent = newValue;
         break;
+      case "heading": {
+        const heading = this.shadowRoot.querySelector(
+          ".in-app-notification-heading"
+        );
+        heading.textContent = newValue;
+        heading.hidden = !newValue;
+        break;
+      }
       case "data-id":
         this.shadowRoot.querySelector(
           '[is="in-app-notification-button"]'
