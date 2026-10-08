@@ -66,7 +66,14 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
   // URL because it parses extra query parameters such as filename= into values
   // that are used when saving inline attachments via the m-c HTML5 rendering
   // code.
-  if (scheme.EqualsLiteral("imap") || scheme.EqualsLiteral("imap-message")) {
+  if (scheme.EqualsLiteral("imap-message")) {
+    RefPtr<nsMsgMailNewsUrl> url = new nsMsgMailNewsUrl();
+    rv = url->SetSpecInternal(aSpec);
+    NS_ENSURE_SUCCESS(rv, rv);
+    url.forget(aURI);
+    return NS_OK;
+  }
+  if (scheme.EqualsLiteral("imap")) {
     if (NS_IsMainThread()) {
       return nsImapService::NewURI(aSpec, aCharset, aBaseURI, aURI);
     }

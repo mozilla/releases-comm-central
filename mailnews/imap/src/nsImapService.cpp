@@ -55,6 +55,7 @@
 #include "../../base/src/MailnewsLoadContextInfo.h"
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
+#include "nsURLHelper.h"
 #include "mozilla/Components.h"
 #include "mozilla/LoadInfo.h"
 #include "mozilla/Preferences.h"
@@ -215,6 +216,10 @@ NS_IMETHODIMP nsImapService::LiteSelectFolder(nsIMsgFolder* aImapMailFolder,
 NS_IMETHODIMP nsImapService::GetUrlForUri(const nsACString& aMessageURI,
                                           nsIMsgWindow* aMsgWindow,
                                           nsIURI** aURL) {
+  nsAutoCString scheme;
+  net_ExtractURLScheme(aMessageURI, scheme);
+  MOZ_ASSERT(scheme.EqualsLiteral("imap-message"));
+  NS_ENSURE_TRUE(scheme.EqualsLiteral("imap-message"), NS_ERROR_UNEXPECTED);
   nsAutoCString messageURI(aMessageURI);
 
   if (messageURI.Find("&type=application/x-message-display"_ns) != kNotFound)

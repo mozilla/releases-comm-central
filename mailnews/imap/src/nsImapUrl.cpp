@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "msgCore.h"  // precompiled header...
-
 #include "nsImapUrl.h"
 #include "../public/nsIImapHostSessionList.h"
 #include "nsString.h"
@@ -11,6 +10,7 @@
 #include "plstr.h"
 #include "prprf.h"
 #include "nsCOMPtr.h"
+#include "nsFmtString.h"
 #include "nsProxyRelease.h"
 #include "nsImapUtils.h"
 #include "nsIImapMockChannel.h"
@@ -22,6 +22,7 @@
 #include "nsMsgUtils.h"
 #include "nsIMsgHdr.h"
 #include "nsServiceManagerUtils.h"
+#include "nsURLHelper.h"
 #include "mozilla/Logging.h"
 
 using namespace mozilla;
@@ -199,6 +200,19 @@ NS_IMETHODIMP nsImapUrl::SetImapServerSink(nsIImapServerSink* aImapServerSink) {
 ////////////////////////////////////////////////////////////////////////////////////
 
 nsresult nsImapUrl::SetSpecInternal(const nsACString& aSpec) {
+  // TODO: This scheme check _should_ be a hard assert, but until
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=2074711
+  // is sorted, the code relies on being able to jam 'imap-message' in here.
+  nsAutoCString scheme;
+  net_ExtractURLScheme(aSpec, scheme);
+  // MOZ_ASSERT(scheme.EqualsLiteral("imap"));  // And NOT "imap-message"!
+  if (!scheme.EqualsLiteral("imap")) {
+    NS_WARNING(nsFmtCString(
+                   "nsImapUrl::SetSpecInternal() called with bad scheme ('{}')",
+                   scheme)
+                   .get());
+  }
+
   nsresult rv = nsMsgMailNewsUrl::SetSpecInternal(aSpec);
   if (NS_SUCCEEDED(rv)) {
     m_validUrl = true;  // assume the best.
@@ -962,16 +976,18 @@ NS_IMETHODIMP nsImapUrl::GetNormalizedSpec(nsACString& aPrincipalSpec) {
   return NS_OK;
 }
 
+// Implement nsIMsgMessageUrl.uri
 NS_IMETHODIMP nsImapUrl::SetUri(const nsACString& aURI) {
   mURI = aURI;
   return NS_OK;
 }
 
+// Implement nsIMsgMessageUrl.uri
 NS_IMETHODIMP nsImapUrl::GetUri(nsACString& aURI) {
   nsresult rv = NS_OK;
-  if (!mURI.IsEmpty())
+  if (!mURI.IsEmpty()) {
     aURI = mURI;
-  else {
+  } else {
     uint32_t key =
         m_listOfMessageIds ? strtoul(m_listOfMessageIds, nullptr, 10) : 0;
     nsCString canonicalPath;
