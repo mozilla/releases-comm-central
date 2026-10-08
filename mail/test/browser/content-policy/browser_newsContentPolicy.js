@@ -252,3 +252,50 @@ add_task(async function testNewsArticleInContentTab() {
   });
   document.getElementById("tabmail").closeTab(tab);
 });
+
+/**
+ * Clicking an image map or SVG news: link with a target in a mail message must
+ * be handled like any other news: link, not open the URL in a content tab.
+ */
+add_task(async function testNewsLinkTargetsInMailMessage() {
+  const href = `news://test.test:119/${encodeURIComponent(targetMessageId)}`;
+  const folder = await create_folder("newsLinkTargets");
+  folder.QueryInterface(Ci.nsIMsgLocalMailFolder).addMessage(
+    generator
+      .makeMessage({
+        body: {
+          body: `<html><body>
+            <img id="area" src="data:image/png;base64,${PNG_BASE64}" width="100" height="100" usemap="#map">
+            <map name="map"><area shape="rect" coords="0,0,100,100" href="${href}" target="_blank"></map>
+            <svg width="100" height="100"><a href="${href}" target="_blank"><rect id="svg" width="100" height="100"/></a></svg>
+          </body></html>`,
+          contentType: "text/html",
+        },
+      })
+      .toMessageString()
+  );
+  await be_in_folder(folder);
+  await select_click_row(0);
+  const messagePane = get_about_message().getMessagePaneBrowser();
+  const tabmail = document.getElementById("tabmail");
+
+  for (const selector of ["#area", "#svg"]) {
+    const tabPromise = BrowserTestUtils.waitForEvent(window, "TabOpen");
+    const loadedPromise = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
+    await BrowserTestUtils.synthesizeMouseAtCenter(selector, {}, messagePane);
+    const {
+      detail: { tabInfo },
+    } = await tabPromise;
+    Assert.equal(
+      tabInfo.mode.name,
+      "mailMessageTab",
+      `${selector} link should open the article in a message tab`
+    );
+    if (tabInfo.mode.name == "mailMessageTab") {
+      await loadedPromise;
+    }
+    tabmail.closeTab(tabInfo);
+  }
+
+  folder.deleteSelf(null);
+});

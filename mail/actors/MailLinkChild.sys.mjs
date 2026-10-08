@@ -2,9 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  BrowserUtils: "resource://gre/modules/BrowserUtils.sys.mjs",
+});
+
 export class MailLinkChild extends JSWindowActorChild {
   handleEvent(event) {
-    const href = event.target.closest("a")?.href;
+    const [href] = lazy.BrowserUtils.hrefAndLinkNodeForClickEvent(event) || [];
     const location = this.document.location;
     if (
       !href ||
