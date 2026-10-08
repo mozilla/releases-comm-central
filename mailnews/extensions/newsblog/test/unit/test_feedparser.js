@@ -299,3 +299,23 @@ add_task(async function test_download() {
     await dl;
   }
 });
+
+add_task(function test_stripTags() {
+  const parser = new FeedParser();
+  Assert.equal(
+    parser.stripTags("<p>Some <b>bold</b> text</p>"),
+    "Some bold text",
+    "tags should be removed"
+  );
+  Assert.equal(
+    parser.stripTags("1 < 2 <i>and</i> 3 > 2"),
+    "1 < 2 and 3 > 2",
+    "a < that doesn't start a tag should be kept"
+  );
+  const unclosed = "<".repeat(100000);
+  Assert.equal(
+    parser.stripTags(unclosed),
+    unclosed,
+    "many unclosed < should be kept"
+  );
+});
