@@ -234,9 +234,18 @@ define(function (require) {
       // No valid message id to be found: keep the value.
       ["asd@asd.com", "asd@asd.com"],
       [" <asd@asd.com ", "<asd@asd.com"],
+      // A message id can't contain "<".
+      ["<broken <asd@asd.com>", "<asd@asd.com>"],
     ];
     multiple_unstructured_headers.forEach(function (header) {
       testHeader(header, multiple_unstructured_tests);
+    });
+    test("References with many unclosed <", function () {
+      const value = "<".repeat(100000);
+      assert.equal(
+        headerparser.parseStructuredHeader("References", value),
+        value
+      );
     });
 
     const unstructured_headers = [

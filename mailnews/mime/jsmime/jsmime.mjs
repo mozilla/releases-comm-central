@@ -276,7 +276,7 @@ const JsMIMEstructuredHeaders = function () {
    *   id could be found, the value is returned as-is.
    */
   function preprocessMessageIDs(values) {
-    return values[0].match(/<[^>]*>/g)?.join(" ") ?? values[0].trim();
+    return values[0].match(/<[^<>]*>/g)?.join(" ") ?? values[0].trim();
   }
   structuredDecoders.set("References", preprocessMessageIDs);
   structuredDecoders.set("In-Reply-To", preprocessMessageIDs);
