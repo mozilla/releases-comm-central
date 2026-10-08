@@ -422,6 +422,13 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   // allows remote content for this message.
   nsCOMPtr<nsIMsgDBHdr> msgHdr = GetPotentialMsgHdr(aRequestingLocation);
   if (!msgHdr) {
+    // A message whose header can't be found, like a news article loaded by
+    // message-id, has no remote content permissions to check.
+    nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl =
+        do_QueryInterface(aRequestingLocation);
+    if (mailnewsUrl) {
+      return rejectContentAndNotify();
+    }
     return acceptContent();
   }
   *aDecision = ShouldAcceptRemoteContentForMsgHdr(msgHdr, aRequestingLocation,

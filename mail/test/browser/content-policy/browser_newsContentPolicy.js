@@ -375,3 +375,28 @@ add_task(async function testNntpUriFromCommandLine() {
     "no tab should be opened"
   );
 });
+
+/**
+ * Remote content in a news article whose message header can't be found, like
+ * one loaded by message-id, must be blocked.
+ */
+add_task(async function testRemoteContentInArticleWithoutHeader() {
+  const message = makeImageMessage(
+    "http://mochi.test:8888/browser/comm/mail/test/browser/content-policy/html/pass.png"
+  );
+  newsServer.addMessages(GROUP, [message]);
+
+  const tab = await open_content_tab_with_url(
+    `news://test.test:119/${encodeURIComponent(message.messageId)}`
+  );
+  const naturalWidth = await SpecialPowers.spawn(tab.browser, [], async () => {
+    const img = content.document.getElementById("testelement");
+    await ContentTaskUtils.waitForCondition(
+      () => img.complete,
+      "image should settle"
+    );
+    return img.naturalWidth;
+  });
+  Assert.equal(naturalWidth, 0, "remote image should not load");
+  document.getElementById("tabmail").closeTab(tab);
+});
