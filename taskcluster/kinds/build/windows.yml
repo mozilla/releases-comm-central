@@ -722,7 +722,7 @@ win64-aarch64/debug:
     treeherder:
         platform: windows2012-aarch64/debug
         symbol: B
-        tier: 1
+        tier: 2
     worker:
         max-run-time: 7200
         env:
@@ -759,7 +759,7 @@ win64-aarch64/debug:
             - sysroot-x86_64-linux-gnu
             - winappsdk-aarch64-pc-windows-msvc
     optimization:
-        never: null
+        skip-unless-backstop: null
 
 
 win64-aarch64-enterprise/debug:
@@ -826,7 +826,7 @@ win64-aarch64/opt:
     treeherder:
         platform: windows2012-aarch64/opt
         symbol: B
-        tier: 1
+        tier: 2
     worker:
         max-run-time: 7200
         env:
@@ -864,7 +864,7 @@ win64-aarch64/opt:
             - terser
             - winappsdk-aarch64-pc-windows-msvc
     optimization:
-        never: null
+        skip-unless-backstop: null
 
 win64-aarch64-enterprise/opt:
     description: "AArch64 Win64 Enterprise Opt"
