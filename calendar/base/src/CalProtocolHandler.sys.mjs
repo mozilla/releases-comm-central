@@ -54,7 +54,7 @@ CalProtocolHandlerWebcal.prototype.classID = Components.ID(
 
 export class CalProtocolHandlerWebcals extends CalProtocolHandlerWebcal {
   scheme = "webcals";
-  httpScheme = "http";
+  httpScheme = "https";
   httpPort = 443;
 }
 
