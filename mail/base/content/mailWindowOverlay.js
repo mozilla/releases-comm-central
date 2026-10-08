@@ -361,6 +361,9 @@ function view_init(event) {
   );
   threadPaneAppMenuItem?.toggleAttribute("disabled", !threadPaneHeaderVisible);
 
+  document.getElementById("menu_FolderViews").disabled =
+    tab?.mode.name != "mail3PaneTab";
+
   // Disable some menus if account manager is showing
   document.getElementById("viewSortMenu").disabled =
     isMultiSelection || accountCentralVisible;

@@ -24,3 +24,26 @@ add_task(async () => {
   await CalendarTestUtils.setCalendarView(window, "month");
   await CalendarTestUtils.closeCalendarTab(window);
 });
+
+/**
+ * Tests that the folder views menu is only enabled for mail tabs.
+ */
+add_task(async function testFolderViewsMenuState() {
+  const folderViewsMenu = document.getElementById("menu_FolderViews");
+
+  window.view_init();
+  Assert.ok(!folderViewsMenu.disabled, "The folder views menu is enabled in the mail tab");
+
+  await CalendarTestUtils.openCalendarTab(window);
+  window.view_init();
+  Assert.ok(folderViewsMenu.disabled, "The folder views menu is disabled in the calendar tab");
+  await CalendarTestUtils.closeCalendarTab(window);
+
+  await openTasksTab();
+  window.view_init();
+  Assert.ok(folderViewsMenu.disabled, "The folder views menu is disabled in the tasks tab");
+  await closeTasksTab();
+
+  window.view_init();
+  Assert.ok(!folderViewsMenu.disabled, "The folder views menu is enabled again in the mail tab");
+});
