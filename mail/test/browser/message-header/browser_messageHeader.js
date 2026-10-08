@@ -997,13 +997,14 @@ add_task(async function test_add_contact_from_context_menu() {
 
 /**
  * Test that the list-id context menu handles List-* headers with many unclosed
- * "<".
+ * "<", and that a long list-id or subject doesn't take over the header.
  */
 add_task(async function test_context_menu_list_id_unclosed() {
   const msg = create_message({
     clobberHeaders: {
-      "List-ID": "Cats " + "<".repeat(2000) + " <gocats.example.test>",
+      "List-ID": "Cats " + "<".repeat(10000) + " <gocats.example.test>",
       "List-Owner": "<mailto:".repeat(4000),
+      Subject: "Long subject ".repeat(500),
     },
   });
   await add_message_to_folder([folder], msg);
@@ -1014,9 +1015,63 @@ add_task(async function test_context_menu_list_id_unclosed() {
     AccessibilityUtils
   );
 
+  const listIdRow = aboutMessage.document.getElementById("expandedlist-idBox");
+  const { height } = listIdRow.value.getBoundingClientRect();
+  const lineHeight = parseFloat(
+    aboutMessage.getComputedStyle(listIdRow.value).lineHeight
+  );
+  Assert.lessOrEqual(
+    Math.round(height),
+    Math.round(3 * lineHeight),
+    "a long list-id should be limited to three lines"
+  );
+
+  Assert.greater(
+    listIdRow.value.scrollHeight,
+    listIdRow.value.clientHeight,
+    "the rest of a long list-id should be reachable by scrolling"
+  );
+
+  // The overflowing value can be focused to scroll it, so it needs a name.
+  listIdRow.focus();
+  EventUtils.synthesizeKey("KEY_Tab", {}, aboutMessage);
+  Assert.equal(
+    aboutMessage.document.activeElement,
+    listIdRow.value,
+    "Tab should focus the overflowing value"
+  );
+  let valueAccessible;
+  await TestUtils.waitForCondition(
+    () => (valueAccessible = gAccService.getAccessibleFor(listIdRow.value)),
+    "the value should have an accessible"
+  );
+  Assert.equal(
+    valueAccessible.role,
+    Ci.nsIAccessibleRole.ROLE_GROUPING,
+    "the value should be a group"
+  );
+  // The name joins the heading's text and its separator with a space.
+  Assert.equal(
+    valueAccessible.name.replace(/\s/g, ""),
+    listIdRow.heading.textContent.replace(/\s/g, ""),
+    "the value should be named by the heading"
+  );
+
+  const subjectBox = aboutMessage.document.getElementById("expandedsubjectBox");
+  Assert.greater(
+    subjectBox.scrollHeight,
+    subjectBox.clientHeight,
+    "the rest of a long subject should be reachable by scrolling"
+  );
+  Assert.greater(
+    subjectBox.value.getBoundingClientRect().height,
+    3 * lineHeight,
+    "the subject value itself should not be clamped"
+  );
+
   const listIdPopup = aboutMessage.document.getElementById("listIdPopup");
   EventUtils.synthesizeMouseAtCenter(
-    aboutMessage.document.querySelector("#expandedlist-idBox"),
+    listIdRow,
     { type: "contextmenu" },
     aboutMessage
   );

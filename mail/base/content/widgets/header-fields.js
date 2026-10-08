@@ -617,6 +617,11 @@
       this.tabIndex = 0;
 
       this.value = document.createElement("span");
+      this.value.classList.add("header-row-value");
+      if (this.dataset.headerName != "subject") {
+        this.value.setAttribute("role", "group");
+        this.value.setAttribute("aria-labelledby", this.heading.id);
+      }
       this.appendChild(this.value);
     }
 
