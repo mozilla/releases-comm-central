@@ -26,6 +26,10 @@ class nsImapNamespace {
   // or the length of the prefix if it is part of this namespace
   int MailboxMatchesNamespace(const char* boxname);
 
+  // returns true if the box is the mailbox at the root of this namespace,
+  // named like the prefix without its trailing delimiter, if it has one
+  bool IsRootMailbox(const char* boxname);
+
  protected:
   EIMAPNamespaceType m_namespaceType;
   char* m_prefix;

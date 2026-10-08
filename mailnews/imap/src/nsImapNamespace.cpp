@@ -49,6 +49,14 @@ int nsImapNamespace::MailboxMatchesNamespace(const char* boxname) {
   return -1;
 }
 
+bool nsImapNamespace::IsRootMailbox(const char* boxname) {
+  if (!boxname || !m_prefix || !*m_prefix) return false;
+  size_t prefixLen = strlen(m_prefix);
+  if (m_prefix[prefixLen - 1] != m_delimiter) return !strcmp(boxname, m_prefix);
+  return strlen(boxname) == prefixLen - 1 &&
+         !strncmp(boxname, m_prefix, prefixLen - 1);
+}
+
 nsImapNamespaceList* nsImapNamespaceList::CreatensImapNamespaceList() {
   nsImapNamespaceList* rv = new nsImapNamespaceList();
   return rv;
@@ -331,28 +339,12 @@ bool nsImapNamespaceList::GetFolderIsNamespace(
     nsImapNamespace* namespaceForFolder) {
   NS_ASSERTION(namespaceForFolder, "null namespace");
 
-  bool rv = false;
-
-  const char* prefix = namespaceForFolder->GetPrefix();
-  NS_ASSERTION(prefix, "namespace has no prefix");
-  if (!prefix || !*prefix)  // empty namespace prefix
-    return false;
-
   nsCString folderName;
   folderName.Assign(canonicalFolderName);
   if (delimiter) {
     folderName.ReplaceChar('/', delimiter);
   }
-
-  bool lastCharIsDelimiter = (prefix[strlen(prefix) - 1] == delimiter);
-  if (lastCharIsDelimiter) {
-    rv = ((strncmp(folderName.get(), prefix, strlen(folderName.get())) == 0) &&
-          (strlen(folderName.get()) == strlen(prefix) - 1));
-  } else {
-    rv = (strcmp(folderName.get(), prefix) == 0);
-  }
-
-  return rv;
+  return namespaceForFolder->IsRootMailbox(folderName.get());
 }
 
 /*
