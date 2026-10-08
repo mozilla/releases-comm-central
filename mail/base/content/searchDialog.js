@@ -1340,7 +1340,7 @@ function ThreadPaneOnDragStart(aEvent) {
     );
     aEvent.dataTransfer.mozSetDataAt(
       "application/x-moz-file-promise-dest-filename",
-      msgFileName.replace(/(.{74}).*(.{10})$/u, "$1...$2"),
+      msgFileName.replace(/^(.{60}).{4,}(.{22})$/su, "$1...$2"),
       index
     );
   }

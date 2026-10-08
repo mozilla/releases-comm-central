@@ -897,7 +897,7 @@ function setupDataTransfer(event, attachments) {
     );
     event.dataTransfer.mozSetDataAt(
       "application/x-moz-file-promise-dest-filename",
-      name.replace(/(.{74}).*(.{10})$/u, "$1...$2"),
+      name.replace(/^(.{60}).{4,}(.{22})$/su, "$1...$2"),
       index
     );
     index++;
@@ -971,7 +971,9 @@ class FlavorDataProvider {
 
     const destFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
     destFile.initWithPath(destDirectory.path);
-    destFile.append(attachment.name.replace(/(.{74}).*(.{10})$/u, "$1...$2"));
+    destFile.append(
+      attachment.name.replace(/^(.{60}).{4,}(.{22})$/su, "$1...$2")
+    );
 
     // Check to see if we've already saved this attachment to the requested
     // destination and skip saving if we have.

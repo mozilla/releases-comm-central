@@ -69,7 +69,10 @@ const abResultsPaneObserver = {
         event.dataTransfer.setData("text/vcard", vCard);
         event.dataTransfer.setData(
           "application/x-moz-file-promise-dest-filename",
-          `${card.displayName}.vcf`.replace(/(.{74}).*(.{10})$/u, "$1...$2")
+          `${card.displayName}.vcf`.replace(
+            /^(.{60}).{4,}(.{22})$/su,
+            "$1...$2"
+          )
         );
         event.dataTransfer.setData(
           "application/x-moz-file-promise-url",

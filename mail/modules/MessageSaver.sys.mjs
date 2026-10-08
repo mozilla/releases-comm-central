@@ -52,7 +52,7 @@ export class MessageSaver {
         { id: "messenger-eml-files-filter" },
       ]);
     let fileName = (defaultName || defaultFileName).replace(
-      /(.{60}).{4,}(.{22})$/u,
+      /^(.{60}).{4,}(.{22})$/su,
       "$1...$2"
     );
 
