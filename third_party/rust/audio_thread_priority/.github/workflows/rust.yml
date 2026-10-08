@@ -91,3 +91,39 @@ jobs:
         sudo prlimit --pid $$ --rtprio=10:10
         echo "RLIMIT_RTPRIO soft=$(ulimit -Sr) hard=$(ulimit -Hr)"
         rustup run ${{ matrix.rust }} cargo test --no-default-features
+
+  # musl defines pthread_t as a pointer instead of an integer, unlike glibc.
+  build-musl:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        rust: [stable, nightly]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Rust (musl target)
+      run: |
+        rustup toolchain install ${{ matrix.rust }} --profile minimal
+        rustup target add x86_64-unknown-linux-musl --toolchain ${{ matrix.rust }}
+
+    - name: Install Dependencies
+      run: sudo apt-get update && sudo apt-get install libdbus-1-dev
+
+    - name: Build (musl, with dbus)
+      shell: bash
+      # The crate is a staticlib/rlib, so this doesn't link, and hence needs no musl libdbus: only
+      # the headers, which pkg-config finds for the host.
+      run: PKG_CONFIG_ALLOW_CROSS=1 rustup run ${{ matrix.rust }} cargo build --target x86_64-unknown-linux-musl --features dbus
+
+    - name: Build (musl, without dbus)
+      shell: bash
+      run: rustup run ${{ matrix.rust }} cargo build --target x86_64-unknown-linux-musl --no-default-features
+
+    - name: Test (musl, without dbus)
+      shell: bash
+      # Statically linked musl test binaries run fine on the glibc runner. As in the fallback job,
+      # the native promotion path needs permission to request real-time scheduling.
+      run: |
+        sudo prlimit --pid $$ --rtprio=10:10
+        rustup run ${{ matrix.rust }} cargo test --target x86_64-unknown-linux-musl --no-default-features -- --nocapture

@@ -62,7 +62,9 @@ impl RtPriorityThreadInfoInternal {
     /// struct, so no uninitialized padding bytes are ever read. Any trailing padding stays zero.
     pub fn serialize(&self) -> [u8; std::mem::size_of::<Self>()] {
         let thread_id = self.thread_id.to_ne_bytes();
-        let pthread_id = self.pthread_id.to_ne_bytes();
+        // `pthread_t` is an integer with glibc but a pointer with musl: go through `usize`, which
+        // is as wide as both.
+        let pthread_id = (self.pthread_id as usize).to_ne_bytes();
         let pid = self.pid.to_ne_bytes();
         let policy = self.policy.to_ne_bytes();
         let priority = self.priority.to_ne_bytes();
@@ -91,7 +93,7 @@ impl RtPriorityThreadInfoInternal {
         let mut src = bytes.iter().copied();
         RtPriorityThreadInfoInternal {
             thread_id: kernel_pid_t::from_ne_bytes(take(&mut src)),
-            pthread_id: libc::pthread_t::from_ne_bytes(take(&mut src)),
+            pthread_id: usize::from_ne_bytes(take(&mut src)) as libc::pthread_t,
             pid: libc::pid_t::from_ne_bytes(take(&mut src)),
             policy: libc::c_int::from_ne_bytes(take(&mut src)),
             priority: libc::c_int::from_ne_bytes(take(&mut src)),

@@ -31,9 +31,9 @@ sys_tray = { version = "0.1.0", path = "../sys_tray" }
 aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "5776bdfc8ad664a1503db668fab397d818a5f98a" }
 abridged_certs = { path = "../../../security/manager/ssl/abridged_certs" }
 app_collator_glue = { path = "../../../intl/app_collator_glue" }
-audio_thread_priority = { version = "0.37" }
-audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "d3c9825", optional = true }
-audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "d3c9825", optional = true }
+audio_thread_priority = { version = "0.38.0" }
+audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "ef46a7bd05032d1577208ff048d444cc7412c7b8", optional = true }
+audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "ef46a7bd05032d1577208ff048d444cc7412c7b8", optional = true }
 authrs_bridge = { path = "../../../dom/webauthn/authrs_bridge" }
 binary_http = { path = "../../../netwerk/protocol/http/binary_http" }
 bitsdownload = { path = "../../../toolkit/components/bitsdownload", optional = true }

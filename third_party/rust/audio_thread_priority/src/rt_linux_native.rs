@@ -78,7 +78,9 @@ impl RtPriorityThreadInfoInternal {
     /// struct, so no uninitialized padding bytes are ever read. Any trailing padding stays zero.
     pub fn serialize(&self) -> [u8; std::mem::size_of::<Self>()] {
         let thread_id = self.thread_id.to_ne_bytes();
-        let pthread_id = self.pthread_id.to_ne_bytes();
+        // `pthread_t` is an integer with glibc but a pointer with musl: go through `usize`, which
+        // is as wide as both.
+        let pthread_id = (self.pthread_id as usize).to_ne_bytes();
         let pid = self.pid.to_ne_bytes();
         let policy = self.policy.to_ne_bytes();
         let priority = self.priority.to_ne_bytes();
@@ -107,7 +109,7 @@ impl RtPriorityThreadInfoInternal {
         let mut src = bytes.iter().copied();
         RtPriorityThreadInfoInternal {
             thread_id: kernel_pid_t::from_ne_bytes(take(&mut src)),
-            pthread_id: libc::pthread_t::from_ne_bytes(take(&mut src)),
+            pthread_id: usize::from_ne_bytes(take(&mut src)) as libc::pthread_t,
             pid: libc::pid_t::from_ne_bytes(take(&mut src)),
             policy: libc::c_int::from_ne_bytes(take(&mut src)),
             priority: libc::c_int::from_ne_bytes(take(&mut src)),
@@ -138,6 +140,26 @@ fn pthread_error(context: &str, rc: libc::c_int) -> AudioThreadPriorityError {
 /// The `sched_*` functions are thin syscall wrappers: they return -1 and set `errno`.
 fn sched_error(context: &str) -> AudioThreadPriorityError {
     AudioThreadPriorityError::new(&format!("{}: {}", context, OSError::last_os_error()))
+}
+
+/// Set the scheduling policy and priority of the thread with tid `tid`.
+///
+/// This goes through the syscall directly because musl's `sched_setscheduler` is a stub that always
+/// fails with `ENOSYS`: POSIX specifies it as process-scoped, which Linux does not provide. The
+/// syscall is per-thread, which is what is needed here.
+fn sched_setscheduler(
+    tid: libc::pid_t,
+    policy: libc::c_int,
+    param: &libc::sched_param,
+) -> libc::c_long {
+    unsafe {
+        libc::syscall(
+            libc::SYS_sched_setscheduler,
+            tid,
+            policy,
+            param as *const libc::sched_param,
+        )
+    }
 }
 
 /// A thread's system-wide tid narrowed to `pid_t` for the scheduler syscalls. A tid always fits in
@@ -236,8 +258,7 @@ pub fn promote_thread_to_real_time_internal(
     let mut param = unsafe { std::mem::zeroed::<libc::sched_param>() };
     param.sched_priority = requested_priority();
 
-    let rc =
-        unsafe { libc::sched_setscheduler(tid, libc::SCHED_FIFO | SCHED_RESET_ON_FORK, &param) };
+    let rc = sched_setscheduler(tid, libc::SCHED_FIFO | SCHED_RESET_ON_FORK, &param);
     if rc < 0 {
         return Err(sched_error("could not promote thread"));
     }
@@ -254,8 +275,7 @@ pub fn demote_thread_from_real_time_internal(
     let tid = scheduler_tid(thread_info.thread_id)?;
     let mut param = unsafe { std::mem::zeroed::<libc::sched_param>() };
     param.sched_priority = thread_info.priority;
-    let rc =
-        unsafe { libc::sched_setscheduler(tid, thread_info.policy | SCHED_RESET_ON_FORK, &param) };
+    let rc = sched_setscheduler(tid, thread_info.policy | SCHED_RESET_ON_FORK, &param);
     if rc < 0 {
         return Err(sched_error("could not demote thread"));
     }

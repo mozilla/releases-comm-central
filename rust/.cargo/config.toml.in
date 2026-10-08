@@ -61,9 +61,9 @@ git = "https://github.com/martinthomson/ohttp"
 rev = "600931b5a1e947776cbaad931ed78f1e89005352"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/audioipc?rev=d3c9825"]
+[source."git+https://github.com/mozilla/audioipc?rev=ef46a7bd05032d1577208ff048d444cc7412c7b8"]
 git = "https://github.com/mozilla/audioipc"
-rev = "d3c9825"
+rev = "ef46a7bd05032d1577208ff048d444cc7412c7b8"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/authenticator-rs?tag=v0.6.1"]
@@ -125,9 +125,9 @@ git = "https://github.com/rust-minidump/minidump-writer.git"
 rev = "6744feee58804a78730d176cdcc31bb4f3021107"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/servo/rust-cssparser?rev=ddccc070a0261cb94195ed0f74095c67b86a8550"]
+[source."git+https://github.com/servo/rust-cssparser?rev=3a1d1c7a2980ab59d4e5fed7fe666dcbe265d132"]
 git = "https://github.com/servo/rust-cssparser"
-rev = "ddccc070a0261cb94195ed0f74095c67b86a8550"
+rev = "3a1d1c7a2980ab59d4e5fed7fe666dcbe265d132"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/servo/unicode-bidi?rev=ca612daf1c08c53abe07327cb3e6ef6e0a760f0c"]

@@ -12,7 +12,7 @@
 [package]
 edition = "2018"
 name = "cssparser-macros"
-version = "0.7.0"
+version = "0.7.1"
 authors = ["Simon Sapin <simon.sapin@exyr.org>"]
 build = false
 autolib = false
