@@ -35,6 +35,8 @@ tags = ["archive"]
 
 ["browser_clickLinks.js"]
 
+["browser_contentTabRestore.js"]
+
 ["browser_dragDropFolders.js"]
 run-if = [
   "os != 'linux'",

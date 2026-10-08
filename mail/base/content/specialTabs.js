@@ -978,8 +978,28 @@ var specialTabs = {
       const { permitUnload } = aTab.browser.permitUnload();
       return permitUnload;
     },
+    /**
+     * Mailnews URLs that aren't predicted to load in the parent process would
+     * be sent to a content process, which can't load them.
+     *
+     * @param {string} spec - The URL of the tab.
+     * @returns {boolean} Whether a tab with this URL can be restored.
+     */
+    _canRestoreURL(spec) {
+      const uri = URL.parse(spec)?.URI;
+      if (!uri) {
+        return false;
+      }
+      return (
+        !(uri instanceof Ci.nsIMsgMailNewsUrl) ||
+        !ChromeUtils.predictRemoteTypeForURI(uri, {})
+      );
+    },
     persistTab(aTab) {
-      if (aTab.browser.currentURI.spec == "about:blank") {
+      if (
+        aTab.browser.currentURI.spec == "about:blank" ||
+        !this._canRestoreURL(aTab.browser.currentURI.spec)
+      ) {
         return null;
       }
 
@@ -1002,6 +1022,9 @@ var specialTabs = {
       };
     },
     restoreTab(aTabmail, aPersistedState) {
+      if (!this._canRestoreURL(aPersistedState.tabURI)) {
+        return;
+      }
       const tab = aTabmail.openTab("contentTab", {
         background: true,
         duplicate: aPersistedState.duplicate,
