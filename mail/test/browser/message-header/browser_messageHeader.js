@@ -996,6 +996,47 @@ add_task(async function test_add_contact_from_context_menu() {
 });
 
 /**
+ * Test that the list-id context menu handles List-* headers with many unclosed
+ * "<".
+ */
+add_task(async function test_context_menu_list_id_unclosed() {
+  const msg = create_message({
+    clobberHeaders: {
+      "List-ID": "Cats " + "<".repeat(2000) + " <gocats.example.test>",
+      "List-Owner": "<mailto:".repeat(4000),
+    },
+  });
+  await add_message_to_folder([folder], msg);
+  await be_in_folder(folder);
+  const msgHdr = folder.msgDatabase.getMsgHdrForMessageID(msg.messageId);
+  await select_click_row(
+    about3Pane.gDBView.findIndexOfMsgHdr(msgHdr, true),
+    AccessibilityUtils
+  );
+
+  const listIdPopup = aboutMessage.document.getElementById("listIdPopup");
+  EventUtils.synthesizeMouseAtCenter(
+    aboutMessage.document.querySelector("#expandedlist-idBox"),
+    { type: "contextmenu" },
+    aboutMessage
+  );
+  await BrowserTestUtils.waitForPopupEvent(listIdPopup, "shown");
+
+  Assert.equal(
+    aboutMessage.document.getElementById("listIdPlaceHolder").label,
+    "gocats.example.test",
+    "list-id ctx label should be correct"
+  );
+  Assert.equal(
+    aboutMessage.document.getElementById("listIdListOwner").value,
+    "mailto:".repeat(4000),
+    "list-owner ctx value should be correct"
+  );
+
+  await close_popup(window, listIdPopup);
+});
+
+/**
  * Test that clicking the <List-ID> header works as it should.
  */
 add_task(async function test_context_menu_list_id() {

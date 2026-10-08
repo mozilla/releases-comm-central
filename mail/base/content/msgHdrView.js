@@ -3167,12 +3167,10 @@ const gMessageHeader = {
    * @param {number} screenY - Where to show it, y.
    */
   openListIdPopup(element, screenX, screenY) {
+    const listId = element.value.textContent;
     document
       .getElementById("listIdPlaceHolder")
-      .setAttribute(
-        "label",
-        element.value.textContent.replace(/.*<([^>]+)>.*/, "$1")
-      );
+      .setAttribute("label", listId.match(/<([^<>]+)>/)?.[1] ?? listId);
 
     const popup = document.getElementById("listIdPopup");
     popup.headerField = element;
@@ -3184,7 +3182,7 @@ const gMessageHeader = {
       if (!menu.hidden) {
         let value = currentHeaderData[menu.dataset.headerName].headerValue;
         // Prefer mailto: if that's available.
-        value = value.replace(/.*(<mailto:[^>]+>).*/, "$1");
+        value = value.match(/<mailto:[^<>]+>/)?.[0] ?? value;
         if (menu.dataset.headerName == "list-post") {
           // See https://datatracker.ietf.org/doc/html/rfc2369#section-3.4
           // The list many not allow posting, e.g. an announcements list.

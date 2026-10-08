@@ -18,10 +18,14 @@ var {
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/ComposeHelpers.sys.mjs"
 );
-var { assert_selected_and_displayed, be_in_folder, select_click_row } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
-  );
+var {
+  assert_selected_and_displayed,
+  be_in_folder,
+  get_about_3pane,
+  select_click_row,
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
 var { add_message_to_folder, create_message } = ChromeUtils.importESModule(
   "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
@@ -257,6 +261,65 @@ add_task(async function testReplyToMungedReplyToList() {
   await checkReply(open_compose_with_reply_to_list, {
     addr_to: ["munged.list@example.com"],
   });
+});
+
+/**
+ * Tests that reply to list uses the first mailto: URL of List-Post, as
+ * RFC 2369 says, and only warns if that is a no-reply address.
+ */
+add_task(async function testReplyToListFirstAlternative() {
+  ensureNoAutoCc(identity);
+  for (const [listPost, expectedTo, expectWarning] of [
+    [
+      "<mailto:list@example.com>, <mailto:no-reply@example.com>",
+      "list@example.com",
+      false,
+    ],
+    [
+      "<mailto:no-reply@example.com>, <mailto:list@example.com>",
+      "no-reply@example.com",
+      true,
+    ],
+  ]) {
+    const msg0 = create_message({
+      from: "Tester <test@example.com>",
+      to: "list@example.com",
+      subject: "testReplyToListFirstAlternative",
+      clobberHeaders: { "List-Post": listPost },
+    });
+    await add_message_to_folder([folder], msg0);
+    await be_in_folder(folder);
+    const msgHdr = folder.msgDatabase.getMsgHdrForMessageID(msg0.messageId);
+    const msg = await select_click_row(
+      get_about_3pane().gDBView.findIndexOfMsgHdr(msgHdr, true)
+    );
+    await assert_selected_and_displayed(window, msg);
+
+    // Record any no-reply warning, and reply anyway.
+    let warning = null;
+    const onDialog = async win => {
+      if (win.document.readyState != "complete") {
+        await BrowserTestUtils.waitForEvent(win, "load");
+      }
+      warning = win.document.getElementById("infoBody").textContent;
+      win.document.querySelector("dialog").getButton("accept").click();
+    };
+    Services.obs.addObserver(onDialog, "common-dialog-loaded");
+    const rwc = await open_compose_with_reply_to_list();
+    Services.obs.removeObserver(onDialog, "common-dialog-loaded");
+
+    if (expectWarning) {
+      Assert.stringContains(
+        warning,
+        expectedTo,
+        "the warning should name the address replied to"
+      );
+    } else {
+      Assert.equal(warning, null, "there should be no warning");
+    }
+    checkToAddresses(rwc, { addr_to: [expectedTo] });
+    await close_compose_window(rwc);
+  }
 });
 
 /**
