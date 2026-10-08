@@ -478,3 +478,57 @@ add_task(async function test_getCalendars_listOrder() {
   }
   Services.prefs.clearUserPref("calendar.list.sortOrder");
 });
+
+add_task(function test_realmRewrite() {
+  /**
+   * Run a WWW-Authenticate header through the realm rewriting of the
+   * http-on-examine-response observer.
+   *
+   * @param {string} header - The WWW-Authenticate header.
+   * @param {string} [name] - The name of the calendar.
+   * @returns {string} the rewritten header.
+   */
+  function rewrite(header, name = "Cal") {
+    let result = header;
+    const channel = {
+      QueryInterface: ChromeUtils.generateQI(["nsIHttpChannel"]),
+      notificationCallbacks: {
+        getInterface: () => ({ name, getProperty: () => null }),
+      },
+      getResponseHeader: () => header,
+      setResponseHeader(headerName, value) {
+        result = value;
+      },
+    };
+    cal.manager.observe(channel, "http-on-examine-response");
+    return result;
+  }
+
+  equal(
+    rewrite('Basic realm="Server"'),
+    'Basic realm="Server (Cal)"',
+    "the name should be appended"
+  );
+  equal(
+    rewrite('Digest realm="A \\"B\\" \\\\", nonce="x"'),
+    'Digest realm="A \\"B\\" \\\\ (Cal)", nonce="x"',
+    "escaped characters in the realm should be skipped"
+  );
+  equal(
+    rewrite('Basic realm="Server"', 'My "Cal"'),
+    'Basic realm="Server (My \\"Cal\\")"',
+    "quotes in the name should be escaped"
+  );
+  equal(
+    rewrite('Basic realm="Server"', "Cal $&"),
+    'Basic realm="Server (Cal $&)"',
+    "the name should be inserted literally"
+  );
+  equal(
+    rewrite('Basic realm="x\\"y'),
+    'Basic realm="x\\"y',
+    "an unterminated realm should be kept"
+  );
+  const unterminated = 'Basic realm="' + "\\".repeat(100000);
+  equal(rewrite(unterminated), unterminated, "many backslashes should be handled quickly");
+});

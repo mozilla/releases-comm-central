@@ -1176,21 +1176,8 @@ function timerCallback(aCalendar) {
 }
 
 function appendToRealm(authHeader, appendStr) {
-  let isEscaped = false;
-  let idx = authHeader.search(/realm="(.*?)(\\*)"/);
-  if (idx > -1) {
-    let remain = authHeader.substr(idx + 7);
-    idx += 7;
-    while (remain.length && !isEscaped) {
-      const match = remain.match(/(.*?)(\\*)"/);
-      idx += match[0].length;
-
-      isEscaped = match[2].length % 2 == 0;
-      if (!isEscaped) {
-        remain = remain.substr(match[0].length);
-      }
-    }
-    return authHeader.substr(0, idx - 1) + " " + appendStr + authHeader.substr(idx - 1);
-  }
-  return authHeader;
+  return authHeader.replace(
+    /(realm="(?:[^"\\]|\\.)*)"/,
+    (match, realm) => `${realm} ${appendStr}"`
+  );
 }
