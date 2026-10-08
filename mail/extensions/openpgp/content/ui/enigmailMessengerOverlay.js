@@ -939,10 +939,7 @@ Enigmail.msg = {
     // An implementation MAY implement this key and any
     //   translations it cares to; an implementation MAY ignore it and
     //   assume all text is UTF-8.
-    const armorHeaders = EnigmailArmor.getArmorHeaders(msgText);
-    if ("charset" in armorHeaders) {
-      charset = armorHeaders.charset;
-    }
+    charset = EnigmailArmor.getArmorCharset(msgText) ?? charset;
 
     var exitCodeObj = {};
     var statusFlagsObj = {};

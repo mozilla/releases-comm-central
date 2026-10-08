@@ -284,42 +284,30 @@ export var EnigmailArmor = {
   },
 
   /**
-   * Get a list of all headers found in an armor message
+   * Get the value of the Charset armor header of the first armored block.
    *
    * @param {string} text - ASCII armored message.
-   * @returns {object} an object that has key/value pairs of new headers to insert.
-   *   All keys are lowercase.
+   * @returns {?string} the charset, or null if there is none.
    */
-  getArmorHeaders(text) {
-    const headers = {};
-    const b = this.locateArmoredBlocks(text);
-
-    if (b.length === 0) {
-      return headers;
+  getArmorCharset(text) {
+    const [block] = this.locateArmoredBlocks(text);
+    if (!block) {
+      return null;
     }
 
-    const msg = text.substr(b[0].begin);
-
-    // Escape regex chars.
-    const indent = b[0].indent.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
-    const lx = new RegExp("\\n" + indent + "\\r?\\n");
-    const hdrEnd = msg.search(lx);
-    if (hdrEnd < 0) {
-      return headers;
+    const { indent } = block;
+    const lines = text.substring(block.begin, block.end).split(/\r?\n/);
+    // The headers are the lines between the armor line and the first empty one.
+    const end = lines.indexOf(indent);
+    if (end == -1) {
+      return null;
     }
-
-    const lines = msg.substr(0, hdrEnd).split(/\r?\n/);
-
-    const rx = new RegExp("^" + b[0].indent + "([^: ]+)(: )(.*)");
-    // skip 1st line (ARMOR-line)
-    for (let i = 1; i < lines.length; i++) {
-      const m = lines[i].match(rx);
-      if (m && m.length >= 4) {
-        headers[m[1].toLowerCase()] = m[3];
-      }
-    }
-
-    return headers;
+    const charset = lines
+      .slice(1, end)
+      .filter(line => line.startsWith(indent))
+      .map(line => line.slice(indent.length))
+      .findLast(header => /^charset:/i.test(header));
+    return charset?.slice("charset:".length).trim() || null;
   },
 
   /**

@@ -8,6 +8,8 @@ tags = ["openpgp"]
 
 ["test_alias.js"]
 
+["test_armor.js"]
+
 ["test_badKeys.js"]
 
 ["test_encryptAndOrSign.js"]
