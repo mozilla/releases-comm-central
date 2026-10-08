@@ -162,6 +162,44 @@ add_task(function test_snews_to_news_conversion() {
   );
 });
 
+add_task(function test_nntp_newsgroup_and_article_number() {
+  resetCaptures();
+  MailUtils.handleNewsUri(
+    `nntp://localhost:${server.port}/test.subscribe.simple/1`,
+    null
+  );
+  Assert.equal(gConfirmCallCount, 0, "should not prompt");
+  Assert.equal(gFolderUrisOpened.length, 1, "should open the newsgroup folder");
+  Assert.ok(
+    gFolderUrisOpened[0].includes("test.subscribe.simple"),
+    "folder URI should contain the newsgroup name"
+  );
+});
+
+add_task(function test_nntps_newsgroup() {
+  resetCaptures();
+  MailUtils.handleNewsUri(
+    `nntps://localhost:${server.port}/test.subscribe.simple`,
+    null
+  );
+  Assert.equal(gFolderUrisOpened.length, 1, "should open the newsgroup folder");
+  Assert.ok(
+    gFolderUrisOpened[0].includes("test.subscribe.simple"),
+    "folder URI should contain the newsgroup name"
+  );
+});
+
+add_task(function test_nntp_message_id() {
+  resetCaptures();
+  MailUtils.handleNewsUri(
+    `nntp://localhost:${server.port}/test-msgid@nntp.invalid`,
+    null
+  );
+  Assert.equal(gFolderUrisOpened.length, 0, "should not open a folder");
+  Assert.equal(gEmlFilesOpened.length, 0, "should not fetch a message");
+  Assert.equal(gConfirmCallCount, 0, "should not prompt");
+});
+
 add_task(function test_wildcard_newsgroup() {
   resetCaptures();
   MailUtils.handleNewsUri("news:comp.*", null);

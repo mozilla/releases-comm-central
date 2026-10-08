@@ -892,10 +892,12 @@ export var MailUtils = {
     // servers use their own security settings, so this only matters when
     // connecting to an unknown server.
     // @see {@link https://datatracker.ietf.org/doc/html/rfc5538#section-8.1}
-    const secure = url.protocol == "snews:";
-    if (secure) {
-      url.protocol = "news:";
-    }
+    const secure = ["snews:", "nntps:"].includes(url.protocol);
+    // 'nntp' URIs identify an article by newsgroup and article number. Only
+    // the newsgroup is used. 'nntps' is the same using NNTP over TLS.
+    // @see {@link https://datatracker.ietf.org/doc/html/rfc5538#section-3}
+    const isNntp = ["nntp:", "nntps:"].includes(url.protocol);
+    url.protocol = "news:";
 
     const firstNntpServer = lazy.MailServices.accounts.accounts.find(
       account => account.incomingServer.type == "nntp"
@@ -903,7 +905,14 @@ export var MailUtils = {
 
     // 'news' URIs identifying a newsgroup.
 
-    const identifier = decodeURIComponent(url.pathname.slice(1));
+    let identifier = decodeURIComponent(url.pathname.slice(1));
+    if (isNntp) {
+      identifier = identifier.split("/")[0];
+      if (identifier.includes("@")) {
+        console.warn(`Unsupported nntp URI: ${uri}`);
+        return;
+      }
+    }
     if (!identifier.includes("@")) {
       if (identifier.includes("*")) {
         console.warn(`Unsupported news URI: ${url}`);

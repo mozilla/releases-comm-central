@@ -10,10 +10,15 @@
 
 "use strict";
 
-var { be_in_folder, create_folder, get_about_message, select_click_row } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
-  );
+var {
+  be_in_folder,
+  create_folder,
+  get_about_3pane,
+  get_about_message,
+  select_click_row,
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
 var { open_content_tab_with_url } = ChromeUtils.importESModule(
   "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
 );
@@ -296,6 +301,47 @@ add_task(async function testNewsLinkTargetsInMailMessage() {
     }
     tabmail.closeTab(tabInfo);
   }
+
+  folder.deleteSelf(null);
+});
+
+/**
+ * Clicking an nntp: link with a target in a mail message must open the
+ * newsgroup, not open the URL in a content tab.
+ */
+add_task(async function testNntpLinkInMailMessage() {
+  const newsFolder = await setupNewsFolder(
+    `${GROUP}.nntp`,
+    generator.makeMessage()
+  );
+  const folder = await create_folder("nntpLink");
+  folder.QueryInterface(Ci.nsIMsgLocalMailFolder).addMessage(
+    generator
+      .makeMessage({
+        body: {
+          body: `<html><body><a id="nntp" href="nntp://test.test:119/${GROUP}.nntp/1" target="_blank" style="display:block;width:100px;height:100px">nntp</a></body></html>`,
+          contentType: "text/html",
+        },
+      })
+      .toMessageString()
+  );
+  await be_in_folder(folder);
+  await select_click_row(0);
+
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "#nntp",
+    {},
+    get_about_message().getMessagePaneBrowser()
+  );
+  await TestUtils.waitForCondition(
+    () => get_about_3pane().gFolder == newsFolder,
+    "the newsgroup should be displayed"
+  );
+  Assert.equal(
+    document.getElementById("tabmail").tabInfo.length,
+    1,
+    "no tab should be opened"
+  );
 
   folder.deleteSelf(null);
 });

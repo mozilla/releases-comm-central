@@ -24,6 +24,8 @@ export class MailLinkParent extends JSWindowActorParent {
         break;
       case "news:":
       case "snews:":
+      case "nntp:":
+      case "nntps:":
         this._handleNewsLink(value);
         break;
       default:

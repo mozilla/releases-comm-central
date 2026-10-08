@@ -25,7 +25,9 @@ export class MailLinkChild extends JSWindowActorChild {
     const url = new URL(href);
     const protocol = url.protocol;
     if (
-      ["mailto:", "mid:", "news:", "snews:"].includes(protocol) ||
+      ["mailto:", "mid:", "news:", "snews:", "nntp:", "nntps:"].includes(
+        protocol
+      ) ||
       // A link to an attachment, e.g. cid: link.
       (["imap:", "mailbox:"].includes(protocol) &&
         url.searchParams.get("part") &&
