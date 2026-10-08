@@ -124,15 +124,9 @@ export const email = {
     // Strip leading "mailto:" if it exists.
     attendeeEmail = attendeeEmail.replace(/^mailto:/i, "");
     // We add the CN if requested and available
-    let commonName = aAttendee.commonName;
-    if (aIncludeCn && attendeeEmail.length > 0 && commonName && commonName.length > 0) {
-      if (commonName.match(/[,;]/)) {
-        commonName = '"' + commonName + '"';
-      }
-      commonName = commonName + " <" + attendeeEmail + ">";
-      if (email.validateRecipientList(commonName) == commonName) {
-        attendeeEmail = commonName;
-      }
+    const commonName = aAttendee.commonName;
+    if (aIncludeCn && attendeeEmail && commonName) {
+      return MailServices.headerParser.makeMimeAddress(commonName, attendeeEmail);
     }
     return attendeeEmail;
   },
@@ -144,53 +138,12 @@ export const email = {
    * @returns {string} A validated comma-seperated list of e-mail addresses
    */
   validateRecipientList(aRecipients) {
-    const compFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(
-      Ci.nsIMsgCompFields
-    );
-    // Resolve the list considering also configured common names
-    const members = compFields.splitRecipients(aRecipients, false);
-    const list = [];
-    let prefix = "";
-    for (const member of members) {
-      if (prefix != "") {
-        // the previous member had no email address - this happens if a recipients CN
-        // contains a ',' or ';' (splitRecipients(..) behaves wrongly here and produces an
-        // additional member with only the first CN part of that recipient and no email
-        // address while the next has the second part of the CN and the according email
-        // address) - we still need to identify the original delimiter to append it to the
-        // prefix
-        const memberCnPart = member.match(/(.*) <.*>/);
-        if (memberCnPart) {
-          const pattern = new RegExp(prefix + "([;,] *)" + memberCnPart[1]);
-          const delimiter = aRecipients.match(pattern);
-          if (delimiter) {
-            prefix = prefix + delimiter[1];
-          }
-        }
-      }
-      const parts = (prefix + member).match(/(.*)( <.*>)/);
-      if (parts) {
-        if (parts[2] == " <>") {
-          // CN but no email address - we keep the CN part to prefix the next member's CN
-          prefix = parts[1];
-        } else {
-          // CN with email address
-          let commonName = parts[1].trim();
-          // in case of any special characters in the CN string, we make sure to enclose
-          // it with dquotes - simple spaces don't require dquotes
-          if (commonName.match(/[-[\]{}()*+?.,;\\^$|#\f\n\r\t\v]/)) {
-            commonName = '"' + commonName.replace(/\\"|"/, "").trim() + '"';
-          }
-          list.push(commonName + parts[2]);
-          prefix = "";
-        }
-      } else if (member.length) {
-        // email address only
-        list.push(member);
-        prefix = "";
-      }
-    }
-    return list.join(", ");
+    const addresses = MailServices.headerParser
+      .makeFromDisplayAddress(aRecipients)
+      // Drop entries without an address, and bare words, which are more likely
+      // a broken name than a local address.
+      .filter(address => address.email && (address.name || address.email.includes("@")));
+    return MailServices.headerParser.makeMimeHeader(addresses);
   },
 
   /**

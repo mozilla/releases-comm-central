@@ -234,7 +234,7 @@ function test_validateRecipientList() {
         'first1.last1@example.net, last2; first2 <first2.last2@example.net>, "last3; first' +
         '3" <first3.last2@example.net>',
       expected:
-        'first1.last1@example.net, "last2; first2" <first2.last2@example.net>, "last' +
+        'first1.last1@example.net, "last2, first2" <first2.last2@example.net>, "last' +
         '3; first3" <first3.last2@example.net>',
     },
     {
@@ -244,6 +244,37 @@ function test_validateRecipientList() {
       expected:
         'first1 last2 <first1.last1@example.net>, "last2, first2" <first2.last2@examp' +
         'le.net>, "last3, first3" <first3.last2@example.net>',
+    },
+    // Quotes in names should be kept, escaped.
+    {
+      input: '"Doe, \\"JD\\" John" <x@example.net>',
+      expected: '"Doe, \\"JD\\" John" <x@example.net>',
+    },
+    {
+      input: 'a "b" c, d <x@example.net>',
+      expected: '"a \\"b\\" c, d" <x@example.net>',
+    },
+    {
+      input: "C++, Team <team@example.net>",
+      expected: '"C++, Team" <team@example.net>',
+    },
+    {
+      input: "Team: a@example.net, b@example.net;",
+      expected: "a@example.net, b@example.net",
+    },
+    // Local addresses and list names should be kept when given with a name.
+    {
+      input: "Root User <root>, Team <Tenants221B>",
+      expected: "Root User <root>, Team <Tenants221B>",
+    },
+    // Entries without an email address should be dropped.
+    {
+      input: "Name, o@example.net",
+      expected: "o@example.net",
+    },
+    {
+      input: "Name <>, Other <o@example.net>",
+      expected: "Other <o@example.net>",
     },
   ];
 
