@@ -1034,25 +1034,28 @@ export class MimeTreeDecrypter {
   }
 }
 
-function stripHTMLFromArmoredBlocks(text) {
-  var index = 0;
-  var begin = text.indexOf("-----BEGIN PGP");
-  var end = text.indexOf("-----END PGP");
-
-  while (begin > -1 && end > -1) {
-    let sub = text.substring(begin, end);
-
-    sub = sub.replace(/(<([^>]+)>)/gi, "");
-    sub = sub.replace(/&[A-z]+;/gi, "");
-
-    text = text.substring(0, begin) + sub + text.substring(end);
-
-    index = end + 10;
-    begin = text.indexOf("-----BEGIN PGP", index);
-    end = text.indexOf("-----END PGP", index);
+export function stripHTMLFromArmoredBlocks(text) {
+  const parts = [];
+  let index = 0;
+  let begin;
+  while ((begin = text.indexOf("-----BEGIN PGP", index)) != -1) {
+    // A clearsigned block contains a signature block, so strip up to the
+    // first end marker, not the next begin marker.
+    const end = text.indexOf("-----END PGP", begin);
+    if (end == -1) {
+      break;
+    }
+    parts.push(
+      text.slice(index, begin),
+      text
+        .slice(begin, end)
+        .replace(/<[^<>]+>/g, "")
+        .replace(/&[a-z]+;/gi, "")
+    );
+    index = end;
   }
-
-  return text;
+  parts.push(text.slice(index));
+  return parts.join("");
 }
 
 function getHeaderValue(mimeStruct, header) {

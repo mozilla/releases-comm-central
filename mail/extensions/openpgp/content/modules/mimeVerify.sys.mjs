@@ -497,7 +497,7 @@ MimeVerify.prototype = {
           if (!fromAddr && headerNames[i] == "From") {
             fromAddr = lazy.EnigmailFuncs.stripEmail(headerValues[i]);
             // Ignore address if domain contains a comment (in brackets).
-            if (fromAddr.match(/[a-zA-Z0-9]@.*[\(\)]/)) {
+            if (lazy.EnigmailFuncs.domainHasComment(fromAddr)) {
               fromAddr = "";
             }
           } else if (!msgDate && headerNames[i] == "Date") {

@@ -130,3 +130,22 @@ add_task(async function testAlias() {
     Assert.equal(test.email, email);
   }
 });
+
+add_task(function testDomainHasComment() {
+  Assert.ok(
+    EnigmailFuncs.domainHasComment("user@example.com(comment)"),
+    "a parenthesis after the @ should be found"
+  );
+  Assert.ok(
+    !EnigmailFuncs.domainHasComment("user@example.com"),
+    "there should be no comment without parenthesis"
+  );
+  Assert.ok(
+    !EnigmailFuncs.domainHasComment("(user)@example.com"),
+    "a parenthesis before the @ should be ignored"
+  );
+  Assert.ok(
+    !EnigmailFuncs.domainHasComment("a@".repeat(100000)),
+    "many @ without parenthesis should be handled"
+  );
+});

@@ -453,7 +453,7 @@ MimeDecryptHandler.prototype = {
           if (headerNames[i] == "From") {
             const fromAddr = lazy.EnigmailFuncs.stripEmail(headerValues[i]);
             // Ignore address if domain contains a comment (in brackets).
-            if (!fromAddr.match(/[a-zA-Z0-9]@.*[\(\)]/)) {
+            if (!lazy.EnigmailFuncs.domainHasComment(fromAddr)) {
               options.fromAddr = fromAddr;
             }
             break;

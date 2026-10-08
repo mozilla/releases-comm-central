@@ -18,6 +18,9 @@ const {
 const { promise_new_window } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
+const { check_notification_displayed } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs"
+);
 const { OpenPGPTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mail/OpenPGPTestUtils.sys.mjs"
 );
@@ -132,4 +135,42 @@ add_task(async function testMessageUTF8() {
     "should not show as encrypted"
   );
   await BrowserTestUtils.closeWindow(msgc);
+});
+
+/**
+ * Test that a message that only quotes inline encrypted OpenPGP isn't
+ * processed, wherever the armor is in the quote.
+ */
+add_task(async function testQuotedInlinePGP() {
+  for (const filename of [
+    "quoted-encrypted-first-line.eml",
+    "quoted-encrypted-later.eml",
+    "quoted-encrypted-nested.eml",
+  ]) {
+    info(`Testing ${filename}`);
+    const processed = openpgpProcessed();
+    const msgc = await open_message_from_file(
+      new FileUtils.File(getTestFilePath(`data/eml/${filename}`))
+    );
+    await processed;
+    const aboutMessage = get_about_message(msgc);
+
+    Assert.ok(
+      !check_notification_displayed(
+        aboutMessage,
+        "mail-notification-top",
+        "decryptInlinePG"
+      ),
+      "the partially encrypted notification should not be shown"
+    );
+    Assert.ok(
+      getMsgBodyTxt(msgc).includes("-----BEGIN PGP MESSAGE-----"),
+      "the quoted block should be shown as is"
+    );
+    Assert.ok(
+      OpenPGPTestUtils.hasNoEncryptedIconState(aboutMessage.document),
+      "should not show as encrypted"
+    );
+    await BrowserTestUtils.closeWindow(msgc);
+  }
 });

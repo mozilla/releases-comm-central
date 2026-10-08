@@ -33,6 +33,18 @@ export var EnigmailFuncs = {
   },
 
   /**
+   * Check if the domain of an email address contains a comment, i.e. a
+   * parenthesis.
+   *
+   * @param {string} email - The email address.
+   * @returns {boolean} true if there is a parenthesis after the "@".
+   */
+  domainHasComment(email) {
+    const at = email.search(/[a-zA-Z0-9]@/);
+    return at != -1 && /[()]/.test(email.slice(at));
+  },
+
+  /**
    * Get an array of email object (email, name) from an address string.
    *
    * @param {string} mailAddrs - Address list encdoded as specified

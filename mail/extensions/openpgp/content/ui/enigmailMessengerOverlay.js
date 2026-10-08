@@ -277,7 +277,10 @@ Enigmail.msg = {
       var ct = mimePart.fullContentType;
       if (typeof ct == "string") {
         ct = ct.replace(/[\r\n]/g, " ");
-        if (ct.search(/multipart\/signed.*application\/pgp-signature/i) >= 0) {
+        if (
+          /multipart\/signed/i.test(ct) &&
+          /application\/pgp-signature/i.test(ct)
+        ) {
           resultObj.signed.push(mimePart.partNum);
         } else if (ct.search(/application\/pgp-encrypted/i) >= 0) {
           resultObj.encrypted.push(mimePart.partNum);
@@ -833,26 +836,13 @@ Enigmail.msg = {
    * @returns {boolean} true if an inline quote is found
    */
   hasInlineQuote(mainNode) {
-    if (mainNode.innerHTML.search(/<blockquote.*-----BEGIN PGP /i) < 0) {
-      return false;
-    }
-    const searchQuotedPgp = function (node) {
-      if (
-        node.nodeName.toLowerCase() === "blockquote" &&
-        node.textContent.includes("-----BEGIN PGP ")
-      ) {
-        return true;
-      }
-      if (node.firstChild && searchQuotedPgp(node.firstChild)) {
-        return true;
-      }
-
-      if (node.nextSibling && searchQuotedPgp(node.nextSibling)) {
-        return true;
-      }
-      return false;
-    };
-    return searchQuotedPgp(mainNode);
+    // Only check the outermost quotes, as their text includes nested ones.
+    const quotes = mainNode.querySelectorAll(
+      ":scope blockquote:not(:scope blockquote blockquote)"
+    );
+    return Array.from(quotes).some(node =>
+      node.textContent.includes("-----BEGIN PGP ")
+    );
   },
 
   hasHeadOrTailBesidesInlinePGP(msgText) {

@@ -76,7 +76,7 @@ export var EnigmailDecryption = {
     if (fromAddr) {
       try {
         fromAddr = lazy.EnigmailFuncs.stripEmail(fromAddr);
-        if (fromAddr.search(/[a-zA-Z0-9]@.*[\(\)]/) >= 0) {
+        if (lazy.EnigmailFuncs.domainHasComment(fromAddr)) {
           fromAddr = false;
         }
       } catch (ex) {
