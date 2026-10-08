@@ -1006,6 +1006,11 @@ define(function (require) {
           '"=?UTF-8?Q?a=0Ab?="@example.com',
           [{ name: "", email: "ab@example.com" }],
         ],
+        // An "=?" that doesn't start an encoded-word shouldn't affect the next.
+        [
+          "=?x =?UTF-8?Q?Name?= <a@b.c>",
+          [{ name: "=?x Name", email: "a@b.c" }],
+        ],
       ];
       header_tests.forEach(function (data) {
         arrayTest(data, function () {
@@ -1014,6 +1019,12 @@ define(function (require) {
             data[1]
           );
         });
+      });
+      test("many =? without encoded-words", function () {
+        const value = "=?".repeat(40000);
+        assert.deepEqual(headerparser.parseAddressingHeader(value, true), [
+          { name: value, email: "" },
+        ]);
       });
     });
     suite("parseDateHeader", function () {

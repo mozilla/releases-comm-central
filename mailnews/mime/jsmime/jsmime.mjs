@@ -531,8 +531,9 @@ const JsMIMEheaderparser = function () {
       ) {
         // RFC 2047 tokens separated only by whitespace are conceptually part of
         // the same output token, so we need to decode them all at once.
-        const encodedWordsRE = /([ \t\r\n]*=\?[^?]*\?[BbQq]\?[^?]*\?=)+/;
-        const result = encodedWordsRE.exec(value.slice(i));
+        const encodedWordsRE = /([ \t\r\n]*=\?[^?]*\?[BbQq]\?[^?]*\?=)+/y;
+        encodedWordsRE.lastIndex = i;
+        const result = encodedWordsRE.exec(value);
         if (result !== null) {
           // If we were in the middle of a prior token (i.e., something like
           // foobar=?UTF-8?Q?blah?=), yield the previous segment as a token.
