@@ -52,3 +52,31 @@ export class SnewsProtocolHandler extends NewsProtocolHandler {
 SnewsProtocolHandler.prototype.classID = Components.ID(
   "{1895016d-5302-46a9-b3f5-9c47694d9eca}"
 );
+
+/**
+ * 'nntp' URIs are handled by MailUtils.handleNewsUri and can't be loaded. This
+ * handler exists so that they get a content principal, and with it are kept
+ * in the parent process like other news URIs.
+ *
+ * @implements {nsIProtocolHandler}
+ */
+export class NntpProtocolHandler {
+  QueryInterface = ChromeUtils.generateQI(["nsIProtocolHandler"]);
+
+  scheme = "nntp";
+
+  newChannel() {
+    throw Components.Exception(
+      "Can't load nntp: URIs",
+      Cr.NS_ERROR_NOT_IMPLEMENTED
+    );
+  }
+
+  allowPort() {
+    return false;
+  }
+}
+
+NntpProtocolHandler.prototype.classID = Components.ID(
+  "{ebc12450-fe2f-4f25-8f42-0796936bc3fd}"
+);
