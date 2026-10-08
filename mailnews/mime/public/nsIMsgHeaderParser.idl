@@ -182,7 +182,7 @@ interface nsIMsgHeaderParser : nsISupports {
    * @return               A comma-separated list of just the mailbox parts
    *                       of the email-addresses.
    */
-  ACString extractHeaderAddressMailboxes(in ACString aLine);
+  AString extractHeaderAddressMailboxes(in AString aLine);
 
   /**
    * Given a name and email address, produce a string that is suitable for

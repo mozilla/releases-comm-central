@@ -65,6 +65,19 @@ function run_test() {
       "actual@example.com", // Address Names
       "actual@example.com", // First address Name
     ],
+    // Non-Latin-1 characters must not be truncated.
+    [
+      "al\u0269ce@foo.invalid",
+      "al\u0269ce@foo.invalid",
+      "al\u0269ce@foo.invalid",
+      "al\u0269ce@foo.invalid",
+    ],
+    [
+      'Test <"research\u200B"@foo.invalid>',
+      '"research "@foo.invalid',
+      "Test",
+      "Test",
+    ],
   ];
 
   // Test - empty strings
