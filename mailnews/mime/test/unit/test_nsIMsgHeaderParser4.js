@@ -184,6 +184,34 @@ function run_test() {
       displayString: 'Homer <3 "B>" "J <unb@example.com>',
       addresses: [['Homer <3 "B>" "J', "unb@example.com"]],
     },
+
+    // Escaped quotes in quoted names.
+    {
+      displayString: '"Doe \\" x; John" <j@example.com>',
+      addresses: [['"Doe \\" x; John"', "j@example.com"]],
+    },
+    {
+      displayString: '"Doe \\" <x> John" <j@example.com>',
+      addresses: [['"Doe \\" <x> John"', "j@example.com"]],
+    },
+    // Group syntax.
+    {
+      displayString: 'Team: Ann <a@example.com>, "B, b" <b@example.com>;',
+      addresses: [
+        ["Ann", "a@example.com"],
+        ["B, b", "b@example.com"],
+      ],
+    },
+    // Colon and semicolon in a display name.
+    {
+      displayString: "Ratio 1:2; x <a@example.com>",
+      addresses: [["Ratio 1:2; x", "a@example.com"]],
+    },
+    // A quoted string with angle chars, and a later quoted string.
+    {
+      displayString: 'A "<1>" <real@example.com> "b"',
+      addresses: [['A "<1>"', "real@example.com"]],
+    },
   ];
 
   // Test -  strings
@@ -198,5 +226,21 @@ function run_test() {
       Assert.equal(addrs[j].name, checkaddrs[j][0], "Parsed name");
       Assert.equal(addrs[j].email, checkaddrs[j][1], "Parsed email");
     }
+  }
+
+  // Crafted input should be parsed in linear time.
+  for (const displayString of [
+    '"x' + "<".repeat(10000) + ">",
+    "a <" + "<".repeat(100000),
+    ";" + ":".repeat(100000),
+    ";".repeat(100000),
+    '"' + '\\"'.repeat(100000) + ";",
+    '"' + '\\"'.repeat(100000) + " <a@example.com>",
+  ]) {
+    Assert.equal(
+      MailServices.headerParser.makeFromDisplayAddress(displayString).length,
+      1,
+      "crafted input should give one address"
+    );
   }
 }

@@ -370,14 +370,26 @@ MimeAddressParser.prototype = {
    * @returns {msgIAddressObject[]}
    */
   makeFromDisplayAddress(aDisplay) {
-    if (aDisplay.includes(";") && !/:.*;/.test(aDisplay)) {
+    const colon = aDisplay.indexOf(":");
+    const isGroup = colon != -1 && aDisplay.includes(";", colon);
+    if (isGroup) {
+      // Group syntax, e.g. "Team: a@example.com, b@example.com;". Only trust
+      // the parse if it gives real addresses, as a display name may contain
+      // ":" and ";" too.
+      const addresses = this.parseDecodedHeader(aDisplay);
+      if (addresses.length && addresses.every(a => a.email.includes("@"))) {
+        return addresses;
+      }
+    }
+    if (aDisplay.includes(";") && !isGroup) {
       // Using semicolons as mailbox separators in against the standard, but
       // used in the wild by some clients.
       // Looks like this isn't using group syntax, so let's assume it's a
       // non-standards compliant input string, and fix it.
       // Replace semicolons with commas, unless the semicolon is inside a quote.
-      // The regexp uses tricky lookahead, see bug 1059988 comment #70 for details.
-      aDisplay = aDisplay.replace(/;(?=(?:(?:[^"]*"){2})*[^"]*$)/g, ",");
+      aDisplay = aDisplay.replace(/(?<!\\)"(?:[^"\\]|\\.)*"|;/g, match =>
+        match == ";" ? "," : match
+      );
     }
 
     // The basic idea is to split on every comma, so long as there is a
@@ -430,10 +442,13 @@ MimeAddressParser.prototype = {
     // If the whole string is within quotes, unquote it first.
     input = input.trim().replace(/^"(.*)"$/, "$1");
 
-    if (/<.*>/.test(input)) {
+    const lt = input.indexOf("<");
+    if (lt != -1 && input.lastIndexOf(">") > lt) {
       // We don't want to look for the address within quotes, so first remove
       // all quoted strings containing angle chars.
-      const cleanedInput = input.replace(/".*[<>]+.*"/g, "");
+      const cleanedInput = input.replace(/(?<!\\)"(?:[^"\\]|\\.)*"/g, quoted =>
+        /[<>]/.test(quoted) ? "" : quoted
+      );
 
       // Extract the address from within the quotes.
       const matches = /(<([^><]*)>[^<]*)+/.exec(cleanedInput);
