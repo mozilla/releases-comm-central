@@ -30,6 +30,23 @@ export var PROXY_TYPES_MAP = new Map([
   ["autoConfig", Ci.nsIProtocolProxyService.PROXYCONFIG_PAC],
 ]);
 
+const proxyPreferences = [
+  "network.proxy.type",
+  "network.proxy.autoconfig_url",
+  "network.proxy.socks_remote_dns",
+  "network.proxy.socks5_remote_dns",
+  "signon.autologin.proxy",
+  "network.proxy.socks_version",
+  "network.proxy.no_proxies_on",
+  "network.proxy.share_proxy_settings",
+  "network.proxy.http",
+  "network.proxy.http_port",
+  "network.proxy.ssl",
+  "network.proxy.ssl_port",
+  "network.proxy.socks",
+  "network.proxy.socks_port",
+];
+
 /**
  * Reports an operation of a policy that failed, so that the policy is flagged
  * as only partially applied in about:policies.
@@ -43,16 +60,17 @@ function reportFailure(message) {
 
 export var ProxyPolicies = {
   configureProxySettings(param, setPref) {
-    if (param.Mode) {
+    if (param.Mode !== undefined) {
       setPref("network.proxy.type", PROXY_TYPES_MAP.get(param.Mode));
     }
 
-    if (param.AutoConfigURL) {
+    if (param.AutoConfigURL !== undefined) {
       setPref("network.proxy.autoconfig_url", param.AutoConfigURL.href);
     }
 
     if (param.UseProxyForDNS !== undefined) {
       setPref("network.proxy.socks_remote_dns", param.UseProxyForDNS);
+      setPref("network.proxy.socks5_remote_dns", param.UseProxyForDNS);
     }
 
     if (param.AutoLogin !== undefined) {
@@ -83,39 +101,67 @@ export var ProxyPolicies = {
     }
 
     function setProxyHostAndPort(type, address) {
-      let url;
-      try {
-        // Prepend https just so we can use the URL parser
-        // instead of parsing manually.
-        url = new URL(`https://${address}`);
-      } catch (e) {
-        reportFailure(`Invalid address for ${type} proxy: ${address}`);
-        return;
-      }
+      // Prepend https just so we can use the URL parser
+      // instead of parsing manually.
+      if (address) {
+        const url = URL.parse(`https://${address}`);
+        if (!url) {
+          reportFailure(`Invalid address for ${type} proxy: ${address}`);
+          return;
+        }
 
-      setPref(`network.proxy.${type}`, url.hostname);
-      if (url.port) {
-        setPref(`network.proxy.${type}_port`, Number(url.port));
+        setPref(`network.proxy.${type}`, url.hostname);
+        if (url.port) {
+          setPref(`network.proxy.${type}_port`, Number(url.port));
+        }
+      } else {
+        setPref(`network.proxy.${type}`, "");
+        setPref(`network.proxy.${type}_port`, 0);
       }
     }
 
-    if (param.HTTPProxy) {
+    if (param.HTTPProxy !== undefined) {
       setProxyHostAndPort("http", param.HTTPProxy);
 
       // network.proxy.share_proxy_settings is a UI feature, not handled by the
       // network code. That pref only controls if the checkbox is checked, and
       // then we must manually set the other values.
       if (param.UseHTTPProxyForAllProtocols) {
-        param.SSLProxy = param.SOCKSProxy = param.HTTPProxy;
+        param.SSLProxy = param.HTTPProxy;
       }
     }
 
-    if (param.SSLProxy) {
+    if (param.SSLProxy !== undefined) {
       setProxyHostAndPort("ssl", param.SSLProxy);
     }
 
-    if (param.SOCKSProxy) {
+    if (param.SOCKSProxy !== undefined) {
       setProxyHostAndPort("socks", param.SOCKSProxy);
+    }
+
+    // All preferences should be locked regardless of whether or not a
+    // specific value was set.
+    if ("Locked" in param) {
+      for (const preference of proxyPreferences) {
+        if (param.Locked) {
+          Services.prefs.lockPref(preference);
+        } else {
+          Services.prefs.unlockPref(preference);
+        }
+      }
+    }
+  },
+
+  /**
+   * Restores every proxy preference to the state it had before the policy was
+   * applied.
+   *
+   * @param {Function} unsetPref A function that restores a preference
+   *                             to its pre-policy state.
+   */
+  resetProxySettings(unsetPref) {
+    for (const preference of proxyPreferences) {
+      unsetPref(preference);
     }
   },
 };
