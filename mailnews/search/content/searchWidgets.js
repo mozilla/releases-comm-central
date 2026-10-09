@@ -1002,6 +1002,37 @@
     }
 
     /**
+     * Whether the input expects a value that the user hasn't given. Such a
+     * search term is unfinished, and for some operators it matches every
+     * message, so it must not be saved. An empty text value is meaningful for
+     * "is" and "isn't", which match on an empty or non-empty field.
+     *
+     * @returns {boolean}
+     */
+    hasMissingValue() {
+      switch (this.inputType) {
+        case "text":
+          if (
+            this.internalOperator == Ci.nsMsgSearchOp.Is ||
+            this.internalOperator == Ci.nsMsgSearchOp.Isnt
+          ) {
+            return false;
+          }
+          return !this.getInputValue().trim();
+        case "date":
+          return !this.input.value.trim();
+        case "size":
+        case "age":
+        case "percent":
+          return !this.getInputValue().trim();
+        case "tags":
+          return !this.input.selectedItem;
+        default:
+          return false;
+      }
+    }
+
+    /**
      * Get the element's displayed value.
      *
      * @returns {string} - The value seen by the user.

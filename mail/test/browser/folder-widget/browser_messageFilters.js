@@ -55,95 +55,136 @@ add_setup(async function () {
 });
 
 /**
+ * Wait for a popup to reach a state, reporting the state it is stuck in
+ * instead of hanging until the whole test times out.
+ *
+ * Using this instead of BrowserTestUtils.waitForPopupEvent() as there is some
+ * flakiness (when not in headless mode), so time out quickly.
+ *
+ * @param {Element} popup - A menupopup or panel. Only popups have a state, so
+ *   anything else would wait for an event that can never fire.
+ * @param {"open"|"closed"} wanted - The state to wait for.
+ * @param {string} msg - Assertion message.
+ */
+async function waitForPopupState(popup, wanted, msg) {
+  if (typeof popup?.state != "string") {
+    throw new Error(
+      `${msg} - expected a popup, got ${popup?.localName ?? typeof popup}`
+    );
+  }
+  try {
+    await TestUtils.waitForCondition(() => popup.state == wanted, msg);
+  } catch (e) {
+    throw new Error(`${msg} - popup is stuck in state "${popup.state}": ${e}`);
+  }
+  Assert.equal(popup.state, wanted, msg);
+}
+
+/**
  * Tests the keyboard navigation on the message filters window, ensures that the
  * new filter toolbarbutton and it's dropdown work correctly.
  */
 add_task(async function key_navigation_test() {
   const filterc = await openFiltersDialogs();
+  try {
+    const filterWinDoc = filterc.document;
+    const BUTTONS_SELECTOR = `toolbarbutton:not([disabled],[is="toolbarbutton-menu-button"]),dropmarker, button:not([hidden])`;
+    const filterButtonList = filterWinDoc.getElementById("filterActionButtons");
+    const navigableButtons =
+      filterButtonList.querySelectorAll(BUTTONS_SELECTOR);
+    const menupopupNewFilter =
+      filterWinDoc.getElementById("newFilterMenupopup");
 
-  const filterWinDoc = filterc.document;
-  const BUTTONS_SELECTOR = `toolbarbutton:not([disabled],[is="toolbarbutton-menu-button"]),dropmarker, button:not([hidden])`;
-  const filterButtonList = filterWinDoc.getElementById("filterActionButtons");
-  const navigableButtons = filterButtonList.querySelectorAll(BUTTONS_SELECTOR);
-  const menupopupNewFilter = filterWinDoc.getElementById("newFilterMenupopup");
-
-  EventUtils.synthesizeKey("KEY_Tab", {}, filterc);
-  Assert.equal(
-    filterWinDoc.activeElement.id,
-    navigableButtons[0].id,
-    "focused on the first filter action button"
-  );
-
-  for (const button of navigableButtons) {
-    if (!filterWinDoc.getElementById(button.id).disabled) {
-      Assert.equal(
-        filterWinDoc.activeElement.id,
-        button.id,
-        "focused on the correct filter action button"
-      );
-
-      if (button.id == "newButtontoolbarbutton") {
-        function openEmptyDialog(fec) {
-          fec.document.getElementById("filterName").value = " ";
-          fec.close();
-        }
-
-        let dialogPromise = BrowserTestUtils.promiseAlertDialog(
-          null,
-          "chrome://messenger/content/FilterEditor.xhtml",
-          {
-            callback: openEmptyDialog,
-          }
-        );
-        EventUtils.synthesizeKey("KEY_Enter", {}, filterc);
-        await dialogPromise;
-
-        dialogPromise = dialogPromise = BrowserTestUtils.promiseAlertDialog(
-          null,
-          "chrome://messenger/content/FilterEditor.xhtml",
-          {
-            callback: openEmptyDialog,
-          }
-        );
-        // Simulate Space keypress.
-        EventUtils.synthesizeKey(" ", {}, filterc);
-        await dialogPromise;
-
-        Assert.equal(
-          filterWinDoc.activeElement.id,
-          button.id,
-          "Correct btn is focused after opening and closing new filter editor"
-        );
-      } else if (button.id == "newButtondropmarker") {
-        await new Promise(resolve => filterc.requestAnimationFrame(resolve));
-
-        EventUtils.synthesizeKey("KEY_Enter", {}, filterc);
-        await BrowserTestUtils.waitForPopupEvent(menupopupNewFilter, "shown");
-        Assert.ok(true, `Enter opened #${menupopupNewFilter.id}`);
-        EventUtils.synthesizeKey("KEY_Escape", {}, filterc);
-        await BrowserTestUtils.waitForPopupEvent(menupopupNewFilter, "hidden");
-        Assert.ok(true, `Esc closed #${menupopupNewFilter.id}`);
-
-        await new Promise(resolve => filterc.requestAnimationFrame(resolve));
-
-        // Simulate Space keypress.
-        EventUtils.synthesizeKey(" ", {}, filterc);
-        await BrowserTestUtils.waitForPopupEvent(menupopupNewFilter, "shown");
-        Assert.ok(true, `Space opened #${menupopupNewFilter.id}`);
-        EventUtils.synthesizeKey("KEY_Escape", {}, filterc);
-        await BrowserTestUtils.waitForPopupEvent(menupopupNewFilter, "hidden");
-        Assert.ok(true, `Esc closed #${menupopupNewFilter.id}`);
-        Assert.equal(
-          filterWinDoc.activeElement.id,
-          button.id,
-          "The correct btn should be focused after closing the menupopup"
-        );
-      }
-    }
     EventUtils.synthesizeKey("KEY_Tab", {}, filterc);
-  }
+    Assert.equal(
+      filterWinDoc.activeElement.id,
+      navigableButtons[0].id,
+      "focused on the first filter action button"
+    );
 
-  await BrowserTestUtils.closeWindow(filterc);
+    for (const button of navigableButtons) {
+      if (!filterWinDoc.getElementById(button.id).disabled) {
+        Assert.equal(
+          filterWinDoc.activeElement.id,
+          button.id,
+          "focused on the correct filter action button"
+        );
+
+        if (button.id == "newButtontoolbarbutton") {
+          function openEmptyDialog(fec) {
+            fec.document.getElementById("filterName").value = " ";
+            fec.close();
+          }
+
+          let dialogPromise = BrowserTestUtils.promiseAlertDialog(
+            null,
+            "chrome://messenger/content/FilterEditor.xhtml",
+            {
+              callback: openEmptyDialog,
+            }
+          );
+          EventUtils.synthesizeKey("KEY_Enter", {}, filterc);
+          dialogPromise = BrowserTestUtils.promiseAlertDialog(
+            null,
+            "chrome://messenger/content/FilterEditor.xhtml",
+            {
+              callback: openEmptyDialog,
+            }
+          );
+          // Simulate Space keypress.
+          EventUtils.synthesizeKey(" ", {}, filterc);
+          await dialogPromise;
+
+          Assert.equal(
+            filterWinDoc.activeElement.id,
+            button.id,
+            "Correct btn is focused after opening and closing new filter editor"
+          );
+        } else if (button.id == "newButtondropmarker") {
+          await new Promise(resolve => filterc.requestAnimationFrame(resolve));
+
+          EventUtils.synthesizeKey("KEY_Enter", {}, filterc);
+          await waitForPopupState(
+            menupopupNewFilter,
+            "open",
+            `Enter should open #${menupopupNewFilter.id}`
+          );
+          EventUtils.synthesizeKey("KEY_Escape", {}, filterc);
+          await waitForPopupState(
+            menupopupNewFilter,
+            "closed",
+            `Esc should close #${menupopupNewFilter.id}`
+          );
+
+          await new Promise(resolve => filterc.requestAnimationFrame(resolve));
+
+          // Simulate Space keypress.
+          EventUtils.synthesizeKey(" ", {}, filterc);
+          await waitForPopupState(
+            menupopupNewFilter,
+            "open",
+            `Space should open #${menupopupNewFilter.id}`
+          );
+          EventUtils.synthesizeKey("KEY_Escape", {}, filterc);
+          await waitForPopupState(
+            menupopupNewFilter,
+            "closed",
+            `Esc should close #${menupopupNewFilter.id}`
+          );
+          Assert.equal(
+            filterWinDoc.activeElement.id,
+            button.id,
+            "The correct btn should be focused after closing the menupopup"
+          );
+        }
+      }
+      EventUtils.synthesizeKey("KEY_Tab", {}, filterc);
+    }
+  } finally {
+    // Close the window even when an assertion fails, or the next test
+    // can't open its own filter list.
+    await BrowserTestUtils.closeWindow(filterc);
+  }
 }).skip(AppConstants.platform == "macosx");
 
 add_task(async function test_forward_filter_action_visibility() {
@@ -771,5 +812,251 @@ add_task(async function test_run_button_disabled_state() {
     "'Edit' button should be disabled again"
   );
 
+  await BrowserTestUtils.closeWindow(filterWin);
+});
+
+/**
+ * Test that a search term whose value was left empty can't be saved. For
+ * operators like "begins with" such a term matches every message, silently
+ * misfiling all incoming mail. See bug 1896015.
+ */
+add_task(async function test_filter_with_empty_search_value() {
+  await be_in_folder(folderA);
+  const filterWin = await openFiltersDialogs();
+  const initialCount = filterWin.gCurrentFilterList.filterCount;
+
+  async function fill_in_filter_fields(fec) {
+    fec.document.getElementById("filterName").value = "Empty value filter";
+    fec.document.getElementById("searchAttr0").value =
+      Ci.nsMsgSearchAttrib.Subject;
+    fec.document.getElementById("searchOp0").value =
+      Ci.nsMsgSearchOp.BeginsWith;
+    const searchVal = fec.document.getElementById("searchVal0");
+    Assert.equal(searchVal.input.value, "", "search value should start empty");
+
+    const filterActions = fec.document.getElementById("filterActionList");
+    filterActions.getItemAtIndex(0).setAttribute("value", "markasflagged");
+
+    info("Accepting the dialog without a search value should be refused");
+    const alertPromise = BrowserTestUtils.promiseAlertDialogOpen(
+      "",
+      "chrome://global/content/commonDialog.xhtml",
+      {
+        async callback(win) {
+          const message = win.document.getElementById("infoBody").textContent;
+          Assert.stringContains(
+            message,
+            fec.document.getElementById("searchAttr0").label,
+            "the alert should name the offending search term"
+          );
+          win.document.querySelector("dialog").acceptDialog();
+        },
+      }
+    );
+    fec.document.querySelector("dialog").acceptDialog();
+    await alertPromise;
+    Assert.ok(!fec.closed, "filter editor should still be open");
+
+    info("Once the value is filled in, the filter should save");
+    searchVal.input.value = "needle";
+    fec.document.querySelector("dialog").acceptDialog();
+  }
+
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/FilterEditor.xhtml",
+    {
+      callback: fill_in_filter_fields,
+    }
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    filterWin.document.getElementById("newButton"),
+    {},
+    filterWin
+  );
+  await dialogPromise;
+
+  const filterList = filterWin.gCurrentFilterList;
+  Assert.equal(
+    filterList.filterCount,
+    initialCount + 1,
+    "the filter should have been saved"
+  );
+  const filter = filterList.getFilterAt(0);
+  Assert.equal(
+    filter.filterName,
+    "Empty value filter",
+    "the new filter should be the first in the list"
+  );
+  Assert.equal(
+    filter.searchTerms[0].value.str,
+    "needle",
+    "the filter should have kept the value that was filled in"
+  );
+
+  filterList.removeFilterAt(0);
+  await BrowserTestUtils.closeWindow(filterWin);
+});
+
+/**
+ * Test that an empty value is accepted for "is", which is how a filter matches
+ * messages with an empty subject.
+ */
+add_task(async function test_filter_with_empty_search_value_is() {
+  await be_in_folder(folderA);
+  const filterWin = await openFiltersDialogs();
+  const initialCount = filterWin.gCurrentFilterList.filterCount;
+
+  async function fill_in_filter_fields(fec) {
+    fec.document.getElementById("filterName").value = "Empty subject filter";
+    fec.document.getElementById("searchAttr0").value =
+      Ci.nsMsgSearchAttrib.Subject;
+    fec.document.getElementById("searchOp0").value = Ci.nsMsgSearchOp.Is;
+    Assert.equal(
+      fec.document.getElementById("searchVal0").input.value,
+      "",
+      "search value should start empty"
+    );
+
+    const filterActions = fec.document.getElementById("filterActionList");
+    filterActions.getItemAtIndex(0).setAttribute("value", "markasflagged");
+    fec.document.querySelector("dialog").acceptDialog();
+  }
+
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/FilterEditor.xhtml",
+    {
+      callback: fill_in_filter_fields,
+    }
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    filterWin.document.getElementById("newButton"),
+    {},
+    filterWin
+  );
+  await dialogPromise;
+
+  const filterList = filterWin.gCurrentFilterList;
+  Assert.equal(
+    filterList.filterCount,
+    initialCount + 1,
+    "the filter should have been saved"
+  );
+  const filter = filterList.getFilterAt(0);
+  Assert.equal(
+    filter.filterName,
+    "Empty subject filter",
+    "the new filter should be the first in the list"
+  );
+  Assert.equal(
+    filter.searchTerms[0].op,
+    Ci.nsMsgSearchOp.Is,
+    "the search term should use the is operator"
+  );
+  Assert.equal(
+    filter.searchTerms[0].value.str,
+    "",
+    "the search term should keep its empty value"
+  );
+
+  filterList.removeFilterAt(0);
+  await BrowserTestUtils.closeWindow(filterWin);
+});
+
+/**
+ * Test that a date search term whose value was cleared can't be saved. The
+ * date input is prefilled with today, but a user can empty it, and an empty
+ * date is stored as 0, which makes "is after" match every message.
+ * See bug 1896015.
+ */
+add_task(async function test_filter_with_empty_date_value() {
+  await be_in_folder(folderA);
+  const filterWin = await openFiltersDialogs();
+  const initialCount = filterWin.gCurrentFilterList.filterCount;
+  let expectedDate;
+
+  async function fill_in_filter_fields(fec) {
+    fec.document.getElementById("filterName").value = "Empty date filter";
+    fec.document.getElementById("searchAttr0").value =
+      Ci.nsMsgSearchAttrib.Date;
+    fec.document.getElementById("searchOp0").value = Ci.nsMsgSearchOp.IsAfter;
+    const searchVal = fec.document.getElementById("searchVal0");
+    const today = searchVal.input.value;
+    Assert.notEqual(today, "", "the date value should start prefilled");
+
+    const filterActions = fec.document.getElementById("filterActionList");
+    filterActions.getItemAtIndex(0).setAttribute("value", "markasflagged");
+
+    info("Accepting the dialog with a cleared date should be refused");
+    searchVal.input.value = "";
+    const alertPromise = BrowserTestUtils.promiseAlertDialogOpen(
+      "",
+      "chrome://global/content/commonDialog.xhtml",
+      {
+        async callback(win) {
+          const message = win.document.getElementById("infoBody").textContent;
+          Assert.stringContains(
+            message,
+            fec.document.getElementById("searchAttr0").label,
+            "the alert should name the offending search term"
+          );
+          win.document.querySelector("dialog").acceptDialog();
+        },
+      }
+    );
+    fec.document.querySelector("dialog").acceptDialog();
+    await alertPromise;
+    Assert.ok(!fec.closed, "filter editor should still be open");
+
+    info("Once the date is filled in again, the filter should save");
+    searchVal.input.value = today;
+    expectedDate = searchVal.getInputValue();
+    fec.document.querySelector("dialog").acceptDialog();
+  }
+
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/FilterEditor.xhtml",
+    {
+      callback: fill_in_filter_fields,
+    }
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    filterWin.document.getElementById("newButton"),
+    {},
+    filterWin
+  );
+  await dialogPromise;
+
+  const filterList = filterWin.gCurrentFilterList;
+  Assert.equal(
+    filterList.filterCount,
+    initialCount + 1,
+    "the filter should have been saved"
+  );
+  const filter = filterList.getFilterAt(0);
+  Assert.equal(
+    filter.filterName,
+    "Empty date filter",
+    "the new filter should be the first in the list"
+  );
+  Assert.equal(
+    filter.searchTerms[0].op,
+    Ci.nsMsgSearchOp.IsAfter,
+    "the search term should use the is after operator"
+  );
+  Assert.notEqual(
+    filter.searchTerms[0].value.date,
+    0,
+    "the search term should not have fallen back to the epoch"
+  );
+  Assert.equal(
+    filter.searchTerms[0].value.date,
+    expectedDate,
+    "the search term should have kept the date that was filled in"
+  );
+
+  filterList.removeFilterAt(0);
   await BrowserTestUtils.closeWindow(filterWin);
 });

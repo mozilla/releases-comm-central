@@ -535,6 +535,22 @@ function saveFilter() {
       Services.prompt.alert(window, title, msg);
       return false;
     }
+
+    if (obj.searchvalue.hasMissingValue()) {
+      const [title, msg] = l10n.formatValuesSync([
+        { id: "filter-editor-missing-value-title" },
+        {
+          id: "filter-editor-missing-value-rule",
+          args: {
+            attribute: obj.searchattribute.label,
+            operator: obj.searchoperator.label,
+          },
+        },
+      ]);
+      Services.prompt.alert(window, title, msg);
+      obj.searchvalue.input.focus();
+      return false;
+    }
   }
 
   // before we go any further, validate each specified filter action, abort the save

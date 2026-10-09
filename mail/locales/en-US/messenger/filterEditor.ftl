@@ -252,6 +252,13 @@ filter-editor-invalid-search-title = Search Terms Invalid
 #   $operator (String) - The search operator from the bad rule.
 filter-editor-invalid-search-rule = This filter cannot be saved because the search term "{ $attribute } { $operator }" is invalid in the current context.
 
+filter-editor-missing-value-title = Search Value Missing
+
+# Variables:
+#   $attribute (String) - The search attribute name from the incomplete rule.
+#   $operator (String) - The search operator from the incomplete rule.
+filter-editor-missing-value-rule = This filter cannot be saved because no value was entered for the search term "{ $attribute } { $operator }".
+
 filter-editor-action-order-explanation =
     When a message matches this filter the actions will be run in this order:
 
