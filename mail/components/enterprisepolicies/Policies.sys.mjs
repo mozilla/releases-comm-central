@@ -97,21 +97,41 @@ export var Policies = {
         lazy.log.debug("_cleanup from onBeforeAddons");
         lazy.clearBlockedAboutPages();
       }
+      Services.obs.notifyObservers(
+        null,
+        "EnterprisePolicies:Cleanup",
+        "onBeforeAddons"
+      );
     },
     onProfileAfterChange() {
       if (Cu.isInAutomation || isXpcshell) {
         lazy.log.debug("_cleanup from onProfileAfterChange");
       }
+      Services.obs.notifyObservers(
+        null,
+        "EnterprisePolicies:Cleanup",
+        "onProfileAfterChange"
+      );
     },
     onBeforeUIStartup() {
       if (Cu.isInAutomation || isXpcshell) {
         lazy.log.debug("_cleanup from onBeforeUIStartup");
       }
+      Services.obs.notifyObservers(
+        null,
+        "EnterprisePolicies:Cleanup",
+        "onBeforeUIStartup"
+      );
     },
     onAllWindowsRestored() {
       if (Cu.isInAutomation || isXpcshell) {
         lazy.log.debug("_cleanup from onAllWindowsRestored");
       }
+      Services.obs.notifyObservers(
+        null,
+        "EnterprisePolicies:Cleanup",
+        "onAllWindowsRestored"
+      );
     },
   },
 
