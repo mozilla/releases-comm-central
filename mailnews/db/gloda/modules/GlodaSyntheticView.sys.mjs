@@ -95,22 +95,6 @@ GlodaSyntheticView.prototype = {
   },
 
   /**
-   * Helper function used by |DBViewWrapper.getMsgHdrForMessageID| since there
-   *  are no actual backing folders for it to check.
-   */
-  getMsgHdrForMessageID(aMessageId) {
-    for (const item of this.collection.items) {
-      if (item.headerMessageID == aMessageId) {
-        const hdr = item.folderMessage;
-        if (hdr) {
-          return hdr;
-        }
-      }
-    }
-    return null;
-  },
-
-  /**
    * The default set of columns to show.
    */
   DEFAULT_COLUMN_STATES: {
