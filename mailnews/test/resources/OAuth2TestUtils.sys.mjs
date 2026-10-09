@@ -424,6 +424,19 @@ export const OAuth2TestUtils = {
   },
 };
 
+/**
+ * Page script that removes the login form when no cookie can be stored, the
+ * way the pages of some providers behave.
+ *
+ * @type {string}
+ */
+const COOKIE_CHECK_SCRIPT = `<script>
+  document.cookie = "cookiesWork=yes";
+  if (!document.cookie.includes("cookiesWork=yes")) {
+    document.querySelector("form").remove();
+  }
+</script>`;
+
 class OAuth2Server {
   /**
    * @param {object} options
@@ -433,6 +446,9 @@ class OAuth2Server {
    * @param {string} [options.refreshToken="refresh_token"]
    * @param {boolean} [options.rotateTokens=false]
    * @param {?number} [options.expiry=null]
+   * @param {boolean} [options.requireCookies=false] - Behave like the login
+   *   pages of real providers, which don't show their form if they can't
+   *   store a cookie.
    */
   constructor({
     username = "user",
@@ -441,6 +457,7 @@ class OAuth2Server {
     refreshToken = "refresh_token",
     rotateTokens = false,
     expiry = null,
+    requireCookies = false,
   } = {}) {
     this.username = username;
     this.password = password;
@@ -448,6 +465,7 @@ class OAuth2Server {
     this.refreshToken = refreshToken;
     this.rotateTokens = rotateTokens;
     this.expiry = expiry;
+    this.requireCookies = requireCookies;
 
     this.httpServer = new HttpServer();
     this.httpServer.registerPathHandler("/form", this.formHandler.bind(this));
@@ -515,6 +533,7 @@ class OAuth2Server {
           ${scopeCheckboxes.join("")}<br/>
           <input type="submit" />
         </form>
+        ${this.requireCookies ? COOKIE_CHECK_SCRIPT : ""}
       </body>
       </html>
     `);
