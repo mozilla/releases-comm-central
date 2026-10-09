@@ -2,6 +2,22 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+## Message files
+
+messenger-eml-files-filter = Mail Files
+messenger-open-eml-file-title = Open Message
+
+# Keep the .eml extension and use an 8.3 file name.
+messenger-default-save-message-file-name = message.eml
+
+messenger-save-message-as = Save Message As
+messenger-choose-folder = Choose Folder
+messenger-save-message-failed = Unable to save the message. Please check your file name and try again later.
+
+# Variables:
+# $filename (String) - Full path of the file that already exists.
+messenger-file-exists = { $filename } already exists. Do you want to replace it?
+
 ## Window controls
 
 messenger-window-minimize-button =

@@ -5,6 +5,9 @@
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { MessageSaver } = ChromeUtils.importESModule(
+  "moz-src:///comm/mail/modules/MessageSaver.sys.mjs"
+);
 
 const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
 const dateFormat = new Services.intl.DateTimeFormat(undefined, {
@@ -349,4 +352,73 @@ add_task(async function testMultiple() {
   }
 
   await IOUtils.remove(targetPath, { recursive: true });
+});
+
+add_task(async function testMultipleOverwriteConfirmation() {
+  const targetPath = await IOUtils.createUniqueDirectory(
+    PathUtils.tempDir,
+    "saveAsOverwrite"
+  );
+  const names = ["declined.eml", "accepted.eml", "new.eml"];
+  const paths = names.map(name => PathUtils.join(targetPath, name));
+  const header = testMessages[0];
+  const uri = header.folder.getUriForMsg(header);
+  const expectedPrompts = await document.l10n.formatValues(
+    paths.slice(0, 2).map(filename => ({
+      id: "messenger-file-exists",
+      args: { filename },
+    }))
+  );
+  const promptService = Services.prompt;
+  const prompts = [];
+
+  try {
+    await IOUtils.writeUTF8(paths[0], "declined file");
+    await IOUtils.writeUTF8(paths[1], "accepted file");
+    Services.prompt = {
+      confirm(_parent, _title, message) {
+        prompts.push(message);
+        return prompts.length == 2;
+      },
+    };
+    SpecialPowers.MockFilePicker.init(window.browsingContext);
+    SpecialPowers.MockFilePicker.useDirectory(targetPath);
+    SpecialPowers.MockFilePicker.returnValue = Ci.nsIFilePicker.returnOk;
+
+    Assert.equal(
+      await MessageSaver.saveMessages(
+        window.browsingContext,
+        [uri, uri, uri],
+        names
+      ),
+      targetPath,
+      "the batch should finish after declining an overwrite"
+    );
+    Assert.deepEqual(
+      prompts,
+      expectedPrompts,
+      "existing files should use the localized overwrite confirmation"
+    );
+    Assert.equal(
+      await IOUtils.readUTF8(paths[0]),
+      "declined file",
+      "declining should preserve the existing file"
+    );
+    for (const path of paths.slice(1)) {
+      Assert.stringContains(
+        await IOUtils.readUTF8(path),
+        `Subject: ${header.subject}\r\n`,
+        "accepted and new files should contain the saved message"
+      );
+    }
+    Assert.deepEqual(
+      (await IOUtils.getChildren(targetPath)).sort(),
+      paths.sort(),
+      "the batch should not create numbered copies of existing files"
+    );
+  } finally {
+    Services.prompt = promptService;
+    SpecialPowers.MockFilePicker.cleanup();
+    await IOUtils.remove(targetPath, { recursive: true });
+  }
 });

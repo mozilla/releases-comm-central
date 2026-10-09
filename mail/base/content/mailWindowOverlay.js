@@ -1154,12 +1154,12 @@ function MsgOpenNewTabForFolders(folders, tabParams = {}) {
   }
 }
 
-function MsgOpenFromFile() {
-  var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-
-  var bundle = document.getElementById("bundle_messenger");
-  var filterLabel = bundle.getString("EMLFiles");
-  var windowTitle = bundle.getString("OpenEMLFiles");
+async function MsgOpenFromFile() {
+  const [filterLabel, windowTitle] = await document.l10n.formatValues([
+    { id: "messenger-eml-files-filter" },
+    { id: "messenger-open-eml-file-title" },
+  ]);
+  const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
   fp.init(window.browsingContext, windowTitle, Ci.nsIFilePicker.modeOpen);
   fp.appendFilter(filterLabel, "*.eml");

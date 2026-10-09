@@ -15,10 +15,10 @@ XPCOMUtils.defineLazyServiceGetters(lazy, {
     Ci.nsIStreamConverterService,
   ],
 });
-ChromeUtils.defineLazyGetter(lazy, "bundle", () =>
-  Services.strings.createBundle(
-    "chrome://messenger/locale/messenger.properties"
-  )
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["messenger/messenger.ftl"], true)
 );
 ChromeUtils.defineLazyGetter(lazy, "log", () =>
   console.createInstance({
@@ -45,11 +45,16 @@ export class MessageSaver {
    * @returns {?string} the path of the saved message. null if not saved.
    */
   static async saveAs(browsingContext, uri, defaultName) {
-    const title = lazy.bundle.GetStringFromName("SaveMailAs");
-    let fileName = (
-      defaultName ||
-      lazy.bundle.GetStringFromName("defaultSaveMessageAsFileName")
-    ).replace(/(.{60}).{4,}(.{22})$/u, "$1...$2");
+    const [title, defaultFileName, emlFilesLabel] =
+      await lazy.l10n.formatValues([
+        { id: "messenger-save-message-as" },
+        { id: "messenger-default-save-message-file-name" },
+        { id: "messenger-eml-files-filter" },
+      ]);
+    let fileName = (defaultName || defaultFileName).replace(
+      /(.{60}).{4,}(.{22})$/u,
+      "$1...$2"
+    );
 
     // Save as "All Files" by default. We want .eml by default, but the pickers
     // on some platforms don't switch extensions based on the file type
@@ -64,7 +69,7 @@ export class MessageSaver {
       fp.init(browsingContext, title, Ci.nsIFilePicker.modeSave);
       fp.defaultString = fileName;
       // Filters must be appended in FILE_TYPES order, as filterIndex is used.
-      fp.appendFilter(lazy.bundle.GetStringFromName("EMLFiles"), "*.eml");
+      fp.appendFilter(emlFilesLabel, "*.eml");
       fp.appendFilters(Ci.nsIFilePicker.filterHTML);
       fp.appendFilters(Ci.nsIFilePicker.filterText);
       fp.appendFilters(Ci.nsIFilePicker.filterAll);
@@ -99,7 +104,7 @@ export class MessageSaver {
         Services.prompt.alert(
           browsingContext.window,
           title,
-          lazy.bundle.GetStringFromName("saveMessageFailed")
+          await lazy.l10n.formatValue("messenger-save-message-failed")
         );
         fileName = file.leafName;
         filterIndex = fp.filterIndex;
@@ -186,7 +191,7 @@ export class MessageSaver {
     const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
     fp.init(
       browsingContext,
-      lazy.bundle.GetStringFromName("ChooseFolder"),
+      await lazy.l10n.formatValue("messenger-choose-folder"),
       Ci.nsIFilePicker.modeGetFolder
     );
     try {
@@ -214,7 +219,9 @@ export class MessageSaver {
           !Services.prompt.confirm(
             browsingContext.window,
             null,
-            lazy.bundle.formatStringFromName("fileExists", [path])
+            await lazy.l10n.formatValue("messenger-file-exists", {
+              filename: path,
+            })
           )
         ) {
           continue;
@@ -226,7 +233,7 @@ export class MessageSaver {
       Services.prompt.alert(
         browsingContext.window,
         null,
-        lazy.bundle.GetStringFromName("saveMessageFailed")
+        await lazy.l10n.formatValue("messenger-save-message-failed")
       );
       return null;
     }
