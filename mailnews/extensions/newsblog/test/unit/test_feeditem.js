@@ -151,6 +151,16 @@ add_task(function test_normalizeMessageID_escapes_meta_characters() {
     "<%3Ca%40b%3E%3Cc%40d%3E@localhost.localdomain>",
     "all occurrences of message ID meta characters should be escaped"
   );
+  Assert.equal(
+    item.normalizeMessageID("foo bar\u00A0baz"),
+    "<foo%20bar%C2%A0baz@localhost.localdomain>",
+    "inner whitespace should be escaped"
+  );
+  Assert.notEqual(
+    item.normalizeMessageID("a%40b"),
+    item.normalizeMessageID("a@b"),
+    "an already escaped id should not collide with the unescaped one"
+  );
 });
 
 add_task(function test_message_id_header_escapes_item_id() {

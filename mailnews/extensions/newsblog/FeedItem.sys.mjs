@@ -78,12 +78,12 @@ FeedItem.prototype = {
   },
 
   normalizeMessageID(messageID) {
-    // Escape occurrences of message ID meta characters <, >, and @.
+    // Escape occurrences of message ID meta characters <, >, and @, as well
+    // as whitespace and the escape character % itself.
     messageID = messageID
-      .replace(/</g, "%3C")
-      .replace(/>/g, "%3E")
-      .replace(/@/g, "%40");
-    messageID = "<" + messageID.trim() + "@localhost.localdomain>";
+      .trim()
+      .replace(/[%<>@\s]/g, c => encodeURIComponent(c));
+    messageID = "<" + messageID + "@localhost.localdomain>";
 
     lazy.FeedUtils.log.trace(
       "FeedItem.normalizeMessageID: messageID - " + messageID

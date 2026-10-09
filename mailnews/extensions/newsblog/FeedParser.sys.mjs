@@ -1073,7 +1073,9 @@ FeedParser.prototype = {
       );
       if (tags) {
         for (const tag of tags) {
-          const ref = this.removeUnprintableASCII(tag.getAttribute("ref"));
+          const ref = this.removeUnprintableASCII(
+            tag.getAttribute("ref")
+          ).trim();
           if (ref) {
             item.inReplyTo += item.normalizeMessageID(ref) + " ";
           }
