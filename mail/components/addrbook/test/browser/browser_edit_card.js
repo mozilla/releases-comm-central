@@ -2143,6 +2143,47 @@ add_task(async function test_email_fields() {
   await promiseDirectoryRemoved(book.URI);
 });
 
+add_task(async function test_url_scheme() {
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
+  const createContactButton = abDocument.getElementById(
+    "booksPaneCreateContact"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
+  await inEditingMode();
+
+  const urlField = getFields("url", true, 1)[0].urlEl;
+  urlField.focus();
+  EventUtils.sendString("joplin://x-callback-url/openNote?id=1234");
+  Assert.equal(
+    urlField.value,
+    "joplin://x-callback-url/openNote?id=1234",
+    "A URL with a non-HTTP scheme is not changed"
+  );
+
+  urlField.select();
+  EventUtils.sendString("www.example.com");
+  Assert.equal(
+    urlField.value,
+    "https://www.example.com",
+    "HTTPS is added to a URL without a scheme"
+  );
+
+  const promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
+  EventUtils.synthesizeMouseAtCenter(
+    abDocument.getElementById("cancelEditButton"),
+    {},
+    abWindow
+  );
+  await promptPromise;
+  await TestUtils.waitForCondition(
+    () => !abWindow.detailsPane.isEditing,
+    "Waiting on leaving editing mode"
+  );
+  await closeAddressBookWindow();
+});
+
 add_task(async function test_vCard_fields() {
   const abWindow = await openAddressBookWindow();
   const abDocument = abWindow.document;

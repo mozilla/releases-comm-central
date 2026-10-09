@@ -45,7 +45,7 @@ export class VCardURLComponent extends HTMLElement {
       // Auto add https:// if the url is missing scheme.
       if (
         this.urlEl.value.length > "https://".length &&
-        !/^https?:\/\//.test(this.urlEl.value)
+        !/^[a-z][a-z0-9+.-]*:/i.test(this.urlEl.value)
       ) {
         this.urlEl.value = "https://" + this.urlEl.value;
       }
