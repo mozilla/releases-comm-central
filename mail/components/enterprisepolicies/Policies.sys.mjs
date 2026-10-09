@@ -2116,6 +2116,7 @@ if (AppConstants.MOZ_ENTERPRISE) {
     onRemove(manager, _) {
       lazy.PoliciesUtils.unsetAndUnlockPref("devtools.policy.disabled");
       lazy.PoliciesUtils.unsetAndUnlockPref("devtools.chrome.enabled");
+      lazy.PoliciesUtils.unsetAndUnlockPref("remote.policy.disabled");
 
       manager.allowFeature("devtools");
       lazy.unblockAboutPage(manager, "about:debugging");
