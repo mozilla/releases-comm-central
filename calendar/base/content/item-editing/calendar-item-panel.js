@@ -110,7 +110,9 @@ function receiveMessage(aEvent) {
       closeWindowOrTab(aEvent.data.iframeId);
       break;
     case "showCmdStatusNone":
-      document.getElementById("cmd_status_none").removeAttribute("hidden");
+      for (const item of document.querySelectorAll(`menuitem[command="cmd_status_none"]`)) {
+        item.removeAttribute("hidden");
+      }
       break;
     case "updateTitle":
       updateTitle(aEvent.data.prefix, aEvent.data.title);

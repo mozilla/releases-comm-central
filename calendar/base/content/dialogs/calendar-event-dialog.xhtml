@@ -107,12 +107,7 @@
         <command id="cmd_customize" oncommand="onCommandCustomize()" />
 
         <!-- status -->
-        <command
-          id="cmd_status_none"
-          oncommand="editStatus(event.target)"
-          hidden="hidden"
-          value="NONE"
-        />
+        <command id="cmd_status_none" oncommand="editStatus(event.target)" value="NONE" />
         <command id="cmd_status_tentative" oncommand="editStatus(event.target)" value="TENTATIVE" />
         <command id="cmd_status_confirmed" oncommand="editStatus(event.target)" value="CONFIRMED" />
         <command id="cmd_status_cancelled" oncommand="editStatus(event.target)" value="CANCELLED" />
@@ -364,7 +359,7 @@
               label="&event.menu.options.label;"
               accesskey="&event.menu.options.accesskey;"
             >
-              <menupopup id="options-menupopup">
+              <menupopup id="options-menupopup" onpopupshowing="syncCheckedFromCommands(event);">
                 <menuitem
                   id="options-attendees-menuitem"
                   label="&event.menu.options.attendees.label;"
@@ -486,6 +481,7 @@
                       label="&newevent.eventStatus.none.label;"
                       accesskey="&newevent.eventStatus.none.accesskey;"
                       type="radio"
+                      hidden="hidden"
                       command="cmd_status_none"
                       disable-on-readonly="true"
                     />

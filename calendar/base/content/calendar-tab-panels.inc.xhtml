@@ -646,11 +646,11 @@
 
 <menupopup id="calControlBarMenuPopup"
            class="gutter-popup"
-           position="bottomleft topleft">
+           position="bottomleft topleft"
+           onpopupshowing="syncCheckedFromCommands(event);">
   <menuitem id="findEventsButton"
             data-l10n-id="calendar-find-events-menu-option"
             type="checkbox"
-            checked=""
             command="calendar_show_unifinder_command"/>
   <menuseparator id="separatorBeforeHideWeekends"/>
   <menuitem id="hideWeekendsButton"

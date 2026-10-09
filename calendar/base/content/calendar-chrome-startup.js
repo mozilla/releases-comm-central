@@ -347,7 +347,9 @@ function calendarOnToolbarsPopupShowing(aEvent, aInsertPoint) {
 function initViewCalendarPaneMenu() {
   const calSidebar = document.getElementById("calSidebar");
 
-  document.getElementById("calViewCalendarPane").toggleAttribute("checked", !calSidebar.collapsed);
+  document
+    .getElementById("calendar_toggle_calendarsidebar_command")
+    .toggleAttribute("checked", !calSidebar.collapsed);
 
   if (document.getElementById("appmenu_calViewCalendarPane")) {
     document.getElementById("appmenu_calViewCalendarPane").checked = !calSidebar.collapsed;

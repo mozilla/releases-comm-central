@@ -80,7 +80,7 @@
                  disable-on-readonly="true"
                  label="&event.menu.options.priority2.label;"
                  tooltiptext="&event.toolbar.priority.tooltip;">
-    <menupopup id="event-priority-menupopup">
+    <menupopup id="event-priority-menupopup" onpopupshowing="syncCheckedFromCommands(event);">
       <menuitem id="event-priority-none-menuitem"
                 name="event-priority-group"
                 label="&event.menu.options.priority.notspecified.label;"
@@ -111,11 +111,12 @@
                  disable-on-readonly="true"
                  label="&newevent.status.label;"
                  tooltiptext="&event.toolbar.status.tooltip;">
-    <menupopup id="event-status-menupopup">
+    <menupopup id="event-status-menupopup" onpopupshowing="syncCheckedFromCommands(event);">
       <menuitem id="event-status-none-menuitem"
                 name="event-status-group"
                 label="&newevent.eventStatus.none.label;"
                 type="radio"
+                hidden="hidden"
                 command="cmd_status_none"/>
       <menuitem id="event-status-tentative-menuitem"
                 name="event-status-group"
@@ -142,7 +143,7 @@
                  disable-on-readonly="true"
                  label="&event.menu.options.show.time.label;"
                  tooltiptext="&event.toolbar.freebusy.tooltip;">
-    <menupopup id="event-freebusy-menupopup">
+    <menupopup id="event-freebusy-menupopup" onpopupshowing="syncCheckedFromCommands(event);">
       <menuitem id="event-freebusy-busy-menuitem"
                 name="event-freebusy-group"
                 label="&event.menu.options.show.time.busy.label;"

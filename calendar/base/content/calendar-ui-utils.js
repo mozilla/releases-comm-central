@@ -8,7 +8,7 @@
  *          checkRadioControlAppmenu,
  *          updateUnitLabelPlural, updateMenuLabelsPlural,
  *          getOptimalMinimumWidth, getOptimalMinimumHeight,
- *          setupAttendanceMenu
+ *          setupAttendanceMenu, syncCheckedFromCommands
  */
 
 /* import-globals-from ../../../mail/base/content/globalOverlay.js */
@@ -182,6 +182,19 @@ function addMenuItem(aParent, aLabel, aValue, aCommand) {
     item = aParent.appendItem(aLabel, aValue);
   }
   return item;
+}
+
+/**
+ * Copy the checked state of each command to the menu items that use it, in
+ * the popup that is opening.
+ *
+ * @param {Event} event - The popupshowing event.
+ */
+function syncCheckedFromCommands(event) {
+  for (const item of event.target.querySelectorAll(":scope > menuitem[command]")) {
+    const command = document.getElementById(item.getAttribute("command"));
+    item.toggleAttribute("checked", command.hasAttribute("checked"));
+  }
 }
 
 /**

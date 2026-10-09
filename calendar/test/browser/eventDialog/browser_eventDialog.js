@@ -362,6 +362,115 @@ add_task(async function testCtrlEnterShortcut() {
   EventUtils.synthesizeKey("KEY_Delete", {}, window);
 });
 
+add_task(async function testOptionsMenuState() {
+  registerCleanupFunction(() => {
+    Services.xulStore.removeValue(
+      "chrome://calendar/content/calendar-event-dialog.xhtml",
+      "cmd_timezone",
+      "checked"
+    );
+  });
+
+  const event = new CalEvent();
+  event.title = "Options";
+  event.startDate = cal.createDateTime("20201001T100000Z");
+  event.endDate = cal.createDateTime("20201001T110000Z");
+  event.priority = 1;
+  event.privacy = "CONFIDENTIAL";
+  event.status = "CONFIRMED";
+  event.setProperty("TRANSP", "TRANSPARENT");
+  const savedEvent = await calendar.addItem(event);
+
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await CalendarTestUtils.goToDate(window, 2020, 10, 1);
+
+  const openMenu = async menu => {
+    menu.openMenu(true);
+    await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "shown");
+  };
+  const chooseItem = async (item, rootPopup) => {
+    const hiddenPromise = BrowserTestUtils.waitForPopupEvent(rootPopup, "hidden");
+    item.parentNode.activateItem(item);
+    await hiddenPromise;
+  };
+  const checkedItems = menu =>
+    Array.from(menu.menupopup.querySelectorAll(":scope > menuitem[checked]"), item => item.id);
+
+  let { dialogWindow } = await dayView.editEventAt(window, 1);
+  let dialogDocument = dialogWindow.document;
+  let optionsMenu = dialogDocument.getElementById("options-menu");
+  await openMenu(optionsMenu);
+  for (const [menuId, expected] of [
+    ["options-priority-menu", "options-priority-high-label"],
+    ["options-privacy-menu", "options-privacy-confidential-menuitem"],
+    ["options-status-menu", "options-status-confirmed-menuitem"],
+    ["options-freebusy-menu", "options-freebusy-free-menuitem"],
+  ]) {
+    const menu = dialogDocument.getElementById(menuId);
+    await openMenu(menu);
+    Assert.deepEqual(
+      checkedItems(menu),
+      [expected],
+      `${menuId} should check only ${expected} for the opened event`
+    );
+    if (menuId == "options-status-menu") {
+      Assert.ok(
+        BrowserTestUtils.isHidden(dialogDocument.getElementById("options-status-none-menuitem")),
+        "status none should be hidden for an event with a status"
+      );
+    }
+    if (menuId == "options-freebusy-menu") {
+      await chooseItem(
+        dialogDocument.getElementById("options-freebusy-busy-menuitem"),
+        optionsMenu.menupopup
+      );
+    } else {
+      menu.openMenu(false);
+      await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "hidden");
+    }
+  }
+  await saveAndCloseItemDialog(dialogWindow);
+
+  ({ dialogWindow } = await dayView.editEventAt(window, 1));
+  dialogDocument = dialogWindow.document;
+  optionsMenu = dialogDocument.getElementById("options-menu");
+  await openMenu(optionsMenu);
+  const freeBusyMenu = dialogDocument.getElementById("options-freebusy-menu");
+  await openMenu(freeBusyMenu);
+  Assert.deepEqual(
+    checkedItems(freeBusyMenu),
+    ["options-freebusy-busy-menuitem"],
+    "busy should be checked after saving the event as busy"
+  );
+  freeBusyMenu.openMenu(false);
+  await BrowserTestUtils.waitForPopupEvent(freeBusyMenu.menupopup, "hidden");
+  const timezonesItem = dialogDocument.getElementById("options-timezones-menuitem");
+  Assert.ok(!timezonesItem.hasAttribute("checked"), "time zones should start unchecked");
+  await chooseItem(timezonesItem, optionsMenu.menupopup);
+  let closedPromise = BrowserTestUtils.domWindowClosed(dialogWindow);
+  cancelItemDialog(dialogWindow);
+  await closedPromise;
+
+  ({ dialogWindow } = await dayView.editEventAt(window, 1));
+  dialogDocument = dialogWindow.document;
+  optionsMenu = dialogDocument.getElementById("options-menu");
+  await openMenu(optionsMenu);
+  Assert.ok(
+    dialogDocument.getElementById("options-timezones-menuitem").hasAttribute("checked"),
+    "time zones should be checked when the dialog opens with time zones turned on"
+  );
+  await chooseItem(
+    dialogDocument.getElementById("options-timezones-menuitem"),
+    optionsMenu.menupopup
+  );
+  closedPromise = BrowserTestUtils.domWindowClosed(dialogWindow);
+  cancelItemDialog(dialogWindow);
+  await closedPromise;
+
+  await calendar.deleteItem(await calendar.getItem(savedEvent.id));
+  await dayView.waitForNoEventBoxAt(window, 1);
+}).skip(AppConstants.platform == "macosx"); // Can't click menu bar on Mac.
+
 function checkTooltip(row, col) {
   const item = monthView.getItemAt(window, row, col, 1);
 

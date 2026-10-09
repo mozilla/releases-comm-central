@@ -65,6 +65,8 @@ tags = ["notifications"]
 
 ["browser_localICS.js"]
 
+["browser_menuCheckedState.js"]
+
 ["browser_tabs.js"]
 
 ["browser_taskAllDay.js"]

@@ -30,24 +30,17 @@
   /**
    * Updates the 'checked' state of menu items so they reflect the state of the relevant task(s),
    * for example, tasks currently selected in the task list, or a task being edited in the
-   * current tab. It operates on commands that are named using the following pattern:
+   * current tab. It operates on menu items whose commands are named using the following pattern:
    *
    *   `calendar_${propertyKey}-${propertyValue}_command`
    *
    * When the propertyValue part of a command's name matches the propertyValue of the tasks,
-   * set the command to checked as long as the tasks all have the same propertyValue.
+   * set the menu item to checked as long as the tasks all have the same propertyValue.
    *
    * @param {Element} parent - Parent element that contains the menu items as direct children.
    * @param {string} propertyKey - The property key, for example "priority" or "percentComplete".
    */
   const updateMenuItemsState = (parent, propertyKey) => {
-    for (const command of [...parent.children]
-      .map(e => e.getAttribute("command"))
-      .filter(Boolean)
-      .map(cId => document.getElementById(cId))) {
-      command.checked = false;
-    }
-
     const inSingleTaskTab =
       gTabmail && gTabmail.currentTabInfo && gTabmail.currentTabInfo.mode.type == "calendarTask";
 
@@ -55,11 +48,13 @@
       ? gConfig[propertyKey]
       : getPropertyValue(propertyKey, getSelectedTasks());
 
+    let checkedCommand = null;
     if (propertyValue || propertyValue === 0) {
-      const command = document.getElementById(`calendar_${propertyKey}-${propertyValue}_command`);
-      if (command) {
-        command.toggleAttribute("checked", true);
-      }
+      checkedCommand = `calendar_${propertyKey}-${propertyValue}_command`;
+    }
+    for (const item of parent.querySelectorAll(":scope > menuitem[command]")) {
+      const isChecked = item.getAttribute("command") == checkedCommand;
+      item.toggleAttribute("checked", isChecked);
     }
   };
 
