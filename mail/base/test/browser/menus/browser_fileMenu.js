@@ -37,6 +37,7 @@ const fileMenuData = {
   newNewsgroupAccountMenuItem: {},
   "calendar-new-calendar-menuitem": {},
   menu_newCard: {},
+  menu_newList: {},
   newIMContactMenuItem: { disabled: true },
   menu_Open: {},
   openMessageFileMenuitem: {},
@@ -91,6 +92,7 @@ const nonMainWindowData = Object.fromEntries(
         "calendar-save-menuitem",
         "calendar-save-and-close-menuitem",
         "menu_FileQuitItem",
+        "menu_newList",
       ].includes(id)
   )
 );

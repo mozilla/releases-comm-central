@@ -82,6 +82,11 @@
                     label="&newContactCmd.label;"
                     accesskey="&newContactCmd.accesskey;"
                     command="cmd_newCard"/>
+#ifdef MAIN_WINDOW
+          <menuitem id="menu_newList"
+                    data-l10n-id="file-new-mailing-list"
+                    oncommand="openNewListDialog();"/>
+#endif
           <menuitem id="newIMContactMenuItem"
                     label="&newIMContactCmd.label;"
                     accesskey="&newIMContactCmd.accesskey;"

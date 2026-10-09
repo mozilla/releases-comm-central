@@ -181,6 +181,10 @@ file-new-addressbook =
     .label = Address Book
     .accesskey = A
 
+file-new-mailing-list =
+    .label = Mailing List…
+    .accesskey = I
+
 file-new-local-addressbook =
     .label = Local Address Book
     .accesskey = A

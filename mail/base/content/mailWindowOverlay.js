@@ -1741,6 +1741,10 @@ function openNewCardDialog() {
   toAddressBook(["cmd_newCard"]);
 }
 
+function openNewListDialog() {
+  toAddressBook(["cmd_createList"]);
+}
+
 /**
  * Opens Address Book tab and triggers address book creation dialog defined
  * type.
