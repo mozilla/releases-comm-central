@@ -595,6 +595,8 @@ add_task(async function test_exchange_graph_advanced_configuration() {
     "Manual configuration button should be visible."
   );
 
+  // The form scrolls on small screens, so the button might be out of view.
+  manualConfigurationButton.scrollIntoView({ block: "nearest" });
   EventUtils.synthesizeMouseAtCenter(manualConfigurationButton, {});
 
   const incomingForm = dialog.querySelector("#emailIncomingConfigSubview");
