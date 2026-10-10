@@ -114,6 +114,22 @@ counsel?</value>\
     description: "Invalid top-level element",
   },
   {
+    input:
+      '<iq xmlns="jabber:client" from="juliet@capulet.example/&quot;&gt;" \
+to="romeo@montague.example/garden" type="get" \
+id="a&quot;/&gt;&lt;message to=&quot;x@y&quot;&gt;&lt;body&gt;&amp;&lt;/body&gt;&lt;/message&gt;&lt;iq id=&quot;b">\
+<ping xmlns="urn:xmpp:ping"/>\
+</iq>',
+    output:
+      '<iq xmlns="jabber:client" from="juliet@capulet.example/&quot;&gt;" \
+to="romeo@montague.example/garden" type="get" \
+id="a&quot;/&gt;&lt;message to=&quot;x@y&quot;&gt;&lt;body&gt;&amp;&lt;/body&gt;&lt;/message&gt;&lt;iq id=&quot;b">\
+<ping xmlns="urn:xmpp:ping"/>\
+</iq>',
+    isError: false,
+    description: "Escaped attribute values stay escaped when re-serialized",
+  },
+  {
     input: utf8Input,
     output: expectedResult,
     isError: false,

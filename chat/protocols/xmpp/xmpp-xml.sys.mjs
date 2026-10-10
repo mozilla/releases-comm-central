@@ -200,6 +200,23 @@ export var Stanza = {
   },
 };
 
+const kAttributeEntities = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+};
+
+/**
+ * Escape a value for use inside a double-quoted XML attribute.
+ *
+ * @param {string} aValue - The unescaped attribute value.
+ * @returns {string} The escaped attribute value.
+ */
+function escapeAttribute(aValue) {
+  return String(aValue).replace(/[&<>"]/g, c => kAttributeEntities[c]);
+}
+
 /**
  * A text node.
  *
@@ -481,7 +498,7 @@ XMLNode.prototype = {
    * @private
    */
   _getXmlns() {
-    return this.uri ? ' xmlns="' + this.uri + '"' : "";
+    return this.uri ? ' xmlns="' + escapeAttribute(this.uri) + '"' : "";
   },
   /**
    * Get the serialized attributes.
@@ -492,7 +509,7 @@ XMLNode.prototype = {
   _getAttributeText() {
     let s = "";
     for (const name in this.attributes) {
-      s += " " + name + '="' + this.attributes[name] + '"';
+      s += " " + name + '="' + escapeAttribute(this.attributes[name]) + '"';
     }
     return s;
   },

@@ -38,6 +38,23 @@ var TEST_DATA = [
   },
   {
     input: {
+      name: "iq",
+      namespace: Stanza.NS.client,
+      attributes: {
+        id: 'a"/><message to="x@y"><body>&</body></message><iq id="b',
+        to: "user@domain/<res>",
+      },
+      data: [],
+    },
+    XmlOutput:
+      '<iq xmlns="jabber:client" id="a&quot;/&gt;&lt;message to=&quot;x@y&quot;&gt;&lt;body&gt;&amp;&lt;/body&gt;&lt;/message&gt;&lt;iq id=&quot;b" to="user@domain/&lt;res&gt;"/>',
+    stringOutput:
+      '<iq xmlns="jabber:client" id="a&quot;/&gt;&lt;message to=&quot;x@y&quot;&gt;&lt;body&gt;&amp;&lt;/body&gt;&lt;/message&gt;&lt;iq id=&quot;b" to="user@domain/&lt;res&gt;"/>\n',
+    isError: false,
+    description: "Escape special characters in attribute values",
+  },
+  {
+    input: {
       name: "message",
       namespace: undefined,
       attributes: {},
