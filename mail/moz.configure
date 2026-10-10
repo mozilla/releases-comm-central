@@ -192,6 +192,18 @@ set_define("MOZ_PANORAMA", True, when=milestone.is_nightly)
 set_config("MOZ_REMOTE_READER", True, when=milestone.is_nightly)
 set_define("MOZ_REMOTE_READER", True, when=milestone.is_nightly)
 
+
+@depends(compile_environment & (target_is_windows | target_is_osx))
+@imports(_from="mozbuild.packaging", _import="quote_defines")
+def package_manifest_defines(angle_renderer):
+    defines = []
+    if angle_renderer:
+        defines.append("-DMOZ_ANGLE_RENDERER=1")
+    return quote_defines(defines)
+
+
+set_config("PACKAGE_MANIFEST_DEFINES", package_manifest_defines)
+
 imply_option(
     "MOZ_TEST_PACKAGE_ARCHIVES_SKIP",
     (
