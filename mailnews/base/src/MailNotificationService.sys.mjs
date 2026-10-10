@@ -87,7 +87,7 @@ export const MailNotificationService = new (class {
     this.#log.debug(`countUnread for ${folder.URI}`);
     let unreadCount = 0;
 
-    const allFolders = [folder, ...folder.descendants];
+    const allFolders = this.#folderAndAllBelow(folder);
     for (const candidateFolder of allFolders) {
       if (this.confirmShouldCount(candidateFolder)) {
         const count = candidateFolder.getNumUnread(false);
@@ -98,6 +98,17 @@ export const MailNotificationService = new (class {
       }
     }
     return unreadCount;
+  }
+
+  /**
+   * @param {nsIMsgFolder} folder
+   * @returns {nsIMsgFolder[]} The folder and every folder below it. Unlike
+   *   descendants, this loads the folders that are not in memory yet, such as
+   *   those of an account the folder pane has not shown. No flag is required,
+   *   so confirmShouldCount and its observers see every folder.
+   */
+  #folderAndAllBelow(folder) {
+    return folder.getFoldersWithFlags(0);
   }
 
   /**
@@ -178,7 +189,7 @@ export const MailNotificationService = new (class {
       // Biff notifications come in for the top level of the server, we need to
       // look for the folder that actually contains the new mail.
 
-      const allFolders = [folder, ...folder.descendants];
+      const allFolders = this.#folderAndAllBelow(folder);
 
       this.#log.debug(`${folder.URI} notified; will check subfolders`);
       let newCount = 0;
