@@ -86,6 +86,11 @@ default-features = false
 version = "2.0.12"
 default-features = false
 
+[dev-dependencies.strum]
+version = "0.28"
+features = ["derive"]
+default-features = false
+
 [lints.clippy]
 ref_as_ptr = "warn"
 

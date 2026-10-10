@@ -231,7 +231,7 @@ version = "30.0.0"
 path = "platform-deps/wasm"
 optional = true
 
-[target.'cfg(any(target_os = "linux", target_os = "android", target_os = "freebsd"))'.dependencies.wgpu-core-deps-linux-android-bsd]
+[target.'cfg(any(target_os = "linux", target_os = "android", target_os = "freebsd", target_os = "netbsd"))'.dependencies.wgpu-core-deps-linux-android-bsd]
 version = "30.0.0"
 path = "platform-deps/linux-android-bsd"
 optional = true
@@ -260,4 +260,7 @@ missing_debug_implementations = "warn"
 [lints.rust.unexpected_cfgs]
 level = "warn"
 priority = 0
-check-cfg = ["cfg(wgpu_validate_locks)"]
+check-cfg = [
+    "cfg(wgpu_validate_locks)",
+    "cfg(wgpu_validate_locks_debug)",
+]

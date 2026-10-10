@@ -1,5 +1,8 @@
 use alloc::{borrow::ToOwned as _, boxed::Box, string::String, sync::Arc, vec, vec::Vec};
-use core::fmt;
+use core::{
+    fmt,
+    sync::atomic::{AtomicBool, Ordering},
+};
 
 use hashbrown::HashMap;
 use thiserror::Error;
@@ -11,7 +14,7 @@ use crate::{
     },
     id::markers,
     limits::{self, check_limits, FailedLimit},
-    lock::{rank, Mutex},
+    lock::{rank, Mutex, MutexGuard},
     present::{ConfigureSurfaceError, Presentation},
     resource::ResourceType,
     resource_log,
@@ -123,85 +126,23 @@ pub struct Instance {
 impl Instance {
     pub fn new(
         name: &str,
-        mut instance_desc: wgt::InstanceDescriptor,
+        instance_desc: wgt::InstanceDescriptor,
         telemetry: Option<hal::Telemetry>,
     ) -> Arc<Self> {
-        let mut this = Self {
-            _name: name.to_owned(),
-            instance_per_backend: Vec::new(),
-            requested_backends: instance_desc.backends,
-            supported_backends: Backends::empty(),
-            flags: instance_desc.flags,
-            // HACK: We must take ownership of the field here, without being able to pass it into
-            // try_add_hal(). Remove it from the mutable descriptor instead, while try_add_hal()
-            // borrows the handle from `this.display` instead.
-            display: instance_desc.display.take(),
-            devices: InstanceDevices::new(),
-        };
+        let mut this = InstanceBuilder::new(name, instance_desc, telemetry);
 
         #[cfg(all(vulkan, not(target_os = "netbsd")))]
-        this.try_add_hal(hal::api::Vulkan, &instance_desc, telemetry);
+        this.try_add_hal(hal::api::Vulkan);
         #[cfg(metal)]
-        this.try_add_hal(hal::api::Metal, &instance_desc, telemetry);
+        this.try_add_hal(hal::api::Metal);
         #[cfg(dx12)]
-        this.try_add_hal(hal::api::Dx12, &instance_desc, telemetry);
+        this.try_add_hal(hal::api::Dx12);
         #[cfg(gles)]
-        this.try_add_hal(hal::api::Gles, &instance_desc, telemetry);
+        this.try_add_hal(hal::api::Gles);
         #[cfg(feature = "noop")]
-        this.try_add_hal(hal::api::Noop, &instance_desc, telemetry);
+        this.try_add_hal(hal::api::Noop);
 
-        Arc::new(this)
-    }
-
-    /// Helper for `Instance::new()`; attempts to add a single `wgpu-hal` backend to this instance.
-    fn try_add_hal<A: hal::Api>(
-        &mut self,
-        _: A,
-        instance_desc: &wgt::InstanceDescriptor,
-        telemetry: Option<hal::Telemetry>,
-    ) {
-        // Whether or not the backend was requested, and whether or not it succeeds,
-        // note that we *could* try it.
-        self.supported_backends |= A::VARIANT.into();
-
-        if !instance_desc.backends.contains(A::VARIANT.into()) {
-            log::trace!("Instance::new: backend {:?} not requested", A::VARIANT);
-            return;
-        }
-
-        // If this was Some, it was moved into self
-        assert!(instance_desc.display.is_none());
-
-        let hal_desc = hal::InstanceDescriptor {
-            name: "wgpu",
-            flags: self.flags,
-            memory_budget_thresholds: instance_desc.memory_budget_thresholds,
-            backend_options: instance_desc.backend_options.clone(),
-            telemetry,
-            // Pass a borrow, the core instance here keeps the owned handle alive already
-            // WARNING: Using self here, not instance_desc!
-            display: self.display.as_ref().map(|hdh| {
-                hdh.display_handle()
-                    .expect("Implementation did not provide a DisplayHandle")
-            }),
-        };
-
-        use hal::Instance as _;
-        // SAFETY: ???
-        match unsafe { A::Instance::init(&hal_desc) } {
-            Ok(instance) => {
-                log::debug!("Instance::new: created {:?} backend", A::VARIANT);
-                self.instance_per_backend
-                    .push((A::VARIANT, Box::new(instance)));
-            }
-            Err(err) => {
-                log::debug!(
-                    "Instance::new: failed to create {:?} backend: {:?}",
-                    A::VARIANT,
-                    err
-                );
-            }
-        }
+        this.build()
     }
 
     pub fn from_hal_instance<A: hal::Api>(
@@ -756,6 +697,98 @@ impl Instance {
     }
 }
 
+pub struct InstanceBuilder {
+    instance: Instance,
+    instance_desc: wgt::InstanceDescriptor,
+    telemetry: Option<hal::Telemetry>,
+}
+
+impl InstanceBuilder {
+    pub fn new(
+        name: &str,
+        mut desc: wgt::InstanceDescriptor,
+        telemetry: Option<hal::Telemetry>,
+    ) -> Self {
+        Self {
+            instance: Instance {
+                _name: name.to_owned(),
+                instance_per_backend: Vec::new(),
+                requested_backends: desc.backends,
+                supported_backends: Backends::empty(),
+                flags: desc.flags,
+                // HACK: We must take ownership of the field here, without being able to pass it into
+                // try_add_hal(). Remove it from the mutable descriptor instead, while try_add_hal()
+                // borrows the handle from `this.display` instead.
+                display: desc.display.take(),
+                devices: InstanceDevices::new(),
+            },
+            instance_desc: desc,
+            telemetry,
+        }
+    }
+
+    pub fn try_add_hal<A: hal::Api>(&mut self, api: A) {
+        use hal::Instance as _;
+        self.try_add_custom_hal(api, |hal_desc| unsafe { A::Instance::init(hal_desc) });
+    }
+
+    pub fn try_add_custom_hal<A: hal::Api>(
+        &mut self,
+        _: A,
+        f: impl FnOnce(&hal::InstanceDescriptor) -> Result<A::Instance, hal::InstanceError>,
+    ) {
+        if self.instance.supported_backends.contains(A::VARIANT.into()) {
+            return;
+        }
+
+        // Whether or not the backend was requested, and whether or not it succeeds,
+        // note that we *could* try it.
+        self.instance.supported_backends |= A::VARIANT.into();
+
+        if !self.instance_desc.backends.contains(A::VARIANT.into()) {
+            log::trace!("Instance::new: backend {:?} not requested", A::VARIANT);
+            return;
+        }
+
+        // If this was Some, it was moved into self
+        assert!(self.instance_desc.display.is_none());
+
+        let hal_desc = hal::InstanceDescriptor {
+            name: "wgpu",
+            flags: self.instance.flags,
+            memory_budget_thresholds: self.instance_desc.memory_budget_thresholds,
+            backend_options: self.instance_desc.backend_options.clone(),
+            telemetry: self.telemetry,
+            // Pass a borrow, the core instance here keeps the owned handle alive already
+            // WARNING: Using self here, not instance_desc!
+            display: self.instance.display.as_ref().map(|hdh| {
+                hdh.display_handle()
+                    .expect("Implementation did not provide a DisplayHandle")
+            }),
+        };
+
+        match f(&hal_desc) {
+            Ok(instance) => {
+                log::debug!("Instance::new: created {:?} backend", A::VARIANT);
+                self.instance
+                    .instance_per_backend
+                    .push((A::VARIANT, Box::new(instance)));
+            }
+            Err(err) => {
+                log::debug!(
+                    "Instance::new: failed to create {:?} backend: {:?}",
+                    A::VARIANT,
+                    err
+                );
+            }
+        }
+    }
+
+    pub fn build(self) -> Arc<Instance> {
+        Arc::new(self.instance)
+    }
+}
+
 pub struct Surface {
     pub(crate) presentation: Mutex<Option<Presentation>>,
     pub surface_per_backend: HashMap<Backend, Box<dyn hal::DynSurface>>,
@@ -856,11 +889,69 @@ impl Surface {
             .map(|surface| surface.as_ref())
     }
 
+    fn unconfigure_inner<'a>(
+        &self,
+        presentation: &mut MutexGuard<'a, Option<Presentation>>,
+    ) -> UserClosures {
+        let mut result = UserClosures::default();
+        if let Some(mut present) = presentation.take() {
+            if let Some(texture) = present.acquired_texture.take() {
+                texture.destroy();
+            }
+
+            let user_callbacks;
+            {
+                // Wait for all work that uses the surface texture to finish
+                let snatch_guard = present.device.snatchable_lock.read();
+
+                let result;
+                (user_callbacks, result) = present
+                    .device
+                    .maintain(wgt::PollType::wait_indefinitely(), snatch_guard);
+                match result {
+                    Ok(_) => {}
+                    Err(WaitIdleError::Device(_)) => {
+                        // we can ignore device lost errors here, since we are just cleaning up
+                    }
+                    Err(WaitIdleError::Timeout) if cfg!(target_arch = "wasm32") => {
+                        // On wasm, you cannot actually successfully wait for the surface.
+                        // However WebGL does not actually require you do this, so ignoring
+                        // the failure is totally fine. See https://github.com/gfx-rs/wgpu/issues/7363
+                    }
+                    Err(WaitIdleError::Timeout) => {
+                        unreachable!("wait_indefinitely() should never timeout")
+                    }
+                    Err(WaitIdleError::WrongSubmissionIndex(_, _)) => {
+                        unreachable!("no submission index was provided")
+                    }
+                }
+            }
+            result.extend(user_callbacks);
+
+            for (&backend, surface) in &self.surface_per_backend {
+                if backend == present.device.backend() {
+                    unsafe { surface.unconfigure(present.device.raw()) };
+                }
+            }
+        }
+        result
+    }
+
+    pub fn unconfigure(self: &Arc<Self>) {
+        profiling::scope!("Surface::unconfigure");
+        let user_callbacks;
+        {
+            let mut presentation = self.presentation.lock();
+            user_callbacks = self.unconfigure_inner(&mut presentation);
+        }
+        user_callbacks.fire();
+    }
+
     pub fn configure(
         self: &Arc<Self>,
         device: &Arc<Device>,
         config: &wgt::SurfaceConfiguration<Vec<wgt::TextureFormat>>,
-    ) -> Option<ConfigureSurfaceError> {
+    ) -> Result<(), ConfigureSurfaceError> {
         use ConfigureSurfaceError as E;
         profiling::scope!("Surface::configure");
 
@@ -873,152 +964,101 @@ impl Surface {
 
         log::debug!("configuring surface with {config:?}");
 
-        let error = 'error: {
-            // User callbacks must not be called while we are holding locks.
-            let user_callbacks;
-            {
-                if let Err(e) = device.check_is_valid() {
-                    break 'error e.into();
-                }
+        let caps = self
+            .get_hal_capabilities(&device.adapter)
+            .map_err(|_| E::UnsupportedQueueFamily)?;
 
-                let caps = match self.get_hal_capabilities(&device.adapter) {
-                    Ok(caps) => caps,
-                    Err(_) => break 'error E::UnsupportedQueueFamily,
-                };
-
-                let mut hal_view_formats = Vec::new();
-                for format in config.view_formats.iter() {
-                    if *format == config.format {
-                        continue;
-                    }
-                    if !caps.formats.iter().any(|fc| fc.format == config.format) {
-                        break 'error E::UnsupportedFormat {
-                            requested: config.format,
-                            available: caps.texture_formats().collect(),
-                        };
-                    }
-                    if config.format.remove_srgb_suffix() != format.remove_srgb_suffix() {
-                        break 'error E::InvalidViewFormat(*format, config.format);
-                    }
-                    hal_view_formats.push(*format);
-                }
-
-                if !hal_view_formats.is_empty() {
-                    if let Err(missing_flag) =
-                        device.require_downlevel_flags(wgt::DownlevelFlags::SURFACE_VIEW_FORMATS)
-                    {
-                        break 'error E::MissingDownlevelFlags(missing_flag);
-                    }
-                }
-
-                let maximum_frame_latency = config.desired_maximum_frame_latency.clamp(
-                    *caps.maximum_frame_latency.start(),
-                    *caps.maximum_frame_latency.end(),
-                );
-                let mut hal_config = hal::SurfaceConfiguration {
-                    maximum_frame_latency,
-                    present_mode: config.present_mode,
-                    composite_alpha_mode: config.alpha_mode,
-                    format: config.format,
-                    color_space: config.color_space,
-                    extent: wgt::Extent3d {
-                        width: config.width,
-                        height: config.height,
-                        depth_or_array_layers: 1,
-                    },
-                    usage: crate::conv::map_texture_usage(
-                        config.usage,
-                        hal::FormatAspects::COLOR,
-                        wgt::TextureFormatFeatureFlags::STORAGE_READ_ONLY
-                            | wgt::TextureFormatFeatureFlags::STORAGE_WRITE_ONLY
-                            | wgt::TextureFormatFeatureFlags::STORAGE_READ_WRITE,
-                    ),
-                    view_formats: hal_view_formats,
-                };
-
-                if let Err(error) = crate::device::surface_config::validate_surface_configuration(
-                    &mut hal_config,
-                    &caps,
-                    device.limits.max_texture_dimension_2d,
-                ) {
-                    break 'error error;
-                }
-
-                // Wait for all work to finish before configuring the surface.
-                let snatch_guard = device.snatchable_lock.read();
-
-                let maintain_result;
-                (user_callbacks, maintain_result) =
-                    device.maintain(wgt::PollType::wait_indefinitely(), snatch_guard);
-
-                match maintain_result {
-                    // We're happy
-                    Ok(wgt::PollStatus::QueueEmpty) => {}
-                    Ok(wgt::PollStatus::WaitSucceeded) => {
-                        // After the wait, the queue should be empty. It can only be non-empty
-                        // if another thread is submitting at the same time.
-                        break 'error E::GpuWaitTimeout;
-                    }
-                    Ok(wgt::PollStatus::Poll) => {
-                        unreachable!("Cannot get a Poll result from a Wait action.")
-                    }
-                    Err(WaitIdleError::Timeout) if cfg!(target_family = "wasm") => {
-                        // On wasm, you cannot actually successfully wait for the surface.
-                        // However WebGL does not actually require you do this, so ignoring
-                        // the failure is totally fine. See
-                        // https://github.com/gfx-rs/wgpu/issues/7363
-                    }
-                    Err(e) => {
-                        break 'error e.into();
-                    }
-                }
-
-                // All textures must be destroyed before the surface can be re-configured.
-                if let Some(present) = self.presentation.lock().take() {
-                    if present.acquired_texture.is_some() {
-                        break 'error E::PreviousOutputExists;
-                    }
-                }
-
-                // TODO: Texture views may still be alive that point to the texture.
-                // this will allow the user to render to the surface texture, long after
-                // it has been removed.
-                //
-                // https://github.com/gfx-rs/wgpu/issues/4105
-
-                let surface_raw = self.raw(device.backend()).unwrap();
-                match unsafe { surface_raw.configure(device.raw(), &hal_config) } {
-                    Ok(()) => (),
-                    Err(error) => {
-                        break 'error match error {
-                            hal::SurfaceError::Outdated
-                            | hal::SurfaceError::Lost
-                            | hal::SurfaceError::Occluded
-                            | hal::SurfaceError::Timeout => E::InvalidSurface,
-                            hal::SurfaceError::Device(error) => {
-                                E::Device(device.handle_hal_error(error))
-                            }
-                            hal::SurfaceError::Other(message) => {
-                                log::error!("surface configuration failed: {message}");
-                                E::InvalidSurface
-                            }
-                        }
-                    }
-                }
-
-                let mut presentation = self.presentation.lock();
-                *presentation = Some(Presentation {
-                    device: Arc::clone(device),
-                    config: config.clone(),
-                    acquired_texture: None,
+        let mut hal_view_formats = Vec::new();
+        for format in config.view_formats.iter() {
+            if *format == config.format {
+                continue;
+            }
+            if !caps.formats.iter().any(|fc| fc.format == config.format) {
+                return Err(E::UnsupportedFormat {
+                    requested: config.format,
+                    available: caps.texture_formats().collect(),
                 });
             }
+            if config.format.remove_srgb_suffix() != format.remove_srgb_suffix() {
+                return Err(E::InvalidViewFormat(*format, config.format));
+            }
+            hal_view_formats.push(*format);
+        }
 
-            user_callbacks.fire();
-            return None;
+        if !hal_view_formats.is_empty() {
+            device.require_downlevel_flags(wgt::DownlevelFlags::SURFACE_VIEW_FORMATS)?;
+        }
+
+        let maximum_frame_latency = config.desired_maximum_frame_latency.clamp(
+            *caps.maximum_frame_latency.start(),
+            *caps.maximum_frame_latency.end(),
+        );
+        let mut hal_config = hal::SurfaceConfiguration {
+            maximum_frame_latency,
+            present_mode: config.present_mode,
+            composite_alpha_mode: config.alpha_mode,
+            format: config.format,
+            color_space: config.color_space,
+            extent: wgt::Extent3d {
+                width: config.width,
+                height: config.height,
+                depth_or_array_layers: 1,
+            },
+            usage: crate::conv::map_texture_usage(
+                config.usage,
+                hal::FormatAspects::COLOR,
+                wgt::TextureFormatFeatureFlags::STORAGE_READ_ONLY
+                    | wgt::TextureFormatFeatureFlags::STORAGE_WRITE_ONLY
+                    | wgt::TextureFormatFeatureFlags::STORAGE_READ_WRITE,
+            ),
+            view_formats: hal_view_formats,
         };
 
-        Some(error)
+        crate::device::surface_config::validate_surface_configuration(
+            &mut hal_config,
+            &caps,
+            device.limits.max_texture_dimension_2d,
+        )?;
+
+        device.check_is_valid()?;
+
+        let user_callbacks;
+        {
+            // we keep presentation locked for the entire duration of the configure call,
+            // so that no change can happen in the middle of it.
+            let mut presentation = self.presentation.lock();
+
+            user_callbacks = self.unconfigure_inner(&mut presentation);
+
+            let surface_raw = self.raw(device.backend()).unwrap();
+            match unsafe { surface_raw.configure(device.raw(), &hal_config) } {
+                Ok(()) => (),
+                Err(error) => {
+                    return Err(match error {
+                        hal::SurfaceError::Outdated
+                        | hal::SurfaceError::Lost
+                        | hal::SurfaceError::Occluded
+                        | hal::SurfaceError::Timeout => E::InvalidSurface,
+                        hal::SurfaceError::Device(error) => {
+                            E::Device(device.handle_hal_error(error))
+                        }
+                        hal::SurfaceError::Other(message) => {
+                            log::error!("surface configuration failed: {message}");
+                            E::InvalidSurface
+                        }
+                    });
+                }
+            }
+
+            *presentation = Some(Presentation {
+                device: Arc::clone(device),
+                config: config.clone(),
+                acquired_texture: None,
+            });
+        }
+        user_callbacks.fire();
+
+        Ok(())
     }
 }
 
@@ -1028,24 +1068,28 @@ impl Drop for Surface {
         profiling::scope!("Surface::drop");
 
         api_log!("Surface::drop {:?}", self as *const _);
-        if let Some(present) = self.presentation.lock().take() {
-            for (&backend, surface) in &self.surface_per_backend {
-                if backend == present.device.backend() {
-                    unsafe { surface.unconfigure(present.device.raw()) };
-                }
-            }
+        let user_closures;
+        {
+            let mut presentation = self.presentation.lock();
+            user_closures = self.unconfigure_inner(&mut presentation);
         }
+        user_closures.fire();
     }
 }
 
 pub struct Adapter {
     pub(crate) raw: hal::DynExposedAdapter,
     pub(crate) instance: Arc<Instance>,
+    consumed: AtomicBool,
 }
 
 impl Adapter {
     pub(crate) fn new(raw: hal::DynExposedAdapter, instance: Arc<Instance>) -> Arc<Self> {
-        Arc::new(Self { raw, instance })
+        Arc::new(Self {
+            raw,
+            instance,
+            consumed: AtomicBool::new(false),
+        })
     }
 
     /// Returns the backend this adapter is using.
@@ -1187,6 +1231,15 @@ impl Adapter {
         profiling::scope!("Adapter::create_device_and_queue_from_hal");
         api_log!("Adapter::create_device_and_queue_from_hal");
 
+        if self
+            .instance
+            .flags
+            .contains(InstanceFlags::STRICT_WEBGPU_COMPLIANCE)
+            && self.consumed.load(Ordering::SeqCst)
+        {
+            return Err(RequestDeviceError::AdapterConsumed);
+        }
+
         let default_queue_desc = desc.default_queue.clone();
 
         let device = Device::new(hal_device.device, self, desc, self.instance.flags)?;
@@ -1207,6 +1260,8 @@ impl Adapter {
         resource_log!("Created Queue {:?}", Arc::as_ptr(&queue));
 
         self.instance.devices.push(&device);
+
+        self.consumed.store(true, Ordering::SeqCst);
 
         Ok((device, queue))
     }
@@ -1338,6 +1393,8 @@ pub enum RequestDeviceError {
         "Some experimental features, {0}, were requested, but experimental features are not enabled"
     )]
     ExperimentalFeaturesNotEnabled(wgt::Features),
+    #[error("The adapter has already been consumed.")]
+    AdapterConsumed,
 }
 
 #[derive(Clone, Debug, Error)]

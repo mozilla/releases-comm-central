@@ -52,6 +52,10 @@ features = [
 ]
 default-features = false
 
+[dependencies.naga-types]
+version = "30.0.0"
+path = "../naga-types"
+
 [dependencies.serde]
 version = "1.0.225"
 default-features = false

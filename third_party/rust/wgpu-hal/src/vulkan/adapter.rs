@@ -671,35 +671,36 @@ impl PhysicalDeviceFeatures {
     ) -> (wgt::Features, wgt::DownlevelFlags) {
         use wgt::{DownlevelFlags as Df, Features as F};
         let mut features = F::empty()
-            | F::MAPPABLE_PRIMARY_BUFFERS
-            | F::IMMEDIATES
             | F::ADDRESS_MODE_CLAMP_TO_BORDER
             | F::ADDRESS_MODE_CLAMP_TO_ZERO
-            | F::TEXTURE_ADAPTER_SPECIFIC_FORMAT_FEATURES
             | F::CLEAR_TEXTURE
+            | F::IMMEDIATES
+            | F::MAPPABLE_PRIMARY_BUFFERS
+            | F::MEMORY_DECORATION_COHERENT
+            | F::MEMORY_DECORATION_VOLATILE
+            | F::PASSTHROUGH_SHADERS
             | F::PIPELINE_CACHE
             | F::SHADER_EARLY_DEPTH_TEST
-            | F::TEXTURE_ATOMIC
-            | F::PASSTHROUGH_SHADERS
-            | F::MEMORY_DECORATION_COHERENT
-            | F::MEMORY_DECORATION_VOLATILE;
+            | F::TEXTURE_ADAPTER_SPECIFIC_FORMAT_FEATURES
+            | F::TEXTURE_ATOMIC;
 
-        let mut dl_flags = Df::COMPUTE_SHADERS
+        let mut dl_flags = Df::empty()
             | Df::BASE_VERTEX
-            | Df::NON_POWER_OF_TWO_MIPMAPPED_TEXTURES
-            | Df::COMPARISON_SAMPLERS
-            | Df::VERTEX_STORAGE
-            | Df::FRAGMENT_STORAGE
-            | Df::DEPTH_TEXTURE_AND_BUFFER_COPIES
             | Df::BUFFER_BINDINGS_NOT_16_BYTE_ALIGNED
-            | Df::UNRESTRICTED_INDEX_BUFFER
+            | Df::COMPARISON_SAMPLERS
+            | Df::COMPUTE_SHADERS
+            | Df::DEPTH_TEXTURE_AND_BUFFER_COPIES
+            | Df::FRAGMENT_STORAGE
             | Df::INDIRECT_EXECUTION
-            | Df::VIEW_FORMATS
-            | Df::UNRESTRICTED_EXTERNAL_TEXTURE_COPIES
-            | Df::NONBLOCKING_QUERY_RESOLVE
-            | Df::SHADER_F16_IN_F32
+            | Df::LINEAR_INTERPOLATION
             | Df::MSL2_1
-            | Df::LINEAR_INTERPOLATION;
+            | Df::NONBLOCKING_QUERY_RESOLVE
+            | Df::NON_POWER_OF_TWO_MIPMAPPED_TEXTURES
+            | Df::SHADER_F16_IN_F32
+            | Df::UNRESTRICTED_EXTERNAL_TEXTURE_COPIES
+            | Df::UNRESTRICTED_INDEX_BUFFER
+            | Df::VERTEX_STORAGE
+            | Df::VIEW_FORMATS;
 
         // `VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL`
         // and `VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL`
@@ -1125,6 +1126,12 @@ impl PhysicalDeviceFeatures {
                 || caps.supports_extension(c"VK_KHR_shader_draw_parameters"),
         );
 
+        features.set(
+            F::DEBUG_PRINTF,
+            caps.device_api_version >= vk::API_VERSION_1_3
+                || caps.supports_extension(khr::shader_non_semantic_info::NAME),
+        );
+
         (features, dl_flags)
     }
 }
@@ -1378,6 +1385,11 @@ impl PhysicalDeviceProperties {
             // Optional `VK_EXT_load_store_op_none`
             if self.supports_extension(ext::load_store_op_none::NAME) {
                 extensions.push(ext::load_store_op_none::NAME);
+            }
+
+            // Require `VK_KHR_shader_non_semantic_info` if the associated feature was requested
+            if requested_features.contains(wgt::Features::DEBUG_PRINTF) {
+                extensions.push(khr::shader_non_semantic_info::NAME);
             }
         }
 
@@ -2374,6 +2386,13 @@ impl super::Instance {
                 super::Workarounds::FORCE_FILL_BUFFER_WITH_SIZE_GREATER_4096_ALIGNED_OFFSET_16,
                 phd_capabilities.properties.vendor_id == db::nvidia::VENDOR,
             );
+            workarounds.set(
+                super::Workarounds::IGNORED_NEGATIVE_VIEWPORT_HEIGHT,
+                phd_capabilities
+                    .driver
+                    .as_ref()
+                    .is_some_and(|driver| driver.driver_id == vk::DriverId::ARM_PROPRIETARY),
+            );
         };
 
         if let Some(driver) = phd_capabilities.driver {
@@ -2495,12 +2514,12 @@ impl super::Instance {
             can_present: true,
             //TODO: make configurable
             robust_buffer_access: phd_features.core.robust_buffer_access != 0,
-            robust_image_access: match phd_features.robustness2 {
-                Some(ref f) => f.robust_image_access2 != 0,
-                None => phd_features
+            robust_image_access: phd_features
+                .robustness2
+                .is_some_and(|f| f.robust_image_access2 != 0)
+                || phd_features
                     .image_robustness
                     .is_some_and(|ext| ext.robust_image_access != 0),
-            },
             robust_buffer_access2: has_robust_buffer_access2,
             robust_image_access2: phd_features
                 .robustness2
@@ -2867,6 +2886,11 @@ impl super::Adapter {
                 self.phd_capabilities.properties.vendor_id != crate::auxil::db::qualcomm::VENDOR,
             );
             flags.set(
+                spv::WriterFlags::ADJUST_COORDINATE_SPACE,
+                self.workarounds
+                    .contains(super::Workarounds::IGNORED_NEGATIVE_VIEWPORT_HEIGHT),
+            );
+            flags.set(
                 spv::WriterFlags::FORCE_POINT_SIZE,
                 //Note: we could technically disable this when we are compiling separate entry points,
                 // and we know exactly that the primitive topology is not `PointList`.
@@ -3046,19 +3070,17 @@ impl super::Adapter {
             next_submit_chain: Mutex::new(None),
         };
 
-        let allocation_sizes = AllocationSizes::from_memory_hints(memory_hints).into();
+        let allocation_sizes = AllocationSizes::from_memory_hints(memory_hints);
 
         let buffer_device_address = enabled_extensions.contains(&khr::buffer_device_address::NAME);
 
-        let mem_allocator =
-            gpu_allocator::vulkan::Allocator::new(&gpu_allocator::vulkan::AllocatorCreateDesc {
-                instance: self.instance.raw.clone(),
-                device: shared.raw.clone(),
-                physical_device: self.raw,
-                debug_settings: Default::default(),
-                buffer_device_address,
-                allocation_sizes,
-            })?;
+        let mem_allocator = super::MemoryAllocators::new(
+            self.instance.raw.clone(),
+            shared.raw.clone(),
+            self.raw,
+            buffer_device_address,
+            allocation_sizes,
+        )?;
 
         let desc_allocator = super::descriptor::DescriptorAllocator::new(
             if let Some(di) = self.phd_capabilities.descriptor_indexing {
@@ -3070,7 +3092,7 @@ impl super::Adapter {
 
         let device = super::Device {
             shared,
-            mem_allocator: Mutex::new(mem_allocator),
+            mem_allocator,
             desc_allocator: Mutex::new(desc_allocator),
             valid_ash_memory_types,
             naga_options,
@@ -3406,7 +3428,7 @@ fn is_float32_blendable_supported(instance: &ash::Instance, phd: vk::PhysicalDev
     })
 }
 
-fn supports_format(
+pub(super) fn supports_format(
     instance: &ash::Instance,
     phd: vk::PhysicalDevice,
     format: vk::Format,

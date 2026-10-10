@@ -250,10 +250,11 @@ default-features = false
 
 [dev-dependencies.env_logger]
 version = "0.11"
+features = ["humantime"]
 default-features = false
 
 [dev-dependencies.glam]
-version = "0.33.0"
+version = "0.33.9"
 
 [dev-dependencies.naga]
 version = "30.0.0"
@@ -298,7 +299,7 @@ version = "0.15"
 optional = true
 
 [target.'cfg(all(windows, not(target_arch = "aarch64"), target_env = "msvc"))'.dependencies.mach-dxcompiler-rs]
-version = "0.1.4"
+version = ">=0.1.0,<=0.1.4"
 optional = true
 default-features = false
 
@@ -454,6 +455,7 @@ features = [
     "MTLAccelerationStructureTypes",
     "MTLAccelerationStructureCommandEncoder",
     "MTLResidencySet",
+    "MTLLogState",
 ]
 optional = true
 default-features = false
