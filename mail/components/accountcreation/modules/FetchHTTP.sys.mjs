@@ -83,7 +83,9 @@ export async function fetchHTTP(url, args = {}, isRetry = false) {
   const fetchArgs = {
     method: args.post || args.uploadBody ? "POST" : "GET",
     body: args.uploadBody,
-    headers: args.headers,
+    // Copy the headers, so that headers added below do not leak into other
+    // requests made with the same arguments.
+    headers: { ...args.headers },
   };
 
   for (const [name, value] of Object.entries(args.urlArgs)) {
