@@ -43,7 +43,6 @@ class nsImapMoveCopyMsgTxn : public nsMsgTxn, nsIUrlListener {
 
   nsWeakPtr m_srcFolder;
   nsCOMArray<nsIMsgDBHdr> m_srcHdrs;
-  nsTArray<nsMsgKey> m_dupKeyArray;
   nsTArray<nsMsgKey> m_srcKeyArray;
   nsTArray<nsCString> m_srcMessageIds;
   nsCString m_srcMsgIdString;

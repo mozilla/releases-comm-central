@@ -31,7 +31,6 @@ nsresult nsImapMoveCopyMsgTxn::Init(nsIMsgFolder* srcFolder,
   m_srcFolder = do_GetWeakReference(srcFolder);
   m_dstFolder = do_GetWeakReference(dstFolder);
   m_srcKeyArray = srcKeyArray->Clone();
-  m_dupKeyArray = srcKeyArray->Clone();
   nsCString uri;
   nsresult rv = srcFolder->GetURI(uri);
   nsCString protocolType(uri);
@@ -62,7 +61,6 @@ nsresult nsImapMoveCopyMsgTxn::Init(nsIMsgFolder* srcFolder,
             copySrcHdr->GetMessageKey(&pseudoKey);
             m_srcHdrs.AppendObject(copySrcHdr);
           }
-          m_dupKeyArray[i] = pseudoKey;
         }
       }
       srcHdr->GetMessageId(messageId);
@@ -438,7 +436,6 @@ nsImapOfflineTxn::nsImapOfflineTxn(nsIMsgFolder* srcFolder,
           copySrcHdr->GetMessageKey(&pseudoKey);
           m_srcHdrs.AppendObject(copySrcHdr);
         }
-        m_dupKeyArray[i] = pseudoKey;
       }
     }
   } else
