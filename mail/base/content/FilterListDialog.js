@@ -1092,6 +1092,8 @@ function onFilterListKeyPress(aEvent) {
         gSearchBox.focus();
         gSearchBox.value = String.fromCharCode(aEvent.charCode);
     }
+  } else if (aEvent.ctrlKey && aEvent.code == "KeyA") {
+    gFilterListbox.selectAll();
   }
 }
 
