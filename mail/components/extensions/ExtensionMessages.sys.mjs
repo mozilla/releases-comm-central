@@ -24,6 +24,7 @@ import {
 
 var { ExtensionError } = ExtensionUtils;
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
+import { MailUtils } from "resource:///modules/MailUtils.sys.mjs";
 
 ChromeUtils.defineESModuleGetters(lazy, {
   DeferredTask: "resource://gre/modules/DeferredTask.sys.mjs",
@@ -2829,7 +2830,7 @@ function isAddressMatch(searchTerm, addressObjects) {
 }
 
 async function retrieveMessageFromServer(mid, server) {
-  const url = new URL(`news://${server.hostname}:${server.port}/${mid}`);
+  const url = MailUtils.constructNewsUriSpec(mid, server);
 
   const tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
   tempFile.append("nntp-downloaded-message.eml");
@@ -2844,7 +2845,7 @@ async function retrieveMessageFromServer(mid, server) {
   ].getService(Ci.nsIMsgMessageService);
   const savedPromise = new Promise(resolve => {
     messageService.saveMessageToDisk(
-      url.href,
+      url,
       tempFile,
       {
         async OnStopRunningUrl(_url, status) {
@@ -2857,7 +2858,7 @@ async function retrieveMessageFromServer(mid, server) {
   });
   const status = await savedPromise;
   if (!Components.isSuccessCode(status) || tempFile.fileSize <= 0) {
-    console.warn(`Could not open ${url.href}`);
+    console.warn(`Could not open ${url}`);
     return null;
   }
 

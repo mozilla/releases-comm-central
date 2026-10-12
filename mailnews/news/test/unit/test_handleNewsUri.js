@@ -49,9 +49,21 @@ var originalPrompt = Services.prompt;
 add_setup(function () {
   // Set up the fake NNTP server.
   daemon = setupNNTPDaemon();
+  daemon.addGroup("comp.lang.c++");
   var article = new NewsArticle(kArticleForMsgId);
   daemon.addArticleToGroup(article, "misc.test", 128);
   daemon.addArticle(article);
+  for (const [index, messageId] of [
+    "test%test@nntp.invalid",
+    "test%25test@nntp.invalid",
+    "test#?/test@nntp.invalid",
+  ].entries()) {
+    const specialArticle = new NewsArticle(
+      kArticleForMsgId.replace("test-msgid@nntp.invalid", messageId)
+    );
+    daemon.addArticleToGroup(specialArticle, "misc.test", 129 + index);
+    daemon.addArticle(specialArticle);
+  }
 
   server = makeServer(NNTP_RFC977_handler, daemon);
   server.start();
@@ -281,6 +293,66 @@ add_task(function test_newsgroup_with_specific_host() {
   Assert.ok(gFolderUrisOpened[0].includes("test.subscribe.simple"));
 });
 
+add_task(function test_constructNewsUriSpecWithNewsgroupNoServer() {
+  resetCaptures();
+  const newsgroup = "comp.lang.c++";
+  const uri = MailUtils.constructNewsUriSpec(newsgroup);
+  Assert.equal(
+    uri,
+    "news:comp.lang.c%2B%2B",
+    "The news URI should escape plus signs in the newsgroup name"
+  );
+  Assert.ok(
+    !incomingServer.containsNewsgroup(newsgroup),
+    "The newsgroup should not be subscribed initially"
+  );
+
+  MailUtils.handleNewsUri(uri, null);
+
+  Assert.equal(
+    gConfirmCallCount,
+    1,
+    "The newsgroup should prompt to subscribe"
+  );
+  Assert.ok(
+    gLastConfirmText.includes(newsgroup),
+    "The subscription prompt should contain the unencoded newsgroup name"
+  );
+  Assert.ok(
+    incomingServer.containsNewsgroup(newsgroup),
+    "The unencoded newsgroup should be subscribed after accepting"
+  );
+  Assert.deepEqual(
+    gFolderUrisOpened,
+    [incomingServer.rootFolder.getChildNamed(newsgroup).URI],
+    "The news URI should open the folder for the unencoded newsgroup name"
+  );
+});
+
+add_task(function test_constructNewsUriSpecWithNewsgroupAndServer() {
+  resetCaptures();
+  const newsgroup = "comp.lang.c++";
+  const uri = MailUtils.constructNewsUriSpec(newsgroup, incomingServer);
+  Assert.equal(
+    uri,
+    `news://localhost:${server.port}/comp.lang.c%2B%2B`,
+    "The news URI should include the server and escape the newsgroup name"
+  );
+
+  MailUtils.handleNewsUri(uri, null);
+
+  Assert.equal(
+    gConfirmCallCount,
+    0,
+    "The subscribed newsgroup should open without prompting"
+  );
+  Assert.deepEqual(
+    gFolderUrisOpened,
+    [incomingServer.rootFolder.getChildNamed(newsgroup).URI],
+    "The news URI should open the folder for the unencoded newsgroup name"
+  );
+});
+
 add_task(function test_newsgroup_unknown_host() {
   resetCaptures();
   MailUtils.handleNewsUri("news://no-such-host.invalid/some.group", null);
@@ -475,6 +547,32 @@ add_task(async function test_messageId_unknown_server_snews_accept() {
   adHocServer.closeCachedConnections();
   MailServices.accounts.removeIncomingServer(adHocServer, false);
   tlsServer.close();
+});
+
+add_task(async function test_encodedMessageIds() {
+  for (const messageId of [
+    "test%test@nntp.invalid",
+    "test%25test@nntp.invalid",
+    "test#?/test@nntp.invalid",
+  ]) {
+    const uri = MailUtils.constructNewsUriSpec(messageId, incomingServer);
+    Assert.ok(
+      uri.includes(encodeURIComponent(messageId).replaceAll("%40", "@")),
+      "The news URI should escape the Message-ID"
+    );
+
+    resetCaptures();
+    const openedPromise = new Promise(resolve => {
+      gOnEmlOpened = resolve;
+    });
+    MailUtils.handleNewsUri(uri, null);
+    const tempFile = await openedPromise;
+    const content = await IOUtils.readUTF8(tempFile.path);
+    Assert.ok(
+      content.includes(`Message-ID: <${messageId}>`),
+      "The news URI should retrieve the original Message-ID after decoding once"
+    );
+  }
 });
 
 add_task(async function test_messageId_not_found() {

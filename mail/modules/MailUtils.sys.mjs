@@ -1025,8 +1025,8 @@ export var MailUtils = {
   /**
    * Construct a 'news:' URI spec for a specific message or newsgroup.
    *
-   * @param {string} identifier - The Message-ID or newsgroup identified by
-   *   this URI spec.
+   * @param {string} identifier - The unencoded Message-ID (without angle
+   *   brackets) or unencoded newsgroup name identified by this URI spec.
    * @param {nsIMsgIncomingServer} [server] - If provided, the hostname and
    *   port (if non-standard) of this server will be included in the URI spec.
    * @returns {string} - The 'news:' URI spec.
@@ -1043,10 +1043,9 @@ export var MailUtils = {
       }
       spec += "/";
     }
-    spec += identifier;
     try {
-      const uri = Services.io.newURI(spec);
-      return decodeURI(uri.spec);
+      spec += encodeURIComponent(identifier).replaceAll("%40", "@");
+      return Services.io.newURI(spec).spec;
     } catch (e) {
       console.error("Invalid URI: " + spec);
     }

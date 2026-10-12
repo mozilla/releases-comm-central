@@ -22,6 +22,19 @@ add_setup(async function test_setup() {
     _testFolder,
     do_get_file("messages/sample01.eml").path
   );
+  const sample = await IOUtils.readUTF8(
+    do_get_file("messages/sample01.eml").path
+  );
+  for (const messageId of [
+    "test%test@mime.sample",
+    "test%25test@mime.sample",
+    "test#?/test@mime.sample",
+  ]) {
+    await createMessageFromString(
+      _testFolder,
+      sample.replace("01.eml@mime.sample", messageId)
+    );
+  }
 });
 
 add_task(async function test_query_online() {
@@ -108,6 +121,35 @@ add_task(async function test_query_online() {
           onlineMessage,
           "The message queried online should have the correct contents."
         );
+
+        for (const messageId of [
+          "test%test@mime.sample",
+          "test%25test@mime.sample",
+          "test#?/test@mime.sample",
+        ]) {
+          const result = await browser.messages.query({
+            online: true,
+            accountId: testFolder1.accountId,
+            headerMessageId: messageId,
+          });
+          browser.test.assertEq(
+            1,
+            result.messages.length,
+            "The online query should find one message"
+          );
+          browser.test.assertEq(
+            messageId,
+            result.messages[0].headerMessageId,
+            "The online query should find the original Message-ID"
+          );
+          const raw = await browser.messages.getRaw(result.messages[0].id, {
+            data_format: "BinaryString",
+          });
+          browser.test.assertTrue(
+            raw.includes(`Message-ID: <${messageId}>`),
+            "The online query should return the original Message-ID in the header"
+          );
+        }
 
         browser.test.notifyPass("finished");
       },
