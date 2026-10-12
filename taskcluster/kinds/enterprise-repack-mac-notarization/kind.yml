@@ -19,6 +19,7 @@ reference-tasks:
 transforms:
     - taskgraph.transforms.from_deps
     - comm_taskgraph.transforms.enterprise:rewrite_shipping_product
+    - comm_taskgraph.transforms.enterprise:rewrite_shipping_phase
     - gecko_taskgraph.transforms.filter_notarization
     - gecko_taskgraph.transforms.chunk_partners
     - gecko_taskgraph.transforms.partner_signing

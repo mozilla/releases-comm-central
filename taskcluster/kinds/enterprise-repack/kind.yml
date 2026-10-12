@@ -24,6 +24,7 @@ reference-tasks:
 
 transforms:
     - comm_taskgraph.transforms.enterprise:rewrite_shipping_product
+    - comm_taskgraph.transforms.enterprise:rewrite_shipping_phase
     - comm_taskgraph.transforms.enterprise:rewrite_run_on_projects
     - comm_taskgraph.transforms.enterprise:rewrite_mozharness_configs
     - gecko_taskgraph.transforms.release_deps:transforms

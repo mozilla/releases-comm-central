@@ -27,6 +27,7 @@ only-for-build-platforms:
 
 transforms:
     - comm_taskgraph.transforms.enterprise:rewrite_mozharness_configs
+    - comm_taskgraph.transforms.enterprise:rewrite_shipping_phase
     - taskgraph.transforms.from_deps
     - gecko_taskgraph.transforms.repackage_set_upstream_mac_kind
     - gecko_taskgraph.transforms.chunk_partners  # This is dependant on release promotion
