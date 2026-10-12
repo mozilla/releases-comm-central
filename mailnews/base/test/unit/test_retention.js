@@ -70,3 +70,29 @@ add_task(function test_retention() {
   // no retention settings, so we should have the same number of messages.
   Assert.equal(8, gTestFolder.msgDatabase.dBFolderInfo.numMessages);
 });
+
+add_task(async function test_retention_keeps_newest_by_date() {
+  // Simulate insertion order diverging from message date.
+  const folder = await messageInjection.makeEmptyFolder();
+  const messages = [1, 10, 200, 300].map(days =>
+    gMessageGenerator.makeMessage({ age: { days } })
+  );
+  await messageInjection.addSetsToFolders(
+    [folder],
+    [new SyntheticMessageSet(messages)]
+  );
+
+  const settings = folder.retentionSettings;
+  settings.retainByPreference =
+    Ci.nsIMsgRetentionSettings.nsMsgRetainByNumHeaders;
+  settings.numHeadersToKeep = 2;
+  settings.useServerDefaults = false;
+  folder.retentionSettings = settings;
+  folder.applyRetentionSettings();
+
+  Assert.deepEqual(
+    [...folder.msgDatabase.enumerateMessages()].map(hdr => hdr.subject).sort(),
+    [messages[0].subject, messages[1].subject].sort(),
+    "the two newest messages by date should be kept"
+  );
+});

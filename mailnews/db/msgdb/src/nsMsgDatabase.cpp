@@ -4660,17 +4660,21 @@ nsresult nsMsgDatabase::FindExcessMessages(
   nsresult rv = NS_OK;
   hdrsToDelete.Clear();
 
-  nsCOMPtr<nsIMsgEnumerator> hdrs;
-  rv = EnumerateMessages(getter_AddRefs(hdrs));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   mdb_count numHdrs = 0;
   if (m_mdbAllMsgHeadersTable) {
     m_mdbAllMsgHeadersTable->GetCount(GetEnv(), &numHdrs);
   } else {
     return NS_ERROR_NULL_POINTER;
   }
+  if (numHdrs <= numHeadersToKeep) {
+    return NS_OK;
+  }
 
+  nsCOMPtr<nsIMsgEnumerator> hdrs;
+  rv = EnumerateMessages(getter_AddRefs(hdrs));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsTArray<std::pair<PRTime, nsMsgKey>> candidates;
   bool hasMore = false;
   while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore) {
     nsCOMPtr<nsIMsgDBHdr> msg;
@@ -4686,12 +4690,22 @@ nsresult nsMsgDatabase::FindExcessMessages(
       }
     }
 
-    // this isn't quite right - we want to prefer unread messages (keep all of
-    // those we can)
-    if (numHdrs > numHeadersToKeep) {
-      numHdrs--;
-      hdrsToDelete.AppendElement(msg);
-    }
+    PRTime date;
+    msg->GetDate(&date);
+    nsMsgKey key;
+    msg->GetMessageKey(&key);
+    candidates.EmplaceBack(date, key);
+  }
+  NS_ENSURE_SUCCESS(rv, rv);
+  candidates.Sort();
+
+  size_t numToDelete =
+      std::min<size_t>(numHdrs - numHeadersToKeep, candidates.Length());
+  for (const auto& candidate : Span(candidates).First(numToDelete)) {
+    nsCOMPtr<nsIMsgDBHdr> msg;
+    rv = GetMsgHdrForKey(candidate.second, getter_AddRefs(msg));
+    NS_ENSURE_SUCCESS(rv, rv);
+    hdrsToDelete.AppendElement(msg);
   }
 
   return NS_OK;
