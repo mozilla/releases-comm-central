@@ -747,15 +747,17 @@ export class NntpClient {
    * @param {NntpResponse} res - The server response.
    */
   _actionListgroupDataResponse = ({ data }) => {
-    this._lineReader.read(
-      data,
-      line => {
-        this.onData(line);
-      },
-      () => {
-        this._actionDone();
-      }
-    );
+    this._lineReader
+      .read(
+        data,
+        line => {
+          this.onData(line);
+        },
+        () => {
+          this._actionDone();
+        }
+      )
+      .catch(this._actionReadDataFailed);
   };
 
   /**
@@ -812,17 +814,19 @@ export class NntpClient {
    * @param {NntpResponse} res - XOVER response received from the server.
    */
   _actionReadXOver({ data }) {
-    this._lineReader.read(
-      data,
-      line => {
-        this._newsGroup.processXOverLine(line);
-      },
-      () => {
-        // Fetch extra headers used by filters, but not returned in XOVER response.
-        this._xhdrFields = this._newsGroup.getXHdrFields();
-        this._actionXHdr();
-      }
-    );
+    this._lineReader
+      .read(
+        data,
+        line => {
+          this._newsGroup.processXOverLine(line);
+        },
+        () => {
+          // Fetch extra headers used by filters, but not returned in XOVER response.
+          this._xhdrFields = this._newsGroup.getXHdrFields();
+          this._actionXHdr();
+        }
+      )
+      .catch(this._actionReadDataFailed);
   }
 
   /**
@@ -864,13 +868,15 @@ export class NntpClient {
    * @param {NntpResponse} res - XOVER response received from the server.
    */
   _actionReadXHdr({ data }) {
-    this._lineReader.read(
-      data,
-      line => {
-        this._newsGroup.processXHdrLine(this._curXHdrHeader, line);
-      },
-      this._actionXHdr
-    );
+    this._lineReader
+      .read(
+        data,
+        line => {
+          this._newsGroup.processXHdrLine(this._curXHdrHeader, line);
+        },
+        this._actionXHdr
+      )
+      .catch(this._actionReadDataFailed);
   }
 
   /**
@@ -910,16 +916,18 @@ export class NntpClient {
    * @param {NntpResponse} res - XOVER response received from the server.
    */
   _actionReadHead({ data }) {
-    this._lineReader.read(
-      data,
-      line => {
-        this._newsGroup.processHeadLine(line);
-      },
-      () => {
-        this._newsGroup.initHdr(-1);
-        this._actionHead();
-      }
-    );
+    this._lineReader
+      .read(
+        data,
+        line => {
+          this._newsGroup.processHeadLine(line);
+        },
+        () => {
+          this._newsGroup.initHdr(-1);
+          this._actionHead();
+        }
+      )
+      .catch(this._actionReadDataFailed);
   }
 
   /**
@@ -979,6 +987,8 @@ export class NntpClient {
    */
   _actionReadDataFailed = e => {
     this._logger.error("Failed to process multi-line response.", e);
+    // Discard the rest of the response, so it isn't taken for the next one.
+    this._lineReader = new LineReader();
     this._actionDone(Cr.NS_ERROR_FAILURE);
   };
 
@@ -1167,7 +1177,9 @@ export class NntpClient {
       this._actionError(status, statusText);
       return;
     }
-    this._lineReader.read(data, this.onData, this._actionXPat);
+    this._lineReader
+      .read(data, this.onData, this._actionXPat)
+      .catch(this._actionReadDataFailed);
   }
 
   /**

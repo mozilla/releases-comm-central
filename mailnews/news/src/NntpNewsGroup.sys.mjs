@@ -19,6 +19,8 @@ export class NntpNewsGroup {
     this._folder = folder;
     this._db = this._folder.msgDatabase;
     this._msgHdrs = [];
+    // The msg hdrs created from the XOVER response, by article number.
+    this._xoverHdrs = new Map();
     this._commitReadKeySet = false;
   }
 
@@ -172,6 +174,7 @@ export class NntpNewsGroup {
     msgHdr.messageSize = bytes;
     msgHdr.lineCount = lines;
     this._msgHdrs.push(msgHdr);
+    this._xoverHdrs.set(msgHdr.messageKey, msgHdr);
   }
 
   /**
@@ -211,7 +214,12 @@ export class NntpNewsGroup {
     const spaceIndex = line.indexOf(" ");
     const articleNumber = line.slice(0, spaceIndex);
     const value = line.slice(spaceIndex).trim();
-    const msgHdr = this._db.getMsgHdrForKey(articleNumber);
+    // Skip articles that weren't in the XOVER response, there's no msg hdr
+    // to update.
+    const msgHdr = this._xoverHdrs.get(+articleNumber);
+    if (!msgHdr) {
+      return;
+    }
     msgHdr.setStringProperty(header, value);
   }
 
