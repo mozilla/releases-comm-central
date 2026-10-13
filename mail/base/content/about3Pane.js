@@ -3178,9 +3178,9 @@ var folderPane = {
       return;
     }
 
-    // If the currently dragged row is not part of the selection map, use it
+    // If the currently dragged row is not part of the selection, use it
     // instead of the current selection entries.
-    const rows = folderTree.selection.has(folderTree.rows.indexOf(draggedRow))
+    const rows = folderTree.selection.has(draggedRow)
       ? [...folderTree.selection.values()]
       : [draggedRow];
 
@@ -3644,7 +3644,7 @@ var folderPane = {
         } else if (isReordering) {
           // Reorder within current siblings.
           this.insertFolder(sourceFolder, targetFolder, insertAfter);
-          if (folderTree.selection.has(folderTree.rows.indexOf(row))) {
+          if (folderTree.selection.has(row)) {
             rows.push(this.getRowForFolder(sourceFolder.URI, row.modeName));
           }
         }
@@ -6362,7 +6362,7 @@ var folderListener = {
   onFolderRemoved(parentFolder, childFolder) {
     // Check if the folder is in the selection range before we remove it.
     const row = folderPane.getRowForFolder(childFolder.URI);
-    const notInRange = !folderTree.selection.has(folderTree.rows.indexOf(row));
+    const notInRange = !folderTree.selection.has(row);
 
     folderPane.removeFolder(parentFolder, childFolder);
     if (childFolder == gFolder) {

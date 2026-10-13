@@ -146,3 +146,32 @@ add_task(async function test_drag_and_drop_single_folder() {
     )
   );
 });
+
+add_task(async function test_drag_and_drop_multiple_folders() {
+  const folderD = rootFolder.createLocalSubfolder("folderD");
+  const folderE = rootFolder.createLocalSubfolder("folderE");
+  const folderF = rootFolder.createLocalSubfolder("folderF");
+
+  const rowD = folderPane.getRowForFolder(folderD);
+  const rowE = folderPane.getRowForFolder(folderE);
+  folderTree.swapSelection([rowD, rowE]);
+  Assert.equal(folderTree.selection.size, 2, "two folders should be selected");
+
+  await startDrag(folderD, folderF);
+  Assert.equal(
+    dataTransfer.mozItemCount,
+    2,
+    "dragging a selected folder should drag the full selection"
+  );
+  await endDrag(folderF);
+
+  await TestUtils.waitForCondition(() => {
+    try {
+      const movedD = folderF.getChildNamed("folderD");
+      const movedE = folderF.getChildNamed("folderE");
+      return !!movedD && !!movedE;
+    } catch (ex) {
+      return false;
+    }
+  }, "Wait for both selected folders to become children of folderF");
+});
