@@ -475,6 +475,85 @@ add_task(async function test_modifyItems() {
 });
 
 /**
+ * Test that snoozing and dismissing update the alarms when the calendar
+ * notifies the modification inside a batch, where the alarm service ignores
+ * item notifications. CalDAV calendars reload a modified item in a batch.
+ */
+add_task(async function test_acknowledgeDuringBatch() {
+  const memory = await doRunTest();
+
+  const date = cal.dtz.now();
+  const [item, alarm] = createEventWithAlarm(memory, date, date, "-PT5M");
+  const [item2, alarm2] = createEventWithAlarm(memory, date, date, "-PT5M");
+  item.title = "test_acknowledgeDuringBatch snooze";
+  item2.title = "test_acknowledgeDuringBatch dismiss";
+  await memory.addItem(item);
+  await memory.addItem(item2);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_FIRED);
+  alarmObserver.expectResult(memory, item2, alarm2, EXPECT_FIRED);
+  alarmObserver.checkExpected();
+
+  memory.startBatch();
+  await alarmObserver.service.snoozeAlarm(item, alarm, cal.createDuration("PT1H"));
+  await alarmObserver.service.dismissAlarm(item2, alarm2);
+  memory.endBatch();
+
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_TIMER);
+  alarmObserver.expectResult(memory, item2, alarm2, EXPECT_NONE);
+  alarmObserver.checkExpected("test_acknowledgeDuringBatch");
+});
+
+/**
+ * Test that a dismissed alarm leaves the dialog as soon as the dismiss is
+ * requested, before the calendar confirms the modification, so a repeated
+ * dismiss cannot race the pending one.
+ */
+add_task(async function test_dismissRemovesAlarmImmediately() {
+  const memory = await doRunTest();
+
+  const date = cal.dtz.now();
+  const [item, alarm] = createEventWithAlarm(memory, date, date, "-PT5M");
+  item.title = "test_dismissRemovesAlarmImmediately";
+  await memory.addItem(item);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_FIRED);
+  alarmObserver.checkExpected();
+
+  // The batch keeps the calendar from confirming the modification through the
+  // observer, so the removal can only come from dismissAlarm itself.
+  memory.startBatch();
+  const dismissed = alarmObserver.service.dismissAlarm(item, alarm);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_NONE);
+  alarmObserver.checkExpected("test_dismissRemovesAlarmImmediately, before confirmation");
+  await dismissed;
+  memory.endBatch();
+  alarmObserver.checkExpected("test_dismissRemovesAlarmImmediately, after confirmation");
+});
+
+/**
+ * Test that a snooze the calendar rejects removes the alarm from the dialog.
+ */
+add_task(async function test_failedSnoozeRemovesAlarm() {
+  const memory = await doRunTest(calendar => {
+    // The alarm service calls modifyItem through the XPCOM interface, which
+    // dispatches to the provider's wrappedJSObject.
+    calendar.wrappedJSObject.modifyItem = async () => {
+      throw new Error("modification rejected");
+    };
+  });
+
+  const date = cal.dtz.now();
+  const [item, alarm] = createEventWithAlarm(memory, date, date, "-PT5M");
+  await memory.addItem(item);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_FIRED);
+  alarmObserver.checkExpected("test_failedSnoozeRemovesAlarm, before snooze");
+
+  await alarmObserver.service.snoozeAlarm(item, alarm, cal.createDuration("PT1H"));
+
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_NONE);
+  alarmObserver.checkExpected("test_failedSnoozeRemovesAlarm, after snooze");
+});
+
+/**
  * Test an array of timers has expected delay values.
  *
  * @param {nsITimer[]} timers - An array of nsITimer.

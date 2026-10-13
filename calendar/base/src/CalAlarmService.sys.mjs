@@ -193,13 +193,7 @@ export function CalAlarmService() {
         return;
       }
 
-      if (!newItem.recurrenceId) {
-        // deleting an occurrence currently calls modifyItem(newParent, *oldOccurrence*)
-        oldItem = oldItem.parentItem;
-      }
-
-      this.onDeleteItem(oldItem);
-      this.onAddItem(newItem);
+      this.alarmService.updateAlarmsForModifiedItem(newItem, oldItem);
     },
 
     /**
@@ -339,28 +333,34 @@ CalAlarmService.prototype = {
     }
     newEvent.setProperty(propName, alarmTime.icalString);
 
-    // calling modifyItem will cause us to get the right callback
-    // and update the alarm properly
+    let modifiedItem;
     try {
-      const modifiedItem = await newEvent.calendar.modifyItem(newEvent, aItem.parentItem);
-
-      if (modifiedItem.getProperty(propName) == alarmTime.icalString) {
-        return;
-      }
+      modifiedItem = await newEvent.calendar.modifyItem(newEvent, aItem.parentItem);
     } catch (e) {
       this._logger.warn(
         `Failed to snooze alarm for item ${aItem.hashId}. This alarm will be ignored.`,
         e
       );
     }
+    if (modifiedItem?.getProperty(propName) == alarmTime.icalString) {
+      this.updateAlarmsForModifiedItem(modifiedItem, aItem.parentItem);
+      return;
+    }
 
     // The server did not persist our changes for some reason.
     // Include the item in the ignored list so we skip displaying alarms for
-    // this item in the future.
+    // this item in the future, and remove the alarm that is already shown.
     IgnoredAlarmsStore.add(aItem);
+    this.removeAlarmsForItem(aItem);
   },
 
   async dismissAlarm(aItem) {
+    // Remove the alarm from the dialog first: every outcome below ends with it
+    // removed, and a repeated dismiss during the server round trip would race
+    // the pending request with a stale etag. For a read-only calendar this is
+    // the whole dismiss from the user's point of view: the alarm neither pops
+    // up again in this session nor after a restart, since it is missed by then.
+    this.removeAlarmsForItem(aItem);
     if (cal.acl.isCalendarWritable(aItem.calendar) && cal.acl.userCanModifyItem(aItem)) {
       const now = nowUTC();
       // We want the parent item, otherwise we're going to accidentally
@@ -377,16 +377,18 @@ CalAlarmService.prototype = {
         newParent.deleteProperty("X-MOZ-SNOOZE-TIME");
       }
 
+      let modifiedItem;
       try {
-        const modifiedItem = await newParent.calendar.modifyItem(newParent, oldParent);
-        if (modifiedItem.alarmLastAck && now.compare(modifiedItem.alarmLastAck) == 0) {
-          return;
-        }
+        modifiedItem = await newParent.calendar.modifyItem(newParent, oldParent);
       } catch (e) {
         this._logger.warn(
           `Failed to dismiss alarm for item ${aItem.hashId}. This alarm will be ignored.`,
           e
         );
+      }
+      if (modifiedItem?.alarmLastAck && now.compare(modifiedItem.alarmLastAck) == 0) {
+        this.updateAlarmsForModifiedItem(modifiedItem, oldParent);
+        return;
       }
 
       // The server did not persist our changes for some reason.
@@ -394,12 +396,6 @@ CalAlarmService.prototype = {
       // future occurrences of the item can still fire.
       IgnoredAlarmsStore.add(aItem, now);
     }
-    // if the calendar of the item is r/o, we simple remove the alarm
-    // from the list without modifying the item, so this works like
-    // effectively dismissing from a user's pov, since the alarm neither
-    // popups again in the current user session nor will be added after
-    // next restart, since it is missed then already
-    this.removeAlarmsForItem(aItem);
   },
 
   addObserver(aObserver) {
@@ -534,6 +530,27 @@ CalAlarmService.prototype = {
     calendar.removeObserver(this.calendarObserver);
     this.disposeCalendarTimers([calendar]);
     this.mObservers.notify("onRemoveAlarmsByCalendar", [calendar]);
+  },
+
+  /**
+   * Replaces the alarms of an item that has been modified.
+   *
+   * The calendar observer skips notifications delivered inside a batch, so
+   * snoozeAlarm and dismissAlarm call this directly for the item they
+   * modified: providers that reload a modified item from the server notify
+   * the change inside a batch.
+   *
+   * @param {calIItemBase} newItem - The modified item.
+   * @param {calIItemBase} oldItem - The item before the modification.
+   */
+  updateAlarmsForModifiedItem(newItem, oldItem) {
+    if (!newItem.recurrenceId) {
+      // deleting an occurrence currently calls modifyItem(newParent, *oldOccurrence*)
+      oldItem = oldItem.parentItem;
+    }
+
+    this.removeAlarmsForOccurrences(oldItem);
+    this.addAlarmsForOccurrences(newItem);
   },
 
   addAlarmsForItem(aItem) {

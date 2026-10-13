@@ -56,6 +56,13 @@ add_task(async function testAlarmDialog() {
   await saveAndCloseItemDialog(dialogWindow);
   await alarmPromise;
 
+  // The alarm dialog closes before the calendar stores the dismissal. Editing
+  // the event before then would conflict with the stored item.
+  await TestUtils.waitForCondition(
+    () => dayView.getAllDayItemAt(window, 1)?.occurrence.alarmLastAck,
+    "dismissal should be stored"
+  );
+
   // Change the reminder duration, this resets the alarm.
   const eventBox = await dayView.waitForAllDayItemAt(window, 1);
 
