@@ -22,4 +22,6 @@ subsuite = "thunderbird"
 
 ["browser_builtInThemes.js"]
 
+["browser_downloadHeaders.js"]
+
 ["browser_openMessageFromFile.js"]
