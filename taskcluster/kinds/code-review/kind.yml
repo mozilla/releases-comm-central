@@ -21,6 +21,7 @@ tasks:
     issues:
         label: code-review-issues
         description: List all issues found in static analysis and linting tasks
+        upstream-attribute: code-review
         worker-type: b-linux
 
         # Only run by using the code-review target_tasks_method
