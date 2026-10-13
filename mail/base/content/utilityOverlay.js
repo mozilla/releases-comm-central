@@ -446,4 +446,20 @@ function buildHelpMenu() {
     appmenu_troubleshootModeItem.disabled =
       !Services.policies.isAllowed("safeMode");
   }
+
+  const communityHidden = !Services.prefs.getBoolPref(
+    "mail.community_features.enabled"
+  );
+
+  for (const id of [
+    "getInvolved",
+    "donationsPage",
+    "feedbackPage",
+    "functionsSeparator",
+  ]) {
+    const item = document.getElementById(id);
+    if (item) {
+      item.hidden = communityHidden;
+    }
+  }
 }
