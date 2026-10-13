@@ -9,6 +9,8 @@
 
 /* eslint-disable sdl/no-insecure-url */
 
+requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 2 : 1);
+
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
