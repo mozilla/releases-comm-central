@@ -125,9 +125,9 @@ git = "https://github.com/rust-minidump/minidump-writer.git"
 rev = "6744feee58804a78730d176cdcc31bb4f3021107"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/servo/rust-cssparser?rev=3a1d1c7a2980ab59d4e5fed7fe666dcbe265d132"]
+[source."git+https://github.com/servo/rust-cssparser?rev=9f3ceddf398f5ce4ab76fdad1b42ccb6c578a926"]
 git = "https://github.com/servo/rust-cssparser"
-rev = "3a1d1c7a2980ab59d4e5fed7fe666dcbe265d132"
+rev = "9f3ceddf398f5ce4ab76fdad1b42ccb6c578a926"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/servo/unicode-bidi?rev=ca612daf1c08c53abe07327cb3e6ef6e0a760f0c"]
