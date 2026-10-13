@@ -13,7 +13,7 @@
 
 /* eslint-disable sdl/no-insecure-url */
 
-requestLongerTimeout(2);
+requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 3 : 2);
 
 const { MailConsts } = ChromeUtils.importESModule(
   "resource:///modules/MailConsts.sys.mjs"

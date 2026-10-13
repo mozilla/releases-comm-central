@@ -69,6 +69,17 @@ export async function clearStatusBar(window) {
     0,
     "status bar should not have any active processes"
   );
+  for (const process of status._activeProcesses) {
+    dump(
+      `Leftover status bar process: id=${process.id}, ` +
+        `displayText="${process.displayText}", state=${process.state}, ` +
+        `percentComplete=${process.percentComplete}, ` +
+        `lastStatusText="${process.lastStatusText}", ` +
+        `contextType="${process.contextType}", ` +
+        `contextDisplayText="${process.contextDisplayText}", ` +
+        `startTime=${process.startTime}\n`
+    );
+  }
   status._startRequests = 0;
   status._activeProcesses.length = 0;
 
