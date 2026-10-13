@@ -28,6 +28,9 @@ support-files = [
 
 ["browser_folderPropsPrivileges.js"]
 
+["browser_folderTreeDetachedFolder.js"]
+tags = ["virtualfolders"]
+
 ["browser_folderTreeProperties.js"]
 tags = ["virtualfolders"]
 
@@ -43,8 +46,8 @@ tags = ["virtualfolders"]
 
 ["browser_manualSortFolders.js"]
 run-if = [
-  "os != 'linux'",
   "!headless",
+  "os != 'linux'",
 ] # See bug 1806870.
 
 ["browser_markAsRead.js"]
