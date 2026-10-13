@@ -1836,15 +1836,19 @@ function updateAllItems(disable) {
 }
 
 function InitFileSaveAsMenu() {
-  document
-    .getElementById("cmd_saveAsFile")
-    .toggleAttribute("checked", defaultSaveOperation == "file");
-  document
-    .getElementById("cmd_saveAsDraft")
-    .toggleAttribute("checked", defaultSaveOperation == "draft");
-  document
-    .getElementById("cmd_saveAsTemplate")
-    .toggleAttribute("checked", defaultSaveOperation == "template");
+  const saveAsCommands = {
+    file: "cmd_saveAsFile",
+    draft: "cmd_saveAsDraft",
+    template: "cmd_saveAsTemplate",
+  };
+  for (const [operation, commandId] of Object.entries(saveAsCommands)) {
+    const isChecked = defaultSaveOperation == operation;
+    for (const item of document.querySelectorAll(
+      `menuitem[command="${commandId}"]`
+    )) {
+      item.toggleAttribute("checked", isChecked);
+    }
+  }
 }
 
 function isSmimeSigningConfigured() {
@@ -2213,6 +2217,21 @@ function updateAttachmentItems() {
   goUpdateCommand("cmd_openAttachment");
   goUpdateCommand("cmd_attachVCard");
   goUpdateCommand("cmd_attachPublicKey");
+
+  for (const commandId of [
+    "cmd_attachVCard",
+    "cmd_attachPublicKey",
+    "cmd_remindLater",
+  ]) {
+    const isChecked = document
+      .getElementById(commandId)
+      .hasAttribute("checked");
+    for (const item of document.querySelectorAll(
+      `menuitem[command="${commandId}"]`
+    )) {
+      item.toggleAttribute("checked", isChecked);
+    }
+  }
 }
 
 function updateReorderAttachmentsItems() {

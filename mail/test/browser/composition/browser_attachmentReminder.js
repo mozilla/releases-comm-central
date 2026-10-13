@@ -115,7 +115,7 @@ async function wait_for_reminder_state(aCwc, aShown, aDelay = false) {
  * @param {Window} aCwc - A compose window.
  * @param {boolean} aChecked - Whether the reminder should be enabled.
  */
-function assert_manual_reminder_state(aCwc, aChecked) {
+async function assert_manual_reminder_state(aCwc, aChecked) {
   const remindCommand = "cmd_remindLater";
   Assert.equal(
     aCwc.document
@@ -128,6 +128,42 @@ function assert_manual_reminder_state(aCwc, aChecked) {
     aCwc.document.getElementById(remindCommand).hasAttribute("checked"),
     aChecked
   );
+
+  const popup = await open_attach_popup(aCwc);
+  Assert.equal(
+    aCwc.document
+      .getElementById("button-attachPopup_remindLaterItem")
+      .hasAttribute("checked"),
+    aChecked,
+    "Remind Me Later in the Attach button menu should show the manual reminder state"
+  );
+  popup.hidePopup();
+  await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
+}
+
+/**
+ * Open the menu of the Attach button.
+ *
+ * @param {Window} aCwc - A compose window.
+ * @returns {Promise<XULPopupElement>} The open menupopup.
+ */
+async function open_attach_popup(aCwc) {
+  if (Services.focus.activeWindow != aCwc) {
+    await new Promise(resolve =>
+      aCwc.addEventListener("activate", resolve, { once: true })
+    );
+  }
+
+  const button = aCwc.document.getElementById("button-attach");
+
+  const popup = aCwc.document.getElementById("button-attachPopup");
+  EventUtils.synthesizeMouseAtCenter(
+    button.querySelector(".toolbarbutton-menubutton-dropmarker"),
+    {},
+    aCwc
+  );
+  await BrowserTestUtils.waitForPopupEvent(popup, "shown");
+  return popup;
 }
 
 /**
@@ -167,7 +203,7 @@ add_task(async function test_attachment_reminder_appears_properly() {
   await wait_for_reminder_state(cwc, true);
 
   // The manual reminder should be disabled yet.
-  assert_manual_reminder_state(cwc, false);
+  await assert_manual_reminder_state(cwc, false);
 
   const box = get_notification(cwc, kBoxId, kNotificationId);
   // Click ok to be notified on send if no attachments are attached.
@@ -179,7 +215,7 @@ add_task(async function test_attachment_reminder_appears_properly() {
   await wait_for_reminder_state(cwc, false);
 
   // The manual reminder should be enabled now.
-  assert_manual_reminder_state(cwc, true);
+  await assert_manual_reminder_state(cwc, true);
 
   // Now try to send, make sure we get the alert.
   // Click the "Oh, I Did!" button in the attachment reminder dialog.
@@ -194,7 +230,7 @@ add_task(async function test_attachment_reminder_appears_properly() {
   );
 
   // After confirming the reminder the menuitem should get disabled.
-  assert_manual_reminder_state(cwc, false);
+  await assert_manual_reminder_state(cwc, false);
 
   await close_compose_window(cwc);
 });
@@ -393,28 +429,13 @@ add_task(async function test_no_send_now_sends() {
  *   menuitem after the click.
  */
 async function click_manual_reminder(aCwc, aExpectedState) {
-  if (Services.focus.activeWindow != aCwc) {
-    await new Promise(resolve =>
-      aCwc.addEventListener("activate", resolve, { once: true })
-    );
-  }
-
-  const button = aCwc.document.getElementById("button-attach");
-
-  const popup = aCwc.document.getElementById("button-attachPopup");
-  const shownPromise = BrowserTestUtils.waitForEvent(popup, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(
-    button.querySelector(".toolbarbutton-menubutton-dropmarker"),
-    {},
-    aCwc
-  );
-  await shownPromise;
+  const popup = await open_attach_popup(aCwc);
   const hiddenPromise = BrowserTestUtils.waitForEvent(popup, "popuphidden");
   popup.activateItem(
     aCwc.document.getElementById("button-attachPopup_remindLaterItem")
   );
   await hiddenPromise;
-  assert_manual_reminder_state(aCwc, aExpectedState);
+  await assert_manual_reminder_state(aCwc, aExpectedState);
 }
 
 /**
@@ -450,7 +471,7 @@ add_task(async function test_manual_attachment_reminder() {
   // Open another blank compose window.
   cwc = await open_compose_new_mail();
   // This one should have the reminder disabled.
-  assert_manual_reminder_state(cwc, false);
+  await assert_manual_reminder_state(cwc, false);
   // There should be no attachment notification.
   assert_automatic_reminder_state(cwc, false);
 
@@ -482,7 +503,7 @@ add_task(async function test_manual_attachment_reminder() {
   cwc = await compose_window_ready(composePromise);
 
   // Check the reminder enablement was preserved in the message.
-  assert_manual_reminder_state(cwc, true);
+  await assert_manual_reminder_state(cwc, true);
   // There should be no attachment notification.
   assert_automatic_reminder_state(cwc, false);
 
@@ -499,7 +520,7 @@ add_task(async function test_manual_attachment_reminder() {
   );
 
   // We were alerted once and the manual reminder is automatically turned off.
-  assert_manual_reminder_state(cwc, false);
+  await assert_manual_reminder_state(cwc, false);
 
   // Enable the manual reminder and disable it again to see if it toggles right.
   await click_manual_reminder(cwc, true);
@@ -529,7 +550,7 @@ add_task(
     // Open a blank message compose
     const cwc = await open_compose_new_mail();
     // This one should have the reminder disabled.
-    assert_manual_reminder_state(cwc, false);
+    await assert_manual_reminder_state(cwc, false);
     // There should be no attachment notification.
     assert_automatic_reminder_state(cwc, false);
 
@@ -629,7 +650,7 @@ add_task(async function test_attachment_reminder_in_subject() {
   // Open a blank message compose
   const cwc = await open_compose_new_mail();
   // This one should have the reminder disabled.
-  assert_manual_reminder_state(cwc, false);
+  await assert_manual_reminder_state(cwc, false);
   // There should be no attachment notification.
   assert_automatic_reminder_state(cwc, false);
 
@@ -663,7 +684,7 @@ add_task(async function test_attachment_reminder_in_subject_and_body() {
   // Open a blank message compose
   const cwc = await open_compose_new_mail();
   // This one should have the reminder disabled.
-  assert_manual_reminder_state(cwc, false);
+  await assert_manual_reminder_state(cwc, false);
   // There should be no attachment notification.
   assert_automatic_reminder_state(cwc, false);
 
@@ -710,7 +731,7 @@ add_task(async function test_disabled_attachment_reminder() {
   );
 
   // This one should have the manual reminder disabled.
-  assert_manual_reminder_state(cwc, false);
+  await assert_manual_reminder_state(cwc, false);
   // There should be no attachment notification.
   assert_automatic_reminder_state(cwc, false);
 
@@ -752,7 +773,7 @@ add_task(async function test_reminder_in_draft() {
   );
 
   // This one should have the manual reminder disabled.
-  assert_manual_reminder_state(cwc, false);
+  await assert_manual_reminder_state(cwc, false);
   // There should be no attachment notification.
   assert_automatic_reminder_state(cwc, false);
 
@@ -816,7 +837,7 @@ add_task(async function test_disabling_attachment_reminder() {
   );
 
   // This one should have the manual reminder disabled.
-  assert_manual_reminder_state(cwc, false);
+  await assert_manual_reminder_state(cwc, false);
   // There should be an attachment reminder.
   await wait_for_reminder_state(cwc, true);
 

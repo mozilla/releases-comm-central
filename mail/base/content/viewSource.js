@@ -33,7 +33,7 @@ addEventListener("load", () => {
 
   if (Services.prefs.getBoolPref("view_source.wrap_long_lines", false)) {
     document
-      .getElementById("cmd_wrapLongLines")
+      .getElementById("menu_wrapLongLines")
       .toggleAttribute("checked", true);
   }
 
@@ -84,7 +84,7 @@ var viewSourceChrome = {
       false
     );
     document
-      .getElementById("cmd_wrapLongLines")
+      .getElementById("menu_wrapLongLines")
       .toggleAttribute("checked", state);
     Services.prefs.setBoolPref("view_source.wrap_long_lines", state);
   },

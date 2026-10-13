@@ -95,10 +95,6 @@ add_task(async function toggleWrappingFromOn() {
     !Services.prefs.getBoolPref("view_source.wrap_long_lines"),
     "Pref should be off after turning wrapping off"
   );
-  Assert.ok(
-    !command.hasAttribute("checked"),
-    "Command should be unchecked after turning wrapping off"
-  );
   await TestUtils.waitForCondition(
     () => browser.contentWindow.getComputedStyle(pre).whiteSpace == "pre",
     "Source should not be wrapped after turning wrapping off"
@@ -107,6 +103,45 @@ add_task(async function toggleWrappingFromOn() {
   await BrowserTestUtils.closeWindow(viewSourceWin);
   await SpecialPowers.popPrefEnv();
 });
+
+/** Wrap Long Lines should stay checked in the next window after turning it on. */
+add_task(async function wrapLongLinesMenuItem() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["view_source.wrap_long_lines", false]],
+  });
+  await select_click_row(0);
+
+  let viewSourceWin = await openViewSource();
+  let viewMenu = viewSourceWin.document.getElementById("menu_view");
+  EventUtils.synthesizeMouseAtCenter(viewMenu, {}, viewSourceWin);
+  await BrowserTestUtils.waitForPopupEvent(viewMenu.menupopup, "shown");
+  let menuItem = viewSourceWin.document.getElementById("menu_wrapLongLines");
+  Assert.ok(
+    !menuItem.hasAttribute("checked"),
+    "Wrap Long Lines should be unchecked when the window opens with wrapping off"
+  );
+  viewMenu.menupopup.activateItem(menuItem);
+  await BrowserTestUtils.waitForPopupEvent(viewMenu.menupopup, "hidden");
+  Assert.ok(
+    Services.prefs.getBoolPref("view_source.wrap_long_lines"),
+    "Pref should be on after turning wrapping on"
+  );
+  await BrowserTestUtils.closeWindow(viewSourceWin);
+
+  viewSourceWin = await openViewSource();
+  viewMenu = viewSourceWin.document.getElementById("menu_view");
+  EventUtils.synthesizeMouseAtCenter(viewMenu, {}, viewSourceWin);
+  await BrowserTestUtils.waitForPopupEvent(viewMenu.menupopup, "shown");
+  menuItem = viewSourceWin.document.getElementById("menu_wrapLongLines");
+  Assert.ok(
+    menuItem.hasAttribute("checked"),
+    "Wrap Long Lines should be checked in the next window after turning wrapping on"
+  );
+  viewMenu.menupopup.hidePopup();
+  await BrowserTestUtils.waitForPopupEvent(viewMenu.menupopup, "hidden");
+  await BrowserTestUtils.closeWindow(viewSourceWin);
+  await SpecialPowers.popPrefEnv();
+}).skip(AppConstants.platform == "macosx"); // Can't click menu bar on Mac.
 
 function addToFolder(subject, charset, body) {
   const msgId = Services.uuid.generateUUID() + "@invalid";
@@ -135,6 +170,25 @@ function addToFolder(subject, charset, body) {
   return folder.msgDatabase.getMsgHdrForMessageID(msgId);
 }
 
+/**
+ * Open view-source for the selected message and wait for it to load.
+ *
+ * @returns {Promise<Window>} The view-source window.
+ */
+async function openViewSource() {
+  const viewSourcePromise = promise_new_window("navigator:view-source");
+  EventUtils.synthesizeKey("U", { shiftKey: false, accelKey: true });
+  const viewSourceWin = await viewSourcePromise;
+  await TestUtils.waitForCondition(
+    () =>
+      viewSourceWin.document
+        .getElementById("content")
+        .contentDocument.querySelector("pre") != null,
+    "Timeout waiting for the view-source document to load."
+  );
+  return viewSourceWin;
+}
+
 async function subtest(row, expectedDisplayed, expectedSource) {
   await select_click_row(row);
 
@@ -151,17 +205,7 @@ async function subtest(row, expectedDisplayed, expectedSource) {
     "UTF-8"
   );
 
-  const viewSourcePromise = promise_new_window("navigator:view-source");
-  EventUtils.synthesizeKey("U", { shiftKey: false, accelKey: true });
-  const viewSourceWin = await viewSourcePromise;
-
-  await TestUtils.waitForCondition(
-    () =>
-      viewSourceWin.document
-        .getElementById("content")
-        .contentDocument.querySelector("pre") != null,
-    "Timeout waiting for the latin1 view-source document to load."
-  );
+  const viewSourceWin = await openViewSource();
 
   let source =
     viewSourceWin.document.getElementById("content").contentDocument.body

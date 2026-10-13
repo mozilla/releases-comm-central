@@ -262,3 +262,20 @@ add_task(async function test3PaneTab() {
     pageSourceMenuItem: { disabled: false },
   });
 });
+
+add_task(async function testZoomTextOnly() {
+  tabmail.currentAbout3Pane.threadTree.selectedIndex = 0;
+  await messageLoadedIn(tabmail.currentAbout3Pane.messageBrowser);
+
+  goDoCommand("cmd_fullZoomToggle");
+  await helper.testItems({
+    viewFullZoomMenu: {},
+    menu_fullZoomToggle: { checked: true },
+  });
+
+  goDoCommand("cmd_fullZoomToggle");
+  await helper.testItems({
+    viewFullZoomMenu: {},
+    menu_fullZoomToggle: {},
+  });
+});

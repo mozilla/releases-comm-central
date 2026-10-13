@@ -969,8 +969,13 @@ function getMsgToolbarMenu_init() {
 
 function InitMessageMark() {
   const tab = document.getElementById("tabmail")?.currentTabInfo;
-  const flaggedItem = document.getElementById("markFlaggedMenuItem");
-  flaggedItem.toggleAttribute("checked", Boolean(tab?.message?.isFlagged));
+  const isFlagged = Boolean(tab?.message?.isFlagged);
+  document
+    .getElementById("markFlaggedMenuItem")
+    .toggleAttribute("checked", isFlagged);
+  document
+    .getElementById("markFlaggedToolbarItem")
+    ?.toggleAttribute("checked", isFlagged);
 
   document.commandDispatcher.updateCommands("create-menu-mark");
 }
