@@ -407,6 +407,27 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         request: Request<Vec<u8>>,
         options: OperationRequestOptions,
     ) -> Result<Response, XpComGraphError> {
+        // We might be following e.g. an `@odata.nextLink`, which includes an
+        // origin, so we want to make sure we're staying on the same server, and
+        // not subject to HTTPS downgrades.
+        let request_host = request.uri().host();
+        let server_url = self.base_api_url()?;
+        let expected_host = server_url.host_str();
+        if request_host != expected_host {
+            return Err(XpComGraphError::Processing {
+                message: format!(
+                    "expected request to {expected_host:?}, got request to {request_host:?}"
+                ),
+            });
+        }
+        let request_is_https = request.uri().scheme() == Some(&http::uri::Scheme::HTTPS);
+        let https_is_expected = server_url.scheme() != "http";
+        if !request_is_https && https_is_expected {
+            return Err(XpComGraphError::Processing {
+                message: "https downgrade attempt detected".into(),
+            });
+        }
+
         let (queued_op, rcv) = QueuedGraphOperation::new(request, options, self.op_sender.clone());
 
         let operation_id = *queued_op.id();
