@@ -55,6 +55,78 @@ add_task(async function test_account_hub_first_run() {
   await SpecialPowers.popPrefEnv();
 });
 
+add_task(async function test_account_hub_first_run_open_address_book_setup() {
+  IMAPServer.open();
+  SMTPServer.open();
+  const dialog = await subtest_open_account_hub_dialog();
+
+  Assert.ok(
+    dialog.classList.contains("account-hub-first-run"),
+    "Should have the first run class"
+  );
+  Assert.ok(
+    window.AccountHubController.isFirstRun,
+    "Should have first run correctly set"
+  );
+
+  // Go to the second step of the email setup.
+  await subtest_fill_initial_config_fields(dialog, {
+    name: "John Doe",
+    email: "john.doe@imap.test",
+    password: "abc12345",
+    incomingHost: "testin.imap.test",
+    outgoingHost: "testout.imap.test",
+  });
+  const configFoundTemplate = dialog.querySelector("email-config-found");
+
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(configFoundTemplate.querySelector("#imap")),
+    "The IMAP config option should be visible"
+  );
+  // Click minimize, and open the address book account hub setup.
+  let minimizeButton = configFoundTemplate.shadowRoot
+    .querySelector("account-hub-header")
+    .shadowRoot.querySelector("#minimizeButton");
+  EventUtils.synthesizeMouseAtCenter(minimizeButton, {});
+
+  await subtest_open_account_hub_dialog("ADDRESS_BOOK");
+
+  // Ensure the view is the address book setup start.
+  const optionSelectTemplate = dialog.querySelector(
+    "address-book-option-select"
+  );
+
+  await BrowserTestUtils.waitForMutationCondition(
+    optionSelectTemplate,
+    { childList: true },
+    () => !!optionSelectTemplate.querySelector("#syncExistingAccounts")
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(optionSelectTemplate),
+    "The address book option select view should be visible"
+  );
+
+  // Click minimize and open the email setup to ensure that it shows the view
+  // at the first step.
+  minimizeButton = optionSelectTemplate.shadowRoot
+    .querySelector("account-hub-header")
+    .shadowRoot.querySelector("#minimizeButton");
+  EventUtils.synthesizeMouseAtCenter(minimizeButton, {});
+  await subtest_open_account_hub_dialog();
+
+  const emailAutoFormTemplate = dialog.querySelector("email-auto-form");
+  Assert.ok(
+    BrowserTestUtils.isVisible(emailAutoFormTemplate),
+    "The email setup first step view should be visible"
+  );
+
+  await subtest_close_account_hub_dialog(dialog, emailAutoFormTemplate);
+  IMAPServer.close();
+  SMTPServer.close();
+});
+
 add_task(async function test_account_hub_header_branding() {
   IMAPServer.open();
   SMTPServer.open();

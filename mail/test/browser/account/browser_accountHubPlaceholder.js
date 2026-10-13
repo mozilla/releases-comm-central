@@ -183,9 +183,9 @@ add_task(async function test_account_hub_placeholder_reopen() {
     "The placeholder should be shown when the dialog is minimized."
   );
 
-  // Try to open the Account Hub again on the address book view while minimized.
-  info("Reopen the Account Hub on the address book view.");
-  await window.openAccountHub("ADDRESS_BOOK");
+  // Try to open the Account Hub while minimized.
+  info("Reopen the Account Hub");
+  await window.openAccountHub();
   // Assert the Account Hub is shown again.
   ok(
     dialog.open,
