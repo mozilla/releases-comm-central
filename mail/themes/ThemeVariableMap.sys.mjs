@@ -4,9 +4,9 @@
 
 export const ThemeVariableMap = [
   [
-    "--lwt-frame-inactive",
+    "--lwt-accent-color-inactive",
     {
-      lwtProperty: "frame_inactive",
+      lwtProperty: "accentcolorInactive",
     },
   ],
   [
