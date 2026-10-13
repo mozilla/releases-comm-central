@@ -274,6 +274,26 @@ add_task(async function test_dialogVisibilityChecks() {
   );
 });
 
+add_task(async function test_closeButtonClosesDialog() {
+  await dialog.show();
+
+  Assert.ok(
+    dialog.open,
+    "The dialog should be open before the close button is clicked"
+  );
+
+  const closeButton = dialog.querySelector(".close-button");
+  Assert.ok(closeButton, "The dialog should have a close button");
+
+  EventUtils.synthesizeMouseAtCenter(closeButton, {}, browser.contentWindow);
+
+  Assert.ok(!dialog.open, "The close button should close the dialog");
+  Assert.ok(
+    BrowserTestUtils.isHidden(dialog),
+    "The dialog should be hidden after the close button is clicked"
+  );
+});
+
 add_task(async function test_dialogHasMinimumWidth() {
   await dialog.show();
 

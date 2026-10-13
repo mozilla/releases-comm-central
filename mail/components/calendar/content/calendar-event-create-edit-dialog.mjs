@@ -157,10 +157,34 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
 
       this.setAttribute("is", "calendar-event-create-edit-dialog");
 
+      this.addEventListener("click", this);
+
       window.MozXULElement?.insertFTLIfNeeded("messenger/calendarDialog.ftl");
       document.l10n.setAttributes(this, "calendar-event-create-edit-dialog");
     }
     this.initializeCalendarEventRoute();
+  }
+
+  /**
+   * Maps selectors for click events to their handler functions.
+   *
+   * @type {Record<string, function(MouseEvent): void>}
+   */
+  #clickHandlers = {
+    ".close-button": () => this.close(),
+  };
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "click":
+        for (const [selector, handler] of Object.entries(this.#clickHandlers)) {
+          if (event.target.closest(selector)) {
+            handler(event);
+            break;
+          }
+        }
+        break;
+    }
   }
 
   /**
