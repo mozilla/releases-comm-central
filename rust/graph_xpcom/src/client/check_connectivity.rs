@@ -41,7 +41,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 
         let base_url = base_url.to_string();
         let mut get_me = paths::me::Get::new(base_url);
-        get_me.select(vec![user::UserSelection::AboutMe]);
+        get_me.select(vec![user::UserSelection::DisplayName]);
 
         client
             .send_request(
