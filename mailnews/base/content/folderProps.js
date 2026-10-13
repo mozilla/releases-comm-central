@@ -485,6 +485,16 @@ function onUseDefaultRetentionSettings() {
  * @param {Event} event - The click on the Repair Folder button.
  */
 async function RebuildSummaryInformation(event) {
+  if (gMsgFolder.supportsOffline) {
+    const [title, message] = await document.l10n.formatValues([
+      { id: "folder-props-rebuild-summary-confirm-title" },
+      { id: "folder-props-rebuild-summary-confirm-message" },
+    ]);
+    if (!Services.prompt.confirm(window, title, message)) {
+      return;
+    }
+  }
+
   event.target.disabled = true;
   await window.arguments[0].rebuildSummaryCallback(gMsgFolder);
   event.target.disabled = false;
