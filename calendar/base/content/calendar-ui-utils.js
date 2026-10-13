@@ -451,6 +451,7 @@ function setupAttendanceMenu(aMenu, aItems) {
             toRemove.push(item);
           } else {
             item.removeAttribute("checked");
+            item.removeAttribute("hidden");
           }
         } else if (item.nodeName == "menu") {
           item.removeAttribute("hidden");

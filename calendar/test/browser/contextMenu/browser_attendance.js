@@ -1,0 +1,113 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
+const { CalendarTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/calendar/CalendarTestUtils.sys.mjs"
+);
+
+ChromeUtils.defineESModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.sys.mjs",
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
+});
+
+/**
+ * Grabs a calendar-month-day-box-item from the view using an attribute CSS
+ * selector. Only works when the calendar is in month view.
+ */
+async function getDayBoxItem(attrSelector) {
+  let itemBox;
+  await TestUtils.waitForCondition(() => {
+    itemBox = document.querySelector(
+      `calendar-month-day-box[${attrSelector}] calendar-month-day-box-item`
+    );
+    return itemBox != null;
+  }, "calendar item did not appear in time");
+  return itemBox;
+}
+
+/**
+ * Creates an invitation for attendee@example.com.
+ *
+ * @param {string} uid
+ * @param {string} start - The start date as an iCalendar date-time string.
+ * @param {string} [rrule] - An RRULE value, to make the invitation recurring.
+ * @returns {CalEvent}
+ */
+function createInvitation(uid, start, rrule) {
+  const event = new CalEvent(CalendarTestUtils.dedent`
+    BEGIN:VEVENT
+    UID:${uid}
+    SUMMARY:${uid}
+    DTSTAMP:20200101T000000Z
+    ORGANIZER;CN=Org:mailto:organizer@example.com
+    ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT:mailto:attendee@example.com
+    DTSTART:${start}
+    DURATION:PT1H
+    END:VEVENT
+  `);
+  if (rrule) {
+    event.recurrenceInfo = new CalRecurrenceInfo(event);
+    event.recurrenceInfo.appendRecurrenceItem(cal.createRecurrenceRule(`RRULE:${rrule}`));
+  }
+  return event;
+}
+
+add_setup(async function () {
+  await CalendarTestUtils.setCalendarView(window, "month");
+  registerCleanupFunction(() => CalendarTestUtils.closeCalendarTab(window));
+});
+
+/**
+ * Tests that the whole series can be accepted from the context menu of an
+ * occurrence, after the context menu was opened on a non-recurring invitation.
+ */
+add_task(async function testAcceptSeriesAfterSingleInvitation() {
+  const calendar = CalendarTestUtils.createCalendar("Attendance", "memory");
+  calendar.setProperty("organizerId", "mailto:attendee@example.com");
+  registerCleanupFunction(() => CalendarTestUtils.removeCalendar(calendar));
+
+  await calendar.addItem(createInvitation("single", "20200105T100000Z"));
+  await calendar.addItem(createInvitation("series", "20200106T100000Z", "FREQ=DAILY;COUNT=3"));
+  window.goToDate(cal.createDateTime("20200105T100000Z"));
+
+  const menu = document.getElementById("calendar-item-context-menu");
+  const attendanceMenu = document.getElementById("calendar-item-context-menu-attendance-menu");
+  const acceptAllMenu = document.getElementById(
+    "calendar-item-context-menu-attendance-accepted-all-menu"
+  );
+
+  // Open the context menu on the non-recurring invitation and close it again.
+  EventUtils.synthesizeMouseAtCenter(await getDayBoxItem('day="5"'), { type: "contextmenu" });
+  await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+  menu.hidePopup();
+  await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+
+  // Open the Accept all occurrences submenu on an occurrence of the series.
+  EventUtils.synthesizeMouseAtCenter(await getDayBoxItem('day="7"'), { type: "contextmenu" });
+  await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+  attendanceMenu.openMenu(true);
+  await BrowserTestUtils.waitForPopupEvent(attendanceMenu.menupopup, "shown");
+  acceptAllMenu.openMenu(true);
+  await BrowserTestUtils.waitForPopupEvent(acceptAllMenu.menupopup, "shown");
+  const dontSendItem = document.getElementById(
+    "calendar-item-context-menu-attend-accept-all-dontsend-menuitem"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(dontSendItem),
+    "After a context menu on a non-recurring invitation, the series submenu should not be empty"
+  );
+
+  // Accept the series without sending a response.
+  acceptAllMenu.menupopup.activateItem(dontSendItem);
+
+  // Check the series is accepted.
+  await TestUtils.waitForCondition(async () => {
+    const series = await calendar.getItem("series");
+    return series.getAttendeeById("mailto:attendee@example.com").participationStatus == "ACCEPTED";
+  }, "accepting all occurrences from the context menu should accept the series");
+
+  menu.hidePopup();
+  await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+});

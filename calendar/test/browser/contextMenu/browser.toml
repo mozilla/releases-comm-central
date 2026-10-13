@@ -12,4 +12,6 @@ prefs = [
 ]
 subsuite = "thunderbird"
 
+["browser_attendance.js"]
+
 ["browser_edit.js"]
