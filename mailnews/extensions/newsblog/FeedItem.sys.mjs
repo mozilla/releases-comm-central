@@ -275,7 +275,10 @@ FeedItem.prototype = {
       "\n";
 
     if (this.enclosures.length) {
-      const boundaryID = source.length;
+      let boundaryID;
+      do {
+        boundaryID = crypto.randomUUID().replaceAll("-", "");
+      } while (this.content.includes(boundaryID));
       source +=
         'Content-Type: multipart/mixed; boundary="' +
         this.ENCLOSURE_HEADER_BOUNDARY_PREFIX +

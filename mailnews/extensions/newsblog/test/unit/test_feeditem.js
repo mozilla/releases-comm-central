@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { FeedItem } = ChromeUtils.importESModule(
+const { FeedEnclosure, FeedItem } = ChromeUtils.importESModule(
   "resource:///modules/FeedItem.sys.mjs"
+);
+const { MimeParser } = ChromeUtils.importESModule(
+  "resource:///modules/mimeParser.sys.mjs"
 );
 
 const TAG_KEY = "rss-camera";
@@ -185,5 +188,65 @@ add_task(function test_message_id_header_escapes_item_id() {
       "Message-Id: <victim-real-id%40example.com%3E@localhost.localdomain>\n"
     ),
     "Message-Id header should contain the escaped item id"
+  );
+});
+
+add_task(function test_content_cannot_inject_mime_parts() {
+  const account = FeedUtils.createRssAccount("boundary account");
+  const rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
+  const folder = rootFolder.createLocalSubfolder("boundary folder");
+
+  let injected = "";
+  for (let i = 0; i < 2000; i++) {
+    injected +=
+      `\n--------------${i}\n` +
+      'Content-Type: text/plain; name="injected.txt"\n' +
+      'Content-Disposition: attachment; filename="injected.txt"\n\n' +
+      "INJECTED\n";
+  }
+
+  const item = new FeedItem();
+  item.feed = {
+    folder,
+    name: folder.name,
+    options: { category: { enabled: false } },
+  };
+  item.id = "boundary";
+  item.title = "Boundary";
+  item.content = `\n<p>Before</p>${injected}<p>After</p>`;
+  item.url = "https://example.invalid/boundary";
+  item.enclosures = [
+    new FeedEnclosure(
+      "https://example.invalid/real-attachment.txt",
+      "text/plain",
+      8
+    ),
+  ];
+  item.writeToFolder();
+
+  const messages = [...folder.messages];
+  Assert.equal(messages.length, 1, "folder should contain the feed item");
+  const storedMessage = mailTestUtils.loadMessageToString(folder, messages[0]);
+
+  const parts = [];
+  MimeParser.parseSync(
+    storedMessage,
+    {
+      startPart(partNum, headers) {
+        parts.push({ partNum, contentType: headers.contentType.type });
+      },
+    },
+    { bodyformat: "none" }
+  );
+  Assert.deepEqual(
+    parts,
+    [
+      { partNum: "", contentType: "multipart/mixed" },
+      { partNum: "1", contentType: "text/html" },
+      { partNum: "2", contentType: "text/plain" },
+    ],
+    "message should only contain the content and the declared enclosure"
   );
 });
