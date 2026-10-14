@@ -135,7 +135,7 @@ FeedItem.prototype = {
       let content = this.MESSAGE_TEMPLATE;
       content = content.replace(/%TITLE%/, this.title);
       content = content.replace(/%BASE%/, this.htmlEscape(this.contentBase));
-      content = content.replace(/%CONTENT%/, this.content);
+      content = content.replace(/%CONTENT%/, () => this.content);
       this.content = content;
       this.writeToFolder();
       this.markStored(resource);

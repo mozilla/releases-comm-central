@@ -142,6 +142,43 @@ add_task(function test_feed_category_tag_survives_incoming_filter_move() {
   assertMovedAndTagged(source, destination);
 });
 
+add_task(function test_store_preserves_dollar_ampersand_in_content() {
+  const account = FeedUtils.createRssAccount("replacement pattern account");
+  const rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
+  const folder = rootFolder.createLocalSubfolder("replacement pattern folder");
+  const item = new FeedItem();
+  item.feed = {
+    folder,
+    server: account.incomingServer,
+    url: "https://example.invalid/feed",
+    name: folder.name,
+    options: {
+      category: {
+        enabled: false,
+        prefixEnabled: false,
+        prefix: "",
+      },
+    },
+  };
+  item.id = "replacement-pattern";
+  item.title = "Replacement pattern";
+  item.author = ["author@example.invalid"];
+  item.content = "<p>Expected literal token: $&.</p>";
+  item.url = "https://example.invalid/replacement-pattern";
+
+  Assert.ok(item.store(), "feed item should be stored");
+
+  const messages = [...folder.messages];
+  Assert.equal(messages.length, 1, "folder should contain the feed item");
+  const storedMessage = mailTestUtils.loadMessageToString(folder, messages[0]);
+  Assert.ok(
+    storedMessage.includes("<p>Expected literal token: $&.</p>"),
+    "feed content should preserve a literal $&"
+  );
+});
+
 add_task(function test_normalizeMessageID_escapes_meta_characters() {
   const item = new FeedItem();
   Assert.equal(
