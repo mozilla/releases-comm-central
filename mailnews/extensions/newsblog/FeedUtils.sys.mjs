@@ -1372,11 +1372,16 @@ export var FeedUtils = {
   Mixins: {
     meld(source, keep, replace) {
       function meldin(meldSource, target, meldKeep, meldReplace) {
-        for (const attribute in meldSource) {
+        for (const attribute of Object.keys(meldSource ?? {})) {
+          if (["__proto__", "constructor", "prototype"].includes(attribute)) {
+            continue;
+          }
           // Recurse for objects.
           if (
             typeof meldSource[attribute] == "object" &&
-            typeof target[attribute] == "object"
+            Object.hasOwn(target, attribute) &&
+            typeof target[attribute] == "object" &&
+            target[attribute] !== null
           ) {
             meldin(
               meldSource[attribute],
@@ -1387,12 +1392,12 @@ export var FeedUtils = {
           } else {
             // Use attribute values from source for the target, unless
             // replace is false.
-            if (attribute in target && !meldReplace) {
+            if (Object.hasOwn(target, attribute) && !meldReplace) {
               continue;
             }
             // Don't copy attribute from source to target if it is not in the
             // target, unless keep is true.
-            if (!(attribute in target) && !meldKeep) {
+            if (!Object.hasOwn(target, attribute) && !meldKeep) {
               continue;
             }
 

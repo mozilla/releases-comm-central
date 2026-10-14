@@ -5,3 +5,5 @@ support-files = ["resources/*"]
 ["test_feeditem.js"]
 
 ["test_feedparser.js"]
+
+["test_newOptions.js"]
