@@ -4937,17 +4937,17 @@ nsresult nsImapMailFolder::GetTrashFolder(nsIMsgFolder** pTrashFolder) {
 // Protocol uses this to get the message size as stored in the database,
 // which it uses when sending a request to fetch the message.
 NS_IMETHODIMP
-nsImapMailFolder::GetMessageSizeFromDB(const char* id, uint32_t* size) {
+nsImapMailFolder::GetMessageSizeFromDB(ImapUid uid, uint32_t* size) {
   NS_ENSURE_ARG_POINTER(size);
 
   *size = 0;
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, rv);
-  if (id) {
-    nsMsgKey key = msgKeyFromInt(ParseUint64Str(id));
-    nsCOMPtr<nsIMsgDBHdr> mailHdr;
-    rv = mDatabase->GetMsgHdrForKey(key, getter_AddRefs(mailHdr));
-    if (NS_SUCCEEDED(rv) && mailHdr) rv = mailHdr->GetMessageSize(size);
+  nsMsgKey key = MOZ_TRY(MsgKeyFromUid(mDatabase, uid));
+  nsCOMPtr<nsIMsgDBHdr> mailHdr;
+  rv = mDatabase->GetMsgHdrForKey(key, getter_AddRefs(mailHdr));
+  if (NS_SUCCEEDED(rv) && mailHdr) {
+    rv = mailHdr->GetMessageSize(size);
   }
   return rv;
 }

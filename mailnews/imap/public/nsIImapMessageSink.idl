@@ -83,7 +83,7 @@ interface nsIImapMessageSink : nsISupports {
    * The protocol uses this to query the database for the size of a
    * message.
    */
-  void getMessageSizeFromDB(in string aId, out unsigned long aSize);
+  unsigned long getMessageSizeFromDB(in ImapUid uid);
 
   /**
    * For a message stored in a file, get the message metadata needed to copy

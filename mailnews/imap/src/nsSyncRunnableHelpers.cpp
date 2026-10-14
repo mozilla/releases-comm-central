@@ -402,7 +402,7 @@ NS_SYNCRUNNABLEMETHOD4(ImapMessageSink, NotifyMessageFlags, uint32_t,
                        const nsACString&, ImapUid, uint64_t)
 NS_SYNCRUNNABLEMETHOD3(ImapMessageSink, NotifyMessageDeleted, const char*, bool,
                        const char*)
-NS_SYNCRUNNABLEMETHOD2(ImapMessageSink, GetMessageSizeFromDB, const char*,
+NS_SYNCRUNNABLEMETHOD2(ImapMessageSink, GetMessageSizeFromDB, ImapUid,
                        uint32_t*)
 NS_SYNCRUNNABLEMETHOD4(ImapMessageSink, GetCurMoveCopyMessageInfo, nsIImapUrl*,
                        PRTime*, nsACString&, uint32_t*)

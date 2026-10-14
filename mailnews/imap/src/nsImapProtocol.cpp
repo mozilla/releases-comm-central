@@ -4762,9 +4762,11 @@ void nsImapProtocol::Log(const char* logSubName, const char* extraInfo,
 // this value, but we may not always know when we'll need it.
 uint32_t nsImapProtocol::GetMessageSize(const nsACString& messageId) {
   uint32_t size = 0;
-  if (m_imapMessageSink)
-    m_imapMessageSink->GetMessageSizeFromDB(PromiseFlatCString(messageId).get(),
-                                            &size);
+  nsresult rv;
+  ImapUid uid = messageId.ToUnsignedInteger(&rv);
+  if (NS_SUCCEEDED(rv) && m_imapMessageSink) {
+    m_imapMessageSink->GetMessageSizeFromDB(uid, &size);
+  }
   if (DeathSignalReceived()) size = 0;
   return size;
 }
