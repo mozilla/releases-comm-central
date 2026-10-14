@@ -254,6 +254,58 @@ add_task(function testFromToVCardBad() {
 });
 
 /**
+ * Tests that a vCard with many properties is parsed in linear time.
+ */
+add_task(function testFromVCardManyProperties() {
+  const count = 200000;
+  const lines = ["BEGIN:VCARD", "VERSION:4.0", "FN:x"];
+  for (let i = 0; i < count; i++) {
+    lines.push(`X-P${i}:v${i}`);
+  }
+  lines.push("END:VCARD");
+  const properties = VCardProperties.fromVCard(lines.join("\r\n"));
+
+  Assert.equal(
+    properties.entries.length,
+    count + 2,
+    "all properties should be parsed"
+  );
+  Assert.equal(
+    properties.entries[0].name,
+    "version",
+    "the version should be first"
+  );
+  Assert.equal(
+    properties.getFirstValue(`x-p${count - 1}`),
+    `v${count - 1}`,
+    "the last property should be kept"
+  );
+
+  // Many VERSION properties after the others.
+  const withVersions = VCardProperties.fromVCard(
+    lines
+      .slice(0, -1)
+      .concat(new Array(count).fill("VERSION:3.0"), "END:VCARD")
+      .join("\r\n")
+  );
+  Assert.equal(
+    withVersions.entries.length,
+    count + 2,
+    "repeated versions should replace each other"
+  );
+  Assert.equal(
+    withVersions.getFirstValue("version"),
+    "3.0",
+    "the last version should be used"
+  );
+  Assert.equal(
+    withVersions.getAllEntries("version").length,
+    1,
+    "there should be one version"
+  );
+});
+
+/**
  * Tests creating a VCardProperties from a Map of old-style address book
  * properties, then recreating the Map.
  */

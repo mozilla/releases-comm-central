@@ -701,7 +701,8 @@ export class VCardProperties {
           }
         }
       }
-      rv.addEntry(new VCardPropertyEntry(name, params, type, value));
+      // The entry is new, so it can't be a duplicate.
+      rv.#addEntry(new VCardPropertyEntry(name, params, type, value));
     }
     return rv;
   }
@@ -753,6 +754,16 @@ export class VCardProperties {
       return false;
     }
 
+    this.#addEntry(entry);
+    return true;
+  }
+
+  /**
+   * Add an entry to this object, without checking if it's a duplicate.
+   *
+   * @param {VCardPropertyEntry} entry - The entry to add.
+   */
+  #addEntry(entry) {
     if (entry.name == "version") {
       if (entry.value == "3.0") {
         this.designSet = ICAL.design.vcard3;
@@ -761,15 +772,18 @@ export class VCardProperties {
       } else {
         throw new Error(`Unsupported vCard version: ${entry.value}`);
       }
-      // Version must be the first entry, so clear out any existing values
-      // and add it to the start of the collection.
-      this.clearValues("version");
-      this.entries.unshift(entry);
-      return true;
+      // Version must be the first entry, so replace it there, or clear out any
+      // existing values and add it to the start of the collection.
+      if (this.entries[0]?.name == "version") {
+        this.entries[0] = entry;
+      } else {
+        this.clearValues("version");
+        this.entries.unshift(entry);
+      }
+      return;
     }
 
     this.entries.push(entry);
-    return true;
   }
 
   /**
