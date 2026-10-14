@@ -118,3 +118,54 @@ add_task(function test_stale_delete_cache() {
     localAccountUtils.clearAll();
   }
 });
+
+/*
+ * Check that a listener added during the post-change notification of a
+ * property change doesn't make that notification run off the end of the
+ * pre-change status array.
+ */
+add_task(function test_listener_added_during_property_change() {
+  localAccountUtils.loadLocalMailAccount();
+  try {
+    const db = localAccountUtils.inboxFolder.msgDatabase;
+    const hdr = db.attachHdr(db.createNewHdr(), false);
+
+    const calls = [];
+    const lateListener = {
+      QueryInterface: ChromeUtils.generateQI(["nsIDBChangeListener"]),
+      onHdrPropertyChanged(hdrChanged, property, preChange) {
+        calls.push(["late", property, preChange]);
+      },
+    };
+    const listener = {
+      QueryInterface: ChromeUtils.generateQI(["nsIDBChangeListener"]),
+      onHdrPropertyChanged(hdrChanged, property, preChange) {
+        calls.push(["first", property, preChange]);
+        if (!preChange) {
+          db.addListener(lateListener);
+        }
+      },
+    };
+
+    for (const set of [
+      () => db.setStringPropertyByHdr(hdr, "stringprop", "value"),
+      () => db.setUint32PropertyByHdr(hdr, "uint32prop", 1),
+    ]) {
+      db.addListener(listener);
+      calls.length = 0;
+      set();
+      db.removeListener(listener);
+      db.removeListener(lateListener);
+      Assert.deepEqual(
+        calls.map(([who, , preChange]) => [who, preChange]),
+        [
+          ["first", true],
+          ["first", false],
+        ],
+        "a listener added after the pre-change call should not get the post-change call"
+      );
+    }
+  } finally {
+    localAccountUtils.clearAll();
+  }
+});
