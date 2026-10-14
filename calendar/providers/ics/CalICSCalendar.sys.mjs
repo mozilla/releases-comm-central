@@ -428,16 +428,6 @@ export class CalICSCalendar extends cal.provider.BaseClass {
       return;
     }
 
-    // Clear any existing events if there was no result
-    if (!resultLength) {
-      this.#setParseFailed(false);
-      this.#createMemoryCalendar();
-      this.#memoryCalendar.addObserver(this.#observer);
-      this.#observer.onLoad(this);
-      this.#unlock();
-      return;
-    }
-
     // This conversion is needed, because the stream only knows about
     // byte arrays, not about strings or encodings. The array of bytes
     // need to be interpreted as utf8 and put into a javascript string.
@@ -451,6 +441,16 @@ export class CalICSCalendar extends cal.provider.BaseClass {
         e.toString()
       );
       this.#observer.onError(this.superCalendar, Ci.calIErrors.READ_FAILED, "");
+      this.#unlock();
+      return;
+    }
+
+    // Clear any existing events if there was no result, or only whitespace.
+    if (!str.trim()) {
+      this.#setParseFailed(false);
+      this.#createMemoryCalendar();
+      this.#memoryCalendar.addObserver(this.#observer);
+      this.#observer.onLoad(this);
       this.#unlock();
       return;
     }

@@ -196,6 +196,22 @@ add_task(async function test_emptyFileIsWritable() {
   );
 });
 
+add_task(async function test_whitespaceFileIsWritable() {
+  for (const contents of ["\n", "\r\n", "  \n\n"]) {
+    const { calendar, path } = await loadCalendarFromFile(contents);
+
+    Assert.ok(
+      !calendar.readOnly,
+      `calendar with a file containing ${JSON.stringify(contents)} should be writable`
+    );
+    await calendar.addItem(createEvent());
+    await TestUtils.waitForCondition(
+      async () => (await IOUtils.readUTF8(path)).includes("BEGIN:VEVENT"),
+      "waiting for the event to be written"
+    );
+  }
+});
+
 add_task(async function test_validFileIsWritable() {
   const { calendar } = await loadCalendarFromFile(VALID_ICS);
 

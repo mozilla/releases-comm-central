@@ -140,7 +140,12 @@ CalIcsParser.prototype = {
       cal.icsService.parseICSAsync(aICSString, {
         onParsingComplete(rc, rootComp) {
           if (Components.isSuccessCode(rc)) {
-            self.processIcalComponent(rootComp, aAsyncParsing);
+            try {
+              self.processIcalComponent(rootComp, aAsyncParsing);
+            } catch (e) {
+              lazy.log.error("Processing the parsed ICS data failed", e);
+              aAsyncParsing.onParsingComplete(e.result ?? Cr.NS_ERROR_FAILURE, self);
+            }
           } else {
             aAsyncParsing.onParsingComplete(rc, self);
           }

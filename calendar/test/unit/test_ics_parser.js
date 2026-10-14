@@ -54,6 +54,16 @@ function test_failures() {
     },
   });
 
+  // Data without any content must not leave the listener waiting.
+  parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
+  do_test_pending();
+  parser.parseString("\r\n", {
+    onParsingComplete(rc) {
+      equal(rc, Cr.NS_ERROR_FAILURE, "whitespace-only data should fail to parse");
+      do_test_finished();
+    },
+  });
+
   // No real error here, but there is a message...
   parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
   const str = ["BEGIN:VWORLD", "BEGIN:VEVENT", "UID:123", "END:VEVENT", "END:VWORLD"].join("\r\n");
