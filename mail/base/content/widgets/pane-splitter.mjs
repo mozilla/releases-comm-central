@@ -3,6 +3,11 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "chrome://messenger/skin/pane-splitter.css";
+  document.head.appendChild(link);
+
   /**
    * A widget for adjusting the size of its {@link PaneSplitter#resizeElement}.
    * By default, the splitter will resize the height of the resizeElement, but
