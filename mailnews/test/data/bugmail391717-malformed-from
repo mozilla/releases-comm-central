@@ -1,0 +1,12 @@
+From - Sat Oct 10 11:56:00 2026
+X-Mozilla-Status: 0001
+X-Mozilla-Status2: 00000000
+Date: Sat, 10 Oct 2026 11:56:00 +0200
+Message-Id: <bug391717-malformed-from@example.invalid>
+From: "faysmakeyouqte" <>
+To: PrimaryEmail1@test.invalid
+Subject: Bug 391717 malformed sender test
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Bug 391717 test message with the originally reported malformed From value.

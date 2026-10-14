@@ -335,6 +335,86 @@ function testAbSearch() {
       testAbSearch
     );
   } else {
-    do_test_finished();
+    copyEmptyAddressMessages();
   }
+}
+
+const EmptyAddressFiles = [
+  "../../../data/bugmail9",
+  "../../../data/bugmail391717-malformed-from",
+  "../../../data/bugmail391717-missing-from",
+  "../../../data/bugmail391717-empty-to",
+  "../../../data/bugmail391717-missing-to",
+];
+
+function copyEmptyAddressMessages() {
+  const fileName = EmptyAddressFiles.shift();
+  if (!fileName) {
+    testEmptyAddresses();
+    return;
+  }
+
+  MailServices.copy.copyFileMessage(
+    do_get_file(fileName),
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    {
+      onStartCopy() {},
+      onProgress() {},
+      setMessageKey() {},
+      getMessageId() {
+        return null;
+      },
+      onStopCopy() {
+        copyEmptyAddressMessages();
+      },
+    },
+    null
+  );
+}
+
+function testEmptyAddresses() {
+  new TestSearch(
+    localAccountUtils.inboxFolder,
+    ABUri,
+    Sender,
+    IsntInAB,
+    8,
+    () =>
+      new TestSearch(
+        localAccountUtils.inboxFolder,
+        ABUri,
+        Sender,
+        IsInAB,
+        5,
+        () =>
+          new TestSearch(
+            localAccountUtils.inboxFolder,
+            ABUri,
+            To,
+            IsntInAB,
+            7,
+            () =>
+              new TestSearch(
+                localAccountUtils.inboxFolder,
+                ABUri,
+                To,
+                IsInAB,
+                7,
+                () =>
+                  new TestSearch(
+                    localAccountUtils.inboxFolder,
+                    ABUri,
+                    AllAddresses,
+                    IsntInAB,
+                    7,
+                    do_test_finished
+                  )
+              )
+          )
+      )
+  );
 }

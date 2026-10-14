@@ -1119,6 +1119,24 @@ NS_IMETHODIMP nsMsgSearchTerm::MatchRfc822String(const nsACString& string,
   ExtractAllAddresses(EncodedHeader(string, charset), names, addresses);
   uint32_t count = names.Length();
 
+  bool hasAddress = false;
+  for (const auto& address : addresses) {
+    if (!address.IsEmpty()) {
+      hasAddress = true;
+      break;
+    }
+  }
+
+  // An empty sender or recipient cannot be in the address book, but empty
+  // component headers in an AllAddresses search must not count as matches.
+  if (!hasAddress &&
+      (m_attribute == nsMsgSearchAttrib::Sender ||
+       m_attribute == nsMsgSearchAttrib::To) &&
+      m_operator == nsMsgSearchOp::IsntInAB) {
+    *pResult = true;
+    return NS_OK;
+  }
+
   nsresult rv = NS_OK;
   for (uint32_t i = 0; i < count && result == boolContinueLoop; i++) {
     if (m_operator == nsMsgSearchOp::IsInAB ||
