@@ -401,16 +401,15 @@ dependencies = [
 [[package]]
 name = "authenticator"
 version = "0.6.1"
-source = "git+https://github.com/mozilla/authenticator-rs?tag=v0.6.1#67c5db64881cc38256758de22a967324332e81de"
 dependencies = [
  "base64 0.21.999",
  "bitflags 1.999.999",
- "cfg-if",
  "core-foundation 0.10.0",
  "devd-rs",
  "libc",
  "libudev",
  "log",
+ "mozbuild",
  "nss-rs",
  "pkcs11-bindings",
  "rand",
