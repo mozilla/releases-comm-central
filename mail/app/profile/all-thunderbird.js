@@ -1557,6 +1557,10 @@ pref("mail.inappnotifications.bypass-filtering", false);
 pref("mail.inappnotifications.isFlatpak", false);
 pref("mail.inappnotifications.isSnap", false);
 
+// Whether a Thundermail OAuth account has been detected.
+// Used for in-app notification targeting.
+pref("mail.inappnotifications.hasThundermailAccount", false);
+
 // Enable forwarding messages with message filters.
 pref("mail.filters.forward.enabled", true);
 

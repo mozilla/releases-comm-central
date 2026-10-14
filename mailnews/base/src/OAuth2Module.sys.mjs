@@ -78,6 +78,15 @@ OAuth2Module.prototype = {
 
     const { issuer, allScopes, requiredScopes } = details;
 
+    // Record whether a Thundermail OAuth account has been detected.
+    // Used for in-app notification targeting.
+    if (["auth.tb.pro", "auth-stage.tb.pro"].includes(issuer)) {
+      Services.prefs.setBoolPref(
+        "mail.inappnotifications.hasThundermailAccount",
+        true
+      );
+    }
+
     // Find the app key we need for the OAuth2 string. Eventually, this should
     // be using dynamic client registration, but there are no current
     // implementations that we can test this with.
