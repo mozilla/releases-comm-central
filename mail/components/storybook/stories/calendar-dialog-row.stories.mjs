@@ -123,4 +123,4 @@ const RowTemplateDescription = () => html`
 export const CalendarDialogRow = RowTemplateDefault.bind({});
 export const CalendarDialogRowLabelOnly = RowTemplateLabelOnly.bind({});
 export const CalendarDialogRowLocationLink = RowTemplateLocationLink.bind({});
-export const CalendarDialgoRowDescription = RowTemplateDescription.bind({});
+export const CalendarDialogRowDescription = RowTemplateDescription.bind({});

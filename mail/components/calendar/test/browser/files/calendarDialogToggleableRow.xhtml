@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Calendar Dialog Toggleable Row Test</title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/spacings.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/calendar/calendarDialog.css"
+    />
+    <script
+      type="module"
+      src="moz-src:///comm/mail/components/calendar/content/calendar-dialog-toggleable-row.mjs"
+    ></script>
+  </head>
+  <body>
+    <template id="calendarDialogToggleableRowTemplate">
+      <div class="row">
+        <slot name="icon"></slot>
+        <label class="toggle-label">
+          <slot name="label"></slot>
+          <input class="toggle-checkbox" type="checkbox" />
+        </label>
+        <slot name="content"></slot>
+      </div>
+    </template>
+    <calendar-dialog-toggleable-row>
+      <img slot="icon" src="" alt="" />
+      <span slot="label">Unchecked Row</span>
+      <div slot="content">Unchecked Content</div>
+    </calendar-dialog-toggleable-row>
+    <calendar-dialog-toggleable-row checked="checked">
+      <img slot="icon" src="" alt="" />
+      <span slot="label">Checked Row</span>
+      <div slot="content">Checked Content</div>
+    </calendar-dialog-toggleable-row>
+  </body>
+</html>

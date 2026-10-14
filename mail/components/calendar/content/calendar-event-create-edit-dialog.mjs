@@ -20,6 +20,8 @@ import {
   startCreateSession,
   startEditSession,
 } from "./state/calendarEventCreateEditSessionSlice.mjs";
+import "./calendar-dialog-row.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./calendar-dialog-toggleable-row.mjs"; // eslint-disable-line import/no-unassigned-import
 
 /**
  * The dialog that creates and edits calendar events.
