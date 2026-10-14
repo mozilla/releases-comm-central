@@ -151,6 +151,7 @@ async function createAccountInBackend(config) {
   if (
     config.outgoing.addThisServer &&
     !outServer &&
+    !config.incoming.useGlobalPreferredServer &&
     !(
       config.outgoing.useGlobalPreferredServer &&
       MailServices.outgoingServer.defaultServer

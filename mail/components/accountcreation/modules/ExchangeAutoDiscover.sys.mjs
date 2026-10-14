@@ -457,7 +457,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
               urlsX.Protocol.ASUrl
             );
           }
-          config.incoming.type = "exchange";
+          config.incoming.type = "ews";
           const parsedURL = new URL(config.incoming.owaURL);
           config.incoming.hostname = lazy.InputSanitizer.hostname(
             parsedURL.hostname
@@ -473,7 +473,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
             protocolX.ASUrl
           );
         }
-        config.incoming.type = "exchange";
+        config.incoming.type = "ews";
         const parsedURL = new URL(config.incoming.exchangeURL);
         config.incoming.hostname = lazy.InputSanitizer.hostname(
           parsedURL.hostname

@@ -167,11 +167,11 @@ add_task(async function test_exchange_requires_credentials_account_creation() {
   await fillPasswordInput(authenticationStep);
   EventUtils.synthesizeMouseAtCenter(footerForward, {});
 
-  const configFoundTemplate = await checkAvailableConfigs(dialog, [
-    "imap",
-    "ews",
-    "exchange",
-  ]);
+  const configFoundTemplate = await checkAvailableConfigs(
+    dialog,
+    ["imap", "ews", "exchange"],
+    "ews"
+  );
 
   Assert.equal(
     configFoundTemplate.l10n.getAttributes(
@@ -292,11 +292,11 @@ add_task(
     await inputEvent;
     EventUtils.synthesizeMouseAtCenter(footerForward, {});
 
-    const configFoundTemplate = await checkAvailableConfigs(dialog, [
-      "imap",
-      "ews",
-      "exchange",
-    ]);
+    const configFoundTemplate = await checkAvailableConfigs(
+      dialog,
+      ["imap", "ews", "exchange"],
+      "ews"
+    );
 
     Assert.equal(
       configFoundTemplate.l10n.getAttributes(
@@ -718,7 +718,12 @@ add_task(async function test_exchange_credentials_to_imap() {
   await inputEvent;
   EventUtils.synthesizeMouseAtCenter(footerForward, {});
 
-  await checkAvailableConfigs(dialog, ["imap", "ews", "exchange"], "imap");
+  await checkAvailableConfigs(
+    dialog,
+    ["imap", "ews", "exchange"],
+    "ews",
+    "imap"
+  );
 
   EventUtils.synthesizeMouseAtCenter(footerForward, {});
 
@@ -795,11 +800,11 @@ add_task(async function test_full_exchange_account_creation() {
 
   EventUtils.synthesizeMouseAtCenter(footerForward, {});
 
-  const configFoundTemplate = await checkAvailableConfigs(dialog, [
-    "imap",
-    "ews",
-    "exchange",
-  ]);
+  const configFoundTemplate = await checkAvailableConfigs(
+    dialog,
+    ["imap", "ews", "exchange"],
+    "ews"
+  );
 
   Assert.equal(
     configFoundTemplate.l10n.getAttributes(
@@ -1126,12 +1131,14 @@ async function cleanupAdvancedConfigurationTest(tabmail, account) {
  *
  * @param {HTMLDialog} dialog - The dialog this is all happening in.
  * @param {string[]} expectedProtocols - List of protocols for which configs should be found.
+ * @param {string} [expectedDefault="imap"] - The expected default selection.
  * @param {string} [desiredProtocol="ews"] - The protocol to select in the end.
  * @returns {EmailConfigFound} The config found subview.
  */
 async function checkAvailableConfigs(
   dialog,
   expectedProtocols,
+  expectedDefault = "imap",
   desiredProtocol = "ews"
 ) {
   const configFoundTemplate = dialog.querySelector("email-config-found");
@@ -1157,9 +1164,13 @@ async function checkAvailableConfigs(
     expectedProtocols.length,
     "Should have the same amount of visible options as we're expecting"
   );
+
+  const defaultOption = configFoundTemplate.querySelector(
+    `#${expectedDefault}`
+  );
   Assert.ok(
-    firstOption.classList.contains("selected"),
-    `The first config for ${expectedProtocols[0]} should be selected`
+    defaultOption.classList.contains("selected"),
+    `The expected default ${expectedDefault} should be selected`
   );
 
   for (const configOption of availableOptions) {

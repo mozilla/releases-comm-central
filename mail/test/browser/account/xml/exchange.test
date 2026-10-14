@@ -10,6 +10,11 @@
       <authentication>plain</authentication>
       <username>%EMAILADDRESS%</username>
     </incomingServer>
+    <incomingServer type="ews">
+      <url>http://exchange.test/EWS/Exchange.asmx</url>
+      <username>%EMAILADDRESS%</username>
+      <authentication>plain</authentication>
+    </incomingServer>
     <incomingServer type="graph">
       <url>https://graph.exchange.test/</url>
       <username>%EMAILADDRESS%</username>

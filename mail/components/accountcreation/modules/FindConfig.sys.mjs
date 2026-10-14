@@ -210,45 +210,34 @@ async function* parallelAutoDiscovery(
 
 /**
  * Makes a configuration including an "exchange" incoming server suitable for
- * use with our internal Exchange Web Services implementation.
+ * use with the Exchange Addon.
  *
  * @param {AccountConfig} config - The configuration to revise.
- * @param {boolean} [includeExchangeAddon=true] - Whether to retain the
- *   add-on-based Exchange configuration.
  */
-function ewsifyConfig(config, includeExchangeAddon = true) {
+function maybeAppendExchangeAddonConfig(config) {
   // At present, account setup code uses the "exchange" incoming server type
   // to store a configuration suitable for OWL. In order to avoid breaking
-  // OWL (which uses some config fields in an idiosyncratic manner), we use
-  // the "ews" type. So that both are presented in the UI, we duplicate the
-  // "exchange" config and adjust its fields as needed.
-  const exchangeIncoming = getIncomingExchangeConfig(config);
+  // OWL (which uses some config fields in an idiosyncratic manner), our
+  // internal EWS implementation uses the "ews" type. So that both are
+  // presented in the UI, we duplicate the "ews" config as "exchange" config.
+  // We don't duplicate a "graph" config, because it keeps its URL in
+  // `exchangeURL`, where OWL expects the EWS URL.
+  const exchangeIncoming = [
+    config.incoming,
+    ...config.incomingAlternatives,
+  ].find(({ type }) => type === "ews");
 
   if (!exchangeIncoming) {
     return;
   }
 
-  const ewsIncoming = structuredClone(exchangeIncoming);
-  ewsIncoming.type = "ews";
-  // When using an add-on for Exchange, we need to explicitly tell the
-  // CreateInBackend module to create an outgoing server because the addon will
-  // not create one (and instead override the `nsIMsgSend` instance used to send
-  // a message). This is not the case here, so we explicitly set this to false.
-  // We do it on the incoming config, as at this point we don't have an outgoing
-  // one, and for Exchange the incoming config is used for the outgoing config.
-  ewsIncoming.useGlobalPreferredServer = false;
+  const exchangeAddonIncoming = structuredClone(exchangeIncoming);
+  exchangeAddonIncoming.type = "exchange";
+  // The add-on sends via the Exchange protocol, so don't set smtpServerKey
+  exchangeAddonIncoming.useGlobalPreferredServer = true;
 
-  // When add-ons are enabled, offer native EWS alongside add-on-based Exchange.
-  // Otherwise, replace the add-on-based configuration with native EWS wherever
-  // it appears.
-  if (includeExchangeAddon) {
-    config.incomingAlternatives.push(ewsIncoming);
-  } else if (config.incoming === exchangeIncoming) {
-    config.incoming = ewsIncoming;
-  } else {
-    const exchangeIndex = config.incomingAlternatives.indexOf(exchangeIncoming);
-    config.incomingAlternatives.splice(exchangeIndex, 1, ewsIncoming);
-  }
+  // Offer Addon Exchange alongside native Exchange.
+  config.incomingAlternatives.push(exchangeAddonIncoming);
 }
 
 /**
@@ -258,12 +247,14 @@ function ewsifyConfig(config, includeExchangeAddon = true) {
  * @returns {?object} An object containing the exchange config, or undefined.
  */
 function getIncomingExchangeConfig(config) {
+  // EWS and Graph are exclusive: EWS is supported exclusively by on-premises
+  // Exchange servers and Graph is supported exclusively by Microsoft 365.
   return [config.incoming, ...config.incomingAlternatives].find(
-    ({ type }) => type === "exchange"
+    ({ type }) => type === "ews" || type === "graph"
   );
 }
 
 export const FindConfig = {
   parallelAutoDiscovery,
-  ewsifyConfig,
+  maybeAppendExchangeAddonConfig,
 };

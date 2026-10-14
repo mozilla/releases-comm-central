@@ -156,8 +156,8 @@ add_task(async function testFindConfigExchange() {
 
   Assert.equal(
     config.incoming.type,
-    "exchange",
-    "Test email should return incoming configuration type exchange."
+    "ews",
+    "Test email should return incoming configuration type ews."
   );
 
   Assert.equal(
@@ -168,8 +168,8 @@ add_task(async function testFindConfigExchange() {
 
   Assert.equal(
     config.incomingAlternatives[0].type,
-    "exchange",
-    "Exchange test email should have an exchange type incoming alternative."
+    "ews",
+    "Exchange test email should have an ews type incoming alternative."
   );
 
   // Clean up.
@@ -572,7 +572,7 @@ add_task(function testEWSifyConfig() {
   exchangeConfig.incoming = {};
   exchangeConfig.incomingAlternatives = [
     {
-      type: "exchange",
+      type: "ews",
       hostname: "outlook.office365.com",
       useGlobalPreferredServer: false,
       oauthSettings: {
@@ -582,32 +582,66 @@ add_task(function testEWSifyConfig() {
     },
   ];
 
-  FindConfig.ewsifyConfig(exchangeConfig);
+  FindConfig.maybeAppendExchangeAddonConfig(exchangeConfig);
 
-  const ewsConfigAlternative = [
+  const exchangeConfigAlternative = [
     exchangeConfig.incoming,
     ...exchangeConfig.incomingAlternatives,
-  ].find(({ type }) => type === "ews");
+  ].find(({ type }) => type === "exchange");
 
   Assert.ok(
-    !ewsConfigAlternative.useGlobalPreferredServer,
-    "useGlobalPreferredServer should be false for ews config."
+    exchangeConfigAlternative.useGlobalPreferredServer,
+    "useGlobalPreferredServer should be true for exchange addon config."
   );
 
   Assert.equal(
-    ewsConfigAlternative.oauthSettings.issuer,
+    exchangeConfigAlternative.oauthSettings.issuer,
     "outlook.office365.com",
-    "EWS oauthsettings issuer should be updated."
+    "Exchange oauthsettings issuer should be updated."
   );
 
   Assert.ok(
-    ewsConfigAlternative.oauthSettings.scope.includes(
+    exchangeConfigAlternative.oauthSettings.scope.includes(
       "https://outlook.office365.com/owa/exchange.test/"
     ),
-    "EWS oauthsettings scope should include EWS.AccessAsUser.All"
+    "Exchange oauthsettings scope should include EWS.AccessAsUser.All"
   );
 
   Services.prefs.clearUserPref(
     "mailnews.auto_config.fetchFromExchange.enabled"
   );
+});
+
+add_task(function testExchangeAddonConfigWithoutGraphURL() {
+  const config = new AccountConfig();
+  config.incoming.type = "imap";
+  config.incoming.hostname = "outlook.office365.com";
+  const graph = config.createNewIncoming();
+  graph.type = "graph";
+  graph.hostname = "graph.microsoft.com";
+  graph.exchangeURL = "https://graph.microsoft.com/";
+  const ews = config.createNewIncoming();
+  ews.type = "ews";
+  ews.hostname = "outlook.office365.com";
+  ews.exchangeURL = "https://outlook.office365.com/EWS/Exchange.asmx";
+  // Graph comes first, so that it would be found before EWS.
+  config.incomingAlternatives = [graph, ews];
+
+  FindConfig.maybeAppendExchangeAddonConfig(config);
+
+  const exchangeConfig = config.incomingAlternatives.find(
+    ({ type }) => type === "exchange"
+  );
+  Assert.equal(
+    exchangeConfig.exchangeURL,
+    "https://outlook.office365.com/EWS/Exchange.asmx",
+    "The add-on config should get the EWS URL"
+  );
+  for (const urlProperty of ["owaURL", "exchangeURL", "easURL"]) {
+    Assert.notEqual(
+      exchangeConfig[urlProperty],
+      "https://graph.microsoft.com/",
+      `The add-on config must not get the Graph URL as ${urlProperty}`
+    );
+  }
 });
