@@ -4,6 +4,8 @@ support-files = ["postings/*"]
 
 ["test_NntpChannel.js"]
 
+["test_NntpMessageService.js"]
+
 ["test_biff.js"]
 
 ["test_bug37465.js"]

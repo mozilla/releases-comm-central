@@ -191,7 +191,9 @@ class BaseMessageService {
   _decomposeNewsMessageURI(uri) {
     let host, groupName, key;
     if (uri.startsWith("news-message://")) {
-      const matches = /news-message:\/\/([^:]+)\/(.+)#(\d+)/.exec(uri);
+      // Query parameters may appear before or after the article key.
+      const matches =
+        /news-message:\/\/([^:/]+)\/([^?#]+)(?:\?[^#]*)?#(\d+)/.exec(uri);
       if (!matches) {
         throw Components.Exception(
           `Failed to parse message url: ${uri}`,

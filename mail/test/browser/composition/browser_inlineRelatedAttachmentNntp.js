@@ -18,6 +18,7 @@ const { ServerTestUtils } = ChromeUtils.importESModule(
 const {
   close_compose_window,
   open_compose_from_draft,
+  open_compose_with_edit_as_new,
   open_compose_with_forward,
   save_compose_message,
 } = ChromeUtils.importESModule(
@@ -76,6 +77,51 @@ add_setup(async function () {
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(nntpAccount, false);
   });
+});
+
+/**
+ * Editing a news article as new should retain its contents and newsgroup.
+ */
+add_task(async function test_edit_as_new_keeps_news_article() {
+  await be_in_folder(newsFolder);
+  const msg = await select_click_row(0);
+  await assert_selected_and_displayed(window, msg);
+
+  const cwc = await open_compose_with_edit_as_new();
+  registerCleanupFunction(async () => {
+    if (!cwc.closed) {
+      await close_compose_window(cwc);
+    }
+  });
+  await waitForEmbeddedImage(cwc);
+
+  Assert.equal(
+    cwc.gComposeType,
+    Ci.nsIMsgCompType.EditAsNew,
+    "The article should open for editing as a new message"
+  );
+  Assert.equal(
+    cwc.document.getElementById("msgSubject").value,
+    "Test with Embedded Image",
+    "The subject should be retained"
+  );
+  Assert.ok(
+    cwc.document
+      .getElementById("messageEditor")
+      .contentDocument.body.textContent.includes("Check out this image!"),
+    "The article body should be retained"
+  );
+  Assert.deepEqual(
+    Array.from(
+      cwc.document.querySelectorAll(
+        '[data-recipienttype="addr_newsgroups"] mail-address-pill'
+      ),
+      pill => pill.fullAddress
+    ),
+    [GROUP],
+    "The newsgroup should be retained"
+  );
+  await close_compose_window(cwc);
 });
 
 /**
@@ -154,6 +200,7 @@ function makeMessage() {
   return new MessageGenerator().makeMessage({
     from: ["Sender", "sender@example.invalid"],
     subject: "Test with Embedded Image",
+    clobberHeaders: { Newsgroups: GROUP },
     bodyPart: new SyntheticPartMultiRelated([htmlPart, imagePart], {
       contentType: "multipart/related",
     }),
