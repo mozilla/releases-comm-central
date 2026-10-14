@@ -162,6 +162,9 @@ tags = ["oauth"]
 
 ["test_postPluginFilters.js"]
 
+["test_recursiveDeleteVirtualFolder.js"]
+tags = ["virtualfolders"]
+
 ["test_relatedItems.js"]
 
 ["test_retention.js"]

@@ -3357,7 +3357,7 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage) {
   // and frees memory for the subfolders but NOT for _this_
   // and does not remove _this_ from the parent's list of children.
 
-  nsresult rv;
+  nsresult rv = NS_OK;
   if (!StaticPrefs::mail_panorama_enabled_AtStartup()) {
     nsCOMPtr<nsIFile> dbPath;
     // first remove the deleted folder from the folder cache;
@@ -3375,8 +3375,7 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage) {
     }
   }
 
-  int32_t count = mSubFolders.Count();
-  while (count > 0) {
+  while (!mSubFolders.IsEmpty()) {
     nsCOMPtr<nsIMsgFolder> child(mSubFolders[0]);
     child->SetParent(nullptr);
     rv = child->RecursiveDelete(deleteStorage);
@@ -3389,8 +3388,6 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage) {
       child->SetParent(this);
       break;
     }
-
-    count--;
   }
 
   // now delete the disk storage for _this_
