@@ -87,6 +87,6 @@ workflows:
       - build:
           matrix:
             parameters:
-              features: ["", "serialize"]
+              features: ["", "serialize", "pedantic"]
               rustversion: ["1.88.0", "1.97.1"]
               latestrustversion: ["1.97.1"]

@@ -2215,33 +2215,45 @@ fn parse_fmtp(to_parse: &str) -> Result<SdpAttribute, SdpParserInternalError> {
                     "PROFILE" => {
                         parameters.profile = match parameter_val.parse::<u8>()? {
                             x @ 0..=2 => Some(x),
-                            _ => {
-                                return Err(SdpParserInternalError::Generic(
-                                    "The fmtp parameter 'profile' must be in the range [0,2]"
-                                        .to_string(),
-                                ));
+                            x => {
+                                #[cfg(feature = "pedantic")]
+                                {
+                                    return Err(SdpParserInternalError::Generic(
+                                        format!("The fmtp parameter 'profile' must be in the range [0,2] (got {x})")
+                                    ));
+                                }
+                                #[cfg(not(feature = "pedantic"))]
+                                Some(x)
                             }
                         }
                     }
                     "LEVEL-IDX" => {
                         parameters.level_idx = match parameter_val.parse::<u8>()? {
                             x @ 0..=31 => Some(x),
-                            _ => {
-                                return Err(SdpParserInternalError::Generic(
-                                    "The fmtp parameter 'level-idx' must be in the range [0,31]"
-                                        .to_string(),
-                                ));
+                            x => {
+                                #[cfg(feature = "pedantic")]
+                                {
+                                    return Err(SdpParserInternalError::Generic(
+                                        format!("The fmtp parameter 'level-idx' must be in the range [0,31] (got {x})")
+                                    ));
+                                }
+                                #[cfg(not(feature = "pedantic"))]
+                                Some(x)
                             }
                         }
                     }
                     "TIER" => {
                         parameters.tier = match parameter_val.parse::<u8>()? {
                             x @ 0..=1 => Some(x),
-                            _ => {
-                                return Err(SdpParserInternalError::Generic(
-                                    "The fmtp parameter 'tier' must be in the range [0,1]"
-                                        .to_string(),
-                                ));
+                            x => {
+                                #[cfg(feature = "pedantic")]
+                                {
+                                    return Err(SdpParserInternalError::Generic(
+                                        format!("The fmtp parameter 'tier' must be in the range [0,1] (got {x})")
+                                    ));
+                                }
+                                #[cfg(not(feature = "pedantic"))]
+                                Some(x)
                             }
                         }
                     }

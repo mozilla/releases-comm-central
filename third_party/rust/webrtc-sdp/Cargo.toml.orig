@@ -1,6 +1,6 @@
 [package]
 name = "webrtc-sdp"
-version = "0.3.14"
+version = "0.3.16"
 authors = ["Nicolas Grunbaum <na-g+github@nostrum.com>", "Nils Ohlmeier <github@ohlmeier.org>"]
 description = "webrtc-sdp parses strings in the format of the Session Description Protocol according to RFC4566. It specifically supports the subset of features required to support WebRTC according to the JSEP draft."
 repository = "https://github.com/mozilla/webrtc-sdp"
@@ -18,6 +18,8 @@ codecov = { repository = "mozilla/webrtc-sdp", branch = "master", service = "git
 default = ["enhanced_debug"]
 # debugging output
 enhanced_debug = []
+# pedantic checks
+pedantic = []
 # serializability
 serialize = ["serde", "serde_derive"]
 

@@ -12,7 +12,7 @@
 [package]
 rust-version = "1.88.0"
 name = "webrtc-sdp"
-version = "0.3.14"
+version = "0.3.16"
 authors = [
     "Nicolas Grunbaum <na-g+github@nostrum.com>",
     "Nils Ohlmeier <github@ohlmeier.org>",
@@ -49,6 +49,7 @@ repository = "mozilla/webrtc-sdp"
 [features]
 default = ["enhanced_debug"]
 enhanced_debug = []
+pedantic = []
 serialize = [
     "serde",
     "serde_derive",

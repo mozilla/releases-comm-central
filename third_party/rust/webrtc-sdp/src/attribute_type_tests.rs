@@ -378,6 +378,38 @@ fn test_parse_attribute_fmtp() {
 }
 
 #[test]
+fn test_parse_attribute_fmtp_av1_out_of_u8_range() {
+    // Values that don't fit in a u8 are rejected regardless of pedantic mode
+    assert!(parse_attribute("fmtp:97 profile=256").is_err());
+    assert!(parse_attribute("fmtp:97 level-idx=256").is_err());
+    assert!(parse_attribute("fmtp:97 tier=256").is_err());
+}
+
+#[cfg(feature = "pedantic")]
+#[test]
+fn test_parse_attribute_fmtp_av1_pedantic() {
+    assert!(parse_attribute("fmtp:97 profile=3").is_err());
+    assert!(parse_attribute("fmtp:97 level-idx=32").is_err());
+    assert!(parse_attribute("fmtp:97 tier=2").is_err());
+}
+
+#[cfg(not(feature = "pedantic"))]
+#[test]
+fn test_parse_attribute_fmtp_av1_not_pedantic() {
+    let check_parse = make_check_parse!(SdpAttributeFmtp, SdpAttribute::Fmtp);
+    let check_parse_and_serialize =
+        make_check_parse_and_serialize!(check_parse, SdpAttribute::Fmtp);
+
+    assert_eq!(check_parse("fmtp:97 profile=3").parameters.profile, Some(3));
+    assert_eq!(
+        check_parse("fmtp:97 level-idx=32").parameters.level_idx,
+        Some(32)
+    );
+    assert_eq!(check_parse("fmtp:97 tier=2").parameters.tier, Some(2));
+    check_parse_and_serialize("fmtp:97 profile=255;level-idx=255;tier=255");
+}
+
+#[test]
 fn test_parse_attribute_framerate() {
     let check_parse = make_check_parse!(f64, SdpAttribute::FrameRate);
     let check_parse_and_serialize =

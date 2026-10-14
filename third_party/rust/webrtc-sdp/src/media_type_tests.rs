@@ -23,10 +23,11 @@ pub fn create_dummy_media_section() -> SdpMedia {
 
 // TODO is this useful outside of tests?
 impl SdpFormatList {
-    fn len(&self) -> usize {
+    fn len(&self) -> Option<usize> {
         match *self {
-            SdpFormatList::Integers(ref x) => x.len(),
-            SdpFormatList::Strings(ref x) => x.len(),
+            SdpFormatList::Integers(ref x) => Some(x.len()),
+            SdpFormatList::Strings(ref x) => Some(x.len()),
+            SdpFormatList::Unknown(_) => None,
         }
     }
 }
@@ -114,13 +115,13 @@ fn test_get_set_port() {
 fn test_add_codec() -> Result<(), SdpParserInternalError> {
     let mut msection = create_dummy_media_section();
     msection.add_codec(SdpAttributeRtpmap::new(96, "foobar".to_string(), 1000))?;
-    assert_eq!(msection.get_formats().len(), 1);
+    assert_eq!(msection.get_formats().len().unwrap(), 1);
     assert!(msection.get_attribute(SdpAttributeType::Rtpmap).is_some());
 
     let mut msection = create_dummy_media_section();
     msection.media.formats = SdpFormatList::Strings(Vec::new());
     msection.add_codec(SdpAttributeRtpmap::new(97, "boofar".to_string(), 1001))?;
-    assert_eq!(msection.get_formats().len(), 1);
+    assert_eq!(msection.get_formats().len().unwrap(), 1);
     assert!(msection.get_attribute(SdpAttributeType::Rtpmap).is_some());
     Ok(())
 }
@@ -129,21 +130,21 @@ fn test_add_codec() -> Result<(), SdpParserInternalError> {
 fn test_remove_codecs() -> Result<(), SdpParserInternalError> {
     let mut msection = create_dummy_media_section();
     msection.add_codec(SdpAttributeRtpmap::new(96, "foobar".to_string(), 1000))?;
-    assert_eq!(msection.get_formats().len(), 1);
+    assert_eq!(msection.get_formats().len().unwrap(), 1);
     assert!(msection.get_attribute(SdpAttributeType::Rtpmap).is_some());
     msection.remove_codecs();
-    assert_eq!(msection.get_formats().len(), 0);
+    assert_eq!(msection.get_formats().len().unwrap(), 0);
     assert!(msection.get_attribute(SdpAttributeType::Rtpmap).is_none());
 
     let mut msection = create_dummy_media_section();
     msection.media.formats = SdpFormatList::Strings(Vec::new());
     msection.add_codec(SdpAttributeRtpmap::new(97, "boofar".to_string(), 1001))?;
-    assert_eq!(msection.get_formats().len(), 1);
+    assert_eq!(msection.get_formats().len().unwrap(), 1);
 
     add_dummy_attributes(&mut msection);
 
     msection.remove_codecs();
-    assert_eq!(msection.get_formats().len(), 0);
+    assert_eq!(msection.get_formats().len().unwrap(), 0);
     assert!(msection.get_attribute(SdpAttributeType::Rtpmap).is_none());
     assert!(msection.get_attribute(SdpAttributeType::Rtcpfb).is_none());
     assert!(msection.get_attribute(SdpAttributeType::Fmtp).is_none());
@@ -222,9 +223,9 @@ fn test_parse_media_token() -> Result<(), SdpParserInternalError> {
     assert_eq!(video, SdpMediaValue::Video);
     let app = parse_media_token("aPplIcatIOn")?;
     assert_eq!(app, SdpMediaValue::Application);
-
     assert!(parse_media_token("").is_err());
-    assert!(parse_media_token("foobar").is_err());
+    let unknown = parse_media_token("foobar")?;
+    assert_eq!(unknown, SdpMediaValue::Unknown("foobar".to_string()));
     Ok(())
 }
 
@@ -293,8 +294,41 @@ fn test_media_invalid_port_number() {
 }
 
 #[test]
-fn test_media_invalid_type() {
-    assert!(parse_media("invalid 9 UDP/TLS/RTP/SAVPF 8").is_err());
+fn test_media_unknown_type() {
+    check_parse_and_serialize("unknownFormat 9 UDP/TLS/RTP/SAVPF");
+    let media = parse_media("unknownFormat 9 UDP/TLS/RTP/SAVPF")
+        .expect("Unknown media type should be parsed");
+    assert!(matches!(media, SdpType::Media(_)));
+    if let SdpType::Media(media) = media {
+        let expected = SdpMediaValue::Unknown("unknownFormat".to_string());
+        assert_eq!(media.media, expected);
+        assert_eq!(media.port, 9);
+        assert_eq!(media.port_count, 0);
+        assert_eq!(media.proto, SdpProtocolValue::UdpTlsRtpSavpf);
+        assert!(matches!(media.formats, SdpFormatList::Unknown(_)));
+        if let SdpFormatList::Unknown(formats) = media.formats {
+            assert_eq!(formats, "".to_string());
+        }
+    }
+}
+
+#[test]
+fn test_media_unknown_type_with_fmt() {
+    check_parse_and_serialize("unknownFormat 9 UDP/TLS/RTP/SAVPF 8A J");
+    let media = parse_media("unknownFormat 9 UDP/TLS/RTP/SAVPF 8A J")
+        .expect("Unknown media type should be parsed");
+    assert!(matches!(media, SdpType::Media(_)));
+    if let SdpType::Media(media) = media {
+        let expected = SdpMediaValue::Unknown("unknownFormat".to_string());
+        assert_eq!(media.media, expected);
+        assert_eq!(media.port, 9);
+        assert_eq!(media.port_count, 0);
+        assert_eq!(media.proto, SdpProtocolValue::UdpTlsRtpSavpf);
+        assert!(matches!(media.formats, SdpFormatList::Unknown(_)));
+        if let SdpFormatList::Unknown(formats) = media.formats {
+            assert_eq!(formats, "8A J".to_string());
+        }
+    }
 }
 
 #[test]
@@ -307,6 +341,7 @@ fn test_media_invalid_transport() {
     assert!(parse_media("audio 9 invalid/invalid 8").is_err());
 }
 
+#[cfg(feature = "pedantic")]
 #[test]
 fn test_media_invalid_payload() {
     assert!(parse_media("audio 9 UDP/TLS/RTP/SAVPF 300").is_err());

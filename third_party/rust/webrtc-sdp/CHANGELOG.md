@@ -1,4 +1,14 @@
 # Changelog
+## [0.3.16] - 2026-10-16
+
+- Turn AV1 FMTP value checks into pedantic checks
+
+## [0.3.15] - 2026-09-16
+
+- Allow for unknown media types
+- Add a pedantic check feature for checks that one may not want to handle at parse time
+- Make fmt # dynamic range check pendantic
+
 ## [0.3.14] - 2026-08-17
 
 - Change default h264 profile
