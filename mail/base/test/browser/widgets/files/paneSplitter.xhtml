@@ -10,20 +10,10 @@
       overflow: hidden;
     }
 
+    /* Contrast colours to make the splitter more obvious for debugging. */
     hr[is="pane-splitter"] {
-      margin: 0 -3px;
-      border: none;
-      z-index: 1;
-      cursor: ew-resize;
-      opacity: .4;
-      background-color: red;
-    }
-
-    #splitter3,
-    #splitter4,
-    #splitter6 {
-      margin: -3px 0;
-      cursor: ns-resize;
+      border-color: #fc3 !important;
+      background-color: #f006 !important;
     }
 
     #horizontal-before {
@@ -68,7 +58,8 @@
       display: flex;
       position: absolute;
       top: 0;
-      left: 520px;
+      left: 510px;
+      gap: 10px;
     }
 
     .resized,
@@ -100,7 +91,7 @@
       width: 90vw;
       height: 100px;
       position: absolute;
-      top: 220px;
+      bottom: 0px;
       left: 0;
       pointer-events: none;
     }
@@ -116,15 +107,29 @@
     #resizeSplitter-vertical-before {
       min-height: 120px;
     }
+
+    /* Show the position of the last mouse event, for debugging. */
+    #markerX {
+      position: absolute;
+      top: 510px;
+      border-left: 1px red solid;
+    }
+
+    #markerY {
+      position: absolute;
+      left: 730px;
+      border-top: 1px red solid;
+    }
   </style>
   <script type="module" src="chrome://messenger/content/pane-splitter.mjs"></script>
   <script>
+    // Show the position of the last mouse event, for debugging.
     function moveMarker(event) {
-      let markerX = document.getElementById("markerX");
+      const markerX = document.getElementById("markerX");
       markerX.style.left = `${event.clientX + window.scrollX}px`;
       markerX.textContent = `${event.type} event here`;
 
-      let markerY = document.getElementById("markerY");
+      const markerY = document.getElementById("markerY");
       markerY.style.top = `${event.clientY + window.scrollY}px`;
       markerY.textContent = `${event.type} event here`;
     }
@@ -134,7 +139,7 @@
     document.addEventListener("mouseup", moveMarker);
 
     window.addEventListener("load", () => {
-      for (let splitter of document.querySelectorAll('hr[is="pane-splitter"]')) {
+      for (const splitter of document.querySelectorAll('hr[is="pane-splitter"]')) {
         if (splitter.hasAttribute("resize-id")) {
           splitter.resizeElement;
           continue;
@@ -213,7 +218,7 @@
       resize-direction="horizontal"/>
   </div>
 
-  <div id="markerX" style="position: absolute; top: 0px; border-left: 1px red solid;"></div>
-  <div id="markerY" style="position: absolute; left: 550px; border-top: 1px red solid;"></div>
+  <div id="markerX"></div>
+  <div id="markerY"></div>
 </body>
 </html>

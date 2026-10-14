@@ -410,7 +410,7 @@ add_task(async function testResizeWithWindowHorizontal() {
   );
   assertCloseTo(
     fill.getBoundingClientRect().width,
-    500,
+    498,
     "flexible element should keep its default width before enabling resize-with-window"
   );
   assertCloseTo(
@@ -443,7 +443,7 @@ add_task(async function testResizeWithWindowHorizontal() {
   );
   assertCloseTo(
     fillWidth,
-    500,
+    498,
     "flexible element should keep its default width when resize-with-window is enabled"
   );
   assertCloseTo(
@@ -979,9 +979,10 @@ async function subtestDragAutoCollapse() {
   );
   Assert.ok(splitter.isCollapsed, "Should be collapsed after releasing mouse");
 
-  // Drag it from the collapsed state.
-  await testRunner.synthMouse(0, "mousedown");
-  for (const position of [0, 8, 16, 19]) {
+  // Drag it from the collapsed state. Offset by 1px so we can grab the
+  // collapsed splitter.
+  await testRunner.synthMouse(1, "mousedown");
+  for (const position of [1, 9, 17, 20]) {
     await testRunner.synthMouse(position);
     testRunner.assertElementSizes(
       0,
@@ -995,12 +996,12 @@ async function subtestDragAutoCollapse() {
     "splitter-expanded"
   );
   // Then the pane expands. For the first 20 pixels, nothing happens.
-  await testRunner.synthMouse(20);
+  await testRunner.synthMouse(21); // 1px offset from mousedown.
   await expandedEventPromise;
   Assert.equal(expandedEvents, 1, "expanded event fired");
   for (const position of [40, 60, 78]) {
     const mutationObserver = testRunner.waitForSizeTo(78);
-    await testRunner.synthMouse(position);
+    await testRunner.synthMouse(position + 1); // 1px offset from mousedown.
     await mutationObserver;
     testRunner.assertElementSizes(
       78,
@@ -1014,7 +1015,7 @@ async function subtestDragAutoCollapse() {
 
   for (const position of [79, 100, 120, 200, 250, 300, 400, 450]) {
     const mutationObserver = testRunner.waitForSizeTo(position);
-    await testRunner.synthMouse(position);
+    await testRunner.synthMouse(position + 1); // 1px offset from mousedown.
     await mutationObserver;
     testRunner.assertElementSizes(
       position,
@@ -1054,8 +1055,9 @@ async function subtestDragAutoCollapse() {
   await testRunner.synthMouse(position, "mouseup");
 
   // Test that expansion from collapsed reverts to normal behaviour after
-  // dragging out to the minimum size.
-  await testRunner.synthMouse(0, "mousedown");
+  // dragging out to the minimum size. Offset by 1px so we can grab the
+  // collapsed splitter.
+  await testRunner.synthMouse(1, "mousedown");
   for ([position, expectedSize] of [
     [0, 0],
     [10, 0],
@@ -1069,7 +1071,7 @@ async function subtestDragAutoCollapse() {
     [100, 100],
   ]) {
     const mutationObserver = testRunner.waitForSizeTo(expectedSize);
-    await testRunner.synthMouse(position);
+    await testRunner.synthMouse(position + 1); // 1px offset from mousedown.
     await mutationObserver;
     testRunner.assertElementSizes(
       expectedSize,
@@ -1131,9 +1133,10 @@ async function subtestCollapseExpand() {
 
   testRunner.setCollapseSize(78);
 
-  await testRunner.synthMouse(0, "mousedown");
-  await testRunner.synthMouse(200);
-  await testRunner.synthMouse(200, "mouseup");
+  // Offset by 1px so we can grab the collapsed splitter.
+  await testRunner.synthMouse(1, "mousedown");
+  await testRunner.synthMouse(201);
+  await testRunner.synthMouse(201, "mouseup");
   testRunner.assertElementSizes(200);
   Assert.ok(!splitter.isCollapsed, "splitter is not collapsed");
   Assert.equal(expandedEvents, 1, "an expanded event fired");
