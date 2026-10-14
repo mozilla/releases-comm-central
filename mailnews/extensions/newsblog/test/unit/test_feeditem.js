@@ -250,3 +250,60 @@ add_task(function test_content_cannot_inject_mime_parts() {
     "message should only contain the content and the declared enclosure"
   );
 });
+
+add_task(async function test_proto_item_id_is_stored_as_own_key() {
+  const account = FeedUtils.createRssAccount("proto id account");
+  const server = account.incomingServer;
+  const rootFolder = server.rootMsgFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
+  const folder = rootFolder.createLocalSubfolder("proto id folder");
+  const feedURL = "https://example.invalid/proto.xml";
+
+  const item = new FeedItem();
+  item.feed = {
+    folder,
+    server,
+    url: feedURL,
+    name: folder.name,
+    options: { category: { enabled: false } },
+  };
+  item.id = "__proto__";
+  item.title = "Proto";
+  item.content = "\n<p>Proto</p>";
+  item.url = "https://example.invalid/proto";
+  Assert.ok(item.store(), "item should be stored");
+
+  let ds = FeedUtils.getItemsDS(server);
+  Assert.ok(
+    Object.hasOwn(ds.data, "__proto__"),
+    "__proto__ item id should be an own key of the item cache"
+  );
+  Assert.deepEqual(
+    Object.keys(ds.data),
+    ["__proto__"],
+    "item cache should only contain the stored item"
+  );
+
+  const feed = new Feed(feedURL, folder);
+  feed.invalidateItems();
+  feed.removeInvalidItems(false);
+  Assert.equal(
+    ds.data.__proto__.valid,
+    false,
+    "__proto__ item should have been invalidated"
+  );
+
+  await ds._save();
+  delete FeedUtils[server.serverURI].FeedItemsDS;
+  ds = FeedUtils.getItemsDS(server);
+  Assert.ok(
+    Object.hasOwn(ds.data, "__proto__"),
+    "__proto__ item id should be an own key after reloading the item cache"
+  );
+  Assert.deepEqual(
+    ds.data.__proto__.feedURLs,
+    [feedURL],
+    "reloaded __proto__ item should keep its feed URL"
+  );
+});

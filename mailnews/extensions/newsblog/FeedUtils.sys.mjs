@@ -1500,20 +1500,18 @@ export var FeedUtils = {
 
     const rssServer = aServer.QueryInterface(Ci.nsIRssIncomingServer);
     const itemsFile = rssServer.feedItemsPath; // Path to feeditems.json
-    const exists = itemsFile.exists();
     const ds = new lazy.JSONFile({
       path: itemsFile.path,
       backupTo: itemsFile.path + ".backup",
+      // Item ids come from the feed, so keys like __proto__ must stay own
+      // properties.
+      dataPostProcessor: data => Object.assign(Object.create(null), data),
     });
     ds.ensureDataReady();
     if (!this[aServer.serverURI]) {
       this[aServer.serverURI] = {};
     }
     this[aServer.serverURI].FeedItemsDS = ds;
-    if (!exists) {
-      // No feeditems.json, need to initialise our data.
-      ds.data = {};
-    }
     return ds;
   },
 
