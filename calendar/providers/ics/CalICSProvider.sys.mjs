@@ -14,7 +14,7 @@ import {
 const lazy = {};
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
   return console.createInstance({
-    prefix: "calendar",
+    prefix: "CalICSProvider",
     maxLogLevel: "Warn",
     maxLogLevelPref: "calendar.loglevel",
   });
@@ -70,14 +70,14 @@ export var CalICSProvider = {
       "attemptLocalFile",
     ]) {
       try {
-        lazy.log.debug(`[CalICSProvider] Trying to detect calendar using ${method} method`);
+        lazy.log.debug(`Trying to detect calendar using ${method} method`);
         const calendars = await detector[method](uri);
         if (calendars) {
           return calendars;
         }
       } catch (e) {
         // e may be an Error object or a response object like CalDavSimpleResponse.
-        const message = `[CalICSProvider] Could not detect calendar using method ${method}`;
+        const message = `Could not detect calendar using method ${method}`;
 
         const responseDetails = response => ` - HTTP response status ${response.status}`;
 
@@ -272,7 +272,7 @@ class ICSDetector {
     if (response.authError) {
       throw new cal.provider.detection.AuthFailedError();
     } else if (!response.ok) {
-      lazy.log.debug(`[calICSProvider] ${target.spec} did not respond properly to PROPFIND`);
+      lazy.log.debug(`${target.spec} did not respond properly to PROPFIND`);
       return null;
     }
 
@@ -280,7 +280,7 @@ class ICSDetector {
     const resourceType = resprops["D:resourcetype"] || new Set();
 
     if (resourceType.has("C:calendar") || resprops["D:getcontenttype"] == "text/calendar") {
-      lazy.log.debug(`[calICSProvider] ${target.spec} is a calendar`);
+      lazy.log.debug(`${target.spec} is a calendar`);
       return [this.handleCalendar(target, resprops)];
     } else if (resourceType.has("D:collection")) {
       return this.handleDirectory(target);
@@ -320,9 +320,7 @@ class ICSDetector {
         if (response.lastRedirectStatus == 302 || response.lastRedirectStatus == 307) {
           target = response.nsirequest.originalURI;
         }
-        lazy.log.debug(
-          `[calICSProvider] ${target.spec} has valid content type (via ${method} request)`
-        );
+        lazy.log.debug(`${target.spec} has valid content type (via ${method} request)`);
         return [this.handleCalendar(target)];
       }
     }
@@ -362,7 +360,7 @@ class ICSDetector {
       // The etag didn't match, which means we can generally write here but our crafted etag
       // is stopping us. This means we can assume there is a calendar at the location.
       lazy.log.debug(
-        `[calICSProvider] ${target.spec} responded to a dummy ETag request, we can` +
+        `${target.spec} responded to a dummy ETag request, we can` +
           " assume it is a valid calendar location"
       );
       return [this.handleCalendar(target)];
@@ -400,12 +398,10 @@ class ICSDetector {
           return [calendar];
         }
       } else {
-        lazy.log.debug(
-          `[calICSProvider] ${location.spec} includes a directory that does not exist`
-        );
+        lazy.log.debug(`${location.spec} includes a directory that does not exist`);
       }
     } else {
-      lazy.log.debug(`[calICSProvider] ${location.spec} is not a "file" URI`);
+      lazy.log.debug(`${location.spec} is not a "file" URI`);
     }
     return null;
   }
@@ -437,12 +433,14 @@ class ICSDetector {
       }
 
       const uri = Services.io.newURI(href, null, target);
+      if (uri.scheme != target.scheme || uri.hostPort != target.hostPort) {
+        lazy.log.debug(`Ignoring ${uri.spec}, not on the same server as ${target.spec}`);
+        continue;
+      }
       calendars.push(this.handleCalendar(uri, resprops));
     }
 
-    lazy.log.debug(
-      `[calICSProvider] ${target.spec} is a directory, found ${calendars.length} calendars`
-    );
+    lazy.log.debug(`${target.spec} is a directory, found ${calendars.length} calendars`);
 
     return calendars.length ? calendars : null;
   }
