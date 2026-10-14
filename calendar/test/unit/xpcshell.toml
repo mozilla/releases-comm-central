@@ -109,6 +109,8 @@ tags = ["caldav"]
 
 ["test_ics.js"]
 
+["test_icsCalendar_invalidFile.js"]
+
 ["test_ics_offline_playback.js"]
 
 ["test_ics_parser.js"]

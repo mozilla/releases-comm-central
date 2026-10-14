@@ -64,6 +64,14 @@ export class CalICSCalendar extends cal.provider.BaseClass {
   #locked = false;
   #unmappedComponents = [];
   #unmappedProperties = [];
+  /**
+   * Whether the last download could not be parsed. Until a download parses
+   * again, the calendar reports itself as read-only so the data is never
+   * overwritten. This is not persisted.
+   *
+   * @type {boolean}
+   */
+  #parseFailed = false;
 
   // Public to allow access by calCachedCalendar
   _queue = [];
@@ -124,6 +132,34 @@ export class CalICSCalendar extends cal.provider.BaseClass {
     }
 
     return super.getProperty(aName);
+  }
+
+  get readOnly() {
+    return this.#parseFailed || super.readOnly;
+  }
+
+  set readOnly(value) {
+    super.readOnly = value;
+  }
+
+  /**
+   * Record whether the last download could be parsed, and notify observers if
+   * that changes whether the calendar is read-only.
+   *
+   * @param {boolean} failed
+   */
+  #setParseFailed(failed) {
+    const wasReadOnly = !!this.readOnly;
+    this.#parseFailed = failed;
+    const isReadOnly = !!this.readOnly;
+    if (isReadOnly != wasReadOnly) {
+      this.observers.notify("onPropertyChanged", [
+        this.superCalendar,
+        "readOnly",
+        isReadOnly,
+        wasReadOnly,
+      ]);
+    }
   }
 
   get supportsScheduling() {
@@ -394,6 +430,7 @@ export class CalICSCalendar extends cal.provider.BaseClass {
 
     // Clear any existing events if there was no result
     if (!resultLength) {
+      this.#setParseFailed(false);
       this.#createMemoryCalendar();
       this.#memoryCalendar.addObserver(this.#observer);
       this.#observer.onLoad(this);
@@ -430,18 +467,25 @@ export class CalICSCalendar extends cal.provider.BaseClass {
     const self = this;
     const listener = {
       // calIIcsParsingListener
-      onParsingComplete(rc, parser_) {
-        try {
-          for (const item of parser_.getItems()) {
-            self.#memoryCalendar.adoptItem(item);
+      async onParsingComplete(rc, parser_) {
+        if (Components.isSuccessCode(rc)) {
+          try {
+            for (const item of parser_.getItems()) {
+              await self.#memoryCalendar.adoptItem(item);
+            }
+            self.#unmappedComponents = parser_.getComponents();
+            self.#unmappedProperties = parser_.getProperties();
+            self.#setParseFailed(false);
+            lazy.log.debug(`Parsing ICS succeeded for ${self.uri.spec}`);
+          } catch (e) {
+            lazy.log.debug(`Parsing ICS failed for ${self.uri.spec}`, e);
+            self.#setParseFailed(true);
+            self.notifyError(e.result ?? Ci.calIErrors.ICS_MALFORMEDDATA, e.toString());
           }
-          self.#unmappedComponents = parser_.getComponents();
-          self.#unmappedProperties = parser_.getProperties();
-          lazy.log.debug("[calICSCalendar] Parsing ICS succeeded for " + self.uri.spec);
-        } catch (exc) {
-          lazy.log.debug("[calICSCalendar] Parsing ICS failed for \nException: " + exc);
-          self.#observer.onError(self.superCalendar, exc.result, exc.toString());
-          self.#observer.onError(self.superCalendar, Ci.calIErrors.READ_FAILED, "");
+        } else {
+          lazy.log.debug(`Parsing ICS failed for ${self.uri.spec}`);
+          self.#setParseFailed(true);
+          self.notifyError(Ci.calIErrors.ICS_MALFORMEDDATA, "");
         }
         self.#observer.onEndBatch(self);
         self.#observer.onLoad(self);
