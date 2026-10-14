@@ -460,7 +460,14 @@ Feed.prototype = {
   parse() {
     // Create a feed parser which will parse the feed.
     let parser = new lazy.FeedParser();
-    this.itemsToStore = parser.parseFeed(this, this.request.responseXML);
+    try {
+      this.itemsToStore = parser.parseFeed(this, this.request.responseXML);
+    } catch (ex) {
+      lazy.FeedUtils.log.error("Feed.parse: error - " + ex);
+      if (!this.mInvalidFeed) {
+        this.onParseError(this);
+      }
+    }
     parser = null;
 
     if (this.mInvalidFeed) {

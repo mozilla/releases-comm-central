@@ -751,7 +751,7 @@ FeedParser.prototype = {
       aDOM,
       lazy.FeedUtils.ATOM_IETF_NS,
       "feed"
-    )[0];
+    )?.[0];
     if (!channel) {
       aFeed.onParseError(aFeed);
       return [];

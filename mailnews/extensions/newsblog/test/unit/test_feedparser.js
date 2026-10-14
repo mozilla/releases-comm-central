@@ -135,6 +135,75 @@ add_task(async function test_atom03_dates() {
   ]);
 });
 
+// Test that an Atom 1.0 document without a <feed> root is rejected.
+add_task(async function test_atom_entry_root() {
+  const account = FeedUtils.createRssAccount("test_atom_entry_root");
+  const rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
+  const folder = rootFolder.createLocalSubfolder("atomentryroot");
+
+  const doc = await do_parse_document(
+    "resources/atom_entry_root.xml",
+    "text/xml"
+  );
+  const feed = new Feed("https://example.com/atom_entry_root.xml", folder);
+  feed.parseItems = true;
+  let parseErrors = 0;
+  feed.onParseError = function () {
+    parseErrors++;
+  };
+  const parser = new FeedParser();
+  const items = parser.parseFeed(feed, doc);
+
+  Assert.equal(feed.mFeedType, "ATOM_IETF", "feed type should be Atom 1.0");
+  Assert.equal(items.length, 0, "there should be no items");
+  Assert.equal(parseErrors, 1, "onParseError should be called once");
+});
+
+// Test that an exception thrown while parsing a downloaded feed is reported
+// as an invalid feed and doesn't leave the feed busy.
+add_task(async function test_download_parse_exception() {
+  const account = FeedUtils.createRssAccount("test_parse_exception");
+  const rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
+  const folder = rootFolder.createLocalSubfolder("parseexception");
+  const url = "http://localhost:" + SERVER_PORT + "/rss2_example.xml";
+
+  const download = () =>
+    new Promise(resolve => {
+      new Feed(url, folder).download(true, {
+        downloaded(feed, error) {
+          resolve(error);
+        },
+        onProgress() {},
+      });
+    });
+
+  const originalParseFeed = FeedParser.prototype.parseFeed;
+  FeedParser.prototype.parseFeed = function () {
+    throw new Error("Simulated parser failure");
+  };
+  let error;
+  try {
+    error = await download();
+  } finally {
+    FeedParser.prototype.parseFeed = originalParseFeed;
+  }
+  Assert.equal(
+    error,
+    FeedUtils.kNewsBlogInvalidFeed,
+    "a parser exception should be reported as an invalid feed"
+  );
+
+  Assert.equal(
+    await download(),
+    FeedUtils.kNewsBlogSuccess,
+    "the feed should be downloadable again after a parser exception"
+  );
+});
+
 // Test feed downloading.
 // Mainly checking that it doesn't crash and that the right feed parser is used.
 add_task(async function test_download() {

@@ -22,3 +22,7 @@ Data files for unit testing the feeds code.
   Test cases for migrating legacy .rdf config files to
   the new json ones. The .rdf files are the old data,
   and the .json files are the expected results.
+
+- `atom_entry_root.xml`
+  Atom 1.0 document with an <entry> root instead of <feed>.
+  It should be rejected as an invalid feed (see Bug 2077934).
