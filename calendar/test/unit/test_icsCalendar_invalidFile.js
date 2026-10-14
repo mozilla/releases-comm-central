@@ -96,6 +96,21 @@ async function loadCalendarFromFile(contents) {
   return { calendar: cal.manager.getCalendarById(calendar.id), path };
 }
 
+/**
+ * Replace the contents of a calendar file. The modification time is moved
+ * forward, as the calendar treats a file whose modification time did not
+ * change as unchanged, and two writes in quick succession can get the same
+ * modification time on some file systems.
+ *
+ * @param {string} path - The path of the file.
+ * @param {string} contents - The new contents of the file.
+ */
+async function rewriteFile(path, contents) {
+  const { lastModified } = await IOUtils.stat(path);
+  await IOUtils.writeUTF8(path, contents);
+  await IOUtils.setModificationTime(path, lastModified + 60 * 1000);
+}
+
 function createEvent() {
   const event = new CalEvent();
   event.id = cal.getUUID();
@@ -133,7 +148,7 @@ add_task(async function test_fileBecomesInvalid() {
   Assert.ok(!calendar.readOnly, "calendar with a valid file should be writable");
 
   const contents = "Important notes\nthat are not a calendar\n";
-  await IOUtils.writeUTF8(path, contents);
+  await rewriteFile(path, contents);
   await loadAndWait(calendar.id, () => calendar.refresh());
 
   Assert.ok(calendar.readOnly, "calendar should be read-only once the file no longer parses");
@@ -149,7 +164,7 @@ add_task(async function test_invalidFileRecovers() {
   const { calendar, path } = await loadCalendarFromFile("Not a calendar\n");
   Assert.ok(calendar.readOnly, "calendar with an invalid file should be read-only");
 
-  await IOUtils.writeUTF8(path, VALID_ICS);
+  await rewriteFile(path, VALID_ICS);
   await loadAndWait(calendar.id, () => calendar.refresh());
 
   Assert.ok(!calendar.readOnly, "calendar should be writable once the file parses");
@@ -180,7 +195,7 @@ add_task(async function test_persistedReadOnlyIsKept() {
   calendar.readOnly = true;
   readOnlyChanges.length = 0;
 
-  await IOUtils.writeUTF8(path, VALID_ICS);
+  await rewriteFile(path, VALID_ICS);
   await loadAndWait(calendar.id, () => calendar.refresh());
 
   Assert.ok(calendar.readOnly, "a calendar set read-only should stay read-only");
@@ -219,7 +234,7 @@ add_task(async function test_invalidUTF8IsReadOnly() {
     "file should be unchanged"
   );
 
-  await IOUtils.writeUTF8(path, VALID_ICS.replace("Existing event", "Caf\u00e9"));
+  await rewriteFile(path, VALID_ICS.replace("Existing event", "Caf\u00e9"));
   await loadAndWait(calendar.id, () => calendar.refresh());
   Assert.ok(!calendar.readOnly, "calendar should be writable once the data is valid UTF-8");
   Assert.equal(
