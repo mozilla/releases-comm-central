@@ -13,6 +13,7 @@ EXPORTS += [
     "Message.h",
     "MessageDatabase.h",
     "PerFolderDatabase.h",
+    "SearchFolderHits.h",
     "Thread.h",
     "VirtualFolderWrapper.h",
 ]
@@ -28,6 +29,7 @@ UNIFIED_SOURCES += [
     "Message.cpp",
     "MessageDatabase.cpp",
     "PerFolderDatabase.cpp",
+    "SearchFolderHits.cpp",
     "Thread.cpp",
     "VirtualFolderWrapper.cpp",
 ]

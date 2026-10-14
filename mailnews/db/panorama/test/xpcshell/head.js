@@ -74,6 +74,11 @@ function installDB(sql) {
       virtualFolderId INTEGER REFERENCES folders(id),
       searchFolderId INTEGER REFERENCES folders(id)
     );
+    CREATE TABLE search_folder_hits (
+      folder_id INTEGER REFERENCES folders(id),
+      message_id INTEGER REFERENCES messages(id),
+      PRIMARY KEY(folder_id, message_id)
+    );
   `);
   if (sql) {
     dbConnection.executeSimpleSQL(sql);

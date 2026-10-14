@@ -289,7 +289,6 @@ nsresult FolderDatabase::SaveOrdinals(nsTArray<uint64_t> const& folderIds) {
     stmt->BindInt64ByName("id"_ns, folderId);
     rv = stmt->Execute();
     NS_ENSURE_SUCCESS(rv, rv);
-    stmt->Reset();
 
     // Update cache.
     auto p = mFolderCache.lookup(folderId);

@@ -54,6 +54,7 @@ class DatabaseCore : public nsIDatabaseCore,
   friend class Message;
   friend class MessageDatabase;
   friend class PerFolderDatabase;
+  friend class SearchFolderHitsCache;
   friend class Thread;
   friend class ThreadMessageEnumerator;
   friend class VirtualFolderWrapper;

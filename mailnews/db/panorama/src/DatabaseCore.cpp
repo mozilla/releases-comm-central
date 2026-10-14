@@ -254,6 +254,16 @@ nsresult DatabaseCore::CreateNewDatabase() {
         searchFolderId INTEGER REFERENCES folders(id) \
       );"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
+  rv = sConnection->ExecuteSimpleSQL(
+      "CREATE TABLE search_folder_hits ( \
+        folder_id INTEGER REFERENCES folders(id), \
+        message_id INTEGER REFERENCES messages(id), \
+        PRIMARY KEY(folder_id, message_id) \
+      )"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = sConnection->ExecuteSimpleSQL(
+      "CREATE INDEX search_folder_hits_folder_id ON search_folder_hits(folder_id);"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   return NS_OK;
 }

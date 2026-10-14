@@ -69,7 +69,7 @@ class MessageEnumerator : public nsBaseMsgEnumerator {
   NS_IMETHOD HasMoreElements(bool* aResult) override;
 
  private:
-  ~MessageEnumerator();
+  ~MessageEnumerator() = default;
 
   nsCOMPtr<mozIStorageStatement> mStmt;
   bool mHasNext = false;
@@ -84,7 +84,7 @@ class ThreadEnumerator : public nsBaseMsgThreadEnumerator {
   NS_IMETHOD HasMoreElements(bool* hasNext) override;
 
  private:
-  ~ThreadEnumerator();
+  ~ThreadEnumerator() = default;
 
   nsCOMPtr<mozIStorageStatement> mStmt;
   uint64_t mFolderId;

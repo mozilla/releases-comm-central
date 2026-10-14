@@ -11,10 +11,15 @@
 #include "MessageDatabase.h"
 #include "mozilla/RefPtr.h"
 #include "mozilla/Preferences.h"
+#include "mozIStorageBindingParams.h"
+#include "mozIStorageBindingParamsArray.h"
 #include "mozIStorageStatement.h"
+#include "mozStorageHelper.h"
 #include "nsIMsgDBView.h"
 #include "nsMsgMessageFlags.h"
+#include "nsMsgUtils.h"
 #include "nsServiceManagerUtils.h"
+#include "SearchFolderHits.h"
 #include "Thread.h"
 
 namespace mozilla::mailnews {
@@ -708,30 +713,114 @@ NS_IMETHODIMP PerFolderDatabase::GetNewList(nsTArray<nsMsgKey>& aNewList) {
 }
 NS_IMETHODIMP PerFolderDatabase::GetCachedHits(
     const nsACString& aSearchFolderUri, nsIMsgEnumerator** aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  uint64_t folderId = MOZ_TRY(FolderURIToId(aSearchFolderUri));
+
+  // We don't need a `mozStorageStatementScoper` (in fact we can't use one here)
+  // because we'll hand the statement over to the `MessageEnumerator`, which
+  // takes care of resetting it when relevant.
+  nsCOMPtr<mozIStorageStatement> stmt =
+      MOZ_TRY(SearchFolderHitsCache::SelectAllForFolderStmt(folderId));
+
+  // `MessageEnumerator` works as long as the statement provides IDs that map to
+  // the `messages` table, so although we're not reading directly from that
+  // table it still works here.
+  RefPtr<MessageEnumerator> enumerator = new MessageEnumerator(stmt);
+
+  // Consumers expect us to return a null pointer rather than an empty
+  // enumerator if we don't have any hits, because in a Mork world the lack of
+  // hits shows by the absence of the relevant table in the folder's database.
+  // This is not really a thing in the Panorama world but we need to preserve
+  // this behaviour for compatibility.
+  bool hasMessages;
+  enumerator->HasMoreElements(&hasMessages);
+  if (hasMessages) {
+    enumerator.forget(aRetVal);
+  } else {
+    *aRetVal = nullptr;
+  }
+
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::RefreshCache(
     const nsACString& aSearchFolderUri, const nsTArray<nsMsgKey>& aNewHits,
-    nsTArray<nsMsgKey>& aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+    nsTArray<nsMsgKey>& aStaleHits) {
+  uint64_t folderId = MOZ_TRY(FolderURIToId(aSearchFolderUri));
+
+  // Before we do any replacing, figure out what the current hits are, so we can
+  // determine which ones are stale.
+  nsCOMPtr<mozIStorageStatement> stmt =
+      MOZ_TRY(SearchFolderHitsCache::SelectAllForFolderStmt(folderId));
+  mozStorageStatementScoper scoper(stmt);
+
+  nsTArray<nsMsgKey> currentHits;
+  while (true) {
+    bool hasResults;
+    MOZ_TRY(stmt->ExecuteStep(&hasResults));
+    if (!hasResults) {
+      break;
+    }
+
+    nsMsgKey msgKey = stmt->AsInt32(0);
+    currentHits.AppendElement(msgKey);
+  }
+
+  // If a hit isn't in `aNewHits` then we should mark it as stale for the
+  // consumer.
+  aStaleHits.Clear();
+  for (uint64_t i = 0; i < currentHits.Length(); i++) {
+    nsMsgKey msgId = currentHits[i];
+    if (!aNewHits.Contains(msgId)) {
+      aStaleHits.AppendElement(msgId);
+    }
+  }
+
+  // Delete the previous list of hits for this folder so we can replace it with
+  // the new list.
+  MOZ_TRY(SearchFolderHitsCache::RemoveAllHitsForFolder(folderId));
+
+  // Now insert the new list of hits.
+  MOZ_TRY(SearchFolderHitsCache::AddHitsForFolder(folderId, aNewHits));
+
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::UpdateHdrInCache(
     const nsACString& aSearchFolderUri, nsIMsgDBHdr* aHdr, bool aAdd) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  uint64_t folderId = MOZ_TRY(FolderURIToId(aSearchFolderUri));
+
+  nsMsgKey messageKey;
+  MOZ_TRY(aHdr->GetMessageKey(&messageKey));
+
+  if (aAdd) {
+    MOZ_TRY(SearchFolderHitsCache::AddHitsForFolder(folderId, {messageKey}));
+  } else {
+    MOZ_TRY(SearchFolderHitsCache::RemoveHitForFolder(folderId, messageKey));
+  }
+
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::HdrIsInCache(
-    const nsACString& aSearchFolderUri, nsIMsgDBHdr* aHdr, bool* aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+    const nsACString& aSearchFolderUri, nsIMsgDBHdr* aHdr, bool* aIsInCache) {
+  uint64_t folderId = MOZ_TRY(FolderURIToId(aSearchFolderUri));
+
+  nsMsgKey msgKey;
+  MOZ_TRY(aHdr->GetMessageKey(&msgKey));
+
+  bool inCache = MOZ_TRY(SearchFolderHitsCache::KeyIsInCache(folderId, msgKey));
+  *aIsInCache = inCache;
+
+  return NS_OK;
 }
 
 MessageEnumerator::MessageEnumerator(mozIStorageStatement* aStmt)
     : mStmt(aStmt) {
   mStmt->ExecuteStep(&mHasNext);
-}
 
-MessageEnumerator::~MessageEnumerator() {
-  if (mStmt) {
-    mStmt->Finalize();
+  if (!mHasNext) {
+    // The statement didn't yield any result, so let's reset it right away.
+    // Ideally we'd reset in the destructor, but this enumerator might be used
+    // in JS in which case we can't always ensure the destructor is called at
+    // the right time.
+    mStmt->Reset();
   }
 }
 
@@ -747,6 +836,14 @@ NS_IMETHODIMP MessageEnumerator::GetNext(nsIMsgDBHdr** aItem) {
   RefPtr<Message> message = new Message(key);
   message.forget(aItem);
   mStmt->ExecuteStep(&mHasNext);
+
+  if (!mHasNext) {
+    // We won't be using the statement anymore, so let's reset it. Ideally we'd
+    // reset in the destructor, but this enumerator might be used in JS in which
+    // case we can't always ensure the destructor is called at the right time.
+    mStmt->Reset();
+  }
+
   return NS_OK;
 }
 
@@ -761,11 +858,13 @@ ThreadEnumerator::ThreadEnumerator(mozIStorageStatement* stmt,
                                    uint64_t folderId)
     : mStmt(stmt), mFolderId(folderId) {
   mStmt->ExecuteStep(&mHasNext);
-}
 
-ThreadEnumerator::~ThreadEnumerator() {
-  if (mStmt) {
-    mStmt->Finalize();
+  if (!mHasNext) {
+    // The statement didn't yield any result, so let's reset it right away.
+    // Ideally we'd reset in the destructor, but this enumerator might be used
+    // in JS in which case we can't always ensure the destructor is called at
+    // the right time.
+    mStmt->Reset();
   }
 }
 
@@ -783,6 +882,14 @@ NS_IMETHODIMP ThreadEnumerator::GetNext(nsIMsgThread** item) {
   RefPtr<Thread> thread = new Thread(mFolderId, threadId, maxDate);
   thread.forget(item);
   mStmt->ExecuteStep(&mHasNext);
+
+  if (!mHasNext) {
+    // We won't be using the statement anymore, so let's reset it. Ideally we'd
+    // reset in the destructor, but this enumerator might be used in JS in which
+    // case we can't always ensure the destructor is called at the right time.
+    mStmt->Reset();
+  }
+
   return NS_OK;
 }
 
