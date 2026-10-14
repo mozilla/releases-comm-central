@@ -75,3 +75,8 @@ task-defaults:
 tasks:
     thunderbird:
         shipping-product: thunderbird
+        treeherder:
+            kind: other
+            platform: thunderbird-release/opt
+            symbol: Rel(notify-smoke-test)
+            tier: 2
