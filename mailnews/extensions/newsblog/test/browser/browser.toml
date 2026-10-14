@@ -19,3 +19,5 @@ subsuite = "thunderbird"
 support-files = ["data/**"]
 
 ["browser_feedDisplay.js"]
+
+["browser_opmlImport.js"]

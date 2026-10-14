@@ -2604,7 +2604,11 @@ var FeedSubscriptions = {
       const opmlDoc = document.implementation.createDocument("", "opml", null);
       const opmlRoot = opmlDoc.documentElement;
       opmlRoot.setAttribute("version", "1.0");
-      opmlRoot.setAttribute("xmlns:fz", "urn:forumzilla:");
+      opmlRoot.setAttributeNS(
+        "http://www.w3.org/2000/xmlns/",
+        "xmlns:fz",
+        FeedUtils.FZ_NS
+      );
 
       this.generatePPSpace(opmlRoot, SPACES2);
 
@@ -2775,8 +2779,12 @@ var FeedSubscriptions = {
     outRv.setAttribute("title", aFeed.title);
     outRv.setAttribute("text", aFeed.title);
     outRv.setAttribute("version", "RSS");
-    outRv.setAttribute("fz:quickMode", aFeed.quickMode);
-    outRv.setAttribute("fz:options", JSON.stringify(aFeed.options));
+    outRv.setAttributeNS(FeedUtils.FZ_NS, "fz:quickMode", aFeed.quickMode);
+    outRv.setAttributeNS(
+      FeedUtils.FZ_NS,
+      "fz:options",
+      JSON.stringify(aFeed.options)
+    );
     outRv.setAttribute("xmlUrl", aFeed.url);
     outRv.setAttribute("htmlUrl", aFeed.link);
     return outRv;
@@ -2985,10 +2993,10 @@ var FeedSubscriptions = {
           }
 
           // Create the feed.
-          let quickMode = outline.hasAttribute("fz:quickMode")
-            ? outline.getAttribute("fz:quickMode") == "true"
+          let quickMode = outline.hasAttributeNS(FeedUtils.FZ_NS, "quickMode")
+            ? outline.getAttributeNS(FeedUtils.FZ_NS, "quickMode") == "true"
             : rssServer.getBoolValue("quickMode");
-          let options = outline.getAttribute("fz:options");
+          let options = outline.getAttributeNS(FeedUtils.FZ_NS, "options");
           options = options ? JSON.parse(options) : null;
 
           if (firstFeedInFolderQuickMode === null) {

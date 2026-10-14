@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<opml version="2.0" xmlns:tb="urn:forumzilla:">
+  <head/>
+  <body>
+    <outline text="Prefix tb Feed" type="rss"
+      xmlUrl="https://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/rss.xml?tb"
+      tb:quickMode="true"
+      tb:options="{&quot;version&quot;:2,&quot;updates&quot;:{&quot;enabled&quot;:false,&quot;updateMinutes&quot;:7,&quot;updateUnits&quot;:&quot;min&quot;,&quot;lastUpdateTime&quot;:0,&quot;lastDownloadTime&quot;:null,&quot;updatePeriod&quot;:&quot;&quot;,&quot;updateFrequency&quot;:&quot;&quot;,&quot;updateBase&quot;:&quot;&quot;},&quot;category&quot;:{&quot;enabled&quot;:false,&quot;prefixEnabled&quot;:false,&quot;prefix&quot;:&quot;&quot;}}"/>
+  </body>
+</opml>
