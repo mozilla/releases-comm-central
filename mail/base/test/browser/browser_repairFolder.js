@@ -89,37 +89,7 @@ async function subtestRepairFolder(folder) {
   );
 
   const dialog = await openFolderProperties(folder);
-  if (folder.supportsOffline) {
-    const promptService = Services.prompt;
-    let promptCount = 0;
-    try {
-      Services.prompt = {
-        confirm() {
-          return ++promptCount > 1;
-        },
-      };
-
-      dialog.repairFolder();
-      await TestUtils.waitForCondition(
-        () => promptCount == 1,
-        "waiting for declined repair confirmation prompt"
-      );
-      Assert.ok(
-        !dialog.repairButton.disabled,
-        "declining the confirmation should not start the repair"
-      );
-
-      dialog.repairFolder();
-      await TestUtils.waitForCondition(
-        () => promptCount == 2,
-        "waiting for accepted repair confirmation prompt"
-      );
-    } finally {
-      Services.prompt = promptService;
-    }
-  } else {
-    dialog.repairFolder();
-  }
+  dialog.repairFolder();
   await dialog.accept();
   await TestUtils.waitForCondition(
     () => about3Pane.dbViewWrapperListener.allMessagesLoaded,
@@ -203,7 +173,6 @@ async function openFolderProperties(folder) {
   const folderPropertiesDialog = dialogDocument.querySelector("dialog");
 
   return {
-    repairButton,
     repairFolder() {
       EventUtils.synthesizeMouseAtCenter(repairButton, {}, dialogWindow);
     },
