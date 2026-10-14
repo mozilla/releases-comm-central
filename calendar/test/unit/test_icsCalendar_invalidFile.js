@@ -74,12 +74,14 @@ async function loadAndWait(id, func) {
 /**
  * Register an ICS calendar for a local file and wait for it to load.
  *
- * @param {string} contents - The initial contents of the file.
+ * @param {string|Uint8Array} contents - The initial contents of the file.
  * @returns {{calendar: calICalendar, path: string}}
  */
 async function loadCalendarFromFile(contents) {
   const path = PathUtils.join(PathUtils.tempDir, `${cal.getUUID()}.ics`);
-  await IOUtils.writeUTF8(path, contents);
+  await (typeof contents == "string"
+    ? IOUtils.writeUTF8(path, contents)
+    : IOUtils.write(path, contents));
 
   const calendar = cal.manager.createCalendar("ics", Services.io.newURI(PathUtils.toFileURI(path)));
   calendar.name = "invalid file test";
@@ -183,6 +185,48 @@ add_task(async function test_persistedReadOnlyIsKept() {
 
   Assert.ok(calendar.readOnly, "a calendar set read-only should stay read-only");
   Assert.deepEqual(readOnlyChanges, [], "observers should not be told of a change");
+});
+
+add_task(async function test_invalidUTF8IsReadOnly() {
+  // "Café" in ISO-8859-1, which is not valid UTF-8.
+  const contents = new TextEncoder().encode(VALID_ICS.replace("Existing event", "Caf\x00"));
+  contents[contents.indexOf(0)] = 0xe9;
+  const { calendar, path } = await loadCalendarFromFile(contents);
+
+  Assert.ok(calendar.readOnly, "calendar with invalid UTF-8 data should be read-only");
+  Assert.equal(
+    calendar.getProperty("currentStatus"),
+    Ci.calIErrors.CAL_UTF8_DECODING_FAILED,
+    "calendar should be in the error state"
+  );
+  Assert.ok(
+    !Services.prefs.prefHasUserValue(`calendar.registry.${calendar.id}.readOnly`),
+    "read-only state should not be persisted"
+  );
+  Assert.equal(
+    await calendar.getItem("valid-file-event"),
+    null,
+    "event should not be loaded from data that could not be decoded"
+  );
+  await Assert.rejects(
+    calendar.addItem(createEvent()),
+    e => e.result == Ci.calIErrors.CAL_IS_READONLY,
+    "adding an item should be refused"
+  );
+  Assert.deepEqual(
+    Array.from(await IOUtils.read(path)),
+    Array.from(contents),
+    "file should be unchanged"
+  );
+
+  await IOUtils.writeUTF8(path, VALID_ICS.replace("Existing event", "Caf\u00e9"));
+  await loadAndWait(calendar.id, () => calendar.refresh());
+  Assert.ok(!calendar.readOnly, "calendar should be writable once the data is valid UTF-8");
+  Assert.equal(
+    (await calendar.getItem("valid-file-event"))?.title,
+    "Caf\u00e9",
+    "event should be decoded correctly"
+  );
 });
 
 add_task(async function test_emptyFileIsWritable() {

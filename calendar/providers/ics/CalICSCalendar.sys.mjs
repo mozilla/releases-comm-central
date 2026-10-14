@@ -65,9 +65,9 @@ export class CalICSCalendar extends cal.provider.BaseClass {
   #unmappedComponents = [];
   #unmappedProperties = [];
   /**
-   * Whether the last download could not be parsed. Until a download parses
-   * again, the calendar reports itself as read-only so the data is never
-   * overwritten. This is not persisted.
+   * Whether the last download could not be parsed, or was not valid UTF-8.
+   * Until a download is read correctly again, the calendar reports itself as
+   * read-only so the data is never overwritten. This is not persisted.
    *
    * @type {boolean}
    */
@@ -391,9 +391,18 @@ export class CalICSCalendar extends cal.provider.BaseClass {
   }
 
   // nsIStreamLoaderObserver impl
-  // Listener for download. Parse the downloaded file
 
-  onStreamComplete(loader, ctxt, status, resultLength, result) {
+  /**
+   * Called when the download of the calendar data has finished. Parses the
+   * data into the memory calendar.
+   *
+   * @param {nsIStreamLoader} loader - The loader that did the download.
+   * @param {?nsISupports} _ctxt - The context parameter of the underlying channel.
+   * @param {nsresult} status - The status of the download.
+   * @param {integer} resultLength - The length of the downloaded data, in bytes.
+   * @param {integer[]} result - The downloaded data.
+   */
+  onStreamComplete(loader, _ctxt, status, resultLength, result) {
     let cont = false;
 
     const currentStatus = this.getProperty("currentStatus");
@@ -430,17 +439,17 @@ export class CalICSCalendar extends cal.provider.BaseClass {
 
     // This conversion is needed, because the stream only knows about
     // byte arrays, not about strings or encodings. The array of bytes
-    // need to be interpreted as utf8 and put into a javascript string.
+    // need to be interpreted as utf8 and put into a JavaScript string.
     let str;
     try {
-      str = new TextDecoder().decode(Uint8Array.from(result));
+      str = new TextDecoder("utf-8", { fatal: true }).decode(Uint8Array.from(result));
     } catch (e) {
-      this.#observer.onError(
-        this.superCalendar,
-        Ci.calIErrors.CAL_UTF8_DECODING_FAILED,
-        e.toString()
-      );
-      this.#observer.onError(this.superCalendar, Ci.calIErrors.READ_FAILED, "");
+      lazy.log.debug(`ICS data for ${this.uri.spec} is not valid UTF-8`, e);
+      this.#setParseFailed(true);
+      this.#createMemoryCalendar();
+      this.#memoryCalendar.addObserver(this.#observer);
+      this.notifyError(Ci.calIErrors.CAL_UTF8_DECODING_FAILED, "");
+      this.#observer.onLoad(this);
       this.#unlock();
       return;
     }
