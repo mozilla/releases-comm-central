@@ -122,7 +122,7 @@ messenger.jar:
     content/messenger/menulist-editable.mjs         (content/widgets/menulist-editable.mjs)
     content/messenger/message-pane.mjs              (content/widgets/message-pane.mjs)
     content/messenger/pane-layout.mjs               (content/widgets/pane-layout.mjs)
-    content/messenger/pane-splitter.js              (content/widgets/pane-splitter.js)
+    content/messenger/pane-splitter.mjs             (content/widgets/pane-splitter.mjs)
     content/messenger/search-bar.mjs                (content/widgets/search-bar.mjs)
     content/messenger/statuspanel.js                (content/widgets/statuspanel.js)
     content/messenger/tabmail-tab.js                (content/widgets/tabmail-tab.js)

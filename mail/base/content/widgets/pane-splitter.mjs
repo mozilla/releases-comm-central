@@ -143,8 +143,8 @@
       this.#updateLockElements({ lock: false });
     }
 
-    attributeChangedCallback(name) {
-      switch (name) {
+    attributeChangedCallback(attrName) {
+      switch (attrName) {
         case "resize-direction":
           this._updateResizeDirection();
           break;

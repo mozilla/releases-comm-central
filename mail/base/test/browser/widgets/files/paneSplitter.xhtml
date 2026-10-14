@@ -117,10 +117,7 @@
       min-height: 120px;
     }
   </style>
-  <!-- This path is used for the automated test. -->
-  <script src="chrome://messenger/content/pane-splitter.js"></script>
-  <!-- This path is used when this file is loaded in a browser. -->
-  <script src="../../../content/widgets/pane-splitter.js"></script>
+  <script type="module" src="chrome://messenger/content/pane-splitter.mjs"></script>
   <script>
     function moveMarker(event) {
       let markerX = document.getElementById("markerX");

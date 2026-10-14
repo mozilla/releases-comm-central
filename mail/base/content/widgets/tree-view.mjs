@@ -8,6 +8,9 @@ const { AppConstants } = ChromeUtils.importESModule(
 const { XULStoreUtils } = ChromeUtils.importESModule(
   "resource:///modules/XULStoreUtils.sys.mjs"
 );
+
+// eslint-disable-next-line import/no-unassigned-import
+import "chrome://messenger/content/pane-splitter.mjs";
 import { TreeSelection } from "chrome://messenger/content/TreeSelection.mjs";
 
 // Account for the mac OS accelerator key variation.
