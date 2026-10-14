@@ -137,6 +137,13 @@ add_task(async function () {
   Assert.equal(abMenulist.value, "moz-abdirectory://?");
   Assert.ok(!resultsTree.view);
 
+  const initialSearchTerm = searchTermList.getItemAtIndex(0);
+  Assert.equal(
+    searchWindow.document.activeElement,
+    initialSearchTerm.querySelector("search-value input"),
+    "search criteria input should initially be focused"
+  );
+
   // Search with no defined criteria. This should find everybody.
 
   EventUtils.synthesizeMouseAtCenter(searchButton, {}, searchWindow);

@@ -178,6 +178,9 @@ function searchOnLoad() {
   UIFontSize.registerWindow(window);
 
   onMore(null);
+  document.commandDispatcher.advanceFocusIntoSubtree(
+    gSearchTerms[0].obj.searchvalue
+  );
 }
 
 function searchOnUnload() {
