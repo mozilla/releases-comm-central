@@ -373,6 +373,9 @@ class CalendarTaskTreeView {
       branch.removeObserver("calendar.", this.tree.mPrefObserver);
     }
     this.tree = tree;
+    if (!hasOldTree && tree?.isInitialized) {
+      tree.refresh();
+    }
   }
 
   isContainer() {

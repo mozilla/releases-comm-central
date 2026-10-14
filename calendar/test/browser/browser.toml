@@ -75,6 +75,8 @@ tags = ["notifications"]
 
 ["browser_taskDisplay.js"]
 
+["browser_taskToolbarCustomization.js"]
+
 ["browser_taskUndoRedo.js"]
 
 ["browser_todayPane.js"]
