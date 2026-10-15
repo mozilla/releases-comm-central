@@ -163,18 +163,10 @@ export async function fetchHTTP(url, args = {}, isRetry = false) {
     if (
       response.status >= 300 &&
       fetchArgs.headers.Authorization &&
-      response.responseURL.replace(/\/\/.*@/, "//") != urlObject.toString() &&
-      response.responseURL.startsWith("http") &&
+      isRedirected(response, urlObject) &&
       !isRetry
     ) {
-      gAccountSetupLogger.info(
-        "Call to ",
-        urlObject,
-        " was redirected to ",
-        response.responseURL,
-        ", and failed. Re-trying the new URL with authentication again."
-      );
-      return fetchHTTP(response.responseURL, { ...args, urlArgs: {} }, true);
+      return retryRedirectWithAuth(response, urlObject, args);
     }
     const message = await lazy.l10n.formatValue("cannot-contact-server-error");
     throw new ServerException(
@@ -213,18 +205,10 @@ export async function fetchHTTP(url, args = {}, isRetry = false) {
     }
   } else if (
     fetchArgs.headers.Authorization &&
-    response.responseURL.replace(/\/\/.*@/, "//") != urlObject.toString() &&
-    response.responseURL.startsWith("http") &&
+    isRedirected(response, urlObject) &&
     !isRetry
   ) {
-    gAccountSetupLogger.info(
-      "Call to ",
-      urlObject,
-      " was redirected to ",
-      response.responseURL,
-      ", and failed. Re-trying the new URL with authentication again."
-    );
-    return fetchHTTP(response.responseURL, { ...args, urlArgs: {} }, true);
+    return retryRedirectWithAuth(response, urlObject, args);
   } else {
     let message = response.statusText;
     if (!response.status) {
@@ -238,11 +222,99 @@ export async function fetchHTTP(url, args = {}, isRetry = false) {
   }
 }
 
+/**
+ * Check whether a request ended up at a different HTTP(S) URL than requested.
+ *
+ * @param {XMLHttpRequest} request - The completed request.
+ * @param {URL} requestURL - The URL that was requested.
+ * @returns {boolean}
+ */
+function isRedirected(request, requestURL) {
+  return (
+    request.responseURL.replace(/\/\/.*@/, "//") != requestURL.toString() &&
+    request.responseURL.startsWith("http")
+  );
+}
+
+/**
+ * Check whether credentials meant for one URL may be sent to another URL
+ * without asking the user: the target must use HTTPS and belong to the same
+ * site.
+ *
+ * The server we redirect from already got the credentials, so this protects
+ * against misconfigured redirects, e.g. https://example.com/* redirecting to
+ * http://www.example.com/* (credentials sent in cleartext), or a parked domain
+ * redirecting to an unrelated site.
+ *
+ * @param {URL} fromURL - The URL the credentials were meant for.
+ * @param {URL} toURL - The URL the credentials would be sent to.
+ * @returns {boolean}
+ */
+function canForwardCredentials(fromURL, toURL) {
+  if (toURL.protocol != "https:") {
+    return false;
+  }
+  return (
+    Services.eTLD.getSchemelessSite(Services.io.newURI(fromURL.href)) ==
+    Services.eTLD.getSchemelessSite(Services.io.newURI(toURL.href))
+  );
+}
+
+/**
+ * Handle an authenticated request that was redirected and failed, most likely
+ * because the credentials were dropped on the way. Repeat the request with
+ * credentials if the redirect target is trusted. Otherwise reject, and if the
+ * target uses HTTPS, set it as the ServerException's redirectURL, so the caller
+ * can decide whether to send credentials there.
+ *
+ * @param {XMLHttpRequest} request - The completed request.
+ * @param {URL} requestURL - The URL that was requested.
+ * @param {object} args - The arguments of the original fetchHTTP call.
+ * @returns {Promise<string|object>} The response of the repeated request.
+ */
+async function retryRedirectWithAuth(request, requestURL, args) {
+  const redirectURL = new URL(request.responseURL);
+  if (!canForwardCredentials(requestURL, redirectURL)) {
+    gAccountSetupLogger.info(
+      "Call to ",
+      requestURL,
+      " was redirected to ",
+      request.responseURL,
+      ", which is not trusted with the credentials."
+    );
+    const exception = new ServerException(
+      request.statusText ||
+        (await lazy.l10n.formatValue("cannot-contact-server-error")),
+      request.status || -2,
+      request.responseURL
+    );
+    if (redirectURL.protocol == "https:") {
+      exception.redirectURL = request.responseURL;
+    }
+    throw exception;
+  }
+  gAccountSetupLogger.info(
+    "Call to ",
+    requestURL,
+    " was redirected to ",
+    request.responseURL,
+    ", and failed. Re-trying the new URL with authentication again."
+  );
+  return fetchHTTP(request.responseURL, { ...args, urlArgs: {} }, true);
+}
+
 class ServerException extends Error {
   constructor(message, code, uri, cause) {
     super(message, { cause });
     this.code = code;
     this.uri = uri;
     this.url = uri;
+    /**
+     * Set if an authenticated request was redirected to an HTTPS URL that the
+     * credentials were not forwarded to.
+     *
+     * @type {?string}
+     */
+    this.redirectURL = null;
   }
 }

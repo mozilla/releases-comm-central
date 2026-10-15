@@ -48,6 +48,20 @@ const mockServer = {
       "valid",
       "test.test"
     );
+    // Same site as test.test.
+    this.server.identity.add("https", "alt.test.test", 443);
+    this.sameSiteProxy = await HttpsProxy.create(
+      this.server.identity.primaryPort,
+      "valid",
+      "alt.test.test"
+    );
+    // Different site from test.test.
+    this.server.identity.add("https", "dav.test", 443);
+    this.crossSiteProxy = await HttpsProxy.create(
+      this.server.identity.primaryPort,
+      "dav",
+      "dav.test"
+    );
     this.reset();
   },
 
@@ -172,6 +186,8 @@ const mockServer = {
 
   cleanup() {
     this.secureProxy.destroy();
+    this.sameSiteProxy.destroy();
+    this.crossSiteProxy.destroy();
     this.server.stop();
   },
 };
@@ -523,6 +539,105 @@ add_task(async function test_get_redirect() {
   mockServer.checkRequests();
 
   mockServer.reset();
+});
+
+/**
+ * Set up an authenticated request to https://test.test/redirect-auth that
+ * gets redirected to `target`, which only accepts requests with credentials.
+ *
+ * @param {string} target - The URL to redirect to.
+ * @returns {string[]} The Authorization headers (or null) of the requests the
+ *   target received.
+ */
+function setUpAuthRedirect(target) {
+  const targetAuthHeaders = [];
+  mockServer.server.registerPathHandler(
+    "/redirect-auth",
+    (request, response) => {
+      response.setStatusLine(request.httpVersion, 302, "Found");
+      response.setHeader("Location", target);
+    }
+  );
+  mockServer.server.registerPathHandler("/target", (request, response) => {
+    const auth = request.hasHeader("Authorization")
+      ? request.getHeader("Authorization")
+      : null;
+    targetAuthHeaders.push(auth);
+    if (auth != "Basic Zm9vOmJhcg==") {
+      response.setStatusLine(request.httpVersion, 401, "Unauthorized");
+      return;
+    }
+    response.setStatusLine(request.httpVersion, 200, "OK");
+    response.setHeader("Content-Type", "text/plain");
+    response.write("Success");
+  });
+  return targetAuthHeaders;
+}
+
+function tearDownAuthRedirect() {
+  mockServer.server.registerPathHandler("/redirect-auth", null);
+  mockServer.server.registerPathHandler("/target", null);
+}
+
+add_task(async function test_get_redirect_sameSite() {
+  const targetAuthHeaders = setUpAuthRedirect("https://alt.test.test/target");
+
+  const result = await fetchHTTP("https://test.test/redirect-auth", {
+    username: "foo",
+    password: "bar",
+  });
+
+  Assert.equal(result, "Success", "Should get the response from the target");
+  Assert.deepEqual(
+    targetAuthHeaders,
+    [null, "Basic Zm9vOmJhcg=="],
+    "Should repeat the request to the target with credentials"
+  );
+
+  tearDownAuthRedirect();
+});
+
+add_task(async function test_get_redirect_crossSite() {
+  const targetAuthHeaders = setUpAuthRedirect("https://dav.test/target");
+
+  await Assert.rejects(
+    fetchHTTP("https://test.test/redirect-auth", {
+      username: "foo",
+      password: "bar",
+    }),
+    error =>
+      checkServerException(error, 401, "https://dav.test/target") &&
+      error.redirectURL == "https://dav.test/target",
+    "Should reject with the redirect target"
+  );
+  Assert.deepEqual(
+    targetAuthHeaders,
+    [null],
+    "Should not send credentials to another site"
+  );
+
+  tearDownAuthRedirect();
+});
+
+add_task(async function test_get_redirect_downgrade() {
+  const targetAuthHeaders = setUpAuthRedirect("http://test.test/target");
+
+  await Assert.rejects(
+    fetchHTTP("https://test.test/redirect-auth", {
+      username: "foo",
+      password: "bar",
+    }),
+    error =>
+      checkServerException(error, 401, "http://test.test/target") &&
+      error.redirectURL === null,
+    "Should reject without a redirect target to retry"
+  );
+  Assert.ok(
+    targetAuthHeaders.every(auth => auth === null),
+    "Should not send credentials over HTTP"
+  );
+
+  tearDownAuthRedirect();
 });
 
 add_task(async function test_get_offline() {

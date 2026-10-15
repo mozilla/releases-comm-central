@@ -136,7 +136,7 @@ async function startFetchWithAuth(url, username, password, callArgs) {
 /**
  * Attempts to fetch a configuration from a URL that came from an
  * unauthenticated and potentially unsafe source (e.g. a redirect from a plain
- * HTTP request, or an SRV DNS lookup).
+ * HTTP request, a redirect to another site, or an SRV DNS lookup).
  *
  * If the URL's "base" domain (i.e. its first and second level domains) is not
  * the same as the one from the user's email address, and is not a domain owned
@@ -259,10 +259,39 @@ export async function fetchConfigFromExchange(
     signal: AbortSignal.any([abortSignal, priorityAbortController.signal]),
   };
   const authUsername = username || emailAddress;
+  // The user can only be asked about one host, so share that answer between
+  // requests for the same host and refuse any other host.
+  let confirmation;
+  const confirmOnce = (host, scheme, signal) => {
+    if (!confirmation) {
+      confirmation = { host, promise: confirmCallback(host, scheme, signal) };
+    } else if (confirmation.host != host) {
+      return Promise.reject(
+        new Error(`Already asking about ${confirmation.host}, not ${host}`)
+      );
+    }
+    return confirmation.promise;
+  };
+  // If an authenticated request gets redirected to another site, only send
+  // the credentials there after the same checks as for the HTTP redirect.
+  const fetchWithAuthAndRedirect = url =>
+    startFetchWithAuth(url, authUsername, password, callArgs).catch(error => {
+      if (!error.redirectURL) {
+        throw error;
+      }
+      return fetchFromPotentiallyUnsafeAddress(
+        error.redirectURL,
+        domain,
+        authUsername,
+        password,
+        callArgs,
+        confirmOnce
+      );
+    });
   const { value: xml, index } = await promiseFirstSuccessful(
     [
-      startFetchWithAuth(url1, authUsername, password, callArgs),
-      startFetchWithAuth(url2, authUsername, password, callArgs),
+      fetchWithAuthAndRedirect(url1),
+      fetchWithAuthAndRedirect(url2),
       // url3 is HTTP (not HTTPS), so don't authenticate. Even MS spec demands so.
       lazy.fetchHTTP(url3, callArgs).catch(error => {
         gAccountSetupLogger.debug(
@@ -286,7 +315,7 @@ export async function fetchConfigFromExchange(
           authUsername,
           password,
           callArgs,
-          confirmCallback
+          confirmOnce
         );
       }),
       // On top of the HTTP(S) calls we perform, we also want to see if there's at
@@ -318,7 +347,7 @@ export async function fetchConfigFromExchange(
           authUsername,
           password,
           callArgs,
-          confirmCallback
+          confirmOnce
         );
       }),
     ],
