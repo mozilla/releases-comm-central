@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "qlog"
-version = "0.16.0"
+version = "0.18.1"
 authors = ["Lucas Pardue <lucas@lucaspardue.com>"]
 build = false
 autolib = false
@@ -30,9 +30,31 @@ categories = ["network-programming"]
 license = "BSD-2-Clause"
 repository = "https://github.com/cloudflare/quiche"
 
+[features]
+foundations = ["dep:foundations"]
+gzip = ["dep:flate2"]
+zstd = ["dep:zstd"]
+
 [lib]
 name = "qlog"
 path = "src/lib.rs"
+
+[[test]]
+name = "writer_roundtrip"
+path = "tests/writer_roundtrip.rs"
+
+[dependencies.flate2]
+version = "1"
+optional = true
+
+[dependencies.foundations]
+version = ">=4,<6"
+features = ["settings"]
+optional = true
+default-features = false
+
+[dependencies.humantime]
+version = "2"
 
 [dependencies.serde]
 version = "1"
@@ -43,11 +65,29 @@ version = "1"
 features = ["preserve_order"]
 
 [dependencies.serde_with]
-version = "3.3"
+version = "3"
 features = ["macros"]
 default-features = false
 
-[dependencies.smallvec]
-version = "1.10"
-features = ["serde"]
+[dependencies.zstd]
+version = "0.13"
+optional = true
 default-features = false
+
+[dev-dependencies.pretty_assertions]
+version = "1.4"
+
+[dev-dependencies.tempfile]
+version = "3"
+
+[lints.clippy]
+mem_forget = "deny"
+
+[lints.rust.unexpected_cfgs]
+level = "warn"
+priority = 0
+check-cfg = [
+    "cfg(capture_keylogs)",
+    "cfg(test_invalid_len_compilation_fail)",
+    "cfg(boring_v5)",
+]

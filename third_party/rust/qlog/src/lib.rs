@@ -67,19 +67,16 @@
 //!
 //! ```
 //! let mut trace = qlog::Trace::new(
-//!     qlog::VantagePoint {
-//!         name: Some("Example client".to_string()),
-//!         ty: qlog::VantagePointType::Client,
-//!         flow: None,
-//!     },
-//!     Some("Example qlog trace".to_string()),
-//!     Some("Example qlog trace description".to_string()),
-//!     Some(qlog::Configuration {
-//!         time_offset: Some(0.0),
-//!         original_uris: None,
-//!     }),
-//!     None,
-//! );
+//! #    Some("Example qlog trace".to_string()),
+//! #    Some("Example qlog trace description".to_string()),
+//! #    None,
+//! #    Some(qlog::VantagePoint {
+//! #        name: Some("Example client".to_string()),
+//! #        ty: qlog::VantagePointType::Client,
+//! #        flow: None,
+//! #    }),
+//! #    vec![qlog::events::QUIC_URI.to_string(), qlog::events::HTTP3_URI.to_string()],
+//! # );
 //! ```
 //!
 //! ### Adding events to a Trace
@@ -91,19 +88,16 @@
 //! of the [`Event`], then appends it to the trace with [`push_event()`].
 //!
 //! ```
-//! # let mut trace = qlog::Trace::new (
-//! #     qlog::VantagePoint {
-//! #         name: Some("Example client".to_string()),
-//! #         ty: qlog::VantagePointType::Client,
-//! #         flow: None,
-//! #     },
-//! #     Some("Example qlog trace".to_string()),
-//! #     Some("Example qlog trace description".to_string()),
-//! #     Some(qlog::Configuration {
-//! #         time_offset: Some(0.0),
-//! #         original_uris: None,
-//! #     }),
-//! #     None
+//! # let mut trace = qlog::Trace::new(
+//! #    Some("Example qlog trace".to_string()),
+//! #    Some("Example qlog trace description".to_string()),
+//! #    None,
+//! #    Some(qlog::VantagePoint {
+//! #        name: Some("Example client".to_string()),
+//! #        ty: qlog::VantagePointType::Client,
+//! #        flow: None,
+//! #    }),
+//! #    vec![qlog::events::QUIC_URI.to_string(), qlog::events::HTTP3_URI.to_string()],
 //! # );
 //!
 //! let scid = [0x7e, 0x37, 0xe4, 0xdc, 0xc6, 0x68, 0x2d, 0xa8];
@@ -112,7 +106,6 @@
 //! let pkt_hdr = qlog::events::quic::PacketHeader::new(
 //!     qlog::events::quic::PacketType::Initial,
 //!     Some(0),          // packet_number
-//!     None,             // flags
 //!     None,             // token
 //!     None,             // length
 //!     Some(0x00000001), // version
@@ -122,7 +115,7 @@
 //!
 //! let frames = vec![qlog::events::quic::QuicFrame::Crypto {
 //!     offset: 0,
-//!     length: 0,
+//!     raw: None,
 //! }];
 //!
 //! let raw = qlog::events::RawInfo {
@@ -132,15 +125,14 @@
 //! };
 //!
 //! let event_data =
-//!     qlog::events::EventData::PacketSent(qlog::events::quic::PacketSent {
+//!     qlog::events::EventData::QuicPacketSent(qlog::events::quic::PacketSent {
 //!         header: pkt_hdr,
 //!         frames: Some(frames.into()),
-//!         is_coalesced: None,
-//!         retry_token: None,
 //!         stateless_reset_token: None,
 //!         supported_versions: None,
 //!         raw: Some(raw),
 //!         datagram_id: None,
+//!         is_mtu_probe_packet: None,
 //!         send_at_time: None,
 //!         trigger: None,
 //!     });
@@ -156,19 +148,16 @@
 //! For example, serializing the trace created above:
 //!
 //! ```
-//! # let mut trace = qlog::Trace::new (
-//! #     qlog::VantagePoint {
-//! #         name: Some("Example client".to_string()),
-//! #         ty: qlog::VantagePointType::Client,
-//! #         flow: None,
-//! #     },
-//! #     Some("Example qlog trace".to_string()),
-//! #     Some("Example qlog trace description".to_string()),
-//! #     Some(qlog::Configuration {
-//! #         time_offset: Some(0.0),
-//! #         original_uris: None,
-//! #     }),
-//! #     None
+//! # let mut trace = qlog::Trace::new(
+//! #    Some("Example qlog trace".to_string()),
+//! #    Some("Example qlog trace description".to_string()),
+//! #    None,
+//! #    Some(qlog::VantagePoint {
+//! #        name: Some("Example client".to_string()),
+//! #        ty: qlog::VantagePointType::Client,
+//! #        flow: None,
+//! #    }),
+//! #    vec![qlog::events::QUIC_URI.to_string(), qlog::events::HTTP3_URI.to_string()],
 //! # );
 //! serde_json::to_string_pretty(&trace).unwrap();
 //! ```
@@ -189,7 +178,7 @@
 //!   "events": [
 //!     {
 //!       "time": 0.0,
-//!       "name": "transport:packet_sent",
+//!       "name": "quic:packet_sent",
 //!       "data": {
 //!         "header": {
 //!           "packet_type": "initial",
@@ -233,18 +222,18 @@
 //!
 //! ```
 //! let mut trace = qlog::TraceSeq::new(
-//!     qlog::VantagePoint {
+//!     Some("Example qlog trace".to_string()),
+//!     Some("Example qlog trace description".to_string()),
+//!     None,
+//!     Some(qlog::VantagePoint {
 //!         name: Some("Example client".to_string()),
 //!         ty: qlog::VantagePointType::Client,
 //!         flow: None,
-//!     },
-//!     Some("Example qlog trace".to_string()),
-//!     Some("Example qlog trace description".to_string()),
-//!     Some(qlog::Configuration {
-//!         time_offset: Some(0.0),
-//!         original_uris: None,
 //!     }),
-//!     None,
+//!     vec![
+//!         qlog::events::QUIC_URI.to_string(),
+//!         qlog::events::HTTP3_URI.to_string(),
+//!     ],
 //! );
 //! ```
 //!
@@ -259,28 +248,24 @@
 //!
 //! ```
 //! # let mut trace = qlog::TraceSeq::new(
-//! #    qlog::VantagePoint {
+//! #    Some("Example qlog trace".to_string()),
+//! #    Some("Example qlog trace description".to_string()),
+//! #    None,
+//! #    Some(qlog::VantagePoint {
 //! #        name: Some("Example client".to_string()),
 //! #        ty: qlog::VantagePointType::Client,
 //! #        flow: None,
-//! #    },
-//! #    Some("Example qlog trace".to_string()),
-//! #    Some("Example qlog trace description".to_string()),
-//! #    Some(qlog::Configuration {
-//! #        time_offset: Some(0.0),
-//! #        original_uris: None,
 //! #    }),
-//! #    None,
+//! #    vec![qlog::events::QUIC_URI.to_string(), qlog::events::HTTP3_URI.to_string()],
 //! # );
 //! # let mut file = std::fs::File::create("foo.sqlog").unwrap();
 //! let mut streamer = qlog::streamer::QlogStreamer::new(
-//!     qlog::QLOG_VERSION.to_string(),
 //!     Some("Example qlog".to_string()),
 //!     Some("Example qlog description".to_string()),
-//!     None,
 //!     std::time::Instant::now(),
 //!     trace,
 //!     qlog::events::EventImportance::Base,
+//!     qlog::streamer::EventTimePrecision::NanoSeconds,
 //!     Box::new(file),
 //! );
 //!
@@ -296,28 +281,24 @@
 //!
 //! ```
 //! # let mut trace = qlog::TraceSeq::new(
-//! #    qlog::VantagePoint {
+//! #    Some("Example qlog trace".to_string()),
+//! #    Some("Example qlog trace description".to_string()),
+//! #    None,
+//! #    Some(qlog::VantagePoint {
 //! #        name: Some("Example client".to_string()),
 //! #        ty: qlog::VantagePointType::Client,
 //! #        flow: None,
-//! #    },
-//! #    Some("Example qlog trace".to_string()),
-//! #    Some("Example qlog trace description".to_string()),
-//! #    Some(qlog::Configuration {
-//! #        time_offset: Some(0.0),
-//! #        original_uris: None,
 //! #    }),
-//! #    None,
+//! #    vec![qlog::events::QUIC_URI.to_string(), qlog::events::HTTP3_URI.to_string()],
 //! # );
 //! # let mut file = std::fs::File::create("foo.qlog").unwrap();
 //! # let mut streamer = qlog::streamer::QlogStreamer::new(
-//! #     qlog::QLOG_VERSION.to_string(),
 //! #     Some("Example qlog".to_string()),
 //! #     Some("Example qlog description".to_string()),
-//! #     None,
 //! #     std::time::Instant::now(),
 //! #     trace,
 //! #     qlog::events::EventImportance::Base,
+//! #     qlog::streamer::EventTimePrecision::NanoSeconds,
 //! #     Box::new(file),
 //! # );
 //!
@@ -333,24 +314,27 @@
 //! );
 //!
 //! let ping = qlog::events::quic::QuicFrame::Ping {
-//!     length: None,
-//!     payload_length: None,
+//!     raw: None,
 //! };
+//!
+//! let raw = qlog::events::RawInfo {
+//!             length: None,
+//!             payload_length:
+//!             Some(1234), data: None
+//!           };
 //! let padding = qlog::events::quic::QuicFrame::Padding {
-//!     length: None,
-//!     payload_length: 1234,
+//!     raw: Some(Box::new(raw)),
 //! };
 //!
 //! let event_data =
-//!     qlog::events::EventData::PacketSent(qlog::events::quic::PacketSent {
+//!     qlog::events::EventData::QuicPacketSent(qlog::events::quic::PacketSent {
 //!         header: pkt_hdr,
 //!         frames: Some(vec![ping, padding].into()),
-//!         is_coalesced: None,
-//!         retry_token: None,
 //!         stateless_reset_token: None,
 //!         supported_versions: None,
 //!         raw: None,
 //!         datagram_id: None,
+//!         is_mtu_probe_packet: None,
 //!         send_at_time: None,
 //!         trigger: None,
 //!     });
@@ -365,28 +349,24 @@
 //!
 //! ```
 //! # let mut trace = qlog::TraceSeq::new(
-//! #    qlog::VantagePoint {
+//! #    Some("Example qlog trace".to_string()),
+//! #    Some("Example qlog trace description".to_string()),
+//! #    None,
+//! #    Some(qlog::VantagePoint {
 //! #        name: Some("Example client".to_string()),
 //! #        ty: qlog::VantagePointType::Client,
 //! #        flow: None,
-//! #    },
-//! #    Some("Example qlog trace".to_string()),
-//! #    Some("Example qlog trace description".to_string()),
-//! #    Some(qlog::Configuration {
-//! #        time_offset: Some(0.0),
-//! #        original_uris: None,
 //! #    }),
-//! #    None,
+//! #    vec![qlog::events::QUIC_URI.to_string(), qlog::events::HTTP3_URI.to_string()],
 //! # );
 //! # let mut file = std::fs::File::create("foo.qlog").unwrap();
 //! # let mut streamer = qlog::streamer::QlogStreamer::new(
-//! #     qlog::QLOG_VERSION.to_string(),
 //! #     Some("Example qlog".to_string()),
 //! #     Some("Example qlog description".to_string()),
-//! #     None,
 //! #     std::time::Instant::now(),
 //! #     trace,
 //! #     qlog::events::EventImportance::Base,
+//! #     qlog::streamer::EventTimePrecision::NanoSeconds,
 //! #     Box::new(file),
 //! # );
 //! streamer.finish_log().ok();
@@ -412,6 +392,8 @@
 //! [`add_event_data_with_instant()`]: streamer/struct.QlogStreamer.html#method.add_event_data_with_instant
 //! [`add_event_data_now()`]: streamer/struct.QlogStreamer.html#method.add_event_data_now
 //! [`finish_log()`]: streamer/struct.QlogStreamer.html#method.finish_log
+
+use std::time::SystemTime;
 
 use crate::events::quic::PacketHeader;
 use crate::events::Event;
@@ -454,7 +436,21 @@ impl std::convert::From<std::io::Error> for Error {
     }
 }
 
-pub const QLOG_VERSION: &str = "0.3";
+pub const QLOGFILE_URI: &str = "urn:ietf:params:qlog:file:contained";
+pub const QLOGFILESEQ_URI: &str = "urn:ietf:params:qlog:file:sequential";
+
+/// File extension for an uncompressed qlog stream (JSON-SEQ).
+///
+/// Includes the leading dot so it can be concatenated as a suffix
+/// (`format!("{id}{SQLOG_EXT}")`) and matched as a path suffix
+/// (`name.ends_with(SQLOG_EXT)`).
+pub const SQLOG_EXT: &str = ".sqlog";
+
+/// File extension for a gzip-compressed qlog stream.
+pub const SQLOG_GZ_EXT: &str = ".sqlog.gz";
+
+/// File extension for a zstd-compressed qlog stream.
+pub const SQLOG_ZST_EXT: &str = ".sqlog.zst";
 
 pub type Bytes = String;
 pub type StatelessResetToken = Bytes;
@@ -470,22 +466,20 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[serde_with::skip_serializing_none]
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Qlog {
-    pub qlog_version: String,
-    pub qlog_format: String,
+    pub file_schema: String,
+    pub serialization_format: String,
     pub title: Option<String>,
     pub description: Option<String>,
-    pub summary: Option<String>,
 
     pub traces: Vec<Trace>,
 }
 #[serde_with::skip_serializing_none]
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct QlogSeq {
-    pub qlog_version: String,
-    pub qlog_format: String,
+    pub file_schema: String,
+    pub serialization_format: String,
     pub title: Option<String>,
     pub description: Option<String>,
-    pub summary: Option<String>,
 
     pub trace: TraceSeq,
 }
@@ -502,13 +496,11 @@ pub enum ImportanceLogLevel {
 #[serde_with::skip_serializing_none]
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct Trace {
-    pub vantage_point: VantagePoint,
     pub title: Option<String>,
     pub description: Option<String>,
-
-    pub configuration: Option<Configuration>,
-
     pub common_fields: Option<CommonFields>,
+    pub vantage_point: Option<VantagePoint>,
+    pub event_schemas: Vec<String>,
 
     pub events: Vec<Event>,
 }
@@ -517,16 +509,16 @@ pub struct Trace {
 impl Trace {
     /// Creates a new qlog [Trace]
     pub fn new(
-        vantage_point: VantagePoint, title: Option<String>,
-        description: Option<String>, configuration: Option<Configuration>,
-        common_fields: Option<CommonFields>,
+        title: Option<String>, description: Option<String>,
+        common_fields: Option<CommonFields>, vantage_point: Option<VantagePoint>,
+        event_schemas: Vec<String>,
     ) -> Self {
         Trace {
-            vantage_point,
             title,
             description,
-            configuration,
             common_fields,
+            vantage_point,
+            event_schemas,
             events: Vec::new(),
         }
     }
@@ -540,35 +532,33 @@ impl Trace {
 #[serde_with::skip_serializing_none]
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct TraceSeq {
-    pub vantage_point: VantagePoint,
     pub title: Option<String>,
     pub description: Option<String>,
-
-    pub configuration: Option<Configuration>,
-
     pub common_fields: Option<CommonFields>,
+    pub vantage_point: Option<VantagePoint>,
+    pub event_schemas: Vec<String>,
 }
 
 /// Helper functions for using a qlog [TraceSeq].
 impl TraceSeq {
     /// Creates a new qlog [TraceSeq]
     pub fn new(
-        vantage_point: VantagePoint, title: Option<String>,
-        description: Option<String>, configuration: Option<Configuration>,
-        common_fields: Option<CommonFields>,
+        title: Option<String>, description: Option<String>,
+        common_fields: Option<CommonFields>, vantage_point: Option<VantagePoint>,
+        event_schemas: Vec<String>,
     ) -> Self {
         TraceSeq {
-            vantage_point,
             title,
             description,
-            configuration,
             common_fields,
+            vantage_point,
+            event_schemas,
         }
     }
 }
 
 #[serde_with::skip_serializing_none]
-#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug)]
+#[derive(Serialize, Deserialize, Clone, Default, PartialEq, Eq, Debug)]
 pub struct VantagePoint {
     pub name: Option<String>,
 
@@ -578,29 +568,47 @@ pub struct VantagePoint {
     pub flow: Option<VantagePointType>,
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug)]
+#[derive(Serialize, Deserialize, Clone, Default, PartialEq, Eq, Debug)]
 #[serde(rename_all = "snake_case")]
 pub enum VantagePointType {
     Client,
     Server,
     Network,
+    #[default]
     Unknown,
 }
 
-#[serde_with::skip_serializing_none]
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
-pub struct Configuration {
-    pub time_offset: Option<f64>,
-
-    pub original_uris: Option<Vec<String>>,
-    // TODO: additionalUserSpecifiedProperty
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum TimeFormat {
+    #[default]
+    RelativeToEpoch,
+    RelativeToPreviousEvent,
 }
 
-impl Default for Configuration {
-    fn default() -> Self {
-        Configuration {
-            time_offset: Some(0.0),
-            original_uris: None,
+#[serde_with::skip_serializing_none]
+#[derive(Serialize, Deserialize, Clone, Default, PartialEq, Debug)]
+#[serde(rename_all = "snake_case")]
+pub struct ReferenceTime {
+    pub clock_type: String,
+    pub epoch: String,
+    pub wall_clock_time: Option<String>,
+}
+
+impl ReferenceTime {
+    /// Create a new `ReferenceTime` instance that uses a monotonic clock.
+    ///
+    /// If `wall_clock_time` is specified, it will be added as the optional
+    /// `wall_clock_time` field of `ReferenceTime`.
+    pub fn new_monotonic(wall_clock_time: Option<SystemTime>) -> Self {
+        let wall_clock_time =
+            wall_clock_time.map(|t| humantime::format_rfc3339(t).to_string());
+        ReferenceTime {
+            clock_type: "monotonic".to_string(),
+            // per draft-ietf-quic-qlog-main-schema-13 epoch must be "unknown"
+            // for monotonic clocks
+            epoch: "unknown".to_string(),
+            wall_clock_time,
         }
     }
 }
@@ -608,12 +616,12 @@ impl Default for Configuration {
 #[serde_with::skip_serializing_none]
 #[derive(Serialize, Deserialize, Clone, Default, PartialEq, Debug)]
 pub struct CommonFields {
+    pub tuple: Option<String>,
     pub group_id: Option<String>,
-    pub protocol_type: Option<Vec<String>>,
+    pub protocol_types: Option<Vec<String>>,
 
-    pub reference_time: Option<f64>,
-    pub time_format: Option<String>,
-    // TODO: additionalUserSpecifiedProperty
+    pub reference_time: ReferenceTime,
+    pub time_format: Option<TimeFormat>,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug)]
@@ -666,3 +674,33 @@ pub mod reader;
 pub mod streamer;
 #[doc(hidden)]
 pub mod testing;
+pub mod writer;
+
+#[cfg(test)]
+mod tests {
+    use std::time::Duration;
+    use std::time::UNIX_EPOCH;
+
+    use super::ReferenceTime;
+
+    #[test]
+    fn reference_time_new_monotonic_serialization() {
+        // 2024-01-15T10:30:00Z = 1705314600 seconds after UNIX epoch
+        let t = UNIX_EPOCH + Duration::from_secs(1_705_314_600);
+        let rt = ReferenceTime::new_monotonic(Some(t));
+        let map: serde_json::Map<String, serde_json::Value> =
+            serde_json::from_str(&serde_json::to_string(&rt).unwrap()).unwrap();
+
+        assert_eq!(map["clock_type"], "monotonic");
+        assert_eq!(map["epoch"], "unknown");
+        assert_eq!(map["wall_clock_time"], "2024-01-15T10:30:00Z");
+
+        let rt = ReferenceTime::new_monotonic(None);
+        let map: serde_json::Map<String, serde_json::Value> =
+            serde_json::from_str(&serde_json::to_string(&rt).unwrap()).unwrap();
+
+        assert_eq!(map["clock_type"], "monotonic");
+        assert_eq!(map["epoch"], "unknown");
+        assert!(!map.contains_key("wall_clock_time"));
+    }
+}

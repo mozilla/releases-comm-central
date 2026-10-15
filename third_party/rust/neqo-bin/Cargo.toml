@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-bin"
-version = "0.32.0"
+version = "0.33.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = "build.rs"
 autolib = false
@@ -151,7 +151,7 @@ git = "https://github.com/mozilla/nss-rs"
 package = "test-fixture"
 
 [dependencies.qlog]
-version = "0.16.0"
+version = "0.18.1"
 default-features = false
 
 [dependencies.quinn-udp]

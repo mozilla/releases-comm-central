@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "neqo-transport"
-version = "0.32.0"
+version = "0.33.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = false
 autolib = false
@@ -246,7 +246,7 @@ git = "https://github.com/mozilla/nss-rs"
 package = "nss-rs"
 
 [dependencies.qlog]
-version = "0.16.0"
+version = "0.18.1"
 default-features = false
 
 [dependencies.rustc-hash]
