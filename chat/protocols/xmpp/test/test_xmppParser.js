@@ -130,6 +130,18 @@ id="a&quot;/&gt;&lt;message to=&quot;x@y&quot;&gt;&lt;body&gt;&amp;&lt;/body&gt;
     description: "Escaped attribute values stay escaped when re-serialized",
   },
   {
+    input:
+      '<message xmlns="jabber:client" type="chat" type="error">\
+<body>Hello</body>\
+</message>',
+    output:
+      '<message xmlns="jabber:client" type="chat">\
+<body xmlns="jabber:client">Hello</body>\
+</message>',
+    isError: false,
+    description: "Duplicate attribute keeps the first value",
+  },
+  {
     input: utf8Input,
     output: expectedResult,
     isError: false,
@@ -154,6 +166,33 @@ add_task(function testXMPPParser() {
     parser.onDataAvailable(current.input);
     parser.destroy();
   }
+});
+
+add_task(function testXMPPParser_manyAttributes() {
+  const count = 100000;
+  const attributes = Array.from({ length: count }, (_, i) => ` a${i}="v"`);
+  let stanza;
+  const listener = {
+    onXMLError(error) {
+      ok(false, `${error} in many attributes test`);
+    },
+    LOG() {},
+    startLegacyAuth() {},
+    onXmppStanza(aStanza) {
+      stanza = aStanza;
+    },
+  };
+  const parser = new XMPPParser(listener);
+  parser.onDataAvailable(
+    `<message xmlns="jabber:client"${attributes.join("")}/>`
+  );
+  parser.destroy();
+  ok(stanza, "Stanza with many attributes should be parsed");
+  equal(
+    Object.keys(stanza.attributes).length,
+    count,
+    "All attributes should be parsed"
+  );
 });
 
 add_task(async function testXMPPParser_async() {

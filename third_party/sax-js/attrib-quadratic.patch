@@ -1,0 +1,52 @@
+Make duplicate attribute check O(1), detect duplicates in xmlns mode.
+Upstream: https://github.com/isaacs/sax-js/pull/296
+
+diff --git a/sax.js b/sax.js
+--- a/sax.js
++++ b/sax.js
+@@ -63,6 +63,7 @@
+     parser.strictEntities = parser.opt.strictEntities
+     parser.ENTITIES = parser.strictEntities ? Object.create(sax.XML_ENTITIES) : Object.create(sax.ENTITIES)
+     parser.attribList = []
++    parser.attribNames = Object.create(null)
+ 
+     // namespaces form a prototype chain.
+     // it always points at the current tag,
+@@ -688,6 +689,7 @@
+       tag.ns = parent.ns
+     }
+     parser.attribList.length = 0
++    parser.attribNames = Object.create(null)
+     emitNode(parser, 'onopentagstart', tag)
+   }
+ 
+@@ -711,11 +713,11 @@
+       parser.attribName = parser.attribName[parser.looseCase]()
+     }
+ 
+-    if (parser.attribList.indexOf(parser.attribName) !== -1 ||
+-      parser.tag.attributes.hasOwnProperty(parser.attribName)) {
++    if (parser.attribNames[parser.attribName]) {
+       parser.attribName = parser.attribValue = ''
+       return
+     }
++    parser.attribNames[parser.attribName] = true
+ 
+     if (parser.opt.xmlns) {
+       var qn = qname(parser.attribName, true)
+@@ -835,6 +837,7 @@
+     }
+     parser.attribName = parser.attribValue = ''
+     parser.attribList.length = 0
++    parser.attribNames = Object.create(null)
+   }
+ 
+   function closeTag (parser) {
+@@ -905,6 +908,7 @@
+     if (t === 0) parser.closedRoot = true
+     parser.tagName = parser.attribValue = parser.attribName = ''
+     parser.attribList.length = 0
++    parser.attribNames = Object.create(null)
+     parser.state = S.TEXT
+   }
+ 
