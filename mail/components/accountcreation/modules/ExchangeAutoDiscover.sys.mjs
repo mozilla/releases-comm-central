@@ -207,6 +207,8 @@ async function fetchFromPotentiallyUnsafeAddress(
  *   Function(domain) that will be called to confirm redirection to another
  *   domain. It is expected to return a promise that resolves if the request
  *   should continue, and rejects if the redirect shouldn't be followed.
+ * @param {number} [redirectCount=0] - Internal parameter counting the
+ *   redirects to other email addresses so far.
  * @returns {AccountConfig}
  */
 export async function fetchConfigFromExchange(
@@ -215,7 +217,8 @@ export async function fetchConfigFromExchange(
   abortSignal,
   username,
   password,
-  confirmCallback
+  confirmCallback,
+  redirectCount = 0
 ) {
   if (
     !Services.prefs.getBoolPref(
@@ -353,65 +356,45 @@ export async function fetchConfigFromExchange(
     ],
     priorityAbortController
   );
-  const config = await readAutoDiscoverResponse(
-    xml,
-    emailAddress,
-    username,
-    password,
-    confirmCallback,
-    abortSignal
-  );
+
+  // Redirect to another email address.
+  const redirectAddr = xml?.Autodiscover?.Response?.Account?.RedirectAddr;
+  if (redirectAddr) {
+    // <https://docs.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxdscli/49083e77-8dc2-4010-85c6-f40e090f3b17>
+    const redirectEmailAddress = lazy.InputSanitizer.emailAddress(redirectAddr);
+    const redirectDomain = redirectEmailAddress.split("@").pop();
+    if (redirectCount >= 2) {
+      throw new Error(
+        "Too many redirects in XML response; domain=" + redirectDomain
+      );
+    }
+    return fetchConfigFromExchange(
+      redirectDomain,
+      redirectEmailAddress,
+      abortSignal,
+      // Per spec, need to authenticate with the original email address,
+      // not the redirected address (if not already overridden).
+      username || emailAddress,
+      password,
+      // Share the one confirmation the user can be asked for.
+      confirmOnce,
+      redirectCount + 1
+    );
+  }
+
+  const config = readAutoDiscoverResponse(xml, username);
   const names = ["url1", "url2", "url3", "srv"];
   config.subSource = `exchange-from-${names[index]}`;
   return detectStandardProtocols(config, domain, abortSignal);
 }
 
-var gLoopCounter = 0;
-
 /**
  * @param {object} autoDiscoverXML - The Exchange server AutoDiscover response, as JXON.
- * @param {string} emailAddress - Email address.
- * @param {string} username - Username.
- * @param {string} password - Password.
- * @param {function(string):Promise} confirmCallback - A callback
- *   Function(domain) that will be called to confirm redirection to another
- *   domain. It is expected to return a promise that resolves if the request
- *   should continue, and rejects if the redirect shouldn't be followed.
- * @param {AbortSignal} abortSignal - The abort signal that can cancel this
- *   operation.
+ * @param {?string} username - (Optional) The user's login name.
  * @returns {AccountConfig}
  * @throws {Error} Throws if no complete config can be found.
  */
-async function readAutoDiscoverResponse(
-  autoDiscoverXML,
-  emailAddress,
-  username,
-  password,
-  confirmCallback,
-  abortSignal
-) {
-  // redirect to other email address
-  if (autoDiscoverXML?.Autodiscover?.Response?.Account?.RedirectAddr) {
-    // <https://docs.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxdscli/49083e77-8dc2-4010-85c6-f40e090f3b17>
-    const redirectEmailAddress = lazy.InputSanitizer.emailAddress(
-      autoDiscoverXML.Autodiscover.Response.Account.RedirectAddr
-    );
-    const domain = redirectEmailAddress.split("@").pop();
-    if (++gLoopCounter > 2) {
-      throw new Error("Too many redirects in XML response; domain=" + domain);
-    }
-    return fetchConfigFromExchange(
-      domain,
-      redirectEmailAddress,
-      // Per spec, need to authenticate with the original email address,
-      // not the redirected address (if not already overridden).
-      username || emailAddress,
-      password,
-      confirmCallback,
-      abortSignal
-    );
-  }
-
+function readAutoDiscoverResponse(autoDiscoverXML, username) {
   try {
     const config = readAutoDiscoverXML(autoDiscoverXML, username);
     if (config.isComplete()) {
