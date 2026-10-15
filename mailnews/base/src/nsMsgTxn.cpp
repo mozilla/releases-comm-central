@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgTxn.h"
-#include "nsIMessenger.h"  // For nsIMessenger::eUnknown et al.
+#include "nsIMsgTransactionService.h"  // For eUnknown et al.
 #include "nsIMsgHdr.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgFolder.h"
@@ -11,7 +11,7 @@
 
 NS_IMPL_ISUPPORTS(nsMsgTxn, nsIMsgTxn, nsITransaction)
 
-nsMsgTxn::nsMsgTxn() : m_txnType(nsIMessenger::eUnknown) {}
+nsMsgTxn::nsMsgTxn() : m_txnType(nsIMsgTransactionService::eUnknown) {}
 
 nsMsgTxn::~nsMsgTxn() {}
 
@@ -35,25 +35,15 @@ NS_IMETHODIMP nsMsgTxn::Merge(nsITransaction* aTransaction, bool* aDidMerge) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgTxn::GetMsgWindow(nsIMsgWindow** msgWindow) {
-  if (!msgWindow || !m_msgWindow) return NS_ERROR_NULL_POINTER;
-  NS_ADDREF(*msgWindow = m_msgWindow);
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgTxn::GetTxnType(uint32_t* txnType) {
   MOZ_ASSERT(txnType);
   *txnType = m_txnType;
   return NS_OK;
 }
 
-nsresult nsMsgTxn::SetMsgWindow(nsIMsgWindow* msgWindow) {
-  m_msgWindow = msgWindow;
-  return NS_OK;
-}
-
 nsresult nsMsgTxn::SetTransactionType(uint32_t txnType) {
-  MOZ_ASSERT(m_txnType == nsIMessenger::eUnknown);  // Initialisation only.
+  // Initialisation only.
+  MOZ_ASSERT(m_txnType == nsIMsgTransactionService::eUnknown);
   m_txnType = txnType;
   return NS_OK;
 }

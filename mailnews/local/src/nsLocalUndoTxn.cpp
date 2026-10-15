@@ -102,7 +102,7 @@ nsresult nsLocalMoveCopyMsgTxn::UndoImapDeleteFlag(nsIMsgFolder* folder,
     else
       rv = imapService->SubtractMessageFlags(folder, urlListener, msgIds,
                                              kImapMsgDeletedFlag, true);
-    if (NS_SUCCEEDED(rv) && m_msgWindow) folder->UpdateFolder(m_msgWindow);
+    if (NS_SUCCEEDED(rv)) folder->UpdateFolder(nullptr);
     rv = NS_OK;  // always return NS_OK to indicate that the src is imap
   } else
     rv = NS_ERROR_FAILURE;

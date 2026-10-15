@@ -5,7 +5,16 @@
 #include "nsISupports.idl"
 interface nsITransactionManager;
 
-[scriptable, uuid(92150fe9-3933-483c-bb38-e94e5e529cb3)]
+[scriptable, uuid(5c0b4a0e-6f8d-4c38-9b0a-2d6e3f1f7a41)]
 interface nsIMsgTransactionService : nsISupports {
+  /**
+   * Transaction types, see nsIMsgTxn.txnType.
+   */
+  const long eUnknown = 0;
+  const long eDeleteMsg = 1;
+  const long eMoveMsg = 2;
+  const long eCopyMsg = 3;
+  const long eMarkAllMsg = 4;
+
   attribute nsITransactionManager transactionManager;
 };

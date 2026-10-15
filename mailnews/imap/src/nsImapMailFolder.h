@@ -22,6 +22,7 @@
 #include "prmon.h"
 #include "nsIMsgImapMailFolder.h"
 #include "nsIMsgFilterPlugin.h"
+#include "nsIMsgWindow.h"
 #include "nsTHashMap.h"
 #include "nsITimer.h"
 #include "nsAutoSyncState.h"

@@ -6,8 +6,6 @@
 #define COMM_MAILNEWS_BASE_SRC_NSMESSENGER_H_
 
 #include "nsIMessenger.h"
-#include "nsCOMPtr.h"
-#include "nsITransactionManager.h"
 #include "nsWeakReference.h"
 
 class nsMessenger : public nsIMessenger, public nsSupportsWeakReference {
@@ -19,9 +17,6 @@ class nsMessenger : public nsIMessenger, public nsSupportsWeakReference {
 
  protected:
   virtual ~nsMessenger();
-
- private:
-  nsCOMPtr<nsITransactionManager> mTxnMgr;
 };
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMESSENGER_H_

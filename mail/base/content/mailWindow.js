@@ -182,7 +182,6 @@ function CreateMailWindowGlobals() {
   // get the messenger instance
 
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-  messenger.setWindow(window, msgWindow);
 
   window.addEventListener("blur", appIdleManager.onBlur);
   window.addEventListener("focus", appIdleManager.onFocus);

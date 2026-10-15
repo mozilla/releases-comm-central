@@ -20,7 +20,6 @@
 #include "MsgOperationListener.h"
 #include "nsAutoSyncState.h"
 #include "nsIInputStream.h"
-#include "nsIMessenger.h"
 #include "mozilla/intl/Localization.h"
 #include "nsIMsgCopyService.h"
 #include "nsIMsgDBView.h"
@@ -700,8 +699,8 @@ NS_IMETHODIMP ExchangeFolder::CopyMessages(
     nsCOMPtr<IExchangeFolder> exchangeSourceFolder{
         do_QueryInterface(aSrcFolder, &rv)};
     NS_ENSURE_SUCCESS(rv, rv);
-    const auto undoType =
-        aIsMove ? nsIMessenger::eMoveMsg : nsIMessenger::eCopyMsg;
+    const auto undoType = aIsMove ? nsIMsgTransactionService::eMoveMsg
+                                  : nsIMsgTransactionService::eCopyMsg;
     rv = CopyItemsOnSameServer(exchangeSourceFolder, aSrcHdrs, aIsMove,
                                aMsgWindow, aCopyListener, aAllowUndo, undoType,
                                nullptr);
@@ -1186,7 +1185,7 @@ NS_IMETHODIMP ExchangeFolder::DeleteMessages(
        copyListener = RefPtr(aCopyListener)](IExchangeFolder* trashFolder) {
         return trashFolder->CopyItemsOnSameServer(
             self, headers, true, window, copyListener, true,
-            nsIMessenger::eDeleteMsg, nullptr);
+            nsIMsgTransactionService::eDeleteMsg, nullptr);
       };
 
   return HandleDeleteOperation(aDeleteStorage, std::move(onHardDelete),

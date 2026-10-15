@@ -126,10 +126,10 @@ var DefaultController = {
         document.getElementById("tabmail").undoCloseTab();
         break;
       case "cmd_undo":
-        messenger.undo(msgWindow);
+        MailServices.txns.transactionManager.undoTransaction();
         break;
       case "cmd_redo":
-        messenger.redo(msgWindow);
+        MailServices.txns.transactionManager.redoTransaction();
         break;
       case "cmd_sendUnsentMsgs":
         // if offline, prompt for sendUnsentMessages

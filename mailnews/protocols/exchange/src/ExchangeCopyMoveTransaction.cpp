@@ -4,7 +4,7 @@
 
 #include "ExchangeCopyMoveTransaction.h"
 
-#include "nsIMessenger.h"
+#include "nsIMsgTransactionService.h"
 #include "nsIMsgFolder.h"
 
 namespace {
@@ -112,7 +112,7 @@ nsresult ExchangeCopyMoveTransaction::PerformOperation(
   // another argument to disallow undo for this operation.
   nsresult rv = toFolder->CopyItemsOnSameServer(
       fromFolder, transactionHeaders, mIsMove, mWindow, nullptr, false,
-      nsIMessenger::eUnknown, listener);
+      nsIMsgTransactionService::eUnknown, listener);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return NS_OK;

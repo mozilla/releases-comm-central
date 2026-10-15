@@ -28,7 +28,7 @@
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgFilterPlugin.h"  // For nsIJunkMailPlugin::IS_SPAM_SCORE.
 #include "nsLocalUndoTxn.h"
-#include "nsIMessenger.h"
+#include "nsIMsgTransactionService.h"
 #include "nsThreadUtils.h"
 #include "mozilla/Components.h"
 #include "mozilla/Logging.h"
@@ -1086,9 +1086,9 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove,
   NS_ENSURE_TRUE(msgTxn, NS_ERROR_OUT_OF_MEMORY);
   if (NS_SUCCEEDED(msgTxn->Init(srcFolder, aDstFolder, aIsMove))) {
     if (aIsMove)
-      msgTxn->SetTransactionType(nsIMessenger::eMoveMsg);
+      msgTxn->SetTransactionType(nsIMsgTransactionService::eMoveMsg);
     else
-      msgTxn->SetTransactionType(nsIMessenger::eCopyMsg);
+      msgTxn->SetTransactionType(nsIMsgTransactionService::eCopyMsg);
   }
 
   aDstHdrs.Clear();

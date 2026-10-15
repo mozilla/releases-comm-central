@@ -177,7 +177,6 @@ FolderDisplayWidget.prototype = {
    */
   close() {
     this.view.close();
-    this.messenger.setWindow(null, null);
     this.messenger = null;
   },
 

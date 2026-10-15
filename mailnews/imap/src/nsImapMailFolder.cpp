@@ -45,7 +45,6 @@
 #include "nsIDocShell.h"
 #include "nsIImapFlagAndUidState.h"
 #include "nsIImapHeaderXferInfo.h"
-#include "nsIMessenger.h"
 #include "nsIMsgSearchAdapter.h"
 #include "nsIImapMockChannel.h"
 #include "nsIProgressEventSink.h"
@@ -2141,7 +2140,7 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
                                      nullptr, true, isMove)))
         return NS_ERROR_OUT_OF_MEMORY;
 
-      undoMsgTxn->SetTransactionType(nsIMessenger::eDeleteMsg);
+      undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eDeleteMsg);
       nsCOMPtr<nsIMsgTransactionService> txns =
           mozilla::components::Txns::Service();
       NS_ENSURE_STATE(txns);
@@ -6574,11 +6573,11 @@ nsresult nsImapMailFolder::CopyMessagesWithStream(
 
     if (isMove) {
       if (mFlags & nsMsgFolderFlags::Trash)
-        undoMsgTxn->SetTransactionType(nsIMessenger::eDeleteMsg);
+        undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eDeleteMsg);
       else
-        undoMsgTxn->SetTransactionType(nsIMessenger::eMoveMsg);
+        undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eMoveMsg);
     } else
-      undoMsgTxn->SetTransactionType(nsIMessenger::eCopyMsg);
+      undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eCopyMsg);
     m_copyState->m_undoMsgTxn = undoMsgTxn;
   }
   if (NS_SUCCEEDED(rv)) CopyStreamMessage(messages[0], this, msgWindow, isMove);
@@ -6911,7 +6910,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
                                isMove, moveCopyOpType, srcMsgs);
       if (undoMsgTxn) {
         if (isMove) {
-          undoMsgTxn->SetTransactionType(nsIMessenger::eMoveMsg);
+          undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eMoveMsg);
           nsCOMPtr<nsIMsgImapMailFolder> srcIsImap(
               do_QueryInterface(srcFolder));
           // remember this undo transaction so we can hook up the result
@@ -6922,7 +6921,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
             srcImapFolder->m_pendingOfflineMoves.AppendElement(undoMsgTxn);
           }
         } else {
-          undoMsgTxn->SetTransactionType(nsIMessenger::eCopyMsg);
+          undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eCopyMsg);
         }
         // we're adding this undo action before the delete is successful. This
         // is evil, but 4.5 did it as well.
@@ -6934,12 +6933,13 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
       if (undoMsgTxn) {
         if (isMove) {
           if (mFlags & nsMsgFolderFlags::Trash) {
-            undoMsgTxn->SetTransactionType(nsIMessenger::eDeleteMsg);
+            undoMsgTxn->SetTransactionType(
+                nsIMsgTransactionService::eDeleteMsg);
           } else {
-            undoMsgTxn->SetTransactionType(nsIMessenger::eMoveMsg);
+            undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eMoveMsg);
           }
         } else {
-          undoMsgTxn->SetTransactionType(nsIMessenger::eCopyMsg);
+          undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eCopyMsg);
         }
         if (txnMgr) txnMgr->DoTransaction(undoMsgTxn);
       }
@@ -7230,11 +7230,11 @@ nsImapMailFolder::CopyMessages(
 
       if (isMove) {
         if (mFlags & nsMsgFolderFlags::Trash)
-          undoMsgTxn->SetTransactionType(nsIMessenger::eDeleteMsg);
+          undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eDeleteMsg);
         else
-          undoMsgTxn->SetTransactionType(nsIMessenger::eMoveMsg);
+          undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eMoveMsg);
       } else
-        undoMsgTxn->SetTransactionType(nsIMessenger::eCopyMsg);
+        undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eCopyMsg);
       m_copyState->m_undoMsgTxn = undoMsgTxn;
     }
 

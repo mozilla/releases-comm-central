@@ -39,7 +39,6 @@
 #include "nsIMimeHeaders.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsIMsgTraitService.h"
-#include "nsIMessenger.h"
 #include "nsThreadUtils.h"
 #include "nsITransactionManager.h"
 #include "nsIMsgTransactionService.h"
@@ -1287,7 +1286,7 @@ nsresult nsMsgDBFolder::AddMarkAllReadUndoAction(nsIMsgWindow* msgWindow,
   nsresult rv = readStateTxn->Init(this, numMarked, thoseMarked);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = readStateTxn->SetTransactionType(nsIMessenger::eMarkAllMsg);
+  rv = readStateTxn->SetTransactionType(nsIMsgTransactionService::eMarkAllMsg);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = txnMgr->DoTransaction(readStateTxn);

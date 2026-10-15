@@ -8,7 +8,6 @@
 #include "nsIMsgTxn.h"
 #include "msgCore.h"
 #include "nsCOMPtr.h"
-#include "nsIMsgWindow.h"
 #include "MailNewsTypes2.h"
 
 #include "mozilla/EditTransactionBase.h"
@@ -24,8 +23,8 @@ using mozilla::EditTransactionBase;
 /**
  * Base class to support undo/redo for moving/copying/deleting/marking
  * messages.
- * Just a thin layer on top of nsITransaction which adds fields for runtime
- * type and for msgWindow. The UI needs the transaction type to describe the
+ * Just a thin layer on top of nsITransaction which adds a field for runtime
+ * type. The UI needs the transaction type to describe the
  * undo/redo action in the GUI (eg "Undo deletion"), but there's no provision
  * for this in the base nsITransaction interface.
  */
@@ -33,8 +32,7 @@ class nsMsgTxn : public nsIMsgTxn {
  public:
   nsMsgTxn();
 
-  // These should only be called once, to set up the object initially.
-  nsresult SetMsgWindow(nsIMsgWindow* msgWindow);
+  // This should only be called once, to set up the object initially.
   nsresult SetTransactionType(uint32_t txnType);
 
   NS_DECL_ISUPPORTS
@@ -44,7 +42,6 @@ class nsMsgTxn : public nsIMsgTxn {
  protected:
   virtual ~nsMsgTxn();
 
-  nsCOMPtr<nsIMsgWindow> m_msgWindow;
   uint32_t m_txnType;
 
   // Helper function which returns true if the specified message has the

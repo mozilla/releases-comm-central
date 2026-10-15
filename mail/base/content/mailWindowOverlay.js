@@ -1579,47 +1579,27 @@ function CommandUpdate_UndoRedo() {
  * @param {string} command - A command, usually "cmd_<something>".
  */
 function SetupUndoRedoCommand(command) {
-  let mainWindow;
-  const tabmail = document.getElementById("tabmail");
-  if (tabmail) {
-    mainWindow = window;
-  } else {
-    mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
-    // There may not be a "main" window if an .eml file was double-clicked.
-    if (!mainWindow) {
-      return false;
-    }
-  }
-
-  let canUndoOrRedo = false;
-  let txnType;
-  try {
-    if (command == "cmd_undo") {
-      canUndoOrRedo = mainWindow.messenger.canUndo();
-      txnType = mainWindow.messenger.getUndoTransactionType();
-    } else {
-      canUndoOrRedo = mainWindow.messenger.canRedo();
-      txnType = mainWindow.messenger.getRedoTransactionType();
-    }
-  } catch (ex) {
-    // If this fails, assume we can't undo or redo.
-    console.error(ex);
-  }
-
-  if (canUndoOrRedo) {
-    const commands = {
-      [Ci.nsIMessenger.eUnknown]: "valueDefault",
-      [Ci.nsIMessenger.eDeleteMsg]: "valueDeleteMsg",
-      [Ci.nsIMessenger.eMoveMsg]: "valueMoveMsg",
-      [Ci.nsIMessenger.eCopyMsg]: "valueCopyMsg",
-      [Ci.nsIMessenger.eMarkAllMsg]: "valueUnmarkAllMsgs",
-    };
-    goSetMenuValue(command, commands[txnType]);
-  } else {
+  const txnMgr = MailServices.txns.transactionManager;
+  const txn =
+    command == "cmd_undo" ? txnMgr.peekUndoStack() : txnMgr.peekRedoStack();
+  if (!txn) {
     goSetMenuValue(command, "valueDefault");
+    return false;
   }
 
-  return canUndoOrRedo;
+  const txnType =
+    txn instanceof Ci.nsIMsgTxn
+      ? txn.txnType
+      : Ci.nsIMsgTransactionService.eUnknown;
+  const commands = {
+    [Ci.nsIMsgTransactionService.eUnknown]: "valueDefault",
+    [Ci.nsIMsgTransactionService.eDeleteMsg]: "valueDeleteMsg",
+    [Ci.nsIMsgTransactionService.eMoveMsg]: "valueMoveMsg",
+    [Ci.nsIMsgTransactionService.eCopyMsg]: "valueCopyMsg",
+    [Ci.nsIMsgTransactionService.eMarkAllMsg]: "valueUnmarkAllMsgs",
+  };
+  goSetMenuValue(command, commands[txnType]);
+  return true;
 }
 
 /**

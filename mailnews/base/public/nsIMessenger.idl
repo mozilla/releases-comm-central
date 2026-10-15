@@ -3,34 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-#include "nsrootidl.idl"
-#include "nsIMsgWindow.idl"
-
-interface mozIDOMWindowProxy;
-interface nsITransactionManager;
-interface nsIMsgMessageService;
-interface nsIFile;
-interface nsIUrlListener;
 
 [scriptable, uuid(01b967c8-b289-4e32-ad46-6eb7c89d4106)]
 interface nsIMessenger : nsISupports {
-
-    const long eUnknown = 0;
-    const long eDeleteMsg = 1;
-    const long eMoveMsg = 2;
-    const long eCopyMsg = 3;
-    const long eMarkAllMsg = 4;
-
-    readonly attribute nsITransactionManager transactionManager;
-
-    void setWindow(in mozIDOMWindowProxy ptr, in nsIMsgWindow msgWindow);
-
-    boolean canUndo();
-    boolean canRedo();
-    unsigned long getUndoTransactionType();
-    unsigned long getRedoTransactionType();
-    void undo(in nsIMsgWindow msgWindow);
-    void redo(in nsIMsgWindow msgWindow);
-
     AString formatFileSize(in unsigned long long aPos, [optional] in boolean aUseKB);
 };

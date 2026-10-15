@@ -39,7 +39,6 @@
 #include "nsString.h"
 #include "nsIMsgFolderCacheElement.h"
 #include "nsIMsgCopyService.h"
-#include "nsIMessenger.h"
 #include "nsIDocShell.h"
 #include "nsIPrompt.h"
 #include "nsIMsgMailSession.h"
@@ -1566,14 +1565,13 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
   {
     RefPtr<nsLocalMoveCopyMsgTxn> msgTxn = new nsLocalMoveCopyMsgTxn;
     if (msgTxn && NS_SUCCEEDED(msgTxn->Init(srcFolder, this, isMove))) {
-      msgTxn->SetMsgWindow(msgWindow);
       if (isMove) {
         if (mFlags & nsMsgFolderFlags::Trash)
-          msgTxn->SetTransactionType(nsIMessenger::eDeleteMsg);
+          msgTxn->SetTransactionType(nsIMsgTransactionService::eDeleteMsg);
         else
-          msgTxn->SetTransactionType(nsIMessenger::eMoveMsg);
+          msgTxn->SetTransactionType(nsIMsgTransactionService::eMoveMsg);
       } else
-        msgTxn->SetTransactionType(nsIMessenger::eCopyMsg);
+        msgTxn->SetTransactionType(nsIMsgTransactionService::eCopyMsg);
       msgTxn.swap(mCopyState->m_undoMsgTxn);
     }
   }
@@ -2611,11 +2609,9 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key) {
   NS_ENSURE_ARG_POINTER(mCopyState);
 
   RefPtr<nsLocalMoveCopyMsgTxn> localUndoTxn = mCopyState->m_undoMsgTxn;
-  nsCOMPtr<nsIMsgWindow> msgWindow;
   nsresult rv;
 
   if (localUndoTxn) {
-    localUndoTxn->GetMsgWindow(getter_AddRefs(msgWindow));
     localUndoTxn->AddSrcKey(key);
     localUndoTxn->AddDstKey(mCopyState->m_curDstKey);
   }

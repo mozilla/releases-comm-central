@@ -100,7 +100,7 @@ add_task(async function test_undo_move() {
   Assert.ok(!!currentUndoItem, "Should have a transaction on the undo stack.");
   Assert.equal(
     currentUndoItem.QueryInterface(Ci.nsIMsgTxn).txnType,
-    Ci.nsIMessenger.eMoveMsg
+    Ci.nsIMsgTransactionService.eMoveMsg
   );
 
   MailServices.txns.transactionManager.undoTransaction();
@@ -117,7 +117,7 @@ add_task(async function test_undo_move() {
   Assert.ok(!!currentRedoItem, "Should have a transaction on the redo stack.");
   Assert.equal(
     currentRedoItem.QueryInterface(Ci.nsIMsgTxn).txnType,
-    Ci.nsIMessenger.eMoveMsg
+    Ci.nsIMsgTransactionService.eMoveMsg
   );
 
   MailServices.txns.transactionManager.redoTransaction();
@@ -158,7 +158,7 @@ add_task(async function test_undo_copy() {
   Assert.ok(!!currentUndoItem, "Should have a transaction on the undo stack.");
   Assert.equal(
     currentUndoItem.QueryInterface(Ci.nsIMsgTxn).txnType,
-    Ci.nsIMessenger.eCopyMsg
+    Ci.nsIMsgTransactionService.eCopyMsg
   );
 
   MailServices.txns.transactionManager.undoTransaction();
@@ -175,7 +175,7 @@ add_task(async function test_undo_copy() {
   Assert.ok(!!currentRedoItem, "Should have a transaction on the redo stack.");
   Assert.equal(
     currentRedoItem.QueryInterface(Ci.nsIMsgTxn).txnType,
-    Ci.nsIMessenger.eCopyMsg
+    Ci.nsIMsgTransactionService.eCopyMsg
   );
 
   MailServices.txns.transactionManager.redoTransaction();
@@ -233,7 +233,7 @@ add_task(async function test_undo_delete() {
   Assert.ok(!!undoTransaction, "Should have an undo transaction.");
   Assert.equal(
     undoTransaction.QueryInterface(Ci.nsIMsgTxn).txnType,
-    Ci.nsIMessenger.eDeleteMsg
+    Ci.nsIMsgTransactionService.eDeleteMsg
   );
 
   MailServices.txns.transactionManager.undoTransaction();
@@ -250,7 +250,7 @@ add_task(async function test_undo_delete() {
   Assert.ok(!!redoTransaction, "Should have a redo transaction.");
   Assert.equal(
     redoTransaction.QueryInterface(Ci.nsIMsgTxn).txnType,
-    Ci.nsIMessenger.eDeleteMsg
+    Ci.nsIMsgTransactionService.eDeleteMsg
   );
 
   MailServices.txns.transactionManager.redoTransaction();
