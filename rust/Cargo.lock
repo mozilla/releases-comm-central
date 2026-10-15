@@ -1849,6 +1849,7 @@ version = "0.1.0"
 dependencies = [
  "env_logger",
  "error-support-macros",
+ "glean-build",
  "lazy_static",
  "log",
  "parking_lot",
@@ -2913,6 +2914,14 @@ dependencies = [
  "once_cell",
  "whatsys",
  "wr_malloc_size_of",
+]
+
+[[package]]
+name = "glean-build"
+version = "20.1.0"
+source = "git+https://github.com/mozilla/glean?tag=v70.2.0#9d987fd33e1dc3f2a89e5f5c4565ae696245f6eb"
+dependencies = [
+ "xshell-venv",
 ]
 
 [[package]]
@@ -8307,6 +8316,30 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "xshell"
+version = "0.2.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e7290c623014758632efe00737145b6867b66292c42167f2ec381eb566a373d"
+dependencies = [
+ "xshell-macros",
+]
+
+[[package]]
+name = "xshell-macros"
+version = "0.2.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "32ac00cd3f8ec9c1d33fb3e7958a82df6989c42d747bd326c822b1d625283547"
+
+[[package]]
+name = "xshell-venv"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b02ebe4a3558b86c64aeab700c924b08613020fca9c94d5f2cd412691b6c00bd"
+dependencies = [
+ "xshell",
 ]
 
 [[package]]
