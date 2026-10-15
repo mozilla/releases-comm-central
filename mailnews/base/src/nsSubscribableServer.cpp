@@ -6,25 +6,23 @@
 #include "nsIMsgIncomingServer.h"
 #include "nsMsgI18N.h"
 #include "nsMsgUtils.h"
+#include "nsTHashMap.h"
 
 /**
  * The basic structure for the tree of the implementation.
  *
- * These elements are stored in reverse alphabetical order.
+ * Children are stored in insertion order, and indexed by name for lookups.
  * Each node owns its children and subsequent siblings.
  */
 struct SubscribeTreeNode {
   nsCString name;
   nsCString path;
   bool isSubscribed;
-  SubscribeTreeNode* prevSibling;
   SubscribeTreeNode* nextSibling;
   SubscribeTreeNode* firstChild;
   SubscribeTreeNode* lastChild;
   SubscribeTreeNode* parent;
-  // Stores the child considered most likely to be next searched for - usually
-  // the most recently-added child. If names match the search can early-out.
-  SubscribeTreeNode* cachedChild;
+  nsTHashMap<nsCStringHashKey, SubscribeTreeNode*> childrenByName;
   bool isSubscribable;
 };
 
@@ -215,20 +213,20 @@ void nsSubscribableServer::FreeSubtree(SubscribeTreeNode* node) {
   // NOTE: this doesn't cleanly detach each node, but that's not an issue
   // here. This is a nuking, not a surgical removal.
 
-  // recursively free the children
-  if (node->firstChild) {
-    // will free node->firstChild
-    FreeSubtree(node->firstChild);
-    node->firstChild = nullptr;
+  // Iterative, since a server can return a huge number of siblings and
+  // recursing along them would exhaust the stack.
+  AutoTArray<SubscribeTreeNode*, 32> pending;
+  pending.AppendElement(node);
+  while (!pending.IsEmpty()) {
+    SubscribeTreeNode* current = pending.PopLastElement();
+    if (current->firstChild) {
+      pending.AppendElement(current->firstChild);
+    }
+    if (current->nextSibling) {
+      pending.AppendElement(current->nextSibling);
+    }
+    delete current;
   }
-
-  // recursively free the siblings
-  if (node->nextSibling) {
-    FreeSubtree(node->nextSibling);
-    node->nextSibling = nullptr;
-  }
-
-  delete node;
 }
 
 SubscribeTreeNode* nsSubscribableServer::CreateNode(SubscribeTreeNode* parent,
@@ -239,16 +237,11 @@ SubscribeTreeNode* nsSubscribableServer::CreateNode(SubscribeTreeNode* parent,
   node->name.Assign(name);
   node->path.Assign(path);
   node->parent = parent;
-  node->prevSibling = nullptr;
   node->nextSibling = nullptr;
   node->firstChild = nullptr;
   node->lastChild = nullptr;
   node->isSubscribed = false;
   node->isSubscribable = false;
-  node->cachedChild = nullptr;
-  if (parent) {
-    parent->cachedChild = node;
-  }
   return node;
 }
 
@@ -261,72 +254,16 @@ nsresult nsSubscribableServer::AddChildNode(SubscribeTreeNode* parent,
   if (!parent || !child || name.IsEmpty() || path.IsEmpty())
     return NS_ERROR_NULL_POINTER;
 
-  // Adding to a node with no children?
-  if (!parent->firstChild) {
-    // CreateNode will set the parent->cachedChild
-    *child = CreateNode(parent, name, path);
-    parent->firstChild = *child;
-    parent->lastChild = *child;
-    return NS_OK;
-  }
-
-  // Did we just add a child of this name?
-  if (parent->cachedChild) {
-    if (parent->cachedChild->name.Equals(name)) {
-      *child = parent->cachedChild;
-      return NS_OK;
-    }
-  }
-
-  SubscribeTreeNode* current = parent->firstChild;
-
-  // Insert in reverse alphabetical order, then walk backwards when reading
-  // (see GetChildURIs), so that children are returned in insertion order.
-  // For NNTP this is the order the server returns groups in, which is
-  // typically alphabetical, though not guaranteed by RFC 3977.
-
-  int32_t compare = Compare(current->name, name);
-
-  while (current && (compare != 0)) {
-    if (compare < 0) {
-      // CreateNode will set the parent->cachedChild
-      *child = CreateNode(parent, name, path);
-
-      (*child)->nextSibling = current;
-      (*child)->prevSibling = current->prevSibling;
-      current->prevSibling = (*child);
-      if (!(*child)->prevSibling) {
-        parent->firstChild = (*child);
-      } else {
-        (*child)->prevSibling->nextSibling = (*child);
-      }
-
-      return NS_OK;
-    }
-    current = current->nextSibling;
-    if (current) {
-      NS_ASSERTION(!current->name.IsEmpty(), "no name!");
-      compare = Compare(current->name, name);
+  *child = parent->childrenByName.LookupOrInsertWith(name, [&] {
+    SubscribeTreeNode* node = CreateNode(parent, name, path);
+    if (parent->lastChild) {
+      parent->lastChild->nextSibling = node;
     } else {
-      compare = -1;  // anything but 0, since that would be a match
+      parent->firstChild = node;
     }
-  }
-
-  if (compare == 0) {
-    // already exists;
-    *child = current;
-    parent->cachedChild = *child;
-    return NS_OK;
-  }
-
-  // CreateNode will set the parent->cachedChild
-  *child = CreateNode(parent, name, path);
-
-  (*child)->prevSibling = parent->lastChild;
-  (*child)->nextSibling = nullptr;
-  parent->lastChild->nextSibling = *child;
-  parent->lastChild = *child;
-
+    parent->lastChild = node;
+    return node;
+  });
   return NS_OK;
 }
 
@@ -469,7 +406,14 @@ nsSubscribableServer::GetFirstChildURI(const nsACString& aPath,
   // no children
   if (!node->firstChild) return NS_ERROR_FAILURE;
 
-  aResult.Assign(node->firstChild->path);
+  SubscribeTreeNode* first = node->firstChild;
+  for (SubscribeTreeNode* current = first->nextSibling; current;
+       current = current->nextSibling) {
+    if (current->name < first->name) {
+      first = current;
+    }
+  }
+  aResult.Assign(first->path);
 
   return NS_OK;
 }
@@ -488,18 +432,19 @@ nsSubscribableServer::GetChildURIs(const nsACString& aPath,
   NS_ASSERTION(mTreeRoot, "no tree root!");
   if (!mTreeRoot) return NS_ERROR_UNEXPECTED;
 
-  // We inserted them in reverse alphabetical order.
-  // So pull them out in reverse to get the right order
-  // in the subscribe dialog.
-  SubscribeTreeNode* current = node->lastChild;
-  while (current) {
+  aResult.SetCapacity(node->childrenByName.Count());
+  for (SubscribeTreeNode* current = node->firstChild; current;
+       current = current->nextSibling) {
     NS_ASSERTION(!current->name.IsEmpty(), "no name");
     if (current->name.IsEmpty()) {
+      aResult.Clear();
       return NS_ERROR_FAILURE;
     }
     aResult.AppendElement(current->path);
-    current = current->prevSibling;
   }
+  // Siblings share the path up to their name, so sorting the paths sorts them
+  // by name.
+  aResult.Sort();
 
   return NS_OK;
 }

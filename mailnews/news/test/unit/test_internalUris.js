@@ -217,8 +217,8 @@ add_task(async function test_grouplist() {
   }
 
   // First node in the group list, even though it is not subscribable,
-  // parent of "test.empty" group.
-  Assert.equal(subserver.getFirstChildURI(""), "test");
+  // parent of "misc.test" group.
+  Assert.equal(subserver.getFirstChildURI(""), "misc");
 
   // Release reference, somehow impedes GC of 'subserver'.
   subserver.subscribeListener = null;

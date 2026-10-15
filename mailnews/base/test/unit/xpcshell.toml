@@ -173,6 +173,8 @@ tags = ["virtualfolders"]
 
 ["test_saveAs.js"]
 
+["test_subscribableServer.js"]
+
 ["test_testsuite_base64.js"]
 
 ["test_testsuite_fakeserverAuth.js"]
