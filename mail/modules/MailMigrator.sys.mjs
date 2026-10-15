@@ -29,7 +29,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 65;
+    const UI_VERSION = 66;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -523,6 +523,10 @@ export var MailMigrator = {
         this._removeUnconfiguredSmtpServers();
       }
 
+      if (currentUIVersion < 66) {
+        this._migrateSearchDialog();
+      }
+
       // Migration tasks that may take a long time are not run immediately, but
       // added to the MigrationTasks object then run at the end.
       //
@@ -543,6 +547,106 @@ export var MailMigrator = {
           " -- " +
           "Will reattempt on next start."
       );
+    }
+  },
+
+  /**
+   * Migrate the search dialog from SearchDialog to searchDialog, and from a
+   * XUL tree to a TreeView.
+   */
+  _migrateSearchDialog() {
+    const before = "chrome://messenger/content/SearchDialog.xhtml";
+    const after = "chrome://messenger/content/searchDialog.xhtml";
+
+    const { getAttributeEnumerator, removeDocument } = Services.xulStore;
+    const hasValue = Services.xulStore.hasValue.bind(Services.xulStore, before);
+    const getValue = Services.xulStore.getValue.bind(Services.xulStore, before);
+    const setValue = Services.xulStore.setValue.bind(Services.xulStore, after);
+
+    // Just move this elements from one URL to the other.
+    for (const id of [
+      "searchMailWindow",
+      "searchTerms",
+      "checkSearchSubFolders",
+      "checkSearchOnline",
+      "gray_horizontal_splitter",
+      "searchResults",
+    ]) {
+      for (const attr of getAttributeEnumerator(before, id)) {
+        const value = getValue(id, attr);
+        setValue(id, attr, value);
+      }
+    }
+
+    // These columns are hidden by default.
+    const hiddenCols = [
+      "selectCol",
+      "senderCol",
+      "recipientCol",
+      "receivedCol",
+      "statusCol",
+      "sizeCol",
+      "tagsCol",
+      "accountCol",
+      "priorityCol",
+      "unreadCol",
+      "totalCol",
+      "idCol",
+      "deleteCol",
+    ];
+
+    // Migrate the tree column data.
+    const columnStates = {};
+    let sortColumn, sortDirection;
+    for (const id of [
+      "selectCol",
+      "flaggedCol",
+      "attachmentCol",
+      "subjectCol",
+      "unreadButtonColHeader",
+      "senderCol",
+      "recipientCol",
+      "correspondentCol",
+      "junkStatusCol",
+      "dateCol",
+      "receivedCol",
+      "statusCol",
+      "sizeCol",
+      "tagsCol",
+      "accountCol",
+      "priorityCol",
+      "unreadCol",
+      "totalCol",
+      "locationCol",
+      "idCol",
+      "deleteCol",
+    ]) {
+      const state = {};
+      if (hasValue(id, "ordinal")) {
+        state.ordinal = getValue(id, "ordinal");
+        state.visible = !hiddenCols.includes(id);
+        if (getValue(id, "hidden") == "-moz-missing\n") {
+          state.visible = true;
+        } else if (hasValue(id, "hidden")) {
+          state.visible = false;
+        }
+        columnStates[id] = state;
+      }
+      const direction = getValue(id, "sortDirection");
+      if (["ascending", "descending"].includes(direction)) {
+        sortColumn = id;
+        sortDirection = direction;
+      }
+    }
+
+    // Remove the existing data and replace it.
+    removeDocument(before);
+    if (Object.keys(columnStates).length > 0) {
+      setValue("threadTree", "columnStates", JSON.stringify(columnStates));
+    }
+    if (sortColumn && sortDirection) {
+      setValue("threadTree", "sortColumn", sortColumn);
+      setValue("threadTree", "sortDirection", sortDirection);
     }
   },
 
