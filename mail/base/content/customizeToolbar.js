@@ -560,26 +560,35 @@ function restoreDefaultSet() {
   // Unwrap the items on the toolbar.
   unwrapToolbarItems();
 
-  // Remove all of the customized toolbars.
-  var child = gToolbox.lastElementChild;
-  while (child) {
-    if (child.hasAttribute("customindex")) {
-      var thisChild = child;
-      child = child.previousElementSibling;
-      thisChild.currentSet = "__empty";
-      gToolbox.removeChild(thisChild);
-    } else {
-      child = child.previousElementSibling;
+  // Setting currentSet normally ends customization to protect against changes
+  // made by external consumers. This reset is part of the customization flow,
+  // so temporarily suppress that protection.
+  const wasCustomizing = gToolbox.customizing;
+  gToolbox.customizing = false;
+  try {
+    // Remove all of the customized toolbars.
+    var child = gToolbox.lastElementChild;
+    while (child) {
+      if (child.hasAttribute("customindex")) {
+        var thisChild = child;
+        child = child.previousElementSibling;
+        thisChild.currentSet = "__empty";
+        gToolbox.removeChild(thisChild);
+      } else {
+        child = child.previousElementSibling;
+      }
     }
-  }
 
-  // Restore the defaultset for fixed toolbars.
-  forEachCustomizableToolbar(function (toolbar) {
-    var defaultSet = toolbar.getAttribute("defaultset");
-    if (defaultSet) {
-      toolbar.currentSet = defaultSet;
-    }
-  });
+    // Restore the defaultset for fixed toolbars.
+    forEachCustomizableToolbar(function (toolbar) {
+      var defaultSet = toolbar.getAttribute("defaultset");
+      if (defaultSet) {
+        toolbar.currentSet = defaultSet;
+      }
+    });
+  } finally {
+    gToolbox.customizing = wasCustomizing;
+  }
 
   // Restore the default icon size and mode.
   document.getElementById("smallicons").checked = updateIconSize() == "small";

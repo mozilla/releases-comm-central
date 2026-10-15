@@ -82,4 +82,6 @@ run-if = [
 ]
 reason = "Cannot open the Format menu"
 
+["browser_toolbarCustomization.js"]
+
 ["browser_xUnsent.js"]
