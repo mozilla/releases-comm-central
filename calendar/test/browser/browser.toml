@@ -33,6 +33,8 @@ run-if = [
 
 ["browser_calendarListReRegisterOrder.js"]
 
+["browser_calendarListTwoWindowOrder.js"]
+
 ["browser_calendarTelemetry.js"]
 
 ["browser_calendarUnifinder.js"]

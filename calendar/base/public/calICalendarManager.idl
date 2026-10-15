@@ -96,6 +96,14 @@ interface calICalendarManager : nsISupports
   /* Return all registered calendars, in the calendar list order. */
   Array<calICalendar> getCalendars();
 
+  /**
+   * Set the order the calendars are listed in, and remember it. Registered
+   * calendars the given ids don't mention keep their order at the end.
+   *
+   * @param ids - Ids of the registered calendars, in the wanted order.
+   */
+  void setCalendarOrder(in Array<AUTF8String> ids);
+
   /** Add an observer for the calendar manager, i.e when calendars are registered */
   void addObserver(in calICalendarManagerObserver aObserver);
   /** Remove an observer for the calendar manager */
@@ -133,4 +141,7 @@ interface calICalendarManagerObserver : nsISupports
 
   /** Called before the delete actually takes place */
   void onCalendarDeleting(in calICalendar aCalendar);
+
+  /** Called after the order the calendars are listed in has changed */
+  void onCalendarOrderChanged();
 };

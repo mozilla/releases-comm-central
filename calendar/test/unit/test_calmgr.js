@@ -28,12 +28,14 @@ class CalendarManagerObserver {
     this.registered = [];
     this.unregistering = [];
     this.deleting = [];
+    this.orderChanged = 0;
   }
 
-  check({ unregistering, registered, deleting }) {
+  check({ unregistering, registered, deleting, orderChanged = 0 }) {
     equal(this.unregistering[0], unregistering);
     equal(this.registered[0], registered);
     equal(this.deleting[0], deleting);
+    equal(this.orderChanged, orderChanged);
 
     this.reset();
   }
@@ -48,6 +50,10 @@ class CalendarManagerObserver {
 
   onCalendarDeleting(calendar) {
     this.deleting.push(calendar.id);
+  }
+
+  onCalendarOrderChanged() {
+    this.orderChanged++;
   }
 }
 
@@ -422,38 +428,51 @@ add_task(async function test_getCalendars_listOrder() {
   function listOrder() {
     return cal.manager.getCalendars().map(calendar => calendar.id);
   }
+  function rememberedOrder() {
+    return Services.prefs.getStringPref("calendar.list.sortOrder", "").split(" ");
+  }
 
   const a = create();
   const b = create();
   const c = create();
   Assert.deepEqual(listOrder(), [a.id, b.id, c.id], "new calendars should be added at the end");
+  Assert.deepEqual(rememberedOrder(), [a.id, b.id, c.id], "the order should be remembered");
 
-  Services.prefs.setStringPref("calendar.list.sortOrder", `${c.id} ${a.id} ${b.id}`);
+  const observer = new CalendarManagerObserver();
+  cal.manager.addObserver(observer);
+
+  cal.manager.setCalendarOrder([c.id, a.id, b.id]);
   Assert.deepEqual(
     listOrder(),
     [c.id, a.id, b.id],
     "reordering the calendar list should reorder the calendars"
   );
+  Assert.deepEqual(rememberedOrder(), [c.id, a.id, b.id], "the new order should be remembered");
+  observer.check({ orderChanged: 1 });
 
-  Services.prefs.setStringPref("calendar.list.sortOrder", b.id);
+  cal.manager.setCalendarOrder([b.id]);
   Assert.deepEqual(
     listOrder(),
     [b.id, c.id, a.id],
-    "calendars the list order doesn't mention should keep their order at the end"
+    "calendars the new order doesn't mention should keep their order at the end"
   );
+  observer.check({ orderChanged: 1 });
 
-  // A calendar is registered again when its provider is enabled or its offline
-  // support toggled.
-  Services.prefs.setStringPref("calendar.list.sortOrder", `${a.id} ${b.id} ${c.id}`);
-  cal.manager.unregisterCalendar(b);
-  Assert.deepEqual(listOrder(), [a.id, c.id], "an unregistered calendar should be gone");
-  cal.manager.registerCalendar(b);
+  // A calendar is registered again when its provider is enabled or disabled.
+  cal.manager.wrappedJSObject.updateCalendarRegistration([cal.manager.getCalendarById(c.id)]);
   Assert.deepEqual(
     listOrder(),
-    [a.id, b.id, c.id],
-    "a calendar registered again should return to its place in the list"
+    [b.id, c.id, a.id],
+    "a calendar registered again should keep its place"
   );
+  observer.check({ unregistering: c.id, registered: c.id });
 
+  cal.manager.unregisterCalendar(cal.manager.getCalendarById(c.id));
+  Assert.deepEqual(listOrder(), [b.id, a.id], "an unregistered calendar should be gone");
+  Assert.deepEqual(rememberedOrder(), [b.id, a.id], "it should be forgotten from the order too");
+  observer.check({ unregistering: c.id });
+
+  cal.manager.removeObserver(observer);
   for (const calendar of cal.manager.getCalendars()) {
     cal.manager.unregisterCalendar(calendar);
   }

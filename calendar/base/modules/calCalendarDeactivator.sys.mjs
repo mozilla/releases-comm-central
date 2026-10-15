@@ -158,6 +158,7 @@ export var calendarDeactivator = {
     }
   },
   onCalendarDeleting() {},
+  onCalendarOrderChanged() {},
 
   // calIObserver methods
   onStartBatch() {},

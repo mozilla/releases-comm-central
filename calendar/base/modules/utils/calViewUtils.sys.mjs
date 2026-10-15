@@ -125,6 +125,7 @@ export var view = {
           }
         },
         onCalendarDeleting() {},
+        onCalendarOrderChanged() {},
       };
       lazy.cal.manager.addObserver(calManagerObserver);
       aWindow.addEventListener("unload", () => lazy.cal.manager.removeObserver(calManagerObserver));
@@ -490,6 +491,7 @@ view.colorTracker = {
     }
   },
   onCalendarDeleting() {},
+  onCalendarOrderChanged() {},
 
   // calIObserver methods
   onStartBatch() {},

@@ -247,6 +247,8 @@ export function CalAlarmService() {
       this.alarmService.unobserveCalendar(aCalendar);
       delete this.alarmService.mLoadedCalendars[aCalendar.id];
     },
+
+    onCalendarOrderChanged() {},
   };
 }
 

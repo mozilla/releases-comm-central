@@ -209,6 +209,54 @@ const orderedHandler = {
   },
 };
 
+/** Test setRowOrder. */
+async function subtestSetRowOrder() {
+  list.focus();
+  list.selectedIndex = 0;
+  Assert.equal(
+    list.querySelector(".selected").id,
+    "row-1",
+    "the first row is selected"
+  );
+
+  // Swap the first two top-level rows.
+  const rows = [...list.children];
+  orderedHandler.reset();
+  list.addEventListener("ordered", orderedHandler);
+  list.setRowOrder([rows[1], rows[0], ...rows.slice(2)]);
+  list.removeEventListener("ordered", orderedHandler);
+
+  checkRowOrder("2 2-1 2-2 1 3 3-1 3-2 3-3 4 5 5-1 5-2");
+  Assert.ok(!orderedHandler.seenEvent, "no 'ordered' event should be fired");
+
+  // The list reacts to changes of its rows from a microtask, let it settle.
+  await TestUtils.waitForTick();
+  Assert.equal(
+    list.querySelector(".selected").id,
+    "row-1",
+    "the selected row should still be selected"
+  );
+
+  // Removing the selected row selects the one that follows it in the new
+  // order, so the reorder must have been noticed.
+  const [row1, , row3] = rows;
+  list.selectedIndex = list.rows.indexOf(row1);
+  row1.remove();
+  await TestUtils.waitForTick();
+  Assert.equal(
+    list.selectedRow,
+    row3,
+    "the row after the removed one in the new order should be selected"
+  );
+
+  // Put the rows back for the next test.
+  list.appendChild(row1);
+  await TestUtils.waitForTick();
+  list.setRowOrder(rows);
+  checkRowOrder("1 2 2-1 2-2 3 3-1 3-2 3-3 4 5 5-1 5-2");
+  list.selectedIndex = 0;
+}
+
 /** Test Alt+Up and Alt+Down. */
 async function subtestKeyReorder() {
   list.focus();
@@ -471,6 +519,9 @@ add_setup(async function () {
   Assert.equal(list.selectedIndex, 0, "selectedIndex is set to 0");
 });
 
+add_task(async function testSetRowOrder() {
+  await withMotion(subtestSetRowOrder);
+});
 add_task(async function testKeyReorder() {
   await withMotion(subtestKeyReorder);
 });
@@ -484,6 +535,9 @@ add_task(async function testDragUndroppable() {
   await withMotion(subtestDragUndroppable);
 });
 
+add_task(async function testSetRowOrderReducedMotion() {
+  await withoutMotion(subtestSetRowOrder);
+});
 add_task(async function testKeyReorderReducedMotion() {
   await withoutMotion(subtestKeyReorder);
 });

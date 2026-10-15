@@ -67,6 +67,24 @@ class OrderableTreeListbox extends TreeListboxMixin(HTMLOListElement) {
     return [...this.children];
   }
 
+  /**
+   * Puts the top-level rows in the given order. The rows must be the ones the
+   * list already has, rearranged. They are moved rather than re-added, so that
+   * the selection and the keyboard focus survive.
+   *
+   * @param {HTMLLIElement[]} rows - The rows, in the wanted order.
+   */
+  setRowOrder(rows) {
+    // Temporarily disconnect the mutation observer to stop it changing things.
+    this._mutationObserver.disconnect();
+    for (const row of rows) {
+      this.moveBefore(row, null);
+    }
+    this._mutationObserver.observe(this, { subtree: true, childList: true });
+    // Rows moved.
+    this.domChanged();
+  }
+
   _onKeyDown(event) {
     super._onKeyDown(event);
 

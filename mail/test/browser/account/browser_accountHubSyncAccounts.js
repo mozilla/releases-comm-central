@@ -450,6 +450,7 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
       },
       onCalendarUnregistering() {},
       onCalendarDeleting() {},
+      onCalendarOrderChanged() {},
     };
     cal.manager.addObserver(observer);
   });

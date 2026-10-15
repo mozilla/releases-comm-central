@@ -308,5 +308,6 @@ CalendarTracker.prototype = {
       this.score += SCORE_INCREMENT_XLARGE;
     }
   },
+  onCalendarOrderChanged() {},
 };
 Object.setPrototypeOf(CalendarTracker.prototype, Tracker.prototype);

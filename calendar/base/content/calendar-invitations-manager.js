@@ -48,6 +48,8 @@ var gInvitationsCalendarManagerObserver = {
   },
 
   onCalendarDeleting() {},
+
+  onCalendarOrderChanged() {},
 };
 
 function scheduleInvitationsUpdate(firstDelay) {
