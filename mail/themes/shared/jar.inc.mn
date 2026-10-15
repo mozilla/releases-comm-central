@@ -416,7 +416,6 @@
   skin/classic/messenger/shared/menulist.css                  (../shared/mail/menulist.css)
   skin/classic/messenger/shared/messageBody.css               (../shared/mail/messageBody.css)
   skin/classic/messenger/shared/messageHeader.css             (../shared/mail/messageHeader.css)
-  skin/classic/messenger/shared/messageIcons.css              (../shared/mail/messageIcons.css)
   skin/classic/messenger/shared/messageWindow.css             (../shared/mail/messageWindow.css)
   skin/classic/messenger/shared/messenger.css                 (../shared/mail/messenger.css)
   skin/classic/messenger/shared/messengercompose.css          (../shared/mail/messengercompose.css)

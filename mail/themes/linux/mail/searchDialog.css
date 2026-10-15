@@ -27,10 +27,6 @@
   margin-inline-end: 4px;
 }
 
-treechildren::-moz-tree-cell-text(subjectCol) {
-  padding-inline-start: 0;
-}
-
 #checkSearchSubFolders,
 #checkSearchOnline {
   margin-inline-start: 6px;

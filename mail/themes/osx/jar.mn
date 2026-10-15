@@ -25,7 +25,6 @@ classic.jar:
   skin/classic/messenger/menulist.css                          (mail/menulist.css)
   skin/classic/messenger/messageBody.css                       (mail/messageBody.css)
   skin/classic/messenger/messageHeader.css                     (mail/messageHeader.css)
-  skin/classic/messenger/messageIcons.css                      (mail/messageIcons.css)
   skin/classic/messenger/messageWindow.css                     (mail/messageWindow.css)
   skin/classic/messenger/messenger.css                         (mail/messenger.css)
   skin/classic/messenger/panelUI.css                           (mail/panelUI.css)

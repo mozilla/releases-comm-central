@@ -40,9 +40,6 @@ Object.defineProperty(this, "gDBView", {
 });
 var threadTree;
 
-var nsMsgKey_None = 0xffffffff;
-var nsMsgViewIndex_None = 0xffffffff;
-
 var messenger;
 var msgWindow;
 
@@ -124,10 +121,7 @@ FolderDisplayWidget.prototype = {
    *   offline.
    */
   get summarizeSelectionInFolder() {
-    return (
-      Services.prefs.getBoolPref("mail.operate_on_msgs_in_collapsed_threads") &&
-      !(this.view.displayedFolder instanceof Ci.nsIMsgNewsFolder)
-    );
+    return false;
   },
 
   /**
@@ -214,14 +208,7 @@ FolderDisplayWidget.prototype = {
    *     wait for updateFolder to complete.
    */
   get shouldDeferMessageDisplayUntilAfterServerConnect() {
-    let passwordPromptRequired = false;
-
-    if (Services.prefs.getBoolPref("mail.password_protect_local_cache")) {
-      passwordPromptRequired =
-        this.view.displayedFolder.server.passwordPromptRequired;
-    }
-
-    return passwordPromptRequired;
+    return false;
   },
 
   /**
@@ -353,47 +340,7 @@ FolderDisplayWidget.prototype = {
    * this._nextViewIndexAfterDelete should know what view index to select next.
    * For the imap mark-as-deleted we won't know beforehand.
    */
-  onMessagesRemoved() {
-    // - we saw this coming
-    const rowCount = this.view.dbView.rowCount;
-    if (this._nextViewIndexAfterDelete != null) {
-      // adjust the index if it is after the last row...
-      // (this can happen if the "mail.delete_matches_sort_order" pref is not
-      //  set and the message is the last message in the view.)
-      if (this._nextViewIndexAfterDelete >= rowCount) {
-        this._nextViewIndexAfterDelete = rowCount - 1;
-      }
-      // just select the index and get on with our lives
-      this.selectViewIndex(this._nextViewIndexAfterDelete);
-      this._nextViewIndexAfterDelete = null;
-      return;
-    }
-
-    // - we didn't see it coming
-
-    // A deletion happened to our folder.
-    const treeSelection = this.treeSelection;
-    // we can't fix the selection if we have no selection
-    if (!treeSelection) {
-      return;
-    }
-
-    // For reasons unknown (but theoretically knowable), sometimes the selection
-    //  object will be invalid.  At least, I've reliably seen a selection of
-    //  [0, 0] with 0 rows.  If that happens, we need to fix up the selection
-    //  here.
-    if (rowCount == 0 && treeSelection.count) {
-      // nsTreeSelection doesn't generate an event if we use clearRange, so use
-      //  that to avoid spurious events, given that we are going to definitely
-      //  trigger a change notification below.
-      treeSelection.clearRange(0, 0);
-    }
-
-    // Tell the view that things have changed so it can update itself suitably.
-    if (this.view.dbView) {
-      this.view.dbView.selectionChanged();
-    }
-  },
+  onMessagesRemoved() {},
 
   /**
    * Messages were not actually removed, but we were expecting that they would
@@ -468,91 +415,6 @@ FolderDisplayWidget.prototype = {
   // @}
 
   /**
-   * @name Navigation
-   * @protected
-   */
-  // @{
-
-  /**
-   * Navigate using nsMsgNavigationType rules and ensuring the resulting row is
-   *  visible.  This is trickier than it used to be because we now support
-   *  treating collapsed threads as the set of all the messages in the collapsed
-   *  thread rather than just the root message in that thread.
-   *
-   * @param {nsMsgNavigationType} aNavType navigation command.
-   * @param {boolean} [aSelect=true] should we select the message if we find
-   *     one?
-   * @returns {boolean} true if the navigation constraint matched anything, false if not.
-   *     We will have navigated if true, we will have done nothing if false.
-   */
-  navigate(aNavType, aSelect) {
-    if (aSelect === undefined) {
-      aSelect = true;
-    }
-    const resultKeyObj = {},
-      resultIndexObj = {},
-      threadIndexObj = {};
-
-    const summarizeSelection = this.summarizeSelectionInFolder;
-
-    const treeSelection = this.treeSelection; // potentially magic getter
-    const currentIndex = treeSelection ? treeSelection.currentIndex : 0;
-
-    let viewIndex;
-    // if we're doing next unread, and a collapsed thread is selected, and
-    // the top level message is unread, just set the result manually to
-    // the top level message, without using viewNavigate.
-    if (
-      summarizeSelection &&
-      aNavType == Ci.nsMsgNavigationType.nextUnreadMessage &&
-      currentIndex != -1 &&
-      this.view.isCollapsedThreadAtIndex(currentIndex) &&
-      !(this.view.dbView.getFlagsAt(currentIndex) & Ci.nsMsgMessageFlags.Read)
-    ) {
-      viewIndex = currentIndex;
-    } else {
-      // always 'wrap' because the start index is relative to the selection.
-      // (keep in mind that many forms of navigation do not care about the
-      //  starting position or 'wrap' at all; for example, firstNew just finds
-      //  the first new message.)
-      // allegedly this does tree-expansion for us.
-      this.view.dbView.viewNavigate(
-        aNavType,
-        resultKeyObj,
-        resultIndexObj,
-        threadIndexObj,
-        true
-      );
-      viewIndex = resultIndexObj.value;
-    }
-
-    if (viewIndex == nsMsgViewIndex_None) {
-      return false;
-    }
-
-    // - Expand if required.
-    // (The nsMsgDBView isn't really aware of the varying semantics of
-    //  collapsed threads, so viewNavigate might tell us about the root message
-    //  and leave it collapsed, not realizing that it needs to be expanded.)
-    if (summarizeSelection && this.view.isCollapsedThreadAtIndex(viewIndex)) {
-      this.view.dbView.toggleOpenState(viewIndex);
-    }
-
-    if (aSelect) {
-      this.selectViewIndex(viewIndex);
-    } else {
-      this.ensureRowIsVisible(viewIndex);
-    }
-    return true;
-  },
-  // @}
-
-  /**
-   * @name Selection
-   */
-  // @{
-
-  /**
    * @returns {?nsIMsgDBHdr} the message header for the first selected message,
    *   or null if there is no selected message.
    *
@@ -598,27 +460,6 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * Provides a list of the view indices that are selected which is *not* the
-   *  same as the rows of the selected messages.  When
-   *  summarizeSelectionInFolder is true, messages may be selected but not
-   *  visible (because the thread root is selected.)
-   * You probably want to use the |selectedMessages| attribute instead of this
-   *  one.  (Or selectedMessageUris in some rare cases.)
-   *
-   * If the user has right-clicked on a message, this will return that message
-   *  and not the selection prior to the right-click.
-   *
-   * @returns {number[]} a list of the view indices that are currently selected
-   */
-  get selectedIndices() {
-    if (!this.view.dbView) {
-      return [];
-    }
-
-    return this.view.dbView.getIndicesForSelection();
-  },
-
-  /**
    * Provides a list of the message headers for the currently selected messages.
    *  If summarizeSelectionInFolder is true, then any collapsed thread roots
    *  that are selected will also (conceptually) have all of the messages in
@@ -638,192 +479,6 @@ FolderDisplayWidget.prototype = {
     }
     return this.view.dbView.getSelectedMsgHdrs();
   },
-
-  /**
-   * @returns {?string[]} a list of the URIs for the currently selected messages
-   *   or null (instead of a list) if there are no selected messages. Do not
-   *    pass around URIs unless you have a good reason. Legacy code is an
-   *    ok reason.
-   *
-   * If the user has right-clicked on a message, this will return that message's
-   *  URI and not the selection prior to the right-click.
-   */
-  get selectedMessageUris() {
-    if (!this.view.dbView) {
-      return null;
-    }
-
-    const messageArray = this.view.dbView.getURIsForSelection();
-    return messageArray.length ? messageArray : null;
-  },
-
-  /**
-   * Select the message at view index.
-   *
-   * @param {number} aViewIndex - The view index to select. This will be
-   *   bounds-checked and if it is outside the bounds, we will clear the
-   *   selection and bail.
-   */
-  selectViewIndex(aViewIndex) {
-    const treeSelection = this.treeSelection;
-    // if we have no selection, we can't select something
-    if (!treeSelection) {
-      return;
-    }
-    const rowCount = this.view.dbView.rowCount;
-    if (
-      aViewIndex == nsMsgViewIndex_None ||
-      aViewIndex < 0 ||
-      aViewIndex >= rowCount
-    ) {
-      treeSelection.clearSelection();
-      return;
-    }
-
-    // Check whether the index is already selected/current.  This can be the
-    //  case when we are here as the result of a deletion.  Assuming
-    //  nsMsgDBView::NoteChange ran and was not suppressing change
-    //  notifications, then it's very possible the selection is already where
-    //  we want it to go.  However, in that case, nsMsgDBView::SelectionChanged
-    //  bailed without doing anything because m_deletingRows...
-    // So we want to generate a change notification if that is the case. (And
-    //  we still want to call ensureRowIsVisible, as there may be padding
-    //  required.)
-    if (
-      treeSelection.count == 1 &&
-      (treeSelection.currentIndex == aViewIndex ||
-        treeSelection.isSelected(aViewIndex))
-    ) {
-      // Make sure the index we just selected is also the current index.
-      //  This can happen when the tree selection adjusts itself as a result of
-      //  changes to the tree as a result of deletion.  This will not trigger
-      //  a notification.
-      treeSelection.select(aViewIndex);
-      this.view.dbView.selectionChanged();
-    } else {
-      // Previous code was concerned about avoiding updating commands on the
-      //  assumption that only the selection count mattered.  We no longer
-      //  make this assumption.
-      // Things that may surprise you about the call to treeSelection.select:
-      // 1) This ends up calling the onselect method defined on the XUL 'tree'
-      //    tag.  For the 3pane this is the ThreadPaneSelectionChanged method in
-      //    That code checks a global to see if it is dealing
-      //    with a right-click, and ignores it if so.
-      treeSelection.select(aViewIndex);
-    }
-
-    this.ensureRowIsVisible(aViewIndex);
-  },
-
-  // @}
-
-  /**
-   * @name Ensure Visibility
-   */
-  // @{
-
-  /**
-   * Minimum number of lines to display between the 'focused' message and the
-   *  top / bottom of the thread pane.
-   */
-  get visibleRowPadding() {
-    let topPadding, bottomPadding;
-
-    // If we can get the height of the folder pane, treat the values as
-    //  percentages of that.
-    if (this.tree) {
-      const topPercentPadding = Services.prefs.getIntPref(
-        "mail.threadpane.padding.top_percent"
-      );
-      const bottomPercentPadding = Services.prefs.getIntPref(
-        "mail.threadpane.padding.bottom_percent"
-      );
-
-      // Assume the bottom row is half-visible and should generally be ignored.
-      // (We could actually do the legwork to see if there is a partial one...)
-      const paneHeight = this.tree.getPageLength() - 1;
-
-      // Convert from percentages to absolute row counts.
-      topPadding = Math.ceil((topPercentPadding / 100) * paneHeight);
-      bottomPadding = Math.ceil((bottomPercentPadding / 100) * paneHeight);
-
-      // We need one visible row not counted in either padding, for the actual
-      //  target message. Also helps correct for rounding errors.
-      if (topPadding + bottomPadding > paneHeight) {
-        if (topPadding > bottomPadding) {
-          topPadding--;
-        } else {
-          bottomPadding--;
-        }
-      }
-    } else {
-      // Something's gone wrong elsewhere, and we likely have bigger problems.
-      topPadding = 0;
-      bottomPadding = 0;
-      console.error("Unable to get height of folder pane (treeBox is null)");
-    }
-
-    return [topPadding, bottomPadding];
-  },
-
-  /**
-   * Ensure the given view index is visible, optionally with some padding.
-   * By padding, we mean that the index will not be the first or last message
-   *  displayed, but rather have messages on either side.
-   * We have the concept of a 'lip' when we are at the end of the message
-   *  display.  If we are near the end of the display, we want to show an
-   *  empty row (at the bottom) so the user knows they are at the end.  Also,
-   *  if a message shows up that is new and things are sorted ascending, this
-   *  turns out to be useful.
-   */
-  ensureRowIsVisible(aViewIndex, aBounced) {
-    // Dealing with the tree view layout is a nightmare, let's just always make
-    //  sure we re-schedule ourselves.  The most particular rationale here is
-    //  that the message pane may be toggling its state and it's much simpler
-    //  and reliable if we ensure that all of FolderDisplayWidget's state
-    //  change logic gets to run to completion before we run ourselves.
-    if (!aBounced) {
-      const dis = this;
-      window.setTimeout(function () {
-        dis.ensureRowIsVisible(aViewIndex, true);
-      }, 0);
-    }
-
-    const tree = this.tree;
-    if (!tree || !tree.view) {
-      return;
-    }
-
-    // try and trigger a reflow...
-    tree.getBoundingClientRect();
-
-    const maxIndex = tree.view.rowCount - 1;
-
-    const first = tree.getFirstVisibleRow();
-    // Assume the bottom row is half-visible and should generally be ignored.
-    // (We could actually do the legwork to see if there is a partial one...)
-    const halfVisible = 1;
-    const last = tree.getLastVisibleRow() - halfVisible;
-    const span = tree.getPageLength() - halfVisible;
-    const [topPadding, bottomPadding] = this.visibleRowPadding;
-
-    let target;
-    if (aViewIndex >= last - bottomPadding) {
-      // The index is after the last visible guy (with padding),
-      // move down so that the target index is padded in 1 from the bottom.
-      target = Math.min(maxIndex, aViewIndex + bottomPadding) - span;
-    } else if (aViewIndex <= first + topPadding) {
-      // The index is before the first visible guy (with padding), move up.
-      target = Math.max(0, aViewIndex - topPadding);
-    } else {
-      // It is already visible.
-      return;
-    }
-
-    // this sets the first visible row
-    tree.scrollToRow(target);
-  },
-  // @}
 };
 
 // Controller object for search results thread pane
@@ -1307,10 +962,6 @@ function updateSearchLocalSystem() {
   setSearchScope(GetScopeForFolder(gCurrentFolder));
 }
 
-function UpdateAfterCustomHeaderChange() {
-  updateSearchAttributes();
-}
-
 function onEnterInSearchTerm() {
   // on enter
   // if not searching, start the search
@@ -1449,7 +1100,7 @@ function GetScopeForFolder(folder) {
   let localType;
   try {
     localType = folder.server.localStoreType;
-  } catch (e) {} // On error, we'll just assume the default mailbox type
+  } catch {} // On error, we'll just assume the default mailbox type
 
   let hasBody = folder.getFlag(Ci.nsMsgFolderFlags.Offline);
   switch (localType) {
@@ -1710,158 +1361,6 @@ function ThreadPaneOnDragStart(aEvent) {
   aEvent.dataTransfer.addElement(aEvent.target);
 }
 
-function ThreadPaneOnClick(event) {
-  // We only care about button 0 (left click) events.
-  if (event.button != 0) {
-    event.stopPropagation();
-    return;
-  }
-
-  // We already handle marking as read/flagged/junk cyclers in nsMsgDBView.cpp
-  // so all we need to worry about here is doubleclicks and column header. We
-  // get here for clicks on the "treecol" (headers) and the "scrollbarbutton"
-  // (scrollbar buttons) and don't want those events to cause a doubleclick.
-
-  const t = event.target;
-  if (t.closest("treecol")) {
-    HandleColumnClick(t.closest("treecol").id);
-    return;
-  }
-
-  if (t.localName != "treechildren") {
-    return;
-  }
-
-  const tree = document.getElementById("threadTree");
-  // Figure out what cell the click was in.
-  const treeCellInfo = tree.getCellAt(event.clientX, event.clientY);
-  if (treeCellInfo.row == -1) {
-    return;
-  }
-
-  if (treeCellInfo.col.id == "selectCol") {
-    HandleSelectColClick(event, treeCellInfo.row);
-    return;
-  }
-
-  if (treeCellInfo.col.id == "deleteCol") {
-    handleDeleteColClick(event);
-    return;
-  }
-
-  // Cyclers and twisties respond to single clicks, not double clicks.
-  if (
-    event.detail == 2 &&
-    !treeCellInfo.col.cycler &&
-    treeCellInfo.childElt != "twisty"
-  ) {
-    MsgOpenSelectedMessages();
-  }
-}
-
-function HandleColumnClick(columnID) {
-  if (columnID == "selectCol") {
-    const treeView = gFolderDisplay.tree.view;
-    const selection = treeView.selection;
-    if (!selection) {
-      return;
-    }
-    if (selection.count > 0) {
-      selection.clearSelection();
-    } else {
-      selection.selectAll();
-    }
-    return;
-  }
-
-  if (gFolderDisplay.BUILTIN_NOSORT_COLUMNS.has(columnID)) {
-    return;
-  }
-
-  if (!gFolderDisplay.BUILTIN_SORT_COLUMNS.has(columnID)) {
-    // This must be a custom column, check if it exists and is sortable.
-    const customColumn = ThreadPaneColumns.getCustomColumns().find(
-      c => c.id == columnID
-    );
-    if (!customColumn) {
-      dump(
-        `HandleColumnClick: No custom column handler registered for columnID: ${columnID}\n`
-      );
-      return;
-    }
-    if (!customColumn.sortKey) {
-      return;
-    }
-  }
-
-  if (gFolderDisplay.view.primarySortColumnId == columnID) {
-    MsgReverseSortThreadPane();
-  } else {
-    MsgSortThreadPane(columnID);
-  }
-}
-
-function HandleSelectColClick(event, row) {
-  // User wants to multiselect using the old way.
-  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
-    return;
-  }
-  const tree = gFolderDisplay.tree;
-  const selection = tree.view.selection;
-  if (event.detail == 1) {
-    selection.toggleSelect(row);
-  }
-}
-
-/**
- * Delete a message without selecting it or loading its content.
- *
- * @param {DOMEvent} event - The DOM Event.
- */
-function handleDeleteColClick(event) {
-  // Prevent deletion if any of the modifier keys was pressed.
-  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
-    return;
-  }
-
-  // Simulate a right click on the message row to inherit all the validations
-  // and alerts coming from the "cmd_delete" command.
-  const tree = gFolderDisplay.tree;
-  const realSelection = tree.view.selection;
-  let transientSelection = {};
-  const row = tree.getRowAt(event.clientX, event.clientY);
-
-  // Check if the row is exactly the existing selection. In that case there
-  // is no need to create a bogus selection.
-  const haveTransientSelection =
-    row >= 0 && !(realSelection.count == 1 && realSelection.isSelected(row));
-  if (haveTransientSelection) {
-    transientSelection = new TreeSelection(tree);
-    // Tell it to log calls to adjustSelection.
-    transientSelection.logAdjustSelectionForReplay();
-    // Attach it to the view.
-    tree.view.selection = transientSelection;
-    // Don't generate any selection events! (We never set this to false,
-    // because that would generate an event, and we never need one of those
-    // from this selection object.
-    transientSelection.selectEventsSuppressed = true;
-    transientSelection.select(row);
-    transientSelection.currentIndex = realSelection.currentIndex;
-    tree.ensureRowIsVisible(row);
-  }
-  event.stopPropagation();
-
-  // Trigger the message deletion.
-  goDoCommand("cmd_delete");
-
-  if (haveTransientSelection) {
-    // Restore the selection.
-    tree.view.selection = realSelection;
-    // Replay any calls to adjustSelection, this handles suppression.
-    transientSelection.replayAdjustSelectionLog(realSelection);
-  }
-}
-
 function ThreadPaneKeyDown(event) {
   if (event.keyCode != KeyEvent.DOM_VK_RETURN) {
     return;
@@ -1874,29 +1373,8 @@ function ThreadPaneKeyDown(event) {
   MsgOpenSelectedMessages();
 }
 
-function MsgSortThreadPane(columnId) {
-  gFolderDisplay.view._threadExpandAll = Boolean(
-    gFolderDisplay.view._viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
-  );
-
-  gFolderDisplay.view.sort(columnId, Ci.nsMsgViewSortOrder.ascending);
-}
-
-function MsgReverseSortThreadPane() {
-  gFolderDisplay.view._threadExpandAll = Boolean(
-    gFolderDisplay.view._viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
-  );
-
-  if (gFolderDisplay.view.isSortedAscending) {
-    gFolderDisplay.view.sortDescending();
-  } else {
-    gFolderDisplay.view.sortAscending();
-  }
-}
-
 function ThreadPaneOnLoad() {
   const tree = document.getElementById("threadTree");
-  tree.addEventListener("click", ThreadPaneOnClick, true);
   tree.table.body.addEventListener("dblclick", event => {
     if (event.target.closest("tr") && !event.target.closest("button")) {
       MsgOpenSelectedMessages();
