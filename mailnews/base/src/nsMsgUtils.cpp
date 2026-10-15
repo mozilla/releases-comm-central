@@ -36,17 +36,14 @@
 #include "nsNetUtil.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsIStringBundle.h"
 #include "nsIMsgWindow.h"
 #include "nsIMsgSearchTerm.h"
-#include "nsTextFormatter.h"
 #include "nsIStreamListener.h"
 #include "nsReadLine.h"
 #include "nsIParserUtils.h"
 #include "nsIDocumentEncoder.h"
 #include "nsURLHelper.h"
 #include "mozilla/Components.h"
-#include "locale.h"
 #include "nsIInputStreamPump.h"
 #include "nsIInputStream.h"
 #include "nsIStandardURL.h"
@@ -62,6 +59,12 @@
 #include "mozilla/Buffer.h"
 #include "nsIPromptService.h"
 #include "mozilla/intl/Localization.h"
+#include "mozilla/intl/FormatBuffer.h"
+#include "mozilla/intl/LocaleService.h"
+#include "mozilla/intl/NumberFormat.h"
+#include "mozilla/ClearOnShutdown.h"
+#include "mozilla/StaticPtr.h"
+#include "nsTHashMap.h"
 #include <algorithm>
 #include <limits.h>
 
@@ -324,25 +327,66 @@ nsString NS_MsgHashIfNecessary(const nsAString& unsafeName) {
   return name;
 }
 
+static constexpr std::string_view kFileSizeUnits[] = {
+    "byte", "kilobyte", "megabyte", "gigabyte", "terabyte", "petabyte",
+};
+
+/**
+ * Get a cached formatter for a file size.
+ *
+ * @param aUnitIndex - Index into kFileSizeUnits.
+ * @param aFractionDigits - The number of fraction digits to show, 0 or 1.
+ */
+static mozilla::intl::NumberFormat* GetFileSizeFormatter(
+    size_t aUnitIndex, uint32_t aFractionDigits) {
+  MOZ_ASSERT(NS_IsMainThread());
+  MOZ_ASSERT(aUnitIndex < std::size(kFileSizeUnits));
+  MOZ_ASSERT(aFractionDigits <= 1);
+
+  // Use the same locale as Intl.NumberFormat in JS does by default.
+  AutoTArray<nsCString, 10> locales;
+  mozilla::intl::LocaleService::GetInstance()->GetRegionalPrefsLocales(locales);
+  if (locales.IsEmpty()) {
+    return nullptr;
+  }
+
+  using FormatterCache =
+      nsTHashMap<nsCStringHashKey,
+                 mozilla::UniquePtr<mozilla::intl::NumberFormat>>;
+  static mozilla::StaticAutoPtr<FormatterCache> sCache;
+  if (!sCache) {
+    sCache = new FormatterCache();
+    mozilla::ClearOnShutdown(&sCache);
+  }
+
+  // The locale is part of the key, so that a locale change isn't ignored by
+  // already cached formatters.
+  nsAutoCString key(locales[0]);
+  key.Append(':');
+  key.AppendInt(static_cast<uint32_t>(aUnitIndex));
+  key.Append(':');
+  key.AppendInt(aFractionDigits);
+
+  return sCache
+      ->LookupOrInsertWith(
+          key,
+          [&]() -> mozilla::UniquePtr<mozilla::intl::NumberFormat> {
+            mozilla::intl::NumberFormatOptions options;
+            options.mStyle = mozilla::intl::NumberFormatOptions::Style::Unit;
+            options.mUnit = mozilla::Some(std::make_pair(
+                kFileSizeUnits[aUnitIndex],
+                mozilla::intl::NumberFormatOptions::UnitDisplay::Short));
+            options.mFractionDigits =
+                mozilla::Some(std::make_pair(aFractionDigits, aFractionDigits));
+            return mozilla::intl::NumberFormat::TryCreate(locales[0], options)
+                .unwrapOr(nullptr);
+          })
+      .get();
+}
+
 nsresult FormatFileSize(int64_t size, bool useKB, nsAString& formattedSize) {
-  const char* sizeAbbrNames[] = {
-      "byteAbbreviation2",     "kiloByteAbbreviation2", "megaByteAbbreviation2",
-      "gigaByteAbbreviation2", "teraByteAbbreviation2", "petaByteAbbreviation2",
-  };
-
-  nsresult rv;
-
-  nsCOMPtr<nsIStringBundleService> bundleSvc =
-      mozilla::components::StringBundle::Service();
-  NS_ENSURE_TRUE(bundleSvc, NS_ERROR_UNEXPECTED);
-
-  nsCOMPtr<nsIStringBundle> bundle;
-  rv = bundleSvc->CreateBundle("chrome://messenger/locale/messenger.properties",
-                               getter_AddRefs(bundle));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   double unitSize = size < 0 ? 0.0 : size;
-  uint32_t unitIndex = 0;
+  size_t unitIndex = 0;
 
   if (useKB) {
     // Start by formatting in kilobytes
@@ -353,41 +397,25 @@ nsresult FormatFileSize(int64_t size, bool useKB, nsAString& formattedSize) {
 
   // Convert to next unit if it needs 4 digits (after rounding), but only if
   // we know the name of the next unit
-  while ((unitSize >= 999.5) && (unitIndex < std::size(sizeAbbrNames) - 1)) {
+  while ((unitSize >= 999.5) && (unitIndex < std::size(kFileSizeUnits) - 1)) {
     unitSize /= 1024;
     unitIndex++;
   }
 
-  // Grab the string for the appropriate unit
-  nsString sizeAbbr;
-  rv = bundle->GetStringFromName(sizeAbbrNames[unitIndex], sizeAbbr);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   // Get rid of insignificant bits by truncating to 1 or 0 decimal points
   // 0.1 -> 0.1; 1.2 -> 1.2; 12.3 -> 12.3; 123.4 -> 123; 234.5 -> 235
-  nsTextFormatter::ssprintf(
-      formattedSize, sizeAbbr.get(),
-      (unitIndex != 0) && (unitSize < 99.95 && unitSize != 0) ? 1 : 0,
-      unitSize);
+  uint32_t fractionDigits =
+      (unitIndex != 0) && (unitSize < 99.95 && unitSize != 0) ? 1 : 0;
 
-  int32_t separatorPos = formattedSize.FindChar('.');
-  if (separatorPos != kNotFound) {
-    // The ssprintf returned a decimal number using a dot (.) as the decimal
-    // separator. Now we try to localize the separator.
-    // Try to get the decimal separator from the system's locale.
-    char* decimalPoint;
-#ifdef HAVE_LOCALECONV
-    struct lconv* locale = localeconv();
-    decimalPoint = locale->decimal_point;
-#else
-    decimalPoint = getenv("LOCALE_DECIMAL_POINT");
-#endif
-    NS_ConvertUTF8toUTF16 decimalSeparator(decimalPoint);
-    if (decimalSeparator.IsEmpty()) decimalSeparator.Assign('.');
+  mozilla::intl::NumberFormat* formatter =
+      GetFileSizeFormatter(unitIndex, fractionDigits);
+  NS_ENSURE_TRUE(formatter, NS_ERROR_FAILURE);
 
-    formattedSize.Replace(separatorPos, 1, decimalSeparator);
+  formattedSize.Truncate();
+  mozilla::intl::nsTStringToBufferAdapter adapter(formattedSize);
+  if (formatter->format(unitSize, adapter).isErr()) {
+    return NS_ERROR_FAILURE;
   }
-
   return NS_OK;
 }
 

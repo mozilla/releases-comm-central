@@ -489,9 +489,9 @@ function subtestPrintedAttachmentList(fieldset) {
   const table = listContainer.querySelector("table");
   Assert.equal(table.tBodies[0].rows.length, 2);
   Assert.equal(table.tBodies[0].rows[0].cells[0].textContent, "attachment.txt");
-  Assert.equal(table.tBodies[0].rows[0].cells[1].textContent, "51 bytes");
+  Assert.equal(table.tBodies[0].rows[0].cells[1].textContent, "51 byte");
   Assert.equal(table.tBodies[0].rows[1].cells[0].textContent, "attachment.svg");
-  Assert.equal(table.tBodies[0].rows[1].cells[1].textContent, "474 bytes");
+  Assert.equal(table.tBodies[0].rows[1].cells[1].textContent, "474 byte");
 }
 
 /**
