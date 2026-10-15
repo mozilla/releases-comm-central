@@ -517,6 +517,18 @@ add_task(async function test_get_timeout() {
   mockServer.reset();
 });
 
+add_task(async function test_get_invalidHeader() {
+  await Assert.rejects(
+    fetchHTTP("http://test.test/invalidheader", {
+      headers: { "X-Test": "line\nbreak" },
+    }),
+    error =>
+      checkServerException(error, -2, "http://test.test/invalidheader") &&
+      error.cause?.name == "SyntaxError",
+    "Should reject with a ServerException for an invalid header value"
+  );
+});
+
 add_task(async function test_get_redirect() {
   mockServer.expectRequest({
     path: "/redirect",

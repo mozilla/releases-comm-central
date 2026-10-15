@@ -130,6 +130,7 @@ export async function fetchHTTP(url, args = {}, isRetry = false) {
   let response;
   try {
     const request = new XMLHttpRequest();
+    response = request;
     request.mozBackgroundRequest = true;
     request.open(
       fetchArgs.method,
@@ -144,7 +145,6 @@ export async function fetchHTTP(url, args = {}, isRetry = false) {
       request.setRequestHeader(header, value);
     }
 
-    response = request;
     await new Promise((resolve, reject) => {
       request.onload = resolve;
       request.onerror = reject;
@@ -160,14 +160,6 @@ export async function fetchHTTP(url, args = {}, isRetry = false) {
       request.send(fetchArgs.body?.toString());
     });
   } catch (error) {
-    if (
-      response.status >= 300 &&
-      fetchArgs.headers.Authorization &&
-      isRedirected(response, urlObject) &&
-      !isRetry
-    ) {
-      return retryRedirectWithAuth(response, urlObject, args);
-    }
     const message = await lazy.l10n.formatValue("cannot-contact-server-error");
     throw new ServerException(
       response.statusText || message,

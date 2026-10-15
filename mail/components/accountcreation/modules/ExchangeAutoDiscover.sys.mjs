@@ -152,7 +152,7 @@ async function startFetchWithAuth(url, username, password, callArgs) {
  * @param {object} httpArgs - The arguments to pass to fetchHTTP.
  * @param {function(string):Promise} confirmCallback - A function that prompts
  *   the user to confirm (or cancel) if the domain on which the new request
- *   would be sent is deemed potentially unsafe.
+ *   would be sent is deemed potentially unsafe. Will only be called once.
  * @returns {any} The response body from the target, probably an object.
  */
 async function fetchFromPotentiallyUnsafeAddress(
