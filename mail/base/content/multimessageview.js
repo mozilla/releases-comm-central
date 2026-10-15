@@ -12,6 +12,7 @@ var { MailServices } = ChromeUtils.importESModule(
 ChromeUtils.defineESModuleGetters(this, {
   DisplayNameUtils: "resource:///modules/DisplayNameUtils.sys.mjs",
   Gloda: "resource:///modules/gloda/Gloda.sys.mjs",
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
   MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
   MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.sys.mjs",
   TagUtils: "resource:///modules/TagUtils.sys.mjs",
@@ -21,8 +22,6 @@ ChromeUtils.defineESModuleGetters(this, {
   mimeMsgToContentSnippetAndMeta:
     "resource:///modules/gloda/GlodaContent.sys.mjs",
 });
-
-var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 ChromeUtils.defineLazyGetter(
   this,
@@ -472,7 +471,7 @@ class MultiMessageSummary {
         ? "messages-total-size-more-than"
         : "messages-total-size",
       {
-        numBytes: gMessenger.formatFileSize(numBytes),
+        numBytes: MailUtils.formatFileSize(numBytes),
       }
     );
   }

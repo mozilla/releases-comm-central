@@ -63,7 +63,7 @@ add_task(async function () {
 
   await updateQuota(98, 123);
   about3Pane.displayFolder(imapFolder);
-  checkStatus(79, "98.0 KB", "123 KB");
+  checkStatus(79, "98.0 kB", "123 kB");
 
   // Reload the folder with usage above mail.quota.mainwindow_threshold.warning
   // but below mail.quota.mainwindow_threshold.critical.
@@ -73,7 +73,7 @@ add_task(async function () {
 
   await updateQuota(105, 123);
   about3Pane.displayFolder(imapFolder);
-  checkStatus(85, "105 KB", "123 KB", "alert-warning");
+  checkStatus(85, "105 kB", "123 kB", "alert-warning");
 
   about3Pane.displayFolder(imapRootFolder);
   Assert.ok(BrowserTestUtils.isHidden(quotaPanel), "panel should be hidden");
@@ -82,7 +82,7 @@ add_task(async function () {
 
   await updateQuota(120, 123);
   about3Pane.displayFolder(imapFolder);
-  checkStatus(97, "120 KB", "123 KB", "alert-critical");
+  checkStatus(97, "120 kB", "123 kB", "alert-critical");
 
   // Click on the status bar panel to open the folder properties dialog.
 
@@ -128,7 +128,7 @@ add_task(async function () {
         );
         Assert.equal(
           li.querySelector("span:nth-child(4)").textContent,
-          "120 KB / 123 KB"
+          "120 kB / 123 kB"
         );
 
         cancelButton.click();

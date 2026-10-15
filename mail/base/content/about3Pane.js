@@ -3036,11 +3036,8 @@ var folderPane = {
       let usage;
       let limit;
       if (/STORAGE/i.test(highest.name)) {
-        const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-          Ci.nsIMessenger
-        );
-        usage = messenger.formatFileSize(highest.usage * 1024);
-        limit = messenger.formatFileSize(highest.limit * 1024);
+        usage = MailUtils.formatFileSize(highest.usage * 1024);
+        limit = MailUtils.formatFileSize(highest.limit * 1024);
       } else {
         usage = highest.usage;
         limit = highest.limit;

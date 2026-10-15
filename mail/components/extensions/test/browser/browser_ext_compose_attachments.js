@@ -17,6 +17,10 @@ var { ExtensionSupport } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionSupport.sys.mjs"
 );
 
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
+
 function findWindow(subject) {
   const windows = Array.from(Services.wm.getEnumerator("msgcompose"));
   return windows.find(win => {
@@ -312,7 +316,7 @@ add_task(async function test_file_attachments() {
         id: attachment2.id,
         name: "file2 with a new name.txt",
         size: file3.size,
-        htmlSize: 4645,
+        htmlSize: 4644,
       });
 
       // Rename the second/cloud attachment.
@@ -346,7 +350,7 @@ add_task(async function test_file_attachments() {
         id: attachment2.id,
         name: "cloud file2 with a new name.txt",
         size: file3.size,
-        htmlSize: 4663,
+        htmlSize: 4662,
       });
 
       // File retrieved by WebExt API should still be the real file.
@@ -425,10 +429,6 @@ add_task(async function test_file_attachments() {
     "utils.js": await getUtilsJS(),
   };
 
-  const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
-
   const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
@@ -455,9 +455,9 @@ add_task(async function test_file_attachments() {
       const { name, size, htmlSize, contentType } = expected[i];
       totalSize += htmlSize ? htmlSize : size;
 
-      let displaySize = messenger.formatFileSize(size);
+      let displaySize = MailUtils.formatFileSize(size);
       if (htmlSize) {
-        displaySize = `${messenger.formatFileSize(htmlSize)} (${displaySize})`;
+        displaySize = `${MailUtils.formatFileSize(htmlSize)} (${displaySize})`;
         Assert.equal(
           item.cloudHtmlFileSize,
           htmlSize,
@@ -489,7 +489,7 @@ add_task(async function test_file_attachments() {
     const bucketTotal = composeDocument.getElementById("attachmentBucketSize");
     Assert.equal(
       bucketTotal.textContent,
-      messenger.formatFileSize(totalSize),
+      MailUtils.formatFileSize(totalSize),
       "Total size should match."
     );
 
@@ -747,7 +747,7 @@ add_task(async function test_compose_attachments() {
           id: tab1_attachment2.id,
           name: "this is file2.txt",
           size: 41,
-          htmlSize: 4409,
+          htmlSize: 4408,
           contentLocation: "https://cloud.provider.net/1",
         }
       );
@@ -810,7 +810,7 @@ add_task(async function test_compose_attachments() {
           id: tab2_attachment2.id,
           name: "this is renamed file2.txt",
           size: 41,
-          htmlSize: 4433,
+          htmlSize: 4432,
           contentLocation: "https://cloud.provider.net/2",
         }
       );
@@ -854,7 +854,7 @@ add_task(async function test_compose_attachments() {
           id: tab3_attachment2.id,
           name: "this is file2.txt",
           size: 41,
-          htmlSize: 4409,
+          htmlSize: 4408,
           contentLocation: "https://cloud.provider.net/1",
         }
       );
@@ -908,7 +908,7 @@ add_task(async function test_compose_attachments() {
           id: tab3_attachment2.id,
           name: "That is going to be interesting.txt",
           size: 41,
-          htmlSize: 4463,
+          htmlSize: 4462,
           contentLocation: "https://cloud.provider.net/3",
         }
       );
@@ -982,7 +982,7 @@ add_task(async function test_compose_attachments() {
           id: tab4_attachment2.id,
           name: "I got renamed too, how crazy is that!.txt",
           size: 41,
-          htmlSize: 4481,
+          htmlSize: 4480,
           contentLocation: "https://cloud.provider.net/4",
         }
       );
@@ -1091,10 +1091,6 @@ add_task(async function test_compose_attachments() {
     "utils.js": await getUtilsJS(),
   };
 
-  const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
-
   const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
@@ -1121,9 +1117,9 @@ add_task(async function test_compose_attachments() {
       const { name, size, htmlSize, contentLocation } = expected[i];
       totalSize += htmlSize ? htmlSize : size;
 
-      let displaySize = messenger.formatFileSize(size);
+      let displaySize = MailUtils.formatFileSize(size);
       if (htmlSize) {
-        displaySize = `${messenger.formatFileSize(htmlSize)} (${displaySize})`;
+        displaySize = `${MailUtils.formatFileSize(htmlSize)} (${displaySize})`;
         Assert.equal(
           item.cloudHtmlFileSize,
           htmlSize,
@@ -1172,7 +1168,7 @@ add_task(async function test_compose_attachments() {
     }
 
     const bucketTotal = composeDocument.getElementById("attachmentBucketSize");
-    Assert.equal(bucketTotal.textContent, messenger.formatFileSize(totalSize));
+    Assert.equal(bucketTotal.textContent, MailUtils.formatFileSize(totalSize));
 
     extension.sendMessage();
   });
@@ -1431,7 +1427,7 @@ add_task(async function test_compose_attachments_immutable() {
           id: tab1_attachment2.id,
           name: "this is file2.txt",
           size: 41,
-          htmlSize: 4409,
+          htmlSize: 4408,
           contentLocation: "https://cloud.provider.net/1",
         }
       );
@@ -1472,7 +1468,7 @@ add_task(async function test_compose_attachments_immutable() {
           id: tab2_attachment2.id,
           name: "this is file2.txt",
           size: 41,
-          htmlSize: 4409,
+          htmlSize: 4408,
           contentLocation: "https://cloud.provider.net/1",
         }
       );
@@ -1513,10 +1509,6 @@ add_task(async function test_compose_attachments_immutable() {
     "utils.js": await getUtilsJS(),
   };
 
-  const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
-
   const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
@@ -1543,9 +1535,9 @@ add_task(async function test_compose_attachments_immutable() {
       const { name, size, htmlSize, contentLocation } = expected[i];
       totalSize += htmlSize ? htmlSize : size;
 
-      let displaySize = messenger.formatFileSize(size);
+      let displaySize = MailUtils.formatFileSize(size);
       if (htmlSize) {
-        displaySize = `${messenger.formatFileSize(htmlSize)} (${displaySize})`;
+        displaySize = `${MailUtils.formatFileSize(htmlSize)} (${displaySize})`;
         Assert.equal(
           item.cloudHtmlFileSize,
           htmlSize,
@@ -1594,7 +1586,7 @@ add_task(async function test_compose_attachments_immutable() {
     }
 
     const bucketTotal = composeDocument.getElementById("attachmentBucketSize");
-    Assert.equal(bucketTotal.textContent, messenger.formatFileSize(totalSize));
+    Assert.equal(bucketTotal.textContent, MailUtils.formatFileSize(totalSize));
 
     extension.sendMessage();
   });
@@ -1852,7 +1844,7 @@ add_task(async function test_compose_attachments_no_reuse() {
           id: tab1_attachment2.id,
           name: "this is file2.txt",
           size: 41,
-          htmlSize: 4409,
+          htmlSize: 4408,
           contentLocation: "https://cloud.provider.net/1",
         }
       );
@@ -1913,7 +1905,7 @@ add_task(async function test_compose_attachments_no_reuse() {
           id: tab2_attachment2.id,
           name: "this is file2.txt",
           size: 41,
-          htmlSize: 4409,
+          htmlSize: 4408,
           contentLocation: "https://cloud.provider.net/2",
         }
       );
@@ -1929,10 +1921,6 @@ add_task(async function test_compose_attachments_no_reuse() {
     },
     "utils.js": await getUtilsJS(),
   };
-
-  const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
 
   const extension = ExtensionTestUtils.loadExtension({
     files,
@@ -1961,9 +1949,9 @@ add_task(async function test_compose_attachments_no_reuse() {
       const { name, size, htmlSize, contentLocation } = expected[i];
       totalSize += htmlSize ? htmlSize : size;
 
-      let displaySize = messenger.formatFileSize(size);
+      let displaySize = MailUtils.formatFileSize(size);
       if (htmlSize) {
-        displaySize = `${messenger.formatFileSize(htmlSize)} (${displaySize})`;
+        displaySize = `${MailUtils.formatFileSize(htmlSize)} (${displaySize})`;
         Assert.equal(
           item.cloudHtmlFileSize,
           htmlSize,
@@ -2012,7 +2000,7 @@ add_task(async function test_compose_attachments_no_reuse() {
     }
 
     const bucketTotal = composeDocument.getElementById("attachmentBucketSize");
-    Assert.equal(bucketTotal.textContent, messenger.formatFileSize(totalSize));
+    Assert.equal(bucketTotal.textContent, MailUtils.formatFileSize(totalSize));
 
     extension.sendMessage();
   });

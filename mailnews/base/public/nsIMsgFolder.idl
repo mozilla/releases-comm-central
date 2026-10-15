@@ -440,8 +440,10 @@ interface nsIMsgFolder : nsISupports {
   readonly attribute ACString relativePathName;
 
   /**
-   * size of this folder on disk (not including .msf file)
-   * for imap, it's the sum of the size of the messages
+   * Size of this folder on disk (not including .msf file).
+   * For imap, it's the sum of the size of the messages.
+   *
+   * -1 when the size isn't known, for example when the store can't be read.
    */
   attribute long long sizeOnDisk;
 

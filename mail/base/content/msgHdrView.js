@@ -2125,7 +2125,7 @@ function updateAttachmentsDisplay(attachmentInfo, isFetching) {
     if (attachmentInfo.size < 1) {
       sizeStr = bundle.getString("attachmentSizeUnknown");
     } else {
-      sizeStr = top.messenger.formatFileSize(attachmentInfo.size);
+      sizeStr = MailUtils.formatFileSize(attachmentInfo.size);
     }
 
     // The attachment listitem.
@@ -2200,7 +2200,7 @@ function getAttachmentsTotalSizeStr() {
     }
   }
 
-  let sizeStr = top.messenger.formatFileSize(totalSize);
+  let sizeStr = MailUtils.formatFileSize(totalSize);
   if (unknownSize) {
     if (totalSize == 0) {
       sizeStr = bundle.getString("attachmentSizeUnknown");

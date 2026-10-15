@@ -25,8 +25,10 @@ var { be_in_folder, create_folder, select_click_row } =
 var { add_message_to_folder, create_message } = ChromeUtils.importESModule(
   "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 
-var messenger;
 var folder;
 var epsilon;
 var filePrefix;
@@ -46,8 +48,6 @@ var b64Size = 188;
 
 add_setup(async function () {
   folder = await create_folder("ComposeAttachmentA");
-
-  messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
   /* Today's gory details (thanks to Jonathan Protzenko): libmime somehow
    * counts the trailing newline for an attachment MIME part. Most of the time,
@@ -113,7 +113,7 @@ function check_attachment_size(win, index, expectedSize) {
 
   // Next, make sure that the formatted size in the label is correct
   const formattedSize = node.getAttribute("size");
-  const expectedFormattedSize = messenger.formatFileSize(size);
+  const expectedFormattedSize = MailUtils.formatFileSize(size);
   if (formattedSize != expectedFormattedSize) {
     throw new Error(
       "Formatted attachment size (" +
@@ -199,7 +199,7 @@ function check_total_attachment_size(win, count) {
   }
 
   // Next, make sure that the formatted size in the label is correct
-  const expectedFormattedSize = messenger.formatFileSize(size);
+  const expectedFormattedSize = MailUtils.formatFileSize(size);
   if (sizeNode.textContent != expectedFormattedSize) {
     throw new Error(
       "Formatted attachment size (" +

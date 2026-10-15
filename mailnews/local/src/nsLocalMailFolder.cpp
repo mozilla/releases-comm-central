@@ -1070,14 +1070,14 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetSizeOnDisk(int64_t* aSize) {
   if (mFolderSize == kSizeUnknown) {
     nsCOMPtr<nsIMsgPluggableStore> msgStore;
     rv = GetMsgStore(getter_AddRefs(msgStore));
-    NS_ENSURE_SUCCESS(rv, rv);
     // Use a temporary variable so that we keep mFolderSize on kSizeUnknown
-    // if EstimateFolderSize() fails.
+    // if EstimateFolderSize() fails. Callers expect kSizeUnknown rather than
+    // a failure, so an unreadable store is reported that way too.
     int64_t folderSize;
-    rv = msgStore->EstimateFolderSize(this, &folderSize);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    mFolderSize = folderSize;
+    if (NS_SUCCEEDED(rv) &&
+        NS_SUCCEEDED(msgStore->EstimateFolderSize(this, &folderSize))) {
+      mFolderSize = folderSize;
+    }
   }
   *aSize = mFolderSize;
   return NS_OK;

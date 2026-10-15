@@ -7,6 +7,7 @@
 ChromeUtils.defineESModuleGetters(this, {
   FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
   Gloda: "resource:///modules/gloda/Gloda.sys.mjs",
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
   openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
   MorkParser: "resource:///modules/MorkParser.sys.mjs",
@@ -90,9 +91,6 @@ var gFolderPropsSink = {
 
   setQuotaData(folderQuota) {
     const quotaDetails = document.getElementById("quotaDetails");
-    const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-      Ci.nsIMessenger
-    );
 
     for (const quota of folderQuota) {
       const li = document.createElement("li");
@@ -117,8 +115,8 @@ var gFolderPropsSink = {
 
       const details = document.createElement("span");
       if (/STORAGE/i.test(quota.name)) {
-        const usage = messenger.formatFileSize(quota.usage * 1024);
-        const limit = messenger.formatFileSize(quota.limit * 1024);
+        const usage = MailUtils.formatFileSize(quota.usage * 1024);
+        const limit = MailUtils.formatFileSize(quota.limit * 1024);
         details.textContent = `${usage} / ${limit}`;
       } else {
         details.textContent = `${quota.usage} / ${quota.limit}`;
@@ -385,12 +383,10 @@ function folderPropsOnLoad() {
     document.getElementById("numberOfMessages").value = numberOfMsgs;
   }
 
-  try {
-    const sizeOnDisk = Cc["@mozilla.org/messenger;1"]
-      .createInstance(Ci.nsIMessenger)
-      .formatFileSize(gMsgFolder.sizeOnDisk, true);
-    document.getElementById("sizeOnDisk").value = sizeOnDisk;
-  } catch (e) {}
+  document.getElementById("sizeOnDisk").value = MailUtils.formatFileSize(
+    gMsgFolder.sizeOnDisk,
+    true
+  );
 
   // select the initial tab
   if (window.arguments[0].tabID) {

@@ -129,8 +129,6 @@ ChromeUtils.defineLazyGetter(lazy, "taskbarProgress", () => {
  */
 var msgWindow;
 
-var gMessenger;
-
 /**
  * Global variables, need to be re-initialized every time mostly because
  * we need to release them when the window closes.
@@ -419,8 +417,6 @@ var SHOW_CC_KEY = "C";
 var SHOW_BCC_KEY = "B";
 
 function InitializeGlobalVariables() {
-  gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-
   gMsgCompose = null;
   gOriginalMsgURI = null;
   gWindowLocked = false;
@@ -460,7 +456,6 @@ function ReleaseGlobalVariables() {
   gCurrentIdentity = null;
   gMsgCompose = null;
   gOriginalMsgURI = null;
-  gMessenger = null;
   gRecipientObserver = null;
   gDisableAttachmentReminder = false;
   MailServices.mailSession.RemoveMsgWindow(msgWindow);
@@ -8674,7 +8669,7 @@ function updateAttachmentPane(aShowPane) {
   }
 
   document.getElementById("attachmentBucketSize").textContent =
-    gMessenger.formatFileSize(attachmentsSize);
+    MailUtils.formatFileSize(attachmentsSize);
 
   document
     .getElementById("composeContentBox")

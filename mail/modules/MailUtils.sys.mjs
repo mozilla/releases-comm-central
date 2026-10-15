@@ -21,6 +21,41 @@ ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
   );
 });
 
+const FILE_SIZE_UNITS = [
+  "byte",
+  "kilobyte",
+  "megabyte",
+  "gigabyte",
+  "terabyte",
+  "petabyte",
+];
+
+const fileSizeFormatters = new Map();
+
+/**
+ * @param {string} unit - One of FILE_SIZE_UNITS.
+ * @param {integer} fractionDigits - The number of fraction digits to show.
+ * @returns {Intl.NumberFormat}
+ */
+function getFileSizeFormatter(unit, fractionDigits) {
+  // Pass the locale explicitly, and key the cache on it, so that a locale
+  // change isn't ignored by already cached formatters.
+  const locale = Services.locale.regionalPrefsLocales[0];
+  const key = `${locale}:${unit}:${fractionDigits}`;
+  let formatter = fileSizeFormatters.get(key);
+  if (!formatter) {
+    formatter = new Intl.NumberFormat(locale, {
+      style: "unit",
+      unit,
+      unitDisplay: "short",
+      minimumFractionDigits: fractionDigits,
+      maximumFractionDigits: fractionDigits,
+    });
+    fileSizeFormatters.set(key, formatter);
+  }
+  return formatter;
+}
+
 /**
  * This module has several utility functions for use by both core and
  * third-party code. Some functions are aimed at code that doesn't have a
@@ -1486,5 +1521,35 @@ export var MailUtils = {
     }
 
     return { logins, outgoingServers, addressBooks, calendars };
+  },
+
+  /**
+   * Format a size in bytes for display, e.g. "1.5 MB".
+   *
+   * @param {number} bytes - The size in bytes.
+   * @param {boolean} [useKB=false] - If true, never use a unit smaller than
+   *   kilobytes.
+   * @returns {string} The localized size.
+   */
+  formatFileSize(bytes, useKB = false) {
+    let size = Math.max(bytes, 0);
+    let unitIndex = 0;
+    if (useKB) {
+      size /= 1024;
+      if (size != 0 && size < 0.1) {
+        size = 0.1;
+      }
+      unitIndex++;
+    }
+    // Move to the next unit if this one would need 4 digits after rounding.
+    while (size >= 999.5 && unitIndex < FILE_SIZE_UNITS.length - 1) {
+      size /= 1024;
+      unitIndex++;
+    }
+    const fractionDigits = unitIndex != 0 && size != 0 && size < 99.95 ? 1 : 0;
+    return getFileSizeFormatter(
+      FILE_SIZE_UNITS[unitIndex],
+      fractionDigits
+    ).format(size);
   },
 };

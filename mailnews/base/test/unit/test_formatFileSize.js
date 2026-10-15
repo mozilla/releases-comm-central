@@ -3,142 +3,65 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
- * Tests for the formatFileSize method.
+ * Tests for MailUtils.formatFileSize.
  */
 
-var gStringBundle = Services.strings.createBundle(
-  "chrome://messenger/locale/messenger.properties"
+const { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
 );
 
-var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+const KB = 1024;
+const MB = 1024 * KB;
+const GB = 1024 * MB;
+const TB = 1024 * GB;
+const PB = 1024 * TB;
 
-function isDigit(c) {
-  return "0123456789".includes(c);
-}
+// The short form of the byte unit is not pluralized in en-US ("10 byte"),
+// which looks like a CLDR/ICU issue. Sizes below 1 kB are rare in practice.
+const testData = [
+  { bytes: -1, useKB: false, expected: "0 byte" },
+  { bytes: 0, useKB: false, expected: "0 byte" },
+  { bytes: 1, useKB: false, expected: "1 byte" },
+  { bytes: 10, useKB: false, expected: "10 byte" },
+  { bytes: 999, useKB: false, expected: "999 byte" },
+  { bytes: 1000, useKB: false, expected: "1.0 kB" },
+  { bytes: KB, useKB: false, expected: "1.0 kB" },
+  { bytes: 1280, useKB: false, expected: "1.3 kB" },
+  { bytes: 10 * KB, useKB: false, expected: "10.0 kB" },
+  { bytes: 99.94 * KB, useKB: false, expected: "99.9 kB" },
+  { bytes: 99.96 * KB, useKB: false, expected: "100 kB" },
+  { bytes: 999 * KB, useKB: false, expected: "999 kB" },
+  { bytes: 1000 * KB, useKB: false, expected: "1.0 MB" },
+  { bytes: MB, useKB: false, expected: "1.0 MB" },
+  { bytes: 10 * MB, useKB: false, expected: "10.0 MB" },
+  { bytes: 999 * MB, useKB: false, expected: "999 MB" },
+  { bytes: 1000 * MB, useKB: false, expected: "1.0 GB" },
+  { bytes: GB, useKB: false, expected: "1.0 GB" },
+  { bytes: 10 * GB, useKB: false, expected: "10.0 GB" },
+  { bytes: 999 * GB, useKB: false, expected: "999 GB" },
+  { bytes: 1000 * GB, useKB: false, expected: "1.0 TB" },
+  { bytes: TB, useKB: false, expected: "1.0 TB" },
+  { bytes: 10 * TB, useKB: false, expected: "10.0 TB" },
+  { bytes: 999 * TB, useKB: false, expected: "999 TB" },
+  { bytes: 1000 * TB, useKB: false, expected: "1.0 PB" },
+  { bytes: PB, useKB: false, expected: "1.0 PB" },
+  { bytes: 10 * PB, useKB: false, expected: "10.0 PB" },
+  { bytes: 999 * PB, useKB: false, expected: "999 PB" },
+  { bytes: 1000 * PB, useKB: false, expected: "1,000 PB" },
 
-function test_formatFileSize(aArgs) {
-  const strings = {
-    b: "byteAbbreviation2",
-    kb: "kiloByteAbbreviation2",
-    mb: "megaByteAbbreviation2",
-    gb: "gigaByteAbbreviation2",
-    tb: "teraByteAbbreviation2",
-    pb: "petaByteAbbreviation2",
-  };
-
-  let actual = gMessenger.formatFileSize(aArgs.bytes, aArgs.useKB);
-  const expected = gStringBundle
-    .GetStringFromName(strings[aArgs.units])
-    .replace("%.*f", aArgs.mantissa);
-
-  // If the actual string contains a non-numeric character at the position
-  // where we'd expect a decimal separator, assume it is a localized separator
-  // and just convert it to a dot for easy comparing.
-  const separatorPos = aArgs.mantissa.indexOf(".");
-  if (!isDigit(actual.charAt(separatorPos))) {
-    actual =
-      actual.substring(0, separatorPos) + "." + actual.substr(separatorPos + 1);
-  }
-
-  Assert.equal(actual, expected);
-}
-
-var test_data = [
-  { bytes: 0, useKB: false, mantissa: "0", units: "b" },
-  { bytes: 1, useKB: false, mantissa: "1", units: "b" },
-  { bytes: 10, useKB: false, mantissa: "10", units: "b" },
-  { bytes: 999, useKB: false, mantissa: "999", units: "b" },
-  { bytes: 1000, useKB: false, mantissa: "1.0", units: "kb" },
-  { bytes: 1024, useKB: false, mantissa: "1.0", units: "kb" },
-  { bytes: 10 * 1024, useKB: false, mantissa: "10.0", units: "kb" },
-  { bytes: 999 * 1024, useKB: false, mantissa: "999", units: "kb" },
-  { bytes: 1000 * 1024, useKB: false, mantissa: "1.0", units: "mb" },
-  { bytes: 1024 * 1024, useKB: false, mantissa: "1.0", units: "mb" },
-  { bytes: 10 * 1024 * 1024, useKB: false, mantissa: "10.0", units: "mb" },
-  { bytes: 999 * 1024 * 1024, useKB: false, mantissa: "999", units: "mb" },
-  { bytes: 1000 * 1024 * 1024, useKB: false, mantissa: "1.0", units: "gb" },
-  { bytes: 1024 * 1024 * 1024, useKB: false, mantissa: "1.0", units: "gb" },
-  {
-    bytes: 10 * 1024 * 1024 * 1024,
-    useKB: false,
-    mantissa: "10.0",
-    units: "gb",
-  },
-  {
-    bytes: 999 * 1024 * 1024 * 1024,
-    useKB: false,
-    mantissa: "999",
-    units: "gb",
-  },
-  {
-    bytes: 1000 * 1024 * 1024 * 1024,
-    useKB: false,
-    mantissa: "1.0",
-    units: "tb",
-  },
-  {
-    bytes: 1024 * 1024 * 1024 * 1024,
-    useKB: false,
-    mantissa: "1.0",
-    units: "tb",
-  },
-  {
-    bytes: 10 * 1024 * 1024 * 1024 * 1024,
-    useKB: false,
-    mantissa: "10.0",
-    units: "tb",
-  },
-  {
-    bytes: 999 * 1024 * 1024 * 1024 * 1024,
-    useKB: false,
-    mantissa: "999",
-    units: "tb",
-  },
-  {
-    bytes: 1000 * 1024 * 1024 * 1024 * 1024,
-    useKB: false,
-    mantissa: "1.0",
-    units: "pb",
-  },
-  {
-    bytes: 1000 * 1024 * 1024 * 1024 * 1024,
-    useKB: false,
-    mantissa: "1.0",
-    units: "pb",
-  },
-  {
-    bytes: 1024 * 1024 * 1024 * 1024 * 1024,
-    useKB: false,
-    mantissa: "1.0",
-    units: "pb",
-  },
-  {
-    bytes: 10 * 1024 * 1024 * 1024 * 1024 * 1024,
-    useKB: false,
-    mantissa: "10.0",
-    units: "pb",
-  },
-  {
-    bytes: 999 * 1024 * 1024 * 1024 * 1024 * 1024,
-    useKB: false,
-    mantissa: "999",
-    units: "pb",
-  },
-  {
-    bytes: 1000 * 1024 * 1024 * 1024 * 1024 * 1024,
-    useKB: false,
-    mantissa: "1000",
-    units: "pb",
-  },
-
-  { bytes: 0, useKB: true, mantissa: "0", units: "kb" },
-  { bytes: 1, useKB: true, mantissa: "0.1", units: "kb" },
-  { bytes: 500, useKB: true, mantissa: "0.5", units: "kb" },
-  { bytes: 999, useKB: true, mantissa: "1.0", units: "kb" },
+  { bytes: 0, useKB: true, expected: "0 kB" },
+  { bytes: 1, useKB: true, expected: "0.1 kB" },
+  { bytes: 500, useKB: true, expected: "0.5 kB" },
+  { bytes: 999, useKB: true, expected: "1.0 kB" },
+  { bytes: 10 * MB, useKB: true, expected: "10.0 MB" },
 ];
 
-add_task(function test_format_file_size() {
-  test_data.map(entry => {
-    test_formatFileSize(entry);
-  });
+add_task(function test_formatFileSize() {
+  for (const { bytes, useKB, expected } of testData) {
+    Assert.equal(
+      MailUtils.formatFileSize(bytes, useKB),
+      expected,
+      `${bytes} bytes (useKB=${useKB}) should be formatted correctly`
+    );
+  }
 });

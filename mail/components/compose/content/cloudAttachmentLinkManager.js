@@ -622,7 +622,7 @@ var gCloudAttachmentLinkManager = {
     node.appendChild(aDocument.createElement("br"));
 
     node.appendChild(
-      statsRow("size", gMessenger.formatFileSize(aCloudFileUpload.size))
+      statsRow("size", MailUtils.formatFileSize(aCloudFileUpload.size))
     );
     node.appendChild(aDocument.createElement("br"));
 

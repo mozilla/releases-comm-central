@@ -150,7 +150,6 @@
   "gLastWindowToHaveFocus",
   "gLoadingComplete",
   "gManualAttachmentReminder",
-  "gMessenger",
   "gMIMEService",
   "gMsgCompose",
   "gMsgEditorCreationObserver",

@@ -569,21 +569,22 @@ NS_IMETHODIMP nsMsgNewsFolder::GetSizeOnDisk(int64_t* size) {
   // but 1 is not. So use -1 as a special value meaning no file size was fetched
   // from disk yet.
   if (mFolderSize == kSizeUnknown) {
+    // Leave mFolderSize on kSizeUnknown if the file can't be reached at all.
+    // Callers expect kSizeUnknown rather than a failure.
     nsCOMPtr<nsIFile> diskFile;
-    nsresult rv = GetFilePath(getter_AddRefs(diskFile));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // If there were no news messages downloaded for offline use, the folder
-    // file may not exist yet. In that case size is 0.
-    bool exists = false;
-    rv = diskFile->Exists(&exists);
-    if (NS_FAILED(rv) || !exists) {
-      mFolderSize = 0;
-    } else {
-      int64_t fileSize;
-      rv = diskFile->GetFileSize(&fileSize);
-      NS_ENSURE_SUCCESS(rv, rv);
-      mFolderSize = fileSize;
+    if (NS_SUCCEEDED(GetFilePath(getter_AddRefs(diskFile)))) {
+      // If there were no news messages downloaded for offline use, the folder
+      // file may not exist yet. In that case size is 0.
+      bool exists = false;
+      nsresult rv = diskFile->Exists(&exists);
+      if (NS_FAILED(rv) || !exists) {
+        mFolderSize = 0;
+      } else {
+        int64_t fileSize;
+        if (NS_SUCCEEDED(diskFile->GetFileSize(&fileSize))) {
+          mFolderSize = fileSize;
+        }
+      }
     }
   }
 

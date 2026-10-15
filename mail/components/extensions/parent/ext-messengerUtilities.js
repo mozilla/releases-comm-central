@@ -9,6 +9,9 @@ var { MailServices } = ChromeUtils.importESModule(
 var { MailStringUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailStringUtils.sys.mjs"
 );
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 
 var { MAILBOX_HEADERS, parseEncodedAddrHeader } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionMessages.sys.mjs"
@@ -20,15 +23,12 @@ var parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
 
 this.messengerUtilities = class extends ExtensionAPIPersistent {
   getAPI(context) {
-    const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-      Ci.nsIMessenger
-    );
     const { extension } = context;
 
     return {
       messengerUtilities: {
         async formatFileSize(sizeInBytes) {
-          return messenger.formatFileSize(sizeInBytes);
+          return MailUtils.formatFileSize(sizeInBytes);
         },
         async parseMailboxString(addrString, preserveGroupsOrOptions) {
           const options =

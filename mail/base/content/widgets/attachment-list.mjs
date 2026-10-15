@@ -8,6 +8,9 @@
 var { makeMozIconSrcSet } = ChromeUtils.importESModule(
   "resource:///modules/MozIconUtils.mjs"
 );
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 
 /**
  * The MozAttachmentlist widget lists attachments for a mail. This is typically used to show
@@ -18,10 +21,6 @@ var { makeMozIconSrcSet } = ChromeUtils.importESModule(
 class MozAttachmentlist extends MozElements.RichListBox {
   constructor() {
     super();
-
-    this.messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-      Ci.nsIMessenger
-    );
 
     this.addEventListener("keypress", event => {
       if (event.key == " " && !event.shiftKey && !event.ctrlKey) {
@@ -371,11 +370,9 @@ class MozAttachmentlist extends MozElements.RichListBox {
     let size =
       attachment.size == null || attachment.size == -1
         ? ""
-        : this.messenger.formatFileSize(attachment.size);
+        : MailUtils.formatFileSize(attachment.size);
     if (size && item.cloudHtmlFileSize > 0) {
-      size = `${this.messenger.formatFileSize(
-        item.cloudHtmlFileSize
-      )} (${size})`;
+      size = `${MailUtils.formatFileSize(item.cloudHtmlFileSize)} (${size})`;
     }
     this.setAttachmentSize(item, size);
 

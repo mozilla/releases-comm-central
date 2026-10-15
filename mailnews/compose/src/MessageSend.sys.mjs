@@ -823,11 +823,8 @@ export class MessageSend {
       "mailnews.message_warning_size"
     );
     if (warningSize > 0 && file.fileSize > warningSize) {
-      const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-        Ci.nsIMessenger
-      );
       const msg = lazy.l10n.formatValueSync("send-warning-large-message", {
-        size: messenger.formatFileSize(file.fileSize),
+        size: lazy.MailUtils.formatFileSize(file.fileSize),
       });
       if (!Services.prompt.confirm(this._parentWindow, null, msg)) {
         this.fail(Cr.NS_ERROR_ABORT);

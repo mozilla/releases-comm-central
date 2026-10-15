@@ -9,6 +9,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
   FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
   MailServices: "resource:///modules/MailServices.sys.mjs",
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
 });
 
@@ -410,7 +411,7 @@ class FolderTreeRow extends HTMLLIElement {
    * @returns {string} - The formatted folder size.
    */
   formatFolderSize(size) {
-    return size / 1024 < 1 ? "" : top.messenger.formatFileSize(size, true);
+    return size / 1024 < 1 ? "" : lazy.MailUtils.formatFileSize(size, true);
   }
 
   /**

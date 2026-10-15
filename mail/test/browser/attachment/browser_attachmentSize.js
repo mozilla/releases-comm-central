@@ -5,7 +5,6 @@
 "use strict";
 
 var folder;
-var messenger;
 var epsilon;
 
 var {
@@ -27,6 +26,9 @@ const { add_message_to_folder, create_message, msgGen } =
 
 var { SyntheticPartLeaf, SyntheticPartMultiMixed } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+);
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
 );
 
 var textAttachment =
@@ -177,8 +179,6 @@ var messages = [
 ];
 
 add_setup(async function () {
-  messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-
   /* Today's gory details (thanks to Jonathan Protzenko): libmime somehow
    * counts the trailing newline for an attachment MIME part. Most of the time,
    * assuming attachment has N bytes (no matter what's inside, newlines or
@@ -290,7 +290,7 @@ function check_attachment_size(index, expectedSize) {
   // Next, make sure that the formatted size in the label is correct
   Assert.equal(
     node.getAttribute("size"),
-    messenger.formatFileSize(size),
+    MailUtils.formatFileSize(size),
     `Attachment "${node.attachment.name}" displayed size should match`
   );
 }
@@ -361,7 +361,7 @@ function check_total_attachment_size(count, expectedSize, exact) {
 
   // Next, make sure that the formatted size in the label is correct
   const formattedSize = sizeNode.getAttribute("value");
-  let expectedFormattedSize = messenger.formatFileSize(size);
+  let expectedFormattedSize = MailUtils.formatFileSize(size);
   const messengerBundle = document.getElementById("bundle_messenger");
 
   if (!exact) {

@@ -23,9 +23,9 @@ add_task(async function test_formatFileSize() {
     files: {
       "background.js": async () => {
         const tests = [
-          { sizeInBytes: 12, expectedFormat: "12 bytes" },
-          { sizeInBytes: 2454, expectedFormat: "2.4 KB" },
-          { sizeInBytes: 312312, expectedFormat: "305 KB" },
+          { sizeInBytes: 12, expectedFormat: "12 byte" },
+          { sizeInBytes: 2454, expectedFormat: "2.4 kB" },
+          { sizeInBytes: 312312, expectedFormat: "305 kB" },
           { sizeInBytes: 12312331, expectedFormat: "11.7 MB" },
           { sizeInBytes: 2344234234, expectedFormat: "2.2 GB" },
         ];
