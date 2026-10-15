@@ -104,6 +104,8 @@ tags = ["spam"]
 ["test_junkingWhenDisabled.js"]
 tags = ["spam"]
 
+["test_lineReader.js"]
+
 ["test_loadVirtualFolders.js"]
 tags = ["virtualfolders"]
 

@@ -184,3 +184,56 @@ add_task(async function testSplitLine() {
 
   MailServices.accounts.removeIncomingServer(incomingServer, false);
 });
+
+/**
+ * Test that bare LF line endings in a downloaded message still end the
+ * headers at the empty line, so that header-like lines in the body don't end
+ * up in the message database.
+ */
+add_task(async function testBareLFHeaderSeparator() {
+  const { PromiseTestUtils } = ChromeUtils.importESModule(
+    "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+  );
+  server.resetTest();
+  // Send the message exactly as given, without converting bare LF to CRLF.
+  handler.postCommand = function (reader) {
+    Object.getPrototypeOf(this).postCommand.call(this, reader);
+    reader.preventLFMunge();
+  };
+  daemon.setMessages([
+    {
+      fileData:
+        "From: sender@example.com\n" +
+        "Subject: bare LF separator\n" +
+        "\n" +
+        "Hello: there\n" +
+        "To: someone@example.com\n" +
+        "Content-Type: multipart/mixed; boundary=xyz\n" +
+        "\n" +
+        "Body text\r\n",
+    },
+  ]);
+
+  const incomingServer = createPop3ServerAndLocalFolders(server.port);
+  const inbox = localAccountUtils.inboxFolder;
+  const urlListener = new PromiseTestUtils.PromiseUrlListener();
+  MailServices.pop3.GetNewMail(null, urlListener, inbox, incomingServer);
+  await urlListener.promise;
+
+  const msgHdr = [...inbox.messages].find(
+    hdr => hdr.subject == "bare LF separator"
+  );
+  Assert.ok(msgHdr, "the message should have been downloaded");
+  Assert.equal(
+    msgHdr.recipients,
+    "",
+    "a To line in the body should not be parsed as a header"
+  );
+  Assert.ok(
+    !(msgHdr.flags & Ci.nsMsgMessageFlags.Attachment),
+    "a Content-Type line in the body should not be parsed as a header"
+  );
+
+  delete handler.postCommand;
+  MailServices.accounts.removeIncomingServer(incomingServer, false);
+});
