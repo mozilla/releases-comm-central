@@ -30,6 +30,7 @@
 #include "nsStreamUtils.h"
 #include "nsIScriptError.h"
 #include "nsQueryObject.h"
+#include "nsCharSeparatedTokenizer.h"
 
 using namespace mozilla;
 
@@ -45,6 +46,66 @@ static LazyLogModule MAILBOX("Mailbox");
  * fortezza: proxy auth is huge, buffer increased to 8k (sigh).
  */
 #define OUTPUT_BUFFER_SIZE (4096 * 2)
+
+/**
+ * Get the host of an UNC path, given as an unescaped URL file path using
+ * forward slashes. Handles regular UNC paths ("///host/share/...") as well as
+ * Win32 file and device namespace paths ("///?/UNC/host/share/...",
+ * "///./UNC/host/share/...").
+ *
+ * @param aFilePath - The file path to check.
+ * @param aHost - Set to the host, or to an empty string if the path is a local
+ *   drive path in the Win32 file or device namespace ("///?/C:/...").
+ * @returns false if the path can't safely be resolved.
+ */
+static bool GetUNCHost(const nsACString& aFilePath, nsACString& aHost) {
+  aHost.Truncate();
+  nsTArray<nsCString> segments;
+  for (const auto& segment : aFilePath.Split('/')) {
+    if (segment.IsEmpty()) {
+      continue;
+    }
+    if (segment.EqualsLiteral("..") ||
+        (segment.EqualsLiteral(".") && !segments.IsEmpty())) {
+      return false;
+    }
+    segments.AppendElement(segment);
+  }
+  if (segments.IsEmpty()) {
+    return false;
+  }
+  if (!segments[0].EqualsLiteral("?") && !segments[0].EqualsLiteral(".")) {
+    aHost = segments[0];
+    return true;
+  }
+  if (segments.Length() < 2) {
+    return false;
+  }
+  const nsCString& root = segments[1];
+  if (root.Length() == 2 && IsAsciiAlpha(root[0]) && root[1] == ':') {
+    return true;
+  }
+  if (segments.Length() < 3 || !root.LowerCaseEqualsLiteral("unc")) {
+    return false;
+  }
+  aHost = segments[2];
+  return true;
+}
+
+/**
+ * Check if an UNC host is a numeric IPv4 address without dots, like
+ * "2130706433", "017700000001" or "0x7f000001".
+ */
+static bool IsDotlessNumericHost(const nsACString& aHost) {
+  bool hex =
+      StringBeginsWith(aHost, "0x"_ns, nsCaseInsensitiveCStringComparator);
+  for (uint32_t i = hex ? 2 : 0; i < aHost.Length(); i++) {
+    if (hex ? !IsAsciiHexDigit(aHost[i]) : !IsAsciiDigit(aHost[i])) {
+      return false;
+    }
+  }
+  return hex || !aHost.IsEmpty();
+}
 
 nsMailboxProtocol::nsMailboxProtocol(nsIURI* aURI)
     : nsMsgProtocol(aURI),
@@ -90,9 +151,13 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
       // file:// +  path of which first may be / (linux root) - ok.
       // If second is also / we have an UNC path.
 
-      int32_t dashPos = filePath.FindChar('/', 3);
-      if (dashPos <= 0) {
-        NS_WARNING(nsPrintfCString("Bad mailbox: %s", filePath.get()).get());
+      nsAutoCString uncHost;
+      if (!GetUNCHost(filePath, uncHost)) {
+        nsPrintfCString blocked("Blocking UNC mailbox at %s.", filePath.get());
+        NS_WARNING(blocked.get());
+        MsgLogToConsole4(NS_ConvertUTF8toUTF16(blocked),
+                         nsDependentCString(__FILE__), __LINE__,
+                         nsIScriptError::warningFlag);
         return NS_ERROR_FILE_UNRECOGNIZED_PATH;
       }
 
@@ -105,17 +170,16 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
       nsCString profileSpec = profileFileURI->GetSpecOrDefault();
       profileSpec.Replace(0, 5, "mailbox:"_ns);  // file: -> mailbox:
       // If under the profile, allow it.
-      if (!StringBeginsWith(aURL->GetSpecOrDefault(), profileSpec)) {
+      if (!uncHost.IsEmpty() &&
+          !StringBeginsWith(aURL->GetSpecOrDefault(), profileSpec)) {
         // It's not a path under the profile. See if we still can allow it.
-        nsCString uncPath(StringHead(filePath, dashPos));  // -> ///example.com
-
         nsCString uncHosts;
         Preferences::GetCString("mail.allowed_unc_hosts", uncHosts);
         nsTArray<nsCString> hosts;
         ParseString(uncHosts, ',', hosts);
         bool allowed = false;
         for (auto host : hosts) {
-          if (StringEndsWith(uncPath, "/"_ns + host)) {
+          if (uncHost.Equals(host, nsCaseInsensitiveCStringComparator)) {
             allowed = true;
             break;
           }
@@ -124,10 +188,11 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
         if (!allowed) {
           // Not explicitly allowed.
           // Then check if FQDN or IPv4/v6 and deny if it is.
-          if (uncPath.FindChar('.') != -1 || uncPath.FindChar(':') != -1) {
+          if (uncHost.FindChar('.') != -1 || uncHost.FindChar(':') != -1 ||
+              IsDotlessNumericHost(uncHost)) {
             // Disallow remote UNC mailbox:// access.
             nsPrintfCString blocked("Blocking UNC mailbox at %s.",
-                                    uncPath.get());
+                                    uncHost.get());
             NS_WARNING(blocked.get());
             blocked.Append(
                 " To allow, add the hostname to mail.allowed_unc_hosts."_ns);

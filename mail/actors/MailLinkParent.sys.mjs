@@ -38,6 +38,19 @@ export class MailLinkParent extends JSWindowActorParent {
 
   _handleMailboxLink({ data, target }) {
     const url = new URL(data.href);
+    const documentURL = URL.parse(target.windowContext.documentURI.spec);
+    // Only allow opening parts of the message being displayed.
+    if (
+      !documentURL ||
+      url.protocol != documentURL.protocol ||
+      url.username != documentURL.username ||
+      url.host != documentURL.host ||
+      url.pathname != documentURL.pathname ||
+      url.searchParams.get("number") != documentURL.searchParams.get("number")
+    ) {
+      console.warn(`Not opening link to another message: ${data.href}`);
+      return;
+    }
     const filename = url.searchParams.get("filename");
     // When a message is received with a 'news:' link embedded as a MIME part
     // of the message, the internal 'cid:' link is converted to a mailbox link
