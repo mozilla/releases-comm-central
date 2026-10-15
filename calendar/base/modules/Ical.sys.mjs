@@ -2898,6 +2898,9 @@ class Timezone {
 
   static _minimumExpansionYear = -1;
   static EXTRA_COVERAGE = 5;
+  // Local patch for https://github.com/kewisch/ical.js/issues/1054 (bug 2077830):
+  // the most changes to expand a timezone into.
+  static MAX_CHANGES = 10000;
 
   /**
    * Creates a new ICAL.Timezone instance, by passing in a tzid and component.
@@ -3143,6 +3146,7 @@ class Timezone {
     changesEndYear += Timezone.EXTRA_COVERAGE;
 
     if (!this.changes.length || this.expandedUntilYear < aYear) {
+      this.changes = [];
       let subcomps = this.component.getAllSubcomponents();
       let compLen = subcomps.length;
       let compIdx = 0;
@@ -3186,7 +3190,7 @@ class Timezone {
       return changebase;
     }
 
-    if (!aComponent.hasProperty("rrule") && !aComponent.hasProperty("rdate")) {
+    function push_dtstart_change() {
       change = init_changes();
       change.year = dtstart.year;
       change.month = dtstart.month;
@@ -3197,6 +3201,10 @@ class Timezone {
 
       Timezone.adjust_change(change, 0, 0, 0, -change.prevUtcOffset);
       changes.push(change);
+    }
+
+    if (!aComponent.hasProperty("rrule") && !aComponent.hasProperty("rdate")) {
+      push_dtstart_change();
     } else {
       let props = aComponent.getAllProperties("rdate");
       for (let rdate of props) {
@@ -3232,6 +3240,15 @@ class Timezone {
 
       if (rrule) {
         rrule = rrule.getFirstValue();
+      }
+
+      // Local patch for https://github.com/kewisch/ical.js/issues/1054 (bug 2077830):
+      // a crafted rule could otherwise expand into billions of changes. Real
+      // timezones never change more often than daily, so a sub-daily rule
+      // only contributes its DTSTART.
+      if (rrule && ["SECONDLY", "MINUTELY", "HOURLY"].includes(rrule.freq)) {
+        push_dtstart_change();
+      } else if (rrule) {
         change = init_changes();
 
         if (rrule.until && rrule.until.zone == Timezone.utcTimezone) {
@@ -3244,7 +3261,7 @@ class Timezone {
         let occ;
         while ((occ = iterator.next())) {
           change = init_changes();
-          if (occ.year > aYear || !occ) {
+          if (occ.year > aYear) {
             break;
           }
 
@@ -3258,6 +3275,10 @@ class Timezone {
 
           Timezone.adjust_change(change, 0, 0, 0, -change.prevUtcOffset);
           changes.push(change);
+
+          if (changes.length >= Timezone.MAX_CHANGES) {
+            break;
+          }
         }
       }
     }

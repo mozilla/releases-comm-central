@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { default: ICAL } = ChromeUtils.importESModule("resource:///modules/calendar/Ical.sys.mjs");
+
 const FEBRUARY = 1;
 const OCTOBER = 9;
 const NOVEMBER = 10;
@@ -87,5 +89,56 @@ add_test(function testSaoPaulo() {
   time.resetTo(2020, NOVEMBER, 1, 0, 0, 0, zone);
   equal(time.timezoneOffset, UTC_MINUS_3, time.toString());
 
+  run_next_test();
+});
+
+function makeTimezone(rrule) {
+  return new ICAL.Timezone(
+    ICAL.Component.fromString(
+      [
+        "BEGIN:VTIMEZONE",
+        "TZID:Test",
+        "BEGIN:STANDARD",
+        "DTSTART:19700101T000000",
+        "TZOFFSETFROM:+0100",
+        "TZOFFSETTO:+0200",
+        `RRULE:${rrule}`,
+        "END:STANDARD",
+        "END:VTIMEZONE",
+      ].join("\r\n")
+    )
+  );
+}
+
+// Bug 2077830: timezone rules that change too often must not hang expansion.
+add_test(function testSubDailyRule() {
+  for (const rrule of [
+    "FREQ=SECONDLY",
+    "FREQ=MINUTELY",
+    "FREQ=HOURLY;BYMINUTE=30",
+    "FREQ=SECONDLY;BYMONTH=2;BYMONTHDAY=30",
+  ]) {
+    const zone = makeTimezone(rrule);
+    const time = ICAL.Time.fromDateTimeString("2025-06-01T12:00:00");
+    equal(zone.utcOffset(time), 2 * 3600, `${rrule} offset should be applied`);
+    equal(zone.changes.length, 1, `${rrule} should only expand its DTSTART`);
+    const { year, month, day, hour, minute, second } = zone.changes[0];
+    deepEqual(
+      [year, month, day, hour, minute, second],
+      [1969, 12, 31, 23, 0, 0],
+      `${rrule} change should be at DTSTART in UTC`
+    );
+  }
+  run_next_test();
+});
+
+add_test(function testExplodingRule() {
+  const range = n => Array.from({ length: n }, (_, i) => i).join(",");
+  const zone = makeTimezone(
+    `FREQ=YEARLY;BYHOUR=${range(24)};BYMINUTE=${range(60)};BYSECOND=${range(60)}`
+  );
+  const time = ICAL.Time.fromDateTimeString("2025-06-01T12:00:00");
+  equal(zone.utcOffset(time), 2 * 3600, "offset should be applied");
+  equal(zone.changes.length, ICAL.Timezone.MAX_CHANGES, "changes should be capped");
   run_next_test();
 });
