@@ -9,6 +9,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   MailServices: "resource:///modules/MailServices.sys.mjs",
   MimeParser: "resource:///modules/mimeParser.sys.mjs",
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
+  NntpUtils: "resource:///modules/NntpUtils.sys.mjs",
   OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
   openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
   PlacesUtils: "resource://gre/modules/PlacesUtils.sys.mjs",
@@ -871,10 +872,12 @@ export var MailUtils = {
    * in a new tab or message window.
    * For URIs that identify a newsgroup, ask to subscribe, if necessary, and
    * open the group in the folder pane.
+   * For 'nntp' URIs that identify an article by newsgroup and article number,
+   * ask to subscribe to the newsgroup, if necessary, and display the article.
    * If no host is specified in the URI, the server of the first NNTP account
    * is used.
    *
-   * @param {string} uri - The 'news' URI to open.
+   * @param {string} uri - The 'news' or 'nntp' URI to open.
    * @param {DOMWindow} win - The window which the URI is being opened within.
    */
   handleNewsUri(uri, win) {
@@ -893,8 +896,8 @@ export var MailUtils = {
     // connecting to an unknown server.
     // @see {@link https://datatracker.ietf.org/doc/html/rfc5538#section-8.1}
     const secure = ["snews:", "nntps:"].includes(url.protocol);
-    // 'nntp' URIs identify an article by newsgroup and article number. Only
-    // the newsgroup is used. 'nntps' is the same using NNTP over TLS.
+    // 'nntp' URIs identify a newsgroup, or an article by newsgroup and
+    // article number. 'nntps' is the same using NNTP over TLS.
     // @see {@link https://datatracker.ietf.org/doc/html/rfc5538#section-3}
     const isNntp = ["nntp:", "nntps:"].includes(url.protocol);
     url.protocol = "news:";
@@ -906,9 +909,14 @@ export var MailUtils = {
     // 'news' URIs identifying a newsgroup.
 
     let identifier = decodeURIComponent(url.pathname.slice(1));
+    let articleNumber;
     if (isNntp) {
-      identifier = identifier.split("/")[0];
-      if (identifier.includes("@")) {
+      [identifier, articleNumber] = identifier.split("/");
+      if (
+        !identifier ||
+        identifier.includes("@") ||
+        (articleNumber && !lazy.NntpUtils.isValidArticleNumber(articleNumber))
+      ) {
         console.warn(`Unsupported nntp URI: ${uri}`);
         return;
       }
@@ -944,7 +952,28 @@ export var MailUtils = {
         }
         server.subscribeToNewsgroup(identifier);
       }
-      this.displayFolderIn3Pane(server.findGroup(identifier).URI);
+      const folder = server.findGroup(identifier);
+      if (!articleNumber) {
+        this.displayFolderIn3Pane(folder.URI);
+        return;
+      }
+
+      let msgHdr = null;
+      try {
+        msgHdr = folder.GetMessageHeader(articleNumber);
+      } catch (e) {}
+      if (msgHdr) {
+        this.displayMessage(msgHdr);
+        return;
+      }
+      url.hostname = server.hostname;
+      url.port = server.port;
+      url.pathname = "/";
+      url.search = new URLSearchParams({
+        group: identifier,
+        key: articleNumber,
+      });
+      this._openNewsArticle(url.href, win);
       return;
     }
 
@@ -993,6 +1022,17 @@ export var MailUtils = {
       }
     }
 
+    this._openNewsArticle(url.href, win);
+  },
+
+  /**
+   * Retrieve a news article from the server, save it in a temporary EML file,
+   * and display it in a new tab or message window.
+   *
+   * @param {string} uri - The 'news' URI of the article.
+   * @param {DOMWindow} win - The window which the URI is being opened within.
+   */
+  _openNewsArticle(uri, win) {
     const tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
     tempFile.append("newsuri.eml");
     tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
@@ -1013,13 +1053,7 @@ export var MailUtils = {
         MailUtils.openEMLFile(win, tempFile, Services.io.newFileURI(tempFile));
       },
     };
-    messageService.saveMessageToDisk(
-      url.href,
-      tempFile,
-      urlListener,
-      true,
-      null
-    );
+    messageService.saveMessageToDisk(uri, tempFile, urlListener, true, null);
   },
 
   /**

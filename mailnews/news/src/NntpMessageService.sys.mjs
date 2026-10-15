@@ -93,7 +93,8 @@ class BaseMessageService {
     }
 
     const [folder, key] = this._decomposeNewsMessageURI(messageUri);
-    if (folder && folder.QueryInterface(Ci.nsIMsgNewsFolder)) {
+    // The header may not have been downloaded yet.
+    if (folder?.msgDatabase.containsKey(key)) {
       url.msgIsInLocalCache = folder.hasMsgOffline(key);
     }
 

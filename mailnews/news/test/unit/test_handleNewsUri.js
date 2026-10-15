@@ -12,6 +12,9 @@
 var { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
+var { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+);
 var { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
 );
@@ -34,6 +37,7 @@ var kArticleForMsgId =
 // --- Stub state ---
 
 var gFolderUrisOpened = [];
+var gMessagesDisplayed = [];
 var gEmlFilesOpened = [];
 var gConfirmResult = true;
 var gConfirmCallCount = 0;
@@ -43,6 +47,7 @@ var gOnEmlOpened = null;
 
 // Keep originals for cleanup.
 var originalDisplayFolderIn3Pane = MailUtils.displayFolderIn3Pane;
+var originalDisplayMessage = MailUtils.displayMessage;
 var originalOpenEMLFile = MailUtils.openEMLFile;
 var originalPrompt = Services.prompt;
 
@@ -72,6 +77,9 @@ add_setup(function () {
   // Stub UI-dependent MailUtils methods (no real windows in xpcshell).
   MailUtils.displayFolderIn3Pane = function (folderURI) {
     gFolderUrisOpened.push(folderURI);
+  };
+  MailUtils.displayMessage = function (msgHdr) {
+    gMessagesDisplayed.push(msgHdr);
   };
   MailUtils.openEMLFile = function (win, tempFile, fileUri) {
     gEmlFilesOpened.push({ tempFile, fileUri });
@@ -131,6 +139,7 @@ add_setup(function () {
   registerCleanupFunction(function () {
     Services.prompt = originalPrompt;
     MailUtils.displayFolderIn3Pane = originalDisplayFolderIn3Pane;
+    MailUtils.displayMessage = originalDisplayMessage;
     MailUtils.openEMLFile = originalOpenEMLFile;
     server.stop();
   });
@@ -138,6 +147,7 @@ add_setup(function () {
 
 function resetCaptures() {
   gFolderUrisOpened = [];
+  gMessagesDisplayed = [];
   gEmlFilesOpened = [];
   gConfirmResult = true;
   gConfirmCallCount = 0;
@@ -174,10 +184,10 @@ add_task(function test_snews_to_news_conversion() {
   );
 });
 
-add_task(function test_nntp_newsgroup_and_article_number() {
+add_task(function test_nntp_newsgroup() {
   resetCaptures();
   MailUtils.handleNewsUri(
-    `nntp://localhost:${server.port}/test.subscribe.simple/1`,
+    `nntp://localhost:${server.port}/test.subscribe.simple`,
     null
   );
   Assert.equal(gConfirmCallCount, 0, "should not prompt");
@@ -186,6 +196,125 @@ add_task(function test_nntp_newsgroup_and_article_number() {
     gFolderUrisOpened[0].includes("test.subscribe.simple"),
     "folder URI should contain the newsgroup name"
   );
+});
+
+add_task(async function test_nntp_article_fetch() {
+  resetCaptures();
+  const openedPromise = new Promise(resolve => {
+    gOnEmlOpened = resolve;
+  });
+  MailUtils.handleNewsUri(
+    `nntp://localhost:${server.port}/test.filter/1`,
+    null
+  );
+  await openedPromise;
+
+  Assert.equal(gConfirmCallCount, 0, "should not prompt");
+  Assert.equal(gFolderUrisOpened.length, 0, "should not open a folder");
+  Assert.greater(
+    gEmlFilesOpened[0].tempFile.fileSize,
+    0,
+    "should fetch the article when its header isn't in the folder"
+  );
+});
+
+add_task(async function test_nntp_articles_fetched_separately() {
+  const messageIds = [];
+  for (const articleNumber of [1, 2]) {
+    resetCaptures();
+    const openedPromise = new Promise(resolve => {
+      gOnEmlOpened = resolve;
+    });
+    MailUtils.handleNewsUri(
+      `nntp://localhost:${server.port}/test.filter/${articleNumber}`,
+      null
+    );
+    const tempFile = await openedPromise;
+    const data = await IOUtils.readUTF8(tempFile.path);
+    messageIds.push(data.match(/^Message-ID: (.*)$/m)?.[1]);
+  }
+  Assert.ok(messageIds[0], "first article should be fetched");
+  Assert.notEqual(
+    messageIds[0],
+    messageIds[1],
+    "different articles should be displayed"
+  );
+});
+
+add_task(async function test_nntp_article_in_folder() {
+  const folder = incomingServer.rootFolder.getChildNamed("test.filter");
+  const urlListener = new PromiseTestUtils.PromiseUrlListener();
+  incomingServer.getNewMessages(folder, null, urlListener);
+  await urlListener.promise;
+
+  resetCaptures();
+  MailUtils.handleNewsUri(
+    `nntp://localhost:${server.port}/test.filter/1`,
+    null
+  );
+  Assert.equal(gMessagesDisplayed.length, 1, "should display the message");
+  Assert.equal(
+    gMessagesDisplayed[0].messageKey,
+    1,
+    "should display the message with the article number as key"
+  );
+  Assert.equal(gEmlFilesOpened.length, 0, "should not fetch the article");
+});
+
+add_task(function test_nntp_article_unsubscribed_reject() {
+  resetCaptures();
+  gConfirmResult = false;
+  MailUtils.handleNewsUri(
+    `nntp://localhost:${server.port}/misc.test/128`,
+    null
+  );
+  Assert.equal(gConfirmCallCount, 1, "should prompt to subscribe");
+  Assert.equal(gMessagesDisplayed.length, 0, "should not display a message");
+  Assert.equal(gEmlFilesOpened.length, 0, "should not fetch the article");
+  Assert.ok(
+    !incomingServer
+      .QueryInterface(Ci.nsINntpIncomingServer)
+      .containsNewsgroup("misc.test"),
+    "misc.test should not be subscribed after the user rejected"
+  );
+});
+
+add_task(function test_nntp_invalid_article_number() {
+  const originalOpenNewsArticle = MailUtils._openNewsArticle;
+  let articlesOpened = 0;
+  MailUtils._openNewsArticle = () => articlesOpened++;
+  try {
+    for (const articleNumber of [
+      "abc",
+      "0",
+      "2147483648",
+      "23434534534534534545454",
+    ]) {
+      resetCaptures();
+      MailUtils.handleNewsUri(
+        `nntp://localhost:${server.port}/test.filter/${articleNumber}`,
+        null
+      );
+      Assert.equal(gConfirmCallCount, 0, `${articleNumber} should not prompt`);
+      Assert.equal(
+        gFolderUrisOpened.length,
+        0,
+        `${articleNumber} should not open a folder`
+      );
+      Assert.equal(
+        gMessagesDisplayed.length,
+        0,
+        `${articleNumber} should not display a message`
+      );
+      Assert.equal(
+        articlesOpened,
+        0,
+        `${articleNumber} should not fetch an article`
+      );
+    }
+  } finally {
+    MailUtils._openNewsArticle = originalOpenNewsArticle;
+  }
 });
 
 add_task(function test_nntps_newsgroup() {

@@ -308,7 +308,8 @@ add_task(async function testNewsLinkTargetsInMailMessage() {
 
 /**
  * Clicking an nntp: link with a target in a mail message must open the
- * newsgroup, not open the URL in a content tab.
+ * newsgroup, or the article for a link with an article number, not open the
+ * URL in a content tab.
  */
 add_task(async function testNntpLinkInMailMessage() {
   const newsFolder = await setupNewsFolder(
@@ -320,7 +321,10 @@ add_task(async function testNntpLinkInMailMessage() {
     generator
       .makeMessage({
         body: {
-          body: `<html><body><a id="nntp" href="nntp://test.test:119/${GROUP}.nntp/1" target="_blank" style="display:block;width:100px;height:100px">nntp</a></body></html>`,
+          body: `<html><body>
+            <a id="nntp" href="nntp://test.test:119/${GROUP}.nntp" target="_blank" style="display:block;width:100px;height:100px">nntp</a>
+            <a id="nntpArticle" href="nntp://test.test:119/${GROUP}.nntp/1" target="_blank" style="display:block;width:100px;height:100px">nntp article</a>
+          </body></html>`,
           contentType: "text/html",
         },
       })
@@ -338,11 +342,38 @@ add_task(async function testNntpLinkInMailMessage() {
     () => get_about_3pane().gFolder == newsFolder,
     "the newsgroup should be displayed"
   );
-  Assert.equal(
-    document.getElementById("tabmail").tabInfo.length,
-    1,
-    "no tab should be opened"
+  const tabmail = document.getElementById("tabmail");
+  Assert.equal(tabmail.tabInfo.length, 1, "no tab should be opened");
+
+  await be_in_folder(folder);
+  await select_click_row(0);
+  const tabPromise = BrowserTestUtils.waitForEvent(window, "TabOpen");
+  const loadedPromise = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "#nntpArticle",
+    {},
+    get_about_message().getMessagePaneBrowser()
   );
+  const {
+    detail: { tabInfo },
+  } = await tabPromise;
+  Assert.equal(
+    tabInfo.mode.name,
+    "mailMessageTab",
+    "the article should open in a message tab"
+  );
+  await loadedPromise;
+  Assert.equal(
+    tabInfo.message.messageKey,
+    1,
+    "the article with the linked article number should be displayed"
+  );
+  Assert.equal(
+    tabInfo.message.folder,
+    newsFolder,
+    "the article should be displayed from the newsgroup"
+  );
+  tabmail.closeTab(tabInfo);
 
   folder.deleteSelf(null);
 });
@@ -358,7 +389,7 @@ add_task(async function testNntpUriFromCommandLine() {
   await be_in_folder(mailFolder);
 
   const cmdLine = Cu.createCommandLine(
-    [`nntp://test.test:119/${GROUP}.cmdline/1`],
+    [`nntp://test.test:119/${GROUP}.cmdline`],
     null,
     Ci.nsICommandLine.STATE_REMOTE_EXPLICIT
   );

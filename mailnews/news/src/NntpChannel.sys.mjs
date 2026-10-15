@@ -209,9 +209,9 @@ export class NntpChannel extends MailChannel {
           Cr.NS_ERROR_UNKNOWN_HOST
         );
       }
-      if (!/^\d+$/.test(this._articleNumber ?? "")) {
+      if (!lazy.NntpUtils.isValidArticleNumber(this._articleNumber)) {
         throw Components.Exception(
-          `No article number in nntp URI: ${this.URI.spec}`,
+          `No valid article number in nntp URI: ${this.URI.spec}`,
           Cr.NS_ERROR_MALFORMED_URI
         );
       }
@@ -262,8 +262,17 @@ export class NntpChannel extends MailChannel {
       if (url.search) {
         // A full news url may look like
         // news://<host>:119/<Msg-ID>?group=<name>&key=<key>&header=quotebody.
-        // Remove any query strings to keep the cache key stable.
-        uri = uri.mutate().setQuery("").finalize();
+        // Strip presentation parameters from the cache key. Keep group and key
+        // for news URLs without a message-id; nntp URLs identify the article
+        // in their path.
+        const query =
+          this._messageId || this.URI.scheme == "nntp"
+            ? ""
+            : new URLSearchParams({
+                group: url.searchParams.get("group") ?? "",
+                key: url.searchParams.get("key") ?? "",
+              }).toString();
+        uri = uri.mutate().setQuery(query).finalize();
       }
 
       // Check if a memory cache is available for the current URI.

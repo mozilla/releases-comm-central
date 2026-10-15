@@ -427,6 +427,9 @@ add_task(function test_nntpNoArticleNumber() {
   for (const spec of [
     `nntp://localhost:${NNTP_PORT}/test.filter`,
     `nntp://localhost:${NNTP_PORT}/test.filter/x`,
+    `nntp://localhost:${NNTP_PORT}/test.filter/0`,
+    `nntp://localhost:${NNTP_PORT}/test.filter/2147483648`,
+    `nntp://localhost:${NNTP_PORT}/test.filter/23434534534534534545454`,
   ]) {
     const channel = NetUtil.newChannel({
       uri: spec,
@@ -436,6 +439,43 @@ add_task(function test_nntpNoArticleNumber() {
       () => channel.asyncOpen(new StatusListener()),
       /NS_ERROR_MALFORMED_URI/,
       `${spec} should be refused`
+    );
+  }
+});
+
+/**
+ * Test the range of valid article numbers.
+ */
+add_task(function test_isValidArticleNumber() {
+  for (const value of [
+    "1",
+    "42",
+    "2147483647",
+    "00000000001",
+    "0000000000000001",
+    "0002147483647",
+  ]) {
+    Assert.ok(
+      NntpUtils.isValidArticleNumber(value),
+      `${value} should be a valid article number`
+    );
+  }
+  for (const value of [
+    undefined,
+    "",
+    "0",
+    "-1",
+    "1.5",
+    "1e3",
+    "2147483648",
+    "23434534534534534545454",
+    "0000000000000000",
+    "00000000000000001",
+    "0002147483648",
+  ]) {
+    Assert.ok(
+      !NntpUtils.isValidArticleNumber(value),
+      `${value} should not be a valid article number`
     );
   }
 });
@@ -484,5 +524,59 @@ add_task(async function test_nntpArticleWithoutHeaderInOfflineGroup() {
     ]);
   } finally {
     folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
+  }
+});
+
+/**
+ * Test that ?group=name&key=x news urls for different articles don't share a
+ * memory cache entry.
+ */
+add_task(async function test_groupAndKeyCacheEntries() {
+  const messageIds = [];
+  for (const key of [1, 2]) {
+    const streamListener = new PromiseTestUtils.PromiseStreamListener();
+    NetUtil.newChannel({
+      uri: `news://localhost:${NNTP_PORT}/?group=test.filter&key=${key}`,
+      loadUsingSystemPrincipal: true,
+    }).asyncOpen(streamListener);
+    const data = await streamListener.promise;
+    messageIds.push(data.match(/^Message-ID: (.*)$/m)?.[1]);
+  }
+  Assert.ok(messageIds[0], "first article should be fetched");
+  Assert.notEqual(
+    messageIds[0],
+    messageIds[1],
+    "different articles should be fetched"
+  );
+});
+
+/**
+ * Test that a part of an article fetched by an nntp: URI is read from the
+ * memory cache of the article, so it also works offline.
+ */
+add_task(async function test_nntpCachedPartOffline() {
+  _server.closeCachedConnections();
+  const articleURL = `nntp://localhost:${NNTP_PORT}/test.filter/3`;
+  const streamListener = new PromiseTestUtils.PromiseStreamListener();
+  NetUtil.newChannel({
+    uri: articleURL,
+    loadUsingSystemPrincipal: true,
+  }).asyncOpen(streamListener);
+  await streamListener.promise;
+
+  Services.io.offline = true;
+  try {
+    const partListener = new PromiseTestUtils.PromiseStreamListener();
+    NetUtil.newChannel({
+      uri: `${articleURL}?part=1`,
+      loadUsingSystemPrincipal: true,
+    }).asyncOpen(partListener);
+    Assert.stringContains(
+      await partListener.promise,
+      "This is the third body post.",
+      "the part should be read from the cached article"
+    );
+  } finally {
+    Services.io.offline = false;
   }
 });

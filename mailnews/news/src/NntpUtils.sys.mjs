@@ -56,4 +56,19 @@ export var NntpUtils = {
     }
     return null;
   },
+
+  /**
+   * Check whether a string is a valid article number: up to 16 digits, leading
+   * zeros allowed, with a value between 1 and 2,147,483,647, which also keeps
+   * it within an nsMsgKey.
+   *
+   * @see {@link https://datatracker.ietf.org/doc/html/rfc3977#section-6}
+   * @param {?string} value - The article number to check.
+   * @returns {boolean}
+   */
+  isValidArticleNumber(value) {
+    return (
+      /^\d{1,16}$/.test(value ?? "") && +value >= 1 && +value <= 2 ** 31 - 1
+    );
+  },
 };
