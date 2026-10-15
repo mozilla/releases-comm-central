@@ -468,7 +468,6 @@ function make_person_with_word_in_name(aWord) {
 class MockViewWrapperListener extends IDBViewWrapperListener {
   shouldUseMailViews = true;
   shouldDeferMessageDisplayUntilAfterServerConnect = false;
-  messenger = null;
   // Use no message window!
   msgWindow = null;
   threadPaneCommandUpdater = gFakeCommandUpdater;

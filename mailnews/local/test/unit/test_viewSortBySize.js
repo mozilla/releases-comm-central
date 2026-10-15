@@ -68,7 +68,7 @@ add_task(async function testViewSortBySize() {
     );
   };
 
-  dbView.init(null, null, null);
+  dbView.init(null, null);
   dbView.open(
     localAccountUtils.inboxFolder,
     Ci.nsMsgViewSortType.bySize,

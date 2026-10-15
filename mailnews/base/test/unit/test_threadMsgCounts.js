@@ -486,7 +486,7 @@ async function makeMessages(folder, specs) {
 function makeView(viewType, folder, sortType, flags, virtualFolderWrapper) {
   const dbviewContractId = `@mozilla.org/messenger/msgdbview;1?type=${viewType}`;
   const dbView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
-  dbView.init(null, null, null);
+  dbView.init(null, null);
   if (virtualFolderWrapper) {
     dbView.viewFolder = virtualFolderWrapper.virtualFolder;
   }

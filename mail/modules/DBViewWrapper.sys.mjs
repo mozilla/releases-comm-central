@@ -379,7 +379,6 @@ IDBViewWrapperListener.prototype = {
   _FNH: FolderNotificationHelper,
 
   /* ===== Exposure of UI Globals ===== */
-  messenger: null,
   msgWindow: null,
   threadPaneCommandUpdater: null,
 
@@ -732,11 +731,7 @@ DBViewWrapper.prototype = {
     // -- clone the view
     if (this.dbView) {
       doppel.dbView = this.dbView
-        .cloneDBView(
-          aListener.messenger,
-          aListener.msgWindow,
-          aListener.threadPaneCommandUpdater
-        )
+        .cloneDBView(aListener.msgWindow, aListener.threadPaneCommandUpdater)
         .QueryInterface(Ci.nsITreeView);
     }
     // -- clone the search
@@ -1228,7 +1223,6 @@ DBViewWrapper.prototype = {
 
     const dbView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
     dbView.init(
-      this.listener.messenger,
       this.listener.msgWindow,
       this.listener.threadPaneCommandUpdater
     );

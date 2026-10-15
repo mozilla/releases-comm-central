@@ -56,13 +56,12 @@ nsMsgXFVirtualFolderDBView::Close() {
 }
 
 NS_IMETHODIMP
-nsMsgXFVirtualFolderDBView::CloneDBView(nsIMessenger* aMessengerInstance,
-                                        nsIMsgWindow* aMsgWindow,
+nsMsgXFVirtualFolderDBView::CloneDBView(nsIMsgWindow* aMsgWindow,
                                         nsIMsgDBViewCommandUpdater* aCmdUpdater,
                                         nsIMsgDBView** _retval) {
   nsMsgXFVirtualFolderDBView* newMsgDBView = new nsMsgXFVirtualFolderDBView();
   nsresult rv =
-      CopyDBView(newMsgDBView, aMessengerInstance, aMsgWindow, aCmdUpdater);
+      CopyDBView(newMsgDBView, aMsgWindow, aCmdUpdater);
   NS_ENSURE_SUCCESS(rv, rv);
 
   NS_IF_ADDREF(*_retval = newMsgDBView);
@@ -71,9 +70,8 @@ nsMsgXFVirtualFolderDBView::CloneDBView(nsIMessenger* aMessengerInstance,
 
 NS_IMETHODIMP
 nsMsgXFVirtualFolderDBView::CopyDBView(
-    nsMsgDBView* aNewMsgDBView, nsIMessenger* aMessengerInstance,
-    nsIMsgWindow* aMsgWindow, nsIMsgDBViewCommandUpdater* aCmdUpdater) {
-  nsMsgSearchDBView::CopyDBView(aNewMsgDBView, aMessengerInstance, aMsgWindow,
+    nsMsgDBView* aNewMsgDBView, nsIMsgWindow* aMsgWindow, nsIMsgDBViewCommandUpdater* aCmdUpdater) {
+  nsMsgSearchDBView::CopyDBView(aNewMsgDBView, aMsgWindow,
                                 aCmdUpdater);
 
   nsMsgXFVirtualFolderDBView* newMsgDBView =

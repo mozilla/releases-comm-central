@@ -19,7 +19,6 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
 
 const TEXT_ATTACHMENT = "inline text attachment";
 
-var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 var msgGen = new MessageGenerator();
 var inbox;
 var messageInjection = new MessageInjection({ mode: "local" });

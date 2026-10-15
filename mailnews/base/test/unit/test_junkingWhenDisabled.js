@@ -107,7 +107,7 @@ add_setup(async function () {
   view_flag |= Ci.nsMsgViewFlagsType.kExpandAll;
 
   gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
-  gDBView.init(null, null, null);
+  gDBView.init(null, null);
   gDBView.open(
     gLocalInboxFolder,
     Ci.nsMsgViewSortType.byDate,

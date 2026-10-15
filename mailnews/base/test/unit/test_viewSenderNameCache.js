@@ -96,7 +96,7 @@ add_setup(async function () {
   gDBView = Cc[
     "@mozilla.org/messenger/msgdbview;1?type=threaded"
   ].createInstance(Ci.nsIMsgDBView);
-  gDBView.init(null, null, null);
+  gDBView.init(null, null);
   gDBView.open(
     gFolder,
     Ci.nsMsgViewSortType.byDate,

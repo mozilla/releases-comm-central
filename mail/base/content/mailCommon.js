@@ -1046,7 +1046,6 @@ var dbViewWrapperListener = {
    */
   _nextViewIndexGeneration: 0,
 
-  messenger: null,
   msgWindow: top.msgWindow,
   threadPaneCommandUpdater: {
     QueryInterface: ChromeUtils.generateQI([

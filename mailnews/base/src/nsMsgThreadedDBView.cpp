@@ -838,8 +838,7 @@ nsMsgThreadedDBView::GetViewType(nsMsgViewTypeValue* aViewType) {
 }
 
 NS_IMETHODIMP
-nsMsgThreadedDBView::CloneDBView(nsIMessenger* aMessengerInstance,
-                                 nsIMsgWindow* aMsgWindow,
+nsMsgThreadedDBView::CloneDBView(nsIMsgWindow* aMsgWindow,
                                  nsIMsgDBViewCommandUpdater* aCmdUpdater,
                                  nsIMsgDBView** _retval) {
   nsMsgThreadedDBView* newMsgDBView = new nsMsgThreadedDBView();
@@ -847,7 +846,7 @@ nsMsgThreadedDBView::CloneDBView(nsIMessenger* aMessengerInstance,
   if (!newMsgDBView) return NS_ERROR_OUT_OF_MEMORY;
 
   nsresult rv =
-      CopyDBView(newMsgDBView, aMessengerInstance, aMsgWindow, aCmdUpdater);
+      CopyDBView(newMsgDBView, aMsgWindow, aCmdUpdater);
   NS_ENSURE_SUCCESS(rv, rv);
 
   NS_IF_ADDREF(*_retval = newMsgDBView);

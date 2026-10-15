@@ -14,8 +14,6 @@ var gTestFiles = ["../../../data/bug505221", "../../../data/bug513543"];
 
 var gMessages;
 
-var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-
 var gUrlListener = {
   OnStartRunningUrl() {},
   OnStopRunningUrl() {

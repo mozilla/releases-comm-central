@@ -455,10 +455,9 @@ nsMsgGroupView::GetViewType(nsMsgViewTypeValue* aViewType) {
 
 NS_IMETHODIMP
 nsMsgGroupView::CopyDBView(nsMsgDBView* aNewMsgDBView,
-                           nsIMessenger* aMessengerInstance,
                            nsIMsgWindow* aMsgWindow,
                            nsIMsgDBViewCommandUpdater* aCmdUpdater) {
-  nsMsgDBView::CopyDBView(aNewMsgDBView, aMessengerInstance, aMsgWindow,
+  nsMsgDBView::CopyDBView(aNewMsgDBView, aMsgWindow,
                           aCmdUpdater);
   nsMsgGroupView* newMsgDBView = (nsMsgGroupView*)aNewMsgDBView;
 

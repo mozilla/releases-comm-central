@@ -60,12 +60,12 @@ nsresult nsMsgThreadsWithUnreadDBView::AddMsgToThreadNotInView(
 
 NS_IMETHODIMP
 nsMsgThreadsWithUnreadDBView::CloneDBView(
-    nsIMessenger* aMessengerInstance, nsIMsgWindow* aMsgWindow,
+    nsIMsgWindow* aMsgWindow,
     nsIMsgDBViewCommandUpdater* aCmdUpdater, nsIMsgDBView** _retval) {
   nsMsgThreadsWithUnreadDBView* newMsgDBView =
       new nsMsgThreadsWithUnreadDBView();
   nsresult rv =
-      CopyDBView(newMsgDBView, aMessengerInstance, aMsgWindow, aCmdUpdater);
+      CopyDBView(newMsgDBView, aMsgWindow, aCmdUpdater);
   NS_ENSURE_SUCCESS(rv, rv);
 
   NS_IF_ADDREF(*_retval = newMsgDBView);
@@ -141,12 +141,12 @@ nsresult nsMsgWatchedThreadsWithUnreadDBView::AddMsgToThreadNotInView(
 
 NS_IMETHODIMP
 nsMsgWatchedThreadsWithUnreadDBView::CloneDBView(
-    nsIMessenger* aMessengerInstance, nsIMsgWindow* aMsgWindow,
+    nsIMsgWindow* aMsgWindow,
     nsIMsgDBViewCommandUpdater* aCmdUpdater, nsIMsgDBView** _retval) {
   nsMsgWatchedThreadsWithUnreadDBView* newMsgDBView =
       new nsMsgWatchedThreadsWithUnreadDBView();
   nsresult rv =
-      CopyDBView(newMsgDBView, aMessengerInstance, aMsgWindow, aCmdUpdater);
+      CopyDBView(newMsgDBView, aMsgWindow, aCmdUpdater);
   NS_ENSURE_SUCCESS(rv, rv);
 
   NS_IF_ADDREF(*_retval = newMsgDBView);

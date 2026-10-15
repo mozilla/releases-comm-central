@@ -30,7 +30,6 @@ XPCOMUtils.defineLazyScriptGetter(
 );
 
 // This file stores variables common to mail windows
-var messenger;
 var msgWindow;
 
 UIDensity.registerWindow(window);
@@ -179,9 +178,6 @@ function CreateMailWindowGlobals() {
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
     Ci.nsIMsgWindow
   );
-  // get the messenger instance
-
-  messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
   window.addEventListener("blur", appIdleManager.onBlur);
   window.addEventListener("focus", appIdleManager.onFocus);

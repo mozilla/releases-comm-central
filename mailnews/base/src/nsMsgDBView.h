@@ -8,7 +8,6 @@
 #include "nsIMsgDBView.h"
 #include "nsIMsgTagService.h"
 #include "nsIMsgWindow.h"
-#include "nsIMessenger.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"
 #include "MailNewsTypes.h"
@@ -402,7 +401,6 @@ class nsMsgDBView : public nsIMsgDBView,
                                    nsAString& properties, bool* tagAdded);
   static nsresult InitLabelStrings(void);
   nsresult CopyDBView(nsMsgDBView* aNewMsgDBView,
-                      nsIMessenger* aMessengerInstance,
                       nsIMsgWindow* aMsgWindow,
                       nsIMsgDBViewCommandUpdater* aCmdUpdater);
   static void InitializeLiterals();
@@ -464,7 +462,6 @@ class nsMsgDBView : public nsIMsgDBView,
 
   // I18N date formatter service which we'll want to cache locally.
   nsCOMPtr<nsIMsgTagService> mTagService;
-  nsWeakPtr mMessengerWeak;
   nsWeakPtr mMsgWindowWeak;
   // We push command update notifications to the UI from this.
   nsWeakPtr mCommandUpdater;

@@ -15,7 +15,7 @@
 /* import-globals-from messenger-customization.js */
 /* import-globals-from toolbarIconColor.js */
 
-/* globals messenger, CreateMailWindowGlobals, InitMsgWindow, OnMailWindowUnload */ // From mailWindow.js
+/* globals CreateMailWindowGlobals, InitMsgWindow, OnMailWindowUnload */ // From mailWindow.js
 
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"

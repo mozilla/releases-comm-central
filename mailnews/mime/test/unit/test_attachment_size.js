@@ -28,8 +28,6 @@ const { updateAppInfo } = ChromeUtils.importESModule(
 );
 updateAppInfo();
 
-var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-
 // Create a message generator
 var msgGen = new MessageGenerator();
 var messageInjection = new MessageInjection({ mode: "local" });

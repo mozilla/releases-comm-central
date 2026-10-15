@@ -27,12 +27,10 @@ class nsMsgQuickSearchDBView : public nsMsgThreadedDBView,
                           nsMsgViewSortTypeValue aSortType,
                           nsMsgViewSortOrderValue aSortOrder,
                           nsMsgViewFlagsTypeValue aViewFlags) override;
-  NS_IMETHOD CloneDBView(nsIMessenger* aMessengerInstance,
-                         nsIMsgWindow* aMsgWindow,
+  NS_IMETHOD CloneDBView(nsIMsgWindow* aMsgWindow,
                          nsIMsgDBViewCommandUpdater* aCommandUpdater,
                          nsIMsgDBView** _retval) override;
   NS_IMETHOD CopyDBView(nsMsgDBView* aNewMsgDBView,
-                        nsIMessenger* aMessengerInstance,
                         nsIMsgWindow* aMsgWindow,
                         nsIMsgDBViewCommandUpdater* aCmdUpdater) override;
   NS_IMETHOD DoCommand(nsMsgViewCommandTypeValue aCommand) override;

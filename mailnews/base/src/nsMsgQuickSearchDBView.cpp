@@ -55,13 +55,12 @@ nsresult nsMsgQuickSearchDBView::InitThreadedView() {
 }
 
 NS_IMETHODIMP
-nsMsgQuickSearchDBView::CloneDBView(nsIMessenger* aMessengerInstance,
-                                    nsIMsgWindow* aMsgWindow,
+nsMsgQuickSearchDBView::CloneDBView(nsIMsgWindow* aMsgWindow,
                                     nsIMsgDBViewCommandUpdater* aCmdUpdater,
                                     nsIMsgDBView** _retval) {
   nsMsgQuickSearchDBView* newMsgDBView = new nsMsgQuickSearchDBView();
   nsresult rv =
-      CopyDBView(newMsgDBView, aMessengerInstance, aMsgWindow, aCmdUpdater);
+      CopyDBView(newMsgDBView, aMsgWindow, aCmdUpdater);
   NS_ENSURE_SUCCESS(rv, rv);
 
   NS_IF_ADDREF(*_retval = newMsgDBView);
@@ -70,10 +69,9 @@ nsMsgQuickSearchDBView::CloneDBView(nsIMessenger* aMessengerInstance,
 
 NS_IMETHODIMP
 nsMsgQuickSearchDBView::CopyDBView(nsMsgDBView* aNewMsgDBView,
-                                   nsIMessenger* aMessengerInstance,
                                    nsIMsgWindow* aMsgWindow,
                                    nsIMsgDBViewCommandUpdater* aCmdUpdater) {
-  nsMsgThreadedDBView::CopyDBView(aNewMsgDBView, aMessengerInstance, aMsgWindow,
+  nsMsgThreadedDBView::CopyDBView(aNewMsgDBView, aMsgWindow,
                                   aCmdUpdater);
   nsMsgQuickSearchDBView* newMsgDBView = (nsMsgQuickSearchDBView*)aNewMsgDBView;
 

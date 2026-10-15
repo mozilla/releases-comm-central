@@ -28,7 +28,6 @@ class nsMsgGroupView : public nsMsgDBView {
                           nsMsgViewFlagsTypeValue aViewFlags) override;
   NS_IMETHOD GetViewType(nsMsgViewTypeValue* aViewType) override;
   NS_IMETHOD CopyDBView(nsMsgDBView* aNewMsgDBView,
-                        nsIMessenger* aMessengerInstance,
                         nsIMsgWindow* aMsgWindow,
                         nsIMsgDBViewCommandUpdater* aCmdUpdater);
   NS_IMETHOD Close() override;

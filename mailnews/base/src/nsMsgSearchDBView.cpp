@@ -69,13 +69,12 @@ nsMsgSearchDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
 }
 
 NS_IMETHODIMP
-nsMsgSearchDBView::CloneDBView(nsIMessenger* aMessengerInstance,
-                               nsIMsgWindow* aMsgWindow,
+nsMsgSearchDBView::CloneDBView(nsIMsgWindow* aMsgWindow,
                                nsIMsgDBViewCommandUpdater* aCmdUpdater,
                                nsIMsgDBView** _retval) {
   nsMsgSearchDBView* newMsgDBView = new nsMsgSearchDBView();
   nsresult rv =
-      CopyDBView(newMsgDBView, aMessengerInstance, aMsgWindow, aCmdUpdater);
+      CopyDBView(newMsgDBView, aMsgWindow, aCmdUpdater);
   NS_ENSURE_SUCCESS(rv, rv);
 
   NS_IF_ADDREF(*_retval = newMsgDBView);
@@ -84,10 +83,9 @@ nsMsgSearchDBView::CloneDBView(nsIMessenger* aMessengerInstance,
 
 NS_IMETHODIMP
 nsMsgSearchDBView::CopyDBView(nsMsgDBView* aNewMsgDBView,
-                              nsIMessenger* aMessengerInstance,
                               nsIMsgWindow* aMsgWindow,
                               nsIMsgDBViewCommandUpdater* aCmdUpdater) {
-  nsMsgGroupView::CopyDBView(aNewMsgDBView, aMessengerInstance, aMsgWindow,
+  nsMsgGroupView::CopyDBView(aNewMsgDBView, aMsgWindow,
                              aCmdUpdater);
   nsMsgSearchDBView* newMsgDBView = (nsMsgSearchDBView*)aNewMsgDBView;
 

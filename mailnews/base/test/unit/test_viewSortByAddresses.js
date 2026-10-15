@@ -128,7 +128,7 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
   aViewFlags |= Ci.nsMsgViewFlagsType.kExpandAll;
 
   gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
-  gDBView.init(null, null, null);
+  gDBView.init(null, null);
   gDBView.open(
     aViewType != "search" ? aTestFolder : null,
     Ci.nsMsgViewSortType.byDate,

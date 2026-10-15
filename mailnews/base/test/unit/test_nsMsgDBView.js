@@ -253,7 +253,7 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
   aViewFlags |= Ci.nsMsgViewFlagsType.kExpandAll;
 
   gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
-  gDBView.init(null, null, null);
+  gDBView.init(null, null);
   gDBView.open(
     aViewType != "search" ? aTestFolder : null,
     Ci.nsMsgViewSortType.byDate,
@@ -305,7 +305,7 @@ function setup_group_view(aSortType, aSortOrder, aTestFolder) {
     Ci.nsMsgViewFlagsType.kThreadedDisplay;
 
   gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
-  gDBView.init(null, null, null);
+  gDBView.init(null, null);
   var outCount = {};
   gDBView.open(aTestFolder, aSortType, aSortOrder, viewFlags, outCount);
 

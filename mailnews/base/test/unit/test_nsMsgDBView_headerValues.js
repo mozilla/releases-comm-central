@@ -94,7 +94,7 @@ add_task(async function test_nsMsgDBView_headValues() {
     .initializeDBViewStrings();
   const dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=threaded";
   const dbView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
-  dbView.init(null, null, null);
+  dbView.init(null, null);
   dbView.open(
     folder,
     Ci.nsMsgViewSortType.byDate,

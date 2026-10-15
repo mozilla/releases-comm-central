@@ -2158,9 +2158,8 @@ nsMsgDBView::OpenWithHdrs(nsIMsgEnumerator* aHeaders,
 }
 
 NS_IMETHODIMP
-nsMsgDBView::Init(nsIMessenger* aMessengerInstance, nsIMsgWindow* aMsgWindow,
+nsMsgDBView::Init(nsIMsgWindow* aMsgWindow,
                   nsIMsgDBViewCommandUpdater* aCmdUpdater) {
-  mMessengerWeak = do_GetWeakReference(aMessengerInstance);
   mMsgWindowWeak = do_GetWeakReference(aMsgWindow);
   mCommandUpdater = do_GetWeakReference(aCmdUpdater);
   return NS_OK;
@@ -6289,14 +6288,13 @@ nsMsgDBView::IsSorted(bool* _retval) {
 }
 
 NS_IMETHODIMP
-nsMsgDBView::CloneDBView(nsIMessenger* aMessengerInstance,
-                         nsIMsgWindow* aMsgWindow,
+nsMsgDBView::CloneDBView(nsIMsgWindow* aMsgWindow,
                          nsIMsgDBViewCommandUpdater* aCmdUpdater,
                          nsIMsgDBView** _retval) {
   nsMsgDBView* newMsgDBView = new nsMsgDBView();
 
   nsresult rv =
-      CopyDBView(newMsgDBView, aMessengerInstance, aMsgWindow, aCmdUpdater);
+      CopyDBView(newMsgDBView, aMsgWindow, aCmdUpdater);
   NS_ENSURE_SUCCESS(rv, rv);
 
   NS_IF_ADDREF(*_retval = newMsgDBView);
@@ -6304,7 +6302,6 @@ nsMsgDBView::CloneDBView(nsIMessenger* aMessengerInstance,
 }
 
 nsresult nsMsgDBView::CopyDBView(nsMsgDBView* aNewMsgDBView,
-                                 nsIMessenger* aMessengerInstance,
                                  nsIMsgWindow* aMsgWindow,
                                  nsIMsgDBViewCommandUpdater* aCmdUpdater) {
   NS_ENSURE_ARG_POINTER(aNewMsgDBView);
@@ -6312,7 +6309,6 @@ nsresult nsMsgDBView::CopyDBView(nsMsgDBView* aNewMsgDBView,
     aNewMsgDBView->mMsgWindowWeak = do_GetWeakReference(aMsgWindow);
   }
 
-  aNewMsgDBView->mMessengerWeak = do_GetWeakReference(aMessengerInstance);
   aNewMsgDBView->mCommandUpdater = do_GetWeakReference(aCmdUpdater);
   aNewMsgDBView->m_folder = m_folder;
   aNewMsgDBView->m_viewFlags = m_viewFlags;
@@ -6447,7 +6443,7 @@ nsMsgDBView::nsMsgViewHdrEnumerator::nsMsgViewHdrEnumerator(nsMsgDBView* view) {
   // current view immediately. It also makes it easier to expand all
   // if we're working on a copy.
   nsCOMPtr<nsIMsgDBView> clonedView;
-  view->CloneDBView(nullptr, nullptr, nullptr, getter_AddRefs(clonedView));
+  view->CloneDBView(nullptr, nullptr, getter_AddRefs(clonedView));
   m_view = static_cast<nsMsgDBView*>(clonedView.get());
   // Make sure we enumerate over collapsed threads by expanding all.
   m_view->ExpandAll();

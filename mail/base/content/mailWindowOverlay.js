@@ -10,7 +10,6 @@
 /* import-globals-from mailCore.js */
 /* import-globals-from utilityOverlay.js */
 
-/* globals messenger */ // From messageWindow.js
 /* globals GetSelectedMsgFolders */ // From messenger.js or messageWindow.js
 /* globals MailOfflineMgr */ // From mail-offline.js
 

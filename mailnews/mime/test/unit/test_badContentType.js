@@ -18,7 +18,6 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
-var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 var messageGenerator = new MessageGenerator();
 var messageInjection = new MessageInjection({ mode: "local" });
 var inbox = messageInjection.getInboxFolder();

@@ -4,7 +4,7 @@
 
 /* import-globals-from utilityOverlay.js */
 
-/* globals msgWindow, messenger */ // From mailWindow.js
+/* globals msgWindow */ // From mailWindow.js
 /* globals openComposeWindowForRSSArticle */ // From newsblogOverlay.js
 
 var { MailServices } = ChromeUtils.importESModule(
