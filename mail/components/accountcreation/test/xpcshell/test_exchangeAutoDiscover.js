@@ -236,12 +236,17 @@ add_task(async function test_fetchConfigFromExchange_redirectAddr() {
         password,
         () => Promise.reject(new Error("No confirmation expected"))
       );
-
       Assert.ok(config, "Should get a config for the redirected address");
-      Assert.ok(
-        requestedAddresses.includes(alias) &&
-          requestedAddresses.includes(user.toLowerCase()),
-        "Should request the config for the alias, then for the redirected address"
+      const requestedAddressesList = requestedAddresses.join("|");
+      Assert.stringContains(
+        requestedAddressesList,
+        alias,
+        "Should request the config for the alias"
+      );
+      Assert.stringContains(
+        requestedAddressesList,
+        user.toLowerCase(),
+        "Should also request the config for the redirected address"
       );
       Services.cache2.clear();
     }

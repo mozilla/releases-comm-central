@@ -357,10 +357,10 @@ export async function fetchConfigFromExchange(
     priorityAbortController
   );
 
-  // Redirect to another email address.
+  // Redirect to another email address, see the example response at
+  // <https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxdscli/49083e77-8dc2-4010-85c6-f40e090f3b17>
   const redirectAddr = xml?.Autodiscover?.Response?.Account?.RedirectAddr;
   if (redirectAddr) {
-    // <https://docs.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxdscli/49083e77-8dc2-4010-85c6-f40e090f3b17>
     const redirectEmailAddress = lazy.InputSanitizer.emailAddress(redirectAddr);
     const redirectDomain = redirectEmailAddress.split("@").pop();
     if (redirectCount >= 2) {
@@ -390,7 +390,7 @@ export async function fetchConfigFromExchange(
 
 /**
  * @param {object} autoDiscoverXML - The Exchange server AutoDiscover response, as JXON.
- * @param {?string} username - (Optional) The user's login name.
+ * @param {?string} [username] - (Optional) The user's login name.
  * @returns {AccountConfig}
  * @throws {Error} Throws if no complete config can be found.
  */
@@ -410,7 +410,7 @@ function readAutoDiscoverResponse(autoDiscoverXML, username) {
 /**
  * @param {object} autoDiscoverXML - The Exchange server AutoDiscover response,
  *  as JXON.
- * @param {?string} username - (Optional) The user's login name
+ * @param {?string} [username] - (Optional) The user's login name
  *   If null, email address placeholder will be used.
  * @returns {AccountConfig} - @see accountConfig.js
  * @see <https://www.msxfaq.de/exchange/autodiscover/autodiscover_xml.htm>
