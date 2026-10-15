@@ -204,6 +204,31 @@ add_task(async function test_download_parse_exception() {
   );
 });
 
+add_task(async function test_rss2_duplicate_media_content() {
+  const account = FeedUtils.createRssAccount(
+    "test_rss2_duplicate_media_content"
+  );
+  const rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
+  const folder = rootFolder.createLocalSubfolder("duplicate-media-content");
+
+  const doc = await do_parse_document(
+    "resources/rss2_media_duplicate.xml",
+    "application/xml"
+  );
+  const feed = new Feed("https://example.com/feed.xml", folder);
+  feed.parseItems = true;
+  feed.onParseError = function () {
+    throw new Error("PARSE ERROR");
+  };
+
+  const items = new FeedParser().parseAsRSS2(feed, doc);
+  Assert.equal(items.length, 1);
+  Assert.equal(items[0].enclosures.length, 1);
+  Assert.equal(items[0].enclosures[0].mURL, "https://example.com/audio.mp3");
+});
+
 // Test feed downloading.
 // Mainly checking that it doesn't crash and that the right feed parser is used.
 add_task(async function test_download() {

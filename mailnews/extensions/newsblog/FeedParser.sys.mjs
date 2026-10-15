@@ -332,6 +332,7 @@ FeedParser.prototype = {
               tag.getAttribute("fileSize")
             );
             item.enclosures.push(new lazy.FeedEnclosure(url, type, fileSize));
+            encUrls.push(url);
           }
         }
       }

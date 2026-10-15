@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
+  <channel>
+    <title>Media duplicate test</title>
+    <link>https://example.com/</link>
+    <description>Repeated media content URL</description>
+    <item>
+      <title>Media item</title>
+      <link>https://example.com/item</link>
+      <media:content url="https://example.com/audio.mp3" type="audio/mpeg" fileSize="123"/>
+      <media:content url="https://example.com/audio.mp3" type="audio/mpeg" fileSize="123"/>
+    </item>
+  </channel>
+</rss>
