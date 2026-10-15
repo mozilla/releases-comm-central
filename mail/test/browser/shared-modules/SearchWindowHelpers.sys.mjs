@@ -95,20 +95,11 @@ export function assert_search_window_folder_displayed(aWin, aFolder) {
  */
 export function select_click_search_row(aViewIndex, aWin) {
   const tree = aWin.document.getElementById("threadTree");
-  tree.scrollToRow(aViewIndex);
-  const coords = tree.getCoordsForCellItem(
-    aViewIndex,
-    tree.columns.subjectCol,
-    "cell"
-  );
-  const treeChildren = tree.lastElementChild;
-  EventUtils.synthesizeMouse(
-    treeChildren,
-    coords.x + coords.width / 2,
-    coords.y + coords.height / 2,
-    {},
-    aWin
-  );
+  tree.scrollToIndex(aViewIndex, true);
+  const cell = tree
+    .getRowAtIndex(aViewIndex)
+    .querySelector(`td.subjectcol-column`);
+  EventUtils.synthesizeMouseAtCenter(cell, {}, aWin);
 
   return aWin.gFolderDisplay.view.dbView.getMsgHdrAt(aViewIndex);
 }
@@ -124,20 +115,11 @@ export function select_click_search_row(aViewIndex, aWin) {
  */
 export async function select_shift_click_search_row(aViewIndex, aWin) {
   const tree = aWin.document.getElementById("threadTree");
-  tree.scrollToRow(aViewIndex);
-  const coords = tree.getCoordsForCellItem(
-    aViewIndex,
-    tree.columns.subjectCol,
-    "cell"
-  );
-  const treeChildren = tree.lastElementChild;
-  EventUtils.synthesizeMouse(
-    treeChildren,
-    coords.x + coords.width / 2,
-    coords.y + coords.height / 2,
-    { shiftKey: true },
-    aWin
-  );
+  tree.scrollToIndex(aViewIndex, true);
+  const cell = tree
+    .getRowAtIndex(aViewIndex)
+    .querySelector(`td.subjectcol-column`);
+  EventUtils.synthesizeMouseAtCenter(cell, { shiftKey: true }, aWin);
 
   await TestUtils.waitForTick();
   return aWin.gFolderDisplay.selectedMessages;

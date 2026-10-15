@@ -79,6 +79,10 @@ radio[value="and"] {
   min-block-size: 50px;
 }
 
+#threadTree {
+  border: 1px solid threedshadow;
+}
+
 #threadTree:not(:focus) > treechildren::-moz-tree-cell-text(untagged, selected) {
   color: inherit;
 }

@@ -84,7 +84,7 @@ class ThreadRow extends TreeViewTableRow {
         // Indent child message of this thread.
         div.style.setProperty(
           "--thread-level",
-          window.gViewWrapper.showGroupedBySort ? 0 : threadLevel.value
+          window.gViewWrapper?.showGroupedBySort ? 0 : threadLevel.value
         );
 
         const imageFluentID = this.#getMessageIndicatorString(propertiesSet);

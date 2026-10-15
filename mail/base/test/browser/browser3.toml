@@ -50,6 +50,10 @@ skip-if = ["headless"] # Needs a real compositor to check what is painted.
 ["browser_saveAs.js"]
 
 ["browser_searchMessages.js"]
+run-if = [
+  "!headless",
+  "os != 'linux'",
+] # See bug 1806870.
 
 ["browser_smartFolderDelete.js"]
 tags = ["virtualfolders"]

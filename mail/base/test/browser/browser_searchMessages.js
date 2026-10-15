@@ -58,9 +58,10 @@ add_task(async function () {
   );
   const searchTermList = doc.getElementById("searchTermList");
   const threadTree = doc.getElementById("threadTree");
-  const columns = threadTree.columns;
-  const picker = threadTree.querySelector("treecolpicker");
-  const popup = picker.querySelector("menupopup");
+  const picker = threadTree.querySelector(
+    "th.last-column .button-column-picker"
+  );
+  const popup = threadTree.querySelector("menupopup.menupopup-column-picker");
   const openButton = doc.getElementById("openButton");
   const deleteButton = doc.getElementById("deleteButton");
   const fileMessageButton = doc.getElementById("fileMessageButton");
@@ -69,12 +70,12 @@ add_task(async function () {
   const saveAsVFButton = doc.getElementById("saveAsVFButton");
   const statusText = doc.getElementById("statusText");
 
-  const treeClick = mailTestUtils.treeClick.bind(
-    null,
-    EventUtils,
-    win,
-    threadTree
-  );
+  function treeClick(row, column, event = {}) {
+    const cell = threadTree
+      .getRowAtIndex(row)
+      .querySelector(`td.${column.toLowerCase()}-column`);
+    EventUtils.synthesizeMouseAtCenter(cell, event, win);
+  }
 
   // Test search criteria. The search results are deterministic unless
   // MessageGenerator is changed.
@@ -149,26 +150,20 @@ add_task(async function () {
 
   // Test tree sort column and direction.
 
-  EventUtils.synthesizeMouseAtCenter(columns.subjectCol.element, {}, win);
-  Assert.equal(
-    columns.subjectCol.element.getAttribute("sortDirection"),
-    "ascending"
-  );
-  EventUtils.synthesizeMouseAtCenter(columns.flaggedCol.element, {}, win);
-  Assert.equal(
-    columns.flaggedCol.element.getAttribute("sortDirection"),
-    "ascending"
-  );
-  EventUtils.synthesizeMouseAtCenter(columns.dateCol.element, {}, win);
-  Assert.equal(
-    columns.dateCol.element.getAttribute("sortDirection"),
-    "ascending"
-  );
-  EventUtils.synthesizeMouseAtCenter(columns.dateCol.element, {}, win);
-  Assert.equal(
-    columns.dateCol.element.getAttribute("sortDirection"),
-    "descending"
-  );
+  let subjectCol = doc.getElementById("subjectCol");
+  const flaggedCol = doc.getElementById("flaggedCol");
+  const dateCol = doc.getElementById("dateCol");
+  Assert.equal(subjectCol.ariaSort, null);
+  Assert.equal(flaggedCol.ariaSort, null);
+  Assert.equal(dateCol.ariaSort, "descending");
+  EventUtils.synthesizeMouseAtCenter(subjectCol, {}, win);
+  Assert.equal(subjectCol.ariaSort, "ascending");
+  EventUtils.synthesizeMouseAtCenter(flaggedCol, {}, win);
+  Assert.equal(flaggedCol.ariaSort, "ascending");
+  EventUtils.synthesizeMouseAtCenter(dateCol, {}, win);
+  Assert.equal(dateCol.ariaSort, "ascending");
+  EventUtils.synthesizeMouseAtCenter(dateCol, {}, win);
+  Assert.equal(dateCol.ariaSort, "descending");
 
   // Test tree column visibility and order.
 
@@ -184,12 +179,8 @@ add_task(async function () {
   ]);
   EventUtils.synthesizeMouseAtCenter(picker, {}, win);
   await BrowserTestUtils.waitForPopupEvent(popup, "shown");
-  popup.activateItem(
-    popup.querySelector(`[colindex="${columns.selectCol.index}"]`)
-  );
-  popup.activateItem(
-    popup.querySelector(`[colindex="${columns.deleteCol.index}"]`)
-  );
+  popup.activateItem(popup.querySelector(`[value="selectCol"]`));
+  popup.activateItem(popup.querySelector(`[value="deleteCol"]`));
   popup.hidePopup();
   await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
   await checkTreeColumnsInOrder(threadTree, [
@@ -205,12 +196,75 @@ add_task(async function () {
     "deleteCol",
   ]);
 
-  threadTree._reorderColumn(
-    columns.deleteCol.element,
-    columns.selectCol.element,
-    false
+  const headerRow = threadTree.table.tHead.rows[0];
+  const headerButtons = headerRow.querySelectorAll(
+    `th[is="tree-view-table-header-cell"]:not([hidden]) > div > button:not(.button-column-picker)`
   );
-  threadTree.invalidate();
+  function dragColumn(fromIndex, toIndex) {
+    const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
+      Ci.nsIDragService
+    );
+    dragService.startDragSessionForTests(
+      win,
+      Ci.nsIDragService.DRAGDROP_ACTION_NONE
+    );
+
+    const fromRect = headerButtons[fromIndex].getBoundingClientRect();
+    const fromX = fromRect.x + fromRect.width / 2;
+    const fromY = fromRect.y + fromRect.height / 2;
+
+    const toRect = headerButtons[toIndex].getBoundingClientRect();
+    const toX = toRect.x + toRect.width / 2;
+    const toY = toRect.y + toRect.height / 2;
+
+    const [, dataTransfer] = EventUtils.synthesizeDragOver(
+      headerButtons[fromIndex],
+      headerRow,
+      null,
+      null,
+      win,
+      win,
+      { clientX: fromX, clientY: fromY, _domDispatchOnly: true }
+    );
+
+    EventUtils.sendDragEvent(
+      {
+        type: "dragover",
+        clientX: toX,
+        clientY: toY,
+        dataTransfer,
+        _domDispatchOnly: true,
+      },
+      headerRow,
+      win
+    );
+
+    EventUtils.synthesizeDropAfterDragOver(
+      false,
+      dataTransfer,
+      headerRow,
+      win,
+      {
+        clientX: toX,
+        clientY: toY,
+        _domDispatchOnly: true,
+      }
+    );
+
+    EventUtils.sendDragEvent(
+      {
+        type: "dragend",
+        clientX: toX,
+        clientY: toY,
+        dataTransfer,
+        _domDispatchOnly: true,
+      },
+      headerRow,
+      win
+    );
+    dragService.getCurrentSession().endDragSession(true);
+  }
+  dragColumn(9, 1);
   await checkTreeColumnsInOrder(threadTree, [
     "selectCol",
     "deleteCol",
@@ -246,6 +300,10 @@ add_task(async function () {
     "message 3 should not be marked as spam"
   );
 
+  let classificationPromise = PromiseTestUtils.promiseFolderNotification(
+    testFolder,
+    "msgsJunkStatusChanged"
+  );
   treeClick(1, "unreadButtonColHeader", {});
   treeClick(2, "flaggedCol", {});
   treeClick(3, "junkStatusCol", {});
@@ -262,7 +320,14 @@ add_task(async function () {
     "100",
     "message 3 should be marked as spam"
   );
+  await classificationPromise;
+  await new Promise(resolve => requestAnimationFrame(resolve));
+  await new Promise(resolve => setTimeout(resolve));
 
+  classificationPromise = PromiseTestUtils.promiseFolderNotification(
+    testFolder,
+    "msgsJunkStatusChanged"
+  );
   treeClick(1, "unreadButtonColHeader", {});
   treeClick(2, "flaggedCol", {});
   treeClick(3, "junkStatusCol", {});
@@ -279,6 +344,9 @@ add_task(async function () {
     "0",
     "message 3 should not be marked as spam"
   );
+  await classificationPromise;
+  await new Promise(resolve => requestAnimationFrame(resolve));
+  await new Promise(resolve => setTimeout(resolve));
 
   Assert.equal(
     threadTree.view.rowCount,
@@ -480,6 +548,10 @@ add_task(async function () {
   const newInput0 = newSearchTerm0.querySelector("search-value input");
   Assert.equal(newInput0.value, "");
 
+  subjectCol = doc.getElementById("subjectCol");
+  EventUtils.synthesizeMouseAtCenter(subjectCol, {}, win);
+  Assert.equal(subjectCol.ariaSort, "ascending");
+
   await BrowserTestUtils.closeWindow(win);
 
   // Open the window again, and check the tree columns are as we left them.
@@ -491,14 +563,42 @@ add_task(async function () {
   );
   window.searchAllMessages();
   const win2 = await window2OpenedPromise;
-  const doc2 = win.document;
+  const doc2 = win2.document;
   await SimpleTest.promiseFocus(win2);
 
   const threadTree2 = doc2.getElementById("threadTree");
+  const picker2 = threadTree2.querySelector(
+    "th.last-column .button-column-picker"
+  );
+  const popup2 = threadTree2.querySelector("menupopup.menupopup-column-picker");
 
   await checkTreeColumnsInOrder(threadTree2, [
     "selectCol",
     "deleteCol",
+    "flaggedCol",
+    "attachmentCol",
+    "subjectCol",
+    "unreadButtonColHeader",
+    "correspondentCol",
+    "junkStatusCol",
+    "dateCol",
+    "locationCol",
+  ]);
+  const subjectCol2 = doc2.getElementById("subjectCol");
+  const flaggedCol2 = doc2.getElementById("flaggedCol");
+  const dateCol2 = doc2.getElementById("dateCol");
+  Assert.equal(subjectCol2.ariaSort, "ascending");
+  Assert.equal(flaggedCol2.ariaSort, null);
+  Assert.equal(dateCol2.ariaSort, null);
+
+  // Test restoring the default columns.
+
+  EventUtils.synthesizeMouseAtCenter(picker2, {}, win2);
+  await BrowserTestUtils.waitForPopupEvent(popup2, "shown");
+  popup2.activateItem(popup2.querySelector(`#restoreColumnOrder`));
+  await BrowserTestUtils.waitForPopupEvent(popup2, "hidden");
+
+  await checkTreeColumnsInOrder(threadTree2, [
     "flaggedCol",
     "attachmentCol",
     "subjectCol",
@@ -514,7 +614,7 @@ add_task(async function () {
 
 async function checkTreeColumnsInOrder(tree, expectedOrder) {
   const expectedSet = new Set(expectedOrder);
-  const querySelector = "treecol:not([hidden])";
+  const querySelector = "th:not([hidden])";
   await TestUtils.waitForCondition(() => {
     const currentSet = new Set(
       [...tree.querySelectorAll(querySelector)].map(c => c.id)

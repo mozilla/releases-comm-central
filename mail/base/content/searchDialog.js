@@ -23,7 +23,23 @@ ChromeUtils.defineESModuleGetters(this, {
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });
 
-var gDBView;
+Object.defineProperty(this, "gViewWrapper", {
+  configurable: false,
+  enumerable: true,
+  get() {
+    return gFolderDisplay.view;
+  },
+});
+Object.defineProperty(this, "gDBView", {
+  configurable: false,
+  enumerable: true,
+  get() {
+    // eslint-disable-next-line no-restricted-properties
+    return gViewWrapper?.dbView;
+  },
+});
+var threadTree;
+
 var nsMsgKey_None = 0xffffffff;
 var nsMsgViewIndex_None = 0xffffffff;
 
@@ -226,6 +242,31 @@ FolderDisplayWidget.prototype = {
    */
   onSearching() {},
 
+  _jsTree: {
+    QueryInterface: ChromeUtils.generateQI(["nsIMsgJSTree"]),
+    _inBatch: 0,
+    beginUpdateBatch() {},
+    endUpdateBatch() {},
+    ensureRowIsVisible(index) {
+      threadTree.scrollToIndex(index, true);
+    },
+    invalidate() {
+      threadTree.reset();
+    },
+    invalidateRange(startIndex, endIndex) {
+      threadTree.invalidateRange(startIndex, endIndex);
+    },
+    rowCountChanged(index, count) {
+      threadTree.rowCountChanged(index, count);
+    },
+    get currentIndex() {
+      return threadTree.currentIndex;
+    },
+    set currentIndex(index) {
+      threadTree.currentIndex = index;
+    },
+  },
+
   /**
    * Things we do on creating a view:
    * - notify the observer service so that custom column handler providers can
@@ -236,24 +277,8 @@ FolderDisplayWidget.prototype = {
     //  will get an onMessagesLoaded(true) nearly immediately if this is a local
     //  folder where view creation is synonymous with having all messages.
     this._allMessagesLoaded = false;
-
-    gDBView = this.view.dbView;
-
-    // A change in view may result in changes to sorts, the view menu, etc.
-    // Do this before we 'reroot' the dbview.
-    this._updateThreadDisplay();
-
-    // this creates a new selection object for the view.
-    if (this.tree) {
-      this.tree.view = this.view.dbView;
-    }
-
-    // The data payload used to be viewType + ":" + viewFlags.  We no longer
-    //  do this because we already have the implied contract that gDBView is
-    //  valid at the time we generate the notification.  In such a case, you
-    //  can easily get that information from the gDBView.  (The documentation
-    //  on creating a custom column assumes gDBView.)
-    Services.obs.notifyObservers(this.view.displayedFolder, "MsgCreateDBView");
+    threadTree.view = gDBView;
+    threadTree.view.setJSTree(this._jsTree);
   },
 
   /**
@@ -261,8 +286,6 @@ FolderDisplayWidget.prototype = {
    *  current selection so we can restore it when the view comes back.
    */
   onDestroyingView() {
-    gDBView = null;
-
     // if we have no view, no messages could be loaded.
     this._allMessagesLoaded = false;
 
@@ -314,34 +337,6 @@ FolderDisplayWidget.prototype = {
    */
   onMessagesLoaded(aAll) {
     this._allMessagesLoaded = aAll;
-
-    // - if something's already selected (e.g. in a message tab), scroll to the
-    //   first selected message and get out
-    if (this.view.dbView.numSelected > 0) {
-      this.ensureRowIsVisible(this.view.dbView.viewIndexForFirstSelectedMsg);
-      return;
-    }
-
-    // - new messages
-    // if configured to scroll to new messages, try that
-    if (
-      Services.prefs.getBoolPref("mailnews.scroll_to_new_message") &&
-      this.navigate(Ci.nsMsgNavigationType.firstNew, /* select */ false)
-    ) {
-      return;
-    }
-
-    // - towards the newest messages, but don't select
-    if (
-      this.view.isSortedAscending &&
-      this.view.sortImpliesTemporalOrdering &&
-      this.navigate(Ci.nsMsgNavigationType.lastMessage, /* select */ false)
-    ) {
-      return;
-    }
-
-    // - to the top, the coliseum
-    this.ensureRowIsVisible(0);
   },
 
   /**
@@ -349,10 +344,7 @@ FolderDisplayWidget.prototype = {
    *  will not get this notification if the view was re-created, for example.
    */
   onSortChanged() {
-    UpdateSortIndicators(
-      this.view.primarySortColumnId,
-      this.view.primarySortOrder
-    );
+    threadPane.restoreSortIndicator();
   },
 
   /**
@@ -443,16 +435,6 @@ FolderDisplayWidget.prototype = {
   },
   // @}
   /* ===== End hints from the command infrastructure ==== */
-
-  _updateThreadDisplay() {
-    if (this.view.dbView) {
-      UpdateSortIndicators(
-        this.view.primarySortColumnId,
-        this.view.primarySortOrder
-      );
-      UpdateSelectCol();
-    }
-  },
 
   /**
    * @name Command Support
@@ -922,8 +904,9 @@ var nsSearchResultsController = {
 
       case "cmd_selectAll":
         // move the focus to the search results pane
-        document.getElementById("threadTree").focus();
+        threadTree.table.body.focus();
         gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.selectAll);
+        threadTree.dispatchEvent(new CustomEvent("select", { bubbles: true }));
         return true;
 
       default:
@@ -1004,6 +987,215 @@ SearchFolderDisplayWidget.prototype = {
   },
 };
 
+var threadPane = {
+  columns: null,
+  rowTemplate: null,
+
+  init() {
+    threadTree = gFolderDisplay.tree = document.getElementById("threadTree");
+    threadTree.setAttribute("rows", "thread-row");
+    threadTree.table.editable = true;
+
+    this.rowTemplate = document.getElementById("threadPaneRowTemplate");
+    this.getDefaultColumns();
+    this.applyPersistedColumnsState();
+    this.updateColumns();
+    threadTree.reset();
+
+    threadTree.addEventListener("keydown", this);
+    threadTree.addEventListener("select", this);
+    threadTree.table.addEventListener("columns-changed", this);
+    threadTree.table.addEventListener("sort-changed", this);
+    threadTree.table.addEventListener("reorder-columns", this);
+    threadTree.table.addEventListener("restore-columns", this);
+    threadTree.table.addEventListener("toggle-flag", this);
+    threadTree.table.addEventListener("toggle-unread", this);
+    threadTree.table.addEventListener("toggle-spam", this);
+    threadTree.table.addEventListener("request-delete", this);
+    threadTree.table.body.addEventListener("dragstart", this);
+  },
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "keydown":
+        ThreadPaneKeyDown(event);
+        break;
+      case "select":
+        ThreadPaneSelectionChanged();
+        break;
+      case "columns-changed":
+        this.onColumnsVisibilityChanged(event.detail);
+        break;
+      case "sort-changed":
+        this.onSortChanged(event.detail);
+        break;
+      case "reorder-columns":
+        this.onColumnsReordered(event.detail);
+        break;
+      case "restore-columns":
+        this.restoreDefaultColumns();
+        break;
+      case "toggle-flag":
+        gDBView.applyCommandToIndices(
+          event.detail.isFlagged
+            ? Ci.nsMsgViewCommandType.unflagMessages
+            : Ci.nsMsgViewCommandType.flagMessages,
+          [event.detail.index]
+        );
+        break;
+      case "toggle-unread":
+        gDBView.applyCommandToIndices(
+          event.detail.isUnread
+            ? Ci.nsMsgViewCommandType.markMessagesRead
+            : Ci.nsMsgViewCommandType.markMessagesUnread,
+          [event.detail.index]
+        );
+        break;
+      case "toggle-spam":
+        gDBView.applyCommandToIndices(
+          event.detail.isJunk
+            ? Ci.nsMsgViewCommandType.unjunk
+            : Ci.nsMsgViewCommandType.junk,
+          [event.detail.index]
+        );
+        break;
+      case "request-delete":
+        gDBView.applyCommandToIndices(Ci.nsMsgViewCommandType.deleteMsg, [
+          event.detail.index,
+        ]);
+        break;
+      case "dragstart":
+        ThreadPaneOnDragStart(event);
+        break;
+    }
+  },
+
+  restoreSortIndicator() {
+    threadTree.table.header
+      .querySelector("[aria-sort]")
+      ?.removeAttribute("aria-sort");
+
+    if (gViewWrapper._sort.length == 0) {
+      return;
+    }
+
+    const column = gViewWrapper.primarySortColumnId;
+    const header = threadTree.table.header.querySelector(`#${column}`);
+    if (header) {
+      header.ariaSort = gViewWrapper.isSortedAscending
+        ? "ascending"
+        : "descending";
+    }
+  },
+
+  updateColumns() {
+    for (const column of this.columns) {
+      const cell = this.rowTemplate.content.querySelector(
+        `.${column.id.toLowerCase()}-column`
+      );
+      cell.hidden = column.hidden;
+      this.rowTemplate.content.appendChild(cell);
+    }
+
+    threadTree.table.setColumns(this.columns);
+    this.restoreSortIndicator();
+  },
+
+  getDefaultColumns() {
+    this.columns = ThreadPaneColumns.getDefaultColumns().filter(
+      c => c.id != "threadCol"
+    );
+    this.columns.find(c => c.id == "locationCol").hidden = false;
+  },
+
+  restoreDefaultColumns() {
+    this.getDefaultColumns();
+    this.updateColumns();
+    threadTree.reset();
+    this.persistColumnStates();
+  },
+
+  applyPersistedColumnsState() {
+    if (
+      !Services.xulStore.hasValue(location.href, "threadTree", "columnStates")
+    ) {
+      return;
+    }
+
+    const columnStates = JSON.parse(
+      Services.xulStore.getValue(location.href, "threadTree", "columnStates")
+    );
+    this.columns.forEach(c => {
+      c.hidden = !columnStates[c.id]?.visible;
+      c.ordinal = parseInt(columnStates[c.id]?.ordinal, 10) ?? 0;
+    });
+    this.columns.sort(function (a, b) {
+      return a.ordinal - b.ordinal;
+    });
+  },
+
+  onColumnsReordered(data) {
+    threadPane.columns = data.columns;
+    this.persistColumnStates();
+    this.updateColumns();
+    threadTree.reset();
+  },
+
+  onColumnsVisibilityChanged(data) {
+    const column = data.value;
+    const checked = data.target.hasAttribute("checked");
+
+    const changedColumn = this.columns.find(c => c.id == column);
+    changedColumn.hidden = !checked;
+
+    this.persistColumnStates();
+    this.updateColumns(true);
+    threadTree.reset();
+  },
+
+  persistColumnStates() {
+    const newState = {};
+    for (const column of this.columns) {
+      newState[column.id] = {
+        visible: !column.hidden,
+        ordinal: column.ordinal,
+      };
+    }
+
+    Services.xulStore.setValue(
+      location.href,
+      "threadTree",
+      "columnStates",
+      JSON.stringify(newState)
+    );
+  },
+
+  onSortChanged(data) {
+    const curSortColumnId = gViewWrapper.primarySortColumnId;
+    const newSortColumnId = data.column;
+    const newSortDirection =
+      curSortColumnId == newSortColumnId && gViewWrapper.isSortedAscending
+        ? "descending"
+        : "ascending";
+
+    gViewWrapper.sort(newSortColumnId, Ci.nsMsgViewSortOrder[newSortDirection]);
+    Services.xulStore.setValue(
+      location.href,
+      "threadTree",
+      "sortColumn",
+      newSortColumnId
+    );
+    Services.xulStore.setValue(
+      location.href,
+      "threadTree",
+      "sortDirection",
+      newSortDirection
+    );
+
+    this.restoreSortIndicator();
+  },
+};
+
 function searchOnLoad() {
   UIFontSize.registerWindow(window);
   TagUtils.loadTagsIntoCSS(document);
@@ -1012,29 +1204,36 @@ function searchOnLoad() {
 
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
+  // Convert persisted height attributes to CSS rules, this stops the layout
+  // engine ignoring them.
+  const searchTermsEl = document.getElementById("searchTerms");
+  if (searchTermsEl.hasAttribute("height")) {
+    searchTermsEl.style.height = `${searchTermsEl.getAttribute("height")}px`;
+  }
+  const searchResultsEl = document.getElementById("searchResults");
+  if (searchResultsEl.hasAttribute("height")) {
+    searchResultsEl.style.height = `${searchResultsEl.getAttribute("height")}px`;
+  }
+
   gFolderDisplay = new SearchFolderDisplayWidget();
   gFolderDisplay.messenger = messenger;
   gFolderDisplay.msgWindow = msgWindow;
-  gFolderDisplay.tree = document.getElementById("threadTree");
+
+  threadPane.init();
 
   // The view is initially unsorted; get the persisted sortDirection column
   // and set up the user's desired sort. This synthetic view is not backed by
   // a db, so secondary sorts and custom columns are not supported here.
-  const sortCol = gFolderDisplay.tree.querySelector("[sortDirection]");
-  let isSortable, sortOrder;
-  if (sortCol) {
-    isSortable = gFolderDisplay.BUILTIN_SORT_COLUMNS.has(sortCol.id);
-    sortOrder =
-      sortCol.getAttribute("sortDirection") == "descending"
-        ? Ci.nsMsgViewSortOrder.descending
-        : Ci.nsMsgViewSortOrder.ascending;
-  }
+  const sortColumn =
+    Services.xulStore.getValue(location.href, "threadTree", "sortColumn") ??
+    "date";
+  const sortDirection =
+    Services.xulStore.getValue(location.href, "threadTree", "sortDirection") ??
+    "descending";
 
-  gFolderDisplay.view.openSearchView();
-
-  if (isSortable) {
-    gFolderDisplay.view.sort(sortCol.id, sortOrder);
-  }
+  gViewWrapper.openSearchView();
+  gViewWrapper.sort(sortColumn, Ci.nsMsgViewSortOrder[sortDirection]);
+  threadPane.restoreSortIndicator();
 
   if (window.arguments && window.arguments[0]) {
     updateSearchFolderPicker(window.arguments[0].folder);
@@ -1420,10 +1619,6 @@ function MsgOpenSelectedMessages() {
 
 // This code is used when dragging a message from a "Search Messages" panel.
 function ThreadPaneOnDragStart(aEvent) {
-  if (aEvent.target.localName != "treechildren") {
-    return;
-  }
-
   const messageUris = gFolderDisplay.selectedMessageUris;
   if (!messageUris) {
     return;
@@ -1702,18 +1897,11 @@ function MsgReverseSortThreadPane() {
 function ThreadPaneOnLoad() {
   const tree = document.getElementById("threadTree");
   tree.addEventListener("click", ThreadPaneOnClick, true);
-  tree.addEventListener(
-    "dblclick",
-    event => {
-      // The tree.js dblclick event handler is handling editing and toggling
-      // open state of the cell. We don't use editing, and we want to handle
-      // the toggling through the click handler (also for double click), so
-      // capture the dblclick event before it bubbles up and causes the
-      // tree.js dblclick handler to toggle open state.
-      event.stopPropagation();
-    },
-    true
-  );
+  tree.table.body.addEventListener("dblclick", event => {
+    if (event.target.closest("tr") && !event.target.closest("button")) {
+      MsgOpenSelectedMessages();
+    }
+  });
 }
 
 function ThreadPaneSelectionChanged() {
@@ -1727,10 +1915,9 @@ function UpdateSelectCol() {
   if (!selectCol) {
     return;
   }
-  const treeView = gFolderDisplay.tree.view;
-  const selection = treeView.selection;
+  const selection = gDBView.selection;
   if (selection && selection.count > 0) {
-    if (treeView.rowCount == selection.count) {
+    if (gDBView.rowCount == selection.count) {
       selectCol.classList.remove("someselected");
       selectCol.classList.add("allselected");
     } else {
@@ -1740,26 +1927,5 @@ function UpdateSelectCol() {
   } else {
     selectCol.classList.remove("allselected");
     selectCol.classList.remove("someselected");
-  }
-}
-
-function UpdateSortIndicators(colID, sortOrder) {
-  // Remove the sort indicator from all the columns
-  const treeColumns = document.getElementById("threadCols").children;
-  for (let i = 0; i < treeColumns.length; i++) {
-    treeColumns[i].removeAttribute("sortDirection");
-  }
-
-  let sortedColumn;
-  // set the sort indicator on the column we are sorted by
-  if (colID) {
-    sortedColumn = document.getElementById(colID);
-  }
-
-  if (sortedColumn) {
-    sortedColumn.setAttribute(
-      "sortDirection",
-      sortOrder == Ci.nsMsgViewSortOrder.ascending ? "ascending" : "descending"
-    );
   }
 }

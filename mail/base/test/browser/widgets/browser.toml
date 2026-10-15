@@ -15,7 +15,7 @@ support-files = ["files/**"]
 run-if = [
   "!headless",
   "os != 'linux'",
- ] # See bug 1806870.
+] # See bug 1806870.
 tags = ["dataadapter"]
 
 ["browser_checkboxTree.js"]
