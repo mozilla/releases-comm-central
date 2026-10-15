@@ -983,13 +983,7 @@ export var FeedUtils = {
       if (!iconLink) {
         throw new Error(`No iconLink discovered for page=${page}`);
       }
-      if (/^https?:/.test(iconLink.href)) {
-        return iconLink.href;
-      }
-      if (iconLink.href.at(0) != "/") {
-        iconLink.href = "/" + iconLink.href;
-      }
-      return new URL(page).origin + iconLink.href;
+      return new URL(iconLink.getAttribute("href"), page).href;
     };
 
     const uri = Services.io.newURI(url);
