@@ -13,6 +13,7 @@ import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 import "resource:///modules/CalTimezoneService.sys.mjs";
 
 var REGISTRY_BRANCH = "calendar.registry.";
+var SORT_ORDER_PREF = "calendar.list.sortOrder";
 var MAX_INT = Math.pow(2, 31) - 1;
 var MIN_INT = -MAX_INT;
 
@@ -112,9 +113,11 @@ export const CalCalendarManager = new (class {
 
     AddonManager.addAddonListener(gCalendarManagerAddonListener);
     this.mCache = null;
+    this.mSortedCalendars = [];
     this.mCalObservers = null;
     this.mRefreshTimer = {};
     Services.obs.addObserver(this, "network:offline-status-changed");
+    Services.prefs.addObserver(SORT_ORDER_PREF, this);
     this.mNetworkCalendarCount = 0;
     this.mReadonlyCalendarCount = 0;
     this.mCalendarCount = 0;
@@ -146,12 +149,16 @@ export const CalCalendarManager = new (class {
         break;
       }
       case "network:offline-status-changed": {
-        for (const id in this.mCache) {
-          const calendar = this.mCache[id];
+        for (const calendar of this.mCache?.values() ?? []) {
           if (calendar instanceof calCachedCalendar) {
             calendar.onOfflineStatusChanged(aData == "offline");
           }
         }
+        break;
+      }
+      case "nsPref:changed": {
+        // calendar.list.sortOrder changed, the calendar list was reordered.
+        this.sortCalendars();
         break;
       }
       case "http-on-examine-response": {
@@ -284,7 +291,7 @@ export const CalCalendarManager = new (class {
   updateDummyCalendarRegistration(type, clearCache = false) {
     const hasImplementation = !!this.providerImplementations[type];
 
-    const calendars = Object.values(this.mCache).filter(calendar => {
+    const calendars = [...this.mCache.values()].filter(calendar => {
       // Calendars backed by providers despite missing provider implementation, or dummy calendars
       // despite having a provider implementation.
       const isDummyCalendar = calendar instanceof CalDummyCalendar;
@@ -302,16 +309,12 @@ export const CalCalendarManager = new (class {
    * @param {boolean} [clearCache=false] - If true, the calendar cache is also cleared.
    */
   updateCalendarRegistration(calendars, clearCache = false) {
-    const sortOrderPref = Services.prefs.getStringPref("calendar.list.sortOrder", "").split(" ");
-    const sortOrder = {};
-    for (let i = 0; i < sortOrderPref.length; i++) {
-      sortOrder[sortOrderPref[i]] = i;
-    }
+    const positions = calendarListPositions();
 
     // Re-register in list order so each calendar returns to its own position
     // instead of pushing the others down.
     const ordered = [...calendars].sort(
-      (a, b) => (sortOrder[a.id] ?? Infinity) - (sortOrder[b.id] ?? Infinity)
+      (a, b) => (positions.get(a.id) ?? Infinity) - (positions.get(b.id) ?? Infinity)
     );
 
     const needsRefresh = [];
@@ -321,7 +324,7 @@ export const CalCalendarManager = new (class {
         this.unsetupCalendar(calendar, clearCache);
 
         const replacement = this.initializeCalendar(calendar.id, calendar.type, calendar.uri);
-        replacement.setProperty("initialSortOrderPos", sortOrder[calendar.id]);
+        replacement.setProperty("initialSortOrderPos", positions.get(calendar.id));
 
         this.setupCalendar(replacement);
         needsRefresh.push(replacement);
@@ -390,7 +393,7 @@ export const CalCalendarManager = new (class {
       calendar.id = cal.getUUID();
     }
 
-    if (calendar.id in this.mCache) {
+    if (this.mCache.has(calendar.id)) {
       throw new Error(`${calendar.name} - ${calendar.id} - already registered!`);
     }
 
@@ -413,7 +416,12 @@ export const CalCalendarManager = new (class {
    * @param {calICalendar} calendar - The calendar to set up.
    */
   setupCalendar(calendar) {
-    this.mCache[calendar.id] = calendar;
+    if (this.mCache.has(calendar.id)) {
+      lazy.log.warn(`Replacing calendar '${calendar.id}' in the cache`);
+      this.mSortedCalendars = this.mSortedCalendars.filter(other => other.id != calendar.id);
+    }
+    this.mCache.set(calendar.id, calendar);
+    this.insertInListOrder(calendar);
 
     // Add an observer to track readonly-mode triggers
     const newObserver = new calMgrCalendarObserver(calendar, this);
@@ -441,7 +449,8 @@ export const CalCalendarManager = new (class {
    */
   unsetupCalendar(calendar, clearCache = false) {
     if (this.mCache) {
-      delete this.mCache[calendar.id];
+      this.mCache.delete(calendar.id);
+      this.mSortedCalendars = this.mSortedCalendars.filter(other => other.id != calendar.id);
     }
 
     if (clearCache && calendar.wrappedJSObject instanceof calCachedCalendar) {
@@ -511,11 +520,7 @@ export const CalCalendarManager = new (class {
       return;
     }
 
-    if (
-      mode & Ci.calICalendarManager.REMOVE_NO_UNREGISTER &&
-      this.mCache &&
-      calendar.id in this.mCache
-    ) {
+    if (mode & Ci.calICalendarManager.REMOVE_NO_UNREGISTER && this.mCache?.has(calendar.id)) {
       throw new Components.Exception("Can't remove a registered calendar");
     } else if (!(mode & Ci.calICalendarManager.REMOVE_NO_UNREGISTER)) {
       this.unregisterCalendar(calendar);
@@ -533,20 +538,38 @@ export const CalCalendarManager = new (class {
   }
 
   getCalendarById(aId) {
-    if (aId in this.mCache) {
-      return this.mCache[aId];
-    }
-    return null;
+    return this.mCache.get(aId) ?? null;
   }
 
   getCalendars() {
     this.assureCache();
-    const calendars = [];
-    for (const id in this.mCache) {
-      const calendar = this.mCache[id];
-      calendars.push(calendar);
-    }
-    return calendars;
+    return [...this.mSortedCalendars];
+  }
+
+  /**
+   * Adds a calendar to the sorted calendars, at the position the calendar list
+   * order gives it. Calendars the order doesn't mention go to the end.
+   *
+   * @param {calICalendar} calendar
+   */
+  insertInListOrder(calendar) {
+    const positions = calendarListPositions();
+    const position = positions.get(calendar.id) ?? Infinity;
+    const index = this.mSortedCalendars.findIndex(
+      other => (positions.get(other.id) ?? Infinity) > position
+    );
+    this.mSortedCalendars.splice(index == -1 ? this.mSortedCalendars.length : index, 0, calendar);
+  }
+
+  /**
+   * Puts the sorted calendars back in the calendar list order, for when that
+   * order has changed.
+   */
+  sortCalendars() {
+    const positions = calendarListPositions();
+    this.mSortedCalendars.sort(
+      (a, b) => (positions.get(a.id) ?? Infinity) - (positions.get(b.id) ?? Infinity)
+    );
   }
 
   /**
@@ -558,7 +581,8 @@ export const CalCalendarManager = new (class {
       return;
     }
 
-    this.mCache = {};
+    this.mCache = new Map();
+    this.mSortedCalendars = [];
     this.mCalObservers = {};
 
     const allCals = {};
@@ -596,7 +620,7 @@ export const CalCalendarManager = new (class {
 
     // do refreshing in a second step, when *all* calendars are already available
     // via getCalendars():
-    for (const calendar of Object.values(this.mCache)) {
+    for (const calendar of this.mSortedCalendars) {
       let delay = 0;
 
       // The special-casing of ICS here is a very ugly hack. We can delay most
@@ -877,14 +901,7 @@ class calMgrCalendarObserver {
     aValue = aValue || false;
 
     if (aOldValue != aValue) {
-      // Try to find the current sort order
-      const sortOrderPref = Services.prefs.getStringPref("calendar.list.sortOrder", "").split(" ");
-      let initialSortOrderPos = null;
-      for (let i = 0; i < sortOrderPref.length; ++i) {
-        if (sortOrderPref[i] == aCalendar.id) {
-          initialSortOrderPos = i;
-        }
-      }
+      const initialSortOrderPos = calendarListPositions().get(aCalendar.id) ?? null;
       // Enabling or disabling cache on a calendar re-creates
       // it so the registerCalendar call can wrap/unwrap the
       // calCachedCalendar facade saving the user the need to
@@ -1037,6 +1054,21 @@ class calMgrCalendarObserver {
     const promptWindow = Services.ww.openWindow(null, promptUrl, "_blank", features, paramBlock);
     promptWindow.addEventListener("load", awaitLoad, { capture: false, once: true });
   }
+}
+
+/**
+ * The position of each calendar id in the calendar list order, as stored in the
+ * calendar.list.sortOrder preference.
+ *
+ * @returns {Map<string, integer>}
+ */
+function calendarListPositions() {
+  const positions = new Map();
+  const order = Services.prefs.getStringPref(SORT_ORDER_PREF, "").split(" ");
+  for (let i = 0; i < order.length; i++) {
+    positions.set(order[i], i);
+  }
+  return positions;
 }
 
 /**

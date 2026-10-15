@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals sortCalendarArray, gDataMigrator, calendarUpdateNewItemsCommand, currentView */
+/* globals gDataMigrator, calendarUpdateNewItemsCommand, currentView */
 
 /* exported promptDeleteCalendar, loadCalendarManager, unloadCalendarManager,
  *   calendarListTooltipShowing, calendarListSetupContextMenu,
@@ -129,9 +129,12 @@ async function loadCalendarManager() {
     initHomeCalendar();
   }
 
-  for (const calendar of sortCalendarArray(cal.manager.getCalendars())) {
+  for (const calendar of cal.manager.getCalendars()) {
     addCalendarItem(calendar);
   }
+  // Calendars the sort order preference doesn't mention were listed at the end,
+  // write it back so that it knows about them.
+  saveSortOrder();
 
   /**
    * @param {calICalendar} calendar - Calendar to add to the calendar-list.
@@ -209,8 +212,11 @@ async function loadCalendarManager() {
   }
 
   function saveSortOrder() {
-    const order = [...calendarList.children].map(i => i.getAttribute("calendar-id"));
-    Services.prefs.setStringPref("calendar.list.sortOrder", order.join(" "));
+    const order = [...calendarList.children].map(i => i.getAttribute("calendar-id")).join(" ");
+    if (order == Services.prefs.getStringPref("calendar.list.sortOrder", "")) {
+      return;
+    }
+    Services.prefs.setStringPref("calendar.list.sortOrder", order);
     Services.prefs.savePrefFile(null);
   }
 

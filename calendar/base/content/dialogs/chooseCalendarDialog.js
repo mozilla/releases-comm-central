@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../calendar-ui-utils.js */
-
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 window.addEventListener("load", () => {
@@ -19,7 +17,6 @@ function loadCalendars() {
   } else {
     calendars = cal.manager.getCalendars();
   }
-  calendars = sortCalendarArray(calendars);
 
   for (let i = 0; i < calendars.length; i++) {
     const calendar = calendars[i];

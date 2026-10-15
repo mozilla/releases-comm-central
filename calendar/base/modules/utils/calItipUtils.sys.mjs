@@ -305,15 +305,11 @@ export var itip = {
     if (writableCalendars.length > 0) {
       // Order the lookup so an existing copy is preferred in the default
       // calendar first, then in the calendars' visible order.
-      const sortOrder = lazy.cal.view.calendarSortOrder;
-      const rank = calendar => {
-        if (calendar.getProperty("calendar-main-default")) {
-          return -1;
-        }
-        const index = sortOrder.indexOf(calendar.id);
-        return index == -1 ? sortOrder.length : index;
-      };
-      writableCalendars.sort((a, b) => rank(a) - rank(b));
+      writableCalendars.sort(
+        (a, b) =>
+          (b.getProperty("calendar-main-default") ? 1 : 0) -
+          (a.getProperty("calendar-main-default") ? 1 : 0)
+      );
 
       const compCal = Cc["@mozilla.org/calendar/calendar;1?type=composite"].createInstance(
         Ci.calICompositeCalendar

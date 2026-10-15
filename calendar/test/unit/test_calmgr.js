@@ -51,7 +51,7 @@ class CalendarManagerObserver {
   }
 }
 
-add_test(function test_builtin_registration() {
+add_task(function test_builtin_registration() {
   function checkCalendarCount(net, rdonly, all) {
     equal(cal.manager.networkCalendarCount, net);
     equal(cal.manager.readOnlyCalendarCount, rdonly);
@@ -123,9 +123,6 @@ add_test(function test_builtin_registration() {
   calmgrObserver.check({});
   equal(readOnly, true);
   checkCalendarCount(0, 0, 0);
-
-  // We are done now, start the next test.
-  run_next_test();
 });
 
 add_task(async function test_dynamic_registration() {
@@ -213,7 +210,7 @@ add_task(async function test_dynamic_registration() {
   calmgrObserver.check({ unregistering: originalId });
 });
 
-add_test(function test_calobserver() {
+add_task(function test_calobserver() {
   function checkCounters(add, modify, del, alladd, allmodify, alldel) {
     equal(calcounter.addItem, add);
     equal(calcounter.modifyItem, modify);
@@ -296,11 +293,11 @@ add_test(function test_calobserver() {
   memory.deleteItem(newItem);
   checkCounters(0, 0, 0);
 
-  // We are done now, start the next test
-  run_next_test();
+  cal.manager.unregisterCalendar(memory);
+  cal.manager.unregisterCalendar(memory2);
 });
 
-add_test(function test_removeModes() {
+add_task(function test_removeModes() {
   function checkCounts(modes, shouldDelete, expectCount, extraFlags = 0) {
     if (cal.manager.calendarCount == baseCalendarCount) {
       cal.manager.registerCalendar(memory);
@@ -350,11 +347,9 @@ add_test(function test_removeModes() {
     Ci.calICalendarManager.REMOVE_NO_DELETE
   );
   checkCounts(["delete"], SHOULD_DELETE, 0);
-
-  run_next_test();
 });
 
-add_test(function test_calprefs() {
+add_task(function test_calprefs() {
   let prop;
   let memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
   cal.manager.registerCalendar(memory);
@@ -411,6 +406,56 @@ add_test(function test_calprefs() {
   prop = memory.getProperty("intpref");
   Assert.strictEqual(prop, null);
 
-  // We are done now, start the next test
-  run_next_test();
+  cal.manager.unregisterCalendar(cal.manager.getCalendarById(memid));
+});
+
+add_task(async function test_getCalendars_listOrder() {
+  function create() {
+    const calendar = cal.manager.createCalendar(
+      "memory",
+      Services.io.newURI("moz-memory-calendar://")
+    );
+    calendar.id = cal.getUUID();
+    cal.manager.registerCalendar(calendar);
+    return cal.manager.getCalendarById(calendar.id);
+  }
+  function listOrder() {
+    return cal.manager.getCalendars().map(calendar => calendar.id);
+  }
+
+  const a = create();
+  const b = create();
+  const c = create();
+  Assert.deepEqual(listOrder(), [a.id, b.id, c.id], "new calendars should be added at the end");
+
+  Services.prefs.setStringPref("calendar.list.sortOrder", `${c.id} ${a.id} ${b.id}`);
+  Assert.deepEqual(
+    listOrder(),
+    [c.id, a.id, b.id],
+    "reordering the calendar list should reorder the calendars"
+  );
+
+  Services.prefs.setStringPref("calendar.list.sortOrder", b.id);
+  Assert.deepEqual(
+    listOrder(),
+    [b.id, c.id, a.id],
+    "calendars the list order doesn't mention should keep their order at the end"
+  );
+
+  // A calendar is registered again when its provider is enabled or its offline
+  // support toggled.
+  Services.prefs.setStringPref("calendar.list.sortOrder", `${a.id} ${b.id} ${c.id}`);
+  cal.manager.unregisterCalendar(b);
+  Assert.deepEqual(listOrder(), [a.id, c.id], "an unregistered calendar should be gone");
+  cal.manager.registerCalendar(b);
+  Assert.deepEqual(
+    listOrder(),
+    [a.id, b.id, c.id],
+    "a calendar registered again should return to its place in the list"
+  );
+
+  for (const calendar of cal.manager.getCalendars()) {
+    cal.manager.unregisterCalendar(calendar);
+  }
+  Services.prefs.clearUserPref("calendar.list.sortOrder");
 });

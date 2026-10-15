@@ -93,7 +93,7 @@ interface calICalendarManager : nsISupports
   /* get a calendar by its id */
   calICalendar getCalendarById(in AUTF8String aId);
 
-  /* return a list of all calendars currently registered */
+  /* Return all registered calendars, in the calendar list order. */
   Array<calICalendar> getCalendars();
 
   /** Add an observer for the calendar manager, i.e when calendars are registered */

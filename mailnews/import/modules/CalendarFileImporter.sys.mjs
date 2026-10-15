@@ -83,7 +83,7 @@ export class CalendarFileImporter {
    * @returns {calICalendar[]}
    */
   getTargetCalendars() {
-    const calendars = lazy.cal.manager
+    return lazy.cal.manager
       .getCalendars()
       .filter(
         calendar =>
@@ -91,14 +91,6 @@ export class CalendarFileImporter {
           !calendar.readOnly &&
           lazy.cal.acl.userCanAddItemsToCalendar(calendar)
       );
-    const sortOrderPref = Services.prefs.getCharPref(
-      "calendar.list.sortOrder",
-      ""
-    );
-    const sortOrder = sortOrderPref ? sortOrderPref.split(" ") : [];
-    return calendars.sort(
-      (x, y) => sortOrder.indexOf(x.id) - sortOrder.indexOf(y.id)
-    );
   }
 
   /**
