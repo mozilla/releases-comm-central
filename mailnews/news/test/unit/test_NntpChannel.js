@@ -377,3 +377,112 @@ add_task(async function test_bannedPort() {
     "configured server should be used"
   );
 });
+
+/**
+ * Test that an nntp: URI fetches the article by newsgroup and article number.
+ */
+add_task(async function test_fetchNntpArticle() {
+  _server.closeCachedConnections();
+  server.resetTest();
+
+  const streamListener = new PromiseTestUtils.PromiseStreamListener();
+  NetUtil.newChannel({
+    uri: `nntp://localhost:${NNTP_PORT}/test.filter/1`,
+    loadUsingSystemPrincipal: true,
+  }).asyncOpen(streamListener);
+  await streamListener.promise;
+
+  do_check_transaction(server.playTransaction(), [
+    "MODE READER",
+    "GROUP test.filter",
+    "ARTICLE 1",
+  ]);
+});
+
+/**
+ * Test that an nntp: URI for an unknown server is refused, without creating a
+ * server for it.
+ */
+add_task(function test_nntpUnknownServer() {
+  const channel = NetUtil.newChannel({
+    uri: `nntp://127.0.0.1:${NNTP_PORT}/test.filter/1`,
+    loadUsingSystemPrincipal: true,
+  });
+  Assert.throws(
+    () => channel.asyncOpen(new StatusListener()),
+    /NS_ERROR_UNKNOWN_HOST/,
+    "unknown server should be refused"
+  );
+  Assert.equal(
+    NntpUtils.findServer("127.0.0.1"),
+    null,
+    "no server should be created"
+  );
+});
+
+/**
+ * Test that an nntp: URI without a valid article number is refused.
+ */
+add_task(function test_nntpNoArticleNumber() {
+  for (const spec of [
+    `nntp://localhost:${NNTP_PORT}/test.filter`,
+    `nntp://localhost:${NNTP_PORT}/test.filter/x`,
+  ]) {
+    const channel = NetUtil.newChannel({
+      uri: spec,
+      loadUsingSystemPrincipal: true,
+    });
+    Assert.throws(
+      () => channel.asyncOpen(new StatusListener()),
+      /NS_ERROR_MALFORMED_URI/,
+      `${spec} should be refused`
+    );
+  }
+});
+
+/**
+ * Test that an nntp: URI for a newsgroup that isn't subscribed is refused.
+ */
+add_task(function test_nntpUnsubscribedGroup() {
+  const channel = NetUtil.newChannel({
+    uri: `nntp://localhost:${NNTP_PORT}/misc.test/1`,
+    loadUsingSystemPrincipal: true,
+  });
+  Assert.throws(
+    () => channel.asyncOpen(new StatusListener()),
+    /NS_ERROR_NOT_AVAILABLE/,
+    "unsubscribed newsgroup should be refused"
+  );
+});
+
+/**
+ * Test that an nntp: URI fetches an article whose header hasn't been
+ * downloaded from a group with offline storage enabled.
+ */
+add_task(async function test_nntpArticleWithoutHeaderInOfflineGroup() {
+  _server.closeCachedConnections();
+  server.resetTest();
+  const folder = _server.rootFolder.getChildNamed("test.filter");
+  folder.setFlag(Ci.nsMsgFolderFlags.Offline);
+  try {
+    Assert.ok(
+      !folder.msgDatabase.containsKey(2),
+      "article 2 should have no local header"
+    );
+
+    const streamListener = new PromiseTestUtils.PromiseStreamListener();
+    NetUtil.newChannel({
+      uri: `nntp://localhost:${NNTP_PORT}/test.filter/2`,
+      loadUsingSystemPrincipal: true,
+    }).asyncOpen(streamListener);
+    await streamListener.promise;
+
+    do_check_transaction(server.playTransaction(), [
+      "MODE READER",
+      "GROUP test.filter",
+      "ARTICLE 2",
+    ]);
+  } finally {
+    folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
+  }
+});

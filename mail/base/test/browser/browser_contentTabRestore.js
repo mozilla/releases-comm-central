@@ -54,7 +54,8 @@ add_task(function testRestoreTab() {
 
 /**
  * Restoring a content tab with an nntp: URL must keep it in the parent process.
- * The URL can't be loaded, but this must not crash.
+ * There's no server configured for the URL, so it can't be loaded, but this
+ * must not crash.
  */
 add_task(async function testRestoreNntpTab() {
   tabmail.restoreTab({

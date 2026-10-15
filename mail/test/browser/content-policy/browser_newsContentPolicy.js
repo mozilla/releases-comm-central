@@ -400,3 +400,44 @@ add_task(async function testRemoteContentInArticleWithoutHeader() {
   Assert.equal(naturalWidth, 0, "remote image should not load");
   document.getElementById("tabmail").closeTab(tab);
 });
+
+/**
+ * An nntp: URI for an article on a configured server must load the article in
+ * a content tab, with JavaScript disabled like for news: URIs.
+ */
+add_task(async function test_nntpArticleInContentTab() {
+  const group = `${GROUP}.nntparticle`;
+  await setupNewsFolder(
+    group,
+    generator.makeMessage({
+      subject: "nntp article",
+      body: {
+        body: `<html><body><script>window.jsIsTurnedOn = true;</script></body></html>`,
+        contentType: "text/html",
+      },
+    })
+  );
+
+  const tab = await open_content_tab_with_url(
+    `nntp://test.test:119/${group}/1`
+  );
+  Assert.ok(
+    !tab.browser.isRemoteBrowser,
+    "the article should load in the parent process"
+  );
+  Assert.ok(
+    !tab.browser.browsingContext.allowJavascript,
+    "JavaScript should not be allowed"
+  );
+  await SpecialPowers.spawn(tab.browser, [], () => {
+    Assert.ok(
+      content.document.body.textContent.includes("nntp article"),
+      "the article should be displayed"
+    );
+    Assert.ok(
+      !content.wrappedJSObject.jsIsTurnedOn,
+      "JS should not be turned on in content"
+    );
+  });
+  document.getElementById("tabmail").closeTab(tab);
+});

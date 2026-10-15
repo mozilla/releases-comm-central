@@ -21,6 +21,11 @@ var protocols = [
     urlSpec: "snews://user@localhost/",
     defaultPort: Ci.nsINntpIncomingServer.DEFAULT_NNTPS_PORT,
   },
+  {
+    protocol: "nntp",
+    urlSpec: "nntp://user@localhost/",
+    defaultPort: Ci.nsINntpIncomingServer.DEFAULT_NNTP_PORT,
+  },
 ];
 
 function run_test() {
@@ -59,24 +64,10 @@ function run_test() {
 }
 
 /**
- * 'nntp' URIs can't be loaded, but must get a content principal so that they
- * are kept in the parent process like other news URIs.
+ * 'nntp' URIs must get a content principal so that they are kept in the parent
+ * process like other news URIs.
  */
 function testNntp() {
-  Assert.equal(
-    Services.io.getProtocolFlags("nntp"),
-    Ci.nsIProtocolHandler.URI_NORELATIVE |
-      Ci.nsIProtocolHandler.URI_DANGEROUS_TO_LOAD |
-      Ci.nsIProtocolHandler.URI_FORBIDS_COOKIE_ACCESS |
-      Ci.nsIProtocolHandler.ORIGIN_IS_FULL_SPEC,
-    "nntp should have the expected protocol flags"
-  );
-  Assert.equal(
-    Services.io.getDefaultPort("nntp"),
-    Ci.nsINntpIncomingServer.DEFAULT_NNTP_PORT,
-    "nntp should use the default NNTP port"
-  );
-
   const uri = Services.io.newURI("nntp://localhost/some.group/1");
   Assert.ok(
     uri instanceof Ci.nsIMsgMailNewsUrl,
@@ -86,18 +77,5 @@ function testNntp() {
     !Services.scriptSecurityManager.createContentPrincipal(uri, {})
       .isNullPrincipal,
     "nntp URI should get a content principal"
-  );
-  Assert.throws(
-    () =>
-      Services.io.newChannelFromURI(
-        uri,
-        null,
-        Services.scriptSecurityManager.getSystemPrincipal(),
-        null,
-        Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-        Ci.nsIContentPolicy.TYPE_OTHER
-      ),
-    /NS_ERROR_NOT_IMPLEMENTED/,
-    "loading an nntp URI should fail"
   );
 }
