@@ -105,7 +105,7 @@ add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
     await BrowserTestUtils.waitForEvent(win, "load");
     return (
       win.document.documentURI ===
-      "chrome://messenger/content/SearchDialog.xhtml"
+      "chrome://messenger/content/searchDialog.xhtml"
     );
   });
   window.searchAllMessages();

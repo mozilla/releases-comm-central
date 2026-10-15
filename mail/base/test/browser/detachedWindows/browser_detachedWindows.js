@@ -207,7 +207,7 @@ add_task(async function testSearchMessagesDialog() {
   let searchWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
     null,
     w =>
-      w.document.documentURI == "chrome://messenger/content/SearchDialog.xhtml"
+      w.document.documentURI == "chrome://messenger/content/searchDialog.xhtml"
   );
   context.activateItem(searchMessagesItem);
   let searchWindow = await searchWindowPromise;

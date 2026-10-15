@@ -222,7 +222,7 @@ async function subtest(server) {
   // Test the search button.
 
   const searchPromise = promiseWindow(
-    "chrome://messenger/content/SearchDialog.xhtml",
+    "chrome://messenger/content/searchDialog.xhtml",
     async searchWin => {
       const folderPicker =
         searchWin.document.getElementById("searchableFolders");

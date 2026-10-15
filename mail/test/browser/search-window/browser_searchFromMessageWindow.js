@@ -41,7 +41,7 @@ add_task(async function test_search_shortcut_from_message_window() {
   const searchWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
     null,
     w =>
-      w.document.documentURI == "chrome://messenger/content/SearchDialog.xhtml"
+      w.document.documentURI == "chrome://messenger/content/searchDialog.xhtml"
   );
   // See ShortcutsManager.sys.mjs "search-messages".
   const modifiers =

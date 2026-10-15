@@ -57,7 +57,7 @@ mail/base/content/hiddenWindowMac.xhtml
 mail/base/content/messageWindow.xhtml
 mail/base/content/messenger.xhtml
 mail/base/content/profileDowngrade.xhtml
-mail/base/content/SearchDialog.xhtml
+mail/base/content/searchDialog.xhtml
 mail/base/content/viewSource.xhtml
 mail/components/about-support/content/aboutSupport.xhtml
 mail/components/activity/content/activity.xhtml

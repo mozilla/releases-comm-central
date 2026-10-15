@@ -32,7 +32,7 @@ add_setup(async function () {
 
   tabmail.currentAbout3Pane.paneLayout.messagePaneVisible = true;
   Services.xulStore.removeDocument(
-    "chrome://messenger/content/SearchDialog.xhtml"
+    "chrome://messenger/content/searchDialog.xhtml"
   );
 
   registerCleanupFunction(() => {
@@ -44,7 +44,7 @@ add_task(async function () {
   const windowOpenedPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
     null,
     w =>
-      w.document.documentURI == "chrome://messenger/content/SearchDialog.xhtml"
+      w.document.documentURI == "chrome://messenger/content/searchDialog.xhtml"
   );
   window.searchAllMessages();
   const win = await windowOpenedPromise;
@@ -487,7 +487,7 @@ add_task(async function () {
   const window2OpenedPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
     null,
     w =>
-      w.document.documentURI == "chrome://messenger/content/SearchDialog.xhtml"
+      w.document.documentURI == "chrome://messenger/content/searchDialog.xhtml"
   );
   window.searchAllMessages();
   const win2 = await window2OpenedPromise;

@@ -2056,7 +2056,7 @@ function searchAllMessages(folder) {
  */
 function openSearchDialog(folder) {
   top.openDialog(
-    "chrome://messenger/content/SearchDialog.xhtml",
+    "chrome://messenger/content/searchDialog.xhtml",
     "_blank",
     "chrome,resizable,status,centerscreen,dialog=no",
     { folder }

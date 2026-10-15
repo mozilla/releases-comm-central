@@ -1181,7 +1181,7 @@ add_task(async function testSearchFolderAddedOnlyOnce() {
   const searchWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
     null,
     w =>
-      w.document.documentURI == "chrome://messenger/content/SearchDialog.xhtml"
+      w.document.documentURI == "chrome://messenger/content/searchDialog.xhtml"
   );
   context.activateItem(searchMessagesItem);
   const searchWindow = await searchWindowPromise;
