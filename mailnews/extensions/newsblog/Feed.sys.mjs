@@ -7,6 +7,8 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   FeedParser: "resource:///modules/FeedParser.sys.mjs",
   FeedUtils: "resource:///modules/FeedUtils.sys.mjs",
+  clearTimeout: "resource://gre/modules/Timer.sys.mjs",
+  setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 
 // Cache for all of the feeds currently being downloaded, indexed by URL,
@@ -70,6 +72,7 @@ Feed.prototype = {
   description: null,
   author: null,
   request: null,
+  inactivityTimer: null,
   server: null,
   downloadCallback: null,
   resource: null,
@@ -184,17 +187,34 @@ Feed.prototype = {
     this.request.onreadystatechange = this.onReadyStateChange;
     this.request.onerror = this.onDownloadError;
     this.request.ontimeout = this.onDownloadError;
+    this.request.onabort = this.onDownloadError;
     FeedCache.putFeed(this);
     this.request.send(null);
   },
 
   onReadyStateChange(aEvent) {
-    // Once a server responds with data, reset the timeout to allow potentially
-    // large files to complete the download.
+    // Once a server responds with data, replace the timeout with an inactivity
+    // timeout to allow potentially large files to complete the download.
     const request = aEvent.target;
     if (request.timeout && request.readyState == request.LOADING) {
       request.timeout = 0;
+      const feed = FeedCache.getFeed(request.channel.originalURI.spec);
+      feed?.resetInactivityTimer();
     }
+  },
+
+  resetInactivityTimer() {
+    lazy.clearTimeout(this.inactivityTimer);
+    this.inactivityTimer = lazy.setTimeout(() => {
+      this.inactivityTimer = null;
+      lazy.FeedUtils.log.info(`No data received, aborting -  ${this.url}`);
+      this.request.abort();
+    }, lazy.FeedUtils.REQUEST_TIMEOUT);
+  },
+
+  clearInactivityTimer() {
+    lazy.clearTimeout(this.inactivityTimer);
+    this.inactivityTimer = null;
   },
 
   onDownloaded(aEvent) {
@@ -218,6 +238,7 @@ Feed.prototype = {
         "Feed.onDownloaded: error - couldn't retrieve feed from cache"
       );
     }
+    feed.clearInactivityTimer();
 
     // If the server sends a Last-Modified header, store the property on the
     // feed so we can use it when making future requests, to avoid downloading
@@ -239,6 +260,9 @@ Feed.prototype = {
     const request = aEvent.target;
     const url = request.channel.originalURI.spec;
     const feed = FeedCache.getFeed(url);
+    if (feed.inactivityTimer) {
+      feed.resetInactivityTimer();
+    }
 
     if (feed.downloadCallback) {
       feed.downloadCallback.onProgress(
@@ -254,6 +278,7 @@ Feed.prototype = {
     const request = aEvent.target;
     const url = request.channel.originalURI.spec;
     const feed = FeedCache.getFeed(url);
+    feed.clearInactivityTimer();
     if (feed.downloadCallback) {
       // Generic network or 'not found' error initially.
       let error = lazy.FeedUtils.kNewsBlogRequestFailure;
