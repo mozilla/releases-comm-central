@@ -2196,8 +2196,14 @@ const JsMIMEmimeparser = function () {
     // a line ending in modern times, this is acceptable lossage.]
     // 3. Eliminate empty packets.
 
-    // Add in previously saved data
+    // Add in previously saved data. That has no line break, except possibly
+    // a final \r, so if the new data has none either, there's nothing to
+    // deliver yet. Don't search the saved data again then.
     if (this._holdData) {
+      if (!this._holdData.endsWith("\r") && !/[\r\n]/.test(buffer)) {
+        this._holdData += buffer;
+        return;
+      }
       buffer = this._holdData + buffer;
       this._holdData = "";
     }
@@ -2379,12 +2385,14 @@ const JsMIMEmimeparser = function () {
   MimeParser.prototype._dispatchData = function (partNum, buffer, checkSplit) {
     // Are we parsing headers?
     if (this._state == PARSING_HEADERS) {
+      // The previous data had no end of headers, so only search from where one
+      // could start: at most 3 characters before the new data.
+      const endOfHeadersRe = /(?:^(?:\r\n|[\r\n]))|(\r\n|[\r\n])\1/g;
+      endOfHeadersRe.lastIndex = Math.max(0, this._headerData.length - 3);
       this._headerData += buffer;
       // Find the end of the headers--either it's a CRLF at the beginning (in
       // which case we have no headers), or it's a pair of CRLFs.
-      const result = /(?:^(?:\r\n|[\r\n]))|(\r\n|[\r\n])\1/.exec(
-        this._headerData
-      );
+      const result = endOfHeadersRe.exec(this._headerData);
       if (result != null) {
         // If we found the end of headers, split the data at this point and send
         // the stuff after the double-CRLF into the later body parsing.

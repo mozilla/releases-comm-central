@@ -94,12 +94,12 @@ define(function (require) {
     );
     var eol = extract_field(opts, "_eol");
     var msgtext = read_file(file).then(function (msgcontents) {
+      if (eol !== undefined) {
+        msgcontents = msgcontents.replace(/\r\n/g, eol);
+      }
       var packetize = extract_field(opts, "_split");
       if (packetize !== undefined) {
         msgcontents = msgcontents.split(packetize);
-      }
-      if (eol !== undefined) {
-        msgcontents = msgcontents.replace(/\r\n/g, eol);
       }
       return msgcontents;
     });
@@ -498,11 +498,57 @@ define(function (require) {
           { _eol: "\r" },
           mpart_complex1
         ),
+        make_body_test(
+          "LF-based pathological splitting",
+          "multipart-complex1",
+          { _eol: "\n", _split: "" },
+          mpart_complex1
+        ),
+        make_body_test(
+          "CR-based pathological splitting",
+          "multipart-complex1",
+          { _eol: "\r", _split: "" },
+          mpart_complex1
+        ),
       ];
       parser_tests.forEach(function (data) {
         arrayTest(data, function () {
           return testParser(data[1], data[2], data[3]);
         });
+      });
+
+      /**
+       * Parse a message delivered in 4 KiB packets.
+       *
+       * @param {string} message - The message to parse.
+       * @returns {string} the body of the message.
+       */
+      function parseInPackets(message) {
+        let body = "";
+        const parser = new jsmime.MimeParser(
+          {
+            deliverPartData(partNum, data) {
+              body += data;
+            },
+          },
+          { bodyformat: "decode", strformat: "binarystring" }
+        );
+        for (let i = 0; i < message.length; i += 4096) {
+          parser.deliverData(message.substring(i, i + 4096));
+        }
+        parser.deliverEOF();
+        return body;
+      }
+      test("Long body line in many packets", function () {
+        const line = "a".repeat(16 << 20);
+        assert.equal(
+          parseInPackets("Content-Type: text/plain\r\n\r\n" + line),
+          line
+        );
+      });
+      test("Many header lines in many packets", function () {
+        const headers = "X-A: b\r\n".repeat(64 * 1024);
+        assert.equal(parseInPackets(headers + "\r\nbody\r\n"), "body\r\n");
       });
     });
 
