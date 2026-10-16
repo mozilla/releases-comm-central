@@ -7,6 +7,9 @@ var { TestUtils } = ChromeUtils.importESModule(
 const { setTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"
 );
+const { HttpServer } = ChromeUtils.importESModule(
+  "resource://testing-common/httpd.sys.mjs"
+);
 
 loadMatrix();
 
@@ -406,4 +409,99 @@ add_task(function test_getChatRoomFieldValuesFromString() {
     { roomIdOrAlias: "#test:test" },
     "Unexpected channel for bare channel"
   );
+});
+
+/**
+ * Log in with a mocked client whose login response contains the given
+ * homeserver base URL.
+ *
+ * @param {string} baseURL - The m.homeserver base_url in the login response.
+ * @returns {MatrixAccount}
+ */
+async function loginWithWellKnownBaseURL(baseURL, otherWellKnown = {}) {
+  const account = getAccount();
+  account._baseURL = "https://example.com";
+  account.getString = () => "";
+  account.storeSessionInformation = () => {};
+  account._client = {
+    async login() {
+      return {
+        access_token: "token",
+        device_id: "device",
+        user_id: "@user:example.com",
+        well_known: {
+          "m.homeserver": { base_url: baseURL },
+          ...otherWellKnown,
+        },
+      };
+    },
+    stopClient() {},
+  };
+  account.createClient = function () {
+    this._client = { isLoggedIn: () => true };
+  };
+  account.startClient = () => {};
+  await account.loginToClient("m.login.password", {});
+  return account;
+}
+
+add_task(async function test_loginIgnoresNonHttpWellKnownBaseURL() {
+  for (const baseURL of [
+    "file:///tmp/homeserver",
+    "file://///192.0.2.1/share",
+  ]) {
+    const account = await loginWithWellKnownBaseURL(baseURL);
+    equal(
+      account._baseURL,
+      "https://example.com",
+      `base URL should not change to ${baseURL}`
+    );
+  }
+});
+
+add_task(async function test_loginUsesValidWellKnownBaseURL() {
+  const server = new HttpServer();
+  server.registerPathHandler(
+    "/_matrix/client/versions",
+    (request, response) => {
+      response.setHeader("Content-Type", "application/json", false);
+      response.write(JSON.stringify({ versions: ["v1.1"] }));
+    }
+  );
+  server.start(-1);
+  const baseURL = `http://localhost:${server.identity.primaryPort}`;
+
+  const account = await loginWithWellKnownBaseURL(baseURL);
+  equal(account._baseURL, baseURL, "base URL should change to the homeserver");
+
+  await new Promise(resolve => server.stop(resolve));
+});
+
+add_task(async function test_loginIgnoresInvalidWellKnownIdentityServer() {
+  const server = new HttpServer();
+  server.registerPathHandler(
+    "/_matrix/client/versions",
+    (request, response) => {
+      response.setHeader("Content-Type", "application/json", false);
+      response.write(JSON.stringify({ versions: ["v1.1"] }));
+    }
+  );
+  server.start(-1);
+  const baseURL = `http://localhost:${server.identity.primaryPort}`;
+
+  for (const identityServer of [
+    "file:///tmp/identity",
+    `${baseURL}/identity`,
+  ]) {
+    const account = await loginWithWellKnownBaseURL(baseURL, {
+      "m.identity_server": { base_url: identityServer },
+    });
+    equal(
+      account._baseURL,
+      baseURL,
+      `base URL should change to the homeserver with identity server ${identityServer}`
+    );
+  }
+
+  await new Promise(resolve => server.stop(resolve));
 });

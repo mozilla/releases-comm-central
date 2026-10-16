@@ -1919,8 +1919,21 @@ MatrixAccount.prototype = {
       if (data.error) {
         throw new Error(data.error);
       }
-      if (data.well_known?.[HOMESERVER_WELL_KNOWN]?.base_url) {
-        this._baseURL = data.well_known[HOMESERVER_WELL_KNOWN].base_url;
+      const wellKnownBaseURL =
+        data.well_known?.[HOMESERVER_WELL_KNOWN]?.base_url;
+      if (wellKnownBaseURL) {
+        const discoveredInfo =
+          await lazy.MatrixSDK.AutoDiscovery.fromDiscoveryConfig(
+            data.well_known
+          );
+        const homeserverResult = discoveredInfo[HOMESERVER_WELL_KNOWN];
+        if (homeserverResult.state === lazy.MatrixSDK.AutoDiscovery.SUCCESS) {
+          this._baseURL = homeserverResult.base_url;
+        } else {
+          this.WARN(
+            `Ignoring invalid homeserver base URL from login response: ${wellKnownBaseURL}`
+          );
+        }
       }
       this.storeSessionInformation(data);
       // Need to create a new client with the device ID set.
