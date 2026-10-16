@@ -49,6 +49,8 @@ requesttimeoutfactor = 2
 
 ["test_intl.js"]
 
+["test_list_post.js"]
+
 ["test_migration.js"]
 
 ["test_mime_attachments_size.js"]

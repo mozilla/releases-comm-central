@@ -447,7 +447,7 @@ export var GlodaFundAttr = {
     }); // not-tested, not-implemented
   },
 
-  RE_LIST_POST: /<mailto:([^>]+)>/,
+  RE_LIST_POST: /<mailto:([^<>]+)>/,
 
   /**
    *
