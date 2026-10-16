@@ -57,7 +57,7 @@ tasks:
                     thunderbird-latest: installer
                     thunderbird-msi-latest-ssl: msi
                     thunderbird-msix-latest-ssl: msix
-                esr140:
+                esr153:
                     # when there is one ESR branch both sets of aliases are set for that branch
                     # when there are two ESR branches ...
                     # ... these always point to the older branch
@@ -65,7 +65,7 @@ tasks:
                     thunderbird-esr-latest: installer
                     thunderbird-esr-msi-latest-ssl: msi
                     thunderbird-esr-msix-latest-ssl: msix
-                esr153:
+
                     # ... these point to the newer branch
                     thunderbird-esr-next-latest-ssl: installer-ssl
                     thunderbird-esr-next-latest: installer

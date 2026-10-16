@@ -140,7 +140,6 @@ release-branches:
     comm-central: true
     comm-beta: true
     comm-release: true
-    comm-esr140: true
     comm-esr153: true
     enterprise-thunderbird:
         - enterprise-main
