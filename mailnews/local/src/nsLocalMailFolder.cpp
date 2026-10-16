@@ -3268,16 +3268,16 @@ nsMsgLocalMailFolder::GetUidlFromFolder(nsLocalFolderScanState* aState,
       len -= size;
       // account key header will always be before X_UIDL header
       if (!accountKey) {
-        accountKey =
-            strstr(aState->m_header.get(), HEADER_X_MOZILLA_ACCOUNT_KEY);
-        if (accountKey) {
-          accountKey += strlen(HEADER_X_MOZILLA_ACCOUNT_KEY) + 2;
+        constexpr auto accountKeyPrefix =
+            nsLiteralCString(HEADER_X_MOZILLA_ACCOUNT_KEY ": ");
+        if (StringBeginsWith(aState->m_header, accountKeyPrefix)) {
+          accountKey = aState->m_header.get() + accountKeyPrefix.Length();
           aState->m_accountKey = accountKey;
         }
       } else {
-        aState->m_uidl = strstr(aState->m_header.get(), X_UIDL);
-        if (aState->m_uidl) {
-          aState->m_uidl += X_UIDL_LEN + 2;  // skip UIDL: header
+        constexpr auto uidlPrefix = nsLiteralCString(X_UIDL ": ");
+        if (StringBeginsWith(aState->m_header, uidlPrefix)) {
+          aState->m_uidl = aState->m_header.get() + uidlPrefix.Length();
           break;
         }
       }

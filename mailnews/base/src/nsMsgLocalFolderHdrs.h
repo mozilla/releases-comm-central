@@ -25,7 +25,6 @@
 #define X_MOZILLA_NEWSHOST_LEN    /*1234567890123456789*/   19
 
 #define X_UIDL                     "X-UIDL"
-#define X_UIDL_LEN                /*123456*/                 6
 
 #define CONTENT_LENGTH             "Content-Length"
 #define CONTENT_LENGTH_LEN        /*12345678901234*/        14

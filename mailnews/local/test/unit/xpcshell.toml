@@ -121,6 +121,8 @@ requesttimeoutfactor = 12
 
 ["test_pop3ServerDisconnect.js"]
 
+["test_pop3StalePartial.js"]
+
 ["test_pop3StateDeadlock.js"]
 
 ["test_pop3Url.js"]
