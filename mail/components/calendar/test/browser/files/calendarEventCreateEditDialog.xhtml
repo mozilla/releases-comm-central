@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+>
   <head>
     <meta charset="utf-8" />
     <title>Calendar Event Create/Edit Dialog Test</title>
@@ -69,7 +72,26 @@
         <div class="calendar-name"></div>
         <div class="calendar-actions">
           <div class="expand-control"></div>
-          <div class="more-actions"></div>
+          <div class="more-actions">
+            <button
+              id="calendarEventCreateEditDialogMenuButton"
+              class="button icon-button icon-only button-flat menu-button"
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              data-l10n-id="calendar-dialog-menu"
+              hidden="hidden"
+            ></button>
+            <xul:menupopup
+              id="calendarEventCreateEditDialogMenu"
+              class="no-icon-menupopup"
+            >
+              <xul:menuitem
+                id="calendarEventCreateEditDialogDeleteEvent"
+                data-l10n-id="calendar-dialog-menu-delete"
+              />
+            </xul:menupopup>
+          </div>
           <button
             class="button icon-button icon-only button-flat close-button"
             data-l10n-id="calendar-dialog-close-button"

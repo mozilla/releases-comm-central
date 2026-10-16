@@ -46,6 +46,13 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   #createEditSession = null;
 
   /**
+   * The latest source session for this dialog, or null when there is none.
+   *
+   * @type {?CalendarEventSourceSession}
+   */
+  #sourceSession = null;
+
+  /**
    * A copy of the current editable values, or null before a draft exists.
    *
    * @type {?CalendarEventDraft}
@@ -160,6 +167,9 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       this.setAttribute("is", "calendar-event-create-edit-dialog");
 
       this.addEventListener("click", this);
+      this.addEventListener("command", this);
+      this.#menu.addEventListener("popupshown", this);
+      this.#menu.addEventListener("popuphidden", this);
 
       window.MozXULElement?.insertFTLIfNeeded("messenger/calendarDialog.ftl");
       document.l10n.setAttributes(this, "calendar-event-create-edit-dialog");
@@ -174,6 +184,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
    */
   #clickHandlers = {
     ".close-button": () => this.close(),
+    "#calendarEventCreateEditDialogMenuButton": () => this.#openMenu(),
   };
 
   handleEvent(event) {
@@ -185,6 +196,26 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
             break;
           }
         }
+        break;
+      case "command":
+        for (const [selector, handler] of Object.entries(
+          this.#commandHandlers
+        )) {
+          if (event.target.closest(selector)) {
+            handler(event);
+            break;
+          }
+        }
+        break;
+      case "popupshown":
+        this.#menuButton.setAttribute("aria-expanded", "true");
+        this.#menu.dispatchEvent(
+          new KeyboardEvent("keydown", { keyCode: KeyboardEvent.DOM_VK_DOWN })
+        );
+        break;
+      case "popuphidden":
+        this.#menuButton.setAttribute("aria-expanded", "false");
+        this.#menuButton.focus();
         break;
     }
   }
@@ -296,6 +327,8 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
     } else if (fieldName == "draftState") {
       this.#draftState = newValue;
       this.#updateDraftViewModel();
+    } else if (fieldName == "sourceSession") {
+      this.#sourceSession = newValue;
     }
   }
 
@@ -315,6 +348,47 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
         validity => validity.valid
       );
     this.#mode = this.#createEditSession?.mode ?? null;
+    if (this.#menuButton) {
+      this.#menuButton.hidden = !(
+        this.#mode === "edit" && this.#draft !== null
+      );
+      if (this.#menuButton.hidden) {
+        this.#menu.hidePopup();
+        this.#menuButton.setAttribute("aria-expanded", "false");
+      }
+    }
+  }
+
+  get #menuButton() {
+    return this.querySelector("#calendarEventCreateEditDialogMenuButton");
+  }
+
+  get #menu() {
+    return this.querySelector("#calendarEventCreateEditDialogMenu");
+  }
+
+  #commandHandlers = {
+    "#calendarEventCreateEditDialogDeleteEvent": () =>
+      this.#requestDeleteEvent(),
+  };
+
+  #openMenu() {
+    this.#menu.openPopup(this.#menuButton, "after_end");
+  }
+
+  /**
+   * Request deletion of the event currently being edited.
+   */
+  #requestDeleteEvent() {
+    if (this.#menuButton.hidden) {
+      return;
+    }
+    this.dispatchEvent(
+      new CustomEvent("deleteevent", {
+        bubbles: true,
+        detail: this.#sourceSession?.identity ?? null,
+      })
+    );
   }
 
   /**

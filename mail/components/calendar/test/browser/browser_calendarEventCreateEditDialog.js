@@ -1250,3 +1250,578 @@ add_task(async function test_missingOrInvalidSourceFailuresAreControlled() {
 
   await resetToCreateMode();
 });
+
+add_task(async function test_moreButtonHasAccessibleName() {
+  const menuButton = dialog.querySelector(
+    "#calendarEventCreateEditDialogMenuButton"
+  );
+
+  await doc.l10n.translateFragment(dialog);
+
+  Assert.equal(
+    menuButton.getAttribute("aria-label"),
+    "More actions menu",
+    "The More button has an accessible name"
+  );
+});
+
+add_task(async function test_moreMenuContainsOnlyDelete() {
+  const menu = dialog.querySelector("#calendarEventCreateEditDialogMenu");
+  const items = menu.querySelectorAll("menuitem");
+
+  Assert.equal(items.length, 1, "The More menu has a single command");
+  Assert.equal(
+    items[0].id,
+    "calendarEventCreateEditDialogDeleteEvent",
+    "The only More menu command is Delete event"
+  );
+});
+
+add_task(async function test_moreHiddenWhileCreating() {
+  const menuButton = dialog.querySelector(
+    "#calendarEventCreateEditDialogMenuButton"
+  );
+
+  await resetToCreateMode();
+
+  Assert.ok(
+    menuButton.hidden,
+    "The More button is unavailable while creating an event"
+  );
+});
+
+add_task(async function test_moreAvailabilityFollowsEditLoad() {
+  const menuButton = dialog.querySelector(
+    "#calendarEventCreateEditDialogMenuButton"
+  );
+
+  await resetToCreateMode();
+
+  const delayedLoad = delayCalendarEventLoad(calendarEvent.id);
+  const sourceLoaded = waitForNextSourceLoad();
+
+  try {
+    dialog.setCalendarEventRoute({
+      calendarId: calendar.id,
+      eventId: calendarEvent.id,
+    });
+    await delayedLoad.waitForRequest();
+    await waitForMode("edit");
+
+    Assert.ok(
+      menuButton.hidden,
+      "The More button stays unavailable while the edit source is loading"
+    );
+
+    delayedLoad.release();
+    await sourceLoaded;
+    await TestUtils.waitForCondition(
+      () => !menuButton.hidden,
+      "The More button becomes available once the edit source is loaded"
+    );
+  } finally {
+    delayedLoad.release();
+    delayedLoad.restore();
+    await resetToCreateMode();
+  }
+
+  Assert.ok(
+    menuButton.hidden,
+    "The More button becomes unavailable again after returning to create mode"
+  );
+});
+
+add_task(async function test_moreMenuOpensClosesAndRestoresFocus() {
+  const menuButton = dialog.querySelector(
+    "#calendarEventCreateEditDialogMenuButton"
+  );
+  const menu = dialog.querySelector("#calendarEventCreateEditDialogMenu");
+
+  await resetToCreateMode();
+
+  const sourceLoaded = waitForNextSourceLoad();
+  dialog.setCalendarEventRoute({
+    calendarId: calendar.id,
+    eventId: calendarEvent.id,
+  });
+  await sourceLoaded;
+  await TestUtils.waitForCondition(
+    () => !menuButton.hidden,
+    "The More button is available in loaded edit mode"
+  );
+  await dialog.show();
+
+  try {
+    Assert.ok(
+      BrowserTestUtils.isHidden(menu),
+      "The More menu is hidden before it is opened"
+    );
+
+    EventUtils.synthesizeMouseAtCenter(menuButton, {}, browser.contentWindow);
+    await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+    Assert.ok(
+      BrowserTestUtils.isVisible(menu),
+      "The More menu opens when the button is clicked"
+    );
+
+    menu.hidePopup();
+    await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+    Assert.equal(
+      doc.activeElement,
+      menuButton,
+      "Focus returns to the More button when the menu closes"
+    );
+  } finally {
+    dialog.close();
+    await resetToCreateMode();
+  }
+});
+
+add_task(async function test_deleteRequestsCurrentEventIdentity() {
+  const menuButton = dialog.querySelector(
+    "#calendarEventCreateEditDialogMenuButton"
+  );
+  const menu = dialog.querySelector("#calendarEventCreateEditDialogMenu");
+  const deleteItem = menu.querySelector(
+    "#calendarEventCreateEditDialogDeleteEvent"
+  );
+
+  await resetToCreateMode();
+
+  const sourceLoaded = waitForNextSourceLoad();
+  dialog.setCalendarEventRoute({
+    calendarId: calendar.id,
+    eventId: calendarEvent.id,
+  });
+  const source = await sourceLoaded;
+  await TestUtils.waitForCondition(
+    () => !menuButton.hidden,
+    "The More button is available in loaded edit mode"
+  );
+  await dialog.show();
+
+  try {
+    EventUtils.synthesizeMouseAtCenter(menuButton, {}, browser.contentWindow);
+    await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+
+    const deleteEvent = BrowserTestUtils.waitForEvent(
+      dialog,
+      "deleteevent",
+      true
+    );
+    menu.activateItem(deleteItem);
+    const { detail } = await deleteEvent;
+
+    Assert.deepEqual(
+      detail,
+      source.identity,
+      "Delete requests the identity of the event currently being edited"
+    );
+  } finally {
+    dialog.close();
+    await resetToCreateMode();
+  }
+});
+
+add_task(async function test_deleteAfterSwitchTargetsNewEvent() {
+  const menuButton = dialog.querySelector(
+    "#calendarEventCreateEditDialogMenuButton"
+  );
+  const menu = dialog.querySelector("#calendarEventCreateEditDialogMenu");
+  const deleteItem = menu.querySelector(
+    "#calendarEventCreateEditDialogDeleteEvent"
+  );
+
+  await resetToCreateMode();
+
+  const firstLoaded = waitForNextSourceLoad();
+  dialog.setCalendarEventRoute({
+    calendarId: calendar.id,
+    eventId: calendarEvent.id,
+  });
+  const firstSource = await firstLoaded;
+
+  const secondLoaded = waitForNextSourceLoad();
+  dialog.setCalendarEventRoute({
+    calendarId: calendar.id,
+    eventId: recurringEvent.id,
+    recurrenceId: String(recurringEvent.startDate.nativeTime),
+  });
+  const secondSource = await secondLoaded;
+
+  await TestUtils.waitForCondition(
+    () => !menuButton.hidden,
+    "The More button is available for the switched-to event"
+  );
+  await dialog.show();
+
+  try {
+    EventUtils.synthesizeMouseAtCenter(menuButton, {}, browser.contentWindow);
+    await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+
+    const deleteEvent = BrowserTestUtils.waitForEvent(
+      dialog,
+      "deleteevent",
+      true
+    );
+    menu.activateItem(deleteItem);
+    const { detail } = await deleteEvent;
+
+    Assert.deepEqual(
+      detail,
+      secondSource.identity,
+      "Delete targets the switched-to event"
+    );
+    Assert.notDeepEqual(
+      detail,
+      firstSource.identity,
+      "Delete does not target the previously loaded event"
+    );
+  } finally {
+    dialog.close();
+    await resetToCreateMode();
+  }
+});
+
+async function showLoadedEditDialog() {
+  const menuButton = dialog.querySelector(
+    "#calendarEventCreateEditDialogMenuButton"
+  );
+
+  await resetToCreateMode();
+
+  const sourceLoaded = waitForNextSourceLoad();
+  dialog.setCalendarEventRoute({
+    calendarId: calendar.id,
+    eventId: calendarEvent.id,
+  });
+  await sourceLoaded;
+  await TestUtils.waitForCondition(
+    () => !menuButton.hidden,
+    "The More button is available in loaded edit mode"
+  );
+  await dialog.show();
+}
+
+add_task(async function test_moreButtonExpandedStateFollowsKeyboard() {
+  const menuButton = dialog.querySelector(
+    "#calendarEventCreateEditDialogMenuButton"
+  );
+  const menu = dialog.querySelector("#calendarEventCreateEditDialogMenu");
+
+  await showLoadedEditDialog();
+
+  try {
+    menuButton.focus();
+    Assert.equal(
+      menuButton.getAttribute("aria-expanded"),
+      "false",
+      "The More button is collapsed before the menu opens"
+    );
+
+    for (const key of [" ", "KEY_Enter"]) {
+      EventUtils.synthesizeKey(key, {}, browser.contentWindow);
+      await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+      Assert.equal(
+        menuButton.getAttribute("aria-expanded"),
+        "true",
+        `The More button is expanded after opening the menu with ${key}`
+      );
+
+      EventUtils.synthesizeKey("KEY_Escape", {}, browser.contentWindow);
+      await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+      Assert.equal(
+        menuButton.getAttribute("aria-expanded"),
+        "false",
+        `The More button is collapsed after closing the menu opened with ${key}`
+      );
+      Assert.equal(
+        doc.activeElement,
+        menuButton,
+        `Focus returns to the More button after closing the menu opened with ${key}`
+      );
+    }
+  } finally {
+    dialog.close();
+    await resetToCreateMode();
+  }
+});
+
+add_task(async function test_moreMenuClosesWhenEventChangesWhileOpen() {
+  const menuButton = dialog.querySelector(
+    "#calendarEventCreateEditDialogMenuButton"
+  );
+  const menu = dialog.querySelector("#calendarEventCreateEditDialogMenu");
+  const deleteItem = menu.querySelector(
+    "#calendarEventCreateEditDialogDeleteEvent"
+  );
+  const changeEvent = {
+    "the route setter": () =>
+      dialog.setCalendarEventRoute({
+        calendarId: calendar.id,
+        eventId: recurringEvent.id,
+        recurrenceId: String(recurringEvent.startDate.nativeTime),
+      }),
+    "a route attribute": () =>
+      dialog.setAttribute("event-id", recurringEvent.id),
+  };
+
+  for (const [method, change] of Object.entries(changeEvent)) {
+    await showLoadedEditDialog();
+
+    let deleteRequests = 0;
+    const countDeleteRequest = () => deleteRequests++;
+    dialog.addEventListener("deleteevent", countDeleteRequest);
+    const delayedLoad = delayCalendarEventLoad(recurringEvent.id);
+
+    try {
+      EventUtils.synthesizeMouseAtCenter(menuButton, {}, browser.contentWindow);
+      await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+
+      const menuHidden = BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+      change();
+      await delayedLoad.waitForRequest();
+      await menuHidden;
+
+      Assert.ok(
+        menuButton.hidden,
+        `The More button is unavailable after changing the event with ${method}`
+      );
+      Assert.equal(
+        menuButton.getAttribute("aria-expanded"),
+        "false",
+        `The More button is collapsed after changing the event with ${method}`
+      );
+
+      deleteItem.doCommand();
+      await TestUtils.waitForTick();
+      Assert.equal(
+        deleteRequests,
+        0,
+        `Delete is not requested while the event changed with ${method} loads`
+      );
+    } finally {
+      dialog.removeEventListener("deleteevent", countDeleteRequest);
+      delayedLoad.release();
+      delayedLoad.restore();
+      dialog.close();
+      await resetToCreateMode();
+    }
+  }
+});
+
+add_task(async function test_moreMenuSelectsFirstItemOnEveryOpen() {
+  const menuButton = dialog.querySelector(
+    "#calendarEventCreateEditDialogMenuButton"
+  );
+  const menu = dialog.querySelector("#calendarEventCreateEditDialogMenu");
+  const deleteItem = menu.querySelector(
+    "#calendarEventCreateEditDialogDeleteEvent"
+  );
+  const openMenu = {
+    mouse: () =>
+      EventUtils.synthesizeMouseAtCenter(menuButton, {}, browser.contentWindow),
+    space: () => EventUtils.synthesizeKey(" ", {}, browser.contentWindow),
+    enter: () =>
+      EventUtils.synthesizeKey("KEY_Enter", {}, browser.contentWindow),
+  };
+
+  await showLoadedEditDialog();
+
+  let deleteRequests = 0;
+  const countDeleteRequest = () => deleteRequests++;
+  dialog.addEventListener("deleteevent", countDeleteRequest);
+
+  try {
+    for (let round = 1; round <= 2; round++) {
+      for (const [method, open] of Object.entries(openMenu)) {
+        menuButton.focus();
+        Assert.ok(
+          !deleteItem.hasAttribute("_moz-menuactive"),
+          `No item is selected before opening with ${method} (round ${round})`
+        );
+
+        const itemActive = BrowserTestUtils.waitForEvent(
+          deleteItem,
+          "DOMMenuItemActive"
+        );
+        open();
+        await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+        await itemActive;
+
+        Assert.equal(
+          deleteItem.getAttribute("_moz-menuactive"),
+          "true",
+          `Delete is selected as soon as the menu opens with ${method} (round ${round})`
+        );
+        Assert.equal(
+          menu.state,
+          "open",
+          `The menu stays open after selecting Delete with ${method} (round ${round})`
+        );
+
+        EventUtils.synthesizeKey("KEY_ArrowDown", {}, browser.contentWindow);
+        EventUtils.synthesizeKey("KEY_ArrowUp", {}, browser.contentWindow);
+        Assert.equal(
+          deleteItem.getAttribute("_moz-menuactive"),
+          "true",
+          `Arrow keys keep the only item selected after opening with ${method}`
+        );
+
+        const itemInactive = BrowserTestUtils.waitForEvent(
+          deleteItem,
+          "DOMMenuItemInactive"
+        );
+        EventUtils.synthesizeKey("KEY_Escape", {}, browser.contentWindow);
+        await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+        await itemInactive;
+        Assert.ok(
+          !deleteItem.hasAttribute("_moz-menuactive"),
+          `Closing with Escape clears the selection after opening with ${method}`
+        );
+        Assert.equal(
+          menuButton.getAttribute("aria-expanded"),
+          "false",
+          `The More button is collapsed after Escape (opened with ${method})`
+        );
+        Assert.equal(
+          doc.activeElement,
+          menuButton,
+          `Focus returns to the More button after Escape (opened with ${method})`
+        );
+      }
+    }
+
+    Assert.equal(deleteRequests, 0, "Opening the menu never requests Delete");
+  } finally {
+    dialog.removeEventListener("deleteevent", countDeleteRequest);
+    dialog.close();
+    await resetToCreateMode();
+  }
+});
+
+add_task(async function test_enterRequestsDeleteForSelectedFirstItem() {
+  const menuButton = dialog.querySelector(
+    "#calendarEventCreateEditDialogMenuButton"
+  );
+  const menu = dialog.querySelector("#calendarEventCreateEditDialogMenu");
+  const deleteItem = menu.querySelector(
+    "#calendarEventCreateEditDialogDeleteEvent"
+  );
+
+  await showLoadedEditDialog();
+
+  try {
+    for (let round = 1; round <= 2; round++) {
+      menuButton.focus();
+      const itemActive = BrowserTestUtils.waitForEvent(
+        deleteItem,
+        "DOMMenuItemActive"
+      );
+      EventUtils.synthesizeKey("KEY_Enter", {}, browser.contentWindow);
+      await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+      await itemActive;
+
+      const deleteEvent = BrowserTestUtils.waitForEvent(
+        dialog,
+        "deleteevent",
+        true
+      );
+      const menuHidden = BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+      const itemInactive = BrowserTestUtils.waitForEvent(
+        deleteItem,
+        "DOMMenuItemInactive"
+      );
+      EventUtils.synthesizeKey("KEY_Enter", {}, browser.contentWindow);
+      const { detail } = await deleteEvent;
+      await menuHidden;
+      await itemInactive;
+
+      Assert.equal(
+        detail.eventId,
+        calendarEvent.id,
+        `Enter on the selected first item requests Delete for the current event (round ${round})`
+      );
+      Assert.ok(
+        !deleteItem.hasAttribute("_moz-menuactive"),
+        `Choosing Delete clears the selection (round ${round})`
+      );
+      Assert.equal(
+        doc.activeElement,
+        menuButton,
+        `Focus returns to the More button after choosing Delete (round ${round})`
+      );
+    }
+  } finally {
+    dialog.close();
+    await resetToCreateMode();
+  }
+});
+
+add_task(async function test_moreMenuStateResetsWhenDialogClosesWhileOpen() {
+  const menuButton = dialog.querySelector(
+    "#calendarEventCreateEditDialogMenuButton"
+  );
+  const menu = dialog.querySelector("#calendarEventCreateEditDialogMenu");
+  const deleteItem = menu.querySelector(
+    "#calendarEventCreateEditDialogDeleteEvent"
+  );
+
+  await showLoadedEditDialog();
+
+  try {
+    EventUtils.synthesizeMouseAtCenter(menuButton, {}, browser.contentWindow);
+    await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+    Assert.equal(
+      menuButton.getAttribute("aria-expanded"),
+      "true",
+      "The More button is expanded while the menu is open"
+    );
+
+    dialog.close();
+    await TestUtils.waitForCondition(
+      () => menu.state == "closed",
+      "The More menu closes with the dialog"
+    );
+    Assert.ok(
+      menuButton.hidden,
+      "The More button is unavailable after the dialog closes"
+    );
+    Assert.equal(
+      menuButton.getAttribute("aria-expanded"),
+      "false",
+      "The More button is collapsed after the dialog closes while the menu is open"
+    );
+
+    await showLoadedEditDialog();
+    Assert.equal(
+      menuButton.getAttribute("aria-expanded"),
+      "false",
+      "The More button is still collapsed after reopening the dialog"
+    );
+    Assert.equal(
+      menu.state,
+      "closed",
+      "The More menu stays closed after reopening the dialog"
+    );
+
+    const itemActive = BrowserTestUtils.waitForEvent(
+      deleteItem,
+      "DOMMenuItemActive"
+    );
+    EventUtils.synthesizeMouseAtCenter(menuButton, {}, browser.contentWindow);
+    await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+    await itemActive;
+    Assert.equal(
+      menuButton.getAttribute("aria-expanded"),
+      "true",
+      "The More button expands again when the menu reopens"
+    );
+
+    EventUtils.synthesizeKey("KEY_Escape", {}, browser.contentWindow);
+    await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+  } finally {
+    dialog.close();
+    await resetToCreateMode();
+  }
+});
