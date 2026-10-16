@@ -2186,6 +2186,25 @@ nsresult nsImapService::NewURI(const nsACString& aSpec,
 
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // we got an imap url, so be sure to return it...
+  nsCOMPtr<nsIURI> imapUri = do_QueryInterface(aImapUrl);
+
+  imapUri.forget(aRetVal);
+
+  return NS_OK;
+}
+
+// NewURI() only parses the spec, because URIs must be creatable on any thread:
+// Gecko creates them off the main thread, e.g. when PBackground validates a
+// principal, and PBackground must not wait for the main thread. Running a URL
+// needs its server and folder, which are only available on the main thread, so
+// a URL created from a spec is associated with them when a channel is opened.
+nsresult nsImapService::AssociateUrlWithFolder(nsIImapUrl* aImapUrl) {
+  MOZ_ASSERT(NS_IsMainThread());
+
+  nsresult rv;
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(aImapUrl);
+
   nsCString folderName;
   // if we can't get a folder name out of the url then I think this is an error
   aImapUrl->CreateCanonicalSourceFolderPathString(folderName);
@@ -2252,11 +2271,6 @@ nsresult nsImapService::NewURI(const nsACString& aSpec,
     }
   }
 
-  // we got an imap url, so be sure to return it...
-  nsCOMPtr<nsIURI> imapUri = do_QueryInterface(aImapUrl);
-
-  imapUri.forget(aRetVal);
-
   return rv;
 }
 
@@ -2270,6 +2284,15 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
   nsresult rv;
   nsCOMPtr<nsIImapUrl> imapUrl = do_QueryInterface(aURI, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
+
+  // URLs created by NewURI() have no folder yet.
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(aURI);
+  nsCOMPtr<nsIMsgFolder> folder;
+  mailnewsUrl->GetFolder(getter_AddRefs(folder));
+  if (!folder) {
+    rv = AssociateUrlWithFolder(imapUrl);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
   // imap can't open and return a channel right away...the url needs to go in
   // the imap url queue until we find a connection which can run the url..in

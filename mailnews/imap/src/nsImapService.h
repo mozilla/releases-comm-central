@@ -84,6 +84,7 @@ class nsImapService : public nsIImapService,
 
   static nsresult SetImapUrlSink(nsIMsgFolder* aMsgFolder,
                                  nsIImapUrl* aImapUrl);
+  static nsresult AssociateUrlWithFolder(nsIImapUrl* aImapUrl);
 
   MOZ_CAN_RUN_SCRIPT_BOUNDARY nsresult
   FetchMimePartInternal(nsIImapUrl* aImapUrl, nsIMsgFolder* aImapMailFolder,
