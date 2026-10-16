@@ -76,7 +76,7 @@ add_setup(async () => {
 
 add_task(async function testIcsDetection() {
   const url = `${ICSServer.origin}/test.ics`;
-  const detectedCals = await detection.detect("", "", url, false, null, [], {});
+  const detectedCals = await detection.detect("", "", url, false, [], {});
   Assert.ok(detectedCals, "should find calendars");
   Assert.equal(detectedCals.size, 1, "should find one calendar");
   const icsCal = detectedCals.values().next().value[0];
@@ -87,7 +87,7 @@ add_task(async function testIcsDetection302() {
   // This url will redirect to test.ics for the actual content.
   // We still want to subscribe to the original url.
   const url = `${ICSServer.origin}/http302?path=test.ics`;
-  const detectedCals = await detection.detect("", "", url, false, null, [], {});
+  const detectedCals = await detection.detect("", "", url, false, [], {});
   Assert.ok(detectedCals, "should find calendars");
   Assert.equal(detectedCals.size, 1, "should find one calendar");
   const icsCal = detectedCals.values().next().value[0];

@@ -10,9 +10,13 @@ const { OAuth2TestUtils } = ChromeUtils.importESModule(
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
 );
+const { detection } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/utils/calProviderDetectionUtils.sys.mjs"
+);
 
 const PREF_NAME = "mailnews.auto_config_url";
 const MANUAL_CONFIG_PREF = "mail.accounthub.manualconfig.enabled";
+const originalDetect = detection.detect;
 
 add_setup(async function () {
   // Set the pref to load a local autoconfig file and disable the manual
@@ -25,10 +29,57 @@ add_setup(async function () {
       [MANUAL_CONFIG_PREF, false],
     ],
   });
+  registerCleanupFunction(() => {
+    detection.detect = originalDetect;
+  });
 });
 
 add_task(async function test_account_oauth_imap_account() {
+  await subtest_oauth_imap_account("user@test.test", "test_mail", [
+    "ics",
+    "caldav",
+  ]);
+});
+
+add_task(async function test_account_oauth_imap_account_caldav_scope() {
+  // The scope must be checked at the incoming server, not the email domain.
+  await subtest_oauth_imap_account(
+    "user@oauth-hosted.test",
+    "test_mail test_calendar",
+    ["ics"]
+  );
+});
+
+/**
+ * Creates an OAuth2 IMAP account and checks which calendar providers are
+ * skipped during calendar detection.
+ *
+ * @param {string} email - The email address of the account, at a domain whose
+ *   autoconfig points at the test.test servers.
+ * @param {string} grantedScope - The scopes to grant in the OAuth2 prompt.
+ * @param {string[]} expectedSkippedTypes - The calendar provider types that
+ *   should be skipped.
+ */
+async function subtest_oauth_imap_account(
+  email,
+  grantedScope,
+  expectedSkippedTypes
+) {
   Services.fog.testResetFOG();
+  let skippedTypes;
+  detection.detect = async (
+    username,
+    password,
+    location,
+    savePassword,
+    preDetectFilters
+  ) => {
+    skippedTypes = preDetectFilters.flatMap(filter =>
+      filter([], location, username)
+    );
+    return new Map();
+  };
+
   const [oauthImap, oauthSmtp] = await ServerTestUtils.createServers([
     ServerTestUtils.serverDefs.imap.oAuth,
     ServerTestUtils.serverDefs.smtp.oAuth,
@@ -36,7 +87,7 @@ add_task(async function test_account_oauth_imap_account() {
   await OAuth2TestUtils.startServer();
   const emailUser = {
     name: "John Doe",
-    email: "user@test.test",
+    email,
   };
 
   const dialog = await subtest_open_account_hub_dialog();
@@ -64,8 +115,7 @@ add_task(async function test_account_oauth_imap_account() {
         expectedHint: "user",
         username: "user",
         password: "password",
-        // Skip caldav/carddav discovery by not granting the scopes
-        grantedScope: "test_mail",
+        grantedScope,
       },
     ],
     OAuth2TestUtils.submitOAuthLogin
@@ -122,6 +172,13 @@ add_task(async function test_account_oauth_imap_account() {
     "should have recorded no calendars"
   );
 
+  Assert.deepEqual(
+    skippedTypes,
+    expectedSkippedTypes,
+    "calendar detection should skip the expected provider types"
+  );
+  detection.detect = originalDetect;
+
   await subtest_clear_status_bar();
   MailServices.accounts.removeAccount(imapAccount);
   MailServices.outgoingServer.deleteServer(
@@ -134,7 +191,7 @@ add_task(async function test_account_oauth_imap_account() {
   OAuth2TestUtils.forgetObjects();
   await Services.logins.removeAllLoginsAsync();
   await subtest_close_account_hub_dialog(dialog, successStep);
-});
+}
 
 add_task(async function test_account_oauth_cancel_prompt_window() {
   const [oauthImap, oauthSmtp] = await ServerTestUtils.createServers([

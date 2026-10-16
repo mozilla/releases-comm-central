@@ -45,18 +45,10 @@ export class GraphProvider {
    * @param {string} password - User credentials
    * @param {string} location - Server location (Graph API endpoint)
    * @param {boolean} _savePassword - Whether to save password
-   * @param {nsMsgAuthMethod} _authMethod - the authentication method.
    * @param {object} _extraProperties - Additional properties
    * @returns {Promise<Array<calICalendar>>} Array of found calendars
    */
-  static async detectCalendars(
-    username,
-    password,
-    location,
-    _savePassword,
-    _authMethod,
-    _extraProperties
-  ) {
+  static async detectCalendars(username, password, location, _savePassword, _extraProperties) {
     const hostname = /https?:\/\//.exec(location) ? new URL(location).hostname : location;
 
     const { graphCalendarClient, uri } = GraphProvider.getAndInitializeClient(username, hostname);

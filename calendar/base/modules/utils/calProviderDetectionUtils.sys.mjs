@@ -127,7 +127,6 @@ export var detection = {
    * @param {string} aLocation - The location information.
    * @param {boolean} aSavePassword - If true, the credentials will be saved
    *   in the password manager if used.
-   * @param {nsMsgAuthMethod} authMethod - The known authentication method, or null if unknown.
    * @param {ProviderFilter[]} aPreDetectFilters - Functions for filtering out providers.
    * @param {object} aExtraProperties - Extra properties to pass on to the
    *   providers.
@@ -138,7 +137,6 @@ export var detection = {
     aPassword,
     aLocation,
     aSavePassword,
-    authMethod,
     aPreDetectFilters,
     aExtraProperties
   ) {
@@ -162,7 +160,6 @@ export var detection = {
           aPassword,
           aLocation,
           aSavePassword,
-          authMethod,
           aExtraProperties
         );
         return detectionResult.then(

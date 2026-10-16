@@ -6,7 +6,6 @@ import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 import { DNS } from "resource:///modules/DNS.sys.mjs";
 import { CalDavPropfindRequest } from "resource:///modules/caldav/CalDavRequest.sys.mjs";
 import { CalDavDetectionSession } from "resource:///modules/caldav/CalDavSession.sys.mjs";
-import { OAuth2Module } from "resource:///modules/OAuth2Module.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
@@ -42,25 +41,21 @@ export var CalDavProvider = {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
-  async detectCalendars(
-    username,
-    password,
-    location = null,
-    savePassword = false,
-    authMethod = null
-  ) {
-    // Bail out if the CalDAV scope wasn't granted.
-    if (authMethod && authMethod == Ci.nsMsgAuthMethod.OAuth2) {
-      const oAuth2 = new OAuth2Module();
-      if (
-        !oAuth2.initFromHostname(location, username, "caldav") ||
-        !(await oAuth2.getRefreshToken())
-      ) {
-        return [];
-      }
-    }
-
-    const uri = cal.provider.detection.locationToUri(location);
+  /**
+   * Detect CalDAV calendars for the given location. Tries, in order, Google's
+   * CalDAV API if the domain uses Google, the location itself, DNS SRV
+   * records, the .well-known/caldav URL, and the root of the server.
+   *
+   * @param {string} username - The username for logging in.
+   * @param {string} password - The password for logging in. It is only sent
+   *   to the site of the location, or the server its SRV records point at.
+   * @param {?string} location - A URL, or a hostname to probe over https. If
+   *   empty, the domain of the username is used.
+   * @param {boolean} savePassword - Whether to save the password if it's used.
+   * @returns {Promise<calICalendar[]>} The calendars found, or an empty array.
+   */
+  async detectCalendars(username, password, location = null, savePassword = false) {
+    const uri = cal.provider.detection.locationToUri(location, username);
     if (!uri) {
       throw new Error("Could not infer location from username");
     }

@@ -42,14 +42,21 @@ export var CalICSProvider = {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
-  async detectCalendars(
-    username,
-    password,
-    location = null,
-    savePassword = false,
-    _authMethod = null
-  ) {
-    const uri = cal.provider.detection.locationToUri(location);
+  /**
+   * Detect an ICS calendar at the given location. Only the location itself is
+   * probed: as an ICS file, a WebDAV calendar or collection of ICS files, a
+   * writable resource, or a local file.
+   *
+   * @param {string} username - The username for logging in.
+   * @param {string} password - The password for logging in. It is only sent
+   *   to the site of the location.
+   * @param {?string} location - A URL, or a hostname to probe over https. If
+   *   empty, the domain of the username is used.
+   * @param {boolean} savePassword - Whether to save the password if it's used.
+   * @returns {Promise<calICalendar[]>} The calendars found, or an empty array.
+   */
+  async detectCalendars(username, password, location = null, savePassword = false) {
+    const uri = cal.provider.detection.locationToUri(location, username);
     if (!uri) {
       throw new Error("Could not infer location from username");
     }

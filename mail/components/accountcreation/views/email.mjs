@@ -2220,14 +2220,33 @@ class AccountHubEmail extends HTMLElement {
   /**
    * Get the calendars associated with the current account.
    *
-   * @param {string[]} hostnames - One or two hostnames to attempt calendar
-   *   discovery at.
+   * @param {string[]} hostnames - The hostnames to attempt calendar discovery
+   *   at, in order.
    * @param {string} password - The password for the current account.
    * @param {boolean} rememberPassword - The remember password choice.
-   *
-   * @returns {Array} - The calendars associated with the account.
+   * @returns {Promise<Array<calICalendar|{name: string, existing: true}>>} The
+   *   discovered calendars. Calendars that are already registered are returned
+   *   as placeholders with only a name and `existing: true`.
    */
   async #getCalendars(hostnames, password, rememberPassword) {
+    // Skip ICS detection, as an ICS calendar can only be found by its full URL.
+    const skippedTypes = ["ics"];
+
+    // Skip CalDAV if the CalDAV scope wasn't granted.
+    if (this.#currentConfig.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
+      const oAuth2 = new lazy.OAuth2Module();
+      if (
+        !oAuth2.initFromHostname(
+          this.#currentConfig.incoming.hostname,
+          this.#currentConfig.incoming.username,
+          "caldav"
+        ) ||
+        !(await oAuth2.getRefreshToken())
+      ) {
+        skippedTypes.push("caldav");
+      }
+    }
+
     let calendarEntries;
     for (const hostname of hostnames) {
       try {
@@ -2236,8 +2255,7 @@ class AccountHubEmail extends HTMLElement {
           password,
           `https://${hostname}`,
           rememberPassword,
-          this.#currentConfig.incoming.auth,
-          [],
+          [() => skippedTypes],
           {}
         );
         if (calendarEntries.size) {
