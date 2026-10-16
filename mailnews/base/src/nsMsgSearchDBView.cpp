@@ -73,8 +73,7 @@ nsMsgSearchDBView::CloneDBView(nsIMsgWindow* aMsgWindow,
                                nsIMsgDBViewCommandUpdater* aCmdUpdater,
                                nsIMsgDBView** _retval) {
   nsMsgSearchDBView* newMsgDBView = new nsMsgSearchDBView();
-  nsresult rv =
-      CopyDBView(newMsgDBView, aMsgWindow, aCmdUpdater);
+  nsresult rv = CopyDBView(newMsgDBView, aMsgWindow, aCmdUpdater);
   NS_ENSURE_SUCCESS(rv, rv);
 
   NS_IF_ADDREF(*_retval = newMsgDBView);
@@ -85,8 +84,7 @@ NS_IMETHODIMP
 nsMsgSearchDBView::CopyDBView(nsMsgDBView* aNewMsgDBView,
                               nsIMsgWindow* aMsgWindow,
                               nsIMsgDBViewCommandUpdater* aCmdUpdater) {
-  nsMsgGroupView::CopyDBView(aNewMsgDBView, aMsgWindow,
-                             aCmdUpdater);
+  nsMsgGroupView::CopyDBView(aNewMsgDBView, aMsgWindow, aCmdUpdater);
   nsMsgSearchDBView* newMsgDBView = (nsMsgSearchDBView*)aNewMsgDBView;
 
   // Now copy all of our private member data.
@@ -142,47 +140,6 @@ void nsMsgSearchDBView::InternalClose() {
   m_hdrsTable.Clear();
   nsMsgGroupView::InternalClose();
   m_folders.Clear();
-}
-
-NS_IMETHODIMP
-nsMsgSearchDBView::GetCellText(int32_t aRow, nsTreeColumn* aCol,
-                               nsAString& aValue) {
-  NS_ENSURE_TRUE(IsValidIndex(aRow), NS_MSG_INVALID_DBVIEW_INDEX);
-  NS_ENSURE_ARG_POINTER(aCol);
-
-  const nsAString& colID = aCol->GetId();
-  // The only thing we contribute is location; dummy rows have no location, so
-  // bail in that case. Otherwise, check if we are dealing with 'location'.
-  // 'location', need to check for "lo" not just "l" to avoid "label" column.
-  if (!(m_flags[aRow] & MSG_VIEW_FLAG_DUMMY) && colID.Length() >= 2 &&
-      colID.First() == 'l' && colID.CharAt(1) == 'o')
-    return FetchLocation(aRow, aValue);
-  else
-    return nsMsgGroupView::GetCellText(aRow, aCol, aValue);
-}
-
-nsresult nsMsgSearchDBView::HashHdr(nsIMsgDBHdr* msgHdr, nsString& aHashKey) {
-  if (m_sortType == nsMsgViewSortType::byLocation) {
-    aHashKey.Truncate();
-    nsCOMPtr<nsIMsgFolder> folder;
-    msgHdr->GetFolder(getter_AddRefs(folder));
-    nsAutoString localizedName;
-    folder->GetLocalizedName(localizedName);
-    aHashKey.Assign(localizedName);
-    return NS_OK;
-  }
-
-  return nsMsgGroupView::HashHdr(msgHdr, aHashKey);
-}
-
-nsresult nsMsgSearchDBView::FetchLocation(int32_t aRow,
-                                          nsAString& aLocationString) {
-  nsCOMPtr<nsIMsgFolder> folder = GetFolderForViewIndex(aRow);
-  NS_ENSURE_TRUE(folder, NS_ERROR_NULL_POINTER);
-  nsAutoCString prettyPath;
-  folder->GetPrettyPath(prettyPath);
-  aLocationString.Assign(NS_ConvertUTF8toUTF16(prettyPath));
-  return NS_OK;
 }
 
 nsresult nsMsgSearchDBView::OnNewHeader(nsIMsgDBHdr* newHdr,
@@ -1194,11 +1151,6 @@ bool nsMsgSearchDBView::GetMsgHdrFromHash(nsCString& reference,
   return m_hdrsTable.Get(reference, hdr);
 }
 
-bool nsMsgSearchDBView::GetThreadFromHash(nsCString& reference,
-                                          nsIMsgThread** thread) {
-  return m_threadsTable.Get(reference, thread);
-}
-
 nsresult nsMsgSearchDBView::AddRefToHash(nsCString& reference,
                                          nsIMsgThread* thread) {
   // Check if this reference is already is associated with a thread;
@@ -1239,42 +1191,6 @@ nsresult nsMsgSearchDBView::AddMsgToHashTables(nsIMsgDBHdr* msgHdr,
   }
 
   return AddRefToHash(messageId, thread);
-}
-
-nsresult nsMsgSearchDBView::RemoveRefFromHash(nsCString& reference) {
-  m_threadsTable.Remove(reference);
-  return NS_OK;
-}
-
-nsresult nsMsgSearchDBView::RemoveMsgFromHashTables(nsIMsgDBHdr* msgHdr) {
-  NS_ENSURE_ARG_POINTER(msgHdr);
-
-  uint16_t numReferences = 0;
-  nsresult rv = NS_OK;
-
-  msgHdr->GetNumReferences(&numReferences);
-
-  for (int32_t i = 0; i < numReferences; i++) {
-    nsAutoCString reference;
-    msgHdr->GetStringReference(i, reference);
-    if (reference.IsEmpty()) break;
-
-    rv = RemoveRefFromHash(reference);
-    if (NS_FAILED(rv)) break;
-  }
-
-  nsCString messageId;
-  msgHdr->GetMessageId(messageId);
-  m_hdrsTable.Remove(messageId);
-  RemoveRefFromHash(messageId);
-  if (!gReferenceOnlyThreading) {
-    nsCString subject;
-    msgHdr->GetSubject(subject);
-    // If we're threading by subject, just treat subject as an other ref.
-    RemoveRefFromHash(subject);
-  }
-
-  return rv;
 }
 
 nsMsgGroupThread* nsMsgSearchDBView::CreateGroupThread(

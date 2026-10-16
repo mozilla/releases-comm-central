@@ -34,8 +34,7 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   NS_IMETHOD CloneDBView(nsIMsgWindow* aMsgWindow,
                          nsIMsgDBViewCommandUpdater* aCmdUpdater,
                          nsIMsgDBView** _retval) override;
-  NS_IMETHOD CopyDBView(nsMsgDBView* aNewMsgDBView,
-                        nsIMsgWindow* aMsgWindow,
+  NS_IMETHOD CopyDBView(nsMsgDBView* aNewMsgDBView, nsIMsgWindow* aMsgWindow,
                         nsIMsgDBViewCommandUpdater* aCmdUpdater) override;
   NS_IMETHOD Close() override;
   NS_IMETHOD GetViewType(nsMsgViewTypeValue* aViewType) override;
@@ -57,9 +56,6 @@ class nsMsgSearchDBView : public nsMsgGroupView,
                                uint32_t aNewFlags,
                                nsIDBChangeListener* aInstigator) override;
   NS_IMETHOD GetNumMsgsInView(int32_t* aNumMsgs) override;
-  // override to get location
-  NS_IMETHOD GetCellText(int32_t aRow, nsTreeColumn* aCol,
-                         nsAString& aValue) override;
   virtual nsresult GetMsgHdrForViewIndex(nsMsgViewIndex index,
                                          nsIMsgDBHdr** msgHdr) override;
   virtual nsresult OnNewHeader(nsIMsgDBHdr* newHdr, nsMsgKey parentKey,
@@ -84,11 +80,9 @@ class nsMsgSearchDBView : public nsMsgGroupView,
  protected:
   virtual ~nsMsgSearchDBView();
   virtual void InternalClose() override;
-  virtual nsresult HashHdr(nsIMsgDBHdr* msgHdr, nsString& aHashKey) override;
   virtual nsresult ListIdsInThread(nsIMsgThread* threadHdr,
                                    nsMsgViewIndex startOfThreadViewIndex,
                                    uint32_t* pNumListed) override;
-  nsresult FetchLocation(int32_t aRow, nsAString& aLocationString);
   virtual nsresult AddHdrFromFolder(nsIMsgDBHdr* msgHdr, nsIMsgFolder* folder);
   virtual nsresult GetDBForViewIndex(nsMsgViewIndex index,
                                      nsIMsgDatabase** db) override;
@@ -166,12 +160,9 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   virtual nsMsgGroupThread* CreateGroupThread(nsIMsgDatabase* db) override;
   nsresult GetXFThreadFromMsgHdr(nsIMsgDBHdr* msgHdr, nsIMsgThread** pThread,
                                  bool* foundByMessageId = nullptr);
-  bool GetThreadFromHash(nsCString& reference, nsIMsgThread** thread);
   bool GetMsgHdrFromHash(nsCString& reference, nsIMsgDBHdr** hdr);
   nsresult AddRefToHash(nsCString& reference, nsIMsgThread* thread);
   nsresult AddMsgToHashTables(nsIMsgDBHdr* msgHdr, nsIMsgThread* thread);
-  nsresult RemoveRefFromHash(nsCString& reference);
-  nsresult RemoveMsgFromHashTables(nsIMsgDBHdr* msgHdr);
   nsresult InitRefHash();
 };
 
