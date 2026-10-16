@@ -6,9 +6,16 @@
  * Test extraction of the mailing list address from the List-Post header.
  */
 
+var { GlodaDatastore } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaDatastore.sys.mjs"
+);
 var { GlodaFundAttr } = ChromeUtils.importESModule(
   "resource:///modules/gloda/GlodaFundAttr.sys.mjs"
 );
+
+registerCleanupFunction(function () {
+  GlodaDatastore.shutdown();
+});
 
 add_task(function test_list_post_regex() {
   const cases = [
