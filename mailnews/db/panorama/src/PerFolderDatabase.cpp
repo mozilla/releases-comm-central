@@ -475,11 +475,6 @@ NS_IMETHODIMP PerFolderDatabase::MarkImapDeleted(
   return MessageDB().SetMessageFlag(aKey, nsMsgMessageFlags::IMAPDeleted,
                                     aDeleted);
 }
-NS_IMETHODIMP PerFolderDatabase::MarkThreadRead(
-    nsIMsgThread* thread, nsIDBChangeListener* aInstigator,
-    nsTArray<nsMsgKey>& aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
 NS_IMETHODIMP PerFolderDatabase::MarkThreadIgnored(
     nsIMsgThread* thread, nsMsgKey threadKey, bool bIgnored,
     nsIDBChangeListener* aInstigator) {

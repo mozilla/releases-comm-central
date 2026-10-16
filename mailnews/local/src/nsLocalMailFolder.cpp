@@ -1284,29 +1284,6 @@ nsMsgLocalMailFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::MarkThreadRead(nsIMsgThread* thread) {
-  nsresult rv = GetDatabase();
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsTArray<nsMsgKey> thoseMarked;
-  rv = mDatabase->MarkThreadRead(thread, nullptr, thoseMarked);
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (thoseMarked.IsEmpty()) {
-    return NS_OK;
-  }
-
-  nsTArray<RefPtr<nsIMsgDBHdr>> messages;
-  rv = MsgGetHeadersFromKeys(mDatabase, thoseMarked, messages);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = UpdateMsgFlagsInStore(messages);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
-
-  return rv;
-}
-
 nsresult nsMsgLocalMailFolder::InitCopyState(
     nsISupports* aSupport, nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
     bool isMove, nsIMsgCopyServiceListener* listener, nsIMsgWindow* msgWindow,

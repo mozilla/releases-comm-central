@@ -657,7 +657,6 @@ interface nsIMsgFolder : nsISupports {
   void markMessagesRead(in Array<nsIMsgDBHdr> messages, in boolean markRead);
   void markAllMessagesRead(in nsIMsgWindow aMsgWindow);
   void markMessagesFlagged(in Array<nsIMsgDBHdr> messages, in boolean markFlagged);
-  void markThreadRead(in nsIMsgThread thread);
 
   /**
    * Gets the message database for the folder.

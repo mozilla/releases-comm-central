@@ -2199,37 +2199,6 @@ NS_IMETHODIMP nsMsgDatabase::MarkHasAttachments(
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::MarkThreadRead(nsIMsgThread* thread,
-                              nsIDBChangeListener* instigator,
-                              nsTArray<nsMsgKey>& aThoseMarkedRead) {
-  NS_ENSURE_ARG_POINTER(thread);
-  aThoseMarkedRead.ClearAndRetainStorage();
-  nsresult rv = NS_OK;
-
-  uint32_t numChildren;
-  thread->GetNumChildren(&numChildren);
-  aThoseMarkedRead.SetCapacity(numChildren);
-  for (uint32_t curChildIndex = 0; curChildIndex < numChildren;
-       curChildIndex++) {
-    nsCOMPtr<nsIMsgDBHdr> child;
-
-    rv = thread->GetChildHdrAt(curChildIndex, getter_AddRefs(child));
-    if (NS_SUCCEEDED(rv) && child) {
-      bool isRead = true;
-      IsHeaderRead(child, &isRead);
-      if (!isRead) {
-        nsMsgKey key;
-        if (NS_SUCCEEDED(child->GetMessageKey(&key))) {
-          aThoseMarkedRead.AppendElement(key);
-        }
-        MarkHdrRead(child, true, instigator);
-      }
-    }
-  }
-  return rv;
-}
-
-NS_IMETHODIMP
 nsMsgDatabase::MarkThreadIgnored(nsIMsgThread* thread, nsMsgKey threadKey,
                                  bool bIgnored,
                                  nsIDBChangeListener* instigator) {

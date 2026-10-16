@@ -1316,13 +1316,6 @@ nsMsgDBFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::MarkThreadRead(nsIMsgThread* thread) {
-  nsresult rv = GetDatabase();
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsTArray<nsMsgKey> keys;
-  return mDatabase->MarkThreadRead(thread, nullptr, keys);
-}
-
 NS_IMETHODIMP
 nsMsgDBFolder::OnStartRunningUrl(nsIURI* aUrl) { return NS_OK; }
 

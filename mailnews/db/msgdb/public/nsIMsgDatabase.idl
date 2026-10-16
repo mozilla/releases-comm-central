@@ -466,9 +466,6 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   void markImapDeleted(in nsMsgKey key, in boolean deleted,
                        in nsIDBChangeListener instigator);
 
-  Array<nsMsgKey> markThreadRead(in nsIMsgThread thread,
-                                 in nsIDBChangeListener instigator);
-
   /// Mark the specified thread ignored.
   void markThreadIgnored(in nsIMsgThread thread, in nsMsgKey threadKey,
                          in boolean ignored,

@@ -1910,19 +1910,6 @@ nsImapMailFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
   return rv;
 }
 
-NS_IMETHODIMP nsImapMailFolder::MarkThreadRead(nsIMsgThread* thread) {
-  nsresult rv = GetDatabase();
-  if (NS_SUCCEEDED(rv)) {
-    nsTArray<nsMsgKey> keys;
-    rv = mDatabase->MarkThreadRead(thread, nullptr, keys);
-    if (NS_SUCCEEDED(rv) && keys.Length() > 0) {
-      rv = StoreImapFlags(kImapMsgSeenFlag, true, keys, nullptr);
-      mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
-    }
-  }
-  return rv;
-}
-
 NS_IMETHODIMP nsImapMailFolder::ReadFromFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
   MOZ_ASSERT(!mail_panorama_enabled_AtStartup());
