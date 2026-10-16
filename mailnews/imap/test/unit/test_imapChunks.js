@@ -3,23 +3,27 @@
  * server lies about rfc822.size (known to happen for Exchange and gmail)
  */
 
-var gIMAPDaemon, gServer, gIMAPIncomingServer, gSavedMsgFile;
+const { ServerTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
+);
 
-var gIMAPService = Cc[
-  "@mozilla.org/messenger/messageservice;1?type=imap"
-].getService(Ci.nsIMsgMessageService);
+add_task(async function testSaveMessageToDisk() {
+  const imapServer = await ServerTestUtils.createServer({ type: "imap" });
 
-var gFileName = "bug92111";
-var gMsgFile = do_get_file("../../../data/" + gFileName);
+  const account = MailServices.accounts.createAccount();
+  const identity = MailServices.accounts.createIdentity();
+  account.addIdentity(identity);
+  account.defaultIdentity = identity;
 
-add_task(async function run_the_test() {
-  /*
-   * Set up an IMAP server. The bug is only triggered when nsMsgSaveAsListener
-   * is used (i.e., for IMAP and NNTP).
-   */
-  gIMAPDaemon = new ImapDaemon();
-  gServer = makeServer(gIMAPDaemon, "");
-  gIMAPIncomingServer = createLocalIMAPServer(gServer.port);
+  const incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "localhost",
+    "imap"
+  );
+  incomingServer.port = imapServer.port;
+  incomingServer.password = "password";
+  account.incomingServer = incomingServer;
+  MailServices.accounts.defaultAccount = account;
 
   // pref tuning: one connection only, turn off notifications
   Services.prefs.setBoolPref(
@@ -38,75 +42,79 @@ add_task(async function run_the_test() {
   Services.prefs.setIntPref("mail.imap.min_chunk_size_threshold", 1500);
   Services.prefs.setIntPref("mail.imap.chunk_add", 0);
 
-  var inbox = gIMAPDaemon.getMailbox("INBOX");
+  // Sync the folder list with server.
+  {
+    const listener = new PromiseTestUtils.PromiseUrlListener();
+    MailServices.imap.discoverAllFolders(
+      incomingServer.rootFolder,
+      listener,
+      null
+    );
+    await listener.promise;
+  }
+  const inbox = incomingServer.rootFolder
+    .getChildNamed("INBOX")
+    .QueryInterface(Ci.nsIMsgImapMailFolder);
 
-  /*
-   * Ok, prelude done. Read the original message from disk
-   * (through a file URI), and add it to the Inbox.
-   */
-  var msgfileuri = Services.io
-    .newFileURI(gMsgFile)
+  // Load a message on the server side.
+  const fileName = "bug92111";
+  const originalFile = do_get_file("../../../data/" + fileName);
+  const originalFileUri = Services.io
+    .newFileURI(originalFile)
     .QueryInterface(Ci.nsIFileURL);
 
-  const message = new ImapMessage(msgfileuri.spec, inbox.uidnext++, []);
+  const mailbox = imapServer.daemon.getMailbox("INBOX");
+  const message = new ImapMessage(originalFileUri.spec, mailbox.uidnext++, []);
   // report an artificially low size, like gmail and Exchange do
-  message.setSize(gMsgFile.fileSize - 100);
-  inbox.addMessage(message);
+  message.setSize(originalFile.fileSize - 100);
+  mailbox.addMessage(message);
 
-  // Save the message to a local file. IMapMD corresponds to
-  // <profile_dir>/mailtest/ImapMail (where fakeserver puts the IMAP mailbox
-  // files). If we pass the test, we'll remove the file afterwards
-  // (cf. UrlListener), otherwise it's kept in IMapMD.
-  gSavedMsgFile = Services.dirsvc.get("IMapMD", Ci.nsIFile);
-  gSavedMsgFile.append(gFileName + ".eml");
+  // Sync the message list.
+  {
+    const listener = new PromiseTestUtils.PromiseUrlListener();
+    inbox.updateFolderWithListener(null, listener);
+    await listener.promise;
+  }
 
-  do_test_pending();
-  do_timeout(10000, function () {
-    do_throw(
-      "saveMessageToDisk did not complete within 10 seconds" +
-        "(incorrect messageURI?). ABORTING."
-    );
-  });
+  // Sanity checks.
+  Assert.equal([...inbox.messages].length, 1, "Inbox should contain 1 message");
+  const msg = [...inbox.messages][0];
+  Assert.equal(
+    msg.flags & Ci.nsMsgMessageFlags.Offline,
+    0,
+    "Message should not be stored offline."
+  );
 
-  // Enforcing canonicalLineEnding (i.e., CRLF) makes sure that the
+  // Save the message to a local file.
+  const saveFile = Services.dirsvc.get("IMapMD", Ci.nsIFile);
+  saveFile.append(fileName + ".eml");
+
+  const msgUri = inbox.generateMessageURI(msg.messageKey);
+  const msgService = MailServices.messageServiceFromURI(msgUri);
+
+  // The original bug behind this test (Bug 92111) was only triggered when
+  // nsMsgSaveAsListener is used. The imapService saveMessageToDisk() will take
+  // that path.
+  // Enforcing canonicalLineEnding (CRLF) to make sure that the
   // test also runs successfully on platforms not using CRLF by default.
-  const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  gIMAPService.saveMessageToDisk(
-    "imap-message://user@localhost/INBOX#" + (inbox.uidnext - 1),
-    gSavedMsgFile,
-    promiseUrlListener,
-    true,
+  const saveListener = new PromiseTestUtils.PromiseUrlListener();
+  msgService.saveMessageToDisk(
+    msgUri,
+    saveFile,
+    saveListener,
+    true /* canonicalLineEnding */,
     null
   );
-  await promiseUrlListener.promise;
+  await saveListener.promise;
 
-  const msgFileContent = await IOUtils.readUTF8(gMsgFile.path);
-  const savedMsgFileContent = await IOUtils.readUTF8(gSavedMsgFile.path);
   // File contents should not have been modified.
-  Assert.equal(msgFileContent, savedMsgFileContent);
+  const originalContent = await IOUtils.readUTF8(originalFile.path);
+  const saveContent = await IOUtils.readUTF8(saveFile.path);
+  Assert.equal(
+    originalContent,
+    saveContent,
+    "Message content should be intact"
+  );
 
-  // The file doesn't get closed straight away, but does after a little bit.
-  // So wait, and then remove it. We need to test this to ensure we don't
-  // indefinitely lock the file.
-  do_timeout(1000, endTest);
+  saveFile.remove(false);
 });
-
-function endTest() {
-  gIMAPIncomingServer.closeCachedConnections();
-  gServer.stop();
-  var thread = Services.tm.currentThread;
-  while (thread.hasPendingEvents()) {
-    thread.processNextEvent(true);
-  }
-
-  try {
-    gSavedMsgFile.remove(false);
-  } catch (ex) {
-    dump(ex);
-    do_throw(ex);
-  }
-  do_test_finished();
-}
-
-// XXX IRVING we need a separate check somehow to make sure we store the correct
-// content size for chunked messages where the server lied
