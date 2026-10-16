@@ -1134,12 +1134,23 @@ FeedParser.prototype = {
       tagName = "itunes:" + tagName;
     }
 
-    if (
-      newUrl &&
-      newUrl != oldUrl &&
-      lazy.FeedUtils.isValidScheme(newUrl) &&
-      lazy.FeedUtils.changeUrlForFeed(aFeed, newUrl)
-    ) {
+    if (!newUrl || newUrl == oldUrl) {
+      return false;
+    }
+
+    if (!this.isValidRedirectUrl(oldUrl, newUrl)) {
+      lazy.FeedUtils.log.info(
+        "FeedParser.isPermanentRedirect: ignoring <" +
+          tagName +
+          "> tag with disallowed url: " +
+          newUrl +
+          " for feed: " +
+          oldUrl
+      );
+      return false;
+    }
+
+    if (lazy.FeedUtils.changeUrlForFeed(aFeed, newUrl)) {
       lazy.FeedUtils.log.info(
         "FeedParser.isPermanentRedirect: found <" +
           tagName +
@@ -1155,6 +1166,30 @@ FeedParser.prototype = {
     }
 
     return false;
+  },
+
+  /**
+   * A feed may only relocate itself to a remote url; it must never be able to
+   * point its subscription at a local file or a UNC path, nor downgrade it
+   * from https to http.
+   *
+   * @param {string} aOldUrl - The current feed url.
+   * @param {string} aNewUrl - The redirect target url.
+   * @returns {boolean} - true if the redirect is allowed.
+   */
+  isValidRedirectUrl(aOldUrl, aNewUrl) {
+    try {
+      const newUri = Services.io.newURI(aNewUrl);
+      if (newUri.schemeIs("https")) {
+        return true;
+      }
+      return (
+        newUri.schemeIs("http") &&
+        !Services.io.newURI(aOldUrl).schemeIs("https")
+      );
+    } catch (ex) {
+      return false;
+    }
   },
 
   serializeTextConstruct(textElement) {

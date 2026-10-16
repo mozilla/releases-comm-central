@@ -319,3 +319,136 @@ add_task(function test_stripTags() {
     "many unclosed < should be kept"
   );
 });
+
+// Test that an <itunes:new-feed-url> redirect is only followed to a remote url.
+// This redirect is handled on the Thunderbird side.
+add_task(async function test_new_feed_url_redirect() {
+  const account = FeedUtils.createRssAccount("test_new_feed_url_redirect");
+  const rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
+
+  httpServer.registerPathHandler("/redirect.xml", (request, response) => {
+    const target = decodeURIComponent(request.queryString);
+    response.setHeader("Content-Type", "application/rss+xml", false);
+    response.write(`<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+<channel>
+  <title>Redirect test</title>
+  <link>http://www.example.com/</link>
+  <itunes:new-feed-url>${target}</itunes:new-feed-url>
+  <item>
+    <title>Item</title>
+    <link>http://www.example.com/item</link>
+    <guid isPermaLink="false">redirect-test-item</guid>
+  </item>
+</channel>
+</rss>`);
+  });
+
+  const tests = [
+    { target: "file:///tmp/local.xml", redirected: false },
+    { target: "file://///192.0.2.1/share/unc.xml", redirected: false },
+    { target: "https://example.com/new.xml", redirected: true },
+  ];
+
+  let n = 1;
+  for (const test of tests) {
+    const folder = rootFolder.createLocalSubfolder("redirect" + n++);
+    const url = `http://localhost:${SERVER_PORT}/redirect.xml?${encodeURIComponent(test.target)}`;
+    const feed = new Feed(url, folder);
+    FeedUtils.addFeed(feed);
+
+    const error = await new Promise(resolve => {
+      feed.download(true, {
+        downloaded(f, aError) {
+          resolve(aError);
+        },
+        onProgress() {},
+      });
+    });
+
+    Assert.deepEqual(
+      FeedUtils.getFeedUrlsInFolder(folder),
+      [test.redirected ? test.target : url],
+      `subscription url should be correct for target ${test.target}`
+    );
+    Assert.equal(
+      error,
+      test.redirected ? FeedUtils.kNewsBlogCancel : FeedUtils.kNewsBlogSuccess,
+      `download result should be correct for target ${test.target}`
+    );
+  }
+});
+
+// Test that an http redirect to a local file is not followed.
+// This is handled on the Gecko side.
+add_task(async function test_http_redirect_to_file() {
+  const account = FeedUtils.createRssAccount("test_http_redirect_to_file");
+  const rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
+  const folder = rootFolder.createLocalSubfolder("httpredirect");
+
+  const fileUrl = Services.io.newFileURI(
+    do_get_file("resources/rss2_example.xml")
+  ).spec;
+  httpServer.registerPathHandler("/redirect302", (request, response) => {
+    response.setStatusLine(request.httpVersion, 302, "Found");
+    response.setHeader("Location", fileUrl, false);
+  });
+
+  const url = `http://localhost:${SERVER_PORT}/redirect302`;
+  const feed = new Feed(url, folder);
+  FeedUtils.addFeed(feed);
+
+  const error = await new Promise(resolve => {
+    feed.download(true, {
+      downloaded(f, aError) {
+        resolve(aError);
+      },
+      onProgress() {},
+    });
+  });
+
+  Assert.equal(
+    error,
+    FeedUtils.kNewsBlogRequestFailure,
+    "download should fail"
+  );
+  Assert.equal(
+    [...folder.messages].length,
+    0,
+    "no items should be stored from the local file"
+  );
+  Assert.deepEqual(
+    FeedUtils.getFeedUrlsInFolder(folder),
+    [url],
+    "subscription url should be unchanged"
+  );
+});
+
+// Test which feed url redirect targets are allowed.
+add_task(function test_isValidRedirectUrl() {
+  const parser = new FeedParser();
+  const tests = [
+    ["http://example.com/a.xml", "http://example.com/b.xml", true],
+    ["http://example.com/a.xml", "https://example.com/b.xml", true],
+    ["https://example.com/a.xml", "https://example.com/b.xml", true],
+    ["https://example.com/a.xml", "http://example.com/b.xml", false],
+    ["HTTPS://example.com/a.xml", "http://example.com/b.xml", false],
+    ["http://example.com/a.xml", "file:///tmp/local.xml", false],
+    ["http://example.com/a.xml", "file://///192.0.2.1/share/unc.xml", false],
+    ["file:///tmp/local.xml", "file:///tmp/other.xml", false],
+    ["file:///tmp/local.xml", "https://example.com/b.xml", true],
+    ["http://example.com/a.xml", "ftp://example.com/b.xml", false],
+    ["http://example.com/a.xml", "not a url", false],
+  ];
+  for (const [oldUrl, newUrl, expected] of tests) {
+    Assert.equal(
+      parser.isValidRedirectUrl(oldUrl, newUrl),
+      expected,
+      `redirect from ${oldUrl} to ${newUrl} should be ${expected ? "allowed" : "rejected"}`
+    );
+  }
+});
