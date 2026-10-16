@@ -13,7 +13,7 @@ import {
   TreeViewTableRow,
 } from "chrome://messenger/content/tree-view.mjs";
 
-const xulStoreURL = location.href.replace(/\?.*/, "");
+const xulStoreURL = location.href.replace(/\?.*/, "").replace(/#.*/, "");
 
 /**
  * Create a shallow clone of an array of column definitions. Use this to avoid
@@ -202,6 +202,19 @@ class AutoTreeView extends TreeView {
    * @param {boolean} hidden
    */
   changeColumns(columnId, hidden) {
+    // Remove the temporary remembered width of visible columns, unless they
+    // have a value in `column.width`, so that space can be reallocated.
+    // (See TreeViewTableHeader.#rememberColumnWidths.)
+    for (const column of this.table.columns) {
+      if (column.hidden || column.width) {
+        continue;
+      }
+
+      const headerCell = this.table.header.querySelector(`#${column.id}`);
+      const splitterVar = `--${column.id}Splitter-width`;
+      headerCell.style.setProperty(splitterVar, null);
+    }
+
     const column = this.table.columns.find(c => c.id == columnId);
     if (column.hidden == hidden) {
       return;
@@ -314,6 +327,8 @@ class AutoTreeView extends TreeView {
         }
         if (widths.has(column.id)) {
           column.width = widths.get(column.id);
+        } else {
+          delete column.width;
         }
       }
     } catch (ex) {

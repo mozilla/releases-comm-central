@@ -326,6 +326,7 @@ add_task(async function () {
   for (const item of result) {
     await calendar.deleteItem(item);
   }
+  Services.xulStore.removeDocument("about:import");
 });
 
 add_task(async function testManyItems() {

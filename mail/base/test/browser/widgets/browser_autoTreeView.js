@@ -74,7 +74,7 @@ add_task(async function testRowsAndColumns() {
     "dwarf",
     "selected",
   ]);
-  checkHeaderVisibility([150, true, false, false, false, true]);
+  checkHeaderVisibility([250, true, false, false, false, true]);
 
   // Now the column picker.
 
@@ -368,7 +368,7 @@ add_task(async function testRowsAndColumns() {
     ["colour", "continent", "sin", "wonder", "dwarf", "selected"],
     [true, true, false, false, false, true]
   );
-  checkHeaderVisibility([150, true, false, true, false, true]);
+  checkHeaderVisibility([250, true, false, true, false, true]);
   checkPersistedValue(
     "columns",
     "colour,continent,sin:hidden,wonder,dwarf:hidden,selected"
@@ -425,9 +425,16 @@ add_task(async function testRowsAndColumns() {
     const fromX = fromRect.x + fromRect.width / 2;
     const fromY = fromRect.y + fromRect.height / 2;
 
-    const toRect = headerButtons[toIndex].getBoundingClientRect();
-    const toX = toRect.x + toRect.width / 2;
-    const toY = toRect.y + toRect.height / 2;
+    let toX = fromX;
+    if (fromIndex < toIndex) {
+      for (let i = fromIndex + 1; i <= toIndex; i++) {
+        toX += headerButtons[i].clientWidth;
+      }
+    } else {
+      for (let i = fromIndex - 1; i >= toIndex; i--) {
+        toX -= headerButtons[i].clientWidth;
+      }
+    }
 
     const [, dataTransfer] = EventUtils.synthesizeDragOver(
       headerButtons[fromIndex],
@@ -443,7 +450,7 @@ add_task(async function testRowsAndColumns() {
       {
         type: "dragover",
         clientX: toX,
-        clientY: toY,
+        clientY: fromY,
         dataTransfer,
         _domDispatchOnly: true,
       },
@@ -458,7 +465,7 @@ add_task(async function testRowsAndColumns() {
       win,
       {
         clientX: toX,
-        clientY: toY,
+        clientY: fromY,
         _domDispatchOnly: true,
       }
     );
@@ -467,7 +474,7 @@ add_task(async function testRowsAndColumns() {
       {
         type: "dragend",
         clientX: toX,
-        clientY: toY,
+        clientY: fromY,
         dataTransfer,
         _domDispatchOnly: true,
       },
@@ -486,7 +493,7 @@ add_task(async function testRowsAndColumns() {
     "dwarf",
     "selected",
   ]);
-  checkHeaderVisibility([true, 150, false, true, false]);
+  checkHeaderVisibility([true, 250, false, true, false]);
   await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
     ["asia", "blue", "", "temple of artemis", "", null],
@@ -538,7 +545,7 @@ add_task(async function testRowsAndColumns() {
     "dwarf",
     "selected",
   ]);
-  checkHeaderVisibility([150, true, false, true, false, true]);
+  checkHeaderVisibility([250, true, false, true, false, true]);
   await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
     ["blue", "asia", "", "temple of artemis", "", null],
@@ -564,7 +571,7 @@ add_task(async function testRowsAndColumns() {
     "dwarf",
     "selected",
   ]);
-  checkHeaderVisibility([150, false, true, true, false, true]);
+  checkHeaderVisibility([250, false, true, true, false, true]);
   await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
     ["blue", "", "temple of artemis", "asia", "", null],
@@ -593,7 +600,7 @@ add_task(async function testRowsAndColumns() {
     "dwarf",
     "selected",
   ]);
-  checkHeaderVisibility([150, false, true, false, false, true]);
+  checkHeaderVisibility([250, false, true, false, false, true]);
   await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
     ["blue", "", "temple of artemis", "", "", null],
@@ -622,7 +629,7 @@ add_task(async function testRowsAndColumns() {
     "dwarf",
     "selected",
   ]);
-  checkHeaderVisibility([150, false, true, true, false, true]);
+  checkHeaderVisibility([250, false, true, true, false, true]);
   await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
     ["blue", "", "temple of artemis", "asia", "", null],
@@ -677,37 +684,37 @@ add_task(async function testRowsAndColumns() {
   }
   const widthBefore = headerButtons[2].closest("th").clientWidth;
   await resizeColumn(2, 20);
-  checkHeaderVisibility([150, false, widthBefore + 20, true, false, true]);
+  checkHeaderVisibility([250, false, widthBefore + 20, true, false, true]);
   checkPersistedValue(
     "columns",
     `colour,sin:hidden,wonder:${widthBefore + 20},continent,dwarf:hidden,selected`
   );
 
   await resizeColumn(2, -60);
-  checkHeaderVisibility([150, false, widthBefore - 40, true, false, true]);
+  checkHeaderVisibility([250, false, widthBefore - 40, true, false, true]);
   checkPersistedValue(
     "columns",
     `colour,sin:hidden,wonder:${widthBefore - 40},continent,dwarf:hidden,selected`
   );
 
   await resizeColumn(0, 32);
-  checkHeaderVisibility([182, false, widthBefore - 40, true, false, true]);
+  checkHeaderVisibility([282, false, widthBefore - 40, true, false, true]);
   checkPersistedValue(
     "columns",
-    `colour:182,sin:hidden,wonder:${widthBefore - 40},continent,dwarf:hidden,selected`
+    `colour:282,sin:hidden,wonder:${widthBefore - 40},continent,dwarf:hidden,selected`
   );
 
   // Resizing a column back to the starting size won't forget the width.
   await resizeColumn(2, 40);
-  checkHeaderVisibility([182, false, widthBefore, true, false, true]);
+  checkHeaderVisibility([282, false, widthBefore, true, false, true]);
   checkPersistedValue(
     "columns",
-    `colour:182,sin:hidden,wonder:${widthBefore},continent,dwarf:hidden,selected`
+    `colour:282,sin:hidden,wonder:${widthBefore},continent,dwarf:hidden,selected`
   );
 
   // Unless there's a default width.
   await resizeColumn(0, -32);
-  checkHeaderVisibility([150, false, widthBefore, true, false, true]);
+  checkHeaderVisibility([250, false, widthBefore, true, false, true]);
   checkPersistedValue(
     "columns",
     `colour,sin:hidden,wonder:${widthBefore},continent,dwarf:hidden,selected`
@@ -719,7 +726,7 @@ add_task(async function testRowsAndColumns() {
     ["colour", "sin", "wonder", "continent", "dwarf", "selected"],
     [true, false, true, true, false, true]
   );
-  checkHeaderVisibility([150, false, false, true, false, true]);
+  checkHeaderVisibility([250, false, false, true, false, true]);
   checkPersistedValue(
     "columns",
     `colour,sin:hidden,wonder:${widthBefore}:hidden,continent,dwarf:hidden,selected`
@@ -731,7 +738,7 @@ add_task(async function testRowsAndColumns() {
     ["colour", "sin", "wonder", "continent", "dwarf", "selected"],
     [true, false, false, true, false, true]
   );
-  checkHeaderVisibility([150, false, widthBefore, true, false, true]);
+  checkHeaderVisibility([250, false, widthBefore, true, false, true]);
   checkPersistedValue(
     "columns",
     `colour,sin:hidden,wonder:${widthBefore},continent,dwarf:hidden,selected`
@@ -770,7 +777,7 @@ add_task(async function testRowsAndColumns() {
     "dwarf",
     "selected",
   ]);
-  checkHeaderVisibility([150, true, false, false, false, true]);
+  checkHeaderVisibility([250, true, false, false, false, true]);
   checkPersistedValue("sortColumn", "colour");
   checkPersistedValue("sortDirection", "ascending");
   await new Promise(resolve => win.requestAnimationFrame(resolve));
@@ -872,7 +879,7 @@ add_task(async function testRowsAndColumns() {
     "continent:300:hidden,dwarf:150,sin:100,wonder:hidden,colour:80,selected"
   );
 
-  await dragColumn(4, 1);
+  dragColumn(4, 1);
   checkHeaderLabels([
     "continent",
     "colour",

@@ -2208,15 +2208,14 @@ class TreeViewTable extends HTMLTableElement {
       const headerCell = document.getElementById(column.id);
       headerCell.hidden = column.hidden;
       headerCell.classList.toggle("last-column", column == lastColumn);
-
-      // No need to update the splitter visibility if the column is
-      // specifically not resizable.
-      if (column.resizable === false) {
-        continue;
-      }
-
+      headerCell.classList.toggle(
+        "last-resizable-column",
+        column == lastResizableColumn
+      );
       headerCell.resizable =
-        this.isHorizontalScroll || column != lastResizableColumn;
+        column.resizable !== false &&
+        (this.isHorizontalScroll || column != lastResizableColumn);
+
       if (column.width) {
         headerCell.style.setProperty(
           `--${column.id}Splitter-width`,
@@ -2284,6 +2283,7 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
     this.addEventListener("dragover", this);
     this.addEventListener("dragend", this);
     this.addEventListener("drop", this);
+    this.addEventListener("splitter-resizing", this);
 
     // Watch and remember the height of the header so we don't have to fetch
     // it every time TreeView's visible height calculation runs.
@@ -2295,6 +2295,8 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
       if (this.parentNode.clientHeight !== 0) {
         this._height = this.clientHeight;
       }
+
+      this.#rememberColumnWidths();
     });
     this.#resizeObserver.observe(this);
 
@@ -2415,6 +2417,9 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
         break;
       case "drop":
         this.#onDrop(event);
+        break;
+      case "splitter-resizing":
+        this.#rememberColumnWidths();
         break;
     }
   }
@@ -2602,6 +2607,39 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
       })
     );
     event.preventDefault();
+  }
+
+  /**
+   * Ensure every column header cell (except the one for the last resizable
+   * column) has a width set. This avoids the layout engine redistributing
+   * free space when columns are being resized. Instead, it will all be added
+   * to the last resizable column.
+   *
+   * The values set here are temporarily set on the header cells, not saved to
+   * `column.width` or persisted in the XUL store.
+   */
+  #rememberColumnWidths() {
+    if (!this.parentNode.columns || this.clientWidth == 0) {
+      // We're here too early in setup or not visible.
+      return;
+    }
+
+    for (const column of this.parentNode.columns) {
+      if (column.hidden) {
+        continue;
+      }
+
+      const headerCell = this.parentNode.querySelector(`#${column.id}`);
+      const splitterVar = `--${column.id}Splitter-width`;
+      headerCell.style.setProperty(splitterVar, `${headerCell.clientWidth}px`);
+
+      if (
+        !this.parentNode.isHorizontalScroll &&
+        headerCell.classList.contains("last-resizable-column")
+      ) {
+        headerCell.style.width = null;
+      }
+    }
   }
 
   /**
@@ -2797,6 +2835,10 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
     // Make the button clickable if the column can trigger a sorting of rows.
     if (this.#sortable) {
       this.#button.addEventListener("click", () => {
+        if (this.closest("thead")._dragInfo) {
+          // We're dragging. Do not sort.
+          return;
+        }
         this.dispatchEvent(
           new CustomEvent("sort-changed", {
             bubbles: true,
@@ -2869,7 +2911,12 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
       });
     }
 
-    this.style.setProperty("width", val ? `var(--${splitter.id}-width)` : null);
+    // Use CSS variables to set the width, except for icon columns, which
+    // have their own width already set by CSS.
+    this.style.setProperty(
+      "width",
+      this.dataset.type == "icon" ? null : `var(--${splitter.id}-width)`
+    );
     // Disable the splitter if this is not a resizable column.
     splitter.isDisabled = !val;
   }
