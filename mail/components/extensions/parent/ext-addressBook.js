@@ -9,6 +9,9 @@ var { MailServices } = ChromeUtils.importESModule(
 var { AddrBookDirectory } = ChromeUtils.importESModule(
   "resource:///modules/AddrBookDirectory.sys.mjs"
 );
+var { secureFetch } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionUtilities.sys.mjs"
+);
 
 XPCOMUtils.defineLazyGlobalGetters(this, ["fetch", "File", "FileReader"]);
 
@@ -104,9 +107,11 @@ async function addVCardPhotoEntry(vCardProperties, photoFile) {
  * Returns a DOM File object for the contact photo of the given contact.
  *
  * @param {string} id - The id of the contact
+ * @param {Extension} extension - The extension requesting the photo. Remote
+ *   photos are only returned if the extension has host permission for them.
  * @returns {File} The photo of the contact, or null.
  */
-async function getPhotoFile(id) {
+async function getPhotoFile(id, extension) {
   const { item } = addressBookCache.findContactById(id);
   const photoUrl = item.photoURL;
   if (!photoUrl) {
@@ -126,9 +131,10 @@ async function getPhotoFile(id) {
     }
 
     // Retrieve dataUrls or webUrls.
-    const result = await fetch(photoUrl);
-    const type = getImageType(result.headers.get("content-type"));
-    const blob = await result.blob();
+    const blob = photoUrl.startsWith("data:")
+      ? await fetch(photoUrl).then(response => response.blob())
+      : await secureFetch(photoUrl, extension);
+    const type = getImageType(blob.type);
     return new File([blob], `${id}.${type}`, { type: `image/${type}` });
   } catch (ex) {
     console.error(`Failed to read photo information for ${id}: ` + ex);
@@ -1340,7 +1346,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
         );
       },
       async getPhoto(id) {
-        return getPhotoFile(id);
+        return getPhotoFile(id, extension);
       },
       async setPhoto(id, file) {
         return setPhotoFile(id, file);

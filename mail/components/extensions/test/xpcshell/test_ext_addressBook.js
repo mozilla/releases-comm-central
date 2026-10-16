@@ -2144,6 +2144,110 @@ add_task(async function test_photos() {
   await extension.unload();
 });
 
+add_task(async function test_remote_photo_host_permissions() {
+  const pngData = atob(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC"
+  );
+  let requestCount = 0;
+  let deniedRequestCount = 0;
+  const server = AddonTestUtils.createHttpServer({
+    hosts: ["example.com", "example.net"],
+  });
+  server.registerPathHandler("/photo.png", (request, response) => {
+    if (request.host == "example.net") {
+      deniedRequestCount++;
+    } else {
+      requestCount++;
+    }
+    response.setStatusLine(request.httpVersion, 200, "OK");
+    response.setHeader("Content-Type", "image/png", false);
+    response.write(pngData);
+  });
+  server.registerPathHandler("/redirect", (request, response) => {
+    response.setStatusLine(request.httpVersion, 302, "Found");
+    response.setHeader("Location", "http://example.net/photo.png", false);
+  });
+
+  for (const hasHostPermission of [false, true]) {
+    requestCount = 0;
+    deniedRequestCount = 0;
+    const extension = ExtensionTestUtils.loadExtension({
+      background: async () => {
+        const granted = await browser.permissions.contains({
+          origins: ["http://example.com/*"],
+        });
+        const bookId = await browser.addressBooks.create({ name: "remote" });
+        const createContact = photoUrl =>
+          browser.contacts.create(bookId, {
+            vCard: [
+              "BEGIN:VCARD",
+              "VERSION:4.0",
+              "FN:remote photo",
+              `PHOTO;VALUE=URI:${photoUrl}`,
+              "END:VCARD",
+            ].join("\r\n"),
+          });
+
+        const contactId = await createContact("http://example.com/photo.png");
+        const photo = await browser.contacts.getPhoto(contactId);
+        if (granted) {
+          browser.test.assertTrue(
+            // eslint-disable-next-line mozilla/use-isInstance
+            photo instanceof File,
+            "getPhoto() should return the remote photo"
+          );
+          browser.test.assertEq("image/png", photo.type);
+          browser.test.assertEq(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC",
+            btoa(
+              String.fromCharCode(...new Uint8Array(await photo.arrayBuffer()))
+            ),
+            "The returned photo should have the correct content"
+          );
+
+          const redirectContactId = await createContact(
+            "http://example.com/redirect"
+          );
+          browser.test.assertEq(
+            null,
+            await browser.contacts.getPhoto(redirectContactId),
+            "getPhoto() should not return a remote photo redirected to a host without permission"
+          );
+        } else {
+          browser.test.assertEq(
+            null,
+            photo,
+            "getPhoto() should not return a remote photo without host permission"
+          );
+        }
+
+        await browser.addressBooks.delete(bookId);
+        browser.test.notifyPass("remotePhoto");
+      },
+      manifest: {
+        permissions: hasHostPermission
+          ? ["addressBooks", "http://example.com/*"]
+          : ["addressBooks"],
+      },
+    });
+
+    await extension.startup();
+    await extension.awaitFinish("remotePhoto");
+    await extension.unload();
+
+    Assert.equal(
+      requestCount,
+      hasHostPermission ? 1 : 0,
+      "The remote photo should only be requested with host permission"
+    );
+    Assert.equal(
+      deniedRequestCount,
+      0,
+      "A host without host permission should never be contacted"
+    );
+  }
+});
+
 add_task(async function test_addressBooks_mv3() {
   async function background() {
     let firstBookId, secondBookId, newContactId;
