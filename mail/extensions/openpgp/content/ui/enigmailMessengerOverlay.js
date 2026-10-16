@@ -1755,6 +1755,9 @@ Enigmail.msg = {
    * @param {AttachmentInfo} attachment - The attachment.
    */
   handleAttachment(actionType, attachment) {
+    if (!attachment.isAllowedURL) {
+      return;
+    }
     const bufferListener = EnigmailStreams.newStringStreamListener(
       async data => {
         Enigmail.msg.decryptAttachmentCallback(actionType, attachment, data);
@@ -2480,8 +2483,9 @@ Enigmail.msg = {
 
   autoProcessPgpKeyAttachment(attachment) {
     if (
-      attachment.contentType != "application/pgp-keys" &&
-      !attachment.name.endsWith(".asc")
+      attachment.isExternalAttachment ||
+      (attachment.contentType != "application/pgp-keys" &&
+        !attachment.name.endsWith(".asc"))
     ) {
       return;
     }
