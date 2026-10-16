@@ -10,8 +10,10 @@ ChromeUtils.defineESModuleGetters(lazy, {
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
   Blocklist: "resource://gre/modules/Blocklist.sys.mjs",
   ExtensionData: "resource://gre/modules/Extension.sys.mjs",
+  ExtensionUtils: "resource://gre/modules/ExtensionUtils.sys.mjs",
   getClonedPrincipalWithProtocolPermission:
     "resource:///modules/LinkHelper.sys.mjs",
+  NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
 });
 
 XPCOMUtils.defineLazyPreferenceGetter(
@@ -223,5 +225,81 @@ export function getTriggeringPrincipalForTabCreate(
   return lazy.getClonedPrincipalWithProtocolPermission(context.principal, uri, {
     userContextId,
     privateBrowsingId: 0,
+  });
+}
+
+/**
+ * Fetches a remote resource on behalf of an extension. The url and every
+ * redirect hop must be covered by the extension's host permissions. Each hop
+ * is checked before its request is sent. No cookies are sent or stored.
+ *
+ * @param {string} url
+ * @param {Extension} extension
+ * @returns {Promise<Blob>}
+ */
+export async function secureFetch(url, extension) {
+  // asyncOnChannelRedirect() only sees redirects, so check the initial url here.
+  if (!extension.policy.canAccessURI(Services.io.newURI(url))) {
+    throw new lazy.ExtensionUtils.ExtensionError(
+      `Missing host permission for url: ${url}`
+    );
+  }
+  const channel = lazy.NetUtil.newChannel({
+    uri: url,
+    loadUsingSystemPrincipal: true,
+  });
+  channel.loadFlags |= Ci.nsIRequest.LOAD_ANONYMOUS;
+  let vetoed = false;
+  channel.notificationCallbacks = {
+    QueryInterface: ChromeUtils.generateQI([
+      "nsIInterfaceRequestor",
+      "nsIChannelEventSink",
+    ]),
+    getInterface(iid) {
+      return this.QueryInterface(iid);
+    },
+    asyncOnChannelRedirect(oldChannel, newChannel, flags, callback) {
+      if (
+        !(flags & Ci.nsIChannelEventSink.REDIRECT_STS_UPGRADE) &&
+        !extension.policy.canAccessURI(newChannel.URI)
+      ) {
+        vetoed = true;
+      }
+      callback.onRedirectVerifyCallback(
+        vetoed ? Cr.NS_ERROR_DOM_BAD_URI : Cr.NS_OK
+      );
+    },
+  };
+  return new Promise((resolve, reject) => {
+    lazy.NetUtil.asyncFetch(channel, (inputStream, status, request) => {
+      // A vetoed redirect may still end with a success status, delivering the
+      // body of the redirect response.
+      if (vetoed) {
+        reject(
+          new lazy.ExtensionUtils.ExtensionError(
+            `Missing host permission for url: ${url}`
+          )
+        );
+        return;
+      }
+      try {
+        const httpChannel = request.QueryInterface(Ci.nsIHttpChannel);
+        if (
+          !Components.isSuccessCode(status) ||
+          !httpChannel.requestSucceeded
+        ) {
+          throw new Error();
+        }
+        const buffer = lazy.NetUtil.readInputStream(
+          inputStream,
+          inputStream.available()
+        );
+        resolve(new Blob([buffer], { type: httpChannel.contentType }));
+      } catch {
+        reject(
+          new lazy.ExtensionUtils.ExtensionError(`Failed to fetch url: ${url}`)
+        );
+      }
+    });
   });
 }

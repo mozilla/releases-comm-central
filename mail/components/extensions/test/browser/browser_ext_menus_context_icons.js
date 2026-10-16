@@ -56,7 +56,7 @@ add_task(async function test_root_icon() {
   const extension = ExtensionTestUtils.loadExtension({
     manifest: {
       name: "menus icons",
-      permissions: ["menus"],
+      permissions: ["menus", "http://mochi.test/*"],
       browser_specific_settings: { gecko: { id: "menu-icons@mochi.test" } },
       icons: {
         18: "extension.png",
@@ -188,5 +188,75 @@ add_task(async function test_root_icon() {
   );
 
   await closeMenuPopup(menu);
+  await extension.unload();
+});
+
+add_task(async function test_remote_icon_host_permissions() {
+  const extension = ExtensionTestUtils.loadExtension({
+    manifest: {
+      permissions: ["menus", "http://mochi.test/*"],
+    },
+    async background() {
+      const dataPath =
+        "/browser/comm/mail/components/extensions/test/browser/data";
+      const allowedIcon = `http://mochi.test:8888${dataPath}/tb-logo.png`;
+      const deniedIcon = `https://example.org${dataPath}/redirect.sjs?hit`;
+      const redirectedIcon = `http://mochi.test:8888${dataPath}/redirect.sjs?${deniedIcon}`;
+
+      const create = createProperties =>
+        new Promise(resolve => {
+          browser.menus.create(createProperties, () =>
+            resolve(browser.runtime.lastError?.message)
+          );
+        });
+
+      browser.test.assertEq(
+        `Missing host permission for url: ${deniedIcon}`,
+        await create({ id: "denied", title: "denied", icons: deniedIcon }),
+        "menus.create() should reject an icon url without host permission"
+      );
+      browser.test.assertEq(
+        `Missing host permission for url: ${redirectedIcon}`,
+        await create({
+          id: "redirected",
+          title: "redirected",
+          icons: redirectedIcon,
+        }),
+        "menus.create() should reject an icon url redirecting to a host without host permission"
+      );
+      browser.test.assertEq(
+        undefined,
+        await create({ id: "allowed", title: "allowed", icons: allowedIcon }),
+        "menus.create() should accept an icon url with host permission"
+      );
+
+      await browser.test.assertRejects(
+        browser.menus.update("allowed", { icons: deniedIcon }),
+        `Missing host permission for url: ${deniedIcon}`,
+        "menus.update() should reject an icon url without host permission"
+      );
+      await browser.test.assertRejects(
+        browser.menus.update("allowed", { icons: redirectedIcon }),
+        `Missing host permission for url: ${redirectedIcon}`,
+        "menus.update() should reject an icon url redirecting to a host without host permission"
+      );
+      await browser.menus.update("allowed", { icons: allowedIcon });
+
+      const hits = await fetch(
+        `http://mochi.test:8888${dataPath}/redirect.sjs?hits`,
+        { cache: "no-store" }
+      ).then(response => response.text());
+      browser.test.assertEq(
+        "0",
+        hits,
+        "A host without host permission should never be contacted"
+      );
+
+      browser.test.notifyPass("remoteIconHostPermissions");
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("remoteIconHostPermissions");
   await extension.unload();
 });

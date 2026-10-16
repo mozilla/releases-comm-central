@@ -71,7 +71,11 @@ support-files = [
 tags = ["contextmenu"]
 
 ["browser_ext_menus_context_icons.js"]
-support-files = ["data/content.html"]
+support-files = [
+  "data/content.html",
+  "data/redirect.sjs",
+  "data/tb-logo.png",
+]
 tags = ["contextmenu"]
 
 ["browser_ext_menus_context_message_panes.js"]

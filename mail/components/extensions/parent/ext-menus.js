@@ -13,13 +13,16 @@ var { ExtensionParent } = ChromeUtils.importESModule(
 var { SelectionUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/SelectionUtils.sys.mjs"
 );
+var { secureFetch } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionUtilities.sys.mjs"
+);
 
 ChromeUtils.defineESModuleGetters(this, {
   assignAutoAccessKeys: "chrome://global/content/elements/auto-accesskey.mjs",
   ExtensionMenus: "resource://gre/modules/ExtensionMenus.sys.mjs",
 });
 
-XPCOMUtils.defineLazyGlobalGetters(this, ["fetch", "FileReader"]);
+XPCOMUtils.defineLazyGlobalGetters(this, ["FileReader"]);
 
 var { makeWidgetId } = ExtensionCommon;
 var { DefaultMap } = ExtensionUtils;
@@ -716,11 +719,12 @@ function getContextViewType(contextData) {
  * Fetches a remote resource and returns a data: url.
  *
  * @param {string} url
+ * @param {Extension} extension - The extension requesting the resource. It
+ *   needs host permission for the url and all its redirects.
  * @returns {Promise<string>}
  */
-async function fetchDataUrl(url) {
-  const data = await fetch(url);
-  const blob = await data.blob();
+async function fetchDataUrl(url, extension) {
+  const blob = await secureFetch(url, extension);
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = reject;
@@ -734,9 +738,10 @@ async function fetchDataUrl(url) {
  * remote icon urls with data urls.
  *
  * @param {createProperties|updateProperties} properties
+ * @param {Extension} extension
  * @see mail/components/extensions/schemas/menus.json
  */
-async function fetchRemoteIcons(properties) {
+async function fetchRemoteIcons(properties, extension) {
   if (!properties.icons) {
     return;
   }
@@ -746,7 +751,10 @@ async function fetchRemoteIcons(properties) {
   const re = new RegExp("^https?://", "i");
   for (const size in properties.icons) {
     if (re.test(properties.icons[size])) {
-      properties.icons[size] = await fetchDataUrl(properties.icons[size]);
+      properties.icons[size] = await fetchDataUrl(
+        properties.icons[size],
+        extension
+      );
     }
   }
 }
@@ -1555,7 +1563,7 @@ this.menus = class extends ExtensionAPIPersistent {
           }
 
           // Pre-fetch the icon from http(s) and replace it by a data: uri.
-          await fetchRemoteIcons(createProperties);
+          await fetchRemoteIcons(createProperties, extension);
 
           // Note that the id is required by the schema. If the addon did not set
           // it, the implementation of menus.create in the child will add it for
@@ -1577,7 +1585,7 @@ this.menus = class extends ExtensionAPIPersistent {
           }
 
           // Pre-fetch the icon from http(s) and replace it by a data: uri.
-          await fetchRemoteIcons(updateProperties);
+          await fetchRemoteIcons(updateProperties, extension);
 
           menuItem.setProps(updateProperties);
           ExtensionMenus.updateMenu(extension, id, updateProperties);
