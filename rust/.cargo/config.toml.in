@@ -115,9 +115,9 @@ replace-with = "vendored-sources"
 git = "https://github.com/mozilla/nss-rs"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/rust-minidump/minidump-writer.git?rev=6744feee58804a78730d176cdcc31bb4f3021107"]
+[source."git+https://github.com/rust-minidump/minidump-writer.git?rev=3ab1604f91db05ec3f3a84d779a2871df7d9afd7"]
 git = "https://github.com/rust-minidump/minidump-writer.git"
-rev = "6744feee58804a78730d176cdcc31bb4f3021107"
+rev = "3ab1604f91db05ec3f3a84d779a2871df7d9afd7"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/servo/rust-cssparser?rev=9f3ceddf398f5ce4ab76fdad1b42ccb6c578a926"]

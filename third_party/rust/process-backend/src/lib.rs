@@ -12,6 +12,7 @@ mod drop_fail_handler;
 
 pub mod local;
 pub mod regs;
+pub mod remote;
 
 mod wrapper;
 
@@ -94,6 +95,10 @@ pub enum ProcessReaderKind {
 pub enum Error {
     #[error("there was a failure making a direct syscall")]
     Local(#[source] local::Error),
+    #[error("the remote executor returned an error")]
+    Executor(#[source] remote::executor::Error),
+    #[error("there was an error transporting the request to/from the remote executor")]
+    Transport(#[source] remote::transport::BackendError),
     #[error("buffer was too small to contain the result")]
     BufferTooSmall,
 }

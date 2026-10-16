@@ -290,6 +290,30 @@ impl<MM: ReadModuleMemory> ModuleReader<MM> {
         })
     }
 
+    /// The object's ELF header.
+    pub fn header(&self) -> &elf::Header {
+        &self.header
+    }
+
+    /// The object's program header table.
+    pub fn program_headers(&self) -> Result<elf::ProgramHeaders, Error> {
+        self.read_program_headers()
+    }
+
+    /// The object's dynamic linking entries, up to the `DT_NULL` terminator.
+    pub fn dynamic_entries(&self) -> Result<Vec<elf::dynamic::Dyn>, Error> {
+        let program_headers = self.read_program_headers()?;
+
+        let dynamic_segment_header = program_headers
+            .iter()
+            .find(|h| h.p_type == elf::program_header::PT_DYNAMIC)
+            .ok_or(Error::NoDynamicSection)?;
+
+        let dynamic_section = self.read_segment(dynamic_segment_header)?;
+
+        DynIter::new(&dynamic_section, self.context).collect()
+    }
+
     /// Find a note referenced by the program headers.
     pub fn find_program_note(
         &self,

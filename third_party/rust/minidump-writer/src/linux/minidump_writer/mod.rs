@@ -11,6 +11,7 @@ use {
         maps_reader::{MappingInfo, MappingList},
         module_list,
         process_inspection::{self, ProcessInspector, process_reader::CopyFromProcessError},
+        remote_process_inspection,
         serializers::*,
         thread_info::{ThreadInfo, ThreadInfoError},
     },
@@ -199,6 +200,19 @@ impl MinidumpWriterConfig {
         direct_auxv_dump_info: DirectAuxvDumpInfo,
     ) -> &mut Self {
         self.direct_auxv_dump_info = Some(direct_auxv_dump_info);
+        self
+    }
+
+    /// Set the transport used to communicate with the remote executor
+    ///
+    /// The [`MinidumpWriter`] is created in local mode by default. Specifying a remote Transport
+    /// changes it to remote mode, where it will forward all process inspection syscalls to a
+    /// remote process for execution.
+    pub fn set_remote_transport<T: remote_process_inspection::transport::Backend + 'static>(
+        &mut self,
+        transport: T,
+    ) -> &mut Self {
+        self.process_inspector = process_inspection::remote(transport);
         self
     }
 
@@ -501,8 +515,9 @@ impl MinidumpWriter {
             }
         };
 
-        let stack_copy = match MinidumpWriter::copy_from_process(
+        let stack_copy = match MinidumpWriter::read_until_guard(
             self.process_inspector.as_ref(),
+            self.page_size,
             valid_stack_pointer,
             stack_len,
         ) {
@@ -775,46 +790,40 @@ impl MinidumpWriter {
     pub fn get_stack_info(&self, int_stack_pointer: usize) -> Result<(usize, usize), WriterError> {
         // Round the stack pointer to the nearest page, this will cause us to
         // capture data below the stack pointer which might still be relevant.
-        let mut stack_pointer = int_stack_pointer & !(self.page_size - 1);
-        let mut mapping = self.find_mapping(stack_pointer);
+        let (stack_pointer, mapping) = self
+            .skip_guard_pages(int_stack_pointer & !(self.page_size - 1))
+            .ok_or(WriterError::NoStackPointerMapping)?;
+        Ok((stack_pointer, mapping.end_address() - stack_pointer))
+    }
 
+    /// Returns the first page at or above `address` that may be part of a
+    /// stack, and the mapping containing it.
+    fn skip_guard_pages(&self, mut address: usize) -> Option<(usize, &MappingInfo)> {
         // The guard page has been 1 MiB in size since kernel 4.12, older
         // kernels used a 4 KiB one instead. Note the saturating add, as 32-bit
         // processes can have a stack pointer within 1MiB of usize::MAX
-        let guard_page_max_addr = stack_pointer.saturating_add(1024 * 1024);
+        let guard_page_max_addr = address.saturating_add(1024 * 1024);
+        let mem = self.process_inspector.process_reader();
 
-        // If we found no mapping, or the mapping we found has no permissions
-        // then we might have hit a guard page, try looking for a mapping in
-        // addresses past the stack pointer. Stack grows towards lower addresses
-        // on the platforms we care about so the stack should appear after the
-        // guard page.
-        while !Self::may_be_stack(mapping) && (stack_pointer <= guard_page_max_addr) {
-            stack_pointer += self.page_size;
-            mapping = self.find_mapping(stack_pointer);
+        while address <= guard_page_max_addr {
+            if let Some(mapping) = self.find_mapping(address)
+                && Self::may_be_stack(mapping)
+                // Actually read a byte. Permissions sometimes lie.
+                && matches!(mem.read(address, &mut [0u8]), Ok(1))
+            {
+                return Some((address, mapping));
+            }
+            // Look upwards since the stack grows downwards on supported platforms
+            address = address.checked_add(self.page_size)?;
         }
 
-        mapping
-            .map(|mapping| {
-                let valid_stack_pointer = if mapping.contains_address(stack_pointer) {
-                    stack_pointer
-                } else {
-                    mapping.start_address
-                };
-
-                let stack_len = mapping.size - (valid_stack_pointer - mapping.start_address);
-                (valid_stack_pointer, stack_len)
-            })
-            .ok_or(WriterError::NoStackPointerMapping)
+        None
     }
 
-    fn may_be_stack(mapping: Option<&MappingInfo>) -> bool {
-        if let Some(mapping) = mapping {
-            return mapping
-                .permissions
-                .intersects(MMPermissions::READ | MMPermissions::WRITE);
-        }
-
-        false
+    fn may_be_stack(mapping: &MappingInfo) -> bool {
+        mapping
+            .permissions
+            .intersects(MMPermissions::READ | MMPermissions::WRITE)
     }
 
     pub fn sanitize_stack_copy(
@@ -963,10 +972,35 @@ impl MinidumpWriter {
         src: usize,
         length: usize,
     ) -> Result<Vec<u8>, CopyFromProcessError> {
-        let length =
-            std::num::NonZeroUsize::new(length).ok_or(CopyFromProcessError::InvalidArgument)?;
         let mem = process_inspector.process_reader();
-        mem.read_to_vec(src, length)
+        mem.read_all_to_vec(src, length)
+    }
+
+    /// Copies up to `length` bytes from the target process, stopping at the
+    /// first page that can't be read, typically a guard page. Fails only if
+    /// nothing could be read at all.
+    pub fn read_until_guard(
+        process_inspector: &dyn ProcessInspector,
+        page_size: usize,
+        src: usize,
+        length: usize,
+    ) -> Result<Vec<u8>, CopyFromProcessError> {
+        let mem = process_inspector.process_reader();
+        let mut output = vec![0u8; length];
+        let mut offset = 0;
+        while offset < length {
+            let chunk = (length - offset).min(page_size - (src + offset) % page_size);
+            if let Err(e) = mem.read_exact(src + offset, &mut output[offset..offset + chunk]) {
+                if offset == 0 {
+                    return Err(e);
+                }
+                break;
+            }
+            offset += chunk;
+        }
+
+        output.truncate(offset);
+        Ok(output)
     }
 }
 

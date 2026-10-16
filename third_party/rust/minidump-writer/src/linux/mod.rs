@@ -3,7 +3,9 @@
 
 pub use {
     maps_reader::LINUX_GATE_LIBRARY_NAME,
-    process_inspection::{Error as BackendError, ProcessReaderKind, process_reader},
+    process_inspection::{
+        Error as BackendError, ProcessReaderKind, process_reader, remote_process_inspection,
+    },
 };
 
 pub mod app_memory;

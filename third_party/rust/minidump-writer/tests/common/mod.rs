@@ -1,11 +1,7 @@
-use std::{
-    error,
-    io::{BufRead, BufReader},
-    process::{Child, Command, Stdio},
-    result,
-};
-
 use serde::Serialize;
+use std::io::{BufRead, BufReader};
+use std::process::{Child, Command, Stdio};
+use std::{error, result};
 
 #[allow(unused)]
 type Error = Box<dyn error::Error + std::marker::Send + std::marker::Sync>;
@@ -258,13 +254,15 @@ pub use linux::*;
 #[cfg(any(target_os = "linux", target_os = "android"))]
 #[allow(unused)]
 mod linux {
-    use {
-        minidump_writer::{
-            CrashContextExt, Pid,
-            module_reader::{self, ModuleMemoryReadError, ReadModuleMemory},
-        },
-        std::borrow::Cow,
-    };
+    use minidump_writer::minidump_writer::MinidumpWriterConfig;
+    use minidump_writer::module_reader::{self, ModuleMemoryReadError, ReadModuleMemory};
+    use minidump_writer::remote_process_inspection;
+    use minidump_writer::{CrashContextExt, Pid};
+    use procfs_core::process;
+    use remote_process_inspection as remote;
+    use std::borrow::Cow;
+    use std::thread;
+
     pub struct SliceModuleMemoryReader<'a>(pub &'a [u8]);
 
     impl<'a> ReadModuleMemory for SliceModuleMemoryReader<'a> {
@@ -317,6 +315,65 @@ mod linux {
                 #[cfg(not(target_arch = "arm"))]
                 float_state,
             },
+        }
+    }
+
+    pub fn remote_mw_config(process_id: Pid, blamed_thread: Pid) -> MinidumpWriterConfig {
+        let mut config = MinidumpWriterConfig::new(process_id, blamed_thread);
+        config.set_remote_transport(TransportForTestExecutor::new(process_id));
+        config
+    }
+
+    #[derive(Debug)]
+    pub struct TransportForTestExecutor {
+        transport: Option<remote::transport::postcard::Backend<remote::io::UnixStream, Vec<u8>>>,
+        thread_handle: Option<std::thread::JoinHandle<()>>,
+    }
+
+    impl TransportForTestExecutor {
+        pub fn new(pid: Pid) -> Self {
+            let (backend_io, executor_io) =
+                remote::io::UnixStream::pair().expect("failed to create unix stream");
+
+            let thread_handle = thread::spawn(move || {
+                let args_buf = vec![0u8; remote::ARGS_BUFFER_LEN];
+                let transport = remote::transport::postcard::Executor::new(executor_io, args_buf);
+                let mut executor_resources = remote::ExecutorResources::const_new();
+                remote::executor::run(pid, transport, executor_resources.as_mut())
+                    .expect("an error occurred running the executor");
+            });
+
+            let output_buf = vec![0u8; remote::OUTPUT_BUFFER_LEN];
+            let transport = remote::transport::postcard::Backend::new(backend_io, output_buf);
+
+            TransportForTestExecutor {
+                transport: Some(transport),
+                thread_handle: Some(thread_handle),
+            }
+        }
+    }
+
+    impl Drop for TransportForTestExecutor {
+        fn drop(&mut self) {
+            drop(self.transport.take().unwrap());
+            if let Err(payload) = self.thread_handle.take().unwrap().join()
+                && !thread::panicking()
+            {
+                std::panic::resume_unwind(payload);
+            }
+        }
+    }
+
+    impl remote::transport::Backend for TransportForTestExecutor {
+        fn max_response_output_len(&self) -> usize {
+            self.transport.as_ref().unwrap().max_response_output_len()
+        }
+
+        fn send_request<'output, Req: serde::Serialize, Resp: serde::Deserialize<'output>>(
+            &'output mut self,
+            req: Req,
+        ) -> Result<Resp, remote::transport::BackendError> {
+            self.transport.as_mut().unwrap().send_request(req)
         }
     }
 }

@@ -1,7 +1,7 @@
 use super::super::linux;
 use crate::module_reader::{ModuleMemoryReadError, ReadError, ReadModuleMemory};
 use linux::maps_reader;
-use process_backend::{ProcessReader as _, Stat, local, regs::*};
+use process_backend::{ProcessReader as _, Stat, local, regs::*, remote};
 use process_reader::{CopyFromProcessError, ProcessReader, ProcessReaderBackend};
 use std::{
     borrow::Cow,
@@ -20,15 +20,83 @@ pub use process_backend::ProcessReaderKind;
 
 pub mod process_reader;
 
+pub mod remote_process_inspection {
+    use process_backend::remote::executor::resources::*;
+
+    pub mod executor {
+        pub use process_backend::remote::executor::{Error, Resources, run};
+    }
+
+    pub use process_backend::remote::{io, transport};
+
+    pub const ARGS_BUFFER_LEN: usize = super::MAX_INPUT_PATH_LEN;
+    pub const OUTPUT_BUFFER_LEN: usize = SCRATCH_BUFFER_LEN;
+
+    // All of these are arbitrary and may need to be adjusted
+    const MAX_SIMULTANEOUS_OPEN_FILES: usize = 5;
+    const MAX_SIMULTANEOUS_OPEN_DIRS: usize = 5;
+    const MAX_SIMULTANEOUS_OPEN_MODULE_MEMORY_READERS: usize = 5;
+    const SCRATCH_BUFFER_LEN: usize =
+        if super::MAX_SYMLINK_TARGET_LEN > super::MAX_DIRECTORY_NAME_LENGTH {
+            super::MAX_SYMLINK_TARGET_LEN
+        } else {
+            super::MAX_DIRECTORY_NAME_LENGTH
+        };
+
+    pub struct ExecutorResources {
+        file_readers: [FileReader; MAX_SIMULTANEOUS_OPEN_FILES],
+        dir_readers: [DirReader; MAX_SIMULTANEOUS_OPEN_DIRS],
+        mapped_module_memory_readers:
+            [MappedModuleMemoryReader; MAX_SIMULTANEOUS_OPEN_MODULE_MEMORY_READERS],
+        scratch_buf: [u8; SCRATCH_BUFFER_LEN],
+    }
+
+    impl ExecutorResources {
+        pub const fn const_new() -> ExecutorResources {
+            ExecutorResources {
+                file_readers: FileReader::new_array(),
+                dir_readers: DirReader::new_array(),
+                mapped_module_memory_readers: MappedModuleMemoryReader::new_array(),
+                scratch_buf: [0; SCRATCH_BUFFER_LEN],
+            }
+        }
+
+        pub const fn as_mut(&mut self) -> Resources<'_> {
+            Resources {
+                file_readers: &mut self.file_readers,
+                dir_readers: &mut self.dir_readers,
+                mapped_module_memory_readers: &mut self.mapped_module_memory_readers,
+                scratch_buf: &mut self.scratch_buf,
+            }
+        }
+    }
+}
+
 pub(crate) type Result<T> = core::result::Result<T, Error>;
 
-// These are both arbitrary choices and may need to be tweaked
-const MAX_PATH_LEN: usize = 65536;
+// These are arbitrary choices and are probably way bigger than they need to be.
+// They probably could be optimized further...
+
+// The longest path that may be passed as an argument to any of the APIs that
+// take a PathBuf arg. Realistically, even this is a fairly conservative number.
+const MAX_INPUT_PATH_LEN: usize = 1024;
+
+// The longest symlink we'd ever expect to get from a call to read_link()
+const MAX_SYMLINK_TARGET_LEN: usize = 1024;
+
+/// The longest directory name we'd expect to see from a read_dir() iterator
 const MAX_DIRECTORY_NAME_LENGTH: usize = 256;
 
 pub(crate) fn local(pid: libc::pid_t) -> Box<dyn ProcessInspector> {
     set_process_backend_drop_fail_handler();
     Box::new(local::Backend::new(pid))
+}
+
+pub(crate) fn remote<'t, T: remote_process_inspection::transport::Backend + 't>(
+    transport: T,
+) -> Box<dyn ProcessInspector + 't> {
+    set_process_backend_drop_fail_handler();
+    Box::new(remote::backend::Backend::new(transport))
 }
 
 pub trait ProcessInspector: core::fmt::Debug {
@@ -59,6 +127,15 @@ pub trait ProcessInspector: core::fmt::Debug {
     fn force_process_reader_kind(&mut self, kind: ProcessReaderKind) -> Result<()>;
 
     fn fail_one_syscall_with(&self, errno: core::ffi::c_int);
+}
+
+fn path_to_cstring(path: PathBuf) -> Result<CString> {
+    let c_path = CString::new(path.into_os_string().into_vec()).unwrap();
+    if c_path.as_bytes_with_nul().len() <= MAX_INPUT_PATH_LEN {
+        Ok(c_path)
+    } else {
+        Err(Error::InputPathTooLong)
+    }
 }
 
 impl<B: process_backend::Backend> ProcessInspector for B {
@@ -97,25 +174,25 @@ impl<B: process_backend::Backend> ProcessInspector for B {
     }
 
     fn stat_file(&self, path: PathBuf) -> Result<Stat> {
-        let c_path = CString::new(path.into_os_string().into_vec()).unwrap();
+        let c_path = path_to_cstring(path)?;
         B::stat_file(self, &c_path).map_err(Error::Backend)
     }
 
     fn read_file<'a>(&'a self, path: PathBuf) -> Result<FileReader<'a>> {
-        let c_path = CString::new(path.into_os_string().into_vec()).unwrap();
+        let c_path = path_to_cstring(path)?;
         let reader = B::read_file(self, &c_path).map_err(Error::Backend)?;
         Ok(FileReader(Box::new(reader)))
     }
 
     fn read_dir<'a>(&'a self, path: PathBuf) -> Result<DirReader<'a>> {
-        let c_path = CString::new(path.into_os_string().into_vec()).unwrap();
+        let c_path = path_to_cstring(path)?;
         let reader = B::read_dir(self, &c_path).map_err(Error::Backend)?;
         Ok(DirReader(Box::new(reader)))
     }
 
     fn read_link(&self, path: PathBuf) -> Result<PathBuf> {
-        let c_path = CString::new(path.into_os_string().into_vec()).unwrap();
-        let mut buf = vec![0u8; MAX_PATH_LEN];
+        let c_path = path_to_cstring(path)?;
+        let mut buf = vec![0u8; MAX_SYMLINK_TARGET_LEN];
         let len = B::read_link(self, &c_path, &mut buf).map_err(Error::Backend)?;
         buf.truncate(len);
         Ok(PathBuf::from(OsString::from_vec(buf)))
@@ -275,6 +352,8 @@ pub enum Error {
     UnexpectedEndOfBuffer,
     #[error("got an unexpected end of file")]
     UnexpectedEndOfFile,
+    #[error("a path argument was too long")]
+    InputPathTooLong,
 }
 
 fn set_process_backend_drop_fail_handler() {

@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@1.90.0
         with:
           components: rustfmt,clippy
       - name: rustfmt
@@ -28,20 +28,27 @@ jobs:
 
   test:
     name: Test
-    runs-on: ${{ matrix.job.os }}
+    runs-on: ${{ matrix.os || format('ubuntu-{0}{1}', matrix.ubuntu, matrix.job.arm && '-arm' || '') }}
     strategy:
       matrix:
+        # Supported Ubuntu LTS releases
+        ubuntu: ['22.04', '24.04', '26.04']
         job:
-          - { os: ubuntu-24.04,   target: x86_64-unknown-linux-gnu, release: true }
-          - { os: ubuntu-24.04,   target: x86_64-unknown-linux-musl }
-          - { os: ubuntu-24.04-arm,   target: aarch64-unknown-linux-gnu }
-          - { os: windows-2025,   target: x86_64-pc-windows-msvc }
-          - { os: macos-15-intel, target: x86_64-apple-darwin }
-          - { os: macos-15,       target: aarch64-apple-darwin }
+          - { target: x86_64-unknown-linux-gnu, release: true }
+          - { target: aarch64-unknown-linux-gnu, arm: true }
+        # These don't match any of the Ubuntu combinations, so each is added
+        # as a single extra job.
+        include:
+          # musl comes with the Rust toolchain, not the OS, and the kernel
+          # versions are covered by the glibc jobs.
+          - { ubuntu: '24.04',    job: { target: x86_64-unknown-linux-musl } }
+          - { os: windows-2025,   job: { target: x86_64-pc-windows-msvc } }
+          - { os: macos-15-intel, job: { target: x86_64-apple-darwin } }
+          - { os: macos-15,       job: { target: aarch64-apple-darwin } }
     steps:
       - uses: actions/checkout@v4
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@1.90.0
         with:
           target: ${{ matrix.job.target }}
           components: clippy
@@ -97,7 +104,7 @@ jobs:
           path: /tmp/
       - run: chmod +x /tmp/cross
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@1.90.0
         with:
           target: ${{ matrix.job.target }}
       - name: Build and Test
@@ -116,9 +123,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@1.90.0
         with:
           target: x86_64-linux-android
+          components: clippy
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules

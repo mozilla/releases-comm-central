@@ -11,7 +11,7 @@
 
 [package]
 edition = "2024"
-rust-version = "1.88.0"
+rust-version = "1.90.0"
 name = "crash-context"
 version = "0.8.0"
 authors = ["Jake Shadle <jake.shadle@embark-studios.com>"]

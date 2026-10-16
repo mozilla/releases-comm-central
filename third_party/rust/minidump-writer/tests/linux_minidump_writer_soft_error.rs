@@ -2,7 +2,7 @@
 
 use common::*;
 use minidump::Minidump;
-use minidump_writer::{FailSpotName, minidump_writer::MinidumpWriterConfig};
+use minidump_writer::FailSpotName;
 
 mod common;
 
@@ -20,7 +20,7 @@ fn soft_error_stream() {
     fail_client.set_enabled(FailSpotName::StopProcess, true);
 
     // Write a minidump
-    MinidumpWriterConfig::new(pid, pid)
+    remote_mw_config(pid, pid)
         .write(&mut tmpfile)
         .expect("cound not write minidump");
     child.kill().expect("Failed to kill process");
@@ -53,7 +53,7 @@ fn soft_error_stream_content() {
     }
 
     // Write a minidump
-    MinidumpWriterConfig::new(pid, pid)
+    remote_mw_config(pid, pid)
         .write(&mut tmpfile)
         .expect("cound not write minidump");
     child.kill().expect("Failed to kill process");
@@ -88,7 +88,7 @@ fn thread_stack_pointer_unmapped_soft_error() {
     let mut fail_client = FailSpotName::testing_client();
     fail_client.set_enabled(FailSpotName::StackPointerMapping, true);
 
-    MinidumpWriterConfig::new(pid, pid)
+    remote_mw_config(pid, pid)
         .write(&mut tmpfile)
         .expect("could not write minidump");
     child.kill().expect("Failed to kill process");
@@ -111,7 +111,7 @@ fn thread_stack_unreadable_soft_error() {
     let mut fail_client = FailSpotName::testing_client();
     fail_client.set_enabled(FailSpotName::ThreadStackCopy, true);
 
-    MinidumpWriterConfig::new(pid, pid)
+    remote_mw_config(pid, pid)
         .write(&mut tmpfile)
         .expect("could not write minidump");
     child.kill().expect("Failed to kill process");
@@ -134,7 +134,7 @@ fn crashing_thread_ip_memory_unreadable_soft_error() {
     let mut fail_client = FailSpotName::testing_client();
     fail_client.set_enabled(FailSpotName::CrashingThreadIpCopy, true);
 
-    let mut config = MinidumpWriterConfig::new(pid, pid);
+    let mut config = remote_mw_config(pid, pid);
     config.set_crash_context(get_dummy_crash_context(pid));
     config
         .write(&mut tmpfile)

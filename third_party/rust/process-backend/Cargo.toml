@@ -11,7 +11,7 @@
 
 [package]
 edition = "2024"
-rust-version = "1.88.0"
+rust-version = "1.90.0"
 name = "process-backend"
 version = "0.1.0"
 build = false
@@ -27,14 +27,33 @@ license = "MIT"
 repository = "https://github.com/rust-minidump/minidump-writer"
 
 [features]
+postcard = ["dep:postcard"]
 testing = []
+unix_stream = []
 
 [lib]
 name = "process_backend"
 path = "src/lib.rs"
 
+[[test]]
+name = "basic"
+path = "tests/basic.rs"
+
+[dev-dependencies.process-backend]
+path = "."
+features = [
+    "postcard",
+    "testing",
+    "unix_stream",
+]
+
 [target.'cfg(any(target_os = "linux", target_os = "android"))'.dependencies.libc]
 version = "0.2"
+default-features = false
+
+[target.'cfg(any(target_os = "linux", target_os = "android"))'.dependencies.postcard]
+version = "1.1.3"
+optional = true
 default-features = false
 
 [target.'cfg(any(target_os = "linux", target_os = "android"))'.dependencies.process-reader]
