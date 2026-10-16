@@ -2296,7 +2296,7 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
         this._height = this.clientHeight;
       }
 
-      this.#rememberColumnWidths();
+      this.#rememberColumnWidths(true);
     });
     this.#resizeObserver.observe(this);
 
@@ -2419,7 +2419,7 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
         this.#onDrop(event);
         break;
       case "splitter-resizing":
-        this.#rememberColumnWidths();
+        this.#rememberColumnWidths(false);
         break;
     }
   }
@@ -2617,21 +2617,39 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
    *
    * The values set here are temporarily set on the header cells, not saved to
    * `column.width` or persisted in the XUL store.
+   *
+   * @param {boolean} relativeWidths - If true, widths will be stored as
+   *   percentage values instead of pixel values. This should be used where
+   *   all columns are being resized at once (i.e. the widget is resizing).
    */
-  #rememberColumnWidths() {
+  #rememberColumnWidths(relativeWidths) {
     if (!this.parentNode.columns || this.clientWidth == 0) {
-      // We're here too early in setup or not visible.
+      return;
+    }
+    if (relativeWidths && this.parentNode.isHorizontalScroll) {
       return;
     }
 
+    const totalWidth = this.clientWidth;
     for (const column of this.parentNode.columns) {
-      if (column.hidden) {
+      if (column.hidden || column.resizable === false) {
         continue;
       }
 
       const headerCell = this.parentNode.querySelector(`#${column.id}`);
       const splitterVar = `--${column.id}Splitter-width`;
-      headerCell.style.setProperty(splitterVar, `${headerCell.clientWidth}px`);
+      if (
+        !relativeWidths ||
+        // Don't overwrite a percentage value with another percentage value.
+        !headerCell.style.getPropertyValue(splitterVar).endsWith("%")
+      ) {
+        headerCell.style.setProperty(
+          splitterVar,
+          relativeWidths
+            ? `${(headerCell.clientWidth / totalWidth) * 100}%`
+            : `${headerCell.clientWidth}px`
+        );
+      }
 
       if (
         !this.parentNode.isHorizontalScroll &&
