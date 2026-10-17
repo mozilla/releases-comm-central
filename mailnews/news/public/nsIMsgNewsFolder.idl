@@ -72,7 +72,13 @@ interface nsIMsgNewsFolder : nsISupports {
   void removeMessages(in Array<nsMsgKey> keys);
   void cancelComplete();
 
-  ACString getMessageIdForKey(in nsMsgKey key);
+  /**
+   * Get the message ID for an article key.
+   *
+   * @param key The article number.
+   * @returns The message ID, or null if the key is not in the database.
+   */
+  AUTF8String getMessageIdForKey(in nsMsgKey key);
 
   void getNextNMessages(in nsIMsgWindow aMsgWindow);
 

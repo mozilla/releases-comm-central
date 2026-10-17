@@ -129,6 +129,71 @@ add_task(async function test_articleSyntaxError() {
   });
 });
 
+add_task(async function test_missingArticleWithoutHeader() {
+  await withServer(NNTP_RFC977_handler, async server => {
+    Assert.ok(
+      !folder.msgDatabase.containsKey(100),
+      "the missing article should have no local header"
+    );
+    const failed = getArticle(100);
+    const next = getArticle(2);
+    const result = await failed;
+    Assert.equal(
+      result.status,
+      Cr.NS_ERROR_FAILURE,
+      "a missing article should fail the request even without a local header"
+    );
+    Assert.equal(result.data, "", "the error should not produce article data");
+    const params = new URL(result.url.seeOtherURI).searchParams;
+    Assert.equal(params.get("k"), "100", "the error URL should retain the key");
+    Assert.equal(
+      params.get("f"),
+      folder.URI,
+      "the error URL should retain the folder"
+    );
+    Assert.ok(
+      !params.has("m"),
+      "the error URL should omit the unknown message ID"
+    );
+    const second = await next;
+    Assert.equal(second.status, Cr.NS_OK, "the queued request should succeed");
+    Assert.stringContains(
+      second.data,
+      "This is the second body post.",
+      "the queued request should receive its own article"
+    );
+    Assert.deepEqual(
+      server.playTransaction().them,
+      ["MODE READER", "GROUP test.filter", "ARTICLE 100", "ARTICLE 2"],
+      "the next request should reuse the released connection"
+    );
+  });
+});
+
+add_task(async function test_missingArticleWithHeader() {
+  class MissingArticleHandler extends NNTP_RFC2980_handler {
+    ARTICLE(number) {
+      return number == "1" ? "423 No such article" : super.ARTICLE(number);
+    }
+  }
+
+  await withServer(MissingArticleHandler, async () => {
+    await getNewMessages();
+    const messageId = folder.getMessageIdForKey(1);
+    const result = await getArticle(1);
+    Assert.equal(
+      result.status,
+      Cr.NS_ERROR_FAILURE,
+      "a missing article should fail the request when a local header exists"
+    );
+    Assert.equal(
+      new URL(result.url.seeOtherURI).searchParams.get("m"),
+      messageId,
+      "the error URL should retain the known message ID"
+    );
+  });
+});
+
 /**
  * Test that an XHDR line for an article that wasn't in the XOVER response is
  * skipped.

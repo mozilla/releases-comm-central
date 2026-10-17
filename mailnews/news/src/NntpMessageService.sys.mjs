@@ -228,6 +228,8 @@ class BaseMessageService {
    *
    * @param {string} messageURI - The news-message:// url.
    * @returns {string} The news:// url.
+   * @throws {nsIException} NS_ERROR_NOT_AVAILABLE if the internal message URI
+   *   has no local message ID.
    */
   _createMessageIdUrl(messageURI) {
     if (messageURI.startsWith("news://") || messageURI.startsWith("snews://")) {
@@ -236,6 +238,12 @@ class BaseMessageService {
     const [folder, key] = this._decomposeNewsMessageURI(messageURI);
     const host = folder.rootFolder.URI;
     const messageId = folder.getMessageIdForKey(key);
+    if (!messageId) {
+      throw Components.Exception(
+        `No message ID for message URI: ${messageURI}`,
+        Cr.NS_ERROR_NOT_AVAILABLE
+      );
+    }
     const url = new URL(`${host}/${encodeURIComponent(messageId)}`);
     url.searchParams.set("group", folder.name);
     url.searchParams.set("key", key);

@@ -77,3 +77,45 @@ add_task(function test_composeMIMEInitialization() {
       );
   }
 });
+
+add_task(function test_messageIdForKey() {
+  const newsFolder = folder.QueryInterface(Ci.nsIMsgNewsFolder);
+  Assert.strictEqual(
+    newsFolder.getMessageIdForKey(message.messageKey),
+    "compose@nntp.invalid",
+    "An existing header should provide its message ID"
+  );
+  const messageId = "müller@例え.invalid";
+  message.messageId = messageId;
+  Assert.strictEqual(
+    newsFolder.getMessageIdForKey(message.messageKey),
+    messageId,
+    "An existing header should preserve its UTF-8 message ID"
+  );
+  Assert.ok(
+    !folder.msgDatabase.containsKey(100),
+    "The missing article should have no local header"
+  );
+  Assert.strictEqual(
+    newsFolder.getMessageIdForKey(100),
+    null,
+    "A missing article key should return null"
+  );
+});
+
+add_task(function test_missingMessageUrl() {
+  const key = message.messageKey;
+  const uri = folder.getUriForMsg(message);
+  const service = MailServices.messageServiceFromURI(uri);
+  folder.msgDatabase.deleteHeader(message, null, true, false);
+  Assert.strictEqual(
+    folder.getMessageIdForKey(key),
+    null,
+    "A removed header should no longer provide a message ID"
+  );
+  Assert.throws(
+    () => service.getUrlForUri(uri),
+    /NS_ERROR_NOT_AVAILABLE/,
+    "A missing header should prevent constructing a message URL"
+  );
+});

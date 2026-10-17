@@ -1153,6 +1153,13 @@ NS_IMETHODIMP nsMsgNewsFolder::GetMessageIdForKey(nsMsgKey key,
                                                   nsACString& result) {
   nsresult rv = GetDatabase();
   if (!mDatabase) return rv;
+  bool containsKey = false;
+  rv = mDatabase->ContainsKey(key, &containsKey);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!containsKey) {
+    result.SetIsVoid(true);
+    return NS_OK;
+  }
   nsCOMPtr<nsIMsgDBHdr> hdr;
   rv = mDatabase->GetMsgHdrForKey(key, getter_AddRefs(hdr));
   NS_ENSURE_SUCCESS(rv, rv);
