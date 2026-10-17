@@ -559,6 +559,33 @@
     getChanges(_oldValue, _newValue) {
       throw new Error(`${this.constructor.name} does not implement getChanges().`);
     }
+
+    /**
+     * Merges removed values into a diff, placing each one at its index in the
+     * old list, or at the end if the diff is shorter than that.
+     *
+     * @param {[T, number][]} diff
+     * @param {[number, T][]} removed - Pairs of old list index and value, in
+     *   ascending index order.
+     * @returns {[T, number][]}
+     */
+    insertRemoved(diff, removed) {
+      if (!removed.length) {
+        return diff;
+      }
+      const merged = [];
+      let next = 0;
+      for (const [idx, value] of removed) {
+        while (merged.length < idx && next < diff.length) {
+          merged.push(diff[next++]);
+        }
+        merged.push([value, PROPERTY_REMOVED]);
+      }
+      while (next < diff.length) {
+        merged.push(diff[next++]);
+      }
+      return merged;
+    }
   }
 
   /**
@@ -609,9 +636,18 @@
     listItem = "calendar-invitation-panel-attendee-list-item";
 
     getChanges(oldValue, newValue) {
+      const oldById = new Map();
+      for (const att of oldValue) {
+        if (!oldById.has(att.id)) {
+          oldById.set(att.id, att);
+        }
+      }
+
       const diff = [];
+      const newIds = new Set();
       for (const att of newValue) {
-        const oldAtt = oldValue.find(v => v.id == att.id);
+        newIds.add(att.id);
+        const oldAtt = oldById.get(att.id);
         if (!oldAtt) {
           diff.push([att, PROPERTY_ADDED]); // New attendee.
         } else if (oldAtt.participationStatus != att.participationStatus) {
@@ -622,13 +658,13 @@
       }
 
       // Insert removed attendees into the diff.
+      const removed = [];
       for (const [idx, att] of oldValue.entries()) {
-        const found = newValue.find(newAtt => newAtt.id == att.id);
-        if (!found) {
-          diff.splice(idx, 0, [att, PROPERTY_REMOVED]);
+        if (!newIds.has(att.id)) {
+          removed.push([idx, att]);
         }
       }
-      return diff;
+      return this.insertRemoved(diff, removed);
     }
   }
   customElements.define("calendar-invitation-panel-attendee-list", InvitationAttendeeList, {
@@ -665,12 +701,23 @@
     listItem = "calendar-invitation-panel-attachment-list-item";
 
     getChanges(oldValue, newValue) {
+      const oldBySpec = new Map();
+      for (const attach of oldValue) {
+        const spec = attach.uri?.spec;
+        if (spec !== undefined && !oldBySpec.has(spec)) {
+          oldBySpec.set(spec, attach);
+        }
+      }
+
       const diff = [];
+      const newSpecs = new Set();
       for (const attach of newValue) {
         if (!attach.uri) {
           continue;
         }
-        const oldAttch = oldValue.find(v => v.uri?.spec == attach.uri.spec);
+        const spec = attach.uri.spec;
+        newSpecs.add(spec);
+        const oldAttch = oldBySpec.get(spec);
 
         if (!oldAttch) {
           // New attachment.
@@ -690,16 +737,13 @@
       }
 
       // Insert removed attachments into the diff.
+      const removed = [];
       for (const [idx, attach] of oldValue.entries()) {
-        if (!attach.uri) {
-          continue;
-        }
-        const found = newValue.find(newAtt => newAtt.uri && newAtt.uri.spec == attach.uri.spec);
-        if (!found) {
-          diff.splice(idx, 0, [attach, PROPERTY_REMOVED]);
+        if (attach.uri && !newSpecs.has(attach.uri.spec)) {
+          removed.push([idx, attach]);
         }
       }
-      return diff;
+      return this.insertRemoved(diff, removed);
     }
   }
   customElements.define("calendar-invitation-panel-attachment-list", InvitationAttachmentList, {
