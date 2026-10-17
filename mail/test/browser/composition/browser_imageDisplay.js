@@ -29,6 +29,9 @@ var {
 var { click_menus_in_sequence } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
+var { wait_for_notification_to_show } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs"
+);
 
 var gImageFolder;
 
@@ -187,4 +190,112 @@ add_task(async function test_cid_image_compose_edit_as_new() {
   const cwc = await open_compose_with_edit_as_new();
   await check_cid_image_compose(cwc);
   await close_compose_window(cwc);
+});
+
+/**
+ * Test that an image referencing a part of another message is not loaded,
+ * even if the URL of the original message is a prefix of its URL.
+ */
+add_task(async function test_other_message_image_compose_re() {
+  const cwc = await open_compose_with_reply();
+  const msgURL = MailServices.messageServiceFromURI(cwc.gOriginalMsgURI)
+    .getUrlForUri(cwc.gOriginalMsgURI)
+    .spec.replace("&type=application/x-message-display", "");
+  Assert.ok(
+    /number=\d+$/.test(msgURL),
+    `original message URL should end with a message key: ${msgURL}`
+  );
+  const otherSrc = `${msgURL}0&part=1.2&filename=other.png`;
+
+  const editorDoc =
+    cwc.document.getElementById("messageEditor").contentDocument;
+  const image = editorDoc.createElement("img");
+  image.id = "otherMessageImage";
+  image.src = otherSrc;
+  editorDoc.body.append(image);
+
+  await wait_for_notification_to_show(
+    cwc,
+    "compose-notification-bottom",
+    "blockedContent"
+  );
+  Assert.equal(
+    image.src,
+    otherSrc,
+    "image from another message should not be loaded"
+  );
+  await close_compose_window(cwc);
+});
+
+add_task(function test_isURLOfMessage() {
+  const { ComposeUtils } = ChromeUtils.importESModule(
+    "resource:///modules/ComposeUtils.sys.mjs"
+  );
+  const cases = [
+    ["mailbox:///p/Inbox?number=2", "mailbox:///p/Inbox?number=2", true],
+    [
+      "mailbox:///p/Inbox?number=2&part=1.2",
+      "mailbox:///p/Inbox?number=2",
+      true,
+    ],
+    [
+      "mailbox:///p/Inbox?number=20&part=1.2",
+      "mailbox:///p/Inbox?number=2",
+      false,
+    ],
+    [
+      "mailbox:///p/Inbox?number=10&part=1.2",
+      "mailbox:///p/Inbox?number=1",
+      false,
+    ],
+    [
+      "imap://u@h:143/fetch%3EUID%3E/INBOX%3E2?part=1.2",
+      "imap://u@h:143/fetch%3EUID%3E/INBOX%3E2",
+      true,
+    ],
+    [
+      "imap://u@h:143/fetch%3EUID%3E/INBOX%3E20?part=1.2",
+      "imap://u@h:143/fetch%3EUID%3E/INBOX%3E2",
+      false,
+    ],
+    [
+      "imap://u@h:143/fetch%3EUID%3E/INBOX%3E2/;section=2?part=1.2",
+      "imap://u@h:143/fetch%3EUID%3E/INBOX%3E2",
+      true,
+    ],
+    [
+      "imap://u@h:143/fetch%3EUID%3E/INBOX%3E20/;section=2?part=1.2",
+      "imap://u@h:143/fetch%3EUID%3E/INBOX%3E2",
+      false,
+    ],
+    [
+      "imap://u@h:143/fetch%3EUID%3E/INBOX%3E2?header=quotebody/;section=2.2?part=1.2.2",
+      "imap://u@h:143/fetch%3EUID%3E/INBOX%3E2",
+      true,
+    ],
+    [
+      "news://h:119/id%40h?group=g&key=2&part=1.2",
+      "news://h:119/id%40h?group=g&key=2",
+      true,
+    ],
+    [
+      "news://h:119/id%40h?group=g&key=20&part=1.2",
+      "news://h:119/id%40h?group=g&key=2",
+      false,
+    ],
+    ["file:///tmp/a.eml?part=1.2", "file:///tmp/a.eml?", true],
+    ["file:///tmp/a.eml.png", "file:///tmp/a.eml", false],
+    [
+      "mailbox:///p/Other?number=2&part=1.2",
+      "mailbox:///p/Inbox?number=2",
+      false,
+    ],
+  ];
+  for (const [url, msgURL, expected] of cases) {
+    Assert.equal(
+      ComposeUtils.isURLOfMessage(url, msgURL),
+      expected,
+      `${url} should ${expected ? "" : "not "}be considered part of ${msgURL}`
+    );
+  }
 });

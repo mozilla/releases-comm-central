@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export var ComposeUtils = {
+  isURLOfMessage,
   loadBlockedImage,
 };
 
@@ -73,4 +74,30 @@ function loadBlockedImage(url) {
     encoded;
 
   return dataURL;
+}
+
+/**
+ * Check whether a URL refers to the message with the given URL, or a part of
+ * it. The URL must not merely start with the message URL: the message URL must
+ * be followed by the start of a query, another query part or an IMAP section
+ * ("/;section="), so that e.g. message number 2 does not match message
+ * number 20.
+ *
+ * @param {string} aURL - The URL to check.
+ * @param {string} aMsgURL - The URL of the message.
+ * @returns {boolean} true if aURL refers to the message or a part of it.
+ */
+function isURLOfMessage(aURL, aMsgURL) {
+  if (!aURL.startsWith(aMsgURL)) {
+    return false;
+  }
+  if (
+    aURL.length == aMsgURL.length ||
+    aMsgURL.endsWith("?") ||
+    aMsgURL.endsWith("&")
+  ) {
+    return true;
+  }
+  const rest = aURL.substring(aMsgURL.length);
+  return ["?", "&", "#", "/;"].some(sep => rest.startsWith(sep));
 }
