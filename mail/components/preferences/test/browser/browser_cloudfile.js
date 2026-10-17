@@ -202,8 +202,9 @@ let accountIsConfigured = false;
 /** @implements {nsIPromptService} */
 const mockPromptService = {
   confirmCount: 0,
-  confirm() {
+  confirm(_parent, _title, text) {
     this.confirmCount++;
+    this.confirmText = text;
     return true;
   },
   QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
@@ -277,6 +278,14 @@ add_task(async function addRemoveAccounts() {
     "ext-fake@extensions.thunderbird.net"
   );
   is(buttonList.children[1].getAttribute("value"), "ext-cloudfile@mochitest");
+  Assert.deepEqual(
+    prefsDocument.l10n.getAttributes(buttonList.children[1]),
+    {
+      id: "filelink-add-provider",
+      args: { providerName: "Mochitest" },
+    },
+    "The provider button should have the expected Fluent attributes"
+  );
   is(
     buttonList.children[1].style.listStyleImage,
     `url("chrome://messenger/content/extension.svg")`
@@ -336,7 +345,12 @@ add_task(async function addRemoveAccounts() {
     "chrome://messenger/content/extension.svg"
   );
   is(accountListItem.querySelector("label").value, "Mochitest");
-  is(accountListItem.querySelector(".configuredWarning").hidden, false);
+  const configuredWarning = accountListItem.querySelector(".configuredWarning");
+  Assert.ok(!configuredWarning.hidden);
+  Assert.deepEqual(prefsDocument.l10n.getAttributes(configuredWarning), {
+    id: "filelink-account-not-configured",
+    args: null,
+  });
 
   ok(cloudFileDefaultPanel.hidden);
   is(browserWrapper.childElementCount, 1);
@@ -516,7 +530,16 @@ add_task(async function addRemoveAccounts() {
     { clickCount: 1 },
     prefsWindow
   );
-  is(mockPromptService.confirmCount, 1);
+  await TestUtils.waitForCondition(
+    () => mockPromptService.confirmCount == 1,
+    "waiting for the remove-account confirmation"
+  );
+  Assert.equal(
+    mockPromptService.confirmText,
+    await prefsDocument.l10n.formatValue("filelink-remove-account-confirm", {
+      accountName: "Mochitest!",
+    })
+  );
 
   ok(
     !Services.prefs.prefHasUserValue(
@@ -639,7 +662,10 @@ async function subtestBrowserStyle(assertMessage, expected) {
     { clickCount: 1 },
     prefsWindow
   );
-  is(mockPromptService.confirmCount, expected.confirmCount);
+  await TestUtils.waitForCondition(
+    () => mockPromptService.confirmCount == expected.confirmCount,
+    "waiting for the remove-account confirmation"
+  );
 
   is(cloudFileAccounts.providers.length, 2);
   is(cloudFileAccounts.accounts.length, 0);
@@ -740,6 +766,12 @@ add_task(async function accountListOverflow() {
 
   const removeButton = prefsDocument.getElementById("removeCloudFileAccount");
   do {
+    const previousCount = accountList.itemCount;
+    const itemRemoved = BrowserTestUtils.waitForMutationCondition(
+      accountList,
+      { childList: true },
+      () => accountList.itemCount == previousCount - 1
+    );
     EventUtils.synthesizeMouseAtCenter(
       accountList.getItemAtIndex(0),
       { clickCount: 1 },
@@ -750,7 +782,7 @@ add_task(async function accountListOverflow() {
       { clickCount: 1 },
       prefsWindow
     );
-    await new Promise(resolve => setTimeout(resolve));
+    await itemRemoved;
   } while (--count > 0);
 
   ok(buttonList.hidden);

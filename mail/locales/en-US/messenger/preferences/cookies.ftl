@@ -14,7 +14,11 @@ filter-search-label =
     .value = Search:
     .accesskey = S
 
-cookies-stored-label = Cookies are stored on this computer
+cookies-stored-label2 =
+    .value = Cookies are stored on this computer
+
+cookies-filtered-label =
+    .value = The following cookies match your search:
 
 treecol-site-header =
     .label = Site
@@ -26,8 +30,10 @@ props-name-label =
     .value = Name:
 props-value-label =
     .value = Content:
-props-domain-label =
+props-host-label =
     .value = Host:
+props-domain-label2 =
+    .value = Domain:
 props-path-label =
     .value = Path:
 props-secure-label =
@@ -36,6 +42,12 @@ props-expires-label =
     .value = Expires:
 props-container-label =
     .value = Container:
+
+cookie-secure-only = Encrypted connections only
+cookie-any-connection = Any type of connection
+cookie-expires-at-end-of-session = At end of session
+cookie-none-selected = <no cookie selected>
+cookie-default-user-context = None
 
 remove-cookie-button =
     .label = Remove Cookie

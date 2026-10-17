@@ -51,7 +51,7 @@ function getBrowser() {
 
 var previewObserver = {
   _loaded: false,
-  load() {
+  async load() {
     const makeDate = function (aDateString) {
       const array = aDateString.split(":");
       const now = new Date();
@@ -66,47 +66,45 @@ var previewObserver = {
         ) / 1000
       );
     };
-    const bundle = document.getElementById("themesBundle");
-    const msg = {};
-    [
-      "nick1",
-      "buddy1",
-      "nick2",
-      "buddy2",
-      "message1",
-      "message2",
-      "message3",
-    ].forEach(function (aText) {
-      msg[aText] = bundle.getString(aText);
-    });
-    const conv = new Conversation(msg.nick2);
+    const ids = [
+      "chat-theme-preview-nick-1",
+      "chat-theme-preview-buddy-1",
+      "chat-theme-preview-nick-2",
+      "chat-theme-preview-buddy-2",
+      "chat-theme-preview-message-1",
+      "chat-theme-preview-message-2",
+      "chat-theme-preview-message-3",
+    ];
+    const [nick1, buddy1, nick2, buddy2, message1, message2, message3] =
+      await document.l10n.formatValues(ids);
+    const conv = new Conversation(nick2);
     conv.messages = [
       new Message(
-        msg.buddy1,
-        msg.message1,
+        buddy1,
+        message1,
         {
           outgoing: true,
-          _alias: msg.nick1,
+          _alias: nick1,
           time: makeDate("10:42:22"),
         },
         conv
       ),
       new Message(
-        msg.buddy1,
-        msg.message2,
+        buddy1,
+        message2,
         {
           outgoing: true,
-          _alias: msg.nick1,
+          _alias: nick1,
           time: makeDate("10:42:25"),
         },
         conv
       ),
       new Message(
-        msg.buddy2,
-        msg.message3,
+        buddy2,
+        message3,
         {
           incoming: true,
-          _alias: msg.nick2,
+          _alias: nick2,
           time: makeDate("10:43:01"),
         },
         conv
@@ -185,19 +183,18 @@ var previewObserver = {
       defaultVariant = this.theme.metadata.DefaultVariant.replace(/_/g, " ");
     }
 
-    let defaultText = defaultVariant;
-    if (!defaultText && "DisplayNameForNoVariant" in this.theme.metadata) {
-      defaultText = this.theme.metadata.DisplayNameForNoVariant;
-    }
-    // if the name in the metadata is 'Default', use the localized version
-    if (!defaultText || defaultText.toLowerCase() == "default") {
-      defaultText = document
-        .getElementById("themesBundle")
-        .getString("default");
+    let defaultLabel = defaultVariant;
+    if (!defaultLabel && "DisplayNameForNoVariant" in this.theme.metadata) {
+      defaultLabel = this.theme.metadata.DisplayNameForNoVariant;
     }
 
     const menuitem = document.createXULElement("menuitem");
-    menuitem.setAttribute("label", defaultText);
+    // If the name in the metadata is "Default", use the localized version.
+    if (!defaultLabel || defaultLabel.toLowerCase() == "default") {
+      document.l10n.setAttributes(menuitem, "chat-theme-preview-default");
+    } else {
+      menuitem.setAttribute("label", defaultLabel);
+    }
     menuitem.setAttribute("value", "default");
     popup.appendChild(menuitem);
     popup.appendChild(document.createXULElement("menuseparator"));

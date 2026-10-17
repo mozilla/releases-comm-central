@@ -4,6 +4,10 @@
 
 "use strict";
 
+var { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
+
 const lazy = XPCOMUtils.declareLazy({
   SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
 });
@@ -17,9 +21,6 @@ const lazy = XPCOMUtils.declareLazy({
 
 var { DownloadUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/DownloadUtils.sys.mjs"
-);
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
@@ -64,6 +65,16 @@ const TYPE_PDF = "application/pdf";
 const PREF_PDFJS_DISABLED = "pdfjs.disabled";
 
 const AUTO_UPDATE_CHANGED_TOPIC = "auto-update-config-change";
+
+ChromeUtils.defineLazyGetter(
+  this,
+  "PreferencesL10n",
+  () =>
+    new Localization(
+      ["messenger/preferences/preferences.ftl", "branding/brand.ftl"],
+      true
+    )
+);
 
 Preferences.addAll([
   { id: "mail.pane_config.dynamic", type: "int" },
@@ -179,10 +190,8 @@ var gGeneralPane = {
   // Convenience & Performance Shortcuts
 
   // These get defined by init().
-  _brandShortName: null,
   _handlerTbody: null,
   _filter: null,
-  _prefsBundle: null,
   mPane: null,
   mStartPageUrl: "",
   mShellServiceWorking: false,
@@ -202,10 +211,6 @@ var gGeneralPane = {
     );
 
     this.mPane = document.getElementById("paneGeneral");
-    this._prefsBundle = document.getElementById("bundlePreferences");
-    this._brandShortName = document
-      .getElementById("bundleBrand")
-      .getString("brandShortName");
     this._handlerTbody = document.querySelector("#handlersTable > tbody");
     this._filter = document.getElementById("filter");
 
@@ -594,7 +599,7 @@ var gGeneralPane = {
     );
   },
 
-  browseForSoundFile() {
+  async browseForSoundFile() {
     var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
     // if we already have a sound file, then use the path for that sound file
@@ -609,9 +614,7 @@ var gGeneralPane = {
     // XXX todo, persist the last sound directory and pass it in
     fp.init(
       window.browsingContext,
-      document
-        .getElementById("bundlePreferences")
-        .getString("soundFilePickerTitle"),
+      await document.l10n.formatValue("sound-file-picker-title"),
       Ci.nsIFilePicker.modeOpen
     );
     fp.appendFilters(Ci.nsIFilePicker.filterAudio);
@@ -1063,20 +1066,12 @@ var gGeneralPane = {
       appLocale,
       rsLocale,
     ]);
-    const appLocaleLabel = this._prefsBundle.getFormattedString(
-      "appLocale.label",
-      [names[0]]
-    );
-    const rsLocaleLabel = this._prefsBundle.getFormattedString(
-      "rsLocale.label",
-      [names[1]]
-    );
-    appLocaleRadio.setAttribute("label", appLocaleLabel);
-    rsLocaleRadio.setAttribute("label", rsLocaleLabel);
-    appLocaleRadio.accessKey = this._prefsBundle.getString(
-      "appLocale.accesskey"
-    );
-    rsLocaleRadio.accessKey = this._prefsBundle.getString("rsLocale.accesskey");
+    document.l10n.setAttributes(appLocaleRadio, "date-time-app-locale", {
+      localeName: names[0],
+    });
+    document.l10n.setAttributes(rsLocaleRadio, "date-time-regional-locale", {
+      localeName: names[1],
+    });
   },
 
   // Load the preferences string bundle for other locales with fallbacks.
@@ -1561,21 +1556,18 @@ var gGeneralPane = {
   // Retrieves the amount of space currently used by disk cache
   updateActualCacheSize() {
     const actualSizeLabel = document.getElementById("actualDiskCacheSize");
-    const prefStrBundle = document.getElementById("bundlePreferences");
 
     // Needs to root the observer since cache service keeps only a weak reference.
     this.observer = {
       onNetworkCacheDiskConsumption(consumption) {
         const size = DownloadUtils.convertByteUnits(consumption);
-        // The XBL binding for the string bundle may have been destroyed if
-        // the page was closed before this callback was executed.
-        if (!prefStrBundle.getFormattedString) {
+        if (!actualSizeLabel.isConnected) {
           return;
         }
-        actualSizeLabel.value = prefStrBundle.getFormattedString(
-          "actualDiskCacheSize",
-          size
-        );
+        document.l10n.setAttributes(actualSizeLabel, "actual-disk-cache-size", {
+          size: size[0],
+          unit: size[1],
+        });
       },
 
       QueryInterface: ChromeUtils.generateQI([
@@ -1584,8 +1576,9 @@ var gGeneralPane = {
       ]),
     };
 
-    actualSizeLabel.value = prefStrBundle.getString(
-      "actualDiskCacheSizeCalculated"
+    document.l10n.setAttributes(
+      actualSizeLabel,
+      "actual-disk-cache-size-calculating"
     );
 
     try {
@@ -1997,44 +1990,6 @@ var gGeneralPane = {
   },
 
   /**
-   * Get the details for the type represented by the given handler info
-   * object.
-   *
-   * @param {nsIHandlerInfo} aHandlerInfo - The type to get the extensions for.
-   * @returns {string} the extensions for the type.
-   */
-  _typeDetails(aHandlerInfo) {
-    let exts = [];
-    if (aHandlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo) {
-      for (const extName of aHandlerInfo.wrappedHandlerInfo.getFileExtensions()) {
-        const ext = "." + extName;
-        if (!exts.includes(ext)) {
-          exts.push(ext);
-        }
-      }
-    }
-    exts.sort();
-    exts = exts.join(", ");
-    if (this._visibleDescriptions.has(aHandlerInfo.description)) {
-      if (exts) {
-        return this._prefsBundle.getFormattedString(
-          "typeDetailsWithTypeAndExt",
-          [aHandlerInfo.type, exts]
-        );
-      }
-      return this._prefsBundle.getFormattedString("typeDetailsWithTypeOrExt", [
-        aHandlerInfo.type,
-      ]);
-    }
-    if (exts) {
-      return this._prefsBundle.getFormattedString("typeDetailsWithTypeOrExt", [
-        exts,
-      ]);
-    }
-    return exts;
-  },
-
-  /**
    * Whether or not the given handler app is valid.
    *
    * @param {nsIHandlerInfo} aHandlerApp - The handler app in question.
@@ -2346,12 +2301,10 @@ class HandlerRow {
         "action",
         Ci.nsIHandlerInfo.handleInternally
       );
-      const label = gGeneralPane._prefsBundle.getFormattedString(
-        "previewInApp",
-        [gGeneralPane._brandShortName]
+      document.l10n.setAttributes(
+        internalMenuItem,
+        "applications-preview-in-app"
       );
-      internalMenuItem.setAttribute("label", label);
-      internalMenuItem.setAttribute("tooltiptext", label);
       internalMenuItem.setAttribute(
         "image",
         "chrome://messenger/skin/preferences/alwaysAsk.png"
@@ -2361,16 +2314,12 @@ class HandlerRow {
 
     const askMenuItem = document.createXULElement("menuitem");
     askMenuItem.setAttribute("alwaysAsk", "true");
-    {
-      const label = gGeneralPane._prefsBundle.getString("alwaysAsk");
-      askMenuItem.setAttribute("label", label);
-      askMenuItem.setAttribute("tooltiptext", label);
-      askMenuItem.setAttribute(
-        "image",
-        "chrome://messenger/skin/preferences/alwaysAsk.png"
-      );
-      menuPopup.appendChild(askMenuItem);
-    }
+    document.l10n.setAttributes(askMenuItem, "applications-always-ask");
+    askMenuItem.setAttribute(
+      "image",
+      "chrome://messenger/skin/preferences/alwaysAsk.png"
+    );
+    menuPopup.appendChild(askMenuItem);
 
     // Create a menu item for saving to disk.
     // Note: this option isn't available to protocol types, since we don't know
@@ -2379,9 +2328,7 @@ class HandlerRow {
     if (handlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo) {
       saveMenuItem = document.createXULElement("menuitem");
       saveMenuItem.setAttribute("action", Ci.nsIHandlerInfo.saveToDisk);
-      const label = gGeneralPane._prefsBundle.getString("saveFile");
-      saveMenuItem.setAttribute("label", label);
-      saveMenuItem.setAttribute("tooltiptext", label);
+      document.l10n.setAttributes(saveMenuItem, "applications-save-file");
       saveMenuItem.setAttribute(
         "image",
         "chrome://messenger/skin/preferences/saveFile.png"
@@ -2401,14 +2348,9 @@ class HandlerRow {
         "action",
         Ci.nsIHandlerInfo.useSystemDefault
       );
-      const label = gGeneralPane._prefsBundle.getFormattedString("useDefault", [
-        handlerInfo.defaultDescription,
-      ]);
-      defaultMenuItem.setAttribute("label", label);
-      defaultMenuItem.setAttribute(
-        "tooltiptext",
-        handlerInfo.defaultDescription
-      );
+      document.l10n.setAttributes(defaultMenuItem, "applications-use-default", {
+        appName: handlerInfo.defaultDescription,
+      });
       defaultMenuItem.setAttribute(
         "image",
         handlerInfo.iconURLForSystemDefault
@@ -2433,9 +2375,9 @@ class HandlerRow {
       } else {
         label = possibleApp.name;
       }
-      label = gGeneralPane._prefsBundle.getFormattedString("useApp", [label]);
-      appMenuItem.setAttribute("label", label);
-      appMenuItem.setAttribute("tooltiptext", label);
+      document.l10n.setAttributes(appMenuItem, "applications-use-app", {
+        appName: label,
+      });
       appMenuItem.setAttribute(
         "image",
         gGeneralPane._getIconURLForHandlerApp(possibleApp)
@@ -2465,9 +2407,7 @@ class HandlerRow {
     if (createItem) {
       const menuItem = document.createXULElement("menuitem");
       menuItem.addEventListener("command", this.chooseApp.bind(this));
-      const label = gGeneralPane._prefsBundle.getString("useOtherApp");
-      menuItem.setAttribute("label", label);
-      menuItem.setAttribute("tooltiptext", label);
+      document.l10n.setAttributes(menuItem, "applications-use-other-app");
       menuPopup.appendChild(menuItem);
     }
 
@@ -2477,20 +2417,14 @@ class HandlerRow {
       menuPopup.appendChild(menuItem);
       menuItem = document.createXULElement("menuitem");
       menuItem.addEventListener("command", this.manageApp.bind(this));
-      menuItem.setAttribute(
-        "label",
-        gGeneralPane._prefsBundle.getString("manageApp")
-      );
+      document.l10n.setAttributes(menuItem, "applications-manage-app");
       menuPopup.appendChild(menuItem);
     }
 
     menuPopup.appendChild(document.createXULElement("menuseparator"));
     const delMenuItem = document.createXULElement("menuitem");
     delMenuItem.addEventListener("command", this.confirmDelete.bind(this));
-    delMenuItem.setAttribute(
-      "label",
-      gGeneralPane._prefsBundle.getString("delete")
-    );
+    document.l10n.setAttributes(delMenuItem, "applications-delete-action");
     menuPopup.appendChild(delMenuItem);
 
     // Select the item corresponding to the preferred action.  If the always
@@ -2549,7 +2483,7 @@ class HandlerRow {
     );
   }
 
-  chooseApp(aEvent) {
+  async chooseApp(aEvent) {
     // Don't let the normal "on select action" handler get this event,
     // as we handle it specially ourselves.
     aEvent.stopPropagation();
@@ -2581,7 +2515,9 @@ class HandlerRow {
 
       params.mimeInfo = handlerInfo.wrappedHandlerInfo;
 
-      params.title = gGeneralPane._prefsBundle.getString("fpTitleChooseApp");
+      params.title = await document.l10n.formatValue(
+        "applications-choose-app-title"
+      );
       params.description = handlerInfo.description;
       params.filename = null;
       params.handlerApp = null;
@@ -2605,7 +2541,9 @@ class HandlerRow {
       const fp = Cc["@mozilla.org/filepicker;1"].createInstance(
         Ci.nsIFilePicker
       );
-      const winTitle = gGeneralPane._prefsBundle.getString("fpTitleChooseApp");
+      const winTitle = await document.l10n.formatValue(
+        "applications-choose-app-title"
+      );
       fp.init(window.browsingContext, winTitle, Ci.nsIFilePicker.modeOpen);
       fp.appendFilters(Ci.nsIFilePicker.filterApps);
 
@@ -2633,15 +2571,13 @@ class HandlerRow {
     }
   }
 
-  confirmDelete(aEvent) {
+  async confirmDelete(aEvent) {
     aEvent.stopPropagation();
-    if (
-      Services.prompt.confirm(
-        null,
-        gGeneralPane._prefsBundle.getString("confirmDeleteTitle"),
-        gGeneralPane._prefsBundle.getString("confirmDeleteText")
-      )
-    ) {
+    const [title, message] = await document.l10n.formatValues([
+      "applications-delete-action-title",
+      "applications-delete-action-confirm",
+    ]);
+    if (Services.prompt.confirm(null, title, message)) {
       // Deletes self.
       this.deleteCallback(this);
     } else {
@@ -2710,9 +2646,9 @@ class HandlerInfoWrapper {
 
     if (this.primaryExtension) {
       var extension = this.primaryExtension.toUpperCase();
-      return document
-        .getElementById("bundlePreferences")
-        .getFormattedString("fileEnding", [extension]);
+      return PreferencesL10n.formatValueSync("applications-file-ending", {
+        extension,
+      });
     }
     return this.type;
   }
@@ -2726,9 +2662,12 @@ class HandlerInfoWrapper {
    */
   get typeDescription() {
     if (this.disambiguateDescription) {
-      return gGeneralPane._prefsBundle.getFormattedString(
-        "typeDetailsWithTypeAndExt",
-        [this.description, this.type]
+      return PreferencesL10n.formatValueSync(
+        "applications-type-details-with-ext",
+        {
+          "type-description": this.description,
+          type: this.type,
+        }
       );
     }
 
@@ -2744,12 +2683,12 @@ class HandlerInfoWrapper {
     // is set, then describe that behavior instead.  For most types, this is
     // the "alwaysAsk" string, but for the feed type we show something special.
     if (this.alwaysAskBeforeHandling) {
-      return gGeneralPane._prefsBundle.getString("alwaysAsk");
+      return PreferencesL10n.formatValueSync("applications-always-ask");
     }
 
     switch (this.preferredAction) {
       case Ci.nsIHandlerInfo.saveToDisk:
-        return gGeneralPane._prefsBundle.getString("saveFile");
+        return PreferencesL10n.formatValueSync("applications-save-file");
 
       case Ci.nsIHandlerInfo.useHelperApp:
         var preferredApp = this.preferredApplicationHandler;
@@ -2759,13 +2698,13 @@ class HandlerInfoWrapper {
         } else {
           name = preferredApp.name;
         }
-        return gGeneralPane._prefsBundle.getFormattedString("useApp", [name]);
+        return PreferencesL10n.formatValueSync("applications-use-app", {
+          appName: name,
+        });
 
       case Ci.nsIHandlerInfo.handleInternally:
         if (this instanceof InternalHandlerInfoWrapper) {
-          return gGeneralPane._prefsBundle.getFormattedString("previewInApp", [
-            gGeneralPane._brandShortName,
-          ]);
+          return PreferencesL10n.formatValueSync("applications-preview-in-app");
         }
 
         // For other types, handleInternally looks like either useHelperApp
@@ -2783,9 +2722,9 @@ class HandlerInfoWrapper {
       // in the first place?
 
       case Ci.nsIHandlerInfo.useSystemDefault:
-        return gGeneralPane._prefsBundle.getFormattedString("useDefault", [
-          this.defaultDescription,
-        ]);
+        return PreferencesL10n.formatValueSync("applications-use-default", {
+          appName: this.defaultDescription,
+        });
 
       default:
         throw new Error(`Unexpected preferredAction: ${this.preferredAction}`);
@@ -3030,7 +2969,7 @@ class InternalHandlerInfoWrapper extends HandlerInfoWrapper {
   }
 
   get description() {
-    return gGeneralPane._prefsBundle.getString(this._appPrefLabel);
+    return PreferencesL10n.formatValueSync(this._appPrefLabel);
   }
 }
 

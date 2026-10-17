@@ -216,16 +216,19 @@ var gPrivacyPane = {
   /**
    * Displays fine-grained, per-site preferences for cookies.
    */
-  showCookieExceptions() {
-    const bundle = document.getElementById("bundlePreferences");
+  async showCookieExceptions() {
+    const [windowTitle, introText] = await document.l10n.formatValues([
+      "cookie-permissions-title",
+      "cookie-permissions-description",
+    ]);
     const params = {
       blockVisible: true,
       sessionVisible: true,
       allowVisible: true,
       prefilledHost: "",
       permissionType: "cookie",
-      windowTitle: bundle.getString("cookiepermissionstitle"),
-      introText: bundle.getString("cookiepermissionstext"),
+      windowTitle,
+      introText,
     };
     gSubDialog.open(
       "chrome://messenger/content/preferences/permissions.xhtml",
@@ -279,16 +282,19 @@ var gPrivacyPane = {
    * We use the "image" type for that, but it can also be stylesheets or
    * iframes.
    */
-  showRemoteContentExceptions() {
-    const bundle = document.getElementById("bundlePreferences");
+  async showRemoteContentExceptions() {
+    const [windowTitle, introText] = await document.l10n.formatValues([
+      "remote-content-permissions-title",
+      "remote-content-permissions-description",
+    ]);
     const params = {
       blockVisible: true,
       sessionVisible: false,
       allowVisible: true,
       prefilledHost: "",
       permissionType: "image",
-      windowTitle: bundle.getString("imagepermissionstitle"),
-      introText: bundle.getString("imagepermissionstext"),
+      windowTitle,
+      introText,
     };
     gSubDialog.open(
       "chrome://messenger/content/preferences/permissions.xhtml",
@@ -313,11 +319,12 @@ var gPrivacyPane = {
     );
   },
 
-  resetTrainingData() {
+  async resetTrainingData() {
     // make sure the user really wants to do this
-    var bundle = document.getElementById("bundlePreferences");
-    var title = bundle.getString("confirmResetJunkTrainingTitle");
-    var text = bundle.getString("confirmResetJunkTrainingText");
+    const [title, text] = await document.l10n.formatValues([
+      "confirm-reset-junk-training-title",
+      "confirm-reset-junk-training-message",
+    ]);
 
     // if the user says no, then just fall out
     if (!Services.prompt.confirm(window, title, text)) {

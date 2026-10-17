@@ -25,8 +25,9 @@ Preferences.addAll([
 var gDownloadDirSection = {
   async chooseFolder() {
     var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-    var bundlePreferences = document.getElementById("bundlePreferences");
-    var title = bundlePreferences.getString("chooseAttachmentsFolderTitle");
+    const title = await document.l10n.formatValue(
+      "download-choose-folder-title"
+    );
     fp.init(window.browsingContext, title, Ci.nsIFilePicker.modeGetFolder);
 
     var customDirPref = Preferences.get("browser.download.dir");
@@ -94,7 +95,6 @@ var gDownloadDirSection = {
 
   async readDownloadDirPref() {
     var folderListPref = Preferences.get("browser.download.folderList");
-    var bundlePreferences = document.getElementById("bundlePreferences");
     var downloadFolder = document.getElementById("downloadFolder");
 
     var customDirPref = Preferences.get("browser.download.dir");
@@ -102,10 +102,12 @@ var gDownloadDirSection = {
       ? await this._fileToIndex(customDirPref.value)
       : 0;
     if (customIndex == 0) {
-      downloadFolder.value = bundlePreferences.getString("desktopFolderName");
+      downloadFolder.value = await document.l10n.formatValue(
+        "download-folder-desktop"
+      );
     } else if (customIndex == 1) {
-      downloadFolder.value = bundlePreferences.getString(
-        "myDownloadsFolderName"
+      downloadFolder.value = await document.l10n.formatValue(
+        "download-folder-system"
       );
     } else {
       downloadFolder.value = customDirPref.value

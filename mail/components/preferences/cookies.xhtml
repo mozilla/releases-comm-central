@@ -43,10 +43,6 @@
   <html:body
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   >
-    <stringbundle
-      id="bundlePreferences"
-      src="chrome://messenger/locale/preferences/preferences.properties"
-    />
     <keyset>
       <key keycode="VK_ESCAPE" oncommand="window.close()" />
       <key
@@ -75,9 +71,9 @@
       </hbox>
       <separator class="thin" />
       <label
-        control="cookiesList"
         id="cookiesIntro"
-        data-l10n-id="cookies-stored-label"
+        control="cookiesList"
+        data-l10n-id="cookies-stored-label2"
       />
       <separator class="thin" />
       <tree
@@ -135,7 +131,7 @@
             <label
               id="isDomain"
               control="host"
-              data-l10n-id="props-domain-label"
+              data-l10n-id="props-host-label"
             />
           </html:th>
           <html:td>

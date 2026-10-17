@@ -4,6 +4,12 @@
 
 permissions-dialog-title = Exceptions
 
+remote-content-permissions-title = Exceptions - Remote Content
+remote-content-permissions-description = You can specify from which web sites images and other remote content are allowed to load. You can also allow all remote content based on sender email address. Type the address of the site or email you want to manage and then click Block or Allow.
+
+cookie-permissions-title = Exceptions - Cookies
+cookie-permissions-description = You can specify which web sites are always or never allowed to use cookies.  Type the exact address of the site you want to manage and then click Block, Allow for Session, or Allow.
+
 website-address-label =
     .value = Address of website:
     .accesskey = d

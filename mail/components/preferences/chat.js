@@ -121,7 +121,7 @@ var gChatPane = {
     );
   },
 
-  browseForSoundFile() {
+  async browseForSoundFile() {
     const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
     // If we already have a sound file, then use the path for that sound file
@@ -136,9 +136,7 @@ var gChatPane = {
     // XXX todo, persist the last sound directory and pass it in
     fp.init(
       window.browsingContext,
-      document
-        .getElementById("bundlePreferences")
-        .getString("soundFilePickerTitle"),
+      await document.l10n.formatValue("sound-file-picker-title"),
       Ci.nsIFilePicker.modeOpen
     );
     fp.appendFilters(Ci.nsIFilePicker.filterAudio);

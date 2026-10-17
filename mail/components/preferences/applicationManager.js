@@ -14,18 +14,14 @@ var gAppManagerDialog = {
 
   init() {
     this.handlerInfo = window.arguments[0];
-    var bundle = document.getElementById("appManagerBundle");
-    gGeneralPane._prefsBundle = document.getElementById("bundlePreferences");
-    var description = this.handlerInfo.typeDescription;
-    var key =
+    const description = this.handlerInfo.typeDescription;
+    const id =
       this.handlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo
-        ? "handleFile"
-        : "handleProtocol";
-    var contentText = bundle.getFormattedString(key, [description]);
-    contentText = bundle.getFormattedString("descriptionApplications", [
-      contentText,
-    ]);
-    document.getElementById("appDescription").textContent = contentText;
+        ? "app-manager-description-file"
+        : "app-manager-description-protocol";
+    document.l10n.setAttributes(document.getElementById("appDescription"), id, {
+      description,
+    });
 
     const list = document.getElementById("appList");
     const listFragment = document.createDocumentFragment();
@@ -41,7 +37,14 @@ var gAppManagerDialog = {
 
       const image = document.createElement("img");
       image.classList.add("typeIcon");
-      image.setAttribute("src", gGeneralPane._getIconURLForHandlerApp(app));
+      if (app instanceof Ci.nsILocalHandlerApp) {
+        image.setAttribute(
+          "srcset",
+          gGeneralPane._getIconURLForHandlerApp(app)
+        );
+      } else if (app instanceof Ci.nsIWebHandlerApp) {
+        image.setAttribute("src", gGeneralPane._getIconURLForHandlerApp(app));
+      }
       image.setAttribute("alt", "");
       item.appendChild(image);
 
@@ -102,12 +105,11 @@ var gAppManagerDialog = {
       address = app.uriTemplate;
     }
     document.getElementById("appLocation").value = address;
-    var bundle = document.getElementById("appManagerBundle");
-    var appType =
+    const appType =
       app instanceof Ci.nsILocalHandlerApp
-        ? "descriptionLocalApp"
-        : "descriptionWebApp";
-    document.getElementById("appType").value = bundle.getString(appType);
+        ? "app-manager-local-app"
+        : "app-manager-web-app";
+    document.l10n.setAttributes(document.getElementById("appType"), appType);
   },
 };
 

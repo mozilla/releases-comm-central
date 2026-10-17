@@ -146,11 +146,21 @@ add_task(async function testRemoteContentDialog() {
   const remoteContentExceptions = prefsDocument.getElementById(
     "remoteContentExceptions"
   );
+  const [remoteContentTitle, remoteContentDescription] =
+    await prefsDocument.l10n.formatValues([
+      "remote-content-permissions-title",
+      "remote-content-permissions-description",
+    ]);
   await promiseSubDialog(
     remoteContentExceptions,
     "chrome://messenger/content/preferences/permissions.xhtml",
     async function (dialogWindow) {
       const dialogDocument = dialogWindow.document;
+      Assert.equal(dialogDocument.title, remoteContentTitle);
+      Assert.equal(
+        dialogDocument.getElementById("permissionsText").textContent,
+        remoteContentDescription
+      );
       const url = dialogDocument.getElementById("url");
       const permissionsTree = dialogDocument.getElementById("permissionsTree");
 
@@ -326,11 +336,21 @@ add_task(async function testCookiesDialog() {
   );
 
   const cookieExceptions = prefsDocument.getElementById("cookieExceptions");
+  const [cookiePermissionsTitle, cookiePermissionsDescription] =
+    await prefsDocument.l10n.formatValues([
+      "cookie-permissions-title",
+      "cookie-permissions-description",
+    ]);
   await promiseSubDialog(
     cookieExceptions,
     "chrome://messenger/content/preferences/permissions.xhtml",
     async function (dialogWindow) {
       const dialogDocument = dialogWindow.document;
+      Assert.equal(dialogDocument.title, cookiePermissionsTitle);
+      Assert.equal(
+        dialogDocument.getElementById("permissionsText").textContent,
+        cookiePermissionsDescription
+      );
       const url = dialogDocument.getElementById("url");
       const permissionsTree = dialogDocument.getElementById("permissionsTree");
 
@@ -466,12 +486,346 @@ add_task(async function testCookiesDialog() {
     assertPermission(origin, "cookie", Ci.nsIPermissionManager.UNKNOWN_ACTION);
   }
 
+  const cookieHost = "preferences-cookie-test.invalid";
+  const hostCookieName = "host-cookie";
+  const domainCookieName = "domain-session-cookie";
+  Services.cookies.add(
+    cookieHost,
+    "/",
+    hostCookieName,
+    "host value",
+    false,
+    false,
+    false,
+    Date.now() + 60 * 60 * 1000,
+    {},
+    Ci.nsICookie.SAMESITE_UNSET,
+    Ci.nsICookie.SCHEME_HTTP
+  );
+  Services.cookies.add(
+    `.${cookieHost}`,
+    "/",
+    domainCookieName,
+    "domain value",
+    true,
+    false,
+    true,
+    Date.now() + 60 * 60 * 1000,
+    {},
+    Ci.nsICookie.SAMESITE_NONE,
+    Ci.nsICookie.SCHEME_HTTPS
+  );
+  let cookiesExist = true;
+  const removeTestCookies = () => {
+    if (!cookiesExist) {
+      return;
+    }
+    Services.cookies.remove(cookieHost, hostCookieName, "/", {});
+    Services.cookies.remove(`.${cookieHost}`, domainCookieName, "/", {});
+    cookiesExist = false;
+  };
+  registerCleanupFunction(removeTestCookies);
+
   await promiseSubDialog(
     prefsDocument.getElementById("showCookiesButton"),
     "chrome://messenger/content/preferences/cookies.xhtml",
-    () => {},
+    async dialogWindow => {
+      const dialogDocument = dialogWindow.document;
+      const cookiesIntro = dialogDocument.getElementById("cookiesIntro");
+      const cookiesWindow = dialogWindow.gCookiesWindow;
+      const cookiesTree = dialogDocument.getElementById("cookiesList");
+      const domainColumn = cookiesTree.columns.domainCol;
+      const domainField = dialogDocument.getElementById("isDomain");
+      const findRow = (column, value) => {
+        for (let i = 0; i < cookiesTree.view.rowCount; i++) {
+          if (cookiesTree.view.getCellText(i, column) == value) {
+            return i;
+          }
+        }
+        return -1;
+      };
+
+      const [
+        secureOnly,
+        anyConnection,
+        sessionExpires,
+        noneSelected,
+        defaultUserContext,
+      ] = await dialogDocument.l10n.formatValues([
+        "cookie-secure-only",
+        "cookie-any-connection",
+        "cookie-expires-at-end-of-session",
+        "cookie-none-selected",
+        "cookie-default-user-context",
+      ]);
+      const [hostMessage, domainMessage] =
+        await dialogDocument.l10n.formatMessages([
+          { id: "props-host-label" },
+          { id: "props-domain-label2" },
+        ]);
+      const hostLabel = hostMessage.attributes.find(
+        attr => attr.name == "value"
+      ).value;
+      const domainLabel = domainMessage.attributes.find(
+        attr => attr.name == "value"
+      ).value;
+      const fieldValue = id => dialogDocument.getElementById(id).value;
+      const assertIntro = async id => {
+        Assert.equal(
+          dialogDocument.l10n.getAttributes(cookiesIntro).id,
+          id,
+          `the cookie intro should use ${id}`
+        );
+        await dialogDocument.l10n.translateFragment(cookiesIntro);
+        const [message] = await dialogDocument.l10n.formatMessages([{ id }]);
+        Assert.equal(
+          cookiesIntro.value,
+          message.attributes.find(attr => attr.name == "value").value,
+          `the cookie intro should display the value of ${id}`
+        );
+        Assert.equal(
+          cookiesIntro.textContent,
+          "",
+          `the cookie intro should have no extra text content (${id})`
+        );
+      };
+
+      Assert.equal(
+        dialogDocument.l10n.getAttributes(domainField).id,
+        "props-host-label",
+        "the cookie details should initially use the host label"
+      );
+      await dialogDocument.l10n.translateFragment(domainField);
+      Assert.equal(
+        domainField.value,
+        hostLabel,
+        "the cookie details should initially display the host label"
+      );
+
+      const hostRow = findRow(domainColumn, cookieHost);
+      Assert.greaterOrEqual(
+        hostRow,
+        0,
+        "the test cookie host should be listed"
+      );
+      cookiesTree.view.selection.select(hostRow);
+
+      const hostCookie = cookiesWindow._hosts[cookieHost].cookies.find(
+        item => item.name == hostCookieName
+      );
+      Assert.ok(
+        hostCookie,
+        `${hostCookieName} should be loaded into the cookie tree`
+      );
+      const domainCookie = cookiesWindow._hosts[cookieHost].cookies.find(
+        item => item.name == domainCookieName
+      );
+      Assert.ok(
+        domainCookie,
+        `${domainCookieName} should be loaded into the cookie tree`
+      );
+
+      await cookiesWindow._updateCookieData(hostCookie);
+      Assert.equal(
+        fieldValue("name"),
+        hostCookieName,
+        "the host cookie name should be displayed"
+      );
+      Assert.equal(
+        fieldValue("value"),
+        "host value",
+        "the host cookie value should be displayed"
+      );
+      Assert.equal(
+        dialogDocument.l10n.getAttributes(domainField).id,
+        "props-host-label",
+        "a host cookie should use the host label"
+      );
+      await dialogDocument.l10n.translateFragment(domainField);
+      Assert.equal(
+        fieldValue("isDomain"),
+        hostLabel,
+        "a host cookie should be labelled Host:"
+      );
+      Assert.equal(
+        fieldValue("host"),
+        cookieHost,
+        "the host cookie host should be displayed"
+      );
+      Assert.equal(
+        fieldValue("path"),
+        "/",
+        "the host cookie path should be displayed"
+      );
+      Assert.equal(
+        fieldValue("isSecure"),
+        anyConnection,
+        "a non-secure cookie should show the any-connection string"
+      );
+      Assert.ok(
+        fieldValue("expires"),
+        "the expiry date of a persistent cookie should be displayed"
+      );
+      Assert.notEqual(
+        fieldValue("expires"),
+        sessionExpires,
+        "a persistent cookie should not show the end-of-session string"
+      );
+      Assert.equal(
+        fieldValue("userContext"),
+        defaultUserContext,
+        "the default container should be displayed"
+      );
+
+      // Container cookies cannot be created through nsICookieManager in tests
+      // (it rejects a non-default userContextId), so exercise the container
+      // lookup with an item shaped like the ones the tree stores.
+      await cookiesWindow._updateCookieData({
+        name: "container-cookie",
+        value: "container value",
+        host: cookieHost,
+        path: "/",
+        isDomain: false,
+        isSecure: false,
+        expires: 0,
+        originAttributes: { userContextId: 1 },
+      });
+      Assert.equal(
+        fieldValue("userContext"),
+        dialogWindow.ContextualIdentityService.getUserContextLabel(1),
+        "the container name should be displayed"
+      );
+
+      await cookiesWindow._updateCookieData(domainCookie);
+      Assert.equal(
+        fieldValue("name"),
+        domainCookieName,
+        "the domain cookie name should be displayed"
+      );
+      Assert.equal(
+        fieldValue("value"),
+        "domain value",
+        "the domain cookie value should be displayed"
+      );
+      Assert.equal(
+        dialogDocument.l10n.getAttributes(domainField).id,
+        "props-domain-label2",
+        "a domain cookie should use the domain label"
+      );
+      await dialogDocument.l10n.translateFragment(domainField);
+      Assert.equal(
+        fieldValue("isDomain"),
+        domainLabel,
+        "a domain cookie should be labelled Domain:"
+      );
+      Assert.equal(
+        fieldValue("host"),
+        `.${cookieHost}`,
+        "the domain cookie host should be displayed"
+      );
+      Assert.equal(
+        fieldValue("isSecure"),
+        secureOnly,
+        "a secure cookie should show the encrypted-connections-only string"
+      );
+      Assert.equal(
+        fieldValue("expires"),
+        sessionExpires,
+        "a session cookie should show the end-of-session string"
+      );
+      Assert.equal(
+        fieldValue("userContext"),
+        defaultUserContext,
+        "the default container should be displayed"
+      );
+
+      await dialogDocument.l10n.translateRoots();
+      Assert.equal(
+        fieldValue("isDomain"),
+        domainLabel,
+        "the domain label should survive a retranslation"
+      );
+
+      cookiesTree.view.selection.clearSelection();
+      await cookiesWindow.onCookieSelected();
+      Assert.equal(
+        dialogDocument.l10n.getAttributes(domainField).id,
+        "props-domain-label2",
+        "the domain label should remain when no cookie is selected"
+      );
+      for (const id of [
+        "name",
+        "value",
+        "host",
+        "path",
+        "isSecure",
+        "expires",
+        "userContext",
+      ]) {
+        Assert.equal(
+          fieldValue(id),
+          noneSelected,
+          `the ${id} field should show the no-cookie-selected string`
+        );
+      }
+
+      await dialogDocument.l10n.translateRoots();
+      Assert.equal(
+        fieldValue("isDomain"),
+        domainLabel,
+        "the retained domain label should survive a retranslation"
+      );
+
+      cookiesTree.view.selection.select(hostRow);
+      await cookiesWindow.onCookieSelected();
+      Assert.equal(
+        dialogDocument.l10n.getAttributes(domainField).id,
+        "props-domain-label2",
+        "selecting a site group should retain the previous domain label"
+      );
+      await cookiesWindow._updateCookieData(hostCookie);
+      await dialogDocument.l10n.translateFragment(domainField);
+      Assert.equal(
+        domainField.value,
+        hostLabel,
+        "selecting a host cookie should replace the retained domain label"
+      );
+      Assert.equal(
+        domainField.textContent,
+        "",
+        "the host/domain label should have no extra text content"
+      );
+
+      await assertIntro("cookies-stored-label2");
+
+      const filter = dialogDocument.getElementById("filter");
+      filter.focus();
+      const filtered = BrowserTestUtils.waitForMutationCondition(
+        cookiesIntro,
+        { attributes: true, attributeFilter: ["data-l10n-id"] },
+        () =>
+          dialogDocument.l10n.getAttributes(cookiesIntro).id ==
+          "cookies-filtered-label"
+      );
+      EventUtils.sendString("does-not-match-any-cookie", dialogWindow);
+      await filtered;
+      await assertIntro("cookies-filtered-label");
+
+      const unfiltered = BrowserTestUtils.waitForMutationCondition(
+        cookiesIntro,
+        { attributes: true, attributeFilter: ["data-l10n-id"] },
+        () =>
+          dialogDocument.l10n.getAttributes(cookiesIntro).id ==
+          "cookies-stored-label2"
+      );
+      EventUtils.synthesizeKey("a", { accelKey: true }, dialogWindow);
+      EventUtils.synthesizeKey("KEY_Backspace", {}, dialogWindow);
+      await unfiltered;
+      await assertIntro("cookies-stored-label2");
+    },
     "closeButton"
   );
+  removeTestCookies();
   await closePrefsTab();
 });
 

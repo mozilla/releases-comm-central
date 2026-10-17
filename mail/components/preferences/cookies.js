@@ -18,12 +18,13 @@ var gCookiesWindow = {
   _hosts: {},
   _hostOrder: [],
   _tree: null,
-  _bundle: null,
+  _isObserving: false,
+  _updateCookieDataId: 0,
 
   init() {
     Services.obs.addObserver(this, "cookie-changed");
+    this._isObserving = true;
 
-    this._bundle = document.getElementById("bundlePreferences");
     this._tree = document.getElementById("cookiesList");
 
     this._populateList(true);
@@ -37,7 +38,10 @@ var gCookiesWindow = {
   },
 
   uninit() {
-    Services.obs.removeObserver(this, "cookie-changed");
+    if (this._isObserving) {
+      Services.obs.removeObserver(this, "cookie-changed");
+      this._isObserving = false;
+    }
   },
 
   _populateList(aInitialLoad) {
@@ -555,26 +559,21 @@ var gCookiesWindow = {
   },
 
   formatExpiresString(aExpires) {
-    if (aExpires) {
-      var date = new Date(1000 * aExpires);
-      const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
-        dateStyle: "long",
-        timeStyle: "long",
-      });
-      return dateTimeFormatter.format(date);
-    }
-    return this._bundle.getString("expireAtEndOfSession");
+    var date = new Date(1000 * aExpires);
+    const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
+      dateStyle: "long",
+      timeStyle: "long",
+    });
+    return dateTimeFormatter.format(date);
   },
 
-  _getUserContextString(aUserContextId) {
-    if (parseInt(aUserContextId, 10) == 0) {
-      return this._bundle.getString("defaultUserContextLabel");
-    }
-
-    return ContextualIdentityService.getUserContextLabel(aUserContextId);
-  },
-
-  _updateCookieData(aItem) {
+  /**
+   * Display the details of the given cookie (or clear them if it is null).
+   *
+   * @param {?object} item - The cookie or host item to display.
+   */
+  async _updateCookieData(item) {
+    const updateId = ++this._updateCookieDataId;
     var seln = this._view.selection;
     var ids = [
       "name",
@@ -586,44 +585,65 @@ var gCookiesWindow = {
       "userContext",
     ];
     var properties;
+    var localizedProperties;
 
-    if (aItem && !aItem.container && seln.count > 0) {
+    if (item && !item.container && seln.count > 0) {
+      const userContextId = parseInt(item.originAttributes.userContextId, 10);
       properties = {
-        name: aItem.name,
-        value: aItem.value,
-        host: aItem.host,
-        path: aItem.path,
-        expires: this.formatExpiresString(aItem.expires),
-        isDomain: aItem.isDomain
-          ? this._bundle.getString("domainColon")
-          : this._bundle.getString("hostColon"),
-        isSecure: aItem.isSecure
-          ? this._bundle.getString("forSecureOnly")
-          : this._bundle.getString("forAnyConnection"),
-        userContext: this._getUserContextString(
-          aItem.originAttributes.userContextId
-        ),
+        name: item.name,
+        value: item.value,
+        host: item.host,
+        path: item.path,
+        expires: item.expires ? this.formatExpiresString(item.expires) : null,
+        userContext: userContextId
+          ? ContextualIdentityService.getUserContextLabel(userContextId)
+          : null,
       };
+      document.l10n.setAttributes(
+        document.getElementById("isDomain"),
+        item.isDomain ? "props-domain-label2" : "props-host-label"
+      );
+      localizedProperties = {
+        isSecure: item.isSecure
+          ? "cookie-secure-only"
+          : "cookie-any-connection",
+      };
+      if (!item.expires) {
+        localizedProperties.expires = "cookie-expires-at-end-of-session";
+      }
+      if (!userContextId) {
+        localizedProperties.userContext = "cookie-default-user-context";
+      }
       for (var i = 0; i < ids.length; ++i) {
         document.getElementById(ids[i]).disabled = false;
       }
     } else {
-      var noneSelected = this._bundle.getString("noCookieSelected");
-      properties = {
-        name: noneSelected,
-        value: noneSelected,
-        host: noneSelected,
-        path: noneSelected,
-        expires: noneSelected,
-        isSecure: noneSelected,
-        userContext: noneSelected,
-      };
+      properties = {};
+      localizedProperties = Object.fromEntries(
+        ids.map(id => [id, "cookie-none-selected"])
+      );
       for (i = 0; i < ids.length; ++i) {
         document.getElementById(ids[i]).disabled = true;
       }
     }
-    for (var property in properties) {
-      document.getElementById(property).value = properties[property];
+    // Only the most recent call may write to the details pane, in case another
+    // update was requested while the localizations were being resolved.
+    const localizedIds = Object.values(localizedProperties);
+    const strings = await document.l10n.formatValues(localizedIds);
+    if (updateId != this._updateCookieDataId) {
+      return;
+    }
+    const stringsById = new Map(
+      localizedIds.map((id, index) => [id, strings[index]])
+    );
+
+    for (const property of ids) {
+      const element = document.getElementById(property);
+      if (localizedProperties[property]) {
+        element.value = stringsById.get(localizedProperties[property]);
+      } else {
+        element.value = properties[property];
+      }
     }
   },
 
@@ -636,7 +656,9 @@ var gCookiesWindow = {
       item = this._view._filterSet[seln.currentIndex];
     }
 
-    this._updateCookieData(item);
+    // The details pane is updated asynchronously, so return the promise to
+    // allow callers (e.g. tests) to wait for it.
+    const detailsUpdated = this._updateCookieData(item);
 
     var rangeCount = seln.getRangeCount();
     var selectedCookieCount = 0;
@@ -670,6 +692,8 @@ var gCookiesWindow = {
     );
     removeSelectedCookies.disabled = !(seln.count > 0);
     document.getElementById("removeAllCookies").disabled = this._view._filtered;
+
+    return detailsUpdated;
   },
 
   deleteCookie() {
@@ -920,8 +944,10 @@ var gCookiesWindow = {
     }
     this._lastSelectedRanges = [];
 
-    document.getElementById("cookiesIntro").value =
-      this._bundle.getString("cookiesAll");
+    document.l10n.setAttributes(
+      document.getElementById("cookiesIntro"),
+      "cookies-stored-label2"
+    );
   },
 
   _cookieMatchesFilter(aCookie) {
@@ -1004,8 +1030,10 @@ var gCookiesWindow = {
       view.selection.select(0);
     }
 
-    document.getElementById("cookiesIntro").value =
-      gCookiesWindow._bundle.getString("cookiesFiltered");
+    document.l10n.setAttributes(
+      document.getElementById("cookiesIntro"),
+      "cookies-filtered-label"
+    );
   },
 
   setFilter(aFilterString) {

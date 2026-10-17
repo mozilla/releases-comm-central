@@ -243,6 +243,8 @@ mail-select-audio-button =
     .label = Select audio…
     .accesskey = A
 
+sound-file-picker-title = Choose Sound
+
 enable-global-search-label =
     .label = Turn on search across all email accounts
     .accesskey = e
@@ -252,6 +254,19 @@ gloda-results-plain-list-label =
     .accesskey = L
 
 datetime-formatting-legend = Date and Time Formatting
+
+# Variables:
+#   $localeName (String) - The name of the application locale.
+date-time-app-locale =
+    .label = Application locale: { $localeName }
+    .accesskey = o
+
+# Variables:
+#   $localeName (String) - The name of the locale from regional settings.
+date-time-regional-locale =
+    .label = Regional settings locale: { $localeName }
+    .accesskey = e
+
 display-language-legend = Display language
 
 allow-graphics-accel =
@@ -363,6 +378,16 @@ offline-settings-button =
     .accesskey = O
 
 temporary-storage-legend = Temporary storage
+
+# Variables:
+#   $size (String) - The amount of disk space used.
+#   $unit (String) - The unit used to describe the amount of disk space.
+actual-disk-cache-size =
+    .value = Your cache is currently using { $size } { $unit } of disk space
+
+actual-disk-cache-size-calculating =
+    .value = Calculating cache size…
+
 offline-compact-remove-deleted =
     .label = Remove data from folders when they have already been deleted to free up storage
     .accesskey = a
@@ -459,6 +484,54 @@ search-content-types =
 type-column-header = Content type
 
 action-column-header = Action
+
+download-folder-desktop = Desktop
+download-folder-system = My Downloads
+download-choose-folder-title = Choose Folder
+
+# Variables:
+#   $extension (String) - A file extension, without the leading dot.
+applications-file-ending = { $extension } file
+applications-save-file = Save File
+    .label = Save File
+    .tooltiptext = Save File
+
+# Variables:
+#   $appName (String) - The name of an application.
+applications-use-app = Use { $appName }
+    .label = Use { $appName }
+    .tooltiptext = Use { $appName }
+
+# Variables:
+#   $appName (String) - The name of the default application.
+applications-use-default = Use { $appName } (default)
+    .label = Use { $appName } (default)
+    .tooltiptext = { $appName }
+
+applications-use-other-app =
+    .label = Use other…
+    .tooltiptext = Use other…
+applications-choose-app-title = Select Helper Application
+applications-manage-app =
+    .label = Application Details…
+applications-always-ask = Always ask
+    .label = Always ask
+    .tooltiptext = Always ask
+applications-delete-action =
+    .label = Delete Action
+applications-delete-action-title = Delete Action
+applications-delete-action-confirm = Are you sure you want to delete this action?
+
+# Variables:
+#   $type-description (String) - A description of the content type, for example
+#                                "Portable Document Format (PDF)".
+#   $type (String) - The MIME type of the content, for example "application/pdf".
+applications-type-details-with-ext = ({ $type-description }: { $type })
+
+applications-type-pdf = Portable Document Format (PDF)
+applications-preview-in-app = Preview in { -brand-short-name }
+    .label = Preview in { -brand-short-name }
+    .tooltiptext = Preview in { -brand-short-name }
 
 save-to-label =
     .label = Save files to
@@ -782,6 +855,19 @@ find-cloud-providers =
 
 cloud-account-description = Add a new Filelink storage service
 
+# Variables:
+#   $providerName (String) - The display name of a Filelink provider.
+filelink-add-provider =
+    .label = Add { $providerName }
+    .tooltiptext = Add { $providerName }
+
+filelink-account-not-configured =
+    .title = This account has not been configured yet
+
+# Variables:
+#   $accountName (String) - The user-defined name of a Filelink account.
+filelink-remove-account-confirm = Are you sure you want to remove the account "{ $accountName }"?
+
 ## Privacy Tab
 
 email-content = Email content
@@ -891,6 +977,9 @@ spam-log-button =
 reset-spam-button =
     .label = Reset Training Data
     .accesskey = R
+
+confirm-reset-junk-training-title = Confirm
+confirm-reset-junk-training-message = Are you sure you want to reset the adaptive filter training data?
 
 scam-detection-description = { -brand-short-name } checks messages for phishing links and common signs of email scams.
 
@@ -1113,6 +1202,18 @@ chat-browse-sound-button =
 theme-label =
     .value = Theme:
     .accesskey = T
+
+## Content of the preview conversation for chat message styles.
+
+chat-theme-preview-default =
+    .label = Default
+chat-theme-preview-nick-1 = Florian
+chat-theme-preview-buddy-1 = florian@im.instantbird.org
+chat-theme-preview-nick-2 = Patrick
+chat-theme-preview-buddy-2 = patrick@im.instantbird.org
+chat-theme-preview-message-1 = Hi! :-)
+chat-theme-preview-message-2 = What’s up?
+chat-theme-preview-message-3 = I’m trying { -brand-short-name }! ;-)
 
 style-mail =
     .label = { -brand-short-name }

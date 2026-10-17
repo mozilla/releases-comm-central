@@ -93,7 +93,7 @@ var gAlarmsPane = {
   /**
    * Opens a filepicker to open a local sound for the alarm.
    */
-  browseAlarm() {
+  async browseAlarm() {
     const picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
     // If we already have a sound file, then use the path for that sound file
@@ -104,7 +104,7 @@ var gAlarmsPane = {
       picker.displayDirectory = localFile.parent;
     }
 
-    const title = document.getElementById("bundlePreferences").getString("soundFilePickerTitle");
+    const title = await document.l10n.formatValue("sound-file-picker-title");
 
     picker.init(window.browsingContext, title, Ci.nsIFilePicker.modeOpen);
     picker.appendFilters(Ci.nsIFilePicker.filterAudio);

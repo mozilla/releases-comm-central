@@ -390,6 +390,22 @@ add_task(async () => {
       },
     ],
   });
+
+  const { prefsDocument } = await openNewPrefsTab(
+    "paneGeneral",
+    "formatLocale"
+  );
+  const appLocale = prefsDocument.getElementById("appLocale");
+  const regionalLocale = prefsDocument.getElementById("rsLocale");
+  Assert.equal(
+    prefsDocument.l10n.getAttributes(appLocale).id,
+    "date-time-app-locale"
+  );
+  Assert.equal(
+    prefsDocument.l10n.getAttributes(regionalLocale).id,
+    "date-time-regional-locale"
+  );
+  await closePrefsTab();
 });
 
 add_task(async () => {
@@ -407,6 +423,234 @@ add_task(async () => {
       },
     ],
   });
+});
+
+add_task(async function testApplicationHandlerStrings() {
+  const protocol = "web+fluent-handler-test";
+  const appName = "Fluent Test Handler";
+  const uriTemplate = "https://example.com/?url=%s";
+  const externalProtocolService = Cc[
+    "@mozilla.org/uriloader/external-protocol-service;1"
+  ].getService(Ci.nsIExternalProtocolService);
+  const handlerService = Cc[
+    "@mozilla.org/uriloader/handler-service;1"
+  ].getService(Ci.nsIHandlerService);
+  const handlerInfo = externalProtocolService.getProtocolHandlerInfo(protocol);
+  const handlerApp = Cc[
+    "@mozilla.org/uriloader/web-handler-app;1"
+  ].createInstance(Ci.nsIWebHandlerApp);
+  handlerApp.name = appName;
+  handlerApp.uriTemplate = uriTemplate;
+  handlerInfo.alwaysAskBeforeHandling = false;
+  handlerInfo.preferredAction = Ci.nsIHandlerInfo.useHelperApp;
+  handlerInfo.preferredApplicationHandler = handlerApp;
+  handlerInfo.possibleApplicationHandlers.appendElement(handlerApp);
+  handlerService.store(handlerInfo);
+
+  let handlerStored = true;
+  registerCleanupFunction(() => {
+    if (handlerStored) {
+      handlerService.remove(handlerInfo);
+    }
+  });
+
+  await SpecialPowers.pushPrefEnv({ set: [["pdfjs.disabled", false]] });
+  const paneLoaded = TestUtils.topicObserved("app-handler-pane-loaded");
+  const { prefsDocument, prefsWindow } = await openNewPrefsTab(
+    "paneGeneral",
+    "filesAttachmentCategory"
+  );
+  await paneLoaded;
+
+  const handlerRows = [...prefsWindow.gGeneralPane._handlerRows];
+  const findHandlerRow = type =>
+    handlerRows.find(([handler]) => handler.type == type)?.[1];
+  const assertMenuItemL10n = (row, id, args = null) => {
+    const item = row.menu.menupopup.querySelector(`[data-l10n-id="${id}"]`);
+    Assert.ok(item, `the menu should contain an item using ${id}`);
+    Assert.deepEqual(
+      prefsDocument.l10n.getAttributes(item),
+      { id, args },
+      `the ${row.handlerInfoWrapper.type} menu item should use ${id} with the expected arguments`
+    );
+  };
+
+  const pdfRow = findHandlerRow("application/pdf");
+  Assert.ok(pdfRow, "the built-in PDF handler should be listed");
+  Assert.equal(
+    pdfRow.node.querySelector(".typeDescription").value,
+    await prefsDocument.l10n.formatValue("applications-type-pdf"),
+    "the PDF handler should display the localized type description"
+  );
+  for (const id of [
+    "applications-preview-in-app",
+    "applications-always-ask",
+    "applications-save-file",
+    "applications-use-other-app",
+    "applications-delete-action",
+  ]) {
+    assertMenuItemL10n(pdfRow, id);
+  }
+
+  // Types that share a description are annotated with their MIME type; check
+  // that both arguments are substituted into applications-type-details-with-ext.
+  const pdfHandlerInfo = pdfRow.handlerInfoWrapper;
+  pdfHandlerInfo.disambiguateDescription = true;
+  const disambiguatedDescription = pdfHandlerInfo.typeDescription;
+  pdfHandlerInfo.disambiguateDescription = false;
+  const pdfTypeDescription = await prefsDocument.l10n.formatValue(
+    "applications-type-pdf"
+  );
+  Assert.stringContains(
+    disambiguatedDescription,
+    pdfTypeDescription,
+    "the disambiguated PDF description should contain the localized type description"
+  );
+  Assert.stringContains(
+    disambiguatedDescription,
+    "application/pdf",
+    "the disambiguated PDF description should contain the MIME type"
+  );
+
+  // The "Use <app> (default)" item must provide a tooltip as well: Fluent
+  // removes localizable attributes that a message does not define, so a
+  // message without a tooltiptext would leave the menu item without one.
+  const defaultItem = prefsDocument.createXULElement("menuitem");
+  pdfRow.menu.menupopup.appendChild(defaultItem);
+  prefsDocument.l10n.setAttributes(defaultItem, "applications-use-default", {
+    appName: "Test Default App",
+  });
+  await prefsDocument.l10n.translateFragment(defaultItem);
+  Assert.equal(
+    defaultItem.getAttribute("tooltiptext"),
+    "Test Default App",
+    "the use-default menu item should have a tooltip with the app name"
+  );
+  defaultItem.remove();
+
+  const protocolRow = findHandlerRow(protocol);
+  Assert.ok(protocolRow, "the temporary protocol handler should be listed");
+  assertMenuItemL10n(protocolRow, "applications-use-app", {
+    appName,
+  });
+  for (const id of [
+    "applications-always-ask",
+    "applications-use-other-app",
+    "applications-manage-app",
+    "applications-delete-action",
+  ]) {
+    assertMenuItemL10n(protocolRow, id);
+  }
+
+  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    undefined,
+    "chrome://messenger/content/preferences/applicationManager.xhtml",
+    { isSubDialog: true }
+  );
+  protocolRow.manageApp({ stopPropagation() {} });
+  const dialogWindow = await dialogPromise;
+  const dialogDocument = dialogWindow.document;
+  const description = protocolRow.handlerInfoWrapper.typeDescription;
+  await BrowserTestUtils.waitForMutationCondition(
+    dialogDocument.getElementById("appList"),
+    { childList: true, subtree: true },
+    () => dialogDocument.querySelector("#appList .typeIcon")
+  );
+  await TestUtils.waitForCondition(
+    () => dialogDocument.getElementById("appLocation").value == uriTemplate,
+    "the application details dialog should display the web handler URI template"
+  );
+  Assert.equal(
+    dialogDocument.l10n.getAttributes(dialogDocument.querySelector("title")).id,
+    "app-manager-dialog-title",
+    "the application details dialog should use the localized title"
+  );
+  Assert.deepEqual(
+    dialogDocument.l10n.getAttributes(
+      dialogDocument.getElementById("appDescription")
+    ),
+    {
+      id: "app-manager-description-protocol",
+      args: { description },
+    },
+    "the application details description should identify the protocol"
+  );
+  Assert.equal(
+    dialogDocument.l10n.getAttributes(dialogDocument.getElementById("appType"))
+      .id,
+    "app-manager-web-app",
+    "the application details dialog should identify a web application"
+  );
+  Assert.equal(
+    dialogDocument.getElementById("appLocation").value,
+    uriTemplate,
+    "the application details dialog should display the web handler URI template"
+  );
+  Assert.equal(
+    dialogDocument.querySelector("#appList .typeIcon").getAttribute("src"),
+    "https://example.com/favicon.ico",
+    "the dialog should show the web app favicon"
+  );
+
+  const closePromise = BrowserTestUtils.waitForEvent(
+    dialogWindow.browsingContext.topChromeWindow,
+    "dialogclose",
+    true
+  );
+  dialogDocument.querySelector("dialog").cancelDialog();
+  await closePromise;
+
+  await closePrefsTab();
+  handlerService.remove(handlerInfo);
+  handlerStored = false;
+});
+
+/**
+ * Tests the folder name displayed in the "Save files to" field of the
+ * attachments section.
+ */
+add_task(async function testDownloadFolderLabel() {
+  const { prefsDocument } = await openNewPrefsTab(
+    "paneGeneral",
+    "filesAttachmentCategory"
+  );
+  const downloadFolder = prefsDocument.getElementById("downloadFolder");
+  const desktopLabel = await prefsDocument.l10n.formatValue(
+    "download-folder-desktop"
+  );
+  const systemLabel = await prefsDocument.l10n.formatValue(
+    "download-folder-system"
+  );
+  const desktopDir = Services.dirsvc.get("Desk", Ci.nsIFile);
+  const downloadsDir = new FileUtils.File(
+    await Downloads.getSystemDownloadsDirectory()
+  );
+  const customDir = PathUtils.join(PathUtils.tempDir, "tb-download-folder");
+  await IOUtils.makeDirectory(customDir, { ignoreExisting: true });
+  registerCleanupFunction(() =>
+    IOUtils.remove(customDir, { recursive: true, ignoreAbsent: true })
+  );
+
+  const setDownloadDir = async (path, expected) => {
+    await SpecialPowers.pushPrefEnv({ set: [["browser.download.dir", path]] });
+    await TestUtils.waitForCondition(
+      () => downloadFolder.value == expected,
+      `the folder field should display "${expected}" (for ${path}), ` +
+        `but displays "${downloadFolder.value}"`
+    );
+  };
+
+  await setDownloadDir(desktopDir.path, desktopLabel);
+  if (desktopDir.equals(downloadsDir)) {
+    info("Desktop and Downloads resolve to the same directory");
+  } else {
+    await setDownloadDir(downloadsDir.path, systemLabel);
+  }
+  await setDownloadDir(customDir, customDir);
+  // Switching back to a predefined folder must replace the custom path.
+  await setDownloadDir(desktopDir.path, desktopLabel);
+
+  await closePrefsTab();
 });
 
 /**

@@ -129,7 +129,15 @@ add_task(async function test_sounds() {
 
 add_task(async function testMessageStylePreview() {
   const conversationLoad = TestUtils.topicObserved("conversation-loaded");
-  await openNewPrefsTab("paneChat", "chatPaneCategory");
+  const { prefsDocument } = await openNewPrefsTab(
+    "paneChat",
+    "chatPaneCategory"
+  );
+  const expectedMessages = await prefsDocument.l10n.formatValues([
+    "chat-theme-preview-message-1",
+    "chat-theme-preview-message-2",
+    "chat-theme-preview-message-3",
+  ]);
   const [subject] = await conversationLoad;
   do {
     info(`Will wait for ${subject.getPendingMessagesCount()} pending msgs`);
@@ -144,5 +152,10 @@ add_task(async function testMessageStylePreview() {
     message = message.nextElementSibling;
   }
   is(messages.size, 3, "All 3 messages displayed");
+  Assert.deepEqual(
+    Array.from(messages, previewMessage => previewMessage.displayMessage),
+    expectedMessages,
+    "The preview messages should be localized with Fluent"
+  );
   await closePrefsTab();
 });

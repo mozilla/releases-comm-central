@@ -345,12 +345,6 @@ var gCloudFile = {
   _settingsPanelWrap: null,
   _defaultPanel: null,
 
-  get _strings() {
-    return Services.strings.createBundle(
-      "chrome://messenger/locale/preferences/applications.properties"
-    );
-  },
-
   init() {
     this._list = document.getElementById("cloudFileView");
     this._buttonContainer = document.getElementById(
@@ -486,10 +480,7 @@ var gCloudFile = {
     warningIcon.setAttribute("class", "configuredWarning typeIcon");
     warningIcon.setAttribute("src", "chrome://global/skin/icons/warning.svg");
     // "title" provides the accessible name, not "alt".
-    warningIcon.setAttribute(
-      "title",
-      this._strings.GetStringFromName("notConfiguredYet")
-    );
+    document.l10n.setAttributes(warningIcon, "filelink-account-not-configured");
     if (aAccount.configured) {
       warningIcon.hidden = true;
     }
@@ -501,11 +492,9 @@ var gCloudFile = {
   makeButtonForProvider(provider) {
     const button = document.createXULElement("button");
     button.setAttribute("value", provider.type);
-    const label = this._strings.formatStringFromName("addProvider", [
-      provider.displayName,
-    ]);
-    button.setAttribute("label", label);
-    button.setAttribute("tooltiptext", label);
+    document.l10n.setAttributes(button, "filelink-add-provider", {
+      providerName: provider.displayName,
+    });
     button.setAttribute("crop", "end");
     button.setAttribute(
       "oncommand",
@@ -654,7 +643,7 @@ var gCloudFile = {
     this._removeAccountButton.disabled = false;
   },
 
-  removeCloudFileAccount() {
+  async removeCloudFileAccount() {
     // Get the selected account key
     const selection = this._list.selectedItem;
     if (!selection) {
@@ -664,9 +653,9 @@ var gCloudFile = {
     const accountKey = selection.value;
     const accountName = cloudFileAccounts.getDisplayName(accountKey);
     // Does the user really want to remove this account?
-    const confirmMessage = this._strings.formatStringFromName(
-      "dialog_removeAccount",
-      [accountName]
+    const confirmMessage = await document.l10n.formatValue(
+      "filelink-remove-account-confirm",
+      { accountName }
     );
 
     if (Services.prompt.confirm(null, "", confirmMessage)) {

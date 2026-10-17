@@ -345,7 +345,7 @@ var gPermissionManager = {
     }
   },
 
-  observe(aSubject, aTopic, aData) {
+  async observe(aSubject, aTopic, aData) {
     if (aTopic == "perm-changed") {
       var permission = aSubject.QueryInterface(Ci.nsIPermission);
 
@@ -355,11 +355,11 @@ var gPermissionManager = {
       }
 
       if (aData == "added") {
-        this._addPermission(permission);
+        await this._addPermission(permission);
       } else if (aData == "changed") {
         for (var i = 0; i < this._permissions.length; ++i) {
           if (permission.matches(this._permissions[i].principal, true)) {
-            this._permissions[i].capability = this._getCapabilityString(
+            this._permissions[i].capability = await this._getCapabilityString(
               permission.capability
             );
             break;
