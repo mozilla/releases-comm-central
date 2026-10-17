@@ -50,35 +50,39 @@ e2e-csr-success = The CSR was successfully saved to { $file }
 # $file A filename
 e2e-csr-failure = Could not save the CSR to file { $file }
 
-e2e-signing-description = A digital signature allows recipients to verify that the message was sent by you and its content was not changed. Encrypted messages are always signed by default.
+e2e-default-message-encryption = Default message encryption
 
-e2e-sign-message =
-    .label = Sign unencrypted messages
-    .accesskey = u
-
-e2e-disable-enc =
-    .label = Disable encryption for new messages
+account-settings-encryption-default-off =
+    .label = Do not encrypt new messages by default
     .accesskey = D
-e2e-enable-enc =
-    .label = Enable encryption for new messages
+account-settings-encryption-default-on =
+    .label = Encrypt new messages by default
     .accesskey = n
-e2e-enable-description = You will be able to disable encryption for individual messages.
+account-settings-encryption-default-description = Encryption can be turned off for individual messages while writing emails.
 
-e2e-advanced-section = Advanced settings
-e2e-attach-key =
-    .label = Attach my public key when adding an OpenPGP digital signature
+account-settings-sign-unencrypted-heading = Digitally sign unencrypted messages
+account-settings-sign-unencrypted =
+    .label = Digitally sign unencrypted messages
+    .accesskey = u
+account-settings-sign-unencrypted-description = Proves to recipients that the message came from you and was not altered in transit. Encrypted messages are signed by default.
+
+account-settings-advanced-encryption = Advanced encryption settings
+account-settings-attach-public-key-when-signing =
+    .label = Attach the public key for this identity when digitally signing messages
     .accesskey = p
-e2e-encrypt-subject =
-    .label = Encrypt the subject of OpenPGP messages
+account-settings-encrypt-message-subject =
+    .label = Encrypt message subject line
     .accesskey = b
-e2e-encrypt-drafts =
-    .label = Store draft messages in encrypted format
+account-settings-encrypt-saved-drafts =
+    .label = Encrypt message subject line
     .accesskey = r
 
 # Do not translate "Autocrypt", it's the name of a standard.
-e2e-autocrypt-headers =
-    .label = Send OpenPGP public key(s) in the email headers for compatibility with Autocrypt
-    .accesskey = t
+account-settings-include-public-key-autocrypt =
+    .label = Include this account’s public key in message headers (for Autocrypt compatibility)
+    .accesskey = I
+
+account-settings-preferred-encryption-type = Preferred encryption technology
 
 openpgp-key-created-label =
     .label = Created

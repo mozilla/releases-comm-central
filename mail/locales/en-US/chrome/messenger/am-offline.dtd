@@ -4,14 +4,8 @@
 
 <!ENTITY doNotDownloadPop3Movemail.label "To save disk space, do not download:">
 <!ENTITY doNotDownloadNntp.label "To save disk space, do not download for offline use:">
-<!ENTITY doNotDownloadImap.label "To save disk space, downloading messages from the server and keeping local copies for offline use can be restricted by age or size.">
-<!ENTITY allFoldersOffline2.label "Keep messages in all folders for this account on this computer">
-<!ENTITY allFoldersOffline2.accesskey "o">
-<!ENTITY allFoldersOfflineNote.label "Note: Changing this affects all folders in this account. To set individual folders, use the Advanced… button.">
 <!ENTITY offlineNotDownload.label "Messages larger than">
 <!ENTITY offlineNotDownload.accesskey "M">
-<!ENTITY autosyncNotDownload.label "Don't download messages larger than">
-<!ENTITY autosyncNotDownload.accesskey "m">
 <!ENTITY kb.label "KB">
 <!ENTITY daysOld.label "days old">
 <!ENTITY nntpNotDownloadRead.label "Read messages">
@@ -20,11 +14,6 @@
 <!ENTITY nntpDownloadMsg.accesskey "e">
 <!ENTITY offlineSelectNntp.label "Select newsgroups for offline use…">
 <!ENTITY offlineSelectNntp.accesskey "S">
-<!ENTITY offlineImapAdvancedOffline.label "Advanced…">
-<!ENTITY offlineImapAdvancedOffline.accesskey "v">
-<!ENTITY syncGroupTitle.label "Message Synchronizing">
-<!ENTITY diskspaceGroupTitle.label "Disk Space">
-
 <!-- LOCALIZATION NOTE: (ageAutosyncBefore.label, ageAutosyncMiddle.label, ageAutosyncAfter.label):
   The entities ageAutosyncBefore.label, ageAutosyncMiddle.label, and ageAutosyncAfter.label appear
   on a single line within the scope of useAutosync.ByAge as follows:

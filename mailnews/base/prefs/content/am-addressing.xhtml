@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/accountManage.css" />
+  <link rel="localization" href="messenger/accountSettings.ftl" />
   <script defer="defer" src="chrome://messenger/content/am-addressing.js"></script>
   <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
   <script defer="defer" src="chrome://messenger/content/am-prefs.js"></script>
@@ -27,7 +28,8 @@
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <vbox id="containerBox" flex="1">
     <hbox class="dialogheader">
-      <label class="dialogheader-title" value="&addressing.label;"/>
+      <label class="dialogheader-title"
+             data-l10n-id="account-settings-addressing-title"/>
     </hbox>
 #include am-addressing.inc.xhtml
   </vbox>

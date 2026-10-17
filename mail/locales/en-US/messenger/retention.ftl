@@ -11,11 +11,6 @@ retention-use-default =
     .label = Use my account settings
     .accesskey = U
 
-## Account Settings
-
-retention-button =
-    .label = Retention Policy
-
 retention-dialog-title = Retention Policy
 
 ## Common strings

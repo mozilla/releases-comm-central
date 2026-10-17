@@ -199,56 +199,59 @@
 
       <separator/>
 
-      <html:legend>&sendingDefaults.label;</html:legend>
+      <html:legend data-l10n-id="e2e-default-message-encryption"/>
 
       <html:div>
       <html:fieldset>
         <radiogroup id="encryptionChoices" class="indent" hidden="hidden">
           <radio id="disable_encryption" wsm_persist="true" value="0"
-                 data-l10n-id="e2e-disable-enc"/>
+                 data-l10n-id="account-settings-encryption-default-off"/>
           <radio id="enable_encryption" wsm_persist="true" value="2"
-                 data-l10n-id="e2e-enable-enc"/>
+                 data-l10n-id="account-settings-encryption-default-on"/>
           <hbox>
-            <description flex="1" data-l10n-id="e2e-enable-description"
+            <description flex="1" data-l10n-id="account-settings-encryption-default-description"
                          class="option-description tip-caption"/>
           </hbox>
         </radiogroup>
 
         <separator/>
 
-        <description flex="1" data-l10n-id="e2e-signing-description"></description>
+        <description flex="1" data-l10n-id="account-settings-sign-unencrypted-heading"></description>
         <checkbox id="identity_sign_mail" class="indent" wsm_persist="true"
                   prefstring="mail.identity.%identitykey%.sign_mail"
-                  data-l10n-id="e2e-sign-message"/>
+                  data-l10n-id="account-settings-sign-unencrypted"
+                  aria-describedby="signUnencryptedDescription"/>
+        <description id="signUnencryptedDescription" flex="1"
+                     data-l10n-id="account-settings-sign-unencrypted-description"/>
 
       </html:fieldset>
       </html:div>
 
       <separator/>
 
-      <html:legend data-l10n-id="e2e-advanced-section"/>
+      <html:legend data-l10n-id="account-settings-advanced-encryption"/>
 
       <html:div>
       <html:fieldset>
         <checkbox id="identity_attach_key" wsm_persist="true"
                   prefstring="mail.identity.%identitykey%.attachPgpKey"
-                  data-l10n-id="e2e-attach-key"/>
+                  data-l10n-id="account-settings-attach-public-key-when-signing"/>
 
         <checkbox id="identity_autocrypt_headers" wsm_persist="true"
                   prefstring="mail.identity.%identitykey%.sendAutocryptHeaders"
-                  data-l10n-id="e2e-autocrypt-headers"/>
+                  data-l10n-id="account-settings-include-public-key-autocrypt"/>
 
         <checkbox id="identity_encrypt_subject" wsm_persist="true"
                   prefstring="mail.identity.%identitykey%.protectSubject"
-                  data-l10n-id="e2e-encrypt-subject"/>
+                  data-l10n-id="account-settings-encrypt-message-subject"/>
 
         <checkbox id="identity_encrypt_drafts" wsm_persist="true"
                   prefstring="mail.identity.%identitykey%.autoEncryptDrafts"
-                  data-l10n-id="e2e-encrypt-drafts"/>
+                  data-l10n-id="account-settings-encrypt-saved-drafts"/>
 
         <separator/>
 
-        <description>&e2eTechPref.description;</description>
+        <description data-l10n-id="account-settings-preferred-encryption-type"/>
         <radiogroup id="technologyChoices" class="indent">
           <radio id="technology_automatic" wsm_persist="true" value="0"
                  label="&technologyAutomatic.label;"/>

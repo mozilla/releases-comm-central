@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/accountManage.css" />
+    <link rel="localization" href="messenger/accountSettings.ftl" />
     <link rel="localization" href="messenger/retention.ftl" />
     <script
       defer="defer"
@@ -56,58 +57,58 @@
 
       <separator class="thin" />
 
-      <html:div>
-        <html:fieldset id="offline.titlebox" hidefor="pop3,none,rss">
-          <html:legend>&syncGroupTitle.label;</html:legend>
+      <html:div id="offline.titlebox" hidefor="pop3,none,rss">
+        <vbox>
+          <checkbox
+            hidefor="pop3,nntp,none"
+            id="offline.folders"
+            data-l10n-id="account-settings-save-all-messages"
+            oncommand="toggleOffline()"
+            aria-describedby="allFoldersOfflineNote"
+          />
 
-          <vbox>
-            <checkbox
-              hidefor="pop3,nntp,none"
-              id="offline.folders"
-              label="&allFoldersOffline2.label;"
-              oncommand="toggleOffline()"
-              accesskey="&allFoldersOffline2.accesskey;"
+          <description
+            id="allFoldersOfflineNote"
+            data-l10n-id="account-settings-save-all-messages-note"
+            hidefor="pop3,nntp,none,rss"
+          />
+
+          <separator class="thin" hidefor="pop3,nntp,none" />
+
+          <hbox hidefor="pop3,nntp,none" pack="end">
+            <!-- "Imap" in names here is misleading. Also used for EWS. -->
+            <button
+              data-l10n-id="account-settings-offline-advanced-options"
+              oncommand="onClickSelect()"
+              id="selectImapFoldersButton"
+              class="selectForOfflineUseButton"
             />
+          </hbox>
 
-            <description hidefor="pop3,nntp,none,rss"
-              >&allFoldersOfflineNote.label;</description
-            >
-
-            <separator class="thin" hidefor="pop3,nntp,none" />
-
-            <hbox hidefor="pop3,nntp,none" pack="end">
-              <!-- "Imap" in names here is misleading. Also used for EWS. -->
-              <button
-                label="&offlineImapAdvancedOffline.label;"
-                accesskey="&offlineImapAdvancedOffline.accesskey;"
-                oncommand="onClickSelect()"
-                id="selectImapFoldersButton"
-                class="selectForOfflineUseButton"
-              />
-            </hbox>
-
-            <hbox hidefor="pop3,imap,none,ews" pack="end">
-              <button
-                label="&offlineSelectNntp.label;"
-                accesskey="&offlineSelectNntp.accesskey;"
-                oncommand="onClickSelect()"
-                id="selectNewsgroupsButton"
-                class="selectForOfflineUseButton"
-              />
-            </hbox>
-          </vbox>
-        </html:fieldset>
+          <hbox hidefor="pop3,imap,none,ews" pack="end">
+            <button
+              label="&offlineSelectNntp.label;"
+              accesskey="&offlineSelectNntp.accesskey;"
+              oncommand="onClickSelect()"
+              id="selectNewsgroupsButton"
+              class="selectForOfflineUseButton"
+            />
+          </hbox>
+        </vbox>
       </html:div>
 
       <html:div>
         <html:fieldset id="diskspace.titlebox">
-          <html:legend hidefor="pop3,none,rss"
-            >&diskspaceGroupTitle.label;</html:legend
-          >
+          <html:legend
+            data-l10n-id="account-settings-download-limits"
+            hidefor="pop3,none,rss"
+          />
 
-          <description hidefor="pop3,nntp,none,rss"
-            >&doNotDownloadImap.label;</description
-          >
+          <description
+            id="downloadLimitsDescription"
+            data-l10n-id="account-settings-download-limits-description"
+            hidefor="pop3,nntp,none,rss"
+          />
           <description hidefor="pop3,imap,none,rss,ews"
             >&doNotDownloadNntp.label;</description
           >
@@ -120,6 +121,7 @@
             hidefor="pop3,nntp,none,rss"
             id="autosyncSelect"
             class="indent"
+            aria-describedby="downloadLimitsDescription"
           >
             <radio
               id="useAutosync.AllMsg"
@@ -131,8 +133,8 @@
             <hbox flex="1" align="center">
               <radio
                 id="useAutosync.ByAge"
-                accesskey="&ageAutosync.accesskey;"
                 value="1"
+                accesskey="&ageAutosync.accesskey;"
                 label="&ageAutosyncBefore.label;"
                 oncommand="onAutosyncChange()"
               />
@@ -142,7 +144,7 @@
                 class="size4 input-inline autosync"
                 min="1"
                 onchange="onAutosyncChange()"
-                aria-labelledby="ageAutosyncBefore autosyncValue ageAutosyncMiddle autosyncInterval ageAutosyncAfter"
+                aria-labelledby="useAutosync.ByAge autosyncValue ageAutosyncMiddle autosyncInterval ageAutosyncAfter"
               />
               <label
                 id="ageAutosyncMiddle"
@@ -188,8 +190,7 @@
               wsm_persist="true"
               id="autosyncNotDownload"
               hidefor="pop3,nntp"
-              label="&autosyncNotDownload.label;"
-              accesskey="&autosyncNotDownload.accesskey;"
+              data-l10n-id="account-settings-skip-large-messages"
               oncommand="onAutosyncNotDownload()"
             />
             <html:input
@@ -199,7 +200,7 @@
               min="1"
               value="50"
               wsm_persist="true"
-              aria-labelledby="offline.notDownload offline.notDownloadMin kbLabel"
+              aria-labelledby="autosyncNotDownload offline.notDownloadMin kbLabel"
             />
             <label
               value="&kb.label;"
@@ -242,7 +243,7 @@
             </description>
             <description
               id="retention-description-imap"
-              data-l10n-id="retention-description-imap"
+              data-l10n-id="account-settings-deletion-description-imap"
               hidefor="pop3,nntp,none,rss"
             >
             </description>
@@ -256,7 +257,7 @@
             <hbox>
               <button
                 id="retentionPolicyButton"
-                data-l10n-id="retention-button"
+                data-l10n-id="account-settings-set-deletion-rules"
                 class="first-element"
                 oncommand="onClickRetention()"
               />

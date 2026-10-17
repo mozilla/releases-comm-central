@@ -5,24 +5,12 @@
 <!-- extracted from am-addressing.xhtml -->
 
 <!ENTITY addressing.label          "Composition &amp; Addressing">
-<!ENTITY addressingGroupTitle.label "Addressing">
-<!ENTITY addressingText.label      "When looking up addresses:">
-<!-- LOCALIZATION NOTE (override.label) : do not translate "LDAP" in below line -->
-<!ENTITY useGlobal.label           "Use my global LDAP server preferences for this account">
-<!ENTITY useGlobal.accesskey       "U">
 <!ENTITY editDirectories.label     "Edit Directories…">
 <!ENTITY editDirectories.accesskey "E">
-<!-- LOCALIZATION NOTE (directories.label) : do not translate "LDAP" in below line -->
-<!ENTITY directories.label         "Use a different LDAP server:">
-<!ENTITY directories.accesskey     "d">
 <!ENTITY directoriesNone.label     "None">
 
 <!-- am-addressing.xhtml -->
 
-<!ENTITY compositionGroupTitle.label          "Composition">
-<!-- LOCALIZATION NOTE (useHtml.label) : do not translate "html" in below line -->
-<!ENTITY useHtml.label                        "Compose messages in HTML format">
-<!ENTITY useHtml.accesskey                    "C">
 <!ENTITY autoQuote.label                      "Automatically quote the original message when replying">
 <!ENTITY autoQuote.accesskey                  "m">
 <!-- LOCALIZATION NOTE (quoting.label): This will concatenate with the 4 strings that follow. -->

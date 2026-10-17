@@ -7,10 +7,9 @@
 
       <html:div>
       <html:fieldset>
-        <html:legend>&compositionGroupTitle.label;</html:legend>
         <hbox align="center">
-          <checkbox wsm_persist="true" id="identity.composeHtml" label="&useHtml.label;"
-                    accesskey="&useHtml.accesskey;"
+          <checkbox id="identity.composeHtml" wsm_persist="true"
+                    data-l10n-id="account-settings-compose-html"
                     prefattribute="value"
                     prefstring="mail.identity.%identitykey%.compose_html"/>
         </hbox>
@@ -74,7 +73,7 @@
 
       <html:div>
       <html:fieldset>
-        <html:legend>&addressingGroupTitle.label;</html:legend>
+        <html:legend data-l10n-id="account-settings-address-autocomplete"/>
 #ifndef MOZ_THUNDERBIRD
         <hbox align="center">
           <checkbox wsm_persist="true" id="identity.autocompleteToMyDomain"
@@ -87,15 +86,16 @@
         <separator class="thin"/>
 #endif
 
-        <label control="identity.overrideGlobal_Pref">&addressingText.label;</label>
+        <label data-l10n-id="account-settings-lookup-contacts"
+               control="identity.overrideGlobal_Pref"/>
         <radiogroup id="identity.overrideGlobal_Pref" class="indent"
                     oncommand="LDAPenabling();" wsm_persist="true"
                     genericattr="true" preftype="bool"
                     prefstring="mail.identity.%identitykey%.overrideGlobal_Pref">
-          <radio value="false" label="&useGlobal.label;"
-                 accesskey="&useGlobal.accesskey;"/>
-          <radio value="true" id="directories" label="&directories.label;"
-                 accesskey="&directories.accesskey;"/>
+          <radio value="false"
+                 data-l10n-id="account-settings-use-global-directory"/>
+          <radio id="directories" value="true"
+                 data-l10n-id="account-settings-use-specific-directory"/>
           <hbox class="indent">
             <menulist is="menulist-addrbooks" id="identity.directoryServer"
                       none="&directoriesNone.label;"

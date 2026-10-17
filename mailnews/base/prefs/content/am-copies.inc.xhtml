@@ -37,7 +37,9 @@
            prefstring="mail.identity.%identitykey%.tmpl_folder_picker_mode"/>
     <html:div>
     <html:fieldset id="copiesGroup">
-      <html:legend>&sendingPrefix.label;</html:legend>
+      <html:legend
+        data-l10n-id="account-prefs-sent-message-copies-description"
+      ></html:legend>
 
       <hbox align="center">
         <checkbox id="identity.doFcc" wsm_persist="true" label="&fccMailFolder.label;"
@@ -52,15 +54,15 @@
             <hbox flex="1" align="center">
               <radio id="fcc_selectAccount"
                      class="depends-on-do-fcc"
-                     value="0" label="&sentFolderOn.label;"
-                     accesskey="&sentFolderOn.accesskey;"
+                     value="0"
+                     data-l10n-id="account-prefs-sent-folder-on"
                      oncommand="setPickersState('msgFccAccountPicker', 'msgFccFolderPicker', event)"/>
             </hbox>
             <hbox flex="1" align="center">
               <radio id="fcc_selectFolder"
                      class="depends-on-do-fcc"
-                     value="1" label="&sentInOtherFolder.label;"
-                     accesskey="&sentInOtherFolder.accesskey;"
+                     value="1"
+                     data-l10n-id="account-prefs-sent-other-folder"
                      oncommand="setPickersState('msgFccFolderPicker', 'msgFccAccountPicker', event)"/>
             </hbox>
           </vbox>
@@ -139,13 +141,15 @@
         </vbox>
       </hbox>
       <description class="indent tip-caption"
-                   data-l10n-id="account-prefs-show-address-row-description"/>
+                   data-l10n-id="account-prefs-automatic-cc-bcc-description"/>
     </html:fieldset>
     </html:div>
 
     <html:div>
     <html:fieldset id="archivesGroup">
-      <html:legend>&archivesTitle.label;</html:legend>
+      <html:legend
+        data-l10n-id="account-prefs-message-archives-title"
+      ></html:legend>
 
       <hbox pack="start">
         <checkbox id="identity.archiveEnabled" wsm_persist="true"
@@ -162,15 +166,15 @@
             <hbox flex="1" align="center">
               <radio id="archive_selectAccount"
                      class="depends-on-archive"
-                     value="0" label="&archivesFolderOn.label;"
-                     accesskey="&archivesFolderOn.accesskey;"
+                     value="0"
+                     data-l10n-id="account-prefs-archives-folder-on"
                      oncommand="setPickersState('msgArchivesAccountPicker', 'msgArchivesFolderPicker', event)"/>
             </hbox>
             <hbox flex="1" align="center">
               <radio id="archive_selectFolder"
                      class="depends-on-archive"
-                     value="1" label="&archiveInOtherFolder.label;"
-                     accesskey="&archiveInOtherFolder.accesskey;"
+                     value="1"
+                     data-l10n-id="account-prefs-archives-other-folder"
                      oncommand="setPickersState('msgArchivesFolderPicker', 'msgArchivesAccountPicker', event)"/>
             </hbox>
           </vbox>
@@ -208,7 +212,9 @@
 
     <html:div>
     <html:fieldset id="foldersGroup">
-      <html:legend>&specialFolders.label;</html:legend>
+      <html:legend
+        data-l10n-id="account-prefs-drafts-and-templates-title"
+      ></html:legend>
 
       <hbox align="center">
         <label value="&keepDrafts2.label;" control="messageDrafts"/>
@@ -220,14 +226,14 @@
             <hbox flex="1" align="center">
               <radio id="draft_selectAccount"
                      oncommand="setPickersState('msgDraftsAccountPicker', 'msgDraftsFolderPicker', event)"
-                     value="0" label="&draftsFolderOn.label;"
-                     accesskey="&draftsFolderOn.accesskey;"/>
+                     value="0"
+                     data-l10n-id="account-prefs-drafts-folder-on"/>
             </hbox>
             <hbox flex="1" align="center">
               <radio id="draft_selectFolder"
                      oncommand="setPickersState('msgDraftsFolderPicker', 'msgDraftsAccountPicker', event)"
-                     value="1" label="&draftInOtherFolder.label;"
-                     accesskey="&draftInOtherFolder.accesskey;"/>
+                     value="1"
+                     data-l10n-id="account-prefs-drafts-other-folder"/>
             </hbox>
           </vbox>
           <vbox flex="1">
@@ -265,14 +271,14 @@
             <hbox flex="1" align="center">
               <radio id="tmpl_selectAccount"
                      oncommand="setPickersState('msgTemplatesAccountPicker', 'msgTemplatesFolderPicker', event)"
-                     value="0" label="&templatesFolderOn.label;"
-                     accesskey="&templatesFolderOn.accesskey;"/>
+                     value="0"
+                     data-l10n-id="account-prefs-templates-folder-on"/>
             </hbox>
             <hbox flex="1" align="center">
               <radio id="tmpl_selectFolder"
                      oncommand="setPickersState('msgTemplatesFolderPicker', 'msgTemplatesAccountPicker', event)"
-                     value="1" label="&templateInOtherFolder.label;"
-                     accesskey="&templateInOtherFolder.accesskey;"/>
+                     value="1"
+                     data-l10n-id="account-prefs-templates-other-folder"/>
             </hbox>
           </vbox>
           <vbox flex="1">
@@ -298,8 +304,8 @@
         </hbox>
       </radiogroup>
       <hbox align="center">
-        <checkbox id="identity.showSaveMsgDlg" wsm_persist="true" label="&saveMessageDlg.label;"
-                  accesskey="&saveMessageDlg.accesskey;"
+        <checkbox id="identity.showSaveMsgDlg" wsm_persist="true"
+                  data-l10n-id="account-prefs-confirm-saved-messages"
                   prefattribute="value"
                   prefstring="mail.identity.%identitykey%.showSaveMsgDlg"/>
       </hbox>

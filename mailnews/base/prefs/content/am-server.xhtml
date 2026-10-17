@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/folderMenus.css" />
 
+    <link rel="localization" href="branding/brand.ftl" />
     <link rel="localization" href="messenger/accountSettings.ftl" />
     <link rel="localization" href="messenger/certError.ftl" />
 
@@ -77,7 +78,10 @@
       />
 
       <hbox class="dialogheader">
-        <label class="dialogheader-title" value="&serverSettings.label;" />
+        <label
+          class="dialogheader-title"
+          data-l10n-id="account-settings-server-title"
+        />
       </hbox>
 
       <separator class="thin" />
@@ -165,7 +169,7 @@
 
       <html:div>
         <html:fieldset>
-          <html:legend>&securitySettings.label;</html:legend>
+          <html:legend data-l10n-id="account-settings-security-and-sign-in" />
           <html:table>
             <html:tr>
               <html:td style="vertical-align: baseline">
@@ -201,8 +205,7 @@
             <html:tr>
               <html:td style="vertical-align: baseline">
                 <label
-                  value="&authMethod.label;"
-                  accesskey="&authMethod.accesskey;"
+                  data-l10n-id="account-settings-sign-in-method"
                   control="server.authMethod"
                   hidefor="nntp"
                 />
@@ -246,13 +249,12 @@
 
       <html:div>
         <html:fieldset>
-          <html:legend>&serverSettings.label;</html:legend>
+          <html:legend data-l10n-id="account-settings-message-checking" />
           <vbox align="start">
             <checkbox
               wsm_persist="true"
               id="server.loginAtStartUp"
-              label="&loginAtStartup.label;"
-              accesskey="&loginAtStartup.accesskey;"
+              data-l10n-id="account-settings-check-new-messages-startup"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.login_at_startup"
             />
@@ -291,8 +293,7 @@
             <checkbox
               wsm_persist="true"
               id="imap.useIdle"
-              label="&useIdleNotifications.label;"
-              accesskey="&useIdleNotifications.accesskey;"
+              data-l10n-id="account-settings-instant-server-notifications"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.use_idle"
             />
@@ -408,7 +409,7 @@
 
           <hbox align="center" hidefor="pop3,nntp,ews,graph">
             <label
-              value="&deleteMessagePrefix.label;"
+              data-l10n-id="account-settings-deleting-messages"
               align="start"
               control="imap.deleteModel"
             />
@@ -457,16 +458,14 @@
                       <radio
                         id="modelMarkDeleted"
                         value="0"
-                        label="&modelMarkDeleted.label;"
-                        accesskey="&modelMarkDeleted.accesskey;"
+                        data-l10n-id="account-settings-mark-deleted"
                       />
                     </hbox>
                     <hbox flex="1" align="center">
                       <radio
                         id="modelDeleteImmediately"
                         value="2"
-                        label="&modelDeleteImmediately.label;"
-                        accesskey="&modelDeleteImmediately.accesskey;"
+                        data-l10n-id="account-settings-delete-permanently"
                       />
                     </hbox>
                   </vbox>
@@ -477,8 +476,7 @@
               <!-- This button should have identical attributes to the
              server.popAdvancedButton except the hidefor attribute. -->
               <button
-                label="&advancedButton.label;"
-                accesskey="&advancedButton.accesskey;"
+                data-l10n-id="account-settings-folder-options"
                 oncommand="onAdvanced()"
                 wsm_persist="true"
                 id="server.imapAdvancedButton"
@@ -644,7 +642,7 @@
           <separator class="thin" />
           <hbox align="center" hidefor="pop3,nntp,imap">
             <label
-              value="&deleteMessagePrefix.label;"
+              data-l10n-id="account-settings-deleting-messages"
               align="start"
               control="ews.deleteModel"
             />
@@ -693,8 +691,7 @@
                       <radio
                         id="ewsModelDeleteImmediately"
                         value="0"
-                        label="&modelDeleteImmediately.label;"
-                        accesskey="&modelDeleteImmediately.accesskey;"
+                        data-l10n-id="account-settings-delete-permanently"
                       />
                     </hbox>
                   </vbox>
@@ -706,8 +703,7 @@
              server.popAdvancedButton except the hidefor attribute. -->
               <button
                 id="server.ewsAdvancedButton"
-                label="&advancedButton.label;"
-                accesskey="&advancedButton.accesskey;"
+                data-l10n-id="account-settings-folder-options"
                 oncommand="onAdvanced()"
                 wsm_persist="true"
                 prefstring="mail.server.%serverkey%.advanced.disable"
@@ -816,8 +812,7 @@
                 hidefor="pop3,nntp"
                 wsm_persist="true"
                 id="imap.cleanupInboxOnExit"
-                label="&expungeOnExit.label;"
-                accesskey="&expungeOnExit.accesskey;"
+                data-l10n-id="account-settings-clean-up-deleted-inbox"
                 prefattribute="value"
                 prefstring="mail.server.%serverkey%.cleanup_inbox_on_exit"
               />
@@ -832,8 +827,7 @@
               />
             </vbox>
             <button
-              label="&advancedButton.label;"
-              accesskey="&advancedButton.accesskey;"
+              data-l10n-id="account-settings-folder-options"
               oncommand="onAdvanced()"
               wsm_persist="true"
               id="server.popAdvancedButton"

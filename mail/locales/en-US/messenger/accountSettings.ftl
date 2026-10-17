@@ -8,6 +8,91 @@ account-settings-color-label = Color:
 account-settings-reset-color-button =
   .title = Reset color
 
+account-settings-addressing-title =
+  .value = Writing emails
+
+account-settings-compose-html =
+    .label = Write messages in rich text (HTML)
+    .accesskey = R
+
+account-settings-address-autocomplete = Address autocomplete
+
+account-settings-lookup-contacts =
+    .value = When looking up contacts for this account:
+
+account-settings-use-global-directory =
+    .label = Use global LDAP directory settings
+    .accesskey = U
+
+account-settings-use-specific-directory =
+    .label = Use a specific LDAP directory server:
+    .accesskey = D
+
+account-settings-server-title =
+  .value = Server settings
+
+account-settings-message-checking = Message checking
+
+account-settings-check-new-messages-startup =
+  .label = Check for new messages when { -brand-short-name } opens
+  .accesskey = C
+
+account-settings-security-and-sign-in = Security and sign-in
+
+account-settings-sign-in-method =
+  .value = Sign-in method:
+  .accesskey = i
+
+account-settings-clean-up-deleted-inbox =
+  .label = Permanently remove deleted messages from the Inbox on exit
+  .accesskey = E
+
+account-settings-instant-server-notifications =
+  .label = Get new messages when they arrive on the server
+  .accesskey = w
+
+account-settings-folder-options =
+  .label = Advanced…
+  .accesskey = A
+
+account-settings-mark-deleted =
+  .label = Mark as deleted without moving
+  .accesskey = k
+
+account-settings-delete-permanently =
+  .label = Delete immediately
+  .accesskey = d
+
+account-settings-deleting-messages =
+  .value = Deleting messages
+
+account-settings-offline-message-storage-title =
+  .value = Offline message storage
+
+account-settings-save-all-messages =
+  .label = Save copies of all folders and messages on this computer for offline use
+  .accesskey = o
+
+account-settings-save-all-messages-note = Applies to all folders in this account.
+
+account-settings-offline-advanced-options =
+  .label = Offline folder settings…
+  .accesskey = v
+
+account-settings-download-limits = Download limits
+
+account-settings-download-limits-description = Choose which messages to store locally on this computer:
+
+account-settings-skip-large-messages =
+  .label = Skip downloading messages larger than:
+  .accesskey = m
+
+account-settings-deletion-description-imap = Set rules to automatically delete old emails from both this computer and the mail server to free up space.
+
+account-settings-set-deletion-rules =
+  .label = Set deletion rules
+  .accesskey = D
+
 delete-account-button =
   .label = Delete
 
