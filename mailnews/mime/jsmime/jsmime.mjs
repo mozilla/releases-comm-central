@@ -2120,6 +2120,8 @@ const JsMIMEmimeparser = function () {
   function MimeParser(emitter, options) {
     // The actual emitter
     this._emitter = emitter;
+    // How many parsers enclose this one
+    this._depth = 0;
     // Options for the parser (those listed here are defaults)
     this._options = {
       decodeSubMessages: true,
@@ -2367,6 +2369,9 @@ const JsMIMEmimeparser = function () {
   var SEND_TO_BLACK_HOLE = 2;
   var SEND_TO_EMITTER = 3;
   var SEND_TO_SUBPARSER = 4;
+
+  // Parts nested deeper than this are not parsed into their subparts.
+  var MAX_NESTING_DEPTH = 64;
 
   /**
    * Main dispatch for incoming packet data.
@@ -2627,10 +2632,13 @@ const JsMIMEmimeparser = function () {
         this._options.pruneat.startsWith(partNum);
     }
 
+    const canNest = this._depth < MAX_NESTING_DEPTH;
+
     if (contentType.mediatype == "multipart") {
       // If there's no boundary type, everything will be part of the prologue of
-      // the multipart message, so just feed everything into a black hole.
-      if (!contentType.has("boundary")) {
+      // the multipart message, so just feed everything into a black hole. The
+      // same goes for multiparts that are nested too deeply.
+      if (!contentType.has("boundary") || !canNest) {
         this._state = SEND_TO_BLACK_HOLE;
         return;
       }
@@ -2647,6 +2655,7 @@ const JsMIMEmimeparser = function () {
       );
       this._handleSplit = this._whenMultipart;
       this._subparser = new MimeParser(this._emitter, this._options);
+      this._subparser._depth = this._depth + 1;
       // multipart/digest defaults to message/rfc822 instead of text/plain
       if (contentType.subtype == "digest") {
         this._subparser._defaultContentType = "message/rfc822";
@@ -2679,6 +2688,7 @@ const JsMIMEmimeparser = function () {
         return [preLF, rest + buffer.substring(splitPoint)];
       };
     } else if (
+      canNest &&
       (decodeSubMessages || this._willIgnorePart(partNum)) &&
       (contentType.type == "message/rfc822" ||
         contentType.type == "message/global" ||
@@ -2689,6 +2699,7 @@ const JsMIMEmimeparser = function () {
       this._state = SEND_TO_SUBPARSER;
       this._subPartNum = partNum + "$";
       this._subparser = new MimeParser(this._emitter, this._options);
+      this._subparser._depth = this._depth + 1;
 
       // So, RFC 6532 happily allows message/global types to have CTE applied.
       // This means that subparts would need to be decoded to determine their

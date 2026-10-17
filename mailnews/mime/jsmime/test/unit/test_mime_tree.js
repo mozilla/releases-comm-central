@@ -880,5 +880,76 @@ define(function (require) {
         });
       });
     });
+
+    suite("Nesting depth", function () {
+      function nestedMultipart(depth) {
+        let message = "";
+        for (let i = 0; i < depth; i++) {
+          message += `Content-Type: multipart/mixed; boundary="b${i}"\r\n\r\n--b${i}\r\n`;
+        }
+        message += "Content-Type: text/plain\r\n\r\nleaf\r\n";
+        for (let i = depth - 1; i >= 0; i--) {
+          message += `--b${i}--\r\n`;
+        }
+        return message;
+      }
+
+      function nestedMessage(depth) {
+        return (
+          "Content-Type: message/rfc822\r\n\r\n".repeat(depth) + "\r\nleaf"
+        );
+      }
+
+      function parse(message) {
+        const result = { parts: 0, data: "" };
+        const parser = new jsmime.MimeParser(
+          {
+            startPart() {
+              result.parts++;
+            },
+            deliverPartData(partNum, data) {
+              result.data += data;
+            },
+          },
+          {
+            onerror(e) {
+              throw e;
+            },
+          }
+        );
+        for (let i = 0; i < message.length; i += 16384) {
+          parser.deliverData(message.slice(i, i + 16384));
+        }
+        parser.deliverEOF();
+        return result;
+      }
+
+      test("Multiparts at the limit are parsed", function () {
+        const result = parse(nestedMultipart(64));
+        assert.equal(result.parts, 65);
+        assert.equal(result.data, "leaf");
+      });
+      test("Multiparts past the limit are not parsed", function () {
+        const result = parse(nestedMultipart(65));
+        assert.equal(result.parts, 65);
+        assert.equal(result.data, "");
+      });
+      test("Deeply nested multiparts don't exhaust the stack", function () {
+        const result = parse(nestedMultipart(20000));
+        assert.equal(result.parts, 65);
+        assert.equal(result.data, "");
+      });
+      test("Messages past the limit are delivered as data", function () {
+        assert.deepEqual(parse(nestedMessage(64)), {
+          parts: 65,
+          data: "leaf",
+        });
+        assert.deepEqual(parse(nestedMessage(65)), {
+          parts: 65,
+          data: "\r\nleaf",
+        });
+        assert.equal(parse(nestedMessage(20000)).parts, 65);
+      });
+    });
   });
 });
