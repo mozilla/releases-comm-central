@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Test that errors while processing multi-line responses neither fail the
- * whole request because of one bad line, nor leave the connection busy.
+ * Test that errors from the server or while processing multi-line responses
+ * do not leave the connection busy. Bad response lines should be skipped.
  */
 
 var { NntpNewsGroup } = ChromeUtils.importESModule(
@@ -69,6 +69,65 @@ async function getNewMessages() {
   folder.getNewMessages(null, listener);
   await listener.promise;
 }
+
+/**
+ * Fetch an article from test.filter.
+ *
+ * @param {integer} articleNumber - The article number to fetch.
+ * @returns {Promise<{status: nsresult, data: string, url: nsIMsgMailNewsUrl}>}
+ *   The completion status, article data and running URL.
+ */
+function getArticle(articleNumber) {
+  return new Promise(resolve => {
+    localserver.wrappedJSObject.withClient(client => {
+      const url = Services.io
+        .newURI(
+          `news://localhost:${localserver.port}/?group=test.filter&key=${articleNumber}`
+        )
+        .QueryInterface(Ci.nsIMsgMailNewsUrl);
+      let data = "";
+      client.startRunningUrl(null, null, url);
+      client.onOpen = () =>
+        client.getArticleByArticleNumber("test.filter", articleNumber);
+      client.onData = line => (data += line);
+      client.onDone = status => resolve({ status, data, url });
+    });
+  });
+}
+
+add_task(async function test_articleSyntaxError() {
+  class SyntaxErrorHandler extends NNTP_RFC977_handler {
+    ARTICLE(number) {
+      return number == "1"
+        ? "501 Syntax error in article number"
+        : super.ARTICLE(number);
+    }
+  }
+
+  await withServer(SyntaxErrorHandler, async server => {
+    const failed = getArticle(1);
+    const next = getArticle(2);
+    const result = await failed;
+    Assert.equal(
+      result.status,
+      Cr.NS_ERROR_FAILURE,
+      "a syntax error should fail the request"
+    );
+    Assert.equal(result.data, "", "the error should not produce article data");
+    const second = await next;
+    Assert.equal(second.status, Cr.NS_OK, "the queued request should succeed");
+    Assert.stringContains(
+      second.data,
+      "This is the second body post.",
+      "the queued request should receive its own article"
+    );
+    Assert.deepEqual(
+      server.playTransaction().them,
+      ["MODE READER", "GROUP test.filter", "ARTICLE 1", "ARTICLE 2"],
+      "the next request should reuse the released connection"
+    );
+  });
+});
 
 /**
  * Test that an XHDR line for an article that wasn't in the XOVER response is

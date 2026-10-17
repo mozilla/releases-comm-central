@@ -15,6 +15,7 @@ const AUTH_ACCEPTED = 281;
 const AUTH_PASSWORD_REQUIRED = 381;
 const AUTH_REQUIRED = 480;
 const AUTH_FAILED = 481;
+const SYNTAX_ERROR = 501;
 const SERVICE_UNAVAILABLE = 502;
 const HEADER_FOLLOWS = 221;
 const NO_SUCH_NEWSGROUP = 411;
@@ -203,6 +204,7 @@ export class NntpClient {
         this._currentGroupName = null;
         this._actionAuthUser();
         return;
+      case SYNTAX_ERROR:
       case SERVICE_UNAVAILABLE:
         this._actionError(res.status, res.statusText);
         return;
