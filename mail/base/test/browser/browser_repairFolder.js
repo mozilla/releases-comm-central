@@ -89,7 +89,21 @@ async function subtestRepairFolder(folder) {
   );
 
   const dialog = await openFolderProperties(folder);
-  dialog.repairFolder();
+  if (folder.supportsOffline) {
+    let promptPromise = BrowserTestUtils.promiseAlertDialog("cancel");
+    dialog.repairFolder();
+    await promptPromise;
+    Assert.ok(
+      !dialog.repairButton.disabled,
+      "declining the confirmation should not start the repair"
+    );
+
+    promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
+    dialog.repairFolder();
+    await promptPromise;
+  } else {
+    dialog.repairFolder();
+  }
   await dialog.accept();
   await TestUtils.waitForCondition(
     () => about3Pane.dbViewWrapperListener.allMessagesLoaded,
@@ -173,6 +187,7 @@ async function openFolderProperties(folder) {
   const folderPropertiesDialog = dialogDocument.querySelector("dialog");
 
   return {
+    repairButton,
     repairFolder() {
       EventUtils.synthesizeMouseAtCenter(repairButton, {}, dialogWindow);
     },

@@ -93,7 +93,9 @@ add_task(async function test_repair_folder() {
   // Trigger the repair and wait for the folder to be fully loaded.
   eventPromise = PromiseTestUtils.promiseFolderEvent(folder, "FolderLoaded");
 
+  const promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   EventUtils.synthesizeMouseAtCenter(repairButton, {}, dialogWindow);
+  await promptPromise;
   const windowClosedPromise = BrowserTestUtils.domWindowClosed(dialogWindow);
   EventUtils.synthesizeMouseAtCenter(
     folderPropertiesDialog.getButton("accept"),

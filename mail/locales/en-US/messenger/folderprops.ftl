@@ -53,6 +53,9 @@ folder-props-check-for-new-messages =
 
 folder-props-rebuild-summary-explanation = Sometimes the folder index (.msf) file becomes damaged and messages may appear missing or deleted messages continue showing; repairing the folder may fix these issues.
 
+folder-props-rebuild-summary-confirm-title = Repair Folder
+folder-props-rebuild-summary-confirm-message = Repairing this folder deletes its local messages and downloads new copies from the server, leaving server messages unchanged. This may take some time. Continue?
+
 ## Retention tab (see retention.ftl)
 ##
 ## Synchronization tab
