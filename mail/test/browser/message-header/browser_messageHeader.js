@@ -38,6 +38,9 @@ var { add_message_to_folder, create_message, msgGen } =
     "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
   );
 
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
+);
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
@@ -773,6 +776,89 @@ add_task(async function test_unclosed_angle_brackets() {
   }
 
   await SpecialPowers.popPrefEnv();
+});
+
+/**
+ * Test that the Content-Base header is displayed unescaped where possible, and
+ * that a malformed one doesn't prevent the header pane from being updated.
+ */
+add_task(async function test_contentBaseUnescaping() {
+  const contentBaseBox = aboutMessage.document.getElementById(
+    "expandedcontent-baseBox"
+  );
+  const subjectBox = aboutMessage.document.getElementById("expandedsubjectBox");
+  const copyUrlPopup = aboutMessage.document.getElementById("copyUrlPopup");
+
+  MockExternalProtocolService.init();
+  let copiedText = "";
+  const originalWriteText = aboutMessage.navigator.clipboard.writeText;
+  aboutMessage.navigator.clipboard.writeText = async text => {
+    copiedText = text;
+  };
+
+  for (const [contentBase, displayed] of [
+    ["https://example.com/caf%C3%A9", "https://example.com/café"],
+    ["https://example.com/?q=a%26b%25c", "https://example.com/?q=a&b%c"],
+    ["https://example.com/%ZZ", "https://example.com/%ZZ"],
+    ["https://example.com/%C3%28", "https://example.com/%C3%28"],
+  ]) {
+    const msg = create_message({
+      clobberHeaders: { "Content-Base": contentBase },
+    });
+    await add_message_to_folder([folder], msg);
+    await be_in_folder(folder);
+    const msgHdr = folder.msgDatabase.getMsgHdrForMessageID(msg.messageId);
+    await select_click_row(
+      about3Pane.gDBView.findIndexOfMsgHdr(msgHdr, true),
+      AccessibilityUtils
+    );
+
+    Assert.equal(
+      subjectBox.value.textContent,
+      msg.subject,
+      "the subject of the selected message should be shown"
+    );
+    Assert.equal(
+      contentBaseBox.value.textContent,
+      displayed,
+      "the content base should be displayed unescaped where safe"
+    );
+
+    let loadPromise = MockExternalProtocolService.promiseLoad();
+    EventUtils.synthesizeMouseAtCenter(contentBaseBox.value, {}, aboutMessage);
+    Assert.equal(
+      await loadPromise,
+      contentBase,
+      "clicking should open the header value"
+    );
+
+    loadPromise = MockExternalProtocolService.promiseLoad();
+    contentBaseBox.focus();
+    EventUtils.synthesizeKey("KEY_Enter", {}, aboutMessage);
+    Assert.equal(
+      await loadPromise,
+      contentBase,
+      "pressing Enter should open the header value"
+    );
+
+    EventUtils.synthesizeMouseAtCenter(
+      contentBaseBox,
+      { type: "contextmenu" },
+      aboutMessage
+    );
+    await BrowserTestUtils.waitForPopupEvent(copyUrlPopup, "shown");
+    await BrowserTestUtils.activateMenuItem(
+      copyUrlPopup.querySelector("menuitem")
+    );
+    Assert.equal(
+      copiedText,
+      contentBase,
+      "the copied content base url should be the header value"
+    );
+  }
+
+  aboutMessage.navigator.clipboard.writeText = originalWriteText;
+  MockExternalProtocolService.cleanup();
 });
 
 /**

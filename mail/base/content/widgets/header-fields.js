@@ -736,14 +736,24 @@
       this.value.classList.add("text-link");
       this.addEventListener("click", event => {
         if (event.button != 2) {
-          openUILink(encodeURI(this.value.textContent), event);
+          openUILink(this.url, event);
         }
       });
       this.addEventListener("keydown", event => {
         if (event.key == "Enter") {
-          openUILink(encodeURI(this.value.textContent), event);
+          openUILink(this.url, event);
         }
       });
+    }
+
+    /**
+     * Set the URL for this row, displayed unescaped where safe.
+     *
+     * @param {string} val - The URL, as found in the header.
+     */
+    set headerValue(val) {
+      this.url = val;
+      super.headerValue = Services.textToSubURI.unEscapeURIForUI(val);
     }
   }
   customElements.define("url-header-row", UrlHeaderRow, {
