@@ -243,4 +243,15 @@ function run_test() {
       "crafted input should give one address"
     );
   }
+  for (const separator of [",", ";"]) {
+    const displayString = Array.from(
+      { length: 50000 },
+      (_, i) => `u${i}@example.com`
+    ).join(separator);
+    Assert.equal(
+      MailServices.headerParser.makeFromDisplayAddress(displayString).length,
+      50000,
+      `many addresses separated by "${separator}" should all be parsed`
+    );
+  }
 }

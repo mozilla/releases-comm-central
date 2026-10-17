@@ -395,11 +395,19 @@ MimeAddressParser.prototype = {
     // The basic idea is to split on every comma, so long as there is a
     // preceding @ or <> pair.
     const output = [];
-    while (aDisplay.length > 0) {
-      const lt = aDisplay.indexOf("<");
-      const gt = aDisplay.indexOf(">");
-      const at = aDisplay.indexOf("@");
-      let start = 0;
+    let pos = 0;
+    // Only search again once pos has passed the previous match, so the
+    // splitting stays linear.
+    const nextIndex = (char, index) =>
+      index != -1 && index < pos ? aDisplay.indexOf(char, pos) : index;
+    let lt = aDisplay.indexOf("<");
+    let gt = aDisplay.indexOf(">");
+    let at = aDisplay.indexOf("@");
+    while (pos < aDisplay.length) {
+      lt = nextIndex("<", lt);
+      gt = nextIndex(">", gt);
+      at = nextIndex("@", at);
+      let start = pos;
       // An address doesn't always contain both <> and @, the goal is to find
       // the first comma after <> or @.
       if (lt != -1 && gt > lt) {
@@ -408,21 +416,19 @@ MimeAddressParser.prototype = {
       if (at != -1) {
         start = Math.min(start, at);
       }
-      let comma = aDisplay.indexOf(",", start);
+      const comma = aDisplay.indexOf(",", start);
       let addr;
-      if (comma > 0) {
-        addr = aDisplay.substr(0, comma);
-        aDisplay = aDisplay.substr(comma + 1);
+      if (comma > pos) {
+        addr = aDisplay.slice(pos, comma);
+        pos = comma + 1;
 
         // Make sure we don't have any "empty addresses" (multiple commas).
-        comma = 0;
-        while (/[,\s]/.test(aDisplay.charAt(comma))) {
-          comma++;
+        while (/[,\s]/.test(aDisplay.charAt(pos))) {
+          pos++;
         }
-        aDisplay = aDisplay.substr(comma);
       } else {
-        addr = aDisplay;
-        aDisplay = "";
+        addr = aDisplay.slice(pos);
+        pos = aDisplay.length;
       }
       addr = addr.trimLeft();
       if (addr) {
