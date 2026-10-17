@@ -881,7 +881,7 @@ define(function (require) {
       });
     });
 
-    suite("Nesting depth", function () {
+    suite("Stack usage", function () {
       function nestedMultipart(depth) {
         let message = "";
         for (let i = 0; i < depth; i++) {
@@ -917,9 +917,7 @@ define(function (require) {
             },
           }
         );
-        for (let i = 0; i < message.length; i += 16384) {
-          parser.deliverData(message.slice(i, i + 16384));
-        }
+        parser.deliverData(message);
         parser.deliverEOF();
         return result;
       }
@@ -949,6 +947,15 @@ define(function (require) {
           data: "\r\nleaf",
         });
         assert.equal(parse(nestedMessage(20000)).parts, 65);
+      });
+      test("Many sibling parts don't exhaust the stack", function () {
+        const message =
+          'Content-Type: multipart/mixed; boundary="b"\r\n\r\n' +
+          "--b\r\n\r\nx\r\n".repeat(50000) +
+          "--b--\r\n";
+        const result = parse(message);
+        assert.equal(result.parts, 50001);
+        assert.equal(result.data, "x".repeat(50000));
       });
     });
   });

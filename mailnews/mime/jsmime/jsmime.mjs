@@ -2415,26 +2415,26 @@ const JsMIMEmimeparser = function () {
 
     // We're in the middle of the body. Start by testing the split regex, to see
     // if there are many things that need to be done.
-    if (checkSplit && this._splitRegex) {
+    while (checkSplit && this._splitRegex) {
       const splitResult = this._splitRegex.exec(buffer);
-      if (splitResult) {
-        // Pass the text before the split through the current state.
-        const start = splitResult.index,
-          len = splitResult[0].length;
-        if (start > 0) {
-          this._dispatchData(partNum, buffer.substr(0, start), false);
-        }
+      if (!splitResult) {
+        break;
+      }
+      // Pass the text before the split through the current state.
+      const start = splitResult.index,
+        len = splitResult[0].length;
+      if (start > 0) {
+        this._dispatchData(partNum, buffer.substr(0, start), false);
+      }
 
-        // Tell the handler that we've seen the split. Note that this can change
-        // any method on `this'.
-        this._handleSplit(partNum, splitResult);
+      // Tell the handler that we've seen the split. Note that this can change
+      // any method on `this'.
+      this._handleSplit(partNum, splitResult);
 
-        // Send the rest of the data to where it needs to go. There could be more
-        // splits in the data, so watch out!
-        buffer = buffer.substring(start + len);
-        if (buffer.length > 0) {
-          this._dispatchData(partNum, buffer, true);
-        }
+      // Send the rest of the data to where it needs to go. There could be more
+      // splits in the data, so watch out!
+      buffer = buffer.substring(start + len);
+      if (buffer.length == 0) {
         return;
       }
     }
