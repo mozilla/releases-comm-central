@@ -90,17 +90,13 @@ async function subtestRepairFolder(folder) {
 
   const dialog = await openFolderProperties(folder);
   if (folder.supportsOffline) {
-    let promptPromise = BrowserTestUtils.promiseAlertDialog("cancel");
-    dialog.repairFolder();
-    await promptPromise;
+    await dialog.repairFolderWithPrompt("cancel");
     Assert.ok(
       !dialog.repairButton.disabled,
       "declining the confirmation should not start the repair"
     );
 
-    promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
-    dialog.repairFolder();
-    await promptPromise;
+    await dialog.repairFolderWithPrompt("accept");
   } else {
     dialog.repairFolder();
   }
@@ -190,6 +186,17 @@ async function openFolderProperties(folder) {
     repairButton,
     repairFolder() {
       EventUtils.synthesizeMouseAtCenter(repairButton, {}, dialogWindow);
+    },
+    async repairFolderWithPrompt(buttonName) {
+      const promptPromise = BrowserTestUtils.promiseAlertDialog(buttonName);
+      EventUtils.synthesizeMouseAtCenter(repairButton, {}, dialogWindow);
+      await promptPromise;
+      // promiseAlertDialog() resolves before confirm() returns, while the
+      // dialog is still in modal state and ignores input and window.close().
+      await TestUtils.waitForCondition(
+        () => !dialogWindow.windowUtils.isInModalState(),
+        "the folder properties dialog should leave its modal state"
+      );
     },
     async accept() {
       const windowClosedPromise =

@@ -96,6 +96,12 @@ add_task(async function test_repair_folder() {
   const promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   EventUtils.synthesizeMouseAtCenter(repairButton, {}, dialogWindow);
   await promptPromise;
+  // promiseAlertDialog() resolves before confirm() returns, while the dialog
+  // is still in modal state and ignores input and window.close().
+  await TestUtils.waitForCondition(
+    () => !dialogWindow.windowUtils.isInModalState(),
+    "the folder properties dialog should leave its modal state"
+  );
   const windowClosedPromise = BrowserTestUtils.domWindowClosed(dialogWindow);
   EventUtils.synthesizeMouseAtCenter(
     folderPropertiesDialog.getButton("accept"),
