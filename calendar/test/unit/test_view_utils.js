@@ -19,6 +19,7 @@ function run_test() {
   test_compare_alldayevent();
   test_compare_title();
   test_compare_todo();
+  test_fix_google_calendar_description();
 }
 
 function test_not_a_date() {
@@ -122,4 +123,22 @@ function test_compare_todo() {
 
   cmp = cal.view.compareItems(a, a);
   equal(cmp, 0);
+}
+
+function test_fix_google_calendar_description() {
+  const item = new CalEvent();
+  item.descriptionText =
+    "&copy;&#65;&#x42; &amp;&lt;&quot; &nbsp;&foo; &ampx &copy &a&a\nhttps://example.com/?a=1&b=2";
+  cal.view.fixGoogleCalendarDescription(item);
+  equal(
+    item.descriptionHTML,
+    '\u00a9AB &amp;&lt;" \u00a0&amp;foo; &amp;ampx \u00a9 &amp;a&amp;a<br>' +
+      '<a class="moz-txt-link-freetext" href="https://example.com/?a=1&amp;b=2">' +
+      "https://example.com/?a=1&amp;b=2</a>",
+    "entities should be decoded and URLs linkified"
+  );
+
+  item.descriptionText = `${"&a".repeat(320000)} end`;
+  cal.view.fixGoogleCalendarDescription(item);
+  equal(item.descriptionHTML, `${"&amp;a".repeat(320000)} end`, "unknown entities should be kept");
 }
