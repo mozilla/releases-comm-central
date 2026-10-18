@@ -374,7 +374,7 @@ toolbar[customizing="true"][collapsed] {
   :root[uidensity="touch"] &:not([is="toolbarbutton-menu-button"]),
   :root[uidensity="touch"] & > .toolbarbutton-menubutton-button,
   :root[uidensity="touch"] & > .toolbarbutton-menubutton-dropmarker {
-    padding: 5px;
+    padding-block: 5px;
   }
 
   toolbar[mode="full"] &:not([hideWebExtensionLabel="true"]) {
