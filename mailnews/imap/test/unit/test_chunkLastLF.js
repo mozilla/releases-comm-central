@@ -14,8 +14,9 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
-var gFile = do_get_file("../../../data/bug92111b");
-var gIMAPDaemon, gIMAPServer, gIMAPIncomingServer;
+const { ServerTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
+);
 
 // Add a message to a server mailbox, returning its UID.
 function addMessageToServer(file, mailbox) {
@@ -44,31 +45,66 @@ add_task(async function verifyContentLength() {
   Services.prefs.setIntPref("mail.imap.min_chunk_size_threshold", 1500);
   Services.prefs.setIntPref("mail.imap.chunk_add", 0);
 
-  // set up IMAP fakeserver and incoming server
-  gIMAPDaemon = new ImapDaemon();
-  gIMAPServer = makeServer(gIMAPDaemon, "");
-  gIMAPIncomingServer = createLocalIMAPServer(gIMAPServer.port);
-
   // The server doesn't support more than one connection
   Services.prefs.setIntPref("mail.server.server1.max_cached_connections", 1);
   // We aren't interested in downloading messages automatically
   Services.prefs.setBoolPref("mail.server.server1.download_on_biff", false);
 
-  // Add a message to the IMAP server
-  const addedUid = addMessageToServer(gFile, gIMAPDaemon.getMailbox("INBOX"));
+  // Set up IMAP fakeserver and corresponding client-side bits.
+  const imapServer = await ServerTestUtils.createServer({ type: "imap" });
+  const account = MailServices.accounts.createAccount();
+  const identity = MailServices.accounts.createIdentity();
+  account.addIdentity(identity);
+  account.defaultIdentity = identity;
+  const incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "localhost",
+    "imap"
+  );
+  incomingServer.port = imapServer.port;
+  incomingServer.password = "password";
+  account.incomingServer = incomingServer;
+  MailServices.accounts.defaultAccount = account;
 
-  const imapS = Cc[
+  // Sync the folder list with server.
+  {
+    const listener = new PromiseTestUtils.PromiseUrlListener();
+    MailServices.imap.discoverAllFolders(
+      incomingServer.rootFolder,
+      listener,
+      null
+    );
+    await listener.promise;
+  }
+
+  // Load a message directly into INBOX on the IMAP server.
+  const srcFile = do_get_file("../../../data/bug92111b");
+  addMessageToServer(srcFile, imapServer.daemon.getMailbox("INBOX"));
+
+  // Sync the message list and get an imap: URL for fetching the message.
+  const imapMsgService = Cc[
     "@mozilla.org/messenger/messageservice;1?type=imap"
   ].getService(Ci.nsIMsgMessageService);
 
+  const inbox = incomingServer.rootFolder
+    .getChildNamed("INBOX")
+    .QueryInterface(Ci.nsIMsgImapMailFolder);
+  {
+    const listener = new PromiseTestUtils.PromiseUrlListener();
+    inbox.updateFolderWithListener(null, listener);
+    await listener.promise;
+  }
+
+  Assert.equal([...inbox.messages].length, 1, "Inbox should contain 1 message");
+  const hdr = [...inbox.messages][0];
+  const msgUri = inbox.generateMessageURI(hdr.messageKey);
+
   // URL to stream directly from server, bypassing the folder entirely.
-  const uri = imapS.getUrlForUri(
-    `imap-message://user@localhost/INBOX#${addedUid}`
-  );
+  const fetchUrl = imapMsgService.getUrlForUri(msgUri);
 
   // Get a channel from this URI, and check its content length
   const channel = Services.io.newChannelFromURI(
-    uri,
+    fetchUrl,
     null,
     Services.scriptSecurityManager.getSystemPrincipal(),
     null,
@@ -87,7 +123,10 @@ add_task(async function verifyContentLength() {
 
   // Now check whether our stream listener got the right bytes
   // First, clean up line endings to avoid CRLF vs. LF differences
-  const origData = (await IOUtils.readUTF8(gFile.path)).replace(/\r\n/g, "\n");
+  const origData = (await IOUtils.readUTF8(srcFile.path)).replace(
+    /\r\n/g,
+    "\n"
+  );
   Assert.equal(origData.length, streamData.length);
   Assert.equal(origData, streamData);
 
@@ -103,11 +142,4 @@ add_task(async function verifyContentLength() {
   // Currently attachments have their content length set to the length of the
   // entire message
   // do_check_eq(attachmentChannel.contentLength, gFile.fileSize);
-
-  gIMAPIncomingServer.closeCachedConnections();
-  gIMAPServer.stop();
-  const thread = Services.tm.currentThread;
-  while (thread.hasPendingEvents()) {
-    thread.processNextEvent(true);
-  }
 });
