@@ -35,6 +35,8 @@ tags = ["archive"]
 
 ["browser_clickLinks.js"]
 
+["browser_contentTabOpenWindow.js"]
+
 ["browser_contentTabRestore.js"]
 
 ["browser_dragDropFolders.js"]
