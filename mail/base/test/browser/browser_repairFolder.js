@@ -15,6 +15,9 @@ const { IMAPServer } = ChromeUtils.importESModule(
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+);
 const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
   "resource://testing-common/MailViewHelpers.sys.mjs"
 );
@@ -76,7 +79,12 @@ add_task(async function testImapFolder() {
 });
 
 async function subtestRepairFolder(folder) {
+  let folderLoadedPromise = PromiseTestUtils.promiseFolderEvent(
+    folder,
+    "FolderLoaded"
+  );
   about3Pane.displayFolder(folder);
+  await folderLoadedPromise;
 
   await toggleColumn("sizeCol");
   await toggleColumn("tagsCol");
@@ -89,6 +97,10 @@ async function subtestRepairFolder(folder) {
   );
 
   const dialog = await openFolderProperties(folder);
+  folderLoadedPromise = PromiseTestUtils.promiseFolderEvent(
+    folder,
+    "FolderLoaded"
+  );
   if (folder.supportsOffline) {
     await dialog.repairFolderWithPrompt("cancel");
     Assert.ok(
@@ -101,6 +113,7 @@ async function subtestRepairFolder(folder) {
     dialog.repairFolder();
   }
   await dialog.accept();
+  await folderLoadedPromise;
   await TestUtils.waitForCondition(
     () => about3Pane.dbViewWrapperListener.allMessagesLoaded,
     "waiting for message list to finish loading"
