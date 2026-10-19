@@ -378,10 +378,9 @@ NS_IMETHODIMP nsImapHostSessionList::GetNamespaceForMailboxForHost(
 NS_IMETHODIMP nsImapHostSessionList::GetNamespaceDetailsForMailboxForHost(
     const char* serverKey, const char* mailboxName,
     EIMAPNamespaceType fallbackType, nsACString& prefix, char& delimiter,
-    EIMAPNamespaceType& type, bool& isRootMailbox, bool& found) {
+    bool& isRootMailbox, bool& found) {
   prefix.Truncate();
   delimiter = kOnlineHierarchySeparatorUnknown;
-  type = kUnknownNamespace;
   isRootMailbox = false;
   found = false;
 
@@ -396,7 +395,6 @@ NS_IMETHODIMP nsImapHostSessionList::GetNamespaceDetailsForMailboxForHost(
     if (ns) {
       prefix.Assign(ns->GetPrefix());
       delimiter = ns->GetDelimiter();
-      type = ns->GetType();
       isRootMailbox = ns->IsRootMailbox(mailboxName);
       found = true;
     }

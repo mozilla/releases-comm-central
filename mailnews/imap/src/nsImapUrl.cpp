@@ -629,18 +629,16 @@ NS_IMETHODIMP nsImapUrl::AddOnlineDirectoryIfNecessary(
 
   nsAutoCString namespacePrefix;
   char namespaceDelimiter;
-  EIMAPNamespaceType namespaceType;
   bool isNamespaceRoot;
   bool namespaceFound;
   rv = hostSessionList->GetNamespaceDetailsForMailboxForHost(
       m_serverKey.get(), onlineMailboxName, kPersonalNamespace, namespacePrefix,
-      namespaceDelimiter, namespaceType, isNamespaceRoot, namespaceFound);
+      namespaceDelimiter, isNamespaceRoot, namespaceFound);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // The root mailbox of a public or other users' namespace doesn't start with
-  // the prefix, but AllocateCanonicalPath() left it complete.
-  if (onlineDir.IsEmpty() && isNamespaceRoot &&
-      namespaceType != kPersonalNamespace) {
+  // The root mailbox of a namespace doesn't start with the prefix, but
+  // AllocateCanonicalPath() left it complete.
+  if (onlineDir.IsEmpty() && isNamespaceRoot) {
     if (directory) *directory = nullptr;
     return NS_OK;
   }

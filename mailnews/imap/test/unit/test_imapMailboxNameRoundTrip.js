@@ -21,6 +21,13 @@ add_task(async function testNamespaces() {
   });
 });
 
+add_task(async function testSecondPersonalNamespace() {
+  await checkRoundTrip({
+    mailboxes: ["Archive", "Archive/2020", "folder"],
+    namespaces: '(("" "/")("Archive/" "/")) NIL NIL',
+  });
+});
+
 add_task(async function testServerDirectory() {
   await checkRoundTrip({
     mailboxes: ["Mail", "Mail/Mail", "Mail/folder"],
