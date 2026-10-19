@@ -2,6 +2,9 @@
 // purpose is to make sure that maild is working properly and to provide
 // examples for how using maild. They also help make sure that I coded Nntpd.sys.mjs
 // right, both logically and for RFC compliance.
+
+"use strict";
+
 // TODO:
 // * We need to hook up mochitest,
 // * TLS negotiation.
@@ -130,15 +133,24 @@ function testReentrantClose() {
   });
   server.performTest("GROUP");
   dump("Stopping server\n");
+  let connectionsClosed = false;
   Services.tm.currentThread.dispatch(
     {
       run() {
-        _server.closeCachedConnections();
+        try {
+          _server.closeCachedConnections();
+        } finally {
+          connectionsClosed = true;
+        }
       },
     },
     Ci.nsIEventTarget.DISPATCH_NORMAL
   );
   server.performTest();
+  Services.tm.spinEventLoopUntil(
+    "testReentrantClose: connections closed",
+    () => connectionsClosed
+  );
   server.stop();
 
   // Break refcnt loops

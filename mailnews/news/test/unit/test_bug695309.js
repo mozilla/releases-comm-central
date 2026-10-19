@@ -52,10 +52,11 @@ add_task(async function test_newMsgs() {
   folder.getNewMessages(null, asyncUrlListener);
   await asyncUrlListener.promise;
   // Do another folder to use up both connections
+  const simpleGroupUrlListener = new PromiseTestUtils.PromiseUrlListener();
   localserver.rootFolder
     .getChildNamed("test.subscribe.simple")
-    .getNewMessages(null, asyncUrlListener);
-  await asyncUrlListener.promise;
+    .getNewMessages(null, simpleGroupUrlListener);
+  await simpleGroupUrlListener.promise;
   folder.QueryInterface(Ci.nsIMsgNewsFolder).setReadSetFromStr("1-3");
   Assert.equal(folder.getTotalMessages(false) - folder.getNumUnread(false), 3);
   highWater = folder.getTotalMessages(false);
@@ -64,7 +65,7 @@ add_task(async function test_newMsgs() {
 
 add_task(async function trigger_bug() {
   // Kill the connection and start it up again.
-  server.stop();
+  await server.stop();
   server.start();
 
   // Get new messages for all folders. Once we've seen one folder, trigger a
