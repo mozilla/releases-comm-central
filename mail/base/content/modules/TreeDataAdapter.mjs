@@ -248,8 +248,7 @@ export class TreeDataAdapter {
   }
 
   /**
-   * Opens or closes a container with children.  The logic here is a bit hairy, so
-   * be very careful about changing anything.
+   * Opens or closes a container with children.
    *
    * @param {integer} rowIndex
    */

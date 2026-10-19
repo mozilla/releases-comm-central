@@ -56,6 +56,7 @@ class TestCardRow extends customElements.get("tree-view-table-row") {
 }
 customElements.define("test-row", TestCardRow, { extends: "tr" });
 
+window.ensureChildrenLog = [];
 class TreeItem extends TreeDataRow {
   constructor(id, text) {
     super({ text });
@@ -64,6 +65,13 @@ class TreeItem extends TreeDataRow {
 
   get properties() {
     return [this.id];
+  }
+
+  async ensureChildren(dataAdapter, rootIndex) {
+    // Do something "async".
+    await Promise.resolve();
+    // Record what the rootIndex value was so we can check it later.
+    window.ensureChildrenLog.push(rootIndex);
   }
 }
 
