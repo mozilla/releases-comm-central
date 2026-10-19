@@ -66,7 +66,8 @@ add_task(async function testColumnContents() {
     Assert.equal(row6.getText("flags"), "5");
     Assert.equal(row6.getText("unread"), false);
     Assert.equal(row6.getText("flagged"), true);
-    Assert.deepEqual([...row6.properties], []);
+    Assert.deepEqual([...row6.properties], ["read"]);
+
     tree.assertInvalidated(6, 6);
   } finally {
     adapter.setTree(null);

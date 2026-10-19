@@ -456,10 +456,13 @@ class SelectMessagesListener final : public mozIStorageStatementCallback {
           uint64_t messageCount = row->AsInt64(11);
           JS_DefineProperty(cx, obj, "messageCount", (double)(messageCount),
                             JSPROP_ENUMERATE);
+          uint64_t unreadCount = row->AsInt64(12);
+          JS_DefineProperty(cx, obj, "unreadCount", (double)(unreadCount),
+                            JSPROP_ENUMERATE);
         }
         if (mLiveView->mGrouping == nsILiveView::GROUPED_BY_SORT &&
             mLiveView->mSortColumn == nsILiveView::DATE) {
-          uint64_t dateGroup = row->AsInt64(12);
+          uint64_t dateGroup = row->AsInt64(13);
           JS_DefineProperty(cx, obj, "dateGroup", (double)(dateGroup),
                             JSPROP_ENUMERATE);
         }
@@ -630,16 +633,19 @@ NS_IMETHODIMP LiveView::SelectMessages(JSContext* cx, Promise** promise) {
           tags, \
           threadId, \
           threadParent");
+    if (mGrouping == nsILiveView::THREADED ||
+        mGrouping == nsILiveView::GROUPED_BY_SORT) {
+      sql.Append(", COUNT(*) AS messageCount");
+      sql.AppendFmt(", SUM(flags & {} = 0) AS unreadCount",
+                    (uint32_t)nsMsgMessageFlags::Read);
+    }
     if (mGrouping == nsILiveView::THREADED) {
-      sql.Append(", COUNT(*) AS messageCount");
-      // Get only the newest message in each thread. This is the last column and
-      // only exists to tell SQLite what to do, we don't use this data.
+      // Get only the newest message in each thread. This is the last column
+      // and only exists to tell SQLite what to do, we don't use this data.
       sql.Append(", MAX(date) AS maxDate");
-    } else if (mGrouping == nsILiveView::GROUPED_BY_SORT) {
-      sql.Append(", COUNT(*) AS messageCount");
-      if (mSortColumn == nsILiveView::DATE) {
-        sql.Append(", DATE_GROUP(date) AS dateGroup");
-      }
+    } else if (mGrouping == nsILiveView::GROUPED_BY_SORT &&
+               mSortColumn == nsILiveView::DATE) {
+      sql.Append(", DATE_GROUP(date) AS dateGroup");
     }
     sql.Append(" FROM messages WHERE ");
     sql.Append(GetSQLClause());

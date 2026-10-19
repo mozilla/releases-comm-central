@@ -47,18 +47,32 @@ add_task(async function testDateDescending() {
     Assert.equal(adapter.rowCount, 7);
     Assert.equal(adapter.getCellText(0, "subject"), "2023");
     Assert.equal(adapter.rowAt(0).rowCount, 1);
+    Assert.equal(adapter.rowAt(0).unreadCount, 0);
+    Assert.equal(adapter.getRowProperties(0), "dummy");
     Assert.equal(adapter.getCellText(1, "subject"), "2021");
     Assert.equal(adapter.rowAt(1).rowCount, 1);
+    Assert.equal(adapter.rowAt(1).unreadCount, 0);
+    Assert.equal(adapter.getRowProperties(1), "dummy");
     Assert.equal(adapter.getCellText(2, "subject"), "2017");
     Assert.equal(adapter.rowAt(2).rowCount, 2);
+    Assert.equal(adapter.rowAt(2).unreadCount, 2);
+    Assert.equal(adapter.getRowProperties(2), "dummy hasUnread");
     Assert.equal(adapter.getCellText(3, "subject"), "2016");
     Assert.equal(adapter.rowAt(3).rowCount, 4);
+    Assert.equal(adapter.rowAt(3).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread");
     Assert.equal(adapter.getCellText(4, "subject"), "2015");
     Assert.equal(adapter.rowAt(4).rowCount, 2);
+    Assert.equal(adapter.rowAt(4).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(4), "dummy hasUnread");
     Assert.equal(adapter.getCellText(5, "subject"), "2013");
     Assert.equal(adapter.rowAt(5).rowCount, 2);
+    Assert.equal(adapter.rowAt(5).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(5), "dummy hasUnread");
     Assert.equal(adapter.getCellText(6, "subject"), "2011");
     Assert.equal(adapter.rowAt(6).rowCount, 1);
+    Assert.equal(adapter.rowAt(6).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(6), "dummy hasUnread");
 
     adapter.toggleOpenState(0);
     tree.assertRowCountChanged(1, 1);
@@ -66,8 +80,13 @@ add_task(async function testDateDescending() {
     await tree.promiseInvalidated(0, 1);
     Assert.equal(adapter.rowCount, 8);
     Assert.equal(adapter.getCellText(0, "subject"), "2023");
+    Assert.equal(adapter.rowAt(0).unreadCount, 0);
+    Assert.equal(adapter.getRowProperties(0), "dummy");
     Assert.equal(adapter.getCellText(1, "messageId"), "message13@invalid"); // 2023-02-19
+    Assert.equal(adapter.getRowProperties(1), "read");
     Assert.equal(adapter.getCellText(2, "subject"), "2021");
+    Assert.equal(adapter.rowAt(2).unreadCount, 0);
+    Assert.equal(adapter.getRowProperties(2), "dummy");
 
     adapter.toggleOpenState(4);
     tree.assertRowCountChanged(5, 4);
@@ -75,10 +94,16 @@ add_task(async function testDateDescending() {
     await tree.promiseInvalidated(4, 8);
     Assert.equal(adapter.rowCount, 12);
     Assert.equal(adapter.getCellText(4, "subject"), "2016");
+    Assert.equal(adapter.rowAt(4).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(4), "dummy hasUnread");
     Assert.equal(adapter.getCellText(5, "messageId"), "message7@invalid"); // 2016-09-29
+    Assert.equal(adapter.getRowProperties(5), "read");
     Assert.equal(adapter.getCellText(6, "messageId"), "message5@invalid"); // 2016-09-14
+    Assert.equal(adapter.getRowProperties(6), "read");
     Assert.equal(adapter.getCellText(7, "messageId"), "message11@invalid"); // 2016-05-21
+    Assert.equal(adapter.getRowProperties(7), "read");
     Assert.equal(adapter.getCellText(8, "messageId"), "message10@invalid"); // 2016-02-19
+    Assert.equal(adapter.getRowProperties(8), "unread");
 
     // A message inside an open group.
 
@@ -90,10 +115,13 @@ add_task(async function testDateDescending() {
     tree.assertRowCountChanged(4, 1);
     Assert.equal(adapter.rowCount, 13);
     Assert.equal(adapter.getCellText(4, "subject"), "2016");
+    Assert.equal(adapter.rowAt(4).unreadCount, 2);
+    Assert.equal(adapter.getRowProperties(4), "dummy hasUnread");
     Assert.equal(adapter.getCellText(5, "messageId"), "message7@invalid"); // 2016-09-29
     Assert.equal(adapter.getCellText(6, "messageId"), "message5@invalid"); // 2016-09-14
     Assert.equal(adapter.getCellText(7, "messageId"), "message11@invalid"); // 2016-05-21
     Assert.equal(adapter.getCellText(8, "messageId"), "added1@invalid"); // 2016-03-15
+    Assert.equal(adapter.getRowProperties(8), "unread");
     Assert.equal(adapter.getCellText(9, "messageId"), "message10@invalid"); // 2016-02-19
 
     // A message inside a closed group.
@@ -105,6 +133,8 @@ add_task(async function testDateDescending() {
     checkDateGroup(added2, 2017);
     tree.assertInvalidated(3, 3);
     Assert.equal(adapter.rowCount, 13);
+    Assert.equal(adapter.rowAt(3).unreadCount, 3);
+    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread");
 
     // Open the group.
 
@@ -114,8 +144,11 @@ add_task(async function testDateDescending() {
     Assert.equal(adapter.rowCount, 16);
     await tree.promiseInvalidated(3, 6);
     Assert.equal(adapter.getCellText(3, "subject"), "2017");
+    Assert.equal(adapter.rowAt(3).unreadCount, 3);
+    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread");
     Assert.equal(adapter.getCellText(4, "messageId"), "message8@invalid"); // 2017-09-15
     Assert.equal(adapter.getCellText(5, "messageId"), "added2@invalid"); // 2017-06-06
+    Assert.equal(adapter.getRowProperties(5), "unread");
     Assert.equal(adapter.getCellText(6, "messageId"), "message6@invalid"); // 2017-05-10
 
     // Close the group.
@@ -124,6 +157,8 @@ add_task(async function testDateDescending() {
     tree.assertRowCountChanged(4, -3);
     tree.assertInvalidated(3, 3);
     Assert.equal(adapter.rowCount, 13);
+    Assert.equal(adapter.rowAt(3).unreadCount, 3);
+    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread");
 
     // A message inside a previously open group.
 
@@ -134,6 +169,8 @@ add_task(async function testDateDescending() {
     checkDateGroup(added3, 2017);
     tree.assertInvalidated(3, 3);
     Assert.equal(adapter.rowCount, 13);
+    Assert.equal(adapter.rowAt(3).unreadCount, 4);
+    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread");
 
     // Open the group, check the messages, close the group.
 
@@ -163,6 +200,8 @@ add_task(async function testDateDescending() {
     tree.assertRowCountChanged(0, 1);
     Assert.equal(adapter.rowCount, 14);
     Assert.equal(adapter.getCellText(0, "subject"), "2024");
+    Assert.equal(adapter.rowAt(0).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(0), "dummy hasUnread");
 
     // A message inside the "future" group, that doesn't yet exist.
 
@@ -175,6 +214,8 @@ add_task(async function testDateDescending() {
     tree.assertRowCountChanged(0, 1);
     Assert.equal(adapter.rowCount, 15);
     Assert.equal(adapter.getCellText(0, "subject"), "Future");
+    Assert.equal(adapter.rowAt(0).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(0), "dummy hasUnread");
 
     // A message inside the "today" group, that doesn't yet exist.
 
@@ -186,6 +227,8 @@ add_task(async function testDateDescending() {
     tree.assertRowCountChanged(1, 1);
     Assert.equal(adapter.rowCount, 16);
     Assert.equal(adapter.getCellText(1, "subject"), "Today");
+    Assert.equal(adapter.rowAt(1).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(1), "dummy hasUnread");
 
     adapter.toggleOpenState(1);
     tree.assertRowCountChanged(2, 1);
@@ -237,6 +280,10 @@ add_task(async function testDateDescending() {
     tree.assertRowCountChanged(20, 1);
     Assert.equal(adapter.rowCount, 21);
     Assert.equal(adapter.getCellText(20, "subject"), "1995");
+    Assert.equal(adapter.rowAt(20).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(20), "dummy hasUnread");
+
+    // Remove the messages, in the order they were added.
 
     messageDB.removeMessage(added1);
     tree.assertRowCountChanged(15, -1);
@@ -543,20 +590,36 @@ add_task(async function testSubjectDescending() {
     Assert.equal(adapter.rowCount, 8);
     Assert.equal(subjectAt(0), "Reduced directional secured line");
     Assert.equal(adapter.rowAt(0).rowCount, 1);
+    Assert.equal(adapter.rowAt(0).unreadCount, 0);
+    Assert.equal(adapter.getRowProperties(0), "dummy");
     Assert.equal(subjectAt(1), "Organized 3rd generation alliance");
     Assert.equal(adapter.rowAt(1).rowCount, 2);
+    Assert.equal(adapter.rowAt(1).unreadCount, 0);
+    Assert.equal(adapter.getRowProperties(1), "dummy");
     Assert.equal(subjectAt(2), "Open-architected radical system engine");
     Assert.equal(adapter.rowAt(2).rowCount, 1);
+    Assert.equal(adapter.rowAt(2).unreadCount, 0);
+    Assert.equal(adapter.getRowProperties(2), "dummy");
     Assert.equal(subjectAt(3), "Object-based disintermediate analyzer");
     Assert.equal(adapter.rowAt(3).rowCount, 1);
+    Assert.equal(adapter.rowAt(3).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread");
     Assert.equal(subjectAt(4), "Intuitive 24/7 hardware");
     Assert.equal(adapter.rowAt(4).rowCount, 1);
+    Assert.equal(adapter.rowAt(4).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(4), "dummy hasUnread");
     Assert.equal(subjectAt(5), "Expanded disintermediate service-desk");
     Assert.equal(adapter.rowAt(5).rowCount, 1);
+    Assert.equal(adapter.rowAt(5).unreadCount, 0);
+    Assert.equal(adapter.getRowProperties(5), "dummy");
     Assert.equal(subjectAt(6), "Down-sized disintermediate solution");
     Assert.equal(adapter.rowAt(6).rowCount, 1);
+    Assert.equal(adapter.rowAt(6).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(6), "dummy hasUnread");
     Assert.equal(subjectAt(7), "Automated uniform internet solution");
     Assert.equal(adapter.rowAt(7).rowCount, 5);
+    Assert.equal(adapter.rowAt(7).unreadCount, 3);
+    Assert.equal(adapter.getRowProperties(7), "dummy hasUnread");
 
     adapter.toggleOpenState(7);
     tree.assertRowCountChanged(8, 5);
@@ -594,6 +657,8 @@ add_task(async function testSubjectDescending() {
     tree.assertRowCountChanged(1, 1);
     Assert.equal(adapter.rowCount, 11);
     Assert.equal(subjectAt(1), "Organized 3rd generation alliance");
+    Assert.equal(adapter.rowAt(1).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(1), "dummy hasUnread");
     Assert.equal(adapter.getCellText(2, "messageId"), "added1@invalid"); // Now
     Assert.equal(adapter.getCellText(3, "messageId"), "message13@invalid"); // 2023-02-19
     Assert.equal(adapter.getCellText(4, "messageId"), "message1@invalid"); // 2013-09-15
@@ -622,6 +687,8 @@ add_task(async function testSubjectDescending() {
 
     messageDB.removeMessage(added1);
     tree.assertRowCountChanged(2, -1);
+    Assert.equal(adapter.rowAt(1).unreadCount, 0);
+    Assert.equal(adapter.getRowProperties(1), "dummy");
     Assert.equal(adapter.rowCount, 11);
 
     messageDB.removeMessage(added2);
@@ -742,6 +809,79 @@ add_task(async function testSubjectAscending() {
     messageDB.removeMessage(added3);
     tree.assertRowCountChanged(4, -1);
     Assert.equal(adapter.rowCount, 10);
+  } finally {
+    adapter.setTree(null);
+  }
+});
+
+/**
+ * Tests the effects of message flags changing on dummy row properties.
+ */
+add_task(async function testMessageFlagChanges() {
+  const liveView = new LiveView();
+  const adapter = new LiveViewGroupedDataAdapter(liveView);
+  adapter.setTree(tree);
+  adapter.sortBy("date", "descending");
+  await tree.promiseInvalidated(0, 6);
+  Assert.equal(liveView.sortColumn, Ci.nsILiveView.DATE);
+  Assert.ok(liveView.sortDescending);
+
+  try {
+    // Change the unread flags of messages in an open group.
+
+    Assert.equal(adapter.getCellText(3, "subject"), "2016");
+    Assert.equal(adapter.rowAt(3).rowCount, 4);
+    Assert.equal(adapter.rowAt(3).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread");
+
+    adapter.toggleOpenState(3);
+    tree.assertRowCountChanged(4, 4);
+    tree.assertInvalidated(3, 3);
+    await tree.promiseInvalidated(3, 7);
+    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread");
+    Assert.equal(adapter.getCellText(4, "messageId"), "message7@invalid");
+    Assert.equal(adapter.getRowProperties(4), "read");
+    Assert.equal(adapter.getCellText(7, "messageId"), "message10@invalid");
+    Assert.equal(adapter.getRowProperties(7), "unread");
+
+    const message7 = messageDB.getMessage(7);
+    const message10 = messageDB.getMessage(10);
+
+    message10.markRead(true);
+    await tree.promiseInvalidated(7, 7);
+    Assert.equal(adapter.getRowProperties(3), "dummy");
+    Assert.equal(adapter.getRowProperties(7), "read");
+
+    message7.markRead(false);
+    await tree.promiseInvalidated(4, 4);
+    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread");
+    Assert.equal(adapter.getRowProperties(4), "unread");
+
+    message7.markRead(true);
+    await tree.promiseInvalidated(4, 4);
+    Assert.equal(adapter.getRowProperties(3), "dummy");
+    Assert.equal(adapter.getRowProperties(4), "read");
+
+    message10.markRead(false);
+    await tree.promiseInvalidated(7, 7);
+    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread");
+    Assert.equal(adapter.getRowProperties(7), "unread");
+
+    // Change the unread flags of messages in an closed group.
+
+    Assert.equal(adapter.getCellText(8, "subject"), "2015");
+    Assert.equal(adapter.rowAt(8).rowCount, 2);
+    Assert.equal(adapter.rowAt(8).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(8), "dummy hasUnread");
+
+    const message2 = messageDB.getMessage(2);
+    message2.markRead(true);
+    await tree.promiseInvalidated(8, 8);
+    Assert.equal(adapter.getRowProperties(8), "dummy");
+
+    message2.markRead(false);
+    await tree.promiseInvalidated(8, 8);
+    Assert.equal(adapter.getRowProperties(8), "dummy hasUnread");
   } finally {
     adapter.setTree(null);
   }

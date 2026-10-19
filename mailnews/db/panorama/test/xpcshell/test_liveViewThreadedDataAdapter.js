@@ -37,21 +37,33 @@ add_task(async function testDateDescending() {
     Assert.equal(adapter.rowAt(0).rowCount, 0);
     Assert.equal(adapter.getCellText(0, "messageId"), "message10@invalid");
     Assert.equal(adapter.getCellText(0, "threadId"), "10");
+    Assert.equal(adapter.rowAt(0).unreadCount, 0);
+    Assert.equal(adapter.getRowProperties(0), "read");
     Assert.equal(adapter.rowAt(1).rowCount, 0);
     Assert.equal(adapter.getCellText(1, "messageId"), "message9@invalid");
     Assert.equal(adapter.getCellText(1, "threadId"), "9");
+    Assert.equal(adapter.rowAt(1).unreadCount, 0);
+    Assert.equal(adapter.getRowProperties(1), "read");
     Assert.equal(adapter.rowAt(2).rowCount, 0);
     Assert.equal(adapter.getCellText(2, "messageId"), "message8@invalid");
     Assert.equal(adapter.getCellText(2, "threadId"), "8");
+    Assert.equal(adapter.rowAt(2).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(2), "unread hasUnread");
     Assert.equal(adapter.rowAt(3).rowCount, 2);
     Assert.equal(adapter.getCellText(3, "messageId"), "message6@invalid");
     Assert.equal(adapter.getCellText(3, "threadId"), "3");
+    Assert.equal(adapter.rowAt(3).unreadCount, 0);
+    Assert.equal(adapter.getRowProperties(3), "read");
     Assert.equal(adapter.rowAt(4).rowCount, 2);
     Assert.equal(adapter.getCellText(4, "messageId"), "message4@invalid");
     Assert.equal(adapter.getCellText(4, "threadId"), "7");
+    Assert.equal(adapter.rowAt(4).unreadCount, 2);
+    Assert.equal(adapter.getRowProperties(4), "unread hasUnread");
     Assert.equal(adapter.rowAt(5).rowCount, 0);
     Assert.equal(adapter.getCellText(5, "messageId"), "message1@invalid");
     Assert.equal(adapter.getCellText(5, "threadId"), "1");
+    Assert.equal(adapter.rowAt(5).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(5), "unread hasUnread");
 
     // Open thread with ID 3, which is at row 3.
     adapter.toggleOpenState(3);
@@ -62,14 +74,18 @@ add_task(async function testDateDescending() {
     // Row 3 is no longer the newest message in thread 3, it's the oldest.
     Assert.equal(adapter.getCellText(3, "messageId"), "message3@invalid");
     Assert.equal(adapter.getCellText(3, "threadId"), "3");
+    Assert.equal(adapter.getRowProperties(3), "read");
     // And the following rows are the rest of the thread, in ascending order.
     Assert.equal(adapter.getCellText(4, "messageId"), "message5@invalid");
     Assert.equal(adapter.getCellText(4, "threadId"), "3");
+    Assert.equal(adapter.getRowProperties(4), "read");
     Assert.equal(adapter.getCellText(5, "messageId"), "message6@invalid");
     Assert.equal(adapter.getCellText(5, "threadId"), "3");
+    Assert.equal(adapter.getRowProperties(5), "read");
     // The next thread is in the right place.
     Assert.equal(adapter.getCellText(6, "messageId"), "message4@invalid");
     Assert.equal(adapter.getCellText(6, "threadId"), "7");
+    Assert.equal(adapter.getRowProperties(6), "unread hasUnread");
 
     // Open thread with ID 7, which is at row 6.
     adapter.toggleOpenState(6);
@@ -80,14 +96,18 @@ add_task(async function testDateDescending() {
     // Row 6 is no longer the newest message in thread 7, it's the oldest.
     Assert.equal(adapter.getCellText(6, "messageId"), "message7@invalid");
     Assert.equal(adapter.getCellText(6, "threadId"), "7");
+    Assert.equal(adapter.getRowProperties(6), "hasUnread read");
     // And the following rows are the rest of the thread, in ascending order.
     Assert.equal(adapter.getCellText(7, "messageId"), "message2@invalid");
     Assert.equal(adapter.getCellText(7, "threadId"), "7");
+    Assert.equal(adapter.getRowProperties(7), "unread");
     Assert.equal(adapter.getCellText(8, "messageId"), "message4@invalid");
     Assert.equal(adapter.getCellText(8, "threadId"), "7");
+    Assert.equal(adapter.getRowProperties(8), "unread");
     // The next thread is in the right place.
     Assert.equal(adapter.getCellText(9, "messageId"), "message1@invalid");
     Assert.equal(adapter.getCellText(9, "threadId"), "1");
+    Assert.equal(adapter.getRowProperties(9), "unread hasUnread");
 
     // Close thread with ID 3, which is at row 3.
     adapter.toggleOpenState(3);
@@ -98,13 +118,17 @@ add_task(async function testDateDescending() {
     Assert.equal(adapter.rowAt(3).rowCount, 2);
     Assert.equal(adapter.getCellText(3, "messageId"), "message6@invalid");
     Assert.equal(adapter.getCellText(3, "threadId"), "3");
+    Assert.equal(adapter.getRowProperties(3), "read");
     // The next thread is in the right place.
     Assert.equal(adapter.getCellText(4, "messageId"), "message7@invalid");
     Assert.equal(adapter.getCellText(4, "threadId"), "7");
+    Assert.equal(adapter.getRowProperties(4), "hasUnread read");
     Assert.equal(adapter.getCellText(5, "messageId"), "message2@invalid");
     Assert.equal(adapter.getCellText(5, "threadId"), "7");
+    Assert.equal(adapter.getRowProperties(5), "unread");
     Assert.equal(adapter.getCellText(6, "messageId"), "message4@invalid");
     Assert.equal(adapter.getCellText(6, "threadId"), "7");
+    Assert.equal(adapter.getRowProperties(6), "unread");
   } finally {
     adapter.setTree(null);
   }
@@ -125,7 +149,9 @@ add_task(async function testPartialThread() {
   try {
     Assert.equal(adapter.rowCount, 2);
     Assert.equal(adapter.getCellText(0, "messageId"), "message6@invalid");
+    Assert.equal(adapter.getRowProperties(0), "read");
     Assert.equal(adapter.getCellText(1, "messageId"), "message4@invalid");
+    Assert.equal(adapter.getRowProperties(1), "unread hasUnread");
 
     adapter.toggleOpenState(0);
     tree.assertRowCountChanged(1, 2);
@@ -133,9 +159,13 @@ add_task(async function testPartialThread() {
     await tree.promiseInvalidated(0, 2);
     Assert.equal(adapter.rowCount, 4);
     Assert.equal(adapter.getCellText(0, "messageId"), "message3@invalid");
+    Assert.equal(adapter.getRowProperties(0), "read");
     Assert.equal(adapter.getCellText(1, "messageId"), "message5@invalid");
+    Assert.equal(adapter.getRowProperties(1), "read");
     Assert.equal(adapter.getCellText(2, "messageId"), "message6@invalid");
+    Assert.equal(adapter.getRowProperties(2), "read");
     Assert.equal(adapter.getCellText(3, "messageId"), "message4@invalid");
+    Assert.equal(adapter.getRowProperties(3), "unread hasUnread");
 
     Assert.ok(adapter.isContainerEmpty(3));
   } finally {
@@ -162,6 +192,7 @@ add_task(async function testAddRemoveDateDescending() {
 
     Assert.equal(adapter.rowAt(3).rowCount, 2);
     Assert.equal(adapter.getCellText(3, "threadId"), "3");
+    Assert.equal(adapter.getRowProperties(3), "read");
 
     const added1 = addMessage({
       messageId: "added1@invalid",
@@ -169,12 +200,14 @@ add_task(async function testAddRemoveDateDescending() {
       date: new Date(),
     });
     Assert.equal(added1, 11);
-    tree.assertInvalidated(3, 3);
     Assert.equal(adapter.rowCount, 6);
     Assert.equal(adapter.rowAt(3).rowCount, 3);
+    Assert.equal(adapter.rowAt(3).unreadCount, 1);
 
     Assert.deepEqual(listMessages(adapter), [10, 9, 8, 6, 4, 1]);
     Assert.equal(adapter.getCellText(3, "messageId"), "message6@invalid");
+    tree.assertInvalidated(3, 3);
+    Assert.equal(adapter.getRowProperties(3), "read hasUnread");
 
     // Expand the thread.
 
@@ -184,10 +217,14 @@ add_task(async function testAddRemoveDateDescending() {
     Assert.equal(adapter.rowCount, 9);
     await tree.promiseInvalidated(3, 6);
     Assert.equal(adapter.getCellText(3, "messageId"), "message3@invalid");
+    Assert.equal(adapter.getRowProperties(3), "read hasUnread");
     Assert.equal(adapter.getCellText(4, "messageId"), "message5@invalid");
+    Assert.equal(adapter.getRowProperties(4), "read");
     Assert.equal(adapter.getCellText(5, "messageId"), "message6@invalid");
+    Assert.equal(adapter.getRowProperties(5), "read");
     Assert.equal(adapter.getCellText(6, "messageId"), "added1@invalid");
     Assert.equal(adapter.getCellText(6, "threadId"), "3");
+    Assert.equal(adapter.getRowProperties(6), "unread");
 
     // Add a message to an expanded thread. As the latest child of a non-root
     // message, it goes at the end of that message's children.
@@ -204,11 +241,17 @@ add_task(async function testAddRemoveDateDescending() {
 
     Assert.deepEqual(listMessages(adapter), [10, 9, 8, 3, 5, 6, 12, 11, 4, 1]);
     Assert.equal(adapter.getCellText(3, "messageId"), "message3@invalid");
+    Assert.equal(adapter.rowAt(3).unreadCount, 2);
+    Assert.equal(adapter.getRowProperties(3), "read hasUnread");
     Assert.equal(adapter.getCellText(4, "messageId"), "message5@invalid");
+    Assert.equal(adapter.getRowProperties(4), "read");
     Assert.equal(adapter.getCellText(5, "messageId"), "message6@invalid");
+    Assert.equal(adapter.getRowProperties(5), "read");
     Assert.equal(adapter.getCellText(6, "messageId"), "added2@invalid");
     Assert.equal(adapter.getCellText(6, "threadId"), "3");
+    Assert.equal(adapter.getRowProperties(6), "unread");
     Assert.equal(adapter.getCellText(7, "messageId"), "added1@invalid");
+    Assert.equal(adapter.getRowProperties(7), "unread");
 
     // Collapse the thread.
 
@@ -216,6 +259,7 @@ add_task(async function testAddRemoveDateDescending() {
     tree.assertRowCountChanged(4, -4);
     tree.assertInvalidated(3, 3);
     Assert.equal(adapter.rowCount, 6);
+    Assert.equal(adapter.getRowProperties(3), "read hasUnread");
 
     // Add a message to a collapsed thread that has been expanded before. This
     // message is a child of the root message, but before existing siblings.
@@ -232,6 +276,8 @@ add_task(async function testAddRemoveDateDescending() {
 
     Assert.deepEqual(listMessages(adapter), [10, 9, 8, 6, 4, 1]);
     Assert.equal(adapter.getCellText(3, "messageId"), "message6@invalid");
+    Assert.equal(adapter.rowAt(3).unreadCount, 3);
+    Assert.equal(adapter.getRowProperties(3), "read hasUnread");
 
     // Expand the thread.
 
@@ -244,11 +290,13 @@ add_task(async function testAddRemoveDateDescending() {
       listMessages(adapter),
       [10, 9, 8, 3, 13, 5, 6, 12, 11, 4, 1]
     );
+    Assert.equal(adapter.getRowProperties(3), "read hasUnread");
 
     // Add a message to a non-thread.
 
     Assert.equal(adapter.rowAt(1).rowCount, 0);
     Assert.equal(adapter.getCellText(1, "threadId"), "9");
+    Assert.equal(adapter.getRowProperties(1), "read");
 
     const added4 = addMessage({
       messageId: "added4@invalid",
@@ -266,6 +314,8 @@ add_task(async function testAddRemoveDateDescending() {
       [10, 9, 8, 3, 13, 5, 6, 12, 11, 4, 1]
     );
     Assert.equal(adapter.getCellText(1, "messageId"), "message9@invalid");
+    Assert.equal(adapter.rowAt(1).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(1), "read hasUnread");
 
     // Open the thread.
 
@@ -280,7 +330,9 @@ add_task(async function testAddRemoveDateDescending() {
       [10, 9, 14, 8, 3, 13, 5, 6, 12, 11, 4, 1]
     );
     Assert.equal(adapter.getCellText(1, "messageId"), "message9@invalid");
+    Assert.equal(adapter.getRowProperties(1), "read hasUnread");
     Assert.equal(adapter.getCellText(2, "messageId"), "added4@invalid");
+    Assert.equal(adapter.getRowProperties(2), "unread");
 
     // Add a message that isn't part of a thread, at the start.
 
@@ -297,6 +349,8 @@ add_task(async function testAddRemoveDateDescending() {
       [15, 10, 9, 14, 8, 3, 13, 5, 6, 12, 11, 4, 1]
     );
     Assert.equal(adapter.getCellText(0, "messageId"), "added5@invalid");
+    Assert.equal(adapter.rowAt(0).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(0), "unread hasUnread");
 
     // Add another message that isn't part of a thread, in the middle.
 
@@ -313,6 +367,8 @@ add_task(async function testAddRemoveDateDescending() {
       [15, 10, 9, 14, 8, 16, 3, 13, 5, 6, 12, 11, 4, 1]
     );
     Assert.equal(adapter.getCellText(5, "messageId"), "added6@invalid");
+    Assert.equal(adapter.rowAt(5).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(5), "unread hasUnread");
 
     // Add another message that isn't part of a thread, at the end.
 
@@ -329,6 +385,8 @@ add_task(async function testAddRemoveDateDescending() {
       [15, 10, 9, 14, 8, 16, 3, 13, 5, 6, 12, 11, 4, 1, 17]
     );
     Assert.equal(adapter.getCellText(14, "messageId"), "added7@invalid");
+    Assert.equal(adapter.rowAt(14).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(14), "unread hasUnread");
 
     // Remove the messages in the order they were added.
 
@@ -338,6 +396,8 @@ add_task(async function testAddRemoveDateDescending() {
       listMessages(adapter),
       [15, 10, 9, 14, 8, 16, 3, 13, 5, 6, 12, 4, 1, 17]
     );
+    Assert.equal(adapter.rowAt(6).unreadCount, 2);
+    Assert.equal(adapter.getRowProperties(6), "read hasUnread");
 
     messageDB.removeMessage(added2);
     tree.assertRowCountChanged(10, -1);
@@ -345,6 +405,8 @@ add_task(async function testAddRemoveDateDescending() {
       listMessages(adapter),
       [15, 10, 9, 14, 8, 16, 3, 13, 5, 6, 4, 1, 17]
     );
+    Assert.equal(adapter.rowAt(6).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(6), "read hasUnread");
 
     adapter.toggleOpenState(6);
     tree.assertRowCountChanged(7, -3);
@@ -352,6 +414,8 @@ add_task(async function testAddRemoveDateDescending() {
       listMessages(adapter),
       [15, 10, 9, 14, 8, 16, 6, 4, 1, 17]
     );
+    Assert.equal(adapter.rowAt(6).unreadCount, 1);
+    Assert.equal(adapter.getRowProperties(6), "read hasUnread");
 
     messageDB.removeMessage(added3);
     tree.assertInvalidated(6, 6);
@@ -359,10 +423,14 @@ add_task(async function testAddRemoveDateDescending() {
       listMessages(adapter),
       [15, 10, 9, 14, 8, 16, 6, 4, 1, 17]
     );
+    Assert.equal(adapter.rowAt(6).unreadCount, 0);
+    Assert.equal(adapter.getRowProperties(6), "read");
 
     messageDB.removeMessage(added4);
     tree.assertRowCountChanged(3, -1);
     Assert.deepEqual(listMessages(adapter), [15, 10, 9, 8, 16, 6, 4, 1, 17]);
+    Assert.equal(adapter.rowAt(2).unreadCount, 0);
+    Assert.equal(adapter.getRowProperties(2), "read");
 
     messageDB.removeMessage(added5);
     tree.assertRowCountChanged(0, -1);
@@ -1236,6 +1304,87 @@ add_task(async function testAddRemoveSubjectAscending() {
     messageDB.removeMessage(added7);
     tree.assertRowCountChanged(0, -1);
     Assert.deepEqual(listMessages(adapter), [9, 1, 10, 4, 6, 8]);
+  } finally {
+    adapter.setTree(null);
+  }
+});
+
+/**
+ * Tests the effects of message flags changing on thread row properties.
+ */
+add_task(async function testMessageFlagChanges() {
+  const liveView = new LiveView();
+  const adapter = new LiveViewThreadedDataAdapter(liveView);
+  adapter.sortBy("date", "descending");
+  adapter.setTree(tree);
+  await tree.promiseInvalidated(0, 5);
+
+  try {
+    // Change the unread flags of messages in an open thread.
+
+    Assert.equal(adapter.rowAt(3).rowCount, 2);
+    Assert.equal(adapter.getCellText(3, "messageId"), "message6@invalid");
+    Assert.equal(adapter.getCellText(3, "threadId"), "3");
+    Assert.equal(adapter.getRowProperties(3), "read");
+
+    adapter.toggleOpenState(3);
+    tree.assertRowCountChanged(4, 2);
+    tree.assertInvalidated(3, 3);
+    await tree.promiseInvalidated(3, 5);
+    Assert.equal(adapter.getCellText(3, "messageId"), "message3@invalid");
+    Assert.equal(adapter.getRowProperties(3), "read");
+    Assert.equal(adapter.getCellText(5, "messageId"), "message6@invalid");
+    Assert.equal(adapter.getRowProperties(5), "read");
+
+    const message3 = messageDB.getMessage(3);
+    const message6 = messageDB.getMessage(6);
+
+    message3.markRead(false);
+    await tree.promiseInvalidated(3, 3);
+    Assert.equal(adapter.getRowProperties(3), "hasUnread unread");
+
+    message3.markRead(true);
+    await tree.promiseInvalidated(3, 3);
+    Assert.equal(adapter.getRowProperties(3), "read");
+
+    message6.markRead(false);
+    await tree.promiseInvalidated(5, 5);
+    Assert.equal(adapter.getRowProperties(5), "unread");
+
+    message6.markRead(true);
+    await tree.promiseInvalidated(5, 5);
+    Assert.equal(adapter.getRowProperties(5), "read");
+
+    // Change the unread flags of messages in an closed group.
+
+    Assert.equal(adapter.rowAt(6).rowCount, 2);
+    Assert.equal(adapter.getCellText(6, "messageId"), "message4@invalid");
+    Assert.equal(adapter.getCellText(6, "threadId"), "7");
+    Assert.equal(adapter.rowAt(6).unreadCount, 2);
+    Assert.equal(adapter.getRowProperties(6), "unread hasUnread");
+
+    const message4 = messageDB.getMessage(4);
+    const message2 = messageDB.getMessage(2);
+
+    message4.markRead(true);
+    Assert.equal(adapter.rowAt(6).unreadCount, 1);
+    await tree.promiseInvalidated(6, 6);
+    Assert.equal(adapter.getRowProperties(6), "hasUnread read");
+
+    Assert.ok(!message2.isRead);
+    message2.markRead(true);
+    Assert.equal(adapter.rowAt(6).unreadCount, 0);
+    await tree.promiseInvalidated(6, 6);
+    Assert.equal(adapter.getRowProperties(6), "read");
+
+    message2.markRead(false);
+    await tree.promiseInvalidated(6, 6);
+    Assert.equal(adapter.getRowProperties(6), "read hasUnread");
+
+    message4.markRead(false);
+    Assert.equal(adapter.rowAt(6).unreadCount, 2);
+    await tree.promiseInvalidated(6, 6);
+    // Assert.equal(adapter.getRowProperties(6), "unread hasUnread");
   } finally {
     adapter.setTree(null);
   }

@@ -109,8 +109,8 @@ add_task(async function testThreadsOnly() {
   );
   Assert.equal(
     await liveView.countUnreadMessages(),
-    0,
-    "countUnreadMessages should only count threads"
+    3,
+    "countUnreadMessages should only count threads with unread messages"
   );
   Assert.deepEqual(
     Array.from(await liveView.selectMessages(), m => m.id),

@@ -237,7 +237,12 @@ class ListenerTree {
   invalidateRow(index) {
     info(`invalidateRow(${index})`);
     // `invalidateRow` immediately after `rowCountChanged` is allowed.
-    Assert.strictEqual(this._start, undefined);
+    if (this._start) {
+      // Two `invalidateRow` calls are allowed.
+      Assert.equal(this._start, this._end);
+    } else {
+      Assert.strictEqual(this._start, undefined);
+    }
     this._start = index;
     this._end = index;
     this._invalidateDeferred?.resolve();
