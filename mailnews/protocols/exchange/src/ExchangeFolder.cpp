@@ -437,12 +437,6 @@ nsresult ExchangeFolder::CreateChildrenFromStore() {
   return NS_OK;
 }
 
-NS_IMETHODIMP ExchangeFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
-                                               nsIMsgFolder* oldFolder) {
-  NS_WARNING("RenameSubFolders");
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMETHODIMP ExchangeFolder::MarkMessagesRead(
     const nsTArray<RefPtr<nsIMsgDBHdr>>& messages, bool markRead) {
   nsCOMPtr<IExchangeClient> client;

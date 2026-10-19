@@ -8164,7 +8164,10 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
     unusedDB->SetSummaryValid(true);
     unusedDB->Commit(nsMsgDBCommitType::kLargeCommit);
     unusedDB->Close(true);
-    child->RenameSubFolders(msgWindow, msgFolder);
+    // We _know_ it's an IMAP folder, since our own AddSubfolderWithPath()
+    // created it.
+    static_cast<nsImapMailFolder*>(child.get())
+        ->RenameSubFolders(msgWindow, msgFolder);
     nsCOMPtr<nsIMsgFolder> msgParent;
     msgFolder->GetParent(getter_AddRefs(msgParent));
     msgFolder->SetParent(nullptr);
@@ -8184,8 +8187,8 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
   return rv;
 }
 
-NS_IMETHODIMP nsImapMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
-                                                 nsIMsgFolder* oldFolder) {
+nsresult nsImapMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
+                                            nsIMsgFolder* oldFolder) {
   m_initialized = true;
   nsTArray<RefPtr<nsIMsgFolder>> subFolders;
   nsresult rv = oldFolder->GetSubFolders(subFolders);
@@ -8258,7 +8261,8 @@ NS_IMETHODIMP nsImapMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
       msgFolder->MatchOrChangeFilterDestination(
           child, false /*caseInsensitive*/, &changed);
       if (changed) msgFolder->AlertFilterChanged(msgWindow);
-      child->RenameSubFolders(msgWindow, msgFolder);
+      static_cast<nsImapMailFolder*>(child.get())
+          ->RenameSubFolders(msgWindow, msgFolder);
     }
   }
   return rv;

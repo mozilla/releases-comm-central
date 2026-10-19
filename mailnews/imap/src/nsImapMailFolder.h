@@ -242,8 +242,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
   NS_IMETHOD DeleteStorage() override;
   NS_IMETHOD Rename(const nsACString& newName,
                     nsIMsgWindow* msgWindow) override;
-  NS_IMETHOD RenameSubFolders(nsIMsgWindow* msgWindow,
-                              nsIMsgFolder* oldFolder) override;
   NS_IMETHOD GetNoSelect(bool* aResult) override;
 
   NS_IMETHOD UpdateSummaryTotals(bool force) override;
@@ -364,6 +362,8 @@ class nsImapMailFolder : public nsMsgDBFolder,
  protected:
   virtual ~nsImapMailFolder();
   // Helper methods
+  nsresult RenameSubFolders(nsIMsgWindow* msgWindow,
+                            nsIMsgFolder* oldFolder) override;
   nsresult CreateFileForDB(const nsAString& userLeafName, nsIFile* baseDir,
                            nsIFile** dbFile);
   nsresult ExpungeAndCompact(nsIUrlListener* aListener,

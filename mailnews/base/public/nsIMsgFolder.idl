@@ -372,7 +372,6 @@ interface nsIMsgFolder : nsISupports {
    * @param name the new name of the folder
    */
   void rename(in AUTF8String name, in nsIMsgWindow msgWindow);
-  void renameSubFolders(in nsIMsgWindow msgWindow, in nsIMsgFolder oldFolder);
 
   AUTF8String generateUniqueSubfolderName(in AUTF8String prefix,
                                           in nsIMsgFolder otherFolder);

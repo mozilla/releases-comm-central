@@ -119,6 +119,9 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
 
   virtual nsresult CreateBaseMessageURI(const nsACString& aURI);
 
+  virtual nsresult RenameSubFolders(nsIMsgWindow* msgWindow,
+                                    nsIMsgFolder* oldFolder);
+
   void compressQuotesInMsgSnippet(const nsString& aMessageText,
                                   nsAString& aCompressedQuotesStr);
   void decodeMsgSnippet(const nsACString& aEncodingType, bool aIsComplete,

@@ -212,6 +212,46 @@ add_task(async function test_moveToTrashDropsSettings() {
   );
 });
 
+// Renaming a folder recreates its subfolders under the new name, so they have
+// to follow it, with online names that point at the new path on the server.
+add_task(async function test_renameKeepsSubfolders() {
+  const rootFolder = IMAPPump.incomingServer.rootFolder;
+
+  // A folder with a subfolder.
+  const parentAdded = PromiseTestUtils.promiseFolderAdded("parent to rename");
+  rootFolder.createSubfolder("parent to rename", null);
+  const parent = await parentAdded;
+
+  const childAdded = PromiseTestUtils.promiseFolderAdded("child");
+  parent.createSubfolder("child", null);
+  await childAdded;
+
+  parent.rename("renamed parent", null);
+  IMAPPump.server.performTest("RENAME");
+
+  const listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+
+  const renamedParent = rootFolder.getChildNamed("renamed parent");
+  Assert.ok(renamedParent, "the renamed folder exists");
+  Assert.equal(parent.parent, null, "the old folder object is detached");
+
+  const child = renamedParent
+    .getChildNamed("child")
+    .QueryInterface(Ci.nsIMsgImapMailFolder);
+  Assert.equal(
+    child.parent,
+    renamedParent,
+    "the subfolder moved with the renamed folder"
+  );
+  Assert.equal(
+    child.onlineName,
+    "renamed parent" + child.hierarchyDelimiter + "child",
+    "the subfolder's online name points at the new path"
+  );
+});
+
 /**
  * Give a folder the settings the tests check for. These are the settings a user
  * can make for a single folder, as opposed to the whole account.

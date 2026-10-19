@@ -117,8 +117,6 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   NS_IMETHOD CreateStorageIfMissing(nsIUrlListener* urlListener) override;
   NS_IMETHOD Rename(const nsACString& aNewName,
                     nsIMsgWindow* msgWindow) override;
-  NS_IMETHOD RenameSubFolders(nsIMsgWindow* msgWindow,
-                              nsIMsgFolder* oldFolder) override;
 
   NS_IMETHOD GetDeletable(bool* deletable) override;
   NS_IMETHOD GetSizeOnDisk(int64_t* size) override;
@@ -177,6 +175,8 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
 
  protected:
   virtual ~nsMsgLocalMailFolder();
+  nsresult RenameSubFolders(nsIMsgWindow* msgWindow,
+                            nsIMsgFolder* oldFolder) override;
 #ifdef MOZ_PANORAMA
   nsresult AddMessageBatch2(const nsTArray<nsCString>& rawMessages,
                             nsTArray<RefPtr<nsIMsgDBHdr>>& addedHdrs);
