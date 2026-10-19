@@ -1,0 +1,33 @@
+version = 1
+
+[[rules]]
+name = "JSDoc guidance"
+when = { any_file = { ext = [".js", ".mjs"] } }
+load = [
+  { type = "file", path = ".agents/skills/reviewing-jsdocs/SKILL.md" },
+]
+
+[[rules]]
+name = "Thunderbird desktop frontend"
+description = "Front-end conventions and standards for Desktop code."
+when = { any_file = { exclude = [
+  "browser_*.js",
+  "*/browser_*.js"
+], ext = [
+  ".js",
+  ".mjs",
+  ".html",
+  ".xhtml",
+  ".css",
+] } }
+load = [
+  { type = "file", path = ".agents/skills/thunderbird-frontend-guidelines/SKILL.md" },
+]
+
+[[rules]]
+name = "Thunderbird desktop frontend tests"
+description = "Front-end conventions and patterns for mochitests."
+when = { any_file = { include = ["browser_*.js", "*/browser_*.js"] } }
+load = [
+  { type = "file", path = ".agents/skills/thunderbird-frontend-testing-guidelines/SKILL.md" },
+]

@@ -311,6 +311,20 @@ test-manifest:
     optimization:
         skip-unless-mozlint: test-manifest-toml.yml
 
+review-context-toml:
+    description: Validate review-context.toml against the review context schema
+    treeherder:
+        symbol: misc(review-context)
+    run:
+        mach: >
+            commlint -v -l review-context-toml -f treeherder
+            -f json:/builds/worker/mozlint.json
+            comm
+    when:
+        files-changed:
+            - 'comm/review-context.toml'
+            - 'comm/tools/lint/review-context-toml.yml'
+
 yaml:
     description: yamllint run over the taskcluster configuration
     treeherder:
