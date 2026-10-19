@@ -949,6 +949,9 @@ export var FeedUtils = {
      * @returns {Blob} - Existing favicon.
      */
     const fetchFavicon = async faviconUrl => {
+      if (!["http:", "https:"].includes(URL.parse(faviconUrl)?.protocol)) {
+        throw new Error(`Not fetching favicon from url ${faviconUrl}`);
+      }
       const response = await fetch(faviconUrl);
       if (!response.ok) {
         throw new Error(`No favicon for url ${faviconUrl}`);
@@ -966,6 +969,9 @@ export var FeedUtils = {
      * @returns {Blob} - Found favicon.
      */
     const discoverFaviconURL = async page => {
+      if (!["http:", "https:"].includes(URL.parse(page)?.protocol)) {
+        throw new Error(`Not fetching favicon from url ${page}`);
+      }
       const response = await fetch(page);
       if (!response.ok) {
         throw new Error(`No favicon for page ${page}`);
