@@ -191,7 +191,7 @@ function addMessage({
   ccList = "cc list",
   bccList = "bcc list",
   subject = "subject",
-  flags = 0,
+  flags = Ci.nsMsgMessageFlags.New,
   tags = "",
   priority = Ci.nsMsgPriority.notSet,
 }) {

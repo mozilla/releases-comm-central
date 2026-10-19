@@ -357,8 +357,7 @@ NS_IMETHODIMP LiveView::CountUnreadMessages(JSContext* cx, Promise** promise) {
     }
     sql.Append(") AS count FROM messages WHERE ");
     sql.Append(GetSQLClause());
-    sql.Append(" AND ~flags & ");
-    sql.AppendInt(nsMsgMessageFlags::Read);
+    sql.AppendFmt(" AND ~flags & {}", (uint32_t)nsMsgMessageFlags::Read);
     MOZ_LOG(gPanoramaLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));
     nsresult rv = DatabaseCore::sConnection->CreateStatement(
         sql, getter_AddRefs(mCountUnreadStmt));
@@ -456,13 +455,16 @@ class SelectMessagesListener final : public mozIStorageStatementCallback {
           uint64_t messageCount = row->AsInt64(11);
           JS_DefineProperty(cx, obj, "messageCount", (double)(messageCount),
                             JSPROP_ENUMERATE);
-          uint64_t unreadCount = row->AsInt64(12);
+          uint64_t newCount = row->AsInt64(12);
+          JS_DefineProperty(cx, obj, "newCount", (double)(newCount),
+                            JSPROP_ENUMERATE);
+          uint64_t unreadCount = row->AsInt64(13);
           JS_DefineProperty(cx, obj, "unreadCount", (double)(unreadCount),
                             JSPROP_ENUMERATE);
         }
         if (mLiveView->mGrouping == nsILiveView::GROUPED_BY_SORT &&
             mLiveView->mSortColumn == nsILiveView::DATE) {
-          uint64_t dateGroup = row->AsInt64(13);
+          uint64_t dateGroup = row->AsInt64(14);
           JS_DefineProperty(cx, obj, "dateGroup", (double)(dateGroup),
                             JSPROP_ENUMERATE);
         }
@@ -636,6 +638,8 @@ NS_IMETHODIMP LiveView::SelectMessages(JSContext* cx, Promise** promise) {
     if (mGrouping == nsILiveView::THREADED ||
         mGrouping == nsILiveView::GROUPED_BY_SORT) {
       sql.Append(", COUNT(*) AS messageCount");
+      sql.AppendFmt(", SUM(flags & {} != 0) AS newCount",
+                    (uint32_t)nsMsgMessageFlags::New);
       sql.AppendFmt(", SUM(flags & {} = 0) AS unreadCount",
                     (uint32_t)nsMsgMessageFlags::Read);
     }
@@ -690,16 +694,14 @@ NS_IMETHODIMP LiveView::SelectMessages(JSContext* cx, Promise** promise) {
         break;
       case nsILiveView::SortColumn::READ_FLAG:
         // Unread messages should be first when sorted in ascending order.
-        sql.Append("flags & ");
-        sql.AppendInt(nsMsgMessageFlags::Read);
+        sql.AppendFmt("flags & {}", (uint32_t)nsMsgMessageFlags::Read);
         break;
       case nsILiveView::SortColumn::MARKED_FLAG:
         // Twisted logic alert:
         // Marked messages should be first when sorted in ascending order.
         // The ~ flips the flags so marked = 0, unmarked = 1, and we
         // don't have to mess with the ascending/descending logic.
-        sql.Append("~flags & ");
-        sql.AppendInt(nsMsgMessageFlags::Marked);
+        sql.AppendFmt("~flags & {}", (uint32_t)nsMsgMessageFlags::Marked);
         break;
     }
     sql.Append(mSortDescending ? " DESC" : " ASC");

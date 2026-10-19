@@ -467,7 +467,7 @@ add_task(async function testListener() {
   Assert.equal(headerAdded.date, new Date("2025-01-22").valueOf() * 1000);
   Assert.equal(headerAdded.author, "sender");
   Assert.equal(headerAdded.subject, "subject");
-  Assert.equal(headerAdded.flags, 0);
+  Assert.equal(headerAdded.flags, Ci.nsMsgMessageFlags.New);
   Assert.equal(headerAdded.getStringProperty("keywords"), "");
 
   listenerC.reset();
@@ -487,10 +487,13 @@ add_task(async function testListener() {
   Assert.equal(headerChanged.date, new Date("2025-01-22").valueOf() * 1000);
   Assert.equal(headerChanged.author, "sender");
   Assert.equal(headerChanged.subject, "subject");
-  Assert.equal(headerChanged.flags, Ci.nsMsgMessageFlags.Read);
+  Assert.equal(
+    headerChanged.flags,
+    Ci.nsMsgMessageFlags.Read | Ci.nsMsgMessageFlags.New
+  );
   Assert.equal(headerChanged.getStringProperty("keywords"), "");
-  Assert.equal(oldFlags, 0);
-  Assert.equal(newFlags, Ci.nsMsgMessageFlags.Read);
+  Assert.equal(oldFlags, Ci.nsMsgMessageFlags.New);
+  Assert.equal(newFlags, Ci.nsMsgMessageFlags.Read | Ci.nsMsgMessageFlags.New);
 
   listenerC.reset();
   messageDB.removeMessage(headerAdded.messageKey);
@@ -509,7 +512,10 @@ add_task(async function testListener() {
   Assert.equal(headerRemoved.date, new Date("2025-01-22").valueOf() * 1000);
   Assert.equal(headerRemoved.author, "sender");
   Assert.equal(headerRemoved.subject, "subject");
-  Assert.equal(headerRemoved.flags, Ci.nsMsgMessageFlags.Read);
+  Assert.equal(
+    headerRemoved.flags,
+    Ci.nsMsgMessageFlags.Read | Ci.nsMsgMessageFlags.New
+  );
   // TODO
   //Assert.equal(headerRemoved.getStringProperty("keywords"), "");
 });

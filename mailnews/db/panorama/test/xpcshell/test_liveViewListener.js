@@ -120,7 +120,7 @@ add_task(function testBasicAddRemove() {
   );
   Assert.equal(listener._addedMessage.sender, "sender");
   Assert.equal(listener._addedMessage.subject, "subject");
-  Assert.equal(listener._addedMessage.flags, 0);
+  Assert.equal(listener._addedMessage.flags, Ci.nsMsgMessageFlags.New);
   Assert.equal(listener._addedMessage.tags, "$label4");
   delete listener._addedMessage;
   // The added message is unread.

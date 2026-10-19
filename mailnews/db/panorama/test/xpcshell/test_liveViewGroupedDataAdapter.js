@@ -116,12 +116,12 @@ add_task(async function testDateDescending() {
     Assert.equal(adapter.rowCount, 13);
     Assert.equal(adapter.getCellText(4, "subject"), "2016");
     Assert.equal(adapter.rowAt(4).unreadCount, 2);
-    Assert.equal(adapter.getRowProperties(4), "dummy hasUnread");
+    Assert.equal(adapter.getRowProperties(4), "dummy hasUnread hasNew");
     Assert.equal(adapter.getCellText(5, "messageId"), "message7@invalid"); // 2016-09-29
     Assert.equal(adapter.getCellText(6, "messageId"), "message5@invalid"); // 2016-09-14
     Assert.equal(adapter.getCellText(7, "messageId"), "message11@invalid"); // 2016-05-21
     Assert.equal(adapter.getCellText(8, "messageId"), "added1@invalid"); // 2016-03-15
-    Assert.equal(adapter.getRowProperties(8), "unread");
+    Assert.equal(adapter.getRowProperties(8), "new unread");
     Assert.equal(adapter.getCellText(9, "messageId"), "message10@invalid"); // 2016-02-19
 
     // A message inside a closed group.
@@ -134,7 +134,7 @@ add_task(async function testDateDescending() {
     tree.assertInvalidated(3, 3);
     Assert.equal(adapter.rowCount, 13);
     Assert.equal(adapter.rowAt(3).unreadCount, 3);
-    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread");
+    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread hasNew");
 
     // Open the group.
 
@@ -145,10 +145,10 @@ add_task(async function testDateDescending() {
     await tree.promiseInvalidated(3, 6);
     Assert.equal(adapter.getCellText(3, "subject"), "2017");
     Assert.equal(adapter.rowAt(3).unreadCount, 3);
-    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread");
+    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread hasNew");
     Assert.equal(adapter.getCellText(4, "messageId"), "message8@invalid"); // 2017-09-15
     Assert.equal(adapter.getCellText(5, "messageId"), "added2@invalid"); // 2017-06-06
-    Assert.equal(adapter.getRowProperties(5), "unread");
+    Assert.equal(adapter.getRowProperties(5), "new unread");
     Assert.equal(adapter.getCellText(6, "messageId"), "message6@invalid"); // 2017-05-10
 
     // Close the group.
@@ -158,7 +158,7 @@ add_task(async function testDateDescending() {
     tree.assertInvalidated(3, 3);
     Assert.equal(adapter.rowCount, 13);
     Assert.equal(adapter.rowAt(3).unreadCount, 3);
-    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread");
+    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread hasNew");
 
     // A message inside a previously open group.
 
@@ -170,7 +170,7 @@ add_task(async function testDateDescending() {
     tree.assertInvalidated(3, 3);
     Assert.equal(adapter.rowCount, 13);
     Assert.equal(adapter.rowAt(3).unreadCount, 4);
-    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread");
+    Assert.equal(adapter.getRowProperties(3), "dummy hasUnread hasNew");
 
     // Open the group, check the messages, close the group.
 
@@ -201,7 +201,7 @@ add_task(async function testDateDescending() {
     Assert.equal(adapter.rowCount, 14);
     Assert.equal(adapter.getCellText(0, "subject"), "2024");
     Assert.equal(adapter.rowAt(0).unreadCount, 1);
-    Assert.equal(adapter.getRowProperties(0), "dummy hasUnread");
+    Assert.equal(adapter.getRowProperties(0), "dummy hasNew hasUnread");
 
     // A message inside the "future" group, that doesn't yet exist.
 
@@ -215,7 +215,7 @@ add_task(async function testDateDescending() {
     Assert.equal(adapter.rowCount, 15);
     Assert.equal(adapter.getCellText(0, "subject"), "Future");
     Assert.equal(adapter.rowAt(0).unreadCount, 1);
-    Assert.equal(adapter.getRowProperties(0), "dummy hasUnread");
+    Assert.equal(adapter.getRowProperties(0), "dummy hasNew hasUnread");
 
     // A message inside the "today" group, that doesn't yet exist.
 
@@ -228,7 +228,7 @@ add_task(async function testDateDescending() {
     Assert.equal(adapter.rowCount, 16);
     Assert.equal(adapter.getCellText(1, "subject"), "Today");
     Assert.equal(adapter.rowAt(1).unreadCount, 1);
-    Assert.equal(adapter.getRowProperties(1), "dummy hasUnread");
+    Assert.equal(adapter.getRowProperties(1), "dummy hasNew hasUnread");
 
     adapter.toggleOpenState(1);
     tree.assertRowCountChanged(2, 1);
@@ -281,7 +281,7 @@ add_task(async function testDateDescending() {
     Assert.equal(adapter.rowCount, 21);
     Assert.equal(adapter.getCellText(20, "subject"), "1995");
     Assert.equal(adapter.rowAt(20).unreadCount, 1);
-    Assert.equal(adapter.getRowProperties(20), "dummy hasUnread");
+    Assert.equal(adapter.getRowProperties(20), "dummy hasNew hasUnread");
 
     // Remove the messages, in the order they were added.
 
@@ -658,7 +658,7 @@ add_task(async function testSubjectDescending() {
     Assert.equal(adapter.rowCount, 11);
     Assert.equal(subjectAt(1), "Organized 3rd generation alliance");
     Assert.equal(adapter.rowAt(1).unreadCount, 1);
-    Assert.equal(adapter.getRowProperties(1), "dummy hasUnread");
+    Assert.equal(adapter.getRowProperties(1), "dummy hasNew hasUnread");
     Assert.equal(adapter.getCellText(2, "messageId"), "added1@invalid"); // Now
     Assert.equal(adapter.getCellText(3, "messageId"), "message13@invalid"); // 2023-02-19
     Assert.equal(adapter.getCellText(4, "messageId"), "message1@invalid"); // 2013-09-15

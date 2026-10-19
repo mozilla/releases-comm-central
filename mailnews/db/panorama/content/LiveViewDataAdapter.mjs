@@ -370,6 +370,7 @@ export class LiveViewThreadedDataAdapter extends LiveViewDataAdapter {
       threadRow = this._setUpRow({
         ...message,
         messageCount: 1,
+        newCount: message.flags & Ci.nsMsgMessageFlags.New ? 1 : 0,
         unreadCount: message.flags & Ci.nsMsgMessageFlags.Read ? 0 : 1,
       });
       let added = false;
@@ -426,6 +427,14 @@ export class LiveViewThreadedDataAdapter extends LiveViewDataAdapter {
     }
 
     const changedFlags = oldFlags ^ message.flags;
+    if (changedFlags & Ci.nsMsgMessageFlags.New) {
+      if (oldFlags & Ci.nsMsgMessageFlags.New) {
+        threadRow.newCount--;
+      } else {
+        threadRow.newCount++;
+      }
+      this._tree.invalidateRow(this.indexOf(threadRow));
+    }
     if (changedFlags & Ci.nsMsgMessageFlags.Read) {
       if (oldFlags & Ci.nsMsgMessageFlags.Read) {
         threadRow.unreadCount++;
@@ -633,6 +642,7 @@ export class LiveViewGroupedDataAdapter extends LiveViewDataAdapter {
     groupRow = this._setUpRow({
       [groupField]: groupValue,
       messageCount: 1,
+      newCount: message.flags & Ci.nsMsgMessageFlags.New ? 1 : 0,
       unreadCount: message.flags & Ci.nsMsgMessageFlags.Read ? 0 : 1,
     });
     const isAscending = this.sortDirection == "ascending";
@@ -693,6 +703,14 @@ export class LiveViewGroupedDataAdapter extends LiveViewDataAdapter {
     }
 
     const changedFlags = oldFlags ^ message.flags;
+    if (changedFlags & Ci.nsMsgMessageFlags.New) {
+      if (oldFlags & Ci.nsMsgMessageFlags.New) {
+        groupRow.newCount--;
+      } else {
+        groupRow.newCount++;
+      }
+      this._tree.invalidateRow(this.indexOf(groupRow));
+    }
     if (changedFlags & Ci.nsMsgMessageFlags.Read) {
       if (oldFlags & Ci.nsMsgMessageFlags.Read) {
         groupRow.unreadCount++;
@@ -731,6 +749,7 @@ class LiveViewDataRow extends TreeDataRow {
         ...message,
         date: lazy.dateFormatter.format(message.date),
         // Invert the read flag for unread messages.
+        new: !!(message.flags & Ci.nsMsgMessageFlags.New),
         unread: !(message.flags & Ci.nsMsgMessageFlags.Read),
         flagged: !!(message.flags & Ci.nsMsgMessageFlags.Marked),
       };
@@ -738,6 +757,7 @@ class LiveViewDataRow extends TreeDataRow {
     this.values = { date: message.date.valueOf() };
     this.message = message;
 
+    this.toggleProperty("new", message.flags & Ci.nsMsgMessageFlags.New);
     this.toggleProperty("read", message.flags & Ci.nsMsgMessageFlags.Read);
     this.toggleProperty("unread", !(message.flags & Ci.nsMsgMessageFlags.Read));
   }
@@ -772,6 +792,14 @@ class LiveViewThreadDataRow extends LiveViewDataRow {
   #closedMessage;
 
   /**
+   * The number of new messages in this thread. Used to maintain the "hasNew"
+   * property.
+   *
+   * @type {integer}
+   */
+  #newCount = 0;
+
+  /**
    * The number of unread messages in this thread. Used to maintain the
    * "hasUnread" property.
    *
@@ -787,9 +815,25 @@ class LiveViewThreadDataRow extends LiveViewDataRow {
     super(message);
     this.thread = message;
     this.children.length = message.messageCount - 1;
+    this.newCount = message.newCount;
     this.unreadCount = message.unreadCount;
     this.#liveView = liveView;
     this.#closedMessage = message;
+  }
+
+  /**
+   * The number of new messages in this thread. If greater than zero, the row
+   * will have the "hasNew" property.
+   *
+   * @type {integer}
+   */
+  get newCount() {
+    return this.#newCount;
+  }
+
+  set newCount(value) {
+    this.#newCount = value;
+    this.toggleProperty("hasNew", !!value);
   }
 
   /**
@@ -870,6 +914,9 @@ class LiveViewThreadDataRow extends LiveViewDataRow {
    * @param {Message} message
    */
   addChild(dataAdapter, rootIndex, message) {
+    if (message.flags & Ci.nsMsgMessageFlags.New) {
+      this.newCount++;
+    }
     if (!(message.flags & Ci.nsMsgMessageFlags.Read)) {
       this.unreadCount++;
     }
@@ -915,6 +962,9 @@ class LiveViewThreadDataRow extends LiveViewDataRow {
    * @param {Message} message
    */
   removeChild(dataAdapter, rootIndex, message) {
+    if (message.flags & Ci.nsMsgMessageFlags.New) {
+      this.newCount--;
+    }
     if (!(message.flags & Ci.nsMsgMessageFlags.Read)) {
       this.unreadCount--;
     }
@@ -969,6 +1019,14 @@ class LiveViewGroupedHeaderRow extends TreeDataRow {
   #liveView;
 
   /**
+   * The number of new messages in this group. Used to maintain the "hasNew"
+   * property.
+   *
+   * @type {integer}
+   */
+  #newCount = 0;
+
+  /**
    * The number of unread messages in this group. Used to maintain the
    * "hasUnread" property.
    *
@@ -1004,8 +1062,24 @@ class LiveViewGroupedHeaderRow extends TreeDataRow {
     super({ subject: label }, { date: message.dateGroup }, ["dummy"]);
     this.group = group;
     this.children.length = message.messageCount;
+    this.newCount = message.newCount;
     this.unreadCount = message.unreadCount;
     this.#liveView = liveView;
+  }
+
+  /**
+   * The number of new messages in this thread. If greater than zero, the row
+   * will have the "hasNew" property.
+   *
+   * @type {integer}
+   */
+  get newCount() {
+    return this.#newCount;
+  }
+
+  set newCount(value) {
+    this.#newCount = value;
+    this.toggleProperty("hasNew", !!value);
   }
 
   /**
@@ -1061,6 +1135,9 @@ class LiveViewGroupedHeaderRow extends TreeDataRow {
    * @param {Message} message
    */
   addChild(dataAdapter, rootIndex, message) {
+    if (message.flags & Ci.nsMsgMessageFlags.New) {
+      this.newCount++;
+    }
     if (!(message.flags & Ci.nsMsgMessageFlags.Read)) {
       this.unreadCount++;
     }
@@ -1096,6 +1173,9 @@ class LiveViewGroupedHeaderRow extends TreeDataRow {
    * @param {Message} message
    */
   removeChild(dataAdapter, rootIndex, message) {
+    if (message.flags & Ci.nsMsgMessageFlags.New) {
+      this.newCount--;
+    }
     if (!(message.flags & Ci.nsMsgMessageFlags.Read)) {
       this.unreadCount--;
     }
