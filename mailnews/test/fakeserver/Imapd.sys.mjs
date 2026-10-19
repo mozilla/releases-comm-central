@@ -296,6 +296,7 @@ export class ImapMailbox {
     this.setDefault("delimiter", "/");
     this.setDefault("flags", []);
     this.setDefault("specialUseFlag", "");
+    this.setDefault("rights", "lrswipkxtea");
     this.setDefault("uidnext", 5000);
     this.setDefault("msgflags", [
       "\\Seen",
@@ -2397,6 +2398,29 @@ export var IMAP_RFC2342_extension = {
 // RFC 3348 Child Mailbox (CHILDREN)
 export var IMAP_RFC3348_extension = {
   kCapabilities: ["CHILDREN"],
+};
+
+// RFC 4314: ACL (incomplete implementation)
+export var IMAP_RFC4314_extension = {
+  MYRIGHTS(args) {
+    const mailbox = this._daemon.getMailbox(args[0]);
+    if (!mailbox) {
+      return "NO no such mailbox";
+    }
+    const name = args[0].replace(/["\\]/g, "\\$&");
+    return `* MYRIGHTS "${name}" ${mailbox.rights}\0OK MYRIGHTS completed`;
+  },
+  GETACL(args) {
+    const mailbox = this._daemon.getMailbox(args[0]);
+    if (!mailbox) {
+      return "NO no such mailbox";
+    }
+    const name = args[0].replace(/["\\]/g, "\\$&");
+    return `* ACL "${name}" user ${mailbox.rights}\0OK GETACL completed`;
+  },
+  kCapabilities: ["ACL"],
+  _argFormat: { MYRIGHTS: ["mailbox"], GETACL: ["mailbox"] },
+  _enabledCommands: { 1: ["MYRIGHTS", "GETACL"], 2: ["MYRIGHTS", "GETACL"] },
 };
 
 // RFC 4315: UIDPLUS

@@ -7882,13 +7882,7 @@ nsresult nsImapMailFolder::CreateACLRightsStringForFolder(
 
 NS_IMETHODIMP nsImapMailFolder::GetFolderNeedsACLListed(bool* bVal) {
   NS_ENSURE_ARG_POINTER(bVal);
-  bool dontNeedACLListed = !m_folderNeedsACLListed;
-  // if we haven't acl listed, and it's not a no select folder or the inbox,
-  //  then we'll list the acl if it's not a namespace.
-  if (m_folderNeedsACLListed &&
-      !(mFlags & (nsMsgFolderFlags::ImapNoselect | nsMsgFolderFlags::Inbox)))
-    GetIsNamespace(&dontNeedACLListed);
-  *bVal = !dontNeedACLListed;
+  *bVal = m_folderNeedsACLListed;
   return NS_OK;
 }
 

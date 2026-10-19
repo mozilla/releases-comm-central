@@ -111,6 +111,8 @@ tags = ["foldernames"]
 
 ["test_imapNamespaceComma.js"]
 
+["test_imapNamespaceRootACL.js"]
+
 ["test_imapNamespaceRootMailbox.js"]
 
 ["test_imapNtlmNoChallenge.js"]

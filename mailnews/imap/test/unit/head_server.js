@@ -52,6 +52,7 @@ var {
   IMAP_RFC2197_extension,
   IMAP_RFC2342_extension,
   IMAP_RFC3348_extension,
+  IMAP_RFC4314_extension,
   IMAP_RFC4315_extension,
   IMAP_RFC5258_extension,
   IMAP_RFC2195_extension,
@@ -89,6 +90,9 @@ function makeServer(daemon, infoString, otherProps) {
             break;
           case "RFC3348":
             ext = IMAP_RFC3348_extension;
+            break;
+          case "RFC4314":
+            ext = IMAP_RFC4314_extension;
             break;
           case "RFC4315":
             ext = IMAP_RFC4315_extension;
