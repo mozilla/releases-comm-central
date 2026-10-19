@@ -424,6 +424,19 @@ export var FeedUtils = {
   },
 
   /**
+   * Get the url wrapped in a feed: url, which is either of the form
+   * feed://example.org/feed.xml or feed:https://example.org/feed.xml.
+   * feed:// is replaced with http:// per the spec. Other urls are returned
+   * unchanged.
+   *
+   * @param {string} aUrl - The url.
+   * @returns {string} The unwrapped url.
+   */
+  unwrapFeedUrl(aUrl) {
+    return aUrl.replace(/^feed:\x2f\x2f/i, "http://").replace(/^feed:/i, "");
+  },
+
+  /**
    * Subscribe a new feed url.
    *
    * @param {string} aUrl - Feed url.
@@ -453,12 +466,7 @@ export var FeedUtils = {
       aFolder = FeedUtils.createRssAccount().incomingServer.rootFolder;
     }
 
-    // If aUrl is a feed url, then it is either of the form
-    // feed://example.org/feed.xml or feed:https://example.org/feed.xml.
-    // Replace feed:// with http:// per the spec, then strip off feed:
-    // for the second case.
-    aUrl = aUrl.replace(/^feed:\x2f\x2f/i, "http://");
-    aUrl = aUrl.replace(/^feed:/i, "");
+    aUrl = FeedUtils.unwrapFeedUrl(aUrl);
 
     // Make sure we aren't already subscribed to this feed before we attempt
     // to subscribe to it.
@@ -1730,7 +1738,20 @@ export var FeedUtils = {
       }
     }
 
-    return this._validSchemes.includes(aUri.scheme);
+    if (!this._validSchemes.includes(aUri.scheme)) {
+      return false;
+    }
+
+    // Only allow file: urls for local files.
+    if (aUri instanceof Ci.nsIFileURL) {
+      try {
+        return !aUri.file.path.startsWith("\\\\");
+      } catch (ex) {
+        return false;
+      }
+    }
+
+    return true;
   },
 
   /**

@@ -538,9 +538,15 @@ export class MessengerContentHandler {
           }
         });
       } else if (["http:", "https:", "feed:"].includes(url?.protocol)) {
-        getOrOpen3PaneWindow().then(() => {
-          lazy.FeedUtils.subscribeToFeed(uri, null);
-        });
+        // Only subscribe to remote feeds from external links.
+        const feedUrl = lazy.FeedUtils.unwrapFeedUrl(uri);
+        if (["http:", "https:"].includes(URL.parse(feedUrl)?.protocol)) {
+          getOrOpen3PaneWindow().then(() => {
+            lazy.FeedUtils.subscribeToFeed(feedUrl, null);
+          });
+        } else {
+          console.warn(`Not subscribing to feed with invalid url: ${uri}`);
+        }
       } else if (["webcal:", "webcals:"].includes(url?.protocol)) {
         getOrOpen3PaneWindow().then(win =>
           Services.ww.openWindow(
