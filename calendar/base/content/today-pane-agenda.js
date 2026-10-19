@@ -266,6 +266,9 @@
         const menu = document.getElementById("calendar-today-pane-menu-attendance-menu");
         setupAttendanceMenu(menu, [this.selectedItem]);
         popup.openPopupAtScreen(event.screenX, event.screenY, true);
+
+        const menuDelete = document.getElementById("agenda-delete-event-menuitem");
+        menuDelete.toggleAttribute("disabled", this.selectedItem.calendar.readOnly);
       }
 
       /**
@@ -283,6 +286,9 @@
        * Deletes the selected event.
        */
       deleteSelectedItem() {
+        if (this.selectedItem.calendar.readOnly) {
+          return;
+        }
         calendarViewController.deleteOccurrences([this.selectedItem], false, false);
       }
 
