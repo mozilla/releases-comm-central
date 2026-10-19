@@ -689,9 +689,13 @@ export class VCardProperties {
         // violation of RFC6350. Removing the escaping at this point means no
         // other code requires a special case for it.
         if (Array.isArray(value)) {
-          value = value.map(v =>
-            v.replaceAll(/\\r/g, "\r").replaceAll(/\\:/g, ":")
-          );
+          // Structured values (e.g. ADR, N) can contain nested arrays when a
+          // component has multiple comma-separated values.
+          const unescapeValue = v =>
+            Array.isArray(v)
+              ? v.map(unescapeValue)
+              : v.replaceAll(/\\r/g, "\r").replaceAll(/\\:/g, ":");
+          value = value.map(unescapeValue);
         } else {
           value = value.replaceAll(/\\r/g, "\r").replaceAll(/\\:/g, ":");
           if (["phone-number", "uri"].includes(type)) {

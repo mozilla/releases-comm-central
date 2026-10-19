@@ -915,6 +915,7 @@ add_task(function testGoogleEscaping() {
     TITLE:title\\:title\\;title\\,title\\\\title\\\\\\:title\\\\\\;title\\\\\\,title\\\\\\\\
     TEL:tel\\:0123\\\\4567
     EMAIL:test\\\\test@invalid
+    ADR:;;123 Main St,Apt 4\\:5;Any\\:town;;;
     NOTE:notes\\:\\nnotes\\;\\nnotes\\,\\nnotes\\\\
     URL:http\\://host/url\\:url\\;url\\,url\\\\url
     END:VCARD`;
@@ -927,6 +928,7 @@ add_task(function testGoogleEscaping() {
     TITLE:title:title;title\\,title\\\\title\\\\:title\\\\;title\\\\\\,title\\\\\\\\
     TEL:tel:01234567
     EMAIL:test\\\\test@invalid
+    ADR:;;123 Main St,Apt 4:5;Any:town;;;
     NOTE:notes:\\nnotes;\\nnotes\\,\\nnotes\\\\
     URL:http://host/url:url;url,url\\url
     END:VCARD`;
@@ -967,6 +969,12 @@ add_task(function testGoogleEscaping() {
       params: {},
       type: "text",
       value: "test\\test@invalid",
+    },
+    {
+      name: "adr",
+      params: {},
+      type: "text",
+      value: ["", "", ["123 Main St", "Apt 4:5"], "Any:town", "", "", ""],
     },
     {
       name: "note",
