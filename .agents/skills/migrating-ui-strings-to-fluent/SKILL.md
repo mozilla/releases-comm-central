@@ -16,9 +16,13 @@ Read the repository instructions, then use `rg` to trace:
 - `jar.mn`, XHTML includes, and other packaging entries;
 - `search-l10n-ids` and similar indirect references;
 - existing Fluent IDs or migration transforms that might collide with the proposed IDs;
-- an existing Fluent message that already covers the same UI state with newer copy. A legacy string that is byte-identical to a pre-rename FTL string is a stale twin: reconcile with the newer message instead of migrating the old wording under a new ID.
+- existing Fluent messages that cover the same UI state, including documented copy updates that superseded a legacy string.
 
 Classify each use by what the caller actually needs: static DOM localization, a dynamically created element, or a JavaScript string. Remove dead consumers instead of migrating strings that no longer serve a purpose.
+
+Record which elements each state updates, clears, disables, or leaves unchanged. A localization-only migration should preserve those transitions. For example, clearing a selection may replace detail values with placeholders while retaining their headings. Treat an intentional behavior change as separate scope with its own rationale and coverage.
+
+When consolidating strings, equal en-US wording does not establish equal translations. Trace the consumers and message history, then choose the surviving translation source deliberately. Normally migrate from the source used by the consumer being converted; prefer existing newer Fluent copy when it is known to supersede the legacy wording.
 
 ## Design messages for their consumers
 
@@ -26,15 +30,15 @@ Choose the Fluent shape from the target element or API, not from the legacy prop
 
 - Static markup: use `data-l10n-id` and arguments, with the element's expected attributes.
 - XUL menu items: normally use `.label`, plus `.tooltiptext` when the UI previously set one.
-- XUL labels: a message value renders as the label's text content, while a `.value` trait is rendered from the `value` attribute through `::before`. An element must use one mechanism consistently — a plain-value message applied to a node that already has a `.value`-trait translation leaves the earlier text content in place and displays both strings side by side (the reverse direction is safe, because Fluent unsets the stale attribute).
+- XUL labels: prefer a `.value` attribute so the label handles sizing and overflow cropping correctly. A plain message value sets text content, while `.value` renders through `::before`. Keep the mechanism consistent across all messages applied to the same node: switching from a plain-value message to an attribute-only `.value` message leaves the earlier text content in place and displays both strings. The reverse transition removes the stale `value` attribute.
 - HTML text containers: a message value is often appropriate.
-- HTML `<input>` and `<textarea>`: Fluent cannot write their `value` attribute, so use a plain-value message with `formatValue` and assign the IDL property; see "Localize dynamic UI declaratively".
+- HTML text inputs and `<textarea>`: Fluent does not normally apply their `value` attribute, so use a plain-value message with `formatValue` and assign the IDL property; see "Localize dynamic UI declaratively".
 - JavaScript strings for prompts, picker titles, comparisons, or non-DOM APIs: retain a message value and call `formatValue` or `formatValues`.
-- If the same ID is consumed both as a JavaScript string and as DOM attributes, define both the value and the required attributes.
+- If the same ID is consumed both as a JavaScript string and as DOM attributes, define both the value and the required attributes only when the target does not render both. A XUL label with both a plain message value and `.value` displays both strings. For that case, use an attribute-only message and `formatMessages()` to obtain the attribute when a JavaScript string is needed.
 
 Fluent applies only *localizable* attributes and silently ignores the rest; it also removes localizable attributes that the message does not define. An attribute set from JavaScript (`label`, `tooltiptext`, …) therefore disappears as soon as a translation is applied, unless the message defines it. `data-l10n-attrs` explicitly allows additional attributes.
 
-Add variable comments and preserve access keys. Avoid reshaping or redefining a message already emitted by another transform in the same migration. Consolidate the transform or introduce a new, accurately named ID; validate this with the migration test.
+Add variable comments and preserve access keys. Read message contents and consumers before interpreting an ID's name. When changing an existing message's meaning or required attribute structure, introduce a fresh ID and migrate from the appropriate source. An ID whose translation means "Host:" cannot simply be repurposed to mean "Domain:". Avoid reshaping or redefining a message already emitted by another transform in the same migration. Consolidate the transform or introduce a new, accurately named ID; validate this with the migration test.
 
 ## Localize dynamic UI declaratively
 
@@ -46,13 +50,13 @@ document.l10n.setAttributes(element, "message-id", { variable });
 
 Do not eagerly format a string merely to assign `label`, `value`, `title`, or `tooltiptext`. Keeping the ID and arguments on the node supports retranslation and lets tests verify localization without depending on English.
 
-Exception: HTML `<input>` and `<textarea>` cannot receive a translated `value` attribute at all — Fluent's attribute allow-list permits `value` only on HTML `submit`/`button`/`reset` inputs and on XUL `label`/`description` — so `setAttributes` silently does nothing there. `data-l10n-attrs="value"` makes the attribute apply, but it is still the wrong tool when the same field is also written from JavaScript: assigning the IDL `value` property sets the input's dirty value flag, after which the attribute no longer changes what is displayed and the field keeps a stale string. For readonly display fields, define a plain-value message and assign the formatted string to the property:
+Exception: HTML text inputs and `<textarea>` do not accept a translated `value` attribute by default. Fluent's allow-list permits `value` on HTML `submit`/`button`/`reset` inputs and on XUL `label`/`description`. `data-l10n-attrs="value"` makes the attribute apply, but it is still the wrong tool when the same input is also written from JavaScript: assigning the IDL `value` property sets the input's dirty value flag, after which the attribute no longer changes what is displayed. Inspect each element's namespace and type in mixed panels; XUL labels still use `setAttributes` with `.value` messages. For readonly HTML text fields, define a plain-value message and assign the formatted string to the property:
 
 ```js
 element.value = await document.l10n.formatValue("message-id");
 ```
 
-When a node alternates between localized and raw runtime data, remove both `data-l10n-id` and `data-l10n-args` before assigning the raw value. `document.l10n.removeAttributes()` is not an available API. Test transitions in both directions so a later translation cannot overwrite the raw value, and assert that the previous state's text and attributes are gone — a leftover one renders alongside the new value. The same applies to markup carrying a static `data-l10n-id` that JavaScript also writes: re-translation restores the static message and clobbers the runtime value, so drop the static ID or re-apply the runtime value.
+When a node alternates between localized and raw runtime data, remove both `data-l10n-id` and `data-l10n-args` before assigning the raw value. `document.l10n.removeAttributes()` is not an available API. Test transitions in both directions so a later translation cannot overwrite the raw value, and assert that the previous state's text and attributes are gone — a leftover one renders alongside the new value. The same applies to markup carrying a static `data-l10n-id` that JavaScript also writes: re-translation restores the static message and clobbers the runtime value, so drop the static ID or re-apply the runtime value. When all states are localized, switch Fluent IDs instead of removing the static localization and assigning formatted strings.
 
 Do not build a cache of translated strings solely to keep otherwise synchronous UI code unchanged. Prefer storing state or message IDs and localizing the target elements. This avoids async initialization/unload races.
 
@@ -72,15 +76,15 @@ When migrated or newly tested UI exposes missing icons, inspect both the source 
 
 Tests should verify the localization contract, not en-US prose.
 
-- For declaratively localized nodes, assert `document.l10n.getAttributes(element)` including both `id` and `args`.
+- For declaratively localized nodes, check the ID through `document.l10n.getAttributes(element).id`. Also assert `args` when substitutions are part of the contract; checking `args: null` adds little when neither the code nor the message uses arguments.
 - Asserting IDs alone is not enough. For every localization mechanism in play (XUL `.label`, `.value` or `.tooltiptext`, an HTML input value, text content, a formatted string), also assert at least one element's assigned value or rendered text. IDs and arguments can be exactly right while the translation never reaches the UI — a trait Fluent does not apply, or an attribute the message does not define.
-- When rendered text is the behavior under test, obtain the expected value from `formatValue(s)` instead of embedding English.
+- When rendered text is the behavior under test, obtain the expected main message value from `formatValue(s)` instead of embedding English. For attributes such as `.value`, use `formatMessages()` and read the relevant attribute; `formatValue()` only returns the main message value.
 - Format every expected localized item in a sequence; do not leave some expectations hard-coded.
 - Use boolean assertions such as `Assert.ok(condition)` rather than equality with `true` or `false`.
 - Register mutation/event promises before triggering the action that causes them.
 - For asynchronously initialized dialogs, wait for a semantic readiness condition such as populated data or a known runtime value, then inspect Fluent attributes. Do not synchronize on English text.
 
-Cover meaningful transitions: initial localization, filtering or selection changes, no-selection states, localized-to-raw values, and reopening dialogs where relevant. Assert that a replaced state does not linger, in either direction.
+Cover meaningful transitions: initial localization, filtering or selection changes, no-selection states, localized-to-raw values, and reopening dialogs where relevant. Assert both replacements and intentionally retained values against the pre-migration behavior, rather than deriving every expectation from the new implementation.
 
 ## Keep migration and indirect references aligned
 
@@ -118,6 +122,6 @@ Before reporting completion, verify:
 - async formatting and state updates are awaited;
 - CSP and icon attributes permit the intended assets without broadening policy unnecessarily;
 - tests assert the applied value or rendered text in addition to IDs and arguments, contain no avoidable en-US assertions, and install waits before actions;
-- no legacy string was migrated when an existing FTL message already covers the same state with newer copy;
+- the chosen translation sources preserve the migrated consumers' wording or a documented copy update;
 - the migration recipe passes and all indirect references use the final IDs;
 - the working diff contains no unrelated changes.
