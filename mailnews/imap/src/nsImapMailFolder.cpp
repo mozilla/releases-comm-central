@@ -28,7 +28,6 @@
 #include "nsImapUtils.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgMailSession.h"
-#include "nsIMsgTagService.h"
 #include "nsITransactionManager.h"
 #include "nsIMsgTransactionService.h"
 #include "../public/nsIImapHostSessionList.h"
@@ -4627,29 +4626,6 @@ nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey msgKey,
                                              nsCString& keywords) {
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, rv);
-
-  // IMAP user-defined keywords can be created by other clients or server-side
-  // rules. Make them available as Thunderbird tags instead of requiring a
-  // matching local tag definition to already exist. Keep the server spelling
-  // as the user-visible tag name before normalizing message keywords below.
-  nsTArray<nsCString> serverKeywords;
-  ParseString(keywords, ' ', serverKeywords);
-  nsCOMPtr<nsIMsgTagService> tagService = mozilla::components::Tag::Service();
-  for (const auto& keyword : serverKeywords) {
-    if (keyword.IsEmpty() || keyword.First() == '$' ||
-        keyword.Equals("Junk", nsCaseInsensitiveCStringComparator) ||
-        keyword.Equals("NonJunk", nsCaseInsensitiveCStringComparator) ||
-        keyword.Equals("NotJunk", nsCaseInsensitiveCStringComparator)) {
-      continue;
-    }
-
-    nsAutoString tagName;
-    if (NS_FAILED(tagService->GetTagForKey(keyword, tagName)) ||
-        tagName.IsEmpty()) {
-      tagService->AddTagForKey(keyword, NS_ConvertUTF8toUTF16(keyword),
-                               EmptyCString(), EmptyCString());
-    }
-  }
 
   ToLowerCase(keywords);
   bool messageClassified = true;
