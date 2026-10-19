@@ -8,6 +8,10 @@ var { MID_SLEEP, execEventDialogCallback } = ChromeUtils.importESModule(
 var { saveAndCloseItemDialog, setData } = ChromeUtils.importESModule(
   "resource://testing-common/calendar/ItemEditingHelpers.sys.mjs"
 );
+const { mailTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
+);
+const { CalTodo } = ChromeUtils.importESModule("resource:///modules/CalTodo.sys.mjs");
 
 const TITLE = "Task";
 const DESCRIPTION = "1. Do A\n2. Do B";
@@ -171,7 +175,6 @@ add_task(async function test_tooltipPercentWithoutStatus() {
 
   const taskTreeNode = document.getElementById("calendar-task-tree");
 
-  const { CalTodo } = ChromeUtils.importESModule("resource:///modules/CalTodo.sys.mjs");
   const task = new CalTodo();
   task.title = "Percent without status";
   task.setProperty("PERCENT-COMPLETE", 42);
@@ -200,3 +203,79 @@ add_task(async function test_tooltipPercentWithoutStatus() {
   const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(tabmail.currentTabInfo);
 });
+
+add_task(async function () {
+  using calendarHolder = new TestCalendar("Task Display Details Test");
+  const { calendar } = calendarHolder;
+
+  await CalendarTestUtils.openTasksTab(window);
+
+  // Add tasks to the calendar
+  // TODO: if the tasks are added before the tab is opened, they don't get
+  // displayed.
+  const task1 = new CalTodo();
+  task1.title = "Task 1";
+  task1.descriptionText = "Lorem ipsum";
+  await calendar.addItem(task1);
+  const task2 = new CalTodo();
+  task2.title = "Task 2";
+  task2.descriptionText = "dolor sit amet";
+  await calendar.addItem(task2);
+
+  const tree = document.getElementById("calendar-task-tree");
+  const iframe = document.getElementById("calendar-task-details-description");
+
+  await TestUtils.waitForCondition(
+    () => tree.mTaskArray.length >= 2,
+    "Waiting for the test tasks to be added to the tree..."
+  );
+  mailTestUtils.treeClick(EventUtils, window, tree, 0, 2, { clickCount: 1 }, AccessibilityUtils);
+
+  Assert.equal(
+    iframe.contentDocument.body.textContent,
+    "Lorem ipsum",
+    "Showing description of the first task"
+  );
+
+  const styleSheets = InspectorUtils.getAllStyleSheets(iframe.contentDocument);
+  const editorSheet = styleSheets.find(
+    sheet => sheet.href === "chrome://messenger/skin/shared/editorContent.css"
+  );
+  Assert.ok(editorSheet, "editorContent.css should be loaded in the description editor");
+  Assert.equal(
+    editorSheet.parsingMode,
+    "agent",
+    "editorContent.css should be loaded as an UA style sheet"
+  );
+
+  mailTestUtils.treeClick(EventUtils, window, tree, 1, 2, { clickCount: 1 }, AccessibilityUtils);
+
+  Assert.equal(
+    iframe.contentDocument.body.textContent,
+    "dolor sit amet",
+    "Showing description of the second task"
+  );
+
+  const styleSheetsAgain = InspectorUtils.getAllStyleSheets(iframe.contentDocument);
+  const editorSheetAgain = styleSheetsAgain.find(
+    sheet => sheet.href === "chrome://messenger/skin/shared/editorContent.css"
+  );
+  Assert.ok(editorSheetAgain, "editorContent.css should still be loaded in the description editor");
+  Assert.equal(
+    editorSheetAgain.parsingMode,
+    "agent",
+    "editorContent.css should still be loaded as an UA style sheet"
+  );
+
+  await CalendarTestUtils.closeTasksTab(window);
+});
+
+class TestCalendar {
+  constructor(name) {
+    this.calendar = CalendarTestUtils.createCalendar(name, "memory");
+  }
+
+  [Symbol.dispose]() {
+    CalendarTestUtils.removeCalendar(this.calendar);
+  }
+}

@@ -152,3 +152,53 @@ add_task(async function testTypeLongTextWithLinebreaks() {
 
   CalendarTestUtils.removeCalendar(calendar);
 });
+
+add_task(async function testEditorSheetLoaded() {
+  const calendar = CalendarTestUtils.createCalendar("Test Description Editor Stylesheet", "memory");
+
+  const eventBoxCreated = CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
+  // Create an event which currently has no description.
+  await calendar.addItem(
+    new CalEvent(CalendarTestUtils.dedent`
+      BEGIN:VEVENT
+      SUMMARY:An event
+      DTSTART:20230218T100000Z
+      DTEND:20230218T110000Z
+      END:VEVENT
+    `)
+  );
+
+  info("Wait for event box to exist...");
+  await eventBoxCreated;
+  const eventBox = CalendarTestUtils.dayView.getEventBoxAt(window, 1);
+  info("Scrolling item into view...");
+  eventBox.scrollIntoView({ behavior: "instant", block: "center" });
+
+  // Open our event for editing.
+  info("Start editing event...");
+  const { dialogWindow: eventWindow, iframeDocument } = await CalendarTestUtils.dayView.editEventAt(
+    window,
+    1
+  );
+
+  const styleSheets = InspectorUtils.getAllStyleSheets(
+    iframeDocument.getElementById("item-description").contentDocument
+  );
+
+  const editorSheet = styleSheets.find(
+    sheet => sheet.href === "chrome://messenger/skin/shared/editorContent.css"
+  );
+
+  Assert.ok(editorSheet, "editorContent.css should be loaded in the description editor");
+  Assert.equal(
+    editorSheet.parsingMode,
+    "agent",
+    "editorContent.css should be loaded as an UA style sheet"
+  );
+
+  info("Closing dialog...");
+  const dialogClosing = BrowserTestUtils.domWindowClosed(eventWindow);
+  CalendarTestUtils.items.cancelItemDialog(eventWindow);
+  await dialogClosing;
+  CalendarTestUtils.removeCalendar(calendar);
+});

@@ -708,10 +708,11 @@
 
       itemDescription.contentDocument.body.appendChild(docFragment);
 
-      const link = itemDescription.contentDocument.createElement("link");
-      link.rel = "stylesheet";
-      link.href = "chrome://messenger/skin/shared/editorContent.css";
-      itemDescription.contentDocument.head.appendChild(link);
+      const domWindowUtils = itemDescription.contentWindow.windowUtils;
+      domWindowUtils.loadSheetUsingURIString(
+        "chrome://messenger/skin/shared/editorContent.css",
+        domWindowUtils.AGENT_SHEET
+      );
     }
 
     /**
@@ -765,10 +766,11 @@
 
       itemComment.contentDocument.body.appendChild(docFragment);
 
-      const link = itemComment.contentDocument.createElement("link");
-      link.rel = "stylesheet";
-      link.href = "chrome://messenger/skin/shared/editorContent.css";
-      itemComment.contentDocument.head.appendChild(link);
+      const domWindowUtils = itemComment.contentWindow.windowUtils;
+      domWindowUtils.loadSheetUsingURIString(
+        "chrome://messenger/skin/shared/editorContent.css",
+        domWindowUtils.AGENT_SHEET
+      );
     }
 
     /**

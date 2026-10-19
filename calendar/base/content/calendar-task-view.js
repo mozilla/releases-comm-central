@@ -189,10 +189,6 @@ var taskDetailsView = {
         });
       }
       iframe.contentDocument.body.replaceChildren(docFragment);
-      const link = iframe.contentDocument.createElement("link");
-      link.rel = "stylesheet";
-      link.href = "chrome://messenger/skin/shared/editorContent.css";
-      iframe.contentDocument.head.replaceChildren(link);
       const attachmentRows = document.getElementById("calendar-task-details-attachment-rows");
       while (attachmentRows.lastChild) {
         attachmentRows.lastChild.remove();
@@ -484,6 +480,13 @@ function taskViewOnLoad() {
   toolbox.customizeDone = function (aEvent) {
     MailToolboxCustomizeDone(aEvent, "CustomizeTaskActionsToolbar");
   };
+
+  const domWindowUtils = document.getElementById("calendar-task-details-description").contentWindow
+    .windowUtils;
+  domWindowUtils.loadSheetUsingURIString(
+    "chrome://messenger/skin/shared/editorContent.css",
+    domWindowUtils.AGENT_SHEET
+  );
 
   Services.obs.notifyObservers(window, "calendar-taskview-startup-done");
 }

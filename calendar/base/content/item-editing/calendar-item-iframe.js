@@ -632,10 +632,11 @@ function loadDialog(aItem) {
   const editorElement = document.getElementById("item-description");
   const editor = editorElement.getHTMLEditor(editorElement.contentWindow);
 
-  const link = editorElement.contentDocument.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "chrome://messenger/skin/shared/editorContent.css";
-  editorElement.contentDocument.head.appendChild(link);
+  const domWindowUtils = editorElement.contentWindow.windowUtils;
+  domWindowUtils.loadSheetUsingURIString(
+    "chrome://messenger/skin/shared/editorContent.css",
+    domWindowUtils.AGENT_SHEET
+  );
 
   try {
     const checker = editor.getInlineSpellChecker(true);
