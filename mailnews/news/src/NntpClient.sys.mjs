@@ -55,13 +55,14 @@ XPCOMUtils.defineLazyServiceGetter(
  * A class to interact with NNTP server.
  */
 export class NntpClient {
+  /** Identifies the request owning asynchronous response callbacks. */
+  #requestGeneration = 0;
+
   /**
    * @param {nsINntpIncomingServer} server - The associated server instance.
    */
   constructor(server) {
     this._server = server;
-    this._lineReader = new LineReader();
-
     this._reset();
     this._logger = console.createInstance({
       prefix: "mailnews.nntp",
@@ -92,6 +93,7 @@ export class NntpClient {
     this.onData = () => {};
     this.onDone = () => {};
 
+    this._lineReader = new LineReader();
     this.runningUri = null;
     this.urlListener = null;
     this._msgWindow = null;
@@ -106,6 +108,7 @@ export class NntpClient {
    * Initiate a connection to the server
    */
   connect() {
+    this.#requestGeneration++;
     this._done = false;
     if (this._socket?.readyState == "open") {
       // Reuse the connection.
@@ -749,17 +752,15 @@ export class NntpClient {
    * @param {NntpResponse} res - The server response.
    */
   _actionListgroupDataResponse = ({ data }) => {
-    this._lineReader
-      .read(
-        data,
-        line => {
-          this.onData(line);
-        },
-        () => {
-          this._actionDone();
-        }
-      )
-      .catch(this._actionReadDataFailed);
+    this._readResponse(
+      data,
+      line => {
+        this.onData(line);
+      },
+      () => {
+        this._actionDone();
+      }
+    );
   };
 
   /**
@@ -816,19 +817,17 @@ export class NntpClient {
    * @param {NntpResponse} res - XOVER response received from the server.
    */
   _actionReadXOver({ data }) {
-    this._lineReader
-      .read(
-        data,
-        line => {
-          this._newsGroup.processXOverLine(line);
-        },
-        () => {
-          // Fetch extra headers used by filters, but not returned in XOVER response.
-          this._xhdrFields = this._newsGroup.getXHdrFields();
-          this._actionXHdr();
-        }
-      )
-      .catch(this._actionReadDataFailed);
+    this._readResponse(
+      data,
+      line => {
+        this._newsGroup.processXOverLine(line);
+      },
+      () => {
+        // Fetch extra headers used by filters, but not returned in XOVER response.
+        this._xhdrFields = this._newsGroup.getXHdrFields();
+        this._actionXHdr();
+      }
+    );
   }
 
   /**
@@ -870,15 +869,13 @@ export class NntpClient {
    * @param {NntpResponse} res - XOVER response received from the server.
    */
   _actionReadXHdr({ data }) {
-    this._lineReader
-      .read(
-        data,
-        line => {
-          this._newsGroup.processXHdrLine(this._curXHdrHeader, line);
-        },
-        this._actionXHdr
-      )
-      .catch(this._actionReadDataFailed);
+    this._readResponse(
+      data,
+      line => {
+        this._newsGroup.processXHdrLine(this._curXHdrHeader, line);
+      },
+      this._actionXHdr
+    );
   }
 
   /**
@@ -918,18 +915,16 @@ export class NntpClient {
    * @param {NntpResponse} res - XOVER response received from the server.
    */
   _actionReadHead({ data }) {
-    this._lineReader
-      .read(
-        data,
-        line => {
-          this._newsGroup.processHeadLine(line);
-        },
-        () => {
-          this._newsGroup.initHdr(-1);
-          this._actionHead();
-        }
-      )
-      .catch(this._actionReadDataFailed);
+    this._readResponse(
+      data,
+      line => {
+        this._newsGroup.processHeadLine(line);
+      },
+      () => {
+        this._newsGroup.initHdr(-1);
+        this._actionHead();
+      }
+    );
   }
 
   /**
@@ -951,22 +946,17 @@ export class NntpClient {
     const lineSeparator = AppConstants.platform == "win" ? "\r\n" : "\n";
 
     let article = "";
-    this._lineReader
-      .read(
-        data,
-        line => {
-          article += line.slice(0, -2) + lineSeparator;
-          this.onData(line);
-        },
-        () => {
-          this._newsFolder?.notifyArticleDownloaded(
-            this._articleNumber,
-            article
-          );
-          this._actionDone();
-        }
-      )
-      .catch(this._actionReadDataFailed);
+    this._readResponse(
+      data,
+      line => {
+        article += line.slice(0, -2) + lineSeparator;
+        this.onData(line);
+      },
+      () => {
+        this._newsFolder?.notifyArticleDownloaded(this._articleNumber, article);
+        this._actionDone();
+      }
+    );
   };
 
   /**
@@ -976,9 +966,41 @@ export class NntpClient {
    * @param {NntpResponse} res - Response received from the server.
    */
   _actionReadData({ data }) {
-    this._lineReader
-      .read(data, this.onData, this._actionDone)
-      .catch(this._actionReadDataFailed);
+    this._readResponse(data, this.onData, this._actionDone);
+  }
+
+  /**
+   * Read a multiline response while its request is active. Ignore callbacks
+   * and rejections after completion, including when the client is reused.
+   *
+   * @param {string} data - A full or partial response.
+   * @param {function(string): void} onLine - Process a response line.
+   * @param {function(): void} onComplete - Continue after the response ends.
+   * @returns {Promise<void>} Resolves after processing the response segment.
+   */
+  _readResponse(data, onLine, onComplete) {
+    const generation = this.#requestGeneration;
+    const isCurrent = () =>
+      generation == this.#requestGeneration && !this._done;
+    return this._lineReader
+      .read(
+        data,
+        line => {
+          if (isCurrent()) {
+            onLine(line);
+          }
+        },
+        () => {
+          if (isCurrent()) {
+            onComplete();
+          }
+        }
+      )
+      .catch(error => {
+        if (isCurrent()) {
+          this._actionReadDataFailed(error);
+        }
+      });
   }
 
   /**
@@ -989,8 +1011,6 @@ export class NntpClient {
    */
   _actionReadDataFailed = e => {
     this._logger.error("Failed to process multi-line response.", e);
-    // Discard the rest of the response, so it isn't taken for the next one.
-    this._lineReader = new LineReader();
     this._actionDone(Cr.NS_ERROR_FAILURE);
   };
 
@@ -1179,9 +1199,7 @@ export class NntpClient {
       this._actionError(status, statusText);
       return;
     }
-    this._lineReader
-      .read(data, this.onData, this._actionXPat)
-      .catch(this._actionReadDataFailed);
+    this._readResponse(data, this.onData, this._actionXPat);
   }
 
   /**
@@ -1271,6 +1289,7 @@ export class NntpClient {
       return;
     }
     this._done = true;
+    this.#requestGeneration++;
     this._logger.debug(`Done with status=${status}`);
     this.onDone(status);
     this._newsGroup?.cleanUp();
