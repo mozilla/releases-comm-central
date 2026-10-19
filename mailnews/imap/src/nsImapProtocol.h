@@ -617,6 +617,7 @@ class nsImapProtocol : public nsIImapProtocol,
   bool FolderNeedsACLInitialized(const char* folderName);
   void DiscoverMailboxList();
   void DiscoverAllAndSubscribedBoxes();
+  bool GetNamespaceRootToList(nsImapNamespace* ns, nsACString& root);
   void MailboxDiscoveryFinished();
   void NthLevelChildList(const char* onlineMailboxPrefix, int32_t depth);
   // LIST SUBSCRIBED command (from RFC 5258) crashes some servers. so we need to

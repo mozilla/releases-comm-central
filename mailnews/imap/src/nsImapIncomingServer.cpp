@@ -1140,6 +1140,17 @@ NS_IMETHODIMP nsImapIncomingServer::PossibleImapMailbox(
     if (imapFolder) {
       nsAutoCString onlineName;
       nsAutoString unicodeName;
+      // A folder that was only the Noselect parent of its children is new as
+      // a mailbox, so discovery fetches its rights, too.
+      bool wasNoselect = false;
+      if (found && !(boxFlags & kNoselect) &&
+          NS_SUCCEEDED(
+              child->GetFlag(nsMsgFolderFlags::ImapNoselect, &wasNoselect)) &&
+          wasNoselect) {
+        *aNewFolder = true;
+        nsCOMPtr<nsIImapMailFolderSink> folderSink = do_QueryInterface(child);
+        if (folderSink) folderSink->SetFolderNeedsACLListed(true);
+      }
       imapFolder->SetVerifiedAsOnlineFolder(true);
       imapFolder->SetHierarchyDelimiter(hierarchyDelimiter);
       if (boxFlags & kImapTrash) {

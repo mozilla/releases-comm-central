@@ -26,7 +26,8 @@ interface nsIImapServerSink : nsISupports {
    *                   This path always uses '/' as hierarchy delimiter.
    * @param hierarchyDelimiter The hierarchy delimiter used on the IMAP server.
    * @param boxFlags IMAP folder flags (for subscription, namespaces etc.)
-   * @return true if it's a new mailbox
+   * @return true if it's a new mailbox, or a known folder that was Noselect
+   *         and is selectable now
    */
   boolean possibleImapMailbox(in AUTF8String folderPath,
                               in char hierarchyDelimiter, in long boxFlags);

@@ -132,6 +132,19 @@ nsIMsgWindow** getter_AddRefs(AutoProxyReleaseMsgWindow& aSmartPtr) {
   return aSmartPtr.StartAssignment();
 }
 
+class MOZ_RAII AutoNoErrorReporting {
+ public:
+  explicit AutoNoErrorReporting(nsImapServerResponseParser& aParser)
+      : mParser(aParser), mWasReporting(aParser.GetReportingErrors()) {
+    mParser.SetReportingErrors(false);
+  }
+  ~AutoNoErrorReporting() { mParser.SetReportingErrors(mWasReporting); }
+
+ private:
+  nsImapServerResponseParser& mParser;
+  bool mWasReporting;
+};
+
 class ImapInputStreamCallback final : public nsIInputStreamCallback {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -7333,6 +7346,35 @@ void nsImapProtocol::FindMailboxesIfNecessary() {
   }
 }
 
+// The root mailbox of a namespace doesn't match "prefix*", so it has to be
+// listed by its own name, unless the pattern of a namespace listed before
+// already matches it. The root of other users' namespaces usually isn't a
+// mailbox. Not with a server directory, which would get prepended to it.
+bool nsImapProtocol::GetNamespaceRootToList(nsImapNamespace* ns,
+                                            nsACString& root) {
+  if (ns->GetType() == kOtherUsersNamespace) return false;
+  nsAutoString onlineDir;
+  m_hostSessionList->GetOnlineDirForHost(GetImapServerKey(), onlineDir);
+  root.Assign(ns->GetPrefix());
+  if (!onlineDir.IsEmpty() || root.Length() < 2) return false;
+  root.SetLength(root.Length() - 1);
+  if (root.LowerCaseEqualsLiteral("inbox") ||
+      !ns->IsRootMailbox(PromiseFlatCString(root).get()))
+    return false;
+  uint32_t count = 0;
+  m_hostSessionList->GetNumberOfNamespacesForHost(GetImapServerKey(), count);
+  for (uint32_t i = 0; i < count; i++) {
+    nsImapNamespace* other = nullptr;
+    m_hostSessionList->GetNamespaceNumberForHost(GetImapServerKey(), i, other);
+    if (other == ns) break;
+    if (other && other->GetType() != kOtherUsersNamespace &&
+        other->GetPrefix() &&
+        StringBeginsWith(root, nsDependentCString(other->GetPrefix())))
+      return false;
+  }
+  return true;
+}
+
 void nsImapProtocol::DiscoverAllAndSubscribedBoxes() {
   // used for subscribe pane
   // iterate through all namespaces
@@ -7392,13 +7434,23 @@ void nsImapProtocol::DiscoverAllAndSubscribedBoxes() {
 
         nsAutoCString allPattern(prefix);
         allPattern += '*';
+        nsAutoCString root;
+        bool listRoot = GetNamespaceRootToList(ns, root);
 
         if (!m_imapServerSink) return;
 
         m_imapServerSink->SetServerDoingLsub(true);
+        if (listRoot) {
+          AutoNoErrorReporting noErrors(GetServerStateParser());
+          Lsub(root.get(), true);
+        }
         Lsub(allPattern.get(), true);  // LSUB all the subscribed
 
         m_imapServerSink->SetServerDoingLsub(false);
+        if (listRoot) {
+          AutoNoErrorReporting noErrors(GetServerStateParser());
+          List(root.get(), true);
+        }
         List(allPattern.get(), true);  // LIST all folders
       }
     }
@@ -7505,29 +7557,34 @@ void nsImapProtocol::DiscoverMailboxList() {
         // true), otherwise we end up with performance issues or even crashes
         // when connecting to servers that expose the users entire home
         // directory (like UW-IMAP).
-        nsCString pattern;
-        pattern.Append(prefix);
-        pattern += '*';
-        if (usingSubscription) {
-          if (GetServerStateParser().GetCapabilityFlag() &
-              kHasListExtendedCapability)
-            Lsub(pattern.get(), true);  // do LIST (SUBSCRIBED)
-          else {
-            // store mailbox flags from LIST
-            EMailboxHierarchyNameState currentState = m_hierarchyNameState;
-            m_hierarchyNameState = kListingForFolderFlags;
-            List(pattern.get(), true);
-            m_hierarchyNameState = currentState;
-            // then do LSUB using stored flags
-            Lsub(pattern.get(), true);
-            m_standardListMailboxes.Clear();
+        auto listPattern = [&](const nsCString& pattern) {
+          if (usingSubscription) {
+            if (GetServerStateParser().GetCapabilityFlag() &
+                kHasListExtendedCapability)
+              Lsub(pattern.get(), true);  // do LIST (SUBSCRIBED)
+            else {
+              // store mailbox flags from LIST
+              EMailboxHierarchyNameState currentState = m_hierarchyNameState;
+              m_hierarchyNameState = kListingForFolderFlags;
+              List(pattern.get(), true);
+              m_hierarchyNameState = currentState;
+              // then do LSUB using stored flags
+              Lsub(pattern.get(), true);
+              m_standardListMailboxes.Clear();
+            }
+          } else {
+            // Not using subscription. Just LIST all the folders for this
+            // namespace. Will close the DBs this leaves open in
+            // nsImapIncomingServer::DiscoveryDone().
+            List(pattern.get(), true, hasXLIST);
           }
-        } else {
-          // Not using subscription. Just LIST all the folders for this
-          // namespace. Will close the DBs this leaves open in
-          // nsImapIncomingServer::DiscoveryDone().
-          List(pattern.get(), true, hasXLIST);
+        };
+        nsAutoCString root;
+        if (GetNamespaceRootToList(ns, root)) {
+          AutoNoErrorReporting noErrors(GetServerStateParser());
+          listPattern(root);
         }
+        listPattern(nsDependentCString(prefix) + "*"_ns);
       }
     }
   }

@@ -84,6 +84,49 @@ add_task(async function testMoveFolderToNamespaceRoot() {
   Assert.ok(gServer._daemon.getMailbox("shared/folder"));
 });
 
+add_task(async function testNamespaceRootIsSubscribable() {
+  // "INBOX/*" doesn't list "shared", so the subscribe dialog has to list it
+  // itself.
+  const daemon = new ImapDaemon();
+  daemon.createMailbox("shared");
+  daemon.createMailbox("shared/sub");
+  const server = makeServer(daemon, "RFC2342", {
+    NAMESPACE() {
+      return '* NAMESPACE (("INBOX/" "/")) NIL (("shared/" "/"))\0OK NAMESPACE completed';
+    },
+  });
+  // Folder URIs carry no port, so on the same host name they would find
+  // gImapServer.
+  const incomingServer = createLocalIMAPServer(server.port, "127.0.0.1");
+  incomingServer.maximumConnectionsNumber = 1;
+  const account = MailServices.accounts.createAccount();
+  const identity = MailServices.accounts.createIdentity();
+  account.addIdentity(identity);
+  account.defaultIdentity = identity;
+  account.incomingServer = incomingServer;
+  await updateFolder(
+    incomingServer.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox)
+  );
+  const subscribableServer = incomingServer.QueryInterface(
+    Ci.nsISubscribableServer
+  );
+  const { promise, resolve } = Promise.withResolvers();
+  subscribableServer.subscribeListener = {
+    OnDonePopulating: resolve,
+    QueryInterface: ChromeUtils.generateQI(["nsISubscribeListener"]),
+  };
+  subscribableServer.startPopulating(null, true, false);
+  await promise;
+  Assert.ok(
+    subscribableServer.isSubscribable("shared"),
+    "the subscribe dialog should offer the namespace root"
+  );
+  subscribableServer.subscribeCleanup();
+  incomingServer.closeCachedConnections();
+  server.stop();
+  MailServices.accounts.removeAccount(account, false);
+});
+
 async function updateFolder(folder) {
   const listener = new PromiseTestUtils.PromiseUrlListener();
   folder
