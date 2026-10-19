@@ -270,8 +270,11 @@ export class NntpIncomingServer extends MsgIncomingServer {
   }
 
   closeCachedConnections() {
-    for (const client of [...this._idleConnections, ...this._busyConnections]) {
+    for (const client of this._idleConnections) {
       client.quit();
+    }
+    for (const client of [...this._busyConnections]) {
+      client.quit(Cr.NS_ERROR_ABORT);
     }
     this._idleConnections = [];
     this._busyConnections = [];

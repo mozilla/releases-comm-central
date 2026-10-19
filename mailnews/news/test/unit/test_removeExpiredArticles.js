@@ -159,3 +159,32 @@ add_task(async function test_connectionFailurePreservesHeaders() {
     "a connection failure should complete once with the network error"
   );
 });
+
+add_task(async function test_shutdownPreservesHeaders() {
+  let releases = 0;
+  const { statuses } = await interruptList(client => {
+    const onIdle = client.onIdle;
+    client.onIdle = () => {
+      releases++;
+      onIdle();
+    };
+    incomingServer.closeCachedConnections();
+    incomingServer.closeCachedConnections();
+    Assert.notEqual(
+      client._socket.readyState,
+      "open",
+      "shutdown should close the interrupted connection"
+    );
+  }, /NS_ERROR_ABORT/);
+  Assert.deepEqual(
+    statuses,
+    [Cr.NS_ERROR_ABORT],
+    "shutdown should complete the unfinished request once with an abort status"
+  );
+  Assert.equal(releases, 1, "shutdown should release the connection once");
+  Assert.equal(
+    incomingServer.wrappedJSObject._idleConnections.length,
+    0,
+    "shutdown should leave no cached connection"
+  );
+});
