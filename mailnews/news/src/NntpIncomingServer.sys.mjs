@@ -585,10 +585,11 @@ export class NntpIncomingServer extends MsgIncomingServer {
    * present.
    *
    * @param {string} groupName - The newsgroup name.
-   * @returns {Promise<void>} Resolves when the operation completes.
+   * @returns {Promise<void>} Resolves after removing expired articles. Rejects
+   *   with the request status if fetching the article list fails.
    */
   removeExpiredArticles(groupName) {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       const newsFolder = this.rootFolder
         .getChildNamed(groupName)
         .QueryInterface(Ci.nsIMsgNewsFolder);
@@ -608,9 +609,13 @@ export class NntpIncomingServer extends MsgIncomingServer {
           allKeys.delete(+data);
         };
 
-        client.onDone = () => {
-          newsFolder.removeMessages([...allKeys]);
-          resolve();
+        client.onDone = status => {
+          if (Components.isSuccessCode(status)) {
+            newsFolder.removeMessages([...allKeys]);
+            resolve();
+          } else {
+            reject(new Components.Exception("List articles failed", status));
+          }
         };
       });
     });

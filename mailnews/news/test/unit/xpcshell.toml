@@ -53,6 +53,8 @@ run-sequentially = true  # Restarts server twice--may work but dangerous
 
 ["test_nntpRequestLifetime.js"]
 
+["test_nntpService.js"]
+
 ["test_nntpUrl.js"]
 
 ["test_removeExpiredArticles.js"]

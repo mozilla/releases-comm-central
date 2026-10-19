@@ -42,7 +42,9 @@ function removeExpired() {
     const groupName = decodeURIComponent(
       Services.io.newURI(folderUri).pathQueryRef.slice(1)
     );
-    folder.server.wrappedJSObject.removeExpiredArticles(groupName);
+    folder.server.wrappedJSObject
+      .removeExpiredArticles(groupName)
+      .catch(console.error);
   }
 }
 

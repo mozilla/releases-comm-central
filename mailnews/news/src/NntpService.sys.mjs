@@ -144,8 +144,8 @@ export class NntpService {
         outputStream?.write(data, data.length);
         streamListener?.onDataAvailable(null, inputStream, 0, data.length);
       };
-      client.onDone = () => {
-        streamListener?.onStopRequest(null, Cr.NS_OK);
+      client.onDone = status => {
+        streamListener?.onStopRequest(null, status);
       };
     });
   }
