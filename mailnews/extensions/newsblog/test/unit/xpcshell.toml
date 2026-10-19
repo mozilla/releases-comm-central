@@ -10,4 +10,6 @@ support-files = ["resources/*"]
 
 ["test_feedparser.js"]
 
+["test_isValidScheme.js"]
+
 ["test_newOptions.js"]
