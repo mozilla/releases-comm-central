@@ -153,6 +153,11 @@ add_task(async function checkTagSet() {
   );
   const keywords = msgHdr.getStringProperty("keywords");
   Assert.ok(keywords.includes("randomtag"));
+  Assert.equal(
+    MailServices.tags.getTagForKey("randomtag"),
+    "randomtag",
+    "A user-defined IMAP keyword should be imported as a local tag"
+  );
   const listener = new PromiseTestUtils.PromiseUrlListener();
   gSecondFolder.updateFolderWithListener(null, listener);
   await listener.promise;
