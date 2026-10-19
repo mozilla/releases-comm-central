@@ -916,6 +916,8 @@ add_task(function testGoogleEscaping() {
     TEL:tel\\:0123\\\\4567
     EMAIL:test\\\\test@invalid
     ADR:;;123 Main St,Apt 4\\:5;Any\\:town;;;
+    GEO:37.386;-122.08
+    X-COUNT;VALUE=INTEGER:42
     NOTE:notes\\:\\nnotes\\;\\nnotes\\,\\nnotes\\\\
     URL:http\\://host/url\\:url\\;url\\,url\\\\url
     END:VCARD`;
@@ -929,6 +931,8 @@ add_task(function testGoogleEscaping() {
     TEL:tel:01234567
     EMAIL:test\\\\test@invalid
     ADR:;;123 Main St,Apt 4:5;Any:town;;;
+    GEO:37.386;-122.08
+    X-COUNT;VALUE=INTEGER:42
     NOTE:notes:\\nnotes;\\nnotes\\,\\nnotes\\\\
     URL:http://host/url:url;url,url\\url
     END:VCARD`;
@@ -975,6 +979,18 @@ add_task(function testGoogleEscaping() {
       params: {},
       type: "text",
       value: ["", "", ["123 Main St", "Apt 4:5"], "Any:town", "", "", ""],
+    },
+    {
+      name: "geo",
+      params: {},
+      type: "float",
+      value: [37.386, -122.08],
+    },
+    {
+      name: "x-count",
+      params: {},
+      type: "integer",
+      value: 42,
     },
     {
       name: "note",

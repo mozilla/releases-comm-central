@@ -690,13 +690,19 @@ export class VCardProperties {
         // other code requires a special case for it.
         if (Array.isArray(value)) {
           // Structured values (e.g. ADR, N) can contain nested arrays when a
-          // component has multiple comma-separated values.
-          const unescapeValue = v =>
-            Array.isArray(v)
-              ? v.map(unescapeValue)
-              : v.replaceAll(/\\r/g, "\r").replaceAll(/\\:/g, ":");
+          // component has multiple comma-separated values, and non-text
+          // values (e.g. GEO in vCard 3) are numbers.
+          const unescapeValue = v => {
+            if (Array.isArray(v)) {
+              return v.map(unescapeValue);
+            }
+            if (typeof v != "string") {
+              return v;
+            }
+            return v.replaceAll(/\\r/g, "\r").replaceAll(/\\:/g, ":");
+          };
           value = value.map(unescapeValue);
-        } else {
+        } else if (typeof value == "string") {
           value = value.replaceAll(/\\r/g, "\r").replaceAll(/\\:/g, ":");
           if (["phone-number", "uri"].includes(type)) {
             value = value.replaceAll(/\\([,;\\])/g, "$1");
