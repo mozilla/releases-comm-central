@@ -38,6 +38,7 @@ var {
   get_about_message,
   open_message_from_file,
   open_selected_message,
+  reset_open_message_behavior,
   select_click_row,
   set_open_message_behavior,
   wait_for_message_display_completion,
@@ -366,6 +367,7 @@ async function checkStandaloneMessageWindow(test, loadAllowed) {
   // Open it
   set_open_message_behavior("NEW_WINDOW");
   open_selected_message();
+  reset_open_message_behavior();
 
   const win = await winPromise;
   await BrowserTestUtils.waitForEvent(win, "MsgLoaded");

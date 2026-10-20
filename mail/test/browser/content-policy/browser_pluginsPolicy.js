@@ -20,6 +20,7 @@ var {
   create_folder,
   get_about_message,
   open_selected_message,
+  reset_open_message_behavior,
   select_click_row,
   select_none,
   set_open_message_behavior,
@@ -150,6 +151,7 @@ async function checkStandaloneMessageWindow(loadAllowed) {
   set_open_message_behavior("NEW_WINDOW");
 
   open_selected_message();
+  reset_open_message_behavior();
   const msgc = await newWindowPromise;
   await wait_for_message_display_completion(msgc, true);
 
