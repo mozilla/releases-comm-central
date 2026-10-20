@@ -1092,7 +1092,7 @@ add_task(async function test_identities_without_write_permissions() {
       const accounts = await browser.accounts.list();
       browser.test.assertEq(1, accounts.length);
 
-      const [{ identities }] = accounts;
+      const [{ id: accountId, identities }] = accounts;
       browser.test.assertEq(1, identities.length);
 
       // Testing browser.identities.update().
@@ -1108,6 +1108,22 @@ add_task(async function test_identities_without_write_permissions() {
       await browser.test.assertThrows(
         () => browser.identities.delete(identities[0].id),
         "browser.identities.delete is not a function",
+        "It rejects for a missing permission."
+      );
+
+      // Testing browser.identities.setDefault().
+
+      await browser.test.assertThrows(
+        () => browser.identities.setDefault(accountId, identities[0].id),
+        "browser.identities.setDefault is not a function",
+        "It rejects for a missing permission."
+      );
+
+      // Testing browser.accounts.setDefaultIdentity().
+
+      await browser.test.assertThrows(
+        () => browser.accounts.setDefaultIdentity(accountId, identities[0].id),
+        "browser.accounts.setDefaultIdentity is not a function",
         "It rejects for a missing permission."
       );
 

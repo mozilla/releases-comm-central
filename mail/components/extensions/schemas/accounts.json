@@ -299,6 +299,7 @@
       },
       {
         "name": "setDefaultIdentity",
+        "permissions": ["accountsIdentities"],
         "type": "function",
         "description": "Sets the default identity for an account.",
         "async": true,

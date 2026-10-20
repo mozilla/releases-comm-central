@@ -1110,3 +1110,63 @@ add_task(async function test_identities() {
   cleanUpAccount(account1);
   cleanUpAccount(account2);
 });
+
+add_task(async function test_identities_without_write_permissions() {
+  const account = await createAccount();
+  const identity0 = addIdentity(account, "id1@invalid");
+  addIdentity(account, "id2@invalid");
+
+  equal(account.defaultIdentity.key, identity0.key);
+
+  const extension = ExtensionTestUtils.loadExtension({
+    async background() {
+      const accounts = await browser.accounts.list();
+      browser.test.assertEq(1, accounts.length);
+
+      const [{ id: accountId, identities }] = accounts;
+      browser.test.assertEq(2, identities.length);
+
+      // Testing browser.identities.update().
+
+      await browser.test.assertThrows(
+        () => browser.identities.update(identities[0].id, {}),
+        "browser.identities.update is not a function",
+        "should reject for a missing permission."
+      );
+
+      // Testing browser.identities.delete().
+
+      await browser.test.assertThrows(
+        () => browser.identities.delete(identities[0].id),
+        "browser.identities.delete is not a function",
+        "should reject for a missing permission."
+      );
+
+      // Testing browser.identities.setDefault().
+
+      await browser.test.assertThrows(
+        () => browser.identities.setDefault(accountId, identities[1].id),
+        "browser.identities.setDefault is not a function",
+        "should reject for a missing permission."
+      );
+
+      browser.test.notifyPass("finished");
+    },
+    manifest: {
+      manifest_version: 3,
+      permissions: ["accountsRead"],
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  equal(
+    account.defaultIdentity.key,
+    identity0.key,
+    "The default identity should not have changed"
+  );
+
+  cleanUpAccount(account);
+});
