@@ -20,6 +20,7 @@
 #include "nsIIOService.h"
 #include "nsNetUtil.h"
 #include "nsIFileURL.h"
+#include "nsIFileStreams.h"
 #include "nsIMsgWindow.h"
 #include "nsIWebProgressListener.h"
 #include "nsIPipe.h"
@@ -124,7 +125,10 @@ nsresult nsMsgProtocol::OpenFileSocket(nsIURI* aURL) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIInputStream> stream;
-  rv = NS_NewLocalFileInputStream(getter_AddRefs(stream), file);
+  // Defer opening the file until it's read, which happens after the content
+  // policy has been consulted.
+  rv = NS_NewLocalFileInputStream(getter_AddRefs(stream), file, -1, -1,
+                                  nsIFileInputStream::DEFER_OPEN);
   if (NS_FAILED(rv)) return rv;
 
   // create input stream transport
