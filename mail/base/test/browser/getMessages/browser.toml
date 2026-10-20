@@ -11,8 +11,7 @@ prefs = [
   "mailnews.start_page.url=about:blank",
 ]
 subsuite = "thunderbird"
-
-["browser_getMessages.js"]
+support-files = ["head_getMessages.js"]
 
 ["browser_getMessages_badPassword.js"]
 skip-if = [
@@ -26,6 +25,12 @@ tags = ["notifications"]
 tags = ["notifications"]
 
 ["browser_getMessages_deferredAccount.js"]
+
+["browser_getMessages_folder.js"]
+
+["browser_getMessages_menus.js"]
+
+["browser_getMessages_messageWindow.js"]
 
 ["browser_getMessages_oAuth2.js"]
 tags = [
