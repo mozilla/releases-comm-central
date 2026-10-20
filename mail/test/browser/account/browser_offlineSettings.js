@@ -22,6 +22,31 @@ let nntpAccount, nntpRootFolder;
 let imapAccount, imapRootFolder;
 let ewsAccount, ewsRootFolder;
 
+/**
+ * Wait until every row of the tree has been created and filled.
+ *
+ * @param {TreeView} tree
+ */
+async function waitForTreeRows(tree) {
+  await BrowserTestUtils.waitForMutationCondition(
+    tree.table.body,
+    { subtree: true, childList: true },
+    () => {
+      if (!tree.view) {
+        return false;
+      }
+      for (let i = 0; i < tree.view.rowCount; i++) {
+        const span = tree.getRowAtIndex(i)?.querySelector("span");
+        if (span?.textContent != tree.view.getCellText(i, "name")) {
+          return false;
+        }
+      }
+      return true;
+    },
+    { msg: "waiting for tree rows to be filled" }
+  );
+}
+
 add_setup(async () => {
   // Disable AutoSync so toggling offline flags doesn't trigger background
   // download timers that leak past the end of the test.
@@ -286,11 +311,11 @@ add_task(async function testNNTP() {
       isSubDialog: true,
       async callback(win) {
         await SimpleTest.promiseFocus(win);
-        await new Promise(resolve => win.requestAnimationFrame(resolve));
 
         const doc = win.document;
         const tree = doc.getElementById("synchronizeTree");
         const acceptButton = doc.querySelector("dialog").getButton("accept");
+        await waitForTreeRows(tree);
 
         // Check the initial state.
         Assert.equal(tree.view.rowCount, 4);
@@ -310,11 +335,6 @@ add_task(async function testNNTP() {
         Assert.ok(!isSelected(3));
 
         // Change the selection by clicking on a check box.
-        await BrowserTestUtils.waitForMutationCondition(
-          tree.table.body,
-          { subtree: true, childList: true },
-          () => tree.table.body.rows[0].querySelector('input[type="checkbox"]')
-        );
         EventUtils.synthesizeMouseAtCenter(
           tree.table.body.rows[0].querySelector('input[type="checkbox"]'),
           {},
@@ -411,11 +431,11 @@ add_task(async function testIMAP() {
       isSubDialog: true,
       async callback(win) {
         await SimpleTest.promiseFocus(win);
-        await new Promise(resolve => win.requestAnimationFrame(resolve));
 
         const doc = win.document;
         const tree = doc.getElementById("synchronizeTree");
         const acceptButton = doc.querySelector("dialog").getButton("accept");
+        await waitForTreeRows(tree);
 
         // Check the initial state.
         Assert.ok(
@@ -424,7 +444,7 @@ add_task(async function testIMAP() {
         );
         tree.view.toggleOpenState(4); // Open "third" folder.
         Assert.equal(tree.view.rowCount, 6);
-        await new Promise(resolve => win.requestAnimationFrame(resolve));
+        await waitForTreeRows(tree);
 
         Assert.equal(tree.view.getCellText(0, "name"), "Inbox");
         Assert.equal(tree.view.getCellText(1, "name"), "Trash");
@@ -445,11 +465,6 @@ add_task(async function testIMAP() {
         Assert.ok(!isSelected(5));
 
         // Change the selection by clicking on a check box.
-        await BrowserTestUtils.waitForMutationCondition(
-          tree.table.body,
-          { subtree: true, childList: true },
-          () => tree.table.body.rows[2].querySelector('input[type="checkbox"]')
-        );
         EventUtils.synthesizeMouseAtCenter(
           tree.table.body.rows[2].querySelector('input[type="checkbox"]'),
           {},
@@ -548,11 +563,11 @@ add_task(async function testEWS() {
       isSubDialog: true,
       async callback(win) {
         await SimpleTest.promiseFocus(win);
-        await new Promise(resolve => win.requestAnimationFrame(resolve));
 
         const doc = win.document;
         const tree = doc.getElementById("synchronizeTree");
         const acceptButton = doc.querySelector("dialog").getButton("accept");
+        await waitForTreeRows(tree);
 
         // Check the initial state.
         Assert.equal(tree.view.rowCount, 4);
@@ -562,7 +577,7 @@ add_task(async function testEWS() {
         );
         tree.view.toggleOpenState(3); // Open "third" folder.
         Assert.equal(tree.view.rowCount, 5);
-        await new Promise(resolve => win.requestAnimationFrame(resolve));
+        await waitForTreeRows(tree);
 
         Assert.equal(tree.view.getCellText(0, "name"), "Inbox");
         Assert.equal(tree.view.getCellText(1, "name"), "first");
@@ -581,11 +596,6 @@ add_task(async function testEWS() {
         Assert.ok(!isSelected(4));
 
         // Change the selection by clicking on a check box.
-        await BrowserTestUtils.waitForMutationCondition(
-          tree.table.body,
-          { subtree: true, childList: true },
-          () => tree.table.body.rows[1].querySelector('input[type="checkbox"]')
-        );
         EventUtils.synthesizeMouseAtCenter(
           tree.table.body.rows[1].querySelector('input[type="checkbox"]'),
           {},
