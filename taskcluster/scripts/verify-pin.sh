@@ -16,6 +16,9 @@ if [[ -z "$GECKO_HEAD_REF" || "$GECKO_HEAD_REF" == "default" ]]; then  # If GECK
 elif [[ "$GECKO_HEAD_REF" =~ ^[0-9a-fA-F]{12,40}$ ]]; then  # If GECKO_HEAD_REF is a commit hash (12–40 characters hexadecimal)
     echo "GECKO_HEAD_REF is pinned to a commit hash ($GECKO_HEAD_REF) instead of a tag; was this on purpose?"
     exit 1
+elif sed '/^######/q' comm/.gecko_rev.yml | grep -qE '^#[[:space:]]*GECKO_HEAD_REV'; then # If a commented out GECKO_HEAD_REV is present
+    echo "GECKO_HEAD_REV is commented out. There should be one tag and one commit hash."
+    exit 1
 elif [[ ! "$GECKO_HEAD_REF" =~ ^FIREFOX_ ]]; then  # If GECKO_HEAD_REF is not a Firefox tag
     echo "GECKO_HEAD_REF appears to be incorrectly pinned to '$GECKO_HEAD_REF'"
     exit 1
