@@ -64,6 +64,7 @@ add_task(async function testFolderPaneContext() {
     const folderRow = about3Pane.folderPane.getRowForFolder(
       thisInbox.rootFolder
     );
+    folderRow.scrollIntoView({ block: "nearest" });
     EventUtils.synthesizeMouseAtCenter(
       folderRow.querySelector(".name"),
       { type: "contextmenu" },
