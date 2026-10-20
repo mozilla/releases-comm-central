@@ -37,6 +37,7 @@ add_task(async function () {
     Ci.mozISpellCheckingEngine
   );
   hunspell.addDirectory(dictionary);
+  registerCleanupFunction(() => hunspell.removeDirectory(dictionary));
 
   // Open a compose window and write a message.
 
@@ -305,5 +306,83 @@ add_task(async function () {
   // Clean up.
 
   await close_compose_window(cwc);
-  hunspell.removeDirectory(dictionary);
+});
+
+add_task(async function test_subjectContextMenuDictionaries() {
+  const dictionary = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  dictionary.initWithPath(getTestFilePath("data/en_NZ"));
+  const hunspell = Cc["@mozilla.org/spellchecker/engine;1"].getService(
+    Ci.mozISpellCheckingEngine
+  );
+  hunspell.addDirectory(dictionary);
+  registerCleanupFunction(() => hunspell.removeDirectory(dictionary));
+
+  const cwc = await open_compose_new_mail();
+  const composeDocument = cwc.document;
+  const subject = composeDocument.getElementById("msgSubject");
+  subject.focus();
+  EventUtils.sendString("aluminium", cwc);
+  composeDocument.getElementById("messageEditor").focus();
+  await checkMisspelledWords(subject.editor, "aluminium");
+
+  // Open the menu more than once, as the dictionary list is rebuilt each time.
+  for (let i = 1; i <= 2; i++) {
+    const shownPromise = BrowserTestUtils.waitForEvent(
+      composeDocument,
+      "popupshown",
+      false,
+      event => event.target.id == "textbox-contextmenu"
+    );
+    EventUtils.synthesizeMouseAtCenter(subject, { type: "contextmenu" }, cwc);
+    const contextMenu = (await shownPromise).target;
+
+    const suggestionCount =
+      contextMenu.querySelectorAll(".spell-suggestion").length;
+    Assert.greater(
+      suggestionCount,
+      0,
+      `there should be suggestions on open ${i}`
+    );
+
+    const dictionariesMenu = composeDocument.getElementById(
+      "subject-spell-dictionaries"
+    );
+    Assert.ok(
+      BrowserTestUtils.isVisible(dictionariesMenu),
+      `dictionaries menu should be visible on open ${i}`
+    );
+    const dictionariesPopup = dictionariesMenu.menupopup;
+    const subShownPromise = BrowserTestUtils.waitForEvent(
+      dictionariesPopup,
+      "popupshown"
+    );
+    dictionariesMenu.openMenu(true);
+    await subShownPromise;
+    Assert.deepEqual(
+      [...dictionariesPopup.children].map(item => item.dataset.localeCode),
+      ["en-NZ", "en-US"],
+      `dictionary list should be filled on open ${i}`
+    );
+
+    const subHiddenPromise = BrowserTestUtils.waitForEvent(
+      dictionariesPopup,
+      "popuphidden"
+    );
+    dictionariesMenu.openMenu(false);
+    await subHiddenPromise;
+    Assert.equal(
+      contextMenu.querySelectorAll(".spell-suggestion").length,
+      suggestionCount,
+      `suggestions should remain after closing the dictionaries menu on open ${i}`
+    );
+
+    const hiddenPromise = BrowserTestUtils.waitForEvent(
+      contextMenu,
+      "popuphidden"
+    );
+    contextMenu.hidePopup();
+    await hiddenPromise;
+  }
+
+  await close_compose_window(cwc);
 });

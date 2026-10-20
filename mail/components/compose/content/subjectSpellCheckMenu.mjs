@@ -51,7 +51,10 @@ function ensureClearedOnHiding(popup) {
     return;
   }
   clearListenerAdded = true;
-  popup.addEventListener("popuphiding", () => {
+  popup.addEventListener("popuphiding", event => {
+    if (event.target != popup) {
+      return;
+    }
     spellChecker?.clearSuggestionsFromMenu();
     spellChecker?.clearDictionaryListFromMenu();
   });
@@ -136,7 +139,7 @@ EditContextMenu.addItems({
     enabled.hidden = false;
 
     const dictionaryCount = checker.addDictionaryListToMenu(
-      dictionaries.firstElementChild,
+      dictionaries.menupopup,
       null
     );
     dictionaries.hidden = !checker.enabled || dictionaryCount <= 1;
