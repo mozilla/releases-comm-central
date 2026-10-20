@@ -61,6 +61,15 @@ add_setup(async () => {
     response.setHeader("Content-Type", "text/calendar");
     response.write("BEGIN:VCALENDAR\r\nEND:VCALENDAR\r\n");
   });
+  redirectServer.registerPathHandler("/redirect-public", (request, response) => {
+    response.setStatusLine("1.1", 302, "Found");
+    response.setHeader("Location", `http://${request.queryString}/public.ics`);
+  });
+  redirectServer.registerPathHandler("/public.ics", (request, response) => {
+    response.setHeader("Content-Type", "text/calendar; charset=utf-8");
+    response.setHeader("X-Content-Type-Options", "nosniff");
+    response.write("BEGIN:VCALENDAR\r\nVERSION:2.0\r\nEND:VCALENDAR\r\n");
+  });
   redirectServer.start(-1);
   for (const hostname of HOSTNAMES) {
     redirectServer.identity.add("http", hostname, 80);
@@ -92,6 +101,13 @@ add_task(async function testIcsDetection302() {
   Assert.equal(detectedCals.size, 1, "should find one calendar");
   const icsCal = detectedCals.values().next().value[0];
   Assert.equal(icsCal.uri.spec, url, "should have expected uri");
+});
+
+add_task(async function testIcsDetectionRedirectOtherOrigin() {
+  const url = "http://example.org/redirect-public?dav.example.org";
+  const calendars = await detection.providers.get("ics").detectCalendars("", "", url, false);
+  Assert.equal(calendars.length, 1, "should find the calendar on another origin");
+  Assert.equal(calendars[0].uri.spec, url, "should keep the original uri");
 });
 
 add_task(async function testIcsDetectionPasswordRedirectSameSite() {

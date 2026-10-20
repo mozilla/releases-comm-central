@@ -92,13 +92,15 @@ export var provider = {
       : Services.scriptSecurityManager.createContentPrincipal(aUri, originAttributes);
     const channel =
       aExistingChannel ||
+      // Load like a system XHR, so that Opaque Response Blocking doesn't block
+      // responses after a cross-origin redirect.
       Services.io.newChannelFromURI(
         aUri,
         null,
         principal,
         null,
-        Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-        Ci.nsIContentPolicy.TYPE_OTHER
+        Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_INHERITS_SEC_CONTEXT,
+        Ci.nsIContentPolicy.TYPE_XMLHTTPREQUEST
       );
     let httpchannel = channel.QueryInterface(Ci.nsIHttpChannel);
 
