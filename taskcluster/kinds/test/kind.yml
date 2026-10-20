@@ -31,7 +31,6 @@ task-defaults:
     attributes:
         retrigger: true
     use-python: system
-    use-uv: false
     optimization:
         by-test-platform:
             .*-tsan.*/opt:

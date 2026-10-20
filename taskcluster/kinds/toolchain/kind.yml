@@ -12,6 +12,7 @@ kind-dependencies:
 reference-tasks:
     - linux64-7zz
     - linux64-aarch64-compiler-rt-22
+    - linux64-aarch64-uv
     - linux64-cargo-vet
     - linux64-cbindgen
     - linux64-cctools-port
@@ -56,6 +57,7 @@ reference-tasks:
     - linux64-toolchain-sysroot
     - linux64-toolchain-sysroot-gcc11
     - linux64-upx
+    - linux64-uv
     - linux64-winchecksec
     - linux64-wine
     - linux64-x64-compiler-rt-22
@@ -67,6 +69,7 @@ reference-tasks:
     - macosx64-aarch64-minidump-stackwalk
     - macosx64-aarch64-node
     - macosx64-aarch64-samply
+    - macosx64-aarch64-uv
     - macosx64-fix-stacks
     - macosx64-grcov
     - macosx64-libdmg
@@ -75,6 +78,7 @@ reference-tasks:
     - macosx64-samply
     - macosx64-sdk
     - macosx64-sdk-toolchain
+    - macosx64-uv
     - macosx64-x64-compiler-rt-22
     - mingw32-rust
     - node-modules
@@ -113,6 +117,7 @@ reference-tasks:
     - win64-rust-size
     - win64-samply
     - win64-sccache
+    - win64-uv
     - win64-winchecksec
     - winappsdk-aarch64-pc-windows-msvc
     - winappsdk-x86-pc-windows-msvc
