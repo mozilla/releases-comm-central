@@ -77,6 +77,13 @@ add_task(async function () {
     EventUtils.synthesizeMouseAtCenter(cell, event, win);
   }
 
+  function rowHasProperty(row, property) {
+    return threadTree
+      .getRowAtIndex(row)
+      .dataset.properties.split(" ")
+      .includes(property);
+  }
+
   // Test search criteria. The search results are deterministic unless
   // MessageGenerator is changed.
 
@@ -321,8 +328,15 @@ add_task(async function () {
     "message 3 should be marked as spam"
   );
   await classificationPromise;
-  await new Promise(resolve => requestAnimationFrame(resolve));
-  await new Promise(resolve => setTimeout(resolve));
+  await BrowserTestUtils.waitForMutationCondition(
+    threadTree.table.body,
+    { subtree: true, attributeFilter: ["data-properties"] },
+    () =>
+      !rowHasProperty(1, "unread") &&
+      rowHasProperty(2, "flagged") &&
+      rowHasProperty(3, "junk"),
+    { msg: "waiting for the rows to be updated" }
+  );
 
   classificationPromise = PromiseTestUtils.promiseFolderNotification(
     testFolder,
@@ -345,8 +359,15 @@ add_task(async function () {
     "message 3 should not be marked as spam"
   );
   await classificationPromise;
-  await new Promise(resolve => requestAnimationFrame(resolve));
-  await new Promise(resolve => setTimeout(resolve));
+  await BrowserTestUtils.waitForMutationCondition(
+    threadTree.table.body,
+    { subtree: true, attributeFilter: ["data-properties"] },
+    () =>
+      rowHasProperty(1, "unread") &&
+      !rowHasProperty(2, "flagged") &&
+      !rowHasProperty(3, "junk"),
+    { msg: "waiting for the rows to be updated" }
+  );
 
   Assert.equal(
     threadTree.view.rowCount,
