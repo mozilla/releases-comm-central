@@ -30,6 +30,22 @@ pub use xshell::Shell;
 
 pub use error::{Error, Result};
 
+/// Simple stderr logging, used for tracing during development only.
+#[cfg(feature = "debug-trace")]
+macro_rules! trace {
+    ($fmt:expr) => {
+        eprintln!(concat!("[TRACE] ", $fmt));
+    };
+    ($fmt:expr, $($arg:tt)*) => {
+        eprintln!(concat!("[TRACE] ", $fmt), $($arg)+);
+    };
+}
+
+#[cfg(not(feature = "debug-trace"))]
+macro_rules! trace {
+    ($($arg:tt)*) => {};
+}
+
 // xshell has no shell-wide `env_remove`, so we do it for every command.
 macro_rules! cmd {
     ($sh:expr, $cmd:literal) => {{
@@ -67,26 +83,66 @@ pub struct VirtualEnv<'a> {
     _env: Vec<PushEnv<'a>>,
 }
 
-fn guess_python(sh: &Shell) -> Result<&'static str, Error> {
+fn guess_python(sh: &Shell, path: &Path) -> Result<&'static str, Error> {
     #[cfg(windows)]
     {
-        if xshell::cmd!(sh, "python3.exe --version").read().is_ok() {
+        let pybin = path.join("Scripts").join("python3.exe");
+        trace!("[Windows] Checking {}", pybin.display());
+        if xshell::cmd!(sh, "{pybin} --version").read().is_ok() {
+            trace!("[Windows] python3.exe is Python 3");
             return Ok("python3.exe");
         }
 
+        let pybin = path.join("Scripts").join("python.exe");
+        trace!("[Windows] Checking {}", pybin.display());
+        if let Ok(output) = xshell::cmd!(sh, "{pybin} --version").read() {
+            if output.contains("Python 3.") {
+                trace!("[Windows] python.exe is Python 3");
+                return Ok("python.exe");
+            }
+        }
+
+        trace!("[Windows] Checking python3.exe");
+        if xshell::cmd!(sh, "python3.exe --version").read().is_ok() {
+            trace!("[Windows] python3.exe is Python 3");
+            return Ok("python3.exe");
+        }
+
+        trace!("[Windows] Checking python.exe");
         if let Ok(output) = xshell::cmd!(sh, "python.exe --version").read() {
             if output.contains("Python 3.") {
+                trace!("[Windows] python.exe is Python 3");
                 return Ok("python.exe");
             }
         }
     }
 
-    if xshell::cmd!(sh, "python3 --version").read().is_ok() {
+    let pybin = path.join("bin").join("python3");
+    trace!("Checking {}", pybin.display());
+    if xshell::cmd!(sh, "{pybin} --version").read().is_ok() {
+        trace!("python3 is Python 3");
         return Ok("python3");
     }
 
+    let pybin = path.join("bin").join("python");
+    trace!("Checking {}", pybin.display());
+    if let Ok(output) = xshell::cmd!(sh, "{pybin} --version").read() {
+        if output.contains("Python 3.") {
+            trace!("python is Python 3");
+            return Ok("python");
+        }
+    }
+
+    trace!("Checking python3");
+    if xshell::cmd!(sh, "python3 --version").read().is_ok() {
+        trace!("python3 is Python 3");
+        return Ok("python3");
+    }
+
+    trace!("Checking python");
     if let Ok(output) = xshell::cmd!(sh, "python --version").read() {
         if output.contains("Python 3.") {
+            trace!("python is Python 3");
             return Ok("python");
         }
     }
@@ -95,20 +151,24 @@ fn guess_python(sh: &Shell) -> Result<&'static str, Error> {
 }
 
 fn create_venv(sh: &Shell, path: &Path) -> Result<(), Error> {
+    trace!("Creating venv at {}", path.display());
     // First create a lock file, so that multiple runs cannot overlap.
     let lock_path = path.join("xshell-venv.lock");
     sh.create_dir(path)?;
     let mut f = FileLock::new(File::create(&lock_path)?);
     let lock = f.write()?;
 
-    let python = guess_python(sh)?;
+    let python = guess_python(sh, path)?;
 
     #[cfg(windows)]
     let pybin = path.join("Scripts").join(python);
     #[cfg(not(windows))]
     let pybin = path.join("bin").join(python);
     if !pybin.exists() {
+        trace!("Creating venv in {}", path.display());
         xshell::cmd!(sh, "{python} -m venv {path}").run()?;
+    } else {
+        trace!("{} is already a venv, using as is", path.display());
     }
 
     // Work is done. Drop the lock.
