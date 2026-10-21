@@ -1257,8 +1257,8 @@ function MsgOpenSelectedMessages() {
 
 // This code is used when dragging a message from a "Search Messages" panel.
 function ThreadPaneOnDragStart(aEvent) {
-  const messageUris = gFolderDisplay.selectedMessageUris;
-  if (!messageUris) {
+  const messageUris = gDBView.getURIsForSelection();
+  if (!messageUris.length) {
     return;
   }
 
