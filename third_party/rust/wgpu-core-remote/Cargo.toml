@@ -60,6 +60,9 @@ version = "1.0.225"
 optional = true
 default-features = false
 
+[dependencies.static_assertions]
+version = "1.1"
+
 [dependencies.wgpu-core]
 version = "30.0.0"
 path = "../wgpu-core"
@@ -78,3 +81,9 @@ default-features = false
 version = "30.0.0"
 path = "../wgpu-types"
 default-features = false
+
+[lints.clippy]
+ref_as_ptr = "warn"
+
+[lints.rust]
+missing_debug_implementations = "warn"

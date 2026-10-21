@@ -65,3 +65,9 @@ version = "30.0.0"
 path = "../wgpu-types"
 features = ["serde"]
 default-features = false
+
+[lints.clippy]
+ref_as_ptr = "warn"
+
+[lints.rust]
+missing_debug_implementations = "warn"

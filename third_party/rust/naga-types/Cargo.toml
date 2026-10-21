@@ -57,6 +57,14 @@ version = "1.4.2"
 features = ["derive"]
 optional = true
 
+[dependencies.bytemuck]
+version = "1.22"
+features = [
+    "extern_crate_alloc",
+    "min_const_generics",
+    "derive",
+]
+
 [dependencies.hashbrown]
 version = "0.17"
 features = [
@@ -80,10 +88,6 @@ features = [
     "derive",
 ]
 optional = true
-default-features = false
-
-[dependencies.thiserror]
-version = "2.0.12"
 default-features = false
 
 [dev-dependencies.strum]

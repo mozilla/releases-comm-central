@@ -41,3 +41,9 @@ path = "src/lib.rs"
 version = "30.0.0"
 path = "../../../wgpu-hal"
 default-features = true
+
+[lints.clippy]
+ref_as_ptr = "warn"
+
+[lints.rust]
+missing_debug_implementations = "warn"

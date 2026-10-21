@@ -254,7 +254,7 @@ features = ["humantime"]
 default-features = false
 
 [dev-dependencies.glam]
-version = "0.33.9"
+version = "0.34.0"
 
 [dev-dependencies.naga]
 version = "30.0.0"
