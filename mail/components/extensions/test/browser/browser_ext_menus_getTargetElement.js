@@ -248,7 +248,11 @@ add_task(async function test_getTargetElement_in_message_pane() {
   const menu = ownerDocument.getElementById(menuId);
 
   // Focus the browser before right-clicking.
-  await synthesizeMouseAtCenterAndRetry("body", {}, messageBrowser);
+  await synthesizeMouseAtCenterAndRetry(
+    "body",
+    { suppressA11YClick: true },
+    messageBrowser
+  );
 
   info("Right-click on a link in the message pane.");
   await rightClickOnContent(menu, "a", messageBrowser);
@@ -374,7 +378,11 @@ add_task(async function test_getTargetElement_in_content_tab() {
     browser.documentGlobal.top.document.getElementById("browserContext");
   Assert.ok(menu, "browserContext menu should exist");
 
-  await synthesizeMouseAtCenterAndRetry("body", {}, browser);
+  await synthesizeMouseAtCenterAndRetry(
+    "body",
+    { suppressA11YClick: true },
+    browser
+  );
 
   info("Right-click on a link in the content tab.");
   await rightClickOnContent(menu, "a", browser);

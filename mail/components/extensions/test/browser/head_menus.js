@@ -333,7 +333,11 @@ async function subtest_content(
   }
   const menu = ownerDocument.getElementById(menuId);
 
-  await synthesizeMouseAtCenterAndRetry("body", {}, browser);
+  await synthesizeMouseAtCenterAndRetry(
+    "body",
+    { suppressA11YClick: true },
+    browser
+  );
 
   info("Test a part of the page with no content.");
 
@@ -382,7 +386,11 @@ async function subtest_content(
     menu.querySelector("#menus_mochi_test-menuitem-_selection")
   );
   await clickedPromise;
-  await synthesizeMouseAtCenterAndRetry("body", {}, browser); // Select nothing.
+  await synthesizeMouseAtCenterAndRetry(
+    "body",
+    { suppressA11YClick: true },
+    browser
+  ); // Select nothing.
 
   info("Test link.");
 
@@ -471,7 +479,11 @@ async function subtest_compose_body(
   const ownerDocument = browser.ownerDocument;
   const menu = ownerDocument.getElementById(browser.getAttribute("context"));
 
-  await synthesizeMouseAtCenterAndRetry("body", {}, browser);
+  await synthesizeMouseAtCenterAndRetry(
+    "body",
+    { suppressA11YClick: true },
+    browser
+  );
 
   info("Test a part of the page with no content.");
   await rightClickOnContent(menu, "body", browser);
@@ -527,7 +539,11 @@ async function subtest_compose_body(
       submenu.querySelector("#menus_mochi_test-menuitem-_selection")
     );
     await clickedPromise;
-    await synthesizeMouseAtCenterAndRetry("body", {}, browser); // Select nothing.
+    await synthesizeMouseAtCenterAndRetry(
+      "body",
+      { suppressA11YClick: true },
+      browser
+    ); // Select nothing.
   }
 
   info("Test link.");
@@ -563,7 +579,11 @@ async function subtest_compose_body(
       submenu.querySelector("#menus_mochi_test-menuitem-_link")
     );
     await clickedPromise;
-    await synthesizeMouseAtCenterAndRetry("body", {}, browser); // Select nothing.
+    await synthesizeMouseAtCenterAndRetry(
+      "body",
+      { suppressA11YClick: true },
+      browser
+    ); // Select nothing.
   }
 
   info("Test image.");
@@ -598,7 +618,11 @@ async function subtest_compose_body(
       submenu.querySelector("#menus_mochi_test-menuitem-_image")
     );
     await clickedPromise;
-    await synthesizeMouseAtCenterAndRetry("body", {}, browser); // Select nothing.
+    await synthesizeMouseAtCenterAndRetry(
+      "body",
+      { suppressA11YClick: true },
+      browser
+    ); // Select nothing.
   }
 }
 

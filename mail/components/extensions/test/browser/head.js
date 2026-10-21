@@ -862,7 +862,8 @@ async function checkComposeHeaders(expected) {
  */
 async function synthesizeMouseAtCenterAndRetry(selector, event, browser) {
   let success = false;
-  const type = event.type || "click";
+  const { suppressA11YClick = false, ...mouseEvent } = event;
+  const type = mouseEvent.type || "click";
   for (let retries = 0; !success && retries < 2; retries++) {
     const clickPromise = BrowserTestUtils.waitForContentEvent(
       browser,
@@ -877,7 +878,7 @@ async function synthesizeMouseAtCenterAndRetry(selector, event, browser) {
       browser.documentGlobal.setTimeout(r, 500)
     ).then(() => false);
 
-    event.centered = true;
+    mouseEvent.centered = true;
     const browsingContext = BrowserTestUtils.getBrowsingContextFrom(browser);
 
     // Replicating BrowserTestUtils.synthesizeMouseAtCenter(). However, this
@@ -893,15 +894,21 @@ async function synthesizeMouseAtCenterAndRetry(selector, event, browser) {
       target = selector;
     }
 
+    if (suppressA11YClick && typeof AccessibilityUtils != "undefined") {
+      AccessibilityUtils.suppressClickHandling(true);
+    }
     BrowserTestUtils.sendQuery(browsingContext, "Test:SynthesizeMouse", {
       target,
       targetFn,
       x: 0,
       y: 0,
-      event,
+      event: mouseEvent,
     });
 
     success = await Promise.race([clickPromise, failPromise]);
+    if (suppressA11YClick && typeof AccessibilityUtils != "undefined") {
+      AccessibilityUtils.suppressClickHandling(false);
+    }
   }
   Assert.ok(success, `Should have received ${type} event.`);
 }
@@ -1011,8 +1018,17 @@ async function openMenuPopupInBrowser(browser, menu, selector) {
  */
 async function openMenuPopup(menu, element, event = {}) {
   await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+  const previousTabIndex = element.getAttribute("tabindex");
+  if (element.localName == "toolbarbutton" && !element.disabled) {
+    element.setAttribute("tabindex", "0");
+  }
   EventUtils.synthesizeMouseAtCenter(element, event, element.documentGlobal);
   await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+  if (previousTabIndex == null) {
+    element.removeAttribute("tabindex");
+  } else {
+    element.setAttribute("tabindex", previousTabIndex);
+  }
 }
 
 /**

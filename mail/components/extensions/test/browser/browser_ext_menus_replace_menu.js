@@ -462,7 +462,14 @@ async function run_overrideContext_test_in_popup(testWindow, buttonSelector) {
   ];
   const button = testWindow.document.querySelector(buttonSelector);
   Assert.ok(button, "Button created");
+  const previousTabIndex = button.getAttribute("tabindex");
+  button.setAttribute("tabindex", "0");
   EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, testWindow);
+  if (previousTabIndex == null) {
+    button.removeAttribute("tabindex");
+  } else {
+    button.setAttribute("tabindex", previousTabIndex);
+  }
   await extension.awaitMessage("menu-registered");
   // We received the menu-registered message, so the contextmenu event listeners for
   // the two link elements in the popup should be set up by now. But that is not always

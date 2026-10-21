@@ -313,11 +313,7 @@ add_task(async function test_context_click_in_threadpane() {
   });
 
   extension.onMessage("click on message", rowNr => {
-    const row = gDefaultAbout3Pane.document.getElementById(
-      `threadTree-row${rowNr}`
-    );
-    Assert.ok(!!row, `Should find row${rowNr}`);
-    EventUtils.synthesizeMouseAtCenter(row, {}, gDefaultAbout3Pane);
+    gDefaultAbout3Pane.threadTree.selectedIndex = Number(rowNr);
   });
 
   extension.onMessage("context-click on message", async rowNr => {

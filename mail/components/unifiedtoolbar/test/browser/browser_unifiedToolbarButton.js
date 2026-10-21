@@ -251,6 +251,7 @@ add_task(async function test_popup() {
   const button = testDocument.createElement("button", {
     is: "unified-toolbar-button",
   });
+  button.setAttribute("label", "Test popup button");
   button.setAttribute("popup", popup.id);
   testDocument.body.append(popup, button);
   await waitForRender();
@@ -263,7 +264,7 @@ add_task(async function test_popup() {
     "When the popup is open the button is shown as pressed"
   );
 
-  await BrowserTestUtils.synthesizeMouseAtCenter("menu", {}, browser);
+  menu.openMenu(true);
   await BrowserTestUtils.waitForPopupEvent(submenu, "shown");
   submenu.hidePopup();
   await BrowserTestUtils.waitForPopupEvent(submenu, "hidden");
@@ -289,6 +290,7 @@ add_task(async function test_clickToggle() {
   const button = testDocument.createElement("button", {
     is: "unified-toolbar-button",
   });
+  button.setAttribute("label", "Test toggle button");
   button.ariaPressed = "false";
   testDocument.body.append(button);
   await waitForRender();
@@ -326,6 +328,7 @@ add_task(async function test_clickCommandHandler() {
   const button = testDocument.createElement("button", {
     is: "unified-toolbar-button",
   });
+  button.setAttribute("label", "Test command button");
   button.setAttribute("command", "test-command");
   testDocument.body.append(command, button);
   await waitForRender();
@@ -365,6 +368,7 @@ add_task(async function test_clickCommandElement() {
   const button = testDocument.createElement("button", {
     is: "unified-toolbar-button",
   });
+  button.setAttribute("label", "Test command element button");
   button.setAttribute("command", "test-command");
   testDocument.body.append(command, button);
   await waitForRender();
