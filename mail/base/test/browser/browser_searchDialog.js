@@ -193,3 +193,137 @@ add_task(async function test_dragMessageData() {
   tree.selectedIndices = [];
   await BrowserTestUtils.closeWindow(win);
 });
+
+add_task(async function test_customizeHeaders() {
+  const header = "X-Search-Dialog";
+  const customHeadersURL = "chrome://messenger/content/CustomHeaders.xhtml";
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.customHeaders", ""]],
+  });
+  const win = await openSearchDialog();
+  EventUtils.synthesizeMouseAtCenter(
+    win.document.querySelector('[data-l10n-id="search-add-rule-button"]'),
+    {},
+    win
+  );
+  const attributes = win.document.querySelectorAll("search-attribute");
+  Assert.equal(
+    attributes.length,
+    2,
+    "The dialog should have two search criteria"
+  );
+
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    undefined,
+    customHeadersURL,
+    {
+      async callback(dialogWin) {
+        await SimpleTest.promiseFocus(dialogWin);
+        const doc = dialogWin.document;
+        const list = doc.getElementById("headerList");
+        Assert.equal(list.itemCount, 0, "The header list should start empty");
+        doc.getElementById("headerInput").focus();
+        EventUtils.sendString(header, dialogWin);
+        EventUtils.synthesizeMouseAtCenter(
+          doc.getElementById("addButton"),
+          {},
+          dialogWin
+        );
+        await BrowserTestUtils.waitForMutationCondition(
+          list,
+          { childList: true },
+          () => list.itemCount == 1
+        );
+        Assert.equal(
+          list.selectedItem.label,
+          header,
+          "Adding a header should select it in the editor"
+        );
+        doc.querySelector("dialog").getButton("accept").click();
+      },
+    }
+  );
+  let shown = BrowserTestUtils.waitForPopupEvent(
+    attributes[0].menupopup,
+    "shown"
+  );
+  EventUtils.synthesizeMouseAtCenter(attributes[0].menulist, {}, win);
+  await shown;
+  attributes[0].menupopup.activateItem(
+    attributes[0].menupopup.querySelector(
+      `[value="${Ci.nsMsgSearchAttrib.OtherHeader}"]`
+    )
+  );
+  await dialogPromise;
+  await TestUtils.waitForCondition(
+    () => attributes[0].menulist.selectedItem?.label == header,
+    "The criterion should select the chosen custom header"
+  );
+  Assert.equal(
+    Services.prefs.getCharPref("mailnews.customHeaders"),
+    header,
+    "Accepting the editor should save the new custom header"
+  );
+  for (const attribute of attributes) {
+    Assert.ok(
+      attribute.menulist.querySelector(`[label="${header}"]`),
+      "Every criterion should offer the new custom header"
+    );
+  }
+
+  await SimpleTest.promiseFocus(win);
+  dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    undefined,
+    customHeadersURL,
+    {
+      async callback(dialogWin) {
+        await SimpleTest.promiseFocus(dialogWin);
+        const doc = dialogWin.document;
+        const list = doc.getElementById("headerList");
+        Assert.equal(
+          list.itemCount,
+          1,
+          "The editor should show the saved header"
+        );
+        list.selectedIndex = 0;
+        EventUtils.synthesizeMouseAtCenter(
+          doc.getElementById("removeButton"),
+          {},
+          dialogWin
+        );
+        Assert.equal(
+          list.itemCount,
+          0,
+          "Removing the header should empty the list"
+        );
+        doc.querySelector("dialog").getButton("cancel").click();
+      },
+    }
+  );
+  shown = BrowserTestUtils.waitForPopupEvent(attributes[0].menupopup, "shown");
+  EventUtils.synthesizeMouseAtCenter(attributes[0].menulist, {}, win);
+  await shown;
+  attributes[0].menupopup.activateItem(
+    attributes[0].menupopup.querySelector(
+      `[value="${Ci.nsMsgSearchAttrib.OtherHeader}"]`
+    )
+  );
+  await dialogPromise;
+  await TestUtils.waitForCondition(
+    () => attributes[0].value == Ci.nsMsgSearchAttrib.Subject,
+    "Cancelling Customize should select a valid default attribute"
+  );
+  Assert.equal(
+    Services.prefs.getCharPref("mailnews.customHeaders"),
+    header,
+    "Cancelling the editor should preserve the saved custom header"
+  );
+  for (const attribute of attributes) {
+    Assert.ok(
+      attribute.menulist.querySelector(`[label="${header}"]`),
+      "Every criterion should still offer the saved custom header"
+    );
+  }
+  await BrowserTestUtils.closeWindow(win);
+  await SpecialPowers.popPrefEnv();
+});

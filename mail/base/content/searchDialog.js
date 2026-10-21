@@ -949,6 +949,13 @@ function updateSearchLocalSystem() {
   setSearchScope(GetScopeForFolder(gCurrentFolder));
 }
 
+/**
+ * Refreshes the search attribute menus after editing custom headers.
+ */
+function UpdateAfterCustomHeaderChange() {
+  updateSearchAttributes();
+}
+
 function onEnterInSearchTerm() {
   // on enter
   // if not searching, start the search
