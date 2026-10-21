@@ -38,6 +38,7 @@ class nsMsgFileHdr : public nsIMsgDBHdr {
   nsString mDecodedRecipients;
   nsCString mCcList;
   nsCString mBccList;
+  nsCString mReplyTo;
   PRTime mDate;
   nsCString mMessageID;
   uint32_t mFlags;

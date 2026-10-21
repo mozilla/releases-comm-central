@@ -84,6 +84,9 @@ nsresult nsMsgFileHdr::ReadFile() {
     if (name.EqualsLiteral("Bcc") && mBccList.IsEmpty()) {
       mBccList = hdr.Value(buffer);
     }
+    if (name.LowerCaseEqualsLiteral("reply-to") && mReplyTo.IsEmpty()) {
+      mReplyTo = hdr.Value(buffer);
+    }
     if (name.EqualsLiteral("Date") && mDate == 0) {
       PR_ParseTimeString(hdr.Value(buffer).get(), false, &mDate);
     }
@@ -129,6 +132,12 @@ NS_IMETHODIMP nsMsgFileHdr::GetStringProperty(const char* propertyName,
                                               nsACString& _retval) {
   if (!strcmp(propertyName, "dummyMsgUrl")) {
     _retval = mUri;
+    return NS_OK;
+  }
+  if (!strcmp(propertyName, "replyTo")) {
+    nsresult rv = ReadFile();
+    NS_ENSURE_SUCCESS(rv, rv);
+    _retval = mReplyTo;
     return NS_OK;
   }
   _retval.Truncate();

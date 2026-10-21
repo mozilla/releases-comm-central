@@ -53,6 +53,8 @@ tags = ["maildir"]
 
 ["test_msgCopy.js"]
 
+["test_msgFileHdr.js"]
+
 ["test_msgIDParsing.js"]
 
 ["test_noTop.js"]
