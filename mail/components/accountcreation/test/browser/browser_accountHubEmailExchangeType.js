@@ -51,6 +51,7 @@ add_setup(async function () {
   advancedConfigButton = subview.querySelector(
     "#advancedConfigurationExchange"
   );
+  await subview.l10n.translateFragment(subview);
 
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);

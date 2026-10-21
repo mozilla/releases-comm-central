@@ -26,7 +26,7 @@ Content-Transfer-Encoding: 7bit
     <p><a href="https://example.com/">Link to a web page</a></p>
     <p><a href="mailto:kate@kurtz.invalid">Link to an email address</a></p>
     <form>
-      <input type="text" />
+      <input type="text" aria-label="Sample input" />
     </form>
     <p><img src="cid:logo" width="304" height="84" /></p>
   </body>

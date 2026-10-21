@@ -26,6 +26,7 @@ add_task(async function test_customizable_shortcuts_opening() {
 
   const dialog = container.shadowRoot.querySelector("dialog");
   Assert.ok(dialog.open, "The dialog element was opened");
+  await container.l10n.translateFragment(container.shadowRoot);
 
   EventUtils.synthesizeKey("KEY_Escape", {}, window);
   await BrowserTestUtils.waitForEvent(dialog, "close");

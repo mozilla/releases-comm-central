@@ -1332,6 +1332,14 @@ async function subtestExpandCollapse() {
     }
   }
 
+  function checkActiveDescendant(expectedId) {
+    Assert.equal(
+      list.table.body.ariaActiveDescendantElement,
+      doc.getElementById(expectedId),
+      "active descendant is correct"
+    );
+  }
+
   function checkMultiSelect(...expectedIds) {
     const selected = [...list.querySelectorAll(".selected")].map(row => row.id);
     Assert.deepEqual(selected, expectedIds, "selection should be correct");
@@ -1413,6 +1421,17 @@ async function subtestExpandCollapse() {
       );
     });
   }
+
+  // A primary press before it becomes a selection must not move the active
+  // descendant.
+  checkActiveDescendant("row-1");
+  EventUtils.synthesizeMouseAtCenter(
+    doc.getElementById("row-2").querySelector(".twisty"),
+    { type: "mousedown", button: 0, buttons: 1 },
+    content
+  );
+  checkSelectedAndCurrent(0, "row-1");
+  checkActiveDescendant("row-1");
 
   for (const id of idsWithoutChildren) {
     await clickTwisty(id, null);
