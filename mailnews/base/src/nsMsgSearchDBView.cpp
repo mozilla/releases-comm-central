@@ -853,7 +853,7 @@ nsresult nsMsgSearchDBView::PartitionSelectionByFolder(
   }
 
   int32_t numFolders = uniqueFoldersSelected.Count();
-  indexArrays = mozilla::MakeUnique<nsTArray<nsMsgViewIndex>[]>(numFolders);
+  indexArrays = std::make_unique<nsTArray<nsMsgViewIndex>[]>(numFolders);
   *numArrays = numFolders;
   NS_ENSURE_TRUE(indexArrays, NS_ERROR_OUT_OF_MEMORY);
   for (int32_t folderIndex = 0; folderIndex < numFolders; folderIndex++) {

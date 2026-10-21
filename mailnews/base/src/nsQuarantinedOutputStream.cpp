@@ -64,7 +64,7 @@ void nsQuarantinedOutputStream::EnterErrorState(nsresult status) {
 // It keeps going until it sees an EOF on the input.
 static nsresult copyStream(nsIInputStream* in, nsIOutputStream* out) {
   constexpr uint32_t BUFSIZE = 8192;
-  auto buf = mozilla::MakeUnique<char[]>(BUFSIZE);
+  auto buf = std::make_unique<char[]>(BUFSIZE);
   while (true) {
     // Read input stream into buf.
     uint32_t bufCnt;

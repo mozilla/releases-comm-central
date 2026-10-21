@@ -31,7 +31,7 @@ nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm* scope,
 
   nsresult rv = m_scope->GetInputStream(msg, getter_AddRefs(m_msgStream));
   NS_ENSURE_SUCCESS_VOID(rv);  // Not ideal, but warn at least.
-  m_lineBuffer = mozilla::MakeUnique<nsLineBuffer<char>>();
+  m_lineBuffer = std::make_unique<nsLineBuffer<char>>();
 }
 
 nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm* scope,
@@ -48,7 +48,7 @@ nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm* scope,
   } else {
     nsresult rv = m_scope->GetInputStream(msg, getter_AddRefs(m_msgStream));
     NS_ENSURE_SUCCESS_VOID(rv);  // Not ideal, but warn at least.
-    m_lineBuffer = mozilla::MakeUnique<nsLineBuffer<char>>();
+    m_lineBuffer = std::make_unique<nsLineBuffer<char>>();
   }
 }
 

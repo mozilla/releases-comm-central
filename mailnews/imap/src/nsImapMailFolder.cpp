@@ -8389,7 +8389,7 @@ bool nsImapMailFolder::ShowPreviewText() {
 
 void nsImapMailFolder::FilterCopyStarted(nsIMsgDBHdr* aHeader) {
   if (!m_filterCopyState) {
-    m_filterCopyState = mozilla::MakeUnique<FilterCopyState>();
+    m_filterCopyState = std::make_unique<FilterCopyState>();
   }
   nsMsgKey key;
   aHeader->GetMessageKey(&key);

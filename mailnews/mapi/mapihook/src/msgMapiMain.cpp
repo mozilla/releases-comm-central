@@ -74,8 +74,8 @@ int16_t nsMAPIConfiguration::RegisterSession(
     if (session_generator == 0) session_generator++;
     m_SessionMap.InsertOrUpdate(
         session_generator,
-        mozilla::MakeUnique<nsMAPISession>(aHwnd, aUserName, aPassword,
-                                           aForceDownLoad, aIdKey));
+        std::make_unique<nsMAPISession>(aHwnd, aUserName, aPassword,
+                                        aForceDownLoad, aIdKey));
     if (!aUserName.IsEmpty())
       m_ProfileMap.InsertOrUpdate(aUserName, session_generator);
     *aSession = session_generator;

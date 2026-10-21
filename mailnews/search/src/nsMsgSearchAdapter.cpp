@@ -378,7 +378,7 @@ nsresult nsMsgSearchAdapter::EncodeImapTerm(nsIMsgSearchTerm* term,
         // max escaped length is one extra character for every character in the
         // cmd.
         mozilla::UniquePtr<char[]> newValue =
-            mozilla::MakeUnique<char[]>(2 * strlen(vptr) + 1);
+            std::make_unique<char[]>(2 * strlen(vptr) + 1);
         if (newValue) {
           char* p = newValue.get();
           while (1) {

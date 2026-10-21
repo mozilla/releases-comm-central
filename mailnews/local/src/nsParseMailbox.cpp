@@ -1473,8 +1473,8 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
                 msgIsNew = false;
 
                 if (!m_filterTargetFoldersMsgMovedCount) {
-                  m_filterTargetFoldersMsgMovedCount = mozilla::MakeUnique<
-                      nsTHashMap<nsCStringHashKey, int32_t>>();
+                  m_filterTargetFoldersMsgMovedCount =
+                      std::make_unique<nsTHashMap<nsCStringHashKey, int32_t>>();
                 }
                 int32_t targetFolderMsgMovedCount =
                     m_filterTargetFoldersMsgMovedCount->Get(

@@ -21,11 +21,11 @@ nsresult nsMsgCompressIStream::InitInputStream(nsIInputStream* rawStream) {
   if (m_iStream) return NS_ERROR_UNEXPECTED;
 
   // allocate some memory for buffering
-  m_zbuf = mozilla::MakeUnique<char[]>(BUFFER_SIZE);
+  m_zbuf = std::make_unique<char[]>(BUFFER_SIZE);
   if (!m_zbuf) return NS_ERROR_OUT_OF_MEMORY;
 
   // allocate some memory for buffering
-  m_databuf = mozilla::MakeUnique<char[]>(BUFFER_SIZE);
+  m_databuf = std::make_unique<char[]>(BUFFER_SIZE);
   if (!m_databuf) return NS_ERROR_OUT_OF_MEMORY;
 
   // set up zlib object
