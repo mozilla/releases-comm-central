@@ -4,7 +4,9 @@
 // license that can be found in the LICENSE file.
 
 use crate::error::Result;
-use crate::frame::modular::predict::{PredictionData, WeightedPredictorState};
+use crate::frame::modular::predict::{
+    PredictionData, WeightedPredictorScratch, WeightedPredictorState,
+};
 use crate::frame::modular::{ModularChannel, ModularStorage, Predictor};
 use crate::headers::bit_depth::BitDepth;
 use crate::headers::modular::WeightedHeader;
@@ -247,7 +249,11 @@ fn get_border_pixel(img: &OwnedRawImage, x: usize, y: usize, storage: ModularSto
 }
 
 impl<'a, 'b> PaletteStep<'a, 'b> {
-    pub fn run(self, scratch: &mut [Vec<i32>; 4]) -> Result<()> {
+    pub fn run(
+        self,
+        scratch: &mut [Vec<i32>; 4],
+        wp_scratch: &mut WeightedPredictorScratch,
+    ) -> Result<()> {
         let PaletteStep {
             buf_in,
             buf_pal,
@@ -277,47 +283,43 @@ impl<'a, 'b> PaletteStep<'a, 'b> {
             let is_single_channel = buf_out.len() == 1;
             for (c, out_buf) in buf_out.iter_mut().enumerate() {
                 let palette = Palette::new(&out_buf.bit_depth, c, buf_pal, storage);
-                // Avoid partial render overshoots going into the implicit cube / deltas.
+                // Avoid partial render overshoots going into the implicit cube.
                 // If we are not doing delta palette, we have a single channel, we have an actual
-                // palette, and we have partial data, almost certainly any under/over shoot is just
-                // due to partial rendering noise, so clip the index in those cases.
+                // palette, and we have partial data, almost certainly any overshoot is just due to
+                // partial rendering noise, so clip the index in those cases.
                 let palette_size = (palette.explicit.len() / storage.sample_size()) as i32;
-                let clip =
-                    is_partial && palette_size != 0 && self.num_deltas == 0 && is_single_channel;
+                let clip_cube = is_partial && palette_size != 0 && is_single_channel;
                 if storage == ModularStorage::I16 {
                     let in_rect = ImageRect::<i16>::from_raw(buf_in[0].data.as_rect());
                     let mut out_rect = ImageRectMut::<i16>::from_raw(out_buf.data.as_rect_mut());
                     for y in 0..h {
                         let index_row = in_rect.row(y);
                         let out_row = out_rect.row(y);
-                        if clip {
+                        if clip_cube {
                             for (out, &index) in out_row.iter_mut().zip(index_row.iter()) {
-                                *out = palette.get(index.clamp(0, palette_size as i16 - 1) as isize)
+                                *out = palette
+                                    .get((index as i32).clamp(0, palette_size - 1) as isize)
                                     as i16;
                             }
                         } else {
                             for (out, &index) in out_row.iter_mut().zip(index_row.iter()) {
-                                *out = palette.get(index as isize) as i16;
+                                *out = palette.get(index.max(0) as isize) as i16;
                             }
                         }
                     }
                 } else {
                     let in_rect = ImageRect::<i32>::from_raw(buf_in[0].data.as_rect());
                     let mut out_rect = ImageRectMut::<i32>::from_raw(out_buf.data.as_rect_mut());
-                    if clip {
-                        for y in 0..h {
-                            let index_row = in_rect.row(y);
-                            let out_row = out_rect.row(y);
+                    for y in 0..h {
+                        let index_row = in_rect.row(y);
+                        let out_row = out_rect.row(y);
+                        if clip_cube {
                             for (out, &index) in out_row.iter_mut().zip(index_row.iter()) {
                                 *out = palette.get(index.clamp(0, palette_size - 1) as isize);
                             }
-                        }
-                    } else {
-                        for y in 0..h {
-                            let index_row = in_rect.row(y);
-                            let out_row = out_rect.row(y);
+                        } else {
                             for (out, &index) in out_row.iter_mut().zip(index_row.iter()) {
-                                *out = palette.get(index as isize);
+                                *out = palette.get(index.max(0) as isize);
                             }
                         }
                     }
@@ -342,7 +344,7 @@ impl<'a, 'b> PaletteStep<'a, 'b> {
             let out_row_idx = c * grid_xsize;
             let palette = Palette::new(&buf_out[out_row_idx].bit_depth, c, buf_pal, storage);
             let mut wp_state = if predictor == Predictor::Weighted {
-                let mut state = WeightedPredictorState::new(wp_header, total_w);
+                let mut state = WeightedPredictorState::new(wp_header, total_w, wp_scratch);
                 if let Some(Some(aux_img)) = prev_aux.and_then(|aux| aux.get(c)) {
                     state.restore_state(aux_img);
                 }

@@ -9,8 +9,11 @@ use crate::frame::modular::buffers::ModularChannel;
 use crate::frame::modular::transforms::meta_apply::meta_apply_single_transform;
 use crate::frame::modular::transforms::palette::PaletteStep;
 use crate::frame::modular::transforms::step::TransformStep;
-use crate::frame::modular::{ChannelInfo, ModularStorage, ScratchSpace, max_channels};
+use crate::frame::modular::{
+    ChannelInfo, ModularStorage, ScratchSpace, max_channels, max_modular_transforms,
+};
 use crate::headers::modular::GroupHeader;
+use crate::image::BufferRecycler;
 use crate::util::tracing_wrappers::*;
 
 #[derive(Debug)]
@@ -53,13 +56,24 @@ impl LocalTransformBuffer<'_> {
         r
     }
 
-    fn allocate_if_needed(&mut self, storage: ModularStorage) -> Result<()> {
+    pub fn recycle(self, recycler: &BufferRecycler) {
+        if let LocalTransformBuffer::Owned(m) = self {
+            recycler.recycle_raw_buffer(m.data);
+        }
+    }
+
+    fn allocate_if_needed(
+        &mut self,
+        storage: ModularStorage,
+        recycler: &BufferRecycler,
+    ) -> Result<()> {
         if let LocalTransformBuffer::Placeholder(c) = self {
             *self = LocalTransformBuffer::Owned(ModularChannel::new_with_shift(
                 c.size,
                 storage,
                 c.shift,
                 c.bit_depth,
+                recycler,
             )?);
         }
         Ok(())
@@ -72,7 +86,8 @@ pub fn meta_apply_local_transforms<'a, 'b>(
     buffer_storage: &'b mut Vec<LocalTransformBuffer<'a>>,
     header: &GroupHeader,
     storage: ModularStorage,
-    force_level5: bool,
+    recycler: &BufferRecycler,
+    level5_limits: bool,
 ) -> Result<(Vec<&'b mut ModularChannel>, Vec<TransformStep>)> {
     let mut transform_steps = vec![];
 
@@ -83,9 +98,24 @@ pub fn meta_apply_local_transforms<'a, 'b>(
         .enumerate()
         .collect();
 
-    let max_channels = max_channels(force_level5);
+    let max_transforms = max_modular_transforms(level5_limits);
+    if header.transforms.len() > max_transforms {
+        return Err(Error::level_limit(
+            level5_limits,
+            "modular transforms",
+            header.transforms.len() as u64,
+            max_transforms as u64,
+        ));
+    }
+
+    let max_channels = max_channels(level5_limits);
     if channels.len() > max_channels {
-        return Err(Error::TooManyModularChannels(channels.len(), max_channels));
+        return Err(Error::level_limit(
+            level5_limits,
+            "modular channels",
+            channels.len() as u64,
+            max_channels as u64,
+        ));
     }
 
     debug!(?channels, "initial channels");
@@ -112,10 +142,15 @@ pub fn meta_apply_local_transforms<'a, 'b>(
             &mut cumulative_palette_samples,
             // Reasonable upper bound.
             1 << 26,
-            max_channels,
+            level5_limits,
         )?;
         if channels.len() > max_channels {
-            return Err(Error::TooManyModularChannels(channels.len(), max_channels));
+            return Err(Error::level_limit(
+                level5_limits,
+                "modular channels",
+                channels.len() as u64,
+                max_channels as u64,
+            ));
         }
     }
 
@@ -220,7 +255,7 @@ pub fn meta_apply_local_transforms<'a, 'b>(
 
     // Allocate all the coded channels if they aren't yet.
     for (buf, _) in channels.iter() {
-        buffer_storage[*buf].allocate_if_needed(storage)?;
+        buffer_storage[*buf].allocate_if_needed(storage, recycler)?;
     }
 
     debug!(?channels, ?buffer_storage, "allocated buffers");
@@ -252,6 +287,7 @@ impl TransformStep {
         buffers: &mut [LocalTransformBuffer],
         scratch_space: &mut ScratchSpace,
         storage: ModularStorage,
+        recycler: &BufferRecycler,
     ) -> Result<()> {
         match self {
             TransformStep::Rct {
@@ -293,7 +329,7 @@ impl TransformStep {
                         buffers[*b].channel_info(storage).size,
                         buffers[*buf_in].channel_info(storage).size
                     );
-                    buffers[*b].allocate_if_needed(storage)?;
+                    buffers[*b].allocate_if_needed(storage, recycler)?;
                 }
                 let mut img_in = buffers[*buf_in].take();
                 let mut img_pal = buffers[*buf_pal].take();
@@ -317,8 +353,13 @@ impl TransformStep {
                         storage,
                         is_partial: false,
                     }
-                    .run(&mut scratch_space.palette_row_scratch)?;
+                    .run(
+                        &mut scratch_space.palette_row_scratch,
+                        &mut scratch_space.tree_scratch.wp_scratch,
+                    )?;
                 }
+                img_in.recycle(recycler);
+                img_pal.recycle(recycler);
                 for (pos, buf) in buf_out.iter().zip(out_bufs) {
                     buffers[*pos] = buf;
                 }
@@ -326,7 +367,7 @@ impl TransformStep {
             TransformStep::HSqueeze {
                 buf_in, buf_out, ..
             } => {
-                buffers[*buf_out].allocate_if_needed(storage)?;
+                buffers[*buf_out].allocate_if_needed(storage, recycler)?;
                 let mut out_buf = buffers[*buf_out].take();
                 let mut in_avg = buffers[buf_in[0]].take();
                 let mut in_res = buffers[buf_in[1]].take();
@@ -344,12 +385,14 @@ impl TransformStep {
                         &mut scratch_space.hsqueeze_i16_scratch,
                     );
                 }
+                in_avg.recycle(recycler);
+                in_res.recycle(recycler);
                 buffers[*buf_out] = out_buf;
             }
             TransformStep::VSqueeze {
                 buf_in, buf_out, ..
             } => {
-                buffers[*buf_out].allocate_if_needed(storage)?;
+                buffers[*buf_out].allocate_if_needed(storage, recycler)?;
                 let mut out_buf = buffers[*buf_out].take();
                 let mut in_avg = buffers[buf_in[0]].take();
                 let mut in_res = buffers[buf_in[1]].take();
@@ -366,6 +409,8 @@ impl TransformStep {
                         storage,
                     );
                 }
+                in_avg.recycle(recycler);
+                in_res.recycle(recycler);
                 buffers[*buf_out] = out_buf;
             }
             TransformStep::Output { .. } => {

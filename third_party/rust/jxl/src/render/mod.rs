@@ -34,19 +34,15 @@ mod test;
 // 9.div_ceil(2)+1 = 6 pixels of border, below the 9 for luma.
 const MAX_BORDER: usize = 9;
 
-pub(crate) use builder::RenderPipelineBuilder;
-pub(crate) use channels::{Channels, ChannelsMut};
-pub(crate) use low_memory_pipeline::LowMemoryRenderPipeline;
+pub use builder::RenderPipelineBuilder;
+pub use channels::{
+    Channels, ChannelsMut, ChannelsView, StoreInterleaved, VecLoad, for_each_chunk,
+};
+pub use low_memory_pipeline::LowMemoryRenderPipeline;
 #[cfg(test)]
 pub(crate) use simple_pipeline::SimpleRenderPipeline;
 
-pub(crate) type ErasedLocalState = dyn Any + Send + Sync;
-
-pub enum StageSpecialCase {
-    F32ToU8 { channel: usize, bit_depth: u8 },
-    ModularToF32 { channel: usize, bit_depth: u8 },
-    Modular16ToF32 { channel: usize, bit_depth: u8 },
-}
+pub type ErasedLocalState = dyn Any + Send + Sync;
 
 /// Modifies channels in-place.
 pub trait RenderPipelineInPlaceStage: Any + std::fmt::Display + Send + Sync {
@@ -67,10 +63,6 @@ pub trait RenderPipelineInPlaceStage: Any + std::fmt::Display + Send + Sync {
     }
 
     fn uses_channel(&self, c: usize) -> bool;
-
-    fn is_special_case(&self) -> Option<StageSpecialCase> {
-        None
-    }
 }
 
 /// Modifies data and writes it to a new buffer, of possibly different type.
@@ -113,13 +105,9 @@ pub trait RenderPipelineInOutStage: Any + std::fmt::Display + Send + Sync {
     }
 
     fn uses_channel(&self, c: usize) -> bool;
-
-    fn is_special_case(&self) -> Option<StageSpecialCase> {
-        None
-    }
 }
 
-pub(crate) trait RenderPipeline: Sized {
+pub trait RenderPipeline: Sized {
     type Buffer: 'static;
 
     fn new_from_shared(shared: RenderPipelineShared<Self::Buffer>) -> Result<Self>;

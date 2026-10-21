@@ -170,9 +170,9 @@ fn validate_spline_point_pos<T: num_traits::ToPrimitive>(x: T, y: T) -> Result<(
 
 const CHANNEL_WEIGHT: [f32; 4] = [0.0042, 0.075, 0.07, 0.3333];
 
-fn area_limit(image_size: u64, force_level5: bool) -> u64 {
+fn area_limit(image_size: u64, level5_limits: bool) -> u64 {
     // Use saturating arithmetic to prevent overflow
-    if force_level5 {
+    if level5_limits {
         8u64.saturating_mul(image_size)
             .saturating_add(1u64 << 25)
             .min(1u64 << 30)
@@ -250,6 +250,7 @@ impl QuantizedSpline {
         y_to_x: f32,
         y_to_b: f32,
         area_limit: u64,
+        level5_limits: bool,
     ) -> Result<Spline> {
         let mut result = Spline {
             control_points: Vec::new_with_capacity(self.control_points.len() + 1)?,
@@ -279,7 +280,9 @@ impl QuantizedSpline {
                 current_delta_x.unsigned_abs() as u64 + current_delta_y.unsigned_abs() as u64;
 
             if manhattan_distance > area_limit {
-                return Err(Error::SplinesDistanceTooLarge(
+                return Err(Error::level_limit(
+                    level5_limits,
+                    "spline manhattan distance",
                     manhattan_distance,
                     area_limit,
                 ));
@@ -748,24 +751,27 @@ impl Splines {
         image_ysize: u64,
         color_correlation_params: &ColorCorrelationParams,
         high_precision: bool,
-        force_level5: bool,
+        level5_limits: bool,
     ) -> Result<()> {
         let mut total_estimated_area_reached = 0u64;
         let mut splines = Vec::new();
         // Use saturating_mul to prevent overflow with malicious image dimensions
         let image_area = image_xsize.saturating_mul(image_ysize);
-        let area_limit = area_limit(image_area, force_level5);
+        let area_limit = area_limit(image_area, level5_limits);
         for (index, qspline) in self.splines.iter().enumerate() {
             let spline = qspline.dequantize(
                 &self.starting_points[index],
                 self.quantization_adjustment,
-                color_correlation_params.y_to_x_lf(),
-                color_correlation_params.y_to_b_lf(),
+                color_correlation_params.y_to_x(0),
+                color_correlation_params.y_to_b(0),
                 area_limit,
+                level5_limits,
             )?;
             total_estimated_area_reached += spline.estimated_area_reached;
             if total_estimated_area_reached > area_limit {
-                return Err(Error::SplinesAreaTooLarge(
+                return Err(Error::level_limit(
+                    level5_limits,
+                    "spline area",
                     total_estimated_area_reached,
                     area_limit,
                 ));
@@ -833,11 +839,15 @@ impl Splines {
         Ok(())
     }
 
-    #[instrument(level = "debug", skip(br), ret, err)]
-    pub fn read(br: &mut BitReader, num_pixels: u32) -> Result<Splines> {
+    #[instrument(level = "debug", skip(br, lz77_scratch), ret, err)]
+    pub fn read(
+        br: &mut BitReader,
+        num_pixels: u32,
+        lz77_scratch: &mut Vec<u32>,
+    ) -> Result<Splines> {
         trace!(pos = br.total_bits_read());
-        let splines_histograms = Histograms::decode(NUM_SPLINE_CONTEXTS, br, true)?;
-        let mut splines_reader = SymbolReader::new(&splines_histograms, br, None)?;
+        let splines_histograms = Histograms::decode(NUM_SPLINE_CONTEXTS, br, true, lz77_scratch)?;
+        let mut splines_reader = SymbolReader::new(&splines_histograms, br, None, lz77_scratch)?;
         let num_splines = splines_reader
             .read_unsigned(&splines_histograms, br, NUM_SPLINES_CONTEXT)
             .saturating_add(1);
@@ -896,6 +906,7 @@ impl Splines {
                 &mut num_control_points,
             )?);
         }
+        splines_reader.reclaim_lz77_scratch(lz77_scratch);
         splines_reader.check_final_state(&splines_histograms, br)?;
         Ok(Splines {
             quantization_adjustment,
@@ -1502,6 +1513,7 @@ mod test_splines {
                 0.0,
                 1.0,
                 area_limit(2u64 << 30, false),
+                false,
             )?;
             assert_eq!(
                 got_dequantized.control_points.len(),
@@ -1951,7 +1963,7 @@ mod test_splines {
                 true,
             )
             .unwrap_err();
-        assert!(matches!(err, Error::SplinesAreaTooLarge(..)));
+        assert!(matches!(err, Error::LevelLimitExceeded { .. }));
 
         splines.initialize_draw_cache(
             1 << 15,

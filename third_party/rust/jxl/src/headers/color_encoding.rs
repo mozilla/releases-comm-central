@@ -8,7 +8,7 @@ use std::fmt;
 use jxl_macros::UnconditionalCoder;
 use num_derive::FromPrimitive;
 
-use crate::api::{adapt_to_xyz_d50, primaries_to_xyz};
+use crate::api::JxlColorEncoding;
 use crate::bit_reader::BitReader;
 use crate::error::Error;
 use crate::headers::encodings::*;
@@ -44,17 +44,6 @@ pub enum WhitePoint {
     Custom = 2,
     E = 10,
     DCI = 11,
-}
-
-impl WhitePoint {
-    pub fn to_xy_coords(&self, custom: &CustomXY) -> (f32, f32) {
-        match self {
-            WhitePoint::D65 => (0.3127, 0.3290),
-            WhitePoint::E => (1.0 / 3.0, 1.0 / 3.0),
-            WhitePoint::DCI => (0.314, 0.351),
-            WhitePoint::Custom => custom.as_f32_coords(),
-        }
-    }
 }
 
 #[allow(clippy::upper_case_acronyms)]
@@ -199,7 +188,7 @@ pub struct ColorEncoding {
     pub custom_primaries: [CustomXY; 3],
     #[condition(!want_icc)]
     #[default(CustomTransferFunction::default(&field_nonserialized))]
-    #[nonserialized(color_space: color_space)]
+    #[nonserialized(color_space)]
     pub tf: CustomTransferFunction,
     #[condition(!want_icc)]
     #[default(RenderingIntent::Relative)]
@@ -214,21 +203,11 @@ impl ColorEncoding {
         {
             return Err(Error::InvalidColorEncoding);
         }
-        let (wx, wy) = self.white_point.to_xy_coords(&self.white);
-        if self.white_point == WhitePoint::Custom {
-            adapt_to_xyz_d50(wx, wy)?;
-        }
-        if self.primaries == Primaries::Custom {
-            primaries_to_xyz(
-                self.custom_primaries[0].as_f32_coords().0,
-                self.custom_primaries[0].as_f32_coords().1,
-                self.custom_primaries[1].as_f32_coords().0,
-                self.custom_primaries[1].as_f32_coords().1,
-                self.custom_primaries[2].as_f32_coords().0,
-                self.custom_primaries[2].as_f32_coords().1,
-                wx,
-                wy,
-            )?;
+        if !self.want_icc
+            && (self.white_point == WhitePoint::Custom || self.primaries == Primaries::Custom)
+        {
+            let jxl_encoding = JxlColorEncoding::from_internal(self)?;
+            jxl_encoding.validate_icc_matrix()?;
         }
         Ok(())
     }
@@ -257,6 +236,24 @@ mod test {
         let mut encoding = ColorEncoding::default(&Empty {});
         encoding.white_point = WhitePoint::Custom;
         encoding.white = CustomXY::from_f32_coords(0.3127, 0.0);
+        assert!(encoding.check(&Empty {}).is_err());
+    }
+
+    #[test]
+    fn test_degenerate_primaries_cannot_create_icc() {
+        let mut encoding = ColorEncoding::default(&Empty {});
+        encoding.white_point = WhitePoint::DCI;
+        encoding.primaries = Primaries::Custom;
+        encoding.custom_primaries = [
+            CustomXY::from_f32_coords(0.333093, 0.28672),
+            CustomXY::from_f32_coords(1.6e-5, 8e-6),
+            CustomXY::from_f32_coords(0.0, 0.0),
+        ];
+        encoding.tf = CustomTransferFunction {
+            have_gamma: false,
+            transfer_function: TransferFunction::HLG,
+            gamma: 0,
+        };
         assert!(encoding.check(&Empty {}).is_err());
     }
 }

@@ -6,10 +6,11 @@
 use std::collections::BTreeSet;
 
 use crate::api::{
-    JxlColorProfile, JxlColorType, JxlDataFormat, JxlOutputBuffer, JxlParallelRunner,
+    AlphaMode, JxlColorProfile, JxlColorType, JxlDataFormat, JxlOutputBuffer, JxlParallelRunner,
     JxlPixelFormat,
 };
 use crate::bit_reader::BitReader;
+use crate::color::tf::TransferFunction;
 use crate::error::{Error, Result};
 use crate::features::epf::SigmaSource;
 use crate::features::noise::Noise;
@@ -23,7 +24,7 @@ use crate::headers::Orientation;
 use crate::headers::color_encoding::ColorSpace;
 use crate::headers::extra_channels::ExtraChannel;
 use crate::headers::frame_header::{Encoding, FrameHeader, FrameType};
-use crate::image::{Image, OwnedRawImage, Rect};
+use crate::image::{DataTypeTag, Image, OwnedRawImage, Rect};
 #[cfg(test)]
 use crate::render::SimpleRenderPipeline;
 use crate::render::buffer_splitter::BufferSplitter;
@@ -96,47 +97,9 @@ macro_rules! pipeline {
     }};
 }
 
-pub(crate) use pipeline;
+pub(super) use pipeline;
 
 impl Frame {
-    /// Add conversion stages for non-float output formats.
-    /// This is needed before saving to U8/U16/F16 formats to convert from the pipeline's f32.
-    fn add_conversion_stages<P: RenderPipeline>(
-        mut pipeline: RenderPipelineBuilder<P>,
-        channels: &[usize],
-        data_format: JxlDataFormat,
-        clamp_range_for_f16: Option<(f32, f32)>,
-    ) -> RenderPipelineBuilder<P> {
-        use crate::render::stages::{
-            ConvertF32ToF16Stage, ConvertF32ToU8Stage, ConvertF32ToU16Stage,
-        };
-
-        match data_format {
-            JxlDataFormat::U8 { bit_depth } => {
-                for &channel in channels {
-                    pipeline =
-                        pipeline.add_inout_stage(ConvertF32ToU8Stage::new(channel, bit_depth));
-                }
-            }
-            JxlDataFormat::U16 { bit_depth, .. } => {
-                for &channel in channels {
-                    pipeline =
-                        pipeline.add_inout_stage(ConvertF32ToU16Stage::new(channel, bit_depth));
-                }
-            }
-            JxlDataFormat::F16 { .. } => {
-                for &channel in channels {
-                    pipeline = pipeline.add_inout_stage(
-                        ConvertF32ToF16Stage::new_with_clamp_range(channel, clamp_range_for_f16),
-                    );
-                }
-            }
-            // F32 doesn't need conversion - the pipeline already uses f32
-            JxlDataFormat::F32 { .. } => {}
-        }
-        pipeline
-    }
-
     /// Returns `true` if any pixels were written to the output buffers during
     /// this call, `false` if the call was a no-op for the buffers (e.g. no new
     /// HF groups, no flush work, or the render pipeline was not yet ready).
@@ -551,7 +514,7 @@ impl Frame {
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub(crate) fn build_render_pipeline<T: RenderPipeline>(
+    pub fn build_render_pipeline<T: RenderPipeline>(
         decoder_state: &DecoderState,
         frame_header: &FrameHeader,
         patches: Arc<RwLock<PatchesDictionary>>,
@@ -567,45 +530,52 @@ impl Frame {
         let num_channels = frame_header.num_extra_channels as usize + 3;
         let num_temp_channels = if frame_header.has_noise() { 3 } else { 0 };
         let metadata = &decoder_state.file_header.image_metadata;
+        let output_orientation = if decoder_state.adjust_orientation {
+            metadata.orientation
+        } else {
+            Orientation::Identity
+        };
+        let modular_ty = match decoder_state.modular_storage() {
+            ModularStorage::I16 => DataTypeTag::I16,
+            ModularStorage::I32 => DataTypeTag::I32,
+        };
+        let mut channel_types = Vec::with_capacity(num_channels + num_temp_channels);
+        for _ in 0..3 {
+            if frame_header.encoding == Encoding::Modular {
+                let bd = if metadata.xyb_encoded {
+                    None
+                } else {
+                    Some(metadata.bit_depth)
+                };
+                channel_types.push((modular_ty, bd));
+            } else {
+                channel_types.push((DataTypeTag::F32, None));
+            }
+        }
+        for i in 0..frame_header.num_extra_channels as usize {
+            let ec_bit_depth = metadata.extra_channel_info[i].bit_depth();
+            channel_types.push((modular_ty, Some(ec_bit_depth)));
+        }
+        for _ in 0..num_temp_channels {
+            channel_types.push((DataTypeTag::U16, None));
+        }
+
         let mut pipeline = RenderPipelineBuilder::<T>::new(
-            num_channels + num_temp_channels,
+            &channel_types,
             frame_header.size_upsampled(),
             frame_header.upsampling.ilog2() as usize,
             frame_header.log_group_dim(),
             buffer_recycler,
         );
 
-        if frame_header.encoding == Encoding::Modular {
-            let modular_storage = decoder_state.modular_storage();
-            if decoder_state.file_header.image_metadata.xyb_encoded {
-                if modular_storage == ModularStorage::I16 {
-                    pipeline =
-                        pipeline.add_inout_stage(ConvertModular16XYBToF32Stage::new(0, lf_quant));
-                } else {
-                    pipeline =
-                        pipeline.add_inout_stage(ConvertModularXYBToF32Stage::new(0, lf_quant));
-                }
-            } else {
-                for i in 0..3 {
-                    if modular_storage == ModularStorage::I16 {
-                        pipeline = pipeline.add_inout_stage(ConvertModular16ToF32Stage::new(
-                            i,
-                            metadata.bit_depth,
-                        ));
-                    } else {
-                        pipeline = pipeline
-                            .add_inout_stage(ConvertModularToF32Stage::new(i, metadata.bit_depth));
-                    }
-                }
-            }
-        }
-        for i in 3..num_channels {
-            let ec_bit_depth = metadata.extra_channel_info[i - 3].bit_depth();
+        if frame_header.encoding == Encoding::Modular
+            && decoder_state.file_header.image_metadata.xyb_encoded
+        {
             if decoder_state.modular_storage() == ModularStorage::I16 {
                 pipeline =
-                    pipeline.add_inout_stage(ConvertModular16ToF32Stage::new(i, ec_bit_depth));
+                    pipeline.add_inout_stage(ConvertModular16XYBToF32Stage::new(0, lf_quant));
             } else {
-                pipeline = pipeline.add_inout_stage(ConvertModularToF32Stage::new(i, ec_bit_depth));
+                pipeline = pipeline.add_inout_stage(ConvertModularXYBToF32Stage::new(0, lf_quant));
             }
         }
 
@@ -620,22 +590,18 @@ impl Frame {
 
         let filters = &frame_header.restoration_filter;
         if filters.gab {
-            pipeline = pipeline
-                .add_inout_stage(GaborishStage::new(
-                    0,
+            pipeline = pipeline.add_inout_stage(GaborishStage::new(
+                [
                     filters.gab_x_weight1,
-                    filters.gab_x_weight2,
-                ))
-                .add_inout_stage(GaborishStage::new(
-                    1,
                     filters.gab_y_weight1,
-                    filters.gab_y_weight2,
-                ))
-                .add_inout_stage(GaborishStage::new(
-                    2,
                     filters.gab_b_weight1,
+                ],
+                [
+                    filters.gab_x_weight2,
+                    filters.gab_y_weight2,
                     filters.gab_b_weight2,
-                ));
+                ],
+            ));
         }
 
         let rf = &frame_header.restoration_filter;
@@ -716,8 +682,6 @@ impl Frame {
         if frame_header.has_noise() {
             pipeline = pipeline
                 .add_inout_stage(ConvolveNoiseStage::new(num_channels))
-                .add_inout_stage(ConvolveNoiseStage::new(num_channels + 1))
-                .add_inout_stage(ConvolveNoiseStage::new(num_channels + 2))
                 .add_inplace_stage(AddNoiseStage::new(
                     noise,
                     color_correlation_params,
@@ -780,29 +744,14 @@ impl Frame {
             })
             .unwrap_or_else(|| output_color_info.tf.clone());
 
-        // Clamp transfer-domain values while converting to f16 so we don't
-        // emit wild out-of-range values to downstream consumers.
-        //
-        // PQ has a bounded signal domain [0,1].
-        // HLG may carry modest overshoot/undershoot (e.g. from narrow-range
-        // workflows), so preserve headroom with a looser clamp.
-        let clamp_range_for_f16 = match &output_tf {
-            TransferFunction::Pq { .. } => Some((0.0, 1.0)),
-            TransferFunction::Hlg { .. } => Some((-0.074, 1.1)),
-            _ => None,
-        };
-
         let xyb_encoded = decoder_state.file_header.image_metadata.xyb_encoded;
 
         if frame_header.do_ycbcr {
             pipeline = pipeline.add_inplace_stage(YcbcrToRgbStage::new(0));
         } else if xyb_encoded {
-            pipeline = pipeline.add_inplace_stage(XybStage::new(0, output_color_info.clone()));
-        }
-
-        // XYB output is linear, so apply transfer function, but only if output is not linear itself
-        if xyb_encoded && !output_tf.is_linear() {
-            pipeline = pipeline.add_inplace_stage(FromLinearStage::new(0, output_tf.clone()));
+            let mut stage_color_info = output_color_info.clone();
+            stage_color_info.tf = output_tf.clone();
+            pipeline = pipeline.add_inplace_stage(XybColorConvertStage::new(0, stage_color_info));
         }
 
         if frame_header.needs_blending() {
@@ -859,37 +808,32 @@ impl Frame {
             } else {
                 3
             };
-            // Find the alpha channel info (index and metadata) if the color type requires alpha
-            let alpha_channel_info = if pixel_format.color_type.has_alpha() {
-                decoder_state
-                    .file_header
-                    .image_metadata
-                    .extra_channel_info
-                    .iter()
-                    .enumerate()
-                    .find(|x| x.1.ec_type == ExtraChannel::Alpha)
+            let alpha_channel_info = decoder_state
+                .file_header
+                .image_metadata
+                .extra_channel_info
+                .iter()
+                .enumerate()
+                .find(|x| x.1.ec_type == ExtraChannel::Alpha);
+            let alpha_extra_channel = alpha_channel_info.map(|x| x.0 + 3);
+            let alpha_in_color = if pixel_format.color_type.has_alpha() {
+                alpha_extra_channel
             } else {
                 None
             };
-            let alpha_in_color = alpha_channel_info.map(|x| x.0 + 3);
-            // Check if the source alpha is already premultiplied (alpha_associated)
             let source_alpha_associated =
                 alpha_channel_info.is_some_and(|(_, info)| info.alpha_associated());
             if pixel_format.color_type.is_grayscale() && num_color_channels == 3 {
                 return Err(Error::NotGrayscale);
             }
-            // Determine if we need to fill opaque alpha:
-            // - color_type requests alpha (has_alpha() is true)
-            // - but no actual alpha channel exists in the image (alpha_in_color is None)
             let fill_opaque_alpha = pixel_format.color_type.has_alpha() && alpha_in_color.is_none();
 
-            // Determine if we should premultiply:
-            // - premultiply_output is requested
-            // - there is an alpha channel in the output
-            // - source is not already premultiplied (to avoid double-premultiplication)
-            let should_premultiply = decoder_state.premultiply_output
-                && alpha_in_color.is_some()
+            let should_premultiply = decoder_state.alpha_mode == AlphaMode::Premultiplied
+                && alpha_extra_channel.is_some()
                 && !source_alpha_associated;
+            let should_unpremultiply = decoder_state.alpha_mode == AlphaMode::Unpremultiplied
+                && alpha_extra_channel.is_some()
+                && source_alpha_associated;
 
             // For CMYK output, interleave the Black extra channel as the
             // fourth channel. This requires a color image with a Black extra
@@ -921,8 +865,9 @@ impl Frame {
                 }
             };
             if let Some(df) = &pixel_format.color_data_format {
-                // Add premultiply stage if needed (before conversion to output format)
-                if should_premultiply && let Some(alpha_channel) = alpha_in_color {
+                if (should_premultiply || should_unpremultiply)
+                    && let Some(alpha_channel) = alpha_extra_channel
+                {
                     let num_output_color_channels = if pixel_format.color_type.is_grayscale() {
                         1
                     } else {
@@ -932,18 +877,12 @@ impl Frame {
                         0,
                         num_output_color_channels,
                         alpha_channel,
+                        should_unpremultiply,
                     ));
                 }
-                // Add conversion stages for non-float output formats
-                pipeline = Self::add_conversion_stages(
-                    pipeline,
-                    color_source_channels,
-                    *df,
-                    clamp_range_for_f16,
-                );
                 pipeline = pipeline.add_save_stage(
                     color_source_channels,
-                    metadata.orientation,
+                    output_orientation,
                     0,
                     pixel_format.color_type,
                     *df,
@@ -957,11 +896,9 @@ impl Frame {
             };
             for i in 0..frame_header.num_extra_channels as usize {
                 if let Some(df) = &pixel_format.extra_channel_format[i] {
-                    // Add conversion stages for non-float output formats
-                    pipeline = Self::add_conversion_stages(pipeline, &[3 + i], *df, None);
                     pipeline = pipeline.add_save_stage(
                         &[3 + i],
-                        metadata.orientation,
+                        output_orientation,
                         save_idx,
                         JxlColorType::Grayscale,
                         *df,

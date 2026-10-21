@@ -8,8 +8,7 @@ use std::borrow::Cow;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::io::{IoSliceMut, Read};
 
-use crate::api::inner::process::SmallBuffer;
-use crate::api::{JxlBitstreamInput, JxlSignatureType, check_signature_internal};
+use crate::api::{JxlBitstreamInput, JxlSignature, ProfileLevel, SmallBuffer, check_signature};
 use crate::error::{Error, Result};
 #[cfg(feature = "brotli")]
 use crate::util::NewWithCapacity;
@@ -34,7 +33,7 @@ enum ParseState {
 }
 
 // Relevant box types.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum CodestreamBoxType {
     None,
     Jxlc,
@@ -59,6 +58,10 @@ pub struct JxlAuxBoxType(pub [u8; 4]);
 
 impl JxlAuxBoxType {
     pub const EXIF: Self = JxlAuxBoxType(*b"Exif");
+    pub const XMP: Self = JxlAuxBoxType(*b"xml ");
+    pub const JUMBF: Self = JxlAuxBoxType(*b"jumb");
+    pub const JPEG_RECONSTRUCTION_DATA: Self = JxlAuxBoxType(*b"jbrd");
+    pub const HDR_GAIN_MAP: Self = JxlAuxBoxType(*b"jhgm");
 }
 
 pub struct JxlAuxBox {
@@ -128,12 +131,12 @@ impl JxlAuxBox {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct BoxParserCheckpoint {
+pub(crate) struct BoxParserCheckpoint {
     box_type: CodestreamBoxType,
-    pub(super) file_position: u64,
+    pub(crate) file_position: u64,
     codestream_left: Option<u64>,
     is_valid_checkpoint: bool,
-    pub(crate) consumed_codestream: u64,
+    pub(super) consumed_codestream: u64,
     next_aux_box_idx: usize,
 }
 
@@ -147,7 +150,9 @@ pub(super) struct BoxParser {
     // to box info
     codestream_pos_to_box: BTreeMap<u64, BoxParserCheckpoint>,
     allow_checkpoint: bool,
+    container_level: Option<ProfileLevel>,
     aux: AuxBoxState,
+    input_closed: bool,
 }
 
 #[derive(Default)]
@@ -167,12 +172,14 @@ impl BoxParser {
             latest_codestream_box: CodestreamBoxType::None,
             ooo_jxlp_buffer: HashMap::new(),
             version: None,
+            container_level: None,
             codestream_pos_to_box: BTreeMap::new(),
             allow_checkpoint: true,
             aux: AuxBoxState {
                 boxes_to_extract: box_types.into_iter().collect(),
                 ..Default::default()
             },
+            input_closed: false,
         }
     }
 
@@ -194,8 +201,24 @@ impl BoxParser {
         }
     }
 
+    pub(super) fn reset(&mut self) {
+        self.local_buffer.reset();
+        self.version = None;
+        self.ooo_jxlp_buffer.clear();
+        self.state = ParseState::SignatureNeeded;
+        self.latest_codestream_box = CodestreamBoxType::None;
+        self.codestream_pos_to_box.clear();
+        self.allow_checkpoint = true;
+        self.container_level = None;
+        self.aux.boxes.clear();
+        self.aux.box_buffer = None;
+        self.aux.next_box_idx = 0;
+        self.aux.seen_box_count = 0;
+        self.input_closed = false;
+    }
+
     pub(super) fn reset_to_checkpoint(&mut self, box_checkpoint: BoxParserCheckpoint) {
-        self.local_buffer = SmallBuffer::new(128);
+        self.local_buffer.reset();
         self.ooo_jxlp_buffer.clear();
         self.latest_codestream_box = box_checkpoint.box_type;
         self.state = ParseState::Codestream(box_checkpoint.codestream_left);
@@ -206,6 +229,11 @@ impl BoxParser {
             self.aux.seen_box_count -= 1;
         }
         self.aux.next_box_idx = box_checkpoint.next_aux_box_idx;
+        self.input_closed = false;
+    }
+
+    pub(super) fn close_input(&mut self) {
+        self.input_closed = true;
     }
 
     pub(super) fn state_checkpoint(
@@ -247,6 +275,10 @@ impl BoxParser {
             .get(&box_type)
             .map(|v| &**v)
             .unwrap_or_default()
+    }
+
+    pub(super) fn container_level(&self) -> Option<ProfileLevel> {
+        self.container_level
     }
 
     pub(super) fn trailing_box(&self) -> Option<&JxlAuxBox> {
@@ -424,18 +456,23 @@ impl BoxParser {
                 ParseState::Codestream(Some(0)) => self.state = ParseState::BoxNeeded(8),
                 ParseState::Complete | ParseState::Codestream(_) => return Ok(()),
                 ParseState::SignatureNeeded => {
-                    let codestream_signature_len = JxlSignatureType::Codestream.signature().len();
+                    let codestream_signature_len = JxlSignature::Codestream.signature_len();
                     self.read_until_at_least(input, codestream_signature_len)?;
-                    match check_signature_internal(&self.local_buffer)? {
-                        None => return Err(Error::InvalidSignature),
-                        Some(JxlSignatureType::Codestream) => {
+                    match check_signature(&self.local_buffer) {
+                        JxlSignature::NeedMoreInput { size_hint } => {
+                            return Err(Error::OutOfBounds(size_hint));
+                        }
+                        JxlSignature::None => {
+                            return Err(Error::InvalidSignature);
+                        }
+                        JxlSignature::Codestream => {
                             self.state = ParseState::Codestream(None);
                             self.latest_codestream_box = CodestreamBoxType::Jxlc;
                             self.add_checkpoint();
                             return Ok(());
                         }
-                        Some(JxlSignatureType::Container) => {
-                            let l = JxlSignatureType::Container.signature().len();
+                        JxlSignature::Container => {
+                            let l = JxlSignature::Container.signature_len();
                             self.local_buffer.consume(l);
                             self.state = ParseState::BoxNeeded(8);
                         }
@@ -524,6 +561,9 @@ impl BoxParser {
     }
 
     fn consume_trailing_data(&mut self, input: &mut dyn JxlBitstreamInput) -> Result<()> {
+        if self.aux.boxes_to_extract.is_empty() {
+            return Ok(());
+        }
         loop {
             match self.state {
                 ParseState::Codestream(None) => {
@@ -531,10 +571,14 @@ impl BoxParser {
                 }
                 ParseState::Complete => {
                     if self.available_bytes_inner(input)? == 0 {
-                        return Ok(());
+                        if self.input_closed {
+                            return Ok(());
+                        }
+                        return Err(Error::OutOfBounds(8));
                     }
                     self.state = ParseState::BoxNeeded(8);
                 }
+                ParseState::Skip(None) => return Ok(()),
                 ParseState::Codestream(count) | ParseState::Skip(count) => {
                     if count == Some(0) {
                         self.state = ParseState::Complete;
@@ -543,6 +587,9 @@ impl BoxParser {
                     let to_skip = count.unwrap_or(u64::MAX).min(usize::MAX as u64) as usize;
                     let n = self.skip_inner(input, to_skip)? as u64;
                     if n == 0 {
+                        if self.input_closed {
+                            return Err(Error::InvalidBox);
+                        }
                         return Err(Error::OutOfBounds(to_skip));
                     }
                     self.state = ParseState::Skip(count.map(|x| x - n));
@@ -566,6 +613,9 @@ impl BoxParser {
 
                     let total = self.handle_aux_box(input, count)?;
                     if total == 0 {
+                        if self.input_closed {
+                            return Err(Error::InvalidBox);
+                        }
                         return Err(Error::OutOfBounds(count.min(usize::MAX as u64) as usize));
                     }
                     self.state = ParseState::Aux(Some(count - total));
@@ -606,7 +656,10 @@ impl BoxParser {
     }
 
     fn parse_box(&mut self, input: &mut dyn JxlBitstreamInput, required_size: usize) -> Result<()> {
-        self.read_until_at_least(input, required_size)?;
+        match self.read_until_at_least(input, required_size) {
+            Err(Error::OutOfBounds(_)) if self.input_closed => return Err(Error::InvalidBox),
+            res => res?,
+        }
 
         let min_len = match &self.local_buffer[..] {
             [0, 0, 0, 1, ..] => 16,
@@ -623,10 +676,14 @@ impl BoxParser {
             b"jxlp" => 4,
             b"ftyp" => 8,
             b"brob" => 4,
+            b"jxll" => 1,
             _ => 0,
         };
 
         if self.local_buffer.len() < extra_len + min_len {
+            if self.input_closed {
+                return Err(Error::InvalidBox);
+            }
             self.state = ParseState::BoxNeeded(extra_len + min_len);
             return Ok(());
         }
@@ -725,6 +782,25 @@ impl BoxParser {
                 self.local_buffer.consume(4);
 
                 self.start_aux_box(inner_type, true, content_len);
+            }
+            b"jxll" => {
+                if self.version.is_none() || self.latest_codestream_box != CodestreamBoxType::None {
+                    return Err(Error::InvalidBox);
+                }
+                if self.container_level.is_some() {
+                    return Err(Error::InvalidBox);
+                }
+                if content_len != Some(0) {
+                    return Err(Error::InvalidBox);
+                }
+                let level = match self.local_buffer[0] {
+                    5 => ProfileLevel::Main5,
+                    10 => ProfileLevel::Main10,
+                    _ => return Err(Error::InvalidBox),
+                };
+                self.local_buffer.consume(1);
+                self.container_level = Some(level);
+                self.state = ParseState::BoxNeeded(8);
             }
             code => {
                 let ty = JxlAuxBoxType(*code);
@@ -829,14 +905,13 @@ impl<'a> CodestreamInput<'a> {
 mod tests {
     use std::io::IoSliceMut;
 
-    use super::BoxParser;
-    use crate::api::inner::box_parser::CodestreamInput;
+    use super::{BoxParser, CodestreamInput};
 
     /// Regression: a zero-length skippable box must not leave the parser stuck at
     /// `SkippableBox(0)` when more container input is available.
     #[test]
     fn zero_length_skippable_box_does_not_hang() {
-        let data = include_bytes!("../../../tests/testdata/zero_length_skippable_box.jxl");
+        let data = include_bytes!("../../tests/testdata/zero_length_skippable_box.jxl");
         let mut parser = BoxParser::with_aux_boxes(None);
         let mut input = data.as_slice();
 

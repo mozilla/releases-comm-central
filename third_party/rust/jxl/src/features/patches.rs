@@ -13,7 +13,7 @@ use crate::features::blending::perform_blending;
 use crate::frame::{DecoderState, ReferenceFrame};
 use crate::headers::extra_channels::ExtraChannelInfo;
 use crate::util::tracing_wrappers::*;
-use crate::util::{NewWithCapacity, slice};
+use crate::util::{NewWithCapacity, SmallVec};
 
 // Context numbers as specified in Section C.4.5, Listing C.2:
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -365,34 +365,24 @@ impl PatchesDictionary {
         Ok(())
     }
 
-    fn area_limit(num_pixels: usize, force_level5: bool) -> usize {
-        let mult: usize = if force_level5 { 8 } else { 1024 };
+    fn area_limit(num_pixels: usize, level5_limits: bool) -> usize {
+        let mult: usize = if level5_limits { 8 } else { 1024 };
         mult.saturating_mul(num_pixels).max(1 << 20)
     }
 
-    // TODO(veluca): remove this in v0.8.0.
-    pub fn read(
-        br: &mut BitReader,
-        xsize: usize,
-        ysize: usize,
-        num_extra_channels: usize,
-        reference_frames: &[Option<ReferenceFrame>],
-    ) -> Result<PatchesDictionary> {
-        Self::read_internal(br, xsize, ysize, num_extra_channels, reference_frames, true)
-    }
-
-    #[instrument(level = "debug", skip(br), ret, err)]
+    #[instrument(level = "debug", skip(br, lz77_scratch), ret, err)]
     pub(crate) fn read_internal(
         br: &mut BitReader,
         xsize: usize,
         ysize: usize,
         num_extra_channels: usize,
         reference_frames: &[Option<ReferenceFrame>],
-        force_level5: bool,
+        level5_limits: bool,
+        lz77_scratch: &mut Vec<u32>,
     ) -> Result<PatchesDictionary> {
         let blendings_stride = num_extra_channels + 1;
-        let patches_histograms = Histograms::decode(PatchContext::NUM, br, true)?;
-        let mut patches_reader = SymbolReader::new(&patches_histograms, br, None)?;
+        let patches_histograms = Histograms::decode(PatchContext::NUM, br, true, lz77_scratch)?;
+        let mut patches_reader = SymbolReader::new(&patches_histograms, br, None, lz77_scratch)?;
         let num_ref_patch = patches_reader.read_unsigned(
             &patches_histograms,
             br,
@@ -414,7 +404,7 @@ impl PatchesDictionary {
         let mut positions: Vec<PatchPosition> = Vec::new();
         let mut blendings = Vec::new();
         let mut ref_positions = Vec::new_with_capacity(num_ref_patch)?;
-        let max_patch_area = Self::area_limit(num_pixels, force_level5);
+        let max_patch_area = Self::area_limit(num_pixels, level5_limits);
         let mut total_patch_area = 0usize;
         for _ in 0..num_ref_patch {
             let reference = patches_reader.read_unsigned(
@@ -495,10 +485,11 @@ impl PatchesDictionary {
             let patch_area = id_count.saturating_mul(ref_pos_xsize.saturating_mul(ref_pos_ysize));
             total_patch_area = total_patch_area.saturating_add(patch_area);
             if total_patch_area > max_patch_area {
-                return Err(Error::PatchesTooMany(
-                    "patch area".to_string(),
-                    total_patch_area,
-                    max_patch_area,
+                return Err(Error::level_limit(
+                    level5_limits,
+                    "patch area",
+                    total_patch_area as u64,
+                    max_patch_area as u64,
                 ));
             }
 
@@ -649,6 +640,7 @@ impl PatchesDictionary {
                 ysize: ref_pos_ysize,
             })
         }
+        patches_reader.reclaim_lz77_scratch(lz77_scratch);
 
         let mut patches_dict = PatchesDictionary {
             positions,
@@ -724,16 +716,18 @@ impl PatchesDictionary {
         patches_for_row_result: &mut Vec<usize>,
         blending_scratch: &mut Vec<f32>,
     ) {
-        // TODO(zond): Allocate a buffer for this when building the stage instead of when executing it.
-        let mut out = row
-            .iter_mut()
-            .map(|s| &mut s[..xsize])
-            .collect::<Vec<&mut [f32]>>();
+        self.set_patches_for_row(row_pos.1, &mut *patches_for_row_result);
+        if patches_for_row_result.is_empty() {
+            return;
+        }
+
+        let mut out = SmallVec::<&mut [f32], 8>::new();
+        for s in row.iter_mut() {
+            out.push(&mut s[..xsize]);
+        }
         let num_ec = extra_channel_info.len();
         assert!(num_ec + 1 == self.blendings_stride);
-        let dummy_fg = vec![0f32];
-        let mut fg = vec![dummy_fg.as_slice(); 3 + num_ec];
-        self.set_patches_for_row(row_pos.1, &mut *patches_for_row_result);
+
         for pos_idx in patches_for_row_result.iter() {
             let pos = &self.positions[*pos_idx];
             assert!(row_pos.1 >= pos.y); // assert patch starts at or before current row
@@ -773,19 +767,24 @@ impl PatchesDictionary {
             };
             let ref_pos_y = ref_pos.y0 + row_pos.1 - pos.y;
 
-            for (c, fg_ptr) in fg.iter_mut().enumerate().take(3) {
-                *fg_ptr = &(reference_frames[ref_pos.reference].as_ref().unwrap().frame[c]
-                    .row(ref_pos_y)[ref_x0..ref_x1]);
+            let ref_frame = reference_frames[ref_pos.reference].as_ref().unwrap();
+            let mut fg = SmallVec::<&[f32], 8>::new();
+            for c in 0..3 {
+                fg.push(&ref_frame.frame[c].row(ref_pos_y)[ref_x0..ref_x1]);
             }
             for i in 0..num_ec {
-                fg[3 + i] = &(reference_frames[ref_pos.reference].as_ref().unwrap().frame[3 + i]
-                    .row(ref_pos_y)[ref_x0..ref_x1]);
+                fg.push(&ref_frame.frame[3 + i].row(ref_pos_y)[ref_x0..ref_x1]);
+            }
+
+            let mut bg = SmallVec::<&mut [f32], 8>::new();
+            for s in out.iter_mut() {
+                bg.push(&mut s[out_x0..out_x1]);
             }
 
             let blending_idx = pos_idx * self.blendings_stride;
             perform_blending(
-                &mut slice!(&mut out, .., out_x0..out_x1),
-                &fg,
+                &mut bg[..],
+                &fg[..],
                 &self.blendings[blending_idx],
                 &self.blendings[blending_idx + 1..],
                 extra_channel_info,
@@ -813,6 +812,7 @@ mod tests {
                 0,
                 &[Some(ReferenceFrame::blank(1024, 1024, 1, true).unwrap())],
                 true,
+                &mut Vec::new(),
             )?;
             let want_dict = PatchesDictionary {
                 positions: vec![PatchPosition {
@@ -862,6 +862,7 @@ mod tests {
                 2,
                 &[Some(ReferenceFrame::blank(1024, 1024, 1, true).unwrap())],
                 true,
+                &mut Vec::new(),
             )?;
             let want_dict = PatchesDictionary {
                 positions: vec![
@@ -961,6 +962,7 @@ mod tests {
                 1,
                 &[Some(ReferenceFrame::blank(1024, 1024, 1, true).unwrap())],
                 true,
+                &mut Vec::new(),
             )?;
             let want_dict = PatchesDictionary {
                 positions: vec![PatchPosition {
@@ -1022,6 +1024,7 @@ mod tests {
                 0,
                 &[Some(ReferenceFrame::blank(1024, 1024, 1, true).unwrap())],
                 true,
+                &mut Vec::new(),
             )?;
             let want_dict = PatchesDictionary {
                 positions: vec![PatchPosition {
@@ -1067,6 +1070,7 @@ mod tests {
                 0,
                 &[Some(ReferenceFrame::blank(1024, 1024, 1, true).unwrap())],
                 true,
+                &mut Vec::new(),
             )?;
             let want_dict = PatchesDictionary {
                 positions: vec![

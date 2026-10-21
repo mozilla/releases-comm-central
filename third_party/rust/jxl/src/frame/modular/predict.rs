@@ -8,7 +8,7 @@ use num_traits::FromPrimitive;
 
 use crate::error::{Error, Result};
 use crate::headers::modular::WeightedHeader;
-use crate::image::{Image, ImageRect};
+use crate::image::Image;
 use crate::util::floor_log2_nonzero;
 
 #[repr(u8)]
@@ -65,28 +65,17 @@ impl PredictionData {
     #[inline(always)]
     pub fn update_for_interior_row(
         self,
-        row_top: &[i32],
-        row_toptop: &[i32],
-        x: usize,
         cur: i32,
-        needs_toptop: bool,
+        toprightright: i32,
+        toptop: i32,
     ) -> PredictionData {
-        debug_assert!(x > 1);
-        debug_assert!(x + 2 < row_top.len());
-        let left = cur;
-        let top = self.topright;
-        let topleft = self.top;
-        let topright = self.toprightright;
-        let leftleft = self.left;
-        let toptop = if needs_toptop { row_toptop[x] } else { 0 };
-        let toprightright = row_top[x + 2];
         Self {
-            left,
-            top,
+            left: cur,
+            top: self.topright,
             toptop,
-            topleft,
-            topright,
-            leftleft,
+            topleft: self.top,
+            topright: self.toprightright,
+            leftleft: self.left,
             toprightright,
         }
     }
@@ -123,16 +112,6 @@ impl PredictionData {
             leftleft,
             toprightright,
         }
-    }
-
-    pub fn get(rect: ImageRect<'_, i32>, x: usize, y: usize) -> Self {
-        Self::get_rows(
-            rect.row(y),
-            rect.row(y.saturating_sub(1)),
-            rect.row(y.saturating_sub(2)),
-            x,
-            y,
-        )
     }
 }
 
@@ -218,7 +197,7 @@ fn add_bits(x: i32) -> i64 {
 }
 
 #[derive(Debug)]
-pub struct WeightedPredictorState {
+pub struct WeightedPredictorState<'a> {
     prediction: [i64; NUM_PREDICTORS],
     pred: i64,
     // Safety invariant:
@@ -228,27 +207,43 @@ pub struct WeightedPredictorState {
     // Note that (at least as of June 2026) the use of unsafe code
     // that needs these invariants seems to provide meaningful speedups.
     xsize: usize,
-    pred_errors_buffer: Vec<[u32; NUM_PREDICTORS]>,
+    pred_errors_buffer: &'a mut [[u32; NUM_PREDICTORS]],
     // Note: we store errors in positions [1..=xsize], and error[0] == 0.
     // (this is not a safety invariant)
-    error: Vec<i32>,
+    error: &'a mut [i32],
     w: [u8; 4],
     p1c: u8,
     p2c: u8,
     p3c: [u8; 5],
 }
 
-impl WeightedPredictorState {
-    pub fn new(wp_header: &WeightedHeader, xsize: usize) -> WeightedPredictorState {
+#[derive(Debug, Default)]
+pub struct WeightedPredictorScratch {
+    pred_errors_buffer: Vec<[u32; NUM_PREDICTORS]>,
+    error: Vec<i32>,
+}
+
+impl<'a> WeightedPredictorState<'a> {
+    pub fn new(
+        wp_header: &WeightedHeader,
+        xsize: usize,
+        scratch: &'a mut WeightedPredictorScratch,
+    ) -> WeightedPredictorState<'a> {
         let num_errors = xsize.checked_add(1).unwrap().checked_mul(2).unwrap();
+        scratch.pred_errors_buffer.clear();
+        scratch
+            .pred_errors_buffer
+            .resize(num_errors, [0; NUM_PREDICTORS]);
+        scratch.error.clear();
+        scratch.error.resize(num_errors, 0);
         WeightedPredictorState {
             prediction: [0; NUM_PREDICTORS],
             pred: 0,
             // Safety note: safety invariant is true by construction (we checked no
             // overflows above)
             xsize,
-            pred_errors_buffer: vec![[0; NUM_PREDICTORS]; num_errors],
-            error: vec![0; num_errors],
+            pred_errors_buffer: &mut scratch.pred_errors_buffer[..num_errors],
+            error: &mut scratch.error[..num_errors],
             // These casts are lossless because w fits in 4 bits and p fits in 5 by
             // bitstream constraints.
             w: [
@@ -274,7 +269,7 @@ impl WeightedPredictorState {
         wp_image
             .row_mut(0)
             .copy_from_slice(&self.error[0..row_stride]);
-        let src = &self.pred_errors_buffer;
+        let src = &*self.pred_errors_buffer;
         let [d0, d1, d2, d3] = wp_image.distinct_rows_mut([1, 2, 3, 4]);
         for ((((d0, d1), d2), d3), &s) in d0
             .iter_mut()
@@ -297,7 +292,7 @@ impl WeightedPredictorState {
         let s1 = wp_image.row(2);
         let s2 = wp_image.row(3);
         let s3 = wp_image.row(4);
-        let dst = &mut self.pred_errors_buffer;
+        let dst = &mut *self.pred_errors_buffer;
         for (d, (&s0, (&s1, (&s2, &s3)))) in dst
             .iter_mut()
             .zip(s0.iter().zip(s1.iter().zip(s2.iter().zip(s3.iter()))))
@@ -583,7 +578,8 @@ mod tests {
         };
         let xsize = 8;
         let ysize = 8;
-        let mut state = WeightedPredictorState::new(&header.wp_header, xsize);
+        let mut scratch = super::WeightedPredictorScratch::default();
+        let mut state = WeightedPredictorState::new(&header.wp_header, xsize, &mut scratch);
         // The golden number results are generated by using the libjxl predictor with the same input numbers.
         assert_eq!(step(&mut rng, &mut state, xsize, ysize), (135i64, 0i32));
         assert_eq!(step(&mut rng, &mut state, xsize, ysize), (110i64, -60i32));

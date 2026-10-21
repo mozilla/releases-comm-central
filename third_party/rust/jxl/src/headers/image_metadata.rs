@@ -18,12 +18,6 @@ use crate::image::Rect;
 #[derive(Debug, Default, Clone)]
 pub struct Signature;
 
-impl Signature {
-    pub fn new() -> Signature {
-        Signature {}
-    }
-}
-
 impl crate::headers::encodings::UnconditionalCoder<()> for Signature {
     type Nonserialized = Empty;
     fn read_unconditional(_: &(), br: &mut BitReader, _: &Empty) -> Result<Signature, Error> {
@@ -155,6 +149,7 @@ pub struct Animation {
 #[validate]
 pub struct ToneMapping {
     #[all_default]
+    #[allow(dead_code)]
     pub all_default: bool,
     #[default(255.0)]
     pub intensity_target: f32,
@@ -167,16 +162,6 @@ pub struct ToneMapping {
 }
 
 impl ToneMapping {
-    #[cfg(test)]
-    pub fn empty() -> ToneMapping {
-        ToneMapping {
-            all_default: false,
-            intensity_target: 0f32,
-            min_nits: 0f32,
-            relative_to_max_display: false,
-            linear_below: 0f32,
-        }
-    }
     pub fn check(&self, _: &Empty) -> Result<(), Error> {
         if self.intensity_target <= 0.0 {
             Err(Error::InvalidIntensityTarget(self.intensity_target))
@@ -197,7 +182,6 @@ impl ToneMapping {
 
 #[allow(dead_code)]
 #[derive(UnconditionalCoder, Debug, Clone)]
-#[validate]
 pub struct ImageMetadata {
     #[all_default]
     all_default: bool,
@@ -236,13 +220,4 @@ pub struct ImageMetadata {
     #[default(ToneMapping::default(&field_nonserialized))]
     pub tone_mapping: ToneMapping,
     extensions: Option<Extensions>,
-}
-
-impl ImageMetadata {
-    fn check(&self, _: &Empty) -> Result<(), Error> {
-        if self.extra_channel_info.len() > 256 {
-            return Err(Error::TooManyExtraChannels(self.extra_channel_info.len()));
-        }
-        Ok(())
-    }
 }

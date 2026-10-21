@@ -6,14 +6,13 @@
 use std::collections::{HashSet, VecDeque};
 use std::io::IoSliceMut;
 
-use crate::api::inner::CodestreamParser;
-use crate::api::inner::box_parser::CodestreamInput;
-use crate::api::inner::codestream_parser::{
-    ProcessMode, check_size_limit, validate_output_buffers,
+use crate::api::box_parser::CodestreamInput;
+use crate::api::codestream_parser::{
+    CodestreamParser, ProcessMode, check_size_limit, validate_output_buffers,
 };
-use crate::api::inner::process::SmallBuffer;
 use crate::api::{
     JxlColorProfile, JxlDecoderOptions, JxlOutputBuffer, JxlParallelRunner, JxlPixelFormat,
+    SmallBuffer,
 };
 use crate::bit_reader::BitReader;
 use crate::error::{Error, Result};
@@ -22,7 +21,9 @@ use crate::headers::FileHeader;
 use crate::headers::encodings::UnconditionalCoder;
 use crate::headers::frame_header::{Encoding, FrameHeader, FrameType};
 use crate::headers::toc::{IncrementalTocReader, Toc};
+use crate::image::BufferRecycler;
 use crate::util::NewWithCapacity;
+use crate::util::sync::Arc;
 
 struct SectionBuffer {
     len: usize,
@@ -57,6 +58,7 @@ pub struct FrameInfo {
     frame: Option<Box<Frame>>,
     // Keeps track of whether pixels have been modified.
     pixels_dirty: bool,
+    buffer_recycler: Arc<BufferRecycler>,
 
     // Section information.
     sections: VecDeque<SectionBuffer>,
@@ -72,11 +74,12 @@ pub struct FrameInfo {
     hf_sections: Vec<Vec<Option<SectionBuffer>>>,
     // group indices that *might* have new renderable data.
     candidate_hf_sections: HashSet<usize>,
-
-    #[cfg(test)]
-    pub use_simple_pipeline: bool,
-    #[cfg(test)]
-    pub allow_16bit_modular_buffers: bool,
+    // The frame counters before the next frame (visible frames, and non-visible frames since the
+    // last visible one), which seed its noise. They are counted here rather than in the decoder
+    // state so that frames skipped by a seek count too.
+    frame_counters: (usize, usize),
+    // Which stored frames to keep in the next frame's decoder state (see `reset`).
+    keep_slots: [bool; 8],
 }
 
 impl FrameInfo {
@@ -95,26 +98,29 @@ impl FrameInfo {
             hf_sections: vec![],
             candidate_hf_sections: HashSet::new(),
             pixels_dirty: false,
-            #[cfg(test)]
-            use_simple_pipeline: false,
-            #[cfg(test)]
-            allow_16bit_modular_buffers: true,
+            buffer_recycler: Arc::new(BufferRecycler::new()),
+            frame_counters: (0, 0),
+            keep_slots: [true; 8],
         }
     }
 
-    #[cfg(test)]
-    pub fn disable_16bit_modular_buffers(&mut self) {
-        self.allow_16bit_modular_buffers = false;
+    /// Prepares for a next frame preceded by `frame_counters`, keeping only the stored frames in
+    /// `keep_slots`.
+    pub fn reset(&mut self, frame_counters: (usize, usize), keep_slots: [bool; 8]) {
+        self.clear();
+        if keep_slots == [false; 8] {
+            self.frame = None;
+            self.pixels_dirty = false;
+        }
+        self.frame_counters = frame_counters;
+        self.keep_slots = keep_slots;
     }
 
-    pub fn clear(&mut self, clear_frame: bool) {
+    pub fn clear(&mut self) {
         self.frame_header = None;
         self.toc_parser = None;
+        self.section_size = 0;
         self.ready_section_data = 0;
-
-        if clear_frame {
-            self.frame = None;
-        }
 
         // Clear sections
         self.sections.clear();
@@ -132,6 +138,11 @@ impl FrameInfo {
             .or(self.frame.as_ref().map(|x| x.header()))
     }
 
+    #[cfg(test)]
+    pub fn current_toc(&self) -> Option<&crate::headers::toc::Toc> {
+        self.frame.as_ref().map(|x| x.toc())
+    }
+
     pub fn parse_frame_header(
         &mut self,
         is_preview: bool,
@@ -139,6 +150,7 @@ impl FrameInfo {
         file_header: &FileHeader,
         br: &mut BitReader,
         bits: &mut usize,
+        level5_limits: bool,
     ) -> Result<()> {
         // For preview frames, use the preview dimensions instead of main image dimensions
         let nonserialized = if is_preview {
@@ -156,6 +168,22 @@ impl FrameInfo {
             frame_header.size_upsampled(),
             frame_header.num_extra_channels as usize,
         )?;
+
+        if level5_limits
+            && frame_header.duration > 0
+            && let Some(anim) = &file_header.image_metadata.animation
+            && (frame_header.duration as u128) * (anim.tps_denominator as u128) * 120
+                < (anim.tps_numerator as u128)
+        {
+            let fps = (anim.tps_numerator as u64)
+                .div_ceil(((frame_header.duration as u64) * (anim.tps_denominator as u64)).max(1));
+            return Err(Error::level_limit(
+                level5_limits,
+                "frame rate (fps)",
+                fps,
+                120,
+            ));
+        }
 
         self.frame_header = Some(frame_header);
         *bits = br.total_bits_read();
@@ -194,6 +222,7 @@ impl FrameInfo {
         pixel_format: &JxlPixelFormat,
         output_profile: &JxlColorProfile,
         process_mode: ProcessMode,
+        level5_limits: bool,
     ) -> Result<()> {
         self.section_size = toc.entries.iter().map(|x| *x as u64).sum();
         self.ready_section_data = 0;
@@ -204,27 +233,34 @@ impl FrameInfo {
         self.candidate_hf_sections.clear();
         self.hf_sections.clear();
 
+        self.frame_counters = if self.frame_header.as_ref().unwrap().is_visible() {
+            (self.frame_counters.0 + 1, 0)
+        } else {
+            (self.frame_counters.0, self.frame_counters.1 + 1)
+        };
         if !matches!(process_mode, ProcessMode::Skip(_)) {
             // If we have a previous frame, compute the decoder state from there.
             // Otherwise, compute a new decoder state.
             // We finalize the previous frame here to allow progressive rendering
             // to work properly if a flush is requested while we parse a frame
             // header.
-            #[allow(unused_mut)]
             let mut decoder_state = self
                 .frame
                 .take()
                 .map(|x| x.finalize())
                 .transpose()?
-                .flatten()
-                .unwrap_or_else(|| DecoderState::new(file_header.clone(), decode_options));
-            #[cfg(test)]
-            {
-                decoder_state.use_simple_pipeline = self.use_simple_pipeline;
-                decoder_state.allow_16bit_modular_buffers = self.allow_16bit_modular_buffers;
-            }
-            let mut frame =
-                Frame::from_header_and_toc(self.frame_header.take().unwrap(), toc, decoder_state)?;
+                .unwrap_or_else(|| {
+                    DecoderState::new(file_header.clone(), decode_options, level5_limits)
+                });
+            decoder_state.level5_limits = level5_limits;
+            decoder_state.keep_slots(std::mem::replace(&mut self.keep_slots, [true; 8]));
+            let mut frame = Frame::from_header_and_toc(
+                self.frame_header.take().unwrap(),
+                toc,
+                decoder_state,
+                self.frame_counters,
+                self.buffer_recycler.clone(),
+            )?;
 
             let num_groups = frame.header().num_groups();
             let num_passes = frame.header().passes.num_passes as usize;
@@ -304,11 +340,6 @@ impl FrameInfo {
         }
 
         Ok(())
-    }
-
-    #[cfg(test)]
-    pub fn frame(&mut self) -> Option<&mut Frame> {
-        self.frame.as_deref_mut()
     }
 
     pub fn dequeue_ready_sections(&mut self) {
@@ -470,7 +501,7 @@ impl FrameInfo {
     // Err(_) if there was an error.
     pub fn process_sections(
         &mut self,
-        output_buffers: &mut Option<&mut [JxlOutputBuffer<'_>]>,
+        mut output_buffers: Option<&mut [JxlOutputBuffer<'_>]>,
         output_profile: &JxlColorProfile,
         pixel_format: &JxlPixelFormat,
         parallel_runner: &mut dyn JxlParallelRunner,
@@ -492,7 +523,7 @@ impl FrameInfo {
                 frame,
                 &buf.data,
                 true,
-                output_buffers,
+                &mut output_buffers,
                 output_profile,
                 pixel_format,
                 false,
@@ -600,7 +631,7 @@ impl FrameInfo {
         }
 
         self.pixels_dirty |= frame.decode_and_render_hf_groups(
-            output_buffers,
+            &mut output_buffers,
             pixel_format,
             group_readers,
             false,

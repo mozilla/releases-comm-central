@@ -386,13 +386,13 @@ pub struct FrameHeader {
     && (frame_type == kRegularFrame || frame_type == kSkipProgressive) */
     #[default(BlendingInfo::default(&field_nonserialized))]
     #[condition(frame_type == FrameType::RegularFrame || frame_type == FrameType::SkipProgressive)]
-    #[nonserialized(num_extra_channels : nonserialized.num_extra_channels, full_frame : full_frame)]
+    #[nonserialized(num_extra_channels : nonserialized.num_extra_channels, full_frame)]
     pub blending_info: BlendingInfo,
 
     #[size_coder(explicit(nonserialized.num_extra_channels))]
     #[condition(frame_type == FrameType::RegularFrame || frame_type == FrameType::SkipProgressive)]
     #[default_element(BlendingInfo::default(&field_nonserialized))]
-    #[nonserialized(num_extra_channels : nonserialized.num_extra_channels, full_frame: full_frame)]
+    #[nonserialized(num_extra_channels : nonserialized.num_extra_channels, full_frame)]
     pub ec_blending_info: Vec<BlendingInfo>,
 
     #[coder(u2S(0, 1, Bits(8), Bits(32)))]
@@ -434,7 +434,7 @@ pub struct FrameHeader {
     pub name: String,
 
     #[default(RestorationFilter::default(&field_nonserialized))]
-    #[nonserialized(encoding : encoding)]
+    #[nonserialized(encoding)]
     pub restoration_filter: RestorationFilter,
 
     #[default(Extensions::default())]
@@ -539,21 +539,6 @@ impl FrameHeader {
         self.hshift(2) == 0 && self.vshift(2) == 0 &&  // Cr
         self.hshift(1) == 0 && self.vshift(1) == 0 // Y
     }
-    pub fn is420(&self) -> bool {
-        self.hshift(0) == 1 && self.vshift(0) == 1 &&  // Cb
-        self.hshift(2) == 1 && self.vshift(2) == 1 &&  // Cr
-        self.hshift(1) == 0 && self.vshift(1) == 0 // Y
-    }
-    pub fn is422(&self) -> bool {
-        self.hshift(0) == 1 && self.vshift(0) == 0 &&  // Cb
-        self.hshift(2) == 1 && self.vshift(2) == 0 &&  // Cr
-        self.hshift(1) == 0 && self.vshift(1) == 0 // Y
-    }
-    pub fn is440(&self) -> bool {
-        self.hshift(0) == 0 && self.vshift(0) == 1 &&  // Cb
-        self.hshift(2) == 0 && self.vshift(2) == 1 &&  // Cr
-        self.hshift(1) == 0 && self.vshift(1) == 0 // Y
-    }
 
     pub fn is_visible(&self) -> bool {
         (self.is_last || self.duration > 0)
@@ -609,14 +594,6 @@ impl FrameHeader {
         (
             self.width.div_ceil(1 << (3 * self.lf_level)) as usize,
             self.height.div_ceil(1 << (3 * self.lf_level)) as usize,
-        )
-    }
-
-    pub fn size_padded_upsampled(&self) -> (usize, usize) {
-        let (xsize, ysize) = self.size_padded();
-        (
-            xsize * self.upsampling as usize,
-            ysize * self.upsampling as usize,
         )
     }
 
@@ -689,11 +666,9 @@ impl FrameHeader {
     }
 
     pub fn postprocess(&mut self, nonserialized: &FrameHeaderNonserialized) {
-        if self.upsampling > 1 {
-            for i in 0..nonserialized.extra_channel_info.len() {
-                let dim_shift = nonserialized.extra_channel_info[i].dim_shift();
-                self.ec_upsampling[i] <<= dim_shift;
-            }
+        for i in 0..nonserialized.extra_channel_info.len() {
+            let dim_shift = nonserialized.extra_channel_info[i].dim_shift();
+            self.ec_upsampling[i] <<= dim_shift;
         }
         if self.encoding != Encoding::VarDCT || !nonserialized.xyb_encoded {
             self.x_qm_scale = 2;
@@ -701,16 +676,15 @@ impl FrameHeader {
     }
 
     fn check(&self, nonserialized: &FrameHeaderNonserialized) -> Result<(), Error> {
-        if self.upsampling > 1
-            && let Some((dim_shift, effective_upsampling)) = nonserialized
-                .extra_channel_info
-                .iter()
-                .zip(&self.ec_upsampling)
-                .find_map(|(info, ec_upsampling)| {
-                    let effective_upsampling = ec_upsampling << info.dim_shift();
-                    ((effective_upsampling < self.upsampling) || (effective_upsampling > 8))
-                        .then_some((info.dim_shift(), effective_upsampling))
-                })
+        if let Some((dim_shift, effective_upsampling)) = nonserialized
+            .extra_channel_info
+            .iter()
+            .zip(&self.ec_upsampling)
+            .find_map(|(info, ec_upsampling)| {
+                let effective_upsampling = ec_upsampling << info.dim_shift();
+                ((effective_upsampling < self.upsampling) || (effective_upsampling > 8))
+                    .then_some((info.dim_shift(), effective_upsampling))
+            })
         {
             return Err(Error::InvalidEcUpsampling(
                 self.upsampling,
