@@ -86,7 +86,7 @@ add_task(async function test_tab_reorder_tabbar() {
 
   // Open four tabs
   for (let idx = 0; idx < 4; idx++) {
-    await select_click_row(idx);
+    await select_click_row(idx, AccessibilityUtils);
     await open_selected_message_in_new_tab(true);
   }
 
@@ -118,6 +118,7 @@ add_task(async function test_tab_reorder_tabbar() {
   const tab1 = tabmail.tabContainer.allTabs[1];
   const tab3 = tabmail.tabContainer.allTabs[3];
 
+  AccessibilityUtils.suppressClickHandling(true);
   drag_n_drop_element(
     tab1,
     window,
@@ -127,6 +128,7 @@ add_task(async function test_tab_reorder_tabbar() {
     0.0,
     tabmail.tabContainer
   );
+  AccessibilityUtils.suppressClickHandling(false);
 
   await wait_for_message_display_completion(window);
 
@@ -180,7 +182,7 @@ add_task(async function test_tab_reorder_window() {
   await be_in_folder(folder);
 
   // Open a new tab...
-  await select_click_row(1);
+  await select_click_row(1, AccessibilityUtils);
   await open_selected_message_in_new_tab(false);
 
   assert_number_of_tabs_open(2);
@@ -249,7 +251,7 @@ add_task(async function test_tab_reorder_detach() {
   await be_in_folder(folder);
 
   // Open a new tab...
-  await select_click_row(2);
+  await select_click_row(2, AccessibilityUtils);
   await open_selected_message_in_new_tab(false);
 
   assert_number_of_tabs_open(2);
@@ -320,7 +322,7 @@ add_task(async function test_tab_undo() {
 
   // Open five tabs...
   for (let idx = 0; idx < 5; idx++) {
-    await select_click_row(idx);
+    await select_click_row(idx, AccessibilityUtils);
     await open_selected_message_in_new_tab(true);
   }
 
@@ -398,7 +400,7 @@ add_task(async function test_tab_recentlyClosed() {
   await be_in_folder(folder);
 
   for (let idx = 0; idx < 15; idx++) {
-    await select_click_row(idx);
+    await select_click_row(idx, AccessibilityUtils);
     await open_selected_message_in_new_tab(true);
   }
 
