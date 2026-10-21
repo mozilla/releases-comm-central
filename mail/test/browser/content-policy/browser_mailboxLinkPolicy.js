@@ -30,7 +30,7 @@ const handlerService = Cc[
   "@mozilla.org/uriloader/handler-service;1"
 ].getService(Ci.nsIHandlerService);
 const tabmail = document.getElementById("tabmail");
-let localFolder, imapServer, imapFolder;
+let localFolder, imapServer, imapFolder, pdfBody;
 
 /**
  * @param {string} subject
@@ -57,7 +57,7 @@ Content-Disposition: attachment; filename="attached.pdf"
 Content-Transfer-Encoding: base64
 Content-ID: <attached>
 
-${btoa("%PDF-1.0\n%%EOF\n")}
+${pdfBody}
 --REL--
 `;
 }
@@ -83,6 +83,13 @@ add_setup(async function () {
   handlerInfo.alwaysAskBeforeHandling = false;
   handlerInfo.preferredAction = Ci.nsIHandlerInfo.handleInternally;
   handlerService.store(handlerInfo);
+
+  const pdfBytes = await IOUtils.read(
+    getTestFilePath(
+      "../../../components/compose/test/browser/data/attachment.pdf"
+    )
+  );
+  pdfBody = btoa(String.fromCharCode(...pdfBytes));
 
   localFolder = await create_folder("mailboxLinkPolicy");
 
@@ -158,6 +165,14 @@ async function clickAndCheckOpened(browser, selector, messageURL) {
     url.searchParams.get("part"),
     "1.2",
     `${selector} should open the linked part`
+  );
+  // Closing the tab while the PDF viewer is still loading makes its pending
+  // queries to the parent fail.
+  await SpecialPowers.spawn(tabInfo.browser, [], () =>
+    ContentTaskUtils.waitForCondition(
+      () => !!content.wrappedJSObject.PDFViewerApplication?.pdfDocument,
+      "the PDF should load"
+    )
   );
   tabmail.closeTab(tabInfo);
 }
