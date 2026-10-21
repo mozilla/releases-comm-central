@@ -8770,12 +8770,9 @@ NS_IMETHODIMP nsImapMailFolder::FetchMsgPreviewText(
     }
   }
   if (!keysToFetchFromServer.IsEmpty()) {
-    uint32_t msgCount = keysToFetchFromServer.Length();
-    nsAutoCString messageIds;
-    // TODO: map msgKeys->UIDs
-    // See https://bugzilla.mozilla.org/show_bug.cgi?id=2031552
-    AllocateImapUidString(keysToFetchFromServer.Elements(), msgCount, nullptr,
-                          messageIds);
+    nsTArray<ImapUid> uids =
+        MOZ_TRY(UidsFromMsgKeys(mDatabase, keysToFetchFromServer));
+    nsAutoCString messageIds(UidSetFromUids(uids));
     nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
     nsCOMPtr<nsIURI> outUri;
     rv = imapService->GetBodyStart(this, aUrlListener, messageIds, 2048,
