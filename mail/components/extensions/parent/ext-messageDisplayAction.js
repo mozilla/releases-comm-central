@@ -240,6 +240,7 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
   makeButton(window) {
     const button = super.makeButton(window);
     button.classList.add("message-header-view-button");
+    button.setAttribute("tabindex", "0");
     // The header toolbar has no associated context menu. Add one directly to
     // this button.
     button.setAttribute("context", "header-toolbar-context-menu");

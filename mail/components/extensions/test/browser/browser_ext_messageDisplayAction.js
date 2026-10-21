@@ -139,6 +139,23 @@ add_task(async function test_theme_icons() {
     "message_display_action_mochi_test-messageDisplayAction-toolbarbutton"
   );
 
+  Assert.equal(
+    button.tabIndex,
+    0,
+    "message display action is in the keyboard tab sequence"
+  );
+  button.previousElementSibling.focus();
+  Assert.equal(
+    aboutMessage.document.activeElement,
+    button.previousElementSibling,
+    "the preceding header action has focus"
+  );
+  EventUtils.synthesizeKey("KEY_Tab", {}, aboutMessage);
+  Assert.equal(
+    aboutMessage.document.activeElement,
+    button,
+    "Tab moves focus to the message display action"
+  );
   await testThemeIcons(button, uuid);
 
   await extension.unload();
