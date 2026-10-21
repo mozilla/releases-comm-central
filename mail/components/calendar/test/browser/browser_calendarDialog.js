@@ -166,6 +166,46 @@ add_task(async function test_setCalendarEvent() {
   resetDialog();
 });
 
+add_task(async function test_sharedSourceLoader() {
+  Assert.ok(
+    dialog.constructor.observedAttributes.includes("recurrence-id"),
+    "The dialog observes recurrence-id"
+  );
+
+  dialog.setCalendarEvent(calendarEvent);
+  const showPromise = dialog.show();
+
+  Assert.ok(
+    !dialog.open,
+    "The dialog is not shown before the shared source route has loaded"
+  );
+  await showPromise;
+
+  Assert.equal(
+    dialog.sourceState.status,
+    "ready",
+    "The read dialog has a ready source session"
+  );
+  Assert.equal(
+    dialog.sourceState.snapshot.event.title,
+    calendarEvent.title,
+    "The read dialog renders the shared serializable source snapshot"
+  );
+  Assert.equal(
+    dialog.sourceEvent.id,
+    calendarEvent.id,
+    "The read dialog receives the raw platform event outside Redux"
+  );
+
+  dialog.close();
+  Assert.equal(
+    dialog.sourceState,
+    null,
+    "Closing clears the read dialog's source session"
+  );
+  Assert.equal(dialog.sourceEvent, null, "Closing clears the raw source event");
+});
+
 add_task(async function test_dialogSubviewNavigation() {
   dialog.setCalendarEvent(calendarEvent);
   await dialog.show();

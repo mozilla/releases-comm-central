@@ -6,6 +6,7 @@ import {
   DEFAULT_DIALOG_MARGIN,
   PositionedDialog,
 } from "./positioned-dialog.mjs";
+import { CalendarEventDialogSourceMixin } from "./calendar-event-dialog-source-mixin.mjs";
 import "./calendar-dialog-acceptance.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-subview-manager.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-date-row.mjs"; // eslint-disable-line import/no-unassigned-import
@@ -57,12 +58,14 @@ ChromeUtils.defineESModuleGetters(lazy, {
  *  representation of a CalDateTime. icalString is not appropriately portable.
  */
 
-export class CalendarDialog extends PositionedDialog {
-  static get observedAttributes() {
-    return ["event-id", "calendar-id"];
-  }
-
+export class CalendarDialog extends CalendarEventDialogSourceMixin(
+  PositionedDialog
+) {
   #subviewManager = null;
+
+  #sourceEvent = null;
+
+  #sourceState = null;
 
   /**
    * The margin the dialog should maintain from the trigger and container edges
@@ -102,54 +105,11 @@ export class CalendarDialog extends PositionedDialog {
   #onEventResponse = null;
 
   /**
-   * Event loading promise. Don't try loading again until previous attempt is complete.
-   *
-   * @type {boolean}
-   */
-  #loading;
-
-  /**
-   * Resolver for loading process.
-   *
-   * @type {Function}
-   */
-  #resolver;
-
-  /**
-   * Reject for show promise if the dialog does not have the data to load the event.
-   *
-   * @type {Function}
-   */
-  #rejecter;
-
-  /**
-   * A promse that resolves when loading is complete.
-   *
-   * @type {Promise<void>}
-   */
-  showPromise;
-
-  /**
-   * If the data has been invaildated and should be reloaded.
-   *
-   * @type {boolean}
-   */
-  #reload;
-
-  /**
    * The title element for the dialog
    *
    * @type {HTMLElement}
    */
   #title;
-
-  /**
-   * A timeout ID for debouncing updates to the dialog when attributes change
-   * rapidly.
-   *
-   * @type {number}
-   */
-  #debounceTimeout;
 
   connectedCallback() {
     if (!this.hasConnected) {
@@ -188,15 +148,46 @@ export class CalendarDialog extends PositionedDialog {
     }
 
     document.l10n.translateFragment(this);
-    this.#setupShowPromise();
+    this.initializeCalendarEventRoute();
   }
 
-  attributeChangedCallback(attribute) {
-    switch (attribute) {
-      case "calendar-id":
-      case "event-id":
-        this.#loadCalendarEventDebounce();
-        break;
+  /**
+   * The latest source transition, kept as a legacy read-dialog adapter. This
+   * is cached from the observer update rather than selected from the store by
+   * this getter.
+   *
+   * @returns {?CalendarEventSourceSession}
+   */
+  get sourceState() {
+    return this.#sourceState ? structuredClone(this.#sourceState) : null;
+  }
+
+  /**
+   * The platform event retained for this legacy read-dialog renderer. New
+   * Redux consumers use their serializable source snapshot instead.
+   *
+   * @returns {?calIEvent}
+   */
+  get sourceEvent() {
+    return this.#sourceEvent;
+  }
+
+  get retainsRawCalendarEvent() {
+    return true;
+  }
+
+  /**
+   * Cache the source session for the read dialog's legacy public interface.
+   * The shared mixin continues to consume the same transition first.
+   *
+   * @param {string} fieldName
+   * @param {*} oldValue
+   * @param {*} newValue
+   */
+  handleStateChange(fieldName, oldValue, newValue) {
+    super.handleStateChange(fieldName, oldValue, newValue);
+    if (fieldName == "sourceSession") {
+      this.#sourceState = newValue ? structuredClone(newValue) : null;
     }
   }
 
@@ -273,36 +264,6 @@ export class CalendarDialog extends PositionedDialog {
   }
 
   /**
-   * Reset variables and check if the data should be reloaded.
-   *
-   * @returns {boolean} - If a reload was done
-   */
-  async #checkReloadAndReturn() {
-    if (!this.#reload) {
-      return false;
-    }
-
-    this.#loading = false;
-    this.#reload = false;
-    this.#clearData();
-    await this.#loadCalendarEvent();
-
-    return true;
-  }
-
-  #loadCalendarEventDebounce() {
-    // If there's a timer, cancel it
-    if (this.#debounceTimeout) {
-      window.cancelAnimationFrame(this.#debounceTimeout);
-    }
-
-    // Setup the new requestAnimationFrame()
-    this.#debounceTimeout = window.requestAnimationFrame(() => {
-      this.#loadCalendarEvent();
-    });
-  }
-
-  /**
    * Helper to set up the calendar event reference for the dialog. When called
    * with a calIEvent the dialog will update to show the data of that event.
    *
@@ -319,30 +280,24 @@ export class CalendarDialog extends PositionedDialog {
       this.close();
     }
 
+    this.setCalendarEventRoute({
+      calendarId: event.calendar.id,
+      eventId: event.id,
+      recurrenceId: event.recurrenceId
+        ? String(event.recurrenceId.nativeTime)
+        : null,
+    });
     this.#onEventResponse = onEventResponse;
-    this.removeAttribute("calendar-id");
-    if (event.recurrenceId) {
-      this.setAttribute("recurrence-id", event.recurrenceId.nativeTime);
-    } else {
-      this.removeAttribute("recurrence-id");
-    }
-
-    this.setAttribute("event-id", event.id);
-    this.setAttribute("calendar-id", event.calendar.id);
   }
 
   /**
-   * The dialogs show method is updated to be async and resolve when the dialog
-   * is actually shown after event loading has completed. An event parameter is
-   * also added to allow positioning of the dialog relative to the click event
-   * triggered the show to happen.
+   * Select a visible positioning container before the shared source lifecycle
+   * loads and shows the dialog.
    *
-   * @param {?Event} event - The event most likely a click that should be used
-   * to identify the trigger element for dialog positioning
+   * @param {?Event} event
+   * @returns {Promise<boolean>} Whether the dialog was shown.
    */
   async show(event) {
-    await this.showPromise;
-
     const calendarDisplayBox = document.getElementById("calendarDisplayBox");
     const calendarDisplayBoxRect = calendarDisplayBox?.getBoundingClientRect();
     this.container =
@@ -351,121 +306,25 @@ export class CalendarDialog extends PositionedDialog {
         : (document.getElementById("tabpanelcontainer") ??
           document.documentElement);
 
-    super.show(event);
-  }
-
-  close() {
-    super.close();
-
-    this.#loading = false;
-    this.#reload = false;
-    this.#clearData();
-    this.showPromise = null;
-    this.#setupShowPromise();
+    return super.show(event);
   }
 
   /**
-   * Helper function to set up the showPromise if it doesn't exist. This is used
-   * to ensure that we have a promise to await in the show method while still
-   * allowing the promise to be created lazily when we know we need it for
-   * loading an event.
+   * Render the source event after the shared loader gets the current event.
+   * This completes the initial layout before the mixin lets PositionedDialog
+   * measure and position the dialog.
+   *
+   * @param {object} source
+   * @param {calIEvent} source.event
+   * @param {CalendarEventSourceIdentity} source.identity
    */
-  #setupShowPromise() {
-    if (!this.showPromise) {
-      const { promise, resolve, reject } = Promise.withResolvers();
-      this.showPromise = promise;
-      this.#resolver = resolve;
-      this.#rejecter = reject;
-    }
-  }
-
-  /**
-   * Load the data from the event given by attributes. The displayed data is
-   * cleared if either of the attributes is unset.
-   */
-  async #loadCalendarEvent() {
-    if (!this.hasConnected) {
-      return;
-    }
-
-    this.#setupShowPromise();
-
-    if (this.#loading) {
-      this.#reload = true;
-      return;
-    }
-
-    this.#loading = true;
-
-    // Let's find the calendar we're displaying an event from.
-    const calendarId = this.getAttribute("calendar-id");
-    const eventId = this.getAttribute("event-id");
-    if (!calendarId || !eventId) {
-      this.#loading = false;
-      if (!(await this.#checkReloadAndReturn())) {
-        // Need to call clearData explicitly here to reset the dialog
-        // checkReloadAndReturn only clears if reloading.
-        this.#clearData();
-        this.#rejecter(new Error("Event or calendar ID not set"));
-      }
-      return;
-    }
-
-    const calendar = cal.manager.getCalendarById(calendarId);
-    if (!calendar) {
-      console.error("No calendar", calendarId);
-      this.close();
-      return;
-    }
-
-    // Check if data has been invalidated while clearing.
-    if (await this.#checkReloadAndReturn()) {
-      return;
-    }
-
-    let event = await calendar.getItem(eventId);
-
-    // Check if data has been invalidated while loading.
-    if (await this.#checkReloadAndReturn()) {
-      return;
-    }
-
-    if (!event) {
-      // Only dismiss the dialog if the state hasn't changed while awaiting.
-      if (eventId === this.getAttribute("event-id")) {
-        console.error("Could not find", eventId, "in", calendarId);
-        this.close();
-      }
-
-      return;
-    }
-    if (!event.isEvent()) {
-      console.error(calendarId, eventId, "is not an event");
-      this.close();
-      return;
-    }
-
-    // If we want a specific recurrence, retrieve it.
-    let recurrenceSelector = "";
-    if (this.getAttribute("recurrence-id")) {
-      const recurrenceId = cal.createDateTime();
-      recurrenceId.nativeTime = this.getAttribute("recurrence-id");
-      if (recurrenceId.isValid) {
-        try {
-          event = event.recurrenceInfo.getOccurrenceFor(recurrenceId);
-          recurrenceSelector = `[data-recurrence-id="${recurrenceId.nativeTime}"]`;
-        } catch {
-          console.warn(
-            "Error retrieving occurrence for",
-            calendarId,
-            eventId,
-            recurrenceId.icalString
-          );
-        }
-      }
-    }
+  async onCalendarEventSourceLoaded({ event, identity }) {
+    this.#sourceEvent = event;
     this.#event = event;
-
+    const calendar = event.calendar;
+    const recurrenceSelector = identity.recurrenceId
+      ? `[data-recurrence-id="${identity.recurrenceId}"]`
+      : "";
     const selector = `#view-box > :not([hidden]) [data-event-id="${event.id}"]${recurrenceSelector}`;
     this.trigger = document.querySelector(selector);
 
@@ -580,14 +439,12 @@ export class CalendarDialog extends PositionedDialog {
       event.descriptionText,
       event.descriptionHTML
     );
+  }
 
-    if (await this.#checkReloadAndReturn()) {
-      return;
-    }
-
-    this.#loading = false;
-
-    this.#resolver();
+  onCalendarEventRouteCleared() {
+    this.#sourceEvent = null;
+    this.#sourceState = null;
+    this.#clearData();
   }
 
   /**
