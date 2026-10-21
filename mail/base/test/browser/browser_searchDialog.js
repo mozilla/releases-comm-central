@@ -327,3 +327,121 @@ add_task(async function test_customizeHeaders() {
   await BrowserTestUtils.closeWindow(win);
   await SpecialPowers.popPrefEnv();
 });
+
+add_task(async function test_deleteColumnConfirmation() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.warn_on_delete_from_trash", true]],
+  });
+  const trashFolder = testFolder.parent
+    .getFolderWithFlags(Ci.nsMsgFolderFlags.Trash)
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  trashFolder.addMessage(
+    new MessageGenerator()
+      .makeMessage({ subject: "Search dialog result in Trash" })
+      .toMessageString()
+  );
+
+  const win = await openSearchDialog();
+  win.updateSearchFolderPicker(testFolder.parent);
+  const tree = await searchMessages(win, 4);
+  win.threadPane.columns.find(column => column.id == "deleteCol").hidden =
+    false;
+  win.threadPane.updateColumns();
+  tree.reset();
+  const headers = Array.from({ length: tree.view.rowCount }, (_, index) =>
+    tree.view.getMsgHdrAt(index)
+  );
+  const trashIndex = headers.findIndex(header => header.folder == trashFolder);
+  const selectedIndex = headers.findIndex(
+    header => header.folder == testFolder
+  );
+  Assert.notEqual(
+    trashIndex,
+    -1,
+    "The search should include the Trash message"
+  );
+  Assert.notEqual(
+    selectedIndex,
+    -1,
+    "The search should include another folder"
+  );
+  tree.selectedIndex = selectedIndex;
+  const selectedMessageId = headers[selectedIndex].messageId;
+  await TestUtils.waitForCondition(
+    () => tree.getRowAtIndex(trashIndex),
+    "The Trash result should be rendered"
+  );
+
+  const expectedPrompt = Services.strings
+    .createBundle("chrome://messenger/locale/messenger.properties")
+    .GetStringFromName("confirmMsgDelete.deleteFromTrash.desc");
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    undefined,
+    undefined,
+    {
+      callback(dialogWin) {
+        Assert.equal(
+          dialogWin.document.getElementById("infoBody").textContent,
+          expectedPrompt,
+          "Deleting the clicked Trash result should show its permanent-delete warning"
+        );
+        dialogWin.document.querySelector("dialog").getButton("cancel").click();
+      },
+    }
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    tree.getRowAtIndex(trashIndex).querySelector(".tree-button-delete"),
+    {},
+    win
+  );
+  await dialogPromise;
+  await TestUtils.waitForCondition(
+    () => !win.windowUtils.isInModalState(),
+    "The search dialog should leave its modal state after cancelling deletion"
+  );
+  Assert.equal(
+    tree.view.rowCount,
+    4,
+    "Cancelling deletion should preserve all search results"
+  );
+  Assert.equal(
+    trashFolder.getTotalMessages(false),
+    1,
+    "Cancelling deletion should preserve the message in Trash"
+  );
+  Assert.equal(
+    tree.view.getMsgHdrAt(tree.selectedIndex).messageId,
+    selectedMessageId,
+    "Cancelling deletion should preserve the selection in the other folder"
+  );
+
+  await SimpleTest.promiseFocus(win);
+  dialogPromise = BrowserTestUtils.promiseAlertDialog(undefined, undefined, {
+    callback(dialogWin) {
+      Assert.equal(
+        dialogWin.document.getElementById("infoBody").textContent,
+        expectedPrompt,
+        "Confirming deletion should show the permanent-delete warning again"
+      );
+      dialogWin.document.querySelector("dialog").getButton("accept").click();
+    },
+  });
+  EventUtils.synthesizeMouseAtCenter(
+    tree.getRowAtIndex(trashIndex).querySelector(".tree-button-delete"),
+    {},
+    win
+  );
+  await dialogPromise;
+  await TestUtils.waitForCondition(
+    () => tree.view.rowCount == 3,
+    "Accepting deletion should remove the clicked search result"
+  );
+  Assert.equal(
+    trashFolder.getTotalMessages(false),
+    0,
+    "Accepting deletion should remove the message from Trash"
+  );
+  tree.selectedIndices = [];
+  await BrowserTestUtils.closeWindow(win);
+  await SpecialPowers.popPrefEnv();
+});

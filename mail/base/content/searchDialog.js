@@ -705,9 +705,17 @@ var threadPane = {
         );
         break;
       case "request-delete":
-        gDBView.applyCommandToIndices(Ci.nsMsgViewCommandType.deleteMsg, [
-          event.detail.index,
-        ]);
+        if (
+          MailUtils.confirmDelete(
+            false,
+            gDBView,
+            gDBView.getMsgHdrAt(event.detail.index).folder
+          )
+        ) {
+          gDBView.applyCommandToIndices(Ci.nsMsgViewCommandType.deleteMsg, [
+            event.detail.index,
+          ]);
+        }
         break;
       case "dragstart":
         ThreadPaneOnDragStart(event);
