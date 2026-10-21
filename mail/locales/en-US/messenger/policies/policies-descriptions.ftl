@@ -61,7 +61,7 @@ policy-DisableForgetButton = Prevent access to the Forget button.
 
 policy-DisableFormHistory = Don’t remember search and form history.
 
-policy-DisableMacOSUserPolicies = Ignore policies from the user's preferences and from user-scope configuration profiles on macOS.
+policy-DisableMacOSUserPolicies = Ignore policies from the user’s preferences and from user-scope configuration profiles on macOS.
 
 policy-DisableMasterPasswordCreation = If true, a master password can’t be created.
 
