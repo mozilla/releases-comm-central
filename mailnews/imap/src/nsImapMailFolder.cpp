@@ -5532,10 +5532,11 @@ nsImapMailFolder::NotifySearchHit(nsIMsgMailNewsUrl* aUrl,
     while (hitUidToken) {
       long naturalLong;  // %l is 64 bits on OSF1
       sscanf(hitUidToken, "%ld", &naturalLong);
-      nsMsgKey hitUid = (nsMsgKey)naturalLong;
+      ImapUid hitUid = (ImapUid)naturalLong;
+      nsMsgKey hitKey = MOZ_TRY(MsgKeyFromUid(mDatabase, hitUid));
 
       nsCOMPtr<nsIMsgDBHdr> hitHeader;
-      rv = mDatabase->GetMsgHdrForKey(hitUid, getter_AddRefs(hitHeader));
+      rv = mDatabase->GetMsgHdrForKey(hitKey, getter_AddRefs(hitHeader));
       if (NS_SUCCEEDED(rv) && hitHeader) {
         nsCOMPtr<nsIMsgSearchSession> searchSession;
         nsCOMPtr<nsIMsgSearchAdapter> searchAdapter;

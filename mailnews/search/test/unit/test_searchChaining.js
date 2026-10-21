@@ -41,7 +41,6 @@ async function setupFolder() {
 }
 
 async function searchTest() {
-  // Get the IMAP inbox...
   var emptyLocal1 =
     localAccountUtils.rootFolder.createLocalSubfolder("empty 1");
 
