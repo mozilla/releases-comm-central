@@ -41,6 +41,7 @@ ChromeUtils.defineESModuleGetters(this, {
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
   VCardProperties: "resource:///modules/VCardUtils.sys.mjs",
   VCardPropertyEntry: "resource:///modules/VCardUtils.sys.mjs",
+  VCardUtils: "resource:///modules/VCardUtils.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
@@ -3662,20 +3663,12 @@ var detailsPane = {
           reader.onloadend = resolve;
           reader.readAsDataURL(this._photoDetails.blob);
         });
-        if (card.vCardProperties.getFirstValue("version") == "4.0") {
-          card.vCardProperties.addEntry(
-            new VCardPropertyEntry("photo", {}, "uri", reader.result)
-          );
-        } else {
-          card.vCardProperties.addEntry(
-            new VCardPropertyEntry(
-              "photo",
-              { encoding: "B" },
-              "binary",
-              reader.result.substring(reader.result.indexOf(",") + 1)
-            )
-          );
-        }
+        card.vCardProperties.addEntry(
+          VCardUtils.photoEntryFromDataURL(
+            reader.result,
+            card.vCardProperties.getFirstValue("version")
+          )
+        );
       } else {
         const leafName = `${AddrBookUtils.newUID()}.jpg`;
         const path = PathUtils.join(PathUtils.profileDir, "Photos", leafName);

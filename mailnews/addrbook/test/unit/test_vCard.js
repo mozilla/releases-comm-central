@@ -472,3 +472,59 @@ add_task(function testAbCardToVCard() {
     "EMAIL:second@invalid"
   );
 });
+
+add_task(function testPhotoEntryFromDataURL() {
+  function check(dataURL, version, expected) {
+    const entry = VCardUtils.photoEntryFromDataURL(dataURL, version);
+    Assert.deepEqual(
+      entry && [entry.params, entry.type, entry.value],
+      expected,
+      `photo entry for ${dataURL} in vCard ${version} should be correct`
+    );
+  }
+
+  check("data:image/jpeg;base64,/9j/", "4.0", [
+    {},
+    "uri",
+    "data:image/jpeg;base64,/9j/",
+  ]);
+  check("data:image/jpeg;base64,/9j/", "3.0", [
+    { encoding: "B", type: "JPEG" },
+    "binary",
+    "/9j/",
+  ]);
+  check("data:image/png;base64,iVBO", "3.0", [
+    { encoding: "B", type: "PNG" },
+    "binary",
+    "iVBO",
+  ]);
+  check("data:image/gif;name=a.gif;base64,R0lG", "3.0", [
+    { encoding: "B", type: "GIF" },
+    "binary",
+    "R0lG",
+  ]);
+  check("data:image/jpg;base64,/9j/", "3.0", [
+    { encoding: "B", type: "JPEG" },
+    "binary",
+    "/9j/",
+  ]);
+  check("data:IMAGE/PNG;BASE64,iVBO", "3.0", [
+    { encoding: "B", type: "PNG" },
+    "binary",
+    "iVBO",
+  ]);
+  check("data:image/jpeg;base64,/9j/", null, [
+    { encoding: "B", type: "JPEG" },
+    "binary",
+    "/9j/",
+  ]);
+  check("data:application/octet-stream;base64,AAAA", "3.0", [
+    { encoding: "B" },
+    "binary",
+    "AAAA",
+  ]);
+  check("data:image/svg+xml,<svg/>", "3.0", null);
+  check("https://example.com/photo.jpg", "3.0", null);
+  // This should not take quadratic time.
+  check(`data:${"a".repeat(100000)}`, "3.0", null);
+});

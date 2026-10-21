@@ -1124,9 +1124,7 @@ function normalizeLineEndings(string) {
 }
 
 /**
- * Converts a vCard 4.0 to vCard 3.0, in place. Inline photos are data: URIs in
- * vCard 4.0 (RFC 6350, section 6.2.4), but base64 encoded binary values in
- * vCard 3.0 (RFC 2426, section 3.1.4).
+ * Converts a vCard 4.0 to vCard 3.0, in place.
  *
  * @param {VCardProperties} vCardProperties
  */
@@ -1135,17 +1133,10 @@ function convertToVCard3(vCardProperties) {
     new lazy.VCardPropertyEntry("version", {}, "text", "3.0")
   );
   for (const entry of vCardProperties.getAllEntries("photo")) {
-    const match = /^data:[^,;]*;base64,(.*)$/s.exec(entry.value);
-    if (match) {
+    const newEntry = lazy.VCardUtils.photoEntryFromDataURL(entry.value, "3.0");
+    if (newEntry) {
       vCardProperties.removeEntry(entry);
-      vCardProperties.addEntry(
-        new lazy.VCardPropertyEntry(
-          "photo",
-          { encoding: "B" },
-          "binary",
-          match[1]
-        )
-      );
+      vCardProperties.addEntry(newEntry);
     }
   }
 }

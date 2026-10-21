@@ -173,6 +173,34 @@ export var VCardUtils = {
 
     return abCard;
   },
+  /**
+   * Create a PHOTO entry for an image given as a data: URL. vCard 4.0 stores
+   * the data: URL as is (RFC 6350, section 6.2.4). Other versions store the
+   * base64 data inline, with the image format as the TYPE parameter
+   * (RFC 2426, section 3.1.4), which some clients (e.g. iOS) need to show it.
+   *
+   * @param {string} dataURL
+   * @param {?string} version - The version of the vCard the entry is for.
+   * @returns {?VCardPropertyEntry} The entry, or null if it isn't for
+   *   vCard 4.0 and dataURL isn't base64 encoded.
+   */
+  photoEntryFromDataURL(dataURL, version) {
+    if (version == "4.0") {
+      return new VCardPropertyEntry("photo", {}, "uri", dataURL);
+    }
+    const match = /^data:([^,;]*)(?:;[^,;]*)*;base64,(.*)$/is.exec(dataURL);
+    if (!match) {
+      return null;
+    }
+    const [, mimeType, data] = match;
+    const params = { encoding: "B" };
+    if (/^image\/./i.test(mimeType)) {
+      const type = mimeType.substring("image/".length).toUpperCase();
+      // "image/jpg" isn't registered, but some software uses it.
+      params.type = type == "JPG" ? "JPEG" : type;
+    }
+    return new VCardPropertyEntry("photo", params, "binary", data);
+  },
   abCardToVCard(abCard, version) {
     if (abCard.supportsVCard && abCard.getProperty("_vCard")) {
       return abCard.vCardProperties.toVCard();

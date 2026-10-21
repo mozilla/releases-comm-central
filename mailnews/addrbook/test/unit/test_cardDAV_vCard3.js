@@ -44,7 +44,7 @@ function checkVersion(vCard, expectVCard3) {
     );
     Assert.stringContains(
       vCard,
-      "PHOTO;ENCODING=B:iVBORw0KGgo=\r\n",
+      "PHOTO;ENCODING=B;TYPE=PNG:iVBORw0KGgo=\r\n",
       "photo on the server should be inline binary"
     );
     Assert.stringMatches(

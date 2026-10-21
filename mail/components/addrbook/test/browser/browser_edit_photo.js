@@ -740,6 +740,7 @@ add_task(async function test_add_photo_carddav3() {
   Assert.strictEqual(card1.vCardProperties.designSet, ICAL.design.vcard3);
   Assert.ok(photoProp);
   Assert.equal(photoProp.params.encoding, "B");
+  Assert.equal(photoProp.params.type, "JPEG");
   Assert.equal(photoProp.type, "binary");
   Assert.ok(photoProp.value.startsWith("/9j/"));
 
@@ -750,6 +751,7 @@ add_task(async function test_add_photo_carddav3() {
   Assert.strictEqual(card2.vCardProperties.designSet, ICAL.design.vcard3);
   Assert.ok(photoProp);
   Assert.equal(photoProp.params.encoding, "B");
+  Assert.equal(photoProp.params.type, "JPEG");
   Assert.equal(photoProp.type, "binary");
   Assert.ok(photoProp.value.startsWith("/9j/"));
 
@@ -757,7 +759,7 @@ add_task(async function test_add_photo_carddav3() {
   Assert.equal(CardDAVServer.cards.size, 1);
   let [serverCard] = [...CardDAVServer.cards.values()];
   Assert.ok(
-    serverCard.vCard.includes("\nPHOTO;ENCODING=B:/9j/"),
+    serverCard.vCard.includes("\nPHOTO;ENCODING=B;TYPE=JPEG:/9j/"),
     "photo included in card on server"
   );
 
