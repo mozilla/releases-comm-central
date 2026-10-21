@@ -2823,6 +2823,7 @@ NS_IMETHODIMP nsImapMailFolder::ParseMsgHdrs(
   nsCOMPtr<nsIImapUrl> aImapUrl;
   nsImapAction imapAction = nsIImapUrl::nsImapTest;  // unused value.
   if (!mDatabase) GetDatabase();
+  NS_ENSURE_STATE(mDatabase);
 
   nsresult rv = aHdrXferInfo->GetNumHeaders(&numHdrs);
   if (aProtocol) {
@@ -2834,13 +2835,19 @@ NS_IMETHODIMP nsImapMailFolder::ParseMsgHdrs(
     NS_ENSURE_SUCCESS(rv, rv);
     if (!headerInfo) break;
     int32_t msgSize;
-    nsMsgKey msgKey;
-    bool containsKey;
     nsCString msgHdrs;
     headerInfo->GetMsgSize(&msgSize);
-    headerInfo->GetMsgUid(&msgKey);
-    if (msgKey == nsMsgKey_None)  // not a valid uid.
+
+    ImapUid uid;
+    headerInfo->GetMsgUid(&uid);
+    if (uid == 0) {
       continue;
+    }
+    auto keyLookup = MsgKeyFromUid(mDatabase, uid);
+    if (keyLookup.isErr()) {
+      continue;
+    }
+    nsMsgKey msgKey = keyLookup.unwrap();
     if (imapAction == nsIImapUrl::nsImapMsgPreview) {
       nsCOMPtr<nsIMsgDBHdr> msgHdr;
       headerInfo->GetMsgHdrs(msgHdrs);
@@ -2855,6 +2862,7 @@ NS_IMETHODIMP nsImapMailFolder::ParseMsgHdrs(
       }
       continue;
     }
+    bool containsKey;
     if (mDatabase &&
         NS_SUCCEEDED(mDatabase->ContainsKey(msgKey, &containsKey)) &&
         containsKey) {
@@ -2864,7 +2872,7 @@ NS_IMETHODIMP nsImapMailFolder::ParseMsgHdrs(
     nsresult rv = SetupHeaderParseStream(msgSize, EmptyCString(), nullptr);
     NS_ENSURE_SUCCESS(rv, rv);
     headerInfo->GetMsgHdrs(msgHdrs);  // The raw header block.
-    rv = ParseAdoptedHeaderLine(msgHdrs.get(), msgKey);
+    rv = ParseAdoptedHeaderLine(msgHdrs.get(), uid);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = NormalEndHeaderParseStream(aProtocol, aImapUrl);
   }
