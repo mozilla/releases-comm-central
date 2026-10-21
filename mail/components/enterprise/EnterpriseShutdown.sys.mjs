@@ -6,7 +6,7 @@ const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   RelaunchEnforcer:
-    "resource://gre/modules/enterprise/RelaunchEnforcer.sys.mjs",
+    "moz-src:///toolkit/components/enterprise/modules/RelaunchEnforcer.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 

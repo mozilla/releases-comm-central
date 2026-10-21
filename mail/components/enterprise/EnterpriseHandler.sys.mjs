@@ -13,7 +13,7 @@ ChromeUtils.defineLazyGetter(lazy, "localization", () => {
 
 ChromeUtils.defineESModuleGetters(lazy, {
   initiateShutdown:
-    "resource://gre/modules/enterprise/EnterpriseCommon.sys.mjs",
+    "moz-src:///toolkit/components/enterprise/modules/EnterpriseCommon.sys.mjs",
 });
 
 const PROMPT_ON_SIGNOUT_PREF = "enterprise.prompt_on_signout";

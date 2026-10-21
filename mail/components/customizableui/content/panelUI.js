@@ -184,7 +184,7 @@ const PanelUI = {
       const button = document.getElementById("enterprise-badge-toolbar-button");
       button.addEventListener("click", ev => {
         const { EnterpriseBadge } = ChromeUtils.importESModule(
-          "resource://gre/modules/enterprise/EnterpriseBadge.sys.mjs"
+          "moz-src:///toolkit/components/enterprise/modules/EnterpriseBadge.sys.mjs"
         );
         EnterpriseBadge.openPanel(button, ev);
       });

@@ -559,7 +559,7 @@ MailGlue.prototype = {
         }
         if (AppConstants.MOZ_ENTERPRISE) {
           const { EnterpriseBadge } = ChromeUtils.importESModule(
-            "resource://gre/modules/enterprise/EnterpriseBadge.sys.mjs"
+            "moz-src:///toolkit/components/enterprise/modules/EnterpriseBadge.sys.mjs"
           );
           EnterpriseBadge.uninit();
         }
@@ -598,7 +598,7 @@ MailGlue.prototype = {
               "load",
               () => {
                 const { EnterpriseBadge } = ChromeUtils.importESModule(
-                  "resource://gre/modules/enterprise/EnterpriseBadge.sys.mjs"
+                  "moz-src:///toolkit/components/enterprise/modules/EnterpriseBadge.sys.mjs"
                 );
                 EnterpriseBadge.init(aSubject);
               },
@@ -762,7 +762,7 @@ MailGlue.prototype = {
 
     if (AppConstants.MOZ_ENTERPRISE) {
       const { EnterpriseEndpoints } = ChromeUtils.importESModule(
-        "resource://gre/modules/enterprise/EnterpriseEndpoints.sys.mjs"
+        "moz-src:///toolkit/components/enterprise/modules/EnterpriseEndpoints.sys.mjs"
       );
       EnterpriseEndpoints.init();
     }

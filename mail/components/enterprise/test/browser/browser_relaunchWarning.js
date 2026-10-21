@@ -4,7 +4,7 @@
 "use strict";
 
 const { RelaunchEnforcer } = ChromeUtils.importESModule(
-  "resource://gre/modules/enterprise/RelaunchEnforcer.sys.mjs"
+  "moz-src:///toolkit/components/enterprise/modules/RelaunchEnforcer.sys.mjs"
 );
 
 add_task(async function test_relaunch_warning_is_displayed_and_updated() {

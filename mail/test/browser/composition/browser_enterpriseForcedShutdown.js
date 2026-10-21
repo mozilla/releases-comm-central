@@ -4,7 +4,7 @@
 "use strict";
 
 const { ForcedQuitHandler } = ChromeUtils.importESModule(
-  "resource://gre/modules/enterprise/ForcedQuitHandler.sys.mjs"
+  "moz-src:///toolkit/components/enterprise/modules/ForcedQuitHandler.sys.mjs"
 );
 const { close_compose_window, open_compose_new_mail } =
   ChromeUtils.importESModule(
