@@ -258,6 +258,10 @@
       "type": "boolean"
     },
 
+    "DisableMacOSUserPolicies": {
+      "type": "boolean"
+    },
+
     "DisableMasterPasswordCreation": {
       "type": "boolean"
     },

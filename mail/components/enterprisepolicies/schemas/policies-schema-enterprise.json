@@ -420,6 +420,16 @@
       }
     },
 
+    "DisableMacOSUserPolicies": {
+      "type": "boolean",
+      "x-compatibility": {
+        "thunderbird": { "version_added": "160" },
+        "thunderbird_esr": { "version_added": "160" },
+        "thunderbird_enterprise": { "version_added": "160" }
+      },
+      "x-restart-required": true
+    },
+
     "DisableMasterPasswordCreation": {
       "type": "boolean",
       "x-compatibility": {
