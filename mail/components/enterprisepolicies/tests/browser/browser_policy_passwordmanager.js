@@ -51,16 +51,22 @@ add_task(async function test_password_reveal_policy() {
     toggleButton.hidden,
     "the visibility toggle button should be hidden"
   );
+  Assert.ok(
+    toggleButton.disabled,
+    "the visibility toggle button should be disabled with no saved passwords"
+  );
 
-  // Check the "Show Passwords" button no-ops even if made visible.
+  // Check the policy guard no-ops even if the hidden button is made visible.
+  // There are no saved passwords in this test, so this button is correctly
+  // disabled. Invoke its handler rather than pretend a user can click it.
   toggleButton.toggleAttribute("hidden", false);
-  EventUtils.synthesizeMouseAtCenter(toggleButton, {}, passwordMgr);
+  await passwordMgr.TogglePasswordVisible();
   await new Promise(resolve => prefWin.setTimeout(resolve));
 
   const passwordCol = passwordMgr.document.getElementById("passwordCol");
   Assert.ok(
     passwordCol.hidden,
-    "even if the button is made visible again, clicking it should no-op"
+    "the policy guard should keep passwords hidden when the button is made visible"
   );
 });
 
