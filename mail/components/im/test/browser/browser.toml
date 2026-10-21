@@ -21,6 +21,8 @@ tags = ["notifications"]
 
 ["browser_logs.js"]
 
+["browser_messageStyle.js"]
+
 ["browser_messagesMail.js"]
 
 ["browser_readMessage.js"]
