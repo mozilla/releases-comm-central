@@ -352,14 +352,15 @@ function nsMsgStatusFeedback() {
   window.addEventListener("message", event => {
     if (event.data.statusMessage) {
       this.showStatusString(event.data.statusMessage);
-    }
-    if (event.data.progress) {
-      this.showProgress(event.data.progress);
-    }
-    if (event.data.meteors == "start-meteors") {
-      this.startMeteors();
-    } else if (event.data.meteors == "stop-meteors") {
-      this.stopMeteors();
+    } else {
+      if (event.data.progress) {
+        this.showProgress(event.data.progress);
+      }
+      if (event.data.meteors == "start-meteors") {
+        this.startMeteors();
+      } else if (event.data.meteors == "stop-meteors") {
+        this.stopMeteors();
+      }
     }
   });
 }
