@@ -445,3 +445,75 @@ add_task(async function test_deleteColumnConfirmation() {
   await BrowserTestUtils.closeWindow(win);
   await SpecialPowers.popPrefEnv();
 });
+
+add_task(async function test_columnWidths() {
+  const win = await openSearchDialog();
+  const tree = win.document.getElementById("threadTree");
+  const widths = new Map([
+    ["subjectCol", 200],
+    ["correspondentCol", 150],
+  ]);
+  // The table can redistribute rendered widths and convert them to percentages.
+  // Check the desired widths that are saved and restored independently of layout.
+  for (const [id, width] of widths) {
+    const column = win.document.getElementById(id);
+    const splitter = column.querySelector("hr");
+    splitter.width = width;
+    splitter.dispatchEvent(new win.CustomEvent("splitter-resized"));
+    const columnStates = JSON.parse(
+      Services.xulStore.getValue(
+        SEARCH_DIALOG_URL,
+        "threadTree",
+        "columnStates"
+      ) || "{}"
+    );
+    Assert.equal(
+      columnStates[id]?.width,
+      width,
+      `${id} should persist the resized width`
+    );
+  }
+
+  const picker = tree.querySelector("th.last-column .button-column-picker");
+  const popup = tree.querySelector("menupopup.menupopup-column-picker");
+  const shown = BrowserTestUtils.waitForPopupEvent(popup, "shown");
+  EventUtils.synthesizeMouseAtCenter(picker, {}, win);
+  await shown;
+  const columnsChanged = BrowserTestUtils.waitForEvent(
+    tree.table,
+    "columns-changed"
+  );
+  popup.activateItem(popup.querySelector('[value="sizeCol"]'));
+  await columnsChanged;
+  const hidden = BrowserTestUtils.waitForPopupEvent(popup, "hidden");
+  popup.hidePopup();
+  await hidden;
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(win.document.getElementById("sizeCol")),
+    "The column picker should show the Size column"
+  );
+  const columnStates = JSON.parse(
+    Services.xulStore.getValue(SEARCH_DIALOG_URL, "threadTree", "columnStates")
+  );
+  for (const [id, width] of widths) {
+    Assert.equal(
+      columnStates[id]?.width,
+      width,
+      `${id} should retain its saved width after changing column visibility`
+    );
+  }
+  await BrowserTestUtils.closeWindow(win);
+
+  const reopened = await openSearchDialog();
+  for (const [id, width] of widths) {
+    const column = reopened.threadPane.columns.find(c => c.id == id);
+    Assert.ok(column, `${id} should be in the restored column definitions`);
+    Assert.equal(
+      column.width,
+      width,
+      `${id} should restore its saved width after reopening the dialog`
+    );
+  }
+  await BrowserTestUtils.closeWindow(reopened);
+});

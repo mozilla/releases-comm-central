@@ -650,6 +650,7 @@ var threadPane = {
     threadTree.addEventListener("keydown", this);
     threadTree.addEventListener("select", this);
     threadTree.table.addEventListener("columns-changed", this);
+    threadTree.table.addEventListener("column-resized", this);
     threadTree.table.addEventListener("sort-changed", this);
     threadTree.table.addEventListener("reorder-columns", this);
     threadTree.table.addEventListener("restore-columns", this);
@@ -670,6 +671,11 @@ var threadPane = {
         break;
       case "columns-changed":
         this.onColumnsVisibilityChanged(event.detail);
+        break;
+      case "column-resized":
+        this.columns.find(column => column.id == event.detail.column).width =
+          event.detail.splitter.width;
+        this.persistColumnStates();
         break;
       case "sort-changed":
         this.onSortChanged(event.detail);
@@ -781,6 +787,7 @@ var threadPane = {
     this.columns.forEach(c => {
       c.hidden = !columnStates[c.id]?.visible;
       c.ordinal = parseInt(columnStates[c.id]?.ordinal, 10) ?? 0;
+      c.width = columnStates[c.id]?.width;
     });
     this.columns.sort(function (a, b) {
       return a.ordinal - b.ordinal;
@@ -812,6 +819,7 @@ var threadPane = {
       newState[column.id] = {
         visible: !column.hidden,
         ordinal: column.ordinal,
+        width: column.width,
       };
     }
 
