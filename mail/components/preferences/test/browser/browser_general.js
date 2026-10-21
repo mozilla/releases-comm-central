@@ -5,6 +5,7 @@
 var { MockFilePicker } = ChromeUtils.importESModule(
   "resource://testing-common/MockFilePicker.sys.mjs"
 );
+
 var { MockSound } = ChromeUtils.importESModule(
   "resource://testing-common/MockSound.sys.mjs"
 );
@@ -12,9 +13,24 @@ var { MockSound } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+
 const { SearchIntegration } = ChromeUtils.importESModule(
   "resource:///modules/SearchIntegration.sys.mjs"
 );
+
+const { AddonRepository } = ChromeUtils.importESModule(
+  "resource://gre/modules/addons/AddonRepository.sys.mjs"
+);
+
+const { AddonTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/AddonTestUtils.sys.mjs"
+);
+
+const { HttpServer } = ChromeUtils.importESModule(
+  "resource://testing-common/httpd.sys.mjs"
+);
+
+AddonTestUtils.initMochitest(this);
 
 add_task(async () => {
   requestLongerTimeout(2);
@@ -1011,4 +1027,200 @@ add_task(async function test_recent_destinations_options() {
   );
 
   await closePrefsTab();
+});
+
+/**
+ * Check that downloaded languages match the repository's ID, type, and version.
+ */
+add_task(async function testLanguagePackInstallValidation() {
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["intl.multilingual.downloadEnabled", true],
+      ["xpinstall.signatures.required", false],
+      ["extensions.langpacks.signatures.required", false],
+    ],
+  });
+
+  const locale = ["fr", "de", "es-ES"].find(
+    code => !Services.locale.availableLocales.includes(code)
+  );
+  Assert.ok(locale, "A test locale must be available for installation");
+
+  const server = new HttpServer();
+  server.start(-1);
+
+  const originalGetAvailableLangpacks = AddonRepository.getAvailableLangpacks;
+  const cases = [
+    {
+      name: "wrong-type",
+      error: AddonManager.ERROR_UNEXPECTED_ADDON_TYPE,
+    },
+    {
+      name: "wrong-id",
+      error: AddonManager.ERROR_INCORRECT_ID,
+    },
+    {
+      name: "wrong-version",
+      error: AddonManager.ERROR_UNEXPECTED_ADDON_VERSION,
+    },
+    { name: "matching-langpack" },
+  ];
+
+  try {
+    const { prefsDocument } = await openNewPrefsTab(
+      "paneGeneral",
+      "languageAndFontsCategory"
+    );
+
+    for (const testCase of cases) {
+      info(`Testing ${testCase.name}`);
+
+      const id = `${testCase.name}@language-dialog.test`;
+      const expectedId =
+        testCase.name == "wrong-id" ? "expected@language-dialog.test" : id;
+      const version = testCase.name == "wrong-version" ? "2.0" : "1.0";
+
+      const manifest = {
+        name: testCase.name,
+        version: "1.0",
+        browser_specific_settings: {
+          gecko: {
+            id,
+            strict_min_version: Services.appinfo.version,
+            strict_max_version: Services.appinfo.version,
+          },
+        },
+      };
+      const files = {};
+
+      // Without these properties, the XPI is an extension rather than a
+      // language pack, allowing us to test rejection of the wrong type.
+      if (testCase.name != "wrong-type") {
+        manifest.langpack_id = locale;
+        manifest.languages = {
+          [locale]: {
+            version: "1.0",
+            chrome_resources: {
+              global: `locale/${locale}/global/`,
+            },
+          },
+        };
+        files[`locale/${locale}/global/test.properties`] = "test=value";
+      }
+
+      const xpi = AddonTestUtils.createTempWebExtensionFile({
+        manifest,
+        files,
+      });
+      const path = `/${testCase.name}.xpi`;
+      const url = `http://localhost:${server.identity.primaryPort}${path}`;
+      server.registerFile(path, xpi);
+
+      AddonRepository.getAvailableLangpacks = async () => [
+        { target_locale: locale, url, id: expectedId, version },
+      ];
+
+      let downloadError;
+      const listener = {
+        onDownloadFailed(install) {
+          if (install.sourceURI.spec == url) {
+            downloadError = install.error;
+          }
+        },
+      };
+
+      AddonManager.addInstallListener(listener);
+      try {
+        await promiseSubDialog(
+          prefsDocument.getElementById("manageMessengerLanguagesButton"),
+          "chrome://messenger/content/preferences/messengerLanguages.xhtml",
+          async dialogWindow => {
+            const dialog = dialogWindow.gMessengerLanguagesDialog;
+            await TestUtils.waitForCondition(
+              () => dialog.initialized,
+              "Waiting for the language dialog to initialize"
+            );
+
+            // Exercise the metadata-loading path as well as installation.
+            await dialog.loadLocalesFromAMO();
+            const details = dialog.availableLangpacks.get(locale);
+            Assert.equal(details.id, expectedId, "Retained the repository ID");
+            Assert.equal(
+              details.version,
+              version,
+              "Retained the repository version"
+            );
+
+            const item = dialog._availableLocalesUI.items.find(
+              entry => entry.value == locale
+            );
+            Assert.ok(item, "The remote language must be listed");
+
+            dialog.hideError();
+            await dialog.requestRemoteLanguage(item);
+
+            const warning =
+              dialogWindow.document.getElementById("warning-message");
+            const addon = await AddonManager.getAddonByID(id);
+
+            if (testCase.error) {
+              Assert.equal(
+                downloadError,
+                testCase.error,
+                `${testCase.name}: rejected with the specific download error`
+              );
+              Assert.equal(
+                addon,
+                null,
+                "The unexpected add-on must not be installed"
+              );
+              Assert.ok(!warning.hidden, "The dialog must show an error");
+              Assert.ok(
+                !item.installed,
+                "The language must not be marked installed"
+              );
+              Assert.ok(
+                !dialog._selectedLocalesUI.items.some(
+                  entry => entry.value == locale
+                ),
+                "The rejected language must not enter the selected list"
+              );
+            } else {
+              Assert.ok(addon, "The matching language pack must install");
+              Assert.equal(addon.type, "locale", "Installed a language pack");
+              Assert.equal(
+                addon.version,
+                version,
+                "Installed the expected version"
+              );
+              Assert.ok(warning.hidden, "The dialog must not show an error");
+              Assert.ok(
+                item.installed,
+                "The language must be marked installed"
+              );
+              Assert.ok(
+                dialog._selectedLocalesUI.items.some(
+                  entry => entry.value == locale
+                ),
+                "The installed language must enter the selected list"
+              );
+            }
+          },
+          "cancel"
+        );
+      } finally {
+        AddonManager.removeInstallListener(listener);
+
+        const addon = await AddonManager.getAddonByID(id);
+        if (addon) {
+          await addon.uninstall();
+        }
+      }
+    }
+  } finally {
+    AddonRepository.getAvailableLangpacks = originalGetAvailableLangpacks;
+    await closePrefsTab();
+    await new Promise(resolve => server.stop(resolve));
+    await SpecialPowers.popPrefEnv();
+  }
 });

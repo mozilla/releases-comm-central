@@ -2341,7 +2341,10 @@ class AccountHubEmail extends HTMLElement {
   async #installAddon() {
     const addon = this.#currentConfig.addons[0];
     this.abortable = new AbortController();
-    const installer = new AddonInstaller(addon, this.abortable.signal);
+    const installer = new AddonInstaller(
+      { ...addon, type: "extension" },
+      this.abortable.signal
+    );
     await installer.install();
     this.abortable = null;
   }

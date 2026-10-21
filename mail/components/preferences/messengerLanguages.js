@@ -475,8 +475,14 @@ var gMessengerLanguagesDialog = {
 
     // Store the available langpack info for later use.
     this.availableLangpacks = new Map();
-    for (const { target_locale, url, hash } of availableLangpacks) {
-      this.availableLangpacks.set(target_locale, { url, hash });
+    for (const {
+      target_locale,
+      url,
+      hash,
+      id,
+      version,
+    } of availableLangpacks) {
+      this.availableLangpacks.set(target_locale, { url, hash, id, version });
     }
 
     // Remove the installed locales from the available ones.
@@ -568,11 +574,16 @@ var gMessengerLanguagesDialog = {
       "messenger-languages-downloading"
     );
 
-    const { url, hash } = this.availableLangpacks.get(item.value);
+    const { url, hash, id, version } = this.availableLangpacks.get(item.value);
     let addon;
 
     try {
-      addon = await AddonManager.getInstallForURL(url, { hash });
+      addon = await AddonManager.getInstallForURL(url, {
+        id,
+        type: "locale",
+        hash,
+        version,
+      });
       await addon.install();
     } catch (e) {
       this.showError();

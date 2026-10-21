@@ -9,6 +9,8 @@ prefs = [
 
 ["test_accountCreationUtils.js"]
 
+["test_addonInstaller.js"]
+
 ["test_autoconfigUtils.js"]
 
 ["test_autoconfigXML.js"]

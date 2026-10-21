@@ -403,7 +403,10 @@ class EmailConfigFound extends AccountHubStep {
       return;
     }
 
-    const installer = new AddonInstaller(this.#addon);
+    const installer = new AddonInstaller({
+      ...this.#addon,
+      type: "extension",
+    });
     this.#addon.isInstalled = await installer.isInstalled();
     this.#addon.isDisabled = await installer.isDisabled();
 

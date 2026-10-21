@@ -80,6 +80,7 @@ class AddonInstaller {
    *   installed unconditionally.
    *   It is recommended to pass at least an ID, because it can confuse some
    *   addons to be reloaded at runtime.
+   * @param {string} [args.type] - Expected add-on type, if known.
    * @param {string} [args.minVersion] - Minimum version of the addon.
    *   If you pass a minVersion (in addition to ID), and the installed addon is
    *   older than this, the install will be done anyway.
@@ -92,6 +93,7 @@ class AddonInstaller {
   constructor(args, signal) {
     this._name = lazy.InputSanitizer.label(args.name);
     this._id = lazy.InputSanitizer.string(args.id);
+    this._type = lazy.InputSanitizer.string(args.type);
     this._minVersion = lazy.InputSanitizer.string(args.minVersion);
     this._url = lazy.InputSanitizer.url(args.xpiURL);
     this.#signal = signal;
@@ -161,6 +163,8 @@ class AddonInstaller {
     try {
       this._installer = await lazy.AddonManager.getInstallForURL(this._url, {
         name: this._name,
+        id: this._id,
+        type: this._type,
       });
       this._installer.promptHandler = this.prompt;
       await this._installer.install(); // throws, if failed

@@ -1016,7 +1016,7 @@ export var Policies = {
                     continue;
                   }
                 }
-                lazy.installAddonFromURL(uri.spec, null, null, "Extensions");
+                lazy.installAddonFromURL(uri.spec, {}, "Extensions");
               }
             }
           );
@@ -1109,8 +1109,10 @@ export var Policies = {
             if (extensionSettings[extensionID].install_url) {
               lazy.installAddonFromURL(
                 extensionSettings[extensionID].install_url,
-                extensionID,
-                existingAddon,
+                {
+                  id: extensionID,
+                  existingAddon,
+                },
                 "ExtensionSettings"
               );
             } else if (!existingAddon) {
@@ -2234,8 +2236,10 @@ if (AppConstants.MOZ_ENTERPRISE) {
             if (extensionSettings[extensionID].install_url) {
               lazy.installAddonFromURL(
                 extensionSettings[extensionID].install_url,
-                extensionID,
-                existingAddon,
+                {
+                  id: extensionID,
+                  existingAddon,
+                },
                 "ExtensionSettings"
               );
             } else if (!existingAddon) {
