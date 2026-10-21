@@ -53,12 +53,19 @@ async function runTestInSandbox(test, filenameFragment, sandboxArgs = []) {
  * Checks that interactions with the widget do as expected.
  */
 add_task(async function testKeyboardAndMouse() {
+  // Row selection clicks target rendered row content. The treegrid body owns
+  // keyboard focus and represents the selected row with aria-activedescendant,
+  // so that content is not a separate accessible control. Keep the remaining
+  // click checks enabled for actual interactive targets.
   AccessibilityUtils.setEnv({ mustHaveAccessibleRule: false });
-  for (const variant of TEST_VARIANTS) {
-    info(`Running keyboard and mouse test for ${variant}`);
-    await runTestInSandbox(subtestKeyboardAndMouse, variant, [variant]);
+  try {
+    for (const variant of TEST_VARIANTS) {
+      info(`Running keyboard and mouse test for ${variant}`);
+      await runTestInSandbox(subtestKeyboardAndMouse, variant, [variant]);
+    }
+  } finally {
+    AccessibilityUtils.resetEnv();
   }
-  AccessibilityUtils.resetEnv();
 });
 
 async function subtestKeyboardAndMouse(variant) {
@@ -105,6 +112,17 @@ async function subtestKeyboardAndMouse(variant) {
   // Count is calculated from the height of `list` divided by
   // TestCardRow.ROW_HEIGHT, plus list._toleranceSize.
   Assert.equal(rows.length, 13 + 26, "the list has the right number of rows");
+  Assert.equal(
+    list.table.body.getAttribute("role"),
+    "treegrid",
+    "the row container should expose treegrid semantics"
+  );
+  Assert.equal(rows[0].getAttribute("role"), "row", "row has row semantics");
+  Assert.equal(
+    rows[0].querySelector("td").getAttribute("role"),
+    "gridcell",
+    "row content has gridcell semantics"
+  );
 
   Assert.equal(doc.activeElement, doc.body);
 

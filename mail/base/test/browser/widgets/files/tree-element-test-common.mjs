@@ -16,6 +16,7 @@ class TestCardRow extends customElements.get("tree-view-table-row") {
     super.connectedCallback();
 
     this.cell = this.appendChild(document.createElement("td"));
+    this.cell.classList.add("testcol-column");
     const container = this.cell.appendChild(document.createElement("div"));
 
     this.d1 = container.appendChild(document.createElement("div"));

@@ -176,11 +176,17 @@ async function mouseSelect(row, ctrlKeyPressed = false, expectedIndices) {
 
   const rowElement = threadTree.getRowAtIndex(row);
   Assert.ok(!!rowElement, `Row ${row} should exist`);
-  EventUtils.synthesizeMouseAtCenter(
-    rowElement,
-    { accelKey: ctrlKeyPressed },
-    about3Pane
-  );
+  // The treegrid owns focus and its rows are selected by aria-activedescendant.
+  AccessibilityUtils.setEnv({ mustHaveAccessibleRule: false });
+  try {
+    EventUtils.synthesizeMouseAtCenter(
+      rowElement,
+      { accelKey: ctrlKeyPressed },
+      about3Pane
+    );
+  } finally {
+    AccessibilityUtils.resetEnv();
+  }
   await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
   if (expectedIndices) {
     await TestUtils.waitForCondition(

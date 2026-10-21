@@ -278,7 +278,13 @@ add_task(async function test_keypress_on_columns() {
   const row = await TestUtils.waitForCondition(() =>
     about3Pane.threadTree.getRowAtIndex(0)
   );
-  EventUtils.synthesizeMouseAtCenter(row, {}, about3Pane);
+  // The treegrid owns focus and its rows are selected by aria-activedescendant.
+  AccessibilityUtils.setEnv({ mustHaveAccessibleRule: false });
+  try {
+    EventUtils.synthesizeMouseAtCenter(row, {}, about3Pane);
+  } finally {
+    AccessibilityUtils.resetEnv();
+  }
 
   // Press SHIFT+TAB and LEFT to focus on the column picker.
   EventUtils.synthesizeKey("KEY_Tab", { shiftKey: true }, about3Pane);
@@ -1087,7 +1093,7 @@ add_task(async function test_double_click_column_picker() {
   const doubleClickFolder = await create_folder("double click folder");
   await make_message_sets_in_folders([doubleClickFolder], [{ count: 1 }]);
   await be_in_folder(doubleClickFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   const tabmail = document.getElementById("tabmail");
   const currentTabInfo = tabmail.currentTabInfo;
