@@ -51,21 +51,17 @@
           ></h1>
           <div class="account-central-version">
             <span id="version"></span>
-            <a
+            <button
               id="releasenotes"
+              type="button"
               data-l10n-id="release-notes"
               onclick="openAboutDialog()"
-              onkeypress="
-                if (event.key == 'Enter') {
-                  openAboutDialog();
-                }
-              "
             >
               <img
                 src="chrome://messenger/skin/icons/new/compact/info.svg"
                 alt=""
               />
-            </a>
+            </button>
           </div>
         </aside>
       </header>

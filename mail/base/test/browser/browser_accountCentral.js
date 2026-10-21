@@ -559,22 +559,57 @@ add_task(async function testFirstRun() {
     "Thunderbird version number should be correct"
   );
 
-  // Test the about dialog is opened.
+  // Test the about dialog can be opened with the mouse and keyboard.
 
-  const aboutPromise = promiseWindow(
-    "chrome://messenger/content/aboutDialog.xhtml"
+  const releaseNotesButton = doc.getElementById("releasenotes");
+  Assert.equal(
+    releaseNotesButton.localName,
+    "button",
+    "release notes control should use native button semantics"
   );
-  EventUtils.synthesizeMouseAtCenter(
-    doc.getElementById("releasenotes"),
-    {},
-    win
+  const accessibilityService = Cc[
+    "@mozilla.org/accessibilityService;1"
+  ].getService(Ci.nsIAccessibilityService);
+  let releaseNotesAccessible;
+  await TestUtils.waitForCondition(
+    () =>
+      (releaseNotesAccessible =
+        accessibilityService.getAccessibleFor(releaseNotesButton)) != null,
+    "release notes control should have an accessible object"
   );
-  await aboutPromise;
+  Assert.equal(
+    releaseNotesAccessible.role,
+    Ci.nsIAccessibleRole.ROLE_PUSHBUTTON,
+    "release notes control should expose a push button role"
+  );
+  Assert.equal(
+    releaseNotesAccessible.name,
+    releaseNotesButton.title,
+    "release notes control should expose its localized name"
+  );
+
+  for (const key of [null, "KEY_Enter", " "]) {
+    const aboutPromise = promiseWindow(
+      "chrome://messenger/content/aboutDialog.xhtml"
+    );
+    if (key) {
+      releaseNotesButton.focus();
+      Assert.equal(
+        doc.activeElement,
+        releaseNotesButton,
+        "release notes control should receive keyboard focus"
+      );
+      EventUtils.synthesizeKey(key, {}, win);
+    } else {
+      EventUtils.synthesizeMouseAtCenter(releaseNotesButton, {}, win);
+    }
+    await aboutPromise;
+  }
 
   const events = Glean.mail.uiInteraction.testGetValue();
   Assert.deepEqual(
     events.map(e => e.extra.id),
-    ["releasenotes"],
-    "clicks should be recorded in telemetry"
+    ["releasenotes", "releasenotes", "releasenotes"],
+    "mouse and keyboard activations should be recorded in telemetry"
   );
 });

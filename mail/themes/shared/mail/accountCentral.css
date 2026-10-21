@@ -134,6 +134,10 @@ aside.settings-btn-container {
 }
 
 #releasenotes {
+  appearance: none;
+  border: 0;
+  background-color: transparent;
+  padding: 0;
   cursor: pointer;
 
   & img {
@@ -145,10 +149,10 @@ aside.settings-btn-container {
     inline-size: 16px;
     block-size: 16px;
     margin-inline-start: 3px;
+  }
 
-    &:where(:hover, :focus) {
-      color: var(--color-primary-hover);
-    }
+  &:where(:hover, :focus-visible) img {
+    color: var(--color-primary-hover);
   }
 }
 
