@@ -50,6 +50,15 @@ export var CardDAVServer = {
    */
   notFoundPropstatFirst: false,
 
+  /**
+   * The "supported-address-data" of the address book. Set to null to have no
+   * such property.
+   */
+  supportedAddressData: null,
+
+  /** How many times "supported-address-data" has been requested. */
+  supportedAddressDataRequests: 0,
+
   open(username, password, port = -1) {
     this.server = new HttpServer();
     this.server.start(port);
@@ -74,6 +83,8 @@ export var CardDAVServer = {
     this.changeCount = 0;
     this.privileges = "<d:privilege><d:all/></d:privilege>";
     this.notFoundPropstatFirst = false;
+    this.supportedAddressData = null;
+    this.supportedAddressDataRequests = 0;
     this.tokenRejection = { ...TOKEN_REJECTION };
     this.resetHandlers();
   },
@@ -365,6 +376,9 @@ export var CardDAVServer = {
 
   propFind(input, depth, response, isRealDirectory) {
     const propNames = this._inputProps(input);
+    if (propNames.includes("card:supported-address-data")) {
+      this.supportedAddressDataRequests++;
+    }
 
     if (this.mimicYahoo && !propNames.includes("cs:getctag")) {
       response.setStatusLine("1.1", 400, "Bad Request");
@@ -376,6 +390,7 @@ export var CardDAVServer = {
       "d:displayname": isRealDirectory ? "CardDAV Test" : "Not This One",
       "d:resourcetype": "<collection/><card:addressbook/>",
       "d:current-user-privilege-set": this.privileges ?? undefined,
+      "card:supported-address-data": this.supportedAddressData ?? undefined,
     };
     if (!this.mimicYahoo) {
       propValues["d:sync-token"] = `http://mochi.test/sync/${this.changeCount}`;
@@ -470,6 +485,7 @@ export var CardDAVServer = {
       switch (p.localName) {
         case "address-data":
         case "addressbook-home-set":
+        case "supported-address-data":
           Assert.equal(p.namespaceURI, PREFIX_BINDINGS.card);
           propNames.push(`card:${p.localName}`);
           break;

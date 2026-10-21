@@ -11,6 +11,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   NotificationCallbacks: "resource:///modules/CardDAVUtils.sys.mjs",
   OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
   VCardProperties: "resource:///modules/VCardUtils.sys.mjs",
+  VCardPropertyEntry: "resource:///modules/VCardUtils.sys.mjs",
   VCardUtils: "resource:///modules/VCardUtils.sys.mjs",
   clearInterval: "resource://gre/modules/Timer.sys.mjs",
   setInterval: "resource://gre/modules/Timer.sys.mjs",
@@ -43,19 +44,17 @@ export class CardDAVDirectory extends SQLiteDirectory {
 
     const serverURL = this._serverURL;
     if (serverURL) {
-      // Google's server enforces some vCard 3.0-isms (or just fails badly if
-      // you don't provide exactly what it wants) so we use this property to
-      // determine when to do things differently. Cards from this directory
-      // inherit the same property.
-      if (this.getBoolValue("carddav.vcard3")) {
-        this._isGoogleCardDAV = true;
-      } else {
-        this._isGoogleCardDAV = serverURL.startsWith(
-          "https://www.googleapis.com/"
-        );
-        if (this._isGoogleCardDAV) {
-          this.setBoolValue("carddav.vcard3", true);
-        }
+      // Google's server escapes values in ways that violate the vCard specs,
+      // so we use this property to undo that when reading cards. Cards from
+      // this directory inherit the same property. Google also enforces some
+      // vCard 3.0-isms (or just fails badly if you don't provide exactly what
+      // it wants), which is handled by carddav.vcard3 like any other server
+      // that only accepts vCard 3.0.
+      this._isGoogleCardDAV = serverURL.startsWith(
+        "https://www.googleapis.com/"
+      );
+      if (this._isGoogleCardDAV) {
+        this.setBoolValue("carddav.vcard3", true);
       }
 
       // If this directory is configured, start sync'ing with the server in 30s.
@@ -471,13 +470,19 @@ export class CardDAVDirectory extends SQLiteDirectory {
       contentType: "text/vcard",
     };
 
+    await this._queryServerVCardSupportLevel();
+
     const vCard = card.getProperty("_vCard", "");
-    if (this._isGoogleCardDAV) {
-      // There must be an `N` property, even if empty.
+    if (this.getBoolValue("carddav.vcard3", false)) {
       const vCardProperties = lazy.VCardProperties.fromVCard(vCard);
       if (!vCardProperties) {
         throw new Error(`Invalid vCard: ${vCard}`);
       }
+      if (vCardProperties.getFirstValue("version") == "4.0") {
+        convertToVCard3(vCardProperties);
+      }
+      // There must be an `N` property, even if empty. See RFC 2426, section
+      // 3.1.2.
       if (!vCardProperties.getFirstEntry("n")) {
         vCardProperties.addValue("n", ["", "", "", "", ""]);
       }
@@ -766,7 +771,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
         await this.updateAllFromServerV1();
       }
     } catch (ex) {
-      log.error("Sync with server failed.");
+      log.error("Sync with server FAILED.", ex);
       throw ex;
     } finally {
       if (shouldResetTimer) {
@@ -854,6 +859,82 @@ export class CardDAVDirectory extends SQLiteDirectory {
 
     log.log("Sync with server completed successfully.");
     Services.obs.notifyObservers(this, "addrbook-directory-synced");
+  }
+
+  /**
+   * Asks the server which vCard versions it accepts, once per session, and
+   * sets carddav.vcard3 to whether it announces vCard 3.0 but not 4.0. Google
+   * always gets vCard 3.0, so isn't asked. Concurrent calls share the same
+   * request. If the request fails, the next call tries again.
+   *
+   * RFC 6352 says that if the property is absent, only vCard 3.0 is accepted,
+   * but we keep the current setting then: some servers that don't have the
+   * property (e.g. SOGo) accept vCard 4.0 just fine.
+   *
+   * @see RFC 6352, section 6.2.2
+   * @returns {Promise<void>}
+   */
+  async _queryServerVCardSupportLevel() {
+    if (this._isGoogleCardDAV) {
+      return;
+    }
+    this._serverVCardSupportLevelQuery ??=
+      this._fetchServerVCardSupportLevel().catch(ex => {
+        log.warn("Checking supported address data FAILED.", ex);
+        this._serverVCardSupportLevelQuery = null;
+      });
+    await this._serverVCardSupportLevelQuery;
+  }
+
+  async _fetchServerVCardSupportLevel() {
+    const data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
+      <prop>
+        <card:supported-address-data/>
+      </prop>
+    </propfind>`;
+
+    const response = await this._makeRequest("", {
+      method: "PROPFIND",
+      body: data,
+      headers: {
+        Depth: 0,
+      },
+    });
+    if (response.status != 207) {
+      return;
+    }
+
+    for (const { properties } of this._readResponse(response.dom)) {
+      // RFC 6352 names the element "address-data-type", but some servers
+      // (e.g. DAViCal) wrongly name it "address-data".
+      const types = Array.from(
+        properties?.querySelector("supported-address-data")?.children ?? []
+      ).filter(t =>
+        ["address-data-type", "address-data"].includes(t.localName)
+      );
+      // Missing attributes default to text/vcard version 3.0, per
+      // RFC 6352, section 6.2.2.
+      const versions = types
+        .filter(
+          t =>
+            (t.getAttribute("content-type") ?? "text/vcard").toLowerCase() ==
+            "text/vcard"
+        )
+        .map(t => t.getAttribute("version") ?? "3.0");
+      if (!versions.length) {
+        continue;
+      }
+      const isVCard3 = versions.includes("3.0") && !versions.includes("4.0");
+      if (isVCard3 != this.getBoolValue("carddav.vcard3", false)) {
+        log.log(
+          isVCard3
+            ? "Server only supports vCard 3.0."
+            : "Server supports vCard 4.0."
+        );
+        this.setBoolValue("carddav.vcard3", isVCard3);
+      }
+      return;
+    }
   }
 
   /**
@@ -1040,6 +1121,33 @@ function normalizeLineEndings(string) {
     return string;
   }
   return string.replace(/\n/g, "\r\n");
+}
+
+/**
+ * Converts a vCard 4.0 to vCard 3.0, in place. Inline photos are data: URIs in
+ * vCard 4.0 (RFC 6350, section 6.2.4), but base64 encoded binary values in
+ * vCard 3.0 (RFC 2426, section 3.1.4).
+ *
+ * @param {VCardProperties} vCardProperties
+ */
+function convertToVCard3(vCardProperties) {
+  vCardProperties.addEntry(
+    new lazy.VCardPropertyEntry("version", {}, "text", "3.0")
+  );
+  for (const entry of vCardProperties.getAllEntries("photo")) {
+    const match = /^data:[^,;]*;base64,(.*)$/s.exec(entry.value);
+    if (match) {
+      vCardProperties.removeEntry(entry);
+      vCardProperties.addEntry(
+        new lazy.VCardPropertyEntry(
+          "photo",
+          { encoding: "B" },
+          "binary",
+          match[1]
+        )
+      );
+    }
+  }
 }
 
 /**

@@ -23,6 +23,7 @@ async function subtest() {
   );
 
   const directory = await initDirectory();
+  directory._isGoogleCardDAV = !!CardDAVServer.mimicGoogle;
 
   // We'll only use this for the initial sync, so I think it's okay to use
   // bulkAddCards and not get a notification for every contact.
