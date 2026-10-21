@@ -13,10 +13,12 @@ var server, incomingServer;
 
 add_setup(async function () {
   const daemon = new ImapDaemon();
+  daemon.getMailbox("INBOX").rights = "lrswipkxtecda";
   server = makeServer(daemon, "", {
     SELECT(args) {
+      const { rights } = this._daemon.getMailbox(args[0]);
       return (
-        "* OK [MYRIGHTS lrswipkxtecda] Rights\0" +
+        `* OK [MYRIGHTS ${rights}] Rights\0` +
         IMAP_RFC3501_handler.prototype.SELECT.call(this, args)
       );
     },
