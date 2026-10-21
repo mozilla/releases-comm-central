@@ -862,6 +862,181 @@ add_task(async function test_contentBaseUnescaping() {
 });
 
 /**
+ * Display a message with the given message ids in its References header.
+ *
+ * @param {string[]} ids - The message ids.
+ * @returns {HTMLOListElement} The list of ids in the References row.
+ */
+async function displayReferences(ids) {
+  const msg = create_message({
+    clobberHeaders: { References: ids.join(" ") },
+  });
+  await add_message_to_folder([folder], msg);
+  await be_in_folder(folder);
+  const msgHdr = folder.msgDatabase.getMsgHdrForMessageID(msg.messageId);
+  await select_click_row(
+    about3Pane.gDBView.findIndexOfMsgHdr(msgHdr, true),
+    AccessibilityUtils
+  );
+  return aboutMessage.document.querySelector(
+    "#expandedreferencesBox .ids-list"
+  );
+}
+
+/**
+ * Test that only a bounded number of ids are shown for a huge References
+ * header, and that the hidden ids are shown in batches.
+ */
+add_task(async function test_many_references() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.headers.showReferences", true]],
+  });
+
+  const ids = Array.from({ length: 5000 }, (v, i) => `<${i}@example.com>`);
+  const idsList = await displayReferences(ids);
+  const items = () => [...idsList.querySelectorAll(".header-message-id")];
+  const shownIds = () => items().map(li => li.id);
+  const ellipsisButton = () => idsList.querySelector(".show-hidden-ids");
+
+  Assert.deepEqual(
+    shownIds(),
+    [...ids.slice(0, 10), ...ids.slice(-10)],
+    "the first and last ids should be shown"
+  );
+  Assert.deepEqual(
+    items()
+      .slice(9, 11)
+      .map(li => li.textContent.trim()),
+    ["10", "4991"],
+    "ids should be numbered by their position in the header"
+  );
+  Assert.equal(
+    idsList.children[10],
+    ellipsisButton().parentNode,
+    "the ellipsis button should be in place of the hidden ids"
+  );
+  Assert.equal(
+    ellipsisButton().textContent,
+    "…",
+    "the ellipsis button should show an ellipsis"
+  );
+  Assert.deepEqual(
+    aboutMessage.document.l10n.getAttributes(ellipsisButton()),
+    { id: "message-header-field-show-count-more", args: { count: 200 } },
+    "the ellipsis button should tell how many ids it will show"
+  );
+  Assert.ok(
+    !idsList.querySelector(".show-more-ids"),
+    "the show more button should not be shown when ids are hidden"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(ellipsisButton(), {}, aboutMessage);
+  Assert.deepEqual(
+    shownIds(),
+    [...ids.slice(0, 210), ...ids.slice(-10)],
+    "a batch of hidden ids should be shown"
+  );
+  Assert.equal(
+    items()[0].textContent.trim(),
+    ids[0],
+    "ids should be shown in full"
+  );
+
+  ellipsisButton().focus();
+  EventUtils.synthesizeKey("KEY_Enter", {}, aboutMessage);
+  Assert.equal(
+    shownIds().length,
+    420,
+    "another batch of hidden ids should be shown"
+  );
+  Assert.equal(
+    aboutMessage.document.activeElement,
+    items()[210].messageId,
+    "the first newly shown id should be focused"
+  );
+
+  Assert.greater(
+    idsList.scrollHeight,
+    idsList.clientHeight,
+    "the ids list should be scrollable"
+  );
+  const lastId = idsList.lastElementChild;
+  lastId.scrollIntoView({ block: "end" });
+  const listRect = idsList.getBoundingClientRect();
+  const lastRect = lastId.getBoundingClientRect();
+  Assert.ok(
+    lastRect.top >= listRect.top && lastRect.bottom <= listRect.bottom + 1,
+    "the last id should be reachable by scrolling the ids list"
+  );
+
+  let count;
+  while (ellipsisButton()) {
+    count =
+      aboutMessage.document.l10n.getAttributes(ellipsisButton()).args.count;
+    ellipsisButton().click();
+  }
+  Assert.equal(count, 180, "the last batch should only show what is left");
+  Assert.deepEqual(shownIds(), ids, "all ids should eventually be shown");
+
+  await SpecialPowers.popPrefEnv();
+});
+
+/**
+ * Test the References row with few enough ids to not hide any, and with a
+ * single hidden id.
+ */
+add_task(async function test_few_references() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["mailnews.headers.showReferences", true]],
+  });
+
+  let ids = Array.from({ length: 20 }, (v, i) => `<${i}@example.com>`);
+  let idsList = await displayReferences(ids);
+  const toggleButton = idsList.querySelector(".show-more-ids");
+  Assert.equal(
+    idsList.querySelectorAll(".header-message-id").length,
+    20,
+    "all ids should be shown"
+  );
+  Assert.equal(
+    idsList.lastElementChild,
+    toggleButton.parentNode,
+    "the show more button should be last"
+  );
+  Assert.ok(
+    !idsList.querySelector(".show-hidden-ids"),
+    "the ellipsis button should not be shown when no ids are hidden"
+  );
+  EventUtils.synthesizeMouseAtCenter(toggleButton, {}, aboutMessage);
+  Assert.equal(
+    idsList.querySelector(".header-message-id").textContent.trim(),
+    ids[0],
+    "ids should be shown in full"
+  );
+  Assert.ok(
+    !idsList.querySelector(".show-more-ids"),
+    "the show more button should be gone"
+  );
+
+  ids = Array.from({ length: 21 }, (v, i) => `<${i}@example.com>`);
+  idsList = await displayReferences(ids);
+  const ellipsisButton = idsList.querySelector(".show-hidden-ids");
+  Assert.deepEqual(
+    aboutMessage.document.l10n.getAttributes(ellipsisButton),
+    { id: "message-header-field-show-count-more", args: { count: 1 } },
+    "one id should be hidden"
+  );
+  EventUtils.synthesizeMouseAtCenter(ellipsisButton, {}, aboutMessage);
+  Assert.deepEqual(
+    Array.from(idsList.querySelectorAll(".header-message-id"), li => li.id),
+    ids,
+    "all ids should be shown"
+  );
+
+  await SpecialPowers.popPrefEnv();
+});
+
+/**
  * Test that if a contact belongs to a mailing list within their address book,
  * then the inline contact editor will not allow the user to change what address
  * book the contact belongs to. The editor should also show a message to explain

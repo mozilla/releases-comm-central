@@ -869,6 +869,12 @@ button.email-action-flagged {
   min-inline-size: 100px;
 }
 
+.ids-list {
+  /* Five rows of ids, each with its padding, and the row gaps between them. */
+  max-block-size: calc(5 * (1lh + 2 * var(--message-header-field-offset)) + 4 * 2px);
+  overflow-y: auto;
+}
+
 .header-message-url a {
   display: inline-block;
   max-inline-size: 80vw;
@@ -920,7 +926,8 @@ button.email-action-flagged {
 }
 
 .show-more-recipients,
-.show-more-ids {
+.show-more-ids,
+.show-hidden-ids {
   min-block-size: auto;
   min-inline-size: auto;
   border-radius: 12px;
@@ -947,7 +954,8 @@ button.email-action-flagged {
   font-size: 0.9rem;
 }
 
-.show-more-ids {
+.show-more-ids,
+.show-hidden-ids {
   padding: 2px 6px;
   font-size: 0.8rem;
 }
