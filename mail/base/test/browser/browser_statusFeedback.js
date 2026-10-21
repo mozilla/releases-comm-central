@@ -158,3 +158,34 @@ add_task(async function testManyStatuses() {
     () => statusText.value == ""
   );
 });
+
+add_task(async function test_statusWithMeteors() {
+  const status = window.MsgStatusFeedback;
+  await TestUtils.waitForCondition(
+    () => !status._statusQueue.length && !status._meteorsSpinning,
+    "waiting for status bar to be idle"
+  );
+
+  MailServices.feedback.reportStatus("Working…", "start-meteors");
+  await TestUtils.waitForCondition(
+    () => status._meteorsSpinning,
+    "meteors should start spinning"
+  );
+  await BrowserTestUtils.waitForMutationCondition(
+    statusText,
+    {
+      attributes: true,
+      attributeFilter: ["value"],
+    },
+    () => statusText.value == "Working…",
+    { msg: "status message should be shown" }
+  );
+  Assert.equal(status._startRequests, 1, "should have one start request");
+
+  MailServices.feedback.reportStatus("Done.", "stop-meteors");
+  await TestUtils.waitForCondition(
+    () => !status._meteorsSpinning,
+    "meteors should stop spinning"
+  );
+  Assert.equal(status._startRequests, 0, "should have no start requests");
+});
