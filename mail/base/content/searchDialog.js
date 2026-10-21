@@ -867,10 +867,10 @@ function searchOnLoad() {
   // and set up the user's desired sort. This synthetic view is not backed by
   // a db, so secondary sorts and custom columns are not supported here.
   const sortColumn =
-    Services.xulStore.getValue(location.href, "threadTree", "sortColumn") ??
-    "date";
+    Services.xulStore.getValue(location.href, "threadTree", "sortColumn") ||
+    "dateCol";
   const sortDirection =
-    Services.xulStore.getValue(location.href, "threadTree", "sortDirection") ??
+    Services.xulStore.getValue(location.href, "threadTree", "sortDirection") ||
     "descending";
 
   gViewWrapper.openSearchView();

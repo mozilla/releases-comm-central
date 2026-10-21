@@ -51,6 +51,8 @@ skip-if = ["headless"] # Needs a real compositor to check what is painted.
 
 ["browser_saveAs.js"]
 
+["browser_searchDialog.js"]
+
 ["browser_searchMessages.js"]
 run-if = [
   "!headless",
