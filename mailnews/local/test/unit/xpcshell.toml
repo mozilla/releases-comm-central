@@ -41,6 +41,8 @@ tags = ["compact"]
 
 ["test_mailboxProtocol.js"]
 
+["test_mailboxUNCPaths.js"]
+
 ["test_mailboxURL.js"]
 
 ["test_maildirFolderReuse.js"]
