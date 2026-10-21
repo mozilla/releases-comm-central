@@ -1044,6 +1044,7 @@ add_task(async function testSimpleDetails() {
       });
 
       await changeDetail("priority", "highest");
+      await changeDetail("priority", "normal");
       await changeDetail("deliveryFormat", "html");
       await changeDetail("returnReceipt", true);
       await changeDetail("deliveryFormat", "plaintext");

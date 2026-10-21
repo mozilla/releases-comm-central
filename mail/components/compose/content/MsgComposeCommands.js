@@ -7297,10 +7297,13 @@ function updateOptionsMenu() {
   menuItem.toggleAttribute("checked", gSpellCheckingEnabled);
 }
 
+/**
+ * Update the checked Priority menu item from the compose fields.
+ */
 function updatePriorityMenu() {
   if (gMsgCompose) {
     var msgCompFields = gMsgCompose.compFields;
-    if (msgCompFields && msgCompFields.priority) {
+    if (msgCompFields) {
       var priorityMenu = document.getElementById("priorityMenu");
       priorityMenu.querySelector("[checked]").removeAttribute("checked");
       priorityMenu

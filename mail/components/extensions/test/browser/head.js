@@ -595,7 +595,7 @@ async function promiseMessageLoaded(browser, msgHdr) {
 }
 
 /**
- * Check the headers of an open compose window against expected values.
+ * Check the headers and related controls of an open compose window.
  *
  * @param {object} expected - A dictionary of expected headers.
  *    Omit headers that should have no value.
@@ -606,6 +606,7 @@ async function promiseMessageLoaded(browser, msgHdr) {
  * @param {string[]} [expected.followupTo]
  * @param {string[]} [expected.newsgroups]
  * @param {string} [expected.subject]
+ * @param {string} [expected.priority] - The expected ComposeDetails priority.
  */
 async function checkComposeHeaders(expected) {
   const composeWindows = [...Services.wm.getEnumerator("msgcompose")];
@@ -751,11 +752,34 @@ async function checkComposeHeaders(expected) {
   }
 
   if (expected.hasOwnProperty("priority")) {
-    is(
+    Assert.equal(
       composeFields.priority.toLowerCase(),
       expected.priority == "normal" ? "" : expected.priority,
       "priority in composeFields should be correct"
     );
+
+    // Native menu bar popups cannot be opened on macOS.
+    if (AppConstants.platform != "macosx") {
+      const optionsPopup = await openSubMenuPopup(
+        composeDocument.getElementById("optionsMenu")
+      );
+      const priorityPopup = await openSubMenuPopup(
+        composeDocument.getElementById("priorityMenu")
+      );
+      try {
+        Assert.deepEqual(
+          Array.from(
+            priorityPopup.querySelectorAll("menuitem[checked]"),
+            item => item.id
+          ),
+          [`priority_${expected.priority}`],
+          "only the expected priority should be checked in the Priority menu"
+        );
+      } finally {
+        await closeMenuPopup(priorityPopup);
+        await closeMenuPopup(optionsPopup);
+      }
+    }
   }
 
   if (expected.hasOwnProperty("returnReceipt")) {
