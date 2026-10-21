@@ -48,13 +48,13 @@ add_task(async function test_closed_single_message_tab_returns_to_inbox() {
   await make_display_threaded();
   const inboxTab = document.getElementById("tabmail").currentTabInfo;
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   // Open a message in a new tab...
   await open_selected_message_in_new_tab(false);
 
   // Open a second message in a new tab...
   await switch_tab(0);
-  await select_click_row(1);
+  await select_click_row(1, AccessibilityUtils);
   await open_selected_message_in_new_tab(false);
 
   // Close the second tab
@@ -76,13 +76,13 @@ add_task(async function test_does_not_go_to_opener_if_switched() {
   await be_in_folder(gFolder);
   await make_display_threaded();
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   // Open a message in a new tab...
   await open_selected_message_in_new_tab(false);
 
   // Open a second message in a new tab...
   await switch_tab(0);
-  await select_click_row(1);
+  await select_click_row(1, AccessibilityUtils);
   await open_selected_message_in_new_tab(false);
 
   // Switch to the first tab
@@ -113,7 +113,7 @@ add_task(async function test_opening_thread_in_tabs_closing_behaviour() {
   await collapse_all_threads();
 
   // Open a thread as a series of message tabs.
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   open_selected_messages(window);
 
   // At this point, the last message tab should be selected already.  We
@@ -149,7 +149,7 @@ add_task(async function test_opening_thread_in_tabs_closing_behaviour() {
  */
 async function openTabs(numAdd) {
   await be_in_folder(gFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   for (let i = 0; i < numAdd; i++) {
     await open_selected_message_in_new_tab(true);
   }
@@ -222,11 +222,17 @@ async function assertClose(fromTab, closeMethod, switchToTab, closingTabs) {
  * @param {Element} tab - The tab to close.
  */
 function closeWithButton(tab) {
-  EventUtils.synthesizeMouseAtCenter(
-    tab.querySelector(".tab-close-button"),
-    {},
-    tab.documentGlobal
+  const closeButton = tab.querySelector(".tab-close-button");
+  Assert.equal(
+    closeButton.tabIndex,
+    -1,
+    "the close button should not add a tab stop for every tab"
   );
+  // This test covers pointer activation. The product deliberately keeps the
+  // close button out of tab order; all other a11y click checks stay enabled.
+  AccessibilityUtils.setEnv({ focusableRule: false });
+  EventUtils.synthesizeMouseAtCenter(closeButton, {}, tab.documentGlobal);
+  AccessibilityUtils.resetEnv();
 }
 
 /**

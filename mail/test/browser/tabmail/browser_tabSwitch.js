@@ -52,14 +52,21 @@ add_task(async function () {
   }
   async function closeTab(index) {
     const tabElement = getTabElements()[index];
+    const closeButton = tabElement.querySelector(".tab-close-button");
     tabClosePromise = BrowserTestUtils.waitForEvent(
       tabmail.tabContainer,
       "TabClose"
     );
-    EventUtils.synthesizeMouseAtCenter(
-      tabElement.querySelector(".tab-close-button"),
-      {}
+    Assert.equal(
+      closeButton.tabIndex,
+      -1,
+      "the close button should not add a tab stop for every tab"
     );
+    // This test covers pointer activation. The product deliberately keeps the
+    // close button out of tab order; all other a11y click checks stay enabled.
+    AccessibilityUtils.setEnv({ focusableRule: false });
+    EventUtils.synthesizeMouseAtCenter(closeButton, {});
+    AccessibilityUtils.resetEnv();
     event = await tabClosePromise;
     Assert.equal(
       event.target,
