@@ -918,6 +918,13 @@ async function click_send_and_handle_send_error(aWin, aAlreadySending) {
       callback: click_ok_on_send_error,
     }
   );
+  // The alert can finish closing in a nested event loop while the compose
+  // window is still in modal state, where window.close() is ignored. Wait for
+  // the send to fully unwind instead.
+  const sendCompletedPromise = BrowserTestUtils.waitForEvent(
+    aWin,
+    "compose-prepare-message-completed"
+  );
   if (!aAlreadySending) {
     const buttonSend = aWin.document.getElementById("button-send");
     EventUtils.synthesizeMouseAtCenter(
@@ -927,7 +934,7 @@ async function click_send_and_handle_send_error(aWin, aAlreadySending) {
     );
   }
   await dialogPromise;
-  await TestUtils.waitForTick();
+  await sendCompletedPromise;
 }
 
 /**
