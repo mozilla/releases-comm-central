@@ -2144,6 +2144,7 @@ async function subtestExpandCollapseAll() {
 
   // Sanity check.
 
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
   Assert.equal(
     view.rowCount,
     8,
