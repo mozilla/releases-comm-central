@@ -21,6 +21,10 @@ prefs = [
   "calendar.view.daystarthour=3",
   "calendar.view.dayendhour=12",
   "calendar.view.visiblehours=3",
+  # Date patterns are read from the OS regional settings (e.g. en-GB on an
+  # en-US build) on some platforms. Pin them to get the same results everywhere.
+  "intl.date_time.pattern_override.date_full=EEEE, MMMM d, y",
+  "intl.date_time.pattern_override.date_long=MMMM d, y",
   "mail.provider.suppress_dialog_on_startup=true",
   "mail.spotlight.firstRunDone=true",
   "mail.winsearch.firstRunDone=true",
