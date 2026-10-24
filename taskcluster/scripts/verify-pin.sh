@@ -9,6 +9,8 @@ echo "Checking if repo is pinned to an upstream tag..."
 
 # Extract GECKO_HEAD_REF from YAML file
 GECKO_HEAD_REF=$(awk -F': ' '/^GECKO_HEAD_REF:/ {print $2}' comm/.gecko_rev.yml | xargs)
+# Extract GECKO_HEAD_REV from YAML file
+GECKO_HEAD_REV=$(awk -F': ' '/^GECKO_HEAD_REV:/ {print $2}' comm/.gecko_rev.yml | xargs)
 
 if [[ -z "$GECKO_HEAD_REF" || "$GECKO_HEAD_REF" == "default" ]]; then  # If GECKO_HEAD_REF is not set or is set to 'default'
     echo "GECKO_HEAD_REF is not pinned to a tag or a commit hash; was this on purpose?"
@@ -16,8 +18,8 @@ if [[ -z "$GECKO_HEAD_REF" || "$GECKO_HEAD_REF" == "default" ]]; then  # If GECK
 elif [[ "$GECKO_HEAD_REF" =~ ^[0-9a-fA-F]{12,40}$ ]]; then  # If GECKO_HEAD_REF is a commit hash (12–40 characters hexadecimal)
     echo "GECKO_HEAD_REF is pinned to a commit hash ($GECKO_HEAD_REF) instead of a tag; was this on purpose?"
     exit 1
-elif sed '/^######/q' comm/.gecko_rev.yml | grep -qE '^#[[:space:]]*GECKO_HEAD_REV'; then # If a commented out GECKO_HEAD_REV is present
-    echo "GECKO_HEAD_REV is commented out. There should be one tag and one commit hash."
+elif [[ ! "$GECKO_HEAD_REV" =~ ^[0-9a-fA-F]{12,40}$ ]]; then  # If GECKO_HEAD_REV is missing or not a commit hash (12–40 characters hexadecimal)
+    echo "GECKO_HEAD_REV is missing or not a commit hash ('$GECKO_HEAD_REV')"
     exit 1
 elif [[ ! "$GECKO_HEAD_REF" =~ ^FIREFOX_ ]]; then  # If GECKO_HEAD_REF is not a Firefox tag
     echo "GECKO_HEAD_REF appears to be incorrectly pinned to '$GECKO_HEAD_REF'"
