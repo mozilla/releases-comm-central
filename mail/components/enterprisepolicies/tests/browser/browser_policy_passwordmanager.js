@@ -51,8 +51,8 @@ add_task(async function test_password_reveal_policy() {
     toggleButton.hidden,
     "the visibility toggle button should be hidden"
   );
-  Assert.ok(
-    toggleButton.disabled,
+  await TestUtils.waitForCondition(
+    () => toggleButton.disabled,
     "the visibility toggle button should be disabled with no saved passwords"
   );
 
@@ -68,6 +68,10 @@ add_task(async function test_password_reveal_policy() {
     passwordCol.hidden,
     "the policy guard should keep passwords hidden when the button is made visible"
   );
+
+  passwordMgr.close();
+  const tabmail = document.getElementById("tabmail");
+  tabmail.closeTab(window.preferencesTabType.tab);
 });
 
 add_task(async function test_context_menus_hide_reveal_password() {
