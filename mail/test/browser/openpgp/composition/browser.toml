@@ -33,3 +33,5 @@ support-files = ["../data/**"]
 ["browser_editDraftTemplate.js"]
 
 ["browser_expiredKey.js"]
+
+["browser_keyAssistantCopyLink.js"]

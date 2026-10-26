@@ -94,6 +94,14 @@ var gKeyAssistant = {
       .addEventListener("click", () => {
         this.toggleRecipientsList();
       });
+    document
+      .getElementById("keyAssistantCopyLink")
+      .addEventListener("command", () => {
+        const link = document
+          .getElementById("keyAssistantLinkContext")
+          .triggerNode.closest("a");
+        navigator.clipboard.writeText(link.href);
+      });
 
     this.dialog.addEventListener("close", () => {
       this.close();
@@ -546,6 +554,12 @@ var gKeyAssistant = {
         if (source.uri) {
           a.href = source.uri;
           a.title = source.uri;
+          a.addEventListener("contextmenu", event => {
+            event.preventDefault();
+            document
+              .getElementById("keyAssistantLinkContext")
+              .openPopupAtScreen(event.screenX, event.screenY, true, event);
+          });
         }
         if (source.description) {
           if (a.title) {
