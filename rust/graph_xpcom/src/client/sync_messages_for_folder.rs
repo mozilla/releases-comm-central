@@ -46,7 +46,7 @@ struct DoSyncMessagesForFolder<'a> {
 impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
     for DoSyncMessagesForFolder<'_>
 {
-    const NAME: &'static str = "sync folder hierarchy";
+    const NAME: &'static str = "sync messages for folder";
     type Okay = ();
     type Listener = SafeExchangeMessageSyncListener;
 

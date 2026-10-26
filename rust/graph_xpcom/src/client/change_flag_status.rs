@@ -27,7 +27,7 @@ struct DoChangeFlagStatus {
 impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
     for DoChangeFlagStatus
 {
-    const NAME: &'static str = "change read status";
+    const NAME: &'static str = "change flag status";
     type Okay = ThinVec<nsCString>;
     type Listener = SafeExchangeSimpleOperationListener;
 

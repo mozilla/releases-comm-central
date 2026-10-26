@@ -22,7 +22,7 @@ struct DoChangeReadStatusAll {
 impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
     for DoChangeReadStatusAll
 {
-    const NAME: &'static str = "change read status";
+    const NAME: &'static str = "change read status all";
     type Okay = ();
     type Listener = SafeExchangeSimpleOperationListener;
 

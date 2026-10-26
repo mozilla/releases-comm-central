@@ -363,12 +363,11 @@ class ExchangeMessageSyncHandler : public IExchangeMessageSyncListener,
   NS_IMETHOD OnSyncComplete() override {
     // We might have processed unread count updates via `OnMessageUpdated`, in
     // which case we need to make sure the message counts are up to date.
-    MOZ_TRY(mDB->SyncCounts());
-    MOZ_TRY(mFolder->UpdateSummaryTotals(true));
+    nsresult rv = UpdateCounts();
 
     MOZ_ASSERT(mNewMessages.Length() == mNewHeaders.Length());
-    mOnStop(NS_OK, mNewMessages, mNewHeaders);
-    return NS_OK;
+    mOnStop(rv, mNewMessages, mNewHeaders);
+    return rv;
   }
 
   //
@@ -381,9 +380,9 @@ class ExchangeMessageSyncHandler : public IExchangeMessageSyncListener,
 
     // We might have processed unread count updates via `OnMessageUpdated` (even
     // if the sync failed), in which case we need to make sure the message
-    // counts are up to date.
-    MOZ_TRY(mDB->SyncCounts());
-    MOZ_TRY(mFolder->UpdateSummaryTotals(true));
+    // counts are up to date. This can fail if the folder has been removed in
+    // the meantime, but mOnStop must still be called.
+    (void)UpdateCounts();
 
     // Even if the operation fails some messages may have already been added
     // to the database and the folder should be told about them.
@@ -393,6 +392,11 @@ class ExchangeMessageSyncHandler : public IExchangeMessageSyncListener,
   }
 
  private:
+  nsresult UpdateCounts() {
+    MOZ_TRY(mDB->SyncCounts());
+    return mFolder->UpdateSummaryTotals(true);
+  }
+
   RefPtr<ExchangeFolder> mFolder;
   RefPtr<nsIMsgDatabase> mDB;
 
