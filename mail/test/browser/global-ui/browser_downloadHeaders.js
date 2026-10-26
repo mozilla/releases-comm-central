@@ -37,15 +37,24 @@ add_setup(() => {
  * @param {number} articleCount - Number of available articles.
  * @param {function(Window): (string|undefined|Promise<string|undefined>)} callback
  *   - Checks or changes the dialog and returns a button name, defaulting to cancel.
+ * @param {number} [firstArticle=1] - First available article number.
+ * @param {string} [readSet=""] - Initially read article numbers and ranges.
  * @returns {Promise<number[]>} The requested article range, or an empty array
- *   when cancelled.
+ *   when cancelled. Commits read-set changes before returning.
  */
-async function withDownloadDialog(groupName, articleCount, callback) {
+async function withDownloadDialog(
+  groupName,
+  articleCount,
+  callback,
+  firstArticle = 1,
+  readSet = ""
+) {
   const rootFolder = server.rootFolder;
   rootFolder.createSubfolder(groupName, null);
   const folder = rootFolder
     .getChildNamed(groupName)
     .QueryInterface(Ci.nsIMsgNewsFolder);
+  folder.setReadSetFromStr(readSet);
   const newsGroup = new NntpNewsGroup(server, folder);
 
   const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
@@ -81,10 +90,11 @@ async function withDownloadDialog(groupName, articleCount, callback) {
 
   const range = newsGroup.getArticlesRangeToFetch(
     window.msgWindow,
-    1,
-    articleCount
+    firstArticle,
+    firstArticle + articleCount - 1
   );
   await dialogPromise;
+  newsGroup.cleanUp();
   return range;
 }
 
@@ -236,10 +246,53 @@ add_task(async function test_downloadSomeAndSaveSettings() {
       markOldRead,
       "Accepting should save the mark as read setting"
     );
+    const folder = server.rootFolder
+      .getChildNamed(`test.some.${markOldRead}`)
+      .QueryInterface(Ci.nsIMsgNewsFolder);
+    Assert.equal(
+      folder.newsrcLine.split(":")[1].trim(),
+      markOldRead ? "1-9750" : "",
+      "A limited download should mark omitted headers read only when requested"
+    );
 
     await withDownloadDialog(`test.saved.${markOldRead}`, 10000, win => {
       assertSettings(win, 250, markOldRead);
     });
+  }
+});
+
+add_task(async function test_downloadMoreThanAvailable() {
+  for (const firstArticle of [2, 9, 10000]) {
+    for (const markOldRead of [false, true]) {
+      server.maxArticles = 100;
+      server.markOldRead = markOldRead;
+      const groupName = `test.more.${firstArticle}.${markOldRead}`;
+      const readSet = `${firstArticle + 100}-${firstArticle + 200}`;
+      const range = await withDownloadDialog(
+        groupName,
+        491,
+        win => {
+          assertSettings(win, 100, markOldRead);
+          setHeaderCount(win, 500);
+          return "accept";
+        },
+        firstArticle,
+        readSet
+      );
+      Assert.deepEqual(
+        range,
+        [firstArticle, firstArticle + 490],
+        `Requesting 500 headers should preserve the available range starting at ${firstArticle}`
+      );
+      const folder = server.rootFolder
+        .getChildNamed(groupName)
+        .QueryInterface(Ci.nsIMsgNewsFolder);
+      Assert.equal(
+        folder.newsrcLine.split(":")[1].trim(),
+        readSet,
+        "Downloading every available header should preserve the existing read set"
+      );
+    }
   }
 });
 
@@ -275,6 +328,14 @@ add_task(async function test_downloadAll() {
       server.markOldRead,
       markOldRead,
       "Downloading all should preserve the disabled mark as read setting"
+    );
+    const folder = server.rootFolder
+      .getChildNamed(`test.all.${markOldRead}`)
+      .QueryInterface(Ci.nsIMsgNewsFolder);
+    Assert.equal(
+      folder.newsrcLine.split(":")[1].trim(),
+      "",
+      "Downloading all headers should leave every article unread"
     );
   }
 });

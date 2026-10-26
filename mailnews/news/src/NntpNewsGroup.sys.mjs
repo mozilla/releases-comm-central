@@ -104,8 +104,8 @@ export class NntpNewsGroup {
         }
         start = propBag.getPropertyAsBool("downloadAll")
           ? start
-          : end - this._server.maxArticles + 1;
-        if (this._server.markOldRead) {
+          : Math.max(start, end - this._server.maxArticles + 1);
+        if (this._server.markOldRead && start > firstPossible) {
           this._readKeySet.addRange(firstPossible, start - 1);
           this._commitReadKeySet = true;
         }
