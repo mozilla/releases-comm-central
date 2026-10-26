@@ -344,3 +344,96 @@ add_task(async function test_proto_item_id_is_stored_as_own_key() {
     "reloaded __proto__ item should keep its feed URL"
   );
 });
+
+add_task(function test_getTagKeys() {
+  const item = new FeedItem();
+  item.feed = {
+    options: {
+      category: {
+        enabled: true,
+        prefixEnabled: true,
+        prefix: "rss-",
+      },
+    },
+  };
+  const existingName = "rss-Existing";
+  const existingKey = "rss-existing-key";
+  MailServices.tags.addTagForKey(
+    existingKey,
+    existingName,
+    "",
+    FeedUtils.AUTOTAG
+  );
+  const newNames = ["rss-New 1", "rss-New 2"];
+  registerCleanupFunction(() => {
+    MailServices.tags.deleteKey(existingKey);
+    for (const name of newNames) {
+      MailServices.tags.deleteKey(MailServices.tags.getKeyForTag(name));
+    }
+  });
+
+  const keys = item.getTagKeys(["New 1", "Existing", "New 2", "New 1"]);
+  const newKeys = newNames.map(name => MailServices.tags.getKeyForTag(name));
+  Assert.ok(
+    newKeys.every(Boolean),
+    "tags should have been created for new categories"
+  );
+  Assert.deepEqual(
+    keys,
+    [newKeys[0], existingKey, newKeys[1]],
+    "tag keys should be unique, in category order, reusing existing tags"
+  );
+});
+
+add_task(function test_getTagKeys_limits_new_tags() {
+  const item = new FeedItem();
+  item.feed = {
+    options: {
+      category: {
+        enabled: true,
+        prefixEnabled: true,
+        prefix: "limit-",
+      },
+    },
+  };
+  const max = item.MAX_NEW_TAGS_PER_ITEM;
+  const existingKey = "limit-existing-key";
+  MailServices.tags.addTagForKey(
+    existingKey,
+    "limit-Existing",
+    "",
+    FeedUtils.AUTOTAG
+  );
+  const categories = Array.from({ length: max + 5 }, (_, i) => `New ${i}`);
+  registerCleanupFunction(() => {
+    MailServices.tags.deleteKey(existingKey);
+    for (const category of categories) {
+      const key = MailServices.tags.getKeyForTag(`limit-${category}`);
+      if (key) {
+        MailServices.tags.deleteKey(key);
+      }
+    }
+  });
+  const tagCount = MailServices.tags.getAllTags().length;
+
+  const keys = item.getTagKeys([...categories, "Existing"]);
+  Assert.equal(
+    MailServices.tags.getAllTags().length,
+    tagCount + max,
+    "only the maximum number of new tags should be created"
+  );
+  Assert.equal(
+    keys.length,
+    max + 1,
+    "keys should include the created tags and the existing tag"
+  );
+  Assert.equal(
+    keys.at(-1),
+    existingKey,
+    "existing tags should be used after the limit is reached"
+  );
+  Assert.ok(
+    !MailServices.tags.getKeyForTag(`limit-${categories.at(-1)}`),
+    "no tag should be created for categories past the limit"
+  );
+});

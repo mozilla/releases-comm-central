@@ -34,6 +34,8 @@ FeedItem.prototype = {
   keywords: [],
   mURL: null,
   characterSet: "UTF-8",
+  // Maximum number of tags created for the categories of a single item.
+  MAX_NEW_TAGS_PER_ITEM: 20,
 
   ENCLOSURE_BOUNDARY_PREFIX: "--------------", // 14 dashes
   ENCLOSURE_HEADER_BOUNDARY_PREFIX: "------------", // 12 dashes
@@ -373,7 +375,8 @@ FeedItem.prototype = {
   },
 
   /**
-   * Create tags for feed categories and return their keys.
+   * Create tags for feed categories and return their keys. At most
+   * MAX_NEW_TAGS_PER_ITEM new tags are created; existing tags are always used.
    *
    * @param {string[]} aKeywords - Keywords (tags).
    * @returns {string[]} The tag keys.
@@ -387,23 +390,31 @@ FeedItem.prototype = {
     const prefix = category.prefixEnabled ? category.prefix : "";
     const rtl = Services.prefs.getIntPref("bidi.direction") == 2;
 
-    const keys = [];
+    const keysForTags = new Map(
+      MailServices.tags.getAllTags().map(t => [t.tag, t.key.toLowerCase()])
+    );
+    const keys = new Set();
+    let newTags = 0;
     for (let keyword of aKeywords) {
       keyword = rtl ? keyword + prefix : prefix + keyword;
-      let keyForTag = MailServices.tags.getKeyForTag(keyword);
+      let keyForTag = keysForTags.get(keyword);
       if (!keyForTag) {
+        if (newTags >= this.MAX_NEW_TAGS_PER_ITEM) {
+          continue;
+        }
+        newTags++;
         // Add the tag if it doesn't exist.
         MailServices.tags.addTag(keyword, "", lazy.FeedUtils.AUTOTAG);
         keyForTag = MailServices.tags.getKeyForTag(keyword);
+        keysForTags.set(keyword, keyForTag);
       }
 
-      // Add the tag key to the keys array.
-      if (keyForTag && !keys.includes(keyForTag)) {
-        keys.push(keyForTag);
+      if (keyForTag) {
+        keys.add(keyForTag);
       }
     }
 
-    return keys;
+    return [...keys];
   },
 
   htmlEscape(s) {
