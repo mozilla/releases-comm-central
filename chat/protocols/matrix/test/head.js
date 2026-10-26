@@ -172,33 +172,17 @@ function getAccount(clientHandler) {
       getVisibleRooms() {
         return Array.from(this._rooms.values());
       },
-      // TODO Remove once Rust crypto is used.
-      isCryptoEnabled() {
-        return false;
-      },
       getPushActionsForEvent() {
         return {};
       },
       leave(roomId) {
         this._rooms.delete(roomId);
       },
-      // TODO Remove once Rust crypto is used.
-      downloadKeys() {
-        return Promise.resolve({});
-      },
       getUser(userId) {
         return {
           displayName: userId,
           userId,
         };
-      },
-      // TODO Remove once Rust crypto is used.
-      getStoredDevicesForUser() {
-        return [];
-      },
-      // TODO Remove once Rust crypto is used.
-      isRoomEncrypted() {
-        return false;
       },
       getCrypto() {
         return {

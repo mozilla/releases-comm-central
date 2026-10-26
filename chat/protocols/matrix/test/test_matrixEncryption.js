@@ -14,42 +14,60 @@ const USER_ID = "@user:example.com";
  * @param {object} [options] - Mock behaviour.
  * @param {string} [options.passphrase] - Value of the backupPassphrase pref.
  * @param {boolean} [options.hasClient] - Whether a connected client exists.
+ * @param {object?} [options.storedKeys] - Result of secretStorage.isStored for
+ *   the cross-signing keys.
  * @param {object?} [options.backupVersion] - Result of getKeyBackupVersion.
+ * @param {boolean} [options.failAuth] - Make the interactive authentication of
+ *   the key upload fail.
  * @returns {object} Mock account, with sinon spies for the interactions.
  */
 function makeAccountMock({
   passphrase = "passphrase",
   hasClient = true,
+  storedKeys = { KEY1: {} },
   backupVersion = null,
+  failAuth = false,
 } = {}) {
   const sandbox = sinon.createSandbox();
   registerCleanupFunction(() => sandbox.restore());
 
   const crypto = {
-    async getKeyBackupVersion() {
-      return backupVersion;
-    },
-    async bootstrapSecretStorage() {},
     async bootstrapCrossSigning(opts) {
-      await opts.authUploadDeviceSigningKeys(async () => {});
+      await opts.authUploadDeviceSigningKeys(async () => {
+        if (failAuth) {
+          throw new Error("Authentication failed");
+        }
+      });
     },
-    async restoreKeyBackup() {},
   };
   const client = {
-    async checkOwnCrossSigningTrust() {},
+    secretStorage: {
+      getDefaultKeyId: sandbox.stub().resolves("KEY1"),
+      isStored: sandbox.stub().callsFake(async secretName => {
+        equal(
+          secretName,
+          "m.cross_signing.master",
+          "The master cross-signing key is requested."
+        );
+        return storedKeys;
+      }),
+    },
     getCrypto() {
       return crypto;
     },
+    async getKeyBackupVersion() {
+      return backupVersion;
+    },
+    async restoreKeyBackupWithCache() {},
   };
+
   const imAccount = {
     setString: sandbox.spy(),
     save: sandbox.spy(),
   };
 
-  // BootstrapSSSS can be overridden, so we store it separately for spying
-  const bootstrapSSSS = sandbox.spy(() => undefined);
-
-  const mock = {
+  return {
+    WARN: sandbox.spy(),
     getString(name) {
       return name === "backupPassphrase" ? passphrase : undefined;
     },
@@ -59,15 +77,10 @@ function makeAccountMock({
     _encryptionError: "",
     updateEncryptionStatus: sandbox.spy(),
     _client: hasClient ? client : null,
-    get _bootstrapSSSS() {
-      return bootstrapSSSS;
-    },
-    getKeyBackupVersion: sandbox.spy(crypto, "getKeyBackupVersion"),
-    bootstrapSecretStorage: sandbox.spy(crypto, "bootstrapSecretStorage"),
     bootstrapCrossSigning: sandbox.spy(crypto, "bootstrapCrossSigning"),
-    restoreKeyBackup: sandbox.spy(crypto, "restoreKeyBackup"),
+    getKeyBackupVersion: sandbox.spy(client, "getKeyBackupVersion"),
+    restoreKeyBackup: sandbox.spy(client, "restoreKeyBackupWithCache"),
   };
-  return mock;
 }
 
 add_task(async function test_bootstrapSSSS_noop() {
@@ -75,29 +88,19 @@ add_task(async function test_bootstrapSSSS_noop() {
   let mock = makeAccountMock({ hasClient: false });
   await MatrixAccount.prototype.bootstrapSSSS.call(mock);
   equal(
-    mock.bootstrapSecretStorage.callCount,
+    mock.setString.callCount,
     0,
-    "No keys are recovered without a client."
+    "No passphrase is cleared without a client."
   );
   equal(
     mock.bootstrapCrossSigning.callCount,
     0,
     "No keys are recovered without a client."
   );
-  equal(
-    mock.setString.callCount,
-    0,
-    "No passphrase is cleared without a client."
-  );
 
   // Nothing to do without a passphrase.
   mock = makeAccountMock({ passphrase: "" });
   await MatrixAccount.prototype.bootstrapSSSS.call(mock);
-  equal(
-    mock.bootstrapSecretStorage.callCount,
-    0,
-    "No keys are recovered without a passphrase."
-  );
   equal(
     mock.bootstrapCrossSigning.callCount,
     0,
@@ -106,33 +109,31 @@ add_task(async function test_bootstrapSSSS_noop() {
   equal(mock.setString.callCount, 0, "No passphrase is cleared without keys.");
 });
 
+add_task(async function test_bootstrapSSSS_keysNotInStorage() {
+  // Cross-signing keys were never uploaded to secret storage, recovering
+  // them is impossible and creating new ones is not supported.
+  const mock = makeAccountMock({ storedKeys: null });
+  await MatrixAccount.prototype.bootstrapSSSS.call(mock);
+  equal(
+    mock.bootstrapCrossSigning.callCount,
+    0,
+    "No keys are created when none are stored."
+  );
+  ok(mock._encryptionError, "An error was reported to the UI.");
+  equal(mock.updateEncryptionStatus.callCount, 1, "The status is refreshed.");
+  // The passphrase is kept so it can be used later.
+  equal(mock.setString.callCount, 0, "The passphrase is kept for later use.");
+});
+
 add_task(async function test_bootstrapSSSS_success() {
   const mock = makeAccountMock();
   await MatrixAccount.prototype.bootstrapSSSS.call(mock);
 
-  // Secret storage and cross-signing are bootstrapped, never initially set up.
-  equal(
-    mock.bootstrapSecretStorage.callCount,
-    1,
-    "Secret storage is bootstrapped."
-  );
-  const secretStorageOpts = mock.bootstrapSecretStorage.firstCall.args[0];
-  equal(
-    secretStorageOpts.setupNewKeyBackup,
-    false,
-    "New key backup is never set up."
-  );
-
-  equal(
-    mock.bootstrapCrossSigning.callCount,
-    1,
-    "Cross-signing is bootstrapped."
-  );
-  const crossSigningOpts = mock.bootstrapCrossSigning.firstCall.args[0];
-  ok(
-    crossSigningOpts.authUploadDeviceSigningKeys,
-    "Upload authentication is provided."
-  );
+  // Cross-signing keys are recovered, never newly created.
+  equal(mock.bootstrapCrossSigning.callCount, 1, "The keys are recovered.");
+  const opts = mock.bootstrapCrossSigning.firstCall.args[0];
+  ok(opts.authUploadDeviceSigningKeys, "Upload authentication is provided.");
+  ok(!("setupNewCrossSigning" in opts), "New keys are never created.");
 
   // No session backup exists, nothing to restore.
   equal(
@@ -146,52 +147,78 @@ add_task(async function test_bootstrapSSSS_success() {
     mock.setString.calledWithExactly("backupPassphrase", ""),
     "The passphrase is cleared after success."
   );
+  equal(mock.setString.callCount, 1, "The passphrase is cleared once.");
   equal(mock.save.callCount, 1, "The new state is saved.");
   equal(mock._encryptionError, "", "No error is reported.");
   equal(mock.updateEncryptionStatus.callCount, 1, "The status is refreshed.");
 });
 
 add_task(async function test_bootstrapSSSS_restoresBackup() {
-  // With a session backup, getCrypto().restoreKeyBackup() is invoked.
   const backupVersion = { version: "42" };
   const mock = makeAccountMock({ backupVersion });
   await MatrixAccount.prototype.bootstrapSSSS.call(mock);
+  equal(
+    mock.getKeyBackupVersion.callCount,
+    1,
+    "The backup version is checked."
+  );
+  Assert.deepEqual(
+    await mock.getKeyBackupVersion.firstCall.returnValue,
+    backupVersion,
+    "The stubbed backup version is returned."
+  );
   equal(mock.restoreKeyBackup.callCount, 1, "The backup is restored.");
 });
 
+add_task(async function test_bootstrapSSSS_authFailure() {
+  const mock = makeAccountMock({ failAuth: true });
+  await MatrixAccount.prototype.bootstrapSSSS.call(mock);
+  ok(mock._encryptionError, "The failure is reported to the UI.");
+  equal(mock.updateEncryptionStatus.callCount, 1, "The status is refreshed.");
+  // The passphrase survives failed attempts.
+  equal(
+    mock.setString.callCount,
+    0,
+    "The passphrase survives failed attempts."
+  );
+  equal(mock.save.callCount, 0, "Nothing is saved on failure.");
+});
+
 add_task(async function test_setString_backupPassphrase() {
-  // Setting the passphrase while disconnected is a no-op; bootstrapping gets
-  // handled once the client connects.
-  const mock = makeAccountMock({ hasClient: false });
+  // While disconnected, bootstrapping waits until connect.
+  let mock = makeAccountMock({ hasClient: false });
+  let bootstrapped = 0;
   mock.bootstrapSSSS = async () => {
-    mock._bootstrapSSSS();
+    bootstrapped++;
   };
   MatrixAccount.prototype.setString.call(
     mock,
     "backupPassphrase",
     "passphrase"
   );
-  equal(mock._bootstrapSSSS.callCount, 0, "No bootstrap while disconnected.");
+  equal(bootstrapped, 0, "No bootstrap while disconnected.");
+  ok(mock.WARN.calledOnce, "A warning is shown while disconnected.");
+  ok(
+    mock.WARN.firstCall.args[0].includes("not connected"),
+    "The warning mentions the missing connection."
+  );
 
   // When connected, setting the passphrase triggers bootstrapping.
-  const mock2 = makeAccountMock();
-  mock2.bootstrapSSSS = async () => {
-    mock2._bootstrapSSSS();
+  mock = makeAccountMock();
+  bootstrapped = 0;
+  mock.bootstrapSSSS = async () => {
+    bootstrapped++;
   };
   MatrixAccount.prototype.setString.call(
-    mock2,
+    mock,
     "backupPassphrase",
     "passphrase"
   );
-  equal(
-    mock2._bootstrapSSSS.callCount,
-    1,
-    "Setting the passphrase triggers bootstrapping."
-  );
+  equal(bootstrapped, 1, "Setting the passphrase triggers bootstrapping.");
   // Clearing the passphrase doesn't trigger bootstrapping.
-  MatrixAccount.prototype.setString.call(mock2, "backupPassphrase", "");
+  MatrixAccount.prototype.setString.call(mock, "backupPassphrase", "");
   equal(
-    mock2._bootstrapSSSS.callCount,
+    bootstrapped,
     1,
     "Clearing the passphrase does not trigger bootstrapping."
   );

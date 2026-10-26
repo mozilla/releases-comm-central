@@ -35,6 +35,7 @@ const KNOWN_INDEX_JS = new Set([
   "matrix_sdk/rendezvous",
   "matrix_sdk/rendezvous/channels",
   "matrix_sdk/rendezvous/transports",
+  "matrix_sdk_crypto_wasm",
   "matrix_widget_api",
 ]);
 
@@ -56,9 +57,17 @@ const globals = {
   TextDecoder,
   URL,
   URLSearchParams,
+  indexedDB,
   IDBKeyRange,
   get window() {
     return globals;
+  },
+  // The Rust create indexed_db_futures specifically looks for Window, defining it is
+  // all that is necessary.
+  Window: {},
+  // Use ChromeUtils.dateNow to provide fractional millisecond precision.
+  performance: {
+    now: () => ChromeUtils.dateNow(),
   },
 
   // Necessary for interacting with the logging framework.
@@ -113,6 +122,9 @@ const loader = Loader({
     // matrix-events-sdk
     "matrix-events-sdk": matrixPath + "matrix_events_sdk",
     "matrix-events-sdk/IPartialEvent": matrixPath + "empty.js",
+
+    // matrix-sdk-crypto-wasm
+    "@matrix-org/matrix-sdk-crypto-wasm": matrixPath + "matrix_sdk_crypto_wasm",
 
     // matrix-widget-api
     "matrix-widget-api": matrixPath + "matrix_widget_api",

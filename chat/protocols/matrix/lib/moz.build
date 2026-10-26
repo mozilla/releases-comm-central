@@ -370,6 +370,11 @@ EXTRA_JS_MODULES.matrix.matrix_events_sdk.utility += [
     "matrix-events-sdk/utility/MessageMatchers.js",
 ]
 
+EXTRA_JS_MODULES.matrix.matrix_sdk_crypto_wasm += [
+    "@matrix-org/matrix-sdk-crypto-wasm/index.js",
+    "@matrix-org/matrix-sdk-crypto-wasm/matrix_sdk_crypto_wasm_bg.wasm.js",
+]
+
 EXTRA_JS_MODULES.matrix.matrix_widget_api += [
     "matrix-widget-api/ClientWidgetApi.js",
     "matrix-widget-api/index.js",
@@ -448,6 +453,7 @@ LICENSED_UNDER += [
     "unhomoglyph",
 ]
 LICENSED_UNDER["apache"].paths = [
+    "@matrix-org/matrix-sdk-crypto-wasm",
     "@matrix-org/olm",
     "another-json",
     "matrix-events-sdk",

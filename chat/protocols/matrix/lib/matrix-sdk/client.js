@@ -649,9 +649,10 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Clear any data out of the persistent stores used by the client.
    *
+   * @param args.cryptoDatabasePrefix - The database name to use for indexeddb, defaults to 'matrix-js-sdk'.
    * @returns Promise which resolves when the stores have been cleared.
    */
-  clearStores() {
+  clearStores(args = {}) {
     if (this.clientRunning) {
       throw new Error("Cannot clear stores while client is running");
     }
@@ -671,7 +672,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
         // No indexedDB support
         return;
       }
-      for (const dbname of [`${_constants.RUST_SDK_STORE_PREFIX}::matrix-sdk-crypto`, `${_constants.RUST_SDK_STORE_PREFIX}::matrix-sdk-crypto-meta`]) {
+      for (const dbname of [`${args.cryptoDatabasePrefix ?? _constants.RUST_SDK_STORE_PREFIX}::matrix-sdk-crypto`, `${args.cryptoDatabasePrefix ?? _constants.RUST_SDK_STORE_PREFIX}::matrix-sdk-crypto-meta`]) {
         const prom = new Promise((resolve, reject) => {
           this.logger.info(`Removing IndexedDB instance ${dbname}`);
           const req = indexedDB.deleteDatabase(dbname);
@@ -1052,6 +1053,8 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
    * An alternative to {@link initCrypto}.
    *
    * @param args.useIndexedDB - True to use an indexeddb store, false to use an in-memory store. Defaults to 'true'.
+   * @param args.cryptoDatabasePrefix - The database name to use for indexeddb, defaults to 'matrix-js-sdk'.
+   *    Unused if useIndexedDB is 'false'.
    * @param args.storageKey - A key with which to encrypt the indexeddb store. If provided, it must be exactly
    *    32 bytes of data, and must be the same each time the client is initialised for a given device.
    *    If both this and `storagePassword` are unspecified, the store will be unencrypted.
@@ -1087,7 +1090,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       deviceId: deviceId,
       secretStorage: this.secretStorage,
       cryptoCallbacks: this.cryptoCallbacks,
-      storePrefix: args.useIndexedDB === false ? null : _constants.RUST_SDK_STORE_PREFIX,
+      storePrefix: args.useIndexedDB === false ? null : args.cryptoDatabasePrefix ?? _constants.RUST_SDK_STORE_PREFIX,
       storeKey: args.storageKey,
       storePassphrase: args.storagePassword,
       legacyCryptoStore: this.cryptoStore,

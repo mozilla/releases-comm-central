@@ -1,8 +1,9 @@
-This directory contains the Matrix Client-Server SDK for Javascript available
-at https://github.com/matrix-org/matrix-js-sdk/. Current version is v34.11.1.
+This directory contains the Matrix Client-Server SDK for JavaScript available
+at https://github.com/matrix-org/matrix-js-sdk/. The current version is v34.11.1.
 
 The following npm dependencies are included:
 
+* @matrix-org/matrix-sdk-crypto-wasm: https://github.com/matrix-org/matrix-rust-sdk-crypto-wasm v5.0.0
 * @matrix-org/olm: https://gitlab.matrix.org/matrix-org/olm/-/packages?type=npm v3.2.15
 * another-json: https://www.npmjs.com/package/another-json/ v0.2.0
 * base-x: https://www.npmjs.com/package/base-x v5.0.0
@@ -39,21 +40,24 @@ in `chat/protocols/matrix/matrix-sdk.sys.mjs`.
 2.  Modify `babel.config.cjs` (see below).
 3.  (If this is an old checkout, remove any previous artifacts. Run `rm -r lib; rm -r node_modules`.)
 4.  Run `yarn install`.
-5.  Run Babel in the matrix-js-sdk checkout:
+5.  Cherry-pick the commit `8367277894ac5380084767d53f9db937792231fe`:
+    `git cherry-pick 8367277894ac5380084767d53f9db937792231fe`
+    (Only needed below v37.10.0; the commit landed upstream in that release.)
+6.  Run Babel in the matrix-js-sdk checkout:
     `./node_modules/.bin/babel -d lib --extensions ".ts,.js" src`
     (at time of writing identical to `yarn build:compile`)
-6.  The following commands assume you're in mozilla-central/comm and that the
+7.  The following commands assume you're in mozilla-central/comm and that the
     matrix-js-sdk is checked out next to mozilla-central.
-7.  Remove the old SDK files `hg rm chat/protocols/matrix/lib/matrix-sdk`
+8.  Remove the old SDK files `hg rm chat/protocols/matrix/lib/matrix-sdk`
 9.  Undo the removal of the license: `hg revert chat/protocols/matrix/lib/matrix-sdk/LICENSE`
-0.  Copy the Babel-ified JavaScript files from the matrix-js-sdk to vendored
+10. Copy the Babel-ified JavaScript files from the matrix-js-sdk to vendored
     location: `cp -r ../../matrix-js-sdk/lib/* chat/protocols/matrix/lib/matrix-sdk`
-10. Add the files back to Mercurial: `hg add chat/protocols/matrix/lib/matrix-sdk`
-11. Find "empty" files: `md5sum chat/protocols/matrix/lib/**/*.js | grep a7ef62a133eed5bbaa2a23637d04d13b | cut -d "/" -f 5-`
-12. Modify `chat/protocols/matrix/lib/moz.build` to add/remove/rename modified
+11. Add the files back to Mercurial: `hg addremove chat/protocols/matrix/lib/matrix-sdk`
+12. Find "empty" files: `md5sum chat/protocols/matrix/lib/**/*.js | grep a7ef62a133eed5bbaa2a23637d04d13b | cut -d "/" -f 5-`
+13. Modify `chat/protocols/matrix/lib/moz.build` to add/remove/rename modified
     files. Empty files (see step 11) have no useful content and are not packaged.
-13. Modify `matrix-sdk.sys.mjs` to add/remove/rename any changed modules. Empty
-    files (see step 11) which are imported should be explictly pointed to `empty.js`.
+14. Modify `matrix-sdk.sys.mjs` to add/remove/rename any changed modules. Empty
+    files (see step 11) which are imported should be explicitly pointed to `empty.js`.
 
 ### Custom `.babelrc`
 
@@ -163,6 +167,15 @@ rm chat/protocols/matrix/lib/matrix-widget-api/**/*.ts
 rm chat/protocols/matrix/lib/matrix-widget-api/**/*.js.map
 hg add chat/protocols/matrix/lib/matrix-widget-api/
 ```
+
+### Updating matrix-sdk-crypto-js
+
+The matrix-sdk-crypto-js includes JavaScript modules, TypeScript definitions
+and WASM files.
+
+```
+cp ../../matrix-js-sdk/node_modules/@matrix-org/matrix-sdk-crypto-wasm/pkg/*.js chat/protocols/matrix/lib/@matrix-org/matrix-sdk-crypto-wasm
+````
 
 ### Updating sdp-transform
 

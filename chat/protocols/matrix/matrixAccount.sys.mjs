@@ -1521,6 +1521,7 @@ export async function startVerification(request) {
       throw new Error("verification aborted");
     }
   }
+
   const sasEventPromise = new Promise(resolve =>
     request.verifier.once(lazy.MatrixSDK.Crypto.VerifierEvent.ShowSas, resolve)
   );
@@ -1730,7 +1731,9 @@ MatrixAccount.prototype = {
         );
       }
       pendingClientOperations.finally(() => {
-        this._client.clearStores();
+        this._client.clearStores({
+          cryptoDatabasePrefix: this.indexedDbPrefix,
+        });
       });
     } else {
       // Without client we can still clear the stores at least.
@@ -1916,6 +1919,10 @@ MatrixAccount.prototype = {
    */
   _encryptionError: "",
 
+  get indexedDbPrefix() {
+    return "chat:matrix:" + this.imAccount.id;
+  },
+
   /**
    * Builds the options for the |createClient| call to the SDK including all
    * stores.
@@ -1923,18 +1930,16 @@ MatrixAccount.prototype = {
    * @returns {object}
    */
   getClientOptions() {
-    const dbName = "chat:matrix:" + this.imAccount.id;
-
-    const opts = {
+    return {
       useAuthorizationHeader: true,
       baseUrl: this._baseURL,
       store: new lazy.MatrixSDK.IndexedDBStore({
         indexedDB,
-        dbName,
+        dbName: this.indexedDbPrefix,
       }),
       cryptoStore: new lazy.MatrixSDK.IndexedDBCryptoStore(
         indexedDB,
-        dbName + ":crypto"
+        this.indexedDbPrefix + ":crypto"
       ),
       deviceId: this.prefs.getStringPref("deviceId", "") || undefined,
       accessToken: this.prefs.getStringPref("accessToken", "") || undefined,
@@ -1976,7 +1981,6 @@ MatrixAccount.prototype = {
       roomNameGenerator: getRoomName,
       logger: new lazy.Logger(this, "matrix-js-sdk"),
     };
-    return opts;
   },
 
   /**
@@ -2135,6 +2139,9 @@ MatrixAccount.prototype = {
               this.setPresence(this.imAccount.statusInfo);
             }
             this.reportConnected();
+            // Account data (including secret storage keys) is available once
+            // the initial sync completed.
+            this.bootstrapSSSS().catch(this.WARN);
             break;
           case lazy.MatrixSDK.SyncState.Stopped:
             this.reportDisconnected();
@@ -2149,13 +2156,6 @@ MatrixAccount.prototype = {
             this.reportConnecting();
             break;
           case lazy.MatrixSDK.SyncState.Error:
-            if (
-              data.error.reason ==
-              lazy.MatrixSDK.InvalidStoreError.TOGGLED_LAZY_LOADING
-            ) {
-              this._client.store.deleteAllData().then(() => this.connect());
-              break;
-            }
             this.reportDisconnecting(
               Ci.prplIAccount.ERROR_OTHER_ERROR,
               data.error.message
@@ -2503,9 +2503,10 @@ MatrixAccount.prototype = {
     //  Room.tags
     //  crypto.suggestKeyRestore
 
-    //TODO initRustCrypto instead.
     this._client
-      .initCrypto()
+      .initRustCrypto({
+        cryptoDatabasePrefix: this.indexedDbPrefix,
+      })
       .then(() =>
         Promise.all([
           this._client.startClient({
@@ -2513,14 +2514,9 @@ MatrixAccount.prototype = {
             lazyLoadMembers: true,
           }),
           this.updateEncryptionStatus(),
-          this.bootstrapSSSS(),
           this.reportSessionsChanged(),
         ])
       )
-      .finally(() => {
-        // We can disable the unknown devices error thanks to cross signing.
-        this._client.setGlobalErrorOnUnknownDevices(false);
-      })
       .catch(error => this.ERROR(error));
   },
 
@@ -2653,53 +2649,80 @@ MatrixAccount.prototype = {
   },
 
   /**
-   * Ensures secret storage and cross signing are ready for use. Does not
-   * support initial setup of secret storage. If the backup passphrase is not
-   * set, this is a no-op, else it is cleared once the operation is complete.
+   * Ensures our cross-signing private keys are available locally by recovering
+   * them from secret storage. Initial setup of secret storage is NOT
+   * supported, thus new cross-signing keys are never created here (creating
+   * them would invalidate the identity other devices and users know about).
+   * If the backup passphrase is not set, this is a no-op, else it is cleared
+   * once the operation is complete.
    *
    * @returns {Promise<void>}
    */
   async bootstrapSSSS() {
-    if (!this._client) {
+    const client = this._client;
+    if (!client || !client.getCrypto()) {
       // client startup will do bootstrapping
       return;
     }
-    const password = this.getString("backupPassphrase");
-    if (!password) {
-      // We do not support setting up secret storage, so we need a passphrase
-      // to bootstrap.
+    const backupPassphrase = this.getString("backupPassphrase");
+    if (!backupPassphrase) {
+      // We do not support setting up secret storage, so we need a security
+      // phrase or key to bootstrap.
       return;
     }
-    const backupInfo = await this._client.getCrypto().getKeyBackupVersion();
-
-    await this._client.getCrypto().bootstrapSecretStorage({
-      setupNewKeyBackup: false,
-    });
-    await this._client.getCrypto().bootstrapCrossSigning({
-      authUploadDeviceSigningKeys(makeRequest) {
-        makeRequest();
-        return Promise.resolve();
-      },
-    });
-    // TODO Remove this when switching to Rust Crypto.
-    await this._client.checkOwnCrossSigningTrust();
-    if (backupInfo) {
-      await this._client.getCrypto().restoreKeyBackup();
+    try {
+      // Only recover keys that already exist in secret storage.
+      const storedKeys = await client.secretStorage.isStored(
+        "m.cross_signing.master"
+      );
+      if (!storedKeys) {
+        this.WARN("No cross-signing keys found in secret storage.");
+        this._encryptionError = lazy.l10n.formatValueSync(
+          "options-encryption-need-backup-passphrase"
+        );
+        await this.updateEncryptionStatus();
+        return;
+      }
+      await client.getCrypto().bootstrapCrossSigning({
+        authUploadDeviceSigningKeys: async makeRequest => {
+          // Uploading signing keys may require interactive authentication,
+          // propagate failures instead of ignoring them.
+          await makeRequest();
+        },
+      });
+      const backupInfo = await client.getKeyBackupVersion();
+      if (backupInfo) {
+        await client.restoreKeyBackupWithCache();
+      }
+      // Clear passphrase once bootstrap was successful
+      this.imAccount.setString("backupPassphrase", "");
+      this.imAccount.save();
+      this._encryptionError = "";
+      await this.updateEncryptionStatus();
+    } catch (error) {
+      this.WARN(
+        `Failed to recover encryption state from secret storage: ${error}`
+      );
+      this._encryptionError = lazy.l10n.formatValueSync(
+        "options-encryption-need-backup-passphrase"
+      );
+      await this.updateEncryptionStatus();
     }
-    // Clear passphrase once bootstrap was successful
-    this.imAccount.setString("backupPassphrase", "");
-    this.imAccount.save();
-    this._encryptionError = "";
-    await this.updateEncryptionStatus();
   },
 
   setString(name, value) {
-    if (!this._client) {
-      return;
-    }
     if (name === "backupPassphrase" && value) {
+      if (!this._client) {
+        this.WARN(
+          "Account is not connected yet, encryption bootstrap will run on connect."
+        );
+        return;
+      }
       this.bootstrapSSSS().catch(this.WARN);
     } else if (name === "deviceDisplayName") {
+      if (!this._client) {
+        return;
+      }
       this._client
         .setDeviceDetails(this._client.getDeviceId(), {
           display_name: value,
