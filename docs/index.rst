@@ -26,6 +26,7 @@ Thunderbird Source Tree Documentation
 
    /frontend/custom_element_conventions
    /frontend/icons
+   /frontend/performance
    /frontend/state_management
    /storybook/index
    /frontend/support_links
