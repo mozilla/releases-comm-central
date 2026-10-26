@@ -25,6 +25,9 @@ ChromeUtils.defineLazyGetter(
   () => new Localization(["calendar/calendar-itip.ftl"], true)
 );
 
+/** The maximum number of canceled or modified occurrences to list. */
+const MAX_LISTED_OCCURRENCES = 100;
+
 /** attendee user type -> Fluent id */
 const ATTENDEE_USER_TYPE_L10N_IDS = {
   INDIVIDUAL: "imip-html-attendee-user-type-individual",
@@ -498,6 +501,7 @@ export var invitation = {
         return null;
       }
       const formattedExDates = [];
+      let truncated = false;
 
       // Show removed instances
       for (const exc of ev.recurrenceInfo.getRecurrenceItems()) {
@@ -505,10 +509,17 @@ export var invitation = {
           (exc instanceof lazy.CalRecurrenceDate || exc instanceof Ci.calIRecurrenceDate) &&
           exc.isNegative
         ) {
+          if (formattedExDates.length >= MAX_LISTED_OCCURRENCES) {
+            truncated = true;
+            break;
+          }
           // This is an EXDATE
           const excDate = exc.date.getInTimezone(kDefaultTimezone);
           formattedExDates.push(formatter.formatDateTime(excDate));
         }
+      }
+      if (truncated) {
+        formattedExDates.push("…");
       }
       if (formattedExDates.length > 0) {
         return formattedExDates.join("\n");
@@ -516,14 +527,13 @@ export var invitation = {
       return null;
     });
 
-    const dateComptor = (a, b) =>
-      a.startDate && b.startDate ? a.startDate.compare(b.startDate) : 0;
-
     setField("modifiedOccurrences", ev => {
       if (!ev.recurrenceInfo) {
         return null;
       }
-      const modifiedOccurrences = [];
+      // Sort by start time before creating any occurrences, so that only the
+      // ones which end up being displayed need to be created and formatted.
+      const candidates = [];
 
       for (const exc of ev.recurrenceInfo.getRecurrenceItems()) {
         if (
@@ -531,8 +541,12 @@ export var invitation = {
           !exc.isNegative
         ) {
           // This is an RDATE, close enough to a modified occurrence
-          const excItem = ev.recurrenceInfo.getOccurrenceFor(exc.date);
-          cal.data.binaryInsert(modifiedOccurrences, excItem, dateComptor, true);
+          const modified = ev.recurrenceInfo.getExceptionFor(exc.date);
+          if (modified) {
+            candidates.push({ time: modified.startDate?.nativeTime ?? -Infinity, item: modified });
+          } else {
+            candidates.push({ time: exc.date.nativeTime, rdate: exc.date });
+          }
         }
       }
       for (const recurrenceId of ev.recurrenceInfo.getExceptionIds()) {
@@ -547,25 +561,43 @@ export var invitation = {
           (exc.duration && exc.duration.compare(ev.duration)) != 0 ||
           excLocation != ev.getProperty("LOCATION")
         ) {
-          cal.data.binaryInsert(modifiedOccurrences, exc, dateComptor, true);
+          candidates.push({ time: exc.startDate?.nativeTime ?? -Infinity, item: exc });
         }
+      }
+
+      candidates.sort((a, b) => a.time - b.time);
+      const modifiedOccurrences = [];
+      let truncated = false;
+      let lastTime;
+      for (const { time, rdate, item } of candidates) {
+        if (time == lastTime) {
+          continue;
+        }
+        if (modifiedOccurrences.length >= MAX_LISTED_OCCURRENCES) {
+          truncated = true;
+          break;
+        }
+        lastTime = time;
+        modifiedOccurrences.push(item ?? ev.recurrenceInfo.getOccurrenceFor(rdate));
       }
 
       if (modifiedOccurrences.length > 0) {
         const evLocation = ev.getProperty("LOCATION");
-        return modifiedOccurrences
-          .map(occ => {
-            let formattedExc = formatter.formatItemInterval(occ);
-            const occLocation = occ.getProperty("LOCATION");
-            if (occLocation != evLocation) {
-              formattedExc +=
-                " (" +
-                lazy.l10n.formatValueSync("imip-html-new-location", { location: occLocation }) +
-                ")";
-            }
-            return formattedExc;
-          })
-          .join("\n");
+        const formatted = modifiedOccurrences.map(occ => {
+          let formattedExc = formatter.formatItemInterval(occ);
+          const occLocation = occ.getProperty("LOCATION");
+          if (occLocation != evLocation) {
+            formattedExc +=
+              " (" +
+              lazy.l10n.formatValueSync("imip-html-new-location", { location: occLocation }) +
+              ")";
+          }
+          return formattedExc;
+        });
+        if (truncated) {
+          formatted.push("…");
+        }
+        return formatted.join("\n");
       }
       return null;
     });

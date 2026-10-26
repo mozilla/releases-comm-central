@@ -700,6 +700,85 @@ add_task(async function createInvitationOverlay_test() {
   }
 });
 
+add_task(async function createInvitationOverlay_manyRecurrenceDates_test() {
+  const dayMs = 24 * 60 * 60 * 1000;
+  const start = Date.UTC(2015, 8, 10, 19);
+  const icsDate = time => new Date(time).toISOString().replace(/[-:]|\.\d+/g, "");
+  const count = 5000;
+  const rdates = [];
+  const exdates = [];
+  for (let i = count; i > 0; i--) {
+    rdates.push(icsDate(start + i * dayMs));
+    exdates.push(icsDate(start - i * dayMs));
+  }
+  const { event, itipItem } = getEvent({
+    rdate: `${rdates.join(",")}`,
+    exdate: `${exdates.join(",")}`,
+  });
+  const dom = cal.invitation.createInvitationOverlay(event, itipItem);
+
+  const modified = dom.getElementById("imipHtml-modifiedOccurrences-content");
+  assertHiddenRow(modified, false, "many RDATEs");
+  const modifiedLines = modified.textContent.split("\n");
+  equal(modifiedLines.length, 101, "modified occurrences should be truncated");
+  equal(modifiedLines.at(-1), "…", "truncated modified occurrences should end with an ellipsis");
+  const firstOcc = event.recurrenceInfo.getOccurrenceFor(
+    cal.createDateTime(icsDate(start + dayMs))
+  );
+  equal(
+    modifiedLines[0],
+    cal.dtz.formatter.formatItemInterval(firstOcc),
+    "earliest RDATE should be listed first"
+  );
+
+  const canceled = dom.getElementById("imipHtml-canceledOccurrences-content");
+  assertHiddenRow(canceled, false, "many EXDATEs");
+  const canceledLines = canceled.textContent.split("\n");
+  equal(canceledLines.length, 101, "canceled occurrences should be truncated");
+  equal(canceledLines.at(-1), "…", "truncated canceled occurrences should end with an ellipsis");
+});
+
+add_task(async function createInvitationOverlay_movedRecurrenceDate_test() {
+  const ics = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "METHOD:REQUEST",
+    "BEGIN:VEVENT",
+    "UID:cb189fdc-ed47-4db6-a8d7-31a08802249d",
+    "DTSTAMP:20150909T181048Z",
+    "SUMMARY:Test Event",
+    "LOCATION:Room 1",
+    "DTSTART:20150909T190000Z",
+    "DTEND:20150909T200000Z",
+    "RDATE:20150912T190000Z,20150911T190000Z",
+    "END:VEVENT",
+    "BEGIN:VEVENT",
+    "UID:cb189fdc-ed47-4db6-a8d7-31a08802249d",
+    "DTSTAMP:20150909T181048Z",
+    "SUMMARY:Test Event",
+    "LOCATION:Room 1",
+    "RECURRENCE-ID:20150912T190000Z",
+    "DTSTART:20150910T090000Z",
+    "DTEND:20150910T100000Z",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+  const itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
+  itipItem.init(ics);
+  const parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
+  parser.parseString(ics);
+  const event = parser.getItems().find(item => !item.recurrenceId);
+  const dom = cal.invitation.createInvitationOverlay(event, itipItem);
+
+  const moved = event.recurrenceInfo.getExceptionFor(cal.createDateTime("20150912T190000Z"));
+  const rdate = event.recurrenceInfo.getOccurrenceFor(cal.createDateTime("20150911T190000Z"));
+  equal(
+    dom.getElementById("imipHtml-modifiedOccurrences-content").textContent,
+    [moved, rdate].map(occ => cal.dtz.formatter.formatItemInterval(occ)).join("\n"),
+    "moved RDATE occurrence should be listed once, at its new start time"
+  );
+});
+
 add_task(async function updateInvitationOverlay_test() {
   const data = [
     {
