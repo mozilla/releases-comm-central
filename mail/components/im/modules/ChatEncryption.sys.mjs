@@ -129,27 +129,28 @@ export const ChatEncryption = {
    * @param {DOMWindow} window - Window that the verification dialog attaches to.
    * @param {prplIAccountBuddy|prplIConvChatBuddy} buddy - Buddy to verify.
    */
-  verifyIdentity(window, buddy) {
-    if (!buddy.canVerifyIdentity) {
-      Promise.resolve();
+  async verifyIdentity(window, buddy) {
+    if (!(await buddy.canVerifyIdentity())) {
+      return;
     }
-    buddy
-      .verifyIdentity()
-      .then(sessionVerification => {
-        window.openDialog(
-          "chrome://messenger/content/chat/verify.xhtml",
-          "",
-          "chrome,modal,titlebar,centerscreen",
-          sessionVerification
-        );
-      })
-      .catch(error => {
-        // Only prplIAccountBuddy has a reference to the owner account.
-        if (buddy.account) {
-          buddy.account.prplAccount.wrappedJSObject.ERROR(error);
-        } else {
-          console.error(error);
-        }
-      });
+    try {
+      const sessionVerification = await buddy.verifyIdentity();
+      if (!sessionVerification) {
+        return;
+      }
+      window.openDialog(
+        "chrome://messenger/content/chat/verify.xhtml",
+        "",
+        "chrome,modal,titlebar,centerscreen",
+        sessionVerification
+      );
+    } catch (error) {
+      // Only prplIAccountBuddy has a reference to the owner account.
+      if (buddy.account) {
+        buddy.account.prplAccount.wrappedJSObject.ERROR(error);
+      } else {
+        console.error(error);
+      }
+    }
   },
 };

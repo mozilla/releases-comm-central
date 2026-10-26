@@ -5,6 +5,8 @@ head = "head.js"
 
 ["test_matrixCommands.js"]
 
+["test_matrixEncryption.js"]
+
 ["test_matrixMessage.js"]
 
 ["test_matrixMessageContent.js"]

@@ -161,17 +161,40 @@ function buddyListContextMenu(aXulMenu) {
   }
 
   const accountBuddy = this._getAccountBuddy();
-  const canVerifyBuddy = accountBuddy?.canVerifyIdentity;
-  const verifyMenuItem = document.getElementById("context-verifyBuddy");
-  verifyMenuItem.hidden = !canVerifyBuddy;
-  if (canVerifyBuddy) {
-    const identityVerified = accountBuddy.identityVerified;
-    verifyMenuItem.disabled = identityVerified;
-    document.l10n.setAttributes(
-      verifyMenuItem,
-      identityVerified ? "chat-identity-verified" : "chat-verify-identity"
+  if (accountBuddy) {
+    updateVerifyMenuItem(
+      document.getElementById("context-verifyBuddy"),
+      accountBuddy
     );
   }
+}
+
+/**
+ * Update the verification menu item based on whether the buddy can/has been verified.
+ *
+ * If they cannot be verified, show nothing.
+ * Otherwise, update the menu item text and, if they've been verified, disable the menu item.
+ *
+ * @param {XULMenuItem} menuItem
+ * @param {prplIAccountBuddy|prplIConvChatBuddy} target
+ */
+function updateVerifyMenuItem(menuItem, target) {
+  menuItem.hidden = true;
+  menuItem.disabled = true;
+
+  target.canVerifyIdentity().then(canVerifyBuddy => {
+    menuItem.hidden = !canVerifyBuddy;
+
+    if (canVerifyBuddy) {
+      target.identityVerified().then(identityVerified => {
+        menuItem.disabled = identityVerified;
+        document.l10n.setAttributes(
+          menuItem,
+          identityVerified ? "chat-identity-verified" : "chat-verify-identity"
+        );
+      });
+    }
+  });
 }
 
 buddyListContextMenu.prototype = {
@@ -2131,20 +2154,21 @@ chatLogTreeView.prototype = {
  *
  * @param {XULMenuPopupElement} menu
  * @returns {boolean} If the menu should be shown, currently decided based on
- *   if its only item has an action to perform.
+ *   if there is a chatBuddy.
  */
 function showParticipantMenu(menu) {
   const target = menu.triggerNode.closest("richlistitem");
-  if (!target?.chatBuddy?.canVerifyIdentity) {
+  const canVerifyIdentityFunc = target?.chatBuddy?.canVerifyIdentity;
+  // If there's no target or chatBuddy don't even show the pop-up.
+  if (!canVerifyIdentityFunc) {
     return false;
   }
-  const identityVerified = target.chatBuddy.identityVerified;
-  const verifyMenuItem = document.getElementById("context-verifyParticipant");
-  verifyMenuItem.disabled = identityVerified;
-  document.l10n.setAttributes(
-    verifyMenuItem,
-    identityVerified ? "chat-identity-verified" : "chat-verify-identity"
+
+  updateVerifyMenuItem(
+    document.getElementById("context-verifyParticipant"),
+    target.chatBuddy
   );
+
   return true;
 }
 

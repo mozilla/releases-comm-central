@@ -669,41 +669,47 @@ export var GenericAccountBuddyPrototype = {
    *   {challenge: string, challengeDescription: string?, handleResult: (boolean) => void, cancel: () => void, cancelPromise: Promise}?}
    */
   _startVerification: null,
-  get canVerifyIdentity() {
+  async canVerifyIdentity() {
     return typeof this._startVerification === "function";
   },
-  _identityVerified: false,
-  get identityVerified() {
-    return this.canVerifyIdentity && this._identityVerified;
+  async _identityVerified() {
+    return false;
   },
-  verifyIdentity() {
-    if (!this.canVerifyIdentity) {
+  async identityVerified() {
+    return (await this.canVerifyIdentity()) && (await this._identityVerified());
+  },
+  /**
+   * Start verification of an identity.
+   *
+   * @returns {Promise<imISessionVerification|undefined>} Resolves to undefined
+   *   if the identity is already verified.
+   */
+  async verifyIdentity() {
+    if (!(await this.canVerifyIdentity())) {
       throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
     }
-    if (this.identityVerified) {
-      return Promise.resolve();
+    if (await this.identityVerified()) {
+      return undefined;
     }
-    return this._startVerification().then(
-      ({
-        challenge,
-        challengeDescription,
-        handleResult,
-        cancel,
-        cancelPromise,
-      }) => {
-        const verifier = new SessionVerification(
-          challenge,
-          this.userName,
-          challengeDescription
-        );
-        verifier.completePromise.then(
-          result => handleResult(result),
-          () => cancel()
-        );
-        cancelPromise.then(() => verifier.cancel());
-        return verifier;
-      }
+    const {
+      challenge,
+      challengeDescription,
+      handleResult,
+      cancel,
+      cancelPromise,
+    } = await this._startVerification();
+
+    const verifier = new SessionVerification(
+      challenge,
+      this.userName,
+      challengeDescription
     );
+    verifier.completePromise.then(
+      result => handleResult(result),
+      () => cancel()
+    );
+    cancelPromise.then(() => verifier.cancel());
+    return verifier;
   },
 
   remove() {
@@ -1449,19 +1455,27 @@ export var GenericConvChatBuddyPrototype = {
    *   {challenge: string, challengeDescription: string?, handleResult: (boolean) => void, cancel: () => void, cancelPromise: Promise}?}
    */
   _startVerification: null,
-  get canVerifyIdentity() {
+  async canVerifyIdentity() {
     return typeof this._startVerification === "function";
   },
-  _identityVerified: false,
-  get identityVerified() {
-    return this.canVerifyIdentity && this._identityVerified;
+  async _identityVerified() {
+    return false;
   },
-  verifyIdentity() {
-    if (!this.canVerifyIdentity) {
+  async identityVerified() {
+    return (await this.canVerifyIdentity()) && (await this._identityVerified());
+  },
+  /**
+   * Start verification of an identity.
+   *
+   * @returns {Promise<imISessionVerification|undefined>} Resolves to undefined
+   *   if the identity is already verified.
+   */
+  async verifyIdentity() {
+    if (!(await this.canVerifyIdentity())) {
       throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
     }
-    if (this.identityVerified) {
-      return Promise.resolve();
+    if (await this.identityVerified()) {
+      return undefined;
     }
     return this._startVerification().then(
       ({

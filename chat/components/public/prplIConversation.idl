@@ -191,18 +191,25 @@ interface prplIConvChatBuddy: nsISupports {
   /* Whether the participant is currently typing. */
   readonly attribute boolean typing;
 
-  /** Whether we can verify the identity of this participant. */
-  readonly attribute boolean canVerifyIdentity;
+  /**
+   * Whether we can verify the identity of this participant.
+   *
+   * @returns {Promise<boolean>}
+   */
+  Promise canVerifyIdentity();
 
   /**
    * True if we trust the encryption with this participant in E2EE chats. Can
    * only be true if |canVerifyIdentity| is true.
+   *
+   * @returns {Promise<boolean>}
    */
-  readonly attribute boolean identityVerified;
+  Promise identityVerified();
 
   /**
    * Initialize identity verification with this participant.
-   * @returns {Promise<imISessionVerification>}
+   * @returns {Promise<imISessionVerification|undefined>} Resolves to undefined
+   *   if the identity is already verified.
    */
   Promise verifyIdentity();
 };

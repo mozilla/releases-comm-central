@@ -220,11 +220,13 @@ MatrixMessage.prototype = {
  * @param {MatrixClient} client - Matrix SDK client instance to use.
  * @returns {boolean}
  */
-function checkUserHasUnverifiedDevices(userId, client) {
-  //TODO use getUserDeviceInfo (async)
-  const devices = client.getStoredDevicesForUser(userId);
+async function checkUserHasUnverifiedDevices(userId, client) {
+  const userToDevicesMap = await client
+    .getCrypto()
+    .getUserDeviceInfo([userId], true);
+  const devices = userToDevicesMap.get(userId)?.values() ?? [];
   return devices.some(
-    ({ deviceId }) => !client.checkDeviceTrust(userId, deviceId).isVerified()
+    device => device.verified !== lazy.MatrixSDK.DeviceVerification.Verified
   );
 }
 
@@ -236,10 +238,11 @@ function checkUserHasUnverifiedDevices(userId, client) {
  * @param {MatrixClient} client - Matrix SDK client instance.
  * @returns {boolean}
  */
-function canVerifyUserIdentity(userId, client) {
-  //TODO use getUserDeviceInfo (async)
-  client.downloadKeys([userId]);
-  return Boolean(client.getStoredDevicesForUser(userId)?.length);
+async function canVerifyUserIdentity(userId, client) {
+  const userToDevicesMap = await client
+    .getCrypto()
+    .getUserDeviceInfo([userId], true);
+  return Boolean(userToDevicesMap.get(userId)?.size);
 }
 
 /**
@@ -249,13 +252,12 @@ function canVerifyUserIdentity(userId, client) {
  * @param {MatrixClient} client - Matrix SDK client instance to use.
  * @returns {boolean}
  */
-function userIdentityVerified(userId, client) {
-  //TODO The sync checkUserTrust was deprecated in favor for the async
-  // getCrypto().getUserVerificationStatus(userId), which is the only supported
-  // implementation with the rust crypto backend.
+async function userIdentityVerified(userId, client) {
   return (
-    client.checkUserTrust(userId).isCrossSigningVerified() &&
-    !checkUserHasUnverifiedDevices(userId, client)
+    (
+      await client.getCrypto().getUserVerificationStatus(userId)
+    ).isCrossSigningVerified() &&
+    !(await checkUserHasUnverifiedDevices(userId, client))
   );
 }
 
@@ -315,11 +317,11 @@ MatrixParticipant.prototype = {
     return this._roomMember.powerLevelNorm >= lazy.MatrixPowerLevels.admin;
   },
 
-  get canVerifyIdentity() {
+  canVerifyIdentity() {
     return canVerifyUserIdentity(this.name, this._account._client);
   },
 
-  get _identityVerified() {
+  _identityVerified() {
     return userIdentityVerified(this.name, this._account._client);
   },
 
@@ -435,11 +437,11 @@ MatrixBuddy.prototype = {
     return this._account.getDirectConversation(this.userName);
   },
 
-  get canVerifyIdentity() {
+  canVerifyIdentity() {
     return canVerifyUserIdentity(this.userName, this._account._client);
   },
 
-  get _identityVerified() {
+  _identityVerified() {
     return userIdentityVerified(this.userName, this._account._client);
   },
 
@@ -1370,10 +1372,12 @@ MatrixRoom.prototype = {
     // Check for participants that we haven't verified via cross signing, or
     // of which we don't trust a device, and if everyone seems fine, check our
     // own device verification state.
+    const userIdentitiesVerified = await Promise.all(
+      members.map(({ userId }) => userIdentityVerified(userId, account._client))
+    );
     const newValue =
-      members.some(({ userId }) => {
-        return !userIdentityVerified(userId, account._client);
-      }) || checkUserHasUnverifiedDevices(account.userId, account._client);
+      userIdentitiesVerified.some(v => !v) ||
+      (await checkUserHasUnverifiedDevices(account.userId, account._client));
     if (this._hasUnverifiedDevices !== newValue) {
       this._hasUnverifiedDevices = newValue;
       this.notifyObservers(this, "update-conv-encryption");

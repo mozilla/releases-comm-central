@@ -438,15 +438,8 @@
 
       this.addRow("buddy-account", account.name, { label: true });
 
-      if (aBuddy.canVerifyIdentity) {
-        const identityStatus = aBuddy.identityVerified
-          ? "chat-buddy-identity-status-verified"
-          : "chat-buddy-identity-status-unverified";
-        this.addRow("chat-buddy-identity-status", identityStatus, {
-          label: true,
-          value: true,
-        });
-      }
+      // Add verification information async.
+      this.checkVerifiedStatus(aBuddy);
 
       // Add encryption status.
       if (this.triggerNode.classList.contains("message-encrypted")) {
@@ -465,6 +458,36 @@
       return true;
     }
 
+    /**
+     * Add buddy verification information to the tooltip.
+     *
+     * @param {prplIAccountBuddy|prplIConvChatBuddy} buddy
+     */
+    async checkVerifiedStatus(buddy) {
+      const canVerifyIdentity = await buddy.canVerifyIdentity();
+      if (this.buddy !== buddy) {
+        return;
+      }
+      if (canVerifyIdentity) {
+        const identityVerified = await buddy.identityVerified();
+        if (this.buddy !== buddy) {
+          return;
+        }
+        const identityStatus = identityVerified
+          ? "chat-buddy-identity-status-verified"
+          : "chat-buddy-identity-status-unverified";
+        this.addRow("chat-buddy-identity-status", identityStatus, {
+          label: true,
+          value: true,
+        });
+      }
+    }
+
+    /**
+     * Add additional rows of information to the tooltip.
+     *
+     * @param {prplITooltipInfo[]} aTooltipInfo
+     */
     updateTooltipInfo(aTooltipInfo) {
       for (const elt of aTooltipInfo) {
         switch (elt.type) {
@@ -583,15 +606,8 @@
         this.hasBestAvatar = true;
       }
 
-      if (aParticipant.canVerifyIdentity) {
-        const identityStatus = aParticipant.identityVerified
-          ? "chat-buddy-identity-status-verified"
-          : "chat-buddy-identity-status-unverified";
-        this.addRow("chat-buddy-identity-status", identityStatus, {
-          label: true,
-          value: true,
-        });
-      }
+      // Add verification information async.
+      this.checkVerifiedStatus(aParticipant);
 
       this.requestBuddyInfo(account, normalizedNick);
       return true;

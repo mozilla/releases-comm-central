@@ -225,18 +225,25 @@ interface prplIAccountBuddy: imIStatusInfo {
   readonly attribute AUTF8String normalizedName;
            attribute AUTF8String serverAlias;
 
-  /** Whether we can verify the identity of this buddy. */
-  readonly attribute boolean canVerifyIdentity;
+  /**
+   * Whether we can verify the identity of this buddy.
+   *
+   * @returns {Promise<boolean>}
+   */
+  Promise canVerifyIdentity();
 
   /**
    * True if we trust the encryption with this buddy in E2EE conversations. Can
    * only be true if |canVerifyIdentity| is true.
+   *
+   * @returns {Promise<boolean>}
    */
-  readonly attribute boolean identityVerified;
+  Promise identityVerified();
 
   /**
    * Initialize identity verification with this buddy.
-   * @returns {Promise<imISessionVerification>}
+   * @returns {Promise<imISessionVerification|undefined>} Resolves to undefined
+   *   if the identity is already verified.
    */
   Promise verifyIdentity();
 

@@ -82,7 +82,8 @@ interface prplISession: nsISupports {
    /**
     * Verify the identity of this session.
     *
-    * @returns {Promise<imISessionVerification>}
+    * @returns {Promise<imISessionVerification|undefined>} Resolves to undefined
+    *   if the session is already trusted.
     */
    Promise verify();
 };
