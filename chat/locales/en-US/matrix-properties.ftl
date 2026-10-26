@@ -277,7 +277,7 @@ message-verification-request2 = { $user } wants to verify { $userReceiving }.
 #    $reason is the reason given why the verification was cancelled.
 message-verification-cancel2 = { $user } cancelled the verification with the reason: { $reason }
 message-verification-done = Verification completed.
-message-decryption-error = Could not decrypt the contents of this message. To request encryption keys from your other devices, right click this message.
+message-decryption-error2 = Could not decrypt the contents of this message. Encryption keys will automatically be re-requested.
 message-decrypting = Decrypting…
 message-redacted = Message was redacted.
 #    $userThatReacted is the username of the user that reacted.
@@ -286,7 +286,6 @@ message-redacted = Message was redacted.
 message-reaction = { $userThatReacted } reacted to { $userThatSentMessage } with { $reaction }.
 
 #    Label in the message context menu
-message-action-request-key = Re-request Keys
 message-action-redact = Redact
 message-action-report = Report Message
 message-action-retry = Retry Sending

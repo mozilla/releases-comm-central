@@ -39,7 +39,7 @@ const roomMessage = {
   handlers: {
     [MatrixSDK.MsgType.KeyVerificationRequest]: keyVerificationRequest,
     "m.bad.encrypted": () =>
-      lazy.l10n.formatValueSync("message-decryption-error"),
+      lazy.l10n.formatValueSync("message-decryption-error2"),
   },
 };
 

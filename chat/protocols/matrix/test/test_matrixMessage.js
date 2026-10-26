@@ -201,43 +201,6 @@ add_task(async function test_getActions() {
   equal(actions.length, 0);
 });
 
-add_task(async function test_getActions_decryptionFailure() {
-  const event = makeEvent({
-    type: MatrixSDK.EventType.RoomMessage,
-    content: {
-      msgtype: "m.bad.encrypted",
-    },
-  });
-  let eventKeysWereRequestedFor;
-  const message = new MatrixMessage(
-    "foo",
-    "bar",
-    { event },
-    {
-      _account: {
-        _client: {
-          cancelAndResendEventRoomKeyRequest(matrixEvent) {
-            eventKeysWereRequestedFor = matrixEvent;
-            return Promise.resolve();
-          },
-        },
-      },
-      roomState: {
-        maySendRedactionForEvent() {
-          return false;
-        },
-      },
-    }
-  );
-  const actions = message.getActions();
-  ok(Array.isArray(actions));
-  equal(actions.length, 1);
-  const [action] = actions;
-  ok(action.label);
-  action.run();
-  strictEqual(eventKeysWereRequestedFor, event);
-});
-
 add_task(async function test_getActions_redact() {
   const event = makeEvent({
     type: MatrixSDK.EventType.RoomMessage,

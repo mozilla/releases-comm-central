@@ -17,4 +17,8 @@ head = "head.js"
 
 ["test_matrixTextForEvent.js"]
 
+["test_matrixVerificationStatus.js"]
+
 ["test_roomTypeChange.js"]
+
+["test_verification.js"]

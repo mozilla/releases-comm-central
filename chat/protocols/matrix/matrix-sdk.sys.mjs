@@ -233,4 +233,3 @@ export const MatrixSDK = require("matrix-sdk/browser-index.js");
 export const OlmLib = require("matrix-sdk/crypto/olmlib");
 export const { ReceiptType } = require("matrix-sdk/@types/read_receipts");
 export const { VerificationMethod } = require("matrix-sdk/types");
-export const { CryptoEvent, VerifierEvent } = require("matrix-sdk/crypto-api");

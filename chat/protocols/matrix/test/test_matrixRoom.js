@@ -688,8 +688,12 @@ add_task(async function test_addEventRedaction() {
   equal(roomStub._mostRecentEventId, undefined);
 });
 
-add_task(function test_encryptionStateUnavailable() {
-  const room = getRoom(true, "#test:example.com");
+add_task(function test_encryptionUnavailable() {
+  const room = getRoom(true, "#test:example.com", {
+    getCrypto() {
+      return undefined;
+    },
+  });
   equal(
     room.encryptionState,
     Ci.prplIConversation.ENCRYPTION_NOT_SUPPORTED,
@@ -699,11 +703,7 @@ add_task(function test_encryptionStateUnavailable() {
 });
 
 add_task(function test_encryptionStateCanEncrypt() {
-  const room = getRoom(true, "#test:example.com", {
-    isCryptoEnabled() {
-      return true;
-    },
-  });
+  const room = getRoom(true, "#test:example.com");
   let maySendStateEvent = false;
   room.room.currentState = {
     mayClientSendStateEvent(eventType, client) {
@@ -735,14 +735,13 @@ add_task(function test_encryptionStateCanEncrypt() {
 });
 
 add_task(async function test_encryptionStateOn() {
-  const room = getRoom(true, "#test:example.com", {
-    isCryptoEnabled() {
-      return true;
-    },
-    isRoomEncrypted() {
-      return true;
-    },
-  });
+  const room = getRoom(
+    true,
+    "#test:example.com",
+    () => undefined,
+    undefined,
+    true
+  );
   room.room.currentState = {
     mayClientSendStateEvent(eventType, client) {
       equal(

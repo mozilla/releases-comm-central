@@ -115,7 +115,7 @@ var account = {
           }
         );
         this.buildEncryptionStatus();
-        this.buildAccountSessionsList();
+        await this.buildAccountSessionsList();
         this.encryptionObserver = {
           observe: (subject, topic) => {
             if (
@@ -190,8 +190,8 @@ var account = {
       encryptionStatus.replaceChildren(placeholder);
     }
   },
-  buildAccountSessionsList() {
-    const sessions = this.account.getSessions();
+  async buildAccountSessionsList() {
+    const sessions = await this.account.getSessions();
     document.querySelector(".chat-encryption-sessions-container").hidden =
       sessions.length === 0;
     const sessionList = document.querySelector(".chat-encryption-sessions");

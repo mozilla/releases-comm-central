@@ -25,28 +25,25 @@ function makeAccountMock({
   const sandbox = sinon.createSandbox();
   registerCleanupFunction(() => sandbox.restore());
 
-  const client = {
+  const crypto = {
     async getKeyBackupVersion() {
       return backupVersion;
-    },
-    async keyBackupKeyFromPassword() {
-      return "key";
     },
     async bootstrapSecretStorage() {},
     async bootstrapCrossSigning(opts) {
       await opts.authUploadDeviceSigningKeys(async () => {});
     },
+    async restoreKeyBackup() {},
+  };
+  const client = {
     async checkOwnCrossSigningTrust() {},
-    async restoreKeyBackupWithSecretStorage() {},
+    getCrypto() {
+      return crypto;
+    },
   };
   const imAccount = {
     setString: sandbox.spy(),
     save: sandbox.spy(),
-    get WARN() {
-      return _msg => {
-        // Silent ignore in tests
-      };
-    },
   };
 
   // BootstrapSSSS can be overridden, so we store it separately for spying
@@ -57,10 +54,7 @@ function makeAccountMock({
       return name === "backupPassphrase" ? passphrase : undefined;
     },
     imAccount,
-    setString(_name, _value) {
-      // Call original bootstrapSSSS if available
-      return bootstrapSSSS();
-    },
+    setString: imAccount.setString,
     save: imAccount.save,
     _encryptionError: "",
     updateEncryptionStatus: sandbox.spy(),
@@ -68,10 +62,10 @@ function makeAccountMock({
     get _bootstrapSSSS() {
       return bootstrapSSSS;
     },
-    getKeyBackupVersion: sandbox.spy(client, "getKeyBackupVersion"),
-    bootstrapSecretStorage: sandbox.spy(client, "bootstrapSecretStorage"),
-    bootstrapCrossSigning: sandbox.spy(client, "bootstrapCrossSigning"),
-    restoreKeyBackup: sandbox.spy(client, "restoreKeyBackupWithSecretStorage"),
+    getKeyBackupVersion: sandbox.spy(crypto, "getKeyBackupVersion"),
+    bootstrapSecretStorage: sandbox.spy(crypto, "bootstrapSecretStorage"),
+    bootstrapCrossSigning: sandbox.spy(crypto, "bootstrapCrossSigning"),
+    restoreKeyBackup: sandbox.spy(crypto, "restoreKeyBackup"),
   };
   return mock;
 }
@@ -128,10 +122,6 @@ add_task(async function test_bootstrapSSSS_success() {
     false,
     "New key backup is never set up."
   );
-  ok(
-    secretStorageOpts.getKeyBackupPassphrase,
-    "The passphrase is provided as a callback."
-  );
 
   equal(
     mock.bootstrapCrossSigning.callCount,
@@ -162,15 +152,11 @@ add_task(async function test_bootstrapSSSS_success() {
 });
 
 add_task(async function test_bootstrapSSSS_restoresBackup() {
+  // With a session backup, getCrypto().restoreKeyBackup() is invoked.
   const backupVersion = { version: "42" };
   const mock = makeAccountMock({ backupVersion });
   await MatrixAccount.prototype.bootstrapSSSS.call(mock);
   equal(mock.restoreKeyBackup.callCount, 1, "The backup is restored.");
-  Assert.deepEqual(
-    mock.restoreKeyBackup.firstCall.args[0],
-    backupVersion,
-    "The backup version is passed through."
-  );
 });
 
 add_task(async function test_setString_backupPassphrase() {
@@ -211,73 +197,80 @@ add_task(async function test_setString_backupPassphrase() {
   );
 });
 
-function getSessionsClient(
-  devices,
-  currentDeviceId,
-  crossSigningVerified = true
-) {
-  const sandbox = sinon.createSandbox();
-  registerCleanupFunction(() => sandbox.restore());
-  return {
-    isCryptoEnabled: sandbox.stub().returns(true),
-    getStoredDevicesForUser: sandbox.stub().callsFake(userId => {
-      equal(userId, USER_ID, "The own user's devices are requested.");
-      return devices;
-    }),
-    getDeviceId: sandbox.stub().returns(currentDeviceId),
-    checkDeviceTrust: sandbox.stub().callsFake((ownerId, _deviceId) => {
-      equal(ownerId, USER_ID, "The own user's trust is checked.");
+/**
+ * Build an account whose client reports the given own devices.
+ *
+ * @param {Map<string, object>} devices - Device ID to device info.
+ * @param {string} [currentDeviceId] - Device ID reported by getDeviceId.
+ * @returns {MatrixAccount}
+ */
+function getSessionsAccount(devices, currentDeviceId) {
+  return getAccount({
+    getCrypto() {
       return {
-        isCrossSigningVerified() {
-          return crossSigningVerified;
-        },
+        getUserDeviceInfo: sinon.stub().callsFake(async userIds => {
+          Assert.deepEqual(userIds, [USER_ID], "The own user is requested.");
+          return new Map([[USER_ID, devices]]);
+        }),
       };
-    }),
-  };
+    },
+    getDeviceId: sinon.stub().returns(currentDeviceId),
+  });
 }
 
 add_task(async function test_getSessions() {
-  // Without crypto enabled there are no sessions.
-  let account = getAccount({ isCryptoEnabled: sinon.stub().returns(false) });
+  // Without crypto there are no sessions.
+  let account = getAccount({ getCrypto: sinon.stub().returns(null) });
   Assert.deepEqual(
     await account.getSessions(),
     [],
-    "Without crypto there are no sessions."
+    "No sessions without crypto."
   );
 
-  const devices = [
-    {
-      deviceId: "DEV1",
-      getDisplayName() {
-        return "";
-      },
+  // An unknown user also has no sessions.
+  account = getAccount({
+    getCrypto() {
+      return {
+        getUserDeviceInfo: sinon.stub().resolves(new Map()),
+      };
     },
-    {
-      deviceId: "DEV2",
-      getDisplayName() {
-        return "Phone";
+  });
+  Assert.deepEqual(
+    await account.getSessions(),
+    [],
+    "No sessions for an unknown user."
+  );
+
+  const devices = new Map([
+    [
+      "DEV1",
+      { deviceId: "DEV1", verified: MatrixSDK.DeviceVerification.Verified },
+    ],
+    [
+      "DEV2",
+      {
+        deviceId: "DEV2",
+        displayName: "Phone",
+        verified: MatrixSDK.DeviceVerification.Unverified,
       },
-    },
-  ];
-  // The current device is trusted, the other is trusted as well when
-  // cross-signing is verified.
-  account = getAccount(getSessionsClient(devices, "DEV1"));
+    ],
+  ]);
+  account = getSessionsAccount(devices, "DEV1");
   const sessions = await account.getSessions();
   equal(sessions.length, 2, "One session per device.");
+
+  // The current device is flagged, trusted follows the verification state.
   const [desktop, phone] = sessions;
   equal(desktop._id, "DEV1", "The current device is listed first.");
   ok(desktop._currentSession, "The current device is flagged.");
-  ok(desktop._trusted, "A cross-signing verified device is trusted.");
+  ok(desktop._trusted, "A verified device is trusted.");
+
+  // Display names are included in the session ID.
   ok(phone._id.includes("DEV2"), "The device ID is part of the session ID.");
   ok(
     phone._id.includes("Phone"),
     "The display name is part of the session ID."
   );
   ok(!phone._currentSession, "Other devices are not the current one.");
-  ok(phone._trusted, "A cross-signing verified device is trusted.");
-
-  // A device is reported as untrusted when cross-signing is not verified.
-  account = getAccount(getSessionsClient(devices, "DEV1", false));
-  const untrusted = await account.getSessions();
-  ok(!untrusted[0]._trusted, "A device is not trusted without cross-signing.");
+  ok(!phone._trusted, "An unverified device is not trusted.");
 });

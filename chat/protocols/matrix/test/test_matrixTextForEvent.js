@@ -861,7 +861,7 @@ const FIXTURES = [
         msgtype: "m.bad.encrypted",
       },
     }),
-    result: l10n.formatValueSync("message-decryption-error"),
+    result: l10n.formatValueSync("message-decryption-error2"),
     name: "Decryption error",
   },
   {
