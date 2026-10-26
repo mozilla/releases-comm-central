@@ -3247,12 +3247,17 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
   NS_ENSURE_ARG_POINTER(applyMore);
 
   nsresult rv = NS_OK;
+  rv = GetDatabase();
+  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_STATE(mDatabase);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  if (m_filterListRequiresBody)
-    GetMessageHeader(m_curMsgUid, getter_AddRefs(msgHdr));
-  else if (m_msgParser)
+  if (m_filterListRequiresBody) {
+    nsMsgKey key = MOZ_TRY(MsgKeyFromUid(mDatabase, m_curMsgUid));
+    GetMessageHeader(key, getter_AddRefs(msgHdr));
+  } else if (m_msgParser) {
     m_msgParser->GetNewMsgHdr(getter_AddRefs(msgHdr));
+  }
   NS_ENSURE_TRUE(msgHdr,
                  NS_ERROR_NULL_POINTER);  // fatal error, cannot apply filters
 
@@ -3280,9 +3285,6 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
     (void)m_filterList->GetLoggingEnabled(&loggingEnabled);
 
   bool msgIsNew = true;
-
-  rv = GetDatabase();
-  NS_ENSURE_SUCCESS(rv, rv);
 
   nsresult finalResult = NS_OK;  // result of all actions
   for (uint32_t actionIndex = 0; actionIndex < numActions; actionIndex++) {
@@ -4422,10 +4424,17 @@ nsImapMailFolder::NormalEndMsgWriteStream(ImapUid uidOfMessage, bool markRead,
   NS_WARNING_ASSERTION((uidOfMessage == m_curMsgUid), "Interleaved messages?");
   auto uidClear = mozilla::MakeScopeExit([&] { m_curMsgUid = 0; });
 
+  // Retrieve the message header to update size, if we don't already have it.
+  nsCOMPtr<nsIMsgDBHdr> msgHeader = m_offlineHeader;
+  if (!msgHeader) {
+    GetDatabase();
+    NS_ENSURE_STATE(mDatabase);
+    auto keyLookup = MsgKeyFromUid(mDatabase, uidOfMessage);
+    if (keyLookup.isOk()) {
+      GetMessageHeader(keyLookup.unwrap(), getter_AddRefs(msgHeader));
+    }
+  }
   if (updatedMessageSize != -1) {
-    // retrieve the message header to update size, if we don't already have it
-    nsCOMPtr<nsIMsgDBHdr> msgHeader = m_offlineHeader;
-    if (!msgHeader) GetMessageHeader(uidOfMessage, getter_AddRefs(msgHeader));
     if (msgHeader) {
       uint32_t msgSize;
       msgHeader->GetMessageSize(&msgSize);
@@ -4437,11 +4446,13 @@ nsImapMailFolder::NormalEndMsgWriteStream(ImapUid uidOfMessage, bool markRead,
       // offline header gets committed in EndNewOfflineMessage() called below
       if (mDatabase && !m_offlineHeader)
         mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
-    } else
+    } else {
       NS_WARNING(
           "Failed to get message header when trying to update message size");
+    }
   }
 
+  nsCOMPtr<nsIMsgDBHdr> newMsgHdr = m_offlineHeader;
   if (m_offlineHeader) EndNewOfflineMessage(NS_OK);
 
   m_curMsgUid = uidOfMessage;
@@ -4449,8 +4460,6 @@ nsImapMailFolder::NormalEndMsgWriteStream(ImapUid uidOfMessage, bool markRead,
   // Apply filter now if it needed a body
   if (m_filterListRequiresBody) {
     if (m_filterList) {
-      nsCOMPtr<nsIMsgDBHdr> newMsgHdr;
-      GetMessageHeader(uidOfMessage, getter_AddRefs(newMsgHdr));
       GetMoveCoalescer();
       nsCOMPtr<nsIMsgWindow> msgWindow;
       if (imapUrl) {
