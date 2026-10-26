@@ -14,7 +14,9 @@ team to execute the NSS test suite, and give you a copy of the contents
 of this directory:
   tests_results/security/localhost.1/sharedb/smime/tb/
 
-(You only need the files having extensions .eml or .p12 or .pem .)
+(You need the files having extensions .eml or .p12 or .pem, and the raw CMS
+files alice.mime*, alice.textplain*, alice.sig.*, alice.dsig.* that the .eml
+messages are built from; generate.sh copies exactly these.)
 
 The generate.sh script will automatically call local-gen.sh script,
 which generates additional test data, based on the updated NSS data.

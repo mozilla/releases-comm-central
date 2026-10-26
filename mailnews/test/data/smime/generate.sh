@@ -31,6 +31,15 @@ popd
 cp -v nssbuild/tests_results/security/localhost.1/sharedb/smime/tb/*.eml .
 cp -v nssbuild/tests_results/security/localhost.1/sharedb/smime/tb/*.p12 .
 cp -v nssbuild/tests_results/security/localhost.1/sharedb/smime/tb/*.pem .
+# The raw CMS files that the .eml messages are built from, used by tests
+# that parse CMS directly. Listed explicitly: tb/ also contains
+# intermediate files that are not needed here.
+TB=nssbuild/tests_results/security/localhost.1/sharedb/smime/tb
+cp -v "$TB"/alice.mime "$TB"/alice.textplain "$TB"/alice.mime.env .
+cp -v "$TB"/alice.mime.dsig.SHA* "$TB"/alice.textplain.sig.SHA* .
+cp -v "$TB"/alice.sig.SHA*.opaque "$TB"/alice.sig.SHA*.opaque.env .
+cp -v "$TB"/alice.dsig.SHA*.multipart "$TB"/alice.dsig.SHA*.multipart.env .
+cp -v "$TB"/alice.dsig.SHA*.multipart.mismatch-econtent .
 
 CWD=$(pwd)
 
