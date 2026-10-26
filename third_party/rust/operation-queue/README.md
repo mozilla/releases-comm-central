@@ -31,6 +31,60 @@ impl QueuedOperation for Operation {
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
+    let local = tokio::task::LocalSet::new();
+
+    local
+        .run_until(async {
+            let queue = OperationQueue::new(|runner_fut| {
+                let _ = tokio::task::spawn_local(runner_fut);
+            });
+
+            queue
+                .start(RUNNER_COUNT)
+                .expect("failed to start the queue");
+
+            for i in 0..OPERATION_COUNT {
+                let op = Operation { /** ... */ };
+                queue
+                    .enqueue(Box::new(op))
+                    .await
+                    .expect("failed to enqueue operation");
+            }
+
+            // Do things, or wait for some shutdown signal...
+
+            queue.stop().await;
+        })
+        .await;
+}
+```
+
+## Multithreading
+
+By default, `OperationQueue` and its operations are not required to be
+`Send`, so its runners must be spawned locally (as shown above). Enabling the
+`send` feature swaps in a `Send`-safe variant instead, for use with
+`tokio::spawn` on a multi-threaded runtime — only one variant is available in
+a given build:
+
+```rust
+use operation_queue::{OperationQueue, QueuedOperation};
+
+const OPERATION_COUNT: usize = 100;
+const RUNNER_COUNT: usize = 100;
+
+struct Operation {
+    // Fields...
+}
+
+impl QueuedOperation for Operation {
+    async fn perform(&self) {
+        // Perform the operation...
+    }
+}
+
+#[tokio::main]
+async fn main() {
     let queue = OperationQueue::new(|runner_fut| {
         let _ = tokio::spawn(runner_fut);
     });

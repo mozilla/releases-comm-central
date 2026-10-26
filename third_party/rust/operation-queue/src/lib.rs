@@ -54,9 +54,11 @@
 //!
 //! The synchronization helpers in the [`line_token`] module are thread-safe.
 //!
-//! However, in order to maintain compatibility with the current Thunderbird
-//! code-base, the operation queue's runner cannot be sent between threads.
-//! This is something we plan to address in the future.
+//! By default, [`OperationQueue`] and its operations are not required to be
+//! [`Send`], so its runners must be spawned locally (e.g.
+//! `tokio::task::spawn_local`). Enabling the `send` feature swaps in a
+//! `Send`-safe variant instead, for use with `tokio::spawn` on a
+//! multi-threaded runtime — only one variant is compiled at a time.
 //!
 //! [dyn compatibility]:
 //!     <https://doc.rust-lang.org/reference/items/traits.html#dyn-compatibility>
