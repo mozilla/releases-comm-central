@@ -94,9 +94,7 @@
     transition: opacity 250ms ease;
   }
   #calendar-list > li {
-    transition:
-      background-color 250ms ease,
-      color 250ms ease;
+    transition: background-color 250ms ease;
   }
 }
 
