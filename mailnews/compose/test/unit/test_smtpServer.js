@@ -167,20 +167,23 @@ add_task(async function test_unconfiguredServerURI() {
 
 /**
  * A stored hostname that doesn't produce a parseable URI should also report no
- * URI instead of throwing. A host:port pair in the hostname field is turned
- * into "smtp://[host:port]", which is not a valid IPv6 literal.
+ * URI instead of throwing. This includes a host:port pair in the hostname
+ * field, which is turned into "smtp://[host:port]", and a hostname beginning
+ * with a dot, such as ".127.0.0.1".
  */
 add_task(async function test_unparseableHostnameServerURI() {
-  const server = MailServices.outgoingServer.createServer("smtp");
-  server.QueryInterface(Ci.nsISmtpServer).hostname = "127.0.0.1:1025";
+  for (const hostname of ["127.0.0.1:1025", ".127.0.0.1"]) {
+    const server = MailServices.outgoingServer.createServer("smtp");
+    server.QueryInterface(Ci.nsISmtpServer).hostname = hostname;
 
-  Assert.equal(
-    server.serverURI,
-    null,
-    "a server with an unparseable hostname should report no URI"
-  );
+    Assert.equal(
+      server.serverURI,
+      null,
+      `a server with the unparseable hostname ${hostname} should report no URI`
+    );
 
-  MailServices.outgoingServer.deleteServer(server);
+    MailServices.outgoingServer.deleteServer(server);
+  }
 });
 
 /**

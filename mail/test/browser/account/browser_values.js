@@ -50,6 +50,52 @@ registerCleanupFunction(function () {
 });
 
 /**
+ * Bug 2015366.
+ * Check that an invalid SMTP hostname does not break the account settings UI.
+ */
+add_task(async function test_invalid_smtp_hostname() {
+  const identity = gPopAccount.defaultIdentity;
+  const originalSmtpServerKey = identity.smtpServerKey;
+  const smtpServer = MailServices.outgoingServer.createServer("smtp");
+  smtpServer.QueryInterface(Ci.nsISmtpServer).hostname = ".127.0.0.1";
+  identity.smtpServerKey = smtpServer.key;
+
+  try {
+    await open_advanced_settings(async function (tab) {
+      const accountRow = get_account_tree_row(gPopAccount.key, null, tab);
+      await click_account_tree_row(tab, accountRow);
+
+      const doc =
+        tab.browser.contentWindow.document.getElementById(
+          "contentFrame"
+        ).contentDocument;
+
+      Assert.equal(
+        doc.getElementById("identity.email").value,
+        identity.email,
+        "the account settings UI should load the identity values"
+      );
+      const smtpServerMenu = doc.getElementById("identity.smtpServerKey");
+      Assert.equal(
+        smtpServerMenu.value,
+        smtpServer.key,
+        "the invalid SMTP server should remain selected"
+      );
+      Assert.equal(
+        smtpServerMenu.selectedItem.label,
+        doc
+          .getElementById("bundle_messenger")
+          .getString("smtpServerList-NotSpecified"),
+        "the invalid SMTP server should use the Not specified label"
+      );
+    });
+  } finally {
+    identity.smtpServerKey = originalSmtpServerKey;
+    MailServices.outgoingServer.deleteServer(smtpServer);
+  }
+});
+
+/**
  * Bug 208628.
  * Check that if the CC field is empty, enabling CC will automatically
  * prefill the currently default email address.
