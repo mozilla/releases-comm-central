@@ -229,6 +229,87 @@ add_task(async function test_rss2_duplicate_media_content() {
   Assert.equal(items[0].enclosures[0].mURL, "https://example.com/audio.mp3");
 });
 
+// Test that a large number of enclosures is deduplicated, keeping order.
+add_task(async function test_many_enclosures() {
+  const account = FeedUtils.createRssAccount("test_many_enclosures");
+  const rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
+  const folder = rootFolder.createLocalSubfolder("many-enclosures");
+  const count = 20000;
+  const urls = Array.from(
+    { length: count },
+    (_, i) => `https://example.com/enc${i}.mp3`
+  );
+  const expected = [...urls, urls[0]];
+
+  const rss = `<?xml version="1.0"?>
+    <rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
+      <channel>
+        <title>Many enclosures</title>
+        <link>https://example.com/</link>
+        <item>
+          <title>Item</title>
+          <link>https://example.com/item</link>
+          ${expected.map(u => `<enclosure url="${u}" type="audio/mpeg" length="1"/>`).join("")}
+          ${expected.map(u => `<media:content url="${u}" type="audio/mpeg"/>`).join("")}
+        </item>
+      </channel>
+    </rss>`;
+  const feed = new Feed("https://example.com/rss.xml", folder);
+  feed.parseItems = true;
+  feed.onParseError = function () {
+    throw new Error("PARSE ERROR");
+  };
+  let items = new FeedParser().parseAsRSS2(
+    feed,
+    new DOMParser().parseFromString(rss, "application/xml")
+  );
+  Assert.equal(items.length, 1, "there should be one RSS item");
+  Assert.equal(
+    items[0].enclosures.length,
+    count,
+    "RSS duplicate enclosures should be dropped"
+  );
+  Assert.ok(
+    items[0].enclosures.every((e, i) => e.mURL == urls[i]),
+    "RSS enclosures should be in document order"
+  );
+
+  const atom = `<?xml version="1.0"?>
+    <feed xmlns="http://www.w3.org/2005/Atom">
+      <id>urn:many-enclosures</id>
+      <title>Many enclosures</title>
+      <updated>2026-01-01T00:00:00Z</updated>
+      <entry>
+        <id>urn:many-enclosures:1</id>
+        <title>Entry</title>
+        <updated>2026-01-01T00:00:00Z</updated>
+        <link href="https://example.com/entry"/>
+        ${expected.map(u => `<link rel="enclosure" href="${u}" type="audio/mpeg" length="1"/>`).join("")}
+      </entry>
+    </feed>`;
+  const atomFeed = new Feed("https://example.com/atom.xml", folder);
+  atomFeed.parseItems = true;
+  atomFeed.onParseError = function () {
+    throw new Error("PARSE ERROR");
+  };
+  items = new FeedParser().parseAsAtomIETF(
+    atomFeed,
+    new DOMParser().parseFromString(atom, "application/xml")
+  );
+  Assert.equal(items.length, 1, "there should be one Atom entry");
+  Assert.equal(
+    items[0].enclosures.length,
+    count,
+    "Atom duplicate enclosures should be dropped"
+  );
+  Assert.ok(
+    items[0].enclosures.every((e, i) => e.mURL == urls[i]),
+    "Atom enclosures should be in document order"
+  );
+});
+
 // Test feed downloading.
 // Mainly checking that it doesn't crash and that the right feed parser is used.
 add_task(async function test_download() {
