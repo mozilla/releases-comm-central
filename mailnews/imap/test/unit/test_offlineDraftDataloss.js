@@ -93,15 +93,20 @@ add_task(async function goOnline() {
   IMAPPump.server.start();
   offlineManager.inProgress = true;
   offlineManager.goOnline(false, true, null);
-  // There seem to be some untraceable postprocessing with 100ms.
-  //  (Found through xpcshell-test --verify)
-  await PromiseTestUtils.promiseDelay(100);
   await TestUtils.waitForCondition(
     () => !offlineManager.inProgress,
     "wait for offlineManager not in progress"
   );
-  // Verify that message is now on the server.
-  Assert.equal(IMAPPump.daemon.getMailbox("Drafts")._messages.length, 1);
+  // The offline sync reports completion as soon as the draft append has been
+  // started, not when it has finished.
+  await TestUtils.waitForCondition(
+    () => IMAPPump.daemon.getMailbox("Drafts")._messages.length == 1,
+    "draft should be appended to the server"
+  );
+  await TestUtils.waitForCondition(
+    () => !(gDraftsFolder.flags & Ci.nsMsgFolderFlags.OfflineEvents),
+    "offline draft operation should be played back"
+  );
 });
 
 add_task(function endTest() {
