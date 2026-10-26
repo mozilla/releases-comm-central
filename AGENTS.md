@@ -63,8 +63,7 @@ Do NOT use `../mach lint`, as that will fail.
 
 ## Writing and Reviewing Front-end Code
 
-Follow the guidance in the `thunderbird-frontend-guidelines` and
-`writing-jsdocs` skills.
+Utilize the skills available (e.g., `thunderbird-frontend-guidelines`, `writing-js-comments` , etc.)
 
 ## Automated Tests
 

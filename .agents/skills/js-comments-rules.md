@@ -1,12 +1,23 @@
-# JSDoc Rules
+# JavaScript Comment Rules
 
-Apply these rules when writing or reviewing JSDoc in JavaScript files.
+Apply these rules when writing or reviewing comments in JavaScript files. This
+includes inline comments and JSDoc.
 
-## Core Rule
+## General Comment Rules
 
-Write JSDoc from the implementation outward. The comment must describe what the
-code actually does in terms consumers need to use it correctly. Do not describe
-what the method ideally should do.
+### Core Rule
+
+Write comments from the implementation outward. A comment must describe what
+the code does or why the code needs a non-obvious constraint. Do not describe
+what the code ideally should do.
+
+Add an inline comment only when it explains a non-obvious guard, asynchronous
+ordering requirement, state change, accessibility behavior, UI constraint, or
+reason for an unusual implementation. Do not comment code that is clear from
+its names and structure.
+
+State the affected value or operation. Keep inline comments close to the code
+that they explain.
 
 Use ASD-STE100 Simplified Technical English as guidance for comments and
 descriptions. This is not a strict compliance requirement. Prefer short, direct
@@ -30,7 +41,7 @@ as written.
   Rewrite them as direct relationships, such as "state for the attendee"
   instead of "attendee state" when needed.
 
-## Generated Comment Quality
+### Comment Quality
 
 Generated comments must meet this contract:
 
@@ -86,6 +97,24 @@ Good, when the function filters and returns messages:
 Avoid broad verbs such as `marks`, `handles`, `manages`, or `processes` unless
 the comment states the exact changed value or result. Do not use undefined
 abstractions such as `marker`, or vague references such as `which ones`.
+
+### Conditions and Guards
+
+For a comment that describes a condition or guard, state the concrete action and
+the condition that permits or prevents it. Use names visible in the code when
+possible. Do not make readers infer the action from an indirect result.
+
+Bad:
+
+```js
+// A response from an earlier search must not update the current view.
+```
+
+Good:
+
+```js
+// Update the search results only if this search is still current.
+```
 
 ### User Context Without Code Behavior
 
@@ -149,6 +178,23 @@ Good:
  */
 ```
 
+### Direct References
+
+Name the code object, value, or state that a sentence describes. Do not state a
+fact without naming what the fact applies to.
+
+Bad:
+
+```js
+// Each tab has its own state.
+```
+
+Good:
+
+```js
+// `tabState` maps each tab ID to its selected folder ID.
+```
+
 ### Generic Value Claims
 
 Bad:
@@ -168,7 +214,11 @@ Good:
  */
 ```
 
-## Required Checks
+## JSDoc Rules
+
+Apply the following rules only to JSDoc comments.
+
+### Required Checks
 
 - **Coverage:** Add JSDoc for every exported class, shared API, reusable custom
   element, top-level function, workflow-facing method, and non-trivial helper.
@@ -523,3 +573,5 @@ const toolbarState = {
   not replace the code behavior.
 - Comments contain no invented workflow, motivation, call site, or effect.
 - Comments contain no generic value claim, filler, or undefined abstraction.
+- Comments that describe a condition or guard name the concrete action and the
+  condition that changes it.

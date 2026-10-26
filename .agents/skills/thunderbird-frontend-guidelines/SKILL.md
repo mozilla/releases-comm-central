@@ -26,7 +26,7 @@ Before giving a review, patch, or proposal, check these gates:
 | Custom elements | Follow `mail/base/docs/custom_element_conventions.md`. |
 | State | Follow `mail/base/docs/state_management.md`. |
 | Front-end tests | Use `thunderbird-frontend-testing-guidelines` for test files. |
-| JSDoc | Ensure JSDocs are accurate; use `reviewing-jsdocs` to validate them. |
+| Comments | Ensure JavaScript comments are accurate; use `reviewing-js-comments` to validate them. |
 | Modern platform | Use new browser features when possible. |
 
 Relevant docs include examples such as `quick_filter_bar.md` for Quick Filter
@@ -71,7 +71,19 @@ present:
 - Pay attention to how the file is loaded before you add imports.
 - Prefer lazy loading for code that is not needed during startup or initial UI
   load.
-- Verify JSDoc text, params, return values, types, side effects, and examples.
+- Verify JavaScript comments. For JSDoc, also verify text, params, return
+  values, types, side effects, and examples.
+
+### Readability
+
+- Use blank lines between distinct function phases, such as getting input or
+  state values, preparing data, updating the DOM, and handling focus.
+- Flag a long function when its work cannot be described as one named
+  responsibility or lifecycle operation, such as initialization, reset, or
+  cleanup.
+- Use a named boolean when it makes a compound condition clearer.
+- Keep an `if` block focused on one decision. Prepare data before the block
+  when this makes the decision easier to read.
 
 ## HTML
 
@@ -145,6 +157,11 @@ Correct:
 - Are `dataset` and `classList` used instead of attribute/class strings?
 - Did you flag every `setAttribute("data-*")`, `getAttribute("data-*")`,
   and `className` mutation?
+- Do long functions use blank lines between distinct phases?
+- Can each long function be described as one responsibility or lifecycle
+  operation?
+- Would a named boolean make any compound condition clearer?
+- Does each `if` block make one decision?
 - Are HTML `id` attributes first?
 - Are long HTML attributes split across lines?
 - Are CSS tokens, logical properties, classes, and low specificity used?
@@ -160,14 +177,15 @@ Correct:
   properties.
 - Adding `#id` selectors: prefer class selectors.
 - Hard-coding colors or spacing: check for a design token or CSS variable.
-- Copying a similar JSDoc: update and validate it with `reviewing-jsdocs`.
+- Copying a similar JavaScript comment: update and validate it with
+  `reviewing-js-comments`.
 - Editing Quick Filter UI without reading docs: check
   `mail/base/docs/quick_filter_bar.md`.
 
 ## Red Flags
 
 - New front-end code has no test coverage.
-- JSDoc is copied from nearby code without verification.
+- A JavaScript comment is copied from nearby code without verification.
 - JavaScript controls visibility that CSS can control.
 - A new eager import affects startup or initial UI load.
 - HTML has `id` after other attributes.

@@ -117,6 +117,9 @@ Guidelines:
   license header and before declarations.
 - Use `add_setup` for shared fixture, service, or window setup.
 - Use named `add_task` functions.
+- Do not use `defineESModuleGetter` in frontend tests. Import modules normally:
+  tests should load the modules they use, even when a particular test path does
+  not exercise every imported module.
 - Store stable fixture-wide references in module-level variables.
 - Re-query elements after rerendering, insertion, navigation, or DOM
   replacement.
@@ -132,6 +135,10 @@ Guidelines:
 
 - Use named `add_task` functions:
   `add_task(async function test_captureState() {})`.
+- Keep names concise and focused on the general behavior. Avoid implementation
+  details and long descriptions of the setup or internal state. For example,
+  use `test_backNavResetsSubview`, not
+  `test_replacingRouteWithActiveDescriptionSubviewResetsImmediately`.
 - Flag new or renamed snake-case test names. Do not preserve them only to match
   older local tests.
 - Name method-contract tests after the public API being exercised:
@@ -228,7 +235,7 @@ Use these concrete patterns when they match the test's purpose:
 | Check localized attributes                                             | `document.l10n.getAttributes(label).id;`                                                            |
 | Check ARIA element linkage                                             | `Assert.deepEqual(input.ariaLabelledByElements, [label]);`                                          |
 | Assert serialized component state                                      | `Assert.deepEqual(subview.captureState(), expectedState);`                                          |
-| Assert event payload state                                             | `Assert.ok(configUpdatedEvent.completed, "Should have a complete form");`                           |
+| Assert event payload state                                             | `Assert.ok(configUpdatedEvent.completed, "The form should be complete");`                           |
 | Assert exact selected values                                           | `Assert.equal(incomingAuthMethod.value, Ci.nsMsgAuthMethod.OAuth2);`                                |
 | Avoid mutation leakage between tests                                   | `subview.resetState(); await SpecialPowers.popPrefEnv();`                                           |
 | Close content-tab fixtures from shared setup cleanup                   | `registerCleanupFunction(() => tabmail.closeOtherTabs(tabmail.tabInfo[0]));`                        |
@@ -247,6 +254,8 @@ EventUtils.synthesizeKey("KEY_Tab", {}, element.ownerGlobal);
 Guidelines:
 
 - Pass a content global for content element clicks, key events, and typing.
+- For longer tests, add short comments before groups of steps that mimic a user
+  action. For example: `// The user clicks the "Submit" button.`
 - Avoid the chrome `window` unless intentionally interacting with chrome UI.
 - Focus the relevant browser, document, or input before focus-sensitive typing.
 - For headless-sensitive user-like clicks, wait for visible/enabled state and
@@ -342,6 +351,14 @@ Common assertion APIs:
 Assertion guidelines:
 
 - Messages should describe expected behavior and match the assertion polarity.
+- Use expectant tense: describe what should happen. For example, write "The
+  main subview should be visible", not "The main subview is visible".
+- Use "should have a" for required UI elements. For example, write "The dialog
+  should have a Back button", not "The dialog provides the Back button".
+- Describe the user action or visible result in plain language. Do not expose
+  implementation details unless they are the behavior under test.
+- Never `await` inside an assertion. Keep assertions basic: await async work
+  first, then assert its result or effects.
 - `ok`, `is`, and `isnot` are valid mochitest globals, but they are older style
   here. Do not introduce or preserve them when touching Thunderbird frontend
   tests; convert touched assertions to `Assert`.
@@ -358,12 +375,40 @@ Assertion guidelines:
 
 ```js
 const title = banner.querySelector("[slot='title']");
-Assert.ok(title, "Fixture provides a title slot element");
+Assert.ok(title, "The banner should have a title");
 Assert.equal(
   title.textContent,
   "Test banner",
-  "Fixture title should be available through the title slot",
+  "The banner title should show the test banner",
 );
+```
+
+Avoid:
+
+```js
+Assert.equal(
+  (
+    await save({
+      transact: () => {
+        calls++;
+      },
+    })
+  ).status,
+  "invalid",
+);
+```
+
+Prefer:
+
+```js
+const result = await save({
+  transact() {
+    calls++;
+  },
+});
+
+Assert.equal(result.status, "invalid");
+Assert.equal(calls, 0);
 ```
 
 ## Localization
