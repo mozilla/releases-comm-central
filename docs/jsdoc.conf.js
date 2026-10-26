@@ -23,7 +23,16 @@ const ignorePatterns = [
 ];
 
 module.exports = {
-  plugins: [],
+  plugins: [
+    path.join(
+      __dirname,
+      "..",
+      "..",
+      "docs",
+      "jsdoc-plugins",
+      "skip-private-members.mjs"
+    ),
+  ],
   recurseDepth: 10,
   source: {
     exclude: [
