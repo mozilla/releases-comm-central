@@ -9,6 +9,8 @@ const authCache = Cc["@mozilla.org/network/http-auth-cache;1"].getService(
   Ci.nsIHttpAuthCache
 );
 
+const securityManager = Services.scriptSecurityManager;
+
 /** @type {EwsServer} */
 var ewsServer;
 
@@ -90,6 +92,10 @@ add_task(async function test_change_url() {
   const user = { value: "" };
   const password = { value: "" };
 
+  const originString = `http://${newHostname}:${newPort}^userContextId=${incomingServer.getIntValue("user_context_id")}`;
+  const principal =
+    securityManager.createContentPrincipalFromOrigin(originString);
+
   authManager.getAuthIdentity(
     "http",
     newHostname,
@@ -99,7 +105,9 @@ add_task(async function test_change_url() {
     "",
     domain,
     user,
-    password
+    password,
+    false,
+    principal
   );
 
   Assert.strictEqual(domain.value, "");

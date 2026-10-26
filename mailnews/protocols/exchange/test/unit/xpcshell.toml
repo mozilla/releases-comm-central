@@ -56,6 +56,8 @@ tags = ["foldernames"]
 
 ["test_syncMessagesForFolder.js"]
 
+["test_twoaccounts.js"]
+
 ["test_undo.js"]
 
 ["test_verifyLogon.js"]

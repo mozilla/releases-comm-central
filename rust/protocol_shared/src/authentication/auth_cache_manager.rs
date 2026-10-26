@@ -10,14 +10,22 @@
 //! same instance and that the instance being used is capable of interacting
 //! with Necko's cache.
 
-use std::{cell::RefCell, collections::HashMap, fmt::Debug, ptr};
+use std::{
+    cell::{Cell, RefCell},
+    collections::HashMap,
+    fmt::Debug,
+};
 
+use moz_http::make_origin_string;
 use nserror::{NS_ERROR_INVALID_ARG, NS_ERROR_NOT_AVAILABLE, NS_ERROR_UNEXPECTED, nsresult};
 use nsstring::{nsCString, nsString};
 use thin_vec::ThinVec;
 use xpcom::{
-    RefPtr, components,
-    interfaces::{nsIHttpAuthCache, nsIHttpAuthEntry, nsIHttpAuthManager, nsMsgAuthMethod},
+    RefPtr, components, getter_addrefs,
+    interfaces::{
+        nsIHttpAuthCache, nsIHttpAuthEntry, nsIHttpAuthManager, nsIScriptSecurityManager,
+        nsMsgAuthMethod,
+    },
 };
 
 use crate::authentication::authentication_provider::{
@@ -150,6 +158,16 @@ impl ServerAuthIdentity {
     }
 }
 
+/// Information about a stored auth entry.
+#[derive(Clone)]
+struct AuthCacheEntry {
+    /// The Necko auth entry.
+    auth_entry: RefPtr<nsIHttpAuthEntry>,
+    /// The user context ID associated with the auth entry's principal for the
+    /// contextual identity service.
+    user_context_id: u32,
+}
+
 /// A struct that acts as a proxy between the rest of the code and Necko's HTTP
 /// authentication cache.
 ///
@@ -160,7 +178,10 @@ pub(crate) struct HttpAuthCacheManager {
     /// [`RefCell`] to provide interior mutability. Uses of `RefCell` should be
     /// fine here as long as [`HttpAuthCacheManager`]'s methods stay
     /// synchronous, and care is applied to ensure borrowing rules are followed.
-    cache_entries: RefCell<HashMap<String, RefPtr<nsIHttpAuthEntry>>>,
+    cache_entries: RefCell<HashMap<String, AuthCacheEntry>>,
+    /// The next ID to use as a user context ID for the contextual identity
+    /// service.
+    next_user_context_id: Cell<u32>,
 }
 
 impl HttpAuthCacheManager {
@@ -173,8 +194,12 @@ impl HttpAuthCacheManager {
             "HttpAuthCacheManager should not be constructed from outside the main thread"
         );
 
+        // Start generating user context IDs after the default user context ID.
+        let first_user_context_id = nsIScriptSecurityManager::DEFAULT_USER_CONTEXT_ID + 1;
+
         HttpAuthCacheManager {
             cache_entries: Default::default(),
+            next_user_context_id: Cell::new(first_user_context_id),
         }
     }
 
@@ -182,6 +207,14 @@ impl HttpAuthCacheManager {
     ///
     /// If the server doesn't use an authentication method that we delegate to
     /// Necko, this is a no-op.
+    ///
+    /// Every distinct (authority, username) combination is given a distinct
+    /// user context for the contextual identity service. This ensures that
+    /// cached authentication credentials are separate between different accounts
+    /// on the same underlying server. To ensure that Necko uses the correct
+    /// credentials, the same user context id must be provided within the
+    /// origin attributes for the HTTP request. The context id can be obtained
+    /// for a cached entry by calling [`find_user_context_id`].
     pub(super) fn add_or_update_cache<ServerT: AuthenticationProvider + ?Sized>(
         &self,
         server: &ServerT,
@@ -198,6 +231,20 @@ impl HttpAuthCacheManager {
         let auth_manager: RefPtr<nsIHttpAuthManager> =
             xpcom::get_service(c"@mozilla.org/network/http-auth-manager;1")
                 .ok_or(NS_ERROR_UNEXPECTED)?;
+
+        let security_manager: RefPtr<nsIScriptSecurityManager> =
+            xpcom::get_service(c"@mozilla.org/scriptsecuritymanager;1")
+                .ok_or(NS_ERROR_UNEXPECTED)?;
+        let server_url = server.base_http_url()?.ok_or(NS_ERROR_UNEXPECTED)?;
+
+        // Generate a new user context for the auth identity.
+        let user_context_id = self.next_user_context_id.get();
+        self.next_user_context_id.set(user_context_id + 1);
+        let principal = getter_addrefs(|p| {
+            let origin = make_origin_string(&server_url, user_context_id);
+            let origin = nsCString::from(origin);
+            unsafe { security_manager.CreateContentPrincipalFromOrigin(&raw const *origin, p) }
+        })?;
 
         // SAFETY: We've ensured the pointers we use here point to valid data. This
         // data is copied (via `ns[C]String::Assign`) before `SetAuthIdentity`
@@ -226,7 +273,7 @@ impl HttpAuthCacheManager {
                 &raw const *nsString::from(&ident.password),
                 // Optional parameters.
                 false,
-                ptr::null(),
+                principal.coerce(),
             )
         }
         .to_result()?;
@@ -235,10 +282,16 @@ impl HttpAuthCacheManager {
         // already had one, update it).
         let entry = find_cache_entry(ident)?;
         let key = server.key()?.to_string();
-        self.cache_entries
-            .borrow_mut()
-            .insert(key.clone(), entry.clone());
+        self.cache_entries.borrow_mut().insert(
+            key.clone(),
+            AuthCacheEntry {
+                auth_entry: entry.clone(),
+                user_context_id,
+            },
+        );
         log::debug!("stored cache entry for server with key {key}");
+
+        server.set_user_context_id(user_context_id)?;
 
         Ok(())
     }
@@ -273,9 +326,9 @@ impl HttpAuthCacheManager {
 
             // SAFETY: Pointers refer to memory that has just been allocated and
             // stays alive throughout the function calls.
-            unsafe { stale_entry.GetRealm(&raw mut *realm) }.to_result()?;
-            unsafe { stale_entry.GetDomain(&raw mut *domain) }.to_result()?;
-            unsafe { stale_entry.GetUser(&raw mut *username) }.to_result()?;
+            unsafe { stale_entry.auth_entry.GetRealm(&raw mut *realm) }.to_result()?;
+            unsafe { stale_entry.auth_entry.GetDomain(&raw mut *domain) }.to_result()?;
+            unsafe { stale_entry.auth_entry.GetUser(&raw mut *username) }.to_result()?;
 
             log::debug!(
                 "removing stale entry for server with key {key}: realm={realm}, domain={domain}, username={username}"
@@ -287,7 +340,7 @@ impl HttpAuthCacheManager {
 
         // SAFETY: `stale_entry` is wrapped in a `RefPtr` which ensures the
         // inner `nsIHttpAuthEntry` is kept alive.
-        match unsafe { cache.ClearEntry(stale_entry.coerce()) }.to_result() {
+        match unsafe { cache.ClearEntry(stale_entry.auth_entry.coerce()) }.to_result() {
             Ok(()) => (),
             // `nsHttpAuthCacheManager` returns with `NS_ERROR_NOT_AVAILABLE` if
             // it cannot find the entry. This might be the case if e.g. incoming
@@ -306,7 +359,26 @@ impl HttpAuthCacheManager {
         // Also remove it from our own map.
         self.cache_entries.borrow_mut().remove(&key);
 
+        server.set_user_context_id(nsIScriptSecurityManager::DEFAULT_USER_CONTEXT_ID)?;
+
         Ok(())
+    }
+
+    /// Find the user context ID associated with a server, if any.
+    ///
+    /// If the server has an auth cache entry, the user context ID that was
+    /// generated upon adding the entry to the cache will be returned.
+    /// Otherwise, this will return [`None`].
+    pub(crate) fn find_user_context_id<ServerT: AuthenticationProvider + ?Sized>(
+        &self,
+        server: &ServerT,
+    ) -> Result<Option<u32>, nsresult> {
+        let key = server.key()?.to_string();
+        Ok(self
+            .cache_entries
+            .borrow()
+            .get(&key)
+            .map(|entry| entry.user_context_id))
     }
 
     /// Invalidate all locally-tracked entries from the Necko authentication
@@ -334,7 +406,7 @@ impl HttpAuthCacheManager {
         for entry in self.cache_entries.borrow().values() {
             // SAFETY: `entry` is wrapped in a `RefPtr` which ensures the inner
             // `nsIHttpAuthEntry` is kept alive.
-            unsafe { cache.ClearEntry(entry.coerce()) }.to_result()?;
+            unsafe { cache.ClearEntry(entry.auth_entry.coerce()) }.to_result()?;
         }
 
         // Also remove any entry we've been keeping track of, since they're not

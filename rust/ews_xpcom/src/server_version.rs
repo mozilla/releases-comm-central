@@ -198,7 +198,7 @@ impl ServerVersionHandler {
 
         // Add the version to the known versions map, serialize it into JSON,
         // and store the result in the pref.
-        known_versions.insert(self.endpoint.to_string(), version);
+        known_versions.insert(endpoint, version);
 
         let known_versions = serde_json::to_string(&known_versions)?;
         let known_versions = nsCString::from(known_versions);

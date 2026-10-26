@@ -22,7 +22,7 @@ use xpcom::{
     },
     xpcom_method,
 };
-use xpcom::{XpCom, components};
+use xpcom::{XpCom, components, create_instance};
 
 use crate::client::ProtocolClient;
 use crate::observers::{OBSERVER_TOPIC_SMTPSERVER_REMOVED, OutgoingRemovalObserver};
@@ -130,7 +130,7 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
         client_constructor: fn(&OutgoingServer<ClientT>) -> Result<ClientT, nsresult>,
     ) -> Result<RefPtr<Self>, nsresult> {
         let password_module =
-            get_service::<msgIPasswordAuthModule>(c"@mozilla.org/mail/password-auth-module;1")
+            create_instance::<msgIPasswordAuthModule>(c"@mozilla.org/mail/password-auth-module;1")
                 .ok_or(Err::<(), nsresult>(nserror::NS_ERROR_FAILURE))?;
 
         Ok(OutgoingServer::allocate(InitOutgoingServer {

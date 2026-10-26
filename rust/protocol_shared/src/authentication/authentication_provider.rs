@@ -171,6 +171,8 @@ pub trait AuthenticationProvider {
         AUTH_CACHE_MANAGER.with(|manager| manager.remove_from_cache(self))?;
         Ok(())
     }
+
+    fn set_user_context_id(&self, id: u32) -> Result<(), nsresult>;
 }
 
 impl AuthenticationProvider for nsIMsgIncomingServer {
@@ -264,6 +266,12 @@ impl AuthenticationProvider for nsIMsgIncomingServer {
         let ret = oauth2_supported.then_some(oauth2_module);
 
         Ok(ret)
+    }
+
+    fn set_user_context_id(&self, id: u32) -> Result<(), nsresult> {
+        // nsIPrefBranch only allows setting signed integer values.
+        let id = id.try_into().map_err(|_| nserror::NS_ERROR_ILLEGAL_VALUE)?;
+        self.set_int_property(ServerProperty::UserContextId, id)
     }
 }
 
@@ -373,5 +381,11 @@ impl AuthenticationProvider for nsIMsgOutgoingServer {
         .to_result()?;
 
         Ok(oauth2_supported.then_some(oauth2_module))
+    }
+
+    fn set_user_context_id(&self, id: u32) -> Result<(), nsresult> {
+        // nsIPrefBranch only allows setting signed integer values.
+        let id = id.try_into().map_err(|_| nserror::NS_ERROR_ILLEGAL_VALUE)?;
+        self.set_int_property(ServerProperty::UserContextId, id)
     }
 }

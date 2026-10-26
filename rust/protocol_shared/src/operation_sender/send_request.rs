@@ -10,7 +10,9 @@ use url::Url;
 use uuid::Uuid;
 use xpcom::RefPtr;
 
-use crate::{ServerType, error::ProtocolError};
+use crate::{
+    ServerType, authentication::auth_cache_manager::AUTH_CACHE_MANAGER, error::ProtocolError,
+};
 
 /// An internal wrapper to carry the metadata we use for logging sending a
 /// request (and receiving its response) alongside the request itself.
@@ -71,6 +73,10 @@ where
         request_builder = request_builder.header("Authorization", hdr_value);
     }
 
+    // Find the contextual identity, if necessary.
+    let user_context_id =
+        AUTH_CACHE_MANAGER.with(|manager| manager.find_user_context_id(&*server))?;
+
     // Only add a body if not empty.
     let body = request.body();
     if !body.is_empty() {
@@ -95,7 +101,7 @@ where
         request_builder = request_builder.body(body.as_slice(), content_type);
     }
 
-    let response = request_builder.send().await?;
+    let response = request_builder.send(user_context_id).await?;
 
     let response_body = response.body();
     let response_status = response.status()?;

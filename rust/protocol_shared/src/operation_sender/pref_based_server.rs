@@ -27,6 +27,7 @@ pub enum ServerProperty {
     EwsUrl,
     Realm,
     Username,
+    UserContextId,
 }
 
 /// A server which uses prefs to store properties.
@@ -73,6 +74,12 @@ pub trait PrefBasedServer {
         read_string_pref(pref_name)
     }
 
+    /// Stores the u32 value of a given property.
+    fn set_int_property(&self, prop: ServerProperty, value: i32) -> Result<(), nsresult> {
+        let pref_name = self.resolve_full_pref_name(prop)?;
+        store_int_pref(pref_name, value)
+    }
+
     /// Maps `pref_name`, which is the name of the property relative to the
     /// server's pref branch, to its full name relative to the root branch.
     ///
@@ -87,6 +94,7 @@ impl PrefBasedServer for nsIMsgIncomingServer {
             ServerProperty::EwsUrl => "ews_url",
             ServerProperty::Realm => "realm",
             ServerProperty::Username => "username",
+            ServerProperty::UserContextId => "user_context_id",
         };
 
         let mut key = nsCString::new();
@@ -104,6 +112,7 @@ impl PrefBasedServer for nsIMsgOutgoingServer {
             ServerProperty::EwsUrl => "ews_url",
             ServerProperty::Realm => "realm",
             ServerProperty::Username => "username",
+            ServerProperty::UserContextId => "user_context_id",
         };
 
         let mut key: nsCString = nsCString::new();
@@ -183,6 +192,24 @@ fn read_string_pref(full_name: String) -> Result<String, nsresult> {
     );
 
     Ok(value.to_string())
+}
+
+/// Stores the value of the given pref as an integer.
+///
+/// [`NS_ERROR_ILLEGAL_VALUE`] is returned if the pref name is 0-terminated.
+///
+/// [`NS_ERROR_ILLEGAL_VALUE`]: nserror::NS_ERROR_ILLEGAL_VALUE
+fn store_int_pref(full_name: String, value: i32) -> Result<(), nsresult> {
+    log::debug!("Storing int pref: {full_name} => {value}");
+
+    let pref_branch = root_pref_branch()?;
+
+    let full_name = CString::new(full_name.clone()).map_err(|_| {
+        log::error!("unexpected 0 byte in pref name: {full_name}");
+        nserror::NS_ERROR_ILLEGAL_VALUE
+    })?;
+
+    unsafe { pref_branch.SetIntPref(full_name.as_ptr(), value) }.to_result()
 }
 
 /// Registers an `nsIObserver` to be called on changes to a preference or

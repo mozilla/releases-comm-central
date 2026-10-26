@@ -365,6 +365,13 @@ export class EwsServer extends MockServer {
   #lastAuthorizationValue;
 
   /**
+   * The most recently authorized user.
+   *
+   * @type {string}
+   */
+  #lastAuthedUser;
+
+  /**
    * The value of the `RequestServerVersion` SOAP header from the latest
    * request.
    *
@@ -377,24 +384,15 @@ export class EwsServer extends MockServer {
   #lastRequestedVersion;
 
   /**
-   * The username that must be supplied on requests to this server if HTTP
-   * basic authentication is used.
+   * The set of available accounts indexed by user.
    *
-   * @type {string}
-   * @name EwsServer.username
+   * The keys in the map are the allowed usernames and the values are the
+   * passwords for the corresponding user.
+   *
+   * @type {Map<string, string>}
    * @private
    */
-  #username;
-
-  /**
-   * The password that must be supplied on requests to this server if HTTP
-   * basic authentication is used.
-   *
-   * @type {string}
-   * @name EwsServer.password
-   * @private
-   */
-  #password;
+  #accounts = new Map();
 
   /**
    * A network proxy to turn this HTTP server into an HTTPS server.
@@ -482,8 +480,7 @@ export class EwsServer extends MockServer {
       );
     }
     this.#tlsCert = tlsCert;
-    this.#username = username;
-    this.#password = password;
+    this.#accounts.set(username, password);
     this.#listenPort = listenPort;
 
     this.#parser = new DOMParser();
@@ -539,6 +536,15 @@ export class EwsServer extends MockServer {
   }
 
   /**
+   * The most recently authorized user.
+   *
+   * @type {string}
+   */
+  get lastAuthedUser() {
+    return this.#lastAuthedUser;
+  }
+
+  /**
    * The value of the `RequestServerVersion` SOAP header from the latest
    * request.
    *
@@ -570,6 +576,16 @@ export class EwsServer extends MockServer {
   }
 
   /**
+   * Add another account to the server.
+   *
+   * @param {string} username
+   * @param {string} password
+   */
+  addAccount(username, password) {
+    this.#accounts.set(username, password);
+  }
+
+  /**
    * Parse an XML request and write the appropriate response. Throws if no
    * supported EWS operation could be found.
    *
@@ -586,11 +602,17 @@ export class EwsServer extends MockServer {
         const [username, password] = atob(
           this.#lastAuthorizationValue.substring(6)
         ).split(":");
-        if (username != this.#username || password != this.#password) {
+        if (
+          !(
+            this.#accounts.has(username) &&
+            password === this.#accounts.get(username)
+          )
+        ) {
           response.setStatusLine("1.1", 401, "Unauthorized");
           response.setHeader("WWW-Authenticate", `Basic realm="test"`);
           return;
         }
+        this.#lastAuthedUser = username;
       } else if (this.#lastAuthorizationValue.startsWith("Bearer ")) {
         const token = this.#lastAuthorizationValue.substring(7);
         const { OAuth2TestUtils } = ChromeUtils.importESModule(

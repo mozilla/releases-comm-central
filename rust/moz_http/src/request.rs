@@ -20,6 +20,7 @@ use xpcom::{RefPtr, getter_addrefs};
 use xpcom_async_glue::AsyncChannelOpener;
 
 use crate::error::{Error, TransportSecurityInfo};
+use crate::make_origin_string;
 use crate::response::Response;
 
 unsafe extern "C" {
@@ -128,8 +129,12 @@ impl<'rb> RequestBuilder<'rb> {
         self
     }
 
-    /// Builds and sends an HTTP request from the builder's configuration.
-    pub async fn send(&self) -> crate::Result<Response> {
+    /// Build and send an HTTP request from the builder's configuration.
+    ///
+    /// If `user_context_id` is not [`None`], then use a loading principal for
+    /// an origin string based on that context ID. Otherwise, use the system
+    /// principal.
+    pub async fn send(&self, user_context_id: Option<u32>) -> crate::Result<Response> {
         // Get the nsIScriptSecurityManager service to retrieve an nsIPrincipal we can use in
         // NewChannel.
         let script_sec_mgr =
@@ -138,8 +143,15 @@ impl<'rb> RequestBuilder<'rb> {
                     "failed to get service nsIScriptSecurityManager",
                 ))?;
 
-        let principal: RefPtr<nsIPrincipal> =
-            getter_addrefs(unsafe { |p| script_sec_mgr.GetSystemPrincipal(p) })?;
+        let principal = if let Some(user_context_id) = user_context_id {
+            getter_addrefs(|p| {
+                let origin = make_origin_string(self.url, user_context_id);
+                let origin = nsCString::from(origin);
+                unsafe { script_sec_mgr.CreateContentPrincipalFromOrigin(&raw const *origin, p) }
+            })?
+        } else {
+            getter_addrefs(unsafe { |p| script_sec_mgr.GetSystemPrincipal(p) })?
+        };
 
         // Get the nsIIOService service to generate the nsIChannel.
         let io_service = xpcom::get_service::<nsIIOService>(c"@mozilla.org/network/io-service;1")

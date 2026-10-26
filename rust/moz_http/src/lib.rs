@@ -53,3 +53,23 @@ pub use client::Client;
 pub use error::{Error, Result};
 pub use request::RequestBuilder;
 pub use response::{Response, StatusCode};
+use url::Url;
+
+/// Construct an origin string for the given `url` with the given
+/// `user_context_id`.
+///
+/// See the interface definition for [`nsIPrincipal`] for information on the
+/// formatting of the origin string, but the format is
+///
+/// `<url>^key1=value1&key2=value2...`
+///
+/// Where the string following the `^` is the origin suffix that encodes the
+/// origin attributes.
+pub fn make_origin_string(url: &Url, user_context_id: u32) -> String {
+    format!(
+        "{}://{}^userContextId={}",
+        url.scheme(),
+        url.authority(),
+        user_context_id,
+    )
+}

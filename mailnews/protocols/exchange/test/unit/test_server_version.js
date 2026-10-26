@@ -45,16 +45,7 @@ async function send_request_and_wait_for_response() {
     const client = Cc["@mozilla.org/messenger/ews-client;1"].createInstance(
       Ci.IExchangeClient
     );
-    client.initialize(
-      incomingServer.getStringValue("ews_url"),
-      incomingServer,
-      false,
-      "",
-      "",
-      "",
-      "",
-      ""
-    );
+    client.initialize(incomingServer.getStringValue("ews_url"), incomingServer);
 
     client.checkConnectivity(listener);
   });

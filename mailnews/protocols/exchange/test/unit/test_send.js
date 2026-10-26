@@ -56,37 +56,29 @@ add_setup(async () => {
 
   // Create and initialize the outgoing servers.
   ewsOutgoingServer = MailServices.outgoingServer.createServer("ews");
+  ewsOutgoingServer.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
+  ewsOutgoingServer.username = username;
   let exchangeOutgoingServer = ewsOutgoingServer.QueryInterface(
     Ci.IExchangeOutgoingServer
   );
   exchangeOutgoingServer.exchangeUrl = `http://127.0.0.1:${ewsServer.port}/EWS/Exchange.asmx`;
 
   graphOutgoingServer = MailServices.outgoingServer.createServer("graph");
+  graphOutgoingServer.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
+  graphOutgoingServer.username = username;
   exchangeOutgoingServer = graphOutgoingServer.QueryInterface(
     Ci.IExchangeOutgoingServer
   );
   exchangeOutgoingServer.exchangeUrl = `http://127.0.0.1:${graphServer.port}/`;
 
-  // Configure the outgoing servers to use Basic/password auth (which we map to
-  // `nsMsgAuthMethod.passwordCleartext`).
-  ewsOutgoingServer.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
-  ewsOutgoingServer.username = username;
-
-  graphOutgoingServer.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
-  graphOutgoingServer.username = username;
-
   // Store the password in the login manager. Note that the URIs we use do not
   // include the port.
-  async function storePassword(uri) {
-    const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
-      Ci.nsILoginInfo
-    );
-    login.init(uri, null, uri, ewsOutgoingServer.username, password, "", "");
-    await Services.logins.addLoginAsync(login);
-  }
-
-  await storePassword("ews://127.0.0.1");
-  await storePassword("graph://127.0.0.1");
+  await storePassword("ews://127.0.0.1", ewsOutgoingServer.username, password);
+  await storePassword(
+    "graph://127.0.0.1",
+    graphOutgoingServer.username,
+    password
+  );
 
   registerCleanupFunction(async () => {
     ewsServer.stop();

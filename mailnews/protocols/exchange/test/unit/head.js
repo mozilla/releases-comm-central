@@ -150,3 +150,11 @@ async function copyFolder(sourceFolder, destinationFolder, isMove) {
   );
   return copyListener.promise;
 }
+
+async function storePassword(uri, username, password) {
+  const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+    Ci.nsILoginInfo
+  );
+  login.init(uri, null, uri, username, password, "", "");
+  await Services.logins.addLoginAsync(login);
+}
