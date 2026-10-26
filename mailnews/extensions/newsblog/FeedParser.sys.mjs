@@ -363,11 +363,13 @@ FeedParser.prototype = {
       // Support <category> and autotagging.
       tags = this.childrenByTagNameNS(itemNode, nsURI, "category");
       if (tags) {
+        const terms = new Set();
         for (const tag of tags) {
           let term = this.getNodeValue(tag);
           term = term ? this.xmlUnescape(term.replace(/,/g, ";")) : null;
-          if (term && !item.keywords.includes(term)) {
+          if (term && !terms.has(term)) {
             item.keywords.push(term);
+            terms.add(term);
           }
         }
       }
@@ -1091,11 +1093,13 @@ FeedParser.prototype = {
         "category"
       );
       if (tags) {
+        const terms = new Set();
         for (const tag of tags) {
           let term = this.removeUnprintableASCII(tag.getAttribute("term"));
           term = term ? this.xmlUnescape(term.replace(/,/g, ";")).trim() : null;
-          if (term && !item.keywords.includes(term)) {
+          if (term && !terms.has(term)) {
             item.keywords.push(term);
+            terms.add(term);
           }
         }
       }

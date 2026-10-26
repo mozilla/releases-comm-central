@@ -310,6 +310,83 @@ add_task(async function test_many_enclosures() {
   );
 });
 
+// Test that a large number of categories is deduplicated, keeping order.
+add_task(async function test_many_categories() {
+  const account = FeedUtils.createRssAccount("test_many_categories");
+  const rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
+  const folder = rootFolder.createLocalSubfolder("many-categories");
+  const count = 20000;
+  const terms = Array.from({ length: count }, (_, i) => `category${i}`);
+  const expected = [...terms, terms[0]];
+
+  const rss = `<?xml version="1.0"?>
+    <rss version="2.0">
+      <channel>
+        <title>Many categories</title>
+        <link>https://example.com/</link>
+        <item>
+          <title>Item</title>
+          <link>https://example.com/item</link>
+          ${expected.map(t => `<category>${t}</category>`).join("")}
+        </item>
+      </channel>
+    </rss>`;
+  const feed = new Feed("https://example.com/rss.xml", folder);
+  feed.parseItems = true;
+  feed.onParseError = function () {
+    throw new Error("PARSE ERROR");
+  };
+  let items = new FeedParser().parseAsRSS2(
+    feed,
+    new DOMParser().parseFromString(rss, "application/xml")
+  );
+  Assert.equal(items.length, 1, "there should be one RSS item");
+  Assert.equal(
+    items[0].keywords.length,
+    count,
+    "RSS duplicate categories should be dropped"
+  );
+  Assert.ok(
+    items[0].keywords.every((k, i) => k == terms[i]),
+    "RSS categories should be in document order"
+  );
+
+  const atom = `<?xml version="1.0"?>
+    <feed xmlns="http://www.w3.org/2005/Atom">
+      <id>urn:many-categories</id>
+      <title>Many categories</title>
+      <updated>2026-01-01T00:00:00Z</updated>
+      <entry>
+        <id>urn:many-categories:1</id>
+        <title>Entry</title>
+        <updated>2026-01-01T00:00:00Z</updated>
+        <link href="https://example.com/entry"/>
+        ${expected.map(t => `<category term="${t}"/>`).join("")}
+      </entry>
+    </feed>`;
+  const atomFeed = new Feed("https://example.com/atom.xml", folder);
+  atomFeed.parseItems = true;
+  atomFeed.onParseError = function () {
+    throw new Error("PARSE ERROR");
+  };
+  items = new FeedParser().parseAsAtomIETF(
+    atomFeed,
+    new DOMParser().parseFromString(atom, "application/xml")
+  );
+  Assert.equal(items.length, 1, "there should be one Atom entry");
+  Assert.equal(
+    items[0].keywords.length,
+    count,
+    "Atom duplicate categories should be dropped"
+  );
+  Assert.ok(
+    items[0].keywords.every((k, i) => k == terms[i]),
+    "Atom categories should be in document order"
+  );
+});
+
 // Test feed downloading.
 // Mainly checking that it doesn't crash and that the right feed parser is used.
 add_task(async function test_download() {
