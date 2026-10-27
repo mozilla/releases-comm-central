@@ -6,12 +6,16 @@ use std::env;
 
 use http::Request;
 use moz_http::Response;
-use url::Url;
+use url::{Host, Url};
 use uuid::Uuid;
-use xpcom::RefPtr;
+use xpcom::{RefPtr, interfaces::nsMsgAuthMethod};
 
 use crate::{
-    ServerType, authentication::auth_cache_manager::AUTH_CACHE_MANAGER, error::ProtocolError,
+    ServerType,
+    authentication::{
+        auth_cache_manager::AUTH_CACHE_MANAGER, authentication_provider::AuthenticationProvider,
+    },
+    error::ProtocolError,
 };
 
 /// An internal wrapper to carry the metadata we use for logging sending a
@@ -66,6 +70,18 @@ where
         request_builder = request_builder.header(name.as_str(), value);
     }
 
+    // Check this before generating the header value, since retrieving an OAuth2
+    // token might prompt the user to sign in.
+    let auth_method = <ServerT as AuthenticationProvider>::auth_method(&server)?;
+    if auth_method == nsMsgAuthMethod::OAuth2 && !is_potentially_trustworthy(&url) {
+        return Err(ProtocolError::Processing {
+            message: format!(
+                "refusing to send an OAuth2 token over an unencrypted connection to {}",
+                url.host_str().unwrap_or_default()
+            ),
+        });
+    }
+
     let auth_hdr_value = server.auth_header_value().await?;
     if let Some(ref hdr_value) = auth_hdr_value {
         // Some auth mechanisms, such as OAuth2 and Basic, can provide the
@@ -115,4 +131,19 @@ where
     }
 
     Ok(response)
+}
+
+/// Whether the given URL uses an encrypted transport, or points to a loopback
+/// address.
+fn is_potentially_trustworthy(url: &Url) -> bool {
+    if url.scheme() == "https" {
+        return true;
+    }
+
+    match url.host() {
+        Some(Host::Domain(domain)) => domain == "localhost" || domain.ends_with(".localhost"),
+        Some(Host::Ipv4(addr)) => addr.is_loopback(),
+        Some(Host::Ipv6(addr)) => addr.is_loopback(),
+        None => false,
+    }
 }

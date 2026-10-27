@@ -29,7 +29,9 @@ add_setup(async function () {
   smtpOutgoingServer.authMethod = Ci.nsMsgAuthMethod.OAuth2;
 
   let ewsAccount;
-  ({ ewsAccount, ewsIdentity, ewsOutgoingServer } = createEWSAccount());
+  ({ ewsAccount, ewsIdentity, ewsOutgoingServer } = createEWSAccount(
+    "https://test.test/EWS/Exchange.asmx"
+  ));
   ewsOutgoingServer.authMethod = Ci.nsMsgAuthMethod.OAuth2;
 
   oAuth2Server = await OAuth2TestUtils.startServer();

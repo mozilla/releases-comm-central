@@ -54,13 +54,11 @@ function createSMTPAccount(incomingType = "pop3") {
 /**
  * Sets up an EWS account for these tests.
  *
+ * @param {string} [url] - The EWS URL to use.
  * @returns {object} - The account, identity, and outgoing server.
  */
-function createEWSAccount() {
-  const ret = createExchangeAccount(
-    "ews",
-    "http://test.test/EWS/Exchange.asmx"
-  );
+function createEWSAccount(url = "http://test.test/EWS/Exchange.asmx") {
+  const ret = createExchangeAccount("ews", url);
 
   return {
     ewsAccount: ret.account,
