@@ -310,6 +310,10 @@ class nsImapProtocol : public nsIImapProtocol,
   void Copy(const char* messageList, const char* destinationMailbox,
             bool idsAreUid);
   void Search(const char* searchCriteria, bool useUID, bool notifyHit = true);
+  // Search the mailbox for the UID of a message just appended to it, or return
+  // 0 if it can't be found.
+  ImapUid FindAppendedMessageUid(const char* mailboxName,
+                                 const nsACString& messageId);
   // imap commands issued by the parser
   void Store(const nsCString& aMessageList, const char* aMessageData,
              bool aIdsAreUid);

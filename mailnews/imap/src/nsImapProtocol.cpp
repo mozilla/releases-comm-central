@@ -63,6 +63,7 @@
 #include "nsITLSSocketControl.h"
 #include "nsITransportSecurityInfo.h"
 #include "nsProxyRelease.h"
+#include "nsReadableUtils.h"
 #include "nsDebug.h"
 #include "nsMsgCompressIStream.h"
 #include "nsMsgCompressOStream.h"
@@ -3563,17 +3564,19 @@ void nsImapProtocol::AdjustChunkSize() {
 
 // authenticated state commands
 
+// Escape a string for use in an IMAP quoted string.
+static nsCString EscapeQuotedString(const nsACString& raw) {
+  nsCString escaped(raw);
+  escaped.ReplaceSubstring("\\"_ns, "\\\\"_ns);
+  escaped.ReplaceSubstring("\""_ns, "\\\""_ns);
+  return escaped;
+}
+
 // escape any backslashes or quotes.  Backslashes are used a lot with our NT
 // server
 void nsImapProtocol::CreateEscapedMailboxName(const char* rawName,
                                               nsCString& escapedName) {
-  escapedName.Assign(rawName);
-
-  for (int32_t strIndex = 0; *rawName; strIndex++) {
-    char currentChar = *rawName++;
-    if ((currentChar == '\\') || (currentChar == '\"'))
-      escapedName.Insert('\\', strIndex++);
-  }
+  escapedName = EscapeQuotedString(nsDependentCString(rawName));
 }
 
 // SELECT a mailbox and do a folder update unless noUpdate is set to true.
@@ -6400,9 +6403,11 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
 
       if (imapAction == nsIImapUrl::nsImapAppendDraftFromFile ||
           imapAction == nsIImapUrl::nsImapAppendMsgFromFile) {
-        if (GetServerStateParser().GetCapabilityFlag() & kUidplusCapability) {
-          ImapUid newUid = GetServerStateParser().CurrentAppendUID();
-          if (newUid && m_imapMailFolderSink)
+        bool hasUidplus =
+            GetServerStateParser().GetCapabilityFlag() & kUidplusCapability;
+        ImapUid newUid = GetServerStateParser().CurrentAppendUID();
+        if (hasUidplus && newUid) {
+          if (m_imapMailFolderSink)
             m_imapMailFolderSink->SetAppendMsgUid(newUid, m_runningUrl);
 
           // Courier imap server seems to have problems with recently
@@ -6411,40 +6416,17 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
 
           if (!GetServerStateParser().LastCommandSuccessful()) urlOk = false;
         } else if (m_imapMailFolderSink &&
-                   imapAction == nsIImapUrl::nsImapAppendDraftFromFile) {
-          // No UIDPLUS capability and just appended a message to draft folder.
+                   (hasUidplus ||
+                    imapAction == nsIImapUrl::nsImapAppendDraftFromFile)) {
+          // The server didn't return an APPENDUID, or has no UIDPLUS capability
+          // and we just appended a message to the draft folder.
           // Must search the folder using the Message-ID to find the UID of the
-          // appended message. First, go to selected state.
+          // appended message.
           nsCString messageId;
           rv = m_imapMailFolderSink->GetMessageId(m_runningUrl, messageId);
           if (NS_SUCCEEDED(rv) && !messageId.IsEmpty()) {
-            // if the appended to folder isn't selected in the connection,
-            // select it.
-            if (!FolderIsSelected(mailboxName))
-              SelectMailbox(mailboxName);
-            else
-              Noop();  // See if this makes SEARCH work on the newly appended
-                       // msg.
-
-            if (GetServerStateParser().LastCommandSuccessful()) {
-              command = "SEARCH UNDELETED HEADER Message-ID ";
-              command.Append(messageId);
-
-              // Clean up result sequence before issuing the cmd.
-              GetServerStateParser().ResetSearchResultSequence();
-
-              Search(command.get(), true, false);
-              if (GetServerStateParser().LastCommandSuccessful()) {
-                nsImapSearchResultIterator* searchResult =
-                    GetServerStateParser().CreateSearchResultIterator();
-                ImapUid uid = searchResult->GetNextMatchUid();
-                delete searchResult;
-                if (uid)
-                  m_imapMailFolderSink->SetAppendMsgUid(uid, m_runningUrl);
-              } else
-                urlOk = false;
-            } else
-              urlOk = false;
+            ImapUid uid = FindAppendedMessageUid(mailboxName, messageId);
+            if (uid) m_imapMailFolderSink->SetAppendMsgUid(uid, m_runningUrl);
           }
         }
       }
@@ -6456,6 +6438,46 @@ done:
 
   PR_Free(dataBuffer);
   if (fileInputStream) fileInputStream->Close();
+}
+
+ImapUid nsImapProtocol::FindAppendedMessageUid(const char* mailboxName,
+                                               const nsACString& messageId) {
+  if (!IsAscii(messageId) || messageId.FindCharInSet("\r\n") != kNotFound) {
+    return 0;
+  }
+
+  if (!FolderIsSelected(mailboxName)) {
+    SelectMailbox(mailboxName);
+  } else {
+    Noop();  // See if this makes SEARCH work on the newly appended msg.
+  }
+
+  ImapUid uid = 0;
+  if (GetServerStateParser().LastCommandSuccessful()) {
+    // HEADER search matches substrings, so include the angle brackets.
+    nsAutoCString command("SEARCH UNDELETED HEADER Message-ID \"<");
+    command.Append(EscapeQuotedString(messageId));
+    command.AppendLiteral(">\"");
+
+    // Clean up result sequence before issuing the cmd.
+    GetServerStateParser().ResetSearchResultSequence();
+
+    Search(command.get(), true, false);
+    if (GetServerStateParser().LastCommandSuccessful()) {
+      // If the Message-ID occurs more than once, the appended message is the
+      // one with the highest UID.
+      nsImapSearchResultIterator* searchResult =
+          GetServerStateParser().CreateSearchResultIterator();
+      while (ImapUid matchUid = searchResult->GetNextMatchUid()) {
+        uid = std::max(uid, matchUid);
+      }
+      delete searchResult;
+    }
+  }
+
+  // The message was appended, so failing to find it shouldn't fail the URL.
+  GetServerStateParser().SetCommandFailed(false);
+  return uid;
 }
 
 nsCString nsImapProtocol::OnCreateServerSourceFolderPathString() {
