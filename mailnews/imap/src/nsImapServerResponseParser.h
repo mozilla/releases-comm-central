@@ -61,6 +61,8 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   int32_t NumberOfRecentMessages();
   ImapUid FolderUIDValidity();
   ImapUid CurrentResponseUID();
+  // UID from the APPENDUID response code of the last command, or 0.
+  ImapUid CurrentAppendUID();
   ImapUid HighestRecordedUID();
   void ResetHighestRecordedUID();
   bool IsNumericString(const char* string);
@@ -218,6 +220,7 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   int32_t fNumberOfExistingMessages;
   int32_t fNumberOfRecentMessages;
   ImapUid fCurrentResponseUID;
+  ImapUid fCurrentAppendUID;
   ImapUid fHighestRecordedUID;
   // used to handle server that sends msg size after headers
   ImapUid fReceivedHeaderOrSizeForUID;

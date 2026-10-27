@@ -1,5 +1,7 @@
 [DEFAULT]
 
+["test_appendWithoutAppendUid.js"]
+
 ["test_autosync_date_constraints.js"]
 
 ["test_autosync_stops.js"]

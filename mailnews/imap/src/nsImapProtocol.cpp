@@ -6401,8 +6401,8 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
       if (imapAction == nsIImapUrl::nsImapAppendDraftFromFile ||
           imapAction == nsIImapUrl::nsImapAppendMsgFromFile) {
         if (GetServerStateParser().GetCapabilityFlag() & kUidplusCapability) {
-          ImapUid newUid = GetServerStateParser().CurrentResponseUID();
-          if (m_imapMailFolderSink)
+          ImapUid newUid = GetServerStateParser().CurrentAppendUID();
+          if (newUid && m_imapMailFolderSink)
             m_imapMailFolderSink->SetAppendMsgUid(newUid, m_runningUrl);
 
           // Courier imap server seems to have problems with recently
