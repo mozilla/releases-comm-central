@@ -25,6 +25,9 @@ tags = ["archive"]
 
 ["test_devtools_url.js"]
 
+["test_dnsParser.js"]
+skip-if = ["os == 'win'"]
+
 ["test_emptyTrash_dbViewWrapper.js"]
 run-sequentially = true  # Avoid bustage.
 
