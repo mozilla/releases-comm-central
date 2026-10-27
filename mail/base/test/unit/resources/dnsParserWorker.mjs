@@ -101,6 +101,14 @@ self.postMessage({
   exactBuffer: lookup(NS_T_MX, buildResponse(NS_T_MX, mxRecords(30)), 1024),
   truncated: lookup(NS_T_MX, buildResponse(NS_T_MX, mxRecords(40)), 1024),
   shortMX: lookup(NS_T_MX, buildResponse(NS_T_MX, [u16(10), mxData(20)])),
+  badPointerMX: lookup(
+    NS_T_MX,
+    buildResponse(NS_T_MX, [[...u16(10), 0xc3, 0xff]])
+  ),
+  badPointerSRV: lookup(
+    NS_T_SRV,
+    buildResponse(NS_T_SRV, [[...u16(10), ...u16(20), ...u16(443), 0xc3, 0xff]])
+  ),
   shortSRV: lookup(
     NS_T_SRV,
     buildResponse(NS_T_SRV, [[...u16(10), ...u16(20), ...u16(443)]])

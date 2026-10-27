@@ -220,7 +220,10 @@ class load_libresolv {
         hostbuf,
         this.NS_MAXCDNAME
       );
-      const host = hostlen > -1 ? hostbuf.readString() : null;
+      if (hostlen < 0) {
+        throw new Error("Invalid SRV record target name.");
+      }
+      const host = hostbuf.readString();
       return new SRVRecord(prio, weight, host, port);
     }
     if (aTypeID == NS_T_TXT) {
@@ -260,7 +263,10 @@ class load_libresolv {
         hostbuf,
         this.NS_MAXCDNAME
       );
-      const host = hostlen > -1 ? hostbuf.readString() : null;
+      if (hostlen < 0) {
+        throw new Error("Invalid MX record target name.");
+      }
+      const host = hostbuf.readString();
       return new MXRecord(prio, host);
     }
     return null;

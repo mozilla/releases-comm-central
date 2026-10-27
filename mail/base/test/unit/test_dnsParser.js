@@ -68,3 +68,16 @@ add_task(function test_shortRecords() {
     "SRV record without a host should be rejected"
   );
 });
+
+add_task(function test_invalidTargetNames() {
+  Assert.equal(
+    results.badPointerMX.error,
+    "Invalid MX record target name.",
+    "MX record with an invalid compression pointer should be rejected"
+  );
+  Assert.equal(
+    results.badPointerSRV.error,
+    "Invalid SRV record target name.",
+    "SRV record with an invalid compression pointer should be rejected"
+  );
+});
