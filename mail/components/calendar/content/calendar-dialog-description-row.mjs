@@ -136,7 +136,7 @@ class CalendarDialogDescriptionRow extends HTMLElement {
     }
 
     if (!description && !descriptionHTML) {
-      this.#browser?.contentDocument.body.replaceChildren();
+      this.#browser?.contentDocument?.body.replaceChildren();
       return;
     }
 
