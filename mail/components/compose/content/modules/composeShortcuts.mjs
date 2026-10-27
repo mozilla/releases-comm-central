@@ -9,9 +9,10 @@ const { ShortcutsManager } = ChromeUtils.importESModule(
   "resource:///modules/ShortcutsManager.sys.mjs"
 );
 
+/** @import {Shortcut, ShortcutStrings} from "resource:///modules/ShortcutsManager.sys.mjs" */
+
 const BUTTONS = { "send-message": ["button-send"] };
 const MENUITEMS = { "send-message": ["menu-item-send-now"] };
-const isMACOS = AppConstants.platform == "macosx";
 
 export const ComposeShortcuts = {
   setup() {
@@ -63,7 +64,7 @@ async function setupShortcutStrings() {
  * Set the shortcuts for button elements.
  *
  * @param {string[]} ids
- * @param {object} shortcut
+ * @param {ShortcutStrings} shortcut
  */
 async function setButtonsShortcuts(ids, shortcut) {
   for (const id of ids) {
@@ -88,7 +89,7 @@ async function setButtonsShortcuts(ids, shortcut) {
  * Set the shortcuts for menuitem elements.
  *
  * @param {string[]} ids
- * @param {object} shortcut
+ * @param {ShortcutStrings} shortcut
  */
 async function setMenuitemShortcuts(ids, shortcut) {
   for (const id of ids) {
@@ -108,40 +109,61 @@ async function setMenuitemShortcuts(ids, shortcut) {
 }
 
 /**
- * Sets up the keyup event to intercept shortcuts.
+ * Sets up the keydown and keyup events to intercept shortcuts.
  */
 function setupEventListener() {
-  // Unique variation for macOS in case the metaKey is used for shortcuts.
-  // macOS doesn't fire any keyboard key on `keyup` if the metaKey is pressed,
-  // therefore we need to listen to the keydown event.
-  // This workaround can be removed if bug 1299553 is fixed in core.
+  // The shortcut matched on keydown, to be triggered when its key is released.
+  // Matching on keydown makes the shortcut independent of the order in which
+  // the keys are released, as the modifiers might already be up on keyup.
+  let pendingShortcut = null;
+
   window.addEventListener("keydown", event => {
-    if (!isMACOS || !event.metaKey || event.key === "Meta") {
-      // Bail out if we're not on macOS or the metaKey is not pressed.
+    if (event.repeat) {
       return;
     }
-    dispatchShortcutEvent(event);
+    // Unique variation for macOS in case the metaKey is used for shortcuts.
+    // macOS doesn't fire any keyboard key on `keyup` if the metaKey is pressed,
+    // therefore we need to trigger the shortcut on keydown.
+    // This workaround can be removed if bug 1299553 is fixed in core.
+    if (AppConstants.platform == "macosx" && event.metaKey) {
+      pendingShortcut = null;
+      if (event.key != "Meta") {
+        dispatchShortcutEvent(
+          event,
+          ShortcutsManager.matches(event, "compose")
+        );
+      }
+      return;
+    }
+    pendingShortcut = ShortcutsManager.matches(event, "compose");
   });
 
   window.addEventListener("keyup", event => {
-    if (isMACOS && event.metaKey) {
-      // Bail out if we're on macOS and the metaKey is pressed, because we can't
-      // handle any keyup. This is also needed for the tests since the
-      // { accelKey: true } of the EventUtils.synthesizeKey() is not bound by
-      // the macOS metaKey issue.
+    if (
+      !pendingShortcut ||
+      event.key.toLowerCase() != pendingShortcut.key.toLowerCase()
+    ) {
+      // Ignore other keys being released, e.g. the modifiers released before
+      // the shortcut key.
       return;
     }
-    dispatchShortcutEvent(event);
+    const shortcut = pendingShortcut;
+    pendingShortcut = null;
+    dispatchShortcutEvent(event, shortcut);
+  });
+
+  window.addEventListener("blur", () => {
+    pendingShortcut = null;
   });
 }
 
 /**
- * Process the keyboard shortcut event and dispatch the proper event if found.
+ * Dispatch the proper event for a matched keyboard shortcut.
  *
  * @param {KeyboardEvent} event
+ * @param {?Shortcut} shortcut - The matched shortcut, if any.
  */
-function dispatchShortcutEvent(event) {
-  const shortcut = ShortcutsManager.matches(event, "compose");
+function dispatchShortcutEvent(event, shortcut) {
   // Bail out if no shortcut matches or it has been disabled.
   if (!shortcut) {
     return;

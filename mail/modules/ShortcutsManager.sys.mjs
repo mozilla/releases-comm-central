@@ -343,16 +343,21 @@ export const ShortcutsManager = {
   },
 
   /**
-   * Generate a string that will be used to create the fluent ID to visually
-   * represent the keyboard shortcut.
+   * The generated shortcut and aria strings of a shortcut.
    *
-   * @param {string} id - The ID of the requested shortcut.
-   * @returns {?object} - An object containing the generate shortcut and aria
-   *   string, if available.
+   * @typedef {object} ShortcutStrings
    * @property {string} localizedShortcut - The shortcut in a human-readable,
    *   localized and platform-specific form.
    * @property {string} ariaKeyShortcuts - The shortcut in a form appropriate
    *   for the aria-keyshortcuts attribute.
+   */
+  /**
+   * Generate a string that will be used to create the fluent ID to visually
+   * represent the keyboard shortcut.
+   *
+   * @param {string} id - The ID of the requested shortcut.
+   * @returns {?ShortcutStrings} The generated shortcut strings, or null if the
+   *   shortcut doesn't exist or is disabled.
    */
   async getShortcutStrings(id) {
     const shortcut = this.shortcuts.find(s => s.id == id);

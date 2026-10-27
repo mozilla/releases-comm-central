@@ -217,8 +217,57 @@ add_task(async function testKeyboardShortcutGraph() {
   await subtestKeyboardShortcut(graphIdentity, graphServer);
 });
 
+/**
+ * Tests that the keyboard shortcut only depends on the modifiers being pressed
+ * when Enter is pressed, and not when Enter is released.
+ */
+add_task(async function testKeyboardShortcutReleaseOrder() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.warn_on_send_accel_key", false]],
+  });
+  const { composeWindow, subject } = await newComposeWindow(smtpIdentity);
+  let sendCount = 0;
+  composeWindow.addEventListener("send-message", () => sendCount++, {
+    capture: true,
+  });
+
+  // Enter is pressed without modifiers, Ctrl is pressed before Enter is
+  // released, like when typing a new line followed by a quick Ctrl+V.
+  EventUtils.synthesizeKey("KEY_Enter", { type: "keydown" }, composeWindow);
+  EventUtils.synthesizeKey(
+    "KEY_Enter",
+    { type: "keyup", accelKey: true },
+    composeWindow
+  );
+  await TestUtils.waitForTick();
+  Assert.equal(sendCount, 0, "message should not be sent");
+
+  // Ctrl+Enter is pressed, but Ctrl is released before Enter.
+  EventUtils.synthesizeKey(
+    "KEY_Enter",
+    { type: "keydown", accelKey: true },
+    composeWindow
+  );
+  EventUtils.synthesizeKey("KEY_Enter", { type: "keyup" }, composeWindow);
+  await BrowserTestUtils.domWindowClosed(composeWindow);
+
+  Assert.equal(sendCount, 1, "message should be sent once");
+  Assert.stringContains(
+    smtpServer.lastSentMessage,
+    `Subject: ${subject}`,
+    "server should have received message"
+  );
+
+  await SpecialPowers.popPrefEnv();
+}).skip(AppConstants.platform == "macosx"); // ⌘+Enter is handled on keydown.
+
 function handleWarningPrompt(buttonToClick, rememberChoice = false) {
-  return BrowserTestUtils.promiseAlertDialogOpen(undefined, undefined, {
+  // When cancelling, wait for the prompt to be closed, otherwise it might
+  // still be the active window when the compose window is expected to have
+  // focus again.
+  const method =
+    buttonToClick == "cancel" ? "promiseAlertDialog" : "promiseAlertDialogOpen";
+  return BrowserTestUtils[method](undefined, undefined, {
     async callback(win) {
       await TestUtils.waitForTick();
       Assert.stringContains(
