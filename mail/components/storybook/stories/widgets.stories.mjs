@@ -52,10 +52,40 @@ export const PrimaryButton = () => html`
   </button>
 `;
 
+export const DesignSystemPrimaryButton = () => html`
+  <button class="button primary-button">Primary Button</button>
+  <button
+    class="button primary-button icon-button"
+    style="background-image: var(--icon-add);"
+  >
+    Primary Button
+  </button>
+`;
+
+export const DesignSystemSecondaryButton = () => html`
+  <button class="button secondary-button">Secondary Button</button>
+  <button
+    class="button secondary-button icon-button"
+    style="background-image: var(--icon-add);"
+  >
+    Secondary Button
+  </button>
+`;
+
 export const DestructiveButton = () => html`
   <button class="button button-destructive">Destructive</button>
   <button
     class="button button-destructive icon-button"
+    style="background-image: var(--icon-trash);"
+  >
+    Destructive
+  </button>
+`;
+
+export const DesignSystemDestructiveButton = () => html`
+  <button class="button destructive-button">Destructive</button>
+  <button
+    class="button destructive-button icon-button"
     style="background-image: var(--icon-trash);"
   >
     Destructive

@@ -180,6 +180,69 @@
     }
   }
 
+  /* Design System Button Styles */
+  &.primary-button {
+    --button-background: var(--primary-button-background);
+    --button-color: var(--primary-button-color);
+    --button-background-hover: var(--primary-button-background-hover);
+    --button-background-active: var(--primary-button-background-active);
+    --button-background-focus: var(--primary-button-background-focus);
+    --button-border-color: var(--primary-button-border);
+    --button-border-color-active: var(--primary-button-border-active);
+  }
+
+  &.secondary-button {
+    --button-background: var(--secondary-button-background);
+    --button-color: var(--secondary-button-color);
+    --button-background-hover: var(--secondary-button-background-hover);
+    --button-background-active: var(--secondary-button-background-active);
+    --button-background-focus: var(--secondary-button-background-focus);
+    --button-border-color: var(--secondary-button-border);
+    --button-border-color-active: var(--secondary-button-border-active);
+  }
+
+  &.destructive-button {
+    --button-background: var(--destructive-button-background);
+    --button-color: var(--destructive-button-color);
+    --button-background-hover: var(--destructive-button-background-hover);
+    --button-background-active: var(--destructive-button-background-active);
+    --button-background-focus: var(--destructive-button-background-focus);
+    --button-border-color: var(--destructive-button-border);
+    --button-border-color-active: var(--destructive-button-border-active);
+  }
+
+  &.primary-button,
+  &.secondary-button,
+  &.destructive-button {
+    background-color: var(--button-background);
+    color: var(--button-color);
+    border-color: var(--button-border-color);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.12);
+
+    &:hover {
+      background-color: var(--button-background-hover);
+      color: var(--button-color);
+      border-color: var(--button-border-color);
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+
+      &:active {
+        background-color: var(--button-background-active);
+        color: var(--button-color);
+        border-color: var(--button-border-color-active);
+        box-shadow: none;
+      }
+    }
+
+    &:focus {
+      background-color: var(--button-background-focus);
+      color: var(--button-color);
+      outline: 2px solid var(--color-pressed);
+      outline-offset: 1px;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+      border-color: var(--button-border-color);
+    }
+  }
+
   /* Flat Button Styles */
 
   &.button-flat {

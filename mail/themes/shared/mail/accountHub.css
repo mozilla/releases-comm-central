@@ -18,21 +18,7 @@ dialog {
   --hub-account-button-background-hover: light-dark(var(--color-ink-10), var(--color-gray-80));
   --hub-account-button-background-hover-active: light-dark(var(--color-gray-10), var(--color-gray-90));
   --hub-account-button-border-color: light-dark(var(--color-gray-30), var(--color-gray-60));
-  --hub-account-primary-button-color: var(--color-surface-base);
-  --hub-account-primary-button-background: var(--color-primary-default);
-  --hub-account-primary-button-background-hover: var(--color-primary-hover);
-  --hub-account-primary-button-background-active: var(--color-primary-pressed);
-  --hub-account-primary-button-background-focus: var(--color-primary-hover);
-  --hub-account-primary-button-border: var(--color-primary-hover);
-  --hub-account-primary-button-border-active: var(--color-primary-pressed);
-  --hub-account-secondary-button-color: var(--color-text-base);
-  --hub-account-secondary-button-background: var(--color-surface-subtle);
   /* TODO: Update to use proper defined light-dark varients from colors.css */
-  --hub-account-secondary-button-background-hover: light-dark(var(--color-surface-subtle), var(--color-surface-base));
-  --hub-account-secondary-button-background-active: light-dark(var(--color-surface-border), var(--color-surface-lower));
-  --hub-account-secondary-button-background-focus: light-dark(var(--color-surface-subtle), var(--color-surface-base));
-  --hub-account-secondary-button-border: var(--color-surface-border);
-  --hub-account-secondary-button-border-active: var(--color-surface-border-intense);
   --hub-account-button-outline-focus: var(--color-primary-hover);
   --hub-account-button-hover-active-color: light-dark(var(--color-surface-border), var(--color-surface-lower));
   --hub-border-color: light-dark(var(--color-primary-soft), var(--color-primary-default));
@@ -902,32 +888,7 @@ header {
   }
 
   &.secondary-button {
-    background-color: var(--hub-account-secondary-button-background);
-    color: var(--hub-account-secondary-button-color);
-    border-color: var(--hub-account-secondary-button-border);
-    box-shadow: 0 6px 3px -4px rgba(0, 0, 0, 0.1);
     margin-inline-end: 15px;
-
-    &:hover {
-      background-color: var(--hub-account-secondary-button-background-hover);
-      color: var(--hub-account-secondary-button-color);
-      border-color: var(--hub-account-secondary-button-border);
-      box-shadow: 0 4px 2px -3px rgba(0, 0, 0, 0.1);
-
-      &:active {
-        background-color: var(--hub-account-secondary-button-background-active);
-        color: var(--hub-account-secondary-button-color);
-        border-color: var(--hub-account-secondary-button-border-active);
-        box-shadow: none;
-      }
-    }
-
-    &:active {
-      background-color: var(--hub-account-secondary-button-background-active);
-      color: var(--hub-account-secondary-button-color);
-      border-color: var(--hub-account-secondary-button-border-active);
-      box-shadow: none;
-    }
 
     &:focus-visible {
       outline: var(--focus-outline);

@@ -45,6 +45,36 @@
   --button-primary-shadow: 0 2px 4px -4px rgba(0, 0, 0, 0.12);
   --button-primary-hover-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 
+  /* New button styling */
+
+  --accent-button-background-hover: color-mix(in srgb, var(--selected-item-color) 80%, black);
+  --accent-button-background-active: color-mix(in srgb, var(--selected-item-color) 70%, black);
+  --accent-button-background-focus: color-mix(in srgb, var(--selected-item-color) 70%, black);
+  --accent-button-border: color-mix(in srgb, var(--selected-item-color) 85%, black);
+  --accent-button-border-active: color-mix(in srgb, var(--selected-item-color) 85%, black);
+
+  --primary-button-color: var(--selected-item-text-color, var(--color-text-base-inverted));
+  --primary-button-background: var(--selected-item-color, var(--color-primary-default));
+  --primary-button-background-hover: var(--accent-button-background-hover, var(--color-primary-hover));
+  --primary-button-background-active: var(--accent-button-background-active, var(--color-primary-pressed));
+  --primary-button-background-focus: var(--accent-button-background-focus, var(--color-primary-hover));
+  --primary-button-border: var(--accent-button-border, var(--color-primary-hover));
+  --primary-button-border-active: var(--accent-button-border-active, var(--color-primary-pressed));
+  --secondary-button-color: var(--color-text-base);
+  --secondary-button-background: var(--color-surface-base);
+  --secondary-button-background-hover: var(--color-surface-subtle);
+  --secondary-button-background-active: var(--color-surface-deep);
+  --secondary-button-background-focus: var(--color-surface-subtle);
+  --secondary-button-border-active: var(--color-surface-border-intense);
+  --secondary-button-border: var(--color-surface-border);
+  --destructive-button-color: var(--color-text-base-inverted);
+  --destructive-button-background: var(--color-critical-default);
+  --destructive-button-background-hover: var(--color-critical-hover);
+  --destructive-button-background-active: var(--color-critical-pressed);
+  --destructive-button-background-focus: var(--color-critical-hover);
+  --destructive-button-border: var(--color-critical-hover);
+  --destructive-button-border-active: var(--color-critical-pressed);
+
   --button-destructive-background-color: var(--color-red-60);
   --button-destructive-hover-background-color: color-mix(in srgb, var(--color-red-50) 50%, var(--color-red-60));
   --button-destructive-active-background-color: var(--color-red-70);
