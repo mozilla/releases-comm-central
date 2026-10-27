@@ -269,3 +269,19 @@ const activeItem = selectActiveItem(store.getState());
 
 - [Thunks](https://redux-toolkit.js.org/api/createAsyncThunk)
 - [Entity Adapter](https://redux-toolkit.js.org/api/createEntityAdapter)
+
+## Testing stores within a browser
+(reduxtestutils)=
+
+To test a store in a document that's loaded within a browser, load
+`resource://testing-common/mail/ReduxTestUtils.mjs` as a module in the document:
+```html
+<script type="module" src="resource://testing-common/mail/ReduxTestUtils.mjs"></script>
+```
+
+It exposes its helpers on the `globalThis.ReduxTestUtils` global, so if you can
+access the document's window, you can access the `ReduxTestUtils`.
+
+```{js:autoclass} ReduxTestUtils
+:members:
+```

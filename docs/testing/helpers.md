@@ -30,3 +30,4 @@ the implementation itself.
 - OAuth2TestUtils - `resource://testing-common/mailnews/OAuth2TestUtils.sys.mjs`
 - MockExternalProtocolService - `resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs`; intercept opening protocols that aren't handled internally.
 - MockAlertsService - `resource://testing-common/mailnews/MockAlertsService.sys.mjs`
+- [ReduxTestUtils](reduxtestutils) - `resource://testing-common/mail/ReduxTestUtils.mjs`

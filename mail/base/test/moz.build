@@ -31,4 +31,5 @@ XPCSHELL_TESTS_MANIFESTS += [
 TESTING_JS_MODULES += [
     "../../../../browser/components/customizableui/test/CustomizableUITestUtils.sys.mjs",
     "MailViewHelpers.sys.mjs",
+    "unit/resources/reduxFixtures.mjs",
 ]

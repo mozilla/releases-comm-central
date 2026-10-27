@@ -22,6 +22,7 @@ TESTING_JS_MODULES.mail += [
     "NotificationBoxHelpers.sys.mjs",
     "OpenPGPTestUtils.sys.mjs",
     "QuickFilterBarHelpers.sys.mjs",
+    "ReduxTestUtils.mjs",
     "SearchWindowHelpers.sys.mjs",
     "ViewHelpers.sys.mjs",
     "WindowHelpers.sys.mjs",

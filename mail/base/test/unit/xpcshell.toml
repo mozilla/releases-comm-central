@@ -58,6 +58,8 @@ skip-if = [
 
 ["test_state_store.js"]
 
+["test_state_testUtils.js"]
+
 ["test_state_xulStoreSlice.js"]
 
 ["test_treeDataAdapter.js"]
