@@ -92,7 +92,7 @@ fn check_latency(context: &AudioUnitContext, latency: Option<u32>) {
 // ------------------------------------
 #[test]
 fn test_make_silent() {
-    let mut array = allocate_array::<u32>(10);
+    let mut array = vec![0u32; 10];
     for data in array.iter_mut() {
         *data = 0xFFFF;
     }

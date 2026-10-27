@@ -9,5 +9,4 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - run: cargo test --no-default-features
-      - run: cargo test
+      - run: ./scripts/test.sh

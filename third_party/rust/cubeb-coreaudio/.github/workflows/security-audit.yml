@@ -1,0 +1,43 @@
+name: Security Audit
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday at midnight UTC
+  push:
+    branches: [trailblazer]
+  pull_request:  # Run on ALL PRs to enforce security compliance
+  workflow_dispatch:  # Allow manual trigger
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    env:
+      # Bump both together. The digest is shown next to the asset on
+      # https://github.com/rustsec/rustsec/releases
+      CARGO_AUDIT_VERSION: 0.22.2
+      CARGO_AUDIT_SHA256: ab28a1bdb54db4d5d8ad5981cf1f959410370b3d28250dbd35f6a44248620e39
+    steps:
+    - uses: actions/checkout@v4
+
+    # Use the prebuilt release binary instead of `cargo install`, which spends
+    # minutes compiling on every run.
+    - name: Install cargo-audit
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        asset="cargo-audit-x86_64-unknown-linux-gnu-v${CARGO_AUDIT_VERSION}.tgz"
+        gh release download "cargo-audit/v${CARGO_AUDIT_VERSION}" --repo rustsec/rustsec \
+          --pattern "$asset" --dir "$RUNNER_TEMP"
+        echo "${CARGO_AUDIT_SHA256}  $RUNNER_TEMP/$asset" | sha256sum -c -
+        tar -xzf "$RUNNER_TEMP/$asset" -C ~/.cargo/bin --strip-components=1 "${asset%.tgz}/cargo-audit"
+        cargo audit --version
+
+    - name: Run security audit
+      run: cargo audit
+
+    - name: Run security audit (coreaudio-sys-utils)
+      run: cargo audit
+      working-directory: coreaudio-sys-utils

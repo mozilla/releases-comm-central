@@ -33,7 +33,8 @@ use self::device_property::*;
 use self::mixer::*;
 use self::resampler::*;
 use self::utils::*;
-use backend::ringbuf::RingBuffer;
+use backend::ringbuf::traits::{Consumer, Observer, Producer, Split};
+use backend::ringbuf::{HeapCons, HeapProd, HeapRb as RingBuffer};
 #[cfg(feature = "audio-dump")]
 use cubeb_backend::ffi::cubeb_audio_dump_stream_t;
 use cubeb_backend::{
@@ -644,7 +645,7 @@ extern "C" fn audiounit_input_callback(
             let input_callback_data = InputCallbackData {
                 bytes: input_buffer_list.mBuffers[0].mDataByteSize,
                 rendered_frames: input_frames,
-                total_available: input_buffer_manager.available_frames(),
+                total_available: input_buffer_manager.available_frames_from_producer(),
                 channels: input_buffer_list.mBuffers[0].mNumberChannels,
                 num_buf: input_buffer_list.mNumberBuffers,
             };
@@ -663,19 +664,19 @@ extern "C" fn audiounit_input_callback(
             input_buffer_list.mBuffers[0].mDataByteSize,
             input_buffer_list.mBuffers[0].mNumberChannels,
             input_frames,
-            input_buffer_manager.available_frames()
+            input_buffer_manager.available_frames_from_consumer()
         );
 
         // Input only. Call the user callback through resampler.
         // Resampler will deliver input buffer in the correct rate.
-        assert!(input_frames as usize <= input_buffer_manager.available_frames());
+        assert!(input_frames as usize <= input_buffer_manager.available_frames_from_consumer());
         stm.frames_read.fetch_add(
-            input_buffer_manager.available_frames(),
+            input_buffer_manager.available_frames_from_consumer(),
             atomic::Ordering::SeqCst,
         );
-        let mut total_input_frames = input_buffer_manager.available_frames() as i64;
-        let input_buffer =
-            input_buffer_manager.get_linear_data(input_buffer_manager.available_frames());
+        let mut total_input_frames = input_buffer_manager.available_frames_from_consumer() as i64;
+        let input_buffer = input_buffer_manager
+            .get_linear_data(input_buffer_manager.available_frames_from_consumer());
         let outframes = stm.core_stream_data.resampler.fill(
             input_buffer,
             &mut total_input_frames,
@@ -900,7 +901,7 @@ extern "C" fn audiounit_output_callback(
             f64::from(stm.core_stream_data.output_stream_params.rate()),
             output_frames as usize,
         );
-        let buffered_input_frames = input_buffer_manager.available_frames();
+        let buffered_input_frames = input_buffer_manager.available_frames_from_consumer();
         // Else if the input has buffered a lot already because the output started late, we
         // need to trim the input buffer
         if prev_frames_written == 0 && buffered_input_frames > input_frames_needed {
@@ -3247,8 +3248,8 @@ struct InputCallbackData {
     num_buf: u32,
 }
 struct InputCallbackLogger {
-    prod: ringbuf::Producer<InputCallbackData>,
-    cons: ringbuf::Consumer<InputCallbackData>,
+    prod: HeapProd<InputCallbackData>,
+    cons: HeapCons<InputCallbackData>,
 }
 
 impl InputCallbackLogger {
@@ -3259,11 +3260,12 @@ impl InputCallbackLogger {
     }
 
     fn push(&mut self, data: InputCallbackData) {
-        self.prod.push(data);
+        // Drop log entries if input callbacks outpace the output callback draining this queue.
+        let _ = self.prod.try_push(data);
     }
 
     fn pop(&mut self) -> Option<InputCallbackData> {
-        self.cons.pop()
+        self.cons.try_pop()
     }
 
     fn is_empty(&self) -> bool {
@@ -3276,8 +3278,8 @@ impl fmt::Debug for InputCallbackLogger {
         write!(
             f,
             "InputCallbackLogger  {{ prod: {}, cons: {} }}",
-            self.prod.len(),
-            self.cons.len()
+            self.prod.occupied_len(),
+            self.cons.occupied_len()
         )
     }
 }

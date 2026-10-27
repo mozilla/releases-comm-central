@@ -1,6 +1,7 @@
 use crate::dispatch::*;
 use coreaudio_sys::*;
 use std::fmt;
+use std::mem;
 use std::os::raw::c_void;
 use std::ptr;
 
@@ -70,6 +71,51 @@ pub fn audio_object_get_property_data_size_with_qualifier<Q>(
             size as *mut UInt32,
         )
     }
+}
+
+/// Read an array-typed property. Its size is queried first, then the data is read into a buffer
+/// of that size. The property may change between the two calls, so the result is truncated to the
+/// number of elements actually read.
+pub fn audio_object_get_property_array<T: Clone + Default>(
+    id: AudioObjectID,
+    address: &AudioObjectPropertyAddress,
+) -> Result<Vec<T>, OSStatus> {
+    audio_object_get_property_array_with_qualifier::<T, ()>(id, address, 0, ptr::null())
+}
+
+pub fn audio_object_get_property_array_with_qualifier<T: Clone + Default, Q>(
+    id: AudioObjectID,
+    address: &AudioObjectPropertyAddress,
+    qualifier_size: usize,
+    qualifier_data: *const Q,
+) -> Result<Vec<T>, OSStatus> {
+    const NO_ERR: OSStatus = 0;
+    let mut size: usize = 0;
+    let status = audio_object_get_property_data_size_with_qualifier(
+        id,
+        address,
+        qualifier_size,
+        qualifier_data,
+        &mut size,
+    );
+    if status != NO_ERR {
+        return Err(status);
+    }
+    assert_eq!(size % mem::size_of::<T>(), 0);
+    let mut data = vec![T::default(); size / mem::size_of::<T>()];
+    let status = audio_object_get_property_data_with_qualifier(
+        id,
+        address,
+        qualifier_size,
+        qualifier_data,
+        &mut size,
+        data.as_mut_ptr(),
+    );
+    if status != NO_ERR {
+        return Err(status);
+    }
+    data.truncate(size / mem::size_of::<T>());
+    Ok(data)
 }
 
 pub fn audio_object_set_property_data<T>(

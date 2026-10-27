@@ -35,7 +35,7 @@ pub use operation::Operation;
 pub use proplist::{OwnedProplist, Proplist};
 use std::os::raw::{c_char, c_uint};
 pub use stream::Stream;
-pub use threaded_mainloop::ThreadedMainloop;
+pub use threaded_mainloop::{MainloopLockGuard, ThreadedMainloop};
 
 #[allow(non_camel_case_types)]
 #[repr(i32)]

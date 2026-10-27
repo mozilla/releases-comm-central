@@ -565,7 +565,7 @@ pub fn test_get_all_owned_devices(id: AudioDeviceID) -> Vec<AudioObjectID> {
     assert_ne!(size, 0);
 
     let elements = size / mem::size_of::<AudioObjectID>();
-    let mut devices: Vec<AudioObjectID> = allocate_array(elements);
+    let mut devices = vec![AudioObjectID::default(); elements];
 
     assert_eq!(
         unsafe {
@@ -580,6 +580,7 @@ pub fn test_get_all_owned_devices(id: AudioDeviceID) -> Vec<AudioObjectID> {
         },
         NO_ERR
     );
+    devices.truncate(size / mem::size_of::<AudioObjectID>());
 
     devices
 }

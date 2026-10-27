@@ -49,7 +49,7 @@ float-cmp = "0.6"
 libc = "0.2"
 mach2 = "0.4"
 num = "0.4.3"
-ringbuf = "0.2.6"
+ringbuf = "0.5.2"
 triple_buffer = "5.0.5"
 whatsys = "0.3"
 

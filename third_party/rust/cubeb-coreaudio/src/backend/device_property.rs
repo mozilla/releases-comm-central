@@ -59,28 +59,12 @@ pub fn get_device_from_devid(
 
 pub fn get_devices() -> Vec<AudioObjectID> {
     debug_assert_running_serially();
-    let mut size: usize = 0;
     let address = get_property_address(
         Property::HardwareDevices,
         DeviceType::INPUT | DeviceType::OUTPUT,
     );
-    let mut ret =
-        audio_object_get_property_data_size(kAudioObjectSystemObject, &address, &mut size);
-    if ret != NO_ERR {
-        return Vec::new();
-    }
     // Total number of input and output devices.
-    let mut devices: Vec<AudioObjectID> = allocate_array_by_size(size);
-    ret = audio_object_get_property_data(
-        kAudioObjectSystemObject,
-        &address,
-        &mut size,
-        devices.as_mut_ptr(),
-    );
-    if ret != NO_ERR {
-        return Vec::new();
-    }
-    devices
+    audio_object_get_property_array(kAudioObjectSystemObject, &address).unwrap_or_default()
 }
 
 pub fn get_device_model_uid(
@@ -247,18 +231,7 @@ pub fn get_device_streams(
     debug_assert_running_serially();
 
     let address = get_property_address(Property::DeviceStreams, devtype);
-
-    let mut size: usize = 0;
-    let err = audio_object_get_property_data_size(id, &address, &mut size);
-    if err != NO_ERR {
-        return Err(err);
-    }
-
-    let mut streams = vec![AudioObjectID::default(); size / mem::size_of::<AudioObjectID>()];
-    let err = audio_object_get_property_data(id, &address, &mut size, streams.as_mut_ptr());
-    if err != NO_ERR {
-        return Err(err);
-    }
+    let streams: Vec<AudioStreamID> = audio_object_get_property_array(id, &address)?;
 
     let mut device_streams = streams
         .into_iter()
@@ -357,20 +330,7 @@ pub fn get_ranges_of_device_sample_rate(
     debug_assert_running_serially();
 
     let address = get_property_address(Property::DeviceSampleRates, devtype);
-
-    let mut size: usize = 0;
-    let err = audio_object_get_property_data_size(id, &address, &mut size);
-    if err != NO_ERR {
-        return Err(err);
-    }
-
-    let mut ranges: Vec<AudioValueRange> = allocate_array_by_size(size);
-    let err = audio_object_get_property_data(id, &address, &mut size, ranges.as_mut_ptr());
-    if err == NO_ERR {
-        Ok(ranges)
-    } else {
-        Err(err)
-    }
+    audio_object_get_property_array(id, &address)
 }
 
 pub fn get_stream_latency(id: AudioStreamID) -> std::result::Result<u32, OSStatus> {

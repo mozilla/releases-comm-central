@@ -5,16 +5,6 @@
 use cubeb_backend::SampleFormat as fmt;
 use std::mem;
 
-pub fn allocate_array_by_size<T: Clone + Default>(size: usize) -> Vec<T> {
-    assert_eq!(size % mem::size_of::<T>(), 0);
-    let elements = size / mem::size_of::<T>();
-    allocate_array::<T>(elements)
-}
-
-pub fn allocate_array<T: Clone + Default>(elements: usize) -> Vec<T> {
-    vec![T::default(); elements]
-}
-
 pub fn cubeb_sample_size(format: fmt) -> usize {
     match format {
         fmt::S16LE | fmt::S16BE | fmt::S16NE => mem::size_of::<i16>(),

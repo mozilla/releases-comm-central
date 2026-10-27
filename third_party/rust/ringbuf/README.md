@@ -3,132 +3,147 @@
 [![Crates.io][crates_badge]][crates]
 [![Docs.rs][docs_badge]][docs]
 [![Github Actions][github_badge]][github]
-[![Appveyor][appveyor_badge]][appveyor]
+[![Gitlab CI][gitlab_badge]][gitlab]
 [![License][license_badge]][license]
 
 [crates_badge]: https://img.shields.io/crates/v/ringbuf.svg
 [docs_badge]: https://docs.rs/ringbuf/badge.svg
 [github_badge]: https://github.com/agerasev/ringbuf/actions/workflows/test.yml/badge.svg
-[appveyor_badge]: https://ci.appveyor.com/api/projects/status/github/agerasev/ringbuf?branch=master&svg=true
+[gitlab_badge]: https://gitlab.com/agerasev/ringbuf/badges/master/pipeline.svg
 [license_badge]: https://img.shields.io/crates/l/ringbuf.svg
 
 [crates]: https://crates.io/crates/ringbuf
 [docs]: https://docs.rs/ringbuf
 [github]: https://github.com/agerasev/ringbuf/actions/workflows/test.yml
-[appveyor]: https://ci.appveyor.com/project/agerasev/ringbuf
+[gitlab]: https://gitlab.com/agerasev/ringbuf/-/pipelines?scope=branches&ref=master
 [license]: #license
 
-Lock-free single-producer single-consumer (SPSC) FIFO ring buffer with direct access to inner data.
+Lock-free SPSC FIFO ring buffer with direct access to inner data.
 
-# Overview
+## Features
 
-`RingBuffer` is the initial structure representing ring buffer itself.
-Ring buffer can be splitted into pair of `Producer` and `Consumer`.
++ Lock-free operations - they succeed or fail immediately without blocking or waiting.
++ Arbitrary item type (not only `Copy`).
++ Items can be inserted and removed one by one or many at once.
++ Thread-safe direct access to the internal ring buffer memory.
++ `Read` and `Write` implementation.
++ Overwriting insertion support.
++ Different types of buffers and underlying storages.
++ Can be used without `std` and even without `alloc` (using only statically-allocated memory).
++ Async and blocking versions (see [this section](#derived-crates)).
++ Can optionally use the [`portable-atomic`](https://crates.io/crates/portable-atomic) crate to allow usage on smaller systems without CAS operations.
 
-`Producer` and `Consumer` are used to append/remove elements to/from the ring buffer accordingly. They can be safely transfered between threads.
-Operations with `Producer` and `Consumer` are lock-free - they're succeded or failed immediately without blocking or waiting.
+# Usage
 
-Elements can be effectively appended/removed one by one or many at once.
-Also data could be loaded/stored directly into/from [`Read`]/[`Write`] instances.
-And finally, there are `unsafe` methods allowing thread-safe direct access in place to the inner memory being appended/removed.
+At first you need to create the ring buffer itself. `HeapRb` is recommended but you may [choose another one](#types).
 
-[`Read`]: https://doc.rust-lang.org/std/io/trait.Read.html
-[`Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
+After the ring buffer is created it may be splitted into pair of `Producer` and `Consumer`.
+Producer is used to insert items to the ring buffer, consumer - to remove items from it.
 
-When building with nightly toolchain it is possible to run benchmarks via `cargo bench --features benchmark`.
+Capacity must be in `1..=usize::MAX / 2`, including for zero-sized items.
+Constructors panic if the capacity is zero or exceeds this limit.
 
-Also the crate could be used with `no_std` (but `alloc` is still required).
+# Types
 
-# Examples
+There are several types of ring buffers provided:
 
-## Simple example
++ `LocalRb`. Only for single-threaded use.
++ `SharedRb`. Can be shared between threads. Its frequently used instances:
+  + `HeapRb`. Contents are stored in dynamic memory. *Recommended for use in most cases.*
+  + `StaticRb`. Contents can be stored in statically-allocated memory.
+
+You may also provide your own generic parameters.
+
+# Performance
+
+`SharedRb` needs to synchronize CPU cache between CPU cores. This synchronization has some overhead.
+To avoid multiple unnecessary synchronizations you may use methods that operate many items at once(`push_slice`/`push_iter`, `pop_slice`, etc.).
+Caching endpoints also avoid repeatedly fetching the opposite endpoint's index when progress is possible.
+All completed operations publish their index updates immediately, including each step of `pop_iter`.
+
+`skip` and `clear` take constant time for items without destructors, such as `u8`.
+Items that need destruction are dropped individually, with each slot kept occupied until its destructor finishes.
+
+For single-threaded usage `LocalRb` is recommended because it is slightly faster than `SharedRb` due to absence of CPU cache synchronization.
+
+## Migrating from deferred publication
+
+Deferred publication in frozen endpoints and `PopIter` could lead to double drops if they were forgotten with `core::mem::forget`.
+Publication no longer depends on running their destructors.
+
+`Frozen`, `FrozenProd`, `FrozenCons`, and `freeze()` are deprecated compatibility APIs. Their removal is reserved for a future breaking release.
+Existing calls remain available, but code relying on delayed visibility or rollback must be updated:
+
++ Use `CachingProd` and `CachingCons` directly and remove calls to `freeze`, `commit`, `fetch`, and `sync`.
+  Operations publish their changes immediately and fetch the opposite endpoint's progress as needed.
++ `FrozenProd::discard` is now a no-op. Stage items outside the ring buffer if they may need to be discarded, and insert them only when ready to publish.
++ `PopIter` releases each slot as soon as it yields the item. Its `commit` method is deprecated and does nothing.
+  It still yields only the items present when it was created. Use `pop_slice` to batch removals.
+
+## Examples
+
+### Simple
 
 ```rust
-use ringbuf::RingBuffer;
+use ringbuf::{traits::*, HeapRb};
 
-let rb = RingBuffer::<i32>::new(2);
+let rb = HeapRb::<i32>::new(2);
 let (mut prod, mut cons) = rb.split();
 
-prod.push(0).unwrap();
-prod.push(1).unwrap();
-assert_eq!(prod.push(2), Err(2));
+prod.try_push(0).unwrap();
+prod.try_push(1).unwrap();
+assert_eq!(prod.try_push(2), Err(2));
 
-assert_eq!(cons.pop().unwrap(), 0);
+assert_eq!(cons.try_pop(), Some(0));
 
-prod.push(2).unwrap();
+prod.try_push(2).unwrap();
 
-assert_eq!(cons.pop().unwrap(), 1);
-assert_eq!(cons.pop().unwrap(), 2);
-assert_eq!(cons.pop(), None);
+assert_eq!(cons.try_pop(), Some(1));
+assert_eq!(cons.try_pop(), Some(2));
+assert_eq!(cons.try_pop(), None);
 ```
 
-## Message transfer
-
-This is more complicated example of transfering text message between threads.
+### No heap
 
 ```rust
-use std::io::Read;
-use std::thread;
-use std::time::Duration;
+use ringbuf::{traits::*, StaticRb};
 
-use ringbuf::RingBuffer;
+const RB_SIZE: usize = 1;
+let mut rb = StaticRb::<i32, RB_SIZE>::default();
+let (mut prod, mut cons) = rb.split_ref();
 
-let buf = RingBuffer::<u8>::new(10);
-let (mut prod, mut cons) = buf.split();
+assert_eq!(prod.try_push(123), Ok(()));
+assert_eq!(prod.try_push(321), Err(321));
 
-let smsg = "The quick brown fox jumps over the lazy dog";
-
-let pjh = thread::spawn(move || {
-    println!("-> sending message: '{}'", smsg);
-
-    let zero = [0];
-    let mut bytes = smsg.as_bytes().chain(&zero[..]);
-    loop {
-        if prod.is_full() {
-            println!("-> buffer is full, waiting");
-            thread::sleep(Duration::from_millis(1));
-        } else {
-            let n = prod.read_from(&mut bytes, None).unwrap();
-            if n == 0 {
-                break;
-            }
-            println!("-> {} bytes sent", n);
-        }
-    }
-
-    println!("-> message sent");
-});
-
-let cjh = thread::spawn(move || {
-    println!("<- receiving message");
-
-    let mut bytes = Vec::<u8>::new();
-    loop {
-        if cons.is_empty() {
-            if bytes.ends_with(&[0]) {
-                break;
-            } else {
-                println!("<- buffer is empty, waiting");
-                thread::sleep(Duration::from_millis(1));
-            }
-        } else {
-            let n = cons.write_into(&mut bytes, None).unwrap();
-            println!("<- {} bytes received", n);
-        }
-    }
-
-    assert_eq!(bytes.pop().unwrap(), 0);
-    let msg = String::from_utf8(bytes).unwrap();
-    println!("<- message received: '{}'", msg);
-
-    msg
-});
-
-pjh.join().unwrap();
-let rmsg = cjh.join().unwrap();
-
-assert_eq!(smsg, rmsg);
+assert_eq!(cons.try_pop(), Some(123));
+assert_eq!(cons.try_pop(), None);
 ```
+
+## Overwrite
+
+Ring buffer can be used in overwriting mode when insertion overwrites the oldest element if the buffer is full.
+
+```rust
+use ringbuf::{traits::*, HeapRb};
+
+let mut rb = HeapRb::<i32>::new(2);
+
+assert_eq!(rb.push_overwrite(0), None);
+assert_eq!(rb.push_overwrite(1), None);
+assert_eq!(rb.push_overwrite(2), Some(0));
+
+assert_eq!(rb.try_pop(), Some(1));
+assert_eq!(rb.try_pop(), Some(2));
+assert_eq!(rb.try_pop(), None);
+```
+
+Note that `push_overwrite` requires exclusive access to the ring buffer
+so to perform it concurrently you need to guard the ring buffer with mutex or some other lock.
+
+## Derived crates
+
++ [`ringbuf-blocking`](https://crates.io/crates/ringbuf-blocking)
++ [`async-ringbuf`](https://crates.io/crates/async-ringbuf)
 
 ## License
 

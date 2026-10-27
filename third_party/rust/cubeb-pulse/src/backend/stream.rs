@@ -11,12 +11,13 @@ use cubeb_backend::{
 };
 use pulse::{self, ChannelMapExt, SampleSpecExt, StreamLatency, USecExt};
 use pulse_ffi::*;
-use ringbuf::RingBuffer;
+use ringbuf::traits::{Consumer, Producer, Split};
+use ringbuf::{HeapCons, HeapProd, HeapRb as RingBuffer};
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_long, c_void};
+use std::ptr;
 use std::slice;
 use std::sync::atomic::{AtomicPtr, AtomicUsize, Ordering};
-use std::{mem, ptr};
 
 use self::LinearInputBuffer::*;
 use self::RingBufferConsumer::*;
@@ -126,13 +127,13 @@ impl Drop for Device {
 }
 
 enum RingBufferConsumer {
-    IntegerRingBufferConsumer(ringbuf::Consumer<i16>),
-    FloatRingBufferConsumer(ringbuf::Consumer<f32>),
+    IntegerRingBufferConsumer(HeapCons<i16>),
+    FloatRingBufferConsumer(HeapCons<f32>),
 }
 
 enum RingBufferProducer {
-    IntegerRingBufferProducer(ringbuf::Producer<i16>),
-    FloatRingBufferProducer(ringbuf::Producer<f32>),
+    IntegerRingBufferProducer(HeapProd<i16>),
+    FloatRingBufferProducer(HeapProd<f32>),
 }
 
 enum LinearInputBuffer {
@@ -271,6 +272,7 @@ pub struct PulseStream<'ctx> {
     input_stream: Option<pulse::Stream>,
     data_callback: ffi::cubeb_data_callback,
     state_callback: ffi::cubeb_state_callback,
+    output_preroll_event: AtomicPtr<pa_defer_event>,
     drain_timer: AtomicPtr<pa_time_event>,
     output_sample_spec: pulse::SampleSpec,
     input_sample_spec: pulse::SampleSpec,
@@ -283,6 +285,22 @@ pub struct PulseStream<'ctx> {
 }
 
 impl<'ctx> PulseStream<'ctx> {
+    fn cancel_output_preroll(&self) -> bool {
+        let _mainloop_lock = self.context.mainloop.lock_guard_if_needed();
+        let output_preroll_event = self
+            .output_preroll_event
+            .swap(ptr::null_mut(), Ordering::AcqRel);
+        if output_preroll_event.is_null() {
+            return false;
+        }
+
+        self.context
+            .mainloop
+            .get_api()
+            .defer_free(output_preroll_event);
+        true
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         context: &'ctx PulseContext,
@@ -421,6 +439,7 @@ impl<'ctx> PulseStream<'ctx> {
             data_callback,
             state_callback,
             user_ptr,
+            output_preroll_event: AtomicPtr::new(ptr::null_mut()),
             drain_timer: AtomicPtr::new(ptr::null_mut()),
             output_sample_spec: pulse::SampleSpec::default(),
             input_sample_spec: pulse::SampleSpec::default(),
@@ -445,7 +464,7 @@ impl<'ctx> PulseStream<'ctx> {
         });
 
         if let Some(ref context) = stm.context.context {
-            stm.context.mainloop.lock();
+            let mut mainloop_lock = Some(stm.context.mainloop.lock_guard());
 
             // Setup output stream
             if let Some(stream_params) = output_stream_params {
@@ -490,14 +509,14 @@ impl<'ctx> PulseStream<'ctx> {
                         stm.output_stream = Some(s);
                         if let Err(e) = connect_result {
                             cubeb_log!("Output stream connect error: {}", e);
-                            stm.context.mainloop.unlock();
+                            drop(mainloop_lock.take());
                             stm.destroy();
                             return Err(Error::Error);
                         }
                     }
                     Err(e) => {
                         cubeb_log!("Output stream initialization error");
-                        stm.context.mainloop.unlock();
+                        drop(mainloop_lock.take());
                         stm.destroy();
                         return Err(e);
                     }
@@ -540,14 +559,14 @@ impl<'ctx> PulseStream<'ctx> {
                         stm.input_stream = Some(s);
                         if let Err(e) = connect_result {
                             cubeb_log!("Input stream connect error: {}", e);
-                            stm.context.mainloop.unlock();
+                            drop(mainloop_lock.take());
                             stm.destroy();
                             return Err(Error::Error);
                         }
                     }
                     Err(e) => {
                         cubeb_log!("Input stream initialization error");
-                        stm.context.mainloop.unlock();
+                        drop(mainloop_lock.take());
                         stm.destroy();
                         return Err(e);
                     }
@@ -573,9 +592,8 @@ impl<'ctx> PulseStream<'ctx> {
                 false
             };
 
-            stm.context.mainloop.unlock();
-
             if !r {
+                drop(mainloop_lock.take());
                 stm.destroy();
                 cubeb_log!("Error while waiting for the stream to be ready");
                 return Err(Error::Error);
@@ -615,30 +633,33 @@ impl<'ctx> PulseStream<'ctx> {
     }
 
     fn destroy(&mut self) {
+        {
+            let _mainloop_lock = self.context.mainloop.lock_guard();
+            self.shutdown = true;
+            self.cancel_output_preroll();
+        }
+
         self.cork(CorkState::cork());
 
-        self.context.mainloop.lock();
-        {
-            if let Some(stm) = self.output_stream.take() {
-                let drain_timer = self.drain_timer.load(Ordering::Acquire);
-                if !drain_timer.is_null() {
-                    /* there's no pa_rttime_free, so use this instead. */
-                    self.context.mainloop.get_api().time_free(drain_timer);
-                }
-                stm.clear_state_callback();
-                stm.clear_write_callback();
-                let _ = stm.disconnect();
-                stm.unref();
+        let _mainloop_lock = self.context.mainloop.lock_guard();
+        if let Some(stm) = self.output_stream.take() {
+            let drain_timer = self.drain_timer.load(Ordering::Acquire);
+            if !drain_timer.is_null() {
+                /* there's no pa_rttime_free, so use this instead. */
+                self.context.mainloop.get_api().time_free(drain_timer);
             }
-
-            if let Some(stm) = self.input_stream.take() {
-                stm.clear_state_callback();
-                stm.clear_read_callback();
-                let _ = stm.disconnect();
-                stm.unref();
-            }
+            stm.clear_state_callback();
+            stm.clear_write_callback();
+            let _ = stm.disconnect();
+            stm.unref();
         }
-        self.context.mainloop.unlock();
+
+        if let Some(stm) = self.input_stream.take() {
+            stm.clear_state_callback();
+            stm.clear_read_callback();
+            let _ = stm.disconnect();
+            stm.unref();
+        }
     }
 }
 
@@ -650,8 +671,13 @@ impl Drop for PulseStream<'_> {
 
 impl StreamOps for PulseStream<'_> {
     fn start(&mut self) -> Result<()> {
-        fn output_preroll(_: &pulse::MainloopApi, u: *mut c_void) {
+        fn output_preroll(a: &pulse::MainloopApi, e: *mut pa_defer_event, u: *mut c_void) {
             let stm = unsafe { &mut *(u as *mut PulseStream) };
+            let output_preroll_event = stm
+                .output_preroll_event
+                .swap(ptr::null_mut(), Ordering::AcqRel);
+            debug_assert_eq!(output_preroll_event, e);
+
             if !stm.shutdown {
                 let size = stm
                     .output_stream
@@ -659,6 +685,8 @@ impl StreamOps for PulseStream<'_> {
                     .map_or(0, |s| s.writable_size().unwrap_or(0));
                 stm.trigger_user_callback(std::ptr::null(), size);
             }
+
+            a.defer_free(e);
         }
 
         // Restarting a stream that is still draining is a cubeb API contract
@@ -668,7 +696,6 @@ impl StreamOps for PulseStream<'_> {
             cubeb_log!("Rejecting start() on a draining stream");
             return Err(Error::Error);
         }
-
         self.shutdown = false;
         self.cork(CorkState::uncork() | CorkState::notify());
 
@@ -676,12 +703,21 @@ impl StreamOps for PulseStream<'_> {
             /* When doing output-only or duplex, we need to manually call user cb once in order to
              * make things roll. This is done via a defer event in order to execute it from PA
              * server thread. */
-            self.context.mainloop.lock();
-            self.context
+            let _mainloop_lock = self.context.mainloop.lock_guard();
+            // Repeated starts can share a queued preroll. Check under the mainloop
+            // lock so it cannot run between this check and scheduling, and never
+            // overwrite an event that stop() or destroy() still needs to cancel.
+            if !self.output_preroll_event.load(Ordering::Acquire).is_null() {
+                return Ok(());
+            }
+            let output_preroll_event = self
+                .context
                 .mainloop
                 .get_api()
-                .once(output_preroll, self as *const _ as *mut _);
-            self.context.mainloop.unlock();
+                .defer_new(output_preroll, self as *const _ as *mut _);
+            assert!(!output_preroll_event.is_null());
+            self.output_preroll_event
+                .store(output_preroll_event, Ordering::Release);
         }
 
         Ok(())
@@ -689,8 +725,11 @@ impl StreamOps for PulseStream<'_> {
 
     fn stop(&mut self) -> Result<()> {
         {
-            self.context.mainloop.lock();
+            let _mainloop_lock = self.context.mainloop.lock_guard();
             self.shutdown = true;
+            if self.cancel_output_preroll() {
+                cubeb_log!("Stream stop: cancelling output preroll");
+            }
             // Cancel any pending drain timer rather than blocking until it
             // fires, matching destroy() and other backends' behaviour.
             let drain_timer = self.drain_timer.load(Ordering::Acquire);
@@ -699,7 +738,6 @@ impl StreamOps for PulseStream<'_> {
                 self.context.mainloop.get_api().time_free(drain_timer);
                 self.drain_timer.store(ptr::null_mut(), Ordering::Release);
             }
-            self.context.mainloop.unlock();
         }
         self.cork(CorkState::cork() | CorkState::notify());
 
@@ -707,19 +745,14 @@ impl StreamOps for PulseStream<'_> {
     }
 
     fn position(&mut self) -> Result<u64> {
-        let in_thread = self.context.mainloop.in_thread();
+        let _mainloop_lock = self.context.mainloop.lock_guard_if_needed();
 
-        if !in_thread {
-            self.context.mainloop.lock();
-        }
-
-        if self.output_stream.is_none() {
+        let Some(stm) = self.output_stream.as_ref() else {
             cubeb_log!("Calling position() on an input-only stream");
             return Err(Error::Error);
-        }
+        };
 
-        let stm = self.output_stream.as_ref().unwrap();
-        let r = match stm.get_time() {
+        match stm.get_time() {
             Ok(r_usec) => {
                 let bytes = USecExt::to_bytes(r_usec, &self.output_sample_spec);
                 Ok((bytes / self.output_sample_spec.frame_size()) as u64)
@@ -728,16 +761,12 @@ impl StreamOps for PulseStream<'_> {
                 cubeb_log!("Error: stm.get_time failed");
                 Err(Error::Error)
             }
-        };
-
-        if !in_thread {
-            self.context.mainloop.unlock();
         }
-
-        r
     }
 
     fn latency(&mut self) -> Result<u32> {
+        let _mainloop_lock = self.context.mainloop.lock_guard_if_needed();
+
         match self.output_stream {
             None => {
                 cubeb_log!("Error: calling latency() on an input-only stream");
@@ -761,6 +790,8 @@ impl StreamOps for PulseStream<'_> {
     }
 
     fn input_latency(&mut self) -> Result<u32> {
+        let _mainloop_lock = self.context.mainloop.lock_guard_if_needed();
+
         match self.input_stream {
             None => {
                 cubeb_log!("Error: calling input_latency() on an output-only stream");
@@ -791,9 +822,8 @@ impl StreamOps for PulseStream<'_> {
             }
             Some(_) => {
                 if self.context.context.is_some() {
-                    self.context.mainloop.lock();
+                    let _mainloop_lock = self.context.mainloop.lock_guard();
                     self.volume = volume;
-                    self.context.mainloop.unlock();
                     Ok(())
                 } else {
                     cubeb_log!("Error: set_volume: no context?");
@@ -810,11 +840,10 @@ impl StreamOps for PulseStream<'_> {
                 Err(Error::Error)
             }
             Some(ref stm) => {
-                self.context.mainloop.lock();
+                let _mainloop_lock = self.context.mainloop.lock_guard();
                 if let Ok(o) = stm.set_name(name, stream_success, self as *const _ as *mut _) {
                     self.context.operation_wait(stm, &o);
                 }
-                self.context.mainloop.unlock();
                 Ok(())
             }
         }
@@ -822,10 +851,12 @@ impl StreamOps for PulseStream<'_> {
 
     fn current_device(&mut self) -> Result<&DeviceRef> {
         if self.context.version_0_9_8 {
-            let mut dev: Box<ffi::cubeb_device> = Box::new(unsafe { mem::zeroed() });
+            let _mainloop_lock = self.context.mainloop.lock_guard_if_needed();
+
+            let mut dev: Box<Device> = Box::new(Device(Default::default()));
 
             if let Some(ref stm) = self.input_stream {
-                dev.input_name = match stm.get_device_name() {
+                dev.0.input_name = match stm.get_device_name() {
                     Ok(name) => name.to_owned().into_raw(),
                     Err(_) => {
                         cubeb_log!("Error: couldn't get the input stream's device name");
@@ -835,7 +866,7 @@ impl StreamOps for PulseStream<'_> {
             }
 
             if let Some(ref stm) = self.output_stream {
-                dev.output_name = match stm.get_device_name() {
+                dev.0.output_name = match stm.get_device_name() {
                     Ok(name) => name.to_owned().into_raw(),
                     Err(_) => {
                         cubeb_log!("Error: couldn't get the output stream's device name");
@@ -980,10 +1011,9 @@ impl PulseStream<'_> {
 
     fn cork(&mut self, state: CorkState) {
         {
-            self.context.mainloop.lock();
+            let _mainloop_lock = self.context.mainloop.lock_guard();
             self.cork_stream(self.output_stream.as_ref(), state);
             self.cork_stream(self.input_stream.as_ref(), state);
-            self.context.mainloop.unlock()
         }
 
         if state.is_notify() {
@@ -1134,6 +1164,10 @@ impl PulseStream<'_> {
                             }
                             return;
                         }
+                        assert!(
+                            got as usize <= size / frame_size,
+                            "data callback returned more frames than requested"
+                        );
 
                         // If more iterations move offset of read buffer
                         if !input_data.is_null() {
@@ -1142,15 +1176,17 @@ impl PulseStream<'_> {
                         }
 
                         if self.volume != PULSE_NO_GAIN {
-                            let samples = (self.output_sample_spec.channels as usize * size
-                                / frame_size) as isize;
+                            let samples = got as isize * self.output_sample_spec.channels as isize;
 
                             if self.output_sample_spec.format == PA_SAMPLE_S16BE
                                 || self.output_sample_spec.format == PA_SAMPLE_S16LE
                             {
                                 let b = buffer as *mut i16;
                                 for i in 0..samples {
-                                    unsafe { *b.offset(i) *= self.volume as i16 };
+                                    unsafe {
+                                        *b.offset(i) =
+                                            (f32::from(*b.offset(i)) * self.volume) as i16
+                                    };
                                 }
                             } else {
                                 let b = buffer as *mut f32;
