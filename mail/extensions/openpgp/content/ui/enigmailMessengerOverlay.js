@@ -2060,7 +2060,7 @@ Enigmail.msg = {
           const existing = await db.findKeyForFingerprint(newKey.fpr);
           if (existing) {
             const key = await db.mergeExisting(newKey, newKey.pubKey, {
-              uri: `mid:${gMessage.messageId}`,
+              uri: MailUtils.constructMidUriSpec(gMessage.messageId),
               type: isBinaryAutocrypt ? "autocrypt" : "attachment",
               description,
             });
@@ -2158,7 +2158,7 @@ Enigmail.msg = {
             candidate.newKeyObj = newKey;
             candidate.pubKey = newKey.pubKey;
             candidate.source = {
-              uri: `mid:${gMessage.messageId}`,
+              uri: MailUtils.constructMidUriSpec(gMessage.messageId),
               type: isBinaryAutocrypt ? "autocrypt" : "attachment",
               description,
             };

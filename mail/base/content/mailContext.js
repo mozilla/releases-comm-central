@@ -704,7 +704,9 @@ var mailContextMenu = {
         break;
       case "mailContext-copyMessageLink":
         navigator.clipboard.writeText(
-          `mid:${gDBView.hdrForFirstSelectedMessage?.messageId}`
+          MailUtils.constructMidUriSpec(
+            gDBView.hdrForFirstSelectedMessage?.messageId
+          )
         );
         break;
       case "mailContext-copyNewsLink":

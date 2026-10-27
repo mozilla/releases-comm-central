@@ -93,7 +93,7 @@ export class MailLinkParent extends JSWindowActorParent {
   }
 
   _handleMidLink({ data }) {
-    lazy.MailUtils.openMessageForMessageId(data.href.slice(4));
+    lazy.MailUtils.openMidUri(data.href);
   }
 
   _handleNewsLink({ data }) {

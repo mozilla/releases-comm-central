@@ -25,6 +25,8 @@ support-files = ["data/**"]
 
 ["browser_messageHeaderCustomize.js"]
 
+["browser_midUri.js"]
+
 ["browser_phishingBar.js"]
 
 ["browser_replyIdentity.js"]

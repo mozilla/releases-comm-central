@@ -559,7 +559,7 @@ export class MessengerContentHandler {
         );
       } else if (url?.protocol == "mid:") {
         getOrOpen3PaneWindow().then(() => {
-          lazy.MailUtils.openMessageForMessageId(uri.slice(4));
+          lazy.MailUtils.openMidUri(uri);
         });
       } else if (
         ["mailbox-message:", "imap-message:", "news-message:"].includes(

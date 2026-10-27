@@ -3225,7 +3225,9 @@ const gMessageHeader = {
       tab: popup.documentGlobal,
       onHeaderPaneLink: true,
       linkText: messageId,
-      linkUrl: `mid:${messageId.substring(1, messageId.length - 1)}`,
+      linkUrl: MailUtils.constructMidUriSpec(
+        messageId.substring(1, messageId.length - 1)
+      ),
       pageUrl: getMessagePaneBrowser().contentDocument?.URL,
     };
     subject.wrappedJSObject = subject;
@@ -3763,7 +3765,9 @@ function convertToEventOrTask(isTask = false) {
  * Put the 'mid:' URI of the message on the clipboard.
  */
 function copyMessageLink() {
-  navigator.clipboard.writeText(`mid:${gMessage.messageId}`);
+  navigator.clipboard.writeText(
+    MailUtils.constructMidUriSpec(gMessage.messageId)
+  );
 }
 
 /**

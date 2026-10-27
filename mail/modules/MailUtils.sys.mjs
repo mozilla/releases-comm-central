@@ -852,8 +852,10 @@ export var MailUtils = {
    * @param {string} msgId - The message id string without the brackets.
    * @param {nsIMsgIncomingServer} [startServer] - The server to check first.
    * @param {DOMWindow} [window] - The message window to load the message into.
+   * @param {boolean} [silent=false] - Suppress the message-not-found alert.
+   * @returns {boolean} Whether the message was found and opened.
    */
-  openMessageForMessageId(msgId, startServer, window) {
+  openMessageForMessageId(msgId, startServer, window, silent = false) {
     window?.setCursor("wait");
     const msgHdr = this.getMsgHdrForMsgId(msgId, startServer);
     window?.setCursor("auto");
@@ -872,7 +874,10 @@ export var MailUtils = {
       } else {
         this.displayMessage(msgHdr);
       }
-      return;
+      return true;
+    }
+    if (silent) {
+      return false;
     }
     const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/messenger.properties"
@@ -884,6 +889,40 @@ export var MailUtils = {
         `<${msgId}>`,
       ])
     );
+    return false;
+  },
+
+  /**
+   * Open a message identified by a 'mid:' URI. Prefer the decoded Message-ID,
+   * then try the original suffix for compatibility with legacy raw links.
+   * Use the original suffix if percent-decoding fails or produces a NUL.
+   *
+   * @param {string} uri - The 'mid:' URI to open.
+   * @throws {Error} If the URI does not use the 'mid:' scheme.
+   */
+  openMidUri(uri) {
+    if (URL.parse(uri)?.protocol != "mid:") {
+      throw new Error("Expected a mid: URI");
+    }
+    const rawId = uri.slice(uri.indexOf(":") + 1);
+    let decodedId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (ex) {
+      if (!(ex instanceof URIError)) {
+        throw ex;
+      }
+      decodedId = rawId;
+    }
+
+    if (
+      decodedId != rawId &&
+      !decodedId.includes("\0") &&
+      this.openMessageForMessageId(decodedId, null, null, true)
+    ) {
+      return;
+    }
+    this.openMessageForMessageId(rawId);
   },
 
   /**
@@ -1089,6 +1128,19 @@ export var MailUtils = {
       },
     };
     messageService.saveMessageToDisk(uri, tempFile, urlListener, true, null);
+  },
+
+  /**
+   * Construct a 'mid:' URI spec for a plain Message-ID.
+   *
+   * @param {string} messageId - The Message-ID without brackets.
+   * @returns {string} The 'mid:' URI spec, or an empty string for no ID.
+   */
+  constructMidUriSpec(messageId) {
+    if (!messageId) {
+      return "";
+    }
+    return `mid:${encodeURIComponent(messageId).replaceAll("%40", "@")}`;
   },
 
   /**
