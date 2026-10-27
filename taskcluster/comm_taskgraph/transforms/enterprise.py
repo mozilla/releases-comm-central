@@ -28,6 +28,15 @@ def rewrite_run_on_projects(config, jobs):
 
 
 @transforms.add
+def add_enterprise_mar_signing_index(config, jobs):
+    for job in jobs:
+        if config.kind.startswith("mar-signing") and "enterprise" in config.params["project"]:
+            # type and job-name filled in by transforms
+            job.setdefault("index", {})["product"] = "thunderbird"
+        yield job
+
+
+@transforms.add
 def rewrite_mozharness_configs(config, jobs):
     for job in jobs:
         if "enterprise-repack-repackage" in config.kind:

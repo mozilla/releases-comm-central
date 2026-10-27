@@ -8,6 +8,7 @@ transforms:
     - taskgraph.transforms.from_deps
     - comm_taskgraph.transforms.enterprise:rewrite_shipping_phase
     - comm_taskgraph.transforms.enterprise:rewrite_shipping_product
+    - comm_taskgraph.transforms.enterprise:add_enterprise_mar_signing_index
     - gecko_taskgraph.transforms.name_sanity
     - gecko_taskgraph.transforms.mar_signing
     - gecko_taskgraph.transforms.task
