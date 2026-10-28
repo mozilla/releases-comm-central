@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 const { IMAPServer } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/IMAPServer.sys.mjs"
 );
@@ -109,10 +111,24 @@ add_task(async function testIMAPSubscribe() {
         const subscribeTree = doc.getElementById("subscribeTree");
         const newGroupsTab = doc.getElementById("newGroupsTab");
         const acceptButton = doc.querySelector("dialog").getButton("accept");
+        const statusText = doc.getElementById("statusText");
 
         await TestUtils.waitForCondition(
           () => subscribeTree.view?.rowCount == 5,
           "waiting for tree view to be populated"
+        );
+
+        await BrowserTestUtils.waitForMutationCondition(
+          statusText,
+          { attributes: true, attributeFilter: ["value"] },
+          () => statusText.value == "",
+          { msg: "The status text should clear after loading IMAP folders" }
+        );
+        Assert.ok(
+          BrowserTestUtils.isHidden(
+            doc.getElementById("statusbar-progresspanel")
+          ),
+          "The progress indicator should be hidden after loading IMAP folders"
         );
 
         Assert.equal(serverMenu.value, imapRootFolder.URI);
