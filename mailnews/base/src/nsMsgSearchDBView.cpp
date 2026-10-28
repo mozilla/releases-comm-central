@@ -323,7 +323,10 @@ nsresult nsMsgSearchDBView::GetMsgHdrForViewIndex(nsMsgViewIndex index,
     nsresult rv = folder->GetMsgDatabase(getter_AddRefs(db));
     NS_ENSURE_SUCCESS(rv, rv);
     if (db) {
-      return db->GetMsgHdrForKey(m_keys[index], msgHdr);
+      rv = db->GetMsgHdrForKey(m_keys[index], msgHdr);
+      NS_ENSURE_SUCCESS(rv, rv);
+      NS_ENSURE_TRUE(*msgHdr, NS_MSG_MESSAGE_NOT_FOUND);
+      return NS_OK;
     }
   }
 

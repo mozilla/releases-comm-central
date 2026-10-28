@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Test that nsIMsgFolder.getMsgHdr() returns null for unknown keys.
+ * Test that nsIMsgFolder.getMsgHdr() and the nsIMsgDatabase header lookups
+ * return null for unknown messages.
  */
 
 const { PromiseTestUtils } = ChromeUtils.importESModule(
@@ -41,6 +42,35 @@ add_task(async function test_getMsgHdr() {
       inbox.getMsgHdr(0xffffffff),
       null,
       "No header should be returned for nsMsgKey_None"
+    );
+
+    const db = inbox.msgDatabase;
+    Assert.equal(
+      db.getMsgHdrForKey(key),
+      msgHdr,
+      "The database should return the header for the key"
+    );
+    Assert.equal(
+      db.getMsgHdrForKey(key + 1000),
+      null,
+      "The database should return no header for an unknown key"
+    );
+    Assert.equal(
+      db.getMsgHdrForMessageID(
+        "200804111417.m3BEHTk4030129@mrapp51.mozilla.org"
+      ),
+      msgHdr,
+      "The database should return the header for the Message-ID"
+    );
+    Assert.equal(
+      db.getMsgHdrForMessageID("unknown@example.invalid"),
+      null,
+      "The database should return no header for an unknown Message-ID"
+    );
+    Assert.equal(
+      db.getMsgHdrForMessageID(""),
+      null,
+      "The database should return no header for an empty Message-ID"
     );
   } finally {
     localAccountUtils.clearAll();

@@ -388,7 +388,7 @@ nsresult MessageDatabase::FetchMsg(nsMsgKey key, CachedMsg& cached) {
   rv = stmt->ExecuteStep(&hasResult);
   NS_ENSURE_SUCCESS(rv, rv);
   if (!hasResult) {
-    return NS_ERROR_UNEXPECTED;
+    return NS_MSG_MESSAGE_NOT_FOUND;
   }
 
   uint32_t len;
@@ -463,11 +463,12 @@ nsresult MessageDatabase::GetMessageForMessageID(uint64_t aFolderId,
   stmt->BindInt64ByName("folderId"_ns, aFolderId);
   stmt->BindUTF8StringByName("messageId"_ns, aMessageId);
 
+  *aMessage = nullptr;
   bool hasResult;
   rv = stmt->ExecuteStep(&hasResult);
   NS_ENSURE_SUCCESS(rv, rv);
   if (!hasResult) {
-    return NS_ERROR_UNEXPECTED;
+    return NS_OK;
   }
   nsMsgKey key = (nsMsgKey)stmt->AsInt64(0);
 

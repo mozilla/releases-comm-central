@@ -175,7 +175,10 @@ NS_IMETHODIMP nsMsgGroupThread::GetChildKeyAt(uint32_t aIndex,
 NS_IMETHODIMP nsMsgGroupThread::GetChildHdrAt(uint32_t aIndex,
                                               nsIMsgDBHdr** aResult) {
   if (aIndex >= m_keys.Length()) return NS_MSG_MESSAGE_NOT_FOUND;
-  return m_db->GetMsgHdrForKey(m_keys[aIndex], aResult);
+  nsresult rv = m_db->GetMsgHdrForKey(m_keys[aIndex], aResult);
+  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(*aResult, NS_MSG_MESSAGE_NOT_FOUND);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgGroupThread::GetChild(nsMsgKey msgKey,

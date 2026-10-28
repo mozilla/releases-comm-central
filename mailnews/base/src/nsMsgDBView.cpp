@@ -1309,10 +1309,10 @@ nsresult nsMsgDBView::GetMsgHdrForViewIndex(nsMsgViewIndex index,
     NS_IF_ADDREF(*msgHdr = m_cachedHdr);
   } else {
     rv = m_db->GetMsgHdrForKey(key, msgHdr);
-    if (NS_SUCCEEDED(rv)) {
-      m_cachedHdr = *msgHdr;
-      m_cachedMsgKey = key;
-    }
+    NS_ENSURE_SUCCESS(rv, rv);
+    NS_ENSURE_TRUE(*msgHdr, NS_MSG_MESSAGE_NOT_FOUND);
+    m_cachedHdr = *msgHdr;
+    m_cachedMsgKey = key;
   }
 
   return rv;
@@ -3721,6 +3721,7 @@ nsMsgViewIndex nsMsgDBView::ThreadIndexOfMsg(
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   nsresult rv = m_db->GetMsgHdrForKey(msgKey, getter_AddRefs(msgHdr));
   NS_ENSURE_SUCCESS(rv, nsMsgViewIndex_None);
+  NS_ENSURE_TRUE(msgHdr, nsMsgViewIndex_None);
   return ThreadIndexOfMsgHdr(msgHdr, msgIndex, pThreadCount, pFlags);
 }
 
@@ -3781,7 +3782,7 @@ nsMsgKey nsMsgDBView::GetKeyOfFirstMsgInThread(nsMsgKey key) {
   nsCOMPtr<nsIMsgThread> pThread;
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   nsresult rv = m_db->GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
-  if (NS_FAILED(rv)) return nsMsgKey_None;
+  if (NS_FAILED(rv) || !msgHdr) return nsMsgKey_None;
 
   rv = GetThreadContainingMsgHdr(msgHdr, getter_AddRefs(pThread));
   if (NS_FAILED(rv)) return nsMsgKey_None;
@@ -4475,7 +4476,8 @@ nsMsgViewIndex nsMsgDBView::FindParentInThread(
         m_keys.IndexOf(parentKey, startOfThreadViewIndex);
     if (parentIndex != nsMsgViewIndex_None) return parentIndex;
 
-    if (NS_FAILED(m_db->GetMsgHdrForKey(parentKey, getter_AddRefs(msgHdr))))
+    if (NS_FAILED(m_db->GetMsgHdrForKey(parentKey, getter_AddRefs(msgHdr))) ||
+        !msgHdr)
       break;
 
     msgHdr->GetThreadParent(&parentKey);
@@ -4668,8 +4670,10 @@ int32_t nsMsgDBView::FindLevelInThread(nsIMsgDBHdr* msgHdr,
 
     // If msgHdr's key is its parentKey, we'll loop forever, so protect
     // against that corruption.
-    if (msgKey == parentKey || NS_FAILED(m_db->GetMsgHdrForKey(
-                                   parentKey, getter_AddRefs(curMsgHdr)))) {
+    if (msgKey == parentKey ||
+        NS_FAILED(
+            m_db->GetMsgHdrForKey(parentKey, getter_AddRefs(curMsgHdr))) ||
+        !curMsgHdr) {
       NS_ERROR(
           "msgKey == parentKey, or GetMsgHdrForKey failed, this used to be an "
           "infinite loop condition");

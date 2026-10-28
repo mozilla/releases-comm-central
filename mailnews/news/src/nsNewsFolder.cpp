@@ -1031,6 +1031,7 @@ NS_IMETHODIMP nsMsgNewsFolder::RemoveMessage(nsMsgKey key) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   rv = mDatabase->GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
   NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(msgHdr, NS_MSG_MESSAGE_NOT_FOUND);
   notifier->NotifyMsgsDeleted({msgHdr.get()});
 
   return mDatabase->DeleteMessage(key, nullptr, false);
@@ -1163,6 +1164,7 @@ NS_IMETHODIMP nsMsgNewsFolder::GetMessageIdForKey(nsMsgKey key,
   nsCOMPtr<nsIMsgDBHdr> hdr;
   rv = mDatabase->GetMsgHdrForKey(key, getter_AddRefs(hdr));
   NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(hdr, NS_MSG_MESSAGE_NOT_FOUND);
   return hdr->GetMessageId(result);
 }
 

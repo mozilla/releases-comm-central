@@ -122,6 +122,7 @@ class MessageDatabase : public nsIMessageDatabase {
   nsresult ListThreadChildKeys(uint64_t folderId, uint64_t parent,
                                nsTArray<nsMsgKey>& keys);
   nsresult GetMessage(nsMsgKey aKey, Message** aMessage);
+  // Sets aMessage to null if there is no message with the Message-ID.
   nsresult GetMessageForMessageID(uint64_t aFolderId,
                                   const nsACString& aMessageId,
                                   Message** aMessage);

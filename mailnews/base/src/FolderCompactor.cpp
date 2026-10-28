@@ -472,6 +472,7 @@ NS_IMETHODIMP FolderCompactor::OnRetentionQuery(nsACString const& storeToken,
   nsCOMPtr<nsIMsgDBHdr> hdr;
   nsresult rv = mDB->GetMsgHdrForKey(msgKey, getter_AddRefs(hdr));
   NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(hdr, NS_MSG_MESSAGE_NOT_FOUND);
 
   uint32_t flags;
   rv = hdr->GetFlags(&flags);
@@ -524,6 +525,7 @@ NS_IMETHODIMP FolderCompactor::OnMessageRetained(nsACString const& oldToken,
   nsCOMPtr<nsIMsgDBHdr> hdr;
   nsresult rv = mDB->GetMsgHdrForKey(key, getter_AddRefs(hdr));
   NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(hdr, NS_MSG_MESSAGE_NOT_FOUND);
   rv = hdr->SetStoreToken(newToken);
   NS_ENSURE_SUCCESS(rv, rv);
 

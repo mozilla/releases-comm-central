@@ -1833,8 +1833,8 @@ NS_IMETHODIMP nsMsgDatabase::ContainsKey(nsMsgKey key, bool* containsKey) {
 // get a message header for the given key. Caller must release()!
 NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForKey(nsMsgKey key,
                                              nsIMsgDBHdr** pmsgHdr) {
-  *pmsgHdr = nullptr;
   NS_ENSURE_ARG_POINTER(pmsgHdr);
+  *pmsgHdr = nullptr;
   NS_ENSURE_STATE(m_folder);
   NS_ENSURE_STATE(m_mdbAllMsgHeadersTable);
   NS_ENSURE_STATE(m_mdbStore);
@@ -1858,9 +1858,7 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForKey(nsMsgKey key,
     nsIMdbRow* hdrRow;
     rv = m_mdbStore->GetRow(GetEnv(), &rowObjectId, &hdrRow);
     if (NS_SUCCEEDED(rv)) {
-      if (!hdrRow) {
-        rv = NS_ERROR_NULL_POINTER;
-      } else {
+      if (hdrRow) {
         rv = CreateMsgHdr(hdrRow, key, pmsgHdr);
       }
     }
@@ -3800,7 +3798,7 @@ nsIMsgThread* nsMsgDatabase::GetThreadForReference(nsCString& msgID,
                                                    nsIMsgDBHdr** pMsgHdr) {
   nsMsgKey threadId;
   nsIMsgDBHdr* msgHdr = nullptr;
-  GetMsgHdrForMessageID(msgID.get(), &msgHdr);
+  GetMsgHdrForMessageID(msgID, &msgHdr);
   nsIMsgThread* thread = nullptr;
 
   if (msgHdr != nullptr) {
@@ -3981,16 +3979,19 @@ nsresult nsMsgDatabase::AddToThread(nsMsgHdr* newHdr, nsIMsgThread* thread,
   return thread->AddChild(newHdr, inReplyTo, threadInThread, this);
 }
 
-NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForMessageID(const char* aMsgID,
+NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForMessageID(const nsACString& aMsgID,
                                                    nsIMsgDBHdr** aHdr) {
   NS_ENSURE_ARG_POINTER(aHdr);
-  NS_ENSURE_ARG_POINTER(aMsgID);
+  *aHdr = nullptr;
+  if (aMsgID.IsEmpty()) {
+    return NS_OK;
+  }
   nsIMsgDBHdr* msgHdr = nullptr;
   nsresult rv = NS_OK;
   mdbYarn messageIdYarn;
 
-  messageIdYarn.mYarn_Buf = (void*)aMsgID;
-  messageIdYarn.mYarn_Fill = PL_strlen(aMsgID);
+  messageIdYarn.mYarn_Buf = (void*)aMsgID.BeginReading();
+  messageIdYarn.mYarn_Fill = aMsgID.Length();
   messageIdYarn.mYarn_Form = 0;
   messageIdYarn.mYarn_Size = messageIdYarn.mYarn_Fill;
 
@@ -4674,6 +4675,7 @@ nsresult nsMsgDatabase::FindExcessMessages(
     nsCOMPtr<nsIMsgDBHdr> msg;
     rv = GetMsgHdrForKey(candidate.second, getter_AddRefs(msg));
     NS_ENSURE_SUCCESS(rv, rv);
+    NS_ENSURE_TRUE(msg, NS_MSG_MESSAGE_NOT_FOUND);
     hdrsToDelete.AppendElement(msg);
   }
 

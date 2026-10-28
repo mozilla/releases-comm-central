@@ -725,7 +725,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
     nsresult ret = NS_OK;
 
     if (m_backupMailDB && !rawMsgId.IsEmpty())
-      ret = m_backupMailDB->GetMsgHdrForMessageID(rawMsgId.get(),
+      ret = m_backupMailDB->GetMsgHdrForMessageID(rawMsgId,
                                                   getter_AddRefs(oldHeader));
 
     // m_msgUid may have been set previously by IMAP code, in order to force

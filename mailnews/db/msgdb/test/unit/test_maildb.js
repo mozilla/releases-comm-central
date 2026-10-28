@@ -84,9 +84,9 @@ add_task(function test_deletion() {
     // This fails on legacy db (but is fine when run on Panorama db):
     /*
     for (const gone of doomed) {
-      Assert.throws(
-        () => db.getMsgHdrForKey(gone),
-        /NS_ERROR_ILLEGAL_VALUE/,
+      Assert.equal(
+        db.getMsgHdrForKey(gone),
+        null,
         "deleted message should be inaccessible"
       );
     }

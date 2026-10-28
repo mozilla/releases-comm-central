@@ -3828,6 +3828,7 @@ NS_IMETHODIMP nsImapMailFolder::AddMoveResultPseudoKey(nsMsgKey aMsgKey) {
   nsCOMPtr<nsIMsgDBHdr> pseudoHdr;
   rv = mDatabase->GetMsgHdrForKey(aMsgKey, getter_AddRefs(pseudoHdr));
   NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(pseudoHdr, NS_MSG_MESSAGE_NOT_FOUND);
   nsCString messageId;
   pseudoHdr->GetMessageId(messageId);
   // err on the side of caution and ignore messages w/o messageid.
@@ -4373,6 +4374,7 @@ nsImapMailFolder::ParseAdoptedMsgLine(const char* adoptedMessageLine,
     nsMsgKey msgKey = MOZ_TRY(MsgKeyFromUid(db, uidOfMessage));
     rv = db->GetMsgHdrForKey(msgKey, getter_AddRefs(m_offlineHeader));
     NS_ENSURE_SUCCESS(rv, rv);
+    NS_ENSURE_TRUE(m_offlineHeader, NS_MSG_MESSAGE_NOT_FOUND);
 
     // StartNewOfflineMessage() sets up m_tempMessageStream and
     // m_tempMessageStreamBytesWritten.
@@ -4678,7 +4680,7 @@ nsresult nsImapMailFolder::SyncFlags(nsIImapFlagAndUidState* flagState) {
 
     nsCOMPtr<nsIMsgDBHdr> dbHdr;
     rv = mDatabase->GetMsgHdrForKey(msgKey, getter_AddRefs(dbHdr));
-    if (NS_FAILED(rv)) continue;
+    if (NS_FAILED(rv) || !dbHdr) continue;
     if (NS_SUCCEEDED(dbHdr->GetMessageSize(&messageSize))) {
       newFolderSize += messageSize;
     }

@@ -368,6 +368,9 @@ export const MailNotificationManager = new (class {
     );
     if (Services.prefs.getBoolPref("mail.biff.use_system_alert", true)) {
       const firstNewMsgHdr = folder.msgDatabase.getMsgHdrForKey(newMsgKeys[0]);
+      if (!firstNewMsgHdr) {
+        return;
+      }
 
       const title = this._getAlertTitle(folder, numNewMessages);
       let body;
@@ -629,7 +632,7 @@ export const MailNotificationManager = new (class {
       .slice(-folder.getNumNewMessages(false))
       .filter(key => {
         const msgHdr = msgDb.getMsgHdrForKey(key);
-        return msgHdr.dateInSeconds > newestNotifiedTime;
+        return msgHdr && msgHdr.dateInSeconds > newestNotifiedTime;
       });
   }
 
@@ -644,7 +647,9 @@ export const MailNotificationManager = new (class {
     let newestNotifiedTime = 0;
     for (const msgKey of newMsgKeys) {
       const msgHdr = folder.msgDatabase.getMsgHdrForKey(msgKey);
-      newestNotifiedTime = Math.max(newestNotifiedTime, msgHdr.dateInSeconds);
+      if (msgHdr) {
+        newestNotifiedTime = Math.max(newestNotifiedTime, msgHdr.dateInSeconds);
+      }
     }
     this._folderNewestNotifiedTime.set(folder.URI, newestNotifiedTime);
   }

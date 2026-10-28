@@ -50,10 +50,15 @@ add_task(async function testFolderMethods() {
   Assert.equal(header.subject, "Networked even-keeled forecast");
   Assert.equal(header.flags, 0);
 
-  Assert.throws(
-    () => folderDatabase.getMsgHdrForKey(5),
-    /NS_ERROR_ILLEGAL_VALUE/,
+  Assert.equal(
+    folderDatabase.getMsgHdrForKey(5),
+    null,
     "message from a different folder should not be returned"
+  );
+  Assert.equal(
+    folderDatabase.getMsgHdrForKey(999),
+    null,
+    "nonexistent message should not be returned"
   );
 
   header = folderDatabase.getMsgHdrForMessageID("message4@invalid");
@@ -64,10 +69,20 @@ add_task(async function testFolderMethods() {
   Assert.equal(header.subject, "Proactive intermediate collaboration");
   Assert.equal(header.flags, Ci.nsMsgMessageFlags.Marked);
 
-  Assert.throws(
-    () => folderDatabase.getMsgHdrForMessageID("message7@invalid"),
-    /NS_ERROR_ILLEGAL_VALUE/,
+  Assert.equal(
+    folderDatabase.getMsgHdrForMessageID("message7@invalid"),
+    null,
     "message from a different folder should not be returned"
+  );
+  Assert.equal(
+    folderDatabase.getMsgHdrForMessageID("nonexistent@invalid"),
+    null,
+    "nonexistent message should not be returned"
+  );
+  Assert.equal(
+    folderDatabase.getMsgHdrForMessageID(""),
+    null,
+    "no message should be returned for an empty Message-ID"
   );
 
   // Test getting and changing message flags.

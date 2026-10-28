@@ -225,6 +225,7 @@ NS_IMETHODIMP nsMailboxService::StreamHeaders(const nsACString& aMessageURI,
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   rv = db->GetMsgHdrForKey(msgKey, getter_AddRefs(msgHdr));
   NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(msgHdr, NS_MSG_MESSAGE_NOT_FOUND);
   nsCOMPtr<nsIInputStream> inputStream;
   rv = folder->GetMsgInputStream(msgHdr, getter_AddRefs(inputStream));
   NS_ENSURE_SUCCESS(rv, rv);

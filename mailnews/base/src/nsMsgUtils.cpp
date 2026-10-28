@@ -1231,6 +1231,7 @@ nsresult MsgGetHeadersFromKeys(nsIMsgDatabase* aDB,
       nsCOMPtr<nsIMsgDBHdr> msgHdr;
       rv = aDB->GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
       NS_ENSURE_SUCCESS(rv, rv);
+      NS_ENSURE_TRUE(msgHdr, NS_MSG_MESSAGE_NOT_FOUND);
       aHeaders.AppendElement(msgHdr);
     }
   }

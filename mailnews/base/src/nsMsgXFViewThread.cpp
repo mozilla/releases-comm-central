@@ -263,7 +263,10 @@ nsMsgXFViewThread::GetChildHdrAt(uint32_t aIndex, nsIMsgDBHdr** aResult) {
   nsCOMPtr<nsIMsgDatabase> db;
   nsresult rv = m_folders[aIndex]->GetMsgDatabase(getter_AddRefs(db));
   NS_ENSURE_SUCCESS(rv, rv);
-  return db->GetMsgHdrForKey(m_keys[aIndex], aResult);
+  rv = db->GetMsgHdrForKey(m_keys[aIndex], aResult);
+  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(*aResult, NS_MSG_MESSAGE_NOT_FOUND);
+  return NS_OK;
 }
 
 NS_IMETHODIMP

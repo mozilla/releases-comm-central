@@ -1705,8 +1705,7 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
               msgHdr->GetStringReference(0, reference);
 
               nsCOMPtr<nsIMsgDBHdr> refHdr;
-              db->GetMsgHdrForMessageID(reference.get(),
-                                        getter_AddRefs(refHdr));
+              db->GetMsgHdrForMessageID(reference, getter_AddRefs(refHdr));
 
               if (refHdr) {
                 nsCString refSubject;

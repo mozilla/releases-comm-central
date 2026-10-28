@@ -45,7 +45,7 @@ nsresult nsImapMoveCopyMsgTxn::Init(nsIMsgFolder* srcFolder,
 
   for (i = 0; i < count; i++) {
     rv = srcDB->GetMsgHdrForKey(m_srcKeyArray[i], getter_AddRefs(srcHdr));
-    if (NS_SUCCEEDED(rv)) {
+    if (NS_SUCCEEDED(rv) && srcHdr) {
       // ** jt -- only do this for mailbox protocol
       if (protocolType.LowerCaseEqualsLiteral("mailbox")) {
         m_srcIsLocal = true;
@@ -375,8 +375,8 @@ NS_IMETHODIMP nsImapMoveCopyMsgTxn::OnStopRunningUrl(nsIURI* aUrl,
       NS_ENSURE_SUCCESS(rv, rv);
       for (auto const& srcMessageId : m_srcMessageIds) {
         nsCOMPtr<nsIMsgDBHdr> dstHdr;
-        rv = destDB->GetMsgHdrForMessageID(srcMessageId.get(),
-                                           getter_AddRefs(dstHdr));
+        rv =
+            destDB->GetMsgHdrForMessageID(srcMessageId, getter_AddRefs(dstHdr));
         if (NS_SUCCEEDED(rv) && dstHdr) {
           nsMsgKey dstKey;
           dstHdr->GetMessageKey(&dstKey);

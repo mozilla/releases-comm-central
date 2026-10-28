@@ -175,33 +175,35 @@ NS_IMETHODIMP PerFolderDatabase::SetLastUseTime(PRTime aLastUseTime) {
 NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForKey(nsMsgKey key,
                                                  nsIMsgDBHdr** msgHdr) {
   NS_ENSURE_ARG_POINTER(msgHdr);
+  *msgHdr = nullptr;
+
+  uint64_t msgFolderId;
+  nsresult rv = MessageDB().GetMessageFolderId(key, msgFolderId);
+  if (rv == NS_MSG_MESSAGE_NOT_FOUND) {
+    return NS_OK;
+  }
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (msgFolderId != mFolderId) {
+    return NS_OK;
+  }
 
   RefPtr<Message> message;
   MOZ_TRY(MessageDB().GetMessage(key, getter_AddRefs(message)));
-  {
-    // Sanity check.
-    uint64_t msgFolderId;
-    MOZ_TRY(MessageDB().GetMessageFolderId(key, msgFolderId));
-    if (msgFolderId != mFolderId) {
-      NS_WARNING("GetMsgHdrForKey() returned message not in folder");
-      return NS_ERROR_ILLEGAL_VALUE;
-    }
-  }
-
-  NS_IF_ADDREF(*msgHdr = message);
+  message.forget(msgHdr);
   return NS_OK;
 }
-NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForMessageID(const char* messageID,
-                                                       nsIMsgDBHdr** msgHdr) {
+NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForMessageID(
+    const nsACString& messageID, nsIMsgDBHdr** msgHdr) {
   NS_ENSURE_ARG_POINTER(msgHdr);
+  *msgHdr = nullptr;
+  if (messageID.IsEmpty()) {
+    return NS_OK;
+  }
 
   RefPtr<Message> message;
-  nsresult rv = MessageDB().GetMessageForMessageID(
-      mFolderId, nsDependentCString(messageID), getter_AddRefs(message));
-  if (NS_FAILED(rv)) {
-    return NS_ERROR_ILLEGAL_VALUE;
-  }
-  NS_IF_ADDREF(*msgHdr = message);
+  MOZ_TRY(MessageDB().GetMessageForMessageID(mFolderId, messageID,
+                                             getter_AddRefs(message)));
+  message.forget(msgHdr);
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForGMMsgID(

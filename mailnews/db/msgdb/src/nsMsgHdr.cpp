@@ -663,7 +663,7 @@ bool nsMsgHdr::IsParentOf(nsIMsgDBHdr* possibleChild) {
     // header. If it is, continue looking at ancestors.
     nsCOMPtr<nsIMsgDBHdr> refHdr;
     if (!m_mdb) break;
-    (void)m_mdb->GetMsgHdrForMessageID(reference.get(), getter_AddRefs(refHdr));
+    (void)m_mdb->GetMsgHdrForMessageID(reference, getter_AddRefs(refHdr));
     if (refHdr) break;
     referenceToCheck--;
   }

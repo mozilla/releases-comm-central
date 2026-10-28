@@ -83,8 +83,11 @@
     render(folder, msgKeys) {
       const msgDatabase = folder.msgDatabase;
       for (const msgKey of msgKeys.slice(0, this.maxMsgHdrsInPopup)) {
-        const msgBox = MozFolderSummary.createFolderSummaryMessage();
         const msgHdr = msgDatabase.getMsgHdrForKey(msgKey);
+        if (!msgHdr) {
+          continue;
+        }
+        const msgBox = MozFolderSummary.createFolderSummaryMessage();
         msgBox.addEventListener("click", event => {
           if (event.button !== 0) {
             return;
