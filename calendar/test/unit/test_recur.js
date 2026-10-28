@@ -29,6 +29,7 @@ function really_run_test() {
   test_long_running_series();
   test_multiple_rules();
   test_exrule();
+  test_due_only_task();
   test_startdate_change();
   test_idchange();
   test_rrule_icalstring();
@@ -1107,6 +1108,30 @@ function test_exrule() {
       .icalString,
     "20260102T000000Z",
     "the next occurrence of an item without a rule should be its exception"
+  );
+}
+
+function test_due_only_task() {
+  // A task without a start date recurs from its due date, which is also an
+  // occurrence of it.
+  const rangeStart = cal.createDateTime("20260101T000000Z");
+  const rangeEnd = cal.createDateTime("20270101T000000Z");
+  const rdateTask = createTodoFromIcalString(
+    "BEGIN:VTODO\nDUE:20260101T100000Z\nRDATE:20260105T100000Z\nEND:VTODO"
+  );
+  deepEqual(
+    rdateTask.recurrenceInfo.getOccurrenceDates(rangeStart, rangeEnd, 0).map(d => d.icalString),
+    ["20260101T100000Z", "20260105T100000Z"],
+    "a task with a due date and a recurrence date should occur on both"
+  );
+
+  const ruleTask = createTodoFromIcalString(
+    "BEGIN:VTODO\nDUE:20260101T100000Z\nRRULE:FREQ=DAILY;COUNT=3\nEND:VTODO"
+  );
+  equal(
+    ruleTask.recurrenceInfo.getOccurrenceDates(rangeStart, rangeEnd, 0).length,
+    3,
+    "the due date of a task should not be added to the occurrences of its rule"
   );
 }
 

@@ -102,11 +102,11 @@ export var item = {
     } else {
       let dueDate = calendarItem.dueDate;
       startDate = calendarItem.entryDate || dueDate;
-      if (!calendarItem.entryDate) {
-        if (returnDtstartOrDue) {
-          // DTSTART or DUE mandatory
-          return null;
-        }
+      if (returnDtstartOrDue && !startDate) {
+        // DTSTART or DUE mandatory
+        return null;
+      }
+      if (!calendarItem.entryDate && !returnDtstartOrDue) {
         // 3.6.2. To-do Component
         // A "VTODO" calendar component without the "DTSTART" and "DUE" (or
         // "DURATION") properties specifies a to-do that will be associated

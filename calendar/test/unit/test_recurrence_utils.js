@@ -433,12 +433,12 @@ add_task(async function countOccurrences_test() {
         "LAST-MODIFIED:20180912T090539Z",
         "DTSTAMP:20180912T090539Z",
         "UID:5b47fa17-f2fe-4d96-8cc2-19ce5be98023",
-        "SUMMARY:Task with only a due date occurring on an rdate",
+        "SUMMARY:Task due once and on an rdate",
         "RDATE;TZID=Europe/Berlin:20180921T100000",
         "DUE;TZID=Europe/Berlin:20180920T120000",
         "END:VTODO",
       ],
-      expected: 1,
+      expected: 2,
     },
   ];
 
