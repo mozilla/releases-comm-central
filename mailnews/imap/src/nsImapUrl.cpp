@@ -288,11 +288,6 @@ NS_IMETHODIMP nsImapUrl::GetListOfMessageIds(nsACString& aResult) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapUrl::GetCommand(nsACString& result) {
-  result = m_command;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsImapUrl::GetCustomAttributeToFetch(nsACString& result) {
   result = m_msgFetchAttribute;
   return NS_OK;
@@ -305,16 +300,6 @@ NS_IMETHODIMP nsImapUrl::GetCustomAttributeResult(nsACString& result) {
 
 NS_IMETHODIMP nsImapUrl::SetCustomAttributeResult(const nsACString& result) {
   m_customAttributeResult = result;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsImapUrl::GetCustomCommandResult(nsACString& result) {
-  result = m_customCommandResult;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsImapUrl::SetCustomCommandResult(const nsACString& result) {
-  m_customCommandResult = result;
   return NS_OK;
 }
 
@@ -591,11 +576,6 @@ void nsImapUrl::ParseImapPart(char* imapPartOfUrl) {
       ParseFolderPath(&m_sourceCanonicalFolderPathSubString);
     } else if (!PL_strcasecmp(m_urlidSubString, "verifyLogon")) {
       m_imapAction = nsImapVerifylogon;
-    } else if (m_imapAction == nsIImapUrl::nsImapUserDefinedMsgCommand) {
-      m_command = m_urlidSubString;  // save this
-      ParseUidChoice();
-      ParseFolderPath(&m_sourceCanonicalFolderPathSubString);
-      ParseListOfMessageIds();
     } else if (m_imapAction == nsIImapUrl::nsImapMsgStoreCustomKeywords) {
       ParseUidChoice();
       ParseFolderPath(&m_sourceCanonicalFolderPathSubString);
@@ -1216,13 +1196,8 @@ void nsImapUrl::ParseListOfMessageIds() {
   else {
     m_listOfMessageIds = strdup(m_listOfMessageIds);
     // The list is sent to the server as is, so only allow a sequence set.
-    // User defined commands also pass their arguments in it, so for those
-    // only reject control characters like CR/LF.
-    const char* ids = m_listOfMessageIds;
-    const char* end = ids + MessageIdListLength(ids);
-    if (m_imapAction == nsImapUserDefinedMsgCommand
-            ? std::any_of(ids, end, IsControlCharacter)
-            : ids + strspn(ids, "0123456789:,*") != end) {
+    if (strspn(m_listOfMessageIds, "0123456789:,*") !=
+        MessageIdListLength(m_listOfMessageIds)) {
       m_validUrl = false;
     }
     m_mimePartSelectorDetected = PL_strstr(m_listOfMessageIds, "&part=") != 0 ||

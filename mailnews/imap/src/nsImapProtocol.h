@@ -318,7 +318,6 @@ class nsImapProtocol : public nsIImapProtocol,
              bool aIdsAreUid);
   void ProcessStoreFlags(const nsCString& messageIds, bool idsAreUids,
                          imapMessageFlagsType flags, bool addFlags);
-  void IssueUserDefinedMsgCommand(const char* command, const char* messageList);
   void FetchMsgAttribute(const nsCString& messageIds,
                          const nsCString& attribute);
   void Expunge();

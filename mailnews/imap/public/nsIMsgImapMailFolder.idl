@@ -145,9 +145,6 @@ interface nsIMsgImapMailFolder : nsISupports {
 
   void updateStatus(in nsIUrlListener aListener);
   void updateFolderWithListener(in boolean interactive, in nsIUrlListener aListener);
-  // this is used to issue an arbitrary imap command on the passed in msgs.
-  // It assumes the command needs to be run in the selected state.
-  nsIURI issueCommandOnMsgs(in ACString command, in string uids, in boolean interactive);
   nsIURI fetchCustomMsgAttribute(in ACString msgAttribute, in string uids, in boolean interactive);
   nsIURI storeCustomKeywords(in boolean interactive,
                       in ACString aFlagsToAdd,

@@ -2241,76 +2241,8 @@ export var IMAP_MOVE_extension = {
   _enabledCommands: { 2: ["MOVE"] },
 };
 
-// Provides methods for testing fetchCustomAttribute and issueCustomCommand
+// Provides methods for testing fetchCustomMsgAttribute
 export var IMAP_CUSTOM_extension = {
-  preload(toBeThis) {
-    toBeThis._preCUSTOM_STORE = toBeThis.STORE;
-    toBeThis._preCUSTOM_STORE_argFormat = toBeThis._argFormat.STORE;
-    toBeThis._argFormat.STORE = ["number", "atom", "..."];
-  },
-  STORE(args, uid) {
-    const regex = /[+-]?FLAGS.*/;
-    if (regex.test(args[1])) {
-      // if we are storing flags, use the method that was overridden
-      this._argFormat = this._preCUSTOM_STORE_argFormat;
-      args = this._treatArgs(args, "STORE");
-      return this._preCUSTOM_STORE(args, uid);
-    }
-    // otherwise, handle custom attribute
-    const ids = [];
-    const messages = this._parseSequenceSet(args[0], uid, ids);
-    args[2] = formatArg(args[2], "string|(string)");
-    for (let i = 0; i < args[2].length; i++) {
-      if (args[2][i].includes(" ")) {
-        args[2][i] = '"' + args[2][i] + '"';
-      }
-    }
-    let response = "";
-    for (let i = 0; i < messages.length; i++) {
-      const message = messages[i];
-      switch (args[1]) {
-        case "X-CUSTOM-VALUE":
-          if (message.xCustomValue && args[2].length == 1) {
-            message.xCustomValue = args[2][0];
-          } else {
-            return "BAD can't store X-CUSTOM-VALUE";
-          }
-          break;
-        case "X-CUSTOM-LIST":
-          if (message.xCustomList) {
-            message.xCustomList = args[2];
-          } else {
-            return "BAD can't store X-CUSTOM-LIST";
-          }
-          break;
-        case "+X-CUSTOM-LIST":
-          if (message.xCustomList) {
-            message.xCustomList = message.xCustomList.concat(args[2]);
-          } else {
-            return "BAD can't store X-CUSTOM-LIST";
-          }
-          break;
-        case "-X-CUSTOM-LIST":
-          if (message.xCustomList) {
-            for (let j = 0; j < args[2].length; j++) {
-              const idx = message.xCustomList.indexOf(args[2][j]);
-              if (idx != -1) {
-                message.xCustomList.splice(idx, 1);
-              }
-            }
-          } else {
-            return "BAD can't store X-CUSTOM-LIST";
-          }
-          break;
-        default:
-          return "BAD change what now?";
-      }
-      response += "* " + ids[i] + " FETCH (X-CUSTOM-LIST (";
-      response += message.xCustomList.join(" ");
-      response += "))\0";
-    }
-    return response + "OK STORE completed";
-  },
   _FETCH_X_CUSTOM_VALUE(message) {
     if (message.xCustomValue) {
       return "X-CUSTOM-VALUE " + message.xCustomValue;

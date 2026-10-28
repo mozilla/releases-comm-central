@@ -2452,50 +2452,6 @@ NS_IMETHODIMP nsImapService::UnsubscribeFolder(nsIMsgFolder* aFolder,
                                   aUrlListener, aUrl);
 }
 
-NS_IMETHODIMP nsImapService::IssueCommandOnMsgs(nsIMsgFolder* anImapFolder,
-                                                bool interactive,
-                                                const nsACString& aCommand,
-                                                const nsACString& uids,
-                                                nsIURI** aURL) {
-  NS_ENSURE_ARG_POINTER(anImapFolder);
-
-  nsCOMPtr<nsIImapUrl> imapUrl;
-  nsAutoCString urlSpec;
-  nsresult rv;
-  char hierarchyDelimiter = GetHierarchyDelimiter(anImapFolder);
-  rv = CreateStartOfImapUrl(EmptyCString(), getter_AddRefs(imapUrl),
-                            anImapFolder, nullptr, urlSpec, hierarchyDelimiter);
-
-  if (NS_SUCCEEDED(rv) && imapUrl) {
-    // nsImapUrl::SetSpec() will set the imap action properly
-    rv = imapUrl->SetImapAction(nsIImapUrl::nsImapUserDefinedMsgCommand);
-
-    nsCOMPtr<nsIMsgMailNewsUrl> mailNewsUrl = do_QueryInterface(imapUrl);
-    mailNewsUrl->SetInteractive(interactive);
-    mailNewsUrl->SetUpdatingFolder(true);
-    rv = SetImapUrlSink(anImapFolder, imapUrl);
-
-    if (NS_SUCCEEDED(rv)) {
-      nsCString folderName;
-      GetFolderName(anImapFolder, folderName);
-      urlSpec.Append('/');
-      urlSpec.Append(aCommand);
-      urlSpec.Append('>');
-      urlSpec.Append(uidString);
-      urlSpec.Append('>');
-      urlSpec.Append(hierarchyDelimiter);
-      urlSpec.Append(folderName);
-      urlSpec.Append('>');
-      urlSpec.Append(uids);
-      rv = mailNewsUrl->SetSpecInternal(urlSpec);
-      if (NS_SUCCEEDED(rv))
-        rv = GetImapConnectionAndLoadUrl(imapUrl, nullptr, aURL);
-    }
-  }  // if we have a url to run....
-
-  return rv;
-}
-
 NS_IMETHODIMP nsImapService::FetchCustomMsgAttribute(
     nsIMsgFolder* anImapFolder, bool interactive, const nsACString& aAttribute,
     const nsACString& uids, nsIURI** aURL) {

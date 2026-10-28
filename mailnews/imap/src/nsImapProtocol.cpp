@@ -3056,14 +3056,6 @@ void nsImapProtocol::ProcessSelectedStateURL() {
           Search(searchCriteriaString.get(), bMessageIdsAreUids);
           // drop the results on the floor for now
         } break;
-        case nsIImapUrl::nsImapUserDefinedMsgCommand: {
-          nsCString messageIdString;
-          nsCString command;
-
-          m_runningUrl->GetCommand(command);
-          m_runningUrl->GetListOfMessageIds(messageIdString);
-          IssueUserDefinedMsgCommand(command.get(), messageIdString.get());
-        } break;
         case nsIImapUrl::nsImapUserDefinedFetchAttribute: {
           nsCString messageIdString;
           nsCString attribute;
@@ -5496,32 +5488,6 @@ void nsImapProtocol::Store(const nsCString& messageList,
     } else
       HandleMemoryFailure();
   } while (msgCountLeft > 0 && !DeathSignalReceived());
-}
-
-void nsImapProtocol::IssueUserDefinedMsgCommand(const char* command,
-                                                const char* messageList) {
-  IncrementCommandTagNumber();
-
-  const char* formatString;
-  formatString = "%s uid %s %s\015\012";
-
-  const char* commandTag = GetServerCommandTag();
-  int protocolStringSize = PL_strlen(formatString) + PL_strlen(messageList) +
-                           PL_strlen(command) + PL_strlen(commandTag) + 1;
-  char* protocolString = (char*)PR_CALLOC(protocolStringSize);
-
-  if (protocolString) {
-    PR_snprintf(protocolString,      // string to create
-                protocolStringSize,  // max size
-                formatString,        // format string
-                commandTag,          // command tag
-                command, messageList);
-
-    nsresult rv = SendData(protocolString);
-    if (NS_SUCCEEDED(rv)) ParseIMAPandCheckForNewMail(protocolString);
-    PR_Free(protocolString);
-  } else
-    HandleMemoryFailure();
 }
 
 void nsImapProtocol::UidExpunge(const nsCString& messageSet) {

@@ -22,8 +22,6 @@ tags = ["compact"]
 
 ["test_copyThenMove.js"]
 
-["test_customCommandReturnsFetchResponse.js"]
-
 ["test_dontStatNoSelect.js"]
 
 ["test_downloadOffline.js"]

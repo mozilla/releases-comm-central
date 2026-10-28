@@ -69,10 +69,8 @@ class nsImapUrl : public nsIImapUrl,
   char* m_urlidSubString;
   char m_onlineSubDirSeparator;
   char* m_searchCriteriaString;   // should we use m_search, or is this special?
-  nsCString m_command;            // for custom commands
   nsCString m_msgFetchAttribute;  // for fetching custom msg attributes
   nsCString m_customAttributeResult;  // for fetching custom msg attributes
-  nsCString m_customCommandResult;    // custom command response
   nsCString
       m_customAddFlags;  // these two are for setting and clearing custom flags
   nsCString m_customSubtractFlags;

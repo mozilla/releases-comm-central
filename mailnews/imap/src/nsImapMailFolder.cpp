@@ -3918,17 +3918,6 @@ NS_IMETHODIMP nsImapMailFolder::GetHasAdminUrl(bool* aBool) {
   return rv;
 }
 
-// this is used to issue an arbitrary imap command on the passed in msgs.
-// It assumes the command needs to be run in the selected state.
-NS_IMETHODIMP nsImapMailFolder::IssueCommandOnMsgs(const nsACString& command,
-                                                   const char* uids,
-                                                   bool interactive,
-                                                   nsIURI** url) {
-  nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-  return imapService->IssueCommandOnMsgs(this, interactive, command,
-                                         nsDependentCString(uids), url);
-}
-
 NS_IMETHODIMP nsImapMailFolder::FetchCustomMsgAttribute(
     const nsACString& attribute, const char* uids, bool interactive,
     nsIURI** url) {

@@ -33,8 +33,6 @@ interface nsIImapUrl : nsISupports
   readonly attribute string imapPartToFetch;
   readonly attribute ACString customAttributeToFetch;
   attribute ACString customAttributeResult;
-  readonly attribute ACString command;
-  attribute ACString customCommandResult;
   readonly attribute ACString customAddFlags;
   readonly attribute ACString customSubtractFlags;
   AUTF8String allocateCanonicalPath(in AUTF8String aServerPath, in char aOnlineDelimiter);
@@ -192,7 +190,6 @@ interface nsIImapUrl : nsISupports
   const long nsImapSaveMessageToDisk = 0x10000030;
   const long nsImapMsgDownloadForOffline  = 0x10000032;
   const long nsImapDeleteFolderAndMsgs = 0x10000033;
-  const long nsImapUserDefinedMsgCommand = 0x10000034;
   const long nsImapUserDefinedFetchAttribute = 0x10000035;
   const long nsImapMsgFetchPeek = 0x10000036;
   const long nsImapMsgStoreCustomKeywords = 0x10000037;

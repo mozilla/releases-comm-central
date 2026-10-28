@@ -639,28 +639,11 @@ void nsImapServerResponseParser::response_data() {
           xserverinfo_data();
         else if (!PL_strcasecmp(fNextToken, "XLIST"))
           mailbox_data();
-        else {
-          // check if custom command
-          nsAutoCString customCommand;
-          nsIImapUrl* currentUrl = fServerConnection.GetCurrentUrl();
-          if (!currentUrl) {
-            // There is no running url while idling, so this can't be the
-            // result of a custom command. Ignore it.
-            skip_to_CRLF();
-            break;
-          }
-          currentUrl->GetCommand(customCommand);
-          if (customCommand.Equals(fNextToken)) {
-            nsAutoCString customCommandResponse;
-            while (Connected() && !fAtEndOfLine) {
-              AdvanceToNextToken();
-              customCommandResponse.Append(fNextToken);
-              customCommandResponse.Append(' ');
-            }
-            currentUrl->SetCustomCommandResult(customCommandResponse);
-          } else
-            SetSyntaxError(true);
-        }
+        // Ignore unknown responses while idling, when no url is running.
+        else if (!fServerConnection.GetCurrentUrl())
+          skip_to_CRLF();
+        else
+          SetSyntaxError(true);
         break;
       case 'Q':
         if (!PL_strcasecmp(fNextToken, "QUOTAROOT") ||
@@ -1201,9 +1184,8 @@ void nsImapServerResponseParser::msg_fetch() {
       nsAutoCString userDefinedFetchAttribute;
       fServerConnection.GetCurrentUrl()->GetCustomAttributeToFetch(
           userDefinedFetchAttribute);
-      if ((imapAction == nsIImapUrl::nsImapUserDefinedFetchAttribute &&
-           !strcmp(userDefinedFetchAttribute.get(), fNextToken)) ||
-          imapAction == nsIImapUrl::nsImapUserDefinedMsgCommand) {
+      if (imapAction == nsIImapUrl::nsImapUserDefinedFetchAttribute &&
+          !strcmp(userDefinedFetchAttribute.get(), fNextToken)) {
         AdvanceToNextToken();
         char* fetchResult;
         if (fNextToken[0] == '(')
@@ -1217,11 +1199,8 @@ void nsImapServerResponseParser::msg_fetch() {
         }
         if (!fetchResult) {
           SetSyntaxError(true);
-        } else if (imapAction == nsIImapUrl::nsImapUserDefinedFetchAttribute) {
-          fServerConnection.GetCurrentUrl()->SetCustomAttributeResult(
-              nsDependentCString(fetchResult));
         } else {
-          fServerConnection.GetCurrentUrl()->SetCustomCommandResult(
+          fServerConnection.GetCurrentUrl()->SetCustomAttributeResult(
               nsDependentCString(fetchResult));
         }
         PR_Free(fetchResult);

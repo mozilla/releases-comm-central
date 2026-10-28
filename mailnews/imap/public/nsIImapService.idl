@@ -205,11 +205,6 @@ interface nsIImapService : nsISupports
                           in nsIUrlListener aUrlListener);
 
 
-  nsIURI issueCommandOnMsgs(in nsIMsgFolder aMailFolder,
-                            in boolean interactive,
-                            in ACString aCommand,
-                            in ACString aMessageIdentifierList);
-
   nsIURI fetchCustomMsgAttribute(in nsIMsgFolder aMailFolder,
                                  in boolean interactive,
                                  in ACString aAttribute,
