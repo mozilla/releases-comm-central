@@ -516,7 +516,7 @@ export var MailUtils = {
         Ci.nsIMsgCompType.Draft,
         Ci.nsIMsgCompFormat.Default,
         null,
-        headers.get("from"),
+        null,
         msgWindow
       );
     } else if (

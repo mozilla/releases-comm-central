@@ -138,10 +138,7 @@ const JsMIMEstructuredHeaders = function () {
   // There is no need to specialize the results for the header, so just pun it
   // back to parseAddressingHeader.
   function parseAddress(value) {
-    const headerparser = this;
-    return value.reduce(function (results, header) {
-      return results.concat(headerparser.parseAddressingHeader(header, true));
-    }, []);
+    return value.flatMap(header => this.parseAddressingHeader(header, true));
   }
   function writeAddress(value) {
     // Make sure the input is an array (accept a single entry)
@@ -3673,11 +3670,7 @@ const headeremitter = JsMIMEheaderemitter();
 // "Extra" structured MIME headers.
 
 function parseNewsgroups(headers) {
-  let ng = [];
-  for (const header of headers) {
-    ng = ng.concat(header.split(/\s*,\s*/));
-  }
-  return ng;
+  return headers.flatMap(header => header.split(/\s*,\s*/));
 }
 function emitNewsgroups(groups) {
   // Don't encode the newsgroups names in RFC 2047...
