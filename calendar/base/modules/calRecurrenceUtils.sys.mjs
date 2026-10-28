@@ -478,6 +478,25 @@ export function splitRecurrenceRules(recurrenceInfo) {
 }
 
 /**
+ * Gets the recurrence rule of an item that is expanded: its first RRULE, as
+ * further ones and EXRULEs are ignored, see CalRecurrenceInfo.
+ *
+ * @param {calIRecurrenceInfo} recurrenceInfo - An item's recurrence info.
+ * @returns {?calIRecurrenceRule}
+ */
+export function getExpandedRecurrenceRule(recurrenceInfo) {
+  return (
+    recurrenceInfo
+      .getRecurrenceItems()
+      .find(
+        ritem =>
+          (ritem instanceof lazy.CalRecurrenceRule || ritem instanceof Ci.calIRecurrenceRule) &&
+          !ritem.isNegative
+      ) ?? null
+  );
+}
+
+/**
  * Check if a recurrence rule's component is valid.
  *
  * @see {calIRecurrenceRule}
@@ -507,17 +526,11 @@ export function countOccurrences(aItem) {
   if (!recInfo?.isFinite) {
     return null;
   }
-  let rule = null;
+  const rule = getExpandedRecurrenceRule(recInfo);
   const rdates = [];
   let excCounter = 0;
   for (const ritem of recInfo.getRecurrenceItems()) {
-    if (ritem instanceof lazy.CalRecurrenceRule || ritem instanceof Ci.calIRecurrenceRule) {
-      // Only the first rule is expanded, and EXRULEs never are, see
-      // CalRecurrenceInfo.
-      if (!rule && !ritem.isNegative) {
-        rule = ritem;
-      }
-    } else if (ritem instanceof lazy.CalRecurrenceDate || ritem instanceof Ci.calIRecurrenceDate) {
+    if (ritem instanceof lazy.CalRecurrenceDate || ritem instanceof Ci.calIRecurrenceDate) {
       if (ritem.isNegative) {
         // this is an exdate
         excCounter++;

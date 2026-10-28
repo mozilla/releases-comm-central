@@ -27,7 +27,7 @@ var { openLinkExternally } = ChromeUtils.importESModule("resource:///modules/Lin
 var { makeMozIconSrcSet } = ChromeUtils.importESModule("resource:///modules/MozIconUtils.mjs");
 var {
   recurrenceRule2String,
-  splitRecurrenceRules,
+  getExpandedRecurrenceRule,
   checkRecurrenceRule,
   countOccurrences,
   hasUnsupported,
@@ -1679,8 +1679,7 @@ function untilDateCompensation(aItem) {
   const startDate = aItem[cal.dtz.startDateProp(aItem)];
 
   if (aItem.recurrenceInfo) {
-    const rrules = splitRecurrenceRules(aItem.recurrenceInfo);
-    const rule = rrules[0][0];
+    const rule = getExpandedRecurrenceRule(aItem.recurrenceInfo);
     if (rule && !rule.isByCount && rule.isFinite && startDate) {
       const compensation = startDate.subtractDate(gStartTime);
       if (compensation != "PT0S") {
@@ -2765,8 +2764,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
     // Assign gUntilDate on the first run or when returning from the
     // edit recurrence dialog.
     if (window.recurrenceInfo) {
-      const rrules = splitRecurrenceRules(window.recurrenceInfo);
-      const rule = rrules[0][0];
+      const rule = getExpandedRecurrenceRule(window.recurrenceInfo);
       gUntilDate = null;
       if (rule && !rule.isByCount && rule.isFinite && rule.untilDate) {
         gUntilDate = rule.untilDate.clone().getInTimezone(cal.dtz.defaultTimezone);
@@ -2806,8 +2804,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
 
     if (recurrenceInfo) {
       recurrenceInfo = recurrenceInfo.clone();
-      const rrules = splitRecurrenceRules(recurrenceInfo);
-      const rule = rrules[0][0];
+      const rule = getExpandedRecurrenceRule(recurrenceInfo);
 
       // If the previous rule was "custom" we have to recover the until
       // date, or the last occurrence's date in order to set the
@@ -2835,7 +2832,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
         }
         document.getElementById("repeat-until-datepicker").value = repeatDate;
       }
-      if (rrules[0].length > 0) {
+      if (rule) {
         recurrenceInfo.deleteRecurrenceItem(rule);
       }
     } else {
@@ -2911,8 +2908,7 @@ function updateUntildateRecRule(recRule) {
     if (!recurrenceInfo) {
       return;
     }
-    const rrules = splitRecurrenceRules(recurrenceInfo);
-    recRule = rrules[0][0];
+    recRule = getExpandedRecurrenceRule(recurrenceInfo);
     if (!recRule) {
       return;
     }

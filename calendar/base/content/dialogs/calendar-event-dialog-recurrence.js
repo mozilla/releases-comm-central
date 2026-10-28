@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { splitRecurrenceRules } = ChromeUtils.importESModule(
+var { getExpandedRecurrenceRule } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
 );
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
@@ -445,21 +445,7 @@ function onLoad() {
   if (item.parentItem != item) {
     item = item.parentItem;
   }
-  let rule = null;
-  if (recinfo) {
-    // Split out rules and exceptions
-    try {
-      const rrules = splitRecurrenceRules(recinfo);
-      const rules = rrules[0];
-      // Deal with the rules
-      if (rules.length > 0) {
-        // We only handle 1 rule currently
-        rule = rules[0]?.QueryInterface(Ci.calIRecurrenceRule);
-      }
-    } catch (ex) {
-      console.error(ex);
-    }
-  }
+  let rule = recinfo ? getExpandedRecurrenceRule(recinfo) : null;
   if (!rule) {
     rule = cal.createRecurrenceRule();
     rule.type = "DAILY";
@@ -681,9 +667,9 @@ function onSave(item) {
   let recurrenceInfo = args.recurrenceInfo;
   if (recurrenceInfo) {
     recurrenceInfo = recurrenceInfo.clone();
-    const rrules = splitRecurrenceRules(recurrenceInfo);
-    if (rrules[0].length > 0) {
-      recurrenceInfo.deleteRecurrenceItem(rrules[0][0]);
+    const rule = getExpandedRecurrenceRule(recurrenceInfo);
+    if (rule) {
+      recurrenceInfo.deleteRecurrenceItem(rule);
     }
     recurrenceInfo.item = item;
   } else {

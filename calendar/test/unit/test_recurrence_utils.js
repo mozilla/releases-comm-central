@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { countOccurrences } = ChromeUtils.importESModule(
+var { countOccurrences, getExpandedRecurrenceRule } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
 );
 
@@ -460,4 +460,31 @@ add_task(async function countOccurrences_test() {
       );
     }
   }
+});
+
+add_task(function test_getExpandedRecurrenceRule() {
+  const item = createEventFromIcalString(
+    [
+      "BEGIN:VEVENT",
+      "DTSTART:20180920T100000Z",
+      "RDATE:20180925T100000Z",
+      "EXRULE:FREQ=WEEKLY",
+      "RRULE:FREQ=DAILY;COUNT=3",
+      "RRULE:FREQ=MONTHLY;COUNT=3",
+      "END:VEVENT",
+    ].join("\r\n")
+  );
+  equal(
+    getExpandedRecurrenceRule(item.recurrenceInfo).icalString,
+    "RRULE:FREQ=DAILY;COUNT=3\r\n",
+    "the first RRULE should be found past the RDATE and the EXRULE"
+  );
+
+  item.recurrenceInfo.deleteRecurrenceItemAt(3);
+  item.recurrenceInfo.deleteRecurrenceItemAt(2);
+  equal(
+    getExpandedRecurrenceRule(item.recurrenceInfo),
+    null,
+    "there should be no rule without an RRULE"
+  );
 });

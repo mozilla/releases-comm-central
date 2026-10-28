@@ -258,3 +258,54 @@ add_task(async function testEditExruleOnlyEvent() {
   );
   await calendar.deleteItem(saved);
 });
+
+/**
+ * Tests that editing an event whose RDATE comes before its RRULE changes the
+ * rule, rather than taking the RDATE for it.
+ */
+add_task(async function testEditRdateBeforeRrule() {
+  const rdateEvent = new CalEvent();
+  rdateEvent.title = "RDATE Event";
+  rdateEvent.startDate = cal.createDateTime("20200101T000001Z");
+  rdateEvent.recurrenceInfo = new CalRecurrenceInfo(rdateEvent);
+  const rdate = cal.createRecurrenceDate();
+  rdate.date = cal.createDateTime("20200125T000001Z");
+  rdateEvent.recurrenceInfo.appendRecurrenceItem(rdate);
+  rdateEvent.recurrenceInfo.appendRecurrenceItem(
+    cal.createRecurrenceRule("RRULE:FREQ=DAILY;UNTIL=20200103T000001Z")
+  );
+  const event = await calendar.addItem(rdateEvent);
+
+  await CalendarTestUtils.setCalendarView(window, "month");
+  window.goToDate(event.startDate);
+
+  const { dialogWindow, iframeWindow } = await CalendarTestUtils.monthView.editItemOccurrencesAt(
+    window,
+    1,
+    4,
+    1
+  );
+  await CalendarTestUtils.items.setData(dialogWindow, iframeWindow, {
+    title: "Edited RDATE Event",
+    starttime: cal.createDateTime("20200101T010001Z"),
+    repeat: () => {},
+  });
+  await CalendarTestUtils.items.saveAndCloseItemDialog(dialogWindow);
+
+  const saved = await TestUtils.waitForCondition(async () => {
+    const item = await calendar.getItem(event.id);
+    return item?.title == "Edited RDATE Event" && item;
+  }, "the edited event should be saved");
+  const ritems = saved.recurrenceInfo.getRecurrenceItems();
+  Assert.equal(
+    ritems.filter(ritem => ritem instanceof Ci.calIRecurrenceDate).length,
+    1,
+    "the RDATE should be kept"
+  );
+  Assert.equal(
+    ritems.filter(ritem => ritem instanceof Ci.calIRecurrenceRule).length,
+    1,
+    "the RRULE should be replaced rather than added to"
+  );
+  await calendar.deleteItem(saved);
+});
