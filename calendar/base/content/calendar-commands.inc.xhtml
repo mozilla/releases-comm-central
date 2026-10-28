@@ -4,7 +4,7 @@
 
 <commandset id="calendar_commands"
             commandupdater="true"
-            events="calendar_commands"
+            events="calendar_commands,command-context-changed"
             oncommandupdate="calendarController.updateCommands()">
   <command id="agenda_delete_event_command" oncommand="TodayPane.agenda.deleteSelectedItem();"/>
   <command id="agenda_edit_event_command" oncommand="TodayPane.agenda.editSelectedItem();"/>

@@ -280,6 +280,24 @@ var gMailInit = {
     // Listen for the messages sent to the main 3 pane window.
     window.addEventListener("message", this._onMessageReceived);
 
+    const updateNewMessageCommand = () => goUpdateCommand("cmd_newMessage");
+    const accountNotifications = [
+      "account-identity-added",
+      "message-account-removed",
+    ];
+    for (const topic of accountNotifications) {
+      Services.obs.addObserver(updateNewMessageCommand, topic);
+    }
+    window.addEventListener(
+      "unload",
+      () => {
+        for (const topic of accountNotifications) {
+          Services.obs.removeObserver(updateNewMessageCommand, topic);
+        }
+      },
+      { once: true }
+    );
+
     if (!this._startInTrayEnabled()) {
       // Perform delayed startup after the first paint of the window.
       this._boundDelayedStartup = this._delayedStartup.bind(this);

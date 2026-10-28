@@ -29,4 +29,6 @@ support-files = ["html/commandController.html"]
 
 ["browser_dragndrop.js"]
 
+["browser_tabCommands.js"]
+
 ["browser_tabSwitch.js"]

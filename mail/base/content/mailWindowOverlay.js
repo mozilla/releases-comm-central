@@ -890,6 +890,8 @@ function SetMenuItemLabel(menuItemId, customLabel) {
  * @param {string} [classes] - Classes to set on the menu items.
  */
 function InitMessageTags(parent, elementName = "menuitem", classes) {
+  document.commandDispatcher.updateCommands("create-menu-tag");
+
   function SetMessageTagLabel(menuitem, index, name) {
     // The first 9 tags are implicitly assigned numeric access keys 1-9.
     const accesskey = index < 10 ? String(index) : "";

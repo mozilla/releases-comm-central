@@ -14,7 +14,7 @@
 
   <commandset id="mailFileMenuItems"
               commandupdater="true"
-              events="create-menu-file"
+              events="create-menu-file,command-context-changed"
               oncommandupdate="goUpdateMailMenuItems(this)">
       <command id="cmd_newFolder" oncommand="goDoCommand('cmd_newFolder')" disabled=""/>
       <command id="cmd_newVirtualFolder" oncommand="goDoCommand('cmd_newVirtualFolder')" disabled=""/>
@@ -40,7 +40,7 @@
 
   <commandset id="mailViewMenuItems"
               commandupdater="true"
-              events="create-menu-view"
+              events="create-menu-view,command-context-changed"
               oncommandupdate="goUpdateMailMenuItems(this)">
      <command id="cmd_showQuickFilterBar"
               oncommand="goDoCommand('cmd_showQuickFilterBar');"/>
@@ -64,7 +64,7 @@
      <command id="cmd_viewIgnoredThreads" oncommand="goDoCommand('cmd_viewIgnoredThreads')" disabled=""/>
      <commandset id="viewZoomCommands"
                  commandupdater="true"
-                 events="create-menu-view"
+                 events="create-menu-view,command-context-changed"
                  oncommandupdate="goUpdateMailMenuItems(this);">
        <command id="cmd_fullZoomReduce"
                 oncommand="goDoCommand('cmd_fullZoomReduce');"/>
@@ -79,7 +79,7 @@
 
   <commandset id="mailEditMenuItems"
               commandupdater="true"
-              events="create-menu-edit"
+              events="create-menu-edit,command-context-changed"
               oncommandupdate="goUpdateMailMenuItems(this)">
 
     <command id="cmd_undo"
@@ -131,7 +131,7 @@
 
   <commandset id="mailGoMenuItems"
               commandupdater="true"
-              events="create-menu-go"
+              events="create-menu-go,command-context-changed"
               oncommandupdate="goUpdateMailMenuItems(this)">
 
     <command id="cmd_nextMsg" oncommand="goDoCommand('cmd_nextMsg')" disabled=""/>
@@ -151,7 +151,7 @@
 
   <commandset id="mailMessageMenuItems"
               commandupdater="true"
-              events="create-menu-message"
+              events="create-menu-message,command-context-changed"
               oncommandupdate="goUpdateMailMenuItems(this)">
     <command id="cmd_archive" oncommand="goDoCommand('cmd_archive')"/>
     <command id="cmd_newMessage" oncommand="goDoCommand('cmd_newMessage', event)"/>
@@ -179,7 +179,7 @@
 
   <commandset id="mailGetMsgMenuItems"
               commandupdater="true"
-              events="create-menu-getMsgToolbar,create-menu-file"
+              events="create-menu-getMsgToolbar,create-menu-file,command-context-changed"
               oncommandupdate="goUpdateMailMenuItems(this)">
 
       <command id="cmd_getMsgsForAuthAccounts"
@@ -189,7 +189,7 @@
 
   <commandset id="mailMarkMenuItems"
               commandupdater="true"
-              events="create-menu-mark"
+              events="create-menu-mark,command-context-changed"
               oncommandupdate="goUpdateMailMenuItems(this)">
       <command id="cmd_mark"/>
       <command id="cmd_tag"/>
@@ -209,7 +209,7 @@
 
   <commandset id="mailTagMenuItems"
               commandupdater="true"
-              events="create-menu-tag"
+              events="create-menu-tag,command-context-changed"
               oncommandupdate="goUpdateMailMenuItems(this);">
 
       <command id="cmd_addTag" oncommand="goDoCommand('cmd_addTag'); event.stopPropagation();"/>
@@ -219,7 +219,7 @@
 
   <commandset id="mailToolsMenuItems"
               commandupdater="true"
-              events="create-menu-tasks"
+              events="create-menu-tasks,command-context-changed"
               oncommandupdate="goUpdateMailMenuItems(this);">
     <command id="cmd_applyFilters" oncommand="goDoCommand('cmd_applyFilters');" disabled=""/>
     <command id="cmd_applyFiltersToSelection"

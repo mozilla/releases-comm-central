@@ -125,6 +125,8 @@ skip-if = [
 
 ["browser_tabsSimple.js"]
 
+["browser_tagMenu.js"]
+
 ["browser_undoInThreads.js"]
 
 ["browser_viewSource.js"]

@@ -156,6 +156,7 @@ class AccountHubControllerClass {
     this.#modal.addEventListener("close", () => {
       // Re-enable keyboard interaction.
       document.getElementById("tabmail").globalOverlay = false;
+      document.commandDispatcher.updateCommands("command-context-changed");
     });
 
     this.#modal.addEventListener("cancel", event => {

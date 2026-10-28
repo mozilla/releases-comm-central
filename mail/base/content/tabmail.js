@@ -590,6 +590,10 @@ ChromeUtils.defineESModuleGetters(this, {
       // Gecko adds.
       window.controllers.insertControllerAt(1, this.tabController);
       this._restoringTabState = null;
+
+      this.tabContainer.addEventListener("TabSelect", () => {
+        document.commandDispatcher.updateCommands("command-context-changed");
+      });
     }
 
     set selectedTab(val) {

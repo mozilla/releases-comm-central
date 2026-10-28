@@ -182,6 +182,63 @@ add_task(async function test_control_shift_k_shows_quick_filter_bar() {
   teardownTest();
 });
 
+add_task(async function test_showQuickFilterBarAfterContentTab() {
+  const tabmail = document.getElementById("tabmail");
+  const mailTab = tabmail.currentTabInfo;
+  const about3Pane = get_about_3pane();
+  const qfbTextbox = about3Pane.document.getElementById("qfb-qs-textbox");
+  const commands = ["cmd_showQuickFilterBar", "cmd_toggleQuickFilterBar"];
+
+  for (const visible of [false, true]) {
+    if (about3Pane.quickFilterBar.filterer.visible != visible) {
+      await toggle_quick_filter_bar();
+    }
+    assert_quick_filter_bar_visible(visible);
+    focus_thread_tree();
+
+    const contentTab = tabmail.openTab("contentTab", {
+      url: "about:buildconfig",
+    });
+    try {
+      await BrowserTestUtils.browserLoaded(contentTab.browser);
+
+      // Opening the View menu updates these commands for the content tab.
+      document.commandDispatcher.updateCommands("create-menu-view");
+      for (const command of commands) {
+        Assert.ok(
+          document.getElementById(command).hasAttribute("disabled"),
+          `${command} should be disabled in a content tab`
+        );
+      }
+
+      tabmail.switchToTab(mailTab);
+      for (const command of commands) {
+        Assert.ok(
+          !document.getElementById(command).hasAttribute("disabled"),
+          `${command} should be enabled after returning to Mail`
+        );
+      }
+      focus_thread_tree();
+      EventUtils.synthesizeKey(
+        "k",
+        { accelKey: true, shiftKey: true },
+        about3Pane
+      );
+      Assert.strictEqual(
+        about3Pane.document.activeElement,
+        qfbTextbox,
+        "The shortcut should focus the Quick Filter input after returning to Mail"
+      );
+      assert_quick_filter_bar_visible(true);
+      EventUtils.sendString("qqq", about3Pane);
+      assert_filter_text("qqq");
+    } finally {
+      tabmail.closeTab(contentTab);
+      clear_constraints();
+    }
+  }
+});
+
 function teardownTest() {
   clear_constraints();
 }

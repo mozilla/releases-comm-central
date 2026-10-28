@@ -25,6 +25,10 @@ add_setup(async () => {
 });
 
 add_task(async function test_account_hub_complete_first_run() {
+  Assert.ok(
+    document.getElementById("cmd_newMessage").hasAttribute("disabled"),
+    "New Message should be disabled before the first account is created"
+  );
   IMAPServer.open();
   SMTPServer.open();
   const emailUser = {
@@ -158,6 +162,15 @@ add_task(async function test_account_hub_complete_first_run() {
   }
 
   Assert.ok(
+    !document.getElementById("cmd_newMessage").hasAttribute("disabled"),
+    "New Message should be enabled after first-account setup closes"
+  );
+  Assert.ok(
+    !document.getElementById("cmd_getNewMessages").hasAttribute("disabled"),
+    "Get Messages should be enabled after first-account setup closes"
+  );
+
+  Assert.ok(
     window.gSpacesToolbar.isLoaded,
     "Spaces toolbar should be initialized"
   );
@@ -176,7 +189,35 @@ add_task(async function test_account_hub_complete_first_run() {
   MailServices.outgoingServer.deleteServer(
     MailServices.outgoingServer.servers[0]
   );
+  Assert.ok(
+    document.getElementById("cmd_newMessage").hasAttribute("disabled"),
+    "New Message should be disabled after the last account is removed"
+  );
 
   IMAPServer.close();
   SMTPServer.close();
+});
+
+add_task(async function test_updateNewMessageCommandOnIdentityAddition() {
+  const account = MailServices.accounts.createAccount();
+  registerCleanupFunction(() =>
+    MailServices.accounts.removeAccount(account, true)
+  );
+  account.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "test",
+    "pop3"
+  );
+  const identity = MailServices.accounts.createIdentity();
+  identity.email = "mochitest@localhost";
+
+  Assert.ok(
+    document.getElementById("cmd_newMessage").hasAttribute("disabled"),
+    "New Message should stay disabled until an identity belongs to an account"
+  );
+  account.addIdentity(identity);
+  Assert.ok(
+    !document.getElementById("cmd_newMessage").hasAttribute("disabled"),
+    "Adding an account identity should enable New Message without a tab switch"
+  );
 });

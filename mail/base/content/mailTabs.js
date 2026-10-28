@@ -56,6 +56,9 @@ var mailTabType = {
       }
       if (!tab.closed) {
         onLoad(event.target.documentGlobal);
+        if (tab == document.getElementById("tabmail").currentTabInfo) {
+          document.commandDispatcher.updateCommands("command-context-changed");
+        }
       }
       browser.removeEventListener("load", loadHandler, { capture: true });
     };

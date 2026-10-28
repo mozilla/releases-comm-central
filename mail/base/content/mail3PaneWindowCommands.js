@@ -426,9 +426,9 @@ addEventListener(
  * Check the status of the folder pane, if available.
  *
  * @returns {boolean|undefined} The initialization state of the folder pane,
- *   or undefined if we can't access the document.
+ *   or undefined if the folder pane is not available.
  */
 function isFolderPaneInitialized() {
   return document.getElementById("tabmail")?.currentAbout3Pane?.folderPane
-    .isInitialized;
+    ?.isInitialized;
 }
