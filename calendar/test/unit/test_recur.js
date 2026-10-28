@@ -30,6 +30,7 @@ function really_run_test() {
   test_multiple_rules();
   test_exrule();
   test_due_only_task();
+  test_next_occurrence_start();
   test_startdate_change();
   test_idchange();
   test_rrule_icalstring();
@@ -1133,6 +1134,35 @@ function test_due_only_task() {
     3,
     "the due date of a task should not be added to the occurrences of its rule"
   );
+}
+
+function test_next_occurrence_start() {
+  // The start of an item is an occurrence of it, also when no rule gives it.
+  const before = cal.createDateTime("20251231T000000Z");
+  function nextAfter(item, time = before) {
+    return item.recurrenceInfo.getNextOccurrence(time)?.recurrenceId.icalString ?? null;
+  }
+
+  const rdateOnly = makeEvent("DTSTART:20260101T100000Z\nRDATE:20260105T100000Z\n");
+  equal(nextAfter(rdateOnly), "20260101T100000Z", "the start should come before the RDATE");
+  equal(
+    nextAfter(rdateOnly, cal.createDateTime("20260101T100000Z")),
+    "20260105T100000Z",
+    "the RDATE should come after the start"
+  );
+
+  // 2026-01-01 is a Thursday.
+  const offPattern = makeEvent("DTSTART:20260101T100000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO;COUNT=2\n");
+  equal(
+    nextAfter(offPattern),
+    "20260101T100000Z",
+    "a start outside the pattern of the rule should be found"
+  );
+
+  const excluded = makeEvent(
+    "DTSTART:20260101T100000Z\nRDATE:20260105T100000Z\nEXDATE;VALUE=DATE:20260101\n"
+  );
+  equal(nextAfter(excluded), "20260105T100000Z", "an excluded start should be skipped");
 }
 
 function test_long_running_series() {

@@ -405,6 +405,23 @@ CalRecurrenceInfo.prototype = {
       // occurrences, a second round is needed.
     } while (this.mPositiveRules.length && invalidOccurrences == this.mPositiveRules.length);
 
+    // The start of the item is always an occurrence, also when no rule gives
+    // it, unless it is an exception (handled below) or an EXDATE.
+    if (
+      startDate &&
+      startDate.compare(aTime) > 0 &&
+      (!minOccRid || minOccRid.compare(startDate) > 0)
+    ) {
+      const startKey = getRidKey(startDate);
+      if (
+        !this.mExceptionMap[startKey] &&
+        !negMap[startKey] &&
+        !negMap[startDate.icalString.substring(0, 8)]
+      ) {
+        minOccRid = startDate;
+      }
+    }
+
     // Since we need to compare occurrences by date, save the rid found
     // above also as a date. This works out because above we skipped
     // exceptions.
