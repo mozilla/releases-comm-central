@@ -105,7 +105,7 @@ class PaneLayout extends HTMLBodyElement {
         break;
       case "splitter-expanded":
         this.dispatchEvent(
-          new CustomEvent("request-message-selection", {
+          new CustomEvent("request-message-display", {
             bubbles: true,
           })
         );

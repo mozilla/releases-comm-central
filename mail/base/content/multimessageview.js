@@ -189,7 +189,7 @@ class MultiMessageSummary {
    * @param {nsIMsgDBHdr[]} aMessages - The messages to summarize.
    * @param {nsIMsgDBView} aDBView - The current DB view.
    * @param {function(nsIMsgDBHdr[]):void} aSelectCallback - Called with an
-   *   array of messages when one of a summarized message is clicked on.
+   *   array of messages represented by the clicked summary item.
    * @param {Function} [aListener] A listener to be notified when the summary
    *   starts and finishes.
    */

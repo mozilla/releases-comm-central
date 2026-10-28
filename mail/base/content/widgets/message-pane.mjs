@@ -189,22 +189,27 @@ class MessagePane extends HTMLElement {
   }
 
   /**
-   * Dispatch an event to request showing a single message when clicked while
-   * viewing the multi message browser in conversation view.
+   * Dispatch a bubbling "request-messages-selection" event to request message
+   * selection.
+   * Expand threads as needed and include matching row indices in
+   * `detail.indices`.
+   * Focus the visible message pane browser after selection.
    *
-   * @param {integer[]} messagesArray
+   * @param {nsIMsgDBHdr[]} messages - The messages represented by the clicked
+   *   summary item.
    */
-  #dispatchSingleMessageEvent(messagesArray) {
+  #requestMessagesSelection(messages) {
     this.dispatchEvent(
-      new CustomEvent("show-single-message", {
+      new CustomEvent("request-messages-selection", {
         bubbles: true,
         detail: {
-          messages: messagesArray
+          indices: messages
             .map(m => gDBView.findIndexOfMsgHdr(m, true))
             .filter(i => i != nsMsgViewIndex_None),
         },
       })
     );
+    this.visibleMessagePaneBrowser()?.focus();
   }
 
   /**
@@ -405,7 +410,7 @@ class MessagePane extends HTMLElement {
       isSingleThread ? "thread" : "multipleselection",
       messages,
       gDBView,
-      msgs => this.#dispatchSingleMessageEvent(msgs)
+      msgs => this.#requestMessagesSelection(msgs)
     );
 
     this.multiMessageBrowser.hidden = false;

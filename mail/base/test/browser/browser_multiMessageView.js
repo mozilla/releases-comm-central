@@ -239,3 +239,119 @@ add_task(async function testStarredButtonReactivity() {
     "The thread should not be starred."
   );
 });
+
+add_task(async function test_selectThreadFromSummary() {
+  for (const index of [0, 1]) {
+    about3Pane.gDBView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+    threadTree.reset();
+    threadTree.selectedIndices = [0, 1];
+    threadTree.currentIndex = 1;
+
+    const items =
+      multiMessageBrowser.contentDocument.querySelectorAll("#messageList > li");
+    Assert.equal(items.length, 2, "The summary should contain two threads");
+    EventUtils.synthesizeMouseAtCenter(
+      items[index].querySelector(".subject"),
+      {},
+      multiMessageBrowser.contentWindow
+    );
+
+    Assert.deepEqual(
+      threadTree.selectedIndices,
+      [index, index + 1, index + 2, index + 3, index + 4],
+      "All messages in the clicked thread should be selected"
+    );
+    Assert.equal(
+      threadTree.currentIndex,
+      index,
+      "The first message in the clicked thread should be current"
+    );
+    Assert.deepEqual(
+      [...threadTree.querySelectorAll("tr.current")].map(row => row.index),
+      [index],
+      "The current row marker should match the current index"
+    );
+    Assert.equal(
+      about3Pane.document.activeElement.id,
+      multiMessageBrowser.id,
+      "The thread summary should keep focus after selecting a thread"
+    );
+  }
+});
+
+add_task(async function test_selectChildFromSummaryScrollsIntoView() {
+  const folder = rootFolder
+    .createLocalSubfolder("longThread")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  const generator = new MessageGenerator();
+  folder.addMessageBatch(
+    generator
+      .makeMessages({ count: 80, msgsPerThread: 80 })
+      .map(message => message.toMessageString())
+  );
+  about3Pane.displayFolder(folder.URI);
+  about3Pane.gDBView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+  threadTree.reset();
+  threadTree.selectedIndex = 0;
+
+  const items =
+    multiMessageBrowser.contentDocument.querySelectorAll("#messageList > li");
+  Assert.equal(
+    items.length,
+    80,
+    "The summary should contain the entire thread"
+  );
+  const item = items[79];
+  multiMessageBrowser.focus();
+  const loaded = BrowserTestUtils.waitForEvent(about3Pane, "MsgLoaded");
+  item.querySelector(".author").click();
+  await loaded;
+
+  Assert.equal(
+    threadTree.selectedIndex,
+    79,
+    "The clicked child should be selected"
+  );
+  Assert.equal(
+    threadTree.currentIndex,
+    79,
+    "The clicked child should be current"
+  );
+  Assert.equal(
+    about3Pane.messageBrowser.contentWindow.gMessage.messageId,
+    item.dataset.messageId,
+    "The clicked child should be displayed"
+  );
+  Assert.equal(
+    about3Pane.document.activeElement.id,
+    about3Pane.messageBrowser.id,
+    "The message pane should have focus after selecting a child"
+  );
+  const aboutMessage = about3Pane.messageBrowser.contentWindow;
+  Assert.equal(
+    aboutMessage.document.activeElement.id,
+    aboutMessage.getMessagePaneBrowser().id,
+    "The message content should have focus after selecting a child"
+  );
+  await TestUtils.waitForCondition(
+    () => threadTree.getLastVisibleIndex() >= 79,
+    "The selected child should be scrolled into view"
+  );
+
+  const row = threadTree.getRowAtIndex(79);
+  Assert.ok(row, "The selected child should have a rendered row");
+  const card = row.querySelector(".card-container");
+  Assert.ok(card, "The selected child should have a rendered card");
+  const cardBounds = card.getBoundingClientRect();
+  const treeBounds = threadTree.getBoundingClientRect();
+  Assert.greaterOrEqual(
+    cardBounds.top,
+    treeBounds.top,
+    "The selected card should be below the top of the thread pane"
+  );
+  Assert.lessOrEqual(
+    cardBounds.bottom,
+    treeBounds.bottom,
+    "The selected card should be above the bottom of the thread pane"
+  );
+});

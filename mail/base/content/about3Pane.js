@@ -172,11 +172,11 @@ window.addEventListener("DOMContentLoaded", async event => {
 
   messagePane = document.getElementById("messagePane");
   messagePane.addEventListener("request-count-update", threadPaneHeader);
-  messagePane.addEventListener("show-single-message", threadPane);
+  messagePane.addEventListener("request-messages-selection", threadPane);
 
   paneLayout = document.getElementById("paneLayout");
   paneLayout.addEventListener("request-message-clear", messagePane);
-  paneLayout.addEventListener("request-message-selection", threadPane);
+  paneLayout.addEventListener("request-message-display", threadPane);
 
   folderTree = document.getElementById("folderTree");
   accountCentralBrowser = document.getElementById("accountCentralBrowser");
@@ -4608,10 +4608,11 @@ var threadPane = {
   handleEvent(event) {
     const notOnEmptySpace = event.target !== threadTree;
     switch (event.type) {
-      case "show-single-message":
-        threadTree.selectedIndices = event.detail.messages;
+      case "request-messages-selection":
+        threadTree.selectedIndices = event.detail.indices;
+        threadTree.currentIndex = threadTree.selectedIndex;
         break;
-      case "request-message-selection":
+      case "request-message-display":
         threadTree.dispatchEvent(new CustomEvent("select"));
         break;
       case "click":
