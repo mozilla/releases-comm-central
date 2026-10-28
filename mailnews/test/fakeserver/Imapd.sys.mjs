@@ -172,13 +172,19 @@ export class ImapDaemon {
       // Only delete now so we don't screw ourselves up if creation fails
       this.deleteMailbox(oldBox);
       oldBox._parent = box == this.root ? null : box;
-      const newBox = new ImapMailbox(subName, box, this.uidvalidity++);
+      const newBox = new ImapMailbox(subName, box, {
+        delimiter: namespace.delimiter,
+        uidvalidity: this.uidvalidity++,
+      });
       newBox._messages = oldBox._messages;
       box.addMailbox(newBox);
 
       // And if oldBox is an INBOX, we need to recreate that
       if (oldBox.name == "INBOX") {
-        this.inbox = new ImapMailbox("INBOX", null, this.uidvalidity++);
+        this.inbox = new ImapMailbox("INBOX", null, {
+          delimiter: namespace.delimiter,
+          uidvalidity: this.uidvalidity++,
+        });
         this.root.addMailbox(this.inbox);
       }
       oldBox.name = subName;
@@ -200,6 +206,7 @@ export class ImapDaemon {
         ? name[name.length - 1] == namespace.delimiter
         : true;
       const childBox = new ImapMailbox(subName, box == this.root ? null : box, {
+        delimiter: namespace.delimiter,
         flags: creatable ? [] : ["\\NoInferiors"],
         uidvalidity: this.uidvalidity++,
       });

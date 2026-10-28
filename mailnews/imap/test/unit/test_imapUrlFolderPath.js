@@ -26,10 +26,19 @@ add_task(function test_validFolderPaths() {
   }
 });
 
+add_task(function test_doubleEscapedFolderPath() {
+  const url = imapUrl("fetch%3EUID%3E%2FINBOX%250D%250Aa001%20LOGOUT%3E1");
+  Assert.ok(url.validUrl, "a double escaped path should be a valid URL");
+  Assert.equal(
+    url.createCanonicalSourceFolderPathString(),
+    "INBOX%0D%0Aa001 LOGOUT",
+    "a double escaped path should only be unescaped once"
+  );
+});
+
 add_task(function test_controlCharactersInFolderPaths() {
   for (const path of [
     "fetch%3EUID%3E%2FINBOX%0D%0Aa001%20LOGOUT%3E1",
-    "fetch%3EUID%3E%2FINBOX%250D%250Aa001%20LOGOUT%3E1",
     "fetch%3EUID%3E%2FINBOX%09%3E1",
     "fetch%3EUID%3E%2FINBOX%7F%3E1",
     "fetch%3EUID%3E%0DINBOX%3E1",

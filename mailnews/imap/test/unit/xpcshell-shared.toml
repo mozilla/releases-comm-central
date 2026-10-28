@@ -71,6 +71,8 @@ tags = ["foldernames"]
 
 ["test_imapCramMD5NoChallenge.js"]
 
+["test_imapCreateRenameEscaping.js"]
+
 ["test_imapFilterActions.js"]
 
 ["test_imapFilterActionsPostplugin.js"]

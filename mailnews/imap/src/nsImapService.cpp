@@ -1926,7 +1926,10 @@ NS_IMETHODIMP nsImapService::RenameLeaf(nsIMsgFolder* srcFolder,
       int32_t leafNameStart = cStrFolderName.RFindChar(hierarchyDelimiter);
       if (leafNameStart != -1) {
         cStrFolderName.SetLength(leafNameStart + 1);
-        urlSpec.Append(cStrFolderName);
+        nsCString escapedParentName;
+        MsgEscapeString(cStrFolderName, nsINetUtil::ESCAPE_URL_PATH,
+                        escapedParentName);
+        urlSpec.Append(escapedParentName);
       }
 
       nsAutoCString utfNewName;
@@ -1939,13 +1942,16 @@ NS_IMETHODIMP nsImapService::RenameLeaf(nsIMsgFolder* srcFolder,
       } else {
         CopyUTF16toMUTF7(NS_ConvertUTF8toUTF16(newLeafName), utfNewName);
       }
+      if (hierarchyDelimiter != '/') {
+        nsCString escapedSlashName;
+        rv = nsImapUrl::EscapeSlashes(utfNewName.get(),
+                                      getter_Copies(escapedSlashName));
+        NS_ENSURE_SUCCESS(rv, rv);
+        utfNewName = escapedSlashName;
+      }
       nsCString escapedNewName;
       MsgEscapeString(utfNewName, nsINetUtil::ESCAPE_URL_PATH, escapedNewName);
-      nsCString escapedSlashName;
-      rv = nsImapUrl::EscapeSlashes(escapedNewName.get(),
-                                    getter_Copies(escapedSlashName));
-      NS_ENSURE_SUCCESS(rv, rv);
-      urlSpec.Append(escapedSlashName);
+      urlSpec.Append(escapedNewName);
 
       rv = mailNewsUrl->SetSpecInternal(urlSpec);
       if (NS_SUCCEEDED(rv))
@@ -1953,6 +1959,18 @@ NS_IMETHODIMP nsImapService::RenameLeaf(nsIMsgFolder* srcFolder,
     }
   }
   return rv;
+}
+
+// Escapes a new folder name, which may contain '/' as the hierarchy
+// separator, for use in an IMAP URL.
+static void EscapeNewFolderName(const nsACString& name, char hierarchyDelimiter,
+                                nsACString& escapedName) {
+  nsCString path(name);
+  if (hierarchyDelimiter != '/') {
+    nsImapUrl::EscapeSlashes(path.get(), getter_Copies(path));
+    path.ReplaceChar('^', '/');
+  }
+  MsgEscapeString(path, nsINetUtil::ESCAPE_URL_PATH, escapedName);
 }
 
 NS_IMETHODIMP nsImapService::CreateFolder(nsIMsgFolder* parent,
@@ -1978,8 +1996,8 @@ NS_IMETHODIMP nsImapService::CreateFolder(nsIMsgFolder* parent,
       urlSpec.AppendLiteral("/create>");
       urlSpec.Append(hierarchyDelimiter);
       if (!folderName.IsEmpty()) {
-        folderName =
-            nsImapUrl::ConvertToCanonicalFormat(folderName, hierarchyDelimiter);
+        // GetFolderName() already escaped the slashes in the name.
+        folderName.ReplaceChar(hierarchyDelimiter, '/');
         urlSpec.Append(folderName);
         urlSpec.Append(hierarchyDelimiter);
       }
@@ -1995,8 +2013,7 @@ NS_IMETHODIMP nsImapService::CreateFolder(nsIMsgFolder* parent,
         CopyUTF16toMUTF7(NS_ConvertUTF8toUTF16(newFolderName), utfNewName);
       }
       nsCString escapedFolderName;
-      MsgEscapeString(utfNewName, nsINetUtil::ESCAPE_URL_PATH,
-                      escapedFolderName);
+      EscapeNewFolderName(utfNewName, hierarchyDelimiter, escapedFolderName);
       urlSpec.Append(escapedFolderName);
 
       rv = mailnewsurl->SetSpecInternal(urlSpec);
@@ -2044,8 +2061,7 @@ NS_IMETHODIMP nsImapService::EnsureFolderExists(nsIMsgFolder* parent,
         CopyUTF16toMUTF7(NS_ConvertUTF8toUTF16(newFolderName), utfNewName);
       }
       nsCString escapedFolderName;
-      MsgEscapeString(utfNewName, nsINetUtil::ESCAPE_URL_PATH,
-                      escapedFolderName);
+      EscapeNewFolderName(utfNewName, hierarchyDelimiter, escapedFolderName);
       urlSpec.Append(escapedFolderName);
 
       rv = mailnewsurl->SetSpecInternal(urlSpec);

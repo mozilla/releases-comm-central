@@ -5,6 +5,7 @@
 #include "gtest/gtest.h"
 #include "nsImapUtils.h"
 #include "nsImapMailFolder.h"
+#include "nsImapUrl.h"
 
 // Invocation:
 // $ ./mach gtest "TestMsgImapUtils.*"
@@ -70,5 +71,35 @@ TEST(TestMsgImapUtils, UidSetFromUids)
   for (auto const& t : uidTests) {
     nsCString got = UidSetFromUids(t.uids);
     ASSERT_EQ(t.uidSet, got);
+  }
+}
+
+// Test that UnescapeSlashes() reverts EscapeSlashes().
+TEST(TestMsgImapUtils, EscapeSlashes)
+{
+  static const struct {
+    nsLiteralCString name;
+    nsLiteralCString escaped;
+  } tests[] = {
+      {""_ns, ""_ns},
+      {"foo"_ns, "foo"_ns},
+      {"foo/bar"_ns, "foo^bar"_ns},
+      {"foo//bar"_ns, "foo^^bar"_ns},
+      {"foo^bar"_ns, "foo%5Ebar"_ns},
+      {"/^"_ns, "^%5E"_ns},
+      {"^/"_ns, "%5E^"_ns},
+      {"50%"_ns, "50%25"_ns},
+      {"%5E%25"_ns, "%255E%2525"_ns},
+      {"%^/"_ns, "%25%5E^"_ns},
+  };
+
+  for (auto const& t : tests) {
+    nsCString escaped;
+    ASSERT_EQ(NS_OK,
+              nsImapUrl::EscapeSlashes(t.name.get(), getter_Copies(escaped)));
+    ASSERT_EQ(t.escaped, escaped);
+    nsCString unescaped(escaped);
+    nsImapUrl::UnescapeSlashes(unescaped);
+    ASSERT_EQ(t.name, unescaped);
   }
 }

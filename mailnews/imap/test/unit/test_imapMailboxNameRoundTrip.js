@@ -79,6 +79,24 @@ add_task(async function testServerDirectoryWithNamespace() {
   );
 });
 
+add_task(async function testSlashesAndCaretsInNames() {
+  await checkRoundTrip({
+    mailboxes: [
+      "a/b",
+      "a//b",
+      "a^b",
+      "/^",
+      "^/",
+      "50%",
+      "50%25",
+      "x%5E",
+      "parent",
+      "parent.a/b^c",
+    ],
+    delimiter: ".",
+  });
+});
+
 /**
  * Lets Thunderbird discover the mailboxes, selects every folder it shows, and
  * compares the selected names with the selectable mailboxes on the server.
@@ -89,6 +107,7 @@ add_task(async function testServerDirectoryWithNamespace() {
  * @param {string} [options.serverDirectory] - The server directory to set.
  * @param {boolean} [options.usingSubscription=true] - Whether to use
  *   subscriptions.
+ * @param {string} [options.delimiter="/"] - The hierarchy delimiter.
  * @returns {string[]} The commands Thunderbird sent during discovery.
  */
 async function checkRoundTrip({
@@ -96,10 +115,13 @@ async function checkRoundTrip({
   namespaces,
   serverDirectory,
   usingSubscription = true,
+  delimiter = "/",
 }) {
   const daemon = new ImapDaemon();
+  daemon.root.delimiter = delimiter;
+  daemon.inbox.delimiter = delimiter;
   for (const name of mailboxes) {
-    daemon.createMailbox(name, { subscribed: true });
+    daemon.createMailbox(name, { subscribed: true, delimiter });
   }
   const server = makeServer(
     daemon,

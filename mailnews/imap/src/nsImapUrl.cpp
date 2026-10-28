@@ -717,36 +717,24 @@ NS_IMETHODIMP nsImapUrl::AllocateServerPath(const nsACString& canonicalPath,
   return NS_OK;
 }
 
-// escape '/' as ^, ^ -> ^^ - use UnescapeSlashes to revert
+// Escape '/' as '^', '^' as "%5E" and '%' as "%25". UnescapeSlashes reverts.
 /* static */ nsresult nsImapUrl::EscapeSlashes(const char* sourcePath,
                                                char** resultPath) {
   NS_ENSURE_ARG(sourcePath);
   NS_ENSURE_ARG(resultPath);
-  int32_t extra = 0;
-  int32_t len = strlen(sourcePath);
-  const char* src = sourcePath;
-  int32_t i;
-  for (i = 0; i < len; i++) {
-    if (*src == '^') extra += 1; /* ^ -> ^^ */
-    src++;
+  nsAutoCString result;
+  for (const char* src = sourcePath; *src; src++) {
+    if (*src == '/') {
+      result.Append('^');
+    } else if (*src == '^') {
+      result.AppendLiteral("%5E");
+    } else if (*src == '%') {
+      result.AppendLiteral("%25");
+    } else {
+      result.Append(*src);
+    }
   }
-  char* result = (char*)moz_xmalloc(len + extra + 1);
-  if (!result) return NS_ERROR_OUT_OF_MEMORY;
-
-  unsigned char* dst = (unsigned char*)result;
-  src = sourcePath;
-  for (i = 0; i < len; i++) {
-    unsigned char c = *src++;
-    if (c == '/')
-      *dst++ = '^';
-    else if (c == '^') {
-      *dst++ = '^';
-      *dst++ = '^';
-    } else
-      *dst++ = c;
-  }
-  *dst = '\0'; /* tack on eos */
-  *resultPath = result;
+  *resultPath = ToNewCString(result);
   return NS_OK;
 }
 
@@ -757,14 +745,17 @@ static void unescapeSlashes(char* path, size_t* newLength) {
 
   while (*src) {
     if (*src == '^') {
-      if (*(src + 1) == '^') {
-        *dst++ = '^';
-        src++;  // skip over second '^'
-      } else
-        *dst++ = '/';
+      *dst++ = '/';
       src++;
-    } else
+    } else if (!strncmp(src, "%5E", 3)) {
+      *dst++ = '^';
+      src += 3;
+    } else if (!strncmp(src, "%25", 3)) {
+      *dst++ = '%';
+      src += 3;
+    } else {
       *dst++ = *src++;
+    }
   }
 
   *newLength = dst - start;
@@ -1104,18 +1095,16 @@ void nsImapUrl::ParseFolderPath(char** resultingCanonicalPath) {
 
   char dirSeparator = *resultPath;
 
-  nsCString unescapedResultingCanonicalPath;
-  MsgUnescapeString(nsDependentCString(resultPath + 1), 0,
-                    unescapedResultingCanonicalPath);
+  // ParseUrl() already unescaped the path.
+  nsDependentCString canonicalPath(resultPath + 1);
   // The path ends up in commands sent to the server, so reject control
   // characters like CR/LF.
   if (IsControlCharacter(dirSeparator) ||
-      std::any_of(unescapedResultingCanonicalPath.BeginReading(),
-                  unescapedResultingCanonicalPath.EndReading(),
+      std::any_of(canonicalPath.BeginReading(), canonicalPath.EndReading(),
                   IsControlCharacter)) {
     m_validUrl = false;
   }
-  *resultingCanonicalPath = ToNewCString(unescapedResultingCanonicalPath);
+  *resultingCanonicalPath = ToNewCString(canonicalPath);
   // The delimiter will be set for a given URL, but will not be statically
   // available from an arbitrary URL.  It is the creator's responsibility to
   // fill in the correct delimiter from the folder's namespace when creating the
