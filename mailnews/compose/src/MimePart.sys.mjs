@@ -280,6 +280,23 @@ export class MimePart {
         throw new Error("Message is gone");
       }
       this._contentType = "message/rfc822";
+    } else if (uri instanceof Ci.nsIFileURL) {
+      // Not using a file channel, as for link files (e.g. .desktop, .url or
+      // .lnk) that would serve the link target instead of the file itself.
+      const bytes = await IOUtils.read(uri.file.path);
+      content = MailStringUtils.uint8ArrayToByteString(bytes);
+      this._contentType = this._bodyAttachment.contentType;
+      if (!this._contentType) {
+        try {
+          this._contentType = Cc["@mozilla.org/mime;1"]
+            .getService(Ci.nsIMIMEService)
+            .getTypeFromFile(uri.file);
+        } catch {
+          this._contentType = this._isText(bytes)
+            ? "text/plain"
+            : "application/octet-stream";
+        }
+      }
     } else {
       const channel = Services.io.newChannelFromURI(
         uri,
@@ -352,6 +369,29 @@ export class MimePart {
     }
 
     return content;
+  }
+
+  /**
+   * Guess whether data is text, the same way as nsUnknownDecoder::SniffBinary.
+   *
+   * @param {Uint8Array} bytes
+   * @returns {boolean} true if the data has a BOM, or no binary bytes within
+   *   the first 512 bytes.
+   */
+  _isText(bytes) {
+    const [b0, b1, b2, b3] = bytes;
+    if (
+      bytes.length >= 4 &&
+      ((b0 == 0xfe && b1 == 0xff) ||
+        (b0 == 0xff && b1 == 0xfe) ||
+        (b0 == 0xef && b1 == 0xbb && b2 == 0xbf) ||
+        (b0 == 0 && b1 == 0 && b2 == 0xfe && b3 == 0xff))
+    ) {
+      return true;
+    }
+    return bytes
+      .subarray(0, 512)
+      .every(b => b > 31 || (b >= 9 && b <= 13) || b == 27);
   }
 }
 
