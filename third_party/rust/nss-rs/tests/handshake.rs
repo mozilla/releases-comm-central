@@ -4,8 +4,6 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-#![expect(clippy::unwrap_used, reason = "OK for tests.")]
-
 use std::{mem, time::Instant};
 
 use log::info;
@@ -16,12 +14,6 @@ use nss_rs::{
 use test_fixture::{anti_replay, fixture_init, now};
 
 /// Consume records until the handshake state changes.
-#[allow(
-    clippy::allow_attributes,
-    clippy::missing_panics_doc,
-    clippy::missing_errors_doc,
-    reason = "OK for tests."
-)]
 pub fn forward_records(
     now: Instant,
     agent: &mut SecretAgent,
@@ -45,7 +37,7 @@ pub fn forward_records(
 fn handshake(now: Instant, client: &mut SecretAgent, server: &mut SecretAgent) {
     let mut a = client;
     let mut b = server;
-    let mut records = a.handshake_raw(now, None).unwrap();
+    let mut records = a.handshake_raw(now, None).expect("initial handshake");
     let is_done = |agent: &mut SecretAgent| agent.state().is_final();
     while !is_done(b) {
         let Ok(r) = forward_records(now, b, records) else {
@@ -79,11 +71,6 @@ fn handshake(now: Instant, client: &mut SecretAgent, server: &mut SecretAgent) {
     }
 }
 
-#[allow(
-    clippy::allow_attributes,
-    clippy::missing_panics_doc,
-    reason = "OK for tests."
-)]
 pub fn connect_at(now: Instant, client: &mut SecretAgent, server: &mut SecretAgent) {
     handshake(now, client, server);
     info!("client: {:?}", client.state());
@@ -96,12 +83,7 @@ pub fn connect(client: &mut SecretAgent, server: &mut SecretAgent) {
     connect_at(now(), client, server);
 }
 
-#[allow(
-    clippy::allow_attributes,
-    clippy::missing_panics_doc,
-    dead_code,
-    reason = "OK for tests."
-)]
+#[allow(clippy::allow_attributes, dead_code, reason = "OK for tests.")]
 pub fn connect_fail(client: &mut SecretAgent, server: &mut SecretAgent) {
     handshake(now(), client, server);
     assert!(!client.state().is_connected());
@@ -160,12 +142,7 @@ fn zero_rtt_setup(mode: Resumption, client: &Client, server: &mut Server) -> Opt
     })
 }
 
-#[allow(
-    clippy::allow_attributes,
-    clippy::missing_panics_doc,
-    dead_code,
-    reason = "OK for tests."
-)]
+#[allow(clippy::allow_attributes, dead_code, reason = "OK for tests.")]
 #[must_use]
 pub fn resumption_setup(mode: Resumption) -> (Option<AntiReplay>, ResumptionToken) {
     fixture_init();
@@ -176,10 +153,12 @@ pub fn resumption_setup(mode: Resumption) -> (Option<AntiReplay>, ResumptionToke
 
     connect(&mut client, &mut server);
 
-    assert!(!client.info().unwrap().resumed());
-    assert!(!server.info().unwrap().resumed());
-    assert!(!client.info().unwrap().early_data_accepted());
-    assert!(!server.info().unwrap().early_data_accepted());
+    let client_info = client.info().expect("client is connected");
+    let server_info = server.info().expect("server is connected");
+    assert!(!client_info.resumed());
+    assert!(!server_info.resumed());
+    assert!(!client_info.early_data_accepted());
+    assert!(!server_info.early_data_accepted());
 
     let server_records = server
         .send_ticket(now(), ZERO_RTT_TOKEN_DATA)

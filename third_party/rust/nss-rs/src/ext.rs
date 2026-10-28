@@ -129,7 +129,9 @@ impl ExtensionTracker {
         unsafe {
             Self::wrap_handler_call(arg, |handler| match handler.write(msg, ch_outer, d) {
                 ExtensionWriterResult::Write(sz) => {
-                    *len = c_uint::try_from(sz).expect("integer overflow from extension writer");
+                    let sz = c_uint::try_from(sz).expect("integer overflow from extension writer");
+                    assert!(sz <= max_len, "extension writer wrote past the buffer");
+                    *len = sz;
                     1
                 }
                 ExtensionWriterResult::Skip => 0,

@@ -13,7 +13,13 @@ use std::{
     time::{Duration, Instant},
 };
 
-use nss_rs::{AntiReplay, TEST_FIXTURE_DB, TEST_FIXTURE_DB_FIPS, init_db, p11::PK11_IsFIPS};
+use nss_rs::{AntiReplay, init_db, p11::PK11_IsFIPS};
+
+/// The path to the default NSS database used for testing.
+pub const TEST_FIXTURE_DB: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/db");
+
+/// The path to the FIPS-mode NSS database used for testing.
+pub const TEST_FIXTURE_DB_FIPS: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/db-fips");
 
 /// Returns the path to the NSS test fixture database.
 ///

@@ -13,7 +13,7 @@
 edition = "2024"
 rust-version = "1.90.0"
 name = "nss-rs"
-version = "0.16.1"
+version = "0.16.2"
 authors = [
     "Martin Thomson <mt@lowentropy.net>",
     "Andy Leiserson <aleiserson@mozilla.com>",
@@ -107,6 +107,10 @@ name = "hkdf"
 path = "tests/hkdf.rs"
 
 [[test]]
+name = "hmac"
+path = "tests/hmac.rs"
+
+[[test]]
 name = "hp"
 path = "tests/hp.rs"
 
@@ -117,6 +121,21 @@ path = "tests/init.rs"
 [[test]]
 name = "selfencrypt"
 path = "tests/selfencrypt.rs"
+
+[[bench]]
+name = "crypto"
+path = "benches/crypto.rs"
+harness = false
+
+[[bench]]
+name = "handshake"
+path = "benches/handshake.rs"
+harness = false
+
+[[bench]]
+name = "record_protection"
+path = "benches/record_protection.rs"
+harness = false
 
 [dependencies]
 thiserror = "2"
@@ -150,6 +169,11 @@ version = "1"
 features = ["derive"]
 optional = true
 default-features = false
+
+[dev-dependencies.criterion]
+version = "5"
+default-features = false
+package = "codspeed-criterion-compat"
 
 [dev-dependencies.test-fixture]
 path = "test-fixture"
@@ -404,3 +428,9 @@ unused_qualifications = "warn"
 level = "warn"
 priority = 0
 check-cfg = ["cfg(coverage,coverage_nightly,fuzzing)"]
+
+[profile.bench]
+debug = 2
+
+[profile.release]
+lto = "fat"

@@ -8,7 +8,7 @@ use std::{os::raw::c_int, ptr::null_mut};
 
 use crate::{
     Error, SECItemBorrowed,
-    hmac::{HmacAlgorithm, hmac_alg_to_prf_oid},
+    hmac::HmacAlgorithm,
     p11::{
         PK11_CreatePBEV2AlgorithmID, PK11_PBEKeyGen, PRBool, SECOID_DestroyAlgorithmID, SECOidTag,
         Slot, SymKey,
@@ -42,8 +42,8 @@ pub fn pbkdf2(
     let algid = unsafe {
         PK11_CreatePBEV2AlgorithmID(
             SECOidTag::SEC_OID_PKCS5_PBKDF2,
-            hmac_alg_to_prf_oid(alg),
-            hmac_alg_to_prf_oid(alg),
+            alg.prf_oid(),
+            alg.prf_oid(),
             key_len_int,
             iterations,
             salt_item.as_mut(),

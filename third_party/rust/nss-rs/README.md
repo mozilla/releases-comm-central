@@ -1,5 +1,7 @@
 # (UNSTABLE) Gecko API for NSS
 
+[![CodSpeed](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://app.codspeed.io/mozilla/nss-rs?utm_source=badge)
+
 nss-rs is intended to provide a safe and idiomatic Rust interface to NSS.  It is based on code from neqo-crypto, but has been factored out of mozilla-central so that it can be used in standalone applications and libraries such as authenticator-rs. That said, it is *primarily* for use in Gecko, and will not be extended to support arbitrary use cases.
 
 This is work in progress and major changes are expected. API stability is NOT a goal, nor is compatibility with any particular Rust version. This crate exists to serve the needs of the limited set of crates that depend on it.
@@ -9,6 +11,10 @@ This is work in progress and major changes are expected. API stability is NOT a 
 NSS is located with `pkg-config` by default. If that fails, NSS and NSPR are cloned from `hg.mozilla.org` into `OUT_DIR` and built from source. Set `NSS_DIR` to an absolute path to an NSS checkout to use that instead, and `NSS_PREBUILT` to a value other than `0` if that checkout is already built.
 
 When cross-compiling, `pkg-config` is only consulted if `PKG_CONFIG_ALLOW_CROSS` is set to a value other than `0`, or if `PKG_CONFIG` or `PKG_CONFIG_SYSROOT_DIR` (optionally target-suffixed) is set. Otherwise NSS is built from source.
+
+## Benchmarks
+
+Run `cargo bench --features bench`, and `cargo bench --features bench,blapi --bench record_protection` for the freebl backend. CI tracks the [Criterion.rs](https://github.com/bheisler/criterion.rs) benchmarks in `benches/` with [CodSpeed](https://codspeed.io).
 
 ## GitHub Actions
 
