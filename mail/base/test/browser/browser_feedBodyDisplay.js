@@ -19,6 +19,7 @@ add_setup(async () => {
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
   const feedAccount = FeedUtils.createRssAccount("rssBodyMode");
+  feedAccount.addIdentity(MailServices.accounts.createIdentity());
   const rssRootFolder = feedAccount.incomingServer.rootFolder;
   FeedUtils.subscribeToFeed(
     "https://example.org/browser/comm/mail/base/test/browser/files/rss.xml?feedBodyDisplay",
@@ -230,6 +231,10 @@ add_task(async function test_feedBodyFormat_selectWebsite() {
   });
 
   await subtestSelectArticleAndCheckMode(true);
+
+  const composeWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  about3Pane.commandController.doCommand("cmd_reply");
+  await BrowserTestUtils.closeWindow(await composeWindowPromise);
 
   about3Pane.threadTree.selectedIndex = -1; // Clear the displayed message.
 });

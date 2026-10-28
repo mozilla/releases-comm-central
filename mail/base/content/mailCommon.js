@@ -929,6 +929,7 @@ var commandController = {
       }
       if (
         messagePaneBrowser &&
+        !messagePaneBrowser.isRemoteBrowser &&
         Services.prefs.getBoolPref("mailnews.reply_quoting_selection")
       ) {
         const actor =
