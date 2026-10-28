@@ -381,9 +381,14 @@ class MsgOperationWrapper {
         primaryCached &&
         primaryCached.folder.URI != additionalFccFolder.URI
       ) {
-        const primaryHdr = primaryCached.folder.GetMessageHeader(
+        const primaryHdr = primaryCached.folder.getMsgHdr(
           primaryCached.messageKey
         );
+        if (!primaryHdr) {
+          throw new ExtensionError(
+            "Failed to copy to additionalFccFolder: message not found"
+          );
+        }
         await new Promise((resolve, reject) => {
           MailServices.copy.copyMessages(
             primaryCached.folder,

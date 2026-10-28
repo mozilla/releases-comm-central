@@ -8121,7 +8121,10 @@ function RemoveDraft() {
     }
     try {
       if (folder.getFlag(Ci.nsMsgFolderFlags.Drafts)) {
-        const msgHdr = folder.GetMessageHeader(msgKey);
+        const msgHdr = folder.getMsgHdr(msgKey);
+        if (!msgHdr) {
+          throw new Error(`No draft for key=${msgKey}`);
+        }
         folder.deleteMessages([msgHdr], null, true, false, null, false);
       }
     } catch (ex) {

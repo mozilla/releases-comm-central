@@ -716,7 +716,7 @@ GlodaMessage.prototype = {
     if (folder) {
       let folderMessage;
       try {
-        folderMessage = folder.GetMessageHeader(this._messageKey);
+        folderMessage = folder.getMsgHdr(this._messageKey);
       } catch (ex) {
         folderMessage = null;
       }

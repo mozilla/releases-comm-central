@@ -230,7 +230,7 @@ var copyListener = {
   onStartCopy() {},
   onProgress() {},
   setMessageKey(aKey) {
-    gHdrsReceived.push(this.mFolderStoredIn.GetMessageHeader(aKey));
+    gHdrsReceived.push(this.mFolderStoredIn.getMsgHdr(aKey));
   },
   getMessageId() {
     return this.mMessageId;

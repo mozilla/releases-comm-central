@@ -500,7 +500,7 @@ void nsImapOfflineSync::ProcessMoveOperation(nsIMsgOfflineImapOperation* op) {
     nsTArray<RefPtr<nsIMsgDBHdr>> messages;
     for (nsMsgKey srcKey : srcKeys) {
       nsCOMPtr<nsIMsgDBHdr> mailHdr = nullptr;
-      rv = m_currentFolder->GetMessageHeader(srcKey, getter_AddRefs(mailHdr));
+      rv = m_currentFolder->GetMsgHdr(srcKey, getter_AddRefs(mailHdr));
       if (NS_SUCCEEDED(rv) && mailHdr) {
         uint32_t msgSize;
         // in case of a move, the header has already been deleted,
@@ -600,8 +600,8 @@ void nsImapOfflineSync::ProcessCopyOperation(
     for (uint32_t keyIndex = 0; keyIndex < matchingFlagKeys.Length();
          keyIndex++) {
       nsCOMPtr<nsIMsgDBHdr> mailHdr = nullptr;
-      rv = m_currentFolder->GetMessageHeader(
-          matchingFlagKeys.ElementAt(keyIndex), getter_AddRefs(mailHdr));
+      rv = m_currentFolder->GetMsgHdr(matchingFlagKeys.ElementAt(keyIndex),
+                                      getter_AddRefs(mailHdr));
       if (NS_SUCCEEDED(rv) && mailHdr) messages.AppendElement(mailHdr);
     }
     nsCOMPtr<nsIMsgCopyService> copyService =

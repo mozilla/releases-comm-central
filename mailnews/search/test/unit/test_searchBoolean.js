@@ -191,7 +191,7 @@ function run_test() {
     onStartCopy() {},
     onProgress() {},
     setMessageKey(aKey) {
-      gHdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
+      gHdr = localAccountUtils.inboxFolder.getMsgHdr(aKey);
     },
     getMessageId() {
       return null;

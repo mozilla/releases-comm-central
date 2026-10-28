@@ -31,8 +31,7 @@ nsMsgReadStateTxn::MarkMessages(bool aAsRead) {
   nsTArray<RefPtr<nsIMsgDBHdr>> messages(mMarkedMessages.Length());
   for (auto msgKey : mMarkedMessages) {
     nsCOMPtr<nsIMsgDBHdr> curMsgHdr;
-    nsresult rv =
-        mParentFolder->GetMessageHeader(msgKey, getter_AddRefs(curMsgHdr));
+    nsresult rv = mParentFolder->GetMsgHdr(msgKey, getter_AddRefs(curMsgHdr));
     if (NS_SUCCEEDED(rv) && curMsgHdr) {
       messages.AppendElement(curMsgHdr);
     }

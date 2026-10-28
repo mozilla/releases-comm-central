@@ -55,7 +55,7 @@ async function saveMessageFromStore(storeID) {
     const copied = await copyListener.promise;
 
     // Save it out.
-    const msgHdr = inbox.GetMessageHeader(copied.messageKeys[0]);
+    const msgHdr = inbox.getMsgHdr(copied.messageKeys[0]);
     const storedStream = inbox.getMsgInputStream(msgHdr);
     const storedMessage = NetUtil.readInputStreamToString(
       storedStream,

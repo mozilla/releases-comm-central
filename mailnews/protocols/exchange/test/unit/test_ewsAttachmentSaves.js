@@ -117,7 +117,7 @@ add_task(async function testEwsAttachmentDetach() {
     1,
     "Inbox should still have exactly one message after detach"
   );
-  const msgHdr2 = inboxFolder.GetMessageHeader(2);
+  const msgHdr2 = inboxFolder.getMsgHdr(2);
   Assert.ok(!!msgHdr2, "Should have a message header");
 
   const messageContent = await getContentFromMessage(msgHdr2);

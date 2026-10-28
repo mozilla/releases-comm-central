@@ -34,7 +34,7 @@ var copyListener = {
   onStartCopy() {},
   onProgress() {},
   setMessageKey(aKey) {
-    const hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
+    const hdr = localAccountUtils.inboxFolder.getMsgHdr(aKey);
     gMsgHdrs.push({ hdr, ID: hdr.messageId });
   },
   getMessageId() {

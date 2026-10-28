@@ -78,8 +78,8 @@ nsresult nsImapMoveCoalescer::PlaybackMoves(
     nsTArray<RefPtr<nsIMsgDBHdr>> messages(keysToAdd.Length());
     for (uint32_t keyIndex = 0; keyIndex < keysToAdd.Length(); keyIndex++) {
       nsCOMPtr<nsIMsgDBHdr> mailHdr = nullptr;
-      rv = m_sourceFolder->GetMessageHeader(keysToAdd.ElementAt(keyIndex),
-                                            getter_AddRefs(mailHdr));
+      rv = m_sourceFolder->GetMsgHdr(keysToAdd.ElementAt(keyIndex),
+                                     getter_AddRefs(mailHdr));
       if (NS_SUCCEEDED(rv) && mailHdr) {
         messages.AppendElement(mailHdr);
         bool isRead = false;

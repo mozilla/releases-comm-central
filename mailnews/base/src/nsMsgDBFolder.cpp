@@ -4985,14 +4985,23 @@ NS_IMETHODIMP nsMsgDBFolder::EnableNotifications(int32_t notificationType,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::GetMessageHeader(nsMsgKey msgKey,
-                                              nsIMsgDBHdr** aMsgHdr) {
+NS_IMETHODIMP nsMsgDBFolder::GetMsgHdr(nsMsgKey msgKey, nsIMsgDBHdr** aMsgHdr) {
   NS_ENSURE_ARG_POINTER(aMsgHdr);
+  *aMsgHdr = nullptr;
   nsCOMPtr<nsIMsgDatabase> database;
   nsresult rv = GetMsgDatabase(getter_AddRefs(database));
   NS_ENSURE_SUCCESS(rv, rv);
-  return (database) ? database->GetMsgHdrForKey(msgKey, aMsgHdr)
-                    : NS_ERROR_FAILURE;
+  NS_ENSURE_TRUE(database, NS_ERROR_FAILURE);
+  rv = database->GetMsgHdrForKey(msgKey, aMsgHdr);
+  if (NS_FAILED(rv)) {
+    bool containsKey;
+    if (NS_SUCCEEDED(database->ContainsKey(msgKey, &containsKey)) &&
+        !containsKey) {
+      *aMsgHdr = nullptr;
+      return NS_OK;
+    }
+  }
+  return rv;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::GetDescendants(

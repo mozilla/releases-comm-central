@@ -988,8 +988,9 @@ NS_IMETHODIMP nsImapService::StreamHeaders(const nsACString& aMessageURI,
   folder->HasMsgOffline(key, &hasMsgOffline);
   if (hasMsgOffline) {
     nsCOMPtr<nsIMsgDBHdr> hdr;
-    rv = folder->GetMessageHeader(key, getter_AddRefs(hdr));
+    rv = folder->GetMsgHdr(key, getter_AddRefs(hdr));
     NS_ENSURE_SUCCESS(rv, rv);
+    NS_ENSURE_TRUE(hdr, NS_MSG_MESSAGE_NOT_FOUND);
     rv = folder->GetMsgInputStream(hdr, getter_AddRefs(inputStream));
     NS_ENSURE_SUCCESS(rv, rv);
     return MsgStreamMsgHeaders(inputStream, aConsumer);
@@ -2705,8 +2706,9 @@ NS_IMETHODIMP nsImapService::MessageURIToMsgHdr(const nsACString& uri,
   nsMsgKey msgKey;
   nsresult rv = DecomposeImapURI(uri, getter_AddRefs(folder), &msgKey);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = folder->GetMessageHeader(msgKey, aRetVal);
+  rv = folder->GetMsgHdr(msgKey, aRetVal);
   NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(*aRetVal, NS_MSG_MESSAGE_NOT_FOUND);
 
   return NS_OK;
 }

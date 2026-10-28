@@ -3458,10 +3458,13 @@ int32_t nsMsgDBView::SecondaryCompare(nsMsgKey key1, nsIMsgFolder* folder1,
   }
 
   nsCOMPtr<nsIMsgDBHdr> hdr1, hdr2;
-  nsresult rv = folder1->GetMessageHeader(key1, getter_AddRefs(hdr1));
+  nsresult rv = folder1->GetMsgHdr(key1, getter_AddRefs(hdr1));
   NS_ENSURE_SUCCESS(rv, 0);
-  rv = folder2->GetMessageHeader(key2, getter_AddRefs(hdr2));
+  rv = folder2->GetMsgHdr(key2, getter_AddRefs(hdr2));
   NS_ENSURE_SUCCESS(rv, 0);
+  if (!hdr1 || !hdr2) {
+    return 0;
+  }
   IdKey EntryInfo1, EntryInfo2;
 
   uint16_t maxLen;
@@ -4346,7 +4349,7 @@ nsMsgViewIndex nsMsgDBView::GetInsertIndexHelper(
     EntryInfo2.folder = folders ? folders->ObjectAt(tryIndex) : m_folder.get();
 
     nsCOMPtr<nsIMsgDBHdr> tryHdr;
-    EntryInfo2.folder->GetMessageHeader(EntryInfo2.id, getter_AddRefs(tryHdr));
+    EntryInfo2.folder->GetMsgHdr(EntryInfo2.id, getter_AddRefs(tryHdr));
     if (!tryHdr) break;
 
     if (fieldType == kCollationKey) {

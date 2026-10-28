@@ -359,7 +359,10 @@ nsresult ExchangeService::MsgHdrFromUri(nsIURI* uri, nsIMsgDBHdr** _retval) {
   rv = GetExistingFolder(folderSpec, getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return folder->GetMessageHeader(key, _retval);
+  rv = folder->GetMsgHdr(key, _retval);
+  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(*_retval, NS_MSG_MESSAGE_NOT_FOUND);
+  return NS_OK;
 }
 
 nsresult ExchangeService::FetchMessage(nsIURI* aURI,

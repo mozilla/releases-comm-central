@@ -3094,7 +3094,7 @@ nsMsgLocalMailFolder::OnMessageClassified(const nsACString& aMsgURI,
         GetProcessingFlags(msgKey, &processingFlags);
         if (folder && !(processingFlags & nsMsgProcessingFlags::FilterToMove)) {
           nsCOMPtr<nsIMsgDBHdr> mailHdr;
-          rv = GetMessageHeader(msgKey, getter_AddRefs(mailHdr));
+          rv = GetMsgHdr(msgKey, getter_AddRefs(mailHdr));
           if (NS_SUCCEEDED(rv) && mailHdr) messages.AppendElement(mailHdr);
         } else {
           // We don't need the processing flag any more.
@@ -3404,8 +3404,9 @@ NS_IMETHODIMP nsMsgLocalMailFolder::FetchMsgPreviewText(
   for (uint32_t i = 0; i < aKeysToFetch.Length(); i++) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
     nsCString prevBody;
-    nsresult rv = GetMessageHeader(aKeysToFetch[i], getter_AddRefs(msgHdr));
+    nsresult rv = GetMsgHdr(aKeysToFetch[i], getter_AddRefs(msgHdr));
     NS_ENSURE_SUCCESS(rv, rv);
+    NS_ENSURE_TRUE(msgHdr, NS_MSG_MESSAGE_NOT_FOUND);
     // ignore messages that already have a preview body.
     msgHdr->GetStringProperty("preview", prevBody);
     if (!prevBody.IsEmpty()) continue;

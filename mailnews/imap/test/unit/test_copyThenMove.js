@@ -103,7 +103,7 @@ add_task(async function getLocalMessage1() {
 });
 
 add_task(async function getLocalMessage2() {
-  gMessages.push(localAccountUtils.inboxFolder.GetMessageHeader(gLastKey));
+  gMessages.push(localAccountUtils.inboxFolder.getMsgHdr(gLastKey));
   const file = do_get_file("../../../data/draft1");
   const copyListener = new PromiseTestUtils.PromiseCopyListener({
     setMessageKey(aKey) {
@@ -124,7 +124,7 @@ add_task(async function getLocalMessage2() {
 });
 
 add_task(async function copyMessages() {
-  gMessages.push(localAccountUtils.inboxFolder.GetMessageHeader(gLastKey));
+  gMessages.push(localAccountUtils.inboxFolder.getMsgHdr(gLastKey));
   const folder1 = IMAPPump.inbox.getChildNamed("empty 1");
   const copyListener = new PromiseTestUtils.PromiseCopyListener({
     setMessageKey(aKey) {

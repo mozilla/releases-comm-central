@@ -1107,9 +1107,9 @@ NS_IMETHODIMP nsMsgNewsFolder::NotifyArticleDownloaded(uint32_t articleNumber,
   if (!m_downloadMessageForOfflineUse) {
     return NS_OK;
   }
-  nsresult rv =
-      GetMessageHeader(articleNumber, getter_AddRefs(m_offlineHeader));
+  nsresult rv = GetMsgHdr(articleNumber, getter_AddRefs(m_offlineHeader));
   NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(m_offlineHeader, NS_MSG_MESSAGE_NOT_FOUND);
   StartNewOfflineMessage();  // Sets up m_tempMessageStream et al.
   if (m_tempMessageStream) {
     m_numOfflineMsgLines += data.CountChar('\n');

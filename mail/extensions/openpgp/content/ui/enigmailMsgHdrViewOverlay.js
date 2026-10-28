@@ -478,7 +478,10 @@ Enigmail.hdrView = {
       return;
     }
 
-    var msgHdr = msg.folder.GetMessageHeader(msg.messageKey);
+    var msgHdr = msg.folder.getMsgHdr(msg.messageKey);
+    if (!msgHdr) {
+      return;
+    }
 
     if (this.msgEncryptionState === EnigmailConstants.MSG_ENC_OK) {
       Enigmail.msg.securityInfo.statusFlags |=

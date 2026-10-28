@@ -42,7 +42,7 @@ var gServer;
 /** @implements {nsIMsgCopyServiceListener} */
 var copyListenerWrap = {
   setMessageKey(aKey) {
-    const hdr = gInbox.GetMessageHeader(aKey);
+    const hdr = gInbox.getMsgHdr(aKey);
     gMsgHdrs.push({ hdr, ID: hdr.messageId });
   },
   onStopCopy(aStatus) {

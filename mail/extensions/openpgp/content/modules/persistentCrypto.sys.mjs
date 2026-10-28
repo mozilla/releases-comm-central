@@ -152,7 +152,10 @@ export var EnigmailPersistentCrypto = {
           "nsIUrlListener",
         ]),
         applyFlags() {
-          const newHdr = destFolder.GetMessageHeader(newKey);
+          const newHdr = destFolder.getMsgHdr(newKey);
+          if (!newHdr) {
+            return;
+          }
           newHdr.markRead(originalMsgHdr.isRead);
           newHdr.markFlagged(originalMsgHdr.isFlagged);
           newHdr.subject = originalMsgHdr.subject;

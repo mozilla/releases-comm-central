@@ -466,7 +466,7 @@ add_task(async function test_copy_file_message() {
 
   // Check the copied message.
 
-  const header = folder.GetMessageHeader(copied.messageKeys[0]);
+  const header = folder.getMsgHdr(copied.messageKeys[0]);
   Assert.equal(
     header.messageId,
     "200804111417.m3BEHTk4030129@mrapp51.mozilla.org",

@@ -733,7 +733,14 @@ interface nsIMsgFolder : nsISupports {
    */
   void openBackupMsgDatabase();
   nsIMsgDatabase getDBFolderInfoAndDB(out nsIDBFolderInfo folderInfo);
-  nsIMsgDBHdr GetMessageHeader(in nsMsgKey msgKey);
+
+  /**
+   * Get the header of a message in this folder.
+   *
+   * @param msgKey - The key of the message.
+   * @returns The message header, or null if there is no message with the key.
+   */
+  nsIMsgDBHdr getMsgHdr(in nsMsgKey msgKey);
 
   /**
    * Does this folder support downloading messages from server for

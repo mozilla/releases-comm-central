@@ -33,7 +33,7 @@ var copyListener = {
   onStartCopy() {},
   onProgress() {},
   setMessageKey(aKey) {
-    gHdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
+    gHdr = localAccountUtils.inboxFolder.getMsgHdr(aKey);
   },
   getMessageId() {
     return null;

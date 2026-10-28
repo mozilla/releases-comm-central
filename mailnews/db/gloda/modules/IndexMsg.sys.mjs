@@ -1467,12 +1467,12 @@ export var GlodaMsgIndexer = {
       }
 
       let msgHdr;
-      // GetMessageHeader can be affected by the use cache, so we need to check
+      // getMsgHdr can be affected by the use cache, so we need to check
       //  ContainsKey first to see if the header is really actually there.
       if (typeof item[1] == "number") {
         msgHdr =
           this._indexingDatabase.containsKey(item[1]) &&
-          this._indexingFolder.GetMessageHeader(item[1]);
+          this._indexingFolder.getMsgHdr(item[1]);
       } else {
         // Same deal as in move processing.
         // TODO fixme to not assume singular message-id's.

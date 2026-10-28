@@ -1183,7 +1183,14 @@ export class MessageSend {
   _filterSentMessage() {
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_Filter;
     const folder = lazy.MailUtils.getExistingFolder(this._folderUri);
-    const msgHdr = folder.GetMessageHeader(this._messageKey);
+    const msgHdr = folder.getMsgHdr(this._messageKey);
+    if (!msgHdr) {
+      lazy.MsgUtils.sendLogger.warn(
+        `No message with key ${this._messageKey} to filter in ${this._folderUri}`
+      );
+      this.onStopOperation(Cr.NS_OK);
+      return null;
+    }
     const msgWindow = this._sendProgress?.msgWindow;
     return MailServices.filters.applyFilters(
       Ci.nsMsgFilterType.PostOutgoing,

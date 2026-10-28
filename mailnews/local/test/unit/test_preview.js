@@ -22,13 +22,13 @@ function test_preview(aMessageHeaderKeys) {
     localAccountUtils.inboxFolder.fetchMsgPreviewText(headerKeys, null);
     Assert.equal(
       localAccountUtils.inboxFolder
-        .GetMessageHeader(headerKeys[0])
+        .getMsgHdr(headerKeys[0])
         .getStringProperty("preview"),
       bugmail10_preview
     );
     Assert.equal(
       localAccountUtils.inboxFolder
-        .GetMessageHeader(headerKeys[1])
+        .getMsgHdr(headerKeys[1])
         .getStringProperty("preview"),
       bugmail11_preview
     );

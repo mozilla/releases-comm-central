@@ -55,7 +55,7 @@ var step2 = {
   onProgress() {},
   setMessageKey(aKey) {
     dump("in set message key\n");
-    gHdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
+    gHdr = localAccountUtils.inboxFolder.getMsgHdr(aKey);
   },
   getMessageId() {
     return null;

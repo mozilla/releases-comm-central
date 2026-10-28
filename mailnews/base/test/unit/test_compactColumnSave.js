@@ -69,7 +69,7 @@ var copyListener = {
   onProgress() {},
   setMessageKey(aKey) {
     try {
-      const hdr = gLocalFolder2.GetMessageHeader(aKey);
+      const hdr = gLocalFolder2.getMsgHdr(aKey);
       gMsgHdrs.push({ hdr, ID: hdr.messageId });
     } catch (e) {
       dump("SetMessageKey failed: " + e + "\n");

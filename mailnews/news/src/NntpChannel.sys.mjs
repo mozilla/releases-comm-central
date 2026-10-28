@@ -317,7 +317,7 @@ export class NntpChannel extends MailChannel {
     ) {
       return false;
     }
-    const hdr = this._newsFolder.GetMessageHeader(this._articleNumber);
+    const hdr = this._newsFolder.getMsgHdr(this._articleNumber);
     const stream = this._newsFolder.getMsgInputStream(hdr);
     this._readFromCacheStream(stream);
     return true;

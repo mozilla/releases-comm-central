@@ -51,7 +51,7 @@ add_task(async function check_contentlength() {
   const msgKey = copyResult.messageKeys[0];
 
   // First get the message URI
-  const msgHdr = localAccountUtils.inboxFolder.GetMessageHeader(msgKey);
+  const msgHdr = localAccountUtils.inboxFolder.getMsgHdr(msgKey);
   const msgUri = localAccountUtils.inboxFolder.getUriForMsg(msgHdr);
   // Convert this to a URI that necko can run
   const messageService = MailServices.messageServiceFromURI(msgUri);

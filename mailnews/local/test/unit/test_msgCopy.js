@@ -30,7 +30,7 @@ add_task(async function test_fileCopySetKeywords() {
     const copied = await copyListener.promise;
 
     // Check the keywords on the copied message.
-    const msg = inbox.GetMessageHeader(copied.messageKeys[0]);
+    const msg = inbox.getMsgHdr(copied.messageKeys[0]);
     Assert.equal(msg.getStringProperty("keywords"), tag1);
   } finally {
     localAccountUtils.clearAll();

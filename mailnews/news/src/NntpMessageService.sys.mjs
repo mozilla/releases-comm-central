@@ -71,7 +71,17 @@ class BaseMessageService {
    */
   messageURIToMsgHdr(uri) {
     const [folder, key] = this._decomposeNewsMessageURI(uri);
-    return folder?.GetMessageHeader(key);
+    if (!folder) {
+      return null;
+    }
+    const msgHdr = folder.getMsgHdr(key);
+    if (!msgHdr) {
+      throw Components.Exception(
+        `No message with key ${key}`,
+        Cr.NS_MSG_MESSAGE_NOT_FOUND
+      );
+    }
+    return msgHdr;
   }
 
   copyMessage(messageUri, copyListener, moveMessage, urlListener, msgWindow) {

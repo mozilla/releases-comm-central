@@ -126,7 +126,10 @@ class MsgFetcher : public IExchangeMessageFetchListener {
 
       nsCOMPtr<nsIMsgDBHdr> msgHdr;
       if (NS_SUCCEEDED(rv)) {
-        rv = mFolder->GetMessageHeader(msgKey, getter_AddRefs(msgHdr));
+        rv = mFolder->GetMsgHdr(msgKey, getter_AddRefs(msgHdr));
+      }
+      if (NS_SUCCEEDED(rv) && !msgHdr) {
+        rv = NS_MSG_MESSAGE_NOT_FOUND;
       }
 
       if (NS_SUCCEEDED(rv)) {
@@ -178,8 +181,9 @@ class MsgFetcher : public IExchangeMessageFetchListener {
     nsMsgKey msgKey = mMsgKeys.LastElement();
 
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    rv = mFolder->GetMessageHeader(msgKey, getter_AddRefs(msgHdr));
+    rv = mFolder->GetMsgHdr(msgKey, getter_AddRefs(msgHdr));
     NS_ENSURE_SUCCESS(rv, rv);
+    NS_ENSURE_TRUE(msgHdr, NS_MSG_MESSAGE_NOT_FOUND);
 
     nsCOMPtr<nsIMsgIncomingServer> server;
     rv = mFolder->GetServer(getter_AddRefs(server));

@@ -121,7 +121,7 @@ var messageHeaderGetterListener = {
   },
   onStopCopy() {
     test_references_header_parsing(
-      localAccountUtils.inboxFolder.GetMessageHeader(this.msgKey)
+      localAccountUtils.inboxFolder.getMsgHdr(this.msgKey)
     );
   },
 };
