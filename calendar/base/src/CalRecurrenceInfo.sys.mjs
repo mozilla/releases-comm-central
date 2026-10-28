@@ -373,7 +373,8 @@ CalRecurrenceInfo.prototype = {
         const nextKey = getRidKey(nextOccurrences[i]);
         const isInExceptionMap =
           nextKey && (this.mExceptionMap[nextKey.substring(0, 8)] || this.mExceptionMap[nextKey]);
-        const isInNegMap = nextKey && (negMap[nextKey.substring(0, 8)] || negMap[nextKey]);
+        const isInNegMap =
+          nextKey && (negMap[nextOccurrences[i].icalString.substring(0, 8)] || negMap[nextKey]);
         if (nextKey && (isInNegMap || isInExceptionMap)) {
           // If the found recurrence id points to either an exception
           // (will handle later) or an EXDATE, then nextOccurrences[i]
@@ -402,7 +403,7 @@ CalRecurrenceInfo.prototype = {
       // We counted how many positive rules found out that their next
       // candidate is invalid. If all rules produce invalid next
       // occurrences, a second round is needed.
-    } while (invalidOccurrences == this.mPositiveRules.length);
+    } while (this.mPositiveRules.length && invalidOccurrences == this.mPositiveRules.length);
 
     // Since we need to compare occurrences by date, save the rid found
     // above also as a date. This works out because above we skipped
@@ -543,40 +544,30 @@ CalRecurrenceInfo.prototype = {
 
     dates.sort((a, b) => a.rstart.compare(b.rstart));
 
-    // Apply negative rules
+    // Apply negative rules. What they remove is collected first, so that the
+    // occurrences are filtered once rather than once for every removed date.
+    const removedKeys = new Set();
+    const removedDays = new Set();
     for (const ritem of this.mNegativeRules) {
-      const cur_dates = ritem.getOccurrences(startDate, searchStart, rangeEnd, maxCount);
-      if (cur_dates.length == 0) {
-        continue;
-      }
-
       // XXX: i'm pretty sure negative dates can't really have exceptions
       // (like, you can't make a date "real" by defining an RECURRENCE-ID which
       // is an EXDATE, and then giving it a real DTSTART) -- so we don't
       // check exceptions here
-      for (const dateToRemove of cur_dates) {
-        const dateToRemoveKey = getRidKey(dateToRemove);
+      for (const dateToRemove of ritem.getOccurrences(startDate, searchStart, rangeEnd, maxCount)) {
         if (dateToRemove.isDate) {
           // As decided in bug 734245, an EXDATE of type DATE shall also match a DTSTART of type DATE-TIME
-          const toRemove = [];
-          for (const occurenceKey in occurrenceMap) {
-            if (occurrenceMap[occurenceKey] && occurenceKey.substring(0, 8) == dateToRemoveKey) {
-              dates = dates.filter(date => date.id.compare(dateToRemove) != 0);
-              toRemove.push(occurenceKey);
-            }
-          }
-          for (let i = 0; i < toRemove.length; i++) {
-            delete occurrenceMap[toRemove[i]];
-          }
-        } else if (occurrenceMap[dateToRemoveKey]) {
-          // TODO PERF Theoretically we could use occurrence map
-          // to construct the array of occurrences. Right now I'm
-          // just using the occurrence map to skip the filter
-          // action if the occurrence isn't there anyway.
-          dates = dates.filter(date => date.id.compare(dateToRemove) != 0);
-          delete occurrenceMap[dateToRemoveKey];
+          removedDays.add(dateToRemove.icalString);
+        } else {
+          removedKeys.add(getRidKey(dateToRemove));
         }
       }
+    }
+    if (removedKeys.size || removedDays.size) {
+      dates = dates.filter(
+        ({ id }) =>
+          !(removedKeys.size && removedKeys.has(getRidKey(id))) &&
+          !(removedDays.size && removedDays.has(id.icalString.substring(0, 8)))
+      );
     }
 
     // The list was already sorted above, chop anything over aMaxCount, if

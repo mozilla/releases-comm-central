@@ -788,6 +788,28 @@ function test_rules() {
   );
   check_recur(item, ["20020401T114500", "20020403T114500"], "20020403T094500");
 
+  item = makeEvent(
+    "DESCRIPTION:an EXDATE of type DATE matches the day in the timezone of the occurrence\n" +
+      "RRULE:FREQ=DAILY;COUNT=3\n" +
+      "DTSTART;TZID=Europe/Berlin:20020401T003000\n" +
+      "EXDATE;VALUE=DATE:20020402\n"
+  );
+  check_recur(item, ["20020401T003000", "20020403T003000"], "20020402T223000");
+
+  item = makeEvent(
+    "DESCRIPTION:EXDATEs of both types remove every occurrence they match\n" +
+      "RRULE:FREQ=HOURLY;COUNT=48\n" +
+      "DTSTART:20020401T000000Z\n" +
+      "EXDATE;VALUE=DATE:20020401\n" +
+      "EXDATE:20020402T000000Z,20020402T010000Z\n" +
+      "EXDATE:20020402T010000Z,20020405T000000Z\n"
+  );
+  check_recur(
+    item,
+    Array.from({ length: 22 }, (_, i) => `20020402T${String(i + 2).padStart(2, "0")}0000Z`),
+    "20020402T230000"
+  );
+
   // BYSETPOS numbers the instances of each period of the rule. The example
   // is the one given for it in RFC 5545, section 3.8.5.3.
   check_recur(
@@ -1070,6 +1092,22 @@ function test_exrule() {
     "only the occurrences of the RRULE should be expanded"
   );
   ok(event.recurrenceInfo.isFinite, "an infinite EXRULE should not make the series infinite");
+
+  // Without a rule to search, the next occurrence is found among the
+  // exceptions.
+  const onlyExrule = makeEvent("DTSTART:20260101T000000Z\nEXRULE:FREQ=DAILY\n");
+  const occurrence = onlyExrule.recurrenceInfo.getOccurrenceFor(
+    cal.createDateTime("20260101T000000Z")
+  );
+  occurrence.QueryInterface(Ci.calIEvent);
+  occurrence.startDate = cal.createDateTime("20260102T000000Z");
+  onlyExrule.recurrenceInfo.modifyException(occurrence, true);
+  equal(
+    onlyExrule.recurrenceInfo.getNextOccurrence(cal.createDateTime("20251231T000000Z"))?.startDate
+      .icalString,
+    "20260102T000000Z",
+    "the next occurrence of an item without a rule should be its exception"
+  );
 }
 
 function test_long_running_series() {
