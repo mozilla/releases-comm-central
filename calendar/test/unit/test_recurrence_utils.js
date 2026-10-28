@@ -362,6 +362,22 @@ add_task(async function countOccurrences_test() {
       ],
       expected: 3,
     },
+    {
+      input: [
+        "BEGIN:VEVENT",
+        "CREATED:20180912T090539Z",
+        "LAST-MODIFIED:20180912T090539Z",
+        "DTSTAMP:20180912T090539Z",
+        "UID:5b47fa17-f2fe-4d96-8cc2-19ce5be98019",
+        "SUMMARY:Occurring 3 times despite an EXRULE",
+        "EXRULE:FREQ=DAILY;COUNT=2",
+        "RRULE:FREQ=DAILY;COUNT=3",
+        "DTSTART;TZID=Europe/Berlin:20180920T120000",
+        "DTEND;TZID=Europe/Berlin:20180920T130000",
+        "END:VEVENT",
+      ],
+      expected: 3,
+    },
   ];
 
   let i = 0;

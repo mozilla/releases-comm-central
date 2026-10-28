@@ -503,74 +503,75 @@ export function checkRecurrenceRule(aRule, aArray) {
  *   parent item isn't a recurring item or its recurrence is infinite.
  */
 export function countOccurrences(aItem) {
-  let occCounter = null;
   const recInfo = aItem.parentItem.recurrenceInfo;
-  if (recInfo && recInfo.isFinite) {
-    occCounter = 0;
-    let excCounter = 0;
-    let byCount = false;
-    let hasRule = false;
-    const ritems = recInfo.getRecurrenceItems();
-    for (const ritem of ritems) {
-      if (ritem instanceof lazy.CalRecurrenceRule || ritem instanceof Ci.calIRecurrenceRule) {
-        // Only the first rule is expanded, see CalRecurrenceInfo.
-        if (hasRule) {
-          continue;
+  if (!recInfo?.isFinite) {
+    return null;
+  }
+  let occCounter = 0;
+  let excCounter = 0;
+  let byCount = false;
+  let hasRule = false;
+  const ritems = recInfo.getRecurrenceItems();
+  for (const ritem of ritems) {
+    if (ritem instanceof lazy.CalRecurrenceRule || ritem instanceof Ci.calIRecurrenceRule) {
+      // Only the first rule is expanded, and EXRULEs never are, see
+      // CalRecurrenceInfo.
+      if (hasRule || ritem.isNegative) {
+        continue;
+      }
+      hasRule = true;
+      if (ritem.isByCount) {
+        occCounter = occCounter + ritem.count;
+        byCount = true;
+      } else {
+        // The rule is limited by an until date.
+        const parentItem = aItem.parentItem;
+        const startDate = parentItem.startDate ?? parentItem.entryDate;
+        const endDate = parentItem.endDate ?? parentItem.dueDate ?? startDate;
+        let from = startDate.clone();
+        let until = endDate.clone();
+        if (until.compare(ritem.untilDate) == -1) {
+          until = ritem.untilDate.clone();
         }
-        hasRule = true;
-        if (ritem.isByCount) {
-          occCounter = occCounter + ritem.count;
-          byCount = true;
-        } else {
-          // The rule is limited by an until date.
-          const parentItem = aItem.parentItem;
-          const startDate = parentItem.startDate ?? parentItem.entryDate;
-          const endDate = parentItem.endDate ?? parentItem.dueDate ?? startDate;
-          let from = startDate.clone();
-          let until = endDate.clone();
-          if (until.compare(ritem.untilDate) == -1) {
-            until = ritem.untilDate.clone();
+
+        const exceptionIds = recInfo.getExceptionIds();
+        for (const exceptionId of exceptionIds) {
+          const recur = recInfo.getExceptionFor(exceptionId);
+          const recurStartDate = recur.startDate ?? recur.entryDate;
+          const recurEndDate = recur.endDate ?? recur.dueDate ?? recurStartDate;
+          if (from.compare(recurStartDate) == 1) {
+            from = recurStartDate.clone();
           }
-
-          const exceptionIds = recInfo.getExceptionIds();
-          for (const exceptionId of exceptionIds) {
-            const recur = recInfo.getExceptionFor(exceptionId);
-            const recurStartDate = recur.startDate ?? recur.entryDate;
-            const recurEndDate = recur.endDate ?? recur.dueDate ?? recurStartDate;
-            if (from.compare(recurStartDate) == 1) {
-              from = recurStartDate.clone();
-            }
-            if (until.compare(recurEndDate) == -1) {
-              until = recurEndDate.clone();
-            }
+          if (until.compare(recurEndDate) == -1) {
+            until = recurEndDate.clone();
           }
-
-          // we add an extra day at beginning and end, so we don't
-          // need to take care of any timezone conversion
-          from.addDuration(cal.createDuration("-P1D"));
-          until.addDuration(cal.createDuration("P1D"));
-
-          const occurrences = recInfo.getOccurrences(from, until, 0);
-          occCounter = occCounter + occurrences.length;
         }
-      } else if (
-        ritem instanceof lazy.CalRecurrenceDate ||
-        ritem instanceof Ci.calIRecurrenceDate
-      ) {
-        if (ritem.isNegative) {
-          // this is an exdate
-          excCounter++;
-        } else {
-          // this is an (additional) rdate
-          occCounter++;
-        }
+
+        // we add an extra day at beginning and end, so we don't
+        // need to take care of any timezone conversion
+        from.addDuration(cal.createDuration("-P1D"));
+        until.addDuration(cal.createDuration("P1D"));
+
+        const occurrences = recInfo.getOccurrences(from, until, 0);
+        occCounter = occCounter + occurrences.length;
+      }
+    } else if (
+      ritem instanceof lazy.CalRecurrenceDate ||
+      ritem instanceof Ci.calIRecurrenceDate
+    ) {
+      if (ritem.isNegative) {
+        // this is an exdate
+        excCounter++;
+      } else {
+        // this is an (additional) rdate
+        occCounter++;
       }
     }
+  }
 
-    if (byCount) {
-      // for a rrule by count, we still need to subtract exceptions if any
-      occCounter = occCounter - excCounter;
-    }
+  if (byCount) {
+    // for a rrule by count, we still need to subtract exceptions if any
+    occCounter = occCounter - excCounter;
   }
   return occCounter;
 }

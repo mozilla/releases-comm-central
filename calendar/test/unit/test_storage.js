@@ -90,6 +90,35 @@ add_task(async () => {
 });
 
 /**
+ * Tests that an EXRULE is still one after being stored, rather than turning
+ * into an RRULE that adds occurrences.
+ */
+add_task(async function testExruleIsKept() {
+  const storage = getStorageCal();
+  const storageItem = createEventFromIcalString(
+    [
+      "BEGIN:VEVENT",
+      "UID:exruleItem",
+      "DTSTART:20120101T010101Z",
+      "RRULE:FREQ=DAILY;COUNT=3",
+      "EXRULE:FREQ=WEEKLY",
+      "END:VEVENT",
+    ].join("\r\n")
+  );
+
+  const addedItemId = (await storage.addItem(storageItem)).id;
+  storage.wrappedJSObject.mItemModel.itemCache.delete(addedItemId);
+  const item = await storage.getItem(addedItemId);
+
+  deepEqual(
+    item.recurrenceInfo.getRecurrenceItems().map(ritem => ritem.isNegative),
+    [false, true],
+    "the EXRULE should still be negative"
+  );
+  ok(item.icalString.includes("\r\nEXRULE:FREQ=WEEKLY\r\n"), "the EXRULE should be written");
+});
+
+/**
  * Tests that modifying an item does not leave its old property parameters
  * behind in the database. A stale DESCRIPTION;ALTREP would make the HTML
  * description disagree with the plaintext one.

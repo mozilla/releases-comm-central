@@ -60,8 +60,8 @@ CalRecurrenceInfo.prototype = {
    */
   mPositiveRules: null,
   /**
-   * The negative items of mRecurrenceItems that are expanded, such as EXDATEs.
-   * Built and reset together with mPositiveRules.
+   * The negative items of mRecurrenceItems that are expanded, the EXDATEs, as
+   * EXRULEs are not supported. Built and reset together with mPositiveRules.
    */
   mNegativeRules: null,
   mExceptionMap: null,
@@ -93,7 +93,7 @@ CalRecurrenceInfo.prototype = {
       for (const ritem of this.mRecurrenceItems) {
         if (
           (ritem instanceof lazy.CalRecurrenceRule || ritem instanceof Ci.calIRecurrenceRule) &&
-          ++ruleCount > MAX_RULES
+          (ritem.isNegative || ++ruleCount > MAX_RULES)
         ) {
           continue;
         }
@@ -180,12 +180,7 @@ CalRecurrenceInfo.prototype = {
     this.ensureBaseItem();
     this.ensureSortedRecurrenceRules();
 
-    for (const ritem of [...this.mPositiveRules, ...this.mNegativeRules]) {
-      if (!ritem.isFinite) {
-        return false;
-      }
-    }
-    return true;
+    return this.mPositiveRules.every(ritem => ritem.isFinite);
   },
 
   /**
@@ -316,28 +311,14 @@ CalRecurrenceInfo.prototype = {
     // Go through all negative rules to create a map of occurrences that
     // should be skipped when going through occurrences.
     for (const ritem of this.mNegativeRules) {
-      // TODO Infinite rules (i.e EXRULE) are not taken into account,
-      // because its very performance hungry and could potentially
-      // lead to a deadlock (i.e RRULE is canceled out by an EXRULE).
-      // This is ok for now, since EXRULE is deprecated anyway.
-      if (ritem.isFinite) {
-        // Get all occurrences starting at our recurrence start date.
-        // This is fine, since there will never be an EXDATE that
-        // occurs before the event started and its illegal to EXDATE an
-        // RDATE.
-        const rdates = ritem.getOccurrences(startDate, startDate, null, 0);
-        // Map all negative dates.
-        for (const rdate of rdates) {
-          negMap[getRidKey(rdate)] = true;
-        }
-      } else {
-        lazy.log.warn(
-          "Item '" +
-            this.mBaseItem.title +
-            "'" +
-            (this.mBaseItem.calendar ? " (" + this.mBaseItem.calendar.name + ")" : "") +
-            " has an infinite negative rule (EXRULE)"
-        );
+      // Get all occurrences starting at our recurrence start date.
+      // This is fine, since there will never be an EXDATE that
+      // occurs before the event started and its illegal to EXDATE an
+      // RDATE.
+      const rdates = ritem.getOccurrences(startDate, startDate, null, 0);
+      // Map all negative dates.
+      for (const rdate of rdates) {
+        negMap[getRidKey(rdate)] = true;
       }
     }
 

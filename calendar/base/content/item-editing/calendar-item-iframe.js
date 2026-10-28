@@ -1681,7 +1681,7 @@ function untilDateCompensation(aItem) {
   if (aItem.recurrenceInfo) {
     const rrules = splitRecurrenceRules(aItem.recurrenceInfo);
     const rule = rrules[0][0];
-    if (!rule.isByCount && rule.isFinite && startDate) {
+    if (rule && !rule.isByCount && rule.isFinite && startDate) {
       const compensation = startDate.subtractDate(gStartTime);
       if (compensation != "PT0S") {
         const untilDate = rule.untilDate.clone();
@@ -2768,7 +2768,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
       const rrules = splitRecurrenceRules(window.recurrenceInfo);
       const rule = rrules[0][0];
       gUntilDate = null;
-      if (!rule.isByCount && rule.isFinite && rule.untilDate) {
+      if (rule && !rule.isByCount && rule.isFinite && rule.untilDate) {
         gUntilDate = rule.untilDate.clone().getInTimezone(cal.dtz.defaultTimezone);
       }
     }
@@ -2812,7 +2812,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
       // If the previous rule was "custom" we have to recover the until
       // date, or the last occurrence's date in order to set the
       // repeat-until-datepicker with the same date.
-      if (aItemRepeatCall && repeatUntilDate.hidden && !repeatDetails.hidden) {
+      if (rule && aItemRepeatCall && repeatUntilDate.hidden && !repeatDetails.hidden) {
         let repeatDate;
         if (!rule.isByCount || !rule.isFinite) {
           if (rule.isFinite) {
@@ -2913,6 +2913,9 @@ function updateUntildateRecRule(recRule) {
     }
     const rrules = splitRecurrenceRules(recurrenceInfo);
     recRule = rrules[0][0];
+    if (!recRule) {
+      return;
+    }
   }
   const defaultTimezone = cal.dtz.defaultTimezone;
   let repeatUntilDate = null;

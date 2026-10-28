@@ -105,10 +105,24 @@ CalRecurrenceRule.prototype = {
     }
   },
   clone() {
-    return new CalRecurrenceRule(new ICAL.Recur(this.innerObject));
+    const clone = new CalRecurrenceRule(new ICAL.Recur(this.innerObject));
+    clone.mIsNegative = this.mIsNegative;
+    return clone;
   },
 
-  isNegative: false, // We don't support EXRULE anymore
+  /**
+   * Whether this is an EXRULE. RFC 5545 removed EXRULE, so it is kept to be
+   * written back, but never expanded.
+   */
+  mIsNegative: false,
+  get isNegative() {
+    return this.mIsNegative;
+  },
+  set isNegative(val) {
+    this.ensureMutable();
+    this.mIsNegative = !!val;
+  },
+
   get isFinite() {
     return this.innerObject.isFinite();
   },
@@ -347,20 +361,24 @@ CalRecurrenceRule.prototype = {
   },
 
   get icalString() {
-    return "RRULE:" + this.innerObject.toString() + ICAL.newLineChar;
+    return (
+      (this.mIsNegative ? "EXRULE:" : "RRULE:") + this.innerObject.toString() + ICAL.newLineChar
+    );
   },
   set icalString(val) {
     this.ensureMutable();
-    this.innerObject = ICAL.Recur.fromString(val.replace(/^RRULE:/i, ""));
+    this.innerObject = ICAL.Recur.fromString(val.replace(/^(RRULE|EXRULE):/i, ""));
+    this.mIsNegative = /^EXRULE:/i.test(val);
   },
 
   get icalProperty() {
-    const prop = new ICAL.Property("rrule");
+    const prop = new ICAL.Property(this.mIsNegative ? "exrule" : "rrule");
     prop.setValue(this.innerObject);
     return new lazy.CalIcalProperty(prop);
   },
   set icalProperty(val) {
     this.ensureMutable();
+    this.mIsNegative = val.propertyName == "EXRULE";
     this.innerObject = val.wrappedJSObject.innerObject.getFirstValue();
   },
 

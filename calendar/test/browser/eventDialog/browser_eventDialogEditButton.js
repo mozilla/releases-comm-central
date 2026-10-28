@@ -221,3 +221,40 @@ add_task(async function testEditAllOccurrences() {
   }
   await calendar.deleteItem(event);
 });
+
+/**
+ * Tests that an event whose only rule is an EXRULE, which is never expanded,
+ * can be edited and saved.
+ */
+add_task(async function testEditExruleOnlyEvent() {
+  const exruleEvent = new CalEvent();
+  exruleEvent.title = "EXRULE Event";
+  exruleEvent.startDate = cal.createDateTime("20200101T000001Z");
+  exruleEvent.recurrenceInfo = new CalRecurrenceInfo(exruleEvent);
+  exruleEvent.recurrenceInfo.appendRecurrenceItem(cal.createRecurrenceRule("EXRULE:FREQ=WEEKLY"));
+  const event = await calendar.addItem(exruleEvent);
+
+  await CalendarTestUtils.setCalendarView(window, "month");
+  window.goToDate(event.startDate);
+
+  const { dialogWindow, iframeDocument } = await CalendarTestUtils.monthView.editItemOccurrencesAt(
+    window,
+    1,
+    4,
+    1
+  );
+
+  const newTitle = "Edited EXRULE Event";
+  iframeDocument.querySelector("#item-title").value = newTitle;
+  await CalendarTestUtils.items.saveAndCloseItemDialog(dialogWindow);
+
+  const saved = await TestUtils.waitForCondition(async () => {
+    const item = await calendar.getItem(event.id);
+    return item?.title == newTitle && item;
+  }, "the edited event should be saved");
+  Assert.ok(
+    saved.recurrenceInfo.getRecurrenceItemAt(0).isNegative,
+    "the EXRULE should still be negative"
+  );
+  await calendar.deleteItem(saved);
+});

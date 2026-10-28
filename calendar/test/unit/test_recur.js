@@ -28,6 +28,7 @@ function really_run_test() {
   test_expansion_limit();
   test_long_running_series();
   test_multiple_rules();
+  test_exrule();
   test_startdate_change();
   test_idchange();
   test_rrule_icalstring();
@@ -1040,6 +1041,35 @@ function test_multiple_rules() {
     "DTSTART:20260101T000000Z\nRRULE:FREQ=DAILY;COUNT=3\nRRULE:FREQ=DAILY\n"
   );
   ok(infinite.recurrenceInfo.isFinite, "a series should be finite if its first rule is");
+}
+
+function test_exrule() {
+  // An EXRULE is kept and written back as one, but not expanded. Placed
+  // before the RRULE, it should not take its place either.
+  const event = makeEvent(
+    "DTSTART:20260101T000000Z\nEXRULE:FREQ=DAILY\nRRULE:FREQ=DAILY;COUNT=3\n"
+  );
+  const exrule = event.recurrenceInfo.getRecurrenceItemAt(0);
+  ok(exrule.isNegative, "an EXRULE should be negative");
+  ok(exrule.clone().isNegative, "a clone of an EXRULE should be negative");
+  equal(exrule.icalString, "EXRULE:FREQ=DAILY\r\n", "an EXRULE should be written as one");
+  equal(exrule.icalProperty.propertyName, "EXRULE", "an EXRULE property should be written");
+  equal(event.icalString.match(/^RRULE:/gm).length, 1, "only the RRULE should be written as one");
+
+  const copy = cal.createRecurrenceRule();
+  copy.icalString = exrule.icalString.trim();
+  ok(copy.isNegative, "an EXRULE should be read back from its string");
+
+  equal(
+    event.recurrenceInfo.getOccurrenceDates(
+      cal.createDateTime("20260101T000000Z"),
+      cal.createDateTime("20270101T000000Z"),
+      0
+    ).length,
+    3,
+    "only the occurrences of the RRULE should be expanded"
+  );
+  ok(event.recurrenceInfo.isFinite, "an infinite EXRULE should not make the series infinite");
 }
 
 function test_long_running_series() {
