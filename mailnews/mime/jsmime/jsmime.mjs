@@ -893,7 +893,7 @@ const JsMIMEheaderparser = function () {
     }
 
     // The final (top-level) results list to append to.
-    let results = [];
+    const results = [];
     // Temporary results
     let addrlist = [];
 
@@ -986,8 +986,8 @@ const JsMIMEheaderparser = function () {
         displayName = localPart = address = lastComment = "";
         inAngle = inComment = needsSpace = afterAddress = false;
         // If we had prior email address results, commit them to the top-level.
-        if (addrlist.length > 0) {
-          results = results.concat(addrlist);
+        for (const addr of addrlist) {
+          results.push(addr);
         }
         addrlist = [];
       } else if (token === "<") {
@@ -1066,7 +1066,9 @@ const JsMIMEheaderparser = function () {
         // need to copy the results of addrlist into either a new group object or
         // the main list.
         if (groupName === "") {
-          results = results.concat(addrlist);
+          for (const addr of addrlist) {
+            results.push(addr);
+          }
         } else {
           results.push({
             name: groupName,

@@ -796,6 +796,22 @@ define(function (require) {
             { name: "", email: "c@[127.0.0.1RCPT]" },
           ],
         ],
+        [
+          "a@b.c,:d@e.f,:g@h.i",
+          [
+            { name: "", email: "a@b.c" },
+            { name: "", email: "d@e.f" },
+            { name: "", email: "g@h.i" },
+          ],
+        ],
+        [
+          "a@b.c,;d@e.f,;g@h.i",
+          [
+            { name: "", email: "a@b.c" },
+            { name: "", email: "d@e.f" },
+            { name: "", email: "g@h.i" },
+          ],
+        ],
       ];
       header_tests.forEach(function (data) {
         arrayTest(data, function () {
@@ -804,6 +820,16 @@ define(function (require) {
             data[1]
           );
         });
+      });
+      test("many empty groups", function () {
+        for (const sep of [":", ";"]) {
+          const result = headerparser.parseAddressingHeader(
+            `a@b.c,${sep}`.repeat(40000),
+            false
+          );
+          assert.equal(result.length, 40000);
+          assert.deepEqual(result.at(-1), { name: "", email: "a@b.c" });
+        }
       });
     });
     suite("parseAddressingHeader (RFC 2047 support)", function () {
