@@ -6,7 +6,6 @@ import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  CalRecurrenceDate: "resource:///modules/CalRecurrenceDate.sys.mjs",
   CalRecurrenceRule: "resource:///modules/CalRecurrenceRule.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(
@@ -515,7 +514,13 @@ export function checkRecurrenceRule(aRule, aArray) {
 }
 
 /**
- * Counts the occurrences of the parent item if any of a provided item
+ * Counts the occurrences of the parent item if any of a provided item.
+ *
+ * The item is expanded over all of time. This costs no more than any other
+ * query, as a rule is iterated from the start of its series, and stops at the
+ * end of it or after MAX_OCCURRENCES_PER_QUERY (see CalRecurrenceRule). A
+ * longer series is counted short rather than refused, which is enough for the
+ * callers, as they only tell whether an occurrence is the last one.
  *
  * @param {alIEvent|calIToDo} aItem - Item to count for.
  * @returns {number|null} number of occurrences, or null if the passed items
@@ -526,60 +531,10 @@ export function countOccurrences(aItem) {
   if (!recInfo?.isFinite) {
     return null;
   }
-  const rule = getExpandedRecurrenceRule(recInfo);
-  const rdates = [];
-  let excCounter = 0;
-  for (const ritem of recInfo.getRecurrenceItems()) {
-    if (ritem instanceof lazy.CalRecurrenceDate || ritem instanceof Ci.calIRecurrenceDate) {
-      if (ritem.isNegative) {
-        // this is an exdate
-        excCounter++;
-      } else {
-        // this is an (additional) rdate
-        rdates.push(ritem.date);
-      }
-    }
-  }
-
-  if (rule?.isByCount) {
-    // for a rrule by count, we still need to subtract exceptions if any
-    return rule.count + rdates.length - excCounter;
-  }
-
-  // The rule, if any, is limited by an until date. Expand the item over a range
-  // that holds every occurrence, which includes the rdates and excludes the
-  // exdates.
-  const parentItem = aItem.parentItem;
-  const startDate = parentItem.recurrenceStartDate;
-  if (!startDate) {
-    return 0;
-  }
-  const endDate = parentItem.endDate ?? parentItem.dueDate ?? startDate;
-  let from = startDate.clone();
-  let until = endDate.clone();
-  if (rule && until.compare(rule.untilDate) == -1) {
-    until = rule.untilDate.clone();
-  }
-
-  const dates = [...rdates];
-  for (const exceptionId of recInfo.getExceptionIds()) {
-    const recur = recInfo.getExceptionFor(exceptionId);
-    const recurStartDate = recur.startDate ?? recur.entryDate;
-    dates.push(recurStartDate, recur.endDate ?? recur.dueDate ?? recurStartDate);
-  }
-  for (const date of dates) {
-    if (from.compare(date) == 1) {
-      from = date.clone();
-    }
-    if (until.compare(date) == -1) {
-      until = date.clone();
-    }
-  }
-
-  // we add an extra day at beginning and end, so we don't
-  // need to take care of any timezone conversion
-  from.addDuration(cal.createDuration("-P1D"));
-  until.addDuration(cal.createDuration("P1D"));
-
-  return recInfo.getOccurrences(from, until, 0).length;
+  // The recurrence is finite, so it can be expanded over all of time.
+  return recInfo.getOccurrenceDates(
+    cal.createDateTime("00000101T000000Z"),
+    cal.createDateTime("99991231T235959Z"),
+    0
+  ).length;
 }
