@@ -298,7 +298,7 @@ function InitMsgWindow() {
               }
             }
             event.preventDefault();
-            goDoCommand("cmd_space");
+            goDoCommand("cmd_space", event);
             break;
           }
           case "KeyS": {
