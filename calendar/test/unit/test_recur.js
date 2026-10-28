@@ -27,6 +27,7 @@ function really_run_test() {
   test_limit();
   test_expansion_limit();
   test_long_running_series();
+  test_multiple_rules();
   test_startdate_change();
   test_idchange();
   test_rrule_icalstring();
@@ -998,6 +999,47 @@ function test_expansion_limit() {
     2,
     "a rule matching only on a leap day falling on a Monday should be expanded"
   );
+}
+
+function test_multiple_rules() {
+  const rangeStart = cal.createDateTime("20260101T000000Z");
+  const rangeEnd = cal.createDateTime("20300101T000000Z");
+
+  // Only the first rule of an item is expanded, so further rules can't
+  // multiply the work of every query. Bug 2082832.
+  const duplicated = makeEvent(
+    "DTSTART:20260101T000000Z\n" + "RRULE:FREQ=HOURLY;COUNT=10000\n".repeat(100)
+  );
+  equal(
+    duplicated.recurrenceInfo.getOccurrenceDates(rangeStart, rangeEnd, 0).length,
+    10000,
+    "an event with duplicate rules should have the occurrences of one of them"
+  );
+
+  // The other rules are kept, and every recurrence date is still used.
+  const event = makeEvent(
+    "DTSTART:20260101T000000Z\n" +
+      "RRULE:FREQ=MONTHLY;COUNT=3\n" +
+      "RRULE:FREQ=YEARLY;COUNT=3;BYMONTH=10\n" +
+      "RDATE:20271231T000000Z\n"
+  );
+  equal(event.recurrenceInfo.countRecurrenceItems(), 3, "every rule should be kept");
+  deepEqual(
+    event.recurrenceInfo.getOccurrenceDates(rangeStart, rangeEnd, 0).map(d => d.icalString),
+    ["20260101T000000Z", "20260201T000000Z", "20260301T000000Z", "20271231T000000Z"],
+    "only the first rule and the recurrence date should be expanded"
+  );
+  equal(
+    event.recurrenceInfo.getNextOccurrence(cal.createDateTime("20260901T000000Z")).recurrenceId
+      .icalString,
+    "20271231T000000Z",
+    "the next occurrence should skip the second rule"
+  );
+
+  const infinite = makeEvent(
+    "DTSTART:20260101T000000Z\nRRULE:FREQ=DAILY;COUNT=3\nRRULE:FREQ=DAILY\n"
+  );
+  ok(infinite.recurrenceInfo.isFinite, "a series should be finite if its first rule is");
 }
 
 function test_long_running_series() {

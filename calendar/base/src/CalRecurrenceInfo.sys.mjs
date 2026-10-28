@@ -52,7 +52,17 @@ CalRecurrenceInfo.prototype = {
   mBaseItem: null,
   mEndDate: null,
   mRecurrenceItems: null,
+  /**
+   * The positive items of mRecurrenceItems that are expanded, built by
+   * ensureSortedRecurrenceRules(). Set to null whenever mRecurrenceItems
+   * changes, rather than updated, so that they are rebuilt with only the first
+   * MAX_RULES rules by position.
+   */
   mPositiveRules: null,
+  /**
+   * The negative items of mRecurrenceItems that are expanded, such as EXDATEs.
+   * Built and reset together with mPositiveRules.
+   */
   mNegativeRules: null,
   mExceptionMap: null,
 
@@ -73,12 +83,31 @@ CalRecurrenceInfo.prototype = {
     if (!this.mPositiveRules || !this.mNegativeRules) {
       this.mPositiveRules = [];
       this.mNegativeRules = [];
+      let ruleCount = 0;
+
+      // The most recurrence rules of an item that are expanded. RFC 5545 says
+      // an item should have only one, and each extra rule would multiply the
+      // work done for every query, so the rest are ignored.
+      const MAX_RULES = 1;
+
       for (const ritem of this.mRecurrenceItems) {
+        if (
+          (ritem instanceof lazy.CalRecurrenceRule || ritem instanceof Ci.calIRecurrenceRule) &&
+          ++ruleCount > MAX_RULES
+        ) {
+          continue;
+        }
         if (ritem.isNegative) {
           this.mNegativeRules.push(ritem);
         } else {
           this.mPositiveRules.push(ritem);
         }
+      }
+      if (ruleCount > MAX_RULES) {
+        lazy.log.warn(
+          `Item "${this.mBaseItem?.title}" has ${ruleCount} recurrence rules, ` +
+            `only the first is used.`
+        );
       }
     }
   },
@@ -149,8 +178,9 @@ CalRecurrenceInfo.prototype = {
 
   get isFinite() {
     this.ensureBaseItem();
+    this.ensureSortedRecurrenceRules();
 
-    for (const ritem of this.mRecurrenceItems) {
+    for (const ritem of [...this.mPositiveRules, ...this.mNegativeRules]) {
       if (!ritem.isFinite) {
         return false;
       }
@@ -215,15 +245,11 @@ CalRecurrenceInfo.prototype = {
   appendRecurrenceItem(aItem) {
     this.ensureBaseItem();
     this.ensureMutable();
-    this.ensureSortedRecurrenceRules();
 
     aItem = aItem?.wrappedJSObject || aItem;
     this.mRecurrenceItems.push(aItem);
-    if (aItem.isNegative) {
-      this.mNegativeRules.push(aItem);
-    } else {
-      this.mPositiveRules.push(aItem);
-    }
+    this.mPositiveRules = null;
+    this.mNegativeRules = null;
   },
 
   deleteRecurrenceItemAt(aIndex) {
@@ -234,11 +260,8 @@ CalRecurrenceInfo.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
-    if (this.mRecurrenceItems[aIndex].isNegative) {
-      this.mNegativeRules = null;
-    } else {
-      this.mPositiveRules = null;
-    }
+    this.mPositiveRules = null;
+    this.mNegativeRules = null;
 
     this.mRecurrenceItems.splice(aIndex, 1);
   },
@@ -256,18 +279,14 @@ CalRecurrenceInfo.prototype = {
   insertRecurrenceItemAt(aItem, aIndex) {
     this.ensureBaseItem();
     this.ensureMutable();
-    this.ensureSortedRecurrenceRules();
 
     if (aIndex < 0 || aIndex > this.mRecurrenceItems.length) {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     aItem = aItem?.wrappedJSObject || aItem;
-    if (aItem.isNegative) {
-      this.mNegativeRules.push(aItem);
-    } else {
-      this.mPositiveRules.push(aItem);
-    }
+    this.mPositiveRules = null;
+    this.mNegativeRules = null;
 
     this.mRecurrenceItems.splice(aIndex, 0, aItem);
   },
@@ -644,7 +663,6 @@ CalRecurrenceInfo.prototype = {
   restoreOccurrenceAt(recurrenceId) {
     this.ensureBaseItem();
     this.ensureMutable();
-    this.ensureSortedRecurrenceRules();
 
     for (let i = 0; i < this.mRecurrenceItems.length; i++) {
       const rdate = this.mRecurrenceItems[i];

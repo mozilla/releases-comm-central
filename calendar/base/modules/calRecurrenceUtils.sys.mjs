@@ -509,9 +509,15 @@ export function countOccurrences(aItem) {
     occCounter = 0;
     let excCounter = 0;
     let byCount = false;
+    let hasRule = false;
     const ritems = recInfo.getRecurrenceItems();
     for (const ritem of ritems) {
       if (ritem instanceof lazy.CalRecurrenceRule || ritem instanceof Ci.calIRecurrenceRule) {
+        // Only the first rule is expanded, see CalRecurrenceInfo.
+        if (hasRule) {
+          continue;
+        }
+        hasRule = true;
         if (ritem.isByCount) {
           occCounter = occCounter + ritem.count;
           byCount = true;
