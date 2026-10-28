@@ -17,7 +17,7 @@ attrs==23.2.0
     #   referencing
 build==1.0.3
     # via pip-tools
-certifi==2024.2.2
+certifi==2026.10.19
     # via
     #   requests
     #   sentry-sdk
