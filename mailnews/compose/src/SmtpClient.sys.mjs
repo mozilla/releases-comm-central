@@ -1195,11 +1195,24 @@ export class SmtpClient {
       this._onNsError("smtp-auth-failure", command.data);
       return;
     }
+    const password = this._getPassword();
+    if (password == null) {
+      return;
+    }
+    let token;
+    try {
+      token = this._authenticator.getCramMd5Token(password, command.data);
+    } catch (e) {
+      // A "*" line cancels the exchange, see rfc4954#section-4. The server
+      // rejects it, which fails the login the usual way.
+      this.logger.error(
+        `Invalid CRAM-MD5 challenge "${command.data}", cancelling`,
+        e
+      );
+      token = "*";
+    }
     this._currentAction = this._actionAUTHComplete;
-    this._sendCommand(
-      this._authenticator.getCramMd5Token(this._getPassword(), command.data),
-      true
-    );
+    this._sendCommand(token, true);
   }
 
   /**
