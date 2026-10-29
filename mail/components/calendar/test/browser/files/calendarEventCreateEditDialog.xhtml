@@ -15,13 +15,6 @@
       type="module"
       src="moz-src:///comm/mail/components/calendar/content/calendar-event-create-edit-dialog.mjs"
     ></script>
-    <script type="module">
-      import { store } from "moz-src:///comm/mail/base/content/state/store.mjs";
-      import * as draftState from "moz-src:///comm/mail/components/calendar/content/state/calendarEventDraftSlice.mjs";
-      import * as sessionState from "moz-src:///comm/mail/components/calendar/content/state/calendarEventCreateEditSessionSlice.mjs";
-
-      window.calendarTestState = { store, draftState, sessionState };
-    </script>
     <style>
       body {
         margin: 0;
@@ -118,17 +111,7 @@
           </section>
         </div>
       </main>
-      <footer class="calendar-event-create-edit-dialog-footer">
-        <div class="status-select"></div>
-        <div class="privacy-select"></div>
-        <button
-          id="save"
-          data-l10n-id="calendar-event-create-edit-save-button"
-          class="button button-primary"
-          disabled="disabled"
-        >
-        </button>
-      </footer>
+      <footer class="calendar-event-create-edit-dialog-footer"></footer>
     </template>
     <button id="menuCreate" type="button">New Event</button>
     <button id="toolbarCreate" type="button">Create</button>

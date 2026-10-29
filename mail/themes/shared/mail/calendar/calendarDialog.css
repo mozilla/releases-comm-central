@@ -395,16 +395,4 @@ li[is="calendar-dialog-attachment"] {
       padding-block: var(--calendar-dialog-gap);
     }
   }
-
-  & .calendar-event-create-edit-dialog-footer {
-    display: flex;
-    gap: calc(var(--space-step) * 3);
-    margin-block: calc(var(--space-step) * 3) calc(var(--space-step) * 4);
-    margin-inline: calc(var(--space-step) * 3);
-
-    & #save {
-      margin: 0;
-      margin-inline-start: auto;
-    }
-  }
 }

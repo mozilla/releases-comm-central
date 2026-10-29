@@ -20,7 +20,6 @@ import {
   startCreateSession,
   startEditSession,
 } from "./state/calendarEventCreateEditSessionSlice.mjs";
-import { selectCanSave } from "./state/calendar-event-create-edit-selectors.mjs";
 import "./calendar-dialog-row.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-toggleable-row.mjs"; // eslint-disable-line import/no-unassigned-import
 
@@ -138,8 +137,6 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
           ),
         draftState: state =>
           selectCalendarEventDraftState(state, this.calendarEventSessionKey),
-        saveButtonState: state =>
-          selectCanSave(state, this.calendarEventSessionKey),
       },
       ...args
     );
@@ -173,7 +170,6 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       this.addEventListener("command", this);
       this.#menu.addEventListener("popupshown", this);
       this.#menu.addEventListener("popuphidden", this);
-      this.querySelector("#save").disabled = !this.#canSave;
 
       window.MozXULElement?.insertFTLIfNeeded("messenger/calendarDialog.ftl");
       document.l10n.setAttributes(this, "calendar-event-create-edit-dialog");
@@ -189,7 +185,6 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   #clickHandlers = {
     ".close-button": () => this.close(),
     "#calendarEventCreateEditDialogMenuButton": () => this.#openMenu(),
-    "#save": () => this.#save(),
   };
 
   handleEvent(event) {
@@ -334,13 +329,6 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       this.#updateDraftViewModel();
     } else if (fieldName == "sourceSession") {
       this.#sourceSession = newValue;
-    } else if (fieldName == "saveButtonState") {
-      this.#canSave = newValue;
-      const saveButton = this.querySelector("#save");
-
-      if (saveButton) {
-        saveButton.disabled = !this.#canSave;
-      }
     }
   }
 
@@ -353,6 +341,12 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
     this.#draft = draft ? structuredClone(draft) : null;
     this.#dirtySections = [...(this.#draftState?.dirtySections ?? [])];
     this.#isDirty = !!this.#dirtySections.length;
+    this.#canSave =
+      this.#draft !== null &&
+      this.#createEditSession?.operation.status != "pending" &&
+      Object.values(this.#draftState?.validation ?? {}).every(
+        validity => validity.valid
+      );
     this.#mode = this.#createEditSession?.mode ?? null;
     if (this.#menuButton) {
       this.#menuButton.hidden = !(
@@ -469,13 +463,6 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
         sessionKey: this.calendarEventSessionKey,
       })
     );
-  }
-
-  /**
-   * Save the current draft of the create/edit dialog.
-   */
-  #save() {
-    // TODO: Implement save functionality.
   }
 }
 
