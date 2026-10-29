@@ -15,6 +15,8 @@ dupe-manifest = true
 
 ["test_bug457168.js"]
 
+["test_copyFileMessageFeedFlag.js"]
+
 ["test_copyFileMessageIntegrity.js"]
 
 ["test_duplicateKey.js"]

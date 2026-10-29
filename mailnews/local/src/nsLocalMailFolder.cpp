@@ -2283,21 +2283,17 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
           CopyPropertiesToMsgHdr(newHdr, mCopyState->m_message,
                                  mCopyState->m_isMove);
         } else {
-          // Carry over some of the enforced flags, but do not clear any of the
-          // already set flags (for example nsMsgMessageFlags::Queued or
-          // nsMsgMessageFlags::MDNReportSent).
-          uint32_t carryOver = nsMsgMessageFlags::New |
-                               nsMsgMessageFlags::Read |
-                               nsMsgMessageFlags::Marked;
+          // Flags whose value is set by the caller instead of being taken
+          // from the file's X-Mozilla-Status header, either because the
+          // caller knows better or because the file is untrusted. Other
+          // parsed flags (for example nsMsgMessageFlags::Queued or
+          // nsMsgMessageFlags::MDNReportSent) are preserved.
+          uint32_t enforcedFlags =
+              nsMsgMessageFlags::New | nsMsgMessageFlags::Read |
+              nsMsgMessageFlags::Marked | nsMsgMessageFlags::FeedMsg;
 
-          // The first half of this OR operation represents the values of the
-          // flags that are *not* part of `carryOver`, which `parseMsgState` has
-          // identified and we want to preserve. The second half represents the
-          // values of the flags defined by `carryOver` in the original message,
-          // which we want to, well, carry over onto the new header (and
-          // overwrite any value the parser has found for them).
-          newHdr->SetFlags((newFlags & ~carryOver) |
-                           ((mCopyState->m_flags) & carryOver));
+          newHdr->SetFlags((newFlags & ~enforcedFlags) |
+                           (mCopyState->m_flags & enforcedFlags));
         }
 
         // Add the new header to the database.
