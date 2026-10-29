@@ -3,6 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
+ * Escape a string for use as an assertion value in an LDAP search filter, as
+ * described in RFC 4515 section 3.
+ *
+ * @param {string} value
+ * @returns {string}
+ */
+export function escapeFilterValue(value) {
+  return value.replace(
+    /[*()\\\0]/g,
+    c => "\\" + c.charCodeAt(0).toString(16).padStart(2, "0")
+  );
+}
+
+/**
  * @implements {nsILDAPService}
  */
 export class LDAPService {
@@ -13,11 +27,11 @@ export class LDAPService {
     // Get the Mth to Nth words.
     function getMtoN(m, n) {
       n = n || m;
-      return words.slice(m - 1, n).join(" ");
+      return escapeFilterValue(words.slice(m - 1, n).join(" "));
     }
 
     let filter = prefix;
-    pattern.replaceAll("%a", attr);
+    pattern = pattern.replaceAll("%a", attr);
     while (pattern) {
       const index = pattern.indexOf("%v");
       if (index == -1) {
@@ -49,7 +63,7 @@ export class LDAPService {
           }
         } else {
           // %v: means the entire search value
-          filter += value;
+          filter += escapeFilterValue(value);
           pattern = pattern.slice(index + 2);
         }
       }

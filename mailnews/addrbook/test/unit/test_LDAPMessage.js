@@ -85,6 +85,51 @@ add_task(function test_extensibleMatchFilter() {
 });
 
 /**
+ * Test escaped assertion values are decoded and can't change the filter type.
+ */
+add_task(function test_escapedFilterValues() {
+  // filter string, BER payload, description
+  const filterBER = [
+    [
+      "(cn=a\\28b\\29\\2a\\5c)",
+      "a30c0402636e0406612862292a5c",
+      "Escaped characters should be decoded in an equality match",
+    ],
+    [
+      "(cn=*\\2a*\\c3\\a9)",
+      "a40d0402636e300781012a8202c3a9",
+      "Escaped characters should be decoded in a substrings match",
+    ],
+    [
+      "(cn=a>=b)",
+      "a30a0402636e0404613e3d62",
+      "A >= in the value should not make a greaterOrEqual match",
+    ],
+    [
+      "(cn>=a<=b)",
+      "a50a0402636e0404613c3d62",
+      "A <= in the value should not make a lessOrEqual match",
+    ],
+  ];
+  for (const [filter, ber, description] of filterBER) {
+    const req = new SearchRequest(
+      "ou=people,dc=planetexpress,dc=com",
+      Ci.nsILDAPURL.SCOPE_SUBTREE,
+      filter,
+      "",
+      0,
+      0
+    );
+    const filterBlock = req.protocolOp.valueBlock.value[6];
+    Assert.equal(
+      CommonUtils.bufferToHex(new Uint8Array(filterBlock.toBER())),
+      ber,
+      description
+    );
+  }
+});
+
+/**
  * Test parsing to SearchResultReference works.
  */
 add_task(function test_SearchResultReference() {

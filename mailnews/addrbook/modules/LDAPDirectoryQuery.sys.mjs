@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { LDAPListenerBase } from "resource:///modules/LDAPListenerBase.sys.mjs";
+import { escapeFilterValue } from "resource:///modules/LDAPService.sys.mjs";
 
 /**
  * Convert a nsIAbBooleanExpression to a filter string.
@@ -48,29 +49,30 @@ function boolConditionToFilter(attrMap, exp) {
   if (!attr) {
     return "";
   }
+  const value = escapeFilterValue(exp.value);
   switch (exp.condition) {
     case Ci.nsIAbBooleanConditionTypes.DoesNotExist:
       return `(!(${attr}=*))`;
     case Ci.nsIAbBooleanConditionTypes.Exists:
       return `(${attr}=*)`;
     case Ci.nsIAbBooleanConditionTypes.Contains:
-      return `(${attr}=*${exp.value}*)`;
+      return `(${attr}=*${value}*)`;
     case Ci.nsIAbBooleanConditionTypes.DoesNotContain:
-      return `(!(${attr}=*${exp.value}*))`;
+      return `(!(${attr}=*${value}*))`;
     case Ci.nsIAbBooleanConditionTypes.Is:
-      return `(${attr}=${exp.value})`;
+      return `(${attr}=${value})`;
     case Ci.nsIAbBooleanConditionTypes.IsNot:
-      return `(!(${attr}=${exp.value}))`;
+      return `(!(${attr}=${value}))`;
     case Ci.nsIAbBooleanConditionTypes.BeginsWith:
-      return `(${attr}=${exp.value}*)`;
+      return `(${attr}=${value}*)`;
     case Ci.nsIAbBooleanConditionTypes.EndsWith:
-      return `(${attr}=*${exp.value})`;
+      return `(${attr}=*${value})`;
     case Ci.nsIAbBooleanConditionTypes.LessThan:
-      return `(${attr}<=${exp.value})`;
+      return `(${attr}<=${value})`;
     case Ci.nsIAbBooleanConditionTypes.GreaterThan:
-      return `(${attr}>=${exp.value})`;
+      return `(${attr}>=${value})`;
     case Ci.nsIAbBooleanConditionTypes.SoundsLike:
-      return `(${attr}~=${exp.value})`;
+      return `(${attr}~=${value})`;
     default:
       return "";
   }

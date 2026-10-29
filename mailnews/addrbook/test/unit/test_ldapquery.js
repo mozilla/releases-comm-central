@@ -178,3 +178,70 @@ add_task(async function test_basic_query() {
 
   server.stop();
 });
+
+/**
+ * Test special characters in address book search values are escaped, and
+ * can't be used to change the search filter.
+ */
+add_task(async function test_search_escaping() {
+  const raw = await IOUtils.readUTF8(
+    do_get_file(
+      "../../../../mailnews/addrbook/test/unit/data/ldap_contacts.json"
+    ).path
+  );
+  const testContacts = JSON.parse(raw);
+
+  const daemon = new LDAPDaemon();
+  daemon.add(...Object.values(testContacts), {
+    dn: "uid=toby,dc=bakerstreet,dc=invalid",
+    attributes: {
+      objectClass: "person",
+      cn: "Toby (the dog) *\\",
+      sn: "Dog",
+    },
+  });
+  const server = new BinaryServer(LDAPHandlerFn, daemon);
+  server.start();
+
+  const book = MailServices.ab
+    .getDirectory(
+      "moz-abldapdirectory://" +
+        MailServices.ab.newAddressBook(
+          "escaping",
+          `ldap://localhost:${server.port}/??sub?(objectclass=*)`,
+          Ci.nsIAbManager.LDAP_DIRECTORY_TYPE
+        )
+    )
+    .QueryInterface(Ci.nsIAbLDAPDirectory);
+
+  const search = function (displayName) {
+    const value = encodeURIComponent(displayName).replace(
+      /[()*]/g,
+      c => "%" + c.charCodeAt(0).toString(16)
+    );
+    return new Promise(resolve => {
+      const cards = [];
+      book.search(`(or(DisplayName,=,${value}))`, "", {
+        onSearchFoundCard(card) {
+          cards.push(card.displayName);
+        },
+        onSearchFinished() {
+          resolve(cards);
+        },
+      });
+    });
+  };
+
+  Assert.deepEqual(
+    await search("Nobody)(sn=Holmes"),
+    [],
+    "Search value should not be able to add filter clauses"
+  );
+  Assert.deepEqual(
+    await search("Toby (the dog) *\\"),
+    ["Toby (the dog) *\\"],
+    "Search value with special characters should match exactly"
+  );
+
+  server.stop();
+});

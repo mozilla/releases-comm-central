@@ -5,6 +5,8 @@ tags = ["addrbook"]
 
 ["test_LDAPMessage.js"]
 
+["test_LDAPService.js"]
+
 ["test_LDAPSyncQuery.js"]
 
 ["test_abCardProperty.js"]

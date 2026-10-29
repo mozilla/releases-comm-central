@@ -57,13 +57,15 @@ class LDAPMessage {
    * Create a string block with context-specific [n].
    *
    * @param {number} tagNumber - The tag number of this block.
-   * @param {string} value - The string value of this block.
+   * @param {string|Uint8Array} value - The value of this block, as a string or
+   *   as already encoded bytes.
    * @returns {LocalBaseBlock}
    */
   _contextStringBlock(tagNumber, value) {
     return new asn1js.Primitive({
       idBlock: this._getContextId(tagNumber),
-      valueHex: new TextEncoder().encode(value),
+      valueHex:
+        typeof value == "string" ? new TextEncoder().encode(value) : value,
     });
   }
 }
@@ -212,34 +214,55 @@ export class SearchRequest extends LDAPMessage {
    *   [number, string, string]
    */
   _parseFilterValue(filter) {
-    for (const cond of [">=", "<=", "~=", ":=", "="]) {
-      const index = filter.indexOf(cond);
-      if (index > 0) {
-        const k = filter.slice(0, index);
-        let v = filter.slice(index + cond.length);
-        let filterId = {
-          ">=": this.FILTER_GREATER_OR_EQUAL,
-          "<=": this.FILTER_LESS_OR_EQUAL,
-          "~=": this.FILTER_APPROX_MATCH,
-          ":=": this.FILTER_EXTENSIBLE_MATCH,
-        }[cond];
-        if (!filterId) {
-          if (v == "*") {
-            filterId = this.FILTER_PRESENT;
-          } else if (!v.includes("*")) {
-            filterId = this.FILTER_EQUALITY_MATCH;
-          } else {
-            filterId = this.FILTER_SUBSTRINGS;
-            v = v.split("*");
-          }
-        }
-        return [filterId, k, v];
+    const index = filter.indexOf("=");
+    let k = filter.slice(0, index);
+    let v = filter.slice(index + 1);
+    let filterId = {
+      ">": this.FILTER_GREATER_OR_EQUAL,
+      "<": this.FILTER_LESS_OR_EQUAL,
+      "~": this.FILTER_APPROX_MATCH,
+      ":": this.FILTER_EXTENSIBLE_MATCH,
+    }[k.at(-1)];
+    if (filterId) {
+      k = k.slice(0, -1);
+    }
+    if (index == -1 || !k) {
+      throw Components.Exception(
+        `Invalid filter: ${filter}`,
+        Cr.NS_ERROR_ILLEGAL_VALUE
+      );
+    }
+    if (!filterId) {
+      if (v == "*") {
+        filterId = this.FILTER_PRESENT;
+      } else if (!v.includes("*")) {
+        filterId = this.FILTER_EQUALITY_MATCH;
+      } else {
+        filterId = this.FILTER_SUBSTRINGS;
+        v = v.split("*");
       }
     }
-    throw Components.Exception(
-      `Invalid filter: ${filter}`,
-      Cr.NS_ERROR_ILLEGAL_VALUE
-    );
+    return [filterId, k, v];
+  }
+
+  /**
+   * Convert an assertion value from a filter string to bytes, decoding the
+   * \XX escape sequences described in RFC 4515 section 3.
+   *
+   * @param {string} value - The escaped value.
+   * @returns {Uint8Array}
+   */
+  _decodeFilterValue(value) {
+    const encoder = new TextEncoder();
+    const bytes = [];
+    value.split(/\\([0-9a-fA-F]{2})/).forEach((part, i) => {
+      if (i % 2) {
+        bytes.push(parseInt(part, 16));
+      } else {
+        bytes.push(...encoder.encode(part));
+      }
+    });
+    return new Uint8Array(bytes);
   }
 
   /**
@@ -356,7 +379,10 @@ export class SearchRequest extends LDAPMessage {
               );
             }
             matchValue.push(
-              this._contextStringBlock(this.MATCHING_VALUE, fieldValue)
+              this._contextStringBlock(
+                this.MATCHING_VALUE,
+                this._decodeFilterValue(fieldValue)
+              )
             );
             if (parts[1] == "dn") {
               const dn = new asn1js.Boolean({
@@ -380,13 +406,19 @@ export class SearchRequest extends LDAPMessage {
               );
             }
             matchValue.push(
-              this._contextStringBlock(this.MATCHING_VALUE, fieldValue)
+              this._contextStringBlock(
+                this.MATCHING_VALUE,
+                this._decodeFilterValue(fieldValue)
+              )
             );
           } else {
             // field is <type>.
             matchValue = [
               this._contextStringBlock(this.MATCHING_TYPE, field),
-              this._contextStringBlock(this.MATCHING_VALUE, fieldValue),
+              this._contextStringBlock(
+                this.MATCHING_VALUE,
+                this._decodeFilterValue(fieldValue)
+              ),
             ];
           }
           block = new asn1js.Constructed({
@@ -402,7 +434,7 @@ export class SearchRequest extends LDAPMessage {
                 valueHex: new TextEncoder().encode(field),
               }),
               new asn1js.OctetString({
-                valueHex: new TextEncoder().encode(fieldValue),
+                valueHex: this._decodeFilterValue(fieldValue),
               }),
             ],
           });
@@ -430,7 +462,7 @@ export class SearchRequest extends LDAPMessage {
                   idBlock: this._getContextId(
                     i == 0 ? this.SUBSTRINGS_INITIAL : this.SUBSTRINGS_ANY
                   ),
-                  valueHex: new TextEncoder().encode(v),
+                  valueHex: this._decodeFilterValue(v),
                 })
               );
             } else {
@@ -438,7 +470,7 @@ export class SearchRequest extends LDAPMessage {
               substringsSeq.valueBlock.value.push(
                 new asn1js.Primitive({
                   idBlock: this._getContextId(this.SUBSTRINGS_FINAL),
-                  valueHex: new TextEncoder().encode(v),
+                  valueHex: this._decodeFilterValue(v),
                 })
               );
             }
