@@ -202,10 +202,10 @@ _gpgme_tofu_info.define([
   { bitfield: ctypes.unsigned_int },
   { signcount: ctypes.unsigned_short },
   { encrcount: ctypes.unsigned_short },
-  { signfirst: ctypes.unsigned_short },
-  { signlast: ctypes.unsigned_short },
-  { encrfirst: ctypes.unsigned_short },
-  { encrlast: ctypes.unsigned_short },
+  { signfirst: ctypes.unsigned_long },
+  { signlast: ctypes.unsigned_long },
+  { encrfirst: ctypes.unsigned_long },
+  { encrlast: ctypes.unsigned_long },
   { description: ctypes.char.ptr },
 ]);
 const gpgme_tofu_info_t = _gpgme_tofu_info.ptr;
