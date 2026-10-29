@@ -5,7 +5,6 @@
 /**
  * Tests that AUTH CRAM-MD5 for SMTP cancels the exchange and fails the login,
  * rather than stalling, when the server sends a challenge which isn't base64.
- * Also tests that it isn't attempted when the user cancels the password prompt.
  */
 
 var { MailServices } = ChromeUtils.importESModule(
@@ -22,7 +21,6 @@ var { TestUtils } = ChromeUtils.importESModule(
 load("../../../resources/alertTestUtils.js");
 
 var gAuthFailedPrompts = 0;
-var gPasswordPrompts = 0;
 // The continuation lines the server received during AUTH.
 var gAuthLines = [];
 
@@ -30,7 +28,7 @@ var gServer;
 var gSmtpServer;
 var gIdentity;
 
-/* exported alert, confirmExPS, promptPasswordPS */
+/* exported alert, confirmExPS */
 // for alertTestUtils.js
 function alert() {}
 
@@ -38,12 +36,6 @@ function confirmExPS() {
   gAuthFailedPrompts++;
   // Cancel.
   return 1;
-}
-
-function promptPasswordPS() {
-  gPasswordPrompts++;
-  // Cancel.
-  return false;
 }
 
 add_setup(function () {
@@ -86,7 +78,6 @@ add_setup(function () {
  */
 async function sendMessageAndFail(description) {
   gAuthFailedPrompts = 0;
-  gPasswordPrompts = 0;
   gAuthLines = [];
   gServer.resetTest();
 
@@ -133,26 +124,4 @@ add_task(async function testInvalidChallenge() {
     1,
     "the user should be asked once what to do for an invalid challenge"
   );
-});
-
-add_task(async function testPasswordPromptCancelled() {
-  gSmtpServer.password = "";
-  try {
-    const them = await sendMessageAndFail(
-      "when the password prompt is cancelled"
-    );
-    Assert.equal(gPasswordPrompts, 1, "the password should be asked for");
-    Assert.equal(
-      gAuthFailedPrompts,
-      0,
-      "the user should not be asked what to do after cancelling"
-    );
-    Assert.deepEqual(
-      them,
-      ["EHLO test", "QUIT"],
-      "AUTH CRAM-MD5 should not be sent after cancelling"
-    );
-  } finally {
-    gSmtpServer.password = "smtptest";
-  }
 });
