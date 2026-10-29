@@ -628,7 +628,9 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
     );
     const event = await calendar.getItem(this.getAttribute("event-id"));
     const isRecurring =
-      this.hasAttribute("recurrence-id") && countOccurrences(event) > 1;
+      this.hasAttribute("recurrence-id") &&
+      !!event.recurrenceInfo &&
+      countOccurrences(event) != 1;
     const extResponse = { responseMode: Ci.calIItipItem.USER };
 
     const CANCEL = 0;

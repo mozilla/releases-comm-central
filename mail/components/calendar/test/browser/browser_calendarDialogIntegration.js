@@ -546,6 +546,54 @@ add_task(async function test_dialogDeleteMenuSingleOccurence() {
   await calendar.deleteItem(event);
 });
 
+add_task(async function test_dialogDeleteMenuSingleOccurrenceOfInfinite() {
+  const testDate = new Date();
+  await createEvent({
+    calendar,
+    repeats: true,
+    rrule: "RRULE:FREQ=DAILY",
+    baseDate: testDate,
+  });
+  await openAndShowEvent({ baseDate: testDate, offset: 1 });
+
+  const dialog = document.getElementById("calendarDialog");
+  const eventId = dialog.getAttribute("event-id");
+
+  const deletePromptPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    null,
+    "chrome://messenger/content/calendarPrompt.xhtml",
+    {
+      async callback(win) {
+        const promptDialog = win.document.querySelector("dialog");
+        Assert.ok(
+          BrowserTestUtils.isVisible(
+            promptDialog.querySelector("#calendarPromptRadioOptions")
+          ),
+          "The prompt should offer to delete one or all occurrences"
+        );
+        EventUtils.synthesizeMouseAtCenter(
+          promptDialog.querySelector("#delete"),
+          {},
+          win
+        );
+      },
+    }
+  );
+
+  await subtestDeleteEventPrompt(deletePromptPromise, nextDayColumn(testDate));
+
+  const event = await calendar.getItem(eventId);
+  Assert.ok(event, "The infinite event in the calendar should still exist");
+
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector(".close-button"),
+    {},
+    window
+  );
+
+  await calendar.deleteItem(event);
+});
+
 add_task(async function test_closeDialogOnTabSwitch() {
   await createEvent({ calendar });
   const eventBox = await openAndShowEvent();

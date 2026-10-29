@@ -144,6 +144,8 @@ function createCalendar({
  * @param {object} options.calendar - The calendar to create the event on.
  * @param {string[]} [options.categories=[]] - Categories to assign to the event.
  * @param {boolean} [options.repeats=false] - If the event is repeating.
+ * @param {string} [options.rrule="RRULE:FREQ=DAILY;COUNT=30"] - The rule the
+ *   event repeats by, if it does.
  * @param {string} [options.location] - Location of the event. Only set if not
  *  falsy.
  * @param {string} [options.description=""] - Description for the event.
@@ -162,6 +164,7 @@ async function createEvent({
   calendar,
   categories = [],
   repeats = false,
+  rrule = "RRULE:FREQ=DAILY;COUNT=30",
   location,
   description = "",
   descriptionHTML,
@@ -200,7 +203,7 @@ async function createEvent({
 
   if (repeats) {
     event.recurrenceInfo = new CalRecurrenceInfo(event);
-    const rule = cal.createRecurrenceRule("RRULE:FREQ=DAILY;COUNT=30");
+    const rule = cal.createRecurrenceRule(rrule);
     event.recurrenceInfo.appendRecurrenceItem(rule);
   }
 
