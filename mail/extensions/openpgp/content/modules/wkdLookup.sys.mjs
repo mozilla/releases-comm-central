@@ -4,7 +4,9 @@
 
 /**
  * Lookup keys by email addresses using WKD. A an email address is lookep up at most
- * once a day. (see https://tools.ietf.org/html/draft-koch-openpgp-webkey-service)
+ * once a day.
+ *
+ * @see the OpenPGP Web Key Directory specification: https://tools.ietf.org/html/draft-koch-openpgp-webkey-service
  */
 
 const lazy = {};
@@ -21,7 +23,8 @@ ChromeUtils.defineLazyGetter(lazy, "log", () => {
   });
 });
 
-// Those domains are not expected to have WKD:
+// Those domains are not expected to have WKD, nor to be hosted by a provider
+// that is looked up based on MX records. This must not include Proton domains.
 var EXCLUDE_DOMAINS = [
   /* Default domains included */
   "aol.com",
@@ -203,58 +206,29 @@ var EXCLUDE_DOMAINS = [
 
 export var EnigmailWkdLookup = {
   /**
-   * Get the download URL for an email address for WKD or domain-specific
-   * locations.
+   * Get the WKD download URL for an email address.
    *
    * @param {string} email - The mail address to check.
    * @param {boolean} advancedMethod - When
    *   - true, use https://openpgpkey.<domain>...
    *   - false use https://<domain>/.well-known/...
-   * @returns {Promise<string>} a URL (or null if not possible)
+   * @returns {string} the URL.
    */
-  async getDownloadUrlFromEmail(email, advancedMethod) {
-    email = email.toLowerCase().trim();
-
-    let url = await getSiteSpecificUrl(email);
-    if (url) {
-      return url;
-    }
-
-    const at = email.indexOf("@");
-
-    const domain = email.substr(at + 1);
-    const user = email.substr(0, at);
+  getDownloadUrlFromEmail(email, advancedMethod) {
+    const [user, domain] = email.toLowerCase().trim().split("@");
 
     const data = [...new TextEncoder().encode(user)];
     const ch = Cc["@mozilla.org/security/hash;1"].createInstance(
       Ci.nsICryptoHash
     );
-    ch.init(ch.SHA1);
+    ch.init(Ci.nsICryptoHash.SHA1);
     ch.update(data, data.length);
     const gotHash = ch.finish(false);
     const encodedHash = lazy.EnigmailZBase32.encode(gotHash);
 
-    if (advancedMethod) {
-      url =
-        "https://openpgpkey." +
-        domain +
-        "/.well-known/openpgpkey/" +
-        domain +
-        "/hu/" +
-        encodedHash +
-        "?l=" +
-        escape(user);
-    } else {
-      url =
-        "https://" +
-        domain +
-        "/.well-known/openpgpkey/hu/" +
-        encodedHash +
-        "?l=" +
-        escape(user);
-    }
-
-    return url;
+    return advancedMethod
+      ? `https://openpgpkey.${domain}/.well-known/openpgpkey/${domain}/hu/${encodedHash}?l=${escape(user)}`
+      : `https://${domain}/.well-known/openpgpkey/hu/${encodedHash}?l=${escape(user)}`;
   },
 
   /**
@@ -288,53 +262,47 @@ export var EnigmailWkdLookup = {
         return null;
       }
     } catch (ex) {
-      lazy.log.warn(`Requesting key from ${url} FAILED.`, ex);
+      lazy.log.debug(`Requesting key from ${url} FAILED.`, ex);
       return null;
     }
     const uint8Array = new Uint8Array(await response.arrayBuffer());
     return lazy.MailStringUtils.uint8ArrayToByteString(uint8Array);
   },
 
-  isWkdAvailable(email) {
+  /**
+   * @param {string} email
+   * @returns {boolean} true if WKD and the MX based provider keyserver lookup
+   *   should be attempted for the domain of the address.
+   */
+  shouldLookUpByDomain(email) {
     const domain = email.toLowerCase().replace(/^.*@/, "");
-
     return !EXCLUDE_DOMAINS.includes(domain);
   },
-};
 
-/**
- * Get special URLs for specific sites that don't use WKD, but still provide
- * public keys of their users in
- *
- * @param {string} emailAddr - Email address in lowercase.
- * @returns {Promise<string>} - URL or null of no URL relevant.
- */
-async function getSiteSpecificUrl(emailAddr) {
-  const domain = emailAddr.replace(/^.+@/, "");
-  let url = null;
-
-  switch (domain) {
-    case "protonmail.ch":
-    case "protonmail.com":
-    case "pm.me":
-      url =
-        "https://api.protonmail.ch/pks/lookup?op=get&options=mr&search=" +
-        escape(emailAddr);
-      break;
-  }
-  if (!url) {
-    const records = await lazy.DNS.mx(domain);
-    const mxHosts = records.filter(record => record.host);
-
-    if (
-      mxHosts &&
-      (mxHosts.includes("mail.protonmail.ch") ||
-        mxHosts.includes("mailsec.protonmail.ch"))
-    ) {
-      url =
-        "https://api.protonmail.ch/pks/lookup?op=get&options=mr&search=" +
-        escape(emailAddr);
+  /**
+   * Get the URL of the keyserver of the mail provider handling the domain of
+   * an email address, for providers that can't offer WKD for all their
+   * domains.
+   *
+   * @param {string} email - The mail address to check.
+   * @returns {Promise<?string>} a URL, or null if there is no such provider.
+   */
+  async getProviderUrlFromEmail(email) {
+    email = email.toLowerCase().trim();
+    const domain = email.replace(/^.+@/, "");
+    let mxHosts;
+    try {
+      mxHosts = (await lazy.DNS.mx(domain)).map(record => record.host);
+    } catch (ex) {
+      lazy.log.debug(`MX lookup for ${domain} FAILED.`, ex);
+      return null;
     }
-  }
-  return url;
-}
+    if (
+      mxHosts.includes("mail.protonmail.ch") ||
+      mxHosts.includes("mailsec.protonmail.ch")
+    ) {
+      return `https://api.protonmail.ch/pks/lookup?op=get&options=mr&search=${escape(email)}`;
+    }
+    return null;
+  },
+};

@@ -246,27 +246,31 @@ export var KeyLookupHelper = {
     let wkdKeyImported = false;
     let wkdFoundUnchanged = false;
 
-    let wkdResult;
-    let wkdUrl;
-    if (lazy.EnigmailWkdLookup.isWkdAvailable(email)) {
-      wkdUrl = await lazy.EnigmailWkdLookup.getDownloadUrlFromEmail(
-        email,
-        true
-      );
-      wkdResult = await lazy.EnigmailWkdLookup.downloadKey(wkdUrl);
-      if (!wkdResult) {
-        wkdUrl = await lazy.EnigmailWkdLookup.getDownloadUrlFromEmail(
-          email,
-          false
-        );
-        wkdResult = await lazy.EnigmailWkdLookup.downloadKey(wkdUrl);
+    let result;
+    let uri;
+    let type = "wkd";
+    if (lazy.EnigmailWkdLookup.shouldLookUpByDomain(email)) {
+      uri = lazy.EnigmailWkdLookup.getDownloadUrlFromEmail(email, true);
+      result = await lazy.EnigmailWkdLookup.downloadKey(uri);
+      if (!result) {
+        uri = lazy.EnigmailWkdLookup.getDownloadUrlFromEmail(email, false);
+        result = await lazy.EnigmailWkdLookup.downloadKey(uri);
+      }
+      if (!result) {
+        const providerUrl =
+          await lazy.EnigmailWkdLookup.getProviderUrlFromEmail(email);
+        if (providerUrl) {
+          uri = providerUrl;
+          type = "keyserver";
+          result = await lazy.EnigmailWkdLookup.downloadKey(uri);
+        }
       }
     }
 
-    if (wkdResult) {
+    if (result) {
       const errorInfo = {};
       const keyList = await lazy.EnigmailKey.getKeyListFromKeyBlock(
-        wkdResult,
+        result,
         errorInfo,
         false,
         true,
@@ -274,7 +278,9 @@ export var KeyLookupHelper = {
         true
       );
       if (!keyList) {
-        console.warn(`Processing data from WKD failed: ${errorInfo.value}`);
+        console.warn(
+          `Processing key data from ${uri} failed: ${errorInfo.value}`
+        );
       } else {
         const existingKeys = [];
         let newKeys = [];
@@ -328,8 +334,8 @@ export var KeyLookupHelper = {
           for (const newKey of newKeys) {
             // If key is known in the db: merge + update.
             const key = await db.mergeExisting(newKey, newKey.pubKey, {
-              uri: wkdUrl,
-              type: "wkd",
+              uri,
+              type,
             });
             await db.storeKey(key);
           }

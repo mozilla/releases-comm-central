@@ -39,3 +39,5 @@ run-if = ["nightly_build"]
 ["test_uid.js"]
 
 ["test_unlockTracker.js"]
+
+["test_wkdLookup.js"]
