@@ -55,6 +55,25 @@ add_task(function testCramMd5TokenUserName() {
 });
 
 /**
+ * The decoded challenge is binary data, so challenge bytes above 0x7F must be
+ * kept as single bytes rather than UTF-8 encoded.
+ */
+add_task(function testCramMd5TokenBinaryChallenge() {
+  const authenticator = createAuthenticator(kUsername, kPassword);
+  const token = authenticator.getCramMd5Token(
+    kPassword,
+    // Decodes into a 27-byte long challenge with two 0x81 bytes. This is the
+    // challenge from the reporter in bug 2086828.
+    "PDQyNDYzNjI0MjYuMTQ4MzUyODhAgXcugW0+"
+  );
+  Assert.equal(
+    atob(token).split(" ")[1],
+    "9428b0a97c4fd56bdfe5e27a633628ba",
+    "AUTH CRAM-MD5 digest should be computed over the raw challenge bytes"
+  );
+});
+
+/**
  * LOGIN auth is not standardized, so
  * `mail.smtp_login_pop3_user_pass_auth_is_latin1` keeps sending Latin-1 for
  * credentials which fit into Latin-1.

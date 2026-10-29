@@ -119,7 +119,7 @@ class MailAuthenticator {
     // Hash the challenge.
     const signature = MailCryptoUtils.hmacMd5(
       new TextEncoder().encode(password),
-      new TextEncoder().encode(atob(challenge))
+      MailStringUtils.byteStringToUint8Array(atob(challenge))
     );
     // Get the hex form of the signature.
     const hex = [...signature]
