@@ -3100,6 +3100,111 @@ add_task(async function test_special_date_field() {
 });
 
 /**
+ * Tests that a vCard 3.0 date without a year, using Apple's placeholder year,
+ * is shown without a year, and that the placeholder is kept when saving.
+ */
+add_task(async function testAppleOmitYear() {
+  const book = createAddressBook("Omit Year");
+  book.addCard(
+    VCardUtils.vCardToAbCard(formatVCard`
+      BEGIN:VCARD
+      VERSION:3.0
+      FN:no year
+      N:year;no;;;
+      BDAY;X-APPLE-OMIT-YEAR=1604:1604-04-15
+      END:VCARD
+    `)
+  );
+
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
+  const editButton = abDocument.getElementById("editButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
+  const otherInfoSection = abDocument.getElementById("otherInfo");
+
+  function checkBirthday(expectedText, expectedValue, expectedOmitYear) {
+    Assert.equal(
+      otherInfoSection.querySelector("li .entry-value").textContent,
+      expectedText,
+      "birthday should be shown correctly"
+    );
+    const bday = book.childCards[0].vCardProperties.getFirstEntry("bday");
+    Assert.equal(bday.value, expectedValue, "birthday should be saved");
+    Assert.equal(
+      bday.params["x-apple-omit-year"],
+      expectedOmitYear,
+      "X-APPLE-OMIT-YEAR should be correct"
+    );
+  }
+
+  await openDirectory(book);
+  await editContactAtIndex(0, {});
+  checkVCardInputValues({ specialDate: [{ value: ["", 4, 15] }] });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode(editButton);
+  checkBirthday("April 15", "1604-04-15", "1604");
+
+  await editContactAtIndex(0, {});
+  await setVCardInputValues({
+    specialDate: [{ value: [1990, 4, 15], key: "bday" }],
+  });
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode(editButton);
+  checkBirthday("April 15, 1990", "1990-04-15", undefined);
+
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(book.URI);
+});
+
+/**
+ * Tests that a vCard 3.0 date with Apple's placeholder year 1604 but no
+ * X-APPLE-OMIT-YEAR parameter, as iCloud stores them, is shown without a year,
+ * and is kept as it is when saving.
+ */
+add_task(async function testApplePlaceholderYearWithoutParameter() {
+  const book = createAddressBook("Placeholder Year");
+  book.addCard(
+    VCardUtils.vCardToAbCard(formatVCard`
+      BEGIN:VCARD
+      VERSION:3.0
+      FN:no year
+      N:year;no;;;
+      BDAY;VALUE=DATE:1604-01-15
+      END:VCARD
+    `)
+  );
+
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
+  const editButton = abDocument.getElementById("editButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
+  const otherInfoSection = abDocument.getElementById("otherInfo");
+
+  await openDirectory(book);
+  await editContactAtIndex(0, {});
+  checkVCardInputValues({ specialDate: [{ value: ["", 1, 15] }] });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode(editButton);
+  Assert.equal(
+    otherInfoSection.querySelector("li .entry-value").textContent,
+    "January 15",
+    "birthday should be shown without a year"
+  );
+  const bday = book.childCards[0].vCardProperties.getFirstEntry("bday");
+  Assert.equal(bday.value, "1604-01-15", "the placeholder year should be kept");
+  Assert.equal(
+    bday.params["x-apple-omit-year"],
+    undefined,
+    "no X-APPLE-OMIT-YEAR should be added"
+  );
+
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(book.URI);
+});
+
+/**
  * Tests that custom properties (Custom1 etc.) are editable.
  */
 add_task(async function testCustomProperties() {

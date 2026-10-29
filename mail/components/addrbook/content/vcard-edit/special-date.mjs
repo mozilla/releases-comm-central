@@ -7,6 +7,7 @@ import { vCardIdGen } from "./id-gen.mjs";
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   VCardPropertyEntry: "resource:///modules/VCardUtils.sys.mjs",
+  VCardUtils: "resource:///modules/VCardUtils.sys.mjs",
 });
 
 const { default: ICAL } = ChromeUtils.importESModule(
@@ -35,6 +36,13 @@ export class VCardSpecialDateComponent extends HTMLElement {
   month;
   /** @type {HTMLSelectElement} */
   day;
+  /**
+   * The placeholder year of a date shown without a year, kept when saving.
+   * See VCardUtils.parseDate.
+   *
+   * @type {?number}
+   */
+  #placeholderYear = null;
 
   /**
    * Object containing the available days for each month.
@@ -137,11 +145,19 @@ export class VCardSpecialDateComponent extends HTMLElement {
     }
     // Default value is date-and-or-time.
     let dateValue;
+    this.#placeholderYear = null;
     try {
-      dateValue = ICAL.VCardTime.fromDateAndOrTimeString(
-        this.vCardPropertyEntry.value || "",
-        "date-and-or-time"
+      const value = this.vCardPropertyEntry.value || "";
+      dateValue = lazy.VCardUtils.parseDate(
+        value,
+        this.vCardPropertyEntry.params
       );
+      if (dateValue.year === null) {
+        this.#placeholderYear = ICAL.VCardTime.fromDateAndOrTimeString(
+          value,
+          "date-and-or-time"
+        ).year;
+      }
     } catch (ex) {
       console.error(ex);
     }
@@ -164,6 +180,19 @@ export class VCardSpecialDateComponent extends HTMLElement {
     dateValue.year = this.year.value ? Number(this.year.value) : null;
     dateValue.month = this.month.value ? Number(this.month.value) : null;
     dateValue.day = this.day.value ? Number(this.day.value) : null;
+
+    // Keep a placeholder year for a date without one, so that the clients
+    // using it still see that there's no year.
+    if (
+      this.#placeholderYear &&
+      dateValue.year === null &&
+      dateValue.month !== null &&
+      dateValue.day !== null
+    ) {
+      dateValue.year = this.#placeholderYear;
+    } else {
+      delete this.vCardPropertyEntry.params["x-apple-omit-year"];
+    }
     this.vCardPropertyEntry.value = dateValue.toString();
   }
 

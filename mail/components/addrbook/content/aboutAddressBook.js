@@ -3260,9 +3260,10 @@ var detailsPane = {
     list = section.querySelector("ul.entry-list");
     list.replaceChildren();
 
-    const formatDate = function (date) {
+    const formatDate = function (entry) {
+      let date;
       try {
-        date = ICAL.VCardTime.fromDateAndOrTimeString(date);
+        date = VCardUtils.parseDate(entry.value, entry.params);
       } catch (ex) {
         console.error(ex);
         return "";
@@ -3300,8 +3301,8 @@ var detailsPane = {
       return "";
     };
 
-    const bday = vCardProperties.getFirstValue("bday");
-    if (bday) {
+    const bday = vCardProperties.getFirstEntry("bday");
+    if (bday?.value) {
       const value = formatDate(bday);
       if (value) {
         const li = list.appendChild(createEntryItem("birthday"));
@@ -3309,8 +3310,8 @@ var detailsPane = {
       }
     }
 
-    const anniversary = vCardProperties.getFirstValue("anniversary");
-    if (anniversary) {
+    const anniversary = vCardProperties.getFirstEntry("anniversary");
+    if (anniversary?.value) {
       const value = formatDate(anniversary);
       if (value) {
         const li = list.appendChild(createEntryItem("anniversary"));

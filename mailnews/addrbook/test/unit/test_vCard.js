@@ -132,6 +132,29 @@ add_task(function testVCardToPropertyMap() {
   check("BDAY:2006-06", { BirthYear: "2006", BirthMonth: "6" });
   check("BDAY:--12", { BirthMonth: "12" });
   check("BDAY:---30", { BirthDay: "30" });
+  // Apple's placeholder year for a date without a year in vCard 3.0.
+  check("BDAY;X-APPLE-OMIT-YEAR=1604:1604-04-15", {
+    BirthDay: "15",
+    BirthMonth: "4",
+  });
+  check("BDAY;X-APPLE-OMIT-YEAR=1604;VALUE=DATE:16040415", {
+    BirthDay: "15",
+    BirthMonth: "4",
+  });
+  check("BDAY;X-APPLE-OMIT-YEAR=1604:1983-04-03", {
+    BirthDay: "3",
+    BirthMonth: "4",
+    BirthYear: "1983",
+  });
+  // Apple's devices treat 1604 as no year even without the parameter, and
+  // iCloud stores dates like that.
+  check("BDAY:1604-04-15", { BirthDay: "15", BirthMonth: "4" });
+  check("BDAY;VALUE=DATE:1604-01-15", { BirthDay: "15", BirthMonth: "1" });
+  check("BDAY;X-APPLE-OMIT-YEAR=1900:1604-04-15", {
+    BirthDay: "15",
+    BirthMonth: "4",
+    BirthYear: "1604",
+  });
   // These are error cases, testing that it doesn't throw.
   check("BDAY;VALUE=DATE:NaN-NaN-NaN", {});
   check("BDAY;VALUE=TEXT:07/07/1949", {});
