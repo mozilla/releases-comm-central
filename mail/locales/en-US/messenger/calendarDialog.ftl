@@ -219,3 +219,5 @@ calendar-prompt-all-events =
   .label = All events
 
 calendar-prompt-delete-button = Delete
+
+calendar-event-create-edit-save-button = Save
