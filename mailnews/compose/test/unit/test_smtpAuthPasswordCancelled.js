@@ -111,8 +111,6 @@ async function checkPasswordPromptCancelled(authScheme, authMethod) {
     `the user should not be asked what to do after cancelling with ${authScheme}`
   );
 
-  // Clients keep the auth method they were created with, so don't reuse them.
-  gSmtpServer.closeCachedConnections();
   // The server reads everything the client sent before seeing it disconnect.
   await TestUtils.waitForCondition(
     () => !gServer._readers.some(reader => reader.isRunning),
@@ -123,6 +121,11 @@ async function checkPasswordPromptCancelled(authScheme, authMethod) {
     ["EHLO test", "QUIT"],
     `AUTH ${authScheme} should not be sent after cancelling`
   );
+
+  // Clients keep the auth method they were created with, so don't reuse them.
+  // Only do so now, since it sends another QUIT if the client hasn't noticed
+  // the server closing the connection yet.
+  gSmtpServer.closeCachedConnections();
 }
 
 add_task(async function testPlain() {
