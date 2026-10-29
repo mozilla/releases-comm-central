@@ -481,6 +481,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
       if (vCardProperties.getFirstValue("version") == "4.0") {
         convertToVCard3(vCardProperties);
       }
+      addPlaceholderYears(vCardProperties);
       // There must be an `N` property, even if empty. See RFC 2426, section
       // 3.1.2.
       if (!vCardProperties.getFirstEntry("n")) {
@@ -1137,6 +1138,37 @@ function convertToVCard3(vCardProperties) {
     if (newEntry) {
       vCardProperties.removeEntry(entry);
       vCardProperties.addEntry(newEntry);
+    }
+  }
+}
+
+/**
+ * Gives dates without a year a placeholder year, as iOS and DAVx5 do, since
+ * vCard 3.0 can't express them. Google keeps such dates, but drops ones like
+ * "--04-15". See VCardUtils.parseDate.
+ *
+ * @param {VCardProperties} vCardProperties - A vCard 3.0, changed in place.
+ */
+function addPlaceholderYears(vCardProperties) {
+  for (const entry of vCardProperties.entries) {
+    if (
+      !["bday", "anniversary"].includes(entry.name) ||
+      entry.type == "text" ||
+      entry.params["x-apple-omit-year"]
+    ) {
+      continue;
+    }
+    let date;
+    try {
+      date = lazy.VCardUtils.parseDate(entry.value, entry.params);
+    } catch (ex) {
+      continue;
+    }
+    if (date.year === null && date.month !== null && date.day !== null) {
+      date.year = 1604;
+      entry.params["x-apple-omit-year"] = "1604";
+      entry.type = "date";
+      entry.value = date.toString();
     }
   }
 }

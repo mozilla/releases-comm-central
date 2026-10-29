@@ -725,6 +725,10 @@ export class VCardProperties {
       console.warn(`Card data had more than one vCard ${vCard}`);
     }
     vCard = VCardUtils.translateVCard21(vCards[0]);
+    // Google joins the X-APPLE-OMIT-YEAR parameter (see VCardUtils.parseDate)
+    // to the VALUE parameter with a comma, as in
+    // BDAY;VALUE=DATE,X-APPLE-OMIT-YEAR=1604:1604-04-15.
+    vCard = vCard.replace(/(;VALUE=[a-z-]+),(X-APPLE-OMIT-YEAR=)/gi, "$1;$2");
 
     const rv = new VCardProperties();
     const [, properties] = ICAL.parse(vCard);

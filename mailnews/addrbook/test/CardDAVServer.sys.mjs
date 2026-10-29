@@ -649,6 +649,20 @@ export var CardDAVServer = {
         return "UID:" + newUID + "\r\nX-MODIFIED-BY-SERVER:1";
       });
     }
+    if (this.mimicGoogle) {
+      // Google drops dates without a year, unless they have Apple's
+      // placeholder year, which it returns joined to VALUE with a comma.
+      vCard = vCard.replace(/^BDAY[;:].*\r\n/gim, line => {
+        const omitYear = /X-APPLE-OMIT-YEAR=(\d+)/i.exec(line);
+        if (omitYear) {
+          return line.replace(
+            /^BDAY[^:]*/i,
+            `BDAY;VALUE=DATE,X-APPLE-OMIT-YEAR=${omitYear[1]}`
+          );
+        }
+        return /^BDAY[^:]*:--/i.test(line) ? "" : line;
+      });
+    }
     if (this.mimicGoogle && vCard.includes("\nPHOTO")) {
       const [, version] = vCard.match(/VERSION:([34]\.0)/);
       if (version && version != "3.0") {

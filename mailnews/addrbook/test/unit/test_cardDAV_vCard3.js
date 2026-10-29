@@ -70,6 +70,7 @@ async function cleanUp(directory) {
   await clearDirectory(directory);
   CardDAVServer.reset();
   CardDAVServer.mimicYahoo = false;
+  CardDAVServer.mimicGoogle = false;
   Services.prefs.clearUserPref(PREF);
 }
 
@@ -188,6 +189,108 @@ add_task(async function testServerUnreachable() {
     1,
     "supported address data should be requested once the server is back"
   );
+
+  await cleanUp(directory);
+});
+
+/**
+ * Tests that dates without a year are sent to Google with a placeholder year,
+ * and that Google's way of returning them is understood.
+ */
+add_task(async function testGoogleDateWithoutYear() {
+  CardDAVServer.mimicGoogle = true;
+  Services.prefs.setBoolPref(PREF, true);
+
+  const directory = await initDirectory();
+  directory._isGoogleCardDAV = true;
+  await directory.fetchAllFromServer();
+
+  function checkBirthday(uid) {
+    const card = directory.getCard(uid);
+    Assert.stringContains(
+      CardDAVServer.cards.get(card.getProperty("_href", "")).vCard,
+      "BDAY;VALUE=DATE,X-APPLE-OMIT-YEAR=1604:1604-04-15\r\n",
+      "birthday on the server should have the placeholder year"
+    );
+    const properties = card.vCardProperties.toPropertyMap();
+    Assert.deepEqual(
+      ["BirthYear", "BirthMonth", "BirthDay"].map(p => properties.get(p)),
+      [undefined, "4", "15"],
+      "birthday should have no year"
+    );
+  }
+
+  for (const [uid, version, bday] of [
+    ["vcard3", "3.0", "BDAY;VALUE=DATE:--04-15"],
+    ["vcard4", "4.0", "BDAY:--0415"],
+  ]) {
+    directory.addCard(
+      VCardUtils.vCardToAbCard(
+        `BEGIN:VCARD\r\nVERSION:${version}\r\nFN:${uid}\r\n${bday}\r\nUID:${uid}\r\nEND:VCARD\r\n`
+      )
+    );
+    await TestUtils.waitForCondition(
+      () => directory.getCard(uid)?.getProperty("_etag", ""),
+      `${uid} should be stored on the server`
+    );
+    checkBirthday(uid);
+  }
+
+  info("Changing another property should keep the birthday without a year.");
+  const card = directory.getCard("vcard3");
+  const oldETag = card.getProperty("_etag", "");
+  card.vCardProperties.addValue("note", "changed");
+  card.setProperty("_vCard", card.vCardProperties.toVCard());
+  directory.modifyCard(card);
+  await TestUtils.waitForCondition(
+    () => directory.getCard("vcard3").getProperty("_etag", "") != oldETag,
+    "changed card should be stored on the server"
+  );
+  checkBirthday("vcard3");
+
+  await cleanUp(directory);
+});
+
+/**
+ * Tests that only dates without a year get a placeholder year, on any vCard
+ * 3.0 server.
+ */
+add_task(async function testPlaceholderYears() {
+  CardDAVServer.supportedAddressData = VCARD3;
+
+  const directory = await initDirectory();
+  await directory.fetchAllFromServer();
+
+  for (const [uid, bday, expected] of [
+    [
+      "no-year",
+      "BDAY;VALUE=DATE:--04-15",
+      "BDAY;X-APPLE-OMIT-YEAR=1604;VALUE=DATE:1604-04-15\r\n",
+    ],
+    [
+      "full-date",
+      "BDAY;VALUE=DATE:1990-04-15",
+      "BDAY;VALUE=DATE:1990-04-15\r\n",
+    ],
+    ["month-only", "BDAY;VALUE=DATE:--04", "BDAY;VALUE=DATE:--04\r\n"],
+    [
+      "placeholder",
+      "BDAY;X-APPLE-OMIT-YEAR=1604:1604-04-15",
+      "BDAY;X-APPLE-OMIT-YEAR=1604;VALUE=DATE:1604-04-15\r\n",
+    ],
+  ]) {
+    directory.addCard(
+      VCardUtils.vCardToAbCard(
+        `BEGIN:VCARD\r\nVERSION:3.0\r\nFN:${uid}\r\n${bday}\r\nUID:${uid}\r\nEND:VCARD\r\n`
+      )
+    );
+    const vCard = await waitForCardOnServer(directory, uid);
+    Assert.stringContains(
+      vCard,
+      expected,
+      `${uid} birthday on the server should be correct`
+    );
+  }
 
   await cleanUp(directory);
 });
