@@ -4,6 +4,8 @@
 
 #include "mimetpla.h"
 
+#include <algorithm>
+
 #include "mimemoz2.h"
 #include "msgCore.h"
 #include "mozilla/Preferences.h"
@@ -321,6 +323,7 @@ static int MimeInlineTextPlain_parse_line(const char* line, int32_t length,
     rv = conv->CiteLevelTXT(lineSourceStr.get(), &logicalLineStart,
                             &(text->mCiteLevel));
     NS_ENSURE_SUCCESS(rv, -1);
+    text->mCiteLevel = std::min(text->mCiteLevel, MAX_CITE_LEVEL);
 
     // Find out, which recognitions to do
     uint32_t whattodo = obj->options->whattodo;
@@ -337,18 +340,19 @@ static int MimeInlineTextPlain_parse_line(const char* line, int32_t length,
 
     // Write blockquote
     if (text->mCiteLevel > oldCiteLevel) {
+      nsAutoCString style;
+      MimeTextBuildPrefixCSS(text->mQuotedSizeSetting,
+                             text->mQuotedStyleSetting, text->mCitationColor,
+                             style);
+      nsAutoCString blockquote;
+      if (!plainHTML && !style.IsEmpty()) {
+        blockquote = "<blockquote type=cite style=\""_ns + style + "\">"_ns;
+      } else {
+        blockquote = "<blockquote type=cite>"_ns;
+      }
       prefaceResultStr += "</pre>";
       for (uint32_t i = 0; i < text->mCiteLevel - oldCiteLevel; i++) {
-        nsAutoCString style;
-        MimeTextBuildPrefixCSS(text->mQuotedSizeSetting,
-                               text->mQuotedStyleSetting, text->mCitationColor,
-                               style);
-        if (!plainHTML && !style.IsEmpty()) {
-          prefaceResultStr += "<blockquote type=cite style=\"";
-          prefaceResultStr += style;
-          prefaceResultStr += "\">";
-        } else
-          prefaceResultStr += "<blockquote type=cite>";
+        prefaceResultStr += blockquote;
       }
       prefaceResultStr += "<pre wrap class=\"moz-quote-pre\">\n";
     } else if (text->mCiteLevel < oldCiteLevel) {

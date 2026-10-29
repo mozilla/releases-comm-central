@@ -4,6 +4,8 @@
 
 #include "mimetpfl.h"
 
+#include <algorithm>
+
 #include "mimemoz2.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/StaticPrefs_mail.h"
@@ -396,6 +398,7 @@ static int MimeInlineTextPlainFlowed_parse_line(const char* aLine,
   nsAutoCString preface;
 
   /* Correct number of blockquotes */
+  linequotelevel = std::min(linequotelevel, MAX_CITE_LEVEL);
   int32_t quoteleveldiff = linequotelevel - exdata->quotelevel;
   if ((quoteleveldiff != 0) && flowed && exdata->inflow) {
     // From RFC 2646 4.5
@@ -408,19 +411,19 @@ static int MimeInlineTextPlainFlowed_parse_line(const char* aLine,
 
   // Cast so we have access to the prefs we need.
   MimeInlineTextPlainFlowed* tObj = (MimeInlineTextPlainFlowed*)obj;
-  while (quoteleveldiff > 0) {
-    quoteleveldiff--;
-    preface += "<blockquote type=cite";
-
+  if (quoteleveldiff > 0) {
     nsAutoCString style;
     MimeTextBuildPrefixCSS(tObj->mQuotedSizeSetting, tObj->mQuotedStyleSetting,
                            tObj->mCitationColor, style);
+    nsAutoCString blockquote;
     if (!plainHTML && !style.IsEmpty()) {
-      preface += " style=\"";
-      preface += style;
-      preface += '"';
+      blockquote = "<blockquote type=cite style=\""_ns + style + "\">"_ns;
+    } else {
+      blockquote = "<blockquote type=cite>"_ns;
     }
-    preface += '>';
+    for (; quoteleveldiff > 0; quoteleveldiff--) {
+      preface += blockquote;
+    }
   }
   while (quoteleveldiff < 0) {
     quoteleveldiff++;

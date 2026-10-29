@@ -57,6 +57,8 @@ tags = [
 
 ["test_qp_chunking.js"]
 
+["test_quoteDepth.js"]
+
 ["test_rfc822_body.js"]
 
 ["test_smime_decrypt.js"]

@@ -54,6 +54,11 @@ extern MimeInlineTextClass mimeInlineTextClass;
 #define DAM_MAX_BUFFER_SIZE 8 * 1024
 #define DAM_MAX_LINES 1024
 
+// Deepest quote level the plain text renderers nest as blockquotes. Each level
+// indents by roughly 16px, so deeper levels can't be read anyway, while parsing
+// deeply nested markup gets quadratically slower.
+constexpr uint32_t MAX_CITE_LEVEL = 100;
+
 struct MimeInlineText {
   MimeLeaf leaf; /* superclass variables */
   char* charset; /* The charset from the content-type of this

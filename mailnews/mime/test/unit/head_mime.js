@@ -65,3 +65,35 @@ function apply_mime_conversion(msgUri, smimeSink, openpgpSink = null) {
   channel.asyncOpen(converter);
   return listener;
 }
+
+/**
+ * Stream a raw RFC822 message through the MIME converter.
+ *
+ * A file channel is used instead of MessageInjection because the mbox store
+ * appends a newline to a body that ends mid-line.
+ *
+ * @param {string} raw - The complete message source.
+ * @returns {Promise<string>} The rendered HTML.
+ */
+async function render_raw_message(raw) {
+  const { FileTestUtils } = ChromeUtils.importESModule(
+    "resource://testing-common/FileTestUtils.sys.mjs"
+  );
+  const file = FileTestUtils.getTempFile("raw.eml");
+  await IOUtils.write(file.path, new TextEncoder().encode(raw));
+
+  const listener = new PromiseTestUtils.PromiseStreamListener();
+  const channel = Services.io.newChannelFromURI(
+    Services.io.newFileURI(file),
+    null,
+    Services.scriptSecurityManager.getSystemPrincipal(),
+    null,
+    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+    Ci.nsIContentPolicy.TYPE_OTHER
+  );
+  const converter = Cc["@mozilla.org/streamConverters;1"]
+    .getService(Ci.nsIStreamConverterService)
+    .asyncConvertData("message/rfc822", "text/html", listener, channel);
+  channel.asyncOpen(converter);
+  return listener.promise;
+}

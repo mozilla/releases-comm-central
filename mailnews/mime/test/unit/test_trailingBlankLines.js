@@ -9,40 +9,19 @@
  * See RFC 6376 3.4.3 for the canonicalization this mirrors.
  */
 
-var { FileTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/FileTestUtils.sys.mjs"
-);
-
 const SENDER = "sender@example.invalid";
 const RECIPIENT = "recipient@example.invalid";
 
 // Stream a raw RFC822 message through the MIME converter and return the
 // rendered HTML. sanitize sets mail.body_sanitize_trailing_blank_lines.
-// A file channel is used instead of MessageInjection because the mbox store
-// appends a newline to a body that ends mid-line, which would defeat the
-// missing-final-CRLF scenario.
+// render_raw_message keeps a body that ends mid-line intact, which the
+// missing-final-CRLF scenario relies on.
 async function streamMessage(raw, sanitize) {
   Services.prefs.setBoolPref(
     "mail.body_sanitize_trailing_blank_lines",
     sanitize
   );
-  const file = FileTestUtils.getTempFile("raw.eml");
-  await IOUtils.write(file.path, new TextEncoder().encode(raw));
-
-  const listener = new PromiseTestUtils.PromiseStreamListener();
-  const channel = Services.io.newChannelFromURI(
-    Services.io.newFileURI(file),
-    null,
-    Services.scriptSecurityManager.getSystemPrincipal(),
-    null,
-    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-    Ci.nsIContentPolicy.TYPE_OTHER
-  );
-  const converter = Cc["@mozilla.org/streamConverters;1"]
-    .getService(Ci.nsIStreamConverterService)
-    .asyncConvertData("message/rfc822", "text/html", listener, channel);
-  channel.asyncOpen(converter);
-  return listener.promise;
+  return render_raw_message(raw);
 }
 
 // Render a single-part text/plain body, fixed or flowed.
