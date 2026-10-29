@@ -35,7 +35,7 @@ registerCleanupFunction(() => {
 add_task(function testPlainToken() {
   const authenticator = createAuthenticator(kUsername, kPassword);
   Assert.equal(
-    authenticator.getPlainToken(),
+    authenticator.getPlainToken(kPassword),
     btoa(`\0${kUsernameUtf8}\0${kPasswordUtf8}`),
     "AUTH PLAIN should send the user name and password as UTF-8"
   );

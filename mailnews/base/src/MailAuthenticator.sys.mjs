@@ -311,24 +311,19 @@ export class SmtpAuthenticator extends MailAuthenticator {
   }
 
   /**
-   * Get the ByteString form of the current password.
-   *
-   * @returns {string}
-   */
-  getByteStringPassword() {
-    return MailStringUtils.stringToByteString(this.getPassword());
-  }
-
-  /**
    * Get the PLAIN auth token for a connection.
    *
+   * @param {string} password - The server password.
    * @returns {string}
    */
-  getPlainToken() {
+  getPlainToken(password) {
     // According to rfc4616#section-2, username and password should be UTF-8
     // BinaryString before base64 encoded.
     return btoa(
-      "\0" + this.getByteStringUsername() + "\0" + this.getByteStringPassword()
+      "\0" +
+        this.getByteStringUsername() +
+        "\0" +
+        MailStringUtils.stringToByteString(password)
     );
   }
 

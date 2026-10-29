@@ -796,16 +796,21 @@ export class SmtpClient {
         this._currentAction = this._actionAUTH_LOGIN_USER;
         this._sendCommand("AUTH LOGIN");
         return;
-      case "PLAIN":
+      case "PLAIN": {
         // AUTH PLAIN is a 1 step authentication process
         // C: AUTH PLAIN BASE64(\0 USER \0 PASS)
         this.logger.debug("Authentication via AUTH PLAIN");
+        const password = this._getPassword();
+        if (password == null) {
+          return;
+        }
         this._currentAction = this._actionAUTHComplete;
         this._sendCommand(
-          "AUTH PLAIN " + this._authenticator.getPlainToken(),
+          "AUTH PLAIN " + this._authenticator.getPlainToken(password),
           true
         );
         return;
+      }
       case "CRAM-MD5":
         this.logger.debug("Authentication via AUTH CRAM-MD5");
         this._currentAction = this._actionAUTH_CRAM;
@@ -1178,9 +1183,13 @@ export class SmtpClient {
       return;
     }
     this.logger.debug("AUTH LOGIN PASS");
+    const password = this._getPassword();
+    if (password == null) {
+      return;
+    }
     this._currentAction = this._actionAUTHComplete;
     this._sendCommand(
-      this._authenticator.getLoginPasswordToken(this._getPassword()),
+      this._authenticator.getLoginPasswordToken(password),
       true
     );
   }
