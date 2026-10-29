@@ -308,6 +308,41 @@ add_task(async function test_get_authenticated() {
   mockServer.reset();
 });
 
+add_task(async function test_get_authenticatedHeadersNotModified() {
+  const authHeaders = [];
+  mockServer.server.registerPathHandler("/reused", (request, response) => {
+    authHeaders.push(
+      request.hasHeader("Authorization")
+        ? request.getHeader("Authorization")
+        : null
+    );
+    response.setStatusLine(request.httpVersion, 200, "OK");
+    response.setHeader("Content-Type", "text/plain");
+    response.write("Success");
+  });
+
+  const headers = { Accept: "text/plain" };
+  await fetchHTTP("http://test.test/reused", {
+    headers,
+    username: "foo",
+    password: "bar",
+  });
+  Assert.deepEqual(
+    headers,
+    { Accept: "text/plain" },
+    "the passed headers should not be modified"
+  );
+
+  await fetchHTTP("http://test.test/reused", { headers });
+  Assert.deepEqual(
+    authHeaders,
+    ["Basic Zm9vOmJhcg==", null],
+    "a later request with the same headers should not be authenticated"
+  );
+
+  mockServer.server.registerPathHandler("/reused", null);
+});
+
 add_task(async function test_get_responseJSON() {
   const testData = {
     foo: "bar",

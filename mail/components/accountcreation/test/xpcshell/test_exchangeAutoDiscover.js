@@ -161,6 +161,85 @@ add_task(async function test_getAddonsList_abort() {
   Services.prefs.clearUserPref(ADDONS_JSON_URL_PREF);
 });
 
+add_task(async function test_fetchConfigFromExchange_httpNotAuthenticated() {
+  // The authenticated HTTPS lookups must not make the plain HTTP lookup at
+  // http://autodiscover.exchange.test/autodiscover/autodiscover.xml send the
+  // credentials too.
+  Services.prefs.setBoolPref(
+    "mailnews.auto_config.fetchFromExchange.enabled",
+    true
+  );
+
+  const autodiscoverResponse = await IOUtils.readUTF8(
+    do_get_file("data/exchange.test.xml").path
+  );
+  const plainRequest = Promise.withResolvers();
+
+  const secureServer = new HttpServer();
+  secureServer.start(-1);
+  const secureProxy = await HttpsProxy.create(
+    secureServer.identity.primaryPort,
+    "autodiscover.exchange.test",
+    "autodiscover.exchange.test"
+  );
+  secureServer.identity.add("https", "autodiscover.exchange.test", 443);
+  secureServer.registerPathHandler(
+    "/autodiscover/autodiscover.xml",
+    (request, response) => {
+      // Only answer once the plain HTTP request was made.
+      response.processAsync();
+      plainRequest.promise.then(() => {
+        response.setStatusLine(request.httpVersion, 200, "OK");
+        response.setHeader("Content-Type", "application/xml");
+        response.write(autodiscoverResponse);
+        response.finish();
+      });
+    }
+  );
+
+  const plainServer = new HttpServer();
+  plainServer.start(-1);
+  NetworkTestUtils.configureProxy(
+    "autodiscover.exchange.test",
+    80,
+    plainServer.identity.primaryPort
+  );
+  plainServer.identity.add("http", "autodiscover.exchange.test", 80);
+  plainServer.registerPathHandler(
+    "/autodiscover/autodiscover.xml",
+    (request, response) => {
+      plainRequest.resolve(request.hasHeader("Authorization"));
+      response.setStatusLine(request.httpVersion, 404, "Not Found");
+    }
+  );
+
+  try {
+    const config = await fetchConfigFromExchange(
+      "exchange.test",
+      "testExchange@exchange.test",
+      new AbortController().signal,
+      null,
+      "hunter2",
+      () => Promise.reject(new Error("No redirect expected"))
+    );
+
+    Assert.ok(config, "Should get a config");
+    Assert.ok(
+      !(await plainRequest.promise),
+      "The plain HTTP request should not be authenticated"
+    );
+  } finally {
+    secureProxy.destroy();
+    secureServer.stop();
+    NetworkTestUtils.unconfigureProxy("autodiscover.exchange.test", 80);
+    plainServer.stop();
+    Services.cache2.clear();
+    Services.prefs.clearUserPref(
+      "mailnews.auto_config.fetchFromExchange.enabled"
+    );
+  }
+});
+
 /**
  * @param {string} redirectAddr - The address to redirect to.
  * @returns {string} An AutoDiscover response redirecting to the address.
