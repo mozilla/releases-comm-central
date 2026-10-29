@@ -3,8 +3,8 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests that AUTH LOGIN for SMTP sends no password when the user cancels the
- * password prompt.
+ * Tests that AUTH LOGIN for SMTP is not attempted, and the login fails rather
+ * than stalls, when the user cancels the password prompt.
  */
 
 var { MailServices } = ChromeUtils.importESModule(
@@ -21,8 +21,6 @@ var { TestUtils } = ChromeUtils.importESModule(
 load("../../../resources/alertTestUtils.js");
 
 var gPasswordPrompts = 0;
-// The continuation lines the server received during AUTH.
-var gAuthLines = [];
 
 var gServer;
 var gSmtpServer;
@@ -43,11 +41,6 @@ add_setup(function () {
     const handler = new SMTP_RFC2821_handler(daemon);
     handler.kAuthRequired = true;
     handler.kAuthSchemes = ["LOGIN"];
-    const onMultiline = handler.onMultiline;
-    handler.onMultiline = function (line) {
-      gAuthLines.push(line);
-      return onMultiline.call(this, line);
-    };
     handler.resetTest();
     return handler;
   });
@@ -89,23 +82,13 @@ add_task(async function testPasswordPromptCancelled() {
 
   Assert.equal(gPasswordPrompts, 1, "the password should be asked for");
 
-  // The server reads everything the client sent before seeing it disconnect,
-  // which the client only does once the QUIT close timeout expires.
   await TestUtils.waitForCondition(
     () => !gServer._readers.some(reader => reader.isRunning),
-    "waiting for the client to disconnect",
-    100,
-    100
-  );
-  // The server is still waiting for the password, so it takes QUIT for it.
-  Assert.deepEqual(
-    gAuthLines,
-    [btoa("testsmtp"), "QUIT"],
-    "only the user name and QUIT should be sent during AUTH LOGIN"
+    "waiting for the client to disconnect"
   );
   Assert.deepEqual(
     gServer.playTransaction().them,
-    ["EHLO test", "AUTH LOGIN"],
-    "no password should be sent after QUIT"
+    ["EHLO test", "QUIT"],
+    "AUTH LOGIN should not be sent after cancelling"
   );
 });

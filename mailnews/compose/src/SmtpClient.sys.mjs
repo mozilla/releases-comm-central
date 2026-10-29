@@ -787,15 +787,20 @@ export class SmtpClient {
     this.logger.debug(`Current auth method: ${this._currentAuthMethod}`);
 
     switch (this._currentAuthMethod) {
-      case "LOGIN":
+      case "LOGIN": {
         // LOGIN is a 3 step authentication process
         // C: AUTH LOGIN
         // C: BASE64(USER)
         // C: BASE64(PASS)
         this.logger.debug("Authentication via AUTH LOGIN");
-        this._currentAction = this._actionAUTH_LOGIN_USER;
+        const password = this._getPassword();
+        if (password == null) {
+          return;
+        }
+        this._currentAction = this._actionAUTH_LOGIN_USER.bind(this, password);
         this._sendCommand("AUTH LOGIN");
         return;
+      }
       case "PLAIN": {
         // AUTH PLAIN is a 1 step authentication process
         // C: AUTH PLAIN BASE64(\0 USER \0 PASS)
@@ -811,11 +816,16 @@ export class SmtpClient {
         );
         return;
       }
-      case "CRAM-MD5":
+      case "CRAM-MD5": {
         this.logger.debug("Authentication via AUTH CRAM-MD5");
-        this._currentAction = this._actionAUTH_CRAM;
+        const password = this._getPassword();
+        if (password == null) {
+          return;
+        }
+        this._currentAction = this._actionAUTH_CRAM.bind(this, password);
         this._sendCommand("AUTH CRAM-MD5");
         return;
+      }
       case "XOAUTH2": {
         // See https://developers.google.com/gmail/xoauth2_protocol#smtp_protocol_exchange
         this.logger.debug("Authentication via AUTH XOAUTH2");
@@ -1139,7 +1149,7 @@ export class SmtpClient {
    * Returns the saved/cached server password, or show a password dialog. If the
    * user cancels the dialog, abort sending.
    *
-   * @returns {string} The server password.
+   * @returns {?string} The server password, or null if the user cancelled.
    */
   _getPassword() {
     try {
@@ -1158,15 +1168,16 @@ export class SmtpClient {
   /**
    * Response to AUTH LOGIN, if successful expects base64 encoded username
    *
+   * @param {string} password - The server password.
    * @param {object} command Parsed command from the server {statusCode, data}
    */
-  _actionAUTH_LOGIN_USER(command) {
+  _actionAUTH_LOGIN_USER(password, command) {
     if (command.statusCode !== 334) {
       this._onNsError("smtp-auth-failure", command.data);
       return;
     }
     this.logger.debug("AUTH LOGIN USER");
-    this._currentAction = this._actionAUTH_LOGIN_PASS;
+    this._currentAction = this._actionAUTH_LOGIN_PASS.bind(this, password);
     this._sendCommand(this._authenticator.getLoginUsernameToken(), true);
   }
 
@@ -1174,19 +1185,16 @@ export class SmtpClient {
    * Process the response to AUTH LOGIN with a username. If successful, expects
    * a base64-encoded password.
    *
+   * @param {string} password - The server password.
    * @param {{statusCode: number, data: string}} command - Parsed command from
    *   the server.
    */
-  _actionAUTH_LOGIN_PASS(command) {
+  _actionAUTH_LOGIN_PASS(password, command) {
     if (command.statusCode !== 334) {
       this._onNsError("smtp-auth-failure", command.data);
       return;
     }
     this.logger.debug("AUTH LOGIN PASS");
-    const password = this._getPassword();
-    if (password == null) {
-      return;
-    }
     this._currentAction = this._actionAUTHComplete;
     this._sendCommand(
       this._authenticator.getLoginPasswordToken(password),
@@ -1197,15 +1205,12 @@ export class SmtpClient {
   /**
    * Response to AUTH CRAM, if successful expects base64 encoded challenge.
    *
+   * @param {string} password - The server password.
    * @param {object} command Parsed command from the server {statusCode, data}
    */
-  async _actionAUTH_CRAM(command) {
+  _actionAUTH_CRAM(password, command) {
     if (command.statusCode !== 334) {
       this._onNsError("smtp-auth-failure", command.data);
-      return;
-    }
-    const password = this._getPassword();
-    if (password == null) {
       return;
     }
     let token;
