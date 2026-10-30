@@ -191,7 +191,6 @@ add_task(async function testSuccessfulCopyAllowsMove() {
     copiedMessageUri,
     streamListener,
     null,
-    null,
     false,
     "",
     false

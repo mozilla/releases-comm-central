@@ -33,15 +33,7 @@ var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
 async function streamMessage(msgURI) {
   const msgService = MailServices.messageServiceFromURI(msgURI);
   const streamListener = new PromiseTestUtils.PromiseStreamListener();
-  msgService.streamMessage(
-    msgURI,
-    streamListener,
-    msgWindow,
-    null,
-    true,
-    "filter",
-    false
-  );
+  msgService.streamMessage(msgURI, streamListener, null, true, "filter", false);
   return streamListener.promise;
 }
 

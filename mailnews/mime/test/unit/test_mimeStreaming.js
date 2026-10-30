@@ -43,7 +43,6 @@ function streamMsg(msgHdr) {
   msgService.streamMessage(
     msgURI,
     gStreamListener,
-    null,
     gUrlListener,
     true, // have them create the converter
     // additional uri payload, note that "header=" is prepended automatically

@@ -92,7 +92,7 @@ add_task(async function streamMessageInbox() {
   const msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
   const msgServ = MailServices.messageServiceFromURI(msgURI);
   const streamLister = new PromiseTestUtils.PromiseStreamListener();
-  msgServ.streamMessage(msgURI, streamLister, null, null, false, "", false);
+  msgServ.streamMessage(msgURI, streamLister, null, false, "", false);
   await streamLister.promise;
   // Record initial Size of Inbox.
   gImapInboxOfflineStoreSizeInitial = IMAPPump.inbox.filePath.fileSize;
@@ -145,7 +145,7 @@ add_task(async function streamMessageFoo() {
   const msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
   const msgServ = MailServices.messageServiceFromURI(msgURI);
   const streamListener = new PromiseTestUtils.PromiseStreamListener();
-  msgServ.streamMessage(msgURI, streamListener, null, null, false, "", false);
+  msgServ.streamMessage(msgURI, streamListener, null, false, "", false);
   await streamListener.promise;
   gFooOfflineStoreSizeInitial = fooFolder.filePath.fileSize;
 });
@@ -164,7 +164,7 @@ add_task(async function crossStreaming() {
   const msgServ = MailServices.messageServiceFromURI(msgURI);
   // pass true for aLocalOnly since message should be in offline store of Inbox.
   const streamListener = new PromiseTestUtils.PromiseStreamListener();
-  msgServ.streamMessage(msgURI, streamListener, null, null, false, "", true);
+  msgServ.streamMessage(msgURI, streamListener, null, false, "", true);
   await streamListener.promise;
   gFooOfflineStoreSizeFinal = fooFolder.filePath.fileSize;
   gImapInboxOfflineStoreSizeFinal = IMAPPump.inbox.filePath.fileSize;

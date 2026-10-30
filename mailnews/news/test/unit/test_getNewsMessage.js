@@ -92,7 +92,7 @@ function run_test() {
 
     Cc["@mozilla.org/messenger/messageservice;1?type=news"]
       .getService(Ci.nsIMsgMessageService)
-      .streamMessage(messageUri, streamListener, null, null, false, "", false);
+      .streamMessage(messageUri, streamListener, null, false, "", false);
   } catch (e) {
     server.stop();
     do_throw(e);

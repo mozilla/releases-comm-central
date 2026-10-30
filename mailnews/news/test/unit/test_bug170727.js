@@ -47,7 +47,7 @@ add_task(async function testloadMessage() {
   // displayed directly and simultaneously saved in the offline storage.
   {
     const streamListener = new PromiseTestUtils.PromiseStreamListener();
-    msgService.streamMessage(uri, streamListener, null, null, false, "", false);
+    msgService.streamMessage(uri, streamListener, null, false, "", false);
     const msgText = await streamListener.promise;
     localserver.closeCachedConnections();
 
@@ -61,7 +61,7 @@ add_task(async function testloadMessage() {
   // In the second run, the offline store serves as the source of the article.
   {
     const streamListener = new PromiseTestUtils.PromiseStreamListener();
-    msgService.streamMessage(uri, streamListener, null, null, false, "", false);
+    msgService.streamMessage(uri, streamListener, null, false, "", false);
     let msgText = await streamListener.promise;
     localserver.closeCachedConnections();
 

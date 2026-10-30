@@ -878,10 +878,12 @@ nsresult nsImapService::GetMessageFromUrl(
 
 // this method streams a message to the passed in consumer, with an optional
 // stream converter and additional header (e.g., "header=filter")
-NS_IMETHODIMP nsImapService::StreamMessage(
-    const nsACString& aMessageURI, nsIStreamListener* aStreamListener,
-    nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener, bool aConvertData,
-    const nsACString& aAdditionalHeader, bool aLocalOnly, nsIURI** aURL) {
+NS_IMETHODIMP nsImapService::StreamMessage(const nsACString& aMessageURI,
+                                           nsIStreamListener* aStreamListener,
+                                           nsIUrlListener* aUrlListener,
+                                           bool aConvertData,
+                                           const nsACString& aAdditionalHeader,
+                                           bool aLocalOnly, nsIURI** aURL) {
   nsAutoCString messageURI(aMessageURI);
 
   int32_t typeIndex = messageURI.Find("&type=application/x-message-display");
@@ -950,8 +952,6 @@ NS_IMETHODIMP nsImapService::StreamMessage(
   rv = AddImapFetchToUrl(mailnewsurl, folder, msgIds, additionalHeader);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  mailnewsurl->SetMsgWindow(aMsgWindow);
-
   // Try to check if the message is offline
   bool hasMsgOffline = false;
   folder->HasMsgOffline(key, &hasMsgOffline);
@@ -974,7 +974,7 @@ NS_IMETHODIMP nsImapService::StreamMessage(
   folder->ShouldStoreMsgOffline(key, &shouldStoreMsgOffline);
   imapUrl->SetStoreResultsOffline(shouldStoreMsgOffline);
   rv = GetMessageFromUrl(imapUrl, nsIImapUrl::nsImapMsgFetchPeek, folder,
-                         imapMessageSink, aMsgWindow, aStreamListener,
+                         imapMessageSink, nullptr, aStreamListener,
                          aConvertData, aURL);
   return rv;
 }

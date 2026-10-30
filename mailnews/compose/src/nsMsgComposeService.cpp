@@ -666,6 +666,12 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStartRunningUrl(nsIURI* aUrl) {
 
 NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI* aUrl,
                                                          nsresult aExitCode) {
+  // TODO: nobody hears about this failure. ReplyWithTemplate() returned NS_OK
+  // when it kicked off the stream, so the filter has already counted the action
+  // as a hit and will never call LogRuleHitFail(). A template that cannot be
+  // fetched -- it lives on an account that is offline, or one that has no
+  // usable password, since filters stream non-interactively -- therefore drops
+  // the reply without a trace.
   NS_ENSURE_SUCCESS(aExitCode, aExitCode);
   nsresult rv;
 
@@ -888,7 +894,7 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIURI> dummyNull;
-  rv = msgService->StreamMessage(templateMsgHdrUri, helper, aMsgWindow, helper,
+  rv = msgService->StreamMessage(templateMsgHdrUri, helper, helper,
                                  false,  // convert data
                                  ""_ns, false, getter_AddRefs(dummyNull));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1147,7 +1153,6 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
   // Now, just plug the two together and get the hell out of the way!
   nsCOMPtr<nsIStreamListener> streamListener = do_QueryInterface(mimeConverter);
   nsCOMPtr<nsIURI> dummyNull;
-  return messageService->StreamMessage(aMsgURI, streamListener, aMsgWindow,
-                                       nullptr, false, ""_ns, false,
-                                       getter_AddRefs(dummyNull));
+  return messageService->StreamMessage(aMsgURI, streamListener, nullptr, false,
+                                       ""_ns, false, getter_AddRefs(dummyNull));
 }

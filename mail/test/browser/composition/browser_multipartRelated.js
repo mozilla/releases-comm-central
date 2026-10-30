@@ -67,7 +67,6 @@ async function getMsgHeaders(aMsgHdr) {
     msgUri,
     streamListener,
     null,
-    null,
     false,
     "",
     false

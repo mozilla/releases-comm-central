@@ -187,7 +187,6 @@ NS_IMETHODIMP nsMailboxService::LoadMessage(const nsACString& aMessageURI,
 NS_IMETHODIMP
 nsMailboxService::StreamMessage(const nsACString& aMessageURI,
                                 nsIStreamListener* aConsumer,
-                                nsIMsgWindow* aMsgWindow,
                                 nsIUrlListener* aUrlListener,
                                 bool /* aConvertData */,
                                 const nsACString& aAdditionalHeader,
@@ -203,7 +202,7 @@ nsMailboxService::StreamMessage(const nsACString& aMessageURI,
     aURIString += aAdditionalHeader;
   }
 
-  return FetchMessage(aURIString, aConsumer, aMsgWindow, aUrlListener, nullptr,
+  return FetchMessage(aURIString, aConsumer, nullptr, aUrlListener, nullptr,
                       MailboxAction::FetchMessage, false, aURL);
 }
 

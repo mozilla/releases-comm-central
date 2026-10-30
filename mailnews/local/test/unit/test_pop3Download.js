@@ -105,7 +105,6 @@ add_task(async function testDownloadMessages() {
       msgURI,
       streamListener,
       null,
-      null,
       false,
       "",
       false

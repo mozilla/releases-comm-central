@@ -129,7 +129,6 @@ async function test_message_attachments(info) {
   msgService.streamMessage(
     msgURI,
     streamListener,
-    msgWindow,
     null,
     true, // Have them create the converter.
     "header=filter",

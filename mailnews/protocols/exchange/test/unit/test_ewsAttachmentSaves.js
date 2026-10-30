@@ -165,7 +165,6 @@ function getContentFromMessage(aMsgHdr) {
       msgUri,
       streamListener,
       null,
-      null,
       false, // aConvertData
       "",
       true // aLocalOnly

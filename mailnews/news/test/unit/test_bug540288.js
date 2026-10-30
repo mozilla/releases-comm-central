@@ -99,7 +99,6 @@ function run_test() {
               messageUri,
               streamListener,
               null,
-              null,
               false,
               "",
               false

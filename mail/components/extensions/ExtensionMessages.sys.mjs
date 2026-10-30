@@ -669,8 +669,7 @@ export class MsgHdrProcessor {
       // This is not using aConvertData and returns the raw unprocessed message.
       service.streamMessage(
         msgUri,
-        streamlistener,
-        null, // aMsgWindow
+        streamlistener, // aMsgWindow
         null, // aUrlListener
         false, // aConvertData
         "" //aAdditionalHeader

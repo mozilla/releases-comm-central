@@ -143,7 +143,6 @@ class BaseMessageService {
   streamMessage(
     messageUri,
     consumer,
-    msgWindow,
     urlListener,
     convertData,
     additionalHeader
@@ -151,7 +150,7 @@ class BaseMessageService {
     this._logger.debug("streamMessage", messageUri);
     const [folder, key] = this._decomposeNewsMessageURI(messageUri);
 
-    let uri = this.getUrlForUri(messageUri, msgWindow);
+    let uri = this.getUrlForUri(messageUri);
     if (additionalHeader) {
       // NOTE: jsmimeemitter relies on this.
       const url = new URL(uri.spec);
@@ -269,20 +268,13 @@ class BaseMessageService {
    * @param {nsIURI} uri - URL representing the message.
    * @param {string} messageUri - URI including the part to fetch.
    * @param {nsIStreamListener} streamListener - Stream listener.
-   * @param {nsIMsgWindow} msgWindow
+   * @param {nsIMsgWindow} _msgWindow
    * @param {nsIUrlListener} urlListener - URL listener.
    * @returns {nsIURI} the URL that gets run, if any.
    */
-  fetchMimePart(uri, messageUri, streamListener, msgWindow, urlListener) {
+  fetchMimePart(uri, messageUri, streamListener, _msgWindow, urlListener) {
     this._logger.debug("fetchMimePart", uri.spec);
-    return this.streamMessage(
-      uri.spec,
-      streamListener,
-      msgWindow,
-      urlListener,
-      false,
-      ""
-    );
+    return this.streamMessage(uri.spec, streamListener, urlListener, false, "");
   }
 }
 

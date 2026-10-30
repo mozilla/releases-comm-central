@@ -60,7 +60,6 @@ async function readMessageContent(msgHdr) {
     msgURI,
     streamListener,
     null,
-    null,
     false,
     "",
     false

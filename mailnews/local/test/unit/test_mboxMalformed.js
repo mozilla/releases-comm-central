@@ -98,7 +98,7 @@ add_task(async function test_badStoreTokens() {
     const service = MailServices.messageServiceFromURI(uri);
 
     try {
-      service.streamMessage(uri, streamListener, null, null, false, "", true);
+      service.streamMessage(uri, streamListener, null, false, "", true);
       await streamListener.promise;
     } catch (e) {
       Assert.equal(
@@ -158,7 +158,7 @@ add_task(async function test_badMessageSizes() {
     const service = MailServices.messageServiceFromURI(uri);
 
     try {
-      service.streamMessage(uri, streamListener, null, null, false, "", true);
+      service.streamMessage(uri, streamListener, null, false, "", true);
       await streamListener.promise;
     } catch (e) {
       Assert.equal(

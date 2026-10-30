@@ -162,7 +162,6 @@ function getContentFromMessage(aMsgHdr) {
       msgUri,
       streamListener,
       null,
-      null,
       false,
       "",
       false

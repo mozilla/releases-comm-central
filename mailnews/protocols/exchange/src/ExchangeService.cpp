@@ -183,12 +183,12 @@ NS_IMETHODIMP ExchangeService::FetchMimePart(nsIURI* aURI,
 
 NS_IMETHODIMP ExchangeService::StreamMessage(
     const nsACString& aMessageURI, nsIStreamListener* aStreamListener,
-    nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener, bool aConvertData,
+    nsIUrlListener* aUrlListener, bool aConvertData,
     const nsACString& aAdditionalHeader, bool aLocalOnly, nsIURI** _retval) {
   NS_ENSURE_ARG_POINTER(aStreamListener);
 
   nsCOMPtr<nsIURI> channelURI;
-  MOZ_TRY(GetUrlForUri(aMessageURI, aMsgWindow, getter_AddRefs(channelURI)));
+  MOZ_TRY(GetUrlForUri(aMessageURI, nullptr, getter_AddRefs(channelURI)));
 
   // If there's any modifications needed to the URI's query, do so here.
   if (aConvertData || !aAdditionalHeader.IsEmpty()) {

@@ -63,7 +63,6 @@ add_task(async function test_embedded_svg_with_inline_attachments_disabled() {
   messageService.streamMessage(
     messageURI,
     streamListener,
-    msgWindow,
     null,
     true,
     "filter",

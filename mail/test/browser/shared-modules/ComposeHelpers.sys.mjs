@@ -800,7 +800,6 @@ export async function get_msg_source(aMsgHdr, aCharset = "") {
       msgUri,
       streamListener,
       null,
-      null,
       false,
       "",
       false

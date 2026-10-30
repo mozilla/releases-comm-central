@@ -82,7 +82,6 @@ async function help_test_rfc822_body(info) {
     msgURI,
     streamListener,
     null,
-    null,
     true, // have them create the converter
     // additional uri payload, note that "header=" is prepended automatically
     "filter",

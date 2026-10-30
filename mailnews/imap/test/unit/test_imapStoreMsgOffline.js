@@ -78,7 +78,6 @@ add_task(async function streamMsgs() {
       msgUri,
       streamListener,
       null,
-      null,
       false,
       "",
       false

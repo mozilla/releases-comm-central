@@ -125,7 +125,6 @@ add_task(async function compactOneFolder() {
   msgServ.streamMessage(
     msgURI,
     new PromiseTestUtils.PromiseStreamListener(),
-    null,
     urlListener,
     false,
     "",

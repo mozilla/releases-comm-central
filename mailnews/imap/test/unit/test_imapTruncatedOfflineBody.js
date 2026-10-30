@@ -82,7 +82,6 @@ async function streamMessageToOfflineStore(msgHdr) {
   gIMAPService.streamMessage(
     IMAPPump.inbox.getUriForMsg(msgHdr),
     streamListener,
-    null,
     listener,
     false,
     "",

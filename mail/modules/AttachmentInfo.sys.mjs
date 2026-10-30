@@ -912,8 +912,7 @@ export class AttachmentInfo {
     const msgURI = msgHdr.folder.getUriForMsg(msgHdr);
     MailServices.messageServiceFromURI(msgURI).streamMessage(
       msgURI,
-      streamListener,
-      null, // aMsgWindow
+      streamListener, // aMsgWindow
       null, // aUrlListener
       true, // aConvertData
       "attach&" + params.toString(), // aAdditionalHeader

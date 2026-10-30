@@ -1516,15 +1516,7 @@ Enigmail.msg = {
 
     const streamListener = new PromiseStreamListener();
     const msgSvc = MailServices.messageServiceFromURI(msgUriSpec);
-    msgSvc.streamMessage(
-      msgUriSpec,
-      streamListener,
-      top.msgWindow,
-      null,
-      false,
-      null,
-      false
-    );
+    msgSvc.streamMessage(msgUriSpec, streamListener, null, false, null, false);
     await streamListener;
   },
 

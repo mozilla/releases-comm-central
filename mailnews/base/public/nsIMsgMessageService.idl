@@ -132,7 +132,6 @@ interface nsIMsgMessageService : nsISupports {
    *
    * @param aMessageURI - The uri of message to stream.
    * @param aStreamlistener - A streamlistener listening to the message.
-   * @param aMsgWindow - msgWindow for progress and status feedback.
    * @param aUrlListener - Gets notified when url starts and stops.
    * @param aConvertData - Whether to send data through a stream converter.
    * @param aAdditionalHeader - Added to URI, e.g., "header=filter".
@@ -146,7 +145,6 @@ interface nsIMsgMessageService : nsISupports {
    */
   nsIURI streamMessage(in AUTF8String aMessageURI,
                        in nsIStreamListener aStreamlistener,
-                       in nsIMsgWindow aMsgWindow,
                        in nsIUrlListener aUrlListener,
                        in boolean aConvertData,
                        in AUTF8String aAdditionalHeader,

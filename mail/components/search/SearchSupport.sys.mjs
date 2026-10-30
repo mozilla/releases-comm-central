@@ -933,7 +933,7 @@ export class StreamListenerBase {
           // XXX For now, try getting the messages from the server. This has
           // to be improved so that we don't generate any excess network
           // traffic
-          msgService.streamMessage(uri, this, null, null, false, "", false);
+          msgService.streamMessage(uri, this, null, false, "", false);
         } catch (ex) {
           // This is an expected case, in case we're offline
           this._searchIntegration._log.warn(

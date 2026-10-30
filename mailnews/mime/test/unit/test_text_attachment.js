@@ -74,7 +74,6 @@ async function test_message_attachments(info) {
   msgService.streamMessage(
     msgURI,
     streamListener,
-    msgWindow,
     null,
     true, // have them create the converter
     // additional uri payload, note that "header=" is prepended automatically

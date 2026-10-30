@@ -87,15 +87,7 @@ async function streamMessage(message) {
   const msgService = MailServices.messageServiceFromURI(msgURI);
   const streamListener = new PromiseTestUtils.PromiseStreamListener();
 
-  msgService.streamMessage(
-    msgURI,
-    streamListener,
-    null,
-    null,
-    true,
-    "filter",
-    false
-  );
+  msgService.streamMessage(msgURI, streamListener, null, true, "filter", false);
 
   return streamListener.promise;
 }

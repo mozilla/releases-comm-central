@@ -301,7 +301,6 @@ export class MessageSaver {
         Services.io.newURI(saveAsUri)
       ),
       null,
-      null,
       false,
       ""
     );
