@@ -40,7 +40,6 @@
 #include "nsNetUtil.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsIMsgWindow.h"
 #include "nsIMsgSearchTerm.h"
 #include "nsIStreamListener.h"
 #include "nsReadLine.h"

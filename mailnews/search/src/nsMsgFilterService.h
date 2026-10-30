@@ -9,8 +9,6 @@
 #include "nsIFile.h"
 #include "nsTArray.h"
 
-class nsIMsgWindow;
-
 // The filter service is used to acquire and manipulate filter lists.
 
 class nsMsgFilterService : public nsIMsgFilterService {

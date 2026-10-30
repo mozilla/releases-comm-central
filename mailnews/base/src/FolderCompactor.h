@@ -9,7 +9,6 @@
 #include "mozilla/RefPtr.h"
 
 class nsIMsgFolder;
-class nsIMsgWindow;
 class nsIUrlListener;
 enum class nsresult : uint32_t;
 

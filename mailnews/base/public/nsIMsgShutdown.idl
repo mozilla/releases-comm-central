@@ -4,7 +4,6 @@
 
 #include "nsISupports.idl"
 interface nsIUrlListener;
-interface nsIMsgWindow;
 interface nsIWebProgressListener;
 
 [scriptable, uuid(D1B43428-B631-4629-B691-AB0E01A2DB4B)]

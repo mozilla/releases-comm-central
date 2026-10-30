@@ -5,7 +5,6 @@
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"
 
-interface nsIMsgWindow;
 interface nsIFile;
 
 /**

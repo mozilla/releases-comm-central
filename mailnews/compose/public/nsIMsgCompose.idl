@@ -17,7 +17,6 @@ interface nsIMsgProgress;
 interface nsIDocShell;
 interface mozIDOMWindowProxy;
 interface nsIEditor;
-interface nsIMsgWindow;
 
 webidl Element;
 

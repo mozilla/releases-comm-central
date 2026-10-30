@@ -11,7 +11,6 @@ interface nsIMsgIdentity;
 interface nsIInterfaceRequestor;
 interface nsIFile;
 interface nsIRequest;
-interface nsIMsgWindow;
 
 [scriptable, uuid(1b11b532-1527-4fc0-a00f-4ce7e6886419)]
 interface nsIMsgOutgoingServerService : nsISupports {

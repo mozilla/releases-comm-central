@@ -7,7 +7,6 @@
 #include "nsImapCore.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgIncomingServer.h"
-#include "nsIMsgWindow.h"
 #include "nsIImapMailFolderSink.h"
 
 #include "mozilla/ClearOnShutdown.h"

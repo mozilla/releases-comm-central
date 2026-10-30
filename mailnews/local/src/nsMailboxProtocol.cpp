@@ -26,7 +26,6 @@
 #include "nsIStreamConverterService.h"
 #include "nsNetUtil.h"
 #include "nsMsgUtils.h"
-#include "nsIMsgWindow.h"
 #include "nsStreamUtils.h"
 #include "nsIScriptError.h"
 #include "nsQueryObject.h"

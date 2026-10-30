@@ -29,7 +29,6 @@
 #include "nsIMsgDatabase.h"
 #include "nsIInputStream.h"
 #include "nsIOutputStream.h"
-#include "nsIMsgWindow.h"
 #include "nsMsgMessageFlags.h"
 #include "mozilla/Components.h"
 #include "mozilla/dom/Promise.h"

@@ -21,7 +21,6 @@
 #include "nsHashPropertyBag.h"
 #include "nsMailChannel.h"
 
-class nsIMsgWindow;
 class nsIPrompt;
 class nsIMsgMailNewsUrl;
 class nsIProxyInfo;

@@ -8,7 +8,6 @@
 #include "nsIMsgProgress.h"
 #include "nsCOMArray.h"
 #include "nsString.h"
-#include "nsIMsgWindow.h"
 #include "nsIProgressEventSink.h"
 #include "nsTObserverArray.h"
 #include "nsWeakReference.h"

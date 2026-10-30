@@ -44,7 +44,6 @@
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgDatabase.h"
 #include "nsArrayUtils.h"
-#include "nsIMsgWindow.h"
 #include "nsITextToSubURI.h"
 #include "nsIAbManager.h"
 #include "nsCRT.h"

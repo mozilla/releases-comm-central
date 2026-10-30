@@ -12,6 +12,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsError.h"
 #include "nsIMsgComposeProgressParams.h"
+#include "nsIMsgWindow.h"
 #include "nsIMutableArray.h"
 #include "nsIStringBundle.h"
 #include "nsISupportsPrimitives.h"

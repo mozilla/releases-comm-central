@@ -10,7 +10,6 @@ interface nsIURI;
 interface nsIImapUrl;
 interface nsIImapIncomingServer;
 interface nsIMsgFolder;
-interface nsIMsgWindow;
 interface nsIImapFlagAndUidState;
 
 [ptr] native nsIImapHostSessionList(nsIImapHostSessionList);

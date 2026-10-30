@@ -27,7 +27,6 @@
 #include "nsIAppStartup.h"
 #include "nsIBaseWindow.h"
 #include "nsIDocShell.h"  // IWYU pragma: keep
-#include "nsIMsgWindow.h"
 #include "nsIObserverService.h"
 #include "nsIStringBundle.h"
 #include "nsISupportsPrimitives.h"

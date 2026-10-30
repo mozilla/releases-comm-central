@@ -5,7 +5,6 @@
 #include "nsMsgFilterCore.idl"
 
 interface nsIMsgCopyServiceListener;
-interface nsIMsgWindow;
 interface nsIMsgDBHdr;
 
 /**

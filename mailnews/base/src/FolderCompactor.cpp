@@ -16,7 +16,6 @@
 #include "nsIMsgLocalMailFolder.h"  // For QI, needed by IsLocalFolder().
 #include "nsIMsgPluggableStore.h"
 #include "nsIFeedbackService.h"
-#include "nsIMsgWindow.h"
 #include "nsIObserver.h"
 #include "nsIObserverService.h"
 #include "nsIStringBundle.h"

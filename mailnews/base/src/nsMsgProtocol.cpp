@@ -21,7 +21,6 @@
 #include "nsNetUtil.h"
 #include "nsIFileURL.h"
 #include "nsIFileStreams.h"
-#include "nsIMsgWindow.h"
 #include "nsIWebProgressListener.h"
 #include "nsIPipe.h"
 #include "nsIPrompt.h"

@@ -37,7 +37,6 @@
 #include "nsIImapMockChannel.h"
 #include "nsILoadGroup.h"
 #include "nsCOMPtr.h"
-#include "nsIMsgWindow.h"
 #include "nsIImapHeaderXferInfo.h"
 #include "nsMsgLineBuffer.h"
 #include "nsIAsyncInputStream.h"

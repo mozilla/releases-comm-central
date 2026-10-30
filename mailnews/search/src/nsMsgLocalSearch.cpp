@@ -11,7 +11,6 @@
 #include "nsMsgSearchBoolExpression.h"
 #include "nsIDBFolderInfo.h"
 #include "nsIMsgLocalMailFolder.h"
-#include "nsIMsgWindow.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgFilterPlugin.h"
 #include "nsMsgMessageFlags.h"
