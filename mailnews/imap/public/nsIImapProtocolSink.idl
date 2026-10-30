@@ -27,6 +27,13 @@ interface nsIImapProtocolSink : nsISupports {
   nsIMsgWindow getUrlWindow(in nsIMsgMailNewsUrl aUrl);
 
   /**
+   * Whether a user is waiting on a url and can answer for it.
+   *
+   * @param url url whose interactive flag we want.
+   */
+  boolean getUrlInteractive(in nsIMsgMailNewsUrl url);
+
+  /**
    * Setup main thread proxies.
    */
   void setupMainThreadProxies();

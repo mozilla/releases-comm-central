@@ -338,6 +338,9 @@ NS_SYNCRUNNABLEMETHOD2(StreamListener, OnStopRequest, nsIRequest*, nsresult)
 NS_SYNCRUNNABLEMETHOD2(ImapProtocolSink, GetUrlWindow, nsIMsgMailNewsUrl*,
                        nsIMsgWindow**)
 
+NS_SYNCRUNNABLEMETHOD2(ImapProtocolSink, GetUrlInteractive, nsIMsgMailNewsUrl*,
+                       bool*)
+
 NS_SYNCRUNNABLEMETHOD0(ImapProtocolSink, CloseStreams)
 NS_SYNCRUNNABLEMETHOD0(ImapProtocolSink, SetupMainThreadProxies)
 

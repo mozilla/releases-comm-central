@@ -1265,6 +1265,13 @@ NS_IMETHODIMP nsImapProtocol::GetUrlWindow(nsIMsgMailNewsUrl* aUrl,
   return aUrl->GetMsgWindow(aMsgWindow);
 }
 
+NS_IMETHODIMP nsImapProtocol::GetUrlInteractive(nsIMsgMailNewsUrl* url,
+                                                bool* interactive) {
+  NS_ENSURE_ARG_POINTER(url);
+  NS_ENSURE_ARG_POINTER(interactive);
+  return url->GetInteractive(interactive);
+}
+
 NS_IMETHODIMP nsImapProtocol::SetupMainThreadProxies() {
   return SetupSinkProxy();
 }
@@ -8414,6 +8421,18 @@ void nsImapProtocol::Check() {
   }
 }
 
+bool nsImapProtocol::IsInteractive() {
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningUrl);
+  if (!mailnewsUrl || !m_imapProtocolSink) {
+    return false;
+  }
+  bool interactive = false;
+  // Unlike the msgWindow, this needs nothing released back on the main thread.
+  nsresult rv =
+      m_imapProtocolSink->GetUrlInteractive(mailnewsUrl, &interactive);
+  return NS_SUCCEEDED(rv) && interactive;
+}
+
 nsresult nsImapProtocol::GetMsgWindow(nsIMsgWindow** aMsgWindow) {
   nsresult rv;
   *aMsgWindow = nullptr;
@@ -8441,11 +8460,9 @@ nsresult nsImapProtocol::GetPassword(nsString& password,
   // Get the password already stored in mem
   rv = m_imapServerSink->GetServerPassword(password);
   if (NS_FAILED(rv) || password.IsEmpty()) {
-    // First see if there's an associated window. We don't want to produce a
-    // password prompt if there is no window, e.g., during biff.
-    AutoProxyReleaseMsgWindow msgWindow;
-    GetMsgWindow(getter_AddRefs(msgWindow));
-    if (msgWindow) {
+    // We don't want to produce a password prompt when nobody is waiting on
+    // the url to be able to answer it, e.g., during biff.
+    if (IsInteractive()) {
       m_passwordStatus = NS_OK;
       m_passwordObtained = false;
 
