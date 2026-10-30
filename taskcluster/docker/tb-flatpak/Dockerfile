@@ -1,4 +1,4 @@
-FROM ghcr.io/flathub/flatpak-builder-lint@sha256:89e3512219fcad8caac39a8c7088748d0a9077396845610b0976cb5e5aead91c
+FROM ghcr.io/flathub/flatpak-builder-lint@sha256:fa11d9cf5044a1e251643f4abe58a2d456965bdc76372dc82c57d4f540cacd37
 LABEL org.opencontainers.image.authors="daniel@thunderbird.net"
 
 # Create scripts directory
