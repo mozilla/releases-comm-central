@@ -955,7 +955,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           bool isAsync = false;
           customAction->GetIsAsync(&isAsync);
           rv = customAction->ApplyAction(m_searchHitHdrs, value, this,
-                                         filterType, m_msgWindow);
+                                         filterType);
           BREAK_ACTION_IF_FAILURE(rv, "custom action failed to apply");
           if (isAsync) {
             MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,

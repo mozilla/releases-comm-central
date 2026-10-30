@@ -67,14 +67,12 @@ interface nsIMsgFilterCustomAction : nsISupports
    * @param actionValue  user-set value to use in the action
    * @param copyListener calling method (filterType Manual only)
    * @param filterType   type of filter being applied
-   * @param msgWindow    message window
    */
 
   void applyAction(in Array<nsIMsgDBHdr> msgHdrs,
              in AUTF8String actionValue,
              in nsIMsgCopyServiceListener copyListener,
-             in nsMsgFilterTypeType filterType,
-             in nsIMsgWindow msgWindow);
+             in nsMsgFilterTypeType filterType);
 
   /* does this action start an async action? If so, a copy listener must
    * be used to continue filter processing after the action. This only

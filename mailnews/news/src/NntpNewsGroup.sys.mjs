@@ -341,7 +341,7 @@ export class NntpNewsGroup {
    *
    * @see nsIMsgFilterHitNotify
    */
-  applyFilterHit(filter, msgWindow) {
+  applyFilterHit(filter, _msgWindow) {
     const loggingEnabled = filter.filterList.loggingEnabled;
     let applyMore = true;
 
@@ -388,8 +388,7 @@ export class NntpNewsGroup {
             [this._filteringHdr],
             action.strValue,
             null,
-            Ci.nsMsgFilterType.NewsRule,
-            msgWindow
+            Ci.nsMsgFilterType.NewsRule
           );
           break;
         default:

@@ -3597,7 +3597,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
           if (NS_FAILED(rv)) break;
 
           rv = customAction->ApplyAction({&*msgHdr}, value, nullptr,
-                                         nsMsgFilterType::InboxRule, msgWindow);
+                                         nsMsgFilterType::InboxRule);
           // allow custom action to affect new
           msgHdr->GetFlags(&msgFlags);
           if (!(msgFlags & nsMsgMessageFlags::New)) msgIsNew = false;

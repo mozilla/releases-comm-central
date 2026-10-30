@@ -24,14 +24,13 @@ const filterActionMoveDecrypt = {
    * @param {string} aActionValue - Action value.
    * @param {nsIMsgCopyServiceListener} aListener
    */
-  applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  applyAction(aMsgHdrs, aActionValue, aListener, aType) {
     if (gEnigmailFilters) {
       gEnigmailFilters.moveDecrypt.applyAction(
         aMsgHdrs,
         aActionValue,
         aListener,
-        aType,
-        aMsgWindow
+        aType
       );
     } else {
       aListener.onStartCopy();
@@ -75,14 +74,13 @@ const filterActionCopyDecrypt = {
    * @param {string} aActionValue - Action value.
    * @param {nsIMsgCopyServiceListener} aListener
    */
-  applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  applyAction(aMsgHdrs, aActionValue, aListener, aType) {
     if (gEnigmailFilters) {
       gEnigmailFilters.copyDecrypt.applyAction(
         aMsgHdrs,
         aActionValue,
         aListener,
-        aType,
-        aMsgWindow
+        aType
       );
     } else {
       aListener.onStartCopy();
@@ -125,14 +123,13 @@ const filterActionEncrypt = {
    * @param {string} aActionValue - Action value.
    * @param {nsIMsgCopyServiceListener} aListener
    */
-  applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  applyAction(aMsgHdrs, aActionValue, aListener, aType) {
     if (gEnigmailFilters) {
       gEnigmailFilters.encrypt.applyAction(
         aMsgHdrs,
         aActionValue,
         aListener,
-        aType,
-        aMsgWindow
+        aType
       );
     } else {
       aListener.onStartCopy();
