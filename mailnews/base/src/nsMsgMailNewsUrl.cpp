@@ -8,7 +8,6 @@
 #include "nsIFeedbackService.h"
 #include "nsIMsgWindow.h"
 #include "nsString.h"
-#include "nsILoadGroup.h"
 #include "nsIDocShell.h"
 #include "nsIWebProgressListener.h"
 #include "nsIIOService.h"
@@ -64,8 +63,6 @@ nsMsgMailNewsUrl::~nsMsgMailNewsUrl() {
   // on and belongs to the main thread, so it must be released there too.
   NS_ReleaseOnMainThread("nsMsgMailNewsUrl::m_msgWindowWeak",
                          m_msgWindowWeak.forget());
-  NS_ReleaseOnMainThread("nsMsgMailNewsUrl::m_loadGroupWeak",
-                         m_loadGroupWeak.forget());
 
   nsTObserverArray<nsCOMPtr<nsIUrlListener>>::ForwardIterator iter(
       mUrlListeners);
@@ -348,11 +345,6 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetMaxProgress(int64_t* aMaxProgress) {
 NS_IMETHODIMP nsMsgMailNewsUrl::SetMaxProgress(int64_t aMaxProgress) {
   mMaxProgress = aMaxProgress;
   return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgMailNewsUrl::GetLoadGroup(nsILoadGroup** aLoadGroup) {
-  *aLoadGroup = nullptr;
-  return NS_ERROR_NULL_POINTER;
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetUpdatingFolder(bool* aResult) {

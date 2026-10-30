@@ -9,7 +9,6 @@ interface nsIFile;
 interface nsIUrlListener;
 interface nsIMsgIncomingServer;
 interface nsIMsgWindow;
-interface nsILoadGroup;
 interface nsIMsgSearchSession;
 interface nsICacheEntry;
 interface nsIMimeHeaders;
@@ -94,9 +93,6 @@ interface nsIMsgMailNewsUrl : nsIURL {
 
   // current mime headers if reading message
   attribute nsIMimeHeaders mimeHeaders;
-
-  // the load group is computed from the msgWindow
-  readonly attribute nsILoadGroup loadGroup;
 
   // search session, if we're running a search.
   attribute nsIMsgSearchSession searchSession;

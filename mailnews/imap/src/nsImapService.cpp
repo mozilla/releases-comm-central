@@ -468,11 +468,6 @@ nsresult nsImapService::FetchMimePartInternal(nsIImapUrl* aImapUrl,
           do_QueryInterface(aDisplayConsumer, &rv);
       if (NS_SUCCEEDED(rv) && aStreamListener) {
         nsCOMPtr<nsIChannel> aChannel;
-        nsCOMPtr<nsILoadGroup> loadGroup;
-        nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl =
-            do_QueryInterface(aImapUrl, &rv);
-        if (NS_SUCCEEDED(rv) && mailnewsUrl)
-          mailnewsUrl->GetLoadGroup(getter_AddRefs(loadGroup));
 
         nsCOMPtr<nsILoadInfo> loadInfo = MOZ_TRY(LoadInfo::Create(
             nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
@@ -484,8 +479,8 @@ nsresult nsImapService::FetchMimePartInternal(nsIImapUrl* aImapUrl,
         // we need a load group to hold onto the channel. When the request is
         // finished, it'll get removed from the load group, and the channel will
         // go away, which will free the load group.
-        if (!loadGroup) loadGroup = do_CreateInstance(NS_LOADGROUP_CONTRACTID);
-
+        nsCOMPtr<nsILoadGroup> loadGroup =
+            do_CreateInstance(NS_LOADGROUP_CONTRACTID);
         aChannel->SetLoadGroup(loadGroup);
 
         //  now try to open the channel passing in our display consumer as the
@@ -842,9 +837,6 @@ nsresult nsImapService::GetMessageFromUrl(
     if (aMsgWindow && mailnewsUrl) mailnewsUrl->SetMsgWindow(aMsgWindow);
     if (NS_SUCCEEDED(rv) && streamListener) {
       nsCOMPtr<nsIChannel> channel;
-      nsCOMPtr<nsILoadGroup> loadGroup;
-      if (NS_SUCCEEDED(rv) && mailnewsUrl)
-        mailnewsUrl->GetLoadGroup(getter_AddRefs(loadGroup));
 
       nsCOMPtr<nsILoadInfo> loadInfo = MOZ_TRY(LoadInfo::Create(
           nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
@@ -856,8 +848,8 @@ nsresult nsImapService::GetMessageFromUrl(
       // we need a load group to hold onto the channel. When the request is
       // finished, it'll get removed from the load group, and the channel will
       // go away, which will free the load group.
-      if (!loadGroup) loadGroup = do_CreateInstance(NS_LOADGROUP_CONTRACTID);
-
+      nsCOMPtr<nsILoadGroup> loadGroup =
+          do_CreateInstance(NS_LOADGROUP_CONTRACTID);
       rv = channel->SetLoadGroup(loadGroup);
       NS_ENSURE_SUCCESS(rv, rv);
 
@@ -905,10 +897,6 @@ NS_IMETHODIMP nsImapService::StreamMessage(
     if (aURL) NS_IF_ADDREF(*aURL = uri);
 
     nsCOMPtr<nsIChannel> aChannel;
-    nsCOMPtr<nsILoadGroup> aLoadGroup;
-    nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(uri, &rv);
-    if (NS_SUCCEEDED(rv) && mailnewsUrl)
-      mailnewsUrl->GetLoadGroup(getter_AddRefs(aLoadGroup));
 
     nsCOMPtr<nsILoadInfo> loadInfo = MOZ_TRY(LoadInfo::Create(
         nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,

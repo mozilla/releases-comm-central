@@ -874,17 +874,6 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
       m_mockChannel = do_QueryInterface(channel);
       NS_ASSERTION(m_mockChannel,
                    "failed to get a mock channel in nsImapProtocol");
-
-      // Certain imap operations (not initiated by the IO Service via AsyncOpen)
-      // can be interrupted by  the stop button on the toolbar. We do this by
-      // using the loadgroup of the docshell for the message pane. We really
-      // shouldn't be doing this.. See the comment in
-      // nsMsgMailNewsUrl::GetLoadGroup.
-      nsCOMPtr<nsILoadGroup> loadGroup;
-      mailnewsUrl->GetLoadGroup(
-          getter_AddRefs(loadGroup));  // get the message pane load group
-      if (loadGroup)
-        loadGroup->AddRequest(m_mockChannel, nullptr /* context isupports */);
     }
 
     if (m_mockChannel) {
@@ -2441,9 +2430,6 @@ bool nsImapProtocol::TryToRunUrlLocally(nsIURI* aURL, nsISupports* aConsumer) {
 
   nsCOMPtr<nsILoadGroup> loadGroup;
   imapChannel->GetLoadGroup(getter_AddRefs(loadGroup));
-  if (!loadGroup)  // if we don't have one, the url will snag one from the msg
-                   // window...
-    mailnewsUrl->GetLoadGroup(getter_AddRefs(loadGroup));
 
   if (loadGroup)
     loadGroup->RemoveRequest((nsIRequest*)mockChannel,
@@ -9210,9 +9196,6 @@ NS_IMETHODIMP nsImapMockChannel::Close() {
       // remove the channel from the load group
       nsCOMPtr<nsILoadGroup> loadGroup;
       GetLoadGroup(getter_AddRefs(loadGroup));
-      // if the mock channel wasn't initialized with a load group then
-      // use our load group (they may differ)
-      if (!loadGroup) mailnewsUrl->GetLoadGroup(getter_AddRefs(loadGroup));
       if (loadGroup)
         loadGroup->RemoveRequest((nsIRequest*)this, nullptr, NS_OK);
     }
@@ -9750,9 +9733,6 @@ NS_IMETHODIMP nsImapMockChannel::ReadFromImapConnection() {
 
   nsCOMPtr<nsILoadGroup> loadGroup;
   GetLoadGroup(getter_AddRefs(loadGroup));
-  if (!loadGroup)  // if we don't have one, the url will snag one from the msg
-                   // window...
-    mailnewsUrl->GetLoadGroup(getter_AddRefs(loadGroup));
 
   // okay, add the mock channel to the load group..
   if (loadGroup)
