@@ -479,7 +479,6 @@ export class NntpIncomingServer extends MsgIncomingServer {
    * @see startPopulating
    */
   async _startPopulating(msgWindow, forceToServer, getOnlyNew) {
-    this._msgWindow = msgWindow;
     this._subscribable.startPopulating(msgWindow, forceToServer, getOnlyNew);
     this._groups = [];
 

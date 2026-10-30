@@ -35,19 +35,11 @@ export class NntpNewsGroup {
    * Get the articles range to fetch, depending on server setting and user
    * selection.
    *
-   * @type {nsIMsgWindow} msgWindow - The associated msg window.
    * @type {number} firstPossible - The first article that can be fetched.
    * @type {number} lastPossible - The last article that can be fetched.
    * @returns {[number, number]} A tuple of the first and last article to fetch.
    */
-  getArticlesRangeToFetch(msgWindow, firstPossible, lastPossible) {
-    this._msgWindow = msgWindow;
-    if (!this._msgWindow) {
-      try {
-        this._msgWindow = MailServices.mailSession.topmostMsgWindow;
-      } catch (e) {}
-    }
-
+  getArticlesRangeToFetch(firstPossible, lastPossible) {
     this._folderFilterList = this._folder.getFilterList();
     this._serverFilterList = this._server.getFilterList();
     this._filterHeaders = new Set(
@@ -306,7 +298,7 @@ export class NntpNewsGroup {
           this._db,
           headers,
           this,
-          this._msgWindow
+          null
         );
         this._folderFilterList.flushLogIfNecessary();
       }
@@ -318,7 +310,7 @@ export class NntpNewsGroup {
           this._db,
           headers,
           this,
-          this._msgWindow
+          null
         );
         this._serverFilterList.flushLogIfNecessary();
       }

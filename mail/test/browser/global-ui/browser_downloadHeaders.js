@@ -89,7 +89,6 @@ async function withDownloadDialog(
   );
 
   const range = newsGroup.getArticlesRangeToFetch(
-    window.msgWindow,
     firstArticle,
     firstArticle + articleCount - 1
   );
