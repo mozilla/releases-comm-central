@@ -10,8 +10,8 @@
 add_task(async function testLocal() {
   const localAccount = MailServices.accounts.createLocalMailAccount();
   const localRoot = localAccount.incomingServer.rootFolder;
-  localRoot.createSubfolder("original", null);
-  localRoot.createSubfolder("taken", null);
+  localRoot.createSubfolder("original");
+  localRoot.createSubfolder("taken");
 
   await localRoot.getChildNamed("original").renameAsync("renamed");
   Assert.ok(

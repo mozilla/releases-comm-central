@@ -173,7 +173,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CreateLocalSubfolder(
     const nsACString& aFolderName, nsIMsgFolder** aChild) {
   AUTO_PROFILER_LABEL("nsMsgLocalMailFolder::CreateLocalSubfolder", MAILNEWS);
   NS_ENSURE_ARG_POINTER(aChild);
-  nsresult rv = CreateSubfolderInternal(aFolderName, nullptr, aChild);
+  nsresult rv = CreateSubfolderInternal(aFolderName, aChild);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolderNotificationService> notifier =
@@ -571,7 +571,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CreateStorageIfMissing(
   if (msgParent) {
     nsAutoCString folderName;
     GetName(folderName);
-    rv = msgParent->CreateSubfolder(folderName, nullptr);
+    rv = msgParent->CreateSubfolder(folderName);
     // by definition, this is OK.
     if (rv == NS_MSG_FOLDER_EXISTS) return NS_OK;
   }
@@ -580,12 +580,10 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CreateStorageIfMissing(
 }
 
 NS_IMETHODIMP
-nsMsgLocalMailFolder::CreateSubfolder(const nsACString& folderName,
-                                      nsIMsgWindow* msgWindow) {
+nsMsgLocalMailFolder::CreateSubfolder(const nsACString& folderName) {
   AUTO_PROFILER_LABEL("nsMsgLocalMailFolder::CreateSubfolder", MAILNEWS);
   nsCOMPtr<nsIMsgFolder> newFolder;
-  nsresult rv =
-      CreateSubfolderInternal(folderName, msgWindow, getter_AddRefs(newFolder));
+  nsresult rv = CreateSubfolderInternal(folderName, getter_AddRefs(newFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolderNotificationService> notifier =
@@ -598,14 +596,13 @@ nsMsgLocalMailFolder::CreateSubfolder(const nsACString& folderName,
 NS_IMETHODIMP
 nsMsgLocalMailFolder::CreateSubfolderWithListener(const nsACString& folderName,
                                                   nsIUrlListener* listener) {
-  nsresult rv = CreateSubfolder(folderName, nullptr);
+  nsresult rv = CreateSubfolder(folderName);
   listener->OnStopRunningUrl(nullptr, rv);
   return NS_OK;
 }
 
 nsresult nsMsgLocalMailFolder::CreateSubfolderInternal(
-    const nsACString& folderName, nsIMsgWindow* msgWindow,
-    nsIMsgFolder** aNewFolder) {
+    const nsACString& folderName, nsIMsgFolder** aNewFolder) {
   nsresult rv = CheckIfFolderExists(folderName, this);
   if (NS_FAILED(rv)) {
     return rv;
@@ -702,7 +699,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EmptyTrash(nsIUrlListener* aListener) {
       trashFolder->GetDBTransferInfo(getter_AddRefs(transferInfo));
       trashFolder->SetParent(nullptr);
       parentFolder->PropagateDelete(trashFolder, true);
-      parentFolder->CreateSubfolder("Trash"_ns, nullptr);
+      parentFolder->CreateSubfolder("Trash"_ns);
       nsCOMPtr<nsIMsgFolder> newTrashFolder;
       rv = GetTrashFolder(getter_AddRefs(newTrashFolder));
       if (NS_SUCCEEDED(rv) && newTrashFolder) {
@@ -1529,8 +1526,8 @@ nsresult nsMsgLocalMailFolder::CopyFolderAcrossServer(
   srcFolder->GetName(folderName);
 
   nsCOMPtr<nsIMsgFolder> newMsgFolder;
-  nsresult rv = CreateSubfolderInternal(folderName, msgWindow,
-                                        getter_AddRefs(newMsgFolder));
+  nsresult rv =
+      CreateSubfolderInternal(folderName, getter_AddRefs(newMsgFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgEnumerator> messages;

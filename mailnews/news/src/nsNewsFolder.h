@@ -28,8 +28,7 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
 
   NS_IMETHOD UpdateFolder(nsIMsgWindow* aWindow) override;
 
-  NS_IMETHOD CreateSubfolder(const nsACString& folderName,
-                             nsIMsgWindow* msgWindow) override;
+  NS_IMETHOD CreateSubfolder(const nsACString& folderName) override;
 
   NS_IMETHOD DeleteStorage() override;
   NS_IMETHOD Rename(const nsACString& newName) override;

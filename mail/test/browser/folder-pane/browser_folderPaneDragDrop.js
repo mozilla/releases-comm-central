@@ -29,9 +29,9 @@ const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
 var result, dataTransfer;
 
 add_setup(async function () {
-  inboxFolder.createSubfolder("ChildFolder", null);
+  inboxFolder.createSubfolder("ChildFolder");
   childFolder = inboxFolder.getChildNamed("ChildFolder");
-  inboxFolder.server.rootFolder.createSubfolder("DragFolder", null);
+  inboxFolder.server.rootFolder.createSubfolder("DragFolder");
   dragFolder = inboxFolder.server.rootFolder.getChildNamed("DragFolder");
 
   registerCleanupFunction(() => {

@@ -364,7 +364,7 @@ add_task(async function testFolderUncachedOnAcctRemoval() {
   // More specifically, we get the `nsIFile` which path is used as the cache key
   // from a different property depending on the case.
   const rootFolder = acc.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test_subfolder", null);
+  rootFolder.createSubfolder("test_subfolder");
 
   const rootFolderPath = rootFolder.filePath.persistentDescriptor;
   const subfolderPath =

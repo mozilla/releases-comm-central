@@ -30,7 +30,7 @@ add_setup(async function () {
   if (typeof localAccountUtils.inboxFolder == "undefined") {
     localAccountUtils.loadLocalMailAccount();
   }
-  localAccountUtils.rootFolder.createSubfolder("target", null);
+  localAccountUtils.rootFolder.createSubfolder("target");
   gTargetFolder = localAccountUtils.rootFolder.getChildNamed("target");
 
   const copyListenerFile1 = new PromiseTestUtils.PromiseCopyListener();

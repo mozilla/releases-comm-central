@@ -3386,8 +3386,7 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::CreateSubfolder(const nsACString& folderName,
-                                             nsIMsgWindow* msgWindow) {
+NS_IMETHODIMP nsMsgDBFolder::CreateSubfolder(const nsACString& folderName) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

@@ -62,7 +62,7 @@ add_setup(async function () {
   );
   nntpAccount.incomingServer.port = 119;
   const rootFolder = nntpAccount.incomingServer.rootFolder;
-  rootFolder.createSubfolder(GROUP, null);
+  rootFolder.createSubfolder(GROUP);
   newsFolder = rootFolder.getChildNamed(GROUP);
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   nntpAccount.incomingServer.getNewMessages(

@@ -311,7 +311,7 @@ function test_store_rename(root) {
 function test_unsafe_characters(root) {
   // Create α, β, and γ.
 
-  root.createSubfolder("folder α", null);
+  root.createSubfolder("folder α");
   const folderAlpha = root.getChildNamed("folder α");
   const folderBeta = root.createLocalSubfolder("folder β");
   folderBeta.QueryInterface(Ci.nsIMsgLocalMailFolder);

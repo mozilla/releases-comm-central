@@ -35,7 +35,7 @@ function addFolder(parent, folderName, storeIn) {
   ];
   // We won't receive a copy listener notification for this
   gCurrStatus |= kStatus.onStopCopyDone;
-  parent.createSubfolder(folderName, null);
+  parent.createSubfolder(folderName);
   gCurrStatus |= kStatus.functionCallDone;
   if (gCurrStatus == kStatus.everythingDone) {
     resetStatusAndProceed();

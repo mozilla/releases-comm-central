@@ -16,9 +16,9 @@ function subTest() {
   const rootFolder = account.incomingServer.rootFolder;
 
   // Create some real folders to test.
-  rootFolder.createSubfolder("test A", null);
+  rootFolder.createSubfolder("test A");
   const testFolderA = rootFolder.getChildNamed("test A");
-  rootFolder.createSubfolder("test B", null);
+  rootFolder.createSubfolder("test B");
   const testFolderB = rootFolder.getChildNamed("test B");
 
   // Create a virtual folder with two search folders.

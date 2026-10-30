@@ -66,7 +66,7 @@ function test_default_mailbox(expected, type) {
 function add_sub_folders(aFolderArray, aParentFolder) {
   for (const msgFolder of aFolderArray) {
     if (!aParentFolder.containsChildNamed(msgFolder.name)) {
-      aParentFolder.createSubfolder(msgFolder.name, null);
+      aParentFolder.createSubfolder(msgFolder.name);
     }
     if (msgFolder.subFolders) {
       add_sub_folders(

@@ -38,13 +38,13 @@ add_setup(async function () {
   about3Pane = get_about_3pane();
   rootFolder = inboxFolder.server.rootFolder;
   // Create a folder as a subfolder of the inbox
-  inboxFolder.createSubfolder("SmartFoldersA", null);
+  inboxFolder.createSubfolder("SmartFoldersA");
   inboxSubfolder = inboxFolder.getChildNamed("SmartFoldersA");
 
   trashFolder = inboxFolder.server.rootFolder.getFolderWithFlags(
     Ci.nsMsgFolderFlags.Trash
   );
-  trashFolder.createSubfolder("SmartFoldersB", null);
+  trashFolder.createSubfolder("SmartFoldersB");
   trashSubfolder = trashFolder.getChildNamed("SmartFoldersB");
 
   // The message itself doesn't really matter, as long as there's at least one
@@ -77,7 +77,7 @@ add_task(async function test_folder_flag_changes() {
     FAKE_SERVER_HOSTNAME,
     "pop3"
   );
-  pop3Server.rootFolder.createSubfolder("Archives", null);
+  pop3Server.rootFolder.createSubfolder("Archives");
   pop3Server.rootFolder
     .getChildNamed("Archives")
     .setFlag(Ci.nsMsgFolderFlags.Archive);

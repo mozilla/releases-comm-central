@@ -791,8 +791,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
   return rv;
 }
 
-NS_IMETHODIMP nsImapMailFolder::CreateSubfolder(const nsACString& folderName,
-                                                nsIMsgWindow* msgWindow) {
+NS_IMETHODIMP nsImapMailFolder::CreateSubfolder(const nsACString& folderName) {
   if (folderName.IsEmpty()) return NS_MSG_ERROR_INVALID_FOLDER_NAME;
 
   nsAutoCString trashName;

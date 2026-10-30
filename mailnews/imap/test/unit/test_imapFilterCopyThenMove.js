@@ -47,7 +47,7 @@ add_setup(async function () {
   IMAPPump.inbox.hierarchyDelimiter = "/";
   IMAPPump.inbox.verifiedAsOnlineFolder = true;
   const moveFolderAdded = PromiseTestUtils.promiseFolderAdded("Moved");
-  IMAPPump.incomingServer.rootFolder.createSubfolder("Moved", null);
+  IMAPPump.incomingServer.rootFolder.createSubfolder("Moved");
   await moveFolderAdded;
   moveFolder = IMAPPump.incomingServer.rootFolder
     .getChildNamed("Moved")

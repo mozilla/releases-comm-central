@@ -226,7 +226,7 @@ export class Pop3IncomingServer extends MsgIncomingServer {
           false
         )
       ) {
-        server.rootFolder.createSubfolder("Inbox", null);
+        server.rootFolder.createSubfolder("Inbox");
       }
     }
   }

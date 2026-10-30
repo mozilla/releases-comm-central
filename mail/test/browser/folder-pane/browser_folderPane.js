@@ -84,7 +84,7 @@ add_task(async function test_all_folders_toggle_folder_open_state() {
   const oneFolderCount = about3Pane.folderTree.rowCount;
 
   // This makes sure the folder can be toggled
-  folderA.createSubfolder("FolderPaneB", null);
+  folderA.createSubfolder("FolderPaneB");
   const folderB = folderA.getChildNamed("FolderPaneB");
   // Enter folderB, then enter folderA. This makes sure that folderA is not
   // collapsed.

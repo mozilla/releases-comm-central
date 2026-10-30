@@ -15,11 +15,11 @@ add_task(function () {
   const rootFolder = account.incomingServer.rootFolder;
 
   // Create some real folders to test.
-  rootFolder.createSubfolder("test A", null);
+  rootFolder.createSubfolder("test A");
   const testFolderA = rootFolder.getChildNamed("test A");
-  rootFolder.createSubfolder("test B", null);
+  rootFolder.createSubfolder("test B");
   const testFolderB = rootFolder.getChildNamed("test B");
-  rootFolder.createSubfolder("test C", null);
+  rootFolder.createSubfolder("test C");
   const testFolderC = rootFolder.getChildNamed("test C");
 
   // Create a virtual folder with no search folders.
@@ -80,7 +80,7 @@ add_task(function () {
   Assert.deepEqual(wrappedFolderX.searchFolders, [testFolderB, testFolderC]);
 
   // Add a subfolder to real folder B. Check it is added to virtual folder X.
-  testFolderB.createSubfolder("test BB", null);
+  testFolderB.createSubfolder("test BB");
   const testFolderBB = testFolderB.getChildNamed("test BB");
   Assert.equal(
     wrappedFolderZ.searchFolderURIs,
@@ -113,7 +113,7 @@ add_task(function () {
   ]);
 
   // Add a subfolder to real folder BB. Check it is added to virtual folder X.
-  testFolderBB.createSubfolder("test BBB", null);
+  testFolderBB.createSubfolder("test BBB");
   const testFolderBBB = testFolderBB.getChildNamed("test BBB");
   Assert.equal(
     wrappedFolderZ.searchFolderURIs,
@@ -180,7 +180,7 @@ add_task(function () {
 
   // Add a second subfolder to the removed folder. Check it is not added to
   // virtual folder X, because the parent folder is not in X.
-  testFolderBB.createSubfolder("test BBB two", null);
+  testFolderBB.createSubfolder("test BBB two");
   Assert.equal(
     wrappedFolderZ.searchFolderURIs,
     "",

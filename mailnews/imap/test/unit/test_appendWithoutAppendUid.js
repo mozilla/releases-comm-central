@@ -57,7 +57,7 @@ add_setup(async function () {
   incomingServer = createLocalIMAPServer(server.port);
 
   const folderAdded = PromiseTestUtils.promiseFolderAdded("Sent");
-  incomingServer.rootFolder.createSubfolder("Sent", null);
+  incomingServer.rootFolder.createSubfolder("Sent");
   await folderAdded;
   folder = incomingServer.rootFolder
     .getChildNamed("Sent")

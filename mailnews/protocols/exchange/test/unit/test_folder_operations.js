@@ -52,7 +52,7 @@ async function runCreateFolderTest(mockServer, testIncomingServer) {
   );
 
   // Create the new folder.
-  parentFolder.createSubfolder(newFolderName, null);
+  parentFolder.createSubfolder(newFolderName);
   await TestUtils.waitForCondition(
     () => !!parentFolder.getChildNamed(newFolderName),
     "new folder should eventually be created locally"

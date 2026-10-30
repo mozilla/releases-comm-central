@@ -27,7 +27,7 @@ function setupCUSTOM1() {
 }
 
 async function startTest() {
-  IMAPPump.incomingServer.rootFolder.createSubfolder("folder 1", null);
+  IMAPPump.incomingServer.rootFolder.createSubfolder("folder 1");
   await PromiseTestUtils.promiseFolderAdded("folder 1");
 
   addImapMessage();

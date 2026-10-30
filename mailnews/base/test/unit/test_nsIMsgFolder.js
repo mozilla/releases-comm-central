@@ -14,7 +14,7 @@ function run_test() {
   var root = account.incomingServer.rootFolder;
 
   // Add a sub folder to ensure that we have some folders created
-  root.createSubfolder("folder1", null);
+  root.createSubfolder("folder1");
 
   // Test - folder.getChildNamed()
 
@@ -41,49 +41,49 @@ function run_test() {
 
   // Check special folders aren't deletable, and that normal folders are.
   if (!root.containsChildNamed("Inbox")) {
-    root.createSubfolder("Inbox", null);
+    root.createSubfolder("Inbox");
   }
   var inbox = root.getChildNamed("Inbox");
   inbox.setFlag(Ci.nsMsgFolderFlags.Inbox);
   Assert.ok(!inbox.deletable);
 
   if (!root.containsChildNamed("Drafts")) {
-    root.createSubfolder("Drafts", null);
+    root.createSubfolder("Drafts");
   }
   var drafts = root.getChildNamed("Drafts");
   drafts.setFlag(Ci.nsMsgFolderFlags.Drafts);
   Assert.ok(!drafts.deletable);
 
   if (!root.containsChildNamed("Templates")) {
-    root.createSubfolder("Templates", null);
+    root.createSubfolder("Templates");
   }
   var templates = root.getChildNamed("Templates");
   templates.setFlag(Ci.nsMsgFolderFlags.Templates);
   Assert.ok(!templates.deletable);
 
   if (!root.containsChildNamed("Sent")) {
-    root.createSubfolder("Sent", null);
+    root.createSubfolder("Sent");
   }
   var sent = root.getChildNamed("Sent");
   sent.setFlag(Ci.nsMsgFolderFlags.SentMail);
   Assert.ok(!sent.deletable);
 
   if (!root.containsChildNamed("Archives")) {
-    root.createSubfolder("Archives", null);
+    root.createSubfolder("Archives");
   }
   var archives = root.getChildNamed("Archives");
   archives.setFlag(Ci.nsMsgFolderFlags.Archive);
   Assert.ok(!archives.deletable);
 
   if (!root.containsChildNamed("Trash")) {
-    root.createSubfolder("Trash", null);
+    root.createSubfolder("Trash");
   }
   var trash = root.getChildNamed("Trash");
   trash.setFlag(Ci.nsMsgFolderFlags.Trash);
   Assert.ok(!trash.deletable);
 
   if (!root.containsChildNamed("Outbox")) {
-    root.createSubfolder("Outbox", null);
+    root.createSubfolder("Outbox");
   }
   var outbox = root.getChildNamed("Outbox");
   outbox.setFlag(Ci.nsMsgFolderFlags.Queue);

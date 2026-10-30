@@ -49,7 +49,7 @@ var folderName2 = "sub2";
 // use a folder method to add a subfolder
 add_task(async function addSubfolder() {
   const promiseFolder1 = PromiseTestUtils.promiseFolderAdded(folderName1);
-  IMAPPump.inbox.createSubfolder(folderName1, null);
+  IMAPPump.inbox.createSubfolder(folderName1);
   await promiseFolder1;
 });
 

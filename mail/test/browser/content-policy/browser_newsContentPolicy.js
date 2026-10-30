@@ -152,7 +152,7 @@ async function setupNewsFolder(group, message) {
   newsServer.addGroup(group);
   newsServer.addMessages(group, [message]);
   const rootFolder = newsAccount.incomingServer.rootFolder;
-  rootFolder.createSubfolder(group, null);
+  rootFolder.createSubfolder(group);
   const folder = rootFolder.getChildNamed(group);
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   newsAccount.incomingServer.getNewMessages(

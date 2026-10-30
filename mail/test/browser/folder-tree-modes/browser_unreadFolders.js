@@ -29,13 +29,13 @@ add_setup(async function () {
   about3Pane = get_about_3pane();
 
   // Create a folder as a subfolder of the inbox
-  inboxFolder.createSubfolder("UnreadFoldersA", null);
+  inboxFolder.createSubfolder("UnreadFoldersA");
   inboxSubfolder = inboxFolder.getChildNamed("UnreadFoldersA");
 
   trashFolder = inboxFolder.server.rootFolder.getFolderWithFlags(
     Ci.nsMsgFolderFlags.Trash
   );
-  trashFolder.createSubfolder("UnreadFoldersB", null);
+  trashFolder.createSubfolder("UnreadFoldersB");
   trashSubfolder = trashFolder.getChildNamed("UnreadFoldersB");
 
   // The message itself doesn't really matter, as long as there's at least one

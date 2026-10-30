@@ -35,7 +35,7 @@ add_setup(function () {
 
 add_task(async function createSubfolder() {
   const folderAddedListener = PromiseTestUtils.promiseFolderAdded("subfolder");
-  IMAPPump.incomingServer.rootFolder.createSubfolder("subfolder", null);
+  IMAPPump.incomingServer.rootFolder.createSubfolder("subfolder");
   await folderAddedListener;
   gSubfolder = IMAPPump.incomingServer.rootFolder.getChildNamed("subfolder");
   Assert.ok(gSubfolder instanceof Ci.nsIMsgImapMailFolder);

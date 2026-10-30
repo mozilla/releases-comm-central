@@ -97,7 +97,7 @@ function run_test() {
   // Check if creating an empty folder returns a proper error
   // instead of crash (bug 831190).
   try {
-    rootFolder.createSubfolder("", null);
+    rootFolder.createSubfolder("");
     do_throw("createSubfolder() should have failed on empty folder name.");
   } catch (e) {
     // NS_MSG_ERROR_INVALID_FOLDER_NAME
@@ -106,7 +106,7 @@ function run_test() {
 
   // And try to create an existing folder again.
   try {
-    rootFolder.createSubfolder(testFolderName, null);
+    rootFolder.createSubfolder(testFolderName);
     do_throw("createSubfolder() should have failed on existing folder.");
   } catch (e) {
     // NS_MSG_FOLDER_EXISTS

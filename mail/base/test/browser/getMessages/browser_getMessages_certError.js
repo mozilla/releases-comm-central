@@ -222,7 +222,7 @@ async function subtest(
   nntpAccount.incomingServer.socketType = Ci.nsMsgSocketType.SSL;
   nntpAccount.incomingServer.port = 563;
   const nntpRootFolder = nntpAccount.incomingServer.rootFolder;
-  nntpRootFolder.createSubfolder("test.nntpcerterror", null);
+  nntpRootFolder.createSubfolder("test.nntpcerterror");
   const nntpFolder = nntpRootFolder.getChildNamed("test.nntpcerterror");
 
   for (const inbox of [

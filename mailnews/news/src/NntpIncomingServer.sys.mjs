@@ -396,7 +396,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
     if (this.containsNewsgroup(name)) {
       return;
     }
-    this.rootMsgFolder.createSubfolder(name, null);
+    this.rootMsgFolder.createSubfolder(name);
   }
 
   writeNewsrcFile() {

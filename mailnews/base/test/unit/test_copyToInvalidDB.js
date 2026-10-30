@@ -14,7 +14,7 @@ const { MessageGenerator } = ChromeUtils.importESModule(
 async function setup() {
   const createSubfolder = async function (parentFolder, name) {
     const promiseAdded = PromiseTestUtils.promiseFolderAdded(name);
-    parentFolder.createSubfolder(name, null);
+    parentFolder.createSubfolder(name);
     await promiseAdded;
     return parentFolder.getChildNamed(name);
   };

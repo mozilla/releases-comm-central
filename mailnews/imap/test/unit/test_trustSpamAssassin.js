@@ -44,7 +44,7 @@ add_setup(function () {
 });
 
 add_task(async function createJunkFolder() {
-  IMAPPump.incomingServer.rootFolder.createSubfolder("Junk", null);
+  IMAPPump.incomingServer.rootFolder.createSubfolder("Junk");
   await PromiseTestUtils.promiseFolderAdded("Junk");
   gJunkFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Junk");
   Assert.ok(gJunkFolder instanceof Ci.nsIMsgImapMailFolder);

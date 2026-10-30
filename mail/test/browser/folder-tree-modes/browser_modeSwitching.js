@@ -38,10 +38,10 @@ requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 2 : 1);
 
 add_setup(async function () {
   // Create one folder with unread messages and one favorite folder.
-  inboxFolder.createSubfolder("UnreadFolder", null);
+  inboxFolder.createSubfolder("UnreadFolder");
   unreadFolder = inboxFolder.getChildNamed("UnreadFolder");
 
-  inboxFolder.createSubfolder("FavoriteFolder", null);
+  inboxFolder.createSubfolder("FavoriteFolder");
   favoriteFolder = inboxFolder.getChildNamed("FavoriteFolder");
 
   await make_message_sets_in_folders([unreadFolder], [{ count: 1 }]);

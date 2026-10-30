@@ -781,7 +781,7 @@ add_task(async function testBadgesPersistentState() {
 
   // Create a folder and add messages to that folder to ensure the badges are
   // visible and they update properly.
-  rootFolder.createSubfolder("NewlyCreatedTestFolder", null);
+  rootFolder.createSubfolder("NewlyCreatedTestFolder");
   const folder = rootFolder.getChildNamed("NewlyCreatedTestFolder");
   await be_in_folder(folder);
 

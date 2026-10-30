@@ -14,7 +14,7 @@ add_task(function test_db_open() {
   );
   // Get the root folder
   const root = localAccountUtils.incomingServer.rootFolder;
-  root.createSubfolder("dbTest", null);
+  root.createSubfolder("dbTest");
   const testFolder = root.getChildNamed("dbTest");
   let db = dbService.openFolderDB(testFolder, true);
   Assert.notEqual(db, null);

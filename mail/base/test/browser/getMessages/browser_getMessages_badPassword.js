@@ -108,7 +108,7 @@ add_setup(async function () {
   nntpAccount.incomingServer.port = 119;
   nntpAccount.incomingServer.authMethod = Ci.nsMsgAuthMethod.passwordEncrypted;
   nntpRootFolder = nntpAccount.incomingServer.rootFolder;
-  nntpRootFolder.createSubfolder("getmessages.newsgroup", null);
+  nntpRootFolder.createSubfolder("getmessages.newsgroup");
   nntpFolder = nntpRootFolder.getChildNamed("getmessages.newsgroup");
   allInboxes.push(nntpFolder);
 

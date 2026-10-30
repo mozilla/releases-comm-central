@@ -791,9 +791,9 @@ async function _apply_to_folder_common(aChildrenToo, folder) {
  */
 add_task(async function test_apply_to_folder_no_children() {
   folderParent = await create_folder("ColumnsApplyParent");
-  folderParent.createSubfolder("Child1", null);
+  folderParent.createSubfolder("Child1");
   folderChild1 = folderParent.getChildNamed("Child1");
-  folderParent.createSubfolder("Child2", null);
+  folderParent.createSubfolder("Child2");
   folderChild2 = folderParent.getChildNamed("Child2");
 
   await be_in_folder(folderSource);
@@ -858,9 +858,9 @@ add_task(async function test_apply_to_folder_and_children() {
 add_task(async function test_apply_to_folder_no_children_swapped() {
   folderParentOut = await create_folder("ColumnsApplyParentOutgoing");
   folderParentOut.setFlag(Ci.nsMsgFolderFlags.SentMail);
-  folderParentOut.createSubfolder("Child1", null);
+  folderParentOut.createSubfolder("Child1");
   folderChild1 = folderParentOut.getChildNamed("Child1");
-  folderParentOut.createSubfolder("Child2", null);
+  folderParentOut.createSubfolder("Child2");
   folderChild2 = folderParentOut.getChildNamed("Child2");
 
   await be_in_folder(folderSource);

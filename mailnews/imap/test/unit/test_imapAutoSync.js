@@ -42,7 +42,7 @@ add_setup(function () {
 add_task(async function test_createTargetFolder() {
   gAutoSyncManager.addListener(gAutoSyncListener);
 
-  IMAPPump.incomingServer.rootFolder.createSubfolder("targetFolder", null);
+  IMAPPump.incomingServer.rootFolder.createSubfolder("targetFolder");
   await PromiseTestUtils.promiseFolderAdded("targetFolder");
   gTargetFolder =
     IMAPPump.incomingServer.rootFolder.getChildNamed("targetFolder");

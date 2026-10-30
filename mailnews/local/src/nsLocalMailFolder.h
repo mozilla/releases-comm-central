@@ -104,8 +104,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   NS_IMETHOD OnAnnouncerGoingAway(nsIDBChangeAnnouncer* instigator) override;
   NS_IMETHOD UpdateFolder(nsIMsgWindow* aWindow) override;
 
-  NS_IMETHOD CreateSubfolder(const nsACString& folderName,
-                             nsIMsgWindow* msgWindow) override;
+  NS_IMETHOD CreateSubfolder(const nsACString& folderName) override;
   NS_IMETHOD CreateSubfolderWithListener(const nsACString&,
                                          nsIUrlListener*) override;
 
@@ -197,7 +196,6 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
 
   // CreateSubfolder, but without the nsIMsgFolderListener notification
   nsresult CreateSubfolderInternal(const nsACString& folderName,
-                                   nsIMsgWindow* msgWindow,
                                    nsIMsgFolder** aNewFolder);
 
   nsresult IsChildOfTrash(bool* result);

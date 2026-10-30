@@ -175,7 +175,7 @@ async function createSubfolder(parent, name) {
   }
 
   const promiseAdded = MailPromiseTestUtils.promiseFolderAdded(name);
-  parent.createSubfolder(name, null);
+  parent.createSubfolder(name);
   await promiseAdded;
   return parent.getChildNamed(name);
 }

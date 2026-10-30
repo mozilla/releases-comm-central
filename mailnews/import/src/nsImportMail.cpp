@@ -719,7 +719,7 @@ bool nsImportGenericMail::CreateFolder(nsIMsgFolder** ppFolder) {
         // A working Thunderbird client can have mail in Local Folders and a
         // subsequent import 'Everything' will trigger a migration which
         // overwrites existing mailboxes with the imported mailboxes.
-        rv = localRootFolder->CreateSubfolder(utf8Name, nullptr);
+        rv = localRootFolder->CreateSubfolder(utf8Name);
         if (NS_SUCCEEDED(rv)) {
           rv = localRootFolder->GetChildNamed(utf8Name, ppFolder);
           if (*ppFolder) {
@@ -950,7 +950,7 @@ CreateSubfolderRunnable::CreateSubfolderRunnable(nsIMsgFolder* aFolder,
       m_name(aName) {}
 
 NS_IMETHODIMP CreateSubfolderRunnable::Run() {
-  mResult = m_folder->CreateSubfolder(m_name, nullptr);
+  mResult = m_folder->CreateSubfolder(m_name);
   return NS_OK;  // Sync runnable must return OK.
 }
 

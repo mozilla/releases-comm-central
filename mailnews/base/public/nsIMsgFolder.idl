@@ -286,7 +286,7 @@ interface nsIMsgFolder : nsISupports {
    *
    * @deprecated Use createSubfolderAsync/createSubfolderWithListener instead.
    */
-  void createSubfolder(in AUTF8String folderName, in nsIMsgWindow msgWindow);
+  void createSubfolder(in AUTF8String folderName);
 
   /**
    * Create a subfolder of the current folder with the passed in name. Returns

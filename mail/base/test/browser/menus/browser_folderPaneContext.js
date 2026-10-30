@@ -174,7 +174,7 @@ add_setup(async function () {
   );
   nntpAccount.incomingServer.port = nntpServer.port;
   nntpRootFolder = nntpAccount.incomingServer.rootFolder;
-  nntpRootFolder.createSubfolder("folder.pane.context.newsgroup", null);
+  nntpRootFolder.createSubfolder("folder.pane.context.newsgroup");
   nntpGroupFolder = nntpRootFolder.getChildNamed(
     "folder.pane.context.newsgroup"
   );

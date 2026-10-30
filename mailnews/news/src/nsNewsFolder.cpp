@@ -308,8 +308,8 @@ NS_IMETHODIMP nsMsgNewsFolder::SetNewsrcHasChanged(bool newsrcHasChanged) {
   return nntpServer->SetNewsrcHasChanged(newsrcHasChanged);
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::CreateSubfolder(const nsACString& newsgroupName,
-                                               nsIMsgWindow* msgWindow) {
+NS_IMETHODIMP nsMsgNewsFolder::CreateSubfolder(
+    const nsACString& newsgroupName) {
   nsresult rv = NS_OK;
   if (newsgroupName.IsEmpty()) return NS_MSG_ERROR_INVALID_FOLDER_NAME;
 

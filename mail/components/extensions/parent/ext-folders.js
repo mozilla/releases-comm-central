@@ -1053,7 +1053,7 @@ this.folders = class extends ExtensionAPIPersistent {
             MailServices.mfn.folderAdded,
             parentFolder.URI
           );
-          parentFolder.createSubfolder(childName, null);
+          parentFolder.createSubfolder(childName);
 
           const childFolder = await childFolderPromise;
           return context.extension.folderManager.convert(

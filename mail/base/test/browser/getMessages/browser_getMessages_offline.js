@@ -84,7 +84,7 @@ add_setup(async function () {
   nntpAccount.incomingServer.prettyName = "NNTP Account";
   nntpAccount.incomingServer.port = nntpServer.port;
   nntpRootFolder = nntpAccount.incomingServer.rootFolder;
-  nntpRootFolder.createSubfolder("getmessages.offline", null);
+  nntpRootFolder.createSubfolder("getmessages.offline");
   nntpFolder = nntpRootFolder.getChildNamed("getmessages.offline");
   allInboxes.push(nntpFolder);
 

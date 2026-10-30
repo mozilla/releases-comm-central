@@ -42,7 +42,7 @@ add_task(async function test_fls_basics() {
   // Create the Child folder, and test we can find it.
   // (NOTE: createSubFolder() can be async for IMAP folders. But for now
   // we know we're using local folders and it'll happen right away).
-  root.createSubfolder("Child", null);
+  root.createSubfolder("Child");
   Assert.equal(
     fls.getFolderForURL(kRootURI + "/Child"),
     root.getChildNamed("Child")
@@ -75,7 +75,7 @@ add_task(async function test_unicode_uris() {
   // Create a folder with non-ASCII characters.
   // Unicode abuse - dotless letter i and a metal umlaut over the n.
   const tapName = "Sp\u0131n\u0308al Tap";
-  root.createSubfolder(tapName, null);
+  root.createSubfolder(tapName);
 
   // Make sure we can find it.
   // (URI is percent-escaped utf-8)
@@ -154,7 +154,7 @@ add_task(function test_descendants_not_reused_after_parent_rename() {
   const parentName = "ParentToRename";
   const childName = "ChildToRecreate";
   const parent = root.createLocalSubfolder(parentName);
-  parent.createSubfolder(childName, null);
+  parent.createSubfolder(childName);
   const child = parent.getChildNamed(childName);
   const parentURI = parent.URI;
   const childURI = child.URI;

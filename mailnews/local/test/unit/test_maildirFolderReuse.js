@@ -59,7 +59,7 @@ add_task(function test_empty_trash_preserves_folder_object() {
     trashFolder.setFlag(Ci.nsMsgFolderFlags.Trash);
   }
   const trashURI = trashFolder.URI;
-  trashFolder.createSubfolder("FolderInTrash", null);
+  trashFolder.createSubfolder("FolderInTrash");
 
   trashFolder.emptyTrash(null);
 

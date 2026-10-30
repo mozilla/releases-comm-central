@@ -58,7 +58,7 @@ function addFolder(parent, folderName, storeIn) {
   ];
   // No copy listener notification for this
   gCurrStatus |= kStatus.onStopCopyDone;
-  parent.createSubfolder(folderName, null);
+  parent.createSubfolder(folderName);
   gCurrStatus |= kStatus.functionCallDone;
   gServer.performTest("LIST");
   if (gCurrStatus == kStatus.everythingDone) {

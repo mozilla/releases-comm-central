@@ -25,7 +25,7 @@ add_setup(async function () {
     "mail.server.default.autosync_offline_stores",
     false
   );
-  IMAPPump.incomingServer.rootFolder.createSubfolder("folder 1", null);
+  IMAPPump.incomingServer.rootFolder.createSubfolder("folder 1");
   await PromiseTestUtils.promiseFolderAdded("folder 1");
 
   const listener = new PromiseTestUtils.PromiseUrlListener();
@@ -67,7 +67,7 @@ add_task(async function test_rename() {
     "the folder object at the old URI should be detached"
   );
   const folderAdded = PromiseTestUtils.promiseFolderAdded("folder 1");
-  rootFolder.createSubfolder("folder 1", null);
+  rootFolder.createSubfolder("folder 1");
   const recreatedFolder = await folderAdded;
   Assert.notEqual(
     recreatedFolder,
@@ -88,7 +88,7 @@ add_task(async function test_renameKeepsSettings() {
 
   // A folder the user has configured.
   const folderAdded = PromiseTestUtils.promiseFolderAdded("with settings");
-  rootFolder.createSubfolder("with settings", null);
+  rootFolder.createSubfolder("with settings");
   const folder = await folderAdded;
   applySettings(folder);
 
@@ -122,7 +122,7 @@ add_task(async function test_renameKeepsFollowingTheAccount() {
 
   // A folder the user has not configured, so it follows the account.
   const folderAdded = PromiseTestUtils.promiseFolderAdded("without settings");
-  rootFolder.createSubfolder("without settings", null);
+  rootFolder.createSubfolder("without settings");
   const folder = await folderAdded;
 
   folder.rename("renamed again");
@@ -146,12 +146,12 @@ add_task(async function test_moveKeepsSettings() {
 
   // Somewhere to move to.
   let folderAdded = PromiseTestUtils.promiseFolderAdded("destination");
-  rootFolder.createSubfolder("destination", null);
+  rootFolder.createSubfolder("destination");
   const destination = await folderAdded;
 
   // A folder the user has configured.
   folderAdded = PromiseTestUtils.promiseFolderAdded("to move");
-  rootFolder.createSubfolder("to move", null);
+  rootFolder.createSubfolder("to move");
   const folder = await folderAdded;
   const oldURI = folder.URI;
   applySettings(folder);
@@ -169,7 +169,7 @@ add_task(async function test_moveKeepsSettings() {
     "the folder object at the old URI should be detached"
   );
   folderAdded = PromiseTestUtils.promiseFolderAdded("to move");
-  rootFolder.createSubfolder("to move", null);
+  rootFolder.createSubfolder("to move");
   const recreatedFolder = await folderAdded;
   Assert.notEqual(
     recreatedFolder,
@@ -192,7 +192,7 @@ add_task(async function test_moveToTrashDropsSettings() {
 
   // A folder the user has configured.
   const folderAdded = PromiseTestUtils.promiseFolderAdded("to delete");
-  rootFolder.createSubfolder("to delete", null);
+  rootFolder.createSubfolder("to delete");
   const folder = await folderAdded;
   applySettings(folder);
 
@@ -219,11 +219,11 @@ add_task(async function test_renameKeepsSubfolders() {
 
   // A folder with a subfolder.
   const parentAdded = PromiseTestUtils.promiseFolderAdded("parent to rename");
-  rootFolder.createSubfolder("parent to rename", null);
+  rootFolder.createSubfolder("parent to rename");
   const parent = await parentAdded;
 
   const childAdded = PromiseTestUtils.promiseFolderAdded("child");
-  parent.createSubfolder("child", null);
+  parent.createSubfolder("child");
   await childAdded;
 
   parent.rename("renamed parent");

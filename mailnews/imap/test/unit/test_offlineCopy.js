@@ -55,7 +55,7 @@ var tests = [
     setupIMAPPump();
 
     const promiseFolderAdded = PromiseTestUtils.promiseFolderAdded("folder 1");
-    IMAPPump.incomingServer.rootFolder.createSubfolder("folder 1", null);
+    IMAPPump.incomingServer.rootFolder.createSubfolder("folder 1");
     await promiseFolderAdded;
 
     gFolder1 = IMAPPump.incomingServer.rootFolder.getChildNamed("folder 1");

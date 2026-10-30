@@ -58,7 +58,7 @@ function createAccount(type = "none") {
 }
 
 async function createSubfolder(parent, name) {
-  parent.createSubfolder(name, null);
+  parent.createSubfolder(name);
   return parent.getChildNamed(name);
 }
 

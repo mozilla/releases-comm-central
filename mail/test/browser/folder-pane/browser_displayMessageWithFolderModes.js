@@ -51,11 +51,11 @@ add_setup(async function () {
   // This is a subfolder of the inbox so that
   // test_display_message_in_smart_folder_mode_works is able to test that we
   // don't attempt to expand any inboxes.
-  inboxFolder.createSubfolder("DisplayMessageWithFolderModesA", null);
+  inboxFolder.createSubfolder("DisplayMessageWithFolderModesA");
   folder = inboxFolder.getChildNamed("DisplayMessageWithFolderModesA");
   // This second folder is meant to act as a dummy folder to switch to when we
   // want to not be in folder.
-  inboxFolder.createSubfolder("DisplayMessageWithFolderModesB", null);
+  inboxFolder.createSubfolder("DisplayMessageWithFolderModesB");
   dummyFolder = inboxFolder.getChildNamed("DisplayMessageWithFolderModesB");
   await make_message_sets_in_folders([folder], [{ count: 5 }]);
   // The message itself doesn't really matter, as long as there's at least one
@@ -65,7 +65,7 @@ add_setup(async function () {
 
   // Create another subfolder on the top level that is not a parent of the
   // 2 folders so that it is not visible in Favorite mode.
-  inboxFolder.server.rootFolder.createSubfolder("Inbox2", null);
+  inboxFolder.server.rootFolder.createSubfolder("Inbox2");
   inbox2Folder = inboxFolder.server.rootFolder.getChildNamed("Inbox2");
 
   await be_in_folder(folder);

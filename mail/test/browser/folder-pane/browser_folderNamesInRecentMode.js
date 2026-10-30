@@ -45,11 +45,11 @@ add_task(async function test_folder_names_in_recent_view_mode() {
   const rootFolder2 = acc2.incomingServer.rootFolder;
 
   // Create some test folders.
-  rootFolder1.createSubfolder("uniqueName", null);
-  rootFolder1.createSubfolder("duplicatedName", null);
-  rootFolder2.createSubfolder("duplicatedName", null);
+  rootFolder1.createSubfolder("uniqueName");
+  rootFolder1.createSubfolder("duplicatedName");
+  rootFolder2.createSubfolder("duplicatedName");
   const inbox2 = rootFolder2.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
-  inbox2.createSubfolder("duplicatedName", null);
+  inbox2.createSubfolder("duplicatedName");
 
   const fUnique = rootFolder1.getChildNamed("uniqueName");
   const fDup1 = rootFolder1.getChildNamed("duplicatedName");

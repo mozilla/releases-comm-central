@@ -132,10 +132,7 @@ add_setup(async function () {
   );
   nntpAccount.incomingServer.prettyName = "NNTP Account";
   nntpAccount.incomingServer.port = 10000;
-  nntpAccount.incomingServer.rootFolder.createSubfolder(
-    "getmessages.newsgroup",
-    null
-  );
+  nntpAccount.incomingServer.rootFolder.createSubfolder("getmessages.newsgroup");
   allServers.push(nntpAccount.incomingServer);
 
   about3Pane.displayFolder(localAccount.incomingServer.rootFolder);

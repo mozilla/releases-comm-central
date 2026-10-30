@@ -69,7 +69,7 @@ add_setup(async function () {
   );
   nntpAccount.incomingServer.port = nntpServer.port;
   nntpRootFolder = nntpAccount.incomingServer.rootFolder;
-  nntpRootFolder.createSubfolder("edit.menu.newsgroup", null);
+  nntpRootFolder.createSubfolder("edit.menu.newsgroup");
   nntpFolder = nntpRootFolder.getChildNamed("edit.menu.newsgroup");
 
   imapServer = new IMAPServer();

@@ -736,7 +736,7 @@ export class ThunderbirdProfileImporter extends BaseProfileImporter {
       "Local Folders",
       null
     );
-    rootMsgFolder.createSubfolder(folderName, null);
+    rootMsgFolder.createSubfolder(folderName);
     const targetDir = rootMsgFolder.filePath;
     targetDir.append(folderName + ".sbd");
     this._logger.debug(
@@ -814,7 +814,7 @@ export class ThunderbirdProfileImporter extends BaseProfileImporter {
       bundle.formatStringFromName("ImportModuleFolderName", [this.NAME]),
       null
     );
-    localMsgFolder.createSubfolder(wrapFolderName, null);
+    localMsgFolder.createSubfolder(wrapFolderName);
     const targetRootMsgFolder = localMsgFolder.getChildNamed(wrapFolderName);
 
     // Import mail folders.
@@ -835,7 +835,7 @@ export class ThunderbirdProfileImporter extends BaseProfileImporter {
             entry.leafName,
             null
           );
-          targetRootMsgFolder.createSubfolder(folderName, null);
+          targetRootMsgFolder.createSubfolder(folderName);
           targetDir.append(wrapFolderName + ".sbd");
           targetDir.append(folderName + ".sbd");
           targetDir.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);

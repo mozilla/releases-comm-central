@@ -54,7 +54,7 @@ add_setup(async function () {
   );
 
   const moveFolderAdded = PromiseTestUtils.promiseFolderAdded("Moved");
-  IMAPPump.incomingServer.rootFolder.createSubfolder("Moved", null);
+  IMAPPump.incomingServer.rootFolder.createSubfolder("Moved");
   await moveFolderAdded;
   moveFolder = IMAPPump.incomingServer.rootFolder
     .getChildNamed("Moved")
@@ -66,7 +66,7 @@ add_setup(async function () {
   copyIncomingServer.maximumConnectionsNumber = 1;
 
   const copyFolderAdded = PromiseTestUtils.promiseFolderAdded("Copies");
-  copyIncomingServer.rootFolder.createSubfolder("Copies", null);
+  copyIncomingServer.rootFolder.createSubfolder("Copies");
   await copyFolderAdded;
   copyFolder = copyIncomingServer.rootFolder
     .getChildNamed("Copies")

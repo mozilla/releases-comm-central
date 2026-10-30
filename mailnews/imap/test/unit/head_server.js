@@ -248,7 +248,7 @@ async function addImapMessagesAndSync(count) {
  * @returns {Promise<nsIMsgImapMailFolder>} A new folder on the same account.
  */
 async function createImapSubfolder(name) {
-  IMAPPump.incomingServer.rootFolder.createSubfolder(name, null);
+  IMAPPump.incomingServer.rootFolder.createSubfolder(name);
   await PromiseTestUtils.promiseFolderAdded(name);
   return IMAPPump.incomingServer.rootFolder
     .getChildNamed(name)

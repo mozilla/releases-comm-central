@@ -28,7 +28,7 @@ add_setup(function () {
 });
 
 add_task(async function createDraftsFolder() {
-  IMAPPump.incomingServer.rootFolder.createSubfolder("Drafts", null);
+  IMAPPump.incomingServer.rootFolder.createSubfolder("Drafts");
   await PromiseTestUtils.promiseFolderAdded("Drafts");
   gDraftsFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Drafts");
   Assert.ok(gDraftsFolder instanceof Ci.nsIMsgImapMailFolder);

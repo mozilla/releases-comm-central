@@ -82,7 +82,7 @@ add_setup(async function () {
   );
   nntpAccount.incomingServer.port = nntpServer.port;
   const nntpRootFolder = nntpAccount.incomingServer.rootFolder;
-  nntpRootFolder.createSubfolder("mailContext.compose", null);
+  nntpRootFolder.createSubfolder("mailContext.compose");
   const nntpFolder = nntpRootFolder.getChildNamed("mailContext.compose");
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   nntpAccount.incomingServer.getNewMessages(

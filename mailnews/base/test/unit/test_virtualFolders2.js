@@ -16,7 +16,7 @@ add_task(function () {
 
   // Create a real folders inside the trash folder.
   const trashFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
-  trashFolder.createSubfolder("deleted", null);
+  trashFolder.createSubfolder("deleted");
   const deletedFolder = trashFolder.getChildNamed("deleted");
 
   // Create a virtual folder that searches the trash folder.
