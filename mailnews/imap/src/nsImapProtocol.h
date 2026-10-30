@@ -649,7 +649,6 @@ class nsImapProtocol : public nsIImapProtocol,
   nsresult Configure(int32_t TooFastTime, int32_t IdealTime,
                      int32_t ChunkAddSize, int32_t ChunkSize,
                      int32_t ChunkThreshold, bool FetchByChunks);
-  nsresult GetMsgWindow(nsIMsgWindow** aMsgWindow);
   // Whether a user is waiting on the running url and can answer for it.
   bool IsInteractive();
   // End Process AuthenticatedState Url helper methods

@@ -113,27 +113,6 @@ static int32_t gPromoteNoopToCheckCount = 0;
 static const uint32_t kFlagChangesBeforeCheck = 10;
 static const int32_t kMaxSecondsBeforeCheck = 600;
 
-class AutoProxyReleaseMsgWindow {
- public:
-  AutoProxyReleaseMsgWindow() : mMsgWindow() {}
-  ~AutoProxyReleaseMsgWindow() {
-    NS_ReleaseOnMainThread("AutoProxyReleaseMsgWindow::mMsgWindow",
-                           dont_AddRef(mMsgWindow));
-  }
-  nsIMsgWindow** StartAssignment() {
-    MOZ_ASSERT(!mMsgWindow);
-    return &mMsgWindow;
-  }
-  operator nsIMsgWindow*() { return mMsgWindow; }
-
- private:
-  nsIMsgWindow* mMsgWindow;
-};
-
-nsIMsgWindow** getter_AddRefs(AutoProxyReleaseMsgWindow& aSmartPtr) {
-  return aSmartPtr.StartAssignment();
-}
-
 class MOZ_RAII AutoNoErrorReporting {
  public:
   explicit AutoNoErrorReporting(nsImapServerResponseParser& aParser)
@@ -1256,13 +1235,6 @@ NS_IMETHODIMP nsImapProtocol::CloseStreams() {
     gChunkSizeDirty = false;
   }
   return NS_OK;
-}
-
-NS_IMETHODIMP nsImapProtocol::GetUrlWindow(nsIMsgMailNewsUrl* aUrl,
-                                           nsIMsgWindow** aMsgWindow) {
-  NS_ENSURE_ARG_POINTER(aUrl);
-  NS_ENSURE_ARG_POINTER(aMsgWindow);
-  return aUrl->GetMsgWindow(aMsgWindow);
 }
 
 NS_IMETHODIMP nsImapProtocol::GetUrlInteractive(nsIMsgMailNewsUrl* url,
@@ -8428,16 +8400,6 @@ bool nsImapProtocol::IsInteractive() {
   nsresult rv =
       m_imapProtocolSink->GetUrlInteractive(mailnewsUrl, &interactive);
   return NS_SUCCEEDED(rv) && interactive;
-}
-
-nsresult nsImapProtocol::GetMsgWindow(nsIMsgWindow** aMsgWindow) {
-  nsresult rv;
-  *aMsgWindow = nullptr;
-  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl =
-      do_QueryInterface(m_runningUrl, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (!m_imapProtocolSink) return NS_ERROR_FAILURE;
-  return m_imapProtocolSink->GetUrlWindow(mailnewsUrl, aMsgWindow);
 }
 
 /**

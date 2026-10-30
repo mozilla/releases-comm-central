@@ -4,7 +4,6 @@
 
 #include "nsISupports.idl"
 
-interface nsIMsgWindow;
 interface nsIMsgMailNewsUrl;
 
 /**
@@ -18,14 +17,6 @@ interface nsIImapProtocolSink : nsISupports {
    * Does general cleanup for the imap protocol object.
    */
   void closeStreams();
-  /**
-   * Get the msg window associated with a url
-   *
-   * @param aUrl url whose msgWindow we want.
-   * @returns msgWindow associated with url.
-   */
-  nsIMsgWindow getUrlWindow(in nsIMsgMailNewsUrl aUrl);
-
   /**
    * Whether a user is waiting on a url and can answer for it.
    *
