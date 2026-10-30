@@ -181,6 +181,8 @@ export class SmtpClient {
       // their respective threshold, a new connection will be established.
       this._numMessages = 0;
       this._rcptCount = 0;
+      this._parseBlock = { data: [], statusCode: null };
+      this._parseRemainder = "";
     }
     this._freed = false;
   }
@@ -438,7 +440,13 @@ export class SmtpClient {
     var lines = (this._parseRemainder + chunk).split(/\r?\n/);
     this._parseRemainder = lines.pop(); // not sure if the line has completely arrived yet
 
+    const receivedInPlaintext = !this._secureTransport;
     for (let i = 0, len = lines.length; i < len; i++) {
+      if (receivedInPlaintext && this._secureTransport) {
+        // Lines received before the STARTTLS upgrade could have been injected.
+        this.logger.warn("Discarding data received before the TLS handshake");
+        break;
+      }
       if (!lines[i].trim()) {
         // nothing to check, empty line
         continue;
@@ -516,6 +524,7 @@ export class SmtpClient {
    * @param {Event} evt - Event object. See `evt.data` for the chunk received
    */
   _onData = async evt => {
+    const receivedInPlaintext = !this._secureTransport;
     const stringPayload = new TextDecoder("UTF-8").decode(
       new Uint8Array(evt.data)
     );
@@ -527,6 +536,11 @@ export class SmtpClient {
     // rejects AUTH PLAIN then closes the connection, the client then sends AUTH
     // LOGIN. This line guarantees onclose is called before sending AUTH LOGIN.
     await new Promise(resolve => setTimeout(resolve));
+    if (receivedInPlaintext && this._secureTransport) {
+      // Data received before the STARTTLS upgrade could have been injected.
+      this.logger.warn("Discarding data received before the TLS handshake");
+      return;
+    }
     this._parse(stringPayload);
   };
 
@@ -1110,6 +1124,7 @@ export class SmtpClient {
       return;
     }
 
+    this._parseRemainder = "";
     this.socket.upgradeToSecure();
     this._secureTransport = true;
 

@@ -337,10 +337,16 @@ export class Pop3Client {
    * @param {TCPSocketEvent} event - The data event.
    */
   _onData = async event => {
+    const receivedInPlaintext = !this._secureTransport;
     // Some servers close the socket on invalid username/password, this line
     // guarantees onclose is handled before we try another AUTH method. See the
     // same handling in SmtpClient.sys.mjs.
     await new Promise(resolve => setTimeout(resolve));
+    if (receivedInPlaintext && this._secureTransport) {
+      // Data received before the STARTTLS upgrade could have been injected.
+      this._logger.warn("Discarding data received before the TLS handshake");
+      return;
+    }
 
     // Cancel the watchdog timer.
     this._clearCommandTimeout();

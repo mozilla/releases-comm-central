@@ -38,6 +38,9 @@ export class SMTP_RFC2821_handler {
     this.kPassword = password;
     this.closing = false;
     this.dropOnAuthFailure = false;
+    // Set to support STARTTLS. The server must have a startTLSCert.
+    this.supportsStartTLS = false;
+    this._tlsActive = false;
 
     this._kAuthSchemeStartFunction = {
       "CRAM-MD5": this.authCRAMStart,
@@ -60,11 +63,21 @@ export class SMTP_RFC2821_handler {
     if (this.kCapabilities.length > 0) {
       capa += "\n250-" + this.kCapabilities.join("\n250-");
     }
+    if (this.supportsStartTLS && !this._tlsActive) {
+      capa += "\n250-STARTTLS";
+    }
     if (this.kAuthSchemes.length > 0) {
       capa += "\n250-AUTH " + this.kAuthSchemes.join(" ");
     }
     capa += "\n250 HELP"; // the odd one: no "-", per RFC 2821
     return capa;
+  }
+  STARTTLS() {
+    if (!this.supportsStartTLS || this._tlsActive) {
+      return "454 TLS not available";
+    }
+    this._startTLSPending = true;
+    return "220 Ready to start TLS";
   }
   CLIENTID() {
     return "250 ok";
@@ -269,6 +282,11 @@ export class SMTP_RFC2821_handler {
   postCommand(reader) {
     if (this.closing) {
       reader.closeSocket();
+    }
+    if (this._startTLSPending) {
+      this._startTLSPending = false;
+      this._tlsActive = true;
+      reader.startTLS();
     }
     reader.setMultiline(this._multiline || this.expectingData);
   }

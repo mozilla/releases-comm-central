@@ -118,6 +118,9 @@ export class POP3_RFC1939_handler {
     this.kPassword = password;
     this.closing = false;
     this.dropOnAuthFailure = false;
+    // Set to support STLS. The server must have a startTLSCert.
+    this.supportsStartTLS = false;
+    this._tlsActive = false;
     this._multiline = false;
     this.resetTest();
   }
@@ -265,6 +268,11 @@ export class POP3_RFC1939_handler {
     if (this.closing) {
       reader.closeSocket();
     }
+    if (this._startTLSPending) {
+      this._startTLSPending = false;
+      this._tlsActive = true;
+      reader.startTLS();
+    }
   }
 }
 
@@ -281,11 +289,21 @@ export class POP3_RFC2449_handler extends POP3_RFC1939_handler {
     for (var i = 0; i < this.kCapabilities.length; i++) {
       capa += this.kCapabilities[i] + "\r\n";
     }
+    if (this.supportsStartTLS && !this._tlsActive) {
+      capa += "STLS\r\n";
+    }
     if (this.capaAdditions) {
       capa += this.capaAdditions();
     }
     capa += "IMPLEMENTATION fakeserver\r\n.";
     return capa;
+  }
+  STLS() {
+    if (!this.supportsStartTLS || this._tlsActive) {
+      return "-ERR STLS not supported";
+    }
+    this._startTLSPending = true;
+    return "+OK Begin TLS negotiation";
   }
 }
 
