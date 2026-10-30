@@ -4445,7 +4445,6 @@ function HandleMDNResponse(mimeHeaders) {
   const MDN_DISPOSE_TYPE_DISPLAYED = 0;
   const askUser = mdnGenerator.process(
     MDN_DISPOSE_TYPE_DISPLAYED,
-    top.msgWindow,
     gFolder,
     gMessage.messageKey,
     mimeHeaders,

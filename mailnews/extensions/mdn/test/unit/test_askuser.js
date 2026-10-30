@@ -36,8 +36,6 @@ function run_test() {
 
   var msgFolder = localAccountUtils.inboxFolder;
 
-  var msgWindow = {};
-
   var msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
   // Everything looks good so far, let's generate the MDN response.
@@ -48,7 +46,6 @@ function run_test() {
   Services.prefs.setIntPref("mail.mdn.report.outside_domain", 1);
   var askUser = mdnGenerator.process(
     Ci.nsIMsgMdnGenerator.eDisplayed,
-    msgWindow,
     msgFolder,
     msgHdr.messageKey,
     mimeHdr,
@@ -59,7 +56,6 @@ function run_test() {
   Services.prefs.setIntPref("mail.mdn.report.outside_domain", 2);
   askUser = mdnGenerator.process(
     Ci.nsIMsgMdnGenerator.eDisplayed,
-    msgWindow,
     msgFolder,
     msgHdr.messageKey,
     mimeHdr,

@@ -36,8 +36,6 @@ function run_test() {
 
   var msgFolder = localAccountUtils.inboxFolder;
 
-  var msgWindow = {};
-
   var msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
   // Everything looks good so far, let's generate the MDN response.
@@ -46,7 +44,6 @@ function run_test() {
   ].createInstance(Ci.nsIMsgMdnGenerator);
   mdnGenerator.process(
     Ci.nsIMsgMdnGenerator.eDisplayed,
-    msgWindow,
     msgFolder,
     msgHdr.messageKey,
     mimeHdr,

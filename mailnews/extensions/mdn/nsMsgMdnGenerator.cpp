@@ -876,17 +876,14 @@ nsresult nsMsgMdnGenerator::InitAndProcess(bool* needToAskUser) {
 }
 
 NS_IMETHODIMP nsMsgMdnGenerator::Process(EDisposeType type,
-                                         nsIMsgWindow* aWindow,
                                          nsIMsgFolder* folder, nsMsgKey key,
                                          nsIMimeHeaders* headers,
                                          bool autoAction, bool* _retval) {
   NS_ENSURE_ARG_POINTER(folder);
   NS_ENSURE_ARG_POINTER(headers);
-  NS_ENSURE_ARG_POINTER(aWindow);
   NS_ENSURE_TRUE(key != nsMsgKey_None, NS_ERROR_INVALID_ARG);
   m_disposeType = type;
   m_autoAction = autoAction;
-  m_window = aWindow;
   m_folder = folder;
   m_headers = headers;
   m_key = key;

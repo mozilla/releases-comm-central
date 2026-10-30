@@ -13,7 +13,6 @@
 #include "nsIOutputStream.h"
 #include "nsIFile.h"
 #include "nsIMsgIdentity.h"
-#include "nsIMsgWindow.h"
 #include "nsIMimeHeaders.h"
 #include "MailNewsTypes2.h"
 
@@ -62,7 +61,6 @@ class nsMsgMdnGenerator : public nsIMsgMdnGenerator,
 
  private:
   EDisposeType m_disposeType;
-  nsCOMPtr<nsIMsgWindow> m_window;
   nsCOMPtr<nsIOutputStream> m_outputStream;
   nsCOMPtr<nsIFile> m_file;
   nsCOMPtr<nsIMsgIdentity> m_identity;

@@ -5,7 +5,6 @@
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"
 
-interface nsIMsgWindow;
 interface nsIMsgFolder;
 interface nsIMimeHeaders;
 
@@ -45,8 +44,6 @@ interface nsIMsgMdnGenerator : nsISupports
      * prefs say it should.
      * @param eType   One of EDisposeType above, indicating the action that led
      *                to sending the mdn reply
-     * @param aWindow The window the message was displayed in, acting as parent
-     *                for any (error) dialogs
      * @param folder  The folder the message is in
      * @param key     the message key
      * @param headers the message headers
@@ -55,9 +52,9 @@ interface nsIMsgMdnGenerator : nsISupports
      * @returns true if the user needs to be asked for permission
      *          false in other cases (whether the message was sent or denied)
      */
-    boolean process(in EDisposeType eType, in nsIMsgWindow aWindow,
-                    in nsIMsgFolder folder, in nsMsgKey key,
-                    in nsIMimeHeaders headers, in boolean autoAction);
+    boolean process(in EDisposeType eType, in nsIMsgFolder folder,
+                    in nsMsgKey key, in nsIMimeHeaders headers,
+                    in boolean autoAction);
 
     /**
      * Must be called when the user was asked for permission and agreed to
