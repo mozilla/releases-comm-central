@@ -342,7 +342,7 @@ NS_IMETHODIMP nsImapMoveCopyMsgTxn::OnStopRunningUrl(nsIURI* aUrl,
         if (!m_dstMsgIdString.IsEmpty())
           imapService->OnlineMessageCopy(dstFolder, m_dstMsgIdString, srcFolder,
                                          true, true, nullptr, /* listener */
-                                         nullptr, nullptr, nullptr);
+                                         nullptr, nullptr, false);
         else {
           // server doesn't support COPYUID, so we're going to update the dest
           // folder, and when that's done, use the db to find the messages
@@ -390,7 +390,7 @@ NS_IMETHODIMP nsImapMoveCopyMsgTxn::OnStopRunningUrl(nsIURI* aUrl,
         nsAutoCString uids;
         rv = imapService->OnlineMessageCopy(dstFolder, UidSetFromUids(dstUids),
                                             srcFolder, true, true, nullptr,
-                                            nullptr, nullptr, nullptr);
+                                            nullptr, nullptr, false);
       }
     }
   }

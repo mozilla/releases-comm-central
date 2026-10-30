@@ -152,7 +152,7 @@ interface nsIImapService : nsISupports
                          in nsIUrlListener aUrlListener,
                          out nsIURI aURL,
                          in nsISupports aCopyState,
-                         in nsIMsgWindow aWindow);
+                         in boolean interactive);
 
 
   void appendMessageFromFile(in nsIFile aFile,
@@ -162,7 +162,7 @@ interface nsIImapService : nsISupports
                              in boolean aInSelectedState,
                              in nsIUrlListener aUrlListener,
                              in nsISupports aCopyState,
-                             in nsIMsgWindow aMsgWindow);
+                             in boolean interactive);
 
   void downloadMessagesForOffline(in ACString aMessageIds, in nsIMsgFolder aSrcFolder,
                       in nsIUrlListener aListener, in nsIMsgWindow   aMsgWindow);
@@ -170,7 +170,7 @@ interface nsIImapService : nsISupports
   void moveFolder(in nsIMsgFolder aSrcFolder,
                   in nsIMsgFolder aDstFolder,
                   in nsIUrlListener aUrlListener,
-                  in nsIMsgWindow msgWindow);
+                  in boolean interactive);
 
   void renameLeaf(in nsIMsgFolder aSrcFolder,
                   in AUTF8String aLeafName,

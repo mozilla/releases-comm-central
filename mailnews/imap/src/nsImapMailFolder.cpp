@@ -2241,7 +2241,7 @@ nsImapMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
     rv = imapService->DeleteFolder(this, this, msgWindow);
     nsMsgDBFolder::DeleteSelf(msgWindow);
   } else {
-    rv = imapService->MoveFolder(this, trashFolder, this, msgWindow);
+    rv = imapService->MoveFolder(this, trashFolder, this, !!msgWindow);
   }
   return rv;
 }
@@ -3209,7 +3209,7 @@ NS_IMETHODIMP nsImapMailFolder::EndCopy(bool copySucceeded) {
     rv = imapService->AppendMessageFromFile(
         m_copyState->m_tmpFile, this, EmptyCString(), true,
         m_copyState->m_selectedState, urlListener, m_copyState,
-        m_copyState->m_msgWindow);
+        !!m_copyState->m_msgWindow);
   }
   if (NS_FAILED(rv) || !copySucceeded)
     MOZ_LOG(IMAP, mozilla::LogLevel::Info,
@@ -3797,7 +3797,7 @@ nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& srcOpIds,
   // aDstFolder.
   rv = imapService->OnlineMessageCopy(this, idSet, destFolder, true, isMove,
                                       urlListener, getter_AddRefs(resultUrl),
-                                      nullptr, window);
+                                      nullptr, !!window);
   if (resultUrl) {
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(resultUrl, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -7111,7 +7111,7 @@ nsImapMailFolder::CopyMessages(
     nsCOMPtr<nsISupports> copySupport = do_QueryInterface(m_copyState);
     rv = imapService->OnlineMessageCopy(
         srcFolder, messageIds, this, true, isMove, urlListener,
-        getter_AddRefs(resultUrl), copySupport, msgWindow);
+        getter_AddRefs(resultUrl), copySupport, !!msgWindow);
     if (NS_SUCCEEDED(rv) && m_copyState->m_allowUndo) {
       RefPtr<nsImapMoveCopyMsgTxn> undoMsgTxn = new nsImapMoveCopyMsgTxn;
       if (!undoMsgTxn ||
@@ -7376,7 +7376,7 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
                        listener, msgWindow, false);
     if (NS_FAILED(rv)) return OnCopyCompleted(srcSupport, rv);
 
-    return imapService->MoveFolder(srcFolder, this, this, msgWindow);
+    return imapService->MoveFolder(srcFolder, this, this, !!msgWindow);
   }
 
   // !sameServer OR it's a copy. folderCopier, set below, handles the folder
@@ -7435,7 +7435,7 @@ nsImapMailFolder::CopyFileMessage(nsIFile* file, nsIMsgDBHdr* msgToReplace,
   m_copyState->m_streamCopy = true;
   rv = imapService->AppendMessageFromFile(file, this, messageId, true,
                                           isDraftOrTemplate, this, m_copyState,
-                                          msgWindow);
+                                          !!msgWindow);
   if (NS_FAILED(rv)) return OnCopyCompleted(file, rv);
 
   return rv;

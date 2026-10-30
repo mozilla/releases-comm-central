@@ -1579,7 +1579,7 @@ NS_IMETHODIMP nsImapService::OnlineMessageCopy(
     nsIMsgFolder* aSrcFolder, const nsACString& messageIds,
     nsIMsgFolder* aDstFolder, bool idsAreUids, bool isMove,
     nsIUrlListener* aUrlListener, nsIURI** aURL, nsISupports* copyState,
-    nsIMsgWindow* aMsgWindow) {
+    bool interactive) {
   NS_ENSURE_ARG_POINTER(aSrcFolder);
   NS_ENSURE_ARG_POINTER(aDstFolder);
 
@@ -1614,7 +1614,7 @@ NS_IMETHODIMP nsImapService::OnlineMessageCopy(
     imapUrl->SetCopyState(copyState);
 
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl(do_QueryInterface(imapUrl));
-    mailnewsurl->SetMsgWindow(aMsgWindow);
+    mailnewsurl->SetInteractive(interactive);
 
     if (isMove)
       urlSpec.AppendLiteral("/onlinemove>");
@@ -1762,8 +1762,7 @@ NS_IMETHODIMP nsImapService::AppendMessageFromFile(
     const nsACString& messageId,  // to be replaced
     bool idsAreUids,
     bool inSelectedState,  // needs to be in
-    nsIUrlListener* aListener, nsISupports* aCopyState,
-    nsIMsgWindow* aMsgWindow) {
+    nsIUrlListener* aListener, nsISupports* aCopyState, bool interactive) {
   NS_ENSURE_ARG_POINTER(aFile);
   NS_ENSURE_ARG_POINTER(aDstFolder);
 
@@ -1776,9 +1775,8 @@ NS_IMETHODIMP nsImapService::AppendMessageFromFile(
                             aListener, urlSpec, hierarchyDelimiter);
   if (NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsIMsgMailNewsUrl> msgUrl = do_QueryInterface(imapUrl);
-    if (msgUrl && aMsgWindow) {
-      // we get the loadGroup from msgWindow
-      msgUrl->SetMsgWindow(aMsgWindow);
+    if (msgUrl) {
+      msgUrl->SetInteractive(interactive);
     }
 
     SetImapUrlSink(aDstFolder, imapUrl);
@@ -1862,7 +1860,7 @@ nsresult nsImapService::GetImapConnectionAndLoadUrl(nsIImapUrl* aImapUrl,
 NS_IMETHODIMP nsImapService::MoveFolder(nsIMsgFolder* srcFolder,
                                         nsIMsgFolder* dstFolder,
                                         nsIUrlListener* urlListener,
-                                        nsIMsgWindow* msgWindow) {
+                                        bool interactive) {
   NS_ENSURE_ARG_POINTER(srcFolder);
   NS_ENSURE_ARG_POINTER(dstFolder);
 
@@ -1877,7 +1875,7 @@ NS_IMETHODIMP nsImapService::MoveFolder(nsIMsgFolder* srcFolder,
     rv = SetImapUrlSink(dstFolder, imapUrl);
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIMsgMailNewsUrl> mailNewsUrl = do_QueryInterface(imapUrl);
-      if (mailNewsUrl) mailNewsUrl->SetMsgWindow(msgWindow);
+      if (mailNewsUrl) mailNewsUrl->SetInteractive(interactive);
       char hierarchyDelimiter = kOnlineHierarchySeparatorUnknown;
       nsCString folderName;
 
