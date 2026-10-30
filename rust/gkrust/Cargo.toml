@@ -76,7 +76,6 @@ happy_eyeballs_glue = { path = "../../../netwerk/protocol/http/happy_eyeballs_gl
 harfbuzz_glue = { path = "../../../gfx/harfbuzz_glue" }
 http_sfv = { path = "../../../netwerk/base/http-sfv" }
 idna_glue = { path = "../../../netwerk/base/idna_glue", features = ['mailnews'] }
-ipcclientcerts = { path = "../../../security/manager/ssl/ipcclientcerts" }
 ipdl_utils = { path = "../../../ipc/rust/ipdl_utils" }
 jog = { path = "../../../toolkit/components/glean/bindings/jog" }
 jsrust_shared = { path = "../../../js/src/rust/shared" }

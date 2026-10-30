@@ -12,7 +12,7 @@
 [package]
 edition = "2024"
 name = "glean-sym"
-version = "70.0.0"
+version = "71.0.0"
 authors = ["The Glean Team <glean-team@mozilla.com>"]
 build = false
 autolib = false
