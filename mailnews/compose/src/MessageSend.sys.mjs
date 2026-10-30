@@ -1305,11 +1305,12 @@ export class MessageSend {
 
     const deliveryListener = new NewsDeliveryListener(this);
 
-    let msgWindow;
+    let interactive = false;
     try {
-      msgWindow =
+      interactive = !!(
         this._sendProgress?.msgWindow ||
-        MailServices.mailSession.topmostMsgWindow;
+        MailServices.mailSession.topmostMsgWindow
+      );
     } catch (e) {}
 
     MailServices.nntp.postMessage(
@@ -1317,8 +1318,7 @@ export class MessageSend {
       this._compFields.newsgroups,
       this._accountKey,
       deliveryListener,
-      msgWindow,
-      null
+      interactive
     );
 
     await deliveryListener.requestPromise;

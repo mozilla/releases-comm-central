@@ -678,7 +678,7 @@ NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr* msgHdr,
   nsCOMPtr<nsIURI> resultUri;
   return nntpService->CancelMessage(cancelURL, messageURI,
                                     nullptr /* consumer */, aUrlListener,
-                                    aMsgWindow, getter_AddRefs(resultUri));
+                                    !!aMsgWindow, getter_AddRefs(resultUri));
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::GetNewMessages(nsIMsgWindow* aMsgWindow,
@@ -709,7 +709,7 @@ nsresult nsMsgNewsFolder::GetNewsMessages(nsIMsgWindow* aMsgWindow,
 
   if (!isNewsServer) {
     nsCOMPtr<nsIURI> resultUri;
-    rv = nntpService->GetNewNews(nntpServer, mURI, aGetOld, this, aMsgWindow,
+    rv = nntpService->GetNewNews(nntpServer, mURI, aGetOld, this, !!aMsgWindow,
                                  getter_AddRefs(resultUri));
     if (aUrlListener && NS_SUCCEEDED(rv) && resultUri) {
       nsCOMPtr<nsIMsgMailNewsUrl> msgUrl(do_QueryInterface(resultUri));
@@ -722,7 +722,7 @@ nsresult nsMsgNewsFolder::GetNewsMessages(nsIMsgWindow* aMsgWindow,
       NS_ENSURE_SUCCESS(rv, rv);
       nsCOMPtr<nsIURI> resultUri;
       nntpService->GetNewNews(nntpServer, uri, aGetOld, aUrlListener,
-                              aMsgWindow, getter_AddRefs(resultUri));
+                              !!aMsgWindow, getter_AddRefs(resultUri));
     }
   }
   return rv;

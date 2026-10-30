@@ -16,15 +16,15 @@ interface nsICacheStorage;
 [scriptable, uuid(dc5cadb0-966c-4ef1-a4c8-cc1e48d1ac61)]
 interface nsINntpService : nsISupports {
 
-  nsIURI postMessage(in nsIFile aFileToPost, in string newsgroupNames, in string aAccountKey, in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
+  nsIURI postMessage(in nsIFile aFileToPost, in string newsgroupNames, in string aAccountKey, in nsIUrlListener aUrlListener, in boolean interactive);
 
-  nsIURI getNewNews(in nsINntpIncomingServer nntpServer, in AUTF8String uri, in boolean getOld, in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
+  nsIURI getNewNews(in nsINntpIncomingServer nntpServer, in AUTF8String uri, in boolean getOld, in nsIUrlListener aUrlListener, in boolean interactive);
 
-  nsIURI cancelMessage(in AUTF8String cancelURL, in AUTF8String messageURI, in nsISupports aConsumer, in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
+  nsIURI cancelMessage(in AUTF8String cancelURL, in AUTF8String messageURI, in nsISupports aConsumer, in nsIUrlListener aUrlListener, in boolean interactive);
 
-  void getListOfGroupsOnServer(in nsINntpIncomingServer nntpServer, in nsIMsgWindow aMsgWindow, in boolean getOnlyNew);
+  void getListOfGroupsOnServer(in nsINntpIncomingServer nntpServer, in boolean interactive, in boolean getOnlyNew);
 
-  nsIURI fetchMessage(in nsIMsgFolder newsFolder, in nsMsgKey key, in nsIMsgWindow aMsgWindow, in nsISupports aConsumer, in nsIUrlListener aUrlListener);
+  nsIURI fetchMessage(in nsIMsgFolder newsFolder, in nsMsgKey key, in boolean interactive, in nsISupports aConsumer, in nsIUrlListener aUrlListener);
 
   void downloadNewsgroupsForOffline(in nsIMsgWindow aMsgWindow, in nsIUrlListener aListener);
   void downloadFolderForOffline(in nsIMsgFolder newsFolder, in nsIMsgWindow aMsgWindow);

@@ -29,7 +29,7 @@ add_task(async function cancelPasswordDialog() {
   const listener = new PromiseTestUtils.PromiseStreamListener();
   incomingServer.loadNewsUrl(
     Services.io.newURI(`news://localhost:${server.port}/*`),
-    null,
+    false,
     listener
   );
 

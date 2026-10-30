@@ -130,7 +130,7 @@ add_task(async function test_fetchMessage() {
   const streamListener = new PromiseTestUtils.PromiseStreamListener();
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   const folder = localserver.rootFolder.getChildNamed("test.filter");
-  MailServices.nntp.fetchMessage(folder, 2, null, streamListener, urlListener);
+  MailServices.nntp.fetchMessage(folder, 2, false, streamListener, urlListener);
   await urlListener.promise;
   const data = await streamListener.promise;
   // To point out that the streamListener Promise shouldn't reject.
@@ -142,7 +142,7 @@ add_task(async function test_fetchMessageNoStreamListener() {
   const streamListener = null;
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   const folder = localserver.rootFolder.getChildNamed("test.filter");
-  MailServices.nntp.fetchMessage(folder, 2, null, streamListener, urlListener);
+  MailServices.nntp.fetchMessage(folder, 2, false, streamListener, urlListener);
   await urlListener.promise;
 });
 
@@ -207,7 +207,7 @@ add_task(async function test_grouplist() {
     return groups;
   }
 
-  MailServices.nntp.getListOfGroupsOnServer(localserver, null, false);
+  MailServices.nntp.getListOfGroupsOnServer(localserver, false, false);
   await subscribablePromise.promise;
 
   const groups = enumGroups("");
@@ -232,7 +232,7 @@ add_task(async function test_postMessage() {
     "misc.test",
     localserver.key,
     urlListener,
-    null
+    false
   );
   await urlListener.promise;
   Assert.equal(daemon.getGroup("misc.test").keys.length, 1);
@@ -268,7 +268,7 @@ add_task(async function test_escapedName() {
   MailServices.nntp.fetchMessage(
     folder,
     1,
-    null,
+    false,
     streamlistener,
     fetchMessageUrlListener
   );

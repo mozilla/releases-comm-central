@@ -29,7 +29,7 @@ export class NntpService {
     return this._cacheStorage;
   }
 
-  postMessage(messageFile, groupNames, accountKey, urlListener, msgWindow) {
+  postMessage(messageFile, groupNames, accountKey, urlListener, interactive) {
     let server = MailServices.accounts.getAccount(accountKey)?.incomingServer;
     if (!server) {
       // If no matching server, find the first news server and use it.
@@ -38,7 +38,7 @@ export class NntpService {
     server = server.QueryInterface(Ci.nsINntpIncomingServer);
 
     server.wrappedJSObject.withClient(client => {
-      client.startRunningUrl(urlListener, !!msgWindow);
+      client.startRunningUrl(urlListener, interactive);
 
       client.onOpen = () => {
         client.post();
@@ -73,9 +73,9 @@ export class NntpService {
    * @param {string} uri
    * @param {boolean} getOld
    * @param {nsIUrlListener} urlListener
-   * @param {nsIMsgWindow} msgWindow
+   * @param {boolean} interactive
    */
-  getNewNews(server, uri, getOld, urlListener, msgWindow) {
+  getNewNews(server, uri, getOld, urlListener, interactive) {
     if (Services.io.offline) {
       // @see nsMsgNewsFolder::UpdateFolder
       // Return an XPCOM failure without logging an exception in this service.
@@ -95,7 +95,7 @@ export class NntpService {
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
 
     server.wrappedJSObject.withClient(client => {
-      client.startRunningUrl(urlListener, !!msgWindow, runningUri);
+      client.startRunningUrl(urlListener, interactive, runningUri);
       client.onOpen = () => {
         client.getNewNews(groupName, getOld);
       };
@@ -106,12 +106,12 @@ export class NntpService {
 
   /**
    * @param {nsINntpIncomingServer} server
-   * @param {nsIMsgWindow} msgWindow
+   * @param {boolean} interactive
    * @param {boolean} getOnlyNew
    */
-  getListOfGroupsOnServer(server, msgWindow, getOnlyNew) {
+  getListOfGroupsOnServer(server, interactive, getOnlyNew) {
     server.wrappedJSObject.withClient(client => {
-      client.startRunningUrl(server.wrappedJSObject, !!msgWindow);
+      client.startRunningUrl(server.wrappedJSObject, interactive);
       client.onOpen = () => {
         client.getListOfGroups(getOnlyNew);
       };
@@ -121,7 +121,7 @@ export class NntpService {
     });
   }
 
-  fetchMessage(folder, key, msgWindow, consumer, urlListener) {
+  fetchMessage(folder, key, interactive, consumer, urlListener) {
     let streamListener, inputStream, outputStream;
     if (consumer instanceof Ci.nsIStreamListener) {
       streamListener = consumer;
@@ -133,7 +133,7 @@ export class NntpService {
 
     const server = folder.server.QueryInterface(Ci.nsINntpIncomingServer);
     server.wrappedJSObject.withClient(client => {
-      client.startRunningUrl(urlListener, !!msgWindow);
+      client.startRunningUrl(urlListener, interactive);
 
       client.onOpen = () => {
         client.getArticleByArticleNumber(folder.name, key);
@@ -149,7 +149,7 @@ export class NntpService {
     });
   }
 
-  cancelMessage(cancelUrl, messageUri, consumer, urlListener, msgWindow) {
+  cancelMessage(cancelUrl, messageUri, consumer, urlListener, interactive) {
     // The cancelUrl is in the form of "news://host/message-id?cancel"
     const url = new URL(cancelUrl);
     const messageId = "<" + decodeURIComponent(url.pathname.slice(1)) + ">";
@@ -185,7 +185,7 @@ export class NntpService {
     const from = MailServices.accounts.getFirstIdentityForServer(server).email;
 
     server.wrappedJSObject.withClient(client => {
-      client.startRunningUrl(urlListener, !!msgWindow);
+      client.startRunningUrl(urlListener, interactive);
 
       client.onOpen = () => {
         client.cancelArticle(groupName);

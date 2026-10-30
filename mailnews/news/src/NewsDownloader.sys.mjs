@@ -122,7 +122,7 @@ export class NewsDownloader {
     folder.QueryInterface(Ci.nsIMsgNewsFolder).saveArticleOffline = true;
     for (const key of keys) {
       await new Promise(resolve => {
-        MailServices.nntp.fetchMessage(folder, key, this._msgWindow, null, {
+        MailServices.nntp.fetchMessage(folder, key, !!this._msgWindow, null, {
           OnStartRunningUrl() {},
           OnStopRunningUrl() {
             resolve();

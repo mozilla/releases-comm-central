@@ -27,7 +27,7 @@ add_task(async function test_fetchMessageFailureStatus() {
   MailServices.nntp.fetchMessage(
     folder,
     1,
-    null,
+    false,
     {
       QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
       onStartRequest() {},

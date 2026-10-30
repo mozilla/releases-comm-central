@@ -86,7 +86,7 @@ function testConnectionLimit() {
 
   // To test make connections limit, we run two URIs simultaneously.
   var url = Services.io.newURI(prefix + "*");
-  _server.loadNewsUrl(url, null, null);
+  _server.loadNewsUrl(url, false, null);
   setupProtocolTest(NNTP_PORT, prefix + "TSS1@nntp.invalid");
   server.performTest();
   // We should have length one... which means this must be a transaction object,
@@ -126,7 +126,7 @@ function testReentrantClose() {
   url.QueryInterface(Ci.nsIMsgMailNewsUrl);
   url.RegisterListener(listener);
 
-  _server.loadNewsUrl(url, null, {
+  _server.loadNewsUrl(url, false, {
     QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
     onStartRequest() {},
     onStopRequest() {},

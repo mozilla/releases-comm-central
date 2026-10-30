@@ -27,7 +27,7 @@ add_task(async function test_nntpPost() {
     "test.empty",
     localServer.key,
     urlListener,
-    null
+    false
   );
   await urlListener.promise;
 

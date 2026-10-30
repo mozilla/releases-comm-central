@@ -177,7 +177,7 @@ function setupProtocolTest(port, newsUrl, incomingServer) {
     QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
   };
   listener.called = false;
-  newsServer.loadNewsUrl(url, null, listener);
+  newsServer.loadNewsUrl(url, false, listener);
 }
 
 function resetFolder(folder) {

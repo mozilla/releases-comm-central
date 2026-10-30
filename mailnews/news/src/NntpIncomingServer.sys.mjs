@@ -421,10 +421,10 @@ export class NntpIncomingServer extends MsgIncomingServer {
       .QueryInterface(Ci.nsIMsgNewsFolder);
   }
 
-  loadNewsUrl(uri, msgWindow, consumer) {
+  loadNewsUrl(uri, interactive, consumer) {
     if (consumer instanceof Ci.nsIStreamListener) {
       this.withClient(client => {
-        client.loadNewsUrl(uri.spec, !!msgWindow, consumer);
+        client.loadNewsUrl(uri.spec, interactive, consumer);
       });
     }
   }
@@ -491,7 +491,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
       }
     }
     this._hostInfoChanged = !getOnlyNew;
-    MailServices.nntp.getListOfGroupsOnServer(this, msgWindow, getOnlyNew);
+    MailServices.nntp.getListOfGroupsOnServer(this, !!msgWindow, getOnlyNew);
   }
 
   /**
