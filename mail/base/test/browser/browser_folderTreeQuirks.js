@@ -1053,7 +1053,7 @@ add_task(async function testFolderRename() {
 
   // Rename `folderA`.
 
-  folderA.rename("renamedA", window.msgWindow);
+  folderA.rename("renamedA");
   const renamedFolderA = rootFolder.getChildNamed("renamedA");
   const renamedFolderB = renamedFolderA.getChildNamed("folderTreeQuirksB");
   const renamedFolderC = renamedFolderB.getChildNamed("folderTreeQuirksC");
@@ -1107,7 +1107,7 @@ add_task(async function testFolderRename() {
 
   // Rename the folder back to its original name.
 
-  renamedFolderA.rename("folderTreeQuirksA", window.msgWindow);
+  renamedFolderA.rename("folderTreeQuirksA");
 
   folderA = rootFolder
     .getChildNamed("folderTreeQuirksA")

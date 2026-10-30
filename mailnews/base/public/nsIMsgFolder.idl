@@ -376,7 +376,7 @@ interface nsIMsgFolder : nsISupports {
    *
    * @deprecated Use renameAsync/renameWithListener instead.
    */
-  void rename(in AUTF8String name, in nsIMsgWindow msgWindow);
+  void rename(in AUTF8String name);
 
   /**
    * Change the name of the folder. Returns a promise that resolves once the

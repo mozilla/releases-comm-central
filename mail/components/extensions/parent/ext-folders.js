@@ -1088,7 +1088,7 @@ this.folders = class extends ExtensionAPIPersistent {
             MailServices.mfn.folderRenamed,
             folder.URI
           );
-          folder.rename(newName, null);
+          folder.rename(newName);
 
           const newFolder = await newFolderPromise;
           return context.extension.folderManager.convert(newFolder, accountKey);

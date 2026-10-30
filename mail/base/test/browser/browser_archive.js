@@ -30,8 +30,8 @@ add_setup(async function () {
     const archiveFolder = rootFolder.getFolderWithFlags(
       Ci.nsMsgFolderFlags.Archive
     );
-    archiveFolder?.subFolders[0]?.rename("archive2000", null);
-    archiveFolder?.rename("archiveArchives", null);
+    archiveFolder?.subFolders[0]?.rename("archive2000");
+    archiveFolder?.rename("archiveArchives");
 
     MailServices.accounts.removeAccount(account, false);
     // Clear the undo and redo stacks to avoid side-effects on

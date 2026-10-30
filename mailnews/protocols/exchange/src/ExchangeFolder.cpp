@@ -587,11 +587,10 @@ NS_IMETHODIMP ExchangeFolder::UpdateFolder(nsIMsgWindow* aWindow) {
 // IExchangeFallibleOperationListener, after which the override can settle the
 // listener in both directions. The same gap existed before renameAsync() was
 // added: the front end simply discarded the error.
-NS_IMETHODIMP ExchangeFolder::Rename(const nsACString& aNewName,
-                                     nsIMsgWindow* msgWindow) {
+NS_IMETHODIMP ExchangeFolder::Rename(const nsACString& aNewName) {
   // Virtual folders are just a local operation.
   if (mFlags & nsMsgFolderFlags::Virtual) {
-    return nsMsgDBFolder::Rename(aNewName, msgWindow);
+    return nsMsgDBFolder::Rename(aNewName);
   }
 
   nsAutoCString currentName;
@@ -623,12 +622,11 @@ NS_IMETHODIMP ExchangeFolder::Rename(const nsACString& aNewName,
   rv = GetStringProperty(kExchangeSyncStateProperty, syncStateToken);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  const nsCOMPtr<nsIMsgWindow> window = msgWindow;
   const auto newName = nsCString(aNewName);
 
   RefPtr<ExchangeSimpleListener> listener = new ExchangeSimpleListener(
-      [self = RefPtr(this), newName, window](const nsTArray<nsCString>& ids,
-                                             bool useLegacyFallback) {
+      [self = RefPtr(this), newName](const nsTArray<nsCString>& ids,
+                                     bool useLegacyFallback) {
         nsCOMPtr<nsIMsgFolder> parentFolder;
         nsresult rv = self->GetParent(getter_AddRefs(parentFolder));
         NS_ENSURE_SUCCESS(rv, rv);

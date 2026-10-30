@@ -240,8 +240,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
       nsIOutputStream* outputStream) override;
   NS_IMETHOD CopyDataDone() override;
   NS_IMETHOD DeleteStorage() override;
-  NS_IMETHOD Rename(const nsACString& newName,
-                    nsIMsgWindow* msgWindow) override;
+  NS_IMETHOD Rename(const nsACString& newName) override;
   NS_IMETHOD RenameWithListener(const nsACString& newName,
                                 nsIUrlListener* listener) override;
   NS_IMETHOD GetNoSelect(bool* aResult) override;

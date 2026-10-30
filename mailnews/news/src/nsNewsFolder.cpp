@@ -357,8 +357,7 @@ NS_IMETHODIMP nsMsgNewsFolder::DeleteStorage() {
   return SetNewsrcHasChanged(true);
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::Rename(const nsACString& newName,
-                                      nsIMsgWindow* msgWindow) {
+NS_IMETHODIMP nsMsgNewsFolder::Rename(const nsACString& newName) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

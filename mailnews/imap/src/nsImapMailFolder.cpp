@@ -1582,10 +1582,8 @@ NS_IMETHODIMP nsImapMailFolder::DeleteStorage() {
   return rv;
 }
 
-NS_IMETHODIMP nsImapMailFolder::Rename(const nsACString& newName,
-                                       nsIMsgWindow* msgWindow) {
-  if (mFlags & nsMsgFolderFlags::Virtual)
-    return nsMsgDBFolder::Rename(newName, msgWindow);
+NS_IMETHODIMP nsImapMailFolder::Rename(const nsACString& newName) {
+  if (mFlags & nsMsgFolderFlags::Virtual) return nsMsgDBFolder::Rename(newName);
   nsAutoCString newNameStr(newName);
   if (newNameStr.FindChar(m_hierarchyDelimiter, 0) != kNotFound) {
     // The caller reports this to the user.
@@ -1596,7 +1594,7 @@ NS_IMETHODIMP nsImapMailFolder::Rename(const nsACString& newName,
   if (incomingImapServer) RecursiveCloseActiveConnections(incomingImapServer);
 
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-  return imapService->RenameLeaf(this, newName, this, msgWindow);
+  return imapService->RenameLeaf(this, newName, this, nullptr);
 }
 
 NS_IMETHODIMP nsImapMailFolder::RenameWithListener(const nsACString& aNewName,
@@ -1606,7 +1604,7 @@ NS_IMETHODIMP nsImapMailFolder::RenameWithListener(const nsACString& aNewName,
   }
 
   m_renameListener = aListener;
-  nsresult rv = Rename(aNewName, nullptr);
+  nsresult rv = Rename(aNewName);
   if (NS_FAILED(rv)) {
     // We failed before getting as far as running a URL, so nothing else is
     // going to notify the listener. Defer, so that the caller cannot be

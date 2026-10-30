@@ -159,7 +159,7 @@ add_task(function test_descendants_not_reused_after_parent_rename() {
   const parentURI = parent.URI;
   const childURI = child.URI;
 
-  parent.rename("RenamedParent", null);
+  parent.rename("RenamedParent");
   Assert.equal(parent.parent, null, "renamed parent should be detached");
   Assert.equal(child.parent, null, "renamed descendant should be detached");
 

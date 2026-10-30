@@ -413,7 +413,7 @@ add_task(
 
     {
       const primedRenameData = await event_page_extension("onRenamed", () => {
-        rootFolder.getChildNamed("TestFolder").rename("TestFolder2", null);
+        rootFolder.getChildNamed("TestFolder").rename("TestFolder2");
       });
       const renameData = await extension.awaitMessage("onRenamed received");
       Assert.deepEqual(

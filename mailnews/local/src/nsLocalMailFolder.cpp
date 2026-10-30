@@ -787,8 +787,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsACString& aNewName,
-                                           nsIMsgWindow* msgWindow) {
+NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsACString& aNewName) {
   // Renaming to the same name is easy
   if (mName.Equals(aNewName)) return NS_OK;
 

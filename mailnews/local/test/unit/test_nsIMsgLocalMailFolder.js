@@ -184,13 +184,13 @@ function subtest_folder_operations(root) {
   folder2 = folder.getChildNamed("folder2");
 
   // Test - Rename (test that .msf file is renamed as well)
-  folder.rename("folder1-newname", null);
+  folder.rename("folder1-newname");
   // make sure getting the db doesn't throw an exception, and is valid
   folder = rootLocal.getChildNamed("folder1-newname");
   db = folder.msgDatabase;
   Assert.ok(db.summaryValid);
 
-  folder.rename("folder1", null);
+  folder.rename("folder1");
   folder = rootLocal.getChildNamed("folder1");
 
   // Test - propagateDelete (this tests recursiveDelete as well)
@@ -283,11 +283,11 @@ function test_store_rename(root) {
   Assert.ok(!folder2.hasSubFolders);
   Assert.ok(folder3.hasSubFolders);
 
-  folder1.rename("folder1", null);
+  folder1.rename("folder1");
   Assert.ok(root.containsChildNamed("folder1"));
   folder1 = root.getChildNamed("folder1");
 
-  folder1.rename("newfolder1", null);
+  folder1.rename("newfolder1");
   Assert.ok(root.containsChildNamed("newfolder1"));
   folder1 = root.getChildNamed("newfolder1");
   folder2 = folder1.getChildNamed("newfolder1-sub");
@@ -302,7 +302,7 @@ function test_store_rename(root) {
     .createLocalSubfolder("newfolder3")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folder3.createLocalSubfolder("newfolder3-sub");
-  folder3.rename("folder3", null);
+  folder3.rename("folder3");
 
   Assert.ok(root.containsChildNamed("folder3"));
   Assert.ok(!root.containsChildNamed("newfolder3"));
@@ -341,7 +341,7 @@ function test_unsafe_characters(root) {
 
   // Rename β to δ.
 
-  folderBeta.rename("folder δ", null);
+  folderBeta.rename("folder δ");
   Assert.ok(!root.containsChildNamed("folder β"));
   Assert.ok(root.containsChildNamed("folder δ"));
 

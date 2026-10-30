@@ -39,7 +39,7 @@ add_task(async function test_rename() {
   const oldURI = targetFolder.URI;
   applySettings(targetFolder);
 
-  targetFolder.rename("folder \u00e1", null);
+  targetFolder.rename("folder \u00e1");
 
   IMAPPump.server.performTest("RENAME");
   const listener = new PromiseTestUtils.PromiseUrlListener();
@@ -93,7 +93,7 @@ add_task(async function test_renameKeepsSettings() {
   applySettings(folder);
 
   // Rename it, which is what the properties dialog and the context menu do.
-  folder.rename("renamed", null);
+  folder.rename("renamed");
   IMAPPump.server.performTest("RENAME");
 
   // Let the rename settle before looking at the result.
@@ -125,7 +125,7 @@ add_task(async function test_renameKeepsFollowingTheAccount() {
   rootFolder.createSubfolder("without settings", null);
   const folder = await folderAdded;
 
-  folder.rename("renamed again", null);
+  folder.rename("renamed again");
   IMAPPump.server.performTest("RENAME");
 
   const listener = new PromiseTestUtils.PromiseUrlListener();
@@ -226,7 +226,7 @@ add_task(async function test_renameKeepsSubfolders() {
   parent.createSubfolder("child", null);
   await childAdded;
 
-  parent.rename("renamed parent", null);
+  parent.rename("renamed parent");
   IMAPPump.server.performTest("RENAME");
 
   const listener = new PromiseTestUtils.PromiseUrlListener();

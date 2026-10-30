@@ -3726,8 +3726,7 @@ nsresult nsMsgDBFolder::GetBackupSummaryFile(nsIFile** aBackupFile,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::Rename(const nsACString& aNewName,
-                                    nsIMsgWindow* msgWindow) {
+NS_IMETHODIMP nsMsgDBFolder::Rename(const nsACString& aNewName) {
   nsCOMPtr<nsIFile> oldPathFile;
   nsresult rv = GetFilePath(getter_AddRefs(oldPathFile));
   if (NS_FAILED(rv)) return rv;
@@ -3820,7 +3819,7 @@ NS_IMETHODIMP nsMsgDBFolder::RenameWithListener(const nsACString& aNewName,
   // once the server has answered. ExchangeFolder does not, so a listener
   // waiting on an EWS rename is told it finished as soon as the request has
   // been sent - see the FIXME in ExchangeFolder::Rename().
-  nsresult rv = Rename(aNewName, nullptr);
+  nsresult rv = Rename(aNewName);
   if (aListener) {
     // Defer, so that a caller sees the same ordering whether the rename ran
     // locally or against a server.

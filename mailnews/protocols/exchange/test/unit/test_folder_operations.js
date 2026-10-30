@@ -417,7 +417,7 @@ async function runRenameFolderTest(mockServer, incomingServer) {
   const testFolder = rootFolder.getChildNamed(originalFolderName);
   Assert.ok(!!testFolder, "Folder to rename should exist.");
 
-  testFolder.rename(renamedFolderName, null);
+  testFolder.rename(renamedFolderName);
 
   await TestUtils.waitForCondition(
     () => !!rootFolder.getChildNamed(renamedFolderName),

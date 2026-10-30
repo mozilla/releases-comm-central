@@ -144,7 +144,7 @@ function deleteMessages(srcFolder, items, deleteStorage, isMove) {
 function renameFolder(folder, newName) {
   gExpectedEvents = [[MailServices.mfn.folderRenamed, [folder], newName]];
   gCurrStatus = kStatus.onStopCopyDone;
-  folder.rename(newName, null);
+  folder.rename(newName);
   gCurrStatus |= kStatus.functionCallDone;
   if (gCurrStatus == kStatus.everythingDone) {
     resetStatusAndProceed();
