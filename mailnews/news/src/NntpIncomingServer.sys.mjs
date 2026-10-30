@@ -130,13 +130,13 @@ export class NntpIncomingServer extends MsgIncomingServer {
     this._startPopulating(msgWindow, forceToServer, getOnlyNew);
   }
 
-  stopPopulating(msgWindow) {
+  stopPopulating() {
     // Calling nsISubscribableServer.setAsSubscribed with a path that does not
     // exist in the tree will add a new node. This must be done before
     // nsISubscribableServer.stopPopulating, as only then will the internal row
     // list be updated accordingly.
     this.updateSubscribed();
-    this._subscribable.stopPopulating(msgWindow);
+    this._subscribable.stopPopulating();
     if (!this._hostInfoLoaded) {
       this._saveHostInfo();
     }
@@ -228,7 +228,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
    * @see {nsIUrlListener}
    */
   OnStopRunningUrl(_url, _exitCode) {
-    this.stopPopulating(this._msgWindow);
+    this.stopPopulating();
   }
 
   /** @see {nsIMsgIncomingServer} */
@@ -487,7 +487,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
     if (!forceToServer) {
       this._hostInfoLoaded = await this._loadHostInfo();
       if (this._hostInfoLoaded) {
-        this.stopPopulating(msgWindow);
+        this.stopPopulating();
         return;
       }
     }

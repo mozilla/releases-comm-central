@@ -24,7 +24,7 @@ interface nsISubscribableServer : nsISupports {
   attribute char delimiter;
 
   void startPopulating(in nsIMsgWindow aMsgWindow, in boolean forceToServer, in boolean getOnlyNew);
-  void stopPopulating(in nsIMsgWindow aMsgWindow);
+  void stopPopulating();
 
   // return true if state changed, false otherwise
   boolean setState(in AUTF8String path, in boolean state);

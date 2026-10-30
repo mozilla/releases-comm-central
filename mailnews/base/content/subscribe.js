@@ -30,7 +30,7 @@ document.addEventListener("dialogcancel", subscribeCancel);
 
 function Stop() {
   if (gSubscribableServer) {
-    gSubscribableServer.stopPopulating(msgWindow);
+    gSubscribableServer.stopPopulating();
   }
 }
 

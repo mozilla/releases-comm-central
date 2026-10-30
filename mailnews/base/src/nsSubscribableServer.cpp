@@ -177,7 +177,7 @@ nsSubscribableServer::StartPopulating(nsIMsgWindow* aMsgWindow,
 }
 
 NS_IMETHODIMP
-nsSubscribableServer::StopPopulating(nsIMsgWindow* aMsgWindow) {
+nsSubscribableServer::StopPopulating() {
   mStopped = true;
 
   if (mSubscribeListener) mSubscribeListener->OnDonePopulating();

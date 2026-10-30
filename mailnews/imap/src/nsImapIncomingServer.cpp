@@ -2295,7 +2295,7 @@ nsImapIncomingServer::OnStopRunningUrl(nsIURI* url, nsresult exitCode) {
         rv = UpdateSubscribed();
         NS_ENSURE_SUCCESS(rv, rv);
         mDoingSubscribeDialog = false;
-        rv = StopPopulating(msgWindow);
+        rv = StopPopulating();
         NS_ENSURE_SUCCESS(rv, rv);
         break;
       case nsIImapUrl::nsImapDiscoverAllBoxesUrl:
@@ -2387,10 +2387,10 @@ nsImapIncomingServer::AddTo(const nsACString& aName, bool addAsSubscribed,
 }
 
 NS_IMETHODIMP
-nsImapIncomingServer::StopPopulating(nsIMsgWindow* aMsgWindow) {
+nsImapIncomingServer::StopPopulating() {
   nsresult rv = EnsureInner();
   NS_ENSURE_SUCCESS(rv, rv);
-  return mInner->StopPopulating(aMsgWindow);
+  return mInner->StopPopulating();
 }
 
 NS_IMETHODIMP
