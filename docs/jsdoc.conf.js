@@ -6,6 +6,14 @@
 
 const path = require("path");
 const fs = require("fs");
+const process = require("process");
+
+// In normal setups, the Firefox checkout (from which we get our JSDocs plugins)
+// lives in the parent directory. However, ReadTheDocs comes with a few
+// limitations, including around changing the current working directory, which
+// means we need to place the Firefox checkout in a separate location.
+const FIREFOX_CHECKOUT_LOC =
+  process.env.FIREFOX_CHECKOUT_LOC ?? path.join("..", "..");
 
 function readFile(path) {
   return fs
@@ -24,13 +32,18 @@ const ignorePatterns = [
 
 module.exports = {
   plugins: [
-    "accept-typescript-types",
     "skip-anonymous-locals",
     "skip-private-members",
     "skip-type-casts",
     "convert-descriptions-to-rst",
   ].map(plugin =>
-    path.join(__dirname, "..", "..", "docs", "jsdoc-plugins", `${plugin}.mjs`)
+    path.join(
+      __dirname,
+      FIREFOX_CHECKOUT_LOC,
+      "docs",
+      "jsdoc-plugins",
+      `${plugin}.mjs`
+    )
   ),
   recurseDepth: 10,
   source: {
