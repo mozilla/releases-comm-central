@@ -17,6 +17,10 @@ const { MockExternalProtocolService } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
 );
 
+const { sinon } = ChromeUtils.importESModule(
+  "resource://testing-common/Sinon.sys.mjs"
+);
+
 const tabmail = document.getElementById("tabmail");
 let calendar;
 
@@ -621,6 +625,118 @@ add_task(async function test_closeDialogOnTabSwitch() {
   );
 
   await calendar.deleteItem(eventBox.occurrence);
+});
+
+add_task(async function test_editButtonDisabledState() {
+  // Create stubs for cal.acl functions.
+  const isCalendarWritableStub = sinon.stub(cal.acl, "isCalendarWritable");
+  const userCanModifyItemStub = sinon.stub(cal.acl, "userCanModifyItem");
+
+  const originalCapability = calendar.getProperty(
+    "capabilities.events.supported"
+  );
+
+  const editButtonCases = [
+    {
+      writable: true,
+      canModify: true,
+      supported: true,
+      expectedHidden: false,
+      message: "Edit button should be visible",
+    },
+    {
+      writable: false,
+      canModify: true,
+      supported: true,
+      expectedHidden: true,
+      message: "Non writable edit button should be hidden",
+    },
+    {
+      writable: true,
+      canModify: false,
+      supported: true,
+      expectedHidden: true,
+      message: "Non modifiable edit button should be hidden",
+    },
+    {
+      writable: true,
+      canModify: true,
+      supported: false,
+      expectedHidden: true,
+      message: "Non supported edit button should be hidden",
+    },
+  ];
+
+  // Loop through each test case to test the hidden state of edit button.
+  for (const testCase of editButtonCases) {
+    isCalendarWritableStub.returns(testCase.writable);
+    userCanModifyItemStub.returns(testCase.canModify);
+
+    calendar.setProperty("capabilities.events.supported", testCase.supported);
+
+    await createEvent({ calendar });
+    const eventBox = await openAndShowEvent();
+    const dialog = document.getElementById("calendarDialog");
+    const editButton = dialog.querySelector("#edit");
+
+    const editButtonVisibilityTest = testCase.expectedHidden
+      ? BrowserTestUtils.isHidden(editButton)
+      : BrowserTestUtils.isVisible(editButton);
+
+    Assert.ok(editButtonVisibilityTest, testCase.message);
+
+    await cleanUp(dialog, eventBox);
+  }
+
+  // Clean up.
+  isCalendarWritableStub.restore();
+  userCanModifyItemStub.restore();
+
+  if (originalCapability === null) {
+    calendar.deleteProperty("capabilities.events.supported");
+  } else {
+    calendar.setProperty("capabilities.events.supported", originalCapability);
+  }
+});
+
+add_task(async function test_editButtonDisabledStateForInvitedEvent() {
+  const calendarUser = "mailto:receiver@example.com";
+  const organizerId = "mailto:sender@example.com";
+
+  // Create event user is invited to.
+  let event = await createEvent({
+    calendar,
+    attendees: [
+      {
+        id: calendarUser,
+        role: "REQ-PARTICIPANT",
+        participationStatus: "NEEDS-ACTION",
+      },
+    ],
+  });
+
+  calendar.setProperty("organizerId", calendarUser);
+
+  const updatedEvent = event.clone();
+  const organizer = new CalAttendee();
+  organizer.id = organizerId;
+  organizer.isOrganizer = true;
+  updatedEvent.organizer = organizer;
+
+  event = await calendar.modifyItem(updatedEvent, event);
+
+  const eventBox = await openAndShowEvent();
+  const dialog = document.getElementById("calendarDialog");
+  const editButton = dialog.querySelector("#edit");
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(editButton),
+    "The edit button should be hidden when viewing event user is invited to"
+  );
+
+  // Clean up.
+  await cleanUp(dialog, eventBox);
+  calendar.setProperty("organizerId", "mailto:organizer@example.com");
 });
 
 /**

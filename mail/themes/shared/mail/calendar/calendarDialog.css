@@ -197,6 +197,15 @@ calendar-dialog-date-row {
   margin: 0;
 }
 
+.button.edit-button {
+  margin: 0;
+  font-size: 0.769rem;
+  font-weight: bold;
+  padding: 4px calc(3 * var(--space-step));
+  text-transform: uppercase;
+  min-inline-size: 0;
+}
+
 .divider::after {
   content: "";
   display: flex;

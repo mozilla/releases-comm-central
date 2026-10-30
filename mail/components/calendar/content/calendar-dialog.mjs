@@ -439,6 +439,16 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
       event.descriptionText,
       event.descriptionHTML
     );
+
+    const canEdit =
+      cal.acl.isCalendarWritable(event.calendar) &&
+      cal.acl.userCanModifyItem(event) &&
+      !(
+        event.calendar instanceof Ci.calISchedulingSupport &&
+        event.calendar.isInvitation(event)
+      ) &&
+      event.calendar.getProperty("capabilities.events.supported") !== false;
+    this.querySelector("#edit").hidden = !canEdit;
   }
 
   onCalendarEventRouteCleared() {
