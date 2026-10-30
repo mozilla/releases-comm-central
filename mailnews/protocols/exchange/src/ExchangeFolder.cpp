@@ -633,7 +633,7 @@ NS_IMETHODIMP ExchangeFolder::Rename(const nsACString& aNewName,
         nsresult rv = self->GetParent(getter_AddRefs(parentFolder));
         NS_ENSURE_SUCCESS(rv, rv);
 
-        return LocalRenameOrReparentFolder(self, parentFolder, newName, window);
+        return LocalRenameOrReparentFolder(self, parentFolder, newName);
       });
 
   return client->UpdateFolder(listener, folderId, aNewName);
@@ -972,8 +972,7 @@ NS_IMETHODIMP ExchangeFolder::CopyFolderOnSameServer(
             // subfolders, and we have no way to obtain the new IDs other than
             // performing a sync of the folder hierarchy.
             if (aIsMoveFolder) {
-              rv =
-                  LocalRenameOrReparentFolder(srcFolder, self, name, msgWindow);
+              rv = LocalRenameOrReparentFolder(srcFolder, self, name);
               NS_ENSURE_SUCCESS(rv, rv);
               rv = CompleteCopyMoveFolderOperation(
                   srcFolder, self, copyListener, name, newExchangeId);

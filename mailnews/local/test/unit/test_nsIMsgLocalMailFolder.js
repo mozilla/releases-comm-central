@@ -151,7 +151,7 @@ function subtest_folder_operations(root) {
   const hdr = folder1Local.addMessage(message.toMessageString());
   Assert.equal(message.messageId, hdr.messageId);
 
-  folder3Local.copyFolderLocal(folder, true, null, null);
+  folder3Local.copyFolderLocal(folder, true, null);
 
   // Test - Get the new folders, make sure the old ones don't exist
 
@@ -179,7 +179,7 @@ function subtest_folder_operations(root) {
 
   // Move folders back, get them
   var rootLocal = root.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  rootLocal.copyFolderLocal(folder1Moved, true, null, null);
+  rootLocal.copyFolderLocal(folder1Moved, true, null);
   folder = root.getChildNamed("folder1");
   folder2 = folder.getChildNamed("folder2");
 
@@ -363,7 +363,7 @@ function test_unsafe_characters(root) {
 
   // Note: this operation is synchronous and even if we passed a listener it
   // wouldn't get called anyway. Such consistency!
-  folderDelta.copyFolderLocal(folderAlpha, false, null, null);
+  folderDelta.copyFolderLocal(folderAlpha, false, null);
 
   Assert.ok(root.containsChildNamed("folder α"));
   Assert.ok(folderDelta.containsChildNamed("folder α"));

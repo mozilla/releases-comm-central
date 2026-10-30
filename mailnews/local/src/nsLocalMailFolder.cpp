@@ -1602,7 +1602,7 @@ nsMsgLocalMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
     // Do a pure folder move within the same Local Folder account/server. where
     // "pure" means the folder AND messages are copied to the Local Folders
     // destination and then both are removed from source account.
-    rv = CopyFolderLocal(srcFolder, isMoveFolder, msgWindow, listener);
+    rv = CopyFolderLocal(srcFolder, isMoveFolder, listener);
   } else {
     // !sameServer OR it's a copy. Unit tests expect a successful folder
     // copy within Local Folders account/server even though the UI forbids copy
@@ -1619,7 +1619,6 @@ nsMsgLocalMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
 NS_IMETHODIMP
 nsMsgLocalMailFolder::CopyFolderLocal(nsIMsgFolder* srcFolder,
                                       bool isMoveFolder,
-                                      nsIMsgWindow* msgWindow,
                                       nsIMsgCopyServiceListener* aListener) {
   mInitialized = true;
   bool isChildOfTrash;
@@ -1681,8 +1680,8 @@ nsMsgLocalMailFolder::CopyFolderLocal(nsIMsgFolder* srcFolder,
     return rv;
   }
 
-  return msgStore->CopyFolder(srcFolder, this, isMoveFolder, msgWindow,
-                              aListener, newFolderName);
+  return msgStore->CopyFolder(srcFolder, this, isMoveFolder, aListener,
+                              newFolderName);
 }
 
 NS_IMETHODIMP

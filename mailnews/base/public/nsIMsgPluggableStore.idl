@@ -125,13 +125,12 @@ interface nsIMsgPluggableStore : nsISupports {
    * @param aDstFolder parent dest folder
    * @param aIsMoveFolder true if move, false if copy. If move, source folder
    *                      is deleted when copy completes.
-   * @param aMsgWindow used to display progress, may be null
    * @param aListener - used to get notification when copy is done.
    * @param aNewName  Optional new name for the target folder.
    *                  If rename is not needed, set this to empty string.
    */
   void copyFolder(in nsIMsgFolder aSrcFolder, in nsIMsgFolder aDstFolder,
-                  in boolean aIsMoveFolder, in nsIMsgWindow aMsgWindow,
+                  in boolean aIsMoveFolder,
                   in nsIMsgCopyServiceListener aListener,
                   in AUTF8String aNewName);
 

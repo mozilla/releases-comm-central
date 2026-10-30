@@ -131,7 +131,6 @@ nsresult AsyncReadMessageFromStore(nsIMsgDBHdr* message,
 static nsresult MoveFolderRecurse(nsIMsgFolder* sourceFolder,
                                   nsIMsgFolder* newParentFolder,
                                   const nsACString& name,
-                                  nsIMsgWindow* msgWindow,
                                   nsIMsgPluggableStore* store) {
   // Do a depth-first traversal of the folder tree to ensure each parent exists
   // before we copy the contents of its children into it, but don't delete until
@@ -139,8 +138,8 @@ static nsresult MoveFolderRecurse(nsIMsgFolder* sourceFolder,
   // root folder in the source tree. We don't rely entirely on `CopyFolder`
   // because it doesn't copy subfolders that don't implement the
   // `nsIMsgLocalMailFolder` interface.
-  MOZ_TRY(store->CopyFolder(sourceFolder, newParentFolder, false, msgWindow,
-                            nullptr, name));
+  MOZ_TRY(
+      store->CopyFolder(sourceFolder, newParentFolder, false, nullptr, name));
 
   nsCOMPtr<nsIMsgFolder> newRootFolder;
   MOZ_TRY(newParentFolder->GetChildNamed(name, getter_AddRefs(newRootFolder)));
@@ -169,8 +168,7 @@ static nsresult MoveFolderRecurse(nsIMsgFolder* sourceFolder,
     newRootFolder->PropagateDelete(tmpDestSubfolder, true);
 
     // Now recurse into the subfolder.
-    MOZ_TRY(MoveFolderRecurse(subFolder, newRootFolder, subFolderName,
-                              msgWindow, store));
+    MOZ_TRY(MoveFolderRecurse(subFolder, newRootFolder, subFolderName, store));
     nsCOMPtr<nsIMsgFolder> newSubFolder;
     MOZ_TRY(newRootFolder->GetChildNamed(subFolderName,
                                          getter_AddRefs(newSubFolder)));
@@ -189,8 +187,7 @@ static nsresult MoveFolderRecurse(nsIMsgFolder* sourceFolder,
 
 nsresult LocalRenameOrReparentFolder(nsIMsgFolder* sourceFolder,
                                      nsIMsgFolder* newParentFolder,
-                                     const nsACString& name,
-                                     nsIMsgWindow* msgWindow) {
+                                     const nsACString& name) {
   NS_ENSURE_ARG_POINTER(sourceFolder);
   NS_ENSURE_ARG_POINTER(newParentFolder);
 
@@ -229,8 +226,7 @@ nsresult LocalRenameOrReparentFolder(nsIMsgFolder* sourceFolder,
   rv = sourceFolder->GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  MOZ_TRY(MoveFolderRecurse(sourceFolder, newParentFolder, name, msgWindow,
-                            msgStore));
+  MOZ_TRY(MoveFolderRecurse(sourceFolder, newParentFolder, name, msgStore));
 
   // Notify listeners of the operation. If the folder was both renamed and moved
   // at the same time, we send a notification for each half of that operation.

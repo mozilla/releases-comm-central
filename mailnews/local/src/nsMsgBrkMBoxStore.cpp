@@ -485,8 +485,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::RenameFolder(nsIMsgFolder* aFolder,
 
 NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
     nsIMsgFolder* aSrcFolder, nsIMsgFolder* aDstFolder, bool aIsMoveFolder,
-    nsIMsgWindow* aMsgWindow, nsIMsgCopyServiceListener* aListener,
-    const nsACString& aNewName) {
+    nsIMsgCopyServiceListener* aListener, const nsACString& aNewName) {
   NS_ENSURE_ARG_POINTER(aSrcFolder);
   NS_ENSURE_ARG_POINTER(aDstFolder);
 
@@ -599,8 +598,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
       do_QueryInterface(newMsgFolder, &rv));
   if (NS_SUCCEEDED(rv)) {
     for (nsIMsgFolder* folder : subFolders) {
-      copyStatus =
-          localNewFolder->CopyFolderLocal(folder, false, aMsgWindow, aListener);
+      copyStatus = localNewFolder->CopyFolderLocal(folder, false, aListener);
       // Test if the call succeeded, if not we have to stop recursive call
       if (NS_FAILED(copyStatus)) {
         // Copy failed we have to notify caller to handle the error and stop

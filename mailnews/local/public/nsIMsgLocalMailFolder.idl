@@ -46,7 +46,7 @@ interface nsIMsgLocalMailFolder : nsISupports {
    */
   nsIMsgDatabase getDatabaseWithReparse(in nsIUrlListener aReparseUrlListener);
   void parseFolder(in nsIUrlListener listener);
-  void copyFolderLocal(in nsIMsgFolder srcFolder, in boolean isMove, in nsIMsgWindow msgWindow, in nsIMsgCopyServiceListener listener);
+  void copyFolderLocal(in nsIMsgFolder srcFolder, in boolean isMove, in nsIMsgCopyServiceListener listener);
 
   /**
    * Does copy of same level subfolders of the srcFolder to the destination

@@ -237,7 +237,7 @@ nsresult ExchangeIncomingServer::UpdateFolderWithDetails(
   rv = FindFolderWithId(parentId, getter_AddRefs(newParentFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return LocalRenameOrReparentFolder(folder, newParentFolder, name, msgWindow);
+  return LocalRenameOrReparentFolder(folder, newParentFolder, name);
 }
 
 /**

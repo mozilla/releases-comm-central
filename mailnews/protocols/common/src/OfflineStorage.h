@@ -120,8 +120,7 @@ nsresult AsyncReadMessageFromStore(nsIMsgDBHdr* message,
  * name are unchanged, then this function will do nothing and return `NS_OK`. If
  * the operation cannot be completed because a child with the specified name
  * already exists within the parent, then this function will return
- * `NS_MSG_FOLDER_EXISTS`. The specified `msgWindow` will be used for
- * notifications.
+ * `NS_MSG_FOLDER_EXISTS`.
  *
  * This implementation also moves the database storage, maintaining properties
  * and metadata associated with the folder through the rename/reparent
@@ -131,8 +130,7 @@ nsresult AsyncReadMessageFromStore(nsIMsgDBHdr* message,
  */
 nsresult LocalRenameOrReparentFolder(nsIMsgFolder* sourceFolder,
                                      nsIMsgFolder* newParentFolder,
-                                     const nsACString& name,
-                                     nsIMsgWindow* msgWindow);
+                                     const nsACString& name);
 
 /**
  * Perform the local operations required to copy/move a virtual folder.
