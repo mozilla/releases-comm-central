@@ -230,11 +230,10 @@ class MailAuthenticator {
   /**
    * Show a dialog for authentication failure.
    *
-   * @param {nsIMsgWindow} msgWindow - The associated msg window.
    * @param {string} accountname - A user defined account name or the server hostname.
    * @returns {number} 0: Retry; 1: Cancel; 2: New password.
    */
-  _promptAuthFailed(msgWindow, accountname) {
+  _promptAuthFailed(accountname) {
     const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/messenger.properties"
     );
@@ -261,7 +260,7 @@ class MailAuthenticator {
     const dummyValue = { value: false };
 
     return Services.prompt.confirmEx(
-      msgWindow?.domWindow,
+      Services.wm.getMostRecentWindow("mail:3pane"),
       title,
       message,
       buttonFlags,
@@ -355,10 +354,7 @@ export class SmtpAuthenticator extends MailAuthenticator {
   }
 
   promptAuthFailed() {
-    return this._promptAuthFailed(
-      null,
-      this._server.description || this.hostname
-    );
+    return this._promptAuthFailed(this._server.description || this.hostname);
   }
 }
 
@@ -407,8 +403,8 @@ class IncomingServerAuthenticator extends MailAuthenticator {
     });
   }
 
-  promptAuthFailed(msgWindow) {
-    return this._promptAuthFailed(msgWindow, this._server.prettyName);
+  promptAuthFailed() {
+    return this._promptAuthFailed(this._server.prettyName);
   }
 }
 

@@ -598,7 +598,6 @@ nsMsgNewsFolder::DeleteMessages(nsTArray<RefPtr<nsIMsgDBHdr>> const& msgHdrs,
                                 nsIMsgCopyServiceListener* listener,
                                 bool allowUndo) {
   nsresult rv = NS_OK;
-  NS_ENSURE_ARG_POINTER(aMsgWindow);
 
   if (!isMove) {
     nsCOMPtr<nsIMsgFolderNotificationService> notifier =

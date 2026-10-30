@@ -100,7 +100,7 @@ export class NntpClient {
     this._lineReader = new LineReader();
     this.runningUri = null;
     this.urlListener = null;
-    this._msgWindow = null;
+    this._interactive = false;
     this._newsFolder = null;
     this._newsGroup = null;
     this._nextAction = null;
@@ -149,7 +149,7 @@ export class NntpClient {
    */
   startRunningUrl(urlListener, msgWindow, runningUri) {
     this.urlListener = urlListener;
-    this._msgWindow = msgWindow;
+    this._interactive = !!msgWindow;
     this.runningUri = runningUri;
     if (!this.runningUri) {
       this.runningUri = Services.io
@@ -561,7 +561,7 @@ export class NntpClient {
     if (!action) {
       return;
     }
-    this._msgWindow = msgWindow;
+    this._interactive = !!msgWindow;
     const pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
     pipe.init(true, true, 0, 0);
     const inputStream = pipe.inputStream;
@@ -1155,7 +1155,7 @@ export class NntpClient {
         this._actionAuthPassword();
         return;
       case AUTH_FAILED: {
-        const action = this._authenticator.promptAuthFailed(this._msgWindow);
+        const action = this._authenticator.promptAuthFailed();
         if (action == 1) {
           // Cancel button pressed.
           this._actionDone();
@@ -1277,9 +1277,9 @@ export class NntpClient {
     this._logger.error(
       `Got an error, the server said: ${status} ${statusText}`
     );
-    if (this._msgWindow) {
+    if (this._interactive) {
       Services.prompt.alert(
-        this._msgWindow.domWindow,
+        Services.wm.getMostRecentWindow("mail:3pane"),
         null,
         lazy.messengerBundle.formatStringFromName("statusMessage", [
           this._server.prettyName,

@@ -919,7 +919,7 @@ export class Pop3Client {
       );
 
       // Ask user what to do.
-      const action = this._authenticator.promptAuthFailed(this._msgWindow);
+      const action = this._authenticator.promptAuthFailed();
       if (action == 1) {
         // Cancel button pressed.
         this._actionDone(Cr.NS_ERROR_FAILURE);
