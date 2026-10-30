@@ -606,9 +606,8 @@ nsMsgLocalMailFolder::CreateSubfolderWithListener(const nsACString& folderName,
 nsresult nsMsgLocalMailFolder::CreateSubfolderInternal(
     const nsACString& folderName, nsIMsgWindow* msgWindow,
     nsIMsgFolder** aNewFolder) {
-  nsresult rv = CheckIfFolderExists(folderName, this, msgWindow);
+  nsresult rv = CheckIfFolderExists(folderName, this);
   if (NS_FAILED(rv)) {
-    // CheckIfFolderExists() already shows alert if a folder exists.
     return rv;
   }
 
@@ -797,7 +796,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsACString& aNewName,
   nsresult rv = GetParent(getter_AddRefs(parentFolder));
   if (!parentFolder) return NS_ERROR_NULL_POINTER;
 
-  rv = CheckIfFolderExists(aNewName, parentFolder, msgWindow);
+  rv = CheckIfFolderExists(aNewName, parentFolder);
   if (NS_FAILED(rv)) return rv;
 
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
@@ -1643,7 +1642,7 @@ nsMsgLocalMailFolder::CopyFolderLocal(nsIMsgFolder* srcFolder,
   }
 
   if (!isMoveFolder) {
-    rv = CheckIfFolderExists(folderName, this, msgWindow);
+    rv = CheckIfFolderExists(folderName, this);
     if (NS_WARN_IF(NS_FAILED(rv))) {
       return rv;
     }
@@ -1671,7 +1670,7 @@ nsMsgLocalMailFolder::CopyFolderLocal(nsIMsgFolder* srcFolder,
     if (i > 2 && !isChildOfTrash) {
       // Folder name already exists, ask if rename is OK.
       // If moving to Trash, don't ask and do it.
-      if (!ConfirmAutoFolderRename(msgWindow, folderName, newFolderName))
+      if (!ConfirmAutoFolderRename(folderName, newFolderName))
         return NS_MSG_ERROR_COPY_FOLDER_ABORTED;
     }
   }

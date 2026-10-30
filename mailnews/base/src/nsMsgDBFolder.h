@@ -130,8 +130,7 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult parseURI(bool needServer = false);
   nsresult GetBaseStringBundle(nsIStringBundle** aBundle);
   nsresult GetStringFromBundle(const char* msgName, nsString& aResult);
-  nsresult ThrowConfirmationPrompt(nsIMsgWindow* msgWindow,
-                                   const nsAString& confirmString,
+  nsresult ThrowConfirmationPrompt(const nsAString& confirmString,
                                    bool* confirmed);
   nsresult CreateCollationKey(const nsCString& aSource, uint8_t** aKey,
                               uint32_t* aLength);
@@ -170,10 +169,8 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
                                       nsIMsgFolderCacheElement** cacheElement);
   nsresult AddDirectorySeparator(nsIFile* path);
   nsresult CheckIfFolderExists(const nsACString& newFolderName,
-                               nsIMsgFolder* parentFolder,
-                               nsIMsgWindow* msgWindow);
-  bool ConfirmAutoFolderRename(nsIMsgWindow* aMsgWindow,
-                               const nsCString& aOldName,
+                               nsIMsgFolder* parentFolder);
+  bool ConfirmAutoFolderRename(const nsCString& aOldName,
                                const nsCString& aNewName);
 
   // Returns true if: a) there is no need to prompt or b) the user is already

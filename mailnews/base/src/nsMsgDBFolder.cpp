@@ -3549,8 +3549,7 @@ NS_IMETHODIMP nsMsgDBFolder::EmptyTrash(nsIUrlListener* aListener) {
 }
 
 nsresult nsMsgDBFolder::CheckIfFolderExists(const nsACString& newFolderName,
-                                            nsIMsgFolder* parentFolder,
-                                            nsIMsgWindow* msgWindow) {
+                                            nsIMsgFolder* parentFolder) {
   NS_ENSURE_ARG_POINTER(parentFolder);
   nsTArray<RefPtr<nsIMsgFolder>> subFolders;
   nsresult rv = parentFolder->GetSubFolders(subFolders);
@@ -3568,8 +3567,7 @@ nsresult nsMsgDBFolder::CheckIfFolderExists(const nsACString& newFolderName,
   return NS_OK;
 }
 
-bool nsMsgDBFolder::ConfirmAutoFolderRename(nsIMsgWindow* msgWindow,
-                                            const nsCString& aOldName,
+bool nsMsgDBFolder::ConfirmAutoFolderRename(const nsCString& aOldName,
                                             const nsCString& aNewName) {
   nsCOMPtr<nsIStringBundle> bundle;
   nsresult rv = GetBaseStringBundle(getter_AddRefs(bundle));
@@ -3591,7 +3589,7 @@ bool nsMsgDBFolder::ConfirmAutoFolderRename(nsIMsgWindow* msgWindow,
   }
 
   bool confirmed = false;
-  rv = ThrowConfirmationPrompt(msgWindow, confirmString, &confirmed);
+  rv = ThrowConfirmationPrompt(confirmString, &confirmed);
   if (NS_WARN_IF(NS_FAILED(rv))) {
     return false;
   }
@@ -3758,7 +3756,7 @@ NS_IMETHODIMP nsMsgDBFolder::Rename(const nsACString& aNewName,
     parentPathFile->IsDirectory(&isDirectory);
     if (!isDirectory) AddDirectorySeparator(parentPathFile);
 
-    rv = CheckIfFolderExists(aNewName, parentFolder, msgWindow);
+    rv = CheckIfFolderExists(aNewName, parentFolder);
     if (NS_FAILED(rv)) return rv;
   }
 
@@ -5068,8 +5066,7 @@ nsresult nsMsgDBFolder::GetStringFromBundle(const char* msgName,
   return rv;
 }
 
-nsresult nsMsgDBFolder::ThrowConfirmationPrompt(nsIMsgWindow* msgWindow,
-                                                const nsAString& confirmString,
+nsresult nsMsgDBFolder::ThrowConfirmationPrompt(const nsAString& confirmString,
                                                 bool* confirmed) {
   nsresult rv;
   nsCOMPtr<mozIDOMWindowProxy> domWindow;
