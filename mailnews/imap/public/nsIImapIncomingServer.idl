@@ -93,14 +93,13 @@ interface nsIImapIncomingServer : nsISupports {
    * Get the password from the nsIMsgIncomingServer. May prompt the user
    * if there's no password in the password manager or cached in the
    * server object.
-   * @param aWindow  msgWindow to associate the password prompt with
    * @return Password string.
    * @exception NS_ERROR_FAILURE  The password could not be obtained.
    * @note NS_MSG_PASSWORD_PROMPT_CANCELLED is a success code that is returned
    *       if the prompt was presented to the user but the user cancelled the
    *       prompt.
    */
-  AString PromptPassword(in nsIMsgWindow aWindow);
+  AString promptPassword();
   attribute boolean doingLsub;
 
   ACString getUriWithNamespacePrefixIfNecessary(in long namespaceType, in AUTF8String originalUri);

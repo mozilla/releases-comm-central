@@ -2126,8 +2126,7 @@ nsImapIncomingServer::SyncGetPassword(nsAString& aPassword) {
 }
 
 NS_IMETHODIMP
-nsImapIncomingServer::PromptPassword(nsIMsgWindow* aMsgWindow,
-                                     nsAString& aPassword) {
+nsImapIncomingServer::PromptPassword(nsAString& password) {
   nsAutoCString userName;
   GetUsername(userName);
 
@@ -2154,7 +2153,7 @@ nsImapIncomingServer::PromptPassword(nsIMsgWindow* aMsgWindow,
                                             formatStrings2, passwordText);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = GetPasswordWithUI(passwordText, passwordTitle, aPassword);
+  rv = GetPasswordWithUI(passwordText, passwordTitle, password);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return NS_OK;

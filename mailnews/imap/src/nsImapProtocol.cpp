@@ -8530,12 +8530,10 @@ nsImapProtocol::OnPromptStart(bool* aResult) {
   nsresult rv;
   nsCOMPtr<nsIImapIncomingServer> imapServer = do_QueryReferent(m_server, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIMsgWindow> msgWindow;
 
   *aResult = false;
-  GetMsgWindow(getter_AddRefs(msgWindow));
   nsString password = m_lastPasswordSent;
-  rv = imapServer->PromptPassword(msgWindow, password);
+  rv = imapServer->PromptPassword(password);
 
   ReentrantMonitorAutoEnter passwordMon(m_passwordReadyMonitor);
 
@@ -8708,11 +8706,11 @@ bool nsImapProtocol::TryToLogon() {
   // clang-format on
 
   bool newPasswordRequested = false;
-  // remember the msgWindow before we start trying to logon, because if the
-  // server drops the connection on errors, TellThreadToDie will null out the
-  // protocolsink and we won't be able to get the msgWindow.
-  AutoProxyReleaseMsgWindow msgWindow;
-  GetMsgWindow(getter_AddRefs(msgWindow));
+  // Remember whether anybody is waiting on this before we start trying to
+  // logon, because if the server drops the connection on errors,
+  // TellThreadToDie will null out the protocolsink and we won't be able to ask
+  // the url any more.
+  const bool interactive = IsInteractive();
 
   // This loops over 1) auth methods (only one per loop) and 2) password tries
   // (with UI)
@@ -8779,8 +8777,8 @@ bool nsImapProtocol::TryToLogon() {
                 ("IMAP: ask user what to do (after login failed): new "
                  "password, retry, cancel"));
         if (!m_imapServerSink) break;
-        // if there's no msg window, don't forget the password
-        if (!msgWindow) break;
+        // Nobody is waiting to answer the prompt, so don't forget the password.
+        if (!interactive) break;
         int32_t buttonPressed = 1;
         rv = m_imapServerSink->PromptLoginFailed(&buttonPressed);
         if (NS_FAILED(rv)) break;
