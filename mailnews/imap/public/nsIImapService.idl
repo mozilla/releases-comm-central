@@ -174,8 +174,7 @@ interface nsIImapService : nsISupports
 
   void renameLeaf(in nsIMsgFolder aSrcFolder,
                   in AUTF8String aLeafName,
-                  in nsIUrlListener aUrlListener,
-                  in nsIMsgWindow msgWindow);
+                  in nsIUrlListener aUrlListener);
 
   void deleteFolder(in nsIMsgFolder aFolder,
                     in nsIUrlListener aUrlListener,

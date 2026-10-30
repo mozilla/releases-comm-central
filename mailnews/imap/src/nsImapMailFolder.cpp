@@ -1594,7 +1594,7 @@ NS_IMETHODIMP nsImapMailFolder::Rename(const nsACString& newName) {
   if (incomingImapServer) RecursiveCloseActiveConnections(incomingImapServer);
 
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-  return imapService->RenameLeaf(this, newName, this, nullptr);
+  return imapService->RenameLeaf(this, newName, this);
 }
 
 NS_IMETHODIMP nsImapMailFolder::RenameWithListener(const nsACString& aNewName,

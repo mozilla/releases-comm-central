@@ -1903,8 +1903,7 @@ NS_IMETHODIMP nsImapService::MoveFolder(nsIMsgFolder* srcFolder,
 
 NS_IMETHODIMP nsImapService::RenameLeaf(nsIMsgFolder* srcFolder,
                                         const nsACString& newLeafName,
-                                        nsIUrlListener* urlListener,
-                                        nsIMsgWindow* msgWindow) {
+                                        nsIUrlListener* urlListener) {
   NS_ENSURE_ARG_POINTER(srcFolder);
 
   nsCOMPtr<nsIImapUrl> imapUrl;
@@ -1918,7 +1917,6 @@ NS_IMETHODIMP nsImapService::RenameLeaf(nsIMsgFolder* srcFolder,
     rv = SetImapUrlSink(srcFolder, imapUrl);
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIMsgMailNewsUrl> mailNewsUrl = do_QueryInterface(imapUrl);
-      mailNewsUrl->SetMsgWindow(msgWindow);
       nsCString folderName;
       GetFolderName(srcFolder, folderName);
       urlSpec.AppendLiteral("/rename>");
