@@ -234,6 +234,14 @@ export var auth = {
      * @returns {boolean}
      */
     promptAuth(aChannel, aLevel, aAuthInfo) {
+      // The channel URI is the server, not the proxy, so everything below would
+      // pick the server's credentials.
+      // FIXME: Proxies that ask for Basic or Digest credentials can't be used
+      // for calendars. NTLM and Negotiate proxies are answered by necko with
+      // the system credentials and never get here.
+      if (aAuthInfo.flags & Ci.nsIAuthInformation.AUTH_PROXY) {
+        return false;
+      }
       let finished = false;
       let result = false;
       this.#getPasswordInfo(aChannel, aAuthInfo)
@@ -369,6 +377,12 @@ export var auth = {
      * @returns {nsICancelable} - not actually returned, bug 1965959.
      */
     asyncPromptAuth(aChannel, aCallback, aContext, aLevel, aAuthInfo) {
+      // See promptAuth.
+      if (aAuthInfo.flags & Ci.nsIAuthInformation.AUTH_PROXY) {
+        // This function must return before the callback is called.
+        Services.tm.dispatchToMainThread(() => aCallback.onAuthCancelled(aContext, true));
+        return;
+      }
       this.#asyncPromptAuthInternal(aChannel, aCallback, aContext, aLevel, aAuthInfo);
     }
 
