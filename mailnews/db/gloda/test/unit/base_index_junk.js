@@ -64,7 +64,6 @@ async function setup_spam_filter() {
     hamSet.getMsgURI(0),
     null, // no old classification
     MailServices.junk.GOOD,
-    null,
     junkListener
   );
   await promise;
@@ -80,7 +79,6 @@ async function setup_spam_filter() {
     spamSet.getMsgURI(0),
     null, // No old classification.
     MailServices.junk.JUNK,
-    null,
     junkListener
   );
   await promise;

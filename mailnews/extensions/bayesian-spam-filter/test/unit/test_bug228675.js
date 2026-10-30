@@ -46,7 +46,6 @@ function run_test() {
     getSpec(email),
     kUnclassified,
     classification,
-    null,
     doTestingListener
   );
 }
@@ -64,7 +63,6 @@ var doTestingListener = {
         getSpec(email),
         kUnclassified,
         classification,
-        null,
         doTestingListener
       );
       return;

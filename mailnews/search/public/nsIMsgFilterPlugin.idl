@@ -133,11 +133,10 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      * Given a message URI, determine what its current classification is
      * according to the current training set.
      */
-    void classifyMessage(in AUTF8String aMsgURI, in nsIMsgWindow aMsgWindow,
+    void classifyMessage(in AUTF8String aMsgURI,
                          in nsIJunkMailClassificationListener aListener);
 
     void classifyMessages(in Array<AUTF8String> aMsgURIs,
-                          in nsIMsgWindow aMsgWindow,
                           in nsIJunkMailClassificationListener aListener);
 
     /**
@@ -161,7 +160,6 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
            in Array<unsigned long> aProTraits,
            in Array<unsigned long> aAntiTraits,
            in nsIMsgTraitClassificationListener aTraitListener,
-           [optional] in nsIMsgWindow aMsgWindow,
            [optional] in nsIJunkMailClassificationListener aJunkListener);
 
     /**
@@ -185,7 +183,6 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
            in Array<unsigned long> aProTraits,
            in Array<unsigned long> aAntiTraits,
            in nsIMsgTraitClassificationListener aTraitListener,
-           [optional] in nsIMsgWindow aMsgWindow,
            [optional] in nsIJunkMailClassificationListener aJunkListener);
 
     /**
@@ -201,7 +198,6 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
     void setMessageClassification(
         in AUTF8String aMsgURI, in nsMsgJunkStatus aOldUserClassification,
         in nsMsgJunkStatus aNewClassification,
-        in nsIMsgWindow aMsgWindow,
         in nsIJunkMailClassificationListener aListener);
 
     /**
@@ -222,7 +218,6 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
         in Array<unsigned long> aOldTraits,
         in Array<unsigned long> aNewTraits,
         [optional] in nsIMsgTraitClassificationListener aTraitListener,
-        [optional] in nsIMsgWindow aMsgWindow,
         [optional] in nsIJunkMailClassificationListener aJunkListener);
 
     readonly attribute boolean userHasClassified;
@@ -251,8 +246,7 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
         in AUTF8String aMsgURI,
         in unsigned long aProTrait,
         in unsigned long aAntiTrait,
-        in nsIMsgTraitDetailListener aListener,
-        [optional] in nsIMsgWindow aMsgWindow);
+        in nsIMsgTraitDetailListener aListener);
 
 };
 

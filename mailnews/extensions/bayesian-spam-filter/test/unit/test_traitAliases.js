@@ -167,6 +167,5 @@ function startCommand() {
     antiArray, // in array aAntiTraits
     listener
   ); // in nsIMsgTraitClassificationListener aTraitListener
-  // null,      // [optional] in nsIMsgWindow aMsgWindow
   // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
 }

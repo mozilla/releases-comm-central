@@ -22,7 +22,6 @@
 #include "nsIMsgMessageService.h"
 #include "nsMsgUtils.h"  // for GetMessageServiceFromURI
 #include "prnetdb.h"
-#include "nsIMsgWindow.h"
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsUnicharUtils.h"
 #include "nsDirectoryServiceUtils.h"
@@ -1194,7 +1193,6 @@ class MessageClassifier : public TokenAnalyzer {
                     nsIMsgTraitDetailListener* aDetailListener,
                     const nsTArray<uint32_t>& aProTraits,
                     const nsTArray<uint32_t>& aAntiTraits,
-                    nsIMsgWindow* aMsgWindow,
                     const nsTArray<nsCString>& aMessageURIs)
       : mFilter(aFilter),
         mJunkMailPlugin(aFilter),
@@ -1203,7 +1201,6 @@ class MessageClassifier : public TokenAnalyzer {
         mDetailListener(aDetailListener),
         mProTraits(aProTraits.Clone()),
         mAntiTraits(aAntiTraits.Clone()),
-        mMsgWindow(aMsgWindow),
         mMessageURIs(aMessageURIs.Clone()),
         mCurMessageToClassify(0) {
     MOZ_ASSERT(aProTraits.Length() == aAntiTraits.Length());
@@ -1212,14 +1209,12 @@ class MessageClassifier : public TokenAnalyzer {
   // junk-only classifier
   MessageClassifier(nsBayesianFilter* aFilter,
                     nsIJunkMailClassificationListener* aJunkListener,
-                    nsIMsgWindow* aMsgWindow,
                     const nsTArray<nsCString>& aMessageURIs)
       : mFilter(aFilter),
         mJunkMailPlugin(aFilter),
         mJunkListener(aJunkListener),
         mTraitListener(nullptr),
         mDetailListener(nullptr),
-        mMsgWindow(aMsgWindow),
         mMessageURIs(aMessageURIs.Clone()),
         mCurMessageToClassify(0) {
     mProTraits.AppendElement(kJunkTrait);
@@ -1239,8 +1234,7 @@ class MessageClassifier : public TokenAnalyzer {
       MOZ_LOG(BayesianFilterLogModule, LogLevel::Warning,
               ("classifyNextMessage(%s)",
                mMessageURIs[mCurMessageToClassify].get()));
-      mFilter->tokenizeMessage(mMessageURIs[mCurMessageToClassify], mMsgWindow,
-                               this);
+      mFilter->tokenizeMessage(mMessageURIs[mCurMessageToClassify], this);
     } else {
       // call all listeners with null parameters to signify end of batch
       if (mJunkListener)
@@ -1266,13 +1260,11 @@ class MessageClassifier : public TokenAnalyzer {
   nsCOMPtr<nsIMsgTraitDetailListener> mDetailListener;
   nsTArray<uint32_t> mProTraits;
   nsTArray<uint32_t> mAntiTraits;
-  nsCOMPtr<nsIMsgWindow> mMsgWindow;
   nsTArray<nsCString> mMessageURIs;
   uint32_t mCurMessageToClassify;  // 0-based index
 };
 
 nsresult nsBayesianFilter::tokenizeMessage(const nsACString& aMessageURI,
-                                           nsIMsgWindow* aMsgWindow,
                                            TokenAnalyzer* aAnalyzer) {
   nsCOMPtr<nsIMsgMessageService> msgService;
   nsresult rv =
@@ -1282,7 +1274,7 @@ nsresult nsBayesianFilter::tokenizeMessage(const nsACString& aMessageURI,
   aAnalyzer->setSource(aMessageURI);
   nsCOMPtr<nsIURI> dummyNull;
   return msgService->StreamMessage(
-      aMessageURI, aAnalyzer->mTokenListener, aMsgWindow, nullptr,
+      aMessageURI, aAnalyzer->mTokenListener, nullptr, nullptr,
       true /* convert data */, "filter"_ns, false, getter_AddRefs(dummyNull));
 }
 
@@ -1671,31 +1663,28 @@ NS_IMETHODIMP nsBayesianFilter::GetShouldDownloadAllHeaders(
 /* void classifyMessage (in string aMsgURL, in nsIJunkMailClassificationListener
  * aListener); */
 NS_IMETHODIMP nsBayesianFilter::ClassifyMessage(
-    const nsACString& aMessageURL, nsIMsgWindow* aMsgWindow,
+    const nsACString& aMessageURL,
     nsIJunkMailClassificationListener* aListener) {
   AutoTArray<nsCString, 1> urls = {PromiseFlatCString(aMessageURL)};
-  MessageClassifier* analyzer =
-      new MessageClassifier(this, aListener, aMsgWindow, urls);
+  MessageClassifier* analyzer = new MessageClassifier(this, aListener, urls);
   NS_ENSURE_TRUE(analyzer, NS_ERROR_OUT_OF_MEMORY);
   TokenStreamListener* tokenListener = new TokenStreamListener(analyzer);
   NS_ENSURE_TRUE(tokenListener, NS_ERROR_OUT_OF_MEMORY);
   analyzer->setTokenListener(tokenListener);
-  return tokenizeMessage(aMessageURL, aMsgWindow, analyzer);
+  return tokenizeMessage(aMessageURL, analyzer);
 }
 
 /* void classifyMessages(in Array<ACString> aMsgURIs,
- *                       in nsIMsgWindow aMsgWindow,
  *                       in nsIJunkMailClassificationListener aListener); */
 NS_IMETHODIMP nsBayesianFilter::ClassifyMessages(
-    const nsTArray<nsCString>& aMsgURLs, nsIMsgWindow* aMsgWindow,
+    const nsTArray<nsCString>& aMsgURLs,
     nsIJunkMailClassificationListener* aListener) {
-  TokenAnalyzer* analyzer =
-      new MessageClassifier(this, aListener, aMsgWindow, aMsgURLs);
+  TokenAnalyzer* analyzer = new MessageClassifier(this, aListener, aMsgURLs);
   NS_ENSURE_TRUE(analyzer, NS_ERROR_OUT_OF_MEMORY);
   TokenStreamListener* tokenListener = new TokenStreamListener(analyzer);
   NS_ENSURE_TRUE(tokenListener, NS_ERROR_OUT_OF_MEMORY);
   analyzer->setTokenListener(tokenListener);
-  return tokenizeMessage(aMsgURLs[0], aMsgWindow, analyzer);
+  return tokenizeMessage(aMsgURLs[0], analyzer);
 }
 
 nsresult nsBayesianFilter::setAnalysis(Token& token, uint32_t aTraitIndex,
@@ -1758,27 +1747,27 @@ uint32_t nsBayesianFilter::getAnalysisIndex(Token& token,
 NS_IMETHODIMP nsBayesianFilter::ClassifyTraitsInMessage(
     const nsACString& aMsgURI, const nsTArray<uint32_t>& aProTraits,
     const nsTArray<uint32_t>& aAntiTraits,
-    nsIMsgTraitClassificationListener* aTraitListener, nsIMsgWindow* aMsgWindow,
+    nsIMsgTraitClassificationListener* aTraitListener,
     nsIJunkMailClassificationListener* aJunkListener) {
   AutoTArray<nsCString, 1> uris = {PromiseFlatCString(aMsgURI)};
   return ClassifyTraitsInMessages(uris, aProTraits, aAntiTraits, aTraitListener,
-                                  aMsgWindow, aJunkListener);
+                                  aJunkListener);
 }
 
 NS_IMETHODIMP nsBayesianFilter::ClassifyTraitsInMessages(
     const nsTArray<nsCString>& aMsgURIs, const nsTArray<uint32_t>& aProTraits,
     const nsTArray<uint32_t>& aAntiTraits,
-    nsIMsgTraitClassificationListener* aTraitListener, nsIMsgWindow* aMsgWindow,
+    nsIMsgTraitClassificationListener* aTraitListener,
     nsIJunkMailClassificationListener* aJunkListener) {
   MOZ_ASSERT(aProTraits.Length() == aAntiTraits.Length());
   MessageClassifier* analyzer =
       new MessageClassifier(this, aJunkListener, aTraitListener, nullptr,
-                            aProTraits, aAntiTraits, aMsgWindow, aMsgURIs);
+                            aProTraits, aAntiTraits, aMsgURIs);
 
   TokenStreamListener* tokenListener = new TokenStreamListener(analyzer);
 
   analyzer->setTokenListener(tokenListener);
-  return tokenizeMessage(aMsgURIs[0], aMsgWindow, analyzer);
+  return tokenizeMessage(aMsgURIs[0], analyzer);
 }
 
 class MessageObserver : public TokenAnalyzer {
@@ -1814,7 +1803,7 @@ class MessageObserver : public TokenAnalyzer {
 NS_IMETHODIMP nsBayesianFilter::SetMsgTraitClassification(
     const nsACString& aMsgURI, const nsTArray<uint32_t>& aOldTraits,
     const nsTArray<uint32_t>& aNewTraits,
-    nsIMsgTraitClassificationListener* aTraitListener, nsIMsgWindow* aMsgWindow,
+    nsIMsgTraitClassificationListener* aTraitListener,
     nsIJunkMailClassificationListener* aJunkListener) {
   MessageObserver* analyzer = new MessageObserver(
       this, aOldTraits, aNewTraits, aJunkListener, aTraitListener);
@@ -1824,7 +1813,7 @@ NS_IMETHODIMP nsBayesianFilter::SetMsgTraitClassification(
   NS_ENSURE_TRUE(tokenListener, NS_ERROR_OUT_OF_MEMORY);
 
   analyzer->setTokenListener(tokenListener);
-  return tokenizeMessage(aMsgURI, aMsgWindow, analyzer);
+  return tokenizeMessage(aMsgURI, analyzer);
 }
 
 // set new message classifications for a message
@@ -1927,7 +1916,7 @@ NS_IMETHODIMP nsBayesianFilter::GetUserHasClassified(bool* aResult) {
 // Set message classification (only allows junk and good)
 NS_IMETHODIMP nsBayesianFilter::SetMessageClassification(
     const nsACString& aMsgURL, nsMsgJunkStatus aOldClassification,
-    nsMsgJunkStatus aNewClassification, nsIMsgWindow* aMsgWindow,
+    nsMsgJunkStatus aNewClassification,
     nsIJunkMailClassificationListener* aListener) {
   AutoTArray<uint32_t, 1> oldClassifications;
   AutoTArray<uint32_t, 1> newClassifications;
@@ -1950,7 +1939,7 @@ NS_IMETHODIMP nsBayesianFilter::SetMessageClassification(
   NS_ENSURE_TRUE(tokenListener, NS_ERROR_OUT_OF_MEMORY);
 
   analyzer->setTokenListener(tokenListener);
-  return tokenizeMessage(aMsgURL, aMsgWindow, analyzer);
+  return tokenizeMessage(aMsgURL, analyzer);
 }
 
 NS_IMETHODIMP nsBayesianFilter::ResetTrainingData() {
@@ -1959,21 +1948,20 @@ NS_IMETHODIMP nsBayesianFilter::ResetTrainingData() {
 
 NS_IMETHODIMP nsBayesianFilter::DetailMessage(
     const nsACString& aMsgURI, uint32_t aProTrait, uint32_t aAntiTrait,
-    nsIMsgTraitDetailListener* aDetailListener, nsIMsgWindow* aMsgWindow) {
+    nsIMsgTraitDetailListener* aDetailListener) {
   AutoTArray<uint32_t, 1> proTraits = {aProTrait};
   AutoTArray<uint32_t, 1> antiTraits = {aAntiTrait};
   AutoTArray<nsCString, 1> uris = {PromiseFlatCString(aMsgURI)};
 
-  MessageClassifier* analyzer =
-      new MessageClassifier(this, nullptr, nullptr, aDetailListener, proTraits,
-                            antiTraits, aMsgWindow, uris);
+  MessageClassifier* analyzer = new MessageClassifier(
+      this, nullptr, nullptr, aDetailListener, proTraits, antiTraits, uris);
   NS_ENSURE_TRUE(analyzer, NS_ERROR_OUT_OF_MEMORY);
 
   TokenStreamListener* tokenListener = new TokenStreamListener(analyzer);
   NS_ENSURE_TRUE(tokenListener, NS_ERROR_OUT_OF_MEMORY);
 
   analyzer->setTokenListener(tokenListener);
-  return tokenizeMessage(aMsgURI, aMsgWindow, analyzer);
+  return tokenizeMessage(aMsgURI, analyzer);
 }
 
 // nsIMsgCorpus implementation

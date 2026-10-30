@@ -200,7 +200,6 @@ function startCommand() {
         proArray, // aNewTraits
         classifyListener // aTraitListener
       );
-      // null,      // [optional] in nsIMsgWindow aMsgWindow
       // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
       break;
 

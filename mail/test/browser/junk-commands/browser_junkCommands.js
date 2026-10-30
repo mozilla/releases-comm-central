@@ -344,7 +344,6 @@ async function trainJunkFilter(message) {
     uri.spec,
     null,
     message.startsWith("ham") ? MailServices.junk.GOOD : MailServices.junk.JUNK,
-    null,
     { onMessageClassified: deferred.resolve }
   );
   return deferred.promise;

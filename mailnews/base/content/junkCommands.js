@@ -123,7 +123,7 @@ MessageClassifier.prototype = {
     this.mMessages[messageURI] = aMsgHdr;
     if (this.firstMessage) {
       this.firstMessage = false;
-      MailServices.junk.classifyMessage(messageURI, top.msgWindow, this);
+      MailServices.junk.classifyMessage(messageURI, this);
     } else {
       this.mMessageQueue.push(messageURI);
     }
@@ -181,7 +181,7 @@ MessageClassifier.prototype = {
         );
         MailServices.feedback.reportStatus(status);
       }
-      MailServices.junk.classifyMessage(nextMsgURI, top.msgWindow, this);
+      MailServices.junk.classifyMessage(nextMsgURI, this);
     } else {
       const status = await document.l10n.formatValue("spam-processing-message");
       MailServices.feedback.reportStatus(status);

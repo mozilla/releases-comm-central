@@ -2384,8 +2384,8 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow* aMsgWindow, bool* aFiltersRun) {
     rv = traitService->GetEnabledAntiIndices(antiIndices);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = junkMailPlugin->ClassifyTraitsInMessages(
-        messageURIs, proIndices, antiIndices, this, aMsgWindow, this);
+    rv = junkMailPlugin->ClassifyTraitsInMessages(messageURIs, proIndices,
+                                                  antiIndices, this, this);
   } else if (filterPostPlugin) {
     // Nothing to classify, so need to end batch ourselves. We do this so that
     // post analysis filters will run consistently on a folder, even if

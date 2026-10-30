@@ -490,7 +490,6 @@ function startCommand() {
         getSpec(fileName), // in string aMsgURI
         null, // in nsMsgJunkStatus aOldUserClassification
         junkPercent == kIsHamScore ? kGood : kJunk, // in nsMsgJunkStatus aNewClassification
-        null, // in nsIMsgWindow aMsgWindow
         junkListener
       ); // in nsIJunkMailClassificationListener aListener);
       break;
@@ -502,7 +501,6 @@ function startCommand() {
         [], // aOldTraits
         junkPercent == kIsSpamScore ? gProArray : gAntiArray, // aNewTraits
         tListener ? traitListener : null, // aTraitListener
-        null, // aMsgWindow
         jListener ? junkListener : null
       );
       break;
@@ -511,7 +509,6 @@ function startCommand() {
       // classify message using junk call
       MailServices.junk.classifyMessage(
         getSpec(fileName), // in string aMsgURI
-        null, // in nsIMsgWindow aMsgWindow
         junkListener
       ); // in nsIJunkMailClassificationListener aListener
       break;
@@ -523,7 +520,6 @@ function startCommand() {
         gProArray, // in array aProTraits,
         gAntiArray, // in array aAntiTraits
         tListener ? traitListener : null, // in nsIMsgTraitClassificationListener aTraitListener
-        null, // in nsIMsgWindow aMsgWindow
         jListener ? junkListener : null
       ); // in nsIJunkMailClassificationListener aJunkListener
       break;
@@ -534,7 +530,6 @@ function startCommand() {
         getSpec(fileName), // in string aMsgURI
         junkPercent == kIsHamScore ? kGood : kJunk, // in nsMsgJunkStatus aOldUserClassification
         null, // in nsMsgJunkStatus aNewClassification,
-        null, // in nsIMsgWindow aMsgWindow,
         junkListener
       ); // in nsIJunkMailClassificationListener aListener
       break;
@@ -546,7 +541,6 @@ function startCommand() {
         junkPercent == kIsSpamScore ? gProArray : gAntiArray, // in array aOldTraits
         [], // in array aNewTraits
         tListener ? traitListener : null, // in nsIMsgTraitClassificationListener aTraitListener
-        null, // in nsIMsgWindow aMsgWindow
         jListener ? junkListener : null
       ); // in nsIJunkMailClassificationListener aJunkListener
       break;

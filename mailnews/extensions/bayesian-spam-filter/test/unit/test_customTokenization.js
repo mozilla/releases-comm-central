@@ -169,7 +169,6 @@ function startCommand() {
         kProArray, // aNewTraits
         listener
       ); // [optional] in nsIMsgTraitClassificationListener aTraitListener
-      // null,      // [optional] in nsIMsgWindow aMsgWindow
       // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
       break;
 

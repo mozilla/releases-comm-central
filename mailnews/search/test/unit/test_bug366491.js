@@ -66,7 +66,6 @@ var doTestingListener = {
         getSpec(email.fileName),
         kUnclassified,
         email.classification,
-        null,
         doTestingListener
       );
       return;
@@ -89,7 +88,6 @@ var doTestingListener = {
       haveClassification = true;
       MailServices.junk.classifyMessage(
         getSpec(tests[0].fileName),
-        null,
         doTestingListener
       );
     } else {

@@ -223,7 +223,6 @@ function startCommand() {
         proArray, // aNewTraits
         listener
       ); // [optional] in nsIMsgTraitClassificationListener aTraitListener
-      // null,      // [optional] in nsIMsgWindow aMsgWindow
       // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
       break;
     }
@@ -249,7 +248,6 @@ function startCommand() {
           antiArray, // in array aAntiTraits
           listener
         ); // in nsIMsgTraitClassificationListener aTraitListener
-        // null,      // [optional] in nsIMsgWindow aMsgWindow
         // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
       } else {
         // use the plural classifier
@@ -259,7 +257,6 @@ function startCommand() {
           antiArray, // in array aAntiTraits
           listener
         ); // in nsIMsgTraitClassificationListener aTraitListener
-        // null,      // [optional] in nsIMsgWindow aMsgWindow
         // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
       }
       break;

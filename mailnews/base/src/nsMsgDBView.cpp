@@ -2711,9 +2711,8 @@ nsresult nsMsgDBView::SetMsgHdrJunkStatus(nsIJunkMailPlugin* aJunkPlugin,
 
   // Tell the plugin about this change, so that it can (potentially)
   // adjust its database appropriately.
-  nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(mMsgWindowWeak));
-  rv = aJunkPlugin->SetMessageClassification(
-      uri, oldUserClassification, aNewClassification, msgWindow, this);
+  rv = aJunkPlugin->SetMessageClassification(uri, oldUserClassification,
+                                             aNewClassification, this);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // This routine is only reached if the user someone touched the UI

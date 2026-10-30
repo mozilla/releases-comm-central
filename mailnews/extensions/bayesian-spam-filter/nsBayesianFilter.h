@@ -24,7 +24,6 @@
 struct Token;
 class TokenEnumeration;
 class TokenAnalyzer;
-class nsIMsgWindow;
 class nsIUTF8StringEnumerator;
 struct BaseToken;
 struct CorpusToken;
@@ -346,7 +345,7 @@ class nsBayesianFilter : public nsIJunkMailPlugin,
   nsresult Init();
 
   nsresult tokenizeMessage(const nsACString& messageURI,
-                           nsIMsgWindow* aMsgWindow, TokenAnalyzer* analyzer);
+                           TokenAnalyzer* analyzer);
   void classifyMessage(Tokenizer& tokens, const nsACString& messageURI,
                        nsIJunkMailClassificationListener* listener);
 
