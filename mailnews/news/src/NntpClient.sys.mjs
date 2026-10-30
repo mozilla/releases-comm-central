@@ -143,22 +143,21 @@ export class NntpClient {
    * the current request is finished.
    *
    * @param {nsIUrlListener} urlListener - Callback for the request.
-   * @param {nsIMsgWindow} msgWindow - The associated msg window.
+   * @param {boolean} interactive - Whether the user is waiting on the request,
+   *   and so should be told about any failure.
    * @param {nsIMsgMailNewsUrl} [runningUri] - The url to run, if provided.
    * @returns {nsIMsgMailNewsUrl}
    */
-  startRunningUrl(urlListener, msgWindow, runningUri) {
+  startRunningUrl(urlListener, interactive, runningUri) {
     this.urlListener = urlListener;
-    this._interactive = !!msgWindow;
+    this._interactive = interactive;
     this.runningUri = runningUri;
     if (!this.runningUri) {
       this.runningUri = Services.io
         .newURI(`news://${this._server.hostname}:${this._server.port}`)
         .QueryInterface(Ci.nsIMsgMailNewsUrl);
     }
-    if (msgWindow) {
-      this.runningUri.msgWindow = msgWindow;
-    }
+    this.runningUri.interactive = interactive;
     this.urlListener?.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
     this.runningUri.SetUrlState(true, Cr.NS_OK);
     return this.runningUri;
@@ -540,10 +539,10 @@ export class NntpClient {
    * Load a news uri directly, see rfc5538 about supported news uri.
    *
    * @param {string} uri - The news uri to load.
-   * @param {nsIMsgWindow} msgWindow - The associated msg window.
+   * @param {boolean} interactive - Whether the user is waiting on the request.
    * @param {nsIStreamListener} streamListener - The listener for the request.
    */
-  loadNewsUrl(uri, msgWindow, streamListener) {
+  loadNewsUrl(uri, interactive, streamListener) {
     this._logger.debug(`Loading ${uri}`);
     const url = new URL(uri);
     const path = url.pathname.slice(1);
@@ -561,7 +560,7 @@ export class NntpClient {
     if (!action) {
       return;
     }
-    this._interactive = !!msgWindow;
+    this._interactive = interactive;
     const pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
     pipe.init(true, true, 0, 0);
     const inputStream = pipe.inputStream;

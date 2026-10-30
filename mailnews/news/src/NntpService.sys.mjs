@@ -38,7 +38,7 @@ export class NntpService {
     server = server.QueryInterface(Ci.nsINntpIncomingServer);
 
     server.wrappedJSObject.withClient(client => {
-      client.startRunningUrl(urlListener, msgWindow);
+      client.startRunningUrl(urlListener, !!msgWindow);
 
       client.onOpen = () => {
         client.post();
@@ -95,7 +95,7 @@ export class NntpService {
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
 
     server.wrappedJSObject.withClient(client => {
-      client.startRunningUrl(urlListener, msgWindow, runningUri);
+      client.startRunningUrl(urlListener, !!msgWindow, runningUri);
       client.onOpen = () => {
         client.getNewNews(groupName, getOld);
       };
@@ -111,7 +111,7 @@ export class NntpService {
    */
   getListOfGroupsOnServer(server, msgWindow, getOnlyNew) {
     server.wrappedJSObject.withClient(client => {
-      client.startRunningUrl(server.wrappedJSObject, msgWindow);
+      client.startRunningUrl(server.wrappedJSObject, !!msgWindow);
       client.onOpen = () => {
         client.getListOfGroups(getOnlyNew);
       };
@@ -133,7 +133,7 @@ export class NntpService {
 
     const server = folder.server.QueryInterface(Ci.nsINntpIncomingServer);
     server.wrappedJSObject.withClient(client => {
-      client.startRunningUrl(urlListener, msgWindow);
+      client.startRunningUrl(urlListener, !!msgWindow);
 
       client.onOpen = () => {
         client.getArticleByArticleNumber(folder.name, key);
@@ -185,8 +185,7 @@ export class NntpService {
     const from = MailServices.accounts.getFirstIdentityForServer(server).email;
 
     server.wrappedJSObject.withClient(client => {
-      const runningUrl = client.startRunningUrl(urlListener, msgWindow);
-      runningUrl.msgWindow = msgWindow;
+      client.startRunningUrl(urlListener, !!msgWindow);
 
       client.onOpen = () => {
         client.cancelArticle(groupName);

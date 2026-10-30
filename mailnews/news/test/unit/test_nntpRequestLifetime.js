@@ -52,7 +52,7 @@ add_task(async function test_interruptedMultilineResponse() {
   try {
     pool.withClient(client => {
       firstClient = client;
-      client.startRunningUrl(null, null);
+      client.startRunningUrl(null, false);
       const reader = client._lineReader;
       const read = reader.read.bind(reader);
       reader.read = (...args) => {
@@ -80,7 +80,7 @@ add_task(async function test_interruptedMultilineResponse() {
           firstClient,
           "the queued request should reuse the client"
         );
-        client.startRunningUrl(null, null);
+        client.startRunningUrl(null, false);
         const lines = [];
         client.onOpen = () => client.listgroup("test.filter");
         client.onData = line => lines.push(line.trim());

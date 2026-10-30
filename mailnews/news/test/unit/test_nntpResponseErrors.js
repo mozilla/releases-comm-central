@@ -47,7 +47,7 @@ function request(action) {
         .newURI(`news://localhost:${incomingServer.port}/test.filter`)
         .QueryInterface(Ci.nsIMsgMailNewsUrl);
       let data = "";
-      client.startRunningUrl(null, null, url);
+      client.startRunningUrl(null, false, url);
       client.onOpen = () => action(client);
       client.onData = line => (data += line);
       client.onDone = status => resolve({ status, data });

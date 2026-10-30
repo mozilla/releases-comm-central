@@ -438,11 +438,7 @@ export class NntpChannel extends MailChannel {
     }
 
     this._server.wrappedJSObject.withClient(client => {
-      let msgWindow;
-      try {
-        msgWindow = this.URI.msgWindow;
-      } catch (e) {}
-      client.startRunningUrl(null, msgWindow, this.URI);
+      client.startRunningUrl(null, this.URI.interactive, this.URI);
       client.channel = this;
       try {
         this._listener.onStartRequest(this);

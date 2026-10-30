@@ -61,7 +61,7 @@ class BaseMessageService {
     const uri = Services.io
       .newURI(this._createMessageIdUrl(messageURI))
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
-    uri.msgWindow = msgWindow;
+    uri.interactive = !!msgWindow;
     return uri;
   }
 
@@ -128,7 +128,7 @@ class BaseMessageService {
     server.wrappedJSObject.withClient(client => {
       client.startRunningUrl(
         searchSession.QueryInterface(Ci.nsIUrlListener),
-        msgWindow
+        !!msgWindow
       );
       client.onOpen = () => {
         client.search(msgFolder.name, xpatLines);

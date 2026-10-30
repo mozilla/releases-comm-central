@@ -424,7 +424,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
   loadNewsUrl(uri, msgWindow, consumer) {
     if (consumer instanceof Ci.nsIStreamListener) {
       this.withClient(client => {
-        client.loadNewsUrl(uri.spec, msgWindow, consumer);
+        client.loadNewsUrl(uri.spec, !!msgWindow, consumer);
       });
     }
   }
@@ -608,7 +608,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
         const runningUri = Services.io
           .newURI(`news://${this.hostname}:${this.port}/${groupName}`)
           .QueryInterface(Ci.nsIMsgMailNewsUrl);
-        client.startRunningUrl(null, null, runningUri);
+        client.startRunningUrl(null, false, runningUri);
 
         client.onOpen = () => {
           client.listgroup(groupName);

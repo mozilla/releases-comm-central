@@ -86,7 +86,7 @@ function getArticle(articleNumber) {
         )
         .QueryInterface(Ci.nsIMsgMailNewsUrl);
       let data = "";
-      client.startRunningUrl(null, null, url);
+      client.startRunningUrl(null, false, url);
       client.onOpen = () =>
         client.getArticleByArticleNumber("test.filter", articleNumber);
       client.onData = line => (data += line);
@@ -292,7 +292,7 @@ function listgroup(onData) {
     localserver.wrappedJSObject.withClient(client => {
       client.startRunningUrl(
         null,
-        null,
+        false,
         Services.io
           .newURI(`news://localhost:${localserver.port}/test.filter`)
           .QueryInterface(Ci.nsIMsgMailNewsUrl)

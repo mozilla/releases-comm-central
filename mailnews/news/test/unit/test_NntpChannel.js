@@ -318,7 +318,7 @@ add_task(async function test_lineBreakInCommand() {
   _server.closeCachedConnections();
   const status = await new Promise(resolve => {
     _server.wrappedJSObject.withClient(client => {
-      client.startRunningUrl(null, null);
+      client.startRunningUrl(null, false);
       client.onOpen = () => {
         client._sendCommand("ARTICLE <x\r\nINJECTED@b>");
       };
