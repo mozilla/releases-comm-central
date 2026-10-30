@@ -4551,7 +4551,6 @@ version = "0.1.0"
 name = "mozannotation_server"
 version = "0.1.0"
 dependencies = [
- "memoffset",
  "mozannotation_client",
  "process_reader",
  "thiserror 2.0.12",
@@ -4684,7 +4683,7 @@ checksum = "a2983372caf4480544083767bf2d27defafe32af49ab4df3a0b7fc90793a3664"
 [[package]]
 name = "naga"
 version = "30.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=bbb9b06e90a166989f3112696cc7c52ce9700cdc#bbb9b06e90a166989f3112696cc7c52ce9700cdc"
+source = "git+https://github.com/gfx-rs/wgpu?rev=49325ca0a13bdc0787b1601138096cce743dd29e#49325ca0a13bdc0787b1601138096cce743dd29e"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -4710,7 +4709,7 @@ dependencies = [
 [[package]]
 name = "naga-types"
 version = "30.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=bbb9b06e90a166989f3112696cc7c52ce9700cdc#bbb9b06e90a166989f3112696cc7c52ce9700cdc"
+source = "git+https://github.com/gfx-rs/wgpu?rev=49325ca0a13bdc0787b1601138096cce743dd29e#49325ca0a13bdc0787b1601138096cce743dd29e"
 dependencies = [
  "bytemuck",
  "hashbrown 0.17.1",
@@ -5578,7 +5577,6 @@ dependencies = [
  "libc",
  "log",
  "mach2 0.6.0",
- "memoffset",
  "scroll",
  "thiserror 2.0.12",
  "windows-sys",
@@ -7770,7 +7768,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "30.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=bbb9b06e90a166989f3112696cc7c52ce9700cdc#bbb9b06e90a166989f3112696cc7c52ce9700cdc"
+source = "git+https://github.com/gfx-rs/wgpu?rev=49325ca0a13bdc0787b1601138096cce743dd29e#49325ca0a13bdc0787b1601138096cce743dd29e"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -7806,7 +7804,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core-deps-apple"
 version = "30.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=bbb9b06e90a166989f3112696cc7c52ce9700cdc#bbb9b06e90a166989f3112696cc7c52ce9700cdc"
+source = "git+https://github.com/gfx-rs/wgpu?rev=49325ca0a13bdc0787b1601138096cce743dd29e#49325ca0a13bdc0787b1601138096cce743dd29e"
 dependencies = [
  "wgpu-hal",
 ]
@@ -7814,7 +7812,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core-deps-linux-android-bsd"
 version = "30.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=bbb9b06e90a166989f3112696cc7c52ce9700cdc#bbb9b06e90a166989f3112696cc7c52ce9700cdc"
+source = "git+https://github.com/gfx-rs/wgpu?rev=49325ca0a13bdc0787b1601138096cce743dd29e#49325ca0a13bdc0787b1601138096cce743dd29e"
 dependencies = [
  "wgpu-hal",
 ]
@@ -7822,7 +7820,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core-deps-windows"
 version = "30.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=bbb9b06e90a166989f3112696cc7c52ce9700cdc#bbb9b06e90a166989f3112696cc7c52ce9700cdc"
+source = "git+https://github.com/gfx-rs/wgpu?rev=49325ca0a13bdc0787b1601138096cce743dd29e#49325ca0a13bdc0787b1601138096cce743dd29e"
 dependencies = [
  "wgpu-hal",
 ]
@@ -7830,7 +7828,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core-remote"
 version = "30.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=bbb9b06e90a166989f3112696cc7c52ce9700cdc#bbb9b06e90a166989f3112696cc7c52ce9700cdc"
+source = "git+https://github.com/gfx-rs/wgpu?rev=49325ca0a13bdc0787b1601138096cce743dd29e#49325ca0a13bdc0787b1601138096cce743dd29e"
 dependencies = [
  "raw-window-handle",
  "serde",
@@ -7844,8 +7842,9 @@ dependencies = [
 [[package]]
 name = "wgpu-core-remote-types"
 version = "30.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=bbb9b06e90a166989f3112696cc7c52ce9700cdc#bbb9b06e90a166989f3112696cc7c52ce9700cdc"
+source = "git+https://github.com/gfx-rs/wgpu?rev=49325ca0a13bdc0787b1601138096cce743dd29e#49325ca0a13bdc0787b1601138096cce743dd29e"
 dependencies = [
+ "bitflags 2.10.0",
  "hashbrown 0.17.1",
  "naga-types",
  "serde",
@@ -7855,7 +7854,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "30.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=bbb9b06e90a166989f3112696cc7c52ce9700cdc#bbb9b06e90a166989f3112696cc7c52ce9700cdc"
+source = "git+https://github.com/gfx-rs/wgpu?rev=49325ca0a13bdc0787b1601138096cce743dd29e#49325ca0a13bdc0787b1601138096cce743dd29e"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -7897,7 +7896,7 @@ dependencies = [
 [[package]]
 name = "wgpu-naga-bridge"
 version = "30.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=bbb9b06e90a166989f3112696cc7c52ce9700cdc#bbb9b06e90a166989f3112696cc7c52ce9700cdc"
+source = "git+https://github.com/gfx-rs/wgpu?rev=49325ca0a13bdc0787b1601138096cce743dd29e#49325ca0a13bdc0787b1601138096cce743dd29e"
 dependencies = [
  "naga",
  "wgpu-types",
@@ -7906,7 +7905,7 @@ dependencies = [
 [[package]]
 name = "wgpu-sync"
 version = "30.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=bbb9b06e90a166989f3112696cc7c52ce9700cdc#bbb9b06e90a166989f3112696cc7c52ce9700cdc"
+source = "git+https://github.com/gfx-rs/wgpu?rev=49325ca0a13bdc0787b1601138096cce743dd29e#49325ca0a13bdc0787b1601138096cce743dd29e"
 dependencies = [
  "cfg-if",
  "lock_api",
@@ -7917,7 +7916,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "30.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=bbb9b06e90a166989f3112696cc7c52ce9700cdc#bbb9b06e90a166989f3112696cc7c52ce9700cdc"
+source = "git+https://github.com/gfx-rs/wgpu?rev=49325ca0a13bdc0787b1601138096cce743dd29e#49325ca0a13bdc0787b1601138096cce743dd29e"
 dependencies = [
  "bitflags 2.10.0",
  "bytemuck",

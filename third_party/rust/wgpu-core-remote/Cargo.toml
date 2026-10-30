@@ -40,13 +40,6 @@ targets = [
     "wasm32-unknown-unknown",
 ]
 
-[features]
-serde = [
-    "dep:serde",
-    "wgpu-types/serde",
-    "wgpu-core/serde",
-]
-
 [lib]
 name = "wgpu_core_remote"
 path = "src/lib.rs"

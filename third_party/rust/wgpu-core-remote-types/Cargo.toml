@@ -44,6 +44,10 @@ targets = [
 name = "wgpu_core_remote_types"
 path = "src/lib.rs"
 
+[dependencies.bitflags]
+version = "2.9"
+features = ["serde"]
+
 [dependencies.hashbrown]
 version = "0.17"
 features = [
