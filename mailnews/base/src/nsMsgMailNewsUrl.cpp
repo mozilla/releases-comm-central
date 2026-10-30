@@ -35,6 +35,7 @@ nsMsgMailNewsUrl::nsMsgMailNewsUrl() {
   m_msgIsInLocalCache = false;
   m_suppressErrorMsgs = false;
   m_hasNormalizedOrigin = false;  // SetSpecInternal() will set this correctly.
+  mInteractive = false;
   mMaxProgress = -1;
 }
 
@@ -322,6 +323,20 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetMsgWindow(nsIMsgWindow** aMsgWindow) {
 
 NS_IMETHODIMP nsMsgMailNewsUrl::SetMsgWindow(nsIMsgWindow* aMsgWindow) {
   m_msgWindowWeak = do_GetWeakReference(aMsgWindow);
+  // Bridge for callers that still say "interactive" by handing over a window.
+  // Goes away with the msgWindow attribute itself, see bug 2087437.
+  mInteractive = !!aMsgWindow;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::GetInteractive(bool* interactive) {
+  NS_ENSURE_ARG_POINTER(interactive);
+  *interactive = mInteractive;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::SetInteractive(bool interactive) {
+  mInteractive = interactive;
   return NS_OK;
 }
 

@@ -85,6 +85,13 @@ interface nsIMsgMailNewsUrl : nsIURL {
 
   attribute nsIMsgWindow msgWindow;
 
+  /**
+   * Whether a user is waiting on this URL and can answer for it, so that the
+   * protocol may prompt rather than failing or going ahead silently. False for
+   * anything running in the background, such as biff or autosync.
+   */
+  attribute boolean interactive;
+
   // current mime headers if reading message
   attribute nsIMimeHeaders mimeHeaders;
 
