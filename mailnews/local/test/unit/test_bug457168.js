@@ -133,7 +133,7 @@ function run_test() {
   incomingServer = createPop3ServerAndLocalFolders(server.port);
 
   // Create a cc filter
-  var filters = incomingServer.getFilterList(null);
+  var filters = incomingServer.getFilterList();
 
   var filter = filters.createFilter("cc dup test");
   filter.filterType = Ci.nsMsgFilterType.Incoming;

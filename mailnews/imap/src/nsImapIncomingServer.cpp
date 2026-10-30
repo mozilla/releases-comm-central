@@ -2788,7 +2788,7 @@ nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
 NS_IMETHODIMP
 nsImapIncomingServer::GetArbitraryHeaders(nsACString& aResult) {
   nsCOMPtr<nsIMsgFilterList> filterList;
-  nsresult rv = GetFilterList(nullptr, getter_AddRefs(filterList));
+  nsresult rv = GetFilterList(getter_AddRefs(filterList));
   NS_ENSURE_SUCCESS(rv, rv);
   return filterList->GetArbitraryHeaders(aResult);
 }

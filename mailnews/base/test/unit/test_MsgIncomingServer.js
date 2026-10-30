@@ -172,7 +172,7 @@ add_task(function testMigrateFiltersOnChangeUsernameHostname() {
     "news.localhost",
     "nntp"
   );
-  let filterList = nntpIncomingServer.getFilterList(null);
+  let filterList = nntpIncomingServer.getFilterList();
 
   // Insert a CopyToFolder filter.
   let filter = filterList.createFilter("filter1");
@@ -199,7 +199,7 @@ add_task(function testMigrateFiltersOnChangeUsernameHostname() {
 
   // Change the hostname, test targetFolderUri of filters are changed accordingly.
   nntpIncomingServer.hostname = "localhost";
-  filterList = nntpIncomingServer.getFilterList(null);
+  filterList = nntpIncomingServer.getFilterList();
   filter = filterList.getFilterAt(0);
   equal(
     filter.sortedActionList[0].targetFolderUri,
@@ -213,7 +213,7 @@ add_task(function testMigrateFiltersOnChangeUsernameHostname() {
 
   // Change the username, test targetFolderUri of filters are changed accordingly.
   nntpIncomingServer.username = "nntp";
-  filterList = nntpIncomingServer.getFilterList(null);
+  filterList = nntpIncomingServer.getFilterList();
   filter = filterList.getFilterAt(0);
   equal(
     filter.sortedActionList[0].targetFolderUri,

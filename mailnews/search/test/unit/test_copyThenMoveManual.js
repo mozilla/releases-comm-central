@@ -28,7 +28,7 @@ add_setup(async function () {
   gMoveFolder = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder");
 
   // setup manual copy then move mail filters on the inbox
-  gFilterList = localAccountUtils.incomingServer.getFilterList(null);
+  gFilterList = localAccountUtils.incomingServer.getFilterList();
   gFilter = gFilterList.createFilter("copyThenMoveAll");
   const searchTerm = gFilter.createTerm();
   searchTerm.matchAll = true;

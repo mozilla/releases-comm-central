@@ -1486,8 +1486,7 @@ nsresult ExchangeFolder::SyncMessages(nsIMsgWindow* window,
       bool incomingFiltersRequireBody = false;
       {
         nsCOMPtr<nsIMsgFilterList> filterList;
-        if (NS_SUCCEEDED(
-                self->GetFilterList(nullptr, getter_AddRefs(filterList)))) {
+        if (NS_SUCCEEDED(self->GetFilterList(getter_AddRefs(filterList)))) {
           filterList->DoFiltersNeedMessageBody(nsMsgFilterType::Incoming,
                                                &incomingFiltersRequireBody);
         }
@@ -1574,7 +1573,7 @@ nsresult ExchangeFolder::PerformFiltering() {
   bool incomingFiltersRequireBody;
   {
     nsCOMPtr<nsIMsgFilterList> filterList;
-    MOZ_TRY(GetFilterList(nullptr, getter_AddRefs(filterList)));
+    MOZ_TRY(GetFilterList(getter_AddRefs(filterList)));
     MOZ_TRY(filterList->DoFiltersNeedMessageBody(nsMsgFilterType::Incoming,
                                                  &incomingFiltersRequireBody));
   }

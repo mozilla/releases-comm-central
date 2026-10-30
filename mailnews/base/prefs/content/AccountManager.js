@@ -714,7 +714,7 @@ function checkUserServerChanges(showAlert) {
       if (showAlert) {
         let filterList;
         if (currentServer && checkUser) {
-          filterList = currentServer.getEditableFilterList(null);
+          filterList = currentServer.getEditableFilterList();
         }
         let changeText = "";
         if (

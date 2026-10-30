@@ -380,7 +380,7 @@ add_task(async function ForwardDisabled() {
 
 function setupFilters() {
   // Create a non-body filter.
-  const filterList = IMAPPump.incomingServer.getFilterList(null);
+  const filterList = IMAPPump.incomingServer.getFilterList();
   gFilter = filterList.createFilter("subject");
   let searchTerm = gFilter.createTerm();
   searchTerm.attrib = Ci.nsMsgSearchAttrib.Subject;
@@ -431,7 +431,7 @@ function setupFilters() {
 
 // basic preparation done for each test
 async function setupTest(aFilter, ...aActions) {
-  const filterList = IMAPPump.incomingServer.getFilterList(null);
+  const filterList = IMAPPump.incomingServer.getFilterList();
   while (filterList.filterCount) {
     filterList.removeFilterAt(0);
   }

@@ -53,7 +53,7 @@ function writeFeedItem(folder, id) {
  * @param {boolean} matchTag - Whether to match TAG_KEY instead of all items.
  */
 function addMoveFilter(server, destination, matchTag) {
-  const filterList = server.getFilterList(null);
+  const filterList = server.getFilterList();
   const filter = filterList.createFilter(
     matchTag ? "Move tagged feed item" : "Move all feed items"
   );

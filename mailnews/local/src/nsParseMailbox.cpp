@@ -1180,7 +1180,7 @@ nsresult nsParseNewMailState::Init(nsIMsgFolder* serverFolder,
     MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
             ("(Local) Detected new local messages on account '%s'",
              serverName.get()));
-    rv = server->GetFilterList(aMsgWindow, getter_AddRefs(m_filterList));
+    rv = server->GetFilterList(getter_AddRefs(m_filterList));
 
     if (m_filterList) rv = server->ConfigureTemporaryFilters(m_filterList);
     // check if this server defers to another server, in which case
@@ -1192,7 +1192,7 @@ nsresult nsParseNewMailState::Init(nsIMsgFolder* serverFolder,
       deferredToRootFolder->GetServer(getter_AddRefs(deferredToServer));
       if (deferredToServer)
         deferredToServer->GetFilterList(
-            aMsgWindow, getter_AddRefs(m_deferredToServerFilterList));
+            getter_AddRefs(m_deferredToServerFilterList));
     }
   }
   m_disableFilters = false;

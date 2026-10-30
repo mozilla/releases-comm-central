@@ -38,7 +38,7 @@ var gFilter; // the test filter
 var gFilterList;
 var gTestArray = [
   function createFilters() {
-    gFilterList = gPOP3Pump.fakeServer.getFilterList(null);
+    gFilterList = gPOP3Pump.fakeServer.getFilterList();
     gFilter = gFilterList.createFilter("MoveAll");
     const searchTerm = gFilter.createTerm();
     searchTerm.matchAll = true;

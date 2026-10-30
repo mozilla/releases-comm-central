@@ -48,8 +48,8 @@ export class NntpNewsGroup {
       } catch (e) {}
     }
 
-    this._folderFilterList = this._folder.getFilterList(this._msgWindow);
-    this._serverFilterList = this._server.getFilterList(this._msgWindow);
+    this._folderFilterList = this._folder.getFilterList();
+    this._serverFilterList = this._server.getFilterList();
     this._filterHeaders = new Set(
       (
         this._folderFilterList.arbitraryHeaders +

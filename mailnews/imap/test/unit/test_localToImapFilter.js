@@ -85,7 +85,7 @@ add_task(async function copyFolder2() {
 
 add_task(async function getLocalMessages() {
   // setup copy then move mail filters on the inbox
-  const filterList = gPOP3Pump.fakeServer.getFilterList(null);
+  const filterList = gPOP3Pump.fakeServer.getFilterList();
   const filter = filterList.createFilter("copyThenMoveAll");
   const searchTerm = filter.createTerm();
   searchTerm.matchAll = true;

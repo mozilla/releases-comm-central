@@ -65,7 +65,7 @@ async function checkFailedMove(loggingEnabled, failure) {
     `${failure}-${++messageIndex}`
   );
   const messageId = `pop3-failure-${messageIndex}@example.invalid`;
-  const filterList = incomingServer.getFilterList(null);
+  const filterList = incomingServer.getFilterList();
   filterList.clearLog();
   filterList.loggingEnabled = loggingEnabled;
   const filter = filterList.createFilter(`Failing destination ${messageIndex}`);

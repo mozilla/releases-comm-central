@@ -100,7 +100,7 @@ function filterRunListener(folder) {
           "chrome://messenger/content/viewLog.xhtml",
           "FilterLog",
           "chrome,dependent,titlebar,resizable,centerscreen",
-          { filterList: folder.getFilterList(window.top.msgWindow) }
+          { filterList: folder.getFilterList() }
         );
       }
     },
@@ -409,7 +409,7 @@ var commandController = {
       top.SaveAsTemplate(gDBView.getURIsForSelection()[0]);
     },
     cmd_applyFilters() {
-      const curFilterList = gFolder.getFilterList(top.msgWindow);
+      const curFilterList = gFolder.getFilterList();
       // Create a new filter list and copy over the enabled filters to it.
       // We do this instead of having the filter after the fact code ignore
       // disabled filters because the Filter Dialog filter after the fact

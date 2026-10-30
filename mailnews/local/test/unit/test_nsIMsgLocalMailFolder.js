@@ -382,7 +382,7 @@ function test_filtered_message_return_values(root, server) {
     .createLocalSubfolder("filter source")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   const destination = root.createLocalSubfolder("filter destination");
-  const filterList = server.getFilterList(null);
+  const filterList = server.getFilterList();
   const filter = filterList.createFilter("Move matching messages");
   const term = filter.createTerm();
   term.attrib = Ci.nsMsgSearchAttrib.Subject;

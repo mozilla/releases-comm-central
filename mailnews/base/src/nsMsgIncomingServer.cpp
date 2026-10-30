@@ -903,8 +903,7 @@ nsMsgIncomingServer::SetFilterList(nsIMsgFilterList* aFilterList) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetFilterList(nsIMsgWindow* aMsgWindow,
-                                   nsIMsgFilterList** aResult) {
+nsMsgIncomingServer::GetFilterList(nsIMsgFilterList** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   if (!mFilterList) {
     nsCOMPtr<nsIMsgFolder> msgFolder;
@@ -962,7 +961,7 @@ nsMsgIncomingServer::GetFilterList(nsIMsgWindow* aMsgWindow,
     }
     nsCOMPtr<nsIMsgFilterService> filterService =
         mozilla::components::Filter::Service();
-    rv = filterService->OpenFilterList(mFilterFile, msgFolder, aMsgWindow,
+    rv = filterService->OpenFilterList(mFilterFile, msgFolder,
                                        getter_AddRefs(mFilterList));
     NS_ENSURE_SUCCESS(rv, rv);
   }
@@ -979,14 +978,12 @@ nsMsgIncomingServer::SetEditableFilterList(
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetEditableFilterList(nsIMsgWindow* aMsgWindow,
-                                           nsIMsgFilterList** aResult) {
+nsMsgIncomingServer::GetEditableFilterList(nsIMsgFilterList** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   if (!mEditableFilterList) {
     bool editSeparate;
     nsresult rv = GetBoolValue("filter.editable.separate", &editSeparate);
-    if (NS_FAILED(rv) || !editSeparate)
-      return GetFilterList(aMsgWindow, aResult);
+    if (NS_FAILED(rv) || !editSeparate) return GetFilterList(aResult);
 
     nsCString filterType;
     rv = GetStringValue("filter.editable.type", filterType);
@@ -1560,7 +1557,7 @@ nsresult nsMsgIncomingServer::ConfigureTemporaryServerSpamFilters(
       mozilla::components::Filter::Service();
   nsCOMPtr<nsIMsgFilterList> serverFilterList;
 
-  rv = filterService->OpenFilterList(file, NULL, NULL,
+  rv = filterService->OpenFilterList(file, NULL,
                                      getter_AddRefs(serverFilterList));
   NS_ENSURE_SUCCESS(rv, rv);
 

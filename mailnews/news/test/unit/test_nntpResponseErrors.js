@@ -212,7 +212,7 @@ add_task(async function test_unsupportedModeReaderContinues() {
 });
 
 add_task(async function test_unsupportedHeadersFallBackToHead() {
-  const filterList = folder.getFilterList(null);
+  const filterList = folder.getFilterList();
   const filter = filterList.createFilter("path");
   const term = filter.createTerm();
   term.attrib = Ci.nsMsgSearchAttrib.OtherHeader + 1;

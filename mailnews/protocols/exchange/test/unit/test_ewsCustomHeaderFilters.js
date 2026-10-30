@@ -48,7 +48,7 @@ add_task(async function testCustomHeaderFiltering() {
   await syncFolder(incomingServer, incomingServer.rootFolder);
 
   // Create a test filter which matches an arbitrary header.
-  const filterList = incomingServer.getFilterList(null);
+  const filterList = incomingServer.getFilterList();
   const filter = filterList.createFilter("test arbitrary-header-matching");
   const searchTerm = filter.createTerm();
   searchTerm.attrib = Ci.nsMsgSearchAttrib.OtherHeader + 1;

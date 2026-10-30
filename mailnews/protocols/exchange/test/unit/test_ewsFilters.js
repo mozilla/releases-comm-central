@@ -71,7 +71,7 @@ add_task(async function testBasicFiltering() {
   const inbox = incomingServer.rootFolder.getChildNamed("Inbox");
 
   // Add Filter to mark messages with "TOP-SECRET" in the subject as read.
-  const filterList = incomingServer.getFilterList(null);
+  const filterList = incomingServer.getFilterList();
   const filter = filterList.createFilter("ALL");
 
   const searchTerm = filter.createTerm();

@@ -34,7 +34,7 @@ var gFilter; // the test filter
 var gFilterList;
 var gTestArray = [
   function createFilters() {
-    gFilterList = gPOP3Pump.fakeServer.getFilterList(null);
+    gFilterList = gPOP3Pump.fakeServer.getFilterList();
     gFilter = gFilterList.createFilter("AddKeyword");
     const searchTerm = gFilter.createTerm();
     searchTerm.matchAll = true;

@@ -99,7 +99,7 @@ export var PeriodicFilterManager = {
 
       // Build a temporary list of periodic filters.
       // XXX TODO: make applyFiltersToFolders() take a filterType instead (bug 1551043).
-      const curFilterList = server.getFilterList(null);
+      const curFilterList = server.getFilterList();
       const tempFilterList = MailServices.filters.getTempFilterList(
         server.rootFolder
       );

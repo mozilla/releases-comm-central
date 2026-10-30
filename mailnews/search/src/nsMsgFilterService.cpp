@@ -123,7 +123,7 @@ nsMsgFilterService::~nsMsgFilterService() {
 }
 
 NS_IMETHODIMP nsMsgFilterService::OpenFilterList(
-    nsIFile* aFilterFile, nsIMsgFolder* rootFolder, nsIMsgWindow* aMsgWindow,
+    nsIFile* aFilterFile, nsIMsgFolder* rootFolder,
     nsIMsgFilterList** resultFilterList) {
   NS_ENSURE_ARG_POINTER(aFilterFile);
   NS_ENSURE_ARG_POINTER(resultFilterList);
@@ -178,8 +178,7 @@ NS_IMETHODIMP nsMsgFilterService::OpenFilterList(
       NS_ENSURE_SUCCESS(rv, rv);
       rv = aFilterFile->SetFileSize(0);
       NS_ENSURE_SUCCESS(rv, rv);
-      return OpenFilterList(aFilterFile, rootFolder, aMsgWindow,
-                            resultFilterList);
+      return OpenFilterList(aFilterFile, rootFolder, resultFilterList);
     }
     if (rv == NS_MSG_INVALID_CUSTOM_HEADER) {
       ThrowFilterAlertMsg("filter-invalid-custom-header"_ns, rootFolder);
@@ -1293,7 +1292,7 @@ NS_IMETHODIMP nsMsgFilterService::ApplyFilters(
   }
 
   nsCOMPtr<nsIMsgFilterList> filterList;
-  aFolder->GetFilterList(aMsgWindow, getter_AddRefs(filterList));
+  aFolder->GetFilterList(getter_AddRefs(filterList));
   NS_ENSURE_STATE(filterList);
 
   uint32_t filterCount;

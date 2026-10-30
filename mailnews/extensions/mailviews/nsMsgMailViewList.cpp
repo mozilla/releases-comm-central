@@ -231,8 +231,8 @@ nsresult nsMsgMailViewList::LoadMailViews() {
       mozilla::components::Filter::Service();
   nsCOMPtr<nsIMsgFilterList> mfilterList;
 
-  rv = filterService->OpenFilterList(file, nullptr, nullptr,
-                                     getter_AddRefs(mFilterList));
+  rv =
+      filterService->OpenFilterList(file, nullptr, getter_AddRefs(mFilterList));
   NS_ENSURE_SUCCESS(rv, rv);
 
   return ConvertFilterListToMailViews();

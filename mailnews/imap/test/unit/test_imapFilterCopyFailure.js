@@ -72,7 +72,7 @@ add_setup(async function () {
     .getChildNamed("Copies")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
 
-  const filterList = IMAPPump.incomingServer.getFilterList(null);
+  const filterList = IMAPPump.incomingServer.getFilterList();
   const filter = filterList.createFilter("copy failure preserves source");
   const term = filter.createTerm();
   term.matchAll = true;

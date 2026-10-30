@@ -200,7 +200,7 @@ add_task(async function test_missingArticleWithHeader() {
  */
 add_task(async function test_skipXHdrLineForUnknownArticle() {
   // A filter on a header not in the XOVER response makes us fetch it by XHDR.
-  const filterList = folder.getFilterList(null);
+  const filterList = folder.getFilterList();
   const filter = filterList.createFilter("path");
   const searchTerm = filter.createTerm();
   searchTerm.attrib = Ci.nsMsgSearchAttrib.OtherHeader + 1;

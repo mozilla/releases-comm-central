@@ -238,7 +238,7 @@ function setFilterFolder(msgFolder) {
 
   // Calling getEditableFilterList will detect any errors in msgFilterRules.dat,
   // backup the file, and alert the user.
-  gCurrentFilterList = msgFolder.getEditableFilterList(gFilterListMsgWindow);
+  gCurrentFilterList = msgFolder.getEditableFilterList();
   rebuildFilterList();
 
   // Select the first item in the list, if there is one.

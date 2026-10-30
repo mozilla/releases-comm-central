@@ -235,7 +235,7 @@ NS_IMETHODIMP nsPop3Sink::EndMailDelivery(nsIPop3Protocol* protocol) {
   nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_popServer);
   if (server) {
     nsCOMPtr<nsIMsgFilterList> filterList;
-    rv = server->GetFilterList(nullptr, getter_AddRefs(filterList));
+    rv = server->GetFilterList(getter_AddRefs(filterList));
     NS_ENSURE_SUCCESS(rv, rv);
 
     if (filterList) (void)filterList->FlushLogIfNecessary();

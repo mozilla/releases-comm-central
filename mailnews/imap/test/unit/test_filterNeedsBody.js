@@ -37,7 +37,7 @@ var tests = [
 
 function setup() {
   // Create a test filter.
-  const filterList = IMAPPump.incomingServer.getFilterList(null);
+  const filterList = IMAPPump.incomingServer.getFilterList();
   gFilter = filterList.createFilter("test offline");
   const searchTerm = gFilter.createTerm();
   searchTerm.matchAll = true;
@@ -54,7 +54,7 @@ function setup() {
 
 // basic preparation done for each test
 async function runFilterAction() {
-  const filterList = IMAPPump.incomingServer.getFilterList(null);
+  const filterList = IMAPPump.incomingServer.getFilterList();
   while (filterList.filterCount) {
     filterList.removeFilterAt(0);
   }

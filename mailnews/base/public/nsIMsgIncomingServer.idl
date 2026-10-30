@@ -214,10 +214,9 @@ interface nsIMsgIncomingServer : nsISupports {
    * Since the returned nsIMsgFilterList is mutable, it is not necessary to call
    * setFilterList after the filters have been changed.
    *
-   * @param aMsgWindow  @ref msgwindow "The standard message window"
    * @return            The list of filters.
    */
-  nsIMsgFilterList getFilterList(in nsIMsgWindow aMsgWindow);
+  nsIMsgFilterList getFilterList();
 
   /**
    * Set the server's list of filters.
@@ -237,10 +236,9 @@ interface nsIMsgIncomingServer : nsISupports {
    * the user.
    * @see getFilterList
    *
-   * @param aMsgWindow  @ref msgwindow "The standard message window"
    * @return            The list of filters.
    */
-  nsIMsgFilterList getEditableFilterList(in nsIMsgWindow aMsgWindow);
+  nsIMsgFilterList getEditableFilterList();
 
   /**
    * Set user editable filter list.

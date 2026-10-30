@@ -25,7 +25,7 @@ var gFilter; // the test filter
 var gFilterList;
 var gTestArray = [
   function createFilters() {
-    gFilterList = gPOP3Pump.fakeServer.getFilterList(null);
+    gFilterList = gPOP3Pump.fakeServer.getFilterList();
     // create a cc filter which will match the first message but not the second.
     gFilter = gFilterList.createFilter("MoveCc");
     const searchTerm = gFilter.createTerm();

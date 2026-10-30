@@ -35,7 +35,7 @@ add_setup(async function () {
   await make_message_sets_in_folders([source], [{ count: 1 }]);
   const [header] = source.messages;
   const originalSize = header.messageSize;
-  filterList = source.getFilterList(window.msgWindow);
+  filterList = source.getFilterList();
   const loggingEnabled = filterList.loggingEnabled;
   filter = createFilter(
     "Failing manual move",

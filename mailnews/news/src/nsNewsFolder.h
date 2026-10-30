@@ -67,10 +67,8 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
 
   NS_IMETHOD Shutdown(bool shutdownChildren) override;
 
-  NS_IMETHOD GetFilterList(nsIMsgWindow* aMsgWindow,
-                           nsIMsgFilterList** aFilterList) override;
-  NS_IMETHOD GetEditableFilterList(nsIMsgWindow* aMsgWindow,
-                                   nsIMsgFilterList** aFilterList) override;
+  NS_IMETHOD GetFilterList(nsIMsgFilterList** aFilterList) override;
+  NS_IMETHOD GetEditableFilterList(nsIMsgFilterList** aFilterList) override;
   NS_IMETHOD SetFilterList(nsIMsgFilterList* aFilterList) override;
   NS_IMETHOD SetEditableFilterList(nsIMsgFilterList* aFilterList) override;
   NS_IMETHOD ApplyRetentionSettings() override;

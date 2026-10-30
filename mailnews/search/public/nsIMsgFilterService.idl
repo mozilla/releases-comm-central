@@ -17,7 +17,7 @@ interface nsIMsgOperationListener;
 [scriptable, uuid(78a74023-1692-4567-8d72-9ca58fbbd427)]
 interface nsIMsgFilterService : nsISupports {
 
-    nsIMsgFilterList OpenFilterList(in nsIFile filterFile, in nsIMsgFolder rootFolder, in nsIMsgWindow msgWindow);
+    nsIMsgFilterList OpenFilterList(in nsIFile filterFile, in nsIMsgFolder rootFolder);
 
     void SaveFilterList(in nsIMsgFilterList filterList,
                         in nsIFile filterFile);

@@ -171,7 +171,7 @@ add_task(async function testUserUpdateEWS() {
  * @param {nsIMsgFolder} folder
  */
 function createFilter(sender, folder) {
-  const filterList = folder.server.getFilterList(null);
+  const filterList = folder.server.getFilterList();
   if (filterList.getFilterNamed(sender)) {
     // Filter already exists, skip.
     return;

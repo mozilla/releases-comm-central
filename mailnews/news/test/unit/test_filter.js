@@ -135,7 +135,7 @@ function run_test() {
   // Set up the server and add in filters
   var daemon = setupNNTPDaemon();
   var localserver = setupLocalServer(NNTP_PORT);
-  var serverFilters = localserver.getFilterList(null);
+  var serverFilters = localserver.getFilterList();
 
   createFilter(serverFilters, "subject", "Odd", "read");
   createFilter(serverFilters, "from", "Odd Person", "read");
@@ -159,7 +159,7 @@ function run_test() {
   localserver.setFilterList(serverFilters);
 
   var folder = localserver.rootFolder.getChildNamed("test.filter");
-  var folderFilters = folder.getFilterList(null);
+  var folderFilters = folder.getFilterList();
   createFilter(folderFilters, "subject", "First", "priority");
   createFilter(folderFilters, "subject", "Odd", "delete");
   createFilter(folderFilters, "from", "Odd Person", "kill");

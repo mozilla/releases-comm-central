@@ -23,7 +23,7 @@ function run_test() {
   }
 
   // Create a filter to mark one message read.
-  const filters = localserver.getFilterList(null);
+  const filters = localserver.getFilterList();
   filters.loggingEnabled = true;
   createFilter(filters, "subject", "Odd", "read");
   localserver.setFilterList(filters);

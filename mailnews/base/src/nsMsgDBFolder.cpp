@@ -1759,7 +1759,7 @@ nsMsgDBFolder::MatchOrChangeFilterDestination(nsIMsgFolder* newFolder,
       rv = server->GetCanHaveFilters(&canHaveFilters);
       if (NS_SUCCEEDED(rv) && canHaveFilters) {
         // update the filterlist to match the new folder name
-        rv = server->GetFilterList(nullptr, getter_AddRefs(filterList));
+        rv = server->GetFilterList(getter_AddRefs(filterList));
         if (NS_SUCCEEDED(rv) && filterList) {
           bool match;
           rv = filterList->MatchOrChangeFilterTarget(oldUri, newUri,
@@ -1771,7 +1771,7 @@ nsMsgDBFolder::MatchOrChangeFilterDestination(nsIMsgFolder* newFolder,
           }
         }
         // update the editable filterlist to match the new folder name
-        rv = server->GetEditableFilterList(nullptr, getter_AddRefs(filterList));
+        rv = server->GetEditableFilterList(getter_AddRefs(filterList));
         if (NS_SUCCEEDED(rv) && filterList) {
           bool match;
           rv = filterList->MatchOrChangeFilterTarget(oldUri, newUri,
@@ -2212,7 +2212,7 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow* aMsgWindow, bool* aFiltersRun) {
   // Do we need to apply message filters?
   bool filterPostPlugin = false;  // Do we have a post-analysis filter?
   nsCOMPtr<nsIMsgFilterList> filterList;
-  GetFilterList(aMsgWindow, getter_AddRefs(filterList));
+  GetFilterList(getter_AddRefs(filterList));
   if (filterList) {
     uint32_t filterCount = 0;
     filterList->GetFilterCount(&filterCount);
@@ -4944,12 +4944,11 @@ nsresult nsMsgDBFolder::NotifyFolderEvent(const nsACString& aEvent) {
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::GetFilterList(nsIMsgWindow* aMsgWindow,
-                             nsIMsgFilterList** aResult) {
+nsMsgDBFolder::GetFilterList(nsIMsgFilterList** aResult) {
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsresult rv = GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
-  return server->GetFilterList(aMsgWindow, aResult);
+  return server->GetFilterList(aResult);
 }
 
 NS_IMETHODIMP
@@ -4961,13 +4960,12 @@ nsMsgDBFolder::SetFilterList(nsIMsgFilterList* aFilterList) {
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::GetEditableFilterList(nsIMsgWindow* aMsgWindow,
-                                     nsIMsgFilterList** aResult) {
+nsMsgDBFolder::GetEditableFilterList(nsIMsgFilterList** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsresult rv = GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
-  return server->GetEditableFilterList(aMsgWindow, aResult);
+  return server->GetEditableFilterList(aResult);
 }
 
 NS_IMETHODIMP

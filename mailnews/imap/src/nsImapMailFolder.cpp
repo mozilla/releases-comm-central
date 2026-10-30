@@ -643,7 +643,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
             ("(Imap) Preparing filter run on folder '%s'", mName.get()));
 
     if (!m_filterList) {
-      rv = GetFilterList(aMsgWindow, getter_AddRefs(m_filterList));
+      rv = GetFilterList(getter_AddRefs(m_filterList));
       if (NS_FAILED(rv)) {
         MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
                 ("(Imap) Loading of filter list failed"));
@@ -8586,7 +8586,7 @@ nsImapMailFolder::GetShouldDownloadAllHeaders(bool* aResult) {
   // for all folders, check if we have a spam plugin that requires all headers
   if (mFlags & nsMsgFolderFlags::Inbox) {
     nsCOMPtr<nsIMsgFilterList> filterList;
-    nsresult rv = GetFilterList(nullptr, getter_AddRefs(filterList));
+    nsresult rv = GetFilterList(getter_AddRefs(filterList));
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = filterList->GetShouldDownloadAllHeaders(aResult);

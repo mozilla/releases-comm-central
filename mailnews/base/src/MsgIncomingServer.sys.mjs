@@ -116,7 +116,7 @@ function migrateFilters(oldServerUri, newServerUri) {
   for (const server of MailServices.accounts.allServers) {
     let filterList;
     try {
-      filterList = server.getFilterList(null);
+      filterList = server.getFilterList();
       if (!server.canHaveFilters || !filterList) {
         continue;
       }
@@ -978,7 +978,7 @@ export class MsgIncomingServer {
     }
   }
 
-  getFilterList(msgWindow) {
+  getFilterList() {
     if (!this._filterList) {
       if (!this.rootFolder.filePath.path) {
         // Happens in tests.
@@ -989,8 +989,7 @@ export class MsgIncomingServer {
       try {
         this._filterList = MailServices.filters.OpenFilterList(
           filterFile,
-          this.rootFolder,
-          msgWindow
+          this.rootFolder
         );
       } catch (e) {
         console.error(e);
@@ -1008,9 +1007,9 @@ export class MsgIncomingServer {
     this._filterList = value;
   }
 
-  getEditableFilterList(msgWindow) {
+  getEditableFilterList() {
     if (!this._editableFilterList) {
-      return this.getFilterList(msgWindow);
+      return this.getFilterList();
     }
     return this._editableFilterList;
   }

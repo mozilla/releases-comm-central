@@ -1201,13 +1201,12 @@ nsMsgNewsFolder::SetFilterList(nsIMsgFilterList* aFilterList) {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetFilterList(nsIMsgWindow* aMsgWindow,
-                               nsIMsgFilterList** aResult) {
+nsMsgNewsFolder::GetFilterList(nsIMsgFilterList** aResult) {
   if (mIsServer) {
     nsCOMPtr<nsIMsgIncomingServer> server;
     nsresult rv = GetServer(getter_AddRefs(server));
     NS_ENSURE_SUCCESS(rv, rv);
-    return server->GetFilterList(aMsgWindow, aResult);
+    return server->GetFilterList(aResult);
   }
 
   if (!mFilterList) {
@@ -1240,7 +1239,7 @@ nsMsgNewsFolder::GetFilterList(nsIMsgWindow* aMsgWindow,
 
     nsCOMPtr<nsIMsgFilterService> filterService =
         mozilla::components::Filter::Service();
-    rv = filterService->OpenFilterList(filterFile, this, aMsgWindow,
+    rv = filterService->OpenFilterList(filterFile, this,
                                        getter_AddRefs(mFilterList));
     NS_ENSURE_SUCCESS(rv, rv);
   }
@@ -1250,10 +1249,9 @@ nsMsgNewsFolder::GetFilterList(nsIMsgWindow* aMsgWindow,
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetEditableFilterList(nsIMsgWindow* aMsgWindow,
-                                       nsIMsgFilterList** aResult) {
+nsMsgNewsFolder::GetEditableFilterList(nsIMsgFilterList** aResult) {
   // We don't support pluggable filter list types for news.
-  return GetFilterList(aMsgWindow, aResult);
+  return GetFilterList(aResult);
 }
 
 NS_IMETHODIMP

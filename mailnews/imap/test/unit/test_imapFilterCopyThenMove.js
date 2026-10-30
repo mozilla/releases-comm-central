@@ -53,7 +53,7 @@ add_setup(async function () {
     .getChildNamed("Moved")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
 
-  const filterList = IMAPPump.incomingServer.getFilterList(null);
+  const filterList = IMAPPump.incomingServer.getFilterList();
   const filter = filterList.createFilter("copy before move");
   const term = filter.createTerm();
   term.matchAll = true;
