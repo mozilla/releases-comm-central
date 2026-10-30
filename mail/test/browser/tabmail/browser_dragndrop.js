@@ -61,7 +61,7 @@ add_setup(async function () {
     [{ count: NUM_MESSAGES_IN_FOLDER }]
   );
   msgHdrsInFolder = [...folder.messages];
-  folder.markAllMessagesRead(null);
+  folder.markAllMessagesRead();
 
   await be_in_folder(folder);
 });

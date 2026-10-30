@@ -1423,10 +1423,10 @@ this.folders = class extends ExtensionAPIPersistent {
               folders.push(searchFolder);
             }
             for (const nativeFolder of folders) {
-              nativeFolder.markAllMessagesRead(null);
+              nativeFolder.markAllMessagesRead();
             }
           } else {
-            folder.markAllMessagesRead(null);
+            folder.markAllMessagesRead();
           }
         },
       },

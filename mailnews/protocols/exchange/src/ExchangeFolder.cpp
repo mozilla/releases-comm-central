@@ -496,7 +496,7 @@ NS_IMETHODIMP ExchangeFolder::MarkMessagesRead(
   return client->ChangeReadStatus(listener, requestedIds, markRead);
 }
 
-NS_IMETHODIMP ExchangeFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
+NS_IMETHODIMP ExchangeFolder::MarkAllMessagesRead() {
   nsCOMPtr<IExchangeClient> client;
   MOZ_TRY(GetProtocolClient(getter_AddRefs(client)));
 
@@ -506,8 +506,8 @@ NS_IMETHODIMP ExchangeFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
   nsTArray<nsCString> folderIds{{folderId}};
 
   RefPtr<ExchangeSimpleListener> listener = new ExchangeSimpleListener(
-      [self = RefPtr(this), window = RefPtr(aMsgWindow)](
-          const nsTArray<nsCString>& ids, bool useLegacyFallback) {
+      [self = RefPtr(this)](const nsTArray<nsCString>& ids,
+                            bool useLegacyFallback) {
         nsresult rv = self->GetDatabase();
         NS_ENSURE_SUCCESS(rv, rv);
 

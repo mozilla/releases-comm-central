@@ -141,7 +141,7 @@ add_task(async function testOffline() {
       () => inbox.getNumUnread(false) - inbox.numPendingUnread == 10,
       `waiting for new ${inbox.server.type} messages to be received`
     );
-    inbox.markAllMessagesRead(window.msgWindow);
+    inbox.markAllMessagesRead();
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     await new Promise(resolve => setTimeout(resolve, 250));
   }

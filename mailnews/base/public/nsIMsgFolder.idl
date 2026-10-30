@@ -689,7 +689,7 @@ interface nsIMsgFolder : nsISupports {
                                   in nsMsgDispositionState aDispositionFlag);
 
   void markMessagesRead(in Array<nsIMsgDBHdr> messages, in boolean markRead);
-  void markAllMessagesRead(in nsIMsgWindow aMsgWindow);
+  void markAllMessagesRead();
   void markMessagesFlagged(in Array<nsIMsgDBHdr> messages, in boolean markFlagged);
 
   /**

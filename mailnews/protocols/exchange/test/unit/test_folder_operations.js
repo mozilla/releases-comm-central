@@ -383,7 +383,7 @@ add_task(async function test_mark_as_read() {
     "all messages should be unread at the start"
   );
 
-  folder.markAllMessagesRead(null);
+  folder.markAllMessagesRead();
 
   await TestUtils.waitForCondition(
     () => folder.getNumUnread(false) == 0,

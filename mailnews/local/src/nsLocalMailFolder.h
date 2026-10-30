@@ -146,7 +146,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
                               bool aMarkRead) override;
   NS_IMETHOD MarkMessagesFlagged(const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,
                                  bool aMarkFlagged) override;
-  NS_IMETHOD MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) override;
+  NS_IMETHOD MarkAllMessagesRead() override;
   NS_IMETHOD GetNewMessages(nsIMsgWindow* aWindow,
                             nsIUrlListener* aListener) override;
   NS_IMETHOD NotifyCompactCompleted() override;

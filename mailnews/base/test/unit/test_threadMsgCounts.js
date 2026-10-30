@@ -115,7 +115,7 @@ add_task(async function testSingleFolderThreadedView() {
 
   info("Mark all the messages as read.");
 
-  folder.markAllMessagesRead(null);
+  folder.markAllMessagesRead();
   for (const row of expectedRows) {
     row.unreadCol = "";
   }
@@ -462,7 +462,7 @@ add_task(async function testXFThreadedView() {
 
   info("Mark all the messages as read.");
 
-  folder.markAllMessagesRead(null);
+  folder.markAllMessagesRead();
   for (const row of expectedRows) {
     row.unreadCol = "";
   }

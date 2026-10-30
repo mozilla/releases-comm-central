@@ -1858,7 +1858,7 @@ nsImapMailFolder::MarkMessagesRead(
 }
 
 NS_IMETHODIMP
-nsImapMailFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
+nsImapMailFolder::MarkAllMessagesRead() {
   nsresult rv = GetDatabase();
   if (NS_SUCCEEDED(rv)) {
     nsTArray<nsMsgKey> thoseMarked;

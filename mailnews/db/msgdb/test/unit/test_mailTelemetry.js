@@ -32,7 +32,7 @@ add_task(async function test_mails_read() {
       "From \r\n" + headers + "\r\nhello\r\n"
     );
   }
-  localAccountUtils.inboxFolder.markAllMessagesRead(null);
+  localAccountUtils.inboxFolder.markAllMessagesRead();
   Assert.equal(
     Glean.mail.mailsRead.testGetValue(),
     NUM_MAILS,

@@ -1206,7 +1206,7 @@ function MsgDisplayMessageInFolderTab(aMsgHdr) {
 
 function MsgMarkAllRead(folders) {
   for (let i = 0; i < folders.length; i++) {
-    folders[i].markAllMessagesRead(msgWindow);
+    folders[i].markAllMessagesRead();
   }
 }
 
@@ -1235,7 +1235,7 @@ function MsgMarkAllFoldersRead(selectedFolders) {
 
   selectedServers.forEach(function (server) {
     for (const folder of server.rootFolder.descendants) {
-      folder.markAllMessagesRead(msgWindow);
+      folder.markAllMessagesRead();
     }
   });
 }

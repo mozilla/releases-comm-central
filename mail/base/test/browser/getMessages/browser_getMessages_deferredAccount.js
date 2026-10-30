@@ -89,7 +89,7 @@ add_task(async function testDeferredAccount() {
     () => localInbox.getNumUnread(false) - localInbox.numPendingUnread == 10,
     `waiting for new messages to be received in local inbox`
   );
-  localInbox.markAllMessagesRead(window.msgWindow);
+  localInbox.markAllMessagesRead();
 
   await promiseServerIdle(pop3Account.incomingServer);
 });

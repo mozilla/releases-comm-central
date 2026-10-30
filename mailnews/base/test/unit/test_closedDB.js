@@ -88,7 +88,7 @@ add_task(async function () {
   // see the unread count change to zero and get a notification about it.
 
   testFolder.msgDatabase = null;
-  testFolder.markAllMessagesRead(null);
+  testFolder.markAllMessagesRead();
   Assert.equal(
     testFolder.getNumUnread(false),
     0,

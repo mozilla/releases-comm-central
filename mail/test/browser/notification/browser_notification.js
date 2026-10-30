@@ -125,7 +125,7 @@ registerCleanupFunction(function () {
 });
 
 function setupTest() {
-  gFolder.markAllMessagesRead(null);
+  gFolder.markAllMessagesRead();
   MockAlertsService.reset();
   MockSound.reset();
   gFolder.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NoMail;

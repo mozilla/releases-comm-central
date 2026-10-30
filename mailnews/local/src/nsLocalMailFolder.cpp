@@ -1180,7 +1180,7 @@ nsMsgLocalMailFolder::MarkMessagesFlagged(
 }
 
 NS_IMETHODIMP
-nsMsgLocalMailFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
+nsMsgLocalMailFolder::MarkAllMessagesRead() {
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, rv);
 

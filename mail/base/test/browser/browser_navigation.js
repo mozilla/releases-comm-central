@@ -46,7 +46,7 @@ add_setup(async function () {
       .map(message => message.toMessageString())
   );
   folderAMessages = [...folderA.messages];
-  folderA.markAllMessagesRead(null);
+  folderA.markAllMessagesRead();
 
   folderB = rootFolder
     .createLocalSubfolder("Navigation B")
@@ -57,7 +57,7 @@ add_setup(async function () {
       .map(message => message.toMessageString())
   );
   folderBMessages = [...folderB.messages];
-  folderB.markAllMessagesRead(null);
+  folderB.markAllMessagesRead();
 
   folderC = rootFolder
     .createLocalSubfolder("Navigation C")
@@ -74,7 +74,7 @@ add_setup(async function () {
       .map(message => message.toMessageString())
   );
   folderCMessages = [...folderC.messages];
-  folderC.markAllMessagesRead(null);
+  folderC.markAllMessagesRead();
 
   folderD = rootFolder
     .createLocalSubfolder("Navigation D")
@@ -88,7 +88,7 @@ add_setup(async function () {
       .map(message => message.toMessageString())
   );
   folderDMessages = [...folderD.messages];
-  folderD.markAllMessagesRead(null);
+  folderD.markAllMessagesRead();
 
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
@@ -296,7 +296,7 @@ add_task(async function testNextUnreadMessageInAbout3Pane() {
   await assertDisplayedMessage(aboutMessage, folderDMessages[7]);
 
   // Mark folder D read again.
-  folderD.markAllMessagesRead(null);
+  folderD.markAllMessagesRead();
 
   // Go back to the first folder. The previous selection should be restored.
   about3Pane.displayFolder(folderA.URI);
@@ -313,7 +313,7 @@ add_task(async function testNextUnreadMessageInAbout3Pane() {
   assertSelectedMessage(folderCMessages[500]);
   await assertDisplayedMessage(aboutMessage, folderCMessages[500]);
 
-  folderC.markAllMessagesRead(null);
+  folderC.markAllMessagesRead();
   // No more unread messages, prompt to move to the next folder.
   // Cancel the prompt.
   threadTree.addEventListener("select", reportBadSelectEvent);
@@ -324,7 +324,7 @@ add_task(async function testNextUnreadMessageInAbout3Pane() {
   assertSelectedFolder(folderC);
   assertSelectedMessage(folderCMessages[500]);
 
-  folderA.markAllMessagesRead(null);
+  folderA.markAllMessagesRead();
   // No unread messages anywhere, do nothing.
   goDoCommand("cmd_nextUnreadMsg");
   assertSelectedFolder(folderC);
@@ -387,7 +387,7 @@ async function subtestNextUnreadMessage(win, aboutMessage) {
   win.goDoCommand("cmd_nextUnreadMsg");
   await assertDisplayedMessage(aboutMessage, folderCMessages[504]);
 
-  folderC.markAllMessagesRead(null);
+  folderC.markAllMessagesRead();
   // No more unread messages, prompt to move to the next folder.
   // Cancel the prompt.
   messagePaneBrowser.addEventListener("load", reportBadLoad, true);
@@ -395,7 +395,7 @@ async function subtestNextUnreadMessage(win, aboutMessage) {
   win.goDoCommand("cmd_nextUnreadMsg");
   await dialogPromise;
 
-  folderA.markAllMessagesRead(null);
+  folderA.markAllMessagesRead();
   // No unread messages anywhere, do nothing.
   win.goDoCommand("cmd_nextUnreadMsg");
 
@@ -500,7 +500,7 @@ add_task(async function testPreviousUnreadMessageInAbout3Pane() {
   threadTree.removeEventListener("select", reportBadSelectEvent);
   messagePaneBrowser.removeEventListener("load", reportBadLoad, true);
 
-  folderD.markAllMessagesRead(null);
+  folderD.markAllMessagesRead();
   threadTree.selectedIndex = -1;
   await assertNoDisplayedMessage(aboutMessage);
 });

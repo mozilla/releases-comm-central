@@ -169,7 +169,7 @@ async function waitForMessages(inbox) {
   await promiseServerIdle(inbox.server);
   info(`${inbox.server.type} messages received`);
 
-  inbox.markAllMessagesRead(window.msgWindow);
+  inbox.markAllMessagesRead();
   await promiseServerIdle(inbox.server);
   await TestUtils.waitForCondition(
     () => inbox.getNumUnread(false) == 0 && inbox.numPendingUnread == 0,

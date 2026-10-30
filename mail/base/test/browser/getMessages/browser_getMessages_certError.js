@@ -510,7 +510,7 @@ async function subsubtest(
       () => folder.getNumUnread(false) - folder.numPendingUnread == 10,
       `waiting for new ${server.type} messages to be received`
     );
-    folder.markAllMessagesRead(window.msgWindow);
+    folder.markAllMessagesRead();
     await TestUtils.waitForCondition(
       () => folder.getNumUnread(false) == 0,
       `waiting for new ${server.type} messages to be marked read`

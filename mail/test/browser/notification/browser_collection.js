@@ -355,11 +355,11 @@ async function subtest(incomingServer, getMessagesCallback) {
     "trash should have 2 unread messages at the end"
   );
 
-  inbox.markAllMessagesRead(window.msgWindow);
-  inbox.getChildNamed("redFilter").markAllMessagesRead(window.msgWindow);
-  inbox.getChildNamed("greenFilter").markAllMessagesRead(window.msgWindow);
-  inbox.getChildNamed("blueFilter").markAllMessagesRead(window.msgWindow);
-  trash.markAllMessagesRead(window.msgWindow);
+  inbox.markAllMessagesRead();
+  inbox.getChildNamed("redFilter").markAllMessagesRead();
+  inbox.getChildNamed("greenFilter").markAllMessagesRead();
+  inbox.getChildNamed("blueFilter").markAllMessagesRead();
+  trash.markAllMessagesRead();
 }
 
 /**

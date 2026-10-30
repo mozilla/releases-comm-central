@@ -1293,7 +1293,7 @@ nsresult nsMsgDBFolder::AddMarkAllReadUndoAction(nsMsgKey* thoseMarked,
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
+nsMsgDBFolder::MarkAllMessagesRead() {
   nsresult rv = GetDatabase();
   m_newMsgs.Clear();
 

@@ -2160,7 +2160,7 @@ nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
     case nsMsgViewCommandType::markAllRead:
       if (m_folder) {
         SetSuppressChangeNotifications(true);
-        rv = m_folder->MarkAllMessagesRead(msgWindow);
+        rv = m_folder->MarkAllMessagesRead();
         SetSuppressChangeNotifications(false);
         if (mTree) mTree->Invalidate();
         if (mJSTree) mJSTree->Invalidate();
