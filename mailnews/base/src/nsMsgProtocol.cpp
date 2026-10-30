@@ -258,18 +258,12 @@ void nsMsgProtocol::ShowAlertMessage(nsIMsgMailNewsUrl* aMsgUrl,
 
   nsCOMPtr<nsIMsgMailSession> mailSession =
       mozilla::components::MailSession::Service();
-  // If there's a message window on the URI, then we should alert the user.
-  // Otherwise (i.e. if the getter for `msgWindow` raised
-  // `NS_ERROR_NULL_POINTER`), this is a background operation and we should
-  // tell the mail session to only call the listeners but not alert.
-  bool silent = false;
-  nsCOMPtr<nsIMsgWindow> msgWindow;
-  nsresult rv = aMsgUrl->GetMsgWindow(getter_AddRefs(msgWindow));
-  if (rv == NS_ERROR_NULL_POINTER) {
-    silent = true;
-  } else {
-    NS_ENSURE_SUCCESS_VOID(rv);
-  }
+  // A background operation has nobody to alert, so tell the mail session to
+  // only call the listeners.
+  bool interactive = false;
+  nsresult rv = aMsgUrl->GetInteractive(&interactive);
+  NS_ENSURE_SUCCESS_VOID(rv);
+  bool silent = !interactive;
 
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = aMsgUrl->GetServer(getter_AddRefs(server));
