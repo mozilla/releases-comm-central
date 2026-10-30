@@ -2602,7 +2602,7 @@ nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
     // handles source deletion in EndMove() after confirming the copy
     // succeeded, which correctly gates on errors like "out of space".
     rv = mCopyState->m_messageService->CopyMessages(
-        keyArray, srcFolder, streamListener, false, nullptr, aMsgWindow,
+        keyArray, srcFolder, streamListener, false, nullptr, !!aMsgWindow,
         getter_AddRefs(dummyNull));
   }
 
@@ -2643,7 +2643,7 @@ nsresult nsMsgLocalMailFolder::CopyMessageTo(nsISupports* message,
     // handles source deletion in EndMove() after confirming the copy
     // succeeded, which correctly gates on errors like "out of space".
     rv = mCopyState->m_messageService->CopyMessage(uri, streamListener, false,
-                                                   nullptr, aMsgWindow);
+                                                   nullptr, !!aMsgWindow);
   }
 
   return rv;

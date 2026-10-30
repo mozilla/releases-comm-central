@@ -44,15 +44,14 @@ class nsMailboxService : public nsIMsgMessageService,
   nsresult PrepareMessageUrl(const nsACString& aSrcMsgMailboxURI,
                              nsIUrlListener* aUrlListener,
                              MailboxAction aMailboxAction,
-                             nsIMsgMailNewsUrl** aMailboxUrl,
-                             nsIMsgWindow* msgWindow);
+                             nsIMsgMailNewsUrl** aMailboxUrl, bool interactive);
 
   nsresult RunMailboxUrl(nsIURI* aMailboxUrl,
                          nsISupports* aDisplayConsumer = nullptr);
 
   MOZ_CAN_RUN_SCRIPT_BOUNDARY nsresult FetchMessage(
       const nsACString& aMessageURI, nsISupports* aDisplayConsumer,
-      nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener,
+      bool interactive, nsIUrlListener* aUrlListener,
       const char* aFileName, /* only used by open attachment */
       MailboxAction mailboxAction, bool aAutodetectCharset, nsIURI** aURL);
 

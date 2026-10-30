@@ -143,7 +143,7 @@ nsresult ExchangeMessageCopyHandler::StartCopyingNextMessage() {
     // We'll buffer up the message in mBuffer before we proceed, see
     // BeginCopy()/CopyData()/EndCopy().
     return messageService->CopyMessage(uri, copyListener, mIsMove, nullptr,
-                                       mWindow);
+                                       !!mWindow);
   }
 
   if (mSrcFile) {

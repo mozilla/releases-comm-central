@@ -25,9 +25,19 @@ class BaseMessageService {
 
   /** @see nsIMsgMessageService */
   loadMessage(messageURI, displayConsumer, msgWindow, urlListener) {
+    this._loadMessage(messageURI, displayConsumer, urlListener, !!msgWindow);
+  }
+
+  /**
+   * @param {string} messageURI - Message URI.
+   * @param {nsISupports} displayConsumer - Where to send the message.
+   * @param {?nsIUrlListener} urlListener - Callback for the request.
+   * @param {boolean} interactive - Whether the user is waiting on the message.
+   */
+  _loadMessage(messageURI, displayConsumer, urlListener, interactive) {
     this._logger.debug("loadMessage", messageURI);
 
-    const uri = this.getUrlForUri(messageURI, msgWindow);
+    const uri = this._getUrlForUri(messageURI, interactive);
     if (urlListener) {
       uri.RegisterListener(urlListener);
     }
@@ -58,10 +68,19 @@ class BaseMessageService {
    * @returns {nsIURI}
    */
   getUrlForUri(messageURI, msgWindow) {
+    return this._getUrlForUri(messageURI, !!msgWindow);
+  }
+
+  /**
+   * @param {string} messageURI - Message URI.
+   * @param {boolean} interactive - Whether the user is waiting on the url.
+   * @returns {nsIURI}
+   */
+  _getUrlForUri(messageURI, interactive) {
     const uri = Services.io
       .newURI(this._createMessageIdUrl(messageURI))
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
-    uri.interactive = !!msgWindow;
+    uri.interactive = interactive;
     return uri;
   }
 
@@ -84,9 +103,9 @@ class BaseMessageService {
     return msgHdr;
   }
 
-  copyMessage(messageUri, copyListener, moveMessage, urlListener, msgWindow) {
+  copyMessage(messageUri, copyListener, moveMessage, urlListener, interactive) {
     this._logger.debug("copyMessage", messageUri);
-    this.loadMessage(messageUri, copyListener, msgWindow, urlListener, false);
+    this._loadMessage(messageUri, copyListener, urlListener, interactive);
   }
 
   saveMessageToDisk(

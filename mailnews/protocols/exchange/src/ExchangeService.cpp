@@ -36,11 +36,12 @@ NS_IMETHODIMP ExchangeService::CopyMessage(const nsACString& aSrcURI,
                                            nsIStreamListener* aCopyListener,
                                            bool aMoveMessage,
                                            nsIUrlListener* aUrlListener,
-                                           nsIMsgWindow* aMsgWindow) {
+                                           bool interactive) {
   NS_ENSURE_ARG_POINTER(aCopyListener);
 
   nsCOMPtr<nsIURI> channelURI;
-  MOZ_TRY(GetUrlForUri(aSrcURI, aMsgWindow, getter_AddRefs(channelURI)));
+  // GetUrlForUri() ignores the window it is given.
+  MOZ_TRY(GetUrlForUri(aSrcURI, nullptr, getter_AddRefs(channelURI)));
 
   return FetchMessage(channelURI, aCopyListener);
 }
@@ -48,7 +49,7 @@ NS_IMETHODIMP ExchangeService::CopyMessage(const nsACString& aSrcURI,
 NS_IMETHODIMP ExchangeService::CopyMessages(
     const nsTArray<nsMsgKey>& aKeys, nsIMsgFolder* srcFolder,
     nsIStreamListener* aCopyListener, bool aMoveMessage,
-    nsIUrlListener* aUrlListener, nsIMsgWindow* aMsgWindow, nsIURI** _retval) {
+    nsIUrlListener* aUrlListener, bool interactive, nsIURI** _retval) {
   NS_WARNING("CopyMessages");
   return NS_ERROR_NOT_IMPLEMENTED;
 }

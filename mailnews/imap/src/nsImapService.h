@@ -53,8 +53,8 @@ class nsImapService : public nsIImapService,
 
   nsresult FetchMessage(nsIImapUrl* aImapUrl, nsImapAction aImapAction,
                         nsIMsgFolder* aImapMailFolder,
-                        nsIImapMessageSink* aImapMessage,
-                        nsIMsgWindow* aMsgWindow, nsISupports* aDisplayConsumer,
+                        nsIImapMessageSink* aImapMessage, bool interactive,
+                        nsISupports* aDisplayConsumer,
                         const nsACString& messageIdentifierList,
                         bool aConvertDataToText, nsIURI** aURL);
 
@@ -69,8 +69,8 @@ class nsImapService : public nsIImapService,
   MOZ_CAN_RUN_SCRIPT_BOUNDARY nsresult GetMessageFromUrl(
       nsIImapUrl* aImapUrl, nsImapAction aImapAction,
       nsIMsgFolder* aImapMailFolder, nsIImapMessageSink* aImapMessage,
-      nsIMsgWindow* aMsgWindow, nsISupports* aDisplayConsumer,
-      bool aConvertDataToText, nsIURI** aURL);
+      bool interactive, nsISupports* aDisplayConsumer, bool aConvertDataToText,
+      nsIURI** aURL);
 
   nsresult CreateStartOfImapUrl(
       const nsACString&

@@ -7509,7 +7509,7 @@ nsresult nsImapMailFolder::CopyStreamMessage(
 
     rv = m_copyState->m_msgService->CopyMessage(
         uri, streamListener, isMove && !m_copyState->m_isCrossServerOp, nullptr,
-        aMsgWindow);
+        !!aMsgWindow);
     if (NS_FAILED(rv)) {
       MOZ_LOG(IMAP, mozilla::LogLevel::Info,
               ("CopyMessage failed: uri %s", uri.get()));

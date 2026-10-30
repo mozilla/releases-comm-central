@@ -48,10 +48,10 @@ interface nsIMsgMessageService : nsISupports {
    * @param aMoveMessage  TRUE if you want the message to be moved.
    *                      FALSE leaves it as just a copy.
    * @param aUrlListener
-   * @param aMsgWindow
+   * @param interactive   Whether the user is waiting on the copy.
    */
   void copyMessage(in AUTF8String aSrcURI, in nsIStreamListener aCopyListener, in boolean aMoveMessage,
-                   in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
+                   in nsIUrlListener aUrlListener, in boolean interactive);
 
   /**
    * Copy multiple messages at a time.
@@ -61,7 +61,7 @@ interface nsIMsgMessageService : nsISupports {
    * @param aCopyListener
    * @param aMoveMessage
    * @param aUrlListener
-   * @param aMsgWindow
+   * @param interactive   Whether the user is waiting on the copy.
    * @returns URI that's run to perform the copy
    */
   nsIURI CopyMessages(in Array<nsMsgKey> aKeys,
@@ -69,7 +69,7 @@ interface nsIMsgMessageService : nsISupports {
                       in nsIStreamListener aCopyListener,
                       in boolean aMoveMessage,
                       in nsIUrlListener aUrlListener,
-                      in nsIMsgWindow aMsgWindow);
+                      in boolean interactive);
 
   /**
    * When you want a message displayed... this loads it into the docshell
