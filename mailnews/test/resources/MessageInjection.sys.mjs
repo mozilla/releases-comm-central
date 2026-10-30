@@ -709,7 +709,7 @@ export class MessageInjection {
       //  although since filters really want to be run on the inbox, there
       //  are separate potential semantic issues involved.
       for (const folder of msgFolders) {
-        folder.callFilterPlugins(null);
+        folder.callFilterPlugins();
       }
 
       if (doNotForceUpdate) {

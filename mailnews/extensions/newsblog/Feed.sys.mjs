@@ -678,7 +678,7 @@ Feed.prototype = {
       if (item.feed.folder.hasNewMessages) {
         item.feed.folder.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NewMail;
         // Run the bayesian spam filter, if enabled.
-        item.feed.folder.callFilterPlugins(null);
+        item.feed.folder.callFilterPlugins();
       }
 
       this.cleanupParsingState(this, lazy.FeedUtils.kNewsBlogSuccess);

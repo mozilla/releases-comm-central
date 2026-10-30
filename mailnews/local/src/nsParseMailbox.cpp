@@ -1821,7 +1821,7 @@ nsresult nsParseNewMailState::EndMsgDownload() {
     folder->GetFlags(&folderFlags);
     if (!(folderFlags & (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Inbox))) {
       bool filtersRun;
-      folder->CallFilterPlugins(nullptr, &filtersRun);
+      folder->CallFilterPlugins(&filtersRun);
       if (!filtersRun) folder->SetMsgDatabase(nullptr);
     }
   }

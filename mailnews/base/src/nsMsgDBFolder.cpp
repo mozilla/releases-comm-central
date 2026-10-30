@@ -2062,7 +2062,7 @@ nsMsgDBFolder::OnMessageTraitsClassified(const nsACString& aMsgURI,
  * Call the filter plugins (XXX currently just one)
  */
 NS_IMETHODIMP
-nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow* aMsgWindow, bool* aFiltersRun) {
+nsMsgDBFolder::CallFilterPlugins(bool* aFiltersRun) {
   NS_ENSURE_ARG_POINTER(aFiltersRun);
   *aFiltersRun = false;
 

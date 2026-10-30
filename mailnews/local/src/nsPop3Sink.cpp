@@ -209,8 +209,7 @@ NS_IMETHODIMP nsPop3Sink::EndMailDelivery(nsIPop3Protocol* protocol) {
   NS_ASSERTION(NS_SUCCEEDED(rv), "folder lock not released successfully");
 
   bool filtersRun;
-  m_folder->CallFilterPlugins(nullptr,
-                              &filtersRun);  // ??? do we need msgWindow?
+  m_folder->CallFilterPlugins(&filtersRun);
   int32_t numNewMessagesInFolder;
   // if filters have marked msgs read or deleted, the num new messages count
   // will go negative by the number of messages marked read or deleted,

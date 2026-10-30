@@ -541,8 +541,7 @@ nsMsgLocalMailFolder::UpdateFolder(nsIMsgWindow* aWindow) {
   GetHasNewMessages(&hasNewMessages);
   if (mDatabase) ApplyRetentionSettings();
   // if we have new messages, try the filter plugins.
-  if (NS_SUCCEEDED(rv) && hasNewMessages)
-    (void)CallFilterPlugins(aWindow, &filtersRun);
+  if (NS_SUCCEEDED(rv) && hasNewMessages) (void)CallFilterPlugins(&filtersRun);
   // Callers should rely on folder loaded event to ensure completion of loading.
   // So we'll return NS_OK even if parsing is still in progress
   if (rv == NS_ERROR_NOT_INITIALIZED) rv = NS_OK;

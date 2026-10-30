@@ -191,7 +191,7 @@ NS_IMETHODIMP nsMoveCoalescerCopyListener::OnStopCopy(nsresult aStatus) {
             // local folder
     {
       bool filtersRun;
-      m_destFolder->CallFilterPlugins(nullptr, &filtersRun);
+      m_destFolder->CallFilterPlugins(&filtersRun);
     }
   }
   return rv;

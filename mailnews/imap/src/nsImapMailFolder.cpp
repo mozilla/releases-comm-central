@@ -4472,7 +4472,7 @@ nsImapMailFolder::NormalEndMsgWriteStream(ImapUid uidOfMessage, bool markRead,
     PlaybackCoalescedOperations();
 
     bool filtersRun;
-    CallFilterPlugins(nullptr, &filtersRun);
+    CallFilterPlugins(&filtersRun);
     int32_t numNewBiffMsgs = 0;
     if (m_performingBiff) GetNumNewMessages(false, &numNewBiffMsgs);
 
@@ -5531,8 +5531,6 @@ nsImapMailFolder::GetMessageId(nsIImapUrl* aUrl, nsACString& messageId) {
 
 NS_IMETHODIMP
 nsImapMailFolder::HeaderFetchCompleted(nsIImapProtocol* aProtocol) {
-  nsCOMPtr<nsIMsgWindow>
-      msgWindow;  // we might need this for the filter plugins.
   if (mBackupDatabase) RemoveBackupMsgDatabase();
 
   SetSizeOnDisk(mFolderSize);
@@ -5601,19 +5599,12 @@ nsImapMailFolder::HeaderFetchCompleted(nsIImapProtocol* aProtocol) {
     if (!notifiedBodies) {
       aProtocol->NotifyBodysToDownload({});
     }
-
-    nsCOMPtr<nsIURI> runningUri;
-    aProtocol->GetRunningUrl(getter_AddRefs(runningUri));
-    if (runningUri) {
-      nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(runningUri);
-      if (mailnewsUrl) mailnewsUrl->GetMsgWindow(getter_AddRefs(msgWindow));
-    }
   }
 
   // delay calling plugins if filter application is also delayed
   if (!m_filterListRequiresBody) {
     bool filtersRun;
-    CallFilterPlugins(msgWindow, &filtersRun);
+    CallFilterPlugins(&filtersRun);
     if (!filtersRun && m_performingBiff && mDatabase && numNewBiffMsgs > 0 &&
         (!pendingMoves || !ShowPreviewText())) {
       // If we are performing biff for this folder, tell the

@@ -806,7 +806,7 @@ interface nsIMsgFolder : nsISupports {
    * Settings for NNTP downloads.
    */
   attribute nsIMsgDownloadSettings downloadSettings;
-  boolean callFilterPlugins(in nsIMsgWindow aMsgWindow);
+  boolean callFilterPlugins();
 
   /**
    * The order of the folder (relative to its siblings) in the folder pane,

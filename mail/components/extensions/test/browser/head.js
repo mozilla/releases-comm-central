@@ -366,7 +366,7 @@ async function addGeneratedMessage(folder, message) {
 
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   folder.addMessageBatch([message]);
-  folder.callFilterPlugins(null);
+  folder.callFilterPlugins();
 
   return new Promise(resolve =>
     mailTestUtils.updateFolderAndNotify(folder, resolve)

@@ -222,7 +222,7 @@ async function addGeneratedMessages(folder, messages) {
   const messageStrings = messages.map(message => message.toMessageString());
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   folder.addMessageBatch(messageStrings);
-  folder.callFilterPlugins(null);
+  folder.callFilterPlugins();
 
   return new Promise(resolve =>
     mailTestUtils.updateFolderAndNotify(folder, resolve)

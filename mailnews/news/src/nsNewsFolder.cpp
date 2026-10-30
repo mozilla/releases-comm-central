@@ -1129,7 +1129,7 @@ NS_IMETHODIMP nsMsgNewsFolder::NotifyFinishedDownloadinghdrs() {
   ChangeNumPendingUnread(-mNumPendingUnreadMessages);
   bool filtersRun;
   // run the bayesian spam filters, if enabled.
-  CallFilterPlugins(nullptr, &filtersRun);
+  CallFilterPlugins(&filtersRun);
 
   // If the DB was not open before, close our reference to it now.
   if (!wasCached && mDatabase) {

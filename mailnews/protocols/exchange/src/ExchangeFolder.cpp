@@ -1626,7 +1626,7 @@ nsresult ExchangeFolder::PerformFiltering() {
       // nsIJunkMailClassificationListener param instead of relying on
       // folder inheritance.
       bool filtersRun;
-      rv = self->CallFilterPlugins(nullptr, &filtersRun);
+      rv = self->CallFilterPlugins(&filtersRun);
       NS_ENSURE_SUCCESS(rv, rv);
 
       return NS_OK;
