@@ -533,6 +533,23 @@
       initializeTermFromId(this.id);
     }
 
+    /**
+     * The selected built-in attribute or custom term ID. Assigning `Default`
+     * selects the first available built-in attribute for the search scope.
+     *
+     * @type {nsMsgSearchAttribValue|string}
+     */
+    get value() {
+      return super.value;
+    }
+
+    set value(val) {
+      super.value =
+        val == Ci.nsMsgSearchAttrib.Default
+          ? this.validityTable.getAvailableAttributes()[0]
+          : val;
+    }
+
     get valueLabel() {
       if (isNaN(this.value)) {
         // is this a custom term?
