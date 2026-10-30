@@ -538,8 +538,6 @@ dependencies = [
 [[package]]
 name = "bindgen"
 version = "0.73.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54be9a169b85a1bef39252af30bb6246a31b23c7e0f6a162520dd869f8dad33c"
 dependencies = [
  "bitflags 2.10.0",
  "cexpr",
@@ -4813,7 +4811,6 @@ version = "0.1.0"
 dependencies = [
  "firefox-on-glean",
  "libc",
- "log",
  "neqo-common",
  "neqo-http3",
  "neqo-qpack",
@@ -4827,6 +4824,7 @@ dependencies = [
  "static_assertions",
  "static_prefs",
  "thin-vec",
+ "tracing",
  "uuid",
  "winapi",
  "xpcom",

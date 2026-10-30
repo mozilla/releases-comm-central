@@ -254,6 +254,7 @@ itertools_0_13 = { package = "itertools", path = "../../build/rust/itertools-0.1
 itertools_0_14 = { package = "itertools", path = "../../build/rust/itertools" }
 backtrace = { path = "../../build/rust/backtrace" }
 bindgen = { package = "bindgen", path = "../../build/rust/bindgen" }
+bindgen_0_73 = { package = "bindgen", path = "../../third_party/rust/bindgen" }
 icu_collator = { path = "../../third_party/rust/icu_collator" }
 icu_collator_data = { path = "../../third_party/rust/icu_collator_data" }
 icu_normalizer = { path = "../../third_party/rust/icu_normalizer" }
