@@ -209,8 +209,7 @@ nsresult ExchangeIncomingServer::MaybeCreateFolderWithDetails(
 }
 
 nsresult ExchangeIncomingServer::UpdateFolderWithDetails(
-    const nsACString& id, const nsACString& parentId, const nsACString& name,
-    nsIMsgWindow* msgWindow) {
+    const nsACString& id, const nsACString& parentId, const nsACString& name) {
   nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = FindFolderWithId(id, getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -379,15 +378,14 @@ NS_IMETHODIMP ExchangeIncomingServer::GetPort(int32_t* aPort) {
 }
 
 NS_IMETHODIMP ExchangeIncomingServer::SyncFolderHierarchy(
-    IExchangeSimpleOperationListener* listener, nsIMsgWindow* window) {
+    IExchangeSimpleOperationListener* listener) {
   const auto refListener = RefPtr{listener};
-  return SyncFolderList(window, [refListener]() {
-    return refListener->OnOperationSuccess({}, false);
-  });
+  return SyncFolderList(
+      [refListener]() { return refListener->OnOperationSuccess({}, false); });
 }
 
 nsresult ExchangeIncomingServer::SyncFolderList(
-    nsIMsgWindow* aMsgWindow, std::function<nsresult()> postSyncCallback) {
+    std::function<nsresult()> postSyncCallback) {
   // Exchange provides us an opaque value which specifies the last version of
   // upstream folders we received. Provide that to simplify sync.
   nsCString syncStateToken;
@@ -449,11 +447,10 @@ nsresult ExchangeIncomingServer::SyncFolderList(
     return self->MaybeCreateFolderWithDetails(id, parentId, name, flags);
   };
 
-  nsCOMPtr<nsIMsgWindow> msgWindow = aMsgWindow;
-  auto onFolderUpdated = [self = RefPtr(this), msgWindow](
-                             const nsACString& id, const nsACString& parentId,
-                             const nsACString& name) {
-    return self->UpdateFolderWithDetails(id, parentId, name, msgWindow);
+  auto onFolderUpdated = [self = RefPtr(this)](const nsACString& id,
+                                               const nsACString& parentId,
+                                               const nsACString& name) {
+    return self->UpdateFolderWithDetails(id, parentId, name);
   };
 
   auto onFolderDeleted = [self = RefPtr(this)](const nsACString& id) {
@@ -597,35 +594,34 @@ NS_IMETHODIMP ExchangeIncomingServer::GetNewMessages(
 
   // Sync the folder list for the account, then sync the message list for the
   // specific folder.
-  return SyncFolderList(
-      aMsgWindow, [self = RefPtr(this), folder, window, urlListener]() {
-        // Check if we're getting messages for the whole
-        // folder here. If so, the intent is likely that the
-        // user wants to synchronize all the folders on the
-        // account.
-        bool isServer;
-        nsresult rv = folder->GetIsServer(&isServer);
-        NS_ENSURE_SUCCESS(rv, rv);
+  return SyncFolderList([self = RefPtr(this), folder, window, urlListener]() {
+    // Check if we're getting messages for the whole
+    // folder here. If so, the intent is likely that the
+    // user wants to synchronize all the folders on the
+    // account.
+    bool isServer;
+    nsresult rv = folder->GetIsServer(&isServer);
+    NS_ENSURE_SUCCESS(rv, rv);
 
-        if (isServer) {
-          return self->SyncAllFolders(window, urlListener);
-        }
+    if (isServer) {
+      return self->SyncAllFolders(window, urlListener);
+    }
 
-        // Synchronizing the folder list may have invalidated the folder that
-        // sync was selected for by moving the folder to a new location. If that
-        // is the case, then the Exchange ID will be invalidated and we can no
-        // longer sync that folder.
-        nsAutoCString originalExchangeId;
-        rv = folder->GetStringProperty(kExchangeIdProperty, originalExchangeId);
-        if (NS_FAILED(rv)) {
-          // Assume the original folder moved and return success.
-          return NS_OK;
-        }
+    // Synchronizing the folder list may have invalidated the folder that
+    // sync was selected for by moving the folder to a new location. If that
+    // is the case, then the Exchange ID will be invalidated and we can no
+    // longer sync that folder.
+    nsAutoCString originalExchangeId;
+    rv = folder->GetStringProperty(kExchangeIdProperty, originalExchangeId);
+    if (NS_FAILED(rv)) {
+      // Assume the original folder moved and return success.
+      return NS_OK;
+    }
 
-        // If this is not the root folder, synchronize its
-        // message list normally.
-        return folder->GetNewMessages(window, urlListener);
-      });
+    // If this is not the root folder, synchronize its
+    // message list normally.
+    return folder->GetNewMessages(window, urlListener);
+  });
 }
 
 NS_IMETHODIMP ExchangeIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
@@ -636,7 +632,7 @@ NS_IMETHODIMP ExchangeIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
 
   // Sync the folder list for the account. Then sync the message list of each
   // folder in the tree.
-  return SyncFolderList(aMsgWindow, [self = RefPtr(this), window]() {
+  return SyncFolderList([self = RefPtr(this), window]() {
     nsCOMPtr<nsIMsgFolder> rootFolder;
     nsresult rv = self->GetRootFolder(getter_AddRefs(rootFolder));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -660,7 +656,7 @@ NS_IMETHODIMP ExchangeIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
 NS_IMETHODIMP ExchangeIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
   // Sync the folder list; we don't want to do anything after that so we just
   // pass a no-op lambda.
-  return SyncFolderList(aMsgWindow, []() { return NS_OK; });
+  return SyncFolderList([]() { return NS_OK; });
 }
 
 NS_IMETHODIMP

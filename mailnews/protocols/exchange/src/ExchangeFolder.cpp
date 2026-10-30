@@ -1007,7 +1007,7 @@ NS_IMETHODIMP ExchangeFolder::CopyFolderOnSameServer(
                           srcFolder, self, copyListener, name, newExchangeId);
                       return rv;
                     }};
-            return exchangeServer->SyncFolderHierarchy(listener, msgWindow);
+            return exchangeServer->SyncFolderHierarchy(listener);
           },
           [self = RefPtr(this), srcFolder, copyListener](nsresult status) {
             if (copyListener) {

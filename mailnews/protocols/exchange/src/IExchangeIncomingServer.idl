@@ -7,7 +7,6 @@
 interface IExchangeClient;
 interface IExchangeSimpleOperationListener;
 interface nsIMsgFolder;
-interface nsIMsgWindow;
 
 /**
  * IExchangeIncomingServer is intended as a workaround for limitations in the folder
@@ -103,8 +102,7 @@ interface IExchangeIncomingServer : nsISupports
    * Perform a sync for the full folder hierarchy.
    *
    * The specified `listener` will be notified when the sync operation has
-   * completed. The `window` provides the window context (if available) for
-   * updates.
+   * completed.
    */
-  void syncFolderHierarchy(in IExchangeSimpleOperationListener listener, in nsIMsgWindow window);
+  void syncFolderHierarchy(in IExchangeSimpleOperationListener listener);
 };

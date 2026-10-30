@@ -37,8 +37,7 @@ class ExchangeIncomingServer : public nsMsgIncomingServer,
 
   nsresult UpdateFolderWithDetails(const nsACString& id,
                                    const nsACString& parentId,
-                                   const nsACString& name,
-                                   nsIMsgWindow* msgWindow);
+                                   const nsACString& name);
 
   // nsIMsgIncomingServer
   NS_IMETHOD GetPassword(nsAString& password) override;
@@ -68,8 +67,7 @@ class ExchangeIncomingServer : public nsMsgIncomingServer,
    * Synchronize the list of folders for this account, then call the given
    * callback function.
    */
-  nsresult SyncFolderList(nsIMsgWindow* aMsgWindow,
-                          std::function<nsresult()> postSyncCallback);
+  nsresult SyncFolderList(std::function<nsresult()> postSyncCallback);
 
   /**
    * Synchronize the message list for the given list of folders.
