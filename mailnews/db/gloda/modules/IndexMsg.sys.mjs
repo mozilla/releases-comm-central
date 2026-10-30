@@ -632,10 +632,8 @@ export var GlodaMsgIndexer = {
       // This may require yielding until such time as the msf has been created.
       try {
         if (this._indexingFolder instanceof Ci.nsIMsgLocalMailFolder) {
-          this._indexingDatabase = this._indexingFolder.getDatabaseWithReparse(
-            null,
-            null
-          );
+          this._indexingDatabase =
+            this._indexingFolder.getDatabaseWithReparse(null);
         }
         // we need do nothing special for IMAP, news, or other
       } catch (e) {

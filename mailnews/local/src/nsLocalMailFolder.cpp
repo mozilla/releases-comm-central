@@ -184,8 +184,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CreateLocalSubfolder(
 }
 
 // Rebuild the msgDB by scanning the msgStore.
-NS_IMETHODIMP nsMsgLocalMailFolder::ParseFolder(nsIMsgWindow* window,
-                                                nsIUrlListener* listener) {
+NS_IMETHODIMP nsMsgLocalMailFolder::ParseFolder(nsIUrlListener* listener) {
   RefPtr<StoreIndexer> indexer = new StoreIndexer();
   nsresult rv;
 
@@ -408,8 +407,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetDatabaseWOReparse(
 // to reparse the folder. The passed in url listener will get called when the
 // url is done.
 NS_IMETHODIMP nsMsgLocalMailFolder::GetDatabaseWithReparse(
-    nsIUrlListener* aReparseUrlListener, nsIMsgWindow* aMsgWindow,
-    nsIMsgDatabase** aMsgDatabase) {
+    nsIUrlListener* aReparseUrlListener, nsIMsgDatabase** aMsgDatabase) {
   nsresult rv = NS_OK;
   // if we're already reparsing, just remember the listener so we can notify it
   // when we've finished.
@@ -484,7 +482,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetDatabaseWithReparse(
       // if we have to regenerate the folder, run the parser url.
       if (folderOpen == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING ||
           folderOpen == NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE) {
-        if (NS_FAILED(rv = ParseFolder(aMsgWindow, aReparseUrlListener))) {
+        if (NS_FAILED(rv = ParseFolder(aReparseUrlListener))) {
           if (rv == NS_MSG_FOLDER_BUSY) {
             // we need to null out the db so that parsing gets kicked off again.
             mDatabase->RemoveListener(this);
@@ -520,7 +518,7 @@ nsMsgLocalMailFolder::UpdateFolder(nsIMsgWindow* aWindow) {
     // We don't need the return value, and assigning it to mDatabase which
     // is already set internally leaks.
     nsCOMPtr<nsIMsgDatabase> returnedDb;
-    rv = GetDatabaseWithReparse(nullptr, aWindow, getter_AddRefs(returnedDb));
+    rv = GetDatabaseWithReparse(nullptr, getter_AddRefs(returnedDb));
     if (NS_SUCCEEDED(rv)) NotifyFolderEvent(kFolderLoaded);
   } else {
     bool valid;
@@ -1849,8 +1847,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetNewMessages(nsIMsgWindow* aWindow,
     // Would be much better to pass in a UrlListener here which calls
     // GetNewMail() in its OnStopRunningUrl() callback.
     // See Bug 1848476.
-    rv = localInbox->GetDatabaseWithReparse(nullptr, aWindow,
-                                            getter_AddRefs(db));
+    rv = localInbox->GetDatabaseWithReparse(nullptr, getter_AddRefs(db));
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIURI> resultURI;
       db->GetSummaryValid(&valid);

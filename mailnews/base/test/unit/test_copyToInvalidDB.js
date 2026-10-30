@@ -85,7 +85,7 @@ add_task(async function test_copyToInvalidDB() {
   // Rebuild the the database.
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   try {
-    folder2.getDatabaseWithReparse(urlListener, null);
+    folder2.getDatabaseWithReparse(urlListener);
   } catch (ex) {
     // We expect this - it indicates the DB is not valid. But it will have
     // kicked off an async reparse, so we need to wait for the listener.

@@ -703,8 +703,7 @@ nsresult nsMsgSendLater::ReparseDBIfNeeded(nsIUrlListener* aListener) {
   nsCOMPtr<nsIMsgLocalMailFolder> locFolder(
       do_QueryReferent(mMessageFolder, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
-  return locFolder->GetDatabaseWithReparse(aListener, nullptr,
-                                           getter_AddRefs(unsentDB));
+  return locFolder->GetDatabaseWithReparse(aListener, getter_AddRefs(unsentDB));
 }
 
 nsresult nsMsgSendLater::InternalSendMessages(bool aUserInitiated,

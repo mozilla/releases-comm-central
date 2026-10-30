@@ -347,7 +347,7 @@ add_task(async function testMalformed() {
   await IOUtils.remove(inbox.summaryFile.path);
   const parseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   try {
-    inbox.getDatabaseWithReparse(parseUrlListener, null /* window */);
+    inbox.getDatabaseWithReparse(parseUrlListener);
   } catch (ex) {
     Assert.equal(ex.result, Cr.NS_ERROR_NOT_INITIALIZED);
   }

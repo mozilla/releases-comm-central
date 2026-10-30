@@ -80,7 +80,7 @@ async function test_datesPreservedByParseFolder() {
   inbox.msgDatabase = null;
   await IOUtils.remove(inbox.summaryFile.path);
   const l = new PromiseTestUtils.PromiseUrlListener();
-  inbox.parseFolder(null, l);
+  inbox.parseFolder(l);
   await l.promise;
 
   const datesAfter = [...inbox.messages].map(m => m.date);

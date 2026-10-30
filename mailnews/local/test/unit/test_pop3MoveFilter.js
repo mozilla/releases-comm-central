@@ -68,10 +68,7 @@ var gTestArray = [
     localAccountUtils.inboxFolder.ForceDBClosed();
     const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
     try {
-      localAccountUtils.inboxFolder.getDatabaseWithReparse(
-        promiseUrlListener,
-        null
-      );
+      localAccountUtils.inboxFolder.getDatabaseWithReparse(promiseUrlListener);
     } catch (ex) {
       await promiseUrlListener.promise;
       Assert.equal(ex.result, Cr.NS_ERROR_NOT_INITIALIZED);

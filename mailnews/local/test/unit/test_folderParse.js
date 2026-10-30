@@ -57,7 +57,7 @@ async function doTestFolderParse() {
   // Force a folder parse to recreate the DB.
   const parseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   try {
-    inbox.getDatabaseWithReparse(parseUrlListener, null /* window */);
+    inbox.getDatabaseWithReparse(parseUrlListener);
   } catch (ex) {
     Assert.equal(ex.result, Cr.NS_ERROR_NOT_INITIALIZED);
   }

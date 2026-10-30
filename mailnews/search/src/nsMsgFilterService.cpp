@@ -496,7 +496,7 @@ nsresult nsMsgFilterAfterTheFact::AdvanceToNextFolder() {
           do_QueryInterface(m_curFolder, &rv);
       if (NS_SUCCEEDED(rv) && localFolder)
         // will continue with OnStopRunningUrl
-        return localFolder->ParseFolder(m_msgWindow, this);
+        return localFolder->ParseFolder(this);
     }
     CONTINUE_IF_FAILURE(rv, "Could not get folder db");
 

@@ -754,7 +754,7 @@ export var FeedUtils = {
       // Ignore error returns.
       aFolder
         .QueryInterface(Ci.nsIMsgLocalMailFolder)
-        .getDatabaseWithReparse(aUrlListener, null);
+        .getDatabaseWithReparse(aUrlListener);
     } catch (ex) {}
 
     return false;

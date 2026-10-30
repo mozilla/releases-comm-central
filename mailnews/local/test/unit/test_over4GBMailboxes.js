@@ -98,7 +98,7 @@ add_setup(async function () {
   gInbox.msgDatabase = null;
   const parseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   try {
-    gInbox.getDatabaseWithReparse(parseUrlListener, gDummyMsgWindow);
+    gInbox.getDatabaseWithReparse(parseUrlListener);
   } catch (ex) {
     Assert.equal(ex.result, Cr.NS_ERROR_NOT_INITIALIZED);
   }
