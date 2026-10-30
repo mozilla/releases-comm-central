@@ -9,7 +9,6 @@ interface nsIMsgSearchAdapter;
 interface nsIMsgSearchTerm;
 interface nsIMsgSearchNotify;
 interface nsIMsgDatabase;
-interface nsIMsgWindow;
 
 //////////////////////////////////////////////////////////////////////////////
 // The Msg Search Session is an interface designed to make constructing
@@ -105,7 +104,7 @@ interface nsIMsgSearchSession :  nsISupports {
   /* add all scopes of a given type to the search */
   void AddAllScopes(in nsMsgSearchScopeValue attrib);
 
-  void search(in nsIMsgWindow aWindow);
+  void search(in boolean interactive);
   void interruptSearch();
 
   // these two methods are used when the search session is using
@@ -126,7 +125,6 @@ interface nsIMsgSearchSession :  nsISupports {
   void addSearchHit(in nsIMsgDBHdr header, in nsIMsgFolder folder);
 
   readonly attribute long numResults;
-  attribute nsIMsgWindow window;
 
   /* these longs are all actually of type nsMsgSearchBooleanOp */
   const long BooleanOR=0;

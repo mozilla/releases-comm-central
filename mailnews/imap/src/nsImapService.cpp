@@ -581,8 +581,7 @@ NS_IMETHODIMP nsImapService::CopyMessages(
 }
 
 NS_IMETHODIMP nsImapService::Search(nsIMsgSearchSession* aSearchSession,
-                                    nsIMsgWindow* aMsgWindow,
-                                    nsIMsgFolder* aMsgFolder,
+                                    bool interactive, nsIMsgFolder* aMsgFolder,
                                     const nsACString& aSearchUri) {
   NS_ENSURE_ARG_POINTER(aMsgFolder);
   nsresult rv;
@@ -598,7 +597,7 @@ NS_IMETHODIMP nsImapService::Search(nsIMsgSearchSession* aSearchSession,
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgMailNewsUrl> msgurl(do_QueryInterface(imapUrl));
 
-  msgurl->SetMsgWindow(aMsgWindow);
+  msgurl->SetInteractive(interactive);
   msgurl->SetSearchSession(aSearchSession);
   rv = SetImapUrlSink(aMsgFolder, imapUrl);
 

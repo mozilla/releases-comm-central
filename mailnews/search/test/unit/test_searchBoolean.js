@@ -231,7 +231,7 @@ function testSearch() {
     gHdr.setStringProperty("c", gTest.C ? "T" : "F");
     gHdr.setStringProperty("d", gTest.D ? "T" : "F");
     try {
-      gSearchSession.search(null);
+      gSearchSession.search(false);
     } catch (e) {
       dump(e);
     }

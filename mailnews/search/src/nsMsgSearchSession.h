@@ -30,7 +30,7 @@ class nsMsgSearchSession : public nsIMsgSearchSession,
  protected:
   virtual ~nsMsgSearchSession();
 
-  nsWeakPtr m_msgWindowWeak;
+  bool m_interactive;
   nsresult Initialize();
   nsresult StartTimer();
   nsresult TimeSlice(bool* aDone);

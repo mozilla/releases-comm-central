@@ -130,7 +130,7 @@ async function bodySearch(needle) {
       hits.push(header.subject);
     },
   });
-  searchSession.search(null);
+  searchSession.search(false);
   await listener.promise;
   return hits.sort();
 }

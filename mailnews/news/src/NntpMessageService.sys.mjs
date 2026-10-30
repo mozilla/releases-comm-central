@@ -117,7 +117,7 @@ class BaseMessageService {
     );
   }
 
-  Search(searchSession, msgWindow, msgFolder, searchUri) {
+  Search(searchSession, interactive, msgFolder, searchUri) {
     const slashIndex = searchUri.indexOf("/");
     const xpatLines = searchUri
       .slice(slashIndex + 1)
@@ -128,7 +128,7 @@ class BaseMessageService {
     server.wrappedJSObject.withClient(client => {
       client.startRunningUrl(
         searchSession.QueryInterface(Ci.nsIUrlListener),
-        !!msgWindow
+        interactive
       );
       client.onOpen = () => {
         client.search(msgFolder.name, xpatLines);

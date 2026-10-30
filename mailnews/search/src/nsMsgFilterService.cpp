@@ -436,7 +436,7 @@ nsresult nsMsgFilterAfterTheFact::RunNextFilter() {
     rv = m_searchSession->AddScopeTerm(searchScope, m_curFolder);
     CONTINUE_IF_FAILURE(rv, "Failed to add scope term");
     m_nextAction = 0;
-    rv = m_searchSession->Search(m_msgWindow);
+    rv = m_searchSession->Search(!!m_msgWindow);
     CONTINUE_IF_FAILURE(rv, "Search failed");
     return NS_OK;  // OnSearchDone will continue
   }

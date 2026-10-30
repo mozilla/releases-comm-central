@@ -57,7 +57,7 @@ async function searchTest() {
     searchSession,
     searchListener
   );
-  searchSession.search(null);
+  searchSession.search(false);
   await listener.promise;
 
   // After the search completes, there still seem to be active URLs, so we

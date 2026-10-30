@@ -14,7 +14,6 @@
 #include "nsMsgUtils.h"
 #include "nsIMsgSearchNotify.h"
 #include "nsIMsgMailSession.h"
-#include "nsIMsgWindow.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgLocalSearch.h"
 #include "nsComponentManagerUtils.h"
@@ -31,6 +30,7 @@ nsMsgSearchSession::nsMsgSearchSession() {
   m_searchPaused = false;
   m_iListener = -1;
   m_searchRunning = false;
+  m_interactive = false;
 }
 
 nsMsgSearchSession::~nsMsgSearchSession() {
@@ -205,7 +205,7 @@ nsMsgSearchSession::AddAllScopes(nsMsgSearchScopeValue attrib) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgSearchSession::Search(nsIMsgWindow* aWindow) {
+NS_IMETHODIMP nsMsgSearchSession::Search(bool interactive) {
   AUTO_PROFILER_LABEL("nsMsgSearchSession::Search", MAILNEWS);
   nsresult rv = Initialize();
   NS_ENSURE_SUCCESS(rv, rv);
@@ -220,7 +220,7 @@ NS_IMETHODIMP nsMsgSearchSession::Search(nsIMsgWindow* aWindow) {
   }
   m_iListener = -1;
 
-  m_msgWindowWeak = do_GetWeakReference(aWindow);
+  m_interactive = interactive;
 
   return BeginSearching();
 }
@@ -229,8 +229,7 @@ NS_IMETHODIMP nsMsgSearchSession::InterruptSearch() {
   AUTO_PROFILER_LABEL("nsMsgSearchSession::InterruptSearch", MAILNEWS);
   // NotifyListenersDone() may lead to the last reference to us being dropped.
   RefPtr<nsIMsgSearchSession> kungFuDeathGrip(this);
-  nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
-  if (msgWindow) {
+  if (m_interactive) {
     EnableFolderNotifications(true);
 
     while (m_idxRunningScope < m_scopeList.Length()) {
@@ -276,19 +275,6 @@ NS_IMETHODIMP nsMsgSearchSession::ResumeSearch() {
 
 NS_IMETHODIMP nsMsgSearchSession::GetNumResults(int32_t* aNumResults) {
   return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsMsgSearchSession::SetWindow(nsIMsgWindow* aWindow) {
-  m_msgWindowWeak = do_GetWeakReference(aWindow);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgSearchSession::GetWindow(nsIMsgWindow** aWindow) {
-  NS_ENSURE_ARG_POINTER(aWindow);
-  *aWindow = nullptr;
-  nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
-  msgWindow.forget(aWindow);
-  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgSearchSession::OnStartRunningUrl(nsIURI* url) {
@@ -389,9 +375,9 @@ nsresult nsMsgSearchSession::GetNextUrl() {
     nsresult rv =
         GetMessageServiceFromURI(folderUri, getter_AddRefs(msgService));
 
-    nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
     if (NS_SUCCEEDED(rv) && msgService && currentTerm)
-      msgService->Search(this, msgWindow, currentTerm->m_folder, m_runningUrl);
+      msgService->Search(this, m_interactive, currentTerm->m_folder,
+                         m_runningUrl);
     return rv;
   }
   return NS_OK;

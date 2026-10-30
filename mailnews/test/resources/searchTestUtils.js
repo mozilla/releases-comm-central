@@ -104,7 +104,7 @@ function TestSearch(
 
   searchSession.appendTerm(searchTerm);
   searchSession.registerListener(searchListener);
-  searchSession.search(null);
+  searchSession.search(false);
 }
 
 /**

@@ -150,7 +150,7 @@ NS_IMETHODIMP ExchangeService::GetUrlForUri(const nsACString& aMessageURI,
 }
 
 NS_IMETHODIMP ExchangeService::Search(nsIMsgSearchSession* aSearchSession,
-                                      nsIMsgWindow* aMsgWindow,
+                                      bool interactive,
                                       nsIMsgFolder* aMsgFolder,
                                       const nsACString& aSearchUri) {
   NS_WARNING("Search");

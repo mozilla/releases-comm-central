@@ -176,7 +176,7 @@ add_task(async function test_search() {
     }
   );
 
-  searchSession.search(null);
+  searchSession.search(false);
   await searchListener.promise;
 
   Assert.equal(hitCount, 1);

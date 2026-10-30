@@ -217,7 +217,7 @@ export class NewsDownloader {
         Ci.nsIMsgSearchSession.allNotifications
       );
       searchSession.addScopeTerm(Ci.nsMsgSearchScope.localNews, folder);
-      searchSession.search(this._msgWindow);
+      searchSession.search(!!this._msgWindow);
     });
 
     return keysToDownload;

@@ -208,5 +208,5 @@ function TestSearchx(aFolder, aValue, aAttrib, aOp, aHitCount, onDone) {
   searchTerm.booleanAnd = false;
   searchSession.appendTerm(searchTerm);
   searchSession.registerListener(searchListener);
-  searchSession.search(null);
+  searchSession.search(false);
 }

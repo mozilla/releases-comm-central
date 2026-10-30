@@ -406,7 +406,7 @@ nsresult nsMsgPurgeService::SearchFolderToPurge(nsIMsgFolder* folder,
   NS_ASSERTION(mHdrsToDelete.IsEmpty(), "mHdrsToDelete is not empty");
 
   mSearchFolder = folder;
-  return mSearchSession->Search(nullptr);
+  return mSearchSession->Search(false);
 }
 
 NS_IMETHODIMP nsMsgPurgeService::OnNewSearch() {

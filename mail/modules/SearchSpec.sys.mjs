@@ -101,7 +101,7 @@ SearchSpec.prototype = {
         this._listenersRegistered = true;
 
         this.owner.searching = true;
-        this.session.search(this.owner.listener.msgWindow);
+        this.session.search(!!this.owner.listener.msgWindow);
       }
     } else if (this.owner.isSynthetic) {
       // If it's synthetic but we have no search terms, hook the output of the
