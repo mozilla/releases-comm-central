@@ -83,6 +83,8 @@ nsImapUrl::~nsImapUrl() {
                          m_imapServerSink.forget());
   NS_ReleaseOnMainThread("nsImapUrl::m_channelWeakPtr",
                          m_channelWeakPtr.forget());
+  NS_ReleaseOnMainThread("nsImapUrl::m_displayConsumerWeakPtr",
+                         m_displayConsumerWeakPtr.forget());
 }
 
 NS_IMPL_ADDREF_INHERITED(nsImapUrl, nsMsgMailNewsUrl)
@@ -963,6 +965,18 @@ NS_IMETHODIMP nsImapUrl::SetMockChannel(nsIImapMockChannel* aChannel) {
   MOZ_DIAGNOSTIC_ASSERT(NS_IsMainThread(),
                         "should only access mock channel on ui thread");
   m_channelWeakPtr = do_GetWeakReference(aChannel);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsImapUrl::GetDisplayConsumer(nsISupports** aConsumer) {
+  NS_ENSURE_ARG_POINTER(aConsumer);
+  nsCOMPtr<nsISupports> consumer(do_QueryReferent(m_displayConsumerWeakPtr));
+  consumer.forget(aConsumer);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsImapUrl::SetDisplayConsumer(nsISupports* aConsumer) {
+  m_displayConsumerWeakPtr = do_GetWeakReference(aConsumer);
   return NS_OK;
 }
 

@@ -40,6 +40,12 @@ tags = ["virtualfolders"]
 ["browser_groupedBySortPersistence.js"]
 tags = ["virtualfolders"]
 
+["browser_imapPseudoInterrupt.js"]
+skip-if = [
+  "debug",
+  "asan",
+] # See bug 2090847 - leaks.
+
 ["browser_interactionTelemetry.js"]
 
 ["browser_mailTabsAndWindows.js"]

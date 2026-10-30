@@ -2186,7 +2186,11 @@ NS_IMETHODIMP nsImapIncomingServer::CommitNamespaces() {
 }
 
 NS_IMETHODIMP nsImapIncomingServer::PseudoInterruptMsgLoad(
-    nsIMsgFolder* aImapFolder, nsIMsgWindow* aMsgWindow, bool* interrupted) {
+    nsIMsgFolder* aImapFolder, nsISupports* aDisplayConsumer,
+    const nsTArray<nsMsgKey>& aMessageKeys, bool* _retval) {
+  NS_ENSURE_ARG_POINTER(_retval);
+  *_retval = false;
+
   nsresult rv = NS_OK;
   nsCOMPtr<nsIImapProtocol> connection;
   PR_CEnterMonitor(this);
@@ -2196,9 +2200,14 @@ NS_IMETHODIMP nsImapIncomingServer::PseudoInterruptMsgLoad(
 
   for (int32_t i = 0; i < cnt; ++i) {
     connection = m_connectionCache[i];
-    if (connection)
-      rv = connection->PseudoInterruptMsgLoad(aImapFolder, aMsgWindow,
-                                              interrupted);
+    if (connection) {
+      bool interrupted = false;
+      nsresult rv2 = connection->PseudoInterruptMsgLoad(
+          aImapFolder, aDisplayConsumer, aMessageKeys, &interrupted);
+      // Keep the first failure rather than whatever the last connection said.
+      if (NS_FAILED(rv2) && NS_SUCCEEDED(rv)) rv = rv2;
+      *_retval = *_retval || interrupted;
+    }
   }
 
   PR_CExitMonitor(this);

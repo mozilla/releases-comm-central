@@ -76,7 +76,21 @@ interface nsIImapProtocol : nsISupports {
   // Get last active time stamp
   void GetLastActiveTimeStamp(out PRTime aTimeStamp);
 
-  void pseudoInterruptMsgLoad(in nsIMsgFolder imapFolder, in nsIMsgWindow aMsgWindow, out boolean interrupted);
+  /**
+   * Abort an in-flight message fetch in the given folder.
+   *
+   * @param imapFolder - Only a fetch in this folder is interrupted.
+   * @param displayConsumer - Only a fetch started for this consumer, i.e. the
+   *   same message pane, is interrupted. Pass null for any consumer, which is
+   *   what a caller that is about to make the message go away wants.
+   * @param messageKeys - Only a fetch of one of these messages is interrupted.
+   *   Pass an empty array for any message, which is what a consumer replacing
+   *   whatever it is currently showing wants.
+   * @returns whether a fetch was interrupted.
+   */
+  boolean pseudoInterruptMsgLoad(in nsIMsgFolder imapFolder,
+                                 in nsISupports displayConsumer,
+                                 in Array<nsMsgKey> messageKeys);
 
   /**
    * Produce a pseudo-interrupt to trigger an abort of an imap mssage fetch.

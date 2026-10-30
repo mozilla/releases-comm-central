@@ -1439,11 +1439,12 @@ nsImapProtocol::GetLastActiveTimeStamp(PRTime* aTimeStamp) {
 static void DoomCacheEntry(nsIMsgMailNewsUrl* url);
 NS_IMETHODIMP
 nsImapProtocol::PseudoInterruptMsgLoad(nsIMsgFolder* aImapFolder,
-                                       nsIMsgWindow* aMsgWindow,
-                                       bool* interrupted) {
-  NS_ENSURE_ARG(interrupted);
+                                       nsISupports* aDisplayConsumer,
+                                       const nsTArray<nsMsgKey>& aMessageKeys,
+                                       bool* _retval) {
+  NS_ENSURE_ARG_POINTER(_retval);
 
-  *interrupted = false;
+  *_retval = false;
 
   PR_CEnterMonitor(this);
 
@@ -1458,27 +1459,58 @@ nsImapProtocol::PseudoInterruptMsgLoad(nsIMsgFolder* aImapFolder,
       rv = GetRunningImapURL(getter_AddRefs(runningImapURL));
       if (NS_SUCCEEDED(rv) && runningImapURL) {
         nsCOMPtr<nsIMsgFolder> runningImapFolder;
-        nsCOMPtr<nsIMsgWindow> msgWindow;
         nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl =
             do_QueryInterface(runningImapURL);
-        mailnewsUrl->GetMsgWindow(getter_AddRefs(msgWindow));
         mailnewsUrl->GetFolder(getter_AddRefs(runningImapFolder));
-        if (aImapFolder == runningImapFolder && msgWindow == aMsgWindow) {
+        // A null consumer interrupts the fetch whoever is displaying it.
+        // Otherwise only the consumer that started it may, so that one
+        // message pane cannot cut short another's download. The consumer is
+        // recorded on the url because there is nothing on the connection to
+        // infer it from: the mock channel's load group is a throwaway created
+        // per channel just to hold it, and is not set at all when the protocol
+        // makes its own channel.
+        // Compare canonical nsISupports on both sides. Callers hand us an
+        // upcast interface pointer, which for nsDocShell is a different
+        // address from the nsISupports that do_QueryReferent() returns.
+        nsCOMPtr<nsISupports> wantedConsumer =
+            do_QueryInterface(aDisplayConsumer);
+        nsCOMPtr<nsISupports> runningConsumer;
+        runningImapURL->GetDisplayConsumer(getter_AddRefs(runningConsumer));
+        // And only a fetch of one of the messages named, if any were. A
+        // delete has no interest in a download of something it is not
+        // deleting, even though it does not care whose download it is.
+        bool affectsMessage = aMessageKeys.IsEmpty();
+        if (!affectsMessage) {
+          nsAutoCString runningIds;
+          runningImapURL->GetListOfMessageIds(runningIds);
+          nsTArray<ImapUid> runningUids;
+          ParseUidString(runningIds.get(), runningUids);
+          for (ImapUid uid : runningUids) {
+            if (aMessageKeys.Contains(uid)) {
+              affectsMessage = true;
+              break;
+            }
+          }
+        }
+        if (aImapFolder == runningImapFolder && affectsMessage &&
+            (!aDisplayConsumer || wantedConsumer == runningConsumer)) {
           MOZ_LOG(IMAPCache, LogLevel::Debug,
                   ("%s: Set PseudoInterrupt", __func__));
           PseudoInterrupt(true);
-          *interrupted = true;
-        }
-        // If we're pseudo-interrupted, doom any incomplete cache entry.
-        // But if mock channel indicates fetch is complete so cache write is
-        // done, then don't doom the cache entry.
-        bool cacheWriteInProgress = true;
-        if (m_mockChannel)
-          m_mockChannel->GetWritingToCache(&cacheWriteInProgress);
-        if (cacheWriteInProgress) {
-          MOZ_LOG(IMAPCache, LogLevel::Debug,
-                  ("%s: Call DoomCacheEntry()", __func__));
-          DoomCacheEntry(mailnewsUrl);
+          *_retval = true;
+
+          // Having interrupted it, doom any incomplete cache entry. But if
+          // the mock channel indicates the fetch is complete so the cache
+          // write is done, then don't doom the cache entry. A fetch we left
+          // running keeps its entry, since it will finish normally.
+          bool cacheWriteInProgress = true;
+          if (m_mockChannel)
+            m_mockChannel->GetWritingToCache(&cacheWriteInProgress);
+          if (cacheWriteInProgress) {
+            MOZ_LOG(IMAPCache, LogLevel::Debug,
+                    ("%s: Call DoomCacheEntry()", __func__));
+            DoomCacheEntry(mailnewsUrl);
+          }
         }
       }
     }

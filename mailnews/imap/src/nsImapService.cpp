@@ -434,16 +434,19 @@ nsresult nsImapService::FetchMimePartInternal(nsIImapUrl* aImapUrl,
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = aImapUrl->SetImapAction(nsIImapUrl::nsImapMsgFetch);
-    if (aImapMailFolder && aDisplayConsumer) {
+    nsCOMPtr<nsIDocShell> partDocShell(do_QueryInterface(aDisplayConsumer));
+    if (aImapMailFolder && partDocShell) {
+      aImapUrl->SetDisplayConsumer(partDocShell);
       nsCOMPtr<nsIMsgIncomingServer> aMsgIncomingServer;
       rv = aImapMailFolder->GetServer(getter_AddRefs(aMsgIncomingServer));
       if (NS_SUCCEEDED(rv) && aMsgIncomingServer) {
         bool interrupted;
         nsCOMPtr<nsIImapIncomingServer> aImapServer(
             do_QueryInterface(aMsgIncomingServer, &rv));
-        if (NS_SUCCEEDED(rv) && aImapServer)
-          aImapServer->PseudoInterruptMsgLoad(aImapMailFolder, nullptr,
+        if (NS_SUCCEEDED(rv) && aImapServer) {
+          aImapServer->PseudoInterruptMsgLoad(aImapMailFolder, partDocShell, {},
                                               &interrupted);
+        }
       }
     }
     // if the display consumer is a docshell, then we should run the url in the
@@ -807,15 +810,20 @@ nsresult nsImapService::GetMessageFromUrl(
 
   nsCOMPtr<nsIDocShell> docShell(do_QueryInterface(aDisplayConsumer, &rv));
   if (aImapMailFolder && docShell) {
+    aImapUrl->SetDisplayConsumer(docShell);
     nsCOMPtr<nsIMsgIncomingServer> aMsgIncomingServer;
     rv = aImapMailFolder->GetServer(getter_AddRefs(aMsgIncomingServer));
     if (NS_SUCCEEDED(rv) && aMsgIncomingServer) {
       bool interrupted;
       nsCOMPtr<nsIImapIncomingServer> aImapServer(
           do_QueryInterface(aMsgIncomingServer, &rv));
-      if (NS_SUCCEEDED(rv) && aImapServer)
-        aImapServer->PseudoInterruptMsgLoad(aImapMailFolder, aMsgWindow,
+      if (NS_SUCCEEDED(rv) && aImapServer) {
+        // Loading into the docshell below would cancel any fetch already
+        // running in it, which tears the connection down. Stopping it here
+        // first is the graceful version, and leaves the connection usable.
+        aImapServer->PseudoInterruptMsgLoad(aImapMailFolder, docShell, {},
                                             &interrupted);
+      }
     }
   }
   if (NS_SUCCEEDED(rv) && docShell) {

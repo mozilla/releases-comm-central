@@ -2064,17 +2064,23 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
   nsresult rv = GetFlag(nsMsgFolderFlags::Trash, &deleteImmediatelyNoTrash);
   rv = GetImapIncomingServer(getter_AddRefs(imapServer));
 
+  nsTArray<nsMsgKey> srcKeyArray = MOZ_TRY(MsgGetKeysFromHdrs(msgHeaders));
+
   if (NS_SUCCEEDED(rv) && imapServer) {
     imapServer->GetDeleteModel(&deleteModel);
     if (deleteModel != nsMsgImapDeleteModels::MoveToTrash || deleteStorage)
       deleteImmediatelyNoTrash = true;
-    // if we're deleting a message, we should pseudo-interrupt the msg
-    // load of the current message.
-    bool interrupted = false;
-    imapServer->PseudoInterruptMsgLoad(this, msgWindow, &interrupted);
+    // Stop any download of the messages being deleted, whichever pane
+    // started it, since nobody has any use for it now. Downloads of other
+    // messages in this folder are left alone.
+    // An empty key array would mean "any message", which is not what a
+    // delete of nothing should do.
+    if (!srcKeyArray.IsEmpty()) {
+      bool interrupted = false;
+      imapServer->PseudoInterruptMsgLoad(this, nullptr, srcKeyArray,
+                                         &interrupted);
+    }
   }
-
-  nsTArray<nsMsgKey> srcKeyArray = MOZ_TRY(MsgGetKeysFromHdrs(msgHeaders));
 
   nsCOMPtr<nsIMsgFolder> rootFolder;
   nsCOMPtr<nsIMsgFolder> trashFolder;

@@ -65,6 +65,15 @@ interface nsIImapUrl : nsISupports
   attribute nsISupports copyState;
   attribute nsIFile msgFile;
   attribute nsIImapMockChannel mockChannel;
+
+  /**
+   * The thing this message is being fetched for display in, normally the
+   * nsIDocShell of a message pane. Held weakly, and only set for display
+   * fetches. Used by nsIImapProtocol.pseudoInterruptMsgLoad() to tell whose
+   * fetch is whose, so that one message pane cannot cut short a download
+   * belonging to another.
+   */
+  attribute nsISupports displayConsumer;
   /**
    * Set to true if we should store the msg(s) for offline use if we can,
    * e.g., we're fetching a message and the folder is configured for offline

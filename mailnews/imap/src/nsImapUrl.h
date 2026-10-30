@@ -110,6 +110,7 @@ class nsImapUrl : public nsIImapUrl,
   nsCOMPtr<nsISupports> m_copyState;  // now, refcounted.
   nsCOMPtr<nsIFile> m_file;
   nsWeakPtr m_channelWeakPtr;
+  nsWeakPtr m_displayConsumerWeakPtr;
 
   // used by save message to disk
   nsCOMPtr<nsIFile> m_messageFile;
