@@ -122,6 +122,8 @@ requesttimeoutfactor = 2
 
 ["test_smtpServer.js"]
 
+["test_smtpStartTLS.js"]
+
 ["test_smtpURL.js"]
 
 ["test_splitRecipients.js"]
