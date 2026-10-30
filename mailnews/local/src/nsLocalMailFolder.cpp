@@ -831,7 +831,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsACString& aNewName,
       // The store creates the new folder with our parent's AddSubfolder(),
       // so it's always a local folder.
       static_cast<nsMsgLocalMailFolder*>(newFolder.get())
-          ->RenameSubFolders(msgWindow, this);
+          ->RenameSubFolders(this);
     }
 
     // Discover the subfolders inside this folder (this is recursive)
@@ -856,8 +856,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsACString& aNewName,
   return rv;
 }
 
-nsresult nsMsgLocalMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
-                                                nsIMsgFolder* oldFolder) {
+nsresult nsMsgLocalMailFolder::RenameSubFolders(nsIMsgFolder* oldFolder) {
   nsresult rv = NS_OK;
   mInitialized = true;
 
@@ -881,7 +880,7 @@ nsresult nsMsgLocalMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
           newFolder, true /*case-insensitive*/, &changed);
       if (changed) AlertFilterChanged(msgFolder);
       static_cast<nsMsgLocalMailFolder*>(newFolder.get())
-          ->RenameSubFolders(msgWindow, msgFolder);
+          ->RenameSubFolders(msgFolder);
     }
   }
   return NS_OK;

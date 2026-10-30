@@ -421,8 +421,8 @@ NS_SYNCRUNNABLEMETHOD0(ImapServerSink, DiscoveryDone)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, OnlineFolderDelete, const nsACString&)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, OnlineFolderCreateFailed,
                        const nsACString&)
-NS_SYNCRUNNABLEMETHOD3(ImapServerSink, OnlineFolderRename, nsIMsgWindow*,
-                       const nsACString&, const nsACString&)
+NS_SYNCRUNNABLEMETHOD2(ImapServerSink, OnlineFolderRename, const nsACString&,
+                       const nsACString&)
 NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FolderIsNoSelect, const nsACString&,
                        bool*)
 NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FolderVerifiedOnline, const nsACString&,

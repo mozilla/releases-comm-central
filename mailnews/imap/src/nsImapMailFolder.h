@@ -364,8 +364,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
  protected:
   virtual ~nsImapMailFolder();
   // Helper methods
-  nsresult RenameSubFolders(nsIMsgWindow* msgWindow,
-                            nsIMsgFolder* oldFolder) override;
+  nsresult RenameSubFolders(nsIMsgFolder* oldFolder) override;
   nsresult CreateFileForDB(const nsAString& userLeafName, nsIFile* baseDir,
                            nsIFile** dbFile);
   nsresult ExpungeAndCompact(nsIUrlListener* aListener,

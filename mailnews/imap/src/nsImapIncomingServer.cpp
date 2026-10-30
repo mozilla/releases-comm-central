@@ -1283,8 +1283,7 @@ NS_IMETHODIMP nsImapIncomingServer::OnlineFolderCreateFailed(
 }
 
 NS_IMETHODIMP nsImapIncomingServer::OnlineFolderRename(
-    nsIMsgWindow* msgWindow, const nsACString& oldName,
-    const nsACString& newName) {
+    const nsACString& oldName, const nsACString& newName) {
   nsresult rv = NS_ERROR_FAILURE;
   if (!newName.IsEmpty()) {
     nsCOMPtr<nsIMsgFolder> me;
@@ -1318,7 +1317,7 @@ NS_IMETHODIMP nsImapIncomingServer::OnlineFolderRename(
 
         if (!parentImapFolder) return NS_ERROR_FAILURE;
 
-        rv = parentImapFolder->RenameClient(msgWindow, me, oldName, tmpNewName);
+        rv = parentImapFolder->RenameClient(me, oldName, tmpNewName);
         if (NS_FAILED(rv)) return rv;
 
         // RenameClient() built the new folder's URI from `tmpNewName` as it is,

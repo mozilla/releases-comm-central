@@ -37,7 +37,7 @@ interface nsIImapServerSink : nsISupports {
   void discoveryDone();
   void onlineFolderDelete(in AUTF8String folderName);
   void onlineFolderCreateFailed(in AUTF8String aFolderName);
-  void onlineFolderRename(in nsIMsgWindow msgWindow, in AUTF8String oldName, in AUTF8String newName);
+  void onlineFolderRename(in AUTF8String oldName, in AUTF8String newName);
   boolean folderIsNoSelect(in AUTF8String folderName);
   boolean folderVerifiedOnline(in AUTF8String folderName);
 

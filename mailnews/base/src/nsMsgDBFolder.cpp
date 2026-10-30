@@ -3797,8 +3797,7 @@ NS_IMETHODIMP nsMsgDBFolder::Rename(const nsACString& aNewName,
 
       if (count > 0) {
         // Our parent's AddSubfolder() creates a folder of our own type.
-        static_cast<nsMsgDBFolder*>(newFolder.get())
-            ->RenameSubFolders(msgWindow, this);
+        static_cast<nsMsgDBFolder*>(newFolder.get())->RenameSubFolders(this);
       }
 
       if (parentFolder) {
@@ -3812,8 +3811,7 @@ NS_IMETHODIMP nsMsgDBFolder::Rename(const nsACString& aNewName,
   return rv;
 }
 
-nsresult nsMsgDBFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
-                                         nsIMsgFolder* oldFolder) {
+nsresult nsMsgDBFolder::RenameSubFolders(nsIMsgFolder* oldFolder) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

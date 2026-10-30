@@ -181,8 +181,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   // possible. Use after a successful copy or a rollback that leaves headers
   // consistent.
   void FinalizeCopyDatabase();
-  nsresult RenameSubFolders(nsIMsgWindow* msgWindow,
-                            nsIMsgFolder* oldFolder) override;
+  nsresult RenameSubFolders(nsIMsgFolder* oldFolder) override;
 #ifdef MOZ_PANORAMA
   nsresult AddMessageBatch2(const nsTArray<nsCString>& rawMessages,
                             nsTArray<RefPtr<nsIMsgDBHdr>>& addedHdrs);

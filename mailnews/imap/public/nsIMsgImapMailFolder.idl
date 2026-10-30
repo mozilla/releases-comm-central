@@ -91,7 +91,7 @@ interface nsIMsgImapMailFolder : nsISupports {
   void prepareToRename();
   void performExpand(in nsIMsgWindow aMsgWindow);
   void recursiveCloseActiveConnections(in nsIImapIncomingServer aImapServer);
-  void renameClient(in nsIMsgWindow msgWindow, in nsIMsgFolder msgFolder, in AUTF8String oldName, in AUTF8String newName);
+  void renameClient(in nsIMsgFolder msgFolder, in AUTF8String oldName, in AUTF8String newName);
 
   // these are used for offline synchronization
   void storeImapFlags(in long aFlags, in boolean aAddFlags,
