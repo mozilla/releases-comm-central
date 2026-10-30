@@ -214,6 +214,11 @@ add_task(async function missing_identity_name() {
  * Generate a new OpenPGP Key.
  */
 add_task(async function generate_new_key() {
+  if (AppConstants.ASAN) {
+    // RSA key generation can be very slow on ASan builds.
+    requestLongerTimeout(2);
+  }
+
   // Open the key wizard from the "Add Key" button.
   const button = tabDocument.getElementById("addOpenPgpButton");
   EventUtils.synthesizeMouseAtCenter(button, {}, tabWindow);
