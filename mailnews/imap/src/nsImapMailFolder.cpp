@@ -3712,8 +3712,7 @@ FindCounterPartOps(nsACString const& srcFolderUri,
 NS_IMETHODIMP
 nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& srcOpIds,
                                         bool isMove, nsIMsgFolder* destFolder,
-                                        nsIUrlListener* urlListener,
-                                        nsIMsgWindow* window) {
+                                        nsIUrlListener* urlListener) {
   nsresult rv;
 
   // We'll be using nsIImapService.onlineMessageCopy(), which only works
@@ -3797,7 +3796,7 @@ nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& srcOpIds,
   // aDstFolder.
   rv = imapService->OnlineMessageCopy(this, idSet, destFolder, true, isMove,
                                       urlListener, getter_AddRefs(resultUrl),
-                                      nullptr, !!window);
+                                      nullptr, false);
   if (resultUrl) {
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(resultUrl, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -8222,7 +8221,7 @@ nsresult nsImapMailFolder::GetMoveCoalescer() {
 }
 
 NS_IMETHODIMP
-nsImapMailFolder::StoreCustomKeywords(nsIMsgWindow* aMsgWindow,
+nsImapMailFolder::StoreCustomKeywords(bool interactive,
                                       const nsACString& aFlagsToAdd,
                                       const nsACString& aFlagsToSubtract,
                                       const nsTArray<nsMsgKey>& aKeysToStore,
@@ -8255,7 +8254,7 @@ nsImapMailFolder::StoreCustomKeywords(nsIMsgWindow* aMsgWindow,
   nsTArray<ImapUid> uids = MOZ_TRY(UidsFromMsgKeys(mDatabase, aKeysToStore));
   nsCOMPtr<nsIURI> retUri;
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-  rv = imapService->StoreCustomKeywords(this, aMsgWindow, aFlagsToAdd,
+  rv = imapService->StoreCustomKeywords(this, interactive, aFlagsToAdd,
                                         aFlagsToSubtract, UidSetFromUids(uids),
                                         getter_AddRefs(retUri));
   if (_retval) {
@@ -8402,14 +8401,14 @@ nsresult nsImapMailFolder::PlaybackCoalescedOperations() {
   if (m_moveCoalescer) {
     nsTArray<nsMsgKey>* junkKeysToClassify = m_moveCoalescer->GetKeyBucket(0);
     if (junkKeysToClassify && !junkKeysToClassify->IsEmpty()) {
-      StoreCustomKeywords(m_moveCoalescer->GetMsgWindow(), "Junk"_ns,
+      StoreCustomKeywords(!!m_moveCoalescer->GetMsgWindow(), "Junk"_ns,
                           EmptyCString(), *junkKeysToClassify, nullptr);
       junkKeysToClassify->Clear();
     }
     nsTArray<nsMsgKey>* nonJunkKeysToClassify =
         m_moveCoalescer->GetKeyBucket(1);
     if (nonJunkKeysToClassify && !nonJunkKeysToClassify->IsEmpty()) {
-      StoreCustomKeywords(m_moveCoalescer->GetMsgWindow(), "NonJunk"_ns,
+      StoreCustomKeywords(!!m_moveCoalescer->GetMsgWindow(), "NonJunk"_ns,
                           EmptyCString(), *nonJunkKeysToClassify, nullptr);
       nonJunkKeysToClassify->Clear();
     }
@@ -8427,7 +8426,7 @@ nsImapMailFolder::SetJunkScoreForMessages(
       messages, junkScore, junkScoreOrigin, junkPercent);
   if (NS_SUCCEEDED(rv)) {
     nsTArray<nsMsgKey> keys = MOZ_TRY(MsgGetKeysFromHdrs(messages));
-    StoreCustomKeywords(nullptr, junkScore == 0 ? "NonJunk"_ns : "Junk"_ns,
+    StoreCustomKeywords(false, junkScore == 0 ? "NonJunk"_ns : "Junk"_ns,
                         junkScore == 0 ? "Junk"_ns : "NonJunk"_ns, keys,
                         nullptr);
     if (mDatabase) mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
@@ -8674,7 +8673,7 @@ NS_IMETHODIMP nsImapMailFolder::AddKeywordsToMessages(
   nsresult rv = nsMsgDBFolder::AddKeywordsToMessages(aMessages, aKeywords);
   if (NS_SUCCEEDED(rv)) {
     nsTArray<nsMsgKey> keys = MOZ_TRY(MsgGetKeysFromHdrs(aMessages));
-    rv = StoreCustomKeywords(nullptr, aKeywords, EmptyCString(), keys, nullptr);
+    rv = StoreCustomKeywords(false, aKeywords, EmptyCString(), keys, nullptr);
     if (mDatabase) mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
   }
   return rv;
@@ -8686,7 +8685,7 @@ NS_IMETHODIMP nsImapMailFolder::RemoveKeywordsFromMessages(
   nsresult rv = nsMsgDBFolder::RemoveKeywordsFromMessages(aMessages, aKeywords);
   if (NS_SUCCEEDED(rv)) {
     nsTArray<nsMsgKey> keys = MOZ_TRY(MsgGetKeysFromHdrs(aMessages));
-    rv = StoreCustomKeywords(nullptr, EmptyCString(), aKeywords, keys, nullptr);
+    rv = StoreCustomKeywords(false, EmptyCString(), aKeywords, keys, nullptr);
     if (mDatabase) mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
   }
   return rv;
@@ -9047,7 +9046,7 @@ NS_IMETHODIMP nsImapMailFolder::HandleViewCommand(
       addFlags = true;
       break;
     case nsMsgViewCommandType::junk:
-      return StoreCustomKeywords(window, "Junk"_ns, "NonJunk"_ns, messageKeys,
+      return StoreCustomKeywords(!!window, "Junk"_ns, "NonJunk"_ns, messageKeys,
                                  nullptr);
     case nsMsgViewCommandType::unjunk: {
       uint32_t msgFlags = 0;
@@ -9063,7 +9062,7 @@ NS_IMETHODIMP nsImapMailFolder::HandleViewCommand(
         StoreImapFlags(kImapMsgDeletedFlag, false, messageKeys, nullptr);
       }
 
-      return StoreCustomKeywords(window, "NonJunk"_ns, "Junk"_ns, messageKeys,
+      return StoreCustomKeywords(!!window, "NonJunk"_ns, "Junk"_ns, messageKeys,
                                  nullptr);
     }
     default:

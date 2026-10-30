@@ -98,8 +98,7 @@ interface nsIMsgImapMailFolder : nsISupports {
       in Array<nsMsgKey> aKeysToFlag, in nsIUrlListener aUrlListener);
   nsIURI setImapFlags(in Array<nsMsgKey> msgKeys, in long flags);
   void replayOfflineMoveCopy(in Array<nsMsgKey> srcOpIds, in boolean isMove,
-      in nsIMsgFolder destFolder, in nsIUrlListener urlListener,
-      in nsIMsgWindow window);
+      in nsIMsgFolder destFolder, in nsIUrlListener urlListener);
 
   /**
    * This is called by the offline sync code to tell the imap folder to
@@ -150,7 +149,7 @@ interface nsIMsgImapMailFolder : nsISupports {
   // It assumes the command needs to be run in the selected state.
   nsIURI issueCommandOnMsgs(in ACString command, in string uids, in nsIMsgWindow aWindow);
   nsIURI fetchCustomMsgAttribute(in ACString msgAttribute, in string uids, in nsIMsgWindow aWindow);
-  nsIURI storeCustomKeywords(in nsIMsgWindow aMsgWindow,
+  nsIURI storeCustomKeywords(in boolean interactive,
                       in ACString aFlagsToAdd,
                       in ACString aFlagsToSubtract,
                       in Array<nsMsgKey> aKeysToStore);

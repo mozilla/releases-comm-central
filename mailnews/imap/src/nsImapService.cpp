@@ -202,12 +202,11 @@ NS_IMETHODIMP nsImapService::SelectFolder(nsIMsgFolder* aImapMailFolder,
 // lite select, used to verify UIDVALIDITY while going on/offline
 NS_IMETHODIMP nsImapService::LiteSelectFolder(nsIMsgFolder* aImapMailFolder,
                                               nsIUrlListener* aUrlListener,
-                                              nsIMsgWindow* aMsgWindow,
                                               nsIURI** aURL) {
   NS_ENSURE_ARG_POINTER(aImapMailFolder);
 
   return FolderCommand(aImapMailFolder, aUrlListener, "/liteselect>",
-                       nsIImapUrl::nsImapLiteSelectFolder, aMsgWindow, aURL);
+                       nsIImapUrl::nsImapLiteSelectFolder, nullptr, aURL);
 }
 
 NS_IMETHODIMP nsImapService::GetUrlForUri(const nsACString& aMessageURI,
@@ -2589,9 +2588,8 @@ static void SanitizeKeywords(const nsACString& aKeywords,
 }  // namespace
 
 NS_IMETHODIMP nsImapService::StoreCustomKeywords(
-    nsIMsgFolder* anImapFolder, nsIMsgWindow* aMsgWindow,
-    const nsACString& flagsToAdd, const nsACString& flagsToSubtract,
-    const nsACString& uids, nsIURI** aURL) {
+    nsIMsgFolder* anImapFolder, bool interactive, const nsACString& flagsToAdd,
+    const nsACString& flagsToSubtract, const nsACString& uids, nsIURI** aURL) {
   NS_ENSURE_ARG_POINTER(anImapFolder);
 
   // Ensure bad tags from RSS feeds or legacy databases cannot crash the IMAP
@@ -2613,7 +2611,7 @@ NS_IMETHODIMP nsImapService::StoreCustomKeywords(
     rv = imapUrl->SetImapAction(nsIImapUrl::nsImapMsgStoreCustomKeywords);
 
     nsCOMPtr<nsIMsgMailNewsUrl> mailNewsUrl = do_QueryInterface(imapUrl);
-    mailNewsUrl->SetMsgWindow(aMsgWindow);
+    mailNewsUrl->SetInteractive(interactive);
     mailNewsUrl->SetUpdatingFolder(true);
     rv = SetImapUrlSink(anImapFolder, imapUrl);
 

@@ -317,7 +317,7 @@ void nsImapOfflineSync::ProcessKeywordOperation(
       nsCOMPtr<nsIURI> uriToStoreCustomKeywords;
       if (imapFolder) {
         rv = imapFolder->StoreCustomKeywords(
-            m_window,
+            !!m_window,
             (mCurrentPlaybackOpType == nsIMsgOfflineImapOperation::kAddKeywords)
                 ? keywords
                 : EmptyCString(),
@@ -488,8 +488,7 @@ void nsImapOfflineSync::ProcessMoveOperation(nsIMsgOfflineImapOperation* op) {
   nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
       do_QueryInterface(m_currentFolder);
   if (imapFolder && DestFolderOnSameServer(destFolder)) {
-    imapFolder->ReplayOfflineMoveCopy(srcKeys, true, destFolder, this,
-                                      m_window);
+    imapFolder->ReplayOfflineMoveCopy(srcKeys, true, destFolder, this);
   } else {
     // NOTE: Is this dead code?
     // The source messages have already been removed from the database,
@@ -593,7 +592,7 @@ void nsImapOfflineSync::ProcessCopyOperation(
       do_QueryInterface(m_currentFolder);
   if (imapFolder && DestFolderOnSameServer(destFolder)) {
     rv = imapFolder->ReplayOfflineMoveCopy(matchingFlagKeys, false, destFolder,
-                                           this, m_window);
+                                           this);
   } else {
     nsTArray<RefPtr<nsIMsgDBHdr>> messages;
     for (uint32_t keyIndex = 0; keyIndex < matchingFlagKeys.Length();
@@ -738,8 +737,8 @@ nsresult nsImapOfflineSync::ProcessNextOperation() {
             nsCOMPtr<nsIURI> unusedUri;
             // Passing this as UrlListener, so our OnStopRunningUrl() will be
             // called when this completes.
-            return imapService->LiteSelectFolder(
-                m_currentFolder, this, m_window, getter_AddRefs(unusedUri));
+            return imapService->LiteSelectFolder(m_currentFolder, this,
+                                                 getter_AddRefs(unusedUri));
           }
         }
       }

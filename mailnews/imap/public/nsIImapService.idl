@@ -44,13 +44,11 @@ interface nsIImapService : nsISupports
    *
    * @param aImapMailFolder     the folder to select
    * @param aUrlListener        url listener, can be null
-   * @param aMsgWindow          msg window url is running in, can be null
    *
    * @returns the url created to run the lite select in.
    */
   nsIURI liteSelectFolder(in nsIMsgFolder aImapMailFolder,
-                          in nsIUrlListener aUrlListener,
-                          in nsIMsgWindow aMsgWindow);
+                          in nsIUrlListener aUrlListener);
 
   void noop(in nsIMsgFolder aImapMailFolder,
             in nsIUrlListener aUrlListener,
@@ -249,7 +247,7 @@ interface nsIImapService : nsISupports
    * @return nsIURI                The internal IMAP URL generated for this command.
    */
   nsIURI storeCustomKeywords(in nsIMsgFolder aMailFolder,
-                             in nsIMsgWindow aMsgWindow,
+                             in boolean interactive,
                              in ACString flagsToAdd,
                              in ACString flagsToSubtract,
                              in ACString aMessageIdentifierList);
