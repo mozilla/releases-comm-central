@@ -211,7 +211,7 @@ nsresult nsMsgOfflineManager::DownloadOfflineNewsgroups() {
   nsCOMPtr<nsINntpService> nntpService(
       do_GetService("@mozilla.org/messenger/nntpservice;1", &rv));
   if (NS_SUCCEEDED(rv) && nntpService)
-    rv = nntpService->DownloadNewsgroupsForOffline(m_window, this);
+    rv = nntpService->DownloadNewsgroupsForOffline(!!m_window, this);
 
   if (NS_FAILED(rv)) return AdvanceToNextState(rv);
   return rv;

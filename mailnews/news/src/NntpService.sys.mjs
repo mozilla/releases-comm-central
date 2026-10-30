@@ -216,18 +216,18 @@ export class NntpService {
     });
   }
 
-  downloadNewsgroupsForOffline(msgWindow, urlListener) {
-    const downloader = new lazy.NewsDownloader(msgWindow, urlListener);
+  downloadNewsgroupsForOffline(interactive, urlListener) {
+    const downloader = new lazy.NewsDownloader(interactive, urlListener);
     downloader.downloadAllOfflineNewsgroups();
   }
 
-  downloadFolderForOffline(folder, msgWindow) {
-    const downloader = new lazy.NewsDownloader(msgWindow);
+  downloadFolderForOffline(folder, interactive) {
+    const downloader = new lazy.NewsDownloader(interactive);
     downloader.downloadFolder(folder);
   }
 
-  downloadMessagesForOffline(folder, keys, msgWindow) {
-    const downloader = new lazy.NewsDownloader(msgWindow);
+  downloadMessagesForOffline(folder, keys, interactive) {
+    const downloader = new lazy.NewsDownloader(interactive);
     downloader.downloadMessages(folder, keys);
   }
 

@@ -9,7 +9,6 @@
 
 interface nsIURI;
 interface nsIFile;
-interface nsIMsgWindow;
 interface nsIMsgFolder;
 interface nsICacheStorage;
 
@@ -26,9 +25,9 @@ interface nsINntpService : nsISupports {
 
   nsIURI fetchMessage(in nsIMsgFolder newsFolder, in nsMsgKey key, in boolean interactive, in nsISupports aConsumer, in nsIUrlListener aUrlListener);
 
-  void downloadNewsgroupsForOffline(in nsIMsgWindow aMsgWindow, in nsIUrlListener aListener);
-  void downloadFolderForOffline(in nsIMsgFolder newsFolder, in nsIMsgWindow aMsgWindow);
-  void downloadMessagesForOffline(in nsIMsgFolder newsFolder, in Array<nsMsgKey> keys, in nsIMsgWindow aMsgWindow);
+  void downloadNewsgroupsForOffline(in boolean interactive, in nsIUrlListener aListener);
+  void downloadFolderForOffline(in nsIMsgFolder newsFolder, in boolean interactive);
+  void downloadMessagesForOffline(in nsIMsgFolder newsFolder, in Array<nsMsgKey> keys, in boolean interactive);
 
   /**
    * can handle news-message:// and news://

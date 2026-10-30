@@ -1075,7 +1075,7 @@ NS_IMETHODIMP nsMsgNewsFolder::DownloadAllForOffline(nsIUrlListener* listener,
   nsCOMPtr<nsINntpService> nntpService(
       do_GetService("@mozilla.org/messenger/nntpservice;1", &rv));
   if (NS_SUCCEEDED(rv) && nntpService) {
-    rv = nntpService->DownloadFolderForOffline(this, msgWindow);
+    rv = nntpService->DownloadFolderForOffline(this, !!msgWindow);
   }
 
   return rv;
@@ -1095,7 +1095,8 @@ NS_IMETHODIMP nsMsgNewsFolder::DownloadMessagesForOffline(
   nsCOMPtr<nsINntpService> nntpService(
       do_GetService("@mozilla.org/messenger/nntpservice;1", &rv));
   if (NS_SUCCEEDED(rv) && nntpService) {
-    rv = nntpService->DownloadMessagesForOffline(this, srcKeyArray, msgWindow);
+    rv =
+        nntpService->DownloadMessagesForOffline(this, srcKeyArray, !!msgWindow);
   }
 
   return rv;

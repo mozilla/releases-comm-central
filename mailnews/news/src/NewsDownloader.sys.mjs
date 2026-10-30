@@ -24,12 +24,13 @@ export class NewsDownloader {
   _logger = NntpUtils.logger;
 
   /**
-   * @param {nsIMsgWindow} msgWindow - The associated msg window.
+   * @param {boolean} interactive - Whether the user is waiting on the
+   *   download.
    * @param {nsIUrlListener} [urlListener=null] - Optional callback for the
    *   request.
    */
-  constructor(msgWindow, urlListener) {
-    this._msgWindow = msgWindow;
+  constructor(interactive, urlListener) {
+    this._interactive = interactive;
     this._urlListener = urlListener;
   }
 
@@ -122,7 +123,7 @@ export class NewsDownloader {
     folder.QueryInterface(Ci.nsIMsgNewsFolder).saveArticleOffline = true;
     for (const key of keys) {
       await new Promise(resolve => {
-        MailServices.nntp.fetchMessage(folder, key, !!this._msgWindow, null, {
+        MailServices.nntp.fetchMessage(folder, key, this._interactive, null, {
           OnStartRunningUrl() {},
           OnStopRunningUrl() {
             resolve();
@@ -217,7 +218,7 @@ export class NewsDownloader {
         Ci.nsIMsgSearchSession.allNotifications
       );
       searchSession.addScopeTerm(Ci.nsMsgSearchScope.localNews, folder);
-      searchSession.search(!!this._msgWindow);
+      searchSession.search(this._interactive);
     });
 
     return keysToDownload;
