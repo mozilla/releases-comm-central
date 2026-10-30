@@ -1395,8 +1395,7 @@ nsMsgSendLater::GetNeedsToRunTask(bool* aResult) {
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::DoShutdownTask(nsIUrlListener* aListener, nsIMsgWindow* aWindow,
-                               bool* aResult) {
+nsMsgSendLater::DoShutdownTask(nsIUrlListener* aListener, bool* aResult) {
   if (mTimer) mTimer->Cancel();
   // If we're already sending messages, nothing to do, but save the shutdown
   // listener until we've finished.

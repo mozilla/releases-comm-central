@@ -26,7 +26,7 @@ interface nsIMsgShutdownTask : nsISupports
    * @return If the shutdown URL was run or not. If the URL is running, the task
    *         will be responsible for notifying |inUrlListener| when the task is completed.
    */
-  boolean doShutdownTask(in nsIUrlListener inUrlListener, in nsIMsgWindow inMsgWindow);
+  boolean doShutdownTask(in nsIUrlListener inUrlListener);
 
   /**
    * Get the displayable name of the current task. This textual information will be

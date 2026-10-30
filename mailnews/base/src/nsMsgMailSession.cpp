@@ -339,13 +339,8 @@ nsresult nsMsgShutdownService::ProcessNextTask() {
     curTask->GetCurrentTaskName(taskName);
     SetStatusText(taskName);
 
-    nsCOMPtr<nsIMsgMailSession> mailSession =
-        mozilla::components::MailSession::Service();
-    nsCOMPtr<nsIMsgWindow> topMsgWindow;
-    mailSession->GetTopmostMsgWindow(getter_AddRefs(topMsgWindow));
-
     bool taskIsRunning = true;
-    nsresult rv = curTask->DoShutdownTask(this, topMsgWindow, &taskIsRunning);
+    nsresult rv = curTask->DoShutdownTask(this, &taskIsRunning);
     if (NS_FAILED(rv) || !taskIsRunning) {
       // We have failed, let's go on to the next task.
       mTaskIndex++;
