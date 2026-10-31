@@ -65,11 +65,7 @@ add_setup(async function () {
   rootFolder.createSubfolder(GROUP);
   newsFolder = rootFolder.getChildNamed(GROUP);
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
-  nntpAccount.incomingServer.getNewMessages(
-    newsFolder,
-    window.msgWindow,
-    urlListener
-  );
+  nntpAccount.incomingServer.getNewMessages(newsFolder, true, urlListener);
   await urlListener.promise;
 
   draftsFolder = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);

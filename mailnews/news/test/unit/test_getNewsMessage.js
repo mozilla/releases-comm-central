@@ -72,7 +72,7 @@ function run_test() {
     // Get the folder and new mail
     var folder = localserver.rootFolder.getChildNamed("test.subscribe.simple");
     folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
-    folder.getNewMessages(null, {
+    folder.getNewMessages(false, {
       OnStopRunningUrl() {
         localserver.closeCachedConnections();
       },

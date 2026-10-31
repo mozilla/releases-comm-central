@@ -85,7 +85,7 @@ add_task(async function getMail1() {
       // do_check_eq(result, attempt == 2 ? Cr.NS_ERROR_FAILURE : 0);
     },
   });
-  folder.getNewMessages(gDummyMsgWindow, urlListener);
+  folder.getNewMessages(true, urlListener);
   await urlListener.promise;
 
   Assert.equal(attempt, 2);
@@ -115,7 +115,7 @@ add_task(async function getMail2() {
       // do_check_eq(result, attempt == 2 ? Cr.NS_ERROR_FAILURE : 0);
     },
   });
-  folder.getNewMessages(gDummyMsgWindow, urlListener);
+  folder.getNewMessages(true, urlListener);
   await urlListener.promise;
 
   await TestUtils.waitForCondition(async () => {

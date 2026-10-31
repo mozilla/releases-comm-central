@@ -88,7 +88,7 @@ export class Pop3IncomingServer extends MsgIncomingServer {
     return this.canFileMessagesOnServer;
   }
 
-  getNewMessages(folder, msgWindow, urlListener) {
+  getNewMessages(folder, interactive, urlListener) {
     const inbox = this.rootMsgFolder.getFolderWithFlags(
       Ci.nsMsgFolderFlags.Inbox
     );
@@ -99,7 +99,7 @@ export class Pop3IncomingServer extends MsgIncomingServer {
         // as well.
         this.downloadMailFromServers(
           [...deferredServers, this],
-          msgWindow,
+          interactive,
           inbox,
           urlListener
         );
@@ -107,11 +107,11 @@ export class Pop3IncomingServer extends MsgIncomingServer {
       }
     }
     // Occurs on get new mail for a single server.
-    MailServices.pop3.GetNewMail(msgWindow, urlListener, inbox, this);
+    MailServices.pop3.GetNewMail(interactive, urlListener, inbox, this);
   }
 
   verifyLogon(urlListener, msgWindow) {
-    return MailServices.pop3.verifyLogon(this, urlListener, msgWindow);
+    return MailServices.pop3.verifyLogon(this, urlListener, !!msgWindow);
   }
 
   performBiff(msgWindow) {
@@ -123,9 +123,14 @@ export class Pop3IncomingServer extends MsgIncomingServer {
 
     try {
       if (this.downloadOnBiff) {
-        MailServices.pop3.GetNewMail(msgWindow, urlListener, inbox, this);
+        MailServices.pop3.GetNewMail(!!msgWindow, urlListener, inbox, this);
       } else {
-        MailServices.pop3.CheckForNewMail(msgWindow, urlListener, inbox, this);
+        MailServices.pop3.CheckForNewMail(
+          !!msgWindow,
+          urlListener,
+          inbox,
+          this
+        );
       }
     } catch (error) {
       this.performingBiff = false;
@@ -157,8 +162,8 @@ export class Pop3IncomingServer extends MsgIncomingServer {
 
   // This is called when "Get Selected Messages" menu item is used to
   // to fetch full messages that previously had only the headers downloaded.
-  getNewMail(msgWindow, urlListener, inbox) {
-    MailServices.pop3.GetNewMail(msgWindow, urlListener, inbox, this);
+  getNewMail(interactive, urlListener, inbox) {
+    MailServices.pop3.GetNewMail(interactive, urlListener, inbox, this);
   }
 
   /** @see nsIPop3IncomingServer */
@@ -256,7 +261,7 @@ export class Pop3IncomingServer extends MsgIncomingServer {
     this._uidlsToMark = new Map();
   }
 
-  downloadMailFromServers(servers, msgWindow, folder, urlListener) {
+  downloadMailFromServers(servers, interactive, folder, urlListener) {
     const server = servers.shift();
     if (!server) {
       urlListener?.OnStopRunningUrl(null, Cr.NS_OK);
@@ -269,7 +274,7 @@ export class Pop3IncomingServer extends MsgIncomingServer {
       // This recursive loop occurs on check new mail at startup and when
       // getting new mail for all servers.
       MailServices.pop3.GetNewMail(
-        msgWindow,
+        interactive,
         {
           OnStartRunningUrl() {},
           OnStopRunningUrl: () => {
@@ -278,7 +283,7 @@ export class Pop3IncomingServer extends MsgIncomingServer {
             // Note: this doesn't actually serialize the connections/clients
             this.downloadMailFromServers(
               servers,
-              msgWindow,
+              interactive,
               folder,
               urlListener
             );
@@ -289,7 +294,7 @@ export class Pop3IncomingServer extends MsgIncomingServer {
       );
       return;
     }
-    this.downloadMailFromServers(servers, msgWindow, folder, urlListener);
+    this.downloadMailFromServers(servers, interactive, folder, urlListener);
   }
 
   /**

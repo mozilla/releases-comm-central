@@ -5,7 +5,6 @@
 #include "nsISupports.idl"
 
 interface nsIURI;
-interface nsIMsgWindow;
 interface nsIUrlListener;
 interface nsIMsgFolder;
 
@@ -18,5 +17,5 @@ interface nsILocalMailIncomingServer : nsISupports
   /// Set special folder flags on the default folders.
   void setFlagsOnDefaultMailboxes();
 
-  nsIURI getNewMail(in nsIMsgWindow aMsgWindow, in nsIUrlListener aUrlListener, in nsIMsgFolder aInbox);
+  nsIURI getNewMail(in boolean interactive, in nsIUrlListener aUrlListener, in nsIMsgFolder aInbox);
 };

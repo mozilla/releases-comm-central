@@ -38,7 +38,7 @@ function testAttrib(handler, daemon, localserver) {
 
   // Get the folder and force filters to run
   var folder = localserver.rootFolder.getChildNamed("test.filter");
-  folder.getNewMessages(null, {
+  folder.getNewMessages(false, {
     OnStopRunningUrl() {
       localserver.closeCachedConnections();
     },
@@ -94,7 +94,7 @@ function testAction(handler, daemon, localserver) {
 
   // Get the folder and force filters to run
   var folder = localserver.rootFolder.getChildNamed("test.filter");
-  folder.getNewMessages(null, {
+  folder.getNewMessages(false, {
     OnStartRunningUrl(_url) {},
     OnStopRunningUrl(_url, _status) {
       localserver.closeCachedConnections();

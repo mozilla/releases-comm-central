@@ -66,7 +66,7 @@ async function withReplacedMethod(method, replacement, fn) {
 
 async function getNewMessages() {
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  folder.getNewMessages(null, listener);
+  folder.getNewMessages(false, listener);
   await listener.promise;
 }
 

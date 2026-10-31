@@ -20,7 +20,7 @@ add_task(async function () {
   addImapMessage();
   addImapMessage();
   let urlListener = new PromiseTestUtils.PromiseUrlListener();
-  server.getNewMessages(inbox, null, urlListener);
+  server.getNewMessages(inbox, false, urlListener);
   await urlListener.promise;
 
   let messages = [...inbox.messages];
@@ -38,7 +38,7 @@ add_task(async function () {
 
   const testMessage = addImapMessage();
   urlListener = new PromiseTestUtils.PromiseUrlListener();
-  server.getNewMessages(inbox, null, urlListener);
+  server.getNewMessages(inbox, false, urlListener);
   await urlListener.promise;
 
   // Check it exists in the database and doesn't have the offline flag or store

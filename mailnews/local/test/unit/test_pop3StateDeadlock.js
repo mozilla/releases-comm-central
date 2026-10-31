@@ -68,7 +68,7 @@ add_task(async function test_dirty_disconnect_recovery() {
 
   // Attempt 1: This will fail because our mocked server drops the connection mid-UIDL
   MailServices.pop3.GetNewMail(
-    null,
+    false,
     urlListener,
     localAccountUtils.inboxFolder,
     incomingServer
@@ -95,7 +95,7 @@ add_task(async function test_dirty_disconnect_recovery() {
   const urlListener2 = new PromiseTestUtils.PromiseUrlListener();
 
   MailServices.pop3.GetNewMail(
-    null,
+    false,
     urlListener2,
     localAccountUtils.inboxFolder,
     incomingServer

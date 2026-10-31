@@ -47,7 +47,7 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
                             bool interactive, bool deleteStorage, bool isMove,
                             nsIMsgCopyServiceListener* listener,
                             bool allowUndo) override;
-  NS_IMETHOD GetNewMessages(nsIMsgWindow* aWindow,
+  NS_IMETHOD GetNewMessages(bool interactive,
                             nsIUrlListener* aListener) override;
 
   NS_IMETHOD GetCanSubscribe(bool* aResult) override;

@@ -36,7 +36,7 @@ add_task(async function verifyContentLength() {
       localserver.closeCachedConnections();
     },
   });
-  folder.getNewMessages(null, promiseUrlListener);
+  folder.getNewMessages(false, promiseUrlListener);
   server.performTest();
   await promiseUrlListener.promise;
 

@@ -6,8 +6,8 @@ import { FeedUtils } from "resource:///modules/FeedUtils.sys.mjs";
 
 export function FeedDownloader() {}
 FeedDownloader.prototype = {
-  downloadFeed(aFolder, aUrlListener, aIsBiff, aMsgWindow) {
-    FeedUtils.downloadFeed(aFolder, aUrlListener, aIsBiff, aMsgWindow);
+  downloadFeed(aFolder, aUrlListener, aIsBiff) {
+    FeedUtils.downloadFeed(aFolder, aUrlListener, aIsBiff);
   },
   updateSubscriptionsDS(aFolder, aOrigFolder, aAction) {
     FeedUtils.updateSubscriptionsDS(aFolder, aOrigFolder, aAction);

@@ -21,7 +21,7 @@ async function getNewMail() {
   daemon.setMessages(["message1.eml", "message3.eml"]);
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.pop3.GetNewMail(
-    null,
+    false,
     urlListener,
     localAccountUtils.inboxFolder,
     incomingServer

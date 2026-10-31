@@ -681,9 +681,9 @@ NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr* msgHdr,
                                     !!aMsgWindow, getter_AddRefs(resultUri));
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::GetNewMessages(nsIMsgWindow* aMsgWindow,
+NS_IMETHODIMP nsMsgNewsFolder::GetNewMessages(bool interactive,
                                               nsIUrlListener* aListener) {
-  return GetNewsMessages(!!aMsgWindow, false, aListener);
+  return GetNewsMessages(interactive, false, aListener);
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::GetNextNMessages(nsIMsgWindow* aMsgWindow) {

@@ -244,7 +244,7 @@ add_task(async function test_nntp_articles_fetched_separately() {
 add_task(async function test_nntp_article_in_folder() {
   const folder = incomingServer.rootFolder.getChildNamed("test.filter");
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
-  incomingServer.getNewMessages(folder, null, urlListener);
+  incomingServer.getNewMessages(folder, false, urlListener);
   await urlListener.promise;
 
   resetCaptures();

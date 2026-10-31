@@ -215,7 +215,7 @@ POP3Pump.prototype._testNext = function () {
     const inbox = this._incomingServer.rootMsgFolder.getFolderWithFlags(
       Ci.nsMsgFolderFlags.Inbox
     );
-    MailServices.pop3.GetNewMail(null, this, inbox, this._incomingServer);
+    MailServices.pop3.GetNewMail(false, this, inbox, this._incomingServer);
 
     this._server.performTest();
   } catch (e) {

@@ -146,7 +146,7 @@ function testNext() {
     msgServer.authMethod = thisTest.clientAuthMethod;
 
     MailServices.pop3.GetNewMail(
-      null,
+      false,
       urlListener,
       localAccountUtils.inboxFolder,
       incomingServer

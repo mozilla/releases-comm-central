@@ -86,7 +86,7 @@ add_setup(async function () {
     "waiting for EWS folders to sync"
   );
   await ewsServer.addMessages("inbox", generator.makeMessages({}));
-  ewsAccount.incomingServer.getNewMessages(ewsRootFolder, null, null);
+  ewsAccount.incomingServer.getNewMessages(ewsRootFolder, false, null);
   await TestUtils.waitForCondition(
     () => ewsTestFolder.getTotalMessages(false) == 10
   );
@@ -112,7 +112,7 @@ add_setup(async function () {
     "waiting for Graph folders to sync"
   );
   await graphServer.addMessages("inbox", generator.makeMessages({}));
-  graphAccount.incomingServer.getNewMessages(graphRootFolder, null, null);
+  graphAccount.incomingServer.getNewMessages(graphRootFolder, false, null);
   await TestUtils.waitForCondition(
     () => graphTestFolder.getTotalMessages(false) == 10
   );

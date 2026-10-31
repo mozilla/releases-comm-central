@@ -85,11 +85,7 @@ add_setup(async function () {
   nntpRootFolder.createSubfolder("mailContext.compose");
   const nntpFolder = nntpRootFolder.getChildNamed("mailContext.compose");
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
-  nntpAccount.incomingServer.getNewMessages(
-    nntpFolder,
-    window.msgWindow,
-    urlListener
-  );
+  nntpAccount.incomingServer.getNewMessages(nntpFolder, true, urlListener);
   await urlListener.promise;
   nntpMessage = nntpFolder.messages.getNext();
 

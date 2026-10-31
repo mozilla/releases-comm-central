@@ -98,7 +98,7 @@ add_setup(async function () {
   });
 
   const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, null);
+  incomingServer.getNewMessages(rootFolder, false, null);
   await TestUtils.waitForCondition(
     () => rootFolder.getChildNamed("Drafts"),
     "Waiting for Drafts folder to exist."
@@ -107,7 +107,7 @@ add_setup(async function () {
 
 async function syncFolder(folder) {
   const asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  incomingServer.getNewMessages(folder, null, asyncUrlListener);
+  incomingServer.getNewMessages(folder, false, asyncUrlListener);
   return asyncUrlListener.promise;
 }
 

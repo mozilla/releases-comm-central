@@ -397,7 +397,7 @@ NS_IMETHODIMP nsAutoSyncState::UpdateFolder() {
     nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(folder);
     rv = imapFolder->UpdateFolderWithListener(false, autoSyncMgrListener);
   } else if (serverType.EqualsLiteral("ews")) {
-    rv = folder->GetNewMessages(nullptr, autoSyncMgrListener);
+    rv = folder->GetNewMessages(false, autoSyncMgrListener);
   } else {
     return NS_ERROR_UNEXPECTED;
   }

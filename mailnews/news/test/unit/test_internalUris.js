@@ -50,7 +50,7 @@ add_task(async function test_newMsgs() {
   const folder = localserver.rootFolder.getChildNamed("test.filter");
   Assert.equal(folder.getTotalMessages(false), 0);
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
-  folder.getNewMessages(null, urlListener);
+  folder.getNewMessages(false, urlListener);
   await urlListener.promise;
   Assert.equal(folder.getTotalMessages(false), 8);
 });
@@ -258,7 +258,7 @@ add_task(async function test_escapedName() {
   // Can we access it?
   const folder = localserver.rootFolder.getChildNamed(evilName);
   const newMessageUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  folder.getNewMessages(null, newMessageUrlListener);
+  folder.getNewMessages(false, newMessageUrlListener);
   await newMessageUrlListener.promise;
 
   // If we get here, we didn't crash--newsgroups unescape properly.

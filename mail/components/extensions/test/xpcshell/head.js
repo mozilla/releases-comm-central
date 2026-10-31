@@ -103,7 +103,7 @@ async function createAccount(type = "none", options = {}) {
     );
     account.incomingServer.getNewMessages(
       account.incomingServer.rootFolder,
-      null,
+      false,
       null
     );
 

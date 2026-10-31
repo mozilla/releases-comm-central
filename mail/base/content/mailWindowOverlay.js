@@ -1057,7 +1057,7 @@ function MsgGetMessagesForAllServers(defaultServer) {
       // to download from.
       pop3Server.downloadMailFromServers(
         pop3DownloadServersArray[i],
-        msgWindow,
+        true,
         localFoldersToDownloadTo[i],
         null
       );
@@ -1444,7 +1444,7 @@ function GetFolderMessages(selectedFolders = GetSelectedMsgFolders()) {
       // If we're doing "get msgs" on a news server, get new messages for all
       // subscribed groups.
       for (const group of folders[i].server.rootFolder.subFolders) {
-        group.getNewMessages(msgWindow, null);
+        group.getNewMessages(true, null);
       }
     } else if (folders[i].isServer && serverType == "imap") {
       GetMessagesForInboxOnServer(folders[i].server);
@@ -1482,7 +1482,7 @@ function GetNewMsgs(server, folder) {
   // Whenever we do get new messages, clear the old new messages.
   folder.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NoMail;
   folder.clearNewMessages();
-  server.getNewMessages(folder, msgWindow, new TransportErrorUrlListener());
+  server.getNewMessages(folder, true, new TransportErrorUrlListener());
 }
 
 function SendUnsentMessages() {
@@ -1561,7 +1561,7 @@ function GetMessagesForAllAuthenticatedAccounts() {
       // any ol' pop3Server will do - the serversArray specifies which servers to download from
       pop3Server.downloadMailFromServers(
         pop3DownloadServersArray[i],
-        msgWindow,
+        true,
         localFoldersToDownloadTo[i],
         null
       );

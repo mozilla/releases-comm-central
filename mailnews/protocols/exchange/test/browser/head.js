@@ -23,7 +23,7 @@ var { MailServices } = ChromeUtils.importESModule(
  */
 async function syncFolder(incomingServer, folder) {
   const asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  incomingServer.getNewMessages(folder, null, asyncUrlListener);
+  incomingServer.getNewMessages(folder, false, asyncUrlListener);
   return asyncUrlListener.promise;
 }
 

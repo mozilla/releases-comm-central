@@ -502,7 +502,7 @@ async function runMarkAsReadTest(mockServer, incomingServer) {
   mockServer.addMessages(folderName, syntheticMessages);
 
   const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, null);
+  incomingServer.getNewMessages(rootFolder, false, null);
 
   const folder = await TestUtils.waitForCondition(
     () => rootFolder.getChildNamed(folderName),

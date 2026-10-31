@@ -276,11 +276,10 @@ nsMsgIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetNewMessages(nsIMsgFolder* aFolder,
-                                    nsIMsgWindow* aMsgWindow,
+nsMsgIncomingServer::GetNewMessages(nsIMsgFolder* aFolder, bool interactive,
                                     nsIUrlListener* aUrlListener) {
   NS_ENSURE_ARG_POINTER(aFolder);
-  return aFolder->GetNewMessages(aMsgWindow, aUrlListener);
+  return aFolder->GetNewMessages(interactive, aUrlListener);
 }
 
 NS_IMETHODIMP nsMsgIncomingServer::GetPerformingBiff(bool* aPerformingBiff) {

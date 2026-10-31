@@ -54,11 +54,7 @@ add_setup(async function () {
     }),
   ]);
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
-  pop3Account.incomingServer.getNewMessages(
-    pop3Inbox,
-    window.msgWindow,
-    urlListener
-  );
+  pop3Account.incomingServer.getNewMessages(pop3Inbox, true, urlListener);
   await urlListener.promise;
   await promiseServerIdle(pop3Account.incomingServer);
   Assert.ok(

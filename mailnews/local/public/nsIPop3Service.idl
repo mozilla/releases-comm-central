@@ -8,7 +8,6 @@
 #include "nsIMsgFolder.idl"
 
 interface nsIURI;
-interface nsIMsgWindow;
 interface nsIMsgFolder;
 
 [scriptable, uuid(7302fd8e-946f-4ae3-9468-0fb3a7706c51)]
@@ -63,10 +62,10 @@ interface nsIPop3Service : nsISupports {
    * mail on different pop3 accounts....
    */
 
-  void GetNewMail(in nsIMsgWindow aMsgWindow, in nsIUrlListener aUrlListener,
+  void GetNewMail(in boolean interactive, in nsIUrlListener aUrlListener,
                     in nsIMsgFolder aInbox, in nsIPop3IncomingServer popServer);
 
-  void CheckForNewMail(in nsIMsgWindow aMsgWindow, in nsIUrlListener aUrlListener,
+  void CheckForNewMail(in boolean interactive, in nsIUrlListener aUrlListener,
                          in nsIMsgFolder inbox, in nsIPop3IncomingServer popServer);
 
   /**
@@ -74,13 +73,13 @@ interface nsIPop3Service : nsISupports {
    *
    * @param  aServer - pop3 server we're logging on to.
    * @param  aUrlListener - gets called back with success or failure.
-   * @param aMsgWindow    - nsIMsgWindow to use for notification callbacks.
+   * @param interactive   - whether the user is waiting on the check.
    * @return - the url that we run.
    *
    */
   nsIURI verifyLogon(in nsIMsgIncomingServer aServer,
                      in nsIUrlListener aUrlListener,
-                     in nsIMsgWindow aMsgWindow);
+                     in boolean interactive);
 
   /**
    * Add a listener for pop3 events like message download. This is

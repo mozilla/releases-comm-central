@@ -37,7 +37,7 @@ add_task(async function testSTARTTLS() {
 
   // Now get the mail.
   MailServices.pop3.GetNewMail(
-    null,
+    false,
     urlListener,
     localAccountUtils.inboxFolder,
     incomingServer
@@ -75,7 +75,7 @@ async function testTopOrRetr(incomingServer, transaction) {
 
   // Now get the mail.
   MailServices.pop3.GetNewMail(
-    null,
+    false,
     urlListener,
     localAccountUtils.inboxFolder,
     incomingServer
@@ -217,7 +217,7 @@ add_task(async function testBareLFHeaderSeparator() {
   const incomingServer = createPop3ServerAndLocalFolders(server.port);
   const inbox = localAccountUtils.inboxFolder;
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
-  MailServices.pop3.GetNewMail(null, urlListener, inbox, incomingServer);
+  MailServices.pop3.GetNewMail(false, urlListener, inbox, incomingServer);
   await urlListener.promise;
 
   const msgHdr = [...inbox.messages].find(

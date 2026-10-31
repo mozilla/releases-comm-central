@@ -7,7 +7,6 @@
 interface nsIPop3Protocol;
 interface nsIMsgFolder;
 interface nsIUrlListener;
-interface nsIMsgWindow;
 
 [scriptable, uuid(8494584a-49b7-49df-9001-80ccdd0b50aa)]
 interface nsIPop3IncomingServer : nsISupports {
@@ -27,6 +26,6 @@ interface nsIPop3IncomingServer : nsISupports {
   // new mail with this server.
   attribute boolean deferGetNewMail;
   void downloadMailFromServers(
-    in Array<nsIPop3IncomingServer> aServers, in nsIMsgWindow aMsgWindow,
+    in Array<nsIPop3IncomingServer> aServers, in boolean interactive,
     in nsIMsgFolder aFolder, in nsIUrlListener aListener);
 };

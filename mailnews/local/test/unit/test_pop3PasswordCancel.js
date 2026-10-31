@@ -91,7 +91,7 @@ async function checkCancel(name, authMethod, authSchemes, greeting) {
   try {
     const urlListener = new PromiseTestUtils.PromiseUrlListener();
     MailServices.pop3.GetNewMail(
-      null,
+      false,
       urlListener,
       localAccountUtils.inboxFolder,
       incomingServer
@@ -173,7 +173,7 @@ add_task(async function testEmptyPasswordAskedOnce() {
   try {
     const urlListener = new PromiseTestUtils.PromiseUrlListener();
     MailServices.pop3.GetNewMail(
-      null,
+      false,
       urlListener,
       localAccountUtils.inboxFolder,
       incomingServer

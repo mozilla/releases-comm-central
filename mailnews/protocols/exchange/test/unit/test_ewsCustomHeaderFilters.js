@@ -85,7 +85,7 @@ add_task(async function testCustomHeaderFiltering() {
 
   // Fetch messages from server.
   const l = new PromiseTestUtils.PromiseUrlListener();
-  inbox.getNewMessages(null, l);
+  inbox.getNewMessages(false, l);
   await l.promise;
 
   // Wait for the local messages to be updated after the server acks.

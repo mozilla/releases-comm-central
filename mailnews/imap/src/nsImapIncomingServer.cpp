@@ -972,7 +972,7 @@ NS_IMETHODIMP nsImapIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
   nsresult rv = GetRootMsgFolder(getter_AddRefs(rootMsgFolder));
   if (NS_SUCCEEDED(rv)) {
     SetPerformingBiff(true);
-    rv = rootMsgFolder->GetNewMessages(aMsgWindow, nullptr);
+    rv = rootMsgFolder->GetNewMessages(!!aMsgWindow, nullptr);
   }
   return rv;
 }
@@ -2735,7 +2735,7 @@ nsImapIncomingServer::GetSearchScope(nsMsgSearchScopeValue* searchScope) {
 // mail.check_all_imap_folders_for_new. These prefs default to false.
 NS_IMETHODIMP
 nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
-                                                       nsIMsgWindow* aWindow,
+                                                       bool interactive,
                                                        bool forceAllFolders,
                                                        bool performingBiff) {
   NS_ENSURE_ARG_POINTER(aFolder);
@@ -2773,7 +2773,7 @@ nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
     } else {
       // This ONLY occurs when use_status_for_biff is false.
       // Do select URL for folder now.
-      imapFolder->UpdateFolderWithListener(!!aWindow, this);
+      imapFolder->UpdateFolderWithListener(interactive, this);
     }
   }
 
@@ -2782,7 +2782,7 @@ nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
   rv = aFolder->GetSubFolders(subFolders);
   NS_ENSURE_SUCCESS(rv, rv);
   for (nsIMsgFolder* msgFolder : subFolders) {
-    GetNewMessagesForNonInboxFolders(msgFolder, aWindow, forceAllFolders,
+    GetNewMessagesForNonInboxFolders(msgFolder, interactive, forceAllFolders,
                                      performingBiff);
   }
   if (isRootFolder && m_foldersToStat.Count() > 0) {

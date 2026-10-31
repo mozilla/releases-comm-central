@@ -173,7 +173,7 @@ function testManyConnections() {
     },
   };
   for (const group of _server.rootFolder.subFolders) {
-    group.getNewMessages(null, listener);
+    group.getNewMessages(false, listener);
     listener.ran++;
   }
   server.performTest();

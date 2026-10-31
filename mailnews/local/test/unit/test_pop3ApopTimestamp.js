@@ -59,7 +59,7 @@ async function checkAuthCommand(greeting, expectedAuth) {
 
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.pop3.GetNewMail(
-    null,
+    false,
     urlListener,
     localAccountUtils.inboxFolder,
     gIncomingServer

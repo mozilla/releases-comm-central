@@ -262,7 +262,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
 
     try {
       for (const folder of this.rootFolder.subFolders) {
-        folder.getNewMessages(msgWindow, null);
+        folder.getNewMessages(!!msgWindow, null);
       }
     } catch (error) {
       if (error.result == Cr.NS_MSG_ERROR_OFFLINE) {

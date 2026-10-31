@@ -60,7 +60,7 @@ add_setup(function () {
 add_task(async function testInvalidChallenge() {
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.pop3.GetNewMail(
-    null,
+    false,
     urlListener,
     localAccountUtils.inboxFolder,
     gIncomingServer

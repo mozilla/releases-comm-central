@@ -128,7 +128,7 @@ add_task(async function test_remote_content_blocked() {
 
   // Sync the new folder and its message locally.
   const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, null);
+  incomingServer.getNewMessages(rootFolder, false, null);
 
   const folder = await TestUtils.waitForCondition(
     () => rootFolder.getChildNamed(folderName),

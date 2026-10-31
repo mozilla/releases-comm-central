@@ -103,7 +103,7 @@ async function checkFailedMove(loggingEnabled, failure) {
       },
     ]);
     const listener = new PromiseTestUtils.PromiseUrlListener();
-    MailServices.pop3.GetNewMail(null, listener, inbox, incomingServer);
+    MailServices.pop3.GetNewMail(false, listener, inbox, incomingServer);
     await listener.promise;
 
     Assert.equal(

@@ -314,7 +314,7 @@ void nsMsgLocalMailFolder::FinishUpAfterParseFolder(nsresult status) {
       bool valid = false;
       mDatabase->GetSummaryValid(&valid);
       if (valid) {
-        GetNewMessages(msgWindow, nullptr);
+        GetNewMessages(!!msgWindow, nullptr);
       }
     }
   }
@@ -1806,7 +1806,7 @@ nsMsgLocalMailFolder::CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
   return rv;
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::GetNewMessages(nsIMsgWindow* aWindow,
+NS_IMETHODIMP nsMsgLocalMailFolder::GetNewMessages(bool interactive,
                                                    nsIUrlListener* aListener) {
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsresult rv = GetServer(getter_AddRefs(server));
@@ -1822,7 +1822,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetNewMessages(nsIMsgWindow* aWindow,
   (void)rssServer;
   if (NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsIURI> resultURI;
-    return localMailServer->GetNewMail(aWindow, aListener, this,
+    return localMailServer->GetNewMail(interactive, aListener, this,
                                        getter_AddRefs(resultURI));
   }
 
@@ -1847,7 +1847,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetNewMessages(nsIMsgWindow* aWindow,
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIURI> resultURI;
       db->GetSummaryValid(&valid);
-      rv = valid ? localMailServer->GetNewMail(aWindow, aListener, inbox,
+      rv = valid ? localMailServer->GetNewMail(interactive, aListener, inbox,
                                                getter_AddRefs(resultURI))
                  : localInbox->SetCheckForNewMessagesAfterParsing(true);
     }
@@ -2795,7 +2795,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DownloadMessagesForOffline(
       do_QueryInterface(server, &rv);
   NS_ENSURE_SUCCESS(rv, NS_MSG_INVALID_OR_MISSING_SERVER);
   nsCOMPtr<nsIURI> resultURI;
-  return localMailServer->GetNewMail(aWindow, this, this,
+  return localMailServer->GetNewMail(!!aWindow, this, this,
                                      getter_AddRefs(resultURI));
 }
 

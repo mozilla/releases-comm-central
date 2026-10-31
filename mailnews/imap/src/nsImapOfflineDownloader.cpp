@@ -73,7 +73,7 @@ nsresult nsImapOfflineDownloader::ProcessNextOperation() {
             // doesn't want to download pop3 mail for offline use.
             if (!imapInbox) {
             }
-            rv = inbox->GetNewMessages(m_window, this);
+            rv = inbox->GetNewMessages(!!m_window, this);
             if (NS_SUCCEEDED(rv)) return rv;  // otherwise, fall through.
           }
         }

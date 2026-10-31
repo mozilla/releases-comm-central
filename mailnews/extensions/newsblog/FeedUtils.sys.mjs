@@ -211,11 +211,10 @@ export var FeedUtils = {
    * @param {nsIMsgFolder} aFolder - The folder.
    * @param {nsIUrlListener} aUrlListener - Feed url.
    * @param {boolean} aIsBiff - true if biff, false if manual get.
-   * @param {nsIDOMWindow} aMsgWindow - The window.
    *
    * @returns {Promise<void>} When all feeds downloading have been set off.
    */
-  async downloadFeed(aFolder, aUrlListener, aIsBiff, aMsgWindow) {
+  async downloadFeed(aFolder, aUrlListener, aIsBiff) {
     FeedUtils.log.debug(
       "downloadFeed: account isBiff:isOffline - " +
         aIsBiff +
@@ -339,7 +338,7 @@ export var FeedUtils = {
 
           // init can be called multiple times. Checks if it should actually
           // init itself.
-          FeedUtils.progressNotifier.init(aMsgWindow, false);
+          FeedUtils.progressNotifier.init(false);
 
           // Bump our pending feed download count. From now on, all feeds will
           // be resolved and finish with progressNotifier.downloaded(). Any
@@ -482,8 +481,7 @@ export var FeedUtils = {
     feed.quickMode = feed.server.getBoolValue("quickMode");
     feed.options = FeedUtils.getOptionsAcct(feed.server);
 
-    const msgWindow = Services.wm.getMostRecentWindow("mail:3pane").msgWindow;
-    FeedUtils.progressNotifier.init(msgWindow, true);
+    FeedUtils.progressNotifier.init(true);
     FeedUtils.progressNotifier.mNumPendingFeedDownloads++;
     feed.download(true, FeedUtils.progressNotifier);
   },
@@ -1846,13 +1844,11 @@ export var FeedUtils = {
   },
 
   /**
-   * Progress glue code.  Acts as a go between the RSS back end and the mail
-   * window front end determined by the aMsgWindow parameter passed into
-   * nsINewsBlogFeedDownloader.
+   * Progress glue code. Acts as a go between the RSS back end and the mail
+   * window front end, reporting status through nsIFeedbackService.
    */
   progressNotifier: {
     mSubscribeMode: false,
-    mMsgWindow: null,
     mFeeds: {},
     // Keeps track of the total number of feeds we have been asked to download.
     // This number may not reflect the # of entries in our mFeeds array because
@@ -1860,15 +1856,13 @@ export var FeedUtils = {
     mNumPendingFeedDownloads: 0,
 
     /**
-     * @param {?nsIMsgWindow} aMsgWindow - Associated aMsgWindow if any.
      * @param {boolean} aSubscribeMode - Whether we're in subscribe mode.
      * @returns {void}
      */
-    init(aMsgWindow, aSubscribeMode) {
+    init(aSubscribeMode) {
       if (this.mNumPendingFeedDownloads == 0) {
         // If we aren't already in the middle of downloading feed items.
         this.mSubscribeMode = aSubscribeMode;
-        this.mMsgWindow = aMsgWindow;
 
         MailServices.feedback.reportStatus(
           FeedUtils.strings.GetStringFromName(

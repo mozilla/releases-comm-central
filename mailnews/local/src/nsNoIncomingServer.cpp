@@ -160,8 +160,7 @@ NS_IMETHODIMP nsNoIncomingServer::CreateDefaultMailboxes() {
 }
 
 NS_IMETHODIMP
-nsNoIncomingServer::GetNewMail(nsIMsgWindow* aMsgWindow,
-                               nsIUrlListener* aUrlListener,
+nsNoIncomingServer::GetNewMail(bool interactive, nsIUrlListener* aUrlListener,
                                nsIMsgFolder* aInbox, nsIURI** aResult) {
   if (aResult) {
     *aResult = nullptr;
@@ -171,7 +170,7 @@ nsNoIncomingServer::GetNewMail(nsIMsgWindow* aMsgWindow,
   NS_ENSURE_SUCCESS(rv, rv);
   if (!deferredServers.IsEmpty()) {
     rv = deferredServers[0]->DownloadMailFromServers(
-        deferredServers, aMsgWindow, aInbox, aUrlListener);
+        deferredServers, interactive, aInbox, aUrlListener);
   }
   // listener might be counting on us to send a notification.
   else if (aUrlListener)

@@ -2159,7 +2159,7 @@ class AccountHubEmail extends HTMLElement {
         await lazy.CreateInBackend.createAccountInBackend(completeConfig);
       emailAccount.incomingServer.getNewMessages(
         emailAccount.incomingServer.rootFolder,
-        window.msgWindow,
+        true,
         null
       );
 

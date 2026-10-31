@@ -287,7 +287,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
                              const nsACString& aNewMsgKeywords,
                              bool interactive,
                              nsIMsgCopyServiceListener* listener) override;
-  NS_IMETHOD GetNewMessages(nsIMsgWindow* aWindow,
+  NS_IMETHOD GetNewMessages(bool interactive,
                             nsIUrlListener* aListener) override;
 
   NS_IMETHOD Shutdown(bool shutdownChildren) override;

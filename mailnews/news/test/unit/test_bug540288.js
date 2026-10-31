@@ -77,7 +77,7 @@ function run_test() {
             "test.subscribe.simple"
           );
           folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
-          folder.getNewMessages(null, {
+          folder.getNewMessages(false, {
             OnStopRunningUrl() {
               localserver.closeCachedConnections();
             },
@@ -95,14 +95,7 @@ function run_test() {
 
           Cc["@mozilla.org/messenger/messageservice;1?type=news"]
             .getService(Ci.nsIMsgMessageService)
-            .streamMessage(
-              messageUri,
-              streamListener,
-              null,
-              false,
-              "",
-              false
-            );
+            .streamMessage(messageUri, streamListener, null, false, "", false);
 
           // Get the server to run
           server.performTest();

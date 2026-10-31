@@ -47,7 +47,7 @@ class ExchangeIncomingServer : public nsMsgIncomingServer,
   NS_IMETHOD GetCanBeDefaultServer(bool* canBeDefaultServer) override;
   NS_IMETHOD GetOfflineSupportLevel(int32_t* aSupportLevel) override;
 
-  NS_IMETHOD GetNewMessages(nsIMsgFolder* aFolder, nsIMsgWindow* aMsgWindow,
+  NS_IMETHOD GetNewMessages(nsIMsgFolder* aFolder, bool interactive,
                             nsIUrlListener* aUrlListener) override;
   NS_IMETHOD PerformBiff(nsIMsgWindow* aMsgWindow) override;
   NS_IMETHOD PerformExpand(nsIMsgWindow* aMsgWindow) override;
@@ -73,12 +73,11 @@ class ExchangeIncomingServer : public nsMsgIncomingServer,
    * Synchronize the message list for the given list of folders.
    */
   nsresult SyncFolders(const nsTArray<RefPtr<nsIMsgFolder>>& folders,
-                       nsIMsgWindow* aMsgWindow, nsIUrlListener* urlListener);
+                       bool interactive, nsIUrlListener* urlListener);
   /**
    * Synchronize the message list for every folder in the account.
    */
-  nsresult SyncAllFolders(nsIMsgWindow* aMsgWindow,
-                          nsIUrlListener* urlListener);
+  nsresult SyncAllFolders(bool interactive, nsIUrlListener* urlListener);
 
   /**
    * Set the trash folder flag to the folder which path is stored in the

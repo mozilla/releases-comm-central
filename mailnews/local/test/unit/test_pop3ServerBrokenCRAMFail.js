@@ -104,7 +104,7 @@ function run_test() {
     msgServer.authMethod = Ci.nsMsgAuthMethod.anything;
 
     MailServices.pop3.GetNewMail(
-      null,
+      false,
       urlListener,
       localAccountUtils.inboxFolder,
       incomingServer

@@ -25,7 +25,7 @@ add_task(async function testViewSortBySize() {
     incomingServer.headersOnly = headersOnly;
     const urlListener = new PromiseTestUtils.PromiseUrlListener();
     MailServices.pop3.GetNewMail(
-      null,
+      false,
       urlListener,
       localAccountUtils.inboxFolder,
       incomingServer

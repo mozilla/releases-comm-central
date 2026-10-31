@@ -55,7 +55,7 @@ add_task(function test_checkForNewMessages() {
   addMessageToFolder(gTargetFolder);
   // This will update the INBOX and STATUS targetFolder. We only care about
   // the latter.
-  IMAPPump.inbox.getNewMessages(null, null);
+  IMAPPump.inbox.getNewMessages(false, null);
   IMAPPump.server.performTest("STATUS");
   // Now we'd like to make autosync update folders it knows about, to
   // get the initial autosync out of the way.

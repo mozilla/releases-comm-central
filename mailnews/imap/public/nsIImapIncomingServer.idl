@@ -99,7 +99,7 @@ interface nsIImapIncomingServer : nsISupports {
   void reDiscoverAllFolders();
   nsIURI subscribeToFolder(in AUTF8String name, in boolean subscribe);
   void GetNewMessagesForNonInboxFolders(in nsIMsgFolder aRootFolder,
-                                        in nsIMsgWindow aWindow,
+                                        in boolean interactive,
                                         in boolean forceAllFolders,
                                         in boolean performingBiff);
   unsigned long long getCapability();

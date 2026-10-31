@@ -119,7 +119,7 @@ add_task(async function test_openpgp_signed() {
 
   // Sync the new folder and its message locally.
   const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, null);
+  incomingServer.getNewMessages(rootFolder, false, null);
 
   const folder = await TestUtils.waitForCondition(
     () => rootFolder.getChildNamed(folderName),

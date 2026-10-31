@@ -129,7 +129,7 @@ async function addMessages(folder, count) {
   if (folder.server.type == "ews") {
     ewsSrcServer.addMessages(folder.getStringProperty("ewsId"), messages);
     const listener = new PromiseTestUtils.PromiseUrlListener();
-    folder.server.getNewMessages(folder, null, listener);
+    folder.server.getNewMessages(folder, false, listener);
     await listener.promise;
   }
 }

@@ -27,7 +27,7 @@ add_task(async function findMessages() {
   const folder = localserver.rootFolder.getChildNamed("test.filter");
   equal(folder.getTotalMessages(false), 0);
   const asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  folder.getNewMessages(null, asyncUrlListener);
+  folder.getNewMessages(false, asyncUrlListener);
   await asyncUrlListener.promise;
   equal(folder.getTotalMessages(false), 8);
 });

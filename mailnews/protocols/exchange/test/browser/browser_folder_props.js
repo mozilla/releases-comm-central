@@ -35,7 +35,7 @@ add_task(async function test_folder_props() {
   // Sync the folder.
   const rootFolder = incomingServer.rootFolder;
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  incomingServer.getNewMessages(rootFolder, null, listener);
+  incomingServer.getNewMessages(rootFolder, false, listener);
   await listener.promise;
 
   // Open the folder properties dialog.

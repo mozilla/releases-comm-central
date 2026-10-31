@@ -499,7 +499,7 @@ nsresult ExchangeIncomingServer::SyncFolderList(
 }
 
 nsresult ExchangeIncomingServer::SyncFolders(
-    const nsTArray<RefPtr<nsIMsgFolder>>& folders, nsIMsgWindow* aMsgWindow,
+    const nsTArray<RefPtr<nsIMsgFolder>>& folders, bool interactive,
     nsIUrlListener* urlListener) {
   // TODO: For now, we sync every folder at once, but obviously that's not an
   // amazing solution. In the future, we should probably try to maintain some
@@ -507,7 +507,7 @@ nsresult ExchangeIncomingServer::SyncFolders(
   // though, the Exchange client should handle any kind of rate limiting well
   // enough, so this improvement can come later.
   for (const auto& folder : folders) {
-    nsresult rv = folder->GetNewMessages(aMsgWindow, urlListener);
+    nsresult rv = folder->GetNewMessages(interactive, urlListener);
     if (NS_FAILED(rv)) {
       // If we encounter an error, just log it rather than fail the whole sync.
       nsCString name;
@@ -521,7 +521,7 @@ nsresult ExchangeIncomingServer::SyncFolders(
   return NS_OK;
 }
 
-nsresult ExchangeIncomingServer::SyncAllFolders(nsIMsgWindow* aMsgWindow,
+nsresult ExchangeIncomingServer::SyncAllFolders(bool interactive,
                                                 nsIUrlListener* urlListener) {
   nsCOMPtr<nsIMsgFolder> rootFolder;
   MOZ_TRY(GetRootFolder(getter_AddRefs(rootFolder)));
@@ -529,7 +529,7 @@ nsresult ExchangeIncomingServer::SyncAllFolders(nsIMsgWindow* aMsgWindow,
   nsTArray<RefPtr<nsIMsgFolder>> msgFolders;
   MOZ_TRY(rootFolder->GetDescendants(msgFolders));
 
-  return SyncFolders(msgFolders, aMsgWindow, urlListener);
+  return SyncFolders(msgFolders, interactive, urlListener);
 }
 
 NS_IMETHODIMP ExchangeIncomingServer::GetPassword(nsAString& password) {
@@ -584,55 +584,54 @@ NS_IMETHODIMP ExchangeIncomingServer::GetOfflineSupportLevel(
 }
 
 NS_IMETHODIMP ExchangeIncomingServer::GetNewMessages(
-    nsIMsgFolder* aFolder, nsIMsgWindow* aMsgWindow,
-    nsIUrlListener* aUrlListener) {
+    nsIMsgFolder* aFolder, bool interactive, nsIUrlListener* aUrlListener) {
   // Explicitly make the parameters to the lambda `nsCOMPtr`s, otherwise the
   // clang plugin will think we're trying to bypass the ref counting.
   nsCOMPtr<nsIMsgFolder> folder = aFolder;
-  nsCOMPtr<nsIMsgWindow> window = aMsgWindow;
   nsCOMPtr<nsIUrlListener> urlListener = aUrlListener;
 
   // Sync the folder list for the account, then sync the message list for the
   // specific folder.
-  return SyncFolderList([self = RefPtr(this), folder, window, urlListener]() {
-    // Check if we're getting messages for the whole
-    // folder here. If so, the intent is likely that the
-    // user wants to synchronize all the folders on the
-    // account.
-    bool isServer;
-    nsresult rv = folder->GetIsServer(&isServer);
-    NS_ENSURE_SUCCESS(rv, rv);
+  return SyncFolderList(
+      [self = RefPtr(this), folder, interactive, urlListener]() {
+        // Check if we're getting messages for the whole
+        // folder here. If so, the intent is likely that the
+        // user wants to synchronize all the folders on the
+        // account.
+        bool isServer;
+        nsresult rv = folder->GetIsServer(&isServer);
+        NS_ENSURE_SUCCESS(rv, rv);
 
-    if (isServer) {
-      return self->SyncAllFolders(window, urlListener);
-    }
+        if (isServer) {
+          return self->SyncAllFolders(interactive, urlListener);
+        }
 
-    // Synchronizing the folder list may have invalidated the folder that
-    // sync was selected for by moving the folder to a new location. If that
-    // is the case, then the Exchange ID will be invalidated and we can no
-    // longer sync that folder.
-    nsAutoCString originalExchangeId;
-    rv = folder->GetStringProperty(kExchangeIdProperty, originalExchangeId);
-    if (NS_FAILED(rv)) {
-      // Assume the original folder moved and return success.
-      return NS_OK;
-    }
+        // Synchronizing the folder list may have invalidated the folder that
+        // sync was selected for by moving the folder to a new location. If that
+        // is the case, then the Exchange ID will be invalidated and we can no
+        // longer sync that folder.
+        nsAutoCString originalExchangeId;
+        rv = folder->GetStringProperty(kExchangeIdProperty, originalExchangeId);
+        if (NS_FAILED(rv)) {
+          // Assume the original folder moved and return success.
+          return NS_OK;
+        }
 
-    // If this is not the root folder, synchronize its
-    // message list normally.
-    return folder->GetNewMessages(window, urlListener);
-  });
+        // If this is not the root folder, synchronize its
+        // message list normally.
+        return folder->GetNewMessages(interactive, urlListener);
+      });
 }
 
 NS_IMETHODIMP ExchangeIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
-  nsCOMPtr<nsIMsgWindow> window = aMsgWindow;
+  const bool interactive = !!aMsgWindow;
 
   nsresult rv = SetPerformingBiff(true);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Sync the folder list for the account. Then sync the message list of each
   // folder in the tree.
-  return SyncFolderList([self = RefPtr(this), window]() {
+  return SyncFolderList([self = RefPtr(this), interactive]() {
     nsCOMPtr<nsIMsgFolder> rootFolder;
     nsresult rv = self->GetRootFolder(getter_AddRefs(rootFolder));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -649,7 +648,7 @@ NS_IMETHODIMP ExchangeIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
     MOZ_LOG_FMT(gExchangeLog, mozilla::LogLevel::Debug,
                 "Biff syncing {} folders", msgFolders.Length());
 
-    return self->SyncFolders(msgFolders, window, listener);
+    return self->SyncFolders(msgFolders, interactive, listener);
   });
 }
 

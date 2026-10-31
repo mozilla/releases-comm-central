@@ -2267,7 +2267,7 @@ bool nsImapMailFolder::ShouldCheckAllFolders(
 }
 
 // Called by Biff, or when user presses GetMsg button.
-NS_IMETHODIMP nsImapMailFolder::GetNewMessages(nsIMsgWindow* aWindow,
+NS_IMETHODIMP nsImapMailFolder::GetNewMessages(bool interactive,
                                                nsIUrlListener* aListener) {
   nsCOMPtr<nsIMsgFolder> rootFolder;
   nsresult rv = GetRootFolder(getter_AddRefs(rootFolder));
@@ -2295,12 +2295,12 @@ NS_IMETHODIMP nsImapMailFolder::GetNewMessages(nsIMsgWindow* aWindow,
       NS_ENSURE_SUCCESS(rv, rv);
       imapFolder->SetPerformingBiff(performingBiff);
       inbox->SetGettingNewMessages(true);
-      rv = inbox->UpdateFolder(!!aWindow);
+      rv = inbox->UpdateFolder(interactive);
     }
     // Get new messages for other folders if marked, or all of them if the pref
     // is set
     rv = imapServer->GetNewMessagesForNonInboxFolders(
-        rootFolder, aWindow, checkAllFolders, performingBiff);
+        rootFolder, interactive, checkAllFolders, performingBiff);
   }
   return rv;
 }

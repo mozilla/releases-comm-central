@@ -87,7 +87,7 @@ add_setup(async function () {
   ewsServer.addMessages(folderName, [msg]);
 
   const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, null);
+  incomingServer.getNewMessages(rootFolder, false, null);
 
   testFolder = await TestUtils.waitForCondition(
     () => rootFolder.getChildNamed(folderName),

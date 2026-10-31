@@ -55,7 +55,7 @@ add_task(async function downloadEmail() {
 
   // Now get the mail
   const asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  inboxFolder.getNewMessages(null, asyncUrlListener);
+  inboxFolder.getNewMessages(false, asyncUrlListener);
   await asyncUrlListener.promise;
 
   // We downloaded a message, so it works!

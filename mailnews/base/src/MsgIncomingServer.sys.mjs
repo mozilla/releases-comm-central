@@ -1022,8 +1022,8 @@ export class MsgIncomingServer {
     this.protocolInfo.setDefaultLocalPath(value);
   }
 
-  getNewMessages(folder, msgWindow, urlListener) {
-    folder.getNewMessages(msgWindow, urlListener);
+  getNewMessages(folder, interactive, urlListener) {
+    folder.getNewMessages(interactive, urlListener);
   }
 
   writeToFolderCache(folderCache) {

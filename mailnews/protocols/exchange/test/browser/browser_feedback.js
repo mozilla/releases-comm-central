@@ -108,7 +108,7 @@ add_task(async function test_sync_account() {
   // trigger any update to the status bar).
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, urlListener);
+  incomingServer.getNewMessages(rootFolder, false, urlListener);
   await urlListener.promise;
 
   // Build the string we expect to see in the status bar.
@@ -129,7 +129,7 @@ add_task(async function test_sync_account() {
 
   // Sync the account, this time with the message window so the status bar gets
   // updated.
-  incomingServer.getNewMessages(rootFolder, window.msgWindow, null);
+  incomingServer.getNewMessages(rootFolder, true, null);
 
   // Check we first get a status message for the whole account, then that we get
   // one for the individual folder, before clearing the status bar.
@@ -166,7 +166,7 @@ add_task(async function test_sync_folder() {
   // Sync the new folder locally.
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, urlListener);
+  incomingServer.getNewMessages(rootFolder, false, urlListener);
   await urlListener.promise;
 
   // Build the string we expect to see in the status bar.
@@ -177,7 +177,7 @@ add_task(async function test_sync_folder() {
 
   // Sync the folder, with the message window so the status bar gets updated.
   const folder = rootFolder.getChildNamed(folderName);
-  folder.getNewMessages(window.msgWindow, null);
+  folder.getNewMessages(true, null);
 
   // Check that we get a status message for the individual folder only, and that
   // it eventually clears up.
@@ -213,7 +213,7 @@ add_task(async function test_delete_message() {
   // Sync the new folder locally.
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, urlListener);
+  incomingServer.getNewMessages(rootFolder, false, urlListener);
   await urlListener.promise;
 
   // Wait for the folder's messages to get sync'd.

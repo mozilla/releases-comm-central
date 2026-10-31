@@ -505,7 +505,7 @@ async function subsubtest(
     );
   } else {
     // Force update of inbox.
-    folder.getNewMessages(null, null);
+    folder.getNewMessages(false, null);
     await TestUtils.waitForCondition(
       () => folder.getNumUnread(false) - folder.numPendingUnread == 10,
       `waiting for new ${server.type} messages to be received`

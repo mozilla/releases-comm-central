@@ -375,7 +375,7 @@ NS_IMETHODIMP ExchangeFolder::GetIncomingServerType(nsACString& aServerType) {
   return NS_OK;
 }
 
-NS_IMETHODIMP ExchangeFolder::GetNewMessages(nsIMsgWindow* aWindow,
+NS_IMETHODIMP ExchangeFolder::GetNewMessages(bool interactive,
                                              nsIUrlListener* aListener) {
   // Sync the message list. We don't need to sync the folder tree, because the
   // only likely consumer of this method is `ExchangeIncomingServer`, which does

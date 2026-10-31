@@ -39,7 +39,7 @@ add_setup(async function () {
 
   const generator = new MessageGenerator();
   await ewsServer.addMessages("inbox", generator.makeMessages({}));
-  ewsAccount.incomingServer.getNewMessages(ewsRootFolder, null, null);
+  ewsAccount.incomingServer.getNewMessages(ewsRootFolder, false, null);
   await TestUtils.waitForCondition(
     () => ewsTestFolder.getTotalMessages(false) == 10
   );

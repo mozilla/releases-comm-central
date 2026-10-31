@@ -164,12 +164,12 @@ export class Pop3Client {
    * Check and fetch new mails.
    *
    * @param {boolean} downloadMail - Whether to download mails using TOP/RETR.
-   * @param {nsIMsgWindow} msgWindow - The associated msg window.
+   * @param {boolean} interactive - Whether the user is waiting on the mail.
    * @param {nsIMsgFolder} folder - The folder to save the messages to.
    */
-  async getMail(downloadMail, msgWindow, folder) {
+  async getMail(downloadMail, interactive, folder) {
     this._downloadMail = downloadMail;
-    this._msgWindow = msgWindow;
+    this._interactive = interactive;
     this._sink.folder = folder;
     this._actionAfterAuth = this._actionStat;
     this.urlListener?.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
@@ -181,10 +181,10 @@ export class Pop3Client {
   /**
    * Verify that we can logon to the server. Exit after auth success/failure.
    *
-   * @param {nsIMsgWindow} msgWindow - The associated msg window.
+   * @param {boolean} interactive - Whether the user is waiting.
    */
-  verifyLogon(msgWindow) {
-    this._msgWindow = msgWindow;
+  verifyLogon(interactive) {
+    this._interactive = interactive;
     this._verifyLogon = true;
     this._actionAfterAuth = this._actionDone;
     this._actionCapa();
@@ -414,24 +414,13 @@ export class Pop3Client {
         [this._server.hostname]
       );
 
-      // If there's a message window on the URI, then we should alert the user.
-      // Otherwise (i.e. if the getter for `msgWindow` raised
-      // `NS_ERROR_NULL_POINTER`), this is a background operation and we should
-      // tell the mail session to only call the listeners but not alert.
-      let silent = true;
-      try {
-        this.runningUri.msgWindow;
-        silent = false;
-      } catch (ex) {
-        if (
-          !(ex instanceof Ci.nsIException) ||
-          ex.result != Cr.NS_ERROR_NULL_POINTER
-        ) {
-          throw ex;
-        }
-      }
-
-      MailServices.mailSession.alertUser(errorMessage, this.runningUri, silent);
+      // A background operation has nobody to alert, so tell the mail session
+      // to only call the listeners.
+      MailServices.mailSession.alertUser(
+        errorMessage,
+        this.runningUri,
+        !this.runningUri.interactive
+      );
     }
 
     // `_onClose` should not run before `_onError` finishes, so it will wait
@@ -944,24 +933,13 @@ export class Pop3Client {
         [this._server.hostname]
       );
 
-      // If there's a message window on the URI, then we should alert the user.
-      // Otherwise (i.e. if the getter for `msgWindow` raised
-      // `NS_ERROR_NULL_POINTER`), this is a background operation and we should
-      // tell the mail session to only call the listeners but not alert.
-      let silent = true;
-      try {
-        this.runningUri.msgWindow;
-        silent = false;
-      } catch (ex) {
-        if (
-          !(ex instanceof Ci.nsIException) ||
-          ex.result != Cr.NS_ERROR_NULL_POINTER
-        ) {
-          throw ex;
-        }
-      }
-
-      MailServices.mailSession.alertUser(errorMessage, this.runningUri, silent);
+      // A background operation has nobody to alert, so tell the mail session
+      // to only call the listeners.
+      MailServices.mailSession.alertUser(
+        errorMessage,
+        this.runningUri,
+        !this.runningUri.interactive
+      );
       this._actionDone(Cr.NS_ERROR_FAILURE);
     }
   };
@@ -1229,7 +1207,7 @@ export class Pop3Client {
       try {
         this._sink.beginMailDelivery(
           this._singleUidlToDownload,
-          !!this._msgWindow
+          this._interactive
         );
         this._folderLocked = true;
         this._logger.debug(
@@ -1570,7 +1548,7 @@ export class Pop3Client {
       () => {
         try {
           this._sink.incorporateComplete(
-            !!this._msgWindow,
+            this._interactive,
             // Set size because it's a partial message.
             this._messageSizeMap.get(this._currentMessage.messageNumber)
           );
@@ -1653,7 +1631,7 @@ export class Pop3Client {
         this._totalReceivedSize -= ".\r\n".length;
         try {
           this._sink.incorporateComplete(
-            !!this._msgWindow,
+            this._interactive,
             0 // Set size only when it's a partial message.
           );
         } catch (e) {
@@ -1728,15 +1706,7 @@ export class Pop3Client {
 
     this._actionDone(Cr.NS_ERROR_FAILURE);
 
-    let msgWindow = this._msgWindow;
-    if (!msgWindow) {
-      // If there's a message window on the URI, use that.
-      // (The getter for `msgWindow` may throw).
-      try {
-        msgWindow = this.runningUri?.msgWindow;
-      } catch {}
-    }
-    if (!msgWindow) {
+    if (!this._interactive) {
       return;
     }
 
@@ -1758,7 +1728,11 @@ export class Pop3Client {
       "pop3ErrorDialogTitle",
       [this._server.prettyName]
     );
-    Services.prompt.alert(msgWindow.domWindow, errorTitle, errorMsg);
+    Services.prompt.alert(
+      Services.wm.getMostRecentWindow("mail:3pane"),
+      errorTitle,
+      errorMsg
+    );
   }
 
   /**

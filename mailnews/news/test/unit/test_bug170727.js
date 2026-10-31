@@ -31,7 +31,7 @@ add_task(async function testloadMessage() {
 
   const folder = localserver.rootFolder.getChildNamed("dot.test");
   folder.setFlag(Ci.nsMsgFolderFlags.Offline);
-  folder.getNewMessages(null, {
+  folder.getNewMessages(false, {
     OnStopRunningUrl() {
       localserver.closeCachedConnections();
     },

@@ -38,7 +38,7 @@ add_task(async function test_repair_folder() {
 
   const rootFolder = incomingServer.rootFolder;
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  incomingServer.getNewMessages(rootFolder, null, listener);
+  incomingServer.getNewMessages(rootFolder, false, listener);
   await listener.promise;
 
   const folder = rootFolder.getChildNamed(folderName);

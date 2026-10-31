@@ -36,7 +36,7 @@ async function getNewMail(incomingServer) {
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   // Now get the mail.
   MailServices.pop3.GetNewMail(
-    null,
+    false,
     urlListener,
     localAccountUtils.inboxFolder,
     incomingServer

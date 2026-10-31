@@ -645,7 +645,7 @@ interface nsIMsgFolder : nsISupports {
    */
   readonly attribute boolean locked;
 
-  void getNewMessages(in nsIMsgWindow aWindow, in nsIUrlListener aListener);
+  void getNewMessages(in boolean interactive, in nsIUrlListener aListener);
 
   /**
    * Write out summary data for this folder to the given folder cache.

@@ -26,7 +26,7 @@ add_setup(function () {
   gFolder1 = rootFolder.getChildNamed("folder 1");
   gFolder2 = rootFolder.getChildNamed("folder 2");
 
-  IMAPPump.inbox.getNewMessages(null, null);
+  IMAPPump.inbox.getNewMessages(false, null);
   IMAPPump.server.performTest("STATUS");
   Assert.ok(IMAPPump.server.isTestFinished());
   // don't know if this will work, but we'll try. Wait for

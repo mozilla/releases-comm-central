@@ -114,11 +114,11 @@ NS_IMETHODIMP nsRssIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
   nsCOMPtr<nsINewsBlogFeedDownloader> rssDownloader =
       do_GetService("@mozilla.org/newsblog-feed-downloader;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  rssDownloader->DownloadFeed(rootRSSFolder, urlListener, isBiff, aMsgWindow);
+  rssDownloader->DownloadFeed(rootRSSFolder, urlListener, isBiff);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRssIncomingServer::GetNewMail(nsIMsgWindow* aMsgWindow,
+NS_IMETHODIMP nsRssIncomingServer::GetNewMail(bool interactive,
                                               nsIUrlListener* aUrlListener,
                                               nsIMsgFolder* aFolder,
                                               nsIURI** _retval) {
@@ -132,7 +132,7 @@ NS_IMETHODIMP nsRssIncomingServer::GetNewMail(nsIMsgWindow* aMsgWindow,
   nsCOMPtr<nsINewsBlogFeedDownloader> rssDownloader =
       do_GetService("@mozilla.org/newsblog-feed-downloader;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  rssDownloader->DownloadFeed(aFolder, aUrlListener, isBiff, aMsgWindow);
+  rssDownloader->DownloadFeed(aFolder, aUrlListener, isBiff);
   return NS_OK;
 }
 

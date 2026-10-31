@@ -102,7 +102,7 @@ function testNext() {
 
     // Now get the mail
     MailServices.pop3.GetNewMail(
-      null,
+      false,
       urlListener,
       localAccountUtils.inboxFolder,
       incomingServer

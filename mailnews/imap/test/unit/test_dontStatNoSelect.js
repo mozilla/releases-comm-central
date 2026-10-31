@@ -76,7 +76,7 @@ add_task(function checkStatSelect() {
   // imap fake server's resetTest resets the authentication state - charming.
   // So poke the _test member directly.
   gServer._test = true;
-  gIMAPInbox.getNewMessages(null, null);
+  gIMAPInbox.getNewMessages(false, null);
   gServer.performTest("STATUS");
   // We want to wait for the STATUS to be really done before we issue
   // more STATUS commands, so we do a NOOP on the
@@ -104,7 +104,7 @@ add_task(async function checkStatNoSelect() {
     folderListener,
     Ci.nsIFolderListener.boolPropertyChanged
   );
-  gIMAPInbox.getNewMessages(null, null);
+  gIMAPInbox.getNewMessages(false, null);
   // Wait for the folder listener to get told about new messages.
   await folderListener.promise;
 });

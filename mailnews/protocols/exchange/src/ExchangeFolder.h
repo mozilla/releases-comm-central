@@ -76,7 +76,7 @@ class ExchangeFolder : public nsMsgDBFolder, public IExchangeFolder {
   NS_IMETHOD GetSupportsOffline(bool* supportsOffline) override;
   NS_IMETHOD GetDeletable(bool* deletable) override;
   NS_IMETHOD GetIncomingServerType(nsACString& aIncomingServerType) override;
-  NS_IMETHOD GetNewMessages(nsIMsgWindow* aWindow,
+  NS_IMETHOD GetNewMessages(bool interactive,
                             nsIUrlListener* aListener) override;
   NS_IMETHOD GetSubFolders(
       nsTArray<RefPtr<nsIMsgFolder>>& aSubFolders) override;

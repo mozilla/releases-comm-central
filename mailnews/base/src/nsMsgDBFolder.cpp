@@ -4349,7 +4349,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetHostname(nsACString& hostname) {
   return server->GetHostname(hostname);
 }
 
-NS_IMETHODIMP nsMsgDBFolder::GetNewMessages(nsIMsgWindow*,
+NS_IMETHODIMP nsMsgDBFolder::GetNewMessages(bool,
                                             nsIUrlListener* /* aListener */) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

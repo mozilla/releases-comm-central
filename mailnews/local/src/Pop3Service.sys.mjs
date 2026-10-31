@@ -14,20 +14,20 @@ export class Pop3Service {
     this._listeners = new Set();
   }
 
-  GetNewMail(msgWindow, urlListener, inbox, server) {
-    this._getMail(true, msgWindow, urlListener, inbox, server);
+  GetNewMail(interactive, urlListener, inbox, server) {
+    this._getMail(true, interactive, urlListener, inbox, server);
   }
 
-  CheckForNewMail(msgWindow, urlListener, inbox, server) {
-    this._getMail(false, msgWindow, urlListener, inbox, server);
+  CheckForNewMail(interactive, urlListener, inbox, server) {
+    this._getMail(false, interactive, urlListener, inbox, server);
   }
 
-  verifyLogon(server, urlListener, msgWindow) {
+  verifyLogon(server, urlListener, interactive) {
     const client = new Pop3Client(server);
     client.urlListener = urlListener;
     client.connect();
     client.onOpen = () => {
-      client.verifyLogon(msgWindow);
+      client.verifyLogon(interactive);
     };
     return client.runningUri;
   }
@@ -58,7 +58,7 @@ export class Pop3Service {
     }
   }
 
-  _getMail(downloadNewMail, msgWindow, urlListener, inbox, server) {
+  _getMail(downloadNewMail, interactive, urlListener, inbox, server) {
     if (Services.io.offline) {
       // Return an XPCOM failure without logging an exception in this service.
       // XPConnect converts the failure into an exception for JavaScript callers.
@@ -66,10 +66,10 @@ export class Pop3Service {
       return;
     }
     server.wrappedJSObject.withClient(client => {
-      client.runningUri.msgWindow = msgWindow;
+      client.runningUri.interactive = interactive;
       client.urlListener = urlListener;
       client.onOpen = () => {
-        client.getMail(downloadNewMail, msgWindow, inbox);
+        client.getMail(downloadNewMail, interactive, inbox);
       };
     });
   }

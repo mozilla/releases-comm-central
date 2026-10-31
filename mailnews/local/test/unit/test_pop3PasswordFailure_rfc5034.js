@@ -85,7 +85,7 @@ add_task(async function getMail1() {
   // Now get the mail.
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.pop3.GetNewMail(
-    gDummyMsgWindow,
+    true,
     urlListener,
     localAccountUtils.inboxFolder,
     incomingServer
@@ -120,7 +120,7 @@ add_task(async function getMail2() {
   // Now get the mail.
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.pop3.GetNewMail(
-    gDummyMsgWindow,
+    true,
     urlListener,
     localAccountUtils.inboxFolder,
     incomingServer
