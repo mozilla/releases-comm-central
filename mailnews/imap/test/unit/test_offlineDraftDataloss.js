@@ -92,7 +92,7 @@ add_task(async function goOnline() {
 
   IMAPPump.server.start();
   offlineManager.inProgress = true;
-  offlineManager.goOnline(false, true, null);
+  offlineManager.goOnline(false, true, false);
   await TestUtils.waitForCondition(
     () => !offlineManager.inProgress,
     "wait for offlineManager not in progress"

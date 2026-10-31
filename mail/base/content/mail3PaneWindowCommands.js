@@ -136,7 +136,7 @@ var DefaultController = {
         if (MailOfflineMgr.isOnline()) {
           SendUnsentMessages();
         } else {
-          MailOfflineMgr.goOnlineToSendMessages(msgWindow);
+          MailOfflineMgr.goOnlineToSendMessages();
         }
         return;
       case "cmd_stop":

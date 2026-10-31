@@ -1399,8 +1399,7 @@ function MsgSynchronizeOffline() {
   window.openDialog(
     "chrome://messenger/content/msgSynchronize.xhtml",
     "",
-    "centerscreen,chrome,modal,titlebar,resizable=yes",
-    { msgWindow }
+    "centerscreen,chrome,modal,titlebar,resizable=yes"
   );
 }
 

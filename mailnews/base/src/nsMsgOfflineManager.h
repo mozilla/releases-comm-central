@@ -11,7 +11,6 @@
 #include "nsIObserver.h"
 #include "nsWeakReference.h"
 #include "nsIUrlListener.h"
-#include "nsIMsgWindow.h"
 #include "nsIMsgSendLaterListener.h"
 #include "nsIStringBundle.h"
 
@@ -66,10 +65,10 @@ class nsMsgOfflineManager : public nsIMsgOfflineManager,
   bool m_downloadNews;
   bool m_downloadMail;
   bool m_playbackOfflineImapOps;
+  bool m_interactive;
   bool m_goOfflineWhenDone;
   offlineManagerState m_curState;
   offlineManagerOperation m_curOperation;
-  nsCOMPtr<nsIMsgWindow> m_window;
   nsCOMPtr<nsIStringBundle> mStringBundle;
   nsCOMPtr<nsISupports> mOfflineImapSync;
 };

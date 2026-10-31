@@ -65,7 +65,7 @@ var MailOfflineMgr = {
         downloadForOfflineUse,
         false,
         true,
-        msgWindow
+        true
       );
     }
   },
@@ -97,9 +97,8 @@ var MailOfflineMgr = {
    * Prompt the user about going online to send unsent messages, and then send them
    * if appropriate. Puts the app back into online mode.
    *
-   * @param {nsIMsgWindow} aMsgWindow - The msg window to be used when going online.
    */
-  goOnlineToSendMessages(aMsgWindow) {
+  goOnlineToSendMessages() {
     const goOnlineToSendMsgs = Services.prompt.confirm(
       window,
       this.offlineBundle.GetStringFromName("sendMessagesOfflineWindowTitle1"),
@@ -107,11 +106,7 @@ var MailOfflineMgr = {
     );
 
     if (goOnlineToSendMsgs) {
-      this.offlineManager.goOnline(
-        true /* send unsent messages*/,
-        false,
-        aMsgWindow
-      );
+      this.offlineManager.goOnline(true /* send unsent messages*/, false, true);
     }
   },
 
@@ -224,7 +219,7 @@ var MailOfflineMgr = {
       this.offlineManager.goOnline(
         this.shouldSendUnsentMessages(),
         false /* playbackOfflineImapOperations */,
-        msgWindow
+        true
       );
     }
     return goOnline;
@@ -269,7 +264,7 @@ var MailOfflineMgr = {
           this.haveUnsentMessages() &&
           this.confirmSendUnsentMessages()) ||
         prefSendUnsentMessages == 1;
-      this.offlineManager.goOnline(sendUnsentMessages, true, msgWindow);
+      this.offlineManager.goOnline(sendUnsentMessages, true, true);
     }
   },
 };

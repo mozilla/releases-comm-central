@@ -32,7 +32,7 @@ async function playOfflineOperations() {
     Ci.nsIMsgOfflineManager
   );
   manager.inProgress = true;
-  manager.goOnline(false, true, null);
+  manager.goOnline(false, true, false);
   await TestUtils.waitForCondition(
     () => !manager.inProgress,
     "Offline playback should finish"

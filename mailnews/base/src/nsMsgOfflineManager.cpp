@@ -28,22 +28,12 @@ nsMsgOfflineManager::nsMsgOfflineManager()
       m_downloadNews(false),
       m_downloadMail(false),
       m_playbackOfflineImapOps(false),
+      m_interactive(false),
       m_goOfflineWhenDone(false),
       m_curState(eNoState),
       m_curOperation(eNoOp) {}
 
 nsMsgOfflineManager::~nsMsgOfflineManager() {}
-
-/* attribute nsIMsgWindow window; */
-NS_IMETHODIMP nsMsgOfflineManager::GetWindow(nsIMsgWindow** aWindow) {
-  NS_ENSURE_ARG(aWindow);
-  NS_IF_ADDREF(*aWindow = m_window);
-  return NS_OK;
-}
-NS_IMETHODIMP nsMsgOfflineManager::SetWindow(nsIMsgWindow* aWindow) {
-  m_window = aWindow;
-  return NS_OK;
-}
 
 /* attribute boolean inProgress; */
 NS_IMETHODIMP nsMsgOfflineManager::GetInProgress(bool* aInProgress) {
@@ -133,7 +123,7 @@ nsresult nsMsgOfflineManager::AdvanceToNextState(nsresult exitStatus) {
 nsresult nsMsgOfflineManager::SynchronizeOfflineImapChanges() {
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
   return imapService->PlaybackAllOfflineOperations(
-      !!m_window, this, getter_AddRefs(mOfflineImapSync));
+      m_interactive, this, getter_AddRefs(mOfflineImapSync));
 }
 
 nsresult nsMsgOfflineManager::SendUnsentMessages() {
@@ -211,7 +201,7 @@ nsresult nsMsgOfflineManager::DownloadOfflineNewsgroups() {
   nsCOMPtr<nsINntpService> nntpService(
       do_GetService("@mozilla.org/messenger/nntpservice;1", &rv));
   if (NS_SUCCEEDED(rv) && nntpService)
-    rv = nntpService->DownloadNewsgroupsForOffline(!!m_window, this);
+    rv = nntpService->DownloadNewsgroupsForOffline(m_interactive, this);
 
   if (NS_FAILED(rv)) return AdvanceToNextState(rv);
   return rv;
@@ -220,19 +210,19 @@ nsresult nsMsgOfflineManager::DownloadOfflineNewsgroups() {
 nsresult nsMsgOfflineManager::DownloadMail() {
   ShowStatus("downloadingMail");
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-  return imapService->DownloadAllOffineImapFolders(!!m_window, this);
+  return imapService->DownloadAllOffineImapFolders(m_interactive, this);
   // ### we should do get new mail on pop servers, and download imap messages
   // for offline use.
 }
 
 NS_IMETHODIMP nsMsgOfflineManager::GoOnline(bool sendUnsentMessages,
                                             bool playbackOfflineImapOperations,
-                                            nsIMsgWindow* aMsgWindow) {
+                                            bool interactive) {
   m_sendUnsentMessages = sendUnsentMessages;
   m_playbackOfflineImapOps = playbackOfflineImapOperations;
   m_curOperation = eGoingOnline;
   m_curState = eNoState;
-  SetWindow(aMsgWindow);
+  m_interactive = interactive;
   SetOnlineState(true);
   if (!m_sendUnsentMessages && !playbackOfflineImapOperations)
     return NS_OK;
@@ -243,12 +233,12 @@ NS_IMETHODIMP nsMsgOfflineManager::GoOnline(bool sendUnsentMessages,
 
 NS_IMETHODIMP nsMsgOfflineManager::SynchronizeForOffline(
     bool downloadNews, bool downloadMail, bool sendUnsentMessages,
-    bool goOfflineWhenDone, nsIMsgWindow* aMsgWindow) {
+    bool goOfflineWhenDone, bool interactive) {
   m_curOperation = eDownloadingForOffline;
   m_downloadNews = downloadNews;
   m_downloadMail = downloadMail;
   m_sendUnsentMessages = sendUnsentMessages;
-  SetWindow(aMsgWindow);
+  m_interactive = interactive;
   m_goOfflineWhenDone = goOfflineWhenDone;
   m_curState = eNoState;
   if (!downloadNews && !downloadMail && !sendUnsentMessages) {

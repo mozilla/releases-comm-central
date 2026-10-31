@@ -103,7 +103,7 @@ var tests = [
     Services.io.offline = false;
 
     IMAPPump.server.start();
-    gOfflineManager.goOnline(false, true, null);
+    gOfflineManager.goOnline(false, true, false);
     await PromiseTestUtils.promiseDelay(2000);
   },
   async function updateSecondFolder() {

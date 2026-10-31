@@ -7,15 +7,12 @@
 // this is a service -there's only one Offline Manager, because you can only do one operation at a time
 // (go online or offline).
 
-interface nsIMsgWindow;
-
 [scriptable, uuid(5e885fec-09b0-11d5-a5bf-0060b0fc04b7)]
 interface nsIMsgOfflineManager : nsISupports
 {
-  attribute nsIMsgWindow window; // should be a progress window.
   attribute boolean inProgress;  // an online->offline or online->offline operation in progress.
                                  // the offline menu should be disabled.
-  void goOnline(in boolean sendUnsentMessages, in boolean playbackOfflineImapOperations, in nsIMsgWindow aMsgWindow);
+  void goOnline(in boolean sendUnsentMessages, in boolean playbackOfflineImapOperations, in boolean interactive);
   void synchronizeForOffline(in boolean downloadNews, in boolean downloadMail, in boolean sendUnsentMessages,
-                            in boolean goOfflineWhenDone, in nsIMsgWindow aMsgWindow);
+                            in boolean goOfflineWhenDone, in boolean interactive);
 };

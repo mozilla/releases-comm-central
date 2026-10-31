@@ -53,7 +53,7 @@ async function goOnline() {
   offlineManager.goOnline(
     false, // sendUnsentMessages
     true, // playbackOfflineImapOperations
-    null // msgWindow
+    false // interactive
   );
   // No way to signal when offline IMAP operations are complete... so we
   // just blindly wait and cross our fingers :-(

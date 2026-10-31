@@ -78,7 +78,7 @@ add_task(async function testSynchronizeForOffline() {
       true /* downloadMail */,
       false /* sendUnsentMessages */,
       false /* goOfflineWhenDone */,
-      null /* window */
+      false /* interactive */
     );
 
     await TestUtils.waitForCondition(
