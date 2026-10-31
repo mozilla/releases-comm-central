@@ -64,7 +64,7 @@ add_task(async function test_cancel() {
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   folder
     .QueryInterface(Ci.nsIMsgNewsFolder)
-    .cancelMessage(hdr, urlListener, null);
+    .cancelMessage(hdr, urlListener, false);
   await urlListener.promise;
 
   Assert.equal(folder.getTotalMessages(false), 7);
@@ -87,7 +87,7 @@ add_task(function test_cancelLineBreakInMessageId() {
     () =>
       folder
         .QueryInterface(Ci.nsIMsgNewsFolder)
-        .cancelMessage(hdr, new PromiseTestUtils.PromiseUrlListener(), null),
+        .cancelMessage(hdr, new PromiseTestUtils.PromiseUrlListener(), false),
     /NS_ERROR_ILLEGAL_VALUE/,
     "cancel should be refused"
   );

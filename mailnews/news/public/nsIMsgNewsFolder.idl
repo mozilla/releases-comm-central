@@ -5,7 +5,6 @@
 #include "nsISupports.idl"
 #include "nsIMsgFolder.idl"
 
-interface nsIMsgWindow;
 interface nsINntpIncomingServer;
 
 [scriptable, uuid(9a12c3a5-9de5-4c57-ace3-d51802b525a9)]
@@ -80,7 +79,7 @@ interface nsIMsgNewsFolder : nsISupports {
    */
   AUTF8String getMessageIdForKey(in nsMsgKey key);
 
-  void getNextNMessages(in nsIMsgWindow aMsgWindow);
+  void getNextNMessages(in boolean interactive);
 
   /**
    * Feed the article (message) into the folder, allowing offline storage
@@ -102,9 +101,9 @@ interface nsIMsgNewsFolder : nsISupports {
    *
    * @param aMsgHdr     The header of the message to be canceled.
    * @param aUrlListener  Listener (if any) for the operation.
-   * @param aMsgWindow  The standard message window object, for error dialogs.
+   * @param interactive  Whether the user is waiting on the cancel.
    */
-  void cancelMessage(in nsIMsgDBHdr aMsgHdr, in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
+  void cancelMessage(in nsIMsgDBHdr aMsgHdr, in nsIUrlListener aUrlListener, in boolean interactive);
 
   void refreshSizeOnDisk();
 };

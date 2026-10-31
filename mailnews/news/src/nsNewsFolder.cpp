@@ -24,8 +24,6 @@
 #include "nsINewsDatabase.h"
 #include "nsILineInputStream.h"
 
-#include "nsIMsgWindow.h"
-
 #include "nsLocalFile.h"
 #include "nsNetUtil.h"
 #include "nsIURL.h"
@@ -635,7 +633,7 @@ nsMsgNewsFolder::DeleteMessages(nsTArray<RefPtr<nsIMsgDBHdr>> const& msgHdrs,
 
 NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr* msgHdr,
                                              nsIUrlListener* aUrlListener,
-                                             nsIMsgWindow* aMsgWindow) {
+                                             bool interactive) {
   NS_ENSURE_ARG_POINTER(msgHdr);
 
   nsresult rv;
@@ -678,7 +676,7 @@ NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr* msgHdr,
   nsCOMPtr<nsIURI> resultUri;
   return nntpService->CancelMessage(cancelURL, messageURI,
                                     nullptr /* consumer */, aUrlListener,
-                                    !!aMsgWindow, getter_AddRefs(resultUri));
+                                    interactive, getter_AddRefs(resultUri));
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::GetNewMessages(bool interactive,
@@ -686,8 +684,8 @@ NS_IMETHODIMP nsMsgNewsFolder::GetNewMessages(bool interactive,
   return GetNewsMessages(interactive, false, aListener);
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::GetNextNMessages(nsIMsgWindow* aMsgWindow) {
-  return GetNewsMessages(!!aMsgWindow, true, nullptr);
+NS_IMETHODIMP nsMsgNewsFolder::GetNextNMessages(bool interactive) {
+  return GetNewsMessages(interactive, true, nullptr);
 }
 
 nsresult nsMsgNewsFolder::GetNewsMessages(bool interactive, bool aGetOld,

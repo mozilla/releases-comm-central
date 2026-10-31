@@ -146,7 +146,7 @@ var commandController = {
     cmd_cancel() {
       gFolder
         .QueryInterface(Ci.nsIMsgNewsFolder)
-        .cancelMessage(gDBView.hdrForFirstSelectedMessage, null, top.msgWindow);
+        .cancelMessage(gDBView.hdrForFirstSelectedMessage, null, true);
     },
     cmd_openConversation() {
       new ConversationOpener(window).openConversationForMessages(

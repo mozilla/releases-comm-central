@@ -26,7 +26,7 @@ function GetNextNMessages(folder) {
   if (folder) {
     var newsFolder = folder.QueryInterface(Ci.nsIMsgNewsFolder);
     if (newsFolder) {
-      newsFolder.getNextNMessages(msgWindow);
+      newsFolder.getNextNMessages(true);
     }
   }
 }
