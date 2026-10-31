@@ -1841,8 +1841,8 @@ NS_IMETHODIMP ExchangeFolder::OnMessageClassified(
 }
 
 NS_IMETHODIMP ExchangeFolder::HandleViewCommand(
-    int32_t command, const nsTArray<nsMsgKey>& messageKeys,
-    nsIMsgWindow* window, nsIMsgCopyServiceListener* listener) {
+    int32_t command, const nsTArray<nsMsgKey>& messageKeys, bool interactive,
+    nsIMsgCopyServiceListener* listener) {
   nsresult rv;
   if (command == nsMsgViewCommandType::junk ||
       command == nsMsgViewCommandType::unjunk) {
@@ -1895,11 +1895,11 @@ NS_IMETHODIMP ExchangeFolder::HandleViewCommand(
 
     RefPtr<ExchangeSimpleMessageListener> operationListener =
         new ExchangeSimpleMessageListener{
-            headers, [self = RefPtr(this), window = RefPtr(window),
-                      listener = RefPtr(listener), destinationFolder](
-                         const nsTArray<RefPtr<nsIMsgDBHdr>>& headers,
-                         const nsTArray<nsCString>& movedItemIds,
-                         bool useLegacyFallback) {
+            headers,
+            [self = RefPtr(this), interactive, listener = RefPtr(listener),
+             destinationFolder](const nsTArray<RefPtr<nsIMsgDBHdr>>& headers,
+                                const nsTArray<nsCString>& movedItemIds,
+                                bool useLegacyFallback) {
               nsresult rv = NS_OK;
               auto notifyCopyServiceOnExit =
                   GuardCopyServiceListener(listener, rv);
@@ -1909,7 +1909,7 @@ NS_IMETHODIMP ExchangeFolder::HandleViewCommand(
                 // a sync on the destination folder.
                 if (destinationFolder) {
                   // Best we can do is a sync of the supposed destination.
-                  rv = destinationFolder->GetNewMessages(window, nullptr);
+                  rv = destinationFolder->GetNewMessages(interactive, nullptr);
                   NS_ENSURE_SUCCESS(rv, rv);
                 }
 

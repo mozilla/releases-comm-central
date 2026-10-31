@@ -34,7 +34,7 @@ var { AppConstants } = ChromeUtils.importESModule(
  */
 async function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
   let deferred = Promise.withResolvers();
-  aFolder.performActionsOnJunkMsgs(aJunkMsgHdrs, true, top.msgWindow, {
+  aFolder.performActionsOnJunkMsgs(aJunkMsgHdrs, true, true, {
     OnStopRunningUrl(url, status) {
       if (Components.isSuccessCode(status)) {
         deferred.resolve();
@@ -49,7 +49,7 @@ async function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
   });
   await deferred.promise;
   deferred = Promise.withResolvers();
-  aFolder.performActionsOnJunkMsgs(aGoodMsgHdrs, false, top.msgWindow, {
+  aFolder.performActionsOnJunkMsgs(aGoodMsgHdrs, false, true, {
     OnStopRunningUrl(url, status) {
       if (Components.isSuccessCode(status)) {
         deferred.resolve();

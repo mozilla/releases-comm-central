@@ -931,7 +931,7 @@ interface nsIMsgFolder : nsISupports {
    */
   void performActionsOnJunkMsgs(in Array<nsIMsgDBHdr> messages,
                                 in boolean msgsAreJunk,
-                                [optional] in nsIMsgWindow msgWindow,
+                                [optional] in boolean interactive,
                                 [optional] in nsIUrlListener listener);
 
   void applyRetentionSettings();
@@ -1050,12 +1050,12 @@ interface nsIMsgFolder : nsISupports {
    *
    * @param command The command to handle.
    * @param messageKeys The collection of message keys the command corresponds to.
-   * @param window The window used for signaling progress.
+   * @param interactive Whether the user is waiting on the command.
    */
   void handleViewCommand(
     in nsMsgViewCommandTypeValue command,
     in Array<nsMsgKey> messageKeys,
-    in nsIMsgWindow window,
+    in boolean interactive,
     in nsIMsgCopyServiceListener listener);
 
   /**

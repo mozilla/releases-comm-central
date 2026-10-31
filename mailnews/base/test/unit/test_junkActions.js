@@ -98,7 +98,7 @@ add_task(async function () {
     );
 
     const listener = new PromiseTestUtils.PromiseUrlListener();
-    inbox.performActionsOnJunkMsgs(testMessages, true, null, listener);
+    inbox.performActionsOnJunkMsgs(testMessages, true, false, listener);
     await listener.promise;
 
     Assert.equal(
@@ -155,7 +155,7 @@ add_task(async function () {
     );
 
     const listener = new PromiseTestUtils.PromiseUrlListener();
-    inbox.performActionsOnJunkMsgs(testMessages, true, null, listener);
+    inbox.performActionsOnJunkMsgs(testMessages, true, false, listener);
     await listener.promise;
 
     Assert.equal(
@@ -211,7 +211,7 @@ add_task(async function () {
     );
 
     let listener = new PromiseTestUtils.PromiseUrlListener();
-    inbox.performActionsOnJunkMsgs(testMessages, true, null, listener);
+    inbox.performActionsOnJunkMsgs(testMessages, true, false, listener);
     await listener.promise;
 
     Assert.ok(
@@ -258,7 +258,7 @@ add_task(async function () {
     Services.prefs.setBoolPref("mail.spam.markAsNotJunkMarksUnRead", true);
 
     listener = new PromiseTestUtils.PromiseUrlListener();
-    junk.performActionsOnJunkMsgs([movedMessages[0]], false, null, listener);
+    junk.performActionsOnJunkMsgs([movedMessages[0]], false, false, listener);
     await listener.promise;
 
     Assert.equal(
@@ -290,7 +290,7 @@ add_task(async function () {
     Services.prefs.setBoolPref("mail.spam.markAsNotJunkMarksUnRead", false);
 
     listener = new PromiseTestUtils.PromiseUrlListener();
-    junk.performActionsOnJunkMsgs([movedMessages[1]], false, null, listener);
+    junk.performActionsOnJunkMsgs([movedMessages[1]], false, false, listener);
     await listener.promise;
 
     Assert.equal(
@@ -340,7 +340,7 @@ add_task(async function () {
     );
 
     let listener = new PromiseTestUtils.PromiseUrlListener();
-    inbox.performActionsOnJunkMsgs(testMessages, true, null, listener);
+    inbox.performActionsOnJunkMsgs(testMessages, true, false, listener);
     await listener.promise;
 
     Assert.ok(
@@ -386,7 +386,7 @@ add_task(async function () {
     // it's not in the junk folder, it's in the trash.
 
     listener = new PromiseTestUtils.PromiseUrlListener();
-    trash.performActionsOnJunkMsgs(deletedMessages, false, null, listener);
+    trash.performActionsOnJunkMsgs(deletedMessages, false, false, listener);
     await listener.promise;
 
     Assert.equal(

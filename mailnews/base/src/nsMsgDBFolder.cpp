@@ -4551,7 +4551,7 @@ nsMsgDBFolder::SetJunkScoreForMessages(
 NS_IMETHODIMP
 nsMsgDBFolder::PerformActionsOnJunkMsgs(
     const nsTArray<RefPtr<nsIMsgDBHdr>>& messages, bool msgsAreJunk,
-    nsIMsgWindow* msgWindow, nsIUrlListener* listener) {
+    bool interactive, nsIUrlListener* listener) {
   uint32_t numJunkHdrs = messages.Length();
   if (!numJunkHdrs) {
     NS_WARNING("no indices of marked-as-junk messages to act on");
@@ -4618,9 +4618,9 @@ nsMsgDBFolder::PerformActionsOnJunkMsgs(
       nsCOMPtr<nsIMsgCopyService> copyService =
           mozilla::components::Copy::Service();
       copyService->CopyMessages(this, messages, targetFolder, true,
-                                copyListener, !!msgWindow, true);
+                                copyListener, interactive, true);
     } else if (msgsAreJunk) {
-      DeleteMessages(messages, !!msgWindow, false, false, copyListener, true);
+      DeleteMessages(messages, interactive, false, false, copyListener, true);
     }
 
     NS_ASSERTION(NS_SUCCEEDED(rv),
@@ -5649,7 +5649,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetIncomingServerType(
 
 NS_IMETHODIMP nsMsgDBFolder::HandleViewCommand(
     nsMsgViewCommandTypeValue command, const nsTArray<nsMsgKey>& messageKeys,
-    nsIMsgWindow* window, nsIMsgCopyServiceListener* listener) {
+    bool interactive, nsIMsgCopyServiceListener* listener) {
   return NS_OK;
 }
 

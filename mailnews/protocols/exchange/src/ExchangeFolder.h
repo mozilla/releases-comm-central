@@ -99,7 +99,7 @@ class ExchangeFolder : public nsMsgDBFolder, public IExchangeFolder {
 
   NS_IMETHOD HandleViewCommand(nsMsgViewCommandTypeValue command,
                                const nsTArray<nsMsgKey>& messageKeys,
-                               nsIMsgWindow* window,
+                               bool interactive,
                                nsIMsgCopyServiceListener* listener) override;
 
   NS_IMETHOD FetchMsgPreviewText(nsTArray<nsMsgKey> const& aKeysToFetch,

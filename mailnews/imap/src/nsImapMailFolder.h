@@ -318,7 +318,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
 
   NS_IMETHOD HandleViewCommand(nsMsgViewCommandTypeValue command,
                                const nsTArray<nsMsgKey>& messageKeys,
-                               nsIMsgWindow* window,
+                               bool interactive,
                                nsIMsgCopyServiceListener* listener) override;
 
   NS_DECL_NSIMSGIMAPMAILFOLDER

@@ -789,7 +789,7 @@ async function runMarkAsJunkTest(mockServer, incomingServer) {
   inboxFolder.handleViewCommand(
     Ci.nsMsgViewCommandType.junk,
     junkMessageKeys,
-    null,
+    false,
     junkListener
   );
   await junkListener.promise;
@@ -812,7 +812,7 @@ async function runMarkAsJunkTest(mockServer, incomingServer) {
   junkFolder.handleViewCommand(
     Ci.nsMsgViewCommandType.unjunk,
     [newMessageKeys[0]],
-    null,
+    false,
     unjunkListener
   );
   await unjunkListener.promise;

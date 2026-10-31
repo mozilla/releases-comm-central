@@ -115,7 +115,7 @@ add_task(async function test_mark_as_junk() {
   originalFolder.handleViewCommand(
     Ci.nsMsgViewCommandType.junk,
     junkMessageKeys,
-    null,
+    false,
     junkListener
   );
   await junkListener.promise;
@@ -134,7 +134,7 @@ add_task(async function test_mark_as_junk() {
   junkFolder.handleViewCommand(
     Ci.nsMsgViewCommandType.unjunk,
     [newMessageKeys[0]],
-    null,
+    false,
     unjunkListener
   );
   await unjunkListener.promise;

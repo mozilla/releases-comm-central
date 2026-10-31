@@ -9040,7 +9040,7 @@ NS_IMETHODIMP nsImapMailFolder::GetIncomingServerType(nsACString& serverType) {
 
 NS_IMETHODIMP nsImapMailFolder::HandleViewCommand(
     nsMsgViewCommandTypeValue command, const nsTArray<nsMsgKey>& messageKeys,
-    nsIMsgWindow* window, nsIMsgCopyServiceListener* listener) {
+    bool interactive, nsIMsgCopyServiceListener* listener) {
   imapMessageFlagsType flags = kNoImapMsgFlag;
   bool addFlags = false;
   switch (command) {
@@ -9049,8 +9049,8 @@ NS_IMETHODIMP nsImapMailFolder::HandleViewCommand(
       addFlags = true;
       break;
     case nsMsgViewCommandType::junk:
-      return StoreCustomKeywords(!!window, "Junk"_ns, "NonJunk"_ns, messageKeys,
-                                 nullptr);
+      return StoreCustomKeywords(interactive, "Junk"_ns, "NonJunk"_ns,
+                                 messageKeys, nullptr);
     case nsMsgViewCommandType::unjunk: {
       uint32_t msgFlags = 0;
       if (!messageKeys.IsEmpty()) {
@@ -9065,8 +9065,8 @@ NS_IMETHODIMP nsImapMailFolder::HandleViewCommand(
         StoreImapFlags(kImapMsgDeletedFlag, false, messageKeys, nullptr);
       }
 
-      return StoreCustomKeywords(!!window, "NonJunk"_ns, "Junk"_ns, messageKeys,
-                                 nullptr);
+      return StoreCustomKeywords(interactive, "NonJunk"_ns, "Junk"_ns,
+                                 messageKeys, nullptr);
     }
     default:
       break;

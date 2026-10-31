@@ -983,7 +983,7 @@ nsresult nsMsgSearchDBView::ProcessNextFolder(nsIMsgWindow* window) {
       curFolder->MarkMessagesRead(msgs, true);
     }
     rv =
-        curFolder->DeleteMessages(msgs, window, deleteStorage,
+        curFolder->DeleteMessages(msgs, !!window, deleteStorage,
                                   false /* is move*/, this, true /*allowUndo*/);
     if (NS_SUCCEEDED(rv) && deleteStorage) {
       mCurIndex++;
@@ -999,11 +999,11 @@ nsresult nsMsgSearchDBView::ProcessNextFolder(nsIMsgWindow* window) {
           mozilla::components::Copy::Service();
       if (mCommand == nsMsgViewCommandType::moveMessages)
         rv = copyService->CopyMessages(curFolder, msgs, mDestFolder,
-                                       true /* isMove */, this, window,
+                                       true /* isMove */, this, !!window,
                                        true /*allowUndo*/);
       else if (mCommand == nsMsgViewCommandType::copyMessages)
         rv = copyService->CopyMessages(curFolder, msgs, mDestFolder,
-                                       false /* isMove */, this, window,
+                                       false /* isMove */, this, !!window,
                                        true /*allowUndo*/);
     }
   }

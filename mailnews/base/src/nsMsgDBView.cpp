@@ -2391,7 +2391,7 @@ nsresult nsMsgDBView::CopyMessages(nsIMsgWindow* window,
       mozilla::components::Copy::Service();
   return copyService->CopyMessages(m_folder /* source folder */, hdrs,
                                    destFolder, isMove, nullptr /* listener */,
-                                   window, true /* allow Undo */);
+                                   !!window, true /* allow Undo */);
 }
 
 nsresult nsMsgDBView::ApplyCommandToIndicesWithFolder(
@@ -2553,7 +2553,7 @@ nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
   folder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true);
 
   // Take folder class specific actions.
-  folder->HandleViewCommand(command, messageKeys, msgWindow, nullptr);
+  folder->HandleViewCommand(command, messageKeys, !!msgWindow, nullptr);
 
   return rv;
 }
@@ -2606,7 +2606,7 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow* window,
     mIndicesToNoteChange.AppendElements(selection);
   }
 
-  rv = m_folder->DeleteMessages(hdrs, window, deleteStorage, false, nullptr,
+  rv = m_folder->DeleteMessages(hdrs, !!window, deleteStorage, false, nullptr,
                                 true /* allow Undo */);
   if (NS_FAILED(rv)) {
     m_deletingRows = false;
@@ -2629,7 +2629,7 @@ nsresult nsMsgDBView::DownloadForOffline(
                  });
   }
 
-  m_folder->DownloadMessagesForOffline(messages, window);
+  m_folder->DownloadMessagesForOffline(messages, !!window);
   return rv;
 }
 
@@ -2655,7 +2655,7 @@ nsresult nsMsgDBView::DownloadFlaggedForOffline(nsIMsgWindow* window) {
     }
   }
 
-  m_folder->DownloadMessagesForOffline(messages, window);
+  m_folder->DownloadMessagesForOffline(messages, !!window);
   return rv;
 }
 
@@ -2780,7 +2780,7 @@ nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
   if (m_folder) {
     // All the messages are in the one folder for this view.
     // Let's just do this.
-    return m_folder->PerformActionsOnJunkMsgs(mJunkHdrs, msgsAreJunk, nullptr,
+    return m_folder->PerformActionsOnJunkMsgs(mJunkHdrs, msgsAreJunk, false,
                                               nullptr);
   }
 
@@ -2797,7 +2797,7 @@ nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
   for (auto iter = folderMap.Iter(); !iter.Done(); iter.Next()) {
     RefPtr<nsIMsgFolder> folder = iter.Key();
     nsTArray<RefPtr<nsIMsgDBHdr>>& messages = iter.Data();
-    folder->PerformActionsOnJunkMsgs(messages, msgsAreJunk, nullptr, nullptr);
+    folder->PerformActionsOnJunkMsgs(messages, msgsAreJunk, false, nullptr);
   }
   return NS_OK;
 }
