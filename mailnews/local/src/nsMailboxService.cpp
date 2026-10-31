@@ -161,13 +161,13 @@ nsresult nsMailboxService::FetchMessage(
 
 NS_IMETHODIMP nsMailboxService::FetchMimePart(
     nsIURI* aURI, const nsACString& aMessageURI,
-    nsIStreamListener* aStreamListener, nsIMsgWindow* aMsgWindow,
+    nsIStreamListener* aStreamListener, bool interactive,
     nsIUrlListener* aUrlListener, nsIURI** aURL) {
   nsresult rv;
   nsCOMPtr<nsIMsgMailNewsUrl> msgUrl(do_QueryInterface(aURI, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  msgUrl->SetMsgWindow(aMsgWindow);
+  msgUrl->SetInteractive(interactive);
 
   // set up the url listener
   if (aUrlListener) msgUrl->RegisterListener(aUrlListener);
@@ -177,11 +177,11 @@ NS_IMETHODIMP nsMailboxService::FetchMimePart(
 
 NS_IMETHODIMP nsMailboxService::LoadMessage(const nsACString& aMessageURI,
                                             nsIDocShell* aDisplayConsumer,
-                                            nsIMsgWindow* aMsgWindow,
+                                            bool interactive,
                                             nsIUrlListener* aUrlListener,
                                             bool aOverideCharset) {
   nsCOMPtr<nsIURI> dummyNull;  // unused...
-  return FetchMessage(aMessageURI, aDisplayConsumer, !!aMsgWindow, aUrlListener,
+  return FetchMessage(aMessageURI, aDisplayConsumer, interactive, aUrlListener,
                       nullptr, MailboxAction::FetchMessage, aOverideCharset,
                       getter_AddRefs(dummyNull));
 }
@@ -244,13 +244,13 @@ nsMailboxService::SaveMessageToDisk(const nsACString& aMessageURI,
                                     nsIFile* aFile,
                                     nsIUrlListener* aUrlListener,
                                     bool canonicalLineEnding,
-                                    nsIMsgWindow* aMsgWindow) {
+                                    bool interactive) {
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgMailNewsUrl> mailboxurl;
 
   rv = PrepareMessageUrl(aMessageURI, aUrlListener,
                          MailboxAction::SaveMessageToDisk,
-                         getter_AddRefs(mailboxurl), !!aMsgWindow);
+                         getter_AddRefs(mailboxurl), interactive);
 
   if (NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(mailboxurl);
@@ -267,8 +267,7 @@ nsMailboxService::SaveMessageToDisk(const nsACString& aMessageURI,
 }
 
 NS_IMETHODIMP nsMailboxService::GetUrlForUri(const nsACString& aMessageURI,
-                                             nsIMsgWindow* aMsgWindow,
-                                             nsIURI** aURL) {
+                                             bool interactive, nsIURI** aURL) {
   NS_ENSURE_ARG_POINTER(aURL);
   if (StringBeginsWith(aMessageURI, "file:"_ns) ||
       PL_strstr(PromiseFlatCString(aMessageURI).get(),
@@ -279,7 +278,7 @@ NS_IMETHODIMP nsMailboxService::GetUrlForUri(const nsACString& aMessageURI,
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgMailNewsUrl> mailboxurl;
   rv = PrepareMessageUrl(aMessageURI, nullptr, MailboxAction::FetchMessage,
-                         getter_AddRefs(mailboxurl), !!aMsgWindow);
+                         getter_AddRefs(mailboxurl), interactive);
   if (NS_SUCCEEDED(rv) && mailboxurl) {
     NS_ADDREF(*aURL = mailboxurl);
   }

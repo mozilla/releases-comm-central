@@ -10,7 +10,6 @@
 
 #include "nsIMsgFolder.h"
 #include "nsIMsgMessageService.h"
-#include "nsIMsgWindow.h"
 #include "nsMailboxUrl.h"
 #include "nsIURI.h"
 #include "nsIUrlListener.h"

@@ -69,7 +69,7 @@ async function saveMessageFromStore(storeID) {
       savedFile,
       promiseUrlListener,
       true,
-      null
+      false
     );
     await promiseUrlListener.promise;
 

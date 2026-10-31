@@ -3437,7 +3437,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
             nsCOMPtr<nsIMsgCopyService> copyService =
                 mozilla::components::Copy::Service();
             rv = copyService->CopyMessages(this, {&*msgHdr}, dstFolder, false,
-                                           copyListener, msgWindow, false);
+                                           copyListener, !!msgWindow, false);
             if (NS_FAILED(rv)) {
               (void)copyListener->OnStopCopy(rv);
             }
@@ -8641,7 +8641,7 @@ NS_IMETHODIMP nsImapMailFolder::FetchMsgPreviewText(
     nsCString messageUri;
     rv = GetUriForMsg(msgHdr, messageUri);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = msgService->GetUrlForUri(messageUri, nullptr, getter_AddRefs(url));
+    rv = msgService->GetUrlForUri(messageUri, false, getter_AddRefs(url));
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Lets look in the offline store.

@@ -233,7 +233,7 @@ nsresult nsMsgCopy::DoCopy(nsIFile* aDiskFile, nsIMsgFolder* dstFolder,
         mozilla::components::Copy::Service();
     rv = copyService->CopyFileMessage(aDiskFile, dstFolder, aMsgToReplace,
                                       aIsDraft, aMsgFlags, EmptyCString(),
-                                      copyListener, msgWindow);
+                                      copyListener, !!msgWindow);
     // copyListener->mCopyInProgress can only be set when we are in the
     // middle of the shutdown process
     while (copyListener->mCopyInProgress) {

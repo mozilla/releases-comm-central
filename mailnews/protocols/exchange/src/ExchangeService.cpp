@@ -40,8 +40,7 @@ NS_IMETHODIMP ExchangeService::CopyMessage(const nsACString& aSrcURI,
   NS_ENSURE_ARG_POINTER(aCopyListener);
 
   nsCOMPtr<nsIURI> channelURI;
-  // GetUrlForUri() ignores the window it is given.
-  MOZ_TRY(GetUrlForUri(aSrcURI, nullptr, getter_AddRefs(channelURI)));
+  MOZ_TRY(GetUrlForUri(aSrcURI, interactive, getter_AddRefs(channelURI)));
 
   return FetchMessage(channelURI, aCopyListener);
 }
@@ -56,13 +55,13 @@ NS_IMETHODIMP ExchangeService::CopyMessages(
 
 NS_IMETHODIMP ExchangeService::LoadMessage(const nsACString& aMessageURI,
                                            nsIDocShell* aDisplayConsumer,
-                                           nsIMsgWindow* aMsgWindow,
+                                           bool interactive,
                                            nsIUrlListener* aUrlListener,
                                            bool aAutodetectCharset) {
   NS_ENSURE_ARG_POINTER(aDisplayConsumer);
 
   nsCOMPtr<nsIURI> channelURI;
-  MOZ_TRY(GetUrlForUri(aMessageURI, aMsgWindow, getter_AddRefs(channelURI)));
+  MOZ_TRY(GetUrlForUri(aMessageURI, interactive, getter_AddRefs(channelURI)));
 
   // Load the message through the provided docshell.
   RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState(channelURI);
@@ -76,12 +75,12 @@ NS_IMETHODIMP ExchangeService::SaveMessageToDisk(const nsACString& aMessageURI,
                                                  nsIFile* aFile,
                                                  nsIUrlListener* aUrlListener,
                                                  bool canonicalLineEnding,
-                                                 nsIMsgWindow* aMsgWindow) {
+                                                 bool interactive) {
   // Build the "channel" URI now so we can pass it over to the `SaveAsListener`,
   // which will use it to signal the start and end of the operation to the
   // consumer (via `aUrlListener`).
   nsCOMPtr<nsIURI> channelURI;
-  MOZ_TRY(GetUrlForUri(aMessageURI, aMsgWindow, getter_AddRefs(channelURI)));
+  MOZ_TRY(GetUrlForUri(aMessageURI, interactive, getter_AddRefs(channelURI)));
 
   // Build a listener that will write the message's content to the file as it
   // comes down from either the server or the local store.
@@ -92,7 +91,7 @@ NS_IMETHODIMP ExchangeService::SaveMessageToDisk(const nsACString& aMessageURI,
 }
 
 NS_IMETHODIMP ExchangeService::GetUrlForUri(const nsACString& aMessageURI,
-                                            nsIMsgWindow* aMsgWindow,
+                                            bool interactive,
                                             nsIURI** _retval) {
   nsCOMPtr<nsIURI> messageURI;
   MOZ_TRY(NS_NewURI(getter_AddRefs(messageURI), aMessageURI));
@@ -161,7 +160,7 @@ NS_IMETHODIMP ExchangeService::Search(nsIMsgSearchSession* aSearchSession,
 NS_IMETHODIMP ExchangeService::FetchMimePart(nsIURI* aURI,
                                              const nsACString& aMessageURI,
                                              nsIStreamListener* aStreamListener,
-                                             nsIMsgWindow* aMsgWindow,
+                                             bool interactive,
                                              nsIUrlListener* aUrlListener,
                                              nsIURI** aURL) {
   NS_ENSURE_ARG_POINTER(aURI);
@@ -189,7 +188,7 @@ NS_IMETHODIMP ExchangeService::StreamMessage(
   NS_ENSURE_ARG_POINTER(aStreamListener);
 
   nsCOMPtr<nsIURI> channelURI;
-  MOZ_TRY(GetUrlForUri(aMessageURI, nullptr, getter_AddRefs(channelURI)));
+  MOZ_TRY(GetUrlForUri(aMessageURI, false, getter_AddRefs(channelURI)));
 
   // If there's any modifications needed to the URI's query, do so here.
   if (aConvertData || !aAdditionalHeader.IsEmpty()) {

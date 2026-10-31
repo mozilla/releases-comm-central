@@ -7,7 +7,6 @@
 interface nsIURI;
 interface nsIUrlListener;
 interface nsIStreamListener;
-interface nsIMsgWindow;
 interface nsIFile;
 interface nsIMsgFolder;
 interface nsIMsgSearchSession;
@@ -77,14 +76,14 @@ interface nsIMsgMessageService : nsISupports {
    *
    * @param aMessageURI - A uri representing the message to display.
    * @param aDocShell - A nsIDocShell which we'll use to load the message into.
-   * @param aMsgWindow
+   * @param interactive - Whether the user is waiting on the message.
    * @param aUrlListener
    * @param aAutodetectCharset Whether the characterset should be auto-detected.
    */
   [can_run_script]
   void loadMessage(in AUTF8String aMessageURI,
                    in nsIDocShell aDocShell,
-                   in nsIMsgWindow aMsgWindow,
+                   in boolean interactive,
                    in nsIUrlListener aUrlListener,
                    in boolean aAutodetectCharset);
 
@@ -97,11 +96,11 @@ interface nsIMsgMessageService : nsISupports {
    * @param aFile The file you want the message saved to
    * @param aUrlListener
    * @param canonicalLineEnding
-   * @param aMsgWindow
+   * @param interactive Whether the user is waiting on the save.
    */
   void saveMessageToDisk(in AUTF8String aMessageURI, in nsIFile aFile,
                          in nsIUrlListener aUrlListener,
-                         in boolean canonicalLineEnding, in nsIMsgWindow aMsgWindow);
+                         in boolean canonicalLineEnding, in boolean interactive);
 
   /**
    * When you have a uri and you would like to convert that
@@ -109,11 +108,11 @@ interface nsIMsgMessageService : nsISupports {
    * the Uri MUST refer to a message and not a folder!
    *
    * @param aMessageURI A message uri to convert.
-   * @param aMsgWindow
+   * @param interactive Whether the user is waiting on the url.
    *
    * @return a URL which can be run through necko
    */
-  nsIURI getUrlForUri(in AUTF8String aMessageURI, [optional] in nsIMsgWindow aMsgWindow);
+  nsIURI getUrlForUri(in AUTF8String aMessageURI, [optional] in boolean interactive);
 
   /**
    * Run a protocol-specific search for aSearchSession.
@@ -210,13 +209,13 @@ interface nsIMsgMessageFetchPartService : nsISupports
    * @param aURI url representing the message
    * @param aMessageURI RDF URI including the part to fetch
    * @param aStreamListener
-   * @param aMsgWindow
+   * @param interactive
    * @param aUrlListener
    *
    * @return
    */
   nsIURI fetchMimePart(in nsIURI aURI, in AUTF8String aMessageUri,
                        in nsIStreamListener aStreamListener,
-                       in nsIMsgWindow aMsgWindow,
+                       in boolean interactive,
                        in nsIUrlListener aUrlListener);
 };

@@ -1124,7 +1124,7 @@ export var MailUtils = {
         MailUtils.openEMLFile(win, tempFile, Services.io.newFileURI(tempFile));
       },
     };
-    messageService.saveMessageToDisk(uri, tempFile, urlListener, true, null);
+    messageService.saveMessageToDisk(uri, tempFile, urlListener, true, false);
   },
 
   /**

@@ -209,8 +209,7 @@ NS_IMETHODIMP nsImapService::LiteSelectFolder(nsIMsgFolder* aImapMailFolder,
 }
 
 NS_IMETHODIMP nsImapService::GetUrlForUri(const nsACString& aMessageURI,
-                                          nsIMsgWindow* aMsgWindow,
-                                          nsIURI** aURL) {
+                                          bool interactive, nsIURI** aURL) {
   nsAutoCString scheme;
   net_ExtractURLScheme(aMessageURI, scheme);
   MOZ_ASSERT(scheme.EqualsLiteral("imap-message"));
@@ -264,7 +263,7 @@ NS_IMETHODIMP nsImapService::GetUrlForUri(const nsACString& aMessageURI,
 NS_IMETHODIMP nsImapService::FetchMimePart(nsIURI* aURI,
                                            const nsACString& aMessageURI,
                                            nsIStreamListener* aStreamListener,
-                                           nsIMsgWindow* aMsgWindow,
+                                           bool interactive,
                                            nsIUrlListener* aUrlListener,
                                            nsIURI** aURL) {
   nsAutoCString messageURI(aMessageURI);
@@ -285,7 +284,7 @@ NS_IMETHODIMP nsImapService::FetchMimePart(nsIURI* aURI,
       nsCOMPtr<nsIMsgMailNewsUrl> msgurl(do_QueryInterface(aURI, &rv));
       NS_ENSURE_SUCCESS(rv, rv);
 
-      msgurl->SetMsgWindow(aMsgWindow);
+      msgurl->SetInteractive(interactive);
       msgurl->RegisterListener(aUrlListener);
 
       if (!mimePart.IsEmpty()) {
@@ -299,7 +298,7 @@ NS_IMETHODIMP nsImapService::FetchMimePart(nsIURI* aURI,
 
 NS_IMETHODIMP nsImapService::LoadMessage(const nsACString& aMessageURI,
                                          nsIDocShell* aDisplayConsumer,
-                                         nsIMsgWindow* aMsgWindow,
+                                         bool interactive,
                                          nsIUrlListener* aUrlListener,
                                          bool aAutodetectCharset) {
   nsresult rv;
@@ -353,7 +352,7 @@ NS_IMETHODIMP nsImapService::LoadMessage(const nsACString& aMessageURI,
       bool shouldStoreMsgOffline = false;
       bool hasMsgOffline = false;
 
-      msgurl->SetMsgWindow(aMsgWindow);
+      msgurl->SetInteractive(interactive);
 
       if (folder) {
         folder->ShouldStoreMsgOffline(key, &shouldStoreMsgOffline);
@@ -387,7 +386,7 @@ NS_IMETHODIMP nsImapService::LoadMessage(const nsACString& aMessageURI,
       rv = FetchMessage(imapUrl,
                         forcePeek ? nsIImapUrl::nsImapMsgFetchPeek
                                   : nsIImapUrl::nsImapMsgFetch,
-                        folder, imapMessageSink, !!aMsgWindow, aDisplayConsumer,
+                        folder, imapMessageSink, interactive, aDisplayConsumer,
                         msgIds, false, getter_AddRefs(dummyURI));
     }
   }
@@ -665,7 +664,7 @@ NS_IMETHODIMP nsImapService::SaveMessageToDisk(const nsACString& aMessageURI,
                                                nsIFile* aFile,
                                                nsIUrlListener* aUrlListener,
                                                bool canonicalLineEnding,
-                                               nsIMsgWindow* aMsgWindow) {
+                                               bool interactive) {
   nsCOMPtr<nsIMsgFolder> folder;
   nsCOMPtr<nsIImapUrl> imapUrl;
   nsMsgKey msgKey;
@@ -704,7 +703,7 @@ NS_IMETHODIMP nsImapService::SaveMessageToDisk(const nsACString& aMessageURI,
 
     nsCOMPtr<nsIURI> dummyNull;
     return FetchMessage(imapUrl, nsIImapUrl::nsImapSaveMessageToDisk, folder,
-                        imapMessageSink, !!aMsgWindow, saveAsListener, msgIds,
+                        imapMessageSink, interactive, saveAsListener, msgIds,
                         false, getter_AddRefs(dummyNull));
   }
   return rv;

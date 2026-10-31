@@ -59,8 +59,8 @@ async function setup() {
     IMAPPump.inbox.getUriForMsg(msg),
     gSavedMsgFile,
     promiseUrlListener2,
-    true, // Enforcing canonicalLineEnding (i.e., CRLF).
-    null
+    true,
+    false
   );
   await promiseUrlListener2.promise;
 }

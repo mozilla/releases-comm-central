@@ -668,7 +668,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           // going to end up firing off the delete, and then subsequently
           // issuing a search for the next filter, which will block until the
           // delete finishes.
-          rv = curFolder->DeleteMessages(m_searchHitHdrs, m_msgWindow, false,
+          rv = curFolder->DeleteMessages(m_searchHitHdrs, !!m_msgWindow, false,
                                          false, nullptr, false /*allow Undo*/);
           BREAK_ACTION_IF_FAILURE(rv, "Deleting messages failed");
 
@@ -762,8 +762,8 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           uint64_t callbackCount = m_copyCallbackCount;
           rv = copyService->CopyMessages(
               curFolder, m_searchHitHdrs, destIFolder,
-              actionType == nsMsgFilterAction::MoveToFolder, this, m_msgWindow,
-              false);
+              actionType == nsMsgFilterAction::MoveToFolder, this,
+              !!m_msgWindow, false);
           // A synchronous callback has already advanced or finished this run.
           if (m_copyCallbackCount != callbackCount) {
             return NS_OK;
@@ -913,7 +913,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
             }
           }
           if (!partialMsgs.IsEmpty()) {
-            rv = curFolder->DeleteMessages(partialMsgs, m_msgWindow, true,
+            rv = curFolder->DeleteMessages(partialMsgs, !!m_msgWindow, true,
                                            false, nullptr, false);
             BREAK_ACTION_IF_FAILURE(rv, "Delete messages failed");
           }

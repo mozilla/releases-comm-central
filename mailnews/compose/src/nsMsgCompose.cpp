@@ -342,7 +342,7 @@ nsresult nsMsgCompose::TagEmbeddedObjects(nsIEditor* aEditor) {
   nsCOMPtr<nsIMsgMessageService> msgService;
   rv = GetMessageServiceFromURI(mOriginalMsgURI, getter_AddRefs(msgService));
   if (NS_SUCCEEDED(rv)) {
-    rv = msgService->GetUrlForUri(mOriginalMsgURI, nullptr,
+    rv = msgService->GetUrlForUri(mOriginalMsgURI, false,
                                   getter_AddRefs(originalUrl));
     if (NS_SUCCEEDED(rv) && originalUrl) {
       originalUrl->GetScheme(originalScheme);

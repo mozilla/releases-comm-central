@@ -101,7 +101,7 @@ nsMsgQuote::QuoteMessage(
     nsCOMPtr<nsIMsgMessageService> msgService;
     rv = GetMessageServiceFromURI(msgURI, getter_AddRefs(msgService));
     if (NS_FAILED(rv)) return rv;
-    rv = msgService->GetUrlForUri(msgURI, nullptr, getter_AddRefs(newURI));
+    rv = msgService->GetUrlForUri(msgURI, false, getter_AddRefs(newURI));
   }
   if (NS_FAILED(rv)) return rv;
 

@@ -588,7 +588,7 @@ async function promiseMessageLoaded(browser, msgHdr) {
   let messageURI = msgHdr.folder.getUriForMsg(msgHdr);
   messageURI = MailServices.messageServiceFromURI(messageURI).getUrlForUri(
     messageURI,
-    null
+    false
   );
 
   await awaitBrowserLoaded(browser, uri => uri == messageURI.spec);

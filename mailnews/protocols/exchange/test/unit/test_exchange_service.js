@@ -9,13 +9,13 @@ add_task(async function test_getUrlForUriEws() {
 
   const ewsMessageUrl = service.getUrlForUri(
     "ews-message://name@localhost/some/folder",
-    null
+    false
   );
   Assert.equal(ewsMessageUrl.scheme, "x-moz-ews", "ews-message -> x-moz-ews");
 
   const xMozEwsUrl = service.getUrlForUri(
     "x-moz-ews://name@localhost/some/folder",
-    null
+    false
   );
   Assert.equal(xMozEwsUrl.scheme, "x-moz-ews", "x-moz-ews -> x-moz-ews");
 });
@@ -27,7 +27,7 @@ add_task(async function test_getUrlForUriGraph() {
 
   const graphMessageUrl = service.getUrlForUri(
     "graph-message://name@localhost/some/folder",
-    null
+    false
   );
   Assert.equal(
     graphMessageUrl.scheme,
@@ -37,7 +37,7 @@ add_task(async function test_getUrlForUriGraph() {
 
   const xMozGraphUrl = service.getUrlForUri(
     "x-moz-graph://name@localhost/some/folder",
-    null
+    false
   );
   Assert.equal(
     xMozGraphUrl.scheme,

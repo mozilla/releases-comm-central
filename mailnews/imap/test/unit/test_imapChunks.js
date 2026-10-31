@@ -103,7 +103,7 @@ add_task(async function testSaveMessageToDisk() {
     saveFile,
     saveListener,
     true /* canonicalLineEnding */,
-    null
+    false
   );
   await saveListener.promise;
 

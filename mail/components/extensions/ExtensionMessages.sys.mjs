@@ -2852,7 +2852,7 @@ async function retrieveMessageFromServer(mid, server) {
         },
       },
       true,
-      null
+      false
     );
   });
   const status = await savedPromise;

@@ -148,7 +148,7 @@ export class MessageSaver {
               },
             },
             true,
-            null
+            false
           );
           await promise;
           break;

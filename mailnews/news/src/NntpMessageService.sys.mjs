@@ -24,20 +24,10 @@ class BaseMessageService {
   _logger = lazy.NntpUtils.logger;
 
   /** @see nsIMsgMessageService */
-  loadMessage(messageURI, displayConsumer, msgWindow, urlListener) {
-    this._loadMessage(messageURI, displayConsumer, urlListener, !!msgWindow);
-  }
-
-  /**
-   * @param {string} messageURI - Message URI.
-   * @param {nsISupports} displayConsumer - Where to send the message.
-   * @param {?nsIUrlListener} urlListener - Callback for the request.
-   * @param {boolean} interactive - Whether the user is waiting on the message.
-   */
-  _loadMessage(messageURI, displayConsumer, urlListener, interactive) {
+  loadMessage(messageURI, displayConsumer, interactive, urlListener) {
     this._logger.debug("loadMessage", messageURI);
 
-    const uri = this._getUrlForUri(messageURI, interactive);
+    const uri = this.getUrlForUri(messageURI, interactive);
     if (urlListener) {
       uri.RegisterListener(urlListener);
     }
@@ -64,19 +54,10 @@ class BaseMessageService {
 
   /**
    * @param {string} messageURI - Message URI.
-   * @param {?nsIMsgWindow} [msgWindow] - Message window.
+   * @param {boolean} [interactive] - Whether the user is waiting on the url.
    * @returns {nsIURI}
    */
-  getUrlForUri(messageURI, msgWindow) {
-    return this._getUrlForUri(messageURI, !!msgWindow);
-  }
-
-  /**
-   * @param {string} messageURI - Message URI.
-   * @param {boolean} interactive - Whether the user is waiting on the url.
-   * @returns {nsIURI}
-   */
-  _getUrlForUri(messageURI, interactive) {
+  getUrlForUri(messageURI, interactive) {
     const uri = Services.io
       .newURI(this._createMessageIdUrl(messageURI))
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
@@ -105,7 +86,7 @@ class BaseMessageService {
 
   copyMessage(messageUri, copyListener, moveMessage, urlListener, interactive) {
     this._logger.debug("copyMessage", messageUri);
-    this._loadMessage(messageUri, copyListener, urlListener, interactive);
+    this.loadMessage(messageUri, copyListener, interactive, urlListener);
   }
 
   saveMessageToDisk(
@@ -113,10 +94,10 @@ class BaseMessageService {
     file,
     urlListener,
     canonicalLineEnding,
-    msgWindow
+    interactive
   ) {
     this._logger.debug("saveMessageToDisk", messageUri);
-    const url = this.getUrlForUri(messageUri, msgWindow);
+    const url = this.getUrlForUri(messageUri, interactive);
     if (urlListener) {
       url.RegisterListener(urlListener);
     }
@@ -130,9 +111,8 @@ class BaseMessageService {
     this.loadMessage(
       messageUri,
       url.getSaveAsListener(file),
-      msgWindow,
-      urlListener,
-      false
+      interactive,
+      urlListener
     );
   }
 
@@ -287,11 +267,11 @@ class BaseMessageService {
    * @param {nsIURI} uri - URL representing the message.
    * @param {string} messageUri - URI including the part to fetch.
    * @param {nsIStreamListener} streamListener - Stream listener.
-   * @param {nsIMsgWindow} _msgWindow
+   * @param {boolean} _interactive
    * @param {nsIUrlListener} urlListener - URL listener.
    * @returns {nsIURI} the URL that gets run, if any.
    */
-  fetchMimePart(uri, messageUri, streamListener, _msgWindow, urlListener) {
+  fetchMimePart(uri, messageUri, streamListener, _interactive, urlListener) {
     this._logger.debug("fetchMimePart", uri.spec);
     return this.streamMessage(uri.spec, streamListener, urlListener, false, "");
   }

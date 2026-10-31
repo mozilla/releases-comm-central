@@ -114,7 +114,7 @@ nsresult nsImapMoveCoalescer::PlaybackMoves(
       if (copyListener) listener = copyListener;
     }
     rv = copySvc->CopyMessages(m_sourceFolder, messages, destFolder, true,
-                               listener, m_msgWindow, false /*allowUndo*/);
+                               listener, !!m_msgWindow, false /*allowUndo*/);
     if (NS_SUCCEEDED(rv)) m_outstandingMoves++;
   }
   return rv;
