@@ -87,7 +87,7 @@ add_task(function test_largeFlatList() {
     }
   }
 
-  server.startPopulating(null, false, false);
+  server.startPopulating(false, false, false);
   Assert.deepEqual(
     server.getChildURIs(""),
     [],

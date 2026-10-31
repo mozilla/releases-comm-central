@@ -107,7 +107,7 @@ async function SetUpTree(forceToServer, getOnlyNew) {
 
     document.getElementById("stopButton").disabled = false;
 
-    gSubscribableServer.startPopulating(msgWindow, forceToServer, getOnlyNew);
+    gSubscribableServer.startPopulating(true, forceToServer, getOnlyNew);
   } catch (e) {
     if (e.result == Cr.NS_MSG_ERROR_OFFLINE) {
       const offlineString =

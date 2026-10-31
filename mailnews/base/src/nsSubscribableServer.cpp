@@ -164,8 +164,7 @@ nsSubscribableServer::SubscribeCleanup() {
 }
 
 NS_IMETHODIMP
-nsSubscribableServer::StartPopulating(nsIMsgWindow* aMsgWindow,
-                                      bool aForceToServer,
+nsSubscribableServer::StartPopulating(bool interactive, bool aForceToServer,
                                       bool aGetOnlyNew /*ignored*/) {
   mStopped = false;
 

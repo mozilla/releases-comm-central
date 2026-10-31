@@ -115,7 +115,7 @@ add_task(async function testNamespaceRootIsSubscribable() {
     OnDonePopulating: resolve,
     QueryInterface: ChromeUtils.generateQI(["nsISubscribeListener"]),
   };
-  subscribableServer.startPopulating(null, true, false);
+  subscribableServer.startPopulating(false, true, false);
   await promise;
   Assert.ok(
     subscribableServer.isSubscribable("shared"),

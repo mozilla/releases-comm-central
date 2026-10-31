@@ -2263,7 +2263,7 @@ NS_IMETHODIMP nsImapIncomingServer::GetManageMailAccountUrl(
 }
 
 NS_IMETHODIMP
-nsImapIncomingServer::StartPopulating(nsIMsgWindow* aMsgWindow,
+nsImapIncomingServer::StartPopulating(bool interactive,
                                       bool aForceToServer /*ignored*/,
                                       bool aGetOnlyNew) {
   nsresult rv;
@@ -2271,7 +2271,7 @@ nsImapIncomingServer::StartPopulating(nsIMsgWindow* aMsgWindow,
 
   rv = EnsureInner();
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = mInner->StartPopulating(aMsgWindow, aForceToServer, aGetOnlyNew);
+  rv = mInner->StartPopulating(interactive, aForceToServer, aGetOnlyNew);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // imap always uses the canonical delimiter form of paths for subscribe ui.
@@ -2282,7 +2282,7 @@ nsImapIncomingServer::StartPopulating(nsIMsgWindow* aMsgWindow,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-  return imapService->GetListOfFoldersOnServer(this, !!aMsgWindow);
+  return imapService->GetListOfFoldersOnServer(this, interactive);
 }
 
 NS_IMETHODIMP

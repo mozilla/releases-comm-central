@@ -122,12 +122,12 @@ export class NntpIncomingServer extends MsgIncomingServer {
   }
 
   /**
-   * @param {nsIMsgWindow} msgWindow
+   * @param {boolean} interactive
    * @param {boolean} forceToServer
    * @param {boolean} getOnlyNew
    */
-  startPopulating(msgWindow, forceToServer, getOnlyNew) {
-    this._startPopulating(msgWindow, forceToServer, getOnlyNew);
+  startPopulating(interactive, forceToServer, getOnlyNew) {
+    this._startPopulating(interactive, forceToServer, getOnlyNew);
   }
 
   stopPopulating() {
@@ -478,8 +478,8 @@ export class NntpIncomingServer extends MsgIncomingServer {
    *
    * @see startPopulating
    */
-  async _startPopulating(msgWindow, forceToServer, getOnlyNew) {
-    this._subscribable.startPopulating(msgWindow, forceToServer, getOnlyNew);
+  async _startPopulating(interactive, forceToServer, getOnlyNew) {
+    this._subscribable.startPopulating(interactive, forceToServer, getOnlyNew);
     this._groups = [];
 
     this._hostInfoLoaded = false;
@@ -491,7 +491,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
       }
     }
     this._hostInfoChanged = !getOnlyNew;
-    MailServices.nntp.getListOfGroupsOnServer(this, !!msgWindow, getOnlyNew);
+    MailServices.nntp.getListOfGroupsOnServer(this, interactive, getOnlyNew);
   }
 
   /**
