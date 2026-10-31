@@ -1355,9 +1355,9 @@ export var MailUtils = {
    *
    * @param {nsIFile} msgFile - The .eml file to copy..
    * @param {nsIMsgFolder} targetFolder - The message to replace.
-   * @param {nsIMsgWindow} msgWindow - The msg window to be used.
+   * @param {boolean} interactive - Whether the user is waiting on the copy.
    */
-  async copyFileMessageAsync(msgFile, targetFolder, msgWindow) {
+  async copyFileMessageAsync(msgFile, targetFolder, interactive) {
     const { promise, resolve, reject } = Promise.withResolvers();
     /** @implements {nsIMsgCopyServiceListener} */
     const copyServiceListener = {
@@ -1388,7 +1388,7 @@ export var MailUtils = {
       Ci.nsMsgMessageFlags.Read,
       "",
       copyServiceListener,
-      msgWindow
+      interactive
     );
     await promise;
   },

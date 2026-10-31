@@ -1088,7 +1088,7 @@ function moveMessage(sourceFolder, message, targetFolder) {
     targetFolder,
     true,
     copyListener,
-    window.msgWindow,
+    true,
     true
   );
   return copyListener.promise;

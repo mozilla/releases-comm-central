@@ -7,7 +7,6 @@
 #include "IExchangeFolder.h"
 #include "nsMsgTxn.h"
 #include "nsIMsgHdr.h"
-#include "nsIMsgWindow.h"
 
 /**
  * A transaction representing an intra-server Exchange copy or move operation.
@@ -27,8 +26,7 @@ class ExchangeCopyMoveTransaction : public nsMsgTxn {
    */
   static RefPtr<ExchangeCopyMoveTransaction> ForCopy(
       nsCOMPtr<IExchangeFolder> originalSourceFolder,
-      nsCOMPtr<IExchangeFolder> originalDestinationFolder,
-      nsCOMPtr<nsIMsgWindow> window,
+      nsCOMPtr<IExchangeFolder> originalDestinationFolder, bool interactive,
       nsTArray<RefPtr<nsIMsgDBHdr>> originalHeaders,
       nsTArray<RefPtr<nsIMsgDBHdr>> newHeaders);
 
@@ -40,8 +38,8 @@ class ExchangeCopyMoveTransaction : public nsMsgTxn {
    */
   static RefPtr<ExchangeCopyMoveTransaction> ForMove(
       nsCOMPtr<IExchangeFolder> originalSourceFolder,
-      nsCOMPtr<IExchangeFolder> originalDestinationFolder,
-      nsCOMPtr<nsIMsgWindow> window, nsTArray<RefPtr<nsIMsgDBHdr>> newHeaders);
+      nsCOMPtr<IExchangeFolder> originalDestinationFolder, bool interactive,
+      nsTArray<RefPtr<nsIMsgDBHdr>> newHeaders);
 
   NS_IMETHOD UndoTransaction() override;
   NS_IMETHOD RedoTransaction() override;
@@ -64,9 +62,8 @@ class ExchangeCopyMoveTransaction : public nsMsgTxn {
    */
   ExchangeCopyMoveTransaction(
       nsCOMPtr<IExchangeFolder> originalSourceFolder,
-      nsCOMPtr<IExchangeFolder> originalDestinationFolder,
-      nsCOMPtr<nsIMsgWindow> window, bool isMove,
-      nsTArray<RefPtr<nsIMsgDBHdr>>&& originalHeaders,
+      nsCOMPtr<IExchangeFolder> originalDestinationFolder, bool interactive,
+      bool isMove, nsTArray<RefPtr<nsIMsgDBHdr>>&& originalHeaders,
       nsTArray<RefPtr<nsIMsgDBHdr>>&& newHeaders);
   /**
    * Perform the operation, moving the current set of headers from `fromFolder`
@@ -77,7 +74,7 @@ class ExchangeCopyMoveTransaction : public nsMsgTxn {
 
   const nsCOMPtr<IExchangeFolder> mOriginalSourceFolder;
   const nsCOMPtr<IExchangeFolder> mOriginalDestinationFolder;
-  const nsCOMPtr<nsIMsgWindow> mWindow;
+  const bool mInteractive;
   const bool mIsMove;
   const nsTArray<RefPtr<nsIMsgDBHdr>> mOriginalHeaderSet;
   nsTArray<RefPtr<nsIMsgDBHdr>> mCurrentHeaderSet;

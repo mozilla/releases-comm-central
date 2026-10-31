@@ -172,7 +172,7 @@ registerCleanupFunction(async function () {
   inboxFolder.propagateDelete(inboxSubfolder, true);
   inboxFolder.deleteMessages(
     [...inboxFolder.messages],
-    top.msgWindow,
+    true,
     false,
     false,
     null,

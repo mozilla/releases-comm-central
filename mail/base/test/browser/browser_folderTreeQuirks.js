@@ -824,7 +824,7 @@ add_task(async function testFolderMove() {
     newParentFolder,
     true,
     copyListener,
-    window.msgWindow
+    true
   );
   await copyListener.promise;
 
@@ -863,13 +863,7 @@ add_task(async function testFolderMove() {
   // Move `movedFolderB` from `newParentFolder` back to `folderA`.
 
   copyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.copyFolder(
-    movedFolderB,
-    folderA,
-    true,
-    copyListener,
-    window.msgWindow
-  );
+  MailServices.copy.copyFolder(movedFolderB, folderA, true, copyListener, true);
   await copyListener.promise;
 
   folderB = folderA
@@ -936,7 +930,7 @@ add_task(async function testFolderMoveSubfolder() {
     newParentFolder,
     true,
     copyListener,
-    window.msgWindow
+    true
   );
   await copyListener.promise;
 
@@ -964,13 +958,7 @@ add_task(async function testFolderMoveSubfolder() {
   // Move `movedFolderB` from `newParentFolder` back to `folderA`.
 
   copyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.copyFolder(
-    movedFolderC,
-    folderB,
-    true,
-    copyListener,
-    window.msgWindow
-  );
+  MailServices.copy.copyFolder(movedFolderC, folderB, true, copyListener, true);
   await copyListener.promise;
 
   folderC = folderB

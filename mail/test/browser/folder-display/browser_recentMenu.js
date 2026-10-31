@@ -104,7 +104,7 @@ add_task(async function test_move_message() {
     folder2,
     true,
     copyListener,
-    window.msgWindow,
+    true,
     true
   );
   await TestUtils.waitForCondition(

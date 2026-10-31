@@ -715,7 +715,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
       // runs a url, a reference will be added to it. Otherwise, it will get
       // destroyed when the refptr goes out of scope.
       RefPtr<nsImapOfflineSync> goOnline = new nsImapOfflineSync();
-      goOnline->Init(aMsgWindow, this, this, false);
+      goOnline->Init(!!aMsgWindow, this, this, false);
       if (goOnline) {
         // Save the listener, so when we arrive here again later (below)
         // imapService->SelectFolder() gets the right listener.
@@ -2049,7 +2049,7 @@ nsImapMailFolder::GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
 }
 
 NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
-    nsTArray<RefPtr<nsIMsgDBHdr>> const& msgHeaders, nsIMsgWindow* msgWindow,
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& msgHeaders, bool interactive,
     bool deleteStorage, bool isMove, nsIMsgCopyServiceListener* listener,
     bool allowUndo) {
   // *** jt - assuming delete is move to the trash folder for now
@@ -2176,7 +2176,7 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
     nsCOMPtr<nsIMsgCopyService> copyService =
         mozilla::components::Copy::Service();
     rv = copyService->CopyMessages(srcFolder, msgHeaders, trashFolder, true,
-                                   listener, msgWindow, allowUndo);
+                                   listener, interactive, allowUndo);
   }
 
   return rv;
@@ -3209,7 +3209,7 @@ NS_IMETHODIMP nsImapMailFolder::EndCopy(bool copySucceeded) {
     rv = imapService->AppendMessageFromFile(
         m_copyState->m_tmpFile, this, EmptyCString(), true,
         m_copyState->m_selectedState, urlListener, m_copyState,
-        !!m_copyState->m_msgWindow);
+        m_copyState->m_interactive);
   }
   if (NS_FAILED(rv) || !copySucceeded)
     MOZ_LOG(IMAP, mozilla::LogLevel::Info,
@@ -3712,7 +3712,8 @@ FindCounterPartOps(nsACString const& srcFolderUri,
 NS_IMETHODIMP
 nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& srcOpIds,
                                         bool isMove, nsIMsgFolder* destFolder,
-                                        nsIUrlListener* urlListener) {
+                                        nsIUrlListener* urlListener,
+                                        bool interactive) {
   nsresult rv;
 
   // We'll be using nsIImapService.onlineMessageCopy(), which only works
@@ -3796,7 +3797,7 @@ nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& srcOpIds,
   // aDstFolder.
   rv = imapService->OnlineMessageCopy(this, idSet, destFolder, true, isMove,
                                       urlListener, getter_AddRefs(resultUrl),
-                                      nullptr, false);
+                                      nullptr, interactive);
   if (resultUrl) {
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(resultUrl, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -5060,7 +5061,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
                 srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
               }
             }
-            if (m_copyState->m_msgWindow &&
+            if (m_copyState->m_interactive &&
                 m_copyState->m_undoMsgTxn &&  // may be null from filters
                 NS_SUCCEEDED(
                     aExitCode))  // we should do this only if move/copy succeeds
@@ -6373,7 +6374,7 @@ nsImapMailFolder::CopyNextStreamMessage(bool copySucceeded,
       idx--;
       if (idx < mailCopyState->m_messages.Length()) {
         RefPtr<nsIMsgDBHdr> msg = mailCopyState->m_messages[idx];
-        srcFolder->DeleteMessages({msg}, nullptr, true, true, nullptr, false);
+        srcFolder->DeleteMessages({msg}, false, true, true, nullptr, false);
       }
     }
   }
@@ -6388,7 +6389,7 @@ nsImapMailFolder::CopyNextStreamMessage(bool copySucceeded,
     bool isRead;
     message->GetIsRead(&isRead);
     mailCopyState->m_unreadCount = (isRead) ? 0 : 1;
-    rv = CopyStreamMessage(message, this, mailCopyState->m_msgWindow,
+    rv = CopyStreamMessage(message, this, mailCopyState->m_interactive,
                            mailCopyState->m_isMove);
   } else {
     // Notify of move/copy completion in case we have some source headers
@@ -6449,12 +6450,12 @@ nsImapMailFolder::SetUrlState(nsIImapProtocol* aProtocol,
 // used when copying from local mail folder, or other imap server)
 nsresult nsImapMailFolder::CopyMessagesWithStream(
     nsIMsgFolder* srcFolder, nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
-    bool isMove, bool isCrossServerOp, nsIMsgWindow* msgWindow,
+    bool isMove, bool isCrossServerOp, bool interactive,
     nsIMsgCopyServiceListener* listener, bool allowUndo) {
   NS_ENSURE_ARG_POINTER(srcFolder);
   nsresult rv;
   rv = InitCopyState(srcFolder, messages, isMove, false, isCrossServerOp, 0,
-                     EmptyCString(), listener, msgWindow, allowUndo);
+                     EmptyCString(), listener, interactive, allowUndo);
   if (NS_FAILED(rv)) return rv;
 
   m_copyState->m_streamCopy = true;
@@ -6481,7 +6482,8 @@ nsresult nsImapMailFolder::CopyMessagesWithStream(
       undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eCopyMsg);
     m_copyState->m_undoMsgTxn = undoMsgTxn;
   }
-  if (NS_SUCCEEDED(rv)) CopyStreamMessage(messages[0], this, msgWindow, isMove);
+  if (NS_SUCCEEDED(rv))
+    CopyStreamMessage(messages[0], this, interactive, isMove);
   return rv;  // we are clearing copy state in CopyMessages on failure
 }
 
@@ -6563,7 +6565,7 @@ static nsresult CopyStoreMessage(nsIMsgDBHdr* srcHdr, nsIMsgDBHdr* destHdr,
 // offline delete, load the next message, then playback the offline delete).
 nsresult nsImapMailFolder::CopyMessagesOffline(
     nsIMsgFolder* srcFolder, nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
-    bool isMove, nsIMsgWindow* msgWindow, nsIMsgCopyServiceListener* listener) {
+    bool isMove, bool interactive, nsIMsgCopyServiceListener* listener) {
   nsresult rv;
   nsresult stopit = NS_OK;
   nsCOMPtr<nsIMsgDatabase> sourceMailDB;
@@ -6992,7 +6994,7 @@ void nsImapMailFolder::SetPendingAttributes(
 NS_IMETHODIMP
 nsImapMailFolder::CopyMessages(
     nsIMsgFolder* srcFolder, nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
-    bool isMove, nsIMsgWindow* msgWindow, nsIMsgCopyServiceListener* listener,
+    bool isMove, bool interactive, nsIMsgCopyServiceListener* listener,
     bool isFolder,  // isFolder for future use when we do cross-server folder
                     // move/copy
     bool allowUndo) {
@@ -7012,7 +7014,8 @@ nsImapMailFolder::CopyMessages(
   // false, and we should just do the action.
   if (!WeAreOffline() && sameServer && allowUndo) {
     // complete the copy operation as in offline mode
-    rv = CopyMessagesOffline(srcFolder, messages, isMove, msgWindow, listener);
+    rv =
+        CopyMessagesOffline(srcFolder, messages, isMove, interactive, listener);
 
     NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "error offline copy");
     // We'll warn if this fails, but we should still try to play back
@@ -7031,7 +7034,7 @@ nsImapMailFolder::CopyMessages(
     // function's responsibility to delete the new request object
     if (!srcImapFolder->m_pendingPlaybackReq) {
       srcImapFolder->m_pendingPlaybackReq =
-          new nsPlaybackRequest(srcImapFolder, msgWindow);
+          new nsPlaybackRequest(srcImapFolder, interactive);
     }
 
     // Create and start a new playback one-shot timer. If there is already a
@@ -7066,7 +7069,7 @@ nsImapMailFolder::CopyMessages(
     NS_ENSURE_SUCCESS(rv, rv);
 
     if (WeAreOffline())
-      return CopyMessagesOffline(srcFolder, sortedMsgs, isMove, msgWindow,
+      return CopyMessagesOffline(srcFolder, sortedMsgs, isMove, interactive,
                                  listener);
 
     nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
@@ -7077,7 +7080,7 @@ nsImapMailFolder::CopyMessages(
     // if the folders aren't on the same server, do a stream base copy
     if (!sameServer) {
       rv = CopyMessagesWithStream(srcFolder, sortedMsgs, isMove, true,
-                                  msgWindow, listener, allowUndo);
+                                  interactive, listener, allowUndo);
       goto done;
     }
 
@@ -7096,7 +7099,7 @@ nsImapMailFolder::CopyMessages(
     rv =
         QueryInterface(NS_GET_IID(nsIUrlListener), getter_AddRefs(urlListener));
     rv = InitCopyState(srcSupport, sortedMsgs, isMove, true, false, 0,
-                       EmptyCString(), listener, msgWindow, allowUndo);
+                       EmptyCString(), listener, interactive, allowUndo);
     if (NS_FAILED(rv)) goto done;
 
     m_copyState->m_curIndex = m_copyState->m_messages.Length();
@@ -7110,7 +7113,7 @@ nsImapMailFolder::CopyMessages(
     nsCOMPtr<nsISupports> copySupport = do_QueryInterface(m_copyState);
     rv = imapService->OnlineMessageCopy(
         srcFolder, messageIds, this, true, isMove, urlListener,
-        getter_AddRefs(resultUrl), copySupport, !!msgWindow);
+        getter_AddRefs(resultUrl), copySupport, interactive);
     if (NS_SUCCEEDED(rv) && m_copyState->m_allowUndo) {
       RefPtr<nsImapMoveCopyMsgTxn> undoMsgTxn = new nsImapMoveCopyMsgTxn;
       if (!undoMsgTxn ||
@@ -7150,7 +7153,7 @@ class nsImapFolderCopyState final : public nsIUrlListener,
                                     public nsIMsgCopyServiceListener {
  public:
   nsImapFolderCopyState(nsIMsgFolder* destParent, nsIMsgFolder* srcFolder,
-                        bool isMoveMessages, nsIMsgWindow* msgWindow,
+                        bool isMoveMessages, bool interactive,
                         nsIMsgCopyServiceListener* listener);
 
   NS_DECL_ISUPPORTS
@@ -7168,7 +7171,7 @@ class nsImapFolderCopyState final : public nsIUrlListener,
   nsCOMPtr<nsIMsgFolder> m_curSrcFolder;
   bool m_isMoveMessages;
   nsCOMPtr<nsIMsgCopyServiceListener> m_copySrvcListener;
-  nsCOMPtr<nsIMsgWindow> m_msgWindow;
+  bool m_interactive;
   int32_t m_childIndex;
   nsCOMArray<nsIMsgFolder> m_srcChildFolders;
   nsCOMArray<nsIMsgFolder> m_destParents;
@@ -7179,12 +7182,12 @@ NS_IMPL_ISUPPORTS(nsImapFolderCopyState, nsIUrlListener,
 
 nsImapFolderCopyState::nsImapFolderCopyState(
     nsIMsgFolder* destParent, nsIMsgFolder* srcFolder, bool isMoveMessages,
-    nsIMsgWindow* msgWindow, nsIMsgCopyServiceListener* listener) {
+    bool interactive, nsIMsgCopyServiceListener* listener) {
   m_origSrcFolder = do_QueryInterface(srcFolder);
   m_curDestParent = destParent;
   m_curSrcFolder = srcFolder;
   m_isMoveMessages = isMoveMessages;
-  m_msgWindow = msgWindow;
+  m_interactive = interactive;
   m_copySrvcListener = listener;
   m_childIndex = -1;
   // NOTE: The nsImapMailFolder doesn't keep a reference to us, so we're
@@ -7203,7 +7206,7 @@ nsresult nsImapFolderCopyState::StartNextCopy() {
   nsAutoCString folderName;
   m_curSrcFolder->GetName(folderName);
   return imapService->EnsureFolderExists(m_curDestParent, folderName,
-                                         !!m_msgWindow, this);
+                                         m_interactive, this);
 }
 
 nsresult nsImapFolderCopyState::AdvanceToNextFolder(nsresult aStatus) {
@@ -7306,7 +7309,7 @@ nsImapFolderCopyState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
           nsCOMPtr<nsIMsgCopyService> copyService =
               mozilla::components::Copy::Service();
           rv = copyService->CopyMessages(m_curSrcFolder, msgArray, newMsgFolder,
-                                         m_isMoveMessages, this, m_msgWindow,
+                                         m_isMoveMessages, this, m_interactive,
                                          false /* allowUndo */);
         } break;
       }
@@ -7348,7 +7351,7 @@ NS_IMETHODIMP nsImapFolderCopyState::OnStopCopy(nsresult aStatus) {
 // srcFolder may be another imap or a local/pop3 folder.
 NS_IMETHODIMP
 nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
-                             nsIMsgWindow* msgWindow,
+                             bool interactive,
                              nsIMsgCopyServiceListener* listener) {
   NS_ENSURE_ARG_POINTER(srcFolder);
   nsresult rv;
@@ -7372,10 +7375,10 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
     nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
     nsCOMPtr<nsISupports> srcSupport = do_QueryInterface(srcFolder);
     rv = InitCopyState(srcSupport, {}, false, false, false, 0, EmptyCString(),
-                       listener, msgWindow, false);
+                       listener, interactive, false);
     if (NS_FAILED(rv)) return OnCopyCompleted(srcSupport, rv);
 
-    return imapService->MoveFolder(srcFolder, this, this, !!msgWindow);
+    return imapService->MoveFolder(srcFolder, this, this, interactive);
   }
 
   // !sameServer OR it's a copy. folderCopier, set below, handles the folder
@@ -7387,7 +7390,7 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
   RefPtr<nsImapFolderCopyState> folderCopier = new nsImapFolderCopyState(
       this, srcFolder,
       isMoveFolder,  // Always copy folders; if true only move the messages
-      msgWindow, listener);
+      interactive, listener);
   // NOTE: the copystate object must hold itself in existence until complete,
   // as we're not keeping hold of it here.
   return rv = folderCopier->StartNextCopy();
@@ -7397,7 +7400,7 @@ NS_IMETHODIMP
 nsImapMailFolder::CopyFileMessage(nsIFile* file, nsIMsgDBHdr* msgToReplace,
                                   bool isDraftOrTemplate, uint32_t aNewMsgFlags,
                                   const nsACString& aNewMsgKeywords,
-                                  nsIMsgWindow* msgWindow,
+                                  bool interactive,
                                   nsIMsgCopyServiceListener* listener) {
   nsresult rv = NS_ERROR_NULL_POINTER;
   nsMsgKey key = nsMsgKey_None;
@@ -7428,13 +7431,14 @@ nsImapMailFolder::CopyFileMessage(nsIFile* file, nsIMsgDBHdr* msgToReplace,
 
   bool isMove = (msgToReplace ? true : false);
   rv = InitCopyState(file, messages, isMove, isDraftOrTemplate, false,
-                     aNewMsgFlags, aNewMsgKeywords, listener, msgWindow, false);
+                     aNewMsgFlags, aNewMsgKeywords, listener, interactive,
+                     false);
   if (NS_FAILED(rv)) return OnCopyCompleted(file, rv);
 
   m_copyState->m_streamCopy = true;
   rv = imapService->AppendMessageFromFile(file, this, messageId, true,
                                           isDraftOrTemplate, this, m_copyState,
-                                          !!msgWindow);
+                                          interactive);
   if (NS_FAILED(rv)) return OnCopyCompleted(file, rv);
 
   return rv;
@@ -7443,7 +7447,7 @@ nsImapMailFolder::CopyFileMessage(nsIFile* file, nsIMsgDBHdr* msgToReplace,
 nsresult nsImapMailFolder::CopyStreamMessage(
     nsIMsgDBHdr* message,
     nsIMsgFolder* dstFolder,  // should be this
-    nsIMsgWindow* aMsgWindow, bool isMove) {
+    bool interactive, bool isMove) {
   NS_ENSURE_ARG_POINTER(message);
 
   if (!m_copyState) {
@@ -7508,7 +7512,7 @@ nsresult nsImapMailFolder::CopyStreamMessage(
 
     rv = m_copyState->m_msgService->CopyMessage(
         uri, streamListener, isMove && !m_copyState->m_isCrossServerOp, nullptr,
-        !!aMsgWindow);
+        interactive);
     if (NS_FAILED(rv)) {
       MOZ_LOG(IMAP, mozilla::LogLevel::Info,
               ("CopyMessage failed: uri %s", uri.get()));
@@ -7518,7 +7522,8 @@ nsresult nsImapMailFolder::CopyStreamMessage(
 }
 
 nsImapMailCopyState::nsImapMailCopyState()
-    : m_isMove(false),
+    : m_interactive(false),
+      m_isMove(false),
       m_selectedState(false),
       m_isCrossServerOp(false),
       m_curIndex(0),
@@ -7543,7 +7548,7 @@ nsresult nsImapMailFolder::InitCopyState(
     nsISupports* srcSupport, nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
     bool isMove, bool selectedState, bool acrossServers, uint32_t newMsgFlags,
     const nsACString& newMsgKeywords, nsIMsgCopyServiceListener* listener,
-    nsIMsgWindow* msgWindow, bool allowUndo) {
+    bool interactive, bool allowUndo) {
   NS_ENSURE_ARG_POINTER(srcSupport);
 
   NS_ENSURE_TRUE(!m_copyState, NS_ERROR_FAILURE);
@@ -7585,7 +7590,7 @@ nsresult nsImapMailFolder::InitCopyState(
   m_copyState->m_newMsgKeywords = newMsgKeywords;
   m_copyState->m_allowUndo = allowUndo;
   m_copyState->m_selectedState = selectedState;
-  m_copyState->m_msgWindow = msgWindow;
+  m_copyState->m_interactive = interactive;
   if (listener) m_copyState->m_listener = listener;
   return NS_OK;
 }
@@ -8875,7 +8880,7 @@ void nsImapMailFolder::PlaybackTimerCallback(nsITimer* aTimer, void* aClosure) {
 
   RefPtr<nsImapOfflineSync> offlineSync = new nsImapOfflineSync();
   // Execute the offline operations, in pseudoOffline mode.
-  offlineSync->Init(request->MsgWindow, nullptr, request->SrcFolder, true);
+  offlineSync->Init(request->Interactive, nullptr, request->SrcFolder, true);
   mozilla::DebugOnly<nsresult> rv = offlineSync->ProcessNextOperation();
   NS_ASSERTION(NS_SUCCEEDED(rv), "pseudo-offline playback is not successful");
 

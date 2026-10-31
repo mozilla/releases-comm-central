@@ -45,7 +45,7 @@ function CopyNextMessage() {
       gCopyDest,
       true,
       copyListener,
-      null,
+      false,
       false
     );
   } else {

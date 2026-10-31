@@ -220,7 +220,7 @@ add_task(async function check_smime_message() {
       0,
       "",
       promiseCopyListener,
-      null
+      false
     );
 
     await promiseCopyListener.promise;

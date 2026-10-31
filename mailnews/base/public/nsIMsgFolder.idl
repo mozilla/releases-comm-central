@@ -566,14 +566,14 @@ interface nsIMsgFolder : nsISupports {
    * Deletes the messages from the folder.
    *
    * @param messages      The array of nsIMsgDBHdr objects to be deleted.
-   * @param msgWindow     The standard message window object, for alerts et al.
+   * @param interactive   Whether the user is waiting on the deletion.
    * @param deleteStorage Whether or not the message should be truly deleted, as
                           opposed to moving to trash.
    * @param isMove        Whether or not this is a deletion for moving messages.
    * @param allowUndo     Whether this action should be undoable.
    */
   void deleteMessages(in Array<nsIMsgDBHdr> messages,
-                      in nsIMsgWindow msgWindow,
+                      in boolean interactive,
                       in boolean deleteStorage, in boolean isMove,
                       in nsIMsgCopyServiceListener listener, in boolean allowUndo);
 
@@ -586,14 +586,14 @@ interface nsIMsgFolder : nsISupports {
    * @param messages - The array of nsIMsgHdrs in source folder which will be
    *   moved/copied. This must be non-empty.
    * @param isMove - false for copy operation, true for move operation.
-   * @param msgWindow - Window for notification callbacks, can be null.
+   * @param interactive - Whether the user is waiting on the copy.
    * @param listener - Listener which receives operation notifications.
    * @param isFolder - Used internally by some implementations.
    * @param allowUndo - Specifies if this operation will be done as an
    *   transaction that can be undone.
    */
   void copyMessages(in nsIMsgFolder srcFolder, in Array<nsIMsgDBHdr> messages,
-                    in boolean isMove, in nsIMsgWindow msgWindow,
+                    in boolean isMove, in boolean interactive,
                     in nsIMsgCopyServiceListener listener, in boolean isFolder,
                     in boolean allowUndo);
 
@@ -604,16 +604,16 @@ interface nsIMsgFolder : nsISupports {
    *
    * @param srcFolder - Source folder of an operation.
    * @param isMoveFolder - false for copy operation, true for move operation.
-   * @param msgWindow - Window for notification callbacks, can be null.
+   * @param interactive - Whether the user is waiting on the copy.
    * @param listener - Listener which receives operation notifications.
    */
   void copyFolder(in nsIMsgFolder srcFolder, in boolean isMoveFolder,
-                  in nsIMsgWindow msgWindow, in nsIMsgCopyServiceListener listener);
+                  in boolean interactive, in nsIMsgCopyServiceListener listener);
 
   void copyFileMessage(in nsIFile file, in nsIMsgDBHdr msgToReplace,
                        in boolean isDraft, in unsigned long newMsgFlags,
                        in ACString aKeywords,
-                       in nsIMsgWindow msgWindow,
+                       in boolean interactive,
                        in nsIMsgCopyServiceListener listener);
 
   /**

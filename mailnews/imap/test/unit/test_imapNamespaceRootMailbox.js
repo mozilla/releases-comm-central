@@ -63,7 +63,7 @@ add_task(async function testMoveMessageToNamespaceRoot() {
     shared,
     true,
     listener,
-    null,
+    false,
     false
   );
   await listener.promise;
@@ -78,7 +78,7 @@ add_task(async function testMoveFolderToNamespaceRoot() {
     root.getChildNamed("shared"),
     true,
     listener,
-    null
+    false
   );
   await listener.promise;
   Assert.ok(gServer._daemon.getMailbox("shared/folder"));

@@ -44,7 +44,7 @@ add_task(async function testMultiFolderMove() {
       dest,
       true,
       listener,
-      null
+      false
     );
     return listener.promise;
   });

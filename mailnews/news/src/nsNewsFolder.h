@@ -44,8 +44,8 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
                                   nsIMsgDatabase** db) override;
 
   NS_IMETHOD DeleteMessages(nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
-                            nsIMsgWindow* msgWindow, bool deleteStorage,
-                            bool isMove, nsIMsgCopyServiceListener* listener,
+                            bool interactive, bool deleteStorage, bool isMove,
+                            nsIMsgCopyServiceListener* listener,
                             bool allowUndo) override;
   NS_IMETHOD GetNewMessages(nsIMsgWindow* aWindow,
                             nsIUrlListener* aListener) override;

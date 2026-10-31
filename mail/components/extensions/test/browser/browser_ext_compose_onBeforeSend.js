@@ -464,7 +464,7 @@ add_task(async function testChangeDetails() {
   await new Promise(resolve => {
     gOutbox.deleteMessages(
       [sentMessage5, sentMessage6],
-      null,
+      false,
       true,
       false,
       { onStopCopy: resolve },
@@ -570,7 +570,7 @@ add_task(async function testChangeAttachments() {
   await new Promise(resolve => {
     gOutbox.deleteMessages(
       [sentMessage12],
-      null,
+      false,
       true,
       false,
       { onStopCopy: resolve },
@@ -759,7 +759,7 @@ add_task(async function testListExpansion() {
   await new Promise(resolve => {
     gOutbox.deleteMessages(
       [sentMessage7, sentMessage8],
-      null,
+      false,
       true,
       false,
       { onStopCopy: resolve },
@@ -905,7 +905,7 @@ add_task(async function testMultipleListeners() {
   await new Promise(resolve => {
     gOutbox.deleteMessages(
       [sentMessage],
-      null,
+      false,
       true,
       false,
       { onStopCopy: resolve },

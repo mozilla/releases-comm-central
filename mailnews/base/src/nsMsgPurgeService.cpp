@@ -471,8 +471,8 @@ NS_IMETHODIMP nsMsgPurgeService::OnSearchDone(nsresult status) {
       MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("delete messages"));
       if (mSearchFolder)
         mSearchFolder->DeleteMessages(
-            mHdrsToDelete, nullptr, false /*delete storage*/, false /*isMove*/,
-            nullptr, false /*allowUndo*/);
+            mHdrsToDelete, false /*interactive*/, false /*delete storage*/,
+            false /*isMove*/, nullptr, false /*allowUndo*/);
     }
   }
   mHdrsToDelete.Clear();

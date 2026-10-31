@@ -251,7 +251,7 @@ add_task(async function test_copyToFolder_imports_message() {
       MailStringUtils.byteStringToUint8Array(normalized)
     );
     const msgFile = await IOUtils.getFile(msgFilePath);
-    await MailUtils.copyFileMessageAsync(msgFile, targetFolder, null);
+    await MailUtils.copyFileMessageAsync(msgFile, targetFolder, false);
     await IOUtils.remove(msgFilePath);
   };
 

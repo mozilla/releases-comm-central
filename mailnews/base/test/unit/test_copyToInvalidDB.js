@@ -71,7 +71,7 @@ add_task(async function test_copyToInvalidDB() {
     folder2,
     true, // isMove
     copyListener,
-    null, // window
+    false, // window
     false // allowUndo
   );
   await copyListener.promise;

@@ -98,7 +98,8 @@ interface nsIMsgImapMailFolder : nsISupports {
       in Array<nsMsgKey> aKeysToFlag, in nsIUrlListener aUrlListener);
   nsIURI setImapFlags(in Array<nsMsgKey> msgKeys, in long flags);
   void replayOfflineMoveCopy(in Array<nsMsgKey> srcOpIds, in boolean isMove,
-      in nsIMsgFolder destFolder, in nsIUrlListener urlListener);
+      in nsIMsgFolder destFolder, in nsIUrlListener urlListener,
+      in boolean interactive);
 
   /**
    * This is called by the offline sync code to tell the imap folder to

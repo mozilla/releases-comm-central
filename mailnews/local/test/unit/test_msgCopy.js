@@ -25,7 +25,7 @@ add_task(async function test_fileCopySetKeywords() {
       0 /* message flags */,
       tag1 /* keywords */,
       copyListener,
-      null /* window */
+      false
     );
     const copied = await copyListener.promise;
 

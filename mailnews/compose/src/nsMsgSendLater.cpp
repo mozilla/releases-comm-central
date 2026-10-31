@@ -820,7 +820,7 @@ nsresult nsMsgSendLater::DeleteCurrentMessage() {
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> folder = do_QueryReferent(mMessageFolder, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = folder->DeleteMessages({&*mMessage}, nullptr, true, false, nullptr,
+  rv = folder->DeleteMessages({&*mMessage}, false, true, false, nullptr,
                               false /*allowUndo*/);
   if (NS_FAILED(rv)) return NS_ERROR_FAILURE;
 

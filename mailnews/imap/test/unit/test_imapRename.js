@@ -158,7 +158,7 @@ add_task(async function test_moveKeepsSettings() {
 
   // Move it, which is what dragging it in the folder pane does.
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.copyFolder(folder, destination, true, copyListener, null);
+  MailServices.copy.copyFolder(folder, destination, true, copyListener, false);
   await copyListener.promise;
 
   assertSettings(destination.getChildNamed("to move"), "the moved folder");
@@ -198,7 +198,7 @@ add_task(async function test_moveToTrashDropsSettings() {
 
   // Delete it, which moves it to the trash.
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.copyFolder(folder, trash, true, copyListener, null);
+  MailServices.copy.copyFolder(folder, trash, true, copyListener, false);
   await copyListener.promise;
 
   const deletedFolder = trash.getChildNamed("to delete");

@@ -46,7 +46,7 @@ NS_IMPL_ISUPPORTS(nsImapOfflineSync, nsIUrlListener, nsIMsgCopyServiceListener,
 
 nsImapOfflineSync::nsImapOfflineSync() {
   m_singleFolderToUpdate = nullptr;
-  m_window = nullptr;
+  m_interactive = false;
   mCurrentPlaybackOpType = nsIMsgOfflineImapOperation::kFlagsChanged;
   m_mailboxupdatesStarted = false;
   m_mailboxupdatesFinished = false;
@@ -57,10 +57,10 @@ nsImapOfflineSync::nsImapOfflineSync() {
   m_listener = nullptr;
 }
 
-nsresult nsImapOfflineSync::Init(nsIMsgWindow* window, nsIUrlListener* listener,
+nsresult nsImapOfflineSync::Init(bool interactive, nsIUrlListener* listener,
                                  nsIMsgFolder* singleFolderOnly,
                                  bool isPseudoOffline) {
-  m_window = window;
+  m_interactive = interactive;
   m_listener = listener;
   m_singleFolderToUpdate = singleFolderOnly;
   m_pseudoOffline = isPseudoOffline;
@@ -70,7 +70,9 @@ nsresult nsImapOfflineSync::Init(nsIMsgWindow* window, nsIUrlListener* listener,
 
 nsImapOfflineSync::~nsImapOfflineSync() {}
 
-void nsImapOfflineSync::SetWindow(nsIMsgWindow* window) { m_window = window; }
+void nsImapOfflineSync::SetInteractive(bool interactive) {
+  m_interactive = interactive;
+}
 
 NS_IMETHODIMP nsImapOfflineSync::OnStartRunningUrl(nsIURI* url) {
   return NS_OK;
@@ -317,7 +319,7 @@ void nsImapOfflineSync::ProcessKeywordOperation(
       nsCOMPtr<nsIURI> uriToStoreCustomKeywords;
       if (imapFolder) {
         rv = imapFolder->StoreCustomKeywords(
-            !!m_window,
+            m_interactive,
             (mCurrentPlaybackOpType == nsIMsgOfflineImapOperation::kAddKeywords)
                 ? keywords
                 : EmptyCString(),
@@ -416,7 +418,7 @@ void nsImapOfflineSync::ProcessAppendMsgOperation(
                                       nullptr,  // nsIMsgDBHdr* msgToReplace
                                       true,     // isDraftOrTemplate
                                       0,        // new msg flags
-                                      EmptyCString(), this, m_window);
+                                      EmptyCString(), this, m_interactive);
     MOZ_ASSERT(NS_SUCCEEDED(rv),
                "CopyFileMessage() failed. Fatal. Error in call setup?");
   } while (false);
@@ -488,7 +490,8 @@ void nsImapOfflineSync::ProcessMoveOperation(nsIMsgOfflineImapOperation* op) {
   nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
       do_QueryInterface(m_currentFolder);
   if (imapFolder && DestFolderOnSameServer(destFolder)) {
-    imapFolder->ReplayOfflineMoveCopy(srcKeys, true, destFolder, this);
+    imapFolder->ReplayOfflineMoveCopy(srcKeys, true, destFolder, this,
+                                      m_interactive);
   } else {
     // NOTE: Is this dead code?
     // The source messages have already been removed from the database,
@@ -523,7 +526,7 @@ void nsImapOfflineSync::ProcessMoveOperation(nsIMsgOfflineImapOperation* op) {
     nsCOMPtr<nsIMsgCopyService> copyService =
         mozilla::components::Copy::Service();
     copyService->CopyMessages(m_currentFolder, messages, destFolder, true, this,
-                              m_window, false);
+                              m_interactive, false);
   }
 }
 
@@ -592,7 +595,7 @@ void nsImapOfflineSync::ProcessCopyOperation(
       do_QueryInterface(m_currentFolder);
   if (imapFolder && DestFolderOnSameServer(destFolder)) {
     rv = imapFolder->ReplayOfflineMoveCopy(matchingFlagKeys, false, destFolder,
-                                           this);
+                                           this, m_interactive);
   } else {
     nsTArray<RefPtr<nsIMsgDBHdr>> messages;
     for (uint32_t keyIndex = 0; keyIndex < matchingFlagKeys.Length();
@@ -605,7 +608,7 @@ void nsImapOfflineSync::ProcessCopyOperation(
     nsCOMPtr<nsIMsgCopyService> copyService =
         mozilla::components::Copy::Service();
     copyService->CopyMessages(m_currentFolder, messages, destFolder, false,
-                              this, m_window, false);
+                              this, m_interactive, false);
   }
 }
 
@@ -738,6 +741,7 @@ nsresult nsImapOfflineSync::ProcessNextOperation() {
             // Passing this as UrlListener, so our OnStopRunningUrl() will be
             // called when this completes.
             return imapService->LiteSelectFolder(m_currentFolder, this,
+                                                 m_interactive,
                                                  getter_AddRefs(unusedUri));
           }
         }
@@ -886,7 +890,9 @@ nsresult nsImapOfflineSync::ProcessNextOperation() {
       AdvanceToNextFolder();
     }
     if (m_singleFolderToUpdate) {
-      m_singleFolderToUpdate->UpdateFolder(m_window);
+      // No window to hand over any more; updateFolder() loses its own
+      // soon enough.
+      m_singleFolderToUpdate->UpdateFolder(nullptr);
     }
   }
   // if we get here, then I *think* we're done. Not sure, though.

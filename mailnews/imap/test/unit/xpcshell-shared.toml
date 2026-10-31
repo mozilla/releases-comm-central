@@ -200,6 +200,8 @@ run-if = [
 
 ["test_offlinePlayback.js"]
 
+["test_offlinePlaybackPassword.js"]
+
 ["test_offlineStoreLocking.js"]
 tags = ["compact"]
 

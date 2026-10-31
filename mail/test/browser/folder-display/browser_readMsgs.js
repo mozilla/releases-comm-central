@@ -47,7 +47,7 @@ add_task(async function testMarkedAsRead() {
     0,
     "",
     promiseCopyListener,
-    null
+    false
   );
   await promiseCopyListener.promise;
   await be_in_folder(folder);

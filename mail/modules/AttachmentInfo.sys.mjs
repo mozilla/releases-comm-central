@@ -416,7 +416,7 @@ export class AttachmentInfo {
         lazy.MailStringUtils.byteStringToUint8Array(normalized)
       );
 
-      await lazy.MailUtils.copyFileMessageAsync(tempFile, targetFolder, null);
+      await lazy.MailUtils.copyFileMessageAsync(tempFile, targetFolder, false);
     } finally {
       // Clean up the temp file even if the copy fails.
       await IOUtils.remove(tempFile.path);
@@ -975,7 +975,7 @@ export class AttachmentInfo {
       msgHdr.flags,
       msgHdr.getStringProperty("keywords"),
       copyServiceListener,
-      null
+      false
     );
     await promise;
     await IOUtils.remove(msgFilePath); // Cleanup.
@@ -1009,7 +1009,7 @@ export class AttachmentInfo {
     msgHdr.setUint32Property("attachmentDetached", 1);
     msgHdr.folder.deleteMessages(
       [msgHdr],
-      null,
+      false,
       true,
       false,
       copyServiceListener,

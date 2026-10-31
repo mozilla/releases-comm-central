@@ -143,7 +143,7 @@ nsresult ExchangeMessageCopyHandler::StartCopyingNextMessage() {
     // We'll buffer up the message in mBuffer before we proceed, see
     // BeginCopy()/CopyData()/EndCopy().
     return messageService->CopyMessage(uri, copyListener, mIsMove, nullptr,
-                                       !!mWindow);
+                                       mInteractive);
   }
 
   if (mSrcFile) {
@@ -272,8 +272,8 @@ nsresult ExchangeMessageCopyHandler::OnCreateFinished(nsresult status,
     // of a copy. It looks like this argument is almost never set (and never
     // during a copy), except for `AttachmentDeleter::DeleteOriginalMessage`
     // which doesn't seem to do anything when the listener is called.
-    MOZ_TRY(mSrcFolder.value()->DeleteMessages({curHdr}, mWindow, true, true,
-                                               nullptr, false));
+    MOZ_TRY(mSrcFolder.value()->DeleteMessages({curHdr}, mInteractive, true,
+                                               true, nullptr, false));
   }
 
   mCurIndex++;

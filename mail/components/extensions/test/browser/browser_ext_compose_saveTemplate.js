@@ -295,7 +295,7 @@ async function runTest(mainConfig) {
     await new Promise(resolve => {
       folder.deleteMessages(
         messages,
-        null,
+        false,
         true,
         false,
         { onStopCopy: resolve },

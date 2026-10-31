@@ -201,7 +201,7 @@ function richCreateMessage(
   // Clear all messages
   const msgs = [...gDraftFolder.msgDatabase.enumerateMessages()];
   if (msgs.length > 0) {
-    gDraftFolder.deleteMessages(msgs, null, true, false, null, false);
+    gDraftFolder.deleteMessages(msgs, false, true, false, null, false);
   }
 
   // Set attachment

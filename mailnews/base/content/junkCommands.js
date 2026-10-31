@@ -313,7 +313,7 @@ function deleteJunkInFolder(folder) {
   }
 
   if (junkMsgHdrs.length) {
-    folder.deleteMessages(junkMsgHdrs, top.msgWindow, false, false, null, true);
+    folder.deleteMessages(junkMsgHdrs, true, false, false, null, true);
   }
   return junkMsgHdrs.length;
 }

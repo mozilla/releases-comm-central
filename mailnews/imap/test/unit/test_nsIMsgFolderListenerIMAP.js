@@ -93,7 +93,7 @@ function copyFileMessage(file, messageId, destFolder) {
     0,
     "",
     copyListener,
-    null
+    false
   );
   gCurrStatus |= kStatus.functionCallDone;
   gServer.performTest("APPEND");
@@ -186,7 +186,7 @@ function copyMessages(messages, isMove, srcFolder, destFolder) {
     destFolder,
     isMove,
     copyListener,
-    gMsgWindow,
+    true,
     true
   );
   gCurrStatus |= kStatus.functionCallDone;

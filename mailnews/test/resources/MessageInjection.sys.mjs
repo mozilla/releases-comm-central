@@ -387,7 +387,7 @@ export class MessageInjection {
             }
           },
         },
-        null
+        false
       );
     });
   }
@@ -834,7 +834,7 @@ export class MessageInjection {
         realDestFolder,
         /* move */ true,
         promiseCopyListener,
-        null,
+        false,
         Boolean(allowUndo)
       );
       await promiseCopyListener.promise;
@@ -880,7 +880,7 @@ export class MessageInjection {
       const promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
       folder.deleteMessages(
         msgs,
-        null,
+        false,
         false,
         true,
         promiseCopyListener,
@@ -928,7 +928,7 @@ export class MessageInjection {
       const promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
       folder.deleteMessages(
         msgs,
-        null,
+        false,
         /* delete storage */ true,
         /* is move? */ false,
         promiseCopyListener,

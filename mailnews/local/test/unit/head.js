@@ -130,7 +130,7 @@ function copyFileMessageInLocalFolder(
     aMessageFlags,
     aMessageKeywords,
     gCopyListener,
-    aMessageWindow
+    true
   );
 }
 

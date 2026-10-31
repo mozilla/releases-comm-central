@@ -77,12 +77,12 @@ function copyFileMessage(file, destFolder, isDraftOrTemplate) {
     0,
     "",
     copyListener,
-    null
+    false
   );
 }
 
 function deleteMessages(srcFolder, items) {
-  srcFolder.deleteMessages(items, null, false, true, copyListener, true);
+  srcFolder.deleteMessages(items, false, false, true, copyListener, true);
 }
 
 /*

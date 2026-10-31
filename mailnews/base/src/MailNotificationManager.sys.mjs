@@ -49,7 +49,7 @@ const availableActions = [
     },
     runAction(message) {
       message.folder.markMessagesRead([message], true);
-      message.folder.deleteMessages([message], null, false, false, null, true);
+      message.folder.deleteMessages([message], false, false, false, null, true);
     },
   },
   {

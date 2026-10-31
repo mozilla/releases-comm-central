@@ -69,7 +69,7 @@ function copyFileMessage(file, destFolder, isDraftOrTemplate) {
     0,
     "",
     listener,
-    null
+    false
   );
   return listener.promise;
 }

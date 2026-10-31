@@ -51,7 +51,7 @@ async function cleanUpFolder(folder) {
     const msgs = [...folder.msgDatabase.enumerateMessages()];
     folder.deleteMessages(
       msgs,
-      null,
+      false,
       true,
       false,
       { onStopCopy: resolve },

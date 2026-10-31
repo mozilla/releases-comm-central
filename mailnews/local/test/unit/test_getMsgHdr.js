@@ -25,7 +25,7 @@ add_task(async function test_getMsgHdr() {
       0,
       "",
       copyListener,
-      null
+      false
     );
     const [key] = (await copyListener.promise).messageKeys;
 

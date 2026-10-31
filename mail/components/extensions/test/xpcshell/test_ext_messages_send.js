@@ -68,7 +68,7 @@ function clearTestFolders() {
     }
     const messages = [...folder.msgDatabase.enumerateMessages()];
     if (messages.length) {
-      folder.deleteMessages(messages, null, true, false, null, false);
+      folder.deleteMessages(messages, false, true, false, null, false);
     }
   }
 }

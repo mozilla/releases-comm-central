@@ -108,7 +108,7 @@ add_task(async function test_account_sizes() {
     await new Promise(resolve => {
       inbox.deleteMessages(
         [...inbox.messages],
-        null,
+        false,
         true,
         false,
         { onStopCopy: resolve },

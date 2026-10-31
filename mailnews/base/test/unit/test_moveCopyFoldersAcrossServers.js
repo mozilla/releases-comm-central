@@ -171,7 +171,7 @@ async function subtestMove(folder, newParent) {
   const folderName = folder.name;
   const srcParent = folder.parent;
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.copyFolder(folder, newParent, true, copyListener, null);
+  MailServices.copy.copyFolder(folder, newParent, true, copyListener, false);
   await copyListener.promise;
   // Ensure the operation has finished. The copy listener promise resolves when
   // the target folder is moved, but subfolder operations may still be going.
@@ -238,7 +238,7 @@ async function subtestCopy(folder, newParent) {
   const folderName = folder.name;
   const srcParent = folder.parent;
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.copyFolder(folder, newParent, false, copyListener, null);
+  MailServices.copy.copyFolder(folder, newParent, false, copyListener, false);
   await copyListener.promise;
   // Ensure the operation has finished. The copy listener promise resolves when
   // the target folder is copied, but subfolder operations may still be going.

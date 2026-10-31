@@ -4618,9 +4618,9 @@ nsMsgDBFolder::PerformActionsOnJunkMsgs(
       nsCOMPtr<nsIMsgCopyService> copyService =
           mozilla::components::Copy::Service();
       copyService->CopyMessages(this, messages, targetFolder, true,
-                                copyListener, msgWindow, true);
+                                copyListener, !!msgWindow, true);
     } else if (msgsAreJunk) {
-      DeleteMessages(messages, msgWindow, false, false, copyListener, true);
+      DeleteMessages(messages, !!msgWindow, false, false, copyListener, true);
     }
 
     NS_ASSERTION(NS_SUCCEEDED(rv),
@@ -4770,8 +4770,8 @@ nsresult nsMsgDBFolder::ApplyRetentionSettings(bool deleteViaFolder) {
 
 NS_IMETHODIMP
 nsMsgDBFolder::DeleteMessages(nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
-                              nsIMsgWindow* msgWindow, bool deleteStorage,
-                              bool isMove, nsIMsgCopyServiceListener* listener,
+                              bool interactive, bool deleteStorage, bool isMove,
+                              nsIMsgCopyServiceListener* listener,
                               bool allowUndo) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -4779,7 +4779,7 @@ nsMsgDBFolder::DeleteMessages(nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
 NS_IMETHODIMP
 nsMsgDBFolder::CopyMessages(nsIMsgFolder* srcFolder,
                             nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
-                            bool isMove, nsIMsgWindow* window,
+                            bool isMove, bool interactive,
                             nsIMsgCopyServiceListener* listener, bool isFolder,
                             bool allowUndo) {
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -4787,7 +4787,7 @@ nsMsgDBFolder::CopyMessages(nsIMsgFolder* srcFolder,
 
 NS_IMETHODIMP
 nsMsgDBFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
-                          nsIMsgWindow* window,
+                          bool interactive,
                           nsIMsgCopyServiceListener* listener) {
   NS_ASSERTION(false, "should be overridden by child class");
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -4797,7 +4797,7 @@ NS_IMETHODIMP
 nsMsgDBFolder::CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* messageToReplace,
                                bool isDraftOrTemplate, uint32_t aNewMsgFlags,
                                const nsACString& aNewMsgKeywords,
-                               nsIMsgWindow* window,
+                               bool interactive,
                                nsIMsgCopyServiceListener* listener) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

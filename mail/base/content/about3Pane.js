@@ -876,7 +876,7 @@ var folderPaneContextMenu = {
         targetFolder,
         isMove,
         listener,
-        top.msgWindow
+        true
       )
     );
   },
@@ -3564,7 +3564,7 @@ var folderPane = {
         targetFolder,
         isMove,
         null,
-        top.msgWindow,
+        true,
         true
       );
     } else if (types.includes("text/x-moz-folder")) {
@@ -3692,11 +3692,9 @@ var folderPane = {
       }
       if (files.length) {
         for (const file of files) {
-          await MailUtils.copyFileMessageAsync(
-            file,
-            targetFolder,
-            top.msgWindow
-          ).catch(console.warn);
+          await MailUtils.copyFileMessageAsync(file, targetFolder, true).catch(
+            console.warn
+          );
         }
         await MailUtils.updateFolderAsync(targetFolder).catch(console.warn);
       }
@@ -5022,11 +5020,9 @@ var threadPane = {
     }
     if (files.length) {
       for (const file of files) {
-        await MailUtils.copyFileMessageAsync(
-          file,
-          gFolder,
-          top.msgWindow
-        ).catch(console.warn);
+        await MailUtils.copyFileMessageAsync(file, gFolder, true).catch(
+          console.warn
+        );
       }
       await MailUtils.updateFolderAsync(gFolder).catch(console.warn);
     }

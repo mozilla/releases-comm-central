@@ -86,7 +86,7 @@ add_task(async function test_moveMessageToTargetFolder() {
     gTargetFolder,
     true,
     listener,
-    null,
+    false,
     false
   );
   await listener.promise;

@@ -56,7 +56,7 @@ add_task(async function copy_gIncomingMailFile() {
     0,
     "",
     promiseCopyListener,
-    null
+    false
   );
   await promiseCopyListener.promise;
 });
@@ -72,7 +72,7 @@ add_task(async function copy_gIncomingMailFile2() {
     0,
     "",
     promiseCopyListener,
-    null
+    false
   );
   await promiseCopyListener.promise;
 });
@@ -88,7 +88,7 @@ add_task(async function copy_gIncomingMailFile3() {
     0,
     "",
     promiseCopyListener,
-    null
+    false
   );
   await promiseCopyListener.promise;
 });
@@ -104,7 +104,7 @@ add_task(async function copy_gTemplateMailFile() {
     0,
     "",
     promiseCopyListener,
-    null
+    false
   );
   await promiseCopyListener.promise;
 });
@@ -120,7 +120,7 @@ add_task(async function copy_gTemplateMailFile2() {
     0,
     "",
     promiseCopyListener,
-    null
+    false
   );
   await promiseCopyListener.promise;
 });

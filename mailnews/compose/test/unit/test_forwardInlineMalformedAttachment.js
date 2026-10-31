@@ -76,7 +76,7 @@ add_task(async function testForwardInlineKeepsMalformedAttachmentData() {
     0,
     "",
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 

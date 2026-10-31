@@ -201,11 +201,11 @@ NS_IMETHODIMP nsImapService::SelectFolder(nsIMsgFolder* aImapMailFolder,
 // lite select, used to verify UIDVALIDITY while going on/offline
 NS_IMETHODIMP nsImapService::LiteSelectFolder(nsIMsgFolder* aImapMailFolder,
                                               nsIUrlListener* aUrlListener,
-                                              nsIURI** aURL) {
+                                              bool interactive, nsIURI** aURL) {
   NS_ENSURE_ARG_POINTER(aImapMailFolder);
 
   return FolderCommand(aImapMailFolder, aUrlListener, "/liteselect>",
-                       nsIImapUrl::nsImapLiteSelectFolder, false, aURL);
+                       nsIImapUrl::nsImapLiteSelectFolder, interactive, aURL);
 }
 
 NS_IMETHODIMP nsImapService::GetUrlForUri(const nsACString& aMessageURI,
@@ -2686,7 +2686,7 @@ NS_IMETHODIMP nsImapService::PlaybackAllOfflineOperations(
 
   nsresult rv;
   nsImapOfflineSync* goOnline = new nsImapOfflineSync();
-  goOnline->Init(aMsgWindow, aListener, nullptr, false);
+  goOnline->Init(!!aMsgWindow, aListener, nullptr, false);
   rv = goOnline->QueryInterface(NS_GET_IID(nsISupports), (void**)aResult);
   NS_ENSURE_SUCCESS(rv, rv);
   if (NS_SUCCEEDED(rv) && *aResult) return goOnline->ProcessNextOperation();

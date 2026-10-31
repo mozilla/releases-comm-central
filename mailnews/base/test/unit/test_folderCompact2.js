@@ -54,7 +54,7 @@ async function deleteMsgs(folder, indexesToDelete) {
   const hdrs = Array.from(folder.messages);
   const doomed = indexesToDelete.map(i => hdrs[i]);
   const listener = new PromiseTestUtils.PromiseCopyListener();
-  folder.deleteMessages(doomed, null, false, true, listener, true);
+  folder.deleteMessages(doomed, false, false, true, listener, true);
   await listener.promise;
 }
 

@@ -593,7 +593,7 @@ NS_IMETHODIMP nsMsgNewsFolder::GetSizeOnDisk(int64_t* size) {
 
 NS_IMETHODIMP
 nsMsgNewsFolder::DeleteMessages(nsTArray<RefPtr<nsIMsgDBHdr>> const& msgHdrs,
-                                nsIMsgWindow* aMsgWindow, bool deleteStorage,
+                                bool interactive, bool deleteStorage,
                                 bool isMove,
                                 nsIMsgCopyServiceListener* listener,
                                 bool allowUndo) {

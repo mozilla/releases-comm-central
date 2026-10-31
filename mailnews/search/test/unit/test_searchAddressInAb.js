@@ -311,7 +311,7 @@ var copyListener = {
         0,
         "",
         copyListener,
-        null
+        false
       );
     } else {
       testAbSearch();
@@ -372,7 +372,7 @@ function copyEmptyAddressMessages() {
         copyEmptyAddressMessages();
       },
     },
-    null
+    false
   );
 }
 

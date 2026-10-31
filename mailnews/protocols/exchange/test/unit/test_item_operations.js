@@ -131,7 +131,7 @@ async function copyItems(sourceFolder, destinationFolder, headers, isMove) {
     destinationFolder,
     isMove,
     copyListener,
-    null, // msgWindow
+    false, // msgWindow
     false // allowUndo
   );
   await copyListener.promise;
@@ -341,8 +341,8 @@ add_task(async function test_move_copy_messages_from_another_server() {
         [undefined],
         ewsDestFolder,
         true, // isMove
-        null, // listener
-        null, // msgWindow
+        null,
+        false, // msgWindow
         false // allowUndo
       ),
     /NS_ERROR_ILLEGAL_VALUE/,
@@ -426,8 +426,8 @@ add_task(async function test_move_copy_messages_to_another_server() {
         [undefined],
         localDestFolder,
         true, // isMove
-        null, // listener
-        null, // msgWindow
+        null,
+        false, // msgWindow
         false // allowUndo
       ),
     /NS_ERROR_ILLEGAL_VALUE/,
@@ -460,7 +460,7 @@ add_task(async function test_copy_file_message() {
     0, // message flags
     "$label4", // keywords
     copyListener,
-    null // window
+    false
   );
   const copied = await copyListener.promise;
 
@@ -772,7 +772,7 @@ async function runMarkAsJunkTest(mockServer, incomingServer) {
       inboxFolder,
       "DeleteOrMoveMsgCompleted"
     );
-    inboxFolder.deleteMessages(messages, null, true, false, null, false);
+    inboxFolder.deleteMessages(messages, false, true, false, null, false);
     await eventPromise;
   });
 
@@ -909,7 +909,7 @@ async function runHardDeleteTest(mockServer, incomingServer) {
     folder,
     "DeleteOrMoveMsgCompleted"
   );
-  folder.deleteMessages([messageHeaders[0]], null, true, false, null, false);
+  folder.deleteMessages([messageHeaders[0]], false, true, false, null, false);
   await eventPromise;
 
   // Message should no longer be in the inbox.
@@ -959,7 +959,7 @@ async function runDeleteItemFromTrashTest(mockServer, incomingServer) {
   );
   trashFolder.deleteMessages(
     [trashFolderMessage],
-    null,
+    false,
     false,
     false,
     null,

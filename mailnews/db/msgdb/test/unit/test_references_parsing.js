@@ -102,7 +102,7 @@ function run_test() {
     0,
     "",
     messageHeaderGetterListener,
-    null
+    false
   );
   return true;
 }

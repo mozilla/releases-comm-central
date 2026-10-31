@@ -125,7 +125,7 @@ add_task(async function doMoves() {
     gFolder1,
     true,
     copyListenerDummyHeaders,
-    gDummyMsgWindow,
+    true,
     true
   );
   await copyListenerDummyHeaders.promise;
@@ -179,7 +179,7 @@ add_task(async function doMoves() {
     gFolder1,
     true,
     copyListenerHighWater,
-    gDummyMsgWindow,
+    true,
     true
   );
   await copyListenerHighWater.promise;

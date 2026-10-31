@@ -44,11 +44,14 @@ interface nsIImapService : nsISupports
    *
    * @param aImapMailFolder     the folder to select
    * @param aUrlListener        url listener, can be null
+   * @param interactive         whether a user is waiting on this, and so can
+   *                            answer a password prompt for it
    *
    * @returns the url created to run the lite select in.
    */
   nsIURI liteSelectFolder(in nsIMsgFolder aImapMailFolder,
-                          in nsIUrlListener aUrlListener);
+                          in nsIUrlListener aUrlListener,
+                          in boolean interactive);
 
   void noop(in nsIMsgFolder aImapMailFolder,
             in nsIUrlListener aUrlListener,

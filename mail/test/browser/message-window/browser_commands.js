@@ -45,7 +45,7 @@ add_task(async function test_copy_eml_message() {
     folder2,
     true,
     null,
-    window.msgWindow,
+    true,
     true
   );
   await be_in_folder(folder2);

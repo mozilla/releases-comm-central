@@ -86,7 +86,7 @@ add_task(async function moveMessageWithTimeout() {
     gTargetFolder,
     true,
     copyListener,
-    gDummyMsgWindow,
+    true,
     true
   );
   await copyListener.promise;

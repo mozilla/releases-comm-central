@@ -8137,7 +8137,7 @@ function RemoveDraft() {
         if (!msgHdr) {
           throw new Error(`No draft for key=${msgKey}`);
         }
-        folder.deleteMessages([msgHdr], null, true, false, null, false);
+        folder.deleteMessages([msgHdr], false, true, false, null, false);
       }
     } catch (ex) {
       // couldn't find header - perhaps an imap folder.

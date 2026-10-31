@@ -293,11 +293,9 @@ var commandController = {
         const file = Services.io
           .newURI(window.gMessageURI)
           .QueryInterface(Ci.nsIFileURL).file;
-        await MailUtils.copyFileMessageAsync(
-          file,
-          destFolder,
-          top.msgWindow
-        ).catch(console.warn);
+        await MailUtils.copyFileMessageAsync(file, destFolder, true).catch(
+          console.warn
+        );
         await MailUtils.updateFolderAsync(destFolder).catch(console.warn);
       } else {
         gDBView.doCommandWithFolder(

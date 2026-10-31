@@ -135,7 +135,7 @@ add_task(async function testSelectionRestoredOnReopen() {
   );
   testFolder1.deleteMessages(
     [testMessages1[3], testMessages1[6]],
-    null,
+    false,
     true,
     false,
     null,

@@ -74,7 +74,7 @@ add_task(async function maildirToMbox() {
     gTestFolder,
     true, // isMove
     promiseCopyListener,
-    null, // window
+    false, // window
     false // allowUndo
   );
   await promiseCopyListener.promise;
@@ -122,7 +122,7 @@ add_task(async function mboxToMaildir() {
     gInboxFolder,
     true, // isMove
     promiseCopyListener,
-    null,
+    false,
     false
   );
   await promiseCopyListener.promise;

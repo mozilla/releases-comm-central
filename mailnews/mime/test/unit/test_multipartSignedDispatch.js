@@ -199,7 +199,7 @@ add_setup(async function () {
       0,
       "",
       promiseCopyListener,
-      null
+      false
     );
     await promiseCopyListener.promise;
   }

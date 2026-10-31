@@ -12,7 +12,7 @@ const { VirtualFolderHelper } = ChromeUtils.importESModule(
 );
 async function moveFolder(source, destination) {
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.copyFolder(source, destination, true, copyListener, null);
+  MailServices.copy.copyFolder(source, destination, true, copyListener, false);
   await copyListener.promise;
 }
 

@@ -95,7 +95,7 @@ var copyListener = {
         0,
         "",
         copyListener,
-        null
+        false
       );
     } else {
       testBodySearch();

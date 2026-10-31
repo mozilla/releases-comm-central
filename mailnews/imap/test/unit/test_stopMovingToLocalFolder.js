@@ -60,7 +60,7 @@ add_task(async function move_messages() {
     localAccountUtils.inboxFolder,
     true,
     copyListener,
-    null,
+    false,
     false
   );
   await Assert.rejects(

@@ -65,7 +65,7 @@ var gTestArray = [
       localAccountUtils.inboxFolder,
       false,
       listener,
-      null,
+      false,
       false
     );
     await listener.promise;

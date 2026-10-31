@@ -10,7 +10,6 @@
 #include "nsIMsgCopyService.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgHdr.h"
-#include "nsIMsgWindow.h"
 #include "nsITransactionManager.h"
 #include "nsTArray.h"
 
@@ -46,14 +45,14 @@ class nsCopyRequest {
   nsresult Init(nsCopyRequestType type, nsISupports* aSupport,
                 nsIMsgFolder* dstFolder, bool bVal, uint32_t newMsgFlags,
                 const nsACString& newMsgKeywords,
-                nsIMsgCopyServiceListener* listener, nsIMsgWindow* msgWindow,
+                nsIMsgCopyServiceListener* listener, bool interactive,
                 bool allowUndo);
   nsCopySource* AddNewCopySource(nsIMsgFolder* srcFolder);
 
   nsCOMPtr<nsISupports> m_srcSupport;  // ui source folder or file spec
   nsCOMPtr<nsIMsgFolder> m_dstFolder;
   nsCOMPtr<nsIMsgFolder> m_arrFolder;  // folder copied/moved
-  nsCOMPtr<nsIMsgWindow> m_msgWindow;
+  bool m_interactive;
   nsCOMPtr<nsIMsgCopyServiceListener> m_listener;
   nsCOMPtr<nsITransactionManager> m_txnMgr;
   nsCopyRequestType m_requestType;

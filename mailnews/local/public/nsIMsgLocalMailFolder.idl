@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-interface nsIMsgWindow;
 interface nsIUrlListener;
 interface nsIMsgDatabase;
 interface nsIMsgDBHdr;
@@ -59,7 +58,7 @@ interface nsIMsgLocalMailFolder : nsISupports {
    * @param listener  Listener which receive operation notifications, can be null
    * @param isMove    If true, after copy completes, delete the source messages
    */
-  void copyAllSubFolders(in nsIMsgFolder srcFolder, in nsIMsgWindow msgWindow,
+  void copyAllSubFolders(in nsIMsgFolder srcFolder, in boolean interactive,
                          in nsIMsgCopyServiceListener listener, in boolean isMove);
 
   /**

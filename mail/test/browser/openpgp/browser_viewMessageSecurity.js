@@ -123,7 +123,7 @@ add_task(async function testSmimeOpenPgpSelection() {
     0,
     "",
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 
@@ -137,7 +137,7 @@ add_task(async function testSmimeOpenPgpSelection() {
     0,
     "",
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 
@@ -208,7 +208,7 @@ add_task(async function testBrokenMSExchangeEncryption() {
     0,
     "",
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 
@@ -276,7 +276,7 @@ add_task(async function testMessageSecurityShortcut() {
     0,
     "",
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 

@@ -95,7 +95,7 @@ nsImapMoveCopyMsgTxn::UndoTransaction(void) {
       // ** make sure we are in the selected state; use lite select
       // folder so we won't hit performance hard
       nsCOMPtr<nsIURI> outUri;
-      rv = imapService->LiteSelectFolder(srcFolder, srcListener,
+      rv = imapService->LiteSelectFolder(srcFolder, srcListener, false,
                                          getter_AddRefs(outUri));
       if (NS_FAILED(rv)) return rv;
       bool deletedMsgs = true;  // default is true unless imapDelete model
@@ -142,7 +142,7 @@ nsImapMoveCopyMsgTxn::UndoTransaction(void) {
     // ** make sure we are in the selected state; use lite select folder
     // so we won't potentially download a bunch of headers.
     nsCOMPtr<nsIURI> outUri;
-    rv = imapService->LiteSelectFolder(dstFolder, dstListener,
+    rv = imapService->LiteSelectFolder(dstFolder, dstListener, false,
                                        getter_AddRefs(outUri));
     NS_ENSURE_SUCCESS(rv, rv);
     rv = imapService->AddMessageFlags(dstFolder, dstListener, m_dstMsgIdString,
@@ -182,7 +182,7 @@ nsImapMoveCopyMsgTxn::RedoTransaction(void) {
       // Make sure we are in the selected state; use lite select
       // folder so performance won't suffer.
       nsCOMPtr<nsIURI> outUri;
-      rv = imapService->LiteSelectFolder(srcFolder, srcListener,
+      rv = imapService->LiteSelectFolder(srcFolder, srcListener, false,
                                          getter_AddRefs(outUri));
       NS_ENSURE_SUCCESS(rv, rv);
       if (deletedMsgs) {
@@ -207,7 +207,7 @@ nsImapMoveCopyMsgTxn::RedoTransaction(void) {
     // ** make sure we are in the selected state; use lite select
     // folder so we won't hit performance hard
     nsCOMPtr<nsIURI> outUri;
-    rv = imapService->LiteSelectFolder(dstFolder, dstListener,
+    rv = imapService->LiteSelectFolder(dstFolder, dstListener, false,
                                        getter_AddRefs(outUri));
     NS_ENSURE_SUCCESS(rv, rv);
     rv = imapService->SubtractMessageFlags(dstFolder, dstListener,
@@ -359,7 +359,7 @@ NS_IMETHODIMP nsImapMoveCopyMsgTxn::OnStopRunningUrl(nsIURI* aUrl,
         // ** make sure we are in the selected state; use lite select folder
         // so we won't potentially download a bunch of headers.
         nsCOMPtr<nsIURI> outUri;
-        rv = imapService->LiteSelectFolder(dstFolder, dstListener,
+        rv = imapService->LiteSelectFolder(dstFolder, dstListener, false,
                                            getter_AddRefs(outUri));
         NS_ENSURE_SUCCESS(rv, rv);
         rv = imapService->AddMessageFlags(dstFolder, dstListener,

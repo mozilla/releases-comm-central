@@ -55,20 +55,20 @@ class ExchangeFolder : public nsMsgDBFolder, public IExchangeFolder {
   NS_IMETHOD CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
                              bool isDraftOrTemplate, uint32_t newMsgFlags,
                              const nsACString& aNewMsgKeywords,
-                             nsIMsgWindow* msgWindow,
+                             bool interactive,
                              nsIMsgCopyServiceListener* listener) override;
   NS_IMETHOD CopyMessages(nsIMsgFolder* srcFolder,
                           nsTArray<RefPtr<nsIMsgDBHdr>> const& srcHdrs,
-                          bool isMove, nsIMsgWindow* msgWindow,
+                          bool isMove, bool interactive,
                           nsIMsgCopyServiceListener* listener, bool isFolder,
                           bool allowUndo) override;
   NS_IMETHOD DeleteMessages(const nsTArray<RefPtr<nsIMsgDBHdr>>& msgHeaders,
-                            nsIMsgWindow* msgWindow, bool deleteStorage,
-                            bool isMove, nsIMsgCopyServiceListener* listener,
+                            bool interactive, bool deleteStorage, bool isMove,
+                            nsIMsgCopyServiceListener* listener,
                             bool allowUndo) override;
   NS_IMETHOD EmptyTrash(nsIUrlListener* aListener) override;
   NS_IMETHOD CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
-                        nsIMsgWindow* window,
+                        bool interactive,
                         nsIMsgCopyServiceListener* listener) override;
   NS_IMETHOD DeleteSelf(nsIMsgWindow* aWindow) override;
   NS_IMETHOD GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
@@ -145,7 +145,7 @@ class ExchangeFolder : public nsMsgDBFolder, public IExchangeFolder {
   /**
    * Synchronize the message list for the current folder.
    */
-  nsresult SyncMessages(nsIMsgWindow* window, nsIUrlListener* urlListener);
+  nsresult SyncMessages(nsIUrlListener* urlListener);
 
   /**
    * Look up the message database entry matching a given Exchange ID.

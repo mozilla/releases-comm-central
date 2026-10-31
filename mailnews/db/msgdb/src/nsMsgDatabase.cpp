@@ -4606,8 +4606,8 @@ NS_IMETHODIMP nsMsgDatabase::ApplyRetentionSettings(
 
   if (aDeleteViaFolder) {
     // The folder delete will also delete headers from the DB.
-    rv = m_folder->DeleteMessages(msgHdrsToDelete, nullptr, true, false,
-                                  nullptr, false);
+    rv = m_folder->DeleteMessages(msgHdrsToDelete, false, true, false, nullptr,
+                                  false);
   } else {
     // We're just deleting headers in the DB.
     uint32_t kindex = 0;

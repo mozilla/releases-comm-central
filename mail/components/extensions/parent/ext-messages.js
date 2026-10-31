@@ -417,7 +417,7 @@ class MsgOperationWrapper {
                 }
               },
             },
-            null,
+            false,
             false
           );
         });
@@ -1122,9 +1122,7 @@ this.messages = class extends ExtensionAPIPersistent {
                         }
                       },
                     },
-                    (isUserAction &&
-                      windowTracker.topNormalWindow?.msgWindow) ||
-                      null
+                    isUserAction
                   );
                 })
               );
@@ -1157,8 +1155,7 @@ this.messages = class extends ExtensionAPIPersistent {
                     }
                   },
                 },
-                (isUserAction && windowTracker.topNormalWindow?.msgWindow) ||
-                  null,
+                isUserAction,
                 isUserAction // allowUndo
               );
             })
@@ -1757,9 +1754,7 @@ this.messages = class extends ExtensionAPIPersistent {
                 new Promise((resolve, reject) => {
                   sourceFolder.deleteMessages(
                     [...msgHeaderSet],
-                    (isUserAction &&
-                      windowTracker.topNormalWindow?.msgWindow) ||
-                      null,
+                    isUserAction,
                     deletePermanently, // deleteStorage
                     false, // isMove
                     /** @implements {nsIMsgCopyServiceListener} */
@@ -1956,7 +1951,7 @@ this.messages = class extends ExtensionAPIPersistent {
                 }
               },
             },
-            /* msgWindow */ null
+            false
           );
 
           let cachedMsgHeader, errorMessage;

@@ -25,9 +25,8 @@ class MessageCopyListener : public nsIMsgCopyServiceListener {
   NS_DECL_NSIMSGCOPYSERVICELISTENER
 
   MessageCopyListener(nsIMsgFolder* srcFolder,
-                      ExchangeFolderCopyHandler* handler,
-                      nsIMsgWindow* msgWindow)
-      : mSrcFolder(srcFolder), mHandler(handler), mWindow(msgWindow) {};
+                      ExchangeFolderCopyHandler* handler)
+      : mSrcFolder(srcFolder), mHandler(handler) {};
 
  protected:
   virtual ~MessageCopyListener() = default;
@@ -35,7 +34,6 @@ class MessageCopyListener : public nsIMsgCopyServiceListener {
  private:
   nsCOMPtr<nsIMsgFolder> mSrcFolder;
   RefPtr<ExchangeFolderCopyHandler> mHandler;
-  nsCOMPtr<nsIMsgWindow> mWindow;
 };
 
 NS_IMPL_ISUPPORTS(MessageCopyListener, nsIMsgCopyServiceListener)
@@ -166,14 +164,14 @@ nsresult ExchangeFolderCopyHandler::OnFolderCreateFinished(
   // Copy any message in the folder.
   if (msgArray.Length() > 0) {
     RefPtr<MessageCopyListener> listener =
-        new MessageCopyListener(currentFolder, this, mWindow);
+        new MessageCopyListener(currentFolder, this);
 
     // If the folder has messages in it, we want to wait for them to copy before
     // we move onto the next folder. The `MessageCopyListener` will call
     // `CopyNextFolder()` once all the messages have been copied (or moved).
     nsCOMPtr<nsIMsgCopyService> service = mozilla::components::Copy::Service();
     return service->CopyMessages(currentFolder, msgArray, newFolder, mIsMove,
-                                 listener, mWindow, false /* allowUndo */);
+                                 listener, mInteractive, false /* allowUndo */);
   }
 
   return CopyNextFolder();

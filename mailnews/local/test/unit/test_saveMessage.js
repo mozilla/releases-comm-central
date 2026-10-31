@@ -50,7 +50,7 @@ async function saveMessageFromStore(storeID) {
       0,
       "",
       copyListener,
-      null
+      false
     );
     const copied = await copyListener.promise;
 

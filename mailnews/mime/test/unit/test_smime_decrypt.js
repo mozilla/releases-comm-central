@@ -808,7 +808,7 @@ add_task(async function copy_messages() {
       0,
       "",
       promiseCopyListener,
-      null
+      false
     );
 
     await promiseCopyListener.promise;

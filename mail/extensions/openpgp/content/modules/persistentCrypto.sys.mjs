@@ -186,7 +186,7 @@ export var EnigmailPersistentCrypto = {
           if (deleteOrigMsg) {
             msgFolder.deleteMessages(
               [originalMsgHdr],
-              null,
+              false,
               true,
               false,
               null,
@@ -205,7 +205,7 @@ export var EnigmailPersistentCrypto = {
         originalMsgHdr.flags,
         "",
         copyListener,
-        null
+        false
       );
     });
   },

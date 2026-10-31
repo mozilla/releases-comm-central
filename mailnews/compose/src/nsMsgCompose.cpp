@@ -3219,8 +3219,8 @@ nsresult nsMsgComposeSendListener::RemoveDraftOrTemplate(nsIMsgCompose* compObj,
       if (!containsKey) break;
 
       // Ready to delete the msg.
-      rv = msgFolder->DeleteMessages({&*msgDBHdr}, nullptr, true, false,
-                                     nullptr, false /*allowUndo*/);
+      rv = msgFolder->DeleteMessages({&*msgDBHdr}, false, true, false, nullptr,
+                                     false /*allowUndo*/);
       NS_ASSERTION(NS_SUCCEEDED(rv),
                    "RemoveDraftOrTemplate can't delete message");
     } while (false);

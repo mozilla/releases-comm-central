@@ -43,7 +43,7 @@ async function copyFile(flags) {
     flags,
     "",
     copyListener,
-    null
+    false
   );
   const { messageKeys } = await copyListener.promise;
   return localAccountUtils.inboxFolder.getMsgHdr(messageKeys[0]);

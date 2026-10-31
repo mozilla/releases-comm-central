@@ -50,7 +50,7 @@ async function addEnvelopedMessage(folder) {
     0,
     "",
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 }

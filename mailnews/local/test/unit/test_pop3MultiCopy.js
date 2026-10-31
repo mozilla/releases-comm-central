@@ -64,7 +64,7 @@ add_task(async function runPump() {
     testFolder,
     false,
     promiseCopyListener,
-    null,
+    false,
     false
   );
   await promiseCopyListener.promise;

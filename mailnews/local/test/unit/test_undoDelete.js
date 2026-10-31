@@ -47,14 +47,7 @@ add_task(async function deleteMessage() {
   gMsgId1 = msgToDelete.messageId;
   gMessages.push(msgToDelete);
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
-  gTestFolder.deleteMessages(
-    gMessages,
-    gMsgWindow,
-    false,
-    true,
-    copyListener,
-    true
-  );
+  gTestFolder.deleteMessages(gMessages, true, false, true, copyListener, true);
   await copyListener.promise;
 });
 

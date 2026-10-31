@@ -662,7 +662,7 @@ add_task(async function test_sendLater_with_additional_fcc_and_onAfterSend() {
     await new Promise(resolve => {
       gOutbox.deleteMessages(
         outboxMessages,
-        null,
+        false,
         true,
         false,
         { onStopCopy: resolve },

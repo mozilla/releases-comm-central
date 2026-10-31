@@ -147,7 +147,7 @@ add_task(async function test_deleteOneMessage() {
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
   IMAPPump.inbox.deleteMessages(
     [msgHdr],
-    null,
+    false,
     false,
     true,
     copyListener,

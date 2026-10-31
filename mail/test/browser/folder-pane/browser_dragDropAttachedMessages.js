@@ -128,7 +128,7 @@ add_task(async function test_drop_triggers_import() {
       MailStringUtils.byteStringToUint8Array(normalized)
     );
     const msgFile = await IOUtils.getFile(msgFilePath);
-    await MailUtils.copyFileMessageAsync(msgFile, targetFolder, null);
+    await MailUtils.copyFileMessageAsync(msgFile, targetFolder, false);
     await IOUtils.remove(msgFilePath);
   };
 

@@ -56,7 +56,7 @@ function clearFolder(folder) {
 
     folder.deleteMessages(
       msgs,
-      null,
+      false,
       true,
       false,
       { onStopCopy: resolve },

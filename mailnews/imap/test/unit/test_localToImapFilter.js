@@ -56,7 +56,7 @@ add_task(async function copyFolder1() {
     IMAPPump.inbox,
     false,
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 });
@@ -78,7 +78,7 @@ add_task(async function copyFolder2() {
     IMAPPump.inbox,
     false,
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 });

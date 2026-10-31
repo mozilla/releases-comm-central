@@ -514,7 +514,7 @@ async function SaveAsTemplate(uri) {
     templatesFolder,
     false,
     null,
-    msgWindow,
+    true,
     false
   );
 }

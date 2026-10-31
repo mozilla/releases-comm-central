@@ -70,7 +70,7 @@ async function copyFileInto(subName, contents) {
       0,
       "",
       listener,
-      null
+      false
     );
     await listener.promise;
   } catch (ex) {

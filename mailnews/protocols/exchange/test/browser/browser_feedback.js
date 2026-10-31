@@ -232,14 +232,7 @@ add_task(async function test_delete_message() {
 
   // Delete a single message from the folder.
   const msgToDelete = [...folder.messages][0];
-  folder.deleteMessages(
-    [msgToDelete],
-    window.msgWindow,
-    true,
-    false,
-    null,
-    false
-  );
+  folder.deleteMessages([msgToDelete], true, true, false, null, false);
 
   // Check that we get the correct status message, and that it eventually gets
   // updated as the deletion completes.

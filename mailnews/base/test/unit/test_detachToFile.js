@@ -56,7 +56,7 @@ add_task(async function startCopy() {
     0,
     "",
     listener,
-    null
+    false
   );
   await listener.promise;
 });

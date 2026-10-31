@@ -215,7 +215,7 @@ async function moveImapMessages(source, headers, destination) {
     destination,
     true, // isMove
     listener,
-    null,
+    false,
     true // allowUndo, as for a user-initiated move
   );
   await listener.promise;

@@ -106,7 +106,7 @@ add_task(async function deleteMessage() {
   gMessages.push(msgToDelete);
   IMAPPump.inbox.deleteMessages(
     gMessages,
-    gMsgWindow,
+    true,
     false,
     true,
     copyListener,

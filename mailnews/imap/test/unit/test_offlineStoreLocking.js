@@ -87,7 +87,7 @@ add_task(async function deleteOneMsg() {
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
   IMAPPump.inbox.deleteMessages(
     [msgHdr],
-    null,
+    false,
     false,
     true,
     copyListener,
@@ -145,7 +145,7 @@ add_task(async function deleteAnOtherMsg() {
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
   IMAPPump.inbox.deleteMessages(
     [msgHdr],
-    null,
+    false,
     false,
     true,
     copyListener,
@@ -193,7 +193,7 @@ add_task(async function testOfflineBodyCopy() {
     IMAPPump.inbox,
     true,
     copyListener,
-    null,
+    false,
     true
   );
   await copyListener.promise;

@@ -204,7 +204,7 @@ add_task(
           rootFolder.getChildNamed("SubFolder1"),
           false,
           null,
-          null
+          false
         );
       });
       const copyData = await extension.awaitMessage("onCopied received");
@@ -277,7 +277,7 @@ add_task(
           rootFolder.getChildNamed("SubFolder3"),
           true,
           null,
-          null
+          false
         );
       });
 

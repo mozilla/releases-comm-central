@@ -71,7 +71,7 @@ async function loadTestMessage(folder) {
     0,
     "",
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 }
@@ -97,7 +97,7 @@ add_task(async function testOfflineMoveLocalToIMAP() {
     IMAPPump.inbox, // dest folder
     true, // move
     copyListener,
-    null,
+    false,
     false // undo?
   );
   await copyListener.promise;

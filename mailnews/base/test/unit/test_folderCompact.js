@@ -30,7 +30,7 @@ function copyFileMessage(file, destFolder, isDraftOrTemplate) {
     0,
     "",
     listener,
-    null
+    false
   );
   return listener.promise;
 }
@@ -43,7 +43,7 @@ function copyMessages(items, isMove, srcFolder, destFolder) {
     destFolder,
     isMove,
     listener,
-    null,
+    false,
     true
   );
   return listener.promise;
@@ -51,7 +51,7 @@ function copyMessages(items, isMove, srcFolder, destFolder) {
 
 function deleteMessages(srcFolder, items) {
   const listener = new PromiseTestUtils.PromiseCopyListener();
-  srcFolder.deleteMessages(items, null, false, true, listener, true);
+  srcFolder.deleteMessages(items, false, false, true, listener, true);
   return listener.promise;
 }
 

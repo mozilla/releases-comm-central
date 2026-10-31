@@ -17,7 +17,7 @@ var gSentFolder;
 function cleanUpSent() {
   const messages = [...gSentFolder.msgDatabase.enumerateMessages()];
   if (messages.length) {
-    gSentFolder.deleteMessages(messages, null, true, false, null, false);
+    gSentFolder.deleteMessages(messages, false, true, false, null, false);
   }
 }
 

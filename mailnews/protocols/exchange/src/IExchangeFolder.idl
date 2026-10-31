@@ -8,7 +8,6 @@
 interface nsIMsgCopyServiceListener;
 interface nsIMsgDBHdr;
 interface nsIMsgFolder;
-interface nsIMsgWindow;
 
 interface IExchangeFolderOperationListener;
 
@@ -37,7 +36,7 @@ void copyItemsOnSameServer(
     in IExchangeFolder sourceFolder,
     in Array<nsIMsgDBHdr> headers,
     in boolean isMove,
-    in nsIMsgWindow window,
+    in boolean interactive,
     in nsIMsgCopyServiceListener copyListener,
     in boolean allowUndo,
     in long undoOperationType,
@@ -48,13 +47,11 @@ void copyItemsOnSameServer(
  *
  * @param sourceFolder The folder to copy.
  * @param isMove Whether or not this is a move operation.
- * @param window A context window for the operation.
  * @param copyListener The copy listener for the operation.
  */
 void copyFolderOnSameServer(
     in nsIMsgFolder sourceFolder,
     in boolean isMove,
-    in nsIMsgWindow window,
     in nsIMsgCopyServiceListener copyListener);
 
 /**

@@ -8,7 +8,6 @@
 #include "nsIMsgCopyServiceListener.idl"
 
 interface nsIMsgDBHdr;
-interface nsIMsgWindow;
 interface nsIFile;
 
 /**
@@ -34,7 +33,7 @@ interface nsIMsgCopyService : nsISupports {
    * @param dstFolder  Destination folder of operation.
    * @param isMove     false for copy operation, true for move operation.
    * @param listener   Listener which receive operation notifications
-   * @param msgWindow  Window for notification callbacks, can be null.
+   * @param interactive Whether the user is waiting on the copy.
    * @param allowUndo  Specifies if this operation will be done as an transaction
    *                   that can be undone.
    */
@@ -43,7 +42,7 @@ interface nsIMsgCopyService : nsISupports {
                     in nsIMsgFolder dstFolder,
                     in boolean isMove,
                     in nsIMsgCopyServiceListener listener,
-                    in nsIMsgWindow msgWindow,
+                    in boolean interactive,
                     in boolean allowUndo);
 
   /**
@@ -53,13 +52,13 @@ interface nsIMsgCopyService : nsISupports {
    * @param dstFolder  The destination folder of operation.
    * @param isMove     false for copy operation, true for move operation.
    * @param listener   Listener which receive operation notifications.
-   * @param msgWindow  Window for notification callbacks, can be null.
+   * @param interactive Whether the user is waiting on the copy.
    */
   void copyFolder(in nsIMsgFolder srcFolder,
                   in nsIMsgFolder dstFolder,
                   in boolean isMove,
                   in nsIMsgCopyServiceListener listener,
-                  in nsIMsgWindow msgWindow);
+                  in boolean interactive);
 
   /**
    * Copies message in rfc format from file to folder.
@@ -87,7 +86,7 @@ interface nsIMsgCopyService : nsISupports {
    * @param aMsgKeywords      Keywords which will be set for newly copied
    *                          message.
    * @param listener          Listener which receive copy notifications.
-   * @param msgWindow         Window for notification callbacks, can be null.
+   * @param interactive       Whether the user is waiting on the copy.
    */
   void copyFileMessage(in nsIFile aFile,
                        in nsIMsgFolder dstFolder,
@@ -96,7 +95,7 @@ interface nsIMsgCopyService : nsISupports {
                        in unsigned long aMsgFlags,
                        in ACString aMsgKeywords,
                        in nsIMsgCopyServiceListener listener,
-                       in nsIMsgWindow msgWindow);
+                       in boolean interactive);
 
   /**
    * Notify the message copy service that the destination folder has finished

@@ -56,7 +56,7 @@ nsresult nsCopyRequest::Init(nsCopyRequestType type, nsISupports* aSupport,
                              uint32_t newMsgFlags,
                              const nsACString& newMsgKeywords,
                              nsIMsgCopyServiceListener* listener,
-                             nsIMsgWindow* msgWindow, bool allowUndo) {
+                             bool interactive, bool allowUndo) {
   nsresult rv = NS_OK;
   m_requestType = type;
   m_srcSupport = aSupport;
@@ -68,7 +68,7 @@ nsresult nsCopyRequest::Init(nsCopyRequestType type, nsISupports* aSupport,
   m_newMsgKeywords = newMsgKeywords;
 
   if (listener) m_listener = listener;
-  m_msgWindow = msgWindow;
+  m_interactive = interactive;
   if (m_allowUndo) {
     nsCOMPtr<nsIMsgTransactionService> txns =
         mozilla::components::Txns::Service();
@@ -272,7 +272,7 @@ nsresult nsMsgCopyService::DoNextCopy() {
         copySource->m_processed = true;
         rv = copyRequest->m_dstFolder->CopyMessages(
             copySource->m_msgFolder, copySource->m_messageArray,
-            copyRequest->m_isMoveOrDraftOrTemplate, copyRequest->m_msgWindow,
+            copyRequest->m_isMoveOrDraftOrTemplate, copyRequest->m_interactive,
             copyRequest->m_listener, false,
             copyRequest->m_allowUndo);  // isFolder operation false
 
@@ -298,8 +298,9 @@ nsresult nsMsgCopyService::DoNextCopy() {
         // even returns. This will likely delete the request object, so
         // you have to assume that copyRequest is invalid when CopyFolder()
         // returns.
-        rv = dstFolder->CopyFolder(srcFolder, isMove, copyRequest->m_msgWindow,
-                                   copyRequest->m_listener);
+        rv =
+            dstFolder->CopyFolder(srcFolder, isMove, copyRequest->m_interactive,
+                                  copyRequest->m_listener);
         // CopyFolder() may fail after it already removed the request (local
         // folders can call NotifyCompletion() synchronously, e.g. when
         // moving/copying a folder with no messages directly in it). We need
@@ -323,7 +324,7 @@ nsresult nsMsgCopyService::DoNextCopy() {
           rv = copyRequest->m_dstFolder->CopyFileMessage(
               aFile, aMessage, copyRequest->m_isMoveOrDraftOrTemplate,
               copyRequest->m_newMsgFlags, copyRequest->m_newMsgKeywords,
-              copyRequest->m_msgWindow, copyRequest->m_listener);
+              copyRequest->m_interactive, copyRequest->m_listener);
         }
       }
     }
@@ -379,7 +380,7 @@ NS_IMPL_ISUPPORTS(nsMsgCopyService, nsIMsgCopyService)
 MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCopyService::CopyMessages(
     nsIMsgFolder* srcFolder, /* UI src folder */
     nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, nsIMsgFolder* dstFolder,
-    bool isMove, nsIMsgCopyServiceListener* listener, nsIMsgWindow* window,
+    bool isMove, nsIMsgCopyServiceListener* listener, bool interactive,
     bool allowUndo) {
   AUTO_PROFILER_LABEL("nsMsgCopyService::CopyMessages", MAILNEWS);
   NS_ENSURE_ARG_POINTER(srcFolder);
@@ -424,7 +425,7 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCopyService::CopyMessages(
 
   rv = copyRequest->Init(nsCopyMessagesType, aSupport, dstFolder, isMove,
                          0 /* new msg flags, not used */, EmptyCString(),
-                         listener, window, allowUndo);
+                         listener, interactive, allowUndo);
   if (NS_FAILED(rv)) goto done;
 
   if (MOZ_LOG_TEST(gCopyServiceLog, mozilla::LogLevel::Info))
@@ -484,7 +485,7 @@ done:
 NS_IMETHODIMP
 nsMsgCopyService::CopyFolder(nsIMsgFolder* srcFolder, nsIMsgFolder* dstFolder,
                              bool isMove, nsIMsgCopyServiceListener* listener,
-                             nsIMsgWindow* window) {
+                             bool interactive) {
   NS_ENSURE_ARG_POINTER(srcFolder);
   NS_ENSURE_ARG_POINTER(dstFolder);
   nsCopyRequest* copyRequest;
@@ -494,7 +495,7 @@ nsMsgCopyService::CopyFolder(nsIMsgFolder* srcFolder, nsIMsgFolder* dstFolder,
   copyRequest = new nsCopyRequest();
   rv = copyRequest->Init(nsCopyFoldersType, srcFolder, dstFolder, isMove,
                          0 /* new msg flags, not used */, EmptyCString(),
-                         listener, window, false);
+                         listener, interactive, false);
   NS_ENSURE_SUCCESS(rv, rv);
 
   copyRequest->AddNewCopySource(srcFolder);
@@ -507,7 +508,7 @@ nsMsgCopyService::CopyFileMessage(nsIFile* file, nsIMsgFolder* dstFolder,
                                   uint32_t aMsgFlags,
                                   const nsACString& aNewMsgKeywords,
                                   nsIMsgCopyServiceListener* listener,
-                                  nsIMsgWindow* window) {
+                                  bool interactive) {
   AUTO_PROFILER_LABEL("nsMsgCopyService::CopyFileMessage", MAILNEWS);
   nsresult rv = NS_ERROR_NULL_POINTER;
   nsCopyRequest* copyRequest;
@@ -520,7 +521,8 @@ nsMsgCopyService::CopyFileMessage(nsIFile* file, nsIMsgFolder* dstFolder,
   if (!copyRequest) return rv;
 
   rv = copyRequest->Init(nsCopyFileMessageType, file, dstFolder, isDraft,
-                         aMsgFlags, aNewMsgKeywords, listener, window, false);
+                         aMsgFlags, aNewMsgKeywords, listener, interactive,
+                         false);
   if (NS_FAILED(rv)) goto done;
 
   if (msgToReplace) {

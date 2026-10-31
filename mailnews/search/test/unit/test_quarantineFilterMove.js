@@ -85,7 +85,7 @@ add_task(async function copyMovedMessages() {
     gMoveFolder2,
     false,
     promiseCopyListener,
-    null,
+    false,
     false
   );
   await Promise.all([promiseCopyListener.promise, promiseMoveMsg]);

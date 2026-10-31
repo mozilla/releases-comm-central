@@ -98,7 +98,7 @@ var tests = [
       0,
       "",
       promiseCopyListener,
-      null
+      false
     );
     await promiseCopyListener.promise;
 
@@ -111,7 +111,7 @@ var tests = [
       0,
       "",
       promiseCopyListener,
-      null
+      false
     );
     await promiseCopyListener.promise;
 
@@ -149,7 +149,7 @@ var tests = [
       gFolder1,
       false,
       null,
-      null,
+      false,
       true
     );
 
@@ -162,7 +162,7 @@ var tests = [
       gFolder1,
       false,
       null,
-      null,
+      false,
       true
     );
 
@@ -210,7 +210,7 @@ var tests = [
       gFolder1,
       true,
       null,
-      null,
+      false,
       true
     );
 

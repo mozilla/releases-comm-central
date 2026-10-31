@@ -52,7 +52,7 @@ add_task(async function copyFolder1() {
     IMAPPump.inbox,
     false,
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 });
@@ -64,7 +64,7 @@ add_task(async function copyFolder2() {
     IMAPPump.inbox,
     false,
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 });
@@ -76,7 +76,7 @@ add_task(async function copyFolder3() {
     IMAPPump.inbox,
     false,
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 });
@@ -94,7 +94,7 @@ add_task(async function moveImapFolder1() {
   const folder1 = IMAPPump.inbox.getChildNamed("empty 1");
   const folder2 = IMAPPump.inbox.getChildNamed("empty 2");
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.copyFolder(folder2, folder1, true, copyListener, null);
+  MailServices.copy.copyFolder(folder2, folder1, true, copyListener, false);
   await copyListener.promise;
 });
 
@@ -102,7 +102,7 @@ add_task(async function moveImapFolder2() {
   const folder1 = IMAPPump.inbox.getChildNamed("empty 1");
   const folder3 = IMAPPump.inbox.getChildNamed("empty 3");
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.copyFolder(folder3, folder1, true, copyListener, null);
+  MailServices.copy.copyFolder(folder3, folder1, true, copyListener, false);
   await copyListener.promise;
 });
 
@@ -124,7 +124,7 @@ add_task(async function copyImapFolderWithinAccount() {
     IMAPPump.inbox,
     false,
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 
@@ -140,7 +140,7 @@ add_task(async function copyImapFolderWithinAccount() {
   Assert.equal([...source.messages].length, 1, "source folder is populated");
 
   copyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.copyFolder(source, destination, false, copyListener, null);
+  MailServices.copy.copyFolder(source, destination, false, copyListener, false);
   await copyListener.promise;
 
   const copied = destination
@@ -170,7 +170,7 @@ add_task(async function testImapFolderCopyFailure() {
     IMAPPump.inbox,
     false,
     copyListener,
-    null
+    false
   );
   await Assert.rejects(
     copyListener.promise,

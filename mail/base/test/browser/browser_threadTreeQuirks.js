@@ -771,7 +771,7 @@ async function move(messages, source, dest) {
     dest,
     true,
     copyListener,
-    top.msgWindow,
+    true,
     false
   );
   await copyListener.promise;

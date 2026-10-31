@@ -108,7 +108,7 @@ add_task(async function testPermanentDecrypt() {
     0,
     "",
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 

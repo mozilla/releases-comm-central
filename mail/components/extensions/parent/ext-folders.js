@@ -349,7 +349,7 @@ async function doMoveCopyOperation(source, destination, extension, isMove) {
           });
         },
       },
-      null
+      false
     );
   });
 

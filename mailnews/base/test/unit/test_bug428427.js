@@ -36,7 +36,7 @@ function run_test() {
     0,
     "",
     copyListener,
-    null
+    false
   );
   return true;
 }
@@ -63,7 +63,7 @@ var copyListener = {
         0,
         "",
         copyListener,
-        null
+        false
       );
     } else {
       try {

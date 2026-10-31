@@ -57,7 +57,7 @@ async function doMove() {
     gFolder1,
     true,
     listener,
-    null,
+    false,
     false
   );
   IMAPPump.server.performTest("UID MOVE");

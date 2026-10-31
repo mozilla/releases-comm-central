@@ -115,7 +115,7 @@ add_task(async function test_secure_mails_read() {
       0,
       "",
       copyListener,
-      null
+      false
     );
     await copyListener.promise;
   }

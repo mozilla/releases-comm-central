@@ -213,7 +213,7 @@ function run_test() {
     0,
     "",
     copyListener,
-    null
+    false
   );
 }
 

@@ -64,7 +64,7 @@ var tests = [
       gSecondFolder,
       true,
       promiseCopyListener1,
-      null,
+      false,
       true
     );
     const promiseCopyListener2 = new PromiseTestUtils.PromiseCopyListener();
@@ -74,7 +74,7 @@ var tests = [
       gThirdFolder,
       true,
       promiseCopyListener2,
-      null,
+      false,
       true
     );
     var file = do_get_file("../../../data/bugmail10");
@@ -87,7 +87,7 @@ var tests = [
       0,
       "",
       promiseCopyListener3,
-      null
+      false
     );
     await Promise.all([
       promiseCopyListener1.promise,

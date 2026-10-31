@@ -40,7 +40,7 @@ function run_test() {
     0,
     "",
     step2,
-    null
+    false
   );
 }
 
@@ -69,7 +69,7 @@ var step2 = {
       gSubfolder,
       false,
       step3,
-      null,
+      false,
       false
     );
   },
@@ -103,7 +103,7 @@ function step4() {
     gSubfolder,
     false,
     step5,
-    null,
+    false,
     false
   );
 }

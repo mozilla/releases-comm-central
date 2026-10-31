@@ -14,7 +14,6 @@
 #include "nsIMsgCopyServiceListener.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgHdr.h"
-#include "nsIMsgWindow.h"
 #include "nsTArray.h"
 
 /**
@@ -84,14 +83,14 @@ class ExchangeMessageCopyHandler : public nsICopyMessageListener {
    */
   ExchangeMessageCopyHandler(nsIMsgFolder* srcFolder, ExchangeFolder* dstFolder,
                              const nsTArray<RefPtr<nsIMsgDBHdr>>& headers,
-                             bool isMove, nsIMsgWindow* window,
+                             bool isMove, bool interactive,
                              nsCString dstFolderId, IExchangeClient* client,
                              nsIMsgCopyServiceListener* copyServiceListener)
       : mDstFolder(dstFolder),
         mHeaders(headers.Clone()),
         mIsMove(isMove),
         mIsDraft(false),
-        mWindow(window),
+        mInteractive(interactive),
         mSrcFolder(mozilla::Some(srcFolder)),
         mSrcFile(mozilla::Nothing()),
         mDstFolderId(std::move(dstFolderId)),
@@ -104,14 +103,14 @@ class ExchangeMessageCopyHandler : public nsICopyMessageListener {
    * into the destination Exchange folder.
    */
   ExchangeMessageCopyHandler(nsIFile* srcFile, ExchangeFolder* dstFolder,
-                             bool isDraft, nsIMsgWindow* window,
+                             bool isDraft, bool interactive,
                              nsCString dstFolderId, IExchangeClient* client,
                              nsIMsgCopyServiceListener* copyServiceListener)
       : mDstFolder(dstFolder),
         mHeaders({}),
         mIsMove(false),
         mIsDraft(isDraft),
-        mWindow(window),
+        mInteractive(interactive),
         mSrcFolder(mozilla::Nothing()),
         mSrcFile(mozilla::Some(srcFile)),
         mDstFolderId(std::move(dstFolderId)),
@@ -153,7 +152,7 @@ class ExchangeMessageCopyHandler : public nsICopyMessageListener {
   const nsTArray<RefPtr<nsIMsgDBHdr>> mHeaders;
   bool mIsMove;
   bool mIsDraft;
-  RefPtr<nsIMsgWindow> mWindow;
+  bool mInteractive;
 
   // The new database entries created for the messages, used for notifying
   // listeners at the end of the copy/move operation.

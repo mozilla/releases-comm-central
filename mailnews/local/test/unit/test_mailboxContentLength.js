@@ -45,7 +45,7 @@ add_task(async function check_contentlength() {
     0, // aMsgFlags,
     "", // aMsgKeywords
     copyListener,
-    null // msgWindow
+    false
   );
   const copyResult = await copyListener.promise;
   const msgKey = copyResult.messageKeys[0];

@@ -77,7 +77,7 @@ add_task(async function testFccReply() {
     0,
     "",
     promiseCopyListener,
-    null
+    false
   );
   await promiseCopyListener.promise;
 

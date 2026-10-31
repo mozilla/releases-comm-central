@@ -118,7 +118,7 @@ async function appendMessage(
     0,
     "",
     copyListener,
-    null
+    false
   );
   const { messageKeys } = await copyListener.promise;
   return { keys: messageKeys, subject: `Message ${messageCount}` };

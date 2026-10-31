@@ -62,7 +62,7 @@ function copyFileMessage(file, destFolder, isDraftOrTemplate) {
     0,
     "",
     copyListener,
-    null
+    false
   );
   gCurrStatus |= kStatus.functionCallDone;
   if (gCurrStatus == kStatus.everythingDone) {
@@ -80,7 +80,7 @@ function copyMessages(items, isMove, srcFolder, destFolder) {
     destFolder,
     isMove,
     copyListener,
-    null,
+    false,
     true
   );
   gCurrStatus |= kStatus.functionCallDone;
@@ -98,7 +98,7 @@ function copyFolder(srcFolder, isMove, destFolder) {
     destFolder,
     isMove,
     copyListener,
-    null
+    false
   );
   gCurrStatus |= kStatus.functionCallDone;
   if (gCurrStatus == kStatus.everythingDone) {
@@ -129,7 +129,7 @@ function deleteMessages(srcFolder, items, deleteStorage, isMove) {
 
   srcFolder.deleteMessages(
     items,
-    null,
+    false,
     deleteStorage,
     isMove,
     copyListener,

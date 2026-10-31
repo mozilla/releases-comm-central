@@ -153,7 +153,7 @@ async function copyFolder(sourceFolder, destinationFolder, isMove) {
     destinationFolder,
     isMove,
     copyListener,
-    null
+    false
   );
   return copyListener.promise;
 }

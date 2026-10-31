@@ -62,7 +62,7 @@ async function deleteItems(folder, headersToDelete) {
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
   folder.deleteMessages(
     headersToDelete,
-    null,
+    false,
     false,
     false,
     copyListener,

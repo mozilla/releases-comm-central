@@ -61,7 +61,7 @@ add_task(async function copyFolder1() {
     IMAPPump.inbox,
     false,
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 });
@@ -77,7 +77,7 @@ add_task(async function copyFolder2() {
     IMAPPump.inbox,
     false,
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 });
@@ -97,7 +97,7 @@ add_task(async function getLocalMessage1() {
     0,
     "",
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 });
@@ -118,7 +118,7 @@ add_task(async function getLocalMessage2() {
     0,
     "",
     copyListener,
-    null
+    false
   );
   await copyListener.promise;
 });
@@ -137,7 +137,7 @@ add_task(async function copyMessages() {
     folder1,
     false,
     copyListener,
-    null,
+    false,
     false
   );
   await copyListener.promise;
@@ -156,7 +156,7 @@ add_task(async function moveMessages() {
     folder2,
     true,
     copyListener,
-    null,
+    false,
     false
   );
   await copyListener.promise;

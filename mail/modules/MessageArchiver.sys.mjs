@@ -307,7 +307,7 @@ MessageArchiver.prototype = {
         dstFolder,
         srcFolder.canDeleteMessages && !isNews,
         this,
-        this.msgWindow,
+        true,
         true
       );
       return; // continues with onStopCopy

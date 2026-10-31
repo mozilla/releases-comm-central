@@ -14,7 +14,6 @@
 #include "nsIMsgCopyServiceListener.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgHdr.h"
-#include "nsIMsgWindow.h"
 #include "nsTArray.h"
 #include "nsTHashMap.h"
 
@@ -63,12 +62,12 @@ class ExchangeFolderCopyHandler {
   NS_INLINE_DECL_REFCOUNTING(ExchangeFolderCopyHandler)
 
   ExchangeFolderCopyHandler(nsIMsgFolder* srcFolder, ExchangeFolder* dstFolder,
-                            bool isMove, nsIMsgWindow* window,
+                            bool isMove, bool interactive,
                             IExchangeClient* client,
                             nsIMsgCopyServiceListener* copyServiceListener)
       : mDstFolder(dstFolder),
         mIsMove(isMove),
-        mWindow(window),
+        mInteractive(interactive),
         mFoldersToCopy({srcFolder}),
         mClient(client),
         mCopyServiceListener(copyServiceListener),
@@ -106,7 +105,7 @@ class ExchangeFolderCopyHandler {
   // Parameters of the copy/move operation.
   RefPtr<ExchangeFolder> mDstFolder;
   bool mIsMove;
-  nsCOMPtr<nsIMsgWindow> mWindow;
+  bool mInteractive;
 
   // The folders to copy. This list starts with only the source folder, and may
   // grow as the operation progresses and subfolders are added to it.

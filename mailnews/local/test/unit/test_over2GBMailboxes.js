@@ -74,7 +74,7 @@ add_task(async function appendSmallMessage() {
     0 /* message flags */,
     "" /* keywords */,
     copyListener,
-    null /* window */
+    false
   );
   await copyListener.promise;
 
@@ -98,7 +98,7 @@ add_task(async function copyHugeMessage() {
     trash /* destFolder */,
     false,
     copyListener,
-    null,
+    false,
     false
   );
   await copyListener.promise;

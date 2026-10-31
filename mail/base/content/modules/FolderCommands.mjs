@@ -649,7 +649,7 @@ async function emptyJunk(folder, shouldPrompt = true) {
   }
 
   // Now delete the messages
-  folder.deleteMessages(messages, top.msgWindow, true, false, null, false);
+  folder.deleteMessages(messages, true, true, false, null, false);
 }
 
 /**

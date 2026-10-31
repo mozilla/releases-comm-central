@@ -95,7 +95,7 @@ nsresult nsLocalMoveCopyMsgTxn::UndoImapDeleteFlag(nsIMsgFolder* folder,
     // This is to make sure that we are in the selected state
     // when executing the imap url; we don't want to load the
     // folder so use lite select to do the trick
-    rv = imapService->LiteSelectFolder(folder, urlListener, nullptr);
+    rv = imapService->LiteSelectFolder(folder, urlListener, false, nullptr);
     if (!deleteFlag)
       rv = imapService->AddMessageFlags(folder, urlListener, msgIds,
                                         kImapMsgDeletedFlag, true);
@@ -208,7 +208,7 @@ nsresult nsLocalMoveCopyMsgTxn::UndoTransactionInternal() {
       if (m_copiedMsgIds.Length()) {
         srcFolder->AddFolderListener(this);
         m_undoing = true;
-        return srcFolder->CopyMessages(dstFolder, dstMessages, true, nullptr,
+        return srcFolder->CopyMessages(dstFolder, dstMessages, true, false,
                                        nullptr, false, false);
       } else {
         // Nothing to do, probably because original messages were deleted.
@@ -257,7 +257,7 @@ nsLocalMoveCopyMsgTxn::RedoTransaction() {
   }
   dstFolder->AddFolderListener(this);
   m_undoing = false;
-  return dstFolder->CopyMessages(srcFolder, srcMessages, m_isMove, nullptr,
+  return dstFolder->CopyMessages(srcFolder, srcMessages, m_isMove, false,
                                  nullptr, false, false);
 }
 

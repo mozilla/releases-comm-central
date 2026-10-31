@@ -86,6 +86,7 @@ constexpr std::array<std::pair<nsLiteralCString, unsigned>, 8> kDefaultFolders{
 
 nsLocalMailCopyState::nsLocalMailCopyState()
     : m_flags(0),
+      m_interactive(false),
       m_lastProgressTime(PR_IntervalToMilliseconds(PR_IntervalNow())),
       m_curDstKey(nsMsgKey_None),
       m_curCopyIndex(0),
@@ -779,7 +780,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
   if (NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsIMsgCopyService> copyService =
         mozilla::components::Copy::Service();
-    rv = copyService->CopyFolder(this, trashFolder, true, nullptr, msgWindow);
+    rv = copyService->CopyFolder(this, trashFolder, true, nullptr, !!msgWindow);
   }
   return rv;
 }
@@ -1024,7 +1025,7 @@ nsresult nsMsgLocalMailFolder::GetTrashFolder(nsIMsgFolder** result) {
 
 NS_IMETHODIMP
 nsMsgLocalMailFolder::DeleteMessages(
-    nsTArray<RefPtr<nsIMsgDBHdr>> const& msgHeaders, nsIMsgWindow* msgWindow,
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& msgHeaders, bool interactive,
     bool deleteStorage, bool isMove, nsIMsgCopyServiceListener* listener,
     bool allowUndo) {
   nsresult rv;
@@ -1066,7 +1067,7 @@ nsMsgLocalMailFolder::DeleteMessages(
       // When the copy completes, DeleteMessages() will be called again to
       // perform the actual delete.
       return copyService->CopyMessages(this, msgHeaders, trashFolder, true,
-                                       listener, msgWindow, allowUndo);
+                                       listener, interactive, allowUndo);
     }
   } else {
     // Performing an _actual_ delete. There are two ways we got here:
@@ -1102,7 +1103,7 @@ nsMsgLocalMailFolder::DeleteMessages(
                                          : kDeleteOrMoveMsgFailed);
       // NOTE: This reenabling also forces immediate recount + notification.
       EnableNotifications(allMessageCountNotifications, true);
-      if (msgWindow) {
+      if (interactive) {
         AutoCompact();
       }
     }
@@ -1211,7 +1212,7 @@ nsMsgLocalMailFolder::MarkAllMessagesRead() {
 
 nsresult nsMsgLocalMailFolder::InitCopyState(
     nsISupports* aSupport, nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
-    bool isMove, nsIMsgCopyServiceListener* listener, nsIMsgWindow* msgWindow,
+    bool isMove, nsIMsgCopyServiceListener* listener, bool interactive,
     bool isFolder, bool allowUndo) {
   nsCOMPtr<nsIFile> path;
 
@@ -1245,7 +1246,7 @@ nsresult nsMsgLocalMailFolder::InitCopyState(
   mCopyState->m_isMove = isMove;
   mCopyState->m_isFolder = isFolder;
   mCopyState->m_allowUndo = allowUndo;
-  mCopyState->m_msgWindow = msgWindow;
+  mCopyState->m_interactive = interactive;
   mCopyState->m_totalMsgCount = messages.Length();
   if (listener) mCopyState->m_listener = listener;
   mCopyState->m_copyingMultipleMessages = false;
@@ -1314,7 +1315,7 @@ bool nsMsgLocalMailFolder::CheckIfSpaceForCopy(
 NS_IMETHODIMP
 nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
                                    nsTArray<RefPtr<nsIMsgDBHdr>> const& srcHdrs,
-                                   bool isMove, nsIMsgWindow* msgWindow,
+                                   bool isMove, bool interactive,
                                    nsIMsgCopyServiceListener* listener,
                                    bool isFolder, bool allowUndo) {
   nsCOMPtr<nsISupports> srcSupport = do_QueryInterface(srcFolder);
@@ -1441,7 +1442,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
   rv = MessagesInKeyOrder(keyArray, srcFolder, sortedMsgs);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = InitCopyState(srcSupport, sortedMsgs, isMove, listener, msgWindow,
+  rv = InitCopyState(srcSupport, sortedMsgs, isMove, listener, interactive,
                      isFolder, allowUndo);
 
   if (NS_FAILED(rv)) {
@@ -1489,7 +1490,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
     // imap server to do the copy. When source folder is "mailbox", this is not
     // a concern since source messages are in local storage.
     mCopyState->m_copyingMultipleMessages = true;
-    rv = CopyMessagesTo(keyArray, msgWindow, isMove);
+    rv = CopyMessagesTo(keyArray, interactive, isMove);
     if (NS_FAILED(rv)) {
       NS_ERROR("copy message failed");
       (void)OnCopyCompleted(srcSupport, rv);
@@ -1499,7 +1500,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
     // copy. Note: CopyMessageTo() actually handles one or more messages.
     nsIMsgDBHdr* msgSupport = mCopyState->m_messages[0];
     if (msgSupport) {
-      rv = CopyMessageTo(msgSupport, msgWindow, isMove);
+      rv = CopyMessageTo(msgSupport, interactive, isMove);
       if (NS_FAILED(rv)) {
         NS_ASSERTION(false, "copy message failed");
         (void)OnCopyCompleted(srcSupport, rv);
@@ -1518,7 +1519,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
 // for srcFolder that are on different server than the dstFolder.
 // "this" is the parent of the new dest folder.
 nsresult nsMsgLocalMailFolder::CopyFolderAcrossServer(
-    nsIMsgFolder* srcFolder, nsIMsgWindow* msgWindow,
+    nsIMsgFolder* srcFolder, bool interactive,
     nsIMsgCopyServiceListener* listener, bool moveMsgs) {
   mInitialized = true;
 
@@ -1551,7 +1552,7 @@ nsresult nsMsgLocalMailFolder::CopyFolderAcrossServer(
 
   if (msgArray.Length() > 0)  // if only srcFolder has messages..
     // Allow move of copied messages but keep source folder in place.
-    newMsgFolder->CopyMessages(srcFolder, msgArray, moveMsgs, msgWindow,
+    newMsgFolder->CopyMessages(srcFolder, msgArray, moveMsgs, interactive,
                                listener, true /* is folder*/,
                                false /* allowUndo */);
   else {
@@ -1562,7 +1563,8 @@ nsresult nsMsgLocalMailFolder::CopyFolderAcrossServer(
       // was finished copying. But since there are no messages, we have to call
       // them explicitly.
       nsCOMPtr<nsISupports> srcSupports = do_QueryInterface(srcFolder);
-      localFolder->CopyAllSubFolders(srcFolder, msgWindow, listener, moveMsgs);
+      localFolder->CopyAllSubFolders(srcFolder, interactive, listener,
+                                     moveMsgs);
       return localFolder->OnCopyCompleted(srcSupports, NS_OK);
     }
   }
@@ -1571,7 +1573,7 @@ nsresult nsMsgLocalMailFolder::CopyFolderAcrossServer(
 
 nsresult  // copy the sub folders
 nsMsgLocalMailFolder::CopyAllSubFolders(nsIMsgFolder* srcFolder,
-                                        nsIMsgWindow* msgWindow,
+                                        bool interactive,
                                         nsIMsgCopyServiceListener* listener,
                                         bool isMove) {
   nsTArray<RefPtr<nsIMsgFolder>> subFolders;
@@ -1579,7 +1581,7 @@ nsMsgLocalMailFolder::CopyAllSubFolders(nsIMsgFolder* srcFolder,
   NS_ENSURE_SUCCESS(rv, rv);
 
   for (nsIMsgFolder* folder : subFolders) {
-    CopyFolderAcrossServer(folder, msgWindow, listener, isMove);
+    CopyFolderAcrossServer(folder, interactive, listener, isMove);
   }
   return NS_OK;
 }
@@ -1587,7 +1589,7 @@ nsMsgLocalMailFolder::CopyAllSubFolders(nsIMsgFolder* srcFolder,
 // "this" is the destination (parent) folder that srcFolder is copied to.
 NS_IMETHODIMP
 nsMsgLocalMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
-                                 nsIMsgWindow* msgWindow,
+                                 bool interactive,
                                  nsIMsgCopyServiceListener* listener) {
   NS_ENSURE_ARG_POINTER(srcFolder);
   nsresult rv;
@@ -1607,7 +1609,7 @@ nsMsgLocalMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
     // unit tests) and it handles the folder move or copy from another account
     // or server into Local Folders. The move from another account is "impure"
     // since just the messages are moved but the source folder remains in place.
-    rv = CopyFolderAcrossServer(srcFolder, msgWindow, listener, isMoveFolder);
+    rv = CopyFolderAcrossServer(srcFolder, interactive, listener, isMoveFolder);
   }
   return rv;
 }
@@ -1685,7 +1687,7 @@ nsMsgLocalMailFolder::CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
                                       bool isDraftOrTemplate,
                                       uint32_t newMsgFlags,
                                       const nsACString& aNewMsgKeywords,
-                                      nsIMsgWindow* msgWindow,
+                                      bool interactive,
                                       nsIMsgCopyServiceListener* listener) {
   NS_ENSURE_ARG_POINTER(aFile);
   nsresult rv = NS_ERROR_NULL_POINTER;
@@ -1703,7 +1705,7 @@ nsMsgLocalMailFolder::CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
   if (msgToReplace) messages.AppendElement(msgToReplace);
 
   rv = InitCopyState(fileSupport, messages, msgToReplace ? true : false,
-                     listener, msgWindow, false, false);
+                     listener, interactive, false, false);
   if (NS_SUCCEEDED(rv)) {
     if (mCopyState) {
       mCopyState->m_newMsgKeywords = aNewMsgKeywords;
@@ -2329,7 +2331,8 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
     // CopyMessages() goes here; CopyFileMessage() never gets in here because
     // curCopyIndex will always be less than the mCopyState->m_totalMsgCount
     nsIMsgDBHdr* aSupport = mCopyState->m_messages[mCopyState->m_curCopyIndex];
-    rv = CopyMessageTo(aSupport, mCopyState->m_msgWindow, mCopyState->m_isMove);
+    rv = CopyMessageTo(aSupport, mCopyState->m_interactive,
+                       mCopyState->m_isMove);
   } else {
     // If we have some headers, then there is a source, so notify
     // itemMoveCopyCompleted. If we don't have any headers already, (eg save as
@@ -2357,7 +2360,7 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
       srcFolder = do_QueryInterface(mCopyState->m_srcSupport);
       if (mCopyState->m_isFolder) {
         // Copy or move all subfolders then notify completion
-        CopyAllSubFolders(srcFolder, nullptr, nullptr, mCopyState->m_isMove);
+        CopyAllSubFolders(srcFolder, false, nullptr, mCopyState->m_isMove);
       }
 
       // If this is done on move of selected messages between "mailbox" folders,
@@ -2440,8 +2443,8 @@ nsMsgLocalMailFolder::EndMove(bool moveSucceeded) {
     }
     // lets delete these all at once - much faster that way
     rv = srcFolder->DeleteMessages(mCopyState->m_messages,
-                                   mCopyState->m_msgWindow, true, true, nullptr,
-                                   mCopyState->m_allowUndo);
+                                   mCopyState->m_interactive, true, true,
+                                   nullptr, mCopyState->m_allowUndo);
     AutoCompact();
 
     // enable the dest folder
@@ -2559,8 +2562,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key) {
 }
 
 nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
-                                              nsIMsgWindow* aMsgWindow,
-                                              bool isMove) {
+                                              bool interactive, bool isMove) {
   if (!mCopyState) {
     return NS_ERROR_OUT_OF_MEMORY;
   }
@@ -2602,7 +2604,7 @@ nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
     // handles source deletion in EndMove() after confirming the copy
     // succeeded, which correctly gates on errors like "out of space".
     rv = mCopyState->m_messageService->CopyMessages(
-        keyArray, srcFolder, streamListener, false, nullptr, !!aMsgWindow,
+        keyArray, srcFolder, streamListener, false, nullptr, interactive,
         getter_AddRefs(dummyNull));
   }
 
@@ -2610,8 +2612,7 @@ nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
 }
 
 nsresult nsMsgLocalMailFolder::CopyMessageTo(nsISupports* message,
-                                             nsIMsgWindow* aMsgWindow,
-                                             bool isMove) {
+                                             bool interactive, bool isMove) {
   if (!mCopyState) {
     return NS_ERROR_OUT_OF_MEMORY;
   }
@@ -2643,7 +2644,7 @@ nsresult nsMsgLocalMailFolder::CopyMessageTo(nsISupports* message,
     // handles source deletion in EndMove() after confirming the copy
     // succeeded, which correctly gates on errors like "out of space".
     rv = mCopyState->m_messageService->CopyMessage(uri, streamListener, false,
-                                                   nullptr, !!aMsgWindow);
+                                                   nullptr, interactive);
   }
 
   return rv;
@@ -3090,7 +3091,7 @@ nsMsgLocalMailFolder::OnMessageClassified(const nsACString& aMsgURI,
             mozilla::components::Copy::Service();
         rv = copySvc->CopyMessages(
             this, messages, folder, true,
-            /*nsIMsgCopyServiceListener* listener*/ nullptr, nullptr,
+            /*nsIMsgCopyServiceListener* listener*/ nullptr, false,
             false /*allowUndo*/);
         NS_ASSERTION(NS_SUCCEEDED(rv), "CopyMessages failed");
         if (NS_FAILED(rv)) {

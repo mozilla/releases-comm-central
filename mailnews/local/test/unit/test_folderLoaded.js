@@ -42,7 +42,7 @@ add_setup(async function () {
     0,
     "",
     copyListenerFile1,
-    null
+    false
   );
   await copyListenerFile1.promise;
 
@@ -55,7 +55,7 @@ add_setup(async function () {
     0,
     "",
     copyListenerFile2,
-    null
+    false
   );
   await copyListenerFile2.promise;
 });

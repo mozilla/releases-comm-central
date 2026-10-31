@@ -166,7 +166,7 @@ add_task(async function test_compose_action_status_after_save() {
     await new Promise(resolve => {
       folder.deleteMessages(
         messages,
-        null,
+        false,
         true,
         false,
         { onStopCopy: resolve },
