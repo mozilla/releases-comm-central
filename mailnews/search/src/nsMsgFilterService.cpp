@@ -852,8 +852,8 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
 
           for (auto msgHdr : m_searchHitHdrs) {
             rv = compService->ForwardMessage(
-                NS_ConvertASCIItoUTF16(forwardTo), msgHdr, m_msgWindow, server,
-                nsIMsgComposeService::kForwardAsDefault);
+                NS_ConvertASCIItoUTF16(forwardTo), msgHdr, !!m_msgWindow,
+                server, nsIMsgComposeService::kForwardAsDefault);
             BREAK_ACTION_IF_FAILURE(rv, "Forward action failed");
           }
         } break;
@@ -871,7 +871,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
               mozilla::components::Compose::Service();
           for (auto msgHdr : m_searchHitHdrs) {
             rv = compService->ReplyWithTemplate(msgHdr, replyTemplateUri,
-                                                m_msgWindow, server);
+                                                server);
             if (NS_FAILED(rv)) {
               if (rv == NS_ERROR_ABORT) {
                 (void)curFilter->LogRuleHitFail(

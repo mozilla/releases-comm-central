@@ -506,9 +506,6 @@ export var MailUtils = {
     }
 
     if (headers.get("X-Unsent") == "1") {
-      const msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-        Ci.nsIMsgWindow
-      );
       lazy.MailServices.compose.OpenComposeWindow(
         null,
         {},
@@ -517,7 +514,7 @@ export var MailUtils = {
         Ci.nsIMsgCompFormat.Default,
         null,
         null,
-        msgWindow
+        true
       );
     } else if (
       Services.prefs.getIntPref("mail.openMessageBehavior") ==

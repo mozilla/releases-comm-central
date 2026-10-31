@@ -1746,7 +1746,7 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(
         nsCOMPtr<nsIMsgComposeService> compService =
             mozilla::components::Compose::Service();
         rv = compService->ForwardMessage(
-            forwardStr, m_msgToForwardOrReply, msgWindow, server,
+            forwardStr, m_msgToForwardOrReply, !!msgWindow, server,
             nsIMsgComposeService::kForwardAsDefault);
         if (NS_FAILED(rv))
           MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
@@ -1772,8 +1772,8 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(
       if (server) {
         nsCOMPtr<nsIMsgComposeService> compService =
             mozilla::components::Compose::Service();
-        rv = compService->ReplyWithTemplate(
-            m_msgToForwardOrReply, m_replyTemplateUri[i], msgWindow, server);
+        rv = compService->ReplyWithTemplate(m_msgToForwardOrReply,
+                                            m_replyTemplateUri[i], server);
         if (NS_FAILED(rv)) {
           NS_WARNING("ReplyWithTemplate failed");
           MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,

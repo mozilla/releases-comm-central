@@ -3546,7 +3546,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
             nsCOMPtr<nsIMsgComposeService> compService =
                 mozilla::components::Compose::Service();
             rv = compService->ForwardMessage(
-                NS_ConvertUTF8toUTF16(forwardTo), msgHdr, msgWindow, server,
+                NS_ConvertUTF8toUTF16(forwardTo), msgHdr, !!msgWindow, server,
                 nsIMsgComposeService::kForwardAsDefault);
           }
         } break;
@@ -3561,7 +3561,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
             nsCOMPtr<nsIMsgComposeService> compService =
                 mozilla::components::Compose::Service();
             rv = compService->ReplyWithTemplate(msgHdr, replyTemplateUri,
-                                                msgWindow, server);
+                                                server);
             if (NS_FAILED(rv)) {
               NS_WARNING("ReplyWithTemplate failed");
               if (rv == NS_ERROR_ABORT) {

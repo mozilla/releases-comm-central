@@ -206,7 +206,6 @@ async function testReply(aHrdIdx, aTemplateHdrIdx = 0) {
   MailServices.compose.replyWithTemplate(
     msgHdr,
     msgTemplateUri,
-    null,
     localAccountUtils.incomingServer
   );
 

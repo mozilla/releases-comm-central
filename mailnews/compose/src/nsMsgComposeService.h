@@ -33,8 +33,7 @@ class nsMsgComposeService : public nsIMsgComposeService,
       const nsACString& aMsgURI, nsMimeOutputType aOutType,
       nsIMsgIdentity* aIdentity, const nsACString& aOriginalMsgURI,
       nsIMsgDBHdr* aOrigMsgHdr, bool aForwardInline, const nsAString& forwardTo,
-      bool overrideComposeFormat, nsIMsgWindow* aMsgWindow,
-      bool autodetectCharset);
+      bool overrideComposeFormat, bool interactive, bool autodetectCharset);
 
   // hash table mapping dom windows to nsIMsgCompose objects
   nsInterfaceHashtable<nsISupportsHashKey, nsIWeakReference>

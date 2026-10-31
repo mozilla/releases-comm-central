@@ -644,9 +644,6 @@ export class MessengerContentHandler {
 
           if (headers.get("X-Unsent") == "1") {
             getOrOpen3PaneWindow().then(() => {
-              const msgWindow = Cc[
-                "@mozilla.org/messenger/msgwindow;1"
-              ].createInstance(Ci.nsIMsgWindow);
               MailServices.compose.OpenComposeWindow(
                 null,
                 {},
@@ -655,7 +652,7 @@ export class MessengerContentHandler {
                 Ci.nsIMsgCompFormat.Default,
                 null,
                 null,
-                msgWindow
+                true
               );
             });
           } else {

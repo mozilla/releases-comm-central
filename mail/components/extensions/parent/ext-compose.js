@@ -218,7 +218,7 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
       format,
       identity,
       null,
-      null
+      false
     );
     const composeWindow = await composeWindowPromise;
 

@@ -9,7 +9,6 @@
 
 interface nsIURI;
 interface nsIDocShell;
-interface nsIMsgWindow;
 interface nsIMsgIdentity;
 interface nsIMsgIncomingServer;
 interface nsIMsgDBHdr;
@@ -44,7 +43,7 @@ interface nsIMsgComposeService : nsISupports {
                          in MSG_ComposeFormat format,
                          in nsIMsgIdentity identity,
                          in AUTF8String from,
-                         in nsIMsgWindow aMsgWindow,
+                         in boolean interactive,
                          [optional] in AUTF8String selectionHTML,
                          [optional] in boolean autodetectCharset);
 
@@ -124,7 +123,7 @@ interface nsIMsgComposeService : nsISupports {
    *                       kForwardAsAttachment.
    */
   void forwardMessage(in AString forwardTo, in nsIMsgDBHdr msgHdr,
-                      in nsIMsgWindow msgWindow, in nsIMsgIncomingServer server,
+                      in boolean interactive, in nsIMsgIncomingServer server,
                       in unsigned long aForwardType);
 
   /**
@@ -132,11 +131,10 @@ interface nsIMsgComposeService : nsISupports {
    * based on the given template.
    * @param msgHdr the header of the message being replied to
    * @param templateUri uri of the template to base their reply on
-   * @param msgWindow message window to use
    * @param server server to use for determining which account to send from
    */
   void replyWithTemplate(in nsIMsgDBHdr msgHdr, in AUTF8String templateUri,
-                         in nsIMsgWindow msgWindow, in nsIMsgIncomingServer server);
+                         in nsIMsgIncomingServer server);
 
   /**
    * The docShell of each editor element used for composing should be registered

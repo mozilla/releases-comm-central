@@ -52,7 +52,7 @@ function writeNewMessageDock() {
     Ci.nsIMsgCompFormat.Default,
     null,
     null,
-    null
+    false
   );
 }
 

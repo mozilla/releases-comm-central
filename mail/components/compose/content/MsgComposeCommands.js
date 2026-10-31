@@ -1693,7 +1693,7 @@ function goOpenNewMessage(aEvent) {
     msgCompFormat,
     gCurrentIdentity,
     null,
-    null
+    false
   );
 }
 

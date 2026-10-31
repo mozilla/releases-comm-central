@@ -105,7 +105,7 @@ add_task(async function testForwardInlineKeepsRelatedAttachmentData() {
   MailServices.compose.forwardMessage(
     "to@local.invalid",
     mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder),
-    null,
+    false,
     localAccountUtils.incomingServer,
     Ci.nsIMsgComposeService.kForwardInline
   );

@@ -77,7 +77,7 @@ add_task(async function testForwardMergeMixedCharsets() {
   MailServices.compose.forwardMessage(
     "to@local.invalid",
     mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder),
-    null,
+    false,
     localAccountUtils.incomingServer,
     Ci.nsIMsgComposeService.kForwardInline
   );

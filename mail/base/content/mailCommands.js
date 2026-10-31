@@ -187,7 +187,7 @@ async function ComposeMessage(
         format,
         identity,
         null,
-        msgWindow
+        true
       );
       return;
     case Ci.nsIMsgCompType.NewsPost:
@@ -200,7 +200,7 @@ async function ComposeMessage(
         format,
         identity,
         null,
-        msgWindow
+        true
       );
       return;
     case Ci.nsIMsgCompType.ForwardAsAttachment:
@@ -222,7 +222,7 @@ async function ComposeMessage(
           format,
           identity,
           null,
-          msgWindow
+          true
         );
       }
       return;
@@ -318,7 +318,7 @@ async function ComposeMessage(
             type,
             format,
             identity,
-            msgWindow
+            true
           );
         } else {
           // Replies come here.
@@ -411,7 +411,7 @@ async function ComposeMessage(
                   format,
                   hdrIdentity,
                   matchingHint.toString(),
-                  msgWindow,
+                  true,
                   selection,
                   autodetectCharset
                 );
@@ -448,7 +448,7 @@ async function ComposeMessage(
               format,
               bestIdentity,
               null,
-              msgWindow,
+              true,
               selection,
               autodetectCharset
             );
