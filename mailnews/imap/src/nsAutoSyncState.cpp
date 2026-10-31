@@ -690,7 +690,7 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
     // So OnStopRunningUrl() is called when the download completes.
     nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
     rv = imapService->DownloadMessagesForOffline(messageIds, folder, this,
-                                                 nullptr);
+                                                 false);
     NS_ENSURE_SUCCESS(rv, rv);
   } else if (serverType.EqualsLiteral("ews") ||
              serverType.EqualsLiteral("graph")) {

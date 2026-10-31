@@ -59,7 +59,7 @@ add_task(async function testNoselectParentBecomesMailbox() {
   mailbox.flags = [];
   mailbox.rights = "lr";
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  MailServices.imap.discoverAllFolders(root, listener, null);
+  MailServices.imap.discoverAllFolders(root, listener, false);
   await listener.promise;
   Assert.ok(
     !shared.getFlag(Ci.nsMsgFolderFlags.ImapNoselect),

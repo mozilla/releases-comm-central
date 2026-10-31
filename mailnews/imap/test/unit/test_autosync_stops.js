@@ -46,7 +46,7 @@ add_task(async function () {
   MailServices.imap.discoverAllFolders(
     incomingServer.rootFolder,
     listener,
-    null
+    false
   );
   await listener.promise;
 

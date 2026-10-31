@@ -94,7 +94,7 @@ class nsImapService : public nsIImapService,
 
   nsresult FolderCommand(nsIMsgFolder* imapMailFolder,
                          nsIUrlListener* urlListener, const char* aCommand,
-                         nsImapAction imapAction, nsIMsgWindow* msgWindow,
+                         nsImapAction imapAction, bool interactive,
                          nsIURI** url);
 
   nsresult ChangeFolderSubscription(nsIMsgFolder* folder,

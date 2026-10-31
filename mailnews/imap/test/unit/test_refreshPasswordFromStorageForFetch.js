@@ -73,7 +73,7 @@ add_setup(async function () {
   MailServices.imap.discoverAllFolders(
     incomingServer.rootFolder,
     discoverListener,
-    null
+    false
   );
   await discoverListener.promise;
 

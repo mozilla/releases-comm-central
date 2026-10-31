@@ -72,7 +72,7 @@ add_task(async function verifyContentLength() {
     MailServices.imap.discoverAllFolders(
       incomingServer.rootFolder,
       listener,
-      null
+      false
     );
     await listener.promise;
   }

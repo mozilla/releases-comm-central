@@ -51,7 +51,7 @@ add_task(async function checkDiscovery() {
   const i18nChild = rootFolder.getChildNamed(folderName1);
 
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  MailServices.imap.renameLeaf(i18nChild, folderName2, listener, null);
+  MailServices.imap.renameLeaf(i18nChild, folderName2, listener);
   await listener.promise;
 });
 

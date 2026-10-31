@@ -110,7 +110,7 @@ add_task(async function streamMsgs() {
       `${msgUid}`,
       IMAPPump.inbox,
       listener,
-      null
+      false
     );
     await listener.promise;
 

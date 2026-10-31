@@ -41,7 +41,7 @@ add_task(async function () {
 
   const rootFolder = account.incomingServer.rootFolder;
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  MailServices.imap.discoverAllFolders(rootFolder, listener, null);
+  MailServices.imap.discoverAllFolders(rootFolder, listener, false);
   await listener.promise;
 
   const inboxFolder = rootFolder.getChildNamed("INBOX");

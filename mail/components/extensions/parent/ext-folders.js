@@ -1147,7 +1147,7 @@ this.folders = class extends ExtensionAPIPersistent {
                       resolve(status);
                     },
                   },
-                  null
+                  false
                 );
               });
               const status = await deletedPromise;

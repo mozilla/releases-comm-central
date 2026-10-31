@@ -35,7 +35,7 @@ interface nsIImapService : nsISupports
 {
   nsIURI selectFolder(in nsIMsgFolder aImapMailFolder,
                       in nsIUrlListener aUrlListener,
-                      in nsIMsgWindow   aMsgWindow);
+                      in boolean interactive);
 
   /**
    * Select the folder on the imap server without doing a sync of flags or
@@ -70,11 +70,11 @@ interface nsIImapService : nsISupports
    *
    * @param aImapMailFolder     the folder to expunge
    * @param aUrlListener        url listener, can be null
-   * @param aMsgWindow          msg window url is running in, can be null
+   * @param interactive         whether the user is waiting on the expunge
    */
   void expunge(in nsIMsgFolder aImapMailFolder,
                in nsIUrlListener aUrlListener,
-               in nsIMsgWindow aMsgWindow);
+               in boolean interactive);
 
   /**
    * Issue a STATUS on the target folder.
@@ -92,12 +92,12 @@ interface nsIImapService : nsISupports
    *
    * @param aImapMailFolder - any old imap folder - we just need it to
    *                          set url sinks.
-   * @param aMsgWindow    - nsIMsgWindow to use for notification callbacks.
+   * @param interactive   - whether the user is waiting on the check.
    * @return - the url that we run.
    */
   nsIURI verifyLogon(in nsIMsgFolder aImapMailFolder,
                      in nsIUrlListener aUrlListener,
-                     in nsIMsgWindow aMsgWindow);
+                     in boolean interactive);
 
   void deleteMessages(in nsIMsgFolder aImapMailFolder,
                       in nsIUrlListener aUrlListener,
@@ -129,11 +129,11 @@ interface nsIImapService : nsISupports
 
   void discoverAllFolders(in nsIMsgFolder aImapMailFolder,
                           in nsIUrlListener aUrlListener,
-                          in nsIMsgWindow aMsgWindow);
+                          in boolean interactive);
 
   void discoverAllAndSubscribedFolders(in nsIMsgFolder aImapMailFolder,
                                        in nsIUrlListener aUrlListener,
-                                       in nsIMsgWindow aMsgWindow);
+                                       in boolean interactive);
 
   void discoverChildren(in nsIMsgFolder aImapMailFolder,
                         in nsIUrlListener aUrlListener,
@@ -163,7 +163,7 @@ interface nsIImapService : nsISupports
                              in boolean interactive);
 
   void downloadMessagesForOffline(in ACString aMessageIds, in nsIMsgFolder aSrcFolder,
-                      in nsIUrlListener aListener, in nsIMsgWindow   aMsgWindow);
+                      in nsIUrlListener aListener, in boolean interactive);
 
   void moveFolder(in nsIMsgFolder aSrcFolder,
                   in nsIMsgFolder aDstFolder,
@@ -176,7 +176,7 @@ interface nsIImapService : nsISupports
 
   void deleteFolder(in nsIMsgFolder aFolder,
                     in nsIUrlListener aUrlListener,
-                    in nsIMsgWindow aMsgWindow);
+                    in boolean interactive);
 
   nsIURI createFolder(in nsIMsgFolder aParentFolder,
                       in AUTF8String aLeafName,
@@ -199,17 +199,17 @@ interface nsIImapService : nsISupports
   // with one url.
   void ensureFolderExists(in nsIMsgFolder aParentFolder,
                           in AUTF8String aLeafName,
-                          in nsIMsgWindow aMsgWindow,
+                          in boolean interactive,
                           in nsIUrlListener aUrlListener);
 
 
   nsIURI issueCommandOnMsgs(in nsIMsgFolder aMailFolder,
-                            in nsIMsgWindow aMsgWindow,
+                            in boolean interactive,
                             in ACString aCommand,
                             in ACString aMessageIdentifierList);
 
   nsIURI fetchCustomMsgAttribute(in nsIMsgFolder aMailFolder,
-                                 in nsIMsgWindow aMsgWindow,
+                                 in boolean interactive,
                                  in ACString aAttribute,
                                  in ACString aMessageIdentifierList);
 
@@ -252,7 +252,7 @@ interface nsIImapService : nsISupports
                              in ACString flagsToSubtract,
                              in ACString aMessageIdentifierList);
 
-  void getListOfFoldersOnServer(in nsIImapIncomingServer aServer, in nsIMsgWindow aMsgWindow);
+  void getListOfFoldersOnServer(in nsIImapIncomingServer aServer, in boolean interactive);
 
   nsISupports playbackAllOfflineOperations(in nsIMsgWindow aMsgWindow, in nsIUrlListener aListener);
   void downloadAllOffineImapFolders(in nsIMsgWindow aMsgWindow, in nsIUrlListener aListener);

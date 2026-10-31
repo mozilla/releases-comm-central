@@ -184,7 +184,7 @@ NS_IMETHODIMP nsMoveCoalescerCopyListener::OnStopCopy(nsresult aStatus) {
         nsCOMPtr<nsIImapService> imapService =
             mozilla::components::Imap::Service();
         nsCOMPtr<nsIURI> url;
-        rv = imapService->SelectFolder(m_destFolder, m_coalescer, nullptr,
+        rv = imapService->SelectFolder(m_destFolder, m_coalescer, false,
                                        getter_AddRefs(url));
       }
     } else  // give junk filters a chance to run on new msgs in destination

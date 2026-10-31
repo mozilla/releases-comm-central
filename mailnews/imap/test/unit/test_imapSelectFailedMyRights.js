@@ -55,7 +55,7 @@ async function discoverFolders() {
   MailServices.imap.discoverAllFolders(
     incomingServer.rootFolder,
     listener,
-    null
+    false
   );
   await listener.promise;
 }

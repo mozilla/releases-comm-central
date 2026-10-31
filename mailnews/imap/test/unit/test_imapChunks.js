@@ -48,7 +48,7 @@ add_task(async function testSaveMessageToDisk() {
     MailServices.imap.discoverAllFolders(
       incomingServer.rootFolder,
       listener,
-      null
+      false
     );
     await listener.promise;
   }

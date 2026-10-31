@@ -940,7 +940,7 @@ nsImapIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
 
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
   nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
-  rv = imapService->DiscoverAllFolders(rootMsgFolder, this, aMsgWindow);
+  rv = imapService->DiscoverAllFolders(rootMsgFolder, this, !!aMsgWindow);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIImapHostSessionList> hostSessionList =
       do_GetService("@mozilla.org/messenger/imaphostsessionlist;1", &rv);
@@ -964,7 +964,7 @@ nsImapIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
   // do anything on disk.
   rv = GetRootFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
-  return imapService->VerifyLogon(rootFolder, aUrlListener, aMsgWindow, aURL);
+  return imapService->VerifyLogon(rootFolder, aUrlListener, !!aMsgWindow, aURL);
 }
 
 NS_IMETHODIMP nsImapIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
@@ -2282,7 +2282,7 @@ nsImapIncomingServer::StartPopulating(nsIMsgWindow* aMsgWindow,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-  return imapService->GetListOfFoldersOnServer(this, aMsgWindow);
+  return imapService->GetListOfFoldersOnServer(this, !!aMsgWindow);
 }
 
 NS_IMETHODIMP
