@@ -1066,7 +1066,7 @@ NS_IMETHODIMP nsImapMailFolder::List() {
 
 NS_IMETHODIMP nsImapMailFolder::RemoveLocalSelf() {
   // Kill the local folder and its storage.
-  return nsMsgDBFolder::DeleteSelf(nullptr);
+  return nsMsgDBFolder::DeleteSelf(false);
 }
 
 NS_IMETHODIMP nsImapMailFolder::CreateStorageIfMissing(
@@ -2197,7 +2197,7 @@ bool nsImapMailFolder::TrashOrDescendantOfTrash(nsIMsgFolder* folder) {
   return false;
 }
 NS_IMETHODIMP
-nsImapMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
+nsImapMailFolder::DeleteSelf(bool interactive) {
   nsCOMPtr<nsIMsgFolder> trashFolder;
   nsresult rv;
   uint32_t folderFlags;
@@ -2205,7 +2205,7 @@ nsImapMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
   // No IMAP shenanigans required for virtual folders.
   GetFlags(&folderFlags);
   if (folderFlags & nsMsgFolderFlags::Virtual) {
-    return nsMsgDBFolder::DeleteSelf(nullptr);
+    return nsMsgDBFolder::DeleteSelf(false);
   }
 
   // "this" is the folder we're deleting from
@@ -2233,10 +2233,10 @@ nsImapMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
   }
 
   if (deleteNoTrash) {
-    rv = imapService->DeleteFolder(this, this, !!msgWindow);
-    nsMsgDBFolder::DeleteSelf(msgWindow);
+    rv = imapService->DeleteFolder(this, this, interactive);
+    nsMsgDBFolder::DeleteSelf(interactive);
   } else {
-    rv = imapService->MoveFolder(this, trashFolder, this, !!msgWindow);
+    rv = imapService->MoveFolder(this, trashFolder, this, interactive);
   }
   return rv;
 }

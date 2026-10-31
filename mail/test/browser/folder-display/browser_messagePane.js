@@ -34,8 +34,8 @@ add_setup(async function () {
   about3Pane = document.getElementById("tabmail").currentAbout3Pane;
 
   registerCleanupFunction(() => {
-    folderSingle.deleteSelf(null);
-    folderMulti.deleteSelf(null);
+    folderSingle.deleteSelf(false);
+    folderMulti.deleteSelf(false);
   });
 });
 

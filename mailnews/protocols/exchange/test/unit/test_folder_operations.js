@@ -129,7 +129,7 @@ async function runDeleteFolderTest(
   const remoteEwsId = child.getStringProperty(ewsIdPropertyName);
 
   // Delete the folder and make sure it results in a local deletion.
-  child.deleteSelf(null);
+  child.deleteSelf(false);
   await TestUtils.waitForCondition(
     () => parentFolder.getChildNamed(folderToDeleteName) == null,
     "the folder should eventually get deleted"
@@ -185,7 +185,7 @@ async function runDeleteRecreateFolderIdentityTest(mockServer, incomingServer) {
   Assert.ok(folder, "the original folder should exist");
   const oldURI = folder.URI;
 
-  folder.deleteSelf(null);
+  folder.deleteSelf(false);
   await TestUtils.waitForCondition(
     () => rootFolder.getChildNamed(folderName) == null,
     "the original folder should eventually be deleted"
@@ -342,7 +342,7 @@ add_task(async function test_delete_id_mismatch() {
 
   // Delete the folder and make sure it results in a local deletion, even though
   // the server will respond by saying it doesn't know this folder.
-  child.deleteSelf(null);
+  child.deleteSelf(false);
   await TestUtils.waitForCondition(
     () => rootFolder.getChildNamed(folderToDeleteName) == null,
     "the folder should eventually get deleted"
@@ -466,7 +466,7 @@ async function runHardDeleteVirtualFolderTest(mockServer, incomingServer) {
   const virtualFolder = rootFolder.getChildNamed("virtual_folder");
   Assert.ok(!!virtualFolder, "Virtual folder should exist.");
 
-  virtualFolder.deleteSelf(null);
+  virtualFolder.deleteSelf(false);
 
   // No mock server deletions should be recorded.
   Assert.equal(

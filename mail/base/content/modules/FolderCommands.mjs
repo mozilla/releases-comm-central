@@ -498,7 +498,7 @@ async function deleteFolder(folder) {
   }
 
   try {
-    folder.deleteSelf(top.msgWindow);
+    folder.deleteSelf(true);
   } catch (ex) {
     // Ignore known errors from canceled warning dialogs.
     if (ex.result != Cr.NS_MSG_ERROR_COPY_FOLDER_ABORTED) {

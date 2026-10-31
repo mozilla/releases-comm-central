@@ -167,7 +167,7 @@ add_task(async function testListViewMarkRead() {
     const trash = folder.rootFolder.getFolderWithFlags(
       Ci.nsMsgFolderFlags.Trash
     );
-    folder.deleteSelf(null);
+    folder.deleteSelf(false);
     trash.emptyTrash(null);
   });
 
@@ -207,7 +207,7 @@ add_task(async function testListViewMarkThreadAsRead() {
     const trash = folder.rootFolder.getFolderWithFlags(
       Ci.nsMsgFolderFlags.Trash
     );
-    folder.deleteSelf(null);
+    folder.deleteSelf(false);
     trash.emptyTrash(null);
   });
 
@@ -247,7 +247,7 @@ add_task(async function testConversationViewMarkRead() {
     const trash = folder.rootFolder.getFolderWithFlags(
       Ci.nsMsgFolderFlags.Trash
     );
-    folder.deleteSelf(null);
+    folder.deleteSelf(false);
     trash.emptyTrash(null);
   });
 
@@ -286,7 +286,7 @@ add_task(async function testConversationViewMarkThreadAsRead() {
     const trash = folder.rootFolder.getFolderWithFlags(
       Ci.nsMsgFolderFlags.Trash
     );
-    folder.deleteSelf(null);
+    folder.deleteSelf(false);
     trash.emptyTrash(null);
   });
 

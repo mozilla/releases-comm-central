@@ -42,7 +42,7 @@ add_setup(async function () {
   await make_message_sets_in_folders([folder], [{ count: 3 }]);
   await be_in_folder(folder);
 
-  registerCleanupFunction(() => folder.deleteSelf(null));
+  registerCleanupFunction(() => folder.deleteSelf(false));
 });
 
 async function open3PaneWindow(

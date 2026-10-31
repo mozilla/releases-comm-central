@@ -119,7 +119,7 @@ class SmartMailbox {
       folder => !tags.some(t => t.tag == folder.name)
     );
     for (const folder of obsoleteFolders) {
-      folder.deleteSelf(null);
+      folder.deleteSelf(false);
     }
 
     // Create tag folders, if missing.

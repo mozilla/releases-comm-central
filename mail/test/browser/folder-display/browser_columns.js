@@ -140,14 +140,14 @@ add_setup(async function () {
   );
   registerCleanupFunction(async () => {
     await delete_messages(messageSet);
-    folderSource.deleteSelf(null);
+    folderSource.deleteSelf(false);
     // "?" to allow easier .only() debugging
-    folderParent?.deleteSelf(null);
-    folderSent?.deleteSelf(null);
-    folderVirtual?.deleteSelf(null);
-    folderA?.deleteSelf(null);
-    folderB?.deleteSelf(null);
-    folderParentOut?.deleteSelf(null);
+    folderParent?.deleteSelf(false);
+    folderSent?.deleteSelf(false);
+    folderVirtual?.deleteSelf(false);
+    folderA?.deleteSelf(false);
+    folderB?.deleteSelf(false);
+    folderParentOut?.deleteSelf(false);
   });
 });
 
@@ -1121,5 +1121,5 @@ add_task(async function test_double_click_column_picker() {
     currentTabInfo,
     "No message was opened in a tab"
   );
-  doubleClickFolder.deleteSelf(null);
+  doubleClickFolder.deleteSelf(false);
 });

@@ -73,8 +73,8 @@ add_setup(async function () {
   await add_message_sets_to_folders([threadedFolder], [thread]);
 
   registerCleanupFunction(function () {
-    folder.deleteSelf(null);
-    threadedFolder.deleteSelf(null);
+    folder.deleteSelf(false);
+    threadedFolder.deleteSelf(false);
     reset_context_menu_background_tabs();
     reset_open_message_behavior();
   });

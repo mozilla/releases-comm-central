@@ -23,7 +23,7 @@ let folder;
 
 add_setup(async function () {
   folder = await create_folder("Related attachment visibility");
-  registerCleanupFunction(() => folder.deleteSelf(null));
+  registerCleanupFunction(() => folder.deleteSelf(false));
 });
 
 // Unreferenced related parts should remain visible when composing, including

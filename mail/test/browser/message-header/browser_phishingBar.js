@@ -385,5 +385,5 @@ add_task(async function test_phishing_warning_for_action_form() {
 
 registerCleanupFunction(async function teardown() {
   await be_in_folder(inboxFolder);
-  folder.deleteSelf(null);
+  folder.deleteSelf(false);
 });

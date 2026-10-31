@@ -87,10 +87,10 @@ add_setup(async function () {
   tagArray = MailServices.tags.getAllTags();
 
   registerCleanupFunction(function () {
-    unreadFolder.deleteSelf(null);
-    shiftDeleteFolder.deleteSelf(null);
-    threadDeleteFolder.deleteSelf(null);
-    newsgroupFolder.deleteSelf(null);
+    unreadFolder.deleteSelf(false);
+    shiftDeleteFolder.deleteSelf(false);
+    threadDeleteFolder.deleteSelf(false);
+    newsgroupFolder.deleteSelf(false);
   });
 });
 

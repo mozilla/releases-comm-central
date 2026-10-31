@@ -21,7 +21,6 @@
 #include "nsIWindowWatcher.h"
 #include "FolderCompactor.h"
 #include "nsIDocShell.h"
-#include "nsIMsgWindow.h"
 #include "nsIWindowMediator.h"
 #include "nsIAbCard.h"
 #include "nsISpamSettings.h"
@@ -3271,7 +3270,7 @@ NS_IMETHODIMP nsMsgDBFolder::DeleteStorage() {
   return msgStore->DeleteFolder(this);
 }
 
-NS_IMETHODIMP nsMsgDBFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
+NS_IMETHODIMP nsMsgDBFolder::DeleteSelf(bool interactive) {
   nsCOMPtr<nsIMsgFolder> parent;
   GetParent(getter_AddRefs(parent));
   if (!parent) {

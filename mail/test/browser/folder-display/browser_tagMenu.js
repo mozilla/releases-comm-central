@@ -26,7 +26,7 @@ add_task(async function test_updateTagCommandsOnPopupShowing() {
       popup.hidePopup();
       await hidden;
     }
-    folder.deleteSelf(null);
+    folder.deleteSelf(false);
   });
   const [messages] = await make_message_sets_in_folders(
     [folder],

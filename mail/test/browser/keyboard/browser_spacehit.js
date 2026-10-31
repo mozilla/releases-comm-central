@@ -187,7 +187,7 @@ add_task(async function test_scrollWithMessageListFocused() {
   const folder = await create_folder("SpaceScrolling");
   registerCleanupFunction(async () => {
     await be_in_folder(originalFolder);
-    folder.deleteSelf(null);
+    folder.deleteSelf(false);
   });
   await make_message_sets_in_folders(
     [folder],

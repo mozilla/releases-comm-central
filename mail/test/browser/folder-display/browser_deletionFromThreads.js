@@ -72,10 +72,10 @@ add_setup(async function () {
   about3Pane = currentTabInfo.chromeBrowser.contentWindow;
 
   registerCleanupFunction(() => {
-    multiFolder.deleteSelf(null);
-    singleFolder.deleteSelf(null);
-    folderA.deleteSelf(null);
-    folderB.deleteSelf(null);
+    multiFolder.deleteSelf(false);
+    singleFolder.deleteSelf(false);
+    folderA.deleteSelf(false);
+    folderB.deleteSelf(false);
   });
 });
 
@@ -348,7 +348,7 @@ add_task(async function test_expanded_root_deletion_indentation() {
     "Remaining sibling should be correctly indented at level 1"
   );
 
-  structFolder.deleteSelf(null);
+  structFolder.deleteSelf(false);
 });
 
 add_task(async function test_non_root_deletion_indentation_shift() {
@@ -383,7 +383,7 @@ add_task(async function test_non_root_deletion_indentation_shift() {
     "Reparented sibling should be shifted left by 1"
   );
 
-  structFolder.deleteSelf(null);
+  structFolder.deleteSelf(false);
 });
 
 add_task(async function test_cross_tab_phantom_twisty() {
@@ -438,7 +438,7 @@ add_task(async function test_cross_tab_phantom_twisty() {
     "Background tab root should lose the HASCHILDREN twisty after child deletion"
   );
 
-  structFolder.deleteSelf(null);
+  structFolder.deleteSelf(false);
 
   await close_tab(tab2);
 });
@@ -518,5 +518,5 @@ add_task(async function test_delete_only_child_then_sort() {
     "Root remains a single-message row without twisty"
   );
 
-  structFolder.deleteSelf(null);
+  structFolder.deleteSelf(false);
 });

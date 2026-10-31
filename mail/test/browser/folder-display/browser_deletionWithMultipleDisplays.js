@@ -107,14 +107,14 @@ add_setup(async function () {
   );
 
   registerCleanupFunction(() => {
-    folder.deleteSelf(null);
-    lastMessageFolder.deleteSelf(null);
-    oneBeforeFolder.deleteSelf(null);
-    oneAfterFolder.deleteSelf(null);
-    multipleDeletionFolder1.deleteSelf(null);
-    multipleDeletionFolder2.deleteSelf(null);
-    multipleDeletionFolder3.deleteSelf(null);
-    multipleDeletionFolder4.deleteSelf(null);
+    folder.deleteSelf(false);
+    lastMessageFolder.deleteSelf(false);
+    oneBeforeFolder.deleteSelf(false);
+    oneAfterFolder.deleteSelf(false);
+    multipleDeletionFolder1.deleteSelf(false);
+    multipleDeletionFolder2.deleteSelf(false);
+    multipleDeletionFolder3.deleteSelf(false);
+    multipleDeletionFolder4.deleteSelf(false);
   });
 });
 

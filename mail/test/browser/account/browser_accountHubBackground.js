@@ -65,7 +65,7 @@ add_setup(async function () {
   registerCleanupFunction(() => {
     about3Pane.messagePane.clearAll();
     MailServices.junk.resetTrainingData();
-    testFolder.deleteSelf(null);
+    testFolder.deleteSelf(false);
     rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash).emptyTrash(null);
   });
 });

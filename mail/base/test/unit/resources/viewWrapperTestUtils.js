@@ -231,7 +231,7 @@ async function delete_folder(aFolder, aViewWrapper, aDontEmptyTrash) {
     1
   );
   // Deleting tries to be helpful and move the folder to the trash...
-  aFolder.deleteSelf(null);
+  aFolder.deleteSelf(false);
 
   // Ugh.  So we have the problem where that move above just triggered a
   //  re-computation of the view... which is an asynchronous operation

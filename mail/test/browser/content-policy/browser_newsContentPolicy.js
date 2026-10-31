@@ -132,7 +132,7 @@ add_setup(async function () {
       tabmail.closeTab(tabmail.tabInfo.at(-1));
     }
     tabmail.switchToTab(0);
-    mailFolder.deleteSelf(null);
+    mailFolder.deleteSelf(false);
     MailServices.accounts.removeAccount(newsAccount, false);
     const stray = NntpUtils.findServer("tracker.test");
     if (stray) {
@@ -268,7 +268,7 @@ add_task(async function testNewsArticleInContentTab() {
 add_task(async function testNewsLinkTargetsInMailMessage() {
   const href = `news://test.test:119/${encodeURIComponent(targetMessageId)}`;
   const folder = await create_folder("newsLinkTargets");
-  registerCleanupFunction(() => folder.deleteSelf(null));
+  registerCleanupFunction(() => folder.deleteSelf(false));
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder).addMessage(
     generator
       .makeMessage({
@@ -318,7 +318,7 @@ add_task(async function testNntpLinkInMailMessage() {
     generator.makeMessage()
   );
   const folder = await create_folder("nntpLink");
-  registerCleanupFunction(() => folder.deleteSelf(null));
+  registerCleanupFunction(() => folder.deleteSelf(false));
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder).addMessage(
     generator
       .makeMessage({

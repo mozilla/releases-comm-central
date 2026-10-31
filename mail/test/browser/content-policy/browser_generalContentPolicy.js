@@ -210,7 +210,7 @@ add_setup(async () => {
   Assert.ok(folder, "folder should be set up");
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   registerCleanupFunction(() => {
-    folder.deleteSelf(null);
+    folder.deleteSelf(false);
   });
 });
 

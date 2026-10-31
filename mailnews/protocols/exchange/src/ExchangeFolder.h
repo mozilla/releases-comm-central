@@ -70,7 +70,7 @@ class ExchangeFolder : public nsMsgDBFolder, public IExchangeFolder {
   NS_IMETHOD CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
                         bool interactive,
                         nsIMsgCopyServiceListener* listener) override;
-  NS_IMETHOD DeleteSelf(nsIMsgWindow* aWindow) override;
+  NS_IMETHOD DeleteSelf(bool interactive) override;
   NS_IMETHOD GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
                                   nsIMsgDatabase** _retval) override;
   NS_IMETHOD GetSupportsOffline(bool* supportsOffline) override;

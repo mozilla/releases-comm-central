@@ -61,6 +61,6 @@ add_task(async function testMarkedAsRead() {
     "should get marked as read"
   );
   await be_in_folder(inboxFolder);
-  folder.deleteSelf(null);
+  folder.deleteSelf(false);
   await SpecialPowers.popPrefEnv();
 });

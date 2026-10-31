@@ -23,7 +23,7 @@ add_setup(async () => {
   Assert.ok(rssFeedFolder, "rssFeedFolder should exist after subscribe");
 
   registerCleanupFunction(() => {
-    rssFeedFolder.deleteSelf(null);
+    rssFeedFolder.deleteSelf(false);
     MailServices.accounts.removeAccount(feedAccount, true);
   });
 });

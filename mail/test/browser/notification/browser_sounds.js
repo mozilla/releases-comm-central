@@ -53,7 +53,7 @@ registerCleanupFunction(function () {
   const trash = testFolder.rootFolder.getFolderWithFlags(
     Ci.nsMsgFolderFlags.Trash
   );
-  testFolder.deleteSelf(null);
+  testFolder.deleteSelf(false);
   trash.emptyTrash(null);
 });
 

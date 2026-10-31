@@ -49,7 +49,7 @@ add_setup(async function () {
   ]);
   await add_message_sets_to_folders([folder], [regularMessage, linkMessage]);
   await be_in_folder(folder);
-  registerCleanupFunction(() => folder.deleteSelf(null));
+  registerCleanupFunction(() => folder.deleteSelf(false));
 });
 
 /**

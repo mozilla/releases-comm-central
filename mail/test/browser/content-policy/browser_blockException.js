@@ -43,7 +43,7 @@ add_setup(async () => {
 
   folder = await create_folder("blockExceptionContentPolicy");
   registerCleanupFunction(() => {
-    folder.deleteSelf(null);
+    folder.deleteSelf(false);
   });
 });
 

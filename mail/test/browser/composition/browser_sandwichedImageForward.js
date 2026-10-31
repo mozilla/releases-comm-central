@@ -26,7 +26,7 @@ add_setup(async function () {
   );
   const source = await IOUtils.readUTF8(file.path);
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder).addMessage(source);
-  registerCleanupFunction(() => folder.deleteSelf(null));
+  registerCleanupFunction(() => folder.deleteSelf(false));
 });
 
 /**

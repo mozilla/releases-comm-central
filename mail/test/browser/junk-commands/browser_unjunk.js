@@ -89,8 +89,8 @@ add_setup(async function () {
   smartJunk = SmartMailboxUtils.getSmartMailbox().getSmartFolder("Junk");
 
   registerCleanupFunction(function () {
-    inbox.deleteSelf(null);
-    junk.deleteSelf(null);
+    inbox.deleteSelf(false);
+    junk.deleteSelf(false);
     MailServices.accounts.removeAccount(otherAccount, false);
   });
 });

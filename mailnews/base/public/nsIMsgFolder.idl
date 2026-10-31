@@ -12,7 +12,6 @@
 
 interface nsIAutoSyncState;
 interface nsIMsgDBHdr;
-interface nsIMsgWindow;
 interface nsIMsgDatabase;
 interface nsIDBFolderInfo;
 interface nsIMsgFilterList;
@@ -248,9 +247,9 @@ interface nsIMsgFolder : nsISupports {
    * from the user, depending on implementation.
    * So the deletion may not take place immediately (or at all!)
    *
-   * @param msgWindow  msgWindow to display status feedback in
+   * @param interactive  Whether the user is waiting on the deletion.
    */
-  void deleteSelf(in nsIMsgWindow msgWindow);
+  void deleteSelf(in boolean interactive);
 
   /**
    * Delete the given subfolder of this folder.

@@ -47,7 +47,7 @@ add_setup(async function () {
     await cleanup_qfb_button();
     // Quick filter bar is hidden by default, need to toggle it off.
     await toggle_quick_filter_bar();
-    folder.deleteSelf(null);
+    folder.deleteSelf(false);
   });
 });
 
@@ -86,8 +86,8 @@ add_task(async function test_sticky_basics() {
   // assert_messages_in_view(unreadOne);
   // close_tab(tabB);
 
-  folderOne.deleteSelf(null);
-  folderTwo.deleteSelf(null);
+  folderOne.deleteSelf(false);
+  folderTwo.deleteSelf(false);
   teardownTest();
 });
 
@@ -143,8 +143,8 @@ add_task(async function test_sticky_tags() {
   await toggle_boolean_constraints("sticky");
   await be_in_folder(folderTwo);
   assert_constraints_expressed({});
-  folderOne.deleteSelf(null);
-  folderTwo.deleteSelf(null);
+  folderOne.deleteSelf(false);
+  folderTwo.deleteSelf(false);
   teardownTest();
 });
 
@@ -163,8 +163,8 @@ add_task(async function test_sticky_text() {
 
   await be_in_folder(folderTwo);
   assert_filter_text("foo");
-  folderOne.deleteSelf(null);
-  folderTwo.deleteSelf(null);
+  folderOne.deleteSelf(false);
+  folderTwo.deleteSelf(false);
   teardownTest();
 });
 
@@ -206,8 +206,8 @@ add_task(async function test_sticky_escape_clears_text_before_sticky() {
   await toggle_quick_filter_bar();
   assert_quick_filter_bar_visible(true);
 
-  folderOne.deleteSelf(null);
-  folderTwo.deleteSelf(null);
+  folderOne.deleteSelf(false);
+  folderTwo.deleteSelf(false);
   teardownTest();
 });
 

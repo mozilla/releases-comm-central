@@ -42,7 +42,7 @@ add_setup(async function () {
   await add_message_sets_to_folders([folder], [thread]);
 
   registerCleanupFunction(async () => {
-    folder.deleteSelf(null);
+    folder.deleteSelf(false);
 
     const tabmail = document.getElementById("tabmail");
     tabmail.closeTab(tabmail.currentTabInfo);

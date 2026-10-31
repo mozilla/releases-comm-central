@@ -1188,7 +1188,7 @@ this.folders = class extends ExtensionAPIPersistent {
                 MailServices.mfn.folderMoveCopyCompleted,
               folder.URI
             );
-            folder.deleteSelf(null);
+            folder.deleteSelf(false);
             await deletedPromise;
           }
         },

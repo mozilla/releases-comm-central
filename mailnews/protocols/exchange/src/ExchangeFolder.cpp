@@ -32,7 +32,6 @@
 #include "nsISpamSettings.h"
 #include "nsITransactionManager.h"
 #include "nsIMsgTransactionService.h"
-#include "nsIMsgWindow.h"
 #include "nsString.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgUtils.h"
@@ -1186,12 +1185,12 @@ NS_IMETHODIMP ExchangeFolder::DeleteMessages(
                                std::move(onSoftDelete));
 }
 
-NS_IMETHODIMP ExchangeFolder::DeleteSelf(nsIMsgWindow* aWindow) {
+NS_IMETHODIMP ExchangeFolder::DeleteSelf(bool interactive) {
   // If it's a virtual folder, we just need to delete it locally.
   uint32_t folderFlags;
   GetFlags(&folderFlags);
   if (folderFlags & nsMsgFolderFlags::Virtual) {
-    return nsMsgDBFolder::DeleteSelf(aWindow);
+    return nsMsgDBFolder::DeleteSelf(interactive);
   }
 
   bool deletable = false;
@@ -1206,12 +1205,11 @@ NS_IMETHODIMP ExchangeFolder::DeleteSelf(nsIMsgWindow* aWindow) {
   rv = GetExchangeId(folderId);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgWindow> window = aWindow;
-
-  const auto onHardDelete = [self = RefPtr(this), window, folderId]() {
+  const auto onHardDelete = [self = RefPtr(this), interactive, folderId]() {
     RefPtr<ExchangeSimpleListener> listener = new ExchangeSimpleListener(
-        [self, window](const nsTArray<nsCString>& ids, bool useLegacyFallback) {
-          return self->nsMsgDBFolder::DeleteSelf(window);
+        [self, interactive](const nsTArray<nsCString>& ids,
+                            bool useLegacyFallback) {
+          return self->nsMsgDBFolder::DeleteSelf(interactive);
         });
 
     nsCOMPtr<IExchangeClient> client;

@@ -53,7 +53,7 @@ add_setup(async function () {
   await add_message_to_folder([folder], message);
 
   registerCleanupFunction(() => {
-    folder.deleteSelf(null);
+    folder.deleteSelf(false);
   });
 });
 

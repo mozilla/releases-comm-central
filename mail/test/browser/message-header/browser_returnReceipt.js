@@ -84,7 +84,7 @@ add_setup(async function () {
 
   await be_in_folder(folder);
   registerCleanupFunction(() => {
-    folder.deleteSelf(null);
+    folder.deleteSelf(false);
   });
 });
 

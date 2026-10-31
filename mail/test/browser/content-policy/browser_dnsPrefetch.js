@@ -55,7 +55,7 @@ var msgBody =
 add_setup(async function () {
   folder = await create_folder("dnsPrefetch");
   registerCleanupFunction(() => {
-    folder.deleteSelf(null);
+    folder.deleteSelf(false);
   });
 });
 

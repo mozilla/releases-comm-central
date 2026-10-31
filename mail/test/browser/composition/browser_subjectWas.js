@@ -39,7 +39,7 @@ add_setup(async function () {
       },
     })
   );
-  registerCleanupFunction(() => folder.deleteSelf(null));
+  registerCleanupFunction(() => folder.deleteSelf(false));
 });
 
 /**

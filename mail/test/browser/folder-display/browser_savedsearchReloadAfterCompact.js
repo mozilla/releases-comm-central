@@ -80,6 +80,6 @@ registerCleanupFunction(async () => {
   }
   // Cleanup dbView with force.
   get_about_3pane().gDBView.close(true);
-  folderVirtual.deleteSelf(null);
-  otherFolder.deleteSelf(null);
+  folderVirtual.deleteSelf(false);
+  otherFolder.deleteSelf(false);
 });

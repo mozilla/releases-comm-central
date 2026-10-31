@@ -763,7 +763,7 @@ nsresult nsMsgLocalMailFolder::IsChildOfTrash(bool* result) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
+NS_IMETHODIMP nsMsgLocalMailFolder::DeleteSelf(bool interactive) {
   nsresult rv;
   bool isChildOfTrash;
   IsChildOfTrash(&isChildOfTrash);
@@ -772,14 +772,14 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
   GetFlags(&folderFlags);
   // when deleting from trash, or virtual folder, just delete it.
   if (isChildOfTrash || folderFlags & nsMsgFolderFlags::Virtual)
-    return nsMsgDBFolder::DeleteSelf(msgWindow);
+    return nsMsgDBFolder::DeleteSelf(interactive);
 
   nsCOMPtr<nsIMsgFolder> trashFolder;
   rv = GetTrashFolder(getter_AddRefs(trashFolder));
   if (NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsIMsgCopyService> copyService =
         mozilla::components::Copy::Service();
-    rv = copyService->CopyFolder(this, trashFolder, true, nullptr, !!msgWindow);
+    rv = copyService->CopyFolder(this, trashFolder, true, nullptr, interactive);
   }
   return rv;
 }

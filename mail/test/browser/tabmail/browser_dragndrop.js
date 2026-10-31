@@ -67,7 +67,7 @@ add_setup(async function () {
 });
 
 registerCleanupFunction(async function () {
-  folder.deleteSelf(null);
+  folder.deleteSelf(false);
 });
 
 /**

@@ -32,7 +32,7 @@ var folderToSendFrom;
 add_setup(async function () {
   requestLongerTimeout(2);
   folderToSendFrom = await create_folder("FolderWithUTF8");
-  registerCleanupFunction(() => folderToSendFrom.deleteSelf(null));
+  registerCleanupFunction(() => folderToSendFrom.deleteSelf(false));
 });
 
 function check_content(window) {

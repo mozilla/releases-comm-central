@@ -122,7 +122,7 @@ add_setup(async function () {
       previousHandler.alwaysAskBeforeHandling;
     currentHandler.preferredAction = previousHandler.preferredAction;
     handlerService.store(currentHandler);
-    localFolder.deleteSelf(null);
+    localFolder.deleteSelf(false);
     MailServices.accounts.removeAccount(imapAccount, false);
   });
 });

@@ -114,8 +114,8 @@ add_setup(async function () {
   registerCleanupFunction(async () => {
     await ensure_cards_view(document);
     // Delete created folder.
-    folder.deleteSelf(null);
-    folderMore.deleteSelf(null);
+    folder.deleteSelf(false);
+    folderMore.deleteSelf(false);
 
     // Restore animation to the contact panel.
     aboutMessage.document

@@ -35,8 +35,8 @@ add_setup(async function () {
 
   registerCleanupFunction(async () => {
     await ensure_cards_view(document);
-    folderParent.deleteSelf(null);
-    folderSource.deleteSelf(null);
+    folderParent.deleteSelf(false);
+    folderSource.deleteSelf(false);
   });
 });
 

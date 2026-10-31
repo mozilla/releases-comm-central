@@ -29,7 +29,7 @@ add_setup(async function () {
   createMessages(gFolder, 1);
 
   registerCleanupFunction(() => {
-    gFolder.deleteSelf(null);
+    gFolder.deleteSelf(false);
     MailServices.accounts.removeAccount(account, true);
     Services.xulStore.removeDocument(
       "chrome://messenger/content/messenger.xhtml"

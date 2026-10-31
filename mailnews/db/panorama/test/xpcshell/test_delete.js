@@ -79,7 +79,7 @@ add_task(function testDeleteFromFolder() {
   const folder = rootFolder.createLocalSubfolder("testFolderDelete");
 
   const folderId = folder.id;
-  folder.deleteSelf(null);
+  folder.deleteSelf(false);
 
   checkNoRow(folderId);
 });

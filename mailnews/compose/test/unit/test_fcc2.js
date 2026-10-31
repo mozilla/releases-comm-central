@@ -21,7 +21,7 @@ add_setup(async function () {
 
   registerCleanupFunction(() => {
     gServer.stop();
-    fcc2Folder.deleteSelf(null);
+    fcc2Folder.deleteSelf(false);
   });
 });
 

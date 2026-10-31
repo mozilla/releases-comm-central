@@ -28,7 +28,7 @@ add_setup(async function () {
   await make_message_sets_in_folders([folder], [{ count: 1 }]);
 
   registerCleanupFunction(() => {
-    folder.deleteSelf(null);
+    folder.deleteSelf(false);
   });
 });
 

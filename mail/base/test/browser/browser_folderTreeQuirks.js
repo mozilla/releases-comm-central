@@ -361,7 +361,7 @@ add_task(async function testUnreadFoldersAutoRemovalWithSelection() {
   // Deselecting the folder should be enough to remove it from the unread list.
   await selectFolder(folderA, null);
   await checkModeListItems("unread", [], "with selection");
-  folderB1.deleteSelf(null);
+  folderB1.deleteSelf(false);
   rootFolder.emptyTrash(null, null);
 });
 
@@ -714,9 +714,9 @@ add_task(async function testSmartFolders() {
   );
 
   // Delete the added folders.
-  folderX.deleteSelf(null);
-  folderY.deleteSelf(null);
-  folderZ.deleteSelf(null);
+  folderX.deleteSelf(false);
+  folderY.deleteSelf(false);
+  folderZ.deleteSelf(false);
   folderX = trashFolder.getChildNamed("folderTreeQuirksX");
   folderY = trashFolder.getChildNamed("folderTreeQuirksY");
   folderYY = folderY.getChildNamed("folderTreeQuirksYY");
@@ -888,7 +888,7 @@ add_task(async function testFolderMove() {
 
   // Clean up.
 
-  newParentFolder.deleteSelf(null);
+  newParentFolder.deleteSelf(false);
   rootFolder.emptyTrash(null, null);
   folderC.markAllMessagesRead();
   folderC.clearFlag(Ci.nsMsgFolderFlags.Favorite);
@@ -980,7 +980,7 @@ add_task(async function testFolderMoveSubfolder() {
 
   // Clean up.
 
-  newParentFolder.deleteSelf(null);
+  newParentFolder.deleteSelf(false);
   rootFolder.emptyTrash(null, null);
   folderB.markAllMessagesRead();
   folderB.clearFlag(Ci.nsMsgFolderFlags.Favorite);
@@ -1134,9 +1134,9 @@ add_task(async function testFolderRename() {
 
   // Clean up.
 
-  extraFolders.aaa.deleteSelf(null);
-  extraFolders.ggg.deleteSelf(null);
-  extraFolders.zzz.deleteSelf(null);
+  extraFolders.aaa.deleteSelf(false);
+  extraFolders.ggg.deleteSelf(false);
+  extraFolders.zzz.deleteSelf(false);
   rootFolder.emptyTrash(null, null);
   folderC.markAllMessagesRead();
   folderC.clearFlag(Ci.nsMsgFolderFlags.Favorite);

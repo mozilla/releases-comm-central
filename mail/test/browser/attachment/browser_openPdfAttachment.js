@@ -68,7 +68,7 @@ add_setup(async function () {
       previousHandler.alwaysAskBeforeHandling;
     currentHandler.preferredAction = previousHandler.preferredAction;
     handlerService.store(currentHandler);
-    folder.deleteSelf(null);
+    folder.deleteSelf(false);
   });
 });
 

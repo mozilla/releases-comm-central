@@ -22,7 +22,6 @@
 #include "prmon.h"
 #include "nsIMsgImapMailFolder.h"
 #include "nsIMsgFilterPlugin.h"
-#include "nsIMsgWindow.h"
 #include "nsTHashMap.h"
 #include "nsITimer.h"
 #include "nsAutoSyncState.h"
@@ -263,7 +262,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
   NS_IMETHOD SetJunkScoreForMessages(
       const nsTArray<RefPtr<nsIMsgDBHdr>>& messages, nsMsgJunkScore junkScore,
       const nsACString& junkScoreOrigin, int32_t junkPercent) override;
-  NS_IMETHOD DeleteSelf(nsIMsgWindow* msgWindow) override;
+  NS_IMETHOD DeleteSelf(bool interactive) override;
   NS_IMETHOD ReadFromFolderCacheElem(
       nsIMsgFolderCacheElement* element) override;
   NS_IMETHOD WriteToFolderCacheElem(nsIMsgFolderCacheElement* element) override;

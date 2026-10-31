@@ -185,7 +185,7 @@ add_task(async function test_open_account_hub_message_window() {
 
   await BrowserTestUtils.closeWindow(messageWindow);
   const trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
-  folder.deleteSelf(null);
+  folder.deleteSelf(false);
   trash.emptyTrash(null);
 }).skip(AppConstants.platform === "macosx");
 

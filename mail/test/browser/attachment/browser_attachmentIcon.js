@@ -315,5 +315,5 @@ add_task(async function test_attachment_icons() {
 
 registerCleanupFunction(() => {
   // Remove created folders.
-  folder.deleteSelf(null);
+  folder.deleteSelf(false);
 });

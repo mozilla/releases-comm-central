@@ -33,7 +33,7 @@ const SOME_SPANISH = "estos últimos meses siento";
 
 add_setup(async function () {
   folder = await create_folder("FolderWithDefectiveCharset");
-  registerCleanupFunction(() => folder.deleteSelf(null));
+  registerCleanupFunction(() => folder.deleteSelf(false));
 });
 
 add_task(async function test_forward_direct() {

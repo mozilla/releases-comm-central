@@ -115,7 +115,7 @@ add_task(async function test_account_sizes() {
         false
       );
     });
-    other.deleteSelf(null);
+    other.deleteSelf(false);
   });
 
   Assert.equal(

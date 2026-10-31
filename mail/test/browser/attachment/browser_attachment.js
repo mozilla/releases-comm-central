@@ -877,7 +877,7 @@ add_task(async function test_delete_from_toolbar_buttons() {
 
 registerCleanupFunction(() => {
   // Remove created folders.
-  folder.deleteSelf(null);
+  folder.deleteSelf(false);
   // Reset unified toolbar.
   storeState({});
 });

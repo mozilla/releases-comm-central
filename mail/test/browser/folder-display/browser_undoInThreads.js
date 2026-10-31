@@ -45,7 +45,7 @@ add_setup(async function () {
   about3Pane = currentTabInfo.chromeBrowser.contentWindow;
 
   registerCleanupFunction(() => {
-    testFolder.deleteSelf(null);
+    testFolder.deleteSelf(false);
   });
 });
 

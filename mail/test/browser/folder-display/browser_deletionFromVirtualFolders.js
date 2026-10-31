@@ -111,7 +111,7 @@ add_setup(async function () {
   );
 
   registerCleanupFunction(() => {
-    baseFolder.deleteSelf(null);
+    baseFolder.deleteSelf(false);
     storeState({});
     get_about_3pane().folderPane.activeModes = ["all"];
   });

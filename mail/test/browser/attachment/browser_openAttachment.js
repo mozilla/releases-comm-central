@@ -97,7 +97,7 @@ registerCleanupFunction(async function () {
   }
 
   // Remove created folders.
-  folder.deleteSelf(null);
+  folder.deleteSelf(false);
 
   Services.focus.focusedWindow = window;
 });

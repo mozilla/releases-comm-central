@@ -866,7 +866,7 @@ add_task(async function test_save_all_colliding_names() {
  */
 add_task(async function test_detach_all_decline_replace() {
   const detachFolder = await create_folder("AttachmentMenusDetach");
-  registerCleanupFunction(() => detachFolder.deleteSelf(null));
+  registerCleanupFunction(() => detachFolder.deleteSelf(false));
   await add_message_to_folder(
     [detachFolder],
     create_message({
@@ -1009,5 +1009,5 @@ add_task(async function test_attachment_menus_eml_file() {
 
 registerCleanupFunction(() => {
   // Remove created folders.
-  folder.deleteSelf(null);
+  folder.deleteSelf(false);
 });

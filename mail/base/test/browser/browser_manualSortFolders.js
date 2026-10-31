@@ -299,8 +299,8 @@ add_task(async function test_sort_single_folder() {
     ].map(folder => folder.URI),
     "New folder Boo should be added alphabetically after special folders"
   );
-  booFolder.deleteSelf(null); // Moves Boo to Trash.
-  trashFolder.getChildNamed("Boo").deleteSelf(null);
+  booFolder.deleteSelf(false); // Moves Boo to Trash.
+  trashFolder.getChildNamed("Boo").deleteSelf(false);
 });
 
 add_task(async function test_reset_folder_sorting() {

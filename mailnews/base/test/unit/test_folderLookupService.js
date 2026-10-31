@@ -254,7 +254,7 @@ add_task(function test_unified_trash_not_reused_after_delete() {
     "Unified Trash should have the Trash flag"
   );
 
-  unifiedTrash.deleteSelf(null);
+  unifiedTrash.deleteSelf(false);
   Assert.equal(
     unifiedTrash.parent,
     null,

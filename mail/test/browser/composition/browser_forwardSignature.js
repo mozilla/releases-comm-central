@@ -25,7 +25,7 @@ var folder;
 
 add_setup(async function () {
   folder = await create_folder("ForwardSigTest");
-  registerCleanupFunction(() => folder.deleteSelf(null));
+  registerCleanupFunction(() => folder.deleteSelf(false));
 
   await add_message_to_folder(
     [folder],

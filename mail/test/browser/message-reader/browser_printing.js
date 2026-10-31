@@ -32,7 +32,7 @@ add_setup(async function () {
       body: { body: "Printing ok?" },
     })
   );
-  registerCleanupFunction(() => folder.deleteSelf(null));
+  registerCleanupFunction(() => folder.deleteSelf(false));
 });
 
 /**

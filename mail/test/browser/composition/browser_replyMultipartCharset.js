@@ -152,5 +152,5 @@ add_task(async function test_replyEditAsNewForward_noPreview() {
 });
 
 registerCleanupFunction(() => {
-  folder.deleteSelf(null);
+  folder.deleteSelf(false);
 });

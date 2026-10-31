@@ -160,7 +160,7 @@ registerCleanupFunction(async function () {
   const tabmail = window.document.getElementById("tabmail");
   tabmail.selectTabByMode("mail3PaneTab");
   await be_in_folder(inboxFolder);
-  folder.deleteSelf(null);
+  folder.deleteSelf(false);
   while (tabmail.tabInfo.length > 1) {
     tabmail.closeTab(1);
   }

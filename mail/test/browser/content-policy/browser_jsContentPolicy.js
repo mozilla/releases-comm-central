@@ -37,7 +37,7 @@ const aboutMessage = get_about_message();
 
 var folder;
 registerCleanupFunction(async () => {
-  folder.deleteSelf(window.msgWindow);
+  folder.deleteSelf(true);
 
   Services.focus.focusedWindow = window;
 });

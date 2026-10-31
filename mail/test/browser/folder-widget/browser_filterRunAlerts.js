@@ -56,8 +56,8 @@ add_setup(async function () {
     filterList.removeFilter(filter);
     header.messageSize = originalSize;
     await be_in_folder(source.parent);
-    source.deleteSelf(null);
-    target.deleteSelf(null);
+    source.deleteSelf(false);
+    target.deleteSelf(false);
   });
 
   // Exercise the size-limit alert without creating a multi-gigabyte message.

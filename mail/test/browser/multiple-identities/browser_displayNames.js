@@ -92,8 +92,8 @@ add_setup(async function () {
 });
 
 registerCleanupFunction(function () {
-  folder.deleteSelf(null);
-  decoyFolder.deleteSelf(null);
+  folder.deleteSelf(false);
+  decoyFolder.deleteSelf(false);
   localAccount.incomingServer.rootFolder.emptyTrash(null);
   ensure_no_card_exists(myEmail);
   ensure_no_card_exists(friendEmail);

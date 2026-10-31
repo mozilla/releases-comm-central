@@ -17,8 +17,8 @@ add_setup(async function () {
   virtualFolder = create_virtual_folder("SearchMessagesMenuVirtual", [folder]);
 
   registerCleanupFunction(() => {
-    virtualFolder.deleteSelf(null);
-    folder.deleteSelf(null);
+    virtualFolder.deleteSelf(false);
+    folder.deleteSelf(false);
   });
 });
 

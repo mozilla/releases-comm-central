@@ -87,7 +87,7 @@ add_setup(async function () {
 
   registerCleanupFunction(() => {
     gServer.stop();
-    testFolder.deleteSelf(null);
+    testFolder.deleteSelf(false);
     MailServices.accounts.removeAccount(account, true);
   });
 });

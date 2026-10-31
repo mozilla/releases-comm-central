@@ -41,7 +41,7 @@ add_setup(async function () {
 });
 
 registerCleanupFunction(() => {
-  folder.deleteSelf(null);
+  folder.deleteSelf(false);
 });
 
 /** Header matches the body. Should be readable in both places. */

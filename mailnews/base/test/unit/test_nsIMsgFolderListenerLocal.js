@@ -178,7 +178,7 @@ function deleteFolder(folder, child) {
     ];
   }
 
-  folder.deleteSelf(null);
+  folder.deleteSelf(false);
   gCurrStatus |= kStatus.functionCallDone;
   if (gCurrStatus == kStatus.everythingDone) {
     resetStatusAndProceed();

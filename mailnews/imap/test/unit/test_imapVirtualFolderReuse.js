@@ -43,7 +43,7 @@ add_task(async function test_virtual_folder_not_reused_after_delete() {
 
   // Delete the virtual folder. Virtual folders are deleted locally (no server
   // round trip), which removes them from the folder tree.
-  vf.deleteSelf(null);
+  vf.deleteSelf(false);
   Assert.equal(vf.parent, null, "deleted virtual folder should have no parent");
   Assert.equal(
     parent.getChildNamed("AB"),

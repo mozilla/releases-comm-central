@@ -38,7 +38,7 @@ var gImageFolder;
 add_setup(async function () {
   gImageFolder = await create_folder("ImageFolder");
   registerCleanupFunction(() => {
-    gImageFolder.deleteSelf(null);
+    gImageFolder.deleteSelf(false);
   });
 });
 

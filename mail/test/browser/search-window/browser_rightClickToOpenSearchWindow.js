@@ -24,8 +24,8 @@ add_setup(async function () {
   folderA = await create_folder("RightClickToOpenSearchWindowA");
   folderB = await create_folder("RightClickToOpenSearchWindowB");
   registerCleanupFunction(() => {
-    folderA.deleteSelf(null);
-    folderB.deleteSelf(null);
+    folderA.deleteSelf(false);
+    folderB.deleteSelf(false);
   });
 
   await SimpleTest.promiseFocus();

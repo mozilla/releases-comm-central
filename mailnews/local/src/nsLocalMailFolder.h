@@ -18,7 +18,6 @@
 #include "nsIMsgPluggableStore.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgFolder.h"
-#include "nsIMsgWindow.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgCopyServiceListener.h"
 #include "nsIInputStream.h"
@@ -112,7 +111,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   NS_IMETHOD CompactAll(nsIUrlListener* aListener, bool interactive,
                         bool expunge) override;
   NS_IMETHOD EmptyTrash(nsIUrlListener* aListener) override;
-  NS_IMETHOD DeleteSelf(nsIMsgWindow* msgWindow) override;
+  NS_IMETHOD DeleteSelf(bool interactive) override;
   NS_IMETHOD CreateStorageIfMissing(nsIUrlListener* urlListener) override;
   NS_IMETHOD Rename(const nsACString& aNewName) override;
 

@@ -44,7 +44,7 @@ add_setup(async function () {
   NNTPAccount = MailServices.accounts.findAccountForServer(localServer);
 
   registerCleanupFunction(() => {
-    folderA.deleteSelf(null);
+    folderA.deleteSelf(false);
     // For some peculiar reason, removing won't work in --verify mode
     // if we remove the account here.
     //  MailServices.accounts.removeAccount(NNTPAccount);

@@ -113,5 +113,5 @@ add_task(async function test_autohidden_menubar_message_window() {
 registerCleanupFunction(async function () {
   await toggle_main_menu(menuState);
   await be_in_folder(inboxFolder);
-  menuFolder.deleteSelf(null);
+  menuFolder.deleteSelf(false);
 });
