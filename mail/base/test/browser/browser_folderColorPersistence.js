@@ -57,7 +57,7 @@ add_setup(async function () {
   imapAccount.incomingServer.port = imapServer.port;
   imapAccount.incomingServer.password = "password";
   imapRootFolder = imapAccount.incomingServer.rootFolder;
-  imapAccount.incomingServer.performExpand(window.msgWindow);
+  imapAccount.incomingServer.performExpand(true);
   await TestUtils.waitForCondition(
     () => imapRootFolder.getChildNamed("imapMoveTarget"),
     "waiting for the IMAP folders to be discovered"

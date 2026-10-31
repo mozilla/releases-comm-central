@@ -55,7 +55,7 @@ add_setup(function () {
   MailServices.accounts.defaultAccount = imapAccount;
 
   // Get the folder list...
-  gImapServer.performExpand(null);
+  gImapServer.performExpand(false);
   gServer.performTest("SUBSCRIBE");
   // pref tuning: one connection only, turn off notifications
   // Make sure no biff notifications happen

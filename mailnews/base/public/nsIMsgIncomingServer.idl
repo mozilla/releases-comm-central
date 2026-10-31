@@ -8,7 +8,6 @@
 interface IOAuth2CustomDetails;
 interface nsIMsgFolder;
 interface nsIMsgFolderCache;
-interface nsIMsgWindow;
 interface nsIMsgProtocolInfo;
 interface nsIMsgFilterList;
 interface nsIMsgRetentionSettings;
@@ -257,13 +256,13 @@ interface nsIMsgIncomingServer : nsISupports {
    * Verify that we can logon
    *
    * @param  aUrlListener - gets called back with success or failure.
-   * @param aMsgWindow         nsIMsgWindow to use for notification callbacks.
+   * @param interactive - whether the user is waiting on the check.
    * @return - the url that we run.
    */
-  nsIURI verifyLogon(in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
+  nsIURI verifyLogon(in nsIUrlListener aUrlListener, in boolean interactive);
 
   /* do a biff */
-  void performBiff(in nsIMsgWindow aMsgWindow);
+  void performBiff(in boolean interactive);
 
   /* get new messages */
   void getNewMessages(in nsIMsgFolder aFolder, in boolean interactive,
@@ -272,7 +271,7 @@ interface nsIMsgIncomingServer : nsISupports {
   readonly attribute boolean serverRequiresPasswordForBiff;
 
   /* this gets called when the server is expanded in the folder pane */
-  void performExpand(in nsIMsgWindow aMsgWindow);
+  void performExpand(in boolean interactive);
 
   /* Write out all known folder data to folderCache */
   void writeToFolderCache(in nsIMsgFolderCache folderCache);

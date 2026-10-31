@@ -260,16 +260,16 @@ nsMsgIncomingServer::GetRootMsgFolder(nsIMsgFolder** aRootMsgFolder) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) { return NS_OK; }
+nsMsgIncomingServer::PerformExpand(bool interactive) { return NS_OK; }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
-                                 nsIMsgWindow* aMsgWindow, nsIURI** aURL) {
+nsMsgIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener, bool interactive,
+                                 nsIURI** aURL) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
+nsMsgIncomingServer::PerformBiff(bool interactive) {
   // This has to be implemented in the derived class, but in case someone
   // doesn't implement it just return not implemented.
   return NS_ERROR_NOT_IMPLEMENTED;

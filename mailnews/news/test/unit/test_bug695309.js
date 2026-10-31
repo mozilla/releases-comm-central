@@ -102,7 +102,7 @@ add_task(async function trigger_bug() {
   };
   const folderLoadedPromise = promiseFolderEvent(testFolder, "FolderLoaded");
 
-  localserver.performExpand(null);
+  localserver.performExpand(false);
 
   // Wait for test.subscribe.simple to load. That will trigger getNewMessages.
   await folderLoadedPromise;

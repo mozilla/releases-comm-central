@@ -77,7 +77,7 @@ add_setup(async function () {
   smtpIdentity.doFcc = true;
 
   const incomingServer = smtpAccount.incomingServer;
-  incomingServer.performBiff(window.msgWindow);
+  incomingServer.performBiff(true);
   await TestUtils.waitForCondition(
     () => incomingServer.rootFolder.containsChildNamed("Sent"),
     "waiting for the Sent folder to synchronise"

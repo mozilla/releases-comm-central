@@ -47,7 +47,7 @@ add_setup(async function () {
 
   imapAccount.addIdentity(imapIdentity);
   imapRootFolder = imapAccount.incomingServer.rootFolder;
-  imapAccount.incomingServer.performBiff(null);
+  imapAccount.incomingServer.performBiff(false);
   await TestUtils.waitForCondition(() =>
     imapRootFolder.containsChildNamed("Trash")
   );

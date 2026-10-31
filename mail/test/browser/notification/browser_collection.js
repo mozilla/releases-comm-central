@@ -102,9 +102,7 @@ add_setup(async function () {
  * Test automatic update for an IMAP server.
  */
 add_task(async function testBiffUpdateIMAP() {
-  await subtest(imapIncomingServer, inbox =>
-    inbox.server.performBiff(window.msgWindow)
-  );
+  await subtest(imapIncomingServer, inbox => inbox.server.performBiff(true));
   await TestUtils.waitForCondition(
     () => imapIncomingServer.allConnectionsIdle,
     "waiting for IMAP connection to become idle"
@@ -126,9 +124,7 @@ add_task(async function testUserUpdateIMAP() {
  * Test automatic update for a POP3 server.
  */
 add_task(async function testBiffUpdatePOP3() {
-  await subtest(pop3IncomingServer, inbox =>
-    inbox.server.performBiff(window.msgWindow)
-  );
+  await subtest(pop3IncomingServer, inbox => inbox.server.performBiff(true));
   await TestUtils.waitForCondition(
     () => !pop3IncomingServer.wrappedJSObject.runningClient,
     "waiting for POP3 connection to become idle"
@@ -150,18 +146,14 @@ add_task(async function testUserUpdatePOP3() {
  * Test automatic update for an EWS server.
  */
 add_task(async function testBiffUpdateEWS() {
-  await subtest(ewsIncomingServer, inbox =>
-    inbox.server.performBiff(window.msgWindow)
-  );
+  await subtest(ewsIncomingServer, inbox => inbox.server.performBiff(true));
 }).skip(); // See 1985881
 
 /**
  * Test manual update for an EWS server.
  */
 add_task(async function testUserUpdateEWS() {
-  await subtest(ewsIncomingServer, inbox =>
-    inbox.server.performBiff(window.msgWindow)
-  );
+  await subtest(ewsIncomingServer, inbox => inbox.server.performBiff(true));
 }).skip(); // See 1985881
 
 /**
@@ -227,7 +219,7 @@ async function subtest(incomingServer, getMessagesCallback) {
   // Find all the folders and ensure they have no unread messages to begin with.
   // Also set up the filters.
 
-  incomingServer.performExpand(null);
+  incomingServer.performExpand(false);
   const inbox = await TestUtils.waitForCondition(
     () =>
       incomingServer.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox),

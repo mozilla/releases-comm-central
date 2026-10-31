@@ -45,7 +45,7 @@ add_task(async function () {
   incomingServer.clientid = "4d8776ca-0251-11ea-8d71-362b9e155667";
 
   // Connect.
-  incomingServer.performExpand(null);
+  incomingServer.performExpand(false);
   server.performTest("LSUB");
 
   do_check_transaction(server.playTransaction(), gTests[0].transaction, false);

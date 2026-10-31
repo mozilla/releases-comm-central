@@ -31,7 +31,7 @@ add_task(async function test_escaped_message_uri() {
   mailbox.addMessage(new ImapMessage(dataUri.spec, mailbox.uidnext++, []));
 
   const added = PromiseTestUtils.promiseFolderAdded("Sub Folder");
-  IMAPPump.incomingServer.performExpand(null);
+  IMAPPump.incomingServer.performExpand(false);
   await added;
 
   const folder = IMAPPump.incomingServer.rootFolder

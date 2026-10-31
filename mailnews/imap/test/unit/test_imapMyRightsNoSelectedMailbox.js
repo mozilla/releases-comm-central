@@ -27,7 +27,7 @@ add_setup(function () {
 });
 
 add_task(function connectWithUnsolicitedMyRights() {
-  incomingServer.performExpand(null);
+  incomingServer.performExpand(false);
   server.performTest("LSUB");
 
   do_check_transaction(

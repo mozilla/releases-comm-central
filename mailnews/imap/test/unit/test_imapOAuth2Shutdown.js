@@ -39,7 +39,7 @@ add_task(async function test_shutdown_during_oauth2_connect() {
   });
 
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  incomingServer.verifyLogon(listener, null);
+  incomingServer.verifyLogon(listener, false);
   await oauth2Connect.promise;
 
   Services.startup.advanceShutdownPhase(

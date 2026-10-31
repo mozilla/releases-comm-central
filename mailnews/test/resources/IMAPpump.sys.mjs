@@ -102,7 +102,7 @@ export function setupIMAPPump(extensions) {
   Services.prefs.setBoolPref("mail.biff.animate_dock_icon", false);
   Services.prefs.setBoolPref("mail.biff.alert.show_preview", false);
 
-  IMAPPump.incomingServer.performExpand(null);
+  IMAPPump.incomingServer.performExpand(false);
 
   IMAPPump.inbox = IMAPPump.incomingServer.rootFolder.getChildNamed("INBOX");
   IMAPPump.mailbox = IMAPPump.daemon.getMailbox("INBOX");

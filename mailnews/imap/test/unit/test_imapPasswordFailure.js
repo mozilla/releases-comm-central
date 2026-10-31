@@ -103,7 +103,7 @@ add_task(async function () {
   // This covers attempts 1 and 2 in confirmEx.
   dump("\nperformExpand 1\n\n");
 
-  incomingServer.performExpand(gDummyMsgWindow);
+  incomingServer.performExpand(true);
   server.performTest("SUBSCRIBE");
 
   dump("\nfinished subscribe 1\n\n");
@@ -128,7 +128,7 @@ add_task(async function () {
 
   dump("\nperformExpand 2\n\n");
 
-  incomingServer.performExpand(gDummyMsgWindow);
+  incomingServer.performExpand(true);
   server.performTest("SUBSCRIBE");
 
   dump("\nfinished subscribe 2\n");

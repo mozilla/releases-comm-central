@@ -10,11 +10,6 @@ var { RemoteFolder } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MockServer.sys.mjs"
 );
 
-/**
- * @type {nsIMsgWindow}
- */
-var msgWindow;
-
 var incomingEwsServer;
 var incomingGraphServer;
 
@@ -31,9 +26,6 @@ var graphServer;
 add_setup(async function () {
   [ewsServer, incomingEwsServer] = setupBasicEwsTestServer({});
   [graphServer, incomingGraphServer] = setupBasicGraphTestServer();
-  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-    Ci.nsIMsgWindow
-  );
 });
 
 /**
@@ -45,7 +37,7 @@ add_setup(async function () {
 async function test_verifyLogon(_mockServer, incomingServer) {
   const listener = new PromiseTestUtils.PromiseUrlListener();
 
-  incomingServer.verifyLogon(listener, msgWindow);
+  incomingServer.verifyLogon(listener, true);
 
   await listener.promise;
 }

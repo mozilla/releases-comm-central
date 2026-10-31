@@ -36,7 +36,7 @@ add_setup(function () {
 });
 
 add_task(function repeatedAlert() {
-  incomingServer.performExpand(gDummyMsgWindow);
+  incomingServer.performExpand(true);
   server.performTest("LSUB");
 
   Assert.equal(alerts.length, 2, "two alerts should have been shown");

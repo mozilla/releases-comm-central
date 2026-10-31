@@ -274,7 +274,7 @@ add_task(async function test_move_copy_messages_from_another_server() {
   );
 
   const ewsRootFolder = ewsIncomingServer.rootFolder;
-  ewsIncomingServer.performExpand(null);
+  ewsIncomingServer.performExpand(false);
   const ewsDestFolder = await TestUtils.waitForCondition(
     () => ewsRootFolder.getChildNamed("copyFromAnotherServer"),
     "waiting for test folder to exist"
@@ -357,7 +357,7 @@ add_task(async function test_move_copy_messages_to_another_server() {
   ewsServer.addMessages("copyToAnotherServer", generator.makeMessages({}));
 
   const ewsRootFolder = ewsIncomingServer.rootFolder;
-  ewsIncomingServer.performExpand(null);
+  ewsIncomingServer.performExpand(false);
   const ewsSourceFolder = await TestUtils.waitForCondition(
     () => ewsRootFolder.getChildNamed("copyToAnotherServer"),
     "waiting for test folder to exist"
@@ -443,7 +443,7 @@ add_task(async function test_copy_file_message() {
   ewsServer.appendRemoteFolder(new RemoteFolder("copyFileMessage", "root"));
 
   const rootFolder = ewsIncomingServer.rootFolder;
-  ewsIncomingServer.performExpand(null);
+  ewsIncomingServer.performExpand(false);
   const folder = await TestUtils.waitForCondition(
     () => rootFolder.getChildNamed("copyFileMessage"),
     "waiting for test folder to exist"

@@ -80,7 +80,7 @@ add_setup(async function () {
   ewsAccount.incomingServer.username = "user";
   ewsAccount.incomingServer.password = "password";
   const ewsRootFolder = ewsAccount.incomingServer.rootFolder;
-  ewsAccount.incomingServer.performExpand(null);
+  ewsAccount.incomingServer.performExpand(false);
   ewsTestFolder = await TestUtils.waitForCondition(
     () => ewsRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox),
     "waiting for EWS folders to sync"
@@ -106,7 +106,7 @@ add_setup(async function () {
   graphAccount.incomingServer.username = "user";
   graphAccount.incomingServer.password = "password";
   const graphRootFolder = graphAccount.incomingServer.rootFolder;
-  graphAccount.incomingServer.performExpand(null);
+  graphAccount.incomingServer.performExpand(false);
   graphTestFolder = await TestUtils.waitForCondition(
     () => graphRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox),
     "waiting for Graph folders to sync"

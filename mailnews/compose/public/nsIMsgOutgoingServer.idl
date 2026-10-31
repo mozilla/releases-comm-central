@@ -12,7 +12,6 @@ interface nsIFile;
 interface nsIMsgProgress;
 interface nsIRequestObserver;
 interface nsIMsgIdentity;
-interface nsIMsgWindow;
 interface msgIAddressObject;
 interface nsIRequest;
 interface nsITransportSecurityInfo;
@@ -219,7 +218,7 @@ interface nsIMsgOutgoingServer : nsISupports {
    * @return              The URI for the server.
    *
    */
-  nsIURI verifyLogon(in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
+  nsIURI verifyLogon(in nsIUrlListener aUrlListener);
 
   /// Call this to clear all preference values for this server.
   void clearAllValues();

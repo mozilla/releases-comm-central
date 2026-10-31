@@ -17,7 +17,7 @@ use xpcom::{
     RefPtr, get_service, getter_addrefs,
     interfaces::{
         msgIAddressObject, msgIPasswordAuthModule, nsIFile, nsIMsgIdentity, nsIMsgOutgoingListener,
-        nsIMsgProgress, nsIMsgWindow, nsIPrefBranch, nsIPrefService, nsIURI, nsIUrlListener,
+        nsIMsgProgress, nsIPrefBranch, nsIPrefService, nsIURI, nsIUrlListener,
         nsMsgAuthMethodValue, nsMsgSocketType, nsMsgSocketTypeValue,
     },
     xpcom_method,
@@ -922,14 +922,9 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
     }
 
     xpcom_method!(verify_logon => VerifyLogon(
-        aUrlListener: *const nsIUrlListener,
-        aMsgWindow: *const nsIMsgWindow
+        aUrlListener: *const nsIUrlListener
     ) -> *const nsIURI);
-    fn verify_logon(
-        &self,
-        _url_listener: &nsIUrlListener,
-        _window: &nsIMsgWindow,
-    ) -> Result<RefPtr<nsIURI>, nsresult> {
+    fn verify_logon(&self, _url_listener: &nsIUrlListener) -> Result<RefPtr<nsIURI>, nsresult> {
         Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
     }
 

@@ -838,7 +838,7 @@ async function loadStartFolder(initialUri) {
       !defaultServer.isDeferredTo &&
       defaultServer.rootFolder == defaultServer.rootMsgFolder
     ) {
-      defaultServer.performBiff(msgWindow);
+      defaultServer.performBiff(true);
     }
     if (loadFolder) {
       const tab = document.getElementById("tabmail")?.tabInfo[0];

@@ -464,7 +464,7 @@ export class ConfigVerifier {
     this._log.info("verifyLogon for server at " + this.server.hostname);
 
     this.server.password = this.config.incoming.password;
-    const uri = this.server.verifyLogon(this, this.msgWindow);
+    const uri = this.server.verifyLogon(this, !!this.msgWindow);
 
     if (uri instanceof Ci.nsIMsgMailNewsUrl) {
       // clear msgWindow so url won't prompt for passwords.

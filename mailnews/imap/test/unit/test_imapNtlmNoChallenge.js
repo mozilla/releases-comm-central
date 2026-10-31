@@ -41,7 +41,7 @@ function loginWithReplies(firstReply, secondReply) {
   const incomingServer = createLocalIMAPServer(server.port);
   incomingServer.authMethod = Ci.nsMsgAuthMethod.NTLM;
 
-  incomingServer.performExpand(null);
+  incomingServer.performExpand(false);
   // Runs until the client drops the connection after the failed login.
   server.performTest();
 

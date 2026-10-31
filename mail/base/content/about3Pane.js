@@ -3165,7 +3165,7 @@ var folderPane = {
     if (folder.server.type == "imap") {
       if (folder.isServer) {
         // Do URL discoverallboxes when server (root folder) expanded.
-        folder.server.performExpand(top.msgWindow);
+        folder.server.performExpand(true);
       } else {
         // Do URL discoverchildren when mail folder expanded.
         folder.QueryInterface(Ci.nsIMsgImapMailFolder);

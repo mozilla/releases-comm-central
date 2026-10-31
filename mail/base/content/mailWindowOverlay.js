@@ -1048,7 +1048,7 @@ function MsgGetMessagesForAllServers(defaultServer) {
           pop3Server = server.QueryInterface(Ci.nsIPop3IncomingServer);
         } else {
           // Check to see if there are new messages on the server
-          server.performBiff(msgWindow);
+          server.performBiff(true);
         }
       }
     }

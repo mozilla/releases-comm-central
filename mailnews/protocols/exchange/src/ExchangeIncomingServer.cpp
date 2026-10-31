@@ -623,9 +623,7 @@ NS_IMETHODIMP ExchangeIncomingServer::GetNewMessages(
       });
 }
 
-NS_IMETHODIMP ExchangeIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
-  const bool interactive = !!aMsgWindow;
-
+NS_IMETHODIMP ExchangeIncomingServer::PerformBiff(bool interactive) {
   nsresult rv = SetPerformingBiff(true);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -652,7 +650,7 @@ NS_IMETHODIMP ExchangeIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
   });
 }
 
-NS_IMETHODIMP ExchangeIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
+NS_IMETHODIMP ExchangeIncomingServer::PerformExpand(bool interactive) {
   // Sync the folder list; we don't want to do anything after that so we just
   // pass a no-op lambda.
   return SyncFolderList([]() { return NS_OK; });
@@ -660,8 +658,7 @@ NS_IMETHODIMP ExchangeIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
 
 NS_IMETHODIMP
 ExchangeIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
-                                    nsIMsgWindow* aMsgWindow,
-                                    nsIURI** _retval) {
+                                    bool interactive, nsIURI** _retval) {
   NS_ENSURE_ARG_POINTER(aUrlListener);
 
   // Perform a connectivity check via an Exchange client. Ideally we should set

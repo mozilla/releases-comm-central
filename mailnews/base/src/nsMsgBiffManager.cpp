@@ -299,7 +299,7 @@ nsresult nsMsgBiffManager::PerformBiff() {
         targetFolderIndex == kNotFound) {
       nsCString serverKey;
       current.server->GetKey(serverKey);
-      nsresult rv = current.server->PerformBiff(nullptr);
+      nsresult rv = current.server->PerformBiff(false);
       MOZ_LOG(MsgBiffLogModule, mozilla::LogLevel::Info,
               ("biffing server %s rv = %" PRIx32, serverKey.get(),
                static_cast<uint32_t>(rv)));

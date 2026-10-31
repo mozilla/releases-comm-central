@@ -33,7 +33,7 @@ add_task(function testOfflineGetMail() {
     );
   }
 
-  incomingServer.performBiff(null);
+  incomingServer.performBiff(false);
   Assert.ok(
     !incomingServer.performingBiff,
     "performBiff should reset its state after skipping an offline operation"

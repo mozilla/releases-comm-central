@@ -29,7 +29,7 @@ add_setup(function () {
 });
 
 add_task(function preAuthListIgnored() {
-  incomingServer.performExpand(null);
+  incomingServer.performExpand(false);
   server.performTest("LSUB");
 
   do_check_transaction(

@@ -353,7 +353,7 @@ nsImapIncomingServer::SetUsingSubscription(bool bVal) {
     // Applies the flip between "subscribed-only" (LSUB) and "all folders"
     // (LIST) immediately, so the folder pane updates without a restart.
     hostSession->SetHaveWeEverDiscoveredFoldersForHost(serverKey.get(), false);
-    PerformExpand(nullptr);
+    PerformExpand(false);
   }
   return NS_OK;
 }
@@ -917,7 +917,7 @@ NS_IMETHODIMP nsImapIncomingServer::ResetConnection(
 }
 
 NS_IMETHODIMP
-nsImapIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
+nsImapIncomingServer::PerformExpand(bool interactive) {
   nsString password;
   nsresult rv;
   rv = GetPassword(password);
@@ -940,7 +940,7 @@ nsImapIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
 
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
   nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
-  rv = imapService->DiscoverAllFolders(rootMsgFolder, this, !!aMsgWindow);
+  rv = imapService->DiscoverAllFolders(rootMsgFolder, this, interactive);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIImapHostSessionList> hostSessionList =
       do_GetService("@mozilla.org/messenger/imaphostsessionlist;1", &rv);
@@ -955,7 +955,7 @@ nsImapIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
 
 NS_IMETHODIMP
 nsImapIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
-                                  nsIMsgWindow* aMsgWindow, nsIURI** aURL) {
+                                  bool interactive, nsIURI** aURL) {
   nsresult rv;
 
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
@@ -964,15 +964,15 @@ nsImapIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
   // do anything on disk.
   rv = GetRootFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
-  return imapService->VerifyLogon(rootFolder, aUrlListener, !!aMsgWindow, aURL);
+  return imapService->VerifyLogon(rootFolder, aUrlListener, interactive, aURL);
 }
 
-NS_IMETHODIMP nsImapIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
+NS_IMETHODIMP nsImapIncomingServer::PerformBiff(bool interactive) {
   nsCOMPtr<nsIMsgFolder> rootMsgFolder;
   nsresult rv = GetRootMsgFolder(getter_AddRefs(rootMsgFolder));
   if (NS_SUCCEEDED(rv)) {
     SetPerformingBiff(true);
-    rv = rootMsgFolder->GetNewMessages(!!aMsgWindow, nullptr);
+    rv = rootMsgFolder->GetNewMessages(interactive, nullptr);
   }
   return rv;
 }
@@ -2497,7 +2497,7 @@ nsImapIncomingServer::GetUtf8AcceptEnabled(bool* enabled) {
 }
 
 NS_IMETHODIMP
-nsImapIncomingServer::ReDiscoverAllFolders() { return PerformExpand(nullptr); }
+nsImapIncomingServer::ReDiscoverAllFolders() { return PerformExpand(false); }
 
 NS_IMETHODIMP
 nsImapIncomingServer::SetState(const nsACString& path, bool state,

@@ -174,7 +174,7 @@ async function subtest(
   const ewsRootFolder = ewsAccount.incomingServer.rootFolder;
   await subsubtest(
     ewsRootFolder,
-    async () => ewsAccount.incomingServer.performExpand(null),
+    async () => ewsAccount.incomingServer.performExpand(false),
     expectedAlertText,
     expectedDialogText,
     expectedErrorCategory,
@@ -201,7 +201,7 @@ async function subtest(
   const graphRootFolder = graphAccount.incomingServer.rootFolder;
   await subsubtest(
     graphRootFolder,
-    async () => graphAccount.incomingServer.performExpand(null),
+    async () => graphAccount.incomingServer.performExpand(false),
     expectedAlertText,
     expectedDialogText,
     expectedErrorCategory,
@@ -498,7 +498,7 @@ async function subsubtest(
   if (folder.isServer) {
     // If folder is the root folder (EWS, Graph), we don't have an inbox yet,
     // so this is an additional operation to fetch it. Do that now.
-    server.performExpand(null);
+    server.performExpand(false);
     await TestUtils.waitForCondition(
       () => folder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox),
       "waiting for folders to sync"

@@ -44,7 +44,7 @@ function run_test() {
     listener,
     Ci.nsIMsgFolderNotificationService.msgAdded
   );
-  localserver.performBiff(null);
+  localserver.performBiff(false);
   server.performTest();
   MailServices.mfn.removeListener(listener);
 

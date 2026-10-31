@@ -30,7 +30,7 @@ add_setup(async function () {
   ewsAccount.incomingServer.username = "user";
   ewsAccount.incomingServer.password = "password";
   const ewsRootFolder = ewsAccount.incomingServer.rootFolder;
-  ewsAccount.incomingServer.performExpand(null);
+  ewsAccount.incomingServer.performExpand(false);
 
   const ewsTestFolder = await TestUtils.waitForCondition(
     () => ewsRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox),

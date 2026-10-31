@@ -125,7 +125,7 @@ add_setup(async function () {
   gmailAccount.defaultIdentity = gmailIdentity;
 
   const gmailRootFolder = gmailAccount.incomingServer.rootFolder;
-  gmailAccount.incomingServer.performExpand(window.msgWindow);
+  gmailAccount.incomingServer.performExpand(true);
   await TestUtils.waitForCondition(
     () => gmailRootFolder.subFolders.length == 3,
     "waiting for folders to be created"

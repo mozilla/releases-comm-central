@@ -300,7 +300,7 @@ function run_test() {
   MailServices.mfn.addListener(gMFListener, allTestedEvents);
 
   // Get the server list...
-  gIMAPIncomingServer.performExpand(null);
+  gIMAPIncomingServer.performExpand(false);
 
   // We get these notifications on initial discovery
   gRootFolder = gIMAPIncomingServer.rootFolder;

@@ -41,8 +41,8 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
   NS_DECL_NSISUBSCRIBABLESERVER
   NS_DECL_NSIURLLISTENER
 
-  NS_IMETHOD PerformBiff(nsIMsgWindow* aMsgWindow) override;
-  NS_IMETHOD PerformExpand(nsIMsgWindow* aMsgWindow) override;
+  NS_IMETHOD PerformBiff(bool interactive) override;
+  NS_IMETHOD PerformExpand(bool interactive) override;
   NS_IMETHOD CloseCachedConnections() override;
   NS_IMETHOD GetConstructedPrettyName(nsACString& retval) override;
   NS_IMETHOD GetCanBeDefaultServer(bool* canBeDefaultServer) override;
@@ -61,7 +61,7 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
                                  const nsACString& aURI,
                                  nsIMsgFolder** aFolder) override;
   NS_IMETHOD SetSocketType(int32_t aSocketType) override;
-  NS_IMETHOD VerifyLogon(nsIUrlListener* aUrlListener, nsIMsgWindow* aMsgWindow,
+  NS_IMETHOD VerifyLogon(nsIUrlListener* aUrlListener, bool interactive,
                          nsIURI** aURL) override;
 
  protected:

@@ -104,7 +104,7 @@ NS_IMETHODIMP nsRssIncomingServer::SetFlagsOnDefaultMailboxes() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRssIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
+NS_IMETHODIMP nsRssIncomingServer::PerformBiff(bool interactive) {
   // Get the account root (server) folder and pass it on.
   nsCOMPtr<nsIMsgFolder> rootRSSFolder;
   GetRootMsgFolder(getter_AddRefs(rootRSSFolder));

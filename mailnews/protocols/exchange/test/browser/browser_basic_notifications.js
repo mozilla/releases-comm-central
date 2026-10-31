@@ -70,7 +70,7 @@ async function addMessage(folderId, messageDef) {
 
 add_task(async function test_basic_notifications() {
   // Get the inbox.
-  incomingServer.performExpand(null);
+  incomingServer.performExpand(false);
   const inbox = await TestUtils.waitForCondition(
     () =>
       incomingServer.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox),
@@ -88,7 +88,7 @@ add_task(async function test_basic_notifications() {
     from: ["friend", "friend@test.invalid"],
     bodyPart: new SyntheticPartLeaf(message1Body),
   });
-  incomingServer.performBiff(window.msgWindow);
+  incomingServer.performBiff(true);
   await promiseAlert("friend", "INBOX#", message1Body);
 
   // Add a bunch of messages.
@@ -106,7 +106,7 @@ add_task(async function test_basic_notifications() {
     });
   }
 
-  incomingServer.performBiff(window.msgWindow);
+  incomingServer.performBiff(true);
   // The notificaiton we get should be about the first message.
   await promiseAlert("friend0", "INBOX#", bodies[0]);
 });

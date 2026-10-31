@@ -119,7 +119,7 @@ add_setup(async () => {
   imapAccount.incomingServer.prettyName = "IMAP Account";
   imapRootFolder = imapAccount.incomingServer.rootFolder;
 
-  imapAccount.incomingServer.performExpand(null);
+  imapAccount.incomingServer.performExpand(false);
   await TestUtils.waitForCondition(
     () =>
       imapRootFolder.numSubFolders == 5 &&
@@ -154,7 +154,7 @@ add_setup(async () => {
   ewsAccount.incomingServer.password = "password";
   ewsRootFolder = ewsAccount.incomingServer.rootFolder;
 
-  ewsAccount.incomingServer.performExpand(null);
+  ewsAccount.incomingServer.performExpand(false);
   await TestUtils.waitForCondition(
     () =>
       ewsRootFolder.numSubFolders == 4 &&

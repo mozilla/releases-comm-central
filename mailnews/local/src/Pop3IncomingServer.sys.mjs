@@ -110,11 +110,11 @@ export class Pop3IncomingServer extends MsgIncomingServer {
     MailServices.pop3.GetNewMail(interactive, urlListener, inbox, this);
   }
 
-  verifyLogon(urlListener, msgWindow) {
-    return MailServices.pop3.verifyLogon(this, urlListener, !!msgWindow);
+  verifyLogon(urlListener, interactive) {
+    return MailServices.pop3.verifyLogon(this, urlListener, interactive);
   }
 
-  performBiff(msgWindow) {
+  performBiff(interactive) {
     this.performingBiff = true;
     const inbox = this.rootMsgFolder.getFolderWithFlags(
       Ci.nsMsgFolderFlags.Inbox
@@ -123,10 +123,10 @@ export class Pop3IncomingServer extends MsgIncomingServer {
 
     try {
       if (this.downloadOnBiff) {
-        MailServices.pop3.GetNewMail(!!msgWindow, urlListener, inbox, this);
+        MailServices.pop3.GetNewMail(interactive, urlListener, inbox, this);
       } else {
         MailServices.pop3.CheckForNewMail(
-          !!msgWindow,
+          interactive,
           urlListener,
           inbox,
           this

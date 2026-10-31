@@ -65,7 +65,7 @@ async function runFoldersSubtest(type, callback) {
   const identity = MailServices.accounts.createIdentity();
   account.addIdentity(identity);
   const root = server.rootFolder;
-  server.performBiff(null);
+  server.performBiff(false);
   await TestUtils.waitForCondition(() => root.containsChildNamed("INBOX"));
 
   await callback(type, server, identity);

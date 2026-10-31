@@ -35,7 +35,7 @@ add_setup(async function () {
     createSMTPAccount("imap"));
 
   const incomingServer = smtpAccount.incomingServer;
-  incomingServer.performBiff(window.msgWindow);
+  incomingServer.performBiff(true);
   await TestUtils.waitForCondition(
     () => incomingServer.rootFolder.containsChildNamed("Sent"),
     "waiting for folders to sync with the server"

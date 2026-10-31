@@ -100,7 +100,7 @@ add_task(async function testEWS() {
     "ews_url",
     `http://localhost:${mockServer.port}/EWS/Exchange.asmx`
   );
-  ewsServer.performExpand(null);
+  ewsServer.performExpand(false);
   await TestUtils.waitForCondition(
     () => ewsServer.rootFolder.getChildNamed("Drafts"),
     "waiting for folder sync to finish"
@@ -153,7 +153,7 @@ add_task(async function testGraph() {
   graphServer.port = mockServer.port;
   graphServer.password = "password";
   graphServer.setStringValue("ews_url", `http://localhost:${mockServer.port}/`);
-  graphServer.performExpand(null);
+  graphServer.performExpand(false);
   await TestUtils.waitForCondition(
     () => graphServer.rootFolder.getChildNamed("Drafts"),
     "waiting for folder sync to finish"

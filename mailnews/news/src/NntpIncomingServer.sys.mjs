@@ -255,14 +255,14 @@ export class NntpIncomingServer extends MsgIncomingServer {
       : OFFLINE_SUPPORT_LEVEL_EXTENDED;
   }
 
-  performExpand(msgWindow) {
+  performExpand(interactive) {
     if (!Services.prefs.getBoolPref("news.update_unread_on_expand", false)) {
       return;
     }
 
     try {
       for (const folder of this.rootFolder.subFolders) {
-        folder.getNewMessages(!!msgWindow, null);
+        folder.getNewMessages(interactive, null);
       }
     } catch (error) {
       if (error.result == Cr.NS_MSG_ERROR_OFFLINE) {
@@ -272,8 +272,8 @@ export class NntpIncomingServer extends MsgIncomingServer {
     }
   }
 
-  performBiff(msgWindow) {
-    this.performExpand(msgWindow);
+  performBiff(interactive) {
+    this.performExpand(interactive);
   }
 
   closeCachedConnections() {

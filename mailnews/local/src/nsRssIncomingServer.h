@@ -27,7 +27,7 @@ class nsRssIncomingServer : public nsMailboxServer,
 #endif  // MOZ_PANORAMA
   NS_IMETHOD GetOfflineSupportLevel(int32_t* aSupportLevel) override;
   NS_IMETHOD GetAccountManagerChrome(nsAString& aResult) override;
-  NS_IMETHOD PerformBiff(nsIMsgWindow* aMsgWindow) override;
+  NS_IMETHOD PerformBiff(bool interactive) override;
   NS_IMETHOD GetServerRequiresPasswordForBiff(
       bool* aServerRequiresPasswordForBiff) override;
   NS_IMETHOD GetCanSearchMessages(bool* canSearchMessages) override;

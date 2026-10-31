@@ -179,7 +179,7 @@ async function waitForMessages(inbox) {
     // We don't have an inbox yet, but we *are* expecting to connect to the
     // server at this point. So connect, sync the folders, and replace the
     // root folder with the inbox in `allInboxes`.
-    ewsAccount.incomingServer.performExpand(null);
+    ewsAccount.incomingServer.performExpand(false);
     ewsInbox = await TestUtils.waitForCondition(
       () => ewsRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox),
       "waiting for EWS folders to sync"
@@ -191,7 +191,7 @@ async function waitForMessages(inbox) {
     // We don't have an inbox yet, but we *are* expecting to connect to the
     // server at this point. So connect, sync the folders, and replace the
     // root folder with the inbox in `allInboxes`.
-    graphAccount.incomingServer.performExpand(null);
+    graphAccount.incomingServer.performExpand(false);
     graphInbox = await TestUtils.waitForCondition(
       () => graphRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox),
       "waiting for Graph folders to sync"

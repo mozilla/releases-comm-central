@@ -77,7 +77,7 @@ async function verifyLogon(type, url) {
 
   try {
     const listener = new PromiseTestUtils.PromiseUrlListener();
-    incomingServer.verifyLogon(listener, null);
+    incomingServer.verifyLogon(listener, false);
     await listener.promise;
   } finally {
     incomingServer.shutdown();

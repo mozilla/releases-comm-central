@@ -1334,7 +1334,7 @@ add_task(async function testGmailFolders() {
   gmailAccount.defaultIdentity = gmailIdentity;
 
   const gmailRootFolder = gmailServer.rootFolder;
-  gmailServer.performExpand(window.msgWindow);
+  gmailServer.performExpand(true);
   await TestUtils.waitForCondition(
     () => gmailRootFolder.subFolders.length == 2,
     "waiting for folders to be created"
@@ -1469,7 +1469,7 @@ add_task(async function testGmailFolderWithSpecialFlag() {
   gmailAccount.defaultIdentity = gmailIdentity;
 
   const gmailRootFolder = gmailServer.rootFolder;
-  gmailServer.performExpand(window.msgWindow);
+  gmailServer.performExpand(true);
   await TestUtils.waitForCondition(
     () => gmailRootFolder.subFolders.length == 2,
     "waiting for folders to be created"

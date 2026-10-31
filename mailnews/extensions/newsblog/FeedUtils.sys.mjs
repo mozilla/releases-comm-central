@@ -510,7 +510,7 @@ export var FeedUtils = {
 
       FeedUtils.setStatus(serverFolder, serverFolder.URI, "enabled", !aPause);
       if (!aPause && aBiffNow) {
-        aFolder.server.performBiff(null);
+        aFolder.server.performBiff(false);
       }
 
       return;

@@ -103,7 +103,7 @@ async function createServer(username, type, port) {
       "ews_url",
       `http://localhost:${port}/EWS/Exchange.asmx`
     );
-    incomingServer.performExpand(null);
+    incomingServer.performExpand(false);
   }
 
   const account = MailServices.accounts.createAccount();

@@ -49,10 +49,10 @@ class ExchangeIncomingServer : public nsMsgIncomingServer,
 
   NS_IMETHOD GetNewMessages(nsIMsgFolder* aFolder, bool interactive,
                             nsIUrlListener* aUrlListener) override;
-  NS_IMETHOD PerformBiff(nsIMsgWindow* aMsgWindow) override;
-  NS_IMETHOD PerformExpand(nsIMsgWindow* aMsgWindow) override;
+  NS_IMETHOD PerformBiff(bool interactive) override;
+  NS_IMETHOD PerformExpand(bool interactive) override;
   NS_IMETHOD Shutdown() override;
-  NS_IMETHOD VerifyLogon(nsIUrlListener* aUrlListener, nsIMsgWindow* aMsgWindow,
+  NS_IMETHOD VerifyLogon(nsIUrlListener* aUrlListener, bool interactive,
                          nsIURI** _retval) override;
   NS_IMETHOD GetCanSearchMessages(bool* canSearchMessages) override;
 

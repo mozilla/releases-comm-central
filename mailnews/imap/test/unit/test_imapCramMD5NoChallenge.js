@@ -22,7 +22,7 @@ add_setup(function () {
 });
 
 add_task(function loginWithoutChallenge() {
-  incomingServer.performExpand(null);
+  incomingServer.performExpand(false);
   // Runs until the client drops the connection after the failed login.
   server.performTest();
 
