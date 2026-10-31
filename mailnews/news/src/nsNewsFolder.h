@@ -58,10 +58,9 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
   NS_IMETHOD OnReadChanged(nsIDBChangeListener* aInstigator) override;
 
   NS_IMETHOD DownloadMessagesForOffline(
-      nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
-      nsIMsgWindow* window) override;
+      nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, bool interactive) override;
   NS_IMETHOD DownloadAllForOffline(nsIUrlListener* listener,
-                                   nsIMsgWindow* msgWindow) override;
+                                   bool interactive) override;
 
   NS_IMETHOD Shutdown(bool shutdownChildren) override;
 

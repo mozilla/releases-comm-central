@@ -506,7 +506,7 @@ export class MessageInjection {
     const msgFolder = this.getRealInjectionFolder(folderHandle);
     msgFolder.setFlag(Ci.nsMsgFolderFlags.Offline);
     const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-    msgFolder.downloadAllForOffline(promiseUrlListener, null);
+    msgFolder.downloadAllForOffline(promiseUrlListener, false);
     await promiseUrlListener.promise;
   }
 
@@ -778,7 +778,7 @@ export class MessageInjection {
         // compel download of the messages if appropriate
         if (realFolder.flags & Ci.nsMsgFolderFlags.Offline) {
           const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-          realFolder.downloadAllForOffline(promiseUrlListener, null);
+          realFolder.downloadAllForOffline(promiseUrlListener, false);
           await promiseUrlListener.promise;
         }
       }
@@ -856,7 +856,7 @@ export class MessageInjection {
         // compel download of messages in dest folder if appropriate
         if (realDestFolder.flags & Ci.nsMsgFolderFlags.Offline) {
           const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-          realDestFolder.downloadAllForOffline(promiseUrlListener, null);
+          realDestFolder.downloadAllForOffline(promiseUrlListener, false);
           await promiseUrlListener.promise;
         }
       }
@@ -909,7 +909,7 @@ export class MessageInjection {
         // compel download of messages in dest folder if appropriate
         if (trashFolder.flags & Ci.nsMsgFolderFlags.Offline) {
           const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-          trashFolder.downloadAllForOffline(promiseUrlListener, null);
+          trashFolder.downloadAllForOffline(promiseUrlListener, false);
           await promiseUrlListener.promise;
         }
       }

@@ -668,7 +668,7 @@ add_task(
 
         // ...and download for offline use.
         const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-        folder.downloadAllForOffline(promiseUrlListener, null);
+        folder.downloadAllForOffline(promiseUrlListener, false);
         await promiseUrlListener.promise;
       }
       extension.sendMessage();

@@ -2770,7 +2770,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::RetrieveHdrOfPartialMessage(
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::DownloadMessagesForOffline(
-    nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, nsIMsgWindow* aWindow) {
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, bool interactive) {
   if (mDownloadInProgress) {
     return NS_ERROR_FAILURE;  // already has a download in progress
   }
@@ -2795,7 +2795,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DownloadMessagesForOffline(
       do_QueryInterface(server, &rv);
   NS_ENSURE_SUCCESS(rv, NS_MSG_INVALID_OR_MISSING_SERVER);
   nsCOMPtr<nsIURI> resultURI;
-  return localMailServer->GetNewMail(!!aWindow, this, this,
+  return localMailServer->GetNewMail(interactive, this, this,
                                      getter_AddRefs(resultURI));
 }
 

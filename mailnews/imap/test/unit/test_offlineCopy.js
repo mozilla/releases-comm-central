@@ -85,7 +85,7 @@ var tests = [
   },
   async function downloadAllForOffline() {
     const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-    IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
+    IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, false);
     await promiseUrlListener.promise;
   },
   async function copyMessagesToInbox() {

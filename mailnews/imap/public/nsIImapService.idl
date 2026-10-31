@@ -20,7 +20,6 @@ interface nsIUrlListener;
 interface nsIURI;
 interface nsIFile;
 interface nsIMsgFolder;
-interface nsIMsgWindow;
 interface nsIMsgMailNewsUrl;
 interface nsIImapIncomingServer;
 interface nsICacheStorage;
@@ -257,8 +256,8 @@ interface nsIImapService : nsISupports
 
   void getListOfFoldersOnServer(in nsIImapIncomingServer aServer, in boolean interactive);
 
-  nsISupports playbackAllOfflineOperations(in nsIMsgWindow aMsgWindow, in nsIUrlListener aListener);
-  void downloadAllOffineImapFolders(in nsIMsgWindow aMsgWindow, in nsIUrlListener aListener);
+  nsISupports playbackAllOfflineOperations(in boolean interactive, in nsIUrlListener aListener);
+  void downloadAllOffineImapFolders(in boolean interactive, in nsIUrlListener aListener);
 
   readonly attribute nsICacheStorage cacheStorage;
 };

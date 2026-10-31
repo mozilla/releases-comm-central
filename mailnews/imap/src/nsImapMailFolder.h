@@ -293,11 +293,10 @@ class nsImapMailFolder : public nsMsgDBFolder,
   NS_IMETHOD Shutdown(bool shutdownChildren) override;
 
   NS_IMETHOD DownloadMessagesForOffline(
-      nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
-      nsIMsgWindow* msgWindow) override;
+      nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, bool interactive) override;
 
   NS_IMETHOD DownloadAllForOffline(nsIUrlListener* listener,
-                                   nsIMsgWindow* msgWindow) override;
+                                   bool interactive) override;
   NS_IMETHOD GetCanFileMessages(bool* aCanFileMessages) override;
   NS_IMETHOD GetCanDeleteMessages(bool* aCanDeleteMessages) override;
   NS_IMETHOD FetchMsgPreviewText(nsTArray<nsMsgKey> const& aKeysToFetch,

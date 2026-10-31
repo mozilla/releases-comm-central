@@ -736,13 +736,13 @@ nsresult nsMsgDBFolder::SendFlagNotifications(nsIMsgDBHdr* item,
 }
 
 NS_IMETHODIMP nsMsgDBFolder::DownloadMessagesForOffline(
-    nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, nsIMsgWindow*) {
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, bool) {
   NS_ASSERTION(false, "imap and news need to override this");
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::DownloadAllForOffline(nsIUrlListener* listener,
-                                                   nsIMsgWindow* msgWindow) {
+                                                   bool interactive) {
   NS_ASSERTION(false, "imap and news need to override this");
   return NS_OK;
 }

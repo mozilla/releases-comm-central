@@ -2679,13 +2679,12 @@ NS_IMETHODIMP nsImapService::MessageURIToMsgHdr(const nsACString& uri,
 }
 
 NS_IMETHODIMP nsImapService::PlaybackAllOfflineOperations(
-    nsIMsgWindow* aMsgWindow, nsIUrlListener* aListener,
-    nsISupports** aResult) {
+    bool interactive, nsIUrlListener* aListener, nsISupports** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   nsresult rv;
   nsImapOfflineSync* goOnline = new nsImapOfflineSync();
-  goOnline->Init(!!aMsgWindow, aListener, nullptr, false);
+  goOnline->Init(interactive, aListener, nullptr, false);
   rv = goOnline->QueryInterface(NS_GET_IID(nsISupports), (void**)aResult);
   NS_ENSURE_SUCCESS(rv, rv);
   if (NS_SUCCEEDED(rv) && *aResult) return goOnline->ProcessNextOperation();
@@ -2693,9 +2692,9 @@ NS_IMETHODIMP nsImapService::PlaybackAllOfflineOperations(
 }
 
 NS_IMETHODIMP nsImapService::DownloadAllOffineImapFolders(
-    nsIMsgWindow* aMsgWindow, nsIUrlListener* aListener) {
+    bool interactive, nsIUrlListener* aListener) {
   RefPtr<nsImapOfflineDownloader> downloadForOffline =
-      new nsImapOfflineDownloader(aMsgWindow, aListener);
+      new nsImapOfflineDownloader(interactive, aListener);
   if (downloadForOffline) {
     // hold reference to this so it won't get deleted out from under itself.
     nsresult rv = downloadForOffline->ProcessNextOperation();

@@ -54,7 +54,7 @@ add_setup(async function () {
   await listenerUpdate.promise;
   // Download all for offline.
   const listenerDownload = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.downloadAllForOffline(listenerDownload, null);
+  IMAPPump.inbox.downloadAllForOffline(listenerDownload, false);
   await listenerDownload.promise;
 });
 

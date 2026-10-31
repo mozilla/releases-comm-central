@@ -777,10 +777,10 @@ interface nsIMsgFolder : nsISupports {
   nsIInputStream getMsgInputStream(in nsIMsgDBHdr aHdr);
 
   void downloadMessagesForOffline(in Array<nsIMsgDBHdr> messages,
-                                  in nsIMsgWindow window);
+                                  in boolean interactive);
   nsIMsgFolder getChildWithURI(in AUTF8String uri, in boolean deep,
                                in boolean caseInsensitive);
-  void downloadAllForOffline(in nsIUrlListener listener, in nsIMsgWindow window);
+  void downloadAllForOffline(in nsIUrlListener listener, in boolean interactive);
 
   /**
    *  Turn notifications on/off for various notification types. Currently only

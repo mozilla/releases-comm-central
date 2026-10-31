@@ -37,7 +37,7 @@ async function startTest() {
 
   // ...and download for offline use.
   const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
+  IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, false);
   await promiseUrlListener.promise;
 }
 

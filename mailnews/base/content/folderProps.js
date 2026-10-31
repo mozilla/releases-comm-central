@@ -447,8 +447,7 @@ function hideShowControls(serverType) {
 }
 
 function onOfflineFolderDownload() {
-  // we need to create a progress window and pass that in as the second parameter here.
-  gMsgFolder.downloadAllForOffline(null, window.arguments[0].msgWindow);
+  gMsgFolder.downloadAllForOffline(null, true);
 }
 
 /** Open the folder privileges management url. */

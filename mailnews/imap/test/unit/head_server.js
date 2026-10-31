@@ -236,7 +236,7 @@ async function addImapMessagesAndSync(count) {
   IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
   listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.downloadAllForOffline(listener, null);
+  IMAPPump.inbox.downloadAllForOffline(listener, false);
   await listener.promise;
   return added.map(message =>
     IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(message.messageId)

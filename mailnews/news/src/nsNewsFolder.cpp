@@ -1068,20 +1068,20 @@ NS_IMETHODIMP nsMsgNewsFolder::SetSaveArticleOffline(bool aBool) {
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::DownloadAllForOffline(nsIUrlListener* listener,
-                                                     nsIMsgWindow* msgWindow) {
+                                                     bool interactive) {
   nsresult rv = NS_OK;
 
   nsCOMPtr<nsINntpService> nntpService(
       do_GetService("@mozilla.org/messenger/nntpservice;1", &rv));
   if (NS_SUCCEEDED(rv) && nntpService) {
-    rv = nntpService->DownloadFolderForOffline(this, !!msgWindow);
+    rv = nntpService->DownloadFolderForOffline(this, interactive);
   }
 
   return rv;
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::DownloadMessagesForOffline(
-    nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, nsIMsgWindow* msgWindow) {
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, bool interactive) {
   nsresult rv = NS_OK;
 
   nsTArray<nsMsgKey> srcKeyArray(messages.Length());
@@ -1095,7 +1095,7 @@ NS_IMETHODIMP nsMsgNewsFolder::DownloadMessagesForOffline(
       do_GetService("@mozilla.org/messenger/nntpservice;1", &rv));
   if (NS_SUCCEEDED(rv) && nntpService) {
     rv =
-        nntpService->DownloadMessagesForOffline(this, srcKeyArray, !!msgWindow);
+        nntpService->DownloadMessagesForOffline(this, srcKeyArray, interactive);
   }
 
   return rv;

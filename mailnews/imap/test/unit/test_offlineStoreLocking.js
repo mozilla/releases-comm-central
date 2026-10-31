@@ -77,7 +77,7 @@ add_setup(async function () {
 add_task(async function downloadForOffline() {
   // ...and download for offline use.
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.downloadAllForOffline(listener, null);
+  IMAPPump.inbox.downloadAllForOffline(listener, false);
   await listener.promise;
 });
 
@@ -167,7 +167,7 @@ add_task(async function updateTrash() {
 add_task(async function downloadTrashForOffline() {
   // ...and download for offline use.
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  gIMAPTrashFolder.downloadAllForOffline(listener, null);
+  gIMAPTrashFolder.downloadAllForOffline(listener, false);
   await listener.promise;
 });
 

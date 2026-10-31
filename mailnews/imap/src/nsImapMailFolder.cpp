@@ -4264,7 +4264,7 @@ nsImapMailFolder::SetupMsgWriteStream(nsIFile* aFile) {
 }
 
 NS_IMETHODIMP nsImapMailFolder::DownloadMessagesForOffline(
-    nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, nsIMsgWindow* window) {
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, bool interactive) {
   nsTArray<ImapUid> uids = MOZ_TRY(UidsFromHdrs(messages));
   if (uids.IsEmpty()) {
     return NS_OK;
@@ -4280,11 +4280,11 @@ NS_IMETHODIMP nsImapMailFolder::DownloadMessagesForOffline(
   }
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
   return imapService->DownloadMessagesForOffline(messageIds, this, this,
-                                                 !!window);
+                                                 interactive);
 }
 
 NS_IMETHODIMP nsImapMailFolder::DownloadAllForOffline(nsIUrlListener* listener,
-                                                      nsIMsgWindow* msgWindow) {
+                                                      bool interactive) {
   nsresult rv;
   nsCOMPtr<nsIURI> runningURI;
   bool noSelect;
@@ -4306,7 +4306,7 @@ NS_IMETHODIMP nsImapMailFolder::DownloadAllForOffline(nsIUrlListener* listener,
     // Selecting the folder with nsIImapUrl::shouldStoreMsgOffline true will
     // cause us to fetch any message bodies we don't have.
     m_urlListener = listener;
-    rv = imapService->SelectFolder(this, this, !!msgWindow,
+    rv = imapService->SelectFolder(this, this, interactive,
                                    getter_AddRefs(runningURI));
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIImapUrl> imapUrl(do_QueryInterface(runningURI));

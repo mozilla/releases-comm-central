@@ -100,14 +100,14 @@ add_task({ skip_if: () => !storageOk }, async function addOfflineMessages() {
 
   // Download for offline use, to append created messages to local IMAP inbox.
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.downloadAllForOffline(listener, null);
+  IMAPPump.inbox.downloadAllForOffline(listener, false);
   await listener.promise;
 });
 
 add_task({ skip_if: () => !storageOk }, async function check_result() {
   // Call downloadAllForOffline() a second time.
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.downloadAllForOffline(listener, null);
+  IMAPPump.inbox.downloadAllForOffline(listener, false);
   await listener.promise;
 
   // Make sure offline store grew (i.e., we were not writing over data).

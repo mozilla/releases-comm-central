@@ -931,7 +931,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
               messages.AppendElement(msgHdr);
           }
           if (messages.Length() > 0) {
-            rv = curFolder->DownloadMessagesForOffline(messages, m_msgWindow);
+            rv = curFolder->DownloadMessagesForOffline(messages, !!m_msgWindow);
             BREAK_ACTION_IF_FAILURE(rv, "DownloadMessagesForOffline failed");
           }
         } break;

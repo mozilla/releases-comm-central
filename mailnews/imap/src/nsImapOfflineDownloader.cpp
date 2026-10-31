@@ -17,9 +17,9 @@
 
 NS_IMPL_ISUPPORTS(nsImapOfflineDownloader, nsIUrlListener)
 
-nsImapOfflineDownloader::nsImapOfflineDownloader(nsIMsgWindow* window,
+nsImapOfflineDownloader::nsImapOfflineDownloader(bool interactive,
                                                  nsIUrlListener* listener)
-    : m_window(window), m_listener(listener) {
+    : m_interactive(interactive), m_listener(listener) {
   // pause auto-sync service
   nsresult rv;
   nsCOMPtr<nsIAutoSyncManager> autoSyncMgr =
@@ -73,7 +73,7 @@ nsresult nsImapOfflineDownloader::ProcessNextOperation() {
             // doesn't want to download pop3 mail for offline use.
             if (!imapInbox) {
             }
-            rv = inbox->GetNewMessages(!!m_window, this);
+            rv = inbox->GetNewMessages(m_interactive, this);
             if (NS_SUCCEEDED(rv)) return rv;  // otherwise, fall through.
           }
         }
@@ -93,7 +93,7 @@ nsresult nsImapOfflineDownloader::ProcessNextOperation() {
     // need to check if folder has offline events, or is configured for offline
     if (imapFolder && folderFlags & nsMsgFolderFlags::Offline &&
         !(folderFlags & nsMsgFolderFlags::Virtual)) {
-      rv = m_currentFolder->DownloadAllForOffline(this, m_window);
+      rv = m_currentFolder->DownloadAllForOffline(this, m_interactive);
       if (NS_SUCCEEDED(rv) || rv == NS_BINDING_ABORTED) return rv;
       // if this fails and the user didn't cancel/stop, fall through to code
       // that advances to next folder

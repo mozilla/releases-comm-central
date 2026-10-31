@@ -115,7 +115,7 @@ add_setup(function () {
 
 add_task(async function downloadForOffline() {
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.downloadAllForOffline(listener, null);
+  IMAPPump.inbox.downloadAllForOffline(listener, false);
   await listener.promise;
 });
 

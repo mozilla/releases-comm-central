@@ -56,7 +56,7 @@ add_task(async function test_localFailureRetainsCopyForRetry() {
   source.updateFolderWithListener(false, listener);
   await listener.promise;
   listener = new PromiseTestUtils.PromiseUrlListener();
-  source.downloadAllForOffline(listener, null);
+  source.downloadAllForOffline(listener, false);
   await listener.promise;
 
   const [header] = source.messages;

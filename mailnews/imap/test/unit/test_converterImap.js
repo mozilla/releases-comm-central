@@ -83,7 +83,7 @@ add_setup(async function () {
 add_task(async function downloadForOffline() {
   // Download for offline use.
   const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
+  IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, false);
   await promiseUrlListener.promise;
 });
 

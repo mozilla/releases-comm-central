@@ -60,7 +60,7 @@ add_task(async function downloadForOffline() {
   // ...and download for offline use.
   // This downloads all messages, ignoring the autosync age constraints.
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.downloadAllForOffline(listener, null);
+  IMAPPump.inbox.downloadAllForOffline(listener, false);
   await listener.promise;
 });
 
