@@ -1039,7 +1039,7 @@ export class AttachmentInfo {
         resolve();
       },
     };
-    folder.updateFolderWithListener(null, urlListener);
+    folder.updateFolderWithListener(false, urlListener);
     await promise;
   }
 

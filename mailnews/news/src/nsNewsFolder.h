@@ -26,7 +26,7 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
   // nsIMsgFolder methods:
   NS_IMETHOD GetSubFolders(nsTArray<RefPtr<nsIMsgFolder>>& folders) override;
 
-  NS_IMETHOD UpdateFolder(nsIMsgWindow* aWindow) override;
+  NS_IMETHOD UpdateFolder(bool interactive) override;
 
   NS_IMETHOD CreateSubfolder(const nsACString& folderName) override;
 
@@ -86,7 +86,7 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
   nsresult RememberUnsubscribedGroup(const nsACString& newsgroup,
                                      const nsACString& setStr);
   nsresult ForgetLine(void);
-  nsresult GetNewsMessages(nsIMsgWindow* aMsgWindow, bool getOld,
+  nsresult GetNewsMessages(bool interactive, bool getOld,
                            nsIUrlListener* aListener);
 
   int32_t HandleNewsrcLine(const char* line, uint32_t line_size);

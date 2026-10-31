@@ -96,9 +96,9 @@ async function closeConnections() {
   );
 }
 
-async function updateInbox(aMsgWindow) {
+async function updateInbox(interactive) {
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  inbox.updateFolderWithListener(aMsgWindow, listener);
+  inbox.updateFolderWithListener(interactive, listener);
   await listener.promise;
 }
 
@@ -107,13 +107,13 @@ add_task(async function testRefreshPasswordFromStorageForFetch() {
 
   await closeConnections();
   incomingServer.forgetSessionPassword(false);
-  await updateInbox(null);
+  await updateInbox(false);
 
   await closeConnections();
   incomingServer.forgetSessionPassword(false);
   await server.addMessages("INBOX", [generator.makeMessage()], false);
 
-  await updateInbox(msgWindow);
+  await updateInbox(true);
   Assert.equal(promptCount, 1, "the manual fetch should queue one prompt");
   Assert.equal(
     inbox.getTotalMessages(false),

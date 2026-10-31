@@ -82,7 +82,7 @@ add_setup(async function () {
   message.xGmLabels = gXGmLabels11; // With labels excluding "//INBOX".
   IMAPPump.mailbox.addMessage(message);
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -104,7 +104,7 @@ add_task(async function createAndUpdate() {
     .getChildNamed("foo")
     .QueryInterface(Ci.nsIMsgImapMailFolder); // We have created the mailbox earlier.
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  fooFolder.updateFolderWithListener(null, listener);
+  fooFolder.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -135,7 +135,7 @@ add_task(function addToFoo() {
 
 add_task(async function updateFoo() {
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  fooFolder.updateFolderWithListener(null, listener);
+  fooFolder.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 

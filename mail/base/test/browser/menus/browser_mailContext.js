@@ -257,10 +257,10 @@ add_setup(async function () {
   cal.manager.getCalendars()[0].setProperty("disabled", false);
 
   GlodaTestHelper.prepareIndexerForTesting();
-  testFolder.updateFolder(null);
-  draftsFolder.updateFolder(null);
-  templatesFolder.updateFolder(null);
-  listFolder.updateFolder(null);
+  testFolder.updateFolder(false);
+  draftsFolder.updateFolder(false);
+  templatesFolder.updateFolder(false);
+  listFolder.updateFolder(false);
   await TestUtils.waitForCondition(
     () => !GlodaIndexer.indexing,
     "waiting for Gloda to finish indexing"

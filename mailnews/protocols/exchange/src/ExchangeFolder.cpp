@@ -565,7 +565,7 @@ NS_IMETHODIMP ExchangeFolder::MarkAllMessagesRead() {
   return client->ChangeReadStatusAll(listener, folderIds, true, true);
 }
 
-NS_IMETHODIMP ExchangeFolder::UpdateFolder(nsIMsgWindow* aWindow) {
+NS_IMETHODIMP ExchangeFolder::UpdateFolder(bool interactive) {
   // Sync the message list.
   // TODO: In the future, we might want to sync the folder hierarchy. Since
   // we already keep the local folder list quite in sync with remote operations,

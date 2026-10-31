@@ -69,7 +69,7 @@ async function runFilterAction() {
     new ImapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
   );
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 }
 

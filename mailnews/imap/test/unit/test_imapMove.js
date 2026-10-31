@@ -32,7 +32,7 @@ async function startTest() {
 
   addImapMessage();
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 
   // ...and download for offline use.
@@ -67,7 +67,7 @@ async function doMove() {
 async function testMove() {
   Assert.equal(IMAPPump.inbox.getTotalMessages(false), 0);
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  gFolder1.updateFolderWithListener(null, listener);
+  gFolder1.updateFolderWithListener(false, listener);
   await listener.promise;
   Assert.equal(gFolder1.getTotalMessages(false), 1);
 

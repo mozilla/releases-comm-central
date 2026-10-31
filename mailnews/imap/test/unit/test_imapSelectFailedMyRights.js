@@ -62,7 +62,7 @@ async function discoverFolders() {
 
 add_task(async function testMyRightsAfterFailedSelect() {
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  deniedFolder.updateFolderWithListener(null, listener);
+  deniedFolder.updateFolderWithListener(false, listener);
   await Assert.rejects(listener.promise, /./, "selecting should fail");
 
   sendMyRights = true;

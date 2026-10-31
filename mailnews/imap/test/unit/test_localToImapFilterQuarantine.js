@@ -40,7 +40,7 @@ add_task(async function createSubfolder() {
   gSubfolder = IMAPPump.incomingServer.rootFolder.getChildNamed("subfolder");
   Assert.ok(gSubfolder instanceof Ci.nsIMsgImapMailFolder);
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  gSubfolder.updateFolderWithListener(null, listener);
+  gSubfolder.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -74,7 +74,7 @@ add_task(async function updateSubfolderAndTest() {
     gSubfolder,
     "FolderLoaded"
   );
-  gSubfolder.updateFolderWithListener(null, listener);
+  gSubfolder.updateFolderWithListener(false, listener);
   await listener.promise;
   await folderLoaded;
 
@@ -99,7 +99,7 @@ add_task(async function updateSubfolderAndTest2() {
     gSubfolder,
     "FolderLoaded"
   );
-  gSubfolder.updateFolderWithListener(null, listener);
+  gSubfolder.updateFolderWithListener(false, listener);
   await listener.promise;
   await folderLoaded;
   Assert.equal(folderCount(gSubfolder), 3);

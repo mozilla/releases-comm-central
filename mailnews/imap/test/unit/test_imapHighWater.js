@@ -97,13 +97,13 @@ add_setup(function () {
 add_task(async function doMoves() {
   // update folders to download headers.
   const urlListenerInbox = new PromiseTestUtils.PromiseUrlListener();
-  gIMAPInbox.updateFolderWithListener(null, urlListenerInbox);
+  gIMAPInbox.updateFolderWithListener(false, urlListenerInbox);
   await urlListenerInbox.promise;
   gFolder1 = gRootFolder
     .getChildNamed("folder 1")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
   const urlListenerFolder1 = new PromiseTestUtils.PromiseUrlListener();
-  gFolder1.updateFolderWithListener(null, urlListenerFolder1);
+  gFolder1.updateFolderWithListener(false, urlListenerFolder1);
   await urlListenerFolder1.promise;
   // get five messages to move from Inbox to folder 1.
   let headers1 = [];
@@ -131,15 +131,12 @@ add_task(async function doMoves() {
   await copyListenerDummyHeaders.promise;
 
   const urlListenerInboxAfterDummy = new PromiseTestUtils.PromiseUrlListener();
-  gIMAPInbox.updateFolderWithListener(null, urlListenerInboxAfterDummy);
+  gIMAPInbox.updateFolderWithListener(false, urlListenerInboxAfterDummy);
   await urlListenerInboxAfterDummy.promise;
 
   const urlListenerFolder1AfterDummy =
     new PromiseTestUtils.PromiseUrlListener();
-  gFolder1.updateFolderWithListener(
-    gDummyMsgWindow,
-    urlListenerFolder1AfterDummy
-  );
+  gFolder1.updateFolderWithListener(true, urlListenerFolder1AfterDummy);
   await urlListenerFolder1AfterDummy.promise;
 
   const calcHighwater = function (folder) {
@@ -187,15 +184,12 @@ add_task(async function doMoves() {
 
   gFolder1.msgDatabase.deleteHeader(msgHdr, null, true, false);
   const urlListenerInboxAfterDelete = new PromiseTestUtils.PromiseUrlListener();
-  gIMAPInbox.updateFolderWithListener(null, urlListenerInboxAfterDelete);
+  gIMAPInbox.updateFolderWithListener(false, urlListenerInboxAfterDelete);
   await urlListenerInboxAfterDelete.promise;
   // this should clear the dummy headers.
   const urlListenerFolder1AfterDelete =
     new PromiseTestUtils.PromiseUrlListener();
-  gFolder1.updateFolderWithListener(
-    gDummyMsgWindow,
-    urlListenerFolder1AfterDelete
-  );
+  gFolder1.updateFolderWithListener(true, urlListenerFolder1AfterDelete);
   await urlListenerFolder1AfterDelete.promise;
   Assert.equal(
     gFolder1.msgDatabase.dBFolderInfo.highWater,

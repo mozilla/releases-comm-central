@@ -22,7 +22,7 @@ let inbox;
 
 async function updateInbox() {
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  inbox.updateFolderWithListener(null, listener);
+  inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 }
 

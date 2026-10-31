@@ -214,7 +214,7 @@ nsresult nsMsgNewsFolder::GetDatabase() {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::UpdateFolder(nsIMsgWindow* aWindow) {
+nsMsgNewsFolder::UpdateFolder(bool interactive) {
   // Get news.get_messages_on_select pref
 
   // Only if news.get_messages_on_select is true do we get new messages
@@ -231,7 +231,7 @@ nsMsgNewsFolder::UpdateFolder(nsIMsgWindow* aWindow) {
       // GetNewMessages has to be the last rv set before we get to the next
       // check, so that we'll have rv set to NS_MSG_ERROR_OFFLINE when offline
       // and send a folder loaded notification to the front end.
-      rv = GetNewMessages(aWindow, nullptr);
+      rv = GetNewsMessages(interactive, false, nullptr);
     }
     if (rv != NS_MSG_ERROR_OFFLINE) {
       // For the server root folder there are no running URLs that will fire
@@ -683,15 +683,14 @@ NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr* msgHdr,
 
 NS_IMETHODIMP nsMsgNewsFolder::GetNewMessages(nsIMsgWindow* aMsgWindow,
                                               nsIUrlListener* aListener) {
-  return GetNewsMessages(aMsgWindow, false, aListener);
+  return GetNewsMessages(!!aMsgWindow, false, aListener);
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::GetNextNMessages(nsIMsgWindow* aMsgWindow) {
-  return GetNewsMessages(aMsgWindow, true, nullptr);
+  return GetNewsMessages(!!aMsgWindow, true, nullptr);
 }
 
-nsresult nsMsgNewsFolder::GetNewsMessages(nsIMsgWindow* aMsgWindow,
-                                          bool aGetOld,
+nsresult nsMsgNewsFolder::GetNewsMessages(bool interactive, bool aGetOld,
                                           nsIUrlListener* aUrlListener) {
   nsresult rv = NS_OK;
 
@@ -709,7 +708,7 @@ nsresult nsMsgNewsFolder::GetNewsMessages(nsIMsgWindow* aMsgWindow,
 
   if (!isNewsServer) {
     nsCOMPtr<nsIURI> resultUri;
-    rv = nntpService->GetNewNews(nntpServer, mURI, aGetOld, this, !!aMsgWindow,
+    rv = nntpService->GetNewNews(nntpServer, mURI, aGetOld, this, interactive,
                                  getter_AddRefs(resultUri));
     if (aUrlListener && NS_SUCCEEDED(rv) && resultUri) {
       nsCOMPtr<nsIMsgMailNewsUrl> msgUrl(do_QueryInterface(resultUri));
@@ -722,7 +721,7 @@ nsresult nsMsgNewsFolder::GetNewsMessages(nsIMsgWindow* aMsgWindow,
       NS_ENSURE_SUCCESS(rv, rv);
       nsCOMPtr<nsIURI> resultUri;
       nntpService->GetNewNews(nntpServer, uri, aGetOld, aUrlListener,
-                              !!aMsgWindow, getter_AddRefs(resultUri));
+                              interactive, getter_AddRefs(resultUri));
     }
   }
   return rv;

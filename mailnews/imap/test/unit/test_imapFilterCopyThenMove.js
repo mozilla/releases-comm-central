@@ -98,7 +98,7 @@ add_task(async function testCopyFinishesBeforeMove() {
   }
 
   const updateListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, updateListener);
+  IMAPPump.inbox.updateFolderWithListener(false, updateListener);
   await updateListener.promise;
 
   await TestUtils.waitForCondition(() => {
@@ -153,7 +153,7 @@ add_task(async function testCopyFinishesBeforeMove() {
     "the filtered move should finish"
   );
   const moveUpdateListener = new PromiseTestUtils.PromiseUrlListener();
-  moveFolder.updateFolderWithListener(null, moveUpdateListener);
+  moveFolder.updateFolderWithListener(false, moveUpdateListener);
   await moveUpdateListener.promise;
 
   Assert.equal(

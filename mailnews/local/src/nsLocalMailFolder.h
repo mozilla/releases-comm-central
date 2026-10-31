@@ -102,7 +102,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   NS_IMETHOD GetMsgDatabase(nsIMsgDatabase** aMsgDatabase) override;
 
   NS_IMETHOD OnAnnouncerGoingAway(nsIDBChangeAnnouncer* instigator) override;
-  NS_IMETHOD UpdateFolder(nsIMsgWindow* aWindow) override;
+  NS_IMETHOD UpdateFolder(bool interactive) override;
 
   NS_IMETHOD CreateSubfolder(const nsACString& folderName) override;
   NS_IMETHOD CreateSubfolderWithListener(const nsACString&,

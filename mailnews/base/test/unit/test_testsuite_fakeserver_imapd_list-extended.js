@@ -49,7 +49,7 @@ add_setup(async function () {
   Assert.ok(response.includes("OK"));
   // wait for imap pump to do it's thing or else we get memory leaks
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 

@@ -130,7 +130,7 @@ interface nsIMsgFolder : nsISupports {
   void folderNamesReady(out boolean aReady);
 
   /* get new headers for db */
-  void updateFolder(in nsIMsgWindow aWindow);
+  void updateFolder(in boolean interactive);
 
   /**
    * this folder's parent server

@@ -42,7 +42,7 @@ add_setup(async function () {
 
   // update folder to download header.
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -59,14 +59,14 @@ add_task(async function switchAwayFromInbox() {
   // and Thunderbird discovering the change when it does a flag sync
   // upon reselecting the Inbox.
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  gSecondFolder.updateFolderWithListener(null, listener);
+  gSecondFolder.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
 add_task(async function simulateForwardFlagSet() {
   gMessage.setFlag("$Forwarded");
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -79,14 +79,14 @@ add_task(async function checkForwardedFlagSet() {
     Ci.nsMsgMessageFlags.Forwarded
   );
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  gSecondFolder.updateFolderWithListener(null, listener);
+  gSecondFolder.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
 add_task(async function clearForwardedFlag() {
   gMessage.clearFlag("$Forwarded");
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -96,14 +96,14 @@ add_task(async function checkForwardedFlagCleared() {
   );
   Assert.equal(msgHdr.flags & Ci.nsMsgMessageFlags.Forwarded, 0);
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  gSecondFolder.updateFolderWithListener(null, listener);
+  gSecondFolder.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
 add_task(async function setSeenFlag() {
   gMessage.setFlag("\\Seen");
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -116,14 +116,14 @@ add_task(async function checkSeenFlagSet() {
     Ci.nsMsgMessageFlags.Read
   );
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  gSecondFolder.updateFolderWithListener(null, listener);
+  gSecondFolder.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
 add_task(async function simulateRepliedFlagSet() {
   gMessage.setFlag("\\Answered");
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -136,14 +136,14 @@ add_task(async function checkRepliedFlagSet() {
     Ci.nsMsgMessageFlags.Replied
   );
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  gSecondFolder.updateFolderWithListener(null, listener);
+  gSecondFolder.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
 add_task(async function simulateTagAdded() {
   gMessage.setFlag("randomtag");
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -154,7 +154,7 @@ add_task(async function checkTagSet() {
   const keywords = msgHdr.getStringProperty("keywords");
   Assert.ok(keywords.includes("randomtag"));
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  gSecondFolder.updateFolderWithListener(null, listener);
+  gSecondFolder.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -163,7 +163,7 @@ add_task(async function checkNonJunkTagSet() {
   gMessage.clearFlag("NotJunk");
   gMessage.setFlag("NonJunk");
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 
   const msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
@@ -182,7 +182,7 @@ add_task(async function checkNotJunkTagSet() {
   gMessage.clearFlag("NonJunk");
   gMessage.setFlag("NotJunk");
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 
   const msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
@@ -199,7 +199,7 @@ add_task(async function checkNotJunkTagSet() {
 add_task(async function clearTag() {
   gMessage.clearFlag("randomtag");
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 

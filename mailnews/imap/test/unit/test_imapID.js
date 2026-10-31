@@ -22,13 +22,13 @@ add_setup(async function () {
 
   // update folder to kick start tests.
   const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+  IMAPPump.inbox.updateFolderWithListener(false, promiseUrlListener);
   await promiseUrlListener.promise;
 });
 
 add_task(async function updateInbox() {
   const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+  IMAPPump.inbox.updateFolderWithListener(false, promiseUrlListener);
   await promiseUrlListener.promise;
 });
 

@@ -167,7 +167,7 @@ add_task(async function update1() {
     .getChildNamed("empty 1")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  folder1.updateFolderWithListener(null, listener);
+  folder1.updateFolderWithListener(false, listener);
   await listener.promise;
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
@@ -178,7 +178,7 @@ add_task(async function update2() {
     .getChildNamed("empty 2")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  folder2.updateFolderWithListener(null, listener);
+  folder2.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 

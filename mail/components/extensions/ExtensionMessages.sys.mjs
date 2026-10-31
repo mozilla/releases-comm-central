@@ -1603,7 +1603,7 @@ export class MessageTracker extends EventEmitter {
       // corrupt the key mapping of the message tracker. The modified copy is
       // picked up by the folder update of the delete operation itself.
       if (cachedSrcMsgs.some(msgHdr => msgHdr.folder?.URI != dstFolder.URI)) {
-        dstFolder.updateFolder(null);
+        dstFolder.updateFolder(false);
       }
       const deferredDstMsgs = await Promise.all(dstMsgsPromises);
       this.emit(emitMsg, cachedSrcMsgs, deferredDstMsgs);

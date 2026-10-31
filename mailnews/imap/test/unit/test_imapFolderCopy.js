@@ -135,7 +135,7 @@ add_task(async function copyImapFolderWithinAccount() {
 
   // Only messages the source folder knows about are copied, so sync it first.
   let listener = new PromiseTestUtils.PromiseUrlListener();
-  source.updateFolderWithListener(null, listener);
+  source.updateFolderWithListener(false, listener);
   await listener.promise;
   Assert.equal([...source.messages].length, 1, "source folder is populated");
 
@@ -147,7 +147,7 @@ add_task(async function copyImapFolderWithinAccount() {
     .getChildNamed("not empty 5")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
   listener = new PromiseTestUtils.PromiseUrlListener();
-  copied.updateFolderWithListener(null, listener);
+  copied.updateFolderWithListener(false, listener);
   await listener.promise;
 
   Assert.equal(

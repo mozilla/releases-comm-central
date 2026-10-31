@@ -47,7 +47,7 @@ add_setup(async function () {
   addMessagesToServer(messageFiles, IMAPPump.daemon.getMailbox("INBOX"));
 
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 
   Assert.equal(
@@ -74,14 +74,7 @@ add_task(async function streamMsgs() {
     const msgService = MailServices.messageServiceFromURI(msgUri);
 
     const streamListener = new PromiseTestUtils.PromiseStreamListener();
-    msgService.streamMessage(
-      msgUri,
-      streamListener,
-      null,
-      false,
-      "",
-      false
-    );
+    msgService.streamMessage(msgUri, streamListener, null, false, "", false);
     await streamListener.promise;
     Assert.notEqual(
       msg.flags & Ci.nsMsgMessageFlags.Offline,

@@ -101,7 +101,7 @@ var FolderNotificationHelper = {
    *  performs the updateFolder call for you so there is less chance of leaking.
    * In the event the updateFolder call fails, we will propagate the exception.
    */
-  updateFolderAndNotifyOnLoad(aFolder, aFolderDisplay, aMsgWindow) {
+  updateFolderAndNotifyOnLoad(aFolder, aFolderDisplay, aInteractive) {
     // set up our datastructure first in case of wacky event sequences
     const folderURI = aFolder.URI;
     let wrappers = this._pendingFolderUriToViewWrapperLists[folderURI];
@@ -110,7 +110,7 @@ var FolderNotificationHelper = {
     }
     wrappers.push(aFolderDisplay);
     try {
-      aFolder.updateFolder(aMsgWindow);
+      aFolder.updateFolder(aInteractive);
     } catch (ex) {
       console.warn(`Update folder ${folderURI} failed.`, ex);
       // uh-oh, that didn't work.  tear down the data structure...
@@ -896,7 +896,7 @@ DBViewWrapper.prototype = {
       FolderNotificationHelper.updateFolderAndNotifyOnLoad(
         this.displayedFolder,
         this,
-        this.listener.msgWindow
+        !!this.listener.msgWindow
       );
     }
 

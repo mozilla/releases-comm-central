@@ -81,7 +81,7 @@ add_task(async function testFetchMessage() {
     .getChildNamed("INBOX")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
   const updateListener = new PromiseTestUtils.PromiseUrlListener();
-  inbox.updateFolderWithListener(null, updateListener);
+  inbox.updateFolderWithListener(false, updateListener);
   await updateListener.promise;
   Assert.equal(inbox.getTotalMessages(false), 1, "INBOX should have 1 message");
 

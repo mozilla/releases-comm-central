@@ -50,7 +50,7 @@ add_setup(async function () {
   );
   // Update IMAP Folder.
   const listenerUpdate = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listenerUpdate);
+  IMAPPump.inbox.updateFolderWithListener(false, listenerUpdate);
   await listenerUpdate.promise;
   // Download all for offline.
   const listenerDownload = new PromiseTestUtils.PromiseUrlListener();

@@ -505,7 +505,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetDatabaseWithReparse(
 }
 
 NS_IMETHODIMP
-nsMsgLocalMailFolder::UpdateFolder(nsIMsgWindow* aWindow) {
+nsMsgLocalMailFolder::UpdateFolder(bool interactive) {
   (void)RefreshSizeOnDisk();
   nsresult rv;
 

@@ -2773,7 +2773,7 @@ nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
     } else {
       // This ONLY occurs when use_status_for_biff is false.
       // Do select URL for folder now.
-      imapFolder->UpdateFolderWithListener(aWindow, this);
+      imapFolder->UpdateFolderWithListener(!!aWindow, this);
     }
   }
 

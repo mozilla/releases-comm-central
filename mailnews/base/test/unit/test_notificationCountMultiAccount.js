@@ -18,7 +18,7 @@ function addUnread(inbox, count) {
   inbox.addMessageBatch(
     gen.makeMessages({ count }).map(m => m.toMessageString())
   );
-  inbox.updateFolder(null);
+  inbox.updateFolder(false);
   inbox.msgDatabase.commit(Ci.nsMsgDBCommitType.kLargeCommit);
   return inbox.getNumUnread(false);
 }

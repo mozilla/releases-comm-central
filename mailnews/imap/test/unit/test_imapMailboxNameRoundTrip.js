@@ -164,6 +164,6 @@ async function updateFolder(folder) {
   const listener = new PromiseTestUtils.PromiseUrlListener();
   folder
     .QueryInterface(Ci.nsIMsgImapMailFolder)
-    .updateFolderWithListener(null, listener);
+    .updateFolderWithListener(false, listener);
   await listener.promise;
 }

@@ -349,7 +349,7 @@ NS_IMETHODIMP nsImapMoveCopyMsgTxn::OnStopRunningUrl(nsIURI* aUrl,
           // to move back, looking them up by message-id.
           nsCOMPtr<nsIMsgImapMailFolder> imapDest =
               do_QueryInterface(dstFolder);
-          if (imapDest) imapDest->UpdateFolderWithListener(nullptr, this);
+          if (imapDest) imapDest->UpdateFolderWithListener(false, this);
         }
       } else if (!m_dstMsgIdString.IsEmpty()) {
         nsCOMPtr<nsIUrlListener> dstListener;

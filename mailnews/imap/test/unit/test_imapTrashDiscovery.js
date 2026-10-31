@@ -188,7 +188,7 @@ async function checkTrashDiscovery({
       const updateListener = new PromiseTestUtils.PromiseUrlListener();
       trashFolders[0]
         .QueryInterface(Ci.nsIMsgImapMailFolder)
-        .updateFolderWithListener(null, updateListener);
+        .updateFolderWithListener(false, updateListener);
       await updateListener.promise;
       const mailbox = daemon.getMailbox(onlineName);
       Assert.ok(mailbox, "The server should have the Trash mailbox");

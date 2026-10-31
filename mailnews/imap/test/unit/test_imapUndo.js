@@ -96,7 +96,7 @@ add_setup(function () {
 
 add_task(async function updateFolder() {
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -133,13 +133,13 @@ add_task(async function undoDelete() {
   const trash = gRootFolder.getChildNamed("Trash");
   trash
     .QueryInterface(Ci.nsIMsgImapMailFolder)
-    .updateFolderWithListener(null, listener);
+    .updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
 add_task(async function goBackToInbox() {
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(gMsgWindow, listener);
+  IMAPPump.inbox.updateFolderWithListener(true, listener);
   await listener.promise;
 });
 

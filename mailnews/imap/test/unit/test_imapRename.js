@@ -29,7 +29,7 @@ add_setup(async function () {
   await PromiseTestUtils.promiseFolderAdded("folder 1");
 
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -43,7 +43,7 @@ add_task(async function test_rename() {
 
   IMAPPump.server.performTest("RENAME");
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 
   const folder = rootFolder.getChildNamed("folder \u00e1");
@@ -98,7 +98,7 @@ add_task(async function test_renameKeepsSettings() {
 
   // Let the rename settle before looking at the result.
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 
   const renamedFolder = rootFolder.getChildNamed("renamed");
@@ -110,7 +110,7 @@ add_task(async function test_renameKeepsSettings() {
   const syncListener = new PromiseTestUtils.PromiseUrlListener();
   renamedFolder
     .QueryInterface(Ci.nsIMsgImapMailFolder)
-    .updateFolderWithListener(null, syncListener);
+    .updateFolderWithListener(false, syncListener);
   await syncListener.promise;
   assertSettings(renamedFolder, "the renamed folder after its first sync");
 });
@@ -129,7 +129,7 @@ add_task(async function test_renameKeepsFollowingTheAccount() {
   IMAPPump.server.performTest("RENAME");
 
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 
   Assert.ok(
@@ -230,7 +230,7 @@ add_task(async function test_renameKeepsSubfolders() {
   IMAPPump.server.performTest("RENAME");
 
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 
   const renamedParent = rootFolder.getChildNamed("renamed parent");

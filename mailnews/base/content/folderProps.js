@@ -270,7 +270,7 @@ function folderPropsOnLoad() {
     try {
       gMsgFolder.msgDatabase;
     } catch (e) {
-      gMsgFolder.updateFolder(window.arguments[0].msgWindow);
+      gMsgFolder.updateFolder(true);
     }
 
     // Check the current folder name against known folder names to set the

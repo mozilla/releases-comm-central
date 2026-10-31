@@ -379,7 +379,7 @@ async function subtest(action, expectedParent, expectedName) {
   // Check that the message was saved to the folder.
 
   const expectedMessageCount = folderCountBeforeTest + 1;
-  folder.updateFolder(window.msgWindow);
+  folder.updateFolder(true);
   await TestUtils.waitForCondition(
     () =>
       folder.getTotalMessages(false) - folder.numPendingTotalMessages ==

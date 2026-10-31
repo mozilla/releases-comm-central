@@ -51,7 +51,7 @@ add_setup(async function () {
   message.xGmLabels = gXGmLabels;
   IMAPPump.mailbox.addMessage(message);
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 

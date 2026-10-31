@@ -157,7 +157,7 @@ add_task(async function test_deleteOneMessage() {
 
   const trashFolder = gRootFolder.getChildNamed("Trash");
   // hack to force uid validity to get initialized for trash.
-  trashFolder.updateFolder(null);
+  trashFolder.updateFolder(false);
 });
 
 add_task(async function compactOfflineStore() {

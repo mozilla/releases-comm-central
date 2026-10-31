@@ -108,17 +108,17 @@ var tests = [
   },
   async function updateSecondFolder() {
     const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-    gSecondFolder.updateFolderWithListener(null, promiseUrlListener);
+    gSecondFolder.updateFolderWithListener(false, promiseUrlListener);
     await promiseUrlListener.promise;
   },
   async function updateThirdFolder() {
     const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-    gThirdFolder.updateFolderWithListener(null, promiseUrlListener);
+    gThirdFolder.updateFolderWithListener(false, promiseUrlListener);
     await promiseUrlListener.promise;
   },
   async function updateInbox() {
     const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-    IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+    IMAPPump.inbox.updateFolderWithListener(false, promiseUrlListener);
     await promiseUrlListener.promise;
   },
   function checkDone() {
@@ -171,7 +171,7 @@ async function setup() {
 
   // update folder to download header.
   const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+  IMAPPump.inbox.updateFolderWithListener(false, promiseUrlListener);
   await promiseUrlListener.promise;
 }
 

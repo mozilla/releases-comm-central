@@ -47,7 +47,7 @@ add_setup(async function () {
     .getChildNamed("INBOX")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
   const updateListener = new PromiseTestUtils.PromiseUrlListener();
-  inbox.updateFolderWithListener(null, updateListener);
+  inbox.updateFolderWithListener(false, updateListener);
   await updateListener.promise;
 
   registerCleanupFunction(() => {
@@ -78,7 +78,7 @@ async function waitForConnectionsToClose() {
 
 async function updateFolder(folder) {
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  folder.updateFolderWithListener(null, listener);
+  folder.updateFolderWithListener(false, listener);
   await listener.promise;
 }
 

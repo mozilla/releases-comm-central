@@ -50,7 +50,7 @@ add_task(async function createTargetFolder() {
     );
   Assert.ok(gTargetFolder instanceof Ci.nsIMsgImapMailFolder);
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  gTargetFolder.updateFolderWithListener(null, listener);
+  gTargetFolder.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -68,7 +68,7 @@ add_task(async function loadImapMessage() {
   IMAPPump.mailbox.addMessage(gMessage);
 
   const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+  IMAPPump.inbox.updateFolderWithListener(false, promiseUrlListener);
   await promiseUrlListener.promise;
   Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
 });
@@ -98,10 +98,10 @@ add_task(async function moveMessageWithTimeout() {
 
 add_task(async function updateTargetFolderAndInbox() {
   const urlListenerTargetFolder = new PromiseTestUtils.PromiseUrlListener();
-  gTargetFolder.updateFolderWithListener(null, urlListenerTargetFolder);
+  gTargetFolder.updateFolderWithListener(false, urlListenerTargetFolder);
   await urlListenerTargetFolder.promise;
   const urlListenerInbox = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, urlListenerInbox);
+  IMAPPump.inbox.updateFolderWithListener(false, urlListenerInbox);
   await urlListenerInbox.promise;
 
   // Make sure neither source nor target folder have offline events.

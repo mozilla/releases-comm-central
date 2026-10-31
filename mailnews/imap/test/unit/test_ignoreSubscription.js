@@ -33,7 +33,7 @@ add_setup(async function () {
   // Trigger and await INBOX imap select. (Not really needed and does not
   // eliminate need for delay above.)
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 

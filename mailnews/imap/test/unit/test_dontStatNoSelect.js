@@ -83,7 +83,7 @@ add_task(function checkStatSelect() {
   // INBOX, and since we only have one connection with the fake server,
   // that will essentially serialize things.
   gServer._test = true;
-  gIMAPInbox.updateFolder(null);
+  gIMAPInbox.updateFolder(false);
   gServer.performTest("NOOP");
 });
 

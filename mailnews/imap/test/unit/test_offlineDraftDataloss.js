@@ -34,7 +34,7 @@ add_task(async function createDraftsFolder() {
   gDraftsFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Drafts");
   Assert.ok(gDraftsFolder instanceof Ci.nsIMsgImapMailFolder);
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  gDraftsFolder.updateFolderWithListener(null, listener);
+  gDraftsFolder.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 

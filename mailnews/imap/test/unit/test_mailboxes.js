@@ -30,7 +30,7 @@ add_setup(async function () {
   IMAPPump.server.performTest("LIST");
 
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -62,7 +62,7 @@ add_task(async function checkRename() {
     .getChildNamed(folderName2)
     .QueryInterface(Ci.nsIMsgImapMailFolder);
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  newChild.updateFolderWithListener(null, listener);
+  newChild.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 

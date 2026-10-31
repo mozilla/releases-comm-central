@@ -37,7 +37,7 @@ add_setup(async function () {
 
   // Update the folder to kick start the ID exchange.
   const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+  IMAPPump.inbox.updateFolderWithListener(false, promiseUrlListener);
   await promiseUrlListener.promise;
 });
 
@@ -45,7 +45,7 @@ add_task(async function updateInboxAgain() {
   // A second update proves the connection and parser state survived parsing
   // the crafted response (a corrupted parser would fail or hang here).
   const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+  IMAPPump.inbox.updateFolderWithListener(false, promiseUrlListener);
   await promiseUrlListener.promise;
 });
 

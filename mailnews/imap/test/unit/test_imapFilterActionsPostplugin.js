@@ -222,7 +222,7 @@ async function setupTest(aFilter, aAction) {
     new ImapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
   );
   const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+  IMAPPump.inbox.updateFolderWithListener(false, promiseUrlListener);
   await promiseUrlListener.promise;
   await PromiseTestUtils.promiseDelay(200);
 }

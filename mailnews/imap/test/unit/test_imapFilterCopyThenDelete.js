@@ -88,7 +88,7 @@ add_task(async function testCopyFinishesBeforeDelete() {
   }
 
   const updateListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, updateListener);
+  IMAPPump.inbox.updateFolderWithListener(false, updateListener);
   await updateListener.promise;
 
   await TestUtils.waitForCondition(() => {

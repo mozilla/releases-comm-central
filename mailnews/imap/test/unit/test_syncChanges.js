@@ -40,7 +40,7 @@ add_setup(async function () {
 
   // update folder to download header.
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -57,7 +57,7 @@ add_task(async function switchAwayFromInbox() {
   // and Thunderbird discovering the change when it does a flag sync
   // upon reselecting the Inbox.
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  gSecondFolder.updateFolderWithListener(null, listener);
+  gSecondFolder.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -67,7 +67,7 @@ add_task(async function simulateMailboxEmptied() {
   IMAPPump.inbox.expunge(expungeListener, null);
   await expungeListener.promise;
   const updateListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, updateListener);
+  IMAPPump.inbox.updateFolderWithListener(false, updateListener);
   await updateListener.promise;
 });
 

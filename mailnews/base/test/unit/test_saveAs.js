@@ -70,7 +70,7 @@ async function createMessage() {
 async function addImapMessage(fooMessage) {
   IMAPPump.mailbox.addMessage(fooMessage);
   const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+  IMAPPump.inbox.updateFolderWithListener(false, promiseUrlListener);
   await promiseUrlListener.promise;
 }
 

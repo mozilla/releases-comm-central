@@ -44,7 +44,7 @@ add_task(async function testMoveWhileAnotherIsInFlight() {
 
   // Deliberately not awaited: the second move has to be requested while this
   // one is still running.
-  IMAPPump.inbox.updateFolder(null);
+  IMAPPump.inbox.updateFolder(false);
 
   await moveImapMessages(IMAPPump.inbox, [headers[1]], destination);
 
@@ -60,7 +60,7 @@ add_task(async function testMoveWhileAnotherIsInFlight() {
   // New mail for the folder the messages were moved out of.
   addImapMessage();
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
   await TestUtils.waitForCondition(
     () => IMAPPump.inbox.getTotalMessages(false) == 1,

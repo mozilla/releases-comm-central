@@ -620,12 +620,12 @@ nsresult nsImapMailFolder::GetDatabase() {
   return rv;
 }
 
-NS_IMETHODIMP nsImapMailFolder::UpdateFolder(nsIMsgWindow* inMsgWindow) {
-  return UpdateFolderWithListener(inMsgWindow, nullptr);
+NS_IMETHODIMP nsImapMailFolder::UpdateFolder(bool interactive) {
+  return UpdateFolderWithListener(interactive, nullptr);
 }
 
 NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
-    nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener) {
+    bool interactive, nsIUrlListener* aUrlListener) {
   nsresult rv;
   // If this is the inbox, filters will be applied. Otherwise, we test the
   // inherited folder property "applyIncomingFilters" (which defaults to empty).
@@ -715,7 +715,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
       // runs a url, a reference will be added to it. Otherwise, it will get
       // destroyed when the refptr goes out of scope.
       RefPtr<nsImapOfflineSync> goOnline = new nsImapOfflineSync();
-      goOnline->Init(!!aMsgWindow, this, this, false);
+      goOnline->Init(interactive, this, this, false);
       if (goOnline) {
         // Save the listener, so when we arrive here again later (below)
         // imapService->SelectFolder() gets the right listener.
@@ -752,8 +752,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
           nsCOMPtr<nsIMsgFolder> rootFolder;
           rv = GetRootFolder(getter_AddRefs(rootFolder));
           if (NS_SUCCEEDED(rv) && rootFolder) {
-            rv =
-                imapService->DiscoverAllFolders(rootFolder, this, !!aMsgWindow);
+            rv = imapService->DiscoverAllFolders(rootFolder, this, interactive);
             if (NS_SUCCEEDED(rv))
               hostSession->SetDiscoveryForHostInProgress(serverKey.get(), true);
           }
@@ -762,7 +761,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
     }
 
     nsCOMPtr<nsIURI> url;
-    rv = imapService->SelectFolder(this, m_urlListener, !!aMsgWindow,
+    rv = imapService->SelectFolder(this, m_urlListener, interactive,
                                    getter_AddRefs(url));
     if (NS_SUCCEEDED(rv)) {
       m_urlRunning = true;
@@ -2296,7 +2295,7 @@ NS_IMETHODIMP nsImapMailFolder::GetNewMessages(nsIMsgWindow* aWindow,
       NS_ENSURE_SUCCESS(rv, rv);
       imapFolder->SetPerformingBiff(performingBiff);
       inbox->SetGettingNewMessages(true);
-      rv = inbox->UpdateFolder(aWindow);
+      rv = inbox->UpdateFolder(!!aWindow);
     }
     // Get new messages for other folders if marked, or all of them if the pref
     // is set
@@ -2379,7 +2378,7 @@ NS_IMETHODIMP nsImapMailFolder::OnNewIdleMessages() {
           nsMsgFolderFlags::SentMail | nsMsgFolderFlags::ImapNoselect))) ||
       (mFlags & (nsMsgFolderFlags::CheckNew | nsMsgFolderFlags::Inbox)))
     SetPerformingBiff(true);
-  return UpdateFolder(nullptr);
+  return UpdateFolder(false);
 }
 
 NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
@@ -2712,7 +2711,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxStatus(
       MOZ_LOG(IMAP, mozilla::LogLevel::Debug,
               ("%s: folder=%s, do UpdateFolder(), summary change after STATUS",
                __func__, m_onlineFolderName.get()));
-      UpdateFolder(nullptr);
+      UpdateFolder(false);
     } else {
       MOZ_LOG(IMAP, mozilla::LogLevel::Debug,
               ("%s: folder=%s, do NOTHING, summary change after SELECT",
@@ -5053,7 +5052,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
                 if (showPreviewText && m_copyState->m_unreadCount > 0 &&
                     !(mFlags &
                       (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Junk))) {
-                  UpdateFolder(msgWindow);
+                  UpdateFolder(!!msgWindow);
                 }
               } else {
                 srcFolder->EnableNotifications(allMessageCountNotifications,
@@ -5187,7 +5186,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
                 }
                 (void)OnCopyCompleted(m_copyState->m_srcSupport, aExitCode);
                 if (imapAction == nsIImapUrl::nsImapAppendDraftFromFile) {
-                  UpdateFolderWithListener(msgWindow, m_urlListener);
+                  UpdateFolderWithListener(!!msgWindow, m_urlListener);
                 }
               }
             } else {

@@ -446,7 +446,7 @@ async function rebuildFolderSummary(folder) {
   // so to avoid an intermediate state that could cause folder discovery to
   // fail for this folder, we create the local store.
   folder.msgStore.ensureLocalStore(folder);
-  folder.updateFolder(top.msgWindow);
+  folder.updateFolder(true);
 }
 
 /**

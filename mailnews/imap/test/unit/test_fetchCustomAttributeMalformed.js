@@ -27,7 +27,7 @@ add_setup(async function () {
   message.xCustomValue = "\r\n";
   IMAPPump.mailbox.addMessage(message);
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 

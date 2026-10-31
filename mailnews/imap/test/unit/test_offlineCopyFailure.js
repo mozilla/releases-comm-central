@@ -53,7 +53,7 @@ add_task(async function test_localFailureRetainsCopyForRetry() {
     new ImapMessage(uri.spec, IMAPPump.mailbox.uidnext++, [])
   );
   let listener = new PromiseTestUtils.PromiseUrlListener();
-  source.updateFolderWithListener(null, listener);
+  source.updateFolderWithListener(false, listener);
   await listener.promise;
   listener = new PromiseTestUtils.PromiseUrlListener();
   source.downloadAllForOffline(listener, null);

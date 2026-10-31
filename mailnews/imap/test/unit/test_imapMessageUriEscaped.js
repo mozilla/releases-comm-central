@@ -39,7 +39,7 @@ add_task(async function test_escaped_message_uri() {
     .getChildNamed("Sub Folder")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  folder.updateFolderWithListener(null, listener);
+  folder.updateFolderWithListener(false, listener);
   await listener.promise;
 
   // Simulate a folder whose files had to use a unique name because the

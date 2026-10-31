@@ -1942,7 +1942,7 @@ this.messages = class extends ExtensionAPIPersistent {
               },
               onStopCopy(status) {
                 if (status == Cr.NS_OK) {
-                  destinationFolder.updateFolder(null);
+                  destinationFolder.updateFolder(false);
                   copyFileMessageOperation.resolve();
                 } else {
                   copyFileMessageOperation.reject(

@@ -41,10 +41,7 @@ var gTestArray = [
       );
     }
     const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-    IMAPPump.inbox.updateFolderWithListener(
-      gDummyMsgWindow,
-      promiseUrlListener
-    );
+    IMAPPump.inbox.updateFolderWithListener(true, promiseUrlListener);
     await promiseUrlListener.promise;
 
     Assert.equal(2, IMAPPump.inbox.getTotalMessages(false));

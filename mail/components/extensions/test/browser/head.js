@@ -240,7 +240,7 @@ class IMAPServer {
     });
 
     const listener = new MailPromiseTestUtils.PromiseUrlListener();
-    folder.updateFolderWithListener(null, listener);
+    folder.updateFolderWithListener(false, listener);
     return listener.promise;
   }
 }

@@ -28,7 +28,7 @@ add_task(async function loadImapMessage() {
     new ImapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
   );
   const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(gDummyMsgWindow, promiseUrlListener);
+  IMAPPump.inbox.updateFolderWithListener(true, promiseUrlListener);
   await promiseUrlListener.promise;
 
   Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));

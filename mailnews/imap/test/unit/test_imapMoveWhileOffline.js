@@ -45,7 +45,7 @@ add_task(async function testMoveMadeOffline() {
   IMAPPump.server.start();
 
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 
   await TestUtils.waitForCondition(

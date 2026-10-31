@@ -41,7 +41,7 @@ add_setup(async function () {
   );
 
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
   gTransaction = IMAPPump.server.playTransaction();
 });

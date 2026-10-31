@@ -233,7 +233,7 @@ async function addImapMessagesAndSync(count) {
     added.push(addImapMessage());
   }
   let listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
   listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(listener, null);

@@ -72,7 +72,7 @@ add_task(async function testSaveMessageToDisk() {
   // Sync the message list.
   {
     const listener = new PromiseTestUtils.PromiseUrlListener();
-    inbox.updateFolderWithListener(null, listener);
+    inbox.updateFolderWithListener(false, listener);
     await listener.promise;
   }
 

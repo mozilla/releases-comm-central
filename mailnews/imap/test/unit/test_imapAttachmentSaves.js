@@ -63,7 +63,7 @@ add_task(async function testImapAttachmentDetac() {
   const message = new ImapMessage(msgURI.spec, imapInbox.uidnext++, []);
   imapInbox.addMessage(message);
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  inbox.updateFolderWithListener(null, listener);
+  inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 
   Assert.equal(

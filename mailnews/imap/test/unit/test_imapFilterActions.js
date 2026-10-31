@@ -459,7 +459,7 @@ async function setupTest(aFilter, ...aActions) {
   // Simulate new mail arriving: the real biff, IDLE and STATUS paths all set
   // this before updating, and it is what drives the new-message accounting.
   IMAPPump.inbox.performingBiff = true;
-  IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+  IMAPPump.inbox.updateFolderWithListener(false, promiseUrlListener);
   await promiseUrlListener.promise;
   await PromiseTestUtils.promiseDelay(200);
 }

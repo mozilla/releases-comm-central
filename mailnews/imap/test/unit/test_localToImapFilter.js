@@ -67,7 +67,7 @@ add_task(async function updateTrash() {
     .QueryInterface(Ci.nsIMsgImapMailFolder);
   const listener = new PromiseTestUtils.PromiseUrlListener();
   // hack to force uid validity to get initialized for trash.
-  trashFolder.updateFolderWithListener(null, listener);
+  trashFolder.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -116,7 +116,7 @@ add_task(async function test_update1_copyFilter() {
   const folder1 = IMAPPump.inbox
     .getChildNamed("empty 1")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
-  folder1.updateFolderWithListener(null, listener);
+  folder1.updateFolderWithListener(false, listener);
   await listener.promise;
   Assert.notStrictEqual(folder1, null);
   Assert.equal(
@@ -131,7 +131,7 @@ add_task(async function test_update2_moveFilter() {
   const folder2 = IMAPPump.inbox
     .getChildNamed("empty 2")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
-  folder2.updateFolderWithListener(null, listener);
+  folder2.updateFolderWithListener(false, listener);
   await listener.promise;
   Assert.notStrictEqual(folder2, null);
   Assert.equal(

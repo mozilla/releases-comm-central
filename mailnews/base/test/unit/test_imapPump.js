@@ -46,7 +46,7 @@ var gTestArray = [
       new ImapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
     );
     const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-    IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+    IMAPPump.inbox.updateFolderWithListener(false, promiseUrlListener);
     await promiseUrlListener.promise;
 
     Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));

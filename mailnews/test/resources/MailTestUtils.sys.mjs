@@ -530,7 +530,7 @@ export var mailTestUtils = {
     );
 
     if (!aSomeoneElseWillTriggerTheUpdate) {
-      aFolder.updateFolder(null);
+      aFolder.updateFolder(false);
     }
   },
 

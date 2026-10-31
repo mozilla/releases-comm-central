@@ -70,7 +70,7 @@ add_setup(async function () {
   addGeneratedMessagesToServer(messages, IMAPPump.daemon.getMailbox("INBOX"));
   // ...and download for offline use.
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 
@@ -160,7 +160,7 @@ add_task(async function updateTrash() {
     .QueryInterface(Ci.nsIMsgImapMailFolder);
   const listener = new PromiseTestUtils.PromiseUrlListener();
   // hack to force uid validity to get initialized for trash.
-  gIMAPTrashFolder.updateFolderWithListener(null, listener);
+  gIMAPTrashFolder.updateFolderWithListener(false, listener);
   await listener.promise;
 });
 

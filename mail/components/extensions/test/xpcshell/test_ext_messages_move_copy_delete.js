@@ -663,7 +663,7 @@ add_task(
           .QueryInterface(Ci.nsIMsgImapMailFolder);
 
         const listener = new PromiseTestUtils.PromiseUrlListener();
-        folder.updateFolderWithListener(null, listener);
+        folder.updateFolderWithListener(false, listener);
         await listener.promise;
 
         // ...and download for offline use.

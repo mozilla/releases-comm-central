@@ -108,7 +108,7 @@ add_task(async function testOfflineMoveLocalToIMAP() {
 
   const imapINBOX = IMAPPump.inbox.QueryInterface(Ci.nsIMsgImapMailFolder);
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  imapINBOX.updateFolderWithListener(null, listener);
+  imapINBOX.updateFolderWithListener(false, listener);
   await listener.promise;
 
   // Local folder should be empty, contents now in IMAP inbox.

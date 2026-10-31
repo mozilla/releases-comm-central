@@ -84,7 +84,7 @@ function copyFileMessage(file, messageId, destFolder) {
     [MailServices.mfn.msgAdded, { expectedMessageId: messageId }],
     [MailServices.mfn.msgsClassified, [messageId], false, false],
   ];
-  destFolder.updateFolder(null);
+  destFolder.updateFolder(false);
   MailServices.copy.copyFileMessage(
     file,
     destFolder,
@@ -110,7 +110,7 @@ function doUpdateFolder(test) {
     return;
   }
 
-  gFolderBeingUpdated.updateFolder(null);
+  gFolderBeingUpdated.updateFolder(false);
 
   if (gCurrStatus == kStatus.everythingDone) {
     resetStatusAndProceed();

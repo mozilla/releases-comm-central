@@ -109,7 +109,7 @@ add_task(async function testFailedCopyPreventsMove() {
 
   copyDaemon.commandToFail = "APPEND";
   const updateListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, updateListener);
+  IMAPPump.inbox.updateFolderWithListener(false, updateListener);
   await updateListener.promise;
 
   await TestUtils.waitForCondition(() => {
@@ -158,7 +158,7 @@ add_task(async function testSuccessfulCopyAllowsMove() {
   addIncomingMessage(SUCCESS_MESSAGE_ID, "Filtered copy success", SUCCESS_BODY);
 
   const updateListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, updateListener);
+  IMAPPump.inbox.updateFolderWithListener(false, updateListener);
   await updateListener.promise;
 
   await TestUtils.waitForCondition(() => {
@@ -172,10 +172,10 @@ add_task(async function testSuccessfulCopyAllowsMove() {
   }, "the successful copy should finish before the move starts");
 
   const copyUpdateListener = new PromiseTestUtils.PromiseUrlListener();
-  copyFolder.updateFolderWithListener(null, copyUpdateListener);
+  copyFolder.updateFolderWithListener(false, copyUpdateListener);
   await copyUpdateListener.promise;
   const moveUpdateListener = new PromiseTestUtils.PromiseUrlListener();
-  moveFolder.updateFolderWithListener(null, moveUpdateListener);
+  moveFolder.updateFolderWithListener(false, moveUpdateListener);
   await moveUpdateListener.promise;
 
   const copiedHeader =

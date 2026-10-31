@@ -73,7 +73,7 @@ add_task(async function firstUpdate() {
     gTargetFolder,
     "FolderLoaded"
   );
-  gTargetFolder.updateFolder(null);
+  gTargetFolder.updateFolder(false);
   await folderAddedListener;
 });
 
@@ -84,6 +84,6 @@ add_task(async function secondUpdate() {
     gTargetFolder,
     "FolderLoaded"
   );
-  gTargetFolder.updateFolder(null);
+  gTargetFolder.updateFolder(false);
   await folderAddedListener;
 });

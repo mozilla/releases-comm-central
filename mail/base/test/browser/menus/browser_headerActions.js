@@ -75,7 +75,7 @@ add_setup(async function () {
   testMessages = [...testFolder.messages];
 
   GlodaTestHelper.prepareIndexerForTesting();
-  testFolder.updateFolder(null);
+  testFolder.updateFolder(false);
   await TestUtils.waitForCondition(
     () => !GlodaIndexer.indexing,
     "waiting for Gloda to finish indexing"

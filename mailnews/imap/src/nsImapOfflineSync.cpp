@@ -890,9 +890,7 @@ nsresult nsImapOfflineSync::ProcessNextOperation() {
       AdvanceToNextFolder();
     }
     if (m_singleFolderToUpdate) {
-      // No window to hand over any more; updateFolder() loses its own
-      // soon enough.
-      m_singleFolderToUpdate->UpdateFolder(nullptr);
+      m_singleFolderToUpdate->UpdateFolder(m_interactive);
     }
   }
   // if we get here, then I *think* we're done. Not sure, though.

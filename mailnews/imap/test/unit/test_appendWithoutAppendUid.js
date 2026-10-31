@@ -135,7 +135,7 @@ async function appendMessage(
  */
 async function assertAppendedMessageKey({ keys, subject }, message) {
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
-  folder.updateFolderWithListener(null, urlListener);
+  folder.updateFolderWithListener(false, urlListener);
   await urlListener.promise;
 
   const msgHdrs = [...folder.msgDatabase.enumerateMessages()].filter(

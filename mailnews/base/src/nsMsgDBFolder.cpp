@@ -2642,7 +2642,7 @@ nsMsgDBFolder::GetMessages(nsIMsgEnumerator** result) {
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::UpdateFolder(nsIMsgWindow*) { return NS_OK; }
+nsMsgDBFolder::UpdateFolder(bool) { return NS_OK; }
 
 ////////////////////////////////////////////////////////////////////////////////
 

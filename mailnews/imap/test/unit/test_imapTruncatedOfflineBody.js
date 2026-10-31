@@ -129,7 +129,7 @@ add_setup(async function () {
   gTruncMsg._truncateBodyAt = TRUNCATE_AT;
 
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  IMAPPump.inbox.updateFolderWithListener(false, listener);
   await listener.promise;
 
   gIMAPService = Cc[

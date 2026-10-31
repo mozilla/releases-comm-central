@@ -80,7 +80,7 @@ var tests = [
   },
   async function updateFolder() {
     const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-    IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+    IMAPPump.inbox.updateFolderWithListener(false, promiseUrlListener);
     await promiseUrlListener.promise;
   },
   async function downloadAllForOffline() {
@@ -116,7 +116,7 @@ var tests = [
     await promiseCopyListener.promise;
 
     const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-    IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+    IMAPPump.inbox.updateFolderWithListener(false, promiseUrlListener);
     await promiseUrlListener.promise;
 
     const db = IMAPPump.inbox.msgDatabase;
