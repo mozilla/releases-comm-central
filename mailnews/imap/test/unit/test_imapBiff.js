@@ -206,7 +206,7 @@ add_task(async function testStatusDefersBiffUntilFlagSync() {
   );
 
   const statusListener = new PromiseTestUtils.PromiseUrlListener();
-  inbox.updateStatus(statusListener, null);
+  inbox.updateStatus(statusListener);
   await statusListener.promise;
   await TestUtils.waitForCondition(
     () => inbox.getTotalMessages(false) == 7 && inbox.getNumUnread(false) == 4,

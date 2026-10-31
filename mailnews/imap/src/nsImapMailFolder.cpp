@@ -1499,8 +1499,7 @@ NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener* aListener,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMailFolder::UpdateStatus(nsIUrlListener* aListener,
-                                             nsIMsgWindow* aMsgWindow) {
+NS_IMETHODIMP nsImapMailFolder::UpdateStatus(nsIUrlListener* aListener) {
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
 
   nsCOMPtr<nsIURI> uri;
@@ -3925,18 +3924,18 @@ NS_IMETHODIMP nsImapMailFolder::GetHasAdminUrl(bool* aBool) {
 // It assumes the command needs to be run in the selected state.
 NS_IMETHODIMP nsImapMailFolder::IssueCommandOnMsgs(const nsACString& command,
                                                    const char* uids,
-                                                   nsIMsgWindow* aWindow,
+                                                   bool interactive,
                                                    nsIURI** url) {
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-  return imapService->IssueCommandOnMsgs(this, !!aWindow, command,
+  return imapService->IssueCommandOnMsgs(this, interactive, command,
                                          nsDependentCString(uids), url);
 }
 
 NS_IMETHODIMP nsImapMailFolder::FetchCustomMsgAttribute(
-    const nsACString& attribute, const char* uids, nsIMsgWindow* aWindow,
+    const nsACString& attribute, const char* uids, bool interactive,
     nsIURI** url) {
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-  return imapService->FetchCustomMsgAttribute(this, !!aWindow, attribute,
+  return imapService->FetchCustomMsgAttribute(this, interactive, attribute,
                                               nsDependentCString(uids), url);
 }
 
@@ -7945,7 +7944,7 @@ NS_IMETHODIMP nsImapMailFolder::GetQuota(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMailFolder::PerformExpand(nsIMsgWindow* aMsgWindow) {
+NS_IMETHODIMP nsImapMailFolder::PerformExpand() {
   nsresult rv;
   bool usingSubscription = false;
   nsCOMPtr<nsIImapIncomingServer> imapServer;
@@ -8856,7 +8855,7 @@ NS_IMETHODIMP nsImapMailFolder::InitiateAutoSync(nsIUrlListener* aUrlListener) {
   // The OnStopRunningUrl method of the autosync state obj
   // will check if the counts or next uid have changed,
   // and if so, will issue an UpdateFolder().
-  rv = UpdateStatus(m_autoSyncStateObj, nullptr);
+  rv = UpdateStatus(m_autoSyncStateObj);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // record the last update time

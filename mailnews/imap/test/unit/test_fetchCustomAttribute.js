@@ -20,10 +20,6 @@ var gMessage = "bugmail10"; // message file used as the test message
 var gCustomValue = "Custom";
 var gCustomList = ["Custom1", "Custom2", "Custom3"];
 
-var gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-  Ci.nsIMsgWindow
-);
-
 add_setup(async function () {
   setupIMAPPump("CUSTOM1");
   Services.prefs.setBoolPref(
@@ -51,7 +47,7 @@ add_task(async function testFetchCustomValue() {
   const uri = IMAPPump.inbox.fetchCustomMsgAttribute(
     "X-CUSTOM-VALUE",
     msgHdr.uidOnServer,
-    gMsgWindow
+    true
   );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
   // Listens for response from fetchCustomMsgAttribute request for X-CUSTOM-VALUE.
@@ -71,7 +67,7 @@ add_task(async function testFetchCustomList() {
   const uri = IMAPPump.inbox.fetchCustomMsgAttribute(
     "X-CUSTOM-LIST",
     msgHdr.uidOnServer,
-    gMsgWindow
+    true
   );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
   // Listens for response from fetchCustomMsgAttribute request for X-CUSTOM-VALUE.

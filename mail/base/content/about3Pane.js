@@ -3169,7 +3169,7 @@ var folderPane = {
       } else {
         // Do URL discoverchildren when mail folder expanded.
         folder.QueryInterface(Ci.nsIMsgImapMailFolder);
-        folder.performExpand(top.msgWindow);
+        folder.performExpand();
       }
     }
   },

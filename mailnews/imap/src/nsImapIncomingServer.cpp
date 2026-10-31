@@ -2332,7 +2332,7 @@ nsImapIncomingServer::OnStopRunningUrl(nsIURI* url, nsresult exitCode) {
         if (NS_FAILED(exitCode) && exitCode != NS_MSG_ERROR_IMAP_COMMAND_FAILED)
           m_foldersToStat.Clear();
         if (m_foldersToStat.Count() > 0) {
-          m_foldersToStat[0]->UpdateStatus(this, nullptr);
+          m_foldersToStat[0]->UpdateStatus(this);
         }
         break;
       }
@@ -2789,7 +2789,7 @@ nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
     // This occurs only on 1st call (for root folder) when list (which never
     // contains root folder) is not empty. UpdateStatus() for remaining folders
     // occurs sequentially in listener onStopRunningUrl().
-    m_foldersToStat[0]->UpdateStatus(this, nullptr);
+    m_foldersToStat[0]->UpdateStatus(this);
   }
   return NS_OK;
 }

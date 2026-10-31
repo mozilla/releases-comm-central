@@ -11,7 +11,6 @@ interface nsIUTF8StringEnumerator;
 interface nsIUrlListener;
 interface nsIURI;
 interface nsIMsgDBHdr;
-interface nsIMsgWindow;
 interface nsIImapIncomingServer;
 interface nsIMsgParseMailMsgState;
 
@@ -89,7 +88,7 @@ interface nsIMsgImapMailFolder : nsISupports {
   void list();
   void renameLocal(in AUTF8String newname, in nsIMsgFolder parent);
   void prepareToRename();
-  void performExpand(in nsIMsgWindow aMsgWindow);
+  void performExpand();
   void recursiveCloseActiveConnections(in nsIImapIncomingServer aImapServer);
   void renameClient(in nsIMsgFolder msgFolder, in AUTF8String oldName, in AUTF8String newName);
 
@@ -144,12 +143,12 @@ interface nsIMsgImapMailFolder : nsISupports {
    */
   void expunge(in nsIUrlListener aListener, in boolean interactive);
 
-  void updateStatus(in nsIUrlListener aListener, in nsIMsgWindow aMsgWindow);
+  void updateStatus(in nsIUrlListener aListener);
   void updateFolderWithListener(in boolean interactive, in nsIUrlListener aListener);
   // this is used to issue an arbitrary imap command on the passed in msgs.
   // It assumes the command needs to be run in the selected state.
-  nsIURI issueCommandOnMsgs(in ACString command, in string uids, in nsIMsgWindow aWindow);
-  nsIURI fetchCustomMsgAttribute(in ACString msgAttribute, in string uids, in nsIMsgWindow aWindow);
+  nsIURI issueCommandOnMsgs(in ACString command, in string uids, in boolean interactive);
+  nsIURI fetchCustomMsgAttribute(in ACString msgAttribute, in string uids, in boolean interactive);
   nsIURI storeCustomKeywords(in boolean interactive,
                       in ACString aFlagsToAdd,
                       in ACString aFlagsToSubtract,
