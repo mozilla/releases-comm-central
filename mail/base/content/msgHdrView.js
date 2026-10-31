@@ -2563,7 +2563,7 @@ const attachmentListDNDObserver = {
       const attachments = Array.from(
         document.querySelectorAll("#attachmentList .attachmentItem[selected]"),
         item => item.attachment
-      );
+      ).filter(attachment => attachment.hasFile);
       setupDataTransfer(event, attachments);
     }
     event.stopPropagation();
@@ -2573,7 +2573,10 @@ const attachmentListDNDObserver = {
 const attachmentNameDNDObserver = {
   onDragStart(event) {
     const attachmentList = document.getElementById("attachmentList");
-    setupDataTransfer(event, [attachmentList.getItemAtIndex(0).attachment]);
+    const attachment = attachmentList.getItemAtIndex(0).attachment;
+    if (attachment.hasFile) {
+      setupDataTransfer(event, [attachment]);
+    }
     event.stopPropagation();
   },
 };
