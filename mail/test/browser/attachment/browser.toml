@@ -22,6 +22,8 @@ support-files = ["data/**"]
 
 ["browser_attachment.js"]
 
+["browser_attachmentDragStart.js"]
+
 ["browser_attachmentEvents.js"]
 
 ["browser_attachmentIcon.js"]
