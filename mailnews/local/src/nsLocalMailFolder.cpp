@@ -634,8 +634,7 @@ nsresult nsMsgLocalMailFolder::CreateSubfolderInternal(
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener* aListener,
-                                               nsIMsgWindow* aMsgWindow,
-                                               bool expunge) {
+                                               bool interactive, bool expunge) {
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgFolder> rootFolder;
   rv = GetRootFolder(getter_AddRefs(rootFolder));
@@ -671,7 +670,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener* aListener,
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::Compact(nsIUrlListener* aListener,
-                                            nsIMsgWindow* aMsgWindow) {
+                                            bool interactive) {
   return AsyncCompactFolders({this}, aListener);
 }
 

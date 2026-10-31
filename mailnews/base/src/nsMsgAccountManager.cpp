@@ -1701,7 +1701,7 @@ nsresult nsMsgAccountManager::CleanupOnExit() {
                 return NS_OK;
               };
 
-              rv = folder->Compact(cleanupListener, nullptr);
+              rv = folder->Compact(cleanupListener, false);
               if (NS_SUCCEEDED(rv)) {
                 m_folderDoingCleanupInbox = folder;
                 m_cleanupInboxInProgress = true;

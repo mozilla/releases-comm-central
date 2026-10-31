@@ -117,7 +117,7 @@ add_task(async function compactOneFolder() {
   //  compaction are finished. dummyMsgWindow is required to make the backend
   //  compact the offline store.
   const compactUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.compact(compactUrlListener, null);
+  IMAPPump.inbox.compact(compactUrlListener, false);
   // Stream the message w/o a stream listener in an attempt to get the url
   //  started more quickly, while the compact is still going on.
   const urlListener = new PromiseTestUtils.PromiseUrlListener({});

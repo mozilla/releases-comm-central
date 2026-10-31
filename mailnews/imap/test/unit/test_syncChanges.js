@@ -64,7 +64,7 @@ add_task(async function switchAwayFromInbox() {
 add_task(async function simulateMailboxEmptied() {
   gMessage.setFlag("\\Deleted");
   const expungeListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.expunge(expungeListener, null);
+  IMAPPump.inbox.expunge(expungeListener, false);
   await expungeListener.promise;
   const updateListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(false, updateListener);

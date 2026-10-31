@@ -495,7 +495,7 @@ MailGlue.prototype = {
       try {
         // Reclaiming local space only - this must not expunge anything on an
         // IMAP server.
-        server.rootFolder.compactAll(null, null, false);
+        server.rootFolder.compactAll(null, false, false);
       } catch (ex) {
         // Backends that can't compact (news, for one) throw
         // NS_ERROR_NOT_IMPLEMENTED; skip them rather than abandoning the rest.

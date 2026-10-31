@@ -228,9 +228,8 @@ class nsImapMailFolder : public nsMsgDBFolder,
                           nsIMsgFolder** aChild) override;
   NS_IMETHODIMP CreateStorageIfMissing(nsIUrlListener* urlListener) override;
 
-  NS_IMETHOD Compact(nsIUrlListener* aListener,
-                     nsIMsgWindow* aMsgWindow) override;
-  NS_IMETHOD CompactAll(nsIUrlListener* aListener, nsIMsgWindow* aMsgWindow,
+  NS_IMETHOD Compact(nsIUrlListener* aListener, bool interactive) override;
+  NS_IMETHOD CompactAll(nsIUrlListener* aListener, bool interactive,
                         bool expunge) override;
   NS_IMETHOD EmptyTrash(nsIUrlListener* aListener) override;
   NS_IMETHOD CopyDataToOutputStreamForAppend(
@@ -361,8 +360,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
   nsresult RenameSubFolders(nsIMsgFolder* oldFolder) override;
   nsresult CreateFileForDB(const nsAString& userLeafName, nsIFile* baseDir,
                            nsIFile** dbFile);
-  nsresult ExpungeAndCompact(nsIUrlListener* aListener,
-                             nsIMsgWindow* aMsgWindow);
+  nsresult ExpungeAndCompact(nsIUrlListener* aListener, bool interactive);
   void FindUidsToAdd(const nsTArray<ImapUid>& existingUids,
                      nsTArray<ImapUid>& uidsToFetch, uint32_t& numNewUnread,
                      nsIImapFlagAndUidState* flagState);

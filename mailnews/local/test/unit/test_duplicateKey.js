@@ -46,7 +46,7 @@ add_task(async function runPump() {
 
   // compact
   var listener = new PromiseTestUtils.PromiseUrlListener();
-  localAccountUtils.inboxFolder.compact(listener, null);
+  localAccountUtils.inboxFolder.compact(listener, false);
   await listener.promise;
 
   dump("Messages after compact\n");

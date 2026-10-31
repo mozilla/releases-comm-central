@@ -58,7 +58,7 @@ add_task(async function test_setup_virtual_folder_and_compact() {
   await select_click_row(0);
   if (otherFolder.msgStore.supportsCompaction) {
     const listener = new PromiseTestUtils.PromiseUrlListener();
-    otherFolder.compactAll(listener, null, false);
+    otherFolder.compactAll(listener, false, false);
     await listener.promise;
   }
   // Let the event queue clear.

@@ -68,7 +68,7 @@ add_setup(async function () {
   // Compaction adds the X-Mozilla-Status rows into the messages
   // that we will need later on.
   Assert.ok(gInbox.msgStore.supportsCompaction);
-  gInbox.compact(urlListener, null);
+  gInbox.compact(urlListener, false);
 
   await TestUtils.waitForCondition(
     function () {

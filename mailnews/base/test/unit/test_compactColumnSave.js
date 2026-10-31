@@ -149,7 +149,7 @@ var gTestArray = [
     checkPersistentState(gLocalFolder2);
   },
   function compactFolder() {
-    gLocalFolder2.compact(urlListener, null);
+    gLocalFolder2.compact(urlListener, false);
   },
   function checkAfterCompact() {
     checkPersistentState(gLocalFolder2);

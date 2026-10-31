@@ -347,9 +347,9 @@ interface nsIMsgFolder : nsISupports {
    *                    OnStartRunningUrl() will not be called.
    *                    OnStopRunningUrl() will be called upon completion,
    *                    with a null URL.
-   * @param aMsgWindow  For progress/status, can be null.
+   * @param interactive Whether the user is waiting on the compaction.
    */
-  void compact(in nsIUrlListener aListener, in nsIMsgWindow aMsgWindow);
+  void compact(in nsIUrlListener aListener, in boolean interactive);
 
   /**
    * Compact all folders in the account corresponding to this folder.
@@ -358,13 +358,13 @@ interface nsIMsgFolder : nsISupports {
    *                    OnStartRunningUrl() will not be called.
    *                    OnStopRunningUrl() will be called upon completion,
    *                    with a null URL.
-   * @param aMsgWindow  For progress/status, can be null.
+   * @param interactive Whether the user is waiting on the compaction.
    * @param expunge     For IMAP, expunge messages marked as deleted on the
    *                    server before compacting the offline stores. Callers
    *                    only reclaiming local disk space must pass false, so
    *                    that nothing on the server is destroyed.
    */
-  void compactAll(in nsIUrlListener aListener, in nsIMsgWindow aMsgWindow,
+  void compactAll(in nsIUrlListener aListener, in boolean interactive,
                   in boolean expunge);
 
   void emptyTrash(in nsIUrlListener aListener);

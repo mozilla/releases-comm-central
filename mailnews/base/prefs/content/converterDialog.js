@@ -347,7 +347,7 @@ function startContinue(aSelectedStoreType, aResponse) {
           });
       },
     };
-    gServer.rootFolder.compactAll(urlListener, null, false);
+    gServer.rootFolder.compactAll(urlListener, false, false);
   } else {
     const pConvert = MailstoreConverter.convertMailStoreTo(
       originalStoreContractID,

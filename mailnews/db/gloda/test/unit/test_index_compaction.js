@@ -128,7 +128,7 @@ add_task(async function test_sweep_performs_compaction() {
       "\n"
   );
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
-  msgFolder.compact(urlListener, null);
+  msgFolder.compact(urlListener, false);
   await urlListener.promise;
 
   // Erase the compaction job.
@@ -193,7 +193,7 @@ add_task(
         "\n"
     );
     const urlListener = new PromiseTestUtils.PromiseUrlListener();
-    msgFolder.compact(urlListener, null);
+    msgFolder.compact(urlListener, false);
     await urlListener.promise;
 
     // Erase the compaction job.
@@ -272,7 +272,7 @@ add_task(async function test_compaction_interrupting_indexing() {
   //  reason should be able to do this.
   const msgFolder = messageInjection.getRealInjectionFolder(folder);
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
-  msgFolder.compact(urlListener, null);
+  msgFolder.compact(urlListener, false);
   await urlListener.promise;
 
   // Reset indexing to not hang.
@@ -386,7 +386,7 @@ async function compaction_indexing_pass(aParam) {
   );
 
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
-  msgFolder.compact(urlListener, null);
+  msgFolder.compact(urlListener, false);
   await urlListener.promise;
   // Wait for the compaction job to complete.
   await waitForGlodaIndexer();
@@ -423,7 +423,7 @@ add_task(async function test_limbo_cache_healing() {
   // forcibly moving our FAKE_GLODA_ID into the Limbo Cache to avoid a C++ crash.
   dump("Triggering compaction to test Limbo Cache amnesia trap...\n");
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
-  msgFolder.compact(urlListener, null);
+  msgFolder.compact(urlListener, false);
   await urlListener.promise;
 
   // 4. THE HEALING: Trigger the Gloda indexing sweep to run the GC & Healing pass

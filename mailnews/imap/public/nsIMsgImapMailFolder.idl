@@ -138,11 +138,11 @@ interface nsIMsgImapMailFolder : nsISupports {
    * Issue an expunge of this folder to the imap server.
    *
    * @param aUrlListener     url listener, can be null
-   * @param aWindow          msg window url is running in, can be null
+   * @param interactive      whether the user is waiting on the expunge
    *
    * @returns                status of attempt to run url.
    */
-  void expunge(in nsIUrlListener aListener, in nsIMsgWindow aMsgWindow);
+  void expunge(in nsIUrlListener aListener, in boolean interactive);
 
   void updateStatus(in nsIUrlListener aListener, in nsIMsgWindow aMsgWindow);
   void updateFolderWithListener(in boolean interactive, in nsIUrlListener aListener);

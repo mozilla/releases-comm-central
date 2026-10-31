@@ -192,7 +192,7 @@ function compactFolder(folder) {
   ];
   // We won't receive a copy listener notification for this
   gCurrStatus |= kStatus.onStopCopyDone;
-  folder.compact(null, null);
+  folder.compact(null, false);
   gCurrStatus |= kStatus.functionCallDone;
   if (gCurrStatus == kStatus.everythingDone) {
     resetStatusAndProceed();

@@ -148,7 +148,7 @@ add_task(async function testSimple() {
   await deleteMsgs(inbox, doomed);
 
   const l = new PromiseTestUtils.PromiseUrlListener();
-  inbox.compact(l, null);
+  inbox.compact(l, false);
   await l.promise;
 
   await checkMbox(inbox, outMsgs);
@@ -178,7 +178,7 @@ add_task(async function testMissingXMozillaHdrs() {
   await deleteMsgs(inbox, doomed);
 
   const l = new PromiseTestUtils.PromiseUrlListener();
-  inbox.compact(l, null);
+  inbox.compact(l, false);
   await l.promise;
 
   await checkMbox(inbox, outMsgs);
@@ -219,7 +219,7 @@ add_task(async function testBigMessages() {
   await deleteMsgs(inbox, doomed);
 
   const l = new PromiseTestUtils.PromiseUrlListener();
-  inbox.compact(l, null);
+  inbox.compact(l, false);
   await l.promise;
 
   // outMsgs is what we expect to see in the mbox.
@@ -251,7 +251,7 @@ add_task(async function testMoveXMozillaHdrs() {
   await deleteMsgs(inbox, doomed);
 
   const l = new PromiseTestUtils.PromiseUrlListener();
-  inbox.compact(l, null);
+  inbox.compact(l, false);
   await l.promise;
 
   await checkMbox(inbox, outMsgs);
@@ -293,7 +293,7 @@ add_task(async function testBigXMozillaKeys() {
   await deleteMsgs(inbox, doomed);
 
   const l = new PromiseTestUtils.PromiseUrlListener();
-  inbox.compact(l, null);
+  inbox.compact(l, false);
   await l.promise;
 
   await checkMbox(inbox, outMsgs);
@@ -360,7 +360,7 @@ add_task(async function testMalformed() {
   await deleteMsgs(inbox, [0]);
 
   const l = new PromiseTestUtils.PromiseUrlListener();
-  inbox.compact(l, null);
+  inbox.compact(l, false);
   await l.promise;
 
   // Compaction will write out a correct mbox, so msgB will be escaped.

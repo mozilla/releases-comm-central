@@ -3532,13 +3532,12 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsACString& name,
 }
 
 NS_IMETHODIMP nsMsgDBFolder::Compact(nsIUrlListener* aListener,
-                                     nsIMsgWindow* aMsgWindow) {
+                                     bool interactive) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::CompactAll(nsIUrlListener* aListener,
-                                        nsIMsgWindow* aMsgWindow,
-                                        bool expunge) {
+                                        bool interactive, bool expunge) {
   NS_ASSERTION(false, "should be overridden by child class");
   return NS_ERROR_NOT_IMPLEMENTED;
 }

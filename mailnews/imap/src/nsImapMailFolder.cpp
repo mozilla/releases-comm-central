@@ -1309,7 +1309,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyRetentionSettings() {
  * store compaction are finished (if the latter is needed).
  */
 nsresult nsImapMailFolder::ExpungeAndCompact(nsIUrlListener* aListener,
-                                             nsIMsgWindow* aMsgWindow) {
+                                             bool interactive) {
   GetDatabase();
   // now's a good time to apply the retention settings. If we do delete any
   // messages, the expunge is going to have to wait until the delete to
@@ -1320,14 +1320,13 @@ nsresult nsImapMailFolder::ExpungeAndCompact(nsIUrlListener* aListener,
   // Things to hold in existence until both expunge and compact are complete.
   RefPtr<nsImapMailFolder> folder = this;
   nsCOMPtr<nsIUrlListener> finalListener = aListener;
-  nsCOMPtr<nsIMsgWindow> msgWindow = aMsgWindow;
 
   // doCompact implements OnStopRunningUrl()
   // NOTE: The caller will be expecting that their listener will be invoked, so
   // we need to be careful that all execution paths in here do that. We either
   // call it directly, or pass it along to the foldercompactor to call.
-  auto doCompact = [folder, finalListener, msgWindow](
-                       nsIURI* url, nsresult status) -> nsresult {
+  auto doCompact = [folder, finalListener](nsIURI* url,
+                                           nsresult status) -> nsresult {
     nsCOMPtr<nsIMsgPluggableStore> msgStore;
     nsresult rv = folder->GetMsgStore(getter_AddRefs(msgStore));
     if (NS_FAILED(rv)) {
@@ -1358,13 +1357,13 @@ nsresult nsImapMailFolder::ExpungeAndCompact(nsIUrlListener* aListener,
   // Run the expunge, followed by the compaction.
   RefPtr<UrlListener> expungeListener = new UrlListener();
   expungeListener->mStopFn = doCompact;
-  return Expunge(expungeListener, aMsgWindow);
+  return Expunge(expungeListener, interactive);
 }
 
 // IMAP compact implies an Expunge.
 NS_IMETHODIMP nsImapMailFolder::Compact(nsIUrlListener* aListener,
-                                        nsIMsgWindow* aMsgWindow) {
-  return ExpungeAndCompact(aListener, aMsgWindow);
+                                        bool interactive) {
+  return ExpungeAndCompact(aListener, interactive);
 }
 
 NS_IMETHODIMP nsImapMailFolder::MarkPendingRemoval(nsIMsgDBHdr* aHdr,
@@ -1395,24 +1394,21 @@ NS_IMETHODIMP nsImapMailFolder::MarkPendingRemoval(nsIMsgDBHdr* aHdr,
 }
 
 NS_IMETHODIMP nsImapMailFolder::Expunge(nsIUrlListener* aListener,
-                                        nsIMsgWindow* aMsgWindow) {
+                                        bool interactive) {
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-  return imapService->Expunge(this, aListener, !!aMsgWindow);
+  return imapService->Expunge(this, aListener, interactive);
 }
 
 NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener* aListener,
-                                           nsIMsgWindow* aMsgWindow,
-                                           bool expunge) {
+                                           bool interactive, bool expunge) {
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> rootFolder;
   rv = GetRootFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgWindow> msgWindow = aMsgWindow;
-
   // Set up a callable which will start the compaction phase.
-  auto doCompact = [rootFolder, listener = nsCOMPtr<nsIUrlListener>(aListener),
-                    msgWindow]() {
+  auto doCompact = [rootFolder,
+                    listener = nsCOMPtr<nsIUrlListener>(aListener)]() {
     // Collect all the compactable folders.
     nsTArray<RefPtr<nsIMsgFolder>> foldersToCompact;
     nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
@@ -1493,7 +1489,7 @@ NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener* aListener,
   };
   // Commence expunging.
   for (auto& imapFolder : foldersToExpunge) {
-    rv = imapFolder->Expunge(l, aMsgWindow);
+    rv = imapFolder->Expunge(l, interactive);
     if (NS_FAILED(rv)) {
       // Make sure expungeCount is kept in sync!
       l->OnStopRunningUrl(nullptr, rv);

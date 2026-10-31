@@ -419,7 +419,7 @@ add_task(async function compactOver4GiB() {
    * the size of the mbox!
    */
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
-  gInbox.compact(urlListener, null);
+  gInbox.compact(urlListener, false);
   await urlListener.promise;
   Assert.ok(gInbox.msgDatabase.summaryValid);
   // Check that folder size is still above max limit ...
@@ -483,7 +483,7 @@ add_task(async function compactUnder4GiB() {
   // lines to message(s).
   info("Bug 1952503 tracing: performing compaction");
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
-  gInbox.compact(urlListener, null);
+  gInbox.compact(urlListener, false);
   await urlListener.promise;
   info("Bug 1952503 tracing: compaction completed");
   // Check: message successfully copied.

@@ -85,9 +85,8 @@ class ExchangeFolder : public nsMsgDBFolder, public IExchangeFolder {
   NS_IMETHOD MarkAllMessagesRead() override;
   NS_IMETHOD Rename(const nsACString& aNewName) override;
   NS_IMETHOD UpdateFolder(bool interactive) override;
-  NS_IMETHOD Compact(nsIUrlListener* aListener,
-                     nsIMsgWindow* aMsgWindow) override;
-  NS_IMETHOD CompactAll(nsIUrlListener* aListener, nsIMsgWindow* aMsgWindow,
+  NS_IMETHOD Compact(nsIUrlListener* aListener, bool interactive) override;
+  NS_IMETHOD CompactAll(nsIUrlListener* aListener, bool interactive,
                         bool expunge) override;
 
   NS_IMETHOD AddSubfolder(const nsACString& name,
