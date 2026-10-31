@@ -3001,8 +3001,8 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(
               if (trash) {
                 nsCString trashUri;
                 trash->GetURI(trashUri);
-                nsresult err = MoveIncorporatedMessage(
-                    newMsgHdr, mDatabase, trashUri, nullptr, msgWindow);
+                nsresult err = MoveIncorporatedMessage(newMsgHdr, mDatabase,
+                                                       trashUri, nullptr);
                 if (NS_SUCCEEDED(err)) m_msgMovedByFilter = true;
               }
             } break;
@@ -3028,7 +3028,7 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(
                    "nsImapMailFolder::NormalEndHeaderParseStream()"));
           m_filterList->ApplyFiltersToHdr(
               nsMsgFilterType::InboxRule, newMsgHdr, this, mDatabase,
-              nsDependentCSubstring(headers, headersSize), this, msgWindow);
+              nsDependentCSubstring(headers, headersSize), this, !!msgWindow);
           NotifyFolderEvent(kFiltersApplied);
         }
       }
@@ -3224,7 +3224,7 @@ NS_IMETHODIMP nsImapMailFolder::StartMessage() { return NS_OK; }
 NS_IMETHODIMP nsImapMailFolder::EndMessage(nsMsgKey key) { return NS_OK; }
 
 NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
-                                               nsIMsgWindow* msgWindow,
+                                               bool interactive,
                                                bool* applyMore) {
   //
   //  This routine is called indirectly from ApplyFiltersToHdr in two
@@ -3374,7 +3374,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
               mDatabase->MarkMDNSent(msgKey, true, nullptr);
             }
             nsresult rv = MoveIncorporatedMessage(
-                msgHdr, mDatabase, actionTargetFolderUri, filter, msgWindow);
+                msgHdr, mDatabase, actionTargetFolderUri, filter);
             if (NS_SUCCEEDED(rv)) {
               m_msgMovedByFilter = true;
             } else {
@@ -3437,7 +3437,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
             nsCOMPtr<nsIMsgCopyService> copyService =
                 mozilla::components::Copy::Service();
             rv = copyService->CopyMessages(this, {&*msgHdr}, dstFolder, false,
-                                           copyListener, !!msgWindow, false);
+                                           copyListener, interactive, false);
             if (NS_FAILED(rv)) {
               (void)copyListener->OnStopCopy(rv);
             }
@@ -3546,7 +3546,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
             nsCOMPtr<nsIMsgComposeService> compService =
                 mozilla::components::Compose::Service();
             rv = compService->ForwardMessage(
-                NS_ConvertUTF8toUTF16(forwardTo), msgHdr, !!msgWindow, server,
+                NS_ConvertUTF8toUTF16(forwardTo), msgHdr, interactive, server,
                 nsIMsgComposeService::kForwardAsDefault);
           }
         } break;
@@ -3946,8 +3946,7 @@ NS_IMETHODIMP nsImapMailFolder::FetchCustomMsgAttribute(
 
 nsresult nsImapMailFolder::MoveIncorporatedMessage(
     nsIMsgDBHdr* mailHdr, nsIMsgDatabase* sourceDB,
-    const nsACString& destFolderUri, nsIMsgFilter* filter,
-    nsIMsgWindow* msgWindow) {
+    const nsACString& destFolderUri, nsIMsgFilter* filter) {
   nsresult rv;
   if (m_moveCoalescer) {
     nsCOMPtr<nsIMsgFolder> destIFolder;
@@ -4459,7 +4458,7 @@ nsImapMailFolder::NormalEndMsgWriteStream(ImapUid uidOfMessage, bool markRead,
       }
       m_filterList->ApplyFiltersToHdr(nsMsgFilterType::InboxRule, newMsgHdr,
                                       this, mDatabase, EmptyCString(), this,
-                                      msgWindow);
+                                      !!msgWindow);
       NotifyFolderEvent(kFiltersApplied);
     }
     // Process filter plugins and other items normally done at the end of
@@ -8220,7 +8219,7 @@ nsImapMailFolder::SetFilterList(nsIMsgFilterList* aMsgFilterList) {
 
 nsresult nsImapMailFolder::GetMoveCoalescer() {
   if (!m_moveCoalescer)
-    m_moveCoalescer = new nsImapMoveCoalescer(this, nullptr /* msgWindow */);
+    m_moveCoalescer = new nsImapMoveCoalescer(this, false /* interactive */);
   return NS_OK;
 }
 
@@ -8405,15 +8404,15 @@ nsresult nsImapMailFolder::PlaybackCoalescedOperations() {
   if (m_moveCoalescer) {
     nsTArray<nsMsgKey>* junkKeysToClassify = m_moveCoalescer->GetKeyBucket(0);
     if (junkKeysToClassify && !junkKeysToClassify->IsEmpty()) {
-      StoreCustomKeywords(!!m_moveCoalescer->GetMsgWindow(), "Junk"_ns,
-                          EmptyCString(), *junkKeysToClassify, nullptr);
+      StoreCustomKeywords(false, "Junk"_ns, EmptyCString(), *junkKeysToClassify,
+                          nullptr);
       junkKeysToClassify->Clear();
     }
     nsTArray<nsMsgKey>* nonJunkKeysToClassify =
         m_moveCoalescer->GetKeyBucket(1);
     if (nonJunkKeysToClassify && !nonJunkKeysToClassify->IsEmpty()) {
-      StoreCustomKeywords(!!m_moveCoalescer->GetMsgWindow(), "NonJunk"_ns,
-                          EmptyCString(), *nonJunkKeysToClassify, nullptr);
+      StoreCustomKeywords(false, "NonJunk"_ns, EmptyCString(),
+                          *nonJunkKeysToClassify, nullptr);
       nonJunkKeysToClassify->Clear();
     }
     nsresult playbackResult = m_moveCoalescer->PlaybackMoves(ShowPreviewText());

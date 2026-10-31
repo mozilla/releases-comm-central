@@ -263,7 +263,7 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
                                    nsIMsgDatabase* db,
                                    const nsACString& headers,
                                    nsIMsgFilterHitNotify* listener,
-                                   nsIMsgWindow* msgWindow) {
+                                   bool interactive) {
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
           ("(Auto) nsMsgFilterList::ApplyFiltersToHdr"));
   if (!msgHdr) {
@@ -340,7 +340,7 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
                   ("(Auto) Matched message ID: %s", msgId.get()));
 
           bool applyMore = true;
-          rv = listener->ApplyFilterHit(filter, msgWindow, &applyMore);
+          rv = listener->ApplyFilterHit(filter, interactive, &applyMore);
           if (NS_FAILED(rv)) {
             MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
                     ("(Auto) Applying filter actions failed"));

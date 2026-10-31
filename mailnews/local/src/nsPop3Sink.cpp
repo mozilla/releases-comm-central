@@ -144,11 +144,11 @@ nsresult nsPop3Sink::DiscardStalePartialMessages(nsIPop3Protocol* protocol) {
 }
 
 NS_IMETHODIMP nsPop3Sink::BeginMailDelivery(bool uidlDownload,
-                                            nsIMsgWindow* aMsgWindow) {
+                                            bool interactive) {
   nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_popServer);
   if (!server) return NS_ERROR_UNEXPECTED;
 
-  m_window = aMsgWindow;
+  m_interactive = interactive;
 
   nsCOMPtr<nsIMsgAccountManager> acctMgr =
       mozilla::components::AccountManager::Service();
@@ -344,7 +344,7 @@ NS_IMETHODIMP nsPop3Sink::IncorporateBegin(const char* uidlString,
   // Create a new mail parser to parse out the headers of the message and
   // load the details into the message database.
   m_newMailParser = new nsParseNewMailState;
-  rv = m_newMailParser->Init(serverFolder, m_folder, m_window, newHdr,
+  rv = m_newMailParser->Init(serverFolder, m_folder, m_interactive, newHdr,
                              m_outFileStream);
   m_newMailParser->m_numNotNewMessages = oldNotNewCount;
   m_newMailParser->m_moveCoalescer = oldCoalescer;
@@ -459,8 +459,7 @@ nsresult nsPop3Sink::WriteLineToMailbox(const nsACString& buffer) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow,
-                                              int32_t aSize) {
+NS_IMETHODIMP nsPop3Sink::IncorporateComplete(bool interactive, int32_t aSize) {
   if (m_buildMessageUri && !m_baseMessageUri.IsEmpty() && m_newMailParser) {
     nsCOMPtr<nsIMsgDBHdr> hdr;
     m_newMailParser->GetNewMsgHdr(getter_AddRefs(hdr));
@@ -521,8 +520,8 @@ NS_IMETHODIMP nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow,
     rv = hdr->SetStoreToken(storeToken);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    m_newMailParser->PublishMsgHeader(aMsgWindow);
-    m_newMailParser->ApplyForwardAndReplyFilter(aMsgWindow);
+    m_newMailParser->PublishMsgHeader(interactive);
+    m_newMailParser->ApplyForwardAndReplyFilter(interactive);
     if (aSize) hdr->SetUint32Property("onlineSize", aSize);
 
     if (oldMsgHdr) {

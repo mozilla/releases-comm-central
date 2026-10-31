@@ -3233,15 +3233,16 @@ nsMsgLocalMailFolder::AddMessageBatch(
       // Just in case we exit early.
       auto outGuard = mozilla::MakeScopeExit(
           [&] { msgStore->DiscardNewMessage(this, outStream); });
-      // Get a msgWindow. Proceed without one, but filter actions to imap
-      // folders will silently fail if not signed in and no window for a
-      // prompt.
+      // Filter actions to imap folders silently fail when not signed in and
+      // nothing can prompt, so only run them interactively if there is a mail
+      // window around to prompt from.
       nsCOMPtr<nsIMsgWindow> msgWindow;
       nsCOMPtr<nsIMsgMailSession> mailSession =
           mozilla::components::MailSession::Service();
       mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
 
-      rv = newMailParser->Init(rootFolder, this, msgWindow, newHdr, outStream);
+      rv =
+          newMailParser->Init(rootFolder, this, !!msgWindow, newHdr, outStream);
       NS_ENSURE_SUCCESS(rv, rv);
       newMailParser->SetState(nsIMsgParseMailMsgState::ParseHeadersState);
 

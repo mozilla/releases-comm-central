@@ -347,8 +347,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
   nsresult MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
                                    nsIMsgDatabase* sourceDB,
                                    const nsACString& destFolder,
-                                   nsIMsgFilter* filter,
-                                   nsIMsgWindow* msgWindow);
+                                   nsIMsgFilter* filter);
 
   // send notification to copy service listener.
   nsresult OnCopyCompleted(nsISupports* srcSupport, nsresult exitCode);

@@ -33,9 +33,9 @@ interface nsIPop3Sink : nsISupports {
    * must be called.
    *
    * @param uidlDownload ?????
-   * @param msgWindow
+   * @param interactive Whether the user is waiting on the delivery.
    */
-  void beginMailDelivery(in boolean uidlDownload, in nsIMsgWindow msgWindow);
+  void beginMailDelivery(in boolean uidlDownload, in boolean interactive);
 
   /**
    * Indicate the successful conclusion of mail delivery.
@@ -71,10 +71,10 @@ interface nsIPop3Sink : nsISupports {
   /**
    * Called when the message has been passed successfully.
    *
-   * @param aMsgWindow
+   * @param interactive Whether the user is waiting on the delivery.
    * @param aSize the size of the message, as reported by the server.
    */
-  void incorporateComplete(in nsIMsgWindow aMsgWindow, in int32_t aSize);
+  void incorporateComplete(in boolean interactive, in int32_t aSize);
 
   /**
    * Called to indicate that passing over the message to the sink has failed.

@@ -1229,7 +1229,7 @@ export class Pop3Client {
       try {
         this._sink.beginMailDelivery(
           this._singleUidlToDownload,
-          this._msgWindow
+          !!this._msgWindow
         );
         this._folderLocked = true;
         this._logger.debug(
@@ -1570,7 +1570,7 @@ export class Pop3Client {
       () => {
         try {
           this._sink.incorporateComplete(
-            this._msgWindow,
+            !!this._msgWindow,
             // Set size because it's a partial message.
             this._messageSizeMap.get(this._currentMessage.messageNumber)
           );
@@ -1653,7 +1653,7 @@ export class Pop3Client {
         this._totalReceivedSize -= ".\r\n".length;
         try {
           this._sink.incorporateComplete(
-            this._msgWindow,
+            !!this._msgWindow,
             0 // Set size only when it's a partial message.
           );
         } catch (e) {

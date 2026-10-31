@@ -5,7 +5,6 @@
 #include "nsISupports.idl"
 
 interface nsIMsgFilter;
-interface nsIMsgWindow;
 
 ///////////////////////////////////////////////////////////////////////////////
 // nsIMsgFilterHitNotify is an interface designed to make evaluating filters
@@ -21,5 +20,5 @@ interface nsIMsgWindow;
 
 [scriptable, uuid(c9f15174-1f3f-11d3-a51b-0060b0fc04b7)]
 interface nsIMsgFilterHitNotify : nsISupports {
-    boolean applyFilterHit(in nsIMsgFilter filter, in nsIMsgWindow msgWindow);
+    boolean applyFilterHit(in nsIMsgFilter filter, in boolean interactive);
 };

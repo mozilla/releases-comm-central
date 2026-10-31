@@ -127,7 +127,7 @@ class nsParseNewMailState : public nsParseMailMessageState,
   NS_DECL_ISUPPORTS_INHERITED
 
   nsresult Init(nsIMsgFolder* rootFolder, nsIMsgFolder* downloadFolder,
-                nsIMsgWindow* aMsgWindow, nsIMsgDBHdr* aHdr,
+                bool aInteractive, nsIMsgDBHdr* aHdr,
                 nsIOutputStream* aOutputStream);
 
   void DoneParsing();
@@ -136,12 +136,11 @@ class nsParseNewMailState : public nsParseMailMessageState,
 
   NS_DECL_NSIMSGFILTERHITNOTIFY
 
-  virtual void PublishMsgHeader(nsIMsgWindow* msgWindow);
-  void GetMsgWindow(nsIMsgWindow** aMsgWindow);
+  virtual void PublishMsgHeader(bool interactive);
   nsresult EndMsgDownload();
 
-  void ApplyFilters(bool* pMoved, nsIMsgWindow* msgWindow);
-  nsresult ApplyForwardAndReplyFilter(nsIMsgWindow* msgWindow);
+  void ApplyFilters(bool* pMoved, bool interactive);
+  nsresult ApplyForwardAndReplyFilter(bool interactive);
 
   // These three vars are public because they need to be carried between
   // messages.
@@ -173,7 +172,7 @@ class nsParseNewMailState : public nsParseMailMessageState,
   nsCOMPtr<nsIMsgFilterList> m_filterList;
   nsCOMPtr<nsIMsgFilterList> m_deferredToServerFilterList;
   nsCOMPtr<nsIMsgFolder> m_rootFolder;
-  nsCOMPtr<nsIMsgWindow> m_msgWindow;
+  bool m_interactive;
   nsCOMPtr<nsIMsgFolder> m_downloadFolder;
   nsCOMPtr<nsIOutputStream> m_outputStream;
   nsCOMArray<nsIMsgFolder> m_filterTargetFolders;

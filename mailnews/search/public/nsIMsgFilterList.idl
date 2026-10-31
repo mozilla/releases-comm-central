@@ -74,7 +74,7 @@ interface nsIMsgFilterList : nsISupports {
                            in nsIMsgDatabase db,
                            in ACString headers,  // null-separated list of headers
                            in nsIMsgFilterHitNotify listener,
-                           in nsIMsgWindow msgWindow);
+                           in boolean interactive);
 
     // IO routines, used by filter object filing code.
     void writeIntAttr(in nsMsgFilterFileAttribValue attrib, in long value, in nsIOutputStream stream);

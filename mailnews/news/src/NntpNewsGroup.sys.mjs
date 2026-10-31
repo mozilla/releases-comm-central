@@ -333,7 +333,7 @@ export class NntpNewsGroup {
    *
    * @see nsIMsgFilterHitNotify
    */
-  applyFilterHit(filter, _msgWindow) {
+  applyFilterHit(filter, _interactive) {
     const loggingEnabled = filter.filterList.loggingEnabled;
     let applyMore = true;
 

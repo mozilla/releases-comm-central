@@ -48,7 +48,7 @@ class nsPop3Sink : public nsIPop3Sink {
   nsCOMPtr<nsIMsgPluggableStore> m_msgStore;
   bool m_uidlDownload;
   bool m_buildMessageUri;
-  nsCOMPtr<nsIMsgWindow> m_window;
+  bool m_interactive;
   nsCString m_messageUri;
   nsCString m_baseMessageUri;
   nsCString m_origMessageUri;

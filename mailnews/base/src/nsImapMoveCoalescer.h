@@ -26,7 +26,7 @@ class nsImapMoveCoalescer : public nsIUrlListener {
   NS_DECL_ISUPPORTS
   NS_DECL_NSIURLLISTENER
 
-  nsImapMoveCoalescer(nsIMsgFolder* sourceFolder, nsIMsgWindow* msgWindow);
+  nsImapMoveCoalescer(nsIMsgFolder* sourceFolder, bool interactive);
 
   nsresult AddMove(nsIMsgFolder* folder, nsMsgKey key);
   void RemoveMove(nsMsgKey key);
@@ -34,7 +34,6 @@ class nsImapMoveCoalescer : public nsIUrlListener {
   // this lets the caller store keys in an arbitrary number of buckets. If the
   // bucket for the passed in index doesn't exist, it will get created.
   nsTArray<nsMsgKey>* GetKeyBucket(uint32_t keyArrayIndex);
-  nsIMsgWindow* GetMsgWindow() { return m_msgWindow; }
   bool HasPendingMoves() { return m_hasPendingMoves; }
 
  protected:
@@ -42,7 +41,7 @@ class nsImapMoveCoalescer : public nsIUrlListener {
   // m_sourceKeyArrays and m_destFolders are parallel arrays.
   nsTArray<nsTArray<nsMsgKey> > m_sourceKeyArrays;
   nsCOMArray<nsIMsgFolder> m_destFolders;
-  nsCOMPtr<nsIMsgWindow> m_msgWindow;
+  bool m_interactive;
   nsCOMPtr<nsIMsgFolder> m_sourceFolder;
   bool m_doNewMailNotification;
   bool m_hasPendingMoves;
