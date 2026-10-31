@@ -479,21 +479,17 @@ label.label {
   fill: CurrentColor;
 }
 
-#keepduration-button:hover {
+#keepduration-button:not([disabled]):hover {
   background-color: var(--button-hover-background-color);
-}
 
-#keepduration-button:hover:active {
-  background-color: var(--button-active-background-color);
+  &:active {
+    background-color: var(--button-active-background-color);
+  }
 }
 
 #keepduration-button[keep="true"] {
   list-style-image: url(chrome://calendar/skin/shared/chain-lock.svg);
   fill: var(--selected-item-color);
-}
-
-#keepduration-button[disabled] {
-  fill: GrayText;
 }
 
 #keepduration-button > label {

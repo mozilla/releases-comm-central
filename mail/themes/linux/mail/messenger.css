@@ -318,12 +318,6 @@ toolbar[mode="text"] .toolbarbutton-text {
   padding-inline: 2px !important;
 }
 
-.toolbarbutton-1[disabled] .toolbarbutton-icon,
-.toolbarbutton-1[disabled] .toolbarbutton-text,
-.toolbarbutton-1[disabled] > .toolbarbutton-menubutton-dropmarker {
-  opacity: 0.4;
-}
-
 .sidebar-header .toolbarbutton-text:not([value]) {
   display: none;
 }

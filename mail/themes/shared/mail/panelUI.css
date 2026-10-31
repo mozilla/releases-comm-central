@@ -239,9 +239,8 @@ menuitem.subviewbutton {
     outline: 0;
   }
 
-  &:is([disabled], [disabled]:hover, [checked][disabled], [checked][disabled]:hover) {
-    color: var(--color-text-muted);
-    background-color: transparent;
+  &[disabled] {
+    color: inherit;
   }
 
   &[shortcut]::after {
@@ -410,12 +409,6 @@ menu.subviewbutton,
       border: 0;
       margin: 0;
       flex-direction: row;
-
-      &:not(.toolbarbutton-1)[disabled] {
-        opacity: 0.4;
-        /* Override toolbarbutton.css which sets the color to GrayText */
-        color: inherit;
-      }
 
       & > .toolbarbutton-icon {
         min-inline-size: 0;

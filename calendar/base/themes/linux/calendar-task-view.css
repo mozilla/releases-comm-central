@@ -28,9 +28,3 @@
 #task-text-filter-field {
   margin: 5px;
 }
-
-/* ::::: task actions toolbar ::::: */
-
-#calendar-add-task-button[disabled] {
-  fill-opacity: 0.4;
-}

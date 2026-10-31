@@ -115,22 +115,8 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
     padding: 0;
   }
 
-  &[disabled] .toolbarbutton-text,
-  &[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button[disabled] > .toolbarbutton-icon {
-    opacity: 0.4;
-  }
-
-  &[disabled] .toolbarbutton-icon,
-  &[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button[disabled] > .toolbarbutton-icon,
-  &[disabled] > .toolbarbutton-menubutton-dropmarker,
-  &:not(:hover):-moz-window-inactive .toolbarbutton-icon,
-  &:not(:hover):-moz-window-inactive > .toolbarbutton-menubutton-dropmarker {
-    opacity: 0.5;
-  }
-
-  &:-moz-window-inactive[disabled] > .toolbarbutton-icon,
-  &:-moz-window-inactive[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button[disabled] > .toolbarbutton-icon {
-    opacity: 0.25;
+  &:not(:hover):-moz-window-inactive {
+    opacity: var(--button-opacity-disabled);
   }
 }
 

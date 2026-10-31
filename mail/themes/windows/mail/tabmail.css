@@ -65,11 +65,6 @@ tabpanels {
     margin-inline-end: 1px !important;
   }
 
-  &[scrolledtostart]::part(scrollbutton-up),
-  &[scrolledtoend]::part(scrollbutton-down) {
-    --toolbarbutton-icon-fill-opacity: 0.4;
-  }
-
   &:-moz-locale-dir(rtl)::part(scrollbutton-up),
   &:-moz-locale-dir(ltr)::part(scrollbutton-down) {
     margin-inline: 1px 0 !important;

@@ -20,7 +20,3 @@
 #today-button {
   max-inline-size: none;
 }
-
-#todaypane-new-event-button[disabled] > .toolbarbutton-icon {
-  opacity: 0.4;
-}

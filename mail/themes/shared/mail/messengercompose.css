@@ -669,10 +669,6 @@ toolbarbutton.formatting-button {
       background-position-x: 3px;
     }
   }
-
-  &[disabled] {
-    opacity: 0.4;
-  }
 }
 
 #FontFaceSelect {
@@ -693,7 +689,7 @@ toolbarbutton.formatting-button {
   margin: 2px;
 
   &[disabled] {
-    opacity: 0.5;
+    opacity: var(--button-opacity-disabled);
   }
 }
 

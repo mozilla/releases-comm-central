@@ -29,10 +29,6 @@
   }
 }
 
-#calendar-add-task-button[disabled] {
-  fill-opacity: 0.5;
-}
-
 #calendar-add-task-button > .toolbarbutton-text {
   margin-inline-start: 0;
 }

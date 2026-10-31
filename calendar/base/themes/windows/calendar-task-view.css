@@ -18,10 +18,6 @@
 
 /* ::::: task actions toolbar ::::: */
 
-#calendar-add-task-button[disabled] {
-  fill-opacity: 0.4;
-}
-
 #view-task-edit-field,
 #task-text-filter-field {
   inline-size: 15em;

@@ -364,12 +364,6 @@ button.notification-button[is="toolbarbutton-menu-button"] {
     appearance: none;
   }
 
-  &[disabled] .toolbarbutton-icon,
-  &[disabled] .toolbarbutton-text,
-  &[disabled] > .toolbarbutton-menubutton-dropmarker {
-    opacity: 0.4;
-  }
-
   toolbox[labelalign="end"] > toolbar[mode="full"] & .toolbarbutton-text {
     padding-inline-end: 2px;
   }

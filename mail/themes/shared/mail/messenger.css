@@ -426,16 +426,6 @@ toolbar[customizing="true"][collapsed] {
     &:-moz-locale-dir(rtl) {
       background-position: 4px center;
     }
-
-    &[disabled] {
-      opacity: 0.4;
-    }
-
-    /* Don't set a reduced opacity because we set it on the whole button. */
-    &[disabled] .toolbarbutton-icon,
-    &[disabled] .toolbarbutton-text {
-      opacity: 1;
-    }
   }
 
   toolbar[brighttext] &:not(:hover, :active, [open]) > .toolbarbutton-menubutton-dropmarker {

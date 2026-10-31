@@ -72,12 +72,6 @@ tabmail > tabbox > tabpanels {
     background-image: linear-gradient(rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.35));
   }
 
-  &[scrolledtostart]::part(scrollbutton-up),
-  &[scrolledtoend]::part(scrollbutton-down) {
-    --toolbarbutton-icon-fill-opacity: 0.5;
-    background-image: none;
-  }
-
   /* Tab Overflow */
   &:not([scrolledtostart])::part(arrowscrollbox-overflow-start-indicator),
   &:not([scrolledtoend])::part(arrowscrollbox-overflow-end-indicator) {

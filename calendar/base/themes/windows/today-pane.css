@@ -18,7 +18,3 @@
 #today-none-box {
   border-block-start: 1px solid ThreeDShadow;
 }
-
-#todaypane-new-event-button[disabled] > .toolbarbutton-icon {
-  opacity: 0.4;
-}

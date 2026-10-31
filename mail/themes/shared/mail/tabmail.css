@@ -457,10 +457,6 @@ button.tab-close-button {
 
   &[disabled] {
     color: inherit;
-
-    & > .toolbarbutton-icon {
-      opacity: 0.4;
-    }
   }
 
   &:not([disabled]):hover {

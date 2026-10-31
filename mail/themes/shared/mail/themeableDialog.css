@@ -146,7 +146,7 @@ html|textarea {
 }
 
 html|input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"], [type="number"]):disabled {
-  opacity: 0.4;
+  opacity: var(--button-opacity-disabled);
 }
 
 html|input[type="radio"],
@@ -248,7 +248,7 @@ button > .button-box > dropmarker {
 button[disabled],
 menulist[disabled],
 select[disabled]:not([size], [multiple]) {
-  opacity: 0.4;
+  opacity: var(--button-opacity-disabled);
 }
 
 menulist {
