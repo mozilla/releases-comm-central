@@ -1196,7 +1196,7 @@ export class MessageSend {
       [msgHdr],
       [],
       folder,
-      !!this._sendProgress?.msgWindow,
+      !!this._sendProgress?.interactive,
       this
     );
   }
@@ -1306,10 +1306,9 @@ export class MessageSend {
 
     let interactive = false;
     try {
-      interactive = !!(
-        this._sendProgress?.msgWindow ||
-        MailServices.mailSession.topmostMsgWindow
-      );
+      interactive =
+        this._sendProgress?.interactive ||
+        !!MailServices.mailSession.topmostMsgWindow;
     } catch (e) {}
 
     MailServices.nntp.postMessage(

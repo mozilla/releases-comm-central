@@ -8,7 +8,6 @@
 
 interface mozIDOMWindowProxy;
 interface nsIMsgComposeProgressParams;
-interface nsIMsgWindow;
 
 [scriptable, uuid(6d6fe91d-7f9a-4552-9737-9f74b0e75538)]
 interface nsIMsgProgress: nsIWebProgressListener {
@@ -47,5 +46,5 @@ interface nsIMsgProgress: nsIWebProgressListener {
   /* Indicated if the user asked to cancel the current process */
   attribute boolean processCanceledByUser;
 
-  attribute nsIMsgWindow msgWindow;
+  attribute boolean interactive;
 };

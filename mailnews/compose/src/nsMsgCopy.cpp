@@ -23,7 +23,6 @@
 #include "prcmon.h"
 #include "nsIMsgImapMailFolder.h"
 #include "nsThreadUtils.h"
-#include "nsIMsgWindow.h"
 #include "nsIMsgProgress.h"
 #include "prmem.h"
 #include "nsServiceManagerUtils.h"
@@ -174,12 +173,12 @@ nsMsgCopy::StartCopyOperation(nsIMsgIdentity* aUserIdentity, nsIFile* aFile,
     if (!dstFolder || NS_FAILED(rv)) return NS_ERROR_FAILURE;
   }
 
-  nsCOMPtr<nsIMsgWindow> msgWindow;
+  bool interactive = false;
 
   if (aMsgSendObj) {
     nsCOMPtr<nsIMsgProgress> progress;
     aMsgSendObj->GetProgress(getter_AddRefs(progress));
-    if (progress) progress->GetMsgWindow(getter_AddRefs(msgWindow));
+    if (progress) progress->GetInteractive(&interactive);
   }
 
   mMode = aMode;
@@ -191,7 +190,7 @@ nsMsgCopy::StartCopyOperation(nsIMsgIdentity* aUserIdentity, nsIFile* aFile,
   mMsgFlags = msgFlags;
   if (!waitForUrl) {
     // cache info needed for DoCopy and call DoCopy when OnStopUrl is called.
-    rv = DoCopy(aFile, dstFolder, aMsgToReplace, isDraft, msgFlags, msgWindow,
+    rv = DoCopy(aFile, dstFolder, aMsgToReplace, isDraft, msgFlags, interactive,
                 aMsgSendObj);
     // N.B. "this" may be deleted when this call returns.
   }
@@ -200,7 +199,7 @@ nsMsgCopy::StartCopyOperation(nsIMsgIdentity* aUserIdentity, nsIFile* aFile,
 
 nsresult nsMsgCopy::DoCopy(nsIFile* aDiskFile, nsIMsgFolder* dstFolder,
                            nsIMsgDBHdr* aMsgToReplace, bool aIsDraft,
-                           uint32_t aMsgFlags, nsIMsgWindow* msgWindow,
+                           uint32_t aMsgFlags, bool interactive,
                            nsIMsgSend* aMsgSendObj) {
   nsresult rv = NS_OK;
 
@@ -233,7 +232,7 @@ nsresult nsMsgCopy::DoCopy(nsIFile* aDiskFile, nsIMsgFolder* dstFolder,
         mozilla::components::Copy::Service();
     rv = copyService->CopyFileMessage(aDiskFile, dstFolder, aMsgToReplace,
                                       aIsDraft, aMsgFlags, EmptyCString(),
-                                      copyListener, !!msgWindow);
+                                      copyListener, interactive);
     // copyListener->mCopyInProgress can only be set when we are in the
     // middle of the shutdown process
     while (copyListener->mCopyInProgress) {
@@ -262,7 +261,7 @@ NS_IMETHODIMP
 nsMsgCopy::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
   nsresult rv = aExitCode;
   if (NS_SUCCEEDED(aExitCode)) {
-    rv = DoCopy(mFile, mDstFolder, mMsgToReplace, mIsDraft, mMsgFlags, nullptr,
+    rv = DoCopy(mFile, mDstFolder, mMsgToReplace, mIsDraft, mMsgFlags, false,
                 mMsgSendObj);
   }
   return rv;

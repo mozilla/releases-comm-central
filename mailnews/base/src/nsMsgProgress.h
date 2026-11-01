@@ -44,10 +44,10 @@ class nsMsgProgress : public nsIMsgProgress,
 
   bool m_closeProgress;
   bool m_processCanceled;
+  bool m_interactive;
   nsString m_pendingStatus;
   int32_t m_pendingStateFlags;
   nsresult m_pendingStateValue;
-  nsWeakPtr m_msgWindow;
 
   using ListenerArray = nsAutoTObserverArray<ListenerInfo, 4>;
   ListenerArray mListenerInfoList;

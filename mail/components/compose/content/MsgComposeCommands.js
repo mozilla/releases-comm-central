@@ -6593,7 +6593,7 @@ async function CompleteGenericSendMessage(msgType) {
       }
     }
     window.browsingContext.docShell.allowAuth = true;
-    progress.msgWindow = msgWindow;
+    progress.interactive = true;
     await gMsgCompose.sendMsg(
       msgType,
       gCurrentIdentity,

@@ -460,7 +460,7 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgShutdownService::Observe(
     }
 
     nsCOMPtr<nsIMsgProgress> msgProgress = mMsgProgress;
-    msgProgress->SetMsgWindow(topMsgWindow);
+    msgProgress->SetInteractive(true);
     msgProgress->OpenProgressDialog(
         domWindow, "chrome://messenger/content/shutdownWindow.xhtml", nullptr);
 

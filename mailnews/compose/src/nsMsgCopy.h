@@ -65,7 +65,7 @@ class nsMsgCopy : public nsIMsgCopy, public nsIUrlListener {
   //
   nsresult DoCopy(nsIFile* aDiskFile, nsIMsgFolder* dstFolder,
                   nsIMsgDBHdr* aMsgToReplace, bool aIsDraft, uint32_t aMsgFlags,
-                  nsIMsgWindow* msgWindow, nsIMsgSend* aMsgSendObj);
+                  bool interactive, nsIMsgSend* aMsgSendObj);
 
   nsresult GetUnsentMessagesFolder(nsIMsgIdentity* userIdentity,
                                    nsIMsgFolder** msgFolder, bool* waitForUrl);
