@@ -251,7 +251,7 @@ export function MsgHdrToMimeMessage(
   try {
     msgService.streamMessage(
       msgURI,
-      streamListener, // nsIMsgWindow
+      streamListener, // nsIStreamListener
       streamListener, // nsIUrlListener
       true, // have them create the converter
       // additional uri payload, note that "header=" is prepended automatically

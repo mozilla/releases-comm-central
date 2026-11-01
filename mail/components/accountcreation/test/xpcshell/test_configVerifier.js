@@ -20,7 +20,7 @@ const { ConfigVerifier } = ChromeUtils.importESModule(
  *   order, including the initial attempt.
  */
 function driveFailingLogons(config) {
-  const verifier = new ConfigVerifier(null, new AbortController().signal);
+  const verifier = new ConfigVerifier(false, new AbortController().signal);
   verifier.config = config;
   verifier.server = {
     username: config.incoming.username,

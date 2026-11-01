@@ -88,10 +88,7 @@ async function subtest(grantedScope, expectFailure) {
         info(`OAuth dialog handling did not complete: ${error}`);
       });
       const abortController = new AbortController();
-      const verifier = new ConfigVerifier(
-        window.msgWindow,
-        abortController.signal
-      );
+      const verifier = new ConfigVerifier(true, abortController.signal);
 
       configOut = undefined;
       verifyError = null;
@@ -151,7 +148,7 @@ async function subtest(grantedScope, expectFailure) {
       // so no additional telemetry is recorded).
       info("IMAP probably timed out, retrying with the cached token...");
       configOut = await new ConfigVerifier(
-        window.msgWindow,
+        true,
         new AbortController().signal
       ).verifyConfig(config);
     }

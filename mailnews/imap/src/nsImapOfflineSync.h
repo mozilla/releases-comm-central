@@ -7,7 +7,6 @@
 
 #include "nsIUrlListener.h"
 #include "nsIMsgOfflineImapOperation.h"
-#include "nsIMsgWindow.h"
 #include "nsIMsgFolder.h"
 #include "nsCOMArray.h"
 #include "nsCOMPtr.h"

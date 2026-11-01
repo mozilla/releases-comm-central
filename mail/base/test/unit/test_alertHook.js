@@ -25,9 +25,6 @@ alertHook.init();
 // Wait time of 1s for slow debug builds.
 const TEST_WAITTIME = 1000;
 
-var gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-  Ci.nsIMsgWindow
-);
 var cid;
 var mailnewsURL;
 

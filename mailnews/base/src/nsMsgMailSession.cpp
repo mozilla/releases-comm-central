@@ -223,13 +223,6 @@ nsMsgMailSession::AlertCertError(nsITransportSecurityInfo* securityInfo,
   return NS_OK;
 }
 
-nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow** aMsgWindow) {
-  NS_ENSURE_ARG_POINTER(aMsgWindow);
-
-  *aMsgWindow = nullptr;
-  return (*aMsgWindow) ? NS_OK : NS_ERROR_FAILURE;
-}
-
 NS_IMETHODIMP
 nsMsgMailSession::ConvertMsgURIToMsgURL(const nsACString& aURI,
                                         bool interactive, nsACString& aURL) {

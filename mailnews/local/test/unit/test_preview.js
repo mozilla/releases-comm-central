@@ -7,11 +7,11 @@ var bugmail11_preview =
 
 function run_test() {
   do_test_pending();
-  copyFileMessageInLocalFolder(bugmail10, 0, "", null, copy_next_message);
+  copyFileMessageInLocalFolder(bugmail10, 0, "", copy_next_message);
 }
 
 function copy_next_message() {
-  copyFileMessageInLocalFolder(bugmail11, 0, "", null, test_preview);
+  copyFileMessageInLocalFolder(bugmail11, 0, "", test_preview);
 }
 
 function test_preview(aMessageHeaderKeys) {

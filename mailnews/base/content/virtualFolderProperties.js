@@ -6,7 +6,6 @@
 
 var gPickedFolder;
 var gMailView = null;
-var msgWindow; // important, don't change the name of this variable. it's really a global used by commandglue.js
 var gSearchTermSession; // really an in memory temporary filter we use to read in and write out the search terms
 var gSearchFolderURIs = "";
 var gMessengerBundle = null;
@@ -51,9 +50,6 @@ function onLoad() {
   gMessengerBundle = Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"
   );
-
-  // call this when OK is pressed
-  msgWindow = windowArgs.msgWindow;
 
   initializeSearchWidgets();
 

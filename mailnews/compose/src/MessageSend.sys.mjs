@@ -1304,12 +1304,7 @@ export class MessageSend {
 
     const deliveryListener = new NewsDeliveryListener(this);
 
-    let interactive = false;
-    try {
-      interactive =
-        this._sendProgress?.interactive ||
-        !!MailServices.mailSession.topmostMsgWindow;
-    } catch (e) {}
+    const interactive = !!this._sendProgress?.interactive;
 
     MailServices.nntp.postMessage(
       this._deliveryFile,

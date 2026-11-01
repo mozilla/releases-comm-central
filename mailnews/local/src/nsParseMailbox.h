@@ -13,7 +13,6 @@
 #include "nsCOMPtr.h"
 #include "nsCOMArray.h"
 #include "nsIDBChangeListener.h"
-#include "nsIMsgWindow.h"
 #include "nsImapMoveCoalescer.h"
 #include "nsIMsgFilterList.h"
 #include "nsIMsgFilter.h"

@@ -9,7 +9,6 @@ interface nsIURI;
 interface nsIImapUrl;
 interface nsIImapProtocol;
 interface nsIMsgFolder;
-interface nsIMsgWindow;
 
 typedef long nsMsgImapDeleteModel;
 

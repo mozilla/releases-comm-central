@@ -18,10 +18,6 @@ let inbox;
 let storedLogin;
 let promptCount = 0;
 
-const msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-  Ci.nsIMsgWindow
-);
-
 const asyncPrompter = {
   QueryInterface: ChromeUtils.generateQI(["nsIMsgAsyncPrompter"]),
 

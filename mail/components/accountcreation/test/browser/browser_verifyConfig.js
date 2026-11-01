@@ -29,7 +29,7 @@ const certOverrideService = Cc[
 ].getService(Ci.nsICertOverrideService);
 
 const abortController = new AbortController();
-const verifier = new ConfigVerifier(window.msgWindow, abortController.signal);
+const verifier = new ConfigVerifier(true, abortController.signal);
 
 // Change this for more server debugging output. See Maild.sys.mjs for values.
 const serverDebugLevel = 0;
@@ -214,10 +214,7 @@ add_task(async function testPOP3ExpiredCertException() {
 add_task(async function testIMAPCancelOAuth() {
   await OAuth2TestUtils.startServer();
   const abortable = new AbortController();
-  const abortedVerifier = new ConfigVerifier(
-    window.msgWindow,
-    abortable.signal
-  );
+  const abortedVerifier = new ConfigVerifier(true, abortable.signal);
   const config = {
     incoming: {
       type: "imap",

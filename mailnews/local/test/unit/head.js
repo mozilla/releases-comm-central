@@ -105,7 +105,6 @@ var gCopyListener = {
  *   message is copied.
  * @param {string} aMessageKeywords - Keywords which will be set for newly copied
  *   message.
- * @param {?nsIMsgWindow} aMessageWindow - Window for notification callbacks.
  * @param {Function} aCallback - Callback function which will be invoked after
  *   message is copied.
  * @see {nsIMsgCopyService.copyFileMessage}
@@ -114,7 +113,6 @@ function copyFileMessageInLocalFolder(
   aMessageFile,
   aMessageFlags,
   aMessageKeywords,
-  aMessageWindow,
   aCallback
 ) {
   // Set up local folders

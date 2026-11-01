@@ -15,7 +15,6 @@
 #include "nsMsgDBFolder.h"
 #include "nsIMsgFolderCache.h"
 #include "nsIMsgPluggableStore.h"
-#include "nsIMsgWindow.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgProtocolInfo.h"
 #include "nsIPrefService.h"

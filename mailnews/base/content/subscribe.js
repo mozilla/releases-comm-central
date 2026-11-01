@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals msgWindow, nsMsgStatusFeedback */ // From mailWindow.js
+/* globals nsMsgStatusFeedback */ // From mailWindow.js
 
 var { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
@@ -142,10 +142,6 @@ function SubscribeOnLoad() {
   gSubscribeTree.headerHidden = true;
   gNameField = document.getElementById("namefield");
 
-  // eslint-disable-next-line no-global-assign
-  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-    Ci.nsIMsgWindow
-  );
   gStatusFeedback = window.MsgStatusFeedback = new nsMsgStatusFeedback();
   window.browsingContext.docShell.allowAuth = true;
 

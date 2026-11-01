@@ -26,10 +26,6 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
 var msgGen = new MessageGenerator();
 var messageInjection = new MessageInjection({ mode: "local" });
 var inbox = messageInjection.getInboxFolder();
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-  Ci.nsIMsgWindow
-);
-
 async function streamMessage(msgURI) {
   const msgService = MailServices.messageServiceFromURI(msgURI);
   const streamListener = new PromiseTestUtils.PromiseStreamListener();

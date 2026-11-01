@@ -345,7 +345,6 @@ function editFolder(folder, tabID) {
     {
       folder,
       serverType: folder.server.type,
-      msgWindow: top.msgWindow,
       title,
       okCallback: editFolderCallback,
       tabID,
@@ -375,7 +374,6 @@ function editVirtualFolder(folder) {
       folder,
       editExistingFolder: true,
       onOKCallback: editVirtualCallback,
-      msgWindow: top.msgWindow,
     }
   );
 }

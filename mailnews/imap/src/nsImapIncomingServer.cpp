@@ -19,7 +19,6 @@
 #include "prmem.h"
 #include "plstr.h"
 #include "nsIMsgFolder.h"
-#include "nsIMsgWindow.h"
 #include "nsIWindowMediator.h"
 #include "nsImapMailFolder.h"
 #include "nsIMsgMailNewsUrl.h"
@@ -2292,8 +2291,6 @@ NS_IMETHODIMP
 nsImapIncomingServer::OnStopRunningUrl(nsIURI* url, nsresult exitCode) {
   nsresult rv = exitCode;
 
-  // xxx todo get msgWindow from url
-  nsCOMPtr<nsIMsgWindow> msgWindow;
   nsCOMPtr<nsIImapUrl> imapUrl = do_QueryInterface(url);
   if (imapUrl) {
     nsImapAction imapAction = nsIImapUrl::nsImapTest;

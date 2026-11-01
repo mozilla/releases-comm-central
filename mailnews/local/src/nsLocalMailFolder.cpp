@@ -26,7 +26,6 @@
 #include "nsIMsgTransactionService.h"
 #include "nsParseMailbox.h"
 #include "nsIMsgAccountManager.h"
-#include "nsIMsgWindow.h"
 #include "nsIMsgUserFeedbackListener.h"
 #include "nsEmbedCID.h"
 #include "nsIPromptService.h"
@@ -3217,16 +3216,9 @@ nsMsgLocalMailFolder::AddMessageBatch(
       // Just in case we exit early.
       auto outGuard = mozilla::MakeScopeExit(
           [&] { msgStore->DiscardNewMessage(this, outStream); });
-      // Filter actions to imap folders silently fail when not signed in and
-      // nothing can prompt, so only run them interactively if there is a mail
-      // window around to prompt from.
-      nsCOMPtr<nsIMsgWindow> msgWindow;
-      nsCOMPtr<nsIMsgMailSession> mailSession =
-          mozilla::components::MailSession::Service();
-      mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
-
-      rv =
-          newMailParser->Init(rootFolder, this, !!msgWindow, newHdr, outStream);
+      // Not interactive: this is a copy into the folder, so there is no
+      // user sitting waiting on the filters it triggers.
+      rv = newMailParser->Init(rootFolder, this, false, newHdr, outStream);
       NS_ENSURE_SUCCESS(rv, rv);
       newMailParser->SetState(nsIMsgParseMailMsgState::ParseHeadersState);
 

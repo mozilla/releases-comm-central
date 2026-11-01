@@ -7,7 +7,6 @@
 
 #include "msgCore.h"
 #include "nsCOMArray.h"
-#include "nsIMsgWindow.h"
 #include "nsCOMPtr.h"
 #include "nsTArray.h"
 #include "nsIUrlListener.h"

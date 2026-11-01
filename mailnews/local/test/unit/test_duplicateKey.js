@@ -33,7 +33,7 @@ add_task(async function runPump() {
   // but it should!
   localAccountUtils.inboxFolder.deleteMessages(
     deletes,
-    false, // in nsIMsgWindow msgWindow,
+    false, // in boolean interactive,
     true, // in boolean deleteStorage,
     true, // in boolean isMove,
     null, // in nsIMsgCopyServiceListener,

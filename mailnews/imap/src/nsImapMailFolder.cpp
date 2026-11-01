@@ -49,7 +49,6 @@
 #include "nsIMsgSearchAdapter.h"
 #include "nsIImapMockChannel.h"
 #include "nsIProgressEventSink.h"
-#include "nsIMsgWindow.h"
 #include "nsIWindowMediator.h"
 #include "nsIPromptService.h"
 #include "nsEmbedCID.h"

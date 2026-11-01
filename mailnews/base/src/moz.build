@@ -94,7 +94,6 @@ UNIFIED_SOURCES += [
     "nsMsgTransactionService.cpp",
     "nsMsgTxn.cpp",
     "nsMsgUtils.cpp",
-    "nsMsgWindow.cpp",
     "nsMsgXFViewThread.cpp",
     "nsMsgXFVirtualFolderDBView.cpp",
     "nsNewMailnewsURI.cpp",

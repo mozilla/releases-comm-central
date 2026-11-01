@@ -16,7 +16,6 @@
 #include "nsIFolderListener.idl"
 
 interface nsIFile;
-interface nsIMsgWindow;
 interface nsIMsgUserFeedbackListener;
 interface nsITransportSecurityInfo;
 interface nsIURI;
@@ -82,8 +81,6 @@ interface nsIMsgMailSession : nsISupports {
   void alertCertError(in nsITransportSecurityInfo securityInfo,
                       in nsIURI uri,
                       in ACString serverKey);
-
-  readonly attribute nsIMsgWindow topmostMsgWindow;
 
   AUTF8String ConvertMsgURIToMsgURL(in AUTF8String aURI, in boolean interactive);
   nsIFile getDataFilesDir(in string dirName);

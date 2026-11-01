@@ -2080,10 +2080,7 @@ class AccountHubEmail extends HTMLElement {
 
     // This verifies the current config and, if needed, opens up an additional
     // window for authentication.
-    this.#configVerifier = new lazy.ConfigVerifier(
-      window.msgWindow,
-      this.abortable.signal
-    );
+    this.#configVerifier = new lazy.ConfigVerifier(true, this.abortable.signal);
     this.abortable.signal.addEventListener(
       "abort",
       () => {

@@ -8,7 +8,6 @@
 #include "nsIMsgMailSession.h"
 #include "nsISupports.h"
 #include "nsCOMPtr.h"
-#include "nsIMsgWindow.h"
 #include "nsCOMArray.h"
 #include "nsIMsgShutdown.h"
 #include "nsIObserver.h"
@@ -70,9 +69,6 @@ class nsMsgMailSession : public nsIMsgMailSession, public nsIFolderListener {
 
   nsTObserverArray<folderListener> mListeners;
   nsTObserverArray<nsCOMPtr<nsIMsgUserFeedbackListener> > mFeedbackListeners;
-
-  // stick this here temporarily
-  nsCOMPtr<nsIMsgWindow> m_temporaryMsgWindow;
 };
 
 /********************************************************************************/

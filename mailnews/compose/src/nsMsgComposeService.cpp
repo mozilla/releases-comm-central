@@ -16,7 +16,6 @@
 #include "nsIWindowWatcher.h"
 #include "mozIDOMWindow.h"
 #include "nsIDocumentViewer.h"
-#include "nsIMsgWindow.h"
 #include "nsIDocShell.h"
 #include "nsPIDOMWindow.h"
 #include "mozilla/dom/Document.h"

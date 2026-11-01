@@ -40,8 +40,6 @@ Object.defineProperty(this, "gDBView", {
 });
 var threadTree;
 
-var msgWindow;
-
 var gCurrentFolder;
 
 var gFolderDisplay;
@@ -90,8 +88,8 @@ function FolderDisplayWidget() {
   this.tree = null;
 
   /**
-   * The nsIMsgWindow corresponding to the window that holds us.  There is only
-   *  one of these per tab.  The caller is responsible for setting this.
+   * Whether a user is sitting in front of this view, so that operations it
+   * starts may prompt. The caller is responsible for setting this.
    */
   this.interactive = false;
 
@@ -913,10 +911,6 @@ function initializeSearchWindowWidgets() {
   gSearchStopButton = document.getElementById("search-button");
   gClearButton = document.getElementById("clear-button");
   hideMatchAllItem();
-
-  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-    Ci.nsIMsgWindow
-  );
 
   gStatusText = document.getElementById("statusText");
 

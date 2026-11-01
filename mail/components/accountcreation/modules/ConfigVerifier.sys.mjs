@@ -36,11 +36,12 @@ export class ConfigVerifier {
   }
 
   /**
-   * @param {nsIMsgWindow} msgWindow
+   * @param {boolean} interactive - Whether a user is waiting on the check, so
+   *   that it may prompt rather than failing silently.
    * @param {AbortSignal} abortSignal
    */
-  constructor(msgWindow, abortSignal) {
-    this.msgWindow = msgWindow;
+  constructor(interactive, abortSignal) {
+    this.interactive = interactive;
     this._triedBothUsernames = false;
     this._log = console.createInstance({
       prefix: "mail.setup",
@@ -464,7 +465,7 @@ export class ConfigVerifier {
     this._log.info("verifyLogon for server at " + this.server.hostname);
 
     this.server.password = this.config.incoming.password;
-    const uri = this.server.verifyLogon(this, !!this.msgWindow);
+    const uri = this.server.verifyLogon(this, this.interactive);
 
     if (uri instanceof Ci.nsIMsgMailNewsUrl) {
       // Make the url non-interactive so it won't prompt for passwords.

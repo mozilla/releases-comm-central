@@ -25,10 +25,6 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
 var msgGen = new MessageGenerator();
 var messageInjection = new MessageInjection({ mode: "local" });
 var inbox = messageInjection.getInboxFolder();
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-  Ci.nsIMsgWindow
-);
-
 // The attachments need to have some content or the stream converter won't
 // display them inline. In the case of the email attachment it must have
 // trailing CRLFs or it will fail to parse.

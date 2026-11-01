@@ -14,7 +14,6 @@
 #include "mozilla/Logging.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIFeedbackService.h"
-#include "nsIMsgWindow.h"
 #include "nsIProgressEventSink.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgUtils.h"

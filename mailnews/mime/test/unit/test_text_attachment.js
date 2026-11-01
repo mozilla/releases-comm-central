@@ -22,10 +22,6 @@ const TEXT_ATTACHMENT = "inline text attachment";
 var msgGen = new MessageGenerator();
 var inbox;
 var messageInjection = new MessageInjection({ mode: "local" });
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-  Ci.nsIMsgWindow
-);
-
 add_setup(function () {
   inbox = messageInjection.getInboxFolder();
 });

@@ -25,10 +25,6 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
 var messageGenerator = new MessageGenerator();
 var messageInjection = new MessageInjection({ mode: "local" });
 var inbox = messageInjection.getInboxFolder();
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-  Ci.nsIMsgWindow
-);
-
 add_setup(function () {
   Services.prefs.setBoolPref("mail.inline_attachments", false);
   registerCleanupFunction(() => {
