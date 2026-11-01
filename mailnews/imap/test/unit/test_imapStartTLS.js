@@ -58,7 +58,7 @@ async function discoverFolders() {
   MailServices.imap.discoverAllFolders(
     incomingServer.rootFolder,
     listener,
-    gDummyMsgWindow
+    true
   );
   try {
     await listener.promise;

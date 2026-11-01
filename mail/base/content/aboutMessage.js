@@ -77,7 +77,7 @@ function MailSetCharacterSet() {
   messageService.loadMessage(
     gMessageURI,
     getMessagePaneBrowser().docShell,
-    top.msgWindow,
+    true,
     null,
     true
   );
@@ -315,13 +315,7 @@ function displayMessage(uri, viewWrapper) {
     },
   };
   try {
-    messageService.loadMessage(
-      uri,
-      browser.docShell,
-      top.msgWindow,
-      urlListener,
-      false
-    );
+    messageService.loadMessage(uri, browser.docShell, true, urlListener, false);
   } catch (ex) {
     if (ex.result != Cr.NS_ERROR_OFFLINE) {
       throw ex;

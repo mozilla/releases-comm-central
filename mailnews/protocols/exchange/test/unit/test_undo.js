@@ -16,20 +16,12 @@ var incomingServer;
  */
 var ewsServer;
 
-/**
- * @type {nsIMsgWindow}
- */
-var msgWindow;
-
 var rootFolder;
 
 const ewsIdPropertyName = "ewsId";
 
 add_setup(async function () {
   [ewsServer, incomingServer] = setupBasicEwsTestServer({});
-  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-    Ci.nsIMsgWindow
-  );
   rootFolder = incomingServer.rootFolder;
   await syncFolder(incomingServer, rootFolder);
 });
@@ -57,7 +49,7 @@ async function setupCopyMoveTest(srcFolder, dstFolder, isMove) {
     srcFolder,
     headers,
     isMove,
-    msgWindow,
+    true,
     listener,
     false,
     true

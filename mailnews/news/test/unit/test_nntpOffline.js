@@ -16,12 +16,12 @@ add_task(function testOfflineGetNews() {
   Services.io.offline = true;
 
   Assert.throws(
-    () => folder.getNewMessages(null, null),
+    () => folder.getNewMessages(false, null),
     error => error.result == Cr.NS_MSG_ERROR_OFFLINE,
     "getting news directly should fail while offline"
   );
 
-  incomingServer.performBiff(null);
+  incomingServer.performBiff(false);
   Assert.deepEqual(
     incomingServer.wrappedJSObject._busyConnections,
     [],
