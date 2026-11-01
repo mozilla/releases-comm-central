@@ -1297,42 +1297,6 @@ NS_IMETHODIMP nsImapService::Expunge(nsIMsgFolder* aImapMailFolder,
                        nsIImapUrl::nsImapExpungeFolder, aMsgWindow, nullptr);
 }
 
-/* old-stle biff that doesn't download headers */
-NS_IMETHODIMP nsImapService::Biff(nsIMsgFolder* aImapMailFolder,
-                                  nsIUrlListener* aUrlListener, nsIURI** aURL,
-                                  ImapUid uidHighWater) {
-  NS_ENSURE_ARG_POINTER(aImapMailFolder);
-
-  // static const char *formatString = "biff>%c%s>%ld";
-  nsCOMPtr<nsIImapUrl> imapUrl;
-  nsAutoCString urlSpec;
-
-  char hierarchyDelimiter = GetHierarchyDelimiter(aImapMailFolder);
-  nsresult rv = CreateStartOfImapUrl(EmptyCString(), getter_AddRefs(imapUrl),
-                                     aImapMailFolder, aUrlListener, urlSpec,
-                                     hierarchyDelimiter);
-  if (NS_SUCCEEDED(rv) && imapUrl) {
-    rv = imapUrl->SetImapAction(nsIImapUrl::nsImapExpungeFolder);
-    rv = SetImapUrlSink(aImapMailFolder, imapUrl);
-
-    nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(imapUrl);
-    if (NS_SUCCEEDED(rv)) {
-      urlSpec.AppendLiteral("/Biff>");
-      urlSpec.Append(hierarchyDelimiter);
-
-      nsCString folderName;
-      GetFolderName(aImapMailFolder, folderName);
-      urlSpec.Append(folderName);
-      urlSpec.Append('>');
-      urlSpec.AppendInt(uidHighWater);
-      rv = mailnewsurl->SetSpecInternal(urlSpec);
-      if (NS_SUCCEEDED(rv))
-        rv = GetImapConnectionAndLoadUrl(imapUrl, nullptr, aURL);
-    }
-  }
-  return rv;
-}
-
 NS_IMETHODIMP nsImapService::DeleteFolder(nsIMsgFolder* aImapMailFolder,
                                           nsIUrlListener* aUrlListener,
                                           nsIMsgWindow* aMsgWindow) {

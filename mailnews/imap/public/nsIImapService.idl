@@ -101,11 +101,6 @@ interface nsIImapService : nsISupports
                      in nsIUrlListener aUrlListener,
                      in nsIMsgWindow aMsgWindow);
 
-  void biff(in nsIMsgFolder aImapMailFolder,
-            in nsIUrlListener aUrlListener,
-            out nsIURI aURL,
-            in ImapUid aUidHighWater);
-
   void deleteMessages(in nsIMsgFolder aImapMailFolder,
                       in nsIUrlListener aUrlListener,
                       out nsIURI aURL,
