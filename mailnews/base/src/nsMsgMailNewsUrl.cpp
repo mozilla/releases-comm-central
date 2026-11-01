@@ -6,7 +6,6 @@
 #include "nsMsgMailNewsUrl.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIFeedbackService.h"
-#include "nsIMsgWindow.h"
 #include "nsString.h"
 #include "nsIDocShell.h"
 #include "nsIWebProgressListener.h"
@@ -58,11 +57,6 @@ nsMsgMailNewsUrl::~nsMsgMailNewsUrl() {
                          mMimeHeaders.forget());
   NS_ReleaseOnMainThread("nsMsgMailNewsUrl::m_searchSession",
                          m_searchSession.forget());
-
-  // Weak references hold a non-threadsafe nsWeakReference proxy that is created
-  // on and belongs to the main thread, so it must be released there too.
-  NS_ReleaseOnMainThread("nsMsgMailNewsUrl::m_msgWindowWeak",
-                         m_msgWindowWeak.forget());
 
   nsTObserverArray<nsCOMPtr<nsIUrlListener>>::ForwardIterator iter(
       mUrlListeners);
@@ -307,23 +301,6 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetServer(
   }
 
   return rv;
-}
-
-NS_IMETHODIMP nsMsgMailNewsUrl::GetMsgWindow(nsIMsgWindow** aMsgWindow) {
-  NS_ENSURE_ARG_POINTER(aMsgWindow);
-  *aMsgWindow = nullptr;
-
-  nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
-  msgWindow.forget(aMsgWindow);
-  return *aMsgWindow ? NS_OK : NS_ERROR_NULL_POINTER;
-}
-
-NS_IMETHODIMP nsMsgMailNewsUrl::SetMsgWindow(nsIMsgWindow* aMsgWindow) {
-  m_msgWindowWeak = do_GetWeakReference(aMsgWindow);
-  // Bridge for callers that still say "interactive" by handing over a window.
-  // Goes away with the msgWindow attribute itself, see bug 2087437.
-  mInteractive = !!aMsgWindow;
-  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetInteractive(bool* interactive) {
@@ -688,12 +665,11 @@ nsresult nsMsgMailNewsUrl::Clone(nsIURI** _retval) {
   rv = ioService->NewURI(urlSpec, nullptr, nullptr, getter_AddRefs(newUri));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // add the msg window to the cloned url
-  nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
-  if (msgWindow) {
+  // Carry the interactivity of this url over to the clone.
+  if (mInteractive) {
     nsCOMPtr<nsIMsgMailNewsUrl> msgMailNewsUrl = do_QueryInterface(newUri, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    msgMailNewsUrl->SetMsgWindow(msgWindow);
+    msgMailNewsUrl->SetInteractive(true);
   }
 
   newUri.forget(_retval);

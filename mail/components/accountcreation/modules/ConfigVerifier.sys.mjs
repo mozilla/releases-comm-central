@@ -467,8 +467,8 @@ export class ConfigVerifier {
     const uri = this.server.verifyLogon(this, !!this.msgWindow);
 
     if (uri instanceof Ci.nsIMsgMailNewsUrl) {
-      // clear msgWindow so url won't prompt for passwords.
-      uri.msgWindow = null;
+      // Make the url non-interactive so it won't prompt for passwords.
+      uri.interactive = false;
     }
   }
 }
