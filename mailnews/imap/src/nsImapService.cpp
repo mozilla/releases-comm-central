@@ -633,6 +633,7 @@ nsresult nsImapService::DecomposeImapURI(const nsACString& aMessageURI,
                                          nsMsgKey* aMsgKey) {
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_ENSURE_ARG_POINTER(aMsgKey);
+
   nsAutoCString folderURI;
   nsAutoCString mimePart;
   nsresult rv =
@@ -640,7 +641,7 @@ nsresult nsImapService::DecomposeImapURI(const nsACString& aMessageURI,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolder> folder;
-  rv = GetExistingFolder(folderURI, aFolder);
+  rv = GetOrCreateFolder(folderURI, aFolder);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return NS_OK;
