@@ -104,7 +104,7 @@ add_task(async function markMessageAsGood() {
     IMAPPump.inbox, // dstFolder
     true, // isMove
     null,
-    false, // msgWindow
+    false, // interactive
     false // allowUndo
   );
   await PromiseTestUtils.promiseFolderNotification(

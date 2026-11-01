@@ -241,7 +241,7 @@ interface nsIImapService : nsISupports
    * occur in legacy tag keys encoded as modified UTF-7.
    *
    * @param aMailFolder            The IMAP folder containing the messages.
-   * @param aMsgWindow             The message window for status/error reporting.
+   * @param interactive            Whether a user is waiting on the command.
    * @param flagsToAdd             Space-separated string of keywords to add.
    * @param flagsToSubtract        Space-separated string of keywords to remove.
    * @param aMessageIdentifierList Comma-separated list of message UIDs.

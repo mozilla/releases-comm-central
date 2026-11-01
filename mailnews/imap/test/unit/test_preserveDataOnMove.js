@@ -58,7 +58,7 @@ add_task(async function moveMessageToSubfolder() {
     gSubfolder, // dstFolder
     true, // isMove
     copyListener,
-    false, // msgWindow
+    false, // interactive
     false // allowUndo
   );
   await copyListener.promise;

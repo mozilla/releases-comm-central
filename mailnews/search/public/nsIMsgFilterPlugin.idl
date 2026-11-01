@@ -150,7 +150,6 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      *                         do not match the tested trait (for example,
      *                         GOOD_TRAIT if testing for junk)
      * @param aTraitListener   trait-oriented callback listener (may be null)
-     * @param aMsgWindow       current message window (may be null)
      * @param aJunkListener    junk-oriented callback listener (may be null)
      */
 
@@ -173,7 +172,6 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      *                         do not match the tested trait (for example,
      *                         GOOD_TRAIT if testing for junk)
      * @param aTraitListener   trait-oriented callback listener (may be null)
-     * @param aMsgWindow       current message window (may be null)
      * @param aJunkListener    junk-oriented callback listener (may be null)
      */
 
@@ -209,7 +207,6 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      * @param aNewTraits        array of trait IDs of the new
      *                          message classification(s), if any
      * @param aTraitListener    trait-oriented listener (may be null)
-     * @param aMsgWindow        current message window (may be null)
      * @param aJunkListener     junk-oriented listener (may be null)
      */
     void setMsgTraitClassification(
@@ -239,7 +236,6 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      *                         the tested trait (for example, GOOD_TRAIT
      *                         if testing for junk)
      * @param aListener        callback listener for results
-     * @param aMsgWindow       current message window (may be null)
      */
     void detailMessage(
         in AUTF8String aMsgURI,

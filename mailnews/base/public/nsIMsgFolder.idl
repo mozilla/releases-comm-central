@@ -278,7 +278,6 @@ interface nsIMsgFolder : nsISupports {
    * until it is created on the server.
    *
    * @param folderName name of the folder to create.
-   * @param msgWindow msgWindow to display status feedback in.
    *
    * @exception NS_MSG_ERROR_INVALID_FOLDER_NAME
    * @exception NS_MSG_FOLDER_EXISTS

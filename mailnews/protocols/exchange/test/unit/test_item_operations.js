@@ -131,7 +131,7 @@ async function copyItems(sourceFolder, destinationFolder, headers, isMove) {
     destinationFolder,
     isMove,
     copyListener,
-    false, // msgWindow
+    false, // interactive
     false // allowUndo
   );
   await copyListener.promise;
@@ -342,7 +342,7 @@ add_task(async function test_move_copy_messages_from_another_server() {
         ewsDestFolder,
         true, // isMove
         null,
-        false, // msgWindow
+        false, // interactive
         false // allowUndo
       ),
     /NS_ERROR_ILLEGAL_VALUE/,
@@ -427,7 +427,7 @@ add_task(async function test_move_copy_messages_to_another_server() {
         localDestFolder,
         true, // isMove
         null,
-        false, // msgWindow
+        false, // interactive
         false // allowUndo
       ),
     /NS_ERROR_ILLEGAL_VALUE/,

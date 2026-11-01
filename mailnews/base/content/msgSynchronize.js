@@ -10,7 +10,6 @@ var { UIFontSize } = ChromeUtils.importESModule(
 );
 
 var gSynchronizeTree = null;
-var gMsgWindow;
 
 var gInitialFolderStates = {};
 

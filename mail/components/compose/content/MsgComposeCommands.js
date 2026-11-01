@@ -8283,7 +8283,7 @@ async function messageAttachmentToFile(attachment) {
 
     service.streamMessage(
       attachment.url,
-      streamlistener, // aMsgWindow
+      streamlistener, // aStreamlistener
       null, // aUrlListener
       false, // aConvertData
       "" //aAdditionalHeader

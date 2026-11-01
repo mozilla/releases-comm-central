@@ -63,7 +63,7 @@ interface nsIMsgLocalMailFolder : nsISupports {
    * effectively, the folders are copied and only the messages are moved.
    *
    * @param srcFolder The folder one level above subfolders being copied
-   * @param msgWindow Window for notification callbacks, can be null
+   * @param interactive Whether to allow interaction (e.g. on failures).
    * @param listener  Listener which receive operation notifications, can be null
    * @param isMove    If true, after copy completes, delete the source messages
    */

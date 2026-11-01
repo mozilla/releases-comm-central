@@ -55,14 +55,12 @@ CalMimeConverter.prototype = {
       try {
         const msgUrl = this.uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
         itipItem.sender = msgUrl.mimeHeaders.extractHeader("From", false);
-      } catch (exc) {
-        // msgWindow is optional in some scenarios
-        // (e.g. gloda in action, throws NS_ERROR_INVALID_POINTER then)
+      } catch (e) {
+        lazy.log.error(e);
       }
     }
 
-    // msgOverlay needs to be defined irrespectively of the existence of msgWindow to not break
-    // printing of invitation emails
+    // msgOverlay needs to be defined not to break printing of invitation emails
     let msgOverlay = "";
 
     if (!Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {

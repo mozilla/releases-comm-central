@@ -21,7 +21,6 @@ interface nsIMsgShutdownTask : nsISupports
    * Shutdown will be temporarily postponed until |OnStopRequest()| has been called
    * on the passed in url-listener.
    * @param inUrlListener The URL listener to report events to.
-   * @param inMsgWindow The current message window to allow for posing dialogs.
    * @return If the shutdown URL was run or not. If the URL is running, the task
    *         will be responsible for notifying |inUrlListener| when the task is completed.
    */

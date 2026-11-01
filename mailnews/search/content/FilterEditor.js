@@ -63,8 +63,6 @@ var gTempFilter = null;
 // nsIMsgRuleAction[] - the currently defined actions in the order they will be run.
 var gActionListOrdered = null;
 
-var gFilterEditorMsgWindow = null;
-
 window.addEventListener("DOMContentLoaded", filterEditorOnLoad, { once: true });
 document.addEventListener("dialogaccept", onAccept);
 

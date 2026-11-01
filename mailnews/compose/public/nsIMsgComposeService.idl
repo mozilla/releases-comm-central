@@ -21,19 +21,19 @@ interface nsIMsgComposeService : nsISupports {
   /**
    * Open a compose window given a mailto url and other options.
    *
-   * @param msgComposeWindowURL Can be null in most cases. If you have your
-   *                            own chrome url you want to use in bringing up a
-   *                            compose window, pass it in here.
-   * @param msgHdr              The header of the original message.
-   * @param originalMsgURI      The URI of the original message.
-   * @param type                The message compose type: new/reply/forward/..
-   * @param format              The message compose format: text/html/..
-   * @param identity            The identity to send the message from.
-   * @param from                The email address of the sender.
-   * @param aMsgWindow          The message window to use.
-   * @param suppressReplyQuote  An optional boolean flag to ignore or include
-                                selected content in aMsgWindow as quote in the
-                                new compose window.
+   * @param msgComposeWindowURL - Can be null in most cases. If you have your
+   *   own chrome url you want to use in bringing up a compose window, pass it
+   *   in here.
+   * @param msgHdr - The header of the original message.
+   * @param originalMsgURI - The URI of the original message.
+   * @param type - The message compose type: new/reply/forward/...
+   * @param format - The message compose format: text/html/...
+   * @param identity - The identity to send the message from.
+   * @param from - The email address of the sender.
+   * @param interactive - Whether to allow interaction.
+   * @param selectionHTML - Selection content to include as quote in the new
+   *   compose window.
+   * @param autodetectCharset - Wheter to autodetect charset.
    */
   [can_run_script]
   void OpenComposeWindow(in AUTF8String msgComposeWindowURL,
@@ -116,7 +116,7 @@ interface nsIMsgComposeService : nsISupports {
    * Allow filters to automatically forward a message to the given address(es).
    * @param forwardTo the address(es) to forward to
    * @param msgHdr the header of the message being replied to
-   * @param msgWindow message window to use
+   * @param interactive - Whether to allow interaction.
    * @param server server to use for determining which account to send from
    * @param aForwardType - How to forward the message one of 3 values:
    *                       kForwardAsDefault, kForwardInline, or

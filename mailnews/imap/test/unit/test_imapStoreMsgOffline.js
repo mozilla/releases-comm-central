@@ -8,9 +8,6 @@
  * duplicate copies when downloadMessagesForOffline() is called.
  */
 
-var { MessageGenerator } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
-);
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );

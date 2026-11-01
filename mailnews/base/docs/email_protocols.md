@@ -91,10 +91,11 @@ operation and communicate any resulting data. In future implementations (or when
 reworking existing ones), these really should be attached to the channel
 instead.
 
-The message service might also be given a reference to the `nsIMsgWindow` used
-by the frontend, which it uses to feed progress updates back to it. Note that
-this is likely not a viable solution going forwards, as we want to limit the
-backend from directly interacting with the frontend's window.
+The message service is also told whether the operation is interactive, that is,
+whether a user is waiting on it and can answer for it. This is carried on the
+URL, and the backend uses it to decide whether it may prompt, for a password
+say, or should fail quietly as it should for background work such as biff or
+autosync.
 
 At the other end of this channel is an incoming server, which then looks for an
 available connection in its pool (or opens one if none is open and available),

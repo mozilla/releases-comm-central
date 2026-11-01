@@ -8414,7 +8414,6 @@ bool nsImapProtocol::IsInteractive() {
     return false;
   }
   bool interactive = false;
-  // Unlike the msgWindow, this needs nothing released back on the main thread.
   nsresult rv =
       m_imapProtocolSink->GetUrlInteractive(mailnewsUrl, &interactive);
   return NS_SUCCEEDED(rv) && interactive;
@@ -8482,7 +8481,7 @@ nsresult nsImapProtocol::GetPassword(nsString& password,
         }  // end while
       }
     } else {
-      // If no msgWindow (i.e., unattended operation like biff, filtering or
+      // If not interactive (i.e., unattended operation like biff, filtering or
       // autosync) try to get the password directly from login mgr. If it's not
       // there, will return NS_ERROR_NOT_AVAILABLE and the connection will fail
       // with only the IMAP log message: `password prompt failed or user

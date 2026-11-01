@@ -372,7 +372,6 @@ void MimeMultipart_notify_emitter(MimeObject* obj) {
     if (cset) {
       mimeEmitterUpdateCharacterSet(obj->options, cset);
       if (!obj->options->override_charset)
-        // Also set this charset to msgWindow
         SetMailCharacterSetToMsgWindow(obj, cset);
       PR_Free(cset);
     }
