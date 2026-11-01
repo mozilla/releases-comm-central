@@ -14,6 +14,7 @@
 #include "HeaderReader.h"
 #include "LineReader.h"
 #include "MailHeaderParsing.h"
+#include "UrlListener.h"
 #include "msgCore.h"  // precompiled header...
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsMsgFolderFlags.h"
@@ -122,7 +123,6 @@ nsMsgLocalMailFolder::nsMsgLocalMailFolder(void)
     : mCopyState(nullptr),
       mHaveReadNameFromDB(false),
       mInitialized(false),
-      mCheckForNewMessagesAfterParsing(false),
       m_parsingFolder(false),
       mDownloadInProgress(false) {}
 
@@ -299,25 +299,6 @@ void nsMsgLocalMailFolder::FinishUpAfterParseFolder(nsresult status) {
     mReparseListener = nullptr;
   }
 
-  // If we're an inbox, and mCheckForNewMessagesAfterParsing is set,
-  // then kick off GetNewMessages().
-  // Shouldn't have to deal with this here. See Bug 1848476.
-  if (NS_SUCCEEDED(status) && mFlags & nsMsgFolderFlags::Inbox) {
-    nsCOMPtr<nsIMsgMailSession> mailSession =
-        mozilla::components::MailSession::Service();
-    nsCOMPtr<nsIMsgWindow> msgWindow;
-    mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
-    if (msgWindow && mDatabase && mCheckForNewMessagesAfterParsing) {
-      mCheckForNewMessagesAfterParsing = false;
-      // TODO: maybe simplify this.
-      // - if parsing succeeded, then db should always be valid, right?
-      bool valid = false;
-      mDatabase->GetSummaryValid(&valid);
-      if (valid) {
-        GetNewMessages(!!msgWindow, nullptr);
-      }
-    }
-  }
   NotifyFolderEvent(kFolderLoaded);
 }
 
@@ -1834,22 +1815,41 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetNewMessages(bool interactive,
   }
   nsCOMPtr<nsIMsgLocalMailFolder> localInbox = do_QueryInterface(inbox, &rv);
   if (NS_SUCCEEDED(rv)) {
-    bool valid = false;
+    // The inbox database has to be up to date before we can download into it,
+    // so a reparse may have to happen first. Downloading then resumes from
+    // this listener, which GetDatabaseWithReparse() only invokes when it
+    // returns NS_ERROR_NOT_INITIALIZED.
+    RefPtr<UrlListener> reparseListener = new UrlListener();
+    reparseListener->mStopFn =
+        [localMailServer, inbox, listener = nsCOMPtr<nsIUrlListener>(aListener),
+         interactive](nsIURI*, nsresult status) -> nsresult {
+      // GetNewMessages() has already returned NS_OK by now, so the caller is
+      // relying on its listener to hear how this ends - whether the reparse
+      // failed, or the mail check never got off the ground.
+      if (NS_SUCCEEDED(status)) {
+        nsCOMPtr<nsIURI> resultURI;
+        status = localMailServer->GetNewMail(interactive, listener, inbox,
+                                             getter_AddRefs(resultURI));
+        if (NS_SUCCEEDED(status)) {
+          // Underway. GetNewMail() will notify the listener when it's done.
+          return NS_OK;
+        }
+      }
+      return listener ? listener->OnStopRunningUrl(nullptr, status) : NS_OK;
+    };
+
     nsCOMPtr<nsIMsgDatabase> db;
-    // This will kick off a reparse if the db is out of date.
-    // TODO: This uses SetCheckForNewMessagesAfterParsing() to tell
-    // FinishUpAfterParseFolder() to call us again when it's done.
-    // Would be much better to pass in a UrlListener here which calls
-    // GetNewMail() in its OnStopRunningUrl() callback.
-    // See Bug 1848476.
-    rv = localInbox->GetDatabaseWithReparse(nullptr, getter_AddRefs(db));
-    if (NS_SUCCEEDED(rv)) {
-      nsCOMPtr<nsIURI> resultURI;
-      db->GetSummaryValid(&valid);
-      rv = valid ? localMailServer->GetNewMail(interactive, aListener, inbox,
-                                               getter_AddRefs(resultURI))
-                 : localInbox->SetCheckForNewMessagesAfterParsing(true);
+    rv =
+        localInbox->GetDatabaseWithReparse(reparseListener, getter_AddRefs(db));
+    if (rv == NS_ERROR_NOT_INITIALIZED) {
+      // Reparsing. reparseListener will pick things up again once it's done.
+      return NS_OK;
     }
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr<nsIURI> resultURI;
+    rv = localMailServer->GetNewMail(interactive, aListener, inbox,
+                                     getter_AddRefs(resultURI));
   }
   return rv;
 }
@@ -2947,21 +2947,6 @@ nsMsgLocalMailFolder::SetFlagsOnDefaultMailboxes(uint32_t flags) {
       }
     }
   }
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgLocalMailFolder::GetCheckForNewMessagesAfterParsing(
-    bool* aCheckForNewMessagesAfterParsing) {
-  NS_ENSURE_ARG_POINTER(aCheckForNewMessagesAfterParsing);
-  *aCheckForNewMessagesAfterParsing = mCheckForNewMessagesAfterParsing;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgLocalMailFolder::SetCheckForNewMessagesAfterParsing(
-    bool aCheckForNewMessagesAfterParsing) {
-  mCheckForNewMessagesAfterParsing = aCheckForNewMessagesAfterParsing;
   return NS_OK;
 }
 

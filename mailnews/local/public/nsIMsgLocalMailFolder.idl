@@ -38,10 +38,19 @@ interface nsIMsgLocalMailFolder : nsISupports {
    */
   nsIMsgDatabase getDatabaseWOReparse();
 
-  /*
-   * If the db is out of date, this will return NS_ERROR_NOT_INITIALIZED
-   * and kick off an async url to reparse the messages.
-   * If aReparseUrlListener is null, folder will use itself as the listener.
+  /**
+   * Return the database, reparsing the folder first if the summary file is
+   * missing or out of date.
+   *
+   * @param aReparseUrlListener - Notified once a reparse has finished. It is
+   *   only ever invoked when this method throws NS_ERROR_NOT_INITIALIZED, and
+   *   it may be null if the caller does not care.
+   * @returns the database.
+   * @throws NS_ERROR_NOT_INITIALIZED if a reparse was started. The database is
+   *   not usable until aReparseUrlListener has been notified.
+   * @throws NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE if a reparse was already
+   *   under way, in which case aReparseUrlListener is not notified, because
+   *   that reparse belongs to whoever started it.
    */
   nsIMsgDatabase getDatabaseWithReparse(in nsIUrlListener aReparseUrlListener);
   void parseFolder(in nsIUrlListener listener);
@@ -67,8 +76,6 @@ interface nsIMsgLocalMailFolder : nsISupports {
    * before reporting failure.
    */
   void onCopyCompleted(in nsISupports srcSupport, in nsresult status);
-  // Slated for removal. See Bug 1848476.
-  attribute boolean checkForNewMessagesAfterParsing;
   void markMsgsOnPop3Server(in Array<nsIMsgDBHdr> aMessages, in int32_t aMark);
 
   /**

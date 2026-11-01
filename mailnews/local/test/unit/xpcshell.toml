@@ -36,6 +36,8 @@ tags = ["compact"]
 
 ["test_getMsgHdr.js"]
 
+["test_getNewMailAfterReparse.js"]
+
 ["test_localFolder.js"]
 
 ["test_mailStoreCompact.js"]

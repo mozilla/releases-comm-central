@@ -240,7 +240,6 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   nsCString mType;
   bool mHaveReadNameFromDB;
   bool mInitialized;
-  bool mCheckForNewMessagesAfterParsing;
   bool m_parsingFolder;
   nsCOMPtr<nsIUrlListener> mReparseListener;
   nsTArray<nsMsgKey> mSpamKeysToMove;
