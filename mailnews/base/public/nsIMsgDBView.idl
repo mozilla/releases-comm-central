@@ -6,7 +6,6 @@
 #include "MailNewsTypes2.idl"
 
 interface nsIMsgFolder;
-interface nsIMsgWindow;
 interface nsIMsgDBHdr;
 interface nsIMsgThread;
 interface nsIMsgDBViewCommandUpdater;
@@ -212,7 +211,7 @@ interface nsIMsgDBView : nsISupports
                       in nsMsgViewFlagsTypeValue aViewFlags);
   void close();
 
-  void init(in nsIMsgWindow aMsgWindow, in nsIMsgDBViewCommandUpdater aCommandUpdater);
+  void init(in boolean interactive, in nsIMsgDBViewCommandUpdater aCommandUpdater);
 
   void sort(in nsMsgViewSortTypeValue sortType, in nsMsgViewSortOrderValue sortOrder);
 
@@ -277,7 +276,7 @@ interface nsIMsgDBView : nsISupports
   nsIMsgDBHdr getMsgHdrAt(in nsMsgViewIndex aIndex);
 
   AUTF8String getURIForViewIndex(in nsMsgViewIndex index);
-  nsIMsgDBView cloneDBView(in nsIMsgWindow aMsgWindow, in nsIMsgDBViewCommandUpdater aCommandUpdater);
+  nsIMsgDBView cloneDBView(in boolean interactive, in nsIMsgDBViewCommandUpdater aCommandUpdater);
 
   /**
    * Provides a list of the message headers for the currently selected messages.

@@ -379,7 +379,7 @@ IDBViewWrapperListener.prototype = {
   _FNH: FolderNotificationHelper,
 
   /* ===== Exposure of UI Globals ===== */
-  msgWindow: null,
+  interactive: false,
   threadPaneCommandUpdater: null,
 
   /* ===== Guidance ===== */
@@ -731,7 +731,7 @@ DBViewWrapper.prototype = {
     // -- clone the view
     if (this.dbView) {
       doppel.dbView = this.dbView
-        .cloneDBView(aListener.msgWindow, aListener.threadPaneCommandUpdater)
+        .cloneDBView(aListener.interactive, aListener.threadPaneCommandUpdater)
         .QueryInterface(Ci.nsITreeView);
     }
     // -- clone the search
@@ -896,7 +896,7 @@ DBViewWrapper.prototype = {
       FolderNotificationHelper.updateFolderAndNotifyOnLoad(
         this.displayedFolder,
         this,
-        !!this.listener.msgWindow
+        this.listener.interactive
       );
     }
 
@@ -1223,7 +1223,7 @@ DBViewWrapper.prototype = {
 
     const dbView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
     dbView.init(
-      this.listener.msgWindow,
+      this.listener.interactive,
       this.listener.threadPaneCommandUpdater
     );
     const [sortType, sortOrder] = this._sort[0];

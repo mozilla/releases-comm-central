@@ -147,6 +147,7 @@ nsMsgDBView::nsMsgDBView() {
   mShowSizeInLines = false;
   mSortThreadsByRoot = false;
 
+  mInteractive = false;
   mRemovingRow = false;
   m_saveRestoreSelectionDepth = 0;
   mRecentlyDeletedArrayIndex = 0;
@@ -1988,9 +1989,8 @@ nsMsgDBView::OpenWithHdrs(nsIMsgEnumerator* aHeaders,
 }
 
 NS_IMETHODIMP
-nsMsgDBView::Init(nsIMsgWindow* aMsgWindow,
-                  nsIMsgDBViewCommandUpdater* aCmdUpdater) {
-  mMsgWindowWeak = do_GetWeakReference(aMsgWindow);
+nsMsgDBView::Init(bool interactive, nsIMsgDBViewCommandUpdater* aCmdUpdater) {
+  mInteractive = interactive;
   mCommandUpdater = do_GetWeakReference(aCmdUpdater);
   return NS_OK;
 }
@@ -2104,14 +2104,12 @@ nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
   nsMsgViewIndexArray selection;
   GetIndicesForSelection(selection);
 
-  nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(mMsgWindowWeak));
-
   nsresult rv = NS_OK;
   switch (command) {
     case nsMsgViewCommandType::downloadSelectedForOffline:
-      return DownloadForOffline(msgWindow, selection);
+      return DownloadForOffline(mInteractive, selection);
     case nsMsgViewCommandType::downloadFlaggedForOffline:
-      return DownloadFlaggedForOffline(msgWindow);
+      return DownloadFlaggedForOffline(mInteractive);
     case nsMsgViewCommandType::markMessagesRead:
     case nsMsgViewCommandType::markMessagesUnread:
     case nsMsgViewCommandType::toggleMessageRead:
@@ -2367,7 +2365,7 @@ nsresult nsMsgDBView::GetHeadersFromSelection(
   return rv;
 }
 
-nsresult nsMsgDBView::CopyMessages(nsIMsgWindow* window,
+nsresult nsMsgDBView::CopyMessages(bool interactive,
                                    nsTArray<nsMsgViewIndex> const& selection,
                                    bool isMove, nsIMsgFolder* destFolder) {
   if (m_deletingRows) {
@@ -2391,7 +2389,7 @@ nsresult nsMsgDBView::CopyMessages(nsIMsgWindow* window,
       mozilla::components::Copy::Service();
   return copyService->CopyMessages(m_folder /* source folder */, hdrs,
                                    destFolder, isMove, nullptr /* listener */,
-                                   !!window, true /* allow Undo */);
+                                   interactive, true /* allow Undo */);
 }
 
 nsresult nsMsgDBView::ApplyCommandToIndicesWithFolder(
@@ -2400,20 +2398,21 @@ nsresult nsMsgDBView::ApplyCommandToIndicesWithFolder(
   nsresult rv = NS_OK;
   NS_ENSURE_ARG_POINTER(destFolder);
 
-  nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(mMsgWindowWeak));
   switch (command) {
     case nsMsgViewCommandType::copyMessages:
       NS_ASSERTION(!(m_folder == destFolder),
                    "The source folder and the destination folder are the same");
       if (m_folder != destFolder)
-        rv = CopyMessages(msgWindow, selection, false /* isMove */, destFolder);
+        rv = CopyMessages(mInteractive, selection, false /* isMove */,
+                          destFolder);
 
       break;
     case nsMsgViewCommandType::moveMessages:
       NS_ASSERTION(!(m_folder == destFolder),
                    "The source folder and the destination folder are the same");
       if (m_folder != destFolder)
-        rv = CopyMessages(msgWindow, selection, true /* isMove */, destFolder);
+        rv = CopyMessages(mInteractive, selection, true /* isMove */,
+                          destFolder);
 
       break;
     default:
@@ -2436,12 +2435,11 @@ nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
   nsCOMPtr<nsIMsgFolder> folder = GetFolderForViewIndex(selection[0]);
   NS_ENSURE_STATE(folder);
 
-  nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(mMsgWindowWeak));
   if (command == nsMsgViewCommandType::deleteMsg) {
-    return DeleteMessages(msgWindow, selection, false);
+    return DeleteMessages(mInteractive, selection, false);
   }
   if (command == nsMsgViewCommandType::deleteNoTrash) {
-    return DeleteMessages(msgWindow, selection, true);
+    return DeleteMessages(mInteractive, selection, true);
   }
 
   nsresult rv = NS_OK;
@@ -2553,7 +2551,7 @@ nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
   folder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true);
 
   // Take folder class specific actions.
-  folder->HandleViewCommand(command, messageKeys, !!msgWindow, nullptr);
+  folder->HandleViewCommand(command, messageKeys, mInteractive, nullptr);
 
   return rv;
 }
@@ -2580,7 +2578,7 @@ nsresult nsMsgDBView::RemoveByIndex(nsMsgViewIndex index) {
   return NS_OK;
 }
 
-nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow* window,
+nsresult nsMsgDBView::DeleteMessages(bool interactive,
                                      nsTArray<nsMsgViewIndex> const& selection,
                                      bool deleteStorage) {
   if (m_deletingRows) {
@@ -2606,8 +2604,8 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow* window,
     mIndicesToNoteChange.AppendElements(selection);
   }
 
-  rv = m_folder->DeleteMessages(hdrs, !!window, deleteStorage, false, nullptr,
-                                true /* allow Undo */);
+  rv = m_folder->DeleteMessages(hdrs, interactive, deleteStorage, false,
+                                nullptr, true /* allow Undo */);
   if (NS_FAILED(rv)) {
     m_deletingRows = false;
   }
@@ -2616,7 +2614,7 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow* window,
 }
 
 nsresult nsMsgDBView::DownloadForOffline(
-    nsIMsgWindow* window, nsTArray<nsMsgViewIndex> const& selection) {
+    bool interactive, nsTArray<nsMsgViewIndex> const& selection) {
   nsTArray<RefPtr<nsIMsgDBHdr>> selectedMessages;
   nsresult rv = GetHeadersFromSelection(selection, selectedMessages);
   nsTArray<RefPtr<nsIMsgDBHdr>> messages;
@@ -2629,11 +2627,11 @@ nsresult nsMsgDBView::DownloadForOffline(
                  });
   }
 
-  m_folder->DownloadMessagesForOffline(messages, !!window);
+  m_folder->DownloadMessagesForOffline(messages, interactive);
   return rv;
 }
 
-nsresult nsMsgDBView::DownloadFlaggedForOffline(nsIMsgWindow* window) {
+nsresult nsMsgDBView::DownloadFlaggedForOffline(bool interactive) {
   nsresult rv = NS_OK;
   nsTArray<RefPtr<nsIMsgDBHdr>> messages;
   nsCOMPtr<nsIMsgEnumerator> enumerator;
@@ -2655,7 +2653,7 @@ nsresult nsMsgDBView::DownloadFlaggedForOffline(nsIMsgWindow* window) {
     }
   }
 
-  m_folder->DownloadMessagesForOffline(messages, !!window);
+  m_folder->DownloadMessagesForOffline(messages, interactive);
   return rv;
 }
 
@@ -6124,25 +6122,22 @@ nsMsgDBView::IsSorted(bool* _retval) {
 }
 
 NS_IMETHODIMP
-nsMsgDBView::CloneDBView(nsIMsgWindow* aMsgWindow,
+nsMsgDBView::CloneDBView(bool interactive,
                          nsIMsgDBViewCommandUpdater* aCmdUpdater,
                          nsIMsgDBView** _retval) {
   nsMsgDBView* newMsgDBView = new nsMsgDBView();
 
-  nsresult rv = CopyDBView(newMsgDBView, aMsgWindow, aCmdUpdater);
+  nsresult rv = CopyDBView(newMsgDBView, interactive, aCmdUpdater);
   NS_ENSURE_SUCCESS(rv, rv);
 
   NS_IF_ADDREF(*_retval = newMsgDBView);
   return NS_OK;
 }
 
-nsresult nsMsgDBView::CopyDBView(nsMsgDBView* aNewMsgDBView,
-                                 nsIMsgWindow* aMsgWindow,
+nsresult nsMsgDBView::CopyDBView(nsMsgDBView* aNewMsgDBView, bool interactive,
                                  nsIMsgDBViewCommandUpdater* aCmdUpdater) {
   NS_ENSURE_ARG_POINTER(aNewMsgDBView);
-  if (aMsgWindow) {
-    aNewMsgDBView->mMsgWindowWeak = do_GetWeakReference(aMsgWindow);
-  }
+  aNewMsgDBView->mInteractive = interactive;
 
   aNewMsgDBView->mCommandUpdater = do_GetWeakReference(aCmdUpdater);
   aNewMsgDBView->m_folder = m_folder;
@@ -6278,7 +6273,7 @@ nsMsgDBView::nsMsgViewHdrEnumerator::nsMsgViewHdrEnumerator(nsMsgDBView* view) {
   // current view immediately. It also makes it easier to expand all
   // if we're working on a copy.
   nsCOMPtr<nsIMsgDBView> clonedView;
-  view->CloneDBView(nullptr, nullptr, getter_AddRefs(clonedView));
+  view->CloneDBView(false, nullptr, getter_AddRefs(clonedView));
   m_view = static_cast<nsMsgDBView*>(clonedView.get());
   // Make sure we enumerate over collapsed threads by expanding all.
   m_view->ExpandAll();

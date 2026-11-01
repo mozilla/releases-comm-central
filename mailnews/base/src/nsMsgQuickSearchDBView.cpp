@@ -55,12 +55,11 @@ nsresult nsMsgQuickSearchDBView::InitThreadedView() {
 }
 
 NS_IMETHODIMP
-nsMsgQuickSearchDBView::CloneDBView(nsIMsgWindow* aMsgWindow,
+nsMsgQuickSearchDBView::CloneDBView(bool interactive,
                                     nsIMsgDBViewCommandUpdater* aCmdUpdater,
                                     nsIMsgDBView** _retval) {
   nsMsgQuickSearchDBView* newMsgDBView = new nsMsgQuickSearchDBView();
-  nsresult rv =
-      CopyDBView(newMsgDBView, aMsgWindow, aCmdUpdater);
+  nsresult rv = CopyDBView(newMsgDBView, interactive, aCmdUpdater);
   NS_ENSURE_SUCCESS(rv, rv);
 
   NS_IF_ADDREF(*_retval = newMsgDBView);
@@ -68,11 +67,9 @@ nsMsgQuickSearchDBView::CloneDBView(nsIMsgWindow* aMsgWindow,
 }
 
 NS_IMETHODIMP
-nsMsgQuickSearchDBView::CopyDBView(nsMsgDBView* aNewMsgDBView,
-                                   nsIMsgWindow* aMsgWindow,
+nsMsgQuickSearchDBView::CopyDBView(nsMsgDBView* aNewMsgDBView, bool interactive,
                                    nsIMsgDBViewCommandUpdater* aCmdUpdater) {
-  nsMsgThreadedDBView::CopyDBView(aNewMsgDBView, aMsgWindow,
-                                  aCmdUpdater);
+  nsMsgThreadedDBView::CopyDBView(aNewMsgDBView, interactive, aCmdUpdater);
   nsMsgQuickSearchDBView* newMsgDBView = (nsMsgQuickSearchDBView*)aNewMsgDBView;
 
   // now copy all of our private member data
@@ -81,7 +78,7 @@ nsMsgQuickSearchDBView::CopyDBView(nsMsgDBView* aNewMsgDBView,
 }
 
 nsresult nsMsgQuickSearchDBView::DeleteMessages(
-    nsIMsgWindow* window, nsTArray<nsMsgViewIndex> const& selection,
+    bool interactive, nsTArray<nsMsgViewIndex> const& selection,
     bool deleteStorage) {
   for (nsMsgViewIndex viewIndex : selection) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
@@ -90,7 +87,7 @@ nsresult nsMsgQuickSearchDBView::DeleteMessages(
       RememberDeletedMsgHdr(msgHdr);
     }
   }
-  return nsMsgDBView::DeleteMessages(window, selection, deleteStorage);
+  return nsMsgDBView::DeleteMessages(interactive, selection, deleteStorage);
 }
 
 NS_IMETHODIMP nsMsgQuickSearchDBView::DoCommand(

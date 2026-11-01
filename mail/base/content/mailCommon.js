@@ -1108,7 +1108,7 @@ var dbViewWrapperListener = {
    */
   _nextViewIndexGeneration: 0,
 
-  msgWindow: top.msgWindow,
+  interactive: true,
   threadPaneCommandUpdater: {
     QueryInterface: ChromeUtils.generateQI([
       "nsIMsgDBViewCommandUpdater",

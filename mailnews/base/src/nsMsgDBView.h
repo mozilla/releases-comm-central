@@ -7,7 +7,6 @@
 
 #include "nsIMsgDBView.h"
 #include "nsIMsgTagService.h"
-#include "nsIMsgWindow.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"
 #include "MailNewsTypes.h"
@@ -308,10 +307,10 @@ class nsMsgDBView : public nsIMsgDBView,
   virtual nsresult ApplyCommandToIndicesWithFolder(
       nsMsgViewCommandTypeValue command,
       nsTArray<nsMsgViewIndex> const& selection, nsIMsgFolder* destFolder);
-  virtual nsresult CopyMessages(nsIMsgWindow* window,
+  virtual nsresult CopyMessages(bool interactive,
                                 nsTArray<nsMsgViewIndex> const& selection,
                                 bool isMove, nsIMsgFolder* destFolder);
-  virtual nsresult DeleteMessages(nsIMsgWindow* window,
+  virtual nsresult DeleteMessages(bool interactive,
                                   nsTArray<nsMsgViewIndex> const& selection,
                                   bool deleteStorage);
   nsresult GetHeadersFromSelection(nsTArray<nsMsgViewIndex> const& selection,
@@ -340,9 +339,9 @@ class nsMsgDBView : public nsIMsgDBView,
                             bool ignored);
   nsresult SetSubthreadKilled(nsIMsgDBHdr* header, nsMsgViewIndex msgIndex,
                               bool ignored);
-  nsresult DownloadForOffline(nsIMsgWindow* window,
+  nsresult DownloadForOffline(bool interactive,
                               nsTArray<nsMsgViewIndex> const& selection);
-  nsresult DownloadFlaggedForOffline(nsIMsgWindow* window);
+  nsresult DownloadFlaggedForOffline(bool interactive);
   nsMsgViewIndex GetThreadFromMsgIndex(nsMsgViewIndex index,
                                        nsIMsgThread** threadHdr);
   /// Should junk commands be enabled for the current message in the view?
@@ -400,8 +399,7 @@ class nsMsgDBView : public nsIMsgDBView,
   nsresult AppendKeywordProperties(const nsACString& keywords,
                                    nsAString& properties, bool* tagAdded);
   static nsresult InitLabelStrings(void);
-  nsresult CopyDBView(nsMsgDBView* aNewMsgDBView,
-                      nsIMsgWindow* aMsgWindow,
+  nsresult CopyDBView(nsMsgDBView* aNewMsgDBView, bool interactive,
                       nsIMsgDBViewCommandUpdater* aCmdUpdater);
   static void InitializeLiterals();
   virtual int32_t FindLevelInThread(nsIMsgDBHdr* msgHdr,
@@ -462,7 +460,7 @@ class nsMsgDBView : public nsIMsgDBView,
 
   // I18N date formatter service which we'll want to cache locally.
   nsCOMPtr<nsIMsgTagService> mTagService;
-  nsWeakPtr mMsgWindowWeak;
+  bool mInteractive;
   // We push command update notifications to the UI from this.
   nsWeakPtr mCommandUpdater;
 

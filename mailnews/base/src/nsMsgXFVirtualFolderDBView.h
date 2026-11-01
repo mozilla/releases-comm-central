@@ -22,11 +22,10 @@ class nsMsgXFVirtualFolderDBView : public nsMsgSearchDBView {
   NS_IMETHOD Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                   nsMsgViewSortOrderValue sortOrder,
                   nsMsgViewFlagsTypeValue viewFlags) override;
-  NS_IMETHOD CloneDBView(nsIMsgWindow* aMsgWindow,
+  NS_IMETHOD CloneDBView(bool interactive,
                          nsIMsgDBViewCommandUpdater* aCmdUpdater,
                          nsIMsgDBView** _retval) override;
-  NS_IMETHOD CopyDBView(nsMsgDBView* aNewMsgDBView,
-                        nsIMsgWindow* aMsgWindow,
+  NS_IMETHOD CopyDBView(nsMsgDBView* aNewMsgDBView, bool interactive,
                         nsIMsgDBViewCommandUpdater* aCmdUpdater) override;
   NS_IMETHOD Close() override;
   NS_IMETHOD GetViewType(nsMsgViewTypeValue* aViewType) override;

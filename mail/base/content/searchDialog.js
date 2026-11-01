@@ -93,7 +93,7 @@ function FolderDisplayWidget() {
    * The nsIMsgWindow corresponding to the window that holds us.  There is only
    *  one of these per tab.  The caller is responsible for setting this.
    */
-  this.msgWindow = null;
+  this.interactive = false;
 
   /**
    * Flag to expose whether all messages are loaded or not.  Set by
@@ -875,7 +875,7 @@ function searchOnLoad() {
   }
 
   gFolderDisplay = new SearchFolderDisplayWidget();
-  gFolderDisplay.msgWindow = msgWindow;
+  gFolderDisplay.interactive = true;
 
   threadPane.init();
 

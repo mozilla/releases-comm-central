@@ -454,11 +454,9 @@ nsMsgGroupView::GetViewType(nsMsgViewTypeValue* aViewType) {
 }
 
 NS_IMETHODIMP
-nsMsgGroupView::CopyDBView(nsMsgDBView* aNewMsgDBView,
-                           nsIMsgWindow* aMsgWindow,
+nsMsgGroupView::CopyDBView(nsMsgDBView* aNewMsgDBView, bool interactive,
                            nsIMsgDBViewCommandUpdater* aCmdUpdater) {
-  nsMsgDBView::CopyDBView(aNewMsgDBView, aMsgWindow,
-                          aCmdUpdater);
+  nsMsgDBView::CopyDBView(aNewMsgDBView, interactive, aCmdUpdater);
   nsMsgGroupView* newMsgDBView = (nsMsgGroupView*)aNewMsgDBView;
 
   // If grouped, we need to clone the group thread hash table.

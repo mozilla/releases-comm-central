@@ -11,7 +11,7 @@ class nsMsgThreadsWithUnreadDBView : public nsMsgThreadedDBView {
  public:
   nsMsgThreadsWithUnreadDBView();
   virtual ~nsMsgThreadsWithUnreadDBView();
-  NS_IMETHOD CloneDBView(nsIMsgWindow* aMsgWindow,
+  NS_IMETHOD CloneDBView(bool interactive,
                          nsIMsgDBViewCommandUpdater* aCommandUpdater,
                          nsIMsgDBView** _retval) override;
   NS_IMETHOD GetViewType(nsMsgViewTypeValue* aViewType) override;
@@ -29,7 +29,7 @@ class nsMsgWatchedThreadsWithUnreadDBView : public nsMsgThreadedDBView {
  public:
   nsMsgWatchedThreadsWithUnreadDBView();
   NS_IMETHOD GetViewType(nsMsgViewTypeValue* aViewType) override;
-  NS_IMETHOD CloneDBView(nsIMsgWindow* aMsgWindow,
+  NS_IMETHOD CloneDBView(bool interactive,
                          nsIMsgDBViewCommandUpdater* aCommandUpdater,
                          nsIMsgDBView** _retval) override;
   NS_IMETHOD GetNumMsgsInView(int32_t* aNumMsgs) override;

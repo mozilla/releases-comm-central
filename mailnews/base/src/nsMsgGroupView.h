@@ -27,8 +27,7 @@ class nsMsgGroupView : public nsMsgDBView {
                           nsMsgViewSortOrderValue aSortOrder,
                           nsMsgViewFlagsTypeValue aViewFlags) override;
   NS_IMETHOD GetViewType(nsMsgViewTypeValue* aViewType) override;
-  NS_IMETHOD CopyDBView(nsMsgDBView* aNewMsgDBView,
-                        nsIMsgWindow* aMsgWindow,
+  NS_IMETHOD CopyDBView(nsMsgDBView* aNewMsgDBView, bool interactive,
                         nsIMsgDBViewCommandUpdater* aCmdUpdater);
   NS_IMETHOD Close() override;
   NS_IMETHOD OnHdrDeleted(nsIMsgDBHdr* aHdrDeleted, nsMsgKey aParentKey,

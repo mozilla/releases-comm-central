@@ -31,10 +31,10 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   NS_IMETHOD Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                   nsMsgViewSortOrderValue sortOrder,
                   nsMsgViewFlagsTypeValue viewFlags) override;
-  NS_IMETHOD CloneDBView(nsIMsgWindow* aMsgWindow,
+  NS_IMETHOD CloneDBView(bool interactive,
                          nsIMsgDBViewCommandUpdater* aCmdUpdater,
                          nsIMsgDBView** _retval) override;
-  NS_IMETHOD CopyDBView(nsMsgDBView* aNewMsgDBView, nsIMsgWindow* aMsgWindow,
+  NS_IMETHOD CopyDBView(nsMsgDBView* aNewMsgDBView, bool interactive,
                         nsIMsgDBViewCommandUpdater* aCmdUpdater) override;
   NS_IMETHOD Close() override;
   NS_IMETHOD GetViewType(nsMsgViewTypeValue* aViewType) override;
@@ -87,10 +87,10 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   virtual nsresult GetDBForViewIndex(nsMsgViewIndex index,
                                      nsIMsgDatabase** db) override;
   virtual nsresult RemoveByIndex(nsMsgViewIndex index) override;
-  virtual nsresult CopyMessages(nsIMsgWindow* window,
+  virtual nsresult CopyMessages(bool interactive,
                                 nsTArray<nsMsgViewIndex> const& selection,
                                 bool isMove, nsIMsgFolder* destFolder) override;
-  virtual nsresult DeleteMessages(nsIMsgWindow* window,
+  virtual nsresult DeleteMessages(bool interactive,
                                   nsTArray<nsMsgViewIndex> const& selection,
                                   bool deleteStorage) override;
   virtual void InsertMsgHdrAt(nsMsgViewIndex index, nsIMsgDBHdr* hdr,
@@ -109,7 +109,7 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   // Functions for copy, move, and delete operations.
   nsresult GetFoldersAndHdrsForSelection(
       nsTArray<nsMsgViewIndex> const& selection);
-  nsresult ProcessNextFolder(nsIMsgWindow* window);
+  nsresult ProcessNextFolder(bool interactive);
 
   nsresult GroupSearchResultsByFolder();
   nsresult PartitionSelectionByFolder(

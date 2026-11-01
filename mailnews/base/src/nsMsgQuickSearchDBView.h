@@ -27,11 +27,10 @@ class nsMsgQuickSearchDBView : public nsMsgThreadedDBView,
                           nsMsgViewSortTypeValue aSortType,
                           nsMsgViewSortOrderValue aSortOrder,
                           nsMsgViewFlagsTypeValue aViewFlags) override;
-  NS_IMETHOD CloneDBView(nsIMsgWindow* aMsgWindow,
+  NS_IMETHOD CloneDBView(bool interactive,
                          nsIMsgDBViewCommandUpdater* aCommandUpdater,
                          nsIMsgDBView** _retval) override;
-  NS_IMETHOD CopyDBView(nsMsgDBView* aNewMsgDBView,
-                        nsIMsgWindow* aMsgWindow,
+  NS_IMETHOD CopyDBView(nsMsgDBView* aNewMsgDBView, bool interactive,
                         nsIMsgDBViewCommandUpdater* aCmdUpdater) override;
   NS_IMETHOD DoCommand(nsMsgViewCommandTypeValue aCommand) override;
   NS_IMETHOD GetViewType(nsMsgViewTypeValue* aViewType) override;
@@ -62,7 +61,7 @@ class nsMsgQuickSearchDBView : public nsMsgThreadedDBView,
                           nsMsgViewIndex* resultIndex = nullptr) override;
   virtual nsresult OnNewHeader(nsIMsgDBHdr* newHdr, nsMsgKey aParentKey,
                                bool ensureListed) override;
-  virtual nsresult DeleteMessages(nsIMsgWindow* window,
+  virtual nsresult DeleteMessages(bool interactive,
                                   nsTArray<nsMsgViewIndex> const& selection,
                                   bool deleteStorage) override;
   virtual nsresult SortThreads(nsMsgViewSortTypeValue sortType,

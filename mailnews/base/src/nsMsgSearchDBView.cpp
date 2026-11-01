@@ -69,11 +69,11 @@ nsMsgSearchDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
 }
 
 NS_IMETHODIMP
-nsMsgSearchDBView::CloneDBView(nsIMsgWindow* aMsgWindow,
+nsMsgSearchDBView::CloneDBView(bool interactive,
                                nsIMsgDBViewCommandUpdater* aCmdUpdater,
                                nsIMsgDBView** _retval) {
   nsMsgSearchDBView* newMsgDBView = new nsMsgSearchDBView();
-  nsresult rv = CopyDBView(newMsgDBView, aMsgWindow, aCmdUpdater);
+  nsresult rv = CopyDBView(newMsgDBView, interactive, aCmdUpdater);
   NS_ENSURE_SUCCESS(rv, rv);
 
   NS_IF_ADDREF(*_retval = newMsgDBView);
@@ -81,10 +81,9 @@ nsMsgSearchDBView::CloneDBView(nsIMsgWindow* aMsgWindow,
 }
 
 NS_IMETHODIMP
-nsMsgSearchDBView::CopyDBView(nsMsgDBView* aNewMsgDBView,
-                              nsIMsgWindow* aMsgWindow,
+nsMsgSearchDBView::CopyDBView(nsMsgDBView* aNewMsgDBView, bool interactive,
                               nsIMsgDBViewCommandUpdater* aCmdUpdater) {
-  nsMsgGroupView::CopyDBView(aNewMsgDBView, aMsgWindow, aCmdUpdater);
+  nsMsgGroupView::CopyDBView(aNewMsgDBView, interactive, aCmdUpdater);
   nsMsgSearchDBView* newMsgDBView = (nsMsgSearchDBView*)aNewMsgDBView;
 
   // Now copy all of our private member data.
@@ -810,7 +809,7 @@ NS_IMETHODIMP nsMsgSearchDBView::ApplyCommandToIndices(
 }
 
 nsresult nsMsgSearchDBView::DeleteMessages(
-    nsIMsgWindow* window, nsTArray<nsMsgViewIndex> const& selection,
+    bool interactive, nsTArray<nsMsgViewIndex> const& selection,
     bool deleteStorage) {
   nsresult rv = GetFoldersAndHdrsForSelection(selection);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -825,14 +824,14 @@ nsresult nsMsgSearchDBView::DeleteMessages(
       RememberDeletedMsgHdr(msgHdr);
     }
   }
-  return ProcessNextFolder(window);
+  return ProcessNextFolder(interactive);
 }
 
 nsresult nsMsgSearchDBView::CopyMessages(
-    nsIMsgWindow* window, nsTArray<nsMsgViewIndex> const& selection,
-    bool isMove, nsIMsgFolder* destFolder) {
+    bool interactive, nsTArray<nsMsgViewIndex> const& selection, bool isMove,
+    nsIMsgFolder* destFolder) {
   GetFoldersAndHdrsForSelection(selection);
-  return ProcessNextFolder(window);
+  return ProcessNextFolder(interactive);
 }
 
 nsresult nsMsgSearchDBView::PartitionSelectionByFolder(
@@ -941,8 +940,7 @@ nsMsgSearchDBView::OnStopCopy(nsresult aStatus) {
   if (NS_SUCCEEDED(aStatus)) {
     mCurIndex++;
     if ((int32_t)mCurIndex < m_uniqueFoldersSelected.Count()) {
-      nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(mMsgWindowWeak));
-      ProcessNextFolder(msgWindow);
+      ProcessNextFolder(mInteractive);
     }
   }
 
@@ -951,7 +949,7 @@ nsMsgSearchDBView::OnStopCopy(nsresult aStatus) {
 
 // End nsIMsgCopyServiceListener methods.
 
-nsresult nsMsgSearchDBView::ProcessNextFolder(nsIMsgWindow* window) {
+nsresult nsMsgSearchDBView::ProcessNextFolder(bool interactive) {
   nsresult rv = NS_OK;
 
   // Folder operations like copy/move are not implemented for .eml files.
@@ -983,12 +981,12 @@ nsresult nsMsgSearchDBView::ProcessNextFolder(nsIMsgWindow* window) {
       curFolder->MarkMessagesRead(msgs, true);
     }
     rv =
-        curFolder->DeleteMessages(msgs, !!window, deleteStorage,
+        curFolder->DeleteMessages(msgs, interactive, deleteStorage,
                                   false /* is move*/, this, true /*allowUndo*/);
     if (NS_SUCCEEDED(rv) && deleteStorage) {
       mCurIndex++;
       if ((int32_t)mCurIndex < m_uniqueFoldersSelected.Count()) {
-        rv = ProcessNextFolder(window);
+        rv = ProcessNextFolder(interactive);
       }
     }
   } else {
@@ -999,11 +997,11 @@ nsresult nsMsgSearchDBView::ProcessNextFolder(nsIMsgWindow* window) {
           mozilla::components::Copy::Service();
       if (mCommand == nsMsgViewCommandType::moveMessages)
         rv = copyService->CopyMessages(curFolder, msgs, mDestFolder,
-                                       true /* isMove */, this, !!window,
+                                       true /* isMove */, this, interactive,
                                        true /*allowUndo*/);
       else if (mCommand == nsMsgViewCommandType::copyMessages)
         rv = copyService->CopyMessages(curFolder, msgs, mDestFolder,
-                                       false /* isMove */, this, !!window,
+                                       false /* isMove */, this, interactive,
                                        true /*allowUndo*/);
     }
   }
