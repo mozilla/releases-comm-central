@@ -5,6 +5,7 @@
 #include "nscore.h"
 #include "nsImportMailboxDescriptor.h"
 #include "nsComponentManagerUtils.h"
+#include "nsLocalFile.h"
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -20,4 +21,5 @@ nsImportMailboxDescriptor::nsImportMailboxDescriptor() {
   m_size = 0;
   m_depth = 0;
   m_id = 0;
+  m_pFile = new nsLocalFile();
 }
