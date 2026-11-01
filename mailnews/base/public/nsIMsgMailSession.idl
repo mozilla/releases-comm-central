@@ -84,9 +84,7 @@ interface nsIMsgMailSession : nsISupports {
                       in ACString serverKey);
 
   readonly attribute nsIMsgWindow topmostMsgWindow;
-  void AddMsgWindow(in nsIMsgWindow msgWindow);
-  void RemoveMsgWindow(in nsIMsgWindow msgWindow);
 
-  AUTF8String ConvertMsgURIToMsgURL(in AUTF8String aURI, in nsIMsgWindow aMsgWindow);
+  AUTF8String ConvertMsgURIToMsgURL(in AUTF8String aURI, in boolean interactive);
   nsIFile getDataFilesDir(in string dirName);
 };

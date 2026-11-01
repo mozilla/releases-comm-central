@@ -124,14 +124,6 @@ ChromeUtils.defineLazyGetter(lazy, "taskbarProgress", () => {
 });
 
 /**
- * Global message window object. This is used by mail-offline.js and therefore
- * should not be renamed. We need to avoid doing this kind of cross file global
- * stuff in the future and instead pass this object as parameter when needed by
- * functions in the other js file.
- */
-var msgWindow;
-
-/**
  * Global variables, need to be re-initialized every time mostly because
  * we need to release them when the window closes.
  */
@@ -442,11 +434,6 @@ function InitializeGlobalVariables() {
   gAttachVCardOptionChanged = false;
   gNumUploadingAttachments = 0;
 
-  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-    Ci.nsIMsgWindow
-  );
-  MailServices.mailSession.AddMsgWindow(msgWindow);
-
   // Add the observer.
   Services.obs.addObserver(inputObserver, "autocomplete-did-enter-text");
   Services.obs.addObserver(keyObserver, "openpgp-key-change");
@@ -460,9 +447,6 @@ function ReleaseGlobalVariables() {
   gOriginalMsgURI = null;
   gRecipientObserver = null;
   gDisableAttachmentReminder = false;
-  MailServices.mailSession.RemoveMsgWindow(msgWindow);
-
-  msgWindow = null;
 
   gLastKnownComposeStates = null;
 

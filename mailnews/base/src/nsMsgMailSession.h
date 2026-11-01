@@ -71,7 +71,6 @@ class nsMsgMailSession : public nsIMsgMailSession, public nsIFolderListener {
   nsTObserverArray<folderListener> mListeners;
   nsTObserverArray<nsCOMPtr<nsIMsgUserFeedbackListener> > mFeedbackListeners;
 
-  nsCOMArray<nsIMsgWindow> mWindows;
   // stick this here temporarily
   nsCOMPtr<nsIMsgWindow> m_temporaryMsgWindow;
 };

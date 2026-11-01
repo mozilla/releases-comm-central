@@ -219,7 +219,6 @@
   "msgComposeContextOnShowing",
   "msgIdentityOnInput",
   "msgSubjectOnInput",
-  "msgWindow",
   "mustCheckRecipientCerts",
   "mustCheckRecipientKeys",
   "notifyIdentityCannotEncrypt",

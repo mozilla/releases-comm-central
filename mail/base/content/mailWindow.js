@@ -47,7 +47,6 @@ function OnMailWindowUnload() {
   //  the tabs which close their views) and OnUnloadMessageWindow for the
   //  standalone message window.
 
-  MailServices.mailSession.RemoveMsgWindow(msgWindow);
   // the tabs have the FolderDisplayWidget close their 'messenger' instances for us
 
   window.browserDOMWindow = null;
@@ -261,7 +260,6 @@ function toggleCaretBrowsing() {
 }
 
 function InitMsgWindow() {
-  MailServices.mailSession.AddMsgWindow(msgWindow);
   window.browsingContext.docShell.allowAuth = true;
   // Ensure we don't load xul error pages into the main window
   window.browsingContext.docShell.useErrorPages = false;

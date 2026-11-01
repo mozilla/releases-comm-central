@@ -4,7 +4,6 @@
 
 /* import-globals-from utilityOverlay.js */
 
-/* globals msgWindow */ // From mailWindow.js
 /* globals openComposeWindowForRSSArticle */ // From newsblogOverlay.js
 
 var { MailServices } = ChromeUtils.importESModule(
@@ -551,7 +550,7 @@ async function msgOpenMessageFromString(data) {
  * @param {string} msgURI - Message URI spec.
  */
 async function viewEncryptedPart(msgURI) {
-  let url = MailServices.mailSession.ConvertMsgURIToMsgURL(msgURI, msgWindow);
+  let url = MailServices.mailSession.ConvertMsgURIToMsgURL(msgURI, true);
 
   // Strip out the message-display parameter to ensure that attached emails
   // display the message source, not the processed HTML.
@@ -585,7 +584,7 @@ async function viewEncryptedPart(msgURI) {
  * @param {string} msgURI - Message URI spec.
  */
 async function viewSignedPart(msgURI) {
-  let url = MailServices.mailSession.ConvertMsgURIToMsgURL(msgURI, msgWindow);
+  let url = MailServices.mailSession.ConvertMsgURIToMsgURL(msgURI, true);
 
   // Strip out the message-display parameter to ensure that attached emails
   // display the message source, not the processed HTML.

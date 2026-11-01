@@ -230,29 +230,16 @@ nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow** aMsgWindow) {
   return (*aMsgWindow) ? NS_OK : NS_ERROR_FAILURE;
 }
 
-NS_IMETHODIMP nsMsgMailSession::AddMsgWindow(nsIMsgWindow* msgWindow) {
-  NS_ENSURE_ARG_POINTER(msgWindow);
-
-  mWindows.AppendObject(msgWindow);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgMailSession::RemoveMsgWindow(nsIMsgWindow* msgWindow) {
-  mWindows.RemoveObject(msgWindow);
-  return NS_OK;
-}
-
 NS_IMETHODIMP
 nsMsgMailSession::ConvertMsgURIToMsgURL(const nsACString& aURI,
-                                        nsIMsgWindow* aMsgWindow,
-                                        nsACString& aURL) {
+                                        bool interactive, nsACString& aURL) {
   // convert the rdf msg uri into a url that represents the message...
   nsCOMPtr<nsIMsgMessageService> msgService;
   nsresult rv = GetMessageServiceFromURI(aURI, getter_AddRefs(msgService));
   NS_ENSURE_SUCCESS(rv, NS_ERROR_NULL_POINTER);
 
   nsCOMPtr<nsIURI> tURI;
-  rv = msgService->GetUrlForUri(aURI, !!aMsgWindow, getter_AddRefs(tURI));
+  rv = msgService->GetUrlForUri(aURI, interactive, getter_AddRefs(tURI));
   NS_ENSURE_SUCCESS(rv, NS_ERROR_NULL_POINTER);
 
   rv = tURI->GetSpec(aURL);
@@ -435,11 +422,6 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgShutdownService::Observe(
     mMsgProgress = do_CreateInstance("@mozilla.org/messenger/progress;1");
     NS_ENSURE_TRUE(mMsgProgress, NS_ERROR_FAILURE);
 
-    nsCOMPtr<nsIMsgMailSession> mailSession =
-        mozilla::components::MailSession::Service();
-    nsCOMPtr<nsIMsgWindow> topMsgWindow;
-    mailSession->GetTopmostMsgWindow(getter_AddRefs(topMsgWindow));
-
     nsCOMPtr<nsIWindowMediator> winMed =
         do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -460,7 +442,6 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgShutdownService::Observe(
     }
 
     nsCOMPtr<nsIMsgProgress> msgProgress = mMsgProgress;
-    msgProgress->SetInteractive(true);
     msgProgress->OpenProgressDialog(
         domWindow, "chrome://messenger/content/shutdownWindow.xhtml", nullptr);
 

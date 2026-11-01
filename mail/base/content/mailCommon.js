@@ -381,10 +381,7 @@ var commandController = {
         : gDBView.getURIsForSelection();
       for (const uri of uris) {
         // Now, we need to get a URL from a URI
-        let url = MailServices.mailSession.ConvertMsgURIToMsgURL(
-          uri,
-          top.msgWindow
-        );
+        let url = MailServices.mailSession.ConvertMsgURIToMsgURL(uri, true);
 
         // Strip out the message-display parameter to ensure that attached emails
         // display the message source, not the processed HTML.
