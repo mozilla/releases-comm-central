@@ -999,8 +999,26 @@ NS_IMETHODIMP nsImapUrl::GetUri(nsACString& aURI) {
   if (!mURI.IsEmpty()) {
     aURI = mURI;
   } else {
-    uint32_t key =
-        m_listOfMessageIds ? strtoul(m_listOfMessageIds, nullptr, 10) : 0;
+    nsCOMPtr<nsIMsgFolder> folder;
+    rv = GetFolder(getter_AddRefs(folder));
+    NS_ENSURE_SUCCESS(rv, rv);
+    NS_ENSURE_STATE(folder);
+
+    ImapUid uid = 0;
+    if (m_listOfMessageIds) {
+      nsTArray<ImapUid> uids;
+      ParseUidString(m_listOfMessageIds, uids);
+      if (uids.Length() > 0) {
+        uid = uids[0];
+      }
+    }
+    NS_ENSURE_STATE(uid);
+
+    nsCOMPtr<nsIMsgDatabase> db;
+    rv = folder->GetMsgDatabase(getter_AddRefs(db));
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsMsgKey key = MOZ_TRY(MsgKeyFromUid(db, uid));
+
     nsCString canonicalPath;
     if (m_sourceCanonicalFolderPathSubString) {
       AllocateCanonicalPath(
