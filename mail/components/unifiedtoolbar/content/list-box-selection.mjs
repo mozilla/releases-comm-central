@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import "./customizable-element.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./customizable-element.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 /**
  * Shared implementation for a list box used as both a palette of items to add

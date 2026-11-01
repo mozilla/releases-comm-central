@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AccountHubStep } from "./account-hub-step.mjs";
-import "chrome://messenger/content/tb-banner.mjs"; // eslint-disable-line import/no-unassigned-import
-import "./account-hub-radio-card-large.mjs"; // eslint-disable-line import/no-unassigned-import
-import "./account-hub-input.mjs"; // eslint-disable-line import/no-unassigned-import
-import "./account-hub-select.mjs"; // eslint-disable-line import/no-unassigned-import
-import "./account-hub-checkbox.mjs"; // eslint-disable-line import/no-unassigned-import
+import "chrome://messenger/content/tb-banner.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./account-hub-radio-card-large.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./account-hub-input.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./account-hub-select.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./account-hub-checkbox.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 const { AccountConfig } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountConfig.sys.mjs"

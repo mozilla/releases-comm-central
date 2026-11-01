@@ -24,7 +24,7 @@ const { openLinkExternally } = ChromeUtils.importESModule(
 const { gAccountSetupLogger, standardPorts, assert } = AccountCreationUtils;
 
 import { AccountHubStep } from "./account-hub-step.mjs";
-import "./account-hub-select.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./account-hub-select.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 /**
  * Account Hub Email Outgoing Form Template

@@ -9,7 +9,7 @@ import {
   BUTTON_STYLE_MAP,
   BUTTON_STYLE_PREF,
 } from "resource:///modules/ButtonStyle.mjs";
-import "./customizable-element.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./customizable-element.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"

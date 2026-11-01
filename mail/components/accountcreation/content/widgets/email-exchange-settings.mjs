@@ -7,7 +7,7 @@ const { InputSanitizer } = ChromeUtils.importESModule(
 );
 
 import { AccountHubStep } from "./account-hub-step.mjs";
-import "./account-hub-input.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./account-hub-input.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 /**
  * Account Hub Email Exchange Settings

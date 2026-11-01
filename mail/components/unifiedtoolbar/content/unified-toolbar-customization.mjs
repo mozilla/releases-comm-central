@@ -9,8 +9,8 @@ import {
   storeState,
   getState,
 } from "resource:///modules/CustomizationState.mjs";
-import "./unified-toolbar-tab.mjs"; // eslint-disable-line import/no-unassigned-import
-import "./unified-toolbar-customization-pane.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./unified-toolbar-tab.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./unified-toolbar-customization-pane.mjs"; // eslint-disable-line import-x/no-unassigned-import
 import {
   BUTTON_STYLE_MAP,
   BUTTON_STYLE_PREF,

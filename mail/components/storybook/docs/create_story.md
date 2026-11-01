@@ -17,7 +17,7 @@ So far we'd end up with this `example-widget.stories.mjs`:
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import "mail/base/content/widgets/example-widget.mjs"; //eslint-disable-line import/no-unassigned-import
+import "mail/base/content/widgets/example-widget.mjs"; //eslint-disable-line import-x/no-unassigned-import
 
 export default {
   title: "Widgets/Example Widget",
@@ -41,7 +41,7 @@ We often opt to use [lit](https://lit.dev) so we can just use a template string 
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { html } from "lit";
-import "mail/base/content/widgets/example-widget.mjs"; //eslint-disable-line import/no-unassigned-import
+import "mail/base/content/widgets/example-widget.mjs"; //eslint-disable-line import-x/no-unassigned-import
 
 export default {
   title: "Widgets/Example Widget",
@@ -69,7 +69,7 @@ Full documentation (including restricting the available values and controlling t
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { html } from "lit";
-import "mail/base/content/widgets/example-widget.mjs"; //eslint-disable-line import/no-unassigned-import
+import "mail/base/content/widgets/example-widget.mjs"; //eslint-disable-line import-x/no-unassigned-import
 
 export default {
   title: "Widgets/Example Widget",
@@ -103,7 +103,7 @@ So usually we call the action function with the name of the event and then invok
 
 import { html } from "lit";
 import { action } from "@storybook/addon-actions";
-import "mail/base/content/widgets/example-widget.mjs"; //eslint-disable-line import/no-unassigned-import
+import "mail/base/content/widgets/example-widget.mjs"; //eslint-disable-line import-x/no-unassigned-import
 
 export default {
   title: "Widgets/Example Widget",

@@ -31,10 +31,10 @@ const DEFAULT_CONFIG_CHANGE_HELP_TEXT_ID =
 const { assert, gAccountSetupLogger, standardPorts } = AccountCreationUtils;
 
 import { AccountHubStep } from "./account-hub-step.mjs";
-import "chrome://messenger/content/tb-banner.mjs"; // eslint-disable-line import/no-unassigned-import
-import "./account-hub-select.mjs"; // eslint-disable-line import/no-unassigned-import
-import "./account-hub-input.mjs"; // eslint-disable-line import/no-unassigned-import
-import "./account-hub-checkbox.mjs"; // eslint-disable-line import/no-unassigned-import
+import "chrome://messenger/content/tb-banner.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./account-hub-select.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./account-hub-input.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./account-hub-checkbox.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 /**
  * Check if a port value should be considered empty.

@@ -3,7 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import ListBoxSelection from "./list-box-selection.mjs";
-import "./customizable-element.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./customizable-element.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 const { getAvailableItemIdsForSpace, MULTIPLE_ALLOWED_ITEM_IDS } =
   ChromeUtils.importESModule("resource:///modules/CustomizableItems.sys.mjs");

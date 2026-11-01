@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import "chrome://messenger/content/customizableshortcuts/shortcut-row.mjs"; // eslint-disable-line import/no-unassigned-import
+import "chrome://messenger/content/customizableshortcuts/shortcut-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 /**
  * Base container element that opens a modal overlay to list all currently

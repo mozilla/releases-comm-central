@@ -2,7 +2,7 @@ import {
   TreeDataAdapter,
   TreeDataRow,
 } from "chrome://messenger/content/TreeDataAdapter.mjs";
-// eslint-disable-next-line import/no-unassigned-import
+// eslint-disable-next-line import-x/no-unassigned-import
 import "chrome://messenger/content/auto-tree-view.mjs";
 
 class AutoTreeView extends TreeDataAdapter {

@@ -10,7 +10,7 @@ import eslintConfigPrettier from "eslint-config-prettier";
 import mozilla from "eslint-plugin-mozilla";
 import json from "@eslint/json";
 import html from "eslint-plugin-html";
-import importPlugin from "eslint-plugin-import";
+import { importX } from "eslint-plugin-import-x";
 import globals from "globals";
 import globalIgnores from "./eslint-ignores.config.mjs";
 
@@ -56,8 +56,8 @@ export default [
   {
     name: "import-plugin-settings",
     settings: {
-      "import/extensions": [".mjs"],
-      "import/resolver": {
+      "import-x/extensions": [".mjs"],
+      "import-x/resolver": {
         [path.resolve(import.meta.dirname, "../srcdir-resolver.js")]: {},
         node: {},
       },
@@ -171,27 +171,27 @@ export default [
   {
     name: "eslint-plugin-import-rules",
     files: ["**/*.mjs"],
-    plugins: { import: importPlugin },
+    plugins: { "import-x": importX },
     rules: {
-      "import/default": "error",
-      "import/export": "error",
-      "import/named": "error",
-      "import/namespace": "error",
-      "import/newline-after-import": "error",
-      "import/no-duplicates": "error",
-      "import/no-absolute-path": "error",
-      "import/no-named-default": "error",
-      "import/no-named-as-default": "error",
-      "import/no-named-as-default-member": "error",
-      "import/no-self-import": "error",
-      "import/no-unassigned-import": "error",
-      "import/no-unresolved": [
+      "import-x/default": "error",
+      "import-x/export": "error",
+      "import-x/named": "error",
+      "import-x/namespace": "error",
+      "import-x/newline-after-import": "error",
+      "import-x/no-duplicates": "error",
+      "import-x/no-absolute-path": "error",
+      "import-x/no-named-default": "error",
+      "import-x/no-named-as-default": "error",
+      "import-x/no-named-as-default-member": "error",
+      "import-x/no-self-import": "error",
+      "import-x/no-unassigned-import": "error",
+      "import-x/no-unresolved": [
         "error",
         // Bug 1773473 - Ignore resolver URLs for chrome and resource as we
         // do not yet have a resolver for them.
         { ignore: ["chrome://", "resource://"] },
       ],
-      "import/no-useless-path-segments": "error",
+      "import-x/no-useless-path-segments": "error",
     },
   },
   {
@@ -201,10 +201,10 @@ export default [
     // the custom element being registered) rather than any particular
     // export:
     files: ["**/*.stories.mjs"],
-    plugins: { import: importPlugin },
+    plugins: { "import-x": importX },
     rules: {
-      "import/no-unassigned-import": "off",
-      "import/no-unresolved": "off",
+      "import-x/no-unassigned-import": "off",
+      "import-x/no-unresolved": "off",
     },
   },
   {
@@ -213,7 +213,7 @@ export default [
     name: "storybook-node-import-no-unresolved",
     files: ["mail/components/storybook/.storybook/**/*.mjs"],
     rules: {
-      "import/no-unresolved": "off",
+      "import-x/no-unresolved": "off",
     },
   },
   {

@@ -7,7 +7,7 @@ import { Gloda as Gloda2 } from "resource:///modules/gloda/Gloda.sys.mjs";
 export var Gloda = Gloda2;
 
 // nothing to import, just run some code
-/* eslint-disable-next-line import/no-unassigned-import */
+/* eslint-disable-next-line import-x/no-unassigned-import */
 import "resource:///modules/gloda/Everybody.sys.mjs";
 
 import { GlodaIndexer } from "resource:///modules/gloda/GlodaIndexer.sys.mjs";

@@ -3,7 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { TreeViewTableRow } from "chrome://messenger/content/tree-view.mjs";
-// eslint-disable-next-line import/no-unassigned-import
+// eslint-disable-next-line import-x/no-unassigned-import
 import "chrome://messenger/content/thread-card-tags.mjs";
 
 /**

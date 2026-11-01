@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import "./in-app-notification-container.mjs"; //eslint-disable-line import/no-unassigned-import
+import "./in-app-notification-container.mjs"; //eslint-disable-line import-x/no-unassigned-import
 
 /**
  * In app notification.

@@ -32,8 +32,8 @@ ChromeUtils.defineESModuleGetters(lazy, {
   openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
 });
 
-import "chrome://messenger/content/accountcreation/content/widgets/account-hub-step.mjs"; // eslint-disable-line import/no-unassigned-import
-import "chrome://messenger/content/accountcreation/content/widgets/account-hub-footer.mjs"; // eslint-disable-line import/no-unassigned-import
+import "chrome://messenger/content/accountcreation/content/widgets/account-hub-step.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "chrome://messenger/content/accountcreation/content/widgets/account-hub-footer.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 /**
  * Error thrown when autodiscovery needs credentials before it can continue.

@@ -9,7 +9,7 @@ const { XULStoreUtils } = ChromeUtils.importESModule(
   "resource:///modules/XULStoreUtils.sys.mjs"
 );
 
-// eslint-disable-next-line import/no-unassigned-import
+// eslint-disable-next-line import-x/no-unassigned-import
 import "chrome://messenger/content/pane-splitter.mjs";
 import { TreeSelection } from "chrome://messenger/content/TreeSelection.mjs";
 

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import "chrome://messenger/content/accountcreation/content/widgets/account-hub-header.mjs"; // eslint-disable-line import/no-unassigned-import
+import "chrome://messenger/content/accountcreation/content/widgets/account-hub-header.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 /**
  * Account Hub Step Template

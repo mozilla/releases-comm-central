@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import "./calendar-dialog-row.mjs"; // eslint-disable-line import/no-unassigned-import
-import "./calendar-dialog-attendee.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./calendar-dialog-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./calendar-dialog-attendee.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 // Number of attendees to render before yielding to the scheduler.
 const RENDER_CHUNK_SIZE = 50;

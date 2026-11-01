@@ -11,7 +11,7 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 const { MailE10SUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailE10SUtils.sys.mjs"
 );
-// eslint-disable-next-line import/no-unassigned-import
+// eslint-disable-next-line import-x/no-unassigned-import
 import "chrome://messenger/content/lazy-findbar.mjs";
 
 /**

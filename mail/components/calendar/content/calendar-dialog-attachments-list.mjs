@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import CalendarDialogAttachment from "./calendar-dialog-attachment.mjs";
-import "./calendar-dialog-row.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./calendar-dialog-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 /**
  * @typedef {object} AttachmentStub

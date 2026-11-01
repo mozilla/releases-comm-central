@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import "./in-app-notification-button.mjs"; //eslint-disable-line import/no-unassigned-import
-import "./in-app-notification-close-button.mjs"; //eslint-disable-line import/no-unassigned-import
+import "./in-app-notification-button.mjs"; //eslint-disable-line import-x/no-unassigned-import
+import "./in-app-notification-close-button.mjs"; //eslint-disable-line import-x/no-unassigned-import
 
 const attrs = ["cta", "description", "heading", "url", "data-id", "type"];
 

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AccountHubStep } from "./account-hub-step.mjs";
-import "./account-hub-select.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./account-hub-select.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 const { InputSanitizer } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/InputSanitizer.sys.mjs"

@@ -4,7 +4,7 @@
 
 /* globals launchBrowser */
 
-import "./calendar-dialog-row.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./calendar-dialog-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 const lazy = {};
 

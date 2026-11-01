@@ -160,7 +160,7 @@ generally directly import that other custom element at the top of the module
 with a synchronous import statement:
 
 ```js
-import "chrome://messenger/content/other-element.mjs"; // eslint-disable-line import/no-unassigned-import
+import "chrome://messenger/content/other-element.mjs"; // eslint-disable-line import-x/no-unassigned-import
 ```
 
 If we're dynamically instantiating a custom element, if we can control it only

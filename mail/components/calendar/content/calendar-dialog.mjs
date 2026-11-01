@@ -7,14 +7,14 @@ import {
   PositionedDialog,
 } from "./positioned-dialog.mjs";
 import { CalendarEventDialogSourceMixin } from "./calendar-event-dialog-source-mixin.mjs";
-import "./calendar-dialog-acceptance.mjs"; // eslint-disable-line import/no-unassigned-import
-import "./calendar-dialog-subview-manager.mjs"; // eslint-disable-line import/no-unassigned-import
-import "./calendar-dialog-date-row.mjs"; // eslint-disable-line import/no-unassigned-import
-import "./calendar-dialog-description-row.mjs"; // eslint-disable-line import/no-unassigned-import
-import "./calendar-dialog-categories.mjs"; // eslint-disable-line import/no-unassigned-import
-import "./calendar-dialog-reminders-row.mjs"; // eslint-disable-line import/no-unassigned-import
-import "./calendar-dialog-attachments-list.mjs"; // eslint-disable-line import/no-unassigned-import
-import "./calendar-dialog-attendees-row.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./calendar-dialog-acceptance.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./calendar-dialog-subview-manager.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./calendar-dialog-date-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./calendar-dialog-description-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./calendar-dialog-categories.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./calendar-dialog-reminders-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./calendar-dialog-attachments-list.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./calendar-dialog-attendees-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 const { openLinkExternally } = ChromeUtils.importESModule(
   "resource:///modules/LinkHelper.sys.mjs"
