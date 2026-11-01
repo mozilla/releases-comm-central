@@ -1943,12 +1943,11 @@ nsMsgDBFolder::OnMessageClassified(const nsACString& aMsgURI,
       // Apply post-bayes filtering.
       nsCOMPtr<nsIMsgFilterService> filterService(
           mozilla::components::Filter::Service());
-      // We use a null nsIMsgWindow because we don't want some sort of ui
-      // appearing in the middle of automatic filtering (plus I really don't
-      // want to propagate that value.)
+      // Not interactive because we don't want some sort of ui appearing in
+      // the middle of automatic filtering.
       rv = filterService->ApplyFilters(nsMsgFilterType::PostPlugin,
                                        mPostBayesMessagesToFilter, {}, this,
-                                       nullptr, nullptr);
+                                       false, nullptr);
       mPostBayesMessagesToFilter.Clear();
     }
 

@@ -124,14 +124,14 @@ async function checkFilterAlert(handleAlert, selection, failure = "oversized") {
       [header],
       [],
       source,
-      null,
+      false,
       callback
     );
   } else {
     MailServices.filters.applyFiltersToFolders(
       filterList,
       [source],
-      null,
+      false,
       callback
     );
   }

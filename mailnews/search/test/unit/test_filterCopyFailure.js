@@ -241,7 +241,7 @@ function applyFiltersToMessages(filterList, source, messages, listener) {
     messages,
     [],
     source,
-    null,
+    false,
     listener
   );
 }
@@ -250,7 +250,7 @@ function applyFiltersToFolder(filterList, source, messages, listener) {
   MailServices.filters.applyFiltersToFolders(
     filterList,
     [source],
-    null,
+    false,
     listener
   );
 }

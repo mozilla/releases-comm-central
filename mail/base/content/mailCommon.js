@@ -320,7 +320,7 @@ var commandController = {
       const archiver = new MessageArchiver();
       // The instance of nsITransactionManager to use here is tied to msgWindow. Set
       // this property so the operation can be undone if requested.
-      archiver.msgWindow = top.msgWindow;
+      archiver.interactive = true;
       // Archive the selected message(s).
       archiver.archiveMessages(gDBView.getSelectedMsgHdrs());
     },
@@ -434,7 +434,7 @@ var commandController = {
       MailServices.filters.applyFiltersToFolders(
         tempFilterList,
         [gFolder],
-        top.msgWindow,
+        true,
         filterRunListener(gFolder)
       );
     },
@@ -446,7 +446,7 @@ var commandController = {
           selectedMessages,
           [],
           gFolder,
-          top.msgWindow,
+          true,
           filterRunListener(gFolder)
         );
       }

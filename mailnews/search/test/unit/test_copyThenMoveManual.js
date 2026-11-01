@@ -66,7 +66,7 @@ add_task(async function getLocalMessages1() {
     [localAccountUtils.inboxFolder.firstNewMessage],
     [],
     localAccountUtils.inboxFolder,
-    null,
+    false,
     filterListener
   );
   await filterListener.promise;
@@ -92,7 +92,7 @@ add_task(async function getLocalMessages2() {
   MailServices.filters.applyFiltersToFolders(
     gFilterList,
     folders,
-    null,
+    false,
     filterListener
   );
   await filterListener.promise;

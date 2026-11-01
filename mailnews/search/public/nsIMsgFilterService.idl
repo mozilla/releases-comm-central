@@ -7,7 +7,6 @@
 
 interface IHeaderBlock;
 interface nsIMsgFilterList;
-interface nsIMsgWindow;
 interface nsIMsgFilterCustomAction;
 interface nsIFile;
 interface nsIMsgFolder;
@@ -25,7 +24,7 @@ interface nsIMsgFilterService : nsISupports {
     nsIMsgFilterList getTempFilterList(in nsIMsgFolder aFolder);
     void applyFiltersToFolders(in nsIMsgFilterList aFilterList,
                                in Array<nsIMsgFolder> aFolders,
-                               in nsIMsgWindow aMsgWindow,
+                               in boolean interactive,
                                [optional] in nsIMsgOperationListener aCallback);
 
     /**
@@ -38,14 +37,14 @@ interface nsIMsgFilterService : nsISupports {
      *                      the size of aMsgHdrList.
      *                      Entries in this list MAY be null.
      * @param  aFolder      The folder the messages belong to
-     * @param  aMsgWindow   A UI window for attaching progress/dialogs
+     * @param  interactive  Whether the user is waiting on the filter run
      * @param  aCallback    A listener that gets notified of any filtering error
      */
     void applyFilters(in nsMsgFilterTypeType aFilterType,
                       in Array<nsIMsgDBHdr> aMsgHdrList,
                       in Array<IHeaderBlock> aRawHeaders,
                       in nsIMsgFolder aFolder,
-                      in nsIMsgWindow aMsgWindow,
+                      in boolean interactive,
                       [optional] in nsIMsgOperationListener aCallback);
 
     /**

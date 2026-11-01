@@ -149,7 +149,7 @@ add_task(async function testApplyingLeavesMessagesInPlace() {
   MailServices.filters.applyFiltersToFolders(
     filterList,
     [inbox],
-    null,
+    false,
     filterListener
   );
   // The move actions can't run without a destination folder, and that is

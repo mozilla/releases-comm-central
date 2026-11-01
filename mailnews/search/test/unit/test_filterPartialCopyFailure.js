@@ -75,14 +75,14 @@ async function checkPartialBatch(actionType, selection, messageCount = 3) {
       messages,
       [],
       source,
-      null,
+      false,
       listener
     );
   } else {
     MailServices.filters.applyFiltersToFolders(
       filterList,
       [source],
-      null,
+      false,
       listener
     );
   }

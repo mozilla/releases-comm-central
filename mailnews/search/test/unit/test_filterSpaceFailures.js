@@ -173,14 +173,14 @@ async function checkSpaceFailure(failure, selection, isMove) {
       messages,
       [],
       source,
-      null,
+      false,
       listener
     );
   } else {
     MailServices.filters.applyFiltersToFolders(
       filterList,
       [source],
-      null,
+      false,
       listener
     );
   }

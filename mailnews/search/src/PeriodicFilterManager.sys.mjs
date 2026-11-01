@@ -136,7 +136,7 @@ export var PeriodicFilterManager = {
       MailServices.filters.applyFiltersToFolders(
         tempFilterList,
         foldersToFilter,
-        null
+        false
       );
     }
     this._running = false;

@@ -30,7 +30,6 @@
 #include "nsIFile.h"
 #include "nsIMsgFilterCustomAction.h"
 #include "nsMsgMessageFlags.h"
-#include "nsIMsgWindow.h"
 #include "nsEmbedCID.h"
 #include "nsIPromptService.h"
 #include "nsIWindowMediator.h"
@@ -300,8 +299,7 @@ class nsMsgFilterAfterTheFact : public nsIUrlListener,
                                 public nsIMsgCopyServiceListener,
                                 public nsIMsgUserFeedbackListener {
  public:
-  nsMsgFilterAfterTheFact(nsIMsgWindow* aMsgWindow,
-                          nsIMsgFilterList* aFilterList,
+  nsMsgFilterAfterTheFact(bool interactive, nsIMsgFilterList* aFilterList,
                           const nsTArray<RefPtr<nsIMsgFolder>>& aFolderList,
                           nsIMsgOperationListener* aCallback);
   NS_DECL_ISUPPORTS
@@ -322,7 +320,7 @@ class nsMsgFilterAfterTheFact : public nsIUrlListener,
   void LogCopyFailure(nsIMsgRuleAction* action, nsresult status,
                       const nsACString& messageIds,
                       uint32_t omittedMessageCount);
-  nsCOMPtr<nsIMsgWindow> m_msgWindow;
+  bool m_interactive;
   nsCOMPtr<nsIMsgFilterList> m_filters;
   nsTArray<RefPtr<nsIMsgFolder>> m_folders;
   nsCOMPtr<nsIMsgFolder> m_curFolder;
@@ -350,12 +348,12 @@ NS_IMPL_ISUPPORTS(nsMsgFilterAfterTheFact, nsIUrlListener, nsIMsgSearchNotify,
                   nsIMsgCopyServiceListener, nsIMsgUserFeedbackListener)
 
 nsMsgFilterAfterTheFact::nsMsgFilterAfterTheFact(
-    nsIMsgWindow* aMsgWindow, nsIMsgFilterList* aFilterList,
+    bool interactive, nsIMsgFilterList* aFilterList,
     const nsTArray<RefPtr<nsIMsgFolder>>& aFolderList,
     nsIMsgOperationListener* aCallback) {
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Post) nsMsgFilterAfterTheFact"));
   m_curFilterIndex = m_curFolderIndex = m_nextAction = 0;
-  m_msgWindow = aMsgWindow;
+  m_interactive = interactive;
   m_filters = aFilterList;
   m_folders = aFolderList.Clone();
   m_filters->GetFilterCount(&m_numFilters);
@@ -436,7 +434,7 @@ nsresult nsMsgFilterAfterTheFact::RunNextFilter() {
     rv = m_searchSession->AddScopeTerm(searchScope, m_curFolder);
     CONTINUE_IF_FAILURE(rv, "Failed to add scope term");
     m_nextAction = 0;
-    rv = m_searchSession->Search(!!m_msgWindow);
+    rv = m_searchSession->Search(m_interactive);
     CONTINUE_IF_FAILURE(rv, "Search failed");
     return NS_OK;  // OnSearchDone will continue
   }
@@ -668,7 +666,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           // going to end up firing off the delete, and then subsequently
           // issuing a search for the next filter, which will block until the
           // delete finishes.
-          rv = curFolder->DeleteMessages(m_searchHitHdrs, !!m_msgWindow, false,
+          rv = curFolder->DeleteMessages(m_searchHitHdrs, m_interactive, false,
                                          false, nullptr, false /*allow Undo*/);
           BREAK_ACTION_IF_FAILURE(rv, "Deleting messages failed");
 
@@ -763,7 +761,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           rv = copyService->CopyMessages(
               curFolder, m_searchHitHdrs, destIFolder,
               actionType == nsMsgFilterAction::MoveToFolder, this,
-              !!m_msgWindow, false);
+              m_interactive, false);
           // A synchronous callback has already advanced or finished this run.
           if (m_copyCallbackCount != callbackCount) {
             return NS_OK;
@@ -852,7 +850,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
 
           for (auto msgHdr : m_searchHitHdrs) {
             rv = compService->ForwardMessage(
-                NS_ConvertASCIItoUTF16(forwardTo), msgHdr, !!m_msgWindow,
+                NS_ConvertASCIItoUTF16(forwardTo), msgHdr, m_interactive,
                 server, nsIMsgComposeService::kForwardAsDefault);
             BREAK_ACTION_IF_FAILURE(rv, "Forward action failed");
           }
@@ -913,7 +911,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
             }
           }
           if (!partialMsgs.IsEmpty()) {
-            rv = curFolder->DeleteMessages(partialMsgs, !!m_msgWindow, true,
+            rv = curFolder->DeleteMessages(partialMsgs, m_interactive, true,
                                            false, nullptr, false);
             BREAK_ACTION_IF_FAILURE(rv, "Delete messages failed");
           }
@@ -931,7 +929,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
               messages.AppendElement(msgHdr);
           }
           if (messages.Length() > 0) {
-            rv = curFolder->DownloadMessagesForOffline(messages, !!m_msgWindow);
+            rv = curFolder->DownloadMessagesForOffline(messages, m_interactive);
             BREAK_ACTION_IF_FAILURE(rv, "DownloadMessagesForOffline failed");
           }
         } break;
@@ -1004,7 +1002,7 @@ NS_IMETHODIMP nsMsgFilterService::GetTempFilterList(
 NS_IMETHODIMP
 nsMsgFilterService::ApplyFiltersToFolders(
     nsIMsgFilterList* aFilterList,
-    const nsTArray<RefPtr<nsIMsgFolder>>& aFolders, nsIMsgWindow* aMsgWindow,
+    const nsTArray<RefPtr<nsIMsgFolder>>& aFolders, bool interactive,
     nsIMsgOperationListener* aCallback) {
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
           ("(Post) nsMsgFilterService::ApplyFiltersToFolders"));
@@ -1020,8 +1018,8 @@ nsMsgFilterService::ApplyFiltersToFolders(
           ("(Post) Running %" PRIu32 " filters from %s on %" PRIu32 " folders",
            filterCount, listId.get(), (int)aFolders.Length()));
 
-  RefPtr<nsMsgFilterAfterTheFact> filterExecutor =
-      new nsMsgFilterAfterTheFact(aMsgWindow, aFilterList, aFolders, aCallback);
+  RefPtr<nsMsgFilterAfterTheFact> filterExecutor = new nsMsgFilterAfterTheFact(
+      interactive, aFilterList, aFolders, aCallback);
   return filterExecutor->AdvanceToNextFolder();
 }
 
@@ -1135,8 +1133,7 @@ nsMsgFilterService::FilterTypeName(nsMsgFilterTypeType filterType,
 // apply filters to a list of messages, rather than an entire folder
 class nsMsgApplyFiltersToMessages : public nsMsgFilterAfterTheFact {
  public:
-  nsMsgApplyFiltersToMessages(nsIMsgWindow* aMsgWindow,
-                              nsIMsgFilterList* aFilterList,
+  nsMsgApplyFiltersToMessages(bool interactive, nsIMsgFilterList* aFilterList,
                               const nsTArray<RefPtr<nsIMsgFolder>>& aFolderList,
                               const nsTArray<RefPtr<nsIMsgDBHdr>>& aMsgHdrList,
                               const nsTArray<RefPtr<IHeaderBlock>>& aRawHeaders,
@@ -1152,12 +1149,12 @@ class nsMsgApplyFiltersToMessages : public nsMsgFilterAfterTheFact {
 };
 
 nsMsgApplyFiltersToMessages::nsMsgApplyFiltersToMessages(
-    nsIMsgWindow* aMsgWindow, nsIMsgFilterList* aFilterList,
+    bool interactive, nsIMsgFilterList* aFilterList,
     const nsTArray<RefPtr<nsIMsgFolder>>& aFolderList,
     const nsTArray<RefPtr<nsIMsgDBHdr>>& aMsgHdrList,
     const nsTArray<RefPtr<IHeaderBlock>>& aRawHeaders,
     nsMsgFilterTypeType aFilterType, nsIMsgOperationListener* aCallback)
-    : nsMsgFilterAfterTheFact(aMsgWindow, aFilterList, aFolderList, aCallback),
+    : nsMsgFilterAfterTheFact(interactive, aFilterList, aFolderList, aCallback),
       m_msgHdrList(aMsgHdrList.Clone()),
       m_rawHeaders(aRawHeaders.Clone()),
       m_filterType(aFilterType) {
@@ -1280,7 +1277,7 @@ NS_IMETHODIMP nsMsgFilterService::ApplyFilters(
     nsMsgFilterTypeType aFilterType,
     const nsTArray<RefPtr<nsIMsgDBHdr>>& aMsgHdrList,
     const nsTArray<RefPtr<IHeaderBlock>>& aRawHeaders, nsIMsgFolder* aFolder,
-    nsIMsgWindow* aMsgWindow, nsIMsgOperationListener* aCallback) {
+    bool interactive, nsIMsgOperationListener* aCallback) {
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
           ("(Post) nsMsgApplyFiltersToMessages::ApplyFilters"));
   NS_ENSURE_ARG_POINTER(aFolder);
@@ -1315,7 +1312,7 @@ NS_IMETHODIMP nsMsgFilterService::ApplyFilters(
   // Create our nsMsgApplyFiltersToMessages object which will be called when
   // ApplyFiltersToHdr finds one or more filters that hit.
   RefPtr<nsMsgApplyFiltersToMessages> filterExecutor =
-      new nsMsgApplyFiltersToMessages(aMsgWindow, filterList, {aFolder},
+      new nsMsgApplyFiltersToMessages(interactive, filterList, {aFolder},
                                       aMsgHdrList, aRawHeaders, aFilterType,
                                       aCallback);
   return filterExecutor->AdvanceToNextFolder();

@@ -1191,13 +1191,12 @@ export class MessageSend {
       this.onStopOperation(Cr.NS_OK);
       return null;
     }
-    const msgWindow = this._sendProgress?.msgWindow;
     return MailServices.filters.applyFilters(
       Ci.nsMsgFilterType.PostOutgoing,
       [msgHdr],
       [],
       folder,
-      msgWindow,
+      !!this._sendProgress?.msgWindow,
       this
     );
   }

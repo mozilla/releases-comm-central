@@ -1631,9 +1631,9 @@ nsresult ExchangeFolder::PerformFiltering() {
     // their own filter actions.
     nsCOMPtr<nsIMsgFilterService> filterService(
         mozilla::components::Filter::Service());
-    nsresult rv = filterService->ApplyFilters(nsMsgFilterType::Inbox,
-                                              targetMsgs, targetHeaders, this,
-                                              nullptr /*window*/, listener);
+    nsresult rv = filterService->ApplyFilters(
+        nsMsgFilterType::Inbox, targetMsgs, targetHeaders, this,
+        false /* interactive */, listener);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
