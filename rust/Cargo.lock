@@ -276,9 +276,9 @@ dependencies = [
 
 [[package]]
 name = "async-lock"
-version = "3.4.2"
+version = "3.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "290f7f2596bd5b78a9fec8088ccd89180d7f9f55b94b0576823bbbdc72ee8311"
+checksum = "0876700b0d007ad25d5508865a4259c3af9af6d296bf663a0d586d0bc3369f6f"
 dependencies = [
  "event-listener",
  "event-listener-strategy",
@@ -3311,6 +3311,7 @@ dependencies = [
  "smallvec",
  "utf16_iter",
  "utf8_iter",
+ "utf_types",
  "zerovec",
 ]
 
@@ -3325,6 +3326,9 @@ dependencies = [
  "displaydoc",
  "potential_utf",
  "serde",
+ "utf16_iter",
+ "utf8_iter",
+ "utf_types",
  "yoke",
  "zerofrom",
  "zerovec",
@@ -3378,6 +3382,7 @@ dependencies = [
  "smallvec",
  "utf16_iter",
  "utf8_iter",
+ "utf_types",
  "write16",
  "zerovec",
 ]
@@ -7518,17 +7523,27 @@ dependencies = [
 
 [[package]]
 name = "utf16_iter"
-version = "1.0.5"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1c7de35d9d8757dbc1f5125dc8b51438c68b4430546a735c3a9b91aaaaf9a18a"
 dependencies = [
- "icu_collections",
+ "utf_types",
 ]
 
 [[package]]
 name = "utf8_iter"
-version = "1.0.4"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af3bd9d3e571c26fcce9d033b87ea5ab061b8d2ffe9b7a5675d810d68f03edf0"
 dependencies = [
- "icu_collections",
+ "utf_types",
 ]
+
+[[package]]
+name = "utf_types"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3a3b425286980a367278453f3b6d28cdcb134b574e5a35824a6ff5eebad50bb6"
 
 [[package]]
 name = "uuid"
