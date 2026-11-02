@@ -61,6 +61,9 @@ const dayBeforeYesterday = {
   jsDate: cal.dtz.dateTimeToJsDate(now),
   calDate: now.clone(),
 };
+const endOfMonth = {
+  weekday: dayBeforeYesterday.calDate.endOfMonth.weekday,
+};
 
 add_setup(async function () {
   Assert.equal(
@@ -244,7 +247,14 @@ add_task(async function testViewsWithTodayNotSelected() {
 
   // Check the current view.
 
-  await checkMonthViewToday("month", today, today.month != dayBeforeYesterday.month);
+  await checkMonthViewToday(
+    "month",
+    today,
+    // For today to be at the start of the week after the end of the displayed
+    // month, endOfMonth.weekday has to be 5 or 6, so today.weekday is either
+    // 6, 0, or 1, and we only care about the 0 or 1 cases.
+    today.month != dayBeforeYesterday.month && today.weekday < endOfMonth.weekday
+  );
   await checkMonthViewSelected("month", dayBeforeYesterday);
 
   // Without opening them, check the other views are marked as needing a refresh.
@@ -267,7 +277,7 @@ add_task(async function testViewsWithTodayNotSelected() {
 
   // Switch to the other views and check them.
 
-  await checkMonthViewToday("multiweek", today, today.month != dayBeforeYesterday.month);
+  await checkMonthViewToday("multiweek", today);
   await checkMonthViewSelected("multiweek", dayBeforeYesterday);
   await checkDayViewToday("week", dayBeforeYesterday.weekday <= 4 ? today : null);
   await checkDayViewSelected("week", dayBeforeYesterday);
@@ -281,7 +291,7 @@ add_task(async function testViewsWithTodayNotSelected() {
   minimonths.sidebar.value = dayBeforeYesterday.jsDate;
   clearTodayMarkers();
   CalMetronome.emit("day");
-  await checkMonthViewToday("multiweek", today, today.month != dayBeforeYesterday.month);
+  await checkMonthViewToday("multiweek", today);
   await checkMonthViewSelected("multiweek", dayBeforeYesterday);
 
   // Repeat with week view selected.
@@ -626,8 +636,9 @@ async function checkDayViewSelected(which, expected) {
  *
  * @param {"multiweek"|"month"} which
  * @param {object} expected
- * @param {bool} [isDifferentMonth=false] - If true, the selected date and
- *   today are in different months. Today might not be visible.
+ * @param {bool} [isDifferentMonth=false] - If true, today is not expected to
+ *   be visible, because it is in the week *after* the week containing the end
+ *   of the month. Not applicable for multiweek view.
  */
 async function checkMonthViewToday(which, expected, isDifferentMonth = false) {
   info(`checking ${which} view today`);
@@ -641,9 +652,7 @@ async function checkMonthViewToday(which, expected, isDifferentMonth = false) {
   Assert.equal(dayLabels.indexOf(todayLabels[0]), expected.weekday);
 
   const todayBoxes = views[which].querySelectorAll(`calendar-month-day-box[relation="today"]`);
-  if (which == "month" && isDifferentMonth && today.weekday == 0) {
-    // If today is in a different month and today is Sunday (weekday 0)
-    // then expect today to NOT be visible, in the Sun->Sat week layout we have.
+  if (which == "month" && isDifferentMonth) {
     Assert.equal(todayBoxes.length, 0, "today should not be visible");
     return;
   }
