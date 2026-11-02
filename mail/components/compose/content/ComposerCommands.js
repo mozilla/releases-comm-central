@@ -557,7 +557,9 @@ function GetSuggestedFileName(aDocumentURLString, aMIMEType) {
       docURI = docURI.QueryInterface(Ci.nsIURL);
 
       // grab the file name
-      const url = validateFileName(decodeURIComponent(docURI.fileBaseName));
+      const url = MailUtils.sanitizeFileName(
+        decodeURIComponent(docURI.fileBaseName)
+      );
       if (url) {
         return url + extension;
       }
@@ -567,7 +569,7 @@ function GetSuggestedFileName(aDocumentURLString, aMIMEType) {
   // Check if there is a title we can use to generate a valid filename,
   // if we can't, use the default filename.
   var title =
-    validateFileName(GetDocumentTitle()) ||
+    MailUtils.sanitizeFileName(GetDocumentTitle()) ||
     GetString("untitledDefaultFilename");
   return title + extension;
 }

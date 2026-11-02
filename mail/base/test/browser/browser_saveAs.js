@@ -5,6 +5,9 @@
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 const { MessageSaver } = ChromeUtils.importESModule(
   "moz-src:///comm/mail/modules/MessageSaver.sys.mjs"
 );
@@ -170,20 +173,21 @@ add_task(async function testSingleTXT() {
   );
 });
 
-add_task(async function testLongFileName() {
+add_task(async function testPickedLongFileNameIsUnchanged() {
   const { savedText, picker } = await subtestSingle(
     7,
     "eml",
     `${"x".repeat(96)}.eml`
   );
+  const expectedName = MailUtils.generateUniqueFilenames([
+    MailUtils.getEmlFilenameBase(testMessages[7], {
+      includeAuthorAndDate: true,
+    }) + ".eml",
+  ])[0];
   Assert.equal(
-    picker.defaultString.length,
-    85,
-    "suggested file name should be shortened"
-  );
-  Assert.ok(
-    picker.defaultString.endsWith("... - 2000-02-01 0700.eml"),
-    "suggested file name should be shortened in the middle, keeping the date"
+    picker.defaultString,
+    expectedName,
+    "the suggested file name should match the generated name"
   );
   // subtestSingle waits for the picked path, so the long name was kept.
   Assert.stringContains(
@@ -269,6 +273,71 @@ add_task(async function testRetryKeepsChoices() {
   );
   await IOUtils.remove(goodPath);
   await IOUtils.remove(notADirPath);
+});
+
+add_task(async function testFallbackFilenameSuggestions() {
+  const header = testMessages[0];
+  SpecialPowers.MockFilePicker.init(window.browsingContext);
+  try {
+    const inputs = [
+      ["message.HTML", ".HTML"],
+      ["message", ""],
+      [".hidden", ""],
+      ["\u{1f600}\r\n\u2028a".repeat(100) + ".eml", ".eml"],
+    ];
+    for (const [defaultName, extension] of inputs) {
+      SpecialPowers.MockFilePicker.showCallback = picker => {
+        const filename = picker.defaultString;
+        Assert.lessOrEqual(
+          [...filename].length,
+          85,
+          "the fallback suggestion should fit the code point limit"
+        );
+        Assert.ok(
+          filename.endsWith(extension),
+          "the fallback suggestion should keep the original extension"
+        );
+        Assert.ok(
+          !/[\r\n]/.test(filename),
+          "the fallback suggestion should sanitize ASCII controls"
+        );
+        Assert.ok(
+          filename.isWellFormed(),
+          "the fallback suggestion should preserve whole code points"
+        );
+        if ([...defaultName].length > 85) {
+          Assert.ok(
+            filename.includes("..."),
+            "the long fallback should be shortened"
+          );
+        } else {
+          Assert.equal(
+            filename,
+            defaultName,
+            "a short fallback should retain its name without an extra extension"
+          );
+        }
+        Assert.equal(
+          picker.filterIndex,
+          3,
+          "the initial fallback should use the All Files filter"
+        );
+        return Ci.nsIFilePicker.returnCancel;
+      };
+      const result = await MessageSaver.saveAs(
+        window.browsingContext,
+        header.folder.getUriForMsg(header),
+        defaultName
+      );
+      Assert.equal(
+        result,
+        null,
+        "canceling the fallback picker should leave the message unsaved"
+      );
+    }
+  } finally {
+    SpecialPowers.MockFilePicker.cleanup();
+  }
 });
 
 add_task(async function testMultiple() {
@@ -389,7 +458,7 @@ add_task(async function testMultipleOverwriteConfirmation() {
       await MessageSaver.saveMessages(
         window.browsingContext,
         [uri, uri, uri],
-        names
+        names.map(name => name.slice(0, -4))
       ),
       targetPath,
       "the batch should finish after declining an overwrite"
@@ -421,4 +490,49 @@ add_task(async function testMultipleOverwriteConfirmation() {
     SpecialPowers.MockFilePicker.cleanup();
     await IOUtils.remove(targetPath, { recursive: true });
   }
+});
+
+add_task(async function test_generatedBatchFilenames() {
+  const targetPath = await IOUtils.createUniqueDirectory(
+    PathUtils.tempDir,
+    "saveGeneratedNames"
+  );
+  registerCleanupFunction(() =>
+    IOUtils.remove(targetPath, { recursive: true })
+  );
+  const bases = ["Subject", "subject", "郵".repeat(100)];
+  const messageURIs = testMessages
+    .slice(0, bases.length)
+    .map(header => header.folder.getUriForMsg(header));
+  SpecialPowers.MockFilePicker.init(window.browsingContext);
+  registerCleanupFunction(() => SpecialPowers.MockFilePicker.cleanup());
+  SpecialPowers.MockFilePicker.useDirectory(targetPath);
+  SpecialPowers.MockFilePicker.showCallback = picker => {
+    Assert.equal(picker.mode, Ci.nsIFilePicker.modeGetFolder);
+    return Ci.nsIFilePicker.returnOk;
+  };
+
+  const result = await MessageSaver.saveMessages(
+    window.browsingContext,
+    messageURIs,
+    bases
+  );
+  Assert.equal(result, targetPath, "all generated files should be saved");
+
+  const names = (await IOUtils.getChildren(targetPath)).map(path =>
+    PathUtils.filename(path)
+  );
+  Assert.ok(names.includes("Subject.eml"));
+  Assert.ok(names.includes("subject-2.eml"));
+  const longName = names.find(name => name.startsWith("郵"));
+  Assert.ok(
+    longName,
+    "the batch should include the shortened Unicode filename"
+  );
+  Assert.ok(longName.includes("..."), "the long name should be shortened");
+  Assert.lessOrEqual(
+    [...longName].length,
+    85,
+    "the saved name should fit the code point limit"
+  );
 });

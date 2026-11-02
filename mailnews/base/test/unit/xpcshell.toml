@@ -15,6 +15,8 @@ support-files = [
 
 ["test_MailNotificationManager.js"]
 
+["test_MailUtils.js"]
+
 ["test_MorkParser.js"]
 
 ["test_MsgIncomingServer.js"]

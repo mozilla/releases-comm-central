@@ -24,9 +24,6 @@
 // quickFilterBar.js
 /* globals quickFilterBar */
 
-// utilityOverlay.js
-/* globals validateFileName */
-
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
@@ -4923,57 +4920,17 @@ var threadPane = {
     }
     const messageURIs = gDBView.getURIsForSelection();
 
-    let noSubjectString = messengerBundle.GetStringFromName(
-      "defaultSaveMessageAsFileName"
+    const names = MailUtils.generateUniqueFilenames(
+      messageURIs.map(uri => {
+        const msgHdr =
+          MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(uri);
+        return MailUtils.getEmlFilenameBase(msgHdr) + ".eml";
+      })
     );
-    if (noSubjectString.endsWith(".eml")) {
-      noSubjectString = noSubjectString.slice(0, -4);
-    }
-    const longSubjectTruncator = messengerBundle.GetStringFromName(
-      "longMsgSubjectTruncator"
-    );
-    // Clip the subject string to 124 chars to avoid problems on Windows,
-    // see NS_MAX_FILEDESCRIPTOR in m-c/widget/windows/nsDataObj.cpp .
-    const maxUncutNameLength = 124;
-    const maxCutNameLength = maxUncutNameLength - longSubjectTruncator.length;
-    const messages = new Map();
 
     for (const [index, uri] of Object.entries(messageURIs)) {
       const msgService = MailServices.messageServiceFromURI(uri);
-      const msgHdr = msgService.messageURIToMsgHdr(uri);
-      let subject = msgHdr.mime2DecodedSubject || "";
-      if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe) {
-        subject = "Re: " + subject;
-      }
-
-      let uniqueFileName;
-      // If there is no subject, use a default name.
-      // If subject needs to be truncated, add a truncation character to indicate it.
-      if (!subject) {
-        uniqueFileName = noSubjectString;
-      } else {
-        uniqueFileName =
-          subject.length <= maxUncutNameLength
-            ? subject
-            : subject.substr(0, maxCutNameLength) + longSubjectTruncator;
-      }
-      let msgFileName = validateFileName(uniqueFileName);
-      let msgFileNameLowerCase = msgFileName.toLocaleLowerCase();
-
-      while (true) {
-        if (!messages.has(msgFileNameLowerCase)) {
-          messages.set(msgFileNameLowerCase, 1);
-          break;
-        } else {
-          const number = messages.get(msgFileNameLowerCase);
-          messages.set(msgFileNameLowerCase, number + 1);
-          const postfix = "-" + number;
-          msgFileName = msgFileName + postfix;
-          msgFileNameLowerCase = msgFileNameLowerCase + postfix;
-        }
-      }
-
-      msgFileName = msgFileName + ".eml";
+      const msgFileName = names[index];
 
       // When dragging messages to the filesystem:
       // - Windows fetches application/x-moz-file-promise-url and writes it to
@@ -5001,7 +4958,7 @@ var threadPane = {
       );
       event.dataTransfer.mozSetDataAt(
         "application/x-moz-file-promise-dest-filename",
-        msgFileName.replace(/^(.{60}).{4,}(.{22})$/su, "$1...$2"),
+        msgFileName,
         index
       );
     }

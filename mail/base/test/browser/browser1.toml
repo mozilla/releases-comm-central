@@ -53,6 +53,8 @@ run-if = [
   "!headless",
 ] # See bug 1806870.
 
+["browser_dragMessageFilenames.js"]
+
 ["browser_dummyRow.js"]
 
 ["browser_feedBodyDisplay.js"]

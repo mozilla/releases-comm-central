@@ -476,63 +476,25 @@ function SaveAsFile(uris) {
     }
   }
 
-  const filenames = [];
-
-  for (const uri of uris) {
+  const nameBases = uris.map(uri => {
     const msgHdr =
       MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(uri);
-    const nameBase = GenerateFilenameFromMsgHdr(msgHdr);
-    let name = GenerateValidFilename(nameBase, ".eml");
-
-    let number = 2;
-    while (filenames.includes(name)) {
-      // should be unlikely
-      name = GenerateValidFilename(nameBase + "-" + number, ".eml");
-      number++;
-    }
-    filenames.push(name);
-  }
+    return MailUtils.getEmlFilenameBase(msgHdr, {
+      includeAuthorAndDate: true,
+    });
+  });
 
   if (uris.length == 1) {
-    MessageSaver.saveAs(window.browsingContext, uris[0], filenames[0]);
+    MessageSaver.saveAs(
+      window.browsingContext,
+      uris[0],
+      nameBases[0] + ".eml"
+    ).catch(console.error);
   } else {
-    MessageSaver.saveMessages(window.browsingContext, uris, filenames);
-  }
-}
-
-function GenerateFilenameFromMsgHdr(msgHdr) {
-  function MakeIS8601ODateString(date) {
-    function pad(n) {
-      return n < 10 ? "0" + n : n;
-    }
-    return (
-      date.getFullYear() +
-      "-" +
-      pad(date.getMonth() + 1) +
-      "-" +
-      pad(date.getDate()) +
-      " " +
-      pad(date.getHours()) +
-      "" +
-      pad(date.getMinutes()) +
-      ""
+    MessageSaver.saveMessages(window.browsingContext, uris, nameBases).catch(
+      console.error
     );
   }
-
-  let filename;
-  if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe) {
-    filename = msgHdr.mime2DecodedSubject
-      ? "Re: " + msgHdr.mime2DecodedSubject
-      : "Re: ";
-  } else {
-    filename = msgHdr.mime2DecodedSubject;
-  }
-
-  filename += " - ";
-  filename += msgHdr.mime2DecodedAuthor + " - ";
-  filename += MakeIS8601ODateString(new Date(msgHdr.date / 1000));
-
-  return filename;
 }
 
 async function SaveAsTemplate(uri) {

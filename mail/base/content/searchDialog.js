@@ -6,7 +6,6 @@
 /* import-globals-from ../../../mailnews/search/content/searchTerm.js */
 /* import-globals-from globalOverlay.js */
 
-/* globals validateFileName */ // From utilityOverlay.js
 /* globals messageFlavorDataProvider */ // From messenger.js
 
 "use strict";
@@ -1280,62 +1279,22 @@ function MsgOpenSelectedMessages() {
 
 // This code is used when dragging a message from a "Search Messages" panel.
 function ThreadPaneOnDragStart(aEvent) {
-  const messageUris = gDBView.getURIsForSelection();
-  if (!messageUris.length) {
+  const messageUris = gDBView?.getURIsForSelection();
+  if (!messageUris) {
     return;
   }
 
   gFolderDisplay.hintAboutToDeleteMessages();
-  const messengerBundle = document.getElementById("bundle_messenger");
-  let noSubjectString = messengerBundle.getString(
-    "defaultSaveMessageAsFileName"
+  const names = MailUtils.generateUniqueFilenames(
+    messageUris.map(msgUri => {
+      const msgHdr =
+        MailServices.messageServiceFromURI(msgUri).messageURIToMsgHdr(msgUri);
+      return MailUtils.getEmlFilenameBase(msgHdr) + ".eml";
+    })
   );
-  if (noSubjectString.endsWith(".eml")) {
-    noSubjectString = noSubjectString.slice(0, -4);
-  }
-  const longSubjectTruncator = messengerBundle.getString(
-    "longMsgSubjectTruncator"
-  );
-  // Clip the subject string to 124 chars to avoid problems on Windows,
-  // see NS_MAX_FILEDESCRIPTOR in m-c/widget/windows/nsDataObj.cpp .
-  const maxUncutNameLength = 124;
-  const maxCutNameLength = maxUncutNameLength - longSubjectTruncator.length;
-  const messages = new Map();
   for (const [index, msgUri] of messageUris.entries()) {
     const msgService = MailServices.messageServiceFromURI(msgUri);
-    const msgHdr = msgService.messageURIToMsgHdr(msgUri);
-    let subject = msgHdr.mime2DecodedSubject || "";
-    if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe) {
-      subject = "Re: " + subject;
-    }
-
-    let uniqueFileName;
-    // If there is no subject, use a default name.
-    // If subject needs to be truncated, add a truncation character to indicate it.
-    if (!subject) {
-      uniqueFileName = noSubjectString;
-    } else {
-      uniqueFileName =
-        subject.length <= maxUncutNameLength
-          ? subject
-          : subject.substr(0, maxCutNameLength) + longSubjectTruncator;
-    }
-    let msgFileName = validateFileName(uniqueFileName);
-    let msgFileNameLowerCase = msgFileName.toLocaleLowerCase();
-
-    while (true) {
-      if (!messages[msgFileNameLowerCase]) {
-        messages[msgFileNameLowerCase] = 1;
-        break;
-      } else {
-        const postfix = "-" + messages[msgFileNameLowerCase];
-        messages[msgFileNameLowerCase]++;
-        msgFileName = msgFileName + postfix;
-        msgFileNameLowerCase = msgFileNameLowerCase + postfix;
-      }
-    }
-
-    msgFileName = msgFileName + ".eml";
+    const msgFileName = names[index];
 
     // When dragging messages to the filesystem:
     // - Windows fetches application/x-moz-file-promise-url and writes it to
@@ -1363,7 +1322,7 @@ function ThreadPaneOnDragStart(aEvent) {
     );
     aEvent.dataTransfer.mozSetDataAt(
       "application/x-moz-file-promise-dest-filename",
-      msgFileName.replace(/^(.{60}).{4,}(.{22})$/su, "$1...$2"),
+      msgFileName,
       index
     );
   }

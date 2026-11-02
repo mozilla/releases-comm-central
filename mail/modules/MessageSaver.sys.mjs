@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
+import { MailUtils } from "resource:///modules/MailUtils.sys.mjs";
 import { NetUtil } from "resource://gre/modules/NetUtil.sys.mjs";
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
@@ -41,8 +42,9 @@ export class MessageSaver {
    *
    * @param {BrowsingContext} browsingContext - The browsing context to use.
    * @param {string} uri - URI of the message to save.
-   * @param {string} [defaultName] - The default file name for the file picker.
-   * @returns {?string} the path of the saved message. null if not saved.
+   * @param {string} [defaultName] - Initial filename to sanitize and shorten,
+   *   preserving its final extension. Defaults to the localized EML filename.
+   * @returns {Promise<?string>} The path of the saved message, or null if canceled.
    */
   static async saveAs(browsingContext, uri, defaultName) {
     const [title, defaultFileName, emlFilesLabel] =
@@ -51,10 +53,9 @@ export class MessageSaver {
         { id: "messenger-default-save-message-file-name" },
         { id: "messenger-eml-files-filter" },
       ]);
-    let fileName = (defaultName || defaultFileName).replace(
-      /^(.{60}).{4,}(.{22})$/su,
-      "$1...$2"
-    );
+    let [fileName] = MailUtils.generateUniqueFilenames([
+      defaultName || defaultFileName,
+    ]);
 
     // Save as "All Files" by default. We want .eml by default, but the pickers
     // on some platforms don't switch extensions based on the file type
@@ -67,7 +68,6 @@ export class MessageSaver {
         Ci.nsIFilePicker
       );
       fp.init(browsingContext, title, Ci.nsIFilePicker.modeSave);
-      fp.defaultString = fileName;
       // Filters must be appended in FILE_TYPES order, as filterIndex is used.
       fp.appendFilter(emlFilesLabel, "*.eml");
       fp.appendFilters(Ci.nsIFilePicker.filterHTML);
@@ -82,21 +82,23 @@ export class MessageSaver {
         );
       } catch (e) {} // Pref may not be set, yet.
 
+      fp.defaultString = fileName;
+
       const result = await new Promise(resolve => fp.open(resolve));
       if (result == Ci.nsIFilePicker.returnCancel) {
         return null;
       }
 
       const file = fp.file;
-      Services.prefs.setComplexValue(
-        "messenger.save.dir",
-        Ci.nsIFile,
-        file.parent
-      );
       const type =
         FILE_TYPES[fp.filterIndex] ??
         MessageSaver.#fileTypeFromName(file.leafName);
       try {
+        Services.prefs.setComplexValue(
+          "messenger.save.dir",
+          Ci.nsIFile,
+          file.parent
+        );
         await MessageSaver.saveToFile(uri, file.path, type);
         return file.path;
       } catch (e) {
@@ -183,17 +185,22 @@ export class MessageSaver {
    *
    * @param {BrowsingContext} browsingContext - The browsing context to use.
    * @param {string[]} uris - URIs of the messages to save.
-   * @param {string[]} fileNames - The file names to use, one for each message.
-   * @returns {?string} the path of the folder the messages were saved to.
-   *   null if not saved.
+   * @param {string[]} nameBases - Preferred, unsanitized name bases, one for
+   *   each message and without an extension.
+   * @returns {Promise<?string>} The chosen folder path, or null if canceled
+   *   or any message failed to save.
    */
-  static async saveMessages(browsingContext, uris, fileNames) {
+  static async saveMessages(browsingContext, uris, nameBases) {
+    if (uris.length != nameBases.length) {
+      throw new Error("Expected one name base per message");
+    }
+    if (!uris.length) {
+      return null;
+    }
+
+    const title = await lazy.l10n.formatValue("messenger-choose-folder");
     const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-    fp.init(
-      browsingContext,
-      await lazy.l10n.formatValue("messenger-choose-folder"),
-      Ci.nsIFilePicker.modeGetFolder
-    );
+    fp.init(browsingContext, title, Ci.nsIFilePicker.modeGetFolder);
     try {
       fp.displayDirectory = Services.prefs.getComplexValue(
         "messenger.save.dir",
@@ -201,19 +208,21 @@ export class MessageSaver {
       );
     } catch (e) {} // Pref may not be set, yet.
 
-    const result = await new Promise(resolve => fp.open(resolve));
-    if (result == Ci.nsIFilePicker.returnCancel) {
+    if (
+      (await new Promise(resolve => fp.open(resolve))) ==
+      Ci.nsIFilePicker.returnCancel
+    ) {
       return null;
     }
-
     const dir = fp.file;
+    const names = MailUtils.generateUniqueFilenames(
+      nameBases.map(base => base + ".eml")
+    );
+
     Services.prefs.setComplexValue("messenger.save.dir", Ci.nsIFile, dir);
     try {
-      for (const [i, uri] of uris.entries()) {
-        const path = PathUtils.join(
-          dir.path,
-          fileNames[i].replace(/(.{60}).{4,}(.{22})$/u, "$1...$2")
-        );
+      for (const [index, uri] of uris.entries()) {
+        const path = PathUtils.join(dir.path, names[index]);
         if (
           (await IOUtils.exists(path)) &&
           !Services.prompt.confirm(

@@ -82,6 +82,7 @@ add_task(async function testDragMessageSource() {
       "item count should match selection count"
     );
 
+    const seenFilenames = new Set();
     for (const [index, header] of Object.entries(headers)) {
       const messageURI = sourceFolder.getUriForMsg(header);
       const messageURL = mailboxService.getUrlForUri(messageURI).spec;
@@ -106,15 +107,26 @@ add_task(async function testDragMessageSource() {
         messageURL,
         `application/x-moz-file-promise-url of item ${index}`
       );
+
+      const expectedNameBase = `${
+        header.flags & Ci.nsMsgMessageFlags.HasRe ? "Re_ " : ""
+      }${header.subject}`;
+      const filename = dataTransfer.mozGetDataAt(
+        "application/x-moz-file-promise-dest-filename",
+        index
+      );
+      Assert.ok(
+        !seenFilenames.has(filename.toLowerCase()),
+        "Dragged filenames should be unique"
+      );
+      seenFilenames.add(filename.toLowerCase());
+      Assert.ok(
+        filename.startsWith(expectedNameBase),
+        "Filename should retain the subject"
+      );
       Assert.stringMatches(
-        dataTransfer.mozGetDataAt(
-          "application/x-moz-file-promise-dest-filename",
-          index
-        ),
-        `^${header.flags & Ci.nsMsgMessageFlags.HasRe ? "Re[:_ ]? " : ""}${
-          header.subject
-        }(-\\d)?\.eml$`,
-        `application/x-moz-file-promise-dest-filename of item ${index}`
+        filename.slice(expectedNameBase.length),
+        "^(-([2-9]|[1-9][0-9]+))?\\.eml$"
       );
       const flavorDataProvider = dataTransfer.mozGetDataAt(
         "application/x-moz-file-promise",
