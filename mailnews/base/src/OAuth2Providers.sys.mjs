@@ -335,6 +335,7 @@ var kIssuers = new Map([
       tokenEndpoint: "https://api.fastmail.com/oauth/refresh",
       usePKCE: true,
       useExternalBrowser: true,
+      redirectionEndpoint: "http://127.0.0.1/fastmail",
     },
   ],
 
