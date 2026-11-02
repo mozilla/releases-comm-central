@@ -241,6 +241,12 @@ function onFolderPick(aEvent) {
   document.getElementById("msgNewFolderPopup").selectFolder(gPickedFolder);
 }
 
+/**
+ * Validates and saves the search. Alerts and focuses the first missing value
+ * instead of saving an unfinished criterion.
+ *
+ * @param {Event} event - Dialog acceptance event, canceled if validation fails.
+ */
 function onOK(event) {
   var name = document.getElementById("name").value;
   var searchOnline = document.getElementById("searchOnline").checked;
@@ -253,6 +259,27 @@ function onOK(event) {
     );
     event.preventDefault();
     return;
+  }
+
+  if (gSearchBooleanRadiogroup.value != "matchAll") {
+    for (const { obj } of gSearchTerms) {
+      if (obj.searchvalue.hasMissingValue()) {
+        event.preventDefault();
+        const [title, message] = l10n.formatValuesSync([
+          { id: "virtual-folder-missing-value-title" },
+          {
+            id: "virtual-folder-missing-value-rule",
+            args: {
+              attribute: obj.searchattribute.label,
+              operator: obj.searchoperator.label,
+            },
+          },
+        ]);
+        Services.prompt.alert(window, title, message);
+        obj.searchvalue.input.focus();
+        return;
+      }
+    }
   }
 
   if (window.arguments[0].editExistingFolder) {

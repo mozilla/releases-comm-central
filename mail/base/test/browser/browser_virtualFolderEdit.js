@@ -351,13 +351,58 @@ add_task(async function test_switchFromMatchAllMessages() {
     );
 
     await openVirtualFolderDialog(args, async win => {
-      win.document.querySelector(`radio[value="${mode}"]`).click();
-      win.document.querySelector("dialog").getButton("accept").click();
+      const doc = win.document;
+      doc.querySelector(`radio[value="${mode}"]`).click();
+      const attribute = doc.querySelector("search-attribute");
+      const operator = doc.querySelector("search-operator");
+      const value = doc.querySelector("search-value");
+      Assert.ok(attribute, "Search should have an attribute widget");
+      Assert.ok(operator, "Search should have an operator widget");
+      Assert.ok(value, "Search should have a value widget");
+      Assert.equal(
+        attribute.value,
+        Ci.nsMsgSearchAttrib.Subject,
+        "Switching match modes should initialize the Subject criterion"
+      );
+      const alertClosed = BrowserTestUtils.promiseAlertDialog(
+        undefined,
+        "chrome://global/content/commonDialog.xhtml",
+        {
+          async callback(alertWindow) {
+            const message =
+              alertWindow.document.getElementById("infoBody").textContent;
+            Assert.stringContains(
+              message,
+              attribute.label,
+              "Alert should name the attribute with the missing value"
+            );
+            Assert.stringContains(
+              message,
+              operator.label,
+              "Alert should name the operator with the missing value"
+            );
+            alertWindow.document.querySelector("dialog").acceptDialog();
+          },
+        }
+      );
+      doc.querySelector("dialog").getButton("accept").click();
+      await alertClosed;
+      Assert.ok(
+        !win.closed,
+        "Missing value should keep the search dialog open"
+      );
+      Assert.equal(
+        doc.activeElement,
+        value.input,
+        "Missing value input should receive focus after dismissing the alert"
+      );
+      value.input.value = "needle";
+      doc.querySelector("dialog").getButton("accept").click();
     });
     Assert.equal(
       wrapped.searchString,
-      `${mode.toUpperCase()} (subject,contains,)`,
-      "Switching match modes should save a valid blank Subject criterion"
+      `${mode.toUpperCase()} (subject,contains,needle)`,
+      "Switching match modes should save a valid Subject criterion"
     );
 
     await openVirtualFolderDialog(args, async win => {
@@ -385,8 +430,8 @@ add_task(async function test_switchFromMatchAllMessages() {
       );
       Assert.equal(
         value.getInputValue(),
-        "",
-        "Reopened criterion should have an empty value"
+        "needle",
+        "Reopened criterion should retain its value"
       );
       doc.querySelector("dialog").getButton("cancel").click();
     });
@@ -551,4 +596,134 @@ add_task(async function test_preserveCustomSearchAttributes() {
     }
   }
   sandbox.restore();
+});
+
+add_task(async function test_missingSearchValues() {
+  const { sinon } = ChromeUtils.importESModule(
+    "resource://testing-common/Sinon.sys.mjs"
+  );
+  const sandbox = sinon.createSandbox();
+  registerCleanupFunction(() => sandbox.restore());
+  const alert = sinon.spy();
+  sandbox.stub(Services, "prompt").value({ alert });
+
+  for (const editExistingFolder of [false, true]) {
+    for (const missingValue of ["", " \t "]) {
+      const name = `missingValue-${editExistingFolder}-${missingValue.length}`;
+      const originalCondition = "AND (subject,contains,original)";
+      const wrapped = editExistingFolder
+        ? VirtualFolderHelper.createNewVirtualFolder(
+            name,
+            first,
+            [second],
+            originalCondition,
+            false
+          )
+        : null;
+      await openVirtualFolderDialog(
+        {
+          folder: wrapped ? wrapped.virtualFolder : first,
+          newFolderName: name,
+          editExistingFolder,
+        },
+        async win => {
+          const doc = win.document;
+          const firstValue = doc.querySelector("search-value");
+          Assert.ok(firstValue, "Search should have a value widget");
+          firstValue.input.value = "changed";
+          win.onMore(null);
+          const attribute = doc.querySelectorAll("search-attribute")[1];
+          const operator = doc.querySelectorAll("search-operator")[1];
+          const value = doc.querySelectorAll("search-value")[1];
+          Assert.ok(attribute, "Second criterion should have an attribute");
+          Assert.ok(operator, "Second criterion should have an operator");
+          Assert.ok(value, "Second criterion should have a value widget");
+          attribute.value = Ci.nsMsgSearchAttrib.Sender;
+          value.input.value = missingValue;
+          firstValue.input.focus();
+
+          alert.resetHistory();
+          const event = new win.Event("dialogaccept", { cancelable: true });
+          win.onOK(event);
+          Assert.ok(
+            event.defaultPrevented,
+            "Missing value should prevent saving"
+          );
+          Assert.deepEqual(
+            alert.args.map(args => args.slice(1)),
+            [
+              [
+                win.l10n.formatValueSync("virtual-folder-missing-value-title"),
+                win.l10n.formatValueSync("virtual-folder-missing-value-rule", {
+                  attribute: attribute.label,
+                  operator: operator.label,
+                }),
+              ],
+            ],
+            "Alert should identify the criterion with the missing value"
+          );
+          Assert.equal(
+            doc.activeElement,
+            value.input,
+            "Missing value input should receive focus"
+          );
+          if (wrapped) {
+            Assert.equal(
+              wrapped.searchString,
+              originalCondition,
+              "Rejected edit should preserve the saved search criteria"
+            );
+          } else {
+            Assert.ok(
+              !first.containsChildNamed(name),
+              "Rejected creation should not create a saved search folder"
+            );
+          }
+          doc.querySelector("dialog").getButton("cancel").click();
+        }
+      );
+    }
+  }
+  sandbox.restore();
+});
+
+add_task(async function test_allowMeaningfulEmptySearchValues() {
+  for (const [attribute, operator, condition] of [
+    [Ci.nsMsgSearchAttrib.Subject, Ci.nsMsgSearchOp.Is, "subject,is,"],
+    [Ci.nsMsgSearchAttrib.Subject, Ci.nsMsgSearchOp.Isnt, "subject,isn't,"],
+    [Ci.nsMsgSearchAttrib.Keywords, Ci.nsMsgSearchOp.IsEmpty, "tag,is empty,"],
+    [
+      Ci.nsMsgSearchAttrib.Keywords,
+      Ci.nsMsgSearchOp.IsntEmpty,
+      "tag,isn't empty,",
+    ],
+  ]) {
+    const name = `emptyValue-${attribute}-${operator}`;
+    await openVirtualFolderDialog(
+      { folder: first, newFolderName: name },
+      async win => {
+        win.document.querySelector("search-attribute").value = attribute;
+        win.document.querySelector("search-operator").value = operator;
+        win.document.querySelector("dialog").getButton("accept").click();
+      }
+    );
+    const folder = first.getChildNamed(name);
+    const wrapped = VirtualFolderHelper.wrapVirtualFolder(folder);
+    Assert.equal(
+      wrapped.searchString,
+      `AND (${condition})`,
+      "Operator with a meaningful empty value should allow creating a search"
+    );
+    await openVirtualFolderDialog(
+      { folder, editExistingFolder: true },
+      async win => {
+        win.document.querySelector("dialog").getButton("accept").click();
+      }
+    );
+    Assert.equal(
+      wrapped.searchString,
+      `AND (${condition})`,
+      "Operator with a meaningful empty value should allow updating a search"
+    );
+  }
 });
