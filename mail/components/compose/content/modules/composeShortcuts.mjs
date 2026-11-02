@@ -118,9 +118,11 @@ function setupEventListener() {
   let pendingShortcut = null;
 
   window.addEventListener("keydown", event => {
+    // Avoid issues with accidental prolonged key press.
     if (event.repeat) {
       return;
     }
+
     // Unique variation for macOS in case the metaKey is used for shortcuts.
     // macOS doesn't fire any keyboard key on `keyup` if the metaKey is pressed,
     // therefore we need to trigger the shortcut on keydown.
@@ -135,6 +137,8 @@ function setupEventListener() {
       }
       return;
     }
+
+    // Store the pending matching shortcut to trigger on keyup.
     pendingShortcut = ShortcutsManager.matches(event, "compose");
   });
 

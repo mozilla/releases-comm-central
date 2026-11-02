@@ -276,6 +276,8 @@ export const ShortcutsManager = {
    * @param {?string} context - The context string to filter out duplicated
    *   shortcuts, if necessary.
    * @returns {?Shortcut} - The matching shortcut, or null if nothing matches.
+   * @throws {Error} If multiple shortcuts match the event, since we don't
+   *   want to allow multiple shortcuts to run at the same time.
    */
   matches(event, context = null) {
     const found = [];
@@ -283,7 +285,7 @@ export const ShortcutsManager = {
     for (const shortcut of this.shortcuts) {
       // No need to run any other condition if the base key doesn't match.
       // Compare case insensitive because this is not consistent across
-      // platforms. We check for the shift key specficly below anyway.
+      // platforms. We check for the shift key specifically below anyway.
       if (shortcut.key?.toLowerCase() != normalizedKey) {
         continue;
       }
@@ -297,7 +299,23 @@ export const ShortcutsManager = {
         continue;
       }
 
-      found.push(shortcut);
+      // Perfectly match all modifiers to prevent false positives. Missing
+      // modifier properties are treated as not pressed.
+      const mods = {
+        metaKey: false,
+        ctrlKey: false,
+        shiftKey: false,
+        altKey: false,
+        ...shortcut.modifiers[AppConstants.platform],
+      };
+      if (
+        mods.metaKey == event.metaKey &&
+        mods.ctrlKey == event.ctrlKey &&
+        mods.shiftKey == event.shiftKey &&
+        mods.altKey == event.altKey
+      ) {
+        found.push(shortcut);
+      }
     }
 
     if (found.length > 1) {
@@ -306,40 +324,13 @@ export const ShortcutsManager = {
       throw new Error(
         `Multiple shortcuts (${found
           .map(f => f.id)
-          .join(",")}) are conflicting with the keydown event:\n
-         - KEY: ${event.key}\n
-         - CTRL: ${event.ctrlKey}\n
-         - META: ${event.metaKey}\n
-         - SHIFT: ${event.shiftKey}\n
-         - ALT: ${event.altKey}\n
-         - CONTEXT: ${context}\n`
+          .join(
+            ","
+          )}) are conflicting with the keydown event. KEY: ${event.key} | CTRL: ${event.ctrlKey} | META: ${event.metaKey} | SHIFT: ${event.shiftKey} | ALT: ${event.altKey} | CONTEXT: ${context}`
       );
     }
 
-    if (!found.length) {
-      return null;
-    }
-
-    const shortcut = found[0];
-    const mods = shortcut.modifiers[AppConstants.platform];
-    // Return the shortcut if it doesn't require any modifier and no modifier
-    // is present in the key press event.
-    if (
-      !Object.keys(mods).length &&
-      !(event.ctrlKey || event.metaKey) &&
-      !event.shiftKey &&
-      !event.altKey
-    ) {
-      return shortcut;
-    }
-
-    // Perfectly match all modifiers to prevent false positives.
-    return mods.metaKey == event.metaKey &&
-      mods.ctrlKey == event.ctrlKey &&
-      mods.shiftKey == event.shiftKey &&
-      mods.altKey == event.altKey
-      ? shortcut
-      : null;
+    return found[0] ?? null;
   },
 
   /**
