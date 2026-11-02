@@ -9,7 +9,9 @@ set -vex
 # Mercurial will complain that it can't find the evolve extension - this is
 # because we don't have it yet, and we are asking mercurial to go install it
 # so mercurial can use it.
-hg clone https://repo.mercurial-scm.org/evolve/ "$HOME/.mozbuild/evolve"
+# Clone from foss.heptapod.net rather than repo.mercurial-scm.org, which is
+# often overloaded and fails clones (as version-control-tools also does).
+hg clone https://foss.heptapod.net/mercurial/evolve "$HOME/.mozbuild/evolve"
 (
   cd "$HOME/.mozbuild/evolve"
   rev=$(hg tags | sort -k 1 -V -r | awk -F: 'NR==2 {print $2}')
