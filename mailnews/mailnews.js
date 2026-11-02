@@ -357,10 +357,6 @@ pref("mailnews.force_ascii_search", false);
 pref("mailnews.extensions_using_appledouble", "");
 pref("mailnews.localizedRe", "chrome://messenger-region/locale/region.properties");
 
-pref("mailnews.search_date_format", "chrome://messenger/locale/messenger.properties");
-pref("mailnews.search_date_separator", "chrome://messenger/locale/messenger.properties");
-pref("mailnews.search_date_leading_zeros", "chrome://messenger/locale/messenger.properties");
-
 // the first time, we'll warn the user about the blind send, and they can disable the warning if they want.
 pref("mapi.blind-send.enabled", true);
 // automatically move the user offline or online based on the network connection

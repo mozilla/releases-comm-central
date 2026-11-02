@@ -6,8 +6,6 @@
 
 /* global MozElements MozXULElement */
 
-/* import-globals-from ../../base/content/dateFormat.js */
-
 // Satisfy ESLint by referencing FilterEditor.js as a representative source
 // for shared globals (gFilter, gFilterList, etc.) defined by the hosting
 // window.
