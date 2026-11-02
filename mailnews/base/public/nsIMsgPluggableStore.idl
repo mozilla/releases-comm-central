@@ -140,6 +140,9 @@ interface nsIMsgPluggableStore : nsISupports {
    * NOTE: Each folder can have only one write stream active at a time.
    * If this function is called on a folder with an outstanding write stream,
    * the old stream will be closed and rolled back and a new one created.
+   * The old stream is then said to be pre-empted: finishNewMessage() fails
+   * for it, and discardNewMessage() just closes the stream, whether or not
+   * the write that pre-empted it is still ongoing.
    *
    * The caller then writes the message to the stream as usual, then calls
    * either finishNewMessage() or discardNewMessage() when done.
@@ -157,12 +160,18 @@ interface nsIMsgPluggableStore : nsISupports {
    * @param stream - The stream obtained by getNewMsgOutputStream().
    * @return a storeToken string which can used to retrieve the message
    *         data back from the store (via getMsgInputStream()).
+   * @throws NS_ERROR_ABORT if the write was pre-empted by a later
+   *         getNewMsgOutputStream() call on the same folder. Nothing is
+   *         committed, and the pre-empting write is left untouched.
    */
   AUTF8String finishNewMessage(in nsIMsgFolder folder, in nsIOutputStream stream);
 
   /**
    * discardNewMessage() concludes a write by throwing away any message
    * data that was written to the stream.
+   * If the write was pre-empted by a later getNewMsgOutputStream() call on
+   * the same folder, its data is already gone: this just closes the stream,
+   * and leaves the pre-empting write untouched.
    *
    * @param folder - The target nsIMsgFolder.
    * @param stream - The stream obtained by getNewMsgOutputStream().

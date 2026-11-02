@@ -787,13 +787,17 @@ nsMsgBrkMBoxStore::FinishNewMessage(nsIMsgFolder* folder,
   NS_ENSURE_ARG(outStream);
 
   auto details = mOngoingWrites.lookup(folder->URI());
-  if (!details) {
-    // We should have a record of the write!
-    return NS_ERROR_UNEXPECTED;
+  // Should be the stream we issued originally! If there is no ongoing write,
+  // or another one, this write was pre-empted (and already rolled back) by a
+  // later GetNewMsgOutputStream() call, and any entry belongs to another
+  // writer: don't report its file position as our storeToken.
+  if (!details || outStream != details->value().stream) {
+    MOZ_LOG(gMboxLog, LogLevel::Warning,
+            ("FINISH MSG (preempted) stream=0x%p folder=%s", outStream,
+             folder->URI().get()));
+    outStream->Close();
+    return NS_ERROR_ABORT;
   }
-
-  // Should be the stream we issued originally!
-  MOZ_ASSERT(outStream == details->value().stream);
 
   // We are always dealing with nsISafeOutputStream.
   // It requires an explicit commit, or the data will be discarded.

@@ -843,17 +843,24 @@ nsMsgMaildirStore::FinishNewMessage(nsIMsgFolder* folder,
   NS_ENSURE_ARG(outStream);
 
   auto entry = mOngoingWrites.lookup(folder->URI());
-  if (!entry) {
-    // We should have a record of the write!
-    return NS_ERROR_ILLEGAL_VALUE;
+  // The ongoing write must be the one this stream was issued for. If there is
+  // none, or another one, this write was pre-empted by a later
+  // GetNewMsgOutputStream() call on the same folder (which already closed it
+  // and deleted its file), and any entry belongs to another writer.
+  // Committing it would move the other writer's file into "cur/" and return
+  // its name as our storeToken, linking this message's header to another
+  // message's content.
+  if (!entry || entry->value().stream != outStream) {
+    MOZ_LOG_FMT(MailDirLog, mozilla::LogLevel::Warning,
+                "FinishNewMessage: write to '{}' was pre-empted",
+                folder->URI());
+    outStream->Close();
+    return NS_ERROR_ABORT;
   }
 
   // Take a copy of the entry before we remove it.
   StreamDetails details = entry->value();
   mOngoingWrites.remove(entry);
-
-  // Should be the stream we issued originally!
-  MOZ_ASSERT(outStream == details.stream);
 
   // Path to the new destination dir.
   nsCOMPtr<nsIFile> curDir;
@@ -914,17 +921,24 @@ nsMsgMaildirStore::DiscardNewMessage(nsIMsgFolder* folder,
   NS_ENSURE_ARG(outStream);
 
   auto entry = mOngoingWrites.lookup(folder->URI());
-  if (!entry) {
-    // We should have a record of the write!
-    return NS_ERROR_ILLEGAL_VALUE;
+  // The ongoing write must be the one this stream was issued for. If there is
+  // none, or another one, this write was pre-empted by a later
+  // GetNewMsgOutputStream() call on the same folder (which already closed it
+  // and deleted its file), and any entry belongs to another writer.
+  // Discarding it would delete the other writer's file. Our own write is
+  // already gone, which is all that discarding asks for (same as
+  // nsMsgBrkMBoxStore::DiscardNewMessage).
+  if (!entry || entry->value().stream != outStream) {
+    MOZ_LOG_FMT(MailDirLog, mozilla::LogLevel::Warning,
+                "DiscardNewMessage: write to '{}' was pre-empted",
+                folder->URI());
+    outStream->Close();
+    return NS_OK;
   }
 
   // Take a copy of the entry before we remove it.
   StreamDetails details = entry->value();
   mOngoingWrites.remove(entry);
-
-  // Should be the stream we issued originally!
-  MOZ_ASSERT(outStream == details.stream);
 
   outStream->Close();
 
