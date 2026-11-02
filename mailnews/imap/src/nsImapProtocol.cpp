@@ -5692,7 +5692,12 @@ nsresult nsImapProtocol::BeginCompressing() {
   RefPtr<nsMsgCompressIStream> new_in = new nsMsgCompressIStream();
   if (!new_in) return NS_ERROR_OUT_OF_MEMORY;
 
-  nsresult rv = new_in->InitInputStream(m_inputStream);
+  // The line buffer may already hold the start of the compressed stream,
+  // e.g. the empty block that Dovecot flushes right after its OK. Inflate it
+  // first, or it ends up in front of the next response as plain text.
+  nsAutoCString pendingData;
+  m_inputStreamBuffer->TakeUnreadData(pendingData);
+  nsresult rv = new_in->InitInputStream(m_inputStream, pendingData);
   NS_ENSURE_SUCCESS(rv, rv);
 
   m_inputStream = new_in;

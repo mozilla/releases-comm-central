@@ -8,6 +8,7 @@
 #include "nsIAsyncInputStream.h"
 #include "nsIInputStream.h"
 #include "nsCOMPtr.h"
+#include "nsString.h"
 #include "mozilla/UniquePtr.h"
 #include "zlib.h"
 
@@ -20,7 +21,10 @@ class nsMsgCompressIStream final : public nsIAsyncInputStream {
   NS_DECL_NSIINPUTSTREAM
   NS_DECL_NSIASYNCINPUTSTREAM
 
-  nsresult InitInputStream(nsIInputStream* rawStream);
+  // aPendingData -- compressed data that was already read from rawStream,
+  //                 e.g. by a line buffer, and has to be inflated first.
+  nsresult InitInputStream(nsIInputStream* rawStream,
+                           const nsACString& aPendingData = ""_ns);
 
  protected:
   ~nsMsgCompressIStream();
@@ -32,6 +36,7 @@ class nsMsgCompressIStream final : public nsIAsyncInputStream {
   uint32_t m_dataleft;
   bool m_inflateAgain;
   z_stream m_zstream;
+  nsCString m_pendingData;
 };
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMSGCOMPRESSISTREAM_H_

@@ -16,7 +16,8 @@ nsMsgCompressIStream::~nsMsgCompressIStream() { Close(); }
 
 NS_IMPL_ISUPPORTS(nsMsgCompressIStream, nsIInputStream, nsIAsyncInputStream)
 
-nsresult nsMsgCompressIStream::InitInputStream(nsIInputStream* rawStream) {
+nsresult nsMsgCompressIStream::InitInputStream(nsIInputStream* rawStream,
+                                               const nsACString& aPendingData) {
   // protect against repeat calls
   if (m_iStream) return NS_ERROR_UNEXPECTED;
 
@@ -40,6 +41,13 @@ nsresult nsMsgCompressIStream::InitInputStream(nsIInputStream* rawStream) {
   if (inflateInit2(&m_zstream, -MAX_WBITS) != Z_OK) return NS_ERROR_FAILURE;
 
   m_iStream = rawStream;
+
+  if (!aPendingData.IsEmpty()) {
+    m_pendingData = aPendingData;
+    m_zstream.next_in = (Bytef*)m_pendingData.BeginWriting();
+    m_zstream.avail_in = m_pendingData.Length();
+    m_inflateAgain = true;
+  }
 
   return NS_OK;
 }

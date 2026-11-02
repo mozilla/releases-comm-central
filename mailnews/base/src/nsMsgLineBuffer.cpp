@@ -10,6 +10,8 @@
 #include "nsMsgUtils.h"
 #include "nsIInputStream.h"  // used by nsMsgLineStreamBuffer
 
+#include <algorithm>
+
 nsByteArray::nsByteArray() {
   MOZ_COUNT_CTOR(nsByteArray);
   m_buffer = NULL;
@@ -231,8 +233,9 @@ char* nsMsgLineStreamBuffer::ReadNextLine(nsIInputStream* aInputStream,
   char* startOfLine = m_dataBuffer + m_startPos;
 
   if (m_numBytesInBuffer > 0)  // any data in our internal buffer?
-    endOfLine = PL_strchr(startOfLine, m_lineToken);  // see if we already
-                                                      // have a line ending...
+    endOfLine = (char*)memchr(startOfLine, m_lineToken,
+                              m_numBytesInBuffer);  // see if we already
+                                                    // have a line ending...
 
   // it's possible that we got here before the first time we receive data from
   // the server so aInputStream will be nullptr...
@@ -289,17 +292,12 @@ char* nsMsgLineStreamBuffer::ReadNextLine(nsIInputStream* aInputStream,
       char* startOfNewData = startOfLine + m_numBytesInBuffer;
       rv = aInputStream->Read(startOfNewData, numBytesToCopy, &numBytesCopied);
       if (prv) *prv = rv;
-      uint32_t i;
-      for (i = 0; i < numBytesCopied; i++)  // replace nulls with spaces
-      {
-        if (!startOfNewData[i]) startOfNewData[i] = ' ';
-      }
       m_numBytesInBuffer += numBytesCopied;
       m_dataBuffer[m_startPos + m_numBytesInBuffer] = '\0';
 
       // okay, now that we've tried to read in more data from the stream,
       // look for another end of line character in the new data
-      endOfLine = PL_strchr(startOfNewData, m_lineToken);
+      endOfLine = (char*)memchr(startOfNewData, m_lineToken, numBytesCopied);
     }
   }
 
@@ -324,6 +322,9 @@ char* nsMsgLineStreamBuffer::ReadNextLine(nsIInputStream* aInputStream,
 
     memcpy(newLine, startOfLine,
            aNumBytesInLine);  // copy the string into the new line buffer
+    // The buffer keeps NULs as they were received, so that TakeUnreadData()
+    // can hand them on, but a line must not contain any.
+    std::replace(newLine, newLine + aNumBytesInLine, '\0', ' ');
     if (addLineTerminator) {
       memcpy(newLine + aNumBytesInLine, MSG_LINEBREAK, MSG_LINEBREAK_LEN);
       aNumBytesInLine += MSG_LINEBREAK_LEN;
@@ -350,5 +351,10 @@ char* nsMsgLineStreamBuffer::ReadNextLine(nsIInputStream* aInputStream,
 
 bool nsMsgLineStreamBuffer::NextLineAvailable() {
   return (m_numBytesInBuffer > 0 &&
-          PL_strchr(m_dataBuffer + m_startPos, m_lineToken));
+          memchr(m_dataBuffer + m_startPos, m_lineToken, m_numBytesInBuffer));
+}
+
+void nsMsgLineStreamBuffer::TakeUnreadData(nsACString& aData) {
+  aData.Assign(m_dataBuffer + m_startPos, m_numBytesInBuffer);
+  ClearBuffer();
 }

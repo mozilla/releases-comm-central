@@ -7,6 +7,7 @@
 
 #include "nsISupports.h"
 #include "nscore.h"  // precompiled header...
+#include "nsStringFwd.h"
 
 // I can't believe I have to have this stupid class, but I can't find
 // anything suitable (nsStrImpl might be, when it's done). nsIByteBuffer
@@ -107,6 +108,10 @@ class nsMsgLineStreamBuffer {
   nsresult GrowBuffer(uint32_t desiredSize);
   void ClearBuffer();
   bool NextLineAvailable();
+  // Moves the bytes that were read from the stream but not yet returned as a
+  // line into aData, unchanged, and empties the buffer. Used when the stream
+  // switches to another encoding, e.g. after IMAP COMPRESS.
+  void TakeUnreadData(nsACString& aData);
 
  private:
   virtual ~nsMsgLineStreamBuffer();
