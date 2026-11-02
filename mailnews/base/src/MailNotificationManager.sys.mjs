@@ -673,9 +673,8 @@ export const MailNotificationManager = new (class {
     });
     if (AppConstants.platform == "win") {
       await lazy.WinUnreadBadge.updateUnreadCount(count, tooltip, imgContainer);
-    } else {
-      this._osIntegration?.updateUnreadCount(count, tooltip, imgContainer);
     }
+    this._osIntegration?.updateUnreadCount(count, tooltip, imgContainer);
 
     this._updatingUnreadCount = false;
     if (this._pendingUpdate) {

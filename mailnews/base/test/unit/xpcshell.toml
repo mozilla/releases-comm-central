@@ -13,6 +13,8 @@ support-files = [
 
 ["include:xpcshell-shared.toml"]
 
+["test_MailNotificationManager.js"]
+
 ["test_MorkParser.js"]
 
 ["test_MsgIncomingServer.js"]
