@@ -81,6 +81,7 @@ function setupBasicEwsTestServer({
     );
 
     ewsServer.stop();
+    MailServices.protocolClient.shutdownTestClients();
   });
 
   return [ewsServer, incomingServer];

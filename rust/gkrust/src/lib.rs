@@ -9,4 +9,5 @@ extern crate ews_xpcom as _;
 extern crate graph_xpcom as _;
 extern crate mailnews_string_glue as _;
 extern crate mailnews_ui_glue as _;
+extern crate protocol_client_service as _;
 extern crate sys_tray as _;

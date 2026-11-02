@@ -4,7 +4,7 @@
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 import { CalEvent } from "resource:///modules/CalEvent.sys.mjs";
-import { GraphProvider } from "./GraphProvider.sys.mjs";
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
@@ -275,15 +275,10 @@ export class GraphCalendar extends cal.provider.BaseClass {
       return this.#syncOperation;
     }
 
-    // TODO: https://bugzilla.mozilla.org/show_bug.cgi?id=2052326 We're
-    // currently using a transient client per refresh, but when we start sharing
-    // clients to unify error handling and connection throttling, we'll need to
-    // obtain a reference to a shared client here.
-    const client = GraphProvider.getAndInitializeClient(
-      this.username,
-      this.location
-    ).graphCalendarClient;
-    const listener = new EventSyncListener(this, client);
+    const client = MailServices.protocolClient
+      .getClient("graph", this.location, this.username)
+      .QueryInterface(Ci.IGraphCalendarClient);
+    const listener = new EventSyncListener(this);
     listener.addListener(changeLogListener);
     this.#syncOperation = listener;
     this.startBatch();
@@ -319,7 +314,6 @@ class EventSyncListener extends cal.data.OperationGroup {
   QueryInterface = ChromeUtils.generateQI(["IGraphCalendarEventListener", "calIOperation"]);
 
   #calendar = null;
-  #client = null;
 
   /**
    * Resolves after all the queued changes for this sync have finished.
@@ -349,10 +343,9 @@ class EventSyncListener extends cal.data.OperationGroup {
    */
   #additionalListeners = new Set();
 
-  constructor(calendar, client) {
+  constructor(calendar) {
     super();
     this.#calendar = calendar;
-    this.#client = client;
   }
 
   #queueChange(callback) {
@@ -443,12 +436,6 @@ class EventSyncListener extends cal.data.OperationGroup {
 
     this.#calendar.endBatch();
     this.notifyCompleted(finalStatus);
-
-    try {
-      this.#client.QueryInterface(Ci.IExchangeClient).shutdown();
-    } catch (error) {
-      lazy.log.error("Failed to shut down Graph calendar client", error);
-    }
 
     try {
       this.#calendar.notifyRefreshComplete(

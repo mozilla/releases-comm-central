@@ -1,0 +1,72 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+#include "IExchangeClient.idl"
+
+interface nsIMsgIncomingServer;
+
+/**
+ * A service that instantiates and keeps track of existing protocol clients, to
+ * ensure that only one client exists for a given account across all components.
+ *
+ * This service expects that an `nsIMsgIncomingServer` matching a configuration
+ * given to `GetClient` exists. This means that returning a client for e.g. a
+ * calendar that does not yet have a matching email account is not currently
+ * supported.
+ *
+ * Implementation detail: the reason for the above restriction is that, if the
+ * service keyed a client to the configuration given to `GetClient` directly,
+ * and the server's configuration changes afterwards, the client would not be
+ * able to be reused since subsequent calls to `GetClient` would include a
+ * different configuration which would not match the one it's associated with.
+ */
+[scriptable, uuid(8b87bc28-41d5-44f3-9be8-cd6e1169d2d4)]
+interface IProtocolClientService : nsISupports {
+    /**
+     * Returns the existing client for the given configuration, or creates one
+     * if none currently exist.
+     *
+     * @param protocol - The identifier of the protocol the client is expected
+     *   to implement (e.g. "ews" or "graph").
+     * @param serverUrl - The URL of the server the client will interact with.
+     * @param username - The account's username.
+     * @returns A protocol client for the given configuration.
+     */
+    IExchangeClient getClient(
+        in AUTF8String protocol,
+        in AUTF8String serverUrl,
+        in AUTF8String username
+    );
+
+    /**
+     * Shuts down and forgets the given client.
+     *
+     * @param client - The client to shut down.
+     */
+    void shutdownClient(in IExchangeClient client);
+
+    /**
+     * Creates a new protocol client for a test. This method always returns a
+     * new client, which is never reused.
+     *
+     * @param protocol - The identifier of the protocol the client is expected
+     *   to implement (e.g. "ews" or "graph").
+     * @param serverUrl - The URL of the server the client will interact with.
+     * @param incomingServer - The incoming server to associate the new client
+     *   with.
+     * @returns A protocol client for the given configuration.
+     */
+    IExchangeClient createTestClient(
+        in AUTF8String protocol,
+        in AUTF8String serverUrl,
+        in nsIMsgIncomingServer incomingServer
+    );
+
+    /**
+     * Shuts down every client that has been created by `createTestClient`
+     * (since this method was last called).
+     */
+    void shutdownTestClients();
+};

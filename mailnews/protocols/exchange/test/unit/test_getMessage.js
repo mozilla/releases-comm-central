@@ -38,33 +38,21 @@ add_setup(async () => {
   await syncFolder(incomingEwsServer, incomingEwsServer.rootFolder);
   await syncFolder(incomingGraphServer, incomingGraphServer.rootFolder);
 
-  ewsClient = Cc["@mozilla.org/messenger/ews-client;1"].createInstance(
-    Ci.IExchangeClient
-  );
-  ewsClient.initialize(
+  ewsClient = MailServices.protocolClient.createTestClient(
+    "ews",
     incomingEwsServer.getStringValue("ews_url"),
-    incomingEwsServer,
-    false,
-    "",
-    "",
-    "",
-    "",
-    ""
+    incomingEwsServer
   );
 
-  graphClient = Cc["@mozilla.org/messenger/graph-client;1"].createInstance(
-    Ci.IExchangeClient
-  );
-  graphClient.initialize(
+  graphClient = MailServices.protocolClient.createTestClient(
+    "graph",
     incomingGraphServer.getStringValue("ews_url"),
-    incomingGraphServer,
-    false,
-    "",
-    "",
-    "",
-    "",
-    ""
+    incomingGraphServer
   );
+
+  registerCleanupFunction(() => {
+    MailServices.protocolClient.shutdownTestClients();
+  });
 });
 
 add_task(async function test_getEwsMessage() {

@@ -2703,6 +2703,7 @@ dependencies = [
  "prefs_parser",
  "processtools",
  "profiler_helper",
+ "protocol_client_service",
  "qcms",
  "qwac-trust-anchors",
  "rsdparsa_capi",
@@ -2750,6 +2751,7 @@ dependencies = [
  "mozilla-central-workspace-hack",
  "mp4parse-gtest",
  "nsstring-gtest",
+ "protocol_client_service",
  "swgl",
  "sys_tray",
  "xpcom-gtest",
@@ -5654,6 +5656,20 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "protocol_client_service"
+version = "0.1.0"
+dependencies = [
+ "ews_xpcom",
+ "graph_xpcom",
+ "log",
+ "nserror",
+ "nsstring",
+ "thin-vec",
+ "url",
+ "xpcom",
 ]
 
 [[package]]

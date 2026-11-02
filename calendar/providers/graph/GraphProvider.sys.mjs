@@ -49,56 +49,33 @@ export class GraphProvider {
    * @returns {Promise<Array<calICalendar>>} Array of found calendars
    */
   static async detectCalendars(username, password, location, _savePassword, _extraProperties) {
-    const hostname = /https?:\/\//.exec(location) ? new URL(location).hostname : location;
+    // If the protocol scheme isn't specified, default to HTTPS to be safe.
+    const url = /https?:\/\//.exec(location) ? location : `https://${location}`;
+    const graphCalendarClient = MailServices.protocolClient
+      .getClient("graph", location, username)
+      .QueryInterface(Ci.IGraphCalendarClient);
 
-    const { graphCalendarClient, uri } = GraphProvider.getAndInitializeClient(username, hostname);
     if (graphCalendarClient) {
       const listener = new CalendarDiscoveryCallbackListener();
       graphCalendarClient.detectCalendars(listener);
       await listener.deferred.promise;
 
       const discoveredCalendars = listener.calendars.map(value => {
-        const calendar = cal.manager.initializeCalendar(value.id, "graph", Services.io.newURI(uri));
+        const calendar = cal.manager.initializeCalendar(
+          value.id,
+          "graph",
+          graphCalendarClient.baseURI
+        );
         calendar.name = value.name;
         calendar.readOnly = value.readOnly;
         const graphCalendar = calendar.QueryInterface(Ci.IGraphCalendar);
         graphCalendar.username = username;
-        graphCalendar.location = hostname;
+        graphCalendar.location = url;
         return calendar;
       });
       return discoveredCalendars;
     }
     return [];
-  }
-
-  /**
-   * Initialize and return a new Graph client for the given username and hostname.
-   *
-   * @param {string} username
-   * @param {string} hostname
-   * @returns {object}
-   */
-  static getAndInitializeClient(username, hostname) {
-    const graphCalendarClient = Cc["@mozilla.org/messenger/graph-client;1"].createInstance(
-      Ci.IGraphCalendarClient
-    );
-    const exchangeClient = graphCalendarClient.QueryInterface(Ci.IExchangeClient);
-
-    // Find an incoming server with the given username and host.
-    const incomingServer = MailServices.accounts.findServer(username, hostname, "graph");
-    if (incomingServer) {
-      // TODO: https://bugzilla.mozilla.org/show_bug.cgi?id=2052326
-      // We're reaching across to an incoming mail server here to instantiate a
-      // new client. Instead, we should be sharing the client between all
-      // connections to the same Microsoft account to handle rate limiting and
-      // throttling. We'll want to change this to obtain a client reference that
-      // is shared with the email system, but still able to work without a
-      // configured Graph email account.
-      const uri = incomingServer.getStringValue("ews_url");
-      exchangeClient.initialize(uri, incomingServer, false, "", "", "", "", "");
-      return { graphCalendarClient, uri };
-    }
-    return { graphCalendarClient: null, uri: null };
   }
 }
 

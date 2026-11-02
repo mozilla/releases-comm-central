@@ -1,0 +1,18 @@
+[package]
+name = "protocol_client_service"
+version = "0.1.0"
+edition = "2024"
+rust-version.workspace = true
+
+[dependencies]
+ews_xpcom = { version = "0.1.0", path = "../ews_xpcom" }
+graph_xpcom = { version = "0.1.0", path = "../graph_xpcom" }
+log = "0.4.21"
+nserror = { version = "0.1.0", path = "../../../xpcom/rust/nserror" }
+nsstring = { version = "0.1.0", path = "../../../xpcom/rust/nsstring" }
+thin-vec = { version = "0.2.12", features = ["gecko-ffi"] }
+url = "2.5.0"
+xpcom = { version = "0.1.0", path = "../../../xpcom/rust/xpcom" }
+
+[lints]
+workspace = true

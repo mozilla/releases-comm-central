@@ -23,7 +23,7 @@ const { cal } = ChromeUtils.importESModule(
 );
 
 const PASSWORD = "hunter2";
-const USER = "test@graph.test";
+const USER = "test@no-oauth.test";
 // Encoding matches what FetchHTTP.sys.mjs uses.
 const BASIC_AUTH = btoa(
   MailStringUtils.stringToByteString(`${USER}:${PASSWORD}`)
@@ -45,13 +45,12 @@ add_setup(async () => {
   const config = new AccountConfig();
   config.source = AccountConfig.kSourceXml;
   config.incoming.type = "graph";
-  config.incoming.username = "test@graph.test";
-  config.incoming.hostname = "graph.test";
-  config.incoming.port = 80;
-  config.incoming.socketType = 0;
+  config.incoming.username = USER;
+  config.incoming.hostname = "no-oauth.test";
+  config.incoming.port = 443;
+  config.incoming.socketType = 3;
   config.incoming.auth = 3;
-  // eslint-disable-next-line sdl/no-insecure-url
-  config.incoming.exchangeURL = "http://graph.test";
+  config.incoming.exchangeURL = "https://no-oauth.test";
   parallelAutoDiscoveryStub.returns({
     next() {
       return Promise.resolve({ value: config, done: true });
@@ -63,9 +62,10 @@ add_setup(async () => {
     options: {
       username: USER,
       password: PASSWORD,
+      tlsCertFile: "valid-no-oauth",
     },
-    hostname: "graph.test",
-    port: 80,
+    hostname: "no-oauth.test",
+    port: 443,
   });
 
   registerCleanupFunction(async () => {
@@ -87,7 +87,7 @@ add_task(async function test_graph_calendar_autodiscover() {
 
   await fillUserInformation(emailTemplate, {
     ...emailUser,
-    email: "test@graph.test",
+    email: USER,
   });
 
   // Click continue and wait for config found template to be in view.

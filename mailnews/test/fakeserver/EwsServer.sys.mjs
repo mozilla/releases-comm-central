@@ -510,7 +510,7 @@ export class EwsServer extends MockServer {
    */
   stop() {
     this.#httpServer.stop();
-    this.#httpsProxy?.destroy();
+    this.#httpsProxy?.close();
   }
 
   /**

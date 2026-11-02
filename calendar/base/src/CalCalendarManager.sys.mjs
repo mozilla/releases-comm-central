@@ -247,7 +247,7 @@ export const CalCalendarManager = new (class {
    *
    * @param {string} id - The calendar id.
    * @param {string} ctype - The calendar type. See {@link calICalendar#type}.
-   * @param {string} uri - The calendar uri.
+   * @param {nsIURI} uri - The calendar uri.
    * @returns {calICalendar} The initialized calendar or dummy calendar.
    */
   initializeCalendar(id, ctype, uri) {

@@ -10,6 +10,7 @@
 #include "ExchangeListeners.h"
 #include "ExchangeOAuth2CustomDetails.h"
 #include "IExchangeClient.h"
+#include "IProtocolClientService.h"
 #include "mozilla/Logging.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIFeedbackService.h"
@@ -689,43 +690,21 @@ NS_IMETHODIMP ExchangeIncomingServer::GetProtocolClient(
   // Only create a new client if we don't already have one - otherwise reuse the
   // one we have.
   if (!mClient) {
-    nsresult rv = NS_OK;
-    // Don't save this client as mClient until it is ready to use.
-    nsCOMPtr<IExchangeClient> tempClient;
+    nsCString type;
+    MOZ_TRY(GetType(type));
 
-    if (StaticPrefs::mail_graph_enabled()) {
-      nsAutoCString type;
-      rv = GetType(type);
-      NS_ENSURE_SUCCESS(rv, rv);
+    nsCString endpointURL;
+    MOZ_TRY(GetExchangeUrl(endpointURL));
 
-      nsAutoCString contractId{"@mozilla.org/messenger/"};
-      contractId.Append(type);
-      contractId.Append("-client;1");
+    nsCString username;
+    MOZ_TRY(GetUsername(username));
 
-      tempClient = do_CreateInstance(contractId.Data(), &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-    } else {
-      tempClient =
-          do_CreateInstance("@mozilla.org/messenger/ews-client;1", &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-
-    nsAutoCString endpoint;
-    rv = GetExchangeUrl(endpoint);
+    nsresult rv;
+    nsCOMPtr<IProtocolClientService> clientSvc =
+        components::ProtocolClient::Service(&rv);
     NS_ENSURE_SUCCESS(rv, rv);
-
-    bool overrideOAuth;
-    rv = GetExchangeOverrideOAuthDetails(&overrideOAuth);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    MOZ_LOG_FMT(gExchangeLog, LogLevel::Debug,
-                "Initializing Exchange server with endpoint {}", endpoint);
-
-    // Set up the client object with access details.
-    rv = tempClient->Initialize(endpoint, this);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    mClient = tempClient;
+    MOZ_TRY(clientSvc->GetClient(type, endpointURL, username,
+                                 getter_AddRefs(mClient)));
   }
 
   NS_IF_ADDREF(*ewsClient = mClient);
@@ -870,7 +849,11 @@ NS_IMETHODIMP ExchangeIncomingServer::Shutdown() {
     // afterwards. To illustrate with the case of Exchange, this would be closer
     // to stopping all of the operation queue's runners but not stopping the
     // queue itself (so more runners can be started afterwards).
-    return mClient->Shutdown();
+    nsresult rv;
+    nsCOMPtr<IProtocolClientService> clientSvc =
+        components::ProtocolClient::Service(&rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    MOZ_TRY(clientSvc->ShutdownClient(mClient));
   }
 
   return nsMsgIncomingServer::Shutdown();

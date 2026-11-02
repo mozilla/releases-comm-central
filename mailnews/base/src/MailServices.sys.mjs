@@ -176,6 +176,13 @@ XPCOMUtils.defineLazyServiceGetter(
   Ci.nsIFolderLookupService
 );
 
+XPCOMUtils.defineLazyServiceGetter(
+  MailServices,
+  "protocolClient",
+  "@mozilla.org/messenger/protocol-client-service;1",
+  Ci.IProtocolClientService
+);
+
 // Clean up all of these references at shutdown, so that they don't appear as
 // a memory leak in test logs.
 Services.obs.addObserver(

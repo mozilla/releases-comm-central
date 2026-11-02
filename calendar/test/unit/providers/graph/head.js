@@ -41,6 +41,9 @@ function setupBasicGraphTestServer() {
   incomingServer.QueryInterface(Ci.IExchangeIncomingServer);
   incomingServer.setStringValue("ews_url", `http://127.0.0.1:${graphServer.port}/`);
 
+  // Make sure the server has a protocol client associated with it.
+  incomingServer.getProtocolClient();
+
   registerCleanupFunction(async () => {
     incomingServer.shutdown();
     incomingServer.QueryInterface(Ci.IExchangeIncomingServer);
@@ -71,7 +74,7 @@ function createGraphCalendar(incomingServer, useCache, uri = null) {
 
   calendar.id = "AAMkAGI2TGuLAAA=";
   calendar.setProperty("username", "user");
-  calendar.setProperty("location", "localhost");
+  calendar.setProperty("location", uri.prePath);
   calendar.setProperty("cache.enabled", useCache);
   calendar.setProperty("refreshInterval", "0");
 

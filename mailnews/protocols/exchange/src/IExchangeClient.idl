@@ -36,10 +36,25 @@ interface IExchangeFallibleOperationListener;
  * With the exception of initialization, all client operations are intended to
  * be asynchronous, with implementations of the callback interfaces used to
  * handle the results of the operations or handle errors.
+ *
+ * Instantiation and shutdown of clients is done via `IProtocolClientService`.
  */
 [scriptable, uuid(4a117361-653b-48a5-9ddb-588482ef9dbb)]
 interface IExchangeClient : nsISupports
 {
+  /**
+   * The unique key for the `nsIMsgIncomingServer` associated with this client.
+   */
+  readonly attribute AUTF8String incomingServerKey;
+
+  /**
+   * The base URI this client sends requests to.
+   *
+   * This attribute is updated when the base URI for the associated incoming
+   * server changes.
+   */
+  readonly attribute nsIURI baseURI;
+
   /**
    * Whether the client is currently running.
    *
@@ -60,19 +75,10 @@ interface IExchangeClient : nsISupports
   readonly attribute boolean idle;
 
   /**
-   * Initializes a new client with the necessary host address and authentication
-   * details to communicate with an Exchange server.
-   *
-   * @param endpoint - The HTTP(S) address of an Exchange server's endpoint.
-   * @param server - An incoming server entity corresponding to an Exchange-capable
-   *   account.
-   */
-  void initialize(
-    in AUTF8String endpoint,
-    in nsIMsgIncomingServer server);
-
-  /**
    * Shuts down the client.
+   *
+   * Client consumers must NOT call this method directly, and must instead shut
+   * down clients via `IProtocolClientService::ShutdownClient`.
    *
    * This method might run asynchronously and there is no guarantee that the
    * client won't emit any network traffic after it returns (consumers can check

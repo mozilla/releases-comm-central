@@ -1,0 +1,4 @@
+subject:no-oauth.test
+extension:extKeyUsage:serverAuth
+extension:subjectAlternativeName:no-oauth.test
+validity:20250101-20300401
