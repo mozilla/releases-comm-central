@@ -221,3 +221,5 @@ calendar-prompt-all-events =
 calendar-prompt-delete-button = Delete
 
 calendar-dialog-edit-button = Edit
+
+calendar-event-create-edit-save-button = Save
