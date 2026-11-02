@@ -1182,6 +1182,59 @@ add_task(async function testNetThunderbirdRequest() {
   await subtestExternalRequest(true);
 });
 
+add_task(async function testExternalRequestRedirectURI() {
+  Services.prefs.setBoolPref("mailnews.oauth.useExternalBrowser", true);
+  await OAuth2TestUtils.startServer();
+
+  const mod = new OAuth2Module();
+  try {
+    Assert.ok(
+      mod.initFromHostname("external.test", "romeo@foo.invalid", "imap"),
+      "external.test should initialize for OAuth"
+    );
+
+    const externalOAuthURL = OAuth2TestUtils.promiseExternalOAuthURL();
+    const deferred = Promise.withResolvers();
+    mod.connect(true, {
+      onSuccess: deferred.resolve,
+      onFailure: deferred.resolve,
+    });
+    await externalOAuthURL;
+    const request = mod._oauth.request;
+
+    const hosts = ["http://localhost", "http://127.0.0.1"];
+    const paths = ["", "/", "/path", "/path/"];
+
+    for (const host of hosts) {
+      for (const path of paths) {
+        const redirectionEndpoint = host + path;
+        mod._oauth.redirectionEndpoint = redirectionEndpoint;
+        Assert.ok(
+          request.startLoopbackRedirectListener(),
+          `should start a loopback listener on ${redirectionEndpoint}`
+        );
+
+        const port = new URL(request.redirectURI).port;
+        Assert.notEqual(
+          port,
+          "",
+          "redirect URI should include a listener port"
+        );
+        Assert.equal(
+          request.redirectURI,
+          `${host}:${port}${path}`,
+          `redirect URI should preserve ${redirectionEndpoint}`
+        );
+      }
+    }
+  } finally {
+    mod.cancelPrompt();
+    OAuth2TestUtils.forgetObjects();
+    OAuth2TestUtils.stopServer();
+    Services.prefs.clearUserPref("mailnews.oauth.useExternalBrowser");
+  }
+});
+
 /**
  * Tests that launching two external browser flows to the same endpoint fails
  * when done in quick succession, but succeeds after waiting for the cooldown to
