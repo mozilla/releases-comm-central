@@ -1577,17 +1577,22 @@ function CommandUpdate_UndoRedo() {
 }
 
 /**
- * @param {string} command - A command, usually "cmd_<something>".
+ * Updates the Undo or Redo label and checks whether the command is available.
+ *
+ * @param {"cmd_undo"|"cmd_redo"} command - The command to update.
+ * @returns {boolean} Whether the command is available.
  */
 function SetupUndoRedoCommand(command) {
   const txnMgr = MailServices.txns.transactionManager;
-  const txn =
-    command == "cmd_undo" ? txnMgr.peekUndoStack() : txnMgr.peekRedoStack();
-  if (!txn) {
+  const isUndo = command == "cmd_undo";
+  // Peeking a batch returns null, so use the item count to check availability.
+  const count = isUndo ? txnMgr.numberOfUndoItems : txnMgr.numberOfRedoItems;
+  if (!count) {
     goSetMenuValue(command, "valueDefault");
     return false;
   }
 
+  const txn = isUndo ? txnMgr.peekUndoStack() : txnMgr.peekRedoStack();
   const txnType =
     txn instanceof Ci.nsIMsgTxn
       ? txn.txnType

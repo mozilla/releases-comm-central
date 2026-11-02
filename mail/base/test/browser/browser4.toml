@@ -44,6 +44,8 @@ tags = ["virtualfolders"]
 
 ["browser_threads.js"]
 
+["browser_undoRedo.js"]
+
 ["browser_virtualFolderEdit.js"]
 tags = [
   "dataadapter",
