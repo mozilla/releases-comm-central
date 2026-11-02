@@ -780,7 +780,7 @@
             break;
           case "date":
             input = document.createElement("input");
-            input.type = "text";
+            input.type = "date";
             input.classList.add("input-inline", "search-value-input");
             if (!value) {
               // Newly created date input shows today's date.
@@ -959,9 +959,15 @@
         case "percent":
           this.input.value = value;
           break;
-        case "date":
-          this.input.value = convertPRTimeToString(value);
+        case "date": {
+          this.input.value = Temporal.Instant.fromEpochMilliseconds(
+            value / 1000
+          )
+            .toZonedDateTimeISO(Temporal.Now.timeZoneId())
+            .toPlainDate()
+            .toString();
           break;
+        }
         case "priority":
         case "status":
         case "addressbook":
@@ -999,8 +1005,14 @@
         case "age":
         case "percent":
           return this.input.value;
-        case "date":
-          return convertStringToPRTime(this.input.value);
+        case "date": {
+          // Convert the date picker's UTC value to a local time.
+          return (
+            Temporal.PlainDate.from(this.input.value).toZonedDateTime(
+              Temporal.Now.timeZoneId()
+            ).epochMilliseconds * 1000
+          );
+        }
         case "priority":
         case "status":
         case "addressbook":
@@ -1037,7 +1049,7 @@
           }
           return !this.getInputValue().trim();
         case "date":
-          return !this.input.value.trim();
+          return isNaN(this.input.valueAsNumber);
         case "size":
         case "age":
         case "percent":
