@@ -700,11 +700,38 @@ add_task(async function testLanguageAndFontsDialogs() {
     () => {},
     "cancel"
   );
-  await promiseSubDialog(
-    prefsDocument.getElementById("manageMessengerLanguagesButton"),
-    "chrome://messenger/content/preferences/messengerLanguages.xhtml",
-    () => {},
-    "cancel"
+  if (Services.prefs.getBoolPref("intl.multilingual.enabled")) {
+    await promiseSubDialog(
+      prefsDocument.getElementById("manageMessengerLanguagesButton"),
+      "chrome://messenger/content/preferences/messengerLanguages.xhtml",
+      () => {},
+      "cancel"
+    );
+  }
+  await closePrefsTab();
+});
+
+/**
+ * Tests that multilingual support is disabled on enterprise builds only, and
+ * that the languages UI follows the pref.
+ */
+add_task(async function testMultilingualEnabled() {
+  Assert.equal(
+    Services.prefs
+      .getDefaultBranch("")
+      .getBoolPref("intl.multilingual.enabled"),
+    !AppConstants.MOZ_ENTERPRISE,
+    "intl.multilingual.enabled should be false only on enterprise builds"
+  );
+
+  const { prefsDocument } = await openNewPrefsTab(
+    "paneGeneral",
+    "languageAndFontsCategory"
+  );
+  Assert.equal(
+    prefsDocument.getElementById("messengerLanguagesBox").hidden,
+    AppConstants.MOZ_ENTERPRISE,
+    "The languages box should be hidden only on enterprise builds"
   );
   await closePrefsTab();
 });
@@ -1223,4 +1250,4 @@ add_task(async function testLanguagePackInstallValidation() {
     await new Promise(resolve => server.stop(resolve));
     await SpecialPowers.popPrefEnv();
   }
-});
+}).skip(!Services.prefs.getBoolPref("intl.multilingual.enabled"));
