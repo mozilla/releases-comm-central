@@ -640,11 +640,28 @@ nsresult nsImapService::DecomposeImapURI(const nsACString& aMessageURI,
       nsParseImapMessageURI(aMessageURI, folderURI, aMsgKey, mimePart);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgFolder> folder;
-  rv = GetOrCreateFolder(folderURI, aFolder);
+  rv = FindFolder(folderURI, aFolder);
   NS_ENSURE_SUCCESS(rv, rv);
+  if (*aFolder) {
+    return NS_OK;
+  }
 
-  return NS_OK;
+  // IMAP folder URIs can contain unescaped mailbox names, but a message URI
+  // that has been through nsIURI has them escaped (e.g. a space as %20).
+  // See https://bugzilla.mozilla.org/show_bug.cgi?id=1588944
+  int32_t pathStart = folderURI.FindChar('/', folderURI.Find("//") + 2);
+  if (pathStart != kNotFound) {
+    nsAutoCString unescapedPath;
+    rv = MsgUnescapeString(Substring(folderURI, pathStart), 0, unescapedPath);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = FindFolder(StringHead(folderURI, pathStart) + unescapedPath, aFolder);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (*aFolder) {
+      return NS_OK;
+    }
+  }
+
+  return GetOrCreateFolder(folderURI, aFolder);
 }
 
 NS_IMETHODIMP nsImapService::SaveMessageToDisk(const nsACString& aMessageURI,

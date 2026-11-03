@@ -99,6 +99,8 @@ tags = ["foldernames"]
 
 ["test_imapMailboxNameRoundTrip.js"]
 
+["test_imapMessageUriEscaped.js"]
+
 ["test_imapMove.js"]
 
 ["test_imapMoveDuringMove.js"]
