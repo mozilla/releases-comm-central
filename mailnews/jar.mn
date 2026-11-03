@@ -103,6 +103,7 @@ messenger.jar:
     content/messenger/downloadheaders.xhtml                                    (news/content/downloadheaders.xhtml)
     content/messenger/markByDate.js                                            (base/content/markByDate.js)
     content/messenger/markByDate.xhtml                                         (base/content/markByDate.xhtml)
+    content/messenger/dateFormat.js                                            (base/content/dateFormat.js)
     content/messenger/shutdownWindow.xhtml                                     (base/content/shutdownWindow.xhtml)
     content/messenger/shutdownWindow.js                                        (base/content/shutdownWindow.js)
     content/messenger/newsError.xhtml                                          (base/content/newsError.xhtml)
