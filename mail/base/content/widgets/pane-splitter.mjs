@@ -39,6 +39,9 @@ document.head.appendChild(link);
  * application with the "resize-with-window" option. If the splitter is in a
  * container with another flexible size element, the "resize-lock-ids" option
  * can be used to lock the size of other elements while resizing.
+ *
+ * Set tabindex="-1" to exclude the splitter from the tab order, and provide
+ * another keyboard command to focus it.
  */
 class PaneSplitter extends HTMLHRElement {
   static observedAttributes = [
@@ -128,6 +131,13 @@ class PaneSplitter extends HTMLHRElement {
    * @type {?string}
    */
   #keyResizeKey = null;
+
+  /**
+   * The tabindex to restore after the splitter becomes keyboard accessible.
+   *
+   * @type {?string}
+   */
+  #enabledTabIndex = null;
 
   connectedCallback() {
     this.addEventListener("mousedown", this);
@@ -651,7 +661,6 @@ class PaneSplitter extends HTMLHRElement {
       return;
     }
     this[field] = size;
-    this.#updateAccessibility();
 
     const forceSize = this.resizeWithWindow && size != null;
     const isResizing = !!this._dragStartInfo;
@@ -660,6 +669,7 @@ class PaneSplitter extends HTMLHRElement {
     }
 
     this._updateStyling(forceSize);
+    this.#updateAccessibility();
     if (
       forceSize &&
       !this.#skipResizeWithWindowRestore &&
@@ -726,12 +736,22 @@ class PaneSplitter extends HTMLHRElement {
    * Update the accessible separator state.
    */
   #updateAccessibility() {
+    if (!this.isConnected) {
+      return;
+    }
     const size = this.isCollapsed
       ? 0
       : this.#getElementSize(this._resizeElement);
     const resizesOwnContainer = this.resizeElement == this.parentNode;
-    this.tabIndex =
-      this.resizeElement && !this.isDisabled && !resizesOwnContainer ? 0 : -1;
+    if (!this.resizeElement || this.isDisabled || resizesOwnContainer) {
+      this.#enabledTabIndex ??= this.getAttribute("tabindex") ?? "0";
+      this.tabIndex = -1;
+    } else if (this.#enabledTabIndex !== null) {
+      this.setAttribute("tabindex", this.#enabledTabIndex);
+      this.#enabledTabIndex = null;
+    } else if (!this.hasAttribute("tabindex")) {
+      this.tabIndex = 0;
+    }
     // aria-orientation describes the separator's axis, not the resized axis.
     this.setAttribute(
       "aria-orientation",

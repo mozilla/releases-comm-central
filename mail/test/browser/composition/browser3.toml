@@ -71,6 +71,8 @@ support-files = [
 
 ["browser_forwardedEmlActions.js"]
 
+["browser_headerAreaResize.js"]
+
 ["browser_identityColors.js"]
 
 ["browser_imageDisplay.js"]

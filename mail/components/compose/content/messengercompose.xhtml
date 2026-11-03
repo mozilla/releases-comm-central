@@ -336,6 +336,8 @@
   <!-- View Menu -->
   <command id="cmd_showFormatToolbar"
            oncommand="goDoCommand('cmd_showFormatToolbar')"/>
+  <command id="cmd_resizeHeaderArea"
+           oncommand="goDoCommand('cmd_resizeHeaderArea')"/>
 
   <commandset id="viewZoomCommands"
               commandupdater="false"
@@ -1091,6 +1093,10 @@
                         type="checkbox" command="cmd_fullZoomToggle"/>
             </menupopup>
           </menu>
+          <menuseparator id="viewMenuBeforeResizeHeaderAreaSeparator"/>
+          <menuitem id="menu_resizeHeaderArea"
+                    data-l10n-id="menuitem-resize-header-area"
+                    command="cmd_resizeHeaderArea"/>
           <menuseparator id="viewMenuBeforeShowToFieldSeparator"/>
           <menuitem id="menu_showToField"
                     data-l10n-attrs="acceltext"
@@ -2420,9 +2426,14 @@
       </toolbar>
     </toolbox>
 
-    <html:hr is="pane-splitter" id="headersSplitter"
-             resize-direction="vertical"
-             resize-id="MsgHeadersToolbar" />
+    <html:hr
+      id="headersSplitter"
+      is="pane-splitter"
+      resize-direction="vertical"
+      resize-id="MsgHeadersToolbar"
+      tabindex="-1"
+      data-l10n-id="compose-header-area-splitter"
+    />
     <html:div id="messageArea">
       <html:div id="dropAttachmentOverlay" class="drop-attachment-overlay">
         <html:aside id="addInline" class="drop-attachment-box">

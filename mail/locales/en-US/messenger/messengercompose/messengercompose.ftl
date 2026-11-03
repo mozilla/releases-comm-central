@@ -10,6 +10,14 @@ compose-message-attachment-name = Attached Message
 
 ## Compose window
 
+menuitem-resize-header-area =
+    .label = Resize header area
+    .accesskey = R
+
+compose-header-area-splitter =
+    .aria-label = Header area
+    .aria-description = Use Up and Down to resize, with Shift for larger steps. Press Tab to move to the editor or Shift+Tab to move to Subject.
+
 compose-initialization-error-title = Message Compose
 compose-initialization-error = An error occurred while creating a message compose window. Please try again.
 

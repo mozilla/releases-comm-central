@@ -1265,6 +1265,15 @@ var defaultController = {
       },
     },
 
+    cmd_resizeHeaderArea: {
+      isEnabled() {
+        return !gWindowLocked;
+      },
+      doCommand() {
+        document.getElementById("headersSplitter").focus();
+      },
+    },
+
     cmd_quoteMessage: {
       isEnabled() {
         const selectedURIs = GetSelectedMessages();
@@ -2191,6 +2200,7 @@ function updateEditItems() {
 
 function updateViewItems() {
   goUpdateCommand("cmd_toggleAttachmentPane");
+  goUpdateCommand("cmd_resizeHeaderArea");
 }
 
 function updateOptionItems() {

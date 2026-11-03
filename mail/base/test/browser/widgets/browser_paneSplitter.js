@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 // This test frequently takes longer than the allowed time.
 requestLongerTimeout(2);
 
@@ -203,6 +205,82 @@ add_task(async function testAccessibilityState() {
     selfResizeSplitter.tabIndex,
     -1,
     "embedded resize handles should not enter the normal tab order"
+  );
+});
+
+add_task(async function test_explicitTabIndex() {
+  const splitter = doc.getElementById("splitter1");
+  Assert.equal(
+    splitter.tabIndex,
+    0,
+    "An ordinary splitter should be in the tab order"
+  );
+  splitter.tabIndex = -1;
+  const width = splitter.width;
+  splitter.width = 250;
+  Assert.equal(
+    splitter.tabIndex,
+    -1,
+    "Resizing should preserve an explicit negative tabindex"
+  );
+  splitter.focus();
+  Assert.equal(
+    doc.activeElement,
+    splitter,
+    "A splitter with negative tabindex should still accept programmatic focus"
+  );
+  for (const tabIndex of [-1, 0]) {
+    splitter.tabIndex = tabIndex;
+    splitter.isDisabled = true;
+    Assert.equal(
+      splitter.tabIndex,
+      -1,
+      "Disabling should remove the splitter from the tab order"
+    );
+    splitter.isDisabled = false;
+    Assert.equal(
+      splitter.tabIndex,
+      tabIndex,
+      "Re-enabling should restore the consumer's tabindex"
+    );
+  }
+  splitter.width = width;
+
+  const initiallyDisabled = doc.createElement("hr", { is: "pane-splitter" });
+  initiallyDisabled.id = "initiallyDisabledSplitter";
+  initiallyDisabled.setAttribute("resize-id", "splitter1-before");
+  initiallyDisabled.tabIndex = -1;
+  initiallyDisabled.isDisabled = true;
+  splitter.parentNode.append(initiallyDisabled);
+  initiallyDisabled.isDisabled = false;
+  Assert.equal(
+    initiallyDisabled.tabIndex,
+    -1,
+    "Enabling an initially disabled splitter should preserve its explicit tabindex"
+  );
+  initiallyDisabled.remove();
+});
+
+add_task(async function test_accessibilityAfterSettingWidth() {
+  const splitter = doc.getElementById("splitter1");
+  const resized = doc.getElementById("splitter1-before");
+  const originalWidth = splitter.width;
+  splitter.width = 250;
+  Assert.equal(
+    resized.getBoundingClientRect().width,
+    250,
+    "Setting the preferred width should resize the pane"
+  );
+  Assert.equal(
+    Number(splitter.getAttribute("aria-valuenow")),
+    resized.getBoundingClientRect().width,
+    "The accessible value should describe the new width after layout"
+  );
+  splitter.width = originalWidth;
+  Assert.equal(
+    Number(splitter.getAttribute("aria-valuenow")),
+    resized.getBoundingClientRect().width,
+    "Restoring the preferred width should restore the accessible value"
   );
 });
 
