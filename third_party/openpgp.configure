@@ -354,6 +354,7 @@ with only_when(in_tree_librnp):
                 "--cpu={}".format(target.cpu),
                 "--os={}".format(botan_os),
                 "--with-build-dir={}".format(botan_objdir),
+                "--prefix={}".format(botan_objdir),
                 "--build-targets=static",
                 "--minimized-build",
                 "--link-method=copy",
@@ -372,7 +373,7 @@ with only_when(in_tree_librnp):
                     "-D_ENABLE_EXTENDED_ALIGNED_STORAGE=1",
                 ]
                 botan_flags += [
-                    "--cc=msvc",  # This forces MSVC style arguments out of Botan with clang-cl
+                    "--cc=clangcl",
                     "--msvc-runtime={}".format("MD" if is_asan else "MT"),
                     "--extra-cxxflags={}".format(" ".join(win_cxx_flags)),
                 ]

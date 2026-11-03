@@ -7,13 +7,14 @@ For licensing information, please refer to the included documentation.
 
 Updating:
 - cd $topsrcdir/comm
-- ../mach vendor -r <tag_name> third_party/botan/moz.yaml
+- ../mach vendor -r <tag_name> --patch-mode none third_party/botan/moz.yaml
+- ../mach vendor --patch-mode only third_party/botan/moz.yaml
 - Review the changes
 - Commit the changes
 
 The tag information in this file is automatically updated. The moz.yaml file
-is automatically updated. If upstream changes require updating moz.build, that
-must be done with a manual step.
+is automatically updated. If upstream changes require updating moz.build or
+botan.mozbuild, that must be done with a manual step.
 
 The following files were removed from the source distribution:
 .github/
@@ -22,8 +23,6 @@ The following files were removed from the source distribution:
 src/examples
 src/tests
 
-The following files were added to the source's root by MZLA Technologies:
+The following files were added to the source's root by Thunderbird Technologies:
 moz.build
 botan.mozbuild
-botan_configure.py
-Makefile.in

@@ -1,0 +1,37 @@
+From 877169825b1099c3912db7e61d3490bebce4f81e Mon Sep 17 00:00:00 2001
+From: Justin Tracey <jtracey@thunderbird.net>
+Date: Fri, 30 Oct 2026 15:53:29 -0400
+Subject: [PATCH] Make implicit transitive includes explicit.
+
+---
+ src/lib/rng/system_rng/system_rng.cpp | 1 +
+ src/lib/utils/buffer_stuffer.h        | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/src/lib/rng/system_rng/system_rng.cpp b/src/lib/rng/system_rng/system_rng.cpp
+index 799317363..1010d5705 100644
+--- a/src/lib/rng/system_rng/system_rng.cpp
++++ b/src/lib/rng/system_rng/system_rng.cpp
+@@ -26,6 +26,7 @@
+    #include <windows.h>
+ #elif defined(BOTAN_TARGET_OS_HAS_CCRANDOM)
+    #include <CommonCrypto/CommonRandom.h>
++   #include <errno.h>
+ #elif defined(BOTAN_TARGET_OS_HAS_ARC4RANDOM)
+    #include <stdlib.h>
+ #elif defined(BOTAN_TARGET_OS_HAS_GETRANDOM)
+diff --git a/src/lib/utils/buffer_stuffer.h b/src/lib/utils/buffer_stuffer.h
+index d73fce7fe..160f0c965 100644
+--- a/src/lib/utils/buffer_stuffer.h
++++ b/src/lib/utils/buffer_stuffer.h
+@@ -10,6 +10,7 @@
+ #include <botan/assert.h>
+ #include <botan/strong_type.h>
+ #include <botan/types.h>
++#include <algorithm>
+ #include <span>
+ 
+ namespace Botan {
+-- 
+2.56.0
+
