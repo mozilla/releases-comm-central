@@ -17,6 +17,7 @@ xpcom = { path = "../../../xpcom/rust/xpcom" }
 fluent-ffi = { path = "../../../intl/l10n/rust/fluent-ffi" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
+dbus = "0.9.6"
 ksni = "0.2.2"
 png = { version = "0.18.1" }
 

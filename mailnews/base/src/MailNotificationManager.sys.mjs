@@ -214,7 +214,7 @@ export const MailNotificationManager = new (class {
       case "profile-before-change":
         this._osIntegration?.onExit();
 
-        if (["macosx", "win"].includes(AppConstants.platform)) {
+        if (["linux", "macosx", "win"].includes(AppConstants.platform)) {
           lazy.MailNotificationService.removeListener(this);
           Services.obs.removeObserver(this, "unread-im-count-changed");
         }
@@ -223,7 +223,7 @@ export const MailNotificationManager = new (class {
           Services.obs.removeObserver(this, "new-directed-incoming-message");
         }
 
-        if (AppConstants.platform == "win") {
+        if (["win", "linux"].includes(AppConstants.platform)) {
           Services.obs.removeObserver(this, "refresh-badge-tray");
           Services.prefs.removeObserver("mail.biff.show_badge", this);
           Services.prefs.removeObserver(
