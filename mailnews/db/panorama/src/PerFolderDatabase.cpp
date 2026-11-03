@@ -829,6 +829,12 @@ NS_IMETHODIMP PerFolderDatabase::HdrIsInCache(
   return NS_OK;
 }
 
+NS_IMETHODIMP PerFolderDatabase::DeleteFolder() {
+  RefPtr<FolderDatabase> folderDB = DatabaseCore::sInstance->mFolderDatabase;
+  folderDB->DeleteFolder(mFolderId);
+  return NS_OK;
+}
+
 MessageEnumerator::MessageEnumerator(mozIStorageStatement* aStmt)
     : mStmt(aStmt) {
   mStmt->ExecuteStep(&mHasNext);

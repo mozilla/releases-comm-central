@@ -5130,3 +5130,5 @@ nsMsgDatabase::HdrIsInCache(const nsACString& aSearchFolderUri,
   *aResult = hasOid;
   return err;
 }
+
+NS_IMETHODIMP nsMsgDatabase::DeleteFolder() { return NS_ERROR_NOT_IMPLEMENTED; }

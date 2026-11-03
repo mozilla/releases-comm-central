@@ -71,3 +71,16 @@ add_task(function testDelete() {
   stmt.finalize();
   Assert.deepEqual(remaining, [1, 2, 3, 4, 6, 7, 9, 14, 15, 16]);
 });
+
+add_task(function testDeleteFromFolder() {
+  const account = MailServices.accounts.createLocalMailAccount();
+  const rootFolder = account.incomingServer.rootFolder;
+  rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  const folder = rootFolder.createLocalSubfolder("testFolderDelete");
+  folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+
+  const folderId = folder.id;
+  folder.deleteSelf(null);
+
+  checkNoRow(folderId);
+});

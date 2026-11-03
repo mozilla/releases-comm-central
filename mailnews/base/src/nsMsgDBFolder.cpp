@@ -3238,6 +3238,14 @@ NS_IMETHODIMP nsMsgDBFolder::GetChildWithURI(const nsACString& uri, bool deep,
 }
 
 NS_IMETHODIMP nsMsgDBFolder::DeleteStorage() {
+  if (StaticPrefs::mail_panorama_enabled_AtStartup()) {
+    // Ensure we have an instance of PerFolderDatabase, then use it to remove
+    // all traces of the current folder.
+    GetDatabase();
+    mDatabase->DeleteFolder();
+    return NS_OK;
+  }
+
   ForceDBClosed();
 
   // Delete the .msf file.
