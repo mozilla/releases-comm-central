@@ -18,6 +18,12 @@ const { GlodaIndexer } = ChromeUtils.importESModule(
 const { GlodaSyntheticView } = ChromeUtils.importESModule(
   "resource:///modules/gloda/GlodaSyntheticView.sys.mjs"
 );
+const { getState, storeState } = ChromeUtils.importESModule(
+  "resource:///modules/CustomizationState.mjs"
+);
+const { getDefaultItemIdsForSpace } = ChromeUtils.importESModule(
+  "resource:///modules/CustomizableItems.sys.mjs"
+);
 
 const nothingSelected = ["rootFolder", "noSelection", "contentTab"];
 const nothingOrMultiSelected = [...nothingSelected, "multiSelection"];
@@ -346,6 +352,45 @@ add_task(async function testSingleSelection() {
   await BrowserTestUtils.browserLoaded(
     tabmail.currentAboutMessage.getMessagePaneBrowser()
   );
+});
+
+add_task(async function testToolbarMarkPopup() {
+  const toolbarState = getState();
+  storeState({ mail: [...getDefaultItemIdsForSpace("mail"), "mark-as"] });
+  const button = await TestUtils.waitForCondition(
+    () =>
+      document.querySelector(
+        `#unifiedToolbarContent li[item-id="mark-as"] button`
+      ),
+    "the Mark button should be added to the toolbar"
+  );
+  const popup = document.getElementById("toolbarMarkPopup");
+  const item = document.getElementById("markFlaggedToolbarItem");
+
+  // The selected message is starred.
+  Assert.ok(testMessages[1].isFlagged, "the message should be starred");
+  EventUtils.synthesizeMouseAtCenter(button, {}, window);
+  await BrowserTestUtils.waitForPopupEvent(popup, "shown");
+  Assert.ok(
+    item.hasAttribute("checked"),
+    "Starred should be checked in the Mark button menu when the message is starred"
+  );
+  popup.hidePopup();
+  await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
+
+  goDoCommand("cmd_markAsFlagged");
+  Assert.ok(!testMessages[1].isFlagged, "the message should be unstarred");
+  EventUtils.synthesizeMouseAtCenter(button, {}, window);
+  await BrowserTestUtils.waitForPopupEvent(popup, "shown");
+  Assert.ok(
+    !item.hasAttribute("checked"),
+    "Starred should be unchecked in the Mark button menu after unstarring the message"
+  );
+  popup.hidePopup();
+  await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
+
+  testMessages[1].markFlagged(true);
+  storeState(toolbarState);
 });
 
 add_task(async function testMultiSelection() {

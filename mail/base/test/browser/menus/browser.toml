@@ -95,9 +95,6 @@ tags = ["contextmenu"]
 ["browser_mailContext_threadTree.js"]
 tags = ["contextmenu"]
 
-["browser_markMenus.js"]
-tags = ["contextmenu"]
-
 ["browser_menubar.js"]
 run-if = [
   "os != 'mac'",
