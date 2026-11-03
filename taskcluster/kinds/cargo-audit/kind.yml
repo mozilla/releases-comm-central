@@ -1,0 +1,52 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+loader: taskgraph.loader.transform:loader
+
+kind-dependencies:
+    - fetch
+    - toolchain
+
+transforms:
+    - comm_taskgraph.transforms.cargo_audit
+    - gecko_taskgraph.transforms.job
+    - gecko_taskgraph.transforms.task
+
+tasks:
+    tb-rust:
+        name: Thunderbird Rust cargo audit
+        description: Run cargo audit against comm/rust/Cargo.lock
+        run-on-projects: []  # Only run via cron
+        treeherder:
+            kind: other
+            platform: lint/opt
+            symbol: rust(cargo-audit)
+            tier: 1
+        worker-type: b-linux
+        worker:
+            docker-image: {in-tree: debian12-base}
+            max-run-time: 1800
+            taskcluster-proxy: true
+        # Notified by the audit script itself, only when vulnerabilities are found.
+        audit-notify:
+            emails:
+                by-level:
+                    "3": ["rustsec@thunderbird.net"]
+                    default: ["{owner}"]
+            matrix-rooms:
+                by-level:
+                    "3": ["!TWztIhgqLawNpRBZTC:mozilla.org"]
+                    default: []
+        run:
+            using: run-task
+            comm-checkout: true
+            clone-with: hg
+            cwd: '{checkout}'
+            command: >-
+                python3 comm/taskcluster/scripts/cargo_audit.py
+                --lockfile comm/rust/Cargo.lock
+                --ignore-file comm/rust/audit-ignore.toml
+        fetches:
+            toolchain:
+                - linux64-cargo-audit

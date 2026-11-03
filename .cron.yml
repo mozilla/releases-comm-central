@@ -91,3 +91,14 @@ jobs:
       run-on-projects:
           - comm-central
       when: []  # never (hook only)
+
+    - name: tb-rust-cargo-audit
+      job:
+          type: decision-task
+          treeherder-symbol: cargo-audit
+          target-tasks-method: tb_rust_cargo_audit
+      run-on-projects:
+          - comm-central
+          - comm-beta
+          - comm-release
+      when: [{hour: 17, minute: 0}]

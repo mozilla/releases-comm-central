@@ -13,6 +13,7 @@ reference-tasks:
     - linux64-7zz
     - linux64-aarch64-compiler-rt-22
     - linux64-aarch64-uv
+    - linux64-cargo-audit
     - linux64-cargo-vet
     - linux64-cbindgen
     - linux64-cctools-port

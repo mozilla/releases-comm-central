@@ -86,13 +86,27 @@ def target_tasks_tb_rust_vendor_check(full_task_graph, parameters, graph_config)
 
     return [l for l, t in full_task_graph.tasks.items() if _filter(t)]
 
+
+@register_target_task("tb_rust_cargo_audit")
+def target_tasks_tb_rust_cargo_audit(full_task_graph, parameters, graph_config):
+    """Select the set of tasks required to run cargo audit."""
+
+    def _filter(task):
+        return task.kind in ["cargo-audit"]
+
+    return [l for l, t in full_task_graph.tasks.items() if _filter(t)]
+
+
 @register_target_task("enterprise_thunderbird_tasks")
 def target_tasks_enterprise_thunderbird(full_task_graph, parameters, graph_config):
     return [l for l in target_tasks_enterprise_firefox(full_task_graph, parameters, graph_config)]
 
 
 @register_target_task("enterprise_thunderbird_with_tests_tasks")
-def target_tasks_enterprise_thunderbird_with_tests(
-    full_task_graph, parameters, graph_config
-):
-    return [l for l in target_tasks_enterprise_firefox_with_tests(full_task_graph, parameters, graph_config)]
+def target_tasks_enterprise_thunderbird_with_tests(full_task_graph, parameters, graph_config):
+    return [
+        l
+        for l in target_tasks_enterprise_firefox_with_tests(
+            full_task_graph, parameters, graph_config
+        )
+    ]
