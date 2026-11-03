@@ -847,6 +847,22 @@ NS_IMETHODIMP nsMsgHdr::GetProperties(nsTArray<nsCString>& headers) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgHdr::GetUidOnServer(ImapUid* result) {
+  NS_ENSURE_ARG(result);
+  *result = 0;
+
+  // NOTE: Temporary code, while UIDs are still being used as nsMsgKeys.
+  // UIDs will be stored separately after
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+
+  nsMsgKey key;
+  nsresult rv = GetMessageKey(&key);
+  if NS_SUCCEEDED (rv) {
+    *result = static_cast<ImapUid>(key);
+  }
+  return rv;
+}
+
 NS_IMETHODIMP nsMsgHdr::GetIsLive(bool* isLive) {
   // If it's attached to the messages table, it's live.
   bool found = false;

@@ -5,6 +5,7 @@
 #include "nsISupports.idl"
 
 #include "MailNewsTypes2.idl"
+#include "ImapTypes.idl"
 
 interface nsIMsgFolder;
 
@@ -99,6 +100,16 @@ interface nsIMsgDBHdr : nsISupports
 
     /// Array of names of all database properties in the header.
     readonly attribute Array<AUTF8String> properties;
+
+    /**
+     * Server-assigned unique ID for message. 0 = unset.
+     * IMAP sequence number or UID, NNTP article number, etc...
+     *
+     * NOTE: Added in support of Bug 1806770. Until the nsMsgKey/UID
+     * separation lands, this is read-only and just returns the .messageKey,
+     * or 0 if .messageKey is nsMsgKey_None.
+     */
+    readonly attribute ImapUid uidOnServer;
 
     /**
      * Returns true if this message has been added to the messages table in

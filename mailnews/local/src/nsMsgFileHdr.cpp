@@ -269,6 +269,11 @@ NS_IMETHODIMP nsMsgFileHdr::SetOfflineMessageSize(
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgFileHdr::GetUidOnServer(uint32_t* result) {
+  *result = 0;
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgFileHdr::GetDate(PRTime* aDate) {
   nsresult rv = ReadFile();
   NS_ENSURE_SUCCESS(rv, rv);

@@ -356,6 +356,11 @@ NS_IMETHODIMP DetachedMsgHdr::GetFolder(nsIMsgFolder** folder) {
   return folderDatabase->GetMsgFolderForFolder(mFolderId, folder);
 }
 
+NS_IMETHODIMP DetachedMsgHdr::GetUidOnServer(uint32_t* uidOnServer) {
+  NS_ERROR(__PRETTY_FUNCTION__);
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
 NS_IMETHODIMP DetachedMsgHdr::GetIsLive(bool* isLive) {
   // By definition, DetachedMsgHdr is never live.
   *isLive = false;

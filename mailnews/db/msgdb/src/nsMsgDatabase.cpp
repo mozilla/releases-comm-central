@@ -1866,6 +1866,63 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForKey(nsMsgKey key,
   return rv;
 }
 
+NS_IMETHODIMP nsMsgDatabase::GetMsgKeysForUids(nsTArray<ImapUid> const& uids,
+                                               nsTArray<nsMsgKey>& keys) {
+  // NOTE: Temporary code, while UIDs are still being used as nsMsgKeys.
+  // UIDs will be stored separately after
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+
+  keys.ClearAndRetainStorage();
+  for (ImapUid uid : uids) {
+    nsMsgKey key = (uid == 0) ? nsMsgKey_None : static_cast<nsMsgKey>(uid);
+    keys.AppendElement(key);
+  }
+  return NS_OK;
+}
+NS_IMETHODIMP nsMsgDatabase::GetUidsForMsgKeys(nsTArray<nsMsgKey> const& keys,
+                                               nsTArray<ImapUid>& uids) {
+  // NOTE: Temporary code, while UIDs are still being used as nsMsgKeys.
+  // UIDs will be stored separately after
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+
+  uids.ClearAndRetainStorage();
+  for (nsMsgKey key : keys) {
+    ImapUid uid = (key == nsMsgKey_None) ? 0 : static_cast<ImapUid>(key);
+    uids.AppendElement(uid);
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgDatabase::ContainsUid(ImapUid uid, bool* found) {
+  NS_ENSURE_ARG_POINTER(found);
+  *found = false;
+
+  // NOTE: Temporary code, while UIDs are still being used as nsMsgKeys.
+  // UIDs will be stored separately after
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+
+  if (uid == 0) {
+    return NS_OK;
+  }
+  nsMsgKey key = static_cast<nsMsgKey>(uid);
+  return ContainsKey(key, found);
+}
+
+NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForUid(ImapUid uid, nsIMsgDBHdr** hdr) {
+  NS_ENSURE_ARG_POINTER(hdr);
+  *hdr = nullptr;
+
+  // NOTE: Temporary code, while UIDs are still being used as nsMsgKeys.
+  // UIDs will be stored separately after
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+
+  if (uid == 0) {
+    return NS_OK;
+  }
+  nsMsgKey key = static_cast<nsMsgKey>(uid);
+  return GetMsgHdrForKey(key, hdr);
+}
+
 NS_IMETHODIMP nsMsgDatabase::DeleteMessage(nsMsgKey key,
                                            nsIDBChangeListener* instigator,
                                            bool commit) {

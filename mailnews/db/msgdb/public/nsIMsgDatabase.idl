@@ -21,6 +21,7 @@
  */
 #include "nsISupports.idl"
 #include "nsIDBChangeAnnouncer.idl"
+#include "ImapTypes.idl"
 %{C++
 #include "MailNewsTypes.h"
 %}
@@ -341,8 +342,51 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
    */
   nsIMsgDBHdr getMsgHdrForEwsItemID(in AUTF8String itemID);
 
-  //Returns whether or not this database contains the given key
+  /**
+   * Returns true if database contains the given message key.
+   */
   boolean containsKey(in nsMsgKey key);
+
+  /**
+   * Search for messages by IMAP UID.
+   * Returns an nsMsgKey for every UID in the input array.
+   * Any UIDs which are 0 or not found in the database will return
+   * nsMsgKey_None in the corresponding slot in the returned array.
+   * NOTE: Currently UIDs and messages keys are interchangable, but that
+   * will change after https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+   */
+  Array<nsMsgKey> getMsgKeysForUids(in Array<ImapUid> uids);
+
+  /**
+   * Returns the IMAP UID for every nsMsgKey in the input array:
+   * - If an input key is found, its UID will be returned (0 for unset UID).
+   * - If an input key is nsMsgKey_None, 0 will be returned.
+   * - If an input key is not found in the database (other than
+   *   nsMsgKey_None), the whole function will fail and the returned data
+   *   is undefined.
+   * NOTE: Currently UIDs and messages keys are interchangable, but that
+   * will change after https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+   */
+  Array<ImapUid> getUidsForMsgKeys(in Array<nsMsgKey> keys);
+
+  /**
+   * Returns true if db contains a message with the given IMAP UID.
+   * Passing in a uid of 0 _always_ returns false.
+   *
+   * NOTE: Currently UIDs and messages keys are interchangable, but that
+   * will change after https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+   */
+  boolean containsUid(in ImapUid uid);
+
+  /**
+   * Find a message by IMAP UID.
+   * If uid is 0, or not found in the database, this call will fail.
+   *
+   * NOTE: Currently UIDs and messages keys are interchangable, but that
+   * will change after https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
+   */
+  nsIMsgDBHdr getMsgHdrForUid(in ImapUid uid);
+
 
   /**
    * Add a new message to the database, returning the newly created msgHdr.
