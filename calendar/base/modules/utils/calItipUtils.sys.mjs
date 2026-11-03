@@ -435,7 +435,13 @@ export var itip = {
       data.label = lazy.l10n.formatValueSync("imip-bar-already-processed-text");
       if (foundItems && foundItems.length) {
         data.showItems.push("imipDetailsButton");
-        if (itipItem.receivedMethod == "COUNTER" && itipItem.sender) {
+        if (itipItem.receivedMethod == "REFRESH") {
+          data.label = lazy.l10n.formatValueSync(
+            itip.isOrganizedByOther(foundItems[0])
+              ? "imip-bar-refresh-not-organizer-text"
+              : "imip-bar-refresh-not-attendee-text"
+          );
+        } else if (itipItem.receivedMethod == "COUNTER" && itipItem.sender) {
           if (disallowedCounter) {
             data.label = lazy.l10n.formatValueSync("imip-bar-disallowed-counter-text");
           } else {
@@ -1375,6 +1381,30 @@ export var itip = {
   },
 
   /**
+   * Checks whether an item, or the parent of an occurrence or exception, has
+   * an organizer who is not one of the identities of the calendar it is
+   * stored in.
+   *
+   * @param {calIItemBase} item - The item to check.
+   * @returns {boolean} True, if someone other than the user organizes the item.
+   */
+  isOrganizedByOther(item) {
+    const orgId = (item.organizer || item.parentItem?.organizer)?.id?.toLowerCase();
+    if (!orgId) {
+      return false;
+    }
+    const calendar = item.calendar;
+    const ids = [calendar?.getProperty("organizerId")];
+    if (calendar?.supportsScheduling) {
+      ids.push(...(calendar.getSchedulingSupport().wrappedJSObject?.calendarUserAddresses ?? []));
+    }
+    if (calendar?.aclEntry?.hasAccessControl) {
+      ids.push(...calendar.aclEntry.getOwnerIdentities().map(i => "mailto:" + i.email));
+    }
+    return !ids.some(id => id?.toLowerCase() == orgId);
+  },
+
+  /**
    * Shortcut function to check whether an item is an invitation copy and has a participation
    * status of either NEEDS-ACTION or TENTATIVE.
    *
@@ -2027,12 +2057,23 @@ ItipItemFinder.prototype = {
 
               switch (method) {
                 case "REFRESH": {
-                  // xxx todo test
-                  const attendees = itipItemItem.getAttendees();
-                  if (attendees.length != 1) {
-                    lazy.log.warn(`Should not have ${attendees.length} attendees in REFRESH`);
+                  const requested = itipItemItem.getAttendees();
+                  if (requested.length != 1) {
+                    lazy.log.warn(`Ignoring REFRESH with ${requested.length} attendees`);
+                    break;
                   }
-                  if (attendees.length > 0) {
+                  if (itip.isOrganizedByOther(item)) {
+                    lazy.log.warn("Ignoring REFRESH for an event organized by someone else");
+                    break;
+                  }
+                  // Only reply to attendees of the stored item who sent the
+                  // request themselves (RFC 5546 section 6.1.6).
+                  const attendees = itip
+                    .getAttendeesBySender(item.getAttendees(), this.mItipItem.sender)
+                    .filter(attendee => itipItemItem.getAttendeeById(attendee.id));
+                  if (attendees.length == 0) {
+                    lazy.log.warn("Ignoring REFRESH from a sender who is not an attendee");
+                  } else {
                     const action = function () {
                       if (!item.organizer) {
                         const org = itip.createOrganizer(item.calendar);
