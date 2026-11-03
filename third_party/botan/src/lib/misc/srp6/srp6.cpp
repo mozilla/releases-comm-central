@@ -107,6 +107,7 @@ std::pair<BigInt, SymmetricKey> srp6_client_agree(std::string_view identifier,
    const BigInt A = group.power_g_p(a, a_bits);
 
    const BigInt u = hash_seq(*hash_fn, p_bytes, A, B);
+   BOTAN_ASSERT_NOMSG(!u.is_zero());
 
    const BigInt x = compute_x(*hash_fn, identifier, password, salt);
 
@@ -116,7 +117,9 @@ std::pair<BigInt, SymmetricKey> srp6_client_agree(std::string_view identifier,
 
    const BigInt a_ux = a + u * x;
 
-   const size_t max_aux_bits = std::max<size_t>(a_bits + 1, 2 * 8 * hash_fn->output_length());
+   // a < 2^a_bits and u*x < 2^(2H) where H is the hash output bits, so
+   // a + u*x < 2^(max(a_bits, 2H) + 1).
+   const size_t max_aux_bits = std::max<size_t>(a_bits, 2 * 8 * hash_fn->output_length()) + 1;
    BOTAN_ASSERT_NOMSG(max_aux_bits >= a_ux.bits());
 
    const BigInt S = group.power_b_p(B_k_g_x_p, a_ux, max_aux_bits);
@@ -160,16 +163,21 @@ BigInt SRP6_Server_Session::step1(const BigInt& v,
 
 BigInt SRP6_Server_Session::step1(
    const BigInt& v, const DL_Group& group, std::string_view hash_id, size_t b_bits, RandomNumberGenerator& rng) {
-   BOTAN_ARG_CHECK(b_bits <= group.p_bits(), "Invalid b_bits");
+   if(v.signum() <= 0 || v >= group.get_p()) {
+      throw Invalid_Argument("SRP6_Server_Session: invalid verifier");
+   }
+
+   BOTAN_ARG_CHECK(b_bits >= 160 && b_bits <= group.p_bits(), "Invalid b_bits");
 
    BOTAN_STATE_CHECK(!m_group);
    m_group = std::make_unique<DL_Group>(group);
+   m_b_bits = b_bits;
 
    const BigInt& g = m_group->get_g();
    const BigInt& p = m_group->get_p();
 
    m_v = v;
-   m_b = BigInt(rng, b_bits);
+   m_b = BigInt(rng, m_b_bits);
    m_hash_id = hash_id;
 
    auto hash_fn = HashFunction::create_or_throw(hash_id);
@@ -196,9 +204,14 @@ SymmetricKey SRP6_Server_Session::step2(const BigInt& A) {
    }
 
    const BigInt u = hash_seq(*hash_fn, m_group->p_bytes(), A, m_B);
+   BOTAN_ASSERT_NOMSG(!u.is_zero());
 
-   const BigInt vup = m_group->power_b_p(m_v, u, m_group->p_bits());
-   const BigInt S = m_group->power_b_p(m_group->multiply_mod_p(A, vup), m_b, m_group->p_bits());
+   // The maximum length of u is fixed based on the chosen hash function
+   const size_t u_bits = hash_fn->output_length() * 8;
+   const BigInt vup = m_group->power_b_p(m_v, u, u_bits);
+
+   // The size of b is chosen by either a formula or the application; either way it is public
+   const BigInt S = m_group->power_b_p(m_group->multiply_mod_p(A, vup), m_b, m_b_bits);
 
    return SymmetricKey(S.serialize<secure_vector<uint8_t>>(m_group->p_bytes()));
 }

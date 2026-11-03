@@ -10,6 +10,8 @@
 
 #include <botan/assert.h>
 #include <botan/exceptn.h>
+#include <botan/tls_signature_scheme.h>
+#include <botan/internal/fmt.h>
 #include <botan/internal/parsing.h>
 #include <optional>
 #include <sstream>
@@ -38,6 +40,16 @@ std::vector<std::string> Text_Policy::allowed_key_exchange_methods() const {
 
 std::vector<std::string> Text_Policy::allowed_signature_methods() const {
    return get_list("signature_methods", Policy::allowed_signature_methods());
+}
+
+std::vector<Signature_Scheme> Text_Policy::allowed_signature_schemes() const {
+   const auto sig_schemes_str = get_str("signature_schemes", "");
+   return (sig_schemes_str.empty()) ? Policy::allowed_signature_schemes() : read_sig_scheme_list(sig_schemes_str);
+}
+
+std::vector<Signature_Scheme> Text_Policy::acceptable_signature_schemes() const {
+   const auto sig_schemes_str = get_str("acceptable_signature_schemes", "");
+   return (sig_schemes_str.empty()) ? Policy::acceptable_signature_schemes() : read_sig_scheme_list(sig_schemes_str);
 }
 
 bool Text_Policy::use_ecc_point_compression() const {
@@ -94,12 +106,23 @@ bool Text_Policy::negotiate_encrypt_then_mac() const {
    return get_bool("negotiate_encrypt_then_mac", Policy::negotiate_encrypt_then_mac());
 }
 
+bool Text_Policy::require_extended_master_secret() const {
+   return get_bool("require_extended_master_secret", Policy::require_extended_master_secret());
+}
+
 std::optional<uint16_t> Text_Policy::record_size_limit() const {
    const auto limit = get_len("record_size_limit", 0);
    // RFC 8449 4.
    //    TLS 1.3 uses a limit of 2^14+1 octets.
    BOTAN_ARG_CHECK(limit <= 16385, "record size limit too large");
    return (limit > 0) ? std::make_optional(static_cast<uint16_t>(limit)) : std::nullopt;
+}
+
+size_t Text_Policy::record_padding_bytes(size_t plaintext_bytes) const {
+   // Text policies can express the simplest padding scheme only: pad
+   // records to a fixed minimum size.
+   const auto minimum_record_size = get_len("minimum_record_size", 0);
+   return (plaintext_bytes < minimum_record_size) ? minimum_record_size - plaintext_bytes : 0;
 }
 
 bool Text_Policy::support_cert_status_message() const {
@@ -168,6 +191,20 @@ size_t Text_Policy::dtls_maximum_timeout() const {
    return get_len("dtls_maximum_timeout", Policy::dtls_maximum_timeout());
 }
 
+std::optional<size_t> Text_Policy::dtls_maximum_hello_verify_requests() const {
+   const std::string v = get_str("dtls_maximum_hello_verify_requests");
+
+   if(v.empty()) {
+      return Policy::dtls_maximum_hello_verify_requests();
+   }
+
+   if(v == "none") {
+      return std::nullopt;
+   }
+
+   return to_u32bit(v);
+}
+
 bool Text_Policy::require_cert_revocation_info() const {
    return get_bool("require_cert_revocation_info", Policy::require_cert_revocation_info());
 }
@@ -195,7 +232,11 @@ size_t Text_Policy::new_session_tickets_upon_handshake_success() const {
 std::vector<uint16_t> Text_Policy::srtp_profiles() const {
    std::vector<uint16_t> r;
    for(const auto& p : get_list("srtp_profiles", std::vector<std::string>())) {
-      r.push_back(to_uint16(p));
+      if(const auto srtp = parse_u16(p)) {
+         r.push_back(srtp.value());
+      } else {
+         throw Invalid_Argument(fmt("Failed to parse input '{}' as a SRTP profile id", p));
+      }
    }
    return r;
 }
@@ -273,6 +314,14 @@ std::vector<Certificate_Type> Text_Policy::read_cert_type_list(const std::string
    }
 
    return cert_types;
+}
+
+std::vector<Signature_Scheme> Text_Policy::read_sig_scheme_list(std::string_view sig_scheme_str) const {
+   std::vector<Signature_Scheme> sig_schemes;
+   for(const auto& sig_scheme_name : split_on(sig_scheme_str, ' ')) {
+      sig_schemes.push_back(Signature_Scheme::from_string(sig_scheme_name));
+   }
+   return sig_schemes;
 }
 
 size_t Text_Policy::get_len(const std::string& key, size_t def) const {

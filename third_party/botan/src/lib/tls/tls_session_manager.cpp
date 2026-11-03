@@ -122,6 +122,9 @@ std::vector<Session_with_Handle> Session_Manager::find_and_filter(const Server_I
          //    the time expires. It MAY delete the ticket earlier based on
          //    local policy.
          //
+         //    A value [in ticket_lifetime_hint] of zero is reserved to indicate
+         //    that the lifetime of the ticket is unspecified.
+         //
          // RFC 5246 F.1.4 -- TLS 1.2
          //    If either party suspects that the session may have been
          //    compromised, or that certificates may have expired or been
@@ -146,7 +149,11 @@ std::vector<Session_with_Handle> Session_Manager::find_and_filter(const Server_I
          //       communicated by the server via the "lifetime_hint" are
          //       obeyed regardless of the policy setting.
          const auto session_lifetime_hint = session.session.lifetime_hint();
-         const bool expired = age > std::min(policy_lifetime, session_lifetime_hint);
+
+         const bool is_rfc5077_unspecified =
+            (session_lifetime_hint.count() == 0 && session.session.version().is_pre_tls_13());
+         const auto effective_hint = is_rfc5077_unspecified ? std::chrono::seconds::max() : session_lifetime_hint;
+         const bool expired = age > std::min(policy_lifetime, effective_hint);
 
          if(expired) {
             remove(session.handle);
@@ -212,11 +219,16 @@ std::optional<std::pair<Session, uint16_t>> Session_Manager::choose_from_offered
    // Note that the TLS server currently does not ensure that tickets aren't
    // reused. As a result, no locking is required on this level.
 
-   for(uint16_t i = 0; const auto& ticket : tickets) {
+   // Limit how many identities we attempt to look up to prevent a client
+   // from forcing excessive session store queries.
+   const size_t max_attempts = std::min<size_t>(tickets.size(), 5);
+
+   for(size_t i = 0; i < max_attempts; ++i) {
+      const auto& ticket = tickets[i];
       auto session = retrieve(Session_Handle(Opaque_Session_Handle(ticket.identity())), callbacks, policy);
       if(session.has_value() && session->ciphersuite().prf_algo() == hash_function &&
          session->version().is_tls_13_or_later()) {
-         return std::pair{std::move(session.value()), i};
+         return std::pair{std::move(session.value()), static_cast<uint16_t>(i)};
       }
 
       // RFC 8446 4.2.10
@@ -230,8 +242,6 @@ std::optional<std::pair<Session, uint16_t>> Session_Manager::choose_from_offered
       // TODO: The ticket-age is currently not checked (as 0-RTT is not
       //       implemented) and we simply take the SHOULD at face value.
       //       Instead we could add a policy check letting the user decide.
-
-      ++i;
    }
 
    return std::nullopt;

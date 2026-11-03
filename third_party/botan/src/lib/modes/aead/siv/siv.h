@@ -81,6 +81,7 @@ class BOTAN_TEST_API SIV_Mode : public AEAD_Mode /* NOLINT(*-special-member-func
       std::unique_ptr<MessageAuthenticationCode> m_mac;
       secure_vector<uint8_t> m_nonce, m_msg_buf;
       std::vector<secure_vector<uint8_t>> m_ad_macs;
+      bool m_in_msg = false;
 };
 
 /**
@@ -93,7 +94,7 @@ class BOTAN_TEST_API SIV_Encryption final : public SIV_Mode {
       */
       explicit SIV_Encryption(std::unique_ptr<BlockCipher> cipher) : SIV_Mode(std::move(cipher)) {}
 
-      size_t output_length(size_t input_length) const override { return input_length + tag_size(); }
+      size_t output_length(size_t input_length) const override;
 
       size_t minimum_final_size() const override { return 0; }
 
@@ -111,10 +112,7 @@ class BOTAN_TEST_API SIV_Decryption final : public SIV_Mode {
       */
       explicit SIV_Decryption(std::unique_ptr<BlockCipher> cipher) : SIV_Mode(std::move(cipher)) {}
 
-      size_t output_length(size_t input_length) const override {
-         BOTAN_ASSERT(input_length >= tag_size(), "Sufficient input");
-         return input_length - tag_size();
-      }
+      size_t output_length(size_t input_length) const override;
 
       size_t minimum_final_size() const override { return tag_size(); }
 

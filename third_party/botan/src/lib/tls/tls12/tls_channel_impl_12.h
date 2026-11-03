@@ -12,6 +12,7 @@
 #include <botan/tls_alert.h>
 #include <botan/tls_session_manager.h>
 #include <botan/internal/tls_channel_impl.h>
+#include <botan/internal/tls_connection_state_12.h>
 #include <map>
 #include <memory>
 #include <string>
@@ -26,6 +27,7 @@ namespace TLS {
 class Callbacks;
 class Connection_Cipher_State;
 class Connection_Sequence_Numbers;
+class Handshake_IO;
 class Handshake_State;
 class Handshake_Message;
 class Client_Hello_12;
@@ -86,6 +88,8 @@ class Channel_Impl_12 : public Channel_Impl {
       */
       bool is_active() const override;
 
+      std::optional<std::chrono::milliseconds> next_retransmission_timeout() const override;
+
       /**
       * @return true iff the connection has been definitely closed
       */
@@ -141,22 +145,21 @@ class Channel_Impl_12 : public Channel_Impl {
       bool secure_renegotiation_supported() const override;
 
       /**
-      * Perform a handshake timeout check. This does nothing unless
-      * this is a DTLS channel with a pending handshake state, in
-      * which case we check for timeout and potentially retransmit
-      * handshake packets.
+      * Perform a handshake timeout check. This does nothing unless this is a
+      * DTLS channel with a handshake in progress.
       */
       bool timeout_check() override;
 
    protected:
-      virtual void process_handshake_msg(const Handshake_State* active_state,
-                                         Handshake_State& pending_state,
+      const std::optional<Active_Connection_State_12>& active_state() const { return m_active_state; }
+
+      virtual void process_handshake_msg(Handshake_State& pending_state,
                                          Handshake_Type type,
                                          const std::vector<uint8_t>& contents,
                                          bool epoch0_restart) = 0;
 
-      Handshake_State& create_handshake_state(Protocol_Version version);
-      virtual std::unique_ptr<Handshake_State> new_handshake_state(std::unique_ptr<class Handshake_IO> io) = 0;
+      Handshake_State& create_handshake_state(Protocol_Version version, bool epoch0_restart = false);
+      virtual std::unique_ptr<Handshake_State> new_handshake_state(std::unique_ptr<Handshake_IO> io) = 0;
 
       void inspect_handshake_message(const Handshake_Message& msg);
 
@@ -184,9 +187,14 @@ class Channel_Impl_12 : public Channel_Impl {
 
       void reset_active_association_state();
 
-      virtual void initiate_handshake(Handshake_State& state, bool force_full_renegotiation) = 0;
+      /**
+      * Record the resumption handle this connection was established or resumed
+      * under, so that a fatal alert can invalidate it. The ServerHello session
+      * ID does not identify a ticket-backed session.
+      */
+      void note_resumption_handle(std::optional<Session_Handle> handle);
 
-      virtual std::vector<X509_Certificate> get_peer_cert_chain(const Handshake_State& state) const = 0;
+      virtual void initiate_handshake(Handshake_State& state, bool force_full_renegotiation) = 0;
 
    private:
       void send_record(Record_Type record_type, const std::vector<uint8_t>& record);
@@ -200,13 +208,18 @@ class Channel_Impl_12 : public Channel_Impl {
 
       void reset_state();
 
+      // Collect the handles this connection's session is cached under, clearing
+      // the tracked one. Separate from the removal so that the caller can
+      // destroy the connection state first; see invalidate_sessions.
+      std::vector<Session_Handle> take_sessions_to_invalidate();
+
+      void invalidate_sessions(const std::vector<Session_Handle>& handles);
+
       Connection_Sequence_Numbers& sequence_numbers() const;
 
       std::shared_ptr<Connection_Cipher_State> read_cipher_state_epoch(uint16_t epoch) const;
 
       std::shared_ptr<Connection_Cipher_State> write_cipher_state_epoch(uint16_t epoch) const;
-
-      const Handshake_State* active_state() const { return m_active_state.get(); }
 
       const Handshake_State* pending_state() const { return m_pending_state.get(); }
 
@@ -235,13 +248,49 @@ class Channel_Impl_12 : public Channel_Impl {
       /* sequence number state */
       std::unique_ptr<Connection_Sequence_Numbers> m_sequence_numbers;
 
-      /* pending and active connection states */
-      std::unique_ptr<Handshake_State> m_active_state;
+      /* pending handshake state (null when no handshake is in progress) */
       std::unique_ptr<Handshake_State> m_pending_state;
+
+      /* handle under which this connection's session is cached, if any */
+      std::optional<Session_Handle> m_resumption_handle;
+
+      // Epochs in force when the pending handshake began. The read epoch says
+      // whether application data belongs to the old association or to the new,
+      // still-unauthenticated epoch; whether either epoch has moved decides
+      // whether an abandoned or refused handshake can be discarded or has to
+      // take the association with it.
+      struct Epochs_Before_Latest_Renegotiation final {
+            uint16_t read_epoch;
+            uint16_t write_epoch;
+      };
+
+      void abandon_timed_out_handshake();
+
+      // Whether neither epoch has moved since the pending handshake began, so
+      // dropping it cannot leave the channel describing two handshakes at once.
+      bool pending_handshake_epochs_unmoved() const;
+
+      // Drop the pending handshake and the epoch markers that describe it.
+      void clear_pending_handshake_state();
+
+      /*
+      A read cipher state together with the point at which it stopped being the
+      current epoch, in Callbacks::tls_current_monotonic_clock_ms units, if it has.
+
+      The two are stored together deliberately. Epoch numbers are not unique for
+      the lifetime of the channel: reset_active_association_state() rewinds them,
+      so a DTLS epoch-0 restart produces a second epoch 1. A retirement time held
+      apart from the state it describes therefore outlives it and gets applied to
+      the reused epoch, expiring a brand new cipher state.
+      */
+      struct Retained_Read_Cipher_State final {
+            std::shared_ptr<Connection_Cipher_State> state;
+            std::optional<uint64_t> retired_at;
+      };
 
       /* cipher states for each epoch */
       std::map<uint16_t, std::shared_ptr<Connection_Cipher_State>> m_write_cipher_states;
-      std::map<uint16_t, std::shared_ptr<Connection_Cipher_State>> m_read_cipher_states;
+      std::map<uint16_t, Retained_Read_Cipher_State> m_read_cipher_states;
 
       /* I/O buffers */
       secure_vector<uint8_t> m_writebuf;
@@ -249,6 +298,18 @@ class Channel_Impl_12 : public Channel_Impl {
       secure_vector<uint8_t> m_record_buf;
 
       bool m_has_been_closed;
+
+      // Set when a fatal alert was sent or received, which unlike close_notify
+      // destroys the connection state outright.
+      bool m_had_fatal_alert = false;
+
+      // Set when the peer sent close_notify, as opposed to us closing. Only
+      // then is later data from the peer something to ignore rather than reject.
+      bool m_peer_closed_connection = false;
+
+      std::optional<Active_Connection_State_12> m_active_state;
+      // TODO(Botan4) remember to remove this when renegotiation support is dropped
+      std::optional<Epochs_Before_Latest_Renegotiation> m_epochs_before_latest_renegotiation;
 };
 
 }  // namespace TLS

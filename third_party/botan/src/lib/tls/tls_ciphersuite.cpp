@@ -8,24 +8,15 @@
 #include <botan/tls_ciphersuite.h>
 
 #include <botan/assert.h>
-#include <botan/block_cipher.h>
 #include <botan/exceptn.h>
-#include <botan/hash.h>
-#include <botan/stream_cipher.h>
-#include <botan/internal/parsing.h>
 #include <algorithm>
 
 namespace Botan::TLS {
 
 size_t Ciphersuite::nonce_bytes_from_handshake() const {
    switch(m_nonce_format) {
-      case Nonce_Format::CBC_MODE: {
-         if(cipher_algo() == "3DES") {
-            return 8;
-         } else {
-            return 16;
-         }
-      }
+      case Nonce_Format::CBC_MODE:
+         return 0;
       case Nonce_Format::AEAD_IMPLICIT_4:
          return 4;
       case Nonce_Format::AEAD_XOR_12:
@@ -53,6 +44,24 @@ size_t Ciphersuite::nonce_bytes_from_record(Protocol_Version version) const {
 }
 
 bool Ciphersuite::is_scsv(uint16_t suite) {
+   // Both signaling cipher suite values - skip them when iterating
+   // negotiable ciphersuites. The two callers are:
+   //
+   // - 0x00FF: TLS_EMPTY_RENEGOTIATION_INFO_SCSV (RFC 5746). Consumed by
+   //   Client_Hello_12::Client_Hello_12 to set secure_renegotiation when
+   //   the renegotiation_info extension is absent.
+   //
+   // - 0x5600: TLS_FALLBACK_SCSV (RFC 7507). Recognized so it is filtered
+   //   out of negotiation, but the inappropriate_fallback enforcement is
+   //   intentionally not implemented:
+   //     * Botan does not support TLS 1.0 / 1.1, so the 1.2 -> 1.0/1.1
+   //       fallback that SCSV was originally designed to detect cannot
+   //       occur here.
+   //     * The 1.3 -> 1.2 downgrade is already protected by the
+   //       ServerHello.random sentinel (RFC 8446 4.1.3, DOWNGRADE_TLS12),
+   //       which Botan's TLS 1.3 client enforces at
+   //       tls_client_impl_13.cpp via random_signals_downgrade().
+   //
    // TODO: derive from IANA file in script
    return (suite == 0x00FF || suite == 0x5600);
 }
@@ -91,8 +100,17 @@ bool Ciphersuite::aead_ciphersuite() const {
    return (mac_algo() == "AEAD");
 }
 
+bool Ciphersuite::uses_short_authentication_tag() const {
+   // The only AEAD we currently support that has a short tag is CCM-8
+   return cipher_algo().ends_with("/CCM(8)");
+}
+
 bool Ciphersuite::signature_used() const {
    return auth_method() != Auth_Method::IMPLICIT;
+}
+
+bool Ciphersuite::is_certificate_required() const {
+   return signature_used() || kex_method() == Kex_Algo::STATIC_RSA;
 }
 
 std::optional<Ciphersuite> Ciphersuite::by_id(uint16_t suite) {
@@ -116,112 +134,6 @@ std::optional<Ciphersuite> Ciphersuite::from_name(std::string_view name) {
    }
 
    return std::nullopt;  // some unknown ciphersuite
-}
-
-namespace {
-
-bool have_hash(std::string_view prf) {
-   return (!HashFunction::providers(prf).empty());
-}
-
-bool have_cipher(std::string_view cipher) {
-   return (!BlockCipher::providers(cipher).empty()) || (!StreamCipher::providers(cipher).empty());
-}
-
-}  // namespace
-
-bool Ciphersuite::is_usable() const {
-   // NOLINTBEGIN(bugprone-branch-clone) this function needs help
-
-   if(((cipher_algo() != "NULL") && (m_cipher_keylen == 0)) ||
-      ((cipher_algo() == "NULL") && (m_cipher_keylen != 0))) {  // invalid keylen state
-      return false;
-   }
-
-   if(!have_hash(prf_algo())) {
-      return false;
-   }
-
-#if !defined(BOTAN_HAS_TLS_CBC)
-   if(cbc_ciphersuite()) {
-      return false;
-   }
-#endif
-
-#if !defined(BOTAN_HAS_TLS_NULL)
-   if(null_ciphersuite()) {
-      return false;
-   }
-#endif
-
-   if(mac_algo() == "AEAD") {
-      if(cipher_algo() == "ChaCha20Poly1305") {
-#if !defined(BOTAN_HAS_AEAD_CHACHA20_POLY1305)
-         return false;
-#endif
-      } else {
-         auto cipher_and_mode = split_on(cipher_algo(), '/');
-         BOTAN_ASSERT(cipher_and_mode.size() == 2, "Expected format for AEAD algo");
-         if(!have_cipher(cipher_and_mode[0])) {
-            return false;
-         }
-
-         const auto& mode = cipher_and_mode[1];
-
-#if !defined(BOTAN_HAS_AEAD_CCM)
-         if(mode == "CCM" || mode == "CCM-8") {
-            return false;
-         }
-#endif
-
-#if !defined(BOTAN_HAS_AEAD_GCM)
-         if(mode == "GCM") {
-            return false;
-         }
-#endif
-
-#if !defined(BOTAN_HAS_AEAD_OCB)
-         if(mode == "OCB(12)" || mode == "OCB") {
-            return false;
-         }
-#endif
-
-         // Potentially unused if all AEADs are available
-         BOTAN_UNUSED(mode);
-      }
-   } else {
-      // Old non-AEAD schemes
-      if(!have_cipher(cipher_algo()) && (cipher_algo() != "NULL")) {
-         return false;
-      }
-      if(!have_hash(mac_algo())) {  // HMAC
-         return false;
-      }
-   }
-
-   if(kex_method() == Kex_Algo::ECDH || kex_method() == Kex_Algo::ECDHE_PSK) {
-#if !defined(BOTAN_HAS_ECDH)
-      return false;
-#endif
-   } else if(kex_method() == Kex_Algo::DH) {
-#if !defined(BOTAN_HAS_DIFFIE_HELLMAN)
-      return false;
-#endif
-   }
-
-   if(auth_method() == Auth_Method::ECDSA) {
-#if !defined(BOTAN_HAS_ECDSA)
-      return false;
-#endif
-   } else if(auth_method() == Auth_Method::RSA) {
-#if !defined(BOTAN_HAS_RSA)
-      return false;
-#endif
-   }
-
-   // NOLINTEND(bugprone-branch-clone)
-
-   return true;
 }
 
 }  // namespace Botan::TLS

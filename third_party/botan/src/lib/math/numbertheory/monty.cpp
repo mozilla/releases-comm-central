@@ -11,6 +11,7 @@
 #include <botan/internal/barrett.h>
 #include <botan/internal/mp_core.h>
 #include <array>
+#include <functional>
 
 namespace Botan {
 
@@ -19,6 +20,20 @@ namespace {
 // If the modulus is at most this many words, then use the stack instead
 // of a heap variable for some temporary values
 constexpr size_t MontgomeryUseStackLimit = 32;
+
+/*
+* The typed std::less<T*> specialization gives a strict total order on pointers
+* of the same type even when they belong to different allocations (while direct
+* < and > on raw pointers are only specified within a single array object).
+* The transparent std::less<> forwards to <, so it is unsuitable here.
+*/
+bool ranges_overlap(const word* a, size_t na, const word* b, size_t nb) {
+   if(na == 0 || nb == 0) {
+      return false;
+   }
+   const std::less<const word*> lt;  // NOLINT(modernize-use-transparent-functors)
+   return lt(a, b + nb) && lt(b, a + na);
+}
 
 }  // namespace
 
@@ -80,6 +95,8 @@ BigInt Montgomery_Params::mul(const BigInt& x, const BigInt& y, secure_vector<wo
 }
 
 void Montgomery_Params::mul(BigInt& z, const BigInt& x, const BigInt& y, secure_vector<word>& ws) const {
+   BOTAN_ARG_CHECK(&z != &x && &z != &y, "Montgomery_Params::mul output must not alias inputs");
+
    const size_t p_size = this->p_words();
 
    if(ws.size() < 2 * p_size) {
@@ -108,6 +125,10 @@ void Montgomery_Params::mul(BigInt& z, const BigInt& x, const BigInt& y, secure_
 }
 
 void Montgomery_Params::mul(BigInt& z, const BigInt& x, std::span<const word> y, secure_vector<word>& ws) const {
+   BOTAN_ARG_CHECK(&z != &x, "Montgomery_Params::mul output must not alias x");
+   BOTAN_ARG_CHECK(!ranges_overlap(z._data(), z.size(), y.data(), y.size()),
+                   "Montgomery_Params::mul output must not overlap y");
+
    const size_t p_size = this->p_words();
 
    if(ws.size() < 2 * p_size) {
@@ -177,10 +198,14 @@ BigInt Montgomery_Params::sqr(std::span<const word> x, secure_vector<word>& ws) 
 }
 
 void Montgomery_Params::sqr(BigInt& z, const BigInt& x, secure_vector<word>& ws) const {
+   BOTAN_ARG_CHECK(&z != &x, "Montgomery_Params::sqr output must not alias input");
    this->sqr(z, std::span{x._data(), x.size()}, ws);
 }
 
 void Montgomery_Params::sqr(BigInt& z, std::span<const word> x, secure_vector<word>& ws) const {
+   BOTAN_ARG_CHECK(!ranges_overlap(z._data(), z.size(), x.data(), x.size()),
+                   "Montgomery_Params::sqr output must not overlap input");
+
    const size_t p_size = this->p_words();
 
    if(ws.size() < 2 * p_size) {
@@ -195,6 +220,8 @@ void Montgomery_Params::sqr(BigInt& z, std::span<const word> x, secure_vector<wo
 
    bigint_monty_redc_inplace(z.mutable_data(), this->p()._data(), p_size, this->p_dash(), ws.data(), ws.size());
 }
+
+Montgomery_Int::Montgomery_Int(const Montgomery_Params& params) : m_params(params), m_v(m_params.p_words()) {}
 
 Montgomery_Int::Montgomery_Int(const Montgomery_Params& params, secure_vector<word> words) :
       m_params(params), m_v(std::move(words)) {
@@ -213,7 +240,7 @@ Montgomery_Int Montgomery_Int::from_wide_int(const Montgomery_Params& params, co
 
 Montgomery_Int::Montgomery_Int(const Montgomery_Params& params, const BigInt& v, bool redc_needed) :
       m_params(params), m_v(m_params.p_words()) {
-   BOTAN_ASSERT_NOMSG(v < m_params.p());
+   BOTAN_ARG_CHECK(v.signum() >= 0 && v < m_params.p(), "Input out of range");
 
    const size_t p_size = m_params.p_words();
 

@@ -21,7 +21,6 @@
    #include <botan/x509path.h>
    #include <botan/internal/ffi_mp.h>
    #include <botan/internal/ffi_oid.h>
-   #include <botan/internal/loadstor.h>
    #include <botan/internal/stl_util.h>
 #endif
 
@@ -41,19 +40,19 @@ namespace {
  *       count_general_names_in() must be updated accordingly!
  */
 std::optional<Botan::GeneralName> extract_general_name_at(const Botan::AlternativeName& altnames, size_t index) {
-   if(index < altnames.email().size()) {
-      auto itr = altnames.email().begin();
+   if(index < altnames.email_addresses().size()) {
+      auto itr = altnames.email_addresses().begin();
       std::advance(itr, index);
-      return Botan::GeneralName::email(*itr);
+      return Botan::GeneralName::email(itr->to_string());
    }
-   index -= altnames.email().size();
+   index -= altnames.email_addresses().size();
 
-   if(index < altnames.dns().size()) {
-      auto itr = altnames.dns().begin();
+   if(index < altnames.dns_names().size()) {
+      auto itr = altnames.dns_names().begin();
       std::advance(itr, index);
-      return Botan::GeneralName::dns(*itr);
+      return Botan::GeneralName::_dns_san_value(itr->to_string());
    }
-   index -= altnames.dns().size();
+   index -= altnames.dns_names().size();
 
    if(index < altnames.directory_names().size()) {
       auto itr = altnames.directory_names().begin();
@@ -62,17 +61,24 @@ std::optional<Botan::GeneralName> extract_general_name_at(const Botan::Alternati
    }
    index -= altnames.directory_names().size();
 
-   if(index < altnames.uris().size()) {
-      auto itr = altnames.uris().begin();
+   if(index < altnames.uri_names().size()) {
+      auto itr = altnames.uri_names().begin();
       std::advance(itr, index);
-      return Botan::GeneralName::uri(*itr);
+      return Botan::GeneralName::_uri_san_value(itr->original_input());
    }
-   index -= altnames.uris().size();
+   index -= altnames.uri_names().size();
 
-   if(index < altnames.ipv4_address().size()) {
-      auto itr = altnames.ipv4_address().begin();
+   if(index < altnames.ipv4_addresses().size()) {
+      auto itr = altnames.ipv4_addresses().begin();
       std::advance(itr, index);
       return Botan::GeneralName::ipv4_address(*itr);
+   }
+   index -= altnames.ipv4_addresses().size();
+
+   if(index < altnames.ipv6_addresses().size()) {
+      auto itr = altnames.ipv6_addresses().begin();
+      std::advance(itr, index);
+      return Botan::GeneralName::ipv6_address(*itr);
    }
 
    return std::nullopt;
@@ -86,8 +92,8 @@ std::optional<Botan::GeneralName> extract_general_name_at(const Botan::Alternati
  *       extract_general_name_at() must be updated accordingly!
  */
 size_t count_general_names_in(const Botan::AlternativeName& alt_names) {
-   return alt_names.email().size() + alt_names.dns().size() + alt_names.directory_names().size() +
-          alt_names.uris().size() + alt_names.ipv4_address().size();
+   return alt_names.email_addresses().size() + alt_names.dns_names().size() + alt_names.directory_names().size() +
+          alt_names.uri_names().size() + alt_names.ipv4_addresses().size() + alt_names.ipv6_addresses().size();
 }
 
 std::optional<botan_x509_general_name_types> to_botan_x509_general_name_types(Botan::GeneralName::NameType gn_type) {
@@ -104,6 +110,7 @@ std::optional<botan_x509_general_name_types> to_botan_x509_general_name_types(Bo
       case Type::DN:
          return BOTAN_X509_DIRECTORY_NAME;
       case Type::IPv4:
+      case Type::IPv6:
          return BOTAN_X509_IP_ADDRESS;
       case Type::Other:
          return BOTAN_X509_OTHER_NAME;
@@ -167,7 +174,7 @@ extern "C" {
 using namespace Botan_FFI;
 
 int botan_x509_cert_load_file(botan_x509_cert_t* cert_obj, const char* cert_path) {
-   if(cert_obj == nullptr || cert_path == nullptr) {
+   if(Botan::any_null_pointers(cert_obj, cert_path)) {
       return BOTAN_FFI_ERROR_NULL_POINTER;
    }
 
@@ -202,7 +209,7 @@ int botan_x509_cert_dup(botan_x509_cert_t* cert_obj, botan_x509_cert_t cert) {
 }
 
 int botan_x509_cert_load(botan_x509_cert_t* cert_obj, const uint8_t cert_bits[], size_t cert_bits_len) {
-   if(cert_obj == nullptr || cert_bits == nullptr) {
+   if(Botan::any_null_pointers(cert_obj, cert_bits)) {
       return BOTAN_FFI_ERROR_NULL_POINTER;
    }
 
@@ -348,45 +355,22 @@ int botan_x509_cert_view_string_values(botan_x509_cert_t cert,
                                        botan_view_ctx ctx,
                                        botan_view_str_fn view_fn) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
-   auto enumerate = [view_fn, ctx](auto values, size_t idx) -> int {
+   auto enumerate_uris = [view_fn, ctx](const std::vector<Botan::URI>& values, size_t idx) -> int {
       if(idx >= values.size()) {
          return BOTAN_FFI_ERROR_OUT_OF_RANGE;
       } else {
-         return invoke_view_callback(view_fn, ctx, values[idx]);
+         return invoke_view_callback(view_fn, ctx, values[idx].original_input());
       }
-   };
-
-   auto enumerate_crl_distribution_points = [view_fn, ctx](const Botan::X509_Certificate& c, size_t idx) -> int {
-      const auto* crl_dp_ext =
-         c.v3_extensions().get_extension_object_as<Botan::Cert_Extension::CRL_Distribution_Points>();
-      if(crl_dp_ext == nullptr) {
-         return BOTAN_FFI_ERROR_OUT_OF_RANGE;  // essentially an empty list
-      }
-
-      const auto& dps = crl_dp_ext->distribution_points();
-      for(size_t i = idx; const auto& dp : dps) {
-         const auto& uris = dp.point().uris();
-         if(i >= uris.size()) {
-            i -= uris.size();
-            continue;
-         }
-
-         auto itr = uris.begin();
-         std::advance(itr, i);
-         return invoke_view_callback(view_fn, ctx, *itr);
-      }
-
-      return BOTAN_FFI_ERROR_OUT_OF_RANGE;
    };
 
    return BOTAN_FFI_VISIT(cert, [=](const Botan::X509_Certificate& c) -> int {
       switch(value_type) {
          case BOTAN_X509_CRL_DISTRIBUTION_URLS:
-            return enumerate_crl_distribution_points(c, index);
+            return enumerate_uris(c.crl_distribution_point_uris(), index);
          case BOTAN_X509_OCSP_RESPONDER_URLS:
-            return enumerate(c.ocsp_responders(), index);
+            return enumerate_uris(c.ocsp_responder_uris(), index);
          case BOTAN_X509_CA_ISSUERS_URLS:
-            return enumerate(c.ca_issuers(), index);
+            return enumerate_uris(c.ca_issuer_uris(), index);
          case BOTAN_X509_PEM_ENCODING:
             return botan_x509_object_view_value(c, value_type, index, ctx, view_fn);
 
@@ -472,6 +456,9 @@ int botan_x509_cert_get_public_key(botan_x509_cert_t cert, botan_pubkey_t* key) 
 
 int botan_x509_cert_get_issuer_dn(
    botan_x509_cert_t cert, const char* key, size_t index, uint8_t out[], size_t* out_len) {
+   if(key == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_VISIT(cert, [=](const auto& c) -> int {
       auto issuer_info = c.issuer_info(key);
@@ -491,7 +478,7 @@ int botan_x509_cert_get_issuer_dn(
 int botan_x509_cert_get_issuer_dn_count(botan_x509_cert_t cert, const char* key, size_t* count) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_VISIT(cert, [=](const auto& c) -> int {
-      if(Botan::any_null_pointers(count)) {
+      if(Botan::any_null_pointers(key, count)) {
          return BOTAN_FFI_ERROR_NULL_POINTER;
       }
 
@@ -506,6 +493,9 @@ int botan_x509_cert_get_issuer_dn_count(botan_x509_cert_t cert, const char* key,
 
 int botan_x509_cert_get_subject_dn(
    botan_x509_cert_t cert, const char* key, size_t index, uint8_t out[], size_t* out_len) {
+   if(key == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_VISIT(cert, [=](const auto& c) -> int {
       auto subject_info = c.subject_info(key);
@@ -525,7 +515,7 @@ int botan_x509_cert_get_subject_dn(
 int botan_x509_cert_get_subject_dn_count(botan_x509_cert_t cert, const char* key, size_t* count) {
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_VISIT(cert, [=](const auto& c) -> int {
-      if(Botan::any_null_pointers(count)) {
+      if(Botan::any_null_pointers(key, count)) {
          return BOTAN_FFI_ERROR_NULL_POINTER;
       }
 
@@ -620,6 +610,9 @@ int botan_x509_cert_get_time_expires(botan_x509_cert_t cert, char out[], size_t*
 }
 
 int botan_x509_cert_not_before(botan_x509_cert_t cert, uint64_t* time_since_epoch) {
+   if(time_since_epoch == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_VISIT(cert, [=](const auto& c) { *time_since_epoch = c.not_before().time_since_epoch(); });
 #else
@@ -629,6 +622,9 @@ int botan_x509_cert_not_before(botan_x509_cert_t cert, uint64_t* time_since_epoc
 }
 
 int botan_x509_cert_not_after(botan_x509_cert_t cert, uint64_t* time_since_epoch) {
+   if(time_since_epoch == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    return BOTAN_FFI_VISIT(cert, [=](const auto& c) { *time_since_epoch = c.not_after().time_since_epoch(); });
 #else
@@ -653,7 +649,7 @@ int botan_x509_cert_serial_number(botan_x509_cert_t cert, botan_mp_t* serial_num
          return BOTAN_FFI_ERROR_NULL_POINTER;
       }
 
-      auto serial_bn = Botan::BigInt::from_bytes(c.serial_number());
+      auto serial_bn = c.serial().to_bigint();
       return ffi_new_object(serial_number, std::make_unique<Botan::BigInt>(std::move(serial_bn)));
    });
 #else
@@ -663,6 +659,9 @@ int botan_x509_cert_serial_number(botan_x509_cert_t cert, botan_mp_t* serial_num
 }
 
 int botan_x509_cert_get_fingerprint(botan_x509_cert_t cert, const char* hash, uint8_t out[], size_t* out_len) {
+   if(hash == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
 #if defined(BOTAN_HAS_X509_CERTIFICATES)
    // TODO(Botan4) change the type of out and remove this cast
 
@@ -969,6 +968,13 @@ int botan_x509_cert_verify(int* result_code,
                                       ? std::chrono::system_clock::now()
                                       : std::chrono::system_clock::from_time_t(static_cast<time_t>(reference_time));
 
+      if(intermediates_len > 0 && intermediates == nullptr) {
+         return BOTAN_FFI_ERROR_NULL_POINTER;
+      }
+      if(trusted_len > 0 && trusted == nullptr) {
+         return BOTAN_FFI_ERROR_NULL_POINTER;
+      }
+
       std::vector<Botan::X509_Certificate> end_certs;
       end_certs.push_back(safe_get(cert));
       for(size_t i = 0; i != intermediates_len; ++i) {
@@ -1028,7 +1034,7 @@ const char* botan_x509_cert_validation_status(int code) {
 }
 
 int botan_x509_crl_load_file(botan_x509_crl_t* crl_obj, const char* crl_path) {
-   if(crl_obj == nullptr || crl_path == nullptr) {
+   if(Botan::any_null_pointers(crl_obj, crl_path)) {
       return BOTAN_FFI_ERROR_NULL_POINTER;
    }
 
@@ -1045,7 +1051,7 @@ int botan_x509_crl_load_file(botan_x509_crl_t* crl_obj, const char* crl_path) {
 }
 
 int botan_x509_crl_load(botan_x509_crl_t* crl_obj, const uint8_t crl_bits[], size_t crl_bits_len) {
-   if(crl_obj == nullptr || crl_bits == nullptr) {
+   if(Botan::any_null_pointers(crl_obj, crl_bits)) {
       return BOTAN_FFI_ERROR_NULL_POINTER;
    }
 
@@ -1217,8 +1223,15 @@ int botan_x509_crl_view_binary_values(botan_x509_crl_t crl_obj,
 
    return BOTAN_FFI_VISIT(crl_obj, [=](const Botan::X509_CRL& crl) -> int {
       switch(value_type) {
-         case BOTAN_X509_SERIAL_NUMBER:
-            return view(Botan::store_be(crl.crl_number()));
+         case BOTAN_X509_SERIAL_NUMBER: {
+            if(const auto& crln = crl.crl_number_bigint()) {
+               // Previously CRL number was a fixed 4 byte value, continue this for small CRL numbers
+               const size_t view_bytes = std::min<size_t>(crln->bytes(), 4);
+               return view(crln->serialize<std::vector<uint8_t>>(view_bytes));
+            } else {
+               return BOTAN_FFI_ERROR_NO_VALUE;
+            }
+         }
          case BOTAN_X509_ISSUER_DN_BITS:
             return view(Botan::ASN1::put_in_sequence(crl.issuer_dn().get_bits()));
          case BOTAN_X509_AUTHORITY_KEY_IDENTIFIER:
@@ -1382,7 +1395,7 @@ int botan_x509_crl_entry_serial_number(botan_x509_crl_entry_t entry, botan_mp_t*
          return BOTAN_FFI_ERROR_NULL_POINTER;
       }
 
-      auto serial_bn = Botan::BigInt::from_bytes(e.serial_number());
+      auto serial_bn = e.serial().to_bigint();
       return ffi_new_object(serial_number, std::make_unique<Botan::BigInt>(std::move(serial_bn)));
    });
 #else
@@ -1440,6 +1453,16 @@ int botan_x509_cert_verify_with_crl(int* result_code,
       const auto validation_time = reference_time == 0
                                       ? std::chrono::system_clock::now()
                                       : std::chrono::system_clock::from_time_t(static_cast<time_t>(reference_time));
+
+      if(intermediates_len > 0 && intermediates == nullptr) {
+         return BOTAN_FFI_ERROR_NULL_POINTER;
+      }
+      if(trusted_len > 0 && trusted == nullptr) {
+         return BOTAN_FFI_ERROR_NULL_POINTER;
+      }
+      if(crls_len > 0 && crls == nullptr) {
+         return BOTAN_FFI_ERROR_NULL_POINTER;
+      }
 
       std::vector<Botan::X509_Certificate> end_certs;
       end_certs.push_back(safe_get(cert));

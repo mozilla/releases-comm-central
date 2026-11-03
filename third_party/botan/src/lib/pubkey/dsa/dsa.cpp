@@ -21,6 +21,16 @@
 
 namespace Botan {
 
+namespace {
+
+void check_dsa_group(const DL_Group& group) {
+   BOTAN_ARG_CHECK(group.has_q(), "Q parameter must be set for DSA");
+   // All versions of FIPS 186 have required that Q be at least 160 bits
+   BOTAN_ARG_CHECK(group.q_bits() >= 160, "DSA Q parameter must be at least 160 bits");
+}
+
+}  // namespace
+
 std::optional<size_t> DSA_PublicKey::_signature_element_size_for_DER_encoding() const {
    return m_public_key->group().q_bytes();
 }
@@ -60,24 +70,24 @@ std::unique_ptr<Private_Key> DSA_PublicKey::generate_another(RandomNumberGenerat
 DSA_PublicKey::DSA_PublicKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> key_bits) {
    m_public_key = std::make_shared<DL_PublicKey>(alg_id, key_bits, DL_Group_Format::ANSI_X9_57);
 
-   BOTAN_ARG_CHECK(m_public_key->group().has_q(), "Q parameter must be set for DSA");
+   check_dsa_group(m_public_key->group());
 }
 
 DSA_PublicKey::DSA_PublicKey(const DL_Group& group, const BigInt& y) {
    m_public_key = std::make_shared<DL_PublicKey>(group, y);
 
-   BOTAN_ARG_CHECK(m_public_key->group().has_q(), "Q parameter must be set for DSA");
+   check_dsa_group(m_public_key->group());
 }
 
 DSA_PrivateKey::DSA_PrivateKey(RandomNumberGenerator& rng, const DL_Group& group) {
-   BOTAN_ARG_CHECK(group.has_q(), "Q parameter must be set for DSA");
+   check_dsa_group(group);
 
    m_private_key = std::make_shared<DL_PrivateKey>(group, rng);
    m_public_key = m_private_key->public_key();
 }
 
 DSA_PrivateKey::DSA_PrivateKey(const DL_Group& group, const BigInt& x) {
-   BOTAN_ARG_CHECK(group.has_q(), "Q parameter must be set for DSA");
+   check_dsa_group(group);
 
    m_private_key = std::make_shared<DL_PrivateKey>(group, x);
    m_public_key = m_private_key->public_key();
@@ -87,7 +97,7 @@ DSA_PrivateKey::DSA_PrivateKey(const AlgorithmIdentifier& alg_id, std::span<cons
    m_private_key = std::make_shared<DL_PrivateKey>(alg_id, key_bits, DL_Group_Format::ANSI_X9_57);
    m_public_key = m_private_key->public_key();
 
-   BOTAN_ARG_CHECK(m_private_key->group().has_q(), "Q parameter must be set for DSA");
+   check_dsa_group(m_private_key->group());
 }
 
 bool DSA_PrivateKey::check_key(RandomNumberGenerator& rng, bool strong) const {
@@ -245,6 +255,11 @@ bool DSA_Verification_Operation::verify(std::span<const uint8_t> input, std::spa
    }
 
    s = group.inverse_mod_q(s);
+
+   // Since we already checked for s == 0 above this shouldn't happen
+   if(s.is_zero()) {
+      return false;
+   }
 
    const BigInt sr = group.multiply_mod_q(s, r);
    const BigInt si = group.multiply_mod_q(s, i);

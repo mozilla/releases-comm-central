@@ -588,7 +588,7 @@ std::optional<int32_t> coeff_from_halfbyte(uint8_t b) {
 
    if constexpr(eta == DilithiumConstants::DilithiumEta::_2) {
       if(CT::driveby_unpoison(b < 15)) {
-         b = b - (205 * b >> 10) * 5;  // b = b mod 5
+         b = b - (205U * b >> 10) * 5;  // b = b mod 5
          return 2 - b;
       }
    } else if constexpr(eta == DilithiumConstants::DilithiumEta::_4) {

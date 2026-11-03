@@ -10,10 +10,10 @@
 
 #include <botan/exceptn.h>
 #include <botan/mem_ops.h>
+#include <botan/uri.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/stl_util.h>
 #include <botan/internal/target_info.h>
-#include <botan/internal/uri.h>
 #include <chrono>
 
 #if defined(BOTAN_HAS_BOOST_ASIO)
@@ -51,9 +51,26 @@ class Asio_SocketUDP final : public OS::SocketUDP {
          m_timer.expires_after(m_timeout);
          check_timeout();
 
+         // Resolve asynchronously so the timer covers DNS as well as connect.
+         // check_timeout() only closes m_udp, which isn't open yet during the
+         // resolve, so cancel the resolver inline if the deadline passes.
          boost::asio::ip::udp::resolver resolver(m_io);
-         const boost::asio::ip::udp::resolver::results_type dns_iter =
-            resolver.resolve(std::string{hostname}, std::string{service});
+         boost::asio::ip::udp::resolver::results_type dns_iter;
+         boost::system::error_code resolve_ec = boost::asio::error::would_block;
+         resolver.async_resolve(
+            std::string{hostname}, std::string{service}, [&](const boost::system::error_code& e, auto results) {
+               resolve_ec = e;
+               dns_iter = std::move(results);
+            });
+         while(resolve_ec == boost::asio::error::would_block) {
+            if(m_timer.expiry() < decltype(m_timer)::clock_type::now()) {
+               resolver.cancel();
+            }
+            m_io.run_one();
+         }
+         if(resolve_ec) {
+            throw boost::system::system_error(resolve_ec);
+         }
 
          boost::system::error_code ec = boost::asio::error::would_block;
 
@@ -117,7 +134,7 @@ class Asio_SocketUDP final : public OS::SocketUDP {
 
    private:
       void check_timeout() {
-         if(m_udp.is_open() && m_timer.expiry() < std::chrono::system_clock::now()) {
+         if(m_udp.is_open() && m_timer.expiry() < decltype(m_timer)::clock_type::now()) {
             boost::system::error_code err;
 
             // NOLINTNEXTLINE(bugprone-unused-return-value,cert-err33-c)
@@ -140,6 +157,23 @@ class BSD_SocketUDP final : public OS::SocketUDP {
             m_timeout(timeout), m_socket(invalid_socket()) {
          socket_init();
 
+         // A constructor that throws does not run its destructor, so do
+         // cleanup explicitly on any failure between socket_init() above and
+         // the end of construction below.
+         try {
+            do_connect(hostname, service);
+         } catch(...) {
+            if(m_socket != invalid_socket()) {
+               close_socket(m_socket);
+               m_socket = invalid_socket();
+            }
+            socket_fini();
+            throw;
+         }
+      }
+
+   private:
+      void do_connect(std::string_view hostname, std::string_view service) {
          const std::string hostname_str(hostname);
          const std::string service_str(service);
 
@@ -166,17 +200,40 @@ class BSD_SocketUDP final : public OS::SocketUDP {
                continue;
             }
 
+   #if !defined(BOTAN_TARGET_OS_HAS_WINSOCK2)
+            // Windows fd_set is an array of sockets and doesn't have this limitation
+            if(m_socket >= FD_SETSIZE) {
+               close_socket(m_socket);
+               m_socket = invalid_socket();
+               throw System_Error("Socket descriptor exceeds FD_SETSIZE; select() would be unsafe");
+            }
+   #endif
+
             set_nonblocking(m_socket);
-            memcpy(&sa, res->ai_addr, res->ai_addrlen);
-            salen = static_cast<socklen_t>(res->ai_addrlen);  // NOLINT(*-redundant-casting)
+
+            // Connect the UDP socket to the selected peer so the kernel drops
+            // datagrams arriving from anyone else. Without this a stray or
+            // spoofed datagram could be accepted as the response.
+            //
+            // ::connect on a UDP socket only records the peer address in the
+            // kernel; it does not produce or consume traffic. It is effectively
+            // non-blocking on every supported platform, so we don't wrap this
+            // in the select() pattern used by the TCP path.
+            if(::connect(m_socket, rp->ai_addr, static_cast<socklen_t>(rp->ai_addrlen)) != 0) {
+               close_socket(m_socket);
+               m_socket = invalid_socket();
+               continue;
+            }
          }
 
          if(m_socket == invalid_socket()) {
-            throw System_Error(fmt("Connecting to {} for service {} failed with errno {}", hostname, service, errno),
-                               errno);
+            throw System_Error(
+               fmt("Connecting to {} for service {} failed with errno {}", hostname, service, last_socket_error()),
+               last_socket_error());
          }
       }
 
+   public:
       ~BSD_SocketUDP() override {
          close_socket(m_socket);
          m_socket = invalid_socket();
@@ -189,28 +246,34 @@ class BSD_SocketUDP final : public OS::SocketUDP {
       BSD_SocketUDP& operator=(BSD_SocketUDP&& other) = delete;
 
       void write(const uint8_t buf[], size_t len) override {
-         fd_set write_set;
-         FD_ZERO(&write_set);
-         FD_SET(m_socket, &write_set);
-
          size_t sent_so_far = 0;
          while(sent_so_far != len) {
+            fd_set write_set;
+            FD_ZERO(&write_set);
+            FD_SET(m_socket, &write_set);
+
             struct timeval timeout = make_timeout_tv();
             const int active = ::select(static_cast<int>(m_socket + 1), nullptr, &write_set, nullptr, &timeout);
+
+            if(active < 0) {
+               if(last_error_is_retryable()) {
+                  continue;
+               }
+               throw System_Error("Socket select failed", last_socket_error());
+            }
 
             if(active == 0) {
                throw System_Error("Timeout during socket write");
             }
 
             const size_t left = len - sent_so_far;
-            const socket_op_ret_type sent = ::sendto(m_socket,
-                                                     cast_uint8_ptr_to_char(buf + sent_so_far),
-                                                     static_cast<sendrecv_len_type>(left),
-                                                     0,
-                                                     reinterpret_cast<sockaddr*>(&sa),
-                                                     salen);
+            const socket_op_ret_type sent =
+               ::send(m_socket, cast_uint8_ptr_to_char(buf + sent_so_far), static_cast<sendrecv_len_type>(left), 0);
             if(sent < 0) {
-               throw System_Error("Socket write failed", errno);
+               if(last_error_is_retryable()) {
+                  continue;
+               }
+               throw System_Error("Socket write failed", last_socket_error());
             } else {
                sent_so_far += static_cast<size_t>(sent);
             }
@@ -218,25 +281,39 @@ class BSD_SocketUDP final : public OS::SocketUDP {
       }
 
       size_t read(uint8_t buf[], size_t len) override {
-         fd_set read_set;
-         FD_ZERO(&read_set);
-         FD_SET(m_socket, &read_set);
+         for(;;) {
+            fd_set read_set;
+            FD_ZERO(&read_set);
+            FD_SET(m_socket, &read_set);
 
-         struct timeval timeout = make_timeout_tv();
-         const int active = ::select(static_cast<int>(m_socket + 1), &read_set, nullptr, nullptr, &timeout);
+            struct timeval timeout = make_timeout_tv();
+            const int active = ::select(static_cast<int>(m_socket + 1), &read_set, nullptr, nullptr, &timeout);
 
-         if(active == 0) {
-            throw System_Error("Timeout during socket read");
+            if(active < 0) {
+               if(last_error_is_retryable()) {
+                  continue;
+               }
+               throw System_Error("Socket select failed", last_socket_error());
+            }
+
+            if(active == 0) {
+               throw System_Error("Timeout during socket read");
+            }
+
+            // Socket is connected, so recv() filters out datagrams from any
+            // sender other than the configured peer.
+            const socket_op_ret_type got =
+               ::recv(m_socket, cast_uint8_ptr_to_char(buf), static_cast<sendrecv_len_type>(len), 0);
+
+            if(got < 0) {
+               if(last_error_is_retryable()) {
+                  continue;
+               }
+               throw System_Error("Socket read failed", last_socket_error());
+            }
+
+            return static_cast<size_t>(got);
          }
-
-         const socket_op_ret_type got =
-            ::recvfrom(m_socket, cast_uint8_ptr_to_char(buf), static_cast<sendrecv_len_type>(len), 0, nullptr, nullptr);
-
-         if(got < 0) {
-            throw System_Error("Socket read failed", errno);
-         }
-
-         return static_cast<size_t>(got);
       }
 
    private:
@@ -249,9 +326,13 @@ class BSD_SocketUDP final : public OS::SocketUDP {
 
       static void close_socket(socket_type s) { ::closesocket(s); }
 
+      static int last_socket_error() { return ::WSAGetLastError(); }
+
       static std::string get_last_socket_error() { return std::to_string(::WSAGetLastError()); }
 
       static bool nonblocking_connect_in_progress() { return (::WSAGetLastError() == WSAEWOULDBLOCK); }
+
+      static bool last_error_is_retryable() { return (::WSAGetLastError() == WSAEINTR); }
 
       static void set_nonblocking(socket_type s) {
          u_long nonblocking = 1;
@@ -282,9 +363,13 @@ class BSD_SocketUDP final : public OS::SocketUDP {
 
       static void close_socket(socket_type s) { ::close(s); }
 
+      static int last_socket_error() { return errno; }
+
       static std::string get_last_socket_error() { return ::strerror(errno); }
 
       static bool nonblocking_connect_in_progress() { return (errno == EINPROGRESS); }
+
+      static bool last_error_is_retryable() { return (errno == EINTR); }
 
       static void set_nonblocking(socket_type s) {
          // NOLINTNEXTLINE(*-vararg)
@@ -297,9 +382,6 @@ class BSD_SocketUDP final : public OS::SocketUDP {
 
       static void socket_fini() {}
    #endif
-      sockaddr_storage sa = {};
-      socklen_t salen;
-
       struct timeval make_timeout_tv() const {
          struct timeval tv {};
 
@@ -336,11 +418,11 @@ std::unique_ptr<OS::SocketUDP> OS::open_socket_udp(std::string_view hostname,
 }
 
 std::unique_ptr<OS::SocketUDP> OS::open_socket_udp(std::string_view uri_string, std::chrono::microseconds timeout) {
-   const auto uri = URI::from_any(uri_string);
-   if(uri.port() == 0) {
+   const auto authority = URI::Authority::from_string(uri_string);
+   if(!authority.has_value() || !authority->port().has_value()) {
       throw Invalid_Argument("UDP port not specified");
    }
-   return open_socket_udp(uri.host(), std::to_string(uri.port()), timeout);
+   return open_socket_udp(authority->host_to_string(), std::to_string(*authority->port()), timeout);
 }
 
 }  // namespace Botan

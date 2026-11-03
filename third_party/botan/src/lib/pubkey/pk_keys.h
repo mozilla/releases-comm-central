@@ -111,15 +111,22 @@ class BOTAN_PUBLIC_API(3, 0) Asymmetric_Key /* NOLINT(*special-member-functions)
        * Generate another (cryptographically independent) key pair using the
        * same algorithm parameters as this key. This is most useful for algorithms
        * that support PublicKeyOperation::KeyAgreement to generate a fitting ephemeral
-       * key pair. For other key types it might throw Not_Implemented.
+       * key pair. For other key types it might throw `Not_Implemented`.
        */
       virtual std::unique_ptr<Private_Key> generate_another(RandomNumberGenerator& rng) const = 0;
 
-      /*
+      /**
       * Test the key values for consistency.
-      * @param rng rng to use
-      * @param strong whether to perform strong and lengthy version of the test
-      * @return true if the test is passed
+      *
+      * Note this function is always "best effort"; for many algorithms it is
+      * not computationally possible to ensure the key is correctly formed in
+      * all respects. There is always the possibility a malformed key will be
+      * accepted; this is especially the case for public keys.
+      *
+      * @param rng rng to use for randomized testing (may be ignored)
+      * @param strong whether to perform strong and lengthy version of the test,
+      *        however for many algorithms this has no effect
+      * @return true if the tests passed
       */
       virtual bool check_key(RandomNumberGenerator& rng, bool strong) const = 0;
 
@@ -161,28 +168,32 @@ class BOTAN_PUBLIC_API(2, 0) Public_Key : public virtual Asymmetric_Key {
       BOTAN_DEPRECATED("Use object_identifier") OID get_oid() const { return this->object_identifier(); }
 
       /**
-      * @return X.509 AlgorithmIdentifier for this key
+      * Return the X.509 AlgorithmIdentifier for this key
       */
       virtual AlgorithmIdentifier algorithm_identifier() const = 0;
 
       /**
-      * @return binary public key bits, with no additional encoding
+      * Return the raw public key bits (algorithm specific) with no extra encoding
       *
       * For key agreements this is an alias for PK_Key_Agreement_Key::public_value.
       *
-      * Note: some algorithms (for example RSA) do not have an obvious encoding
+      * @note some algorithms (for example RSA) do not have an obvious encoding
       * for this value due to having many different values, and thus throw
-      * Not_Implemented when invoking this method.
+      * `Not_Implemented` when invoking this method.
       */
       virtual std::vector<uint8_t> raw_public_key_bits() const = 0;
 
       /**
-      * @return BER encoded public key bits
+      * Return the subject public key encoding of this public key
+      *
+      * @note this excludes the parameters field and may not be reliably decodable
       */
       virtual std::vector<uint8_t> public_key_bits() const = 0;
 
       /**
-      * @return X.509 subject key encoding for this key object
+      * Return the SubjectPublicKeyInfo encoding of this public key
+      *
+      * This is the subjectPublicKey field plus the algorithm-specific parameters
       */
       std::vector<uint8_t> subject_public_key() const;
 
@@ -294,16 +305,19 @@ class BOTAN_PUBLIC_API(2, 0) Public_Key : public virtual Asymmetric_Key {
 class BOTAN_PUBLIC_API(2, 0) Private_Key : public virtual Public_Key {
    public:
       /**
-      * @return BER encoded private key bits
+      * Return the PKCS8 private key encoding
+      *
+      * @note this encoding omits the outer PKCS8 algorithm identifiers and will
+      * not be portably decodable on its own. Prefer `private_key_info`.
       */
       virtual secure_vector<uint8_t> private_key_bits() const = 0;
 
       /**
-      * @return binary private key bits, with no additional encoding
+      * Return the binary private key bits, with no additional encoding
       *
-      * Note: some algorithms (for example RSA) do not have an obvious encoding
+      * @note some algorithms (for example RSA) do not have an obvious encoding
       * for this value due to having many different values, and thus not implement
-      * this function. The default implementation throws Not_Implemented
+      * this function. The default implementation throws `Not_Implemented`
       */
       virtual secure_vector<uint8_t> raw_private_key_bits() const;
 
@@ -316,13 +330,15 @@ class BOTAN_PUBLIC_API(2, 0) Private_Key : public virtual Public_Key {
       virtual std::unique_ptr<Public_Key> public_key() const = 0;
 
       /**
-      * @return PKCS #8 private key encoding for this key object
+      * Return PKCS #8 private key encoding for this key object
       */
       secure_vector<uint8_t> private_key_info() const;
 
       /**
-      * @return PKCS #8 AlgorithmIdentifier for this key
-      * Might be different from the X.509 identifier, but normally is not
+      * Return the PKCS #8 AlgorithmIdentifier for this key
+      *
+      * @note normally this is the same as the public key identifier, but a few
+      * oddball algorithms use a different value
       */
       virtual AlgorithmIdentifier pkcs8_algorithm_identifier() const { return algorithm_identifier(); }
 
@@ -417,16 +433,27 @@ class BOTAN_PUBLIC_API(2, 0) Private_Key : public virtual Public_Key {
 */
 class BOTAN_PUBLIC_API(2, 0) PK_Key_Agreement_Key : public virtual Private_Key {
    public:
-      /*
-      * @return public component of this key
+      /**
+      * Return the public value used to effect key exchange
       */
       virtual std::vector<uint8_t> public_value() const = 0;
 };
 
-std::string BOTAN_PUBLIC_API(2, 4) create_hex_fingerprint(const uint8_t bits[], size_t len, std::string_view hash_name);
+/**
+* Hex encode the data and separate them in blocks with `:` characters
+*/
+std::string BOTAN_PUBLIC_API(3, 12) format_hex_fingerprint(std::span<const uint8_t> bits);
 
-inline std::string create_hex_fingerprint(std::span<const uint8_t> vec, std::string_view hash_name) {
-   return create_hex_fingerprint(vec.data(), vec.size(), hash_name);
+/**
+* Hash the input then format that hash using format_hex_fingerprint
+*/
+std::string BOTAN_PUBLIC_API(3, 0) create_hex_fingerprint(std::span<const uint8_t> bits, std::string_view hash_name);
+
+/**
+* Old interface for create_hex_fingerprint added in 2.4 pre-span
+*/
+inline std::string create_hex_fingerprint(const uint8_t bits[], size_t len, std::string_view hash_name) {
+   return create_hex_fingerprint({bits, len}, hash_name);
 }
 
 }  // namespace Botan

@@ -20,7 +20,7 @@ namespace Botan {
  * Field ordering corresponds to the permutation pi defining the alpha sequence in
  * the Classic McEliece specification (see Classic McEliece ISO Sec. 8.2.).
  */
-class BOTAN_TEST_API Classic_McEliece_Field_Ordering {
+class BOTAN_TEST_API Classic_McEliece_Field_Ordering final {
    public:
       /**
        * @brief Creates a field ordering from a random bit sequence. Corresponds to

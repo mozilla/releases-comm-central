@@ -23,10 +23,10 @@ typedef std::vector<secure_vector<uint8_t>> wots_keysig_t;
 
 class XMSS_WOTS_Base {
    public:
-      explicit XMSS_WOTS_Base(XMSS_WOTS_Parameters params) : m_params(std::move(params)) {}
+      explicit XMSS_WOTS_Base(XMSS_WOTS_Parameters params) : m_params(params) {}
 
       XMSS_WOTS_Base(XMSS_WOTS_Parameters params, wots_keysig_t key_data) :
-            m_params(std::move(params)), m_key_data(std::move(key_data)) {}
+            m_params(params), m_key_data(std::move(key_data)) {}
 
       const wots_keysig_t& key_data() const { return m_key_data; }
 

@@ -14,6 +14,7 @@
 #include <botan/internal/cmac.h>
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/ctr.h>
+#include <botan/internal/int_utils.h>
 #include <botan/internal/poly_dbl.h>
 
 namespace Botan {
@@ -34,13 +35,14 @@ SIV_Mode::~SIV_Mode() = default;
 void SIV_Mode::clear() {
    m_ctr->clear();
    m_mac->clear();
+   m_ad_macs.clear();
    reset();
 }
 
 void SIV_Mode::reset() {
    m_nonce.clear();
    m_msg_buf.clear();
-   m_ad_macs.clear();
+   m_in_msg = false;
 }
 
 std::string SIV_Mode::name() const {
@@ -77,6 +79,7 @@ void SIV_Mode::key_schedule(std::span<const uint8_t> key) {
    m_mac->set_key(key.first(keylen));
    m_ctr->set_key(key.last(keylen));
    m_ad_macs.clear();
+   reset();
 }
 
 size_t SIV_Mode::maximum_associated_data_inputs() const {
@@ -84,12 +87,18 @@ size_t SIV_Mode::maximum_associated_data_inputs() const {
 }
 
 void SIV_Mode::set_associated_data_n(size_t n, std::span<const uint8_t> ad) {
+   BOTAN_STATE_CHECK(!m_in_msg);
    const size_t max_ads = maximum_associated_data_inputs();
-   if(n > max_ads) {
+   if(n >= max_ads) {
       throw Invalid_Argument(name() + " allows no more than " + std::to_string(max_ads) + " ADs");
    }
 
-   if(n >= m_ad_macs.size()) {
+   if(n > m_ad_macs.size()) {
+      // If we are potentially skipping over AD elements in a way that will
+      // create a gap, fill the gaps in with the mac of the empty string.
+      const auto empty_mac = m_mac->process(std::span<const uint8_t>{});
+      m_ad_macs.resize(n + 1, empty_mac);
+   } else if(n == m_ad_macs.size()) {
       m_ad_macs.resize(n + 1);
    }
 
@@ -97,6 +106,8 @@ void SIV_Mode::set_associated_data_n(size_t n, std::span<const uint8_t> ad) {
 }
 
 void SIV_Mode::start_msg(const uint8_t nonce[], size_t nonce_len) {
+   BOTAN_STATE_CHECK(!m_in_msg);
+
    if(!valid_nonce_length(nonce_len)) {
       throw Invalid_IV_Length(name(), nonce_len);
    }
@@ -108,15 +119,27 @@ void SIV_Mode::start_msg(const uint8_t nonce[], size_t nonce_len) {
    }
 
    m_msg_buf.clear();
+   m_in_msg = true;
 }
 
 size_t SIV_Mode::process_msg(uint8_t buf[], size_t sz) {
    // all output is saved for processing in finish
    m_msg_buf.insert(m_msg_buf.end(), buf, buf + sz);
+   // SIV supports a "no start_msg" mode (deterministic, nonce-less): the
+   // first process_msg locks AD just as start_msg would.
+   m_in_msg = true;
    return 0;
 }
 
 secure_vector<uint8_t> SIV_Mode::S2V(const uint8_t* text, size_t text_len) {
+   // S2V processes at most block_size()*8 - 1 (127 for a 128-bit block)
+   // components; the associated data, the nonce (if present), and the plaintext
+   // are all components, so reject inputs that would exceed the limit.
+   const size_t s2v_components = m_ad_macs.size() + (m_nonce.empty() ? 0 : 1) + 1;
+   if(s2v_components > block_size() * 8 - 1) {
+      throw Invalid_Argument(name() + ": too many S2V components");
+   }
+
    const std::vector<uint8_t> zeros(block_size());
 
    secure_vector<uint8_t> V = m_mac->process(zeros.data(), zeros.size());
@@ -152,11 +175,14 @@ void SIV_Mode::set_ctr_iv(secure_vector<uint8_t> V) {
    ctr().set_iv(V.data(), V.size());
 }
 
+size_t SIV_Encryption::output_length(size_t input_length) const {
+   return add_or_throw(input_length, tag_size(), "SIV input too large");
+}
+
 void SIV_Encryption::finish_msg(secure_vector<uint8_t>& buffer, size_t offset) {
    BOTAN_ARG_CHECK(buffer.size() >= offset, "Offset is out of range");
 
    buffer.insert(buffer.begin() + offset, msg_buf().begin(), msg_buf().end());
-   msg_buf().clear();
 
    const secure_vector<uint8_t> V = S2V(buffer.data() + offset, buffer.size() - offset);
 
@@ -166,6 +192,17 @@ void SIV_Encryption::finish_msg(secure_vector<uint8_t>& buffer, size_t offset) {
       set_ctr_iv(V);
       ctr().cipher1(&buffer[offset + V.size()], buffer.size() - offset - V.size());
    }
+
+   // Drop m_nonce as well as the in-message flag. S2V() consumes m_nonce,
+   // so leaving it live would let a subsequent finish_msg() without an
+   // intervening start_msg() silently re-use the prior nonce instead of
+   // running nonce-less SIV.
+   reset();
+}
+
+size_t SIV_Decryption::output_length(size_t input_length) const {
+   BOTAN_ARG_CHECK(input_length >= tag_size(), "Message too short to be valid");
+   return input_length - tag_size();
 }
 
 void SIV_Decryption::finish_msg(secure_vector<uint8_t>& buffer, size_t offset) {
@@ -190,7 +227,12 @@ void SIV_Decryption::finish_msg(secure_vector<uint8_t>& buffer, size_t offset) {
 
    const secure_vector<uint8_t> T = S2V(buffer.data() + offset, buffer.size() - offset - V.size());
 
+   // See SIV_Encryption::finish_msg for why this is reset() and not just
+   // clearing the in-message flag.
+   reset();
+
    if(!CT::is_equal<uint8_t>(T, V).as_bool()) {
+      clear_mem(std::span{buffer}.subspan(offset, buffer.size() - offset - V.size()));
       throw Invalid_Authentication_Tag("SIV tag check failed");
    }
 

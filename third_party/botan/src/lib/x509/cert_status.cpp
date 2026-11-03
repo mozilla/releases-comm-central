@@ -71,6 +71,8 @@ const char* to_string(Certificate_Status_Code code) {
          return "Certificate policy error";
       case Certificate_Status_Code::DUPLICATE_CERT_POLICY:
          return "Certificate contains duplicate policy";
+      case Certificate_Status_Code::EXTENSION_ENCODING_ERROR:
+         return "Certificate extension encoding error";
       case Certificate_Status_Code::INVALID_USAGE:
          return "Certificate does not allow the requested usage";
       case Certificate_Status_Code::CERT_CHAIN_TOO_LONG:
@@ -93,6 +95,12 @@ const char* to_string(Certificate_Status_Code code) {
          return "IP Address Blocks extension invalid";
       case Certificate_Status_Code::AS_BLOCKS_ERROR:
          return "AS Number Blocks extension invalid";
+      case Certificate_Status_Code::NO_REV_AVAIL_INVALID_USE:
+         return "noRevAvail extension used in an invalid manner";
+      case Certificate_Status_Code::INVALID_OCSP_NOCHECK:
+         return "Invalid use of OCSP NoCheck extension";
+      case Certificate_Status_Code::CRL_HAS_UNKNOWN_CRITICAL_EXTENSION:
+         return "CRL contains a critical extension that could not be processed";
       case Certificate_Status_Code::UNKNOWN_CRITICAL_EXTENSION:
          return "Unknown critical extension encountered";
       case Certificate_Status_Code::DUPLICATE_CERT_EXTENSION:
@@ -108,7 +116,7 @@ const char* to_string(Certificate_Status_Code code) {
       case Certificate_Status_Code::OCSP_RESPONSE_MISSING_KEYUSAGE:
          return "OCSP issuer's keyusage prohibits OCSP";
       case Certificate_Status_Code::OCSP_RESPONSE_INVALID:
-         return "OCSP parsing valid";
+         return "OCSP response was unparsable or had invalid encoding";
       case Certificate_Status_Code::OCSP_NO_HTTP:
          return "OCSP requests not available, no HTTP support compiled in";
       case Certificate_Status_Code::CERT_IS_REVOKED:
@@ -123,6 +131,8 @@ const char* to_string(Certificate_Status_Code code) {
          return "Certificate signed with unknown/unavailable algorithm";
       case Certificate_Status_Code::SIGNATURE_ALGO_BAD_PARAMS:
          return "Certificate signature has invalid parameters";
+      case Certificate_Status_Code::EXCEEDED_SEARCH_LIMITS:
+         return "Exceeded search limitations while pathfinding";
 
          // intentionally no default so we are warned if new enum values are added
    }

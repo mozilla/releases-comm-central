@@ -111,8 +111,9 @@ void Base64_Decoder::write(const uint8_t input[], size_t length) {
    while(length > 0) {
       const size_t to_copy = std::min<size_t>(length, m_in.size() - m_position);
       if(to_copy == 0) {
-         m_in.resize(m_in.size() * 2);
-         m_out.resize(m_out.size() * 2);
+         // The input buffer filled without the decoder consuming any of it.
+         // Reject rather than trying to grow the buffer.
+         throw Invalid_Argument("Base64_Decoder: invalid input");
       }
       copy_mem(&m_in[m_position], input, to_copy);
       m_position += to_copy;

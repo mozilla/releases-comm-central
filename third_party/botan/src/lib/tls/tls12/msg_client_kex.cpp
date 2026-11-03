@@ -16,12 +16,40 @@
 #include <botan/tls_extensions.h>
 #include <botan/tls_policy.h>
 #include <botan/internal/ct_utils.h>
+#include <botan/internal/fmt.h>
+#include <botan/internal/stl_util.h>
 #include <botan/internal/tls_handshake_hash.h>
 #include <botan/internal/tls_handshake_io.h>
 #include <botan/internal/tls_handshake_state.h>
 #include <botan/internal/tls_reader.h>
 
 namespace Botan::TLS {
+
+namespace {
+
+/*
+* If the (p, g) pair the server sent corresponds to a known group
+* (RFC 7919 or RFC 3526), return that group.
+*/
+std::optional<DL_Group> match_well_known_dh_group(const BigInt& p, const BigInt& g) {
+   const size_t p_bits = p.bits();
+
+   if(p_bits != 2048 && p_bits != 3072 && p_bits != 4096 && p_bits != 6144 && p_bits != 8192) {
+      return {};
+   }
+
+   for(const char* prefix : {"ffdhe/ietf", "modp/ietf"}) {
+      const std::string name = fmt("{}/{}", prefix, p_bits);
+      auto candidate = DL_Group::from_name(name);
+      if(candidate.get_p() == p && candidate.get_g() == g) {
+         return candidate;
+      }
+   }
+
+   return std::nullopt;
+}
+
+}  // namespace
 
 /*
 * Create a new Client Key Exchange message
@@ -49,6 +77,10 @@ Client_Key_Exchange::Client_Key_Exchange(Handshake_IO& io,
 
       const SymmetricKey psk = creds.psk("tls-client", std::string(hostname), m_psk_identity.value());
 
+      if(psk.empty()) {
+         throw TLS_Exception(Alert::InternalError, "Application did not provide a PSK for the negotiated identity");
+      }
+
       const std::vector<uint8_t> zeros(psk.length());
 
       append_tls_length_value(m_pre_master, zeros, 2);
@@ -66,6 +98,10 @@ Client_Key_Exchange::Client_Key_Exchange(Handshake_IO& io,
          append_tls_length_value(m_key_material, as_span_of_bytes(m_psk_identity.value()), 2);
 
          psk = creds.psk("tls-client", std::string(hostname), m_psk_identity.value());
+
+         if(psk.empty()) {
+            throw TLS_Exception(Alert::InternalError, "Application did not provide a PSK for the negotiated identity");
+         }
       }
 
       if(kex_algo == Kex_Algo::DH) {
@@ -77,11 +113,28 @@ Client_Key_Exchange::Client_Key_Exchange(Handshake_IO& io,
             throw Decoding_Error("Bad params size for DH key exchange");
          }
 
-         DL_Group group(modulus, generator);
-
-         if(!group.verify_group(rng, false)) {
-            throw TLS_Exception(Alert::InsufficientSecurity, "DH group validation failed");
+         if(modulus.bits() < policy.minimum_dh_group_size()) {
+            throw TLS_Exception(Alert::InsufficientSecurity, "DH prime too small for policy");
          }
+         if(modulus.bits() > policy.maximum_dh_group_size()) {
+            throw TLS_Exception(Alert::IllegalParameter, "DH prime too large for policy");
+         }
+
+         const auto group = [&] {
+            if(auto matched = match_well_known_dh_group(modulus, generator)) {
+               return std::move(*matched);
+            } else {
+               /*
+               * Even if we sent ffdhe groups in the supported_groups extension
+               * a server may have replied with some other group.
+               */
+               DL_Group ad_hoc(modulus, generator);
+               if(!ad_hoc.verify_group(rng, false)) {
+                  throw TLS_Exception(Alert::InsufficientSecurity, "DH group validation failed");
+               }
+               return ad_hoc;
+            }
+         }();
 
          const auto private_key = state.callbacks().tls_generate_ephemeral_key(group, rng);
          m_pre_master = CT::strip_leading_zeros(
@@ -99,6 +152,15 @@ Client_Key_Exchange::Client_Key_Exchange(Handshake_IO& io,
          if(!curve_id.is_ecdh_named_curve() && !curve_id.is_x25519() && !curve_id.is_x448()) {
             throw TLS_Exception(Alert::IllegalParameter,
                                 "Server selected a group that is not compatible with the negotiated ciphersuite");
+         }
+
+         // RFC 8422 5.1: the server MUST select a curve from the
+         // supported_groups list the client offered. Check against the actual
+         // offered list (which may be a strict subset of the policy's
+         // key_exchange_groups() if the application narrowed it via
+         // tls_modify_extensions) rather than just the policy.
+         if(!value_exists(state.client_hello()->supported_ecc_curves(), curve_id)) {
+            throw TLS_Exception(Alert::IllegalParameter, "Server selected a curve we did not offer");
          }
 
          if(policy.choose_key_exchange_group({curve_id}, {}) != curve_id) {
@@ -174,7 +236,7 @@ Client_Key_Exchange::Client_Key_Exchange(Handshake_IO& io,
 /*
 * Read a Client Key Exchange message
 */
-Client_Key_Exchange::Client_Key_Exchange(const std::vector<uint8_t>& contents,
+Client_Key_Exchange::Client_Key_Exchange(std::span<const uint8_t> contents,
                                          const Handshake_State& state,
                                          const Private_Key* server_rsa_kex_key,
                                          Credentials_Manager& creds,
@@ -195,7 +257,8 @@ Client_Key_Exchange::Client_Key_Exchange(const std::vector<uint8_t>& contents,
       }
 
       TLS_Data_Reader reader("ClientKeyExchange", contents);
-      const std::vector<uint8_t> encrypted_pre_master = reader.get_range<uint8_t>(2, 0, 65535);
+      // RFC 5246 7.4.7.1: encrypted_pre_master_secret<1..2^16-1>.
+      const std::vector<uint8_t> encrypted_pre_master = reader.get_range<uint8_t>(2, 1, 65535);
       reader.assert_done();
 
       const PK_Decryptor_EME decryptor(*server_rsa_kex_key, rng, "PKCS1v15");
@@ -229,7 +292,12 @@ Client_Key_Exchange::Client_Key_Exchange(const std::vector<uint8_t>& contents,
       if(key_exchange_is_psk(kex_algo)) {
          m_psk_identity = reader.get_string(2, 0, 65535);
 
-         psk = creds.psk("tls-server", state.client_hello()->sni_hostname(), m_psk_identity.value());
+         try {
+            psk = creds.psk("tls-server", state.client_hello()->sni_hostname(), m_psk_identity.value());
+         } catch(...) {
+            // Treat any lookup failure for the identity sent by the client as
+            // "no PSK for this identity" and let the logic below handle it
+         }
 
          if(psk.empty()) {
             if(policy.hide_unknown_users()) {
@@ -241,6 +309,7 @@ Client_Key_Exchange::Client_Key_Exchange(const std::vector<uint8_t>& contents,
       }
 
       if(kex_algo == Kex_Algo::PSK) {
+         reader.assert_done();
          const std::vector<uint8_t> zeros(psk.length());
          append_tls_length_value(m_pre_master, zeros, 2);
          append_tls_length_value(m_pre_master, psk.bits_of(), 2);
@@ -248,7 +317,7 @@ Client_Key_Exchange::Client_Key_Exchange(const std::vector<uint8_t>& contents,
          const PK_Key_Agreement_Key& ka_key = state.server_kex()->server_kex_key();
 
          const std::vector<uint8_t> client_pubkey = (ka_key.algo_name() == "DH")
-                                                       ? reader.get_range<uint8_t>(2, 0, 65535)
+                                                       ? reader.get_range<uint8_t>(2, 1, 65535)
                                                        : reader.get_range<uint8_t>(1, 1, 255);
 
          const auto shared_group = state.server_kex()->shared_group();

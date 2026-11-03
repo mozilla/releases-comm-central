@@ -322,17 +322,23 @@ std::vector<uint8_t> ECIES_Encryptor::enc(const uint8_t data[],
    if(!m_other_point.has_value()) {
       throw Invalid_State("ECIES_Encryptor: peer key invalid or not set");
    }
+   if(!m_iv.has_value()) {
+      throw Invalid_State("ECIES requires a fresh IV be provided for each message");
+   }
+   if(m_iv->empty() && !m_cipher->valid_nonce_length(m_iv->size())) {
+      throw Invalid_Argument("ECIES with " + m_cipher->name() + " requires an IV be set");
+   }
 
    const SymmetricKey secret_key = m_ka.derive_secret(m_eph_public_key_bin, m_other_point.value());
+
+   BOTAN_ASSERT_NOMSG(secret_key.size() == m_params.dem_keylen() + m_params.mac_keylen());
 
    // encryption
 
    m_cipher->set_key(SymmetricKey(secret_key.begin(), m_params.dem_keylen()));
-   if(m_iv.empty() && !m_cipher->valid_nonce_length(m_iv.size())) {
-      throw Invalid_Argument("ECIES with " + m_cipher->name() + " requires an IV be set");
-   }
 
-   m_cipher->start(m_iv.bits_of());
+   m_cipher->start(m_iv->bits_of());
+   m_iv.reset();
 
    secure_vector<uint8_t> encrypted_data(data, data + length);
    m_cipher->finish(encrypted_data);
@@ -394,6 +400,17 @@ size_t ECIES_Decryptor::plaintext_length(size_t ctext_len) const {
    return m_cipher->output_length(ctext_len - overhead);
 }
 
+size_t ECIES_Decryptor::ciphertext_length(size_t ptext_len) const {
+   // We need the encryption direction to estimate the ciphertext length given
+   // an expected plaintext length.
+   auto cipher = m_params.create_cipher(Cipher_Dir::Encryption);
+
+   const size_t point_size = compute_point_size(m_params.group(), m_params.point_format());
+   const size_t mac_size = m_mac->output_length();
+   const size_t ct_size_bound = cipher->output_length(ptext_len);
+   return point_size + mac_size + ct_size_bound;
+}
+
 /**
 * ECIES Decryption according to ISO 18033-2
 */
@@ -402,6 +419,13 @@ secure_vector<uint8_t> ECIES_Decryptor::do_decrypt(uint8_t& valid_mask, const ui
 
    if(in_len < point_size + m_mac->output_length()) {
       throw Decoding_Error("ECIES decryption: ciphertext is too short");
+   }
+
+   if(!m_iv.has_value()) {
+      throw Invalid_State("ECIES requires a fresh IV be provided for each message");
+   }
+   if(m_iv->empty() && !m_cipher->valid_nonce_length(m_iv->size())) {
+      throw Invalid_Argument("ECIES with " + m_cipher->name() + " requires an IV be set");
    }
 
    // extract data
@@ -419,6 +443,8 @@ secure_vector<uint8_t> ECIES_Decryptor::do_decrypt(uint8_t& valid_mask, const ui
    // throws Illegal_Transformation if the point is zero)
    const SymmetricKey secret_key = m_ka.derive_secret(other_public_key_bin, other_public_key);
 
+   BOTAN_ASSERT_NOMSG(secret_key.size() == m_params.dem_keylen() + m_params.mac_keylen());
+
    // validate mac
    m_mac->set_key(secret_key.begin() + m_params.dem_keylen(), m_params.mac_keylen());
    m_mac->update(encrypted_data);
@@ -428,14 +454,15 @@ secure_vector<uint8_t> ECIES_Decryptor::do_decrypt(uint8_t& valid_mask, const ui
    const secure_vector<uint8_t> calculated_mac = m_mac->final();
    valid_mask = CT::is_equal<uint8_t>(mac_data, calculated_mac).value();
 
+   // Consume the IV state even if the message is invalid
+   auto iv = m_iv->bits_of();
+   m_iv.reset();
+
    if(valid_mask == 0xFF) {
       // decrypt data
 
       m_cipher->set_key(SymmetricKey(secret_key.begin(), m_params.dem_keylen()));
-      if(m_iv.empty() && !m_cipher->valid_nonce_length(m_iv.size())) {
-         throw Invalid_Argument("ECIES with " + m_cipher->name() + " requires an IV be set");
-      }
-      m_cipher->start(m_iv.bits_of());
+      m_cipher->start(iv);
 
       try {
          // the decryption can fail:

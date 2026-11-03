@@ -42,11 +42,8 @@ class Sphincs_Hash_Functions_Shake : public Sphincs_Hash_Functions {
    public:
       Sphincs_Hash_Functions_Shake(const Sphincs_Parameters& sphincs_params, const SphincsPublicSeed& pub_seed) :
             Sphincs_Hash_Functions(sphincs_params, pub_seed),
-            m_seeded_hash(sphincs_params.n() * 8),
             m_hash(sphincs_params.n() * 8),
-            m_h_msg_hash(8 * sphincs_params.h_msg_digest_bytes()) {
-         m_seeded_hash.update(m_pub_seed);
-      }
+            m_h_msg_hash(8 * sphincs_params.h_msg_digest_bytes()) {}
 
       void PRF_msg(StrongSpan<SphincsMessageRandomness> out,
                    StrongSpan<const SphincsSecretPRF> sk_prf,
@@ -62,7 +59,6 @@ class Sphincs_Hash_Functions_Shake : public Sphincs_Hash_Functions {
       std::string msg_hash_function_name() const override { return m_h_msg_hash.name(); }
 
    private:
-      SHAKE_256 m_seeded_hash;
       SHAKE_256 m_hash;
       SHAKE_256 m_h_msg_hash;
 };

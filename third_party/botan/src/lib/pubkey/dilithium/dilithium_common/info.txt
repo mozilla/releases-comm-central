@@ -22,6 +22,7 @@ dilithium_types.h
 </header:internal>
 
 <requires>
+keypair
 pqcrystals
 pubkey
 rng

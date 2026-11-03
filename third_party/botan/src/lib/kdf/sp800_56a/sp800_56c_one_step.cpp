@@ -14,6 +14,7 @@
 #include <botan/exceptn.h>
 #include <botan/mem_ops.h>
 #include <botan/internal/bit_ops.h>
+#include <botan/internal/buffer_stuffer.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/kmac.h>
 
@@ -34,12 +35,19 @@ void kdm_internal(std::span<uint8_t> output_buffer,
                   std::span<const uint8_t> fixed_info,
                   HashOrMacType& hash_or_mac,
                   const std::function<void(HashOrMacType&)>& init_h_callback) {
-   const size_t l = output_buffer.size() * 8;
    // 1. If L > 0, then set reps = ceil(L / H_outputBits); otherwise,
    //    output an error indicator and exit this process without
    //    performing the remaining actions (i.e., omit steps 2 through 8).
-   BOTAN_ARG_CHECK(l > 0, "Zero KDM output length");
-   const size_t reps = ceil_division(l, hash_or_mac.output_length() * 8);
+   //
+   // We follow the usual convention within the library that a KDF request for
+   // zero bytes is valid and, exactly as requested, outputs nothing.
+   if(output_buffer.empty()) {
+      return;
+   }
+
+   const size_t output_len = output_buffer.size();
+   const size_t h_output_len = hash_or_mac.output_length();
+   const size_t reps = ceil_division(output_len, h_output_len);
 
    // 2. If reps > (2^32 − 1), then output an error indicator and exit this
    //    process without performing the remaining actions
@@ -56,11 +64,8 @@ void kdm_internal(std::span<uint8_t> output_buffer,
    //    without performing any of the remaining actions (i.e., omit
    //    steps 5 through 8). => SHA3 and KMAC are unlimited
 
-   // 5. Initialize Result(0) as an empty bit string
-   //    (i.e., the null string).
-   secure_vector<uint8_t> result;
-
-   // 6. For i = 1 to reps, do the following:
+   // 5-7. Derive keying material directly into the output buffer.
+   BufferStuffer k(output_buffer);
    for(size_t i = 1; i <= reps; i++) {
       // 6.1. Increment counter by 1.
       counter++;
@@ -72,14 +77,18 @@ void kdm_internal(std::span<uint8_t> output_buffer,
       hash_or_mac.update_be(counter);
       hash_or_mac.update(z);
       hash_or_mac.update(fixed_info);
-      auto k_i = hash_or_mac.final();
 
       // 6.3. Set Result(i) = Result(i−1) || K(i).
-      result.insert(result.end(), k_i.begin(), k_i.end());
+      if(k.remaining_capacity() >= h_output_len) {
+         hash_or_mac.final(k.next(h_output_len));
+      } else {
+         // Needs truncation so can't write directly to the output buffer
+         const auto k_i = hash_or_mac.final();
+         k.append(std::span{k_i}.first(k.remaining_capacity()));
+      }
    }
 
-   // 7. Set DerivedKeyingMaterial equal to the leftmost L bits of Result(reps).
-   copy_mem(output_buffer, std::span(result).subspan(0, output_buffer.size()));
+   BOTAN_ASSERT_NOMSG(k.full());
 }
 
 }  // namespace
@@ -138,6 +147,11 @@ void SP800_56A_One_Step_KMAC_Abstract::perform_kdf(std::span<uint8_t> key,
                                                    std::span<const uint8_t> secret,
                                                    std::span<const uint8_t> salt,
                                                    std::span<const uint8_t> label) const {
+   // We follow the usual convention within the library that a KDF request for
+   // zero bytes is valid and, exactly as requested, outputs nothing.
+   if(key.empty()) {
+      return;
+   }
    auto mac = create_kmac_instance(key.size());
    kdm_internal<MessageAuthenticationCode>(key, secret, label, *mac, [&](MessageAuthenticationCode& kdf_mac) {
       // 4.1 Option 2 and 3 - An implementation dependent byte string, salt,

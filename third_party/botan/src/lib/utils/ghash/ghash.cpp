@@ -9,6 +9,7 @@
 
 #include <botan/internal/ghash.h>
 
+#include <botan/exceptn.h>
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/loadstor.h>
 
@@ -63,6 +64,13 @@ void GHASH::ghash_multiply(std::span<uint8_t, GCM_BS> x, std::span<const uint8_t
    }
 #endif
 
+   ghash_multiply_base(x, m_HM, input, blocks);
+}
+
+void GHASH::ghash_multiply_base(std::span<uint8_t, GCM_BS> x,
+                                const secure_vector<uint64_t>& HM,
+                                std::span<const uint8_t> input,
+                                size_t blocks) {
    auto scope = CT::scoped_poison(x);
 
    auto X = load_be<std::array<uint64_t, 2>>(x);
@@ -82,11 +90,11 @@ void GHASH::ghash_multiply(std::span<uint8_t, GCM_BS> x, std::span<const uint8_t
          X[0] <<= 1;
          X[1] <<= 1;
 
-         Z[0] = X0MASK.select(Z[0] ^ m_HM[4 * i], Z[0]);
-         Z[1] = X0MASK.select(Z[1] ^ m_HM[4 * i + 1], Z[1]);
+         Z[0] = X0MASK.select(Z[0] ^ HM[4 * i], Z[0]);
+         Z[1] = X0MASK.select(Z[1] ^ HM[4 * i + 1], Z[1]);
 
-         Z[0] = X1MASK.select(Z[0] ^ m_HM[4 * i + 2], Z[0]);
-         Z[1] = X1MASK.select(Z[1] ^ m_HM[4 * i + 3], Z[1]);
+         Z[0] = X1MASK.select(Z[0] ^ HM[4 * i + 2], Z[0]);
+         Z[1] = X1MASK.select(Z[1] ^ HM[4 * i + 3], Z[1]);
       }
 
       X[0] = Z[0];
@@ -106,7 +114,6 @@ void GHASH::key_schedule(std::span<const uint8_t> key) {
    m_text_len = 0;
 
    BOTAN_ASSERT_NOMSG(key.size() == GCM_BS);
-   auto H = load_be<std::array<uint64_t, 2>>(key.first<GCM_BS>());
 
 #if defined(BOTAN_HAS_GHASH_AVX512_CLMUL)
    if(CPUID::has(CPUID::Feature::AVX512_CLMUL)) {
@@ -129,10 +136,16 @@ void GHASH::key_schedule(std::span<const uint8_t> key) {
    }
 #endif
 
+   ghash_precompute_base(key.first<GCM_BS>(), m_HM);
+}
+
+void GHASH::ghash_precompute_base(std::span<const uint8_t, GCM_BS> key, secure_vector<uint64_t>& HM) {
+   auto H = load_be<std::array<uint64_t, 2>>(key);
+
    const uint64_t R = 0xE100000000000000;
 
-   if(m_HM.size() != 256) {
-      m_HM.resize(256);
+   if(HM.size() != 256) {
+      HM.resize(256);
    }
 
    // precompute the multiples of H
@@ -142,8 +155,8 @@ void GHASH::key_schedule(std::span<const uint8_t> key) {
          we interleave H^1, H^65, H^2, H^66, H3, H67, H4, H68
          to make indexing nicer in the multiplication code
          */
-         m_HM[4 * j + 2 * i] = H[0];
-         m_HM[4 * j + 2 * i + 1] = H[1];
+         HM[4 * j + 2 * i] = H[0];
+         HM[4 * j + 2 * i + 1] = H[1];
 
          // GCM's bit ops are reversed so we carry out of the bottom
          const uint64_t carry = CT::Mask<uint64_t>::expand(H[1] & 1).if_set_return(R);
@@ -158,6 +171,8 @@ void GHASH::start(std::span<const uint8_t> nonce) {
    auto& n = m_nonce.emplace();
    copy_mem(n, nonce);
    copy_mem(m_ghash, m_H_ad);
+   m_buffer.clear();
+   m_text_len = 0;
 }
 
 void GHASH::set_associated_data(std::span<const uint8_t> input) {
@@ -189,6 +204,12 @@ void GHASH::update(std::span<const uint8_t> input) {
    BOTAN_STATE_CHECK(m_nonce);
    ghash_update(m_ghash, input);
    m_text_len += input.size();
+
+   // NIST SP 800-38D limits plaintext/ciphertext to 2^39 - 256 bits
+   constexpr uint64_t GHASH_MAX_BYTES = (((static_cast<uint64_t>(1) << 39)) - 256) / 8;
+   if(m_text_len > GHASH_MAX_BYTES) {
+      throw Invalid_State("GCM message length limit exceeded");
+   }
 }
 
 void GHASH::final(std::span<uint8_t> mac) {
@@ -218,18 +239,19 @@ void GHASH::nonce_hash(std::span<uint8_t, GCM_BS> y0, std::span<const uint8_t> n
 void GHASH::clear() {
    zap(m_HM);
    zap(m_H_pow);
+   m_H_ad = {0};
+   m_ad_len = 0;
    this->reset_state();
 }
 
 void GHASH::reset_state() {
-   m_H_ad = {0};
    secure_scrub_memory(m_ghash);
    if(m_nonce) {
       secure_scrub_memory(m_nonce.value());
       m_nonce.reset();
    }
    m_buffer.clear();
-   m_text_len = m_ad_len = 0;
+   m_text_len = 0;
 }
 
 void GHASH::ghash_update(std::span<uint8_t, GCM_BS> x, std::span<const uint8_t> input) {

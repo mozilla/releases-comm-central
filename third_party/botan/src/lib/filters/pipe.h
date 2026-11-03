@@ -45,6 +45,7 @@ class BOTAN_PUBLIC_API(2, 0) Pipe final : public DataSource {
       class BOTAN_PUBLIC_API(2, 0) Invalid_Message_Number final : public Invalid_Argument {
          public:
             /**
+            * Create an Invalid_Message_Number exception
             * @param where the error occurred
             * @param msg the invalid message id that was used
             */
@@ -229,19 +230,33 @@ class BOTAN_PUBLIC_API(2, 0) Pipe final : public DataSource {
       [[nodiscard]] size_t peek(uint8_t& output, size_t offset, message_id msg = DEFAULT_MESSAGE) const;
 
       /**
+      * Count the bytes read from the default message
       * @return the number of bytes read from the default message.
       */
       size_t get_bytes_read() const override;
 
       /**
+      * Count the bytes read from the specified message
       * @return the number of bytes read from the specified message.
       */
       size_t get_bytes_read(message_id msg) const;
 
+      /**
+      * Test whether at least n further bytes can be read from the default message
+      * @param n the number of bytes required
+      * @return true if at least n bytes remain
+      */
       bool check_available(size_t n) override;
+      /**
+      * Test whether at least n further bytes can be read from the specified message
+      * @param n the number of bytes required
+      * @param msg the message to check
+      * @return true if at least n bytes remain
+      */
       bool check_available_msg(size_t n, message_id msg) const;
 
       /**
+      * Return the message which is read from by default
       * @return currently set default message
       */
       size_t default_msg() const { return m_default_read; }
@@ -342,7 +357,10 @@ class BOTAN_PUBLIC_API(2, 0) Pipe final : public DataSource {
       Pipe(std::initializer_list<Filter*> filters);
 
       Pipe(const Pipe&) = delete;
-      Pipe(Pipe&&) noexcept;
+      /**
+      * Move constructor
+      */
+      Pipe(Pipe&& other) noexcept;
       Pipe& operator=(const Pipe&) = delete;
       Pipe& operator=(Pipe&&) = delete;
 
@@ -354,6 +372,10 @@ class BOTAN_PUBLIC_API(2, 0) Pipe final : public DataSource {
       void do_prepend(Filter* filt);
       void find_endpoints(Filter* filt);
       void clear_endpoints(Filter* filt);
+
+      // Accessors for m_outputs which is null in a moved-from Pipe
+      Output_Buffers& outputs();
+      const Output_Buffers& outputs() const;
 
       message_id get_message_no(std::string_view func_name, message_id msg) const;
 

@@ -27,6 +27,9 @@ int botan_nist_kw_enc(const char* cipher_algo,
                       size_t kek_len,
                       uint8_t wrapped_key[],
                       size_t* wrapped_key_len) {
+   if(any_null_pointers(cipher_algo, key, kek)) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
 #if defined(BOTAN_HAS_NIST_KEYWRAP)
    return ffi_guard_thunk(__func__, [=]() -> int {
       if(padded != 0 && padded != 1) {
@@ -59,6 +62,9 @@ int botan_nist_kw_dec(const char* cipher_algo,
                       size_t kek_len,
                       uint8_t key[],
                       size_t* key_len) {
+   if(any_null_pointers(cipher_algo, wrapped_key, kek)) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
 #if defined(BOTAN_HAS_NIST_KEYWRAP)
    return ffi_guard_thunk(__func__, [=]() -> int {
       if(padded != 0 && padded != 1) {

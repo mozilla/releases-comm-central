@@ -20,7 +20,7 @@ namespace {
 * as soon as all instances of ESDM_RNG are destructed. This may
 * happen multiple times in the lifetime of the process.
 */
-class ESDM_Context {
+class ESDM_Context final {
    public:
       [[nodiscard]] static std::shared_ptr<void> instance() {
          static ESDM_Context g_instance;

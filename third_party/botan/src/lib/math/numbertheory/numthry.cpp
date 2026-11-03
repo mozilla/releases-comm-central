@@ -265,11 +265,11 @@ BigInt gcd(const BigInt& a, const BigInt& b) {
       factors_of_two += (u_is_even & v_is_even).if_set_return(1);
 
       // remove one factor of 2, if u is even
-      bigint_shr2(tmp.mutable_data(), u._data(), sz, 1);
+      bigint_shr2(tmp.mutable_data(), sz, u._data(), sz, 1);
       u.ct_cond_assign(u_is_even.as_bool(), tmp);
 
       // remove one factor of 2, if v is even
-      bigint_shr2(tmp.mutable_data(), v._data(), sz, 1);
+      bigint_shr2(tmp.mutable_data(), sz, v._data(), sz, 1);
       v.ct_cond_assign(v_is_even.as_bool(), tmp);
    }
 
@@ -308,7 +308,7 @@ BigInt lcm(const BigInt& a, const BigInt& b) {
 * Modular Exponentiation
 */
 BigInt power_mod(const BigInt& base, const BigInt& exp, const BigInt& mod) {
-   if(mod.is_negative() || mod == 1) {
+   if(mod.signum() < 0 || mod == 1) {
       return BigInt::zero();
    }
 
@@ -396,11 +396,12 @@ bool is_prime(const BigInt& n, RandomNumberGenerator& rng, size_t prob, bool is_
    }
 
    auto mod_n = Barrett_Reduction::for_secret_modulus(n);
+   const Montgomery_Params monty_n(n, mod_n);
 
    if(rng.is_seeded()) {
       const size_t t = miller_rabin_test_iterations(n_bits, prob, is_random);
 
-      if(!is_miller_rabin_probable_prime(n, mod_n, rng, t)) {
+      if(!is_miller_rabin_probable_prime(n, mod_n, monty_n, rng, t)) {
          return false;
       }
 

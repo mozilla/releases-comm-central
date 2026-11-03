@@ -12,6 +12,7 @@
 #include <botan/tls_alert.h>
 #include <botan/tls_exceptn.h>
 #include <botan/internal/fmt.h>
+#include <botan/internal/int_utils.h>
 #include <botan/internal/loadstor.h>
 
 namespace Botan::TLS {
@@ -24,12 +25,17 @@ TLS_NULL_HMAC_AEAD_Mode::TLS_NULL_HMAC_AEAD_Mode(std::unique_ptr<MessageAuthenti
 
 void TLS_NULL_HMAC_AEAD_Mode::clear() {
    m_key.clear();
+   m_ad.clear();
    mac().clear();
 }
 
 void TLS_NULL_HMAC_AEAD_Mode::reset() {
-   BOTAN_STATE_CHECK(!m_key.empty());
-   mac().set_key(m_key);
+   m_ad.clear();
+   // The base AEAD_Mode contract permits reset() before the first key has
+   // been set; only re-key the MAC if there is a key to re-key with.
+   if(!m_key.empty()) {
+      mac().set_key(m_key);
+   }
 }
 
 std::string TLS_NULL_HMAC_AEAD_Mode::name() const {
@@ -79,9 +85,26 @@ void TLS_NULL_HMAC_AEAD_Mode::start_msg(const uint8_t nonce[], size_t nonce_len)
    if(!valid_nonce_length(nonce_len)) {
       throw Invalid_IV_Length(name(), nonce_len);
    }
+
+   m_processed = false;
+
+   // AEAD_Mode contract: AD set via set_associated_data persists across
+   // messages until reset. finish_msg calls mac().final() which clears the
+   // internal state, so we re-feed the cached AD at the start of each
+   // message rather than once at set_associated_data time.
+   if(!m_ad.empty()) {
+      mac().update(m_ad);
+   }
 }
 
 size_t TLS_NULL_HMAC_AEAD_Mode::process_msg(uint8_t buf[], size_t sz) {
+   // The TLS record code path MACs each record in a single call (via
+   // finish_msg -> process). A second invocation between start_msg and
+   // finish_msg would feed additional bytes into the same HMAC instance,
+   // producing a tag covering more than the intended record body.
+   BOTAN_ASSERT_NOMSG(!m_processed);
+   m_processed = true;
+
    mac().update(buf, sz);
    return sz;
 }
@@ -90,7 +113,9 @@ void TLS_NULL_HMAC_AEAD_Mode::set_associated_data_n(size_t idx, std::span<const 
    BOTAN_ARG_CHECK(idx == 0, "TLS 1.2 NULL/HMAC: cannot handle non-zero index in set_associated_data_n");
    BOTAN_ARG_CHECK(ad.size() == 13, "TLS 1.2 NULL/HMAC: invalid TLS AEAD associated data length");
 
-   mac().update(ad);
+   // Cache the AD; the actual MAC update happens at start_msg so the AD
+   // persists across messages per the AEAD_Mode contract.
+   m_ad.assign(ad.begin(), ad.end());
 }
 
 void TLS_NULL_HMAC_AEAD_Encryption::set_associated_data_n(size_t idx, std::span<const uint8_t> ad) {
@@ -98,16 +123,18 @@ void TLS_NULL_HMAC_AEAD_Encryption::set_associated_data_n(size_t idx, std::span<
 }
 
 size_t TLS_NULL_HMAC_AEAD_Encryption::output_length(size_t input_length) const {
-   return input_length + tag_size();
+   return add_or_throw(input_length, tag_size(), "TLS NULL input too large");
 }
 
 void TLS_NULL_HMAC_AEAD_Encryption::finish_msg(secure_vector<uint8_t>& buffer, size_t offset) {
    process(std::span{buffer}.subspan(offset));
-   buffer.resize(buffer.size() + tag_size());
+   const size_t output_size = add_or_throw(buffer.size(), tag_size(), "TLS NULL input too large");
+   buffer.resize(output_size);
    mac().final(std::span{buffer}.last(tag_size()));
 }
 
 size_t TLS_NULL_HMAC_AEAD_Decryption::output_length(size_t input_length) const {
+   BOTAN_ARG_CHECK(input_length >= tag_size(), "Message too short to be valid");
    return input_length - tag_size();
 }
 

@@ -211,6 +211,10 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
 
       friend void swap(BigInt& x, BigInt& y) noexcept { x.swap(y); }
 
+      /**
+      * Swap the internal register with the provided one, leaving the sign unchanged
+      * @param reg the register to swap with
+      */
       BOTAN_DEPRECATED("Deprecated no replacement") void swap_reg(secure_vector<word>& reg) {
          m_data.swap(reg);
          // sign left unchanged
@@ -220,7 +224,7 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
        * += operator
        * @param y the BigInt to add to this
        */
-      BigInt& operator+=(const BigInt& y) { return add(y._data(), y.sig_words(), y.sign()); }
+      BigInt& operator+=(const BigInt& y);
 
       /**
        * += operator
@@ -232,7 +236,7 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
        * -= operator
        * @param y the BigInt to subtract from this
        */
-      BigInt& operator-=(const BigInt& y) { return sub(y._data(), y.sig_words(), y.sign()); }
+      BigInt& operator-=(const BigInt& y);
 
       /**
        * -= operator
@@ -320,15 +324,37 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
        * ! operator
        * @return true iff this is zero, otherwise false
        */
-      bool operator!() const { return (!is_nonzero()); }
+      bool operator!() const { return is_zero(); }
 
       //BOTAN_DEPRECATED("Just use operator+/operator-")
+      /**
+      * Add a signed word array to an integer
+      * @param x the first addend
+      * @param y the words of the second addend
+      * @param y_words the number of words in y
+      * @param y_sign the sign of the second addend
+      * @return the sum
+      */
       static BigInt add2(const BigInt& x, const word y[], size_t y_words, Sign y_sign);
 
       //BOTAN_DEPRECATED("Just use operator+/operator-")
+      /**
+      * Add a signed word array to *this
+      * @param y the words of the addend
+      * @param y_words the number of words in y
+      * @param sign the sign of the addend
+      * @return reference to *this
+      */
       BigInt& add(const word y[], size_t y_words, Sign sign);
 
       //BOTAN_DEPRECATED("Just use operator+/operator-")
+      /**
+      * Subtract a signed word array from *this
+      * @param y the words of the subtrahend
+      * @param y_words the number of words in y
+      * @param sign the sign of the subtrahend
+      * @return reference to *this
+      */
       BigInt& sub(const word y[], size_t y_words, Sign sign) {
          return add(y, y_words, sign == Positive ? Negative : Positive);
       }
@@ -461,16 +487,27 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
       bool is_odd() const { return get_bit(0); }
 
       /**
+       * Return the signum of this integer
+       * @result -1 if negative, 0 if zero, 1 if positive
+       */
+      int signum() const {
+         if(sig_words() == 0) {
+            return 0;
+         }
+         return (sign() == Negative) ? -1 : 1;
+      }
+
+      /**
        * Test if the integer is not zero
        * @result true if the integer is non-zero, false otherwise
        */
-      bool is_nonzero() const { return (!is_zero()); }
+      BOTAN_DEPRECATED("Use signum() != 0") bool is_nonzero() const { return signum() != 0; }
 
       /**
        * Test if the integer is zero
        * @result true if the integer is zero, false otherwise
        */
-      bool is_zero() const { return (sig_words() == 0); }
+      bool is_zero() const { return sig_words() == 0; }
 
       /**
        * Set bit at specified position
@@ -550,6 +587,7 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
       std::string to_hex_string() const;
 
       /**
+      * Return a byte of the big-endian encoding of this integer
        * @param n the offset to get a byte from
        * @result byte at offset n
        */
@@ -562,8 +600,18 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
        */
       word word_at(size_t n) const { return m_data.get_word_at(n); }
 
+      /**
+      * Set the word at a specified position of the internal register
+      * @param i position in the register
+      * @param w the value to set
+      */
       BOTAN_DEPRECATED("Deprecated no replacement") void set_word_at(size_t i, word w) { m_data.set_word_at(i, w); }
 
+      /**
+      * Replace the internal register with the given words
+      * @param w the words to set
+      * @param len the number of words in w
+      */
       BOTAN_DEPRECATED("Deprecated no replacement") void set_words(const word w[], size_t len) {
          m_data.set_words(w, len);
       }
@@ -572,13 +620,19 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
        * Tests if the sign of the integer is negative
        * @result true, iff the integer has a negative sign
        */
-      bool is_negative() const { return (sign() == Negative); }
+      BOTAN_DEPRECATED("Use signum() < 0") bool is_negative() const { return signum() < 0; }
 
       /**
        * Tests if the sign of the integer is positive
+       *
+       * Note that this is testing the sign, thus it returns true also for zero
+       * Prefer signum which is unambiguous
+       *
        * @result true, iff the integer has a positive sign
        */
-      bool is_positive() const { return (sign() == Positive); }
+      BOTAN_DEPRECATED("Use signum() >= 0 or signum() > 0 as appropriate") bool is_positive() const {
+         return signum() >= 0;
+      }
 
       /**
        * Return the sign of the integer
@@ -587,6 +641,7 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
       Sign sign() const { return (m_signedness); }
 
       /**
+      * Return the sign opposite to that of this integer
        * @result the opposite sign of the represented integer value
        */
       Sign reverse_sign() const {
@@ -614,6 +669,7 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
       }
 
       /**
+      * Return the absolute value of this integer
        * @result absolute (positive) value of this
        */
       BigInt abs() const;
@@ -681,7 +737,14 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
        */
       BOTAN_DEPRECATED("Deprecated no replacement") void grow_to(size_t n) const { m_data.grow_to(n); }
 
-      BOTAN_DEPRECATED("Deprecated no replacement") void resize(size_t s) { m_data.resize(s); }
+      /**
+      * Resize the internal register, adjusting the sign if the value becomes zero
+      * @param s the new size of the register in words
+      */
+      BOTAN_DEPRECATED("Deprecated no replacement") void resize(size_t s) {
+         m_data.resize(s);
+         set_sign(sign());  // handle possible zero
+      }
 
       /**
        * Fill BigInt with a random number with size of bitsize
@@ -816,11 +879,18 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
        */
       void cond_flip_sign(bool predicate);
 
+      /**
+      * Mark this value as secret for constant time analysis tooling
+      */
       BOTAN_DEPRECATED("replaced by internal API") void const_time_poison() const { _const_time_poison(); }
 
+      /**
+      * Mark this value as no longer secret for constant time analysis tooling
+      */
       BOTAN_DEPRECATED("replaced by internal API") void const_time_unpoison() const { _const_time_unpoison(); }
 
       /**
+      * Generate a random integer within a range
        * @param rng a random number generator
        * @param min the minimum value (must be non-negative)
        * @param max the maximum value (must be non-negative and > min)
@@ -912,10 +982,21 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
          return n.serialize<secure_vector<uint8_t>>(bytes);
       }
 
+      /**
+      * Encode an integer as a fixed length big-endian string per IEEE 1363
+      * @param out the buffer to write to; its size determines the encoding length
+      * @param n the integer to encode
+      */
       BOTAN_DEPRECATED("Use BigInt::serialize_to") static void encode_1363(std::span<uint8_t> out, const BigInt& n) {
          n.serialize_to(out);
       }
 
+      /**
+      * Encode an integer as a fixed length big-endian string per IEEE 1363
+      * @param out the buffer to write to
+      * @param bytes the length of the encoding
+      * @param n the integer to encode
+      */
       BOTAN_DEPRECATED("Use BigInt::serialize_to")
       static void encode_1363(uint8_t out[], size_t bytes, const BigInt& n) {
          n.serialize_to(std::span{out, bytes});
@@ -997,7 +1078,7 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
        */
       void assign_from_bytes(std::span<const uint8_t> bytes);
 
-      class Data {
+      class Data final {
          public:
             word* mutable_data() {
                invalidate_sig_words();
@@ -1059,7 +1140,13 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
                m_reg.resize(words);
             }
 
-            void resize(size_t s) { m_reg.resize(s); }
+            void resize(size_t s) {
+               const bool shrinking = s < m_reg.size();
+               m_reg.resize(s);
+               if(shrinking) {
+                  invalidate_sig_words();
+               }
+            }
 
             void swap(Data& other) noexcept {
                m_reg.swap(other.m_reg);
@@ -1093,100 +1180,265 @@ class BOTAN_PUBLIC_API(2, 0) BigInt final {
       Sign m_signedness = Positive;
 };
 
-/*
-* Arithmetic Operators
+/**
+* Add two integers
+* @param x the first addend
+* @param y the second addend
+* @return (x + y)
 */
 inline BigInt operator+(const BigInt& x, const BigInt& y) {
    return BigInt::add2(x, y._data(), y.sig_words(), y.sign());
 }
 
+/**
+* Add a word to an integer
+* @param x the first addend
+* @param y the second addend
+* @return (x + y)
+*/
 inline BigInt operator+(const BigInt& x, word y) {
    return BigInt::add2(x, &y, 1, BigInt::Positive);
 }
 
+/**
+* Add an integer to a word
+* @param x the first addend
+* @param y the second addend
+* @return (x + y)
+*/
 inline BigInt operator+(word x, const BigInt& y) {
    return y + x;
 }
 
+/**
+* Subtract two integers
+* @param x the minuend
+* @param y the subtrahend
+* @return (x - y)
+*/
 inline BigInt operator-(const BigInt& x, const BigInt& y) {
    return BigInt::add2(x, y._data(), y.sig_words(), y.reverse_sign());
 }
 
+/**
+* Subtract a word from an integer
+* @param x the minuend
+* @param y the subtrahend
+* @return (x - y)
+*/
 inline BigInt operator-(const BigInt& x, word y) {
    return BigInt::add2(x, &y, 1, BigInt::Negative);
 }
 
+/**
+* Multiply two integers
+* @param x the first factor
+* @param y the second factor
+* @return (x * y)
+*/
 BOTAN_PUBLIC_API(2, 0) BigInt operator*(const BigInt& x, const BigInt& y);
+
+/**
+* Multiply an integer by a word
+* @param x the first factor
+* @param y the second factor
+* @return (x * y)
+*/
 BOTAN_PUBLIC_API(2, 8) BigInt operator*(const BigInt& x, word y);
 
+/**
+* Multiply a word by an integer
+* @param x the first factor
+* @param y the second factor
+* @return (x * y)
+*/
 inline BigInt operator*(word x, const BigInt& y) {
    return y * x;
 }
 
+/**
+* Divide two integers
+* @param x the dividend
+* @param d the divisor
+* @return (x / d), rounded towards zero
+*/
 BOTAN_PUBLIC_API(2, 0) BigInt operator/(const BigInt& x, const BigInt& d);
+
+/**
+* Divide an integer by a word
+* @param x the dividend
+* @param m the divisor
+* @return (x / m), rounded towards zero
+*/
 BOTAN_PUBLIC_API(2, 0) BigInt operator/(const BigInt& x, word m);
+
+/**
+* Reduce an integer modulo another
+* @param x the value to reduce
+* @param m the modulus
+* @return (x % m)
+*/
 BOTAN_PUBLIC_API(2, 0) BigInt operator%(const BigInt& x, const BigInt& m);
+
+/**
+* Reduce an integer modulo a word
+* @param x the value to reduce
+* @param m the modulus
+* @return (x % m)
+*/
 BOTAN_PUBLIC_API(2, 0) word operator%(const BigInt& x, word m);
+
+/**
+* Shift an integer left
+* @param x the value to shift
+* @param n the number of bits to shift by
+* @return (x << n)
+*/
 BOTAN_PUBLIC_API(2, 0) BigInt operator<<(const BigInt& x, size_t n);
+
+/**
+* Shift an integer right
+* @param x the value to shift
+* @param n the number of bits to shift by
+* @return (x >> n)
+*/
 BOTAN_PUBLIC_API(2, 0) BigInt operator>>(const BigInt& x, size_t n);
 
-/*
- * Comparison Operators
- */
+/**
+* Compare two integers
+* @param a the first operand
+* @param b the second operand
+* @return true if a is equal to b
+*/
 inline bool operator==(const BigInt& a, const BigInt& b) {
    return a.is_equal(b);
 }
 
+/**
+* Compare two integers
+* @param a the first operand
+* @param b the second operand
+* @return true if a is not equal to b
+*/
 inline bool operator!=(const BigInt& a, const BigInt& b) {
    return !a.is_equal(b);
 }
 
+/**
+* Compare two integers
+* @param a the first operand
+* @param b the second operand
+* @return true if a is less than or equal to b
+*/
 inline bool operator<=(const BigInt& a, const BigInt& b) {
    return (a.cmp(b) <= 0);
 }
 
+/**
+* Compare two integers
+* @param a the first operand
+* @param b the second operand
+* @return true if a is greater than or equal to b
+*/
 inline bool operator>=(const BigInt& a, const BigInt& b) {
    return (a.cmp(b) >= 0);
 }
 
+/**
+* Compare two integers
+* @param a the first operand
+* @param b the second operand
+* @return true if a is less than b
+*/
 inline bool operator<(const BigInt& a, const BigInt& b) {
    return a.is_less_than(b);
 }
 
+/**
+* Compare two integers
+* @param a the first operand
+* @param b the second operand
+* @return true if a is greater than b
+*/
 inline bool operator>(const BigInt& a, const BigInt& b) {
    return b.is_less_than(a);
 }
 
+/**
+* Compare an integer with a word
+* @param a the first operand
+* @param b the second operand
+* @return true if a is equal to b
+*/
 inline bool operator==(const BigInt& a, word b) {
    return (a.cmp_word(b) == 0);
 }
 
+/**
+* Compare an integer with a word
+* @param a the first operand
+* @param b the second operand
+* @return true if a is not equal to b
+*/
 inline bool operator!=(const BigInt& a, word b) {
    return (a.cmp_word(b) != 0);
 }
 
+/**
+* Compare an integer with a word
+* @param a the first operand
+* @param b the second operand
+* @return true if a is less than or equal to b
+*/
 inline bool operator<=(const BigInt& a, word b) {
    return (a.cmp_word(b) <= 0);
 }
 
+/**
+* Compare an integer with a word
+* @param a the first operand
+* @param b the second operand
+* @return true if a is greater than or equal to b
+*/
 inline bool operator>=(const BigInt& a, word b) {
    return (a.cmp_word(b) >= 0);
 }
 
+/**
+* Compare an integer with a word
+* @param a the first operand
+* @param b the second operand
+* @return true if a is less than b
+*/
 inline bool operator<(const BigInt& a, word b) {
    return (a.cmp_word(b) < 0);
 }
 
+/**
+* Compare an integer with a word
+* @param a the first operand
+* @param b the second operand
+* @return true if a is greater than b
+*/
 inline bool operator>(const BigInt& a, word b) {
    return (a.cmp_word(b) > 0);
 }
 
-/*
- * I/O Operators
- */
+/**
+* Write an integer to an output stream
+* @param stream the stream to write to
+* @param n the integer to write
+* @return reference to the stream
+*/
 BOTAN_DEPRECATED("Use BigInt::to_{hex,dec}_string")
 BOTAN_PUBLIC_API(2, 0) std::ostream& operator<<(std::ostream& stream, const BigInt& n);
 
+/**
+* Read an integer from an input stream
+* @param stream the stream to read from
+* @param n set to the integer which was read
+* @return reference to the stream
+*/
 BOTAN_DEPRECATED("Use BigInt::from_string")
 BOTAN_PUBLIC_API(2, 0) std::istream& operator>>(std::istream& stream, BigInt& n);
 

@@ -17,7 +17,7 @@ namespace {
 
 // NOLINTBEGIN(portability-simd-intrinsics)
 
-class WhirlpoolState {
+class WhirlpoolState final {
    public:
       BOTAN_FN_ISA_AVX2
       WhirlpoolState() : m_lo(_mm256_setzero_si256()), m_hi(_mm256_setzero_si256()) {}

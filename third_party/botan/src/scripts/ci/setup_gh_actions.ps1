@@ -13,7 +13,22 @@ param(
     [String]$ARCH
 )
 
-choco install -y sccache
+# Create `sccache` in a CI temp directory
+$ciTempDir = if ($env:RUNNER_TEMP) { $env:RUNNER_TEMP } else { $env:TEMP }
+$sccacheDir = Join-Path -Path $ciTempDir -ChildPath "sccache"
+
+# Extract sccache tarball into sccache dir we just created
+New-Item -ItemType Directory -Force -Path $sccacheDir | Out-Null
+& python "$PSScriptRoot\download_ci_dep.py" sccache_windows --extract "tar -xzf {file} --strip-components=1 -C `"$sccacheDir`""
+if($LASTEXITCODE -ne 0) {
+    throw "Failed to download and extract sccache (exit code $LASTEXITCODE)"
+}
+
+# Have to set path within this script for later invocations
+$env:PATH = "$sccacheDir;$env:PATH"
+
+# Also store in GITHUB_PATH so it's found during the rest of the job
+echo "$sccacheDir" >> $env:GITHUB_PATH
 
 # find the sccache cache location and store it in the build job's environment
 $raw_cl = (sccache --stats-format json --show-stats | ConvertFrom-Json).cache_location

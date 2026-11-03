@@ -25,7 +25,7 @@ namespace TLS {
 /**
 * SSL/TLS Client 1.3 implementation
 */
-class Client_Impl_13 : public Channel_Impl_13 {
+class Client_Impl_13 final : public Channel_Impl_13 {
    public:
       /**
       * Set up a new TLS client session
@@ -85,7 +85,7 @@ class Client_Impl_13 : public Channel_Impl_13 {
       void process_dummy_change_cipher_spec() override;
 
       void maybe_log_secret(std::string_view label, std::span<const uint8_t> secret) const override;
-      bool prepend_ccs() override;
+      void maybe_handle_compatibility_mode(Compat_Mode_Situation situation) override;
 
       using Channel_Impl_13::handle;
       void handle(const Server_Hello_12_Shim& server_hello_msg);
@@ -104,13 +104,15 @@ class Client_Impl_13 : public Channel_Impl_13 {
    private:
       const Server_Information m_info;
 
-      Client_Handshake_State_13 m_handshake_state;
-      Handshake_Transitions m_transitions;
+      struct Pending_Handshake {
+            Client_Handshake_State_13 state;
+            Handshake_Transitions transitions;
+            std::optional<Session_with_Handle> resumed_session;
+            std::optional<std::string> psk_identity;
+      };
 
-      bool m_should_send_ccs;
-
-      std::optional<Session_with_Handle> m_resumed_session;
-      std::optional<std::string> m_psk_identity;
+      std::unique_ptr<Pending_Handshake> m_handshake;
+      size_t m_session_tickets_received = 0;
 };
 
 }  // namespace TLS

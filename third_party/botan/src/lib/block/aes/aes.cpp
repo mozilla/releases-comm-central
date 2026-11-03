@@ -587,9 +587,9 @@ void aes_decrypt_n(const uint8_t in[], uint8_t out[], size_t blocks, const secur
 
       uint32_t B[8] = {0};
 
-      CT::poison(B, 8);
-
       load_be(B, in, this_loop * 4);
+
+      CT::poison(B, 8);
 
       for(size_t i = 0; i != 8; ++i) {
          B[i] ^= DK[i % 4];

@@ -37,6 +37,9 @@ int botan_xof_init(botan_xof_t* this_xof, const char* xof_name, uint32_t flags) 
 
 // NOLINTNEXTLINE(misc-misplaced-const)
 int botan_xof_copy_state(botan_xof_t* dest, const botan_xof_t this_xof) {
+   if(dest == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(this_xof, [=](const auto& src) { return ffi_new_object(dest, src.copy_state()); });
 }
 

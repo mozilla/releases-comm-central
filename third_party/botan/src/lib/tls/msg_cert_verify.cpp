@@ -17,10 +17,11 @@ namespace Botan::TLS {
 /*
 * Deserialize a Certificate Verify message
 */
-Certificate_Verify::Certificate_Verify(const std::vector<uint8_t>& buf) {
+Certificate_Verify::Certificate_Verify(std::span<const uint8_t> buf) {
    TLS_Data_Reader reader("CertificateVerify", buf);
 
    m_scheme = Signature_Scheme(reader.get_uint16_t());
+   // Somewhat oddly, the signature really is allowed to be empty in a CertificateVerify
    m_signature = reader.get_range<uint8_t>(2, 0, 65535);
    reader.assert_done();
 

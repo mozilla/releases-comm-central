@@ -345,10 +345,10 @@ template <WordType W>
 inline constexpr auto word8_sub2(W x[8], const W y[8], W carry) -> W {
 #if defined(BOTAN_MP_USE_X86_64_ASM)
    if(std::same_as<W, uint64_t> && !std::is_constant_evaluated()) {
-      asm(ADD_OR_SUBTRACT(DO_8_TIMES(ADDSUB2_OP, "sbbq"))
-          : [carry] "=r"(carry)
-          : [x] "r"(x), [y] "r"(y), "0"(carry)
-          : "cc", "memory");
+      asm volatile(ADD_OR_SUBTRACT(DO_8_TIMES(ADDSUB2_OP, "sbbq"))
+                   : [carry] "=r"(carry)
+                   : [x] "r"(x), [y] "r"(y), "0"(carry)
+                   : "cc", "memory");
       return carry;
    }
 #endif
@@ -397,10 +397,10 @@ template <WordType W>
 inline constexpr auto word8_linmul3(W z[8], const W x[8], W y, W carry) -> W {
 #if defined(BOTAN_MP_USE_X86_64_ASM)
    if(std::same_as<W, uint64_t> && !std::is_constant_evaluated()) {
-      asm(DO_8_TIMES(LINMUL_OP, "z")
-          : [carry] "=r"(carry)
-          : [z] "r"(z), [x] "r"(x), [y] "rm"(y), "0"(carry)
-          : "cc", "%rax", "%rdx");
+      asm volatile(DO_8_TIMES(LINMUL_OP, "z")
+                   : [carry] "=r"(carry)
+                   : [z] "r"(z), [x] "r"(x), [y] "rm"(y), "0"(carry)
+                   : "cc", "%rax", "%rdx", "memory");
       return carry;
    }
 #endif
@@ -423,10 +423,10 @@ template <WordType W>
 inline constexpr auto word8_madd3(W z[8], const W x[8], W y, W carry) -> W {
 #if defined(BOTAN_MP_USE_X86_64_ASM)
    if(std::same_as<W, uint64_t> && !std::is_constant_evaluated()) {
-      asm(DO_8_TIMES(MULADD_OP, "")
-          : [carry] "=r"(carry)
-          : [z] "r"(z), [x] "r"(x), [y] "rm"(y), "0"(carry)
-          : "cc", "%rax", "%rdx");
+      asm volatile(DO_8_TIMES(MULADD_OP, "")
+                   : [carry] "=r"(carry)
+                   : [z] "r"(z), [x] "r"(x), [y] "rm"(y), "0"(carry)
+                   : "cc", "%rax", "%rdx", "memory");
       return carry;
    }
 #endif

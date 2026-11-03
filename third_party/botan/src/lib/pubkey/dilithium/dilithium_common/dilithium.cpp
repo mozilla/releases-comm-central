@@ -22,6 +22,7 @@
 #include <botan/internal/dilithium_symmetric_primitives.h>
 #include <botan/internal/dilithium_types.h>
 #include <botan/internal/fmt.h>
+#include <botan/internal/keypair.h>
 #include <botan/internal/pk_ops_impl.h>
 #include <botan/internal/stl_util.h>
 
@@ -60,9 +61,17 @@ DilithiumMode::Mode dilithium_mode_from_string(std::string_view str) {
    throw Invalid_Argument(fmt("'{}' is not a valid Dilithium mode name", str));
 }
 
+DilithiumMode::Mode dilithium_mode_from_oid(const OID& oid) {
+   if(const auto name = oid.registered_name()) {
+      return dilithium_mode_from_string(*name);
+   }
+
+   throw Invalid_Argument(fmt("OID '{}' is not registered as a Dilithium/ML-DSA mode", oid));
+}
+
 }  // namespace
 
-DilithiumMode::DilithiumMode(const OID& oid) : m_mode(dilithium_mode_from_string(oid.to_formatted_string())) {}
+DilithiumMode::DilithiumMode(const OID& oid) : m_mode(dilithium_mode_from_oid(oid)) {}
 
 DilithiumMode::DilithiumMode(std::string_view str) : m_mode(dilithium_mode_from_string(str)) {}
 
@@ -248,7 +257,7 @@ class Dilithium_Signature_Operation final : public PK_Ops::Signature {
 
 class Dilithium_Verification_Operation final : public PK_Ops::Verification {
    public:
-      explicit Dilithium_Verification_Operation(std::shared_ptr<Dilithium_PublicKeyInternal> pubkey) :
+      explicit Dilithium_Verification_Operation(std::shared_ptr<const Dilithium_PublicKeyInternal> pubkey) :
             m_pub_key(std::move(pubkey)),
             m_A(Dilithium_Algos::expand_A(m_pub_key->rho(), m_pub_key->mode())),
             m_t1_ntt_shifted(ntt(m_pub_key->t1() << DilithiumConstants::D)),
@@ -309,14 +318,19 @@ class Dilithium_Verification_Operation final : public PK_Ops::Verification {
       std::string hash_function() const override { return m_h->name(); }
 
    private:
-      std::shared_ptr<Dilithium_PublicKeyInternal> m_pub_key;
+      std::shared_ptr<const Dilithium_PublicKeyInternal> m_pub_key;
       DilithiumPolyMatNTT m_A;
       DilithiumPolyVecNTT m_t1_ntt_shifted;
       std::unique_ptr<DilithiumMessageHash> m_h;
 };
 
 Dilithium_PublicKey::Dilithium_PublicKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> pk) :
-      Dilithium_PublicKey(pk, DilithiumMode(alg_id.oid())) {}
+      Dilithium_PublicKey(pk, DilithiumMode(alg_id.oid())) {
+   // The parameter set is identified by the OID; no parameters are defined.
+   if(!alg_id.parameters_are_empty()) {
+      throw Decoding_Error("Unexpected parameters for ML-DSA/Dilithium public key");
+   }
+}
 
 Dilithium_PublicKey::Dilithium_PublicKey(std::span<const uint8_t> pk, DilithiumMode m) {
    DilithiumConstants mode(m);
@@ -336,7 +350,7 @@ std::string Dilithium_PublicKey::algo_name() const {
    //               there might be other code locations that identify Dilithium
    //               by std::string::starts_with("Dilithium-").
    //               (Above assumes that Dilithium won't be removed entirely!)
-   return (m_public->mode().is_ml_dsa()) ? std::string("ML-DSA") : object_identifier().to_formatted_string();
+   return (m_public->mode().is_ml_dsa()) ? std::string("ML-DSA") : m_public->mode().mode().to_string();
 }
 
 AlgorithmIdentifier Dilithium_PublicKey::algorithm_identifier() const {
@@ -366,7 +380,13 @@ std::vector<uint8_t> Dilithium_PublicKey::public_key_bits() const {
 }
 
 bool Dilithium_PublicKey::check_key(RandomNumberGenerator& /*rng*/, bool /*strong*/) const {
-   return true;  // ???
+   // The public key consists of (rho, t1). Length validation is performed in
+   // the constructor, and t1 coefficients are decoded via SimpleBitUnpack
+   // (FIPS 204 Algorithm 18) into a power-of-2 range that exactly covers all
+   // valid values, so no out-of-range coefficients are possible. For the
+   // private key, s1/s2 coefficient ranges are validated and t is recomputed
+   // from (A, s1, s2) and verified against the stored hash during decoding.
+   return true;
 }
 
 std::unique_ptr<Private_Key> Dilithium_PublicKey::generate_another(RandomNumberGenerator& rng) const {
@@ -411,7 +431,12 @@ Dilithium_PrivateKey::Dilithium_PrivateKey(RandomNumberGenerator& rng, Dilithium
 }
 
 Dilithium_PrivateKey::Dilithium_PrivateKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> sk) :
-      Dilithium_PrivateKey(sk, DilithiumMode(alg_id.oid())) {}
+      Dilithium_PrivateKey(sk, DilithiumMode(alg_id.oid())) {
+   // The parameter set is identified by the OID; no parameters are defined.
+   if(!alg_id.parameters_are_empty()) {
+      throw Decoding_Error("Unexpected parameters for ML-DSA/Dilithium private key");
+   }
+}
 
 Dilithium_PrivateKey::Dilithium_PrivateKey(std::span<const uint8_t> sk, DilithiumMode m) {
    DilithiumConstants mode(m);
@@ -444,6 +469,18 @@ std::unique_ptr<PK_Ops::Signature> Dilithium_PrivateKey::create_signature_op(Ran
       return std::make_unique<Dilithium_Signature_Operation>(DilithiumInternalKeypair{m_public, m_private}, randomized);
    }
    throw Provider_Not_Found(algo_name(), provider);
+}
+
+bool Dilithium_PrivateKey::check_key(RandomNumberGenerator& rng, bool strong) const {
+   if(!Dilithium_PublicKey::check_key(rng, strong)) {
+      return false;
+   }
+
+   if(strong) {
+      return KeyPair::signature_consistency_check(rng, *this, "");
+   }
+
+   return true;
 }
 
 std::unique_ptr<Public_Key> Dilithium_PrivateKey::public_key() const {

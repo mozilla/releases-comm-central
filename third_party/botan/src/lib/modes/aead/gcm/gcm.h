@@ -59,13 +59,12 @@ class GCM_Mode : public AEAD_Mode /* NOLINT(*-special-member-functions) */ {
 
       std::unique_ptr<StreamCipher> m_ctr;  // NOLINT(*non-private-member-variable*)
       std::unique_ptr<GHASH> m_ghash;       // NOLINT(*non-private-member-variable*)
+      bool m_in_msg = false;                // NOLINT(*non-private-member-variable*)
 
    private:
       void start_msg(const uint8_t nonce[], size_t nonce_len) override;
 
       void key_schedule(std::span<const uint8_t> key) override;
-
-      secure_vector<uint8_t> m_y0;
 };
 
 /**
@@ -80,7 +79,7 @@ class GCM_Encryption final : public GCM_Mode {
       explicit GCM_Encryption(std::unique_ptr<BlockCipher> cipher, size_t tag_size = 16) :
             GCM_Mode(std::move(cipher), tag_size) {}
 
-      size_t output_length(size_t input_length) const override { return input_length + tag_size(); }
+      size_t output_length(size_t input_length) const override;
 
       size_t minimum_final_size() const override { return 0; }
 
@@ -101,10 +100,7 @@ class GCM_Decryption final : public GCM_Mode {
       explicit GCM_Decryption(std::unique_ptr<BlockCipher> cipher, size_t tag_size = 16) :
             GCM_Mode(std::move(cipher), tag_size) {}
 
-      size_t output_length(size_t input_length) const override {
-         BOTAN_ARG_CHECK(input_length >= tag_size(), "Sufficient input");
-         return input_length - tag_size();
-      }
+      size_t output_length(size_t input_length) const override;
 
       size_t minimum_final_size() const override { return tag_size(); }
 

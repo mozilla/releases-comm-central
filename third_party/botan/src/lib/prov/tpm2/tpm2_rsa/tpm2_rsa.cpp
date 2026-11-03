@@ -186,7 +186,7 @@ class RSA_Signature_Operation final : public Signature_Operation {
          try {
             const std::string full_name = "RSA/" + padding_name;
             const OID oid = OID::from_string(full_name);
-            return AlgorithmIdentifier(oid, AlgorithmIdentifier::USE_EMPTY_PARAM);
+            return AlgorithmIdentifier(oid, AlgorithmIdentifier::USE_NULL_PARAM);
          } catch(Lookup_Error&) {}
 
          if(padding_name.starts_with("PSS(")) {
@@ -378,6 +378,10 @@ class RSA_Decryption_Operation final : public PK_Ops::Decryption {
       }
 
       size_t plaintext_length(size_t /* ciphertext_length */) const override {
+         return m_key_handle._public_info(m_sessions, TPM2_ALG_RSA).pub->publicArea.parameters.rsaDetail.keyBits / 8;
+      }
+
+      size_t ciphertext_length(size_t /* ptext_len */) const override {
          return m_key_handle._public_info(m_sessions, TPM2_ALG_RSA).pub->publicArea.parameters.rsaDetail.keyBits / 8;
       }
 

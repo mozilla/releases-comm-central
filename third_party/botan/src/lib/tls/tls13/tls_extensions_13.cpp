@@ -21,41 +21,32 @@
 
 namespace Botan::TLS {
 
-Cookie::Cookie(const std::vector<uint8_t>& cookie) : m_cookie(cookie) {}
+Cookie::Cookie(std::vector<uint8_t> cookie) : m_cookie(std::move(cookie)) {}
 
 Cookie::Cookie(TLS_Data_Reader& reader, uint16_t extension_size) {
-   if(extension_size == 0) {
-      return;
+   // RFC 8446 4.2.2
+   //    struct {
+   //       opaque cookie<1..2^16-1>;
+   //    } Cookie;
+   //
+   // The wire form requires a 2-byte length field plus at least one byte of
+   // cookie data, so the minimum extension size is 3 bytes.
+   if(extension_size < 3) {
+      throw Decoding_Error("Empty cookie extension is illegal");
    }
 
    const uint16_t len = reader.get_uint16_t();
 
-   if(len == 0) {
-      // Based on RFC 8446 4.2.2, len of the Cookie buffer must be at least 1
-      throw Decoding_Error("Cookie length must be at least 1 byte");
+   if(static_cast<size_t>(len) + 2 != extension_size) {
+      throw Decoding_Error("Inconsistent length in cookie extension");
    }
 
-   if(len > reader.remaining_bytes()) {
-      throw Decoding_Error("Not enough bytes in the buffer to decode Cookie");
-   }
-
-   for(size_t i = 0; i < len; ++i) {
-      m_cookie.push_back(reader.get_byte());
-   }
+   m_cookie = reader.get_fixed<uint8_t>(len);
 }
 
 std::vector<uint8_t> Cookie::serialize(Connection_Side /*whoami*/) const {
    std::vector<uint8_t> buf;
-
-   const uint16_t len = static_cast<uint16_t>(m_cookie.size());
-
-   buf.push_back(get_byte<0>(len));
-   buf.push_back(get_byte<1>(len));
-
-   for(const auto& cookie_byte : m_cookie) {
-      buf.push_back(cookie_byte);
-   }
-
+   append_tls_length_value(buf, m_cookie, 2);
    return buf;
 }
 
@@ -72,11 +63,22 @@ std::vector<uint8_t> PSK_Key_Exchange_Modes::serialize(Connection_Side /*whoami*
 }
 
 PSK_Key_Exchange_Modes::PSK_Key_Exchange_Modes(TLS_Data_Reader& reader, uint16_t extension_size) {
+   // RFC 8446 4.2.9
+   //    struct {
+   //       PskKeyExchangeMode ke_modes<1..255>;
+   //    } PskKeyExchangeModes;
+   //
+   // The wire form is a 1-byte length followed by mode_count mode bytes,
+   // with mode_count in [1, 255], so the extension size is in [2, 256].
    if(extension_size < 2) {
       throw Decoding_Error("Empty psk_key_exchange_modes extension is illegal");
    }
 
    const auto mode_count = reader.get_byte();
+   if(static_cast<size_t>(mode_count) + 1 != extension_size) {
+      throw Decoding_Error("Inconsistent length in psk_key_exchange_modes extension");
+   }
+
    for(uint16_t i = 0; i < mode_count; ++i) {
       const auto mode = static_cast<PSK_Key_Exchange_Mode>(reader.get_byte());
       if(mode == PSK_Key_Exchange_Mode::PSK_KE || mode == PSK_Key_Exchange_Mode::PSK_DHE_KE) {
@@ -112,12 +114,18 @@ Certificate_Authorities::Certificate_Authorities(TLS_Data_Reader& reader, uint16
       throw Decoding_Error("Inconsistent length in certificate_authorities extension");
    }
 
-   while(reader.has_remaining()) {
-      std::vector<uint8_t> name_bits = reader.get_tls_length_value(2);
+   // RFC 8446 4.2.4: DistinguishedName authorities<3..2^16-1>;
+   if(purported_size < 3) {
+      throw Decoding_Error("Empty certificate_authorities list is illegal");
+   }
 
-      BER_Decoder decoder(name_bits.data(), name_bits.size());
+   while(reader.has_remaining()) {
+      // RFC 8446 4.2.4: opaque DistinguishedName<1..2^16-1>
+      const std::vector<uint8_t> name_bits = reader.get_range<uint8_t>(2, 1, 65535);
+
+      BER_Decoder decoder(name_bits, BER_Decoder::Limits::DER());
       m_distinguished_names.emplace_back();
-      decoder.decode(m_distinguished_names.back());
+      decoder.decode(m_distinguished_names.back()).verify_end();
    }
 }
 

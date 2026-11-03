@@ -12,9 +12,9 @@ origin:
   url: "https://github.com/randombit/botan"
   license: BSD-2-Clause
 
-  release: tag 3.11.1
+  release: 3.13.0 (2026-08-13T10:11:32-04:00).
 
-  revision: 3.11.1
+  revision: 3.13.0
 
   license-file: license.txt
 

@@ -135,6 +135,10 @@ size_t PK_Decryptor_EME::plaintext_length(size_t ctext_len) const {
    return m_op->plaintext_length(ctext_len);
 }
 
+size_t PK_Decryptor_EME::ciphertext_length(size_t ptext_len) const {
+   return m_op->ciphertext_length(ptext_len);
+}
+
 secure_vector<uint8_t> PK_Decryptor_EME::do_decrypt(uint8_t& valid_mask, const uint8_t in[], size_t in_len) const {
    return m_op->decrypt(valid_mask, {in, in_len});
 }
@@ -423,43 +427,27 @@ void PK_Verifier::update(const uint8_t in[], size_t length) {
 
 namespace {
 
-std::vector<uint8_t> decode_der_signature_pair(const uint8_t sig[], size_t length, size_t sig_part_size) {
+std::vector<uint8_t> decode_der_signature_pair(std::span<const uint8_t> der_sig, size_t sig_part_size) {
    BOTAN_ASSERT_NOMSG(sig_part_size > 0);
 
-   std::vector<uint8_t> real_sig;
-   real_sig.reserve(2 * sig_part_size);
+   BigInt r;
+   BigInt s;
 
-   BER_Decoder decoder(sig, length);
-   BER_Decoder ber_sig = decoder.start_sequence();
+   // TODO should be able to just get the integer bytes directly from
+   // BER_Decoder without using BigInt here
+   BER_Decoder(der_sig, BER_Decoder::Limits::DER()).start_sequence().decode(r).decode(s).end_cons().verify_end();
 
-   size_t count = 0;
+   const bool invalid_r = r.is_negative() || r.bytes() > sig_part_size;
+   const bool invalid_s = s.is_negative() || s.bytes() > sig_part_size;
 
-   while(ber_sig.more_items()) {
-      if(count >= 2) {
-         throw Decoding_Error("PK_Verifier: signature size invalid");
-      }
-
-      // TODO should be able to just get the integer bytes directly
-      // from BER_Decoder without using BigInt here
-      BigInt sig_part;
-      ber_sig.decode(sig_part);
-      if(sig_part.bytes() > sig_part_size) {
-         throw Decoding_Error("PK_Verifier: signature size invalid");
-      }
-      real_sig += sig_part.serialize(sig_part_size);
-      ++count;
+   if(invalid_r || invalid_s) {
+      throw Decoding_Error("Invalid DER encoding of signature");
    }
 
-   if(count != 2) {
-      throw Decoding_Error("PK_Verifier: signature size invalid");
-   }
-
-   const std::vector<uint8_t> reencoded = der_encode_signature(real_sig, 2, sig_part_size);
-
-   if(!CT::is_equal<uint8_t>(reencoded, std::span{sig, length}).as_bool()) {
-      throw Decoding_Error("PK_Verifier: signature is not the canonical DER encoding");
-   }
-   return real_sig;
+   std::vector<uint8_t> sig(2 * sig_part_size);
+   r.serialize_to(std::span{sig}.first(sig_part_size));
+   s.serialize_to(std::span{sig}.last(sig_part_size));
+   return sig;
 }
 
 }  // namespace
@@ -475,7 +463,7 @@ bool PK_Verifier::check_signature(const uint8_t sig[], size_t length) {
          BOTAN_ASSERT_NOMSG(m_sig_element_size.has_value());
 
          try {
-            real_sig = decode_der_signature_pair(sig, length, m_sig_element_size.value());
+            real_sig = decode_der_signature_pair({sig, length}, m_sig_element_size.value());
             decoding_success = true;
          } catch(...) {}
 

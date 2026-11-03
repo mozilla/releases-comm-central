@@ -10,6 +10,7 @@
 
 #include <botan/internal/poly1305.h>
 
+#include <botan/exceptn.h>
 #include <botan/internal/buffer_slicer.h>
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/donna128.h>
@@ -299,10 +300,10 @@ void poly1305_finish(secure_vector<uint64_t>& X, uint8_t mac[16]) {
    const uint64_t g2 = h2 + c - (static_cast<uint64_t>(1) << 42);
 
    /* select h if h < p, or h + -p if h >= p */
-   const auto c_mask = CT::Mask<uint64_t>::expand(c);
-   h0 = c_mask.select(g0, h0);
-   h1 = c_mask.select(g1, h1);
-   h2 = c_mask.select(g2, h2);
+   const auto h_mask = CT::Mask<uint64_t>::expand_top_bit(g2);
+   h0 = h_mask.select(h0, g0);
+   h1 = h_mask.select(h1, g1);
+   h2 = h_mask.select(h2, g2);
 
    /* h = (h + pad) */
    const uint64_t t0 = X[PAD_BASE + 0];
@@ -337,6 +338,18 @@ void Poly1305::clear() {
 bool Poly1305::has_keying_material() const {
    // Minimum size: pad(2) + accum(3) + r(3) + r^2(3) = 11
    return m_poly.size() >= 11;
+}
+
+void Poly1305::start_msg(std::span<const uint8_t> nonce) {
+   if(!nonce.empty()) {
+      throw Invalid_IV_Length(name(), nonce.size());
+   }
+   assert_key_material_set();
+
+   m_buffer.clear();
+   m_poly[H_BASE + 0] = 0;
+   m_poly[H_BASE + 1] = 0;
+   m_poly[H_BASE + 2] = 0;
 }
 
 void Poly1305::key_schedule(std::span<const uint8_t> key) {

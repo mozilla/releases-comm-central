@@ -23,7 +23,7 @@ Botan::BigInt ref_inverse_mod(const Botan::BigInt& n, const Botan::BigInt& mod) 
    Botan::BigInt C = 0;
    Botan::BigInt D = 1;
 
-   while(u.is_nonzero()) {
+   while(!u.is_zero()) {
       const size_t u_zero_bits = Botan::low_zero_bits(u);
       u >>= u_zero_bits;
       for(size_t i = 0; i != u_zero_bits; ++i) {
@@ -61,7 +61,7 @@ Botan::BigInt ref_inverse_mod(const Botan::BigInt& n, const Botan::BigInt& mod) 
       return 0;  // no modular inverse
    }
 
-   while(D.is_negative()) {
+   while(D.signum() < 0) {
       D += mod;
    }
    while(D >= mod) {

@@ -30,7 +30,6 @@ class X509_Certificate;
 
 namespace Botan::TLS {
 
-class Client_Hello_13;
 class Server_Hello_13;
 class Callbacks;
 
@@ -146,7 +145,7 @@ class BOTAN_PUBLIC_API(3, 0) Session_Base {
  * Summarizes the negotiated features after a TLS handshake. Applications may
  * query those in Callbacks::tls_session_established().
  */
-class BOTAN_PUBLIC_API(3, 0) Session_Summary : public Session_Base {
+class BOTAN_PUBLIC_API(3, 0) Session_Summary final : public Session_Base {
    public:
       /**
        * The Session_ID negotiated during the handshake.
@@ -270,20 +269,6 @@ class BOTAN_PUBLIC_API(3, 0) Session final : public Session_Base {
               const Server_Information& server_info,
               std::chrono::system_clock::time_point current_timestamp);
 
-      /**
-       * Create a new TLS 1.3 session object from server data structures
-       * after a successful handshake with a TLS 1.3 client
-       */
-      Session(secure_vector<uint8_t>&& session_psk,
-              const std::optional<uint32_t>& max_early_data_bytes,
-              std::chrono::seconds lifetime_hint,
-              const std::vector<X509_Certificate>& peer_certs,
-              std::shared_ptr<const Public_Key> peer_raw_public_key,
-              const Client_Hello_13& client_hello,
-              const Server_Hello_13& server_hello,
-              Callbacks& callbacks,
-              RandomNumberGenerator& rng);
-
 #endif
 
       /**
@@ -397,7 +382,7 @@ class BOTAN_PUBLIC_API(3, 0) Session final : public Session_Base {
 /**
  * Helper struct to conveniently pass a Session and its Session_Handle around
  */
-class BOTAN_PUBLIC_API(3, 0) Session_with_Handle {
+class BOTAN_PUBLIC_API(3, 0) Session_with_Handle final {
    public:
       Session session;
       Session_Handle handle;

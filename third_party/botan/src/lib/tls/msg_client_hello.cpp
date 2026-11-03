@@ -43,8 +43,21 @@ std::vector<uint8_t> make_hello_random(RandomNumberGenerator& rng, Callbacks& cb
    return buf;
 }
 
-Client_Hello_Internal::Client_Hello_Internal(const std::vector<uint8_t>& buf) {
-   if(buf.size() < 41) {
+Client_Hello_Internal::Client_Hello_Internal(std::span<const uint8_t> buf) {
+   /*
+   Minimum possible client hello
+
+   version: 2 bytes
+   random: 32 bytes
+   session_id len: 1 byte
+   ciphersuite_len: 2
+   ciphersuite (single): 2
+   compression_len: 1
+   compression (single): 1
+   */
+
+   constexpr size_t MinimumClientHelloBytes = 2 + 32 + 1 + 2 + 2 + 1 + 1;
+   if(buf.size() < MinimumClientHelloBytes) {
       throw Decoding_Error("Client_Hello: Packet corrupted");
    }
 
@@ -54,6 +67,12 @@ Client_Hello_Internal::Client_Hello_Internal(const std::vector<uint8_t>& buf) {
    const uint8_t minor_version = reader.get_byte();
 
    m_legacy_version = Protocol_Version(major_version, minor_version);
+
+   // DTLS has an additional 1 byte cookie length field
+   if(m_legacy_version.is_datagram_protocol() && buf.size() < MinimumClientHelloBytes + 1) {
+      throw Decoding_Error("Client_Hello: DTLS packet corrupted");
+   }
+
    m_random = reader.get_fixed<uint8_t>(32);
    m_session_id = Session_ID(reader.get_range<uint8_t>(1, 0, 32));
 
@@ -268,7 +287,7 @@ const std::vector<uint8_t>& Client_Hello::cookie() const {
 Client_Hello_12_Shim::Client_Hello_12_Shim(std::unique_ptr<Client_Hello_Internal> data) :
       Client_Hello(std::move(data)) {}
 
-Client_Hello_12_Shim::Client_Hello_12_Shim(const std::vector<uint8_t>& buf) :
+Client_Hello_12_Shim::Client_Hello_12_Shim(std::span<const uint8_t> buf) :
       Client_Hello_12_Shim(std::make_unique<Client_Hello_Internal>(buf)) {}
 
 }  // namespace Botan::TLS

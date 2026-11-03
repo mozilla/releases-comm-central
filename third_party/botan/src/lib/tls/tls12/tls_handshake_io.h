@@ -10,9 +10,11 @@
 
 #include <botan/tls_magic.h>
 #include <botan/tls_version.h>
+#include <chrono>
 #include <deque>
 #include <functional>
 #include <map>
+#include <optional>
 #include <set>
 #include <utility>
 #include <vector>
@@ -48,7 +50,13 @@ class Handshake_IO {
 
       virtual std::vector<uint8_t> send_under_epoch(const Handshake_Message& msg, uint16_t epoch) = 0;
 
+#if defined(BOTAN_HAS_TLS_DOWNGRADE_SUPPORT)
+      virtual std::vector<uint8_t> start_with_client_hello_from_downgrade(const Handshake_Message& client_hello) = 0;
+#endif
+
       virtual bool timeout_check() = 0;
+
+      virtual std::optional<std::chrono::milliseconds> next_retransmission_timeout() const = 0;
 
       virtual bool have_more_data() const = 0;
 
@@ -63,7 +71,8 @@ class Handshake_IO {
       /**
       * Returns (HANDSHAKE_NONE, std::vector<>()) if no message currently available
       */
-      virtual std::pair<Handshake_Type, std::vector<uint8_t>> get_next_record(bool expecting_ccs) = 0;
+      virtual std::pair<Handshake_Type, std::vector<uint8_t>> get_next_record(bool expecting_ccs,
+                                                                              size_t max_message_size) = 0;
 
       Handshake_IO() = default;
 
@@ -88,18 +97,25 @@ class Stream_Handshake_IO final : public Handshake_IO {
 
       bool timeout_check() override { return false; }
 
+      std::optional<std::chrono::milliseconds> next_retransmission_timeout() const override { return std::nullopt; }
+
       bool have_more_data() const override { return !m_queue.empty(); }
 
       std::vector<uint8_t> send(const Handshake_Message& msg) override;
 
       std::vector<uint8_t> send_under_epoch(const Handshake_Message& msg, uint16_t epoch) override;
 
+#if defined(BOTAN_HAS_TLS_DOWNGRADE_SUPPORT)
+      std::vector<uint8_t> start_with_client_hello_from_downgrade(const Handshake_Message& client_hello) override;
+#endif
+
       std::vector<uint8_t> format(const std::vector<uint8_t>& handshake_msg,
                                   Handshake_Type handshake_type) const override;
 
       void add_record(const uint8_t record[], size_t record_len, Record_Type type, uint64_t sequence_number) override;
 
-      std::pair<Handshake_Type, std::vector<uint8_t>> get_next_record(bool expecting_ccs) override;
+      std::pair<Handshake_Type, std::vector<uint8_t>> get_next_record(bool expecting_ccs,
+                                                                      size_t max_message_size) override;
 
    private:
       std::deque<uint8_t> m_queue;
@@ -109,25 +125,28 @@ class Stream_Handshake_IO final : public Handshake_IO {
 /**
 * Handshake IO for datagram-based handshakes
 */
-class Datagram_Handshake_IO final : public Handshake_IO {
+class BOTAN_TEST_API Datagram_Handshake_IO final : public Handshake_IO {
    public:
-      typedef std::function<void(uint16_t, Record_Type, const std::vector<uint8_t>&)> writer_fn;
+      using writer_fn = std::function<void(uint16_t, Record_Type, const std::vector<uint8_t>&)>;
+
+      // Lambda pointing to clock function (normally TLS::Callbacks::tls_current_monotonic_clock_ms)
+      using steady_clock_fn = std::function<uint64_t()>;
 
       Datagram_Handshake_IO(writer_fn writer,
+                            steady_clock_fn clock_ms,
                             class Connection_Sequence_Numbers& seq,
                             uint16_t mtu,
                             uint64_t initial_timeout_ms,
-                            uint64_t max_timeout_ms) :
-            m_seqs(seq),
-            m_flights(1),
-            m_initial_timeout(initial_timeout_ms),
-            m_max_timeout(max_timeout_ms),
-            m_send_hs(std::move(writer)),
-            m_mtu(mtu) {}
+                            uint64_t max_timeout_ms,
+                            std::optional<size_t> max_retransmissions,
+                            size_t max_handshake_msg_size,
+                            uint16_t initial_epoch = 0);
 
       Protocol_Version initial_record_version() const override;
 
       bool timeout_check() override;
+
+      std::optional<std::chrono::milliseconds> next_retransmission_timeout() const override;
 
       bool have_more_data() const override;
 
@@ -135,21 +154,72 @@ class Datagram_Handshake_IO final : public Handshake_IO {
 
       std::vector<uint8_t> send_under_epoch(const Handshake_Message& msg, uint16_t epoch) override;
 
+#if defined(BOTAN_HAS_TLS_DOWNGRADE_SUPPORT)
+      std::vector<uint8_t> start_with_client_hello_from_downgrade(const Handshake_Message& client_hello) override;
+#endif
+
       std::vector<uint8_t> format(const std::vector<uint8_t>& handshake_msg,
                                   Handshake_Type handshake_type) const override;
 
       void add_record(const uint8_t record[], size_t record_len, Record_Type type, uint64_t sequence_number) override;
 
-      std::pair<Handshake_Type, std::vector<uint8_t>> get_next_record(bool expecting_ccs) override;
+      // Process previous-flight records after this IO object was retained by
+      // an active DTLS association for final-flight recovery.
+      void add_retransmitted_record(const uint8_t record[],
+                                    size_t record_len,
+                                    Record_Type type,
+                                    uint64_t sequence_number);
+
+      std::pair<Handshake_Type, std::vector<uint8_t>> get_next_record(bool expecting_ccs,
+                                                                      size_t max_message_size) override;
+
+      /**
+      * Enter FINISHED after channel activation. Intermediate outgoing flights
+      * are finalized implicitly when the peer's next handshake message is
+      * requested. The terminal-flight sender retains reactive replay behavior.
+      */
+      void finalize_handshake(bool retransmit_terminal_flight);
 
    private:
+      void add_record(const uint8_t record[],
+                      size_t record_len,
+                      Record_Type record_type,
+                      uint64_t record_sequence,
+                      bool retransmitted_flight);
+
+      bool reassemble_retransmitted_fragment(const uint8_t fragment[],
+                                             size_t fragment_length,
+                                             size_t fragment_offset,
+                                             uint16_t epoch,
+                                             Handshake_Type msg_type,
+                                             size_t msg_length,
+                                             uint16_t message_seq);
+
+      bool process_previous_handshake_fragment(const uint8_t fragment[],
+                                               size_t fragment_length,
+                                               size_t fragment_offset,
+                                               uint16_t epoch,
+                                               Handshake_Type msg_type,
+                                               size_t msg_length,
+                                               uint16_t message_seq,
+                                               bool retransmitted_flight);
+
+      // Drop buffered messages left over from an earlier handshake, identified
+      // by an epoch below the most recently delivered one.
+      void discard_stale_epoch_messages();
+
       void retransmit_flight(size_t flight);
       void retransmit_last_flight();
+      void replay_last_flight_for_peer();
+
+      // Index of the last completed outgoing flight, or nullopt when no
+      // flight has been sent yet.
+      std::optional<size_t> last_completed_flight_index() const;
 
       std::vector<uint8_t> format_fragment(const uint8_t fragment[],
                                            size_t fragment_len,
-                                           uint16_t frag_offset,
-                                           uint16_t msg_len,
+                                           uint32_t frag_offset,
+                                           uint32_t msg_len,
                                            Handshake_Type type,
                                            uint16_t msg_sequence) const;
 
@@ -171,28 +241,49 @@ class Datagram_Handshake_IO final : public Handshake_IO {
                               Handshake_Type msg_type,
                               size_t msg_length);
 
+            // Set by the first fragment, which fixes the header metadata and
+            // (in Datagram_Handshake_IO) charges the reassembly budget.
+            bool initialized() const { return m_msg_type != Handshake_Type::None; }
+
             bool complete() const;
 
             uint16_t epoch() const { return m_epoch; }
+
+            // 0 until the first fragment has set the declared msg_length.
+            size_t msg_length() const { return m_msg_length; }
 
             std::pair<Handshake_Type, std::vector<uint8_t>> message() const;
 
          private:
             Handshake_Type m_msg_type = Handshake_Type::None;
             size_t m_msg_length = 0;
+            size_t m_bytes_received = 0;
             uint16_t m_epoch = 0;
 
-            // vector<bool> m_seen;
-            // vector<uint8_t> m_fragments
-            std::map<size_t, uint8_t> m_fragments;
+            // Reassembly buffer (sized to m_msg_length once known) and a parallel
+            // byte-mask marking which positions have already been seen.
+            std::vector<uint8_t> m_received_mask;
             std::vector<uint8_t> m_message;
       };
+
+      // Add a fragment to a reassembly slot, charging the slot's declared
+      // length against the pending-reassembly budget at its first fragment.
+      // Returns false, adding nothing, if the budget ceiling would be exceeded.
+      bool charged_add_fragment(Handshake_Reassembly& reassembly,
+                                size_t ceiling,
+                                const uint8_t fragment[],
+                                size_t fragment_length,
+                                size_t fragment_offset,
+                                uint16_t epoch,
+                                Handshake_Type msg_type,
+                                size_t msg_length);
+
+      // Uncommit a reassembly buffer's bytes from the pending-reassembly budget.
+      void release_reassembly_bytes(const Handshake_Reassembly& reassembly);
 
       struct Message_Info final {
             Message_Info(uint16_t e, Handshake_Type mt, const std::vector<uint8_t>& msg) :
                   epoch(e), msg_type(mt), msg_bits(msg) {}
-
-            Message_Info() : epoch(0xFFFF), msg_type(Handshake_Type::None) {}
 
             uint16_t epoch;                 // NOLINT(*non-private-member-variable*)
             Handshake_Type msg_type;        // NOLINT(*non-private-member-variable*)
@@ -201,21 +292,73 @@ class Datagram_Handshake_IO final : public Handshake_IO {
 
       class Connection_Sequence_Numbers& m_seqs;
       std::map<uint16_t, Handshake_Reassembly> m_messages;
+      size_t m_pending_reassembly_bytes = 0;
       std::set<uint16_t> m_ccs_epochs;
+
+      // A retransmitted final flight may deliver CCS and Finished in either
+      // order. Other terminal messages may themselves be fragmented.
+      std::optional<uint16_t> m_retransmitted_ccs_epoch;
+      std::optional<uint16_t> m_retransmitted_finished_epoch;
+      std::map<Handshake_Type, std::pair<uint16_t, Handshake_Reassembly>> m_retransmitted_messages;
       std::vector<std::vector<uint16_t>> m_flights;
+      // Each entry records where in the corresponding flight a CCS was sent
+      // and the epoch under which it was transmitted.
+      std::vector<std::vector<std::pair<size_t, uint16_t>>> m_flight_ccs;
       std::map<uint16_t, Message_Info> m_flight_data;
+
+      std::optional<std::pair<uint16_t, Handshake_Reassembly>> m_retransmitted_client_hello;
+      bool m_awaiting_cookie_client_hello = false;
+      bool m_recreating_hello_verify_request = false;
+      bool m_finished = false;
+      bool m_retransmit_terminal_flight = false;
 
       uint64_t m_initial_timeout = 0;
       uint64_t m_max_timeout = 0;
 
-      uint64_t m_last_write = 0;
+      // Maximum timer-driven retransmissions of the current flight before the
+      // handshake is abandoned (nullopt unlimited). m_retransmit_count tracks the
+      // number fired for the in-flight wait; it resets to 0 whenever a new
+      // flight is sent (forward progress) and is incremented on each timeout.
+      std::optional<size_t> m_max_retransmissions = 0;
+      size_t m_retransmit_count = 0;
+
+      // Time the current flight was last written, unset until one has been.
+      // A caller's clock may legitimately read zero, so the absence of a write
+      // cannot be spelled as a reserved timestamp.
+      std::optional<uint64_t> m_last_write;
+
+      // Flight replays the peer has cued since the current flight was sent.
+      // Kept apart from the timer's own budget because the cue for it is
+      // unauthenticated. See replay_last_flight_for_peer.
+      size_t m_peer_replay_count = 0;
+
       uint64_t m_next_timeout = 0;
 
       uint16_t m_in_message_seq = 0;
       uint16_t m_out_message_seq = 0;
 
+      // Epoch of the first delivered incoming message; its presence also
+      // guards format(), which is not the same as m_in_message_seq being
+      // non-zero once that counter wraps.
+      std::optional<uint16_t> m_first_delivered_epoch;
+
+      // Set once m_in_message_seq wraps, after which all handshake input is
+      // refused; see process_handshake_fragment.
+      bool m_in_message_seq_wrapped = false;
+
+      // Epoch in force when this handshake began. Records from the previous one
+      // sit at or below it, and a Finished has to sit above it.
+      uint16_t m_initial_epoch;
+
+      // Epoch of the most recently delivered incoming handshake message. Used
+      // to reject records held over from a previous handshake.
+      uint16_t m_last_delivered_epoch = 0;
+
       writer_fn m_send_hs;
+      steady_clock_fn m_steady_clock_ms;
       uint16_t m_mtu;
+      size_t m_max_handshake_msg_size;
+      size_t m_max_pending_reassembly;
 };
 
 }  // namespace Botan::TLS

@@ -746,6 +746,27 @@ class SIMD_4x32 final {
 #endif
       }
 
+      /**
+      * Unsigned lane comparison; returns a mask with all bits set in each
+      * 32-bit lane that is (unsigned) less than the corresponding lane of
+      * @p other, and all bits cleared otherwise.
+      */
+      SIMD_4x32 BOTAN_FN_ISA_SIMD_4X32 unsigned_lt(const SIMD_4x32& other) const noexcept {
+#if defined(BOTAN_SIMD_USE_SSSE3)
+         // No unsigned comparison before AVX-512; bias into the signed domain
+         const __m128i bias = _mm_set1_epi32(static_cast<int32_t>(0x80000000));
+         return SIMD_4x32(_mm_cmpgt_epi32(_mm_xor_si128(other.raw(), bias), _mm_xor_si128(raw(), bias)));
+#elif defined(BOTAN_SIMD_USE_ALTIVEC)
+         return SIMD_4x32(reinterpret_cast<__vector unsigned int>(vec_cmplt(raw(), other.raw())));
+#elif defined(BOTAN_SIMD_USE_NEON)
+         return SIMD_4x32(vcltq_u32(raw(), other.raw()));
+#elif defined(BOTAN_SIMD_USE_LSX)
+         return SIMD_4x32(__lsx_vslt_wu(raw(), other.raw()));
+#elif defined(BOTAN_SIMD_USE_SIMD128)
+         return SIMD_4x32(wasm_u32x4_lt(raw(), other.raw()));
+#endif
+      }
+
       static inline SIMD_4x32 BOTAN_FN_ISA_SIMD_4X32 choose(const SIMD_4x32& mask,
                                                             const SIMD_4x32& a,
                                                             const SIMD_4x32& b) noexcept {
@@ -772,6 +793,7 @@ class SIMD_4x32 final {
       static inline SIMD_4x32 BOTAN_FN_ISA_SIMD_4X32 byte_blend(const SIMD_4x32& mask,
                                                                 const SIMD_4x32& a,
                                                                 const SIMD_4x32& b) noexcept {
+         // TODO(SSE4.1) could use _mm_blendv_epi8 here
          return SIMD_4x32::choose(mask, a, b);
       }
 
@@ -936,6 +958,38 @@ class SIMD_4x32 final {
          return SIMD_4x32(_mm_shuffle_epi32(raw(), 0b01001110));
 #else
          return SIMD_4x32::alignr8(*this, *this);
+#endif
+      }
+
+      /**
+      * Extract a single word from the register
+      */
+      template <size_t W>
+      inline uint32_t BOTAN_FN_ISA_SIMD_4X32 extract_word() const noexcept {
+         static_assert(W <= 3);
+
+#if defined(BOTAN_SIMD_USE_NEON)
+         return vgetq_lane_u32(raw(), W);
+#elif defined(BOTAN_SIMD_USE_LSX)
+         return __lsx_vpickve2gr_wu(raw(), W);
+#elif defined(BOTAN_SIMD_USE_SIMD128)
+         return wasm_u32x4_extract_lane(raw(), W);
+#elif defined(BOTAN_SIMD_USE_SSSE3)
+         if constexpr(W == 0) {
+            return static_cast<uint32_t>(_mm_cvtsi128_si32(raw()));
+         } else {
+            // Broadcast the word then extract the low
+            // TODO(SSE4.1) could use _mm_extract_epi32 here
+            return static_cast<uint32_t>(_mm_cvtsi128_si32(_mm_shuffle_epi32(raw(), _MM_SHUFFLE(W, W, W, W))));
+         }
+#else
+         uint32_t result[4];
+         if constexpr(std::endian::native == std::endian::big) {
+            this->store_be(result);
+         } else {
+            this->store_le(result);
+         }
+         return result[W];
 #endif
       }
 

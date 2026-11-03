@@ -265,7 +265,8 @@ Hybrid_KEM_PrivateKey::Hybrid_KEM_PrivateKey(std::vector<std::unique_ptr<Private
       Hybrid_PrivateKey(convert_kex_to_kem_sks(std::move(sks))) {}
 
 std::string Hybrid_KEM_PublicKey::algo_name() const {
-   std::ostringstream algo_name("Hybrid(");
+   std::ostringstream algo_name;
+   algo_name << "Hybrid(";
    for(size_t i = 0; i < public_keys().size(); ++i) {
       if(i > 0) {
          algo_name << ",";

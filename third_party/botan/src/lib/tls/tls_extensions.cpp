@@ -12,6 +12,9 @@
 
 #include <botan/tls_extensions.h>
 
+#include <botan/dns_name.h>
+#include <botan/ipv4_address.h>
+#include <botan/ipv6_address.h>
 #include <botan/tls_exceptn.h>
 #include <botan/tls_policy.h>
 #include <botan/internal/fmt.h>
@@ -19,6 +22,7 @@
 #include <botan/internal/stl_util.h>
 #include <botan/internal/tls_reader.h>
 #include <algorithm>
+#include <unordered_set>
 
 #if defined(BOTAN_HAS_TLS_13)
    #include <botan/tls_extensions_13.h>
@@ -73,6 +77,9 @@ std::unique_ptr<Extension> make_extension(TLS_Data_Reader& reader,
       case Extension_Code::SupportedVersions:
          return std::make_unique<Supported_Versions>(reader, size, from);
 
+      case Extension_Code::Padding:
+         break;  // RFC 7685, recognized but not implemented; falls through to Unknown_Extension
+
 #if defined(BOTAN_HAS_TLS_12)
       case Extension_Code::EcPointFormats:
          return std::make_unique<Supported_Point_Formats>(reader, size);
@@ -87,7 +94,7 @@ std::unique_ptr<Extension> make_extension(TLS_Data_Reader& reader,
          return std::make_unique<Encrypt_then_MAC>(reader, size);
 
       case Extension_Code::SessionTicket:
-         return std::make_unique<Session_Ticket_Extension>(reader, size);
+         return std::make_unique<Session_Ticket_Extension>(reader, size, from);
 #else
       case Extension_Code::EcPointFormats:
       case Extension_Code::SafeRenegotiation:
@@ -133,20 +140,28 @@ std::unique_ptr<Extension> make_extension(TLS_Data_Reader& reader,
 
 Extensions::~Extensions() = default;
 
-Extension* Extensions::get(Extension_Code type) const {
-   const auto i =
-      std::find_if(m_extensions.cbegin(), m_extensions.cend(), [type](const auto& ext) { return ext->type() == type; });
+bool Extensions::has(Extension_Code type) const {
+   return m_extensions.contains(type);
+}
 
-   return (i != m_extensions.end()) ? i->get() : nullptr;
+Extension* Extensions::get(Extension_Code type) const {
+   const auto i = m_extensions.find(type);
+
+   if(i == m_extensions.end()) {
+      return nullptr;
+   } else {
+      return i->second.get();
+   }
 }
 
 void Extensions::add(std::unique_ptr<Extension> extn) {
-   if(has(extn->type())) {
-      throw Invalid_Argument("cannot add the same extension twice: " +
-                             std::to_string(static_cast<uint16_t>(extn->type())));
+   const auto type = extn->type();
+   if(has(type)) {
+      throw Invalid_Argument("cannot add the same extension twice: " + std::to_string(static_cast<uint16_t>(type)));
    }
 
-   m_extensions.emplace_back(extn.release());
+   m_extension_codes.push_back(type);
+   m_extensions.emplace(type, std::move(extn));
 }
 
 void Extensions::deserialize(TLS_Data_Reader& reader, const Connection_Side from, const Handshake_Type message_type) {
@@ -170,6 +185,7 @@ void Extensions::deserialize(TLS_Data_Reader& reader, const Connection_Side from
          // TODO offer a function on reader that returns a byte range as a reference
          // to avoid this copy of the extension data
          const std::vector<uint8_t> extn_data = reader.get_fixed<uint8_t>(extension_size);
+         m_raw_extension_data[type] = extn_data;
          TLS_Data_Reader extn_reader("Extension", extn_data);
          this->add(make_extension(extn_reader, type, from, message_type));
          extn_reader.assert_done();
@@ -200,30 +216,36 @@ bool Extensions::contains_other_than(const std::set<Extension_Code>& allowed_ext
    return !diff.empty();
 }
 
-std::unique_ptr<Extension> Extensions::take(Extension_Code type) {
-   const auto i =
-      std::find_if(m_extensions.begin(), m_extensions.end(), [type](const auto& ext) { return ext->type() == type; });
+bool Extensions::remove_extension(Extension_Code type) {
+   auto i = m_extensions.find(type);
 
-   std::unique_ptr<Extension> result;
-   if(i != m_extensions.end()) {
-      std::swap(result, *i);
+   if(i == m_extensions.end()) {
+      return false;
+   } else {
       m_extensions.erase(i);
+      std::erase(m_extension_codes, type);
+      m_raw_extension_data.erase(type);
+      return true;
    }
-
-   return result;
 }
 
 std::vector<uint8_t> Extensions::serialize(Connection_Side whoami) const {
    std::vector<uint8_t> buf(2);  // 2 bytes for length field
 
-   for(const auto& extn : m_extensions) {
+   // Serialize in the order extensions were added, which matters for TLS 1.3
+   for(const auto extn_type : m_extension_codes) {
+      const auto& extn = m_extensions.at(extn_type);
+
       if(extn->empty()) {
          continue;
       }
 
-      const uint16_t extn_code = static_cast<uint16_t>(extn->type());
+      const uint16_t extn_code = static_cast<uint16_t>(extn_type);
 
       const std::vector<uint8_t> extn_val = extn->serialize(whoami);
+
+      // Each extension carries a uint16 length prefix.
+      BOTAN_ASSERT_NOMSG(extn_val.size() <= 0xFFFF);
 
       buf.push_back(get_byte<0>(extn_code));
       buf.push_back(get_byte<1>(extn_code));
@@ -234,6 +256,8 @@ std::vector<uint8_t> Extensions::serialize(Connection_Side whoami) const {
       buf += extn_val;
    }
 
+   // The outer extensions block is itself uint16-length-prefixed.
+   BOTAN_ASSERT_NOMSG(buf.size() - 2 <= 0xFFFF);
    const uint16_t extn_size = static_cast<uint16_t>(buf.size() - 2);
 
    buf[0] = get_byte<0>(extn_size);
@@ -249,11 +273,41 @@ std::vector<uint8_t> Extensions::serialize(Connection_Side whoami) const {
 
 std::set<Extension_Code> Extensions::extension_types() const {
    std::set<Extension_Code> offers;
-   std::transform(
-      m_extensions.cbegin(), m_extensions.cend(), std::inserter(offers, offers.begin()), [](const auto& ext) {
-         return ext->type();
-      });
+   for(const auto& [extn_type, extn] : m_extensions) {
+      // Consistent with serialize(): empty extensions are not placed on
+      // the wire so they must not appear in the "offered" set either.
+      if(!extn->empty()) {
+         offers.insert(extn_type);
+      }
+   }
    return offers;
+}
+
+void Extensions::reorder(std::span<const Extension_Code> order) {
+   const std::set<Extension_Code> in_order(order.begin(), order.end());
+
+   std::vector<Extension_Code> new_codes;
+   new_codes.reserve(m_extension_codes.size());
+
+   // First: extensions not mentioned in the order (preserving their relative order)
+   for(auto code : m_extension_codes) {
+      if(!in_order.contains(code)) {
+         new_codes.push_back(code);
+      }
+   }
+
+   // Then: extensions in the specified order. Deduplicate so a caller that
+   // accidentally lists the same code twice doesn't cause it to be
+   // serialized twice (which would also break peers that reject duplicate
+   // extension codes per RFC 8446 4.2 / RFC 5246 7.4.1.4).
+   std::unordered_set<Extension_Code> already_pushed;
+   for(auto code : order) {
+      if(m_extensions.contains(code) && already_pushed.insert(code).second) {
+         new_codes.push_back(code);
+      }
+   }
+
+   m_extension_codes = std::move(new_codes);
 }
 
 Unknown_Extension::Unknown_Extension(Extension_Code type, TLS_Data_Reader& reader, uint16_t extension_size) :
@@ -287,7 +341,10 @@ Server_Name_Indicator::Server_Name_Indicator(TLS_Data_Reader& reader, uint16_t e
 
       const uint16_t name_bytes = reader.get_uint16_t();
 
-      if(name_bytes + 2 != extension_size || name_bytes < 3) {
+      // RFC 6066 3: a ServerName carrying a host_name (the only NameType
+      // currently defined and the only one this implementation acts on)
+      // requires at least 1 byte name_type + 2 byte length + 1 byte HostName.
+      if(name_bytes + 2 != extension_size || name_bytes < 4) {
          throw Decoding_Error("Bad encoding of SNI extension");
       }
 
@@ -333,6 +390,11 @@ std::vector<uint8_t> Server_Name_Indicator::serialize(Connection_Side whoami) co
 
    const size_t name_len = m_sni_host_name.size();
 
+   // RFC 6066 3: HostName<1..2^16-1>; the outer ServerNameList wraps a
+   // 1-byte name_type and a 2-byte length so the whole entry must fit in
+   // a uint16_t too.
+   BOTAN_ASSERT_NOMSG(name_len + 3 <= 0xFFFF);
+
    buf.push_back(get_byte<0>(static_cast<uint16_t>(name_len + 3)));
    buf.push_back(get_byte<1>(static_cast<uint16_t>(name_len + 3)));
    buf.push_back(0);  // DNS
@@ -348,27 +410,44 @@ std::vector<uint8_t> Server_Name_Indicator::serialize(Connection_Side whoami) co
 bool Server_Name_Indicator::hostname_acceptable_for_sni(std::string_view hostname) {
    // Avoid sending an IPv4/IPv6 address in SNI as this is prohibited
 
-   if(hostname.empty()) {
+   if(hostname.empty() || hostname.size() > 255) {
       return false;
    }
 
-   if(string_to_ipv4(hostname).has_value()) {
+   if(auto ipv4 = IPv4Address::from_string(hostname)) {
       return false;
    }
 
-   // IPv6? Anyway ':' is not valid in DNS
-   if(hostname.find(':') != std::string_view::npos) {
+   if(auto ipv6 = IPv6Address::from_string(hostname)) {
       return false;
    }
 
-   return true;
+   if(auto dns = DNSName::from_string(hostname)) {
+      return true;
+   } else {
+      return false;
+   }
+}
+
+Application_Layer_Protocol_Notification::Application_Layer_Protocol_Notification(std::string_view protocol) {
+   BOTAN_ARG_CHECK(!protocol.empty(), "ALPN protocol name must not be empty");
+   BOTAN_ARG_CHECK(protocol.size() < 256, "ALPN protocol name too long");
+   m_protocols.emplace_back(protocol);
+}
+
+Application_Layer_Protocol_Notification::Application_Layer_Protocol_Notification(std::vector<std::string> protocols) :
+      m_protocols(std::move(protocols)) {
+   for(const auto& protocol : m_protocols) {
+      BOTAN_ARG_CHECK(!protocol.empty(), "ALPN protocol name must not be empty");
+      BOTAN_ARG_CHECK(protocol.size() < 256, "ALPN protocol name too long");
+   }
 }
 
 Application_Layer_Protocol_Notification::Application_Layer_Protocol_Notification(TLS_Data_Reader& reader,
                                                                                  uint16_t extension_size,
                                                                                  Connection_Side from) {
-   if(extension_size == 0) {
-      return;  // empty extension
+   if(extension_size < 2) {
+      throw Decoding_Error("ALPN extension cannot be empty");
    }
 
    const uint16_t name_bytes = reader.get_uint16_t();
@@ -377,6 +456,11 @@ Application_Layer_Protocol_Notification::Application_Layer_Protocol_Notification
 
    if(name_bytes != bytes_remaining) {
       throw Decoding_Error("Bad encoding of ALPN extension, bad length field");
+   }
+
+   // RFC 7301 3.1: ProtocolName protocol_name_list<2..2^16-1>
+   if(name_bytes == 0) {
+      throw Decoding_Error("Empty ALPN protocol_name_list not allowed");
    }
 
    while(bytes_remaining > 0) {
@@ -423,6 +507,8 @@ std::vector<uint8_t> Application_Layer_Protocol_Notification::serialize(Connecti
       }
    }
 
+   // RFC 7301 3.1: ProtocolName protocol_name_list<2..2^16-1>;
+   BOTAN_ASSERT_NOMSG(buf.size() - 2 <= 0xFFFF);
    buf[0] = get_byte<0>(static_cast<uint16_t>(buf.size() - 2));
    buf[1] = get_byte<1>(static_cast<uint16_t>(buf.size() - 2));
 
@@ -441,7 +527,7 @@ Server_Certificate_Type::Server_Certificate_Type(const Server_Certificate_Type& 
       Certificate_Type_Base(sct, policy.accepted_server_certificate_types()) {}
 
 Certificate_Type_Base::Certificate_Type_Base(const Certificate_Type_Base& certificate_type_from_client,
-                                             const std::vector<Certificate_Type>& server_preference) :
+                                             std::span<const Certificate_Type> server_preference) :
       m_from(Connection_Side::Server) {
    // RFC 7250 4.2
    //    The server_certificate_type extension in the client hello indicates the
@@ -474,6 +560,10 @@ Certificate_Type_Base::Certificate_Type_Base(TLS_Data_Reader& reader, uint16_t e
       const auto type_bytes = reader.get_tls_length_value(1);
       if(static_cast<size_t>(extension_size) != type_bytes.size() + 1) {
          throw Decoding_Error("certificate type extension had inconsistent length");
+      }
+      // RFC 7250 4: {client,server}_certificate_types<1..2^8-1> so must be non-empty
+      if(type_bytes.empty()) {
+         throw Decoding_Error("Certificate type extension contains no types");
       }
       std::transform(
          type_bytes.begin(), type_bytes.end(), std::back_inserter(m_certificate_types), [](const auto type_byte) {
@@ -528,7 +618,7 @@ Certificate_Type Certificate_Type_Base::selected_certificate_type() const {
    return m_certificate_types.front();
 }
 
-Supported_Groups::Supported_Groups(const std::vector<Group_Params>& groups) : m_groups(groups) {}
+Supported_Groups::Supported_Groups(std::vector<Group_Params> groups) : m_groups(std::move(groups)) {}
 
 const std::vector<Group_Params>& Supported_Groups::groups() const {
    return m_groups;
@@ -566,6 +656,8 @@ std::vector<uint8_t> Supported_Groups::serialize(Connection_Side /*whoami*/) con
       }
    }
 
+   // RFC 8446 4.2.7: NamedGroup named_group_list<2..2^16-1>;
+   BOTAN_ASSERT_NOMSG(buf.size() - 2 <= 0xFFFF);
    buf[0] = get_byte<0>(static_cast<uint16_t>(buf.size() - 2));
    buf[1] = get_byte<1>(static_cast<uint16_t>(buf.size() - 2));
 
@@ -579,16 +671,22 @@ Supported_Groups::Supported_Groups(TLS_Data_Reader& reader, uint16_t extension_s
       throw Decoding_Error("Inconsistent length field in supported groups list");
    }
 
+   // RFC 8446 4.2.7: NamedGroup named_group_list<2..2^16-1>;
+   if(len == 0) {
+      throw Decoding_Error("Empty supported groups list");
+   }
+
    if(len % 2 == 1) {
       throw Decoding_Error("Supported groups list of strange size");
    }
 
    const size_t elems = len / 2;
 
+   std::unordered_set<uint16_t> seen;
    for(size_t i = 0; i != elems; ++i) {
       const auto group = static_cast<Group_Params>(reader.get_uint16_t());
       // Note: RFC 8446 does not explicitly enforce that groups must be unique.
-      if(!value_exists(m_groups, group)) {
+      if(seen.insert(group.wire_code()).second) {
          m_groups.push_back(group);
       }
    }
@@ -647,8 +745,17 @@ std::vector<uint8_t> Signature_Algorithms_Cert::serialize(Connection_Side /*whoa
 Signature_Algorithms_Cert::Signature_Algorithms_Cert(TLS_Data_Reader& reader, uint16_t extension_size) :
       m_schemes(parse_signature_algorithms(reader, extension_size)) {}
 
-SRTP_Protection_Profiles::SRTP_Protection_Profiles(TLS_Data_Reader& reader, uint16_t extension_size) :
-      m_pp(reader.get_range<uint16_t>(2, 0, 65535)) {
+SRTP_Protection_Profiles::SRTP_Protection_Profiles(TLS_Data_Reader& reader, uint16_t extension_size) {
+   // RFC 5764 4.1.1: UseSRTPData consists of
+   //    SRTPProtectionProfile SRTPProtectionProfiles<2..2^16-1>;
+   //    opaque srtp_mki<0..255>;
+   // for a wire size of 2 (profiles len) + 2*N + 1 (mki len) + mki_bytes,
+   // with N >= 1.
+   if(extension_size < 5) {
+      throw Decoding_Error("Truncated SRTP protection extension");
+   }
+   const size_t max_profile_pairs = (static_cast<size_t>(extension_size) - 3) / 2;
+   m_pp = reader.get_range<uint16_t>(2, 1, max_profile_pairs);
    const std::vector<uint8_t> mki = reader.get_range<uint8_t>(1, 0, 255);
 
    if(m_pp.size() * 2 + mki.size() + 3 != extension_size) {
@@ -685,7 +792,9 @@ std::vector<uint8_t> Supported_Versions::serialize(Connection_Side whoami) const
       buf.push_back(m_versions[0].major_version());
       buf.push_back(m_versions[0].minor_version());
    } else {
+      // RFC 8446 4.2.1: ProtocolVersion versions<2..254>; - up to 127 entries.
       BOTAN_ASSERT_NOMSG(!m_versions.empty());
+      BOTAN_ASSERT_NOMSG(m_versions.size() <= 127);
       const uint8_t len = static_cast<uint8_t>(m_versions.size() * 2);
 
       buf.push_back(len);
@@ -760,9 +869,9 @@ bool Supported_Versions::supports(Protocol_Version version) const {
 }
 
 Record_Size_Limit::Record_Size_Limit(const uint16_t limit) : m_limit(limit) {
-   BOTAN_ASSERT(limit >= 64, "RFC 8449 does not allow record size limits smaller than 64 bytes");
-   BOTAN_ASSERT(limit <= MAX_PLAINTEXT_SIZE + 1 /* encrypted content type byte */,
-                "RFC 8449 does not allow record size limits larger than 2^14+1");
+   BOTAN_ARG_CHECK(limit >= 64, "RFC 8449 does not allow record size limits smaller than 64 bytes");
+   BOTAN_ARG_CHECK(limit <= MAX_PLAINTEXT_SIZE + 1 /* encrypted content type byte */,
+                   "RFC 8449 does not allow record size limits larger than 2^14+1");
 }
 
 Record_Size_Limit::Record_Size_Limit(TLS_Data_Reader& reader, uint16_t extension_size, Connection_Side from) {

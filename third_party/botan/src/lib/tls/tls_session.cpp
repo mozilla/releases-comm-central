@@ -306,34 +306,6 @@ Session::Session(const secure_vector<uint8_t>& session_psk,
    BOTAN_ARG_CHECK(!version.is_pre_tls_13(), "Instantiated a TLS 1.3 session object with a TLS version older than 1.3");
 }
 
-Session::Session(secure_vector<uint8_t>&& session_psk,
-                 const std::optional<uint32_t>& max_early_data_bytes,
-                 std::chrono::seconds lifetime_hint,
-                 const std::vector<X509_Certificate>& peer_certs,
-                 std::shared_ptr<const Public_Key> peer_raw_public_key,
-                 const Client_Hello_13& client_hello,
-                 const Server_Hello_13& server_hello,
-                 Callbacks& callbacks,
-                 RandomNumberGenerator& rng) :
-      Session_Base(callbacks.tls_current_timestamp(),
-                   server_hello.selected_version(),
-                   server_hello.ciphersuite(),
-                   Connection_Side::Server,
-                   0,
-                   true,
-                   false,  // see constructor above for rationales
-                   peer_certs,
-                   std::move(peer_raw_public_key),
-                   Server_Information(client_hello.sni_hostname())),
-      m_master_secret(std::move(session_psk)),
-      m_early_data_allowed(max_early_data_bytes.has_value()),
-      m_max_early_data_bytes(max_early_data_bytes.value_or(0)),
-      m_ticket_age_add(load_be<uint32_t>(rng.random_vec(4).data(), 0)),
-      m_lifetime_hint(lifetime_hint) {
-   BOTAN_ARG_CHECK(!m_version.is_pre_tls_13(),
-                   "Instantiated a TLS 1.3 session object with a TLS version older than 1.3");
-}
-
 #endif
 
 Session::Session(std::string_view pem) : Session(PEM_Code::decode_check_label(pem, "TLS SESSION")) {}
@@ -355,7 +327,7 @@ Session::Session(std::span<const uint8_t> ber_data) /* NOLINT(*-member-init) */ 
    uint16_t ciphersuite_code = 0;
    uint64_t lifetime_hint = 0;
 
-   BER_Decoder(ber_data.data(), ber_data.size())
+   BER_Decoder(ber_data, BER_Decoder::Limits::DER())
       .start_sequence()
       .decode_and_check(TLS_SESSION_PARAM_STRUCT_VERSION, "Unknown version in serialized TLS session")
       .decode_integer_type(start_time)
@@ -389,7 +361,18 @@ Session::Session(std::span<const uint8_t> ber_data) /* NOLINT(*-member-init) */ 
    m_ciphersuite = ciphersuite_code;
    m_version = Protocol_Version(major_version, minor_version);
    m_start_time = std::chrono::system_clock::from_time_t(start_time);
+   if(side_code != static_cast<uint8_t>(Connection_Side::Client) &&
+      side_code != static_cast<uint8_t>(Connection_Side::Server)) {
+      throw Decoding_Error("Serialized TLS session contains unknown connection side " + std::to_string(side_code));
+   }
    m_connection_side = static_cast<Connection_Side>(side_code);
+
+   const bool valid_secret_size = m_version.is_pre_tls_13()
+                                     ? (m_master_secret.size() == 48)
+                                     : (m_master_secret.size() == 32 || m_master_secret.size() == 48);
+   if(!valid_secret_size) {
+      throw Decoding_Error("Serialized TLS session has master_secret of unexpected length");
+   }
    m_srtp_profile = static_cast<uint16_t>(srtp_profile);
 
    m_server_info =

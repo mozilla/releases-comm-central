@@ -82,7 +82,7 @@ std::variant<Hello_Retry_Request, Server_Hello_13> Server_Hello_13::create(const
 }
 
 std::variant<Hello_Retry_Request, Server_Hello_13, Server_Hello_12_Shim> Server_Hello_13::parse(
-   const std::vector<uint8_t>& buf) {
+   std::span<const uint8_t> buf) {
    auto data = std::make_unique<Server_Hello_Internal>(buf);
    const auto version = data->version();
 
@@ -331,6 +331,11 @@ Server_Hello_13::Server_Hello_13(const Client_Hello_13& ch,
    }
 
    cb.tls_modify_extensions(m_data->extensions(), Connection_Side::Server, type());
+
+   if(!m_data->extensions().has<Key_Share>()) {
+      throw TLS_Exception(Alert::InternalError,
+                          "Application tls_modify_extensions callback removed Key_Share from the ServerHello");
+   }
 }
 
 std::optional<Protocol_Version> Server_Hello_13::random_signals_downgrade() const {
@@ -397,6 +402,11 @@ Hello_Retry_Request::Hello_Retry_Request(const Client_Hello_13& ch,
    // NOLINTEND(*-owning-memory)
 
    cb.tls_modify_extensions(m_data->extensions(), Connection_Side::Server, type());
+
+   if(!m_data->extensions().has<Key_Share>()) {
+      throw TLS_Exception(Alert::InternalError,
+                          "Application tls_modify_extensions callback removed Key_Share from the HelloRetryRequest");
+   }
 }
 
 }  // namespace Botan::TLS

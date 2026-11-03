@@ -63,26 +63,27 @@ void factor(BigInt n, BigInt& a, BigInt& b) {
    a *= n;
 
    if(a <= 1 || b <= 1) {
-      throw Internal_Error("Could not factor n for use in FPE");
+      throw Invalid_Argument("FPE_FE1 modulus must be composite with at least one prime factor under 65521");
    }
 }
 
 }  // namespace
 
-FPE_FE1::FPE_FE1(const BigInt& n, size_t rounds, bool compat_mode, std::string_view mac_algo) : m_rounds(rounds) {
+FPE_FE1::FPE_FE1(const BigInt& n, size_t rounds, bool compat_mode, std::string_view mac_algo) :
+      m_n(n), m_rounds(rounds) {
    if(m_rounds < 3) {
       throw Invalid_Argument("FPE_FE1 rounds too small");
    }
 
    m_mac = MessageAuthenticationCode::create_or_throw(mac_algo);
 
-   m_n_bytes = n.serialize();
+   m_n_bytes = m_n.serialize();
 
    if(m_n_bytes.size() > MAX_N_BYTES) {
       throw Invalid_Argument("N is too large for FPE encryption");
    }
 
-   factor(n, m_a, m_b);
+   factor(m_n, m_a, m_b);
 
    if(compat_mode) {
       if(m_a < m_b) {
@@ -148,6 +149,8 @@ secure_vector<uint8_t> FPE_FE1::compute_tweak_mac(const uint8_t tweak[], size_t 
 }
 
 BigInt FPE_FE1::encrypt(const BigInt& input, const uint8_t tweak[], size_t tweak_len) const {
+   BOTAN_ARG_CHECK(input.signum() >= 0 && input < m_n, "Invalid FPE_FE1 input");
+
    const secure_vector<uint8_t> tweak_mac = compute_tweak_mac(tweak, tweak_len);
 
    BigInt X = input;
@@ -167,6 +170,8 @@ BigInt FPE_FE1::encrypt(const BigInt& input, const uint8_t tweak[], size_t tweak
 }
 
 BigInt FPE_FE1::decrypt(const BigInt& input, const uint8_t tweak[], size_t tweak_len) const {
+   BOTAN_ARG_CHECK(input.signum() >= 0 && input < m_n, "Invalid FPE_FE1 input");
+
    const secure_vector<uint8_t> tweak_mac = compute_tweak_mac(tweak, tweak_len);
 
    BigInt X = input;

@@ -17,7 +17,8 @@
 
 namespace Botan {
 
-struct PKCS10_Data {
+class PKCS10_Data final {
+   public:
       X509_DN m_subject_dn;
       std::vector<uint8_t> m_public_key_bits;
       AlternativeName m_alt_name;
@@ -96,7 +97,7 @@ namespace {
 std::unique_ptr<PKCS10_Data> decode_pkcs10(const std::vector<uint8_t>& body) {
    auto data = std::make_unique<PKCS10_Data>();
 
-   BER_Decoder cert_req_info(body);
+   BER_Decoder cert_req_info(body, BER_Decoder::Limits::DER());
 
    size_t version = 0;
    cert_req_info.decode(version);
@@ -118,13 +119,13 @@ std::unique_ptr<PKCS10_Data> decode_pkcs10(const std::vector<uint8_t>& body) {
    std::set<std::string> pkcs9_email;
 
    if(attr_bits.is_a(0, ASN1_Class::Constructed | ASN1_Class::ContextSpecific)) {
-      BER_Decoder attributes(attr_bits);
+      BER_Decoder attributes(attr_bits, cert_req_info.limits());
       while(attributes.more_items()) {
          Attribute attr;
          attributes.decode(attr);
 
          const OID& oid = attr.object_identifier();
-         BER_Decoder value(attr.get_parameters());
+         BER_Decoder value(attr.get_parameters(), cert_req_info.limits());
 
          if(oid == OID::from_string("PKCS9.EmailAddress")) {
             ASN1_String email;
@@ -135,7 +136,8 @@ std::unique_ptr<PKCS10_Data> decode_pkcs10(const std::vector<uint8_t>& body) {
             value.decode(challenge_password);
             data->m_challenge = challenge_password.value();
          } else if(oid == OID::from_string("PKCS9.ExtensionRequest")) {
-            value.decode(data->m_extensions).verify_end();
+            data->m_extensions.decode_from(value, Extension_Context::Certificate);
+            value.verify_end();
          }
       }
       attributes.verify_end();
@@ -223,22 +225,22 @@ const Extensions& PKCS10_Request::extensions() const {
 * Return the key constraints (if any)
 */
 Key_Constraints PKCS10_Request::constraints() const {
-   if(auto ext = extensions().get(OID::from_string("X509v3.KeyUsage"))) {
-      return dynamic_cast<Cert_Extension::Key_Usage&>(*ext).get_constraints();
+   if(const auto* ext = extensions().get_extension_object_as<Cert_Extension::Key_Usage>()) {
+      return ext->get_constraints();
+   } else {
+      return Key_Constraints::None;
    }
-
-   return Key_Constraints::None;
 }
 
 /*
 * Return the extendend key constraints (if any)
 */
 std::vector<OID> PKCS10_Request::ex_constraints() const {
-   if(auto ext = extensions().get(OID::from_string("X509v3.ExtendedKeyUsage"))) {
-      return dynamic_cast<Cert_Extension::Extended_Key_Usage&>(*ext).object_identifiers();
+   if(const auto* ext = extensions().get_extension_object_as<Cert_Extension::Extended_Key_Usage>()) {
+      return ext->object_identifiers();
+   } else {
+      return {};
    }
-
-   return {};
 }
 
 /*

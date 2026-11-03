@@ -42,7 +42,7 @@ New_Session_Ticket_13::New_Session_Ticket_13(Ticket_Nonce nonce,
    callbacks.tls_modify_extensions(m_extensions, Connection_Side::Server, type());
 }
 
-New_Session_Ticket_13::New_Session_Ticket_13(const std::vector<uint8_t>& buf, Connection_Side from) {
+New_Session_Ticket_13::New_Session_Ticket_13(std::span<const uint8_t> buf, Connection_Side from) {
    TLS_Data_Reader reader("New_Session_Ticket_13", buf);
 
    m_ticket_lifetime_hint = std::chrono::seconds(reader.get_uint32_t());
@@ -56,7 +56,8 @@ New_Session_Ticket_13::New_Session_Ticket_13(const std::vector<uint8_t>& buf, Co
 
    m_ticket_age_add = reader.get_uint32_t();
    m_ticket_nonce = Ticket_Nonce(reader.get_tls_length_value(1));
-   m_handle = Opaque_Session_Handle(reader.get_tls_length_value(2));
+   // RFC 8446 4.6.1: opaque ticket<1..2^16-1>
+   m_handle = Opaque_Session_Handle(reader.get_range<uint8_t>(2, 1, 65535));
 
    m_extensions.deserialize(reader, from, type());
 

@@ -1,6 +1,6 @@
 /*
 * X.509 Certificates
-* (C) 1999-2007,2015,2017 Jack Lloyd
+* (C) 1999-2007,2015,2017,2026 Jack Lloyd
 *
 * Botan is released under the Simplified BSD License (see license.txt)
 */
@@ -9,7 +9,10 @@
 #define BOTAN_X509_CERTS_H_
 
 #include <botan/x509_obj.h>
+#include <array>
+#include <cstring>
 #include <memory>
+#include <span>
 
 namespace Botan {
 
@@ -18,11 +21,20 @@ class Extensions;
 class NameConstraints;
 class Public_Key;
 class X509_DN;
+class X509_Serial_Number;
 
-struct X509_Certificate_Data;
+class DNSName;
+class EmailAddress;
+class IPv4Address;
+class IPv6Address;
+class URI;
+
+class X509_Certificate_Data;
 
 /**
 * This class represents an X.509 Certificate
+*
+* TODO(Botan4) mark this final once PKCS11_X509_Certificate is fixed
 */
 class BOTAN_PUBLIC_API(2, 0) X509_Certificate : public X509_Object {
    public:
@@ -81,6 +93,13 @@ class BOTAN_PUBLIC_API(2, 0) X509_Certificate : public X509_Object {
       const std::vector<uint8_t>& subject_public_key_bitstring_sha1() const;
 
       /**
+      * Get the SHA-256 bit string of the public key associated with this certificate.
+      * This is used for OCSP among other protocols.
+      * @return hash of subject public key of this certificate
+      */
+      std::span<const uint8_t, 32> subject_public_key_bitstring_sha256() const;
+
+      /**
       * Get the certificate's issuer distinguished name (DN).
       * @return issuer DN of this certificate
       */
@@ -94,26 +113,18 @@ class BOTAN_PUBLIC_API(2, 0) X509_Certificate : public X509_Object {
 
       /**
       * Get a value for a specific subject_info parameter name.
-      * @param name the name of the parameter to look up. Possible names include
-      * "X509.Certificate.version", "X509.Certificate.serial",
-      * "X509.Certificate.start", "X509.Certificate.end",
-      * "X509.Certificate.v2.key_id", "X509.Certificate.public_key",
-      * "X509v3.BasicConstraints.path_constraint",
-      * "X509v3.BasicConstraints.is_ca", "X509v3.NameConstraints",
-      * "X509v3.ExtendedKeyUsage", "X509v3.CertificatePolicies",
-      * "X509v3.SubjectKeyIdentifier", "X509.Certificate.serial",
-      * "X520.CommonName", "X520.Organization", "X520.Country",
-      * "RFC822" (Email in SAN) or "PKCS9.EmailAddress" (Email in DN).
-      * @return value(s) of the specified parameter
+      * @param name the name of the parameter to look up.
+      * @return value(s) of the specified parameter or empty if not found
       */
+      BOTAN_DEPRECATED("Use subject_dn and subject_alt_name to access subject names")
       std::vector<std::string> subject_info(std::string_view name) const;
 
       /**
       * Get a value for a specific subject_info parameter name.
-      * @param name the name of the parameter to look up. Possible names are
-      * "X509.Certificate.v2.key_id" or "X509v3.AuthorityKeyIdentifier".
-      * @return value(s) of the specified parameter
+      * @param name the name of the parameter to look up.
+      * @return value(s) of the specified parameter or empty if not found
       */
+      BOTAN_DEPRECATED("Use issuer_dn and issuer_alt_name to access issuer names")
       std::vector<std::string> issuer_info(std::string_view name) const;
 
       /**
@@ -122,9 +133,14 @@ class BOTAN_PUBLIC_API(2, 0) X509_Certificate : public X509_Object {
       const std::vector<uint8_t>& raw_issuer_dn() const;
 
       /**
+      * SHA-1 of Raw issuer DN
+      */
+      std::span<const uint8_t, 20> raw_issuer_dn_sha1() const;
+
+      /**
       * SHA-256 of Raw issuer DN
       */
-      std::vector<uint8_t> raw_issuer_dn_sha256() const;
+      const std::vector<uint8_t>& raw_issuer_dn_sha256() const;
 
       /**
       * Raw subject DN
@@ -132,9 +148,24 @@ class BOTAN_PUBLIC_API(2, 0) X509_Certificate : public X509_Object {
       const std::vector<uint8_t>& raw_subject_dn() const;
 
       /**
+      * SHA-1 of Raw subject DN
+      */
+      std::span<const uint8_t, 20> raw_subject_dn_sha1() const;
+
+      /**
       * SHA-256 of Raw subject DN
       */
-      std::vector<uint8_t> raw_subject_dn_sha256() const;
+      const std::vector<uint8_t>& raw_subject_dn_sha256() const;
+
+      /**
+      * SHA-1 of the entire certificate DER encoding
+      */
+      std::span<const uint8_t, 20> certificate_data_sha1() const;
+
+      /**
+      * SHA-256 of the entire certificate DER encoding
+      */
+      std::span<const uint8_t, 32> certificate_data_sha256() const;
 
       /**
       * Get the notBefore of the certificate as X509_Time
@@ -156,15 +187,32 @@ class BOTAN_PUBLIC_API(2, 0) X509_Certificate : public X509_Object {
 
       /**
       * Get the serial number of this certificate.
+      *
+      * Note this is the absolute value; the (rare, non-conforming) negative
+      * serial numbers are indistinguishable from their positive counterpart.
+      * Prefer serial() which preserves the sign.
+      *
       * @return certificates serial number
       */
       const std::vector<uint8_t>& serial_number() const;
 
       /**
+      * Get the serial number of this certificate
+      */
+      const X509_Serial_Number& serial() const;
+
+      /**
       * Get the serial number's sign
       * @return 1 iff the serial is negative.
       */
-      bool is_serial_negative() const;
+      BOTAN_DEPRECATED("Use serial().is_negative()") bool is_serial_negative() const;
+
+      /**
+      * Return true if revocation status checking of this certificate should be
+      * skipped, as indicated by the presence of either the noRevAvail extension
+      * (RFC 9608) or the ocsp-nocheck extension (RFC 6960).
+      */
+      bool skip_revocation_check() const;
 
       /**
       * Get the DER encoded AuthorityKeyIdentifier of this certificate.
@@ -330,27 +378,54 @@ class BOTAN_PUBLIC_API(2, 0) X509_Certificate : public X509_Object {
       /**
       * Return the listed address of an OCSP responder, or empty if not set
       */
-      BOTAN_DEPRECATED("Use ocsp_responders") std::string ocsp_responder() const;
+      BOTAN_DEPRECATED("Use ocsp_responder_uris") std::string ocsp_responder() const;
 
       /**
       * Return the listed addresses of OCSP responders, or empty if not set
       */
-      const std::vector<std::string>& ocsp_responders() const;
+      BOTAN_DEPRECATED("Use ocsp_responder_uris") std::vector<std::string> ocsp_responders() const;
+
+      /**
+      * Return the listed addresses of OCSP responders, or empty if not set
+      */
+      const std::vector<URI>& ocsp_responder_uris() const;
 
       /**
       * Return the listed addresses of ca issuers, or empty if not set
       */
-      std::vector<std::string> ca_issuers() const;
+      BOTAN_DEPRECATED("Use ca_issuer_uris") std::vector<std::string> ca_issuers() const;
+
+      /**
+      * Return the listed addresses of ca issuers, or empty if not set
+      */
+      const std::vector<URI>& ca_issuer_uris() const;
 
       /**
       * Return the CRL distribution point, or empty if not set
       */
-      BOTAN_DEPRECATED("Use crl_distribution_points") std::string crl_distribution_point() const;
+      BOTAN_DEPRECATED("Use crl_distribution_point_uris") std::string crl_distribution_point() const;
 
       /**
       * Return the CRL distribution points, or empty if not set
       */
-      std::vector<std::string> crl_distribution_points() const;
+      BOTAN_DEPRECATED("Use crl_distribution_point_uris") std::vector<std::string> crl_distribution_points() const;
+
+      /**
+      * Return the CRL distribution points, or empty if not set
+      */
+      const std::vector<URI>& crl_distribution_point_uris() const;
+
+      /**
+      * Return all email addresses associated with the subject of this
+      * certificate, in parsed form.
+      *
+      * This combines RFC 822 names from the subjectAltName extension with
+      * email addresses carried in the subject DN's emailAddress attribute
+      * (the latter is the legacy location for subject email, see RFC 5280
+      * 4.2.1.10). DN attribute values that fail to parse as a mailbox are
+      * silently skipped.
+      */
+      std::vector<EmailAddress> subject_email_addresses() const;
 
       /**
       * @return a free-form string describing the certificate
@@ -364,14 +439,74 @@ class BOTAN_PUBLIC_API(2, 0) X509_Certificate : public X509_Object {
       std::string fingerprint(std::string_view hash_name = "SHA-1") const;
 
       /**
+      * A collision resistant binary "tag" of a certificate
+      *
+      * The actual value is deliberately not exposed; a Tag can only be hashed
+      * to a size_t, or compared with another Tag. This type is intended for use
+      * as a key in std::map and std::unordered_map, or to be saved in a
+      * std::set or std::unordered_set.
+      */
+      class Tag final {
+         public:
+            static constexpr size_t TagLen = 32;
+
+            auto operator<=>(const Tag&) const = default;
+
+            size_t hash() const noexcept {
+               size_t h = 0;
+               std::memcpy(&h, m_tag.data(), sizeof(h));
+               return h;
+            }
+
+         private:
+            friend X509_Certificate;
+
+            explicit Tag(std::array<uint8_t, TagLen> tag) : m_tag(tag) {}
+
+            std::array<std::uint8_t, TagLen> m_tag;
+      };
+
+      class TagHash final {
+         public:
+            size_t operator()(const X509_Certificate::Tag& tag) const noexcept { return tag.hash(); }
+      };
+
+      /**
+      * Return a collision resistant binary "tag" of this certificate
+      */
+      Tag tag() const;
+
+      /**
       * Check if a certain DNS name matches up with the information in
       * the cert
-      * @param name DNS name to match
       *
-      * Note: this will also accept a dotted quad input, in which case
-      * the SAN for IPv4 addresses will be checked.
+      * The string variant additionally accepts a dotted-quad IPv4 input,
+      * in which case the SAN for IPv4 addresses will be checked. Prefer
+      * the typed overloads for IP and DNS matching.
+      *
+      * @param name DNS name to match
       */
+      BOTAN_DEPRECATED("Use the DNSName / IPv4Address / IPv6Address overload")
       bool matches_dns_name(std::string_view name) const;
+
+      /**
+      * Check whether @p name matches the subject DNS names in this certificate.
+      *
+      * Compares against the dnsName entries in the subjectAltName, with the
+      * RFC 6125 wildcard rules. If the certificate has no SAN at all, falls
+      * back to a wildcard comparison against the subject CN.
+      */
+      bool matches_dns_name(const DNSName& name) const;
+
+      /**
+      * Check whether @p address appears as an iPAddress entry in the subjectAltName.
+      */
+      bool matches_ip(const IPv4Address& address) const;
+
+      /**
+      * Check whether @p address appears as an iPAddress entry in the subjectAltName.
+      */
+      bool matches_ip(const IPv6Address& address) const;
 
       /**
       * Check to certificates for equality.
@@ -406,14 +541,14 @@ class BOTAN_PUBLIC_API(2, 0) X509_Certificate : public X509_Object {
       * Create a certificate from a buffer
       * @param in the buffer containing the DER-encoded certificate
       */
-      explicit X509_Certificate(const std::vector<uint8_t>& in);
+      explicit X509_Certificate(std::span<const uint8_t> in);
 
       /**
       * Create a certificate from a buffer
       * @param data the buffer containing the DER-encoded certificate
       * @param length length of data in bytes
       */
-      X509_Certificate(const uint8_t data[], size_t length);
+      X509_Certificate(const uint8_t data[], size_t length) : X509_Certificate(std::span{data, length}) {}
 
       /**
       * Create an uninitialized certificate object. Any attempts to
@@ -436,7 +571,7 @@ class BOTAN_PUBLIC_API(2, 0) X509_Certificate : public X509_Object {
 
       const X509_Certificate_Data& data() const;
 
-      std::shared_ptr<X509_Certificate_Data> m_data;
+      std::shared_ptr<const X509_Certificate_Data> m_data;
 };
 
 /**

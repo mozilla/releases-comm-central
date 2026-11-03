@@ -30,6 +30,7 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
+#include <numeric>
 #include <sstream>
 
 #if defined(BOTAN_HAS_BIGINT)
@@ -66,10 +67,6 @@
    #include <botan/internal/tls_cbc.h>
 #endif
 
-#if defined(BOTAN_HAS_ECDSA)
-   #include <botan/ecdsa.h>
-#endif
-
 #if defined(BOTAN_HAS_SYSTEM_RNG)
    #include <botan/system_rng.h>
 #endif
@@ -87,7 +84,18 @@ namespace Botan_CLI {
 
 namespace {
 
-class TimingTestTimer {
+void shuffle_idx(std::vector<size_t>& vec, Botan::RandomNumberGenerator& rng) {
+   const size_t n = vec.size();
+   for(size_t i = 0; i != n; ++i) {
+      uint8_t jb[sizeof(uint64_t)];
+      rng.randomize(jb, sizeof(jb));
+      const uint64_t j8 = Botan::load_le<uint64_t>(jb, 0);
+      const size_t j = i + static_cast<size_t>(j8) % (n - i);
+      std::swap(vec[i], vec[j]);
+   }
+}
+
+class TimingTestTimer final {
    public:
       TimingTestTimer() : m_start(get_high_resolution_clock()) {}
 
@@ -110,8 +118,14 @@ class Timing_Test {
          A constant seed is ok here since the timing test rng just needs to be
          "random" but not cryptographically secure - even std::rand() would be ok.
          */
-         const std::string drbg_seed(64, 'A');
-         m_rng = cli_make_rng("", drbg_seed);  // throws if it can't find anything to use
+
+#if defined(BOTAN_HAS_CHACHA_RNG)
+         m_rng = std::make_unique<Botan::ChaCha_RNG>(std::vector<uint8_t>(64, 0));
+#elif defined(BOTAN_HAS_SYSTEM_RNG)
+         m_rng = std::make_unique<Botan::System_RNG>();
+#else
+         throw Botan::Not_Implemented("Missing RNG for timing_test");
+#endif
       }
 
       virtual ~Timing_Test() = default;
@@ -133,7 +147,7 @@ class Timing_Test {
       Botan::RandomNumberGenerator& timing_test_rng() { return (*m_rng); }
 
    private:
-      std::shared_ptr<Botan::RandomNumberGenerator> m_rng;
+      std::unique_ptr<Botan::RandomNumberGenerator> m_rng;
 };
 
 #if defined(BOTAN_HAS_RSA) && defined(BOTAN_HAS_EME_PKCS1) && defined(BOTAN_HAS_EME_RAW)
@@ -279,18 +293,14 @@ class ECDSA_Timing_Test final : public Timing_Test {
 
    private:
       const Botan::EC_Group m_group;
-      const Botan::ECDSA_PrivateKey m_privkey;
       const Botan::EC_Scalar m_x;
       Botan::EC_Scalar m_b;
-      Botan::EC_Scalar m_b_inv;
 };
 
 ECDSA_Timing_Test::ECDSA_Timing_Test(const std::string& ecgroup) :
       m_group(Botan::EC_Group::from_name(ecgroup)),
-      m_privkey(timing_test_rng(), m_group),
-      m_x(m_privkey._private_key()),
-      m_b(Botan::EC_Scalar::random(m_group, timing_test_rng())),
-      m_b_inv(m_b.invert()) {}
+      m_x(Botan::EC_Scalar::random(m_group, timing_test_rng())),
+      m_b(Botan::EC_Scalar::random(m_group, timing_test_rng())) {}
 
 uint64_t ECDSA_Timing_Test::measure_critical_function(const std::vector<uint8_t>& input) {
    const auto k = Botan::EC_Scalar::from_bytes_with_trunc(m_group, input);
@@ -300,12 +310,18 @@ uint64_t ECDSA_Timing_Test::measure_critical_function(const std::vector<uint8_t>
    const TimingTestTimer timer;
 
    // the following ECDSA operations involve and should not leak any information about k
+
    const auto r = Botan::EC_Scalar::gk_x_mod_order(k, timing_test_rng());
-   const auto k_inv = k.invert();
-   m_b.square_self();
-   m_b_inv.square_self();
+
+   const auto k_inv = (m_b * k).invert();
+
    const auto xr_m = ((m_x * m_b) * r) + (m * m_b);
-   const auto s = (k_inv * xr_m) * m_b_inv;
+
+   const auto s = (k_inv * xr_m);
+
+   // Generate the next blinding value via modular squaring
+   m_b.square_self();
+
    BOTAN_UNUSED(r, s);
 
    return timer.complete();
@@ -404,9 +420,14 @@ std::vector<std::vector<uint64_t>> Timing_Test::execute_evaluation(const std::ve
    size_t total_runs = 0;
    std::vector<uint64_t> results(inputs.size());
 
+   std::vector<size_t> indexes(inputs.size());
+   std::iota(indexes.begin(), indexes.end(), size_t{0});
+
    while(total_runs < (warmup_runs + measurement_runs)) {
-      for(size_t i = 0; i != inputs.size(); ++i) {
-         results[i] = measure_critical_function(inputs[i]);
+      shuffle_idx(indexes, *m_rng);
+
+      for(const size_t testcase : indexes) {
+         results[testcase] = measure_critical_function(inputs[testcase]);
       }
 
       total_runs++;
@@ -642,10 +663,8 @@ class MARVIN_Test_Command final : public Command {
 
          const Botan::PK_Decryptor_EME op(*key, rng, "PKCS1v15");
 
-         std::vector<size_t> indexes;
-         for(size_t i = 0; i != testcases; ++i) {
-            indexes.push_back(i);
-         }
+         std::vector<size_t> indexes(testcases);
+         std::iota(indexes.begin(), indexes.end(), size_t{0});
 
          std::vector<std::vector<uint64_t>> measurements(testcases);
          for(auto& m : measurements) {
@@ -662,7 +681,7 @@ class MARVIN_Test_Command final : public Command {
                std::cerr << "Gathering sample # " << r << "\n";
             }
 
-            shuffle(indexes, rng);
+            shuffle_idx(indexes, rng);
 
             for(const size_t testcase : indexes) {
                // Load the test ciphertext in constant time to avoid cache pollution
@@ -734,23 +753,11 @@ class MARVIN_Test_Command final : public Command {
          } else if(param.ends_with("k") || param.ends_with("K")) {
             return parse_runs_arg(param.substr(0, param.size() - 1)) * 1'000;
          } else {
-            try {
-               return static_cast<size_t>(std::stoul(param));
-            } catch(std::exception&) {
+            if(const auto val = Botan::parse_sz(param)) {
+               return *val;
+            } else {
                throw CLI_Usage_Error("Unexpected syntax for --runs option (try 1000, 1K, or 2M)");
             }
-         }
-      }
-
-      template <typename T>
-      void shuffle(std::vector<T>& vec, Botan::RandomNumberGenerator& rng) {
-         const size_t n = vec.size();
-         for(size_t i = 0; i != n; ++i) {
-            uint8_t jb[sizeof(uint64_t)];
-            rng.randomize(jb, sizeof(jb));
-            const uint64_t j8 = Botan::load_le<uint64_t>(jb, 0);
-            const size_t j = i + static_cast<size_t>(j8) % (n - i);
-            std::swap(vec[i], vec[j]);
          }
       }
 };

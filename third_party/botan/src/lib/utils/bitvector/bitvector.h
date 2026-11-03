@@ -20,6 +20,7 @@
 #include <botan/strong_type.h>
 #include <botan/internal/bit_ops.h>
 #include <botan/internal/ct_utils.h>
+#include <botan/internal/int_utils.h>
 #include <botan/internal/loadstor.h>
 #include <botan/internal/stl_util.h>
 
@@ -349,6 +350,12 @@ class bitvector_base final {
                return *this;
             }
 
+            constexpr bitref& operator=(CT::Choice bit) noexcept {
+               const auto mask = CT::Mask<BlockT>::from_choice(bit);
+               this->m_block = mask.select(this->m_mask | this->m_block, this->m_block & ~this->m_mask);
+               return *this;
+            }
+
             constexpr bitref& operator=(const bitref& bit) noexcept { return *this = bit.is_set(); }
 
             constexpr bitref& operator=(bitref&& bit) noexcept { return *this = bit.is_set(); }
@@ -360,13 +367,28 @@ class bitvector_base final {
                return *this;
             }
 
+            constexpr bitref& operator&=(CT::Choice other) noexcept {
+               this->m_block &= ~CT::Mask<BlockT>::from_choice(other).if_not_set_return(this->m_mask);
+               return *this;
+            }
+
             constexpr bitref& operator|=(bool other) noexcept {
                this->m_block |= CT::Mask<BlockT>::expand(other).if_set_return(this->m_mask);
                return *this;
             }
 
+            constexpr bitref& operator|=(CT::Choice other) noexcept {
+               this->m_block |= CT::Mask<BlockT>::from_choice(other).if_set_return(this->m_mask);
+               return *this;
+            }
+
             constexpr bitref& operator^=(bool other) noexcept {
                this->m_block ^= CT::Mask<BlockT>::expand(other).if_set_return(this->m_mask);
+               return *this;
+            }
+
+            constexpr bitref& operator^=(CT::Choice other) noexcept {
+               this->m_block ^= CT::Mask<BlockT>::from_choice(other).if_set_return(this->m_mask);
                return *this;
             }
       };
@@ -450,7 +472,16 @@ class bitvector_base final {
        */
       template <bitvectorish OtherT>
       bool equals(const OtherT& other) const noexcept {
-         return (*this ^ other).none();
+         if(size() != other.size()) {
+            return false;
+         }
+
+         uint64_t acc = 0;
+         full_range_operation(
+            [&]<std::unsigned_integral BlockT>(BlockT lhs, BlockT rhs) { acc |= static_cast<uint64_t>(lhs ^ rhs); },
+            *this,
+            unwrap_strong_type(other));
+         return !CT::Choice::from_int(acc).as_bool();
       }
 
       /// @name Serialization
@@ -465,19 +496,22 @@ class bitvector_base final {
        * @param bits   (optional) if not all @p bytes should be loaded in full
        */
       void from_bytes(std::span<const uint8_t> bytes, std::optional<size_type> bits = std::nullopt) {
-         m_bits = bits.value_or(bytes.size_bytes() * 8);
-         BOTAN_ARG_CHECK(m_bits <= bytes.size_bytes() * 8, "not enough data to load so many bits");
-         resize(m_bits);
+         const size_type new_bits = bits.has_value()
+                                       ? bits.value()
+                                       : mul_or_throw<size_t>(8, bytes.size_bytes(), "bitvector input is too large");
+         const size_type bytes_needed = (new_bits / 8) + (new_bits % 8 != 0 ? 1 : 0);
+         BOTAN_ARG_CHECK(bytes_needed <= bytes.size_bytes(), "not enough data to load so many bits");
+         resize(new_bits);
 
          // load as much aligned data as possible
-         const auto verbatim_blocks = m_bits / block_size_bits;
+         const auto verbatim_blocks = new_bits / block_size_bits;
          const auto verbatim_bytes = verbatim_blocks * block_size_bytes;
          if(verbatim_blocks > 0) {
             typecast_copy(std::span{m_blocks}.first(verbatim_blocks), bytes.first(verbatim_bytes));
          }
 
          // load remaining unaligned data
-         for(size_type i = verbatim_bytes * 8; i < m_bits; ++i) {
+         for(size_type i = verbatim_bytes * 8; i < new_bits; ++i) {
             ref(i) = ((bytes[i >> 3] & (uint8_t(1) << (i & 7))) != 0);
          }
       }
@@ -542,8 +576,11 @@ class bitvector_base final {
 
       void resize(size_type bits) {
          const auto new_number_of_blocks = ceil_toblocks(bits);
-         if(new_number_of_blocks != m_blocks.size()) {
-            m_blocks.resize(new_number_of_blocks);
+         const auto old_number_of_blocks = m_blocks.size();
+         if(new_number_of_blocks > old_number_of_blocks) {
+            m_blocks.insert(m_blocks.end(), new_number_of_blocks - old_number_of_blocks, block_type(0));
+         } else if(new_number_of_blocks < old_number_of_blocks) {
+            m_blocks.erase(m_blocks.begin() + new_number_of_blocks, m_blocks.end());
          }
 
          m_bits = bits;
@@ -551,6 +588,12 @@ class bitvector_base final {
       }
 
       void push_back(bool bit) {
+         const auto i = size();
+         resize(i + 1);
+         ref(i) = bit;
+      }
+
+      void push_back(CT::Choice bit) {
          const auto i = size();
          resize(i + 1);
          ref(i) = bit;
@@ -921,7 +964,7 @@ class bitvector_base final {
       }
 
       static constexpr size_type ceil_toblocks(size_type bits) {
-         return (bits + block_size_bits - 1) / block_size_bits;
+         return add_or_throw(bits, block_size_bits - 1, "bitvector size is too large") / block_size_bits;
       }
 
       auto ref(size_type pos) const { return bitref<const block_type>(m_blocks, pos); }
@@ -1254,8 +1297,13 @@ class bitvector_base final {
             //       If this assumption changes, we need to add further handling
             //       to process a byte padding at the beginning of the bitvector
             //       until a memory alignment boundary is reached.
-            const bool alignment = (ops.template is_memory_aligned_to<uint64_t>() && ...);
-            BOTAN_ASSERT_NOMSG(alignment);
+            //
+            // An empty range has no blocks to process and a possibly-null
+            // underlying buffer, so the alignment check does not apply.
+            if(detail::first(ops...).size() != 0) {
+               const bool alignment = (ops.template is_memory_aligned_to<uint64_t>() && ...);
+               BOTAN_ASSERT_NOMSG(alignment);
+            }
 
             return _process_in_fully_aligned_blocks_of<uint64_t>(fn, ops...) &&
                    _process_in_fully_aligned_blocks_of<uint32_t>(fn, ops...) &&
@@ -1405,6 +1453,8 @@ class Strong_Adapter<T> : public Container_Strong_Adapter_Base<T> {
       }
 
       auto push_back(bool b) { return this->get().push_back(b); }
+
+      auto push_back(CT::Choice b) { return this->get().push_back(b); }
 
       auto pop_back() { return this->get().pop_back(); }
 

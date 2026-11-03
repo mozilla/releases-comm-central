@@ -33,43 +33,52 @@ if type -p "apt-get"; then
 
     sudo rm -f /var/lib/man-db/auto-update
 
-    sudo apt-get -qq update
+    # On GH Actions, occasionally apt-get seems to hang forever, run update with a timeout
+    # so the job stops after a reasonable interval
+    timeout 3m sudo apt-get -qq update
     # shellcheck disable=SC2046
-    sudo apt-get -qq install $("${SCRIPT_LOCATION}"/gha_linux_packages.py "$TARGET" "$COMPILER")
+    timeout 5m sudo apt-get -qq install $("${SCRIPT_LOCATION}"/gha_linux_packages.py "$TARGET" "$COMPILER")
 
     if [ "$TARGET" = "sde" ]; then
-        wget -nv "https://downloadmirror.intel.com/823664/${INTEL_SDE_VERSION}.tar.xz"
-        tar -xf "${INTEL_SDE_VERSION}.tar.xz"
+        "${SCRIPT_LOCATION}"/download_ci_dep.py intel_sde --extract 'tar -xf {file}'
         echo "${INTEL_SDE_VERSION}" >> "$GITHUB_PATH"
 
         echo "CXX=g++-14" >> "$GITHUB_ENV"
 
     elif [ "$TARGET" = "cross-android-arm32" ] || [ "$TARGET" = "cross-android-arm64" ] || [ "$TARGET" = "cross-android-arm64-amalgamation" ]; then
-        wget -nv "https://dl.google.com/android/repository/${ANDROID_NDK}-linux.zip"
-        unzip -qq "$ANDROID_NDK"-linux.zip
+        "${SCRIPT_LOCATION}"/download_ci_dep.py --max-download-mb=800 android_ndk --extract 'unzip -qq {file}'
 
     elif [ "$TARGET" = "cross-arm32-baremetal" ]; then
         echo 'extern "C" void __sync_synchronize() {}' >> "${SCRIPT_LOCATION}/../../tests/main.cpp"
         echo 'extern "C" void __sync_synchronize() {}' >> "${SCRIPT_LOCATION}/../../cli/main.cpp"
 
     elif [ "$TARGET" = "limbo" ]; then
-        wget -nv "https://raw.githubusercontent.com/C2SP/x509-limbo/${LIMBO_TEST_SUITE_REVISION}/limbo.json" -O "${SCRIPT_LOCATION}/../../../limbo.json"
+        "${SCRIPT_LOCATION}"/download_ci_dep.py limbo "${SCRIPT_LOCATION}/../../../limbo.json"
 
     elif [ "$TARGET" = "lint" ]; then
-        pip install ruff
+        pip install "ruff~=0.15.0"
 
     elif [ "$TARGET" = "typos" ]; then
-        cargo install typos-cli
+        cargo install typos-cli@1.48.0
 
-    elif [ "$TARGET" = "coverage" ] || [ "$TARGET" = "sanitizer" ]; then
-        if [ "$TARGET" = "coverage" ]; then
-            curl -L https://coveralls.io/coveralls-linux.tar.gz | tar -xz -C /usr/local/bin
-        fi
+    elif [ "$TARGET" = "coverage" ]; then
+        "${SCRIPT_LOCATION}"/download_ci_dep.py coveralls --extract 'tar -xz -C /usr/local/bin -f {file}'
 
+    elif [ "$TARGET" = "wycheproof" ]; then
+        git clone --depth 1 "${WYCHEPROOF_GIT_URL}" --revision "${WYCHEPROOF_GIT_REV}" wycheproof-git
+        echo "WYCHEPROOF_DIR=$(pwd)/wycheproof-git" >> "$GITHUB_ENV"
+
+    elif [ "$TARGET" = "acvp" ]; then
+        git clone --depth 1 "${ACVP_SERVER_GIT_URL}" --revision "${ACVP_GIT_REV}" acvp-server-git
+        echo "ACVP_TESTDATA_DIR=$(pwd)/acvp-server-git/gen-val/json-files" >> "$GITHUB_ENV"
+    fi
+
+    if [ "$TARGET" = "coverage" ] || [ "$TARGET" = "sanitizer" ]; then
         echo "BOTAN_TPM2_ENABLED=test" >> "$GITHUB_ENV"
+    fi
 
-        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-
+    # SoftHSM setup
+    if [ "$TARGET" = "coverage" ] || [ "$TARGET" = "sanitizer" ] || [ "$TARGET" = "pkcs11" ]; then
         sudo chgrp -R "$(id -g)" /var/lib/softhsm/ /etc/softhsm
         sudo chmod g+w /var/lib/softhsm/tokens
 

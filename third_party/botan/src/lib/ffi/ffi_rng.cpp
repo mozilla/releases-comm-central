@@ -1,5 +1,5 @@
 /*
-* (C) 2015,2017 Jack Lloyd
+* (C) 2015,2017,2026 Jack Lloyd
 * (C) 2021 René Fischer
 *
 * Botan is released under the Simplified BSD License (see license.txt)
@@ -15,6 +15,10 @@
 #include <functional>
 #include <memory>
 
+#if defined(BOTAN_HAS_HMAC_DRBG)
+   #include <botan/hmac_drbg.h>
+#endif
+
 #if defined(BOTAN_HAS_PROCESSOR_RNG)
    #include <botan/processor_rng.h>
 #endif
@@ -22,6 +26,7 @@
 #if defined(BOTAN_HAS_JITTER_RNG)
    #include <botan/jitter_rng.h>
 #endif
+
 #if defined(BOTAN_HAS_ESDM_RNG)
    #include <botan/esdm_rng.h>
 #endif
@@ -92,7 +97,7 @@ int botan_rng_init_custom(botan_rng_t* rng_out,
          return BOTAN_FFI_ERROR_NULL_POINTER;
       }
 
-      class Custom_RNG : public Botan::RandomNumberGenerator {
+      class Custom_RNG final : public Botan::RandomNumberGenerator {
          public:
             Custom_RNG(std::string_view name,
                        void* context,
@@ -161,10 +166,16 @@ int botan_rng_destroy(botan_rng_t rng) {
 }
 
 int botan_rng_get(botan_rng_t rng, uint8_t* out, size_t out_len) {
+   if(out_len > 0 && out == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(rng, [=](auto& r) { r.randomize(out, out_len); });
 }
 
 int botan_system_rng_get(uint8_t* out, size_t out_len) {
+   if(out_len > 0 && out == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return ffi_guard_thunk(__func__, [=]() -> int {
       Botan::system_rng().randomize(out, out_len);
       return BOTAN_FFI_SUCCESS;
@@ -176,10 +187,54 @@ int botan_rng_reseed(botan_rng_t rng, size_t bits) {
 }
 
 int botan_rng_add_entropy(botan_rng_t rng, const uint8_t* input, size_t len) {
+   if(len > 0 && input == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(rng, [=](auto& r) { r.add_entropy(input, len); });
 }
 
 int botan_rng_reseed_from_rng(botan_rng_t rng, botan_rng_t source_rng, size_t bits) {
    return BOTAN_FFI_VISIT(rng, [=](auto& r) { r.reseed_from_rng(safe_get(source_rng), bits); });
+}
+
+int botan_rng_init_drbg(botan_rng_t* rng_out, const char* drbg_name, const uint8_t* seed, size_t seed_len) {
+   return ffi_guard_thunk(__func__, [=]() -> int {
+      if(any_null_pointers(rng_out, drbg_name)) {
+         return BOTAN_FFI_ERROR_NULL_POINTER;
+      }
+      if(seed_len > 0 && seed == nullptr) {
+         return BOTAN_FFI_ERROR_NULL_POINTER;
+      }
+
+      std::unique_ptr<Botan::Stateful_RNG> drbg;
+      const std::string name(drbg_name);
+
+#if defined(BOTAN_HAS_HMAC_DRBG)
+      if(name.starts_with("HMAC_DRBG(") && name.ends_with(")") && name.size() > 12) {
+         const std::string hash = name.substr(10, name.size() - 11);
+         drbg = std::make_unique<Botan::HMAC_DRBG>(hash);
+      }
+#endif
+
+      if(!drbg) {
+         return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+      }
+
+      drbg->initialize_with(std::span(seed, seed_len));
+      // Upcast to RandomNumberGenerator for the FFI object
+      std::unique_ptr<Botan::RandomNumberGenerator> rng(std::move(drbg));
+      return ffi_new_object(rng_out, std::move(rng));
+   });
+}
+
+int botan_rng_generate_with_input(
+   botan_rng_t rng, uint8_t* out, size_t out_len, const uint8_t* addl_input, size_t addl_len) {
+   if(out_len > 0 && out == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+   if(addl_len > 0 && addl_input == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+   return BOTAN_FFI_VISIT(rng, [=](auto& r) { r.randomize_with_input({out, out_len}, {addl_input, addl_len}); });
 }
 }

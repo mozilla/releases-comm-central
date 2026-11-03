@@ -11,6 +11,7 @@
 #include <botan/bigint.h>
 #include <botan/der_enc.h>
 #include <botan/hex.h>
+#include <botan/internal/charset.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/mem_utils.h>
 #include <iomanip>
@@ -20,28 +21,10 @@ namespace Botan {
 
 namespace {
 
-// Printable here means fits into an ASN.1 "PRINTABLE STRING" type
-bool is_printable_char(char c) {
-   if(c >= 'a' && c <= 'z') {
-      return true;
-   }
-
-   if(c >= 'A' && c <= 'Z') {
-      return true;
-   }
-
-   if(c >= '0' && c <= '9') {
-      return true;
-   }
-
-   if(c == '.' || c == ':' || c == '/' || c == '-') {
-      return true;
-   }
-
-   return false;
-}
-
 bool all_printable_chars(const uint8_t bits[], size_t bits_len) {
+   // Printable here means fits into an ASN.1 "PRINTABLE STRING" type
+   constexpr auto is_printable_char = CharacterValidityTable::alpha_numeric_plus(".:/-");
+
    for(size_t i = 0; i != bits_len; ++i) {
       if(!is_printable_char(bits[i])) {
          return false;
@@ -82,7 +65,11 @@ std::string ASN1_Formatter::print(const uint8_t in[], size_t len) const {
 }
 
 void ASN1_Formatter::print_to_stream(std::ostream& output, const uint8_t in[], size_t len) const {
-   BER_Decoder dec(in, len);
+   // The pretty printer is a best-effort diagnostic tool, so in BER mode it
+   // tolerates standalone EOC markers emitted by some BER producers.
+   const auto decoder_limits =
+      m_require_der ? BER_Decoder::Limits::DER() : BER_Decoder::Limits::BER().with_standalone_eoc_allowed();
+   BER_Decoder dec(std::span<const uint8_t>{in, len}, decoder_limits);
    decode(output, dec, 0);
 }
 
@@ -96,35 +83,43 @@ void ASN1_Formatter::decode(std::ostream& output, BER_Decoder& decoder, size_t l
       const ASN1_Class class_tag = obj.get_class();
       const size_t length = obj.length();
 
+      if(intersects(class_tag, ASN1_Class::Constructed)) {
+         if(recurse_deeper) {
+            output << format(type_tag, class_tag, level, length, "");
+            // Move (not copy) the content into the sub-decoder; copying at every
+            // nesting level lets deeply nested input exhaust memory.
+            BER_Decoder cons_info(std::move(obj), decoder.limits());
+            decode(output, cons_info, level + 1);  // recurse
+         } else {
+            std::vector<uint8_t> bits;
+            DER_Encoder(bits).add_object(type_tag, class_tag, obj.bits(), obj.length());
+            output << format(type_tag, class_tag, level, length, format_bin(type_tag, class_tag, bits));
+         }
+
+         obj = decoder.get_next_object();
+         continue;
+      }
+
       /* hack to insert the tag+length back in front of the stuff now
          that we've gotten the type info */
       std::vector<uint8_t> bits;
       DER_Encoder(bits).add_object(type_tag, class_tag, obj.bits(), obj.length());
 
-      BER_Decoder data(bits);
+      BER_Decoder data(bits, decoder.limits());
 
-      if(intersects(class_tag, ASN1_Class::Constructed)) {
-         BER_Decoder cons_info(obj.bits(), obj.length());
-
-         if(recurse_deeper) {
-            output << format(type_tag, class_tag, level, length, "");
-            decode(output, cons_info, level + 1);  // recurse
-         } else {
-            output << format(type_tag, class_tag, level, length, format_bin(type_tag, class_tag, bits));
-         }
-      } else if(intersects(class_tag, ASN1_Class::Application) || intersects(class_tag, ASN1_Class::ContextSpecific)) {
+      if(intersects(class_tag, ASN1_Class::Application) || intersects(class_tag, ASN1_Class::ContextSpecific)) {
          bool success_parsing_cs = false;
 
          if(m_print_context_specific) {
             try {
                if(possibly_a_general_name(bits.data(), bits.size())) {
-                  output << format(type_tag, class_tag, level, level, bytes_to_string(std::span{bits}.subspan(2)));
+                  output << format(type_tag, class_tag, level, length, bytes_to_string(std::span{bits}.subspan(2)));
                   success_parsing_cs = true;
                } else if(recurse_deeper) {
                   std::vector<uint8_t> inner_bits;
                   data.decode(inner_bits, type_tag);
 
-                  BER_Decoder inner(inner_bits);
+                  BER_Decoder inner(inner_bits, decoder.limits());
                   std::ostringstream inner_data;
                   decode(inner_data, inner, level + 1);  // recurse
                   output << inner_data.str();
@@ -140,13 +135,12 @@ void ASN1_Formatter::decode(std::ostream& output, BER_Decoder& decoder, size_t l
          OID oid;
          data.decode(oid);
 
-         const std::string name = oid.human_name_or_empty();
          const std::string oid_str = oid.to_string();
 
-         if(name.empty()) {
-            output << format(type_tag, class_tag, level, length, oid_str);
+         if(const auto name = oid.registered_name()) {
+            output << format(type_tag, class_tag, level, length, fmt("{} [{}]", *name, oid_str));
          } else {
-            output << format(type_tag, class_tag, level, length, fmt("{} [{}]", name, oid_str));
+            output << format(type_tag, class_tag, level, length, oid_str);
          }
       } else if(type_tag == ASN1_Type::Integer || type_tag == ASN1_Type::Enumerated) {
          BigInt number;
@@ -171,7 +165,7 @@ void ASN1_Formatter::decode(std::ostream& output, BER_Decoder& decoder, size_t l
 
          if(recurse_deeper) {
             try {
-               BER_Decoder inner(decoded_bits);
+               BER_Decoder inner(decoded_bits, decoder.limits());
 
                std::ostringstream inner_data;
                decode(inner_data, inner, level + 1);  // recurse
@@ -257,7 +251,7 @@ std::string ASN1_Pretty_Printer::format(
       const size_t current_pos = static_cast<size_t>(oss.tellp());
       const size_t spaces_to_align = (current_pos >= m_value_column) ? 1 : (m_value_column - current_pos);
 
-      oss << std::string(spaces_to_align, ' ') << value;
+      oss << std::string(spaces_to_align, ' ') << escape_control_chars(value);
    }
 
    oss << "\n";
@@ -268,6 +262,13 @@ std::string ASN1_Pretty_Printer::format(
 std::string ASN1_Pretty_Printer::format_bin(ASN1_Type /*type_tag*/,
                                             ASN1_Class /*class_tag*/,
                                             const std::vector<uint8_t>& vec) const {
+   // A value larger than the binary print limit is suppressed by format(), so
+   // skip the (potentially large) string/hex conversion entirely. vec.size() is
+   // a lower bound on the formatted length, so such a value is certainly dropped.
+   if(vec.size() > m_print_binary_limit) {
+      return "";
+   }
+
    if(all_printable_chars(vec.data(), vec.size())) {
       return bytes_to_string(vec);
    } else {

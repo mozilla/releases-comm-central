@@ -38,7 +38,9 @@ Signature_Scheme choose_signature_scheme(const Private_Key& key,
                                          const std::vector<Signature_Scheme>& allowed_schemes,
                                          const std::vector<Signature_Scheme>& peer_allowed_schemes) {
    for(Signature_Scheme scheme : allowed_schemes) {
-      if(scheme.is_available() && scheme.is_suitable_for(key) && value_exists(peer_allowed_schemes, scheme)) {
+      // RFC 8446 4.4.3 forbids the rsa_pkcs1_* schemes in CertificateVerify, those are TLS 1.2 only.
+      if(scheme.is_available() && scheme.is_compatible_with(Protocol_Version::TLS_V13) && scheme.is_suitable_for(key) &&
+         value_exists(peer_allowed_schemes, scheme)) {
          return scheme;
       }
    }
@@ -81,7 +83,7 @@ Certificate_Verify_13::Certificate_Verify_13(const Certificate_13& certificate_m
       *private_key, rng, m_scheme.padding_string(), m_scheme.format().value(), message(m_side, hash));
 }
 
-Certificate_Verify_13::Certificate_Verify_13(const std::vector<uint8_t>& buf, const Connection_Side side) :
+Certificate_Verify_13::Certificate_Verify_13(std::span<const uint8_t> buf, const Connection_Side side) :
       Certificate_Verify(buf), m_side(side) {
    if(!m_scheme.is_available()) {
       throw TLS_Exception(Alert::IllegalParameter, "Peer sent unknown signature scheme");

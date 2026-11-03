@@ -54,17 +54,17 @@ void fuzz(const std::span<const uint8_t> in) {
 
    if(is_lt) {
       FUZZER_ASSERT_TRUE(!is_gt);
-      FUZZER_ASSERT_TRUE(d1.is_nonzero());
-      FUZZER_ASSERT_TRUE(d2.is_nonzero());
-      FUZZER_ASSERT_TRUE(d1.is_negative());
-      FUZZER_ASSERT_TRUE(d2.is_positive());
+      FUZZER_ASSERT_TRUE(d1.signum() != 0);
+      FUZZER_ASSERT_TRUE(d2.signum() != 0);
+      FUZZER_ASSERT_TRUE(d1.signum() < 0);
+      FUZZER_ASSERT_TRUE(d2.signum() > 0);
    }
 
    if(is_gt) {
       FUZZER_ASSERT_TRUE(!is_lt);
-      FUZZER_ASSERT_TRUE(d1.is_nonzero());
-      FUZZER_ASSERT_TRUE(d2.is_nonzero());
-      FUZZER_ASSERT_TRUE(d1.is_positive());
-      FUZZER_ASSERT_TRUE(d2.is_negative());
+      FUZZER_ASSERT_TRUE(d1.signum() != 0);
+      FUZZER_ASSERT_TRUE(d2.signum() != 0);
+      FUZZER_ASSERT_TRUE(d1.signum() > 0);
+      FUZZER_ASSERT_TRUE(d2.signum() < 0);
    }
 }

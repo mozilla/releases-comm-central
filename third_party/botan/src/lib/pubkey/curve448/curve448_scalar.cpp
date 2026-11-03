@@ -30,7 +30,7 @@ auto div_mod_2_446(std::span<const word, S> x) {
       r[Scalar448::WORDS - 1] &= ~(word(0b11) << (sizeof(word) * 8 - 2));
 
       std::array<word, S - Scalar448::WORDS + 1> q;  // NOLINT(*-member-init)
-      bigint_shr2(q.data(), x.data(), x.size(), 446);
+      bigint_shr2(q.data(), q.size(), x.data(), x.size(), 446);
 
       return std::make_pair(q, r);
    }

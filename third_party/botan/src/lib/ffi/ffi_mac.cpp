@@ -38,14 +38,24 @@ int botan_mac_destroy(botan_mac_t mac) {
 }
 
 int botan_mac_set_key(botan_mac_t mac, const uint8_t* key, size_t key_len) {
+   if(key_len > 0 && key == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(mac, [=](auto& m) { m.set_key(key, key_len); });
 }
 
 int botan_mac_set_nonce(botan_mac_t mac, const uint8_t* nonce, size_t nonce_len) {
+   if(nonce_len > 0 && nonce == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
    return BOTAN_FFI_VISIT(mac, [=](auto& m) { m.start(nonce, nonce_len); });
 }
 
 int botan_mac_output_length(botan_mac_t mac, size_t* out) {
+   if(out == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(mac, [=](const auto& m) { *out = m.output_length(); });
 }
 
@@ -54,10 +64,19 @@ int botan_mac_clear(botan_mac_t mac) {
 }
 
 int botan_mac_update(botan_mac_t mac, const uint8_t* buf, size_t len) {
+   if(len == 0) {
+      return BOTAN_FFI_SUCCESS;
+   }
+   if(buf == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(mac, [=](auto& m) { m.update(buf, len); });
 }
 
 int botan_mac_final(botan_mac_t mac, uint8_t out[]) {
+   if(out == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(mac, [=](auto& m) { m.final(out); });
 }
 

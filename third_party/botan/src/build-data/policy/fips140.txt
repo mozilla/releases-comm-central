@@ -134,7 +134,6 @@ rc4
 salsa20
 
 # kdf
-hkdf
 kdf1
 kdf2
 prf_x942

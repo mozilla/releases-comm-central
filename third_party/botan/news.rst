@@ -1,12 +1,258 @@
 Release Notes
 ========================================
 
+Version 3.13.0, 2026-08-13
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fix a blind SSRF during OCSP request processing. A malicious OCSP responder or
+  network attacker could cause the application to perform a blind GET to an
+  internal service. (GH #5815)
+
+* Fix a bug in ``AutoSeeded_RNG``, affecting only platforms without a system
+  RNG, where an API sequence of calling first ``clear``, followed by ``randomize``
+  writing to an empty buffer, resulted in the RNG object being considered seeded
+  even though it was not. (GH #5839 #5838)
+
+* Fix an integer overflow in Scrypt parameter handling, affecting 32-bit platforms.
+  (GH #5820 #5629)
+
+* Fix a bug where certain DN name constraints were not correctly enforced.
+
+* Fix an integer overflow in the FFI interface which might be exploitable
+  in unusual scenarios involving attacker-control cipher specifiers and
+  the raw block cipher (ECB) APIs. (GH #5805)
+
+* Add URI and email name constraint processing to X509 path validation (GH #5598)
+
+* Add ``DNSName``, ``URI``, and ``EmailAddress`` types. (GH #5598 #5601 #5622 #5663
+  #5683 #5750)
+
+* The default policy for TLS now no longer lists finite field Diffie-Hellman.
+  If required for compatibility it must be enabled by the application. (GH #5782)
+
+* By default OCSP no longer accepts soft-fail conditions such as network failure.
+  (GH #5785 #5804)
+
+* DTLS 1.2 servers now must either set a DTLS cookie secret and provide the peer
+  network identity, or explicitly opt out of the cookie exchange by overriding
+  ``dtls_server_require_cookie_exchange`` to return false. (GH #5792)
+
+* Fix DTLS 1.2 handshake edge cases, including pacing of repeated timeout checks,
+  replay of final flights after local activation, partial server-flight delivery,
+  and delayed server-side flight handling. (GH #2310 #2498 #4022 #4036 #5696 #5790
+  #5791 #5792 #5793 #5800 #5801 #5802 #5803 #5811 #5829 #5834 #5835 #5836)
+
+* Add support for SPAKE2+ from RFC 9383 (GH #5711)
+
+* Add support for PKCS #12 (GH #5478 #5625)
+
+* Add support for GCM-SIV from RFC 8452 (GH #5770)
+
+* Add support for the RFC 9608 No Revocation Available extension (GH #5595)
+
+* Add support for encoding name constraint extensions (GH #5734)
+
+* Add ``X509_DN::parse`` and improve the parsing and printing of Distinguished
+  Name strings, including capturing RDN groupings and escaping control
+  characters (GH #5618 #5657 #5658)
+
+* Optimize ``X509_DN`` comparison and name constraint checks using precomputed
+  canonical encodings (GH #5652)
+
+* During path validation, by default require that OCSP responses are no more than
+  seven days old. Previously any age was accepted as long as it preceded the
+  response's ``nextUpdate``. (GH #5623)
+
+* Improve OCSP request and response serialization (GH #5678 #5741)
+
+* Improve handling of the authority and subject key identifier extensions (GH #5735 #5737)
+
+* Properly decode and handle the X509 CRL Distribution Point and Authority Information Access
+  extensions (GH #5712)
+
+* Add an explicit ``X509_Serial_Number`` type (GH #5740)
+
+* Improve CRL decoding and encoding, including support for CRL numbers larger than
+  32 bits (GH #5687 #5694 #5697)
+
+* Various X509/PKIX hardenings, optimizations, bug fixes, and additional sanity checks.
+  (GH #5593 #5598 #5605 #5611 #5633 #5637 #5643 #5660 #5668 #5670 #5682 #5685 #5689 #5698)
+
+* Various ASN.1 hardening and decoder strictness improvements (GH #5693 #5703 #5710 #5720)
+
+* Various BigInt and number-theoretic hardening and bug fixes.
+  (GH #5581 #5585 #5586 #5588 #5592 #5650 #5688)
+
+* Reject RSA signature and ciphertext values which are not exactly the length of
+  the modulus (GH #5592 #5630 #5675)
+
+* Introduce ``PK_Decryptor::ciphertext_length`` (GH #5717)
+
+* Fix several bugs in ISO 9796-2 signature verification, and deprecate the
+  ``iso9796`` module (GH #5680)
+
+* Fix several edge cases in stateful hash-based signatures, including rejecting HSS
+  public keys with L = 0 and detecting ``fork`` in the stateful key index
+  (GH #5662 #5666 #5723)
+
+* Add support for parsing EC keys which contain the ECC domain parameters within
+  the key rather than in the algorithm identifier (GH #5532)
+
+* Various fixes and improvements for SLH-DSA (GH #5730)
+
+* Various fixes for SM2 signatures and encryption (GH #5713)
+
+* Improve input validation in the McEliece implementations, and avoid using
+  ``bool`` for secret data in Classic McEliece (GH #5667 #5676)
+
+* In Ed25519 verification also reject the non-canonical encoding of the identity
+  element (GH #5731)
+
+* Add hash to curve support for brainpool256r1, brainpool384r1, brainpool512r1,
+  and numsp512d1 (GH #5754)
+
+* The hash to curve and and hash to scalar functions now enforce RFC 9380's rules
+  on hash function security, namely that the hash must have a security level at
+  least as strong as the curve itself. (GH #5758)
+
+* Improve the HTTP 1.0 client used for OCSP and CRL fetching (GH #5609)
+
+* Extend Blowfish to support keys up to 72 bytes in length (GH #5714)
+
+* Fix various edge case bugs in AEAD, cipher mode, stream cipher, MACs, and KDFs
+  (GH #5610 #5628 #5642 #5659 #5665 #5672 #5674 #5742 #5743)
+
+* Add ``HashFunction::security_level`` (GH #5746)
+
+* Add an AVX-512/GFNI implementation of the Streebog compression function (GH #5655)
+
+* Add optimized Salsa20 implementations using 128-bit SIMD (SSSE3, NEON), AVX2, and AVX-512
+  (GH #5759)
+
+* Add an AVX-512/GFNI implementation of ZFEC, optimize the existing vperm code (GH #5747)
+
+* Convert the SM4 key schedule to constant time code, including hwaes variant (GH #5638 #5639)
+
+* In the default TLS policy, prefer ECDSA over RSA signatures (GH #5727)
+
+* Add support for the Brainpool ECDH/ECDSA groups in TLS 1.3 as specified in RFC 8734
+  (GH #5691 #5771 #5772)
+
+* Add ``TLS::Policy::record_padding_bytes``, which allows padding TLS 1.3
+  records, for example out to a minimum plaintext size or to a multiple of
+  some block size (GH #5752 #5843)
+
+* TLS 1.3 handshake hardening and various minor TLS fixes (GH #5664 #5721 #5767 #5810)
+
+* Improve ``Database`` abstraction type and make it easier to support databases
+  other than SQLite, and validate SQL table names. (GH #5607 #5673)
+
+* Fix various bugs in the PKCS #11 wrapper (GH #5602)
+
+* Fix various bugs in the Pipe/Filter library (GH #5724 #5809)
+
+* Fix several issues in the compression wrappers (GH #5733)
+
+* Fix several errors in the Python binding (GH #5722 #5796 #5807 #5814)
+
+* Add getters for the RFC 3779 extensions to the FFI interface and Python binding
+  (GH #5491)
+
+* Add ``PublicKey.load_x25519`` and ``PublicKey.load_x448`` to the Python binding
+  (GH #5748)
+
+* The Python binding documentation is now generated from the docstrings in
+  ``botan3.py`` using Sphinx (GH #5233 #5765)
+
+* Add missing, or correct erroneous, documentation comments in many headers
+  (GH #5760 #5761 #5762 #5763 #5764 #5766 #5774)
+
+* On MSVC, deprecation warnings now include the file and line number (GH #5749)
+
+* Upgrade to TLS-Anvil 1.5 (GH #5630)
+
+Version 3.12.0, 2026-05-06
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* CVE-2026-44378: Resolve a CPU based denial of service when decoding
+  BER encoded data.
+
+* Optimize and improve certificate store search operations (GH #5510)
+
+* Require strict DER when decoding PKIX types such as certificates (#5521)
+
+* Discard TLS handshake state once the handshake has completed, retaining
+  only the data needed for the active connection (GH #5517)
+
+* Various TLS conformance, hardening, and performance fixes. (GH #5550
+  #5551 #5568 #5555)
+
+* Various X509/PKIX/OCSP optimizations and bug fixes (GH #5535 #5536 #5546 #5554
+  #5561 #5562 #5569)
+
+* Skip OCSP/CRL revocation checks on certificate chains which were already
+  going to be rejected due to path validation errors (GH #5512)
+
+* Add ``BER_Decoder::Limits`` which allows controlling what DER/BER syntax is
+  accepted while decoding. (GH #5507 #5514)
+
+* Add support for IPv6 name constraints in X.509 certificate path validation,
+  and add IPv6 address parsing and formatting utilities (GH #5534 #5537)
+
+* Refactor the Windows system certificate store and add a cache of materialized
+  certificates to avoid repeated parsing. (GH #5539)
+
+* Improve handling of unknown X.509 certificate extensions (GH #5518)
+
+* Skip checking the self-signature of self-signed certificates during parsing (GH #5515)
+
+* Add an index to ``X509_CRL`` for fast revocation checks (GH #5511)
+
+* Add ``X509_Certificate::Tag`` for fast searching/indexing of certificates (GH #5509)
+
+* Change ``X509_Object`` to share immutable state between copies (GH #5504)
+
+* Fix bugs in handling of indefinite length BER data, including missing
+  EOC markers being silently accepted (GH #5545)
+
+* Make certificate path building DFS incremental (GH #5513 #5520 #5521)
+
+* Avoid sending the TLS ``certificate_type`` extension unless TLS 1.2 is
+  disabled, since raw public keys are not currently supported in 1.2 (GH #5523)
+
+* Add support for RFC 9258 PSK import in TLS 1.3 (GH #5523)
+
+* Avoid truncation of large handshake messages in DTLS (GH #5522)
+
+* Add ALPN support to the Boost ASIO TLS stream (GH #5428)
+
+* Upgrade TLS-Anvil and add client-side TLS-Anvil testing (GH #5503)
+
+* Upgrade BoGo tests (GH #5523 #5556)
+
+* Add a script for running the NIST ACVP test vectors (GH #5527)
+
+* Add ``BigInt::signum`` to simplify sign comparisons (GH #5519)
+
+* Fixes for compiling with GCC 16 (GH #5564)
+
+* Add DRBG helpers to the C89/FFI interface and Python binding (GH #5527)
+
+* Add EC scalar and point operations to the C89/FFI interface (GH #5404 #5565)
+
+* Add NIST key wrap with padding to the Python binding (GH #5521)
+
+* Enforce maximum input length limits for ChaCha20Poly1305 and GHASH/GCM (GH #5521)
+
+* Add ``configure.py --without-include-namespace`` to allow installing
+  headers without the ``botan-3/`` subdirectory (GH #5528)
+
 Version 3.11.1, 2026-03-31
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* CVE-2026-35580: Resolve certificate verification bypass bug introduced in 3.11.0 (GH #5500)
+* CVE-2026-34580: Resolve certificate verification bypass bug introduced in 3.11.0 (GH #5500)
 
-* CVE-2026-35582: Resolve TLS 1.3 client authentication bypass (GH #5599)
+* CVE-2026-34582: Resolve TLS 1.3 client authentication bypass (GH #5599)
 
 * Add optimized Argon2 implementation using AVX512 (GH #5471)
 

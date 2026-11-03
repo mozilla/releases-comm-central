@@ -366,7 +366,7 @@ class tls_proxy_server final {
             m_policy(std::move(policy)),
             m_session_manager(std::move(session_mgr)),
             m_status(max_clients) {
-         log_info("Listening for new connections on port " + std::to_string(port));
+         log_info("Listening for new connections on port " + std::to_string(m_acceptor.local_endpoint().port()));
          serve_one_session();
       }
 
@@ -402,8 +402,6 @@ class tls_proxy_server final {
       std::shared_ptr<Botan::TLS::Session_Manager> m_session_manager;
       ServerStatus m_status;
 };
-
-}  // namespace
 
 class TLS_Proxy final : public Command {
    public:
@@ -484,6 +482,8 @@ class TLS_Proxy final : public Command {
 // NOLINTEND(*-avoid-endl,*-avoid-bind)
 
 BOTAN_REGISTER_COMMAND("tls_proxy", TLS_Proxy);
+
+}  // namespace
 
 }  // namespace Botan_CLI
 

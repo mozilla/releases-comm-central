@@ -19,7 +19,7 @@ namespace Botan::TLS {
 /**
 * SSL/TLS Server 1.3 implementation
 */
-class Server_Impl_13 : public Channel_Impl_13 {
+class Server_Impl_13 final : public Channel_Impl_13 {
    public:
       explicit Server_Impl_13(const std::shared_ptr<Callbacks>& callbacks,
                               const std::shared_ptr<Session_Manager>& session_manager,
@@ -52,17 +52,22 @@ class Server_Impl_13 : public Channel_Impl_13 {
       void handle_reply_to_client_hello(Server_Hello_13 server_hello);
       void handle_reply_to_client_hello(Hello_Retry_Request hello_retry_request);
 
-      void maybe_handle_compatibility_mode();
+      void maybe_handle_compatibility_mode(Compat_Mode_Situation situation) override;
       void maybe_log_secret(std::string_view label, std::span<const uint8_t> secret) const override;
 
+#if defined(BOTAN_HAS_TLS_DOWNGRADE_SUPPORT)
       void downgrade();
+#endif
 
    private:
-      Server_Handshake_State_13 m_handshake_state;
-      Handshake_Transitions m_transitions;
+      struct Pending_Handshake {
+            Server_Handshake_State_13 state;
+            Handshake_Transitions transitions;
+            std::optional<Session> resumed_session;
+            std::optional<std::string> psk_identity;
+      };
 
-      std::optional<Session> m_resumed_session;
-      std::optional<std::string> m_psk_identity;
+      std::unique_ptr<Pending_Handshake> m_handshake;
 };
 
 }  // namespace Botan::TLS

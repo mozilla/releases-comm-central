@@ -72,6 +72,10 @@ DH_PrivateKey::DH_PrivateKey(const AlgorithmIdentifier& alg_id, std::span<const 
    m_public_key = m_private_key->public_key();
 }
 
+bool DH_PrivateKey::check_key(RandomNumberGenerator& rng, bool strong) const {
+   return m_private_key->check_key(rng, strong);
+}
+
 std::unique_ptr<Public_Key> DH_PrivateKey::public_key() const {
    return std::unique_ptr<DH_PublicKey>(new DH_PublicKey(m_public_key));
 }
@@ -128,7 +132,7 @@ class DH_KA_Operation final : public PK_Ops::Key_Agreement_with_KDF {
 secure_vector<uint8_t> DH_KA_Operation::raw_agree(const uint8_t w[], size_t w_len) {
    BigInt v = BigInt::from_bytes(std::span{w, w_len});
 
-   if(v <= 1 || v >= group().get_p()) {
+   if(v <= 1 || v >= group().get_p() - 1) {
       throw Invalid_Argument("DH agreement - invalid key provided");
    }
 

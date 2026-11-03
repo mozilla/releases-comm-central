@@ -177,14 +177,14 @@ BOTAN_FORCE_INLINE constexpr T ceil_tobytes(T bits) {
 }
 
 // Potentially variable time ctz used for OCB
-BOTAN_FORCE_INLINE constexpr size_t var_ctz32(uint32_t n) {
-#if BOTAN_COMPILER_HAS_BUILTIN(__builtin_ctz)
+BOTAN_FORCE_INLINE constexpr size_t var_ctz64(uint64_t n) {
+#if BOTAN_COMPILER_HAS_BUILTIN(__builtin_ctzll)
    if(n == 0) {
-      return 32;
+      return 64;
    }
-   return __builtin_ctz(n);
+   return __builtin_ctzll(n);
 #else
-   return ctz<uint32_t>(n);
+   return ctz<uint64_t>(n);
 #endif
 }
 

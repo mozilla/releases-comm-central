@@ -20,8 +20,8 @@ namespace {
 
 BigInt inverse_mod_odd_modulus(const BigInt& n, const BigInt& mod) {
    // Caller should assure these preconditions:
-   BOTAN_ASSERT_NOMSG(n.is_positive());
-   BOTAN_ASSERT_NOMSG(mod.is_positive());
+   BOTAN_ASSERT_NOMSG(n.signum() >= 0);
+   BOTAN_ASSERT_NOMSG(mod.signum() > 0);
    BOTAN_ASSERT_NOMSG(n < mod);
    BOTAN_ASSERT_NOMSG(mod >= 3 && mod.is_odd());
 
@@ -55,8 +55,6 @@ BigInt inverse_mod_odd_modulus(const BigInt& n, const BigInt& mod) {
    word* a_w = &tmp_mem[3 * mod_words];
    word* mp1o2 = &tmp_mem[4 * mod_words];
 
-   CT::poison(tmp_mem.data(), tmp_mem.size());
-
    copy_mem(a_w, n._data(), std::min(n.size(), mod_words));
    copy_mem(b_w, mod._data(), std::min(mod.size(), mod_words));
    u_w[0] = 1;
@@ -68,6 +66,8 @@ BigInt inverse_mod_odd_modulus(const BigInt& n, const BigInt& mod) {
    bigint_shr1(mp1o2, mod_words, 1);
    const word carry = bigint_add2(mp1o2, mod_words, u_w, 1);
    BOTAN_ASSERT_NOMSG(carry == 0);
+
+   CT::poison(tmp_mem.data(), tmp_mem.size());
 
    // Only n.bits() + mod.bits() iterations are required, but avoid leaking the size of n
    const size_t execs = 2 * mod.bits();
@@ -263,14 +263,14 @@ std::optional<BigInt> inverse_mod_general(const BigInt& x, const BigInt& mod) {
    const BigInt c = inverse_mod_pow2(o, mod_lz);
 
    // This should never happen; o is odd so gcd is 1 and inverse mod 2^k exists
-   BOTAN_ASSERT_NOMSG(!c.is_zero());
+   BOTAN_ASSERT_NOMSG(c.signum() != 0);
 
    // Compute h = c*(inv_2k-inv_o) mod 2^k
    BigInt h = c * (inv_2k - inv_o);
-   const bool h_neg = h.is_negative();
+   const bool h_neg = h.signum() < 0;
    h.set_sign(BigInt::Positive);
    h.mask_bits(mod_lz);
-   const bool h_nonzero = h.is_nonzero();
+   const bool h_nonzero = h.signum() != 0;
    h.ct_cond_assign(h_nonzero && h_neg, m2k - h);
 
    // Return result inv_o + h * o
@@ -280,8 +280,9 @@ std::optional<BigInt> inverse_mod_general(const BigInt& x, const BigInt& mod) {
 }
 
 BigInt inverse_mod_secret_prime(const BigInt& x, const BigInt& p) {
-   BOTAN_ARG_CHECK(x.is_positive() && p.is_positive(), "Parameters must be positive");
-   BOTAN_ARG_CHECK(x < p, "x must be less than p");
+   BOTAN_ARG_CHECK(p.signum() > 0, "Modulus must be positive");
+   BOTAN_ARG_CHECK(x.signum() > 0, "Input must be positive");
+   BOTAN_ARG_CHECK(x < p, "Input must be less than modulus");
    BOTAN_ARG_CHECK(p.is_odd() && p > 1, "Primes are odd integers greater than 1");
 
    // TODO possibly use FLT, or the algorithm presented for this case in
@@ -291,14 +292,22 @@ BigInt inverse_mod_secret_prime(const BigInt& x, const BigInt& p) {
 }
 
 BigInt inverse_mod_public_prime(const BigInt& x, const BigInt& p) {
-   return inverse_mod_secret_prime(x, p);
+   BOTAN_ARG_CHECK(p.signum() > 0, "Modulus must be positive");
+   BOTAN_ARG_CHECK(x.signum() > 0, "Input must be positive");
+   BOTAN_ARG_CHECK(x < p, "Input must be less than modulus");
+   BOTAN_ARG_CHECK(p.is_odd() && p > 1, "Primes are odd integers greater than 1");
+
+   // TODO possibly use FLT, or the algorithm presented for this case in
+   // Handbook of Elliptic and Hyperelliptic Curve Cryptography
+
+   return inverse_mod_odd_modulus(x, p);
 }
 
 BigInt inverse_mod_rsa_public_modulus(const BigInt& x, const BigInt& n) {
-   BOTAN_ARG_CHECK(n.is_positive() && n.is_odd(), "RSA public modulus must be odd and positive");
-   BOTAN_ARG_CHECK(x.is_positive() && x < n, "Input must be positive and less than RSA modulus");
+   BOTAN_ARG_CHECK(n.signum() > 0 && n.is_odd(), "RSA public modulus must be odd and positive");
+   BOTAN_ARG_CHECK(x.signum() > 0 && x < n, "Input must be positive and less than RSA modulus");
    BigInt z = inverse_mod_odd_modulus(x, n);
-   BOTAN_ASSERT(!z.is_zero(), "Accidentally factored the public modulus");  // whoops
+   BOTAN_ASSERT(z.signum() != 0, "Accidentally factored the public modulus");  // whoops
    return z;
 }
 
@@ -369,9 +378,8 @@ BigInt compute_rsa_secret_exponent(const BigInt& e, const BigInt& phi_n, const B
 }
 
 BigInt inverse_mod(const BigInt& n, const BigInt& mod) {
-   BOTAN_ARG_CHECK(!mod.is_zero(), "modulus cannot be zero");
-   BOTAN_ARG_CHECK(!mod.is_negative(), "modulus cannot be negative");
-   BOTAN_ARG_CHECK(!n.is_negative(), "value cannot be negative");
+   BOTAN_ARG_CHECK(mod.signum() > 0, "Modulus must be positive");
+   BOTAN_ARG_CHECK(n.signum() >= 0, "Value cannot be negative");
 
    if(n.is_zero() || (n.is_even() && mod.is_even())) {
       return BigInt::zero();

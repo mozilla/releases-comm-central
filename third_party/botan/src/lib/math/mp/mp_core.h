@@ -268,7 +268,7 @@ inline constexpr void bigint_monty_maybe_sub(W z[N], W x0, const W x[N], const W
 * Otherwise compute z = y - x
 * No borrow is possible since the result is always >= 0
 *
-* Returns a Mask: |1| if x >= y or |0| if x < y
+* Returns a Mask: |1| if x < y or |0| if x >= y
 * @param z output array of at least N words
 * @param x input array of N words
 * @param y input array of N words
@@ -303,10 +303,15 @@ inline constexpr auto bigint_sub_abs(W z[], const W x[], const W y[], size_t N, 
 /*
 * Shift Operations
 */
+
+// Caller must ensure x[x_words..x_size-1] is zeroed.
 template <WordType W>
 inline constexpr void bigint_shl1(W x[], size_t x_size, size_t x_words, size_t shift) {
    const size_t word_shift = shift / WordInfo<W>::bits;
    const size_t bit_shift = shift % WordInfo<W>::bits;
+
+   BOTAN_ASSERT_NOMSG(word_shift <= x_size);
+   BOTAN_ASSERT_NOMSG(x_words <= x_size - word_shift);
 
    unchecked_copy_memory(x + word_shift, x, x_words);
    zeroize_buffer(x, word_shift);
@@ -347,11 +352,16 @@ inline constexpr void bigint_shr1(W x[], size_t x_size, size_t shift) {
 }
 
 template <WordType W>
-inline constexpr void bigint_shl2(W y[], const W x[], size_t x_size, size_t shift) {
+inline constexpr void bigint_shl2(W y[], size_t y_size, const W x[], size_t x_size, size_t shift) {
    const size_t word_shift = shift / WordInfo<W>::bits;
    const size_t bit_shift = shift % WordInfo<W>::bits;
 
+   BOTAN_ASSERT_NOMSG(word_shift <= y_size);
+   BOTAN_ASSERT_NOMSG(x_size < y_size - word_shift);
+
    unchecked_copy_memory(y + word_shift, x, x_size);
+   zeroize_buffer(y, word_shift);
+   zeroize_buffer(y + word_shift + x_size, y_size - word_shift - x_size);
 
    const auto carry_mask = CT::Mask<W>::expand(bit_shift);
    const W carry_shift = carry_mask.if_set_return(WordInfo<W>::bits - bit_shift);
@@ -365,14 +375,17 @@ inline constexpr void bigint_shl2(W y[], const W x[], size_t x_size, size_t shif
 }
 
 template <WordType W>
-inline constexpr void bigint_shr2(W y[], const W x[], size_t x_size, size_t shift) {
+inline constexpr void bigint_shr2(W y[], size_t y_size, const W x[], size_t x_size, size_t shift) {
    const size_t word_shift = shift / WordInfo<W>::bits;
    const size_t bit_shift = shift % WordInfo<W>::bits;
    const size_t new_size = x_size < word_shift ? 0 : (x_size - word_shift);
 
+   BOTAN_ASSERT_NOMSG(new_size <= y_size);
+
    if(new_size > 0) {
       unchecked_copy_memory(y, x + word_shift, new_size);
    }
+   zeroize_buffer(y + new_size, y_size - new_size);
 
    const auto carry_mask = CT::Mask<W>::expand(bit_shift);
    const W carry_shift = carry_mask.if_set_return(WordInfo<W>::bits - bit_shift);
@@ -583,7 +596,7 @@ class divide_precomp final {
                W quotient = 0;
                W remainder = 0;
                // NOLINTNEXTLINE(*-no-assembler)
-               asm("divq %[v]" : "=a"(quotient), "=d"(remainder) : [v] "r"(m_divisor), "a"(n0), "d"(n1));
+               asm("divq %[v]" : "=a"(quotient), "=d"(remainder) : [v] "r"(m_divisor), "a"(n0), "d"(n1) : "cc");
                return quotient;
             }
 #endif
@@ -711,6 +724,7 @@ inline constexpr auto monty_inverse(W a) -> W {
 template <size_t S, WordType W, size_t N>
 inline constexpr W shift_left(std::array<W, N>& x) {
    static_assert(N >= 1, "Invalid input size");
+   static_assert(S > 0, "Zero shift not supported");
    static_assert(S < WordInfo<W>::bits, "Shift too large");
 
    const W carry = x[N - 1] >> (WordInfo<W>::bits - S);
@@ -726,6 +740,7 @@ inline constexpr W shift_left(std::array<W, N>& x) {
 template <size_t S, WordType W, size_t N>
 inline constexpr W shift_right(std::array<W, N>& x) {
    static_assert(N >= 1, "Invalid input size");
+   static_assert(S > 0, "Zero shift not supported");
    static_assert(S < WordInfo<W>::bits, "Shift too large");
 
    const W carry = x[0] << (WordInfo<W>::bits - S);
@@ -749,6 +764,8 @@ constexpr auto hex_to_words(const char (&s)[N]) {
 
    // Round up to the next number of words that will fit the input
    const constexpr size_t S = (C + NPW - 1) / NPW;
+
+   static_assert(S > 0, "Input too small");
 
    auto hex2int = [](char c) -> int8_t {
       if(c >= '0' && c <= '9') {
@@ -1014,7 +1031,7 @@ constexpr std::array<W, N> redc_crandall(std::span<const W, 2 * N> z) {
                       movq 0(%[x]), %[borrow]
                       subq %[p0], %[borrow]
                       movq %[borrow], 0(%[r])
-                      movq 16(%[x]), %[borrow]
+                      movq 8(%[x]), %[borrow]
                       sbbq $-1, %[borrow]
                       movq %[borrow], 8(%[r])
                       movq 16(%[x]), %[borrow]
@@ -1029,11 +1046,11 @@ constexpr std::array<W, N> redc_crandall(std::span<const W, 2 * N> z) {
                       : [borrow] "=r"(borrow)
                       : [x] "r"(hi.data()), [p0] "r"(P0), [r] "r"(r.data()), "0"(borrow)
                       : "cc", "memory");
-      }
 
-      borrow = (carry - borrow) > carry;
-      CT::conditional_assign_mem(borrow, r.data(), hi.data(), N);
-      return r;
+         borrow = (carry - borrow) > carry;
+         CT::conditional_assign_mem(borrow, r.data(), hi.data(), N);
+         return r;
+      }
    }
 #endif
 

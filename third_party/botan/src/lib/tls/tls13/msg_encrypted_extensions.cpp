@@ -11,11 +11,16 @@
 #include <botan/tls_callbacks.h>
 #include <botan/tls_exceptn.h>
 #include <botan/tls_policy.h>
+#include <botan/internal/stl_util.h>
 #include <botan/internal/tls_reader.h>
 
 namespace Botan::TLS {
 
-Encrypted_Extensions::Encrypted_Extensions(const Client_Hello_13& client_hello, const Policy& policy, Callbacks& cb) {
+Encrypted_Extensions::Encrypted_Extensions(const Client_Hello_13& client_hello,
+                                           const Policy& policy,
+                                           Callbacks& cb,
+                                           bool is_resumption,
+                                           bool requesting_client_auth) {
    const auto& exts = client_hello.extensions();
 
    // NOLINTBEGIN(*-owning-memory)
@@ -55,8 +60,14 @@ Encrypted_Extensions::Encrypted_Extensions(const Client_Hello_13& client_hello, 
    //    If the server does not send a certificate_request payload [...],
    //    then the client_certificate_type payload in the server hello MUST be
    //    omitted.
+   //
+   // Note: requesting_client_auth tracks whether the caller will actually
+   // emit a CertificateRequest. The server-side decision in
+   // Certificate_Request_13::maybe_create depends on both the policy flag
+   // *and* the credentials manager's CA list, so re-checking just the
+   // policy flag here would miss the trusted-CAs-only configuration.
    if(auto* ch_client_cert_types = exts.get<Client_Certificate_Type>();
-      ch_client_cert_types != nullptr && policy.request_client_certificate_authentication()) {
+      ch_client_cert_types != nullptr && requesting_client_auth) {
       m_extensions.add(new Client_Certificate_Type(*ch_client_cert_types, policy));
    }
 
@@ -75,13 +86,23 @@ Encrypted_Extensions::Encrypted_Extensions(const Client_Hello_13& client_hello, 
    //    extension [...] SHALL include an extension of type "server_name" in the
    //    (extended) server hello. The "extension_data" field of this extension
    //    SHALL be empty.
-   if(exts.has<Server_Name_Indicator>()) {
+   //
+   //    When resuming a session, the server MUST NOT include a server_name
+   //    extension in the server hello.
+   if(exts.has<Server_Name_Indicator>() && !is_resumption) {
       m_extensions.add(new Server_Name_Indicator(""));
    }
 
    if(auto* alpn_ext = exts.get<Application_Layer_Protocol_Notification>()) {
-      const auto next_protocol = cb.tls_server_choose_app_protocol(alpn_ext->protocols());
+      const auto& offered = alpn_ext->protocols();
+      const auto next_protocol = cb.tls_server_choose_app_protocol(offered);
       if(!next_protocol.empty()) {
+         // RFC 7301 3.2: if a protocol is selected, the server MUST select
+         // one of the protocols advertised by the client.
+         if(!value_exists(offered, next_protocol)) {
+            throw TLS_Exception(Alert::InternalError,
+                                "Application chose an ALPN protocol that the client did not offer");
+         }
          m_extensions.add(new Application_Layer_Protocol_Notification(next_protocol));
       }
    }
@@ -92,9 +113,25 @@ Encrypted_Extensions::Encrypted_Extensions(const Client_Hello_13& client_hello, 
    //       * SRTP
 
    cb.tls_modify_extensions(m_extensions, Connection_Side::Server, type());
+
+   // After the application's tls_modify_extensions callback runs, re-check the
+   // RFC-MUST invariants we just established above. The application can add or
+   // reorder extensions, but shouldn't remove ones required direct response to
+   // ClientHello extensions would put us out of spec.
+   if(exts.has<Server_Certificate_Type>() && !m_extensions.has<Server_Certificate_Type>()) {
+      throw TLS_Exception(
+         Alert::InternalError,
+         "Application tls_modify_extensions callback removed Server_Certificate_Type from EncryptedExtensions");
+   }
+
+   if(requesting_client_auth && exts.has<Client_Certificate_Type>() && !m_extensions.has<Client_Certificate_Type>()) {
+      throw TLS_Exception(
+         Alert::InternalError,
+         "Application tls_modify_extensions callback removed Client_Certificate_Type from EncryptedExtensions");
+   }
 }
 
-Encrypted_Extensions::Encrypted_Extensions(const std::vector<uint8_t>& buf) {
+Encrypted_Extensions::Encrypted_Extensions(std::span<const uint8_t> buf) {
    TLS_Data_Reader reader("encrypted extensions reader", buf);
 
    // Encrypted Extensions contains a list of extensions. This list may legally
@@ -132,9 +169,19 @@ Encrypted_Extensions::Encrypted_Extensions(const std::vector<uint8_t>& buf) {
    if(m_extensions.contains_implemented_extensions_other_than(allowed_exts)) {
       throw TLS_Exception(Alert::IllegalParameter, "Encrypted Extensions contained an extension that is not allowed");
    }
+
+   reader.assert_done();
 }
 
 std::vector<uint8_t> Encrypted_Extensions::serialize() const {
+   // RFC 8446 4.3.1: EncryptedExtensions carries Extension extensions<0..2^16-1>;
+   // an empty list still requires a 2-byte length-prefix on the wire.
+   // Extensions::serialize collapses empty to {} to suit other contexts, so
+   // emit the explicit length here. Mirrors the same fallback in
+   // New_Session_Ticket_13::serialize.
+   if(m_extensions.empty()) {
+      return {0x00, 0x00};
+   }
    return m_extensions.serialize(Connection_Side::Server);
 }
 

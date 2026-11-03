@@ -62,6 +62,11 @@ std::chrono::system_clock::time_point TLS::Callbacks::tls_current_timestamp() {
    return std::chrono::system_clock::now();
 }
 
+uint64_t TLS::Callbacks::tls_current_monotonic_clock_ms() {
+   const auto now = std::chrono::steady_clock::now().time_since_epoch();
+   return std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
+}
+
 void TLS::Callbacks::tls_modify_extensions(Extensions& /*unused*/,
                                            Connection_Side /*unused*/,
                                            Handshake_Type /*unused*/) {}
@@ -98,10 +103,17 @@ void TLS::Callbacks::tls_verify_cert_chain(const std::vector<X509_Certificate>& 
    const Path_Validation_Restrictions restrictions(policy.require_cert_revocation_info(),
                                                    policy.minimum_signature_strength());
 
+   /*
+   Hostname is always provided in order to allow host-specific logic if required,
+   but it should not be passed to x509_path_validate unless we are verifying
+   the server.
+   */
+   const std::string_view name_to_match = (usage == Usage_Type::TLS_CLIENT_AUTH) ? std::string_view{} : hostname;
+
    const Path_Validation_Result result = x509_path_validate(cert_chain,
                                                             restrictions,
                                                             trusted_roots,
-                                                            hostname,
+                                                            name_to_match,
                                                             usage,
                                                             tls_current_timestamp(),
                                                             tls_verify_cert_chain_ocsp_timeout(),
@@ -172,10 +184,11 @@ DL_Group get_dl_group(const std::variant<TLS::Group_Params, DL_Group>& group) {
    // TLS 1.2 allows specifying arbitrary DL_Group parameters in-lieu of
    // a standardized DH group identifier. TLS 1.3 just offers pre-defined
    // groups.
-   return std::visit(
-      overloaded{[](const DL_Group& dl_group) { return dl_group; },
-                 [&](TLS::Group_Params group_param) { return DL_Group::from_name(group_param.to_string().value()); }},
-      group);
+   return std::visit(overloaded{[](const DL_Group& dl_group) { return dl_group; },
+                                [&](TLS::Group_Params group_param) {
+                                   return DL_Group::from_name(group_param.to_algorithm_spec().value());
+                                }},
+                     group);
 }
 
 }  // namespace
@@ -208,8 +221,21 @@ std::unique_ptr<Public_Key> TLS::Callbacks::tls_deserialize_peer_public_key(
    const auto group_params = std::get<TLS::Group_Params>(group);
 
    if(group_params.is_ecdh_named_curve()) {
-      const auto ec_group = EC_Group::from_name(group_params.to_string().value());
-      return std::make_unique<ECDH_PublicKey>(ec_group, EC_AffinePoint(ec_group, key_bits));
+      const auto ec_group = EC_Group::from_name(group_params.to_algorithm_spec().value());
+      // TLS 1.3 requires uncompressed points (checked when parsing the key
+      // share); TLS 1.2 may negotiate the compressed format. The deprecated
+      // hybrid encoding and the identity element are never accepted.
+
+      auto point = [&]() -> EC_AffinePoint {
+         if(auto pt_uncompressed = EC_AffinePoint::deserialize_uncompressed(ec_group, key_bits)) {
+            return std::move(pt_uncompressed).value();
+         } else if(auto pt_compressed = EC_AffinePoint::deserialize_compressed(ec_group, key_bits)) {
+            return std::move(pt_compressed).value();
+         } else {
+            throw Decoding_Error("Invalid ECDH public key encoding");
+         }
+      }();
+      return std::make_unique<ECDH_PublicKey>(ec_group, std::move(point));
    }
 
 #if defined(BOTAN_HAS_X25519)
@@ -232,13 +258,13 @@ std::unique_ptr<Public_Key> TLS::Callbacks::tls_deserialize_peer_public_key(
 
 #if defined(BOTAN_HAS_ML_KEM)
    if(group_params.is_pure_ml_kem()) {
-      return std::make_unique<ML_KEM_PublicKey>(key_bits, ML_KEM_Mode(group_params.to_string().value()));
+      return std::make_unique<ML_KEM_PublicKey>(key_bits, ML_KEM_Mode(group_params.to_algorithm_spec().value()));
    }
 #endif
 
 #if defined(BOTAN_HAS_FRODOKEM)
    if(group_params.is_pure_frodokem()) {
-      return std::make_unique<FrodoKEM_PublicKey>(key_bits, FrodoKEMMode(group_params.to_string().value()));
+      return std::make_unique<FrodoKEM_PublicKey>(key_bits, FrodoKEMMode(group_params.to_algorithm_spec().value()));
    }
 #endif
 
@@ -248,13 +274,13 @@ std::unique_ptr<Public_Key> TLS::Callbacks::tls_deserialize_peer_public_key(
 std::unique_ptr<Private_Key> TLS::Callbacks::tls_kem_generate_key(TLS::Group_Params group, RandomNumberGenerator& rng) {
 #if defined(BOTAN_HAS_ML_KEM)
    if(group.is_pure_ml_kem()) {
-      return std::make_unique<ML_KEM_PrivateKey>(rng, ML_KEM_Mode(group.to_string().value()));
+      return std::make_unique<ML_KEM_PrivateKey>(rng, ML_KEM_Mode(group.to_algorithm_spec().value()));
    }
 #endif
 
 #if defined(BOTAN_HAS_FRODOKEM)
    if(group.is_pure_frodokem()) {
-      return std::make_unique<FrodoKEM_PrivateKey>(rng, FrodoKEMMode(group.to_string().value()));
+      return std::make_unique<FrodoKEM_PrivateKey>(rng, FrodoKEMMode(group.to_algorithm_spec().value()));
    }
 #endif
 
@@ -279,6 +305,8 @@ KEM_Encapsulation TLS::Callbacks::tls_kem_encapsulate(TLS::Group_Params group,
             // This exception means that the public key was invalid. However,
             // TLS' DecodeError would imply that a protocol message was invalid.
             throw TLS_Exception(Alert::IllegalParameter, ex.what());
+         } catch(const Invalid_Argument& ex) {
+            throw TLS_Exception(Alert::IllegalParameter, ex.what());
          }
       }();
 
@@ -287,6 +315,8 @@ KEM_Encapsulation TLS::Callbacks::tls_kem_encapsulate(TLS::Group_Params group,
 
       try {
          return PK_KEM_Encryptor(*kem_pub_key, "Raw").encrypt(rng);
+      } catch(const Decoding_Error& ex) {
+         throw TLS_Exception(Alert::IllegalParameter, ex.what());
       } catch(const Invalid_Argument& ex) {
          throw TLS_Exception(Alert::IllegalParameter, ex.what());
       }
@@ -311,7 +341,13 @@ secure_vector<uint8_t> TLS::Callbacks::tls_kem_decapsulate(TLS::Group_Params gro
       if(encapsulated_bytes.size() != kemdec.encapsulated_key_length()) {
          throw TLS_Exception(Alert::IllegalParameter, "Invalid encapsulated key length");
       }
-      return kemdec.decrypt(encapsulated_bytes, 0, {});
+      try {
+         return kemdec.decrypt(encapsulated_bytes, 0, {});
+      } catch(const Decoding_Error& ex) {
+         throw TLS_Exception(Alert::IllegalParameter, ex.what());
+      } catch(const Invalid_Argument& ex) {
+         throw TLS_Exception(Alert::IllegalParameter, ex.what());
+      }
    }
 
    try {
@@ -333,8 +369,22 @@ std::unique_ptr<PK_Key_Agreement_Key> TLS::Callbacks::tls_generate_ephemeral_key
    const auto group_params = std::get<TLS::Group_Params>(group);
 
    if(group_params.is_ecdh_named_curve()) {
-      const auto ec_group = EC_Group::from_name(group_params.to_string().value());
-      return std::make_unique<ECDH_PrivateKey>(rng, ec_group);
+      const auto ec_group = EC_Group::from_name(group_params.to_algorithm_spec().value());
+      auto ecdh_key = std::make_unique<ECDH_PrivateKey>(rng, ec_group);
+
+      // RFC 8446 Ch. 4.2.8.2
+      //
+      //   Note: Versions of TLS prior to 1.3 permitted point format
+      //   negotiation; TLS 1.3 removes this feature in favor of a single point
+      //   format for each curve.
+      //
+      // Hence, TLS 1.3 won't take Policy::use_ecc_point_compression() or
+      // ClientHello::prefers_compressed_ec_points() into account but always use
+      // uncompressed point encoding. Note that TLS 1.2 uses the
+      // `tls12_generate_ephemeral_ecdh_key()` callback, which allows to specify
+      // the point encoding format.
+      ecdh_key->set_point_encoding(EC_Point_Format::Uncompressed);
+      return ecdh_key;
    }
 
 #if defined(BOTAN_HAS_X25519)
@@ -387,6 +437,8 @@ secure_vector<uint8_t> TLS::Callbacks::tls_ephemeral_key_agreement(
       } catch(const Decoding_Error& ex) {
          // This exception means that the public key was invalid. However,
          // TLS' DecodeError would imply that a protocol message was invalid.
+         throw TLS_Exception(Alert::IllegalParameter, ex.what());
+      } catch(const Invalid_Argument& ex) {
          throw TLS_Exception(Alert::IllegalParameter, ex.what());
       }
    }();

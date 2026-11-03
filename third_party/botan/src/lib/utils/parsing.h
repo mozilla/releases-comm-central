@@ -42,32 +42,47 @@ BOTAN_TEST_API std::vector<std::string> split_on(std::string_view str, char deli
 std::string string_join(const std::vector<std::string>& strs, char delim);
 
 /**
-* Convert a decimal string to a number
-* @param str the string to convert
+* Convert a decimal string to a number, throwing if invalid
+* @param input the string to convert
 * @return number value of the string
 */
-BOTAN_TEST_API uint32_t to_u32bit(std::string_view str);
+BOTAN_TEST_API uint32_t to_u32bit(std::string_view input);
 
 /**
-* Convert a decimal string to a number
-* @param str the string to convert
-* @return number value of the string
+* Attempt to parse a string as a 16-bit decimal integer
+*
+* @param input the string to convert
+* @param require_canonical if set, reject leading zeros ("007"); "0" is still accepted
+* @return integer value, or nullopt if invalid
 */
-uint16_t to_uint16(std::string_view str);
+std::optional<uint16_t> parse_u16(std::string_view input, bool require_canonical = false);
 
 /**
-* Convert a string representation of an IPv4 address to a number
-* @param ip_str the string representation
-* @return integer IPv4 address
+* Attempt to parse a string as a 32-bit decimal integer
+*
+* @param input the string to convert
+* @param require_canonical if set, reject leading zeros ("007"); "0" is still accepted
+* @return integer value, or nullopt if invalid
 */
-std::optional<uint32_t> BOTAN_TEST_API string_to_ipv4(std::string_view ip_str);
+BOTAN_TEST_API std::optional<uint32_t> parse_u32(std::string_view input, bool require_canonical = false);
 
 /**
-* Convert an IPv4 address to a string
-* @param ip_addr the IPv4 address to convert
-* @return string representation of the IPv4 address
+* Attempt to parse a string as a 64-bit decimal integer
+*
+* @param input the string to convert
+* @param require_canonical if set, reject leading zeros ("007"); "0" is still accepted
+* @return integer value, or nullopt if invalid
 */
-std::string BOTAN_TEST_API ipv4_to_string(uint32_t ip_addr);
+BOTAN_TEST_API std::optional<uint64_t> parse_u64(std::string_view input, bool require_canonical = false);
+
+/**
+* Attempt to parse a string as a size_t-sized decimal integer
+*
+* @param input the string to convert
+* @param require_canonical if set, reject leading zeros ("007"); "0" is still accepted
+* @return integer value, or nullopt if invalid
+*/
+BOTAN_TEST_API std::optional<size_t> parse_sz(std::string_view input, bool require_canonical = false);
 
 std::map<std::string, std::string> read_cfg(std::istream& is);
 
@@ -90,19 +105,6 @@ BOTAN_TEST_API
 std::map<std::string, std::string> read_kv(std::string_view kv);
 
 std::string tolower_string(std::string_view str);
-
-/**
-* Check if the given hostname is a match for the specified wildcard
-*/
-BOTAN_TEST_API
-bool host_wildcard_match(std::string_view wildcard, std::string_view host);
-
-/**
-* If name is a valid DNS name, return it canonicalized
-*
-* Otherwise throws Decoding_Error
-*/
-BOTAN_TEST_API std::string check_and_canonicalize_dns_name(std::string_view name);
 
 }  // namespace Botan
 

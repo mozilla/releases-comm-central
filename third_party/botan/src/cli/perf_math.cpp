@@ -17,6 +17,7 @@
 #if defined(BOTAN_HAS_NUMBERTHEORY)
    #include <botan/numthry.h>
    #include <botan/internal/barrett.h>
+   #include <botan/internal/monty.h>
    #include <botan/internal/primality.h>
 #endif
 
@@ -252,8 +253,10 @@ class PerfTest_IsPrime final : public PerfTest {
 
             while(lucas_timer->under(runtime)) {
                auto mod_n = Botan::Barrett_Reduction::for_public_modulus(n);
+               const Botan::Montgomery_Params monty_n(n, mod_n);
 
-               mr_timer->run([&]() { return Botan::is_miller_rabin_probable_prime(n, mod_n, config.rng(), 2); });
+               mr_timer->run(
+                  [&]() { return Botan::is_miller_rabin_probable_prime(n, mod_n, monty_n, config.rng(), 2); });
 
                bpsw_timer->run([&]() { return Botan::is_bailie_psw_probable_prime(n, mod_n); });
 

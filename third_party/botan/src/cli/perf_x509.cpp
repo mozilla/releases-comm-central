@@ -107,7 +107,7 @@ class PerfTest_ASN1_Parsing final : public PerfTest {
                .end_cons()
                .end_cons();
 
-            Botan::BER_Decoder ber(crl_entry_buffer);
+            Botan::BER_Decoder ber(crl_entry_buffer, Botan::BER_Decoder::Limits::DER());
 
             Botan::CRL_Entry entry;
             entry.decode_from(ber);

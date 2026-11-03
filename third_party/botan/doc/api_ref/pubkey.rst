@@ -599,7 +599,7 @@ You can generate a new random group using
 
 You can serialize a ``DL_Group`` using
 
-.. cpp:function:: std::vector<uint8_t> DL_Group::DER_Encode(Format format) const
+.. cpp:function:: std::vector<uint8_t> DL_Group::DER_encode(Format format) const
 
 or
 
@@ -616,7 +616,7 @@ You can reload a serialized group from BER or PEM formats using
 
 .. cpp:function:: DL_Group::DL_Group(std::span<const uint8_t> ber, DL_Group_Format format)
 
-.. cpp:function:: static DL_Group DL_Group::from_pem(std::string_view pem, DL_Group_Format format)
+.. cpp:function:: static DL_Group DL_Group::from_PEM(std::string_view pem)
 
 Code Example: DL_Group
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -637,7 +637,7 @@ based on the discrete logarithm problem need a generator > 1.
 
 Each public key type has a function
 
-.. cpp:function:: bool Public_Key::check_key(RandomNumberGenerator& rng, bool strong)
+.. cpp:function:: bool Asymmetric_Key::check_key(RandomNumberGenerator& rng, bool strong)
 
   This function performs a number of algorithm-specific tests that the key
   seems to be mathematically valid and consistent, and returns true if all of
@@ -704,7 +704,10 @@ support it directly, such as RSA or ElGamal; these use the EME class:
 
 .. cpp:class:: PK_Encryptor_EME
 
-   .. cpp:function:: PK_Encryptor_EME(const Public_Key& key, std::string padding)
+   .. cpp:function:: PK_Encryptor_EME(const Public_Key& key, \
+         RandomNumberGenerator& rng, \
+         std::string_view padding, \
+         std::string_view provider = "")
 
      With *key* being the key you want to encrypt messages to. The padding
      method to use is specified in *padding*.
@@ -774,6 +777,12 @@ support it directly, such as RSA or ElGamal; these use the EME class:
 
       Creates an ephemeral private key which is used for the key agreement.
 
+   .. cpp:function:: void ECIES_Encryptor::set_initialization_vector(const InitializationVector& iv)
+
+      Set a new initialization vector for the encryptor. This must be called
+      before each message with a random nonce suitable for the chosen cipher. In
+      the ECIES message format the nonce is not conveyed with the produced
+      ciphertext, so it must be set separately.
 
 .. cpp:class:: PK_Decryptor
 
@@ -1490,15 +1499,16 @@ plaintext is represented directly in the ciphertext, with only a small number of
 bit errors. Thus it is absolutely essential to only use McEliece with a CCA2
 secure scheme.
 
-For a given security level (SL) a McEliece key would use
-parameters n and t, and have the corresponding key sizes listed:
+The deprecated McEliece implementation only supports the following parameter
+sets. For a given security level (SL) a McEliece key would use parameters n and
+t, and have the corresponding key sizes listed:
 
 +-----+------+-----+---------------+----------------+
 | SL  |   n  |   t | public key KB | private key KB |
 +=====+======+=====+===============+================+
 |  80 | 1632 |  33 |            59 |            140 |
 +-----+------+-----+---------------+----------------+
-| 107 | 2280 |  45 |           128 |            300 |
+| 107 | 2480 |  45 |           128 |            300 |
 +-----+------+-----+---------------+----------------+
 | 128 | 2960 |  57 |           195 |            459 |
 +-----+------+-----+---------------+----------------+
@@ -1653,4 +1663,3 @@ and `draft-fluhrer-lms-more-parm-sets-11 <https://datatracker.ietf.org/doc/html/
 - hash: ``SHA-256``, ``Truncated(SHA-256,192)``, ``SHAKE-256(256)``, ``SHAKE-256(192)``
 - h: ``5``, ``10``, ``15``, ``20``, ``25``
 - w: ``1``, ``2``, ``4``, ``8``
-

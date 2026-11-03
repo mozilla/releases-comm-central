@@ -13,31 +13,58 @@
    #include <botan/internal/barrier.h>
    #include <botan/internal/semaphore.h>
 
+   #include <exception>
+   #include <mutex>
+
 namespace Botan {
 
 struct Threaded_Fork_Data {
+      // NOLINTBEGIN(*-non-private-member-variables-in-classes)
       /*
-   * Semaphore for indicating that there is work to be done (or to
-   * quit)
-   */
+      * Semaphore for indicating that there is work to be done (or to
+      * quit)
+      */
       Semaphore m_input_ready_semaphore;
 
       /*
-   * Synchronises all threads to complete processing data in lock-step.
-   */
+      * Synchronises all threads to complete processing data in lock-step.
+      */
       Barrier m_input_complete_barrier;
 
       /*
-   * The work that needs to be done. This should be only when the threads
-   * are NOT running (i.e. before notifying the work condition, after
-   * the input_complete_barrier has reset.)
-   */
+      * The work that needs to be done. This should be only when the threads
+      * are NOT running (i.e. before notifying the work condition, after
+      * the input_complete_barrier has reset.)
+      */
       const uint8_t* m_input = nullptr;
 
       /*
-   * The length of the work that needs to be done.
-   */
+      * The length of the work that needs to be done.
+      */
       size_t m_input_length = 0;
+
+      // NOLINTEND(*-non-private-member-variables-in-classes)
+
+      void clear_exception() {
+         const std::lock_guard lock(m_exception_mutex);
+         m_exception = nullptr;
+      }
+
+      void capture_exception() {
+         const std::lock_guard lock(m_exception_mutex);
+         if(!m_exception) {
+            m_exception = std::current_exception();
+         }
+      }
+
+      std::exception_ptr exception() {
+         const std::lock_guard lock(m_exception_mutex);
+         return m_exception;
+      }
+
+   private:
+      std::mutex m_exception_mutex;
+      std::exception_ptr m_exception;
 };
 
 /*
@@ -87,6 +114,14 @@ void Threaded_Fork::set_next(Filter* f[], size_t n) {
 }
 
 void Threaded_Fork::send(const uint8_t input[], size_t length) {
+   /*
+   * The workers treat a nullptr input pointer as a shutdown marker, and a (nullptr, 0)
+   * call is otherwise valid. Just ignore an empty input here, matching Filter::send
+   */
+   if(length == 0) {
+      return;
+   }
+
    if(!m_write_queue.empty()) {
       thread_delegate_work(m_write_queue.data(), m_write_queue.size());
    }
@@ -108,6 +143,7 @@ void Threaded_Fork::send(const uint8_t input[], size_t length) {
 
 void Threaded_Fork::thread_delegate_work(const uint8_t input[], size_t length) {
    //Set the data to do.
+   m_thread_data->clear_exception();
    m_thread_data->m_input = input;
    m_thread_data->m_input_length = length;
 
@@ -118,9 +154,15 @@ void Threaded_Fork::thread_delegate_work(const uint8_t input[], size_t length) {
    //Wait for all the filters to finish processing.
    m_thread_data->m_input_complete_barrier.sync();
 
+   const auto exception = m_thread_data->exception();
+
    //Reset the thread data
    m_thread_data->m_input = nullptr;
    m_thread_data->m_input_length = 0;
+
+   if(exception) {
+      std::rethrow_exception(exception);
+   }
 }
 
 void Threaded_Fork::thread_entry(Filter* filter) {
@@ -131,7 +173,14 @@ void Threaded_Fork::thread_entry(Filter* filter) {
          break;
       }
 
-      filter->write(m_thread_data->m_input, m_thread_data->m_input_length);
+      // Plain Fork skips null ports the same way
+      if(filter != nullptr) {
+         try {
+            filter->write(m_thread_data->m_input, m_thread_data->m_input_length);
+         } catch(...) {
+            m_thread_data->capture_exception();
+         }
+      }
       m_thread_data->m_input_complete_barrier.sync();
    }
 }

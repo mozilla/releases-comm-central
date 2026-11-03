@@ -1,7 +1,7 @@
 /*
  * TLS 1.3 Preshared Key Container
  * (C) 2023 Fabian Albert, René Meusel - Rohde & Schwarz Cybersecurity
- *     2025 Jack Lloyd
+ *     2025,2026 Jack Lloyd
  *
  * Botan is released under the Simplified BSD License (see license.txt)
  */

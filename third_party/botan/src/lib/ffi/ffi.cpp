@@ -109,11 +109,15 @@ int botan_view_str_bounce_fn(botan_view_ctx vctx, const char* str, size_t len) {
 }
 
 int botan_view_bin_bounce_fn(botan_view_ctx vctx, const uint8_t* buf, size_t len) {
-   if(vctx == nullptr || buf == nullptr) {
+   if(any_null_pointers(vctx, buf)) {
       return BOTAN_FFI_ERROR_NULL_POINTER;
    }
 
    const botan_view_bounce_struct* ctx = static_cast<botan_view_bounce_struct*>(vctx);
+
+   if(ctx->out_len == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
 
    const size_t avail = *ctx->out_len;
    *ctx->out_len = len;
@@ -221,6 +225,16 @@ uint32_t botan_ffi_api_version() {
 }
 
 int botan_ffi_supports_api(uint32_t api_version) {
+   // This is the API introduced in 3.13
+   if(api_version == 20260811) {
+      return BOTAN_FFI_SUCCESS;
+   }
+
+   // This is the API introduced in 3.12
+   if(api_version == 20260506) {
+      return BOTAN_FFI_SUCCESS;
+   }
+
    // This is the API introduced in 3.11
    if(api_version == 20260303) {
       return BOTAN_FFI_SUCCESS;
@@ -311,6 +325,9 @@ uint32_t botan_version_datestamp() {
 }
 
 int botan_constant_time_compare(const uint8_t* x, const uint8_t* y, size_t len) {
+   if(len > 0 && any_null_pointers(x, y)) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    auto same = Botan::CT::is_equal(x, y, len);
    // Return 0 if same or -1 otherwise
    return static_cast<int>(same.select(1, 0)) - 1;
@@ -321,11 +338,17 @@ int botan_same_mem(const uint8_t* x, const uint8_t* y, size_t len) {
 }
 
 int botan_scrub_mem(void* mem, size_t bytes) {
+   if(bytes > 0 && mem == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    Botan::secure_scrub_memory(mem, bytes);
    return BOTAN_FFI_SUCCESS;
 }
 
 int botan_hex_encode(const uint8_t* in, size_t len, char* out, uint32_t flags) {
+   if(len > 0 && (in == nullptr || out == nullptr)) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return ffi_guard_thunk(__func__, [=]() -> int {
       const bool uppercase = (flags & BOTAN_FFI_HEX_LOWER_CASE) == 0;
       Botan::hex_encode(out, in, len, uppercase);
@@ -334,6 +357,9 @@ int botan_hex_encode(const uint8_t* in, size_t len, char* out, uint32_t flags) {
 }
 
 int botan_hex_decode(const char* hex_str, size_t in_len, uint8_t* out, size_t* out_len) {
+   if(any_null_pointers(hex_str, out_len)) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return ffi_guard_thunk(__func__, [=]() -> int {
       const std::vector<uint8_t> bin = Botan::hex_decode(hex_str, in_len);
       return Botan_FFI::write_vec_output(out, out_len, bin);
@@ -341,6 +367,9 @@ int botan_hex_decode(const char* hex_str, size_t in_len, uint8_t* out, size_t* o
 }
 
 int botan_base64_encode(const uint8_t* in, size_t len, char* out, size_t* out_len) {
+   if(len > 0 && in == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return ffi_guard_thunk(__func__, [=]() -> int {
       const std::string base64 = Botan::base64_encode(in, len);
       return Botan_FFI::write_str_output(out, out_len, base64);
@@ -348,6 +377,10 @@ int botan_base64_encode(const uint8_t* in, size_t len, char* out, size_t* out_le
 }
 
 int botan_base64_decode(const char* base64_str, size_t in_len, uint8_t* out, size_t* out_len) {
+   if(any_null_pointers(out, out_len, base64_str)) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
    return ffi_guard_thunk(__func__, [=]() -> int {
       if(*out_len < Botan::base64_decode_max_output(in_len)) {
          *out_len = Botan::base64_decode_max_output(in_len);

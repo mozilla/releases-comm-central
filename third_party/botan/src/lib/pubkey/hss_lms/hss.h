@@ -154,18 +154,23 @@ class HSS_LMS_PrivateKeyInternal final {
       secure_vector<uint8_t> to_bytes() const;
 
       /**
-       * @brief Get the idx of the next signature to generate.
+       * @brief Get the number of remaining signatures for this key.
        */
-      HSS_Sig_Idx remaining_operations(HSS_Sig_Idx idx) const;
+      HSS_Sig_Idx remaining_operations() const;
 
       /**
        * @brief Set the idx of the next signature to generate.
        *
        * Note that creating two signatures with the same index is insecure.
-       * The index must be lower than hss_params().max_sig_count().
+       * The index must be lower than or equal to hss_params().max_sig_count(),
+       * with an index == max indicating the key is completely exhausted.
        * The index will never go backward (highest value wins).
+       *
+       * The signing state lives in the process-wide
+       * Stateful_Key_Index_Registry keyed by the key identity, not in this
+       * object, so this leaves *this unchanged and is therefore const.
        */
-      void set_idx(HSS_Sig_Idx idx);
+      void set_idx(HSS_Sig_Idx idx) const;
 
       /**
        * @brief Create a HSS-LMS signature.
@@ -179,7 +184,7 @@ class HSS_LMS_PrivateKeyInternal final {
        *
        * @param msg The message to sign.
        */
-      std::vector<uint8_t> sign(std::span<const uint8_t> msg);
+      std::vector<uint8_t> sign(std::span<const uint8_t> msg) const;
 
       /**
        * @brief Create the HSS root LMS tree's LMS_PrivateKey using the HSS-LMS private key.
@@ -207,7 +212,7 @@ class HSS_LMS_PrivateKeyInternal final {
        * @brief Get the index of the next signature to generate and
        *        increase the counter by one.
        */
-      HSS_Sig_Idx reserve_next_idx();
+      HSS_Sig_Idx reserve_next_idx() const;
 
       /**
        * @brief Returns the size in bytes the key would have in its encoded format.

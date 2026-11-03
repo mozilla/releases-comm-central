@@ -319,6 +319,7 @@ void Blowfish::key_schedule(std::span<const uint8_t> key) {
 }
 
 void Blowfish::key_expansion(const uint8_t key[], size_t length, const uint8_t salt[], size_t salt_length) {
+   BOTAN_ASSERT_NOMSG(length > 0);
    BOTAN_ASSERT_NOMSG(salt_length % 4 == 0);
 
    for(size_t i = 0, j = 0; i != 18; ++i, j += 4) {

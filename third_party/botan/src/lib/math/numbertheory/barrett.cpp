@@ -21,8 +21,7 @@ Barrett_Reduction::Barrett_Reduction(const BigInt& m, BigInt mu, size_t mw) :
 }
 
 Barrett_Reduction Barrett_Reduction::for_secret_modulus(const BigInt& mod) {
-   BOTAN_ARG_CHECK(!mod.is_zero(), "Modulus cannot be zero");
-   BOTAN_ARG_CHECK(!mod.is_negative(), "Modulus cannot be negative");
+   BOTAN_ARG_CHECK(mod.signum() > 0, "Modulus must be positive");
 
    const size_t mod_words = mod.sig_words();
 
@@ -32,8 +31,7 @@ Barrett_Reduction Barrett_Reduction::for_secret_modulus(const BigInt& mod) {
 }
 
 Barrett_Reduction Barrett_Reduction::for_public_modulus(const BigInt& mod) {
-   BOTAN_ARG_CHECK(!mod.is_zero(), "Modulus cannot be zero");
-   BOTAN_ARG_CHECK(!mod.is_negative(), "Modulus cannot be negative");
+   BOTAN_ARG_CHECK(mod.signum() > 0, "Modulus must be positive");
 
    const size_t mod_words = mod.sig_words();
 
@@ -151,7 +149,7 @@ BigInt barrett_reduce(
 }
 
 CT::Choice acceptable_barrett_input(const BigInt& x, const BigInt& modulus) {
-   auto x_is_positive = CT::Choice::from_int(static_cast<uint32_t>(x.is_positive()));
+   auto x_is_positive = CT::Choice::from_int(static_cast<uint32_t>(x.signum() >= 0));
    auto x_lt_mod = bigint_ct_is_lt(x._data(), x.size(), modulus._data(), modulus.sig_words()).as_choice();
    return x_is_positive && x_lt_mod;
 }
@@ -191,7 +189,7 @@ BigInt Barrett_Reduction::square(const BigInt& x) const {
 }
 
 BigInt Barrett_Reduction::reduce(const BigInt& x) const {
-   BOTAN_ARG_CHECK(x.is_positive(), "Argument must be positive");
+   BOTAN_ARG_CHECK(x.signum() >= 0, "Argument must be non-negative");
 
    const size_t x_sw = x.sig_words();
    BOTAN_ARG_CHECK(x_sw <= 2 * m_mod_words, "Argument is too large for Barrett reduction");

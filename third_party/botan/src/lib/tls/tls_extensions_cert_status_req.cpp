@@ -42,9 +42,24 @@ class RFC6066_Certificate_Status_Request {
 
          const uint8_t type = reader.get_byte();
          if(type == 1 /* ocsp */) {
+            // RFC 6066 Section 8: OCSP CertificateStatusRequest is
+            //    ResponderID responder_id_list<0..2^16-1>;
+            //    Extensions  request_extensions;
+            //
+            // for a total wire size of 1 (status_type) + 2 (resp_id_list len)
+            //   + len_resp_id_list + 2 (request_ext len) + len_requ_ext.
+            if(extension_size < 5) {
+               throw Decoding_Error("Truncated OCSP CertificateStatusRequest");
+            }
             const size_t len_resp_id_list = reader.get_uint16_t();
+            if(len_resp_id_list > static_cast<size_t>(extension_size) - 5) {
+               throw Decoding_Error("Inconsistent length in OCSP CertificateStatusRequest");
+            }
             ocsp_names = reader.get_fixed<uint8_t>(len_resp_id_list);
             const size_t len_requ_ext = reader.get_uint16_t();
+            if(len_resp_id_list + len_requ_ext + 5 != extension_size) {
+               throw Decoding_Error("Inconsistent length in OCSP CertificateStatusRequest");
+            }
             extension_bytes = reader.get_fixed<uint8_t>(len_requ_ext);
          } else {
             // RFC 6066 does not specify anything but 'ocsp' and we

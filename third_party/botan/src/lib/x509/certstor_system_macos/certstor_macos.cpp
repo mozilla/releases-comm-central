@@ -67,15 +67,18 @@ class scoped_CFType {
 X509_DN normalize(const X509_DN& dn) {
    X509_DN result{};
 
-   for(const auto& [oid, str] : dn.dn_info()) {
+   // TODO use X509_DN::rdns here
+   const auto flat = dn.dn_info();
+   for(const auto& [oid, str] : flat) {
       if(str.tagging() == ASN1_Type::PrintableString) {
          std::string normalized;
          normalized.reserve(str.value().size());
 
          for(const char c : str.value()) {
             if(c != ' ') {
-               // store all 'normal' characters as upper case
-               normalized.push_back(std::toupper(c));
+               // PrintableString is ASCII-only; locale-independent fold to upper case
+               const char up = (c >= 'a' && c <= 'z') ? static_cast<char>(c - ('a' - 'A')) : c;
+               normalized.push_back(up);
             } else if(!normalized.empty() && normalized.back() != ' ') {
                // remove leading and squash multiple white spaces
                normalized.push_back(c);

@@ -305,7 +305,9 @@ net::awaitable<void> do_listen(tcp::endpoint endpoint,
 
    const bool run_forever = (max_clients == 0);
 
-   logger->log(Botan::fmt("Listening for new connections on {}:{}", endpoint.address().to_string(), endpoint.port()));
+   const auto local_endpoint = acceptor.local_endpoint();
+   logger->log(Botan::fmt(
+      "Listening for new connections on {}:{}", local_endpoint.address().to_string(), local_endpoint.port()));
    logger->flush();
 
    auto done = [&] {
@@ -322,8 +324,6 @@ net::awaitable<void> do_listen(tcp::endpoint endpoint,
                             make_final_completion_handler(logger, "Session"));
    }
 }
-
-}  // namespace
 
 class TLS_HTTP_Server final : public Command {
    public:
@@ -408,6 +408,8 @@ class TLS_HTTP_Server final : public Command {
 };
 
 BOTAN_REGISTER_COMMAND("tls_http_server", TLS_HTTP_Server);
+
+}  // namespace
 
 }  // namespace Botan_CLI
 

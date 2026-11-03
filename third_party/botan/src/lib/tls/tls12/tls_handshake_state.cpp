@@ -173,8 +173,8 @@ bool Handshake_State::received_handshake_msg(Handshake_Type handshake_msg) const
    return m_transitions.received_handshake_msg(handshake_msg);
 }
 
-std::pair<Handshake_Type, std::vector<uint8_t>> Handshake_State::get_next_handshake_msg() {
-   return m_handshake_io->get_next_record(m_transitions.change_cipher_spec_expected());
+std::pair<Handshake_Type, std::vector<uint8_t>> Handshake_State::get_next_handshake_msg(size_t max_handshake_msg_size) {
+   return m_handshake_io->get_next_record(m_transitions.change_cipher_spec_expected(), max_handshake_msg_size);
 }
 
 Session_Ticket Handshake_State::session_ticket() const {
@@ -223,6 +223,11 @@ std::pair<std::string, Signature_Format> Handshake_State::choose_sig_format(cons
       }
    }
 
+   if(!chosen_scheme.is_set()) {
+      throw TLS_Exception(Alert::HandshakeFailure,
+                          "Could not agree on a signature scheme with peer for " + sig_algo + " key");
+   }
+
    const std::string hash = chosen_scheme.hash_function_name();
 
    if(!policy.allowed_signature_hash(hash)) {
@@ -238,11 +243,9 @@ std::pair<std::string, Signature_Format> Handshake_State::choose_sig_format(cons
 
 namespace {
 
-bool supported_algos_include(const std::vector<Signature_Scheme>& schemes,
-                             std::string_view key_type,
-                             std::string_view hash_type) {
+bool supported_algos_include(const std::vector<Signature_Scheme>& schemes, Signature_Scheme received_scheme) {
    for(const Signature_Scheme scheme : schemes) {
-      if(scheme.is_available() && hash_type == scheme.hash_function_name() && key_type == scheme.algorithm_name()) {
+      if(scheme == received_scheme && scheme.is_available()) {
          return true;
       }
    }
@@ -284,15 +287,13 @@ std::pair<std::string, Signature_Format> Handshake_State::parse_sig_format(
    const std::vector<Signature_Scheme> supported_algos =
       for_client_auth ? cert_req()->signature_schemes() : offered_schemes;
 
-   const std::string hash_algo = scheme.hash_function_name();
-
    if(!scheme.is_compatible_with(Protocol_Version::TLS_V12)) {
-      throw TLS_Exception(Alert::IllegalParameter, "Peer sent unexceptable signature scheme");
+      throw TLS_Exception(Alert::IllegalParameter, "Peer sent unacceptable signature scheme");
    }
 
-   if(!supported_algos_include(supported_algos, key_type, hash_algo)) {
+   if(!supported_algos_include(supported_algos, scheme)) {
       throw TLS_Exception(Alert::IllegalParameter,
-                          "TLS signature extension did not allow for " + key_type + "/" + hash_algo + " signature");
+                          "TLS signature extension did not allow for " + scheme.to_string() + " signature");
    }
 
    if(!scheme.format().has_value()) {

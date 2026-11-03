@@ -17,32 +17,41 @@
 
 namespace Botan {
 
-struct CRL_Entry_Data {
-      std::vector<uint8_t> m_serial;
+class CRL_Entry_Data final {
+   public:
+      CRL_Entry_Data(const X509_Certificate& cert, CRL_Code why) :
+            m_serial(cert.serial()),
+            m_serial_bits(cert.serial_number()),
+            m_time(X509_Time(std::chrono::system_clock::now())),
+            m_reason(why) {
+         if(why != CRL_Code::Unspecified) {
+            m_extensions.add(std::make_unique<Cert_Extension::CRL_ReasonCode>(why));
+         }
+      }
+
+      CRL_Entry_Data() = default;
+
+      // NOLINTBEGIN(*non-private-member-variables-in-classes)
+      X509_Serial_Number m_serial;
+      std::vector<uint8_t> m_serial_bits;
       X509_Time m_time;
       CRL_Code m_reason = CRL_Code::Unspecified;
       Extensions m_extensions;
+      // NOLINTEND(*non-private-member-variables-in-classes)
 };
 
 /*
 * Create a CRL_Entry
 */
 CRL_Entry::CRL_Entry(const X509_Certificate& cert, CRL_Code why) {
-   m_data = std::make_shared<CRL_Entry_Data>();
-   m_data->m_serial = cert.serial_number();
-   m_data->m_time = X509_Time(std::chrono::system_clock::now());
-   m_data->m_reason = why;
-
-   if(why != CRL_Code::Unspecified) {
-      m_data->m_extensions.add(std::make_unique<Cert_Extension::CRL_ReasonCode>(why));
-   }
+   m_data = std::make_shared<CRL_Entry_Data>(cert, why);
 }
 
 /*
 * Compare two CRL_Entry structs for equality
 */
 bool operator==(const CRL_Entry& a1, const CRL_Entry& a2) {
-   if(a1.serial_number() != a2.serial_number()) {
+   if(a1.serial() != a2.serial()) {
       return false;
    }
    if(a1.expire_time() != a2.expire_time()) {
@@ -65,42 +74,14 @@ bool operator!=(const CRL_Entry& a1, const CRL_Entry& a2) {
 * DER encode a CRL_Entry
 */
 void CRL_Entry::encode_into(DER_Encoder& der) const {
-   der.start_sequence()
-      .encode(BigInt::from_bytes(serial_number()))
-      .encode(expire_time())
-      .start_sequence()
-      .encode(extensions())
-      .end_cons()
-      .end_cons();
-}
+   der.start_sequence().encode(serial()).encode(expire_time());
 
-namespace {
-
-std::vector<uint8_t> decode_serial_number(const BER_Object& obj) {
-   obj.assert_is_a(ASN1_Type::Integer, ASN1_Class::Universal);
-
-   if(!obj.data().empty() && obj.data()[0] == 0x00) {
-      return std::vector<uint8_t>(obj.data().begin() + 1, obj.data().end());
-   } else if(!obj.data().empty() && ((obj.data()[0] & 0x80) == 0x80)) {
-      std::vector<uint8_t> vec(obj.data().begin(), obj.data().end());
-      for(size_t i = vec.size(); i > 0; --i) {
-         const bool gt0 = vec[i - 1] > 0;
-         vec[i - 1] -= 1;
-         if(gt0) {
-            break;
-         }
-      }
-      for(auto& b : vec) {
-         b = ~b;
-      }
-
-      return vec;
-   } else {
-      return std::vector<uint8_t>(obj.data().begin(), obj.data().end());
+   if(extensions().count() > 0) {
+      der.start_sequence().encode(extensions()).end_cons();
    }
-}
 
-}  // namespace
+   der.end_cons();
+}
 
 /*
 * Decode a BER encoded CRL_Entry
@@ -110,14 +91,31 @@ void CRL_Entry::decode_from(BER_Decoder& source) {
 
    BER_Decoder entry = source.start_sequence();
 
-   data->m_serial = decode_serial_number(entry.get_next_object());
-
+   entry.decode(data->m_serial);
    entry.decode(data->m_time);
 
+   data->m_serial_bits = data->m_serial.magnitude();
+
    if(entry.more_items()) {
-      entry.decode(data->m_extensions);
+      data->m_extensions.decode_from(entry, Extension_Context::CRL_Entry);
+
+      // TODO(Botan4) start checking that CRLEntry extensions is not empty
+      // Extensions  ::=  SEQUENCE SIZE (1..MAX) OF Extension
+
       if(const auto* ext = data->m_extensions.get_extension_object_as<Cert_Extension::CRL_ReasonCode>()) {
-         data->m_reason = ext->get_reason();
+         const auto reason = ext->get_reason();
+
+         /*
+         * This reason code only makes sense in the context of delta CRL processing, which
+         * we do not currently support. Seeing it in a regular CRL suggests that something
+         * has gone very wrong (eg we are somehow processing a delta CRL, though that
+         * shouldn't happen since the delta CRL indicator extension should be a critical
+         * extension which we will reject.)
+         */
+         if(reason == CRL_Code::RemoveFromCrl) {
+            throw Decoding_Error("CRL entry ReasonCode extension included invalid RemoveFromCrl");
+         }
+         data->m_reason = reason;
       } else {
          data->m_reason = CRL_Code::Unspecified;
       }
@@ -137,6 +135,10 @@ const CRL_Entry_Data& CRL_Entry::data() const {
 }
 
 const std::vector<uint8_t>& CRL_Entry::serial_number() const {
+   return data().m_serial_bits;
+}
+
+const X509_Serial_Number& CRL_Entry::serial() const {
    return data().m_serial;
 }
 

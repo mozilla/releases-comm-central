@@ -18,7 +18,7 @@
 
 namespace Botan {
 
-class BOTAN_PUBLIC_API(3, 0) DilithiumMode {
+class BOTAN_PUBLIC_API(3, 0) DilithiumMode final {
    public:
       enum Mode : uint8_t /* NOLINT(*-use-enum-class) */ {
          Dilithium4x4 BOTAN_DEPRECATED("Dilithium R3 is deprecated - use ML-DSA") = 1,
@@ -103,7 +103,7 @@ class BOTAN_PUBLIC_API(3, 0) Dilithium_PublicKey : public virtual Public_Key {
       friend class Dilithium_Verification_Operation;
       friend class Dilithium_Signature_Operation;
 
-      std::shared_ptr<Dilithium_PublicKeyInternal> m_public;  // NOLINT(*non-private-member-variable*)
+      std::shared_ptr<const Dilithium_PublicKeyInternal> m_public;  // NOLINT(*non-private-member-variable*)
 };
 
 BOTAN_DIAGNOSTIC_PUSH
@@ -113,6 +113,8 @@ class BOTAN_PUBLIC_API(3, 0) Dilithium_PrivateKey final : public virtual Dilithi
                                                           public virtual Botan::Private_Key {
    public:
       std::unique_ptr<Public_Key> public_key() const override;
+
+      bool check_key(RandomNumberGenerator& rng, bool strong) const override;
 
       /**
        * Generates a new key pair
@@ -145,7 +147,7 @@ class BOTAN_PUBLIC_API(3, 0) Dilithium_PrivateKey final : public virtual Dilithi
    private:
       friend class Dilithium_Signature_Operation;
 
-      std::shared_ptr<Dilithium_PrivateKeyInternal> m_private;
+      std::shared_ptr<const Dilithium_PrivateKeyInternal> m_private;
 };
 
 BOTAN_DIAGNOSTIC_POP

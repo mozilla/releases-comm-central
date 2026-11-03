@@ -88,7 +88,15 @@ int botan_privkey_load(
    botan_privkey_t* key, botan_rng_t rng_obj, const uint8_t bits[], size_t len, const char* password) {
    BOTAN_UNUSED(rng_obj);
 
+   if(key == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
    *key = nullptr;
+
+   if(bits == nullptr && len > 0) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
 
    return ffi_guard_thunk(__func__, [=]() -> int {
       Botan::DataSource_Memory src(bits, len);
@@ -114,7 +122,15 @@ int botan_privkey_destroy(botan_privkey_t key) {
 }
 
 int botan_pubkey_load(botan_pubkey_t* key, const uint8_t bits[], size_t bits_len) {
+   if(key == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
    *key = nullptr;
+
+   if(bits == nullptr && bits_len > 0) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
 
    return ffi_guard_thunk(__func__, [=]() -> int {
       Botan::DataSource_Memory src(bits, bits_len);
@@ -134,10 +150,12 @@ int botan_pubkey_destroy(botan_pubkey_t key) {
 }
 
 int botan_privkey_export_pubkey(botan_pubkey_t* pubout, botan_privkey_t key_obj) {
+   if(pubout == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return ffi_guard_thunk(__func__, [=]() -> int {
       auto public_key = safe_get(key_obj).public_key();
-      ffi_new_object(pubout, std::move(public_key));
-      return BOTAN_FFI_SUCCESS;
+      return ffi_new_object(pubout, std::move(public_key));
    });
 }
 
@@ -432,10 +450,16 @@ int botan_privkey_remaining_operations(botan_privkey_t key, uint64_t* out) {
 }
 
 int botan_pubkey_estimated_strength(botan_pubkey_t key, size_t* estimate) {
+   if(estimate == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(key, [=](const auto& k) { *estimate = k.estimated_strength(); });
 }
 
 int botan_pubkey_fingerprint(botan_pubkey_t key, const char* hash_fn, uint8_t out[], size_t* out_len) {
+   if(hash_fn == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(key, [=](const auto& k) {
       auto h = Botan::HashFunction::create_or_throw(hash_fn);
       return write_vec_output(out, out_len, h->process(k.public_key_bits()));
@@ -443,6 +467,9 @@ int botan_pubkey_fingerprint(botan_pubkey_t key, const char* hash_fn, uint8_t ou
 }
 
 int botan_pkcs_hash_id(const char* hash_name, uint8_t pkcs_id[], size_t* pkcs_id_len) {
+   if(hash_name == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
 #if defined(BOTAN_HAS_HASH_ID)
    return ffi_guard_thunk(__func__, [=]() -> int {
       const std::vector<uint8_t> hash_id = Botan::pkcs_hash_id(hash_name);

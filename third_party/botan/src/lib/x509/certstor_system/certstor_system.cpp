@@ -61,6 +61,10 @@ std::optional<X509_CRL> System_Certificate_Store::find_crl_for(const X509_Certif
    return m_system_store->find_crl_for(subject);
 }
 
+bool System_Certificate_Store::contains(const X509_Certificate& cert) const {
+   return m_system_store->contains(cert);
+}
+
 std::vector<X509_DN> System_Certificate_Store::all_subjects() const {
    return m_system_store->all_subjects();
 }

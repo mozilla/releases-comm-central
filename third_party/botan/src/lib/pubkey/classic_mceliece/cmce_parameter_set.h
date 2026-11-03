@@ -23,7 +23,7 @@ namespace Botan {
  * Instance with 'pc' use plaintext confirmation as defined in the ISO Draft.
  * Instance with 'f' use matrix reduction with the semi-systematic form.
  */
-class BOTAN_PUBLIC_API(3, 4) Classic_McEliece_Parameter_Set {
+class BOTAN_PUBLIC_API(3, 4) Classic_McEliece_Parameter_Set final {
    public:
       enum class Code : uint8_t {
          ClassicMcEliece_348864,   // NIST

@@ -30,7 +30,7 @@ namespace TLS {
  * sessions via Session_ID will never return a session. Neither will searching
  * sessions by server information yield any result.
  */
-class BOTAN_PUBLIC_API(3, 0) Session_Manager_Stateless : public Session_Manager {
+class BOTAN_PUBLIC_API(3, 0) Session_Manager_Stateless final : public Session_Manager {
    public:
       /**
        * The key to encrypt and authenticate session information will be drawn

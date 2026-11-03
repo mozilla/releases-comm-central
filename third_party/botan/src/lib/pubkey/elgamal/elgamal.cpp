@@ -131,8 +131,8 @@ std::vector<uint8_t> ElGamal_Encryption_Operation::raw_encrypt(std::span<const u
 
    const auto& group = m_key->group();
 
-   if(m >= group.get_p()) {
-      throw Invalid_Argument("ElGamal encryption: Input is too large");
+   if(m == 0 || m >= group.get_p()) {
+      throw Invalid_Argument("ElGamal encryption: Message out of valid plaintext range");
    }
 
    /*
@@ -175,6 +175,8 @@ class ElGamal_Decryption_Operation final : public PK_Ops::Decryption_with_Paddin
 
       size_t plaintext_length(size_t /*ctext_len*/) const override { return m_key->group().p_bytes(); }
 
+      size_t ciphertext_length(size_t /*ptext_len*/) const override { return 2 * m_key->group().p_bytes(); }
+
       secure_vector<uint8_t> raw_decrypt(std::span<const uint8_t> ctext) override;
 
    private:
@@ -196,7 +198,11 @@ secure_vector<uint8_t> ElGamal_Decryption_Operation::raw_decrypt(std::span<const
    BigInt a(ctext.first(p_bytes));
    const BigInt b(ctext.last(p_bytes));
 
-   if(a >= group.get_p() || b >= group.get_p()) {
+   if(!group.verify_public_element(a)) {
+      throw Invalid_Argument("ElGamal decryption: Invalid message");
+   }
+
+   if(b == 0 || b >= group.get_p()) {
       throw Invalid_Argument("ElGamal decryption: Invalid message");
    }
 

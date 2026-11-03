@@ -8,7 +8,7 @@
 
 #include <botan/asio_context.h>
 
-#if defined(BOTAN_HAS_HAS_DEFAULT_TLS_CONTEXT)
+#if defined(BOTAN_HAS_DEFAULT_TLS_CONTEXT)
    #include <botan/auto_rng.h>
    #include <botan/certstor_system.h>
    #include <botan/tls_session.h>
@@ -17,7 +17,7 @@
 
 namespace Botan::TLS {
 
-#if defined(BOTAN_HAS_HAS_DEFAULT_TLS_CONTEXT)
+#if defined(BOTAN_HAS_DEFAULT_TLS_CONTEXT)
 
 namespace {
 

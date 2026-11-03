@@ -38,17 +38,17 @@ class BOTAN_PUBLIC_API(2, 0) X509_Object : public ASN1_Object {
       /**
       * @return signature on tbs_data()
       */
-      const std::vector<uint8_t>& signature() const { return m_sig; }
+      const std::vector<uint8_t>& signature() const;
 
       /**
       * @return signed body
       */
-      const std::vector<uint8_t>& signed_body() const { return m_tbs_bits; }
+      const std::vector<uint8_t>& signed_body() const;
 
       /**
       * @return signature algorithm that was used to generate signature
       */
-      const AlgorithmIdentifier& signature_algorithm() const { return m_sig_algo; }
+      const AlgorithmIdentifier& signature_algorithm() const;
 
       /**
       * Create a signed X509 object.
@@ -127,9 +127,14 @@ class BOTAN_PUBLIC_API(2, 0) X509_Object : public ASN1_Object {
    private:
       virtual void force_decode() = 0;
 
-      AlgorithmIdentifier m_sig_algo;
-      std::vector<uint8_t> m_tbs_bits;
-      std::vector<uint8_t> m_sig;
+      class Signed_Data final {
+         public:
+            AlgorithmIdentifier m_sig_algo;
+            std::vector<uint8_t> m_tbs_bits;
+            std::vector<uint8_t> m_sig;
+      };
+
+      std::shared_ptr<const Signed_Data> m_signed_data;
 };
 
 }  // namespace Botan

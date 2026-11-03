@@ -31,11 +31,21 @@ std::unique_ptr<Public_Key> load_key(DataSource& source) {
       std::vector<uint8_t> key_bits;
 
       if(ASN1::maybe_BER(source) && !PEM_Code::matches(source)) {
-         BER_Decoder(source).start_sequence().decode(alg_id).decode(key_bits, ASN1_Type::BitString).end_cons();
+         BER_Decoder(source, BER_Decoder::Limits::DER())
+            .start_sequence()
+            .decode(alg_id)
+            .decode_octet_aligned_bitstring(key_bits)
+            .end_cons()
+            .verify_end();
       } else {
          DataSource_Memory ber(PEM_Code::decode_check_label(source, "PUBLIC KEY"));
 
-         BER_Decoder(ber).start_sequence().decode(alg_id).decode(key_bits, ASN1_Type::BitString).end_cons();
+         BER_Decoder(ber, BER_Decoder::Limits::DER())
+            .start_sequence()
+            .decode(alg_id)
+            .decode_octet_aligned_bitstring(key_bits)
+            .end_cons()
+            .verify_end();
       }
 
       if(key_bits.empty()) {

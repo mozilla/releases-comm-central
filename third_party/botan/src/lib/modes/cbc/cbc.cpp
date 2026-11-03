@@ -12,6 +12,7 @@
 #include <botan/exceptn.h>
 #include <botan/mem_ops.h>
 #include <botan/internal/fmt.h>
+#include <botan/internal/int_utils.h>
 #include <botan/internal/mode_pad.h>
 
 namespace Botan {
@@ -123,12 +124,15 @@ void CBC_Encryption::finish_msg(secure_vector<uint8_t>& buffer, size_t offset) {
 
    const size_t BS = block_size();
 
-   const size_t output_bytes = padding().output_length(buffer.size(), BS);
+   const size_t output_bytes =
+      add_or_throw(offset, padding().output_length(buffer.size() - offset, BS), "CBC input too large");
    const size_t bytes_in_final_block = (buffer.size() - offset) % BS;
    buffer.resize(output_bytes);
-   padding().add_padding(buffer, bytes_in_final_block, BS);
+   padding().add_padding(std::span(buffer).subspan(offset), bytes_in_final_block, BS);
 
-   BOTAN_ASSERT_EQUAL(buffer.size() % BS, offset % BS, "Padded to block boundary");
+   // With NoPadding a non-block-multiple input reaches here un-padded; reject it
+   // as an argument error rather than tripping the assertion.
+   BOTAN_ARG_CHECK(buffer.size() % BS == offset % BS, "CBC input is not full blocks (NoPadding)");
 
    update(buffer, offset);
 }
@@ -237,6 +241,7 @@ void CBC_Decryption::finish_msg(secure_vector<uint8_t>& buffer, size_t offset) {
    const size_t pad_bytes = BS - padding().unpad(std::span{buffer}.last(BS));
    buffer.resize(buffer.size() - pad_bytes);  // remove padding
    if(pad_bytes == 0 && padding().name() != "NoPadding") {
+      clear_mem(std::span{buffer}.subspan(offset));
       throw Decoding_Error("Invalid CBC padding");
    }
 }

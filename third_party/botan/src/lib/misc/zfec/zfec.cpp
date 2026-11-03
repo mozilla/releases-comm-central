@@ -111,7 +111,7 @@ const uint8_t* GF_MUL_TABLE(uint8_t y) {
 * (Gauss-Jordan algorithm, adapted from Numerical Recipes in C)
 */
 void invert_matrix(uint8_t matrix[], size_t K) {
-   class pivot_searcher {
+   class pivot_searcher final {
       public:
          explicit pivot_searcher(size_t K) : m_ipiv(K) {}
 
@@ -291,23 +291,6 @@ void ZFEC::addmul(uint8_t z[], const uint8_t x[], uint8_t y, size_t size) {
 
    const uint8_t* GF_MUL_Y = GF_MUL_TABLE(y);
 
-   // first align z to 16 bytes
-   while(size > 0 && reinterpret_cast<uintptr_t>(z) % 16 > 0) {
-      z[0] ^= GF_MUL_Y[x[0]];
-      ++z;
-      ++x;
-      size--;
-   }
-
-#if defined(BOTAN_HAS_ZFEC_VPERM)
-   if(size >= 16 && CPUID::has(CPUID::Feature::SIMD_4X32)) {
-      const size_t consumed = addmul_vperm(z, x, y, size);
-      z += consumed;
-      x += consumed;
-      size -= consumed;
-   }
-#endif
-
    while(size >= 16) {
       z[0] ^= GF_MUL_Y[x[0]];
       z[1] ^= GF_MUL_Y[x[1]];
@@ -338,6 +321,33 @@ void ZFEC::addmul(uint8_t z[], const uint8_t x[], uint8_t y, size_t size) {
 }
 
 /*
+* linear_combination() computes z[] = x[0][] * y[0] + ... + x[k-1][] * y[k-1]
+*/
+void ZFEC::linear_combination(uint8_t z[], const uint8_t* const x[], const uint8_t y[], size_t k, size_t size) {
+#if defined(BOTAN_HAS_ZFEC_GFNI)
+   if(CPUID::has(CPUID::Feature::AVX512, CPUID::Feature::GFNI)) {
+      linear_combination_gfni(z, x, y, k, size);
+      return;
+   }
+#endif
+
+   size_t consumed = 0;
+
+#if defined(BOTAN_HAS_ZFEC_VPERM)
+   if(CPUID::has(CPUID::Feature::SIMD_4X32)) {
+      consumed = linear_combination_vperm(z, x, y, k, size);
+   }
+#endif
+
+   if(consumed < size) {
+      clear_mem(z + consumed, size - consumed);
+      for(size_t j = 0; j != k; ++j) {
+         addmul(z + consumed, x[j] + consumed, y[j], size - consumed);
+      }
+   }
+}
+
+/*
 * This section contains the proper FEC encoding/decoding routines.
 * The encoding matrix is computed starting with a Vandermonde matrix,
 * and then transforming it into a systematic matrix.
@@ -347,8 +357,8 @@ void ZFEC::addmul(uint8_t z[], const uint8_t x[], uint8_t y, size_t size) {
 * ZFEC constructor
 */
 ZFEC::ZFEC(size_t K, size_t N) : m_K(K), m_N(N), m_enc_matrix(N * K) {
-   if(m_K == 0 || m_N == 0 || m_K > 256 || m_N > 256 || m_K > N) {
-      throw Invalid_Argument("ZFEC: violated 1 <= K <= N <= 256");
+   if(m_K == 0 || m_N == 0 || m_K >= 256 || m_N >= 256 || m_K > N) {
+      throw Invalid_Argument("ZFEC: violated 1 <= K <= N < 256");
    }
 
    std::vector<uint8_t> temp_matrix(m_N * m_K);
@@ -420,12 +430,7 @@ void ZFEC::encode_shares(const std::vector<const uint8_t*>& shares,
    std::vector<uint8_t> fec_buf(share_size);
 
    for(size_t i = m_K; i != m_N; ++i) {
-      clear_mem(fec_buf.data(), fec_buf.size());
-
-      for(size_t j = 0; j != m_K; ++j) {
-         addmul(fec_buf.data(), shares[j], m_enc_matrix[i * m_K + j], share_size);
-      }
-
+      linear_combination(fec_buf.data(), shares.data(), &m_enc_matrix[i * m_K], m_K, share_size);
       output_cb(i, fec_buf.data(), fec_buf.size());
    }
 }
@@ -511,15 +516,19 @@ void ZFEC::decode_shares(const std::map<size_t, const uint8_t*>& shares,
    for(size_t i = 0; i != indexes.size(); ++i) {
       if(indexes[i] >= m_K) {
          std::vector<uint8_t> buf(share_size);
-         for(size_t col = 0; col != m_K; ++col) {
-            addmul(buf.data(), sharesv[col], decoding_matrix[i * m_K + col], share_size);
-         }
+         linear_combination(buf.data(), sharesv.data(), &decoding_matrix[i * m_K], m_K, share_size);
          output_cb(i, buf.data(), share_size);
       }
    }
 }
 
 std::string ZFEC::provider() const {
+#if defined(BOTAN_HAS_ZFEC_GFNI)
+   if(auto feat = CPUID::check(CPUID::Feature::AVX512, CPUID::Feature::GFNI)) {
+      return *feat;
+   }
+#endif
+
 #if defined(BOTAN_HAS_ZFEC_VPERM)
    if(auto feat = CPUID::check(CPUID::Feature::SIMD_4X32)) {
       return *feat;

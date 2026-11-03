@@ -1105,6 +1105,16 @@ Set the man page installation dir.
 
 Set the include file installation dir.
 
+``--without-include-namespace``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By default, the header files (e.g. ``botan/hex.h``) are installed into an
+additional subdirectory named ``botan-<version>``. This option causes them to be
+installed directly into ``<includedir>`` instead.
+
+This option is not needed for normal usage and is only required in order to work
+around limitations in certain package managers.
+
 ``--cmakeconfigdir=DIR``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

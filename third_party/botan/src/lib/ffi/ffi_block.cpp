@@ -8,6 +8,7 @@
 
 #include <botan/block_cipher.h>
 #include <botan/internal/ffi_util.h>
+#include <utility>
 
 extern "C" {
 
@@ -58,18 +59,29 @@ int botan_block_cipher_set_key(botan_block_cipher_t bc, const uint8_t key[], siz
 * indicate an error
 */
 int botan_block_cipher_block_size(botan_block_cipher_t bc) {
-   return BOTAN_FFI_VISIT(bc, [](const auto& b) { return static_cast<int>(b.block_size()); });
+   return BOTAN_FFI_VISIT(bc, [](const auto& b) -> int {
+      const size_t bs = b.block_size();
+      if(bs == 0) {
+         return BOTAN_FFI_ERROR_INVALID_OBJECT_STATE;
+      }
+
+      if(std::in_range<int>(bs)) {
+         return static_cast<int>(bs);
+      } else {
+         return BOTAN_FFI_ERROR_INVALID_OBJECT_STATE;
+      }
+   });
 }
 
 int botan_block_cipher_encrypt_blocks(botan_block_cipher_t bc, const uint8_t in[], uint8_t out[], size_t blocks) {
-   if(in == nullptr || out == nullptr) {
+   if(any_null_pointers(in, out)) {
       return BOTAN_FFI_ERROR_NULL_POINTER;
    }
    return BOTAN_FFI_VISIT(bc, [=](const auto& b) { b.encrypt_n(in, out, blocks); });
 }
 
 int botan_block_cipher_decrypt_blocks(botan_block_cipher_t bc, const uint8_t in[], uint8_t out[], size_t blocks) {
-   if(in == nullptr || out == nullptr) {
+   if(any_null_pointers(in, out)) {
       return BOTAN_FFI_ERROR_NULL_POINTER;
    }
    return BOTAN_FFI_VISIT(bc, [=](const auto& b) { b.decrypt_n(in, out, blocks); });

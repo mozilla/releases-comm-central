@@ -134,6 +134,9 @@ class BOTAN_PUBLIC_API(2, 0) EC_PublicKey : public virtual Public_Key {
       */
       EC_PublicKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> key_bits);
 
+      static const AlgorithmIdentifier& assert_algorithm_identifier(const AlgorithmIdentifier& alg_id,
+                                                                    std::string_view alg_name);
+
       EC_PublicKey() = default;
 
       std::shared_ptr<const EC_PublicKey_Data> m_public_key;                // NOLINT(*non-private-member-variable*)
@@ -221,9 +224,10 @@ class BOTAN_PUBLIC_API(2, 0) EC_PrivateKey : public virtual EC_PublicKey,
                     std::span<const uint8_t> key_bits,
                     bool with_modular_inverse = false);
 
-      EC_PrivateKey() = default;
+      EC_PrivateKey() : m_with_modular_inverse(false) {}
 
       std::shared_ptr<const EC_PrivateKey_Data> m_private_key;  // NOLINT(*non-private-member-variable*)
+      bool m_with_modular_inverse;                              // NOLINT(*non-private-member-variable*)
 };
 
 BOTAN_DIAGNOSTIC_POP

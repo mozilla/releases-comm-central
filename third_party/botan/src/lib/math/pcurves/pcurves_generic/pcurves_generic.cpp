@@ -9,6 +9,7 @@
 #include <botan/bigint.h>
 #include <botan/exceptn.h>
 #include <botan/rng.h>
+#include <botan/internal/barrett.h>
 #include <botan/internal/buffer_stuffer.h>
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/loadstor.h>
@@ -981,12 +982,10 @@ class GenericAffinePoint final {
       }
 
       /**
-      * Point deserialization
-      *
-      * This accepts compressed or uncompressed formats.
+      * Point deserialization (SEC1 uncompressed format only)
       */
-      static std::optional<GenericAffinePoint> deserialize(const GenericPrimeOrderCurve* curve,
-                                                           std::span<const uint8_t> bytes) {
+      static std::optional<GenericAffinePoint> deserialize_uncompressed(const GenericPrimeOrderCurve* curve,
+                                                                        std::span<const uint8_t> bytes) {
          const size_t fe_bytes = curve->_params().field_bytes();
 
          if(bytes.size() == 1 + 2 * fe_bytes && bytes[0] == 0x04) {
@@ -1000,7 +999,19 @@ class GenericAffinePoint final {
                   return GenericAffinePoint(*x, *y);
                }
             }
-         } else if(bytes.size() == 1 + fe_bytes && (bytes[0] == 0x02 || bytes[0] == 0x03)) {
+         }
+
+         return {};
+      }
+
+      /**
+      * Point deserialization (SEC1 compressed format only)
+      */
+      static std::optional<GenericAffinePoint> deserialize_compressed(const GenericPrimeOrderCurve* curve,
+                                                                      std::span<const uint8_t> bytes) {
+         const size_t fe_bytes = curve->_params().field_bytes();
+
+         if(bytes.size() == 1 + fe_bytes && (bytes[0] == 0x02 || bytes[0] == 0x03)) {
             const CT::Choice y_is_even = CT::Mask<uint8_t>::is_equal(bytes[0], 0x02).as_choice();
 
             if(auto x = GenericField::deserialize(curve, bytes.subspan(1, fe_bytes))) {
@@ -1012,9 +1023,6 @@ class GenericAffinePoint final {
                   return GenericAffinePoint(*x, y);
                }
             }
-         } else if(bytes.size() == 1 && bytes[0] == 0x00) {
-            // See SEC1 section 2.3.4
-            return GenericAffinePoint::identity(curve);
          }
 
          return {};
@@ -1457,6 +1465,7 @@ PrimeOrderCurve::Scalar GenericPrimeOrderCurve::base_point_mul_x_mod_order(const
                                                                            RandomNumberGenerator& rng) const {
    BOTAN_STATE_CHECK(m_basemul != nullptr);
    auto pt_s = m_basemul->mul(from_stash(scalar), rng);
+   BOTAN_STATE_CHECK(!pt_s.is_identity().as_bool());
    const auto x_bytes = to_affine_x<GenericCurve>(pt_s).serialize<secure_vector<uint8_t>>();
    if(auto s = GenericScalar::from_wide_bytes(this, x_bytes)) {
       return stash(*s);
@@ -1477,6 +1486,7 @@ secure_vector<uint8_t> GenericPrimeOrderCurve::mul_x_only(const AffinePoint& pt,
                                                           RandomNumberGenerator& rng) const {
    GenericWindowedMul pt_table(from_stash(pt));
    auto pt_s = pt_table.mul(from_stash(scalar), rng);
+   BOTAN_STATE_CHECK(!pt_s.is_identity().as_bool());
    return to_affine_x<GenericCurve>(pt_s).serialize<secure_vector<uint8_t>>();
 }
 
@@ -1544,6 +1554,10 @@ PrimeOrderCurve::AffinePoint GenericPrimeOrderCurve::generator() const {
    return PrimeOrderCurve::AffinePoint::_create(shared_from_this(), _params().base_x(), _params().base_y());
 }
 
+PrimeOrderCurve::AffinePoint GenericPrimeOrderCurve::point_identity() const {
+   return stash(GenericAffinePoint::identity(this));
+}
+
 PrimeOrderCurve::AffinePoint GenericPrimeOrderCurve::point_to_affine(const ProjectivePoint& pt) const {
    auto affine = to_affine<GenericCurve>(from_stash(pt));
 
@@ -1580,10 +1594,12 @@ void GenericPrimeOrderCurve::serialize_scalar(std::span<uint8_t> bytes, const Sc
 std::optional<PrimeOrderCurve::Scalar> GenericPrimeOrderCurve::deserialize_scalar(
    std::span<const uint8_t> bytes) const {
    if(auto s = GenericScalar::deserialize(this, bytes)) {
-      return stash(s.value());
-   } else {
-      return {};
+      if(s->is_nonzero().as_bool()) {
+         return stash(s.value());
+      }
    }
+
+   return {};
 }
 
 std::optional<PrimeOrderCurve::Scalar> GenericPrimeOrderCurve::scalar_from_wide_bytes(
@@ -1595,9 +1611,18 @@ std::optional<PrimeOrderCurve::Scalar> GenericPrimeOrderCurve::scalar_from_wide_
    }
 }
 
-std::optional<PrimeOrderCurve::AffinePoint> GenericPrimeOrderCurve::deserialize_point(
+std::optional<PrimeOrderCurve::AffinePoint> GenericPrimeOrderCurve::deserialize_point_uncompressed(
    std::span<const uint8_t> bytes) const {
-   if(auto pt = GenericAffinePoint::deserialize(this, bytes)) {
+   if(auto pt = GenericAffinePoint::deserialize_uncompressed(this, bytes)) {
+      return stash(pt.value());
+   } else {
+      return {};
+   }
+}
+
+std::optional<PrimeOrderCurve::AffinePoint> GenericPrimeOrderCurve::deserialize_point_compressed(
+   std::span<const uint8_t> bytes) const {
+   if(auto pt = GenericAffinePoint::deserialize_compressed(this, bytes)) {
       return stash(pt.value());
    } else {
       return {};
@@ -1685,6 +1710,10 @@ GenericProjectivePoint GenericPrimeOrderCurve::from_stash(const PrimeOrderCurve:
    return GenericProjectivePoint(x, y, z);
 }
 
+bool GenericPrimeOrderCurve::supports_hash_to_curve() const {
+   return false;
+}
+
 PrimeOrderCurve::AffinePoint GenericPrimeOrderCurve::hash_to_curve_nu(
    std::function<void(std::span<uint8_t>)> expand_message) const {
    BOTAN_UNUSED(expand_message);
@@ -1727,6 +1756,14 @@ std::shared_ptr<const PrimeOrderCurve> PCurveInstance::from_params(
 
    // The bit length of the field and order being the same simplifies things
    if(p_bits != order.bits()) {
+      return {};
+   }
+
+   // Check that the (x,y) generator point is on the curve
+   auto mod_p = Barrett_Reduction::for_public_modulus(p);
+   const BigInt y2 = mod_p.square(base_y);
+   const BigInt x3_ax_b = mod_p.reduce(mod_p.cube(base_x) + mod_p.multiply(a, base_x) + b);
+   if(y2 != x3_ax_b) {
       return {};
    }
 

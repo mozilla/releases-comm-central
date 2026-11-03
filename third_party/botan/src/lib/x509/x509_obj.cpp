@@ -24,8 +24,10 @@ namespace Botan {
 void X509_Object::load_data(DataSource& in) {
    try {
       if(ASN1::maybe_BER(in) && !PEM_Code::matches(in)) {
-         BER_Decoder dec(in);
+         BER_Decoder dec(in, BER_Decoder::Limits::DER());
          decode_from(dec);
+         // Call to verify_end omitted here since we have to sometimes decode
+         // multiple certificates encoded sequentially in a DataSource
       } else {
          std::string got_label;
          DataSource_Memory ber(PEM_Code::decode(in, got_label));
@@ -44,12 +46,35 @@ void X509_Object::load_data(DataSource& in) {
             }
          }
 
-         BER_Decoder dec(ber);
+         BER_Decoder dec(ber, BER_Decoder::Limits::DER());
          decode_from(dec);
+         // Call to verify_end omitted here since we have to sometimes decode
+         // multiple certificates encoded sequentially in a DataSource
       }
    } catch(Decoding_Error& e) {
       throw Decoding_Error(PEM_label() + " decoding", e);
    }
+}
+
+const std::vector<uint8_t>& X509_Object::signature() const {
+   if(!m_signed_data) {
+      throw Invalid_State("X509_Object uninitialized");
+   }
+   return m_signed_data->m_sig;
+}
+
+const std::vector<uint8_t>& X509_Object::signed_body() const {
+   if(!m_signed_data) {
+      throw Invalid_State("X509_Object uninitialized");
+   }
+   return m_signed_data->m_tbs_bits;
+}
+
+const AlgorithmIdentifier& X509_Object::signature_algorithm() const {
+   if(!m_signed_data) {
+      throw Invalid_State("X509_Object uninitialized");
+   }
+   return m_signed_data->m_sig_algo;
 }
 
 void X509_Object::encode_into(DER_Encoder& to) const {
@@ -58,7 +83,7 @@ void X509_Object::encode_into(DER_Encoder& to) const {
       .raw_bytes(signed_body())
       .end_cons()
       .encode(signature_algorithm())
-      .encode(signature(), ASN1_Type::BitString)
+      .encode_octet_aligned_bitstring(signature())
       .end_cons();
 }
 
@@ -66,14 +91,17 @@ void X509_Object::encode_into(DER_Encoder& to) const {
 * Read a BER encoded X.509 object
 */
 void X509_Object::decode_from(BER_Decoder& from) {
+   auto data = std::make_shared<Signed_Data>();
+
    from.start_sequence()
       .start_sequence()
-      .raw_bytes(m_tbs_bits)
+      .raw_bytes(data->m_tbs_bits)
       .end_cons()
-      .decode(m_sig_algo)
-      .decode(m_sig, ASN1_Type::BitString)
+      .decode(data->m_sig_algo)
+      .decode_octet_aligned_bitstring(data->m_sig)
       .end_cons();
 
+   m_signed_data = std::move(data);
    force_decode();
 }
 
@@ -88,7 +116,7 @@ std::string X509_Object::PEM_encode() const {
 * Return the TBS data
 */
 std::vector<uint8_t> X509_Object::tbs_data() const {
-   return ASN1::put_in_sequence(m_tbs_bits);
+   return ASN1::put_in_sequence(signed_body());
 }
 
 /*
@@ -102,7 +130,10 @@ bool X509_Object::check_signature(const Public_Key& pub_key) const {
 std::pair<Certificate_Status_Code, std::string> X509_Object::verify_signature(const Public_Key& pub_key) const {
    try {
       PK_Verifier verifier(pub_key, signature_algorithm());
-      const bool valid = verifier.verify_message(tbs_data(), signature());
+      const auto& tbs = signed_body();
+      verifier.update(ASN1::der_sequence_header(tbs.size()));
+      verifier.update(tbs);
+      const bool valid = verifier.check_signature(signature());
 
       if(valid) {
          return std::make_pair(Certificate_Status_Code::VERIFIED, verifier.hash_function());
@@ -133,7 +164,7 @@ std::vector<uint8_t> X509_Object::make_signed(PK_Signer& signer,
       .start_sequence()
       .raw_bytes(tbs_bits)
       .encode(algo)
-      .encode(signature, ASN1_Type::BitString)
+      .encode_octet_aligned_bitstring(signature)
       .end_cons();
 
    return output;

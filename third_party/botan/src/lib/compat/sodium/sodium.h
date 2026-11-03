@@ -1138,7 +1138,7 @@ inline void crypto_stream_xchacha20_keygen(uint8_t k[32]) {
 // sodium/crypto_stream_salsa20.h
 
 inline size_t crypto_stream_salsa20_keybytes() {
-   return crypto_stream_xsalsa20_KEYBYTES;
+   return crypto_stream_salsa20_KEYBYTES;
 }
 
 inline size_t crypto_stream_salsa20_noncebytes() {
@@ -1254,7 +1254,7 @@ inline size_t crypto_sign_ed25519_messagebytes_max() {
 
 BOTAN_PUBLIC_API(2, 11)
 int crypto_sign_ed25519_detached(
-   uint8_t sig[], unsigned long long* sig_len, const uint8_t msg[], size_t msg_len, const uint8_t sk[32]);
+   uint8_t sig[], unsigned long long* sig_len, const uint8_t msg[], size_t msg_len, const uint8_t sk[64]);
 
 BOTAN_PUBLIC_API(2, 11)
 int crypto_sign_ed25519_verify_detached(const uint8_t sig[], const uint8_t msg[], size_t msg_len, const uint8_t pk[32]);
@@ -1291,16 +1291,16 @@ inline const char* crypto_sign_primitive() {
    return "ed25519";
 }
 
-inline int crypto_sign_seed_keypair(uint8_t pk[32], uint8_t sk[32], const uint8_t seed[]) {
+inline int crypto_sign_seed_keypair(uint8_t pk[32], uint8_t sk[64], const uint8_t seed[]) {
    return crypto_sign_ed25519_seed_keypair(pk, sk, seed);
 }
 
-inline int crypto_sign_keypair(uint8_t pk[32], uint8_t sk[32]) {
+inline int crypto_sign_keypair(uint8_t pk[32], uint8_t sk[64]) {
    return crypto_sign_ed25519_keypair(pk, sk);
 }
 
 inline int crypto_sign_detached(
-   uint8_t sig[], unsigned long long* sig_len, const uint8_t msg[], size_t msg_len, const uint8_t sk[32]) {
+   uint8_t sig[], unsigned long long* sig_len, const uint8_t msg[], size_t msg_len, const uint8_t sk[64]) {
    return crypto_sign_ed25519_detached(sig, sig_len, msg, msg_len, sk);
 }
 

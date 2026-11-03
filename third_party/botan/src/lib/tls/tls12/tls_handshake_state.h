@@ -14,11 +14,13 @@
 #include <botan/tls_extensions.h>
 #include <botan/tls_handshake_msg.h>
 #include <botan/tls_session.h>
+#include <botan/x509cert.h>
 #include <botan/internal/tls_handshake_hash.h>
 #include <botan/internal/tls_handshake_io.h>
 #include <botan/internal/tls_handshake_transitions.h>
 #include <botan/internal/tls_session_key.h>
 #include <optional>
+#include <vector>
 
 namespace Botan {
 
@@ -68,6 +70,8 @@ class Handshake_State {
 
       Handshake_IO& handshake_io() { return *m_handshake_io; }
 
+      std::unique_ptr<Handshake_IO> take_handshake_io() { return std::move(m_handshake_io); }
+
       /**
       * Return true iff we have received a particular message already
       * @param msg_type the message type
@@ -86,7 +90,7 @@ class Handshake_State {
       */
       void set_expected_next(Handshake_Type msg_type);
 
-      std::pair<Handshake_Type, std::vector<uint8_t>> get_next_handshake_msg();
+      std::pair<Handshake_Type, std::vector<uint8_t>> get_next_handshake_msg(size_t max_handshake_msg_size);
 
       Session_Ticket session_ticket() const;
 
@@ -155,6 +159,8 @@ class Handshake_State {
       const Finished_12* server_finished() const { return m_server_finished.get(); }
 
       const Finished_12* client_finished() const { return m_client_finished.get(); }
+
+      virtual std::vector<X509_Certificate> peer_cert_chain() const = 0;
 
       const Ciphersuite& ciphersuite() const;
 

@@ -116,9 +116,15 @@ if(_Botan_PREFIX STREQUAL "/")
   set(_Botan_PREFIX "")
 endif()
 
-set(_Botan_INCLUDE_DIR "${_Botan_PREFIX}/%{includedir}/botan-%{version_major}")
+set(_Botan_INCLUDE_DIR "${_Botan_PREFIX}/%{namespaced_includedir_rel}")
 set(_Botan_LIB_PREFIX  "${_Botan_PREFIX}/%{libdir_rel}")
+
+%{if bindir_rel}
 set(_Botan_BIN_DIR     "${_Botan_PREFIX}/%{bindir_rel}")
+%{endif}
+%{unless bindir_rel}
+set(_Botan_BIN_DIR     "%{bindir}")
+%{endif}
 
 %{if build_static_lib}
 if(NOT TARGET botan::botan-static)

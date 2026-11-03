@@ -59,16 +59,20 @@ uint8_t cert_type_name_to_code(std::string_view name) {
 Certificate_Request_12::Certificate_Request_12(Handshake_IO& io,
                                                Handshake_Hash& hash,
                                                const Policy& policy,
-                                               const std::vector<X509_DN>& ca_certs) :
-      m_names(ca_certs), m_cert_key_types({"RSA", "ECDSA"}) {
+                                               std::vector<X509_DN> ca_certs) :
+      m_names(std::move(ca_certs)), m_cert_key_types({"RSA", "ECDSA"}) {
    m_schemes = policy.acceptable_signature_schemes();
+   // RFC 5246 7.4.4: supported_signature_algorithms<2..2^16-2>
+   if(m_schemes.empty()) {
+      throw Internal_Error("Policy returned no acceptable signature schemes for CertificateRequest");
+   }
    hash.update(io.send(*this));
 }
 
 /**
 * Deserialize a Certificate Request message
 */
-Certificate_Request_12::Certificate_Request_12(const std::vector<uint8_t>& buf) {
+Certificate_Request_12::Certificate_Request_12(std::span<const uint8_t> buf) {
    if(buf.size() < 4) {
       throw Decoding_Error("Certificate_Req: Bad certificate request");
    }
@@ -104,11 +108,12 @@ Certificate_Request_12::Certificate_Request_12(const std::vector<uint8_t>& buf) 
    }
 
    while(reader.has_remaining()) {
-      std::vector<uint8_t> name_bits = reader.get_range_vector<uint8_t>(2, 0, 65535);
+      // RFC 5246 7.4.4: opaque DistinguishedName<1..2^16-1>
+      std::vector<uint8_t> name_bits = reader.get_range_vector<uint8_t>(2, 1, 65535);
 
-      BER_Decoder decoder(name_bits.data(), name_bits.size());
+      BER_Decoder decoder(name_bits, BER_Decoder::Limits::DER());
       X509_DN name;
-      decoder.decode(name);
+      decoder.decode(name).verify_end();
       m_names.emplace_back(name);
    }
 }
@@ -140,9 +145,8 @@ std::vector<uint8_t> Certificate_Request_12::serialize() const {
 
    append_tls_length_value(buf, cert_types, 1);
 
-   if(!m_schemes.empty()) {
-      buf += Signature_Algorithms(m_schemes).serialize(Connection_Side::Server);
-   }
+   // RFC 5246 7.4.4: supported_signature_algorithms<2..2^16-2>
+   buf += Signature_Algorithms(m_schemes).serialize(Connection_Side::Server);
 
    std::vector<uint8_t> encoded_names;
 

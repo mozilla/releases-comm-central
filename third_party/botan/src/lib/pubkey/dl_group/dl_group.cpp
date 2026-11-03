@@ -19,12 +19,48 @@
 #include <botan/internal/monty_exp.h>
 #include <botan/internal/primality.h>
 #include <botan/internal/workfactor.h>
+#include <algorithm>
 #include <string_view>
 
 namespace Botan {
 
+namespace {
+
+void check_dl_group_params(const BigInt& p, const BigInt& g) {
+   if(p.signum() <= 0 || p.is_even() || p.bits() < 3 || p.bits() > 16384) {
+      throw Decoding_Error("Invalid DL group prime");
+   }
+   if(g.signum() <= 0 || g < 2 || g >= p) {
+      throw Decoding_Error("Invalid DL group generator");
+   }
+}
+
+void check_dl_group_params(const BigInt& p, const BigInt& q, const BigInt& g) {
+   check_dl_group_params(p, g);
+   if(q.signum() <= 0 || q.is_even() || q.bits() >= p.bits()) {
+      throw Decoding_Error("Invalid DL group subgroup order");
+   }
+}
+
+}  // namespace
+
 class DL_Group_Data final {
    public:
+      static std::shared_ptr<DL_Group_Data> create(const BigInt& p,
+                                                   const BigInt& q,
+                                                   const BigInt& g,
+                                                   DL_Group_Source source) {
+         check_dl_group_params(p, q, g);
+         return std::make_shared<DL_Group_Data>(p, q, g, source);
+      }
+
+      static std::shared_ptr<DL_Group_Data> create(const BigInt& p, const BigInt& g, DL_Group_Source source) {
+         check_dl_group_params(p, g);
+         return std::make_shared<DL_Group_Data>(p, g, source);
+      }
+
+      // This constructor is public because C++ is terrible but all DL_Group_Data should
+      // be created via DL_Group_Data::create
       DL_Group_Data(const BigInt& p, const BigInt& q, const BigInt& g, DL_Group_Source source) :
             m_p(p),
             m_q(q),
@@ -35,10 +71,14 @@ class DL_Group_Data final {
             m_monty(monty_precompute(m_monty_params, m_g, /*window bits=*/4)),
             m_p_bits(p.bits()),
             m_q_bits(q.bits()),
-            m_estimated_strength(dl_work_factor(m_p_bits)),
+            // For DL crypto in a prime-order subgroup, security is bounded by
+            // both the NFS cost in Z_p* and Pollard rho in the q-order subgroup.
+            m_estimated_strength(std::min(dl_work_factor(m_p_bits), m_q_bits / 2)),
             m_exponent_bits(dl_exponent_size(m_p_bits)),
             m_source(source) {}
 
+      // This constructor is public because C++ is terrible but all DL_Group_Data should
+      // be created via DL_Group_Data::create
       DL_Group_Data(const BigInt& p, const BigInt& g, DL_Group_Source source) :
             m_p(p),
             m_g(g),
@@ -125,30 +165,39 @@ class DL_Group_Data final {
 };
 
 //static
-std::shared_ptr<DL_Group_Data> DL_Group::BER_decode_DL_group(const uint8_t data[],
-                                                             size_t data_len,
+std::shared_ptr<DL_Group_Data> DL_Group::DER_decode_DL_group(const std::span<const uint8_t> data,
                                                              DL_Group_Format format,
                                                              DL_Group_Source source) {
-   BER_Decoder decoder(data, data_len);
-   BER_Decoder ber = decoder.start_sequence();
+   BER_Decoder outer(data, BER_Decoder::Limits::DER());
+   BER_Decoder inner = outer.start_sequence();
+   outer.verify_end();
 
    if(format == DL_Group_Format::ANSI_X9_57) {
+      /*
+      This format is p, q, g with no additional data following
+      */
       BigInt p;
       BigInt q;
       BigInt g;
-      ber.decode(p).decode(q).decode(g).verify_end();
-      return std::make_shared<DL_Group_Data>(p, q, g, source);
+      inner.decode(p).decode(q).decode(g).verify_end();
+      return DL_Group_Data::create(p, q, g, source);
    } else if(format == DL_Group_Format::ANSI_X9_42) {
+      /*
+      This format is p, g, q with optional cofactor and seed following
+      */
       BigInt p;
       BigInt g;
       BigInt q;
-      ber.decode(p).decode(g).decode(q).discard_remaining();
-      return std::make_shared<DL_Group_Data>(p, q, g, source);
+      inner.decode(p).decode(g).decode(q).discard_remaining();
+      return DL_Group_Data::create(p, q, g, source);
    } else if(format == DL_Group_Format::PKCS_3) {
+      /*
+      This format is p, g followed by optional privateValueLength (recommended exponent size)
+      */
       BigInt p;
       BigInt g;
-      ber.decode(p).decode(g).discard_remaining();
-      return std::make_shared<DL_Group_Data>(p, g, source);
+      inner.decode(p).decode(g).discard_remaining();
+      return DL_Group_Data::create(p, g, source);
    } else {
       throw Invalid_Argument("Unknown DL_Group encoding");
    }
@@ -161,9 +210,9 @@ std::shared_ptr<DL_Group_Data> DL_Group::load_DL_group_info(const char* p_str, c
    const BigInt g(g_str);
 
    if(q.is_zero()) {
-      return std::make_shared<DL_Group_Data>(p, g, DL_Group_Source::Builtin);
+      return DL_Group_Data::create(p, g, DL_Group_Source::Builtin);
    } else {
-      return std::make_shared<DL_Group_Data>(p, q, g, DL_Group_Source::Builtin);
+      return DL_Group_Data::create(p, q, g, DL_Group_Source::Builtin);
    }
 }
 
@@ -173,7 +222,7 @@ std::shared_ptr<DL_Group_Data> DL_Group::load_DL_group_info(const char* p_str, c
    const BigInt q = (p - 1) / 2;
    const BigInt g(g_str);
 
-   return std::make_shared<DL_Group_Data>(p, q, g, DL_Group_Source::Builtin);
+   return DL_Group_Data::create(p, q, g, DL_Group_Source::Builtin);
 }
 
 namespace {
@@ -202,10 +251,10 @@ DL_Group::DL_Group(std::string_view str) {
    if(m_data == nullptr) {
       try {
          std::string label;
-         const std::vector<uint8_t> ber = unlock(PEM_Code::decode(str, label));
+         const std::vector<uint8_t> der = unlock(PEM_Code::decode(str, label));
          const DL_Group_Format format = pem_label_to_dl_format(label);
 
-         m_data = BER_decode_DL_group(ber.data(), ber.size(), format, DL_Group_Source::ExternalSource);
+         m_data = DER_decode_DL_group(der, format, DL_Group_Source::ExternalSource);
       } catch(...) {}
    }
 
@@ -294,7 +343,7 @@ DL_Group::DL_Group(RandomNumberGenerator& rng, PrimeType type, size_t pbits, siz
          g = BigInt::from_word(4);
       }
 
-      m_data = std::make_shared<DL_Group_Data>(p, q, g, DL_Group_Source::RandomlyGenerated);
+      m_data = DL_Group_Data::create(p, q, g, DL_Group_Source::RandomlyGenerated);
    } else if(type == Prime_Subgroup) {
       if(qbits == 0) {
          qbits = dl_exponent_size(pbits);
@@ -311,7 +360,7 @@ DL_Group::DL_Group(RandomNumberGenerator& rng, PrimeType type, size_t pbits, siz
       }
 
       const BigInt g = make_dsa_generator(p, q);
-      m_data = std::make_shared<DL_Group_Data>(p, q, g, DL_Group_Source::RandomlyGenerated);
+      m_data = DL_Group_Data::create(p, q, g, DL_Group_Source::RandomlyGenerated);
    } else if(type == DSA_Kosherizer) {
       if(qbits == 0) {
          qbits = ((pbits <= 1024) ? 160 : 256);
@@ -321,7 +370,7 @@ DL_Group::DL_Group(RandomNumberGenerator& rng, PrimeType type, size_t pbits, siz
       BigInt q;
       generate_dsa_primes(rng, p, q, pbits, qbits);
       const BigInt g = make_dsa_generator(p, q);
-      m_data = std::make_shared<DL_Group_Data>(p, q, g, DL_Group_Source::RandomlyGenerated);
+      m_data = DL_Group_Data::create(p, q, g, DL_Group_Source::RandomlyGenerated);
    } else {
       throw Invalid_Argument("DL_Group unknown PrimeType");
    }
@@ -340,14 +389,14 @@ DL_Group::DL_Group(RandomNumberGenerator& rng, const std::vector<uint8_t>& seed,
 
    const BigInt g = make_dsa_generator(p, q);
 
-   m_data = std::make_shared<DL_Group_Data>(p, q, g, DL_Group_Source::RandomlyGenerated);
+   m_data = DL_Group_Data::create(p, q, g, DL_Group_Source::RandomlyGenerated);
 }
 
 /*
 * DL_Group Constructor
 */
 DL_Group::DL_Group(const BigInt& p, const BigInt& g) {
-   m_data = std::make_shared<DL_Group_Data>(p, g, DL_Group_Source::ExternalSource);
+   m_data = DL_Group_Data::create(p, g, DL_Group_Source::ExternalSource);
 }
 
 /*
@@ -355,9 +404,9 @@ DL_Group::DL_Group(const BigInt& p, const BigInt& g) {
 */
 DL_Group::DL_Group(const BigInt& p, const BigInt& q, const BigInt& g) {
    if(q.is_zero()) {
-      m_data = std::make_shared<DL_Group_Data>(p, g, DL_Group_Source::ExternalSource);
+      m_data = DL_Group_Data::create(p, g, DL_Group_Source::ExternalSource);
    } else {
-      m_data = std::make_shared<DL_Group_Data>(p, q, g, DL_Group_Source::ExternalSource);
+      m_data = DL_Group_Data::create(p, q, g, DL_Group_Source::ExternalSource);
    }
 }
 
@@ -373,7 +422,7 @@ bool DL_Group::verify_public_element(const BigInt& y) const {
    const BigInt& p = get_p();
    const BigInt& q = get_q();
 
-   if(y <= 1 || y >= p) {
+   if(y <= 1 || y >= p - 1) {
       return false;
    }
 
@@ -575,7 +624,9 @@ BigInt DL_Group::power_g_p(const BigInt& x, size_t max_x_bits) const {
 }
 
 BigInt DL_Group::power_b_p(const BigInt& b, const BigInt& x) const {
-   return this->power_b_p(b, x, data().p_bits());
+   // This leaks information about x if x > p, but that is an exceptional case that
+   // should not occur in normal usage
+   return this->power_b_p(b, x, std::max(x.bits(), data().p_bits()));
 }
 
 BigInt DL_Group::power_b_p(const BigInt& b, const BigInt& x, size_t max_x_bits) const {
@@ -627,8 +678,8 @@ std::string DL_Group::PEM_encode(DL_Group_Format format) const {
    }
 }
 
-DL_Group::DL_Group(const uint8_t ber[], size_t ber_len, DL_Group_Format format) {
-   m_data = BER_decode_DL_group(ber, ber_len, format, DL_Group_Source::ExternalSource);
+DL_Group::DL_Group(std::span<const uint8_t> der, DL_Group_Format format) {
+   m_data = DER_decode_DL_group(der, format, DL_Group_Source::ExternalSource);
 }
 
 }  // namespace Botan

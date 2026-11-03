@@ -30,6 +30,9 @@ class BOTAN_PUBLIC_API(2, 8) PasswordHash /* NOLINT(*-special-member-functions) 
    public:
       virtual ~PasswordHash() = default;
 
+      /**
+      * Return a free-form string identifying the algorithm and parameters
+      */
       virtual std::string to_string() const = 0;
 
       /**
@@ -63,11 +66,15 @@ class BOTAN_PUBLIC_API(2, 8) PasswordHash /* NOLINT(*-special-member-functions) 
       virtual size_t total_memory_usage() const { return 0; }
 
       /**
+      * Query if this password hash supports a symmetric key
+      *
       * @returns true if this password hash supports supplying a key
       */
       virtual bool supports_keyed_operation() const { return false; }
 
       /**
+      * Query if this password hash supports associated data
+      *
       * @returns true if this password hash supports supplying associated data
       */
       virtual bool supports_associated_data() const { return false; }
@@ -175,6 +182,9 @@ class BOTAN_PUBLIC_API(2, 8) PasswordHash /* NOLINT(*-special-member-functions) 
                               size_t key_len) const;
 };
 
+/**
+* A factory for PasswordHash parameter sets of a particular algorithm
+*/
 class BOTAN_PUBLIC_API(2, 8) PasswordHashFamily /* NOLINT(*-special-member-functions) */ {
    public:
       /**
@@ -195,6 +205,7 @@ class BOTAN_PUBLIC_API(2, 8) PasswordHashFamily /* NOLINT(*-special-member-funct
                                                                  std::string_view provider = "");
 
       /**
+      * List the providers available for a given password hash
       * @return list of available providers for this algorithm, empty if not available
       */
       static std::vector<std::string> providers(std::string_view algo_spec);
@@ -202,6 +213,7 @@ class BOTAN_PUBLIC_API(2, 8) PasswordHashFamily /* NOLINT(*-special-member-funct
       virtual ~PasswordHashFamily() = default;
 
       /**
+      * Return the name of this password hash family
       * @return name of this PasswordHash
       */
       virtual std::string name() const = 0;
@@ -303,6 +315,8 @@ class BOTAN_PUBLIC_API(2, 8) PasswordHashFamily /* NOLINT(*-special-member-funct
       * - For PBKDF2, PGP-S2K, and Bcrypt-PBKDF, i1 is iterations
       * - Scrypt uses N, r, p for i{1-3}
       * - Argon2 family uses memory (in KB), iterations, and parallelism for i{1-3}
+      * - PKCS12-KDF uses iterations for i1 (the hash and id are fixed by the family name,
+      *   e.g. "PKCS12-KDF(SHA-256,1)")
       *
       * All unneeded parameters should be set to 0 or left blank.
       */

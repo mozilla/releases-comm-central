@@ -23,20 +23,24 @@ size_t Win32_EntropySource::poll(RandomNumberGenerator& rng) {
    rng.add_entropy_T(::GetCurrentProcessId());
    rng.add_entropy_T(::GetCurrentThreadId());
 
-   SYSTEM_INFO sys_info;
-   ::GetSystemInfo(&sys_info);
+   SYSTEM_INFO sys_info{};
+   ::GetSystemInfo(&sys_info);  // no return value
    rng.add_entropy_T(sys_info);
 
-   MEMORYSTATUSEX mem_info;
-   ::GlobalMemoryStatusEx(&mem_info);
-   rng.add_entropy_T(mem_info);
+   MEMORYSTATUSEX mem_info{};
+   mem_info.dwLength = sizeof(mem_info);
+   if(::GlobalMemoryStatusEx(&mem_info) != 0) {
+      rng.add_entropy_T(mem_info);
+   }
 
-   POINT point;
-   ::GetCursorPos(&point);
-   rng.add_entropy_T(point);
+   POINT point{};
+   if(::GetCursorPos(&point) != 0) {
+      rng.add_entropy_T(point);
+   }
 
-   ::GetCaretPos(&point);
-   rng.add_entropy_T(point);
+   if(::GetCaretPos(&point) != 0) {
+      rng.add_entropy_T(point);
+   }
 
    /*
    Potential other sources to investigate

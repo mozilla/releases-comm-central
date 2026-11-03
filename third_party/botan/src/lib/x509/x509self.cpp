@@ -13,7 +13,6 @@
 #include <botan/x509_ext.h>
 #include <botan/x509_key.h>
 #include <botan/internal/fmt.h>
-#include <botan/internal/parsing.h>
 
 namespace Botan {
 
@@ -58,7 +57,7 @@ auto create_alt_name_ext(const X509_Cert_Options& opts, const Extensions& extens
    subject_alt.add_uri(opts.uri);
    subject_alt.add_email(opts.email);
    if(!opts.ip.empty()) {
-      if(auto ipv4 = string_to_ipv4(opts.ip)) {
+      if(auto ipv4 = IPv4Address::from_string(opts.ip)) {
          subject_alt.add_ipv4_address(*ipv4);
       } else {
          throw Invalid_Argument(fmt("Invalid IPv4 address '{}'", opts.ip));
@@ -104,7 +103,7 @@ X509_Certificate create_self_signed_cert(const X509_Cert_Options& opts,
       extensions.add_new(std::make_unique<Cert_Extension::Key_Usage>(constraints), true);
    }
 
-   auto skid = std::make_unique<Cert_Extension::Subject_Key_ID>(pub_key, signer->hash_function());
+   auto skid = std::make_unique<Cert_Extension::Subject_Key_ID>(key);
 
    extensions.add_new(std::make_unique<Cert_Extension::Authority_Key_ID>(skid->get_key_id()));
    extensions.add_new(std::move(skid));

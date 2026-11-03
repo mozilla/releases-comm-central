@@ -44,6 +44,14 @@ class Ascon_AEAD128_Mode : public AEAD_Mode {
 
       bool has_keying_material() const final { return m_key.has_value(); }
 
+      ~Ascon_AEAD128_Mode() override;
+
+      Ascon_AEAD128_Mode(const Ascon_AEAD128_Mode& other) = default;
+      Ascon_AEAD128_Mode(Ascon_AEAD128_Mode&& other) = default;
+
+      Ascon_AEAD128_Mode& operator=(const Ascon_AEAD128_Mode& other) = delete;
+      Ascon_AEAD128_Mode& operator=(Ascon_AEAD128_Mode&& other) = delete;
+
    protected:
       Ascon_AEAD128_Mode();
 
@@ -68,7 +76,7 @@ class Ascon_AEAD128_Mode : public AEAD_Mode {
 */
 class Ascon_AEAD128_Encryption final : public Ascon_AEAD128_Mode {
    public:
-      size_t output_length(size_t input_length) const override { return input_length + tag_size(); }
+      size_t output_length(size_t input_length) const override;
 
       size_t minimum_final_size() const override { return 0; }
 
@@ -82,10 +90,7 @@ class Ascon_AEAD128_Encryption final : public Ascon_AEAD128_Mode {
 */
 class Ascon_AEAD128_Decryption final : public Ascon_AEAD128_Mode {
    public:
-      size_t output_length(size_t input_length) const override {
-         BOTAN_ARG_CHECK(input_length >= tag_size(), "Sufficient input");
-         return input_length - tag_size();
-      }
+      size_t output_length(size_t input_length) const override;
 
       size_t minimum_final_size() const override { return tag_size(); }
 

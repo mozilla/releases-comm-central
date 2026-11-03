@@ -32,69 +32,68 @@ Client_Impl_13::Client_Impl_13(const std::shared_ptr<Callbacks>& callbacks,
                                const std::vector<std::string>& next_protocols) :
       Channel_Impl_13(callbacks, session_manager, creds, rng, policy, false /* is_server */),
       m_info(std::move(info)),
-      m_should_send_ccs(false) {
-#if defined(BOTAN_HAS_TLS_12)
+      m_handshake(std::make_unique<Pending_Handshake>()) {
+#if defined(BOTAN_HAS_TLS_DOWNGRADE_SUPPORT)
    if(policy->allow_tls12()) {
       expect_downgrade(m_info, next_protocols);
    }
 #endif
 
    if(auto session = find_session_for_resumption()) {
-      if(!session->session.version().is_pre_tls_13()) {
-         m_resumed_session = std::move(session);
-      } else if(expects_downgrade()) {
+      if(session->session.version().is_tls_13_or_later()) {
+         m_handshake->resumed_session = std::move(session);
+      }
+#if defined(BOTAN_HAS_TLS_DOWNGRADE_SUPPORT)
+      else if(expects_downgrade()) {
          // If we found a session that was created with TLS 1.2, we downgrade
          // the implementation right away, before even issuing a Client Hello.
          request_downgrade_for_resumption(std::move(session.value()));
          return;
       }
+#endif
    }
 
-   auto msg = send_handshake_message(m_handshake_state.sending(
+   send_handshake_message(m_handshake->state.sending(
       Client_Hello_13(*policy,
                       *callbacks,
                       *rng,
                       m_info.hostname(),
                       next_protocols,
-                      m_resumed_session,
+                      m_handshake->resumed_session,
                       creds->find_preshared_keys(m_info.hostname(), Connection_Side::Client))));
 
-   if(expects_downgrade()) {
-      preserve_client_hello(msg);
-   }
+   maybe_handle_compatibility_mode(Compat_Mode_Situation::AfterSendingFirstClientHello);
 
-   // RFC 8446 Appendix D.4
-   //    If not offering early data, the client sends a dummy change_cipher_spec
-   //    record [...] immediately before its second flight. This may either be before
-   //    its second ClientHello or before its encrypted handshake flight.
-   //
-   // TODO: don't schedule ccs here when early data is used
-   if(policy->tls_13_middlebox_compatibility_mode()) {
-      m_should_send_ccs = true;
-   }
-
-   m_transitions.set_expected_next({Handshake_Type::ServerHello, Handshake_Type::HelloRetryRequest});
+   m_handshake->transitions.set_expected_next({Handshake_Type::ServerHello, Handshake_Type::HelloRetryRequest});
 }
 
 void Client_Impl_13::process_handshake_msg(Handshake_Message_13 message) {
+   BOTAN_STATE_CHECK(m_handshake != nullptr);
+
+   // first verify that the message was expected by the state machine
+   // (and only then store it in the handshake state)
+   m_handshake->transitions.confirm_transition_to(std::visit([](const auto& msg) { return msg.type(); }, message));
+
    std::visit(
       [&](auto msg) {
-         // first verify that the message was expected by the state machine...
-         m_transitions.confirm_transition_to(msg.get().type());
-
          // ... then allow the library user to abort on their discretion
          callbacks().tls_inspect_handshake_msg(msg.get());
 
          // ... finally handle the message
          handle(msg.get());
       },
-      m_handshake_state.received(std::move(message)));
+      m_handshake->state.received(std::move(message)));
 }
 
 void Client_Impl_13::process_post_handshake_msg(Post_Handshake_Message_13 message) {
    BOTAN_STATE_CHECK(is_handshake_complete());
 
-   std::visit([&](auto msg) { handle(msg); }, m_handshake_state.received(std::move(message)));
+   const auto msg = specialize_to<Server_Post_Handshake_13_Message>(std::move(message));
+   if(!msg) {
+      throw TLS_Exception(Alert::UnexpectedMessage, "received an unexpected post-handshake message");
+   }
+
+   std::visit([&](auto&& m) { handle(m); }, *msg);
 }
 
 void Client_Impl_13::process_dummy_change_cipher_spec() {
@@ -102,7 +101,7 @@ void Client_Impl_13::process_dummy_change_cipher_spec() {
    //    If an implementation detects a change_cipher_spec record received before
    //    the first ClientHello message or after the peer's Finished message, it MUST be
    //    treated as an unexpected record type [("unexpected_message" alert)].
-   if(!m_handshake_state.has_client_hello() || m_handshake_state.has_server_finished()) {
+   if(!m_handshake || !m_handshake->state.has_client_hello() || m_handshake->state.has_server_finished()) {
       throw TLS_Exception(Alert::UnexpectedMessage, "Received an unexpected dummy Change Cipher Spec");
    }
 
@@ -116,7 +115,7 @@ void Client_Impl_13::process_dummy_change_cipher_spec() {
 }
 
 bool Client_Impl_13::is_handshake_complete() const {
-   return m_handshake_state.handshake_finished();
+   return m_active_state.has_value();
 }
 
 std::optional<Session_with_Handle> Client_Impl_13::find_session_for_resumption() {
@@ -149,9 +148,16 @@ std::optional<Session_with_Handle> Client_Impl_13::find_session_for_resumption()
 }
 
 void Client_Impl_13::handle(const Server_Hello_12_Shim& server_hello_msg) {
-   if(m_handshake_state.has_hello_retry_request()) {
+   BOTAN_ASSERT_NONNULL(m_handshake);
+
+   if(m_handshake->state.has_hello_retry_request()) {
       throw TLS_Exception(Alert::UnexpectedMessage, "Version downgrade received after Hello Retry");
    }
+
+#if !defined(BOTAN_HAS_TLS_DOWNGRADE_SUPPORT)
+   BOTAN_UNUSED(server_hello_msg);
+   throw TLS_Exception(Alert::ProtocolVersion, "Received an unsupported Server Hello");
+#else
 
    // RFC 8446 Appendix D.1
    //    If the version chosen by the server is not supported by the client
@@ -189,14 +195,14 @@ void Client_Impl_13::handle(const Server_Hello_12_Shim& server_hello_msg) {
    //    If the version chosen by the server is not supported by the client
    //    (or is not acceptable), the client MUST abort the handshake with a
    //    "protocol_version" alert.
-   const auto& client_hello_exts = m_handshake_state.client_hello().extensions();
+   const auto& client_hello_exts = m_handshake->state.client_hello().extensions();
    BOTAN_ASSERT_NOMSG(client_hello_exts.has<Supported_Versions>());
    if(!client_hello_exts.get<Supported_Versions>()->supports(server_hello_msg.selected_version())) {
       throw TLS_Exception(Alert::ProtocolVersion, "Protocol version was not offered");
    }
 
    if(policy().tls_13_middlebox_compatibility_mode() &&
-      m_handshake_state.client_hello().session_id() == server_hello_msg.session_id()) {
+      m_handshake->state.client_hello().session_id() == server_hello_msg.session_id()) {
       // In compatibility mode, the server will reflect the session ID we sent in the client hello.
       // However, a TLS 1.2 server that wants to downgrade cannot have found the random session ID
       // we sent. Therefore, we have to consider this as an attack.
@@ -204,11 +210,13 @@ void Client_Impl_13::handle(const Server_Hello_12_Shim& server_hello_msg) {
       throw TLS_Exception(Alert::IllegalParameter, "Unexpected session ID during downgrade");
    }
 
+   preserve_client_hello(m_handshake->state.take_client_hello());
    request_downgrade();
 
    // After this, no further messages are expected here because this instance will be replaced
    // by a Client_Impl_12.
-   m_transitions.set_expected_next({});
+   m_handshake->transitions.set_expected_next({});
+#endif
 }
 
 namespace {
@@ -244,10 +252,21 @@ void validate_server_hello_ish(const Client_Hello_13& ch, const Server_Hello_13&
 void Client_Impl_13::handle(const Server_Hello_13& sh) {
    // Note: Basic checks (that do not require contextual information) were already
    //       performed during the construction of the Server_Hello_13 object.
+   BOTAN_ASSERT_NONNULL(m_handshake);
 
-   const auto& ch = m_handshake_state.client_hello();
+   const auto& ch = m_handshake->state.client_hello();
 
    validate_server_hello_ish(ch, sh);
+
+   // RFC 8446 4.1.3: TLS 1.3 servers downgrading to TLS 1.2 or below set
+   // the last 8 bytes of ServerHello.random to a magic value so the client
+   // can detect a stripped-supported_versions downgrade attack. The Shim
+   // path (Server_Hello_12_Shim) already enforces this; catch it here too
+   // as defense in depth in case a misbehaving server writes the sentinel
+   // into an actual TLS 1.3 ServerHello.
+   if(sh.random_signals_downgrade().has_value()) {
+      throw TLS_Exception(Alert::IllegalParameter, "Downgrade attack detected");
+   }
 
    // RFC 8446 4.2
    //    Implementations MUST NOT send extension responses if the remote
@@ -258,8 +277,8 @@ void Client_Impl_13::handle(const Server_Hello_13& sh) {
       throw TLS_Exception(Alert::UnsupportedExtension, "Unsupported extension found in Server Hello");
    }
 
-   if(m_handshake_state.has_hello_retry_request()) {
-      const auto& hrr = m_handshake_state.hello_retry_request();
+   if(m_handshake->state.has_hello_retry_request()) {
+      const auto& hrr = m_handshake->state.hello_retry_request();
 
       // RFC 8446 4.1.4
       //    Upon receiving the ServerHello, clients MUST check that the cipher suite
@@ -310,14 +329,14 @@ void Client_Impl_13::handle(const Server_Hello_13& sh) {
    m_transcript_hash.set_algorithm(cipher.value().prf_algo());
 
    if(sh.extensions().has<PSK>()) {
-      std::tie(m_psk_identity, m_cipher_state) =
+      std::tie(m_handshake->psk_identity, m_cipher_state) =
          ch.extensions().get<PSK>()->take_selected_psk_info(*sh.extensions().get<PSK>(), cipher.value());
 
       // If we offered a session for resumption *and* an externally provided PSK
       // and the latter was chosen by the server over the offered resumption, we
-      // want to invalidate the now-outdated session in m_resumed_session.
-      if(m_psk_identity.has_value() && m_resumed_session.has_value()) {
-         m_resumed_session.reset();
+      // want to invalidate the now-outdated session in m_handshake->resumed_session.
+      if(m_handshake->psk_identity.has_value() && m_handshake->resumed_session.has_value()) {
+         m_handshake->resumed_session.reset();
       }
 
       // TODO: When implementing early data, `advance_with_client_hello` must
@@ -327,22 +346,23 @@ void Client_Impl_13::handle(const Server_Hello_13& sh) {
       m_cipher_state->advance_with_server_hello(
          cipher.value(), std::move(shared_secret), m_transcript_hash.current(), *this);
    } else {
-      m_resumed_session.reset();  // might have been set if we attempted a resumption
+      m_handshake->resumed_session.reset();  // might have been set if we attempted a resumption
       m_cipher_state = Cipher_State::init_with_server_hello(
          m_side, std::move(shared_secret), cipher.value(), m_transcript_hash.current(), *this);
    }
 
    callbacks().tls_examine_extensions(sh.extensions(), Connection_Side::Server, Handshake_Type::ServerHello);
 
-   m_transitions.set_expected_next(Handshake_Type::EncryptedExtensions);
+   m_handshake->transitions.set_expected_next(Handshake_Type::EncryptedExtensions);
 }
 
 void Client_Impl_13::handle(const Hello_Retry_Request& hrr) {
    // Note: Basic checks (that do not require contextual information) were already
    //       performed during the construction of the Hello_Retry_Request object as
    //       a subclass of Server_Hello_13.
+   BOTAN_ASSERT_NONNULL(m_handshake);
 
-   auto& ch = m_handshake_state.client_hello();
+   auto& ch = m_handshake->state.client_hello();
 
    validate_server_hello_ish(ch, hrr);
 
@@ -373,15 +393,18 @@ void Client_Impl_13::handle(const Hello_Retry_Request& hrr) {
 
    callbacks().tls_examine_extensions(hrr.extensions(), Connection_Side::Server, Handshake_Type::HelloRetryRequest);
 
+   maybe_handle_compatibility_mode(Compat_Mode_Situation::BeforeSendingSecondClientHello);
    send_handshake_message(std::reference_wrapper(ch));
 
    // RFC 8446 4.1.4
    //    If a client receives a second HelloRetryRequest in the same connection [...],
    //    it MUST abort the handshake with an "unexpected_message" alert.
-   m_transitions.set_expected_next(Handshake_Type::ServerHello);
+   m_handshake->transitions.set_expected_next(Handshake_Type::ServerHello);
 }
 
 void Client_Impl_13::handle(const Encrypted_Extensions& encrypted_extensions_msg) {
+   BOTAN_ASSERT_NONNULL(m_handshake);
+
    const auto& exts = encrypted_extensions_msg.extensions();
 
    // RFC 8446 4.2
@@ -389,7 +412,7 @@ void Client_Impl_13::handle(const Encrypted_Extensions& encrypted_extensions_msg
    //    endpoint did not send the corresponding extension requests, [...]. Upon
    //    receiving such an extension, an endpoint MUST abort the handshake
    //    with an "unsupported_extension" alert.
-   const auto& requested_exts = m_handshake_state.client_hello().extensions().extension_types();
+   const auto& requested_exts = m_handshake->state.client_hello().extensions().extension_types();
    if(exts.contains_other_than(requested_exts)) {
       throw TLS_Exception(Alert::UnsupportedExtension,
                           "Encrypted Extensions contained an extension that was not offered");
@@ -398,7 +421,23 @@ void Client_Impl_13::handle(const Encrypted_Extensions& encrypted_extensions_msg
    // Note: As per RFC 6066 3. we can check for an empty SNI extensions to
    // determine if the server used the SNI we sent here.
 
-   if(exts.has<Record_Size_Limit>() && m_handshake_state.client_hello().extensions().has<Record_Size_Limit>()) {
+   if(exts.has<Application_Layer_Protocol_Notification>()) {
+      // RFC 7301 3.2
+      //    The "extension_data" field of the [...] "application_layer_protocol_negotiation"
+      //    extension [...] SHALL include the server's selection of a protocol from among
+      //    the list that was advertised by the client.
+      const auto* server_alpn = exts.get<Application_Layer_Protocol_Notification>();
+      const auto selected = server_alpn->single_protocol();
+      const auto* client_alpn =
+         m_handshake->state.client_hello().extensions().get<Application_Layer_Protocol_Notification>();
+      BOTAN_ASSERT_NONNULL(client_alpn);  // unrequested extension check above ensures this
+      const auto& offered = client_alpn->protocols();
+      if(!value_exists(offered, selected)) {
+         throw TLS_Exception(Alert::IllegalParameter, "Server selected an ALPN protocol not offered by the client");
+      }
+   }
+
+   if(exts.has<Record_Size_Limit>() && m_handshake->state.client_hello().extensions().has<Record_Size_Limit>()) {
       // RFC 8449 4.
       //     The record size limit only applies to records sent toward the
       //     endpoint that advertises the limit.  An endpoint can send records
@@ -407,14 +446,15 @@ void Client_Impl_13::handle(const Encrypted_Extensions& encrypted_extensions_msg
       // Hence, the "outgoing" limit is what the server requested and the
       // "incoming" limit is what we requested in the Client Hello.
       auto* const outgoing_limit = exts.get<Record_Size_Limit>();
-      auto* const incoming_limit = m_handshake_state.client_hello().extensions().get<Record_Size_Limit>();
+      auto* const incoming_limit = m_handshake->state.client_hello().extensions().get<Record_Size_Limit>();
       set_record_size_limits(outgoing_limit->limit(), incoming_limit->limit());
    }
 
-   if(exts.has<Server_Certificate_Type>() &&
-      m_handshake_state.client_hello().extensions().has<Server_Certificate_Type>()) {
+   if(exts.has<Server_Certificate_Type>()) {
+      // The unrequested-extension check above ensures the client offered this.
+      BOTAN_ASSERT_NOMSG(m_handshake->state.client_hello().extensions().has<Server_Certificate_Type>());
       const auto* server_cert_type = exts.get<Server_Certificate_Type>();
-      const auto* our_server_cert_types = m_handshake_state.client_hello().extensions().get<Server_Certificate_Type>();
+      const auto* our_server_cert_types = m_handshake->state.client_hello().extensions().get<Server_Certificate_Type>();
       our_server_cert_types->validate_selection(*server_cert_type);
 
       // RFC 7250 4.2
@@ -429,17 +469,19 @@ void Client_Impl_13::handle(const Encrypted_Extensions& encrypted_extensions_msg
 
    callbacks().tls_examine_extensions(exts, Connection_Side::Server, Handshake_Type::EncryptedExtensions);
 
-   if(m_handshake_state.server_hello().extensions().has<PSK>()) {
+   if(m_handshake->state.server_hello().extensions().has<PSK>()) {
       // RFC 8446 2.2
       //    As the server is authenticating via a PSK, it does not send a
       //    Certificate or a CertificateVerify message.
-      m_transitions.set_expected_next(Handshake_Type::Finished);
+      m_handshake->transitions.set_expected_next(Handshake_Type::Finished);
    } else {
-      m_transitions.set_expected_next({Handshake_Type::Certificate, Handshake_Type::CertificateRequest});
+      m_handshake->transitions.set_expected_next({Handshake_Type::Certificate, Handshake_Type::CertificateRequest});
    }
 }
 
 void Client_Impl_13::handle(const Certificate_Request_13& certificate_request_msg) {
+   BOTAN_ASSERT_NONNULL(m_handshake);
+
    // RFC 8446 4.3.2
    //    [The 'context' field] SHALL be zero length unless used for the
    //    post-handshake authentication exchanges described in Section 4.6.2.
@@ -449,10 +491,12 @@ void Client_Impl_13::handle(const Certificate_Request_13& certificate_request_ms
 
    callbacks().tls_examine_extensions(
       certificate_request_msg.extensions(), Connection_Side::Server, Handshake_Type::CertificateRequest);
-   m_transitions.set_expected_next(Handshake_Type::Certificate);
+   m_handshake->transitions.set_expected_next(Handshake_Type::Certificate);
 }
 
 void Client_Impl_13::handle(const Certificate_13& certificate_msg) {
+   BOTAN_ASSERT_NONNULL(m_handshake);
+
    // RFC 8446 4.4.2
    //    certificate_request_context:  [...] In the case of server authentication,
    //    this field SHALL be zero length.
@@ -463,17 +507,19 @@ void Client_Impl_13::handle(const Certificate_13& certificate_msg) {
    // RFC 8446 4.4.2
    //    Extensions in the Certificate message from the server MUST correspond
    //    to ones from the ClientHello message.
-   certificate_msg.validate_extensions(m_handshake_state.client_hello().extensions().extension_types(), callbacks());
+   certificate_msg.validate_extensions(m_handshake->state.client_hello().extensions().extension_types(), callbacks());
    certificate_msg.verify(callbacks(),
                           policy(),
                           credentials_manager(),
                           m_info.hostname(),
-                          m_handshake_state.client_hello().extensions().has<Certificate_Status_Request>());
+                          m_handshake->state.client_hello().extensions().has<Certificate_Status_Request>());
 
-   m_transitions.set_expected_next(Handshake_Type::CertificateVerify);
+   m_handshake->transitions.set_expected_next(Handshake_Type::CertificateVerify);
 }
 
 void Client_Impl_13::handle(const Certificate_Verify_13& certificate_verify_msg) {
+   BOTAN_ASSERT_NONNULL(m_handshake);
+
    // RFC 8446 4.4.3
    //    If the CertificateVerify message is sent by a server, the signature
    //    algorithm MUST be one offered in the client's "signature_algorithms"
@@ -482,7 +528,7 @@ void Client_Impl_13::handle(const Certificate_Verify_13& certificate_verify_msg)
    //
    // Note: if the server failed to produce a certificate chain without using
    //       an unsupported signature scheme, we opt to abort the handshake.
-   const auto offered = m_handshake_state.client_hello().signature_schemes();
+   const auto offered = m_handshake->state.client_hello().signature_schemes();
    if(!value_exists(offered, certificate_verify_msg.signature_scheme())) {
       throw TLS_Exception(Alert::IllegalParameter,
                           "We did not offer the usage of " + certificate_verify_msg.signature_scheme().to_string() +
@@ -490,23 +536,25 @@ void Client_Impl_13::handle(const Certificate_Verify_13& certificate_verify_msg)
    }
 
    const bool sig_valid = certificate_verify_msg.verify(
-      *m_handshake_state.server_certificate().public_key(), callbacks(), m_transcript_hash.previous());
+      *m_handshake->state.server_certificate().public_key(), callbacks(), m_transcript_hash.previous());
 
    if(!sig_valid) {
       throw TLS_Exception(Alert::DecryptError, "Server certificate verification failed");
    }
 
-   m_transitions.set_expected_next(Handshake_Type::Finished);
+   m_handshake->transitions.set_expected_next(Handshake_Type::Finished);
 }
 
 void Client_Impl_13::send_client_authentication(Channel_Impl_13::AggregatedHandshakeMessages& flight) {
-   BOTAN_ASSERT_NOMSG(m_handshake_state.has_certificate_request());
-   const auto& cert_request = m_handshake_state.certificate_request();
+   BOTAN_ASSERT_NOMSG(m_handshake->state.has_certificate_request());
+   const auto& cert_request = m_handshake->state.certificate_request();
 
    const auto cert_type = [&] {
-      const auto& exts = m_handshake_state.encrypted_extensions().extensions();
-      const auto& chexts = m_handshake_state.client_hello().extensions();
-      if(exts.has<Client_Certificate_Type>() && chexts.has<Client_Certificate_Type>()) {
+      const auto& exts = m_handshake->state.encrypted_extensions().extensions();
+      const auto& chexts = m_handshake->state.client_hello().extensions();
+      if(exts.has<Client_Certificate_Type>()) {
+         // The unrequested-extension check in handle(Encrypted_Extensions) ensures the client offered this.
+         BOTAN_ASSERT_NOMSG(chexts.has<Client_Certificate_Type>());
          const auto* client_cert_type = exts.get<Client_Certificate_Type>();
          chexts.get<Client_Certificate_Type>()->validate_selection(*client_cert_type);
 
@@ -531,7 +579,7 @@ void Client_Impl_13::send_client_authentication(Channel_Impl_13::AggregatedHands
    //    certificate_request_context:  If this message is in response to a
    //       CertificateRequest, the value of certificate_request_context in
    //       that message.
-   flight.add(m_handshake_state.sending(
+   flight.add(m_handshake->state.sending(
       Certificate_13(cert_request, m_info.hostname(), credentials_manager(), callbacks(), cert_type)));
 
    // RFC 8446 4.4.2
@@ -540,20 +588,22 @@ void Client_Impl_13::send_client_authentication(Channel_Impl_13::AggregatedHands
    //    certificates.
    //
    // In that case, no Certificate Verify message will be sent.
-   if(!m_handshake_state.client_certificate().empty()) {
-      flight.add(m_handshake_state.sending(Certificate_Verify_13(m_handshake_state.client_certificate(),
-                                                                 cert_request.signature_schemes(),
-                                                                 m_info.hostname(),
-                                                                 m_transcript_hash.current(),
-                                                                 Connection_Side::Client,
-                                                                 credentials_manager(),
-                                                                 policy(),
-                                                                 callbacks(),
-                                                                 rng())));
+   if(!m_handshake->state.client_certificate().empty()) {
+      flight.add(m_handshake->state.sending(Certificate_Verify_13(m_handshake->state.client_certificate(),
+                                                                  cert_request.signature_schemes(),
+                                                                  m_info.hostname(),
+                                                                  m_transcript_hash.current(),
+                                                                  Connection_Side::Client,
+                                                                  credentials_manager(),
+                                                                  policy(),
+                                                                  callbacks(),
+                                                                  rng())));
    }
 }
 
 void Client_Impl_13::handle(const Finished_13& finished_msg) {
+   BOTAN_ASSERT_NONNULL(m_handshake);
+
    // RFC 8446 4.4.4
    //    Recipients of Finished messages MUST verify that the contents are
    //    correct and if incorrect MUST terminate the connection with a
@@ -562,16 +612,16 @@ void Client_Impl_13::handle(const Finished_13& finished_msg) {
       throw TLS_Exception(Alert::DecryptError, "Finished message didn't verify");
    }
 
-   m_handshake_state.confirm_peer_finished_verified();
+   m_handshake->state.confirm_peer_finished_verified();
 
    // Give the application a chance for a final veto before fully
    // establishing the connection.
-   callbacks().tls_session_established(Session_Summary(m_handshake_state.server_hello(),
-                                                       Connection_Side::Server,
+   callbacks().tls_session_established(Session_Summary(m_handshake->state.server_hello(),
+                                                       Connection_Side::Client,
                                                        peer_cert_chain(),
                                                        peer_raw_public_key(),
                                                        external_psk_identity(),
-                                                       m_resumed_session.has_value(),
+                                                       m_handshake->resumed_session.has_value(),
                                                        m_info,
                                                        callbacks().tls_current_timestamp()));
 
@@ -584,13 +634,14 @@ void Client_Impl_13::handle(const Finished_13& finished_msg) {
    // RFC 8446 4.4.2
    //    The client MUST send a Certificate message if and only if the server
    //    has requested client authentication via a CertificateRequest message.
-   if(m_handshake_state.has_certificate_request()) {
+   if(m_handshake->state.has_certificate_request()) {
       send_client_authentication(flight);
    }
 
    // send client finished handshake message (still using handshake traffic secrets)
-   flight.add(m_handshake_state.sending(Finished_13(m_cipher_state.get(), m_transcript_hash.current())));
+   flight.add(m_handshake->state.sending(Finished_13(m_cipher_state.get(), m_transcript_hash.current())));
 
+   maybe_handle_compatibility_mode(Compat_Mode_Situation::BeforeSendingEncryptedClientFlight);
    flight.send();
 
    // derives the sending application traffic secrets
@@ -601,12 +652,58 @@ void Client_Impl_13::handle(const Finished_13& finished_msg) {
    //       callback's doc string.
 
    // no more handshake messages expected
-   m_transitions.set_expected_next({});
+   m_handshake->transitions.set_expected_next({});
 
+   // Extract post-handshake state before signaling activation.
+   // After this point, only m_active_state should be consulted
+   // for connection properties.
+   {
+      auto extract_certs = [&]() -> std::vector<X509_Certificate> {
+         if(m_handshake->state.has_server_certificate_msg() &&
+            m_handshake->state.server_certificate().has_certificate_chain()) {
+            return m_handshake->state.server_certificate().cert_chain();
+         }
+         if(m_handshake->resumed_session.has_value()) {
+            return m_handshake->resumed_session->session.peer_certs();
+         }
+         return {};
+      };
+
+      auto extract_raw_pk = [&]() -> std::shared_ptr<const Public_Key> {
+         if(m_handshake->state.has_server_certificate_msg() &&
+            m_handshake->state.server_certificate().is_raw_public_key()) {
+            return m_handshake->state.server_certificate().public_key();
+         }
+         if(m_handshake->resumed_session.has_value()) {
+            return m_handshake->resumed_session->session.peer_raw_public_key();
+         }
+         return nullptr;
+      };
+
+      m_active_state = Active_Connection_State_13(m_handshake->state,
+                                                  extract_certs(),
+                                                  extract_raw_pk(),
+                                                  m_handshake->psk_identity,
+                                                  m_info.hostname(),
+                                                  false /* peer_supports_psk_dhe_ke - client doesn't need this */);
+   }
+
+   m_handshake.reset();
+   m_transcript_hash = Transcript_Hash_State();
    callbacks().tls_session_activated();
 }
 
 void TLS::Client_Impl_13::handle(const New_Session_Ticket_13& new_session_ticket) {
+   BOTAN_STATE_CHECK(m_active_state.has_value());
+
+   if(const size_t max_tickets = policy().maximum_session_tickets_per_connection();
+      max_tickets > 0 && m_session_tickets_received >= max_tickets) {
+      // Silently ignore excess tickets rather than terminating the connection,
+      // since the server may have legitimate reasons to send many tickets.
+      return;
+   }
+   ++m_session_tickets_received;
+
    callbacks().tls_examine_extensions(
       new_session_ticket.extensions(), Connection_Side::Server, Handshake_Type::NewSessionTicket);
 
@@ -614,8 +711,8 @@ void TLS::Client_Impl_13::handle(const New_Session_Ticket_13& new_session_ticket
                          new_session_ticket.early_data_byte_limit(),
                          new_session_ticket.ticket_age_add(),
                          new_session_ticket.lifetime_hint(),
-                         m_handshake_state.server_hello().selected_version(),
-                         m_handshake_state.server_hello().ciphersuite(),
+                         m_active_state->version(),
+                         m_active_state->ciphersuite_code(),
                          Connection_Side::Client,
                          peer_cert_chain(),
                          peer_raw_public_key(),
@@ -628,50 +725,129 @@ void TLS::Client_Impl_13::handle(const New_Session_Ticket_13& new_session_ticket
 }
 
 std::vector<X509_Certificate> Client_Impl_13::peer_cert_chain() const {
-   if(m_handshake_state.has_server_certificate_msg() &&
-      m_handshake_state.server_certificate().has_certificate_chain()) {
-      return m_handshake_state.server_certificate().cert_chain();
+   if(m_active_state.has_value()) {
+      return m_active_state->peer_certs();
    }
 
-   if(m_resumed_session.has_value()) {
-      return m_resumed_session->session.peer_certs();
+   // During handshake, before m_active_state is populated
+   if(m_handshake) {
+      if(m_handshake->state.has_server_certificate_msg() &&
+         m_handshake->state.server_certificate().has_certificate_chain()) {
+         return m_handshake->state.server_certificate().cert_chain();
+      }
+
+      if(m_handshake->resumed_session.has_value()) {
+         return m_handshake->resumed_session->session.peer_certs();
+      }
    }
 
    return {};
 }
 
 std::shared_ptr<const Public_Key> Client_Impl_13::peer_raw_public_key() const {
-   if(m_handshake_state.has_server_certificate_msg() && m_handshake_state.server_certificate().is_raw_public_key()) {
-      return m_handshake_state.server_certificate().public_key();
+   if(m_active_state.has_value()) {
+      return m_active_state->peer_raw_public_key();
    }
 
-   if(m_resumed_session.has_value()) {
-      return m_resumed_session->session.peer_raw_public_key();
+   // During handshake, before m_active_state is populated
+   if(m_handshake) {
+      if(m_handshake->state.has_server_certificate_msg() &&
+         m_handshake->state.server_certificate().is_raw_public_key()) {
+         return m_handshake->state.server_certificate().public_key();
+      }
+
+      if(m_handshake->resumed_session.has_value()) {
+         return m_handshake->resumed_session->session.peer_raw_public_key();
+      }
    }
 
    return nullptr;
 }
 
 std::optional<std::string> Client_Impl_13::external_psk_identity() const {
-   return m_psk_identity;
+   if(m_active_state.has_value()) {
+      return m_active_state->psk_identity();
+   }
+   if(m_handshake) {
+      return m_handshake->psk_identity;
+   }
+   return std::nullopt;
 }
 
-bool Client_Impl_13::prepend_ccs() {
-   return std::exchange(m_should_send_ccs, false);  // test-and-set
+void Client_Impl_13::maybe_handle_compatibility_mode(Compat_Mode_Situation situation) {
+   // RFC 9846 E.4
+   //    This "compatibility mode" is partially negotiated: the client can opt
+   //    [in] or not [...].
+   if(!policy().tls_13_middlebox_compatibility_mode()) {
+      return;
+   }
+
+   // RFC 9846 5.
+   //    An implementation [...] which receives a protected change_cipher_spec
+   //    record MUST abort the handshake with an "unexpected_message" alert.
+   if(m_handshake == nullptr) {
+      return;
+   }
+
+   switch(situation) {
+      case Compat_Mode_Situation::AfterSendingFirstClientHello:
+         // RFC 9846 E.4
+         //    If offering early data, the record is placed immediately after
+         //    the first ClientHello.
+         //
+         // TODO: Implement early data support
+         break;
+
+      case Compat_Mode_Situation::BeforeSendingSecondClientHello:
+         // RFC 9846 E.4
+         //    [...] the client sends a dummy change_cipher_spec record [...]
+         //    immediately before its second flight. This may either be before
+         //    its second ClientHello [...].
+         BOTAN_ASSERT_NOMSG(m_handshake->state.has_hello_retry_request());
+         send_dummy_change_cipher_spec();
+         break;
+
+      case Compat_Mode_Situation::BeforeSendingEncryptedClientFlight:
+         // RFC 9846 E.4
+         //    [...] or before its encrypted handshake flight.
+         BOTAN_ASSERT_NOMSG(m_handshake->state.has_server_finished());
+         if(!m_handshake->state.has_hello_retry_request()) {
+            send_dummy_change_cipher_spec();
+         }
+         break;
+
+      case Compat_Mode_Situation::BeforeSendingAlert:
+         // RFC 9846 E.4
+         //    [...] or before its encrypted handshake flight.
+         //
+         // Note that an encrypted alert message also counts as an encrypted
+         // handshake flight, so we also send a dummy CCS in that case. Except
+         // if we did receive a HelloRetryRequest, in which case we already sent
+         // a dummy CCS before the second ClientHello.
+         if(m_cipher_state != nullptr && !m_handshake->state.has_hello_retry_request()) {
+            send_dummy_change_cipher_spec();
+         }
+         break;
+
+      case Compat_Mode_Situation::AfterSendingFirstServerHello:
+      case Compat_Mode_Situation::AfterSendingHelloRetryRequest:
+         BOTAN_ASSERT_UNREACHABLE();  // These situations occur on the server side.
+   }
 }
 
 void Client_Impl_13::maybe_log_secret(std::string_view label, std::span<const uint8_t> secret) const {
    if(policy().allow_ssl_key_log_file()) {
-      callbacks().tls_ssl_key_log_data(label, m_handshake_state.client_hello().random(), secret);
+      if(m_active_state.has_value()) {
+         callbacks().tls_ssl_key_log_data(label, m_active_state->client_random(), secret);
+      } else {
+         callbacks().tls_ssl_key_log_data(label, m_handshake->state.client_hello().random(), secret);
+      }
    }
 }
 
 std::string Client_Impl_13::application_protocol() const {
-   if(is_handshake_complete()) {
-      const auto& eee = m_handshake_state.encrypted_extensions().extensions();
-      if(eee.has<Application_Layer_Protocol_Notification>()) {
-         return eee.get<Application_Layer_Protocol_Notification>()->single_protocol();
-      }
+   if(m_active_state.has_value()) {
+      return m_active_state->application_protocol();
    }
 
    return "";

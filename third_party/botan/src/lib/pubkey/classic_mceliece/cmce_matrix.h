@@ -23,7 +23,7 @@ namespace Botan {
  *
  * Only the bytes of the submatrix T are stored.
  */
-class BOTAN_TEST_API Classic_McEliece_Matrix {
+class BOTAN_TEST_API Classic_McEliece_Matrix final {
    public:
       /**
        * @brief Create the matrix H for a Classic McEliece instance given its

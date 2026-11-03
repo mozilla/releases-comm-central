@@ -89,15 +89,12 @@ Session_Keys::Session_Keys(const Handshake_State* state,
       BOTAN_STATE_CHECK(suite.null_ciphersuite());
    }
 
-   // Nonce is not used for NULL suites
    if(cipher_nonce_bytes > 0) {
       const uint8_t* c_nonce_bytes = key_data + 2 * (mac_keylen + cipher_keylen);
       m_c_nonce.assign(c_nonce_bytes, c_nonce_bytes + cipher_nonce_bytes);
 
       const uint8_t* s_nonce_bytes = key_data + 2 * (mac_keylen + cipher_keylen) + cipher_nonce_bytes;
       m_s_nonce.assign(s_nonce_bytes, s_nonce_bytes + cipher_nonce_bytes);
-   } else {
-      BOTAN_STATE_CHECK(suite.null_ciphersuite());
    }
 }
 

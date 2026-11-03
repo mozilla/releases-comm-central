@@ -7,6 +7,7 @@
 #ifndef BOTAN_X509_PKIX_ENUMS_H_
 #define BOTAN_X509_PKIX_ENUMS_H_
 
+#include <botan/exceptn.h>
 #include <botan/types.h>
 #include <string>
 
@@ -27,7 +28,6 @@ enum class Certificate_Status_Code : uint16_t {
    OCSP_RESPONSE_GOOD = 1,
    OCSP_SIGNATURE_OK = 2,
    VALID_CRL_CHECKED = 3,
-   OCSP_NO_HTTP = 4,
 
    // Warnings
    FIRST_WARNING_STATUS = 500,
@@ -37,6 +37,7 @@ enum class Certificate_Status_Code : uint16_t {
    OCSP_SERVER_NOT_AVAILABLE = 503,
    TRUSTED_CERT_HAS_EXPIRED = 504,
    TRUSTED_CERT_NOT_YET_VALID = 505,
+   OCSP_NO_HTTP = 506,
 
    // Errors
    FIRST_ERROR_STATUS = 1000,
@@ -56,6 +57,10 @@ enum class Certificate_Status_Code : uint16_t {
    CRL_HAS_EXPIRED = 2005,
    OCSP_IS_TOO_OLD = 2006,
 
+   // Revocation checks are skipped for chains which have an error more
+   // serious than this because they are anyway invalid
+   FIRST_ERROR_STATUS_TO_SKIP_REVOCATION = 3000,
+
    // Chain generation problems
    CERT_ISSUER_NOT_FOUND = 3000,
    CANNOT_ESTABLISH_TRUST = 3001,
@@ -69,8 +74,6 @@ enum class Certificate_Status_Code : uint16_t {
    CERT_CHAIN_TOO_LONG = 4002,
    CA_CERT_NOT_FOR_CERT_ISSUER = 4003,
    NAME_CONSTRAINT_ERROR = 4004,
-   IPADDR_BLOCKS_ERROR = 4011,
-   AS_BLOCKS_ERROR = 4012,
 
    // Revocation errors
    CA_CERT_NOT_FOR_CRL_ISSUER = 4005,
@@ -79,8 +82,18 @@ enum class Certificate_Status_Code : uint16_t {
 
    // Other problems
    CERT_NAME_NOMATCH = 4008,
+
+   // Errors in extensions
    UNKNOWN_CRITICAL_EXTENSION = 4009,
+   // TODO(Botan4) remove this code, this is now rejected at parse time
    DUPLICATE_CERT_EXTENSION = 4010,
+   IPADDR_BLOCKS_ERROR = 4011,
+   AS_BLOCKS_ERROR = 4012,
+   NO_REV_AVAIL_INVALID_USE = 4013,
+   INVALID_OCSP_NOCHECK = 4014,
+   CRL_HAS_UNKNOWN_CRITICAL_EXTENSION = 4015,
+
+   // OCSP errors
    OCSP_SIGNATURE_ERROR = 4501,
    OCSP_ISSUER_NOT_FOUND = 4502,
    OCSP_RESPONSE_MISSING_KEYUSAGE = 4503,
@@ -88,6 +101,7 @@ enum class Certificate_Status_Code : uint16_t {
    EXT_IN_V1_V2_CERT = 4505,
    DUPLICATE_CERT_POLICY = 4506,
    V2_IDENTIFIERS_IN_V1_CERT = 4507,
+   EXTENSION_ENCODING_ERROR = 4508,
 
    // Hard failures
    CERT_IS_REVOKED = 5000,
@@ -95,7 +109,8 @@ enum class Certificate_Status_Code : uint16_t {
    SIGNATURE_ERROR = 5002,
    CERT_PUBKEY_INVALID = 5003,
    SIGNATURE_ALGO_UNKNOWN = 5004,
-   SIGNATURE_ALGO_BAD_PARAMS = 5005
+   SIGNATURE_ALGO_BAD_PARAMS = 5005,
+   EXCEEDED_SEARCH_LIMITS = 5006,
 };
 
 /**
@@ -191,6 +206,68 @@ class BOTAN_PUBLIC_API(3, 0) Key_Constraints final {
    private:
       uint32_t m_value;
 };
+
+/**
+* X.509 ReasonFlags BIT STRING used by CRLDistributionPoints and
+* IssuingDistributionPoint (RFC 5280 4.2.1.13 / 5.2.5).
+*/
+class BOTAN_PUBLIC_API(3, 13) ReasonFlags final {
+   public:
+      /* RFC 5280 4.2.1.13:
+      *  ReasonFlags ::= BIT STRING {
+      *       unused                  (0),
+      *       keyCompromise           (1),
+      *       cACompromise            (2),
+      *       affiliationChanged      (3),
+      *       superseded              (4),
+      *       cessationOfOperation    (5),
+      *       certificateHold         (6),
+      *       privilegeWithdrawn      (7),
+      *       aACompromise            (8) }
+      */
+      enum Bits : uint16_t /* NOLINT(*-use-enum-class,performance-enum-size) */ {
+         None = 0,
+         KeyCompromise = 1 << 7,
+         CaCompromise = 1 << 6,
+         AffiliationChanged = 1 << 5,
+         Superseded = 1 << 4,
+         CessationOfOperation = 1 << 3,
+         CertificateHold = 1 << 2,
+         PrivilegeWithdrawn = 1 << 1,
+         AaCompromise = 1 << 0,
+      };
+
+      static constexpr uint16_t DefinedReasonBits = KeyCompromise | CaCompromise | AffiliationChanged | Superseded |
+                                                    CessationOfOperation | CertificateHold | PrivilegeWithdrawn |
+                                                    AaCompromise;
+
+      // NOLINTNEXTLINE(*-explicit-conversions)
+      ReasonFlags(ReasonFlags::Bits bits) : ReasonFlags(static_cast<uint16_t>(bits)) {}
+
+      explicit ReasonFlags(uint16_t bits) : m_value(bits) {
+         if((m_value & static_cast<uint16_t>(~DefinedReasonBits)) != 0) {
+            throw Decoding_Error("ReasonFlags contains undefined reason bits");
+         }
+         if(m_value == 0) {
+            throw Decoding_Error("ReasonFlags must have at least one defined reason");
+         }
+      }
+
+      bool operator==(const ReasonFlags&) const = default;
+
+      bool includes(ReasonFlags::Bits other) const { return (m_value & other) == other; }
+
+      bool includes(ReasonFlags other) const { return (m_value & other.m_value) == other.m_value; }
+
+      uint16_t value() const { return m_value; }
+
+   private:
+      uint16_t m_value;
+};
+
+inline ReasonFlags operator|(ReasonFlags::Bits a, ReasonFlags::Bits b) {
+   return ReasonFlags(static_cast<uint16_t>(static_cast<uint16_t>(a) | static_cast<uint16_t>(b)));
+}
 
 /**
 * X.509v2 CRL Reason Code.

@@ -48,7 +48,7 @@ inline auto operator<(const Session_ID& id1, const Session_ID& id2) {
  * Note that all information stored in a Session_Handle might be transmitted in
  * unprotected form. Hence, it should not contain any confidential information.
  */
-class BOTAN_PUBLIC_API(3, 0) Session_Handle {
+class BOTAN_PUBLIC_API(3, 0) Session_Handle final {
    public:
       // NOLINTBEGIN(*-explicit-conversions)
 

@@ -14,6 +14,8 @@
 
 #include <botan/pk_keys.h>
 
+#include <memory>
+
 BOTAN_DEPRECATED_HEADER("mceliece.h")
 
 namespace Botan {
@@ -21,13 +23,17 @@ namespace Botan {
 typedef uint16_t gf2m;
 
 class polyn_gf2m;
+class McEliece_PublicKeyInternal;
+class McEliece_PrivateKeyInternal;
 
 class BOTAN_PUBLIC_API(2, 0) McEliece_PublicKey : public virtual Public_Key /* NOLINT(*-special-member-functions) */ {
    public:
+      McEliece_PublicKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> key_bits);
+
+      BOTAN_DEPRECATED("Use the constructor taking an AlgorithmIdentifier")
       explicit McEliece_PublicKey(std::span<const uint8_t> key_bits);
 
-      McEliece_PublicKey(const std::vector<uint8_t>& pub_matrix, size_t t, size_t the_code_length) :
-            m_public_matrix(pub_matrix), m_t(t), m_code_length(the_code_length) {}
+      McEliece_PublicKey(const std::vector<uint8_t>& pub_matrix, size_t t, size_t the_code_length);
 
       McEliece_PublicKey(const McEliece_PublicKey& other) = default;
       McEliece_PublicKey& operator=(const McEliece_PublicKey& other) = default;
@@ -45,15 +51,15 @@ class BOTAN_PUBLIC_API(2, 0) McEliece_PublicKey : public virtual Public_Key /* N
       std::vector<uint8_t> raw_public_key_bits() const override;
       std::vector<uint8_t> public_key_bits() const override;
 
-      bool check_key(RandomNumberGenerator& /*rng*/, bool /*strong*/) const override { return true; }
+      bool check_key(RandomNumberGenerator& rng, bool strong) const override;
 
-      size_t get_t() const { return m_t; }
+      size_t get_t() const;
 
-      size_t get_code_length() const { return m_code_length; }
+      size_t get_code_length() const;
 
       size_t get_message_word_bit_length() const;
 
-      const std::vector<uint8_t>& get_public_matrix() const { return m_public_matrix; }
+      const std::vector<uint8_t>& get_public_matrix() const;
 
       bool operator==(const McEliece_PublicKey& other) const;
 
@@ -69,11 +75,9 @@ class BOTAN_PUBLIC_API(2, 0) McEliece_PublicKey : public virtual Public_Key /* N
                                                                        std::string_view provider) const override;
 
    protected:
-      McEliece_PublicKey() : m_t(0), m_code_length(0) {}
+      McEliece_PublicKey() = default;
 
-      std::vector<uint8_t> m_public_matrix;  // NOLINT(*non-private-member-variable*)
-      size_t m_t;                            // NOLINT(*non-private-member-variable*)
-      size_t m_code_length;                  // NOLINT(*non-private-member-variable*)
+      std::shared_ptr<const McEliece_PublicKeyInternal> m_public;  // NOLINT(*non-private-member-variable*)
 };
 
 BOTAN_DIAGNOSTIC_PUSH
@@ -85,7 +89,7 @@ class BOTAN_PUBLIC_API(2, 0) McEliece_PrivateKey final : public virtual McEliece
       /**
       Generate a McEliece key pair
 
-      Suggested parameters for a given security level (SL)
+      Supported parameters for a given security level (SL)
 
       SL=80 n=1632 t=33 - 59 KB pubkey 140 KB privkey
       SL=107 n=2480 t=45 - 128 KB pubkey 300 KB privkey
@@ -96,6 +100,9 @@ class BOTAN_PUBLIC_API(2, 0) McEliece_PrivateKey final : public virtual McEliece
       */
       McEliece_PrivateKey(RandomNumberGenerator& rng, size_t code_length, size_t t);
 
+      McEliece_PrivateKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> key_bits);
+
+      BOTAN_DEPRECATED("Use the constructor taking an AlgorithmIdentifier")
       explicit McEliece_PrivateKey(std::span<const uint8_t> key_bits);
 
       McEliece_PrivateKey(const polyn_gf2m& goppa_polyn,
@@ -116,15 +123,15 @@ class BOTAN_PUBLIC_API(2, 0) McEliece_PrivateKey final : public virtual McEliece
 
       const polyn_gf2m& get_goppa_polyn() const;
 
-      const std::vector<uint32_t>& get_H_coeffs() const { return m_coeffs; }
+      const std::vector<uint32_t>& get_H_coeffs() const;
 
-      const std::vector<gf2m>& get_Linv() const { return m_Linv; }
+      const std::vector<gf2m>& get_Linv() const;
 
-      const std::vector<polyn_gf2m>& get_sqrtmod() const { return m_sqrtmod; }
+      const std::vector<polyn_gf2m>& get_sqrtmod() const;
 
-      inline size_t get_dimension() const { return m_dimension; }
+      size_t get_dimension() const;
 
-      inline size_t get_codimension() const { return m_codimension; }
+      size_t get_codimension() const;
 
       secure_vector<uint8_t> private_key_bits() const override;
 
@@ -139,13 +146,7 @@ class BOTAN_PUBLIC_API(2, 0) McEliece_PrivateKey final : public virtual McEliece
                                                                        std::string_view provider) const override;
 
    private:
-      std::vector<polyn_gf2m> m_g;  // single element
-      std::vector<polyn_gf2m> m_sqrtmod;
-      std::vector<gf2m> m_Linv;
-      std::vector<uint32_t> m_coeffs;
-
-      size_t m_codimension;
-      size_t m_dimension;
+      std::shared_ptr<const McEliece_PrivateKeyInternal> m_private;
 };
 
 BOTAN_DIAGNOSTIC_POP

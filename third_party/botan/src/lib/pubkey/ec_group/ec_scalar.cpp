@@ -8,10 +8,7 @@
 
 #include <botan/ec_group.h>
 #include <botan/internal/ec_inner_data.h>
-
-#if defined(BOTAN_HAS_XMD)
-   #include <botan/internal/xmd.h>
-#endif
+#include <algorithm>
 
 namespace Botan {
 
@@ -29,14 +26,20 @@ EC_Scalar::EC_Scalar(EC_Scalar&& other) noexcept : m_scalar(std::move(other.m_sc
 
 EC_Scalar& EC_Scalar::operator=(const EC_Scalar& other) {
    if(this != &other) {
-      this->assign(other);
+      if(m_scalar == nullptr || m_scalar->group() != other.inner().group()) {
+         m_scalar = other.inner().clone();
+      } else {
+         this->assign(other);
+      }
    }
    return (*this);
 }
 
 EC_Scalar& EC_Scalar::operator=(EC_Scalar&& other) noexcept {
-   BOTAN_ARG_CHECK(_inner().group() == other._inner().group(), "Curve mismatch");
-   std::swap(m_scalar, other.m_scalar);
+   if(this != &other) {
+      // Even a cross-curve swap is accepted here
+      std::swap(m_scalar, other.m_scalar);
+   }
    return (*this);
 }
 
@@ -80,6 +83,7 @@ BigInt EC_Scalar::to_bigint() const {
    return BigInt::from_bytes(bytes);
 }
 
+//static
 EC_Scalar EC_Scalar::gk_x_mod_order(const EC_Scalar& scalar, RandomNumberGenerator& rng) {
    const auto& group = scalar._inner().group();
    return EC_Scalar(group->gk_x_mod_order(scalar.inner(), rng));
@@ -151,19 +155,28 @@ void EC_Scalar::square_self() {
 }
 
 EC_Scalar EC_Scalar::add(const EC_Scalar& x) const {
+   BOTAN_ARG_CHECK(inner().group() == x.inner().group(), "Curve mismatch");
    return EC_Scalar(inner().add(x.inner()));
 }
 
 EC_Scalar EC_Scalar::sub(const EC_Scalar& x) const {
+   BOTAN_ARG_CHECK(inner().group() == x.inner().group(), "Curve mismatch");
    return EC_Scalar(inner().sub(x.inner()));
 }
 
 EC_Scalar EC_Scalar::mul(const EC_Scalar& x) const {
+   BOTAN_ARG_CHECK(inner().group() == x.inner().group(), "Curve mismatch");
    return EC_Scalar(inner().mul(x.inner()));
 }
 
 void EC_Scalar::assign(const EC_Scalar& x) {
-   m_scalar->assign(x.inner());
+   if(this != &x) {
+      if(m_scalar == nullptr || m_scalar->group() != x.inner().group()) {
+         m_scalar = x.inner().clone();
+      } else {
+         m_scalar->assign(x.inner());
+      }
+   }
 }
 
 void EC_Scalar::zeroize() {
@@ -171,6 +184,10 @@ void EC_Scalar::zeroize() {
 }
 
 bool EC_Scalar::is_eq(const EC_Scalar& x) const {
+   if(inner().group() != x.inner().group()) {
+      return false;
+   }
+
    return inner().is_eq(x.inner());
 }
 
@@ -179,25 +196,18 @@ EC_Scalar EC_Scalar::hash(const EC_Group& group,
                           std::string_view hash_fn,
                           std::span<const uint8_t> input,
                           std::span<const uint8_t> domain_sep) {
-#if defined(BOTAN_HAS_XMD)
-
    /*
-   * This could be extended to support expand_message_xof or a MHF like Argon2
+   RFC 9380 Section 5.2
+      L = ceil((ceil(log2(p)) + k) / 8), where k is the security
+      parameter of the suite (e.g., k = 128)
    */
-   if(hash_fn.starts_with("SHAKE")) {
-      throw Not_Implemented("Hash to scalar currently does not support expand_message_xof");
-   }
-
    const size_t scalar_bits = group.get_order_bits();
-   const size_t security_level = (scalar_bits + 1) / 2;
+   const size_t security_level = std::min<size_t>((scalar_bits + 1) / 2, 256);
    secure_vector<uint8_t> uniform_bytes((scalar_bits + security_level + 7) / 8);
-   expand_message_xmd(hash_fn, uniform_bytes, input, domain_sep);
+
+   h2c_expand_message(hash_fn, scalar_bits, input, domain_sep)(uniform_bytes);
 
    return EC_Scalar::from_bytes_mod_order(group, uniform_bytes);
-#else
-   BOTAN_UNUSED(group, hash_fn, input, domain_sep);
-   throw Not_Implemented("EC_Scalar::hash not available due to missing XMD");
-#endif
 }
 
 }  // namespace Botan

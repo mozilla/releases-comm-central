@@ -8,9 +8,12 @@
 #ifndef BOTAN_CERT_STORE_H_
 #define BOTAN_CERT_STORE_H_
 
+#include <botan/pkix_types.h>
 #include <botan/x509_crl.h>
 #include <botan/x509cert.h>
+#include <memory>
 #include <optional>
+#include <vector>
 
 namespace Botan {
 
@@ -62,6 +65,8 @@ class BOTAN_PUBLIC_API(2, 0) Certificate_Store /* NOLINT(*-special-member-functi
       * @param issuer_dn the distinguished name of the issuer
       * @param serial_number the certificate's serial number
       * @return a matching certificate or nullopt otherwise
+      *
+      * TODO(Botan4) change this to use X509_Serial_Number
       */
       virtual std::optional<X509_Certificate> find_cert_by_issuer_dn_and_serial_number(
          const X509_DN& issuer_dn, std::span<const uint8_t> serial_number) const = 0;
@@ -76,6 +81,13 @@ class BOTAN_PUBLIC_API(2, 0) Certificate_Store /* NOLINT(*-special-member-functi
       /**
       * @return whether this certificate is contained within the store
       * @param cert certificate to be searched
+      *
+      * Default implementation uses find_all_certs
+      */
+      virtual bool contains(const X509_Certificate& cert) const;
+
+      /**
+      * Old version of contains
       */
       bool certificate_known(const X509_Certificate& cert) const;
 
@@ -109,7 +121,15 @@ class BOTAN_PUBLIC_API(2, 0) Certificate_Store_In_Memory final : public Certific
       /**
       * Create an empty store.
       */
-      Certificate_Store_In_Memory() = default;
+      Certificate_Store_In_Memory();
+
+      Certificate_Store_In_Memory(const Certificate_Store_In_Memory& other);
+      Certificate_Store_In_Memory(Certificate_Store_In_Memory&& other) noexcept;
+
+      Certificate_Store_In_Memory& operator=(const Certificate_Store_In_Memory& other) = delete;
+      Certificate_Store_In_Memory& operator=(Certificate_Store_In_Memory&& other) noexcept;
+
+      ~Certificate_Store_In_Memory() override;
 
       /**
       * Add a certificate to the store.
@@ -155,10 +175,15 @@ class BOTAN_PUBLIC_API(2, 0) Certificate_Store_In_Memory final : public Certific
       */
       std::optional<X509_CRL> find_crl_for(const X509_Certificate& subject) const override;
 
+      bool contains(const X509_Certificate& cert) const override;
+
    private:
-      // TODO: Add indexing on the DN and key id to avoid linear search
-      std::vector<X509_Certificate> m_certs;
-      std::vector<X509_CRL> m_crls;
+      class Impl;
+
+      Impl& impl();
+      const Impl& impl() const;
+
+      std::unique_ptr<Impl> m_impl;
 };
 
 }  // namespace Botan

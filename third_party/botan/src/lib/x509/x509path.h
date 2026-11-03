@@ -13,6 +13,7 @@
 #include <botan/pkix_enums.h>
 #include <botan/x509cert.h>
 #include <chrono>
+#include <optional>
 #include <set>
 
 #if defined(BOTAN_TARGET_OS_HAS_THREADS) && defined(BOTAN_HAS_HTTP_UTIL)
@@ -47,22 +48,28 @@ class BOTAN_PUBLIC_API(2, 0) Path_Validation_Restrictions final {
       * well as end entity (if OCSP enabled in path validation request)
       * @param max_ocsp_age maximum age of OCSP responses w/o next_update.
       *        If zero, there is no maximum age
-      * @param trusted_ocsp_responders certificate store containing certificates
+      * @param trusted_ocsp_responders optional certificate store containing certificates
       *        of trusted OCSP responders (additionally to the CA's responders)
       * @param ignore_trusted_root_time_range if true, validity checks on the
       *        time range of the trusted root certificate only produce warnings
       * @param require_self_signed_trust_anchors if true, only self-signed certificates
       *        are allowed as trust anchors. Trust anchors based on intermediate
       *        and leaf certificates are forbidden in this case.
+      * @param accept_ocsp_softfail if true then soft fail conditions (the OCSP
+      *        responder being unavailable or returning an error status, no
+      *        responder URL, or the library being built without HTTP support)
+      *        will be accepted as satisfying revocation requirements.
+      *        Not recommended.
       */
       BOTAN_FUTURE_EXPLICIT Path_Validation_Restrictions(
          bool require_rev = false,
          size_t minimum_key_strength = 110,
          bool ocsp_all_intermediates = false,
-         std::chrono::seconds max_ocsp_age = std::chrono::seconds::zero(),
-         std::unique_ptr<Certificate_Store> trusted_ocsp_responders = std::make_unique<Certificate_Store_In_Memory>(),
+         std::chrono::seconds max_ocsp_age = std::chrono::hours(24 * 7),
+         std::unique_ptr<Certificate_Store> trusted_ocsp_responders = nullptr,
          bool ignore_trusted_root_time_range = false,
-         bool require_self_signed_trust_anchors = true);
+         bool require_self_signed_trust_anchors = true,
+         bool accept_ocsp_softfail = false);
 
       /**
       * @param require_rev if true, revocation information is required
@@ -76,23 +83,28 @@ class BOTAN_PUBLIC_API(2, 0) Path_Validation_Restrictions final {
       *        rejected.
       * @param max_ocsp_age maximum age of OCSP responses w/o next_update.
       *        If zero, there is no maximum age
-      * @param trusted_ocsp_responders certificate store containing certificates
+      * @param trusted_ocsp_responders optional certificate store containing certificates
       *        of trusted OCSP responders (additionally to the CA's responders)
       * @param ignore_trusted_root_time_range if true, validity checks on the
       *        time range of the trusted root certificate only produce warnings
       * @param require_self_signed_trust_anchors if true, only self-signed certificates
       *        are allowed as trust anchors. Trust anchors based on intermediate
       *        and leaf certificates are forbidden in this case.
+      * @param accept_ocsp_softfail if true then soft fail conditions (the OCSP
+      *        responder being unavailable or returning an error status, no
+      *        responder URL, or the library being built without HTTP support)
+      *        will be accepted as satisfying revocation requirements.
+      *        Not recommended.
       */
-      Path_Validation_Restrictions(
-         bool require_rev,
-         size_t minimum_key_strength,
-         bool ocsp_all_intermediates,
-         const std::set<std::string>& trusted_hashes,
-         std::chrono::seconds max_ocsp_age = std::chrono::seconds::zero(),
-         std::unique_ptr<Certificate_Store> trusted_ocsp_responders = std::make_unique<Certificate_Store_In_Memory>(),
-         bool ignore_trusted_root_time_range = false,
-         bool require_self_signed_trust_anchors = true) :
+      Path_Validation_Restrictions(bool require_rev,
+                                   size_t minimum_key_strength,
+                                   bool ocsp_all_intermediates,
+                                   const std::set<std::string>& trusted_hashes,
+                                   std::chrono::seconds max_ocsp_age = std::chrono::hours(24 * 7),
+                                   std::unique_ptr<Certificate_Store> trusted_ocsp_responders = nullptr,
+                                   bool ignore_trusted_root_time_range = false,
+                                   bool require_self_signed_trust_anchors = true,
+                                   bool accept_ocsp_softfail = false) :
             m_require_revocation_information(require_rev),
             m_ocsp_all_intermediates(ocsp_all_intermediates),
             m_trusted_hashes(trusted_hashes),
@@ -100,7 +112,8 @@ class BOTAN_PUBLIC_API(2, 0) Path_Validation_Restrictions final {
             m_max_ocsp_age(max_ocsp_age),
             m_trusted_ocsp_responders(std::move(trusted_ocsp_responders)),
             m_ignore_trusted_root_time_range(ignore_trusted_root_time_range),
-            m_require_self_signed_trust_anchors(require_self_signed_trust_anchors) {}
+            m_require_self_signed_trust_anchors(require_self_signed_trust_anchors),
+            m_accept_ocsp_softfail(accept_ocsp_softfail) {}
 
       /**
       * @return whether revocation information is required
@@ -158,6 +171,14 @@ class BOTAN_PUBLIC_API(2, 0) Path_Validation_Restrictions final {
        */
       bool require_self_signed_trust_anchors() const { return m_require_self_signed_trust_anchors; }
 
+      /**
+       * By default OCSP soft-fail conditions (such as a network error)
+       * do not count as satisfying revocation requirements.
+       * This restriction can be removed by setting
+       * accept_ocsp_softfail=true in the constructor.
+       */
+      bool accept_ocsp_softfail() const { return m_accept_ocsp_softfail; }
+
    private:
       bool m_require_revocation_information;
       bool m_ocsp_all_intermediates;
@@ -167,6 +188,7 @@ class BOTAN_PUBLIC_API(2, 0) Path_Validation_Restrictions final {
       std::unique_ptr<Certificate_Store> m_trusted_ocsp_responders;
       bool m_ignore_trusted_root_time_range;
       bool m_require_self_signed_trust_anchors;
+      bool m_accept_ocsp_softfail;
 };
 
 /**
@@ -260,9 +282,6 @@ class BOTAN_PUBLIC_API(2, 0) Path_Validation_Result final {
 * @param ocsp_timeout timeout for OCSP operations, 0 disables OCSP check
 * @param ocsp_resp additional OCSP responses to consider (eg from peer)
 * @return result of the path validation
-*   note: when enabled, OCSP check is softfail by default: if the OCSP server is not
-*   reachable, Path_Validation_Result::successful_validation() will return true.
-*   Hardfail OCSP check can be achieve by also calling Path_Validation_Result::no_warnings().
 */
 Path_Validation_Result BOTAN_PUBLIC_API(2, 0)
    x509_path_validate(const std::vector<X509_Certificate>& end_certs,
@@ -361,13 +380,16 @@ namespace PKIX {
 * @param trusted_certstores list of certificate stores that contain trusted certificates
 * @param end_entity the cert to be validated
 * @param end_entity_extra optional list of additional untrusted certs for path building
+* @param max_paths if set, enumerate at most this many paths and return
+*        EXCEEDED_SEARCH_LIMITS if more paths exist; if nullopt, unbounded
 * @return result of the path building operation (OK or error)
 */
 Certificate_Status_Code BOTAN_PUBLIC_API(3, 11)
    build_all_certificate_paths(std::vector<std::vector<X509_Certificate>>& cert_paths,
                                const std::vector<Certificate_Store*>& trusted_certstores,
                                const X509_Certificate& end_entity,
-                               const std::vector<X509_Certificate>& end_entity_extra);
+                               const std::vector<X509_Certificate>& end_entity_extra,
+                               std::optional<size_t> max_paths = std::nullopt);
 
 /**
 * Same as build_all_certificate_paths but only outputs a single path. If there are
@@ -381,6 +403,7 @@ Certificate_Status_Code BOTAN_PUBLIC_API(3, 11)
 * @param trusted_certstores list of certificate stores that contain trusted certificates
 * @param end_entity the cert to be validated
 * @param end_entity_extra optional list of additional untrusted certs for path building
+* @param max_paths if set, examine at most this many candidate paths; if nullopt, unbounded
 * @return result of the path building operation (OK or error)
 */
 BOTAN_DEPRECATED("Use build_all_certificate_paths")
@@ -388,7 +411,8 @@ Certificate_Status_Code BOTAN_PUBLIC_API(2, 0)
    build_certificate_path(std::vector<X509_Certificate>& cert_path_out,
                           const std::vector<Certificate_Store*>& trusted_certstores,
                           const X509_Certificate& end_entity,
-                          const std::vector<X509_Certificate>& end_entity_extra);
+                          const std::vector<X509_Certificate>& end_entity_extra,
+                          std::optional<size_t> max_paths = std::nullopt);
 
 /**
 * Check the certificate chain, but not any revocation data

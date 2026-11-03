@@ -77,7 +77,9 @@ CT::Option<size_t> OAEP::unpad(std::span<uint8_t> output, std::span<const uint8_
    Therefore, the first byte should always be zero.
    */
 
-   if(input.empty()) {
+   const size_t hlen = m_Phash.size();
+
+   if(input.size() < 1 + 2 * hlen + 1) {
       return {};
    }
 
@@ -87,8 +89,6 @@ CT::Option<size_t> OAEP::unpad(std::span<uint8_t> output, std::span<const uint8_
 
    secure_vector<uint8_t> decoded(input.begin() + 1, input.end());
    auto buf = std::span{decoded};
-
-   const size_t hlen = m_Phash.size();
 
    mgf1_mask(*m_mgf1_hash, buf.subspan(hlen), buf.first(hlen));
 

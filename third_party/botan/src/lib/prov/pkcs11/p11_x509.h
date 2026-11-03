@@ -68,10 +68,17 @@ class BOTAN_PUBLIC_API(2, 0) X509_CertificateProperties final : public Certifica
 };
 
 /// Represents a PKCS#11 X509 certificate
+///
+/// TODO(Botan4) remove the inheritance from X509_Certificate here
 class BOTAN_PUBLIC_API(2, 0) PKCS11_X509_Certificate final : public Object,
                                                              public X509_Certificate {
    public:
       static const ObjectClass Class = ObjectClass::Certificate;
+
+      /**
+      * Return the certificate
+      */
+      const X509_Certificate& certificate() const;
 
       /**
       * Create a PKCS11_X509_Certificate object from an existing PKCS#11 X509 cert

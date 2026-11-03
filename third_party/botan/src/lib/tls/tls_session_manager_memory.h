@@ -35,7 +35,7 @@ namespace TLS {
  * For applications that implement a TLS client and that do not want to persist
  * sessions to non-volatile memory, this is typically a good default option.
  */
-class BOTAN_PUBLIC_API(3, 0) Session_Manager_In_Memory : public Session_Manager {
+class BOTAN_PUBLIC_API(3, 0) Session_Manager_In_Memory final : public Session_Manager {
    public:
       /**
        * @param rng a RNG used for generating session key and for

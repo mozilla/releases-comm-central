@@ -15,7 +15,7 @@
 
 namespace Botan {
 
-class BOTAN_TEST_API CPUFeature {
+class BOTAN_TEST_API CPUFeature final {
    public:
       enum Bit : uint32_t /* NOLINT(*-use-enum-class) */ {
          NEON = (1U << 0),

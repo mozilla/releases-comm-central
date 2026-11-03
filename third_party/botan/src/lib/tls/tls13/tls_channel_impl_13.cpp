@@ -12,10 +12,12 @@
 #include <botan/tls_callbacks.h>
 #include <botan/tls_exceptn.h>
 #include <botan/tls_messages_13.h>
+#include <botan/tls_policy.h>
 #include <botan/internal/concat_util.h>
 #include <botan/internal/tls_cipher_state.h>
 
 #include <array>
+#include <chrono>
 
 namespace {
 bool is_user_canceled_alert(const Botan::TLS::Alert& alert) {
@@ -47,7 +49,7 @@ Channel_Impl_13::Channel_Impl_13(const std::shared_ptr<Callbacks>& callbacks,
       m_credentials_manager(credentials_manager),
       m_rng(rng),
       m_policy(policy),
-      m_record_layer(m_side),
+      m_record_layer(m_side, m_policy),
       m_handshake_layer(m_side),
       m_can_read(true),
       m_can_write(true),
@@ -73,9 +75,11 @@ size_t Channel_Impl_13::from_peer(std::span<const uint8_t> data) {
    }
 
    try {
+#if defined(BOTAN_HAS_TLS_DOWNGRADE_SUPPORT)
       if(expects_downgrade()) {
          preserve_peer_transcript(data);
       }
+#endif
 
       m_record_layer.copy_data(data);
 
@@ -133,6 +137,7 @@ size_t Channel_Impl_13::from_peer(std::span<const uint8_t> data) {
 
                   process_handshake_msg(std::move(handshake_msg.value()));
 
+#if defined(BOTAN_HAS_TLS_DOWNGRADE_SUPPORT)
                   if(is_downgrading()) {
                      // Downgrade to TLS 1.2 was detected. Stop everything we do and await being replaced by a 1.2 implementation.
                      return 0;
@@ -146,6 +151,7 @@ size_t Channel_Impl_13::from_peer(std::span<const uint8_t> data) {
                      // Downgrade can only be indicated in the first received peer message. This was not the case.
                      m_downgrade_info.reset();
                   }
+#endif
 
                   // After the initial handshake message is received, the record
                   // layer must be more restrictive.
@@ -167,7 +173,13 @@ size_t Channel_Impl_13::from_peer(std::span<const uint8_t> data) {
             if(!m_cipher_state->can_decrypt_application_traffic()) {
                throw Unexpected_Message("Application data received before handshake completion");
             }
-            BOTAN_ASSERT(record.seq_no.has_value(), "decrypted application traffic had a sequence number");
+            /*
+            The record sequence number is set in Record_Layer::next_record only when
+            the record contents are decrypted under the current set of traffic keys
+            */
+            if(!record.seq_no.has_value()) {
+               throw Unexpected_Message("Application data must have a sequence number");
+            }
             callbacks().tls_record_received(record.seq_no.value(), record.fragment);
          } else if(record.type == Record_Type::Alert) {
             process_alert(record.fragment);
@@ -200,11 +212,20 @@ void Channel_Impl_13::handle(const Key_Update& key_update) {
       throw Unexpected_Message("Unexpected additional post-handshake message data found in record");
    }
 
+   if(const uint64_t min_interval = policy().minimum_key_update_interval_ms(); min_interval > 0) {
+      const uint64_t now =
+         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch())
+            .count();
+
+      if(m_last_key_update_ms != 0 && (now - m_last_key_update_ms) < min_interval) {
+         throw TLS_Exception(Alert::UnexpectedMessage, "Peer is requesting KeyUpdates too frequently");
+      }
+
+      m_last_key_update_ms = now;
+   }
+
    BOTAN_ASSERT_NONNULL(m_cipher_state);
    m_cipher_state->update_read_keys(*this);
-
-   // TODO: introduce some kind of rate limit of key updates, otherwise we
-   //       might be forced into an endless loop of key updates.
 
    // RFC 8446 4.6.3
    //    If the request_update field is set to "update_requested", then the
@@ -242,19 +263,22 @@ Channel_Impl_13::AggregatedPostHandshakeMessages& Channel_Impl_13::AggregatedPos
    return *this;
 }
 
-std::vector<uint8_t> Channel_Impl_13::AggregatedMessages::send() {
+void Channel_Impl_13::AggregatedMessages::send() const {
    BOTAN_STATE_CHECK(contains_messages());
    m_channel.send_record(Record_Type::Handshake, m_message_buffer);
-   return std::exchange(m_message_buffer, {});
 }
 
 void Channel_Impl_13::send_dummy_change_cipher_spec() {
-   // RFC 8446 5.
+   // RFC 9846 5.
    //    The change_cipher_spec record is used only for compatibility purposes
-   //    (see Appendix D.4).
+   //    (see Appendix E.4).
    //
-   // The only allowed CCS message content is 0x01, all other CCS records MUST
-   // be rejected by TLS 1.3 implementations.
+   //    An implementation may receive an unencrypted record of type
+   //    change_cipher_spec consisting of the single byte value 0x01 at any time
+   //    after the first ClientHello message has been sent or received and
+   //    before the peer's Finished message has been received.
+   BOTAN_STATE_CHECK(!is_handshake_complete());
+
    send_record(Record_Type::ChangeCipherSpec, {0x01});
 }
 
@@ -282,6 +306,7 @@ void Channel_Impl_13::to_peer(std::span<const uint8_t> data) {
 void Channel_Impl_13::send_alert(const Alert& alert) {
    if(alert.is_valid() && m_can_write) {
       try {
+         maybe_handle_compatibility_mode(Compat_Mode_Situation::BeforeSendingAlert);
          send_record(Record_Type::Alert, alert.serialize());
       } catch(...) { /* swallow it */
       }
@@ -318,8 +343,7 @@ SymmetricKey Channel_Impl_13::key_material_export(std::string_view label,
 }
 
 void Channel_Impl_13::update_traffic_keys(bool request_peer_update) {
-   BOTAN_STATE_CHECK(!is_downgrading());
-   BOTAN_STATE_CHECK(is_handshake_complete());
+   BOTAN_STATE_CHECK(!is_downgrading() && is_handshake_complete() && is_active());
    BOTAN_ASSERT_NONNULL(m_cipher_state);
    send_post_handshake_message(Key_Update(request_peer_update));
    m_cipher_state->update_write_keys(*this);
@@ -329,7 +353,15 @@ void Channel_Impl_13::send_record(Record_Type type, const std::vector<uint8_t>& 
    BOTAN_STATE_CHECK(!is_downgrading());
    BOTAN_STATE_CHECK(m_can_write);
 
-   auto to_write = m_record_layer.prepare_records(type, record, m_cipher_state.get());
+   // RFC 9846 5.
+   //    An implementation which [...] receives a protected change_cipher_spec
+   //    record MUST abort the handshake [...].
+   //
+   // I.e. Change Cipher Spec records must always be sent unprotected, even if
+   // the cipher state is already set up for handshake message encryption.
+   auto* cipher_state = (type != Record_Type::ChangeCipherSpec) ? m_cipher_state.get() : nullptr;
+
+   auto to_write = m_record_layer.prepare_records(type, record, cipher_state);
 
    // After the initial handshake message is sent, the record layer must
    // adhere to a more strict record specification. Note that for the
@@ -338,14 +370,6 @@ void Channel_Impl_13::send_record(Record_Type type, const std::vector<uint8_t>& 
    if(!m_first_message_sent && type == Record_Type::Handshake) {
       m_record_layer.disable_sending_compat_mode();
       m_first_message_sent = true;
-   }
-
-   // The dummy CCS must not be prepended if the following record is
-   // an unprotected Alert record.
-   if(prepend_ccs() && (m_cipher_state || type != Record_Type::Alert)) {
-      std::array<uint8_t, 1> ccs_content = {0x01};
-      const auto ccs = m_record_layer.prepare_records(Record_Type::ChangeCipherSpec, ccs_content, m_cipher_state.get());
-      to_write = concat(ccs, to_write);
    }
 
    callbacks().tls_emit_data(to_write);
@@ -370,15 +394,19 @@ void Channel_Impl_13::process_alert(const secure_vector<uint8_t>& record) {
    //    regardless of the AlertLevel in the message.  Unknown Alert types
    //    MUST be treated as error alerts.
    if(is_error_alert(alert) && !alert.is_fatal()) {
+      if(!expects_downgrade()) {
+         throw TLS_Exception(Alert::DecodeError, "Error alert not marked fatal");
+      }
+
+#if defined(BOTAN_HAS_TLS_DOWNGRADE_SUPPORT)
+      BOTAN_DEBUG_ASSERT(expects_downgrade());
+
       // In TLS 1.2 error alerts might be marked as 'warnings' and would not
       // demand an immediate shutdown. Until we are sure to talk to a TLS 1.3
       // peer we must defer the shutdown and refrain from raising a decode
       // error.
-      if(expects_downgrade()) {
-         m_downgrade_info->received_tls_13_error_alert = true;
-      } else {
-         throw TLS_Exception(Alert::DecodeError, "Error alert not marked fatal");  // will shutdown in send_alert
-      }
+      m_downgrade_info->received_tls_13_error_alert = true;
+#endif
    }
 
    if(alert.is_fatal()) {
@@ -400,7 +428,10 @@ void Channel_Impl_13::shutdown() {
    m_can_read = false;
    m_can_write = false;
    m_cipher_state.reset();
+   m_active_state.reset();
 }
+
+#if defined(BOTAN_HAS_TLS_DOWNGRADE_SUPPORT)
 
 void Channel_Impl_13::expect_downgrade(const Server_Information& server_info,
                                        const std::vector<std::string>& next_protocols) {
@@ -421,6 +452,8 @@ void Channel_Impl_13::expect_downgrade(const Server_Information& server_info,
    };
    m_downgrade_info = std::make_unique<Downgrade_Information>(std::move(di));
 }
+
+#endif
 
 void Channel_Impl_13::set_record_size_limits(const uint16_t outgoing_limit, const uint16_t incoming_limit) {
    m_record_layer.set_record_size_limits(outgoing_limit, incoming_limit);

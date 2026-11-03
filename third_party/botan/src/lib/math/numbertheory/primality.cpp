@@ -16,7 +16,7 @@
 namespace Botan {
 
 bool is_lucas_probable_prime(const BigInt& C, const Barrett_Reduction& mod_C) {
-   BOTAN_ARG_CHECK(C.is_positive(), "Argument should be a positive integer");
+   BOTAN_ARG_CHECK(C.signum() >= 0, "Argument must be non-negative");
 
    if(C == 2 || C == 3 || C == 5 || C == 7 || C == 11 || C == 13) {
       return true;
@@ -39,7 +39,7 @@ bool is_lucas_probable_prime(const BigInt& C, const Barrett_Reduction& mod_C) {
       }
 
       // Check 5, -7, 9, -11, 13, -15, 17, ...
-      if(D.is_negative()) {
+      if(D.signum() < 0) {
          D.flip_sign();
          D += 2;
       } else {
@@ -47,12 +47,12 @@ bool is_lucas_probable_prime(const BigInt& C, const Barrett_Reduction& mod_C) {
          D.flip_sign();
       }
 
-      if(D == 17 && is_perfect_square(C).is_nonzero()) {
+      if(D == 17 && is_perfect_square(C).signum() != 0) {
          return false;
       }
    }
 
-   if(D.is_negative()) {
+   if(D.signum() < 0) {
       D += C;
    }
 
@@ -159,13 +159,12 @@ bool passes_miller_rabin_test(const BigInt& n,
 
 bool is_miller_rabin_probable_prime(const BigInt& n,
                                     const Barrett_Reduction& mod_n,
+                                    const Montgomery_Params& monty_n,
                                     RandomNumberGenerator& rng,
                                     size_t test_iterations) {
    if(n < 3 || n.is_even()) {
       return false;
    }
-
-   const Montgomery_Params monty_n(n, mod_n);
 
    for(size_t i = 0; i != test_iterations; ++i) {
       const BigInt a = BigInt::random_integer(rng, BigInt::from_word(2), n);
@@ -180,6 +179,11 @@ bool is_miller_rabin_probable_prime(const BigInt& n,
 }
 
 size_t miller_rabin_test_iterations(size_t n_bits, size_t prob, bool random) {
+   // Cap prob at 512 bits as _way_ more than enough; a random fault causing
+   // false accept is much more likely to occur than an actual 2^-512 event is.
+
+   prob = std::min<size_t>(512, prob);
+
    const size_t base = (prob + 2) / 2;  // worst case 4^-t error rate
 
    /*

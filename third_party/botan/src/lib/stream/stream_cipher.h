@@ -12,6 +12,7 @@
 #include <botan/secmem.h>
 #include <botan/sym_algo.h>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -42,6 +43,7 @@ class BOTAN_PUBLIC_API(2, 0) StreamCipher : public SymmetricAlgorithm {
       static std::unique_ptr<StreamCipher> create_or_throw(std::string_view algo_spec, std::string_view provider = "");
 
       /**
+      * List the providers available for a given stream cipher
       * @return list of available providers for this algorithm, empty if not available
       */
       static std::vector<std::string> providers(std::string_view algo_spec);
@@ -183,17 +185,20 @@ class BOTAN_PUBLIC_API(2, 0) StreamCipher : public SymmetricAlgorithm {
       virtual size_t default_iv_length() const;
 
       /**
+      * Test if a nonce length is valid for this cipher
       * @param iv_len the length of the IV in bytes
       * @return if the length is valid for this algorithm
       */
       virtual bool valid_iv_length(size_t iv_len) const { return (iv_len == 0); }
 
       /**
+      * Create a new uninitialized object of the same type
       * @return a new object representing the same algorithm as *this
       */
       StreamCipher* clone() const { return this->new_object().release(); }
 
       /**
+      * Create a new uninitialized object of the same type
       * @return new object representing the same algorithm as *this
       */
       virtual std::unique_ptr<StreamCipher> new_object() const = 0;
@@ -207,13 +212,40 @@ class BOTAN_PUBLIC_API(2, 0) StreamCipher : public SymmetricAlgorithm {
       * can be called.
       *
       * @note Not all ciphers support seeking; such objects will throw
-      *       Not_Implemented in this case.
+      *       Not_Implemented in this case. Use supports_seek() to query
+      *       in advance.
       *
       * @param offset the offset where we begin to generate the keystream
       */
       virtual void seek(uint64_t offset) = 0;
 
       /**
+      * Test whether this cipher supports seeking within the keystream
+      * @return true if this cipher implements seek(); false if seek() will
+      *         throw Not_Implemented for any offset.
+      */
+      virtual bool supports_seek() const = 0;
+
+      /**
+      * Many stream ciphers are internally based on encrypting a counter of some
+      * kind. If the counter wraps around, keystream bytes would be repeated.
+      *
+      * This function returns the number of keystream bytes that can still be
+      * produced under the current key/nonce settings, if that limit fits in a
+      * uint64_t. If there is no specific limit (eg due to being based on
+      * permutations rather than a counter), or if the limit is at least 2**64
+      * bytes (where consuming the entire keystream is not practically
+      * possible), then this function returns nullopt.
+      *
+      * Note this returns nullopt if no key is set (there are no keystream bytes
+      * at all available, in that state) or potentially if the nonce is not set
+      * (as in some cases, such as ChaCha, the available counter bytes vary
+      * depending on the size of the nonce used).
+      */
+      virtual std::optional<uint64_t> remaining_keystream_bytes() const = 0;
+
+      /**
+      * Return the name of the provider implementing this object
       * @return provider information about this implementation. Default is "base",
       * might also return "sse2", "avx2" or some other arbitrary string.
       */

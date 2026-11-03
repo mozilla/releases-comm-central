@@ -40,7 +40,8 @@ void hex_encode(char output[], const uint8_t input[], size_t input_length, bool 
 }
 
 std::string hex_encode(const uint8_t input[], size_t input_length, bool uppercase) {
-   std::string output(2 * input_length, 0);
+   const size_t output_length = mul_or_throw<size_t>(2, input_length, "Input too large to hex encode");
+   std::string output(output_length, 0);
 
    if(input_length > 0) {
       hex_encode(&output.front(), input, input_length, uppercase);
@@ -55,11 +56,13 @@ uint8_t hex_char_to_bin(char input) {
    // Starts of valid value ranges (v_lo) and their lengths (v_range)
    constexpr uint64_t v_lo = make_uint64(0, '0', 'a', 'A', ' ', '\n', '\t', '\r');
    constexpr uint64_t v_range = make_uint64(0, 10, 6, 6, 1, 1, 1, 1);
+   constexpr uint64_t expand8 = 0x0101010101010101;
+   constexpr uint64_t top64 = 0x8000000000000000;
 
    const uint8_t x = static_cast<uint8_t>(input);
-   const uint64_t x8 = x * 0x0101010101010101;
+   const uint64_t x8 = x * expand8;
 
-   const uint64_t v_mask = swar_in_range<uint64_t>(x8, v_lo, v_range) ^ 0x8000000000000000;
+   const uint64_t v_mask = swar_in_range<uint64_t>(x8, v_lo, v_range) ^ top64;
 
    // This is the offset added to x to get the value we need
    const uint64_t val_v = 0xd0a9c960767773 ^ static_cast<uint64_t>(0xFF - x) << 56;
@@ -72,6 +75,9 @@ uint8_t hex_char_to_bin(char input) {
 size_t hex_decode(uint8_t output[], const char input[], size_t input_length, size_t& input_consumed, bool ignore_ws) {
    uint8_t* out_ptr = output;
    bool top_nibble = true;
+   uint8_t next = 0;
+
+   input_consumed = 0;
 
    clear_mem(output, input_length / 2);
 
@@ -87,30 +93,28 @@ size_t hex_decode(uint8_t output[], const char input[], size_t input_length, siz
       }
 
       if(top_nibble) {
-         *out_ptr |= bin << 4;
+         next = bin << 4;
       } else {
-         *out_ptr |= bin;
+         next |= bin;
+         *out_ptr = next;
       }
 
       top_nibble = !top_nibble;
       if(top_nibble) {
          ++out_ptr;
+         input_consumed = i + 1;
       }
    }
 
-   input_consumed = input_length;
-   const size_t written = (out_ptr - output);
-
    /*
-   * We only got half of a uint8_t at the end; zap the half-written
-   * output and mark it as unread
+   * Consume trailing whitespace following the last full byte; a leftover
+   * unpaired nibble (if any) stops the scan and is left unconsumed.
    */
-   if(!top_nibble) {
-      *out_ptr = 0;
-      input_consumed -= 1;
+   while(input_consumed < input_length && hex_char_to_bin(input[input_consumed]) == 0x80) {
+      ++input_consumed;
    }
 
-   return written;
+   return (out_ptr - output);
 }
 
 size_t hex_decode(uint8_t output[], const char input[], size_t input_length, bool ignore_ws) {
@@ -129,6 +133,9 @@ size_t hex_decode(uint8_t output[], std::string_view input, bool ignore_ws) {
 }
 
 size_t hex_decode(std::span<uint8_t> output, std::string_view input, bool ignore_ws) {
+   if(output.size() < input.length() / 2) {
+      throw Invalid_Argument("hex_decode: output buffer too small");
+   }
    return hex_decode(output.data(), input.data(), input.length(), ignore_ws);
 }
 

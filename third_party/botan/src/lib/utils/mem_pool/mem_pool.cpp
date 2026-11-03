@@ -181,7 +181,7 @@ class BitMap final {
       std::optional<size_t> find_free();
 
       void free(size_t bit) {
-         BOTAN_ASSERT_NOMSG(bit <= m_len);
+         BOTAN_ASSERT_NOMSG(bit < m_len);
          const size_t w = bit / BITMASK_BITS;
          BOTAN_ASSERT_NOMSG(w < m_bits.size());
          const bitmask_type mask = static_cast<bitmask_type>(1) << (bit % BITMASK_BITS);
@@ -290,7 +290,7 @@ class Bucket final {
       bool m_is_full;
 };
 
-Memory_Pool::Memory_Pool(const std::vector<void*>& pages, size_t page_size) noexcept : m_page_size(page_size) {
+Memory_Pool::Memory_Pool(const std::vector<void*>& pages, size_t page_size) : m_page_size(page_size) {
    for(auto* page : pages) {
       const uintptr_t p = reinterpret_cast<uintptr_t>(page);
 

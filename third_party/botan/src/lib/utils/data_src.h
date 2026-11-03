@@ -35,6 +35,11 @@ class BOTAN_PUBLIC_API(2, 0) DataSource {
       */
       [[nodiscard]] virtual size_t read(uint8_t out[], size_t length) = 0;
 
+      /**
+      * Test whether at least n further bytes can be read
+      * @param n the number of bytes required
+      * @return true if at least n bytes remain
+      */
       virtual bool check_available(size_t n) = 0;
 
       /**
@@ -93,15 +98,25 @@ class BOTAN_PUBLIC_API(2, 0) DataSource {
       size_t discard_next(size_t N);
 
       /**
-      * @return number of bytes read so far.
+      * Count the bytes consumed from this source so far
+      * @return number of bytes read so far
       */
       virtual size_t get_bytes_read() const = 0;
 
+      /// Default constructor
       DataSource() = default;
+
       virtual ~DataSource() = default;
+
+      // No copy available
       DataSource(const DataSource&) = delete;
-      DataSource(DataSource&&) = default;
       DataSource& operator=(const DataSource&) = delete;
+
+      /// Move constructor
+      DataSource(DataSource&&) = default;
+
+      /// Move assignment
+      /// @return reference to this
       DataSource& operator=(DataSource&&) = default;
 };
 
@@ -110,9 +125,34 @@ class BOTAN_PUBLIC_API(2, 0) DataSource {
 */
 class BOTAN_PUBLIC_API(2, 0) DataSource_Memory final : public DataSource {
    public:
+      /**
+      * Read from the source, advancing the internal offset
+      * @param buf the byte array to write the result to
+      * @param length the length of the byte array buf
+      * @return length in bytes that was actually read and put into buf
+      */
       size_t read(uint8_t buf[], size_t length) override;
+
+      /**
+      * Read from the source without modifying the internal offset
+      * @param buf the byte array to write the result to
+      * @param length the length of the byte array buf
+      * @param offset the offset into the stream to read at
+      * @return length in bytes that was actually read and put into buf
+      */
       size_t peek(uint8_t buf[], size_t length, size_t offset) const override;
+
+      /**
+      * Test whether at least n further bytes can be read
+      * @param n the number of bytes required
+      * @return true if at least n bytes remain
+      */
       bool check_available(size_t n) override;
+
+      /**
+      * Test whether the source still has data that can be read
+      * @return true if there is no more data to read, false otherwise
+      */
       bool end_of_data() const override;
 
       /**
@@ -126,7 +166,7 @@ class BOTAN_PUBLIC_API(2, 0) DataSource_Memory final : public DataSource {
       * @param in the byte array to read from
       * @param length the length of the byte array
       */
-      DataSource_Memory(const uint8_t in[], size_t length) : m_source(in, in + length), m_offset(0) {}
+      DataSource_Memory(const uint8_t in[], size_t length) : DataSource_Memory(std::span<const uint8_t>(in, length)) {}
 
       /**
       * Construct a memory source that reads from a secure_vector
@@ -138,14 +178,23 @@ class BOTAN_PUBLIC_API(2, 0) DataSource_Memory final : public DataSource {
       * Construct a memory source that reads from an arbitrary byte buffer
       * @param in the MemoryRegion to read from
       */
-      explicit DataSource_Memory(std::span<const uint8_t> in) : m_source(in.begin(), in.end()), m_offset(0) {}
+      explicit DataSource_Memory(std::span<const uint8_t> in) : m_offset(0) {
+         // Guard against forming a range from a null pointer (eg an empty span)
+         if(!in.empty()) {
+            m_source.assign(in.begin(), in.end());
+         }
+      }
 
       /**
       * Construct a memory source that reads from a std::vector
       * @param in the MemoryRegion to read from
       */
-      explicit DataSource_Memory(const std::vector<uint8_t>& in) : m_source(in.begin(), in.end()), m_offset(0) {}
+      explicit DataSource_Memory(const std::vector<uint8_t>& in) : DataSource_Memory(std::span<const uint8_t>(in)) {}
 
+      /**
+      * Count the bytes consumed from this source so far
+      * @return number of bytes read so far
+      */
       size_t get_bytes_read() const override { return m_offset; }
 
    private:
@@ -158,12 +207,47 @@ class BOTAN_PUBLIC_API(2, 0) DataSource_Memory final : public DataSource {
 */
 class BOTAN_PUBLIC_API(2, 0) DataSource_Stream final : public DataSource {
    public:
+      /**
+      * Read from the source, advancing the internal offset
+      * @param buf the byte array to write the result to
+      * @param length the length of the byte array buf
+      * @return length in bytes that was actually read and put into buf
+      */
       size_t read(uint8_t buf[], size_t length) override;
+
+      /**
+      * Read from the source without modifying the internal offset
+      * @param buf the byte array to write the result to
+      * @param length the length of the byte array buf
+      * @param offset the offset into the stream to read at
+      * @return length in bytes that was actually read and put into buf
+      */
       size_t peek(uint8_t buf[], size_t length, size_t offset) const override;
+
+      /**
+      * Test whether at least n further bytes can be read
+      * @param n the number of bytes required
+      * @return true if at least n bytes remain
+      */
       bool check_available(size_t n) override;
+
+      /**
+      * Test whether the source still has data that can be read
+      * @return true if there is no more data to read, false otherwise
+      */
       bool end_of_data() const override;
+
+      /**
+      * Return the id of this data source
+      * @return a string representing the id of this data source
+      */
       std::string id() const override;
 
+      /**
+      * Construct a Stream-Based DataSource from an istream
+      * @param in the stream to read from
+      * @param id an identifier for this source, used in error messages
+      */
       BOTAN_FUTURE_EXPLICIT DataSource_Stream(std::istream& in, std::string_view id = "<std::istream>");
 
 #if defined(BOTAN_TARGET_OS_HAS_FILESYSTEM)
@@ -175,6 +259,7 @@ class BOTAN_PUBLIC_API(2, 0) DataSource_Stream final : public DataSource {
       BOTAN_FUTURE_EXPLICIT DataSource_Stream(std::string_view filename, bool use_binary = false);
 #endif
 
+      // Stream data sources are not copyable or moveable
       DataSource_Stream(const DataSource_Stream&) = delete;
       DataSource_Stream(DataSource_Stream&&) = delete;
       DataSource_Stream& operator=(const DataSource_Stream&) = delete;
@@ -182,6 +267,10 @@ class BOTAN_PUBLIC_API(2, 0) DataSource_Stream final : public DataSource {
 
       ~DataSource_Stream() override;
 
+      /**
+      * Count the bytes consumed from this source so far
+      * @return number of bytes read so far
+      */
       size_t get_bytes_read() const override { return m_total_read; }
 
    private:

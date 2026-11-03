@@ -11,6 +11,7 @@
 #define BOTAN_STL_UTIL_H_
 
 #include <botan/assert.h>
+#include <optional>
 #include <variant>
 #include <vector>
 
@@ -103,6 +104,26 @@ constexpr GeneralVariantT generalize_to(std::variant<SpecialTs...> specific) {
       is_generalizable_to<GeneralVariantT>(specific),
       "Desired general type must be implicitly constructible by all types of the specialized std::variant<>");
    return std::visit([](auto s) -> GeneralVariantT { return s; }, std::move(specific));
+}
+
+/**
+ * @brief Converts a given variant into another variant whose type states
+ *        are a subset of the given variant.
+ *
+ * @returns a variant of type SpecificVariantT if the given variant holds a
+ *          type in SpecificVariantT, std::nullopt otherwise.
+ */
+template <typename SpecificVariantT, typename GeneralVariantT>
+constexpr std::optional<SpecificVariantT> specialize_to(GeneralVariantT&& v) {
+   return std::visit(
+      []<typename AlternativeT>(AlternativeT&& obj) -> std::optional<SpecificVariantT> {
+         if constexpr(std::is_constructible_v<SpecificVariantT, AlternativeT>) {
+            return std::forward<AlternativeT>(obj);
+         } else {
+            return std::nullopt;
+         }
+      },
+      std::forward<GeneralVariantT>(v));
 }
 
 // This is a helper utility to emulate pattern matching with std::visit.

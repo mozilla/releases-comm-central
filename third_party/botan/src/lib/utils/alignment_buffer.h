@@ -57,7 +57,7 @@ template <typename T,
           size_t BLOCK_SIZE,
           AlignmentBufferFinalBlock FINAL_BLOCK_STRATEGY = AlignmentBufferFinalBlock::is_not_special>
    requires(BLOCK_SIZE > 0)
-class AlignmentBuffer {
+class AlignmentBuffer final {
    public:
       AlignmentBuffer() = default;
 

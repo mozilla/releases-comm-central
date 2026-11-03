@@ -100,7 +100,7 @@ std::string base58_encode(BigInt v, size_t leading_zeros) {
    BigInt q;
    std::vector<uint8_t> digits;
 
-   while(v.is_nonzero()) {
+   while(!v.is_zero()) {
       word r = 0;
       ct_divide_word(v, radix, q, r);
 
@@ -157,8 +157,10 @@ uint8_t base58_value_of(char input) {
    constexpr uint64_t v_lo = make_uint64(0, '1', 'A', 'J', 'P', 'a', 'm', 0);
    constexpr uint64_t v_range = make_uint64(0, 9, 8, 5, 11, 11, 14, 0);
 
+   constexpr uint64_t expand8 = 0x0101010101010101;
+
    const uint8_t x = static_cast<uint8_t>(input);
-   const uint64_t x8 = x * 0x0101010101010101;  // replicate x to each byte
+   const uint64_t x8 = x * expand8;  // replicate x to each byte
 
    // is x8 in any of the ranges?
    const uint64_t v_mask = swar_in_range<uint64_t>(x8, v_lo, v_range) ^ 0x8000000000000000;

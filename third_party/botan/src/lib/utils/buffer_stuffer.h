@@ -10,6 +10,7 @@
 #include <botan/assert.h>
 #include <botan/strong_type.h>
 #include <botan/types.h>
+#include <algorithm>
 #include <span>
 
 namespace Botan {

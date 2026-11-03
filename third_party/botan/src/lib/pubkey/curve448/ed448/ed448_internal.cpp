@@ -80,6 +80,11 @@ Ed448Point Ed448Point::decode(std::span<const uint8_t, ED448_LEN> enc) {
    if((enc.back() & 0x7F) != 0) {  // last byte is either 0x00 or 0x80
       throw Decoding_Error("Ed448 point has unacceptable x-distinguisher");
    }
+   std::array<uint8_t, ED448_LEN> identity_element{};
+   identity_element[0] = 1;
+   if(CT::is_equal(enc.data(), identity_element.data(), ED448_LEN).as_bool()) {
+      throw Decoding_Error("Ed448 point is the identity element");
+   }
    const bool x_distinguisher = enc.back() != 0;
    const auto y_data = std::span(enc).first<56>();
    if(!Gf448Elem::bytes_are_canonical_representation(y_data)) {

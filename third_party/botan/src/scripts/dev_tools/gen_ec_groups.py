@@ -50,6 +50,7 @@ def curve_info(src):
         if key in ['Name']:
             current[key] = val
         elif key in ['OID', 'Impl']:
+            # TODO(Botan4) when gost is removed, start requiring a single unique OID
             current[key] = val.split(' ')
         elif key in ['A']:
             if val == '-3':

@@ -32,6 +32,7 @@ void CFB_Mode::clear() {
 void CFB_Mode::reset() {
    m_state.clear();
    zeroise(m_keystream);
+   m_keystream_pos = 0;
 }
 
 std::string CFB_Mode::name() const {
@@ -78,6 +79,10 @@ bool CFB_Mode::has_keying_material() const {
 void CFB_Mode::key_schedule(std::span<const uint8_t> key) {
    m_cipher->set_key(key);
    m_keystream.resize(m_cipher->block_size());
+
+   // Drop the IV/feedback register and keystream from any prior message;
+   // they were computed under the previous key.
+   reset();
 }
 
 void CFB_Mode::start_msg(const uint8_t nonce[], size_t nonce_len) {

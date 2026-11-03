@@ -10,6 +10,7 @@
 #include <botan/internal/ffi_ec.h>
 #include <botan/internal/ffi_mp.h>
 #include <botan/internal/ffi_oid.h>
+#include <botan/internal/ffi_rng.h>
 #include <botan/internal/ffi_util.h>
 #include <functional>
 
@@ -35,7 +36,7 @@ int botan_ec_group_supports_application_specific_group(int* out) {
 
 int botan_ec_group_supports_named_group(const char* name, int* out) {
    return ffi_guard_thunk(__func__, [=]() -> int {
-      if(name == nullptr || out == nullptr) {
+      if(Botan::any_null_pointers(name, out)) {
          return BOTAN_FFI_ERROR_NULL_POINTER;
       }
       if(Botan::EC_Group::supports_named_group(name)) {
@@ -70,7 +71,7 @@ int botan_ec_group_from_params(botan_ec_group_t* ec_group,
 
 int botan_ec_group_from_ber(botan_ec_group_t* ec_group, const uint8_t* ber, size_t ber_len) {
    return ffi_guard_thunk(__func__, [=]() -> int {
-      if(ec_group == nullptr || ber == nullptr) {
+      if(Botan::any_null_pointers(ec_group, ber)) {
          return BOTAN_FFI_ERROR_NULL_POINTER;
       }
 
@@ -83,7 +84,7 @@ int botan_ec_group_from_ber(botan_ec_group_t* ec_group, const uint8_t* ber, size
 
 int botan_ec_group_from_pem(botan_ec_group_t* ec_group, const char* pem) {
    return ffi_guard_thunk(__func__, [=]() -> int {
-      if(ec_group == nullptr || pem == nullptr) {
+      if(Botan::any_null_pointers(ec_group, pem)) {
          return BOTAN_FFI_ERROR_NULL_POINTER;
       }
 
@@ -109,7 +110,7 @@ int botan_ec_group_from_oid(botan_ec_group_t* ec_group, botan_asn1_oid_t oid) {
 
 int botan_ec_group_from_name(botan_ec_group_t* ec_group, const char* name) {
    return ffi_guard_thunk(__func__, [=]() -> int {
-      if(ec_group == nullptr || name == nullptr) {
+      if(Botan::any_null_pointers(ec_group, name)) {
          return BOTAN_FFI_ERROR_NULL_POINTER;
       }
 
@@ -188,5 +189,167 @@ int botan_ec_group_get_order(botan_mp_t* order, botan_ec_group_t ec_group) {
 
 int botan_ec_group_equal(botan_ec_group_t curve1_w, botan_ec_group_t curve2_w) {
    return BOTAN_FFI_VISIT(curve1_w, [=](const auto& curve1) -> int { return curve1 == safe_get(curve2_w); });
+}
+
+// ec scalars
+
+int botan_ec_scalar_destroy(botan_ec_scalar_t ec_scalar) {
+   return BOTAN_FFI_CHECKED_DELETE(ec_scalar);
+}
+
+int botan_ec_scalar_random(botan_ec_scalar_t* ec_scalar, botan_ec_group_t ec_group, botan_rng_t rng) {
+   if(Botan::any_null_pointers(ec_scalar)) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+   return BOTAN_FFI_VISIT(ec_group, [=](const auto& g) -> int {
+      return ffi_new_object(ec_scalar, std::make_unique<Botan::EC_Scalar>(Botan::EC_Scalar::random(g, safe_get(rng))));
+   });
+}
+
+int botan_ec_scalar_from_mp(botan_ec_scalar_t* ec_scalar, botan_ec_group_t ec_group, botan_mp_t mp) {
+   if(Botan::any_null_pointers(ec_scalar)) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+   return BOTAN_FFI_VISIT(ec_group, [=](const auto& g) -> int {
+      return ffi_new_object(ec_scalar,
+                            std::make_unique<Botan::EC_Scalar>(Botan::EC_Scalar::from_bigint(g, safe_get(mp))));
+   });
+}
+
+int botan_ec_scalar_to_mp(botan_ec_scalar_t ec_scalar, botan_mp_t* mp) {
+   if(Botan::any_null_pointers(mp)) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+   return BOTAN_FFI_VISIT(ec_scalar, [=](const auto& sc) -> int {
+      return ffi_new_object(mp, std::make_unique<Botan::BigInt>(sc.to_bigint()));
+   });
+}
+
+// ec points
+
+int botan_ec_point_destroy(botan_ec_point_t ec_point) {
+   return BOTAN_FFI_CHECKED_DELETE(ec_point);
+}
+
+int botan_ec_point_identity(botan_ec_point_t* ec_point, botan_ec_group_t ec_group) {
+   if(Botan::any_null_pointers(ec_point)) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+   return BOTAN_FFI_VISIT(ec_group, [=](const auto& g) -> int {
+      return ffi_new_object(ec_point, std::make_unique<Botan::EC_AffinePoint>(Botan::EC_AffinePoint::identity(g)));
+   });
+}
+
+int botan_ec_point_generator(botan_ec_point_t* ec_point, botan_ec_group_t ec_group) {
+   if(Botan::any_null_pointers(ec_point)) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+   return BOTAN_FFI_VISIT(ec_group, [=](const auto& g) -> int {
+      return ffi_new_object(ec_point, std::make_unique<Botan::EC_AffinePoint>(Botan::EC_AffinePoint::generator(g)));
+   });
+}
+
+int botan_ec_point_from_xy(botan_ec_point_t* ec_point, botan_ec_group_t ec_group, botan_mp_t x, botan_mp_t y) {
+   if(Botan::any_null_pointers(ec_point)) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+   return ffi_guard_thunk(__func__, [=]() -> int {
+      std::optional<Botan::EC_AffinePoint> pt =
+         Botan::EC_AffinePoint::from_bigint_xy(safe_get(ec_group), safe_get(x), safe_get(y));
+      if(!pt.has_value()) {
+         return BOTAN_FFI_ERROR_BAD_PARAMETER;
+      }
+
+      return ffi_new_object(ec_point, std::make_unique<Botan::EC_AffinePoint>(pt.value()));
+   });
+}
+
+int botan_ec_point_from_bytes(botan_ec_point_t* ec_point,
+                              botan_ec_group_t ec_group,
+                              const uint8_t* bytes,
+                              size_t bytes_len) {
+   if(Botan::any_null_pointers(ec_point, bytes)) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+   return BOTAN_FFI_VISIT(ec_group, [=](const auto& g) -> int {
+      Botan::EC_AffinePoint pt(g, std::span{bytes, bytes_len});
+      return ffi_new_object(ec_point, std::make_unique<Botan::EC_AffinePoint>(std::move(pt)));
+   });
+}
+
+int botan_ec_point_view_x_bytes(botan_ec_point_t ec_point, botan_view_ctx ctx, botan_view_bin_fn view) {
+   return BOTAN_FFI_VISIT(ec_point, [=](const auto& p) -> int {
+      auto bytes = p.x_bytes();
+      return invoke_view_callback(view, ctx, bytes);
+   });
+}
+
+int botan_ec_point_view_y_bytes(botan_ec_point_t ec_point, botan_view_ctx ctx, botan_view_bin_fn view) {
+   return BOTAN_FFI_VISIT(ec_point, [=](const auto& p) -> int {
+      auto bytes = p.y_bytes();
+      return invoke_view_callback(view, ctx, bytes);
+   });
+}
+
+int botan_ec_point_view_xy_bytes(botan_ec_point_t ec_point, botan_view_ctx ctx, botan_view_bin_fn view) {
+   return BOTAN_FFI_VISIT(ec_point, [=](const auto& p) -> int {
+      auto bytes = p.xy_bytes();
+      return invoke_view_callback(view, ctx, bytes);
+   });
+}
+
+int botan_ec_point_view_uncompressed(botan_ec_point_t ec_point, botan_view_ctx ctx, botan_view_bin_fn view) {
+   return BOTAN_FFI_VISIT(ec_point, [=](const auto& p) -> int {
+      auto bytes = p.serialize_uncompressed();
+      return invoke_view_callback(view, ctx, bytes);
+   });
+}
+
+int botan_ec_point_view_compressed(botan_ec_point_t ec_point, botan_view_ctx ctx, botan_view_bin_fn view) {
+   return BOTAN_FFI_VISIT(ec_point, [=](const auto& p) -> int {
+      auto bytes = p.serialize_compressed();
+      return invoke_view_callback(view, ctx, bytes);
+   });
+}
+
+int botan_ec_point_is_identity(botan_ec_point_t ec_point) {
+   return BOTAN_FFI_VISIT(ec_point, [=](const auto& p) -> int { return p.is_identity() ? 1 : 0; });
+}
+
+int botan_ec_point_equal(botan_ec_point_t x_w, botan_ec_point_t y_w) {
+   return BOTAN_FFI_VISIT(x_w, [=](const auto& x) -> int { return x == safe_get(y_w) ? 1 : 0; });
+}
+
+int botan_ec_point_mul(botan_ec_point_t* result,
+                       botan_ec_point_t ec_point,
+                       botan_ec_scalar_t ec_scalar,
+                       botan_rng_t rng) {
+   if(Botan::any_null_pointers(result)) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+   return BOTAN_FFI_VISIT(ec_point, [=](auto& pt) -> int {
+      Botan::EC_AffinePoint res = pt.mul(safe_get(ec_scalar), safe_get(rng));
+      return ffi_new_object(result, std::make_unique<Botan::EC_AffinePoint>(std::move(res)));
+   });
+}
+
+int botan_ec_point_negate(botan_ec_point_t* result, botan_ec_point_t ec_point) {
+   if(Botan::any_null_pointers(result)) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+   return BOTAN_FFI_VISIT(ec_point, [=](auto& pt) -> int {
+      Botan::EC_AffinePoint res = pt.negate();
+      return ffi_new_object(result, std::make_unique<Botan::EC_AffinePoint>(std::move(res)));
+   });
+}
+
+int botan_ec_point_add(botan_ec_point_t* result, botan_ec_point_t x_w, botan_ec_point_t y_w) {
+   if(Botan::any_null_pointers(result)) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+   return BOTAN_FFI_VISIT(x_w, [=](auto& x) -> int {
+      Botan::EC_AffinePoint res = x.add(safe_get(y_w));
+      return ffi_new_object(result, std::make_unique<Botan::EC_AffinePoint>(std::move(res)));
+   });
 }
 }

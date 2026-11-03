@@ -5,12 +5,15 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
+#include <botan/assert.h>
 #include <botan/tls_signature_scheme.h>
 
+#include <botan/hex.h>
 #include <botan/pk_keys.h>
 #include <botan/pss_params.h>
 #include <botan/tls_version.h>
-#include <botan/internal/stl_util.h>
+#include <botan/internal/fmt.h>
+#include <botan/internal/loadstor.h>
 
 namespace Botan::TLS {
 
@@ -28,20 +31,85 @@ const std::vector<Signature_Scheme>& Signature_Scheme::all_available_schemes() {
       //       EDDSA_25519,
       // #endif
 
+      ECDSA_SECP384R1_TLS13_SHA384,
+      ECDSA_SECP521R1_TLS13_SHA512,
+      ECDSA_SECP256R1_TLS13_SHA256,
+
       RSA_PSS_SHA384,
       RSA_PSS_SHA256,
       RSA_PSS_SHA512,
 
+      ECDSA_BRAINPOOL384R1_TLS13_SHA384,
+      ECDSA_BRAINPOOL256R1_TLS13_SHA256,
+      ECDSA_BRAINPOOL512R1_TLS13_SHA512,
+
       RSA_PKCS1_SHA384,
       RSA_PKCS1_SHA512,
       RSA_PKCS1_SHA256,
-
-      ECDSA_SHA384,
-      ECDSA_SHA512,
-      ECDSA_SHA256,
    };
 
    return all_schemes;
+}
+
+Signature_Scheme Signature_Scheme::from_string(std::string_view str) {
+   if(str == "RSA_PKCS1_SHA1") {
+      return RSA_PKCS1_SHA1;
+   }
+   if(str == "RSA_PKCS1_SHA256") {
+      return RSA_PKCS1_SHA256;
+   }
+   if(str == "RSA_PKCS1_SHA384") {
+      return RSA_PKCS1_SHA384;
+   }
+   if(str == "RSA_PKCS1_SHA512") {
+      return RSA_PKCS1_SHA512;
+   }
+
+   if(str == "ECDSA_SHA1") {
+      return ECDSA_SHA1;
+   }
+   if(str == "ECDSA_SHA256" || str == "ECDSA_SECP256R1_TLS13_SHA256") {
+      return ECDSA_SECP256R1_TLS13_SHA256;
+   }
+   if(str == "ECDSA_SHA384" || str == "ECDSA_SECP384R1_TLS13_SHA384") {
+      return ECDSA_SECP384R1_TLS13_SHA384;
+   }
+   if(str == "ECDSA_SHA512" || str == "ECDSA_SECP521R1_TLS13_SHA512") {
+      return ECDSA_SECP521R1_TLS13_SHA512;
+   }
+
+   if(str == "RSA_PSS_SHA256") {
+      return RSA_PSS_SHA256;
+   }
+   if(str == "RSA_PSS_SHA384") {
+      return RSA_PSS_SHA384;
+   }
+   if(str == "RSA_PSS_SHA512") {
+      return RSA_PSS_SHA512;
+   }
+
+   if(str == "ECDSA_BRAINPOOL256R1_TLS13_SHA256") {
+      return ECDSA_BRAINPOOL256R1_TLS13_SHA256;
+   }
+   if(str == "ECDSA_BRAINPOOL384R1_TLS13_SHA384") {
+      return ECDSA_BRAINPOOL384R1_TLS13_SHA384;
+   }
+   if(str == "ECDSA_BRAINPOOL512R1_TLS13_SHA512") {
+      return ECDSA_BRAINPOOL512R1_TLS13_SHA512;
+   }
+
+   // Parse signature schemes passed as hexadecimal code points (e.g. "0x081A")
+   if(str.size() == 6 && str.starts_with("0x")) {
+      try {
+         std::array<uint8_t, 2> wire_code{};
+         Botan::hex_decode(wire_code, str.substr(2), false /* no white space */);
+         return Signature_Scheme(load_be(wire_code));
+      } catch(const Invalid_Argument&) {
+         // pass, will throw below
+      }
+   }
+
+   throw Invalid_Argument(fmt("Unknown TLS signature scheme '{}'", str));
 }
 
 Signature_Scheme::Signature_Scheme() : m_code(NONE) {}
@@ -51,14 +119,30 @@ Signature_Scheme::Signature_Scheme(uint16_t wire_code) : Signature_Scheme(Signat
 Signature_Scheme::Signature_Scheme(Signature_Scheme::Code wire_code) : m_code(wire_code) {}
 
 bool Signature_Scheme::is_available() const noexcept {
-   return value_exists(Signature_Scheme::all_available_schemes(), *this);
+   switch(m_code) {
+      case RSA_PSS_SHA384:
+      case RSA_PSS_SHA256:
+      case RSA_PSS_SHA512:
+      case RSA_PKCS1_SHA384:
+      case RSA_PKCS1_SHA512:
+      case RSA_PKCS1_SHA256:
+      case ECDSA_BRAINPOOL384R1_TLS13_SHA384:
+      case ECDSA_BRAINPOOL256R1_TLS13_SHA256:
+      case ECDSA_BRAINPOOL512R1_TLS13_SHA512:
+      case ECDSA_SECP384R1_TLS13_SHA384:
+      case ECDSA_SECP521R1_TLS13_SHA512:
+      case ECDSA_SECP256R1_TLS13_SHA256:
+         return true;
+      default:
+         return false;
+   }
 }
 
 bool Signature_Scheme::is_set() const noexcept {
    return m_code != NONE;
 }
 
-std::string Signature_Scheme::to_string() const noexcept {
+std::string Signature_Scheme::to_string() const {
    switch(m_code) {
       case RSA_PKCS1_SHA1:
          return "RSA_PKCS1_SHA1";
@@ -71,12 +155,19 @@ std::string Signature_Scheme::to_string() const noexcept {
 
       case ECDSA_SHA1:
          return "ECDSA_SHA1";
-      case ECDSA_SHA256:
+      case ECDSA_SECP256R1_TLS13_SHA256:
          return "ECDSA_SHA256";
-      case ECDSA_SHA384:
+      case ECDSA_SECP384R1_TLS13_SHA384:
          return "ECDSA_SHA384";
-      case ECDSA_SHA512:
+      case ECDSA_SECP521R1_TLS13_SHA512:
          return "ECDSA_SHA512";
+
+      case ECDSA_BRAINPOOL256R1_TLS13_SHA256:
+         return "ECDSA_BRAINPOOL256R1_TLS13_SHA256";
+      case ECDSA_BRAINPOOL384R1_TLS13_SHA384:
+         return "ECDSA_BRAINPOOL384R1_TLS13_SHA384";
+      case ECDSA_BRAINPOOL512R1_TLS13_SHA512:
+         return "ECDSA_BRAINPOOL512R1_TLS13_SHA512";
 
       case RSA_PSS_SHA256:
          return "RSA_PSS_SHA256";
@@ -95,25 +186,28 @@ std::string Signature_Scheme::to_string() const noexcept {
    }
 }
 
-std::string Signature_Scheme::hash_function_name() const noexcept {
+std::string Signature_Scheme::hash_function_name() const {
    switch(m_code) {
       case RSA_PKCS1_SHA1:
       case ECDSA_SHA1:
          return "SHA-1";
 
-      case ECDSA_SHA256:
+      case ECDSA_SECP256R1_TLS13_SHA256:
       case RSA_PKCS1_SHA256:
       case RSA_PSS_SHA256:
+      case ECDSA_BRAINPOOL256R1_TLS13_SHA256:
          return "SHA-256";
 
-      case ECDSA_SHA384:
+      case ECDSA_SECP384R1_TLS13_SHA384:
       case RSA_PKCS1_SHA384:
       case RSA_PSS_SHA384:
+      case ECDSA_BRAINPOOL384R1_TLS13_SHA384:
          return "SHA-384";
 
-      case ECDSA_SHA512:
+      case ECDSA_SECP521R1_TLS13_SHA512:
       case RSA_PKCS1_SHA512:
       case RSA_PSS_SHA512:
+      case ECDSA_BRAINPOOL512R1_TLS13_SHA512:
          return "SHA-512";
 
       case EDDSA_25519:
@@ -125,7 +219,7 @@ std::string Signature_Scheme::hash_function_name() const noexcept {
    }
 }
 
-std::string Signature_Scheme::padding_string() const noexcept {
+std::string Signature_Scheme::padding_string() const {
    switch(m_code) {
       case RSA_PKCS1_SHA1:
          return "PKCS1v15(SHA-1)";
@@ -138,11 +232,14 @@ std::string Signature_Scheme::padding_string() const noexcept {
 
       case ECDSA_SHA1:
          return "SHA-1";
-      case ECDSA_SHA256:
+      case ECDSA_SECP256R1_TLS13_SHA256:
+      case ECDSA_BRAINPOOL256R1_TLS13_SHA256:
          return "SHA-256";
-      case ECDSA_SHA384:
+      case ECDSA_SECP384R1_TLS13_SHA384:
+      case ECDSA_BRAINPOOL384R1_TLS13_SHA384:
          return "SHA-384";
-      case ECDSA_SHA512:
+      case ECDSA_SECP521R1_TLS13_SHA512:
+      case ECDSA_BRAINPOOL512R1_TLS13_SHA512:
          return "SHA-512";
 
       case RSA_PSS_SHA256:
@@ -161,7 +258,7 @@ std::string Signature_Scheme::padding_string() const noexcept {
    }
 }
 
-std::string Signature_Scheme::algorithm_name() const noexcept {
+std::string Signature_Scheme::algorithm_name() const {
    switch(m_code) {
       case RSA_PKCS1_SHA1:
       case RSA_PKCS1_SHA256:
@@ -173,9 +270,12 @@ std::string Signature_Scheme::algorithm_name() const noexcept {
          return "RSA";
 
       case ECDSA_SHA1:
-      case ECDSA_SHA256:
-      case ECDSA_SHA384:
-      case ECDSA_SHA512:
+      case ECDSA_SECP256R1_TLS13_SHA256:
+      case ECDSA_SECP384R1_TLS13_SHA384:
+      case ECDSA_SECP521R1_TLS13_SHA512:
+      case ECDSA_BRAINPOOL256R1_TLS13_SHA256:
+      case ECDSA_BRAINPOOL384R1_TLS13_SHA384:
+      case ECDSA_BRAINPOOL512R1_TLS13_SHA512:
          return "ECDSA";
 
       case EDDSA_25519:
@@ -189,7 +289,7 @@ std::string Signature_Scheme::algorithm_name() const noexcept {
    }
 }
 
-AlgorithmIdentifier Signature_Scheme::key_algorithm_identifier() const noexcept {
+AlgorithmIdentifier Signature_Scheme::key_algorithm_identifier() const {
    const auto der_encode_oid = [](const std::string_view oid_name) {
       try {
          if(auto oid = OID::from_name(oid_name)) {
@@ -201,12 +301,19 @@ AlgorithmIdentifier Signature_Scheme::key_algorithm_identifier() const noexcept 
 
    switch(m_code) {
       // case ECDSA_SHA1:  not defined
-      case ECDSA_SHA256:
+      case ECDSA_SECP256R1_TLS13_SHA256:
          return {"ECDSA", der_encode_oid("secp256r1")};
-      case ECDSA_SHA384:
+      case ECDSA_SECP384R1_TLS13_SHA384:
          return {"ECDSA", der_encode_oid("secp384r1")};
-      case ECDSA_SHA512:
+      case ECDSA_SECP521R1_TLS13_SHA512:
          return {"ECDSA", der_encode_oid("secp521r1")};
+
+      case ECDSA_BRAINPOOL256R1_TLS13_SHA256:
+         return {"ECDSA", der_encode_oid("brainpool256r1")};
+      case ECDSA_BRAINPOOL384R1_TLS13_SHA384:
+         return {"ECDSA", der_encode_oid("brainpool384r1")};
+      case ECDSA_BRAINPOOL512R1_TLS13_SHA512:
+         return {"ECDSA", der_encode_oid("brainpool512r1")};
 
       case EDDSA_25519:
          return {"Ed25519", AlgorithmIdentifier::USE_EMPTY_PARAM};
@@ -227,7 +334,7 @@ AlgorithmIdentifier Signature_Scheme::key_algorithm_identifier() const noexcept 
    }
 }
 
-AlgorithmIdentifier Signature_Scheme::algorithm_identifier() const noexcept {
+AlgorithmIdentifier Signature_Scheme::algorithm_identifier() const {
    switch(m_code) {
       case RSA_PKCS1_SHA1:
          return AlgorithmIdentifier(OID::from_string("RSA/PKCS1v15(SHA-1)"), AlgorithmIdentifier::USE_NULL_PARAM);
@@ -240,11 +347,14 @@ AlgorithmIdentifier Signature_Scheme::algorithm_identifier() const noexcept {
 
       case ECDSA_SHA1:
          return AlgorithmIdentifier(OID::from_string("ECDSA/SHA-1"), AlgorithmIdentifier::USE_EMPTY_PARAM);
-      case ECDSA_SHA256:
+      case ECDSA_SECP256R1_TLS13_SHA256:
+      case ECDSA_BRAINPOOL256R1_TLS13_SHA256:
          return AlgorithmIdentifier(OID::from_string("ECDSA/SHA-256"), AlgorithmIdentifier::USE_EMPTY_PARAM);
-      case ECDSA_SHA384:
+      case ECDSA_SECP384R1_TLS13_SHA384:
+      case ECDSA_BRAINPOOL384R1_TLS13_SHA384:
          return AlgorithmIdentifier(OID::from_string("ECDSA/SHA-384"), AlgorithmIdentifier::USE_EMPTY_PARAM);
-      case ECDSA_SHA512:
+      case ECDSA_SECP521R1_TLS13_SHA512:
+      case ECDSA_BRAINPOOL512R1_TLS13_SHA512:
          return AlgorithmIdentifier(OID::from_string("ECDSA/SHA-512"), AlgorithmIdentifier::USE_EMPTY_PARAM);
 
       case RSA_PSS_SHA256:
@@ -269,14 +379,17 @@ std::optional<Signature_Format> Signature_Scheme::format() const noexcept {
       case RSA_PSS_SHA256:
       case RSA_PSS_SHA384:
       case RSA_PSS_SHA512:
+      case EDDSA_25519:
+      case EDDSA_448:
          return Signature_Format::Standard;
 
       case ECDSA_SHA1:
-      case ECDSA_SHA256:
-      case ECDSA_SHA384:
-      case ECDSA_SHA512:
-      case EDDSA_25519:
-      case EDDSA_448:
+      case ECDSA_SECP256R1_TLS13_SHA256:
+      case ECDSA_SECP384R1_TLS13_SHA384:
+      case ECDSA_SECP521R1_TLS13_SHA512:
+      case ECDSA_BRAINPOOL256R1_TLS13_SHA256:
+      case ECDSA_BRAINPOOL384R1_TLS13_SHA384:
+      case ECDSA_BRAINPOOL512R1_TLS13_SHA512:
          return Signature_Format::DerSequence;
 
       default:
@@ -290,7 +403,7 @@ bool Signature_Scheme::is_compatible_with(const Protocol_Version& protocol_versi
    //   CertificateVerify messages.
    //
    // Note that Botan enforces that for TLS 1.2 as well.
-   if(hash_function_name() == "SHA-1") {
+   if(m_code == RSA_PKCS1_SHA1 || m_code == ECDSA_SHA1) {
       return false;
    }
 
@@ -307,7 +420,7 @@ bool Signature_Scheme::is_compatible_with(const Protocol_Version& protocol_versi
    return true;
 }
 
-bool Signature_Scheme::is_suitable_for(const Private_Key& private_key) const noexcept {
+bool Signature_Scheme::is_suitable_for(const Private_Key& private_key) const {
    if(algorithm_name() != private_key.algo_name()) {
       return false;
    }
@@ -318,16 +431,18 @@ bool Signature_Scheme::is_suitable_for(const Private_Key& private_key) const noe
       return false;
    }
 
-   if(m_code == ECDSA_SHA256 && !(keylen >= 250 && keylen <= 350)) {
-      return false;
-   }
+   if(algorithm_name() == "ECDSA") {
+      if(hash_function_name() == "SHA-256" && !(keylen >= 250 && keylen <= 350)) {
+         return false;
+      }
 
-   if(m_code == ECDSA_SHA384 && !(keylen >= 350 && keylen <= 450)) {
-      return false;
-   }
+      if(hash_function_name() == "SHA-384" && !(keylen >= 350 && keylen <= 450)) {
+         return false;
+      }
 
-   if(m_code == ECDSA_SHA512 && !(keylen >= 450 && keylen <= 550)) {
-      return false;
+      if(hash_function_name() == "SHA-512" && !(keylen >= 450 && keylen <= 550)) {
+         return false;
+      }
    }
 
    return true;

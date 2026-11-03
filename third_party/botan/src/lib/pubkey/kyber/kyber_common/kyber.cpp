@@ -71,11 +71,19 @@ KyberMode::Mode kyber_mode_from_string(std::string_view str) {
    throw Invalid_Argument(fmt("'{}' is not a valid Kyber mode name", str));
 }
 
+KyberMode::Mode kyber_mode_from_oid(const OID& oid) {
+   if(const auto name = oid.registered_name()) {
+      return kyber_mode_from_string(*name);
+   }
+
+   throw Invalid_Argument(fmt("OID '{}' is not registered as a Kyber/ML-KEM mode", oid));
+}
+
 }  // namespace
 
 KyberMode::KyberMode(Mode mode) : m_mode(mode) {}
 
-KyberMode::KyberMode(const OID& oid) : m_mode(kyber_mode_from_string(oid.to_formatted_string())) {}
+KyberMode::KyberMode(const OID& oid) : m_mode(kyber_mode_from_oid(oid)) {}
 
 KyberMode::KyberMode(std::string_view str) : m_mode(kyber_mode_from_string(str)) {}
 
@@ -172,7 +180,12 @@ size_t Kyber_PublicKey::estimated_strength() const {
 }
 
 Kyber_PublicKey::Kyber_PublicKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> key_bits) :
-      Kyber_PublicKey(key_bits, KyberMode(alg_id.oid())) {}
+      Kyber_PublicKey(key_bits, KyberMode(alg_id.oid())) {
+   // The parameter set is identified by the OID; no parameters are defined.
+   if(!alg_id.parameters_are_empty()) {
+      throw Decoding_Error("Unexpected parameters for ML-KEM/Kyber public key");
+   }
+}
 
 Kyber_PublicKey::Kyber_PublicKey(std::span<const uint8_t> pub_key, KyberMode mode) {
    m_public = std::make_shared<Kyber_PublicKeyInternal>(mode, KyberSerializedPublicKey(pub_key));
@@ -224,7 +237,12 @@ Kyber_PrivateKey::Kyber_PrivateKey(RandomNumberGenerator& rng, KyberMode mode) {
 }
 
 Kyber_PrivateKey::Kyber_PrivateKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> key_bits) :
-      Kyber_PrivateKey(key_bits, KyberMode(alg_id.oid())) {}
+      Kyber_PrivateKey(key_bits, KyberMode(alg_id.oid())) {
+   // The parameter set is identified by the OID; no parameters are defined.
+   if(!alg_id.parameters_are_empty()) {
+      throw Decoding_Error("Unexpected parameters for ML-KEM/Kyber private key");
+   }
+}
 
 Kyber_PrivateKey::Kyber_PrivateKey(std::span<const uint8_t> sk, KyberMode m) {
    KyberConstants mode(m);

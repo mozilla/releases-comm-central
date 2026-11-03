@@ -19,8 +19,11 @@
 #include <botan/tls_signature_scheme.h>
 #include <botan/tls_version.h>
 
+#include <map>
 #include <memory>
+#include <optional>
 #include <set>
+#include <span>
 
 namespace Botan {
 
@@ -50,6 +53,9 @@ enum class Extension_Code : uint16_t {
    ClientCertificateType = 19,
    ServerCertificateType = 20,
 
+   Padding = 21,  // RFC 7685; not implemented but recognized so it can be
+                  // explicitly carved out of strict-mutation checks.
+
    EncryptThenMac = 22,        // TLS 1.2 exclusive
    ExtendedMasterSecret = 23,  // TLS 1.2 exclusive
 
@@ -75,23 +81,35 @@ enum class Extension_Code : uint16_t {
 class BOTAN_UNSTABLE_API Extension /* NOLINT(*-special-member-functions) */ {
    public:
       /**
+      * Return TLS extension code
+      *
       * @return code number of the extension
       */
       virtual Extension_Code type() const = 0;
 
       /**
+      * Serialize a TLS extension
+      *
+      * @param whoami which peer we are acting as in the protocol
       * @return serialized binary for the extension
       */
       virtual std::vector<uint8_t> serialize(Connection_Side whoami) const = 0;
 
       /**
-      * @return if we should encode this extension or not
+      * Predicate if a TLS extension should be included or not
+      *
+      * @return true if this extension should be encoded, otherwise false
       */
       virtual bool empty() const = 0;
 
       /**
-       * @return true if this extension is known and implemented by Botan
-       */
+      * Predicate if the extension is known/implemented
+      *
+      * @note this exists primarily to support unknown extension handling and
+      * doesn't need to be overridden even in the custom extension case.
+      *
+      * @return true if this extension is known
+      */
       virtual bool is_implemented() const { return true; }
 
       virtual ~Extension() = default;
@@ -138,14 +156,12 @@ class BOTAN_UNSTABLE_API Application_Layer_Protocol_Notification final : public 
       /**
       * Single protocol, used by server
       */
-      explicit Application_Layer_Protocol_Notification(std::string_view protocol) :
-            m_protocols(1, std::string(protocol)) {}
+      explicit Application_Layer_Protocol_Notification(std::string_view protocol);
 
       /**
       * List of protocols, used by client
       */
-      explicit Application_Layer_Protocol_Notification(const std::vector<std::string>& protocols) :
-            m_protocols(protocols) {}
+      explicit Application_Layer_Protocol_Notification(std::vector<std::string> protocols);
 
       Application_Layer_Protocol_Notification(TLS_Data_Reader& reader, uint16_t extension_size, Connection_Side from);
 
@@ -173,7 +189,7 @@ class BOTAN_UNSTABLE_API Certificate_Type_Base : public Extension {
        * Called by the server to select a cert type to be used in the handshake.
        */
       Certificate_Type_Base(const Certificate_Type_Base& certificate_type_from_client,
-                            const std::vector<Certificate_Type>& server_preference);
+                            std::span<const Certificate_Type> server_preference);
 
    public:
       Certificate_Type_Base(TLS_Data_Reader& reader, uint16_t extension_size, Connection_Side from);
@@ -244,7 +260,7 @@ class BOTAN_UNSTABLE_API Supported_Groups final : public Extension {
 
       std::vector<uint8_t> serialize(Connection_Side whoami) const override;
 
-      explicit Supported_Groups(const std::vector<Group_Params>& groups);
+      explicit Supported_Groups(std::vector<Group_Params> groups);
 
       Supported_Groups(TLS_Data_Reader& reader, uint16_t extension_size);
 
@@ -325,7 +341,7 @@ class BOTAN_UNSTABLE_API SRTP_Protection_Profiles final : public Extension {
 
       bool empty() const override { return m_pp.empty(); }
 
-      explicit SRTP_Protection_Profiles(const std::vector<uint16_t>& pp) : m_pp(pp) {}
+      explicit SRTP_Protection_Profiles(std::vector<uint16_t> pp) : m_pp(std::move(pp)) {}
 
       explicit SRTP_Protection_Profiles(uint16_t pp) : m_pp(1, pp) {}
 
@@ -458,8 +474,6 @@ class BOTAN_UNSTABLE_API Extensions final {
    public:
       std::set<Extension_Code> extension_types() const;
 
-      const std::vector<std::unique_ptr<Extension>>& all() const { return m_extensions; }
-
       template <typename T>
       T* get() const {
          return dynamic_cast<T*>(get(T::static_type()));
@@ -470,7 +484,7 @@ class BOTAN_UNSTABLE_API Extensions final {
          return get<T>() != nullptr;
       }
 
-      bool has(Extension_Code type) const { return get(type) != nullptr; }
+      bool has(Extension_Code type) const;
 
       size_t size() const { return m_extensions.size(); }
 
@@ -504,37 +518,32 @@ class BOTAN_UNSTABLE_API Extensions final {
       }
 
       /**
-       * Take the extension with the given type out of the extensions list.
-       * Returns a nullptr if the extension didn't exist.
-       */
-      template <typename T>
-      decltype(auto) take() {
-         std::unique_ptr<T> out_ptr;
-
-         auto ext = take(T::static_type());
-         if(ext != nullptr) {
-            out_ptr.reset(dynamic_cast<T*>(ext.get()));
-            BOTAN_ASSERT_NOMSG(out_ptr != nullptr);
-            ext.release();
-         }
-
-         return out_ptr;
-      }
-
-      /**
-       * Take the extension with the given type out of the extensions list.
-       * Returns a nullptr if the extension didn't exist.
-       */
-      std::unique_ptr<Extension> take(Extension_Code type);
-
-      /**
       * Remove an extension from this extensions object, if it exists.
       * Returns true if the extension existed (and thus is now removed),
       * otherwise false (the extension wasn't set in the first place).
       *
       * Note: not used internally, might be used in Callbacks::tls_modify_extensions()
       */
-      bool remove_extension(Extension_Code type) { return take(type) != nullptr; }
+      bool remove_extension(Extension_Code type);
+
+      /**
+      * Reorder extensions for serialization. Extensions not mentioned in
+      * @p order retain their relative position at the front; extensions in
+      * @p order are appended in the given order.
+      */
+      void reorder(std::span<const Extension_Code> order);
+
+      /**
+      * Return the code of the extension that appears last in the encoding
+      * This is used for checking the position of PSK extension in TLS 1.3
+      */
+      std::optional<Extension_Code> last_added() const {
+         if(m_extension_codes.empty()) {
+            return {};
+         } else {
+            return m_extension_codes.back();
+         }
+      }
 
       Extensions() = default;
       Extensions(const Extensions&) = delete;
@@ -547,8 +556,24 @@ class BOTAN_UNSTABLE_API Extensions final {
          deserialize(reader, side, message_type);
       }
 
+      /**
+       * @returns the raw bytes of the extension with the given type as they
+       *          appeared on the wire during deserialization, or std::nullopt
+       *          if the extension was not present or was added programmatically.
+       */
+      std::optional<std::vector<uint8_t>> extension_raw_bytes(Extension_Code type) const {
+         auto it = m_raw_extension_data.find(type);
+         if(it != m_raw_extension_data.end()) {
+            return it->second;
+         }
+         return std::nullopt;
+      }
+
    private:
-      std::vector<std::unique_ptr<Extension>> m_extensions;
+      // Kept in the order they were added
+      std::vector<Extension_Code> m_extension_codes;
+      std::map<Extension_Code, std::unique_ptr<Extension>> m_extensions;
+      std::map<Extension_Code, std::vector<uint8_t>> m_raw_extension_data;
 };
 
 }  // namespace TLS

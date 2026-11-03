@@ -25,8 +25,8 @@
    #include <bcrypt.h>
    #include <windows.h>
 #elif defined(BOTAN_TARGET_OS_HAS_CCRANDOM)
-   #include <errno.h>
    #include <CommonCrypto/CommonRandom.h>
+   #include <errno.h>
 #elif defined(BOTAN_TARGET_OS_HAS_ARC4RANDOM)
    #include <stdlib.h>
 #elif defined(BOTAN_TARGET_OS_HAS_GETRANDOM)
@@ -230,6 +230,10 @@ class System_RNG_Impl final : public RandomNumberGenerator {
                   continue;
                }
                throw System_Error("System_RNG getrandom failed", errno);
+            }
+
+            if(got == 0) {
+               throw System_Error("System_RNG getrandom unexpectedly returned 0");
             }
 
             buf += got;

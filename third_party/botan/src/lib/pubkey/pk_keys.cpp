@@ -35,19 +35,26 @@ Signature_Format Asymmetric_Key::_default_x509_signature_format() const {
    }
 }
 
-std::string create_hex_fingerprint(const uint8_t bits[], size_t bits_len, std::string_view hash_name) {
+std::string create_hex_fingerprint(std::span<const uint8_t> bits, std::string_view hash_name) {
    auto hash_fn = HashFunction::create_or_throw(hash_name);
-   const std::string hex_hash = hex_encode(hash_fn->process(bits, bits_len));
+   hash_fn->update(bits);
+   auto digest = hash_fn->final_stdvec();
+   return format_hex_fingerprint(digest);
+}
+
+std::string format_hex_fingerprint(std::span<const uint8_t> bits) {
+   const std::string hex = hex_encode(bits);
 
    std::string fprint;
+   fprint.reserve(3 * bits.size());
 
-   for(size_t i = 0; i != hex_hash.size(); i += 2) {
+   for(size_t i = 0; i != hex.size(); i += 2) {
       if(i != 0) {
          fprint.push_back(':');
       }
 
-      fprint.push_back(hex_hash[i]);
-      fprint.push_back(hex_hash[i + 1]);
+      fprint.push_back(hex[i]);
+      fprint.push_back(hex[i + 1]);
    }
 
    return fprint;
@@ -59,7 +66,7 @@ std::vector<uint8_t> Public_Key::subject_public_key() const {
    DER_Encoder(output)
       .start_sequence()
       .encode(algorithm_identifier())
-      .encode(public_key_bits(), ASN1_Type::BitString)
+      .encode_octet_aligned_bitstring(public_key_bits())
       .end_cons();
 
    return output;

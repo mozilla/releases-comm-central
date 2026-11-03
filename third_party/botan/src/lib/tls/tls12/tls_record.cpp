@@ -101,16 +101,12 @@ std::vector<uint8_t> Connection_Cipher_State::aead_nonce(uint64_t seq, RandomNum
          return std::vector<uint8_t>{};
       }
       case Nonce_Format::CBC_MODE: {
-         if(!m_nonce.empty()) {
-            std::vector<uint8_t> nonce;
-            nonce.swap(m_nonce);
-            return nonce;
-         }
          std::vector<uint8_t> nonce(nonce_bytes_from_record());
          rng.randomize(nonce.data(), nonce.size());
          return nonce;
       }
       case Nonce_Format::AEAD_XOR_12: {
+         BOTAN_ASSERT_NOMSG(m_nonce.size() == 12);
          std::vector<uint8_t> nonce(12);
          store_be(seq, nonce.data() + 4);
          xor_buf(nonce, m_nonce.data(), m_nonce.size());
@@ -134,11 +130,6 @@ std::vector<uint8_t> Connection_Cipher_State::aead_nonce(const uint8_t record[],
          return std::vector<uint8_t>{};
       }
       case Nonce_Format::CBC_MODE: {
-         if(nonce_bytes_from_record() == 0 && !m_nonce.empty()) {
-            std::vector<uint8_t> nonce;
-            nonce.swap(m_nonce);
-            return nonce;
-         }
          if(record_len < nonce_bytes_from_record()) {
             throw Decoding_Error("Invalid CBC packet too short to be valid");
          }
@@ -146,6 +137,7 @@ std::vector<uint8_t> Connection_Cipher_State::aead_nonce(const uint8_t record[],
          return nonce;
       }
       case Nonce_Format::AEAD_XOR_12: {
+         BOTAN_ASSERT_NOMSG(m_nonce.size() == 12);
          std::vector<uint8_t> nonce(12);
          store_be(seq, nonce.data() + 4);
          xor_buf(nonce, m_nonce.data(), m_nonce.size());
@@ -292,8 +284,12 @@ void decrypt_record(secure_vector<uint8_t>& output,
    AEAD_Mode& aead = cs.aead();
 
    const std::vector<uint8_t> nonce = cs.aead_nonce(record_contents, record_len, record_sequence);
-   const uint8_t* msg = &record_contents[cs.nonce_bytes_from_record()];
-   const size_t msg_length = record_len - cs.nonce_bytes_from_record();
+   const size_t nonce_from_record = cs.nonce_bytes_from_record();
+   if(record_len <= nonce_from_record) {
+      throw TLS_Exception(Alert::BadRecordMac, "AEAD packet too short to be valid");
+   }
+   const uint8_t* msg = &record_contents[nonce_from_record];
+   const size_t msg_length = record_len - nonce_from_record;
 
    /*
    * This early rejection is based just on public information (length of the
@@ -480,12 +476,12 @@ Record_Header read_dtls_record(secure_vector<uint8_t>& readbuf,
    }
 
    if(epoch == 0) {
-      // Unencrypted initial handshake
+      // Unencrypted initial handshake. Epoch-0 records are unauthenticated and
+      // deliberately do not advance the replay window: one spoofed record with a
+      // high sequence number would otherwise silently drop every later record
+      // from the real peer. Duplicates are filtered by handshake reassembly.
       recbuf.assign(readbuf.begin() + DTLS_HEADER_SIZE, readbuf.begin() + DTLS_HEADER_SIZE + record_size);
       readbuf.clear();
-      if(sequence_numbers != nullptr) {
-         sequence_numbers->read_accept(sequence);
-      }
       return Record_Header(sequence, version, type);
    }
 

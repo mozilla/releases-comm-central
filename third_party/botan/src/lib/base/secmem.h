@@ -13,7 +13,6 @@
 #include <span>
 #include <type_traits>
 #include <vector>  // IWYU pragma: export
-#include <algorithm>
 
 #if !defined(BOTAN_IS_BEING_BUILT) && !defined(BOTAN_DISABLE_DEPRECATED_FEATURES)
    // TODO(Botan4) remove this
@@ -25,41 +24,101 @@ namespace Botan {
 template <typename T>
 #if !defined(_ITERATOR_DEBUG_LEVEL) || _ITERATOR_DEBUG_LEVEL == 0
 /*
-  * Check exists to prevent someone from doing something that will
-  * probably crash anyway (like secure_vector<non_POD_t> where ~non_POD_t
-  * deletes a member pointer which was zeroed before it ran).
-  * MSVC in debug mode uses non-integral proxy types in container types
-  * like std::vector, thus we disable the check there.
+ * Check exists to prevent someone from doing something that will
+ * probably crash anyway (like secure_vector<non_POD_t> where ~non_POD_t
+ * deletes a member pointer which was zeroed before it ran).
+ * MSVC in debug mode uses non-integral proxy types in container types
+ * like std::vector, thus we disable the check there.
  */
    requires std::is_integral_v<T> || std::is_enum_v<T>
 #endif
+
+/**
+* An allocator which zeroizes memory before releasing it
+*
+* Restricted to integral and enum types, since a non-trivial destructor
+* would run after the object had already been zeroized.
+*/
 class secure_allocator {
 
    public:
+      /**
+      * The type being allocated
+      */
       typedef T value_type;
+
+      /**
+      * The type used to express allocation sizes
+      */
       typedef std::size_t size_type;
 
+      /**
+      * Default constructor
+      */
       secure_allocator() noexcept = default;
+
+      /**
+      * Copy constructor
+      */
       secure_allocator(const secure_allocator&) noexcept = default;
+
+      /**
+      * Copy assignment
+      * @return reference to this
+      */
       secure_allocator& operator=(const secure_allocator&) noexcept = default;
+
+      /**
+      * Move constructor
+      */
       secure_allocator(secure_allocator&&) noexcept = default;
+
+      /**
+      * Move assignment
+      * @return reference to this
+      */
       secure_allocator& operator=(secure_allocator&&) noexcept = default;
 
       ~secure_allocator() noexcept = default;
 
+      /**
+      * Convert an allocator for a different type
+      */
       template <typename U>
       explicit secure_allocator(const secure_allocator<U>& /*other*/) noexcept {}
 
+      /**
+      * Allocate storage for n objects
+      * @param n the number of objects
+      * @return a pointer to the allocated storage
+      */
       T* allocate(std::size_t n) { return static_cast<T*>(allocate_memory(n, sizeof(T))); }
 
+      /**
+      * Zeroize and release storage previously returned by allocate
+      * @param p the pointer to release
+      * @param n the number of objects p was allocated for
+      */
       void deallocate(T* p, std::size_t n) { deallocate_memory(p, n, sizeof(T)); }
 };
 
+/**
+* Compare two secure allocators
+*
+* All instances are interchangeable, so this is always true.
+* @return always true
+*/
 template <typename T, typename U>
 inline bool operator==(const secure_allocator<T>& /*a*/, const secure_allocator<U>& /*b*/) {
    return true;
 }
 
+/**
+* Compare two secure allocators
+*
+* All instances are interchangeable, so this is always false.
+* @return always false
+*/
 template <typename T, typename U>
 inline bool operator!=(const secure_allocator<T>& /*a*/, const secure_allocator<U>& /*b*/) {
    return false;
@@ -77,57 +136,125 @@ using secure_deque = std::deque<T, secure_allocator<T>>;
 template <typename T>
 using SecureVector = secure_vector<T>;
 
+/**
+* Copy a vector into a secure_vector
+* @param in the vector to copy
+* @return a secure_vector holding the same contents
+*/
 template <typename T>
 secure_vector<T> lock(const std::vector<T>& in) {
    return secure_vector<T>(in.begin(), in.end());
 }
 
+/**
+* Copy a secure_vector into an ordinary vector
+* @param in the vector to copy
+* @return a std::vector holding the same contents
+*/
 template <typename T>
 std::vector<T> unlock(const secure_vector<T>& in) {
    return std::vector<T>(in.begin(), in.end());
 }
 
+// TODO(Botan4) remove these += operators entirely
+
+/**
+* Append the contents of one vector to another
+* @param out the vector to append to
+* @param in the vector to append
+* @return reference to out
+*/
 template <typename T, typename Alloc, typename Alloc2>
 std::vector<T, Alloc>& operator+=(std::vector<T, Alloc>& out, const std::vector<T, Alloc2>& in) {
    out.insert(out.end(), in.begin(), in.end());
    return out;
 }
 
+/**
+* Append the contents of a span to a vector
+* @param out the vector to append to
+* @param in the elements to append
+* @return reference to out
+*/
 template <typename T, typename Alloc>
 std::vector<T, Alloc>& operator+=(std::vector<T, Alloc>& out, std::span<const T> in) {
    out.insert(out.end(), in.begin(), in.end());
    return out;
 }
 
+/**
+* Append a single element to a vector
+* @param out the vector to append to
+* @param in the element to append
+* @return reference to out
+*/
 template <typename T, typename Alloc>
 std::vector<T, Alloc>& operator+=(std::vector<T, Alloc>& out, T in) {
    out.push_back(in);
    return out;
 }
 
+/**
+* Append a (pointer, length) pair to a vector
+* @param out the vector to append to
+* @param in the elements to append
+* @return reference to out
+*/
 template <typename T, typename Alloc, typename L>
 std::vector<T, Alloc>& operator+=(std::vector<T, Alloc>& out, const std::pair<const T*, L>& in) {
-   out.insert(out.end(), in.first, in.first + in.second);
+   if(in.second > 0) {
+      out.insert(out.end(), in.first, in.first + in.second);
+   }
    return out;
 }
 
+/**
+* Append a (pointer, length) pair to a vector
+* @param out the vector to append to
+* @param in the elements to append
+* @return reference to out
+*/
 template <typename T, typename Alloc, typename L>
 std::vector<T, Alloc>& operator+=(std::vector<T, Alloc>& out, const std::pair<T*, L>& in) {
-   out.insert(out.end(), in.first, in.first + in.second);
+   if(in.second > 0) {
+      out.insert(out.end(), in.first, in.first + in.second);
+   }
    return out;
 }
 
 /**
 * Zeroise the values; length remains unchanged
+*
+* Note this is not intended for cases where the compiler might elide
+* the writes as being without side-effects; use secure_scrub_memory
+* for that.
+*
+* TODO(Botan4): make these not-inlined and only for secure_vector, eg declare
+*  void zeroize(secure_vector<uint8_t>& v);
+*  void zeroize(secure_vector<uint16_t>& v);
+*  void zeroize(secure_vector<uint32_t>& v);
+*  void zeroize(secure_vector<uint64_t>& v);
+*
 * @param vec the vector to zeroise
 */
 template <typename T, typename Alloc>
 void zeroise(std::vector<T, Alloc>& vec) {
-   std::fill(vec.begin(), vec.end(), static_cast<T>(0));
+   for(size_t i = 0; i != vec.size(); ++i) {
+      vec[i] = static_cast<T>(0);
+   }
 }
 
 /**
 * Zeroise the values then free the memory
+*
+* TODO(Botan4): make these not-inlined and only for secure_vector, eg declare
+*  void zap(secure_vector<uint8_t>& v);
+*  void zap(secure_vector<uint16_t>& v);
+*  void zap(secure_vector<uint32_t>& v);
+*  void zap(secure_vector<uint64_t>& v);
+*
+* [And maybe rename as well]
+*
 * @param vec the vector to zeroise and free
 */
 template <typename T, typename Alloc>

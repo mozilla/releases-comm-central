@@ -72,7 +72,7 @@ class BOTAN_PUBLIC_API(3, 3) FrodoKEM_PublicKey : public virtual Public_Key {
       FrodoKEM_PublicKey() = default;
 
    protected:
-      std::shared_ptr<FrodoKEM_PublicKeyInternal> m_public;  // NOLINT(*-non-private-member-variable*)
+      std::shared_ptr<const FrodoKEM_PublicKeyInternal> m_public;  // NOLINT(*-non-private-member-variable*)
 };
 
 BOTAN_DIAGNOSTIC_PUSH
@@ -89,6 +89,8 @@ class BOTAN_PUBLIC_API(3, 3) FrodoKEM_PrivateKey final : public virtual FrodoKEM
 
       std::unique_ptr<Public_Key> public_key() const override;
 
+      bool check_key(RandomNumberGenerator& rng, bool strong) const override;
+
       secure_vector<uint8_t> private_key_bits() const override;
 
       secure_vector<uint8_t> raw_private_key_bits() const override;
@@ -98,7 +100,7 @@ class BOTAN_PUBLIC_API(3, 3) FrodoKEM_PrivateKey final : public virtual FrodoKEM
                                                                        std::string_view provider) const override;
 
    private:
-      std::shared_ptr<FrodoKEM_PrivateKeyInternal> m_private;
+      std::shared_ptr<const FrodoKEM_PrivateKeyInternal> m_private;
 };
 
 BOTAN_DIAGNOSTIC_POP

@@ -78,7 +78,7 @@ class BOTAN_TEST_API Classic_McEliece_Polynomial {
  *
  * It represents the monic irreducible degree-t polynomial of the goppa code.
  */
-class BOTAN_TEST_API Classic_McEliece_Minimal_Polynomial : public Classic_McEliece_Polynomial {
+class BOTAN_TEST_API Classic_McEliece_Minimal_Polynomial final : public Classic_McEliece_Polynomial {
    public:
       explicit Classic_McEliece_Minimal_Polynomial(std::vector<Classic_McEliece_GF> coef) :
             Classic_McEliece_Polynomial(std::move(coef)) {}
@@ -101,7 +101,7 @@ class BOTAN_TEST_API Classic_McEliece_Minimal_Polynomial : public Classic_McElie
  * This class contains a modulus polynomial F(y) and the GF(q) modulus f(z). It is used
  * to create and operate with Classic_McEliece_Polynomials.
  */
-class BOTAN_TEST_API Classic_McEliece_Polynomial_Ring {
+class BOTAN_TEST_API Classic_McEliece_Polynomial_Ring final {
    public:
       /**
        * @brief Represents a non-zero coefficient of the modulus F(y) (which is in GF(q)[y]).

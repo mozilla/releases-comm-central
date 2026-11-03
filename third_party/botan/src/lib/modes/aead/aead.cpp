@@ -32,6 +32,10 @@
    #include <botan/internal/gcm.h>
 #endif
 
+#if defined(BOTAN_HAS_AEAD_GCM_SIV)
+   #include <botan/internal/gcm_siv.h>
+#endif
+
 #if defined(BOTAN_HAS_AEAD_OCB)
    #include <botan/internal/ocb.h>
 #endif
@@ -80,6 +84,9 @@ std::unique_ptr<AEAD_Mode> AEAD_Mode::create(std::string_view algo, Cipher_Dir d
 
    if(algo.find('/') != std::string::npos) {
       const std::vector<std::string> algo_parts = split_on(algo, '/');
+      if(algo_parts.size() < 2) {
+         return std::unique_ptr<AEAD_Mode>();
+      }
       const std::string_view cipher_name = algo_parts[0];
       const std::vector<std::string> mode_info = parse_algorithm_name(algo_parts[1]);
 
@@ -134,6 +141,20 @@ std::unique_ptr<AEAD_Mode> AEAD_Mode::create(std::string_view algo, Cipher_Dir d
          return std::make_unique<GCM_Encryption>(std::move(bc), tag_len);
       } else {
          return std::make_unique<GCM_Decryption>(std::move(bc), tag_len);
+      }
+   }
+   #endif
+
+   #if defined(BOTAN_HAS_AEAD_GCM_SIV)
+   if(req.algo_name() == "GCM-SIV") {
+      // Unlike GCM the tag length is fixed, so reject eg "AES-128/GCM-SIV(12)"
+      if(req.arg_count() != 1) {
+         return std::unique_ptr<AEAD_Mode>();
+      }
+      if(dir == Cipher_Dir::Encryption) {
+         return std::make_unique<GCM_SIV_Encryption>(std::move(bc));
+      } else {
+         return std::make_unique<GCM_SIV_Decryption>(std::move(bc));
       }
    }
    #endif

@@ -96,6 +96,9 @@ secure_vector<uint8_t> decode(DataSource& source, std::string& label) {
       }
 
       if(position == 0) {
+         if(label.size() >= 128) {
+            throw Decoding_Error("PEM: Label too long");
+         }
          label += static_cast<char>(*b);
       }
    }

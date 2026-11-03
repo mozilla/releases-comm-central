@@ -86,7 +86,7 @@ std::string BigInt::to_dec_string() const {
    std::string s;
    s.reserve(1 + digits.size());
 
-   if(is_negative()) {
+   if(signum() < 0) {
       s += "-";
    }
 
@@ -113,7 +113,7 @@ std::string BigInt::to_hex_string() const {
    }
 
    std::string hrep;
-   if(is_negative()) {
+   if(signum() < 0) {
       hrep += "-";
    }
    hrep += "0x";
@@ -184,7 +184,7 @@ BigInt BigInt::from_radix_digits(std::string_view digits, size_t radix) {
 * Encode two BigInt, with leading 0s if needed, and concatenate
 */
 secure_vector<uint8_t> BigInt::encode_fixed_length_int_pair(const BigInt& n1, const BigInt& n2, size_t bytes) {
-   if(n1.is_negative() || n2.is_negative()) {
+   if(n1.signum() < 0 || n2.signum() < 0) {
       throw Encoding_Error("encode_fixed_length_int_pair: values must be positive");
    }
    if(n1.bytes() > bytes || n2.bytes() > bytes) {

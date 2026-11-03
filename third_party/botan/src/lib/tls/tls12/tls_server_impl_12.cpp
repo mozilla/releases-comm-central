@@ -15,9 +15,11 @@
 #include <botan/tls_messages_12.h>
 #include <botan/tls_policy.h>
 #include <botan/tls_version.h>
+#include <botan/internal/ct_utils.h>
 #include <botan/internal/stl_util.h>
 #include <botan/internal/tls_handshake_state.h>
 #include <botan/internal/tls_messages_internal.h>
+#include <unordered_set>
 
 namespace Botan::TLS {
 
@@ -42,6 +44,16 @@ class Server_Handshake_State final : public Handshake_State {
       void mark_as_resumption() { m_is_a_resumption = true; }
 
       bool is_a_resumption() const { return m_is_a_resumption; }
+
+      std::vector<X509_Certificate> peer_cert_chain() const override {
+         if(!m_resume_peer_certs.empty()) {
+            return m_resume_peer_certs;
+         }
+         if(client_certs() != nullptr) {
+            return client_certs()->cert_chain();
+         }
+         return {};
+      }
 
    private:
       // Used by the server only, in case of RSA key exchange.
@@ -133,18 +145,47 @@ uint16_t choose_ciphersuite(const Policy& policy,
    const bool have_shared_dh_group =
       (policy.choose_key_exchange_group(client_hello.supported_dh_groups(), {}) != Group_Params::NONE);
 
+   const std::unordered_set<uint16_t> client_suite_set(client_suites.begin(), client_suites.end());
+
+   const std::vector<Signature_Scheme> allowed_sig_schemes = policy.allowed_signature_schemes();
+   const std::vector<Signature_Scheme> client_sig_methods = client_hello.signature_schemes();
+
+   // Algorithm names (eg "RSA", "ECDSA") for which the client offered at least
+   // one signature_scheme that is available, is in our policy, and uses a hash we accept.
+   const std::unordered_set<std::string> client_sig_algs = [&] {
+      std::unordered_set<uint16_t> allowed_codes;
+      allowed_codes.reserve(allowed_sig_schemes.size());
+      for(auto s : allowed_sig_schemes) {
+         allowed_codes.insert(static_cast<uint16_t>(s.wire_code()));
+      }
+      std::unordered_set<std::string> result;
+      for(const Signature_Scheme scheme : client_sig_methods) {
+         if(!scheme.is_available()) {
+            continue;
+         }
+         if(!allowed_codes.contains(static_cast<uint16_t>(scheme.wire_code()))) {
+            continue;
+         }
+         if(!policy.allowed_signature_hash(scheme.hash_function_name())) {
+            continue;
+         }
+         result.insert(scheme.algorithm_name());
+      }
+      return result;
+   }();
+
    /*
    Walk down one list in preference order
    */
-   std::vector<uint16_t> pref_list = server_suites;
-   std::vector<uint16_t> other_list = client_suites;
+   const std::vector<uint16_t>& pref_list = our_choice ? server_suites : client_suites;
 
-   if(!our_choice) {
-      std::swap(pref_list, other_list);
-   }
+   auto in_other_list = [&](uint16_t suite_id) {
+      // server_suites is small and policy-controlled
+      return our_choice ? client_suite_set.contains(suite_id) : value_exists(server_suites, suite_id);
+   };
 
    for(auto suite_id : pref_list) {
-      if(!value_exists(other_list, suite_id)) {
+      if(!in_other_list(suite_id)) {
          continue;
       }
 
@@ -163,39 +204,24 @@ uint16_t choose_ciphersuite(const Policy& policy,
       }
 
       // For non-anon ciphersuites
-      if(suite->signature_used()) {
-         const std::string sig_algo = suite->sig_algo();
+      if(suite->is_certificate_required()) {
+         const std::string cert_algo = suite->signature_used() ? suite->sig_algo() : "RSA";
 
          // Do we have any certificates for this sig?
-         if(!cert_chains.contains(sig_algo)) {
+         if(!cert_chains.contains(cert_algo)) {
             continue;
          }
+      }
 
-         const std::vector<Signature_Scheme> allowed = policy.allowed_signature_schemes();
-
-         const std::vector<Signature_Scheme> client_sig_methods = client_hello.signature_schemes();
-
-         /*
-         Contrary to the wording of draft-ietf-tls-md5-sha1-deprecate we do
-         not enforce that clients do not offer support SHA-1 or MD5
-         signatures; we just ignore it.
-         */
-         bool we_support_some_hash_by_client = false;
-
-         for(const Signature_Scheme scheme : client_sig_methods) {
-            if(!scheme.is_available()) {
-               continue;
-            }
-
-            if(scheme.algorithm_name() == suite->sig_algo() &&
-               policy.allowed_signature_hash(scheme.hash_function_name())) {
-               we_support_some_hash_by_client = true;
-            }
-         }
-
-         if(we_support_some_hash_by_client == false) {
-            throw TLS_Exception(Alert::HandshakeFailure,
-                                "Policy does not accept any hash function supported by client");
+      if(suite->signature_used()) {
+         // The client's signature_algorithms list might not include a scheme
+         // matching this suite's sig_algo (e.g. the client offered ECDSA
+         // schemes but we're considering an RSA suite). That's just a
+         // mismatch on this candidate, not a handshake-fatal condition - try
+         // the next suite. The final "Can't agree on a ciphersuite" throw
+         // below fires only if no candidate works.
+         if(!client_sig_algs.contains(suite->sig_algo())) {
+            continue;
          }
       }
 
@@ -233,6 +259,28 @@ std::map<std::string, std::vector<X509_Certificate>> get_server_certs(
    return cert_chains;
 }
 
+secure_vector<uint8_t> load_dtls_cookie_secret(Credentials_Manager& creds) {
+   auto cookie_secret = [&]() -> secure_vector<uint8_t> {
+      try {
+         return creds.psk("tls-server", "dtls-cookie-secret", "").bits_of();
+      } catch(...) {
+         return {};
+      }
+   }();
+
+   if(cookie_secret.empty()) {
+      // TODO(Botan4): Simplify this error message that was meant to ease the
+      //               burden on users running into a deliberate semver violation.
+      throw Invalid_State(
+         "Since Botan 3.13 DTLS server requires setting a non-empty cookie secret. "
+         "Either override Credentials_Manager::dtls_cookie_secret() or disable the "
+         "cookie exchange using TLS::Policy::dtls_server_require_cookie_exchange(), "
+         "if you understand the security implications of doing so.");
+   }
+
+   return cookie_secret;
+}
+
 }  // namespace
 
 Server_Impl_12::Server_Impl_12(const std::shared_ptr<Callbacks>& callbacks,
@@ -244,7 +292,15 @@ Server_Impl_12::Server_Impl_12(const std::shared_ptr<Callbacks>& callbacks,
                                size_t io_buf_sz) :
       Channel_Impl_12(callbacks, session_manager, rng, policy, true, is_datagram, io_buf_sz), m_creds(creds) {
    BOTAN_ASSERT_NONNULL(m_creds);
+
+   // Try to load the cookie secret on initialization, rather than waiting to fail
+   // until the first client connects.
+   if(is_datagram && policy->dtls_server_require_cookie_exchange()) {
+      load_dtls_cookie_secret(*m_creds);
+   }
 }
+
+#if defined(BOTAN_HAS_TLS_DOWNGRADE_SUPPORT)
 
 Server_Impl_12::Server_Impl_12(const Channel_Impl::Downgrade_Information& downgrade_info) :
       Channel_Impl_12(downgrade_info.callbacks,
@@ -256,22 +312,12 @@ Server_Impl_12::Server_Impl_12(const Channel_Impl::Downgrade_Information& downgr
                       downgrade_info.io_buffer_size),
       m_creds(downgrade_info.creds) {}
 
+#endif
+
 std::unique_ptr<Handshake_State> Server_Impl_12::new_handshake_state(std::unique_ptr<Handshake_IO> io) {
    auto state = std::make_unique<Server_Handshake_State>(std::move(io), callbacks());
    state->set_expected_next(Handshake_Type::ClientHello);
    return state;
-}
-
-std::vector<X509_Certificate> Server_Impl_12::get_peer_cert_chain(const Handshake_State& state_base) const {
-   const Server_Handshake_State& state = dynamic_cast<const Server_Handshake_State&>(state_base);
-   if(!state.resume_peer_certs().empty()) {
-      return state.resume_peer_certs();
-   }
-
-   if(state.client_certs() != nullptr) {
-      return state.client_certs()->cert_chain();
-   }
-   return std::vector<X509_Certificate>();
 }
 
 /*
@@ -341,13 +387,12 @@ Protocol_Version select_version(const TLS::Policy& policy,
 /*
 * Process a Client Hello Message
 */
-void Server_Impl_12::process_client_hello_msg(const Handshake_State* active_state,
-                                              Server_Handshake_State& pending_state,
+void Server_Impl_12::process_client_hello_msg(Server_Handshake_State& pending_state,
                                               const std::vector<uint8_t>& contents,
                                               bool epoch0_restart) {
-   BOTAN_ASSERT_IMPLICATION(epoch0_restart, active_state != nullptr, "Can't restart with a dead connection");
+   BOTAN_ASSERT_IMPLICATION(epoch0_restart, active_state().has_value(), "Can't restart with a dead connection");
 
-   const bool initial_handshake = epoch0_restart || active_state == nullptr;
+   const bool initial_handshake = epoch0_restart || !active_state().has_value();
 
    if(initial_handshake == false && policy().allow_client_initiated_renegotiation() == false) {
       if(policy().abort_connection_on_undesired_renegotiation()) {
@@ -397,7 +442,7 @@ void Server_Impl_12::process_client_hello_msg(const Handshake_State* active_stat
    const Protocol_Version negotiated_version =
       select_version(policy(),
                      client_offer,
-                     active_state != nullptr ? active_state->version() : Protocol_Version(),
+                     active_state().has_value() ? active_state()->version() : Protocol_Version(),
                      pending_state.client_hello()->supported_versions());
 
    pending_state.set_version(negotiated_version);
@@ -407,31 +452,34 @@ void Server_Impl_12::process_client_hello_msg(const Handshake_State* active_stat
       throw TLS_Exception(Alert::IllegalParameter, "Client did not offer NULL compression");
    }
 
-   if(initial_handshake && datagram) {
-      SymmetricKey cookie_secret;
+   if(initial_handshake && datagram && policy().dtls_server_require_cookie_exchange()) {
+      // The cookie secret is read each time to allow for refreshing the key
+      const auto cookie_secret = load_dtls_cookie_secret(*m_creds);
 
-      try {
-         cookie_secret = m_creds->psk("tls-server", "dtls-cookie-secret", "");
-      } catch(...) {}
+      const std::string client_identity = callbacks().tls_peer_network_identity();
+      if(client_identity.empty()) {
+         // RFC 9147 Section 11: the cookie MUST depend on the client's address
+         //
+         // Without an application-supplied identity the cookie is reusable from
+         // any source address, defeating the whole point of the cookie exchange.
+         //
+         // TODO(Botan4): Remove the version hint about the breaking change.
+         throw Invalid_State(
+            "Since Botan 3.13 DTLS server requires tls_peer_network_identity() return a non-empty value");
+      }
+      const Hello_Verify_Request verify(
+         pending_state.client_hello()->cookie_input_data(), client_identity, cookie_secret);
 
-      if(!cookie_secret.empty()) {
-         const std::string client_identity = callbacks().tls_peer_network_identity();
-         const Hello_Verify_Request verify(
-            pending_state.client_hello()->cookie_input_data(), client_identity, cookie_secret);
-
-         if(pending_state.client_hello()->cookie() != verify.cookie()) {
-            if(epoch0_restart) {
-               pending_state.handshake_io().send_under_epoch(verify, 0);
-            } else {
-               pending_state.handshake_io().send(verify);
-            }
-
-            pending_state.client_hello(nullptr);
-            pending_state.set_expected_next(Handshake_Type::ClientHello);
-            return;
+      if(!CT::is_equal<uint8_t>(pending_state.client_hello()->cookie(), verify.cookie()).as_bool()) {
+         if(epoch0_restart) {
+            pending_state.handshake_io().send_under_epoch(verify, 0);
+         } else {
+            pending_state.handshake_io().send(verify);
          }
-      } else if(epoch0_restart) {
-         throw TLS_Exception(Alert::HandshakeFailure, "Reuse of DTLS association requires DTLS cookie secret be set");
+
+         pending_state.client_hello(nullptr);
+         pending_state.set_expected_next(Handshake_Type::ClientHello);
+         return;
       }
    }
 
@@ -441,6 +489,29 @@ void Server_Impl_12::process_client_hello_msg(const Handshake_State* active_stat
    }
 
    secure_renegotiation_check(pending_state.client_hello());
+
+   // RFC 7627 / RFC 9325 4.4: optionally require Extended Master Secret
+   if(policy().require_extended_master_secret() && !pending_state.client_hello()->supports_extended_master_secret()) {
+      throw TLS_Exception(Alert::HandshakeFailure,
+                          "Policy requires the Extended Master Secret extension but the client did not send it");
+   }
+
+   // RFC 7627 5.3 has an explicit MUST regarding EMS mismatch on resumption
+   //
+   //    "If the original session used the 'extended_master_secret'
+   //     extension but the new ClientHello does not contain it, the
+   //     server MUST abort the abbreviated handshake."
+   //
+   // There is apparently no RFC requirement that a client must not drop EMS between the
+   // initial negotiation and a renegotiation... but there is also no RFC requirement
+   // that we must accept it. So we don't.
+   if(const auto& active = active_state()) {
+      const bool ems_pending = pending_state.client_hello()->supports_extended_master_secret();
+      if(active->supports_extended_master_secret() == true && ems_pending == false) {
+         throw TLS_Exception(Alert::HandshakeFailure,
+                             "Renegotiation ClientHello dropped the Extended Master Secret extension");
+      }
+   }
 
    callbacks().tls_examine_extensions(
       pending_state.client_hello()->extensions(), Connection_Side::Client, Handshake_Type::ClientHello);
@@ -455,7 +526,14 @@ void Server_Impl_12::process_client_hello_msg(const Handshake_State* active_stat
 
    m_next_protocol = "";
    if(pending_state.client_hello()->supports_alpn()) {
-      m_next_protocol = callbacks().tls_server_choose_app_protocol(pending_state.client_hello()->next_protocols());
+      const auto offered = pending_state.client_hello()->next_protocols();
+      m_next_protocol = callbacks().tls_server_choose_app_protocol(offered);
+      // RFC 7301 3.2: if a protocol is selected, the server MUST select one
+      // of the protocols advertised by the client. An empty return signals
+      // "no ALPN" and is allowed.
+      if(!m_next_protocol.empty() && !value_exists(offered, m_next_protocol)) {
+         throw TLS_Exception(Alert::InternalError, "Application chose an ALPN protocol that the client did not offer");
+      }
    }
 
    if(session_info.has_value()) {
@@ -516,8 +594,11 @@ void Server_Impl_12::process_certificate_verify_msg(Server_Handshake_State& pend
       throw TLS_Exception(Alert::DecodeError, "No client certificate sent");
    }
 
-   if(!client_certs[0].allowed_usage(Key_Constraints::DigitalSignature)) {
-      throw TLS_Exception(Alert::BadCertificate, "Client certificate does not support signing");
+   const auto cert_constraints = client_certs[0].constraints();
+   if(!cert_constraints.empty()) {
+      if(!cert_constraints.includes_any(Key_Constraints::DigitalSignature, Key_Constraints::NonRepudiation)) {
+         throw TLS_Exception(Alert::BadCertificate, "Client certificate does not support signing");
+      }
    }
 
    const bool sig_valid = pending_state.client_verify()->verify(client_certs[0], pending_state, policy());
@@ -576,15 +657,15 @@ void Server_Impl_12::process_finished_msg(Server_Handshake_State& pending_state,
                            Connection_Side::Server,
                            pending_state.server_hello()->supports_extended_master_secret(),
                            pending_state.server_hello()->supports_encrypt_then_mac(),
-                           get_peer_cert_chain(pending_state),
+                           pending_state.peer_cert_chain(),
                            Server_Information(pending_state.client_hello()->sni_hostname()),
                            pending_state.server_hello()->srtp_profile(),
                            callbacks().tls_current_timestamp());
 
       // Give the application a chance for a final veto before fully
       // establishing the connection.
-      callbacks().tls_session_established([&, this] {
-         Session_Summary summary(session_info, pending_state.is_a_resumption(), external_psk_identity());
+      callbacks().tls_session_established([&] {
+         Session_Summary summary(session_info, pending_state.is_a_resumption(), pending_state.psk_identity());
          summary.set_session_id(pending_state.server_hello()->session_id());
          return summary;
       }());
@@ -601,6 +682,8 @@ void Server_Impl_12::process_finished_msg(Server_Handshake_State& pending_state,
                handle->ticket().value(),
                static_cast<uint32_t>(policy().session_ticket_lifetime().count())));
          }
+
+         note_resumption_handle(handle);
       }
 
       if(pending_state.new_session_ticket() == nullptr && pending_state.server_hello()->supports_session_ticket()) {
@@ -622,8 +705,7 @@ void Server_Impl_12::process_finished_msg(Server_Handshake_State& pending_state,
 /*
 * Process a handshake message
 */
-void Server_Impl_12::process_handshake_msg(const Handshake_State* active_state,
-                                           Handshake_State& state_base,
+void Server_Impl_12::process_handshake_msg(Handshake_State& state_base,
                                            Handshake_Type type,
                                            const std::vector<uint8_t>& contents,
                                            bool epoch0_restart) {
@@ -644,7 +726,7 @@ void Server_Impl_12::process_handshake_msg(const Handshake_State* active_state,
 
    switch(type) {
       case Handshake_Type::ClientHello:
-         return this->process_client_hello_msg(active_state, state, contents, epoch0_restart);
+         return this->process_client_hello_msg(state, contents, epoch0_restart);
 
       case Handshake_Type::Certificate:
          return this->process_certificate_msg(state, contents);
@@ -719,6 +801,8 @@ void Server_Impl_12::session_resume(Server_Handshake_State& pending_state, const
       }
    }();
 
+   note_resumption_handle(new_handle);
+
    if(pending_state.server_hello()->supports_session_ticket()) {
       if(new_handle.has_value() && new_handle->is_ticket()) {
          const uint32_t lifetime = static_cast<uint32_t>(policy().session_ticket_lifetime().count());
@@ -792,7 +876,7 @@ void Server_Impl_12::session_create(Server_Handshake_State& pending_state) {
 
    std::shared_ptr<Private_Key> private_key;
 
-   if(pending_suite.signature_used() || pending_suite.kex_method() == Kex_Algo::STATIC_RSA) {
+   if(pending_suite.is_certificate_required()) {
       const std::string algo_used = pending_suite.signature_used() ? pending_suite.sig_algo() : "RSA";
 
       BOTAN_ASSERT(!cert_chains[algo_used].empty(), "Attempting to send empty certificate chain");
@@ -836,7 +920,12 @@ void Server_Impl_12::session_create(Server_Handshake_State& pending_state) {
 
    const bool request_cert = (client_auth_CAs.empty() == false) || policy().request_client_certificate_authentication();
 
-   if(request_cert && pending_state.ciphersuite().signature_used()) {
+   // RFC 5246 7.4.4: supported_signature_algorithms<2..2^16-2>
+   // Without at least one acceptable scheme we cannot construct a valid
+   // CertificateRequest, so client cert auth is unreachable regardless.
+   const bool can_request_cert = !policy().acceptable_signature_schemes().empty();
+
+   if(request_cert && can_request_cert && pending_state.ciphersuite().is_certificate_required()) {
       pending_state.cert_req(std::make_unique<Certificate_Request_12>(
          pending_state.handshake_io(), pending_state.hash(), policy(), client_auth_CAs));
 

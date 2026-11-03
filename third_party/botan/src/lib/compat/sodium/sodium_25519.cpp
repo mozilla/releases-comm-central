@@ -8,12 +8,14 @@
 
 #include <botan/ed25519.h>
 #include <botan/x25519.h>
+#include <botan/internal/ct_utils.h>
 
 namespace Botan {
 
 int Sodium::crypto_scalarmult_curve25519(uint8_t out[32], const uint8_t scalar[32], const uint8_t point[32]) {
    curve25519_donna(out, scalar, point);
-   return 0;
+   // Return -1 if the result is the identity
+   return -static_cast<int>(CT::all_zeros(out, 32).if_set_return(1));
 }
 
 int Sodium::crypto_scalarmult_curve25519_base(uint8_t out[32], const uint8_t scalar[32]) {
@@ -22,7 +24,7 @@ int Sodium::crypto_scalarmult_curve25519_base(uint8_t out[32], const uint8_t sca
 }
 
 int Sodium::crypto_sign_ed25519_detached(
-   uint8_t sig[], unsigned long long* sig_len, const uint8_t msg[], size_t msg_len, const uint8_t sk[32]) {
+   uint8_t sig[], unsigned long long* sig_len, const uint8_t msg[], size_t msg_len, const uint8_t sk[64]) {
    ed25519_sign(sig, msg, msg_len, sk, nullptr, 0);
 
    if(sig_len != nullptr) {

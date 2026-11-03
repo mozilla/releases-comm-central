@@ -8,6 +8,7 @@
 
 #include <botan/block_cipher.h>
 #include <botan/exceptn.h>
+#include <botan/internal/int_utils.h>
 #include <botan/internal/loadstor.h>
 
 namespace Botan {
@@ -15,9 +16,9 @@ namespace Botan {
 namespace {
 
 std::vector<uint8_t> raw_nist_key_wrap(const uint8_t input[], size_t input_len, const BlockCipher& bc, uint64_t ICV) {
-   const size_t n = (input_len + 7) / 8;
+   const size_t n = input_len / 8 + (input_len % 8 != 0 ? 1 : 0);
 
-   secure_vector<uint8_t> R((n + 1) * 8);
+   secure_vector<uint8_t> R(mul_or_throw<size_t>(8, n + 1, "NIST key wrap input too large"));
    secure_vector<uint8_t> A(16);
 
    store_be(ICV, A.data());
@@ -92,7 +93,7 @@ std::vector<uint8_t> nist_key_wrap(const uint8_t input[], size_t input_len, cons
       throw Invalid_Argument("NIST key wrap algorithm requires a 128-bit cipher");
    }
 
-   if(input_len % 8 != 0) {
+   if(input_len == 0 || input_len % 8 != 0) {
       throw Invalid_Argument("Bad input size for NIST key wrap");
    }
 
@@ -150,6 +151,10 @@ std::vector<uint8_t> nist_key_wrap_padded(const uint8_t input[], size_t input_le
       throw Invalid_Argument("NIST key wrap algorithm requires a 128-bit cipher");
    }
 
+   if(input_len == 0) {
+      throw Invalid_Argument("NIST KWP cannot accept empty inputs");
+   }
+
    const uint64_t ICV = 0xA65959A600000000 | static_cast<uint32_t>(input_len);
 
    if(input_len <= 8) {
@@ -189,26 +194,32 @@ secure_vector<uint8_t> nist_key_unwrap_padded(const uint8_t input[], size_t inpu
       R = raw_nist_key_unwrap(input, input_len, bc, ICV_out);
    }
 
-   if((ICV_out >> 32) != 0xA65959A6) {
+   /*
+   The padded key wrap ICV is 0xA65959A6 || uint32(plaintext_length).
+
+   We know the expected ICV almost entirely: the top 32 bits are the
+   fixed constant and the bottom 32 bits encode the original plaintext
+   length, which is R.size() minus 0 to 7 bytes of padding. Compute
+   the ICV we'd expect for the zero-padding case and subtract ICV_out;
+   for a valid unwrap the difference is at most 7, and equals the padding.
+   For an invalid unwrap the unsigned subtraction wraps to a value > 7
+   (checked below), so the modular arithmetic here is intentional.
+   */
+   const uint64_t expected_ICV_max = 0xA65959A600000000 | static_cast<uint32_t>(R.size());
+   const uint64_t padding = expected_ICV_max - ICV_out;
+
+   if(padding > 7) {
       throw Invalid_Authentication_Tag("NIST key unwrap failed");
    }
 
-   const size_t len = (ICV_out & 0xFFFFFFFF);
-
-   if(R.size() < 8 || len > R.size() || len <= R.size() - 8) {
+   // Verify padding bytes are zero
+   const uint64_t last_block = load_be<uint64_t>(R.data() + R.size() - 8, 0);
+   const uint64_t padding_mask = (static_cast<uint64_t>(1) << (padding * 8)) - 1;
+   if((last_block & padding_mask) != 0) {
       throw Invalid_Authentication_Tag("NIST key unwrap failed");
    }
 
-   const size_t padding = R.size() - len;
-
-   for(size_t i = 0; i != padding; ++i) {
-      if(R[R.size() - i - 1] != 0) {
-         throw Invalid_Authentication_Tag("NIST key unwrap failed");
-      }
-   }
-
-   R.resize(R.size() - padding);
-
+   R.resize(R.size() - static_cast<size_t>(padding));
    return R;
 }
 

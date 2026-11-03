@@ -12,10 +12,9 @@ namespace Botan {
 
 XMSS_Signature::XMSS_Signature(XMSS_Parameters::xmss_algorithm_t oid, std::span<const uint8_t> raw_sig) :
       m_leaf_idx(0), m_randomness(0, 0x00) {
-   const XMSS_Parameters xmss_params(oid);
+   const auto params = XMSS_Parameters::from_id(oid);
 
-   if(raw_sig.size() !=
-      (xmss_params.len() + xmss_params.tree_height() + 1) * xmss_params.element_size() + sizeof(uint32_t)) {
+   if(raw_sig.size() != (params.len() + params.tree_height() + 1) * params.element_size() + sizeof(uint32_t)) {
       throw Decoding_Error("XMSS signature size invalid.");
    }
 
@@ -23,27 +22,27 @@ XMSS_Signature::XMSS_Signature(XMSS_Parameters::xmss_algorithm_t oid, std::span<
       m_leaf_idx = ((m_leaf_idx << 8) | raw_sig[i]);
    }
 
-   if(m_leaf_idx >= xmss_params.total_number_of_signatures()) {
+   if(m_leaf_idx >= params.total_number_of_signatures()) {
       throw Decoding_Error("XMSS signature leaf index out of bounds.");
    }
 
    auto begin = raw_sig.begin() + sizeof(uint32_t);
-   auto end = begin + xmss_params.element_size();
+   auto end = begin + params.element_size();
    std::copy(begin, end, std::back_inserter(m_randomness));
 
-   for(size_t i = 0; i < xmss_params.len(); i++) {
+   for(size_t i = 0; i < params.len(); i++) {
       begin = end;
-      end = begin + xmss_params.element_size();
+      end = begin + params.element_size();
       m_tree_sig.ots_signature.push_back(secure_vector<uint8_t>(0));
-      m_tree_sig.ots_signature.back().reserve(xmss_params.element_size());
+      m_tree_sig.ots_signature.back().reserve(params.element_size());
       std::copy(begin, end, std::back_inserter(m_tree_sig.ots_signature.back()));
    }
 
-   for(size_t i = 0; i < xmss_params.tree_height(); i++) {
+   for(size_t i = 0; i < params.tree_height(); i++) {
       begin = end;
-      end = begin + xmss_params.element_size();
+      end = begin + params.element_size();
       m_tree_sig.authentication_path.push_back(secure_vector<uint8_t>(0));
-      m_tree_sig.authentication_path.back().reserve(xmss_params.element_size());
+      m_tree_sig.authentication_path.back().reserve(params.element_size());
       std::copy(begin, end, std::back_inserter(m_tree_sig.authentication_path.back()));
    }
 }

@@ -88,7 +88,7 @@ EC_Point EC_Point_Base_Point_Precompute::mul(const BigInt& k,
                                              RandomNumberGenerator& rng,
                                              const BigInt& group_order,
                                              std::vector<BigInt>& ws) const {
-   if(k.is_negative()) {
+   if(k.signum() < 0) {
       throw Invalid_Argument("EC_Point_Base_Point_Precompute scalar must be positive");
    }
 
@@ -214,7 +214,7 @@ EC_Point EC_Point_Var_Point_Precompute::mul(const BigInt& k,
                                             RandomNumberGenerator& rng,
                                             const BigInt& group_order,
                                             std::vector<BigInt>& ws) const {
-   if(k.is_negative()) {
+   if(k.signum() < 0) {
       throw Invalid_Argument("EC_Point_Var_Point_Precompute scalar must be positive");
    }
    if(ws.size() < EC_Point::WORKSPACE_SIZE) {
@@ -363,7 +363,7 @@ EC_Point EC_Point_Multi_Point_Precompute::multi_exp(const BigInt& z1, const BigI
       }
    }
 
-   if(z1.is_negative() != z2.is_negative()) {
+   if((z1.signum() < 0) != (z2.signum() < 0)) {
       H.negate();
    }
 

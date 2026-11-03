@@ -16,7 +16,7 @@
 
 namespace Botan {
 
-class BOTAN_TEST_API CPUFeature {
+class BOTAN_TEST_API CPUFeature final {
    public:
       enum Bit : uint32_t /* NOLINT(*-use-enum-class) */ {
          SIMD128 = (1U << 0),

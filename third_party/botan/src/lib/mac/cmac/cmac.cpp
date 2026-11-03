@@ -19,6 +19,8 @@ namespace Botan {
 * Update an CMAC Calculation
 */
 void CMAC::add_data(std::span<const uint8_t> input) {
+   assert_key_material_set();
+
    const size_t bs = output_length();
 
    const size_t initial_fill = std::min(m_buffer.size() - m_position, input.size());
@@ -59,6 +61,17 @@ void CMAC::final_result(std::span<uint8_t> mac) {
    m_cipher->encrypt(m_state);
 
    copy_mem(mac.data(), m_state.data(), output_length());
+
+   zeroise(m_state);
+   zeroise(m_buffer);
+   m_position = 0;
+}
+
+void CMAC::start_msg(std::span<const uint8_t> nonce) {
+   if(!nonce.empty()) {
+      throw Invalid_IV_Length(name(), nonce.size());
+   }
+   assert_key_material_set();
 
    zeroise(m_state);
    zeroise(m_buffer);

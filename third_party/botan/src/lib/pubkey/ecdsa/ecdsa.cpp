@@ -54,7 +54,7 @@ EC_AffinePoint recover_ecdsa_public_key(
       X[0] = 0x02 | y_odd;
       x.serialize_to(std::span{X}.subspan(1));
 
-      if(auto R = EC_AffinePoint::deserialize(group, X)) {
+      if(auto R = EC_AffinePoint::deserialize_compressed(group, X)) {
          // Compute r_inv * (-eG + s*R)
          const auto ne = EC_Scalar::from_bytes_with_trunc(group, msg).negate();
          const auto ss = EC_Scalar::from_bigint(group, s);
@@ -169,8 +169,6 @@ std::vector<uint8_t> ECDSA_Signature_Operation::raw_sign(std::span<const uint8_t
    const auto k = EC_Scalar::random(m_group, rng);
 #endif
 
-   const auto r = EC_Scalar::gk_x_mod_order(k, rng);
-
    /*
    * Blind the inputs
    *
@@ -189,7 +187,11 @@ std::vector<uint8_t> ECDSA_Signature_Operation::raw_sign(std::span<const uint8_t
    *
    * [1] But note that such attacks are currently outside of Botan's threat model.
    *
+   * NOTE: if you change anything here also update ECDSA_Timing_Test
+   * in cli/timing_tests.cpp to use the same formulas
    */
+   const auto r = EC_Scalar::gk_x_mod_order(k, rng);
+
    const auto k_inv = (m_b * k).invert();
 
    const auto xr_m = ((m_x * m_b) * r) + (m * m_b);
@@ -216,6 +218,18 @@ class ECDSA_Verification_Operation final : public PK_Ops::Verification_with_Hash
             PK_Ops::Verification_with_Hash(padding), m_group(ecdsa.domain()), m_gy_mul(ecdsa._public_ec_point()) {}
 
       ECDSA_Verification_Operation(const ECDSA_PublicKey& ecdsa, const AlgorithmIdentifier& alg_id) :
+            /*
+            * RFC 5758 Section 3.2 is clear that for ECDSA signatures the parameters field is empty
+            *
+            *    When the [ecdsa-with-SHA*] algorithm identifier appears in the algorithm
+            *    field as an AlgorithmIdentifier, the encoding MUST omit the parameters
+            *    field. That is, the AlgorithmIdentifier SHALL be a SEQUENCE of one
+            *    component, the OID [ecdsa-with-SHA*].
+            *
+            * However ECDSA is old enough and widely implemented enough that many non-conformant
+            * implementations which emit X509 signatures using an explicit NULL parameter do exist,
+            * so accept it here.
+            */
             PK_Ops::Verification_with_Hash(alg_id, "ECDSA", true),
             m_group(ecdsa.domain()),
             m_gy_mul(ecdsa._public_ec_point()) {}

@@ -43,7 +43,7 @@ class RandomNumberGenerator;
 */
 enum class ECIES_Flags : uint8_t {
    None = 0,
-   /// if set: prefix the input of the (ecdh) key agreement with the encoded (ephemeral) public key
+   /// if set: do NOT prefix the input of the (ecdh) key agreement with the encoded (ephemeral) public key
    SingleHashMode = 1,
    /// (decryption only) if set: use cofactor multiplication during (ecdh) key agreement
    /// This only matters if the curve has a cofactor
@@ -80,8 +80,11 @@ class BOTAN_PUBLIC_API(2, 0) ECIES_KA_Params {
       * @param group ec domain parameters of the involved ec keys
       * @param kdf_spec name of the key derivation function
       * @param length length of the secret to be derived
-      * @param point_format format of encoded keys (affects the secret derivation if single_hash_mode is used)
-      * @param single_hash_mode prefix the KDF input with the ephemeral public key (recommended)
+      * @param point_format format of encoded keys (the ephemeral public key encoding
+      *        only affects the secret derivation when single_hash_mode is false)
+      * @param single_hash_mode if false, prefix the KDF input with the encoded
+      *        ephemeral public key; if true (recommended, and the default), the
+      *        KDF input is just the ECDH shared secret
       */
       ECIES_KA_Params(const EC_Group& group,
                       std::string_view kdf_spec,
@@ -93,7 +96,8 @@ class BOTAN_PUBLIC_API(2, 0) ECIES_KA_Params {
       * @param group ec domain parameters of the involved ec keys
       * @param kdf_spec name of the key derivation function
       * @param length length of the secret to be derived
-      * @param point_format format of encoded keys (affects the secret derivation if single_hash_mode is used)
+      * @param point_format format of encoded keys (the ephemeral public key encoding
+      *        only affects the secret derivation when ECIES_Flags::SingleHashMode is not set)
       * @param flags options, see documentation of ECIES_Flags
       *
       * This constructor makes sense only if you are using the CofactorMode or
@@ -161,6 +165,13 @@ class BOTAN_PUBLIC_API(2, 0) ECIES_System_Params final : public ECIES_KA_Params 
       * @param dem_key_len length of the key used for the data encryption method
       * @param mac_spec name of the message authentication code
       * @param mac_key_len length of the key used for the message authentication code
+      * @param point_format format of encoded keys (the ephemeral public key encoding
+      *        only affects the secret derivation when single_hash_mode is false)
+      * @param single_hash_mode if false, prefix the KDF input with the encoded
+      *        ephemeral public key; if true, the KDF input is just the ECDH shared secret
+      *
+      * TODO(Botan4) split this constructor into two, one taking the point format (requesting
+      *   !single_hash_mode) and the other with no extra params (for single_hash_mode)
       */
       ECIES_System_Params(const EC_Group& group,
                           std::string_view kdf_spec,
@@ -178,7 +189,8 @@ class BOTAN_PUBLIC_API(2, 0) ECIES_System_Params final : public ECIES_KA_Params 
       * @param dem_key_len length of the key used for the data encryption method
       * @param mac_spec name of the message authentication code
       * @param mac_key_len length of the key used for the message authentication code
-      * @param point_format format of encoded keys (affects the secret derivation if single_hash_mode is used)
+      * @param point_format format of encoded keys (the ephemeral public key encoding
+      *        only affects the secret derivation when ECIES_Flags::SingleHashMode is not set)
       * @param flags options, see documentation of ECIES_Flags
       *
       * This constructor makes sense only if you are using the CofactorMode or
@@ -264,6 +276,9 @@ class BOTAN_PUBLIC_API(2, 0) ECIES_KA_Operation {
 
 /**
 * ECIES Encryption according to ISO 18033-2
+*
+* TODO(Botan4) remove derivation on PK_Encryptor and provide a direct API
+* for encryption taking all relevant params, avoiding setters/implicit state
 */
 class BOTAN_PUBLIC_API(2, 0) ECIES_Encryptor final : public PK_Encryptor {
    public:
@@ -294,6 +309,9 @@ class BOTAN_PUBLIC_API(2, 0) ECIES_Encryptor final : public PK_Encryptor {
       void set_other_key(const EC_AffinePoint& pt) { m_other_point = pt; }
 
       /// Set the initialization vector for the data encryption method
+      ///
+      /// A new IV must be provided for each message; it is not included
+      /// in the serialized ciphertext and must be conveyed separately
       void set_initialization_vector(const InitializationVector& iv) { m_iv = iv; }
 
       /// Set the label which is appended to the input for the message authentication code
@@ -311,13 +329,16 @@ class BOTAN_PUBLIC_API(2, 0) ECIES_Encryptor final : public PK_Encryptor {
       std::unique_ptr<MessageAuthenticationCode> m_mac;
       std::unique_ptr<Cipher_Mode> m_cipher;
       std::vector<uint8_t> m_eph_public_key_bin;
-      InitializationVector m_iv;
+      mutable std::optional<InitializationVector> m_iv;
       std::optional<EC_AffinePoint> m_other_point;
       std::vector<uint8_t> m_label;
 };
 
 /**
 * ECIES Decryption according to ISO 18033-2
+*
+* TODO(Botan4) remove derivation on PK_Decryptor and provide a direct API
+* for decryption taking all relevant params, avoiding setters/implicit state
 */
 class BOTAN_PUBLIC_API(2, 0) ECIES_Decryptor final : public PK_Decryptor {
    public:
@@ -331,6 +352,9 @@ class BOTAN_PUBLIC_API(2, 0) ECIES_Decryptor final : public PK_Decryptor {
                       RandomNumberGenerator& rng);
 
       /// Set the initialization vector for the data encryption method
+      ///
+      /// A new IV must be provided for each message; it is not included
+      /// in the serialized ciphertext and must be conveyed separately
       void set_initialization_vector(const InitializationVector& iv) { m_iv = iv; }
 
       /// Set the label which is appended to the input for the message authentication code
@@ -341,11 +365,13 @@ class BOTAN_PUBLIC_API(2, 0) ECIES_Decryptor final : public PK_Decryptor {
 
       size_t plaintext_length(size_t ctext_len) const override;
 
+      size_t ciphertext_length(size_t ptext_len) const override;
+
       const ECIES_KA_Operation m_ka;
       const ECIES_System_Params m_params;
       std::unique_ptr<MessageAuthenticationCode> m_mac;
       std::unique_ptr<Cipher_Mode> m_cipher;
-      InitializationVector m_iv;
+      mutable std::optional<InitializationVector> m_iv;
       std::vector<uint8_t> m_label;
 };
 

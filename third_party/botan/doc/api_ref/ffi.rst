@@ -259,6 +259,8 @@ supported it.
 ============== ===================
 FFI Version    Supported Starting
 ============== ===================
+20260811       3.13.0
+20260506       3.12.0
 20260303       3.11.0
 20250829       3.10.0
 20250506       3.8.0
@@ -489,6 +491,12 @@ Hash Functions
 
    Return the output length of the hash function.
 
+.. cpp:function:: int botan_hash_security_level(botan_hash_t hash, size_t* security_level)
+
+   Return the estimated security level of the hash function, in bits, with
+   respect to collision resistance. Returns zero for checksums and any hash
+   where finding collisions is trivial.
+
 .. cpp:function:: int botan_hash_update(botan_hash_t hash, const uint8_t* input, size_t len)
 
    Add input to the hash computation.
@@ -535,7 +543,7 @@ Message Authentication Codes
 
    Add input to the MAC computation.
 
-.. cpp:function:: int botan_mac_final(botan_mac_t mac, uint8_t out[], size_t* out_len)
+.. cpp:function:: int botan_mac_final(botan_mac_t mac, uint8_t out[])
 
    Finalize the MAC and place the output in out. Exactly
    :cpp:func:`botan_mac_output_length` bytes will be written.
@@ -823,7 +831,7 @@ Multiple Precision Integers
 .. cpp:function:: int botan_mp_mod_inverse(botan_mp_t out, botan_mp_t in, botan_mp_t modulus)
 
    Compute modular inverse. If no modular inverse exists (for instance because ``in`` and
-   ``modulus`` are not relatively prime), then sets ``out`` to -1.
+   ``modulus`` are not relatively prime), then sets ``out`` to 0.
 
 .. cpp:function:: int botan_mp_rand_bits(botan_mp_t rand_out, botan_rng_t rng, size_t bits)
 
@@ -874,7 +882,7 @@ Password Hashing
 .. cpp:function:: int botan_bcrypt_is_valid(const char* pass, const char* hash)
 
    Check a previously created password hash.  Returns
-   :cpp:enumerator:`BOTAN_SUCCESS` if if this password/hash
+   :cpp:enumerator:`BOTAN_FFI_SUCCESS` if if this password/hash
    combination is valid, :cpp:enumerator:`BOTAN_FFI_INVALID_VERIFIER`
    if the combination is not valid (but otherwise well formed),
    negative on error.
@@ -1020,6 +1028,102 @@ EC Groups
    Return 1 if ``curve1`` is equal to ``curve2``, 0 if ``curve1`` is not equal to ``curve2``
 
 
+EC Points and Scalars
+----------------------------------------
+
+.. versionadded:: 3.12.0
+
+.. cpp:type:: opaque* botan_ec_scalar_t
+
+   An opaque data type for an EC Scalar. Don't mess with it.
+
+.. cpp:type:: opaque* botan_ec_point_t
+
+   An opaque data type for an EC Point. Don't mess with it.
+
+.. cpp:function:: int botan_ec_scalar_destroy(botan_ec_scalar_t ec_scalar)
+
+   Destroy an object.
+
+.. cpp:function:: int botan_ec_scalar_random(botan_ec_scalar_t* ec_scalar, botan_ec_group_t ec_group, botan_rng_t rng);
+
+   Create a scalar with a random value.
+
+.. cpp:function:: int botan_ec_scalar_from_mp(botan_ec_scalar_t* ec_scalar, botan_ec_group_t ec_group, botan_mp_t mp);
+
+   Convert from an MPI to a scalar.
+
+.. cpp:function:: int botan_ec_scalar_to_mp(botan_ec_scalar_t ec_scalar, botan_mp_t* mp)
+
+   Convert from a scalar to an MPI.
+
+.. cpp:function:: int botan_ec_point_destroy(botan_ec_point_t ec_point)
+
+   Destroy an object.
+
+.. cpp:function:: int botan_ec_point_identity(botan_ec_point_t* ec_point, botan_ec_group_t ec_group);
+
+   Create a point set to the identity element of the group.
+
+.. cpp:function:: int botan_ec_point_generator(botan_ec_point_t* ec_point, botan_ec_group_t ec_group);
+
+   Create a point set to the standard group generator.
+
+.. cpp:function:: int botan_ec_point_from_xy(botan_ec_point_t* ec_point, botan_ec_group_t ec_group, botan_mp_t x, botan_mp_t y);
+
+   Create a point from a pair (x,y) of integers.
+   The integers must be within the field and must satisfy the curve equation.
+
+.. cpp:function:: int botan_ec_point_from_bytes(botan_ec_point_t* ec_point, \
+                              botan_ec_group_t ec_group, \
+                              const uint8_t* bytes, \
+                              size_t bytes_len);
+
+   Create a point from a SEC1 compressed or uncompressed format.
+
+.. cpp:function:: int botan_ec_point_view_x_bytes(botan_ec_point_t ec_point, botan_view_ctx ctx, botan_view_bin_fn view);
+
+   View the fixed length encoding of the affine x coordinate.
+
+.. cpp:function:: int botan_ec_point_view_y_bytes(botan_ec_point_t ec_point, botan_view_ctx ctx, botan_view_bin_fn view);
+
+   View the fixed length encoding of the affine y coordinate.
+
+.. cpp:function:: int botan_ec_point_view_xy_bytes(botan_ec_point_t ec_point, botan_view_ctx ctx, botan_view_bin_fn view);
+
+   View the fixed length encoding of the affine x and y coordinates.
+
+.. cpp:function:: int botan_ec_point_view_uncompressed(botan_ec_point_t ec_point, botan_view_ctx ctx, botan_view_bin_fn view);
+
+   View the fixed length SEC1 uncompressed encoding.
+
+.. cpp:function:: int botan_ec_point_view_compressed(botan_ec_point_t ec_point, botan_view_ctx ctx, botan_view_bin_fn view);
+
+   View the fixed length SEC1 compressed encoding.
+
+.. cpp:function:: int botan_ec_point_is_identity(botan_ec_point_t ec_point);
+
+   Returns 1 if ``ec_point`` is equal to the group's identity element, otherwise 0.
+
+.. cpp:function:: int botan_ec_point_equal(botan_ec_point_t x, botan_ec_point_t y);
+
+   Returns 1 if ``x`` == ``y``, otherwise 0.
+
+.. cpp:function:: int botan_ec_point_negate(botan_ec_point_t* result, botan_ec_point_t ec_point);
+
+   Negates the provided point.
+
+.. cpp:function:: int botan_ec_point_add(botan_ec_point_t* result, botan_ec_point_t x, botan_ec_point_t y);
+
+   Computes ``x`` + ``y``.
+
+.. cpp:function:: int botan_ec_point_mul(botan_ec_point_t* result, \
+                       botan_ec_point_t ec_point, \
+                       botan_ec_scalar_t ec_scalar, \
+                       botan_rng_t rng);
+
+   Multiplies ``ec_point`` by the given ``ec_scalar``.
+
 Public Key Creation, Import and Export
 ----------------------------------------
 
@@ -1055,8 +1159,13 @@ Public Key Creation, Import and Export
 
 .. cpp:function:: int botan_privkey_create_mceliece(botan_privkey_t* key, botan_rng_t rng, size_t n, size_t t)
 
-   Create a McEliece key using the specified parameters. See
-   :ref:`mceliece` for details on choosing parameters.
+   Create a McEliece key using one of the supported deprecated parameter sets.
+   See :ref:`mceliece` for details.
+
+   .. warning::
+
+      This McEliece implementation is deprecated and will be removed in a future major release.
+      Prefer the newer, widely implemented and standardized, Classic McEliece.
 
 .. cpp:function:: int botan_privkey_create_dh(botan_privkey_t* key, botan_rng_t rng, const char* params)
 
@@ -1295,6 +1404,21 @@ RSA specific functions
                                     botan_mp_t n, botan_mp_t e)
 
    Initialize a public RSA key using parameters n and e.
+
+EC specific functions
+----------------------------------------
+
+.. cpp:function:: int botan_ec_privkey_get_private_key(botan_privkey_t key, botan_ec_scalar_t* value)
+
+   Get the private value of the EC key.
+
+.. cpp:function:: int botan_ec_privkey_get_group(botan_privkey_t key, botan_ec_group_t* ec_group)
+
+   Get the group of this EC private key.
+
+.. cpp:function:: int botan_ec_pubkey_get_group(botan_pubkey_t key, botan_ec_group_t* ec_group)
+
+   Get the group of this EC public key.
 
 DSA specific functions
 ----------------------------------------
@@ -1683,12 +1807,6 @@ X.509 Certificates
 
    Destroy the certificate object
 
-.. cpp:function:: int botan_x509_cert_gen_selfsigned(botan_x509_cert_t* cert, \
-                                             botan_privkey_t key, \
-                                             botan_rng_t rng, \
-                                             const char* common_name, \
-                                             const char* org_name)
-
 .. cpp:function:: int botan_x509_cert_view_binary_values(botan_x509_cert_t cert, \
                                                          botan_x509_value_type value_type, \
                                                          size_t index, \
@@ -2001,6 +2119,79 @@ X.509 Certificates
    Return a (statically allocated) string associated with the verification
    result, or NULL if the code is not known.
 
+.. cpp:function:: int botan_x509_ext_ip_addr_blocks_get_counts(botan_x509_cert_t cert, \
+                  size_t* v4_count, \
+                  size_t* v6_count)
+
+   Get info about the IP Address Blocks extension from `RFC 3779 <https://www.rfc-editor.org/rfc/rfc3779>`_.
+   ``v4_count`` is set to the number of v4 families contained in the extension,
+   ``v6_count`` to the number of v6 families. If the extension is not present, :cpp:enumerator:`BOTAN_FFI_ERROR_NO_VALUE` is returned.
+
+   If the extension is not present or an error occurs, ``v4_count`` and ``v6_count`` are not modified.
+
+.. cpp:function:: int botan_x509_ext_ip_addr_blocks_get_family(botan_x509_cert_t cert, \
+                  int ipv6, \
+                  size_t i, \
+                  int* has_safi, \
+                  uint8_t* safi, \
+                  int* present, \
+                  size_t* count)
+
+   Get info about a specific family in the extension.
+   ``ipv6`` should be set to 0 for v4 families, 1 for v6 families.
+   ``i`` is the local index for each family type, the first v4 family is at (``i = 0``, ``ipv6 = 0``), the first v6 family is at (``i = 0``, ``ipv6 = 1``).
+   The number of v4 / v6 families corresponds to the ``v4_count`` / ``v6_count`` values obtained from :cpp:func:`botan_x509_ext_ip_addr_blocks_get_counts`.
+   ``has_safi`` is set to 1 if the family has an associated SAFI, else 0.
+   ``safi`` contains the SAFI if the family has one, otherwise its value is not modified.
+   ``present`` is set to 1 if the family has range values, 0 if it is marked as "inherit".
+   ``count`` is set to the number of ranges contained if any, otherwise its value is not modified.
+
+   The output parameters ``has_safi``, ``safi``, ``present`` and ``count`` may be modified even if the extension is not present or some other error occurs.
+   In this event, the value of each output parameter after the call returns is undefined.
+
+.. cpp:function:: int botan_x509_ext_ip_addr_blocks_get_address(botan_x509_cert_t cert, \
+                  int ipv6, \
+                  size_t i, \
+                  size_t entry, \
+                  uint8_t min_out[], \
+                  uint8_t max_out[], \
+                  size_t* out_len)
+
+   Get info about a specific range in the extension.
+   ``ipv6`` and ``i`` behave as in :cpp:func:`botan_x509_ext_ip_addr_blocks_get_family`.
+   ``entry`` is the index to the range in the family, between 0 and (not including) ``count``.
+   ``min_out`` and ``max_out`` are set to the min and max addresses of the range respectively.
+   ``out_len`` should be set to 4 for v4 families, 16 for v6 families, the two arrays must also be that size.
+
+   The output parameters ``min_out``, ``max_out`` and ``out_len`` may be modified even if the extension is not present or some other error occurs.
+   In this event, the value of each output parameter after the call returns is undefined.
+
+.. cpp:function:: int botan_x509_ext_as_blocks_get_info(botan_x509_cert_t cert, \
+                  int asnum, \
+                  int* present, \
+                  size_t* count)
+
+   Get info about the AS Blocks extension from `RFC 3779 <https://www.rfc-editor.org/rfc/rfc3779>`_.
+   ``asnum`` should be set to 1 to get info about the ASNUM part of the extension, 0 for RDI.
+   ``present`` is set to 1 if a value is contained, 0 if that part of the extension is marked as "inherit".
+   If the part is not present at all, :cpp:enumerator:`BOTAN_FFI_ERROR_NO_VALUE` will be returned.
+   ``count`` is set to the number of entries for that part if any, otherwise its value is not modified.
+
+   If the extension is not present or an error occurs, ``present`` and ``count`` are not modified.
+
+.. cpp:function:: int botan_x509_ext_as_blocks_get_entry_at(botan_x509_cert_t cert, \
+                  int asnum, \
+                  size_t i, \
+                  uint32_t* min, \
+                  uint32_t* max)
+
+   Get info about a specific entry from the extension.
+   ``asnum`` behaves as in :cpp:func:`botan_x509_ext_as_blocks_get_info`, ``i`` is the index for that part,
+   between 0 and (not including) ``count``.
+   ``min`` and ``max`` will be set to the minimum and maximum AS numbers of the range respectively.
+
+   If the extension is not present or an error occurs, ``min`` and ``max`` are not modified.
+
 X.509 Certificate Revocation Lists
 ----------------------------------------
 
@@ -2237,6 +2428,175 @@ All available value types of the generic X.509 object getters are:
 
    The URLs of the issuing CA certificate of a certificate as a character array.
    There might be more than one such URL defined in a certificate.
+
+SPAKE2+ Password Authenticated Key Exchange
+--------------------------------------------
+
+.. versionadded:: 3.13.0
+
+An implementation of the SPAKE2+ password authenticated key exchange
+(RFC 9383). The *prover* knows the password itself, while the *verifier*
+stores only a registration record derived from the password. See
+:doc:`spake2p` for a description of the protocol and the expected
+message flow.
+
+The identity, salt, and context parameters of these functions may be null,
+if the corresponding length is zero. Since the lengths of the outputs vary
+with the system parameters, all outputs are produced using view callbacks.
+
+.. cpp:type:: opaque* botan_spake2p_params_t
+
+   An opaque data type for SPAKE2+ system parameters, which select the
+   elliptic curve group, the SPAKE2+ M/N group elements, and the hash
+   function. Objects created from the system parameters hold their own
+   copy, so the parameters may be destroyed at any time.
+
+.. cpp:function:: int botan_spake2p_params_init(botan_spake2p_params_t* params, const char* ciphersuite)
+
+   Create system parameters from an RFC 9383 ciphersuite name, one of
+   "P256-SHA256", "P256-SHA512", "P384-SHA256", "P384-SHA512", or
+   "P521-SHA512", all using HMAC key confirmation.
+
+.. cpp:function:: int botan_spake2p_params_init_custom(botan_spake2p_params_t* params, \
+                  botan_ec_group_t group, const uint8_t seed[], size_t seed_len, \
+                  const char* hash_fn)
+
+   Create custom system parameters for an arbitrary group, deriving the
+   M/N group elements from the seed using hash to curve; returns
+   ``BOTAN_FFI_ERROR_NOT_IMPLEMENTED`` if the group does not support hash
+   to curve. Both peers must use the same group, seed, and hash.
+
+.. cpp:function:: int botan_spake2p_params_destroy(botan_spake2p_params_t params)
+
+   Destroy an object.
+
+.. cpp:function:: int botan_spake2p_params_share_size(botan_spake2p_params_t params, size_t* share_size)
+
+   Return the size in bytes of a key share (shareP or shareV).
+
+.. cpp:function:: int botan_spake2p_params_confirmation_size(botan_spake2p_params_t params, size_t* confirmation_size)
+
+   Return the size in bytes of a key confirmation message (confirmP or confirmV).
+
+.. cpp:function:: int botan_spake2p_derive_secret(botan_spake2p_params_t params, \
+                  const char* password, \
+                  const uint8_t prover_id[], size_t prover_id_len, \
+                  const uint8_t verifier_id[], size_t verifier_id_len, \
+                  const uint8_t salt[], size_t salt_len, \
+                  botan_view_ctx ctx, botan_view_bin_fn view)
+
+   Derive a prover secret (w0 and w1) from a password, using Argon2id.
+   The view callback is invoked with the serialized prover secret, which
+   is password equivalent and must be protected accordingly. It is used
+   with ``botan_spake2p_registration_record`` and
+   ``botan_spake2p_prover_init``.
+
+.. cpp:function:: int botan_spake2p_registration_record(botan_spake2p_params_t params, \
+                  botan_rng_t rng, const uint8_t secret[], size_t secret_len, \
+                  botan_view_ctx ctx, botan_view_bin_fn view)
+
+   Compute a registration record (w0 and L) from a serialized prover
+   secret. The record is provided to the verifier during registration.
+   While it does not allow directly impersonating the prover, it does
+   allow offline password guessing attacks, so it should be protected.
+
+.. cpp:type:: opaque* botan_spake2p_prover_t
+
+   An opaque data type for a SPAKE2+ prover.
+
+.. cpp:function:: int botan_spake2p_prover_init(botan_spake2p_prover_t* prover, \
+                  botan_spake2p_params_t params, \
+                  const uint8_t secret[], size_t secret_len, \
+                  const uint8_t prover_id[], size_t prover_id_len, \
+                  const uint8_t verifier_id[], size_t verifier_id_len, \
+                  const uint8_t context[], size_t context_len)
+
+   Initialize a prover from a serialized prover secret. The identities
+   and context must be agreed upon by both parties; the identities must
+   additionally match the values used when deriving the prover secret.
+
+.. cpp:function:: int botan_spake2p_prover_destroy(botan_spake2p_prover_t prover)
+
+   Destroy an object.
+
+.. cpp:function:: int botan_spake2p_prover_generate_message(botan_spake2p_prover_t prover, \
+                  botan_rng_t rng, botan_view_ctx ctx, botan_view_bin_fn view)
+
+   Generate the prover's key share (shareP), which is sent to the
+   verifier. This can be called only once per prover object.
+
+.. cpp:function:: int botan_spake2p_prover_process_message(botan_spake2p_prover_t prover, \
+                  botan_rng_t rng, const uint8_t peer_message[], size_t peer_message_len, \
+                  botan_view_ctx ctx, botan_view_bin_fn view)
+
+   Consume the verifier's response (shareV followed by confirmV) and
+   produce the prover's key confirmation (confirmP), which is sent to the
+   verifier. Returns ``BOTAN_FFI_ERROR_BAD_MAC`` if the verifier's key
+   confirmation is wrong, typically meaning the passwords do not match.
+
+.. cpp:function:: int botan_spake2p_prover_shared_secret(botan_spake2p_prover_t prover, \
+                  botan_view_ctx ctx, botan_view_bin_fn view)
+
+   Return the shared secret (K_shared). This may be called only after
+   ``botan_spake2p_prover_process_message`` has succeeded.
+
+.. cpp:type:: opaque* botan_spake2p_verifier_t
+
+   An opaque data type for a SPAKE2+ verifier.
+
+.. cpp:function:: int botan_spake2p_verifier_init(botan_spake2p_verifier_t* verifier, \
+                  botan_spake2p_params_t params, \
+                  const uint8_t record[], size_t record_len, \
+                  const uint8_t prover_id[], size_t prover_id_len, \
+                  const uint8_t verifier_id[], size_t verifier_id_len, \
+                  const uint8_t context[], size_t context_len)
+
+   Initialize a verifier from a serialized registration record. See
+   ``botan_spake2p_prover_init`` for the requirements on the identities
+   and context.
+
+.. cpp:function:: int botan_spake2p_verifier_destroy(botan_spake2p_verifier_t verifier)
+
+   Destroy an object.
+
+.. cpp:function:: int botan_spake2p_verifier_process_message(botan_spake2p_verifier_t verifier, \
+                  botan_rng_t rng, const uint8_t peer_message[], size_t peer_message_len, \
+                  botan_view_ctx ctx, botan_view_bin_fn view)
+
+   Consume the prover's key share (shareP) and produce the verifier's
+   response (shareV followed by confirmV), which is sent to the prover.
+   This can be called only once per verifier object.
+
+.. cpp:function:: int botan_spake2p_verifier_verify_confirmation(botan_spake2p_verifier_t verifier, \
+                  const uint8_t confirmation[], size_t confirmation_len)
+
+   Check the prover's key confirmation (confirmP). Returns
+   ``BOTAN_FFI_ERROR_BAD_MAC`` if the confirmation is wrong, meaning the
+   prover does not know the password.
+
+.. cpp:function:: int botan_spake2p_verifier_skip_confirmation(botan_spake2p_verifier_t verifier)
+
+   Can be called after ``botan_spake2p_verifier_process_message``, in
+   place of ``botan_spake2p_verifier_verify_confirmation``, to allow
+   extracting the shared secret without having checked the prover's key
+   confirmation.
+
+   .. warning::
+
+      After calling this, nothing is known about the peer; only a prover
+      which knows the password can compute the same shared secret, but no
+      evidence of this has been received. It is intended solely for
+      protocols which embed SPAKE2+ and perform the prover's key
+      confirmation themselves, such as the proposed PAKE extension for
+      TLS 1.3, where the TLS handshake takes the place of confirmP.
+      Anywhere else, use ``botan_spake2p_verifier_verify_confirmation``.
+
+.. cpp:function:: int botan_spake2p_verifier_shared_secret(botan_spake2p_verifier_t verifier, \
+                  botan_view_ctx ctx, botan_view_bin_fn view)
+
+   Return the shared secret (K_shared). This may be called only after
+   ``botan_spake2p_verifier_verify_confirmation`` has succeeded, or after
+   ``botan_spake2p_verifier_skip_confirmation``.
 
 ZFEC (Forward Error Correction)
 ----------------------------------------

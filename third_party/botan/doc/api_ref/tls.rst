@@ -179,13 +179,15 @@ additional information about the connection.
      This callback is optional, and can be used to inspect all handshake messages
      while the session establishment occurs.
 
- .. cpp:function:: void tls_modify_extensions(Extensions& extn, Connection_Side which_side)
+ .. cpp:function:: void tls_modify_extensions(Extensions& extn, Connection_Side which_side, \
+                                              Handshake_Type which_message)
 
      This callback is optional, and can be used to modify extensions before they
      are sent to the peer. For example this enables adding a custom extension,
      or replacing or removing an extension set by the library.
 
- .. cpp:function:: void tls_examine_extensions(const Extensions& extn, Connection_Side which_side)
+ .. cpp:function:: void tls_examine_extensions(const Extensions& extn, Connection_Side which_side, \
+                                               Handshake_Type which_message)
 
      This callback is optional, and can be used to examine extensions sent by
      the peer.
@@ -255,6 +257,13 @@ available:
      this connection and the connection has not been subsequently
      closed.
 
+   .. cpp:function:: std::optional<std::chrono::milliseconds> next_retransmission_timeout()
+
+      Returns the remaining time until a call to ``timeout_check`` might
+      retransmit DTLS handshake data. A zero duration means that a
+      retransmission is due. If ``std::nullopt`` is returned, no timeout check
+      is currently needed.
+
    .. cpp:function:: bool is_closed()
 
       Returns true if and only if either a close notification or a
@@ -275,10 +284,8 @@ available:
    .. cpp:function:: bool timeout_check()
 
       This function does nothing unless the channel represents a DTLS
-      connection and a handshake is actively in progress. In this case
-      it will check the current timeout state and potentially initiate
-      retransmission of handshake packets. Returns true if a timeout
-      condition occurred.
+      connection with a handshake in progress. Returns true if a timeout
+      condition occurred and handshake packets were retransmitted.
 
    .. cpp:function:: void renegotiate(bool force_full_renegotiation = false)
 
@@ -483,7 +490,7 @@ included that provides information about that session:
        Returns the :cpp:class:`protocol version <TLS::Protocol_Version>`
        that was negotiated
 
-   .. cpp:function:: Ciphersuite ciphersite() const
+   .. cpp:function:: Ciphersuite ciphersuite() const
 
        Returns the :cpp:class:`ciphersuite <TLS::Ciphersuite>` that
        was negotiated.
@@ -934,10 +941,6 @@ policy settings from a file.
 
      Minimum accepted RSA key size. Default 2048 bits.
 
- .. cpp:function:: size_t minimum_dsa_group_size() const
-
-     Minimum accepted DSA key size. Default 2048 bits.
-
  .. cpp:function:: size_t minimum_ecdsa_group_size() const
 
      Minimum size for ECDSA keys (256 bits).
@@ -1041,7 +1044,7 @@ TLS Ciphersuites
      undesirable for whatever reason without having to reimplement
      :cpp:func:`TLS::Ciphersuite::ciphersuite_list`
 
- .. cpp:function:: std::vector<uint16_t> ciphersuite_list(Protocol_Version version, bool have_srp) const
+ .. cpp:function:: std::vector<uint16_t> ciphersuite_list(Protocol_Version version) const
 
      Return allowed ciphersuites in order of preference
 
@@ -1320,7 +1323,7 @@ The asio Stream offers the following interface:
 
    Constructor for TLS::Context.
 
-   .. cpp:function:: void set_verify_callback(Verify_Callback_T callback)
+   .. cpp:function:: void set_verify_callback(Verify_Callback callback)
 
    Set a user-defined callback function for certificate chain verification. This
    will cause the stream to override the default implementation of the

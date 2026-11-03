@@ -17,7 +17,7 @@ namespace {
 
 // NOLINTBEGIN(portability-simd-intrinsics)
 
-class WhirlpoolState {
+class WhirlpoolState final {
    public:
       BOTAN_FN_ISA_AVX512
       WhirlpoolState() : m_v(_mm512_setzero_si512()) {}

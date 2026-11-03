@@ -82,8 +82,18 @@ Supported_Point_Formats::Supported_Point_Formats(TLS_Data_Reader& reader, uint16
    }
 }
 
-Session_Ticket_Extension::Session_Ticket_Extension(TLS_Data_Reader& reader, uint16_t extension_size) :
-      m_ticket(Session_Ticket(reader.get_elem<uint8_t, std::vector<uint8_t>>(extension_size))) {}
+Session_Ticket_Extension::Session_Ticket_Extension(TLS_Data_Reader& reader,
+                                                   uint16_t extension_size,
+                                                   Connection_Side from) {
+   // RFC 5077 3.2: in a ServerHello the SessionTicket extension is just a
+   // flag indicating that a NewSessionTicket handshake message will follow;
+   // its extension_data MUST be empty. A ticket body is only valid in a
+   // ClientHello.
+   if(from == Connection_Side::Server && extension_size != 0) {
+      throw Decoding_Error("Server sent a non-empty SessionTicket extension");
+   }
+   m_ticket = Session_Ticket(reader.get_elem<uint8_t, std::vector<uint8_t>>(extension_size));
+}
 
 Extended_Master_Secret::Extended_Master_Secret(TLS_Data_Reader& /*unused*/, uint16_t extension_size) {
    if(extension_size != 0) {

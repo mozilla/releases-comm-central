@@ -31,6 +31,8 @@ class BOTAN_PUBLIC_API(2, 11) System_Certificate_Store final : public Certificat
 
       std::optional<X509_CRL> find_crl_for(const X509_Certificate& subject) const override;
 
+      bool contains(const X509_Certificate& cert) const override;
+
       std::vector<X509_DN> all_subjects() const override;
 
    private:

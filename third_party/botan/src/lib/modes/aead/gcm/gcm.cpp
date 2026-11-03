@@ -15,6 +15,7 @@
 #include <botan/internal/ctr.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/ghash.h>
+#include <botan/internal/int_utils.h>
 #include <array>
 
 namespace Botan {
@@ -48,6 +49,7 @@ void GCM_Mode::clear() {
 
 void GCM_Mode::reset() {
    m_ghash->reset_state();
+   m_in_msg = false;
 }
 
 std::string GCM_Mode::name() const {
@@ -80,6 +82,7 @@ bool GCM_Mode::has_keying_material() const {
 }
 
 void GCM_Mode::key_schedule(std::span<const uint8_t> key) {
+   reset();
    m_ctr->set_key(key);
 
    std::array<uint8_t, GCM_BS> zeros{};
@@ -96,33 +99,37 @@ void GCM_Mode::set_associated_data_n(size_t idx, std::span<const uint8_t> ad) {
 }
 
 void GCM_Mode::start_msg(const uint8_t nonce[], size_t nonce_len) {
+   BOTAN_STATE_CHECK(!m_in_msg);
+
    if(!valid_nonce_length(nonce_len)) {
       throw Invalid_IV_Length(name(), nonce_len);
    }
 
-   if(m_y0.size() != GCM_BS) {
-      m_y0.resize(GCM_BS);
-   }
-
-   clear_mem(m_y0.data(), m_y0.size());
+   std::array<uint8_t, GCM_BS> y0 = {};
 
    if(nonce_len == 12) {
-      copy_mem(m_y0.data(), nonce, nonce_len);
-      m_y0[15] = 1;
+      copy_mem(y0.data(), nonce, nonce_len);
+      y0[15] = 1;
    } else {
-      m_ghash->nonce_hash(std::span<uint8_t, GCM_BS>(m_y0), {nonce, nonce_len});
+      m_ghash->nonce_hash(std::span<uint8_t, GCM_BS>(y0), {nonce, nonce_len});
    }
 
-   m_ctr->set_iv(m_y0.data(), m_y0.size());
+   m_ctr->set_iv(y0.data(), y0.size());
 
-   clear_mem(m_y0.data(), m_y0.size());
-   m_ctr->encipher(m_y0);
+   clear_mem(y0.data(), y0.size());
+   m_ctr->encipher(y0);
 
-   m_ghash->start(m_y0);
-   clear_mem(m_y0.data(), m_y0.size());
+   m_ghash->start(y0);
+   secure_scrub_memory(y0);
+   m_in_msg = true;
+}
+
+size_t GCM_Encryption::output_length(size_t input_length) const {
+   return add_or_throw(input_length, tag_size(), "GCM input too large");
 }
 
 size_t GCM_Encryption::process_msg(uint8_t buf[], size_t sz) {
+   BOTAN_STATE_CHECK(m_in_msg);
    BOTAN_ARG_CHECK(sz % update_granularity() == 0, "Invalid buffer size");
    m_ctr->cipher(buf, buf, sz);
    m_ghash->update({buf, sz});
@@ -130,6 +137,7 @@ size_t GCM_Encryption::process_msg(uint8_t buf[], size_t sz) {
 }
 
 void GCM_Encryption::finish_msg(secure_vector<uint8_t>& buffer, size_t offset) {
+   BOTAN_STATE_CHECK(m_in_msg);
    BOTAN_ARG_CHECK(offset <= buffer.size(), "Invalid offset");
    const size_t sz = buffer.size() - offset;
    uint8_t* buf = buffer.data() + offset;
@@ -140,9 +148,16 @@ void GCM_Encryption::finish_msg(secure_vector<uint8_t>& buffer, size_t offset) {
    std::array<uint8_t, 16> mac = {0};
    m_ghash->final(std::span(mac).first(tag_size()));
    buffer += std::make_pair(mac.data(), tag_size());
+   m_in_msg = false;
+}
+
+size_t GCM_Decryption::output_length(size_t input_length) const {
+   BOTAN_ARG_CHECK(input_length >= tag_size(), "Message too short to be valid");
+   return input_length - tag_size();
 }
 
 size_t GCM_Decryption::process_msg(uint8_t buf[], size_t sz) {
+   BOTAN_STATE_CHECK(m_in_msg);
    BOTAN_ARG_CHECK(sz % update_granularity() == 0, "Invalid buffer size");
    m_ghash->update({buf, sz});
    m_ctr->cipher(buf, buf, sz);
@@ -150,6 +165,7 @@ size_t GCM_Decryption::process_msg(uint8_t buf[], size_t sz) {
 }
 
 void GCM_Decryption::finish_msg(secure_vector<uint8_t>& buffer, size_t offset) {
+   BOTAN_STATE_CHECK(m_in_msg);
    BOTAN_ARG_CHECK(offset <= buffer.size(), "Invalid offset");
    const size_t sz = buffer.size() - offset;
    uint8_t* buf = buffer.data() + offset;
@@ -169,7 +185,10 @@ void GCM_Decryption::finish_msg(secure_vector<uint8_t>& buffer, size_t offset) {
 
    const uint8_t* included_tag = &buffer[remaining + offset];
 
+   m_in_msg = false;
+
    if(!CT::is_equal(mac.data(), included_tag, tag_size()).as_bool()) {
+      clear_mem(std::span{buffer}.subspan(offset, remaining));
       throw Invalid_Authentication_Tag("GCM tag check failed");
    }
 

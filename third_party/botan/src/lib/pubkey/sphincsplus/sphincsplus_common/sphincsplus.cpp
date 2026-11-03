@@ -137,7 +137,12 @@ SphincsPlus_PublicKey::SphincsPlus_PublicKey(std::span<const uint8_t> pub_key, S
 }
 
 SphincsPlus_PublicKey::SphincsPlus_PublicKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> key_bits) :
-      SphincsPlus_PublicKey(key_bits, Sphincs_Parameters::create(alg_id.oid())) {}
+      SphincsPlus_PublicKey(key_bits, Sphincs_Parameters::create(alg_id.oid())) {
+   // The parameter set is identified by the OID; no parameters are defined.
+   if(!alg_id.parameters_are_empty()) {
+      throw Decoding_Error("Unexpected parameters for SLH-DSA/SPHINCS+ public key");
+   }
+}
 
 SphincsPlus_PublicKey::~SphincsPlus_PublicKey() = default;
 
@@ -162,7 +167,7 @@ OID SphincsPlus_PublicKey::object_identifier() const {
 }
 
 bool SphincsPlus_PublicKey::check_key(RandomNumberGenerator& /*rng*/, bool /*strong*/) const {
-   // Nothing to check. It's literally just hashes. :-)
+   // Nothing to check for the public key. It's literally just hashes. :-)
    return true;
 }
 
@@ -184,7 +189,7 @@ namespace {
 
 class SphincsPlus_Verification_Operation final : public PK_Ops::Verification {
    public:
-      explicit SphincsPlus_Verification_Operation(std::shared_ptr<SphincsPlus_PublicKeyInternal> pub_key) :
+      explicit SphincsPlus_Verification_Operation(std::shared_ptr<const SphincsPlus_PublicKeyInternal> pub_key) :
             m_public(std::move(pub_key)),
             m_hashes(Botan::Sphincs_Hash_Functions::create(m_public->parameters(), m_public->seed())),
             m_context(/* TODO: Add API */ {}) {
@@ -239,7 +244,7 @@ class SphincsPlus_Verification_Operation final : public PK_Ops::Verification {
          return ht_verify(fors_root, ht_sig_s, m_public->root(), tree_idx, leaf_idx, p, *m_hashes);
       }
 
-      std::shared_ptr<SphincsPlus_PublicKeyInternal> m_public;
+      std::shared_ptr<const SphincsPlus_PublicKeyInternal> m_public;
       std::unique_ptr<Sphincs_Hash_Functions> m_hashes;
       SphincsInputMessage m_msg_buffer;
       SphincsContext m_context;
@@ -258,7 +263,9 @@ std::unique_ptr<PK_Ops::Verification> SphincsPlus_PublicKey::create_verification
 std::unique_ptr<PK_Ops::Verification> SphincsPlus_PublicKey::create_x509_verification_op(
    const AlgorithmIdentifier& signature_algorithm, std::string_view provider) const {
    if(provider.empty() || provider == "base") {
-      if(signature_algorithm != this->algorithm_identifier()) {
+      // RFC 9909 Section 3:
+      // The contents of the parameters component for each algorithm MUST be absent.
+      if(signature_algorithm.oid() != this->object_identifier() || !signature_algorithm.parameters_are_empty()) {
          throw Decoding_Error("Unexpected AlgorithmIdentifier for SLH-DSA (or SPHINCS+) signature");
       }
       return std::make_unique<SphincsPlus_Verification_Operation>(m_public);
@@ -294,7 +301,12 @@ SphincsPlus_PrivateKey::SphincsPlus_PrivateKey(std::span<const uint8_t> private_
       SphincsPlus_PrivateKey(private_key, Sphincs_Parameters::create(type, hash)) {}
 
 SphincsPlus_PrivateKey::SphincsPlus_PrivateKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> key_bits) :
-      SphincsPlus_PrivateKey(key_bits, Sphincs_Parameters::create(alg_id.oid())) {}
+      SphincsPlus_PrivateKey(key_bits, Sphincs_Parameters::create(alg_id.oid())) {
+   // The parameter set is identified by the OID; no parameters are defined.
+   if(!alg_id.parameters_are_empty()) {
+      throw Decoding_Error("Unexpected parameters for SLH-DSA/SPHINCS+ private key");
+   }
+}
 
 SphincsPlus_PrivateKey::SphincsPlus_PrivateKey(std::span<const uint8_t> private_key, Sphincs_Parameters params) :
       SphincsPlus_PublicKey(slice_off_public_key(params.object_identifier(), private_key), params) {
@@ -344,12 +356,25 @@ std::unique_ptr<Public_Key> SphincsPlus_PrivateKey::public_key() const {
    return std::make_unique<SphincsPlus_PublicKey>(*this);
 }
 
+bool SphincsPlus_PrivateKey::check_key(RandomNumberGenerator& /*rng*/, bool strong) const {
+   if(strong) {
+      // Check that the embedded public root is consistent with the secret
+      // seed by recomputing it. This costs about as much as a key generation,
+      // but much less than a sign/verify roundtrip.
+      const auto& params = m_public->parameters();
+      auto hashes = Sphincs_Hash_Functions::create(params, m_public->seed());
+      const auto root = xmss_gen_root(params, m_private->seed(), *hashes);
+      return root == m_public->root();
+   }
+   return true;
+}
+
 namespace {
 
 class SphincsPlus_Signature_Operation final : public PK_Ops::Signature {
    public:
-      SphincsPlus_Signature_Operation(std::shared_ptr<SphincsPlus_PrivateKeyInternal> private_key,
-                                      std::shared_ptr<SphincsPlus_PublicKeyInternal> public_key,
+      SphincsPlus_Signature_Operation(std::shared_ptr<const SphincsPlus_PrivateKeyInternal> private_key,
+                                      std::shared_ptr<const SphincsPlus_PublicKeyInternal> public_key,
                                       bool randomized) :
             m_private(std::move(private_key)),
             m_public(std::move(public_key)),
@@ -427,8 +452,8 @@ class SphincsPlus_Signature_Operation final : public PK_Ops::Signature {
          return sphincs_sig_buffer;
       }
 
-      std::shared_ptr<SphincsPlus_PrivateKeyInternal> m_private;
-      std::shared_ptr<SphincsPlus_PublicKeyInternal> m_public;
+      std::shared_ptr<const SphincsPlus_PrivateKeyInternal> m_private;
+      std::shared_ptr<const SphincsPlus_PublicKeyInternal> m_public;
       std::unique_ptr<Sphincs_Hash_Functions> m_hashes;
       SphincsInputMessage m_msg_buffer;
       bool m_randomized;

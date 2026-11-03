@@ -4,6 +4,7 @@
 *     2017 René Korthaus, Rohde & Schwarz Cybersecurity
 *     2022 René Meusel, Hannes Rantzsch - neXenio GmbH
 *     2023 René Meusel, Rohde & Schwarz Cybersecurity
+*     2026 René Meusel, Rohde & Schwarz Networks and Cybersecurity
 *
 * Botan is released under the Simplified BSD License (see license.txt)
 */
@@ -61,8 +62,16 @@ class Callbacks : public Botan::TLS::Callbacks {
             throw Botan::Invalid_Argument("Certificate chain was empty");
          }
 
+         // As a diagnostic tool we want to attempt OCSP but still connect if
+         // the responder was unavailable or the certs have no OCSP URL
          const Botan::Path_Validation_Restrictions restrictions(policy.require_cert_revocation_info(),
-                                                                policy.minimum_signature_strength());
+                                                                policy.minimum_signature_strength(),
+                                                                /* ocsp_all_intermediates */ false,
+                                                                std::chrono::hours(24 * 7),
+                                                                /* trusted_ocsp_responders */ nullptr,
+                                                                /* ignore_trusted_root_time_range */ false,
+                                                                /* require_self_signed_trust_anchors */ true,
+                                                                /* accept_ocsp_softfail */ true);
 
          auto ocsp_timeout = std::chrono::milliseconds(1000);
 
@@ -77,6 +86,10 @@ class Callbacks : public Botan::TLS::Callbacks {
 
             if(!status.empty() && status[0].contains(Botan::Certificate_Status_Code::OCSP_RESPONSE_GOOD)) {
                output() << "Valid OCSP response for this server\n";
+            }
+
+            if(!result.no_warnings()) {
+               output() << "Certificate validation warnings: " << result.warnings_string() << "\n";
             }
          } else {
             if(flag_set("ignore-cert-error")) {
@@ -184,7 +197,10 @@ class TLS_Client final : public Command {
          init_sockets();
       }
 
-      ~TLS_Client() override { stop_sockets(); }
+      ~TLS_Client() override {
+         shutdown_socket();
+         stop_sockets();
+      }
 
       TLS_Client(const TLS_Client& other) = delete;
       TLS_Client(TLS_Client&& other) = delete;
@@ -361,7 +377,7 @@ class TLS_Client final : public Command {
 
          set_return_code((we_closed || callbacks->peer_closed()) ? 0 : 1);
 
-         ::close(m_sockfd);
+         shutdown_socket();
       }
 
    public:
@@ -407,6 +423,11 @@ class TLS_Client final : public Command {
                continue;
             }
 
+            if(fd >= FD_SETSIZE) {
+               ::close(fd);
+               throw CLI_Error("Socket descriptor exceeds FD_SETSIZE; select() would be unsafe");
+            }
+
             if(::connect(fd, rp->ai_addr, rp->ai_addrlen) != 0) {
                ::close(fd);
                continue;
@@ -430,6 +451,25 @@ class TLS_Client final : public Command {
          if(r == -1) {
             throw CLI_Error("Socket write failed errno=" + std::to_string(errno));
          }
+      }
+
+      void shutdown_socket() {
+         if(m_sockfd == invalid_socket()) {
+            return;
+         }
+
+         // Signal that we are done writing so pending alert records are
+         // delivered with a FIN rather than lost to a RST.
+         ::shutdown(m_sockfd, SHUT_WR);
+
+         // Drain unread incoming data; if the receive buffer is non-empty when
+         // we close(), the kernel sends RST which discards our outgoing data
+         // (including any alert we sent).
+         char buf[256];
+         while(::read(m_sockfd, buf, sizeof(buf)) > 0) {}
+         ::close(m_sockfd);
+
+         m_sockfd = invalid_socket();
       }
 
       socket_type m_sockfd = invalid_socket();

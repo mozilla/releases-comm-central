@@ -131,9 +131,11 @@ class BOTAN_PUBLIC_API(2, 0) X509_CA final {
       * so you can call it directly and then modify the extensions before
       * creating a certificate using X509_CA::make_cert.
       */
-      static Extensions choose_extensions(const PKCS10_Request& req,
-                                          const X509_Certificate& ca_certificate,
-                                          std::string_view hash_fn);
+      static Extensions choose_extensions(const PKCS10_Request& req, const X509_Certificate& ca_certificate);
+
+      BOTAN_DEPRECATED("Use the overload that does not take a hash function name (SKID is now always SHA-1)")
+      static Extensions
+         choose_extensions(const PKCS10_Request& req, const X509_Certificate& ca_certificate, std::string_view hash_fn);
 
       /**
       * Interface for creating new certificates
@@ -240,7 +242,7 @@ class BOTAN_PUBLIC_API(2, 0) X509_CA final {
 
    private:
       X509_CRL make_crl(const std::vector<CRL_Entry>& entries,
-                        uint32_t crl_number,
+                        const BigInt& crl_number,
                         RandomNumberGenerator& rng,
                         std::chrono::system_clock::time_point issue_time,
                         std::chrono::seconds next_update) const;

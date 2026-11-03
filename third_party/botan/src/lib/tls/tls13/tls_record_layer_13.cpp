@@ -2,6 +2,7 @@
 * TLS record layer implementation for TLS 1.3
 * (C) 2022 Jack Lloyd
 *     2022 Hannes Rantzsch, René Meusel - neXenio GmbH
+*     2026 Amos Treiber, René Meusel - Rohde & Schwarz Networks and Cybersecurity GmbH
 *
 * Botan is released under the Simplified BSD License (see license.txt)
 */
@@ -10,7 +11,9 @@
 
 #include <botan/tls_alert.h>
 #include <botan/tls_exceptn.h>
+#include <botan/tls_policy.h>
 #include <botan/tls_version.h>
+#include <botan/internal/ct_utils.h>
 #include <botan/internal/loadstor.h>
 #include <botan/internal/tls_cipher_state.h>
 #include <algorithm>
@@ -143,8 +146,9 @@ class TLSPlaintext_Header final {
 
 }  // namespace
 
-Record_Layer::Record_Layer(Connection_Side side) :
+Record_Layer::Record_Layer(Connection_Side side, std::shared_ptr<const Policy> policy) :
       m_side(side),
+      m_policy(std::move(policy)),
       m_outgoing_record_size_limit(MAX_PLAINTEXT_SIZE + 1 /* content type byte */),
       m_incoming_record_size_limit(MAX_PLAINTEXT_SIZE + 1 /* content type byte */)
 
@@ -168,9 +172,18 @@ Record_Layer::Record_Layer(Connection_Side side) :
       // the marshalling responsibility to our TLS 1.2 implementation.
       ,
       m_sending_compat_mode(m_side == Connection_Side::Client),
-      m_receiving_compat_mode(true) {}
+      m_receiving_compat_mode(true) {
+   BOTAN_ASSERT_NONNULL(m_policy);
+}
 
 void Record_Layer::copy_data(std::span<const uint8_t> data) {
+   // Compact consumed data before appending new data
+   BOTAN_ASSERT_NOMSG(m_read_offset <= m_read_buffer.size());
+   if(m_read_offset > 0) {
+      m_read_buffer.erase(m_read_buffer.begin(), m_read_buffer.begin() + m_read_offset);
+      m_read_offset = 0;
+   }
+
    m_read_buffer.insert(m_read_buffer.end(), data.begin(), data.end());
 }
 
@@ -220,13 +233,21 @@ std::vector<uint8_t> Record_Layer::prepare_records(const Record_Type type,
 
    const auto records = std::max((data.size() + max_plaintext_size - 1) / max_plaintext_size, size_t(1));
    auto output_length = records * TLS_HEADER_SIZE;
+
+   // Policy-requested padding (RFC 9846 5.4) is applied to the final record
+   // only; all preceding records are filled to the maximum plaintext size
+   // already, leaving no room for padding within the record size limit.
+   size_t final_record_padding = 0;
+
    if(protect) {
       // n-1 full records of size max_plaintext_size
       output_length +=
          (records - 1) * cipher_state->encrypt_output_length(max_plaintext_size + content_type_tag_length);
       // last record with size of remaining data
-      output_length += cipher_state->encrypt_output_length(data.size() - ((records - 1) * max_plaintext_size) +
-                                                           content_type_tag_length);
+      const auto remaining_bytes = data.size() - ((records - 1) * max_plaintext_size) + content_type_tag_length;
+      final_record_padding = std::min<size_t>(m_policy->record_padding_bytes(remaining_bytes),
+                                              m_outgoing_record_size_limit - remaining_bytes);
+      output_length += cipher_state->encrypt_output_length(remaining_bytes + final_record_padding);
    } else {
       output_length += data.size();
    }
@@ -242,8 +263,14 @@ std::vector<uint8_t> Record_Layer::prepare_records(const Record_Type type,
    // NOLINTNEXTLINE(*-avoid-do-while)
    do {
       const size_t pt_size = std::min<size_t>(to_process, max_plaintext_size);
-      const size_t ct_size =
-         (!protect) ? pt_size : cipher_state->encrypt_output_length(pt_size + content_type_tag_length);
+      const size_t pt_size_with_type = pt_size + content_type_tag_length;
+      const bool final_record = (pt_size == to_process);
+      const size_t pt_size_with_type_and_padding = pt_size_with_type + (final_record ? final_record_padding : 0);
+      BOTAN_ASSERT_IMPLICATION(protect,
+                               pt_size_with_type_and_padding <= m_outgoing_record_size_limit,
+                               "Padded record size is within the negotiated record size limit");
+
+      const size_t ct_size = (!protect) ? pt_size : cipher_state->encrypt_output_length(pt_size_with_type_and_padding);
       const auto pt_type = (!protect) ? type : Record_Type::ApplicationData;
 
       // RFC 8446 5.1
@@ -262,7 +289,12 @@ std::vector<uint8_t> Record_Layer::prepare_records(const Record_Type type,
          // assemble TLSInnerPlaintext structure
          fragment.insert(fragment.end(), pt_fragment.begin(), pt_fragment.end());
          fragment.push_back(static_cast<uint8_t>(type));
-         // TODO: zero padding could go here, see RFC 8446 5.4
+
+         // RFC 9846 5.4
+         //    When generating a TLSCiphertext record, implementations MAY
+         //    choose to pad. [...] Implementations MUST set the padding octets
+         //    to all zeros before encrypting.
+         fragment.insert(fragment.end(), pt_size_with_type_and_padding - pt_size_with_type, 0x00);
 
          cipher_state->encrypt_record_fragment(record_header, fragment);
          BOTAN_ASSERT_NOMSG(fragment.size() == ct_size);
@@ -281,11 +313,20 @@ std::vector<uint8_t> Record_Layer::prepare_records(const Record_Type type,
 }
 
 Record_Layer::ReadResult<Record> Record_Layer::next_record(Cipher_State* cipher_state) {
-   if(m_read_buffer.size() < TLS_HEADER_SIZE) {
-      return TLS_HEADER_SIZE - m_read_buffer.size();
+   // Special case: on the record boundary we don't actually need any more data
+   // and we also don't want to be the know-it-all that now demands exactly
+   // enough bytes to start parsing the next record header.
+   if(m_read_buffer.empty()) {
+      return BytesNeeded(0);
    }
 
-   const auto header_begin = m_read_buffer.cbegin();
+   const auto remaining = m_read_buffer.size() - m_read_offset;
+
+   if(remaining < TLS_HEADER_SIZE) {
+      return TLS_HEADER_SIZE - remaining;
+   }
+
+   const auto header_begin = m_read_buffer.cbegin() + m_read_offset;
    const auto header_end = header_begin + TLS_HEADER_SIZE;
 
    // The first received record(s) are likely a client or server hello. To be able to
@@ -308,8 +349,8 @@ Record_Layer::ReadResult<Record> Record_Layer::next_record(Cipher_State* cipher_
       throw TLS_Exception(Alert::UnexpectedMessage, "unprotected record received where protected traffic was expected");
    }
 
-   if(m_read_buffer.size() < TLS_HEADER_SIZE + plaintext_header.fragment_length()) {
-      return TLS_HEADER_SIZE + plaintext_header.fragment_length() - m_read_buffer.size();
+   if(remaining < TLS_HEADER_SIZE + plaintext_header.fragment_length()) {
+      return TLS_HEADER_SIZE + plaintext_header.fragment_length() - remaining;
    }
 
    const auto fragment_begin = header_end;
@@ -321,7 +362,14 @@ Record_Layer::ReadResult<Record> Record_Layer::next_record(Cipher_State* cipher_
    }
 
    Record record(plaintext_header.type(), secure_vector<uint8_t>(fragment_begin, fragment_end));
-   m_read_buffer.erase(header_begin, fragment_end);
+   m_read_offset += TLS_HEADER_SIZE + plaintext_header.fragment_length();
+
+   // If all buffered data has been consumed, release the buffer memory
+   // to avoid retaining peak allocation on idle connections.
+   if(m_read_offset == m_read_buffer.size()) {
+      zap(m_read_buffer);
+      m_read_offset = 0;
+   }
 
    if(record.type == Record_Type::ApplicationData) {
       if(cipher_state == nullptr) {
@@ -340,11 +388,22 @@ Record_Layer::ReadResult<Record> Record_Layer::next_record(Cipher_State* cipher_
 
       record.seq_no = cipher_state->decrypt_record_fragment(plaintext_header.serialized(), record.fragment);
 
-      // Remove record padding (RFC 8446 5.4).
-      const auto end_of_content =
-         std::find_if(record.fragment.crbegin(), record.fragment.crend(), [](auto byte) { return byte != 0x00; });
+      // Remove record padding (RFC 8446 5.4). The TLSInnerPlaintext layout is
+      //   content || content_type || zero_padding
+      auto seen_nonzero = CT::Mask<uint8_t>::cleared();
+      uint8_t content_type_byte = 0;
+      size_t content_index = 0;
+      for(size_t i = record.fragment.size(); i-- > 0;) {
+         const uint8_t b = record.fragment[i];
+         const auto byte_is_nonzero = CT::Mask<uint8_t>::expand(b);
+         // Set on the first non-zero byte we encounter scanning right-to-left.
+         const auto first_nonzero = byte_is_nonzero & ~seen_nonzero;
+         content_type_byte = first_nonzero.select(b, content_type_byte);
+         content_index = CT::Mask<size_t>::expand(first_nonzero.value()).select(i, content_index);
+         seen_nonzero |= byte_is_nonzero;
+      }
 
-      if(end_of_content == record.fragment.crend()) {
+      if(!seen_nonzero.as_bool()) {
          // RFC 8446 5.4
          //   If a receiving implementation does not
          //   find a non-zero octet in the cleartext, it MUST terminate the
@@ -353,7 +412,7 @@ Record_Layer::ReadResult<Record> Record_Layer::next_record(Cipher_State* cipher_
       }
 
       // hydrate the actual content type from TLSInnerPlaintext
-      record.type = read_record_type(*end_of_content);
+      record.type = read_record_type(content_type_byte);
 
       if(record.type == Record_Type::ChangeCipherSpec) {
          // RFC 8446 5
@@ -362,8 +421,10 @@ Record_Layer::ReadResult<Record> Record_Layer::next_record(Cipher_State* cipher_
          throw TLS_Exception(Alert::UnexpectedMessage, "protected change cipher spec received");
       }
 
-      // erase content type and padding
-      record.fragment.erase((end_of_content + 1).base(), record.fragment.cend());
+      // Truncate to drop the content_type byte and padding. resize() on a
+      // vector of trivially-destructible elements is bookkeeping-only and
+      // does not allocate or iterate over the dropped suffix.
+      record.fragment.resize(content_index);
 
       // RFC 8446 5.4
       //    Implementations MUST NOT send Handshake and Alert records that have

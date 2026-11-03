@@ -1,7 +1,7 @@
 <defines>
-X509_CERTIFICATES -> 20201106
-X509 -> 20201106
-OCSP -> 20201106
+X509_CERTIFICATES -> 20260519
+X509 -> 20260519
+OCSP -> 20260519
 </defines>
 
 <module_info>
@@ -11,9 +11,13 @@ brief -> "Handles X.509 certificates and their validation"
 
 <requires>
 asn1
+dns_name
+email
+ip_address
 pubkey
 sha1
 sha2_32
+uri
 </requires>
 
 <header:public>
@@ -33,6 +37,7 @@ x509self.h
 
 <header:internal>
 x509_utils.h
+x509_cert_cache.h
 </header:internal>
 
 <os_features>

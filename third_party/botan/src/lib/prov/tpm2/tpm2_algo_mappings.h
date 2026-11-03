@@ -82,7 +82,7 @@ namespace Botan::TPM2 {
  * @returns a Botan hash name string if the @p hash_id value is known,
  *          otherwise std::nullopt
  */
-[[nodiscard]] inline std::optional<std::string> hash_algo_tss2_to_botan(TPMI_ALG_HASH hash_id) noexcept {
+[[nodiscard]] inline std::optional<std::string> hash_algo_tss2_to_botan(TPMI_ALG_HASH hash_id) {
    switch(hash_id) {
       case TPM2_ALG_SHA1:
          return "SHA-1";
@@ -118,7 +118,7 @@ namespace Botan::TPM2 {
 }
 
 [[nodiscard]] inline std::optional<std::string> block_cipher_tss2_to_botan(TPMI_ALG_SYM cipher_id,
-                                                                           TPM2_KEY_BITS key_bits) noexcept {
+                                                                           TPM2_KEY_BITS key_bits) {
    switch(cipher_id) {
       case TPM2_ALG_AES:
          if(key_bits == 128) {
@@ -241,7 +241,7 @@ namespace Botan::TPM2 {
    // Currently, tpm2-tss does not include support for Brainpool curves or 25519/448.
    // Once the corresponding PR (https://github.com/tpm2-software/tpm2-tss/pull/2897) is merged and released,
    // this function should be updated.
-   const std::string curve_name = curve_oid.to_formatted_string();
+   const auto curve_name = curve_oid.registered_name();
    if(curve_name == "secp192r1") {
       return TPM2_ECC_NIST_P192;
    } else if(curve_name == "secp224r1") {
@@ -279,18 +279,15 @@ namespace Botan::TPM2 {
  * @returns a Botan cipher mode name string if the @p cipher_id, @p key_bits and
  *          @p mode_name are known, otherwise std::nullopt
  */
-[[nodiscard]] inline std::optional<std::string> cipher_tss2_to_botan(TPMT_SYM_DEF cipher_def) noexcept {
+[[nodiscard]] inline std::optional<std::string> cipher_tss2_to_botan(TPMT_SYM_DEF cipher_def) {
    const auto cipher_name = block_cipher_tss2_to_botan(cipher_def.algorithm, cipher_def.keyBits.sym);
-   if(!cipher_name) {
-      return std::nullopt;
-   }
-
    const auto mode_name = cipher_mode_tss2_to_botan(cipher_def.mode.sym);
-   if(!mode_name) {
+
+   if(mode_name && cipher_name) {
+      return Botan::fmt("{}({})", *mode_name, *cipher_name);
+   } else {
       return std::nullopt;
    }
-
-   return Botan::fmt("{}({})", mode_name.value(), cipher_name.value());
 }
 
 [[nodiscard]] inline std::optional<TPMT_SYM_DEF> cipher_botan_to_tss2(std::string_view algo_name) {

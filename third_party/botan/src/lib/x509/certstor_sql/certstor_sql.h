@@ -108,10 +108,16 @@ class BOTAN_PUBLIC_API(2, 0) Certificate_Store_In_SQL : public Certificate_Store
       */
       std::optional<X509_CRL> find_crl_for(const X509_Certificate& issuer) const override;
 
+      bool contains(const X509_Certificate& cert) const override;
+
    private:
       RandomNumberGenerator& m_rng;
       std::shared_ptr<SQL_Database> m_database;
-      std::string m_prefix;
+
+      std::string m_db_cert_table;
+      std::string m_db_keys_table;
+      std::string m_db_crls_table;
+
       std::string m_password;
 };
 

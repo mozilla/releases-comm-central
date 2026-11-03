@@ -92,7 +92,7 @@ class BOTAN_TEST_API Handshake_Layer {
        * Check if the Handshake_Layer has stored a partial message in its internal buffer.
        * This can happen if a handshake message spans multiple records.
        */
-      bool has_pending_data() const { return !m_read_buffer.empty(); }
+      bool has_pending_data() const { return m_read_offset < m_read_buffer.size(); }
 
       /**
        * Set the certificate_type used for parsing Certificate messages. This
@@ -113,6 +113,7 @@ class BOTAN_TEST_API Handshake_Layer {
 
    private:
       std::vector<uint8_t> m_read_buffer;
+      size_t m_read_offset = 0;
       Connection_Side m_peer;
       Certificate_Type m_certificate_type;
 };

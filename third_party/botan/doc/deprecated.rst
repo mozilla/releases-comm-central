@@ -23,6 +23,24 @@ Platform Support Deprecations
 
 * Support for building for Windows systems prior to Windows 10 is deprecated.
 
+X509/PKIX Deprecations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Decoding or processing of certificates with negative serial numbers, or CRLs
+  containing any negative serial numbers in the revocation list, is
+  deprecated. In a future major release, any such certificate or CRL will be
+  rejected at parse time.
+
+* Currently the library accepts wildcard certificates following the rules of RFC 6125,
+  and accepts for example ``foo*baz.example.net`` as matching the hostname of
+  ``foobarbaz.example.net``. In a future major release the semantics of wildcard
+  certificates will follow RFC 9525 in which case only wildcard certificates of the form
+  ``*.example.net`` will be allowed.
+
+* Currently the library falls back to checking the CN field if the subjectAlternativeName
+  extension is not included in the certificate. In a future major release, CN
+  fallback will be removed entirely.
+
 TLS Protocol Deprecations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -40,6 +58,8 @@ in a future major release:
 - Support for renegotiation in TLS v1.2
 
 - All ciphersuites using static RSA key exchange
+
+- Support for CCM-8 ciphersuites
 
 - ``Credentials_Manager::psk()`` to provide various TLS-specific keys and
   secrets, most notably "session-ticket", "dtls-cookie-secret" and the actual
@@ -103,6 +123,13 @@ elliptic curve points.
   elements are rarely if ever useful serialized into a protocol.  Support for
   encoding or decoding EC identity elements is deprecated and will be removed.
 
+
+ASN.1 Deprecations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Support for encoding or decoding TeletexString types is deprecated and will
+be removed in a future major release.
+
 Deprecated Modules
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -120,6 +147,8 @@ Deprecated modules include
 - Kyber R3 support: prefer ML-KEM
 
 - Dilithium R3 support: prefer ML-DSA
+
+- SPHINCS+: prefer SLH-DSA
 
 - Block cipher ``gost_28147``: This cipher was obsolete 20 years ago.
 
@@ -162,6 +191,8 @@ Deprecated modules include
 - `cryptobox`: A not unreasonable password based encryption utility
   but neither modern (these days) nor widely implemented.
 
+- `iso9796`: Obscure, complicated, and apparently little used.
+
 - ``dlies``: DLIES is considered quite obsolete
 
 - ``tpm`` (TPM 1.2 only, rarely tested)
@@ -197,6 +228,9 @@ release, or where a backwards incompatible change is expected.
   directly on ``MessageAuthenticationCode`` and ``HashFunction``. So
   this only affects you if you are directly referencing
   ``Botan::Buffered_Computation`` in some way.
+
+- Using the Cascade cipher construction where the two block ciphers do
+  not have identical block lengths is deprecated.
 
 - GCM support for 64-bit tags
 

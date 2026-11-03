@@ -30,7 +30,7 @@ class Dilithium_Keypair_Codec /* NOLINT(*-special-member-functions) */ {
                                                       DilithiumConstants mode) const = 0;
 };
 
-class Dilithium_PublicKeyInternal {
+class Dilithium_PublicKeyInternal final {
    public:
       static std::shared_ptr<Dilithium_PublicKeyInternal> decode(
          DilithiumConstants mode, StrongSpan<const DilithiumSerializedPublicKey> raw_pk) {
@@ -65,7 +65,7 @@ class Dilithium_PublicKeyInternal {
       DilithiumHashedPublicKey m_tr;
 };
 
-class Dilithium_PrivateKeyInternal {
+class Dilithium_PrivateKeyInternal final {
    public:
       Dilithium_PrivateKeyInternal(DilithiumConstants mode,
                                    std::optional<DilithiumSeedRandomness> seed,
@@ -96,16 +96,12 @@ class Dilithium_PrivateKeyInternal {
       void _const_time_poison() const {
          // Note: m_rho and m_tr is public knowledge
          CT::poison_all(m_signing_seed, m_s1, m_s2, m_t0);
-         if(m_seed.has_value()) {
-            CT::poison(m_seed.value());
-         }
+         CT::poison(m_seed);
       }
 
       void _const_time_unpoison() const {
          CT::unpoison_all(m_signing_seed, m_s1, m_s2, m_t0);
-         if(m_seed.has_value()) {
-            CT::unpoison(m_seed.value());
-         }
+         CT::unpoison(m_seed);
       }
 
    private:

@@ -14,6 +14,7 @@ tls_extensions_12.h
 
 <header:internal>
 tls_channel_impl_12.h
+tls_connection_state_12.h
 tls_client_impl_12.h
 tls_record.h
 tls_server_impl_12.h

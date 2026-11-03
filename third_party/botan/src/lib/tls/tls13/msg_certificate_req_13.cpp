@@ -22,7 +22,7 @@ Handshake_Type Certificate_Request_13::type() const {
    return TLS::Handshake_Type::CertificateRequest;
 }
 
-Certificate_Request_13::Certificate_Request_13(const std::vector<uint8_t>& buf, const Connection_Side side) {
+Certificate_Request_13::Certificate_Request_13(std::span<const uint8_t> buf, const Connection_Side side) {
    TLS_Data_Reader reader("Certificate_Request_13", buf);
 
    // RFC 8446 4.3.2
@@ -66,9 +66,11 @@ Certificate_Request_13::Certificate_Request_13(const std::vector<uint8_t>& buf, 
    if(m_extensions.contains_implemented_extensions_other_than(allowed_extensions)) {
       throw TLS_Exception(Alert::IllegalParameter, "Certificate Request contained an extension that is not allowed");
    }
+
+   reader.assert_done();
 }
 
-Certificate_Request_13::Certificate_Request_13(const std::vector<X509_DN>& acceptable_CAs,
+Certificate_Request_13::Certificate_Request_13(std::vector<X509_DN> acceptable_CAs,
                                                const Policy& policy,
                                                Callbacks& callbacks) {
    // RFC 8446 4.3.2
@@ -97,12 +99,18 @@ Certificate_Request_13::Certificate_Request_13(const std::vector<X509_DN>& accep
    }
 
    if(!acceptable_CAs.empty()) {
-      m_extensions.add(std::make_unique<Certificate_Authorities>(acceptable_CAs));
+      m_extensions.add(std::make_unique<Certificate_Authorities>(std::move(acceptable_CAs)));
    }
 
    // TODO: Support cert_status_request for OCSP stapling
 
    callbacks.tls_modify_extensions(m_extensions, Connection_Side::Server, type());
+
+   if(!m_extensions.has<Signature_Algorithms>()) {
+      throw TLS_Exception(
+         Alert::InternalError,
+         "Application tls_modify_extensions callback removed Signature_Algorithms from the CertificateRequest");
+   }
 }
 
 std::optional<Certificate_Request_13> Certificate_Request_13::maybe_create(const Client_Hello_13& client_hello,

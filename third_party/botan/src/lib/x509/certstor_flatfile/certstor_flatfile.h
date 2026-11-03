@@ -13,6 +13,7 @@
 #include <botan/pkix_types.h>
 
 #include <map>
+#include <set>
 #include <vector>
 
 namespace Botan {
@@ -68,8 +69,11 @@ class BOTAN_PUBLIC_API(2, 11) Flatfile_Certificate_Store final : public Certific
        */
       std::optional<X509_CRL> find_crl_for(const X509_Certificate& subject) const override;
 
+      bool contains(const X509_Certificate& cert) const override;
+
    private:
       std::vector<X509_DN> m_all_subjects;
+      std::set<X509_Certificate::Tag> m_cert_tags;
       std::map<X509_DN, std::vector<X509_Certificate>> m_dn_to_cert;
       std::map<std::vector<uint8_t>, std::optional<X509_Certificate>> m_pubkey_sha1_to_cert;
       std::map<std::vector<uint8_t>, std::optional<X509_Certificate>> m_subject_dn_sha256_to_cert;

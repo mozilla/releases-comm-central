@@ -77,7 +77,7 @@ Client_Hello_13::Client_Hello_13(std::unique_ptr<Client_Hello_Internal> data) : 
       //     The "pre_shared_key" extension MUST be the last extension in the
       //     ClientHello [...]. Servers MUST check that it is the last extension
       //     and otherwise fail the handshake with an "illegal_parameter" alert.
-      if(exts.all().back()->type() != Extension_Code::PresharedKey) {
+      if(exts.last_added() != Extension_Code::PresharedKey) {
          throw TLS_Exception(Alert::IllegalParameter, "PSK extension was not at the very end of the Client Hello");
       }
    }
@@ -121,32 +121,24 @@ Client_Hello_13::Client_Hello_13(std::unique_ptr<Client_Hello_Internal> data) : 
       //    Clients MUST NOT offer any KeyShareEntry values for groups not
       //    listed in the client's "supported_groups" extension.
       //
+      //    Servers MAY check for violations of these rules and abort the
+      //    handshake with an "illegal_parameter" alert if one is violated.
+      //
       // Note: We can assume that both `offers` and `supports` are unique lists
       //       as this is ensured in the parsing code of the extensions.
-      auto found_in_supported_groups = [&supports, support_offset = -1](auto group) mutable {
-         const auto i = std::find(supports.begin(), supports.end(), group);
-         if(i == supports.end()) {
-            return false;
-         }
-
-         const auto found_at = std::distance(supports.begin(), i);
-         if(found_at <= support_offset) {
-            return false;  // The order that groups appear in "key_share" and
-                           // "supported_groups" must be the same
-         }
-
-         support_offset = static_cast<decltype(support_offset)>(found_at);
-         return true;
-      };
-
+      //
+      // Since offers must appear in the same order as supports, a single
+      // forward sweep of `supports` suffices: after finding each offered group
+      // we advance past its position so the next offered group is searched for
+      // only in the remaining suffix.
+      auto supports_it = supports.begin();
       for(const auto offered : offers) {
-         // RFC 8446 4.2.8
-         //    Servers MAY check for violations of these rules and abort the
-         //    handshake with an "illegal_parameter" alert if one is violated.
-         if(!found_in_supported_groups(offered)) {
+         supports_it = std::find(supports_it, supports.end(), offered);
+         if(supports_it == supports.end()) {
             throw TLS_Exception(Alert::IllegalParameter,
                                 "Offered key exchange groups do not align with claimed supported groups");
          }
+         ++supports_it;
       }
    }
 
@@ -163,7 +155,7 @@ Client_Hello_13::Client_Hello_13(const Policy& policy,
                                  Callbacks& cb,
                                  RandomNumberGenerator& rng,
                                  std::string_view hostname,
-                                 const std::vector<std::string>& next_protocols,
+                                 std::vector<std::string> next_protocols,
                                  std::optional<Session_with_Handle>& session,
                                  std::vector<ExternalPSK> psks) {
    // RFC 8446 4.1.2
@@ -227,16 +219,20 @@ Client_Hello_13::Client_Hello_13(const Policy& policy,
       m_data->extensions().add(new Record_Size_Limit(policy.record_size_limit().value()));
    }
 
-   if(!next_protocols.empty()) {
-      m_data->extensions().add(new Application_Layer_Protocol_Notification(next_protocols));
+   /*
+   * Right now raw public key support is not implemented for TLS 1.2, so we only offer
+   * certificate_types (which is used to request raw public key) if additionally TLS 1.2
+   * support is disabled. Otherwise a peer might reply with a 1.2 server hello + a certificate_type
+   * extension indicating it wishes to use RPK, which would lead to errors later.
+   */
+   if(!policy.allow_tls12()) {
+      m_data->extensions().add(new Client_Certificate_Type(policy.accepted_client_certificate_types()));
+      m_data->extensions().add(new Server_Certificate_Type(policy.accepted_server_certificate_types()));
    }
 
-   // RFC 7250 4.1
-   //    In order to indicate the support of raw public keys, clients include
-   //    the client_certificate_type and/or the server_certificate_type
-   //    extensions in an extended client hello message.
-   m_data->extensions().add(new Client_Certificate_Type(policy.accepted_client_certificate_types()));
-   m_data->extensions().add(new Server_Certificate_Type(policy.accepted_server_certificate_types()));
+   if(!next_protocols.empty()) {
+      m_data->extensions().add(new Application_Layer_Protocol_Notification(std::move(next_protocols)));
+   }
 
 #if defined(BOTAN_HAS_TLS_12)
    if(policy.allow_tls12()) {
@@ -264,11 +260,22 @@ Client_Hello_13::Client_Hello_13(const Policy& policy,
 
    cb.tls_modify_extensions(m_data->extensions(), Connection_Side::Client, type());
 
+   // The application's tls_modify_extensions callback could have stripped
+   // Supported_Groups or Key_Share, which must be there.
+   if(!m_data->extensions().has<Supported_Groups>()) {
+      throw TLS_Exception(Alert::InternalError,
+                          "Application tls_modify_extensions callback removed Supported_Groups from the ClientHello");
+   }
+   if(!m_data->extensions().has<Key_Share>()) {
+      throw TLS_Exception(Alert::InternalError,
+                          "Application tls_modify_extensions callback removed Key_Share from the ClientHello");
+   }
+
    if(m_data->extensions().has<PSK>()) {
       // RFC 8446 4.2.11
       //    The "pre_shared_key" extension MUST be the last extension in the
       //    ClientHello (this facilitates implementation [...]).
-      if(m_data->extensions().all().back()->type() != Extension_Code::PresharedKey) {
+      if(m_data->extensions().last_added() != Extension_Code::PresharedKey) {
          throw TLS_Exception(Alert::InternalError,
                              "Application modified extensions of Client Hello, PSK is not last anymore");
       }
@@ -276,7 +283,7 @@ Client_Hello_13::Client_Hello_13(const Policy& policy,
    }
 }
 
-std::variant<Client_Hello_13, Client_Hello_12_Shim> Client_Hello_13::parse(const std::vector<uint8_t>& buf) {
+std::variant<Client_Hello_13, Client_Hello_12_Shim> Client_Hello_13::parse(std::span<const uint8_t> buf) {
    auto data = std::make_unique<Client_Hello_Internal>(buf);
    const auto version = data->version();
 
@@ -320,8 +327,25 @@ void Client_Hello_13::retry(const Hello_Retry_Request& hrr,
    //       that the user keeps and detects this state themselves.
    cb.tls_modify_extensions(m_data->extensions(), Connection_Side::Client, type());
 
+   // Same invariants as in the constructor: the callback must not strip
+   // Supported_Groups or Key_Share
+   if(!m_data->extensions().has<Supported_Groups>()) {
+      throw TLS_Exception(
+         Alert::InternalError,
+         "Application tls_modify_extensions callback removed Supported_Groups from the retried ClientHello");
+   }
+   if(!m_data->extensions().has<Key_Share>()) {
+      throw TLS_Exception(Alert::InternalError,
+                          "Application tls_modify_extensions callback removed Key_Share from the retried ClientHello");
+   }
+
    auto* psk = m_data->extensions().get<PSK>();
    if(psk != nullptr) {
+      // RFC 8446 4.2.11
+      //    The "pre_shared_key" extension MUST be the last extension in the
+      //    ClientHello (this facilitates implementation [...]).
+      m_data->extensions().reorder(std::array{Extension_Code::PresharedKey});
+
       // Cipher suite should always be a known suite as this is checked upstream
       const auto cipher = Ciphersuite::by_id(hrr.ciphersuite());
       BOTAN_ASSERT_NOMSG(cipher.has_value());
@@ -354,16 +378,12 @@ void Client_Hello_13::validate_updates(const Client_Hello_13& new_ch) {
    const auto oldexts = extension_types();
    const auto newexts = new_ch.extension_types();
 
-   // Check that extension omissions are justified
+   // Check that extension omissions are justified. RFC 8446 4.1.2 lists the
+   // only mutations the client may make between CH1 and CH2; any other
+   // extension removal is an illegal parameter regardless of whether the
+   // extension is one this implementation recognizes.
    for(const auto oldext : oldexts) {
       if(!newexts.contains(oldext)) {
-         auto* const ext = extensions().get(oldext);
-
-         // We don't make any assumptions about unimplemented extensions.
-         if(!ext->is_implemented()) {
-            continue;
-         }
-
          // RFC 8446 4.1.2
          //    Removing the "early_data" extension (Section 4.2.10) if one was
          //    present.  Early data is not permitted after a HelloRetryRequest.
@@ -374,25 +394,18 @@ void Client_Hello_13::validate_updates(const Client_Hello_13& new_ch) {
          // RFC 8446 4.1.2
          //    Optionally adding, removing, or changing the length of the
          //    "padding" extension.
-         //
-         // TODO: implement the Padding extension
-         // if(oldext == Padding::static_type())
-         //    continue;
+         if(oldext == Extension_Code::Padding) {
+            continue;
+         }
 
          throw TLS_Exception(Alert::IllegalParameter, "Extension removed in updated Client Hello");
       }
    }
 
-   // Check that extension additions are justified
+   // Check that extension additions are justified. Same reasoning: only the
+   // RFC-listed mutations are allowed, including for unknown extension codes.
    for(const auto newext : newexts) {
       if(!oldexts.contains(newext)) {
-         auto* const ext = new_ch.extensions().get(newext);
-
-         // We don't make any assumptions about unimplemented extensions.
-         if(!ext->is_implemented()) {
-            continue;
-         }
-
          // RFC 8446 4.1.2
          //    Including a "cookie" extension if one was provided in the
          //    HelloRetryRequest.
@@ -403,10 +416,9 @@ void Client_Hello_13::validate_updates(const Client_Hello_13& new_ch) {
          // RFC 8446 4.1.2
          //    Optionally adding, removing, or changing the length of the
          //    "padding" extension.
-         //
-         // TODO: implement the Padding extension
-         // if(newext == Padding::static_type())
-         //    continue;
+         if(newext == Extension_Code::Padding) {
+            continue;
+         }
 
          throw TLS_Exception(Alert::UnsupportedExtension, "Added an extension in updated Client Hello");
       }
@@ -419,20 +431,37 @@ void Client_Hello_13::validate_updates(const Client_Hello_13& new_ch) {
       throw TLS_Exception(Alert::IllegalParameter, "Updated Client Hello indicates early data");
    }
 
-   // TODO: Contents of extensions are not checked for update compatibility, see:
-   //
    // RFC 8446 4.1.2
-   //    If a "key_share" extension was supplied in the HelloRetryRequest,
-   //    replacing the list of shares with a list containing a single
-   //    KeyShareEntry from the indicated group.
+   //    The client MUST send the same ClientHello without modification,
+   //    except as follows: [key_share, pre_shared_key, early_data, cookie, padding]
    //
-   //    Updating the "pre_shared_key" extension if present by recomputing
-   //    the "obfuscated_ticket_age" and binder values and (optionally)
-   //    removing any PSKs which are incompatible with the server's
-   //    indicated cipher suite.
-   //
-   //    Optionally adding, removing, or changing the length of the
-   //    "padding" extension.
+   // Verify that extensions whose content must not change between the
+   // initial and retried Client Hello have identical wire encodings.
+   const std::set<Extension_Code> extensions_allowed_to_change = {
+      Extension_Code::KeyShare,
+      Extension_Code::PresharedKey,
+      Extension_Code::EarlyData,
+      Extension_Code::Cookie,
+      Extension_Code::Padding,
+   };
+
+   for(const auto ext_type : oldexts) {
+      if(extensions_allowed_to_change.contains(ext_type)) {
+         continue;
+      }
+
+      const auto old_bytes = extensions().extension_raw_bytes(ext_type);
+      const auto new_bytes = new_ch.extensions().extension_raw_bytes(ext_type);
+
+      // Both Client Hellos validated here are received from the peer and went
+      // through Extensions::deserialize, which records raw bytes for every
+      // parsed extension. A missing raw_bytes on either side would mean an
+      // extension was added by us programmatically - which shouldn't happen
+      BOTAN_ASSERT_NOMSG(old_bytes.has_value() && new_bytes.has_value());
+      if(old_bytes.value() != new_bytes.value()) {
+         throw TLS_Exception(Alert::IllegalParameter, "Extension content changed in updated Client Hello");
+      }
+   }
 }
 
 void Client_Hello_13::calculate_psk_binders(Transcript_Hash_State transcript_hash) {

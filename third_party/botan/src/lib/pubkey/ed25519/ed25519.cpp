@@ -11,6 +11,7 @@
 #include <botan/ed25519.h>
 
 #include <botan/hash.h>
+#include <botan/internal/ct_utils.h>
 #include <botan/internal/ed25519_internal.h>
 
 namespace Botan {
@@ -74,6 +75,11 @@ bool ed25519_verify(const uint8_t* m,
                     const uint8_t domain_sep[],
                     size_t domain_sep_len) {
    if((sig[63] & 0xE0) != 0x00) {
+      return false;
+   }
+
+   const uint8_t identity_element[32] = {1};
+   if(CT::is_equal(pk, identity_element, 32).as_bool()) {
       return false;
    }
 

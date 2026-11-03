@@ -98,6 +98,9 @@ size_t ffi_choose_update_size(Botan::Cipher_Mode& mode) {
 
 int botan_cipher_init(botan_cipher_t* cipher, const char* cipher_name, uint32_t flags) {
    return ffi_guard_thunk(__func__, [=]() -> int {
+      if(any_null_pointers(cipher, cipher_name)) {
+         return BOTAN_FFI_ERROR_NULL_POINTER;
+      }
       const bool encrypt_p = ((flags & BOTAN_CIPHER_INIT_FLAG_MASK_DIRECTION) == BOTAN_CIPHER_INIT_FLAG_ENCRYPT);
       const Botan::Cipher_Dir dir = encrypt_p ? Botan::Cipher_Dir::Encryption : Botan::Cipher_Dir::Decryption;
 
@@ -118,11 +121,17 @@ int botan_cipher_destroy(botan_cipher_t cipher) {
 }
 
 int botan_cipher_clear(botan_cipher_t cipher) {
-   return BOTAN_FFI_VISIT(cipher, [](auto& c) { c.clear(); });
+   return BOTAN_FFI_VISIT(cipher, [=](auto& c) {
+      cipher->buf().clear();
+      c.clear();
+   });
 }
 
 int botan_cipher_reset(botan_cipher_t cipher) {
-   return BOTAN_FFI_VISIT(cipher, [](auto& c) { c.reset(); });
+   return BOTAN_FFI_VISIT(cipher, [=](auto& c) {
+      cipher->buf().clear();
+      c.reset();
+   });
 }
 
 int botan_cipher_output_length(botan_cipher_t cipher, size_t in_len, size_t* out_len) {
@@ -135,8 +144,12 @@ int botan_cipher_output_length(botan_cipher_t cipher, size_t in_len, size_t* out
 
 int botan_cipher_query_keylen(botan_cipher_t cipher, size_t* out_minimum_keylength, size_t* out_maximum_keylength) {
    return BOTAN_FFI_VISIT(cipher, [=](const auto& c) {
-      *out_minimum_keylength = c.key_spec().minimum_keylength();
-      *out_maximum_keylength = c.key_spec().maximum_keylength();
+      if(out_minimum_keylength) {
+         *out_minimum_keylength = c.key_spec().minimum_keylength();
+      }
+      if(out_maximum_keylength) {
+         *out_maximum_keylength = c.key_spec().maximum_keylength();
+      }
    });
 }
 
@@ -158,10 +171,17 @@ int botan_cipher_get_keyspec(botan_cipher_t cipher,
 }
 
 int botan_cipher_set_key(botan_cipher_t cipher, const uint8_t* key, size_t key_len) {
+   if(key_len > 0 && key == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(cipher, [=](auto& c) { c.set_key(key, key_len); });
 }
 
 int botan_cipher_start(botan_cipher_t cipher_obj, const uint8_t* nonce, size_t nonce_len) {
+   if(nonce_len > 0 && nonce == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
    return ffi_guard_thunk(__func__, [=]() -> int {
       Botan::Cipher_Mode& cipher = safe_get(cipher_obj);
       cipher.start(nonce, nonce_len);
@@ -177,6 +197,16 @@ int botan_cipher_update(botan_cipher_t cipher_obj,
                         const uint8_t input[],
                         size_t input_size,
                         size_t* input_consumed) {
+   if(any_null_pointers(output_written, input_consumed)) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+   if(input_size > 0 && input == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+   if(output_size > 0 && output == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
    return ffi_guard_thunk(__func__, [=]() -> int {
       using namespace Botan;
       Cipher_Mode& cipher = safe_get(cipher_obj);
@@ -288,6 +318,10 @@ int botan_cipher_update(botan_cipher_t cipher_obj,
 }
 
 int botan_cipher_set_associated_data(botan_cipher_t cipher, const uint8_t* ad, size_t ad_len) {
+   if(ad_len > 0 && ad == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
    return BOTAN_FFI_VISIT(cipher, [=](auto& c) {
       if(Botan::AEAD_Mode* aead = dynamic_cast<Botan::AEAD_Mode*>(&c)) {
          aead->set_associated_data(ad, ad_len);
@@ -302,18 +336,30 @@ int botan_cipher_valid_nonce_length(botan_cipher_t cipher, size_t nl) {
 }
 
 int botan_cipher_get_default_nonce_length(botan_cipher_t cipher, size_t* nl) {
+   if(nl == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(cipher, [=](const auto& c) { *nl = c.default_nonce_length(); });
 }
 
 int botan_cipher_get_update_granularity(botan_cipher_t cipher, size_t* ug) {
+   if(ug == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(cipher, [=](const auto& /*c*/) { *ug = cipher->update_size(); });
 }
 
 int botan_cipher_get_ideal_update_granularity(botan_cipher_t cipher, size_t* ug) {
+   if(ug == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(cipher, [=](const auto& c) { *ug = c.ideal_granularity(); });
 }
 
 int botan_cipher_get_tag_length(botan_cipher_t cipher, size_t* tl) {
+   if(tl == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(cipher, [=](const auto& c) { *tl = c.tag_size(); });
 }
 

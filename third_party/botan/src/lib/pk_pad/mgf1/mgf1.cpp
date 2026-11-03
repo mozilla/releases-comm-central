@@ -15,7 +15,11 @@ namespace Botan {
 void mgf1_mask(HashFunction& hash, std::span<const uint8_t> input, std::span<uint8_t> output) {
    uint32_t counter = 0;
 
-   std::vector<uint8_t> buffer(hash.output_length());
+   const size_t hlen = hash.output_length();
+
+   BOTAN_ASSERT_NOMSG(hlen > 0);
+
+   std::vector<uint8_t> buffer(hlen);
    while(!output.empty()) {
       hash.update(input);
       hash.update_be(counter);

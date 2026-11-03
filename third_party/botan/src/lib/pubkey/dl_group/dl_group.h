@@ -126,16 +126,14 @@ class BOTAN_PUBLIC_API(2, 0) DL_Group final {
       DL_Group(const BigInt& p, const BigInt& q, const BigInt& g);
 
       /**
-      * Decode a BER-encoded DL group param
+      * Decode a DER-encoded DL group param
       */
-      DL_Group(const uint8_t ber[], size_t ber_len, DL_Group_Format format);
+      DL_Group(const uint8_t der[], size_t der_len, DL_Group_Format format) : DL_Group({der, der_len}, format) {}
 
       /**
-      * Decode a BER-encoded DL group param
+      * Decode a DER-encoded DL group param
       */
-      template <typename Alloc>
-      DL_Group(const std::vector<uint8_t, Alloc>& ber, DL_Group_Format format) :
-            DL_Group(ber.data(), ber.size(), format) {}
+      DL_Group(std::span<const uint8_t> der, DL_Group_Format format);
 
       /**
       * Get the prime p.
@@ -352,15 +350,15 @@ class BOTAN_PUBLIC_API(2, 0) DL_Group final {
       size_t estimated_strength() const;
 
       /**
-      * Decode a DER/BER encoded group into this instance.
-      * @param ber a vector containing the DER/BER encoded group
+      * Decode a DER encoded group into this instance.
+      * @param der a vector containing the DER encoded group
       * @param format the format of the encoded group
       *
       * @warning avoid this. Instead use the DL_Group constructor
       */
-      BOTAN_DEPRECATED("Use DL_Group constructor taking BER encoding")
-      void BER_decode(const std::vector<uint8_t>& ber, DL_Group_Format format) {
-         *this = DL_Group(ber, format);
+      BOTAN_DEPRECATED("Use DL_Group constructor taking DER encoding")
+      void BER_decode(const std::vector<uint8_t>& der, DL_Group_Format format) {
+         *this = DL_Group(der, format);
       }
 
       DL_Group_Source source() const;
@@ -390,8 +388,7 @@ class BOTAN_PUBLIC_API(2, 0) DL_Group final {
 
       static std::shared_ptr<DL_Group_Data> load_DL_group_info(const char* p_str, const char* g_str);
 
-      static std::shared_ptr<DL_Group_Data> BER_decode_DL_group(const uint8_t data[],
-                                                                size_t data_len,
+      static std::shared_ptr<DL_Group_Data> DER_decode_DL_group(std::span<const uint8_t> data,
                                                                 DL_Group_Format format,
                                                                 DL_Group_Source source);
 

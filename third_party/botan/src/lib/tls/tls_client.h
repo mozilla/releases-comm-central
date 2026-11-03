@@ -100,6 +100,8 @@ class BOTAN_PUBLIC_API(2, 0) Client final : public Channel {
 
       bool is_active() const override;
 
+      std::optional<std::chrono::milliseconds> next_retransmission_timeout() const override;
+
       bool is_closed() const override;
 
       bool is_closed_for_reading() const override;
@@ -134,8 +136,12 @@ class BOTAN_PUBLIC_API(2, 0) Client final : public Channel {
       Client& operator=(const Client& other) = delete;
       Client& operator=(Client&& other) = delete;
 
+#if defined(BOTAN_HAS_TLS_DOWNGRADE_SUPPORT)
+
    private:
       size_t downgrade();
+
+#endif
 
    private:
       std::unique_ptr<Channel_Impl> m_impl;

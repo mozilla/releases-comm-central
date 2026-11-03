@@ -73,6 +73,7 @@ bool passes_miller_rabin_test(const BigInt& n,
 *
 * @param n the positive integer to test
 * @param mod_n a pre-created Barrett_Reduction for n
+* @param monty_n pre-created Montgomery parameters for n
 * @param rng a random number generator
 * @param t number of tests to perform
 *
@@ -80,6 +81,7 @@ bool passes_miller_rabin_test(const BigInt& n,
 */
 bool BOTAN_TEST_API is_miller_rabin_probable_prime(const BigInt& n,
                                                    const Barrett_Reduction& mod_n,
+                                                   const Montgomery_Params& monty_n,
                                                    RandomNumberGenerator& rng,
                                                    size_t t);
 

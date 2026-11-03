@@ -35,6 +35,7 @@ class BOTAN_PUBLIC_API(2, 0) DLIES_Encryptor final : public PK_Encryptor {
       *
       * output = (ephemeral) public key + ciphertext + tag
       */
+      BOTAN_DEPRECATED("DLIES support is deprecated")
       DLIES_Encryptor(const DH_PrivateKey& own_priv_key,
                       RandomNumberGenerator& rng,
                       std::unique_ptr<KDF> kdf,
@@ -54,6 +55,7 @@ class BOTAN_PUBLIC_API(2, 0) DLIES_Encryptor final : public PK_Encryptor {
       *
       * output = (ephemeral) public key + ciphertext + tag
       */
+      BOTAN_DEPRECATED("DLIES support is deprecated")
       DLIES_Encryptor(const DH_PrivateKey& own_priv_key,
                       RandomNumberGenerator& rng,
                       std::unique_ptr<KDF> kdf,
@@ -66,6 +68,10 @@ class BOTAN_PUBLIC_API(2, 0) DLIES_Encryptor final : public PK_Encryptor {
       inline void set_other_key(const std::vector<uint8_t>& other_pub_key) { m_other_pub_key = other_pub_key; }
 
       /// Set the initialization vector for the data encryption method
+      ///
+      /// If DLIES is being used with a cipher, a fresh IV must be provided for
+      /// each message; it is not included in the serialized ciphertext and must
+      /// be conveyed separately.
       inline void set_initialization_vector(const InitializationVector& iv) { m_iv = iv; }
 
    private:
@@ -102,6 +108,7 @@ class BOTAN_PUBLIC_API(2, 0) DLIES_Decryptor final : public PK_Decryptor {
       *
       * input = (ephemeral) public key + ciphertext + tag
       */
+      BOTAN_DEPRECATED("DLIES support is deprecated")
       DLIES_Decryptor(const DH_PrivateKey& own_priv_key,
                       RandomNumberGenerator& rng,
                       std::unique_ptr<KDF> kdf,
@@ -121,6 +128,7 @@ class BOTAN_PUBLIC_API(2, 0) DLIES_Decryptor final : public PK_Decryptor {
       *
       * input = (ephemeral) public key + ciphertext + tag
       */
+      BOTAN_DEPRECATED("DLIES support is deprecated")
       DLIES_Decryptor(const DH_PrivateKey& own_priv_key,
                       RandomNumberGenerator& rng,
                       std::unique_ptr<KDF> kdf,
@@ -130,12 +138,18 @@ class BOTAN_PUBLIC_API(2, 0) DLIES_Decryptor final : public PK_Decryptor {
                       size_t mac_key_len = 20);
 
       /// Set the initialization vector for the data decryption method
+      ///
+      /// If DLIES is being used with a cipher, a fresh IV must be provided for
+      /// each message; it is not included in the serialized ciphertext and must
+      /// be conveyed separately.
       inline void set_initialization_vector(const InitializationVector& iv) { m_iv = iv; }
 
    private:
       secure_vector<uint8_t> do_decrypt(uint8_t& valid_mask, const uint8_t in[], size_t in_len) const override;
 
       size_t plaintext_length(size_t ctext_len) const override;
+
+      size_t ciphertext_length(size_t ptext_len) const override;
 
       const size_t m_pub_key_size;
       PK_Key_Agreement m_ka;

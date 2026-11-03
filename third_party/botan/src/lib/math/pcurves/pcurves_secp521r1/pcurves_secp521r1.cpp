@@ -26,6 +26,8 @@ class P521Rep final {
       constexpr static std::array<W, N> redc(const std::array<W, 2 * N>& z) {
          // Regardless of word size (32 or 64) the top word is 9 bits long
          constexpr W TOP_BITS = static_cast<W>(0x1FF);
+         // The 23 or 55 bits that should be cleared in the top word
+         constexpr W CLEARED_TOP_BITS = WordInfo<W>::max ^ TOP_BITS;
 
          /*
          * Extract the high part of z (z >> 521)
@@ -54,15 +56,28 @@ class P521Rep final {
          Since the modulus P is exactly 2**521 - 1 the only way the computed
          result can be larger than P is if the top word is larger than TOP_BITS
 
-         If this is the case then we need to conditionally subtract P
-
          Since TOP_BITS has the low 9 bits set, we can check if t[N - 1] > TOP_BITS
          by checking if t[N - 1] >> 9 has any bits set. Doing it this way is
          faster than a standard comparison since CT::Mask::is_gt requires
          several bit operations.
          */
 
-         const W need_sub = ~CT::Mask<W>::is_zero(t[N - 1] >> 9).value();
+         const W is_over_p521 = ~CT::Mask<W>::is_zero(t[N - 1] >> 9).value();
+
+         /*
+         * Also must detect/handle x == P
+         */
+         const W is_eq_p521 = [&]() {
+            W sum = WordInfo<W>::max;
+            for(size_t i = 0; i != N - 1; ++i) {
+               sum &= t[i];
+            }
+            sum &= (CLEARED_TOP_BITS | t[N - 1]);
+
+            return CT::Mask<W>::is_zero(sum ^ WordInfo<W>::max).value();
+         }();
+
+         const W need_sub = is_over_p521 | is_eq_p521;
 
          W borrow = 0;
          for(size_t i = 0; i != N - 1; ++i) {

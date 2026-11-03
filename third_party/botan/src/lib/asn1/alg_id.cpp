@@ -9,6 +9,7 @@
 
 #include <botan/ber_dec.h>
 #include <botan/der_enc.h>
+#include <botan/internal/asn1_utils.h>
 
 namespace Botan {
 
@@ -50,23 +51,12 @@ bool AlgorithmIdentifier::parameters_are_null() const {
    return (m_parameters.size() == 2 && (m_parameters[0] == 0x05) && (m_parameters[1] == 0x00));
 }
 
-bool operator==(const AlgorithmIdentifier& a1, const AlgorithmIdentifier& a2) {
-   if(a1.oid() != a2.oid()) {
-      return false;
-   }
-
-   /*
-   * Treat NULL and empty as equivalent
-   */
-   if(a1.parameters_are_null_or_empty() && a2.parameters_are_null_or_empty()) {
-      return true;
-   }
-
-   return (a1.parameters() == a2.parameters());
+bool operator==(const AlgorithmIdentifier& x, const AlgorithmIdentifier& y) {
+   return (x.oid() == y.oid() && x.parameters() == y.parameters());
 }
 
-bool operator!=(const AlgorithmIdentifier& a1, const AlgorithmIdentifier& a2) {
-   return !(a1 == a2);
+bool operator!=(const AlgorithmIdentifier& x, const AlgorithmIdentifier& y) {
+   return !(x == y);
 }
 
 /*
@@ -81,6 +71,39 @@ void AlgorithmIdentifier::encode_into(DER_Encoder& codec) const {
 */
 void AlgorithmIdentifier::decode_from(BER_Decoder& codec) {
    codec.start_sequence().decode(m_oid).raw_bytes(m_parameters).end_cons();
+
+   /*
+   * The parameters field is OPTIONAL ANY but in practice it is one of
+   * - empty
+   * - NULL
+   * - SEQUENCE
+   * - OBJECT IDENTIFIER (namedCurve)
+   * - OCTET STRING (CBC IV in PBES2)
+   *
+   * So require it be exactly one of these values. In particular this ensures that
+   * there is not any additional trailing data (eg after the SEQUENCE encoding)
+   * that might be otherwise skipped over by a reader.
+   */
+
+   const bool acceptable_parameters = [&]() {
+      if(this->parameters_are_null_or_empty()) {
+         return true;
+      }
+      if(ASN1::is_der_sequence_header(m_parameters)) {
+         return true;
+      }
+      if(ASN1::is_single_der_object(m_parameters, ASN1_Type::ObjectId, ASN1_Class::Universal)) {
+         return true;
+      }
+      if(ASN1::is_single_der_object(m_parameters, ASN1_Type::OctetString, ASN1_Class::Universal)) {
+         return true;
+      }
+      return false;
+   }();
+
+   if(!acceptable_parameters) {
+      throw Decoding_Error("AlgorithmIdentifier parameters were not NULL, a SEQUENCE, an OID, or an OCTET STRING");
+   }
 }
 
 }  // namespace Botan

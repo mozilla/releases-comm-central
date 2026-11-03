@@ -7,6 +7,7 @@
 #include <botan/internal/ec_inner_data.h>
 
 #include <botan/der_enc.h>
+#include <botan/internal/barrett.h>
 #include <botan/internal/ec_inner_pc.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/pcurves.h>
@@ -18,6 +19,7 @@
 #endif
 
 #if defined(BOTAN_HAS_XMD)
+   #include <botan/hash.h>
    #include <botan/internal/xmd.h>
 #endif
 
@@ -57,15 +59,22 @@ EC_Group_Data::EC_Group_Data(const BigInt& p,
       m_has_cofactor(m_cofactor != 1),
       m_order_is_less_than_p(m_order < p),
       m_source(source) {
+   // Verify the generator (x, y) satisfies y^2 = x^3 + a*x + b (mod p)
+   auto mod_p = Barrett_Reduction::for_public_modulus(p);
+   const BigInt y2 = mod_p.square(g_y);
+   const BigInt x3_ax_b = mod_p.reduce(mod_p.cube(g_x) + mod_p.multiply(a, g_x) + b);
+   if(y2 != x3_ax_b) {
+      throw Invalid_Argument("EC_Group generator is not on the curve");
+   }
+
    // TODO(Botan4) we can assume/assert the OID is set
    if(!m_oid.empty()) {
       DER_Encoder der(m_der_named_curve);
       der.encode(m_oid);
 
-      const std::string name = m_oid.human_name_or_empty();
-      if(!name.empty()) {
+      if(const auto name = m_oid.registered_name()) {
          // returns nullptr if unknown or not supported
-         m_pcurve = PCurve::PrimeOrderCurve::for_named_curve(name);
+         m_pcurve = PCurve::PrimeOrderCurve::for_named_curve(*name);
       }
       if(m_pcurve) {
          m_engine = EC_Group_Engine::Optimized;
@@ -372,43 +381,71 @@ std::unique_ptr<EC_Scalar_Data> EC_Group_Data::scalar_deserialize(std::span<cons
    }
 }
 
-std::unique_ptr<EC_AffinePoint_Data> EC_Group_Data::point_deserialize(std::span<const uint8_t> bytes) const {
-   // The deprecated "hybrid" point format
-   // TODO(Botan4) remove this
-   if(bytes.size() >= 1 + 2 * 4 && (bytes[0] == 0x06 || bytes[0] == 0x07)) {
-      const bool hdr_y_is_even = bytes[0] == 0x06;
-      const bool y_is_even = (bytes.back() & 0x01) == 0;
-
-      if(hdr_y_is_even == y_is_even) {
-         std::vector<uint8_t> sec1(bytes.begin(), bytes.end());
-         sec1[0] = 0x04;
-         return this->point_deserialize(sec1);
-      }
+std::unique_ptr<EC_AffinePoint_Data> EC_Group_Data::point_deserialize_uncompressed(
+   std::span<const uint8_t> bytes) const {
+   if(bytes.size() != 1 + 2 * p_bytes() || bytes[0] != 0x04) {
+      return {};
    }
 
-   try {
-      if(m_pcurve) {
-         if(auto pt = m_pcurve->deserialize_point(bytes)) {
-            return std::make_unique<EC_AffinePoint_Data_PC>(shared_from_this(), std::move(*pt));
-         } else {
-            return {};
-         }
+   if(m_pcurve) {
+      if(auto pt = m_pcurve->deserialize_point_uncompressed(bytes)) {
+         return std::make_unique<EC_AffinePoint_Data_PC>(shared_from_this(), std::move(*pt));
       } else {
+         return {};
+      }
+   } else {
 #if defined(BOTAN_HAS_LEGACY_EC_POINT)
+      try {
          auto pt = Botan::OS2ECP(bytes, m_curve);
          return std::make_unique<EC_AffinePoint_Data_BN>(shared_from_this(), std::move(pt));
-#else
-         throw Not_Implemented("Legacy EC interfaces disabled in this build configuration");
-#endif
+      } catch(...) {
+         return {};
       }
-   } catch(...) {
-      return {};
+#else
+      throw Not_Implemented("Legacy EC interfaces disabled in this build configuration");
+#endif
    }
 }
 
-namespace {
+std::unique_ptr<EC_AffinePoint_Data> EC_Group_Data::point_deserialize_compressed(std::span<const uint8_t> bytes) const {
+   if(bytes.size() != 1 + p_bytes() || (bytes[0] != 0x02 && bytes[0] != 0x03)) {
+      return {};
+   }
+
+   if(m_pcurve) {
+      if(auto pt = m_pcurve->deserialize_point_compressed(bytes)) {
+         return std::make_unique<EC_AffinePoint_Data_PC>(shared_from_this(), std::move(*pt));
+      } else {
+         return {};
+      }
+   } else {
+#if defined(BOTAN_HAS_LEGACY_EC_POINT)
+      try {
+         auto pt = Botan::OS2ECP(bytes, m_curve);
+         return std::make_unique<EC_AffinePoint_Data_BN>(shared_from_this(), std::move(pt));
+      } catch(...) {
+         return {};
+      }
+#else
+      throw Not_Implemented("Legacy EC interfaces disabled in this build configuration");
+#endif
+   }
+}
+
+std::unique_ptr<EC_AffinePoint_Data> EC_Group_Data::point_identity() const {
+   if(m_pcurve) {
+      return std::make_unique<EC_AffinePoint_Data_PC>(shared_from_this(), m_pcurve->point_identity());
+   } else {
+#if defined(BOTAN_HAS_LEGACY_EC_POINT)
+      return std::make_unique<EC_AffinePoint_Data_BN>(shared_from_this(), EC_Point(m_curve));
+#else
+      throw Not_Implemented("Legacy EC interfaces disabled in this build configuration");
+#endif
+   }
+}
 
 std::function<void(std::span<uint8_t>)> h2c_expand_message(std::string_view hash_fn,
+                                                           size_t order_bits,
                                                            std::span<const uint8_t> input,
                                                            std::span<const uint8_t> domain_sep) {
    /*
@@ -419,23 +456,68 @@ std::function<void(std::span<uint8_t>)> h2c_expand_message(std::string_view hash
       throw Not_Implemented("Hash to curve currently does not support expand_message_xof");
    }
 
-   return [=](std::span<uint8_t> uniform_bytes) {
 #if defined(BOTAN_HAS_XMD)
-      expand_message_xmd(hash_fn, uniform_bytes, input, domain_sep);
-#else
-      BOTAN_UNUSED(hash_fn, uniform_bytes, input, domain_sep);
-      throw Not_Implemented("Hash to curve is not implemented due to XMD being disabled");
-#endif
+   // Here we capture the HashFunction by shared_ptr because it will be owned by
+   // the returned std::function
+   const std::shared_ptr<HashFunction> hash = HashFunction::create_or_throw(hash_fn);
+
+   /*
+   * RFC 9380 Section 5.3.1: "The number of bits output by H MUST be b >= 2 * k,
+   * where k is the target security level in bits", as this "ensures k-bit
+   * collision resistance". Checking the hash's collision resistance estimate
+   * covers this, and also rejects hashes with known collision attacks. The
+   * target level is capped at 256 since the RFC 9380 suites for P-521 use k = 256.
+   */
+   const size_t k = std::min<size_t>((order_bits + 1) / 2, 256);
+
+   if(hash->security_level() < k) {
+      throw Invalid_Argument(fmt("Hash {} is too weak for use with a {} bit group", hash->name(), order_bits));
+   }
+
+   return [hash, input, domain_sep](std::span<uint8_t> uniform_bytes) {
+      expand_message_xmd(*hash, uniform_bytes, input, domain_sep);
    };
+#else
+   BOTAN_UNUSED(order_bits, input, domain_sep);
+   throw Not_Implemented("Hash to curve is not implemented due to XMD being disabled");
+#endif
 }
 
-}  // namespace
+bool EC_Group_Data::hash_to_curve_supported(std::string_view hash_fn) const {
+#if defined(BOTAN_HAS_XMD)
+   if(!m_pcurve || !m_pcurve->supports_hash_to_curve()) {
+      return false;
+   }
+
+   // Consistent with h2c_expand_message; XOF based expansion is not implemented
+   if(hash_fn.starts_with("SHAKE")) {
+      return false;
+   }
+
+   auto hash = HashFunction::create(hash_fn);
+   if(hash == nullptr) {
+      return false;
+   }
+
+   // The same hash strength requirement enforced by h2c_expand_message
+   const size_t k = std::min<size_t>((order_bits() + 1) / 2, 256);
+   if(hash->security_level() < k) {
+      return false;
+   }
+
+   // The same requirements enforced by expand_message_xmd
+   return hash->hash_block_size() > 0 && hash->output_length() <= hash->hash_block_size();
+#else
+   BOTAN_UNUSED(hash_fn);
+   return false;
+#endif
+}
 
 std::unique_ptr<EC_AffinePoint_Data> EC_Group_Data::point_hash_to_curve_ro(std::string_view hash_fn,
                                                                            std::span<const uint8_t> input,
                                                                            std::span<const uint8_t> domain_sep) const {
-   if(m_pcurve) {
-      auto pt = m_pcurve->hash_to_curve_ro(h2c_expand_message(hash_fn, input, domain_sep));
+   if(m_pcurve && m_pcurve->supports_hash_to_curve()) {
+      auto pt = m_pcurve->hash_to_curve_ro(h2c_expand_message(hash_fn, order_bits(), input, domain_sep));
       return std::make_unique<EC_AffinePoint_Data_PC>(shared_from_this(), m_pcurve->point_to_affine(pt));
    } else {
       throw Not_Implemented("Hash to curve is not implemented for this curve");
@@ -445,8 +527,8 @@ std::unique_ptr<EC_AffinePoint_Data> EC_Group_Data::point_hash_to_curve_ro(std::
 std::unique_ptr<EC_AffinePoint_Data> EC_Group_Data::point_hash_to_curve_nu(std::string_view hash_fn,
                                                                            std::span<const uint8_t> input,
                                                                            std::span<const uint8_t> domain_sep) const {
-   if(m_pcurve) {
-      auto pt = m_pcurve->hash_to_curve_nu(h2c_expand_message(hash_fn, input, domain_sep));
+   if(m_pcurve && m_pcurve->supports_hash_to_curve()) {
+      auto pt = m_pcurve->hash_to_curve_nu(h2c_expand_message(hash_fn, order_bits(), input, domain_sep));
       return std::make_unique<EC_AffinePoint_Data_PC>(shared_from_this(), std::move(pt));
    } else {
       throw Not_Implemented("Hash to curve is not implemented for this curve");

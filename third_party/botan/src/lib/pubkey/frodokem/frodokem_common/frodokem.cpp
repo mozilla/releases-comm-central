@@ -13,6 +13,7 @@
 #include <botan/frodokem.h>
 
 #include <botan/assert.h>
+#include <botan/pubkey.h>
 #include <botan/rng.h>
 #include <botan/xof.h>
 #include <botan/internal/buffer_slicer.h>
@@ -30,7 +31,7 @@
 
 namespace Botan {
 
-class FrodoKEM_PublicKeyInternal {
+class FrodoKEM_PublicKeyInternal final {
    public:
       FrodoKEM_PublicKeyInternal(FrodoKEMConstants constants, FrodoSeedA seed_a, FrodoMatrix b) :
             m_constants(std::move(constants)), m_seed_a(std::move(seed_a)), m_b(std::move(b)) {
@@ -56,7 +57,7 @@ class FrodoKEM_PublicKeyInternal {
       FrodoPublicKeyHash m_hash;
 };
 
-class FrodoKEM_PrivateKeyInternal {
+class FrodoKEM_PrivateKeyInternal final {
    public:
       FrodoKEM_PrivateKeyInternal(FrodoSeedS s, FrodoMatrix s_trans) :
             m_s(std::move(s)), m_s_trans(std::move(s_trans)) {}
@@ -82,7 +83,7 @@ namespace {
 
 class Frodo_KEM_Encryptor final : public PK_Ops::KEM_Encryption_with_KDF {
    public:
-      Frodo_KEM_Encryptor(std::shared_ptr<FrodoKEM_PublicKeyInternal> key, std::string_view kdf) :
+      Frodo_KEM_Encryptor(std::shared_ptr<const FrodoKEM_PublicKeyInternal> key, std::string_view kdf) :
             KEM_Encryption_with_KDF(kdf), m_public_key(std::move(key)) {}
 
       size_t raw_kem_shared_key_length() const override { return m_public_key->constants().len_sec_bytes(); }
@@ -146,13 +147,13 @@ class Frodo_KEM_Encryptor final : public PK_Ops::KEM_Encryption_with_KDF {
       }
 
    private:
-      std::shared_ptr<FrodoKEM_PublicKeyInternal> m_public_key;
+      std::shared_ptr<const FrodoKEM_PublicKeyInternal> m_public_key;
 };
 
 class Frodo_KEM_Decryptor final : public PK_Ops::KEM_Decryption_with_KDF {
    public:
-      Frodo_KEM_Decryptor(std::shared_ptr<FrodoKEM_PublicKeyInternal> public_key,
-                          std::shared_ptr<FrodoKEM_PrivateKeyInternal> private_key,
+      Frodo_KEM_Decryptor(std::shared_ptr<const FrodoKEM_PublicKeyInternal> public_key,
+                          std::shared_ptr<const FrodoKEM_PrivateKeyInternal> private_key,
                           std::string_view kdf) :
             KEM_Decryption_with_KDF(kdf), m_public_key(std::move(public_key)), m_private_key(std::move(private_key)) {}
 
@@ -220,7 +221,7 @@ class Frodo_KEM_Decryptor final : public PK_Ops::KEM_Decryption_with_KDF {
          // matrices individually in CT and CT-&& the resulting masks.
          const auto cmp = b_p.constant_time_compare(b_pp) & c.constant_time_compare(c_p);
 
-         std::vector<uint8_t> k_bar(constants.len_sec_bytes(), 0);
+         secure_vector<uint8_t> k_bar(constants.len_sec_bytes(), 0);
          CT::conditional_copy_mem(cmp, k_bar.data(), k_p.data(), m_private_key->s().data(), constants.len_sec_bytes());
 
          shake->update(encapsulated_key);
@@ -231,8 +232,8 @@ class Frodo_KEM_Decryptor final : public PK_Ops::KEM_Decryption_with_KDF {
       }
 
    private:
-      std::shared_ptr<FrodoKEM_PublicKeyInternal> m_public_key;
-      std::shared_ptr<FrodoKEM_PrivateKeyInternal> m_private_key;
+      std::shared_ptr<const FrodoKEM_PublicKeyInternal> m_public_key;
+      std::shared_ptr<const FrodoKEM_PrivateKeyInternal> m_private_key;
 };
 
 }  // namespace
@@ -258,7 +259,12 @@ FrodoKEM_PublicKey::FrodoKEM_PublicKey(std::span<const uint8_t> pub_key, FrodoKE
 }
 
 FrodoKEM_PublicKey::FrodoKEM_PublicKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> key_bits) :
-      FrodoKEM_PublicKey(key_bits, FrodoKEMMode(alg_id.oid())) {}
+      FrodoKEM_PublicKey(key_bits, FrodoKEMMode(alg_id.oid())) {
+   // The parameter set is identified by the OID; no parameters are defined.
+   if(!alg_id.parameters_are_empty()) {
+      throw Decoding_Error("Unexpected parameters for FrodoKEM public key");
+   }
+}
 
 FrodoKEM_PublicKey::FrodoKEM_PublicKey(const FrodoKEM_PublicKey& other) {
    m_public = std::make_shared<FrodoKEM_PublicKeyInternal>(
@@ -300,6 +306,10 @@ std::vector<uint8_t> FrodoKEM_PublicKey::public_key_bits() const {
 }
 
 bool FrodoKEM_PublicKey::check_key(RandomNumberGenerator& /*rng*/, bool /*strong*/) const {
+   // The public key consists of (seed_a, b) where b is a matrix of elements
+   // mod q = 2^d. Length validation is performed in the constructor, and bit
+   // unpacking naturally constrains all matrix elements to [0, 2^d - 1] which
+   // is the full valid range, leaving no further structural checks to perform.
    return true;
 }
 
@@ -370,14 +380,37 @@ FrodoKEM_PrivateKey::FrodoKEM_PrivateKey(std::span<const uint8_t> sk, FrodoKEMMo
    m_public = std::make_shared<FrodoKEM_PublicKeyInternal>(std::move(constants), std::move(seed_a), std::move(b));
    m_private = std::make_shared<FrodoKEM_PrivateKeyInternal>(std::move(s), std::move(s_trans));
 
-   BOTAN_STATE_CHECK(pkh == m_public->hash());
+   if(pkh != m_public->hash()) {
+      throw Decoding_Error("FrodoKEM embedded public key hash did not match recomputed value");
+   }
 }
 
 FrodoKEM_PrivateKey::FrodoKEM_PrivateKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> key_bits) :
-      FrodoKEM_PrivateKey(key_bits, FrodoKEMMode(alg_id.oid())) {}
+      FrodoKEM_PrivateKey(key_bits, FrodoKEMMode(alg_id.oid())) {
+   // The parameter set is identified by the OID; no parameters are defined.
+   if(!alg_id.parameters_are_empty()) {
+      throw Decoding_Error("Unexpected parameters for FrodoKEM private key");
+   }
+}
 
 std::unique_ptr<Public_Key> FrodoKEM_PrivateKey::public_key() const {
    return std::make_unique<FrodoKEM_PublicKey>(*this);
+}
+
+bool FrodoKEM_PrivateKey::check_key(RandomNumberGenerator& rng, bool strong) const {
+   if(!FrodoKEM_PublicKey::check_key(rng, strong)) {
+      return false;
+   }
+
+   if(strong) {
+      PK_KEM_Encryptor enc(*this, "Raw");
+      PK_KEM_Decryptor dec(*this, rng, "Raw");
+      const auto [c, K] = KEM_Encapsulation::destructure(enc.encrypt(rng));
+      const auto K_prime = dec.decrypt(c);
+      return K == K_prime;
+   }
+
+   return true;
 }
 
 secure_vector<uint8_t> FrodoKEM_PrivateKey::private_key_bits() const {

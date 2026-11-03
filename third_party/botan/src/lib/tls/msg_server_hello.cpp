@@ -25,7 +25,6 @@ std::vector<uint8_t> make_server_hello_random(RandomNumberGenerator& rng,
                                               Protocol_Version offered_version,
                                               Callbacks& cb,
                                               const Policy& policy) {
-   BOTAN_UNUSED(offered_version);
    auto random = make_hello_random(rng, cb, policy);
 
    // RFC 8446 4.1.3
@@ -46,7 +45,7 @@ std::vector<uint8_t> make_server_hello_random(RandomNumberGenerator& rng,
    return random;
 }
 
-Server_Hello_Internal::Server_Hello_Internal(const std::vector<uint8_t>& buf) {
+Server_Hello_Internal::Server_Hello_Internal(std::span<const uint8_t> buf) {
    if(buf.size() < 38) {
       throw Decoding_Error("Server_Hello: Packet corrupted");
    }
@@ -154,7 +153,7 @@ const Extensions& Server_Hello::extensions() const {
    return m_data->extensions();
 }
 
-Server_Hello_12_Shim::Server_Hello_12_Shim(const std::vector<uint8_t>& buf) :
+Server_Hello_12_Shim::Server_Hello_12_Shim(std::span<const uint8_t> buf) :
       Server_Hello_12_Shim(std::make_unique<Server_Hello_Internal>(buf)) {}
 
 Server_Hello_12_Shim::Server_Hello_12_Shim(std::unique_ptr<Server_Hello_Internal> data) :

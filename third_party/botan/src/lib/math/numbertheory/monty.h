@@ -105,7 +105,7 @@ class BOTAN_TEST_API Montgomery_Int final {
       /**
       * Create a zero-initialized Montgomery_Int
       */
-      explicit Montgomery_Int(const Montgomery_Params& params) : m_params(params) {}
+      explicit Montgomery_Int(const Montgomery_Params& params);
 
       /**
       * Create a Montgomery_Int from a BigInt

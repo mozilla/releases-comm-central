@@ -14,6 +14,7 @@
 #include <botan/internal/blowfish.h>
 #include <botan/internal/ct_utils.h>
 #include <botan/internal/fmt.h>
+#include <botan/internal/int_utils.h>
 #include <botan/internal/mem_utils.h>
 #include <botan/internal/parsing.h>
 
@@ -116,7 +117,8 @@ std::string make_bcrypt(std::string_view pass, std::span<const uint8_t> salt, ui
 
    // Bcrypt is defined with the key including the trailing NULL so we must copy it to a local
    // variable since std::string_view is not necessarily NULL terminated.
-   secure_vector<uint8_t> pass_w_null(pass.size() + 1);
+   const size_t pass_w_null_len = add_or_throw<size_t>(pass.size(), 1, "bcrypt password is too long");
+   secure_vector<uint8_t> pass_w_null(pass_w_null_len);
    copy_mem(std::span{pass_w_null}.first(pass.size()), as_span_of_bytes(pass));
 
    blowfish.salted_set_key(pass_w_null.data(), pass_w_null.size(), salt.data(), salt.size(), work_factor);
@@ -169,14 +171,20 @@ bool check_bcrypt(std::string_view pass, std::string_view hash) {
       return false;
    }
 
-   const uint16_t workfactor = to_uint16(hash.substr(4, 2));
+   // bcrypt workfactor spec is always two characters
+   const auto workfactor = parse_u16(hash.substr(4, 2));
+
+   // bcrypt does support larger range of workfactors, this is what make_bcrypt allows
+   if(!workfactor.has_value() || *workfactor < 4 || *workfactor > 18) {
+      return false;
+   }
 
    const std::vector<uint8_t> salt = bcrypt_base64_decode(hash.substr(7, 22));
    if(salt.size() != 16) {
       return false;
    }
 
-   const std::string compare = make_bcrypt(pass, salt, workfactor, bcrypt_version);
+   const std::string compare = make_bcrypt(pass, salt, *workfactor, bcrypt_version);
 
    return CT::is_equal(as_span_of_bytes(hash), as_span_of_bytes(compare)).as_bool();
 }

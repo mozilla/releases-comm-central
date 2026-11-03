@@ -10,6 +10,7 @@
 
 #include <botan/exceptn.h>
 #include <botan/mem_ops.h>
+#include <botan/internal/bit_ops.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/mem_utils.h>
 #include <botan/internal/time_utils.h>
@@ -106,6 +107,10 @@ void pbkdf2(MessageAuthenticationCode& prf,
 
    const size_t prf_sz = prf.output_length();
    BOTAN_ASSERT_NOMSG(prf_sz > 0);
+
+   // RFC 2898 Section 5.2: derived key length limited to (2^32 - 1) * hLen
+   const auto blocks_required = ceil_division<uint64_t>(out_len, prf_sz);
+   BOTAN_ARG_CHECK(blocks_required <= 0xFFFFFFFE, "PBKDF2 maximum output length exceeded");
 
    secure_vector<uint8_t> U(prf_sz);
 

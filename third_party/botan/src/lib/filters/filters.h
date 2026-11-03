@@ -47,6 +47,12 @@ class BOTAN_PUBLIC_API(2, 0) Buffered_Filter /* NOLINT(*-special-member-function
       */
       void write(const uint8_t in[], size_t length);
 
+      /**
+      * Write bytes into the buffered filter, which will them emit them
+      * in calls to buffered_block in the subclass
+      * @param in the input bytes
+      * @param length of in in bytes
+      */
       template <typename Alloc>
       void write(const std::vector<uint8_t, Alloc>& in, size_t length) {
          write(in.data(), length);
@@ -88,11 +94,13 @@ class BOTAN_PUBLIC_API(2, 0) Buffered_Filter /* NOLINT(*-special-member-function
       virtual void buffered_final(const uint8_t input[], size_t length) = 0;
 
       /**
+      * Return the block size of buffered inputs
       * @return block size of inputs
       */
       size_t buffered_block_size() const { return m_main_block_mod; }
 
       /**
+      * Return the current position in the buffer
       * @return current position in the buffer
       */
       size_t current_position() const { return m_buffer_pos; }
@@ -140,7 +148,7 @@ class BOTAN_PUBLIC_API(2, 0) Keyed_Filter : public Filter {
       bool valid_keylength(size_t length) const { return key_spec().valid_keylength(length); }
 
       /**
-      * @return object describing limits on key size
+      * Return object describing limitations on key size
       */
       virtual Key_Length_Specification key_spec() const = 0;
 
@@ -158,18 +166,47 @@ class BOTAN_PUBLIC_API(2, 0) Keyed_Filter : public Filter {
 class BOTAN_PUBLIC_API(2, 0) Cipher_Mode_Filter final : public Keyed_Filter,
                                                         private Buffered_Filter {
    public:
+      /**
+      * Construct a filter wrapping the given cipher mode
+      * @param t the cipher mode to use
+      */
       explicit Cipher_Mode_Filter(Cipher_Mode* t);
 
+      /**
+      * Construct a filter wrapping the given cipher mode
+      * @param t the cipher mode to use
+      */
       explicit Cipher_Mode_Filter(std::unique_ptr<Cipher_Mode> t) : Cipher_Mode_Filter(t.release()) {}
 
+      /**
+      * Set the initialization vector for this filter
+      * @param iv the initialization vector to set
+      */
       void set_iv(const InitializationVector& iv) override;
 
+      /**
+      * Set the key of this filter
+      * @param key the key to set
+      */
       void set_key(const SymmetricKey& key) override;
 
+      /**
+      * Return the key lengths supported by this filter
+      * @return the key length specification
+      */
       Key_Length_Specification key_spec() const override;
 
+      /**
+      * Check whether an IV length is valid for this filter
+      * @param length the IV length to be checked for validity
+      * @return true if the IV length is valid
+      */
       bool valid_iv_length(size_t length) const override;
 
+      /**
+      * Return a descriptive name for this filter
+      * @return the name of the underlying cipher mode
+      */
       std::string name() const override;
 
    private:
@@ -247,6 +284,10 @@ inline Keyed_Filter* get_cipher(std::string_view algo_spec,
 */
 class BOTAN_PUBLIC_API(2, 0) StreamCipher_Filter final : public Keyed_Filter {
    public:
+      /**
+      * Return a descriptive name for this filter
+      * @return the name of the underlying cipher
+      */
       std::string name() const override { return m_cipher->name(); }
 
       /**
@@ -256,6 +297,11 @@ class BOTAN_PUBLIC_API(2, 0) StreamCipher_Filter final : public Keyed_Filter {
       */
       void write(const uint8_t input[], size_t input_len) override;
 
+      /**
+      * Check whether an IV length is valid for this filter
+      * @param iv_len the IV length to be checked for validity
+      * @return true if the IV length is valid
+      */
       bool valid_iv_length(size_t iv_len) const override { return m_cipher->valid_iv_length(iv_len); }
 
       /**
@@ -270,6 +316,10 @@ class BOTAN_PUBLIC_API(2, 0) StreamCipher_Filter final : public Keyed_Filter {
       */
       void set_key(const SymmetricKey& key) override { m_cipher->set_key(key); }
 
+      /**
+      * Return the key lengths supported by this filter
+      * @return the key length specification
+      */
       Key_Length_Specification key_spec() const override { return m_cipher->key_spec(); }
 
       /**
@@ -311,10 +361,22 @@ class BOTAN_PUBLIC_API(2, 0) StreamCipher_Filter final : public Keyed_Filter {
 */
 class BOTAN_PUBLIC_API(2, 0) Hash_Filter final : public Filter {
    public:
+      /**
+      * Write a portion of a message to this filter
+      * @param input the input as a byte array
+      * @param len the length of the byte array input
+      */
       void write(const uint8_t input[], size_t len) override { m_hash->update(input, len); }
 
+      /**
+      * Complete the hash and send the digest to the next filter
+      */
       void end_msg() override;
 
+      /**
+      * Return a descriptive name for this filter
+      * @return the name of the underlying hash
+      */
       std::string name() const override { return m_hash->name(); }
 
       /**
@@ -350,10 +412,22 @@ class BOTAN_PUBLIC_API(2, 0) Hash_Filter final : public Filter {
 */
 class BOTAN_PUBLIC_API(2, 0) MAC_Filter final : public Keyed_Filter {
    public:
+      /**
+      * Write a portion of a message to this filter
+      * @param input the input as a byte array
+      * @param len the length of the byte array input
+      */
       void write(const uint8_t input[], size_t len) override { m_mac->update(input, len); }
 
+      /**
+      * Complete the MAC and send the tag to the next filter
+      */
       void end_msg() override;
 
+      /**
+      * Return a descriptive name for this filter
+      * @return the name of the underlying MAC
+      */
       std::string name() const override { return m_mac->name(); }
 
       /**
@@ -362,6 +436,10 @@ class BOTAN_PUBLIC_API(2, 0) MAC_Filter final : public Keyed_Filter {
       */
       void set_key(const SymmetricKey& key) override { m_mac->set_key(key); }
 
+      /**
+      * Return the key lengths supported by this filter
+      * @return the key length specification
+      */
       Key_Length_Specification key_spec() const override { return m_mac->key_spec(); }
 
       /**
@@ -426,14 +504,38 @@ class Decompression_Algorithm;
 */
 class BOTAN_PUBLIC_API(2, 0) Compression_Filter final : public Filter {
    public:
+      /**
+      * Begin a new message
+      */
       void start_msg() override;
+      /**
+      * Compress a portion of a message
+      * @param input the input as a byte array
+      * @param input_length the length of the byte array input
+      */
       void write(const uint8_t input[], size_t input_length) override;
+      /**
+      * Finish compressing and flush all remaining output
+      */
       void end_msg() override;
 
+      /**
+      * Flush the compression state so far to the next filter
+      */
       void flush();
 
+      /**
+      * Return a descriptive name for this filter
+      * @return the name of the underlying compression algorithm
+      */
       std::string name() const override;
 
+      /**
+      * Construct a compression filter
+      * @param type the compression algorithm to use
+      * @param compression_level the desired level of compression
+      * @param buffer_size the working buffer size
+      */
       Compression_Filter(std::string_view type, size_t compression_level, size_t buffer_size = 4096);
 
       ~Compression_Filter() override;
@@ -454,12 +556,32 @@ class BOTAN_PUBLIC_API(2, 0) Compression_Filter final : public Filter {
 */
 class BOTAN_PUBLIC_API(2, 0) Decompression_Filter final : public Filter {
    public:
+      /**
+      * Begin a new message
+      */
       void start_msg() override;
+      /**
+      * Decompress a portion of a message
+      * @param input the input as a byte array
+      * @param input_length the length of the byte array input
+      */
       void write(const uint8_t input[], size_t input_length) override;
+      /**
+      * Finish decompressing and flush all remaining output
+      */
       void end_msg() override;
 
+      /**
+      * Return a descriptive name for this filter
+      * @return the name of the underlying decompression algorithm
+      */
       std::string name() const override;
 
+      /**
+      * Construct a decompression filter
+      * @param type the decompression algorithm to use
+      * @param buffer_size the working buffer size
+      */
       BOTAN_FUTURE_EXPLICIT Decompression_Filter(std::string_view type, size_t buffer_size = 4096);
 
       ~Decompression_Filter() override;
@@ -482,6 +604,10 @@ class BOTAN_PUBLIC_API(2, 0) Decompression_Filter final : public Filter {
 */
 class BOTAN_PUBLIC_API(2, 0) Base64_Encoder final : public Filter {
    public:
+      /**
+      * Return a descriptive name for this filter
+      * @return "Base64_Encoder"
+      */
       std::string name() const override { return "Base64_Encoder"; }
 
       /**
@@ -522,6 +648,10 @@ class BOTAN_PUBLIC_API(2, 0) Base64_Encoder final : public Filter {
 */
 class BOTAN_PUBLIC_API(2, 0) Base64_Decoder final : public Filter {
    public:
+      /**
+      * Return a descriptive name for this filter
+      * @return "Base64_Decoder"
+      */
       std::string name() const override { return "Base64_Decoder"; }
 
       /**
@@ -561,9 +691,21 @@ class BOTAN_PUBLIC_API(2, 0) Hex_Encoder final : public Filter {
       */
       enum Case : uint8_t /* NOLINT(*-use-enum-class) */ { Uppercase, Lowercase };
 
+      /**
+      * Return a descriptive name for this filter
+      * @return "Hex_Encoder"
+      */
       std::string name() const override { return "Hex_Encoder"; }
 
+      /**
+      * Write a portion of a message to this filter
+      * @param in the input as a byte array
+      * @param length the length of the byte array input
+      */
       void write(const uint8_t in[], size_t length) override;
+      /**
+      * Complete the encoding and flush any buffered output
+      */
       void end_msg() override;
 
       /**
@@ -596,9 +738,21 @@ class BOTAN_PUBLIC_API(2, 0) Hex_Encoder final : public Filter {
 */
 class BOTAN_PUBLIC_API(2, 0) Hex_Decoder final : public Filter {
    public:
+      /**
+      * Return a descriptive name for this filter
+      * @return "Hex_Decoder"
+      */
       std::string name() const override { return "Hex_Decoder"; }
 
+      /**
+      * Write a portion of a message to this filter
+      * @param input the input as a byte array
+      * @param length the length of the byte array input
+      */
       void write(const uint8_t input[], size_t length) override;
+      /**
+      * Complete the decoding and flush any buffered output
+      */
       void end_msg() override;
 
       /**
@@ -619,9 +773,16 @@ class BOTAN_PUBLIC_API(2, 0) Hex_Decoder final : public Filter {
 */
 class BOTAN_PUBLIC_API(2, 0) BitBucket final : public Filter {
    public:
+      /**
+      * Discard the provided input
+      */
       void write(const uint8_t /*input*/[], size_t /*length*/) override { /* discard */
       }
 
+      /**
+      * Return a descriptive name for this filter
+      * @return "BitBucket"
+      */
       std::string name() const override { return "BitBucket"; }
 };
 
@@ -633,8 +794,17 @@ class BOTAN_PUBLIC_API(2, 0) BitBucket final : public Filter {
 
 class BOTAN_PUBLIC_API(2, 0) Chain final : public Fanout_Filter {
    public:
+      /**
+      * Pass the input through to the filters in this chain
+      * @param input the input as a byte array
+      * @param length the length of the byte array input
+      */
       void write(const uint8_t input[], size_t length) override { send(input, length); }
 
+      /**
+      * Return a descriptive name for this filter
+      * @return "Chain"
+      */
       std::string name() const override { return "Chain"; }
 
       /**
@@ -661,11 +831,24 @@ class BOTAN_PUBLIC_API(2, 0) Chain final : public Fanout_Filter {
 */
 class BOTAN_PUBLIC_API(2, 0) Fork : public Fanout_Filter {
    public:
+      /**
+      * Pass the input through to every fork
+      * @param input the input as a byte array
+      * @param length the length of the byte array input
+      */
       void write(const uint8_t input[], size_t length) override { send(input, length); }
 
+      /**
+      * Select which fork subsequent output is sent to
+      * @param n the index of the fork to select
+      */
       // NOLINTNEXTLINE(bugprone-derived-method-shadowing-base-method)
       void set_port(size_t n) { Fanout_Filter::set_port(n); }
 
+      /**
+      * Return a descriptive name for this filter
+      * @return "Fork"
+      */
       std::string name() const override { return "Fork"; }
 
       /**
@@ -696,6 +879,10 @@ class BOTAN_PUBLIC_API(2, 0) Fork : public Fanout_Filter {
 */
 class BOTAN_PUBLIC_API(2, 0) Threaded_Fork final : public Fork {
    public:
+      /**
+      * Return a descriptive name for this filter
+      * @return "Threaded_Fork"
+      */
       std::string name() const override;
 
       /**

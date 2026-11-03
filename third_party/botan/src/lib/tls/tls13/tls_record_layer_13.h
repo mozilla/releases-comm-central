@@ -11,6 +11,7 @@
 
 #include <botan/secmem.h>
 #include <botan/tls_magic.h>
+#include <memory>
 #include <optional>
 #include <span>
 #include <variant>
@@ -36,6 +37,7 @@ struct Record {
 using BytesNeeded = size_t;
 
 class Cipher_State;
+class Policy;
 
 /**
  * Implementation of the TLS 1.3 record protocol layer
@@ -45,7 +47,7 @@ class Cipher_State;
  */
 class BOTAN_TEST_API Record_Layer {
    public:
-      explicit Record_Layer(Connection_Side side);
+      Record_Layer(Connection_Side side, std::shared_ptr<const Policy> policy);
 
       template <typename ResT>
       using ReadResult = std::variant<BytesNeeded, ResT>;
@@ -79,7 +81,10 @@ class BOTAN_TEST_API Record_Layer {
        * Clears any data currently stored in the read buffer. This is typically
        * used for memory cleanup when the peer sent a CloseNotify alert.
        */
-      void clear_read_buffer() { zap(m_read_buffer); }
+      void clear_read_buffer() {
+         zap(m_read_buffer);
+         m_read_offset = 0;
+      }
 
       /**
        * Set the record size limits as negotiated by the "record_size_limit"
@@ -102,7 +107,11 @@ class BOTAN_TEST_API Record_Layer {
 
    private:
       std::vector<uint8_t> m_read_buffer;
+      size_t m_read_offset = 0;
       Connection_Side m_side;
+
+      // Queried for Record Padding as defined in RFC 9846 5.4
+      std::shared_ptr<const Policy> m_policy;
 
       // Those are either the limits set by the TLS 1.3 specification (RFC 8446),
       // or the ones negotiated via the "record_size_limit" extension (RFC 8449).

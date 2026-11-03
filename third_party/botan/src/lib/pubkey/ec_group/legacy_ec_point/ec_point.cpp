@@ -507,7 +507,7 @@ EC_Point EC_Point::mul(const BigInt& scalar) const {
       R[b].mult2(ws);
    }
 
-   if(scalar.is_negative()) {
+   if(scalar.signum() < 0) {
       R[0].negate();
    }
 
@@ -712,7 +712,7 @@ bool EC_Point::on_the_curve() const {
 }
 
 bool EC_Point::_is_x_eq_to_v_mod_order(const BigInt& v) const {
-   BOTAN_ASSERT_NOMSG(v.is_positive());
+   BOTAN_ASSERT_NOMSG(v.signum() >= 0);
 
    if(this->is_zero()) {
       return false;

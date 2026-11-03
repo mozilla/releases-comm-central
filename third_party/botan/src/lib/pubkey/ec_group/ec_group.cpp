@@ -64,6 +64,16 @@ class EC_Group_Data_Map final {
          std::shared_ptr<EC_Group_Data> data = EC_Group::EC_group_info(oid);
 
          if(data) {
+            // The requested OID may be an alias for a curve whose canonical OID differs
+            // TODO(Botan4) remove this once we require exactly one canonical OID per curve
+            if(data->oid() != oid) {
+               for(const auto& i : m_registered_curves) {
+                  if(i->oid() == data->oid()) {
+                     return i;
+                  }
+               }
+            }
+
             m_registered_curves.push_back(data);
             return data;
          }
@@ -256,15 +266,15 @@ std::shared_ptr<EC_Group_Data> EC_Group::load_EC_group_info(const char* p_str,
 }
 
 //static
-std::pair<std::shared_ptr<EC_Group_Data>, bool> EC_Group::BER_decode_EC_group(std::span<const uint8_t> bits,
+std::pair<std::shared_ptr<EC_Group_Data>, bool> EC_Group::DER_decode_EC_group(std::span<const uint8_t> der,
                                                                               EC_Group_Source source) {
-   BER_Decoder ber(bits);
+   BER_Decoder dec(der, BER_Decoder::Limits::DER());
 
-   auto next_obj_type = ber.peek_next_object().type_tag();
+   auto next_obj_type = dec.peek_next_object().type_tag();
 
    if(next_obj_type == ASN1_Type::ObjectId) {
       OID oid;
-      ber.decode(oid);
+      dec.decode(oid).verify_end();
 
       auto data = ec_group_data().lookup(oid);
       if(!data) {
@@ -281,7 +291,7 @@ std::pair<std::shared_ptr<EC_Group_Data>, bool> EC_Group::BER_decode_EC_group(st
       std::vector<uint8_t> base_pt;
       std::vector<uint8_t> seed;
 
-      ber.start_sequence()
+      dec.start_sequence()
          .decode_and_check<size_t>(1, "Unknown ECC param version code")
          .start_sequence()
          .decode_and_check(OID({1, 2, 840, 10045, 1, 1}), "Only prime ECC fields supported")
@@ -290,7 +300,7 @@ std::pair<std::shared_ptr<EC_Group_Data>, bool> EC_Group::BER_decode_EC_group(st
          .start_sequence()
          .decode_octet_string_bigint(a)
          .decode_octet_string_bigint(b)
-         .decode_optional_string(seed, ASN1_Type::BitString, ASN1_Type::BitString)
+         .decode_optional_string(seed, ASN1_Type::BitString, ASN1_Type::BitString, ASN1_Class::Universal)
          .end_cons()
          .decode(base_pt, ASN1_Type::OctetString)
          .decode(order)
@@ -303,19 +313,21 @@ std::pair<std::shared_ptr<EC_Group_Data>, bool> EC_Group::BER_decode_EC_group(st
          throw Decoding_Error("Invalid ECC cofactor parameter");
       }
 
-      if(p.bits() < 112 || p.bits() > 521 || p.is_negative()) {
+      if(p.bits() < 112 || p.bits() > 521 || p.signum() < 0) {
          throw Decoding_Error("ECC p parameter is invalid size");
       }
 
-      if(a.is_negative() || a >= p) {
+      // A can be zero
+      if(a.signum() < 0 || a >= p) {
          throw Decoding_Error("Invalid ECC a parameter");
       }
 
-      if(b <= 0 || b >= p) {
+      // B must be > 0
+      if(b.signum() <= 0 || b >= p) {
          throw Decoding_Error("Invalid ECC b parameter");
       }
 
-      if(order.is_negative() || order.is_zero() || order >= 2 * p) {
+      if(order.signum() <= 0 || order >= 2 * p) {
          throw Decoding_Error("Invalid ECC group order");
       }
 
@@ -379,7 +391,13 @@ std::pair<std::shared_ptr<EC_Group_Data>, bool> EC_Group::BER_decode_EC_group(st
          throw Decoding_Error("Invalid ECC base point");
       }
 
-      auto data = ec_group_data().lookup_or_create_without_oid(p, a, b, g_x, g_y, order, cofactor, source);
+      /*
+      * Create the group data without registering it in the global map.
+      *
+      * Applications that need persistent custom groups should register them
+      * via the relevant EC_Group constructor
+      */
+      auto data = EC_Group_Data::create(p, a, b, g_x, g_y, order, cofactor, OID(), source);
       return std::make_pair(data, true);
    } else if(next_obj_type == ASN1_Type::Null) {
       throw Decoding_Error("Decoding ImplicitCA ECC parameters is not supported");
@@ -402,7 +420,29 @@ EC_Group::EC_Group(std::shared_ptr<EC_Group_Data>&& data) : m_data(std::move(dat
 
 //static
 bool EC_Group::supports_named_group(std::string_view name) {
-   return EC_Group::known_named_groups().contains(std::string(name));
+   if(name.empty()) {
+      return false;
+   }
+
+   // Is it one of the groups compiled into the library?
+   if(EC_Group::known_named_groups().contains(std::string(name))) {
+      return true;
+   }
+
+   // Is it a custom group registered by the application?
+   if(auto oid = OID::from_name(name)) {
+      try {
+         if(ec_group_data().lookup(oid.value()) != nullptr) {
+            return true;
+         }
+      } catch(Not_Implemented&) {
+         // This would be thrown for example if the group is a known curve
+         // but the relevant module that enables it is not compiled in
+      }
+   }
+
+   // Not known
+   return false;
 }
 
 //static
@@ -464,9 +504,9 @@ EC_Group::EC_Group(std::string_view str) {
    if(m_data == nullptr) {
       if(str.size() > 30 && str.starts_with("-----BEGIN EC PARAMETERS-----")) {
          // OK try it as PEM ...
-         const auto ber = PEM_Code::decode_check_label(str, "EC PARAMETERS");
+         const auto der = PEM_Code::decode_check_label(str, "EC PARAMETERS");
 
-         auto data = BER_decode_EC_group(ber, EC_Group_Source::ExternalSource);
+         auto data = DER_decode_EC_group(der, EC_Group_Source::ExternalSource);
          this->m_data = data.first;
          this->m_explicit_encoding = data.second;
       }
@@ -479,8 +519,8 @@ EC_Group::EC_Group(std::string_view str) {
 
 //static
 EC_Group EC_Group::from_PEM(std::string_view pem) {
-   const auto ber = PEM_Code::decode_check_label(pem, "EC PARAMETERS");
-   return EC_Group(ber);
+   const auto der = PEM_Code::decode_check_label(pem, "EC PARAMETERS");
+   return EC_Group(der);
 }
 
 EC_Group::EC_Group(const BigInt& p,
@@ -491,6 +531,27 @@ EC_Group::EC_Group(const BigInt& p,
                    const BigInt& order,
                    const BigInt& cofactor,
                    const OID& oid) {
+   BOTAN_ARG_CHECK(a >= 0 && a < p, "EC_Group a is invalid");
+   BOTAN_ARG_CHECK(b > 0 && b < p, "EC_Group b is invalid");
+   BOTAN_ARG_CHECK(base_x >= 0 && base_x < p, "EC_Group base_x is invalid");
+   BOTAN_ARG_CHECK(base_y >= 0 && base_y < p, "EC_Group base_y is invalid");
+
+   auto mod_p = Barrett_Reduction::for_public_modulus(p);
+   BOTAN_ARG_CHECK(is_bailie_psw_probable_prime(p, mod_p), "EC_Group p is not prime");
+
+   auto mod_order = Barrett_Reduction::for_public_modulus(order);
+   BOTAN_ARG_CHECK(is_bailie_psw_probable_prime(order, mod_order), "EC_Group order is not prime");
+
+   // Check that 4*a^3 + 27*b^2 != 0
+   const auto discriminant = mod_p.reduce(mod_p.multiply(BigInt::from_s32(4), mod_p.cube(a)) +
+                                          mod_p.multiply(BigInt::from_s32(27), mod_p.square(b)));
+   BOTAN_ARG_CHECK(discriminant != 0, "EC_Group discriminant is invalid");
+
+   // Check that the generator (base_x,base_y) is on the curve; y^2 = x^3 + a*x + b
+   auto y2 = mod_p.square(base_y);
+   auto x3_ax_b = mod_p.reduce(mod_p.cube(base_x) + mod_p.multiply(a, base_x) + b);
+   BOTAN_ARG_CHECK(y2 == x3_ax_b, "EC_Group generator is not on the curve");
+
    if(oid.has_value()) {
       m_data = ec_group_data().lookup_or_create(
          p, a, b, base_x, base_y, order, cofactor, oid, EC_Group_Source::ExternalSource);
@@ -572,8 +633,8 @@ EC_Group::EC_Group(const OID& oid,
       ec_group_data().lookup_or_create(p, a, b, base_x, base_y, order, cofactor, oid, EC_Group_Source::ExternalSource);
 }
 
-EC_Group::EC_Group(std::span<const uint8_t> ber) {
-   auto data = BER_decode_EC_group(ber, EC_Group_Source::ExternalSource);
+EC_Group::EC_Group(std::span<const uint8_t> der) {
+   auto data = DER_decode_EC_group(der, EC_Group_Source::ExternalSource);
    m_data = data.first;
    m_explicit_encoding = data.second;
 }
@@ -684,6 +745,10 @@ EC_Group_Source EC_Group::source() const {
 
 EC_Group_Engine EC_Group::engine() const {
    return data().engine();
+}
+
+bool EC_Group::hash_to_curve_supported(std::string_view hash_fn) const {
+   return data().hash_to_curve_supported(hash_fn);
 }
 
 std::vector<uint8_t> EC_Group::DER_encode() const {
@@ -800,18 +865,34 @@ bool EC_Group::verify_group(RandomNumberGenerator& rng, bool strong) const {
       return false;
    }
 
+   // Check that the generator (g_x, g_y) is on the curve: y^2 == x^3 + a*x + b
+   const BigInt& g_x = get_g_x();
+   const BigInt& g_y = get_g_y();
+   const BigInt y2 = mod_p.square(g_y);
+   const BigInt x3_ax_b = mod_p.reduce(mod_p.cube(g_x) + mod_p.multiply(a, g_x) + b);
+   if(y2 != x3_ax_b) {
+      return false;
+   }
+
+   // Check that the generator has the claimed order: [order]G == identity,
+   auto g_pt = EC_AffinePoint::from_bigint_xy(*this, get_g_x(), get_g_y());
+   if(!g_pt) {
+      return false;
+   }
+   const auto neg_one = EC_Scalar::one(*this).negate();
+   const auto n_minus_one_g = EC_AffinePoint::g_mul(neg_one, rng);
+   if(n_minus_one_g != g_pt->negate()) {
+      return false;
+   }
+
 #if defined(BOTAN_HAS_LEGACY_EC_POINT)
-   const EC_Point& base_point = get_base_point();
-   //check if the base point is on the curve
-   if(!base_point.on_the_curve()) {
-      return false;
-   }
-   if((base_point * get_cofactor()).is_zero()) {
-      return false;
-   }
-   //check if order of the base point is correct
-   if(!(base_point * order).is_zero()) {
-      return false;
+   // Reject if [cofactor]G is the identity. pcurves does not support cofactor != 1
+   // so this can only matter when the legacy backend is in use.
+   if(has_cofactor()) {
+      const EC_Point& base_point = get_base_point();
+      if((base_point * get_cofactor()).is_zero()) {
+         return false;
+      }
    }
 #endif
 

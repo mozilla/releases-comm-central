@@ -21,7 +21,7 @@ namespace Botan {
 
 #if !defined(BOTAN_HAS_CPUID_DETECTION)
 // A no-op CPUFeature
-class BOTAN_TEST_API CPUFeature {
+class BOTAN_TEST_API CPUFeature final {
    public:
       enum Bit : uint32_t {};
 

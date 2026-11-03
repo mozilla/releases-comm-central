@@ -9,6 +9,9 @@
 #include <botan/exceptn.h>
 #include <botan/internal/fmt.h>
 
+#include <algorithm>
+#include <array>
+
 namespace Botan::TLS {
 
 std::string kdf_algo_to_string(KDF_Algo algo) {
@@ -133,43 +136,108 @@ Auth_Method auth_method_from_string(std::string_view str) {
    throw Invalid_Argument(fmt("Unknown TLS signature method '{}'", str));
 }
 
+namespace {
+
+consteval auto available_group_params() {
+   auto codes = std::array {
+#if defined(BOTAN_HAS_PCURVES_SECP256R1) || defined(BOTAN_HAS_PCURVES_GENERIC)
+      Group_Params_Code::SECP256R1,
+#endif
+
+#if defined(BOTAN_HAS_PCURVES_SECP384R1) || defined(BOTAN_HAS_PCURVES_GENERIC)
+         Group_Params_Code::SECP384R1,
+#endif
+
+#if defined(BOTAN_HAS_PCURVES_SECP521R1) || defined(BOTAN_HAS_PCURVES_GENERIC)
+         Group_Params_Code::SECP521R1,
+#endif
+
+#if defined(BOTAN_HAS_PCURVES_BRAINPOOL256R1) || defined(BOTAN_HAS_PCURVES_GENERIC)
+         Group_Params_Code::BRAINPOOL256R1, Group_Params_Code::BRAINPOOL256R1TLS13,
+#endif
+
+#if defined(BOTAN_HAS_PCURVES_BRAINPOOL384R1) || defined(BOTAN_HAS_PCURVES_GENERIC)
+         Group_Params_Code::BRAINPOOL384R1, Group_Params_Code::BRAINPOOL384R1TLS13,
+#endif
+
+#if defined(BOTAN_HAS_PCURVES_BRAINPOOL512R1) || defined(BOTAN_HAS_PCURVES_GENERIC)
+         Group_Params_Code::BRAINPOOL512R1, Group_Params_Code::BRAINPOOL512R1TLS13,
+#endif
+
+#if defined(BOTAN_HAS_X25519)
+         Group_Params_Code::X25519,
+#endif
+
+#if defined(BOTAN_HAS_X448)
+         Group_Params_Code::X448,
+#endif
+
+#if defined(BOTAN_HAS_DIFFIE_HELLMAN)
+         Group_Params_Code::FFDHE_2048, Group_Params_Code::FFDHE_3072, Group_Params_Code::FFDHE_4096,
+         Group_Params_Code::FFDHE_6144, Group_Params_Code::FFDHE_8192,
+#endif
+
+#if defined(BOTAN_HAS_ML_KEM)
+         Group_Params_Code::ML_KEM_512, Group_Params_Code::ML_KEM_768, Group_Params_Code::ML_KEM_1024,
+
+   #if defined(BOTAN_HAS_PCURVES_SECP256R1) || defined(BOTAN_HAS_PCURVES_GENERIC)
+         Group_Params_Code::HYBRID_SECP256R1_ML_KEM_768,
+   #endif
+
+   #if defined(BOTAN_HAS_PCURVES_SECP384R1) || defined(BOTAN_HAS_PCURVES_GENERIC)
+         Group_Params_Code::HYBRID_SECP384R1_ML_KEM_1024,
+   #endif
+
+   #if defined(BOTAN_HAS_X25519)
+         Group_Params_Code::HYBRID_X25519_ML_KEM_768,
+   #endif
+#endif
+
+#if defined(BOTAN_HAS_FRODOKEM)
+         Group_Params_Code::eFRODOKEM_640_SHAKE_OQS, Group_Params_Code::eFRODOKEM_976_SHAKE_OQS,
+         Group_Params_Code::eFRODOKEM_1344_SHAKE_OQS, Group_Params_Code::eFRODOKEM_640_AES_OQS,
+         Group_Params_Code::eFRODOKEM_976_AES_OQS, Group_Params_Code::eFRODOKEM_1344_AES_OQS,
+
+   #if defined(BOTAN_HAS_PCURVES_SECP256R1) || defined(BOTAN_HAS_PCURVES_GENERIC)
+         Group_Params_Code::HYBRID_SECP256R1_eFRODOKEM_640_SHAKE_OQS,
+         Group_Params_Code::HYBRID_SECP256R1_eFRODOKEM_640_AES_OQS,
+   #endif
+
+   #if defined(BOTAN_HAS_PCURVES_SECP384R1) || defined(BOTAN_HAS_PCURVES_GENERIC)
+         Group_Params_Code::HYBRID_SECP384R1_eFRODOKEM_976_SHAKE_OQS,
+         Group_Params_Code::HYBRID_SECP384R1_eFRODOKEM_976_AES_OQS,
+   #endif
+
+   #if defined(BOTAN_HAS_PCURVES_SECP521R1) || defined(BOTAN_HAS_PCURVES_GENERIC)
+         Group_Params_Code::HYBRID_SECP521R1_eFRODOKEM_1344_SHAKE_OQS,
+         Group_Params_Code::HYBRID_SECP521R1_eFRODOKEM_1344_AES_OQS,
+   #endif
+
+   #if defined(BOTAN_HAS_X25519)
+         Group_Params_Code::HYBRID_X25519_eFRODOKEM_640_SHAKE_OQS,
+         Group_Params_Code::HYBRID_X25519_eFRODOKEM_640_AES_OQS,
+   #endif
+
+   #if defined(BOTAN_HAS_X448)
+         Group_Params_Code::HYBRID_X448_eFRODOKEM_976_SHAKE_OQS, Group_Params_Code::HYBRID_X448_eFRODOKEM_976_AES_OQS,
+   #endif
+#endif
+   };
+
+   std::sort(codes.begin(), codes.end());
+
+   return codes;
+}
+
+}  // namespace
+
 bool Group_Params::is_available() const {
-#if !defined(BOTAN_HAS_X25519)
-   if(is_x25519()) {
-      return false;
+   // For group codes we recognize, check the build-time availability table.
+   // Unknown codes may be user-supplied custom groups handled via callbacks.
+   if(to_string().has_value()) {
+      static constexpr auto codes = available_group_params();
+      return std::binary_search(codes.begin(), codes.end(), this->code());
    }
-   if(is_pqc_hybrid() && pqc_hybrid_ecc() == Group_Params_Code::X25519) {
-      return false;
-   }
-#endif
-
-#if !defined(BOTAN_HAS_X448)
-   if(is_x448()) {
-      return false;
-   }
-   if(is_pqc_hybrid() && pqc_hybrid_ecc() == Group_Params_Code::X448) {
-      return false;
-   }
-#endif
-
-#if !defined(BOTAN_HAS_DIFFIE_HELLMAN)
-   if(is_in_ffdhe_range()) {
-      return false;
-   }
-#endif
-
-#if !defined(BOTAN_HAS_ML_KEM)
-   if(is_pure_ml_kem() || is_pqc_hybrid_ml_kem()) {
-      return false;
-   }
-#endif
-
-#if !defined(BOTAN_HAS_FRODOKEM)
-   if(is_pure_frodokem() || is_pqc_hybrid_frodokem()) {
-      return false;
-   }
-#endif
-
    return true;
 }
 
@@ -228,6 +296,15 @@ std::optional<Group_Params> Group_Params::from_string(std::string_view group_nam
    }
    if(group_name == "x448") {
       return Group_Params::X448;
+   }
+   if(group_name == "brainpool256r1tls13") {
+      return Group_Params::BRAINPOOL256R1TLS13;
+   }
+   if(group_name == "brainpool384r1tls13") {
+      return Group_Params::BRAINPOOL384R1TLS13;
+   }
+   if(group_name == "brainpool512r1tls13") {
+      return Group_Params::BRAINPOOL512R1TLS13;
    }
 
    if(group_name == "ffdhe/ietf/2048") {
@@ -340,6 +417,12 @@ std::optional<std::string> Group_Params::to_string() const {
          return "x25519";
       case Group_Params::X448:
          return "x448";
+      case Group_Params::BRAINPOOL256R1TLS13:
+         return "brainpool256r1tls13";
+      case Group_Params::BRAINPOOL384R1TLS13:
+         return "brainpool384r1tls13";
+      case Group_Params::BRAINPOOL512R1TLS13:
+         return "brainpool512r1tls13";
 
       case Group_Params::FFDHE_2048:
          return "ffdhe/ietf/2048";
@@ -402,6 +485,24 @@ std::optional<std::string> Group_Params::to_string() const {
 
       default:
          return std::nullopt;
+   }
+}
+
+std::optional<std::string> Group_Params::to_algorithm_spec() const {
+   switch(m_code) {
+      // Brainpool curves have two sets of code points. See RFCs 7027 and 8734.
+      case Group_Params::BRAINPOOL256R1:
+      case Group_Params::BRAINPOOL256R1TLS13:
+         return "brainpool256r1";
+      case Group_Params::BRAINPOOL384R1:
+      case Group_Params::BRAINPOOL384R1TLS13:
+         return "brainpool384r1";
+      case Group_Params::BRAINPOOL512R1:
+      case Group_Params::BRAINPOOL512R1TLS13:
+         return "brainpool512r1";
+
+      default:
+         return to_string();
    }
 }
 

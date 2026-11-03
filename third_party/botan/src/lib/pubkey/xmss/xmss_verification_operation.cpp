@@ -29,7 +29,7 @@ secure_vector<uint8_t> XMSS_Verification_Operation::root_from_signature(const XM
    adrs.set_type(XMSS_Address::Type::OTS_Hash_Address);
    adrs.set_ots_address(next_index);
 
-   const XMSS_WOTS_Parameters wots_params(params.ots_oid());
+   const XMSS_WOTS_Parameters wots_params = params.wots_parameters();
    const XMSS_WOTS_PublicKey pub_key_ots(wots_params, seed, sig.tree().ots_signature, msg, adrs, m_hash);
 
    adrs.set_type(XMSS_Address::Type::LTree_Address);

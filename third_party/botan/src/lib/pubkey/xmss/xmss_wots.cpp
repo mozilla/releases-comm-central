@@ -1,11 +1,12 @@
 /*
  * XMSS WOTS Public and Private Key
-
+ *
  * A Winternitz One Time Signature public/private key for use with
  * Extended Hash-Based Signatures.
  *
  * (C) 2016,2017,2018 Matthias Gierlings
  *     2023           René Meusel - Rohde & Schwarz Cybersecurity
+ *     2026 Jack Lloyd
  *
  * Botan is released under the Simplified BSD License (see license.txt)
  **/
@@ -21,6 +22,47 @@
 namespace Botan {
 
 namespace {
+
+/**
+* Algorithm 1 (base_w) followed by the WOTS+ checksum, as used by the
+* signing and verification routines in RFC 8391. The result is a single
+* buffer of length params.len() holding the len_1 base-w digits of the
+* message followed by the len_2 base-w digits of the checksum.
+*/
+secure_vector<uint8_t> base_w_with_checksum(const XMSS_WOTS_Parameters& params, std::span<const uint8_t> input) {
+   const size_t len_1 = params.len_1();
+   const size_t len_2 = params.len_2();
+   const size_t lg_w = params.lg_w();
+   const uint8_t mask = static_cast<uint8_t>(params.wots_parameter() - 1);
+
+   BOTAN_ASSERT_NOMSG(input.size() * 8 >= len_1 * lg_w);
+
+   secure_vector<uint8_t> result(len_1 + len_2);
+
+   size_t in = 0;
+   size_t total = 0;
+   size_t bits = 0;
+   for(size_t i = 0; i < len_1; ++i) {
+      if(bits == 0) {
+         total = input[in++];
+         bits = 8;
+      }
+      bits -= lg_w;
+      result[i] = static_cast<uint8_t>((total >> bits) & mask);
+   }
+
+   size_t csum = 0;
+   for(size_t i = 0; i < len_1; ++i) {
+      csum += params.wots_parameter() - 1 - result[i];
+   }
+
+   for(size_t i = 0; i < len_2; ++i) {
+      const size_t shift = lg_w * (len_2 - 1 - i);
+      result[len_1 + i] = static_cast<uint8_t>((csum >> shift) & mask);
+   }
+
+   return result;
+}
 
 /**
  * Algorithm 2: Chaining Function.
@@ -83,7 +125,7 @@ XMSS_WOTS_PublicKey::XMSS_WOTS_PublicKey(XMSS_WOTS_Parameters params,
                                          const XMSS_WOTS_PrivateKey& private_key,
                                          XMSS_Address adrs,
                                          XMSS_Hash& hash) :
-      XMSS_WOTS_Base(std::move(params), private_key.key_data()) {
+      XMSS_WOTS_Base(params, private_key.key_data()) {
    for(size_t i = 0; i < m_params.len(); ++i) {
       adrs.set_chain_address(static_cast<uint32_t>(i));
       chain(m_params, m_key_data[i], 0, m_params.wots_parameter() - 1, adrs, public_seed, hash);
@@ -96,10 +138,8 @@ XMSS_WOTS_PublicKey::XMSS_WOTS_PublicKey(XMSS_WOTS_Parameters params,
                                          const secure_vector<uint8_t>& msg,
                                          XMSS_Address adrs,
                                          XMSS_Hash& hash) :
-      XMSS_WOTS_Base(std::move(params), std::move(signature)) {
-   secure_vector<uint8_t> msg_digest{m_params.base_w(msg, m_params.len_1())};
-
-   m_params.append_checksum(msg_digest);
+      XMSS_WOTS_Base(params, std::move(signature)) {
+   const secure_vector<uint8_t> msg_digest = base_w_with_checksum(m_params, msg);
 
    for(size_t i = 0; i < m_params.len(); i++) {
       adrs.set_chain_address(static_cast<uint32_t>(i));
@@ -117,9 +157,7 @@ wots_keysig_t XMSS_WOTS_PrivateKey::sign(const secure_vector<uint8_t>& msg,
                                          std::span<const uint8_t> public_seed,
                                          XMSS_Address adrs,
                                          XMSS_Hash& hash) {
-   secure_vector<uint8_t> msg_digest{m_params.base_w(msg, m_params.len_1())};
-
-   m_params.append_checksum(msg_digest);
+   const secure_vector<uint8_t> msg_digest = base_w_with_checksum(m_params, msg);
    auto sig = this->key_data();
 
    for(size_t i = 0; i < m_params.len(); i++) {
@@ -135,7 +173,7 @@ XMSS_WOTS_PrivateKey::XMSS_WOTS_PrivateKey(XMSS_WOTS_Parameters params,
                                            std::span<const uint8_t> private_seed,
                                            XMSS_Address adrs,
                                            XMSS_Hash& hash) :
-      XMSS_WOTS_Base(std::move(params)) {
+      XMSS_WOTS_Base(params) {
    m_key_data.resize(m_params.len());
    for(size_t i = 0; i < m_params.len(); ++i) {
       adrs.set_chain_address(static_cast<uint32_t>(i));
@@ -149,7 +187,7 @@ XMSS_WOTS_PrivateKey::XMSS_WOTS_PrivateKey(XMSS_WOTS_Parameters params,
                                            std::span<const uint8_t> private_seed,
                                            XMSS_Address adrs,
                                            XMSS_Hash& hash) :
-      XMSS_WOTS_Base(std::move(params)) {
+      XMSS_WOTS_Base(params) {
    m_key_data.resize(m_params.len());
 
    secure_vector<uint8_t> r;

@@ -41,6 +41,7 @@ bool EC_Scalar_Data_BN::is_eq(const EC_Scalar_Data& other) const {
 }
 
 void EC_Scalar_Data_BN::assign(const EC_Scalar_Data& other) {
+   BOTAN_STATE_CHECK(other.group() == this->group());
    m_v = checked_ref(other).value();
 }
 
@@ -52,7 +53,7 @@ void EC_Scalar_Data_BN::zeroize() {
 }
 
 void EC_Scalar_Data_BN::square_self() {
-   m_group->mod_order().square(m_v);
+   m_v = m_group->mod_order().square(m_v);
 }
 
 std::unique_ptr<EC_Scalar_Data> EC_Scalar_Data_BN::negate() const {
@@ -60,11 +61,19 @@ std::unique_ptr<EC_Scalar_Data> EC_Scalar_Data_BN::negate() const {
 }
 
 std::unique_ptr<EC_Scalar_Data> EC_Scalar_Data_BN::invert() const {
-   return std::make_unique<EC_Scalar_Data_BN>(m_group, inverse_mod_public_prime(m_v, m_group->order()));
+   if(m_v.is_zero()) {
+      return std::make_unique<EC_Scalar_Data_BN>(m_group, m_v);
+   } else {
+      return std::make_unique<EC_Scalar_Data_BN>(m_group, inverse_mod_public_prime(m_v, m_group->order()));
+   }
 }
 
 std::unique_ptr<EC_Scalar_Data> EC_Scalar_Data_BN::invert_vartime() const {
-   return std::make_unique<EC_Scalar_Data_BN>(m_group, inverse_mod_public_prime(m_v, m_group->order()));
+   if(m_v.is_zero()) {
+      return std::make_unique<EC_Scalar_Data_BN>(m_group, m_v);
+   } else {
+      return std::make_unique<EC_Scalar_Data_BN>(m_group, inverse_mod_public_prime(m_v, m_group->order()));
+   }
 }
 
 std::unique_ptr<EC_Scalar_Data> EC_Scalar_Data_BN::add(const EC_Scalar_Data& other) const {

@@ -56,7 +56,9 @@ int sodium_aead_chacha20poly1305_decrypt(uint8_t ptext[],
       return -1;
    }
 
-   *ptext_len = 0;
+   if(ptext_len != nullptr) {
+      *ptext_len = 0;
+   }
 
    auto chacha20poly1305 = AEAD_Mode::create_or_throw("ChaCha20Poly1305", Cipher_Dir::Decryption);
 
@@ -74,7 +76,9 @@ int sodium_aead_chacha20poly1305_decrypt(uint8_t ptext[],
       return -1;
    }
 
-   *ptext_len = ctext_len - 16;
+   if(ptext_len != nullptr) {
+      *ptext_len = ctext_len - 16;
+   }
 
    copy_mem(ptext, buf.data(), buf.size());
    return 0;

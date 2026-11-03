@@ -50,7 +50,7 @@ BOTAN_FORCE_INLINE void d_round(
    X3 -= X7;
 }
 
-class Key_Inserter {
+class Key_Inserter final {
    public:
       Key_Inserter(const uint64_t* K, const uint64_t* T) : m_K(K), m_T(T) {}
 

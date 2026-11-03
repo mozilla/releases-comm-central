@@ -17,6 +17,8 @@
 #include <botan/internal/fmt.h>
 #include <botan/internal/workfactor.h>
 
+#include <memory>
+
 #if defined(BOTAN_HAS_LEGACY_EC_POINT)
    #include <botan/ec_point.h>
 #endif
@@ -42,6 +44,16 @@ EC_Group_Encoding default_encoding_for(const EC_Group& group) {
 }
 
 }  // namespace
+
+const AlgorithmIdentifier& EC_PublicKey::assert_algorithm_identifier(const AlgorithmIdentifier& alg_id,
+                                                                     std::string_view alg_name) {
+   if(alg_id.oid() != OID::from_string(alg_name)) {
+      throw Decoding_Error(
+         fmt("Unexpected AlgorithmIdentifier OID {} in association with {} key", alg_id.oid(), alg_name));
+   }
+
+   return alg_id;  // NOLINT(*-return-const-ref-from-parameter)
+}
 
 #if defined(BOTAN_HAS_LEGACY_EC_POINT)
 EC_PublicKey::EC_PublicKey(const EC_Group& group, const EC_Point& pub_point) {
@@ -131,21 +143,24 @@ const EC_Scalar& EC_PrivateKey::_private_key() const {
 EC_PrivateKey::EC_PrivateKey(RandomNumberGenerator& rng,
                              const EC_Group& ec_group,
                              const BigInt& x,
-                             bool with_modular_inverse) {
+                             bool with_modular_inverse) :
+      m_with_modular_inverse(with_modular_inverse) {
    auto scalar = (x.is_zero()) ? EC_Scalar::random(ec_group, rng) : EC_Scalar::from_bigint(ec_group, x);
    m_private_key = std::make_shared<EC_PrivateKey_Data>(ec_group, std::move(scalar));
    m_public_key = m_private_key->public_key(rng, with_modular_inverse);
    m_domain_encoding = default_encoding_for(domain());
 }
 
-EC_PrivateKey::EC_PrivateKey(RandomNumberGenerator& rng, const EC_Group& ec_group, bool with_modular_inverse) {
+EC_PrivateKey::EC_PrivateKey(RandomNumberGenerator& rng, const EC_Group& ec_group, bool with_modular_inverse) :
+      m_with_modular_inverse(with_modular_inverse) {
    auto scalar = EC_Scalar::random(ec_group, rng);
    m_private_key = std::make_shared<EC_PrivateKey_Data>(ec_group, std::move(scalar));
    m_public_key = m_private_key->public_key(rng, with_modular_inverse);
    m_domain_encoding = default_encoding_for(domain());
 }
 
-EC_PrivateKey::EC_PrivateKey(const EC_Group& ec_group, const EC_Scalar& x, bool with_modular_inverse) {
+EC_PrivateKey::EC_PrivateKey(const EC_Group& ec_group, const EC_Scalar& x, bool with_modular_inverse) :
+      m_with_modular_inverse(with_modular_inverse) {
    m_private_key = std::make_shared<EC_PrivateKey_Data>(ec_group, x);
    m_public_key = m_private_key->public_key(with_modular_inverse);
    m_domain_encoding = default_encoding_for(domain());
@@ -164,7 +179,7 @@ secure_vector<uint8_t> EC_PrivateKey::private_key_bits() const {
       .encode(static_cast<size_t>(1))
       .encode(raw_private_key_bits(), ASN1_Type::OctetString)
       .start_explicit_context_specific(1)
-      .encode(m_public_key->public_key().serialize_uncompressed(), ASN1_Type::BitString)
+      .encode_octet_aligned_bitstring(m_public_key->public_key().serialize_uncompressed())
       .end_cons()
       .end_cons()
       .get_contents();
@@ -172,27 +187,46 @@ secure_vector<uint8_t> EC_PrivateKey::private_key_bits() const {
 
 EC_PrivateKey::EC_PrivateKey(const AlgorithmIdentifier& alg_id,
                              std::span<const uint8_t> key_bits,
-                             bool with_modular_inverse) {
-   const EC_Group group(alg_id.parameters());
-
+                             bool with_modular_inverse) :
+      m_with_modular_inverse(with_modular_inverse) {
    OID key_parameters;
    secure_vector<uint8_t> private_key_bits;
    secure_vector<uint8_t> public_key_bits;
 
-   BER_Decoder(key_bits)
+   BER_Decoder(key_bits, BER_Decoder::Limits::DER())
       .start_sequence()
       .decode_and_check<size_t>(1, "Unknown version code for ECC key")
       .decode(private_key_bits, ASN1_Type::OctetString)
       .decode_optional(key_parameters, ASN1_Type(0), ASN1_Class::ExplicitContextSpecific)
-      .decode_optional_string(public_key_bits, ASN1_Type::BitString, 1, ASN1_Class::ExplicitContextSpecific)
-      .end_cons();
+      .decode_optional_octet_aligned_bitstring(public_key_bits, 1, ASN1_Class::ExplicitContextSpecific)
+      .end_cons()
+      .verify_end();
 
-   m_private_key = std::make_shared<EC_PrivateKey_Data>(group, private_key_bits);
+   std::unique_ptr<EC_Group> group;
+
+   if(!alg_id.parameters_are_empty()) {
+      group = std::make_unique<EC_Group>(alg_id.parameters());
+   }
+   if(!key_parameters.empty()) {
+      if(group) {
+         if(EC_Group(key_parameters) != *group) {
+            throw Invalid_Argument(
+               "Domain parameters supplied AlgorithmIdentifier does not match the ECC private key's domain parameters in EC_PrivateKey construction");
+         }
+      } else {
+         group = std::make_unique<EC_Group>(key_parameters);
+      }
+   }
+   if(!group) {
+      throw Invalid_Argument("Domain parameters are not supplied in EC_PrivateKey construction");
+   }
+
+   m_private_key = std::make_shared<EC_PrivateKey_Data>(*group, private_key_bits);
 
    if(public_key_bits.empty()) {
       m_public_key = m_private_key->public_key(with_modular_inverse);
    } else {
-      m_public_key = std::make_shared<EC_PublicKey_Data>(group, public_key_bits);
+      m_public_key = std::make_shared<EC_PublicKey_Data>(*group, public_key_bits);
    }
 
    m_domain_encoding = default_encoding_for(domain());
@@ -203,7 +237,14 @@ bool EC_PrivateKey::check_key(RandomNumberGenerator& rng, bool strong) const {
       return false;
    }
 
-   return EC_PublicKey::check_key(rng, strong);
+   if(!EC_PublicKey::check_key(rng, strong)) {
+      return false;
+   }
+
+   // Verify that the public key is consistent with the private key.
+   // For ECKCDSA/ECGDSA the derivation is g^(x^-1), for all others it is g^x.
+   auto expected = m_private_key->public_key(m_with_modular_inverse);
+   return expected->public_key() == _public_ec_point();
 }
 
 const BigInt& EC_PublicKey::get_int_field(std::string_view field) const {

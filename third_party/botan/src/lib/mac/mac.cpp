@@ -53,7 +53,9 @@ std::unique_ptr<MessageAuthenticationCode> MessageAuthenticationCode::create(std
 
 #if defined(BOTAN_HAS_BLAKE2BMAC)
    if(req.algo_name() == "Blake2b" || req.algo_name() == "BLAKE2b") {
-      return std::make_unique<BLAKE2bMAC>(req.arg_as_integer(0, 512));
+      if(provider.empty() || provider == "base") {
+         return std::make_unique<BLAKE2bMAC>(req.arg_as_integer(0, 512));
+      }
    }
 #endif
 
@@ -150,13 +152,6 @@ std::unique_ptr<MessageAuthenticationCode> MessageAuthenticationCode::create_or_
       return mac;
    }
    throw Lookup_Error("MAC", algo, provider);
-}
-
-void MessageAuthenticationCode::start_msg(std::span<const uint8_t> nonce) {
-   BOTAN_UNUSED(nonce);
-   if(!nonce.empty()) {
-      throw Invalid_IV_Length(name(), nonce.size());
-   }
 }
 
 /*

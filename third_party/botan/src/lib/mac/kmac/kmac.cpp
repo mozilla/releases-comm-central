@@ -55,6 +55,7 @@ std::string KMAC::provider() const {
 
 void KMAC::start_msg(std::span<const uint8_t> nonce) {
    assert_key_material_set();
+   m_cshake->clear();
    m_cshake->start(nonce);
    m_cshake->update(m_encoded_key);
    m_message_started = true;
@@ -70,6 +71,9 @@ void KMAC::add_data(std::span<const uint8_t> data) {
 
 void KMAC::final_result(std::span<uint8_t> output) {
    assert_key_material_set();
+   if(!m_message_started) {
+      start();
+   }
    std::array<uint8_t, keccak_max_int_encoding_size()> encoded_output_length_buffer{};
    m_cshake->update(keccak_int_right_encode(encoded_output_length_buffer, m_output_bit_length));
    m_cshake->output(output.first(output_length()));

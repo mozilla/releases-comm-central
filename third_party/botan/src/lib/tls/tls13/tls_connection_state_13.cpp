@@ -1,0 +1,46 @@
+/*
+* (C) 2026 Jack Lloyd
+*
+* Botan is released under the Simplified BSD License (see license.txt)
+*/
+
+#include <botan/internal/tls_connection_state_13.h>
+
+#include <botan/tls_extensions.h>
+#include <botan/internal/tls_handshake_state_13.h>
+
+namespace Botan::TLS {
+
+namespace {
+
+std::string extract_alpn(const Internal::Handshake_State_13_Base& state) {
+   const auto& eee = state.encrypted_extensions().extensions();
+   if(const auto* alpn = eee.get<Application_Layer_Protocol_Notification>()) {
+      return alpn->single_protocol();
+   }
+   return {};
+}
+
+}  // namespace
+
+Active_Connection_State_13::~Active_Connection_State_13() = default;
+Active_Connection_State_13::Active_Connection_State_13(Active_Connection_State_13&&) noexcept = default;
+Active_Connection_State_13& Active_Connection_State_13::operator=(Active_Connection_State_13&&) noexcept = default;
+
+Active_Connection_State_13::Active_Connection_State_13(const Internal::Handshake_State_13_Base& state,
+                                                       std::vector<X509_Certificate> peer_certs,
+                                                       std::shared_ptr<const Public_Key> peer_raw_public_key,
+                                                       std::optional<std::string> psk_identity,
+                                                       std::string sni_hostname,
+                                                       bool peer_supports_psk_dhe_ke) :
+      m_version(state.server_hello().selected_version()),
+      m_ciphersuite_code(state.server_hello().ciphersuite()),
+      m_application_protocol(extract_alpn(state)),
+      m_peer_certs(std::move(peer_certs)),
+      m_client_random(state.client_hello().random()),
+      m_psk_identity(std::move(psk_identity)),
+      m_peer_raw_public_key(std::move(peer_raw_public_key)),
+      m_sni_hostname(std::move(sni_hostname)),
+      m_peer_supports_psk_dhe_ke(peer_supports_psk_dhe_ke) {}
+
+}  // namespace Botan::TLS

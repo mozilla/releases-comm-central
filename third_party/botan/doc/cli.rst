@@ -218,6 +218,36 @@ X.509
 ``trust_roots --dn --dn-only --display``
   List the certificates in the system trust store.
 
+PKCS#12
+----------------------------------------------
+
+``pkcs12_export --output= --pass= --in-key-pass= --friendly-name= --key-cipher=PBES2-SHA256-AES256 --no-mac --cert-cipher= --mac-digest=SHA-256 --iterations=100000 key cert *ca_certs``
+  Bundle a PKCS#8 *key*, its end-entity *cert*, and optionally one or more CA
+  certificates (*ca_certs*) into a PKCS#12/PFX file. The PFX password is
+  taken from ``--pass``; if the input key is itself encrypted, its passphrase
+  is taken from ``--in-key-pass``.
+
+  ``--key-cipher`` selects the private-key encryption algorithm. Modern
+  choices (default): ``"PBES2-SHA256-AES256"``, ``"PBES2-SHA256-AES128"``.
+  Legacy interop: ``"PBE-SHA1-3DES"``, ``"PBE-SHA1-2DES"``.
+  ``--cert-cipher`` (empty by default) wraps the certificate bags in an
+  EncryptedData; leave empty for unencrypted certificates.
+  ``--mac-digest`` selects the integrity-MAC digest (``SHA-256`` default,
+  ``SHA-1`` for maximum interoperability). ``--no-mac`` omits the MAC
+  entirely (required when ``--pass`` is empty).
+
+``pkcs12_info --pass= --key-out= --cert-out= --chain-out= --out-key-pass= --out-key-cipher= --key-pbkdf-iter=100000 pfx_file``
+  Inspect a PKCS#12/PFX file. Without output arguments, prints a summary of
+  the contents (key algorithm, end-entity subject/issuer/serial/validity,
+  SHA-1 and SHA-256 fingerprints, CA chain, friendly name).
+
+  ``--key-out`` writes the extracted private key as PEM. When
+  ``--out-key-pass`` is set the key is re-encrypted with the algorithm from
+  ``--out-key-cipher`` (default ``AES-256/CBC``) using ``--key-pbkdf-iter``
+  PBKDF iterations. ``--cert-out`` writes the end-entity certificate as PEM,
+  and ``--chain-out`` writes the CA certificate chain (one PEM block per
+  cert) if any are present.
+
 TLS Server/Client
 -----------------------
 
@@ -245,20 +275,23 @@ from which a policy description will be read.
 ``tls_server cert key --port=443 --type=tcp --policy=default --dump-traces= --max-clients=0 --socket-id=0``
   Implements a testing TLS server, which allows TLS clients to connect and which
   echos any data that is sent to it. Binds to either TCP or UDP on port
-  *port*. The server uses the certificate *cert* and the respective PKCS #8
-  private key *key*. The server honors the TLS policy specified with *policy*.
-  *socket-id* is only available on FreeBSD and sets the *so_user_cookie* value
-  of the used socket.
+  *port*; if *port* is zero the operating system assigns a free port, which is
+  reported once the server is listening. The server uses the certificate *cert*
+  and the respective PKCS #8 private key *key*. The server honors the TLS policy
+  specified with *policy*. *socket-id* is only available on FreeBSD and sets the
+  *so_user_cookie* value of the used socket.
 
 ``tls_http_server cert key --port=443 --policy=default --threads=0 --max-clients=0 --session-db --session-db-pass=``
   Only available if Boost.Asio support was enabled. Provides a simple HTTP server
   which replies to all requests with an informational text output. The server
-  honors the TLS policy specified with *policy*.
+  honors the TLS policy specified with *policy*. If *port* is zero the operating
+  system assigns a free port, which is reported once the server is listening.
 
 ``tls_proxy listen_port target_host target_port server_cert server_key--policy=default --threads=0 --max-clients=0 --session-db= --session-db-pass=``
-  Only available if Boost.Asio support was enabled. Listens on a port and
-  forwards all connects to a target server specified at
-  ``target_host`` and ``target_port``.
+  Only available if Boost.Asio support was enabled. Listens on ``listen_port``
+  and forwards all connects to a target server specified at
+  ``target_host`` and ``target_port``. If ``listen_port`` is zero the operating
+  system assigns a free port, which is reported once the proxy is listening.
 
 ``tls_client_hello --hex input``
   Parse and print a TLS client hello message.

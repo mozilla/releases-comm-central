@@ -8,6 +8,7 @@
 
 #include <botan/hash.h>
 #include <botan/mem_ops.h>
+#include <botan/internal/bit_ops.h>
 #include <botan/internal/fmt.h>
 #include <botan/internal/loadstor.h>
 #include <botan/internal/mem_utils.h>
@@ -241,9 +242,27 @@ void gen_2i_addresses(uint64_t T[128],
    }
 }
 
+// Reduce random modulo Argon2 thread count (normally a power of 2)
+inline size_t mod_threads(uint32_t random, size_t threads) {
+   if(is_power_of_2(threads)) {
+      return random & static_cast<uint32_t>(threads - 1);
+   } else {
+      return random % threads;
+   }
+}
+
+// Reduce alpha modulo the lane length; always a multiple of 4 and commonly a power of 2
+inline size_t mod_lanes(uint64_t alpha, size_t lanes) {
+   if(is_power_of_2(lanes)) {
+      return static_cast<size_t>(alpha & static_cast<uint64_t>(lanes - 1));
+   } else {
+      return alpha % lanes;
+   }
+}
+
 uint32_t index_alpha(
    uint64_t random, size_t lanes, size_t segments, size_t threads, size_t n, size_t slice, size_t lane, size_t index) {
-   size_t ref_lane = static_cast<uint32_t>(random >> 32) % threads;
+   size_t ref_lane = mod_threads(static_cast<uint32_t>(random >> 32), threads);
 
    if(n == 0 && slice == 0) {
       ref_lane = lane;
@@ -272,7 +291,7 @@ uint32_t index_alpha(
    p = (p * p) >> 32;
    p = (p * m) >> 32;
 
-   return static_cast<uint32_t>(ref_lane * lanes + (s + m - (p + 1)) % lanes);
+   return static_cast<uint32_t>(ref_lane * lanes + mod_lanes(s + m - (p + 1), lanes));
 }
 
 void process_block(secure_vector<uint64_t>& B,
@@ -408,7 +427,8 @@ void Argon2::argon2(uint8_t output[],
 
    const size_t memory = (m_M / (SYNC_POINTS * m_p)) * (SYNC_POINTS * m_p);
 
-   secure_vector<uint64_t> B(memory * 1024 / 8);
+   constexpr size_t M_scale = 1024 / 8;
+   secure_vector<uint64_t> B(memory * M_scale);
 
    init_blocks(B, *blake2, H0, memory, m_p);
    process_blocks(B, m_t, memory, m_p, m_family);

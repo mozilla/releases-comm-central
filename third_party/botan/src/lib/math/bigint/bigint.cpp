@@ -43,7 +43,7 @@ BigInt BigInt::from_s32(int32_t n) {
    if(n >= 0) {
       return BigInt::from_u64(static_cast<uint64_t>(n));
    } else {
-      return -BigInt::from_u64(static_cast<uint64_t>(-n));
+      return -BigInt::from_u64(static_cast<uint64_t>(-static_cast<int64_t>(n)));
    }
 }
 
@@ -120,7 +120,7 @@ uint8_t BigInt::byte_at(size_t n) const {
 }
 
 int32_t BigInt::cmp_word(word other) const {
-   if(is_negative()) {
+   if(signum() < 0) {
       return -1;  // other is positive ...
    }
 
@@ -137,15 +137,15 @@ int32_t BigInt::cmp_word(word other) const {
 */
 int32_t BigInt::cmp(const BigInt& other, bool check_signs) const {
    if(check_signs) {
-      if(other.is_positive() && this->is_negative()) {
+      if(other.signum() >= 0 && this->signum() < 0) {
          return -1;
       }
 
-      if(other.is_negative() && this->is_positive()) {
+      if(other.signum() < 0 && this->signum() >= 0) {
          return 1;
       }
 
-      if(other.is_negative() && this->is_negative()) {
+      if(other.signum() < 0 && this->signum() < 0) {
          return (-bigint_cmp(this->_data(), this->size(), other._data(), other.size()));
       }
    }
@@ -162,15 +162,15 @@ bool BigInt::is_equal(const BigInt& other) const {
 }
 
 bool BigInt::is_less_than(const BigInt& other) const {
-   if(this->is_negative() && other.is_positive()) {
+   if(this->signum() < 0 && other.signum() >= 0) {
       return true;
    }
 
-   if(this->is_positive() && other.is_negative()) {
+   if(this->signum() >= 0 && other.signum() < 0) {
       return false;
    }
 
-   if(other.is_negative() && this->is_negative()) {
+   if(other.signum() < 0 && this->signum() < 0) {
       return bigint_ct_is_lt(other._data(), other.size(), this->_data(), this->size()).as_bool();
    }
 
@@ -265,7 +265,7 @@ uint32_t BigInt::get_substring(size_t offset, size_t length) const {
 * Convert this number to a uint32_t, if possible
 */
 uint32_t BigInt::to_u32bit() const {
-   if(is_negative()) {
+   if(signum() < 0) {
       throw Encoding_Error("BigInt::to_u32bit: Number is negative");
    }
    if(bits() > 32) {
@@ -327,7 +327,7 @@ BigInt BigInt::operator-() const {
 }
 
 size_t BigInt::reduce_below(const BigInt& p, secure_vector<word>& ws) {
-   if(p.is_negative() || this->is_negative()) {
+   if(p.signum() < 0 || this->signum() < 0) {
       throw Invalid_Argument("BigInt::reduce_below both values must be positive");
    }
 
@@ -359,7 +359,7 @@ size_t BigInt::reduce_below(const BigInt& p, secure_vector<word>& ws) {
 }
 
 void BigInt::ct_reduce_below(const BigInt& mod, secure_vector<word>& ws, size_t bound) {
-   if(mod.is_negative() || this->is_negative()) {
+   if(mod.signum() < 0 || this->signum() < 0) {
       throw Invalid_Argument("BigInt::ct_reduce_below both values must be positive");
    }
 
@@ -447,12 +447,14 @@ void BigInt::assign_from_bytes(std::span<const uint8_t> bytes) {
 }
 
 void BigInt::ct_cond_add(bool predicate, const BigInt& value) {
-   if(this->is_negative() || value.is_negative()) {
+   if(this->signum() < 0 || value.signum() < 0) {
       throw Invalid_Argument("BigInt::ct_cond_add requires both values to be positive");
    }
    const size_t v_words = value.sig_words();
 
-   this->grow_to(1 + v_words);
+   // The carry can propagate through every existing word of *this, so the
+   // output needs one slot above whichever input is wider.
+   this->grow_to(std::max(this->size(), v_words) + 1);
 
    const auto mask = CT::Mask<word>::expand(static_cast<word>(predicate)).value();
 
@@ -471,20 +473,6 @@ void BigInt::ct_cond_add(bool predicate, const BigInt& value) {
 }
 
 void BigInt::ct_shift_left(size_t shift) {
-   auto shl_bit = [](const BigInt& a, BigInt& result) {
-      BOTAN_DEBUG_ASSERT(a.size() + 1 == result.size());
-      bigint_shl2(result.mutable_data(), a._data(), a.size(), 1);
-      // shl2 may have shifted a bit into the next word, which must be dropped
-      clear_mem(result.mutable_data() + result.size() - 1, 1);
-   };
-
-   auto shl_word = [](const BigInt& a, BigInt& result) {
-      // the most significant word is not copied, aka. shifted out
-      bigint_shl2(result.mutable_data(), a._data(), a.size() - 1 /* ignore msw */, WordInfo<word>::bits);
-      // we left-shifted by a full word, the least significant word must be zero'ed
-      clear_mem(result.mutable_data(), 1);
-   };
-
    BOTAN_ASSERT_NOMSG(size() > 0);
 
    constexpr size_t bits_in_word = sizeof(word) * 8;
@@ -492,15 +480,33 @@ void BigInt::ct_shift_left(size_t shift) {
    const size_t bit_shift = shift & ((1 << ceil_log2(bits_in_word)) - 1);  // shift % bits_in_word
    const size_t iterations = std::max(size(), bits_in_word) - 1;           // uint64_t i; i << 64 is undefined behaviour
 
+   const size_t n = size();
+
+   // Workspace 1 word larger to catch overflow from bigint_shl2
+   secure_vector<word> ws(n + 1);
+
    // In every iteration, shift one bit and one word to the left and use the
    // shift results only when they are within the shift range.
-   BigInt tmp;
-   tmp.resize(size() + 1 /* to hold the shifted-out word */);
    for(size_t i = 0; i < iterations; ++i) {
-      shl_bit(*this, tmp);
-      ct_cond_assign(i < bit_shift, tmp);
-      shl_word(*this, tmp);
-      ct_cond_assign(i < word_shift, tmp);
+      // Shift left by 1 bit, dropping overflow
+      bigint_shl2(ws.data(), n + 1, _data(), n, 1);
+      ws[n] = 0;
+
+      // Conditionally assign the bit-shift result
+      const auto bmask = CT::Mask<word>::expand_bool(i < bit_shift);
+      for(size_t j = 0; j != n; ++j) {
+         m_data.set_word_at(j, bmask.select(ws[j], word_at(j)));
+      }
+
+      // Shift left by 1 word, dropping the most significant word
+      bigint_shl2(ws.data(), n + 1, _data(), n - 1 /* ignore msw */, WordInfo<word>::bits);
+      ws[0] = 0;
+
+      // Conditionally assign the word-shift result
+      const auto wmask = CT::Mask<word>::expand_bool(i < word_shift);
+      for(size_t j = 0; j != n; ++j) {
+         m_data.set_word_at(j, wmask.select(ws[j], word_at(j)));
+      }
    }
 }
 
@@ -528,7 +534,7 @@ void BigInt::ct_cond_assign(bool predicate, const BigInt& other) {
    const size_t t_words = size();
    const size_t o_words = other.size();
 
-   if(o_words < t_words) {
+   if(t_words < o_words) {
       grow_to(o_words);
    }
 

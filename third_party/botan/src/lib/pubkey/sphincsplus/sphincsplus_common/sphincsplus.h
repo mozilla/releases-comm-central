@@ -65,7 +65,7 @@ class BOTAN_PUBLIC_API(3, 1) SphincsPlus_PublicKey : public virtual Public_Key {
    protected:
       SphincsPlus_PublicKey() = default;
 
-      std::shared_ptr<SphincsPlus_PublicKeyInternal> m_public;  // NOLINT(*non-private-member-variable*)
+      std::shared_ptr<const SphincsPlus_PublicKeyInternal> m_public;  // NOLINT(*non-private-member-variable*)
 };
 
 BOTAN_DIAGNOSTIC_PUSH
@@ -112,12 +112,14 @@ class BOTAN_PUBLIC_API(3, 1) SphincsPlus_PrivateKey final : public virtual Sphin
       secure_vector<uint8_t> raw_private_key_bits() const override;
       std::unique_ptr<Public_Key> public_key() const override;
 
+      bool check_key(RandomNumberGenerator& rng, bool strong) const override;
+
       std::unique_ptr<PK_Ops::Signature> create_signature_op(RandomNumberGenerator& rng,
                                                              std::string_view params,
                                                              std::string_view provider) const override;
 
    private:
-      std::shared_ptr<SphincsPlus_PrivateKeyInternal> m_private;
+      std::shared_ptr<const SphincsPlus_PrivateKeyInternal> m_private;
 };
 
 BOTAN_DIAGNOSTIC_POP

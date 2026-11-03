@@ -27,7 +27,7 @@ class Classic_McEliece_PrivateKeyInternal;
  * - The Classic McEliece parameters
  * - The public key matrix
  */
-class BOTAN_TEST_API Classic_McEliece_PublicKeyInternal {
+class BOTAN_TEST_API Classic_McEliece_PublicKeyInternal final {
    public:
       /**
        * @brief Construct a Classic McEliece public key.
@@ -86,7 +86,7 @@ class BOTAN_TEST_API Classic_McEliece_PublicKeyInternal {
  * - The field ordering alpha
  * - The seed s for implicit rejection
  */
-class BOTAN_TEST_API Classic_McEliece_PrivateKeyInternal {
+class BOTAN_TEST_API Classic_McEliece_PrivateKeyInternal final {
    public:
       /**
        * @brief Construct a Classic McEliece private key.

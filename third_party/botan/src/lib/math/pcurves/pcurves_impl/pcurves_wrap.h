@@ -48,7 +48,9 @@ class PrimeOrderCurveImpl final : public PrimeOrderCurve {
                                         const Scalar& scalar,
                                         RandomNumberGenerator& rng) const override {
          auto tbl = WindowedBoothMulTable<C, VarPointWindowBits>(from_stash(pt));
-         auto pt_x = to_affine_x<C>(tbl.mul(from_stash(scalar), rng));
+         auto result = tbl.mul(from_stash(scalar), rng);
+         BOTAN_STATE_CHECK(!result.is_identity().as_bool());
+         auto pt_x = to_affine_x<C>(result);
          secure_vector<uint8_t> x_bytes(C::FieldElement::BYTES);
          pt_x.serialize_to(std::span<uint8_t, C::FieldElement::BYTES>{x_bytes});
          return x_bytes;
@@ -178,6 +180,7 @@ class PrimeOrderCurveImpl final : public PrimeOrderCurve {
 
       Scalar base_point_mul_x_mod_order(const Scalar& scalar, RandomNumberGenerator& rng) const override {
          auto pt = m_mul_by_g.mul(from_stash(scalar), rng);
+         BOTAN_STATE_CHECK(!pt.is_identity().as_bool());
          std::array<uint8_t, C::FieldElement::BYTES> x_bytes{};
          to_affine_x<C>(pt).serialize_to(std::span{x_bytes});
          // Reduction might be required (if unlikely)
@@ -236,15 +239,10 @@ class PrimeOrderCurveImpl final : public PrimeOrderCurve {
          }
       }
 
-      std::optional<AffinePoint> deserialize_point(std::span<const uint8_t> bytes) const override {
-         // The identity element (see SEC1 section 2.3.4)
-         // TODO(Botan4) remove this - we should reject the identity encoding
-         if(bytes.size() == 1 && bytes[0] == 0x00) {
-            return stash(C::AffinePoint::identity());
-         }
+      AffinePoint point_identity() const override { return stash(C::AffinePoint::identity()); }
 
+      std::optional<AffinePoint> deserialize_point_uncompressed(std::span<const uint8_t> bytes) const override {
          constexpr size_t FieldElementBytes = C::FieldElement::BYTES;
-         constexpr size_t CompressedBytes = C::FieldElement::BYTES + 1;
          constexpr size_t UncompressedBytes = 2 * C::FieldElement::BYTES + 1;
 
          if(bytes.size() == UncompressedBytes && bytes[0] == 0x04) {
@@ -261,7 +259,16 @@ class PrimeOrderCurveImpl final : public PrimeOrderCurve {
                   return stash(typename C::AffinePoint(*x, *y));
                }
             }
-         } else if(bytes.size() == CompressedBytes && (bytes[0] == 0x02 || bytes[0] == 0x03)) {
+         }
+
+         return {};
+      }
+
+      std::optional<AffinePoint> deserialize_point_compressed(std::span<const uint8_t> bytes) const override {
+         constexpr size_t FieldElementBytes = C::FieldElement::BYTES;
+         constexpr size_t CompressedBytes = C::FieldElement::BYTES + 1;
+
+         if(bytes.size() == CompressedBytes && (bytes[0] == 0x02 || bytes[0] == 0x03)) {
             const CT::Choice y_is_even = CT::Mask<uint8_t>::is_equal(bytes[0], 0x02).as_choice();
 
             if(auto x = C::FieldElement::deserialize(bytes.subspan(1, FieldElementBytes))) {
@@ -273,6 +280,8 @@ class PrimeOrderCurveImpl final : public PrimeOrderCurve {
 
          return {};
       }
+
+      bool supports_hash_to_curve() const override { return C::ValidForSswuHash; }
 
       AffinePoint hash_to_curve_nu(std::function<void(std::span<uint8_t>)> expand_message) const override {
          if constexpr(C::ValidForSswuHash) {

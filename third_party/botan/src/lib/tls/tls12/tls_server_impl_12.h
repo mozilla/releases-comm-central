@@ -21,7 +21,7 @@ class Server_Handshake_State;
 /**
 * SSL/TLS Server 1.2 implementation
 */
-class Server_Impl_12 : public Channel_Impl_12 {
+class Server_Impl_12 final : public Channel_Impl_12 {
    public:
       /**
       * Server initialization
@@ -52,7 +52,9 @@ class Server_Impl_12 : public Channel_Impl_12 {
                               bool is_datagram = false,
                               size_t reserved_io_buffer_size = TLS::Channel::IO_BUF_DEFAULT_SIZE);
 
+#if defined(BOTAN_HAS_TLS_DOWNGRADE_SUPPORT)
       explicit Server_Impl_12(const Channel_Impl::Downgrade_Information& downgrade_info);
+#endif
 
    private:
       /**
@@ -63,18 +65,14 @@ class Server_Impl_12 : public Channel_Impl_12 {
       */
       std::string application_protocol() const override { return m_next_protocol; }
 
-      std::vector<X509_Certificate> get_peer_cert_chain(const Handshake_State& state) const override;
-
       void initiate_handshake(Handshake_State& state, bool force_full_renegotiation) override;
 
-      void process_handshake_msg(const Handshake_State* active_state,
-                                 Handshake_State& pending_state,
+      void process_handshake_msg(Handshake_State& pending_state,
                                  Handshake_Type type,
                                  const std::vector<uint8_t>& contents,
                                  bool epoch0_restart) override;
 
-      void process_client_hello_msg(const Handshake_State* active_state,
-                                    Server_Handshake_State& pending_state,
+      void process_client_hello_msg(Server_Handshake_State& pending_state,
                                     const std::vector<uint8_t>& contents,
                                     bool epoch0_restart);
 

@@ -19,6 +19,7 @@ namespace Botan {
 class RandomNumberGenerator;
 class XMSS_Address;
 class XMSS_Hash;
+class XMSS_PublicKey_Internal;
 class XMSS_PrivateKey_Internal;
 class XMSS_Verification_Operation;
 class XMSS_WOTS_PublicKey;
@@ -46,13 +47,23 @@ class BOTAN_PUBLIC_API(2, 0) XMSS_PublicKey : public virtual Public_Key {
       XMSS_PublicKey(XMSS_Parameters::xmss_algorithm_t xmss_oid, RandomNumberGenerator& rng);
 
       /**
+       * Loads a public key from an X.509 SubjectPublicKeyInfo.
+       *
+       * Public key must be encoded as in draft-vangeest-x509-hash-sigs-03.
+       *
+       * @param alg_id the X.509 AlgorithmIdentifier
+       * @param key_bits DER encoded public key bits
+       */
+      XMSS_PublicKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> key_bits);
+
+      /**
        * Loads a public key.
        *
-       * Public key must be encoded as in RFC
-       * draft-vangeest-x509-hash-sigs-03.
+       * Public key must be encoded as in draft-vangeest-x509-hash-sigs-03.
        *
        * @param key_bits DER encoded public key bits
        */
+      BOTAN_DEPRECATED("Use the constructor taking an AlgorithmIdentifier")
       BOTAN_FUTURE_EXPLICIT XMSS_PublicKey(std::span<const uint8_t> key_bits);
 
       /**
@@ -73,11 +84,11 @@ class BOTAN_PUBLIC_API(2, 0) XMSS_PublicKey : public virtual Public_Key {
          return AlgorithmIdentifier(object_identifier(), AlgorithmIdentifier::USE_EMPTY_PARAM);
       }
 
-      bool check_key(RandomNumberGenerator& /*rng*/, bool /*strong*/) const override { return true; }
+      bool check_key(RandomNumberGenerator& rng, bool strong) const override;
 
-      size_t estimated_strength() const override { return m_xmss_params.estimated_strength(); }
+      size_t estimated_strength() const override;
 
-      size_t key_length() const override { return m_xmss_params.estimated_strength(); }
+      size_t key_length() const override;
 
       /**
        * Generates a byte sequence representing the XMSS
@@ -111,18 +122,14 @@ class BOTAN_PUBLIC_API(2, 0) XMSS_PublicKey : public virtual Public_Key {
    protected:
       friend class XMSS_Verification_Operation;
 
-      const secure_vector<uint8_t>& public_seed() const { return m_public_seed; }
+      const secure_vector<uint8_t>& public_seed() const;
 
-      const secure_vector<uint8_t>& root() const { return m_root; }
+      const secure_vector<uint8_t>& root() const;
 
-      const XMSS_Parameters& xmss_parameters() const { return m_xmss_params; }
+      const XMSS_Parameters& xmss_parameters() const;
 
-   protected:
-      std::vector<uint8_t> m_raw_key;        // NOLINT(*non-private-member-variable*)
-      XMSS_Parameters m_xmss_params;         // NOLINT(*non-private-member-variable*)
-      XMSS_WOTS_Parameters m_wots_params;    // NOLINT(*non-private-member-variable*)
-      secure_vector<uint8_t> m_root;         // NOLINT(*non-private-member-variable*)
-      secure_vector<uint8_t> m_public_seed;  // NOLINT(*non-private-member-variable*)
+   private:
+      std::shared_ptr<const XMSS_PublicKey_Internal> m_public_key;
 };
 
 template <typename>
@@ -179,11 +186,20 @@ class BOTAN_PUBLIC_API(2, 0) XMSS_PrivateKey final : public virtual XMSS_PublicK
                       WOTS_Derivation_Method wots_derivation_method = WOTS_Derivation_Method::NIST_SP800_208);
 
       /**
+       * Loads a private key from a PKCS #8 PrivateKeyInfo.
+       *
+       * @param alg_id the PKCS #8 AlgorithmIdentifier
+       * @param key_bits An XMSS private key serialized using raw_private_key().
+       **/
+      XMSS_PrivateKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> key_bits);
+
+      /**
        * Creates an XMSS_PrivateKey from a byte sequence produced by
        * raw_private_key().
        *
        * @param raw_key An XMSS private key serialized using raw_private_key().
        **/
+      BOTAN_DEPRECATED("Use the constructor taking an AlgorithmIdentifier")
       BOTAN_FUTURE_EXPLICIT XMSS_PrivateKey(std::span<const uint8_t> raw_key);
 
       /**
@@ -252,11 +268,23 @@ class BOTAN_PUBLIC_API(2, 0) XMSS_PrivateKey final : public virtual XMSS_PublicK
    private:
       friend class XMSS_Signature_Operation;
 
+      // The seeds and the precomputed Merkle root produced during key
+      // generation, used to construct the (immutable) public key before the
+      // derived private key body runs.
+      struct Keygen_Material;
+
+      XMSS_PrivateKey(XMSS_Parameters::xmss_algorithm_t xmss_algo_id,
+                      WOTS_Derivation_Method wots_derivation_method,
+                      Keygen_Material material);
+
+      static Keygen_Material generate_keygen_material(XMSS_Parameters::xmss_algorithm_t xmss_algo_id,
+                                                      RandomNumberGenerator& rng,
+                                                      WOTS_Derivation_Method wots_derivation_method);
+
       size_t reserve_unused_leaf_index();
 
       const secure_vector<uint8_t>& prf_value() const;
 
-      XMSS_WOTS_PublicKey wots_public_key_for(const XMSS_Address& adrs, XMSS_Hash& hash) const;
       XMSS_WOTS_PrivateKey wots_private_key_for(const XMSS_Address& adrs, XMSS_Hash& hash) const;
 
       /**
@@ -277,13 +305,7 @@ class BOTAN_PUBLIC_API(2, 0) XMSS_PrivateKey final : public virtual XMSS_PublicK
                                        const XMSS_Address& adrs,
                                        XMSS_Hash& hash) const;
 
-      void tree_hash_subtree(secure_vector<uint8_t>& result,
-                             size_t start_idx,
-                             size_t target_node_height,
-                             XMSS_Address& adrs,
-                             XMSS_Hash& hash) const;
-
-      std::shared_ptr<XMSS_PrivateKey_Internal> m_private;
+      std::shared_ptr<const XMSS_PrivateKey_Internal> m_private;
 };
 
 BOTAN_DIAGNOSTIC_POP

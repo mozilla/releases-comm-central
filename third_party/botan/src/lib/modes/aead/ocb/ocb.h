@@ -71,7 +71,7 @@ class BOTAN_TEST_API OCB_Mode : public AEAD_Mode /* NOLINT(*-special-member-func
       std::unique_ptr<BlockCipher> m_cipher;  // NOLINT(*non-private-member-variables*)
       std::unique_ptr<L_computer> m_L;        // NOLINT(*non-private-member-variables*)
 
-      size_t m_block_index = 0;  // NOLINT(*non-private-member-variables*)
+      uint64_t m_block_index = 0;  // NOLINT(*non-private-member-variables*)
 
       secure_vector<uint8_t> m_checksum;  // NOLINT(*non-private-member-variables*)
       secure_vector<uint8_t> m_ad_hash;   // NOLINT(*non-private-member-variables*)
@@ -101,7 +101,7 @@ class BOTAN_TEST_API OCB_Encryption final : public OCB_Mode {
       explicit OCB_Encryption(std::unique_ptr<BlockCipher> cipher, size_t tag_size = 16) :
             OCB_Mode(std::move(cipher), tag_size) {}
 
-      size_t output_length(size_t input_length) const override { return input_length + tag_size(); }
+      size_t output_length(size_t input_length) const override;
 
       size_t minimum_final_size() const override { return 0; }
 
@@ -120,10 +120,7 @@ class BOTAN_TEST_API OCB_Decryption final : public OCB_Mode {
       explicit OCB_Decryption(std::unique_ptr<BlockCipher> cipher, size_t tag_size = 16) :
             OCB_Mode(std::move(cipher), tag_size) {}
 
-      size_t output_length(size_t input_length) const override {
-         BOTAN_ASSERT(input_length >= tag_size(), "Sufficient input");
-         return input_length - tag_size();
-      }
+      size_t output_length(size_t input_length) const override;
 
       size_t minimum_final_size() const override { return tag_size(); }
 

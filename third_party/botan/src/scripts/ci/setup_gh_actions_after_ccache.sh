@@ -13,10 +13,10 @@ command -v shellcheck > /dev/null && shellcheck "$0" # Run shellcheck on this if
 set -ex
 
 TARGET="$1"
+SCRIPT_LOCATION=$(cd "$(dirname "$0")"; pwd)
 
 function build_and_install_jitterentropy() {
-    mkdir jitterentropy-library
-    curl -L "https://github.com/smuellerDD/jitterentropy-library/archive/refs/tags/v${JITTERENTROPY_VERSION}.tar.gz" | tar -xz -C .
+    "${SCRIPT_LOCATION}"/download_ci_dep.py jitterentropy --extract 'tar -xz -f {file}'
     jel_dir="$(realpath jitterentropy-library-*)"
 
     # The -DCMAKE_POLICY_VERSION_MINIMUM=3.5 directive is a workaround because
@@ -37,7 +37,7 @@ function build_and_install_esdm() {
     sudo apt-get -qq install libprotobuf-c-dev meson
 
     # download, build and install ESDM
-    curl -L "https://github.com/smuellerDD/esdm/archive/refs/tags/v${ESDM_VERSION}.tar.gz" | tar -xz -C .
+    "${SCRIPT_LOCATION}"/download_ci_dep.py esdm --extract 'tar -xz -f {file}'
     pushd "$(realpath esdm-*)"
     meson setup build -Dselinux=disabled -Dais2031=false -Dlinux-devfiles=disabled -Des_jent=disabled --prefix=/usr --libdir=lib
     meson compile -C build
@@ -47,7 +47,7 @@ function build_and_install_esdm() {
 }
 
 if type -p "apt-get"; then
-    if [ "$TARGET" = "coverage" ] || [ "$TARGET" = "clang-tidy" ]; then
+    if [ "$TARGET" = "coverage" ] || [ "$TARGET" = "clang-tidy" ] || [ "$TARGET" = "optional-rngs" ]; then
         build_and_install_jitterentropy
         build_and_install_esdm
     fi

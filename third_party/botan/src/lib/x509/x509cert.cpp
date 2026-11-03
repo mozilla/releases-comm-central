@@ -1,6 +1,6 @@
 /*
 * X.509 Certificates
-* (C) 1999-2010,2015,2017 Jack Lloyd
+* (C) 1999-2010,2015,2017,2026 Jack Lloyd
 * (C) 2016 René Korthaus, Rohde & Schwarz Cybersecurity
 *
 * Botan is released under the Simplified BSD License (see license.txt)
@@ -15,16 +15,19 @@
 #include <botan/hash.h>
 #include <botan/hex.h>
 #include <botan/pk_keys.h>
+#include <botan/uri.h>
 #include <botan/x509_ext.h>
 #include <botan/x509_key.h>
-#include <botan/internal/parsing.h>
-#include <algorithm>
+#include <botan/internal/charset.h>
 #include <sstream>
 
 namespace Botan {
 
-struct X509_Certificate_Data {
-      std::vector<uint8_t> m_serial;
+class X509_Certificate_Data final {
+   public:
+      X509_Serial_Number m_serial;
+      // TODO(Botan4) once negative serials are rejected this extra vector can go away
+      std::vector<uint8_t> m_serial_bits;
       AlgorithmIdentifier m_sig_algo_inner;
       X509_DN m_issuer_dn;
       X509_DN m_subject_dn;
@@ -35,8 +38,11 @@ struct X509_Certificate_Data {
       std::vector<uint8_t> m_subject_public_key_bits;
       std::vector<uint8_t> m_subject_public_key_bits_seq;
       std::vector<uint8_t> m_subject_public_key_bitstring;
-      std::vector<uint8_t> m_subject_public_key_bitstring_sha1;
       AlgorithmIdentifier m_subject_public_key_algid;
+
+      // TODO(Botan4) change this to std::array<uint8_t, 20> and getter to span
+      std::vector<uint8_t> m_subject_public_key_bitstring_sha1;
+      std::array<uint8_t, 32> m_subject_public_key_bitstring_sha256 = {};
 
       std::vector<uint8_t> m_v2_issuer_key_id;
       std::vector<uint8_t> m_v2_subject_key_id;
@@ -47,15 +53,22 @@ struct X509_Certificate_Data {
       std::vector<uint8_t> m_subject_key_id;
       std::vector<OID> m_cert_policies;
 
-      std::vector<std::string> m_crl_distribution_points;
-      std::vector<std::string> m_ocsp_responders;
-      std::vector<std::string> m_ca_issuers;
+      std::vector<URI> m_crl_distribution_points;
+      std::vector<URI> m_ocsp_responders;
+      std::vector<URI> m_ca_issuers;
 
+      // TODO(Botan4) change this to std::array<uint8_t, 32> and getter to span
       std::vector<uint8_t> m_issuer_dn_bits_sha256;
+      // TODO(Botan4) change this to std::array<uint8_t, 32> and getter to span
       std::vector<uint8_t> m_subject_dn_bits_sha256;
+      std::array<uint8_t, 20> m_issuer_dn_bits_sha1 = {};
+      std::array<uint8_t, 20> m_subject_dn_bits_sha1 = {};
 
       std::string m_fingerprint_sha1;
       std::string m_fingerprint_sha256;
+
+      std::array<uint8_t, 20> m_cert_data_sha1 = {};
+      std::array<uint8_t, 32> m_cert_data_sha256 = {};
 
       AlternativeName m_subject_alt_name;
       AlternativeName m_issuer_alt_name;
@@ -66,8 +79,8 @@ struct X509_Certificate_Data {
       Key_Constraints m_key_constraints;
       bool m_self_signed = false;
       bool m_is_ca_certificate = false;
-      bool m_serial_negative = false;
       bool m_subject_alt_name_exists = false;
+      bool m_skip_revocation_check = false;
 };
 
 X509_Certificate::~X509_Certificate() = default;
@@ -84,13 +97,8 @@ X509_Certificate::X509_Certificate(DataSource& src) {
    load_data(src);
 }
 
-X509_Certificate::X509_Certificate(const std::vector<uint8_t>& vec) {
-   DataSource_Memory src(vec.data(), vec.size());
-   load_data(src);
-}
-
-X509_Certificate::X509_Certificate(const uint8_t data[], size_t len) {
-   DataSource_Memory src(data, len);
+X509_Certificate::X509_Certificate(std::span<const uint8_t> in) {
+   DataSource_Memory src(in);
    load_data(src);
 }
 
@@ -106,13 +114,12 @@ namespace {
 std::unique_ptr<X509_Certificate_Data> parse_x509_cert_body(const X509_Object& obj) {
    auto data = std::make_unique<X509_Certificate_Data>();
 
-   BigInt serial_bn;
    BER_Object public_key;
    BER_Object v3_exts_data;
 
-   BER_Decoder(obj.signed_body())
+   BER_Decoder(obj.signed_body(), BER_Decoder::Limits::DER())
       .decode_optional(data->m_version, ASN1_Type(0), ASN1_Class::Constructed | ASN1_Class::ContextSpecific)
-      .decode(serial_bn)
+      .decode(data->m_serial)
       .decode(data->m_sig_algo_inner)
       .decode(data->m_issuer_dn)
       .start_sequence()
@@ -138,9 +145,7 @@ std::unique_ptr<X509_Certificate_Data> parse_x509_cert_body(const X509_Object& o
    // for general sanity convert wire version (0 based) to standards version (v1 .. v3)
    data->m_version += 1;
 
-   data->m_serial = serial_bn.serialize();
-   // crude method to save the serial's sign; will get lost during decoding, otherwise
-   data->m_serial_negative = serial_bn.is_negative();
+   data->m_serial_bits = data->m_serial.magnitude();
    data->m_subject_dn_bits = ASN1::put_in_sequence(data->m_subject_dn.get_bits());
    data->m_issuer_dn_bits = ASN1::put_in_sequence(data->m_issuer_dn.get_bits());
 
@@ -148,13 +153,16 @@ std::unique_ptr<X509_Certificate_Data> parse_x509_cert_body(const X509_Object& o
 
    data->m_subject_public_key_bits_seq = ASN1::put_in_sequence(data->m_subject_public_key_bits);
 
-   BER_Decoder(data->m_subject_public_key_bits)
+   BER_Decoder(data->m_subject_public_key_bits, BER_Decoder::Limits::DER())
       .decode(data->m_subject_public_key_algid)
-      .decode(data->m_subject_public_key_bitstring, ASN1_Type::BitString);
+      .decode_octet_aligned_bitstring(data->m_subject_public_key_bitstring)
+      .verify_end();
 
    if(v3_exts_data.is_a(3, ASN1_Class::Constructed | ASN1_Class::ContextSpecific)) {
       // Path validation will reject a v1/v2 cert with v3 extensions
-      BER_Decoder(v3_exts_data).decode(data->m_v3_extensions).verify_end();
+      BER_Decoder cert_extensions(v3_exts_data, BER_Decoder::Limits::DER());
+      data->m_v3_extensions.decode_from(cert_extensions, Extension_Context::Certificate);
+      cert_extensions.verify_end();
    } else if(v3_exts_data.is_set()) {
       throw BER_Bad_Tag("Unknown tag in X.509 cert", v3_exts_data.tagging());
    }
@@ -202,6 +210,11 @@ std::unique_ptr<X509_Certificate_Data> parse_x509_cert_body(const X509_Object& o
    }
 
    if(const auto* ext = data->m_v3_extensions.get_extension_object_as<Cert_Extension::Basic_Constraints>()) {
+      /*
+      * RFC 5280 4.2.1.9 requires that conforming CAs "MUST mark the
+      * extension [basicConstraints] as critical in such certificates"
+      * but places no such requirement on validators.
+      */
       if(ext->is_ca() == true) {
          /*
          * RFC 5280 section 4.2.1.3 requires that CAs include KeyUsage in all
@@ -214,12 +227,16 @@ std::unique_ptr<X509_Certificate_Data> parse_x509_cert_body(const X509_Object& o
             data->m_key_constraints.includes(Key_Constraints::KeyCertSign) || data->m_key_constraints.empty();
 
          /*
-         * If the extended key usages are set then we must restrict the
-         * usage in accordance with it as well.
+         * If the extended key usages are set then we must restrict the usage in
+         * accordance with it as well.
          *
-         * RFC 5280 does not define any extended key usages compatible
-         * with certificate signing, but some CAs seem to use serverAuth
-         * or clientAuth here.
+         * RFC 5280 does not define any extended key usages compatible with certificate
+         * signing, but some CAs use serverAuth, clientAuth, OCSPSigning, or AnyExtendedKeyUsage
+         * for this purpose, even though clearly all of these (besides AEKU) are invalid.
+         * This check at least allows excluding a certificate which is set for only eg
+         * timestamping or code signing, and that seems about the best we can possibly enforce.
+         * OpenSSL, BoringSSL, and Go all completely ignore EKUs in determining ability to
+         * issue certs.
          */
          const bool allowed_by_ext_ku = [](const std::vector<OID>& ext_ku) -> bool {
             if(ext_ku.empty()) {
@@ -261,45 +278,49 @@ std::unique_ptr<X509_Certificate_Data> parse_x509_cert_body(const X509_Object& o
    const auto san_oid = OID::from_string("X509v3.SubjectAlternativeName");
    data->m_subject_alt_name_exists = data->m_v3_extensions.extension_set(san_oid);
 
+   /*
+   * RFC 9608 Section 4:
+   *
+   *   If the noRevAvail certificate extension specified in this document is
+   *   present or the ocsp-nocheck certificate extension [RFC6960] is
+   *   present, then Step (a)(3) is skipped.  Otherwise, revocation status
+   *   determination of the certificate is performed.
+   */
+   data->m_skip_revocation_check =
+      data->m_v3_extensions.extension_set(Cert_Extension::NoRevocationAvailable::static_oid()) ||
+      data->m_v3_extensions.extension_set(Cert_Extension::OCSP_NoCheck::static_oid());
+
    if(const auto* ext = data->m_v3_extensions.get_extension_object_as<Cert_Extension::Certificate_Policies>()) {
       data->m_cert_policies = ext->get_policy_oids();
    }
 
    if(const auto* ext = data->m_v3_extensions.get_extension_object_as<Cert_Extension::Authority_Information_Access>()) {
-      data->m_ocsp_responders = ext->ocsp_responders();
-      data->m_ca_issuers = ext->ca_issuers();
+      data->m_ocsp_responders = ext->ocsp_responder_uris();
+      data->m_ca_issuers = ext->ca_issuer_uris();
    }
 
    if(const auto* ext = data->m_v3_extensions.get_extension_object_as<Cert_Extension::CRL_Distribution_Points>()) {
-      data->m_crl_distribution_points = ext->crl_distribution_urls();
+      data->m_crl_distribution_points = ext->crl_distribution_point_uris();
    }
 
-   // Check for self-signed vs self-issued certificates
+   /*
+   Determine if this certificate appears to be self-issued (subject == issuer).
+   This is only a heuristic used for path building so it's ok it is not precise.
+   The self-signature is verified during path validation.
+   */
    if(data->m_subject_dn == data->m_issuer_dn) {
-      if(data->m_subject_key_id.empty() == false && data->m_authority_key_id.empty() == false) {
+      if(!data->m_subject_key_id.empty() && !data->m_authority_key_id.empty()) {
+         /*
+         Both SKID and AKID are set so we can reliably determine self-signed vs
+         self-issued by comparing the two
+         */
          data->m_self_signed = (data->m_subject_key_id == data->m_authority_key_id);
       } else {
          /*
-         If a parse error or unknown algorithm is encountered, default
-         to assuming it is self signed. We have no way of being certain but
-         that is usually the default case (self-issued is rare in practice).
+         Without both SKID and AKID we can't determine with certainty. Assume
+         self-signed since that's by far the common case.
          */
          data->m_self_signed = true;
-
-         try {
-            auto pub_key = X509::load_key(data->m_subject_public_key_bits_seq);
-
-            const auto sig_status = obj.verify_signature(*pub_key);
-
-            if(sig_status.first == Certificate_Status_Code::OK ||
-               sig_status.first == Certificate_Status_Code::SIGNATURE_ALGO_UNKNOWN) {
-               data->m_self_signed = true;
-            } else {
-               data->m_self_signed = false;
-            }
-         } catch(...) {
-            // ignore errors here to allow parsing to continue
-         }
       }
    }
 
@@ -310,18 +331,31 @@ std::unique_ptr<X509_Certificate_Data> parse_x509_cert_body(const X509_Object& o
       data->m_subject_public_key_bitstring_sha1 = sha1->final_stdvec();
       // otherwise left as empty, and we will throw if subject_public_key_bitstring_sha1 is called
 
-      data->m_fingerprint_sha1 = create_hex_fingerprint(full_encoding, "SHA-1");
+      sha1->update(full_encoding);
+      sha1->final(data->m_cert_data_sha1);
+      data->m_fingerprint_sha1 = format_hex_fingerprint(data->m_cert_data_sha1);
+
+      sha1->update(data->m_issuer_dn_bits);
+      sha1->final(data->m_issuer_dn_bits_sha1);
+
+      sha1->update(data->m_subject_dn_bits);
+      sha1->final(data->m_subject_dn_bits_sha1);
    }
 
-   if(auto sha256 = HashFunction::create("SHA-256")) {
-      sha256->update(data->m_issuer_dn_bits);
-      data->m_issuer_dn_bits_sha256 = sha256->final_stdvec();
+   // SHA-256 is a hard dependency of this module
+   auto sha256 = HashFunction::create_or_throw("SHA-256");
+   sha256->update(data->m_issuer_dn_bits);
+   data->m_issuer_dn_bits_sha256 = sha256->final_stdvec();
 
-      sha256->update(data->m_subject_dn_bits);
-      data->m_subject_dn_bits_sha256 = sha256->final_stdvec();
+   sha256->update(data->m_subject_dn_bits);
+   data->m_subject_dn_bits_sha256 = sha256->final_stdvec();
 
-      data->m_fingerprint_sha256 = create_hex_fingerprint(full_encoding, "SHA-256");
-   }
+   sha256->update(full_encoding);
+   sha256->final(data->m_cert_data_sha256);
+   data->m_fingerprint_sha256 = format_hex_fingerprint(data->m_cert_data_sha256);
+
+   sha256->update(data->m_subject_public_key_bitstring);
+   sha256->final(data->m_subject_public_key_bitstring_sha256);
 
    return data;
 }
@@ -391,6 +425,10 @@ const std::vector<uint8_t>& X509_Certificate::subject_public_key_bitstring_sha1(
    return data().m_subject_public_key_bitstring_sha1;
 }
 
+std::span<const uint8_t, 32> X509_Certificate::subject_public_key_bitstring_sha256() const {
+   return data().m_subject_public_key_bitstring_sha256;
+}
+
 const std::vector<uint8_t>& X509_Certificate::authority_key_id() const {
    return data().m_authority_key_id;
 }
@@ -400,11 +438,19 @@ const std::vector<uint8_t>& X509_Certificate::subject_key_id() const {
 }
 
 const std::vector<uint8_t>& X509_Certificate::serial_number() const {
+   return data().m_serial_bits;
+}
+
+const X509_Serial_Number& X509_Certificate::serial() const {
    return data().m_serial;
 }
 
 bool X509_Certificate::is_serial_negative() const {
-   return data().m_serial_negative;
+   return data().m_serial.is_negative();
+}
+
+bool X509_Certificate::skip_revocation_check() const {
+   return data().m_skip_revocation_check;
 }
 
 const X509_DN& X509_Certificate::issuer_dn() const {
@@ -421,6 +467,17 @@ const std::vector<uint8_t>& X509_Certificate::raw_issuer_dn() const {
 
 const std::vector<uint8_t>& X509_Certificate::raw_subject_dn() const {
    return data().m_subject_dn_bits;
+}
+
+std::span<const uint8_t, 20> X509_Certificate::certificate_data_sha1() const {
+   if(data().m_fingerprint_sha1.empty()) {
+      throw Not_Implemented("SHA-1 not available");
+   }
+   return data().m_cert_data_sha1;
+}
+
+std::span<const uint8_t, 32> X509_Certificate::certificate_data_sha256() const {
+   return data().m_cert_data_sha256;
 }
 
 bool X509_Certificate::is_CA_cert() const {
@@ -527,11 +584,27 @@ bool X509_Certificate::has_ex_constraint(std::string_view ex_constraint) const {
 }
 
 bool X509_Certificate::has_ex_constraint(const OID& usage) const {
-   const std::vector<OID>& ex = extended_key_usage();
    const auto any_eku = OID::from_name("X509v3.AnyExtendedKeyUsage");
-   return std::find_if(ex.begin(), ex.end(), [&any_eku, &usage](auto& oid) {
-             return oid == usage || oid == any_eku;
-          }) != ex.end();
+   const auto ocsp_eku = OID::from_name("PKIX.OCSPSigning");
+
+   for(const auto& ext_ku : extended_key_usage()) {
+      if(ext_ku == usage) {
+         return true;
+      }
+
+      /*
+      Do not accept AnyExtendedKeyUsage for OCSP due to RFC 6960 4.2.2.2:
+
+      OCSP signing delegation SHALL be designated by the inclusion of
+      id-kp-OCSPSigning in an extended key usage certificate extension
+      included in the OCSP response signer's certificate.
+      */
+      if(ext_ku == any_eku && usage != ocsp_eku) {
+         return true;
+      }
+   }
+
+   return false;
 }
 
 /*
@@ -541,31 +614,75 @@ bool X509_Certificate::is_critical(std::string_view ex_name) const {
    return v3_extensions().critical_extension_set(OID::from_string(ex_name));
 }
 
+namespace {
+
+std::vector<std::string> uris_as_strings(const std::vector<URI>& uris) {
+   std::vector<std::string> out;
+   out.reserve(uris.size());
+   for(const auto& uri : uris) {
+      out.push_back(uri.original_input());
+   }
+   return out;
+}
+
+}  // namespace
+
 std::string X509_Certificate::ocsp_responder() const {
    if(data().m_ocsp_responders.empty()) {
       return {};
    }
-   return data().m_ocsp_responders[0];
+   return data().m_ocsp_responders[0].original_input();
 }
 
-const std::vector<std::string>& X509_Certificate::ocsp_responders() const {
+std::vector<std::string> X509_Certificate::ocsp_responders() const {
+   return uris_as_strings(data().m_ocsp_responders);
+}
+
+const std::vector<URI>& X509_Certificate::ocsp_responder_uris() const {
    return data().m_ocsp_responders;
 }
 
 std::vector<std::string> X509_Certificate::ca_issuers() const {
+   return uris_as_strings(data().m_ca_issuers);
+}
+
+const std::vector<URI>& X509_Certificate::ca_issuer_uris() const {
    return data().m_ca_issuers;
 }
 
 std::vector<std::string> X509_Certificate::crl_distribution_points() const {
+   return uris_as_strings(data().m_crl_distribution_points);
+}
+
+const std::vector<URI>& X509_Certificate::crl_distribution_point_uris() const {
    return data().m_crl_distribution_points;
 }
 
 std::string X509_Certificate::crl_distribution_point() const {
    // just returns the first (arbitrarily)
    if(!data().m_crl_distribution_points.empty()) {
-      return data().m_crl_distribution_points[0];
+      return data().m_crl_distribution_points[0].original_input();
    }
    return "";
+}
+
+std::vector<EmailAddress> X509_Certificate::subject_email_addresses() const {
+   const auto& san_emails = subject_alt_name().email_addresses();
+
+   std::vector<EmailAddress> out;
+   out.reserve(san_emails.size());
+
+   for(const auto& addr : san_emails) {
+      out.push_back(addr);
+   }
+
+   for(const auto& dn_email_str : subject_dn().get_attribute("PKCS9.EmailAddress")) {
+      if(auto parsed = EmailAddress::from_string(dn_email_str)) {
+         out.push_back(std::move(*parsed));
+      }
+   }
+
+   return out;
 }
 
 const AlternativeName& X509_Certificate::subject_alt_name() const {
@@ -579,20 +696,39 @@ const AlternativeName& X509_Certificate::issuer_alt_name() const {
 namespace {
 
 std::vector<std::string> get_cert_user_info(std::string_view req, const X509_DN& dn, const AlternativeName& alt_name) {
-   auto set_to_vector = [](const std::set<std::string>& s) -> std::vector<std::string> { return {s.begin(), s.end()}; };
-
    if(dn.has_field(req)) {
       return dn.get_attribute(req);
    } else if(req == "RFC822" || req == "Email") {
-      return set_to_vector(alt_name.email());
+      std::vector<std::string> out;
+      out.reserve(alt_name.email_addresses().size());
+      for(const auto& addr : alt_name.email_addresses()) {
+         out.push_back(addr.to_string());
+      }
+      return out;
    } else if(req == "DNS") {
-      return set_to_vector(alt_name.dns());
+      std::vector<std::string> out;
+      out.reserve(alt_name.dns_names().size());
+      for(const auto& dns : alt_name.dns_names()) {
+         out.push_back(dns.to_string());
+      }
+      return out;
    } else if(req == "URI") {
-      return set_to_vector(alt_name.uris());
+      std::vector<std::string> out;
+      out.reserve(alt_name.uri_names().size());
+      for(const auto& uri : alt_name.uri_names()) {
+         out.push_back(uri.original_input());
+      }
+      return out;
    } else if(req == "IP") {
       std::vector<std::string> ip_str;
-      for(const uint32_t ipv4 : alt_name.ipv4_address()) {
-         ip_str.push_back(ipv4_to_string(ipv4));
+      for(const auto& ipv4 : alt_name.ipv4_addresses()) {
+         ip_str.push_back(ipv4.to_string());
+      }
+      return ip_str;
+   } else if(req == "IPv6") {
+      std::vector<std::string> ip_str;
+      for(const auto& ipv6 : alt_name.ipv6_addresses()) {
+         ip_str.push_back(ipv6.to_string());
       }
       return ip_str;
    } else {
@@ -631,18 +767,26 @@ std::unique_ptr<Public_Key> X509_Certificate::load_subject_public_key() const {
    return this->subject_public_key();
 }
 
-std::vector<uint8_t> X509_Certificate::raw_issuer_dn_sha256() const {
+const std::vector<uint8_t>& X509_Certificate::raw_issuer_dn_sha256() const {
    if(data().m_issuer_dn_bits_sha256.empty()) {
       throw Encoding_Error("X509_Certificate::raw_issuer_dn_sha256 called but SHA-256 disabled in build");
    }
    return data().m_issuer_dn_bits_sha256;
 }
 
-std::vector<uint8_t> X509_Certificate::raw_subject_dn_sha256() const {
+const std::vector<uint8_t>& X509_Certificate::raw_subject_dn_sha256() const {
    if(data().m_subject_dn_bits_sha256.empty()) {
       throw Encoding_Error("X509_Certificate::raw_subject_dn_sha256 called but SHA-256 disabled in build");
    }
    return data().m_subject_dn_bits_sha256;
+}
+
+std::span<const uint8_t, 20> X509_Certificate::raw_issuer_dn_sha1() const {
+   return data().m_issuer_dn_bits_sha1;
+}
+
+std::span<const uint8_t, 20> X509_Certificate::raw_subject_dn_sha1() const {
+   return data().m_subject_dn_bits_sha1;
 }
 
 std::string X509_Certificate::fingerprint(std::string_view hash_name) const {
@@ -664,27 +808,62 @@ std::string X509_Certificate::fingerprint(std::string_view hash_name) const {
    }
 }
 
+X509_Certificate::Tag X509_Certificate::tag() const {
+   return Tag(data().m_cert_data_sha256);
+}
+
+bool X509_Certificate::matches_dns_name(const DNSName& name) const {
+   const auto& sans = subject_alt_name().dns_names();
+   if(!sans.empty()) {
+      for(const auto& san : sans) {
+         if(name.matches_wildcard(san.name())) {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   /*
+   Fall back to CN for DNS name only if no SAN is included
+   We assume if the issuer knew about SAN then they would have included
+   the DNS name there if the intention was to provide such a name.
+   */
+   if(!data().m_subject_alt_name_exists) {
+      for(const auto& cn : subject_dn().get_attribute("CN")) {
+         if(auto cn_dns = DNSName::from_san_string(cn)) {
+            if(name.matches_wildcard(cn_dns->name())) {
+               return true;
+            }
+         }
+      }
+   }
+
+   return false;
+}
+
+bool X509_Certificate::matches_ip(const IPv4Address& address) const {
+   return subject_alt_name().ipv4_addresses().contains(address);
+}
+
+bool X509_Certificate::matches_ip(const IPv6Address& address) const {
+   return subject_alt_name().ipv6_addresses().contains(address);
+}
+
 bool X509_Certificate::matches_dns_name(std::string_view name) const {
    if(name.empty()) {
       return false;
    }
 
-   if(auto req_ipv4 = string_to_ipv4(name)) {
-      const auto& ipv4_names = subject_alt_name().ipv4_address();
-      return ipv4_names.contains(req_ipv4.value());
-   } else {
-      auto issued_names = subject_info("DNS");
+   if(auto req_ipv4 = IPv4Address::from_string(name)) {
+      return matches_ip(*req_ipv4);
+   }
 
-      // Fall back to CN only if no SAN is included
-      if(!data().m_subject_alt_name_exists) {
-         issued_names = subject_info("Name");
-      }
+   if(auto req_ipv6 = IPv6Address::from_string(name)) {
+      return matches_ip(*req_ipv6);
+   }
 
-      for(const auto& issued_name : issued_names) {
-         if(host_wildcard_match(issued_name, name)) {
-            return true;
-         }
-      }
+   if(auto parsed = DNSName::from_string(name)) {
+      return matches_dns_name(*parsed);
    }
 
    return false;
@@ -715,6 +894,53 @@ bool operator!=(const X509_Certificate& cert1, const X509_Certificate& cert2) {
    return !(cert1 == cert2);
 }
 
+namespace {
+
+void format_alt_name(std::ostream& out, std::string_view label, const AlternativeName& alt_name) {
+   if(alt_name.is_empty()) {
+      return;
+   }
+
+   out << label << ":\n";
+
+   for(const auto& dns : alt_name.dns_names()) {
+      out << "   DNS: " << escape_control_chars(dns.to_string()) << "\n";
+   }
+   for(const auto& ipv4 : alt_name.ipv4_addresses()) {
+      out << "   IP: " << ipv4.to_string() << "\n";
+   }
+   for(const auto& ipv6 : alt_name.ipv6_addresses()) {
+      out << "   IP: " << ipv6.to_string() << "\n";
+   }
+   for(const auto& uri : alt_name.uri_names()) {
+      out << "   URI: " << escape_control_chars(uri.original_input()) << "\n";
+   }
+   for(const auto& email : alt_name.email_addresses()) {
+      out << "   Email: " << escape_control_chars(email.to_string()) << "\n";
+   }
+   for(const auto& mbox : alt_name.smtp_utf8_mailboxes()) {
+      out << "   SmtpUTF8: " << escape_control_chars(mbox.to_string()) << "\n";
+   }
+   for(const auto& dn : alt_name.directory_names()) {
+      out << "   DirName: " << dn << "\n";
+   }
+   for(const auto& oid : alt_name.registered_ids()) {
+      out << "   RegisteredID: " << oid.to_formatted_string() << "\n";
+   }
+
+   // SmtpUTF8Mailbox values are also retained verbatim in other_name_values;
+   // skip them here since they are already printed in decoded form above
+   const auto smtp_utf8_oid = OID::from_string("PKIX.SmtpUTF8Mailbox");
+   for(const auto& other : alt_name.other_name_values()) {
+      if(other.oid() == smtp_utf8_oid) {
+         continue;
+      }
+      out << "   OtherName " << other.oid().to_formatted_string() << ": " << hex_encode(other.value()) << "\n";
+   }
+}
+
+}  // namespace
+
 std::string X509_Certificate::to_string() const {
    std::ostringstream out;
 
@@ -735,6 +961,8 @@ std::string X509_Certificate::to_string() const {
           << " Error: " << ex.what() << "\n"
           << " Hex: " << hex_encode(this->subject_public_key_bitstring()) << "\n";
    }
+
+   format_alt_name(out, "Subject Alternative Name", this->subject_alt_name());
 
    out << "Constraints:\n";
    const Key_Constraints constraints = this->constraints();
@@ -768,6 +996,14 @@ std::string X509_Certificate::to_string() const {
       if(constraints.includes(Key_Constraints::DecipherOnly)) {
          out << "   Decipher Only\n";
       }
+   }
+
+   if(this->is_CA_cert()) {
+      out << "Basic Constraints: CA";
+      if(const auto path_len = this->path_length_constraint()) {
+         out << ", path length " << *path_len;
+      }
+      out << "\n";
    }
 
    const std::vector<OID>& policies = this->certificate_policy_oids();
@@ -809,29 +1045,29 @@ std::string X509_Certificate::to_string() const {
       }
    }
 
-   const auto& ocsp_responders = this->ocsp_responders();
+   const auto& ocsp_responders = this->ocsp_responder_uris();
    if(!ocsp_responders.empty()) {
       out << "OCSP Responders:\n";
       for(const auto& ocsp_responder : ocsp_responders) {
-         out << "   URI: " << ocsp_responder << "\n";
+         out << "   URI: " << ocsp_responder.original_input() << "\n";
       }
    }
 
-   const std::vector<std::string> ca_issuers = this->ca_issuers();
+   const auto& ca_issuers = this->ca_issuer_uris();
    if(!ca_issuers.empty()) {
       out << "CA Issuers:\n";
       for(const auto& ca_issuer : ca_issuers) {
-         out << "   URI: " << ca_issuer << "\n";
+         out << "   URI: " << ca_issuer.original_input() << "\n";
       }
    }
 
-   for(const auto& cdp : crl_distribution_points()) {
-      out << "CRL " << cdp << "\n";
+   for(const auto& cdp : crl_distribution_point_uris()) {
+      out << "CRL " << cdp.original_input() << "\n";
    }
 
    out << "Signature algorithm: " << this->signature_algorithm().oid().to_formatted_string() << "\n";
 
-   out << "Serial number: " << hex_encode(this->serial_number()) << "\n";
+   out << "Serial number: " << this->serial().to_string() << "\n";
 
    if(!this->authority_key_id().empty()) {
       out << "Authority keyid: " << hex_encode(this->authority_key_id()) << "\n";
@@ -839,6 +1075,12 @@ std::string X509_Certificate::to_string() const {
 
    if(!this->subject_key_id().empty()) {
       out << "Subject keyid: " << hex_encode(this->subject_key_id()) << "\n";
+   }
+
+   format_alt_name(out, "Issuer Alternative Name", this->issuer_alt_name());
+
+   if(this->skip_revocation_check()) {
+      out << "Revocation status checking is disabled for this certificate\n";
    }
 
    if(this->is_self_signed()) {

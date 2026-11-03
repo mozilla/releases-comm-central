@@ -15,7 +15,7 @@
 
 namespace Botan {
 
-struct PKCS10_Data;
+class PKCS10_Data;
 
 class Private_Key;
 class Extensions;

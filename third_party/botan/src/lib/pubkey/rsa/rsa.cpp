@@ -142,7 +142,7 @@ const BigInt& RSA_PublicKey::get_int_field(std::string_view field) const {
 }
 
 std::unique_ptr<Private_Key> RSA_PublicKey::generate_another(RandomNumberGenerator& rng) const {
-   return std::make_unique<RSA_PrivateKey>(rng, m_public->public_modulus_bits(), m_public->get_e().to_u32bit());
+   return std::make_unique<RSA_PrivateKey>(rng, m_public->public_modulus_bits(), 65537);
 }
 
 const BigInt& RSA_PublicKey::get_n() const {
@@ -154,16 +154,27 @@ const BigInt& RSA_PublicKey::get_e() const {
 }
 
 void RSA_PublicKey::init(BigInt&& n, BigInt&& e) {
-   if(n.is_negative() || n.is_even() || n.bits() < 5 /* n >= 3*5 */ || e.is_negative() || e.is_even()) {
-      throw Decoding_Error("Invalid RSA public key parameters");
+   if(n.signum() <= 0 || n.is_even() || n.bits() < 384 || n.bits() > 16384) {
+      throw Decoding_Error("Invalid RSA public key modulus");
+   }
+   if(e.is_even() || e <= 1 || e >= n || e.bits() > 256) {
+      throw Decoding_Error("Invalid RSA public key exponent");
    }
    m_public = std::make_shared<RSA_Public_Data>(std::move(n), std::move(e));
 }
 
-RSA_PublicKey::RSA_PublicKey(const AlgorithmIdentifier& /*unused*/, std::span<const uint8_t> key_bits) {
+RSA_PublicKey::RSA_PublicKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> key_bits) {
+   // RFC 4055 Section 1.2 has that parameters MUST be NULL, but historical
+   // reasons make that difficult to enforce, so absent is also accepted.
+   //
+   // This only checks rsaEncryption; PSS/OAEP key identifiers have their own parameter encoding
+   if(alg_id.oid().registered_name() == "RSA" && !alg_id.parameters_are_null_or_empty()) {
+      throw Decoding_Error("Unexpected parameters for RSA public key");
+   }
+
    BigInt n;
    BigInt e;
-   BER_Decoder(key_bits).start_sequence().decode(n).decode(e).end_cons();
+   BER_Decoder(key_bits, BER_Decoder::Limits::DER()).start_sequence().decode(n).decode(e).end_cons().verify_end();
 
    init(std::move(n), std::move(e));
 }
@@ -258,11 +269,21 @@ const BigInt& RSA_PrivateKey::get_d2() const {
 }
 
 void RSA_PrivateKey::init(BigInt&& d, BigInt&& p, BigInt&& q, BigInt&& d1, BigInt&& d2, BigInt&& c) {
+   if(d < 2 || p < 3 || q < 3 || p == q) {
+      throw Decoding_Error("Invalid RSA private key parameters");
+   }
+   if(p * q != get_n()) {
+      throw Decoding_Error("Invalid RSA private key: p * q != n");
+   }
    m_private = std::make_shared<RSA_Private_Data>(
       std::move(d), std::move(p), std::move(q), std::move(d1), std::move(d2), std::move(c));
 }
 
-RSA_PrivateKey::RSA_PrivateKey(const AlgorithmIdentifier& /*unused*/, std::span<const uint8_t> key_bits) {
+RSA_PrivateKey::RSA_PrivateKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> key_bits) {
+   if(alg_id.oid().registered_name() == "RSA" && !alg_id.parameters_are_null_or_empty()) {
+      throw Decoding_Error("Unexpected parameters for RSA private key");
+   }
+
    BigInt n;
    BigInt e;
    BigInt d;
@@ -272,7 +293,7 @@ RSA_PrivateKey::RSA_PrivateKey(const AlgorithmIdentifier& /*unused*/, std::span<
    BigInt d2;
    BigInt c;
 
-   BER_Decoder(key_bits)
+   BER_Decoder(key_bits, BER_Decoder::Limits::DER())
       .start_sequence()
       .decode_and_check<size_t>(0, "Unknown PKCS #1 key format version")
       .decode(n)
@@ -283,7 +304,8 @@ RSA_PrivateKey::RSA_PrivateKey(const AlgorithmIdentifier& /*unused*/, std::span<
       .decode(d1)
       .decode(d2)
       .decode(c)
-      .end_cons();
+      .end_cons()
+      .verify_end();
 
    RSA_PublicKey::init(std::move(n), std::move(e));
 
@@ -324,8 +346,18 @@ RSA_PrivateKey::RSA_PrivateKey(
 * Create a RSA private key
 */
 RSA_PrivateKey::RSA_PrivateKey(RandomNumberGenerator& rng, size_t bits, size_t exp) {
-   if(bits < 1024) {
-      throw Invalid_Argument(fmt("Cannot create an RSA key only {} bits long", bits));
+   constexpr size_t MIN_RSA_BITS = 1024;
+   constexpr size_t MAX_RSA_BITS = 16384;
+   constexpr size_t MOD_RSA_BITS = 8;
+
+   if(bits < MIN_RSA_BITS) {
+      throw Invalid_Argument(fmt("Cannot create an RSA key of {} bits: must be at least {} bits", bits, MIN_RSA_BITS));
+   } else if(bits > MAX_RSA_BITS) {
+      throw Invalid_Argument(
+         fmt("Cannot create an RSA key of {} bits: must be no more than {} bits", bits, MAX_RSA_BITS));
+   } else if(bits % MOD_RSA_BITS != 0) {
+      throw Invalid_Argument(
+         fmt("Cannot create an RSA key of {} bits: must be a multiple of {} bits", bits, MOD_RSA_BITS));
    }
 
    if(exp < 3 || exp % 2 == 0) {
@@ -534,13 +566,16 @@ class RSA_Private_Operation {
             m_max_d2_bits(m_private->q_bits() + m_blinding_bits) {}
 
       void raw_op(std::span<uint8_t> out, std::span<const uint8_t> input) {
+         // These early exits are fine because the invalidity is based only
+         // on public information, namely the ciphertext and the public modulus
          if(input.size() > public_modulus_bytes()) {
             throw Decoding_Error("RSA input is too long for this key");
          }
          const BigInt input_bn(input.data(), input.size());
-         if(input_bn >= m_public->get_n()) {
-            throw Decoding_Error("RSA input is too large for this key");
+         if(input_bn.is_zero() || input_bn >= m_public->get_n()) {
+            throw Decoding_Error("RSA input is not in the valid range");
          }
+
          // TODO: This should be a function on blinder
          // BigInt Blinder::run_blinded_function(std::function<BigInt, BigInt> fn, const BigInt& input);
 
@@ -647,7 +682,8 @@ AlgorithmIdentifier RSA_Signature_Operation::algorithm_identifier() const {
    try {
       const std::string full_name = "RSA/" + padding_name;
       const OID oid = OID::from_string(full_name);
-      return AlgorithmIdentifier(oid, AlgorithmIdentifier::USE_EMPTY_PARAM);
+      // RFC 8017 Appendix A.2 specifies RSA signatures for most hashes use NULL parameter
+      return AlgorithmIdentifier(oid, AlgorithmIdentifier::USE_NULL_PARAM);
    } catch(Lookup_Error&) {}
 
    if(padding_name.starts_with("PSS(")) {
@@ -666,7 +702,18 @@ class RSA_Decryption_Operation final : public PK_Ops::Decryption_with_Padding,
 
       size_t plaintext_length(size_t /*ctext_len*/) const override { return public_modulus_bytes(); }
 
+      size_t ciphertext_length(size_t /*ptext_len*/) const override { return public_modulus_bytes(); }
+
       secure_vector<uint8_t> raw_decrypt(std::span<const uint8_t> input) override {
+         /*
+         * RFC 8017 7.1.2 and 7.2.2
+         *
+         *  If the length of the ciphertext C is not k octets, output
+         *  "decryption error" and stop.
+         */
+         if(input.size() != public_modulus_bytes()) {
+            throw Decoding_Error("RSA ciphertext is an incorrect size for this public key");
+         }
          secure_vector<uint8_t> out(public_modulus_bytes());
          raw_op(out, input);
          return out;
@@ -684,6 +731,18 @@ class RSA_KEM_Decryption_Operation final : public PK_Ops::KEM_Decryption_with_KD
       size_t encapsulated_key_length() const override { return public_modulus_bytes(); }
 
       void raw_kem_decrypt(std::span<uint8_t> out_shared_key, std::span<const uint8_t> encapsulated_key) override {
+         /*
+         * RFC 9690 Section 8
+         *
+         *    The RSA-KEM algorithm provides a fixed-length ciphertext. The recipient MUST
+         *    check that the received byte string is the expected length [...]
+         *
+         * This length check is based only on public information (the encapsulated key and
+         * the public modulus) so an early exit does not leak anything.
+         */
+         if(encapsulated_key.size() != public_modulus_bytes()) {
+            throw Decoding_Error("Invalid RSA-KEM ciphertext length");
+         }
          raw_op(out_shared_key, encapsulated_key);
       }
 };
@@ -748,8 +807,12 @@ class RSA_Verify_Operation final : public PK_Ops::Verification,
 
    private:
       std::vector<uint8_t> recover_message_repr(const uint8_t input[], size_t input_len) {
-         if(input_len > public_modulus_bytes()) {
-            throw Decoding_Error("RSA signature too large to be valid for this key");
+         // RFC 8017 8.1.2 and 8.2.2 state
+         //    If the length of the signature S is not k octets,
+         //    output "invalid signature" and stop.
+         //
+         if(input_len != public_modulus_bytes()) {
+            throw Decoding_Error("RSA signature is an incorrect size for this public key");
          }
          const BigInt input_bn(input, input_len);
          return public_op(input_bn).serialize();
@@ -811,13 +874,24 @@ std::unique_ptr<PK_Ops::Verification> RSA_PublicKey::create_verification_op(std:
 namespace {
 
 std::string parse_rsa_signature_algorithm(const AlgorithmIdentifier& alg_id) {
-   const auto sig_info = split_on(alg_id.oid().to_formatted_string(), '/');
+   const auto oid_name = alg_id.oid().registered_name();
+   if(!oid_name) {
+      throw Decoding_Error("Unknown AlgorithmIdentifier for RSA X.509 signatures");
+   }
+
+   const auto sig_info = split_on(*oid_name, '/');
 
    if(sig_info.empty() || sig_info.size() != 2 || sig_info[0] != "RSA") {
       throw Decoding_Error("Unknown AlgorithmIdentifier for RSA X.509 signatures");
    }
 
    std::string padding = sig_info[1];
+
+   if(padding != "PSS") {
+      if(!alg_id.parameters_are_null_or_empty()) {
+         throw Decoding_Error("Non-PSS RSA signature algorithm OID has unexpected parameters");
+      }
+   }
 
    if(padding == "PSS") {
       // "MUST contain RSASSA-PSS-params"
@@ -829,14 +903,14 @@ std::string parse_rsa_signature_algorithm(const AlgorithmIdentifier& alg_id) {
 
       // hash_algo must be SHA1, SHA2-224, SHA2-256, SHA2-384 or SHA2-512
       // We also support SHA-3 (is also supported by e.g. OpenSSL and bouncycastle)
-      const std::string hash_algo = pss_params.hash_function();
+      const auto hash_algo = pss_params.hash_algid().oid().registered_name();
       if(hash_algo != "SHA-1" && hash_algo != "SHA-224" && hash_algo != "SHA-256" && hash_algo != "SHA-384" &&
          hash_algo != "SHA-512" && hash_algo != "SHA-3(224)" && hash_algo != "SHA-3(256)" &&
          hash_algo != "SHA-3(384)" && hash_algo != "SHA-3(512)") {
          throw Decoding_Error("Unacceptable hash for PSS signatures");
       }
 
-      if(pss_params.mgf_function() != "MGF1") {
+      if(pss_params.mgf_algid().oid().registered_name() != "MGF1") {
          throw Decoding_Error("Unacceptable MGF for PSS signatures");
       }
 
@@ -850,7 +924,7 @@ std::string parse_rsa_signature_algorithm(const AlgorithmIdentifier& alg_id) {
          throw Decoding_Error("Unacceptable trailer field for PSS signatures");
       }
 
-      padding += fmt("({},MGF1,{})", hash_algo, pss_params.salt_length());
+      padding += fmt("({},MGF1,{})", *hash_algo, pss_params.salt_length());
    }
 
    return padding;

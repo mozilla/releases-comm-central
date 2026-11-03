@@ -45,6 +45,8 @@ class GHASH final : public SymmetricAlgorithm {
 
       void clear() override;
 
+      /// Reset the per-message state (nonce/ghash/text-len/buffer) but
+      /// preserve any associated data set via set_associated_data
       void reset_state();
 
       std::string name() const override { return "GHASH"; }
@@ -82,6 +84,16 @@ class GHASH final : public SymmetricAlgorithm {
 
       void ghash_multiply(std::span<uint8_t, GCM_BS> x, std::span<const uint8_t> input, size_t blocks);
 
+      static void ghash_precompute_base(std::span<const uint8_t, GCM_BS> key, secure_vector<uint64_t>& HM);
+
+      static void ghash_multiply_base(std::span<uint8_t, GCM_BS> x,
+                                      const secure_vector<uint64_t>& HM,
+                                      std::span<const uint8_t> input,
+                                      size_t blocks);
+
+      /// Polyval reuses the GHASH tables and kernels for its non-CLMUL fallback
+      friend class Polyval;
+
    private:
       AlignmentBuffer<uint8_t, GCM_BS> m_buffer;
 
@@ -93,8 +105,8 @@ class GHASH final : public SymmetricAlgorithm {
       secure_vector<uint64_t> m_H_pow;
 
       std::optional<std::array<uint8_t, GCM_BS>> m_nonce;
-      size_t m_ad_len = 0;
-      size_t m_text_len = 0;
+      uint64_t m_ad_len = 0;
+      uint64_t m_text_len = 0;
 };
 
 }  // namespace Botan

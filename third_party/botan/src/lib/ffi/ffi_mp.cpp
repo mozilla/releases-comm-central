@@ -41,10 +41,18 @@ int botan_mp_set_from_int(botan_mp_t mp, int initial_value) {
 }
 
 int botan_mp_set_from_str(botan_mp_t mp, const char* str) {
+   if(str == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
    return BOTAN_FFI_VISIT(mp, [=](auto& bn) { bn = Botan::BigInt(str); });
 }
 
 int botan_mp_set_from_radix_str(botan_mp_t mp, const char* str, size_t radix) {
+   if(str == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
+
    return BOTAN_FFI_VISIT(mp, [=](auto& bn) {
       if(radix != 10 && radix != 16) {
          return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
@@ -62,11 +70,11 @@ int botan_mp_set_from_mp(botan_mp_t dest, const botan_mp_t source) {
 }
 
 int botan_mp_is_negative(const botan_mp_t mp) {
-   return BOTAN_FFI_VISIT(mp, [](const auto& bn) { return bn.is_negative() ? 1 : 0; });
+   return BOTAN_FFI_VISIT(mp, [](const auto& bn) { return bn.signum() < 0 ? 1 : 0; });
 }
 
 int botan_mp_is_positive(const botan_mp_t mp) {
-   return BOTAN_FFI_VISIT(mp, [](const auto& bn) { return bn.is_positive() ? 1 : 0; });
+   return BOTAN_FFI_VISIT(mp, [](const auto& bn) { return bn.signum() >= 0 ? 1 : 0; });
 }
 
 int botan_mp_flip_sign(botan_mp_t mp) {
@@ -74,10 +82,16 @@ int botan_mp_flip_sign(botan_mp_t mp) {
 }
 
 int botan_mp_from_bin(botan_mp_t mp, const uint8_t bin[], size_t bin_len) {
+   if(bin_len > 0 && bin == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(mp, [=](auto& bn) { bn._assign_from_bytes({bin, bin_len}); });
 }
 
 int botan_mp_to_hex(const botan_mp_t mp, char* out) {
+   if(out == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(mp, [=](const auto& bn) {
       const std::string hex = bn.to_hex_string();
 
@@ -120,6 +134,9 @@ int botan_mp_view_str(const botan_mp_t mp, uint8_t radix, botan_view_ctx ctx, bo
 }
 
 int botan_mp_to_bin(const botan_mp_t mp, uint8_t vec[]) {
+   if(vec == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(mp, [=](const auto& bn) { bn.serialize_to(std::span{vec, bn.bytes()}); });
 }
 
@@ -216,6 +233,9 @@ int botan_mp_is_even(const botan_mp_t mp) {
 }
 
 int botan_mp_cmp(int* result, const botan_mp_t x_w, const botan_mp_t y_w) {
+   if(result == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(x_w, [=](auto& x) { *result = x.cmp(safe_get(y_w)); });
 }
 
@@ -280,10 +300,16 @@ int botan_mp_clear_bit(botan_mp_t mp, size_t bit) {
 }
 
 int botan_mp_num_bits(const botan_mp_t mp, size_t* bits) {
+   if(bits == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(mp, [=](const auto& n) { *bits = n.bits(); });
 }
 
 int botan_mp_num_bytes(const botan_mp_t mp, size_t* bytes) {
+   if(bytes == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return BOTAN_FFI_VISIT(mp, [=](const auto& n) { *bytes = n.bytes(); });
 }
 

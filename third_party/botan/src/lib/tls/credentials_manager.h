@@ -242,6 +242,8 @@ class BOTAN_PUBLIC_API(2, 0) Credentials_Manager /* NOLINT(*-special-member-func
       * dtls_cookie_secret() respectively. New applications should implement
       * those methods and rely on the default implementation of psk().
       *
+      * TODO(Botan4) remove this interface
+      *
       * @param type specifies the type of operation occurring
       * @param context specifies a context relative to type.
       * @param identity is a PSK identity previously returned by

@@ -15,7 +15,18 @@
 namespace Botan {
 
 HSS_LMS_PublicKey::HSS_LMS_PublicKey(std::span<const uint8_t> pub_key) :
-      m_public(HSS_LMS_PublicKeyInternal::from_bytes_or_throw(pub_key)) {}
+      HSS_LMS_PublicKey(AlgorithmIdentifier(), pub_key) {}
+
+HSS_LMS_PublicKey::HSS_LMS_PublicKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> key_bits) :
+      m_public(HSS_LMS_PublicKeyInternal::from_bytes_or_throw(key_bits)) {
+   /*
+   RFC 9802 Section 4:
+      The parameters field of the AlgorithmIdentifier for HSS [...] public keys MUST be absent.
+   */
+   if(!alg_id.parameters_are_empty()) {
+      throw Decoding_Error("Unexpected parameters for HSS-LMS public key");
+   }
+}
 
 HSS_LMS_PublicKey::~HSS_LMS_PublicKey() = default;
 
@@ -62,7 +73,7 @@ namespace {
 
 class HSS_LMS_Verification_Operation final : public PK_Ops::Verification {
    public:
-      explicit HSS_LMS_Verification_Operation(std::shared_ptr<HSS_LMS_PublicKeyInternal> pub_key) :
+      explicit HSS_LMS_Verification_Operation(std::shared_ptr<const HSS_LMS_PublicKeyInternal> pub_key) :
             m_public(std::move(pub_key)) {}
 
       void update(std::span<const uint8_t> msg) override {
@@ -83,7 +94,7 @@ class HSS_LMS_Verification_Operation final : public PK_Ops::Verification {
       std::string hash_function() const override { return m_public->lms_pub_key().lms_params().hash_name(); }
 
    private:
-      std::shared_ptr<HSS_LMS_PublicKeyInternal> m_public;
+      std::shared_ptr<const HSS_LMS_PublicKeyInternal> m_public;
       std::vector<uint8_t> m_msg_buffer;
 };
 
@@ -118,8 +129,17 @@ std::unique_ptr<Private_Key> HSS_LMS_PublicKey::generate_another(RandomNumberGen
    throw Not_Implemented("Cannot generate a new HSS/LMS keypair from a public key");
 }
 
-HSS_LMS_PrivateKey::HSS_LMS_PrivateKey(std::span<const uint8_t> private_key) {
-   m_private = HSS_LMS_PrivateKeyInternal::from_bytes_or_throw(private_key);
+HSS_LMS_PrivateKey::HSS_LMS_PrivateKey(std::span<const uint8_t> private_key) :
+      HSS_LMS_PrivateKey(AlgorithmIdentifier(), private_key) {}
+
+HSS_LMS_PrivateKey::HSS_LMS_PrivateKey(const AlgorithmIdentifier& alg_id, std::span<const uint8_t> key_bits) {
+   // The HSS/LMS parameters are carried in the key bits; no AlgorithmIdentifier
+   // parameters are defined.
+   if(!alg_id.parameters_are_empty()) {
+      throw Decoding_Error("Unexpected parameters for HSS-LMS private key");
+   }
+
+   m_private = HSS_LMS_PrivateKeyInternal::from_bytes_or_throw(key_bits);
    auto scope = CT::scoped_poison(*m_private);
    m_public = std::make_shared<HSS_LMS_PublicKeyInternal>(HSS_LMS_PublicKeyInternal::create(*m_private));
    CT::unpoison(*m_public);
@@ -162,7 +182,7 @@ AlgorithmIdentifier HSS_LMS_PrivateKey::pkcs8_algorithm_identifier() const {
 }
 
 std::optional<uint64_t> HSS_LMS_PrivateKey::remaining_operations() const {
-   return m_private->remaining_operations(m_private->hss_params().max_sig_count()).get();
+   return m_private->remaining_operations().get();
 }
 
 std::unique_ptr<Private_Key> HSS_LMS_PrivateKey::generate_another(RandomNumberGenerator& rng) const {
@@ -175,8 +195,8 @@ namespace {
 
 class HSS_LMS_Signature_Operation final : public PK_Ops::Signature {
    public:
-      HSS_LMS_Signature_Operation(std::shared_ptr<HSS_LMS_PrivateKeyInternal> private_key,
-                                  std::shared_ptr<HSS_LMS_PublicKeyInternal> public_key) :
+      HSS_LMS_Signature_Operation(std::shared_ptr<const HSS_LMS_PrivateKeyInternal> private_key,
+                                  std::shared_ptr<const HSS_LMS_PublicKeyInternal> public_key) :
             m_private(std::move(private_key)), m_public(std::move(public_key)) {}
 
       void update(std::span<const uint8_t> msg) override {
@@ -196,8 +216,8 @@ class HSS_LMS_Signature_Operation final : public PK_Ops::Signature {
       std::string hash_function() const override { return m_public->lms_pub_key().lms_params().hash_name(); }
 
    private:
-      std::shared_ptr<HSS_LMS_PrivateKeyInternal> m_private;
-      std::shared_ptr<HSS_LMS_PublicKeyInternal> m_public;
+      std::shared_ptr<const HSS_LMS_PrivateKeyInternal> m_private;
+      std::shared_ptr<const HSS_LMS_PublicKeyInternal> m_public;
       std::vector<uint8_t> m_msg_buffer;
 };
 

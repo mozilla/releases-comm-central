@@ -165,7 +165,7 @@ Available Unauthenticated Cipher Modes
 
 .. note::
    CTR and OFB modes are also implemented, but these are treated as
-   :cpp:class:`Stream_Cipher`\s instead.
+   :cpp:class:`StreamCipher`\s instead.
 
 CBC
 ~~~~~~~~~~~~
@@ -305,7 +305,7 @@ header). It is a subclass of :cpp:class:`Cipher_Mode`.
 
        Complete processing a message with a final input of *buffer*, which is
        treated the same as with :cpp:func:`update`. It must contain at least
-       :cpp:func:`final_minimum_size` bytes.
+       :cpp:func:`minimum_final_size` bytes.
 
        Note that if you have the entire message in hand, calling finish without
        ever calling update is both efficient and convenient.
@@ -334,7 +334,7 @@ header). It is a subclass of :cpp:class:`Cipher_Mode`.
        The AEAD interface requires :cpp:func:`update` be called with blocks of
        this size. This will be 1, if the mode can process any length inputs.
 
-  .. cpp:function:: size_t final_minimum_size() const
+  .. cpp:function:: size_t minimum_final_size() const
 
        The AEAD interface requires :cpp:func:`finish` be called with at least
        this many bytes (which may be zero, or greater than
@@ -453,6 +453,26 @@ Algorithm specification name:
 
 - Tag size defaults to 16.
 - Examples: e.g. ``AES-128/GCM``, ``AES-128/GCM(12)``
+
+GCM-SIV
+~~~~~~~~
+
+Available if ``BOTAN_HAS_AEAD_GCM_SIV`` is defined.
+
+AES-GCM-SIV, specified in RFC 8452. Like SIV this mode is resistant to nonce
+misuse; if a nonce is ever reused, the only information leaked is if two
+messages encrypted under the same nonce were identical. Requires a 128-bit
+block cipher with either a 128-bit or 256-bit key. The nonce must be exactly
+96 bits, and the tag is always 128 bits.
+
+Note that unlike SIV, GCM-SIV is not usable as a deterministic (nonce-less)
+encryption scheme; a nonce must always be provided.
+
+Algorithm specification name:
+``<BlockCipher>/GCM-SIV`` (reported name) /
+``GCM-SIV(<BlockCipher>)``
+
+- Examples: ``AES-128/GCM-SIV``, ``AES-256/GCM-SIV``
 
 OCB
 ~~~~~

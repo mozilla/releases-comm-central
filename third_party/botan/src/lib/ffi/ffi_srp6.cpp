@@ -31,6 +31,9 @@ BOTAN_FFI_DECLARE_DUMMY_STRUCT(botan_srp6_server_session_struct, 0x44F7425F);
 
 int botan_srp6_server_session_init(botan_srp6_server_session_t* srp6) {
 #if defined(BOTAN_HAS_SRP6)
+   if(srp6 == nullptr) {
+      return BOTAN_FFI_ERROR_NULL_POINTER;
+   }
    return ffi_guard_thunk(
       __func__, [=]() -> int { return ffi_new_object(srp6, std::make_unique<Botan::SRP6_Server_Session>()); });
 #else
