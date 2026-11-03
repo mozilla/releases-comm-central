@@ -648,11 +648,21 @@ pref("breakpad.reportURL", "https://crash-stats.mozilla.com/report/index/");
 // OS Integrated Search and Indexing
 #ifdef XP_WIN
 pref("mail.winsearch.enable", false);
+#ifdef MOZ_ENTERPRISE
+// We skip first run on enterprise, so assume it was done.
+pref("mail.winsearch.firstRunDone", true);
+#else
 pref("mail.winsearch.firstRunDone", false);
+#endif
 #else
 #ifdef XP_MACOSX
 pref("mail.spotlight.enable", false);
+#ifdef MOZ_ENTERPRISE
+// We skip first run on enterprise, so assume it was done.
+pref("mail.spotlight.firstRunDone", true);
+#else
 pref("mail.spotlight.firstRunDone", false);
+#endif
 #endif
 #endif
 
