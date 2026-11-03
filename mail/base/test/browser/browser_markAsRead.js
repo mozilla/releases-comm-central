@@ -149,7 +149,7 @@ function checkReadFlags(message, shouldBeRead, description) {
   if (message.folder.incomingServerType == "imap") {
     const serverMessage = imapServer.daemon
       .getMailbox("INBOX")
-      ._messages.find(m => m.uid == message.messageKey);
+      ._messages.find(m => m.uid == message.uidOnServer);
     Assert.equal(
       serverMessage.flags.includes("\\Seen"),
       shouldBeRead,

@@ -105,7 +105,7 @@ add_task(async function streamMsgs() {
     );
     const sizeBefore = store.estimateFolderSize(inbox);
 
-    const msgUid = msg.messageKey;
+    const msgUid = msg.uidOnServer;
     const listener = new PromiseTestUtils.PromiseUrlListener();
     MailServices.imap.downloadMessagesForOffline(
       `${msgUid}`,

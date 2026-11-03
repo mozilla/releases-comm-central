@@ -77,7 +77,7 @@ add_task(async function () {
     const loadedPromise = BrowserTestUtils.browserLoaded(
       messagePaneBrowser,
       false,
-      url => url.endsWith(messages[i].messageKey)
+      url => url.endsWith(messages[i].uidOnServer)
     );
     about3Pane.threadTree.selectedIndex = i;
     await loadedPromise;

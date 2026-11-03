@@ -224,7 +224,7 @@ add_task(async function testStatusDefersBiffUntilFlagSync() {
   );
 
   Assert.equal(inbox.getNumUnread(false), 4, "only the new batch is unread");
-  const oldHeader = inbox.msgDatabase.getMsgHdrForKey(oldServerMessages[0].uid);
+  const oldHeader = inbox.msgDatabase.getMsgHdrForUid(oldServerMessages[0].uid);
   Assert.ok(oldHeader.isRead, "the old message is reconciled as read");
   Assert.ok(
     !(oldHeader.flags & Ci.nsMsgMessageFlags.New),

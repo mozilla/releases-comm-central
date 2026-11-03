@@ -46,7 +46,7 @@ async function doMove() {
   gFolder1 = rootFolder
     .getChildNamed("folder 1")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
-  const msg = IMAPPump.inbox.msgDatabase.getMsgHdrForKey(
+  const msg = IMAPPump.inbox.msgDatabase.getMsgHdrForUid(
     IMAPPump.mailbox.uidnext - 1
   );
   IMAPPump.server._test = true;

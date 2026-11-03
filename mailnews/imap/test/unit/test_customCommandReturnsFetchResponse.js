@@ -51,7 +51,7 @@ add_task(async function testStoreCustomList() {
   gExpectedLength = gCustomList.length;
   const uri = IMAPPump.inbox.issueCommandOnMsgs(
     "STORE",
-    msgHdr.messageKey + " X-CUSTOM-LIST (" + gCustomList.join(" ") + ")",
+    msgHdr.uidOnServer + " X-CUSTOM-LIST (" + gCustomList.join(" ") + ")",
     gMsgWindow
   );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
@@ -75,7 +75,7 @@ add_task(async function testStoreMinusCustomList() {
   gExpectedLength--;
   const uri = IMAPPump.inbox.issueCommandOnMsgs(
     "STORE",
-    msgHdr.messageKey + " -X-CUSTOM-LIST (" + gCustomList[0] + ")",
+    msgHdr.uidOnServer + " -X-CUSTOM-LIST (" + gCustomList[0] + ")",
     gMsgWindow
   );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
@@ -100,7 +100,7 @@ add_task(async function testStorePlusCustomList() {
   gExpectedLength++;
   const uri = IMAPPump.inbox.issueCommandOnMsgs(
     "STORE",
-    msgHdr.messageKey + ' +X-CUSTOM-LIST ("Custom4")',
+    msgHdr.uidOnServer + ' +X-CUSTOM-LIST ("Custom4")',
     gMsgWindow
   );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);

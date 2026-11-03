@@ -60,7 +60,7 @@ add_task(async function testRestoreImapTabsOnRestart() {
       {
         mode: "contentTab",
         state: {
-          tabURI: `imap://user@localhost:${imapServer.port}/fetch%3EUID%3E/INBOX%3E${pdfMessage.messageKey}?part=1.2&type=application/pdf&filename=attachment.pdf`,
+          tabURI: `imap://user@localhost:${imapServer.port}/fetch%3EUID%3E/INBOX%3E${pdfMessage.uidOnServer}?part=1.2&type=application/pdf&filename=attachment.pdf`,
         },
       },
       ...messages.map(message => ({

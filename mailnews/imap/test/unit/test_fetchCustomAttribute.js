@@ -50,7 +50,7 @@ add_task(async function testFetchCustomValue() {
   const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   const uri = IMAPPump.inbox.fetchCustomMsgAttribute(
     "X-CUSTOM-VALUE",
-    msgHdr.messageKey,
+    msgHdr.uidOnServer,
     gMsgWindow
   );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
@@ -70,7 +70,7 @@ add_task(async function testFetchCustomList() {
   const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   const uri = IMAPPump.inbox.fetchCustomMsgAttribute(
     "X-CUSTOM-LIST",
-    msgHdr.messageKey,
+    msgHdr.uidOnServer,
     gMsgWindow
   );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
