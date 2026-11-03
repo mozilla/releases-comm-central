@@ -107,6 +107,12 @@ add_task(async function startup() {
       min: 10,
       max: 70,
     },
+    // Read each time a FluentBundle is created, so it scales with the number
+    // of Fluent bundles created during startup.
+    "intl.l10n.pseudo": {
+      min: 0,
+      max: 60,
+    },
   };
 
   // These preferences are used in PresContext or layout areas and all have a
