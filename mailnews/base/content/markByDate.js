@@ -16,15 +16,18 @@ window.addEventListener("load", onLoad);
 document.addEventListener("dialogaccept", onAccept);
 
 function onLoad() {
-  const upperDateBox = document.getElementById("upperDate");
+  var upperDateBox = document.getElementById("upperDate");
   // focus the upper bound control - this is where we expect most users to enter
   // a date
   upperDateBox.focus();
 
   // and give it an initial date - "yesterday"
-  upperDateBox.value = Temporal.Now.plainDateISO()
-    .subtract({ days: 1 })
-    .toString();
+  var initialDate = new Date();
+  initialDate.setHours(0);
+  initialDate.setTime(initialDate.getTime() - MILLISECONDS_PER_HOUR);
+  // note that this is sufficient - though it is at the end of the previous day,
+  // we convert it to a date string, and then the time part is truncated
+  upperDateBox.value = convertDateToString(initialDate);
   upperDateBox.select(); // allows to start overwriting immediately
 
   UIFontSize.registerWindow(window);
@@ -32,28 +35,16 @@ function onLoad() {
 
 function onAccept() {
   // get the times as entered by the user
-  const lowerDate = document.getElementById("lowerDate");
-  const lowerDateString = lowerDate.value;
+  var lowerDateString = document.getElementById("lowerDate").value;
   // the fallback for the lower bound, if not entered, is the "beginning of
   // time" (1970-01-01), which actually is simply 0 :)
-  let prLower = 0;
-  if (lowerDateString) {
-    // Convert the date picker's UTC value to local time.
-    const lowerDateParts = lowerDateString.split("-");
-    prLower =
-      new Date(
-        lowerDateParts[0],
-        lowerDateParts[1] - 1,
-        lowerDateParts[2]
-      ).getTime() * 1000;
-  }
+  var prLower = lowerDateString ? convertStringToPRTime(lowerDateString) : 0;
 
-  const upperDate = document.getElementById("upperDate");
-  const upperDateString = upperDate.value;
-  let prUpper;
+  var upperDateString = document.getElementById("upperDate").value;
+  var prUpper;
   if (upperDateString == "") {
     // for the upper bound, the fallback is "today".
-    const dateThisMorning = new Date();
+    var dateThisMorning = new Date();
     dateThisMorning.setMilliseconds(0);
     dateThisMorning.setSeconds(0);
     dateThisMorning.setMinutes(0);
@@ -61,14 +52,7 @@ function onAccept() {
     // Javascript time is in milliseconds, PRTime is in microseconds
     prUpper = dateThisMorning.getTime() * 1000;
   } else {
-    // Convert the date picker's UTC value to local time.
-    const upperDateParts = upperDateString.split("-");
-    prUpper =
-      new Date(
-        upperDateParts[0],
-        upperDateParts[1] - 1,
-        upperDateParts[2]
-      ).getTime() * 1000;
+    prUpper = convertStringToPRTime(upperDateString);
   }
 
   // for the upper date, we have to do a correction:

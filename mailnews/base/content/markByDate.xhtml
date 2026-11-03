@@ -48,40 +48,36 @@
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   >
     <dialog buttons="accept,cancel">
-      <html:div
-        style="
-          display: grid;
-          grid-template-columns: min-content min-content;
-          align-items: baseline;
-        "
-      >
+      <hbox align="center" pack="end">
         <label
           id="lowerDateLabel"
           control="lowerDate"
           value="&markByDateLower.label;"
           accesskey="&markByDateLower.accesskey;"
-          style="justify-self: end"
         />
         <html:input
           id="lowerDate"
-          type="date"
+          type="text"
           class="input-inline"
           aria-labelledby="lowerDateLabel"
+          size="11"
         />
+      </hbox>
+      <hbox align="center" pack="end">
         <label
           id="upperDateLabel"
           control="upperDate"
           value="&markByDateUpper.label;"
           accesskey="&markByDateUpper.accesskey;"
-          style="justify-self: end"
         />
         <html:input
           id="upperDate"
-          type="date"
+          type="text"
           class="input-inline"
           aria-labelledby="upperDateLabel"
+          size="11"
         />
-      </html:div>
+      </hbox>
     </dialog>
   </html:body>
 </html>
