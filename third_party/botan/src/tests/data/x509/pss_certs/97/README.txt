@@ -1,1 +1,0 @@
-SigHash != MGF Hash
