@@ -4152,10 +4152,10 @@ void nsImapMailFolder::FindUidsToAdd(const nsTArray<ImapUid>& existingUids,
       if (uidOfMessage && uidOfMessage != nsMsgKey_None &&
           (showDeletedMessages || !(flags & kImapMsgDeletedFlag))) {
         if (mDatabase) {
-          bool dbContainsKey;
+          bool dbContainsUid;
           if (NS_SUCCEEDED(
-                  mDatabase->ContainsKey(uidOfMessage, &dbContainsKey)) &&
-              dbContainsKey) {
+                  mDatabase->ContainsUid(uidOfMessage, &dbContainsUid)) &&
+              dbContainsUid) {
             // this is expected in the partial uid fetch case because the
             // flag state does not contain all messages, so the db has
             // messages the flag state doesn't know about.
