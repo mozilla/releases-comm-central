@@ -103,6 +103,8 @@ requesttimeoutfactor = 12
 
 ["test_pop3FilterActions.js"]
 
+["test_pop3FilterFailures.js"]
+
 ["test_pop3Filters.js"]
 
 ["test_pop3GSSAPIFail.js"]
