@@ -169,10 +169,10 @@
                   </vbox>
                   <splitter id="logsSplitter" class="conv-chat" collapse="after" orient="vertical"/>
                   <vbox id="previousConversations" style="min-height: 200px;">
-                    <label class="conv-logs-header-label conv-header-label"
+                    <label id="logTreeLabel" class="conv-logs-header-label conv-header-label"
                            crop="end"
                            value="&chat.previousConversations;"/>
-                    <tree id="logTree" flex="1" hidecolumnpicker="true" seltype="single"
+                    <tree id="logTree" aria-labelledby="logTreeLabel" flex="1" hidecolumnpicker="true" seltype="single"
                           context="logTreeContext" onselect="chatHandler.onLogSelect();">
                       <treecols>
                         <treecol id="logCol"

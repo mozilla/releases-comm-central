@@ -69,6 +69,11 @@ add_task(async function testTopicRestored() {
   const logTree = document.getElementById("logTree");
   const chatTopInfo = document.querySelector("chat-conversation-info");
 
+  is(
+    logTree.getAttribute("aria-labelledby"),
+    "logTreeLabel",
+    "log tree should be labelled by its header"
+  );
   is(chatTopInfo.topic.value, "foo bar");
 
   // Wait for log list to be populated, sadly there is no event and it is delayed by promises.
