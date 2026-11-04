@@ -71,11 +71,15 @@ add_task(async function () {
 
   // Close the calendar tab.
 
-  EventUtils.synthesizeMouseAtCenter(
-    document.querySelector("#tabmail-tabs tab:nth-child(2) .tab-close-button"),
-    {},
-    window
+  // Tab close buttons stay out of tab order; the close command provides
+  // keyboard access. This test needs the pointer click for telemetry.
+  const closeButton = document.querySelector(
+    "#tabmail-tabs tab:nth-child(2) .tab-close-button"
   );
+  Assert.equal(closeButton.tabIndex, -1, "Tab close buttons are not tab stops");
+  AccessibilityUtils.setEnv({ focusableRule: false });
+  EventUtils.synthesizeMouseAtCenter(closeButton, {}, window);
+  AccessibilityUtils.resetEnv();
 
   // Install an add-on with action buttons.
 
