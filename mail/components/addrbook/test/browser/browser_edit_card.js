@@ -3205,6 +3205,50 @@ add_task(async function testApplePlaceholderYearWithoutParameter() {
 });
 
 /**
+ * Tests that the preferred phone number of a vCard 3.0 contact, marked with
+ * TYPE=pref, is kept when the contact is edited.
+ */
+add_task(async function testTypePref() {
+  const book = createAddressBook("Type Pref");
+  book.addCard(
+    VCardUtils.vCardToAbCard(formatVCard`
+      BEGIN:VCARD
+      VERSION:3.0
+      FN:Jane Doe
+      N:Doe;Jane;;;
+      TEL;TYPE=home:867-5308
+      TEL;TYPE=cell,pref:867-5309
+      END:VCARD
+    `)
+  );
+
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
+  const editButton = abDocument.getElementById("editButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
+
+  await openDirectory(book);
+  await editContactAtIndex(0, {});
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode(editButton);
+
+  const vCard = book.childCards[0].getProperty("_vCard", "");
+  Assert.stringContains(
+    vCard,
+    "TEL;TYPE=home:867-5308\r\n",
+    "the other phone number should not be preferred"
+  );
+  Assert.stringContains(
+    vCard,
+    "TEL;TYPE=cell,pref:867-5309\r\n",
+    "the preferred phone number should be kept"
+  );
+
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(book.URI);
+});
+
+/**
  * Tests that custom properties (Custom1 etc.) are editable.
  */
 add_task(async function testCustomProperties() {

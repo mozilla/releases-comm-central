@@ -140,7 +140,7 @@ add_task(function testFromToVCard() {
     VERSION:3.0
     FN:Mike Test
     N:Test;Mike;;;
-    EMAIL;PREF=1:mike@test.invalid
+    EMAIL;TYPE=pref:mike@test.invalid
     NICKNAME:Testing Mike
     CATEGORIES:testers,quality control,QA
     END:VCARD`;
@@ -221,7 +221,7 @@ add_task(function testFromToVCardBad() {
   const inVCard = formatVCard`
     BEGIN:VCARD
     VERSION:3.0
-    EMAIL;PREF=1:mike@example.org
+    EMAIL;TYPE=pref:mike@example.org
     END:VCARD
     BEGIN:VCARD
     END:VCARD`;
@@ -1068,4 +1068,108 @@ add_task(function testTimestamp() {
       `REV:${inRev} should be reproduced in the basic format`
     );
   }
+});
+
+/**
+ * Tests that TYPE=pref, which marks the preferred entry in vCard 3.0, is read
+ * as the PREF parameter, and that PREF is written as TYPE=pref in vCard 3.0.
+ */
+add_task(function testTypePref() {
+  const vCard3 = VCardProperties.fromVCard(formatVCard`
+    BEGIN:VCARD
+    VERSION:3.0
+    EMAIL;TYPE=INTERNET:first@invalid
+    EMAIL;TYPE=INTERNET;TYPE=pref:second@invalid
+    TEL;TYPE=home:111
+    TEL;TYPE=cell,pref:222
+    ADR;TYPE=pref:;;street;;;;
+    END:VCARD`);
+  propertyArrayEqual(
+    [
+      ...vCard3.getAllEntries("email"),
+      ...vCard3.getAllEntries("tel"),
+      ...vCard3.getAllEntries("adr"),
+    ],
+    [
+      {
+        name: "email",
+        params: { type: "INTERNET" },
+        type: "text",
+        value: "first@invalid",
+      },
+      {
+        name: "email",
+        params: { type: "INTERNET", pref: "1" },
+        type: "text",
+        value: "second@invalid",
+      },
+      {
+        name: "tel",
+        params: { type: "home" },
+        type: "phone-number",
+        value: "111",
+      },
+      {
+        name: "tel",
+        params: { type: "cell", pref: "1" },
+        type: "phone-number",
+        value: "222",
+      },
+      {
+        name: "adr",
+        params: { pref: "1" },
+        type: "text",
+        value: ["", "", "street", "", "", "", ""],
+      },
+    ],
+    "TYPE=pref should be read as PREF=1"
+  );
+  Assert.equal(
+    vCard3.toPropertyMap().get("PrimaryEmail"),
+    "second@invalid",
+    "the email with TYPE=pref should be the primary email"
+  );
+  Assert.equal(
+    vCard3.toVCard(),
+    formatVCard`
+      BEGIN:VCARD
+      VERSION:3.0
+      EMAIL;TYPE=INTERNET:first@invalid
+      EMAIL;TYPE=INTERNET,pref:second@invalid
+      TEL;TYPE=home:111
+      TEL;TYPE=cell,pref:222
+      ADR;TYPE=pref:;;street;;;;
+      END:VCARD`,
+    "PREF should be written as TYPE=pref in vCard 3.0"
+  );
+
+  const vCard4 = VCardProperties.fromVCard(formatVCard`
+    BEGIN:VCARD
+    VERSION:4.0
+    EMAIL;PREF=2:first@invalid
+    EMAIL;PREF=1:second@invalid
+    EMAIL:third@invalid
+    END:VCARD`);
+  Assert.stringContains(
+    vCard4.toVCard(),
+    "EMAIL;PREF=1:second@invalid\r\n",
+    "PREF should be kept in vCard 4.0"
+  );
+  vCard4.addEntry(new VCardPropertyEntry("version", {}, "text", "3.0"));
+  Assert.equal(
+    vCard4.toVCard(),
+    formatVCard`
+      BEGIN:VCARD
+      VERSION:3.0
+      EMAIL:first@invalid
+      EMAIL;TYPE=pref:second@invalid
+      EMAIL:third@invalid
+      END:VCARD`,
+    "only the most preferred entry should get TYPE=pref in vCard 3.0"
+  );
+  Assert.equal(
+    vCard4.getFirstEntry("email").params.pref,
+    "2",
+    "writing vCard 3.0 should not change the entries"
+  );
 });

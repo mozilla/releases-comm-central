@@ -768,6 +768,22 @@ export class VCardProperties {
           }
         }
       }
+      // vCard 3.0 marks the preferred entry with TYPE=pref (RFC 2426, sections
+      // 3.3.1 and 3.3.2). Use the vCard 4.0 PREF parameter (RFC 6350,
+      // section 5.3) instead, which is what the rest of the code expects.
+      // toVCard converts it back for vCard 3.0.
+      const types = [params.type ?? []].flat();
+      if (types.some(t => t.toLowerCase() == "pref")) {
+        const otherTypes = types.filter(t => t.toLowerCase() != "pref");
+        if (otherTypes.length > 1) {
+          params.type = otherTypes;
+        } else if (otherTypes.length == 1) {
+          params.type = otherTypes[0];
+        } else {
+          delete params.type;
+        }
+        params.pref ??= "1";
+      }
       // The entry is new, so it can't be a duplicate.
       rv.#addEntry(new VCardPropertyEntry(name, params, type, value));
     }
@@ -1051,17 +1067,38 @@ export class VCardProperties {
    * @returns {string} vCard
    */
   toVCard() {
+    // vCard 3.0 has no preference levels, only TYPE=pref, so give that to the
+    // most preferred entry of each property. See fromVCard.
+    const isVCard3 = this.getFirstValue("version") == "3.0";
+    const preferred = new Map();
+    if (isVCard3) {
+      for (const e of this.entries) {
+        const pref = parseInt(e.params.pref, 10);
+        const current = preferred.get(e.name);
+        if (pref && (!current || pref < current.pref)) {
+          preferred.set(e.name, { entry: e, pref });
+        }
+      }
+    }
     const jCal = this.entries.map(e => {
+      let params = e.params;
+      if (isVCard3 && "pref" in params) {
+        params = { ...params };
+        delete params.pref;
+        if (preferred.get(e.name)?.entry == e) {
+          params.type = [params.type ?? [], "pref"].flat();
+        }
+      }
       if (Array.isArray(e.value)) {
         const design = this.designSet.property[e.name];
         if (design.multiValue == "," && !design.structuredValue) {
           // The jCal format stores multiple values as the 4th...nth items,
           // but VCardPropertyEntry stores them as an array. This applies to
           // CATEGORIES and NICKNAME types in vCard 4 and also NOTE in vCard 3.
-          return [e.name, e.params, e.type, ...e.value];
+          return [e.name, params, e.type, ...e.value];
         }
       }
-      return [e.name, e.params, e.type, e.value];
+      return [e.name, params, e.type, e.value];
     });
     return ICAL.stringify(["vcard", jCal]);
   }
