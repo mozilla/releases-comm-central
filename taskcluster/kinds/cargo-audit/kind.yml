@@ -32,7 +32,7 @@ tasks:
         audit-notify:
             emails:
                 by-level:
-                    "3": ["rustsec@thunderbird.net"]
+                    "3": ["rustsecurity@discuss.thunderbird.net"]
                     default: ["{owner}"]
             matrix-rooms:
                 by-level:
