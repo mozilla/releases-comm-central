@@ -86,22 +86,25 @@ function serverPrettyNameOnBlur(event) {
 }
 
 /**
- * Update an account's main settings title with the account name if applicable.
- *
- * @returns {void}
+ * Updates localization for the heading and document title with the account name
+ * if it is set.
  */
 function setAccountTitle() {
-  const accountName = document.getElementById("server.prettyName");
-  const title = document.querySelector(
-    "#am-newsblog-title .dialogheader-title"
-  );
-  let titleValue = title.getAttribute("defaultTitle");
-  if (accountName.value) {
-    titleValue += " - " + accountName.value;
-  }
+  const accountName = document.getElementById("server.prettyName").value;
+  const args = accountName ? { accountName } : null;
 
-  title.setAttribute("value", titleValue);
-  document.title = titleValue;
+  document.l10n.setAttributes(
+    document.querySelector("#am-newsblog-title .dialogheader-title"),
+    accountName ? "account-settings-title-with-name" : "account-settings-title",
+    args
+  );
+  document.l10n.setAttributes(
+    document.querySelector("title"),
+    accountName
+      ? "account-settings-document-title-with-name"
+      : "account-settings-document-title",
+    args
+  );
 }
 
 function setPrefs(aNode) {

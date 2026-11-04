@@ -3,17 +3,14 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html [ <!ENTITY % accountNoIdentDTD SYSTEM "chrome://messenger/locale/am-serverwithnoidentities.dtd">
-%accountNoIdentDTD;
-<!ENTITY % accountServerTopDTD SYSTEM "chrome://messenger/locale/am-server-top.dtd">%accountServerTopDTD;
-]>
+<!DOCTYPE html>
 <html
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
 >
   <head>
-    <title>&accountTitle.label;</title>
+    <title data-l10n-id="account-settings-document-title"></title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
@@ -47,7 +44,10 @@
   >
     <vbox id="containerBox" flex="1">
       <hbox class="dialogheader">
-        <label class="dialogheader-title" value="&accountTitle.label;" />
+        <label
+          class="dialogheader-title"
+          data-l10n-id="account-settings-title"
+        />
       </hbox>
 
       <separator class="thin" />
@@ -62,14 +62,16 @@
         id="server.storeContractID"
       />
 
-      <description class="secDesc">&accountSettingsDesc.label;</description>
+      <description
+        class="secDesc"
+        data-l10n-id="account-settings-special-account-description"
+      />
       <html:div class="input-container" xmlns="http://www.w3.org/1999/xhtml">
         <div class="input-container-column flex-grow">
           <xul:label
             id="server.prettyName.label"
-            value="&accountName.label;"
+            data-l10n-id="account-settings-account-name"
             control="server.prettyName"
-            accesskey="&accountName.accesskey;"
           />
           <input
             id="server.prettyName"
@@ -103,21 +105,19 @@
 
       <html:div>
         <html:fieldset>
-          <html:legend>&messageStorage.label;</html:legend>
+          <html:legend data-l10n-id="account-settings-message-storage" />
 
           <vbox align="start">
             <checkbox
               wsm_persist="true"
               id="server.emptyTrashOnExit"
-              label="&emptyTrashOnExit.label;"
-              accesskey="&emptyTrashOnExit.accesskey;"
+              data-l10n-id="account-settings-empty-trash-on-exit"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.empty_trash_on_exit"
             />
             <hbox align="center">
               <label
-                value="&storeType.label;"
-                accesskey="&storeType.accesskey;"
+                data-l10n-id="account-settings-message-store-type"
                 control="server.storeTypeMenulist"
               />
               <menulist
@@ -128,12 +128,12 @@
                   <menuitem
                     id="server.mboxStore"
                     value="@mozilla.org/msgstore/berkeleystore;1"
-                    label="&mboxStore2.label;"
+                    data-l10n-id="account-settings-message-store-mbox"
                   />
                   <menuitem
                     id="server.maildirStore"
                     value="@mozilla.org/msgstore/maildirstore;1"
-                    label="&maildirStore.label;"
+                    data-l10n-id="account-settings-message-store-maildir"
                   />
                 </menupopup>
               </menulist>
@@ -145,7 +145,7 @@
           <hbox align="center">
             <label
               id="server.localPath.label"
-              value="&localPath1.label;"
+              data-l10n-id="account-settings-local-directory"
               control="server.localPath"
             />
             <hbox class="input-container" flex="1">
@@ -162,9 +162,8 @@
             </hbox>
             <button
               id="browseForLocalFolder"
-              label="&browseFolder.label;"
-              filepickertitle="&localFolderPicker.label;"
-              accesskey="&browseFolder.accesskey;"
+              data-l10n-id="account-settings-browse-local-directory"
+              data-l10n-attrs="filepickertitle"
               oncommand="BrowseForLocalFolders()"
             />
           </hbox>

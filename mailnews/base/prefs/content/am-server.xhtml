@@ -3,16 +3,13 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html [ <!ENTITY % trashDTD SYSTEM "chrome://messenger/locale/am-server-top.dtd">
-%trashDTD; ]>
-
 <html
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
 >
   <head>
-    <title>&serverSettings.label;</title>
+    <title data-l10n-id="account-settings-server-document-title"></title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'; connect-src https:"
@@ -88,15 +85,14 @@
 
       <div xmlns="http://www.w3.org/1999/xhtml" id="amServerSetting">
         <div>
-          <xul:label value="&serverType.label;" />
+          <xul:label data-l10n-id="account-settings-server-type" />
         </div>
         <div>
           <xul:label id="servertypeVerbose" />
         </div>
         <div style="grid-row: 2">
           <xul:label
-            value="&serverName.label;"
-            accesskey="&serverName.accesskey;"
+            data-l10n-id="account-settings-server-name"
             control="server.hostname"
           />
         </div>
@@ -118,8 +114,7 @@
         </div>
         <div class="input-container" style="grid-row: 2">
           <xul:label
-            value="&port.label;"
-            accesskey="&port.accesskey;"
+            data-l10n-id="account-settings-port"
             control="server.port"
           />
           <xul:label
@@ -137,13 +132,12 @@
             preftype="int"
             prefstring="mail.server.%serverkey%.port"
           />
-          <xul:label value="&serverPortDefault.label;" />
+          <xul:label data-l10n-id="account-settings-default-port" />
           <xul:label id="defaultPort" />
         </div>
         <div hidefor="nntp" style="grid-row: 3">
           <xul:label
-            value="&userName.label;"
-            accesskey="&userName.accesskey;"
+            data-l10n-id="account-settings-user-name"
             control="server.username"
           />
         </div>
@@ -174,8 +168,7 @@
             <html:tr>
               <html:td style="vertical-align: baseline">
                 <label
-                  value="&connectionSecurity.label;"
-                  accesskey="&connectionSecurity.accesskey;"
+                  data-l10n-id="account-settings-connection-security"
                   control="server.socketType"
                 />
               </html:td>
@@ -187,16 +180,16 @@
                 >
                   <html:option
                     value="0"
-                    label="&connectionSecurityType-0.label;"
+                    data-l10n-id="account-settings-connection-security-none"
                   />
                   <html:option
                     value="2"
-                    label="&connectionSecurityType-2.label;"
+                    data-l10n-id="account-settings-connection-security-starttls"
                     hidefor="nntp"
                   />
                   <html:option
                     value="3"
-                    label="&connectionSecurityType-3.label;"
+                    data-l10n-id="account-settings-connection-security-ssl-tls"
                   />
                 </html:select>
                 <html:certificate-check id="certCheck"></html:certificate-check>
@@ -263,8 +256,7 @@
             <checkbox
               wsm_persist="true"
               id="server.doBiff"
-              label="&biffStart.label;"
-              accesskey="&biffStart.accesskey;"
+              data-l10n-id="account-settings-check-new-messages-every"
               oncommand="onCheckItem('server.biffMinutes', [this.id])"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.check_new_mail"
@@ -282,7 +274,7 @@
             <label
               id="biffEnd"
               control="server.biffMinutes"
-              value="&biffEnd.label;"
+              data-l10n-id="account-settings-minutes"
             />
           </hbox>
           <vbox
@@ -309,9 +301,8 @@
             <checkbox
               wsm_persist="true"
               id="server.downloadOnBiff"
-              label="&downloadOnBiff.label;"
+              data-l10n-id="account-settings-automatically-download-new-messages"
               prefattribute="value"
-              accesskey="&downloadOnBiff.accesskey;"
               prefstring="mail.server.%serverkey%.download_on_biff"
             />
           </vbox>
@@ -324,8 +315,7 @@
             <checkbox
               wsm_persist="true"
               id="pop3.headersOnly"
-              label="&headersOnly.label;"
-              accesskey="&headersOnly.accesskey;"
+              data-l10n-id="account-settings-fetch-headers-only"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.headers_only"
             />
@@ -333,9 +323,8 @@
             <checkbox
               wsm_persist="true"
               id="pop3.leaveMessagesOnServer"
-              label="&leaveOnServer.label;"
+              data-l10n-id="account-settings-leave-messages-on-server"
               oncommand="setupMailOnServerUI()"
-              accesskey="&leaveOnServer.accesskey;"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.leave_on_server"
             />
@@ -345,9 +334,8 @@
                 wsm_persist="true"
                 id="pop3.deleteByAgeFromServer"
                 class="indent"
-                label="&deleteByAgeFromServer.label;"
+                data-l10n-id="account-settings-leave-messages-for"
                 oncommand="setupAgeMsgOnServerUI()"
-                accesskey="&deleteByAgeFromServer.accesskey;"
                 prefattribute="value"
                 prefstring="mail.server.%serverkey%.delete_by_age_from_server"
               />
@@ -364,7 +352,7 @@
               <label
                 id="daysEnd"
                 control="pop3.numDaysToLeaveOnServer"
-                value="&daysEnd.label;"
+                data-l10n-id="account-settings-days"
               />
             </hbox>
 
@@ -372,8 +360,7 @@
               wsm_persist="true"
               id="pop3.deleteMailLeftOnServer"
               class="indent"
-              label="&deleteOnServer2.label;"
-              accesskey="&deleteOnServer2.accesskey;"
+              data-l10n-id="account-settings-leave-messages-until-deleted"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.delete_mail_left_on_server"
             />
@@ -433,8 +420,7 @@
                       <radio
                         id="modelMoveToTrash"
                         value="1"
-                        label="&modelMoveToTrash.label;"
-                        accesskey="&modelMoveToTrash.accesskey;"
+                        data-l10n-id="account-settings-move-to-trash"
                       />
                       <menulist
                         id="msgTrashFolderPicker"
@@ -666,8 +652,7 @@
                       <radio
                         id="ewsModelMoveToTrash"
                         value="1"
-                        label="&modelMoveToTrash.label;"
-                        accesskey="&modelMoveToTrash.accesskey;"
+                        data-l10n-id="account-settings-move-to-trash"
                       />
                       <menulist
                         id="ewsMsgTrashFolderPicker"
@@ -768,8 +753,7 @@
             <checkbox
               id="nntp.notifyOn"
               wsm_persist="true"
-              label="&maxMessagesStart.label;"
-              accesskey="&maxMessagesStart.accesskey;"
+              data-l10n-id="account-settings-ask-before-download"
               oncommand="onCheckItem('nntp.maxArticles', [this.id])"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.notify.on"
@@ -786,7 +770,7 @@
             />
             <label
               control="nntp.maxArticles"
-              value="&maxMessagesEnd.label;"
+              data-l10n-id="account-settings-messages"
               id="maxMessagesEnd"
             />
           </hbox>
@@ -794,8 +778,7 @@
             hidefor="pop3,imap,ews,graph"
             wsm_persist="true"
             id="nntp.pushAuth"
-            label="&alwaysAuthenticate.label;"
-            accesskey="&alwaysAuthenticate.accesskey;"
+            data-l10n-id="account-settings-always-authenticate"
             prefattribute="value"
             prefstring="mail.server.%serverkey%.always_authenticate"
           />
@@ -804,7 +787,7 @@
 
       <html:div>
         <html:fieldset>
-          <html:legend>&messageStorage.label;</html:legend>
+          <html:legend data-l10n-id="account-settings-message-storage" />
 
           <hbox align="end">
             <vbox align="start" flex="1" id="exitHandlingBox=">
@@ -820,8 +803,7 @@
                 hidefor="nntp"
                 wsm_persist="true"
                 id="server.emptyTrashOnExit"
-                label="&emptyTrashOnExit.label;"
-                accesskey="&emptyTrashOnExit.accesskey;"
+                data-l10n-id="account-settings-empty-trash-on-exit"
                 prefattribute="value"
                 prefstring="mail.server.%serverkey%.empty_trash_on_exit"
               />
@@ -837,8 +819,7 @@
           </hbox>
           <hbox align="center">
             <label
-              value="&storeType.label;"
-              accesskey="&storeType.accesskey;"
+              data-l10n-id="account-settings-message-store-type"
               control="server.storeTypeMenulist"
             />
             <menulist
@@ -849,12 +830,12 @@
                 <menuitem
                   id="server.mboxStore"
                   value="@mozilla.org/msgstore/berkeleystore;1"
-                  label="&mboxStore2.label;"
+                  data-l10n-id="account-settings-message-store-mbox"
                 />
                 <menuitem
                   id="server.maildirStore"
                   value="@mozilla.org/msgstore/maildirstore;1"
-                  label="&maildirStore.label;"
+                  data-l10n-id="account-settings-message-store-maildir"
                 />
               </menupopup>
             </menulist>
@@ -867,7 +848,7 @@
           >
             <label
               id="nntp.newsrcFilePath.label"
-              value="&newsrcFilePath1.label;"
+              data-l10n-id="account-settings-newsrc-file"
               control="nntp.newsrcFilePath"
             />
             <hbox class="input-container" flex="1">
@@ -884,9 +865,8 @@
             </hbox>
             <button
               id="browseForNewsrc"
-              label="&browseNewsrc.label;"
-              filepickertitle="&newsrcPicker1.label;"
-              accesskey="&browseNewsrc.accesskey;"
+              data-l10n-id="account-settings-browse-newsrc"
+              data-l10n-attrs="filepickertitle"
               oncommand="BrowseForNewsrc()"
             />
           </hbox>
@@ -896,7 +876,7 @@
           <hbox align="center">
             <label
               id="server.localPath.label"
-              value="&localPath1.label;"
+              data-l10n-id="account-settings-local-directory"
               control="server.localPath"
             />
             <hbox class="input-container" flex="1">
@@ -913,9 +893,8 @@
             </hbox>
             <button
               id="browseForLocalFolder"
-              label="&browseFolder.label;"
-              filepickertitle="&localFolderPicker.label;"
-              accesskey="&browseFolder.accesskey;"
+              data-l10n-id="account-settings-browse-local-directory"
+              data-l10n-attrs="filepickertitle"
               oncommand="BrowseForLocalFolders()"
             />
           </hbox>
@@ -924,7 +903,10 @@
 
       <hbox id="nntp.charset.box" hidefor="imap,pop3,ews,graph" align="center">
         <separator class="thin" />
-        <label value="&serverDefaultCharset2.label;" control="nntp.charset" />
+        <label
+          data-l10n-id="account-settings-default-text-encoding"
+          control="nntp.charset"
+        />
         <menulist
           is="menulist-charsetpicker-viewing"
           id="nntp.charset"

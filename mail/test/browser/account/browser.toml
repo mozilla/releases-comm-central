@@ -146,6 +146,8 @@ skip-if = [
 
 ["browser_settingsInfrastructure.js"]
 
+["browser_settingsLocalization.js"]
+
 ["browser_thundermailSetup.js"]
 tags = ["oauth"]
 
