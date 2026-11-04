@@ -219,7 +219,7 @@ function fixArray(addresses, preserveGroups, count) {
     }
     return prototyped;
   }
-  let outputArray = [];
+  const outputArray = [];
   for (let element of addresses) {
     if ("group" in element) {
       // Fix up the prototypes of the group and the list members
@@ -230,7 +230,9 @@ function fixArray(addresses, preserveGroups, count) {
       if (preserveGroups) {
         outputArray.push(element);
       } else {
-        outputArray = outputArray.concat(element.group);
+        for (const mailbox of element.group) {
+          outputArray.push(mailbox);
+        }
       }
     } else {
       element = resetPrototype(element, Mailbox);

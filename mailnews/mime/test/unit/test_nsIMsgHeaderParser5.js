@@ -88,6 +88,23 @@ function run_test() {
         { name: "b", email: "" },
       ],
     ],
+    [
+      "a@foo.invalid, G1: b@foo.invalid, c@foo.invalid;, G2:;, G3: d@foo.invalid;, e@foo.invalid",
+      [
+        { name: "", email: "a@foo.invalid" },
+        { name: "", email: "b@foo.invalid" },
+        { name: "", email: "c@foo.invalid" },
+        { name: "", email: "d@foo.invalid" },
+        { name: "", email: "e@foo.invalid" },
+      ],
+      [
+        { name: "", email: "a@foo.invalid" },
+        { name: "", email: "b@foo.invalid" },
+        { name: "", email: "c@foo.invalid" },
+        { name: "", email: "d@foo.invalid" },
+        { name: "", email: "e@foo.invalid" },
+      ],
+    ],
   ];
 
   for (const check of checks) {
