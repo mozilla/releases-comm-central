@@ -62,11 +62,16 @@ async function subtest_check_allowlist_init_and_save(tab) {
   // Now we'll check both address books
   for (let i = 0; i < list.getRowCount(); i++) {
     const abNode = list.getItemAtIndex(i);
+    // The list handles keyboard activation for its nested checkboxes. Their
+    // visible native labels supply accessible names but no LABELLED_BY relation.
+    // The click checker cannot handle either case.
+    AccessibilityUtils.suppressClickHandling(true);
     EventUtils.synthesizeMouseAtCenter(
       abNode.firstElementChild,
       { clickCount: 1 },
       abNode.firstElementChild.documentGlobal
     );
+    AccessibilityUtils.suppressClickHandling(false);
     await TestUtils.waitForTick();
   }
 }
@@ -110,11 +115,13 @@ async function subtest_check_allowlist_load_and_clear(tab) {
     // prefs
     Assert.ok(allowListURIs.includes(abNode.getAttribute("value")));
     // Now un-check that address book
+    AccessibilityUtils.suppressClickHandling(true);
     EventUtils.synthesizeMouseAtCenter(
       abNode.firstElementChild,
       { clickCount: 1 },
       abNode.firstElementChild.documentGlobal
     );
+    AccessibilityUtils.suppressClickHandling(false);
     await TestUtils.waitForTick();
   }
 }
