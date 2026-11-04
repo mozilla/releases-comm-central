@@ -303,6 +303,7 @@ class AccountHubAddressBook extends HTMLElement {
     this.#hideSubviews();
     this.#currentState = subview;
     await this.#loadTemplateScript(this.#states[subview].templateId);
+    await this.#currentSubview.ready;
     // Always dispatch the maximized event to ensure that the account hub is
     // fully visible when we change subview.
     this.dispatchEvent(
