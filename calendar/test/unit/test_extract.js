@@ -22,6 +22,7 @@ function run_test() {
   test_task_due();
   test_overrides();
   test_event_start_dollar_sign();
+  test_mark_contained();
 }
 
 function test_event_start_end() {
@@ -222,4 +223,39 @@ function test_event_start_dollar_sign() {
   equal(endGuess.day, undefined);
   equal(endGuess.hour, undefined);
   equal(endGuess.minute, undefined);
+}
+
+function test_mark_contained() {
+  const outer = { start: 5, end: 20, str: "outer", relation: "start" };
+  const strictlyInside = { start: 8, end: 12, str: "inside", relation: "start" };
+  const sameStart = { start: 5, end: 10, str: "sameStart", relation: "start" };
+  const sameEnd = { start: 15, end: 20, str: "sameEnd", relation: "end" };
+  const equalA = { start: 30, end: 40, str: "equalA", relation: "start" };
+  const equalB = { start: 30, end: 40, str: "equalB", relation: "end" };
+  const overlapping = { start: 35, end: 45, str: "overlapping", relation: "end" };
+  const atZero = { start: 0, end: 50, str: "atZero", relation: "start" };
+  const emailDate = { year: 2012, relation: "start" };
+
+  extractor.collected = [
+    strictlyInside,
+    emailDate,
+    sameEnd,
+    equalB,
+    outer,
+    atZero,
+    overlapping,
+    sameStart,
+    equalA,
+  ];
+  extractor.markContained();
+
+  equal(outer.relation, "start", "outer guess should be kept");
+  equal(strictlyInside.relation, "notadatetime", "strictly contained guess should be discarded");
+  equal(sameStart.relation, "notadatetime", "guess sharing the start should be discarded");
+  equal(sameEnd.relation, "notadatetime", "guess sharing the end should be discarded");
+  equal(equalA.relation, "start", "equal guesses should not discard each other");
+  equal(equalB.relation, "end", "equal guesses should not discard each other");
+  equal(overlapping.relation, "end", "overlapping guess should be kept");
+  equal(atZero.relation, "start", "guess starting at 0 should be ignored");
+  equal(emailDate.relation, "start", "email date guess should be kept");
 }

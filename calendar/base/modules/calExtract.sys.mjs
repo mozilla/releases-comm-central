@@ -809,28 +809,31 @@ Extractor.prototype = {
   },
 
   markContained() {
-    for (let outer = 0; outer < this.collected.length; outer++) {
-      for (let inner = 0; inner < this.collected.length; inner++) {
-        // included but not exactly the same
-        if (
-          outer != inner &&
-          this.collected[outer].start &&
-          this.collected[outer].end &&
-          this.collected[inner].start &&
-          this.collected[inner].end &&
-          this.collected[inner].start >= this.collected[outer].start &&
-          this.collected[inner].end <= this.collected[outer].end &&
-          !(
-            this.collected[inner].start == this.collected[outer].start &&
-            this.collected[inner].end == this.collected[outer].end
-          )
-        ) {
-          lazy.log.debug(
-            this.collected[outer].str + " found as well, discarding " + this.collected[inner].str
-          );
-          this.collected[inner].relation = "notadatetime";
+    const candidates = this.collected
+      .filter(guess => guess.start && guess.end)
+      .sort((a, b) => a.start - b.start || b.end - a.end);
+
+    // A guess is discarded when an earlier one in this order, i.e. one starting
+    // before it or at the same place but ending later, ends at or after it.
+    let maxEnd = -Infinity;
+    for (let i = 0; i < candidates.length; ) {
+      const { start, end } = candidates[i];
+      let groupEnd = i;
+      while (
+        groupEnd < candidates.length &&
+        candidates[groupEnd].start == start &&
+        candidates[groupEnd].end == end
+      ) {
+        groupEnd++;
+      }
+      if (maxEnd >= end) {
+        for (let j = i; j < groupEnd; j++) {
+          lazy.log.debug("Discarding contained " + candidates[j].str);
+          candidates[j].relation = "notadatetime";
         }
       }
+      maxEnd = Math.max(maxEnd, end);
+      i = groupEnd;
     }
   },
 
