@@ -2679,15 +2679,6 @@ var detailsPane = {
       this.isDirty = this.dirtyFields.size > 0;
     });
     this.form.addEventListener("keydown", event => {
-      // Prevent scrolling of the html tag when space is used on a button or
-      // checkbox.
-      if (
-        event.key == " " &&
-        ["button", "checkbox"].includes(document.activeElement.type)
-      ) {
-        event.preventDefault();
-      }
-
       if (event.key != "Escape") {
         return;
       }
