@@ -648,16 +648,25 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
     const DELETE_FOLLOWING = 2;
     const DELETE_ALL = 3;
 
-    let response = CANCEL;
-
-    const returnValue = { value: CANCEL, isRecurring };
-    window.openDialog(
-      "chrome://messenger/content/calendarPrompt.xhtml",
-      "_blank",
-      "centerscreen,chrome,titlebar,modal",
-      returnValue
+    const promptPref = Services.prefs.getBoolPref(
+      "calendar.item.promptDelete",
+      true
     );
-    response = returnValue.value;
+    let response = !promptPref ? DELETE_ALL : CANCEL;
+
+    // Skip the deletion prompt if calendar.item.promptDelete is false.
+    // If the event is recurring, we still need to show the prompt.
+    if (promptPref || isRecurring) {
+      const returnValue = { value: CANCEL, isRecurring };
+      window.openDialog(
+        "chrome://messenger/content/calendarPrompt.xhtml",
+        "_blank",
+        "centerscreen,chrome,titlebar,modal",
+        returnValue
+      );
+      response = returnValue.value;
+    }
+
     this.close();
 
     switch (response) {
