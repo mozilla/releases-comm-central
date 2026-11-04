@@ -18,6 +18,10 @@ const { promise_content_tab_load } = ChromeUtils.importESModule(
   "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
 );
 
+const { prepare_thread_row_descendant_click } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
+
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
 let testFolder;
@@ -91,6 +95,8 @@ async function toggleSpam() {
 async function openAddressbookAndBlur() {
   await window.openAccountHub();
 
+  // Click blank footer space to blur the input, not to activate a control.
+  AccessibilityUtils.setEnv({ mustHaveAccessibleRule: false });
   EventUtils.synthesizeMouseAtCenter(
     document
       .querySelector("account-hub-container")
@@ -98,10 +104,13 @@ async function openAddressbookAndBlur() {
     {},
     window
   );
+  AccessibilityUtils.resetEnv();
 }
 
 async function checkAccountHubInteraction(closeMethod) {
+  await prepare_thread_row_descendant_click(card, AccessibilityUtils);
   EventUtils.synthesizeMouseAtCenter(card, {}, about3Pane);
+  AccessibilityUtils.resetEnv();
 
   await openAddressbookAndBlur();
 
