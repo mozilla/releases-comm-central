@@ -3,7 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html SYSTEM "chrome://messenger/locale/am-server-advanced.dtd">
+<!DOCTYPE html>
 <html
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -11,7 +11,7 @@
   scrolling="false"
 >
   <head>
-    <title>&serverAdvanced.label;</title>
+    <title data-l10n-id="account-settings-advanced-server-title"></title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
@@ -53,8 +53,7 @@
         <hbox align="center">
           <label
             id="serverDirectoryLabel"
-            value="&serverDirectory.label;"
-            accesskey="&serverDirectory.accesskey;"
+            data-l10n-id="account-settings-imap-server-directory"
             control="serverDirectory"
           />
           <hbox flex="1" class="input-container">
@@ -71,15 +70,13 @@
         <checkbox
           id="usingSubscription"
           amsa_persist="true"
-          label="&usingSubscription.label;"
-          accesskey="&usingSubscription.accesskey;"
+          data-l10n-id="account-settings-imap-show-subscribed-folders"
         />
 
         <checkbox
           id="dualUseFolders"
           amsa_persist="true"
-          label="&dualUseFolders.label;"
-          accesskey="&dualUseFolders.accesskey;"
+          data-l10n-id="account-settings-imap-dual-use-folders"
         />
 
         <separator class="groove" />
@@ -87,8 +84,7 @@
           <label
             id="maximumConnectionsNumberLabel"
             control="maximumConnectionsNumber"
-            value="&maximumConnectionsNumber.label;"
-            accesskey="&maximumConnectionsNumber.accesskey;"
+            data-l10n-id="account-settings-imap-maximum-connections"
           />
           <html:input
             id="maximumConnectionsNumber"
@@ -102,31 +98,30 @@
         </hbox>
 
         <separator class="groove" />
-        <description>&namespaceDesc.label;</description>
+        <description
+          data-l10n-id="account-settings-imap-namespace-description"
+        />
         <hbox class="indent">
           <vbox>
             <hbox flex="1" align="center">
               <label
                 id="personalNamespaceLabel"
                 control="personalNamespace"
-                value="&personalNamespace.label;"
-                accesskey="&personalNamespace.accesskey;"
+                data-l10n-id="account-settings-imap-personal-namespace"
               />
             </hbox>
             <hbox flex="1" align="center">
               <label
                 id="publicNamespaceLabel"
                 control="publicNamespace"
-                value="&publicNamespace.label;"
-                accesskey="&publicNamespace.accesskey;"
+                data-l10n-id="account-settings-imap-public-namespace"
               />
             </hbox>
             <hbox flex="1" align="center">
               <label
                 id="otherUsersNamespaceLabel"
                 control="otherUsersNamespace"
-                value="&otherUsersNamespace.label;"
-                accesskey="&otherUsersNamespace.accesskey;"
+                data-l10n-id="account-settings-imap-other-users-namespace"
               />
             </hbox>
           </vbox>
@@ -158,17 +153,18 @@
           <checkbox
             id="overrideNamespaces"
             amsa_persist="true"
-            label="&overrideNamespaces.label;"
-            accesskey="&overrideNamespaces.accesskey;"
+            data-l10n-id="account-settings-imap-override-namespaces"
           />
         </hbox>
       </vbox>
 
       <!-- POP3 Panel -->
       <vbox id="pop3Panel">
-        <label flex="1" control="folderStorage"
-          >&pop3DeferringDesc.label;</label
-        >
+        <label
+          flex="1"
+          control="folderStorage"
+          data-l10n-id="account-settings-pop-inbox-description"
+        />
         <hbox align="center">
           <radiogroup
             id="folderStorage"
@@ -182,8 +178,7 @@
                 <radio
                   id="deferToCurrentAccount"
                   value="currentAccount"
-                  label="&accountInbox.label;"
-                  accesskey="&accountInbox.accesskey;"
+                  data-l10n-id="account-settings-pop-inbox-current-account"
                 />
               </hbox>
               <vbox flex="1">
@@ -191,8 +186,7 @@
                   <radio
                     id="deferToOtherAccount"
                     value="otherAccount"
-                    label="&deferToServer.label;"
-                    accesskey="&deferToServer.accesskey;"
+                    data-l10n-id="account-settings-pop-inbox-other-account"
                   >
                   </radio>
                   <menulist
@@ -211,11 +205,10 @@
                   </menulist>
                 </hbox>
                 <checkbox
-                  amsa_persist="true"
                   id="deferGetNewMail"
-                  label="&deferGetNewMail.label;"
+                  amsa_persist="true"
+                  data-l10n-id="account-settings-pop-include-server"
                   class="indent"
-                  accesskey="&deferGetNewMail.accesskey;"
                 />
               </vbox>
             </vbox>

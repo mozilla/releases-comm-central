@@ -327,3 +327,57 @@ account-settings-rss-manage-subscriptions =
 account-settings-rss-wizard-title = Feed Account Wizard
 
 account-settings-rss-default-account-name = Blogs & News Feeds
+
+## Advanced server settings
+
+account-settings-advanced-server-title = Advanced Account Settings
+
+# Do not translate "IMAP".
+account-settings-imap-server-directory =
+    .value = IMAP server directory:
+    .accesskey = d
+
+account-settings-imap-show-subscribed-folders =
+    .label = Show only subscribed folders
+    .accesskey = w
+
+account-settings-imap-dual-use-folders =
+    .label = Server supports folders that contain sub-folders and messages
+    .accesskey = f
+
+account-settings-imap-maximum-connections =
+    .value = Maximum number of server connections to cache
+    .accesskey = M
+
+# Do not translate "IMAP".
+account-settings-imap-namespace-description = These preferences specify the namespaces on your IMAP server
+
+account-settings-imap-personal-namespace =
+    .value = Personal namespace:
+    .accesskey = P
+
+account-settings-imap-public-namespace =
+    .value = Public (shared):
+    .accesskey = u
+
+account-settings-imap-other-users-namespace =
+    .value = Other Users:
+    .accesskey = O
+
+account-settings-imap-override-namespaces =
+    .label = Allow server to override these namespaces
+    .accesskey = A
+
+account-settings-pop-inbox-description = When downloading mail from this account’s server, use the following folder to store new messages:
+
+account-settings-pop-inbox-current-account =
+    .label = Inbox for this account
+    .accesskey = s
+
+account-settings-pop-inbox-other-account =
+    .label = Inbox for different account
+    .accesskey = d
+
+account-settings-pop-include-server =
+    .label = Include this server when getting new mail
+    .accesskey = I

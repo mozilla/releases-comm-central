@@ -121,6 +121,8 @@ tags = ["accounthub"]
 
 ["browser_actions.js"]
 
+["browser_advancedServerSettings.js"]
+
 ["browser_archiveOptions.js"]
 tags = ["archive"]
 

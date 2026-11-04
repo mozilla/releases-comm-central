@@ -31,7 +31,6 @@
   locale/@AB_CD@/messenger/AccountManager.dtd                           (%chrome/messenger/AccountManager.dtd)
   locale/@AB_CD@/messenger/AccountWizard.dtd                            (%chrome/messenger/AccountWizard.dtd)
   locale/@AB_CD@/messenger/am-advanced.dtd                              (%chrome/messenger/am-advanced.dtd)
-  locale/@AB_CD@/messenger/am-server-advanced.dtd                       (%chrome/messenger/am-server-advanced.dtd)
   locale/@AB_CD@/messenger/am-copies.dtd                                (%chrome/messenger/am-copies.dtd)
   locale/@AB_CD@/messenger/am-offline.dtd                               (%chrome/messenger/am-offline.dtd)
   locale/@AB_CD@/messenger/am-addressing.dtd                            (%chrome/messenger/am-addressing.dtd)
