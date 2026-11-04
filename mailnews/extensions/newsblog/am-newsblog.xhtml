@@ -3,10 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html [ <!ENTITY % newsblogDTD SYSTEM "chrome://messenger-newsblog/locale/am-newsblog.dtd">
-%newsblogDTD;
-<!ENTITY % feedDTD SYSTEM "chrome://messenger-newsblog/locale/feed-subscriptions.dtd">
-%feedDTD; ]>
+<!DOCTYPE html SYSTEM "chrome://messenger-newsblog/locale/feed-subscriptions.dtd">
 
 <html
   xmlns="http://www.w3.org/1999/xhtml"
@@ -122,8 +119,7 @@
           <html:legend data-l10n-id="account-settings-rss-server-settings" />
           <checkbox
             id="doBiff"
-            label="&biffAll.label;"
-            accesskey="&biffAll.accesskey;"
+            data-l10n-id="account-settings-rss-enable-updates"
             oncommand="setPrefs(this)"
           />
         </html:fieldset>
@@ -133,7 +129,7 @@
 
       <html:div>
         <html:fieldset>
-          <html:legend>&newFeedSettings.label;</html:legend>
+          <html:legend data-l10n-id="account-settings-rss-new-feed-defaults" />
 
           <hbox align="center">
             <checkbox
@@ -211,8 +207,7 @@
       <hbox pack="end">
         <button
           id="manageFeedSubscriptions"
-          label="&manageSubscriptions.label;"
-          accesskey="&manageSubscriptions.accesskey;"
+          data-l10n-id="account-settings-rss-manage-subscriptions"
           oncommand="
             SubscribeCommands.MsgSubscribe(gAccount.incomingServer.rootFolder)
           "

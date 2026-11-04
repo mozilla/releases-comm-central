@@ -311,3 +311,19 @@ account-settings-account-name =
     .accesskey = N
 
 account-settings-rss-server-settings = Server Settings
+
+account-settings-rss-enable-updates =
+    .label = Enable updates for all feeds
+    .accesskey = E
+
+account-settings-rss-new-feed-defaults = Default Settings for New Feeds
+
+account-settings-rss-manage-subscriptions =
+    .label = Manage Subscriptions…
+    .accesskey = M
+
+## Feed account wizard
+
+account-settings-rss-wizard-title = Feed Account Wizard
+
+account-settings-rss-default-account-name = Blogs & News Feeds

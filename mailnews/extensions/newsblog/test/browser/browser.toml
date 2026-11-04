@@ -18,6 +18,8 @@ prefs = [
 subsuite = "thunderbird"
 support-files = ["data/**"]
 
+["browser_feedAccountWizard.js"]
+
 ["browser_feedCommandLine.js"]
 
 ["browser_feedDisplay.js"]

@@ -5,8 +5,6 @@
 
 <!DOCTYPE html [ <!ENTITY % accountDTD SYSTEM "chrome://messenger/locale/AccountWizard.dtd">
 %accountDTD;
-<!ENTITY % newsblogDTD SYSTEM "chrome://messenger-newsblog/locale/am-newsblog.dtd" >
-%newsblogDTD;
 <!ENTITY %       imDTD SYSTEM "chrome://messenger/locale/imAccountWizard.dtd" >
 %imDTD; ]>
 
@@ -19,7 +17,7 @@
   scrolling="false"
 >
   <head>
-    <title>&feedWindowTitle.label;</title>
+    <title data-l10n-id="account-settings-rss-wizard-title"></title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
@@ -30,6 +28,7 @@
     <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
 
     <link rel="localization" href="toolkit/global/wizard.ftl" />
+    <link rel="localization" href="messenger/accountSettings.ftl" />
     <script
       defer="defer"
       src="chrome://messenger/content/globalOverlay.js"
@@ -69,7 +68,6 @@
               id="prettyName"
               type="text"
               class="input-inline"
-              value="&feeds.accountName;"
               aria-labelledby="prettyNameLabel"
               oninput="FeedAccountWizard.accountSetupPageValidate()"
             />

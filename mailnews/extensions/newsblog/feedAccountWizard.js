@@ -14,10 +14,11 @@ window.addEventListener("DOMContentLoaded", () => {
 var FeedAccountWizard = {
   accountName: "",
 
-  onLoad() {
-    document
-      .querySelector("wizard")
-      .addEventListener("wizardfinish", this.onFinish.bind(this));
+  /** Initializes the wizard events and the default account name. */
+  async onLoad() {
+    const wizard = document.querySelector("wizard");
+    wizard.canAdvance = false;
+    wizard.addEventListener("wizardfinish", this.onFinish.bind(this));
     const accountSetupPage = document.getElementById("accountsetuppage");
     accountSetupPage.addEventListener(
       "pageshow",
@@ -29,6 +30,14 @@ var FeedAccountWizard = {
     );
     const donePage = document.getElementById("done");
     donePage.addEventListener("pageshow", this.donePageInit.bind(this));
+
+    const nameInput = document.getElementById("prettyName");
+    nameInput.disabled = true;
+    nameInput.value = await document.l10n.formatValue(
+      "account-settings-rss-default-account-name"
+    );
+    nameInput.disabled = false;
+    this.accountSetupPageValidate();
   },
 
   accountSetupPageValidate() {
