@@ -942,6 +942,7 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
     imapServer->GetFetchByChunks(&m_fetchByChunks);
     imapServer->GetSendID(&m_sendID);
 
+    m_canonicalTrashFolderPath.Truncate();
     nsAutoCString trashFolderPath;
     if (NS_SUCCEEDED(imapServer->GetTrashFolderName(trashFolderPath))) {
       if (m_allowUTF8Accept)
@@ -5192,41 +5193,38 @@ void nsImapProtocol::DiscoverMailboxSpec(nsImapMailboxSpec* adoptedBoxSpec) {
           nsPrefix)  // if no personal namespace, there can be no Trash folder
       {
         bool onlineTrashFolderExists = false;
-        if (m_hostSessionList) {
-          if (adoptedBoxSpec->mBoxFlags & (kImapTrash | kImapXListTrash)) {
-            m_hostSessionList->SetOnlineTrashFolderExistsForHost(
-                GetImapServerKey(), true);
-            onlineTrashFolderExists = true;
-          } else {
-            m_hostSessionList->GetOnlineTrashFolderExistsForHost(
-                GetImapServerKey(), onlineTrashFolderExists);
-          }
+        if (adoptedBoxSpec->mBoxFlags & (kImapTrash | kImapXListTrash)) {
+          m_hostSessionList->SetOnlineTrashFolderExistsForHost(
+              GetImapServerKey(), true);
+          onlineTrashFolderExists = true;
+        } else {
+          m_hostSessionList->GetOnlineTrashFolderExistsForHost(
+              GetImapServerKey(), onlineTrashFolderExists);
         }
 
         // Don't set the Trash flag if not using the Trash model
-        if (GetDeleteIsMoveToTrash() && !onlineTrashFolderExists &&
-            CaseInsensitiveFindInReadable(m_trashFolderPath,
-                                          adoptedBoxSpec->mAllocatedPathName)) {
-          bool trashExists = false;
-          if (StringBeginsWith(m_trashFolderPath, "INBOX/"_ns,
-                               nsCaseInsensitiveCStringComparator)) {
-            nsAutoCString pathName(adoptedBoxSpec->mAllocatedPathName.get() +
-                                   6);
-            trashExists =
-                StringBeginsWith(
-                    adoptedBoxSpec->mAllocatedPathName, m_trashFolderPath,
-                    nsCaseInsensitiveCStringComparator) && /* "INBOX/" */
-                pathName.Equals(Substring(m_trashFolderPath, 6),
-                                nsCaseInsensitiveCStringComparator);
-          } else
+        if (GetDeleteIsMoveToTrash() && !onlineTrashFolderExists) {
+          bool trashExists = adoptedBoxSpec->mAllocatedPathName.Equals(
+              m_trashFolderPath, nsCaseInsensitiveCStringComparator);
+          if (!trashExists) {
+            if (m_canonicalTrashFolderPath.IsEmpty()) {
+              // Resolve a relative path as LIST and CREATE do, then use the
+              // same canonical form as the discovered mailbox.
+              nsAutoCString onlineTrashName;
+              m_runningUrl->AllocateServerPath(
+                  m_trashFolderPath, ns->GetDelimiter(), onlineTrashName);
+              m_runningUrl->AllocateCanonicalPath(onlineTrashName,
+                                                  ns->GetDelimiter(),
+                                                  m_canonicalTrashFolderPath);
+            }
             trashExists = adoptedBoxSpec->mAllocatedPathName.Equals(
-                m_trashFolderPath, nsCaseInsensitiveCStringComparator);
-
-          if (m_hostSessionList)
+                m_canonicalTrashFolderPath, nsCaseInsensitiveCStringComparator);
+          }
+          if (trashExists) {
             m_hostSessionList->SetOnlineTrashFolderExistsForHost(
-                GetImapServerKey(), trashExists);
-
-          if (trashExists) adoptedBoxSpec->mBoxFlags |= kImapTrash;
+                GetImapServerKey(), true);
+            adoptedBoxSpec->mBoxFlags |= kImapTrash;
+          }
         }
       }
 
@@ -5249,9 +5247,8 @@ void nsImapProtocol::DiscoverMailboxSpec(nsImapMailboxSpec* adoptedBoxSpec) {
 
           bool useSubscription = false;
 
-          if (m_hostSessionList)
-            m_hostSessionList->GetHostIsUsingSubscription(GetImapServerKey(),
-                                                          useSubscription);
+          m_hostSessionList->GetHostIsUsingSubscription(GetImapServerKey(),
+                                                        useSubscription);
 
           if ((GetMailboxDiscoveryStatus() != eContinue) &&
               (GetMailboxDiscoveryStatus() != eContinueNew) &&
@@ -7506,6 +7503,7 @@ void nsImapProtocol::DiscoverAllAndSubscribedBoxes() {
 // pane.
 // DiscoverMailboxList() also gets the ACLs for each newly discovered folder
 void nsImapProtocol::DiscoverMailboxList() {
+  m_canonicalTrashFolderPath.Truncate();
   bool usingSubscription = false;
 
   m_hostSessionList->GetHostIsUsingSubscription(GetImapServerKey(),
@@ -7704,6 +7702,8 @@ void nsImapProtocol::MailboxDiscoveryFinished() {
         m_hierarchyNameState = kDiscoverTrashFolderInProgress;
         List(m_trashFolderPath.get(), true);
         m_hierarchyNameState = kNoOperationInProgress;
+        m_hostSessionList->GetOnlineTrashFolderExistsForHost(GetImapServerKey(),
+                                                             trashFolderExists);
       }
     }
 

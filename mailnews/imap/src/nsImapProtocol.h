@@ -396,6 +396,8 @@ class nsImapProtocol : public nsIImapProtocol,
   char* m_dataOutputBuf;
   RefPtr<nsMsgLineStreamBuffer> m_inputStreamBuffer;
   nsCString m_trashFolderPath;
+  // Resolved lazily and reset for each URL or mailbox discovery.
+  nsCString m_canonicalTrashFolderPath;
 
   /** The socket connection to the IMAP server. */
   nsCOMPtr<nsISocketTransport> m_transport;
