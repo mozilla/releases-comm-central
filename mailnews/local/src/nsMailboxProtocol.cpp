@@ -217,33 +217,32 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
           nsCOMPtr<nsIMsgDBHdr> msgHdr;
           rv = msgUrl->GetMessageHeader(getter_AddRefs(msgHdr));
           NS_ENSURE_SUCCESS(rv, rv);
+          NS_ENSURE_TRUE(msgHdr, NS_MSG_MESSAGE_NOT_FOUND);
 
-          if (msgHdr) {
-            uint32_t msgSize = 0;
-            msgHdr->GetMessageSize(&msgSize);
-            m_runningUrl->SetMessageSize(msgSize);
+          uint32_t msgSize = 0;
+          msgHdr->GetMessageSize(&msgSize);
+          m_runningUrl->SetMessageSize(msgSize);
 
-            SetContentLength(msgSize);
-            rv = m_runningUrl->GetMailboxAction(&m_mailboxAction);
+          SetContentLength(msgSize);
+          rv = m_runningUrl->GetMailboxAction(&m_mailboxAction);
+          NS_ENSURE_SUCCESS(rv, rv);
+          nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = m_runningUrl.get();
+          MOZ_ASSERT(m_mailboxAction != MailboxAction::Invalid);
+          mailnewsUrl->SetMaxProgress(msgSize);
+
+          rv = msgHdr->GetFolder(getter_AddRefs(folder));
+          NS_ENSURE_SUCCESS(rv, rv);
+          if (folder) {
+            nsCOMPtr<nsIInputStream> stream;
+            rv = folder->GetMsgInputStream(msgHdr, getter_AddRefs(stream));
             NS_ENSURE_SUCCESS(rv, rv);
-            nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = m_runningUrl.get();
-            MOZ_ASSERT(m_mailboxAction != MailboxAction::Invalid);
-            mailnewsUrl->SetMaxProgress(msgSize);
+            // create input stream transport
+            nsCOMPtr<nsIStreamTransportService> sts =
+                mozilla::components::StreamTransport::Service();
+            rv = sts->CreateInputTransport(stream, true,
+                                           getter_AddRefs(m_transport));
 
-            rv = msgHdr->GetFolder(getter_AddRefs(folder));
-            NS_ENSURE_SUCCESS(rv, rv);
-            if (folder) {
-              nsCOMPtr<nsIInputStream> stream;
-              rv = folder->GetMsgInputStream(msgHdr, getter_AddRefs(stream));
-              NS_ENSURE_SUCCESS(rv, rv);
-              // create input stream transport
-              nsCOMPtr<nsIStreamTransportService> sts =
-                  mozilla::components::StreamTransport::Service();
-              rv = sts->CreateInputTransport(stream, true,
-                                             getter_AddRefs(m_transport));
-
-              m_socketIsOpen = false;
-            }
+            m_socketIsOpen = false;
           }
         }
       }

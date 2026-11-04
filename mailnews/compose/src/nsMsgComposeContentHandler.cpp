@@ -54,6 +54,7 @@ nsresult nsMsgComposeContentHandler::GetBestIdentity(
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   rv = msgURI->GetMessageHeader(getter_AddRefs(msgHdr));
   NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(msgHdr, NS_ERROR_FAILURE);
 
   nsCOMPtr<nsIMsgFolder> folder;
   rv = msgHdr->GetFolder(getter_AddRefs(folder));
