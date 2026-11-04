@@ -558,11 +558,15 @@ add_task(async function testSpacesToolbarContextMenu() {
   async function closeTab(tab) {
     numTabs--;
     await scrollToTab(tab);
-    EventUtils.synthesizeMouseAtCenter(
-      tab.querySelector(".tab-close-button"),
-      {},
-      window
+    const closeButton = tab.querySelector(".tab-close-button");
+    Assert.equal(
+      closeButton.tabIndex,
+      -1,
+      "Tab close buttons are not tab stops"
     );
+    AccessibilityUtils.setEnv({ focusableRule: false });
+    EventUtils.synthesizeMouseAtCenter(closeButton, {}, window);
+    AccessibilityUtils.resetEnv();
     await TestUtils.waitForCondition(
       () => document.querySelectorAll("tab.tabmail-tab").length == numTabs,
       "Waiting for tab to close"
