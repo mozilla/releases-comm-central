@@ -8910,15 +8910,14 @@ nsresult nsImapMailFolder::GetOfflineMsgFolder(nsMsgKey msgKey,
   nsCOMPtr<nsIMsgDBHdr> hdr;
   rv = mDatabase->GetMsgHdrForKey(msgKey, getter_AddRefs(hdr));
   if (NS_FAILED(rv)) return rv;
+  NS_ENSURE_TRUE(hdr, NS_MSG_MESSAGE_NOT_FOUND);
 
-  if (hdr) {
-    uint32_t msgFlags = 0;
-    hdr->GetFlags(&msgFlags);
-    // Check if we already have this message body offline
-    if ((msgFlags & nsMsgMessageFlags::Offline)) {
-      NS_IF_ADDREF(*aMsgFolder = this);
-      return NS_OK;
-    }
+  uint32_t msgFlags = 0;
+  hdr->GetFlags(&msgFlags);
+  // Check if we already have this message body offline
+  if ((msgFlags & nsMsgMessageFlags::Offline)) {
+    NS_IF_ADDREF(*aMsgFolder = this);
+    return NS_OK;
   }
 
   if (!*aMsgFolder) {
