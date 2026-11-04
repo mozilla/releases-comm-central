@@ -390,7 +390,12 @@ li[is="calendar-dialog-attachment"] {
 
     & .event-title {
       display: flex;
+      flex-direction: column;
       flex: 1 0 100%;
+    }
+
+    & .event-title-required {
+      color: var(--color-text-critical);
     }
   }
 

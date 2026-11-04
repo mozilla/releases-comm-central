@@ -9,6 +9,18 @@ calendar-dialog-close-button =
 calendar-event-create-edit-dialog =
   .aria-label = Event
 
+calendar-event-title-input-new =
+  .aria-label = Event title
+  .placeholder = New event
+
+calendar-event-title-input-untitled =
+  .aria-label = Event title
+  .placeholder = Untitled event
+
+calendar-event-title-required = Required
+
+calendar-event-title-too-long = Title must not exceed 180 characters
+
 calendar-dialog-menu-button =
   .aria-label = Open menu
   .title = Open Menu

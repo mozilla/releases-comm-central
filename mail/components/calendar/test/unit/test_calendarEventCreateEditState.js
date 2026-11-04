@@ -290,8 +290,8 @@ add_task(function test_dirtySectionsAndValidationResetForNewSource() {
   );
   Assert.deepEqual(
     state.sessions[sessionKey].validation,
-    {},
-    "New source data clears old validation results"
+    { title: { valid: true } },
+    "New source data replaces old validation results with title validity"
   );
 });
 

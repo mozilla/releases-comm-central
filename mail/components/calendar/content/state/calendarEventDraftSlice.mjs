@@ -101,7 +101,7 @@ export function selectCalendarEventDraftState(state, sessionKey) {
 
 /**
  * Set separate copies of the starting and editable values. Clear change and
- * validation data from the old draft.
+ * validation data from the old draft, and initialize title validity.
  *
  * @param {CalendarEventDraftState} draft - The state being reset.
  * @param {CalendarEventDraft} value - Values for the new starting copy.
@@ -110,7 +110,9 @@ function resetDraft(draft, value) {
   const snapshot = structuredClone(value);
   draft.baseline = snapshot;
   draft.dirtySections = [];
-  draft.validation = {};
+  draft.validation = {
+    title: { valid: !!value.title?.trim() },
+  };
   draft.value = structuredClone(snapshot);
 }
 

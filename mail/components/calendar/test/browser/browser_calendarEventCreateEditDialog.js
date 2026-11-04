@@ -1986,3 +1986,274 @@ add_task(async function test_saveButtonStateForOperationStatus() {
   await resetToCreateMode();
   dialog.close();
 });
+
+async function loadTitleEvent(calendarEventToLoad) {
+  const sourceLoaded = waitForNextSourceLoad();
+  dialog.setCalendarEventRoute({
+    calendarId: calendar.id,
+    eventId: calendarEventToLoad.id,
+  });
+  await sourceLoaded;
+}
+
+add_task(async function test_emptyCreateTitleCannotSave() {
+  await resetToCreateMode();
+  await dialog.show();
+
+  try {
+    Assert.strictEqual(
+      dialog.canSave,
+      false,
+      "An untouched empty title should prevent saving"
+    );
+  } finally {
+    dialog.close();
+    await resetToCreateMode();
+  }
+});
+
+add_task(async function test_titleLoadsDraftValuesAndHints() {
+  const input = dialog.querySelector(".event-title-input");
+  const untitledEvent = await createEvent({ calendar, name: "" });
+
+  await resetToCreateMode();
+  await doc.l10n.translateFragment(dialog);
+  Assert.equal(
+    doc.l10n.getAttributes(input).id,
+    "calendar-event-title-input-new",
+    "A new, empty event title should have a placeholder hint"
+  );
+  Assert.equal(
+    dialog.draft.title,
+    undefined,
+    "New events should have an empty title"
+  );
+  Assert.ok(
+    dialog.querySelector(".event-title-required").hidden,
+    "The required message should be hidden when dialog opens"
+  );
+
+  await loadTitleEvent(calendarEvent);
+  Assert.equal(
+    input.value,
+    calendarEvent.title,
+    "Editing an event should load its title"
+  );
+
+  await loadTitleEvent(untitledEvent);
+  await doc.l10n.translateFragment(dialog);
+  Assert.equal(
+    input.value,
+    "",
+    "An untitled event should replace the previous title"
+  );
+
+  await resetToCreateMode();
+});
+
+add_task(async function test_titleEditingAndValidation() {
+  const input = dialog.querySelector(".event-title-input");
+  const required = dialog.querySelector(".event-title-required");
+  const otherEvent = await createEvent({ calendar, name: "Other event" });
+
+  await loadTitleEvent(calendarEvent);
+  await dialog.show();
+
+  try {
+    input.focus();
+    input.select();
+    EventUtils.sendString("Changed title", browser.contentWindow);
+    Assert.equal(
+      dialog.draft.title,
+      "Changed title",
+      "Entering text should update the event's draft title"
+    );
+    const savedEvent = await calendar.getItem(calendarEvent.id);
+    Assert.equal(
+      savedEvent.title,
+      calendarEvent.title,
+      "Entering text should not change the saved event title"
+    );
+
+    input.select();
+    EventUtils.synthesizeKey("KEY_Backspace", {}, browser.contentWindow);
+    dialog.querySelector(".close-button").focus();
+    await doc.l10n.translateFragment(dialog);
+    Assert.equal(
+      doc.l10n.getAttributes(required).id,
+      "calendar-event-title-required",
+      "A 'Required' message should be available"
+    );
+    Assert.ok(
+      BrowserTestUtils.isVisible(required),
+      "An empty title should show the 'Required' message"
+    );
+    Assert.equal(
+      input.getAttribute("aria-invalid"),
+      "true",
+      "An empty title should be marked invalid"
+    );
+    Assert.ok(!dialog.canSave, "An empty title should prevent saving");
+
+    input.focus();
+    EventUtils.sendString("   ", browser.contentWindow);
+    Assert.ok(
+      BrowserTestUtils.isVisible(required),
+      "A whitespace-only title should show the 'Required' message"
+    );
+    Assert.equal(
+      dialog.draft.title,
+      "   ",
+      "Entering whitespace should update the draft title"
+    );
+
+    EventUtils.sendString("A", browser.contentWindow);
+    Assert.ok(
+      BrowserTestUtils.isHidden(required),
+      "Entering a valid title should hide the required message"
+    );
+    Assert.ok(dialog.canSave, "A valid title should allow saving");
+
+    input.select();
+    EventUtils.synthesizeKey("KEY_Backspace", {}, browser.contentWindow);
+    await loadTitleEvent(otherEvent);
+    Assert.ok(
+      BrowserTestUtils.isHidden(required),
+      "Switching events should hide any previous title errors"
+    );
+    Assert.ok(
+      !input.hasAttribute("aria-invalid"),
+      "Switching events should clear the invalid title state"
+    );
+  } finally {
+    dialog.close();
+    await resetToCreateMode();
+  }
+});
+
+add_task(async function test_titleLengthLimitAndTooltip() {
+  const input = dialog.querySelector(".event-title-input");
+  const longTitle = "a".repeat(200);
+  const longTitleEvent = await createEvent({ calendar, name: longTitle });
+  const required = dialog.querySelector(".event-title-required");
+
+  await resetToCreateMode();
+  await dialog.show();
+  input.focus();
+  EventUtils.sendString("b".repeat(200), browser.contentWindow);
+  Assert.equal(
+    input.value.length,
+    180,
+    "Title input should not allow more than 180 characters"
+  );
+  dialog.close();
+
+  await loadTitleEvent(longTitleEvent);
+  await dialog.show();
+
+  try {
+    Assert.equal(
+      input.value,
+      longTitle,
+      "A stored, long event title should not be shortened"
+    );
+
+    const accService = Cc["@mozilla.org/accessibilityService;1"].getService(
+      Ci.nsIAccessibilityService
+    );
+    let inputAccessible;
+    await TestUtils.waitForCondition(
+      () => (inputAccessible = accService.getAccessibleFor(input)),
+      "The title input should be available to screen reader users"
+    );
+    Assert.equal(
+      inputAccessible.value,
+      longTitle,
+      "Screen reader users should get the full title"
+    );
+
+    EventUtils.synthesizeMouseAtCenter(
+      input,
+      { type: "mousemove" },
+      browser.contentWindow
+    );
+    Assert.equal(
+      input.title,
+      longTitle,
+      "A cut-off title should have a tooltip"
+    );
+
+    Assert.ok(
+      dialog.canSave,
+      "An unchanged loaded long title should allow saving"
+    );
+
+    dialog.updateDraftSection("calendar", { calendarId: "other-calendar" });
+    Assert.equal(
+      dialog.draft.title,
+      longTitle,
+      "Changing another field should not shorten the title"
+    );
+    Assert.ok(
+      dialog.canSave,
+      "Changing another field should keep the unchanged long title valid"
+    );
+
+    input.setSelectionRange(200, 200);
+    EventUtils.synthesizeKey("KEY_Backspace", {}, browser.contentWindow);
+    Assert.equal(
+      input.getAttribute("aria-invalid"),
+      "true",
+      "Editing a title over 180 characters should mark it invalid"
+    );
+    Assert.ok(
+      !dialog.canSave,
+      "A title over 180 characters should prevent saving"
+    );
+
+    Assert.equal(
+      doc.l10n.getAttributes(required).id,
+      "calendar-event-title-too-long",
+      "A 'Too Long' message should be available"
+    );
+    Assert.ok(
+      BrowserTestUtils.isVisible(required),
+      "A title over 180 characters should show the 'Too Long' message"
+    );
+  } finally {
+    dialog.close();
+    await resetToCreateMode();
+  }
+});
+
+add_task(async function test_titleTooltipClearsForChangedTitleAndEvent() {
+  const input = dialog.querySelector(".event-title-input");
+  const longTitle = "a".repeat(200);
+  const longTitleEvent = await createEvent({ calendar, name: longTitle });
+  const otherEvent = await createEvent({ calendar, name: "Other event" });
+
+  await loadTitleEvent(longTitleEvent);
+  await dialog.show();
+
+  try {
+    input.title = longTitle;
+
+    input.focus();
+    input.select();
+    EventUtils.sendString("Short title", browser.contentWindow);
+    Assert.equal(input.title, "", "Changing a title should clear its tooltip");
+
+    await loadTitleEvent(longTitleEvent);
+    input.title = longTitle;
+
+    await loadTitleEvent(otherEvent);
+    Assert.equal(
+      input.title,
+      "",
+      "Loading another event should clear the previous title tooltip"
+    );
+  } finally {
+    dialog.close();
+    await resetToCreateMode();
+  }
+});
