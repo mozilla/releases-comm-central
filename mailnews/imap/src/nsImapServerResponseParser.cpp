@@ -140,6 +140,7 @@ void nsImapServerResponseParser::InitializeState() {
   fNumberOfRecentMessages = 0;
   fReceivedHeaderOrSizeForUID = 0;
   fUntaggedResponse = false;
+  fUnexpectedTag = false;
   fCurrentAppendUID = 0;
 }
 
@@ -266,6 +267,7 @@ void nsImapServerResponseParser::ParseIMAPServerResponse(
           } else {
             // Expected tag doesn't match the received tag. Not good, start
             // over.
+            fUnexpectedTag = true;
             response_fatal();
           }
           // Show an alert notification containing the server response to bad
@@ -1735,10 +1737,12 @@ void nsImapServerResponseParser::resp_text_code() {
 // RFC3501:  response-done = response-tagged / response-fatal
 void nsImapServerResponseParser::response_done() {
   if (ContinueParse()) {
-    if (!PL_strcmp(fCurrentCommandTag, fNextToken))
+    if (!PL_strcmp(fCurrentCommandTag, fNextToken)) {
       response_tagged();
-    else
+    } else {
+      fUnexpectedTag = true;
       response_fatal();
+    }
   }
 }
 

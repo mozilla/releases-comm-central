@@ -2229,6 +2229,18 @@ void nsImapProtocol::ParseIMAPandCheckForNewMail(
     GetServerStateParser().ParseIMAPServerResponse(m_currentCommand.get(),
                                                    aIgnoreBadAndNOResponses);
   // **** fix me for new mail biff state *****
+
+  // After a response with another command's tag, the responses to further
+  // commands can't be trusted.
+  if (GetServerStateParser().UnexpectedTag() && !DeathSignalReceived()) {
+    Log("ParseIMAPandCheckForNewMail", nullptr,
+        "response with unexpected tag, closing connection");
+    ClearFlag(IMAP_CONNECTION_IS_OPEN);
+    TellThreadToDie();
+    if (NS_SUCCEEDED(GetConnectionStatus())) {
+      SetConnectionStatus(NS_ERROR_FAILURE);
+    }
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

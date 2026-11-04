@@ -123,6 +123,8 @@ tags = ["foldernames"]
 
 ["test_imapNtlmNoChallenge.js"]
 
+["test_imapOutOfStepResponse.js"]
+
 ["test_imapPasswordFailure.js"]
 
 ["test_imapPreAuthUntaggedIgnored.js"]
