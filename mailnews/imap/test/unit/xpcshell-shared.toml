@@ -65,6 +65,8 @@ tags = ["foldernames"]
 
 ["test_imapClientid.js"]
 
+["test_imapCompress.js"]
+
 ["test_imapContentLength.js"]
 
 ["test_imapCopyTimeout.js"]

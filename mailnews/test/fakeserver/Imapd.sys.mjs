@@ -1663,6 +1663,11 @@ export class IMAP_RFC3501_handler {
       this._tlsActive = true;
       reader.startTLS();
     }
+    if (this._compressionPending) {
+      this._compressionPending = false;
+      this._compressionActive = true;
+      reader.startCompression();
+    }
     if (this.sendingLiteral) {
       reader.preventLFMunge();
     }
@@ -2496,6 +2501,23 @@ export var IMAP_RFC4315_extension = {
     return response;
   },
   kCapabilities: ["UIDPLUS"],
+};
+
+// RFC 4978: IMAP COMPRESS Extension
+export var IMAP_RFC4978_extension = {
+  COMPRESS(args) {
+    if (args[0] != "DEFLATE") {
+      return "BAD Unknown compression mechanism";
+    }
+    if (this._compressionActive) {
+      return "NO [COMPRESSIONACTIVE] DEFLATE active via COMPRESS";
+    }
+    this._compressionPending = true;
+    return "OK Begin compression.";
+  },
+  kCapabilities: ["COMPRESS=DEFLATE"],
+  _argFormat: { COMPRESS: ["atom"] },
+  _enabledCommands: { 1: ["COMPRESS"], 2: ["COMPRESS"] },
 };
 
 // RFC 5258: LIST-EXTENDED

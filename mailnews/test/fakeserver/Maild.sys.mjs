@@ -408,6 +408,58 @@ function readTo(input, count, arr) {
 }
 
 /**
+ * Compresses data as raw DEFLATE (RFC 1951) stored blocks. Each call ends on
+ * a block boundary, like a zlib Z_SYNC_FLUSH, so the peer can decode all of
+ * it right away. An empty input gives an empty block (00 00 00 FF FF).
+ *
+ * @param {string} data - A binary string.
+ * @returns {string} A binary string.
+ */
+function deflateStored(data) {
+  let result = "";
+  let pos = 0;
+  do {
+    const length = Math.min(data.length - pos, 0xffff);
+    result +=
+      String.fromCharCode(
+        0,
+        length & 0xff,
+        length >> 8,
+        ~length & 0xff,
+        (~length >> 8) & 0xff
+      ) + data.substring(pos, pos + length);
+    pos += length;
+  } while (pos < data.length);
+  return result;
+}
+
+/**
+ * Decompresses a raw DEFLATE (RFC 1951) stream as it arrives.
+ */
+class Inflater {
+  /**
+   * @param {function(Uint8Array):void} onData - Called with the decompressed
+   *   bytes, asynchronously and in order.
+   */
+  constructor(onData) {
+    const stream = new DecompressionStream("deflate-raw");
+    this._writer = stream.writable.getWriter();
+    stream.readable
+      .pipeTo(new WritableStream({ write: onData }))
+      .catch(e => dump(`Compressed connection failed: ${e}\n`));
+  }
+
+  /**
+   * @param {integer[]} bytes - Compressed bytes.
+   */
+  inflate(bytes) {
+    if (bytes.length) {
+      this._writer.write(new Uint8Array(bytes));
+    }
+  }
+}
+
+/**
  * The nsMailReader service, which reads and handles the lines.
  * All specific handling is passed off to the handler, which is responsible
  * for maintaining its own state. The following commands are required for the
@@ -521,9 +573,36 @@ class nsMailReader {
       this._realCloseSocket();
       return;
     }
-    readTo(stream, bytes, this._buffer);
-    this._findLines();
+    this._input = stream;
+    if (this._inflater) {
+      const compressed = [];
+      readTo(stream, bytes, compressed);
+      this._inflater.inflate(compressed);
+    } else {
+      readTo(stream, bytes, this._buffer);
+      if (!this._handleLines(stream)) {
+        return;
+      }
+    }
 
+    if (this._isRunning) {
+      stream.asyncWait(this, 0, 0, Services.tm.currentThread);
+      this.timer.initWithCallback(
+        this.observer,
+        TIMEOUT,
+        Ci.nsITimer.TYPE_ONE_SHOT
+      );
+    }
+  }
+
+  /**
+   * Handles the complete lines in the buffer.
+   *
+   * @param {nsIAsyncInputStream} stream
+   * @returns {boolean} false if STARTTLS took over the connection.
+   */
+  _handleLines(stream) {
+    this._findLines();
     while (this._lines.length > 0) {
       var line = this._lines.shift();
 
@@ -602,22 +681,23 @@ class nsMailReader {
       if (this._startTLSPending) {
         this._startTLSPending = false;
         this._beginStartTLS(stream);
-        return;
+        return false;
       }
     }
-
-    if (this._isRunning) {
-      stream.asyncWait(this, 0, 0, Services.tm.currentThread);
-      this.timer.initWithCallback(
-        this.observer,
-        TIMEOUT,
-        Ci.nsITimer.TYPE_ONE_SHOT
-      );
-    }
+    return true;
   }
 
   closeSocket() {
     this._signalStop = true;
+  }
+
+  /**
+   * Starts DEFLATE compression (RFC 4978) once the response to the current
+   * command has been sent. Like Dovecot, an empty deflate block is sent
+   * right after that response, in the same write.
+   */
+  startCompression() {
+    this._compressionPending = true;
   }
 
   /**
@@ -733,6 +813,23 @@ class nsMailReader {
 
     if (this.transaction) {
       this.transaction.us.push(response);
+    }
+
+    if (this._compressionPending) {
+      this._compressionPending = false;
+      response += deflateStored("");
+      this._inflater = new Inflater(bytes => {
+        if (!this._isRunning) {
+          return;
+        }
+        Array.prototype.push.apply(this._buffer, bytes);
+        this._handleLines(this._input);
+      });
+      const compressed = this._buffer;
+      this._buffer = [];
+      this._inflater.inflate(compressed);
+    } else if (this._inflater) {
+      response = deflateStored(response);
     }
 
     this._output.write(response, response.length);
