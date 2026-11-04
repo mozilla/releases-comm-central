@@ -44,4 +44,6 @@ prefs = [
 ]
 subsuite = "thunderbird"
 
+["browser_filterRunAlerts.js"]
+
 ["browser_messageFilters.js"]

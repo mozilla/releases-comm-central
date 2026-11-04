@@ -1238,7 +1238,7 @@ void nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
                 uint32_t newFlags;
                 m_newMsgHdr->AndFlags(~nsMsgMessageFlags::New, &newFlags);
                 rv = MoveIncorporatedMessage(m_newMsgHdr, m_mailDB, trash,
-                                             nullptr, msgWindow);
+                                             nullptr);
                 if (NS_FAILED(rv)) {
                   NS_WARNING("moveDupsToTrash failed for some reason.");
                 }
@@ -1467,7 +1467,7 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
               msgHdr->GetFlags(&old_flags);
 
               rv = MoveIncorporatedMessage(msgHdr, m_mailDB, destIFolder,
-                                           filter, msgWindow);
+                                           filter);
               m_msgMovedByFilter = NS_SUCCEEDED(rv);
 
               if (m_msgMovedByFilter &&
@@ -1856,7 +1856,6 @@ nsresult nsParseNewMailState::EndMsgDownload() {
  * @param sourceDB    The database of the download folder (used for cleanup).
  * @param destIFolder The target local folder.
  * @param filter      (Optional) The filter that triggered this move.
- * @param msgWindow   (Optional) Window for displaying error alerts.
  *
  * @note After a successful move, the physical source file and its database
  * entry are permanently destroyed. The passed `mailHdr` pointer becomes
@@ -1865,8 +1864,7 @@ nsresult nsParseNewMailState::EndMsgDownload() {
 nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
                                                       nsIMsgDatabase* sourceDB,
                                                       nsIMsgFolder* destIFolder,
-                                                      nsIMsgFilter* filter,
-                                                      nsIMsgWindow* msgWindow) {
+                                                      nsIMsgFilter* filter) {
   NS_ENSURE_ARG_POINTER(destIFolder);
   nsresult rv = NS_OK;
 
@@ -1891,10 +1889,8 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
 
   uint32_t messageLength;
   mailHdr->GetMessageSize(&messageLength);
-  bool destFolderTooBig = true;
-  rv = localFolder->WarnIfLocalFileTooBig(msgWindow, messageLength,
-                                          &destFolderTooBig);
-  if (NS_FAILED(rv) || destFolderTooBig) {
+  rv = localFolder->CheckSpaceAndWarn(messageLength, nullptr);
+  if (NS_FAILED(rv)) {
     return NS_MSG_ERROR_WRITING_MAIL_FOLDER;
   }
 

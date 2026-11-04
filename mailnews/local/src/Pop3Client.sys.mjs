@@ -1393,18 +1393,7 @@ export class Pop3Client {
           const localFolder = this._sink.folder.QueryInterface(
             Ci.nsIMsgLocalMailFolder
           );
-          if (
-            localFolder.warnIfLocalFileTooBig(
-              this._msgWindow,
-              this._totalDownloadSize
-            )
-          ) {
-            throw new Error(
-              `Too big! ${localFolder.filePath.diskSpaceAvailable / 2 ** 20} MiB of disk space available; ` +
-                `${this._totalDownloadSize / 2 ** 20} MiB requested; ` +
-                `folder size is ${localFolder.filePath.fileSize / 2 ** 20} MiB`
-            );
-          }
+          localFolder.checkSpaceAndWarn(this._totalDownloadSize);
         } catch (e) {
           this._logger.error(e);
           this._actionDone(Cr.NS_ERROR_FAILURE);

@@ -47,13 +47,32 @@ const nsMsgKey_None = 0xffffffff;
 var gFolder, gViewWrapper;
 
 /**
- * A listener for a filter run started from the message list.
+ * Creates a listener that collects folder errors for a manual filter run.
+ * Shows the collected errors in the final failure prompt.
  *
- * @param {nsIMsgFolder} folder - The folder the filters ran on.
- * @returns {nsIMsgOperationListener}
+ * @param {nsIMsgFolder} folder - The folder to filter.
+ * @returns {nsIMsgOperationListener} The run's completion and feedback listener.
  */
 function filterRunListener(folder) {
+  const errors = new Set();
   return {
+    QueryInterface: ChromeUtils.generateQI([
+      "nsIMsgOperationListener",
+      "nsIMsgUserFeedbackListener",
+    ]),
+    onAlert(message, serverKey, silent) {
+      if (silent || window.closed) {
+        return false;
+      }
+      errors.add(message);
+      return true;
+    },
+    onCertError() {
+      throw Components.Exception(
+        "Certificate errors require the mail session feedback listeners",
+        Cr.NS_ERROR_NOT_IMPLEMENTED
+      );
+    },
     async onStopOperation(status) {
       if (Components.isSuccessCode(status)) {
         return;
@@ -66,7 +85,7 @@ function filterRunListener(folder) {
         !Services.prompt.confirmEx(
           window.top,
           null,
-          message,
+          [message, ...errors].join("\n\n"),
           Services.prompt.BUTTON_TITLE_IS_STRING *
             Services.prompt.BUTTON_POS_0 +
             Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1,

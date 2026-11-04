@@ -29,6 +29,7 @@
 #define COPY_BUFFER_SIZE 16384
 
 class nsParseMailMessageState;
+class nsIMsgUserFeedbackListener;
 
 struct nsLocalMailCopyState {
   nsLocalMailCopyState();
@@ -220,9 +221,9 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
    * Checks if there's room in the target folder to copy message(s) into.
    * If not, handles alerting the user, and sending the copy notifications.
    */
-  bool CheckIfSpaceForCopy(nsIMsgWindow* msgWindow, nsIMsgFolder* srcFolder,
-                           nsISupports* srcSupports, bool isMove,
-                           int64_t totalMsgSize);
+  bool CheckIfSpaceForCopy(nsIMsgUserFeedbackListener* listener,
+                           nsIMsgFolder* srcFolder, nsISupports* srcSupports,
+                           bool isMove, int64_t totalMsgSize);
 
   // copy multiple messages at a time from this folder
   nsresult CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,

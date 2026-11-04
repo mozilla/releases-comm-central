@@ -8,6 +8,7 @@ const bundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties"
 );
 const alerts = [];
+const l10n = new Localization(["messenger/messenger.ftl"], true);
 
 add_setup(function () {
   Services.prefs.setBoolPref("mailnews.allowMboxOver4GB", true);
@@ -43,10 +44,7 @@ function checkStoreSpace(storeID) {
     store.hasSpaceAvailable(folder, 1),
     "The store should have room for a small message"
   );
-  Assert.ok(
-    !folder.warnIfLocalFileTooBig(null, 1),
-    "The folder should allow a message when space is available"
-  );
+  folder.checkSpaceAndWarn(1);
   Assert.deepEqual(alerts, [], "Available space should not trigger an alert");
 
   alerts.length = 0;
@@ -67,28 +65,35 @@ function checkStoreSpace(storeID) {
       "The store should preserve the filesystem query error"
     );
     Assert.throws(
-      () => folder.warnIfLocalFileTooBig(null, 1),
+      () => folder.checkSpaceAndWarn(1),
       error => error.result == queryError,
       "The folder should propagate the filesystem query error"
     );
     Assert.deepEqual(
       alerts,
-      [],
-      "A filesystem query error should not trigger a disk-space alert"
+      [
+        l10n.formatValueSync("folder-file-not-found", {
+          folder: folder.prettyPath,
+          server: folder.server.prettyName,
+        }),
+      ],
+      "A missing store should identify the folder and the missing file"
     );
   } finally {
     store.ensureLocalStore(folder);
   }
 
+  alerts.length = 0;
   const spaceRequested = file.diskSpaceAvailable + 1024 ** 3;
   Assert.throws(
     () => store.hasSpaceAvailable(folder, spaceRequested),
     error => error.result == Cr.NS_ERROR_FILE_NO_DEVICE_SPACE,
     "A request exceeding the usable space should report a full disk"
   );
-  Assert.ok(
-    folder.warnIfLocalFileTooBig(null, spaceRequested),
-    "The folder should reject a message that does not fit"
+  Assert.throws(
+    () => folder.checkSpaceAndWarn(spaceRequested),
+    error => error.result == Cr.NS_ERROR_FILE_NO_DEVICE_SPACE,
+    "The folder should report the specific disk-space shortage"
   );
   Assert.deepEqual(
     alerts,
@@ -123,9 +128,10 @@ add_task(function test_mboxSizeLimit() {
       error => error.result == Cr.NS_ERROR_FILE_TOO_BIG,
       "Exceeding the mbox size limit should report a full mailbox"
     );
-    Assert.ok(
-      folder.warnIfLocalFileTooBig(null, 0xffc00000),
-      "The folder should reject a message exceeding its size limit"
+    Assert.throws(
+      () => folder.checkSpaceAndWarn(0xffc00000),
+      error => error.result == Cr.NS_ERROR_FILE_TOO_BIG,
+      "The folder should report the specific mailbox-size limit"
     );
     const folderName = bundle.formatStringFromName("verboseFolderFormat", [
       folder.prettyPath,
@@ -140,14 +146,19 @@ add_task(function test_mboxSizeLimit() {
     alerts.length = 0;
     file.remove(false);
     Assert.throws(
-      () => folder.warnIfLocalFileTooBig(null, 1),
+      () => folder.checkSpaceAndWarn(1),
       error => error.result == Cr.NS_ERROR_FILE_NOT_FOUND,
       "A missing mbox should report a file error when checking its size"
     );
     Assert.deepEqual(
       alerts,
-      [],
-      "A missing mbox should not trigger a disk-space alert"
+      [
+        l10n.formatValueSync("folder-file-not-found", {
+          folder: folder.prettyPath,
+          server: folder.server.prettyName,
+        }),
+      ],
+      "A missing mbox should identify the folder and the missing file"
     );
   } finally {
     store.ensureLocalStore(folder);

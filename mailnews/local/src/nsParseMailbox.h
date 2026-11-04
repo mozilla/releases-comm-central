@@ -165,8 +165,7 @@ class nsParseNewMailState : public nsParseMailMessageState,
   virtual nsresult MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
                                            nsIMsgDatabase* sourceDB,
                                            nsIMsgFolder* destIFolder,
-                                           nsIMsgFilter* filter,
-                                           nsIMsgWindow* msgWindow);
+                                           nsIMsgFilter* filter);
   virtual void MarkFilteredMessageRead(nsIMsgDBHdr* msgHdr);
   virtual void MarkFilteredMessageUnread(nsIMsgDBHdr* msgHdr);
 

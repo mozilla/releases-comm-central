@@ -14,6 +14,7 @@
 
 class nsIPrefBranch;
 class nsIMsgFolder;
+class nsIMsgUserFeedbackListener;
 class nsIMsgMessageService;
 class nsIUrlListener;
 class nsIOutputStream;
@@ -136,10 +137,16 @@ nsresult FolderPathInServer(nsIMsgFolder* folder, nsACString& path);
 /// Tell the user about a folder-level failure.
 ///
 /// `msgName` names a string in messenger.properties, which is formatted with
-/// the folder's identity and the brand name. The result is handed to
-/// nsIMsgMailSession.alertUser() so that the front end can present it as a
-/// notification.
-nsresult AlertFolderError(nsIMsgFolder* folder, const nsACString& msgName);
+/// the folder's identity and the brand name. If supplied, `listener` can
+/// handle the alert for this operation.
+/// Alerts are also passed to nsIMsgMailSession.alertUser(), silently if
+/// handled.
+nsresult AlertFolderError(nsIMsgFolder* folder, const nsACString& msgName,
+                          nsIMsgUserFeedbackListener* listener = nullptr);
+
+/// Report a filesystem failure with the folder identity and error category.
+nsresult AlertFolderError(nsIMsgFolder* folder, nsresult status,
+                          nsIMsgUserFeedbackListener* listener = nullptr);
 
 /// Tell the user that filters pointing at this folder have been updated to
 /// follow it.

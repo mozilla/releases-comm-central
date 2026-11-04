@@ -299,10 +299,8 @@ add_task(async function copyIntoOver4GiB_fail_check() {
   );
   await Assert.rejects(
     copyListener.promise,
-    reason => {
-      return reason.message == Cr.NS_ERROR_FAILURE;
-    },
-    "The local folder is not above 4GiB"
+    new RegExp(Cr.NS_ERROR_FILE_TOO_BIG),
+    "Copying past the mailbox size limit should report the specific error"
   );
 
   Assert.equal(copiedMessageHeaderKeys.length, 0);

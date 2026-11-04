@@ -5,6 +5,8 @@
 #include "nsISupports.idl"
 
 // Listener used to notify when an operation has completed.
+// A filter-run listener can also implement nsIMsgUserFeedbackListener to handle
+// folder alerts before completion.
 [scriptable, uuid(bdaef6ff-0909-435b-8fcd-76525dd2364c)]
 interface nsIMsgOperationListener : nsISupports {
   /**

@@ -26,6 +26,7 @@
 #include "nsParseMailbox.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgWindow.h"
+#include "nsIMsgUserFeedbackListener.h"
 #include "nsEmbedCID.h"
 #include "nsIPromptService.h"
 #include "nsIWindowMediator.h"
@@ -1306,18 +1307,14 @@ void nsMsgLocalMailFolder::FinalizeCopyDatabase() {
   }
 }
 
-bool nsMsgLocalMailFolder::CheckIfSpaceForCopy(nsIMsgWindow* msgWindow,
-                                               nsIMsgFolder* srcFolder,
-                                               nsISupports* srcSupports,
-                                               bool isMove,
-                                               int64_t totalMsgSize) {
-  bool spaceNotAvailable = true;
-  nsresult rv =
-      WarnIfLocalFileTooBig(msgWindow, totalMsgSize, &spaceNotAvailable);
-  if (NS_FAILED(rv) || spaceNotAvailable) {
+bool nsMsgLocalMailFolder::CheckIfSpaceForCopy(
+    nsIMsgUserFeedbackListener* listener, nsIMsgFolder* srcFolder,
+    nsISupports* srcSupports, bool isMove, int64_t totalMsgSize) {
+  nsresult rv = CheckSpaceAndWarn(totalMsgSize, listener);
+  if (NS_FAILED(rv)) {
     if (isMove && srcFolder)
       srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
-    OnCopyCompleted(srcSupports, NS_FAILED(rv) ? rv : NS_ERROR_FAILURE);
+    OnCopyCompleted(srcSupports, rv);
     return false;
   }
   return true;
@@ -1344,6 +1341,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
 
   // If allowUndo is true, this should be a user-initiated action.
   UpdateTimestamps(allowUndo);
+  nsCOMPtr<nsIMsgUserFeedbackListener> feedback = do_QueryInterface(listener);
   nsCString protocolType;
   rv = srcFolder->GetURI(protocolType);
   protocolType.SetLength(protocolType.FindChar(':'));
@@ -1377,12 +1375,12 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
     // messages is posted.
     if (needOfflineBodies && !hasMsgOffline) {
       if (isMove) srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
-      AlertFolderError(this, "cantMoveMsgWOBodyOffline"_ns);
+      AlertFolderError(this, "cantMoveMsgWOBodyOffline"_ns, feedback);
       return OnCopyCompleted(srcSupport, NS_ERROR_FAILURE);
     }
   }
 
-  if (!CheckIfSpaceForCopy(msgWindow, srcFolder, srcSupport, isMove,
+  if (!CheckIfSpaceForCopy(feedback, srcFolder, srcSupport, isMove,
                            totalMsgSize))
     return NS_OK;
 
@@ -1456,7 +1454,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
                      isFolder, allowUndo);
 
   if (NS_FAILED(rv)) {
-    AlertFolderError(this, "operationFailedFolderBusy"_ns);
+    AlertFolderError(this, "operationFailedFolderBusy"_ns, feedback);
     (void)OnCopyCompleted(srcSupport, rv);
     return rv;
   }
@@ -1705,9 +1703,10 @@ nsMsgLocalMailFolder::CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
   int64_t fileSize = 0;
 
   nsCOMPtr<nsISupports> fileSupport(aFile);
+  nsCOMPtr<nsIMsgUserFeedbackListener> feedback = do_QueryInterface(listener);
 
   aFile->GetFileSize(&fileSize);
-  if (!CheckIfSpaceForCopy(msgWindow, nullptr, fileSupport, false, fileSize))
+  if (!CheckIfSpaceForCopy(feedback, nullptr, fileSupport, false, fileSize))
     return NS_OK;
 
   nsTArray<RefPtr<nsIMsgDBHdr>> messages;
@@ -2051,7 +2050,9 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CopyData(nsIInputStream* aIStream,
 // Upon failure, sets mCopyState->m_writeFailed and returns false.
 bool nsMsgLocalMailFolder::CopyLine(mozilla::Span<const char> line) {
   if (!mCopyState->m_fileStream) {
-    AlertFolderError(this, "copyMsgWriteFailed"_ns);
+    nsCOMPtr<nsIMsgUserFeedbackListener> feedback =
+        do_QueryInterface(mCopyState->m_listener);
+    AlertFolderError(this, "copyMsgWriteFailed"_ns, feedback);
     mCopyState->m_writeFailed = true;
     return false;  // Stop processing!
   }
@@ -2061,7 +2062,9 @@ bool nsMsgLocalMailFolder::CopyLine(mozilla::Span<const char> line) {
   nsresult rv = mCopyState->m_fileStream->Write(line.data(), line.Length(),
                                                 &bytesWritten);
   if (NS_FAILED(rv)) {
-    AlertFolderError(this, "copyMsgWriteFailed"_ns);
+    nsCOMPtr<nsIMsgUserFeedbackListener> feedback =
+        do_QueryInterface(mCopyState->m_listener);
+    AlertFolderError(this, "copyMsgWriteFailed"_ns, feedback);
     mCopyState->m_writeFailed = true;
     return false;  // Stop processing!
   }
@@ -3361,31 +3364,30 @@ nsresult nsMsgLocalMailFolder::AddMessageBatch2(
 
 #endif  // MOZ_PANORAMA
 
-NS_IMETHODIMP
-nsMsgLocalMailFolder::WarnIfLocalFileTooBig(nsIMsgWindow* aWindow,
-                                            int64_t aSpaceRequested,
-                                            bool* aTooBig) {
-  NS_ENSURE_ARG_POINTER(aTooBig);
-
-  *aTooBig = true;
+NS_IMETHODIMP nsMsgLocalMailFolder::CheckSpaceAndWarn(
+    int64_t spaceRequested, nsIMsgUserFeedbackListener* listener) {
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   nsresult rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
   bool spaceAvailable = false;
   // check if we have a reasonable amount of space left
-  rv = msgStore->HasSpaceAvailable(this, aSpaceRequested, &spaceAvailable);
+  rv = msgStore->HasSpaceAvailable(this, spaceRequested, &spaceAvailable);
   // NS_OK with a false result still means insufficient space. Unsupported
   // disk-space queries return NS_OK with a true result in the built-in stores.
   if (NS_SUCCEEDED(rv) && spaceAvailable) {
-    *aTooBig = false;
-  } else if (rv == NS_ERROR_FILE_TOO_BIG) {
-    AlertFolderError(this, "mailboxTooLarge"_ns);
-  } else if (rv == NS_ERROR_FILE_NO_DEVICE_SPACE || NS_SUCCEEDED(rv)) {
-    AlertFolderError(this, "outOfDiskSpaceGeneric"_ns);
-  } else {
-    return rv;
+    return NS_OK;
   }
-  return NS_OK;
+  if (NS_SUCCEEDED(rv)) {
+    rv = NS_ERROR_FILE_NO_DEVICE_SPACE;
+  }
+  if (rv == NS_ERROR_FILE_TOO_BIG) {
+    AlertFolderError(this, "mailboxTooLarge"_ns, listener);
+  } else if (rv == NS_ERROR_FILE_NO_DEVICE_SPACE) {
+    AlertFolderError(this, "outOfDiskSpaceGeneric"_ns, listener);
+  } else {
+    AlertFolderError(this, rv, listener);
+  }
+  return rv;
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::FetchMsgPreviewText(

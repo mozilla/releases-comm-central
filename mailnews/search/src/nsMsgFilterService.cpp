@@ -25,6 +25,7 @@
 #include "nsNetUtil.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgMailSession.h"
+#include "nsIMsgUserFeedbackListener.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsIFile.h"
 #include "nsIMsgFilterCustomAction.h"
@@ -297,7 +298,8 @@ nsresult nsMsgFilterService::ThrowFilterAlertMsg(const nsACString& fluentID,
 // action completes.
 class nsMsgFilterAfterTheFact : public nsIUrlListener,
                                 public nsIMsgSearchNotify,
-                                public nsIMsgCopyServiceListener {
+                                public nsIMsgCopyServiceListener,
+                                public nsIMsgUserFeedbackListener {
  public:
   nsMsgFilterAfterTheFact(nsIMsgWindow* aMsgWindow,
                           nsIMsgFilterList* aFilterList,
@@ -307,6 +309,7 @@ class nsMsgFilterAfterTheFact : public nsIUrlListener,
   NS_DECL_NSIURLLISTENER
   NS_DECL_NSIMSGSEARCHNOTIFY
   NS_DECL_NSIMSGCOPYSERVICELISTENER
+  NS_DECL_NSIMSGUSERFEEDBACKLISTENER
 
   nsresult AdvanceToNextFolder();  // kicks off the process
  protected:
@@ -345,7 +348,7 @@ class nsMsgFilterAfterTheFact : public nsIUrlListener,
 };
 
 NS_IMPL_ISUPPORTS(nsMsgFilterAfterTheFact, nsIUrlListener, nsIMsgSearchNotify,
-                  nsIMsgCopyServiceListener)
+                  nsIMsgCopyServiceListener, nsIMsgUserFeedbackListener)
 
 nsMsgFilterAfterTheFact::nsMsgFilterAfterTheFact(
     nsIMsgWindow* aMsgWindow, nsIMsgFilterList* aFilterList,
@@ -708,7 +711,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           if (parentFolder) destIFolder->GetCanFileMessages(&canFileMessages);
           if (!parentFolder || !canFileMessages) {
             curFilter->SetEnabled(false);
-            AlertFolderError(destIFolder, "filterDisabled"_ns);
+            AlertFolderError(destIFolder, "filterDisabled"_ns, this);
             // we need to explicitly save the filter file.
             m_filters->SaveToDefaultFile();
             // In the case of applying multiple filters
@@ -1335,6 +1338,22 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::SetMessageKey(nsMsgKey /* aKey */) {
 
 NS_IMETHODIMP nsMsgFilterAfterTheFact::GetMessageId(nsACString& messageId) {
   return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgFilterAfterTheFact::OnAlert(const nsAString& message,
+                                               const nsACString& serverKey,
+                                               bool silent, bool* handled) {
+  NS_ENSURE_ARG_POINTER(handled);
+  *handled = false;
+  nsCOMPtr<nsIMsgUserFeedbackListener> feedback = do_QueryInterface(m_callback);
+  return feedback ? feedback->OnAlert(message, serverKey, silent, handled)
+                  : NS_OK;
+}
+
+NS_IMETHODIMP nsMsgFilterAfterTheFact::OnCertError(
+    nsITransportSecurityInfo* securityInfo, nsIURI* uri,
+    const nsACString& serverKey) {
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* void OnStopCopy (in nsresult aStatus); */

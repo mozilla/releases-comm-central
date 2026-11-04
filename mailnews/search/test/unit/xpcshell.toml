@@ -14,11 +14,15 @@ head = "head_mailbase.js"
 
 ["test_copyThenMoveManual.js"]
 
+["test_filterAlerts.js"]
+
 ["test_filterCopyFailure.js"]
 
 ["test_filterNoTargetFolder.js"]
 
 ["test_filterPartialCopyFailure.js"]
+
+["test_filterSpaceFailures.js"]
 
 ["test_filterUnusableCondition.js"]
 

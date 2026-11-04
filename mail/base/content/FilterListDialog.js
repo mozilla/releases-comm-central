@@ -746,11 +746,29 @@ function runSelectedFilters() {
   gRunFiltersButton.disabled = true;
   gRunningFilters = true;
 
+  const errors = new Set();
   MailServices.filters.applyFiltersToFolders(
     filterList,
     [folder],
     gFilterListMsgWindow,
     {
+      QueryInterface: ChromeUtils.generateQI([
+        "nsIMsgOperationListener",
+        "nsIMsgUserFeedbackListener",
+      ]),
+      onAlert(message, serverKey, silent) {
+        if (silent || window.closed) {
+          return false;
+        }
+        errors.add(message);
+        return true;
+      },
+      onCertError() {
+        throw Components.Exception(
+          "Certificate errors require the mail session feedback listeners",
+          Cr.NS_ERROR_NOT_IMPLEMENTED
+        );
+      },
       onStopOperation(status) {
         gRunningFilters = false;
 
@@ -782,7 +800,7 @@ function runSelectedFilters() {
             !Services.prompt.confirmEx(
               window,
               null,
-              message,
+              [message, ...errors].join("\n\n"),
               Services.prompt.BUTTON_TITLE_IS_STRING *
                 Services.prompt.BUTTON_POS_0 +
                 Services.prompt.BUTTON_TITLE_CANCEL *

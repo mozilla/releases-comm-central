@@ -18,6 +18,22 @@ messenger-save-message-failed = Unable to save the message. Please check your fi
 # $filename (String) - Full path of the file that already exists.
 messenger-file-exists = { $filename } already exists. Do you want to replace it?
 
+# Variables:
+# $folder (String) - The path of the destination folder within its account.
+# $server (String) - The name of the account containing the folder.
+folder-file-not-found = The file for “{ $folder }” on { $server } could not be found. Restore the file or choose another destination folder, then try again.
+
+# Variables:
+# $folder (String) - The path of the destination folder within its account.
+# $server (String) - The name of the account containing the folder.
+folder-file-access-denied = Cannot access “{ $folder }” on { $server }. Check the folder’s file permissions, then try again.
+
+# Variables:
+# $folder (String) - The path of the destination folder within its account.
+# $server (String) - The name of the account containing the folder.
+# $errorCode (String) - The hexadecimal filesystem error code.
+folder-file-error = Cannot access “{ $folder }” on { $server }. Check that the folder’s files are available and writable, then try again. Error: { $errorCode }
+
 ## Window controls
 
 messenger-window-minimize-button =

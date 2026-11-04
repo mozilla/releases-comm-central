@@ -30,6 +30,7 @@
 #include "nsIMsgFolder.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsIMsgMailSession.h"
+#include "nsIMsgUserFeedbackListener.h"
 #include "nsIStringBundle.h"
 #include "nsIMsgProtocolInfo.h"
 #include "nsIMsgMessageService.h"
@@ -633,7 +634,23 @@ nsresult FolderPathInServer(nsIMsgFolder* folder, nsACString& path) {
                            nsINetUtil::ESCAPE_URL_PATH, path);
 }
 
-nsresult AlertFolderError(nsIMsgFolder* folder, const nsACString& msgName) {
+static nsresult NotifyFolderError(const nsAString& message,
+                                  const nsACString& serverKey,
+                                  nsIMsgUserFeedbackListener* listener) {
+  bool handled = false;
+  if (listener &&
+      NS_FAILED(listener->OnAlert(message, serverKey, false, &handled))) {
+    handled = false;
+  }
+
+  nsCOMPtr<nsIMsgMailSession> mailSession =
+      mozilla::components::MailSession::Service();
+  NS_ENSURE_TRUE(mailSession, NS_ERROR_UNEXPECTED);
+  return mailSession->AlertUser(message, serverKey, handled);
+}
+
+nsresult AlertFolderError(nsIMsgFolder* folder, const nsACString& msgName,
+                          nsIMsgUserFeedbackListener* listener) {
   NS_ENSURE_ARG_POINTER(folder);
 
   nsCOMPtr<nsIStringBundleService> bundleService =
@@ -676,10 +693,49 @@ nsresult AlertFolderError(nsIMsgFolder* folder, const nsACString& msgName) {
                                          message);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgMailSession> mailSession =
-      mozilla::components::MailSession::Service();
-  NS_ENSURE_TRUE(mailSession, NS_ERROR_UNEXPECTED);
-  return mailSession->AlertUser(message, serverKey, false);
+  return NotifyFolderError(message, serverKey, listener);
+}
+
+nsresult AlertFolderError(nsIMsgFolder* folder, nsresult status,
+                          nsIMsgUserFeedbackListener* listener) {
+  NS_ENSURE_ARG_POINTER(folder);
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  MOZ_TRY(folder->GetServer(getter_AddRefs(server)));
+  nsAutoCString serverKey;
+  MOZ_TRY(server->GetKey(serverKey));
+  nsAutoCString serverName;
+  MOZ_TRY(server->GetPrettyName(serverName));
+  nsAutoCString folderPath;
+  MOZ_TRY(folder->GetPrettyPath(folderPath));
+
+  nsAutoCString id("folder-file-error");
+  bool missingFile = status == NS_ERROR_FILE_NOT_FOUND;
+  if (status == NS_ERROR_FAILURE) {
+    // Some platforms return only a generic error for a disk-space query.
+    nsCOMPtr<nsIFile> file;
+    bool exists = true;
+    if (NS_SUCCEEDED(folder->GetFilePath(getter_AddRefs(file))) && file &&
+        NS_SUCCEEDED(file->Exists(&exists))) {
+      missingFile = !exists;
+    }
+  }
+  if (missingFile) {
+    id.AssignLiteral("folder-file-not-found");
+  } else if (status == NS_ERROR_FILE_ACCESS_DENIED ||
+             status == NS_ERROR_FILE_READ_ONLY) {
+    id.AssignLiteral("folder-file-access-denied");
+  }
+  nsAutoCString errorCode;
+  errorCode.AppendPrintf("0x%08X", static_cast<uint32_t>(status));
+  RefPtr<mozilla::intl::Localization> l10n =
+      mozilla::intl::Localization::Create({"messenger/messenger.ftl"_ns}, true);
+  nsCString message;
+  MOZ_TRY(LocalizeMessage(l10n, id,
+                          {{"folder"_ns, folderPath},
+                           {"server"_ns, serverName},
+                           {"errorCode"_ns, errorCode}},
+                          message));
+  return NotifyFolderError(NS_ConvertUTF8toUTF16(message), serverKey, listener);
 }
 
 nsresult AlertFilterChanged(nsIMsgFolder* folder) {
