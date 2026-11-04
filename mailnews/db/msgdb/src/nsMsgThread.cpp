@@ -980,10 +980,11 @@ NS_IMETHODIMP nsMsgThread::GetFirstUnreadChild(nsIMsgDBHdr** result) {
         // count number of ancestors - that's our level
         while (parentId != nsMsgKey_None) {
           rv = m_mdbDB->GetMsgHdrForKey(parentId, getter_AddRefs(parent));
-          if (parent) {
-            parent->GetThreadParent(&parentId);
-            level++;
+          if (!parent) {
+            break;
           }
+          parent->GetThreadParent(&parentId);
+          level++;
         }
         if (level < minLevel) {
           minLevel = level;
