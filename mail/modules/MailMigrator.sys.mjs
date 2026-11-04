@@ -29,7 +29,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 66;
+    const UI_VERSION = 67;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -527,6 +527,10 @@ export var MailMigrator = {
         this._migrateSearchDialog();
       }
 
+      if (currentUIVersion < 67) {
+        this._migrateOTREnabled();
+      }
+
       // Migration tasks that may take a long time are not run immediately, but
       // added to the MigrationTasks object then run at the end.
       //
@@ -547,6 +551,28 @@ export var MailMigrator = {
           " -- " +
           "Will reattempt on next start."
       );
+    }
+  },
+
+  /**
+   * OTR is disabled by default. Keep it enabled for profiles that have
+   * known OTR fingerprints of chat partners, unless the user has already
+   * set the pref.
+   */
+  _migrateOTREnabled() {
+    // The old default was true, so a user value can only be false (OTR
+    // disabled by the user). It still counts as a user value here although
+    // it equals the new default: values loaded from prefs.js are kept as
+    // user values for this session, and are only dropped when prefs.js is
+    // written. An explicit true was never stored, so those profiles are
+    // decided by the fingerprints check below.
+    if (Services.prefs.prefHasUserValue("chat.otr.enable")) {
+      return;
+    }
+    const fingerprints = Services.dirsvc.get("ProfD", Ci.nsIFile);
+    fingerprints.append("otr.fingerprints");
+    if (fingerprints.exists() && fingerprints.fileSize > 0) {
+      Services.prefs.setBoolPref("chat.otr.enable", true);
     }
   },
 

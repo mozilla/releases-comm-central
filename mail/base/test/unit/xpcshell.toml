@@ -43,6 +43,8 @@ skip-if = [
 
 ["test_midUri.js"]
 
+["test_migrateOTREnabled.js"]
+
 ["test_migrateSearchDialog.js"]
 
 ["test_migrateSmtpUsername.js"]

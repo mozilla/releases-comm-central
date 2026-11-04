@@ -917,8 +917,9 @@ pref("mail.chat.play_sound", true);
 pref("mail.chat.play_sound.type", 0);
 // if sound is user specified, this needs to be a file url
 pref("mail.chat.play_sound.url", "");
-// Enable/Disable support for OTR chat encryption.
-pref("chat.otr.enable", true);
+// Enable/Disable support for OTR chat encryption. Profiles that have
+// established OTR sessions are switched to true by MailMigrator.
+pref("chat.otr.enable", false);
 // Default values for chat account prefs.
 pref("chat.otr.default.requireEncryption", false);
 pref("chat.otr.default.verifyNudge", true);
