@@ -137,6 +137,9 @@ class MessageCreateHandler : public IExchangeMessageCreateListener {
     nsCString headerBlock(MOZ_TRY(msgStream->HeaderBlock()));
     auto headerSpan = MOZ_TRY(msgStream->HeaderBlock());
     RawHdr rawHdrData = ParseRawMailHeaders(headerSpan);
+    // FIXME: There's no fallback when the "Date:" header is missing or out of
+    // range, so the message ends up dated 1970.
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=2088347
     MOZ_TRY(ApplyRawHdrToDbHdr(rawHdrData, tmpHdr));
 
     // link to EwsId

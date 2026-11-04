@@ -180,6 +180,9 @@ nsresult IsRSSArticle(nsIURI* aMsgURI, bool* aIsRSSArticle);
 void PRTime2Seconds(PRTime prTime, uint32_t* seconds);
 void PRTime2Seconds(PRTime prTime, int32_t* seconds);
 void Seconds2PRTime(uint32_t seconds, PRTime* prTime);
+// Whether a PRTime fits in the unsigned 32-bit seconds the message database
+// stores dates as.
+bool PRTimeFitsInSeconds(PRTime prTime);
 
 // Appends the correct summary file extension onto the supplied fileLocation
 // and returns it in summaryLocation.

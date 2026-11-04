@@ -189,6 +189,9 @@ class ExchangeMessageSyncHandler : public IExchangeMessageSyncListener,
 
     // Build up DB entry from header block.
     RawHdr raw = ParseHeaderBlock(headerBlock);
+    // FIXME: There's no fallback when the "Date:" header is missing or out of
+    // range, so the message ends up dated 1970.
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=2088347
 
     // The headers _could_ include an `X-Mozilla-Status/Status2` field
     // containing flags, but we should _actively_ ignore for it EWS.

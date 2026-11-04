@@ -27,7 +27,8 @@ static PRTime TimestampFromReceived(nsACString const& received) {
   auto dateStr = Substring(received, sep + 1);
   PRTime time;
   if (PR_ParseTimeString(PromiseFlatCString(dateStr).get(), false, &time) !=
-      PR_SUCCESS) {
+          PR_SUCCESS ||
+      !PRTimeFitsInSeconds(time)) {
     return 0;
   }
   return time;
@@ -35,8 +36,10 @@ static PRTime TimestampFromReceived(nsACString const& received) {
 
 // NOTE:
 // Does not attempt to use fallback timestamps.
-//  - RawHdr.date is from the "Date": header, else 0.
-//  - RawHdr.dateReceived is from the first "Received:" header, else 0.
+//  - RawHdr.date is from the "Date": header if it fits in the database,
+//    else 0.
+//  - RawHdr.dateReceived is from the first "Received:" header if it fits in
+//    the database, else 0.
 // Any fallback policy (e.g. to mbox timestamp or PR_Now()) is left up to
 // the caller.
 //
@@ -82,7 +85,8 @@ RawHdr ParseRawMailHeaders(mozilla::Span<const char> raw) {
     } else if (n.LowerCaseEqualsLiteral("date")) {
       nsCString dateStr = hdr.Value(raw);
       PRTime time;
-      if (PR_ParseTimeString(dateStr.get(), false, &time) == PR_SUCCESS) {
+      if (PR_ParseTimeString(dateStr.get(), false, &time) == PR_SUCCESS &&
+          PRTimeFitsInSeconds(time)) {
         out.date = time;
       }
     } else if (n.LowerCaseEqualsLiteral("disposition-notification-to")) {

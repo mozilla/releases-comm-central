@@ -997,6 +997,10 @@ void Seconds2PRTime(uint32_t seconds, PRTime* prTime) {
   *prTime = (PRTime)seconds * PR_USEC_PER_SEC;
 }
 
+bool PRTimeFitsInSeconds(PRTime prTime) {
+  return prTime >= 0 && prTime / PR_USEC_PER_SEC <= UINT32_MAX;
+}
+
 nsresult GetSummaryFileLocation(nsIFile* fileLocation,
                                 nsIFile** summaryLocation) {
   nsresult rv;

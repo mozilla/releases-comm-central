@@ -523,7 +523,8 @@ nsresult nsParseMailMessageState::ParseHeaders() {
             receivedDate.Trim(" \t\b\r\n");
             PRTime resultTime;
             if (PR_ParseTimeString(receivedDate.get(), false, &resultTime) ==
-                PR_SUCCESS)
+                    PR_SUCCESS &&
+                PRTimeFitsInSeconds(resultTime))
               m_receivedTime = resultTime;
             else
               NS_WARNING("PR_ParseTimeString failed in ParseHeaders().");
@@ -879,12 +880,15 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
           // Date:
           nsAutoCString dateStr(date->value, date->length);
           if (PR_ParseTimeString(dateStr.get(), false, &datePRTime) ==
-              PR_SUCCESS) {
+                  PR_SUCCESS &&
+              PRTimeFitsInSeconds(datePRTime)) {
             // Convert to seconds as default value for 'Received'.
             PRTime2Seconds(datePRTime, &rcvTimeSecs);
           } else {
+            datePRTime = m_EnvDate;
             NS_WARNING(
-                "PR_ParseTimeString of date failed in FinalizeHeader().");
+                "PR_ParseTimeString of date failed or out of range in "
+                "FinalizeHeader().");
           }
         }
         if (m_receivedTime) {
@@ -897,7 +901,8 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
           nsAutoCString deliveryDateStr(deliveryDate->value,
                                         deliveryDate->length);
           if (PR_ParseTimeString(deliveryDateStr.get(), false, &resultTime) ==
-              PR_SUCCESS) {
+                  PR_SUCCESS &&
+              PRTimeFitsInSeconds(resultTime)) {
             PRTime2Seconds(resultTime, &rcvTimeSecs);
             if (datePRTime == 0) datePRTime = resultTime;
           } else {

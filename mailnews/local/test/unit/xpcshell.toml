@@ -19,6 +19,8 @@ dupe-manifest = true
 
 ["test_copyFileMessageIntegrity.js"]
 
+["test_dateParsing.js"]
+
 ["test_duplicateKey.js"]
 tags = ["compact"]
 
