@@ -51,7 +51,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   OsEnvironment: "resource://gre/modules/OsEnvironment.sys.mjs",
   PdfJs: "resource://pdf.js/PdfJs.sys.mjs",
   RemoteSecuritySettings:
-    "resource://gre/modules/psm/RemoteSecuritySettings.sys.mjs",
+    "moz-src:///security/manager/ssl/RemoteSecuritySettings.sys.mjs",
   TBDistCustomizer: "resource:///modules/TBDistCustomizer.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
 });

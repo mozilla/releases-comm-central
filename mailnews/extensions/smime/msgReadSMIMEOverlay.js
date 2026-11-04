@@ -5,7 +5,7 @@
 /* import-globals-from ../../../mail/base/content/aboutMessage.js */
 
 const { getCertViewerUrl } = ChromeUtils.importESModule(
-  "resource://gre/modules/psm/pippki.sys.mjs"
+  "moz-src:///security/manager/pki/pippki.sys.mjs"
 );
 
 var gEncryptionStatus = -1;

@@ -384,7 +384,7 @@ class CertificateCheck extends HTMLElement {
    */
   #viewCertificate() {
     const { viewCertHelper } = ChromeUtils.importESModule(
-      "resource://gre/modules/psm/pippki.sys.mjs"
+      "moz-src:///security/manager/pki/pippki.sys.mjs"
     );
     viewCertHelper(top, this.#certificate);
   }
