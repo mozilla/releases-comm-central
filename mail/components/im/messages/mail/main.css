@@ -130,6 +130,8 @@ p *:any-link img {
 .eventToggle {
   background: var(--icon-nav-down-sm) no-repeat left center;
   margin-block-end: -22px;
+  padding: 0;
+  border: 0;
   cursor: pointer;
   block-size: 22px;
   inline-size: 20px;

@@ -11,10 +11,21 @@ function checkNewText(target) {
       !parent?.grouped &&
       parent?.querySelector(".event-row:nth-of-type(4)")
     ) {
-      const toggle = document.createElement("div");
+      const toggle = document.createElement("button");
+      toggle.type = "button";
       toggle.className = "eventToggle";
+      toggle.ariaExpanded = "false";
+      toggle.addEventListener("keypress", event => {
+        // Keep native button activation from moving focus to the chat input.
+        if (event.key == " " || event.key == "Enter") {
+          event.stopPropagation();
+        }
+      });
       toggle.addEventListener("click", () => {
-        toggle.closest(".event").classList.toggle("hide-children");
+        const isHidden = toggle
+          .closest(".event")
+          .classList.toggle("hide-children");
+        toggle.ariaExpanded = String(!isHidden);
       });
       parent.insertBefore(
         toggle,
@@ -22,6 +33,10 @@ function checkNewText(target) {
       );
       parent.classList.add("hide-children");
       parent.grouped = true;
+    }
+    const toggle = parent?.querySelector(".eventToggle");
+    if (toggle) {
+      toggle.ariaLabel = parent.querySelector(".event-row").textContent;
     }
   }
 }

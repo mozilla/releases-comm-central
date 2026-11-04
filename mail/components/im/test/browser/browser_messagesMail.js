@@ -26,7 +26,14 @@ add_task(async function testCollapse() {
   ok(BrowserTestUtils.isVisible(chatConv), "conversation visible");
   const messageParent = await getChatMessageParent(chatConv);
 
-  await addNotice(conversation, chatConv);
+  conversation.writeMessage("system", "test notice", {
+    system: true,
+    remoteId: "first-notice",
+  });
+  await BrowserTestUtils.waitForEvent(
+    chatConv.convBrowser,
+    "MessagesDisplayed"
+  );
 
   is(
     messageParent.querySelector(".event-row:nth-child(1) .body").textContent,
@@ -54,9 +61,16 @@ add_task(async function testCollapse() {
   const hiddenGroup = messageParent.querySelector(".hide-children");
   const toggle = hiddenGroup.querySelector(".eventToggle");
   ok(toggle);
+  Assert.equal(toggle.localName, "button", "toggle should be a button");
+  Assert.equal(
+    toggle.ariaLabel,
+    hiddenGroup.querySelector(".event-row").textContent,
+    "toggle should have the first system message as its label"
+  );
+  Assert.equal(toggle.ariaExpanded, "false", "toggle should start collapsed");
   Assert.greaterOrEqual(hiddenGroup.querySelectorAll(".event-row").length, 5);
 
-  toggle.click();
+  EventUtils.synthesizeMouseAtCenter(toggle, {}, messageParent.documentGlobal);
   await BrowserTestUtils.waitForMutationCondition(
     hiddenGroup,
     {
@@ -64,6 +78,63 @@ add_task(async function testCollapse() {
       attributeFilter: ["class"],
     },
     () => !hiddenGroup.classList.contains("hide-children")
+  );
+  Assert.equal(toggle.ariaExpanded, "true", "toggle should be expanded");
+
+  const messageWindow = messageParent.documentGlobal;
+  await SimpleTest.promiseFocus(messageWindow);
+  toggle.focus();
+  EventUtils.synthesizeKey("KEY_Tab", { shiftKey: true }, messageWindow);
+  Assert.notEqual(
+    Services.focus.focusedElement,
+    toggle,
+    "Shift+Tab leaves the group toggle"
+  );
+  EventUtils.synthesizeKey("KEY_Tab", {}, messageWindow);
+  Assert.equal(
+    Services.focus.focusedElement,
+    toggle,
+    "Tab reaches the group toggle"
+  );
+  const middleRow = hiddenGroup.querySelectorAll(".event-row")[1];
+  for (const key of [" ", "KEY_Enter"]) {
+    EventUtils.synthesizeKey(key, {}, messageWindow);
+    Assert.ok(
+      hiddenGroup.classList.contains("hide-children"),
+      `${key} collapses the group`
+    );
+    Assert.equal(toggle.ariaExpanded, "false", "Collapsed state is exposed");
+    Assert.ok(
+      BrowserTestUtils.isHidden(middleRow),
+      "Collapsed messages are hidden"
+    );
+    EventUtils.synthesizeKey(key, {}, messageWindow);
+    Assert.ok(
+      !hiddenGroup.classList.contains("hide-children"),
+      `${key} expands the group`
+    );
+    Assert.equal(toggle.ariaExpanded, "true", "Expanded state is exposed");
+    Assert.ok(
+      BrowserTestUtils.isVisible(middleRow),
+      "Expanded messages are visible"
+    );
+    Assert.equal(
+      messageWindow.document.activeElement,
+      toggle,
+      "Activation keeps focus on the toggle"
+    );
+  }
+  const updated = waitForNotification(conversation, "update-text");
+  conversation.updateMessage("system", "updated notice", {
+    system: true,
+    remoteId: "first-notice",
+  });
+  await updated;
+  await TestUtils.waitForTick();
+  Assert.equal(
+    toggle.ariaLabel,
+    hiddenGroup.querySelector(".event-row").textContent,
+    "Toggle name follows the updated first message"
   );
 
   conversation.close();
