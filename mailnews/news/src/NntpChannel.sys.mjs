@@ -27,6 +27,13 @@ export class NntpChannel extends MailChannel {
 
   _logger = lazy.NntpUtils.logger;
   _status = Cr.NS_OK;
+  _suspendCount = 0;
+  /**
+   * Server responses received while suspended, delivered on resume.
+   *
+   * @type {Function[]}
+   */
+  _pendingEvents = [];
 
   /**
    * @param {nsIURI} uri - The uri to construct the channel from.
@@ -107,6 +114,45 @@ export class NntpChannel extends MailChannel {
    */
   get status() {
     return this._status;
+  }
+
+  /**
+   * @see nsIRequest
+   */
+  suspend() {
+    this._suspendCount++;
+    this._pump?.suspend();
+  }
+
+  /**
+   * @see nsIRequest
+   */
+  resume() {
+    if (!this._suspendCount) {
+      throw Components.Exception("Not suspended", Cr.NS_ERROR_UNEXPECTED);
+    }
+    this._suspendCount--;
+    this._pump?.resume();
+    if (!this._suspendCount && this._pendingEvents.length) {
+      Services.tm.dispatchToMainThread(() => {
+        while (!this._suspendCount && this._pendingEvents.length) {
+          this._pendingEvents.shift()();
+        }
+      });
+    }
+  }
+
+  /**
+   * Run `callback` now, or once the channel is resumed if it is suspended.
+   *
+   * @param {Function} callback
+   */
+  _deliverWhenResumed(callback) {
+    if (this._suspendCount || this._pendingEvents.length) {
+      this._pendingEvents.push(callback);
+      return;
+    }
+    callback();
   }
 
   /**
@@ -336,6 +382,9 @@ export class NntpChannel extends MailChannel {
     this._contentType = "";
     pump.init(cacheStream, 0, 0, true);
     this._pump = pump;
+    for (let i = 0; i < this._suspendCount; i++) {
+      pump.suspend();
+    }
     pump.asyncRead({
       onStartRequest: () => {
         this._listener.onStartRequest(this);
@@ -412,44 +461,46 @@ export class NntpChannel extends MailChannel {
         }
       };
 
-      client.onData = data => {
-        if (!Components.isSuccessCode(this._status)) {
-          return;
-        }
-        this.contentLength += data.length;
-        outputStream.write(data, data.length);
-        try {
-          this._listener.onDataAvailable(this, inputStream, 0, data.length);
-        } catch (e) {
-          this.cancel(e.result ?? Cr.NS_ERROR_FAILURE);
-        }
-      };
+      client.onData = data =>
+        this._deliverWhenResumed(() => {
+          if (!Components.isSuccessCode(this._status)) {
+            return;
+          }
+          this.contentLength += data.length;
+          outputStream.write(data, data.length);
+          try {
+            this._listener.onDataAvailable(this, inputStream, 0, data.length);
+          } catch (e) {
+            this.cancel(e.result ?? Cr.NS_ERROR_FAILURE);
+          }
+        });
 
-      client.onDone = status => {
-        if (!Components.isSuccessCode(this._status)) {
-          status = this._status;
-        }
-        try {
-          this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
-        } catch (e) {}
-        if (status != Cr.NS_OK) {
-          // Prevent marking a message as read.
-          this.URI.errorCode = status;
-          // Remove the invalid cache.
-          this._cacheEntry?.asyncDoom(null);
-        } else if (this.contentLength == 0) {
-          // Prevent marking a message as read.
-          this.URI.errorCode = Cr.NS_ERROR_FAILURE;
-          this._logger.debug("Didn't get any data. Won't cache.");
-          this._cacheEntry?.asyncDoom(null);
-        }
-        this._listener.onStopRequest(this, status);
-        this._newsFolder?.msgDatabase.commit(
-          Ci.nsMsgDBCommitType.kSessionCommit
-        );
-        this._listener = null;
-        this._pending = false;
-      };
+      client.onDone = status =>
+        this._deliverWhenResumed(() => {
+          if (!Components.isSuccessCode(this._status)) {
+            status = this._status;
+          }
+          try {
+            this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
+          } catch (e) {}
+          if (status != Cr.NS_OK) {
+            // Prevent marking a message as read.
+            this.URI.errorCode = status;
+            // Remove the invalid cache.
+            this._cacheEntry?.asyncDoom(null);
+          } else if (this.contentLength == 0) {
+            // Prevent marking a message as read.
+            this.URI.errorCode = Cr.NS_ERROR_FAILURE;
+            this._logger.debug("Didn't get any data. Won't cache.");
+            this._cacheEntry?.asyncDoom(null);
+          }
+          this._listener.onStopRequest(this, status);
+          this._newsFolder?.msgDatabase.commit(
+            Ci.nsMsgDBCommitType.kSessionCommit
+          );
+          this._listener = null;
+          this._pending = false;
+        });
     });
   }
 }
