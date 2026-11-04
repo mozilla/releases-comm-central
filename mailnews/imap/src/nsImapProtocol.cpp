@@ -6031,7 +6031,7 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
       PR_snprintf(m_dataOutputBuf, OUTPUT_BUFFER_SIZE, "%s" CRLF, base64Str);
       PR_Free(base64Str);
       PR_Free(digest);
-      rv = SendData(m_dataOutputBuf);
+      rv = SendData(m_dataOutputBuf, true /* suppress logging */);
       NS_ENSURE_SUCCESS(rv, rv);
       ParseIMAPandCheckForNewMail(command.get());
     }
@@ -6060,7 +6060,7 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
     ParseIMAPandCheckForNewMail("AUTH GSSAPI");
     if (GetServerStateParser().LastCommandSuccessful()) {
       response += CRLF;
-      rv = SendData(response.get());
+      rv = SendData(response.get(), true /* suppress logging */);
       NS_ENSURE_SUCCESS(rv, rv);
       ParseIMAPandCheckForNewMail(command.get());
       nsresult gssrv = NS_OK;
@@ -6071,7 +6071,7 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
         gssrv = DoGSSAPIStep2(challengeStr, response);
         if (NS_SUCCEEDED(gssrv)) {
           response += CRLF;
-          rv = SendData(response.get());
+          rv = SendData(response.get(), true /* suppress logging */);
         } else
           rv = SendData("*" CRLF);
 
@@ -6095,7 +6095,7 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
         "AUTH NTLM");  // this just waits for ntlm step 1
     if (GetServerStateParser().LastCommandSuccessful()) {
       cmd += CRLF;
-      rv = SendData(cmd.get());
+      rv = SendData(cmd.get(), true /* suppress logging */);
       NS_ENSURE_SUCCESS(rv, rv);
       ParseIMAPandCheckForNewMail(command.get());
       if (GetServerStateParser().LastCommandSuccessful()) {
@@ -6104,7 +6104,7 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
         rv = DoNtlmStep2(challengeStr, response);
         NS_ENSURE_SUCCESS(rv, rv);
         response += CRLF;
-        rv = SendData(response.get());
+        rv = SendData(response.get(), true /* suppress logging */);
         ParseIMAPandCheckForNewMail(command.get());
       }
     }
