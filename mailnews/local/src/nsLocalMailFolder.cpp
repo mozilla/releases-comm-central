@@ -1269,7 +1269,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::OnAnnouncerGoingAway(
 
 NS_IMETHODIMP
 nsMsgLocalMailFolder::OnCopyCompleted(nsISupports* srcSupport,
-                                      bool moveCopySucceeded) {
+                                      nsresult status) {
   if (mCopyState && mCopyState->m_notifyFolderLoaded)
     NotifyFolderEvent(kFolderLoaded);
 
@@ -1288,17 +1288,22 @@ nsMsgLocalMailFolder::OnCopyCompleted(nsISupports* srcSupport,
     AddKeywordsToMessages({&*mCopyState->m_newHdr},
                           mCopyState->m_newMsgKeywords);
   }
-  if (moveCopySucceeded && mDatabase) {
-    mDatabase->SetSummaryValid(true);
-    (void)CloseDB();
+  if (NS_SUCCEEDED(status)) {
+    FinalizeCopyDatabase();
   }
 
   delete mCopyState;
   mCopyState = nullptr;
   nsCOMPtr<nsIMsgCopyService> copyService =
       mozilla::components::Copy::Service();
-  return copyService->NotifyCompletion(
-      srcSupport, this, moveCopySucceeded ? NS_OK : NS_ERROR_FAILURE);
+  return copyService->NotifyCompletion(srcSupport, this, status);
+}
+
+void nsMsgLocalMailFolder::FinalizeCopyDatabase() {
+  if (mDatabase) {
+    mDatabase->SetSummaryValid(true);
+    (void)CloseDB();
+  }
 }
 
 bool nsMsgLocalMailFolder::CheckIfSpaceForCopy(nsIMsgWindow* msgWindow,
@@ -1312,7 +1317,7 @@ bool nsMsgLocalMailFolder::CheckIfSpaceForCopy(nsIMsgWindow* msgWindow,
   if (NS_FAILED(rv) || spaceNotAvailable) {
     if (isMove && srcFolder)
       srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
-    OnCopyCompleted(srcSupports, false);
+    OnCopyCompleted(srcSupports, NS_FAILED(rv) ? rv : NS_ERROR_FAILURE);
     return false;
   }
   return true;
@@ -1330,7 +1335,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
   if (NS_SUCCEEDED(rv) && isServer) {
     NS_ERROR("Destination is the root folder. Cannot move/copy here");
     if (isMove) srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
-    return OnCopyCompleted(srcSupport, false);
+    return OnCopyCompleted(srcSupport, NS_ERROR_FAILURE);
   }
   if (srcHdrs.IsEmpty()) {
     NS_WARNING("Cannot copy an empty message array");
@@ -1373,7 +1378,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
     if (needOfflineBodies && !hasMsgOffline) {
       if (isMove) srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
       AlertFolderError(this, "cantMoveMsgWOBodyOffline"_ns);
-      return OnCopyCompleted(srcSupport, false);
+      return OnCopyCompleted(srcSupport, NS_ERROR_FAILURE);
     }
   }
 
@@ -1426,7 +1431,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
       }
     }
 
-    OnCopyCompleted(srcSupport, NS_SUCCEEDED(rv));
+    OnCopyCompleted(srcSupport, rv);
     return rv;
   }
   // If the store doesn't do the copy, we'll stream the source messages into
@@ -1452,7 +1457,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
 
   if (NS_FAILED(rv)) {
     AlertFolderError(this, "operationFailedFolderBusy"_ns);
-    (void)OnCopyCompleted(srcSupport, false);
+    (void)OnCopyCompleted(srcSupport, rv);
     return rv;
   }
 
@@ -1498,7 +1503,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
     rv = CopyMessagesTo(keyArray, msgWindow, isMove);
     if (NS_FAILED(rv)) {
       NS_ERROR("copy message failed");
-      (void)OnCopyCompleted(srcSupport, false);
+      (void)OnCopyCompleted(srcSupport, rv);
     }
   } else {
     // This obtains the source messages from local/offline storage to do the
@@ -1508,7 +1513,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
       rv = CopyMessageTo(msgSupport, msgWindow, isMove);
       if (NS_FAILED(rv)) {
         NS_ASSERTION(false, "copy message failed");
-        (void)OnCopyCompleted(srcSupport, false);
+        (void)OnCopyCompleted(srcSupport, rv);
       }
     }
   }
@@ -1569,7 +1574,7 @@ nsresult nsMsgLocalMailFolder::CopyFolderAcrossServer(
       // them explicitly.
       nsCOMPtr<nsISupports> srcSupports = do_QueryInterface(srcFolder);
       localFolder->CopyAllSubFolders(srcFolder, msgWindow, listener, moveMsgs);
-      return localFolder->OnCopyCompleted(srcSupports, true);
+      return localFolder->OnCopyCompleted(srcSupports, NS_OK);
     }
   }
   return NS_OK;  // otherwise the front-end will say Exception::CopyFolder
@@ -1795,7 +1800,7 @@ nsMsgLocalMailFolder::CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
     // existing code already supports doing those deletes, we are just going
     // to end the copy.
     if (NS_SUCCEEDED(rv) && msgToReplace && mDatabase) {
-      rv = OnCopyCompleted(fileSupport, true);
+      rv = OnCopyCompleted(fileSupport, NS_OK);
     }
 
     if (inputStream) {
@@ -1804,7 +1809,7 @@ nsMsgLocalMailFolder::CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
   }
 
   if (NS_FAILED(rv)) {
-    (void)OnCopyCompleted(fileSupport, false);
+    (void)OnCopyCompleted(fileSupport, rv);
   }
 
   return rv;
@@ -2147,11 +2152,8 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
     }
 
     if (!mCopyState->m_isMove) {
-      // passing true because the messages that have been successfully
-      // copied have their corresponding hdrs in place. The message that has
-      // failed has been truncated so the msf file and berkeley mailbox
-      // are in sync.
-      (void)OnCopyCompleted(mCopyState->m_srcSupport, true);
+      FinalizeCopyDatabase();
+      (void)OnCopyCompleted(mCopyState->m_srcSupport, NS_ERROR_FAILURE);
       // enable the dest folder
       EnableNotifications(allMessageCountNotifications, true);
     }
@@ -2383,7 +2385,7 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
 
         // enable the dest folder
         EnableNotifications(allMessageCountNotifications, true);
-        (void)OnCopyCompleted(mCopyState->m_srcSupport, true);
+        (void)OnCopyCompleted(mCopyState->m_srcSupport, NS_OK);
       }
     }
     // Send the itemAdded notification in case we didn't send the
@@ -2417,11 +2419,8 @@ nsMsgLocalMailFolder::EndMove(bool moveSucceeded) {
     NS_ENSURE_SUCCESS(rv, rv);
     srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
 
-    /* passing true because the messages that have been successfully copied have
-       their corresponding hdrs in place. The message that has failed has been
-       truncated so the msf file and berkeley mailbox are in sync*/
-
-    (void)OnCopyCompleted(mCopyState->m_srcSupport, true);
+    FinalizeCopyDatabase();
+    (void)OnCopyCompleted(mCopyState->m_srcSupport, NS_ERROR_FAILURE);
     // enable the dest folder
     EnableNotifications(allMessageCountNotifications, true);
     return NS_OK;
@@ -2472,12 +2471,8 @@ nsMsgLocalMailFolder::EndMove(bool moveSucceeded) {
         txnMgr->DoTransaction(txn);
       }
     }
-    (void)OnCopyCompleted(
-        mCopyState->m_srcSupport,
-        NS_SUCCEEDED(rv)
-            ? true
-            : false);  // clear the copy state so that the next message from a
-                       // different folder can be move
+    // Clear the copy state before moving messages from another folder.
+    (void)OnCopyCompleted(mCopyState->m_srcSupport, rv);
   }
 
   return NS_OK;

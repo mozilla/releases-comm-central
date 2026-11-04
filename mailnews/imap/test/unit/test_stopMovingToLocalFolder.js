@@ -63,7 +63,11 @@ add_task(async function move_messages() {
     null,
     false
   );
-  await copyListener.promise;
+  await Assert.rejects(
+    copyListener.promise,
+    new RegExp(Cr.NS_ERROR_FAILURE),
+    "An interrupted move should report failure"
+  );
 });
 
 add_task(function check_messages() {

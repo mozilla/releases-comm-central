@@ -105,11 +105,26 @@ add_task(async function updateTargetFolderAndInbox() {
   await urlListenerInbox.promise;
 
   // Make sure neither source nor target folder have offline events.
-  Assert.ok(!IMAPPump.inbox.getFlag(Ci.nsMsgFolderFlags.OfflineEvents));
-  Assert.ok(!gTargetFolder.getFlag(Ci.nsMsgFolderFlags.OfflineEvents));
+  Assert.ok(
+    !IMAPPump.inbox.getFlag(Ci.nsMsgFolderFlags.OfflineEvents),
+    "A timed-out move should clear the source's offline work flag"
+  );
+  Assert.ok(
+    !gTargetFolder.getFlag(Ci.nsMsgFolderFlags.OfflineEvents),
+    "A timed-out move should clear the destination's offline work flag"
+  );
+  Assert.deepEqual(
+    IMAPPump.inbox.msgDatabase.listAllOfflineOpIds(),
+    [],
+    "A timed-out move should not remain queued for replay"
+  );
 
   // Fake server does the copy, but then times out, so make sure the target
   // folder has only 1 message, not the multiple ones it would have if we
   // retried.
-  Assert.equal(gTargetFolder.getTotalMessages(false), 1);
+  Assert.equal(
+    gTargetFolder.getTotalMessages(false),
+    1,
+    "The timed-out move should not duplicate the message on retry"
+  );
 });

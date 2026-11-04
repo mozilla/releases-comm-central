@@ -175,6 +175,11 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
 
  protected:
   virtual ~nsMsgLocalMailFolder();
+
+  // Update the destination summary metadata and close the database when
+  // possible. Use after a successful copy or a rollback that leaves headers
+  // consistent.
+  void FinalizeCopyDatabase();
   nsresult RenameSubFolders(nsIMsgWindow* msgWindow,
                             nsIMsgFolder* oldFolder) override;
 #ifdef MOZ_PANORAMA

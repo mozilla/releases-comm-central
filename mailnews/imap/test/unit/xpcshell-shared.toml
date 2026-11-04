@@ -188,6 +188,8 @@ run-if = [
 
 ["test_offlineCopy.js"]
 
+["test_offlineCopyFailure.js"]
+
 ["test_offlineDraftDataloss.js"]
 
 ["test_offlineMoveLocalToIMAP.js"]

@@ -61,7 +61,12 @@ interface nsIMsgLocalMailFolder : nsISupports {
   void copyAllSubFolders(in nsIMsgFolder srcFolder, in nsIMsgWindow msgWindow,
                          in nsIMsgCopyServiceListener listener, in boolean isMove);
 
-  void onCopyCompleted(in nsISupports aSrcSupport, in boolean aMoveCopySucceeded);
+  /**
+   * Complete a copy or move and notify the copy service with its status.
+   * Callers must finalize a consistent destination summary after rollback
+   * before reporting failure.
+   */
+  void onCopyCompleted(in nsISupports srcSupport, in nsresult status);
   // Slated for removal. See Bug 1848476.
   attribute boolean checkForNewMessagesAfterParsing;
   void markMsgsOnPop3Server(in Array<nsIMsgDBHdr> aMessages, in int32_t aMark);

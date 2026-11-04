@@ -616,7 +616,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
   if (aIsMoveFolder && NS_SUCCEEDED(copyStatus)) {
     if (localNewFolder) {
       nsCOMPtr<nsISupports> srcSupport(do_QueryInterface(aSrcFolder));
-      localNewFolder->OnCopyCompleted(srcSupport, true);
+      localNewFolder->OnCopyCompleted(srcSupport, NS_OK);
     }
 
     // Notify the "folder" that was dragged and dropped has been created. No

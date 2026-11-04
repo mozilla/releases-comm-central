@@ -36,6 +36,28 @@ add_setup(function () {
   registerAlertTestUtils();
 });
 
+/**
+ * Checks FCC recovery, message preservation, and completion statuses.
+ *
+ * @param {object} options - The copy attempts and recovery choices to exercise.
+ * @param {string[]} options.outcomes - The result to simulate for each attempt.
+ * @param {number[]} options.choices - The recovery buttons to press.
+ * @param {string[]} options.savedTo - The folders that should contain a copy.
+ * @param {number} [options.alerts=0] - The expected fallback failure alert count.
+ * @param {boolean} [options.inspectStartupFailure=false] - Whether to check a
+ *   rejected startup exception instead of completing recovery.
+ * @param {boolean} [options.withFcc2] - Whether to request an additional copy.
+ *   Defaults to whether `savedTo` includes "additional".
+ * @param {boolean} [options.startWithFcc2=false] - Whether to start with FCC2.
+ * @param {number} [options.deliverMode=Ci.nsIMsgSend.nsMsgDeliverNow] - The mode
+ *   used to save the message.
+ * @param {string} [options.fallbackFor="primary"] - The folder whose failed
+ *   copy should be saved locally.
+ * @param {boolean} [options.specialFolderName=false] - Whether to include URI
+ *   special characters in the Sent folder name.
+ * @param {number} [options.failureStatus=Cr.NS_ERROR_FAILURE] - The status
+ *   reported by simulated asynchronous copy failures.
+ */
 async function checkCopyRecovery({
   outcomes,
   choices,
@@ -47,6 +69,7 @@ async function checkCopyRecovery({
   deliverMode = Ci.nsIMsgSend.nsMsgDeliverNow,
   fallbackFor = "primary",
   specialFolderName = false,
+  failureStatus = Cr.NS_ERROR_FAILURE,
 }) {
   const root = localAccountUtils.rootFolder;
   const sentName = `Sent-${++testNumber}${specialFolderName ? " # copy" : ""}`;
@@ -78,6 +101,8 @@ async function checkCopyRecovery({
   await IOUtils.writeUTF8(messageFile.path, message);
   const send = new MessageSend();
   const completed = Promise.withResolvers();
+  const copyStatuses = [];
+  const expectedCopyStatuses = [];
   let completionCount = 0;
   Object.assign(send, {
     _userIdentity: identity,
@@ -87,6 +112,10 @@ async function checkCopyRecovery({
     _messageKey: 0xffffffff,
     _messageFile: messageFile,
     _shouldRemoveMessageFile: true,
+    notifyListenerOnStopCopy(status) {
+      copyStatuses.push(status);
+      MessageSend.prototype.notifyListenerOnStopCopy.call(this, status);
+    },
     _sendReport: Cc[
       "@mozilla.org/messengercompose/sendreport;1"
     ].createInstance(Ci.nsIMsgSendReport),
@@ -150,6 +179,7 @@ async function checkCopyRecovery({
         Assert.ok(remainingOutcomes.length, "No unexpected copy should occur");
         switch (remainingOutcomes.shift()) {
           case "local-failure": {
+            expectedCopyStatuses.push(Cr.NS_ERROR_FILE_NOT_FOUND);
             // Exercise the native local copy's callback followed by an error
             // return, using a missing input file on every platform.
             const missingFile = file.clone();
@@ -166,11 +196,13 @@ async function checkCopyRecovery({
             break;
           }
           case "async-failure":
+            expectedCopyStatuses.push(failureStatus);
             TestUtils.executeSoon(() =>
-              listener.notifyListenerOnStopCopy(Cr.NS_ERROR_FAILURE)
+              listener.notifyListenerOnStopCopy(failureStatus)
             );
             break;
           case "callback-then-throw": {
+            expectedCopyStatuses.push(Cr.NS_ERROR_FAILURE);
             startupError = new Error("Copy could not start");
             listener.notifyListenerOnStopCopy(Cr.NS_ERROR_FAILURE);
             throw startupError;
@@ -183,6 +215,7 @@ async function checkCopyRecovery({
           case "throw-js":
             throw new Error("Copy could not start");
           case "success":
+            expectedCopyStatuses.push(Cr.NS_OK);
             realCopy.startCopyOperation(
               userIdentity,
               file,
@@ -234,6 +267,11 @@ async function checkCopyRecovery({
       await send._doFcc();
     }
     await completed.promise;
+    Assert.deepEqual(
+      copyStatuses,
+      expectedCopyStatuses,
+      "Each copy callback should preserve its original completion status"
+    );
     await TestUtils.waitForCondition(
       () => !messageFile.exists(),
       "Source file should be removed after completion"
@@ -336,6 +374,15 @@ add_task(async function testAsynchronousFailure() {
     outcomes: ["async-failure", "success"],
     choices: [0],
     savedTo: ["primary"],
+  });
+});
+
+add_task(async function test_retryAccessDeniedCopy() {
+  await checkCopyRecovery({
+    outcomes: ["async-failure", "success"],
+    choices: [0],
+    savedTo: ["primary"],
+    failureStatus: Cr.NS_ERROR_FILE_ACCESS_DENIED,
   });
 });
 
