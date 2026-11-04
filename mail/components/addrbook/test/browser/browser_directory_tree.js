@@ -520,6 +520,8 @@ add_task(async function test_context_menu() {
   const booksList = abWindow.booksList;
 
   const menu = abWindow.document.getElementById("bookContext");
+  const newContactMenuItem = abDocument.getElementById("bookContextNewContact");
+  const newListMenuItem = abDocument.getElementById("bookContextNewList");
   const propertiesMenuItem = abDocument.getElementById("bookContextProperties");
   const synchronizeMenuItem = abDocument.getElementById(
     "bookContextSynchronize"
@@ -532,6 +534,7 @@ add_task(async function test_context_menu() {
   );
 
   Assert.equal(booksList.rowCount, 6);
+  booksList.selectedIndex = 0;
 
   // Test that the menu does not show for All Address Books.
 
@@ -553,7 +556,16 @@ add_task(async function test_context_menu() {
 
   for (const index of [1, booksList.rowCount - 1]) {
     await showBooksContext(index);
-    Assert.equal(booksList.selectedIndex, index);
+    Assert.equal(booksList.selectedIndex, 0);
+    const contextRow = booksList.getRowAtIndex(index);
+    Assert.ok(
+      contextRow.classList.contains("context-menu-target"),
+      "context row should be highlighted without changing selection"
+    );
+    Assert.ok(BrowserTestUtils.isVisible(newContactMenuItem));
+    Assert.ok(!newContactMenuItem.disabled);
+    Assert.ok(BrowserTestUtils.isVisible(newListMenuItem));
+    Assert.ok(!newListMenuItem.disabled);
     Assert.ok(BrowserTestUtils.isVisible(propertiesMenuItem));
     Assert.ok(!propertiesMenuItem.disabled);
     Assert.ok(!BrowserTestUtils.isVisible(synchronizeMenuItem));
@@ -565,13 +577,21 @@ add_task(async function test_context_menu() {
     hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     menu.hidePopup();
     await hiddenPromise;
+    Assert.ok(
+      !contextRow.classList.contains("context-menu-target"),
+      "context row highlight should be cleared when the menu closes"
+    );
     Assert.equal(abDocument.activeElement, booksList);
   }
 
   // Test and delete CardDAV directory at index 4.
 
   await showBooksContext(4);
-  Assert.equal(booksList.selectedIndex, 4);
+  Assert.equal(booksList.selectedIndex, 0);
+  Assert.ok(BrowserTestUtils.isVisible(newContactMenuItem));
+  Assert.ok(!newContactMenuItem.disabled);
+  Assert.ok(BrowserTestUtils.isVisible(newListMenuItem));
+  Assert.ok(newListMenuItem.disabled);
   Assert.ok(BrowserTestUtils.isVisible(propertiesMenuItem));
   Assert.ok(!propertiesMenuItem.disabled);
   Assert.ok(BrowserTestUtils.isVisible(synchronizeMenuItem));
@@ -582,16 +602,15 @@ add_task(async function test_context_menu() {
   Assert.ok(BrowserTestUtils.isVisible(removeMenuItem));
   Assert.ok(!removeMenuItem.disabled);
   let promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  let selectPromise = BrowserTestUtils.waitForEvent(booksList, "select");
   hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
   menu.activateItem(removeMenuItem);
   await promptPromise;
-  await selectPromise;
   await hiddenPromise;
+  await TestUtils.waitForCondition(() => booksList.rowCount == 5);
   Assert.equal(abDocument.activeElement, booksList);
 
   Assert.equal(booksList.rowCount, 5);
-  Assert.equal(booksList.selectedIndex, 4);
+  Assert.equal(booksList.selectedIndex, 0);
   Assert.equal(menu.state, "closed");
 
   // Test and delete list at index 3, then directory at index 2.
@@ -599,7 +618,11 @@ add_task(async function test_context_menu() {
   for (const index of [3, 2]) {
     await new Promise(r => abWindow.setTimeout(r, 250));
     await showBooksContext(index);
-    Assert.equal(booksList.selectedIndex, index);
+    Assert.equal(booksList.selectedIndex, 0);
+    Assert.ok(BrowserTestUtils.isVisible(newContactMenuItem));
+    Assert.ok(!newContactMenuItem.disabled);
+    Assert.ok(BrowserTestUtils.isVisible(newListMenuItem));
+    Assert.ok(!newListMenuItem.disabled);
     Assert.ok(BrowserTestUtils.isVisible(propertiesMenuItem));
     Assert.ok(!propertiesMenuItem.disabled);
     Assert.ok(!BrowserTestUtils.isVisible(synchronizeMenuItem));
@@ -609,21 +632,21 @@ add_task(async function test_context_menu() {
     Assert.ok(!deleteMenuItem.disabled);
     Assert.ok(!BrowserTestUtils.isVisible(removeMenuItem));
     promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
-    selectPromise = BrowserTestUtils.waitForEvent(booksList, "select");
     hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     menu.activateItem(deleteMenuItem);
     await promptPromise;
-    await selectPromise;
     await hiddenPromise;
+    await TestUtils.waitForCondition(
+      () => booksList.rowCount == (index == 3 ? 4 : 3)
+    );
     Assert.equal(abDocument.activeElement, booksList);
 
     if (index == 3) {
       Assert.equal(booksList.rowCount, 4);
-      // Moves to parent when last list is deleted.
-      Assert.equal(booksList.selectedIndex, 2);
+      Assert.equal(booksList.selectedIndex, 0);
     } else {
       Assert.equal(booksList.rowCount, 3);
-      Assert.equal(booksList.selectedIndex, 2);
+      Assert.equal(booksList.selectedIndex, 0);
     }
     Assert.equal(menu.state, "closed");
   }
@@ -637,7 +660,7 @@ add_task(async function test_context_menu() {
     { type: "contextmenu" },
     abWindow
   );
-  Assert.equal(booksList.selectedIndex, 2);
+  Assert.equal(booksList.selectedIndex, 0);
   await new Promise(r => abWindow.setTimeout(r, 500));
   Assert.equal(menu.state, "closed", "menu stayed closed as expected");
   Assert.equal(abDocument.activeElement, booksList);

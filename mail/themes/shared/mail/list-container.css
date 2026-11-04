@@ -89,6 +89,13 @@
       transform: rotate(90deg);
     }
 
+    li.context-menu-target:not(.selected) > &,
+    li.context-menu-target:not(.selected) > &:hover {
+      background-color: color-mix(in srgb, var(--selected-item-color) 10%, transparent);
+      outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
+      outline-offset: -1px;
+    }
+
     @media (prefers-reduced-motion: no-preference) {
       & {
         transition:

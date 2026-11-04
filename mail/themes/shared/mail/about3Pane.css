@@ -495,13 +495,6 @@ body {
 .container {
   contain: strict;
 
-  li.context-menu-target:not(.selected) > &,
-  li.context-menu-target:not(.selected) > &:hover {
-    background-color: color-mix(in srgb, var(--treeitem-background-active) 10%, transparent);
-    outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
-    outline-offset: -1px;
-  }
-
   & > .new-icon {
     z-index: 1;
     content: var(--icon-sparkle-star-xs);
