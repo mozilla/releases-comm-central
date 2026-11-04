@@ -112,6 +112,11 @@ class nsMsgLineStreamBuffer {
   // line into aData, unchanged, and empties the buffer. Used when the stream
   // switches to another encoding, e.g. after IMAP COMPRESS.
   void TakeUnreadData(nsACString& aData);
+  // Lines longer than this, excluding the line end, make ReadNextLine() fail
+  // with NS_ERROR_ILLEGAL_INPUT. 0 (the default) means no limit.
+  void SetMaxLineLength(uint32_t aMaxLineLength) {
+    m_maxLineLength = aMaxLineLength;
+  }
 
  private:
   virtual ~nsMsgLineStreamBuffer();
@@ -123,6 +128,7 @@ class nsMsgLineStreamBuffer {
   uint32_t m_dataBufferSize;
   uint32_t m_startPos;
   uint32_t m_numBytesInBuffer;
+  uint32_t m_maxLineLength = 0;
   char m_lineToken;
 };
 

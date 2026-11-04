@@ -108,6 +108,7 @@ extern LazyLogModule IMAP_DC;  // For imap folder discovery
 static constexpr uint32_t kSleepTimeSeconds = 60;
 static constexpr uint32_t kIdleWaitSeconds = 2;
 static constexpr uint32_t kRetryDelaySeconds = 1;
+static uint32_t gMaxLineLength = 64 * 1024 * 1024;
 static int32_t gPromoteNoopToCheckCount = 0;
 static const uint32_t kFlagChangesBeforeCheck = 10;
 static const int32_t kMaxSecondsBeforeCheck = 600;
@@ -384,6 +385,7 @@ nsresult nsImapProtocol::GlobalInitialization() {
   Preferences::GetInt("mail.imap.expunge_option", &gExpungeOption);
   Preferences::GetInt("mail.imap.expunge_threshold_number", &gExpungeThreshold);
   Preferences::GetInt("mailnews.tcptimeout", &gResponseTimeout);
+  Preferences::GetUint("mailnews.max_response_line_length", &gMaxLineLength);
   gAppendTimeout = gResponseTimeout / 5;
 
   gTCPKeepalive.enabled.store(false, std::memory_order_relaxed);
@@ -635,6 +637,7 @@ nsImapProtocol::nsImapProtocol()
   m_inputStreamBuffer = new nsMsgLineStreamBuffer(
       OUTPUT_BUFFER_SIZE, true /* allocate new lines */,
       false /* leave CRLFs on the returned string */);
+  m_inputStreamBuffer->SetMaxLineLength(gMaxLineLength);
   m_currentBiffState = nsIMsgFolder::nsMsgBiffState_Unknown;
   m_progressStringName.Truncate();
   m_stringIndex = IMAP_EMPTY_STRING_INDEX;

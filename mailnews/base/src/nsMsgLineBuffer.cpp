@@ -274,11 +274,17 @@ char* nsMsgLineStreamBuffer::ReadNextLine(nsIInputStream* aInputStream,
       if (numBytesInStream >= numFreeBytesInBuffer) {
         int64_t growBy = (numBytesInStream - numFreeBytesInBuffer) * 2 + 1;
         // GrowBuffer cannot handle over 4GB size.
-        if (m_dataBufferSize + growBy > PR_UINT32_MAX) return nullptr;
+        if (m_dataBufferSize + growBy > PR_UINT32_MAX) {
+          if (prv) *prv = NS_ERROR_OUT_OF_MEMORY;
+          return nullptr;
+        }
         // try growing buffer by twice as much as we need.
         nsresult rv = GrowBuffer(m_dataBufferSize + growBy);
         // if we can't grow the buffer, we have to bail.
-        if (NS_FAILED(rv)) return nullptr;
+        if (NS_FAILED(rv)) {
+          if (prv) *prv = rv;
+          return nullptr;
+        }
         startOfLine = m_dataBuffer;
         numFreeBytesInBuffer += growBy;
       }
@@ -301,6 +307,16 @@ char* nsMsgLineStreamBuffer::ReadNextLine(nsIInputStream* aInputStream,
     }
   }
 
+  if (m_maxLineLength && !(prv && NS_FAILED(*prv))) {
+    uint32_t lineLength =
+        endOfLine ? uint32_t(endOfLine - startOfLine) : m_numBytesInBuffer;
+    if (lineLength && startOfLine[lineLength - 1] == '\r') lineLength--;
+    if (lineLength > m_maxLineLength) {
+      if (prv) *prv = NS_ERROR_ILLEGAL_INPUT;
+      return nullptr;
+    }
+  }
+
   // okay, now check again for endOfLine.
   if (endOfLine) {
     if (!m_eatCRLFs) endOfLine += 1;  // count for LF or CR
@@ -317,6 +333,7 @@ char* nsMsgLineStreamBuffer::ReadNextLine(nsIInputStream* aInputStream,
     if (!newLine) {
       aNumBytesInLine = 0;
       aPauseForMoreData = true;
+      if (prv) *prv = NS_ERROR_OUT_OF_MEMORY;
       return nullptr;
     }
 

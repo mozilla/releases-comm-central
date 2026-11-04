@@ -119,6 +119,10 @@ pref("mail.delete_matches_sort_order", false);
 // mailnews tcp read+write timeout in seconds.
 pref("mailnews.tcptimeout", 100);
 
+// Longest server response line in bytes, after decompression (IMAP only).
+// Read at startup.
+pref("mailnews.max_response_line_length", 67108864);
+
 pref("mailnews.headers.showSender", false);
 
 // set to 0 if you don't want to ignore timestamp differences between
