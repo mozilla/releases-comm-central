@@ -27,7 +27,6 @@ using mozilla::intl::Collator;
 
 class nsMsgThread;
 class nsMsgDatabase;
-class nsIMsgOfflineOpsDatabase;
 class nsIMsgThread;
 class nsMsgDBEnumerator;
 class nsMsgDBThreadEnumerator;
@@ -79,7 +78,7 @@ class MsgDBReporter;
 }
 }  // namespace mozilla
 
-class nsMsgDatabase : public nsIMsgOfflineOpsDatabase {
+class nsMsgDatabase : public nsIMsgDatabase {
  public:
   friend class nsMsgDBService;
   friend class nsMsgPropertyEnumerator;  // accesses m_mdbEnv and m_mdbStore
@@ -87,7 +86,6 @@ class nsMsgDatabase : public nsIMsgOfflineOpsDatabase {
   NS_DECL_ISUPPORTS
   NS_DECL_NSIDBCHANGEANNOUNCER
   NS_DECL_NSIMSGDATABASE
-  NS_DECL_NSIMSGOFFLINEOPSDATABASE
 
   /**
    * Opens a database folder.

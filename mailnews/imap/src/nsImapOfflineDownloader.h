@@ -14,7 +14,6 @@
 class nsIMsgWindow;
 class nsIMsgFolder;
 class nsIMsgIncomingServer;
-class nsIMsgOfflineOpsDatabase;
 
 /**
  * nsImapOfflineDownloader is a helper class which goes through all the IMAP

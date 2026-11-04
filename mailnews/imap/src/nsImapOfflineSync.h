@@ -14,8 +14,6 @@
 #include "nsIDBChangeListener.h"
 #include "ImapTypes.h"
 
-class nsIMsgOfflineOpsDatabase;
-
 class nsImapOfflineSync : public nsIUrlListener,
                           public nsIMsgCopyServiceListener,
                           public nsIDBChangeListener {
@@ -79,7 +77,7 @@ class nsImapOfflineSync : public nsIUrlListener,
   nsTArray<nsMsgKey> m_CurrentKeys;
   nsCOMArray<nsIMsgOfflineImapOperation> m_currentOpsToClear;
   uint32_t m_KeyIndex;
-  nsCOMPtr<nsIMsgOfflineOpsDatabase> m_currentDB;
+  nsCOMPtr<nsIMsgDatabase> m_currentDB;
   nsCOMPtr<nsIUrlListener> m_listener;
   ImapUid mCurrentUIDValidity;
   int32_t mCurrentPlaybackOpType;  // kFlagsChanged -> kMsgCopy -> kMsgMoved

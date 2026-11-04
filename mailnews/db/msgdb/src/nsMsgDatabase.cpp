@@ -1093,8 +1093,7 @@ nsMsgDatabase::~nsMsgDatabase() {
   m_ChangeListeners.Clear();
 }
 
-NS_IMPL_ISUPPORTS(nsMsgDatabase, nsIMsgDatabase, nsIMsgOfflineOpsDatabase,
-                  nsIDBChangeAnnouncer)
+NS_IMPL_ISUPPORTS(nsMsgDatabase, nsIMsgDatabase, nsIDBChangeAnnouncer)
 
 nsresult nsMsgDatabase::GetMDBFactory(nsIMdbFactory** aMdbFactory) {
   if (!mMdbFactory) {

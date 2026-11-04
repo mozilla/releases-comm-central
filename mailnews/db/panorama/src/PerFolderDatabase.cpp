@@ -835,6 +835,26 @@ NS_IMETHODIMP PerFolderDatabase::DeleteFolder() {
   return NS_OK;
 }
 
+// nsIMsgOfflineOpsDatabase
+
+NS_IMETHODIMP PerFolderDatabase::GetOfflineOpForKey(
+    unsigned int, bool, nsIMsgOfflineImapOperation**) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP PerFolderDatabase::RemoveOfflineOp(nsIMsgOfflineImapOperation*) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP PerFolderDatabase::ListAllOfflineOpIds(nsTArray<unsigned int>&) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP PerFolderDatabase::ListAllOfflineDeletes(
+    nsTArray<unsigned int>&) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP PerFolderDatabase::HasOfflineActivity(bool*) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
 MessageEnumerator::MessageEnumerator(mozIStorageStatement* aStmt)
     : mStmt(aStmt) {
   mStmt->ExecuteStep(&mHasNext);

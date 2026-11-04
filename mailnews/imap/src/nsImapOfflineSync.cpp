@@ -28,8 +28,7 @@
  * Call this while that database is still open. Special case: if the database
  * cannot be asked, the flag is cleared.
  */
-static void UpdateOfflineEventsFlag(nsIMsgFolder* folder,
-                                    nsIMsgOfflineOpsDatabase* db) {
+static void UpdateOfflineEventsFlag(nsIMsgFolder* folder, nsIMsgDatabase* db) {
   MOZ_ASSERT(folder);
   nsTArray<nsMsgKey> pending;
   if (db && NS_SUCCEEDED(db->ListAllOfflineOpIds(pending)) &&
@@ -663,7 +662,7 @@ nsresult nsImapOfflineSync::ProcessNextOperation() {
       m_currentFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo),
                                             getter_AddRefs(db));
       if (db) {
-        m_currentDB = do_QueryInterface(db, &rv);
+        m_currentDB = db;
         m_currentDB->AddListener(this);
       }
     }

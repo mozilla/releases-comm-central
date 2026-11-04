@@ -1521,18 +1521,14 @@ NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIUrlListener* aListener) {
     nsCOMPtr<nsIMsgDatabase> trashDB;
     rv = trashFolder->GetMsgDatabase(getter_AddRefs(trashDB));
     if (trashDB) {
-      nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
-          do_QueryInterface(trashDB, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-
       // Offline operations are usually indexed by a msgKey. There's no
       // message here, so we pretend and generate a fake msgKey to hang the
       // offline op from. Ugh.
       nsMsgKey fakeKey;
-      opsDb->GetNextFakeOfflineMsgKey(&fakeKey);
+      trashDB->GetNextFakeOfflineMsgKey(&fakeKey);
 
       nsCOMPtr<nsIMsgOfflineImapOperation> op;
-      rv = opsDb->GetOfflineOpForKey(fakeKey, true, getter_AddRefs(op));
+      rv = trashDB->GetOfflineOpForKey(fakeKey, true, getter_AddRefs(op));
       trashFolder->SetFlag(nsMsgFolderFlags::OfflineEvents);
       op->SetOperation(nsIMsgOfflineImapOperation::kDeleteAllMsgs);
     }
@@ -2420,9 +2416,6 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
     }
     rv = mDatabase->ListAllKeys(existingKeys);
     NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
-        do_QueryInterface(mDatabase, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
     // Include any messages which have been deleted locally but still exist
     // on the server.
     // TODO: For Bug 1806770 we'll need the UID for these too, but the local
@@ -2430,7 +2423,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
     // rather than key, or have some provision for including the UID in the
     // pending offline op...
     // See  https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
-    opsDb->ListAllOfflineDeletes(existingKeys);
+    mDatabase->ListAllOfflineDeletes(existingKeys);
   }
   ImapUid folderValidity;
   aSpec->GetFolder_UIDVALIDITY(&folderValidity);
@@ -3658,7 +3651,7 @@ NS_IMETHODIMP nsImapMailFolder::SetImapFlags(nsTArray<nsMsgKey> const& msgKeys,
 static mozilla::Result<nsTArray<RefPtr<nsIMsgOfflineImapOperation>>, nsresult>
 FindCounterPartOps(nsACString const& srcFolderUri,
                    nsTArray<RefPtr<nsIMsgOfflineImapOperation>> const& srcOps,
-                   nsIMsgOfflineOpsDatabase* destDb) {
+                   nsIMsgDatabase* destDb) {
   // Get *all* the offline ops for the dest folder.
   nsTArray<nsMsgKey> destOpIds;
   MOZ_TRY(destDb->ListAllOfflineOpIds(destOpIds));
@@ -3728,13 +3721,8 @@ nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& srcOpIds,
       static_cast<nsImapMailFolder*>(destFolder);
 
   // We also know both folders have DBs which support offline operations.
-  nsCOMPtr<nsIMsgOfflineOpsDatabase> srcDb;
-  {
-    nsCOMPtr<nsIMsgDatabase> db;
-    GetMsgDatabase(getter_AddRefs(db));
-    srcDb = do_QueryInterface(db, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
+  nsCOMPtr<nsIMsgDatabase> srcDb;
+  GetMsgDatabase(getter_AddRefs(srcDb));
 
   // Get the offline ops we're aiming to use (the source ops).
   nsTArray<RefPtr<nsIMsgOfflineImapOperation>> srcOps(srcOpIds.Length());
@@ -3751,13 +3739,8 @@ nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& srcOpIds,
   // It's not clear why this is set up only for moves and not for copies.
   // Maybe an oversight in old code? In any case we'll preserve this
   // behaviour (for now).
-  nsCOMPtr<nsIMsgOfflineOpsDatabase> destDb;
-  {
-    nsCOMPtr<nsIMsgDatabase> db;
-    imapDestFolder->GetMsgDatabase(getter_AddRefs(db));
-    destDb = do_QueryInterface(db, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
+  nsCOMPtr<nsIMsgDatabase> destDb;
+  imapDestFolder->GetMsgDatabase(getter_AddRefs(destDb));
   // Find the corresponding offline ops in the dest db.
   nsTArray<RefPtr<nsIMsgOfflineImapOperation>> destOps =
       MOZ_TRY(FindCounterPartOps(URI(), srcOps, destDb));
@@ -3859,12 +3842,9 @@ NS_IMETHODIMP nsImapMailFolder::StoreImapFlags(int32_t flags, bool addFlags,
   } else {
     rv = GetDatabase();
     if (NS_SUCCEEDED(rv) && mDatabase) {
-      nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
-          do_QueryInterface(mDatabase, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
       for (auto key : keys) {
         nsCOMPtr<nsIMsgOfflineImapOperation> op;
-        rv = opsDb->GetOfflineOpForKey(key, true, getter_AddRefs(op));
+        rv = mDatabase->GetOfflineOpForKey(key, true, getter_AddRefs(op));
         SetFlag(nsMsgFolderFlags::OfflineEvents);
         if (NS_SUCCEEDED(rv) && op) {
           imapMessageFlagsType newFlags;
@@ -3872,7 +3852,8 @@ NS_IMETHODIMP nsImapMailFolder::StoreImapFlags(int32_t flags, bool addFlags,
           op->SetFlagOperation(addFlags ? newFlags | flags : newFlags & ~flags);
         }
       }
-      opsDb->Commit(nsMsgDBCommitType::kLargeCommit);  // flush offline flags
+      mDatabase->Commit(
+          nsMsgDBCommitType::kLargeCommit);  // flush offline flags
     }
   }
   return rv;
@@ -6528,13 +6509,10 @@ nsresult nsImapMailFolder::GetClearedOriginalOp(
   nsCOMPtr<nsIDBFolderInfo> folderInfo;
   sourceFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), originalDB);
   if (*originalDB) {
-    nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
-        do_QueryInterface(*originalDB, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
     nsMsgKey originalKey;
     op->GetMessageKey(&originalKey);
-    rv =
-        opsDb->GetOfflineOpForKey(originalKey, false, getter_AddRefs(returnOp));
+    rv = (*originalDB)
+             ->GetOfflineOpForKey(originalKey, false, getter_AddRefs(returnOp));
     if (NS_SUCCEEDED(rv) && returnOp) {
       nsCString moveDestination;
       nsCString thisFolderURI;
@@ -6652,9 +6630,6 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
       EnableNotifications(nsIMsgFolder::allMessageCountNotifications, false);
       nsCString originalSrcFolderURI;
       srcFolder->GetURI(originalSrcFolderURI);
-      nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
-          do_QueryInterface(sourceMailDB, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
       for (uint32_t sourceKeyIndex = 0;
            NS_SUCCEEDED(stopit) && (sourceKeyIndex < srcCount);
            sourceKeyIndex++) {
@@ -6669,8 +6644,8 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
         }
         // Set up an offline op for this message in the source DB.
         nsCOMPtr<nsIMsgOfflineImapOperation> sourceOp;
-        rv = opsDb->GetOfflineOpForKey(originalKey, true,
-                                       getter_AddRefs(sourceOp));
+        rv = sourceMailDB->GetOfflineOpForKey(originalKey, true,
+                                              getter_AddRefs(sourceOp));
         if (NS_SUCCEEDED(rv) && sourceOp) {
           srcFolder->SetFlag(nsMsgFolderFlags::OfflineEvents);
           nsCOMPtr<nsIMsgDatabase> originalDB;
@@ -6686,18 +6661,16 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
             nsCOMPtr<nsIMsgOfflineImapOperation> originalOp;
             GetClearedOriginalOp(sourceOp, getter_AddRefs(originalOp),
                                  getter_AddRefs(originalDB));
-            nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDbOriginal =
-                do_QueryInterface(originalDB, &rv);
-            if (NS_SUCCEEDED(rv) && originalOp) {
+            if (originalOp) {
               nsCString srcFolderURI;
               srcFolder->GetURI(srcFolderURI);
               sourceOp->GetSourceFolderURI(originalSrcFolderURI);
               sourceOp->GetMessageKey(&originalKey);
-              if (isMove) opsDb->RemoveOfflineOp(sourceOp);
+              if (isMove) sourceMailDB->RemoveOfflineOp(sourceOp);
               sourceOp = originalOp;
               if (originalSrcFolderURI.Equals(srcFolderURI)) {
                 messageReturningHome = true;
-                opsDbOriginal->RemoveOfflineOp(originalOp);
+                originalDB->RemoveOfflineOp(originalOp);
               }
             }
           }
@@ -6723,7 +6696,8 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
             } else {
               sourceOp->AddMessageCopyOperation(folderURI);  // offline copy
             }
-            ImapUid srcUid = UidFromMsgKey(opsDb, originalKey).unwrapOr(0);
+            ImapUid srcUid =
+                UidFromMsgKey(sourceMailDB, originalKey).unwrapOr(0);
             sourceOp->SetSrcUid(srcUid);
 
             sourceOp->GetOperation(&moveCopyOpType);
@@ -6784,17 +6758,14 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
             }
 
             // Create a corresponding offline op in the destination DB.
-            nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
-                do_QueryInterface(destDB, &rv);
-            NS_ENSURE_SUCCESS(rv, rv);
 
             nsCOMPtr<nsIMsgOfflineImapOperation> destOp;
-            opsDb->GetOfflineOpForKey(fakeKey, true, getter_AddRefs(destOp));
+            destDB->GetOfflineOpForKey(fakeKey, true, getter_AddRefs(destOp));
             if (destOp) {
               // check if this is a move back to the original mailbox, in which
               // case we just delete the offline operation.
               if (messageReturningHome) {
-                opsDb->RemoveOfflineOp(destOp);
+                destDB->RemoveOfflineOp(destOp);
               } else {
                 SetFlag(nsMsgFolderFlags::OfflineEvents);
                 // SetSourceFolderURI() sets the op to kMoveResult.
@@ -7669,9 +7640,7 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile* srcFile,
   // msgHdr with one downloaded from the server, with possible additional
   // headers added.
   nsCOMPtr<nsIMsgOfflineImapOperation> op;
-  nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb = do_QueryInterface(mDatabase, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = opsDb->GetOfflineOpForKey(msgKey, true, getter_AddRefs(op));
+  rv = mDatabase->GetOfflineOpForKey(msgKey, true, getter_AddRefs(op));
   if (NS_SUCCEEDED(rv) && op) {
     nsCString destFolderUri;
     GetURI(destFolderUri);
@@ -8265,12 +8234,11 @@ nsImapMailFolder::StoreCustomKeywords(nsIMsgWindow* aMsgWindow,
   if (WeAreOffline()) {
     GetDatabase();
     if (!mDatabase) return NS_ERROR_UNEXPECTED;
-    nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
-        do_QueryInterface(mDatabase, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     for (auto key : aKeysToStore) {
       nsCOMPtr<nsIMsgOfflineImapOperation> op;
-      nsresult rv2 = opsDb->GetOfflineOpForKey(key, true, getter_AddRefs(op));
+      nsresult rv2 =
+          mDatabase->GetOfflineOpForKey(key, true, getter_AddRefs(op));
       if (NS_FAILED(rv2)) rv = rv2;
       SetFlag(nsMsgFolderFlags::OfflineEvents);
       if (NS_SUCCEEDED(rv2) && op) {

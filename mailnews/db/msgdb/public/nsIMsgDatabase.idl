@@ -679,10 +679,7 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
    * Delete the current folder from the database. Only implemented for Panorama.
    */
   void deleteFolder();
-};
 
-[scriptable, uuid(7f98410c-41b7-4a55-8e0c-02107e7f4c0f)]
-interface nsIMsgOfflineOpsDatabase : nsIMsgDatabase {
   // Has to be in nsMailDatabase, since local folders can be move destinations.
 
   nsIMsgOfflineImapOperation getOfflineOpForKey(in nsMsgKey messageKey, in boolean create);

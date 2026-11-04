@@ -869,25 +869,22 @@ static bool CanCompactNow(nsIMsgFolder* folder) {
   nsCOMPtr<nsIMsgDatabase> folderDB;
   nsresult rv = folder->GetMsgDatabase(getter_AddRefs(folderDB));
   if (folderDB) {
-    nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb = do_QueryInterface(folderDB, &rv);
+    bool hasOffline;
+    rv = folderDB->HasOfflineActivity(&hasOffline);
     if (NS_SUCCEEDED(rv)) {
-      bool hasOffline;
-      rv = opsDb->HasOfflineActivity(&hasOffline);
-      if (NS_SUCCEEDED(rv)) {
-        if (hasOffline) {
-          MOZ_LOG(gCompactLog, LogLevel::Warning,
-                  ("BatchCompactor::CanCompactNow(): HasOfflineActivity"));
-          // No, we don't want to compact now.
-          return false;
-        }
-      } else if (rv != NS_ERROR_NOT_IMPLEMENTED) {
-        // We can compact folders that don't support offline ops.
-        // However, we skip folders that fail to give us the status.
-        MOZ_LOG(
-            gCompactLog, LogLevel::Warning,
-            ("BatchCompactor::CanCompactNow(): Failure querying offline ops"));
+      if (hasOffline) {
+        MOZ_LOG(gCompactLog, LogLevel::Warning,
+                ("BatchCompactor::CanCompactNow(): HasOfflineActivity"));
+        // No, we don't want to compact now.
         return false;
       }
+    } else if (rv != NS_ERROR_NOT_IMPLEMENTED) {
+      // We can compact folders that don't support offline ops.
+      // However, we skip folders that fail to give us the status.
+      MOZ_LOG(
+          gCompactLog, LogLevel::Warning,
+          ("BatchCompactor::CanCompactNow(): Failure querying offline ops"));
+      return false;
     }
   }
   return true;
