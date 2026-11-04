@@ -30,10 +30,10 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         let base_url = client.base_api_url()?.to_string();
         let request = messages::message_id::value::Get::new(base_url, self.message_id.clone());
 
-        self.listener.on_fetch_start()?;
-
         let response = client.send_request(request, Default::default()).await?;
 
+        // No await from here on: OnFetchStop() must follow in the same task
+        // (see IExchangeMessageFetchListener).
         self.listener.on_fetched_data_available(response.body())?;
 
         Ok(())

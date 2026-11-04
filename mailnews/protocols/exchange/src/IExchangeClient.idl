@@ -496,11 +496,14 @@ interface IExchangeMessageCreateListener : nsISupports
  * this instance because we don't always have a request/channel that can be used
  * in method calls when fetching a message's content (and using `nullptr`
  * everywhere is quite ugly and potentially unsafe).
+ *
+ * The content and the final `onFetchStop()` are delivered in the same
+ * main-thread task, so consumers can open their message store stream on the
+ * first `onFetchedDataAvailable()` without another write interleaving.
  */
 [scriptable, uuid(027150b1-d127-41a9-8945-18f9374755b3)]
 interface IExchangeMessageFetchListener : nsISupports
 {
-  void onFetchStart();
   void onFetchedDataAvailable(in nsIInputStream inputStream);
   void onFetchStop(in nsresult status);
 };

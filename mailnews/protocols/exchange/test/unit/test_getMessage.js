@@ -100,8 +100,6 @@ class MessageFetchListener {
     ].createInstance(Ci.nsIScriptableInputStream);
   }
 
-  onFetchStart() {}
-
   onFetchedDataAvailable(inputStream) {
     const count = inputStream.available();
     this.scriptableStream.init(inputStream);

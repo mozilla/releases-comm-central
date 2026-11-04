@@ -90,10 +90,6 @@ NS_IMETHODIMP ExchangeFolderSyncListener::OnSuccess() { return mOnSuccess(); }
 
 NS_IMPL_ISUPPORTS(ExchangeMessageFetchListener, IExchangeMessageFetchListener)
 
-NS_IMETHODIMP ExchangeMessageFetchListener::OnFetchStart() {
-  return mOnFetchStart();
-}
-
 NS_IMETHODIMP ExchangeMessageFetchListener::OnFetchedDataAvailable(
     nsIInputStream* stream) {
   uint64_t bytesFetched = 0;

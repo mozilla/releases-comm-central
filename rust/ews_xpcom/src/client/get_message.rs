@@ -25,8 +25,6 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
         &mut self,
         client: &XpComEwsClient<ServerT>,
     ) -> Result<Self::Okay, XpComEwsError> {
-        self.listener.on_fetch_start()?;
-
         let items = client.get_items([self.id.clone()], &[], true).await?;
         if items.len() != 1 {
             return Err(XpComEwsError::Processing {
@@ -60,6 +58,8 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
                     message: "MIME content for item is not validly base64 encoded".to_string(),
                 })?;
 
+        // No await from here on: OnFetchStop() must follow in the same task
+        // (see IExchangeMessageFetchListener).
         Ok(self.listener.on_fetched_data_available(mime_content)?)
     }
 

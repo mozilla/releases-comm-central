@@ -7,6 +7,8 @@ prefs = ["mail.graph.enabled=true"]
 
 ["test_client.js"]
 
+["test_concurrentOfflineFetch.js"]
+
 ["test_delete_model_trash_path.js"]
 
 ["test_ewsAttachmentSaves.js"]

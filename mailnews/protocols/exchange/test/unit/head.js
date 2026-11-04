@@ -90,9 +90,15 @@ function setupBasicEwsTestServer({
 /**
  * Set up an incoming server connected to a Graph test server.
  *
+ * @param {object} [options]
+ * @param {string} [options.username="user"]
+ * @param {string} [options.password="password"]
  * @returns {[GraphServer, nsIMsgIncomingServer]}
  */
-function setupBasicGraphTestServer() {
+function setupBasicGraphTestServer({
+  username = "user",
+  password = "password",
+} = {}) {
   // Ensure we have an on-disk profile.
   do_get_profile();
 
@@ -104,8 +110,8 @@ function setupBasicGraphTestServer() {
   const incomingServer = localAccountUtils.create_incoming_server(
     "graph",
     graphServer.port,
-    "user",
-    "password"
+    username,
+    password
   );
   incomingServer.QueryInterface(Ci.IExchangeIncomingServer);
   incomingServer.setStringValue(

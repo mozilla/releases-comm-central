@@ -229,19 +229,16 @@ class ExchangeMessageFetchListener : public IExchangeMessageFetchListener {
   NS_DECL_IEXCHANGEMESSAGEFETCHLISTENER
 
   ExchangeMessageFetchListener(
-      std::function<nsresult()> onFetchStart,
       std::function<nsresult(nsIInputStream*, uint64_t*)>
           onFetchedDataAvailable,
       std::function<nsresult(nsresult, uint64_t)> onFetchStop)
-      : mOnFetchStart(std::move(onFetchStart)),
-        mOnFetchedDataAvailable(std::move(onFetchedDataAvailable)),
+      : mOnFetchedDataAvailable(std::move(onFetchedDataAvailable)),
         mOnFetchStop(std::move(onFetchStop)) {};
 
  protected:
   virtual ~ExchangeMessageFetchListener() = default;
 
  private:
-  std::function<nsresult()> mOnFetchStart;
   std::function<nsresult(nsIInputStream*, uint64_t*)> mOnFetchedDataAvailable;
   std::function<nsresult(nsresult, uint64_t)> mOnFetchStop;
 
