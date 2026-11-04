@@ -462,15 +462,15 @@ NS_IMETHODIMP nsMsgMaildirStore::HasSpaceAvailable(nsIMsgFolder* aFolder,
                                                    bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   NS_ENSURE_ARG_POINTER(aFolder);
+  *aResult = false;
 
   nsCOMPtr<nsIFile> pathFile;
   nsresult rv = aFolder->GetFilePath(getter_AddRefs(pathFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  *aResult = DiskSpaceAvailableInStore(pathFile, aSpaceRequested);
-  if (!*aResult) return NS_ERROR_FILE_NO_DEVICE_SPACE;
-
-  return NS_OK;
+  rv = DiskSpaceAvailableInStore(pathFile, aSpaceRequested);
+  *aResult = NS_SUCCEEDED(rv);
+  return rv;
 }
 
 NS_IMETHODIMP nsMsgMaildirStore::IsSummaryFileValid(nsIMsgFolder* aFolder,

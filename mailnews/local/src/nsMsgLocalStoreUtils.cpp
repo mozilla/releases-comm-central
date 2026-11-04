@@ -221,44 +221,30 @@ nsresult nsMsgLocalStoreUtils::PatchXMozillaStatusHeaders(
 }
 
 /**
- * Returns true if there is enough space on disk.
+ * Checks whether the store has enough disk space, including the safety margin.
  *
- * @param aFile  Any file in the message store that is on a logical
- *               disk volume so that it can be queried for disk space.
- * @param aSpaceRequested  The size of free space there must be on the disk
- *                         to return true.
+ * @returns NS_OK if enough space is available or the query is unsupported,
+ * NS_ERROR_FILE_NO_DEVICE_SPACE if space is insufficient, or the query error.
  */
-bool nsMsgLocalStoreUtils::DiskSpaceAvailableInStore(nsIFile* aFile,
-                                                     uint64_t aSpaceRequested) {
+nsresult nsMsgLocalStoreUtils::DiskSpaceAvailableInStore(
+    nsIFile* file, uint64_t spaceRequested) {
   int64_t diskFree;
-  nsresult rv = aFile->GetDiskSpaceAvailable(&diskFree);
-  if (NS_SUCCEEDED(rv)) {
-#ifdef DEBUG
-    printf("GetDiskSpaceAvailable returned: %lld bytes\n", (long long)diskFree);
-#endif
-    // When checking for disk space available, take into consideration
-    // possible database changes, therefore ask for a little more
-    // (EXTRA_SAFETY_SPACE) than what the requested size is. Also, due to disk
-    // sector sizes, allocation blocks, etc. The space "available" may be
-    // greater than the actual space usable.
-    return ((aSpaceRequested + EXTRA_SAFETY_SPACE) < (uint64_t)diskFree);
-  } else if (rv == NS_ERROR_NOT_IMPLEMENTED) {
-    // The call to GetDiskSpaceAvailable is not implemented!
-    // This will happen on certain platforms where GetDiskSpaceAvailable
-    // is not implemented. Since people on those platforms still need
-    // to download mail, we will simply bypass the disk-space check.
-    //
-    // We'll leave a debug message to warn people.
-#ifdef DEBUG
-    printf(
-        "Call to GetDiskSpaceAvailable FAILED because it is not "
-        "implemented!\n");
-#endif
-    return true;
-  } else {
-    printf("Call to GetDiskSpaceAvailable FAILED!\n");
-    return false;
+  nsresult rv = file->GetDiskSpaceAvailable(&diskFree);
+  // Allow downloads on platforms without a disk-space query.
+  if (rv == NS_ERROR_NOT_IMPLEMENTED) {
+    return NS_OK;
   }
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // When checking for disk space available, take into consideration
+  // possible database changes, therefore ask for a little more
+  // (EXTRA_SAFETY_SPACE) than what the requested size is. Also, due to disk
+  // sector sizes, allocation blocks, etc. The space "available" may be
+  // greater than the actual space usable.
+  if (spaceRequested + EXTRA_SAFETY_SPACE >= static_cast<uint64_t>(diskFree)) {
+    return NS_ERROR_FILE_NO_DEVICE_SPACE;
+  }
+  return NS_OK;
 }
 
 /**

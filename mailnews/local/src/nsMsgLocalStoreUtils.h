@@ -29,7 +29,7 @@ class nsMsgLocalStoreUtils {
       nsIRandomAccessStream* seekable, nsTArray<nsCString> const& keywordsToAdd,
       nsTArray<nsCString> const& keywordsToRemove, bool& notEnoughSpace);
 
-  bool DiskSpaceAvailableInStore(nsIFile* aFile, uint64_t aSpaceRequested);
+  nsresult DiskSpaceAvailableInStore(nsIFile* file, uint64_t spaceRequested);
 
   /**
    * Details about the location of the X-Mozilla-Status/Status2 headers

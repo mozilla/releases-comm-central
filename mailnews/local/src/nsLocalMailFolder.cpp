@@ -3374,12 +3374,16 @@ nsMsgLocalMailFolder::WarnIfLocalFileTooBig(nsIMsgWindow* aWindow,
   bool spaceAvailable = false;
   // check if we have a reasonable amount of space left
   rv = msgStore->HasSpaceAvailable(this, aSpaceRequested, &spaceAvailable);
+  // NS_OK with a false result still means insufficient space. Unsupported
+  // disk-space queries return NS_OK with a true result in the built-in stores.
   if (NS_SUCCEEDED(rv) && spaceAvailable) {
     *aTooBig = false;
   } else if (rv == NS_ERROR_FILE_TOO_BIG) {
     AlertFolderError(this, "mailboxTooLarge"_ns);
+  } else if (rv == NS_ERROR_FILE_NO_DEVICE_SPACE || NS_SUCCEEDED(rv)) {
+    AlertFolderError(this, "outOfDiskSpaceGeneric"_ns);
   } else {
-    AlertFolderError(this, "outOfDiskSpace"_ns);
+    return rv;
   }
   return NS_OK;
 }

@@ -151,6 +151,8 @@ requesttimeoutfactor = 12
 
 ["test_saveMessage.js"]
 
+["test_storeSpaceChecks.js"]
+
 ["test_streamHeaders.js"]
 
 ["test_undoDelete.js"]

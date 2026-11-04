@@ -137,6 +137,7 @@ interface nsIMsgLocalMailFolder : nsISupports {
   /**
    * Shows warning if there is not enough space in the message store
    * for a message of the given size.
+   * Throws if the available space or mailbox size cannot be checked.
    */
   boolean warnIfLocalFileTooBig(in nsIMsgWindow aWindow,
                                 [optional] in long long aSpaceRequested);
