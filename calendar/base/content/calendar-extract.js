@@ -18,7 +18,8 @@ ChromeUtils.defineESModuleGetters(this, {
 var calendarExtract = {
   async extractFromEmail(message, isEvent, fixedLang, fixedLocale) {
     const folder = message.folder;
-    const title = message.mime2DecodedSubject;
+    // Limit how much subject text is searched for dates and times.
+    const title = message.mime2DecodedSubject.slice(0, 1000);
 
     let content = "";
     await new Promise((resolve, reject) => {
@@ -55,7 +56,7 @@ var calendarExtract = {
     // const time = new Date().getTime();
 
     const item = isEvent ? new CalEvent() : new CalTodo();
-    item.title = message.mime2DecodedSubject;
+    item.title = title;
     item.calendar = getSelectedCalendar();
     item.descriptionText = content;
     item.setProperty("URL", `mid:${message.messageId}`);
