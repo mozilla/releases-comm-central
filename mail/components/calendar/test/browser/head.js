@@ -536,15 +536,15 @@ async function positionTest({ calendar, duration = 1, offset, hour, size }) {
       eventBox,
       `Duration: ${duration} - Offset: ${offset} - Hour: ${hour} - Window ${size.name} - Position ${JSON.stringify(position)}`
     );
-  }
-  const dialog = document.querySelector('[is="calendar-dialog"]');
-  dialog?.close();
 
-  if (dialog) {
-    await TestUtils.waitForCondition(
-      () => BrowserTestUtils.isHidden(dialog),
-      "Waiting for dialog to close and reset"
-    );
+    const dialog = document.querySelector('[is="calendar-dialog"]');
+    dialog?.close();
+    if (dialog) {
+      await TestUtils.waitForCondition(
+        () => BrowserTestUtils.isHidden(dialog),
+        "Waiting for dialog to close and reset"
+      );
+    }
   }
 
   await calendar.deleteItem(eventBox.occurrence);
