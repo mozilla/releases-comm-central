@@ -317,12 +317,20 @@ class nsMsgFilterAfterTheFact : public nsIUrlListener,
    */
   nsresult ApplyFilter();
   nsresult OnEndExecution();  // do what we have to do to cleanup.
+  void LogCopyFailure(nsIMsgRuleAction* action, nsresult status,
+                      const nsACString& messageIds,
+                      uint32_t omittedMessageCount);
   nsCOMPtr<nsIMsgWindow> m_msgWindow;
   nsCOMPtr<nsIMsgFilterList> m_filters;
   nsTArray<RefPtr<nsIMsgFolder>> m_folders;
   nsCOMPtr<nsIMsgFolder> m_curFolder;
   nsCOMPtr<nsIMsgDatabase> m_curFolderDB;
   nsCOMPtr<nsIMsgFilter> m_curFilter;
+  nsCOMPtr<nsIMsgRuleAction> m_pendingCopyAction;
+  nsTArray<nsCString> m_pendingCopyLogMessages;
+  nsCString m_pendingCopyMessageIds;
+  uint32_t m_pendingCopyOmittedMessageCount = 0;
+  uint64_t m_copyCallbackCount = 0;
   uint32_t m_curFilterIndex;
   uint32_t m_curFolderIndex;
   uint32_t m_numFilters;
@@ -587,8 +595,6 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
     nsCOMPtr<nsIMsgFolder> curFolder = m_curFolder;
     nsCOMPtr<nsIMsgFilter> curFilter = m_curFilter;
 
-    // We're going to log the filter actions before firing them because some
-    // actions are async.
     bool loggingEnabled = false;
     if (m_filters) (void)m_filters->GetLoggingEnabled(&loggingEnabled);
 
@@ -614,6 +620,10 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
     // We start from m_nextAction to allow us to continue applying actions
     // after the return from an async copy.
     while (m_nextAction < numActions) {
+      m_pendingCopyAction = nullptr;
+      m_pendingCopyLogMessages.Clear();
+      m_pendingCopyMessageIds.Truncate();
+      m_pendingCopyOmittedMessageCount = 0;
       nsresult finalResult = NS_OK;
       nsCOMPtr<nsIMsgRuleAction> filterAction(actionList[m_nextAction]);
       ++m_nextAction;
@@ -635,7 +645,9 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
                           "actionTargetFolderUri is empty");
       }
 
-      if (loggingEnabled) {
+      // Log successful copies and moves in OnStopCopy after they complete.
+      if (loggingEnabled && actionType != nsMsgFilterAction::MoveToFolder &&
+          actionType != nsMsgFilterAction::CopyToFolder) {
         for (auto msgHdr : m_searchHitHdrs) {
           (void)curFilter->LogRuleHit(filterAction, msgHdr);
         }
@@ -721,11 +733,42 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
                                            nsMsgProcessingFlags::FilterToMove);
           }
 
+          m_pendingCopyAction = filterAction;
+          // A move can delete the source headers before OnStopCopy runs.
+          if (loggingEnabled) {
+            constexpr uint32_t kMaxLoggedMessageIds = 20;
+            uint32_t messageIndex = 0;
+            for (auto msgHdr : m_searchHitHdrs) {
+              if (messageIndex++ < kMaxLoggedMessageIds) {
+                nsCString messageId;
+                (void)msgHdr->GetMessageId(messageId);
+                if (!m_pendingCopyMessageIds.IsEmpty()) {
+                  m_pendingCopyMessageIds.AppendLiteral(", ");
+                }
+                m_pendingCopyMessageIds.Append(messageId);
+              } else {
+                ++m_pendingCopyOmittedMessageCount;
+              }
+              nsCString message;
+              if (NS_SUCCEEDED(curFilter->GetLogRuleHitMessage(
+                      filterAction, msgHdr, NS_OK, EmptyCString(), message))) {
+                m_pendingCopyLogMessages.AppendElement(std::move(message));
+              }
+            }
+          }
+          RefPtr<nsMsgFilterAfterTheFact> self(this);
+          uint64_t callbackCount = m_copyCallbackCount;
           rv = copyService->CopyMessages(
               curFolder, m_searchHitHdrs, destIFolder,
               actionType == nsMsgFilterAction::MoveToFolder, this, m_msgWindow,
               false);
-          BREAK_ACTION_IF_FAILURE(rv, "CopyMessages failed");
+          // A synchronous callback has already advanced or finished this run.
+          if (m_copyCallbackCount != callbackCount) {
+            return NS_OK;
+          }
+          if (NS_FAILED(rv)) {
+            return OnStopCopy(rv);
+          }
           MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
                   ("(Post) Action execution continues async"));
           return NS_OK;  // OnStopCopy callback to continue;
@@ -1296,11 +1339,21 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::GetMessageId(nsACString& messageId) {
 
 /* void OnStopCopy (in nsresult aStatus); */
 NS_IMETHODIMP nsMsgFilterAfterTheFact::OnStopCopy(nsresult aStatus) {
+  ++m_copyCallbackCount;
+  nsCString messageIds = std::move(m_pendingCopyMessageIds);
+  uint32_t omittedMessageCount = m_pendingCopyOmittedMessageCount;
+  m_pendingCopyOmittedMessageCount = 0;
+  nsCOMPtr<nsIMsgRuleAction> copyAction = m_pendingCopyAction.forget();
+  nsTArray<nsCString> logMessages = std::move(m_pendingCopyLogMessages);
   if (NS_SUCCEEDED(aStatus)) {
     // clang-format off
     MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
             ("(Post) Async message copy from filter action finished successfully"));
     // clang-format on
+    for (const auto& message : logMessages) {
+      (void)m_filters->LogFilterMessage(NS_ConvertUTF8toUTF16(message),
+                                        nullptr);
+    }
     return ApplyFilter();
   }
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
@@ -1308,6 +1361,56 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnStopCopy(nsresult aStatus) {
            static_cast<uint32_t>(aStatus)));
 
   mFinalResult = aStatus;
+  bool loggingEnabled = false;
+  (void)m_filters->GetLoggingEnabled(&loggingEnabled);
+  if (loggingEnabled && copyAction && m_curFilter) {
+    LogCopyFailure(copyAction, aStatus, messageIds, omittedMessageCount);
+  }
+
   // Copy failed, so run the next filter
   return RunNextFilter();
+}
+
+void nsMsgFilterAfterTheFact::LogCopyFailure(nsIMsgRuleAction* action,
+                                             nsresult status,
+                                             const nsACString& messageIds,
+                                             uint32_t omittedMessageCount) {
+  nsMsgRuleActionType type;
+  if (NS_FAILED(action->GetType(&type))) {
+    return;
+  }
+  nsCString folderUri;
+  if (NS_FAILED(action->GetTargetFolderUri(folderUri))) {
+    return;
+  }
+  nsCString errorCode;
+  errorCode.AppendPrintf("0x%08X", static_cast<uint32_t>(status));
+  RefPtr<mozilla::intl::Localization> l10n =
+      mozilla::intl::Localization::Create({"messenger/filterEditor.ftl"_ns},
+                                          true);
+  auto args = dom::Optional<intl::L10nArgs>();
+  args.Construct();
+  for (const auto& [key, value] : nsTArray<std::pair<nsCString, nsCString>>{
+           {"folder"_ns, folderUri},
+           {"errorCode"_ns, errorCode},
+           {"messageIds"_ns, nsCString(messageIds)}}) {
+    auto arg = args.Value().Entries().AppendElement();
+    arg->mKey = key;
+    arg->mValue.SetValue().SetAsUTF8String().Assign(value);
+  }
+  auto countArg = args.Value().Entries().AppendElement();
+  countArg->mKey = "count";
+  countArg->mValue.SetValue().SetAsDouble() = omittedMessageCount;
+  nsCString message;
+  ErrorResult error;
+  l10n->FormatValueSync(type == nsMsgFilterAction::MoveToFolder
+                            ? "filter-move-batch-failed"_ns
+                            : "filter-copy-batch-failed"_ns,
+                        args, message, error);
+  if (error.Failed()) {
+    error.SuppressException();
+    return;
+  }
+  (void)m_filters->LogFilterMessage(NS_ConvertUTF8toUTF16(message),
+                                    m_curFilter);
 }

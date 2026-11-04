@@ -18,6 +18,8 @@ head = "head_mailbase.js"
 
 ["test_filterNoTargetFolder.js"]
 
+["test_filterPartialCopyFailure.js"]
+
 ["test_filterUnusableCondition.js"]
 
 ["test_junkWhitelisting.js"]

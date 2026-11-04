@@ -411,8 +411,23 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
                                         const nsACString& aErrmsg) {
   NS_ENSURE_ARG_POINTER(aFilterAction);
   NS_ENSURE_ARG_POINTER(aMsgHdr);
-
   NS_ENSURE_TRUE(m_filterList, NS_OK);
+
+  nsCString message;
+  nsresult rv =
+      GetLogRuleHitMessage(aFilterAction, aMsgHdr, aRcode, aErrmsg, message);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return m_filterList->LogFilterMessage(NS_ConvertUTF8toUTF16(message),
+                                        nullptr);
+}
+
+NS_IMETHODIMP nsMsgFilter::GetLogRuleHitMessage(nsIMsgRuleAction* action,
+                                                nsIMsgDBHdr* header,
+                                                nsresult status,
+                                                const nsACString& errorMessage,
+                                                nsACString& message) {
+  NS_ENSURE_ARG_POINTER(action);
+  NS_ENSURE_ARG_POINTER(header);
 
   PRTime date;
   nsMsgRuleActionType actionType;
@@ -423,8 +438,8 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
   nsString dateValue;
 
   GetFilterName(filterName);
-  aFilterAction->GetType(&actionType);
-  (void)aMsgHdr->GetDate(&date);
+  action->GetType(&actionType);
+  (void)header->GetDate(&date);
   PRExplodedTime exploded;
   PR_ExplodeTime(date, PR_LocalTimeParameters, &exploded);
 
@@ -433,8 +448,8 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
   style.time = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Long);
   mozilla::intl::AppDateTimeFormat::Format(style, &exploded, dateValue);
 
-  (void)aMsgHdr->GetMime2DecodedAuthor(authorValue);
-  (void)aMsgHdr->GetMime2DecodedSubject(subjectValue);
+  (void)header->GetMime2DecodedAuthor(authorValue);
+  (void)header->GetMime2DecodedSubject(subjectValue);
 
   nsAutoCStringN<512> buffer;
   // this is big enough to hold a log entry.
@@ -454,9 +469,9 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
   // Some Test <test@example.com> - send test 3 at 2/13/2015 11:32:53 AM
   // moved message id = 54DE5165.7000907@example.com to
   // mailbox://nobody@Local%20Folders/test
-  if (NS_FAILED(aRcode)) {
+  if (NS_FAILED(status)) {
     nsAutoCString errorCode;
-    errorCode.AppendPrintf("0x%08X", (uint32_t)aRcode);
+    errorCode.AppendPrintf("0x%08X", (uint32_t)status);
 
     nsAutoCString errorMsg;
     // If this is one of our internal actions, the passed string is a Fluent
@@ -464,10 +479,10 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
     // localized string.
     rv = NS_ERROR_NOT_INITIALIZED;
     if (actionType != nsMsgFilterAction::Custom) {
-      rv = LocalizeMessage(l10n, aErrmsg, {}, errorMsg);
+      rv = LocalizeMessage(l10n, errorMessage, {}, errorMsg);
     }
     if (NS_FAILED(rv) || errorMsg.IsEmpty()) {
-      errorMsg = aErrmsg;
+      errorMsg = errorMessage;
     }
 
     rv = LocalizeMessage(
@@ -491,10 +506,10 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
   if (actionType == nsMsgFilterAction::MoveToFolder ||
       actionType == nsMsgFilterAction::CopyToFolder) {
     nsCString actionFolderUri;
-    aFilterAction->GetTargetFolderUri(actionFolderUri);
+    action->GetTargetFolderUri(actionFolderUri);
 
     nsCString msgId;
-    aMsgHdr->GetMessageId(msgId);
+    header->GetMessageId(msgId);
 
     rv = LocalizeMessage(
         l10n,
@@ -506,7 +521,7 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
   } else if (actionType == nsMsgFilterAction::Custom) {
     nsCOMPtr<nsIMsgFilterCustomAction> customAction;
     nsAutoString filterActionName;
-    rv = aFilterAction->GetCustomAction(getter_AddRefs(customAction));
+    rv = action->GetCustomAction(getter_AddRefs(customAction));
     if (NS_SUCCEEDED(rv) && customAction) {
       customAction->GetName(filterActionName);
     }
@@ -553,7 +568,8 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
   }
   buffer.Append('\n');
 
-  return m_filterList->LogFilterMessage(NS_ConvertUTF8toUTF16(buffer), nullptr);
+  message = buffer;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgFilter::LogRuleHit(nsIMsgRuleAction* aFilterAction,

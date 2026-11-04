@@ -86,6 +86,20 @@ interface nsIMsgFilter : nsISupports {
                      in nsIMsgDatabase db,
                      in ACString headers);  // null-separated list of headers
 
+    /**
+     * Format a filter-action log entry without writing it to the log.
+     *
+     * @param action The filter action.
+     * @param header The message acted on by the filter.
+     * @param status NS_OK for success, or the action's failure code.
+     * @param errorMessage A Fluent message ID for built-in actions, or localized
+     *                     text for custom actions. Ignored on success.
+     * @returns The formatted entry as UTF-8, without a timestamp or HTML escaping.
+     */
+    AUTF8String getLogRuleHitMessage(in nsIMsgRuleAction action,
+                                   in nsIMsgDBHdr header,
+                                   in nsresult status,
+                                   in AUTF8String errorMessage);
 
     /*
      * Report that Rule was matched and executed when filter logging is enabled.
