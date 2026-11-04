@@ -210,6 +210,16 @@ add_task(async function testAddressBookTab() {
 
   // Switch to the table view so the edit button isn't falling off the window.
   abWindow.cardsPane.toggleLayout(true);
+  const clickFirstCard = event => {
+    const cell = cardsList
+      .getRowAtIndex(0)
+      .querySelector(".generatedname-column");
+    // The checker does not recognize the tree body's tab stop and
+    // aria-activedescendant as keyboard access to this cell.
+    AccessibilityUtils.setEnv({ mustHaveAccessibleRule: false });
+    EventUtils.synthesizeMouseAtCenter(cell, event, abWindow);
+    AccessibilityUtils.resetEnv();
+  };
 
   // Check what happens with a contact selected.
   const row = booksList.getRowForUID(addressBook.UID);
@@ -217,7 +227,7 @@ add_task(async function testAddressBookTab() {
 
   Assert.ok(BrowserTestUtils.isHidden(detailsPane));
   // Select first contact.
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  clickFirstCard({});
   Assert.equal(getActiveElement(), cardsList.table.body);
   Assert.ok(BrowserTestUtils.isVisible(detailsPane));
   cycle(
@@ -233,11 +243,7 @@ add_task(async function testAddressBookTab() {
   Assert.ok(BrowserTestUtils.isVisible(detailsPane));
 
   // Check with no selection.
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(0),
-    { accelKey: true },
-    abWindow
-  );
+  clickFirstCard({ accelKey: true });
   Assert.equal(getActiveElement(), cardsList.table.body);
   Assert.ok(BrowserTestUtils.isHidden(detailsPane));
   cycle(
@@ -252,7 +258,7 @@ add_task(async function testAddressBookTab() {
   Assert.ok(BrowserTestUtils.isHidden(detailsPane));
 
   // Check what happens while editing. It should be nothing.
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  clickFirstCard({});
   Assert.equal(getActiveElement(), cardsList.table.body);
   Assert.ok(BrowserTestUtils.isVisible(detailsPane));
 
