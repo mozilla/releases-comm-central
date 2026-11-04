@@ -126,6 +126,12 @@ add_setup(async function () {
   mailFolder = await create_folder("newsContentPolicy");
 
   registerCleanupFunction(() => {
+    // Close the tabs left open by a failing task.
+    const tabmail = document.getElementById("tabmail");
+    while (tabmail.tabInfo.length > 1) {
+      tabmail.closeTab(tabmail.tabInfo.at(-1));
+    }
+    tabmail.switchToTab(0);
     mailFolder.deleteSelf(null);
     MailServices.accounts.removeAccount(newsAccount, false);
     const stray = NntpUtils.findServer("tracker.test");
@@ -266,6 +272,7 @@ add_task(async function testNewsArticleInContentTab() {
 add_task(async function testNewsLinkTargetsInMailMessage() {
   const href = `news://test.test:119/${encodeURIComponent(targetMessageId)}`;
   const folder = await create_folder("newsLinkTargets");
+  registerCleanupFunction(() => folder.deleteSelf(null));
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder).addMessage(
     generator
       .makeMessage({
@@ -302,8 +309,6 @@ add_task(async function testNewsLinkTargetsInMailMessage() {
     }
     tabmail.closeTab(tabInfo);
   }
-
-  folder.deleteSelf(null);
 });
 
 /**
@@ -317,6 +322,7 @@ add_task(async function testNntpLinkInMailMessage() {
     generator.makeMessage()
   );
   const folder = await create_folder("nntpLink");
+  registerCleanupFunction(() => folder.deleteSelf(null));
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder).addMessage(
     generator
       .makeMessage({
@@ -374,8 +380,6 @@ add_task(async function testNntpLinkInMailMessage() {
     "the article should be displayed from the newsgroup"
   );
   tabmail.closeTab(tabInfo);
-
-  folder.deleteSelf(null);
 });
 
 /**
