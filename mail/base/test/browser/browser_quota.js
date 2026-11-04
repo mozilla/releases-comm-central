@@ -139,6 +139,50 @@ add_task(async function () {
   await folderPropsPromise;
 });
 
+add_task(async function testQuotaKeyboard() {
+  await SimpleTest.promiseFocus(window);
+  const quotaLabel = document.getElementById("quotaLabel");
+  quotaLabel.focus();
+  EventUtils.synthesizeKey("KEY_Tab", { shiftKey: true });
+  Assert.notEqual(
+    document.activeElement,
+    quotaLabel,
+    "Shift+Tab leaves the quota button"
+  );
+  EventUtils.synthesizeKey("KEY_Tab");
+  Assert.equal(
+    document.activeElement,
+    quotaLabel,
+    "Tab reaches the quota button"
+  );
+
+  for (const key of ["KEY_Enter", " "]) {
+    const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+      undefined,
+      "chrome://messenger/content/folderProps.xhtml",
+      {
+        async callback(win) {
+          await SimpleTest.promiseFocus(win);
+          Assert.equal(
+            win.document.getElementById("folderPropTabBox").selectedPanel.id,
+            "quotaPanel",
+            `${key} opens the quota tab`
+          );
+          win.document.querySelector("dialog").cancelDialog();
+        },
+      }
+    );
+    EventUtils.synthesizeKey(key);
+    await dialogPromise;
+    await SimpleTest.promiseFocus(window);
+    Assert.equal(
+      document.activeElement,
+      quotaLabel,
+      "Focus returns to the quota button"
+    );
+  }
+});
+
 async function updateQuota(usage, limit) {
   // Drain the event queue so that the folder just displayed starts to use the
   // IMAP connection.

@@ -15,7 +15,8 @@
       <hbox id="quotaPanel" class="statusbarpanel statusbarpanel-progress" hidden="hidden">
         <stack>
           <html:progress id="quotaMeter" class="progressmeter-statusbar" value="0" max="100"/>
-          <html:a id="quotaLabel" onclick="goDoCommand('cmd_folderQuota');"></html:a>
+          <html:button id="quotaLabel" class="plain-button" type="button"
+                       onclick="goDoCommand('cmd_folderQuota');"></html:button>
         </stack>
       </hbox>
 #endif
