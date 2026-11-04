@@ -25,11 +25,12 @@ add_setup(async () => {
 add_task(async function test_additions_and_removals() {
   async function deleteRowWithPrompt(index) {
     const promptPromise = BrowserTestUtils.promiseAlertDialogOpen("accept");
-    EventUtils.synthesizeMouseAtCenter(
-      cardsList.getRowAtIndex(index),
-      {},
-      abWindow
-    );
+    const cell = cardsList.getRowAtIndex(index).querySelector("td");
+    // The checker does not recognize this tree's body tab stop and
+    // aria-activedescendant as keyboard access to the clicked grid cell.
+    AccessibilityUtils.setEnv({ mustHaveAccessibleRule: false });
+    EventUtils.synthesizeMouseAtCenter(cell, {}, abWindow);
+    AccessibilityUtils.resetEnv();
     EventUtils.synthesizeKey("KEY_Delete", {}, abWindow);
     await promptPromise;
     await new Promise(r => abWindow.setTimeout(r));

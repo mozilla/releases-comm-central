@@ -1271,6 +1271,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       this.classList.add("card-layout");
 
       this.cell = document.createElement("td");
+      this.cell.setAttribute("role", "gridcell");
 
       const container = this.cell.appendChild(document.createElement("div"));
       container.classList.add("card-container");

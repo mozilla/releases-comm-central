@@ -385,6 +385,7 @@ tr[is="ab-card-row"] td > .card-container {
   align-items: center;
   max-block-size: inherit;
   box-sizing: border-box;
+  pointer-events: none;
 }
 
 .selected-card {
