@@ -556,3 +556,36 @@ add_task(async function testRejectionWithoutValidSyncToken() {
   await clearDirectory(directory);
   CardDAVServer.reset();
 });
+
+/**
+ * Check that a full sync that fails doesn't stop later syncs from running.
+ */
+add_task(async function testFailedFetchAll() {
+  const directory = await initDirectory();
+
+  await CardDAVServer.close();
+  await Assert.rejects(
+    directory.fetchAllFromServer(),
+    /NS_ERROR_CONNECTION_REFUSED|Connection refused/i,
+    "fetching all cards should fail while the server is unreachable"
+  );
+  Assert.ok(
+    !directory._syncInProgress,
+    "the sync should no longer be in progress"
+  );
+
+  CardDAVServer.reopen();
+  CardDAVServer.putCardInternal(
+    "first.vcf",
+    "BEGIN:VCARD\r\nUID:first\r\nFN:First Person\r\nEND:VCARD\r\n"
+  );
+  await directory.syncWithServer();
+  Assert.equal(
+    directory.childCardCount,
+    1,
+    "the next sync should have fetched the card"
+  );
+
+  await clearDirectory(directory);
+  CardDAVServer.reset();
+});

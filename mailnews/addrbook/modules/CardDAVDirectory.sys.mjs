@@ -642,97 +642,103 @@ export class CardDAVDirectory extends SQLiteDirectory {
     log.log("Fetching all cards from the server.");
     this._syncInProgress = true;
 
-    const data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
-      <prop>
-        <resourcetype/>
-        <getetag/>
-        <cs:getctag/>
-      </prop>
-    </propfind>`;
+    try {
+      const data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
+        <prop>
+          <resourcetype/>
+          <getetag/>
+          <cs:getctag/>
+        </prop>
+      </propfind>`;
 
-    let response = await this._makeRequest("", {
-      method: "PROPFIND",
-      body: data,
-      headers: {
-        Depth: 1,
-      },
-      expectedStatuses: [207],
-    });
+      let response = await this._makeRequest("", {
+        method: "PROPFIND",
+        body: data,
+        headers: {
+          Depth: 1,
+        },
+        expectedStatuses: [207],
+      });
 
-    // A map of all existing hrefs and etags. If the etag for an href matches
-    // what we already have, we won't fetch it.
-    const currentHrefs = this._getCardsByHref();
+      // A map of all existing hrefs and etags. If the etag for an href matches
+      // what we already have, we won't fetch it.
+      const currentHrefs = this._getCardsByHref();
 
-    const hrefsToFetch = [];
-    for (const { href, properties } of this._readResponse(response.dom)) {
-      if (!properties || properties.querySelector("resourcetype collection")) {
-        continue;
-      }
-
-      const cardByHref = currentHrefs.get(href);
-      currentHrefs.delete(href);
-
-      const etag = properties.querySelector("getetag")?.textContent;
-      if (etag && cardByHref?.etag == etag) {
-        continue;
-      }
-
-      hrefsToFetch.push(href);
-    }
-
-    // Delete any existing cards we didn't see. They're not on the server so
-    // they shouldn't be on the client.
-    if (currentHrefs.size > 0) {
-      super.deleteCards(
-        Array.from(currentHrefs.values(), cardByHref =>
-          this.getCard(cardByHref.uid)
-        )
-      );
-    }
-
-    // Fetch any cards we don't already have, or that have changed.
-    while (hrefsToFetch.length) {
-      response = await this._multigetRequest(
-        hrefsToFetch.splice(0, this._multigetBatchSize)
-      );
-
-      const abCards = [];
-
+      const hrefsToFetch = [];
       for (const { href, properties } of this._readResponse(response.dom)) {
-        if (!properties) {
+        if (
+          !properties ||
+          properties.querySelector("resourcetype collection")
+        ) {
           continue;
         }
 
-        const etag = properties.querySelector("getetag")?.textContent;
-        const vCard = normalizeLineEndings(
-          properties.querySelector("address-data")?.textContent
-        );
+        const cardByHref = currentHrefs.get(href);
+        currentHrefs.delete(href);
 
-        try {
-          const abCard = lazy.VCardUtils.vCardToAbCard(vCard);
-          abCard.setProperty("_etag", etag);
-          abCard.setProperty("_href", href);
-          if (abCard.UID && this.cards.has(abCard.UID)) {
-            super.modifyCard(abCard);
-          } else {
-            abCards.push(abCard);
-          }
-        } catch (ex) {
-          log.error(`Error parsing: ${vCard}`);
-          console.error(ex);
+        const etag = properties.querySelector("getetag")?.textContent;
+        if (etag && cardByHref?.etag == etag) {
+          continue;
         }
+
+        hrefsToFetch.push(href);
       }
 
-      await this.bulkAddCardsInternal(abCards);
+      // Delete any existing cards we didn't see. They're not on the server so
+      // they shouldn't be on the client.
+      if (currentHrefs.size > 0) {
+        super.deleteCards(
+          Array.from(currentHrefs.values(), cardByHref =>
+            this.getCard(cardByHref.uid)
+          )
+        );
+      }
+
+      // Fetch any cards we don't already have, or that have changed.
+      while (hrefsToFetch.length) {
+        response = await this._multigetRequest(
+          hrefsToFetch.splice(0, this._multigetBatchSize)
+        );
+
+        const abCards = [];
+
+        for (const { href, properties } of this._readResponse(response.dom)) {
+          if (!properties) {
+            continue;
+          }
+
+          const etag = properties.querySelector("getetag")?.textContent;
+          const vCard = normalizeLineEndings(
+            properties.querySelector("address-data")?.textContent
+          );
+
+          try {
+            const abCard = lazy.VCardUtils.vCardToAbCard(vCard);
+            abCard.setProperty("_etag", etag);
+            abCard.setProperty("_href", href);
+            if (abCard.UID && this.cards.has(abCard.UID)) {
+              super.modifyCard(abCard);
+            } else {
+              abCards.push(abCard);
+            }
+          } catch (ex) {
+            log.error(`Error parsing: ${vCard}`);
+            console.error(ex);
+          }
+        }
+
+        await this.bulkAddCardsInternal(abCards);
+      }
+
+      await this._getSyncToken();
+
+      log.log("Sync with server completed successfully.");
+      Services.obs.notifyObservers(this, "addrbook-directory-synced");
+
+      this._scheduleNextSync();
+    } finally {
+      this._syncInProgress = false;
     }
-
-    await this._getSyncToken();
-
-    log.log("Sync with server completed successfully.");
-    Services.obs.notifyObservers(this, "addrbook-directory-synced");
-
-    this._scheduleNextSync();
-    this._syncInProgress = false;
   }
 
   /**
