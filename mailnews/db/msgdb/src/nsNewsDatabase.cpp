@@ -9,6 +9,7 @@
 #include "msgCore.h"
 #include "nsIMsgDBView.h"
 #include "nsIMsgThread.h"
+#include "nsIDBChangeListener.h"
 #include "nsMsgKeySet.h"
 #include "nsMsgMessageFlags.h"
 #include "nsCOMPtr.h"
@@ -102,7 +103,10 @@ nsresult nsNewsDatabase::MarkHdrRead(nsIMsgDBHdr* msgHdr, bool bRead,
     }
     // This is being listened to by nsMsgNewsFolder, which in turn notifies
     // the nsINntpIncomingServer about the change for the newsrc file.
-    NotifyReadChanged(nullptr);
+    for (const nsCOMPtr<nsIDBChangeListener>& listener :
+         m_ChangeListeners.EndLimitedRange()) {
+      listener->OnReadChanged(instigator);
+    }
   }
 
   return NS_OK;

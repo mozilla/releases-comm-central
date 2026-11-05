@@ -32,10 +32,4 @@ interface nsIDBChangeAnnouncer  : nsISupports {
                               in nsMsgKey oldParent,
                               in nsMsgKey newParent,
                               in nsIDBChangeListener instigator);
-
-  void notifyReadChanged(in nsIDBChangeListener instigator);
-
-  void notifyJunkScoreChanged(in nsIDBChangeListener aInstigator);
-
-  void notifyAnnouncerGoingAway();
 };

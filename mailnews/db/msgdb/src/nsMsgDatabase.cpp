@@ -824,18 +824,6 @@ NS_IMETHODIMP nsMsgDatabase::NotifyHdrChangeAll(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::NotifyReadChanged(
-    nsIDBChangeListener* aInstigator) {
-  NOTIFY_LISTENERS(OnReadChanged, (aInstigator));
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgDatabase::NotifyJunkScoreChanged(
-    nsIDBChangeListener* aInstigator) {
-  NOTIFY_LISTENERS(OnJunkScoreChanged, (aInstigator));
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgDatabase::NotifyHdrDeletedAll(
     nsIMsgDBHdr* aHdrDeleted, nsMsgKey aParentKey, int32_t aFlags,
     nsIDBChangeListener* aInstigator) {
@@ -856,11 +844,6 @@ NS_IMETHODIMP nsMsgDatabase::NotifyParentChangedAll(
     nsIDBChangeListener* aInstigator) {
   NOTIFY_LISTENERS(OnParentChanged,
                    (aKeyReparented, aOldParent, aNewParent, aInstigator));
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgDatabase::NotifyAnnouncerGoingAway(void) {
-  NOTIFY_LISTENERS(OnAnnouncerGoingAway, (this));
   return NS_OK;
 }
 
@@ -1381,7 +1364,7 @@ NS_IMETHODIMP nsMsgDatabase::ForceClosed() {
   // make sure someone has a reference so object won't get deleted out from
   // under us.
   NS_ADDREF_THIS();
-  NotifyAnnouncerGoingAway();
+  NOTIFY_LISTENERS(OnAnnouncerGoingAway, (this));
   // make sure dbFolderInfo isn't holding onto mork stuff because mork db is
   // going away
   if (m_dbFolderInfo) m_dbFolderInfo->ReleaseExternalReferences();
@@ -2391,7 +2374,7 @@ NS_IMETHODIMP nsMsgDatabase::SetStringPropertyByHdr(nsIMsgDBHdr* msgHdr,
     // from no value to non junk
     if (!strcmp(aProperty, "junkscore") &&
         !(oldValue.IsEmpty() && aValue.Equals("0"))) {
-      NotifyJunkScoreChanged(nullptr);
+      NOTIFY_LISTENERS(OnJunkScoreChanged, (nullptr));
     }
 
     nsTObserverArray<nsCOMPtr<nsIDBChangeListener>>::ForwardIterator listeners(

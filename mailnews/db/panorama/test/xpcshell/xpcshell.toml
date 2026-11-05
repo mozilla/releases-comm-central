@@ -16,6 +16,8 @@ support-files = [
 ]
 tags = ["panorama"]
 
+["test_changeAnnouncer.js"]
+
 ["test_delete.js"]
 
 ["test_findFolders.js"]

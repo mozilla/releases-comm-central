@@ -77,7 +77,6 @@ add_task(function testDeleteFromFolder() {
   const rootFolder = account.incomingServer.rootFolder;
   rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   const folder = rootFolder.createLocalSubfolder("testFolderDelete");
-  folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   const folderId = folder.id;
   folder.deleteSelf(null);

@@ -122,18 +122,10 @@ NS_IMETHODIMP PerFolderDatabase::NotifyHdrDeletedAll(
 NS_IMETHODIMP PerFolderDatabase::NotifyParentChangedAll(
     nsMsgKey keyReparented, nsMsgKey oldParent, nsMsgKey newParent,
     nsIDBChangeListener* instigator) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-NS_IMETHODIMP PerFolderDatabase::NotifyReadChanged(
-    nsIDBChangeListener* instigator) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-NS_IMETHODIMP PerFolderDatabase::NotifyJunkScoreChanged(
-    nsIDBChangeListener* aInstigator) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-NS_IMETHODIMP PerFolderDatabase::NotifyAnnouncerGoingAway(void) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  for (RefPtr<nsIDBChangeListener> listener : mListeners.EndLimitedRange()) {
+    listener->OnParentChanged(keyReparented, oldParent, newParent, instigator);
+  }
+  return NS_OK;
 }
 
 // nsIMsgDatabase:
