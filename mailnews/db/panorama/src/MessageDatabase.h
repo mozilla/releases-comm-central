@@ -5,6 +5,7 @@
 #ifndef COMM_MAILNEWS_DB_PANORAMA_SRC_MESSAGEDATABASE_H_
 #define COMM_MAILNEWS_DB_PANORAMA_SRC_MESSAGEDATABASE_H_
 
+#include "ImapTypes.h"
 #include "MailNewsTypes.h"
 #include "mozilla/HashTable.h"
 #include "mozilla/RefPtr.h"
@@ -126,6 +127,8 @@ class MessageDatabase : public nsIMessageDatabase {
   nsresult GetMessageForMessageID(uint64_t aFolderId,
                                   const nsACString& aMessageId,
                                   Message** aMessage);
+  nsresult GetMsgKeyForUid(uint64_t folderId, const ImapUid uid, nsMsgKey& key);
+  nsresult GetUidForMsgKey(uint64_t folderId, const nsMsgKey key, ImapUid& uid);
   nsresult MarkAllRead(uint64_t aFolderId, nsTArray<nsMsgKey>& aMarkedKeys);
   nsresult GetNumMessages(uint64_t folderId, uint64_t* numMessages);
   nsresult GetNumUnread(uint64_t folderId, uint64_t* numUnread);

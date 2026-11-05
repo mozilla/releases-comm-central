@@ -501,6 +501,63 @@ nsMsgKey MessageDatabase::FindByMessageId(nsACString const& messageId) {
   return (nsMsgKey)stmt->AsInt64(0);
 }
 
+nsresult MessageDatabase::GetMsgKeyForUid(uint64_t folderId, const ImapUid uid,
+                                          nsMsgKey& key) {
+  if (uid == 0) {
+    key = nsMsgKey_None;
+    return NS_OK;
+  }
+
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "GetMsgKeysForUid"_ns,
+      "SELECT m.id "_ns
+      "FROM message_properties mp JOIN messages m ON mp.id = m.id "_ns
+      "WHERE folderId = :folderId AND name='uidOnServer' AND value = :uid"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+  mozStorageStatementScoper scoper(stmt);
+  MOZ_TRY(stmt->BindInt64ByName("folderId"_ns, folderId));
+  MOZ_TRY(stmt->BindInt64ByName("uid"_ns, uid));
+
+  key = nsMsgKey_None;
+  bool hasResult;
+  if (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+    key = (nsMsgKey)stmt->AsInt64(0);
+  }
+
+  return NS_OK;
+}
+
+nsresult MessageDatabase::GetUidForMsgKey(uint64_t folderId, const nsMsgKey key,
+                                          ImapUid& uid) {
+  if (key == nsMsgKey_None) {
+    uid = 0;
+    return NS_OK;
+  }
+
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "GetUidsForMsgKeys"_ns,
+      "SELECT value "_ns
+      "FROM message_properties mp JOIN messages m ON mp.id = m.id "_ns
+      "WHERE folderId = :folderId AND name='uidOnServer' AND mp.id = :id"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+  mozStorageStatementScoper scoper(stmt);
+  MOZ_TRY(stmt->BindInt64ByName("folderId"_ns, folderId));
+  MOZ_TRY(stmt->BindInt64ByName("id"_ns, key));
+
+  uid = 0;
+  bool hasResult;
+  if (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+    uid = stmt->AsInt64(0);
+    return NS_OK;
+  }
+
+  return NS_MSG_MESSAGE_NOT_FOUND;
+}
+
 nsresult MessageDatabase::MarkAllRead(uint64_t aFolderId,
                                       nsTArray<nsMsgKey>& aMarkedKeys) {
   aMarkedKeys.Clear();
@@ -805,7 +862,10 @@ nsresult MessageDatabase::GetMessageTags(nsMsgKey key, nsACString& tags) {
 
 nsresult MessageDatabase::GetMessageUidOnServer(nsMsgKey key,
                                                 uint32_t& uidOnServer) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  uint32_t tmp;
+  MOZ_TRY(GetMessageProperty(key, "uidOnServer"_ns, tmp));
+  uidOnServer = tmp;
+  return NS_OK;
 }
 
 nsresult MessageDatabase::GetMessageThreadId(nsMsgKey key, nsMsgKey& threadId) {
@@ -1169,7 +1229,7 @@ nsresult MessageDatabase::SetMessageTags(nsMsgKey key, nsACString const& tags) {
 
 nsresult MessageDatabase::SetMessageUidOnServer(nsMsgKey key,
                                                 uint32_t uidOnServer) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return SetMessageProperty(key, "uidOnServer"_ns, (uint32_t)uidOnServer);
 }
 
 }  // namespace mozilla::mailnews

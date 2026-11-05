@@ -230,24 +230,54 @@ NS_IMETHODIMP PerFolderDatabase::ContainsKey(nsMsgKey key, bool* contains) {
 }
 
 NS_IMETHODIMP PerFolderDatabase::GetMsgKeysForUids(
-    const nsTArray<ImapUid>& uids, nsTArray<nsMsgKey>& aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+    const nsTArray<ImapUid>& uids, nsTArray<nsMsgKey>& keys) {
+  keys.Clear();
+  for (auto uid : uids) {
+    nsMsgKey key;
+    MOZ_TRY(MessageDB().GetMsgKeyForUid(mFolderId, uid, key));
+    keys.AppendElement(key);
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP PerFolderDatabase::GetUidsForMsgKeys(
-    const nsTArray<nsMsgKey>& keys, nsTArray<ImapUid>& aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+    const nsTArray<nsMsgKey>& keys, nsTArray<ImapUid>& uids) {
+  uids.Clear();
+  for (auto key : keys) {
+    ImapUid uid;
+    nsresult rv = MessageDB().GetUidForMsgKey(mFolderId, key, uid);
+    if (NS_SUCCEEDED(rv)) {
+      uids.AppendElement(uid);
+      continue;
+    }
+    bool contains;
+    MOZ_TRY(ContainsKey(key, &contains));
+    if (contains) {
+      uids.AppendElement(0);
+      continue;
+    }
+    return rv;
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP PerFolderDatabase::ContainsUid(ImapUid uid, bool* aRetVal) {
   NS_ENSURE_ARG_POINTER(aRetVal);
-  return NS_ERROR_NOT_IMPLEMENTED;
+  nsMsgKey key;
+  MOZ_TRY(MessageDB().GetMsgKeyForUid(mFolderId, uid, key));
+  *aRetVal = key != nsMsgKey_None;
+  return NS_OK;
 }
 
 NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForUid(ImapUid uid,
                                                  nsIMsgDBHdr** aRetVal) {
   NS_ENSURE_ARG_POINTER(aRetVal);
-  return NS_ERROR_NOT_IMPLEMENTED;
+  nsMsgKey key;
+  MOZ_TRY(MessageDB().GetMsgKeyForUid(mFolderId, uid, key));
+  if (key == nsMsgKey_None) {
+    return NS_ERROR_UNEXPECTED;
+  }
+  return GetMsgHdrForKey(key, aRetVal);
 }
 
 NS_IMETHODIMP PerFolderDatabase::CreateNewHdr(nsIMsgDBHdr** aRetVal) {
