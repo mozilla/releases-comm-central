@@ -60,10 +60,10 @@ export class Pop3Service {
 
   _getMail(downloadNewMail, msgWindow, urlListener, inbox, server) {
     if (Services.io.offline) {
-      throw Components.Exception(
-        "Cannot get mail while offline",
-        Cr.NS_MSG_ERROR_OFFLINE
-      );
+      // Return an XPCOM failure without logging an exception in this service.
+      // XPConnect converts the failure into an exception for JavaScript callers.
+      Components.returnCode = Cr.NS_MSG_ERROR_OFFLINE;
+      return;
     }
     server.wrappedJSObject.withClient(client => {
       client.runningUri.msgWindow = msgWindow;

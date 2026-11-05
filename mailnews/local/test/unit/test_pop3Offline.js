@@ -33,13 +33,9 @@ add_task(function testOfflineGetMail() {
     );
   }
 
-  Assert.throws(
-    () => incomingServer.performBiff(null),
-    error => error.result == Cr.NS_MSG_ERROR_OFFLINE,
-    "performBiff should fail while offline"
-  );
+  incomingServer.performBiff(null);
   Assert.ok(
     !incomingServer.performingBiff,
-    "performBiff should reset its state after failing"
+    "performBiff should reset its state after skipping an offline operation"
   );
 });
