@@ -24,6 +24,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsURLHelper.h"
 #include "mozilla/Logging.h"
+#include <algorithm>
 
 using namespace mozilla;
 extern LazyLogModule IMAPCache;  // defined in nsImapProtocol.cpp
@@ -253,29 +254,35 @@ NS_IMETHODIMP nsImapUrl::CreateSearchCriteriaString(char** aResult) {
   return NS_OK;
 }
 
+static bool IsControlCharacter(unsigned char aChar) {
+  return aChar < 0x20 || aChar == 0x7f;
+}
+
+/**
+ * Returns the length of the message id list that is sent to the server,
+ * excluding any "?" query or "/;section=" suffix.
+ */
+static size_t MessageIdListLength(const char* aListOfMessageIds) {
+  // mime may have glommed a "&part=" for a part download
+  // we return the entire message and let mime extract
+  // the part. Pop and news work this way also.
+  // this algorithm truncates the "&part" string.
+  size_t length = strcspn(aListOfMessageIds, "?");
+
+  // we should also strip off anything after "/;section="
+  // since that can specify an IMAP MIME part
+  const char* wherePart = PL_strstr(aListOfMessageIds, "/;section=");
+  if (wherePart)
+    length = std::min(length, size_t(wherePart - aListOfMessageIds));
+  return length;
+}
+
 // this method gets called from the UI thread and the imap thread
 NS_IMETHODIMP nsImapUrl::GetListOfMessageIds(nsACString& aResult) {
   MutexAutoLock mon(mLock);
   if (!m_listOfMessageIds) return NS_ERROR_NULL_POINTER;
 
-  int32_t bytesToCopy = strlen(m_listOfMessageIds);
-
-  // mime may have glommed a "&part=" for a part download
-  // we return the entire message and let mime extract
-  // the part. Pop and news work this way also.
-  // this algorithm truncates the "&part" string.
-  char* currentChar = m_listOfMessageIds;
-  while (*currentChar && (*currentChar != '?')) currentChar++;
-  if (*currentChar == '?') bytesToCopy = currentChar - m_listOfMessageIds;
-
-  // we should also strip off anything after "/;section="
-  // since that can specify an IMAP MIME part
-  char* wherePart = PL_strstr(m_listOfMessageIds, "/;section=");
-  if (wherePart)
-    bytesToCopy =
-        std::min(bytesToCopy, int32_t(wherePart - m_listOfMessageIds));
-
-  aResult.Assign(m_listOfMessageIds, bytesToCopy);
+  aResult.Assign(m_listOfMessageIds, MessageIdListLength(m_listOfMessageIds));
   return NS_OK;
 }
 
@@ -1106,6 +1113,14 @@ void nsImapUrl::ParseFolderPath(char** resultingCanonicalPath) {
   nsCString unescapedResultingCanonicalPath;
   MsgUnescapeString(nsDependentCString(resultPath + 1), 0,
                     unescapedResultingCanonicalPath);
+  // The path ends up in commands sent to the server, so reject control
+  // characters like CR/LF.
+  if (IsControlCharacter(dirSeparator) ||
+      std::any_of(unescapedResultingCanonicalPath.BeginReading(),
+                  unescapedResultingCanonicalPath.EndReading(),
+                  IsControlCharacter)) {
+    m_validUrl = false;
+  }
   *resultingCanonicalPath = ToNewCString(unescapedResultingCanonicalPath);
   // The delimiter will be set for a given URL, but will not be statically
   // available from an arbitrary URL.  It is the creator's responsibility to
@@ -1186,6 +1201,16 @@ void nsImapUrl::ParseListOfMessageIds() {
     m_validUrl = false;
   else {
     m_listOfMessageIds = strdup(m_listOfMessageIds);
+    // The list is sent to the server as is, so only allow a sequence set.
+    // User defined commands also pass their arguments in it, so for those
+    // only reject control characters like CR/LF.
+    const char* ids = m_listOfMessageIds;
+    const char* end = ids + MessageIdListLength(ids);
+    if (m_imapAction == nsImapUserDefinedMsgCommand
+            ? std::any_of(ids, end, IsControlCharacter)
+            : ids + strspn(ids, "0123456789:,*") != end) {
+      m_validUrl = false;
+    }
     m_mimePartSelectorDetected = PL_strstr(m_listOfMessageIds, "&part=") != 0 ||
                                  PL_strstr(m_listOfMessageIds, "?part=") != 0;
 

@@ -155,6 +155,10 @@ tags = ["foldernames"]
 
 ["test_imapUnsolicitedXDuringIdle.js"]
 
+["test_imapUrlFolderPath.js"]
+
+["test_imapUrlMessageIds.js"]
+
 ["test_imapVirtualFolderReuse.js"]
 
 ["test_largeOfflineStore.js"]
