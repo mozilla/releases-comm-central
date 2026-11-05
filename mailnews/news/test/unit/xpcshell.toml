@@ -35,6 +35,8 @@ run-sequentially = true  # Restarts server twice--may work but dangerous
 
 ["test_nntpGroupPassword.js"]
 
+["test_nntpOffline.js"]
+
 ["test_nntpPassword.js"]
 
 ["test_nntpPassword3.js"]

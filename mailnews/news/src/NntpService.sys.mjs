@@ -78,10 +78,10 @@ export class NntpService {
   getNewNews(server, uri, getOld, urlListener, msgWindow) {
     if (Services.io.offline) {
       // @see nsMsgNewsFolder::UpdateFolder
-      throw Components.Exception(
-        "Cannot get news while offline",
-        Cr.NS_MSG_ERROR_OFFLINE
-      );
+      // Return an XPCOM failure without logging an exception in this service.
+      // XPConnect converts the failure into an exception for JavaScript callers.
+      Components.returnCode = Cr.NS_MSG_ERROR_OFFLINE;
+      return null;
     }
     // The uri is in the form of news://news.mozilla.org/mozilla.accessibility
     const matches = /.+:\/\/([^:]+):?(\d+)?\/(.+)?/.exec(uri);
