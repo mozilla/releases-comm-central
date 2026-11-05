@@ -484,6 +484,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
       if (vCardProperties.getFirstValue("version") == "4.0") {
         convertToVCard3(vCardProperties);
       }
+      convertValueTypes(vCardProperties);
       addPlaceholderYears(vCardProperties);
       addPhotoTypes(vCardProperties);
       // There must be an `N` property, even if empty. See RFC 2426, section
@@ -1142,6 +1143,50 @@ function convertToVCard3(vCardProperties) {
     if (newEntry) {
       vCardProperties.removeEntry(entry);
       vCardProperties.addEntry(newEntry);
+    }
+  }
+}
+
+/**
+ * Converts values with value types that vCard 3.0 doesn't have, such as those
+ * of a converted vCard 4.0, or those the contact editor creates.
+ *
+ * @param {VCardProperties} vCardProperties - A vCard 3.0, changed in place.
+ */
+function convertValueTypes(vCardProperties) {
+  for (const entry of vCardProperties.entries) {
+    if (typeof entry.value != "string") {
+      continue;
+    }
+    if (entry.type == "date-and-or-time") {
+      // vCard 3.0 dates are a date or a date-time (RFC 2426, section 3.1.5).
+      entry.type = entry.value.includes("T") ? "date-time" : "date";
+    } else if (entry.type == "timestamp") {
+      // REV is a date-time in vCard 3.0 (RFC 2426, section 3.6.4).
+      entry.type = "date-time";
+    } else if (entry.name == "tel" && entry.type == "text") {
+      // vCard 3.0 TEL is a plain phone number (RFC 2426, section 3.3.1).
+      entry.type = "phone-number";
+    } else if (entry.name == "tel" && entry.type == "uri") {
+      // Only convert simple tel: URIs, and values that aren't URIs at all,
+      // which vCard 4.0 TEL without a VALUE parameter is parsed as. Leave the
+      // other URIs as they are.
+      const match = /^tel:([^;%]+)$/i.exec(entry.value);
+      if (match) {
+        entry.type = "phone-number";
+        entry.value = match[1];
+      } else if (!/^[a-z][a-z0-9+.-]*:/i.test(entry.value)) {
+        entry.type = "phone-number";
+      }
+    } else if (entry.name == "geo" && entry.type == "uri") {
+      // vCard 3.0 GEO is latitude and longitude (RFC 2426, section 3.4.2).
+      // Only convert plain geo: URIs, so that e.g. an altitude or uncertainty
+      // isn't lost.
+      const match = /^geo:([^,;]+),([^,;]+)$/i.exec(entry.value);
+      if (match && isFinite(match[1]) && isFinite(match[2])) {
+        entry.type = "float";
+        entry.value = [+match[1], +match[2]];
+      }
     }
   }
 }

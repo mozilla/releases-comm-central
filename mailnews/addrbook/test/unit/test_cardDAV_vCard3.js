@@ -5,7 +5,7 @@
 /* Tests that cards are sent as vCard 3.0 to a server which announces support
  * only for vCard 3.0 in its supported-address-data property. */
 
-const { VCardUtils } = ChromeUtils.importESModule(
+const { VCardPropertyEntry, VCardUtils } = ChromeUtils.importESModule(
   "resource:///modules/VCardUtils.sys.mjs"
 );
 
@@ -337,6 +337,92 @@ add_task(async function testPhotoTypes() {
   Assert.ok(
     !directory.getBoolValue("carddav.vcard3", false),
     "the address book should not be vCard 3.0 only"
+  );
+
+  await cleanUp(directory);
+});
+
+/**
+ * Tests that values with vCard 4.0 only value types are converted when the
+ * card is sent as vCard 3.0.
+ */
+add_task(async function testValueTypes() {
+  CardDAVServer.supportedAddressData = VCARD3;
+
+  const directory = await initDirectory();
+  await directory.fetchAllFromServer();
+
+  directory.addCard(
+    VCardUtils.vCardToAbCard(
+      [
+        "BEGIN:VCARD",
+        "VERSION:4.0",
+        "FN:value types",
+        "BDAY:19700415",
+        "ANNIVERSARY:20000101T120000Z",
+        "REV:20220716T010301Z",
+        "TEL;VALUE=uri;TYPE=cell:tel:+1-555-555-5555",
+        "TEL;VALUE=uri;TYPE=work:tel:+1-555-555-5556;ext=123",
+        "TEL;VALUE=uri;TYPE=home:sip:jane@example.com",
+        "TEL;TYPE=pager:+1-555-555-5557",
+        "TEL;VALUE=text;TYPE=fax:+1-555-555-5558",
+        "GEO:geo:37.386,-122.08",
+        "GEO:geo:37.386,-122.08,100",
+        "GEO:geo:37.386,-122.08;u=50",
+        "UID:value-types",
+        "END:VCARD",
+        "",
+      ].join("\r\n")
+    )
+  );
+  const vCard = await waitForCardOnServer(directory, "value-types");
+  for (const expected of [
+    "VERSION:3.0",
+    "BDAY;VALUE=DATE:1970-04-15",
+    "ANNIVERSARY;VALUE=DATE-TIME:2000-01-01T12:00:00Z",
+    "REV:2022-07-16T01:03:01Z",
+    "TEL;TYPE=cell:+1-555-555-5555",
+    "TEL;TYPE=work;VALUE=URI:tel:+1-555-555-5556;ext=123",
+    "TEL;TYPE=home;VALUE=URI:sip:jane@example.com",
+    "TEL;TYPE=pager:+1-555-555-5557",
+    "TEL;TYPE=fax:+1-555-555-5558",
+    "GEO:37.386;-122.08",
+    "GEO;VALUE=URI:geo:37.386,-122.08,100",
+    "GEO;VALUE=URI:geo:37.386,-122.08;u=50",
+  ]) {
+    Assert.stringContains(
+      vCard,
+      `\r\n${expected}\r\n`,
+      `${expected.split(/[;:]/)[0]} on the server should be correct`
+    );
+  }
+
+  await cleanUp(directory);
+});
+
+/**
+ * Tests that a phone number added to a vCard 3.0 card by the contact editor,
+ * which has the text value type, is sent as a vCard 3.0 phone number, even on
+ * a server that also supports vCard 4.0.
+ */
+add_task(async function testEditorPhoneNumber() {
+  const directory = await initDirectory();
+  await directory.fetchAllFromServer();
+
+  const card = VCardUtils.vCardToAbCard(
+    "BEGIN:VCARD\r\nVERSION:3.0\r\nFN:phone\r\nUID:phone\r\nEND:VCARD\r\n"
+  );
+  card.vCardProperties.addEntry(
+    new VCardPropertyEntry("tel", { type: "cell" }, "text", "+1-555-555-5555")
+  );
+  card.setProperty("_vCard", card.vCardProperties.toVCard());
+  directory.addCard(card);
+
+  const vCard = await waitForCardOnServer(directory, "phone");
+  Assert.stringContains(
+    vCard,
+    "\r\nTEL;TYPE=cell:+1-555-555-5555\r\n",
+    "phone number on the server should be a vCard 3.0 phone number"
   );
 
   await cleanUp(directory);
