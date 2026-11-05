@@ -1916,10 +1916,14 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForUid(ImapUid uid, nsIMsgDBHdr** hdr) {
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1806770
 
   if (uid == 0) {
-    return NS_OK;
+    return NS_ERROR_UNEXPECTED;
   }
   nsMsgKey key = static_cast<nsMsgKey>(uid);
-  return GetMsgHdrForKey(key, hdr);
+  MOZ_TRY(GetMsgHdrForKey(key, hdr));
+  if (!hdr) {
+    return NS_MSG_MESSAGE_NOT_FOUND;
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDatabase::DeleteMessage(nsMsgKey key,
