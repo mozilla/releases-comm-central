@@ -32,6 +32,12 @@ const {
 } = AccountCreationUtils;
 
 /**
+ * Domains owned by Microsoft that are commonly used for Autodiscover, and
+ * that we trust with the credentials without asking the user.
+ */
+const AUTODISCOVERY_SAFE_DOMAINS = ["office365.com", "outlook.com"];
+
+/**
  * Initiates a fetch of the given URL, using either OAuth2 or Basic
  * authentication.
  *
@@ -172,8 +178,10 @@ async function fetchFromPotentiallyUnsafeAddress(
     return startFetchWithAuth(newURL, username, password, httpArgs);
   }
 
-  const kSafeDomains = ["office365.com", "outlook.com"];
-  if (newDomain != originalDomain && !kSafeDomains.includes(newDomain)) {
+  if (
+    newDomain != originalDomain &&
+    !AUTODISCOVERY_SAFE_DOMAINS.includes(newDomain)
+  ) {
     // Given that we received the redirect URL from an insecure HTTP call,
     // we ask the user whether he trusts the redirect domain.
     gAccountSetupLogger.info(
@@ -275,6 +283,10 @@ export async function fetchConfigFromExchange(
     }
     return confirmation.promise;
   };
+  // Every response except the direct one to the plain HTTP request comes from
+  // an HTTPS server already trusted with the credentials, so it may redirect
+  // to another email address without asking the user.
+  let url3Redirected = false;
   // If an authenticated request gets redirected to another site, only send
   // the credentials there after the same checks as for the HTTP redirect.
   const fetchWithAuthAndRedirect = url =>
@@ -312,6 +324,7 @@ export async function fetchConfigFromExchange(
           throw error;
         }
 
+        url3Redirected = true;
         return fetchFromPotentiallyUnsafeAddress(
           error.url,
           domain,
@@ -367,6 +380,23 @@ export async function fetchConfigFromExchange(
       throw new Error(
         "Too many redirects in XML response; domain=" + redirectDomain
       );
+    }
+    // The credentials would be sent to the new domain, so if the response came
+    // over plain HTTP, ask the user like for HTTP redirects.
+    const redirectBaseDomain =
+      Services.eTLD.getBaseDomainFromHost(redirectDomain);
+    if (
+      index == 2 &&
+      !url3Redirected &&
+      redirectBaseDomain != Services.eTLD.getBaseDomainFromHost(domain) &&
+      !AUTODISCOVERY_SAFE_DOMAINS.includes(redirectBaseDomain)
+    ) {
+      gAccountSetupLogger.info(
+        `Trying new domain for Autodiscover from untrusted RedirectAddr: ${redirectBaseDomain}`
+      );
+      // The redirected lookup only sends the credentials over HTTPS.
+      await confirmOnce(redirectBaseDomain, "https", abortSignal);
+      abortSignal.throwIfAborted();
     }
     return fetchConfigFromExchange(
       redirectDomain,

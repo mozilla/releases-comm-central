@@ -170,6 +170,19 @@ export async function fetchHTTP(url, args = {}, isRetry = false) {
   }
 
   if (response.status >= 200 && response.status < 300) {
+    // If an authenticated HTTPS request got redirected to plain HTTP, the
+    // response can't be trusted to come from the server we authenticated to.
+    if (
+      fetchArgs.headers.Authorization &&
+      urlObject.protocol == "https:" &&
+      !response.responseURL.startsWith("https:")
+    ) {
+      throw new ServerException(
+        await lazy.l10n.formatValue("cannot-contact-server-error"),
+        -2,
+        response.responseURL
+      );
+    }
     try {
       const responseType = response.getResponseHeader("Content-Type");
       if (
