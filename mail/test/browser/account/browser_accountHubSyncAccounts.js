@@ -74,6 +74,47 @@ registerCleanupFunction(function () {
   DNS.txt = _txt;
 });
 
+/**
+ * Answers the password prompts for the DAV servers the SRV records point to.
+ * They are on another site than the email address, so the password isn't sent
+ * there without asking.
+ *
+ * @param {string} password - The password to enter.
+ * @returns {function(): string[]} Stops answering, and returns the text of
+ *   each prompt answered.
+ */
+function answerPasswordPrompts(password) {
+  const prompts = [];
+  const observer = {
+    observe(win, topic) {
+      if (topic != "domwindowopened") {
+        return;
+      }
+      win.addEventListener(
+        "load",
+        () => {
+          if (
+            win.location.href != "chrome://global/content/commonDialog.xhtml"
+          ) {
+            return;
+          }
+          win.setTimeout(() => {
+            prompts.push(win.document.getElementById("infoBody").textContent);
+            win.document.getElementById("password1Textbox").value = password;
+            win.document.querySelector("dialog").getButton("accept").click();
+          });
+        },
+        { once: true }
+      );
+    },
+  };
+  Services.ww.registerNotification(observer);
+  return () => {
+    Services.ww.unregisterNotification(observer);
+    return prompts;
+  };
+}
+
 add_task(async function test_skip_sync_accounts_load() {
   IMAPServer.open();
   SMTPServer.open();
@@ -139,6 +180,7 @@ add_task(async function test_skip_sync_accounts_load() {
   EventUtils.sendString("abc12345", window);
   await inputEvent;
 
+  const stopAnsweringPrompts = answerPasswordPrompts("abc12345");
   passwordInput.focus();
   EventUtils.synthesizeKey("KEY_Enter", {}, window);
   await BrowserTestUtils.waitForMutationCondition(
@@ -179,6 +221,7 @@ add_task(async function test_skip_sync_accounts_load() {
 
   const successStep = dialog.querySelector("email-added-success");
   await BrowserTestUtils.waitForAttributeRemoval("hidden", successStep);
+  stopAnsweringPrompts();
 
   await subtest_clear_status_bar();
   MailServices.accounts.removeAccount(imapAccount);
@@ -256,6 +299,7 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
   EventUtils.sendString("abc12345", window);
   await inputEvent;
 
+  const stopAnsweringPrompts = answerPasswordPrompts("abc12345");
   passwordInput.focus();
   EventUtils.synthesizeKey("KEY_Enter", {}, window);
   await TestUtils.waitForCondition(
@@ -279,6 +323,12 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
         dialog.querySelector("email-sync-accounts-form")
       ),
     "The sync accounts view should be in view."
+  );
+
+  Assert.deepEqual(
+    stopAnsweringPrompts().map(text => text.includes("https://example.org")),
+    [true, true],
+    "the password should be asked for the address book and calendar servers on another site"
   );
 
   const syncAccountsTemplate = dialog.querySelector("email-sync-accounts-form");

@@ -30,6 +30,11 @@ async function openWizard(handleWizardArgs) {
  * @param {string} [args.url] - URL to use in the wizard.
  * @param {string} [args.username] - Username to use in the wizard.
  * @param {string} [args.password] - Password to use in a password dialog.
+ * @param {string} [args.otherSiteOrigin] - The origin of a server on another
+ *   site that SRV records point to. If given, a second password dialog is
+ *   expected for it.
+ * @param {boolean} [args.declineOtherSite] - Whether to cancel the password
+ *   dialog for otherSiteOrigin.
  * @param {"extra1"|"cancel"} [args.certError] - Button to press on a
  *   certificate exception dialog. If not given, no exception dialog is
  *   expected.
@@ -38,7 +43,7 @@ async function openWizard(handleWizardArgs) {
  */
 async function handleWizard(
   wizardWindow,
-  { url, username, password, certError, expectedCalendars }
+  { url, username, password, otherSiteOrigin, declineOtherSite, certError, expectedCalendars }
 ) {
   const wizardDocument = wizardWindow.document;
   const acceptButton = wizardDocument.querySelector("dialog").getButton("accept");
@@ -77,7 +82,14 @@ async function handleWizard(
   Assert.ok(!acceptButton.disabled);
 
   const certPromise = certError ? handleCertError(certError) : Promise.resolve();
-  const promptPromise = certError != "cancel" ? handlePasswordPrompt(password) : Promise.resolve();
+  const prompts = [];
+  if (certError != "cancel") {
+    prompts.push({ password });
+    if (otherSiteOrigin) {
+      prompts.push({ password: declineOtherSite ? null : password, origin: otherSiteOrigin });
+    }
+  }
+  const promptPromise = handlePasswordPrompts(prompts);
   EventUtils.synthesizeKey("KEY_Enter", {}, wizardWindow);
   await certPromise;
   if (certError == "cancel") {
@@ -95,6 +107,10 @@ async function handleWizard(
 
   if (expectedCalendars.length == 0) {
     const status = wizardDocument.querySelector(".network-status-row");
+    await TestUtils.waitForCondition(
+      () => status.getAttribute("status") != "loading",
+      "waiting for discovery to finish"
+    );
     Assert.equal(status.getAttribute("status"), "notfound");
     Assert.ok(BrowserTestUtils.isVisible(wizardDocument.querySelector(".network-notfound-label")));
     EventUtils.synthesizeMouseAtCenter(cancelButton, {}, wizardWindow);
@@ -136,22 +152,70 @@ async function handleWizard(
 }
 
 /**
- * @param {string} password
+ * Answers password dialogs in the order they open. All are handled by one
+ * observer, so a dialog opening right after the previous one isn't missed.
+ *
+ * @param {object[]} prompts - The dialogs expected.
+ * @param {?string} prompts[].password - The password to enter, or null to
+ *   cancel the dialog.
+ * @param {string} [prompts[].origin] - The origin the dialog should name.
+ * @returns {Promise} Resolves when the last dialog has closed.
  */
-async function handlePasswordPrompt(password) {
-  return BrowserTestUtils.promiseAlertDialog(null, undefined, {
-    async callback(prompt) {
-      await new Promise(resolve => prompt.setTimeout(resolve));
+function handlePasswordPrompts(prompts) {
+  if (!prompts.length) {
+    return Promise.resolve();
+  }
+  const { promise, resolve } = Promise.withResolvers();
+  let count = 0;
+  const observer = {
+    observe(prompt, topic) {
+      if (topic != "domwindowopened") {
+        return;
+      }
+      prompt.addEventListener(
+        "load",
+        async () => {
+          if (prompt.location.href != "chrome://global/content/commonDialog.xhtml") {
+            return;
+          }
+          const { password, origin } = prompts[count++];
+          const isLast = count == prompts.length;
+          if (isLast) {
+            Services.ww.unregisterNotification(observer);
+          }
+          await new Promise(r => prompt.setTimeout(r));
 
-      prompt.document.getElementById("password1Textbox").value = password;
+          if (origin) {
+            Assert.stringContains(
+              prompt.document.getElementById("infoBody").textContent,
+              origin,
+              "the password dialog should name the server"
+            );
+          }
 
-      const checkbox = prompt.document.getElementById("checkbox");
-      Assert.greater(checkbox.getBoundingClientRect().width, 0);
-      Assert.ok(checkbox.checked);
+          const closed = BrowserTestUtils.windowClosed(prompt);
+          if (password === null) {
+            prompt.document.querySelector("dialog").getButton("cancel").click();
+          } else {
+            prompt.document.getElementById("password1Textbox").value = password;
 
-      prompt.document.querySelector("dialog").getButton("accept").click();
+            const checkbox = prompt.document.getElementById("checkbox");
+            Assert.greater(checkbox.getBoundingClientRect().width, 0);
+            Assert.ok(checkbox.checked);
+
+            prompt.document.querySelector("dialog").getButton("accept").click();
+          }
+          await closed;
+          if (isLast) {
+            resolve();
+          }
+        },
+        { once: true }
+      );
     },
-  });
+  };
+  Services.ww.registerNotification(observer);
+  return promise;
 }
 
 /**
