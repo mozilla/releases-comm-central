@@ -3636,10 +3636,12 @@ var detailsPane = {
       // TODO: convert this to UID.
       book = MailServices.ab.getDirectory(this.addContactBookList.value);
       if (book.getBoolValue("carddav.vcard3", false)) {
-        // This is a CardDAV book, and the server discards photos unless the
-        // vCard 3 format is used. Since we know this is a new card, setting
-        // the version here won't cause a problem.
-        this.vCardEdit.vCardProperties.addValue("version", "3.0");
+        // This is a CardDAV book whose server only accepts vCard 3.0. Since we
+        // know this is a new card, setting the version here won't cause a
+        // problem.
+        this.vCardEdit.vCardProperties.addEntry(
+          new VCardPropertyEntry("version", {}, "text", "3.0")
+        );
       }
     }
     if (!book || book.readOnly) {
