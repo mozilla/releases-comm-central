@@ -473,7 +473,10 @@ export class CardDAVDirectory extends SQLiteDirectory {
     await this._queryServerVCardSupportLevel();
 
     const vCard = card.getProperty("_vCard", "");
-    if (this.getBoolValue("carddav.vcard3", false)) {
+    if (
+      this.getBoolValue("carddav.vcard3", false) ||
+      /^VERSION:3\.0\r?$/im.test(vCard)
+    ) {
       const vCardProperties = lazy.VCardProperties.fromVCard(vCard);
       if (!vCardProperties) {
         throw new Error(`Invalid vCard: ${vCard}`);
@@ -482,6 +485,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
         convertToVCard3(vCardProperties);
       }
       addPlaceholderYears(vCardProperties);
+      addPhotoTypes(vCardProperties);
       // There must be an `N` property, even if empty. See RFC 2426, section
       // 3.1.2.
       if (!vCardProperties.getFirstEntry("n")) {
@@ -1169,6 +1173,28 @@ function addPlaceholderYears(vCardProperties) {
       entry.params["x-apple-omit-year"] = "1604";
       entry.type = "date";
       entry.value = date.toString();
+    }
+  }
+}
+
+/**
+ * Gives inline photos without a TYPE parameter the type of their image. It is
+ * optional (RFC 2426, section 3.1.4), but iOS doesn't show photos without it.
+ *
+ * @param {VCardProperties} vCardProperties - A vCard 3.0, changed in place.
+ */
+function addPhotoTypes(vCardProperties) {
+  for (const entry of vCardProperties.getAllEntries("photo")) {
+    if (
+      entry.type != "binary" ||
+      entry.params.type ||
+      typeof entry.value != "string"
+    ) {
+      continue;
+    }
+    const mimeType = lazy.VCardUtils.imageTypeFromBase64(entry.value);
+    if (mimeType) {
+      entry.params.type = mimeType.substring("image/".length).toUpperCase();
     }
   }
 }

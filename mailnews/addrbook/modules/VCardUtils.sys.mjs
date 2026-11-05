@@ -199,6 +199,29 @@ export var VCardUtils = {
     return date;
   },
   /**
+   * Work out the media type of base64 encoded image data from its first
+   * bytes, as needed for vCard 3.0 photos without a TYPE parameter.
+   *
+   * @param {string} data
+   * @returns {?string} The media type, e.g. "image/png", or null if it isn't
+   *   recognised.
+   */
+  imageTypeFromBase64(data) {
+    if (data.startsWith("iVBO")) {
+      return "image/png";
+    }
+    if (data.startsWith("/9j/")) {
+      return "image/jpeg";
+    }
+    if (data.startsWith("UklG")) {
+      return "image/webp";
+    }
+    if (data.startsWith("R0lG")) {
+      return "image/gif";
+    }
+    return null;
+  },
+  /**
    * Create a PHOTO entry for an image given as a data: URL. vCard 4.0 stores
    * the data: URL as is (RFC 6350, section 6.2.4). Other versions store the
    * base64 data inline, with the image format as the TYPE parameter

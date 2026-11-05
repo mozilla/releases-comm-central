@@ -294,3 +294,50 @@ add_task(async function testPlaceholderYears() {
 
   await cleanUp(directory);
 });
+
+/**
+ * Tests that inline photos in vCard 3.0 cards get a TYPE parameter, even on a
+ * server that also supports vCard 4.0.
+ */
+add_task(async function testPhotoTypes() {
+  const directory = await initDirectory();
+  await directory.fetchAllFromServer();
+
+  for (const [uid, photo, expected] of [
+    [
+      "jpeg",
+      "PHOTO;ENCODING=B:/9j/4AAQ",
+      "PHOTO;ENCODING=B;TYPE=JPEG:/9j/4AAQ",
+    ],
+    [
+      "png",
+      "PHOTO;ENCODING=b:iVBORw0KGgo=",
+      "PHOTO;ENCODING=b;TYPE=PNG:iVBORw0KGgo=",
+    ],
+    [
+      "typed",
+      "PHOTO;ENCODING=B;TYPE=GIF:R0lGODlh",
+      "PHOTO;ENCODING=B;TYPE=GIF:R0lGODlh",
+    ],
+    ["gif", "PHOTO;ENCODING=B:R0lGODlh", "PHOTO;ENCODING=B;TYPE=GIF:R0lGODlh"],
+    ["unknown", "PHOTO;ENCODING=B:AAAA", "PHOTO;ENCODING=B:AAAA"],
+  ]) {
+    directory.addCard(
+      VCardUtils.vCardToAbCard(
+        `BEGIN:VCARD\r\nVERSION:3.0\r\nFN:${uid}\r\n${photo}\r\nUID:${uid}\r\nEND:VCARD\r\n`
+      )
+    );
+    const vCard = await waitForCardOnServer(directory, uid);
+    Assert.stringContains(
+      vCard,
+      `${expected}\r\n`,
+      `${uid} photo on the server should be correct`
+    );
+  }
+  Assert.ok(
+    !directory.getBoolValue("carddav.vcard3", false),
+    "the address book should not be vCard 3.0 only"
+  );
+
+  await cleanUp(directory);
+});

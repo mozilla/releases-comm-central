@@ -555,3 +555,12 @@ add_task(function testPhotoEntryFromDataURL() {
   // This should not take quadratic time.
   check(`data:${"a".repeat(100000)}`, "3.0", null);
 });
+
+add_task(function testImageTypeFromBase64() {
+  Assert.equal(VCardUtils.imageTypeFromBase64("iVBORw0KGgo="), "image/png");
+  Assert.equal(VCardUtils.imageTypeFromBase64("/9j/4AAQ"), "image/jpeg");
+  Assert.equal(VCardUtils.imageTypeFromBase64("UklGRg=="), "image/webp");
+  Assert.equal(VCardUtils.imageTypeFromBase64("R0lGODlh"), "image/gif");
+  Assert.equal(VCardUtils.imageTypeFromBase64("AAAA"), null);
+  Assert.equal(VCardUtils.imageTypeFromBase64(""), null);
+});
