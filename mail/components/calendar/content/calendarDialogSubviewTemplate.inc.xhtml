@@ -1,0 +1,20 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<html:template
+  id="calendarDialogSubviewTemplate"
+  xmlns="http://www.w3.org/1999/xhtml"
+>
+  <main class="calendar-event-create-edit-dialog-body" tabindex="-1">
+    <slot name="main"></slot>
+  </main>
+  <footer class="calendar-event-create-edit-dialog-footer">
+    <button
+      class="button icon-button back-button button-primary"
+      data-l10n-id="calendar-event-create-edit-dialog-back-button"
+      type="button"
+    ></button>
+    <slot name="footer"></slot>
+  </footer>
+</html:template>

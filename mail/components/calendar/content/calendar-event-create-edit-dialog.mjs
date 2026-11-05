@@ -25,8 +25,11 @@ import {
   selectTitleViewModel,
   selectCanSave,
 } from "./state/calendar-event-create-edit-selectors.mjs";
+import "./calendar-dialog-navigation-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
 import "./calendar-dialog-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./calendar-dialog-subview-manager.mjs"; // eslint-disable-line import-x/no-unassigned-import
 import "./calendar-dialog-toggleable-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./calendar-dialog-subview.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 /**
  * The dialog that creates and edits calendar events.
@@ -43,6 +46,13 @@ import "./calendar-dialog-toggleable-row.mjs"; // eslint-disable-line import-x/n
 export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixin(
   PositionedDialog
 ) {
+  /**
+   * The element that switches between the main view and the shared subview.
+   *
+   * @type {HTMLElement}
+   */
+  #subviewManager;
+
   /**
    * The latest "create" or "edit" mode and work state for this dialog.
    *
@@ -175,7 +185,10 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
 
       this.setAttribute("is", "calendar-event-create-edit-dialog");
 
-      this.addEventListener("click", this);
+      this.#subviewManager = this.querySelector(
+        "calendar-dialog-subview-manager"
+      );
+
       this.addEventListener("input", this);
       this.addEventListener("focusout", this);
       this.addEventListener("mouseover", this);
@@ -188,6 +201,9 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       window.MozXULElement?.insertFTLIfNeeded("messenger/calendarDialog.ftl");
       document.l10n.setAttributes(this, "calendar-event-create-edit-dialog");
     }
+    this.addEventListener("calendar-dialog-open-subview", this);
+    this.addEventListener("calendar-dialog-close-subview", this);
+    this.addEventListener("click", this);
     this.initializeCalendarEventRoute();
   }
 
@@ -250,6 +266,12 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
           this.#updateTitleTooltip(event.target);
         }
         break;
+      case "calendar-dialog-open-subview":
+        this.#openSubview(event.target);
+        break;
+      case "calendar-dialog-close-subview":
+        this.#closeSubview(event.target);
+        break;
     }
   }
 
@@ -294,6 +316,32 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
    */
   #updateTitleTooltip(input) {
     input.title = input.scrollWidth > input.clientWidth ? input.value : "";
+  }
+
+  /**
+   * Shows the subview requested by `row`. Focuses the shown subview.
+   *
+   * @param {HTMLElement} row - The navigation row that requested the subview.
+   */
+  #openSubview(row) {
+    const subviewId = row.getAttribute("subview-id");
+    this.#subviewManager.showSubview(subviewId);
+    this.#subviewManager.querySelector(`[id="${subviewId}"]`).focus();
+  }
+
+  /**
+   * Shows the main subview. Focuses the navigation row corresponding to the
+   * subview that was just closed.
+   *
+   * @param {HTMLElement} subview - The subview that requested to close.
+   */
+  #closeSubview(subview) {
+    const correspondingNavigationRow = this.querySelector(
+      `calendar-dialog-navigation-row[subview-id="${subview.id}"]`
+    );
+
+    this.#subviewManager.showDefaultSubview();
+    correspondingNavigationRow?.focusRowAction();
   }
 
   /**
@@ -527,6 +575,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       ? calendarDisplayBox
       : fallbackContainer;
 
+    this.#subviewManager.showDefaultSubview();
     return super.show(event);
   }
 

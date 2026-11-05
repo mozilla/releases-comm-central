@@ -1,0 +1,43 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Calendar Dialog Navigation Row Test</title>
+    <link rel="localization" href="messenger/calendarDialog.ftl" />
+    <script
+      type="module"
+      src="moz-src:///comm/mail/components/calendar/content/calendar-dialog-navigation-row.mjs"
+    ></script>
+  </head>
+  <body>
+    <template id="calendarDialogNavigationRowTemplate">
+      <div class="row">
+        <slot name="icon"></slot>
+        <slot name="label"></slot>
+        <button class="button button-flat expand-button icon-button action-button" type="button">
+          <slot name="action"></slot>
+        </button>
+        <slot name="content"></slot>
+      </div>
+    </template>
+    <calendar-dialog-navigation-row subview-id="testSubview">
+      <img
+        slot="icon"
+        class="icon-description"
+        src=""
+        data-l10n-id="calendar-dialog-description-row-icon"
+      />
+      <span slot="label">Test Label</span>
+      <img
+        slot="action"
+        class="icon-nav-right"
+        src=""
+        data-l10n-id="calendar-dialog-description-expand-icon"
+      />
+      <div slot="content">Test Content</div>
+    </calendar-dialog-navigation-row>
+  </body>
+</html>

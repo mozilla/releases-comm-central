@@ -1,0 +1,20 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<html:template
+  id="calendarDialogNavigationRowTemplate"
+  xmlns="http://www.w3.org/1999/xhtml"
+>
+  <div class="row">
+    <slot name="icon"></slot>
+    <slot name="label"></slot>
+    <button
+      class="button button-flat icon-button icon-only action-button"
+      type="button"
+    >
+      <slot name="action"></slot>
+    </button>
+    <slot name="content"></slot>
+  </div>
+</html:template>

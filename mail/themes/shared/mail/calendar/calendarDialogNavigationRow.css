@@ -1,0 +1,37 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/widgets.css");
+@import url("chrome://messenger/skin/calendar/calendarDialogRow.css");
+
+/* If a row has no 'content' slot, vertically align the icon/label */
+.row:has(slot[name="content"]:not(:has-slotted)) {
+  & slot[name="icon"],
+  & slot[name="label"] {
+    display: grid;
+    grid-row: 1 / span 2;
+  }
+}
+
+slot[name="label"]::slotted(*) {
+  font-weight: var(--font-weight-bold);
+}
+
+.action-button {
+  --button-padding: var(--space-step);
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+slot[name="content"]::slotted(*) {
+  color: var(--color-text-secondary);
+  -webkit-line-clamp: 3;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

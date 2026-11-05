@@ -375,8 +375,24 @@ li[is="calendar-dialog-attachment"] {
     display: flex;
   }
 
+  & calendar-dialog-subview-manager {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-block-size: 0;
+    overflow: hidden;
+
+    & > :not([hidden]) {
+      flex: 1 1 auto;
+      min-block-size: 0;
+      block-size: auto;
+      gap: 0;
+    }
+  }
+
   & .calendar-event-create-edit-dialog-header {
     display: flex;
+    flex-shrink: 0;
     flex-wrap: wrap;
     justify-content: space-between;
     gap: calc(var(--space-step) * 3);
@@ -398,26 +414,31 @@ li[is="calendar-dialog-attachment"] {
       color: var(--color-text-critical);
     }
   }
+}
 
-  & .calendar-event-create-edit-dialog-body {
-    flex: 1 1 auto;
-    min-block-size: 0;
-    overflow-block: auto;
+.calendar-event-create-edit-dialog-body {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  overflow-block: auto;
+  border-block-start: 1px solid var(--color-surface-border);
 
-    :is(calendar-dialog-row, calendar-dialog-toggleable-row) {
-      border-block-start: 1px solid var(--color-surface-border);
-      padding-block: var(--calendar-dialog-gap);
-    }
+  :is(calendar-dialog-row, calendar-dialog-toggleable-row, calendar-dialog-navigation-row) {
+    border-block-end: 1px solid var(--color-surface-border);
+    padding-block: var(--calendar-dialog-gap);
   }
+}
 
-  & .calendar-event-create-edit-dialog-footer {
-    display: flex;
-    gap: calc(var(--space-step) * 3);
-    margin-block: calc(var(--space-step) * 3) calc(var(--space-step) * 4);
-    margin-inline: calc(var(--space-step) * 3);
+.calendar-event-create-edit-dialog-footer {
+  display: flex;
+  flex-shrink: 0;
+  gap: calc(var(--space-step) * 3);
+  padding-block: calc(var(--space-step) * 3) calc(var(--space-step) * 4);
+  padding-inline: calc(var(--space-step) * 3);
 
-    & #save {
-      margin: 0;
+  .button {
+    margin: 0;
+
+    &#save {
       margin-inline-start: auto;
     }
   }

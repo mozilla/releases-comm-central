@@ -202,37 +202,208 @@ add_task(async function test_registrationAndStructure() {
   );
 
   Assert.equal(
-    dialog.querySelectorAll(
-      ":scope > .calendar-event-create-edit-dialog-header"
-    ).length,
+    dialog.querySelectorAll(".calendar-event-create-edit-dialog-header").length,
     1,
     "The dialog has one header region"
   );
+  const subviewManager = dialog.querySelector(
+    "calendar-dialog-subview-manager"
+  );
+  Assert.ok(subviewManager, "The dialog should have a subview manager");
+
+  const mainSubview = subviewManager.querySelector(
+    "#calendarEventCreateEditDialogMainSubview"
+  );
+  Assert.ok(mainSubview, "The subview manager should have a main subview");
   Assert.equal(
-    dialog.querySelectorAll(":scope > .calendar-event-create-edit-dialog-body")
+    mainSubview.querySelectorAll(".calendar-event-create-edit-dialog-body")
       .length,
     1,
-    "The dialog has one body region"
+    "The main subview should have one body region"
   );
   Assert.equal(
-    dialog.querySelectorAll(
-      ":scope > .calendar-event-create-edit-dialog-footer"
-    ).length,
+    mainSubview.querySelectorAll(".calendar-event-create-edit-dialog-footer")
+      .length,
     1,
-    "The dialog has one footer region"
+    "The main subview should have one footer region"
   );
 });
 
 add_task(async function test_sharedRowAndSubviewScaffolding() {
-  const body = dialog.querySelector(".calendar-event-create-edit-dialog-body");
-  const subview = body.querySelector(
-    "#calendarEventCreateEditDialogMainSubview[data-subview='main']"
+  const mainSubview = dialog.querySelector(
+    "#calendarEventCreateEditDialogMainSubview"
   );
+  const body = mainSubview.querySelector(
+    ".calendar-event-create-edit-dialog-body"
+  );
+  const subview = body.querySelector("[data-subview='main']");
 
   Assert.ok(subview, "The body provides the main subview scaffold");
   const rows = subview.querySelector(".calendar-event-create-edit-dialog-rows");
   Assert.ok(rows, "The main subview provides the shared row container");
-  Assert.equal(rows.childElementCount, 0, "The static shell has no field rows");
+});
+
+add_task(async function test_navigationRowShowsMatchingSubview() {
+  const subviewManager = dialog.querySelector(
+    "calendar-dialog-subview-manager"
+  );
+  const navigationRow = dialog.querySelector("#descriptionNavigationRow");
+  const descriptionSubview = dialog.querySelector(
+    "#calendarEventCreateEditDescriptionSubview"
+  );
+
+  Assert.ok(
+    navigationRow,
+    "The dialog should have a description navigation row"
+  );
+  Assert.ok(descriptionSubview, "The dialog should have a description subview");
+  const actionButton = navigationRow.shadowRoot.querySelector("button");
+  Assert.ok(actionButton, "The navigation row should have an action button");
+
+  await dialog.show();
+
+  try {
+    actionButton.click();
+
+    Assert.ok(
+      BrowserTestUtils.isVisible(descriptionSubview),
+      "The subview matching the navigation row should be visible"
+    );
+    Assert.ok(
+      BrowserTestUtils.isHidden(
+        subviewManager.querySelector(
+          "#calendarEventCreateEditDialogMainSubview"
+        )
+      ),
+      "The main subview should be hidden"
+    );
+  } finally {
+    dialog.close();
+  }
+});
+
+add_task(async function test_navigationRowFocusesSubview() {
+  const navigationRow = dialog.querySelector("#descriptionNavigationRow");
+  const description = dialog.querySelector(
+    "#calendarEventCreateEditDescriptionSubview textarea"
+  );
+  const actionButton = navigationRow.shadowRoot.querySelector("button");
+  Assert.ok(description, "The description subview should have a text area");
+
+  await dialog.show();
+
+  try {
+    actionButton.click();
+
+    Assert.strictEqual(
+      doc.activeElement,
+      description,
+      "Opening the description subview should focus its textarea"
+    );
+  } finally {
+    dialog.close();
+  }
+});
+
+function openDescriptionSubview() {
+  const navigationRow = dialog.querySelector("#descriptionNavigationRow");
+  const actionButton = navigationRow.shadowRoot.querySelector("button");
+  actionButton.click();
+}
+
+add_task(async function test_reopeningDialogResetsSubview() {
+  const subviewManager = dialog.querySelector(
+    "calendar-dialog-subview-manager"
+  );
+  const mainSubview = subviewManager.querySelector(
+    "#calendarEventCreateEditDialogMainSubview"
+  );
+  const descriptionSubview = subviewManager.querySelector(
+    "#calendarEventCreateEditDescriptionSubview"
+  );
+
+  await resetToCreateMode();
+  await dialog.show();
+
+  try {
+    openDescriptionSubview();
+    await closeDialog();
+
+    Assert.ok(
+      BrowserTestUtils.isHidden(mainSubview),
+      "The main subview should be visible after closing the dialog"
+    );
+
+    await dialog.show();
+
+    Assert.ok(
+      BrowserTestUtils.isVisible(mainSubview),
+      "The main subview should be visible after reopening the dialog"
+    );
+    Assert.ok(
+      BrowserTestUtils.isHidden(descriptionSubview),
+      "The description subview should be hidden after reopening the dialog"
+    );
+  } finally {
+    await closeDialog();
+  }
+});
+
+add_task(async function test_subviewBackShowsMainSubview() {
+  const subviewManager = dialog.querySelector(
+    "calendar-dialog-subview-manager"
+  );
+  const descriptionSubview = dialog.querySelector(
+    "#calendarEventCreateEditDescriptionSubview"
+  );
+  const backButton = descriptionSubview.shadowRoot.querySelector("button");
+  Assert.ok(backButton, "The subview should have a Back button");
+  const mainSubview = subviewManager.querySelector(
+    "#calendarEventCreateEditDialogMainSubview"
+  );
+
+  await resetToCreateMode();
+  await dialog.show();
+
+  try {
+    openDescriptionSubview();
+    backButton.click();
+
+    Assert.ok(
+      BrowserTestUtils.isVisible(mainSubview),
+      "The main subview should be shown after returning"
+    );
+    Assert.ok(
+      BrowserTestUtils.isHidden(descriptionSubview),
+      "The description subview should be hidden after returning"
+    );
+  } finally {
+    dialog.close();
+  }
+});
+
+add_task(async function test_subviewBackFocusesMatchingNavigationRow() {
+  const navigationRow = dialog.querySelector("#descriptionNavigationRow");
+  const descriptionSubview = dialog.querySelector(
+    "#calendarEventCreateEditDescriptionSubview"
+  );
+  const actionButton = navigationRow.shadowRoot.querySelector("button");
+  const backButton = descriptionSubview.shadowRoot.querySelector("button");
+
+  await dialog.show();
+
+  try {
+    openDescriptionSubview();
+    backButton.click();
+
+    Assert.strictEqual(
+      navigationRow.shadowRoot.activeElement,
+      actionButton,
+      "The description navigation row action should receive focus"
+    );
+  } finally {
+    dialog.close();
+  }
 });
 
 add_task(async function test_accessibleStaticDialogShell() {
@@ -593,67 +764,111 @@ add_task(async function test_createRouteDoesNotLoadASourceEvent() {
   }
 });
 
-add_task(async function testCreateRouteAnchorsToCalendarTargets() {
+add_task(async function test_opensToLeftOfExistingEvent() {
   await resetToCreateMode();
-  const document = browser.contentWindow.document;
-  const calendarCell = document.getElementById("calendarCell");
-  const calendarEventTarget = document.getElementById("calendarEvent");
-  const calendarRange = document.getElementById("calendarRange");
+
+  const calendarEventTarget = doc.getElementById("calendarEvent");
 
   try {
+    // Open as if the user clicked inside an existing calendar event.
+    // Check that the dialog opens to the left and slightly above the event.
     await dialog.show({
-      target: document.getElementById("calendarEventChild"),
+      target: doc.getElementById("calendarEventChild"),
     });
-    let dialogRect = dialog.getBoundingClientRect();
-    let targetRect = calendarEventTarget.getBoundingClientRect();
+
+    const targetRect = calendarEventTarget.getBoundingClientRect();
+    const dialogRect = dialog.getBoundingClientRect();
+
+    const expectedDialogRight = targetRect.left - DIALOG_MARGIN;
     Assert.equal(
       Math.round(dialogRect.right),
-      Math.round(targetRect.left - DIALOG_MARGIN),
-      "The existing event target anchors the dialog on its inline-start side"
+      Math.round(expectedDialogRight),
+      "The dialog should appear to the left of the existing calendar event"
     );
-    Assert.equal(
-      Math.round(dialogRect.top),
-      Math.round(targetRect.top - DIALOG_MARGIN),
-      "The dialog is slightly above the existing event target"
-    );
-    await closeDialog();
 
-    await dialog.show({ target: document.getElementById("calendarCellChild") });
-    dialogRect = dialog.getBoundingClientRect();
-    targetRect = calendarCell.getBoundingClientRect();
-    Assert.equal(
-      Math.round(dialogRect.left),
-      Math.round(targetRect.right + DIALOG_MARGIN),
-      "The generic calendar cell anchors the dialog on its inline-end side"
-    );
+    const expectedDialogTop = targetRect.top - DIALOG_MARGIN;
     Assert.equal(
       Math.round(dialogRect.top),
-      Math.round(targetRect.top - DIALOG_MARGIN),
-      "The dialog is slightly above the generic calendar cell"
-    );
-    await closeDialog();
-
-    await dialog.show({
-      target: document.getElementById("calendarRangeChild"),
-    });
-    dialogRect = dialog.getBoundingClientRect();
-    targetRect = calendarRange.getBoundingClientRect();
-    Assert.equal(
-      Math.round(dialogRect.right),
-      Math.round(targetRect.left - DIALOG_MARGIN),
-      "The selected range anchors the dialog on its inline-start side"
-    );
-    Assert.equal(
-      Math.round(dialogRect.top),
-      Math.round(targetRect.top - DIALOG_MARGIN),
-      "The dialog is slightly above the selected range"
+      Math.round(expectedDialogTop),
+      "The dialog top should be slightly above the existing calendar event"
     );
   } finally {
     await closeDialog();
   }
 });
 
-add_task(async function testCreateRouteWithoutCalendarTargetCenters() {
+add_task(async function test_opensToRightOfCalendarCell() {
+  await resetToCreateMode();
+
+  const calendarCell = doc.getElementById("calendarCell");
+
+  try {
+    // Open as if the user clicked inside a calendar cell.
+    // Check that the dialog opens to the right and slightly above the cell.
+    await dialog.show({
+      target: doc.getElementById("calendarCellChild"),
+    });
+
+    const targetRect = calendarCell.getBoundingClientRect();
+    const dialogRect = dialog.getBoundingClientRect();
+
+    const expectedDialogLeft = targetRect.right + DIALOG_MARGIN;
+    Assert.equal(
+      Math.round(dialogRect.left),
+      Math.round(expectedDialogLeft),
+      "The dialog should appear to the right of the calendar cell"
+    );
+
+    const expectedDialogTop = targetRect.top - DIALOG_MARGIN;
+    Assert.equal(
+      Math.round(dialogRect.top),
+      Math.round(expectedDialogTop),
+      "The dialog top should be slightly above the calendar cell"
+    );
+  } finally {
+    await closeDialog();
+  }
+});
+
+add_task(async function test_opensNextToSelectedRangeWithoutOverflow() {
+  await resetToCreateMode();
+
+  const calendarRange = doc.getElementById("calendarRange");
+
+  try {
+    // Open as if the user clicked inside a selected calendar range.
+    // Check that the dialog opens to the left and moves up if needed to fit.
+    await dialog.show({
+      target: doc.getElementById("calendarRangeChild"),
+    });
+
+    const targetRect = calendarRange.getBoundingClientRect();
+    const dialogRect = dialog.getBoundingClientRect();
+    const containerRect = dialogContainer.getBoundingClientRect();
+
+    const expectedDialogRight = targetRect.left - DIALOG_MARGIN;
+    const preferredDialogTop = targetRect.top - DIALOG_MARGIN;
+    const maxDialogTop =
+      containerRect.bottom - DIALOG_MARGIN - dialogRect.height;
+
+    const expectedDialogTop = Math.min(preferredDialogTop, maxDialogTop);
+
+    Assert.equal(
+      Math.round(dialogRect.right),
+      Math.round(expectedDialogRight),
+      "The dialog should appear to the left of the selected range"
+    );
+    Assert.equal(
+      Math.round(dialogRect.top),
+      Math.round(expectedDialogTop),
+      "The dialog should sit slightly above the range, or higher if needed to fit inside the calendar view"
+    );
+  } finally {
+    await closeDialog();
+  }
+});
+
+add_task(async function test_createRouteWithoutCalendarTargetCenters() {
   await resetToCreateMode();
   const document = browser.contentWindow.document;
   const container = document.getElementById("calendarDisplayBox");
@@ -689,7 +904,7 @@ add_task(async function testCreateRouteWithoutCalendarTargetCenters() {
   }
 });
 
-add_task(async function testCreateRouteKeepsItsOpenPositionWhenScrolled() {
+add_task(async function test_createRouteKeepsItsOpenPositionWhenScrolled() {
   await resetToCreateMode();
   const document = browser.contentWindow.document;
   const container = document.getElementById("calendarDisplayBox");

@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include calendarDialogSubviewTemplate.inc.xhtml
+
 <html:template id="calendarEventCreateEditDialogTemplate" xmlns="http://www.w3.org/1999/xhtml">
   <header class="calendar-event-create-edit-dialog-header">
     <div class="calendar-name"></div>
@@ -49,26 +51,34 @@
       ></span>
     </div>
   </header>
-  <main class="calendar-event-create-edit-dialog-body">
-    <div class="calendar-event-create-edit-dialog-subview-container">
-      <section
-        id="calendarEventCreateEditDialogMainSubview"
-        class="calendar-event-create-edit-dialog-subview"
-        data-subview="main"
-      >
-        <div class="calendar-event-create-edit-dialog-rows"></div>
-      </section>
-    </div>
-  </main>
-  <footer class="calendar-event-create-edit-dialog-footer">
-    <div class="status-select"></div>
-    <div class="privacy-select"></div>
-    <button
-      id="save"
-      data-l10n-id="calendar-event-create-edit-save-button"
-      class="button button-primary"
-      disabled="disabled"
+  <calendar-dialog-subview-manager
+    class="calendar-event-create-edit-dialog-subview-container"
+    default-subview="calendarEventCreateEditDialogMainSubview"
+  >
+    <div
+      id="calendarEventCreateEditDialogMainSubview"
+      class="calendar-event-create-edit-dialog-main-subview"
     >
-    </button>
-  </footer>
+      <main class="calendar-event-create-edit-dialog-body">
+        <section
+          class="calendar-event-create-edit-dialog-subview"
+          data-subview="main"
+        >
+          <div class="calendar-event-create-edit-dialog-rows"></div>
+        </section>
+      </main>
+      <footer class="calendar-event-create-edit-dialog-footer">
+        <div class="status-select"></div>
+        <div class="privacy-select"></div>
+        <button
+          id="save"
+          data-l10n-id="calendar-event-create-edit-save-button"
+          class="button button-primary"
+          disabled="disabled"
+        >
+        </button>
+      </footer>
+    </div>
+    #include calendarEventCreateEditDescriptionSubviewTemplate.inc.xhtml
+  </calendar-dialog-subview-manager>
 </html:template>

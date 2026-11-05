@@ -1,0 +1,17 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/widgets.css");
+@import url("chrome://messenger/skin/calendar/calendarDialog.css");
+
+.calendar-event-create-edit-dialog-body {
+  padding-block: calc(6 * var(--space-step));
+  padding-inline: calc(3 * var(--space-step));
+  border-block-end: 1px solid var(--color-surface-border);
+}
+
+.button.back-button {
+  --button-padding: calc(var(--space-step) * 2);
+  font-weight: 500;
+}

@@ -15,6 +15,10 @@
       type="module"
       src="moz-src:///comm/mail/components/calendar/content/calendar-event-create-edit-dialog.mjs"
     ></script>
+    <script
+      type="module"
+      src="moz-src:///comm/mail/components/calendar/content/calendar-dialog-subview.mjs"
+    ></script>
     <script type="module">
       import { store } from "moz-src:///comm/mail/base/content/state/store.mjs";
       import * as draftState from "moz-src:///comm/mail/components/calendar/content/state/calendarEventDraftSlice.mjs";
@@ -74,6 +78,32 @@
     </style>
   </head>
   <body>
+    <template id="calendarDialogSubviewTemplate">
+      <main class="calendar-event-create-edit-dialog-body">
+        <slot name="main"></slot>
+      </main>
+      <footer class="calendar-event-create-edit-dialog-footer">
+        <button
+          class="button icon-button back-button button-primary"
+          data-l10n-id="calendar-event-create-edit-dialog-back-button"
+          type="button"
+        ></button>
+        <slot name="footer"></slot>
+      </footer>
+    </template>
+    <template id="calendarDialogNavigationRowTemplate">
+      <div class="row">
+        <slot name="icon"></slot>
+        <slot name="label"></slot>
+        <button
+          class="button button-flat icon-button icon-only action-button"
+          type="button"
+        >
+          <slot name="action"></slot>
+        </button>
+        <slot name="content"></slot>
+      </div>
+    </template>
     <template id="calendarEventCreateEditDialogTemplate">
       <header class="calendar-event-create-edit-dialog-header">
         <div class="calendar-name"></div>
@@ -121,28 +151,70 @@
           ></span>
         </div>
       </header>
-      <main class="calendar-event-create-edit-dialog-body">
-        <div class="calendar-event-create-edit-dialog-subview-container">
-          <section
-            id="calendarEventCreateEditDialogMainSubview"
-            class="calendar-event-create-edit-dialog-subview"
-            data-subview="main"
-          >
-            <div class="calendar-event-create-edit-dialog-rows"></div>
-          </section>
-        </div>
-      </main>
-      <footer class="calendar-event-create-edit-dialog-footer">
-        <div class="status-select"></div>
-        <div class="privacy-select"></div>
-        <button
-          id="save"
-          data-l10n-id="calendar-event-create-edit-save-button"
-          class="button button-primary"
-          disabled="disabled"
+      <calendar-dialog-subview-manager
+        class="calendar-event-create-edit-dialog-subview-container"
+        default-subview="calendarEventCreateEditDialogMainSubview"
+      >
+        <div
+          id="calendarEventCreateEditDialogMainSubview"
+          class="calendar-event-create-edit-dialog-main-subview"
         >
-        </button>
-      </footer>
+          <main class="calendar-event-create-edit-dialog-body">
+            <section
+              class="calendar-event-create-edit-dialog-subview"
+              data-subview="main"
+            >
+              <div class="calendar-event-create-edit-dialog-rows">
+                <calendar-dialog-navigation-row
+                  id="descriptionNavigationRow"
+                  subview-id="calendarEventCreateEditDescriptionSubview"
+                >
+                  <img
+                    slot="icon"
+                    class="icon-description"
+                    src=""
+                    data-l10n-id="calendar-dialog-description-row-icon"
+                  />
+                  <span
+                    slot="label"
+                    data-l10n-id="calendar-dialog-description-label"
+                  ></span>
+                  <img
+                    slot="action"
+                    class="icon-nav-right"
+                    src=""
+                    data-l10n-id="calendar-dialog-description-expand-icon"
+                  />
+                  <span slot="content"></span>
+                </calendar-dialog-navigation-row>
+              </div>
+            </section>
+          </main>
+          <footer class="calendar-event-create-edit-dialog-footer">
+            <div class="status-select"></div>
+            <div class="privacy-select"></div>
+            <button
+              id="save"
+              data-l10n-id="calendar-event-create-edit-save-button"
+              class="button button-primary"
+              disabled="disabled"
+            >
+            </button>
+          </footer>
+        </div>
+        <calendar-dialog-subview
+          id="calendarEventCreateEditDescriptionSubview"
+          initial-focus-id="description"
+          hidden="hidden"
+        >
+          <div slot="main">
+            <label>
+              <span data-l10n-id="calendar-dialog-description-label"></span>
+              <textarea id="description"></textarea>
+            </label>
+          </div>
+        </calendar-dialog-subview>
+      </calendar-dialog-subview-manager>
     </template>
     <button id="menuCreate" type="button">New Event</button>
     <button id="toolbarCreate" type="button">Create</button>
