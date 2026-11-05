@@ -135,3 +135,47 @@ add_task(async function testIcsDetectionPasswordRedirectOtherSite() {
     "should not send the password to a server on another site"
   );
 });
+
+add_task(async function testIcsDetectionDirectoryForeignHrefs() {
+  redirectServer.registerPathHandler("/dav/", (request, response) => {
+    if (request.method != "PROPFIND") {
+      response.setStatusLine("1.1", 405, "Method Not Allowed");
+      return;
+    }
+    const entry = (href, contentType) => CalendarTestUtils.dedent`
+      <d:response>
+        <d:href>${href}</d:href>
+        <d:propstat>
+          <d:prop>
+            <d:resourcetype>${contentType ? "" : "<d:collection/>"}</d:resourcetype>
+            ${contentType ? `<d:getcontenttype>${contentType}</d:getcontenttype>` : ""}
+          </d:prop>
+          <d:status>HTTP/1.1 200 OK</d:status>
+        </d:propstat>
+      </d:response>
+    `;
+    const entries = [entry("/dav/")];
+    if (request.getHeader("Depth") == "1") {
+      entries.push(
+        entry("/dav/good.ics", "text/calendar"),
+        entry("file:///tmp/local.ics", "text/calendar"),
+        entry("file://///192.0.2.1/share/unc.ics", "text/calendar"),
+        entry("http://example.com/other.ics", "text/calendar")
+      );
+    }
+    response.setStatusLine("1.1", 207, "Multi-Status");
+    response.setHeader("Content-Type", "application/xml; charset=utf-8");
+    response.write(
+      `<?xml version="1.0" encoding="utf-8"?><d:multistatus xmlns:d="DAV:">${entries.join("")}</d:multistatus>`
+    );
+  });
+
+  const calendars = await detection.providers
+    .get("ics")
+    .detectCalendars("", "", "http://example.org/dav/", false);
+  Assert.deepEqual(
+    calendars.map(c => c.uri.spec),
+    ["http://example.org/dav/good.ics"],
+    "should only find the calendar on the same server"
+  );
+});
