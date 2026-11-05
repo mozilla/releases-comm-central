@@ -83,56 +83,6 @@ def pkg_libotr(automation, target):
 
 set_config("TB_LIBOTR_PREBUILT", pkg_libotr)
 
-set_config(
-    "MOZ_GLEAN_EXTRA_METRICS_FILES",
-    [
-        "comm/mail/metrics.yaml",
-        "comm/mail/components/addrbook/metrics.yaml",
-        "comm/mail/components/cloudfile/metrics.yaml",
-        "comm/mail/components/compose/metrics.yaml",
-        "comm/mail/components/inappnotifications/metrics.yaml",
-        "comm/calendar/metrics.yaml",
-        "comm/mailnews/protocols/exchange/metrics.yaml",
-    ],
-)
-# set_config("MOZ_GLEAN_EXTRA_PINGS_FILES", ["comm/mail/pings.yaml"])
-set_config("MOZ_GLEAN_EXTRA_TAGS_FILES", ["comm/mail/tags.yaml"])
-set_config(
-    "MOZ_GLEAN_INTERESTING_METRICS_FILES",
-    [
-        "comm/mail/metrics.yaml",
-        "comm/mail/components/addrbook/metrics.yaml",
-        "comm/mail/components/cloudfile/metrics.yaml",
-        "comm/mail/components/compose/metrics.yaml",
-        "comm/mail/components/inappnotifications/metrics.yaml",
-        "comm/calendar/metrics.yaml",
-        "comm/mailnews/protocols/exchange/metrics.yaml",
-        "modules/libpref/metrics.yaml",
-        "parser/htmlparser/metrics.yaml",
-        # NOTE: test_pkcs11_module.js will fail without this.
-        # The pkcs11 runs before serverknobs can be applied.
-        "security/manager/ssl/metrics.yaml",
-        "toolkit/content/metrics.yaml",
-        "toolkit/components/crashes/metrics.yaml",
-        "toolkit/components/passwordmgr/metrics.yaml",
-        "toolkit/components/pdfjs/metrics.yaml",
-        # Could be useful, but fails "Sorry, Glean found some glinter nits".
-        # "toolkit/components/startup/metrics.yaml",
-        "toolkit/crashreporter/crashping/pings.yaml",
-        "toolkit/mozapps/defaultagent/metrics.yaml",
-        "toolkit/mozapps/extensions/metrics.yaml",
-        "toolkit/mozapps/update/metrics.yaml",
-        # NOTE: BackgroundTask_shouldprocessupdates.sys.mjs will fail without this
-        # It doesn't consider itself to be in automation, and is also
-        # collecting metrics too early, in XRE_mainStartup.
-        "toolkit/mozapps/update/shared_metrics.yaml",
-        # Could be useful, but fails "Sorry, Glean found some glinter nits".
-        # "toolkit/profile/metrics.yaml",
-        "toolkit/xre/metrics.yaml",
-    ],
-)
-
-
 include("../build/moz.configure/gecko_source.configure")
 
 include("../mailnews/moz.configure")
@@ -320,3 +270,63 @@ imply_option(
 )
 
 imply_option("MOZ_APP_UA_NAME", "Firefox", when=thunderbird_enterprise)
+
+
+# Glean telemetry
+# ===============
+
+@depends(thunderbird_enterprise)
+def thunderbird_extra_metrics_files(enterprise):
+    files = [
+        "comm/mail/metrics.yaml",
+        "comm/mail/components/addrbook/metrics.yaml",
+        "comm/mail/components/cloudfile/metrics.yaml",
+        "comm/mail/components/compose/metrics.yaml",
+        "comm/mail/components/inappnotifications/metrics.yaml",
+        "comm/calendar/metrics.yaml",
+        "comm/mailnews/protocols/exchange/metrics.yaml",
+    ]
+    # Enterprise event definitions are excluded from regular Thunderbird builds.
+    if enterprise:
+        files.append("comm/mail/metrics_enterprise.yaml")
+    return files
+
+
+set_config("MOZ_GLEAN_EXTRA_METRICS_FILES", thunderbird_extra_metrics_files)
+
+# set_config("MOZ_GLEAN_EXTRA_PINGS_FILES", ["comm/mail/pings.yaml"])
+set_config("MOZ_GLEAN_EXTRA_TAGS_FILES", ["comm/mail/tags.yaml"])
+
+
+@depends(thunderbird_extra_metrics_files)
+def thunderbird_interesting_metrics_files(extra_metrics_files):
+    return extra_metrics_files + [
+        "modules/libpref/metrics.yaml",
+        "parser/htmlparser/metrics.yaml",
+        # NOTE: test_pkcs11_module.js will fail without this.
+        # The pkcs11 runs before serverknobs can be applied.
+        "security/manager/ssl/metrics.yaml",
+        "toolkit/content/metrics.yaml",
+        "toolkit/components/crashes/metrics.yaml",
+        "toolkit/components/passwordmgr/metrics.yaml",
+        "toolkit/components/pdfjs/metrics.yaml",
+        # Could be useful, but fails "Sorry, Glean found some glinter nits".
+        # "toolkit/components/startup/metrics.yaml",
+        "toolkit/crashreporter/crashping/pings.yaml",
+        "toolkit/mozapps/defaultagent/metrics.yaml",
+        "toolkit/mozapps/extensions/metrics.yaml",
+        "toolkit/mozapps/update/metrics.yaml",
+        # NOTE: BackgroundTask_shouldprocessupdates.sys.mjs will fail without this
+        # It doesn't consider itself to be in automation, and is also
+        # collecting metrics too early, in XRE_mainStartup.
+        "toolkit/mozapps/update/shared_metrics.yaml",
+        # Could be useful, but fails "Sorry, Glean found some glinter nits".
+        # "toolkit/profile/metrics.yaml",
+        "toolkit/xre/metrics.yaml",
+    ]
+
+
+set_config(
+    "MOZ_GLEAN_INTERESTING_METRICS_FILES",
+    thunderbird_interesting_metrics_files,
+)

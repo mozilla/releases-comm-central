@@ -4,6 +4,7 @@
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
+import { MailTelemetry } from "moz-src:///comm/mail/modules/MailTelemetry.sys.mjs";
 import { setTimeout } from "resource:///modules/Timer.sys.mjs";
 
 const nsActWarning = Components.Constructor(
@@ -211,7 +212,7 @@ export var alertHook = {
         if (port == -1) {
           port = Services.io.getDefaultPort(uri.scheme);
         }
-        Glean.mail.certificateExceptionAdded.record({
+        MailTelemetry.recordCertificateExceptionAdded({
           error_category: securityInfo.errorCodeString,
           protocol: server.type,
           port,

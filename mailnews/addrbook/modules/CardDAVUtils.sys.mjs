@@ -13,6 +13,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   ContextualIdentityService:
     "moz-src:///toolkit/components/contextualidentity/ContextualIdentityService.sys.mjs",
   enforcePrimaryPassword: "resource:///modules/PrimaryPassword.sys.mjs",
+  MailTelemetry: "moz-src:///comm/mail/modules/MailTelemetry.sys.mjs",
   MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.sys.mjs",
   OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
 });
@@ -224,7 +225,7 @@ export var CardDAVUtils = {
               if (port == -1) {
                 port = Services.io.getDefaultPort(uri.scheme);
               }
-              Glean.mail.certificateExceptionAdded.record({
+              lazy.MailTelemetry.recordCertificateExceptionAdded({
                 error_category: finalChannel.securityInfo.errorCodeString,
                 protocol: "carddav",
                 port,

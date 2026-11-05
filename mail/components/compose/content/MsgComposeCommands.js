@@ -91,6 +91,7 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   ComposeUtils: "resource:///modules/ComposeUtils.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
+  MailTelemetry: "moz-src:///comm/mail/modules/MailTelemetry.sys.mjs",
   makeMozIconImageSet: "resource:///modules/MozIconUtils.mjs",
   QuoteSanitizer: "resource:///modules/QuoteSanitizer.sys.mjs",
 });
@@ -901,7 +902,7 @@ var gSendListener = {
       if (port == -1) {
         port = Services.io.getDefaultPort(server.serverURI.scheme);
       }
-      Glean.mail.certificateExceptionAdded.record({
+      lazy.MailTelemetry.recordCertificateExceptionAdded({
         error_category: secInfo.errorCodeString,
         protocol: server.type,
         port,

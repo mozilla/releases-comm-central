@@ -276,6 +276,15 @@ add_task(async function testValidCertificate() {
  * certificate exception.
  */
 add_task(async function testInvalidCertificate() {
+  if (AppConstants.MOZ_ENTERPRISE) {
+    await SpecialPowers.pushPrefEnv({
+      set: [
+        ["mail.enterprise.telemetry.certificateExceptionAdded.enabled", true],
+        ["mail.enterprise.telemetry.testing.disableSubmit", true],
+      ],
+    });
+  }
+
   Services.fog.testResetFOG();
   const accountsTab = await openTab(imapExpired, null, undefined, ["fetch"]);
 
@@ -309,6 +318,24 @@ add_task(async function testInvalidCertificate() {
     port: "993",
     ui: "certificate-check",
   });
+
+  if (AppConstants.MOZ_ENTERPRISE) {
+    const enterpriseEvents =
+      Glean.mailEnterprise.certificateExceptionAdded.testGetValue("enterprise");
+
+    Assert.equal(
+      enterpriseEvents?.length,
+      1,
+      "Accepting a certificate exception records one enterprise event"
+    );
+    Assert.deepEqual(
+      enterpriseEvents?.[0]?.extra,
+      telemetryEvents[0].extra,
+      "The enterprise event contains the same certificate exception details"
+    );
+
+    await SpecialPowers.popPrefEnv();
+  }
 });
 
 /**

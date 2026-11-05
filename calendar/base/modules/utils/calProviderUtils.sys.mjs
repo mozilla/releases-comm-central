@@ -22,6 +22,7 @@ ChromeUtils.defineLazyGetter(lazy, "log", () => {
 ChromeUtils.defineESModuleGetters(lazy, {
   CalPeriod: "resource:///modules/CalPeriod.sys.mjs",
   CalReadableStreamFactory: "resource:///modules/CalReadableStreamFactory.sys.mjs",
+  MailTelemetry: "moz-src:///comm/mail/modules/MailTelemetry.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
 
@@ -258,7 +259,7 @@ export var provider = {
             if (port == -1) {
               port = Services.io.getDefaultPort(requestURI.scheme);
             }
-            Glean.mail.certificateExceptionAdded.record({
+            lazy.MailTelemetry.recordCertificateExceptionAdded({
               error_category: secInfo.errorCodeString,
               protocol: this.calendar?.type ?? requestURI.scheme,
               port,

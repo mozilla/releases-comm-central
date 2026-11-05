@@ -1,0 +1,67 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+---
+$schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
+
+mail.enterprise:
+  profile_export:
+    type: event
+    description: >
+      Records when a profile ZIP export starts or completes.
+      Only recorded when enterprise profile export logging is enabled.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2088722
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2088722
+    data_sensitivity:
+      - interaction
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    send_in_pings:
+      - enterprise
+    extra_keys:
+      stage:
+        description: >
+          started after the destination archive is opened, or completed
+          after the archive is finalized.
+        type: string
+      result:
+        description: >
+          Included only for completed exports. complete means no file
+          additions failed; partial means at least one file addition failed.
+        type: string
+  certificate_exception_added:
+    type: event
+    description: >
+      Records accepted TLS certificate exceptions when enterprise
+      certificate exception logging is enabled.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2088722
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2088722
+    data_sensitivity:
+      - interaction
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    send_in_pings:
+      - enterprise
+    extra_keys:
+      error_category:
+        description: >
+          The certificate error from
+          nsITransportSecurityInfo.errorCodeString.
+        type: string
+      protocol:
+        description: >
+          The protocol using the certificate, such as imap or caldav.
+        type: string
+      port:
+        description: The network port in use.
+        type: string
+      ui:
+        description: Identifies the code handling the certificate exception.
+        type: string

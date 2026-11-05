@@ -10,6 +10,7 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   CreateInBackend:
     "resource:///modules/accountcreation/CreateInBackend.sys.mjs",
+  MailTelemetry: "moz-src:///comm/mail/modules/MailTelemetry.sys.mjs",
   OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(
@@ -341,7 +342,7 @@ export class ConfigVerifier {
       this._log.debug(
         `Accept exception for ${location.asciiHostPort} - will retry logon.`
       );
-      Glean.mail.certificateExceptionAdded.record({
+      lazy.MailTelemetry.recordCertificateExceptionAdded({
         error_category: secInfo.errorCodeString,
         protocol: this.server.type,
         port: this.server.port,

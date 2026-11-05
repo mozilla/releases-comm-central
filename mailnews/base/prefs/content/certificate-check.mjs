@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  MailTelemetry: "moz-src:///comm/mail/modules/MailTelemetry.sys.mjs",
+});
+
 const certOverrideService = Cc[
   "@mozilla.org/security/certoverride;1"
 ].getService(Ci.nsICertOverrideService);
@@ -428,7 +433,7 @@ class CertificateCheck extends HTMLElement {
       this.removeExceptionButton.hidden = false;
       this.#hasException = true;
 
-      Glean.mail.certificateExceptionAdded.record({
+      lazy.MailTelemetry.recordCertificateExceptionAdded({
         error_category: this.#securityInfo.errorCodeString,
         protocol: this.type,
         port: this.port,

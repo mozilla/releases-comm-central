@@ -4,6 +4,7 @@
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
+  MailTelemetry: "moz-src:///comm/mail/modules/MailTelemetry.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 
@@ -53,6 +54,7 @@ export class ProfileExporter {
     )();
     // MODE_WRONLY (0x02) and MODE_CREATE (0x08)
     zipW.open(targetFile, 0x02 | 0x08);
+    lazy.MailTelemetry.recordProfileExport("started");
     const profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
     const rootPathCount = PathUtils.split(profileDir.parent.path).length;
     const zipEntryMap = await this.#collectFilesToZip(
@@ -61,6 +63,7 @@ export class ProfileExporter {
     );
 
     let i = 0;
+    let failedFiles = 0;
     for (const [path, file] of zipEntryMap) {
       try {
         zipW.addEntryFile(
@@ -70,6 +73,7 @@ export class ProfileExporter {
           false
         );
       } catch (e) {
+        failedFiles++;
         this._logger.error(`Failed to add ${path}`, e);
       }
       if (++i % 10 === 0) {
@@ -79,6 +83,10 @@ export class ProfileExporter {
     }
     this.onProgress(zipEntryMap.size, zipEntryMap.size);
     zipW.close();
+    lazy.MailTelemetry.recordProfileExport(
+      "completed",
+      failedFiles ? "partial" : "complete"
+    );
   }
 
   /**
