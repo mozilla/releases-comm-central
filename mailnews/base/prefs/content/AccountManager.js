@@ -104,14 +104,18 @@ ChromeUtils.defineLazyGetter(this, "gSubDialog", function () {
     // Make the background UI inert when a subdialog opens.
     accountTreeBox.inert = true;
     contentFrame.tabIndex = -1;
-    contentFrame.contentDocument.body.inert = true;
+    if (contentFrame.contentDocument.body) {
+      contentFrame.contentDocument.body.inert = true;
+    }
   });
   dialogStack.addEventListener("dialogclose", () => {
     // Make the background UI active when the last subdialog closes.
     if (!manager.hasDialogs) {
       accountTreeBox.inert = false;
       contentFrame.tabIndex = 0;
-      contentFrame.contentDocument.body.inert = false;
+      if (contentFrame.contentDocument.body) {
+        contentFrame.contentDocument.body.inert = false;
+      }
     }
   });
 
