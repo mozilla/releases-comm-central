@@ -97,6 +97,8 @@
 
 #include "mimemrel.h"
 
+#include <algorithm>
+
 #include "mimehdrs.h"
 #include "mimeleaf.h"
 #include "mimemapl.h"
@@ -105,6 +107,7 @@
 #include "mimepbuf.h"
 #include "mozilla/CheckedInt.h"
 #include "mozilla/ScopeExit.h"
+#include "mozilla/TextUtils.h"
 #include "msgCore.h"
 #include "nsCOMPtr.h"
 #include "nsIURIMutator.h"
@@ -165,6 +168,8 @@ static int MimeMultipartRelated_initialize(MimeObject* obj) {
   relobj->input_file_stream = nullptr;
   relobj->output_file_stream = nullptr;
   relobj->is_part_in_hidden_alternative = false;
+  relobj->rawtext_end = nullptr;
+  relobj->rawtext_end_matched = 0;
 
   return ((MimeObjectClass*)&MIME_SUPERCLASS)->initialize(obj);
 }
@@ -864,13 +869,13 @@ static int flush_tag(MimeMultipartRelated* relobj) {
     }
     if (!ptr || !*ptr) break;
 
-    while (buf < ptr) {
-      /* ### mwelch For each word in the value string, see if
-                      the word is a cid: URL. If so, attempt to
-              substitute the appropriate mailbox part URL in
-              its place. */
-      ptr2 = buf; /* walk from the left end rightward */
-      while ((ptr2 < ptr) && (!IS_SPACE(*ptr2))) ptr2++;
+    if (buf < ptr) {
+      // If the whole value is a cid: URL, or the URL of a related part,
+      // substitute the mailbox part URL. Not a word within the value: it may
+      // e.g. be in the query of a URL to elsewhere, which would then get the
+      // part URL.
+      ptr2 = ptr;
+      while ((ptr2 > buf) && IS_SPACE(ptr2[-1])) ptr2--;
       /* Compare the beginning of the word with "cid:". Yuck. */
       if (((ptr2 - buf) > 4) &&
           ((buf[0] == 'c' || buf[0] == 'C') &&
@@ -945,8 +950,7 @@ static int flush_tag(MimeMultipartRelated* relobj) {
       }
       /* rhp - if we get here, we should still check against the hash table! */
 
-      /* Advance to the beginning of the next word, or to
-         the end of the value string. */
+      // Include the trailing whitespace of the value.
       while ((ptr2 < ptr) && (IS_SPACE(*ptr2))) ptr2++;
 
       /* Write whatever original text remains after
@@ -964,6 +968,94 @@ static int flush_tag(MimeMultipartRelated* relobj) {
   return 0;
 }
 
+// The end tags of elements whose content isn't parsed as markup. Not
+// <noscript>, since scripting is disabled in messages.
+static const char* const kRawTextEnds[] = {
+    "</iframe", "</noembed",  "</noframes", "</plaintext", "</script",
+    "</style",  "</textarea", "</title",    "</xmp"};
+static const char kCommentEnd[] = "-->";
+
+// Whether c is whitespace for the HTML tokenizer.
+static bool is_html_whitespace(char c) {
+  return c == '\t' || c == '\n' || c == '\f' || c == '\r' || c == ' ';
+}
+
+// If the tag starts the content of an element which isn't parsed as markup,
+// returns the end tag that ends it, otherwise null.
+static const char* raw_text_end_for_tag(const char* tag, int32_t length) {
+  int32_t nameEnd = 1;
+  while (nameEnd < length && mozilla::IsAsciiAlphanumeric(tag[nameEnd])) {
+    nameEnd++;
+  }
+  if (nameEnd == 1 || nameEnd == length ||
+      !(is_html_whitespace(tag[nameEnd]) || tag[nameEnd] == '/' ||
+        tag[nameEnd] == '>')) {
+    return nullptr;
+  }
+  nsDependentCSubstring name(tag + 1, nameEnd - 1);
+  for (const char* end : kRawTextEnds) {
+    if (name.LowerCaseEqualsASCII(end + 2)) {
+      return end;
+    }
+  }
+  return nullptr;
+}
+
+// Whether a comment starting with the given tag also ends with it.
+static bool comment_ends_in_tag(const char* tag, int32_t length) {
+  // The text between "<!--" and ">".
+  const char* text = tag + 4;
+  int32_t textLength = length - 5;
+  if (textLength == 0 || (textLength == 1 && text[0] == '-')) {
+    return true;
+  }
+  return textLength >= 2 && text[textLength - 2] == '-' &&
+         text[textLength - 1] == '-';
+}
+
+// Returns the length of the longest start of end that the first matched
+// characters of end followed by c end with, ignoring ASCII case.
+static int32_t extend_raw_text_end_match(const char* end, int32_t matched,
+                                         char c) {
+  if (mozilla::IsAsciiUppercaseAlpha(c)) {
+    c += 'a' - 'A';
+  }
+  int32_t endLength = strlen(end);
+  for (int32_t k = std::min(matched + 1, endLength); k > 0; k--) {
+    if (end[k - 1] == c && !memcmp(end, end + matched - (k - 1), k - 1)) {
+      return k;
+    }
+  }
+  return 0;
+}
+
+// Returns how much of buf comes before the end of the current comment or
+// element content, and resets relobj->rawtext_end if the end is in buf.
+static int32_t scan_raw_text(MimeMultipartRelated* relobj, const char* buf,
+                             int32_t size) {
+  const char* end = relobj->rawtext_end;
+  const int32_t endLength = strlen(end);
+  const bool isComment = end == kCommentEnd;
+  int32_t& matched = relobj->rawtext_end_matched;
+  for (int32_t i = 0; i < size; i++) {
+    char c = buf[i];
+    // An end tag needs the name to be followed by one of these.
+    if (!isComment && matched == endLength &&
+        (is_html_whitespace(c) || c == '/' || c == '>')) {
+      relobj->rawtext_end = nullptr;
+      matched = 0;
+      return i;
+    }
+    matched = extend_raw_text_end_match(end, matched, c);
+    if (isComment && matched == endLength) {
+      relobj->rawtext_end = nullptr;
+      matched = 0;
+      return i + 1;
+    }
+  }
+  return size;
+}
+
 static int mime_multipart_related_output_fn(const char* buf, int32_t size,
                                             MimeClosure stream_closure) {
   MimeMultipartRelated* relobj = stream_closure.AsMimeMultipartRelated();
@@ -975,6 +1067,16 @@ static int mime_multipart_related_output_fn(const char* buf, int32_t size,
   int32_t delta;
   int status;
   while (size > 0) {
+    // Comments and the content of elements like <style> may look like tags,
+    // but aren't, so don't substitute anything in them.
+    if (relobj->rawtext_end) {
+      delta = scan_raw_text(relobj, buf, size);
+      status = real_write(relobj, buf, delta);
+      if (status < 0) return status;
+      buf += delta;
+      size -= delta;
+      continue;
+    }
     if (relobj->curtag_length > 0) {
       ptr = PL_strnchr(buf, '>', size);
       if (!ptr) {
@@ -983,10 +1085,23 @@ static int mime_multipart_related_output_fn(const char* buf, int32_t size,
       delta = ptr - buf + 1;
       status = push_tag(relobj, buf, delta);
       if (status < 0) return status;
-      status = flush_tag(relobj);
-      if (status < 0) return status;
+      if (relobj->curtag_length >= 5 && !strncmp(relobj->curtag, "<!--", 4)) {
+        status = real_write(relobj, relobj->curtag, relobj->curtag_length);
+        if (status < 0) return status;
+        if (!comment_ends_in_tag(relobj->curtag, relobj->curtag_length)) {
+          relobj->rawtext_end = kCommentEnd;
+        }
+        relobj->curtag_length = 0;
+      } else {
+        const char* rawTextEnd =
+            raw_text_end_for_tag(relobj->curtag, relobj->curtag_length);
+        status = flush_tag(relobj);
+        if (status < 0) return status;
+        relobj->rawtext_end = rawTextEnd;
+      }
       buf += delta;
       size -= delta;
+      continue;
     }
     ptr = PL_strnchr(buf, '<', size);
     if (ptr && ptr - buf >= size) ptr = 0;

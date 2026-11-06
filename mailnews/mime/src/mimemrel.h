@@ -56,6 +56,12 @@ struct MimeMultipartRelated {
   int32_t curtag_max;
   int32_t curtag_length;
 
+  // Inside a comment, or the content of an element which isn't parsed as
+  // markup, like <style>: the text ending it, and how much of that has been
+  // seen. Null otherwise.
+  const char* rawtext_end;
+  int32_t rawtext_end_matched;
+
   // Per-child buffering for non-head parts during draft decomposition.
   // Content is replayed in parse_eof for parts the reader marks as attachments.
   MimeHeaders** child_hdrs;
