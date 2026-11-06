@@ -86,11 +86,6 @@ var FeedMessageHandler = {
       return (this.gShowSummary = !this.gShowSummary);
     }
 
-    const wintype = document.documentElement.getAttribute("windowtype");
-    const tabMail = document.getElementById("tabmail");
-    const messageTab = tabMail && tabMail.currentTabInfo.mode.type == "message";
-    const messageWindow = wintype == "mail:messageWindow";
-
     switch (this.onSelectPref) {
       case this.kSelectOverrideWebPage:
         showSummary = false;
@@ -119,25 +114,6 @@ var FeedMessageHandler = {
     }
 
     this.gShowSummary = showSummary;
-
-    if (messageWindow || messageTab) {
-      // Message opened in either standalone window or tab, due to either
-      // message open pref (we are here only if the pref is 0 or 1) or
-      // contextmenu open.
-      switch (this.onOpenPref) {
-        case this.kOpenToggleInMessagePane:
-          // Opened by contextmenu, use the value derived above.
-          // XXX: allow a toggle via crtl?
-          break;
-        case this.kOpenWebPage:
-          showSummary = false;
-          break;
-        case this.kOpenSummary:
-          showSummary = true;
-          break;
-      }
-    }
-
     return showSummary;
   },
 
