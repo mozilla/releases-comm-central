@@ -59,10 +59,14 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
 var { MessageInjection } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageInjection.sys.mjs"
 );
-var { SyntheticMessageSet, SyntheticPartMultiMixed, SyntheticPartLeaf } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
-  );
+var {
+  SyntheticMessageSet,
+  SyntheticPartMulti,
+  SyntheticPartMultiMixed,
+  SyntheticPartLeaf,
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+);
 var { TagNoun } = ChromeUtils.importESModule(
   "resource:///modules/gloda/NounTag.sys.mjs"
 );
@@ -496,6 +500,66 @@ function verify_attachment_flag(smsg, gmsg) {
       gmsg.folderMessage.flags & Ci.nsMsgMessageFlags.Attachment
     );
   }
+}
+
+async function test_encrypted_attachment_flag() {
+  const encryptedPart = new SyntheticPartMulti(
+    [
+      new SyntheticPartLeaf("Version: 1\r\n", {
+        contentType: "application/pgp-encrypted",
+      }),
+      new SyntheticPartLeaf("opaque encrypted payload", {
+        contentType: "application/octet-stream",
+      }),
+    ],
+    {
+      contentType: 'multipart/encrypted; protocol="application/pgp-encrypted"',
+    }
+  );
+  const msgSet = new SyntheticMessageSet(
+    [
+      encryptedPart,
+      new SyntheticPartMultiMixed([
+        new SyntheticPartLeaf("Unencrypted text"),
+        encryptedPart,
+      ]),
+    ].map(bodyPart => msgGen.makeMessage({ bodyPart }))
+  );
+  const folder = await messageInjection.makeEmptyFolder();
+
+  configureGlodaIndexing({ event: false });
+  await messageInjection.addSetsToFolders([folder], [msgSet]);
+  for (let i = 0; i < msgSet.synMessages.length; i++) {
+    // Simulate the attachment flag set by previewing the decrypted message.
+    msgSet.getMsgHdr(i).markHasAttachments(true);
+  }
+  configureGlodaIndexing({ event: true });
+
+  if (goOffline) {
+    await waitForGlodaIndexer();
+    Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
+    await messageInjection.makeFolderAndContentsOffline(folder);
+  }
+
+  await waitForGlodaIndexer();
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([msgSet], {
+      verifier(smsg, gmsg) {
+        Assert.ok(
+          gmsg.folderMessage.flags & Ci.nsMsgMessageFlags.Attachment,
+          "Indexing should preserve the attachment flag for encrypted content"
+        );
+        if (expectFulltextResults) {
+          Assert.ok(gmsg.isEncrypted, "The message should be marked encrypted");
+          Assert.equal(
+            gmsg.attachmentInfos.length,
+            0,
+            "The indexer should not see inside the encrypted content"
+          );
+        }
+      },
+    })
+  );
 }
 /* ===== Fundamental Attributes (per GlodaFundAttr.sys.mjs) ===== */
 
@@ -1450,6 +1514,7 @@ var base_index_messages_tests = [
   test_threading_missing_intermediary,
   test_threading_siblings_missing_parent,
   test_attachment_flag,
+  test_encrypted_attachment_flag,
   test_attributes_fundamental,
   test_moved_message_attributes,
   test_attributes_fundamental_from_disk,

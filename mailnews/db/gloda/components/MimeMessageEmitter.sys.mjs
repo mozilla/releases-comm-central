@@ -137,6 +137,7 @@ MimeMessageEmitter.prototype = {
       // this is going to fall-down with TNEF encapsulation and such, we really
       // need to just be consuming the object model.
       this._curPart = new this._mimeMsg.MimeContainer(contentTypeNoParams);
+      this._curPart.isEncrypted = contentTypeNoParams == "multipart/encrypted";
       this._writeBody = false;
     } else {
       this._curPart = new this._mimeMsg.MimeUnknown(contentTypeNoParams);
