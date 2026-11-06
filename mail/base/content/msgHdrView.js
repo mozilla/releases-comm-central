@@ -561,9 +561,14 @@ var messageProgressListener = {
    * @see {nsIWebProgressListener}
    */
   onStateChange(webProgress, request, stateFlags, _status) {
+    // Only the document load of the message pane itself, not loads of the
+    // same message from within the message content.
     if (
       !(request instanceof Ci.nsIMailChannel) ||
       !(stateFlags & Ci.nsIWebProgressListener.STATE_START) ||
+      !webProgress.isTopLevel ||
+      request.QueryInterface(Ci.nsIChannel).loadInfo
+        .externalContentPolicyType != Ci.nsIContentPolicy.TYPE_DOCUMENT ||
       !this._channelIsCurrent(request)
     ) {
       return;
