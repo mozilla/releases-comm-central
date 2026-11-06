@@ -977,8 +977,17 @@ export var XMPPConversationPrototype = {
       // body.
       aMsg = "/me" + aMsg;
     }
-    // Reset the user's state to active, if supported.
-    const cs = this.shouldSendTypingNotifications ? "active" : null;
+
+    // If typing is enabled, set the user's state back to active.
+    //
+    // This does not use sendTyping("") as that would send an
+    // extra message instead of attaching it to the outgoing
+    // text message. See XEP-0085.
+    const cs = this._shouldSendTypingNotifications ? "active" : null;
+    // Cancel any pending "finished composing" timer so it doesn't send a stale
+    // "paused" state after the message has already been sent.
+    this._cancelTypingTimer();
+
     const s = Stanza.message(this.to, aMsg, cs);
     this._account.sendStanza(s);
     _displaySentMsg(this, aMsg);

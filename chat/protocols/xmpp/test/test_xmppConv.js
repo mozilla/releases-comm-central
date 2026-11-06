@@ -18,7 +18,15 @@ function TestXmppConversation() {
 TestXmppConversation.prototype = {
   __proto__: XMPPConversationPrototype,
   to: "alice@example.com",
+  // _displaySentMsg reads from the account and writes to the conversation, so
+  // provide minimal stubs for those.
+  account: {
+    alias: "Test User",
+    statusInfo: { displayName: "Test User" },
+  },
+  writeMessage() {},
   _account: {
+    name: "test@example.com",
     sendStanza(stanza) {
       this.stanzas.push(stanza);
     },
@@ -100,4 +108,87 @@ add_task(function test_finishedComposing() {
   equal(roomStub._typingState, "paused", "User has stopped typing");
 
   roomStub._cancelTypingTimer();
+});
+
+add_task(function test_dispatchMessage_resets_typing() {
+  const roomStub = new TestXmppConversation();
+
+  // Enable typing notifications
+  roomStub.supportChatStateNotifications = true;
+
+  // Set typing state to composing
+  roomStub.setTypingState(Ci.prplIConvIM.TYPING);
+  equal(roomStub._account.stanzas.length, 1, "Typing state sent");
+  _checkChatState(roomStub._account.stanzas[0], "composing", "Composing sent");
+  equal(roomStub._typingState, "composing", "User is typing");
+
+  // Send a message - this should reset typing to active
+  roomStub.dispatchMessage("hello world");
+  equal(roomStub._account.stanzas.length, 2, "Message + active state sent");
+
+  // The second stanza should be the message with active chat state
+  const msgStanza = roomStub._account.stanzas[1];
+  equal(msgStanza.localName, "message", "Message stanza sent");
+  equal(msgStanza.attributes.to, "alice@example.com", "Message to correct JID");
+  equal(msgStanza.children.length, 2, "Two children (body + chat state)");
+  equal(msgStanza.children[0].localName, "body", "First child is body");
+  const stateStanza = msgStanza.children[1];
+  equal(stateStanza.uri, Stanza.NS.chatstates, "Chat state namespace");
+  equal(stateStanza.localName, "active", "Chat state is active");
+
+  // Typing state should be reset to active
+  equal(roomStub._typingState, "active", "Typing state reset to active");
+});
+
+add_task(function test_dispatchMessage_no_typing_when_disabled() {
+  const roomStub = new TestXmppConversation();
+
+  // Disable typing notifications
+  roomStub.supportChatStateNotifications = false;
+
+  roomStub.dispatchMessage("hello world");
+  equal(roomStub._account.stanzas.length, 1, "Only message sent");
+
+  // Should have body but no chat state child
+  const msgStanza = roomStub._account.stanzas[0];
+  equal(msgStanza.children.length, 1, "One child (body only)");
+  equal(msgStanza.children[0].localName, "body", "Only child is body");
+});
+
+add_task(function test_dispatchMessage_no_typing_when_pref_disabled() {
+  const roomStub = new TestXmppConversation();
+
+  // The conversation supports chat states, but the user preference disables
+  // sending typing notifications.
+  Services.prefs.setBoolPref("purple.conversations.im.send_typing", false);
+  try {
+    roomStub.supportChatStateNotifications = true;
+
+    roomStub.dispatchMessage("hello world");
+    equal(roomStub._account.stanzas.length, 1, "Only message sent");
+
+    // The message should not carry a chat state child.
+    const msgStanza = roomStub._account.stanzas[0];
+    equal(msgStanza.children.length, 1, "One child (body only)");
+    equal(msgStanza.children[0].localName, "body", "Only child is body");
+  } finally {
+    Services.prefs.clearUserPref("purple.conversations.im.send_typing");
+  }
+});
+
+add_task(function test_dispatchMessage_cancels_composing_timer() {
+  const roomStub = new TestXmppConversation();
+
+  roomStub.supportChatStateNotifications = true;
+
+  // Start typing through sendTyping, which schedules the "finished composing"
+  // timer.
+  roomStub.sendTyping("hello");
+  ok(roomStub._typingTimer, "Composing timer is set");
+
+  roomStub.dispatchMessage("hello world");
+
+  // Sending the message must cancel the pending composing timer so a stale
+  // "paused" state isn't sent after the message.
+  ok(!roomStub._typingTimer, "Composing timer cleared after sending");
 });
