@@ -338,13 +338,6 @@ export var CardDAVUtils = {
       url = new URL(PRESETS[url.hostname]);
     }
 
-    // SRV records are not authenticated, so a forged one could point anywhere.
-    // Keep the password for the entered domain's site: a target on the same
-    // site (e.g. dav.example.com for example.com) still gets it, while for a
-    // target on another site (e.g. a hosting provider's server) the user is
-    // asked for the password, with that server named.
-    let passwordURL = url;
-
     if (url.pathname == "/" && !(url.hostname in PRESETS)) {
       log.log(`Looking up DNS record for ${url.hostname}`);
       const domain = `_carddavs._tcp.${url.hostname}`;
@@ -374,7 +367,6 @@ export var CardDAVUtils = {
             `Found a DNS MX record for Google, using preset URL for ${url}`
           );
           url = new URL(PRESETS["gmail.com"]);
-          passwordURL = url;
         }
       }
     }
@@ -386,9 +378,9 @@ export var CardDAVUtils = {
       storePassword
     );
     // Only HTTP URLs have a site. Requests to anything else fail anyway.
-    if (passwordURL.protocol == "http:" || passwordURL.protocol == "https:") {
+    if (url.protocol == "http:" || url.protocol == "https:") {
       callbacks.passwordSite = Services.eTLD.getSite(
-        Services.io.newURI(passwordURL.href)
+        Services.io.newURI(url.href)
       );
     }
 

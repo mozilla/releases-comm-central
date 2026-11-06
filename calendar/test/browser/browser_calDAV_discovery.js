@@ -22,8 +22,7 @@ Services.scriptloader.loadSubScript(new URL("head_discovery.js", gTestPath).href
 /**
  * Test that we correctly use DNS discovery. This uses the mochitest server
  * (files in the data directory) instead of CalDAVServer because the latter
- * can't speak HTTPS, and we only do DNS discovery for HTTPS. The SRV record
- * points to another site, so the user is asked for the password for it.
+ * can't speak HTTPS, and we only do DNS discovery for HTTPS.
  */
 add_task(async function testDNS() {
   var _srv = DNS.srv;
@@ -40,7 +39,6 @@ add_task(async function testDNS() {
   await openWizard({
     username: "carol@dnstest.invalid",
     password: "carol",
-    otherSiteOrigin: "https://example.org",
     expectedCalendars: [
       {
         uri: "https://example.org/browser/comm/calendar/test/browser/data/calendar.sjs",
@@ -53,34 +51,6 @@ add_task(async function testDNS() {
         color: "rgb(255, 0, 0)",
       },
     ],
-  });
-
-  DNS.srv = _srv;
-  DNS.txt = _txt;
-});
-
-/**
- * Test that declining to give the password for an SRV target on another site
- * continues detection on the entered domain, which has nothing to find.
- */
-add_task(async function testDNSDeclineOtherSite() {
-  const _srv = DNS.srv;
-  const _txt = DNS.txt;
-  DNS.srv = function (name) {
-    Assert.equal(name, "_caldavs._tcp.dnstest.invalid");
-    return [{ prio: 0, weight: 0, host: "example.org", port: 443 }];
-  };
-  DNS.txt = function (name) {
-    Assert.equal(name, "_caldavs._tcp.dnstest.invalid");
-    return [{ strings: ["path=/browser/comm/calendar/test/browser/data/dns.sjs"] }];
-  };
-
-  await openWizard({
-    username: "carol@dnstest.invalid",
-    password: "carol",
-    otherSiteOrigin: "https://example.org",
-    declineOtherSite: true,
-    expectedCalendars: [],
   });
 
   DNS.srv = _srv;

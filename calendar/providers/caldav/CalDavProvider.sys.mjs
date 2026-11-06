@@ -48,8 +48,7 @@ export var CalDavProvider = {
    *
    * @param {string} username - The username for logging in.
    * @param {string} password - The password for logging in. It is only sent
-   *   to the site of the location. The user is asked before logging in to a
-   *   server on another site that its SRV records point at.
+   *   to the site of the location, or the server its SRV records point at.
    * @param {?string} location - A URL, or a hostname to probe over https. If
    *   empty, the domain of the username is used.
    * @param {boolean} savePassword - Whether to save the password if it's used.
@@ -180,33 +179,12 @@ class CalDavDetector {
     }
     dnsres.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
 
-    // SRV records are not authenticated, so a forged one could point anywhere.
-    // A target on the entered domain's site (e.g. dav.example.com for
-    // example.com) is already in passwordSites and gets the password. For a
-    // target on another site (e.g. a hosting provider's server) the user is
-    // asked for the password instead, with that server named.
-    const site = cal.provider.detection.getPasswordSite(
-      Services.io.newURI(`http${secure}://${dnsres[0].host}`)
+    // The DNS records of the entered domain decide where its password may go.
+    this.session.passwordSites.add(
+      cal.provider.detection.getPasswordSite(
+        Services.io.newURI(`http${secure}://${dnsres[0].host}`)
+      )
     );
-    this.session.promptSites.add(site);
-    /**
-     * Detects calendars at the SRV target. If the user declines to give the
-     * password for it, there is nothing to find there, and detection
-     * continues on the entered domain.
-     *
-     * @param {nsIURI} uri - The location to attempt.
-     * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
-     */
-    const detectCollection = uri =>
-      this.detectCollection(uri).catch(e => {
-        if (
-          e instanceof cal.provider.detection.AuthFailedError &&
-          this.session.declinedSites.has(site)
-        ) {
-          return null;
-        }
-        throw e;
-      });
 
     // Determine path from TXT, if available.
     const txtRecords = await DNS.txt(host);
@@ -221,7 +199,7 @@ class CalDavDetector {
       // If the server has SRV and TXT entries, we already have a full context path to test.
       const uri = `http${secure}://${dnsres[0].host}:${dnsres[0].port}${path}`;
       lazy.log.debug(`[CalDavProvider] Trying ${uri} from SRV and TXT response`);
-      calendars = await detectCollection(Services.io.newURI(uri));
+      calendars = await this.detectCollection(Services.io.newURI(uri));
     }
 
     if (!calendars) {
@@ -234,7 +212,7 @@ class CalDavDetector {
       );
       lazy.log.debug(`[CalDavProvider] Trying ${baseloc.spec} from SRV response with .well-known`);
 
-      calendars = await detectCollection(baseloc);
+      calendars = await this.detectCollection(baseloc);
     }
 
     return calendars;

@@ -8,7 +8,6 @@ import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.sys.mjs",
   OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
 });
 
@@ -116,30 +115,6 @@ export class CalDavDetectionSession extends CalDavSession {
   passwordSites = new Set();
 
   /**
-   * The sites where the user is asked for the password instead, as returned
-   * by cal.provider.detection.getPasswordSite.
-   *
-   * @type {Set<string>}
-   */
-  promptSites = new Set();
-
-  /**
-   * The sites in promptSites where the user declined to give a password.
-   *
-   * @type {Set<string>}
-   */
-  declinedSites = new Set();
-
-  /**
-   * The credentials the user entered for sites in promptSites, by site,
-   * whether the user chose to save them, and the origins and realms they have
-   * been saved for.
-   *
-   * @type {Map<string, {username: string, password: string, save: boolean, savedFor: Set<string>}>}
-   */
-  #enteredCredentials = new Map();
-
-  /**
    * Create a new caldav detection session.
    *
    * @param {string} aUserName - The username for the session.
@@ -186,27 +161,18 @@ export class CalDavDetectionSession extends CalDavSession {
   }
 
   /**
-   * Supplies the password for servers on a site in passwordSites, and asks the
-   * user for servers on a site in promptSites.
-   *
    * @see {nsIAuthPrompt2}
-   * @param {nsIChannel} aChannel - The channel that requires authentication.
-   * @param {integer} aLevel - The nsIAuthPrompt2 security level.
-   * @param {nsIAuthInformation} aAuthInfo - Receives the credentials.
-   * @returns {boolean} Whether there are credentials to use.
    */
   promptAuth(aChannel, aLevel, aAuthInfo) {
     // FIXME: Proxies that ask for Basic or Digest credentials can't be used
     // for detection. NTLM and Negotiate proxies are answered by necko with the
     // system credentials and never get here.
-    if (!this.password || aAuthInfo.flags & Ci.nsIAuthInformation.AUTH_PROXY) {
+    if (
+      !this.password ||
+      aAuthInfo.flags & Ci.nsIAuthInformation.AUTH_PROXY ||
+      !cal.provider.detection.isPasswordSite(this.passwordSites, aChannel.URI)
+    ) {
       return false;
-    }
-    if (!cal.provider.detection.isPasswordSite(this.passwordSites, aChannel.URI)) {
-      return (
-        cal.provider.detection.isPasswordSite(this.promptSites, aChannel.URI) &&
-        this.#promptForPassword(aChannel, aLevel, aAuthInfo)
-      );
     }
 
     if ((aAuthInfo.flags & aAuthInfo.PREVIOUS_FAILED) == 0) {
@@ -230,91 +196,5 @@ export class CalDavDetectionSession extends CalDavSession {
       cal.auth.passwordManagerRemove(this.username, aChannel.URI.prePath, aAuthInfo.realm);
     }
     return false;
-  }
-
-  /**
-   * Asks the user for credentials for a server the password may not be sent
-   * to without asking, and saves them if the user chooses to. The user is only
-   * asked once per site, again if the credentials fail, and not again after
-   * declining.
-   *
-   * Calendars found are set up with this.username, so if the user changes the
-   * username, the login isn't saved here. The calendar then asks for the
-   * password when it's first used, and saves the login with the username
-   * entered then.
-   *
-   * @param {nsIChannel} channel - The channel that requires authentication.
-   * @param {integer} level - The nsIAuthPrompt2 security level.
-   * @param {nsIAuthInformation} authInfo - Receives the credentials.
-   * @returns {boolean} Whether there are credentials to use.
-   */
-  #promptForPassword(channel, level, authInfo) {
-    const site = cal.provider.detection.getPasswordSite(channel.URI);
-    if (this.declinedSites.has(site)) {
-      return false;
-    }
-
-    const entered = this.#enteredCredentials.get(site);
-    if (authInfo.flags & authInfo.PREVIOUS_FAILED) {
-      this.#enteredCredentials.delete(site);
-      if (entered?.savedFor.delete(`${channel.URI.prePath} ${authInfo.realm}`)) {
-        cal.auth.passwordManagerRemove(entered.username, channel.URI.prePath, authInfo.realm);
-      }
-    } else if (entered) {
-      authInfo.username = entered.username;
-      authInfo.password = entered.password;
-      this.#saveEntered(entered, channel.URI.prePath, authInfo.realm);
-      return true;
-    }
-
-    authInfo.username = entered?.username ?? this.username;
-    authInfo.password = "";
-    let savePasswordLabel = null;
-    const savePassword = { value: this.savePassword };
-    if (Services.prefs.getBoolPref("signon.rememberSignons", true)) {
-      savePasswordLabel = lazy.MsgAuthPrompt.l10n.formatValueSync(
-        "remember-password-checkbox-label"
-      );
-    }
-    if (
-      !new lazy.MsgAuthPrompt().promptAuth(
-        channel,
-        level,
-        authInfo,
-        savePasswordLabel,
-        savePassword
-      )
-    ) {
-      this.declinedSites.add(site);
-      return false;
-    }
-
-    const newEntry = {
-      username: authInfo.username,
-      password: authInfo.password,
-      save: !!(savePasswordLabel && savePassword.value && authInfo.username == this.username),
-      savedFor: new Set(),
-    };
-    this.#enteredCredentials.set(site, newEntry);
-    this.#saveEntered(newEntry, channel.URI.prePath, authInfo.realm);
-    return true;
-  }
-
-  /**
-   * Saves credentials from #enteredCredentials for an origin and realm, if the
-   * user chose to save them and they haven't been saved for it yet.
-   *
-   * @param {{username: string, password: string, save: boolean, savedFor: Set<string>}} entered
-   *   The entry in #enteredCredentials.
-   * @param {string} origin - The origin to save the login for.
-   * @param {string} realm - The realm to save the login for.
-   */
-  #saveEntered(entered, origin, realm) {
-    const key = `${origin} ${realm}`;
-    if (!entered.save || entered.savedFor.has(key)) {
-      return;
-    }
-    entered.savedFor.add(key);
-    cal.auth.passwordManagerSave(entered.username, entered.password, origin, realm);
   }
 }
