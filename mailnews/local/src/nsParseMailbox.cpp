@@ -124,6 +124,7 @@ nsParseMailMessageState::nsParseMailMessageState() {
   m_EnvDate = 0;
   m_position = 0;
   m_msgUid = 0;
+  m_ignoreMozillaHeaders = false;
   m_state = nsIMsgParseMailMsgState::ParseHeadersState;
 
   // setup handling of custom db headers, headers that are added to .msf files
@@ -280,6 +281,17 @@ NS_IMETHODIMP nsParseMailMessageState::SetMsgUid(ImapUid uid) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsParseMailMessageState::GetIgnoreMozillaHeaders(bool* ignore) {
+  NS_ENSURE_ARG_POINTER(ignore);
+  *ignore = m_ignoreMozillaHeaders;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsParseMailMessageState::SetIgnoreMozillaHeaders(bool ignore) {
+  m_ignoreMozillaHeaders = ignore;
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsParseMailMessageState::FinishHeader() {
   if (m_newMsgHdr) {
     m_newMsgHdr->SetMessageSize(m_position - m_envelope_pos);
@@ -409,6 +421,12 @@ nsresult nsParseMailMessageState::ParseHeaders() {
         }
         break;
       case 'x':
+        if (m_ignoreMozillaHeaders &&
+            (headerStr.EqualsIgnoreCase(X_MOZILLA_STATUS) ||
+             headerStr.EqualsIgnoreCase(X_MOZILLA_STATUS2) ||
+             headerStr.EqualsIgnoreCase(HEADER_X_MOZILLA_KEYWORDS))) {
+          break;
+        }
         if (headerStr.EqualsIgnoreCase(X_MOZILLA_STATUS2) &&
             !m_mozstatus2.length)
           header = &m_mozstatus2;

@@ -1697,6 +1697,8 @@ nsresult nsImapService::OfflineAppendFromFile(
       nsCOMPtr<nsIMsgParseMailMsgState> msgParser =
           do_CreateInstance("@mozilla.org/messenger/messagestateparser;1", &rv);
       msgParser->SetMailDB(destDB);
+      // The file may come from outside Thunderbird.
+      msgParser->SetIgnoreMozillaHeaders(true);
 
       rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), aFile);
       NS_ENSURE_SUCCESS(rv, rv);

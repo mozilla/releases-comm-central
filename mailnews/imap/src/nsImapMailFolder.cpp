@@ -2795,6 +2795,8 @@ nsresult nsImapMailFolder::SetupHeaderParseStream(
     m_msgParser =
         do_CreateInstance("@mozilla.org/messenger/messagestateparser;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
+    // The headers come from the server, and are controlled by the sender.
+    m_msgParser->SetIgnoreMozillaHeaders(true);
   } else
     m_msgParser->Clear();
 
@@ -7654,6 +7656,8 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile* srcFile,
       do_CreateInstance("@mozilla.org/messenger/messagestateparser;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   msgParser->SetMailDB(mDatabase);
+  // The file may come from outside Thunderbird.
+  msgParser->SetIgnoreMozillaHeaders(true);
 
   rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), srcFile);
   if (NS_SUCCEEDED(rv) && inputStream) {

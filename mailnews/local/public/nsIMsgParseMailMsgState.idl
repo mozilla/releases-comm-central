@@ -45,4 +45,12 @@ interface nsIMsgParseMailMsgState : nsISupports {
      *
      */
     void setMsgUid(in ImapUid uid);
+
+    /**
+     * Whether to ignore the X-Mozilla-Status, X-Mozilla-Status2 and
+     * X-Mozilla-Keys headers of the message. Thunderbird writes these into
+     * local message stores, but in a message from a server they are
+     * controlled by the sender. Not reset by clear(). Defaults to false.
+     */
+    attribute boolean ignoreMozillaHeaders;
 };

@@ -73,6 +73,7 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   PRTime m_EnvDate;         // 0 if missing.
 
   ImapUid m_msgUid;  // IMAP UID for the new header.
+  bool m_ignoreMozillaHeaders;
 
   // The raw header data.
   mozilla::Vector<char> m_headers;
