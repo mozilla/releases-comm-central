@@ -101,14 +101,15 @@ export class AttachmentInfo {
     // Remove [?&]part= from remote urls, after getting the partID.
     // Remote urls, unlike non external mail part urls, may also contain query
     // strings starting with ?; PART_RE does not handle this.
-    if (this.isLinkAttachment || this.isFileAttachment) {
-      let match = url.match(/[?&]part=[^&]+$/);
-      match = match && match[0];
-      this.partID = match && match.split("part=")[1];
-      this.url = url.replace(match, "");
-    } else {
-      const match = lazy.GlodaUtils.PART_RE.exec(url);
-      this.partID = match && match[1];
+    const linkOrFile = this.isLinkAttachment || this.isFileAttachment;
+    const match = linkOrFile
+      ? /[?&]part=([^&]+)$/.exec(url)
+      : lazy.GlodaUtils.PART_RE.exec(url);
+
+    this.partID = match?.[1] ?? null;
+
+    if (linkOrFile && match) {
+      this.url = url.slice(0, match.index);
     }
   }
 

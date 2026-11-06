@@ -93,9 +93,7 @@ add_task(async function test_dragFilenameLimits() {
           });
         } else {
           searchWindow.ThreadPaneOnDragStart({
-            target: searchWindow.document.querySelector(
-              "#threadTree treechildren"
-            ),
+            target: searchWindow.document.getElementById("threadTree"),
             dataTransfer,
           });
         }

@@ -31,6 +31,7 @@ var { MailServices } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   AttachmentInfo: "resource:///modules/AttachmentInfo.sys.mjs",
+  DragUtils: "moz-src:///comm/mail/modules/DragUtils.sys.mjs",
   Gloda: "resource:///modules/gloda/GlodaPublic.sys.mjs",
   GlodaUtils: "resource:///modules/gloda/GlodaUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
@@ -2569,7 +2570,7 @@ const attachmentListDNDObserver = {
         document.querySelectorAll("#attachmentList .attachmentItem[selected]"),
         item => item.attachment
       ).filter(attachment => attachment.hasFile);
-      setupDataTransfer(event, attachments);
+      DragUtils.setupAttachmentDataTransfer(event, attachments);
     }
     event.stopPropagation();
   },
@@ -2580,7 +2581,7 @@ const attachmentNameDNDObserver = {
     const attachmentList = document.getElementById("attachmentList");
     const attachment = attachmentList.getItemAtIndex(0).attachment;
     if (attachment.hasFile) {
-      setupDataTransfer(event, [attachment]);
+      DragUtils.setupAttachmentDataTransfer(event, [attachment]);
     }
     event.stopPropagation();
   },

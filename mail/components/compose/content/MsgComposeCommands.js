@@ -90,6 +90,7 @@ XPCOMUtils.defineLazyScriptGetter(
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   ComposeUtils: "resource:///modules/ComposeUtils.sys.mjs",
+  DragUtils: "moz-src:///comm/mail/modules/DragUtils.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
   MailTelemetry: "moz-src:///comm/mail/modules/MailTelemetry.sys.mjs",
   makeMozIconImageSet: "resource:///modules/MozIconUtils.mjs",
@@ -10624,7 +10625,7 @@ const attachmentBucketDNDObserver = {
         gAttachmentBucket.querySelectorAll(".attachmentItem[selected]"),
         item => item.attachment
       );
-      setupDataTransfer(event, attachments);
+      lazy.DragUtils.setupAttachmentDataTransfer(event, attachments);
     }
     event.stopPropagation();
   },

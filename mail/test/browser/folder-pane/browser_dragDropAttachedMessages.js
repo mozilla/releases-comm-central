@@ -66,11 +66,11 @@ add_task(async function test_drop_triggers_import() {
 
   const msgUri = msgHdr.folder.getUriForMsg(msgHdr);
 
-  // Build the same data transfer setupDataTransfer() in mailCore.js produces.
+  // Build the transfer data DragUtils.setupAttachmentDataTransfer() produces.
   const contentType = "message/rfc822";
   const name = "test-message.eml";
   // Use a mailbox: URL (not mailbox-message:) — AttachmentInfo rejects
-  // -message: schemes. setupDataTransfer() uses attachment.url which is
+  // -message: schemes. setupAttachmentDataTransfer() uses attachment.url which is
   // always a necko-compatible URL like imap: or mailbox:.
   const attachmentUrl = msgUri.replace("mailbox-message:", "mailbox:");
   const transferInfo = [

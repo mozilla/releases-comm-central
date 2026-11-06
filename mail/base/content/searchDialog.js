@@ -15,6 +15,7 @@ ChromeUtils.importESModule("chrome://messenger/content/treecol-image.mjs", {
 });
 ChromeUtils.defineESModuleGetters(this, {
   DBViewWrapper: "resource:///modules/DBViewWrapper.sys.mjs",
+  DragUtils: "moz-src:///comm/mail/modules/DragUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   TagUtils: "resource:///modules/TagUtils.sys.mjs",
   ThreadPaneColumns: "chrome://messenger/content/ThreadPaneColumns.mjs",
@@ -1277,7 +1278,12 @@ function MsgOpenSelectedMessages() {
   );
 }
 
-// This code is used when dragging a message from a "Search Messages" panel.
+/**
+ * Export selected search results for dragging, with a count preview for
+ * multiple messages.
+ *
+ * @param {DragEvent} aEvent - The dragstart event.
+ */
 function ThreadPaneOnDragStart(aEvent) {
   const messageUris = gDBView?.getURIsForSelection();
   if (!messageUris) {
@@ -1328,6 +1334,7 @@ function ThreadPaneOnDragStart(aEvent) {
   }
   aEvent.dataTransfer.effectAllowed = "copyMove";
   aEvent.dataTransfer.addElement(aEvent.target);
+  DragUtils.setMultiDragImage(aEvent, messageUris.length);
 }
 
 function ThreadPaneKeyDown(event) {

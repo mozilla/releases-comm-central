@@ -150,6 +150,7 @@ add_task(async function test_dragMessageData() {
         payloads[index][format] = value;
       },
       addElement() {},
+      setDragImage() {},
     };
     win.ThreadPaneOnDragStart({
       dataTransfer,

@@ -16,7 +16,6 @@
 /* import-globals-from utilityOverlay.js */
 
 /* globals gChatTab */ // From globals chat-messenger.js
-/* globals currentAttachments */ // From msgHdrView.js
 
 var { openLinkExternally } = ChromeUtils.importESModule(
   "resource:///modules/LinkHelper.sys.mjs"
@@ -840,71 +839,6 @@ function SanitizeAttachmentDisplayName(aAttachment) {
 }
 
 /**
- * Appends a dataTransferItem to the associated event for message attachments,
- * either from the message reader or the composer.
- *
- * @param {Event} event - The associated event.
- * @param {nsIMsgAttachment[]} attachments - The attachments to setup
- */
-function setupDataTransfer(event, attachments) {
-  let index = 0;
-  for (const attachment of attachments) {
-    if (attachment.contentType == "text/x-moz-deleted") {
-      return;
-    }
-
-    const name = attachment.name || attachment.displayName;
-
-    if (!attachment.url || !name) {
-      continue;
-    }
-
-    // Only add type/filename info for non-file URLs that don't already
-    // have it.
-    const info = [];
-    if (/(^file:|&filename=)/.test(attachment.url)) {
-      info.push(attachment.url);
-    } else {
-      info.push(
-        attachment.url +
-          "&type=" +
-          attachment.contentType +
-          "&filename=" +
-          encodeURIComponent(name)
-      );
-    }
-    info.push(name, attachment.size, attachment.contentType, attachment.uri);
-    if (attachment.sendViaCloud) {
-      info.push(attachment.cloudFileAccountKey, attachment.cloudPartHeaderData);
-    }
-
-    event.dataTransfer.mozSetDataAt("text/x-moz-url", info.join("\n"), index);
-    event.dataTransfer.mozSetDataAt(
-      "text/x-moz-url-data",
-      attachment.url,
-      index
-    );
-    event.dataTransfer.mozSetDataAt("text/x-moz-url-desc", name, index);
-    event.dataTransfer.mozSetDataAt(
-      "application/x-moz-file-promise-url",
-      attachment.url,
-      index
-    );
-    event.dataTransfer.mozSetDataAt(
-      "application/x-moz-file-promise",
-      new FlavorDataProvider(),
-      index
-    );
-    event.dataTransfer.mozSetDataAt(
-      "application/x-moz-file-promise-dest-filename",
-      name.replace(/^(.{60}).{4,}(.{22})$/su, "$1...$2"),
-      index
-    );
-    index++;
-  }
-}
-
-/**
  * Checks if Thunderbird was launched in safe mode and updates the menu items.
  */
 function updateTroubleshootMenuItem() {
@@ -919,93 +853,5 @@ function updateTroubleshootMenuItem() {
         "appmenu-help-exit-troubleshoot-mode2"
       );
     }
-  }
-}
-
-/**
- * @implements {nsIFlavorDataProvider}
- */
-class FlavorDataProvider {
-  QueryInterface = ChromeUtils.generateQI(["nsIFlavorDataProvider"]);
-
-  /**
-   * Retrieve the data from this data provider.
-   *
-   * @param {nsITransferable} transferable - Transferable we're being called for.
-   * @param {string} flavor - The flavor of data to retrieve.
-   * @param {nsISupports} data - Out param. The data. Some variant of class in
-   *   nsISupportsPrimitives...
-   */
-  getFlavorData(transferable, flavor, data) {
-    if (flavor != "application/x-moz-file-promise") {
-      return;
-    }
-
-    // Get the url for the attachment.
-    const urlPrimitive = {};
-    transferable.getTransferData(
-      "application/x-moz-file-promise-url",
-      urlPrimitive
-    );
-    const srcUrlPrimitive = urlPrimitive.value.QueryInterface(
-      Ci.nsISupportsString
-    );
-
-    // Get the destination file location.
-    const dirPrimitive = {};
-    transferable.getTransferData(
-      "application/x-moz-file-promise-dir",
-      dirPrimitive
-    );
-    const destDirectory = dirPrimitive.value.QueryInterface(Ci.nsIFile);
-
-    // Save the attachment to the specified location
-    // We need more information than just the attachment url to save it,
-    // fortunately, we have an array of all the current attachments so we can
-    // cheat and scan through them
-
-    const attachment = currentAttachments.find(a => a.url == srcUrlPrimitive);
-    if (!attachment) {
-      return;
-    }
-
-    const destFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-    destFile.initWithPath(destDirectory.path);
-    destFile.append(
-      attachment.name.replace(/^(.{60}).{4,}(.{22})$/su, "$1...$2")
-    );
-
-    // Check to see if we've already saved this attachment to the requested
-    // destination and skip saving if we have.
-    //
-    // On MacOS, a save operation is triggered once for each item selected as part
-    // of a drag operation. However, the `nsITransferable` API groups all items
-    // together into a single transfer request that the attachment save code
-    // invokes for every attachment in the file, thus leading to 2^n files saved
-    // for any request saving n >= 2 attachments. Saving is an async operation, so
-    // to work around this, we avoid saving attachments to the same path multiple
-    // times.
-    //
-    // For relevant related code, see `provideDataForType` in
-    // widget/cocoa/nsCocoaWindow.mm and `nsDragSession::InvokeDragSessionImpl` in
-    // widget/cocoa/nsDragService.mm.
-    if (AppConstants.platform == "macosx") {
-      if (
-        attachment.lastSavedPath &&
-        attachment.lastSavedPath == destFile.path
-      ) {
-        return;
-      }
-
-      attachment.lastSavedPath = destFile.path;
-    }
-
-    // Save the attachment.
-    destFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
-    data.value = destFile.QueryInterface(Ci.nsISupports);
-
-    // `saveToFile` is async. We call it in a fire-and-forget manner here
-    // so we can return while it runs in the background.
-    attachment.saveToFile(destFile.path, attachment.uri);
   }
 }

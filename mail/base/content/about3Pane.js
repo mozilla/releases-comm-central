@@ -53,6 +53,7 @@ ChromeUtils.defineESModuleGetters(this, {
   AccountColorUtils: "moz-src:///comm/mail/modules/AccountColorUtils.sys.mjs",
   AttachmentInfo: "resource:///modules/AttachmentInfo.sys.mjs",
   CalMetronome: "resource:///modules/CalMetronome.sys.mjs",
+  DragUtils: "moz-src:///comm/mail/modules/DragUtils.sys.mjs",
   FolderPaneUtils: "resource:///modules/FolderPaneUtils.sys.mjs",
   FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
   FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
@@ -4964,12 +4965,14 @@ var threadPane = {
     }
 
     event.dataTransfer.effectAllowed = "copyMove";
-    const bcr = row.getBoundingClientRect();
-    event.dataTransfer.setDragImage(
-      row,
-      event.clientX - bcr.x,
-      event.clientY - bcr.y
-    );
+    if (!DragUtils.setMultiDragImage(event, messageURIs.length)) {
+      const bcr = row.getBoundingClientRect();
+      event.dataTransfer.setDragImage(
+        row,
+        event.clientX - bcr.x,
+        event.clientY - bcr.y
+      );
+    }
   },
 
   /**
