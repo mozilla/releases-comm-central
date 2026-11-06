@@ -137,8 +137,10 @@ add_task(async function () {
 
   accounts = MailServices.accounts.accounts;
   Assert.equal(accounts.length, 1, "the account should have been removed");
-  logins = await Services.logins.getAllLogins();
-  Assert.equal(logins.length, 0, "the login should have been removed");
+  await TestUtils.waitForCondition(
+    async () => (await Services.logins.getAllLogins()).length == 0,
+    "waiting for the login to be removed"
+  );
 
   // Check the UI was updated.
 
@@ -152,10 +154,12 @@ add_task(async function () {
     0,
     "the next account tree row should have been selected"
   );
-  Assert.equal(
-    contentFrame.contentDocument.documentURI,
-    "chrome://messenger/content/am-serverwithnoidentities.xhtml",
-    "the correct account pane should be loaded"
+  await TestUtils.waitForCondition(
+    () =>
+      contentFrame.contentDocument.documentURI ==
+        "chrome://messenger/content/am-serverwithnoidentities.xhtml" &&
+      contentFrame.contentDocument.readyState == "complete",
+    "waiting for the next account pane to load"
   );
 });
 
@@ -199,7 +203,12 @@ async function handleRemoveAccount(win) {
   // Delay here to catch bug 2046647.
   await new Promise(resolve => win.setTimeout(resolve, 100));
   EventUtils.synthesizeMouseAtCenter(dialog.getButton("accept"), {}, win);
-  await new Promise(resolve => win.setTimeout(resolve, 100));
+  await TestUtils.waitForCondition(
+    () => !dialog.getButton("accept").disabled,
+    "waiting for the account removal to complete"
+  );
+  const unloadPromise = BrowserTestUtils.waitForEvent(win, "unload");
   EventUtils.synthesizeMouseAtCenter(dialog.getButton("accept"), {}, win);
+  await unloadPromise;
   info("remove account dialog closed");
 }
