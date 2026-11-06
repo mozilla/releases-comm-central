@@ -339,6 +339,291 @@ add_task(async function test_fetchConfigFromExchange_redirectAddr() {
 });
 
 /**
+ * Test that a RedirectAddr to another domain from an HTTPS response of the
+ * original domain is followed without asking the user.
+ */
+add_task(async function test_fetchConfigFromExchange_trustedRedirectAddr() {
+  Services.prefs.setBoolPref(
+    "mailnews.auto_config.fetchFromExchange.enabled",
+    true
+  );
+
+  const alias = "alias@exchange.test";
+  const password = "hunter2";
+  const basicAuth = btoa(`${alias}:${password}`);
+  const autodiscoverResponse = await IOUtils.readUTF8(
+    do_get_file("data/exchange.test.xml").path
+  );
+  const authorizedHosts = [];
+
+  const servers = [];
+  const secureProxies = [];
+  for (const [host, cert, responseBody] of [
+    [
+      "autodiscover.exchange.test",
+      "autodiscover.exchange.test",
+      redirectAddrResponse("user@dav.test"),
+    ],
+    ["dav.test", "dav", autodiscoverResponse],
+  ]) {
+    const server = new HttpServer();
+    server.start(-1);
+    servers.push(server);
+    secureProxies.push(
+      await HttpsProxy.create(server.identity.primaryPort, cert, host)
+    );
+    server.identity.add("https", host, 443);
+    server.registerPathHandler(
+      "/autodiscover/autodiscover.xml",
+      (request, response) => {
+        response.setHeader("Cache-Control", "private");
+        if (request.getHeader("Authorization") != `Basic ${basicAuth}`) {
+          response.setStatusLine(request.httpVersion, 401, "Unauthorized");
+          return;
+        }
+        authorizedHosts.push(host);
+        response.setStatusLine(request.httpVersion, 200, "OK");
+        response.setHeader("Content-Type", "application/xml");
+        response.write(responseBody);
+      }
+    );
+  }
+
+  try {
+    const config = await fetchConfigFromExchange(
+      "exchange.test",
+      alias,
+      new AbortController().signal,
+      null,
+      password,
+      () => {
+        Assert.ok(false, "the user should not be asked");
+        return Promise.reject(new Error("No confirmation expected"));
+      }
+    );
+    Assert.ok(config, "should get a config for the redirected address");
+    Assert.deepEqual(
+      authorizedHosts,
+      ["autodiscover.exchange.test", "dav.test"],
+      "credentials should be sent to the RedirectAddr domain"
+    );
+  } finally {
+    for (const proxy of secureProxies) {
+      proxy.destroy();
+    }
+    for (const server of servers) {
+      server.stop();
+    }
+    Services.cache2.clear();
+    Services.prefs.clearUserPref(
+      "mailnews.auto_config.fetchFromExchange.enabled"
+    );
+  }
+});
+
+/**
+ * Test that a RedirectAddr to another domain from a host the user confirmed
+ * after an HTTP redirect is followed without asking the user again.
+ */
+add_task(async function test_fetchConfigFromExchange_confirmedRedirectAddr() {
+  Services.prefs.setBoolPref(
+    "mailnews.auto_config.fetchFromExchange.enabled",
+    true
+  );
+
+  const alias = "alias@exchange.test";
+  const password = "hunter2";
+  const basicAuth = btoa(`${alias}:${password}`);
+  const autodiscoverResponse = await IOUtils.readUTF8(
+    do_get_file("data/exchange.test.xml").path
+  );
+  const authorizedHosts = [];
+
+  const plainServer = new HttpServer();
+  plainServer.start(-1);
+  NetworkTestUtils.configureProxy(
+    "autodiscover.exchange.test",
+    80,
+    plainServer.identity.primaryPort
+  );
+  plainServer.identity.add("http", "autodiscover.exchange.test", 80);
+  plainServer.registerPathHandler(
+    "/autodiscover/autodiscover.xml",
+    (request, response) => {
+      response.setStatusLine(request.httpVersion, 301, "Moved Permanently");
+      response.setHeader(
+        "Location",
+        "https://dav.test/autodiscover/autodiscover.xml"
+      );
+    }
+  );
+
+  const servers = [];
+  const secureProxies = [];
+  for (const [host, responseBody] of [
+    ["dav.test", redirectAddrResponse("user@caldav.test")],
+    ["caldav.test", autodiscoverResponse],
+  ]) {
+    const server = new HttpServer();
+    server.start(-1);
+    servers.push(server);
+    secureProxies.push(
+      await HttpsProxy.create(server.identity.primaryPort, "dav", host)
+    );
+    server.identity.add("https", host, 443);
+    server.registerPathHandler(
+      "/autodiscover/autodiscover.xml",
+      (request, response) => {
+        response.setHeader("Cache-Control", "private");
+        if (request.getHeader("Authorization") != `Basic ${basicAuth}`) {
+          response.setStatusLine(request.httpVersion, 401, "Unauthorized");
+          return;
+        }
+        authorizedHosts.push(host);
+        response.setStatusLine(request.httpVersion, 200, "OK");
+        response.setHeader("Content-Type", "application/xml");
+        response.write(responseBody);
+      }
+    );
+  }
+
+  try {
+    const confirmedHosts = [];
+    const config = await fetchConfigFromExchange(
+      "exchange.test",
+      alias,
+      new AbortController().signal,
+      null,
+      password,
+      host => {
+        confirmedHosts.push(host);
+        return Promise.resolve();
+      }
+    );
+    Assert.ok(config, "should get a config for the redirected address");
+    Assert.deepEqual(
+      confirmedHosts,
+      ["dav.test"],
+      "the user should only be asked about the HTTP redirect target"
+    );
+    Assert.deepEqual(
+      authorizedHosts,
+      ["dav.test", "caldav.test"],
+      "credentials should be sent to the RedirectAddr domain"
+    );
+  } finally {
+    for (const proxy of secureProxies) {
+      proxy.destroy();
+    }
+    for (const server of servers) {
+      server.stop();
+    }
+    NetworkTestUtils.unconfigureProxy("autodiscover.exchange.test", 80);
+    plainServer.stop();
+    Services.cache2.clear();
+    Services.prefs.clearUserPref(
+      "mailnews.auto_config.fetchFromExchange.enabled"
+    );
+  }
+});
+
+/**
+ * Test that a RedirectAddr from an unauthenticated plain HTTP response doesn't
+ * send the credentials to another domain without asking the user.
+ */
+add_task(async function test_fetchConfigFromExchange_untrustedRedirectAddr() {
+  Services.prefs.setBoolPref(
+    "mailnews.auto_config.fetchFromExchange.enabled",
+    true
+  );
+
+  const plainServer = new HttpServer();
+  plainServer.start(-1);
+  NetworkTestUtils.configureProxy(
+    "autodiscover.exchange.test",
+    80,
+    plainServer.identity.primaryPort
+  );
+  plainServer.identity.add("http", "autodiscover.exchange.test", 80);
+  plainServer.registerPathHandler(
+    "/autodiscover/autodiscover.xml",
+    (request, response) => {
+      response.setStatusLine(request.httpVersion, 200, "OK");
+      response.setHeader("Content-Type", "application/xml");
+      response.write(redirectAddrResponse("user@dav.test"));
+    }
+  );
+
+  let authorizedRequests = 0;
+  const server = new HttpServer();
+  server.start(-1);
+  const secureProxy = await HttpsProxy.create(
+    server.identity.primaryPort,
+    "dav",
+    "dav.test"
+  );
+  server.identity.add("https", "dav.test", 443);
+  server.registerPathHandler(
+    "/autodiscover/autodiscover.xml",
+    (request, response) => {
+      if (request.hasHeader("Authorization")) {
+        authorizedRequests++;
+      }
+      response.setStatusLine(request.httpVersion, 401, "Unauthorized");
+    }
+  );
+
+  try {
+    for (const confirm of [false, true]) {
+      authorizedRequests = 0;
+      const confirmedHosts = [];
+      await Assert.rejects(
+        fetchConfigFromExchange(
+          "exchange.test",
+          "alias@exchange.test",
+          new AbortController().signal,
+          null,
+          "hunter2",
+          host => {
+            confirmedHosts.push(host);
+            return confirm
+              ? Promise.resolve()
+              : Promise.reject(new Error("Not confirmed"));
+          }
+        ),
+        error =>
+          confirm
+            ? error.name == "AggregateError" &&
+              error.errors.some(e => e.code == 401)
+            : error.message == "Not confirmed",
+        confirm
+          ? "the lookup should fail with the credentials rejected"
+          : "the lookup should fail without a confirmed redirect"
+      );
+      Assert.deepEqual(
+        confirmedHosts,
+        ["dav.test"],
+        "the user should be asked about the RedirectAddr domain"
+      );
+      Assert.equal(
+        authorizedRequests,
+        confirm ? 1 : 0,
+        "credentials should only be sent to the RedirectAddr domain if confirmed"
+      );
+      Services.cache2.clear();
+    }
+  } finally {
+    secureProxy.destroy();
+    server.stop();
+    NetworkTestUtils.unconfigureProxy("autodiscover.exchange.test", 80);
+    plainServer.stop();
+    Services.prefs.clearUserPref(
+      "mailnews.auto_config.fetchFromExchange.enabled"
+    );
+  }
+});
+
+/**
  * Test that the lookup for a RedirectAddr address can't ask the user about
  * another host than the one the original lookup already asked about.
  */

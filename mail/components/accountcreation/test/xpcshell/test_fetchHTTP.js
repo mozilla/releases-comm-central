@@ -687,6 +687,33 @@ add_task(async function test_get_redirect_downgrade() {
   tearDownAuthRedirect();
 });
 
+add_task(async function test_get_redirect_downgradeUnauthenticated() {
+  mockServer.server.registerPathHandler(
+    "/redirect-auth",
+    (request, response) => {
+      response.setStatusLine(request.httpVersion, 302, "Found");
+      response.setHeader("Location", "http://test.test/open");
+    }
+  );
+  mockServer.server.registerPathHandler("/open", (request, response) => {
+    response.setStatusLine(request.httpVersion, 200, "OK");
+    response.setHeader("Content-Type", "text/plain");
+    response.write("Forged");
+  });
+
+  await Assert.rejects(
+    fetchHTTP("https://test.test/redirect-auth", {
+      username: "foo",
+      password: "bar",
+    }),
+    error => checkServerException(error, -2, "http://test.test/open"),
+    "Should reject a response from a plain HTTP redirect target"
+  );
+
+  mockServer.server.registerPathHandler("/redirect-auth", null);
+  mockServer.server.registerPathHandler("/open", null);
+});
+
 add_task(async function test_get_offline() {
   mockServer.expectRequest({
     path: "/offline",
