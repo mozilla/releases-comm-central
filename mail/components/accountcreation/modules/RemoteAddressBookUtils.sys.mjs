@@ -33,6 +33,10 @@ const existingCardDAVBooks = {
   updateExistingAddressBooks() {
     this._list = new Set(
       lazy.MailServices.ab.directories
+        .filter(
+          directory =>
+            directory.dirType == Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE
+        )
         .map(directory => directory.getStringValue("carddav.url", ""))
         .filter(Boolean)
     );

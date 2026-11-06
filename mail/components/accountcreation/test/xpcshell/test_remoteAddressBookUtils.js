@@ -8,6 +8,10 @@ const { RemoteAddressBookUtils } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/RemoteAddressBookUtils.sys.mjs"
 );
 
+const { AddrBookDirectory } = ChromeUtils.importESModule(
+  "resource:///modules/AddrBookDirectory.sys.mjs"
+);
+
 const { CardDAVServer } = ChromeUtils.importESModule(
   "resource://testing-common/CardDAVServer.sys.mjs"
 );
@@ -43,13 +47,13 @@ add_setup(async () => {
   const uid = MailServices.ab.newAddressBook(
     "test",
     null,
-    Ci.nsIBackgroundTasksManager.CARDDAV_DIRECTORY_TYPE,
+    Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE,
     null
   );
   const book = MailServices.ab.getDirectoryFromId(uid);
 
   book.setStringValue("carddav.url", CardDAVServer.url);
-  book.setStringValue(CardDAVServer.username, "bob");
+  book.setStringValue("carddav.username", CardDAVServer.username);
   const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
     Ci.nsILoginInfo
   );
@@ -188,6 +192,40 @@ add_task(function test_markExistingAddressBooks() {
       book._expectExisting,
       `Book ${book.name} existing flag should match expected state`
     );
+  }
+});
+
+add_task(function test_markExistingAddressBooks_noDirPrefId() {
+  /**
+   * Mirrors the relevant parts of ExtSearchBook in ext-addressBook.js, which
+   * registers directories without a dirPrefId.
+   */
+  class NoPrefDirectory extends AddrBookDirectory {
+    constructor() {
+      super();
+      this._dirName = "no pref";
+      this._uid = "no-pref-directory";
+      this._uri = `searchaddr://${this._uid}`;
+      this._dirPrefId = "";
+      this.isMailList = false;
+    }
+    get dirType() {
+      return Ci.nsIAbManager.ASYNC_DIRECTORY_TYPE;
+    }
+  }
+  const directory = new NoPrefDirectory();
+  directory.init();
+  MailServices.ab.addAddressBook(directory);
+
+  try {
+    const books = [{ name: "existing book", url: new URL(CardDAVServer.url) }];
+    RemoteAddressBookUtils.markExistingAddressBooks(books);
+    Assert.ok(
+      books[0].existing,
+      "Existing book should be detected despite a directory without dirPrefId"
+    );
+  } finally {
+    MailServices.ab.deleteAddressBook(directory.URI);
   }
 });
 
