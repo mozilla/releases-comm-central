@@ -11,14 +11,14 @@ kind-dependencies:
 
 reference-tasks:
     - linux64-7zz
-    - linux64-aarch64-compiler-rt-22
+    - linux64-aarch64-compiler-rt-23
     - linux64-aarch64-uv
     - linux64-cargo-audit
     - linux64-cargo-vet
     - linux64-cbindgen
     - linux64-cctools-port
-    - linux64-clang-22-profile
-    - linux64-clang-22-raw
+    - linux64-clang-23-profile
+    - linux64-clang-23-raw
     - linux64-clang-mingw-x64
     - linux64-clang-mingw-x86
     - linux64-clang-tidy
@@ -64,10 +64,10 @@ reference-tasks:
     - linux64-uv
     - linux64-winchecksec
     - linux64-wine
-    - linux64-x64-compiler-rt-22
+    - linux64-x64-compiler-rt-23
     - linux64-xar
     - linux64-zucchini-bin
-    - macosx64-aarch64-compiler-rt-22
+    - macosx64-aarch64-compiler-rt-23
     - macosx64-aarch64-fix-stacks
     - macosx64-aarch64-libdmg
     - macosx64-aarch64-minidump-stackwalk
@@ -83,7 +83,7 @@ reference-tasks:
     - macosx64-sdk
     - macosx64-sdk-toolchain
     - macosx64-uv
-    - macosx64-x64-compiler-rt-22
+    - macosx64-x64-compiler-rt-23
     - mingw32-rust
     - node-modules
     - nsis
@@ -94,20 +94,20 @@ reference-tasks:
     - sysroot-x86_64-linux-gnu
     - terser
     - vs
-    - wasm32-wasi-compiler-rt-22
-    - win32-compiler-rt-22
+    - wasm32-wasi-compiler-rt-23
+    - win32-compiler-rt-23
     - win32-fix-stacks
     - win32-minidump-stackwalk
     - win32-node
     - win32-samply
     - win64-7zz
-    - win64-aarch64-compiler-rt-22
+    - win64-aarch64-compiler-rt-23
     - win64-cbindgen
-    - win64-clang-22-profile
-    - win64-clang-22-raw
-    - win64-clang-22-stage2
+    - win64-clang-23-profile
+    - win64-clang-23-raw
+    - win64-clang-23-stage2
     - win64-cmake
-    - win64-compiler-rt-22
+    - win64-compiler-rt-23
     - win64-dump_syms
     - win64-grcov
     - win64-libxml2
