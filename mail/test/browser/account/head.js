@@ -271,6 +271,8 @@ async function subtest_fill_initial_config_fields(dialog, emailUser = null) {
   nameInput.value = "";
   emailInput.value = "";
 
+  // The form scrolls in small windows, with the footer covering its end.
+  nameInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(nameInput, {});
   let inputEvent = BrowserTestUtils.waitForEvent(
     nameInput,
@@ -281,6 +283,7 @@ async function subtest_fill_initial_config_fields(dialog, emailUser = null) {
   EventUtils.sendString(emailUser.name, window);
   await inputEvent;
 
+  emailInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(emailInput, {});
   inputEvent = BrowserTestUtils.waitForEvent(
     emailInput,
@@ -537,6 +540,8 @@ async function fillUserInformation(emailStep, userDetails) {
   nameInput.value = "";
   emailInput.value = "";
 
+  // The form scrolls in small windows, with the footer covering its end.
+  nameInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(nameInput, {});
   let inputEvent = BrowserTestUtils.waitForEvent(
     nameInput,
@@ -547,6 +552,7 @@ async function fillUserInformation(emailStep, userDetails) {
   EventUtils.sendString(userDetails.name, window);
   await inputEvent;
 
+  emailInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(emailInput, {});
   inputEvent = BrowserTestUtils.waitForEvent(
     emailInput,
