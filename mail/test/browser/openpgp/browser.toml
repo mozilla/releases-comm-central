@@ -56,4 +56,6 @@ run-if = [
 
 ["browser_viewMessageSecurity.js"]
 
+["browser_viewMessageSecurityScroll.js"]
+
 ["browser_viewPartialMessage.js"]
