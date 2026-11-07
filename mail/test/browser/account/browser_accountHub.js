@@ -104,6 +104,7 @@ add_task(async function test_account_email_step() {
     .querySelector("#forward");
 
   // Ensure fields are empty.
+  nameInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(nameInput, {});
 
   nameInput.value = "";
@@ -123,6 +124,7 @@ add_task(async function test_account_email_step() {
   );
 
   // Type a full name into the name input element and check for success.
+  nameInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(nameInput, {});
 
   let inputEvent = BrowserTestUtils.waitForEvent(
@@ -135,6 +137,7 @@ add_task(async function test_account_email_step() {
   await inputEvent;
 
   // Move to email input to trigger animation icon.
+  emailInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(emailInput, {});
 
   const nameSuccessIcon = Array.from(icons).find(img =>
@@ -157,6 +160,7 @@ add_task(async function test_account_email_step() {
     "Email error message should be hidden"
   );
 
+  nameInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(nameInput, { clickCount: 3 });
   // Delete text and move back to name input to reveal error icon.
   const clearInputEvent = BrowserTestUtils.waitForEvent(
@@ -173,6 +177,7 @@ add_task(async function test_account_email_step() {
     "Name success icon should be hidden"
   );
 
+  nameInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(nameInput, {});
 
   const nameDangerIcon = Array.from(icons).find(img =>
@@ -206,6 +211,7 @@ add_task(async function test_account_email_step() {
 
   // Fill name and incorrect email input, error email icon should be still
   // be showing.
+  nameInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(nameInput, {});
   inputEvent = BrowserTestUtils.waitForEvent(
     nameInput,
@@ -216,6 +222,7 @@ add_task(async function test_account_email_step() {
   EventUtils.sendString("Test User", window);
   await inputEvent;
 
+  emailInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(emailInput, {});
   inputEvent = BrowserTestUtils.waitForEvent(
     emailInput,
@@ -225,6 +232,7 @@ add_task(async function test_account_email_step() {
   );
   EventUtils.sendString("testUser@", window);
   await inputEvent;
+  nameInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(nameInput, {});
 
   Assert.ok(
@@ -234,6 +242,7 @@ add_task(async function test_account_email_step() {
 
   // Fill in correct email input, see email success icon and continue should
   // be enabled.
+  emailInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(emailInput, {});
   inputEvent = BrowserTestUtils.waitForEvent(
     emailInput,
@@ -244,6 +253,7 @@ add_task(async function test_account_email_step() {
   // Ensure we move to the end of the input.
   EventUtils.synthesizeKey("KEY_End", {});
   EventUtils.sendString("testing.com", window);
+  nameInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(nameInput, {});
 
   Assert.ok(
@@ -435,6 +445,7 @@ add_task(async function test_cancel_finding_config() {
   nameInput.value = "";
   emailInput.value = "";
 
+  nameInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(nameInput, {});
   let inputEvent = BrowserTestUtils.waitForEvent(
     nameInput,
@@ -445,6 +456,7 @@ add_task(async function test_cancel_finding_config() {
   EventUtils.sendString("Test User", window);
   await inputEvent;
 
+  emailInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(emailInput, {});
   inputEvent = BrowserTestUtils.waitForEvent(
     emailInput,

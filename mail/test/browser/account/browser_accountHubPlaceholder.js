@@ -90,6 +90,7 @@ add_task(async function test_account_hub_placeholder_switch_subview() {
   nameInput.value = "";
   emailInput.value = "";
 
+  nameInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(nameInput, {});
   let inputEvent = BrowserTestUtils.waitForEvent(
     nameInput,
@@ -100,6 +101,7 @@ add_task(async function test_account_hub_placeholder_switch_subview() {
   EventUtils.sendString(emailUser.name, window);
   await inputEvent;
 
+  emailInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(emailInput, {});
   inputEvent = BrowserTestUtils.waitForEvent(
     emailInput,

@@ -540,7 +540,6 @@ async function fillUserInformation(emailStep, userDetails) {
   nameInput.value = "";
   emailInput.value = "";
 
-  // The form scrolls in small windows, with the footer covering its end.
   nameInput.scrollIntoView({ block: "center" });
   EventUtils.synthesizeMouseAtCenter(nameInput, {});
   let inputEvent = BrowserTestUtils.waitForEvent(
