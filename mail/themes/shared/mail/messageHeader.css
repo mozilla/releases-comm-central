@@ -580,9 +580,8 @@ button.email-action-button {
   --panel-width: 37rem;
 
   & .security-panel-body {
-    overflow-x: hidden;
-    flex: 1;
-    padding-inline: 6px;
+    flex: 1 1 auto;
+    padding-inline: 3px;
   }
 }
 
@@ -602,6 +601,7 @@ html|header.message-security-header {
 .message-security-body {
   overflow-y: auto;
   flex: 1;
+  max-block-size: 600px;
 
   & > description {
     margin-block-end: 18px;
