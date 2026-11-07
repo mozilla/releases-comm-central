@@ -654,14 +654,41 @@ void nsMsgBodyHandler::DecryptPGP(const nsCString& aEncrypted,
   aDecrypted.Assign(mDecrypted);  // Make a copy.
 }
 
+// The characters of the base64 alphabet, as PL_Base64Decode accepts them.
+static bool IsBase64Character(char aCharacter) {
+  return (aCharacter >= 'A' && aCharacter <= 'Z') ||
+         (aCharacter >= 'a' && aCharacter <= 'z') ||
+         (aCharacter >= '0' && aCharacter <= '9') || aCharacter == '+' ||
+         aCharacter == '/';
+}
+
+// Returns how many characters at the start of aText can be base64-decoded:
+// all characters before the first one outside the base64 alphabet, so the
+// padding at the end is not counted either. A single character after the last
+// complete group of four cannot form an octet and is left out, so that
+// PL_Base64Decode does not fail on it.
+static int32_t DecodableBase64Length(const nsACString& aText) {
+  uint32_t length = 0;
+  while (length < aText.Length() && IsBase64Character(aText[length])) {
+    length++;
+  }
+  if (length % 4 == 1) {
+    length--;
+  }
+  // A string's length always fits into int32_t.
+  return static_cast<int32_t>(length);
+}
+
 void nsMsgBodyHandler::DecryptSMIME(const nsCString& aEncrypted,
                                     nsCString& aDecrypted) {
   aDecrypted.Truncate();
   mDecrypted.Truncate();
 
-  // base64-decode the buffer. We need to determine the output length.
-  int32_t inLen = aEncrypted.Length();
-  while (inLen > 0 && aEncrypted[inLen - 1] == '=') inLen--;
+  // base64-decode the buffer as far as it is valid base64, so that the
+  // decoder gets exactly the octets decoded from the message, also when it is
+  // truncated or damaged. On this part PL_Base64Decode cannot fail and fills
+  // all outLen octets.
+  int32_t inLen = DecodableBase64Length(aEncrypted);
   if (!inLen) return;
   int32_t outLen =
       (inLen / 4) * 3 + ((inLen % 4 == 3) ? 2 : 0) + ((inLen % 4 == 2) ? 1 : 0);

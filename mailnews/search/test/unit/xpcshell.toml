@@ -54,6 +54,9 @@ tags = [
 
 ["test_searchLocalizationStrings.js"]
 
+["test_searchSmimeBodyBase64.js"]
+tags = ["smime"]
+
 ["test_searchTag.js"]
 
 ["test_searchUint32HdrProperty.js"]
