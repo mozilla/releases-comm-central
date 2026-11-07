@@ -10,6 +10,7 @@ kind-dependencies:
     - packages
 
 reference-tasks:
+    - linux-python-dbusmock
     - linux64-7zz
     - linux64-aarch64-compiler-rt-23
     - linux64-aarch64-uv
@@ -42,6 +43,7 @@ reference-tasks:
     - linux64-node-24
     - linux64-pkgconf
     - linux64-python
+    - linux64-python3.10-dbus-python
     - linux64-rust
     - linux64-rust-1.97
     - linux64-rust-analyzer
