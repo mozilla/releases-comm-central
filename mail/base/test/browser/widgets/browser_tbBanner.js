@@ -271,7 +271,13 @@ add_task(async function test_expandWithoutDescriptionIsNoOp() {
 
   // Clicking the summary cannot expand it either.
   summary.scrollIntoView({ block: "center" });
-  EventUtils.synthesizeMouseAtCenter(summary, {}, contentWindow);
+  // This is an intentional mouse-only no-op on an inert summary.
+  AccessibilityUtils.suppressClickHandling(true);
+  try {
+    EventUtils.synthesizeMouseAtCenter(summary, {}, contentWindow);
+  } finally {
+    AccessibilityUtils.suppressClickHandling(false);
+  }
   await new Promise(resolve => contentWindow.requestAnimationFrame(resolve));
 
   Assert.ok(
