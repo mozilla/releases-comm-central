@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Calendar Event Session Row Test</title>
+    <script type="module">
+      import { CalendarDialogRow } from "moz-src:///comm/mail/components/calendar/content/calendar-dialog-row.mjs";
+      import { calendarEventSessionRow } from "moz-src:///comm/mail/components/calendar/content/calendar-event-session-row.mjs";
+      import {
+        store,
+        rootReducer,
+      } from "moz-src:///comm/mail/base/content/state/store.mjs";
+      import { createSlice } from "moz-src:///comm/third_party/redux/redux-toolkit/redux-toolkit.mjs";
+
+      const slice = createSlice({
+        name: "sessionRowTest",
+        initialState: { sessions: {}, unrelated: 0 },
+        reducers: {
+          setValue(state, { payload: { sessionKey, value } }) {
+            state.sessions[sessionKey] = value;
+          },
+          changeUnrelatedValue(state) {
+            state.unrelated++;
+          },
+        },
+      });
+      slice.injectInto(rootReducer);
+
+      class SessionTestRow extends calendarEventSessionRow(
+        CalendarDialogRow,
+        forSession => ({
+          value: forSession(
+            (state, sessionKey, suffix = "") =>
+              state.sessionRowTest?.sessions[sessionKey] == null
+                ? null
+                : state.sessionRowTest.sessions[sessionKey] + suffix
+          ),
+          length: forSession(
+            (state, sessionKey) =>
+              state.sessionRowTest?.sessions[sessionKey]?.length ?? 0
+          ),
+          unrelated: state => state.sessionRowTest?.unrelated ?? 0,
+        })
+      ) {
+        observedValues = [];
+        previousValues = [];
+        observedLengths = [];
+        unrelatedValues = [];
+
+        handleStateChange(fieldName, previousValue, value) {
+          switch (fieldName) {
+            case "value":
+              this.previousValues.push(previousValue);
+              this.observedValues.push(value);
+              this.querySelector("output").textContent = value ?? "";
+              break;
+            case "length":
+              this.observedLengths.push(value);
+              break;
+            case "unrelated":
+              this.unrelatedValues.push(value);
+              break;
+          }
+        }
+      }
+
+      customElements.define("session-test-row", SessionTestRow);
+      window.sessionRowTest = { store, actions: slice.actions };
+    </script>
+  </head>
+  <body>
+    <template id="calendarDialogRowTemplate">
+      <div class="row">
+        <slot name="icon"></slot>
+        <slot name="label"></slot>
+        <slot name="content"></slot>
+      </div>
+    </template>
+    <dialog id="sessionDialog">
+      <session-test-row id="firstRow">
+        <span slot="label">First value</span>
+        <output slot="content"></output>
+      </session-test-row>
+      <session-test-row id="secondRow">
+        <span slot="label">Second value</span>
+        <output slot="content"></output>
+      </session-test-row>
+    </dialog>
+  </body>
+</html>
