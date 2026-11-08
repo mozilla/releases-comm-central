@@ -478,6 +478,34 @@ nsresult MessageDatabase::GetMessageForMessageID(uint64_t aFolderId,
   return NS_OK;
 }
 
+Result<Maybe<nsMsgKey>, nsresult>
+MessageDatabase::GetFirstMessageKeyForProperty(uint64_t aFolderId,
+                                               const nsACString& aName,
+                                               const nsACString& aValue) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  MOZ_TRY(DatabaseCore::GetStatement(
+      "GetFirstMessageForProperty"_ns,
+      "SELECT m.id"_ns
+      " FROM messages AS m JOIN message_properties AS p ON p.id = m.id"_ns
+      " WHERE m.folderId = :folderId AND p.name = :name AND p.value = :value"_ns
+      " ORDER BY m.id LIMIT 1"_ns,
+      getter_AddRefs(stmt)));
+  mozStorageStatementScoper scoper(stmt);
+  stmt->BindInt64ByName("folderId"_ns, aFolderId);
+  stmt->BindUTF8StringByName("name"_ns, aName);
+  stmt->BindUTF8StringByName("value"_ns,
+                             MOZ_TRY(DatabaseUtils::Normalize(aValue)));
+
+  bool hasResult;
+  MOZ_TRY(stmt->ExecuteStep(&hasResult));
+  if (!hasResult) {
+    // Equivalent to `Nothing()`, C++ is being annoying here.
+    return Maybe<nsMsgKey>();
+  }
+
+  return Some((nsMsgKey)stmt->AsInt64(0));
+}
+
 // TODO: This is a quick hack.
 // Doesn't take into account various corner cases (eg multiple
 // messages with same message-id!).
@@ -502,28 +530,21 @@ nsMsgKey MessageDatabase::FindByMessageId(nsACString const& messageId) {
 }
 
 nsresult MessageDatabase::GetMsgKeyForUid(uint64_t folderId, const ImapUid uid,
-                                          nsMsgKey& key) {
+                                          nsMsgKey& aKey) {
   if (uid == 0) {
-    key = nsMsgKey_None;
+    aKey = nsMsgKey_None;
     return NS_OK;
   }
 
-  nsCOMPtr<mozIStorageStatement> stmt;
-  nsresult rv = DatabaseCore::GetStatement(
-      "GetMsgKeysForUid"_ns,
-      "SELECT m.id "_ns
-      "FROM message_properties mp JOIN messages m ON mp.id = m.id "_ns
-      "WHERE folderId = :folderId AND name='uidOnServer' AND value = :uid"_ns,
-      getter_AddRefs(stmt));
-  NS_ENSURE_SUCCESS(rv, rv);
-  mozStorageStatementScoper scoper(stmt);
-  MOZ_TRY(stmt->BindInt64ByName("folderId"_ns, folderId));
-  MOZ_TRY(stmt->BindInt64ByName("uid"_ns, uid));
+  nsAutoCString value;
+  value.AppendInt(aKey);
+  auto key =
+      MOZ_TRY(GetFirstMessageKeyForProperty(folderId, "uidOnServer"_ns, value));
 
-  key = nsMsgKey_None;
-  bool hasResult;
-  if (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
-    key = (nsMsgKey)stmt->AsInt64(0);
+  if (key) {
+    aKey = key.value();
+  } else {
+    aKey = nsMsgKey_None;
   }
 
   return NS_OK;

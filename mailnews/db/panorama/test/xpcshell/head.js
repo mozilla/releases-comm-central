@@ -70,6 +70,7 @@ function installDB(sql) {
       value ANY,
       PRIMARY KEY(id, name)
     );
+    CREATE INDEX message_properties_name_value ON message_properties(name, value);
     CREATE TABLE virtualFolder_folders (
       virtualFolderId INTEGER REFERENCES folders(id),
       searchFolderId INTEGER REFERENCES folders(id)

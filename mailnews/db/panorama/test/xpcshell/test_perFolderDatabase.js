@@ -409,6 +409,49 @@ add_task(async function testHeaderProperties() {
   ]);
 });
 
+/**
+ * Test that messages can be looked up by their server-side IDs (Exchange ID,
+ * X-GM-MSGID).
+ */
+add_task(async function testServerSideIDLookups() {
+  const folderA = MailServices.folderLookup.getFolderForURL(
+    rootFolder.URI + "/folderA"
+  );
+  const folderC = MailServices.folderLookup.getFolderForURL(
+    rootFolder.URI + "/folderC"
+  );
+  const folderADatabase = database.openFolderDB(folderA, false);
+  const folderCDatabase = database.openFolderDB(folderC, false);
+
+  for (const [name, getter] of [
+    ["ewsId", "getMsgHdrForEwsItemID"],
+    ["X-GM-MSGID", "getMsgHdrForGMMsgID"],
+  ]) {
+    Assert.equal(folderCDatabase[getter](`${name}-8`), null);
+    Assert.equal(folderCDatabase[getter](""), null);
+
+    folderCDatabase.getMsgHdrForKey(8).setStringProperty(name, `${name}-8`);
+    folderCDatabase.getMsgHdrForKey(9).setStringProperty(name, `${name}-9`);
+    folderADatabase.getMsgHdrForKey(2).setStringProperty(name, `${name}-2`);
+
+    // Check that looking up messages by server-side ID works.
+    Assert.equal(folderCDatabase[getter](`${name}-8`).messageKey, 8);
+    Assert.equal(folderCDatabase[getter](`${name}-9`).messageKey, 9);
+
+    // Check that a lookup with an unknown ID doesn't produce a message.
+    Assert.equal(folderCDatabase[getter]("unknown"), null);
+
+    // Check that a message with an existing ID comes up only if looked up in
+    // the correct folder.
+    Assert.equal(folderCDatabase[getter](`${name}-2`), null);
+    Assert.equal(folderADatabase[getter](`${name}-2`).messageKey, 2);
+  }
+
+  // Check that each method only looks at its relevant property.
+  Assert.equal(folderCDatabase.getMsgHdrForGMMsgID("ewsId-8"), null);
+  Assert.equal(folderCDatabase.getMsgHdrForEwsItemID("X-GM-MSGID-8"), null);
+});
+
 add_task(async function testListener() {
   class FolderListener {
     QueryInterface = ChromeUtils.generateQI(["nsIDBChangeListener"]);

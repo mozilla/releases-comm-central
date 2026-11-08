@@ -129,6 +129,12 @@ class MessageDatabase : public nsIMessageDatabase {
                                   Message** aMessage);
   nsresult GetMsgKeyForUid(uint64_t folderId, const ImapUid uid, nsMsgKey& key);
   nsresult GetUidForMsgKey(uint64_t folderId, const nsMsgKey key, ImapUid& uid);
+  // Finds the first message (i.e. the one with the lowest key) in the given
+  // folder which has a property with the given name and value. If several
+  // messages match, all but the first are ignored. Returns `Nothing` if there
+  // is no such message.
+  Result<Maybe<nsMsgKey>, nsresult> GetFirstMessageKeyForProperty(
+      uint64_t aFolderId, const nsACString& aName, const nsACString& aValue);
   nsresult MarkAllRead(uint64_t aFolderId, nsTArray<nsMsgKey>& aMarkedKeys);
   nsresult GetNumMessages(uint64_t folderId, uint64_t* numMessages);
   nsresult GetNumUnread(uint64_t folderId, uint64_t* numUnread);

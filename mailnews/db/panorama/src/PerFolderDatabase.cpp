@@ -204,13 +204,41 @@ NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForMessageID(
 }
 NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForGMMsgID(
     const char* aGmailMessageID, nsIMsgDBHdr** aRetVal) {
+  NS_ENSURE_ARG_POINTER(aGmailMessageID);
   NS_ENSURE_ARG_POINTER(aRetVal);
-  return NS_ERROR_NOT_IMPLEMENTED;
+
+  *aRetVal = nullptr;
+  nsDependentCString gmailMessageID(aGmailMessageID);
+  if (gmailMessageID.IsEmpty()) {
+    return NS_OK;
+  }
+
+  auto msgKey = MOZ_TRY(MessageDB().GetFirstMessageKeyForProperty(
+      mFolderId, "X-GM-MSGID"_ns, gmailMessageID));
+
+  if (msgKey) {
+    RefPtr<Message> message = new Message(msgKey.value());
+    message.forget(aRetVal);
+  }
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForEwsItemID(const nsACString& itemID,
                                                        nsIMsgDBHdr** aRetVal) {
   NS_ENSURE_ARG_POINTER(aRetVal);
-  return NS_ERROR_NOT_IMPLEMENTED;
+
+  *aRetVal = nullptr;
+  if (itemID.IsEmpty()) {
+    return NS_OK;
+  }
+
+  auto msgKey = MOZ_TRY(
+      MessageDB().GetFirstMessageKeyForProperty(mFolderId, "ewsId"_ns, itemID));
+
+  if (msgKey) {
+    RefPtr<Message> message = new Message(msgKey.value());
+    message.forget(aRetVal);
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP PerFolderDatabase::ContainsKey(nsMsgKey key, bool* contains) {

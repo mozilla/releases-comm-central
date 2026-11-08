@@ -118,6 +118,9 @@ DatabaseCore::Observe(nsISupports* aSubject, const char* aTopic,
   mMessageDatabase = nullptr;
 
   if (sConnection) {
+    // Optimize the database if needed, as per SQLite's recommendation:
+    // https://sqlite.org/lang_analyze.html#periodically_run_pragma_optimize_
+    sConnection->ExecuteSimpleSQL("PRAGMA optimize;"_ns);
     sConnection->AsyncClose(nullptr);
     sConnection = nullptr;
   }
@@ -247,6 +250,9 @@ nsresult DatabaseCore::CreateNewDatabase() {
         value ANY, \
         PRIMARY KEY(id, name) \
       );"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = sConnection->ExecuteSimpleSQL(
+      "CREATE INDEX message_properties_name_value ON message_properties(name, value);"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = sConnection->ExecuteSimpleSQL(
       "CREATE TABLE virtualFolder_folders ( \
