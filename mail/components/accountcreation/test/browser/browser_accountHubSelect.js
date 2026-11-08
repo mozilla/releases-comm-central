@@ -87,29 +87,68 @@ add_task(async function test_correctlyHandlesValue() {
 });
 
 add_task(async function test_correctlyHandlesWarning() {
+  const contentWindow = browser.contentWindow;
+  const doc = contentWindow.document;
   const warning = select.shadowRoot.querySelector("#securityWarning");
-  Assert.ok(
-    BrowserTestUtils.isHidden(warning),
-    "Warning element should be hidden"
-  );
+  const helpLink = warning.querySelector("a");
+  const initialLocation = doc.location.href;
+  await SimpleTest.promiseFocus(contentWindow);
+
+  Assert.equal(helpLink.getAttribute("href"), "#", "Link should keep its href");
+  for (let i = 0; i < 2; i++) {
+    Assert.ok(BrowserTestUtils.isHidden(warning), "Warning should be hidden");
+    Assert.ok(
+      BrowserTestUtils.isHidden(helpLink),
+      "Hidden link should not be visible"
+    );
+    select.select.focus();
+    EventUtils.synthesizeKey("KEY_Tab", {}, contentWindow);
+    Assert.notEqual(
+      select.shadowRoot.activeElement,
+      helpLink,
+      "Tab should not reach a hidden link"
+    );
+
+    select.toggleAttribute("warning", true);
+    Assert.ok(BrowserTestUtils.isVisible(warning), "Warning should be visible");
+    select.select.focus();
+    EventUtils.synthesizeKey("KEY_Tab", {}, contentWindow);
+    Assert.equal(
+      select.shadowRoot.activeElement,
+      helpLink,
+      "Tab should reach the warning link"
+    );
+
+    const helpLinkClickEventPromise = BrowserTestUtils.waitForEvent(
+      select,
+      "helpLinkClick"
+    );
+    EventUtils.synthesizeKey("KEY_Enter", {}, contentWindow);
+    await helpLinkClickEventPromise;
+    await TestUtils.waitForTick();
+    Assert.equal(
+      doc.location.href,
+      initialLocation,
+      "Enter should not navigate"
+    );
+
+    select.toggleAttribute("warning", false);
+    Assert.equal(
+      helpLink.getAttribute("href"),
+      "#",
+      "Link should keep its href"
+    );
+  }
 
   select.toggleAttribute("warning", true);
-
-  // Warning text with a link should send the event "helpLinkClick" when the
-  // link is clicked.
   const helpLinkClickEventPromise = BrowserTestUtils.waitForEvent(
     select,
     "helpLinkClick"
   );
-  const helpLink = warning.querySelector("a");
   helpLink.click();
   await helpLinkClickEventPromise;
-
-  Assert.ok(
-    BrowserTestUtils.isVisible(warning),
-    "Warning element should be visible"
-  );
-
+  await TestUtils.waitForTick();
+  Assert.equal(doc.location.href, initialLocation, "Click should not navigate");
   select.toggleAttribute("warning", false);
 });
 

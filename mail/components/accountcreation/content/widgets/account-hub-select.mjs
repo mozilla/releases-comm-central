@@ -304,6 +304,7 @@ class AccountHubSelect extends HTMLElement {
         break;
       }
       case "click":
+        event.preventDefault();
         this.dispatchEvent(
           new CustomEvent("helpLinkClick", {
             bubbles: true,
