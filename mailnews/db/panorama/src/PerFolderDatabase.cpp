@@ -159,10 +159,14 @@ NS_IMETHODIMP PerFolderDatabase::GetFolder(nsIMsgFolder** aFolder) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP PerFolderDatabase::GetLastUseTime(PRTime* aLastUseTime) {
+  // The only consumer of this getter is `MsgDBCacheManager.sys.mjs`, which
+  // operates on whatever `DatabaseCore::GetOpenDBs` returns. Currently, that's
+  // an empty list (and it should probably stay that way) so there's no point
+  // implementing the getter.
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP PerFolderDatabase::SetLastUseTime(PRTime aLastUseTime) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetMsgHdrForKey(nsMsgKey key,
                                                  nsIMsgDBHdr** msgHdr) {
