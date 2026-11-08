@@ -50,6 +50,10 @@ class PerFolderDatabase : public nsIMsgDatabase,
  private:
   virtual ~PerFolderDatabase() {};
 
+  FolderDatabase& FolderDB() const {
+    return *DatabaseCore::sInstance->mFolderDatabase;
+  }
+
   MessageDatabase& MessageDB() const {
     return *DatabaseCore::sInstance->mMessageDatabase;
   }

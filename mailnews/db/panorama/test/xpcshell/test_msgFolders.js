@@ -2,15 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var account;
+
+add_setup(function () {
+  do_get_profile();
+  installDB(null);
+
+  account = MailServices.accounts.createLocalMailAccount();
+});
+
 /**
  * Test that getMsgFolderForFolder() works.
  */
-
-add_task(async function testMsgFolders() {
-  do_get_profile();
-  await loadExistingDB();
-
-  const account = MailServices.accounts.createLocalMailAccount();
+add_task(function testMsgFolders() {
   Assert.equal(account.incomingServer.key, "server1");
 
   const rootMsgFolder = account.incomingServer.rootFolder;
@@ -66,4 +70,18 @@ add_task(async function testMsgFolders() {
     /NS_ERROR_/,
     "should fail for null folder"
   );
+});
+
+/**
+ * Tests that nsIMsgDatabase::GetFolder works.
+ */
+add_task(function testGetFolder() {
+  const rootFolder = account.incomingServer.rootFolder;
+  rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+
+  const folder = rootFolder.createLocalSubfolder("testGetFolder");
+  const db = folder.msgDatabase;
+  const otherFolder = db.folder;
+
+  Assert.equal(folder, otherFolder, "both folders should be the same");
 });

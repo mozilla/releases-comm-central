@@ -156,7 +156,9 @@ NS_IMETHODIMP PerFolderDatabase::GetDatabaseSize(int64_t* databaseSize) {
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetFolder(nsIMsgFolder** aFolder) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  NS_ENSURE_ARG_POINTER(aFolder);
+  FolderDB().GetMsgFolderForFolder(mFolderId, aFolder);
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetLastUseTime(PRTime* aLastUseTime) {
   // The only consumer of this getter is `MsgDBCacheManager.sys.mjs`, which
@@ -884,8 +886,7 @@ NS_IMETHODIMP PerFolderDatabase::HdrIsInCache(
 }
 
 NS_IMETHODIMP PerFolderDatabase::DeleteFolder() {
-  RefPtr<FolderDatabase> folderDB = DatabaseCore::sInstance->mFolderDatabase;
-  folderDB->DeleteFolder(mFolderId);
+  FolderDB().DeleteFolder(mFolderId);
   return NS_OK;
 }
 
