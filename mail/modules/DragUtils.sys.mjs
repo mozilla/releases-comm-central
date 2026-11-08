@@ -72,7 +72,16 @@ export const DragUtils = {
         );
       }
 
-      event.dataTransfer.mozSetDataAt("text/x-moz-url", info.join("\n"), index);
+      // The file location of a detached attachment comes from the message
+      // itself and can't be trusted, so don't offer it for attaching
+      // elsewhere, e.g. to a message being composed.
+      if (!attachment.isFileAttachment) {
+        event.dataTransfer.mozSetDataAt(
+          "text/x-moz-url",
+          info.join("\n"),
+          index
+        );
+      }
       event.dataTransfer.mozSetDataAt(
         "text/x-moz-url-data",
         attachment.url,
