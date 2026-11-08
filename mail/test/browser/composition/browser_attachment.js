@@ -450,7 +450,7 @@ add_task(async function test_open_attachment_modifier_key() {
 
 add_task(async function test_forward_raw_attachment() {
   await be_in_folder(folder);
-  await select_click_row(-2);
+  await select_click_row(-2, AccessibilityUtils);
 
   const cwc = await open_compose_with_forward();
   check_attachment_size(cwc, 0, rawAttachment.length);
@@ -461,7 +461,7 @@ add_task(async function test_forward_raw_attachment() {
 
 add_task(async function test_forward_b64_attachment() {
   await be_in_folder(folder);
-  await select_click_row(-3);
+  await select_click_row(-3, AccessibilityUtils);
 
   const cwc = await open_compose_with_forward();
   check_attachment_size(cwc, 0, b64Size);
@@ -472,7 +472,7 @@ add_task(async function test_forward_b64_attachment() {
 
 add_task(async function test_forward_message_as_attachment() {
   await be_in_folder(folder);
-  const curMessage = await select_click_row(-1);
+  const curMessage = await select_click_row(-1, AccessibilityUtils);
 
   const cwc = await open_compose_with_forward_as_attachments();
   check_attachment_size(cwc, 0, curMessage.messageSize);
@@ -483,7 +483,7 @@ add_task(async function test_forward_message_as_attachment() {
 
 add_task(async function test_forward_message_with_attachments_as_attachment() {
   await be_in_folder(folder);
-  const curMessage = await select_click_row(-2);
+  const curMessage = await select_click_row(-2, AccessibilityUtils);
 
   const cwc = await open_compose_with_forward_as_attachments();
   check_attachment_size(cwc, 0, curMessage.messageSize);

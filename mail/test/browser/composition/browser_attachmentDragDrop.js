@@ -297,7 +297,7 @@ add_task(async function test_message_drag() {
     [folder],
     create_message({ subject, body: { body } })
   );
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   const msgStr = get_about_message().gMessageURI;
   const msgUrl =
@@ -690,7 +690,7 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
     })
   );
   await be_in_folder(folder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const aboutMessage = get_about_message();
   const srcAttachmentArea =
     aboutMessage.document.getElementById("attachmentView");

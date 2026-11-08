@@ -34,7 +34,7 @@ add_setup(async function () {
 
 add_task(async function test_search_shortcut_from_message_window() {
   await be_in_folder(folder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   const win = await open_selected_message_in_new_window();
 

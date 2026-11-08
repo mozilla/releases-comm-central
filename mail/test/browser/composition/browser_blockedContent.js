@@ -132,7 +132,7 @@ add_task(async function test_paste_file_urls() {
   await send_later(cwc);
 
   await be_in_folder(gOutboxFolder);
-  const outMsg = await select_click_row(0);
+  const outMsg = await select_click_row(0, AccessibilityUtils);
   const outMsgContent = await get_msg_source(outMsg);
 
   Assert.ok(

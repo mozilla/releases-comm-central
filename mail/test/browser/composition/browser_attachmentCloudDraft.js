@@ -518,7 +518,7 @@ async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
 }
 
 async function openDraft() {
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const aboutMessage = get_about_message();
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(

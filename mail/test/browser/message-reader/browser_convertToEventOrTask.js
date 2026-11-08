@@ -87,7 +87,7 @@ add_task(async function test_convertToEvent() {
   );
   await BrowserTestUtils.closeWindow(msgc);
 
-  const msg = await select_click_row(0);
+  const msg = await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   // Open Other Actions, and check the event dialog popping up seems alright.

@@ -480,7 +480,7 @@ add_task(async function test_manual_attachment_reminder() {
   // The draft message was saved into Local Folders/Drafts.
   await be_in_folder(gDrafts);
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(
     aboutMessage,
@@ -791,7 +791,7 @@ add_task(async function test_reminder_in_draft() {
   // The draft message was saved into Local Folders/Drafts.
   await be_in_folder(gDrafts);
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(
     aboutMessage,
@@ -893,7 +893,7 @@ add_task(async function test_disabling_attachment_reminder() {
   // There should be no alert so it is saved in Outbox.
   await be_in_folder(gOutbox);
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   // Delete the leftover outgoing message.
   await press_delete();
 
