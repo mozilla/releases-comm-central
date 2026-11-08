@@ -10,15 +10,17 @@ use http::method::Method;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
+    user_id: String,
     message_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
     let TemplateExpressions {
         endpoint,
+        user_id,
         message_id,
     } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/messages/{message_id}/send")
+    format!("{endpoint}/users/{user_id}/messages/{message_id}/send")
 }
 #[doc = "Invoke action send\n\nSend an existing draft message. The draft message can be a new message draft, reply draft, reply-all draft, or a forward draft. This method saves the message in the Sent Items folder. Alternatively, send a new message in a single operation.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/message-send?view=graph-rest-1.0)."]
 #[derive(Debug)]
@@ -27,10 +29,11 @@ pub struct Post {
 }
 impl Post {
     #[must_use]
-    pub fn new(endpoint: String, message_id: String) -> Self {
+    pub fn new(endpoint: String, user_id: String, message_id: String) -> Self {
         Self {
             template_expressions: TemplateExpressions {
                 endpoint,
+                user_id,
                 message_id,
             },
         }

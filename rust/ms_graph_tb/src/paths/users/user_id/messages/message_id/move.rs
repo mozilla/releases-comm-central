@@ -13,15 +13,17 @@ use http::method::Method;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
+    user_id: String,
     message_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
     let TemplateExpressions {
         endpoint,
+        user_id,
         message_id,
     } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/messages/{message_id}/move")
+    format!("{endpoint}/users/{user_id}/messages/{message_id}/move")
 }
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -40,10 +42,16 @@ pub struct Post {
 }
 impl Post {
     #[must_use]
-    pub fn new(endpoint: String, message_id: String, body: OperationBody<PostRequestBody>) -> Self {
+    pub fn new(
+        endpoint: String,
+        user_id: String,
+        message_id: String,
+        body: OperationBody<PostRequestBody>,
+    ) -> Self {
         Self {
             template_expressions: TemplateExpressions {
                 endpoint,
+                user_id,
                 message_id,
             },
             body,

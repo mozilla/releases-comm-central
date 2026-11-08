@@ -4,7 +4,9 @@
 
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
-#![doc = "Provides operations to manage the childFolders property of the microsoft.graph.mailFolder entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+#![doc = "Provides operations to manage the mailFolders property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+pub mod delta;
+pub mod mail_folder_id;
 use crate::odata::{ExpansionList, FilterExpression, FilterQuery, Selection};
 use crate::pagination::Paginated;
 use crate::types::mail_folder::{MailFolder, MailFolderExpand, MailFolderSelection};
@@ -15,17 +17,14 @@ use http::method::Method;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
-    mail_folder_id: String,
+    user_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
-    let TemplateExpressions {
-        endpoint,
-        mail_folder_id,
-    } = template_expressions;
+    let TemplateExpressions { endpoint, user_id } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/mailFolders/{mail_folder_id}/childFolders")
+    format!("{endpoint}/users/{user_id}/mailFolders")
 }
-#[doc = "List childFolders\n\nGet the folder collection under the specified folder. You can use the .../me/mailFolders shortcut to get the top-level\r\nfolder collection and navigate to another folder. By default, this operation doesn't return hidden folders. Use a query parameter includeHiddenFolders to include them in the response.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-list-childfolders?view=graph-rest-1.0)."]
+#[doc = "Get mailFolders from users\n\nThe user's mail folders. Read-only. Nullable."]
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,
@@ -35,12 +34,9 @@ pub struct Get {
 }
 impl Get {
     #[must_use]
-    pub fn new(endpoint: String, mail_folder_id: String) -> Self {
+    pub fn new(endpoint: String, user_id: String) -> Self {
         Self {
-            template_expressions: TemplateExpressions {
-                endpoint,
-                mail_folder_id,
-            },
+            template_expressions: TemplateExpressions { endpoint, user_id },
             selection: Selection::default(),
             expansion: ExpansionList::default(),
             filter: FilterQuery::default(),
@@ -98,7 +94,7 @@ impl Filter for Get {
         self.filter.set(expression);
     }
 }
-#[doc = "Create child folder\n\nUse this API to create a new child mailFolder. If you intend a new folder to be hidden, you must set the isHidden property to true on creation.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-post-childfolders?view=graph-rest-1.0)."]
+#[doc = "Create new navigation property to mailFolders for users"]
 #[derive(Debug)]
 pub struct Post {
     template_expressions: TemplateExpressions,
@@ -107,12 +103,9 @@ pub struct Post {
 }
 impl Post {
     #[must_use]
-    pub fn new(endpoint: String, mail_folder_id: String, body: OperationBody<MailFolder>) -> Self {
+    pub fn new(endpoint: String, user_id: String, body: OperationBody<MailFolder>) -> Self {
         Self {
-            template_expressions: TemplateExpressions {
-                endpoint,
-                mail_folder_id,
-            },
+            template_expressions: TemplateExpressions { endpoint, user_id },
             body,
             selection: Selection::default(),
         }

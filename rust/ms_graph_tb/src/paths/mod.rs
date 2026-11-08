@@ -6,3 +6,4 @@
 
 #![allow(clippy::new_without_default)]
 pub mod me;
+pub mod users;

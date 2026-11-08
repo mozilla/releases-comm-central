@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use ms_graph_tb::{
     pagination::{DeltaItem, DeltaResponse},
-    paths::me::mail_folders,
+    paths::users::user_id::mail_folders,
 };
 use protocol_shared::{
     EXCHANGE_DISTINGUISHED_IDS, EXCHANGE_ROOT_FOLDER, ServerType, client::DoOperation,
@@ -48,7 +48,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             }
             None => {
                 let base_url = client.base_api_url()?.to_string();
-                let request = mail_folders::delta::Get::new(base_url);
+                let request = mail_folders::delta::Get::new(base_url, client.user_id().clone());
                 let response = client
                     .send_request_json_response(request, Default::default())
                     .await?;
@@ -173,8 +173,11 @@ async fn get_well_known_folder_map<ServerT: ServerType>(
 
     let mut ret = FxHashMap::default();
     for distinguished_id in EXCHANGE_DISTINGUISHED_IDS {
-        let request =
-            mail_folders::mail_folder_id::Get::new(base_url.clone(), distinguished_id.to_string());
+        let request = mail_folders::mail_folder_id::Get::new(
+            base_url.clone(),
+            client.user_id().clone(),
+            distinguished_id.to_string(),
+        );
 
         // FIXME: Figure out what the response looks like when a well-known
         // folder isn't present, and handle accordingly.

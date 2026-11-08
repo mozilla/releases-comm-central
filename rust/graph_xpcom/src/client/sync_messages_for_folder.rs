@@ -8,7 +8,7 @@ use ms_graph_tb::{
     Select, define_svlep,
     extended_properties::{SingleValueExtendedPropertiesOp, SingleValueExtendedPropertiesType},
     pagination::{DeltaItem, DeltaResponse},
-    paths::me::mail_folders::mail_folder_id::messages,
+    paths::users::user_id::mail_folders::mail_folder_id::messages,
     types::{
         followup_flag::FollowupFlag,
         followup_flag_status::FollowupFlagStatus,
@@ -85,7 +85,8 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 
                 let base_url = client.base_api_url()?.to_string();
                 let folder_id = self.folder_id.clone();
-                let mut request = messages::delta::Get::new(base_url, folder_id);
+                let mut request =
+                    messages::delta::Get::new(base_url, client.user_id().clone(), folder_id);
                 request.set_max_page_size(EXCHANGE_MAX_PAGE_SIZE);
                 request.select(select_properties);
                 request.expand_typed_svlep([PID_TAG_MESSAGE_SIZE]);

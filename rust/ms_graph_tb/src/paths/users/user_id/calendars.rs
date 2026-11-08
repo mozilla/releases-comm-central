@@ -4,44 +4,38 @@
 
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
-#![doc = "Provides operations to manage the events property of the microsoft.graph.calendar entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-pub mod delta;
+#![doc = "Provides operations to manage the calendars property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+pub mod calendar_id;
 use crate::odata::{ExpansionList, FilterExpression, FilterQuery, Selection};
 use crate::pagination::Paginated;
-use crate::types::event::{Event, EventExpand, EventSelection};
-use crate::types::event_collection_response::EventCollectionResponse;
+use crate::types::calendar::{Calendar, CalendarExpand, CalendarSelection};
+use crate::types::calendar_collection_response::CalendarCollectionResponse;
 use crate::{Error, Expand, Filter, Operation, OperationBody, Select};
 use form_urlencoded::Serializer;
 use http::method::Method;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
-    calendar_id: String,
+    user_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
-    let TemplateExpressions {
-        endpoint,
-        calendar_id,
-    } = template_expressions;
+    let TemplateExpressions { endpoint, user_id } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/calendars/{calendar_id}/events")
+    format!("{endpoint}/users/{user_id}/calendars")
 }
-#[doc = "Get events from me\n\nThe events in the calendar. Navigation property. Read-only."]
+#[doc = "Get calendars from users\n\nThe user's calendars. Read-only. Nullable."]
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,
-    selection: Selection<EventSelection>,
-    expansion: ExpansionList<EventExpand>,
+    selection: Selection<CalendarSelection>,
+    expansion: ExpansionList<CalendarExpand>,
     filter: FilterQuery,
 }
 impl Get {
     #[must_use]
-    pub fn new(endpoint: String, calendar_id: String) -> Self {
+    pub fn new(endpoint: String, user_id: String) -> Self {
         Self {
-            template_expressions: TemplateExpressions {
-                endpoint,
-                calendar_id,
-            },
+            template_expressions: TemplateExpressions { endpoint, user_id },
             selection: Selection::default(),
             expansion: ExpansionList::default(),
             filter: FilterQuery::default(),
@@ -50,7 +44,7 @@ impl Get {
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Response = Paginated<EventCollectionResponse>;
+    type Response = Paginated<CalendarCollectionResponse>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -77,7 +71,7 @@ impl Operation for Get {
     }
 }
 impl Select for Get {
-    type Properties = EventSelection;
+    type Properties = CalendarSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
     }
@@ -86,7 +80,7 @@ impl Select for Get {
     }
 }
 impl Expand for Get {
-    type Properties = EventExpand;
+    type Properties = CalendarExpand;
     fn expand<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.expansion.expand(properties);
     }
@@ -99,21 +93,18 @@ impl Filter for Get {
         self.filter.set(expression);
     }
 }
-#[doc = "Create event\n\nUse this API to create a new event in a calendar. The calendar can be one for a user, or the default calendar of a Microsoft 365 group.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/calendar-post-events?view=graph-rest-1.0)."]
+#[doc = "Create new navigation property to calendars for users"]
 #[derive(Debug)]
 pub struct Post {
     template_expressions: TemplateExpressions,
-    body: OperationBody<Event>,
-    selection: Selection<EventSelection>,
+    body: OperationBody<Calendar>,
+    selection: Selection<CalendarSelection>,
 }
 impl Post {
     #[must_use]
-    pub fn new(endpoint: String, calendar_id: String, body: OperationBody<Event>) -> Self {
+    pub fn new(endpoint: String, user_id: String, body: OperationBody<Calendar>) -> Self {
         Self {
-            template_expressions: TemplateExpressions {
-                endpoint,
-                calendar_id,
-            },
+            template_expressions: TemplateExpressions { endpoint, user_id },
             body,
             selection: Selection::default(),
         }
@@ -121,7 +112,7 @@ impl Post {
 }
 impl Operation for Post {
     const METHOD: Method = Method::POST;
-    type Response = Event;
+    type Response = Calendar;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -151,7 +142,7 @@ impl Operation for Post {
     }
 }
 impl Select for Post {
-    type Properties = EventSelection;
+    type Properties = CalendarSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
     }

@@ -7,7 +7,7 @@ use std::sync::Arc;
 use base64::prelude::*;
 
 use ms_graph_tb::types::message::Message;
-use ms_graph_tb::{OperationBody, notnull, paths::me::messages};
+use ms_graph_tb::{OperationBody, notnull, paths::users::user_id::messages};
 use protocol_shared::ServerType;
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::SafeExchangeMessageCreateListener;
@@ -57,6 +57,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 
         let request = messages::message_id::Patch::new(
             base_url,
+            client.user_id().clone(),
             self.new_message_id.clone(),
             OperationBody::JSON(message_update),
         );
@@ -124,7 +125,7 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
 
         let base_url = self.base_api_url()?.to_string();
 
-        let request = messages::Post::new(base_url, body);
+        let request = messages::Post::new(base_url, self.user_id().clone(), body);
         let message = self
             .send_request_json_response(request, Default::default())
             .await?;

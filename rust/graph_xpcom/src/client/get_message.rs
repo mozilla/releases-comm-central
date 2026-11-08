@@ -4,7 +4,7 @@
 
 use std::sync::Arc;
 
-use ms_graph_tb::paths::me::messages;
+use ms_graph_tb::paths::users::user_id::messages;
 use protocol_shared::{
     ServerType, client::DoOperation, safe_xpcom::SafeExchangeMessageFetchListener,
 };
@@ -28,7 +28,11 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         client: &XpComGraphClient<ServerT>,
     ) -> Result<Self::Okay, XpComGraphError> {
         let base_url = client.base_api_url()?.to_string();
-        let request = messages::message_id::value::Get::new(base_url, self.message_id.clone());
+        let request = messages::message_id::value::Get::new(
+            base_url,
+            client.user_id.clone(),
+            self.message_id.clone(),
+        );
 
         let response = client.send_request(request, Default::default()).await?;
 

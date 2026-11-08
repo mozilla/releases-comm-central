@@ -4,8 +4,8 @@
 
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
-#![doc = "Provides operations to manage the messages property of the microsoft.graph.mailFolder entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-pub mod delta;
+#![doc = "Provides operations to manage the messages property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+pub mod message_id;
 use crate::odata::{ExpansionList, FilterExpression, FilterQuery, Selection};
 use crate::pagination::Paginated;
 use crate::types::message::{Message, MessageExpand, MessageSelection};
@@ -16,17 +16,14 @@ use http::method::Method;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
-    mail_folder_id: String,
+    user_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
-    let TemplateExpressions {
-        endpoint,
-        mail_folder_id,
-    } = template_expressions;
+    let TemplateExpressions { endpoint, user_id } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/mailFolders/{mail_folder_id}/messages")
+    format!("{endpoint}/users/{user_id}/messages")
 }
-#[doc = "List messages\n\nGet all the messages in the specified user's mailbox, or those messages in a specified folder in the mailbox.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-list-messages?view=graph-rest-1.0)."]
+#[doc = "Get messages from users\n\nThe messages in a mailbox or folder. Read-only. Nullable."]
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,
@@ -36,12 +33,9 @@ pub struct Get {
 }
 impl Get {
     #[must_use]
-    pub fn new(endpoint: String, mail_folder_id: String) -> Self {
+    pub fn new(endpoint: String, user_id: String) -> Self {
         Self {
-            template_expressions: TemplateExpressions {
-                endpoint,
-                mail_folder_id,
-            },
+            template_expressions: TemplateExpressions { endpoint, user_id },
             selection: Selection::default(),
             expansion: ExpansionList::default(),
             filter: FilterQuery::default(),
@@ -99,7 +93,7 @@ impl Filter for Get {
         self.filter.set(expression);
     }
 }
-#[doc = "Create message in a mailfolder\n\nUse this API to create a new Message in a mailfolder.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-post-messages?view=graph-rest-1.0)."]
+#[doc = "Create new navigation property to messages for users"]
 #[derive(Debug)]
 pub struct Post {
     template_expressions: TemplateExpressions,
@@ -108,12 +102,9 @@ pub struct Post {
 }
 impl Post {
     #[must_use]
-    pub fn new(endpoint: String, mail_folder_id: String, body: OperationBody<Message>) -> Self {
+    pub fn new(endpoint: String, user_id: String, body: OperationBody<Message>) -> Self {
         Self {
-            template_expressions: TemplateExpressions {
-                endpoint,
-                mail_folder_id,
-            },
+            template_expressions: TemplateExpressions { endpoint, user_id },
             body,
             selection: Selection::default(),
         }

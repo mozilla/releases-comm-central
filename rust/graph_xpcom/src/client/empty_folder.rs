@@ -45,8 +45,9 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                 .subfolder_ids
                 .iter()
                 .map(|folder_id| {
-                    paths::me::mail_folders::mail_folder_id::Delete::new(
+                    paths::users::user_id::mail_folders::mail_folder_id::Delete::new(
                         base_api_url.to_string(),
+                        client.user_id().clone(),
                         folder_id.clone(),
                     )
                 })

@@ -10,27 +10,30 @@ use http::method::Method;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
+    user_id: String,
     message_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
     let TemplateExpressions {
         endpoint,
+        user_id,
         message_id,
     } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/messages/{message_id}/$value")
+    format!("{endpoint}/users/{user_id}/messages/{message_id}/$value")
 }
-#[doc = "Get open extension\n\nGet an open extension (openTypeExtension object) identified by name or fully qualified name. The table in the Permissions section lists the resources that support open extensions. The following table lists the three scenarios where you can get an open extension from a supported resource instance.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/opentypeextension-get?view=graph-rest-1.0)."]
+#[doc = "Get media content for the navigation property messages from users\n\nThe unique identifier for an entity. Read-only."]
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,
 }
 impl Get {
     #[must_use]
-    pub fn new(endpoint: String, message_id: String) -> Self {
+    pub fn new(endpoint: String, user_id: String, message_id: String) -> Self {
         Self {
             template_expressions: TemplateExpressions {
                 endpoint,
+                user_id,
                 message_id,
             },
         }
@@ -48,7 +51,7 @@ impl Operation for Get {
         Ok(request)
     }
 }
-#[doc = "Update eventMessage\n\nUpdate the properties of an eventMessage object.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/eventmessage-update?view=graph-rest-1.0)."]
+#[doc = "Update media content for the navigation property messages in users\n\nThe unique identifier for an entity. Read-only."]
 #[derive(Debug)]
 pub struct Put {
     template_expressions: TemplateExpressions,
@@ -56,10 +59,16 @@ pub struct Put {
 }
 impl Put {
     #[must_use]
-    pub fn new(endpoint: String, message_id: String, body: OperationBody<Vec<u8>>) -> Self {
+    pub fn new(
+        endpoint: String,
+        user_id: String,
+        message_id: String,
+        body: OperationBody<Vec<u8>>,
+    ) -> Self {
         Self {
             template_expressions: TemplateExpressions {
                 endpoint,
+                user_id,
                 message_id,
             },
             body,
@@ -87,17 +96,18 @@ impl Operation for Put {
         Ok(request)
     }
 }
-#[doc = "Delete eventMessage\n\nDelete eventMessage.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/eventmessage-delete?view=graph-rest-1.0)."]
+#[doc = "Delete media content for the navigation property messages in users\n\nThe unique identifier for an entity. Read-only."]
 #[derive(Debug)]
 pub struct Delete {
     template_expressions: TemplateExpressions,
 }
 impl Delete {
     #[must_use]
-    pub fn new(endpoint: String, message_id: String) -> Self {
+    pub fn new(endpoint: String, user_id: String, message_id: String) -> Self {
         Self {
             template_expressions: TemplateExpressions {
                 endpoint,
+                user_id,
                 message_id,
             },
         }

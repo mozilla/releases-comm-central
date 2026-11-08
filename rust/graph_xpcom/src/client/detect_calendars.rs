@@ -4,7 +4,7 @@
 
 use std::sync::Arc;
 
-use ms_graph_tb::{Select, paths::me::calendars, types::calendar::CalendarSelection};
+use ms_graph_tb::{Select, paths::users::user_id::calendars, types::calendar::CalendarSelection};
 use nserror::NS_ERROR_UNEXPECTED;
 use protocol_shared::{
     ServerType, client::DoOperation, safe_xpcom::calendar_listener::SafeCalendarListener,
@@ -36,7 +36,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             CalendarSelection::CanEdit,
         ];
 
-        let mut request = calendars::Get::new(base_url.to_string());
+        let mut request = calendars::Get::new(base_url.to_string(), client.user_id().clone());
         request.select(select_properties);
 
         let response = client

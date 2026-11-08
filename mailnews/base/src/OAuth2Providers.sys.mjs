@@ -46,10 +46,22 @@ const EWS_SCOPES = {
 };
 
 const GRAPH_SCOPES = {
-  exchange:
-    "https://graph.microsoft.com/User.Read https://graph.microsoft.com/MailboxFolder.ReadWrite https://graph.microsoft.com/Mail.ReadWrite https://graph.microsoft.com/Mail.Send",
-  graph:
-    "https://graph.microsoft.com/User.Read https://graph.microsoft.com/MailboxFolder.ReadWrite https://graph.microsoft.com/Mail.ReadWrite https://graph.microsoft.com/Mail.Send",
+  exchange: [
+    "https://graph.microsoft.com/User.Read",
+    "https://graph.microsoft.com/MailboxFolder.ReadWrite",
+    "https://graph.microsoft.com/Mail.ReadWrite",
+    "https://graph.microsoft.com/Mail.Send",
+    "https://graph.microsoft.com/Mail.ReadWrite.Shared",
+    "https://graph.microsoft.com/Mail.Send.Shared",
+  ].join(" "),
+  graph: [
+    "https://graph.microsoft.com/User.Read",
+    "https://graph.microsoft.com/MailboxFolder.ReadWrite",
+    "https://graph.microsoft.com/Mail.ReadWrite",
+    "https://graph.microsoft.com/Mail.Send",
+    "https://graph.microsoft.com/Mail.ReadWrite.Shared",
+    "https://graph.microsoft.com/Mail.Send.Shared",
+  ].join(" "),
 
   // The `offline_access` scope instructs the Microsoft backend to provide a
   // refresh token, which we can then store and avoid needing to trigger a new

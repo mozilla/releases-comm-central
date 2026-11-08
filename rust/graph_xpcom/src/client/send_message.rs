@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use ms_graph_tb::{
     OperationBody, notnull,
-    paths::me::messages,
+    paths::users::user_id::messages,
     types::{email_address::EmailAddress, message::Message, recipient::Recipient},
 };
 use protocol_shared::{
@@ -86,6 +86,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         let base_url = client.base_api_url()?;
         let request = messages::message_id::Patch::new(
             base_url.to_string(),
+            client.user_id().clone(),
             message_id.clone(),
             OperationBody::JSON(message_update),
         );
@@ -104,7 +105,11 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             .await?;
 
         // Now tell the server to send the draft message we just created.
-        let request = messages::message_id::send::Post::new(base_url.to_string(), message_id);
+        let request = messages::message_id::send::Post::new(
+            base_url.to_string(),
+            client.user_id().clone(),
+            message_id,
+        );
         client
             .send_request(
                 request,

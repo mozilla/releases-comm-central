@@ -2,7 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::{cell::Cell, cmp, fmt::Debug, ops::ControlFlow, sync::Arc, time::Duration};
+use std::{
+    cell::Cell,
+    cmp,
+    fmt::Debug,
+    ops::{ControlFlow, Deref},
+    sync::Arc,
+    time::Duration,
+};
 
 use http::{Method, Request};
 use moz_http::{Response, StatusCode};
@@ -13,6 +20,7 @@ use ms_graph_tb::{
 use operation_queue::{OperationQueue, QueuedOperation};
 use protocol_shared::{
     ServerType,
+    authentication::authentication_provider::AuthenticationProvider,
     client::ProtocolClient,
     error::ProtocolError,
     operation_sender::{OperationRequestOptions, OperationSender, ResponseProcessor},
@@ -245,6 +253,7 @@ where
 pub(crate) struct XpComGraphClient<ServerT: ServerType + 'static> {
     queue: OperationQueue,
     op_sender: Arc<OperationSender<ServerT>>,
+    user_id: String,
 }
 
 impl<ServerT: ServerType> XpComGraphClient<ServerT> {
@@ -252,6 +261,8 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         server: RefPtr<ServerT>,
         base_url: Url,
     ) -> Result<XpComGraphClient<ServerT>, XpComGraphError> {
+        let user_id = AuthenticationProvider::username(server.deref())?.to_string();
+
         let op_sender = OperationSender::new(base_url.clone(), server)?;
         let op_sender = Arc::new(op_sender);
 
@@ -263,7 +274,11 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
             OperationQueue::new(|fut| moz_task::spawn_local("graph_operation_queue", fut).detach());
         queue.start(4).map_err(ProtocolError::from)?;
 
-        Ok(XpComGraphClient { queue, op_sender })
+        Ok(XpComGraphClient {
+            queue,
+            op_sender,
+            user_id,
+        })
     }
 
     /// Checks whether the client is still running (i.e. at least one of the
@@ -312,6 +327,11 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
         }
 
         Ok(batch_api_url)
+    }
+
+    /// Return the user ID associated with the client.
+    pub(crate) fn user_id(&self) -> &String {
+        &self.user_id
     }
 
     async fn send_request<Op>(

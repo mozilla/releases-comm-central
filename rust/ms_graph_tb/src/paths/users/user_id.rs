@@ -4,44 +4,37 @@
 
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
-#![doc = "Provides operations to manage the mailFolders property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-pub mod child_folders;
-pub mod copy;
+#![doc = "Provides operations to manage the collection of user entities.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+pub mod calendars;
+pub mod mail_folders;
 pub mod messages;
-pub mod r#move;
 use crate::odata::{ExpansionList, Selection};
-use crate::types::mail_folder::{MailFolder, MailFolderExpand, MailFolderSelection};
+use crate::types::user::{User, UserExpand, UserSelection};
 use crate::{Error, Expand, Operation, OperationBody, Select};
 use form_urlencoded::Serializer;
 use http::method::Method;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
-    mail_folder_id: String,
+    user_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
-    let TemplateExpressions {
-        endpoint,
-        mail_folder_id,
-    } = template_expressions;
+    let TemplateExpressions { endpoint, user_id } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/mailFolders/{mail_folder_id}")
+    format!("{endpoint}/users/{user_id}")
 }
-#[doc = "Get mailFolder\n\nRetrieve the properties and relationships of a message folder object. The following list shows the two existing scenarios where an app can get another user's mail folder:\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-get?view=graph-rest-1.0)."]
+#[doc = "Get a user\n\nRetrieve the properties and relationships of user object. This operation returns by default only a subset of the more commonly used properties for each user. These default properties are noted in the Properties section. To get properties that are not returned by default, do a GET operation for the user and specify the properties in a `$select` OData query option. Because the user resource supports extensions, you can also use the GET operation to get custom properties and extension data in a user instance. Customers through Microsoft Entra ID for customers can also use this API operation to retrieve their details.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-get?view=graph-rest-1.0)."]
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,
-    selection: Selection<MailFolderSelection>,
-    expansion: ExpansionList<MailFolderExpand>,
+    selection: Selection<UserSelection>,
+    expansion: ExpansionList<UserExpand>,
 }
 impl Get {
     #[must_use]
-    pub fn new(endpoint: String, mail_folder_id: String) -> Self {
+    pub fn new(endpoint: String, user_id: String) -> Self {
         Self {
-            template_expressions: TemplateExpressions {
-                endpoint,
-                mail_folder_id,
-            },
+            template_expressions: TemplateExpressions { endpoint, user_id },
             selection: Selection::default(),
             expansion: ExpansionList::default(),
         }
@@ -49,7 +42,7 @@ impl Get {
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Response = MailFolder;
+    type Response = User;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -73,7 +66,7 @@ impl Operation for Get {
     }
 }
 impl Select for Get {
-    type Properties = MailFolderSelection;
+    type Properties = UserSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
     }
@@ -82,7 +75,7 @@ impl Select for Get {
     }
 }
 impl Expand for Get {
-    type Properties = MailFolderExpand;
+    type Properties = UserExpand;
     fn expand<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.expansion.expand(properties);
     }
@@ -90,21 +83,18 @@ impl Expand for Get {
         self.expansion.extend(properties);
     }
 }
-#[doc = "Update mailfolder\n\nUpdate the properties of mailfolder object.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-update?view=graph-rest-1.0)."]
+#[doc = "Update user\n\nUpdate the properties of a user object. To use this API to update an agentUser, specify an @odata.type property with a value of #microsoft.graph.agentUser in the request body.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-update?view=graph-rest-1.0)."]
 #[derive(Debug)]
 pub struct Patch {
     template_expressions: TemplateExpressions,
-    body: OperationBody<MailFolder>,
-    selection: Selection<MailFolderSelection>,
+    body: OperationBody<User>,
+    selection: Selection<UserSelection>,
 }
 impl Patch {
     #[must_use]
-    pub fn new(endpoint: String, mail_folder_id: String, body: OperationBody<MailFolder>) -> Self {
+    pub fn new(endpoint: String, user_id: String, body: OperationBody<User>) -> Self {
         Self {
-            template_expressions: TemplateExpressions {
-                endpoint,
-                mail_folder_id,
-            },
+            template_expressions: TemplateExpressions { endpoint, user_id },
             body,
             selection: Selection::default(),
         }
@@ -112,7 +102,7 @@ impl Patch {
 }
 impl Operation for Patch {
     const METHOD: Method = Method::PATCH;
-    type Response = MailFolder;
+    type Response = User;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -142,7 +132,7 @@ impl Operation for Patch {
     }
 }
 impl Select for Patch {
-    type Properties = MailFolderSelection;
+    type Properties = UserSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
     }
@@ -150,19 +140,16 @@ impl Select for Patch {
         self.selection.extend(properties);
     }
 }
-#[doc = "Delete mailFolder\n\nDelete the specified mailFolder. The folder can be a mailSearchFolder. You can specify a mail folder by its folder ID, or by its well-known folder name, if one exists.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-delete?view=graph-rest-1.0)."]
+#[doc = "Delete a user\n\nDelete a user object.   When deleted, user resources, including their mailbox and license assignments, are moved to a temporary container and if the user is restored within 30 days, these objects are restored to them. The user is also restored to any groups they were a member of. After 30 days and if not restored, the user object is permanently deleted and their assigned resources freed. To manage the deleted user object, see deletedItems.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-delete?view=graph-rest-1.0)."]
 #[derive(Debug)]
 pub struct Delete {
     template_expressions: TemplateExpressions,
 }
 impl Delete {
     #[must_use]
-    pub fn new(endpoint: String, mail_folder_id: String) -> Self {
+    pub fn new(endpoint: String, user_id: String) -> Self {
         Self {
-            template_expressions: TemplateExpressions {
-                endpoint,
-                mail_folder_id,
-            },
+            template_expressions: TemplateExpressions { endpoint, user_id },
         }
     }
 }

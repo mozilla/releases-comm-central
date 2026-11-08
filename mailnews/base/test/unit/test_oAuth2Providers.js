@@ -168,14 +168,21 @@ add_task(function testMicrosoftHostnameDetails() {
   // The `outlook.office365.com` host may need to be changed, especially once
   // autodiscover is implemented in
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1995836.
+  const expectedGraphPermissions = [
+    "https://graph.microsoft.com/User.Read",
+    "https://graph.microsoft.com/MailboxFolder.ReadWrite",
+    "https://graph.microsoft.com/Mail.ReadWrite",
+    "https://graph.microsoft.com/Mail.Send",
+    "https://graph.microsoft.com/Mail.ReadWrite.Shared",
+    "https://graph.microsoft.com/Mail.Send.Shared",
+    "offline_access",
+  ].join(" ");
   Assert.deepEqual(
     OAuth2Providers.getHostnameDetails("outlook.office365.com", "graph"),
     {
       issuer: "login.microsoftonline.com",
-      allScopes:
-        "https://graph.microsoft.com/User.Read https://graph.microsoft.com/MailboxFolder.ReadWrite https://graph.microsoft.com/Mail.ReadWrite https://graph.microsoft.com/Mail.Send offline_access",
-      requiredScopes:
-        "https://graph.microsoft.com/User.Read https://graph.microsoft.com/MailboxFolder.ReadWrite https://graph.microsoft.com/Mail.ReadWrite https://graph.microsoft.com/Mail.Send offline_access",
+      allScopes: expectedGraphPermissions,
+      requiredScopes: expectedGraphPermissions,
     }
   );
 });

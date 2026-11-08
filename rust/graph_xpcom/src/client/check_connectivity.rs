@@ -40,6 +40,9 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             .to_result()?;
 
         let base_url = base_url.to_string();
+        // Use the /me endpoint rather than the /user/{user-id} endpoint because
+        // even if a user have access to send on behalf of a shared mailbox,
+        // they may not be able to read the identity information.
         let mut get_me = paths::me::Get::new(base_url);
         get_me.select(vec![user::UserSelection::DisplayName]);
 

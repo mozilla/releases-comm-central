@@ -15,15 +15,17 @@ use std::str::FromStr;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
+    user_id: String,
     mail_folder_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
     let TemplateExpressions {
         endpoint,
+        user_id,
         mail_folder_id,
     } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/mailFolders/{mail_folder_id}/messages/delta()")
+    format!("{endpoint}/users/{user_id}/mailFolders/{mail_folder_id}/messages/delta()")
 }
 #[doc = "Invoke function delta\n\nGet a set of messages added, deleted, or updated in a specified folder. A delta function call for messages in a folder is similar to a GET request, except that by appropriately\r\napplying state tokens in one or more of these calls, you can [query for incremental changes in the messages in\r\nthat folder](/graph/delta-query-messages). It allows you to maintain and synchronize a local store of a user's messages without\r\nhaving to fetch the entire set of messages from the server every time.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/message-delta?view=graph-rest-1.0)."]
 #[derive(Debug)]
@@ -36,10 +38,11 @@ pub struct Get {
 }
 impl Get {
     #[must_use]
-    pub fn new(endpoint: String, mail_folder_id: String) -> Self {
+    pub fn new(endpoint: String, user_id: String, mail_folder_id: String) -> Self {
         Self {
             template_expressions: TemplateExpressions {
                 endpoint,
+                user_id,
                 mail_folder_id,
             },
             selection: Selection::default(),

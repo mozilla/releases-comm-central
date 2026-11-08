@@ -5,9 +5,6 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Provides operations to manage the user singleton.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-pub mod calendars;
-pub mod mail_folders;
-pub mod messages;
 use crate::odata::{ExpansionList, Selection};
 use crate::types::user::{User, UserExpand, UserSelection};
 use crate::{Error, Expand, Operation, OperationBody, Select};

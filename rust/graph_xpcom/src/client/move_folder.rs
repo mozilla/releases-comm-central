@@ -4,7 +4,7 @@
 
 use std::sync::Arc;
 
-use ms_graph_tb::{OperationBody, paths::me::mail_folders::mail_folder_id};
+use ms_graph_tb::{OperationBody, paths::users::user_id::mail_folders::mail_folder_id};
 use nsstring::nsCString;
 use protocol_shared::{
     ServerType,
@@ -44,6 +44,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                 };
                 mail_folder_id::r#move::Post::new(
                     base_api_url.to_string(),
+                    client.user_id().clone(),
                     folder_id.clone(),
                     OperationBody::JSON(body),
                 )

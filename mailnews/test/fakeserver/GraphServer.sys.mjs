@@ -401,6 +401,10 @@ export class GraphServer extends MockServer {
   /**
    * Dispatch a request to the appropriate handler.
    *
+   * This method will collect user identification information (if provided) and
+   * call handlers with the resource path with the user id information stripped
+   * out.
+   *
    * @param {string} requestMethod
    * @param {Map<string, string>} requestHeaders
    * @param {string} resourcePath
@@ -419,62 +423,78 @@ export class GraphServer extends MockServer {
     // Try to find a handler that matches the method and path for the request.
     let responseJsonObject = {};
     let pathMatch;
+
+    // Strip the user ID from the path, if it's there.
+    const userIdPathRegex = /^\/users\/([a-zA-Z@.\-_]+)/;
+    let userId = "";
+    let operationPath = resourcePath;
+    const idMatch = userIdPathRegex.exec(resourcePath);
+    if (idMatch) {
+      userId = idMatch[1];
+      operationPath = operationPath.replace(idMatch[0], "");
+    }
+
     switch (requestMethod) {
       case "GET":
         if (resourcePath === "/me") {
+          // The /me path is the only one we access without an associated user ID.
           responseJsonObject = this.#me();
-        } else if (resourcePath === "/me/calendars") {
+        } else if (operationPath === "/calendars") {
           responseJsonObject = this.#calendars();
         } else if (
-          (pathMatch = /\/me\/calendars\/([0-9a-zA-Z=]+)\/events\/delta/.exec(
-            resourcePath
+          (pathMatch = /\/calendars\/([0-9a-zA-Z=]+)\/events\/delta/.exec(
+            operationPath
           ))
         ) {
           const calendarId = pathMatch[1];
           responseJsonObject = this.#syncCalendarEvents(
             requestHeaders,
+            userId,
             calendarId,
             resourceQuery
           );
         } else if (
-          (pathMatch = /\/me\/calendars\/([0-9a-zA-Z=]+)\/events/.exec(
-            resourcePath
+          (pathMatch = /\/calendars\/([0-9a-zA-Z=]+)\/events/.exec(
+            operationPath
           ))
         ) {
           const calendarId = pathMatch[1];
           responseJsonObject = this.#calendarEvents(calendarId);
         } else if (
-          (pathMatch = /\/me\/mailFolders\/([\w\-]+)\/messages\/delta/.exec(
-            resourcePath
+          (pathMatch = /\/mailFolders\/([\w\-]+)\/messages\/delta/.exec(
+            operationPath
           ))
         ) {
           const folderName = pathMatch[1];
           responseJsonObject = this.#syncFolderMessages(
             requestHeaders,
+            userId,
             folderName,
             resourceQuery
           );
         } else if (
-          (pathMatch = /\/me\/mailFolders\('([\w\-]+)'\)\/messages\/delta/.exec(
-            resourcePath
+          (pathMatch = /\/mailFolders\('([\w\-]+)'\)\/messages\/delta/.exec(
+            operationPath
           ))
         ) {
           const folderName = pathMatch[1];
           responseJsonObject = this.#syncFolderMessages(
             requestHeaders,
+            userId,
             folderName,
             resourceQuery
           );
-        } else if (resourcePath === "/me/mailFolders/delta()") {
+        } else if (operationPath === "/mailFolders/delta()") {
           responseJsonObject = this.#mailFoldersDelta(
             requestHeaders,
+            userId,
             resourceQuery
           );
-        } else if (resourcePath.startsWith("/me/mailFolders/")) {
-          responseJsonObject = this.#mailFolder(resourcePath.substring(16));
+        } else if (operationPath.startsWith("/mailFolders/")) {
+          responseJsonObject = this.#mailFolder(operationPath.substring(13));
         } else if (
-          (pathMatch = /\/me\/messages\/([0-9a-zA-Z_-]+)\/\$value/.exec(
-            resourcePath
+          (pathMatch = /\/messages\/([0-9a-zA-Z_-]+)\/\$value/.exec(
+            operationPath
           ))
         ) {
           const content = this.#messageMediaResource(pathMatch[1]);
@@ -485,55 +505,55 @@ export class GraphServer extends MockServer {
         break;
 
       case "POST":
-        if (resourcePath === "/me/messages") {
+        if (operationPath === "/messages") {
           responseJsonObject = this.#createMessage(requestBody);
         } else if (
-          resourcePath.startsWith("/me/messages") &&
-          resourcePath.endsWith("/send")
+          operationPath.startsWith("/messages") &&
+          operationPath.endsWith("/send")
         ) {
           // `#sendMessage()` takes care of setting the necessary properties on
           // the response, so we should skip the body serialization part here.
-          return this.#sendMessage(resourcePath);
+          return this.#sendMessage(operationPath);
         } else if (
-          resourcePath.startsWith("/me/mailFolders") &&
-          resourcePath.endsWith("/move")
+          operationPath.startsWith("/mailFolders") &&
+          operationPath.endsWith("/move")
         ) {
-          responseJsonObject = this.#moveFolder(resourcePath, requestBody);
+          responseJsonObject = this.#moveFolder(operationPath, requestBody);
         } else if (
-          resourcePath.startsWith("/me/mailFolders") &&
-          resourcePath.endsWith("/copy")
+          operationPath.startsWith("/mailFolders") &&
+          operationPath.endsWith("/copy")
         ) {
-          responseJsonObject = this.#copyFolder(resourcePath, requestBody);
-        } else if (resourcePath.startsWith("/me/mailFolders/")) {
-          return this.#createFolder(resourcePath.substring(16), requestBody);
+          responseJsonObject = this.#copyFolder(operationPath, requestBody);
+        } else if (operationPath.startsWith("/mailFolders/")) {
+          return this.#createFolder(operationPath.substring(13), requestBody);
         } else if (
-          resourcePath.startsWith("/me/messages") &&
-          resourcePath.endsWith("/move")
+          operationPath.startsWith("/messages") &&
+          operationPath.endsWith("/move")
         ) {
-          responseJsonObject = this.#moveMessages(resourcePath, requestBody);
+          responseJsonObject = this.#moveMessages(operationPath, requestBody);
         } else if (
-          resourcePath.startsWith("/me/messages") &&
-          resourcePath.endsWith("/copy")
+          operationPath.startsWith("/messages") &&
+          operationPath.endsWith("/copy")
         ) {
-          responseJsonObject = this.#copyMessages(resourcePath, requestBody);
+          responseJsonObject = this.#copyMessages(operationPath, requestBody);
         }
         break;
 
       case "PATCH":
-        if (resourcePath.startsWith("/me/messages")) {
-          responseJsonObject = this.#updateMessage(resourcePath, requestBody);
-        } else if (resourcePath.startsWith("/me/mailFolders")) {
-          responseJsonObject = this.#updateFolder(resourcePath, requestBody);
+        if (operationPath.startsWith("/messages")) {
+          responseJsonObject = this.#updateMessage(operationPath, requestBody);
+        } else if (operationPath.startsWith("/mailFolders")) {
+          responseJsonObject = this.#updateFolder(operationPath, requestBody);
         }
         break;
 
       case "DELETE":
-        if (resourcePath.startsWith("/me/mailFolders")) {
-          this.#deleteFolder(resourcePath);
+        if (operationPath.startsWith("/mailFolders")) {
+          this.#deleteFolder(operationPath);
           // There is no body, so we return 204 No Content to indicate success.
           return new HttpResponseData(204, "No Content");
-        } else if (resourcePath.startsWith("/me/messages")) {
-          this.#deleteMessage(resourcePath);
+        } else if (operationPath.startsWith("/messages")) {
+          this.#deleteMessage(operationPath);
           // There is no body, so we return 204 No Content to indicate success.
           return new HttpResponseData(204, "No Content");
         }
@@ -573,7 +593,7 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handle the GET /me/calendars resource.
+   * Handle the GET /calendars resource.
    *
    * @returns {object}
    */
@@ -616,7 +636,7 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handle GET /me/mailFolders/{mailFolderId}.
+   * Handle GET /mailFolders/{mailFolderId}.
    *
    * @param {string} folderId
    * @returns {object}
@@ -628,7 +648,7 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handle POST /me/mailFolders/...
+   * Handle POST /mailFolders/...
    *
    * @param {string} folderPath
    * @param {string} requestBody
@@ -651,7 +671,7 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handle POST /me/mailFolders/{mailFolderId}/childFolders.
+   * Handle POST /mailFolders/{mailFolderId}/childFolders.
    *
    * @param {string} parentFolderId
    * @param {string} requestBody
@@ -706,7 +726,7 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handle GET /me/messages/{id}/$value
+   * Handle GET /messages/{id}/$value
    *
    * @param {string} messageId The ID of the message.
    * @returns {string?} The message content.
@@ -726,7 +746,7 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handle POST /me/messages
+   * Handle POST /messages
    *
    * @param {string} requestBody
    * @returns {object}
@@ -761,7 +781,7 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handle PATCH /me/messages/{messageId}
+   * Handle PATCH /messages/{messageId}
    *
    * @param {string} resourcePath
    * @param {string} requestBody
@@ -822,7 +842,7 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handle PATCH /me/mailFolders/{mailFolderId}
+   * Handle PATCH /mailFolders/{mailFolderId}
    *
    * @param {string} resourcePath
    * @param {string} requestBody
@@ -843,7 +863,7 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handle POST /me/messages/{messageId}/send
+   * Handle POST /messages/{messageId}/send
    *
    * Note that, unlike other handlers, this one sets the necessary properties on
    * the response directly.
@@ -854,7 +874,7 @@ export class GraphServer extends MockServer {
    *   status code, and message, in that order.
    */
   #sendMessage(requestPath) {
-    const messageId = /\/me\/messages\/(.+)\/send/.exec(requestPath)[1];
+    const messageId = /\/messages\/(.+)\/send/.exec(requestPath)[1];
 
     const message = this.#createdMessagesById.get(messageId);
     if (!message) {
@@ -913,57 +933,60 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handles GET /me/calendars/{calendarId}/events/delta
+   * Handles GET /calendars/{calendarId}/events/delta
    *
    * @param {Map<string, string>} requestHeaders - The map of headers included
    *   in the request.
+   * @param {string} userId
    * @param {string} calendarId
    * @param {string} queryString - The query parameters from the request.
    * @returns {object}
    */
-  #syncCalendarEvents(requestHeaders, calendarId, queryString) {
+  #syncCalendarEvents(requestHeaders, userId, calendarId, queryString) {
     return this.#handleDeltaRequest(requestHeaders, calendarId, queryString, {
       odataType: "event",
       itemToJSON: (_parentId, itemId) => this.#calendarEventsById.get(itemId),
       getChanges: (offset, calendar, maxItems) =>
         this.getChangesSince(offset, calendar, maxItems),
-      deltaPath: `/me/calendars/${calendarId}/events/delta`,
+      deltaPath: `/users/${userId}/calendars/${calendarId}/events/delta`,
     });
   }
 
   /**
-   * Handle GET /me/mailFolders/delta().
+   * Handle GET /mailFolders/delta().
    *
    * @param {Map<string, string>} requestHeaders - The map of headers included
    *   in the request.
+   * @param {string} userId
    * @param {string} queryString
    * @returns {object}
    */
-  #mailFoldersDelta(requestHeaders, queryString) {
+  #mailFoldersDelta(requestHeaders, userId, queryString) {
     return this.#handleDeltaRequest(requestHeaders, null, queryString, {
       odataType: "mailFolder",
       itemToJSON: (_parentId, folderId) => this.#folderToJSON(folderId),
       getChanges: (offset, _parentId, maxItems) =>
         this.getFolderChangesSince(offset, maxItems),
-      deltaPath: `/me/mailFolders/delta()`,
+      deltaPath: `/users/${userId}/mailFolders/delta()`,
     });
   }
 
   /**
-   * Handles GET /me/mailFolders/{folderId}/delta
+   * Handles GET /mailFolders/{folderId}/delta
    *
    * @param {Map<string, string>} requestHeaders - The map of headers included
    *   in the request.
+   * @param {string} userId
    * @param {string} folderName - The name of the folder to sync.
    * @param {string} queryString - The query parameters from the request.
    */
-  #syncFolderMessages(requestHeaders, folderName, queryString) {
+  #syncFolderMessages(requestHeaders, userId, folderName, queryString) {
     return this.#handleDeltaRequest(requestHeaders, folderName, queryString, {
       odataType: "message",
       itemToJSON: (parentId, itemId) => this.#messageToJSON(parentId, itemId),
       getChanges: (offset, parentId, maxItems) =>
         this.getChangesSince(offset, parentId, maxItems),
-      deltaPath: `/me/mailFolders('${folderName}')/messages/delta`,
+      deltaPath: `/user/${userId}/mailFolders('${folderName}')/messages/delta`,
     });
   }
 
@@ -1060,7 +1083,7 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handle POST /me/messages/{messageId}/move
+   * Handle POST /messages/{messageId}/move
    *
    * @param {string} resourcePath
    * @param {string} requestBody
@@ -1088,7 +1111,7 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handle POST /me/messages/{messageId}/copy
+   * Handle POST /messages/{messageId}/copy
    *
    * @param {string} resourcePath
    * @param {string} requestBody
@@ -1118,7 +1141,7 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handle POST /me/mailFolders/{folderId}/move
+   * Handle POST /mailFolders/{folderId}/move
    *
    * @param {string} resourcePath
    * @param {string} requestBody
@@ -1151,7 +1174,7 @@ export class GraphServer extends MockServer {
     };
   }
   /**
-   * Handle POST /me/mailFolders/{folderId}/copy
+   * Handle POST /mailFolders/{folderId}/copy
    *
    * @param {string} resourcePath
    * @param {string} requestBody
@@ -1180,7 +1203,7 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handle DELETE /me/mailFolders/{folderId}
+   * Handle DELETE /mailFolders/{folderId}
    *
    * @param {string} resourcePath
    */
@@ -1190,7 +1213,7 @@ export class GraphServer extends MockServer {
   }
 
   /**
-   * Handle DELETE /me/messages/{messageId}
+   * Handle DELETE /messages/{messageId}
    *
    * @param {string} resourcePath
    */

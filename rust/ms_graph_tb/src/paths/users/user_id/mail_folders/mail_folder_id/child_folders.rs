@@ -4,37 +4,46 @@
 
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
-#![doc = "Provides operations to manage the messages property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-pub mod message_id;
+#![doc = "Provides operations to manage the childFolders property of the microsoft.graph.mailFolder entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 use crate::odata::{ExpansionList, FilterExpression, FilterQuery, Selection};
 use crate::pagination::Paginated;
-use crate::types::message::{Message, MessageExpand, MessageSelection};
-use crate::types::message_collection_response::MessageCollectionResponse;
+use crate::types::mail_folder::{MailFolder, MailFolderExpand, MailFolderSelection};
+use crate::types::mail_folder_collection_response::MailFolderCollectionResponse;
 use crate::{Error, Expand, Filter, Operation, OperationBody, Select};
 use form_urlencoded::Serializer;
 use http::method::Method;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
+    user_id: String,
+    mail_folder_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
-    let TemplateExpressions { endpoint } = template_expressions;
+    let TemplateExpressions {
+        endpoint,
+        user_id,
+        mail_folder_id,
+    } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/messages")
+    format!("{endpoint}/users/{user_id}/mailFolders/{mail_folder_id}/childFolders")
 }
-#[doc = "Get open extension\n\nGet an open extension (openTypeExtension object) identified by name or fully qualified name. The table in the Permissions section lists the resources that support open extensions. The following table lists the three scenarios where you can get an open extension from a supported resource instance.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/opentypeextension-get?view=graph-rest-1.0)."]
+#[doc = "Get childFolders from users\n\nThe collection of child folders in the mailFolder."]
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,
-    selection: Selection<MessageSelection>,
-    expansion: ExpansionList<MessageExpand>,
+    selection: Selection<MailFolderSelection>,
+    expansion: ExpansionList<MailFolderExpand>,
     filter: FilterQuery,
 }
 impl Get {
     #[must_use]
-    pub fn new(endpoint: String) -> Self {
+    pub fn new(endpoint: String, user_id: String, mail_folder_id: String) -> Self {
         Self {
-            template_expressions: TemplateExpressions { endpoint },
+            template_expressions: TemplateExpressions {
+                endpoint,
+                user_id,
+                mail_folder_id,
+            },
             selection: Selection::default(),
             expansion: ExpansionList::default(),
             filter: FilterQuery::default(),
@@ -43,7 +52,7 @@ impl Get {
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Response = Paginated<MessageCollectionResponse>;
+    type Response = Paginated<MailFolderCollectionResponse>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -70,7 +79,7 @@ impl Operation for Get {
     }
 }
 impl Select for Get {
-    type Properties = MessageSelection;
+    type Properties = MailFolderSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
     }
@@ -79,7 +88,7 @@ impl Select for Get {
     }
 }
 impl Expand for Get {
-    type Properties = MessageExpand;
+    type Properties = MailFolderExpand;
     fn expand<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.expansion.expand(properties);
     }
@@ -92,18 +101,27 @@ impl Filter for Get {
         self.filter.set(expression);
     }
 }
-#[doc = "Create open extension\n\nCreate an open extension (openTypeExtension object) and add custom properties in a new or existing instance of a resource. You can create an open extension in a resource instance and store custom data to it all in the same operation, except for specific resources. The table in the Permissions section lists the resources that support open extensions.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/opentypeextension-post-opentypeextension?view=graph-rest-1.0)."]
+#[doc = "Create new navigation property to childFolders for users"]
 #[derive(Debug)]
 pub struct Post {
     template_expressions: TemplateExpressions,
-    body: OperationBody<Message>,
-    selection: Selection<MessageSelection>,
+    body: OperationBody<MailFolder>,
+    selection: Selection<MailFolderSelection>,
 }
 impl Post {
     #[must_use]
-    pub fn new(endpoint: String, body: OperationBody<Message>) -> Self {
+    pub fn new(
+        endpoint: String,
+        user_id: String,
+        mail_folder_id: String,
+        body: OperationBody<MailFolder>,
+    ) -> Self {
         Self {
-            template_expressions: TemplateExpressions { endpoint },
+            template_expressions: TemplateExpressions {
+                endpoint,
+                user_id,
+                mail_folder_id,
+            },
             body,
             selection: Selection::default(),
         }
@@ -111,7 +129,7 @@ impl Post {
 }
 impl Operation for Post {
     const METHOD: Method = Method::POST;
-    type Response = Message;
+    type Response = MailFolder;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -141,7 +159,7 @@ impl Operation for Post {
     }
 }
 impl Select for Post {
-    type Properties = MessageSelection;
+    type Properties = MailFolderSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
     }

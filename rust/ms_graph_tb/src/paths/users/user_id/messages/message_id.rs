@@ -4,40 +4,46 @@
 
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
-#![doc = "Provides operations to manage the calendars property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-pub mod events;
+#![doc = "Provides operations to manage the messages property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+pub mod copy;
+pub mod r#move;
+pub mod send;
+pub mod value;
 use crate::odata::{ExpansionList, Selection};
-use crate::types::calendar::{Calendar, CalendarExpand, CalendarSelection};
+use crate::types::message::{Message, MessageExpand, MessageSelection};
 use crate::{Error, Expand, Operation, OperationBody, Select};
 use form_urlencoded::Serializer;
 use http::method::Method;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
-    calendar_id: String,
+    user_id: String,
+    message_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
     let TemplateExpressions {
         endpoint,
-        calendar_id,
+        user_id,
+        message_id,
     } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/calendars/{calendar_id}")
+    format!("{endpoint}/users/{user_id}/messages/{message_id}")
 }
-#[doc = "Get calendars from me\n\nThe user's calendars. Read-only. Nullable."]
+#[doc = "Get messages from users\n\nThe messages in a mailbox or folder. Read-only. Nullable."]
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,
-    selection: Selection<CalendarSelection>,
-    expansion: ExpansionList<CalendarExpand>,
+    selection: Selection<MessageSelection>,
+    expansion: ExpansionList<MessageExpand>,
 }
 impl Get {
     #[must_use]
-    pub fn new(endpoint: String, calendar_id: String) -> Self {
+    pub fn new(endpoint: String, user_id: String, message_id: String) -> Self {
         Self {
             template_expressions: TemplateExpressions {
                 endpoint,
-                calendar_id,
+                user_id,
+                message_id,
             },
             selection: Selection::default(),
             expansion: ExpansionList::default(),
@@ -46,7 +52,7 @@ impl Get {
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Response = Calendar;
+    type Response = Message;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -70,7 +76,7 @@ impl Operation for Get {
     }
 }
 impl Select for Get {
-    type Properties = CalendarSelection;
+    type Properties = MessageSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
     }
@@ -79,7 +85,7 @@ impl Select for Get {
     }
 }
 impl Expand for Get {
-    type Properties = CalendarExpand;
+    type Properties = MessageExpand;
     fn expand<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.expansion.expand(properties);
     }
@@ -87,20 +93,26 @@ impl Expand for Get {
         self.expansion.extend(properties);
     }
 }
-#[doc = "Update the navigation property calendars in me"]
+#[doc = "Update the navigation property messages in users"]
 #[derive(Debug)]
 pub struct Patch {
     template_expressions: TemplateExpressions,
-    body: OperationBody<Calendar>,
-    selection: Selection<CalendarSelection>,
+    body: OperationBody<Message>,
+    selection: Selection<MessageSelection>,
 }
 impl Patch {
     #[must_use]
-    pub fn new(endpoint: String, calendar_id: String, body: OperationBody<Calendar>) -> Self {
+    pub fn new(
+        endpoint: String,
+        user_id: String,
+        message_id: String,
+        body: OperationBody<Message>,
+    ) -> Self {
         Self {
             template_expressions: TemplateExpressions {
                 endpoint,
-                calendar_id,
+                user_id,
+                message_id,
             },
             body,
             selection: Selection::default(),
@@ -109,7 +121,7 @@ impl Patch {
 }
 impl Operation for Patch {
     const METHOD: Method = Method::PATCH;
-    type Response = Calendar;
+    type Response = Message;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -139,7 +151,7 @@ impl Operation for Patch {
     }
 }
 impl Select for Patch {
-    type Properties = CalendarSelection;
+    type Properties = MessageSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
     }
@@ -147,18 +159,19 @@ impl Select for Patch {
         self.selection.extend(properties);
     }
 }
-#[doc = "Delete calendar\n\nDelete a calendar other than the default calendar.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/calendar-delete?view=graph-rest-1.0)."]
+#[doc = "Delete navigation property messages for users"]
 #[derive(Debug)]
 pub struct Delete {
     template_expressions: TemplateExpressions,
 }
 impl Delete {
     #[must_use]
-    pub fn new(endpoint: String, calendar_id: String) -> Self {
+    pub fn new(endpoint: String, user_id: String, message_id: String) -> Self {
         Self {
             template_expressions: TemplateExpressions {
                 endpoint,
-                calendar_id,
+                user_id,
+                message_id,
             },
         }
     }

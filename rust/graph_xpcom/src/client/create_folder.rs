@@ -5,7 +5,7 @@
 use std::sync::Arc;
 
 use ms_graph_tb::{
-    OperationBody, notnull, paths::me::mail_folders::mail_folder_id::child_folders,
+    OperationBody, notnull, paths::users::user_id::mail_folders::mail_folder_id::child_folders,
     types::mail_folder::MailFolder,
 };
 use protocol_shared::{
@@ -41,6 +41,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
         let base_api_url = client.base_api_url()?;
         let request = child_folders::Post::new(
             base_api_url.to_string(),
+            client.user_id().clone(),
             self.parent_id.clone(),
             OperationBody::JSON(folder_config),
         );

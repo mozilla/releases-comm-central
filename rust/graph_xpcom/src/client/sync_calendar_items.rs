@@ -7,7 +7,7 @@ use std::sync::Arc;
 use ms_graph_tb::{
     Select, notnull,
     pagination::{DeltaItem, DeltaResponse},
-    paths::me::calendars::calendar_id::events,
+    paths::users::user_id::calendars::calendar_id::events,
     types::event::EventSelection,
 };
 use protocol_shared::{
@@ -49,8 +49,11 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                     EventSelection::End,
                 ];
                 let base_url = client.base_api_url()?;
-                let mut request =
-                    events::delta::Get::new(base_url.to_string(), self.calendar_id.clone());
+                let mut request = events::delta::Get::new(
+                    base_url.to_string(),
+                    client.user_id().clone(),
+                    self.calendar_id.clone(),
+                );
                 request.set_max_page_size(EXCHANGE_MAX_PAGE_SIZE);
                 request.select(select_properties);
                 client

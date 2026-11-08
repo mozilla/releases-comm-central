@@ -7,7 +7,7 @@
 #![doc = "Provides operations to call the delta method.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 use crate::odata::{ExpansionList, FilterExpression, FilterQuery, Selection};
 use crate::pagination::DeltaResponse;
-use crate::types::mail_folder::{MailFolder, MailFolderExpand, MailFolderSelection};
+use crate::types::event::{Event, EventExpand, EventSelection};
 use crate::{Error, Expand, Filter, Operation, Select};
 use form_urlencoded::Serializer;
 use http::method::Method;
@@ -15,26 +15,36 @@ use std::str::FromStr;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
+    user_id: String,
+    calendar_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
-    let TemplateExpressions { endpoint } = template_expressions;
+    let TemplateExpressions {
+        endpoint,
+        user_id,
+        calendar_id,
+    } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/mailFolders/delta()")
+    format!("{endpoint}/users/{user_id}/calendars/{calendar_id}/events/delta()")
 }
-#[doc = "Invoke function delta\n\nGet a set of mail folders that have been added, deleted, or removed from the user's mailbox. A delta function call for mail folders in a mailbox is similar to a GET request, except that by appropriately\r\napplying state tokens in one or more of these calls,\r\nyou can query for incremental changes in the mail folders. This allows you to maintain and synchronize\r\na local store of a user's mail folders without having to fetch all the mail folders of that mailbox from the server every time.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-delta?view=graph-rest-1.0)."]
+#[doc = "Invoke function delta\n\nGet a set of event resources that have been added, deleted, or updated in a calendarView (a range of events defined by start and end dates) of the user's primary calendar. Typically, synchronizing events in a calendarView in a local store entails a round of multiple delta function calls. The initial call is a full synchronization, and every subsequent delta call in the same round gets the incremental changes (additions, deletions, or updates). This allows you to maintain and synchronize a local store of events in the specified calendarView, without having to fetch all the events of that calendar from the server every time.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/event-delta?view=graph-rest-1.0)."]
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,
-    selection: Selection<MailFolderSelection>,
-    expansion: ExpansionList<MailFolderExpand>,
+    selection: Selection<EventSelection>,
+    expansion: ExpansionList<EventExpand>,
     filter: FilterQuery,
     max_page_size: Option<u16>,
 }
 impl Get {
     #[must_use]
-    pub fn new(endpoint: String) -> Self {
+    pub fn new(endpoint: String, user_id: String, calendar_id: String) -> Self {
         Self {
-            template_expressions: TemplateExpressions { endpoint },
+            template_expressions: TemplateExpressions {
+                endpoint,
+                user_id,
+                calendar_id,
+            },
             selection: Selection::default(),
             expansion: ExpansionList::default(),
             filter: FilterQuery::default(),
@@ -49,7 +59,7 @@ impl Get {
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Response = DeltaResponse<MailFolder>;
+    type Response = DeltaResponse<Event>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -79,7 +89,7 @@ impl Operation for Get {
     }
 }
 impl Select for Get {
-    type Properties = MailFolderSelection;
+    type Properties = EventSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
     }
@@ -88,7 +98,7 @@ impl Select for Get {
     }
 }
 impl Expand for Get {
-    type Properties = MailFolderExpand;
+    type Properties = EventExpand;
     fn expand<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.expansion.expand(properties);
     }
@@ -128,7 +138,7 @@ impl TryFrom<&str> for GetDelta {
 }
 impl Operation for GetDelta {
     const METHOD: Method = Method::GET;
-    type Response = DeltaResponse<MailFolder>;
+    type Response = DeltaResponse<Event>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut request = http::Request::builder()
             .uri(&self.token)

@@ -4,7 +4,7 @@
 
 use std::sync::Arc;
 
-use ms_graph_tb::{OperationBody, notnull, paths::me, types::mail_folder::MailFolder};
+use ms_graph_tb::{OperationBody, notnull, paths::users::user_id, types::mail_folder::MailFolder};
 use protocol_shared::{
     ServerType,
     client::DoOperation,
@@ -35,8 +35,9 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             display_name: notnull!(self.folder_name.clone()),
             ..Default::default()
         };
-        let request = me::mail_folders::mail_folder_id::Patch::new(
+        let request = user_id::mail_folders::mail_folder_id::Patch::new(
             client.base_api_url()?.to_string(),
+            client.user_id().clone(),
             self.folder_id.clone(),
             OperationBody::JSON(patch_body),
         );

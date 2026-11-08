@@ -4,7 +4,7 @@
 
 use std::sync::Arc;
 
-use ms_graph_tb::{OperationBody, paths::me::messages};
+use ms_graph_tb::{OperationBody, paths::users::user_id::messages};
 use nsstring::nsCString;
 use protocol_shared::{
     ServerType,
@@ -49,6 +49,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 
                 messages::message_id::copy::Post::new(
                     base_api_url.to_string(),
+                    client.user_id().clone(),
                     message_id.clone(),
                     OperationBody::JSON(body),
                 )

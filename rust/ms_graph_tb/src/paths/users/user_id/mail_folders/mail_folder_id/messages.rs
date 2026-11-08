@@ -4,52 +4,56 @@
 
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
-#![doc = "Provides operations to manage the messages property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-pub mod copy;
-pub mod r#move;
-pub mod send;
-pub mod value;
-use crate::odata::{ExpansionList, Selection};
+#![doc = "Provides operations to manage the messages property of the microsoft.graph.mailFolder entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+pub mod delta;
+use crate::odata::{ExpansionList, FilterExpression, FilterQuery, Selection};
+use crate::pagination::Paginated;
 use crate::types::message::{Message, MessageExpand, MessageSelection};
-use crate::{Error, Expand, Operation, OperationBody, Select};
+use crate::types::message_collection_response::MessageCollectionResponse;
+use crate::{Error, Expand, Filter, Operation, OperationBody, Select};
 use form_urlencoded::Serializer;
 use http::method::Method;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
-    message_id: String,
+    user_id: String,
+    mail_folder_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
     let TemplateExpressions {
         endpoint,
-        message_id,
+        user_id,
+        mail_folder_id,
     } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/messages/{message_id}")
+    format!("{endpoint}/users/{user_id}/mailFolders/{mail_folder_id}/messages")
 }
-#[doc = "Get eventMessage\n\nGet the properties and relationships of the eventMessage object. Apply the `$expand` parameter on the event navigation property to get the associated event in an attendee's calendar. Currently, this operation returns event message bodies in only HTML format.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/eventmessage-get?view=graph-rest-1.0)."]
+#[doc = "Get messages from users\n\nThe collection of messages in the mailFolder."]
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,
     selection: Selection<MessageSelection>,
     expansion: ExpansionList<MessageExpand>,
+    filter: FilterQuery,
 }
 impl Get {
     #[must_use]
-    pub fn new(endpoint: String, message_id: String) -> Self {
+    pub fn new(endpoint: String, user_id: String, mail_folder_id: String) -> Self {
         Self {
             template_expressions: TemplateExpressions {
                 endpoint,
-                message_id,
+                user_id,
+                mail_folder_id,
             },
             selection: Selection::default(),
             expansion: ExpansionList::default(),
+            filter: FilterQuery::default(),
         }
     }
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Response = Message;
+    type Response = Paginated<MessageCollectionResponse>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         if let Some((select, selection)) = self.selection.pair() {
@@ -57,6 +61,9 @@ impl Operation for Get {
         }
         if let Some((expand, expansion)) = self.expansion.pair() {
             params.append_pair(expand, &expansion);
+        }
+        if let Some((filter, expression)) = self.filter.pair() {
+            params.append_pair(filter, &expression);
         }
         let params = params.finish();
         let path = format_path(&self.template_expressions);
@@ -90,28 +97,39 @@ impl Expand for Get {
         self.expansion.extend(properties);
     }
 }
-#[doc = "Update eventMessage\n\nUpdate the properties of an eventMessage object.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/eventmessage-update?view=graph-rest-1.0)."]
+impl Filter for Get {
+    fn filter(&mut self, expression: FilterExpression) {
+        self.filter.set(expression);
+    }
+}
+#[doc = "Create new navigation property to messages for users"]
 #[derive(Debug)]
-pub struct Patch {
+pub struct Post {
     template_expressions: TemplateExpressions,
     body: OperationBody<Message>,
     selection: Selection<MessageSelection>,
 }
-impl Patch {
+impl Post {
     #[must_use]
-    pub fn new(endpoint: String, message_id: String, body: OperationBody<Message>) -> Self {
+    pub fn new(
+        endpoint: String,
+        user_id: String,
+        mail_folder_id: String,
+        body: OperationBody<Message>,
+    ) -> Self {
         Self {
             template_expressions: TemplateExpressions {
                 endpoint,
-                message_id,
+                user_id,
+                mail_folder_id,
             },
             body,
             selection: Selection::default(),
         }
     }
 }
-impl Operation for Patch {
-    const METHOD: Method = Method::PATCH;
+impl Operation for Post {
+    const METHOD: Method = Method::POST;
     type Response = Message;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
@@ -141,40 +159,12 @@ impl Operation for Patch {
         Ok(request)
     }
 }
-impl Select for Patch {
+impl Select for Post {
     type Properties = MessageSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties);
     }
     fn extend_selection<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.extend(properties);
-    }
-}
-#[doc = "Delete eventMessage\n\nDelete eventMessage.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/eventmessage-delete?view=graph-rest-1.0)."]
-#[derive(Debug)]
-pub struct Delete {
-    template_expressions: TemplateExpressions,
-}
-impl Delete {
-    #[must_use]
-    pub fn new(endpoint: String, message_id: String) -> Self {
-        Self {
-            template_expressions: TemplateExpressions {
-                endpoint,
-                message_id,
-            },
-        }
-    }
-}
-impl Operation for Delete {
-    const METHOD: Method = Method::DELETE;
-    type Response = ();
-    fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
-        let uri = format_path(&self.template_expressions)
-            .parse::<http::uri::Uri>()
-            .unwrap();
-        let request = http::Request::builder().uri(uri).method(Self::METHOD);
-        let request = request.body(vec![])?;
-        Ok(request)
     }
 }

@@ -52,8 +52,9 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
             .message_ids
             .iter()
             .map(|message_id| {
-                paths::me::messages::message_id::Patch::new(
+                paths::users::user_id::messages::message_id::Patch::new(
                     base_api_url.to_string(),
+                    client.user_id().clone(),
                     message_id.clone(),
                     OperationBody::JSON(message_update.clone()),
                 )
