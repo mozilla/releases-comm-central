@@ -8,5 +8,8 @@ prefs = [
 ]
 subsuite = "thunderbird"
 
+["browser_axeHelpers.js"]
+support-files = ["html/axeHelpers.xhtml"]
+
 ["browser_extensionSupport.js"]
 support-files = ["html/collections.html"]

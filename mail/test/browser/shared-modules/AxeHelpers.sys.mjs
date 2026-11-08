@@ -37,6 +37,7 @@ const CONTENT_BROWSER_DEFAULT_AXE_OPTIONS = {
 let axeSourcePromise;
 let axeWatcherCount = 0;
 const axeWindowProperties = new WeakMap();
+const shadowEventDocuments = new WeakMap();
 
 /**
  * Get the active build conditions that should disable axe checks.
@@ -246,14 +247,18 @@ function restoreAxeWindowProperty(win) {
 }
 
 /**
- * Wait for Fluent localization to finish translating a chrome document.
+ * Waits for Fluent localization to finish translating a chrome document.
  *
  * @param {Window} win Chrome window containing the document to wait for.
+ * @param {object} [options] Localization wait options.
+ * @param {boolean} [options.forceTranslation=true] Whether to translate all roots.
  *
  * @returns {Promise<void>}
  */
-async function waitForFluent(win) {
-  const l10n = win.document?.l10n;
+async function waitForFluent(win, { forceTranslation = true } = {}) {
+  const doc = win.document;
+  const l10n = doc?.l10n;
+
   if (!l10n) {
     return;
   }
@@ -261,9 +266,16 @@ async function waitForFluent(win) {
   if (l10n.ready?.then) {
     await l10n.ready;
   }
-  if (typeof l10n.translateRoots == "function") {
+  if (forceTranslation && typeof l10n.translateRoots == "function") {
     await l10n.translateRoots();
   }
+
+  while (!forceTranslation && doc.hasPendingL10nMutations) {
+    await new Promise(resolve =>
+      doc.addEventListener("L10nMutationsFinished", resolve, { once: true })
+    );
+  }
+
   await new Promise(win.requestAnimationFrame);
 }
 
@@ -609,6 +621,183 @@ function getMutationObserverOptions(options = {}) {
 }
 
 /**
+ * Observes mutations in a container and its open shadow roots.
+ *
+ * Exported so the content watcher can load this helper inside its spawned task.
+ * The caller must call disconnect() before releasing the watched document.
+ *
+ * @param {Window} win - Privileged window reference for event registration.
+ * @param {Element} container - Container whose mutations trigger checks.
+ * @param {object} options - MutationObserver options from the caller.
+ * @param {function(number): void} onMutation - Receives the mutation count.
+ * @returns {{disconnect: function(): void}} Observation cleanup handle.
+ */
+export function observeAxeMutations(win, container, options, onMutation) {
+  win = Cu.unwaiveXrays(win);
+  container = Cu.unwaiveXrays(container);
+  const doc = win.document;
+  const roots = new Set();
+  // Discover inserted hosts even when the caller only requests attribute or
+  // text changes. Filter these discovery-only records before scheduling axe.
+  const observationOptions = options.subtree
+    ? { ...options, childList: true }
+    : options;
+  let stopped = false;
+
+  /**
+   * Returns whether a node belongs to the container through open shadow roots.
+   *
+   * @param {Node} node - Node to check.
+   * @returns {boolean} Whether the node is in the observed scope.
+   */
+  function contains(node) {
+    while (node) {
+      if (node == container || (options.subtree && container.contains(node))) {
+        return true;
+      }
+
+      const root = node.getRootNode();
+
+      if (!options.subtree || !root.host || root.mode != "open") {
+        return false;
+      }
+
+      node = root.host;
+    }
+
+    return false;
+  }
+
+  /**
+   * Adds observations for open roots in a newly discovered subtree.
+   *
+   * @param {Node} node - Subtree to inspect.
+   */
+  function discover(node) {
+    if (
+      !options.subtree ||
+      (node.nodeType != node.ELEMENT_NODE && !node.host)
+    ) {
+      return;
+    }
+
+    const root = node.shadowRoot;
+
+    if (root) {
+      if (!roots.has(root)) {
+        roots.add(root);
+        observer.observe(root, observationOptions);
+      }
+
+      discover(root);
+    }
+
+    for (const child of node.children) {
+      discover(child);
+    }
+  }
+
+  const observer = new win.MutationObserver(mutations => {
+    if (stopped) {
+      return;
+    }
+
+    const relevant = mutations.filter(mutation => contains(mutation.target));
+
+    for (const mutation of relevant) {
+      for (const node of mutation.addedNodes) {
+        discover(node);
+      }
+    }
+
+    const requested = relevant.filter(
+      mutation => mutation.type != "childList" || options.childList
+    );
+
+    if (requested.length) {
+      onMutation(requested.length);
+    }
+  });
+
+  // Validate the caller's options before adding discovery observations.
+  observer.observe(container, options);
+  observer.observe(container, observationOptions);
+  discover(container);
+
+  // Attaching a shadow root does not produce a childList mutation. Gecko's
+  // privileged event also covers attachments made without calling a JS wrapper.
+  function onShadowRootAttached(event) {
+    // The target can be retargeted to an outer host for nested shadow roots.
+    const host = event.originalTarget;
+
+    if (!options.subtree || stopped || !host.shadowRoot || !contains(host)) {
+      return;
+    }
+
+    discover(host);
+
+    // Discover the root even if the caller excludes structural changes.
+    if (!options.childList) {
+      return;
+    }
+
+    onMutation(1);
+  }
+
+  const eventTarget = win.docShell.chromeEventHandler ?? win;
+
+  try {
+    eventTarget.addEventListener(
+      "shadowrootattached",
+      onShadowRootAttached,
+      true
+    );
+  } catch (error) {
+    observer.disconnect();
+
+    throw error;
+  }
+
+  let documentState = shadowEventDocuments.get(doc);
+
+  if (!documentState) {
+    documentState = {
+      enabled: doc.devToolsAnonymousAndShadowEventsEnabled,
+      users: 0,
+    };
+    shadowEventDocuments.set(doc, documentState);
+    doc.devToolsAnonymousAndShadowEventsEnabled = true;
+  }
+
+  documentState.users++;
+
+  return {
+    disconnect() {
+      if (stopped) {
+        return;
+      }
+
+      stopped = true;
+      observer.disconnect();
+      roots.clear();
+
+      eventTarget.removeEventListener(
+        "shadowrootattached",
+        onShadowRootAttached,
+        true
+      );
+
+      documentState.users--;
+
+      if (!documentState.users) {
+        doc.devToolsAnonymousAndShadowEventsEnabled = documentState.enabled;
+        shadowEventDocuments.delete(doc);
+      }
+    },
+  };
+}
+
+/**
  * Resolve the throttle interval for axe mutation watchers.
  *
  * @param {object} [options={}] Watcher options.
@@ -817,12 +1006,14 @@ export async function startAxeMutationObserver(targetBrowser, options = {}) {
     }
 
     /**
-     * Wait for Fluent localization to finish translating the content document.
+     * Waits for pending Fluent translations without starting new mutations.
      *
      * @returns {Promise<void>}
      */
     async function waitForWatcherFluent() {
-      const l10n = win.document?.l10n;
+      const doc = content.document;
+      const l10n = doc.l10n;
+
       if (!l10n) {
         return;
       }
@@ -830,9 +1021,14 @@ export async function startAxeMutationObserver(targetBrowser, options = {}) {
       if (l10n.ready?.then) {
         await l10n.ready;
       }
-      if (typeof l10n.translateRoots == "function") {
-        await l10n.translateRoots();
+
+      // Forcing translation would make this watcher trigger another check.
+      while (doc.hasPendingL10nMutations) {
+        await new Promise(resolve =>
+          doc.addEventListener("L10nMutationsFinished", resolve, { once: true })
+        );
       }
+
       await new Promise(resolve => win.requestAnimationFrame(() => resolve()));
     }
 
@@ -989,14 +1185,21 @@ export async function startAxeMutationObserver(targetBrowser, options = {}) {
       return summarize(state);
     };
 
-    state.observer = new win.MutationObserver(mutations => {
-      state.mutationCount += mutations.length;
-      state.schedule("mutation");
-    });
-    state.observer.observe(
+    const { observeAxeMutations: observeContentMutations } =
+      ChromeUtils.importESModule(
+        "resource://testing-common/mail/AxeHelpers.sys.mjs"
+      );
+
+    state.observer = observeContentMutations(
+      content,
       resolveObservedNode(),
-      watcherData.mutationObserverOptions
+      watcherData.mutationObserverOptions,
+      count => {
+        state.mutationCount += count;
+        state.schedule("mutation");
+      }
     );
+
     watchers[watcherData.id] = state;
 
     await state.run("initial");
@@ -1192,7 +1395,8 @@ export async function startAxeMutationObserverInWindow(win, options = {}) {
       state.lastRunAt = win.Date.now();
       state.runCount++;
       try {
-        await waitForFluent(win);
+        // Forcing translation would make this watcher trigger another check.
+        await waitForFluent(win, { forceTranslation: false });
         const results = await win.axe.run(
           runContext ?? win.document,
           axeOptions
@@ -1255,13 +1459,16 @@ export async function startAxeMutationObserverInWindow(win, options = {}) {
     }, delay);
   };
 
-  state.observer = new win.MutationObserver(mutations => {
-    state.mutationCount += mutations.length;
-    state.schedule("mutation");
-  });
-  state.observer.observe(resolveWindowObservedNode(win, options), {
-    ...getMutationObserverOptions(options),
-  });
+  state.observer = observeAxeMutations(
+    win,
+    resolveWindowObservedNode(win, options),
+    getMutationObserverOptions(options),
+    count => {
+      state.mutationCount += count;
+      state.schedule("mutation");
+    }
+  );
+
   await state.run("initial");
 
   let finished = false;

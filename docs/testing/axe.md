@@ -135,6 +135,12 @@ current report before the end of the test.
 The watcher uses a throttle, not a debounce. While mutations continue, checks
 are scheduled at most once per `throttleMs` interval. The default is 10 ms.
 
+The watcher also observes open shadow roots inside the container, including
+nested roots, roots in added elements, and roots attached after startup. Shadow
+changes use the same throttled checks. Closed shadow roots are excluded.
+`finish()` disconnects the mutation observer and removes the shadow-attachment
+listener before running the final check.
+
 ## Context and Container
 
 `context` controls what axe scans. `container` controls what the mutation
@@ -175,9 +181,11 @@ await checkAxe(tab.browser, {
 ## Fluent and Build Skips
 
 The helpers wait for Fluent localization before every axe run. When a document
-has `document.l10n`, the helper waits for `l10n.ready`, calls
-`translateRoots()`, and waits for a frame so translated strings are present in
-the DOM before axe scans it.
+has `document.l10n`, one-off audits wait for `l10n.ready`, call
+`translateRoots()`, and wait for a frame before scanning. Mutation watchers wait
+for `l10n.ready`, pending translations, and a frame without calling
+`translateRoots()`. Forcing translation on every watcher check would replace
+localized text and trigger another check, even when the text stays the same.
 
 Axe checks are skipped on debug, ASan, TSan, and code coverage builds. The
 helpers return empty skipped results in those configurations so the same test can
