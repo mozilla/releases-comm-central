@@ -11,7 +11,10 @@ add_setup(async () => {
   const url =
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
   await SpecialPowers.pushPrefEnv({
-    set: [[PREF_NAME, url]],
+    set: [
+      [PREF_NAME, url],
+      ["mail.shell.checkDefaultClient", false],
+    ],
   });
 });
 
@@ -294,8 +297,6 @@ add_task(async function test_account_hub_header_branding() {
 
   IMAPServer.close();
   SMTPServer.close();
-
-  await SpecialPowers.popPrefEnv();
 
   const closeButton = header.shadowRoot.querySelector("#closeButton");
   const closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
