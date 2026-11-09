@@ -235,15 +235,15 @@ void nsImapOfflineSync::ProcessFlagOperation(nsIMsgOfflineImapOperation* op) {
     }
     currentOp = nullptr;
     imapMessageFlagsType newFlags = kNoImapMsgFlag;
-    imapMessageFlagsType flagOperation = kNoImapMsgFlag;
+    nsOfflineImapOperationType operation = 0;
     if (++currentKeyIndex < m_CurrentKeys.Length())
       m_currentDB->GetOfflineOpForKey(m_CurrentKeys[currentKeyIndex], false,
                                       getter_AddRefs(currentOp));
     if (currentOp) {
-      currentOp->GetFlagOperation(&flagOperation);
+      currentOp->GetOperation(&operation);
       currentOp->GetNewFlags(&newFlags);
     }
-    flagsMatch = (flagOperation & nsIMsgOfflineImapOperation::kFlagsChanged) &&
+    flagsMatch = (operation & nsIMsgOfflineImapOperation::kFlagsChanged) &&
                  (newFlags == matchingFlags);
   } while (currentOp);
 

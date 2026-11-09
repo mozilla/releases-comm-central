@@ -6,6 +6,7 @@
 #include "nsMailDatabase.h"
 #include "nsDBFolderInfo.h"
 #include "nsError.h"
+#include "nsImapCore.h" // For kImapMsgDeletedFlag
 #include "nsNetUtil.h"
 #include "nsMsgOfflineImapOperation.h"
 #include "nsMsgFolderFlags.h"
@@ -279,7 +280,7 @@ NS_IMETHODIMP nsMailDatabase::ListAllOfflineDeletes(
       offlineOp->GetNewFlags(&newFlags);
       if (opType & nsIMsgOfflineImapOperation::kMsgMoved ||
           ((opType & nsIMsgOfflineImapOperation::kFlagsChanged) &&
-           (newFlags & nsIMsgOfflineImapOperation::kMsgMarkedDeleted)))
+           (newFlags & kImapMsgDeletedFlag)))
         offlineDeletes.AppendElement(outOid.mOid_Id);
 
       offlineOpRow->Release();
