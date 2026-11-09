@@ -144,8 +144,8 @@ interface nsIMsgOfflineImapOperation : nsISupports
   // Set for kMoveResult ops.
   readonly attribute AUTF8String moveSourceFolderUri;
 
-  readonly attribute string keywordsToAdd;
-  readonly attribute string keywordsToRemove;
+  readonly attribute AUTF8String keywordsToAdd;
+  readonly attribute AUTF8String keywordsToRemove;
 
   // Copy destination list is separate from `.destinationFolderURI`,
   // which is only for moves and appends.
@@ -158,7 +158,7 @@ interface nsIMsgOfflineImapOperation : nsISupports
   // clear multiple copies would ever work properly. It's hard to tell if
   // this is a bug or some historical quirk we rely on...
   // In any case, copying the same message to multiple folders must be rare.
-  string getCopyDestination(in long copyIndex);
+  AUTF8String getCopyDestination(in long copyIndex);
 
   attribute unsigned long msgSize;
 

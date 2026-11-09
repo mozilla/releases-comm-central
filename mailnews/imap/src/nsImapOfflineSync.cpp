@@ -277,9 +277,9 @@ void nsImapOfflineSync::ProcessKeywordOperation(
 
   nsAutoCString keywords;
   if (mCurrentPlaybackOpType == nsIMsgOfflineImapOperation::kAddKeywords)
-    currentOp->GetKeywordsToAdd(getter_Copies(keywords));
+    currentOp->GetKeywordsToAdd(keywords);
   else
-    currentOp->GetKeywordsToRemove(getter_Copies(keywords));
+    currentOp->GetKeywordsToRemove(keywords);
   bool keywordsMatch = true;
   do {  // loop for all messages with the same keywords
     if (keywordsMatch) {
@@ -298,9 +298,9 @@ void nsImapOfflineSync::ProcessKeywordOperation(
       nsOfflineImapOperationType operation;
       currentOp->GetOperation(&operation);
       if (mCurrentPlaybackOpType == nsIMsgOfflineImapOperation::kAddKeywords)
-        currentOp->GetKeywordsToAdd(getter_Copies(curOpKeywords));
+        currentOp->GetKeywordsToAdd(curOpKeywords);
       else
-        currentOp->GetKeywordsToRemove(getter_Copies(curOpKeywords));
+        currentOp->GetKeywordsToRemove(curOpKeywords);
       keywordsMatch = (operation & mCurrentPlaybackOpType) &&
                       (curOpKeywords.Equals(keywords));
     }
@@ -549,7 +549,7 @@ void nsImapOfflineSync::ProcessCopyOperation(
   nsTArray<nsMsgKey> matchingFlagKeys;
   uint32_t currentKeyIndex = m_KeyIndex;
   nsCString copyDestination;
-  currentOp->GetCopyDestination(0, getter_Copies(copyDestination));
+  currentOp->GetCopyDestination(0, copyDestination);
   bool copyMatches = true;
   nsresult rv;
 
@@ -572,7 +572,7 @@ void nsImapOfflineSync::ProcessCopyOperation(
         nsOfflineImapOperationType opType;
         currentOp->GetOperation(&opType);
         if (opType & nsIMsgOfflineImapOperation::kMsgCopy) {
-          currentOp->GetCopyDestination(0, getter_Copies(nextDestination));
+          currentOp->GetCopyDestination(0, nextDestination);
           copyMatches = copyDestination.Equals(nextDestination);
         }
       }

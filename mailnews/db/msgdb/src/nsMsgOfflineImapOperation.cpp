@@ -6,6 +6,7 @@
 #include "MailNewsTypes.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Logging.h"
+#include "nsStringFwd.h"
 
 using namespace mozilla;
 
@@ -238,19 +239,19 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetMoveSourceFolderUri(
 }
 
 /* attribute string keyword; */
-NS_IMETHODIMP nsMsgOfflineImapOperation::GetKeywordsToAdd(char** aKeywords) {
-  NS_ENSURE_ARG(aKeywords);
+NS_IMETHODIMP nsMsgOfflineImapOperation::GetKeywordsToAdd(
+    nsACString& keywords) {
   nsresult rv = m_mdb->GetProperty(m_mdbRow, PROP_KEYWORD_ADD,
                                    getter_Copies(m_keywordsToAdd));
-  *aKeywords = ToNewCString(m_keywordsToAdd);
+  keywords = m_keywordsToAdd;
   return rv;
 }
 
-NS_IMETHODIMP nsMsgOfflineImapOperation::GetKeywordsToRemove(char** aKeywords) {
-  NS_ENSURE_ARG(aKeywords);
+NS_IMETHODIMP nsMsgOfflineImapOperation::GetKeywordsToRemove(
+    nsACString& keywords) {
   nsresult rv = m_mdb->GetProperty(m_mdbRow, PROP_KEYWORD_REMOVE,
                                    getter_Copies(m_keywordsToRemove));
-  *aKeywords = ToNewCString(m_keywordsToRemove);
+  keywords = m_keywordsToRemove;
   return rv;
 }
 
@@ -317,15 +318,14 @@ nsresult nsMsgOfflineImapOperation::SetCopiesToDB() {
 }
 
 /* string getCopyDestination (in long copyIndex); */
-NS_IMETHODIMP nsMsgOfflineImapOperation::GetCopyDestination(int32_t copyIndex,
-                                                            char** retval) {
-  NS_ENSURE_ARG(retval);
+NS_IMETHODIMP nsMsgOfflineImapOperation::GetCopyDestination(
+    int32_t copyIndex, nsACString& retval) {
   nsresult rv = GetCopiesFromDB();
   NS_ENSURE_SUCCESS(rv, rv);
   if (copyIndex >= (int32_t)m_copyDestinations.Length())
     return NS_ERROR_ILLEGAL_VALUE;
-  *retval = ToNewCString(m_copyDestinations.ElementAt(copyIndex));
-  return (*retval) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
+  retval = m_copyDestinations.ElementAt(copyIndex);
+  return NS_OK;
 }
 
 /* attribute unsigned log msgSize; */
@@ -404,8 +404,8 @@ nsCString format_as(const nsIMsgOfflineImapOperation& offlineOp) {
   op->GetNewFlags(&newFlags);
   op->GetDestinationFolderURI(destinationFolderURI);
   op->GetMoveSourceFolderUri(moveSourceFolderUri);
-  op->GetKeywordsToAdd(getter_Copies(keywordsToAdd));
-  op->GetKeywordsToRemove(getter_Copies(keywordsToRemove));
+  op->GetKeywordsToAdd(keywordsToAdd);
+  op->GetKeywordsToRemove(keywordsToRemove);
   op->GetMsgSize(&msgSize);
   op->GetPlayingBack(&playingBack);
 
@@ -415,7 +415,7 @@ nsCString format_as(const nsIMsgOfflineImapOperation& offlineOp) {
   int i = 0;
   while (true) {
     nsAutoCString uri;
-    nsresult rv = op->GetCopyDestination(i, getter_Copies(uri));
+    nsresult rv = op->GetCopyDestination(i, uri);
     if (NS_FAILED(rv)) {
       break;
     }
