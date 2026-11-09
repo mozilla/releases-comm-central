@@ -132,8 +132,8 @@ xpcshell:
                     - profiler-node-tools
                     - win32-fix-stacks
                     - win32-minidump-stackwalk
-                    - win32-node
                     - win32-samply
+                    - win64-node
                 default: []
 
 mochitest-thunderbird:
@@ -247,6 +247,6 @@ mochitest-thunderbird:
                     - profiler-node-tools
                     - win32-fix-stacks
                     - win32-minidump-stackwalk
-                    - win32-node
                     - win32-samply
+                    - win64-node
                 default: []

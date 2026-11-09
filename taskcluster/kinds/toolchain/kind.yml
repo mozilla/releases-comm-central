@@ -100,7 +100,6 @@ reference-tasks:
     - win32-compiler-rt-22
     - win32-fix-stacks
     - win32-minidump-stackwalk
-    - win32-node
     - win32-samply
     - win64-7zz
     - win64-aarch64-compiler-rt-22
