@@ -60,7 +60,7 @@ interface nsIMsgOfflineImapOperation : nsISupports
   const long kRemoveKeywords    = 0x800;
 
   // Bitflags indicating which operation(s) this represents.
-  attribute nsOfflineImapOperationType operation;
+  readonly attribute nsOfflineImapOperationType operation;
 
   /**
    * Add a kFlagsChanged op.

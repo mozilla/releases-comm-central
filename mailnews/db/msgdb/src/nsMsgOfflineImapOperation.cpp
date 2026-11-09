@@ -64,11 +64,7 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetOperation(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgOfflineImapOperation::SetOperation(
-    nsOfflineImapOperationType aOperation) {
-  return AddOperation(aOperation);
-}
-
+// Internal helper for setting an operation bitflag.
 nsresult nsMsgOfflineImapOperation::AddOperation(
     nsOfflineImapOperationType operation) {
   MOZ_LOG(IMAPOffline, LogLevel::Info,
