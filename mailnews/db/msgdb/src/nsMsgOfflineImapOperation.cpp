@@ -38,7 +38,6 @@ nsMsgOfflineImapOperation::nsMsgOfflineImapOperation(nsMsgDatabase* db,
   NS_ASSERTION(db, "can't have null db");
   NS_ASSERTION(row, "can't have null row");
   m_operation = 0;
-  m_operationFlags = 0;
   m_messageKey = nsMsgKey_None;
   m_mdb = db;
   NS_ADDREF(m_mdb);
@@ -47,8 +46,6 @@ nsMsgOfflineImapOperation::nsMsgOfflineImapOperation(nsMsgDatabase* db,
   m_mdb->GetUint32Property(m_mdbRow, PROP_OPERATION, (uint32_t*)&m_operation,
                            0);
   m_mdb->GetUint32Property(m_mdbRow, PROP_MESSAGE_KEY, &m_messageKey, 0);
-  m_mdb->GetUint32Property(m_mdbRow, PROP_OPERATION_FLAGS, &m_operationFlags,
-                           0);
   m_mdb->GetUint32Property(m_mdbRow, PROP_NEW_FLAGS, (uint32_t*)&m_newFlags, 0);
 }
 
@@ -79,6 +76,13 @@ nsresult nsMsgOfflineImapOperation::AddOperation(
            operation));
   m_operation |= operation;
   return m_mdb->SetUint32Property(m_mdbRow, PROP_OPERATION, m_operation);
+}
+
+NS_IMETHODIMP nsMsgOfflineImapOperation::SetFlagsChangedOp(
+    imapMessageFlagsType imapFlags) {
+  MOZ_TRY(AddOperation(kFlagsChanged));
+  MOZ_TRY(SetNewFlags(imapFlags));
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgOfflineImapOperation::SetMsgMovedOp() {
@@ -186,28 +190,6 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetSrcUid(ImapUid* uid) {
 
 NS_IMETHODIMP nsMsgOfflineImapOperation::SetSrcUid(ImapUid uid) {
   return m_mdb->SetUint32Property(m_mdbRow, PROP_SRC_UID, (uint32_t)uid);
-}
-
-/* attribute imapMessageFlagsType flagOperation; */
-NS_IMETHODIMP nsMsgOfflineImapOperation::GetFlagOperation(
-    imapMessageFlagsType* aFlagOperation) {
-  NS_ENSURE_ARG(aFlagOperation);
-  *aFlagOperation = m_operationFlags;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgOfflineImapOperation::SetFlagOperation(
-    imapMessageFlagsType aFlagOperation) {
-  if (MOZ_LOG_TEST(IMAPOffline, LogLevel::Info))
-    MOZ_LOG(IMAPOffline, LogLevel::Info,
-            ("msg id %x setFlagOperation was %x add %x", m_messageKey,
-             m_operationFlags, aFlagOperation));
-  SetOperation(kFlagsChanged);
-  nsresult rv = SetNewFlags(aFlagOperation);
-  NS_ENSURE_SUCCESS(rv, rv);
-  m_operationFlags |= aFlagOperation;
-  return m_mdb->SetUint32Property(m_mdbRow, PROP_OPERATION_FLAGS,
-                                  m_operationFlags);
 }
 
 /* attribute imapMessageFlagsType flagOperation; */
@@ -410,7 +392,6 @@ nsCString format_as(const nsIMsgOfflineImapOperation& offlineOp) {
   nsMsgKey messageKey;
   nsMsgKey srcMessageKey;
   ImapUid srcUid;
-  imapMessageFlagsType flagOperation;
   imapMessageFlagsType newFlags;
 
   nsAutoCString destinationFolderURI;
@@ -424,7 +405,6 @@ nsCString format_as(const nsIMsgOfflineImapOperation& offlineOp) {
   op->GetMessageKey(&messageKey);
   op->GetSrcMessageKey(&srcMessageKey);
   op->GetSrcUid(&srcUid);
-  op->GetFlagOperation(&flagOperation);
   op->GetNewFlags(&newFlags);
   op->GetDestinationFolderURI(destinationFolderURI);
   op->GetMoveSourceFolderUri(moveSourceFolderUri);
@@ -457,9 +437,6 @@ nsCString format_as(const nsIMsgOfflineImapOperation& offlineOp) {
   }
   if (srcUid != 0) {
     fragments.AppendElement(fmt::format("srcUid={}", srcUid));
-  }
-  if (flagOperation) {
-    fragments.AppendElement(fmt::format("flagOperation={}", flagOperation));
   }
   if (newFlags) {
     fragments.AppendElement(fmt::format("newFlags={}", newFlags));

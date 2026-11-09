@@ -3851,7 +3851,8 @@ NS_IMETHODIMP nsImapMailFolder::StoreImapFlags(int32_t flags, bool addFlags,
         if (NS_SUCCEEDED(rv) && op) {
           imapMessageFlagsType newFlags;
           op->GetNewFlags(&newFlags);
-          op->SetFlagOperation(addFlags ? newFlags | flags : newFlags & ~flags);
+          op->SetFlagsChangedOp(addFlags ? newFlags | flags
+                                         : newFlags & ~flags);
         }
       }
       mDatabase->Commit(

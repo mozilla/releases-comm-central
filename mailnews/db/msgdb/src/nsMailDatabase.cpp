@@ -6,7 +6,7 @@
 #include "nsMailDatabase.h"
 #include "nsDBFolderInfo.h"
 #include "nsError.h"
-#include "nsImapCore.h" // For kImapMsgDeletedFlag
+#include "nsImapCore.h"  // For kImapMsgDeletedFlag
 #include "nsNetUtil.h"
 #include "nsMsgOfflineImapOperation.h"
 #include "nsMsgFolderFlags.h"
@@ -168,6 +168,8 @@ NS_IMETHODIMP nsMailDatabase::GetOfflineOpForKey(
     }
     if (!hasOid && m_dbFolderInfo) {
       // set initial value for flags so we don't lose them.
+      // NOTE: Treat this with skepticism. Message flags are not the same
+      // as IMAP flags (except possibly the first 3 bits).
       nsCOMPtr<nsIMsgDBHdr> msgHdr;
       GetMsgHdrForKey(msgKey, getter_AddRefs(msgHdr));
       if (msgHdr) {

@@ -616,9 +616,9 @@ NS_IMETHODIMP nsImapOfflineTxn::RedoTransaction(void) {
           imapMessageFlagsType newMsgFlags;
           op->GetNewFlags(&newMsgFlags);
           if (m_addFlags)
-            op->SetFlagOperation(newMsgFlags | m_flags);
+            op->SetFlagsChangedOp(newMsgFlags | m_flags);
           else
-            op->SetFlagOperation(newMsgFlags & ~m_flags);
+            op->SetFlagsChangedOp(newMsgFlags & ~m_flags);
         }
       }
       break;

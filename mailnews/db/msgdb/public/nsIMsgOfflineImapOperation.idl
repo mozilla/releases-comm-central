@@ -63,6 +63,12 @@ interface nsIMsgOfflineImapOperation : nsISupports
   attribute nsOfflineImapOperationType operation;
 
   /**
+   * Add a kFlagsChanged op.
+   * The .newFlags attr will be set to imapFlags.
+   */
+  void setFlagsChangedOp(in imapMessageFlagsType imapFlags);
+
+  /**
    * Add a kMsgMoved op.
    * NOTE: this should take a dest folder, but current code is a little fuzzy
    * on what params are required, so leaving them as-is for now.
@@ -130,12 +136,6 @@ interface nsIMsgOfflineImapOperation : nsISupports
 
   // For move/copy operations, the UID of the source msg.
   attribute ImapUid srcUid;
-
-  // Writing to `.flagOperation` will:
-  // 1. set `.newFlags`
-  // 2. set the `kFlagsChanged` bit in `.operation`.
-  // 3. use a bitwise OR to add the value to the existing `.flagOperation`.
-  attribute imapMessageFlagsType flagOperation;
 
   attribute imapMessageFlagsType newFlags; // for kFlagsChanged
 
