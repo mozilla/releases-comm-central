@@ -8958,7 +8958,7 @@ nsresult nsImapMailFolder::GetOfflineMsgFolder(nsMsgKey msgKey,
           if (labelNames[i].EqualsLiteral("\"\\\\Trash\""))
             rv = rootFolder->GetFolderWithFlags(nsMsgFolderFlags::Trash,
                                                 getter_AddRefs(subMsgFolder));
-          if (labelNames[i].EqualsLiteral("\"\\\\Spam\""))
+          if (labelNames[i].EqualsLiteral("\"\\\\Junk\""))
             rv = rootFolder->GetFolderWithFlags(nsMsgFolderFlags::Junk,
                                                 getter_AddRefs(subMsgFolder));
           if (labelNames[i].EqualsLiteral("\"\\\\Sent\""))

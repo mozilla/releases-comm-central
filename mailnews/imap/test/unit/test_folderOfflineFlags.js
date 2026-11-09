@@ -38,7 +38,7 @@ add_setup(async function () {
     subscribed: true,
   });
   IMAPPump.daemon.createMailbox("[Gmail]/Spam", {
-    specialUseFlag: "\\Spam",
+    specialUseFlag: "\\Junk",
     subscribed: true,
   });
   IMAPPump.daemon.createMailbox("[Gmail]/Starred", {

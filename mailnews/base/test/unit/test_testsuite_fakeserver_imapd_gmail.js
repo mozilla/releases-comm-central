@@ -37,7 +37,7 @@ add_setup(async function () {
     specialUseFlag: "\\Drafts",
   });
   IMAPPump.daemon.createMailbox("[Gmail]/Sent", { specialUseFlag: "\\Sent" });
-  IMAPPump.daemon.createMailbox("[Gmail]/Spam", { specialUseFlag: "\\Spam" });
+  IMAPPump.daemon.createMailbox("[Gmail]/Spam", { specialUseFlag: "\\Junk" });
   IMAPPump.daemon.createMailbox("[Gmail]/Starred", {
     specialUseFlag: "\\Starred",
   });
@@ -73,7 +73,7 @@ add_task(function testXlist() {
     response.includes('* LIST (\\HasNoChildren \\Sent) "/" "[Gmail]/Sent"')
   );
   Assert.ok(
-    response.includes('* LIST (\\HasNoChildren \\Spam) "/" "[Gmail]/Spam"')
+    response.includes('* LIST (\\HasNoChildren \\Junk) "/" "[Gmail]/Spam"')
   );
   Assert.ok(
     response.includes(

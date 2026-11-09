@@ -140,7 +140,7 @@ export class GmailServer extends IMAPServer {
       subscribed: true,
     });
     this.daemon.createMailbox("[Gmail]/Spam", {
-      flags: ["\\Spam"],
+      flags: ["\\Junk"],
       subscribed: true,
     });
     super.open(["GMAIL", "RFC2197", "RFC2342", "RFC3348", "RFC4315"]);

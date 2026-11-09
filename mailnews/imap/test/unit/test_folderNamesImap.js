@@ -39,7 +39,7 @@ add_task(async function () {
     flags: ["\\Drafts"],
     subscribed: true,
   });
-  server.daemon.createMailbox("Spam", { flags: ["\\Spam"], subscribed: true });
+  server.daemon.createMailbox("Spam", { flags: ["\\Junk"], subscribed: true });
   server.daemon.createMailbox("Archives", {
     flags: ["\\Archive"],
     subscribed: true,
