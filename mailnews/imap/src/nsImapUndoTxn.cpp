@@ -585,7 +585,7 @@ NS_IMETHODIMP nsImapOfflineTxn::RedoTransaction(void) {
         if (NS_SUCCEEDED(rv) && op) {
           nsCString folderURI;
           srcFolder->GetURI(folderURI);
-          op->SetSourceFolderURI(folderURI);
+          op->SetMoveResultOp(folderURI);
         }
       }
       dstFolder->SummaryChanged();

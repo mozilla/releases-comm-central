@@ -3672,7 +3672,7 @@ FindCounterPartOps(nsACString const& srcFolderUri,
     MOZ_TRY(srcOp->GetMessageKey(&srcOpId));
     for (nsIMsgOfflineImapOperation* destOp : destOps) {
       nsAutoCString uri;
-      MOZ_TRY(destOp->GetSourceFolderURI(uri));
+      MOZ_TRY(destOp->GetMoveSourceFolderUri(uri));
       if (!srcFolderUri.Equals(uri)) {
         continue;  // Nope. Some other folder.
       }
@@ -6501,7 +6501,7 @@ nsresult nsImapMailFolder::GetClearedOriginalOp(
                "not an offline move op");
 
   nsCString sourceFolderURI;
-  op->GetSourceFolderURI(sourceFolderURI);
+  op->GetMoveSourceFolderUri(sourceFolderURI);
 
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> sourceFolder;
@@ -6666,7 +6666,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
             if (originalOp) {
               nsCString srcFolderURI;
               srcFolder->GetURI(srcFolderURI);
-              sourceOp->GetSourceFolderURI(originalSrcFolderURI);
+              sourceOp->GetMoveSourceFolderUri(originalSrcFolderURI);
               sourceOp->GetMessageKey(&originalKey);
               if (isMove) sourceMailDB->RemoveOfflineOp(sourceOp);
               sourceOp = originalOp;
@@ -6770,8 +6770,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
                 destDB->RemoveOfflineOp(destOp);
               } else {
                 SetFlag(nsMsgFolderFlags::OfflineEvents);
-                // SetSourceFolderURI() sets the op to kMoveResult.
-                destOp->SetSourceFolderURI(originalSrcFolderURI);
+                destOp->SetMoveResultOp(originalSrcFolderURI);
                 // Attach the key of the source message (in the srcDB).
                 destOp->SetSrcMessageKey(originalKey);
                 addedKeys.AppendElement(fakeKey);
@@ -7646,7 +7645,11 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile* srcFile,
   if (NS_SUCCEEDED(rv) && op) {
     nsCString destFolderUri;
     GetURI(destFolderUri);
-    op->SetOperation(nsIMsgOfflineImapOperation::kMoveResult);
+    // NOTE: This seems wrong. We're setting up a kMoveResult operation
+    // with a (redundant) destination folder and no source folder.
+    // Preserving existing behaviour for now but this could very well be a
+    // bug. See https://bugzilla.mozilla.org/show_bug.cgi?id=2089877
+    op->SetMoveResultOp(""_ns);
     op->SetDestinationFolderURI(destFolderUri);
     SetFlag(nsMsgFolderFlags::OfflineEvents);
   }

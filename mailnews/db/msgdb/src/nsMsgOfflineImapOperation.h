@@ -27,6 +27,8 @@ class nsMsgOfflineImapOperation : public nsIMsgOfflineImapOperation {
                       const char* addProp, nsCString& removeList,
                       const char* removeProp);
 
+  nsresult AddOperation(nsOfflineImapOperationType operation);
+
   nsOfflineImapOperationType m_operation;
   nsMsgKey m_messageKey;
   uint32_t m_operationFlags;        // what to do on sync
@@ -34,7 +36,7 @@ class nsMsgOfflineImapOperation : public nsIMsgOfflineImapOperation {
 
   // these are URI's, and are escaped. Thus, we can use a delimiter like ' '
   // because the real spaces should be escaped.
-  nsCString m_sourceFolder;
+  nsCString m_moveSourceFolderUri;
   nsCString m_moveDestination;
   nsTArray<nsCString> m_copyDestinations;
 

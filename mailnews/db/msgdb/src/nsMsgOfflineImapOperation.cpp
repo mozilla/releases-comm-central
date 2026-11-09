@@ -69,13 +69,25 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetOperation(
 
 NS_IMETHODIMP nsMsgOfflineImapOperation::SetOperation(
     nsOfflineImapOperationType aOperation) {
-  if (MOZ_LOG_TEST(IMAPOffline, LogLevel::Info))
-    MOZ_LOG(IMAPOffline, LogLevel::Info,
-            ("msg id %x setOperation was %x add %x", m_messageKey, m_operation,
-             aOperation));
+  return AddOperation(aOperation);
+}
 
-  m_operation |= aOperation;
+nsresult nsMsgOfflineImapOperation::AddOperation(
+    nsOfflineImapOperationType operation) {
+  MOZ_LOG(IMAPOffline, LogLevel::Info,
+          ("msg id %x setOperation was %x add %x", m_messageKey, m_operation,
+           operation));
+  m_operation |= operation;
   return m_mdb->SetUint32Property(m_mdbRow, PROP_OPERATION, m_operation);
+}
+
+NS_IMETHODIMP nsMsgOfflineImapOperation::SetMoveResultOp(
+    const nsACString& aSourceFolderUri) {
+  m_moveSourceFolderUri = aSourceFolderUri;
+  MOZ_TRY(AddOperation(kMoveResult));
+
+  return m_mdb->SetProperty(m_mdbRow, PROP_SRC_FOLDER_URI,
+                            PromiseFlatCString(aSourceFolderUri).get());
 }
 
 /* void clearOperation (in nsOfflineImapOperationType operation); */
@@ -199,22 +211,13 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::SetDestinationFolderURI(
                             PromiseFlatCString(aDestinationFolderURI).get());
 }
 
-/* attribute string sourceFolderURI; */
-NS_IMETHODIMP nsMsgOfflineImapOperation::GetSourceFolderURI(
-    nsACString& aSourceFolderURI) {
+/* readonly attribute AUTF8String moveSourceFolderUri; */
+NS_IMETHODIMP nsMsgOfflineImapOperation::GetMoveSourceFolderUri(
+    nsACString& aSourceFolderUri) {
   nsresult rv = m_mdb->GetProperty(m_mdbRow, PROP_SRC_FOLDER_URI,
-                                   getter_Copies(m_sourceFolder));
-  aSourceFolderURI = m_sourceFolder;
+                                   getter_Copies(m_moveSourceFolderUri));
+  aSourceFolderUri = m_moveSourceFolderUri;
   return rv;
-}
-
-NS_IMETHODIMP nsMsgOfflineImapOperation::SetSourceFolderURI(
-    const nsACString& aSourceFolderURI) {
-  m_sourceFolder = aSourceFolderURI;
-  SetOperation(kMoveResult);
-
-  return m_mdb->SetProperty(m_mdbRow, PROP_SRC_FOLDER_URI,
-                            PromiseFlatCString(aSourceFolderURI).get());
 }
 
 /* attribute string keyword; */
@@ -396,7 +399,7 @@ nsCString format_as(const nsIMsgOfflineImapOperation& offlineOp) {
   imapMessageFlagsType newFlags;
 
   nsAutoCString destinationFolderURI;
-  nsAutoCString sourceFolderURI;
+  nsAutoCString moveSourceFolderUri;
   nsAutoCString keywordsToAdd;
   nsAutoCString keywordsToRemove;
   uint32_t msgSize;
@@ -409,7 +412,7 @@ nsCString format_as(const nsIMsgOfflineImapOperation& offlineOp) {
   op->GetFlagOperation(&flagOperation);
   op->GetNewFlags(&newFlags);
   op->GetDestinationFolderURI(destinationFolderURI);
-  op->GetSourceFolderURI(sourceFolderURI);
+  op->GetMoveSourceFolderUri(moveSourceFolderUri);
   op->GetKeywordsToAdd(getter_Copies(keywordsToAdd));
   op->GetKeywordsToRemove(getter_Copies(keywordsToRemove));
   op->GetMsgSize(&msgSize);
@@ -449,8 +452,9 @@ nsCString format_as(const nsIMsgOfflineImapOperation& offlineOp) {
   if (!destinationFolderURI.IsEmpty()) {
     fragments.AppendElement(fmt::format("destFolder={}", destinationFolderURI));
   }
-  if (!sourceFolderURI.IsEmpty()) {
-    fragments.AppendElement(fmt::format("srcFolder={}", sourceFolderURI));
+  if (!moveSourceFolderUri.IsEmpty()) {
+    fragments.AppendElement(
+        fmt::format("moveSourceFolderUri={}", moveSourceFolderUri));
   }
   if (!copyDests.IsEmpty()) {
     fragments.AppendElement(

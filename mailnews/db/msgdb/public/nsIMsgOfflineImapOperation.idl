@@ -49,6 +49,7 @@ interface nsIMsgOfflineImapOperation : nsISupports
   const long kMsgCopy           = 0x4;
   const long kMoveResult        = 0x8;
   const long kAppendDraft       = 0x10;
+  /** kAddedHeader not used as an offline op, but is used by nsImapOfflineTxn. */
   const long kAddedHeader       = 0x20;
   const long kDeletedMsg        = 0x40;
   const long kMsgMarkedDeleted  = 0x80;
@@ -60,6 +61,12 @@ interface nsIMsgOfflineImapOperation : nsISupports
 
   // Bitflags indicating which operation(s) this represents.
   attribute nsOfflineImapOperationType operation;
+
+  /**
+   * Add a kMoveResult op.
+   * Sets the .moveSourceFolderUri attr.
+   */
+  void setMoveResultOp(in AUTF8String sourceFolderUri);
 
   // Clears the operation bit passed in.
   // All other operation types are left as-is.
@@ -94,8 +101,8 @@ interface nsIMsgOfflineImapOperation : nsISupports
 
   attribute AUTF8String destinationFolderURI; // for move or append (not copy!)
 
-  // Setting this sets the kMoveResult bitflag in .operation.
-  attribute AUTF8String sourceFolderURI;
+  // Set for kMoveResult ops.
+  readonly attribute AUTF8String moveSourceFolderUri;
 
   // Calling this sets the kAddKeywords bitflag in .operation.
   void addKeywordToAdd(in string aKeyword);
