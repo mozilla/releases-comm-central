@@ -1671,10 +1671,7 @@ nsresult nsImapService::OfflineAppendFromFile(
     if (NS_SUCCEEDED(rv) && op) {
       nsCString destFolderUri;
       aDstFolder->GetURI(destFolderUri);
-      op->SetOperation(
-          nsIMsgOfflineImapOperation::kAppendDraft);  // ### do we care if it's
-                                                      // a template?
-      op->SetDestinationFolderURI(destFolderUri);
+      op->SetAppendDraftOp(destFolderUri);
       nsCOMPtr<nsIOutputStream> outputStream;
       nsCOMPtr<nsIMsgPluggableStore> msgStore;
       nsCOMPtr<nsIMsgIncomingServer> dstServer;

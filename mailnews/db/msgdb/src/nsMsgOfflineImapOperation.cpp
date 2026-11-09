@@ -103,6 +103,13 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::SetMoveResultOp(
                             PromiseFlatCString(aSourceFolderUri).get());
 }
 
+NS_IMETHODIMP nsMsgOfflineImapOperation::SetAppendDraftOp(
+    const nsACString& destFolderUri) {
+  MOZ_TRY(AddOperation(kAppendDraft));
+  MOZ_TRY(SetDestinationFolderURI(destFolderUri));
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgOfflineImapOperation::SetDeleteAllMsgsOp() {
   MOZ_TRY(AddOperation(kDeleteAllMsgs));
   return NS_OK;

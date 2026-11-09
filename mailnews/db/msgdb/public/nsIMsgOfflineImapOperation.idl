@@ -86,6 +86,12 @@ interface nsIMsgOfflineImapOperation : nsISupports
   void setMoveResultOp(in AUTF8String sourceFolderUri);
 
   /**
+   * Add a kAppendDraft op.
+   * Sets the .destinationFolderURI attr.
+   */
+  void setAppendDraftOp(in AUTF8String destFolderUri);
+
+  /**
    * Add a kDeleteAllMsgs op.
    */
   void setDeleteAllMsgsOp();
