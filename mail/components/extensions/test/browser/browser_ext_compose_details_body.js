@@ -289,6 +289,7 @@ add_task(async function testBody() {
   );
   htmlWindow.close();
   await Promise.all(closePromises);
+  await SimpleTest.promiseFocus();
 
   // Check the plain text message was edited.
 
@@ -310,6 +311,7 @@ add_task(async function testBody() {
   );
   plainTextWindow.close();
   await Promise.all(closePromises);
+  await SimpleTest.promiseFocus();
 });
 
 add_task(async function testModified() {
@@ -526,6 +528,7 @@ add_task(async function testModified() {
   );
   htmlWindow.close();
   await Promise.all(closePromises);
+  await SimpleTest.promiseFocus();
 });
 
 add_task(async function testCJK() {
@@ -670,6 +673,7 @@ add_task(async function testCJK() {
   );
   htmlWindow.close();
   await Promise.all(closePromises);
+  await SimpleTest.promiseFocus();
 
   // Close the plain text message.
 
@@ -684,4 +688,5 @@ add_task(async function testCJK() {
   );
   plainTextWindow.close();
   await Promise.all(closePromises);
+  await SimpleTest.promiseFocus();
 }).skip(AppConstants.platform == "linux" && AppConstants.DEBUG); // Permanent failure on CI, bug 1766758.
