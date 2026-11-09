@@ -66,6 +66,13 @@ ChromeUtils.defineLazyGetter(lazy, "windowsAlertsService", () => {
     ?.QueryInterface(Ci.nsIWindowsAlertsService);
 });
 
+if (AppConstants.MOZ_ENTERPRISE) {
+  ChromeUtils.defineESModuleGetters(lazy, {
+    isTesting:
+      "moz-src:///toolkit/components/enterprise/modules/EnterpriseCommon.sys.mjs",
+  });
+}
+
 if (AppConstants.MOZ_UPDATER) {
   ChromeUtils.defineESModuleGetters(lazy, {
     UpdateListener: "resource://gre/modules/UpdateListener.sys.mjs",
@@ -799,7 +806,14 @@ MailGlue.prototype = {
     );
 
     // check if we're in safe mode
-    if (Services.appinfo.inSafeMode) {
+    if (
+      Services.appinfo.inSafeMode &&
+      (!AppConstants.MOZ_ENTERPRISE ||
+        // Services.felt is valid only on enterprise-firefox branches until it lands
+        // on mozilla-central. Disable the lint rule to avoid noise.
+        // eslint-disable-next-line mozilla/valid-services
+        (Services.felt?.isFeltBrowser() && !lazy.isTesting()))
+    ) {
       Services.ww.openWindow(
         null,
         "chrome://messenger/content/troubleshootMode.xhtml",
