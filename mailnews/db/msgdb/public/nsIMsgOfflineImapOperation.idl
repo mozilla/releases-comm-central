@@ -68,6 +68,11 @@ interface nsIMsgOfflineImapOperation : nsISupports
    */
   void setMoveResultOp(in AUTF8String sourceFolderUri);
 
+  /**
+   * Add a kDeleteAllMsgs op.
+   */
+  void setDeleteAllMsgsOp();
+
   // Clears the operation bit passed in.
   // All other operation types are left as-is.
   // For `kMsgMoved`, `kAppendTemplate` and `kAppendDraft`, this will also clear

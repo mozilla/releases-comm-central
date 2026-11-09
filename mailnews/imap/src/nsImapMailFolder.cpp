@@ -1530,7 +1530,7 @@ NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIUrlListener* aListener) {
       nsCOMPtr<nsIMsgOfflineImapOperation> op;
       rv = trashDB->GetOfflineOpForKey(fakeKey, true, getter_AddRefs(op));
       trashFolder->SetFlag(nsMsgFolderFlags::OfflineEvents);
-      op->SetOperation(nsIMsgOfflineImapOperation::kDeleteAllMsgs);
+      op->SetDeleteAllMsgsOp();
     }
     return rv;
   }

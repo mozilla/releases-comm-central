@@ -90,6 +90,11 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::SetMoveResultOp(
                             PromiseFlatCString(aSourceFolderUri).get());
 }
 
+NS_IMETHODIMP nsMsgOfflineImapOperation::SetDeleteAllMsgsOp() {
+  MOZ_TRY(AddOperation(kDeleteAllMsgs));
+  return NS_OK;
+}
+
 /* void clearOperation (in nsOfflineImapOperationType operation); */
 NS_IMETHODIMP nsMsgOfflineImapOperation::ClearOperation(
     nsOfflineImapOperationType aOperation) {
