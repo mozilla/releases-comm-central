@@ -81,11 +81,24 @@ nsresult nsMsgOfflineImapOperation::AddOperation(
   return m_mdb->SetUint32Property(m_mdbRow, PROP_OPERATION, m_operation);
 }
 
+NS_IMETHODIMP nsMsgOfflineImapOperation::SetMsgMovedOp() {
+  MOZ_TRY(AddOperation(kMsgMoved));
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgOfflineImapOperation::SetMsgCopyOp(
+    const nsACString& destinationBox) {
+  MOZ_TRY(AddOperation(kMsgCopy));
+  nsresult rv = GetCopiesFromDB();
+  NS_ENSURE_SUCCESS(rv, rv);
+  m_copyDestinations.AppendElement(destinationBox);
+  return SetCopiesToDB();
+}
+
 NS_IMETHODIMP nsMsgOfflineImapOperation::SetMoveResultOp(
     const nsACString& aSourceFolderUri) {
   m_moveSourceFolderUri = aSourceFolderUri;
   MOZ_TRY(AddOperation(kMoveResult));
-
   return m_mdb->SetProperty(m_mdbRow, PROP_SRC_FOLDER_URI,
                             PromiseFlatCString(aSourceFolderUri).get());
 }
@@ -274,15 +287,6 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::AddKeywordToRemove(
   SetOperation(kRemoveKeywords);
   return AddKeyword(aKeyword, m_keywordsToRemove, PROP_KEYWORD_REMOVE,
                     m_keywordsToAdd, PROP_KEYWORD_ADD);
-}
-
-NS_IMETHODIMP nsMsgOfflineImapOperation::AddMessageCopyOperation(
-    const nsACString& destinationBox) {
-  SetOperation(kMsgCopy);
-  nsresult rv = GetCopiesFromDB();
-  NS_ENSURE_SUCCESS(rv, rv);
-  m_copyDestinations.AppendElement(destinationBox);
-  return SetCopiesToDB();
 }
 
 // we write out the folders as one string, separated by 0x1.

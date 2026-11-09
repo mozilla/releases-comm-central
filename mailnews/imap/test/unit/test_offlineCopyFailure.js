@@ -62,7 +62,7 @@ add_task(async function test_localFailureRetainsCopyForRetry() {
   const [header] = source.messages;
   const key = header.messageKey;
   const db = source.msgDatabase;
-  db.getOfflineOpForKey(key, true).addMessageCopyOperation(target.URI);
+  db.getOfflineOpForKey(key, true).setMsgCopyOp(target.URI);
   source.setFlag(Ci.nsMsgFolderFlags.OfflineEvents);
 
   const alerts = [];

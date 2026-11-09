@@ -556,9 +556,11 @@ NS_IMETHODIMP nsImapOfflineTxn::RedoTransaction(void) {
             if (m_opType == nsIMsgOfflineImapOperation::kMsgMoved)
               op->SetDestinationFolderURI(folderURI);  // offline move
             if (m_opType == nsIMsgOfflineImapOperation::kMsgCopy) {
-              op->SetOperation(nsIMsgOfflineImapOperation::kMsgMoved);
-              // NOTE: AddMessageCopyOperation() also sets kMsgCopy.
-              op->AddMessageCopyOperation(folderURI);  // offline copy
+              // NOTE: This seems odd. Preserving historical behaviour, but
+              // could do with some scrutiny and thought.
+              // See https://bugzilla.mozilla.org/show_bug.cgi?id=2089877
+              op->SetMsgMovedOp();
+              op->SetMsgCopyOp(folderURI);  // offline copy
             }
             dstFolder->SummaryChanged();
           }

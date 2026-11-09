@@ -63,6 +63,23 @@ interface nsIMsgOfflineImapOperation : nsISupports
   attribute nsOfflineImapOperationType operation;
 
   /**
+   * Add a kMsgMoved op.
+   * NOTE: this should take a dest folder, but current code is a little fuzzy
+   * on what params are required, so leaving them as-is for now.
+   * See https://bugzilla.mozilla.org/show_bug.cgi?id=2089877
+   */
+  void setMsgMovedOp();
+
+  /**
+   * Add a kMsgCopy op.
+   * Can be called multiple times to copy to multiple destinations.
+   *  NOTE: this doesn't affect `.destinationFolderURI`!
+   * Instead it adds to the (internal) list exposed by
+   * `.getCopyDestination()`.
+   */
+  void setMsgCopyOp(in AUTF8String destinationFolderUri);
+
+  /**
    * Add a kMoveResult op.
    * Sets the .moveSourceFolderUri attr.
    */
@@ -117,13 +134,6 @@ interface nsIMsgOfflineImapOperation : nsISupports
 
   readonly attribute string keywordsToAdd;
   readonly attribute string keywordsToRemove;
-
-  // Calling this sets the kMsgCopy bitflag in .operation.
-  // Can be called multiple times to copy to multiple destinations.
-  // NOTE: this doesn't affect `.destinationFolderURI`!
-  // Instead it adds to the (internal) list exposed by
-  // `.getCopyDestination()`.
-  void addMessageCopyOperation(in AUTF8String destinationBox);
 
   // Copy destination list is separate from `.destinationFolderURI`,
   // which is only for moves and appends.

@@ -6688,7 +6688,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
               imapMessageFlagsType newImapFlags = 0;
               message->GetMessageSize(&msgSize);
               message->GetFlags(&msgFlags);
-              sourceOp->SetOperation(nsIMsgOfflineImapOperation::kMsgMoved);
+              sourceOp->SetMsgMovedOp();
               sourceOp->SetDestinationFolderURI(folderURI);
               sourceOp->SetMsgSize(msgSize);
               newImapFlags = msgFlags & 0x7;
@@ -6696,7 +6696,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
                 newImapFlags |= kImapMsgForwardedFlag;
               sourceOp->SetNewFlags(newImapFlags);
             } else {
-              sourceOp->AddMessageCopyOperation(folderURI);  // offline copy
+              sourceOp->SetMsgCopyOp(folderURI);  // offline copy
             }
             ImapUid srcUid =
                 UidFromMsgKey(sourceMailDB, originalKey).unwrapOr(0);
