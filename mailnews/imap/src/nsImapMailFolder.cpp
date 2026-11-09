@@ -8249,10 +8249,12 @@ nsImapMailFolder::StoreCustomKeywords(nsIMsgWindow* aMsgWindow,
       if (NS_FAILED(rv2)) rv = rv2;
       SetFlag(nsMsgFolderFlags::OfflineEvents);
       if (NS_SUCCEEDED(rv2) && op) {
-        if (!aFlagsToAdd.IsEmpty())
-          op->AddKeywordToAdd(PromiseFlatCString(aFlagsToAdd).get());
-        if (!aFlagsToSubtract.IsEmpty())
-          op->AddKeywordToRemove(PromiseFlatCString(aFlagsToSubtract).get());
+        if (!aFlagsToAdd.IsEmpty()) {
+          op->SetAddKeywordsOp(aFlagsToAdd);
+        }
+        if (!aFlagsToSubtract.IsEmpty()) {
+          op->SetRemoveKeywordsOp(aFlagsToSubtract);
+        }
       }
     }
     mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);  // flush offline ops

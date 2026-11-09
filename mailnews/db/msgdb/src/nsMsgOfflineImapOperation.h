@@ -23,7 +23,7 @@ class nsMsgOfflineImapOperation : public nsIMsgOfflineImapOperation {
 
  protected:
   virtual ~nsMsgOfflineImapOperation();
-  nsresult AddKeyword(const char* aKeyword, nsCString& addList,
+  nsresult AddKeyword(nsACString const& keyword, nsCString& addList,
                       const char* addProp, nsCString& removeList,
                       const char* removeProp);
 

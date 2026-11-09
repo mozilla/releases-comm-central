@@ -115,6 +115,20 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::SetDeleteAllMsgsOp() {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgOfflineImapOperation::SetAddKeywordsOp(
+    nsACString const& keyword) {
+  MOZ_TRY(AddOperation(kAddKeywords));
+  return AddKeyword(keyword, m_keywordsToAdd, PROP_KEYWORD_ADD,
+                    m_keywordsToRemove, PROP_KEYWORD_REMOVE);
+}
+
+NS_IMETHODIMP nsMsgOfflineImapOperation::SetRemoveKeywordsOp(
+    nsACString const& keyword) {
+  MOZ_TRY(AddOperation(kRemoveKeywords));
+  return AddKeyword(keyword, m_keywordsToRemove, PROP_KEYWORD_REMOVE,
+                    m_keywordsToAdd, PROP_KEYWORD_ADD);
+}
+
 /* void clearOperation (in nsOfflineImapOperationType operation); */
 NS_IMETHODIMP nsMsgOfflineImapOperation::ClearOperation(
     nsOfflineImapOperationType aOperation) {
@@ -254,12 +268,6 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetKeywordsToAdd(char** aKeywords) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgOfflineImapOperation::AddKeywordToAdd(const char* aKeyword) {
-  SetOperation(kAddKeywords);
-  return AddKeyword(aKeyword, m_keywordsToAdd, PROP_KEYWORD_ADD,
-                    m_keywordsToRemove, PROP_KEYWORD_REMOVE);
-}
-
 NS_IMETHODIMP nsMsgOfflineImapOperation::GetKeywordsToRemove(char** aKeywords) {
   NS_ENSURE_ARG(aKeywords);
   nsresult rv = m_mdb->GetProperty(m_mdbRow, PROP_KEYWORD_REMOVE,
@@ -268,32 +276,23 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetKeywordsToRemove(char** aKeywords) {
   return rv;
 }
 
-nsresult nsMsgOfflineImapOperation::AddKeyword(const char* aKeyword,
+nsresult nsMsgOfflineImapOperation::AddKeyword(nsACString const& keyword,
                                                nsCString& addList,
                                                const char* addProp,
                                                nsCString& removeList,
                                                const char* removeProp) {
   int32_t startOffset, keywordLength;
-  if (!MsgFindKeyword(nsDependentCString(aKeyword), addList, &startOffset,
-                      &keywordLength)) {
+  if (!MsgFindKeyword(keyword, addList, &startOffset, &keywordLength)) {
     if (!addList.IsEmpty()) addList.Append(' ');
-    addList.Append(aKeyword);
+    addList.Append(keyword);
   }
   // if the keyword we're removing was in the list of keywords to add,
   // cut it from that list.
-  if (MsgFindKeyword(nsDependentCString(aKeyword), removeList, &startOffset,
-                     &keywordLength)) {
+  if (MsgFindKeyword(keyword, removeList, &startOffset, &keywordLength)) {
     removeList.Cut(startOffset, keywordLength);
     m_mdb->SetProperty(m_mdbRow, removeProp, removeList.get());
   }
   return m_mdb->SetProperty(m_mdbRow, addProp, addList.get());
-}
-
-NS_IMETHODIMP nsMsgOfflineImapOperation::AddKeywordToRemove(
-    const char* aKeyword) {
-  SetOperation(kRemoveKeywords);
-  return AddKeyword(aKeyword, m_keywordsToRemove, PROP_KEYWORD_REMOVE,
-                    m_keywordsToAdd, PROP_KEYWORD_ADD);
 }
 
 // we write out the folders as one string, separated by 0x1.

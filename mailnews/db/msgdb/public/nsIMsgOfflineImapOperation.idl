@@ -96,6 +96,18 @@ interface nsIMsgOfflineImapOperation : nsISupports
    */
   void setDeleteAllMsgsOp();
 
+  /**
+   * Add a kAddKeywords op.
+   * Affects .keywordsToAdd
+   */
+  void setAddKeywordsOp(in AUTF8String keyword);
+
+  /**
+   * Add a kRemoveKeywords op.
+   * Affects .keywordsToRemove
+   */
+  void setRemoveKeywordsOp(in AUTF8String keyword);
+
   // Clears the operation bit passed in.
   // All other operation types are left as-is.
   // For `kMsgMoved`, `kAppendTemplate` and `kAppendDraft`, this will also clear
@@ -131,12 +143,6 @@ interface nsIMsgOfflineImapOperation : nsISupports
 
   // Set for kMoveResult ops.
   readonly attribute AUTF8String moveSourceFolderUri;
-
-  // Calling this sets the kAddKeywords bitflag in .operation.
-  void addKeywordToAdd(in string aKeyword);
-
-  // Calling this sets the kRemoveKeywords bitflag in .operation.
-  void addKeywordToRemove(in string aKeyword);
 
   readonly attribute string keywordsToAdd;
   readonly attribute string keywordsToRemove;

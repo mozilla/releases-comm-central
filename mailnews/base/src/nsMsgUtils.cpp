@@ -1141,7 +1141,7 @@ nsresult MsgNewSafeBufferedFileOutputStream(nsIOutputStream** aResult,
   return rv;
 }
 
-bool MsgFindKeyword(const nsCString& keyword, nsCString& keywords,
+bool MsgFindKeyword(const nsACString& keyword, nsCString& keywords,
                     int32_t* aStartOfKeyword, int32_t* aLength) {
 // nsTString_CharT::Find(const nsCString& aString,
 //                       bool aIgnoreCase=false,

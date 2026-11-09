@@ -223,7 +223,7 @@ nsresult MsgNewSafeBufferedFileOutputStream(nsIOutputStream** aResult,
 
 // fills in the position of the passed in keyword in the passed in keyword list
 // and returns false if the keyword isn't present
-bool MsgFindKeyword(const nsCString& keyword, nsCString& keywords,
+bool MsgFindKeyword(const nsACString& keyword, nsCString& keywords,
                     int32_t* aStartOfKeyword, int32_t* aLength);
 
 bool MsgHostDomainIsTrusted(nsCString& host, nsCString& trustedMailDomains);
