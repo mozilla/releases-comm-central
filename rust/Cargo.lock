@@ -3098,6 +3098,7 @@ dependencies = [
  "serde",
  "static_prefs",
  "thin-vec",
+ "tracing",
  "xpcom",
 ]
 
