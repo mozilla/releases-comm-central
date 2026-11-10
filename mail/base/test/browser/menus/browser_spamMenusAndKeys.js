@@ -439,7 +439,7 @@ add_task(async function testMessageWindow() {
  * @returns {nsIMsgDBHdr}
  */
 async function selectMessageInAbout3Pane(index = 0) {
-  about3Pane.displayFolder(testFolder);
+  about3Pane.restoreState({ messagePaneVisible: true, folderURI: testFolder });
   Assert.notEqual(
     index,
     about3Pane.threadTree.selectedIndex,
