@@ -502,13 +502,14 @@ var commandController = {
     cmd_applyFiltersToSelection() {
       const selectedMessages = gDBView.getSelectedMsgHdrs();
       if (selectedMessages.length) {
+        const folder = selectedMessages[0].folder;
         MailServices.filters.applyFilters(
           Ci.nsMsgFilterType.Manual,
           selectedMessages,
           [],
-          gFolder,
+          folder,
           true,
-          filterRunListener(gFolder)
+          filterRunListener(folder)
         );
       }
     },
@@ -698,8 +699,13 @@ var commandController = {
       case "cmd_toggleTag":
       case "cmd_toggleRead":
       case "cmd_markAsFlagged":
-      case "cmd_applyFiltersToSelection":
         return numSelectedMessages >= 1 && !isDummyMessage;
+      case "cmd_applyFiltersToSelection":
+        return (
+          numSelectedMessages >= 1 &&
+          !isDummyMessage &&
+          (numSelectedMessages == 1 || gViewWrapper.isSingleFolder)
+        );
       case "cmd_copyDecryptedTo": {
         let showDecrypt = numSelectedMessages > 1;
         if (numSelectedMessages == 1 && !isDummyMessage) {

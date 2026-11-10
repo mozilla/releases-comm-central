@@ -64,6 +64,8 @@ tags = ["archive"]
 
 ["browser_displayName.js"]
 
+["browser_filterMessages.js"]
+
 ["browser_folderPaneVisibility.js"]
 
 ["browser_folderToolbar.js"]
