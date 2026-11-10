@@ -86,12 +86,14 @@ export class GraphCalendarEvent {
    * @param {string} subject
    * @param {string} startDateTime
    * @param {string} endDateTime
+   * @param {object} [properties={}] - Additional Graph event fields.
    */
-  constructor(id, subject, startDateTime, endDateTime) {
+  constructor(id, subject, startDateTime, endDateTime, properties = {}) {
     this.id = id;
     this.subject = subject;
     this.startDateTime = startDateTime;
     this.endDateTime = endDateTime;
+    this.properties = properties;
   }
 
   toJSON() {
@@ -107,6 +109,7 @@ export class GraphCalendarEvent {
         dateTime: this.endDateTime,
         timeZone: "UTC",
       },
+      ...this.properties,
     };
   }
 }

@@ -31,7 +31,9 @@ interface IGraphCalendarEventListener : nsISupports {
       in AUTF8String id,
       in AUTF8String title,
       in AUTF8String startDateTime,
-      in AUTF8String endDateTime);
+      in AUTF8String endDateTime,
+      in AUTF8String startTimeZone,
+      in AUTF8String endTimeZone);
     void onEventDeleted(in AUTF8String id);
     void onComplete(in nsresult statusCode);
     void onSyncStateTokenChanged(in AUTF8String syncStateToken);

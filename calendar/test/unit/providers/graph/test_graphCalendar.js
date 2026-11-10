@@ -95,6 +95,150 @@ add_task(async function testPersistanceGraphCached() {
   await testPersistence(graphServer);
 });
 
+add_task(async function testGraphEventTimeZones() {
+  await testMemoryCalendar(testReadTimeZones);
+});
+
+add_task(async function testGraphEventTimeZonesCached() {
+  await testCachedCalendar(testReadTimeZones);
+});
+
+async function testReadTimeZones(server, calendar) {
+  calendar.name = "Graph time zone test";
+  server.clearItems();
+  const events = [
+    new GraphCalendarEvent("windows-zone", "Summer", "", "", {
+      start: {
+        dateTime: "2039-07-15T09:00:00.0000000",
+        timeZone: "Eastern Standard Time",
+      },
+      end: {
+        dateTime: "2039-07-15T10:00:00.0000000",
+        timeZone: "Eastern Standard Time",
+      },
+    }),
+    new GraphCalendarEvent("iana-zone", "Winter", "", "", {
+      start: { dateTime: "2039-01-15T09:00:00", timeZone: "America/New_York" },
+      end: { dateTime: "2039-01-15T10:00:00", timeZone: "America/Los_Angeles" },
+    }),
+    new GraphCalendarEvent("missing-zone", "Missing zone", "", "", {
+      start: { dateTime: "2039-01-15T09:00:00" },
+      end: { dateTime: "2039-01-15T10:00:00", timeZone: null },
+    }),
+    new GraphCalendarEvent("suffix-zone", "Explicit offsets", "", "", {
+      start: { dateTime: "2039-01-15T09:00:00Z", timeZone: "America/New_York" },
+      end: { dateTime: "2039-01-15T10:00:00-05:00", timeZone: "America/New_York" },
+    }),
+    new GraphCalendarEvent("mismatched-offset", "Mismatched offset", "", "", {
+      start: { dateTime: "2039-01-15T09:00:00-08:00", timeZone: "America/New_York" },
+      end: { dateTime: "2039-01-15T10:00:00-08:00", timeZone: "America/New_York" },
+    }),
+    new GraphCalendarEvent("spring-transition", "Spring transition", "", "", {
+      start: { dateTime: "2026-03-08T01:30:00", timeZone: "America/New_York" },
+      end: { dateTime: "2026-03-08T03:30:00", timeZone: "America/New_York" },
+    }),
+    new GraphCalendarEvent("fall-transition", "Fall transition", "", "", {
+      start: { dateTime: "2026-11-01T00:30:00", timeZone: "America/New_York" },
+      end: { dateTime: "2026-11-01T02:30:00", timeZone: "America/New_York" },
+    }),
+  ];
+  for (const event of events) {
+    server.addCalendarEvent(calendar.id, event);
+  }
+
+  await refreshAndCheck(calendar);
+
+  const items = await calendar.getItemsAsArray(Ci.calICalendar.ITEM_FILTER_TYPE_ALL, 0, null, null);
+  Assert.equal(items.length, events.length, "All events should be synchronized");
+  let item = items.find(event => event.id == "windows-zone");
+  Assert.ok(item, "The Windows time zone event should be present");
+  Assert.equal(
+    item.startDate.getInTimezone(cal.dtz.UTC).icalString,
+    "20390715T130000Z",
+    "A Windows time zone applies the correct daylight offset"
+  );
+  item = items.find(event => event.id == "iana-zone");
+  Assert.ok(item, "The IANA time zone event should be present");
+  Assert.equal(
+    item.startDate.getInTimezone(cal.dtz.UTC).icalString,
+    "20390115T140000Z",
+    "An IANA time zone applies the correct winter offset"
+  );
+  Assert.equal(
+    item.endDate.getInTimezone(cal.dtz.UTC).icalString,
+    "20390115T180000Z",
+    "The end time uses its own time zone"
+  );
+  item = items.find(event => event.id == "missing-zone");
+  Assert.ok(item, "The event with missing time zones should be present");
+  Assert.equal(
+    item.startDate.icalString,
+    "20390115T090000Z",
+    "A missing start zone defaults to UTC"
+  );
+  Assert.equal(item.endDate.icalString, "20390115T100000Z", "A null end zone defaults to UTC");
+
+  item = items.find(event => event.id == "suffix-zone");
+  Assert.ok(item, "The event with explicit offsets should be present");
+  Assert.equal(item.startDate.icalString, "20390115T090000Z", "Z selects UTC");
+  Assert.equal(
+    item.endDate.getInTimezone(cal.dtz.UTC).icalString,
+    "20390115T150000Z",
+    "A matching numeric offset preserves the instant"
+  );
+  item = items.find(event => event.id == "mismatched-offset");
+  Assert.ok(item, "The event with a mismatched offset should be present");
+  Assert.equal(
+    item.startDate.getInTimezone(cal.dtz.UTC).icalString,
+    "20390115T170000Z",
+    "A numeric offset takes precedence over a mismatched time zone"
+  );
+
+  item = items.find(event => event.id == "spring-transition");
+  Assert.ok(item, "The spring transition event should be present");
+  Assert.equal(
+    item.startDate.getInTimezone(cal.dtz.UTC).icalString,
+    "20260308T063000Z",
+    "Spring start uses standard time"
+  );
+  Assert.equal(
+    item.endDate.getInTimezone(cal.dtz.UTC).icalString,
+    "20260308T073000Z",
+    "Spring end uses daylight time"
+  );
+  item = items.find(event => event.id == "fall-transition");
+  Assert.ok(item, "The fall transition event should be present");
+  Assert.equal(
+    item.startDate.getInTimezone(cal.dtz.UTC).icalString,
+    "20261101T043000Z",
+    "Fall start uses daylight time"
+  );
+  Assert.equal(
+    item.endDate.getInTimezone(cal.dtz.UTC).icalString,
+    "20261101T073000Z",
+    "Fall end uses standard time"
+  );
+
+  const graphCal = getGraphCalendar(calendar);
+  const syncStateToken = graphCal.syncStateToken;
+  server.addCalendarEvent(
+    calendar.id,
+    new GraphCalendarEvent("unknown-zone", "Unknown", "", "", {
+      start: { dateTime: "2039-01-15T09:00:00", timeZone: "Invalid/TimeZone" },
+      end: { dateTime: "2039-01-15T10:00:00", timeZone: "UTC" },
+    })
+  );
+  calendarObserver._onLoadPromise = Promise.withResolvers();
+  calendar.refresh();
+  await calendarObserver._onLoadPromise.promise;
+  Assert.notEqual(
+    calendar.getProperty("currentStatus"),
+    Cr.NS_OK,
+    "Unknown zones should fail sync"
+  );
+  Assert.equal(graphCal.syncStateToken, syncStateToken, "A failed sync should keep its token");
+}
+
 /**
  * Test that we message sync requests that are sent request a correct number of
  * messages to be included in responses.

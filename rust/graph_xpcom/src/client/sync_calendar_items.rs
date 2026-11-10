@@ -81,19 +81,32 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                             _ => String::new(),
                         };
 
-                        let start_date_time = event.start.and_then(|start| start.date_time).ok_or(
-                            XpComGraphError::Processing {
-                                message: "Event start time not present.".to_string(),
-                            },
-                        )?;
-                        let end_date_time = event.end.and_then(|end| end.date_time).ok_or(
-                            XpComGraphError::Processing {
-                                message: "Event end time not present.".to_string(),
-                            },
-                        )?;
+                        let start = event.start.ok_or(XpComGraphError::Processing {
+                            message: "Event start time not present.".to_string(),
+                        })?;
+                        let end = event.end.ok_or(XpComGraphError::Processing {
+                            message: "Event end time not present.".to_string(),
+                        })?;
 
-                        self.listener
-                            .on_event_present(id, title, start_date_time, end_date_time);
+                        let start_date_time =
+                            start.date_time.ok_or(XpComGraphError::Processing {
+                                message: "Event start dateTime not present.".to_string(),
+                            })?;
+                        let end_date_time = end.date_time.ok_or(XpComGraphError::Processing {
+                            message: "Event end dateTime not present.".to_string(),
+                        })?;
+
+                        self.listener.on_event_present(
+                            id,
+                            title,
+                            start_date_time,
+                            end_date_time,
+                            start
+                                .time_zone
+                                .flatten()
+                                .unwrap_or_else(|| "UTC".to_string()),
+                            end.time_zone.flatten().unwrap_or_else(|| "UTC".to_string()),
+                        );
                     }
                     DeltaItem::Removed(event) => {
                         let event_id = event.id().to_string();

@@ -19,11 +19,15 @@ impl SafeGraphCalendarEventListener {
         title: String,
         start_date_time: String,
         end_date_time: String,
+        start_time_zone: String,
+        end_time_zone: String,
     ) -> nsresult {
         let id = nsCString::from(id);
         let title = nsCString::from(title);
         let start_date_time = nsCString::from(start_date_time);
         let end_date_time = nsCString::from(end_date_time);
+        let start_time_zone = nsCString::from(start_time_zone);
+        let end_time_zone = nsCString::from(end_time_zone);
         // SAFETY: all types here are safe across the Rust/C++ boundary
         unsafe {
             self.0.OnEventPresent(
@@ -31,6 +35,8 @@ impl SafeGraphCalendarEventListener {
                 &raw const *title,
                 &raw const *start_date_time,
                 &raw const *end_date_time,
+                &raw const *start_time_zone,
+                &raw const *end_time_zone,
             )
         }
     }

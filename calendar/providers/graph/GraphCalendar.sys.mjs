@@ -15,6 +15,32 @@ ChromeUtils.defineLazyGetter(lazy, "log", () => {
   });
 });
 
+/**
+ * Parses a Graph date and its time zone.
+ *
+ * @param {string} value - The Graph `dateTime` value.
+ * @param {string} timeZone - A time zone recognized by the calendar time zone
+ *   service, such as a Windows or IANA identifier.
+ * @returns {calIDateTime} The parsed date and time.
+ * @throws {Components.Exception} If the date or time zone is unsupported.
+ */
+function graphDateTime(value, timeZone) {
+  const zone = cal.timezoneService.getTimezone(timeZone);
+  // Accept YYYY-MM-DDTHH:mm:ss, optional fractional seconds, and an optional
+  // Z or numeric offset. The parser drops fractional seconds.
+  if (
+    !zone ||
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?$/.test(value)
+  ) {
+    throw new Components.Exception("Invalid Graph date or time zone", Cr.NS_ERROR_INVALID_ARG);
+  }
+  const date = cal.dtz.fromRFC3339(value, zone);
+  if (!date) {
+    throw new Components.Exception("Invalid Graph date", Cr.NS_ERROR_INVALID_ARG);
+  }
+  return date;
+}
+
 const SYNC_TOKEN_METADATA_KEY = "graph-sync-state-token";
 
 /**
@@ -364,17 +390,14 @@ class EventSyncListener extends cal.data.OperationGroup {
     });
   }
 
-  onEventPresent(id, title, startDateTime, endDateTime) {
+  onEventPresent(id, title, startDateTime, endDateTime, startTimeZone, endTimeZone) {
     this.#queueChange(async () => {
       const oldEvent = await this.#calendar.backingCalendar.getItem(id);
       const newEvent = oldEvent?.clone() ?? new CalEvent();
       newEvent.id = id;
       newEvent.title = title;
-      // TODO: https://bugzilla.mozilla.org/show_bug.cgi?id=2058697
-      // Right now, we're assuming all times coming from Graph are UTC.
-      // We need to handle different time zone specifications coming from graph
-      newEvent.startDate = cal.dtz.fromRFC3339(startDateTime, cal.dtz.UTC);
-      newEvent.endDate = cal.dtz.fromRFC3339(endDateTime, cal.dtz.UTC);
+      newEvent.startDate = graphDateTime(startDateTime, startTimeZone);
+      newEvent.endDate = graphDateTime(endDateTime, endTimeZone);
 
       if (oldEvent) {
         await this.#calendar.backingCalendar.modifyItem(newEvent, oldEvent);
