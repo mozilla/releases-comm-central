@@ -94,6 +94,28 @@ add_task(async function testSelectItems() {
     [8, 9, 10, 11],
     "the messages in the thread should be selected"
   );
+  Assert.equal(threadTree.currentIndex, 8);
+  assertDisplayed([
+    testMessages[3],
+    testMessages[10],
+    testMessages[11],
+    testMessages[12],
+  ]);
+
+  // Select messages in a thread, while that thread is open and one of
+  // messages (not the root) is selected.
+
+  threadTree.selectedIndex = 10;
+  selectEventCount = 0;
+
+  await activateItem("menu_selectThread");
+  Assert.equal(selectEventCount, 1, "one select event should have fired");
+  Assert.deepEqual(
+    threadTree.selectedIndices,
+    [8, 9, 10, 11],
+    "the messages in the thread should be selected"
+  );
+  Assert.equal(threadTree.currentIndex, 8);
   assertDisplayed([
     testMessages[3],
     testMessages[10],

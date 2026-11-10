@@ -124,12 +124,8 @@ interface nsMsgViewCommandType : nsISupports
   const nsMsgViewCommandTypeValue expandAll = 11;
   const nsMsgViewCommandTypeValue collapseAll = 12;
 
-  const nsMsgViewCommandTypeValue selectAll = 15;
   const nsMsgViewCommandTypeValue downloadSelectedForOffline = 16;
   const nsMsgViewCommandTypeValue downloadFlaggedForOffline = 17;
-
-  const nsMsgViewCommandTypeValue selectThread = 18;
-  const nsMsgViewCommandTypeValue selectFlagged = 19;
 
   const nsMsgViewCommandTypeValue junk = 27;
   const nsMsgViewCommandTypeValue unjunk = 28;
@@ -354,16 +350,6 @@ interface nsIMsgDBView : nsISupports
    * @return        - view index of msg hdr, -1 if hdr not found.
    */
   nsMsgViewIndex findIndexOfMsgHdr(in nsIMsgDBHdr aMsgHdr, in boolean aExpand);
-
-  /**
-   * Expands a thread and selects all it's member messages.
-   *
-   * @param aIndex   - View index of a message in the thread to expand (can be
-                       any message which is a member of the thread).
-   * @param aAugment - If true, Augment the existing selection.
-   *                   If false, replace it.
-   */
-  void ExpandAndSelectThreadByIndex(in nsMsgViewIndex aIndex, in boolean aAugment);
 
   /**
    * This method returns the nsIMsgThread object containing the header displayed

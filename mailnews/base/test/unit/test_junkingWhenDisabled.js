@@ -129,7 +129,7 @@ add_task(async function test_first_junking_create_folder() {
   //  many messages get moved, just that some do on the second move.
 
   // Select and junk all messages.
-  gDBView.doCommand(Ci.nsMsgViewCommandType.selectAll);
+  gDBView.selection.selectAll();
   gDBView.doCommand(Ci.nsMsgViewCommandType.junk);
   await gListener.promiseFolderAdded;
 });
@@ -141,7 +141,7 @@ add_task(async function test_add_further_message() {
 
 add_task(async function test_second_junking_move_msgs() {
   // Select and junk all messages.
-  gDBView.doCommand(Ci.nsMsgViewCommandType.selectAll);
+  gDBView.selection.selectAll();
   gDBView.doCommand(Ci.nsMsgViewCommandType.junk);
   await gListener.promiseMsgsMoveCopyCompleted;
 });

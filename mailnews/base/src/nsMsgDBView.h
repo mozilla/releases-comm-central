@@ -229,7 +229,6 @@ class nsMsgDBView : public nsIMsgDBView,
   nsresult CollapseByIndex(nsMsgViewIndex index, uint32_t* pNumCollapsed);
   nsresult ExpandAll();
   nsresult CollapseAll();
-  nsresult ExpandAndSelectThread();
 
   // Helper routines for thread expanding and collapsing.
   nsresult GetThreadCount(nsMsgViewIndex viewIndex, uint32_t* pThreadCount);

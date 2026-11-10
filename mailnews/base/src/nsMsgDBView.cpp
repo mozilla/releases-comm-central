@@ -2092,38 +2092,6 @@ nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
       rv = ApplyCommandToIndices(command, selection);
       NoteChange(0, 0, nsMsgViewNotificationCode::none);
       break;
-    case nsMsgViewCommandType::selectAll:
-      if (mTreeSelection) {
-        // If in threaded mode, we need to expand all before selecting.
-        if (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay)
-          rv = ExpandAll();
-
-        mTreeSelection->SelectAll();
-        if (mTree) mTree->Invalidate();
-        if (mJSTree) mJSTree->Invalidate();
-      }
-      break;
-    case nsMsgViewCommandType::selectThread:
-      rv = ExpandAndSelectThread();
-      break;
-    case nsMsgViewCommandType::selectFlagged:
-      if (!mTreeSelection) {
-        rv = NS_ERROR_UNEXPECTED;
-      } else {
-        mTreeSelection->SetSelectEventsSuppressed(true);
-        mTreeSelection->ClearSelection();
-        // XXX ExpandAll?
-        uint32_t numIndices = GetSize();
-        for (uint32_t curIndex = 0; curIndex < numIndices; curIndex++) {
-          if (m_flags[curIndex] & nsMsgMessageFlags::Marked)
-            mTreeSelection->ToggleSelect(curIndex);
-        }
-
-        mTreeSelection->SetSelectEventsSuppressed(false);
-        if (mTree) mTree->Invalidate();
-        if (mJSTree) mJSTree->Invalidate();
-      }
-      break;
     case nsMsgViewCommandType::markAllRead:
       if (m_folder) {
         SetSuppressChangeNotifications(true);
@@ -3878,75 +3846,6 @@ nsresult nsMsgDBView::ToggleExpansion(nsMsgViewIndex index,
   // If we collapse/uncollapse a thread, this changes the selected URIs.
   SelectionChangedXPCOM();
   return rv;
-}
-
-nsresult nsMsgDBView::ExpandAndSelectThread() {
-  nsresult rv;
-
-  NS_ASSERTION(mTreeSelection, "no tree selection");
-  if (!mTreeSelection) return NS_ERROR_UNEXPECTED;
-
-  int32_t index;
-  rv = mTreeSelection->GetCurrentIndex(&index);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = ExpandAndSelectThreadByIndex(index, false);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return NS_OK;
-}
-
-nsresult nsMsgDBView::ExpandAndSelectThreadByIndex(nsMsgViewIndex index,
-                                                   bool augment) {
-  if (!IsValidIndex(index)) return NS_MSG_INVALID_DBVIEW_INDEX;
-
-  nsresult rv;
-
-  nsMsgViewIndex threadIndex;
-  bool inThreadedMode = (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay);
-
-  if (inThreadedMode) {
-    nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    rv = GetMsgHdrForViewIndex(index, getter_AddRefs(msgHdr));
-    NS_ENSURE_SUCCESS(rv, rv);
-    threadIndex = ThreadIndexOfMsgHdr(msgHdr, index);
-    if (threadIndex == nsMsgViewIndex_None) {
-      NS_ASSERTION(false, "couldn't find thread");
-      return NS_MSG_MESSAGE_NOT_FOUND;
-    }
-  } else {
-    threadIndex = index;
-  }
-
-  int32_t flags = m_flags[threadIndex];
-  int32_t count = 0;
-
-  if (inThreadedMode && flags & MSG_VIEW_FLAG_ISTHREAD &&
-      flags & MSG_VIEW_FLAG_HASCHILDREN) {
-    // If closed, expand this thread.
-    if (flags & nsMsgMessageFlags::Elided) {
-      uint32_t numExpanded;
-      rv = ExpandByIndex(threadIndex, &numExpanded);
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-
-    // Get the number of messages in the expanded thread so we know how many
-    // to select.
-    count = CountExpandedThread(threadIndex);
-  } else {
-    count = 1;
-  }
-
-  NS_ASSERTION(count > 0, "bad count");
-
-  // Update the selection.
-
-  NS_ASSERTION(mTreeSelection, "no tree selection");
-  if (!mTreeSelection) return NS_ERROR_UNEXPECTED;
-
-  // The count should be 1 or greater. If there was only one message in the
-  // thread, we just select it. If more, we select all of them.
-  mTreeSelection->RangedSelect(threadIndex + count - 1, threadIndex, augment);
-  return NS_OK;
 }
 
 nsresult nsMsgDBView::ExpandAll() {

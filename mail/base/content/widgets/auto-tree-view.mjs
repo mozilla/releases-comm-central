@@ -88,7 +88,12 @@ class AutoTreeView extends TreeView {
         if (AppConstants.platform == "macosx") {
           [modifier, antiModifier] = [antiModifier, modifier];
         }
-        if (event.key.toLowerCase() == "a" && modifier && !antiModifier) {
+        if (
+          event.key.toLowerCase() == "a" &&
+          modifier &&
+          !antiModifier &&
+          !event.shiftKey
+        ) {
           this.selectAll();
           this.dispatchEvent(new CustomEvent("select"));
           event.preventDefault();

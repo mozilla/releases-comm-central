@@ -4658,7 +4658,10 @@ var threadPane = {
         break;
       case "expanded":
       case "collapsed":
-        if (event.detail == threadTree.selectedIndex) {
+        if (
+          event.detail == threadTree.selectedIndex &&
+          !gDBView.selection.selectEventsSuppressed
+        ) {
           // The selected index hasn't changed, but a collapsed row represents
           // multiple messages, so for our purposes the selection has changed.
           threadTree.dispatchEvent(new CustomEvent("select"));
@@ -6597,16 +6600,49 @@ commandController.registerCallback(
 commandController.registerCallback(
   "cmd_selectThread",
   () => {
-    gDBView.doCommand(Ci.nsMsgViewCommandType.selectThread);
+    let start = threadTree.currentIndex;
+    if (start == -1) {
+      return;
+    }
+    while (gDBView.getLevel(start) > 0) {
+      start = gDBView.getParentIndex(start);
+    }
+    if (!gDBView.isContainer(start)) {
+      return;
+    }
+    gDBView.selection.selectEventsSuppressed = true;
+    if (!gDBView.isContainerOpen(start)) {
+      const addedRows = threadTree.expandRowAtIndex(start);
+      threadTree.scrollExpandedRowIntoView(start, addedRows);
+    }
+    let end = start;
+    while (end + 1 < gDBView.rowCount && gDBView.getLevel(end + 1) > 0) {
+      end++;
+    }
+    gDBView.selection.rangedSelect(start, end, false);
+    gDBView.selection.selectEventsSuppressed = false;
+    threadTree.currentIndex = start;
     threadTree.dispatchEvent(new CustomEvent("select"));
+    threadTree.invalidate();
   },
-  () => gDBView && !gViewWrapper.showGroupedBySort
+  () => gDBView && gDBView.numSelected > 0 && gViewWrapper.showThreaded
 );
 commandController.registerCallback(
   "cmd_selectFlagged",
   () => {
-    gDBView.doCommand(Ci.nsMsgViewCommandType.selectFlagged);
+    gDBView.selection.selectEventsSuppressed = true;
+    gDBView.selection.clearSelection();
+
+    const rowCount = gDBView.rowCount;
+    for (let index = 0; index < rowCount; index++) {
+      if (gDBView.getFlagsAt(index) & Ci.nsMsgMessageFlags.Marked) {
+        gDBView.selection.toggleSelect(index);
+      }
+    }
+
+    gDBView.selection.selectEventsSuppressed = false;
     threadTree.dispatchEvent(new CustomEvent("select"));
+    threadTree.invalidate();
   },
   () => !!gDBView
 );

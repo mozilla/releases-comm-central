@@ -708,9 +708,6 @@ NS_IMETHODIMP nsMsgSearchDBView::DoCommand(nsMsgViewCommandTypeValue command) {
   mCommand = command;
   if (command == nsMsgViewCommandType::deleteMsg ||
       command == nsMsgViewCommandType::deleteNoTrash ||
-      command == nsMsgViewCommandType::selectAll ||
-      command == nsMsgViewCommandType::selectThread ||
-      command == nsMsgViewCommandType::selectFlagged ||
       command == nsMsgViewCommandType::expandAll ||
       command == nsMsgViewCommandType::collapseAll)
     return nsMsgDBView::DoCommand(command);
