@@ -33,9 +33,12 @@ function loginWithReplies(firstReply, secondReply) {
       this._multiline = true;
       return firstReply;
     },
-    onMultiline() {
-      this._multiline = false;
-      return secondReply(this);
+    onMultiline(line) {
+      // A continuation keeps the exchange going until the client cancels it.
+      const reply =
+        line == "*" ? this._tag + " BAD Cancelled" : secondReply(this);
+      this._multiline = reply.startsWith("+");
+      return reply;
     },
   });
   const incomingServer = createLocalIMAPServer(server.port);

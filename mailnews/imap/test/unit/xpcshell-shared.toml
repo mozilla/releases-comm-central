@@ -137,6 +137,8 @@ prefs = ["mail.server.default.autosync_offline_stores=false"]
 
 ["test_imapNamespaceRootMailbox.js"]
 
+["test_imapNtlmCancel.js"]
+
 ["test_imapNtlmNoChallenge.js"]
 
 ["test_imapOfflineMoveUndo.js"]

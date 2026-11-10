@@ -5880,6 +5880,17 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
   // The NTLM and GSSAPI auth modules are not thread-safe, so release them here
   // on the IMAP thread rather than when this object is destroyed.
   auto releaseAuthModule = MakeScopeExit([&] { m_authModule = nullptr; });
+  // If a method gives up while the server is still waiting for client input,
+  // cancel the exchange so that the next method can be tried.
+  auto cancelExchange = MakeScopeExit([&] {
+    if (GetServerStateParser().WaitingForMoreClientInput() &&
+        NS_SUCCEEDED(GetConnectionStatus())) {
+      nsAutoCString command(GetServerCommandTag());
+      command.AppendLiteral(" authenticate");
+      // Sending a "*" line cancels any pending "authenticate" command.
+      (void)SendDataParseIMAPandCheckForNewMail("*" CRLF, command.get());
+    }
+  });
 
   char* currentCommand = nullptr;
   NS_ConvertUTF16toUTF8 password(aPassword);
@@ -5998,6 +6009,7 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
     command.Append((flag & kHasAuthNTLMCapability) ? " authenticate NTLM" CRLF
                                                    : " authenticate MSN" CRLF);
     rv = SendData(command.get());
+    NS_ENSURE_SUCCESS(rv, rv);
     ParseIMAPandCheckForNewMail(
         "AUTH NTLM");  // this just waits for ntlm step 1
     if (GetServerStateParser().LastCommandSuccessful()) {
@@ -8484,13 +8496,10 @@ nsresult nsImapProtocol::DoNtlmStep1(const nsACString& username,
 
 nsresult nsImapProtocol::DoNtlmStep2(const nsACString& challenge,
                                      nsACString& response) {
-  // The server may have answered OK without sending a challenge.
-  nsresult rv = NS_ERROR_FAILURE;
-  if (!StripBase64Padding(challenge).IsEmpty()) {
-    rv = GetNextAuthToken(challenge, response);
-  }
-  if (NS_FAILED(rv)) response.AssignLiteral("*");
-  return rv;
+  // The server may have answered OK without sending a challenge, or sent one
+  // that is only padding.
+  if (StripBase64Padding(challenge).IsEmpty()) return NS_ERROR_FAILURE;
+  return GetNextAuthToken(challenge, response);
 }
 
 NS_IMETHODIMP nsImapProtocol::OnPromptStartAsync(
