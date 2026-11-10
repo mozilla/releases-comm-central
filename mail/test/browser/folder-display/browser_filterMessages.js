@@ -116,6 +116,20 @@ add_task(async function test_runFiltersInSingleFolderViews() {
   }
 });
 
+add_task(async function test_disableFolderFiltersInSavedSearch() {
+  await be_in_folder(singleVirtual);
+  const win = get_about_3pane();
+  Assert.ok(
+    !win.commandController.isCommandEnabled("cmd_applyFilters"),
+    "Run Filters on Folder should be disabled in a single-folder saved search"
+  );
+  await select_click_row(0);
+  Assert.ok(
+    !get_about_message().commandController.isCommandEnabled("cmd_applyFilters"),
+    "Run Filters on Folder should also be disabled in the saved-search message pane"
+  );
+});
+
 add_task(async function test_runFiltersInMultiFolderView() {
   await be_in_folder(multiVirtual);
   const win = get_about_3pane();
@@ -126,6 +140,10 @@ add_task(async function test_runFiltersInMultiFolderView() {
     "Run Filters on Message should be enabled for one message in the multi-folder message pane"
   );
   await runFiltersOnSelection();
+  Assert.ok(
+    !win.commandController.isCommandEnabled("cmd_applyFilters"),
+    "Run Filters on Folder should be disabled in a multi-folder saved search"
+  );
 
   await select_click_row(0);
   await select_shift_click_row(1);
@@ -175,6 +193,10 @@ add_task(async function test_runFiltersInSyntheticView() {
     "Run Filters on Message should be enabled for one message in the synthetic message pane"
   );
   await runFiltersOnSelection();
+  Assert.ok(
+    !win.commandController.isCommandEnabled("cmd_applyFilters"),
+    "Run Filters on Folder should be disabled in a synthetic view"
+  );
 
   await select_click_row(0);
   await select_shift_click_row(1);
@@ -189,5 +211,26 @@ add_task(async function test_runFiltersInSyntheticView() {
   Assert.ok(
     get_about_3pane().commandController.isCommandEnabled(command),
     "Run Filters on Message should be enabled again in a real folder"
+  );
+});
+
+add_task(async function test_runFiltersOnRealFolder() {
+  await make_message_sets_in_folders([source], [{ count: 2 }]);
+  await be_in_folder(source);
+  await select_click_row(0);
+  const win = get_about_3pane();
+  const sourceCount = source.getTotalMessages(false);
+  const targetCount = target.getTotalMessages(false);
+  Assert.ok(
+    win.commandController.isCommandEnabled("cmd_applyFilters"),
+    "Run Filters on Folder should be enabled in a real folder"
+  );
+
+  win.commandController.doCommand("cmd_applyFilters");
+  await TestUtils.waitForCondition(
+    () =>
+      source.getTotalMessages(false) == 0 &&
+      target.getTotalMessages(false) == targetCount + sourceCount,
+    "Run Filters on Folder should filter all messages, including unselected ones"
   );
 });

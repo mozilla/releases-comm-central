@@ -807,7 +807,10 @@ var commandController = {
         );
       }
       case "cmd_applyFilters": {
-        return gDBView?.getCommandStatus(Ci.nsMsgViewCommandType.applyFilters);
+        return (
+          !gViewWrapper.isVirtual &&
+          gDBView.getCommandStatus(Ci.nsMsgViewCommandType.applyFilters)
+        );
       }
     }
 
