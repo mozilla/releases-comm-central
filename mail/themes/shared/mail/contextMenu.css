@@ -280,3 +280,9 @@ menubar > menu {
     }
   }
 }
+
+#DateTimePickerPanel {
+  --panel-padding: 5px;
+  /* !important needed to override to override -moz-windows-mica-popups rule. */
+  --panel-background-color: Field !important;
+}
