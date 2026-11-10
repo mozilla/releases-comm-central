@@ -84,6 +84,25 @@ add_task(async function test_missingTrash() {
   await checkTrashDiscovery({ exists: false });
 });
 
+add_task(async function test_nonAsciiSpecialUseTrash() {
+  await checkTrashDiscovery({
+    prefix: "",
+    name: "Gelöscht",
+    specialUse: true,
+    expectedPref: "Gelöscht",
+  });
+});
+
+add_task(async function test_mutf7TrashPref() {
+  await checkTrashDiscovery({
+    prefix: "",
+    name: "Gelöscht",
+    trashPref: "Gel&APY-scht",
+    specialUse: true,
+    expectedPref: "Gelöscht",
+  });
+});
+
 /**
  * Discovers and selects Trash twice, and checks the CREATE and SELECT commands.
  *
@@ -92,11 +111,14 @@ add_task(async function test_missingTrash() {
  * @param {string} [options.delimiter="."] - The server's hierarchy delimiter.
  * @param {string} [options.name="Trash"] - The namespace-relative mailbox path,
  *   with slashes for hierarchy delimiters.
- * @param {string} [options.trashPref] - The UTF-8 Trash path preference, if set.
+ * @param {string} [options.trashPref] - The Trash path preference, if set,
+ *   as UTF-8 or as the MUTF-7 path older versions stored.
  * @param {boolean} [options.subscribed=true] - Whether Trash is subscribed.
  * @param {boolean} [options.exists=true] - Whether Trash already exists.
  * @param {boolean} [options.specialUse=false] - Whether LIST returns a Trash flag.
  * @param {string} [options.serverDirectory=""] - The configured server directory.
+ * @param {string} [options.expectedPref] - The Trash path preference expected
+ *   after each discovery.
  */
 async function checkTrashDiscovery({
   prefix = "INBOX.",
@@ -107,6 +129,7 @@ async function checkTrashDiscovery({
   exists = true,
   specialUse = false,
   serverDirectory = "",
+  expectedPref,
 }) {
   const daemon = new ImapDaemon();
   daemon.root.delimiter = delimiter;
@@ -185,6 +208,13 @@ async function checkTrashDiscovery({
         1,
         "Exactly one folder should be Trash"
       );
+      if (expectedPref !== undefined) {
+        Assert.equal(
+          incomingServer.getStringValue("trash_folder_name"),
+          expectedPref,
+          "Discovery should store the Trash path as UTF-8"
+        );
+      }
       const updateListener = new PromiseTestUtils.PromiseUrlListener();
       trashFolders[0]
         .QueryInterface(Ci.nsIMsgImapMailFolder)

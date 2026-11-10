@@ -142,6 +142,21 @@ nsresult MSGCramMD5(const char* text, int32_t text_len, const char* key,
   return rv;
 }
 
+/**
+ * Folder paths from the server are encoded as MUTF-7 unless the server accepts
+ * UTF-8. Convert if needed.
+ */
+void FolderPathToUtf8(bool isUtf8Server, const nsACString& path,
+                      nsACString& utf8Path) {
+  if (isUtf8Server) {
+    utf8Path = path;
+    return;
+  }
+  nsAutoString pathUtf16;
+  CopyMUTF7toUTF16(path, pathUtf16);
+  CopyUTF16toUTF8(pathUtf16, utf8Path);
+}
+
 }  // namespace
 
 // Despite its name, this contains a folder path, for example INBOX/Trash.
@@ -1530,6 +1545,8 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
     NS_WARNING_ASSERTION(trashFolders.Length() <= 2,
                          "why more than 2 folders flagged as trash?");
     if (NS_SUCCEEDED(rv) && trashFolders.Length()) {
+      bool isUtf8Server = false;
+      GetUtf8AcceptEnabled(&isUtf8Server);
       // See if there is a pref set for trash folder. Only check the "raw" value
       // since here we don't want to see the default "Trash" string returned by
       // GetTrashFolderName() when the pref is really empty.
@@ -1546,17 +1563,17 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
             // for non UTF-8 servers will be encoded as MUTF-7. The preference
             // is stored in UTF-8, so we need to convert if this is not a UTF-8
             // server to compare the preference value to the server value.
-            bool isUtf8;
-            GetUtf8AcceptEnabled(&isUtf8);
             nsAutoCString trashFolderPathUtf8;
-            if (isUtf8) {
-              trashFolderPathUtf8 = trashFolderPathUtf7or8;
-            } else {
-              nsAutoString trashFolderPathUtf16;
-              CopyMUTF7toUTF16(trashFolderPathUtf7or8, trashFolderPathUtf16);
-              CopyUTF16toUTF8(trashFolderPathUtf16, trashFolderPathUtf8);
+            FolderPathToUtf8(isUtf8Server, trashFolderPathUtf7or8,
+                             trashFolderPathUtf8);
+            if (prefPath.Equals(trashFolderPathUtf8)) {
+              continue;
             }
-            if (!prefPath.Equals(trashFolderPathUtf8)) {
+            if (prefPath.Equals(trashFolderPathUtf7or8)) {
+              // Older versions stored the MUTF-7 path. Keep the folder and
+              // store its path as UTF-8.
+              SetStringValue(PREF_TRASH_FOLDER_PATH, trashFolderPathUtf8);
+            } else {
               // We clear the trash folder flag if the trash folder path doesn't
               // match mail.server.serverX.trash_folder_name.
               trashFolder->ClearFlag(nsMsgFolderFlags::Trash);
@@ -1602,7 +1619,11 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
               nsAutoCString specialUseFolderPath;
               rv = PathFromFolder(specialUseFolder, specialUseFolderPath);
               if (NS_SUCCEEDED(rv)) {
-                SetStringValue(PREF_TRASH_FOLDER_PATH, specialUseFolderPath);
+                nsAutoCString specialUseFolderPathUtf8;
+                FolderPathToUtf8(isUtf8Server, specialUseFolderPath,
+                                 specialUseFolderPathUtf8);
+                SetStringValue(PREF_TRASH_FOLDER_PATH,
+                               specialUseFolderPathUtf8);
               }
             }
           } else {
