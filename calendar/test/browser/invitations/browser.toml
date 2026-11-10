@@ -18,7 +18,9 @@ support-files = ["data/**"]
 
 ["browser_icsAttachment.js"]
 skip-if = [
-  "os == 'mac'", #  Mac: test perma failing on CI. Bug 1956467.
+  "os == 'mac' && os_version == '10.15' && arch == 'x86_64'", #  Mac: test perma failing on CI. Bug 1956467.
+  "os == 'mac' && os_version == '14.70' && arch == 'x86_64'", #  Mac: test perma failing on CI. Bug 1956467.
+  "os == 'mac' && os_version == '15.30' && arch == 'aarch64'", #  Mac: test perma failing on CI. Bug 1956467.
   "os == 'win'", # Windows: setDefaultClient requires user confirmation.
 ]
 
@@ -45,6 +47,8 @@ skip-if = [
 ["browser_imipBarScheduleAgent.js"]
 
 ["browser_imipBarUpdates.js"]
+
+["browser_imipDetails.js"]
 
 ["browser_invitationChangeLists.js"]
 

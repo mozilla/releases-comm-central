@@ -618,7 +618,7 @@ function openEventDialog(
   } else if (
     Services.prefs.getBoolPref(CREATE_EDIT_DIALOG_PREF) &&
     calendarItem.isEvent() &&
-    (mode === "new" || mode === "modify")
+    url === "chrome://calendar/content/calendar-event-dialog.xhtml"
   ) {
     const itemToEdit = mode === "modify" ? calendarItem : null;
     showCalendarEventCreateEditDialog(itemToEdit, event);

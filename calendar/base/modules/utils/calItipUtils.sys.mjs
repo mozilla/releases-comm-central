@@ -829,7 +829,12 @@ export var itip = {
         let item = aFoundItems[0].isMutable ? aFoundItems[0] : aFoundItems[0].clone();
 
         if (aParticipantStatus == "X-SHOWDETAILS") {
-          lazy.cal.window.getCalendarWindow()?.openEventDialogForViewing(item);
+          const calendarWindow = lazy.cal.window.getCalendarWindow();
+          if (Services.prefs.getBoolPref("calendar.item.editInTab", false)) {
+            calendarWindow?.modifyEventWithDialog(item);
+          } else {
+            calendarWindow?.openEventDialogForViewing(item);
+          }
           return true;
         }
 

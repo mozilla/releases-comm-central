@@ -46,7 +46,10 @@ add_setup(async function () {
  */
 add_task(async function test_message_non_invite_eml() {
   await SpecialPowers.pushPrefEnv({
-    set: [["calendar.dialogs.new.enabled", true]],
+    set: [
+      ["calendar.dialogs.new.enabled", true],
+      ["calendar.item.editInTab", false],
+    ],
   });
   const file = new FileUtils.File(getTestFilePath("data/message-non-invite.eml"));
 
@@ -88,6 +91,8 @@ add_task(async function test_message_non_invite_eml() {
     calendarWindow.document.querySelector("#calendarDialog[open]"),
     "Details should open the new calendar read dialog"
   );
+
+  calendarWindow.document.getElementById("calendarDialog").close();
 
   await BrowserTestUtils.closeWindow(win);
 });
