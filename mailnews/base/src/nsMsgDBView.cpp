@@ -2074,31 +2074,6 @@ nsMsgDBView::GetURIForViewIndex(nsMsgViewIndex index, nsACString& result) {
 }
 
 NS_IMETHODIMP
-nsMsgDBView::DoCommandWithFolder(nsMsgViewCommandTypeValue command,
-                                 nsIMsgFolder* destFolder) {
-  AUTO_PROFILER_LABEL("nsMsgDBView::DoCommandWithFolder", MAILNEWS);
-  NS_ENSURE_ARG_POINTER(destFolder);
-
-  nsMsgViewIndexArray selection;
-  GetIndicesForSelection(selection);
-
-  nsresult rv = NS_OK;
-  switch (command) {
-    case nsMsgViewCommandType::copyMessages:
-    case nsMsgViewCommandType::moveMessages:
-      rv = ApplyCommandToIndicesWithFolder(command, selection, destFolder);
-      NoteChange(0, 0, nsMsgViewNotificationCode::none);
-      break;
-    default:
-      NS_ASSERTION(false, "invalid command type");
-      rv = NS_ERROR_UNEXPECTED;
-      break;
-  }
-
-  return rv;
-}
-
-NS_IMETHODIMP
 nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
   AUTO_PROFILER_LABEL("nsMsgDBView::DoCommand", MAILNEWS);
   nsMsgViewIndexArray selection;
@@ -2360,65 +2335,6 @@ nsresult nsMsgDBView::GetHeadersFromSelection(
         rv = ListCollapsedChildren(viewIndex, hdrs);
       }
     }
-  }
-
-  return rv;
-}
-
-nsresult nsMsgDBView::CopyMessages(bool interactive,
-                                   nsTArray<nsMsgViewIndex> const& selection,
-                                   bool isMove, nsIMsgFolder* destFolder) {
-  if (m_deletingRows) {
-    NS_ASSERTION(false, "Last move did not complete");
-    return NS_OK;
-  }
-
-  nsresult rv;
-  NS_ENSURE_ARG_POINTER(destFolder);
-
-  AutoTArray<RefPtr<nsIMsgDBHdr>, 1> hdrs;
-  rv = GetHeadersFromSelection(selection, hdrs);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  m_deletingRows = isMove && mDeleteModel != nsMsgImapDeleteModels::IMAPDelete;
-  if (m_deletingRows) {
-    mIndicesToNoteChange.AppendElements(selection);
-  }
-
-  nsCOMPtr<nsIMsgCopyService> copyService =
-      mozilla::components::Copy::Service();
-  return copyService->CopyMessages(m_folder /* source folder */, hdrs,
-                                   destFolder, isMove, nullptr /* listener */,
-                                   interactive, true /* allow Undo */);
-}
-
-nsresult nsMsgDBView::ApplyCommandToIndicesWithFolder(
-    nsMsgViewCommandTypeValue command,
-    nsTArray<nsMsgViewIndex> const& selection, nsIMsgFolder* destFolder) {
-  nsresult rv = NS_OK;
-  NS_ENSURE_ARG_POINTER(destFolder);
-
-  switch (command) {
-    case nsMsgViewCommandType::copyMessages:
-      NS_ASSERTION(!(m_folder == destFolder),
-                   "The source folder and the destination folder are the same");
-      if (m_folder != destFolder)
-        rv = CopyMessages(mInteractive, selection, false /* isMove */,
-                          destFolder);
-
-      break;
-    case nsMsgViewCommandType::moveMessages:
-      NS_ASSERTION(!(m_folder == destFolder),
-                   "The source folder and the destination folder are the same");
-      if (m_folder != destFolder)
-        rv = CopyMessages(mInteractive, selection, true /* isMove */,
-                          destFolder);
-
-      break;
-    default:
-      NS_ASSERTION(false, "unhandled command");
-      rv = NS_ERROR_UNEXPECTED;
-      break;
   }
 
   return rv;

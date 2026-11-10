@@ -43,8 +43,6 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   NS_IMETHOD GetCommandStatus(nsMsgViewCommandTypeValue command,
                               bool* status) override;
   NS_IMETHOD DoCommand(nsMsgViewCommandTypeValue command) override;
-  NS_IMETHOD DoCommandWithFolder(nsMsgViewCommandTypeValue command,
-                                 nsIMsgFolder* destFolder) override;
   NS_IMETHOD OpenWithHdrs(nsIMsgEnumerator* aHeaders,
                           nsMsgViewSortTypeValue aSortType,
                           nsMsgViewSortOrderValue aSortOrder,
@@ -87,9 +85,6 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   virtual nsresult GetDBForViewIndex(nsMsgViewIndex index,
                                      nsIMsgDatabase** db) override;
   virtual nsresult RemoveByIndex(nsMsgViewIndex index) override;
-  virtual nsresult CopyMessages(bool interactive,
-                                nsTArray<nsMsgViewIndex> const& selection,
-                                bool isMove, nsIMsgFolder* destFolder) override;
   virtual nsresult DeleteMessages(bool interactive,
                                   nsTArray<nsMsgViewIndex> const& selection,
                                   bool deleteStorage) override;
@@ -117,10 +112,6 @@ class nsMsgSearchDBView : public nsMsgGroupView,
       mozilla::UniquePtr<nsTArray<uint32_t>[]>& indexArrays,
       int32_t* numArrays);
 
-  virtual nsresult ApplyCommandToIndicesWithFolder(
-      nsMsgViewCommandTypeValue command,
-      nsTArray<nsMsgViewIndex> const& selection,
-      nsIMsgFolder* destFolder) override;
   void MoveThreadAt(nsMsgViewIndex threadIndex);
 
   virtual nsresult GetMessageEnumerator(nsIMsgEnumerator** enumerator) override;

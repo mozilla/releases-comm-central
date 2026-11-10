@@ -1739,6 +1739,27 @@ export var MailUtils = {
       }
     });
   },
+
+  /**
+   * Group messages by folder, then for each folder run a callback.
+   *
+   * @param {Iterable<nsIMsgDBHdr>} messages
+   * @param {Function} callback - A callback function to run once per folder.
+   *   It will be called with two arguments: a folder, and the subset of
+   *   messages in that folder.
+   */
+  batchByFolder(messages, callback) {
+    const folders = new Map();
+    for (const message of messages) {
+      if (!folders.has(message.folder)) {
+        folders.set(message.folder, []);
+      }
+      folders.get(message.folder).push(message);
+    }
+    for (const [folder, folderMessages] of folders) {
+      callback(folder, folderMessages);
+    }
+  },
 };
 
 function hasReservedFilenameStem(name) {

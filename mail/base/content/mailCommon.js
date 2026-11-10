@@ -243,9 +243,22 @@ var commandController = {
         return;
       }
       dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
-      gDBView.doCommandWithFolder(
-        Ci.nsMsgViewCommandType.moveMessages,
-        destFolder
+      MailUtils.batchByFolder(
+        gDBView.getSelectedMsgHdrs(),
+        (folder, messages) => {
+          if (folder == destFolder) {
+            return;
+          }
+          MailServices.copy.copyMessages(
+            folder,
+            messages,
+            destFolder,
+            true /* isMove */,
+            null /* listener */,
+            true /* interactive */,
+            true /* allowUndo */
+          );
+        }
       );
       Services.prefs.setStringPref(
         "mail.last_msg_movecopy_target_uri",
@@ -298,9 +311,18 @@ var commandController = {
         );
         await MailUtils.updateFolderAsync(destFolder).catch(console.warn);
       } else {
-        gDBView.doCommandWithFolder(
-          Ci.nsMsgViewCommandType.copyMessages,
-          destFolder
+        MailUtils.batchByFolder(
+          gDBView.getSelectedMsgHdrs(),
+          (folder, messages) =>
+            MailServices.copy.copyMessages(
+              folder,
+              messages,
+              destFolder,
+              false /* isMove */,
+              null /* listener */,
+              true /* interactive */,
+              true /* allowUndo */
+            )
         );
       }
       Services.prefs.setStringPref(

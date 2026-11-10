@@ -385,21 +385,6 @@ FolderDisplayWidget.prototype = {
   doCommand(aCommandName) {
     return this.view.dbView && this.view.dbView.doCommand(aCommandName);
   },
-
-  /**
-   * Make code cleaner by allowing peoples to call doCommandWithFolder on us
-   *  rather than having to do:
-   *  folderDisplayWidget.view.dbView.doCommandWithFolder.
-   *
-   * @param {string} aCommandName - The command name to invoke.
-   * @param {nsIMsgFolder} aFolder - The folder context for the command.
-   */
-  doCommandWithFolder(aCommandName, aFolder) {
-    return (
-      this.view.dbView &&
-      this.view.dbView.doCommandWithFolder(aCommandName, aFolder)
-    );
-  },
   // @}
 
   /**
@@ -1192,10 +1177,17 @@ function MsgDeleteSelectedMessages(aCommandType) {
  */
 function MoveMessageInSearch(destFolder) {
   gFolderDisplay.hintAboutToDeleteMessages();
-  gFolderDisplay.doCommandWithFolder(
-    Ci.nsMsgViewCommandType.moveMessages,
-    destFolder
-  );
+  MailUtils.batchByFolder(gDBView.getSelectedMsgHdrs(), (folder, messages) => {
+    MailServices.copy.copyMessages(
+      folder,
+      messages,
+      destFolder,
+      true /* isMove */,
+      null /* listener */,
+      true /* interactive */,
+      true /* allowUndo */
+    );
+  });
 }
 
 function OpenInFolder() {

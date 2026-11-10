@@ -89,6 +89,9 @@ run-if = [
 ] # See bug 1806870.
 tags = ["contextmenu"]
 
+["browser_mailContext_moveCopy.js"]
+tags = ["contextmenu"]
+
 ["browser_mailContext_navigation.js"]
 tags = ["contextmenu"]
 

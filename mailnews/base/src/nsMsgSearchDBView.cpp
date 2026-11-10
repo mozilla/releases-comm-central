@@ -704,14 +704,6 @@ nsMsgSearchDBView::GetCommandStatus(nsMsgViewCommandTypeValue command,
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsMsgSearchDBView::DoCommandWithFolder(nsMsgViewCommandTypeValue command,
-                                       nsIMsgFolder* destFolder) {
-  mCommand = command;
-  mDestFolder = destFolder;
-  return nsMsgDBView::DoCommandWithFolder(command, destFolder);
-}
-
 NS_IMETHODIMP nsMsgSearchDBView::DoCommand(nsMsgViewCommandTypeValue command) {
   mCommand = command;
   if (command == nsMsgViewCommandType::deleteMsg ||
@@ -827,13 +819,6 @@ nsresult nsMsgSearchDBView::DeleteMessages(
   return ProcessNextFolder(interactive);
 }
 
-nsresult nsMsgSearchDBView::CopyMessages(
-    bool interactive, nsTArray<nsMsgViewIndex> const& selection, bool isMove,
-    nsIMsgFolder* destFolder) {
-  GetFoldersAndHdrsForSelection(selection);
-  return ProcessNextFolder(interactive);
-}
-
 nsresult nsMsgSearchDBView::PartitionSelectionByFolder(
     nsTArray<nsMsgViewIndex> const& selection,
     mozilla::UniquePtr<nsTArray<nsMsgViewIndex>[]>& indexArrays,
@@ -909,15 +894,6 @@ nsresult nsMsgSearchDBView::GetFoldersAndHdrsForSelection(
   return rv;
 }
 
-nsresult nsMsgSearchDBView::ApplyCommandToIndicesWithFolder(
-    nsMsgViewCommandTypeValue command,
-    nsTArray<nsMsgViewIndex> const& selection, nsIMsgFolder* destFolder) {
-  mCommand = command;
-  mDestFolder = destFolder;
-  return nsMsgDBView::ApplyCommandToIndicesWithFolder(command, selection,
-                                                      destFolder);
-}
-
 // nsIMsgCopyServiceListener methods
 
 NS_IMETHODIMP
@@ -965,9 +941,8 @@ nsresult nsMsgSearchDBView::ProcessNextFolder(bool interactive) {
 
   const bool mCommandIsDelete = mCommand == nsMsgViewCommandType::deleteMsg ||
                                 mCommand == nsMsgViewCommandType::deleteNoTrash;
-  m_deletingRows = !(
-      (mCommandIsDelete && deleteModel == nsMsgImapDeleteModels::IMAPDelete) ||
-      mCommand == nsMsgViewCommandType::copyMessages);
+  m_deletingRows =
+      !(mCommandIsDelete && deleteModel == nsMsgImapDeleteModels::IMAPDelete);
   if (m_deletingRows) {
     m_totalMessagesInView -= msgs.Length();
     SetSuppressChangeNotifications(true);
@@ -988,21 +963,6 @@ nsresult nsMsgSearchDBView::ProcessNextFolder(bool interactive) {
       if ((int32_t)mCurIndex < m_uniqueFoldersSelected.Count()) {
         rv = ProcessNextFolder(interactive);
       }
-    }
-  } else {
-    NS_ASSERTION(!(curFolder == mDestFolder),
-                 "The source folder and the destination folder are the same");
-    if (curFolder != mDestFolder) {
-      nsCOMPtr<nsIMsgCopyService> copyService =
-          mozilla::components::Copy::Service();
-      if (mCommand == nsMsgViewCommandType::moveMessages)
-        rv = copyService->CopyMessages(curFolder, msgs, mDestFolder,
-                                       true /* isMove */, this, interactive,
-                                       true /*allowUndo*/);
-      else if (mCommand == nsMsgViewCommandType::copyMessages)
-        rv = copyService->CopyMessages(curFolder, msgs, mDestFolder,
-                                       false /* isMove */, this, interactive,
-                                       true /*allowUndo*/);
     }
   }
 
