@@ -229,10 +229,25 @@ export var PendingCommitTracker = {
   },
 
   /**
-   * Update our structure to reflect moved headers.  Moves are currently
-   *  treated as weakly interesting and do not require a reindexing
-   *  although collections will get notified.  So our job is to to fix-up
-   *  the pending commit information if the message has a pending commit.
+   * Report whether a message header has a pending commit, which means that the
+   * message was indexed at its current location but the gloda ID has not been
+   * written to the header yet.
+   *
+   * @param {nsIMsgDBHdr} aMsgHdr - A message header.
+   * @returns {boolean} true if the header is tracked by a pending commit.
+   */
+  isPendingCommit(aMsgHdr) {
+    return (
+      `${aMsgHdr.folder.URI}#${aMsgHdr.messageKey}` in
+      this._indexedMessagesPendingCommitByKey
+    );
+  },
+
+  /**
+   * Update our structure to reflect moved headers.  Moves are currently treated
+   * as weakly interesting and do not require a reindexing although collections
+   * will get notified.  So our job is to to fix-up the pending commit
+   * information if the message has a pending commit.
    */
   noteMove(aOldHdr, aNewHdr) {
     const oldKey = aOldHdr.folder.URI + "#" + aOldHdr.messageKey;
@@ -246,7 +261,7 @@ export var PendingCommitTracker = {
     const newKey = aNewHdr.folder.URI + "#" + aNewHdr.messageKey;
     this._indexedMessagesPendingCommitByKey[newKey] = glodaId;
 
-    // only clobber the header, not the dirty state
+    // Only clobber the header, not the dirty state.
     this._indexedMessagesPendingCommitByGlodaId[glodaId][0] = aNewHdr;
   },
 
@@ -320,9 +335,20 @@ export var PendingCommitTracker = {
 
         if (aIsCompacting) {
           const msgKey = parseInt(key.substring(uri.length), 10);
+          // Store the header's messageId so the healing pass can verify that
+          // the header living at this key after the database swap is still the
+          // same message header.
+          let messageId = null;
+          try {
+            messageId =
+              this._indexedMessagesPendingCommitByGlodaId[glodaId][0].messageId;
+          } catch (ex) {
+            // The header can already be a dead XPCOM object.
+          }
           this._limboCommitsByFolderURI[aMsgFolder.URI].push({
             glodaId,
             msgKey,
+            messageId,
           });
         }
 
@@ -1179,11 +1205,19 @@ export var GlodaMsgIndexer = {
         break;
       }
 
-      for (const [glodaId, messageKey] of glodaRecords) {
+      for (const [glodaId, messageKey, headerMessageID] of glodaRecords) {
         let msgExistsLocally = false;
 
         try {
           msgExistsLocally = this._indexingDatabase.containsKey(messageKey);
+          // A key that still exists can have been re-assigned to a
+          // different message by a re-keying event such as a folder repair
+          // or an IMAP fake-header swap. The record is only alive if the
+          // same message still lives at its key.
+          if (msgExistsLocally && headerMessageID) {
+            const msgHdr = this._indexingDatabase.getMsgHdrForKey(messageKey);
+            msgExistsLocally = msgHdr && msgHdr.messageId == headerMessageID;
+          }
         } catch (ex) {
           this._log.debug(
             `Failed to verify existence of ${this._indexingGlodaFolder.uri}#${messageKey}`,
@@ -1192,7 +1226,9 @@ export var GlodaMsgIndexer = {
         }
 
         if (!msgExistsLocally) {
-          // The message was purged during compaction. Mark it for deletion.
+          // The message was purged during compaction, or another message now
+          // lives at this record's key. Mark the record for deletion so the
+          // next indexing pass will re-use it if the message returns.
           deleteGlodaIds.push(glodaId);
         }
 
@@ -1222,10 +1258,18 @@ export var GlodaMsgIndexer = {
     const limboCommits = PendingCommitTracker._limboCommitsByFolderURI[uri];
 
     if (limboCommits && limboCommits.length > 0) {
-      for (const { glodaId, msgKey } of limboCommits) {
+      for (const { glodaId, msgKey, messageId } of limboCommits) {
         try {
-          if (this._indexingDatabase.containsKey(msgKey)) {
-            const msgHdr = this._indexingDatabase.getMsgHdrForKey(msgKey);
+          if (!this._indexingDatabase.containsKey(msgKey)) {
+            continue;
+          }
+          const msgHdr = this._indexingDatabase.getMsgHdrForKey(msgKey);
+          // A re-keying event could have reassigned this key to a different
+          // message during the database swap. Only re-link the gloda ID if the
+          // header at the key is the same message that was indexed. Without
+          // this check we would potentially mark an unrelated header as indexed
+          // with a gloda record that belongs to another message.
+          if (msgHdr && (!messageId || msgHdr.messageId == messageId)) {
             PendingCommitTracker.track(msgHdr, glodaId);
           }
         } catch (ex) {
@@ -2103,6 +2147,17 @@ export var GlodaMsgIndexer = {
           continue;
         }
 
+        // Skip redundant re-indexing of freshly indexed messages as marking it
+        // dirty would only force the event queue and the next indexing sweep to
+        // process the message all over again.
+        if (
+          !aDirtyingEvent &&
+          glodaDirty == this.kMessageClean &&
+          PendingCommitTracker.isPendingCommit(msgHdr)
+        ) {
+          continue;
+        }
+
         // - Mark the message dirty if it is clean.
         // (This is the only case in which we need to mark dirty so that the
         //  indexing sweep takes care of things if we don't process this in
@@ -2975,6 +3030,84 @@ export var GlodaMsgIndexer = {
    *  glodaTestHelper.js then _do not touch this_.
    */
   _MsgHdrToMimeMessageFunc: MsgHdrToMimeMessage,
+
+  /**
+   * Check whether the same message still lives at a candidate record's stored
+   *  location in the folder we are indexing. A key that still exists in the
+   *  folder database can have been re-assigned to a different message by a
+   *  re-keying event such as a folder repair, an IMAP fake-header swap, or a
+   *  message re-download.
+   *
+   * @param {GlodaMessage} aCandMsg - A candidate record found by the header
+   *  message-id lookup in `_indexMessage`. Its folder is the folder we are
+   *  indexing.
+   * @returns {boolean} true if the candidate's message still lives at its
+   *  stored key. False if the key is gone or now belongs to a different
+   *  message.
+   */
+  _candidateLocationIsLive(aCandMsg) {
+    const key = aCandMsg.messageKey;
+    if (key === null) {
+      return false;
+    }
+    if (!this._indexingDatabase.containsKey(key)) {
+      return false;
+    }
+    let msgHdr;
+    try {
+      // getMsgHdr is affected by the header use cache, but containsKey
+      // already confirmed that the header is really there.
+      msgHdr = this._indexingFolder.getMsgHdr(key);
+    } catch (ex) {
+      return false;
+    }
+    return msgHdr !== null && msgHdr.messageId == aCandMsg.headerMessageID;
+  },
+
+  /**
+   * Check whether a candidate from another folder should be preserved.
+   *
+   * @param {GlodaMessage} aCandMsg - A candidate found by message-ID lookup.
+   * @returns {boolean} true if the copy is live or cannot be verified;
+   *   false if its stored location no longer holds a live copy.
+   */
+  _candidateIsLiveCopy(aCandMsg) {
+    if (aCandMsg.folderID === null || aCandMsg.messageKey === null) {
+      return false;
+    }
+
+    try {
+      const glodaFolder = GlodaDatastore._mapFolderID(aCandMsg.folderID);
+      const folder = glodaFolder.getXPCOMFolder(
+        glodaFolder.kActivityHeaderRetrieval
+      );
+      if (!folder) {
+        return false;
+      }
+
+      const db = folder.msgDatabase;
+      if (!db.containsKey(aCandMsg.messageKey)) {
+        return false;
+      }
+
+      const msgHdr = db.getMsgHdrForKey(aCandMsg.messageKey);
+      if (!msgHdr) {
+        // The key exists, but we couldn't retrieve its header. Preserve the
+        // record until we can verify its message.
+        return true;
+      }
+
+      return (
+        msgHdr.messageId === aCandMsg.headerMessageID &&
+        !(msgHdr.flags & Ci.nsMsgMessageFlags.Expunged)
+      );
+    } catch (ex) {
+      // Verification failed. The original copy may still exist, so don't allow
+      // its record to be reused in another folder.
+      return true;
+    }
+  },
+
   /**
    * Primary message indexing logic.  This method is mainly concerned with
    *  getting all the information about the message required for threading /
@@ -3167,18 +3300,19 @@ export var GlodaMsgIndexer = {
         //  this path which mandates re-indexing of the message in its entirety)
         if (candMsg.messageKey === null) {
           curMsg = candMsg;
-        } else if (
-          curMsg === null &&
-          !this._indexingDatabase.containsKey(candMsg.messageKey)
-        ) {
-          // (We are in the same folder and) the candidate message's underlying
-          // message no longer exists/matches. Assume we are the same but
-          // were betrayed by a re-indexing or something, but we have to make
-          // sure a perfect match doesn't turn up.
+        } else if (curMsg === null && !this._candidateLocationIsLive(candMsg)) {
+          // We are in the same folder and the candidate message's underlying
+          // message no longer exists at its key, or the key was re-assigned
+          // to a different message by a re-keying event. The candidate
+          // carries our header message-id, so re-use it and let the update
+          // below fix its location. We still have to make sure a perfect
+          // match doesn't turn up.
           curMsg = candMsg;
         }
-      } else if (curMsg === null && candMsg.folderID === null) {
-        // a ghost/deleted message is fine
+      } else if (curMsg === null && !this._candidateIsLiveCopy(candMsg)) {
+        // A ghost or deleted record, or a record whose stored location no
+        // longer holds its message (a move whose notifications we missed),
+        // is fine to re-use.
         curMsg = candMsg;
       }
     }

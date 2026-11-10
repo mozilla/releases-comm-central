@@ -33,6 +33,13 @@ class ConversationView extends HTMLElement {
   /** @type {HTMLElement} */
   #main;
 
+  /**
+   * The message header the conversation was requested for.
+   *
+   * @type {nsIMsgDBHdr}
+   */
+  #header;
+
   connectedCallback() {
     if (this.shadowRoot) {
       return;
@@ -72,13 +79,14 @@ class ConversationView extends HTMLElement {
   }
 
   /**
-   * Show the thread conversation for the currently selected header.
+   * Show the thread conversation for the given message header.
    *
-   * @param {nsIMsgDBHdr[]} headers
+   * @param {nsIMsgDBHdr} header
    */
-  show(headers) {
+  show(header) {
+    this.#header = header;
     try {
-      lazy.Gloda.getMessageCollectionForHeader(headers, this);
+      lazy.Gloda.getMessageCollectionForHeader(header, this);
     } catch (e) {
       console.error(e);
     }
@@ -89,6 +97,7 @@ class ConversationView extends HTMLElement {
    * Clear any leftover data.
    */
   clear() {
+    this.#header = null;
     this.#total.textContent = "";
     this.#total.removeAttribute("data-l10n-id");
     this.#title.textContent = "";
@@ -106,7 +115,16 @@ class ConversationView extends HTMLElement {
   onItemsModified() {}
   onItemsRemoved() {}
   onQueryCompleted(collection) {
-    const conversation = collection.items.at(0)?.conversation;
+    // The collection can hold more than one record when Gloda still has a
+    // stale duplicate for the location of the selected message, with a
+    // different message-id. Prefer the record that belongs to the selected
+    // message over blindly taking the first one, which could belong to an
+    // unrelated conversation.
+    const conversation = (
+      collection.items.find(
+        item => item.headerMessageID === this.#header?.messageId
+      ) ?? collection.items.at(0)
+    )?.conversation;
     if (!conversation) {
       return;
     }
@@ -115,15 +133,25 @@ class ConversationView extends HTMLElement {
       onItemsModified() {},
       onItemsRemoved() {},
       onQueryCompleted: msgs => {
-        // Filter out potentially duplicated messages from multiple folders like
-        // Sent, All Mail, etc.
-        this.messages = msgs.items
-          .map(i => i.folderMessage)
-          .filter(
-            (obj, index, messages) =>
-              obj &&
-              index === messages.findIndex(o => obj.messageId === o?.messageId)
-          );
+        // Gloda stores one record per physical copy of a message, so the
+        // same message-id can show up multiple times when a thread lives
+        // in multiple folders (Sent, All Mail, etc.) or when stale
+        // duplicates exist. Show only the first copy that resolves to a
+        // real message header in its folder.
+        const seen = new Set();
+        this.messages = [];
+        for (const item of msgs.items) {
+          const folderMessage = item.folderMessage;
+          if (!folderMessage || seen.has(item.headerMessageID)) {
+            continue;
+          }
+          seen.add(item.headerMessageID);
+          this.messages.push(folderMessage);
+        }
+        if (!this.messages.length) {
+          this.clear();
+          return;
+        }
         this.#updateHeader();
         this.#showMessages();
       },
@@ -194,7 +222,7 @@ class ConversationView extends HTMLElement {
   }
 
   /**
-   * Populate the message tempalte with the message data.
+   * Populate the message template with the message data.
    *
    * @param {HTMLElement} article
    * @param {nsIMsgDBHdr} message

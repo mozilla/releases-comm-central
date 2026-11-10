@@ -457,16 +457,17 @@ QueryFromQueryCallback.prototype = {
  */
 function CompactionBlockFetcherHandler(aCallback) {
   this.callback = aCallback;
-  this.idsAndMessageKeys = [];
+  this.records = [];
   GlodaDatastore._pendingAsyncStatements++;
 }
 CompactionBlockFetcherHandler.prototype = {
   handleResult(aResultSet) {
     let row;
     while ((row = aResultSet.getNextRow())) {
-      this.idsAndMessageKeys.push([
+      this.records.push([
         row.getInt64(0), // id
         row.getInt64(1), // messageKey
+        row.getString(2), // headerMessageID
       ]);
     }
   },
@@ -480,7 +481,7 @@ CompactionBlockFetcherHandler.prototype = {
   },
   handleCompletion() {
     GlodaDatastore._asyncCompleted();
-    this.callback(this.idsAndMessageKeys);
+    this.callback(this.records);
   },
 };
 
@@ -2480,6 +2481,21 @@ export var GlodaDatastore = {
     return this._insertMessageStatement;
   },
 
+  get _evictMessageLocationStatement() {
+    // Retires any live record that claims the location of a message we are
+    // about to insert, so that a single location can not be claimed by two
+    // records with different header message-ids. Statements dispatched to
+    // the same asynchronous connection run in the order they are issued, so
+    // this update always runs before the insert that follows it.
+    const statement = this._createAsyncStatement(
+      "UPDATE messages SET folderID = NULL, messageKey = NULL, deleted = 1 \
+        WHERE folderID = ?1 AND messageKey = ?2 \
+          AND headerMessageID IS NOT ?3 AND deleted = 0"
+    );
+    this.__defineGetter__("_evictMessageLocationStatement", () => statement);
+    return this._evictMessageLocationStatement;
+  },
+
   get _insertMessageTextStatement() {
     const statement = this._createAsyncStatement(
       "INSERT INTO messagesText (docid, subject, body, attachmentNames, \
@@ -2565,6 +2581,19 @@ export var GlodaDatastore = {
       ims.bindByIndex(6, null);
     }
     ims.bindByIndex(7, aMessage.notability);
+
+    // Retire any record that still claims this message's location with a
+    // different header message-id. Such a record is stale: a re-keying event
+    // like a folder repair or an IMAP fake-header swap can leave records
+    // pointing at a location that now belongs to another message. Clearing
+    // the location lets the record be re-used if its message shows up again.
+    if (aMessage.folderID != null && aMessage.messageKey != null) {
+      const emls = this._evictMessageLocationStatement;
+      emls.bindByIndex(0, aMessage.folderID);
+      emls.bindByIndex(1, aMessage.messageKey);
+      emls.bindByIndex(2, aMessage.headerMessageID);
+      emls.executeAsync(this.trackAsync());
+    }
 
     try {
       ims.executeAsync(this.trackAsync());
@@ -3117,8 +3146,10 @@ export var GlodaDatastore = {
     // The `messageKey >= ?2` clause implicitly filters out rows where
     // messageKey is NULL (like ghost records). This is intended, as we only
     // want to GC messages that physically exist in the local folder.
+    // `headerMessageID` is fetched so the compaction pass can verify that
+    // the message living at each record's key is still the same message.
     const statement = this._createAsyncStatement(
-      "SELECT id, messageKey FROM messages \
+      "SELECT id, messageKey, headerMessageID FROM messages \
         WHERE folderID = ?1 AND \
           messageKey >= ?2 AND +deleted = 0 ORDER BY messageKey LIMIT ?3"
     );

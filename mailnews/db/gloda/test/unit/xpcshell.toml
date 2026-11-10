@@ -45,6 +45,9 @@ requesttimeoutfactor = 2
 ["test_index_messages_local.js"]
 requesttimeoutfactor = 2
 
+["test_index_rekey_deduplication.js"]
+tags = ["compact"]
+
 ["test_index_sweep_folder.js"]
 
 ["test_intl.js"]
