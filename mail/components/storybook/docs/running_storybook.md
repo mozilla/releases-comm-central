@@ -16,10 +16,13 @@ open with a temporary profile, loading a tab with Storybook.
 You can disable Thunderbird opening with the command using the `--no-open`
 option.
 
-Changes to files directly referenced from the Storybook (so basically
-non-chrome:// paths) should automatically reflect changes in the opened tab.
-If you make a change to a chrome:// referenced file then you'll need to do a
-hard refresh (<kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>/<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>) to notice the changes.
+Storybook resolves native stylesheet URLs with the generated chrome map. Vite
+serves these stylesheets and their images over HTTP, including stylesheets
+linked by custom elements. Nested CSS imports use the same source mapping.
+Stylesheets that need Mozilla preprocessing are not supported.
+
+Changes to imported source files should appear in the opened tab. Reload the
+page after changing a stylesheet linked inside a shadow root.
 
 ## Manually opening Storybook in Thunderbird
 

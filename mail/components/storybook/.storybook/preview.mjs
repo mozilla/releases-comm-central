@@ -5,6 +5,8 @@
 import { setCustomElementsManifest } from "@storybook/web-components";
 import customElementsManifest from "../custom-elements.json";
 import { insertFTLIfNeeded, connectFluent } from "./fluent-utils.mjs";
+// eslint-disable-next-line import-x/no-unassigned-import -- Load global CSS through Vite.
+import "chrome://global/skin/global.css";
 
 // Base Fluent set up.
 connectFluent();

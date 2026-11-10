@@ -21,6 +21,7 @@
     "@storybook/web-components": "^10.6.6",
     "@storybook/web-components-vite": "^10.6.6",
     "lit": "^3.3.1",
+    "postcss": "^8.5.32",
     "storybook": "^10.6.6",
     "vite": "^8.3.6"
   },
