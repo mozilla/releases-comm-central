@@ -256,15 +256,16 @@ nsresult nsMsgComposeSecure::ExtractEncryptionState(
 static nsresult GetSigningHashFunction(nsIX509Cert* aSigningCert,
                                        int16_t* hashType) {
   // Get the signing certificate
-  CERTCertificate* scert = nullptr;
+  UniqueCERTCertificate scert;
   if (aSigningCert) {
-    scert = aSigningCert->GetCert();
+    // GetCert() transfers ownership to the caller.
+    scert.reset(aSigningCert->GetCert());
   }
   if (!scert) {
     return NS_ERROR_FAILURE;
   }
 
-  UniqueSECKEYPublicKey scertPublicKey(CERT_ExtractPublicKey(scert));
+  UniqueSECKEYPublicKey scertPublicKey(CERT_ExtractPublicKey(scert.get()));
   if (!scertPublicKey) {
     return mozilla::MapSECStatus(SECFailure);
   }
