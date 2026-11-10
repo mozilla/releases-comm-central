@@ -130,6 +130,15 @@ smtp-auth-failure = Unable to authenticate to Outgoing server (SMTP) { $hostname
 
 # Variables:
 # $hostname - outgoing server hostname
+# $serverResponse - server response
+smtp-auth-oauth2-failure = Unable to authenticate to Outgoing server (SMTP) { $hostname } using OAuth2. The server responded: { $serverResponse }
+
+# Variables:
+# $hostname - outgoing server hostname
+smtp-auth-oauth2-failure-no-response = Unable to authenticate to Outgoing server (SMTP) { $hostname } using OAuth2.
+
+# Variables:
+# $hostname - outgoing server hostname
 smtp-auth-gssapi = The Kerberos/GSSAPI ticket was not accepted by the Outgoing server (SMTP) { $hostname }. Please check that you are logged in to the Kerberos/GSSAPI realm.
 
 # Variables:

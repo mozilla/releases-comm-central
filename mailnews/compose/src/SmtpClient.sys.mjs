@@ -90,6 +90,9 @@ export class SmtpClient {
       }[server.authMethod] || [];
     // The next auth method to try if the current failed.
     this._nextAuthMethod = null;
+    // How far the OAuth2 recovery after failed logins has gone, see
+    // _onAuthFailed.
+    this._oAuthRecoveryStep = 0;
 
     // A list of capabilities detected from the EHLO response.
     this._capabilities = [];
@@ -185,6 +188,7 @@ export class SmtpClient {
       this._parseRemainder = "";
     }
     this._freed = false;
+    this._oAuthRecoveryStep = 0;
   }
 
   /**
@@ -843,7 +847,16 @@ export class SmtpClient {
       case "XOAUTH2": {
         // See https://developers.google.com/gmail/xoauth2_protocol#smtp_protocol_exchange
         this.logger.debug("Authentication via AUTH XOAUTH2");
-        const oauthToken = await this._authenticator.getOAuthToken();
+        let oauthToken;
+        try {
+          oauthToken = await this._authenticator.getOAuthToken();
+        } catch (e) {
+          this.logger.error("Getting OAuth2 token FAILED!", e);
+          this._authenticating = false;
+          this._oAuthRecoveryStep = 0;
+          this._onNsError("smtp-auth-oauth2-failure-no-response");
+          return;
+        }
         const authCommand = "AUTH XOAUTH2 " + oauthToken;
         // We keep the initial response inline if possible to save a round-trip.
         // An initial response is subject to the 512-byte AUTH command-line limit
@@ -944,13 +957,31 @@ export class SmtpClient {
       }
     }
 
-    // Ask user what to do.
-    const action = this._authenticator.promptAuthFailed();
-    if (action == 0 && this._currentAuthMethod == "XOAUTH2") {
-      // Retry button pressed. Clear the OAuth access token to get a new one.
-      const oauth2Module = this._authenticator.getOAuthModule();
-      oauth2Module?.clearAccessToken();
-    } else if (action == 1) {
+    let action;
+    if (this._currentAuthMethod == "XOAUTH2") {
+      // A new password can't help with OAuth2. Retry with a new access token,
+      // then with a new login, then report what the server said, e.g. that
+      // SMTP AUTH is disabled for the account.
+      if (this._oAuthRecoveryStep == 0) {
+        this._authenticator.getOAuthModule()?.clearAccessToken();
+      } else if (this._oAuthRecoveryStep == 1) {
+        this._authenticator.forgetPassword();
+      } else {
+        this._oAuthRecoveryStep = 0;
+        if (command.statusCode) {
+          this._onNsError("smtp-auth-oauth2-failure", command.data);
+        } else {
+          this._onNsError("smtp-auth-oauth2-failure-no-response");
+        }
+        return;
+      }
+      this._oAuthRecoveryStep++;
+      action = 0;
+    } else {
+      // Ask user what to do.
+      action = this._authenticator.promptAuthFailed();
+    }
+    if (action == 1) {
       // Cancel button pressed.
       this.logger.error(`Authentication failed: ${command.data}`);
       this._onNsError("smtp-auth-failure");
@@ -963,7 +994,9 @@ export class SmtpClient {
 
     if (this._freed) {
       // If connection is lost, reconnect.
+      const oAuthRecoveryStep = this._oAuthRecoveryStep;
       this.connect();
+      this._oAuthRecoveryStep = oAuthRecoveryStep;
       return;
     }
 
@@ -1338,6 +1371,7 @@ export class SmtpClient {
     }
 
     this.logger.debug("Authentication successful.");
+    this._oAuthRecoveryStep = 0;
 
     this._currentAction = this._actionIdle;
     this.onidle(); // ready to take orders

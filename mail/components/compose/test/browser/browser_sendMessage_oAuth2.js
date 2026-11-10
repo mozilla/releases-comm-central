@@ -229,10 +229,11 @@ add_task(async function testExpiredAccessTokenEWS() {
 
 /**
  * Tests with a bad access token. This simulates an authentication server
- * giving a token that the mail server is not expecting. Very little can be
- * done here, so we notify the user and give up.
+ * giving a token that the mail server is not expecting. A new access token and
+ * then a new login are tried, after which the user is told what the server
+ * said and we give up.
  */
-async function subtestBadAccessToken(identity, outgoingServer) {
+async function subtestBadAccessToken(identity, outgoingServer, server) {
   await addLoginInfo(
     "oauth://test.test",
     "user",
@@ -256,21 +257,28 @@ async function subtestBadAccessToken(identity, outgoingServer) {
   Services.fog.testResetFOG();
   const { composeWindow } = await newComposeWindow(identity);
 
-  const promptPromise = BrowserTestUtils.promiseAlertDialog("cancel");
+  const alertPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    "",
+    "chrome://global/content/commonDialog.xhtml",
+    {
+      async callback(win) {
+        Assert.stringContains(
+          win.document.getElementById("infoBody").textContent,
+          "Invalid access token",
+          "the alert should show the server response"
+        );
+        win.document.querySelector("dialog").acceptDialog();
+      },
+    }
+  );
+  const oAuthPromise = handleOAuthDialog();
   EventUtils.synthesizeMouseAtCenter(
     composeWindow.document.getElementById("button-send"),
     {},
     composeWindow
   );
-  // FIXME: The user is informed that sending failed, and asked if they want
-  // to retry, cancel, or enter a new password. Both retrying and entering a
-  // new password immediately send the same access token to the server, which
-  // isn't going to work.
-  await promptPromise;
-  // FIXME: At this point, an alert appears and tells the user that sending
-  // failed, which is true but redundant. I think the alert is meant to
-  // happen before the exception dialog but this got broken somewhere.
-  await BrowserTestUtils.promiseAlertDialog("accept");
+  await oAuthPromise;
+  await alertPromise;
 
   // Try to solve strange focus issues.
   composeWindow.document.getElementById("toAddrInput").focus();
@@ -279,7 +287,26 @@ async function subtestBadAccessToken(identity, outgoingServer) {
   await BrowserTestUtils.closeWindow(composeWindow);
 
   info("checking results");
-  OAuth2TestUtils.checkTelemetry([]);
+  OAuth2TestUtils.checkTelemetry([
+    {
+      issuer: "test.test",
+      reason: "no refresh token",
+      result: "succeeded",
+      where: "internal",
+    },
+  ]);
+
+  if (server) {
+    const authCommands = [server.server.playTransaction()]
+      .flat()
+      .at(-1)
+      .them.filter(command => command.startsWith("AUTH "));
+    Assert.equal(
+      authCommands.length,
+      3,
+      "the login should be retried with a new access token and a new login"
+    );
+  }
 
   await Services.logins.removeAllLoginsAsync();
   OAuth2TestUtils.forgetObjects();
@@ -297,8 +324,8 @@ add_task(async function testBadAccessTokenEWS() {
 
 /**
  * Tests again with a bad access token, but this time the authentication
- * server gives a valid token. Clicking "Retry" at the prompt should result in
- * the message being sent with no further interaction.
+ * server gives a valid token. The message should be sent with no further
+ * interaction.
  */
 async function subtestRevokedAccessToken1(identity, outgoingServer, server) {
   await addLoginInfo(
@@ -325,14 +352,11 @@ async function subtestRevokedAccessToken1(identity, outgoingServer, server) {
   Services.fog.testResetFOG();
   const { composeWindow, subject } = await newComposeWindow(identity);
 
-  // The "accept" button is labelled "Retry".
-  const promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   EventUtils.synthesizeMouseAtCenter(
     composeWindow.document.getElementById("button-send"),
     {},
     composeWindow
   );
-  await promptPromise;
 
   await BrowserTestUtils.domWindowClosed(composeWindow);
 
@@ -431,12 +455,63 @@ async function subtestRevokedAccessToken2(identity, outgoingServer, server) {
   oAuth2Server.rotateTokens = false;
 }
 
-add_task(async function testRevokedAccessToken2SMTP() {
-  await subtestRevokedAccessToken2(
-    smtpIdentity,
-    smtpOutgoingServer,
-    smtpServer
+/**
+ * Tests with a refresh token that only gives access tokens the mail server
+ * rejects, e.g. because it belongs to another account. After a new access
+ * token fails too, the OAuth2 authentication window should be shown and the
+ * new login used to send the message.
+ */
+add_task(async function testRejectedRefreshTokenSMTP() {
+  await addLoginInfo(
+    "oauth://test.test",
+    "user",
+    "refresh_token",
+    "test_mail test_addressbook test_calendar"
   );
+  oAuth2Server.accessToken = "rejected_access_token";
+
+  info("sending a message to smtp server with a rejected refresh token");
+  Services.fog.testResetFOG();
+  const { composeWindow, subject } = await newComposeWindow(smtpIdentity);
+
+  const oAuthPromise = OAuth2TestUtils.promiseOAuthWindow().then(
+    async oAuthWindow => {
+      oAuth2Server.accessToken = "access_token";
+      await SpecialPowers.spawn(
+        oAuthWindow.getBrowser(),
+        [{ expectedHint: "user", username: "user", password: "password" }],
+        OAuth2TestUtils.submitOAuthLogin
+      );
+    }
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    composeWindow.document.getElementById("button-send"),
+    {},
+    composeWindow
+  );
+  await oAuthPromise;
+
+  await BrowserTestUtils.domWindowClosed(composeWindow);
+
+  info("checking results");
+  OAuth2TestUtils.checkTelemetry([
+    {
+      issuer: "test.test",
+      reason: "no refresh token",
+      result: "succeeded",
+      where: "internal",
+    },
+  ]);
+  await checkSavedToken();
+
+  Assert.stringContains(
+    smtpServer.lastSentMessage,
+    `Subject: ${subject}`,
+    "server should have received message"
+  );
+
+  await Services.logins.removeAllLoginsAsync();
+  OAuth2TestUtils.forgetObjects();
   smtpOutgoingServer.closeCachedConnections();
 });
 
