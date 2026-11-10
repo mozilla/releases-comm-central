@@ -2595,17 +2595,22 @@ nsImapIncomingServer::GetCanSearchMessages(bool* canSearchMessages) {
   return NS_OK;
 }
 
-// Check whether all connections in the cache are idle.
+// Check whether all connections in the cache are idle. Also checks that the
+// queue is empty, as this function is really a "nothing left to do" check.
 NS_IMETHODIMP
 nsImapIncomingServer::GetAllConnectionsIdle(bool* aAllIdle) {
   NS_ENSURE_ARG_POINTER(aAllIdle);
-  *aAllIdle = true;
+
+  PR_CEnterMonitor(this);
+  *aAllIdle = m_urlQueue.IsEmpty();
+  if (!(*aAllIdle)) {
+    return NS_OK;
+  }
 
   nsresult rv;
   bool isBusy;
   bool isInboxConnection;
 
-  PR_CEnterMonitor(this);
   for (nsCOMPtr<nsIImapProtocol> connection : m_connectionCache) {
     rv = connection->IsBusy(&isBusy, &isInboxConnection);
     if (NS_FAILED(rv) || isBusy) {
