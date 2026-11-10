@@ -6604,7 +6604,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
       nsTArray<nsMsgKey> addedKeys;
       nsCOMArray<nsIMsgDBHdr> addedHdrs;
       nsCOMArray<nsIMsgDBHdr> srcMsgs;
-      nsOfflineImapOperationType moveCopyOpType;
+      nsOfflineImapOperationType moveCopyOpType = 0;
       nsOfflineImapOperationType deleteOpType =
           nsIMsgOfflineImapOperation::kDeletedMsg;
       if (!deleteToTrash)
@@ -6783,47 +6783,53 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
         }
       }  // End message loop.
       EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true);
-      RefPtr<nsImapOfflineTxn> addHdrMsgTxn = new nsImapOfflineTxn(
-          this, &addedKeys, nullptr, this, isMove,
-          nsIMsgOfflineImapOperation::kAddedHeader, addedHdrs);
-      if (addHdrMsgTxn && txnMgr) txnMgr->DoTransaction(addHdrMsgTxn);
-      RefPtr<nsImapOfflineTxn> undoMsgTxn =
-          new nsImapOfflineTxn(srcFolder, &srcKeyArray, messageIds.get(), this,
-                               isMove, moveCopyOpType, srcMsgs);
-      if (undoMsgTxn) {
-        if (isMove) {
-          undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eMoveMsg);
-          nsCOMPtr<nsIMsgImapMailFolder> srcIsImap(
-              do_QueryInterface(srcFolder));
-          // remember this undo transaction so we can hook up the result
-          // msg ids in the undo transaction.
-          if (srcIsImap) {
-            nsImapMailFolder* srcImapFolder =
-                static_cast<nsImapMailFolder*>(srcFolder);
-            srcImapFolder->m_pendingOfflineMoves.AppendElement(undoMsgTxn);
-          }
-        } else {
-          undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eCopyMsg);
-        }
-        // we're adding this undo action before the delete is successful. This
-        // is evil, but 4.5 did it as well.
-        if (txnMgr) txnMgr->DoTransaction(undoMsgTxn);
+      if (!addedHdrs.IsEmpty()) {
+        RefPtr<nsImapOfflineTxn> addHdrMsgTxn = new nsImapOfflineTxn(
+            this, &addedKeys, nullptr, this, isMove,
+            nsIMsgOfflineImapOperation::kAddedHeader, addedHdrs);
+        if (addHdrMsgTxn && txnMgr) txnMgr->DoTransaction(addHdrMsgTxn);
       }
-      undoMsgTxn =
-          new nsImapOfflineTxn(srcFolder, &srcKeyArray, messageIds.get(), this,
-                               isMove, deleteOpType, srcMsgs);
-      if (undoMsgTxn) {
-        if (isMove) {
-          if (mFlags & nsMsgFolderFlags::Trash) {
-            undoMsgTxn->SetTransactionType(
-                nsIMsgTransactionService::eDeleteMsg);
-          } else {
+      // moveCopyOpType is only set when a message is added to srcMsgs.
+      if (!srcMsgs.IsEmpty()) {
+        RefPtr<nsImapOfflineTxn> undoMsgTxn =
+            new nsImapOfflineTxn(srcFolder, &srcKeyArray, messageIds.get(),
+                                 this, isMove, moveCopyOpType, srcMsgs);
+        if (undoMsgTxn) {
+          if (isMove) {
             undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eMoveMsg);
+            nsCOMPtr<nsIMsgImapMailFolder> srcIsImap(
+                do_QueryInterface(srcFolder));
+            // remember this undo transaction so we can hook up the result
+            // msg ids in the undo transaction.
+            if (srcIsImap) {
+              nsImapMailFolder* srcImapFolder =
+                  static_cast<nsImapMailFolder*>(srcFolder);
+              srcImapFolder->m_pendingOfflineMoves.AppendElement(undoMsgTxn);
+            }
+          } else {
+            undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eCopyMsg);
           }
-        } else {
-          undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eCopyMsg);
+          // we're adding this undo action before the delete is successful. This
+          // is evil, but 4.5 did it as well.
+          if (txnMgr) txnMgr->DoTransaction(undoMsgTxn);
         }
-        if (txnMgr) txnMgr->DoTransaction(undoMsgTxn);
+        undoMsgTxn =
+            new nsImapOfflineTxn(srcFolder, &srcKeyArray, messageIds.get(),
+                                 this, isMove, deleteOpType, srcMsgs);
+        if (undoMsgTxn) {
+          if (isMove) {
+            if (mFlags & nsMsgFolderFlags::Trash) {
+              undoMsgTxn->SetTransactionType(
+                  nsIMsgTransactionService::eDeleteMsg);
+            } else {
+              undoMsgTxn->SetTransactionType(
+                  nsIMsgTransactionService::eMoveMsg);
+            }
+          } else {
+            undoMsgTxn->SetTransactionType(nsIMsgTransactionService::eCopyMsg);
+          }
+          if (txnMgr) txnMgr->DoTransaction(undoMsgTxn);
+        }
       }
 
       if (isMove) sourceMailDB->Commit(nsMsgDBCommitType::kLargeCommit);
