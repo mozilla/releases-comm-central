@@ -2,11 +2,71 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Axe shadow root tests</title>
+    <title>Axe helper tests</title>
     <link rel="localization" href="messenger/tb-banner.ftl" />
+    <style>
+      .contrast-fixture {
+        color-scheme: light;
+        font: 12px sans-serif;
+        --native-text: AccentColorText;
+        --native-background: AccentColor;
+      }
+
+      .system-pair {
+        color: AccentColorText;
+        background-color: AccentColor;
+      }
+
+      .variable-pair {
+        color: var(--native-text);
+        background-color: var(--missing-background, var(--native-background));
+      }
+
+      .literal-pair {
+        color: #ffffff;
+        background-color: #007aff;
+      }
+
+      .literal-text {
+        color: #ffffff;
+      }
+
+      .literal-background {
+        background-color: #007aff;
+      }
+
+      .mixed-text {
+        color: color-mix(in srgb, AccentColorText 100%, black);
+      }
+
+
+
+      .authored-fill {
+        -webkit-text-fill-color: #ffffff;
+      }
+
+    </style>
   </head>
   <body>
     <main id="fixture"></main>
     <div id="outside"></div>
+    <template id="systemColors">
+      <div class="contrast-fixture">
+        <p id="system-direct" class="system-pair">System colors</p>
+        <p id="system-variable" class="variable-pair">System variables</p>
+        <div class="system-pair">
+          <span id="system-inherited">Inherited system colors</span>
+        </div>
+        <div id="system-shadow" class="system-pair"></div>
+        <p id="literal" class="literal-pair">Authored colors</p>
+        <p id="literal-text" class="system-pair literal-text">Authored text</p>
+        <p id="literal-background" class="system-pair literal-background">
+          Authored background
+        </p>
+        <p id="mixed-text" class="system-pair mixed-text">Mixed system color</p>
+        <p id="text-fill" class="system-pair authored-fill">Authored text fill</p>
+        <button id="unnamed" class="system-pair"></button>
+      </div>
+    </template>
   </body>
 </html>

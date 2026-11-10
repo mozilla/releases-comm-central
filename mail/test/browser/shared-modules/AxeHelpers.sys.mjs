@@ -38,6 +38,437 @@ let axeSourcePromise;
 let axeWatcherCount = 0;
 const axeWindowProperties = new WeakMap();
 const shadowEventDocuments = new WeakMap();
+const SYSTEM_COLOR_PAIRS = new Map([
+  ["accentcolortext", "accentcolor"],
+  ["buttontext", "buttonface"],
+  ["canvastext", "canvas"],
+  ["fieldtext", "field"],
+  ["highlighttext", "highlight"],
+  ["marktext", "mark"],
+  ["selecteditemtext", "selecteditem"],
+  ["linktext", "canvas"],
+  ["visitedtext", "canvas"],
+  ["activetext", "canvas"],
+  ["-moz-dialogtext", "-moz-dialog"],
+]);
+
+/**
+ * Returns an element's parent across slots and open shadow roots.
+ *
+ * @param {Element} element - The child element.
+ * @returns {Element|null} The parent in the composed tree.
+ */
+function getColorParent(element) {
+  return (
+    element.assignedSlot ??
+    element.parentElement ??
+    element.getRootNode().host ??
+    null
+  );
+}
+
+/**
+ * Returns a declared color after CSS variable substitution and inheritance.
+ *
+ * @param {Element} element - The element whose color is needed.
+ * @param {string} property - The color property to trace.
+ * @param {object} inspector - The privileged InspectorUtils namespace.
+ * @returns {{keyword: string, element: Element}|null} The raw color and its source.
+ */
+function getDeclaredColor(element, property, inspector) {
+  let value = "";
+
+  // Matching declarations are ordered for the normal cascade. Do not infer
+  // important, animation, or reset precedence from that order.
+  for (const rule of inspector.getMatchingCSSRules(element)) {
+    const style = rule.style;
+
+    if (!style || style.getPropertyValue("all")) {
+      return null;
+    }
+
+    const declaration = style.getPropertyValue(property);
+    const priority = style.getPropertyPriority(property);
+
+    if (priority) {
+      return null;
+    }
+
+    const backgroundShorthand =
+      property == "background-color"
+        ? style.getPropertyValue("background")
+        : "";
+    const hasUnresolvedBackground =
+      Boolean(backgroundShorthand) && !declaration;
+
+    if (hasUnresolvedBackground) {
+      return null;
+    }
+
+    if (!declaration) {
+      continue;
+    }
+
+    const isDynamicDeclaration = [
+      "animations",
+      "transitions",
+      "smil",
+      "position-fallback",
+    ].includes(rule.declarationOrigin);
+
+    if (isDynamicDeclaration) {
+      return null;
+    }
+
+    const substitutedValue =
+      inspector.getSubstitutedValue(declaration, element) ?? declaration;
+
+    value = substitutedValue.trim().toLowerCase();
+
+    if (!value || ["revert", "revert-layer"].includes(value)) {
+      return null;
+    }
+  }
+
+  const isInheritedProperty = ["color", "-webkit-text-fill-color"].includes(
+    property
+  );
+  const inheritsCurrentColor = property == "color" && value == "currentcolor";
+  const usesInheritedValue = !value || value == "unset" || inheritsCurrentColor;
+  const inherits =
+    value == "inherit" || (isInheritedProperty && usesInheritedValue);
+
+  if (!inherits) {
+    return value ? { keyword: value, element } : null;
+  }
+
+  const parent = getColorParent(element);
+
+  if (parent) {
+    return getDeclaredColor(parent, property, inspector);
+  }
+
+  return property == "-webkit-text-fill-color"
+    ? { keyword: "currentcolor", element }
+    : null;
+}
+
+/**
+ * Returns whether colors are opaque and equal in the same RGB color space.
+ *
+ * @param {object|null} first - The first InspectorUtils RGBA value.
+ * @param {object|null} second - The second InspectorUtils RGBA value.
+ * @returns {boolean} Whether both colors have the same opaque RGB value.
+ */
+function sameOpaqueColor(first, second) {
+  return (
+    first?.a == 1 &&
+    second?.a == 1 &&
+    first.r == second.r &&
+    first.g == second.g &&
+    first.b == second.b
+  );
+}
+
+/**
+ * Returns an opaque system text color and its declared source.
+ *
+ * @param {Element} element - The element being evaluated by axe.
+ * @param {Window} win - The owning window.
+ * @param {object} inspector - The privileged InspectorUtils namespace.
+ * @returns {{color: object, source: {keyword: string, element: Element}}|null}
+ *   The computed text color and its declared source.
+ */
+function getForegroundColor(element, win, inspector) {
+  const source = getDeclaredColor(element, "color", inspector);
+
+  if (!source || !SYSTEM_COLOR_PAIRS.has(source.keyword)) {
+    return null;
+  }
+
+  const fill = getDeclaredColor(element, "-webkit-text-fill-color", inspector);
+
+  if (!fill || !["currentcolor", "initial"].includes(fill.keyword)) {
+    return null;
+  }
+
+  const style = win.getComputedStyle(element);
+  const color = inspector.colorToRGBA(style.color);
+  const isOpaque = color?.a == 1;
+
+  return isOpaque ? { color, source } : null;
+}
+
+/**
+ * Returns whether an element has effects that can change the visible colors.
+ *
+ * @param {Element} element - The element to check.
+ * @param {Window} win - The owning window.
+ * @param {CSSStyleProperties} style - The element's computed style.
+ * @returns {boolean} Whether style effects or generated content can change colors.
+ */
+function hasColorEffects(element, win, style) {
+  const hasTransparency = style.opacity != "1";
+
+  if (hasTransparency) {
+    return true;
+  }
+
+  const hasFilterOrBlending =
+    style.filter != "none" ||
+    style.backdropFilter != "none" ||
+    style.mixBlendMode != "normal";
+
+  if (hasFilterOrBlending) {
+    return true;
+  }
+
+  const hasImageOrShadow =
+    style.backgroundImage != "none" ||
+    style.textShadow != "none" ||
+    style.boxShadow.includes("inset");
+
+  if (hasImageOrShadow) {
+    return true;
+  }
+
+  const textStrokeWidth = parseFloat(
+    style.getPropertyValue("-webkit-text-stroke-width")
+  );
+
+  if (textStrokeWidth > 0) {
+    return true;
+  }
+
+  for (const pseudo of ["::before", "::after"]) {
+    const pseudoContent = win.getComputedStyle(element, pseudo).content;
+    const hasGeneratedContent =
+      pseudoContent != "none" && pseudoContent != "normal";
+
+    if (hasGeneratedContent) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Returns an opaque background and its source when no effects change the colors.
+ *
+ * @param {Element} element - The element being evaluated by axe.
+ * @param {Window} win - The owning window.
+ * @param {object} inspector - The privileged InspectorUtils namespace.
+ * @returns {{color: object, source: {keyword: string, element: Element}}|null}
+ *   The computed background color and its declared source.
+ */
+function getBackgroundColor(element, win, inspector) {
+  let background = null;
+  let backgroundSource = null;
+
+  for (let ancestor = element; ancestor; ancestor = getColorParent(ancestor)) {
+    const style = win.getComputedStyle(ancestor);
+
+    if (hasColorEffects(ancestor, win, style)) {
+      return null;
+    }
+
+    // Check ancestor effects even after finding the opaque background.
+    if (background) {
+      continue;
+    }
+
+    const color = inspector.colorToRGBA(style.backgroundColor);
+    const alpha = color?.a;
+    const isTransparent = alpha == 0;
+    const isOpaque = alpha == 1;
+
+    if (!isTransparent && !isOpaque) {
+      return null;
+    }
+
+    if (isTransparent) {
+      continue;
+    }
+
+    background = color;
+    backgroundSource = getDeclaredColor(
+      ancestor,
+      "background-color",
+      inspector
+    );
+  }
+
+  return backgroundSource
+    ? { color: background, source: backgroundSource }
+    : null;
+}
+
+/**
+ * Captures a matched system pair without effects that change the visible colors.
+ *
+ * @param {Element} element - The element being evaluated by axe.
+ * @param {Window} win - The owning window.
+ * @param {object} inspector - The privileged InspectorUtils namespace.
+ * @returns {{foreground: object, background: object}|null} Computed opaque colors.
+ */
+function captureSystemColors(element, win, inspector) {
+  const foreground = getForegroundColor(element, win, inspector);
+
+  if (!foreground) {
+    return null;
+  }
+
+  const background = getBackgroundColor(element, win, inspector);
+
+  if (!background) {
+    return null;
+  }
+
+  const expectedBackgroundKeyword = SYSTEM_COLOR_PAIRS.get(
+    foreground.source.keyword
+  );
+  const hasMatchingSystemColors =
+    background.source.keyword == expectedBackgroundKeyword;
+
+  if (!hasMatchingSystemColors) {
+    return null;
+  }
+
+  const targetColorScheme = win.getComputedStyle(element).colorScheme;
+
+  // Inherited system colors keep the source element's color scheme.
+  const foregroundColorScheme = win.getComputedStyle(
+    foreground.source.element
+  ).colorScheme;
+
+  if (foregroundColorScheme != targetColorScheme) {
+    return null;
+  }
+
+  const backgroundColorScheme = win.getComputedStyle(
+    background.source.element
+  ).colorScheme;
+
+  if (backgroundColorScheme != targetColorScheme) {
+    return null;
+  }
+
+  return { foreground: foreground.color, background: background.color };
+}
+
+/**
+ * Runs axe and removes only failures evaluated with a matched system-color pair.
+ * Keeps the original contrast check result until its measured colors are verified.
+ *
+ * @param {Window} win - The window containing axe and the scan context.
+ * @param {object|string|Element} context - The axe scan context.
+ * @param {object} axeOptions - The axe run options.
+ * @returns {Promise<object>} The results with proven system-color failures removed.
+ * @internal
+ */
+export async function runAxeWithSystemColors(win, context, axeOptions) {
+  const axe = win.axe;
+
+  // TODO: Keep failures from custom evaluators if tests replace this check.
+  const contrastRule = axe.utils.getRule("color-contrast");
+  const contrastCheck = contrastRule._audit.checks["color-contrast"];
+  const originalEvaluate = contrastCheck.evaluate;
+  const inspector = Cu.unwaiveXrays(win).InspectorUtils;
+
+  // The bundled rule evaluates each element once.
+  // TODO: Track samples by rule if tests reuse this check in custom rules.
+  const samples = new WeakMap();
+
+  function evaluateWithSystemColors(element, ...args) {
+    const result = originalEvaluate.call(this, element, ...args);
+
+    if (result !== false) {
+      return result;
+    }
+
+    // Read provenance in the same synchronous call as the failing evaluation.
+    // Styles after axe.run resolves cannot establish what the scan evaluated.
+    try {
+      const colors = captureSystemColors(element, win, inspector);
+
+      if (colors) {
+        samples.set(element, colors);
+      }
+    } catch {
+      // If a style or inspector API cannot be read, keep the failure.
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns whether a contrast failure should stay in the report.
+   *
+   * @param {object} node - The axe contrast result node.
+   * @returns {boolean} Whether to keep the contrast failure.
+   */
+  function shouldKeepContrastFailure(node) {
+    if (node.target.length != 1) {
+      return true;
+    }
+
+    try {
+      // shadowSelect is a pinned vendored utility for axe selector chains.
+      // Cross-frame targets and unresolved elements receive no exception.
+      const element = axe.utils.shadowSelect(node.target[0]);
+      const capturedColors = samples.get(element);
+
+      if (!capturedColors) {
+        return true;
+      }
+
+      const data = node.any[0].data;
+      const capturedForeground = capturedColors.foreground;
+      const recordedForeground = inspector.colorToRGBA(data.fgColor);
+      const foregroundMatches = sameOpaqueColor(
+        capturedForeground,
+        recordedForeground
+      );
+
+      if (!foregroundMatches) {
+        return true;
+      }
+
+      const capturedBackground = capturedColors.background;
+      const recordedBackground = inspector.colorToRGBA(data.bgColor);
+      const backgroundMatches = sameOpaqueColor(
+        capturedBackground,
+        recordedBackground
+      );
+
+      return !backgroundMatches;
+    } catch {
+      return true;
+    }
+  }
+
+  // Axe rejects overlapping runs in the same window; callers must await scans.
+  contrastCheck.evaluate = evaluateWithSystemColors;
+
+  try {
+    const results = await axe.run(context, axeOptions);
+
+    results.violations = results.violations.filter(violation => {
+      if (violation.id != "color-contrast") {
+        return true;
+      }
+
+      violation.nodes = violation.nodes.filter(shouldKeepContrastFailure);
+
+      return violation.nodes.length > 0;
+    });
+
+    return results;
+  } finally {
+    contrastCheck.evaluate = originalEvaluate;
+  }
+}
 
 /**
  * Get the active build conditions that should disable axe checks.
@@ -423,6 +854,13 @@ export async function runAxe(
     targetBrowser,
     [{ axeOptions: mergedAxeOptions, context, source }],
     async data => {
+      // SpecialPowers.spawn recreates the callback in a separate sandbox.
+      // Import this module there because the sandbox cannot access the
+      // outer module's functions.
+      const { runAxeWithSystemColors: runContentAxe } =
+        ChromeUtils.importESModule(
+          "resource://testing-common/mail/AxeHelpers.sys.mjs"
+        );
       const win = content.wrappedJSObject;
       if (!win.axe?.run) {
         win.eval(data.source);
@@ -454,7 +892,8 @@ export async function runAxe(
       }
 
       await waitForAxeFluent();
-      const results = await win.axe.run(
+      const results = await runContentAxe(
+        win,
         data.context ?? win.document,
         data.axeOptions
       );
@@ -522,7 +961,8 @@ export async function runAxeInWindow(
   const shouldRestoreAxe = acquireAxeWindowProperty(win);
   try {
     await waitForFluent(win);
-    const results = await win.axe.run(
+    const results = await runAxeWithSystemColors(
+      win,
       context ?? win.document,
       mergedAxeOptions
     );
@@ -1086,7 +1526,8 @@ export async function startAxeMutationObserver(targetBrowser, options = {}) {
         state.runCount++;
         try {
           await waitForWatcherFluent();
-          const results = await win.axe.run(
+          const results = await runContentAxe(
+            win,
             runContext ?? win.document.body ?? win.document.documentElement,
             watcherData.axeOptions
           );
@@ -1185,10 +1626,15 @@ export async function startAxeMutationObserver(targetBrowser, options = {}) {
       return summarize(state);
     };
 
-    const { observeAxeMutations: observeContentMutations } =
-      ChromeUtils.importESModule(
-        "resource://testing-common/mail/AxeHelpers.sys.mjs"
-      );
+    // SpecialPowers.spawn recreates the callback in a separate sandbox.
+    // Import this module there because the sandbox cannot access the
+    // outer module's functions.
+    const {
+      observeAxeMutations: observeContentMutations,
+      runAxeWithSystemColors: runContentAxe,
+    } = ChromeUtils.importESModule(
+      "resource://testing-common/mail/AxeHelpers.sys.mjs"
+    );
 
     state.observer = observeContentMutations(
       content,
@@ -1397,7 +1843,8 @@ export async function startAxeMutationObserverInWindow(win, options = {}) {
       try {
         // Forcing translation would make this watcher trigger another check.
         await waitForFluent(win, { forceTranslation: false });
-        const results = await win.axe.run(
+        const results = await runAxeWithSystemColors(
+          win,
           runContext ?? win.document,
           axeOptions
         );

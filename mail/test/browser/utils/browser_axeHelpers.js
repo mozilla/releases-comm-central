@@ -7,6 +7,8 @@
 const {
   injectAxe,
   observeAxeMutations,
+  runAxe,
+  runAxeInWindow,
   startAxeMutationObserver,
   startAxeMutationObserverInWindow,
 } = ChromeUtils.importESModule(
@@ -18,12 +20,13 @@ const watchers = [];
 let browser;
 
 add_setup(async function () {
-  registerCleanupFunction(async () => {
-    for (const watcher of watchers) {
-      await watcher.finish({ assert: false });
-    }
-
-    tabmail.closeOtherTabs(tabmail.tabInfo[0]);
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["ui.useAccessibilityTheme", 0],
+      ["ui.accentcolor", "#007aff"],
+      ["ui.accentcolortext", "#ffffff"],
+      ["widget.non-native-theme.use-theme-accent", true],
+    ],
   });
 
   const tab = tabmail.openTab("contentTab", {
@@ -32,6 +35,201 @@ add_setup(async function () {
 
   await BrowserTestUtils.browserLoaded(tab.browser);
   browser = tab.browser;
+
+  registerCleanupFunction(async () => {
+    for (const watcher of watchers) {
+      await watcher.finish({ assert: false });
+    }
+
+    tabmail.closeOtherTabs(tabmail.tabInfo[0]);
+  });
+});
+
+/**
+ * Recreates low-contrast system and authored colors with identical RGB values.
+ *
+ * @returns {Element} The container for the contrast tests.
+ */
+function createContrastFixture() {
+  const doc = browser.contentWindow.document;
+  const fixture = doc.getElementById("fixture");
+
+  fixture.replaceChildren(
+    doc.getElementById("systemColors").content.cloneNode(true)
+  );
+
+  const shadow = doc
+    .getElementById("system-shadow")
+    .attachShadow({ mode: "open" });
+  const text = doc.createElement("span");
+
+  text.id = "shadow-text";
+  text.textContent = "Inherited shadow colors";
+  shadow.append(text);
+
+  return fixture;
+}
+
+/**
+ * Checks that only matched system colors receive the contrast exception.
+ *
+ * @param {boolean} inContent - Whether to use the spawned content API.
+ * @returns {Promise<void>} Resolves after checking the audit results.
+ */
+async function checkSystemColors(inContent) {
+  createContrastFixture();
+
+  const win = browser.contentWindow;
+  const doc = win.document;
+  const nativeStyle = win.getComputedStyle(doc.getElementById("system-direct"));
+
+  Assert.equal(
+    nativeStyle.color,
+    "rgb(255, 255, 255)",
+    "System text should use the overridden white color"
+  );
+  Assert.equal(
+    nativeStyle.backgroundColor,
+    "rgb(0, 122, 255)",
+    "System background should use the overridden blue color"
+  );
+
+  const options = {
+    context: "#fixture",
+    axeOptions: { runOnly: ["color-contrast", "button-name"] },
+  };
+  const results = inContent
+    ? await runAxe(browser, { ...options, specialPowers: SpecialPowers })
+    : await runAxeInWindow(win, options);
+
+  if (results.skipped) {
+    Assert.ok(results.skippedReason, "Skipped builds should report a reason");
+
+    return;
+  }
+
+  const contrast = results.violations.find(
+    violation => violation.id == "color-contrast"
+  );
+
+  Assert.ok(
+    contrast,
+    "Authored colors should still cause a contrast violation"
+  );
+
+  const targets = contrast.nodes.map(node => node.target.flat().join(" "));
+
+  for (const id of [
+    "system-direct",
+    "system-variable",
+    "system-inherited",
+    "shadow-text",
+  ]) {
+    Assert.ok(
+      !targets.some(target => target.includes(`#${id}`)),
+      `${id} should receive the matched system-color exception`
+    );
+  }
+
+  for (const id of [
+    "literal",
+    "literal-text",
+    "literal-background",
+    "mixed-text",
+    "text-fill",
+  ]) {
+    Assert.ok(
+      targets.some(target => target.endsWith(`#${id}`)),
+      `${id} should retain its contrast failure`
+    );
+  }
+
+  Assert.ok(
+    results.violations.some(
+      violation =>
+        violation.id == "button-name" &&
+        violation.nodes.some(node => node.target.includes("#unnamed"))
+    ),
+    "System-colored controls should still fail other accessibility rules"
+  );
+}
+
+add_task(async function test_windowSystemColors() {
+  await checkSystemColors(false);
+});
+
+add_task(async function test_contentSystemColors() {
+  await checkSystemColors(true);
+});
+
+/**
+ * Checks color provenance before and after a watcher sees identical RGB values.
+ *
+ * @param {boolean} inContent - Whether to use the spawned content watcher.
+ * @returns {Promise<void>} Resolves after the watcher finishes.
+ */
+async function checkSystemColorWatcher(inContent) {
+  const fixture = createContrastFixture();
+  const text = fixture.querySelector("#system-direct");
+
+  fixture.replaceChildren(text);
+
+  const options = {
+    autoFinish: false,
+    container: "#fixture",
+    axeOptions: { runOnly: ["color-contrast"] },
+  };
+  const watcher = inContent
+    ? await startAxeMutationObserver(browser, {
+        ...options,
+        specialPowers: SpecialPowers,
+      })
+    : await startAxeMutationObserverInWindow(browser.contentWindow, options);
+
+  watchers.push(watcher);
+  const initial = await watcher.flush();
+
+  if (initial.skipped) {
+    Assert.ok(initial.skippedReason, "Skipped builds should report a reason");
+    await watcher.finish({ assert: false });
+
+    return;
+  }
+
+  Assert.equal(
+    initial.errors.length,
+    0,
+    "The native-color watcher should have no errors"
+  );
+  Assert.equal(
+    initial.failures.length,
+    0,
+    "The watcher should exclude the matched system pair"
+  );
+
+  text.style.color = "#ffffff";
+
+  const changed = await watcher.finish({ assert: false });
+
+  Assert.equal(
+    changed.errors.length,
+    0,
+    "The authored-color watcher should have no errors"
+  );
+  Assert.ok(
+    changed.failures.some(failure =>
+      failure.violations.some(violation => violation.id == "color-contrast")
+    ),
+    "The watcher should retain an authored contrast failure after the RGB values stay unchanged"
+  );
+}
+
+add_task(async function test_windowSystemColorMutation() {
+  await checkSystemColorWatcher(false);
+});
+
+add_task(async function test_contentSystemColorMutation() {
+  await checkSystemColorWatcher(true);
 });
 
 /**

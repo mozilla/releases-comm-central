@@ -178,6 +178,24 @@ await checkAxe(tab.browser, {
 });
 ```
 
+## System-color contrast
+
+The helpers exclude a text contrast failure when the failing check uses a
+matching system foreground and background, such as `AccentColorText` with
+`AccentColor`, or `ButtonText` with `ButtonFace`. The operating system supplies
+these colors. The exception also supports CSS variables and inherited colors.
+
+The helpers check the declared colors during axe's evaluation. Identical RGB
+values do not establish that a color comes from the system. Authored colors,
+mixed system and authored colors, and uncertain sources retain their failures.
+Effects that change visible colors, such as opacity or gradients, receive no
+exception. Complex cascade cases and cross-frame targets
+also retain their failures.
+
+This exception applies only to `color-contrast`. All other accessibility rules
+still run on the same elements. Mutation watchers use the exception on each
+scan, so changing a system color to an authored color restores contrast checks.
+
 ## Fluent and Build Skips
 
 The helpers wait for Fluent localization before every axe run. When a document
