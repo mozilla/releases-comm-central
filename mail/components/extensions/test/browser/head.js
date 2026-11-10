@@ -102,16 +102,6 @@ registerCleanupFunction(async () => {
 
   await clearStatusBar(window);
 
-  // Some tests that open new windows don't return focus to the main window
-  // in a way that satisfies mochitest, and the test times out.
-  Services.focus.focusedWindow = window;
-
-  // Focus an element in the main window, then blur it again to avoid it
-  // hijacking keypresses.
-  const mainWindowElement = document.getElementById("button-appmenu");
-  mainWindowElement.focus();
-  mainWindowElement.blur();
-
   MailServices.accounts.accounts.forEach(cleanUpAccount);
   check3PaneState(true, true);
 
@@ -128,6 +118,12 @@ registerCleanupFunction(async () => {
     )}`
   );
   setCachedAllowedSpaces(new Map());
+
+  // Some tests that open new windows confuse mochitest, which waits for a
+  // focus event on the main window, and the test times out. If we focus a
+  // different window (browser-harness.xhtml should be the only other window
+  // at this point) then mochitest gets its focus event and the test ends.
+  await SimpleTest.promiseFocus([...Services.wm.getEnumerator(null)][1]);
 });
 
 /**
