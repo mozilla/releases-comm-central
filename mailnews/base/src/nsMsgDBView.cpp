@@ -2085,14 +2085,8 @@ nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
       return DownloadForOffline(mInteractive, selection);
     case nsMsgViewCommandType::downloadFlaggedForOffline:
       return DownloadFlaggedForOffline(mInteractive);
-    case nsMsgViewCommandType::markMessagesRead:
-    case nsMsgViewCommandType::markMessagesUnread:
-    case nsMsgViewCommandType::toggleMessageRead:
-    case nsMsgViewCommandType::flagMessages:
-    case nsMsgViewCommandType::unflagMessages:
     case nsMsgViewCommandType::deleteMsg:
     case nsMsgViewCommandType::deleteNoTrash:
-    case nsMsgViewCommandType::markThreadRead:
     case nsMsgViewCommandType::junk:
     case nsMsgViewCommandType::unjunk:
       rv = ApplyCommandToIndices(command, selection);
@@ -2227,13 +2221,7 @@ nsMsgDBView::GetCommandStatus(nsMsgViewCommandTypeValue command, bool* status) {
       // XXX todo, check that we have JMC enabled?
       *status = GetSize() && JunkControlsEnabled(nsMsgViewIndex_None);
       break;
-    case nsMsgViewCommandType::markMessagesRead:
-    case nsMsgViewCommandType::markMessagesUnread:
-    case nsMsgViewCommandType::toggleMessageRead:
-    case nsMsgViewCommandType::flagMessages:
-    case nsMsgViewCommandType::unflagMessages:
     case nsMsgViewCommandType::toggleThreadWatched:
-    case nsMsgViewCommandType::markThreadRead:
     case nsMsgViewCommandType::downloadSelectedForOffline:
       *status = haveSelection;
       break;
@@ -2341,6 +2329,43 @@ nsresult nsMsgDBView::GetHeadersFromSelection(
 }
 
 NS_IMETHODIMP
+nsMsgDBView::GetCollapsedMsgHdrsAt(const nsMsgViewIndex viewIndex,
+                                   nsTArray<RefPtr<nsIMsgDBHdr>>& hdrs) {
+  hdrs.Clear();
+
+  if (!IsValidIndex(viewIndex)) {
+    return NS_MSG_INVALID_DBVIEW_INDEX;
+  }
+
+  bool includeCollapsedMsgs = OperateOnMsgsInCollapsedThreads();
+
+  uint32_t viewIndexFlags = m_flags[viewIndex];
+  if (viewIndexFlags & MSG_VIEW_FLAG_DUMMY) {
+    // If collapsed dummy header selected, list its children.
+    if (includeCollapsedMsgs && viewIndexFlags & nsMsgMessageFlags::Elided &&
+        m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) {
+      return ListCollapsedChildren(viewIndex, hdrs);
+    }
+    return NS_OK;
+  }
+
+  nsCOMPtr<nsIMsgDBHdr> msgHdr;
+  nsresult rv = GetMsgHdrForViewIndex(viewIndex, getter_AddRefs(msgHdr));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (msgHdr) {
+    hdrs.AppendElement(msgHdr);
+    if (includeCollapsedMsgs && viewIndexFlags & nsMsgMessageFlags::Elided &&
+        viewIndexFlags & MSG_VIEW_FLAG_HASCHILDREN &&
+        m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) {
+      rv = ListCollapsedChildren(viewIndex, hdrs);
+    }
+  }
+
+  return rv;
+}
+
+NS_IMETHODIMP
 nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
                                    nsTArray<nsMsgViewIndex> const& selection) {
   if (selection.IsEmpty()) {
@@ -2418,41 +2443,10 @@ nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
           rv = SetMsgHdrJunkStatus(junkPlugin.get(), msgHdr,
                                    nsIJunkMailPlugin::GOOD);
           break;
-        case nsMsgViewCommandType::toggleMessageRead:
-        case nsMsgViewCommandType::markMessagesRead:
-        case nsMsgViewCommandType::markMessagesUnread:
-        case nsMsgViewCommandType::unflagMessages:
-        case nsMsgViewCommandType::flagMessages:
-          // This is completely handled in the code below.
-          break;
         default:
           NS_ERROR("unhandled command");
           break;
       }
-    }
-
-    switch (command) {
-      case nsMsgViewCommandType::toggleMessageRead: {
-        if (messages.IsEmpty()) break;
-
-        uint32_t msgFlags;
-        messages[0]->GetFlags(&msgFlags);
-        folder->MarkMessagesRead(messages,
-                                 !(msgFlags & nsMsgMessageFlags::Read));
-        break;
-      }
-      case nsMsgViewCommandType::markMessagesRead:
-      case nsMsgViewCommandType::markMessagesUnread:
-        folder->MarkMessagesRead(
-            messages, command == nsMsgViewCommandType::markMessagesRead);
-        break;
-      case nsMsgViewCommandType::unflagMessages:
-      case nsMsgViewCommandType::flagMessages:
-        folder->MarkMessagesFlagged(
-            messages, command == nsMsgViewCommandType::flagMessages);
-        break;
-      default:
-        break;
     }
 
     // Provide junk-related batch notifications.

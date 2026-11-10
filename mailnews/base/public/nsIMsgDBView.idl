@@ -115,12 +115,6 @@ interface nsMsgViewCommandCheckState : nsISupports
 interface nsMsgViewCommandType : nsISupports
 {
   const nsMsgViewCommandTypeValue markMessagesRead = 0;
-  const nsMsgViewCommandTypeValue markMessagesUnread = 1;
-  const nsMsgViewCommandTypeValue toggleMessageRead = 2;
-
-  const nsMsgViewCommandTypeValue flagMessages = 3;
-  const nsMsgViewCommandTypeValue unflagMessages = 4;
-
   const nsMsgViewCommandTypeValue toggleThreadWatched = 6;
 
   const nsMsgViewCommandTypeValue deleteMsg = 7;
@@ -302,6 +296,13 @@ interface nsIMsgDBView : nsISupports
    * Returns first selected message, or null if none is selected.
    */
   readonly attribute nsIMsgDBHdr hdrForFirstSelectedMessage;
+
+  /**
+   * Returns all messages at `index`. If the row at `index` is collapsed and
+   * mail.operate_on_msgs_in_collapsed_threads is true, this includes the
+   * collapsed messages. Otherwise, this is the same as `getMsgHdrAt`.
+   */
+  Array<nsIMsgDBHdr> getCollapsedMsgHdrsAt(in nsMsgViewIndex index);
 
   /**
    * The number of selected messages.  If the

@@ -950,7 +950,10 @@ var folderPaneContextMenu = {
         break;
       case "folderPaneContext-markMailFolderAllRead":
       case "folderPaneContext-markNewsgroupAllRead":
+        // This is not cmd_markAllRead. Arguably we should call that instead.
         if (folder.flags & Ci.nsMsgFolderFlags.Virtual) {
+          // This marks messages that aren't even in the search results, but
+          // in one of the search folders. It shouldn't, but it does.
           topChromeWindow.MsgMarkAllRead(
             VirtualFolderHelper.wrapVirtualFolder(folder).searchFolders
           );
@@ -4536,19 +4539,23 @@ var threadPane = {
       this.restoreDefaultColumns();
     });
     this.treeTable.addEventListener("toggle-flag", event => {
-      gDBView.applyCommandToIndices(
-        event.detail.isFlagged
-          ? Ci.nsMsgViewCommandType.unflagMessages
-          : Ci.nsMsgViewCommandType.flagMessages,
-        [event.detail.index]
+      const viewMessages = gDBView.getCollapsedMsgHdrsAt(event.detail.index);
+      if (!viewMessages.length) {
+        return;
+      }
+      const isFlagged = viewMessages[0].isFlagged;
+      MailUtils.batchByFolder(viewMessages, (folder, messages) =>
+        folder.markMessagesFlagged(messages, !isFlagged)
       );
     });
     this.treeTable.addEventListener("toggle-unread", event => {
-      gDBView.applyCommandToIndices(
-        event.detail.isUnread
-          ? Ci.nsMsgViewCommandType.markMessagesRead
-          : Ci.nsMsgViewCommandType.markMessagesUnread,
-        [event.detail.index]
+      const viewMessages = gDBView.getCollapsedMsgHdrsAt(event.detail.index);
+      if (!viewMessages.length) {
+        return;
+      }
+      const isRead = viewMessages[0].isRead;
+      MailUtils.batchByFolder(viewMessages, (folder, messages) =>
+        folder.markMessagesRead(messages, !isRead)
       );
     });
     this.treeTable.addEventListener("toggle-spam", event => {

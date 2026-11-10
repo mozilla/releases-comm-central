@@ -108,6 +108,14 @@ function filterRunListener(folder) {
 }
 
 var commandController = {
+  _clearReadTimer() {
+    if (window.ClearPendingReadTimer) {
+      window.ClearPendingReadTimer();
+    } else if (window.messageBrowser) {
+      window.messageBrowser.contentWindow.ClearPendingReadTimer();
+    }
+  },
+
   _composeCommands: {
     cmd_editDraftMsg: Ci.nsIMsgCompType.Draft,
     cmd_newMsgFromTemplate: Ci.nsIMsgCompType.Template,
@@ -134,10 +142,6 @@ var commandController = {
     cmd_previousFlaggedMsg: Ci.nsMsgNavigationType.previousFlagged,
   },
   _viewCommands: {
-    cmd_toggleRead: Ci.nsMsgViewCommandType.toggleMessageRead,
-    cmd_markAsRead: Ci.nsMsgViewCommandType.markMessagesRead,
-    cmd_markAsUnread: Ci.nsMsgViewCommandType.markMessagesUnread,
-    cmd_markThreadAsRead: Ci.nsMsgViewCommandType.markThreadRead,
     cmd_markAllRead: Ci.nsMsgViewCommandType.markAllRead,
     cmd_markAsNotJunk: Ci.nsMsgViewCommandType.unjunk,
     cmd_watchThread: Ci.nsMsgViewCommandType.toggleThreadWatched,
@@ -207,6 +211,45 @@ var commandController = {
         event.target.hasAttribute("checked")
       );
     },
+    cmd_markAsRead() {
+      commandController._clearReadTimer();
+      MailUtils.batchByFolder(
+        gDBView.getSelectedMsgHdrs(),
+        (folder, messages) => folder.markMessagesRead(messages, true)
+      );
+    },
+    cmd_markAsUnread() {
+      commandController._clearReadTimer();
+      MailUtils.batchByFolder(
+        gDBView.getSelectedMsgHdrs(),
+        (folder, messages) => folder.markMessagesRead(messages, false)
+      );
+    },
+    cmd_toggleRead() {
+      commandController._clearReadTimer();
+      const selectedMessages = gDBView.getSelectedMsgHdrs();
+      const isRead = selectedMessages[0].isRead;
+      MailUtils.batchByFolder(selectedMessages, (folder, messages) =>
+        folder.markMessagesRead(messages, !isRead)
+      );
+    },
+    cmd_markThreadAsRead() {
+      commandController._clearReadTimer();
+      const threads = new Set();
+      for (const index of gDBView.getIndicesForSelection()) {
+        threads.add(gDBView.getThreadContainingIndex(index));
+      }
+      const selectedMessages = new Set();
+      for (const thread of threads) {
+        for (let i = 0; i < thread.numChildren; i++) {
+          selectedMessages.add(thread.getChildHdrAt(i));
+        }
+      }
+      // Can a thread be in multiple folders? In the new database, sure!
+      MailUtils.batchByFolder(selectedMessages, (folder, messages) =>
+        folder.markMessagesRead(messages, true)
+      );
+    },
     cmd_markReadByDate() {
       window.browsingContext.topChromeWindow.openDialog(
         "chrome://messenger/content/markByDate.xhtml",
@@ -216,17 +259,17 @@ var commandController = {
       );
     },
     cmd_markAsFlagged() {
-      gDBView.doCommand(
-        gDBView.hdrForFirstSelectedMessage.isFlagged
-          ? Ci.nsMsgViewCommandType.unflagMessages
-          : Ci.nsMsgViewCommandType.flagMessages
+      const selectedMessages = gDBView.getSelectedMsgHdrs();
+      const isFlagged = selectedMessages[0].isFlagged;
+      MailUtils.batchByFolder(selectedMessages, (folder, messages) =>
+        folder.markMessagesFlagged(messages, !isFlagged)
       );
     },
     cmd_markAsJunk() {
       if (
         Services.prefs.getBoolPref("mailnews.ui.junk.manualMarkAsJunkMarksRead")
       ) {
-        gDBView.doCommand(Ci.nsMsgViewCommandType.markMessagesRead);
+        commandController.doCommand("cmd_markAsRead");
       }
       gDBView.doCommand(Ci.nsMsgViewCommandType.junk);
     },
@@ -700,18 +743,12 @@ var commandController = {
         if (numSelectedMessages == 0 || isDummyMessage) {
           return false;
         }
-        const sel = gDBView.selection;
-        for (let i = 0; i < sel.getRangeCount(); i++) {
-          const start = {};
-          const end = {};
-          sel.getRangeAt(i, start, end);
-          for (let j = start.value; j <= end.value; j++) {
-            if (gDBView.getThreadContainingIndex(j).numUnreadChildren > 0) {
-              return true;
-            }
-          }
-        }
-        return false;
+        return gDBView
+          .getIndicesForSelection()
+          .some(
+            index =>
+              gDBView.getThreadContainingIndex(index).numUnreadChildren > 0
+          );
       }
       case "cmd_markReadByDate":
       case "cmd_markAllRead":
@@ -793,11 +830,7 @@ var commandController = {
 
     if (command in this._viewCommands) {
       if (command.endsWith("Read") || command.endsWith("Unread")) {
-        if (window.ClearPendingReadTimer) {
-          window.ClearPendingReadTimer();
-        } else {
-          window.messageBrowser.contentWindow.ClearPendingReadTimer();
-        }
+        this._clearReadTimer();
       }
       gDBView.doCommand(this._viewCommands[command]);
       return;

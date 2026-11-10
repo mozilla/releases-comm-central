@@ -669,22 +669,16 @@ var threadPane = {
       case "restore-columns":
         this.restoreDefaultColumns();
         break;
-      case "toggle-flag":
-        gDBView.applyCommandToIndices(
-          event.detail.isFlagged
-            ? Ci.nsMsgViewCommandType.unflagMessages
-            : Ci.nsMsgViewCommandType.flagMessages,
-          [event.detail.index]
-        );
+      case "toggle-flag": {
+        const message = gDBView.getMsgHdrAt(event.detail.index);
+        message.folder.markMessagesFlagged([message], !message.isFlagged);
         break;
-      case "toggle-unread":
-        gDBView.applyCommandToIndices(
-          event.detail.isUnread
-            ? Ci.nsMsgViewCommandType.markMessagesRead
-            : Ci.nsMsgViewCommandType.markMessagesUnread,
-          [event.detail.index]
-        );
+      }
+      case "toggle-unread": {
+        const message = gDBView.getMsgHdrAt(event.detail.index);
+        message.folder.markMessagesRead([message], !message.isRead);
         break;
+      }
       case "toggle-spam":
         gDBView.applyCommandToIndices(
           event.detail.isJunk
