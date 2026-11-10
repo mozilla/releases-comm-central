@@ -4,7 +4,7 @@
 
 import { DOMLocalization } from "@fluent/dom";
 import { FluentBundle, FluentResource } from "@fluent/bundle";
-import { addons } from "@storybook/addons";
+import { addons } from "storybook/preview-api";
 import { PSEUDO_STRATEGY_TRANSFORMS } from "./l10n-pseudo.mjs";
 import {
   FLUENT_SET_STRINGS,
@@ -14,6 +14,23 @@ import {
 } from "./addon-fluent/constants.mjs";
 
 const loadedResources = new Map();
+const fluentResources = import.meta.glob(
+  [
+    "../../../../../toolkit/locales/en-US/toolkit/**/*.ftl",
+    "../../../locales/en-US/messenger/**/*.ftl",
+    "../../../branding/nightly/locales/en-US/**/*.ftl",
+    "../../../../calendar/locales/en-US/calendar/**/*.ftl",
+    "../../../../chat/locales/en-US/**/*.ftl",
+  ],
+  { query: "?raw", import: "default" }
+);
+const resourceRoots = {
+  toolkit: "../../../../../toolkit/locales/en-US/",
+  messenger: "../../../locales/en-US/",
+  branding: "../../../branding/nightly/locales/en-US/",
+  calendar: "../../../../calendar/locales/en-US/",
+  chat: "../../../../chat/locales/en-US/",
+};
 let currentStrategy;
 const storybookBundle = new FluentBundle("en-US", {
   transform(str) {
@@ -70,53 +87,30 @@ function* generateBundles() {
   yield* [storybookBundle];
 }
 
+/**
+ * Loads a Fluent resource into the Storybook bundle.
+ *
+ * @param {string} fileName - Logical resource name, such as "chat/accounts.ftl".
+ * @returns {Promise<void>} Resolves when the bundle contains the resource.
+ *   DOM translation can still be running.
+ * @throws {Error} Rejects if the resource is unknown or cannot be loaded.
+ */
 export async function insertFTLIfNeeded(fileName) {
   if (loadedResources.has(fileName)) {
     return;
   }
 
-  // This should be browser, locales-preview or toolkit.
   const [root, ...rest] = fileName.split("/");
-  let ftlContents;
+  // Branding and Chat files live directly in their locale roots.
+  const resourceName =
+    root === "branding" || root === "chat" ? rest.join("/") : fileName;
+  const loadResource = fluentResources[`${resourceRoots[root]}${resourceName}`];
 
-  // TODO(mstriemer): These seem like they could be combined but I don't want
-  // to fight with webpack anymore.
-  if (root == "toolkit") {
-    // eslint-disable-next-line no-unsanitized/method
-    const imported = await import(
-      /* webpackInclude: /.*[\/\\].*\.ftl$/ */
-      `comm/../toolkit/locales/en-US/${fileName}`
-    );
-    ftlContents = imported.default;
-  } else if (root == "messenger") {
-    // eslint-disable-next-line no-unsanitized/method
-    const imported = await import(
-      /* webpackInclude: /.*[\/\\].*\.ftl$/ */
-      `mail/locales/en-US/${fileName}`
-    );
-    ftlContents = imported.default;
-  } else if (root == "branding") {
-    // eslint-disable-next-line no-unsanitized/method
-    const imported = await import(
-      /* webpackInclude: /\.ftl$/ */
-      `mail/branding/nightly/locales/en-US/${rest}`
-    );
-    ftlContents = imported.default;
-  } else if (root == "calendar") {
-    // eslint-disable-next-line no-unsanitized/method
-    const imported = await import(
-      /* webpackInclude: /.*[\/\\].*\.ftl$/ */
-      `comm/calendar/locales/en-US/${fileName}`
-    );
-    ftlContents = imported.default;
-  } else if (root == "chat") {
-    // eslint-disable-next-line no-unsanitized/method
-    const imported = await import(
-      /* webpackInclude: /.*[\/\\].*\.ftl$/ */
-      `comm/chat/locales/en-US/${fileName}`
-    );
-    ftlContents = imported.default;
+  if (!loadResource) {
+    throw new Error(`Unknown Fluent resource: ${fileName}`);
   }
+
+  const ftlContents = await loadResource();
 
   if (loadedResources.has(fileName)) {
     // Seems possible we've attempted to load this twice before the first call

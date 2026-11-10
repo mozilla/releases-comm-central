@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { html } from "lit";
-import { action } from "@storybook/addon-actions";
+import { action } from "storybook/actions";
 import "mail/themes/shared/mail/tree-listbox.css";
 import "mail/base/content/widgets/listbox/tree-listbox.mjs";
 

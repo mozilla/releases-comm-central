@@ -2,62 +2,79 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import path from "path";
-import webpack from "webpack";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { mergeConfig, normalizePath } from "vite";
 import { rewriteChromeUri } from "./chrome-uri-utils.mjs";
 
-// ./mach environment --format json
-// topobjdir should be the build location
+const projectRoot = normalizePath(
+  fileURLToPath(new URL("../../../../", import.meta.url))
+);
 
 export default {
-  stories: [
-    "../stories/**/*.stories.mdx",
-    "../stories/**/*.stories.@(mjs|jsx|ts|tsx)",
-  ],
+  stories: ["../stories/**/*.stories.@(mjs|jsx|ts|tsx)"],
   addons: [
-    "@storybook/addon-links",
-    "@storybook/addon-essentials",
+    "@storybook/addon-docs",
     "@storybook/addon-a11y",
-    path.resolve(__dirname, "addon-fluent"),
+    fileURLToPath(import.meta.resolve("./addon-fluent/index.mjs")),
   ],
   framework: {
-    name: "@storybook/web-components-webpack5",
+    name: "@storybook/web-components-vite",
     options: {},
   },
-  webpackFinal: async (config) => {
-    // `configType` has a value of 'DEVELOPMENT' or 'PRODUCTION'
-    // You can change the configuration based on that.
-    // 'PRODUCTION' is used when building the static version of storybook.
+  async viteFinal(config) {
+    return mergeConfig(config, {
+      resolve: {
+        alias: [
+          { find: "mail", replacement: path.join(projectRoot, "mail") },
+          { find: "comm", replacement: projectRoot },
+          { find: /^moz-src:\/\/\/comm\//, replacement: projectRoot },
+          // Vite only passes native URLs to our resolver when an alias matches.
+          { find: /^chrome:\/\//, replacement: "chrome://" },
+        ],
+      },
+      server: {
+        fs: { allow: [path.dirname(projectRoot)] },
+      },
+      plugins: [
+        {
+          name: "thunderbird-modules",
+          enforce: "pre",
+          async resolveId(source, importer) {
+            let request = source;
 
-    // Make whatever fine-grained changes you need
-    const projectRoot = path.resolve(__dirname, "../../../../");
-    config.resolve.alias = {
-      mail: `${projectRoot}/mail`,
-      comm: projectRoot,
-    };
+            if (source.startsWith("chrome://")) {
+              request = rewriteChromeUri(source);
 
-    config.plugins.push(
-      // Rewrite chrome:// URI imports to file system paths.
-      new webpack.NormalModuleReplacementPlugin(/^chrome:\/\//, resource => {
-        resource.request = rewriteChromeUri(resource.request);
-      })
-    );
+              if (!request) {
+                this.error(`No Thunderbird source mapping for ${source}`);
+              }
+            }
 
-    config.module.rules.push({
-      test: /\.ftl$/,
-      type: "asset/source",
+            // Vite requires ?raw for imported HTML; Thunderbird uses type:text.
+            if (
+              request.endsWith(".html") &&
+              importer?.startsWith(projectRoot) &&
+              !importer.includes("/node_modules/")
+            ) {
+              request += "?raw";
+            }
+
+            if (request === source) {
+              return null;
+            }
+
+            return this.resolve(request, importer, { skipSelf: true });
+          },
+        },
+      ],
+      build: {
+        minify: false,
+        cssMinify: false,
+        // Native chrome:// CSS imports must not block async story loading.
+        cssCodeSplit: false,
+        rolldownOptions: { treeshake: false },
+      },
     });
-
-    config.optimization = {
-      splitChunks: false,
-      runtimeChunk: false,
-      sideEffects: false,
-      usedExports: false,
-      concatenateModules: false,
-      minimizer: [],
-    };
-
-    // Return the altered config
-    return config;
   },
 };

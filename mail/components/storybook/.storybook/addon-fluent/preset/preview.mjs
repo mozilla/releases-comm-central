@@ -17,11 +17,14 @@ export const globalTypes = {
   pseudoStrategy: {
     name: "Pseudo l10n strategy",
     description: "Provides text variants for testing different locales.",
-    defaultValue: "default",
   },
   fluentStrings: {
     name: "Fluent string map for components",
     description: "Mapping of component to fluent strings.",
-    defaultValue: {},
   },
+};
+
+export const initialGlobals = {
+  pseudoStrategy: "default",
+  fluentStrings: {},
 };

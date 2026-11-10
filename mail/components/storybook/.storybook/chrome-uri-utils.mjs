@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import chromeMap from "./chrome-map.mjs";
-// Storybook somehow loads us in a cursed semi-mjs land where default exports
-// work more like the old commonJS workaround.
-const [ prefixMap, aliasMap, sourceMap ] = chromeMap.default;
+
+const [ prefixMap, aliasMap, sourceMap ] = chromeMap;
 
 export function rewriteChromeUri(uri) {
   if (uri in aliasMap) {

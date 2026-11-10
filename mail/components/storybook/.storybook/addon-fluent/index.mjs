@@ -1,23 +1,18 @@
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { fileURLToPath } from "node:url";
+
 /**
- * This file hooks our addon into Storybook. Having a root-level file like this
- * is a Storybook requirement. It handles registering the addon without any
- * additional user configuration.
+ * Adds the Fluent decorators to the Storybook preview.
+ *
+ * @param {string[]} [entry=[]] - Registered preview modules.
+ * @returns {string[]} The preview modules, including the Fluent decorators.
  */
-
-function config(entry = []) {
-  return [...entry, require.resolve("./preset/preview.mjs")];
+export function previewAnnotations(entry = []) {
+  return [
+    ...entry,
+    fileURLToPath(import.meta.resolve("./preset/preview.mjs")),
+  ];
 }
-
-function managerEntries(entry = []) {
-  return [...entry, ]; //require.resolve("./preset/manager.mjs")];
-}
-
-export default {
-  managerEntries,
-  config,
-};

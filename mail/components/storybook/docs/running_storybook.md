@@ -1,5 +1,8 @@
 # Running Storybook
 
+Storybook requires Node.js 20.19 or later in the Node.js 20 release line, or
+Node.js 22.12 or later. It uses the Vite builder for Web Components.
+
 You can run Storybook by executing
 
 ```

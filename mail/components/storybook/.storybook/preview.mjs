@@ -37,3 +37,12 @@ window.ChromeUtils = {
     return window.AppConstants;
   },
 };
+
+// Stories use complete URLs, so no application values need expansion.
+window.Services = {
+  urlFormatter: {
+    formatURL(url) {
+      return url;
+    },
+  },
+};
