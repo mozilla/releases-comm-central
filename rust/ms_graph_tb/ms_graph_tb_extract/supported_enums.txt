@@ -1,4 +1,6 @@
 # One Graph enum schema base name per line.
 
+attendeeType
 followupFlagStatus
 importance
+responseType

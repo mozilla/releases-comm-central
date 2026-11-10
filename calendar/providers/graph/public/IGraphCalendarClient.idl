@@ -27,13 +27,22 @@ interface IGraphCalendarDiscoveryListener : nsISupports
 
 [scriptable, uuid(d35fcd79-865a-426b-9975-9d10ed1c7ce6)]
 interface IGraphCalendarEventListener : nsISupports {
+    /**
+     * Signal that a calendar event is present.
+     *
+     * The arrays containing attendee data MUST be the same length.
+     */
     void onEventPresent(
       in AUTF8String id,
       in AUTF8String title,
       in AUTF8String startDateTime,
       in AUTF8String endDateTime,
       in AUTF8String startTimeZone,
-      in AUTF8String endTimeZone);
+      in AUTF8String endTimeZone,
+      in Array<AUTF8String> attendeeEmailAddresses,
+      in Array<AUTF8String> attendeeCommonNames,
+      in Array<AUTF8String> attendeeResponseStatuses,
+      in Array<AUTF8String> attendeeTypes);
     void onEventDeleted(in AUTF8String id);
     void onComplete(in nsresult statusCode);
     void onSyncStateTokenChanged(in AUTF8String syncStateToken);

@@ -4,7 +4,7 @@
 
 /* import-globals-from ../head.js */
 
-const { GraphCalendarEvent } = ChromeUtils.importESModule(
+const { GraphCalendarEvent, GraphCalendarAttendee, EmailAddress } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/GraphTypes.sys.mjs"
 );
 
@@ -23,11 +23,18 @@ let nextEventIndex = 0;
 function generateEvents(calendarId, count) {
   return Array.from({ length: count }, () => {
     const index = nextEventIndex++;
+    const attendee = new GraphCalendarAttendee(
+      new EmailAddress(`Name ${index}`, `${index}@example.com`),
+      "accepted",
+      "required"
+    );
     const event = new GraphCalendarEvent(
       `id${index}`,
       `subject ${index}`,
       "2039-01-01T01:00:00.0000000",
-      "2039-01-01T02:00:00.0000000"
+      "2039-01-01T02:00:00.0000000",
+      [attendee],
+      {}
     );
 
     graphServer.addCalendarEvent(calendarId, event);
@@ -107,7 +114,7 @@ async function testReadTimeZones(server, calendar) {
   calendar.name = "Graph time zone test";
   server.clearItems();
   const events = [
-    new GraphCalendarEvent("windows-zone", "Summer", "", "", {
+    new GraphCalendarEvent("windows-zone", "Summer", "", "", [], {
       start: {
         dateTime: "2039-07-15T09:00:00.0000000",
         timeZone: "Eastern Standard Time",
@@ -117,27 +124,27 @@ async function testReadTimeZones(server, calendar) {
         timeZone: "Eastern Standard Time",
       },
     }),
-    new GraphCalendarEvent("iana-zone", "Winter", "", "", {
+    new GraphCalendarEvent("iana-zone", "Winter", "", "", [], {
       start: { dateTime: "2039-01-15T09:00:00", timeZone: "America/New_York" },
       end: { dateTime: "2039-01-15T10:00:00", timeZone: "America/Los_Angeles" },
     }),
-    new GraphCalendarEvent("missing-zone", "Missing zone", "", "", {
+    new GraphCalendarEvent("missing-zone", "Missing zone", "", "", [], {
       start: { dateTime: "2039-01-15T09:00:00" },
       end: { dateTime: "2039-01-15T10:00:00", timeZone: null },
     }),
-    new GraphCalendarEvent("suffix-zone", "Explicit offsets", "", "", {
+    new GraphCalendarEvent("suffix-zone", "Explicit offsets", "", "", [], {
       start: { dateTime: "2039-01-15T09:00:00Z", timeZone: "America/New_York" },
       end: { dateTime: "2039-01-15T10:00:00-05:00", timeZone: "America/New_York" },
     }),
-    new GraphCalendarEvent("mismatched-offset", "Mismatched offset", "", "", {
+    new GraphCalendarEvent("mismatched-offset", "Mismatched offset", "", "", [], {
       start: { dateTime: "2039-01-15T09:00:00-08:00", timeZone: "America/New_York" },
       end: { dateTime: "2039-01-15T10:00:00-08:00", timeZone: "America/New_York" },
     }),
-    new GraphCalendarEvent("spring-transition", "Spring transition", "", "", {
+    new GraphCalendarEvent("spring-transition", "Spring transition", "", "", [], {
       start: { dateTime: "2026-03-08T01:30:00", timeZone: "America/New_York" },
       end: { dateTime: "2026-03-08T03:30:00", timeZone: "America/New_York" },
     }),
-    new GraphCalendarEvent("fall-transition", "Fall transition", "", "", {
+    new GraphCalendarEvent("fall-transition", "Fall transition", "", "", [], {
       start: { dateTime: "2026-11-01T00:30:00", timeZone: "America/New_York" },
       end: { dateTime: "2026-11-01T02:30:00", timeZone: "America/New_York" },
     }),
@@ -223,7 +230,7 @@ async function testReadTimeZones(server, calendar) {
   const syncStateToken = graphCal.syncStateToken;
   server.addCalendarEvent(
     calendar.id,
-    new GraphCalendarEvent("unknown-zone", "Unknown", "", "", {
+    new GraphCalendarEvent("unknown-zone", "Unknown", "", "", [], {
       start: { dateTime: "2039-01-15T09:00:00", timeZone: "Invalid/TimeZone" },
       end: { dateTime: "2039-01-15T10:00:00", timeZone: "UTC" },
     })
@@ -313,6 +320,31 @@ async function testEventBatching(server, calendar) {
     items.map(e => e.title),
     events.map(e => e.subject),
     "events should have been created with expected titles"
+  );
+
+  Assert.deepEqual(
+    // When we pass the email into the ID, CalAttendee prepends "mailto:"
+    items.map(i => i.getAttendees().map(a => a.id.substr(7))),
+    events.map(e => e.attendees.map(a => a.emailAddress.address)),
+    "event attendees should match given email addresses"
+  );
+
+  Assert.deepEqual(
+    items.map(i => i.getAttendees().map(a => a.commonName)),
+    events.map(e => e.attendees.map(a => a.emailAddress.name)),
+    "event attendees should match given email addresses"
+  );
+
+  Assert.deepEqual(
+    items.map(i => i.getAttendees().map(a => a.role)),
+    events.map(e => e.attendees.map(_ => "REQ-PARTICIPANT")),
+    "event attendee roles should match the expected role"
+  );
+
+  Assert.deepEqual(
+    items.map(i => i.getAttendees().map(a => a.participationStatus)),
+    events.map(e => e.attendees.map(_ => "ACCEPTED")),
+    "event attendee participation status should match the expected participation status"
   );
 
   const graphCal = getGraphCalendar(calendar);

@@ -5,6 +5,8 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 pub mod attendee;
+pub mod attendee_base;
+pub mod attendee_type;
 pub mod calendar;
 pub mod calendar_collection_response;
 pub mod date_time_time_zone;
@@ -25,5 +27,8 @@ pub mod message;
 pub mod message_collection_response;
 pub mod outlook_item;
 pub mod recipient;
+pub mod response_status;
+pub mod response_type;
 pub mod single_value_legacy_extended_property;
+pub mod time_slot;
 pub mod user;

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
+import { CalAttendee } from "resource:///modules/CalAttendee.sys.mjs";
 import { CalEvent } from "resource:///modules/CalEvent.sys.mjs";
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
@@ -390,7 +391,35 @@ class EventSyncListener extends cal.data.OperationGroup {
     });
   }
 
-  onEventPresent(id, title, startDateTime, endDateTime, startTimeZone, endTimeZone) {
+  /**
+   * Handle the presence of a calendar event.
+   *
+   * The arrays represent attributes of a single object and must be
+   * of the same length.
+   *
+   * @param {string} id
+   * @param {string} title
+   * @param {string} startDateTime
+   * @param {string} endDateTime
+   * @param {string} startTimeZone
+   * @param {string} endTimeZone
+   * @param {string[]} attendeeEmailAddresses
+   * @param {string[]} attendeeCommonNames
+   * @param {string[]} attendeeResponseStatuses
+   * @param {string[]} attendeeTypes
+   */
+  onEventPresent(
+    id,
+    title,
+    startDateTime,
+    endDateTime,
+    startTimeZone,
+    endTimeZone,
+    attendeeEmailAddresses,
+    attendeeCommonNames,
+    attendeeResponseStatuses,
+    attendeeTypes
+  ) {
     this.#queueChange(async () => {
       const oldEvent = await this.#calendar.backingCalendar.getItem(id);
       const newEvent = oldEvent?.clone() ?? new CalEvent();
@@ -398,6 +427,30 @@ class EventSyncListener extends cal.data.OperationGroup {
       newEvent.title = title;
       newEvent.startDate = graphDateTime(startDateTime, startTimeZone);
       newEvent.endDate = graphDateTime(endDateTime, endTimeZone);
+
+      if (
+        ![attendeeCommonNames, attendeeResponseStatuses, attendeeTypes].every(
+          a => a.length === attendeeEmailAddresses.length
+        )
+      ) {
+        throw new Components.Exception("Attendee data length mismatch", Cr.NS_ERROR_UNEXPECTED);
+      }
+
+      newEvent.removeAllAttendees();
+
+      for (const [email, commonName, status, type] of Iterator.zip([
+        attendeeEmailAddresses,
+        attendeeCommonNames,
+        attendeeResponseStatuses,
+        attendeeTypes,
+      ])) {
+        const newAttendee = new CalAttendee();
+        newAttendee.id = email;
+        newAttendee.commonName = commonName;
+        newAttendee.role = mapGraphType(type);
+        newAttendee.participationStatus = mapGraphResponseStatus(status);
+        newEvent.addAttendee(newAttendee);
+      }
 
       if (oldEvent) {
         await this.#calendar.backingCalendar.modifyItem(newEvent, oldEvent);
@@ -540,5 +593,46 @@ class GraphCalendarObserver {
 
   onPropertyDeleting(aCalendar, aName) {
     this.#calendar.observers.notify("onPropertyDeleting", [aCalendar, aName]);
+  }
+}
+
+/**
+ * Map from Graph API response status strings to calIAttendee participation
+ * status strings.
+ *
+ * @param {string} graphResponseStatus
+ * @returns {string}
+ */
+function mapGraphResponseStatus(graphResponseStatus) {
+  switch (graphResponseStatus) {
+    case "none":
+      return "NEEDS-ACTION";
+    case "organizer":
+    case "accepted":
+      return "ACCEPTED";
+    case "tentativelyAccepted":
+      return "TENTATIVE";
+    case "declined":
+      return "DECLINED";
+    case "notResponded":
+    default:
+      return "NEEDS-ACTION";
+  }
+}
+
+/**
+ * Map from Graph API attendee type strings to calIAttendee role strings.
+ *
+ * @param {string} graphType
+ * @returns {string}
+ */
+function mapGraphType(graphType) {
+  switch (graphType) {
+    case "required":
+      return "REQ-PARTICIPANT";
+    case "optional":
+      return "OPT-PARTICIPANT";
+    default:
+      return "NON-PARTICIPANT";
   }
 }

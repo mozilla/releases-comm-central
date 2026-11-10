@@ -178,7 +178,8 @@ fn select_variants(properties: &[Property]) -> Vec<TokenStream> {
             let ident = format_ident!("{name}");
             if p.is_ref {
                 if matches!(p.rust_type, RustType::NamedObjectSchema(_)) {
-                    let inner = format_ident!("{name}Selection");
+                    let type_name = p.rust_type.schema_name().unwrap().as_pascal_case();
+                    let inner = format_ident!("{type_name}Selection");
                     Some(quote!(#ident(#inner)))
                 } else {
                     None

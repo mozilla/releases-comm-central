@@ -10,7 +10,7 @@ import {
 } from "resource://testing-common/mailnews/MockServer.sys.mjs";
 
 import {
-  Recipient,
+  EmailAddress,
   GraphMessage,
   HttpResponseData,
 } from "resource://testing-common/mailnews/GraphTypes.sys.mjs";
@@ -798,7 +798,7 @@ export class GraphServer extends MockServer {
     // only update it if the request contains a non-empty array.
     if (parsedReq.bccRecipients) {
       for (const recipient of parsedReq.bccRecipients) {
-        const bccRecipient = new Recipient(
+        const bccRecipient = new EmailAddress(
           recipient.emailAddress.name,
           recipient.emailAddress.address
         );
@@ -1303,7 +1303,7 @@ function syntheticRecipientsToGraph(recipients) {
   }
 
   return recipients.map(recipientArray => {
-    const recipient = new Recipient(recipientArray[0], recipientArray[1]);
-    return recipient.toJSON();
+    const recipient = new EmailAddress(recipientArray[0], recipientArray[1]);
+    return { emailAddress: recipient.toJSON() };
   });
 }

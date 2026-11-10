@@ -1,6 +1,7 @@
 # One Graph object schema base name per line.
 
 attendee
+attendeeBase
 calendar
 calendarCollectionResponse
 dateTimeTimeZone
@@ -19,5 +20,7 @@ message
 messageCollectionResponse
 outlookItem
 recipient
+responseStatus
 singleValueLegacyExtendedProperty
+timeSlot
 user

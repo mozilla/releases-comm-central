@@ -4,6 +4,7 @@
 
 use nserror::nsresult;
 use nsstring::nsCString;
+use thin_vec::ThinVec;
 use xpcom::interfaces::IGraphCalendarEventListener;
 
 use crate::safe_xpcom::{SafeListener, SafeListenerWrapper};
@@ -11,23 +12,34 @@ use crate::safe_xpcom::{SafeListener, SafeListenerWrapper};
 /// See [`SafeListenerWrapper`].
 pub type SafeGraphCalendarEventListener = SafeListenerWrapper<IGraphCalendarEventListener>;
 
+/// The data associated with a calendar event.
+pub struct CalendarEventData {
+    pub id: String,
+    pub title: String,
+    pub start_date_time: String,
+    pub end_date_time: String,
+    pub start_time_zone: String,
+    pub end_time_zone: String,
+    pub attendee_email_addresses: Vec<String>,
+    pub attendee_common_names: Vec<String>,
+    pub attendee_response_statuses: Vec<String>,
+    pub attendee_types: Vec<String>,
+}
+
 impl SafeGraphCalendarEventListener {
     /// Convert types and forward to [`IGraphCalendarEventListener::OnEventPresent`]`.
-    pub fn on_event_present(
-        &self,
-        id: String,
-        title: String,
-        start_date_time: String,
-        end_date_time: String,
-        start_time_zone: String,
-        end_time_zone: String,
-    ) -> nsresult {
-        let id = nsCString::from(id);
-        let title = nsCString::from(title);
-        let start_date_time = nsCString::from(start_date_time);
-        let end_date_time = nsCString::from(end_date_time);
-        let start_time_zone = nsCString::from(start_time_zone);
-        let end_time_zone = nsCString::from(end_time_zone);
+    pub fn on_event_present(&self, data: CalendarEventData) -> nsresult {
+        let id = nsCString::from(data.id);
+        let title = nsCString::from(data.title);
+        let start_date_time = nsCString::from(data.start_date_time);
+        let end_date_time = nsCString::from(data.end_date_time);
+        let start_time_zone = nsCString::from(data.start_time_zone);
+        let end_time_zone = nsCString::from(data.end_time_zone);
+        let attendee_email_addresses = into_xpcom_array(data.attendee_email_addresses);
+        let attendee_common_names = into_xpcom_array(data.attendee_common_names);
+        let attendee_response_statuses = into_xpcom_array(data.attendee_response_statuses);
+        let attendee_types = into_xpcom_array(data.attendee_types);
+
         // SAFETY: all types here are safe across the Rust/C++ boundary
         unsafe {
             self.0.OnEventPresent(
@@ -37,6 +49,10 @@ impl SafeGraphCalendarEventListener {
                 &raw const *end_date_time,
                 &raw const *start_time_zone,
                 &raw const *end_time_zone,
+                &raw const attendee_email_addresses,
+                &raw const attendee_common_names,
+                &raw const attendee_response_statuses,
+                &raw const attendee_types,
             )
         }
     }
@@ -80,4 +96,14 @@ impl SafeListener for SafeGraphCalendarEventListener {
     {
         self.on_complete(err.into()).to_result()
     }
+}
+
+fn into_xpcom_array(strings: Vec<String>) -> ThinVec<nsCString> {
+    ThinVec::from(
+        strings
+            .iter()
+            .map(nsCString::from)
+            .collect::<Vec<_>>()
+            .as_slice(),
+    )
 }

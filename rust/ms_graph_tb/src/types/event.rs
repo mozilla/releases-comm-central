@@ -14,6 +14,7 @@ use crate::types::importance::Importance;
 use crate::types::item_body::ItemBody;
 use crate::types::outlook_item::{OutlookItem, OutlookItemSelection};
 use crate::types::recipient::Recipient;
+use crate::types::response_status::ResponseStatus;
 use crate::types::single_value_legacy_extended_property::{
     SingleValueLegacyExtendedProperty, SingleValueLegacyExtendedPropertySelection,
 };
@@ -49,6 +50,7 @@ pub enum EventSelection {
     OutlookItem(OutlookItemSelection),
     ReminderMinutesBeforeStart,
     ResponseRequested,
+    ResponseStatus,
     SeriesMasterId,
     Start,
     Subject,
@@ -141,6 +143,8 @@ pub struct Event {
     pub reminder_minutes_before_start: Option<Nullable<i32>>,
     #[doc = "Default is true, which represents the organizer would like an invitee to send a response to the event."]
     pub response_requested: Option<Nullable<bool>>,
+    #[doc = "Indicates the type of response sent in response to an event message."]
+    pub response_status: Option<ResponseStatus>,
     #[doc = "The ID for the recurring series master item, if this event is part of a recurring series."]
     pub series_master_id: Option<Nullable<String>>,
     #[doc = "The collection of single-value extended properties defined for the event.\n\n Read-only. Nullable."]

@@ -6,7 +6,7 @@
  * A recipient to a `GraphMessage`. Note that the structure of this class does
  * *not* match the structure of the `recipient` type from the Graph API.
  */
-export class Recipient {
+export class EmailAddress {
   /**
    * The recipient's name.
    *
@@ -28,10 +28,8 @@ export class Recipient {
 
   toJSON() {
     return {
-      emailAddress: {
-        name: this.name,
-        address: this.address,
-      },
+      name: this.name,
+      address: this.address,
     };
   }
 }
@@ -53,7 +51,7 @@ export class GraphMessage {
   /**
    * The message's Bcc recipients.
    *
-   * @type {Array<Recipient>}
+   * @type {Array<EmailAddress>}
    */
   bccRecipients = [];
 
@@ -80,19 +78,74 @@ export class GraphMessage {
   }
 }
 
+/**
+ * Data representation of a Graph API calendar attendee.
+ *
+ * See https://learn.microsoft.com/en-us/graph/api/resources/attendee?view=graph-rest-1.0
+ */
+export class GraphCalendarAttendee {
+  /**
+   * Identity information for the attendee.
+   *
+   * @type {EmailAddress}
+   */
+  emailAddress;
+  /**
+   * Acceptance status.
+   *
+   * @type {string}
+   */
+  status;
+  /**
+   * Participant type.
+   *
+   * @type {string}
+   */
+  type;
+
+  /**
+   *
+   * @param {EmailAddress} emailAddress
+   * @param {string} status
+   * @param {string} type
+   */
+  constructor(emailAddress, status, type) {
+    this.emailAddress = emailAddress;
+    this.status = status;
+    this.type = type;
+  }
+
+  toJSON() {
+    return {
+      emailAddress: this.emailAddress.toJSON(),
+      status: { response: this.status, time: "0001-01-01T00:00:00Z" },
+      type: this.type,
+    };
+  }
+}
+
 export class GraphCalendarEvent {
   /**
    * @param {string} id - Graph ID (same space as message IDs)
    * @param {string} subject
    * @param {string} startDateTime
    * @param {string} endDateTime
+   * @param {GraphCalendarAttendee[]} attendees
    * @param {object} [properties={}] - Additional Graph event fields.
    */
-  constructor(id, subject, startDateTime, endDateTime, properties = {}) {
+  constructor(
+    id,
+    subject,
+    startDateTime,
+    endDateTime,
+    attendees = [],
+    properties = {}
+  ) {
     this.id = id;
     this.subject = subject;
     this.startDateTime = startDateTime;
     this.endDateTime = endDateTime;
+    this.attendees = attendees;
     this.properties = properties;
   }
 
@@ -109,6 +162,7 @@ export class GraphCalendarEvent {
         dateTime: this.endDateTime,
         timeZone: "UTC",
       },
+      attendees: this.attendees.map(x => x.toJSON()),
       ...this.properties,
     };
   }

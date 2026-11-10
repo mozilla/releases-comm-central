@@ -8,11 +8,12 @@ use ms_graph_tb::{
     Select, notnull,
     pagination::{DeltaItem, DeltaResponse},
     paths::users::user_id::calendars::calendar_id::events,
-    types::event::EventSelection,
+    types::{attendee_type::AttendeeType, event::EventSelection, response_type::ResponseType},
 };
 use protocol_shared::{
-    EXCHANGE_MAX_PAGE_SIZE, ServerType, client::DoOperation,
-    safe_xpcom::event_listener::SafeGraphCalendarEventListener,
+    EXCHANGE_MAX_PAGE_SIZE, ServerType,
+    client::DoOperation,
+    safe_xpcom::event_listener::{CalendarEventData, SafeGraphCalendarEventListener},
 };
 
 use crate::{client::XpComGraphClient, error::XpComGraphError};
@@ -47,6 +48,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                     EventSelection::Subject,
                     EventSelection::Start,
                     EventSelection::End,
+                    EventSelection::Attendees,
                 ];
                 let base_url = client.base_api_url()?;
                 let mut request = events::delta::Get::new(
@@ -96,17 +98,70 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                             message: "Event end dateTime not present.".to_string(),
                         })?;
 
-                        self.listener.on_event_present(
+                        let attendees = event.attendees.unwrap_or(Vec::new());
+                        let mut attendee_email_addresses = Vec::with_capacity(attendees.len());
+                        let mut attendee_common_names = Vec::with_capacity(attendees.len());
+                        let mut attendee_response_statuses = Vec::with_capacity(attendees.len());
+                        let mut attendee_types = Vec::with_capacity(attendees.len());
+
+                        for attendee in attendees {
+                            let email_address = attendee
+                                .attendee_base
+                                .recipient
+                                .email_address
+                                .ok_or(XpComGraphError::Processing {
+                                    message: "Missing identity information for meeting attendee."
+                                        .to_string(),
+                                })?;
+                            // The only thing we'll hard require here is the address. We'll try and
+                            // use sensible defaults for everything else.
+                            let address_value = match email_address.address {
+                                notnull!(value) => Ok(value),
+                                _ => Err(XpComGraphError::Processing {
+                                    message: "Missing email address value.".to_string(),
+                                }),
+                            }?;
+                            attendee_email_addresses.push(address_value.clone());
+
+                            let common_name = match email_address.name {
+                                notnull!(name) => name,
+                                _ => address_value,
+                            };
+                            attendee_common_names.push(common_name);
+
+                            attendee_response_statuses.push(
+                                attendee
+                                    .status
+                                    .and_then(|s| s.response)
+                                    .map_or(ResponseType::None.to_string(), |s| s.to_string()),
+                            );
+
+                            attendee_types.push(
+                                attendee
+                                    .attendee_base
+                                    .r#type
+                                    .map_or(AttendeeType::Optional.to_string(), |t| t.to_string()),
+                            );
+                        }
+
+                        self.listener.on_event_present(CalendarEventData {
                             id,
                             title,
                             start_date_time,
                             end_date_time,
-                            start
+                            start_time_zone: start
                                 .time_zone
                                 .flatten()
                                 .unwrap_or_else(|| "UTC".to_string()),
-                            end.time_zone.flatten().unwrap_or_else(|| "UTC".to_string()),
-                        );
+                            end_time_zone: end
+                                .time_zone
+                                .flatten()
+                                .unwrap_or_else(|| "UTC".to_string()),
+                            attendee_email_addresses,
+                            attendee_common_names,
+                            attendee_response_statuses,
+                            attendee_types,
+                        });
                     }
                     DeltaItem::Removed(event) => {
                         let event_id = event.id().to_string();
