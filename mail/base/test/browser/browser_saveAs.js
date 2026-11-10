@@ -45,8 +45,8 @@ add_setup(async function () {
  * @param {number} index - An integer between 0 and 9.
  * @param {string} extension
  * @param {string} [leafName] - The file name to pick in the file picker.
- * @returns {{savedText: string, picker: nsIFilePicker}} The saved file
- *   content, and the file picker used.
+ * @returns {{savedText: string, picker: nsIFilePicker, lastModified: number}} The
+ *   saved file content, the file picker used, and the modification time.
  */
 async function subtestSingle(
   index,
@@ -87,49 +87,75 @@ async function subtestSingle(
 
   const saveAsFileItem =
     about3Pane.document.getElementById("mailContext-saveAs");
+  const savedPromise = TestUtils.topicObserved("message-saved");
   mailContext.activateItem(saveAsFileItem);
   await BrowserTestUtils.waitForPopupEvent(mailContext, "hidden");
 
   const picker = await pickerPromise;
   Assert.ok(picker, "should have opened the file picker");
-  await TestUtils.waitForCondition(
-    async () =>
-      (await IOUtils.exists(targetPath)) &&
-      (await IOUtils.stat(targetPath)).size,
-    "waiting for the message to be saved to file"
-  );
+  await savedPromise;
+  Assert.ok(await IOUtils.exists(targetPath), "message was saved to file");
 
   const savedText = await IOUtils.readUTF8(targetPath);
+  const { lastModified } = await IOUtils.stat(targetPath);
   await IOUtils.remove(targetPath);
-  return { savedText, picker };
+  return { savedText, picker, lastModified };
 }
 
 add_task(async function testSingleEML() {
-  const { savedText } = await subtestSingle(0, "eml");
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.save_msg_date_matches_mtime", true]],
+  });
+  try {
+    const { savedText, lastModified } = await subtestSingle(0, "eml");
 
-  // This is a local date, so the value varies by timezone.
-  // It will always be at this date and time, as that's when MessageGenerator
-  // starts making messages unless told otherwise, and this is the first
-  // message this instance generated.
-  const dateParts = new Date("2000-02-01T00:00:00").toString().split(" ");
-  const dateString = [
-    dateParts[0] + ",",
-    dateParts[2],
-    dateParts[1],
-    dateParts[3],
-    dateParts[4],
-    dateParts[5].substring(3),
-  ].join(" ");
-  Assert.stringContains(
-    savedText,
-    `Date: ${dateString}`,
-    "file content should include the date in RFC822 format"
-  );
-  Assert.stringContains(
-    savedText,
-    `Subject: ${testMessages[0].subject}\r\n`,
-    "file content should include the subject"
-  );
+    // This is a local date, so the value varies by timezone.
+    // It will always be at this date and time, as that's when MessageGenerator
+    // starts making messages unless told otherwise, and this is the first
+    // message this instance generated.
+    const dateParts = new Date("2000-02-01T00:00:00").toString().split(" ");
+    const dateString = [
+      dateParts[0] + ",",
+      dateParts[2],
+      dateParts[1],
+      dateParts[3],
+      dateParts[4],
+      dateParts[5].substring(3),
+    ].join(" ");
+    Assert.stringContains(
+      savedText,
+      `Date: ${dateString}`,
+      "file content should include the date in RFC822 format"
+    );
+    Assert.stringContains(
+      savedText,
+      `Subject: ${testMessages[0].subject}\r\n`,
+      "file content should include the subject"
+    );
+    Assert.equal(
+      lastModified,
+      testMessages[0].date / 1000,
+      "file modification time should match the message date"
+    );
+  } finally {
+    await SpecialPowers.popPrefEnv();
+  }
+});
+
+add_task(async function testSingleEMLWithoutDateMtime() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.save_msg_date_matches_mtime", false]],
+  });
+  try {
+    const { lastModified } = await subtestSingle(1, "eml");
+    Assert.notEqual(
+      lastModified,
+      testMessages[1].date / 1000,
+      "file modification time should not match the message date"
+    );
+  } finally {
+    await SpecialPowers.popPrefEnv();
+  }
 });
 
 add_task(async function testSingleHTML() {

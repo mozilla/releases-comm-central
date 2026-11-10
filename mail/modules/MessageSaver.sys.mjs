@@ -131,8 +131,9 @@ export class MessageSaver {
     try {
       switch (type) {
         case "eml": {
+          const messageService = MailServices.messageServiceFromURI(uri);
           const { promise, resolve, reject } = Promise.withResolvers();
-          MailServices.messageServiceFromURI(uri).saveMessageToDisk(
+          messageService.saveMessageToDisk(
             uri,
             await IOUtils.getFile(path),
             {
@@ -151,6 +152,17 @@ export class MessageSaver {
             false
           );
           await promise;
+          if (
+            Services.prefs.getBoolPref(
+              "mail.save_msg_date_matches_mtime",
+              false
+            )
+          ) {
+            const msgHdr = messageService.messageURIToMsgHdr(uri);
+            await IOUtils.setModificationTime(path, msgHdr.date / 1000).catch(
+              lazy.log.warn
+            );
+          }
           break;
         }
         case "html": {

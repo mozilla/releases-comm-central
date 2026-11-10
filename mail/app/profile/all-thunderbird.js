@@ -970,6 +970,10 @@ pref("privacy.webrtc.globalMuteToggles", false);
 // instead of space in the file name.
 pref("mail.save_msg_filename_underscores_for_space", false);
 
+// If set to true, use the message date as the file modification time when
+// saving a message as an EML file.
+pref("mail.save_msg_date_matches_mtime", false);
+
 // Necessary until we move off the Matrix JS SDK.
 pref("security.allow_eval_in_parent_process", true);
 
