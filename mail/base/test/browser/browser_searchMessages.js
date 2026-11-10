@@ -633,6 +633,79 @@ add_task(async function () {
   await BrowserTestUtils.closeWindow(win2);
 });
 
+/**
+ * Checks that we convert date values correctly. The date picker is UTC, but
+ * we want dates in local time. This test would fail at least some of the time
+ * in non-UTC zones if the logic was incorrect.
+ */
+add_task(async function testDateWidget() {
+  const windowOpenedPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    w =>
+      w.document.documentURI == "chrome://messenger/content/searchDialog.xhtml"
+  );
+  window.searchAllMessages();
+  const win = await windowOpenedPromise;
+  const doc = win.document;
+
+  await SimpleTest.promiseFocus(win);
+
+  const searchTermList = doc.getElementById("searchTermList");
+  await TestUtils.waitForCondition(
+    () => searchTermList.itemCount == 1,
+    "waiting for a search term to exist"
+  );
+
+  const termEl = searchTermList.getItemAtIndex(0);
+  const attributeEl = termEl.querySelector("search-attribute menulist");
+  const operatorEl = termEl.querySelector("search-operator menulist");
+
+  // Check that a local value is converted to a UTC value in the date picker.
+  // This would fail in time zones ahead of UTC if the logic was wrong.
+
+  win.gSearchTerms[0].obj.searchTerm = {
+    attrib: Ci.nsMsgSearchAttrib.Date,
+    op: Ci.nsMsgSearchOp.Is,
+    value: {
+      date: new Date(2024, 7, 12).getTime() * 1000,
+    },
+  };
+  const valueEl = termEl.querySelector("search-value input");
+  Assert.equal(
+    attributeEl.value,
+    Ci.nsMsgSearchAttrib.Date,
+    "attribute element value should be set"
+  );
+  Assert.equal(
+    operatorEl.value,
+    Ci.nsMsgSearchOp.Is,
+    "operator element value should be set"
+  );
+  Assert.equal(valueEl.type, "date", "value element should be a date picker");
+  Assert.equal(
+    valueEl.value,
+    "2024-08-12",
+    "date picker value should match stored value"
+  );
+
+  // Check that a UTC value in the date picker is converted to a local value.
+  // This would fail in time zones behind UTC if the logic was wrong.
+
+  valueEl.value = "2026-05-11";
+  Assert.equal(
+    win.getSearchTerms()[0].value.date,
+    new Date(2026, 4, 11).getTime() * 1000,
+    "stored value should match 2026-05-11 local time"
+  );
+  Assert.equal(
+    win.getSearchTerms()[0].termAsString,
+    "date,is,11-May-2026",
+    "serialized value should match date picker value"
+  );
+
+  await BrowserTestUtils.closeWindow(win);
+});
+
 async function checkTreeColumnsInOrder(tree, expectedOrder) {
   const expectedSet = new Set(expectedOrder);
   const querySelector = "th:not([hidden])";

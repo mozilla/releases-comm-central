@@ -20,13 +20,6 @@ const { getState, storeState } = ChromeUtils.importESModule(
 let about3Pane, imapServer, imapIncomingServer, inbox, messages;
 
 add_setup(async function () {
-  await SpecialPowers.pushPrefEnv({
-    set: [
-      // Force the Mark Read By Date dialog to use a particular format.
-      ["mailnews.search_date_format", 3],
-      ["mailnews.search_date_separator", "/"],
-    ],
-  });
   const toolbarState = getState();
   storeState({ mail: ["mark-as"] });
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
@@ -87,7 +80,6 @@ add_setup(async function () {
   about3Pane.restoreState({ messagePaneVisible: false, folderURI: inbox });
 
   registerCleanupFunction(async () => {
-    await SpecialPowers.popPrefEnv();
     MailServices.accounts.removeAccount(account, false);
 
     await TestUtils.waitForCondition(
@@ -382,9 +374,25 @@ async function subtest(openMenuCallback, popup, helper) {
     "chrome://messenger/content/markByDate.xhtml",
     {
       async callback(win) {
-        Assert.equal(win.gSearchDateFormat, 3);
-        win.document.getElementById("lowerDate").value = "01/12/2026";
-        win.document.getElementById("upperDate").value = "01/25/2026";
+        win.document.getElementById("lowerDate").value = "2026-01-12";
+        win.document.getElementById("upperDate").value = "2026-01-25";
+
+        const markInDatabase = win.markInDatabase;
+        win.markInDatabase = function (lower, upper) {
+          Assert.equal(
+            lower,
+            new Date(2026, 0, 12).valueOf() * 1000,
+            "start of date range should be exactly 2026-01-12T00:00:00 local time"
+          );
+          // Date range is inclusive, so this is midnight of the next day.
+          Assert.equal(
+            upper,
+            new Date(2026, 0, 26).valueOf() * 1000,
+            "end of date range should be exactly 2026-01-26T00:00:00 local time"
+          );
+          markInDatabase(lower, upper);
+        };
+
         win.document.querySelector("dialog").getButton("accept").click();
         await BrowserTestUtils.domWindowClosed(win);
       },
