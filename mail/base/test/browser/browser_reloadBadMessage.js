@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 /**
- * Tests that a message with a bad storeToken is automatically reloaded and
- * stored again.
+ * Tests recovery of damaged offline messages and preservation of valid copies.
  */
 
 const { IMAPServer } = ChromeUtils.importESModule(
@@ -34,16 +35,28 @@ add_setup(async function () {
   imapAccount.incomingServer.password = "password";
   const imapRootFolder = imapAccount.incomingServer.rootFolder;
   imapFolder = imapRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
-  await imapServer.addMessages(imapFolder, generator.makeMessages({}));
+  await imapServer.addMessages(imapFolder, [
+    ...generator.makeMessages({}),
+    generator.makeMessage({
+      body: {
+        body: '<html><body><p>See my results</p><img src="#"></body></html>',
+        contentType: "text/html",
+        charset: "utf-8",
+      },
+    }),
+  ]);
 
   registerCleanupFunction(async () => {
+    await clearMessageSelection(
+      document.getElementById("tabmail").currentAbout3Pane
+    );
     await promiseServerIdle(imapAccount.incomingServer);
     MailServices.accounts.removeAccount(account, false);
     MailServices.accounts.removeAccount(imapAccount, false);
   });
 });
 
-add_task(async function () {
+add_task(async function test_reloadDamagedOfflineMessages() {
   const tabmail = document.getElementById("tabmail");
   const about3Pane = tabmail.currentAbout3Pane;
   const messagePaneBrowser =
@@ -99,7 +112,7 @@ add_task(async function () {
     );
     Assert.ok(
       messages[i].flags & Ci.nsMsgMessageFlags.Offline,
-      "message has regained the offline flag"
+      "message should regain the offline flag"
     );
 
     mboxSize = imapFolder.filePath.fileSize;
@@ -107,6 +120,72 @@ add_task(async function () {
 
   // Clear the selection so the I/O service doesn't complain when we remove
   // the account. Wait for the blank pane so status feedback has also settled.
+  await clearMessageSelection(about3Pane);
+});
+
+add_task(async function test_selfReferencingImageKeepsOfflineCopy() {
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const browser =
+    about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
+  const message = [...imapFolder.messages].at(-1);
+  const storeToken = message.storeToken;
+  const mboxSize = imapFolder.filePath.fileSize;
+  let discarded = false;
+  let loads = 0;
+  const listener = {
+    onHdrFlagsChanged(hdr, oldFlags, newFlags) {
+      if (
+        hdr == message &&
+        oldFlags & Ci.nsMsgMessageFlags.Offline &&
+        !(newFlags & Ci.nsMsgMessageFlags.Offline)
+      ) {
+        discarded = true;
+      }
+    },
+    onHdrDeleted() {},
+    onHdrAdded() {},
+    onParentChanged() {},
+    onAnnouncerGoingAway() {},
+    onReadChanged() {},
+    onJunkScoreChanged() {},
+    onHdrPropertyChanged() {},
+    onEvent() {},
+  };
+  const onLoad = () => loads++;
+  imapFolder.msgDatabase.addListener(listener);
+  browser.addEventListener("load", onLoad, true);
+  try {
+    about3Pane.threadTree.selectedIndex = about3Pane.gDBView.rowCount - 1;
+    await TestUtils.waitForCondition(
+      () => discarded || loads,
+      "message should finish loading without discarding its offline copy"
+    );
+  } finally {
+    imapFolder.msgDatabase.removeListener(listener);
+    browser.removeEventListener("load", onLoad, true);
+  }
+  Assert.ok(!discarded, "the valid offline message should not be discarded");
+
+  Assert.equal(loads, 1, "the message should load once");
+  Assert.stringContains(
+    browser.contentDocument.body.textContent,
+    "See my results",
+    "the message body should be displayed"
+  );
+  Assert.ok(
+    message.flags & Ci.nsMsgMessageFlags.Offline,
+    "the message should remain available offline"
+  );
+  Assert.equal(
+    message.storeToken,
+    storeToken,
+    "the message should keep its original storage location"
+  );
+  Assert.equal(
+    imapFolder.filePath.fileSize,
+    mboxSize,
+    "the mailbox should not grow when an image fails to load"
+  );
   await clearMessageSelection(about3Pane);
 });
 
