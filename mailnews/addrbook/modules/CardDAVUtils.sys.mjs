@@ -662,8 +662,28 @@ export class NotificationCallbacks {
     "nsIAuthPrompt2",
     "nsIChannelEventSink",
   ]);
+
+  /**
+   * Fills in the credentials for a server challenge, from those given to the
+   * constructor, the password manager, or a dialog. Proxy challenges and
+   * retries after a rejection are refused.
+   *
+   * @param {nsIChannel} channel - The channel that requires authentication.
+   * @param {integer} level - One of the nsIAuthPrompt2 LEVEL_* constants.
+   * @param {nsIAuthInformation} authInfo - Filled in with the credentials.
+   * @returns {boolean} Whether credentials were filled in.
+   * @see {nsIAuthPrompt2}
+   */
   promptAuth(channel, level, authInfo) {
-    if (authInfo.flags & Ci.nsIAuthInformation.PREVIOUS_FAILED) {
+    // The channel URI is the server, not the proxy, so everything below would
+    // pick the server's credentials.
+    // FIXME: Proxies that ask for Basic or Digest credentials can't be used
+    // for CardDAV. NTLM and Negotiate proxies are answered by necko with the
+    // system credentials and never get here.
+    if (
+      authInfo.flags & Ci.nsIAuthInformation.PREVIOUS_FAILED ||
+      authInfo.flags & Ci.nsIAuthInformation.AUTH_PROXY
+    ) {
       return false;
     }
 
