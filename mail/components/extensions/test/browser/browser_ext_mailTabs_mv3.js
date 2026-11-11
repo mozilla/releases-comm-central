@@ -522,6 +522,7 @@ add_task(async function test_getSelectedMessagesWithOpenContextMenu() {
     const menu = about3Pane.document.getElementById("mailContext");
     const threadTree = about3Pane.document.getElementById("threadTree");
     // Open the context menu of the thread pane.
+    threadTree.scrollToIndex(0, true);
     await openMenuPopup(menu, threadTree.getRowAtIndex(0), {
       type: "contextmenu",
     });
