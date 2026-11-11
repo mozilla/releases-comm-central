@@ -265,6 +265,9 @@ add_task(async function testDetectionPromptForOtherSite() {
   prompts.length = 0;
   const saved = [];
   const originalSave = cal.auth.passwordManagerSave;
+  registerCleanupFunction(() => {
+    cal.auth.passwordManagerSave = originalSave;
+  });
   cal.auth.passwordManagerSave = (username, password, origin) => saved.push(origin);
   response = { username: "other", password: "entered", save: true };
   Assert.equal(
@@ -286,4 +289,166 @@ add_task(async function testDetectionPromptForOtherSite() {
 
   MsgAuthPrompt.prototype.promptAuth = originalPromptAuth;
   await Services.logins.removeAllLoginsAsync();
+});
+
+add_task(async function testDetectionSavedLoginForOtherSite() {
+  const prompts = [];
+  let response = null;
+  const originalPromptAuth = MsgAuthPrompt.prototype.promptAuth;
+  MsgAuthPrompt.prototype.promptAuth = function (channel, level, authInfo, label, save) {
+    prompts.push(channel.URI.host);
+    if (!response) {
+      return false;
+    }
+    authInfo.password = response.password;
+    save.value = response.save;
+    return true;
+  };
+  registerCleanupFunction(() => {
+    MsgAuthPrompt.prototype.promptAuth = originalPromptAuth;
+  });
+  await Services.logins.addLoginAsync(
+    new LoginInfo("https://dav.example.com", null, "test", USERNAME, "saved", "", "")
+  );
+  await Services.logins.addLoginAsync(
+    new LoginInfo("https://other.example.com", null, "test", USERNAME, "other", "", "")
+  );
+
+  const session = new CalDavDetectionSession(USERNAME, PASSWORD, false);
+  session.promptSites.add("https://example.com");
+  session.promptSites.add("https://example.net");
+
+  Assert.equal(
+    promptAuth(session, "https://dav.example.com/"),
+    "saved",
+    "the saved password should be used for an SRV target on another site"
+  );
+  Assert.equal(
+    promptAuth(session, "https://other.example.com/"),
+    "other",
+    "the password saved for another server on the same site should be used for it"
+  );
+  Assert.deepEqual(prompts, [], "the user should not be asked when a login is saved");
+
+  response = { password: "entered", save: false };
+  Assert.equal(
+    promptAuth(session, "https://dav.example.com/", Ci.nsIAuthInformation.PREVIOUS_FAILED),
+    "entered",
+    "the entered password should be used when the saved one failed"
+  );
+  Assert.deepEqual(
+    prompts,
+    ["dav.example.com"],
+    "the user should be asked when the saved password failed"
+  );
+  response = null;
+  Assert.equal(
+    promptAuth(session, "https://dav.example.com/", Ci.nsIAuthInformation.PREVIOUS_FAILED),
+    null,
+    "nothing should be used if the user declines after a failed password"
+  );
+  const [login] = await Services.logins.searchLoginsAsync({ origin: "https://dav.example.com" });
+  Assert.equal(login?.password, "saved", "a login saved before should not be removed");
+
+  const saved = [];
+  const originalSave = cal.auth.passwordManagerSave;
+  registerCleanupFunction(() => {
+    cal.auth.passwordManagerSave = originalSave;
+  });
+  cal.auth.passwordManagerSave = async (username, password, origin) => saved.push(origin);
+  response = { password: "", save: true };
+  Assert.equal(
+    promptAuth(session, "https://dav.example.net/"),
+    "",
+    "an empty entered password should be used"
+  );
+  cal.auth.passwordManagerSave = originalSave;
+  Assert.deepEqual(saved, [], "an empty password should not be saved");
+
+  const otherSession = new CalDavDetectionSession(USERNAME, PASSWORD, false);
+  otherSession.promptSites.add("https://example.com");
+  promptAuth(otherSession, "https://dav.example.com/");
+  prompts.length = 0;
+  response = null;
+  Assert.equal(
+    promptAuth(otherSession, "https://third.example.com/"),
+    null,
+    "a password saved for one server should not be used for another on the same site"
+  );
+  Assert.deepEqual(prompts, ["third.example.com"], "the user should be asked for the other server");
+
+  MsgAuthPrompt.prototype.promptAuth = originalPromptAuth;
+  await Services.logins.removeAllLoginsAsync();
+});
+
+add_task(async function testDetectionLoginChangesInOrder() {
+  const changes = [];
+  let response = { password: "first", save: true };
+  const originalPromptAuth = MsgAuthPrompt.prototype.promptAuth;
+  const originalSave = cal.auth.passwordManagerSave;
+  const originalRemove = cal.auth.passwordManagerRemove;
+  MsgAuthPrompt.prototype.promptAuth = function (channel, level, authInfo, label, save) {
+    authInfo.password = response.password;
+    save.value = response.save;
+    return true;
+  };
+  // The first save takes longer, so a removal waiting only for it would run
+  // after the second save.
+  cal.auth.passwordManagerSave = async (username, password) => {
+    if (password == "first") {
+      await new Promise(resolve => do_timeout(100, resolve));
+    }
+    changes.push(`save ${password}`);
+  };
+  cal.auth.passwordManagerRemove = async () => changes.push("remove");
+  registerCleanupFunction(() => {
+    MsgAuthPrompt.prototype.promptAuth = originalPromptAuth;
+    cal.auth.passwordManagerSave = originalSave;
+    cal.auth.passwordManagerRemove = originalRemove;
+  });
+
+  const session = new CalDavDetectionSession(USERNAME, PASSWORD, false);
+  session.promptSites.add("https://example.net");
+
+  Assert.equal(
+    promptAuth(session, "https://dav.example.net/"),
+    "first",
+    "the first entered password should be used"
+  );
+  response = { password: "second", save: true };
+  Assert.equal(
+    promptAuth(session, "https://dav.example.net/", Ci.nsIAuthInformation.PREVIOUS_FAILED),
+    "second",
+    "the password entered after the first failed should be used"
+  );
+  await TestUtils.waitForCondition(() => changes.length == 3, "waiting for the login changes");
+  Assert.deepEqual(
+    changes,
+    ["save first", "remove", "save second"],
+    "the failed login should be removed before the new one is saved"
+  );
+
+  changes.length = 0;
+  const savingSession = new CalDavDetectionSession(USERNAME, "first", true);
+  savingSession.passwordSites.add("https://example.org");
+  Assert.equal(
+    promptAuth(savingSession, "https://dav.example.org/"),
+    "first",
+    "the password should be used for its site"
+  );
+  Assert.equal(
+    promptAuth(savingSession, "https://dav.example.org/", Ci.nsIAuthInformation.PREVIOUS_FAILED),
+    null,
+    "nothing should be used when the password failed"
+  );
+  await TestUtils.waitForCondition(() => changes.length == 2, "waiting for the login changes");
+  Assert.deepEqual(
+    changes,
+    ["save first", "remove"],
+    "the failed login should be removed after it was saved"
+  );
+
+  MsgAuthPrompt.prototype.promptAuth = originalPromptAuth;
+  cal.auth.passwordManagerSave = originalSave;
+  cal.auth.passwordManagerRemove = originalRemove;
 });
