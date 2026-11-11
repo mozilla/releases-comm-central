@@ -14,9 +14,11 @@ import { rootReducer } from "moz-src:///comm/mail/base/content/state/store.mjs";
  * Toolkit uses Immer to record assignments and produce the next state. Code
  * outside a reducer must use actions instead of changing stored values.
  *
- * `baseline` holds the starting values; `value` holds the current input. Their
- * differences identify user edits. Both contain plain data that can be copied
- * and stored as JSON. Calendar objects and writes stay outside this slice.
+ * `baseline` holds the starting values; `value` holds the current input.
+ * `dirtySections` lists groups of fields whose input differs from the starting
+ * values. `validation` holds field check results; updating input does not run
+ * those checks. All stored values are plain data that can be copied as JSON.
+ * Calendar objects and writes stay outside this slice.
  */
 
 /**
@@ -34,7 +36,8 @@ import { rootReducer } from "moz-src:///comm/mail/base/content/state/store.mjs";
  */
 
 /**
- * A validation result from field code. A missing result does not block Save.
+ * A stored field check result. `isCalendarEventDraftValid` ignores a missing
+ * result. Create Save calls the supplied validators to get new results.
  *
  * @typedef {object} CalendarEventDraftSectionValidity
  * @property {boolean} valid - True when the section passes its validation.
@@ -118,6 +121,26 @@ export function cloneDraftFromSourceSnapshot(snapshot) {
  */
 export function selectCalendarEventDraftState(state, sessionKey) {
   return state.calendarEventDraft?.sessions[sessionKey] ?? null;
+}
+
+/**
+ * Returns whether a draft exists and its stored results permit saving.
+ * Checks only results for enabled sections. Does not run validators or require
+ * a result for every field. A disabled row keeps its input and stored error,
+ * but that error does not make this check fail.
+ *
+ * @param {?CalendarEventDraftState} draft - The current draft state.
+ * @returns {boolean} True if a draft exists and no enabled section has a
+ *   stored error.
+ */
+export function isCalendarEventDraftValid(draft) {
+  return (
+    !!draft?.value &&
+    Object.entries(draft.validation).every(
+      ([section, validity]) =>
+        draft.value.enabledRows?.[section] === false || validity.valid
+    )
+  );
 }
 
 /**

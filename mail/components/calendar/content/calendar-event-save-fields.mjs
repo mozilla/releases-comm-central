@@ -7,25 +7,37 @@ const { cal } = ChromeUtils.importESModule(
 );
 
 /**
- * Converts one optional draft section to Calendar event properties.
- * For example, a location field can copy `location` to the event's LOCATION
- * property. `keys` lists the draft properties passed to `apply`.
+ * Defines how Save checks and copies one section of unsaved values.
+ * A section groups related fields, such as the start and end times.
+ * `keys` lists the draft properties passed to `apply` and `validate`.
+ * For example, a location helper copies `location` to the event's LOCATION
+ * property. The event is a Calendar object; the draft contains plain data.
  *
- * Save calls `apply` for an enabled row and `remove` for a disabled row.
- * On Save, a disabled row removes its event properties but retains draft input.
+ * For enabled fields, create Save calls `validate` when supplied. After
+ * validation succeeds, create Save calls `apply` for those fields.
+ * Disabled fields add no properties to a new event.
+ * Edit Save calls `apply` for enabled fields. For disabled fields, edit Save
+ * calls `remove` to delete their properties from the existing event copy.
+ * Both paths keep disabled fields' input in the draft for retry.
  * Field code supplies defaults and checks permissions for its own values.
  *
  * @typedef {object} CalendarEventSaveField
  * @property {string[]} keys - Draft properties owned by this field.
  * @property {(event: calIEvent, values: CalendarEventDraft) => void} apply
- *   - Writes enabled values into the mutable event copy.
- * @property {(event: calIEvent) => void} remove - Removes this field's old
- *   properties from the mutable event copy.
+ *   - Copies enabled values to an event whose properties can still change.
+ * @property {(event: calIEvent) => void} [remove] - Removes this field's old
+ *   properties from the mutable event copy. Required for optional rows used by
+ *   edit Save.
+ * @property {(values: CalendarEventDraft) => CalendarEventDraftSectionValidity}
+ *   [validate] - Checks enabled values and displays errors during create Save.
+ *   Returns the result for Save to store. Edit Save uses stored results instead.
  */
 
 /**
  * Copies field values for Save without clearing retained draft values.
- * Treats a missing enabled flag as enabled. Disabled fields receive no values.
+ * Copies only the properties listed in each helper's `keys`.
+ * An `enabledRows` flag of false disables a section. A missing flag keeps the
+ * section enabled. Disabled sections receive an empty `values` object.
  *
  * @param {CalendarEventDraft} draft - The retained draft.
  * @param {Record<string, CalendarEventSaveField>} fields - Field conversion code.

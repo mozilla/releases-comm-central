@@ -2052,14 +2052,15 @@ add_task(async function test_saveButtonDisabledValidityState() {
 
   Assert.ok(saveButton, "The dialog should have a Save button");
 
-  // Create drafts can be valid before saving new events is implemented.
+  // Create Save checks field validity on each attempt.
   dialog.resetCreateDraft({
     calendarId: calendar.id,
     title: "Field provider title",
   });
+
   Assert.ok(!dialog.isDirty, "Create defaults should set the starting values");
   Assert.ok(dialog.canSave, "The create draft should pass field validation");
-  Assert.ok(saveButton.disabled, "Save should remain disabled in create mode");
+  Assert.ok(!saveButton.disabled, "Save should be enabled in create mode");
 
   // Simulate an invalid title in the create draft.
   dialog.updateDraftSection("title", { title: "" });
@@ -2080,7 +2081,10 @@ add_task(async function test_saveButtonDisabledValidityState() {
     "The calendar title should be dirty"
   );
   Assert.ok(!dialog.canSave, "An invalid title should fail field validation");
-  Assert.ok(saveButton.disabled, "The save button should be disabled");
+  Assert.ok(
+    !saveButton.disabled,
+    "Create Save should stay enabled so corrected fields can be checked again"
+  );
 
   const sourceLoaded = waitForNextSourceLoad();
 

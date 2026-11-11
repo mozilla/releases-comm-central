@@ -8,6 +8,8 @@
 
 ["test_calendarEventCreateEditState.js"]
 
+["test_calendarEventCreateSave.js"]
+
 ["test_calendarEventDialogRouteController.js"]
 
 ["test_calendarEventEditQueue.js"]

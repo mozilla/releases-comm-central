@@ -4,7 +4,10 @@
 
 import { createSelector } from "moz-src:///comm/third_party/redux/redux-toolkit/redux-toolkit.mjs";
 
-import { selectCalendarEventDraftState } from "./calendarEventDraftSlice.mjs";
+import {
+  isCalendarEventDraftValid,
+  selectCalendarEventDraftState,
+} from "./calendarEventDraftSlice.mjs";
 import { selectCalendarEventCreateEditSession } from "./calendarEventCreateEditSessionSlice.mjs";
 import { selectCalendarSelection } from "./calendarEventCalendarSlice.mjs";
 
@@ -15,7 +18,8 @@ import { selectCalendarSelection } from "./calendarEventCalendarSlice.mjs";
  * controls display.
  *
  * `createSelector` keeps the previous result while its input values stay the
- * same. The store observer can then skip controls whose data did not change.
+ * same. This is called memoization. The store observer compares the old and
+ * new result by identity and skips controls whose selected result is unchanged.
  */
 
 /**
@@ -149,9 +153,12 @@ export const selectIsDirty = createSelector(
 );
 
 /**
- * Returns true when a draft exists, no work is pending, and all stored results
- * for active sections are valid. Ignores results for disabled rows. This does
- * not check permissions, require a result from every field, or save an event.
+ * Returns true when a draft exists, no work is pending, and stored results for
+ * enabled sections are valid. Ignores results for disabled rows.
+ * Does not run validators, require results for every field, or check current
+ * calendar permissions. The dialog uses this result for edit Save.
+ * Create mode can keep the Save button enabled when this result is false so
+ * the user can run validators again after correcting input.
  *
  * @type {CalendarEventCreateEditSelector<boolean>}
  */
@@ -162,10 +169,7 @@ export const selectCanSave = createSelector(
   (draft, draftState, operation) =>
     draft !== null &&
     operation?.status != "pending" &&
-    Object.entries(draftState?.validation ?? {}).every(
-      ([section, validity]) =>
-        draft.enabledRows?.[section] === false || validity.valid
-    )
+    isCalendarEventDraftValid(draftState)
 );
 
 /**

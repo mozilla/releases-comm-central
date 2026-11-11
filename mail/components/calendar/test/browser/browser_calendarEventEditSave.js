@@ -5,11 +5,13 @@
 "use strict";
 
 /**
- * Tests Save in Thunderbird with a fixture document and the production dialog.
- * The fixture has its own store and forwards writes to the host transaction.
- * Paused transactions keep Save pending while tests inspect controls, focus,
- * and dismissal. Accessibility checks inspect the document and accessible tree;
- * they do not simulate a screen reader speaking the status text.
+ * Tests edit Save with the production dialog in a separate test document.
+ * That document has its own Redux store for unsaved values and Save progress.
+ * Its `doTransaction` wrapper normally forwards writes to Thunderbird. Tests
+ * can replace the wrapper's write function to pause or fail Save while checking
+ * controls, focus, and closing. Accessibility checks inspect the document and
+ * the data that Thunderbird exposes to assistive software. These checks do not
+ * test a screen reader's spoken output.
  */
 
 const { startAxeMutationObserver } = ChromeUtils.importESModule(
@@ -58,8 +60,10 @@ add_setup(async function () {
       response
     );
   browser.contentWindow.promptOccurrenceModification = event => [event];
-  // The fixture has its own document. Forward its host transaction call to
-  // Thunderbird's real transaction function, with a replaceable test wrapper.
+
+  // The dialog calls doTransaction on its own top-level window. In this test,
+  // that window is the fixture document. Forward the call to Thunderbird
+  // through transaction so each test can replace the write function.
   browser.contentWindow.doTransaction = (
     action,
     event,
@@ -98,7 +102,8 @@ add_setup(async function () {
  * Opens a saved event in the fixture dialog and waits for its displayed text.
  *
  * @param {calIEvent} event - The saved event that supplies the route IDs.
- * @param {?string} [recurrenceId=null] - The requested occurrence's native time.
+ * @param {?string} [recurrenceId=null] - The start time of one event in a
+ *   repeating series, in microseconds as a string. Null selects the whole event.
  * @returns {Promise<void>} Resolves after showing and localizing the dialog.
  */
 async function edit(event, recurrenceId = null) {
@@ -108,7 +113,7 @@ async function edit(event, recurrenceId = null) {
     recurrenceId,
   });
 
-  Assert.ok(await dialog.show(), "The edited event dialog should open.");
+  Assert.ok(await dialog.show(), "The edit dialog should open.");
 
   await doc.l10n.translateFragment(dialog);
 }
@@ -479,7 +484,7 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
 
   const button = dialog.querySelector(".calendar-event-save");
   const select = dialog.querySelector(".calendar-selector");
-  const menuButton = dialog.querySelector(
+  const moreButton = dialog.querySelector(
     "#calendarEventCreateEditDialogMenuButton"
   );
   const closeButton = dialog.querySelector(".close-button");
@@ -488,7 +493,10 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
 
   Assert.ok(titleInput, "The dialog should have a title input.");
   Assert.ok(descriptionRow, "The dialog should have a Description row.");
-
+  Assert.ok(
+    descriptionRow.shadowRoot,
+    "The Description row should have a shadow root."
+  );
   const descriptionButton = descriptionRow.shadowRoot.querySelector("button");
 
   Assert.ok(
@@ -496,140 +504,56 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
     "The Description row should have an action button."
   );
   Assert.ok(!button.disabled, "The Save button should be enabled.");
+  Assert.ok(moreButton, "The More button should exist.");
   Assert.ok(
-    BrowserTestUtils.isVisible(menuButton),
+    BrowserTestUtils.isVisible(moreButton),
     "The More menu button should be visible for an edited event."
   );
 
-  // Edit mode exposes the More menu button before Close in the header.
+  // Follow the actual control order in both directions before activating Save.
+  // The header places More before Close.
   select.focus();
-  EventUtils.synthesizeKey("KEY_Tab", {}, browser.contentWindow);
 
-  Assert.equal(doc.activeElement, menuButton, "Tab should reach More.");
+  const tabSteps = [
+    [{}, moreButton, "Tab should reach More."],
+    [{}, closeButton, "Tab should reach Close."],
+    [{}, titleInput, "Tab should reach the title."],
+    [{}, descriptionRow, "Tab should reach Description."],
+    [{}, button, "Tab should reach Save."],
+    [
+      { shiftKey: true },
+      descriptionRow,
+      "Shift+Tab should return to Description.",
+    ],
+    [{ shiftKey: true }, titleInput, "Shift+Tab should return to the title."],
+    [{ shiftKey: true }, closeButton, "Shift+Tab should return to Close."],
+    [{ shiftKey: true }, moreButton, "Shift+Tab should return to More."],
+    [
+      { shiftKey: true },
+      select,
+      "Shift+Tab should return to the calendar selector.",
+    ],
+    [{}, moreButton, "Tab should reach More again."],
+    [{}, closeButton, "Tab should reach Close again."],
+    [{}, titleInput, "Tab should reach the title again."],
+    [{}, descriptionRow, "Tab should reach Description again."],
+    [{}, button, "Tab should reach Save again."],
+  ];
 
-  EventUtils.synthesizeKey("KEY_Tab", {}, browser.contentWindow);
+  for (const [modifiers, expected, message] of tabSteps) {
+    EventUtils.synthesizeKey("KEY_Tab", modifiers, browser.contentWindow);
 
-  Assert.equal(doc.activeElement, closeButton, "Tab should reach Close.");
+    Assert.equal(doc.activeElement, expected, message);
 
-  EventUtils.synthesizeKey("KEY_Tab", {}, browser.contentWindow);
-
-  Assert.equal(doc.activeElement, titleInput, "Tab should reach the title.");
-
-  EventUtils.synthesizeKey("KEY_Tab", {}, browser.contentWindow);
-
-  // The document reports the row when its shadow button has focus.
-  Assert.equal(
-    doc.activeElement,
-    descriptionRow,
-    "Tab should reach Description."
-  );
-  Assert.equal(
-    descriptionRow.shadowRoot.activeElement,
-    descriptionButton,
-    "The Description action button should have focus."
-  );
-
-  EventUtils.synthesizeKey("KEY_Tab", {}, browser.contentWindow);
-
-  Assert.equal(doc.activeElement, button, "Tab should reach Save.");
-
-  EventUtils.synthesizeKey(
-    "KEY_Tab",
-    { shiftKey: true },
-    browser.contentWindow
-  );
-
-  Assert.equal(
-    doc.activeElement,
-    descriptionRow,
-    "Shift+Tab should return to Description."
-  );
-  Assert.equal(
-    descriptionRow.shadowRoot.activeElement,
-    descriptionButton,
-    "The Description action button should have focus after Shift+Tab."
-  );
-
-  EventUtils.synthesizeKey(
-    "KEY_Tab",
-    { shiftKey: true },
-    browser.contentWindow
-  );
-
-  Assert.equal(
-    doc.activeElement,
-    titleInput,
-    "Shift+Tab should return to the title."
-  );
-
-  EventUtils.synthesizeKey(
-    "KEY_Tab",
-    { shiftKey: true },
-    browser.contentWindow
-  );
-
-  Assert.equal(
-    doc.activeElement,
-    closeButton,
-    "Shift+Tab should return to Close."
-  );
-
-  EventUtils.synthesizeKey(
-    "KEY_Tab",
-    { shiftKey: true },
-    browser.contentWindow
-  );
-
-  Assert.equal(
-    doc.activeElement,
-    menuButton,
-    "Shift+Tab should return to More."
-  );
-
-  EventUtils.synthesizeKey(
-    "KEY_Tab",
-    { shiftKey: true },
-    browser.contentWindow
-  );
-
-  Assert.equal(
-    doc.activeElement,
-    select,
-    "Shift+Tab should return to the calendar selector."
-  );
-
-  EventUtils.synthesizeKey("KEY_Tab", {}, browser.contentWindow);
-
-  Assert.equal(doc.activeElement, menuButton, "Tab should reach More again.");
-
-  EventUtils.synthesizeKey("KEY_Tab", {}, browser.contentWindow);
-
-  Assert.equal(doc.activeElement, closeButton, "Tab should reach Close again.");
-
-  EventUtils.synthesizeKey("KEY_Tab", {}, browser.contentWindow);
-
-  Assert.equal(
-    doc.activeElement,
-    titleInput,
-    "Tab should reach the title again."
-  );
-
-  EventUtils.synthesizeKey("KEY_Tab", {}, browser.contentWindow);
-
-  Assert.equal(
-    doc.activeElement,
-    descriptionRow,
-    "Tab should reach Description again."
-  );
-  Assert.equal(
-    descriptionRow.shadowRoot.activeElement,
-    descriptionButton,
-    "The Description action button should have focus again."
-  );
-
-  EventUtils.synthesizeKey("KEY_Tab", {}, browser.contentWindow);
-
-  Assert.equal(doc.activeElement, button, "Tab should reach Save again.");
+    // The document reports the row when its shadow button has focus.
+    if (expected === descriptionRow) {
+      Assert.equal(
+        descriptionRow.shadowRoot.activeElement,
+        descriptionButton,
+        "Tab should focus the shared Description action."
+      );
+    }
+  }
 
   const service = Cc["@mozilla.org/accessibilityService;1"].getService(
     Ci.nsIAccessibilityService
@@ -706,8 +630,8 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
 
 add_task(
   async function test_pendingSaveLocksRouteAndFailureKeepsFocusAndDraft() {
-    // Hold a provider failure so route, focus, and dismissal checks run while
-    // Save owns the session. Release it before checking retry behavior.
+    // Pause a write that will fail. Check route changes, focus, and closing
+    // while Save is pending. Then fail the write and check that retry succeeds.
     const eventA = await createEvent({ calendar, name: "A" });
     const eventB = await createEvent({ calendar, name: "B" });
     await edit(eventA);
@@ -819,6 +743,11 @@ add_task(
     );
 
     const message = dialog.querySelector(".calendar-event-save-status");
+    const messageText = dialog.querySelector(
+      ".calendar-event-save-status-text"
+    );
+
+    Assert.ok(messageText, "The Save status text element should exist.");
 
     Assert.equal(
       message.getAttribute("role"),
@@ -848,9 +777,9 @@ add_task(
     );
 
     Assert.equal(
-      doc.l10n.getAttributes(message).id,
+      doc.l10n.getAttributes(messageText).id,
       "calendar-event-save-failed",
-      "The message should use the localized Save failure text."
+      "The status text should use the localized Save failure text."
     );
 
     await doc.l10n.translateFragment(dialog);
@@ -1289,7 +1218,9 @@ add_task(async function test_pendingStatusHasNoBusyAncestor() {
       "Speech users should receive the Saving announcement before Save finishes."
     );
     Assert.equal(
-      doc.l10n.getAttributes(message).id,
+      doc.l10n.getAttributes(
+        dialog.querySelector(".calendar-event-save-status-text")
+      ).id,
       "calendar-event-saving",
       "The pending status should use the localized Save progress message."
     );
@@ -1364,7 +1295,7 @@ add_task(async function test_escapeDismissesReadyAndFailedButNotPending() {
       Assert.equal(
         dialog.closedBy,
         "closerequest",
-        "A failed Save should restore native close requests."
+        "Ready and failed edits should allow native close requests."
       );
 
       dialog.querySelector(".calendar-event-save").focus();

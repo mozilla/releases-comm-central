@@ -67,6 +67,26 @@ export function canMoveCalendarEvent(event) {
 }
 
 /**
+ * Returns whether the calendar supports events and permits adding one.
+ * Reads the Calendar object because permissions can change after the dialog
+ * copies the calendar's name and color for display. This check does not require
+ * the calendar to be visible in the calendar view.
+ *
+ * @param {?calICalendar} calendar - The selected Calendar object, or null if
+ *   the selected calendar no longer exists.
+ * @returns {boolean} True if the calendar exists, is writable, supports events,
+ *   and permits the user to add an item.
+ */
+export function canCreateCalendarEvent(calendar) {
+  return !!(
+    calendar &&
+    cal.acl.isCalendarWritable(calendar) &&
+    cal.acl.userCanAddItemsToCalendar(calendar) &&
+    calendar.getProperty("capabilities.events.supported") !== false
+  );
+}
+
+/**
  * Returns display data for calendars that allow new events and the supplied
  * default calendar.
  *
@@ -91,9 +111,7 @@ export function loadCalendarOptions(defaultCalendarId = null) {
   const usableCalendars = calendars.filter(
     calendar =>
       calendar.getProperty("calendar-main-in-composite") &&
-      cal.acl.isCalendarWritable(calendar) &&
-      cal.acl.userCanAddItemsToCalendar(calendar) &&
-      calendar.getProperty("capabilities.events.supported") !== false
+      canCreateCalendarEvent(calendar)
   );
 
   return {

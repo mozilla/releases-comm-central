@@ -33,6 +33,7 @@ MOZ_SRC_FILES += [
     "content/calendar-dialog.mjs",
     "content/calendar-event-calendar-options.mjs",
     "content/calendar-event-create-edit-dialog.mjs",
+    "content/calendar-event-create-save.mjs",
     "content/calendar-event-dialog-route-controller.mjs",
     "content/calendar-event-dialog-source-mixin.mjs",
     "content/calendar-event-edit-save.mjs",

@@ -244,6 +244,7 @@ calendar-event-calendar-selector =
 calendar-event-save = Save
 calendar-event-saving = Saving…
 calendar-event-save-failed = The event could not be saved. Try again.
+calendar-event-calendar-unavailable = This calendar does not accept new events. Select another calendar and try again.
 # The status element announces Save progress and errors to screen readers.
 # Keep this message empty to clear the previous status text when Save is idle.
 calendar-event-save-idle = { "" }
