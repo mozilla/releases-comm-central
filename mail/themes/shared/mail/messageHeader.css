@@ -8,6 +8,7 @@
   /* This variable is used for both inline and block spacing in order to keep
    a visual consistency for recipients and simple fields alignment. */
   --message-header-field-offset: 2px;
+  --message-header-button-height: 24px;
   --recipient-avatar-size: 26px;
   --recipient-avatar-placeholder-size: 16px;
   --recipient-avatar-margin-block-start: -1px;
@@ -30,6 +31,8 @@
   }
 
   &[uidensity="touch"] {
+    /* An 18px icon box plus 5px padding and a 1px border on each side. */
+    --message-header-button-height: 30px;
     --recipient-avatar-size: 32px;
     --recipient-avatar-placeholder-size: 16px;
     --recipient-multi-line-gap: 3px;
@@ -63,10 +66,6 @@
 
 .message-header-container {
   padding: 3px;
-
-  @media (max-width: 768px) {
-    padding: 6px;
-  }
 }
 
 .message-header-row {
@@ -74,17 +73,6 @@
 
   &.header-row-reverse {
     flex-direction: row-reverse;
-  }
-
-  &.items-center {
-    /* Variation for those rows that include buttons. */
-    align-items: center;
-  }
-
-  @media (max-width: 768px) {
-    &.items-center {
-      align-items: baseline;
-    }
   }
 }
 
@@ -94,11 +82,7 @@
 
 .message-header-wrap {
   flex-wrap: wrap;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+  align-items: flex-start;
 }
 
 .header-buttons-container {
@@ -106,6 +90,10 @@
   justify-content: end;
   flex-wrap: wrap;
   gap: 3px;
+
+  .message-header-wrap > & {
+    margin-block-start: var(--message-header-field-offset);
+  }
 
   .message-header-buttons-only-icons & {
     gap: 5px;
@@ -115,16 +103,16 @@
     outline: var(--focus-outline);
     outline-offset: var(--focus-outline-offset);
   }
-
-  @media (max-width: 768px) {
-    align-self: end;
-  }
 }
 
 .header-row-grow {
   flex: 1 1 auto;
   display: flex;
   align-items: center;
+
+  .message-header-wrap > & {
+    min-block-size: var(--message-header-button-height);
+  }
 }
 
 #mail-notification-top {
@@ -157,6 +145,7 @@ mail-tagfield[collapsed] {
 
 .message-header-view-button {
   flex-direction: row;
+  min-block-size: var(--message-header-button-height);
   min-inline-size: 24px;
   margin: 0;
   padding-inline: 3px;
