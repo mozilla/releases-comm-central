@@ -789,7 +789,7 @@ static void mime_insert_normal_headers(char** body, MimeHeaders* headers,
       MimeHeaders_get(headers, HEADER_RESENT_FROM, false, true));
   nsCString resent_to(MimeHeaders_get(headers, HEADER_RESENT_TO, false, true));
   nsCString resent_cc(MimeHeaders_get(headers, HEADER_RESENT_CC, false, true));
-  char* date = MimeHeaders_get(headers, HEADER_DATE, false, true);
+  char* date = MimeHeaders_get(headers, HEADER_DATE, false, false);
   nsCString from(MimeHeaders_get(headers, HEADER_FROM, false, true));
   nsCString reply_to(MimeHeaders_get(headers, HEADER_REPLY_TO, false, true));
   char* organization =
@@ -935,7 +935,7 @@ static void mime_insert_micro_headers(char** body, MimeHeaders* headers,
   nsCString from(MimeHeaders_get(headers, HEADER_FROM, false, true));
   nsCString resent_from(
       MimeHeaders_get(headers, HEADER_RESENT_FROM, false, true));
-  char* date = MimeHeaders_get(headers, HEADER_DATE, false, true);
+  char* date = MimeHeaders_get(headers, HEADER_DATE, false, false);
   nsCString to(MimeHeaders_get(headers, HEADER_TO, false, true));
   nsCString cc(MimeHeaders_get(headers, HEADER_CC, false, true));
   char* newsgroups = MimeHeaders_get(headers, HEADER_NEWSGROUPS, false, true);

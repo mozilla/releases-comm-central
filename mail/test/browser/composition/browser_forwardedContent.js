@@ -69,3 +69,41 @@ add_task(async function test_forwarded_subj() {
     "Test ran to completion successfully"
   );
 });
+
+/**
+ * Test that only the first Date header is used in the forwarded message
+ * content.
+ */
+add_task(async function test_forwarded_multiple_dates() {
+  const dateFolder = await create_folder("Forward Multiple Dates Testing");
+  dateFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  dateFolder.addMessage(
+    "From: Alice <alice@example.com>\r\n" +
+      "To: Bob <bob@example.com>\r\n" +
+      "Subject: Multiple dates\r\n" +
+      "Date: Wed, 08 Jul 2026 11:36:38 +0000\r\n" +
+      "Date: this-is-not-a-date\r\n" +
+      "Message-ID: <multiple-dates@example.com>\r\n" +
+      "MIME-Version: 1.0\r\n" +
+      "Content-Type: text/plain; charset=UTF-8\r\n" +
+      "\r\n" +
+      "Testing multiple dates.\r\n"
+  );
+  await be_in_folder(dateFolder);
+  const msg = await select_click_row(0);
+  await assert_selected_and_displayed(window, msg);
+
+  const fwdWin = await open_compose_with_forward();
+  const headerTableText = fwdWin.document
+    .getElementById("messageEditor")
+    .contentDocument.querySelector("table").textContent;
+  Assert.ok(
+    headerTableText.includes("Wed, 08 Jul 2026 11:36:38 +0000"),
+    "the first Date header should be in the header table"
+  );
+  Assert.ok(
+    !headerTableText.includes("this-is-not-a-date"),
+    "the second Date header should not be in the header table"
+  );
+  await close_compose_window(fwdWin);
+});
