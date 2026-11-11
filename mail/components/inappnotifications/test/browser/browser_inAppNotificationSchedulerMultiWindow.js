@@ -160,6 +160,7 @@ add_task(async function test_opensInNewWindowWhenFirstWindowMinimized() {
   );
 
   window.restore();
+  await SimpleTest.promiseFocus(window);
 
   await waitForNotification(true);
 
