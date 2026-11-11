@@ -244,7 +244,7 @@ add_task(async function test_restoresWindowAndReturnsFocus() {
     await focusReturned;
   }
   await SimpleTest.promiseFocus(window);
-});
+}).skip(Services.env.get("MOZ_HEADLESS")); // Headless windows can't be minimized.
 
 add_task(async function test_handlesFocusRetained() {
   const module = new OAuth2Module();
