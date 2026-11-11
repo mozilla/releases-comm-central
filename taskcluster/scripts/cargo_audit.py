@@ -16,13 +16,12 @@ import os
 import re
 import subprocess
 import sys
+import tomllib
 import urllib.request
 from argparse import ArgumentParser
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
-
-import tomllib
 
 logger = logging.getLogger(__name__)
 
