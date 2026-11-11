@@ -500,13 +500,14 @@ MimeVerify.prototype = {
             if (lazy.EnigmailFuncs.domainHasComment(fromAddr)) {
               fromAddr = "";
             }
-          } else if (!msgDate && headerNames[i] == "Date") {
+          } else if (!msgDate && headerNames[i].toLowerCase() == "date") {
             msgDate = new Date(headerValues[i]);
           }
           if (fromAddr && msgDate) {
             break;
           }
         }
+        msgDate ??= new Date(NaN);
       }
 
       // ensure all lines end with CRLF as specified in RFC 3156, section 5

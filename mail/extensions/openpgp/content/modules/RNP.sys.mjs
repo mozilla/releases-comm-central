@@ -2568,15 +2568,17 @@ export var RNP = {
       result.sigDetails.sigDate = new Date(created.value * 1000);
 
       let timeDelta;
-      if (result.sigDetails.sigDate > msgDate) {
+      if (Number.isNaN(msgDate.getTime())) {
+        timeDelta = NaN;
+      } else if (result.sigDetails.sigDate > msgDate) {
         timeDelta = result.sigDetails.sigDate - msgDate;
       } else {
         timeDelta = msgDate - result.sigDetails.sigDate;
       }
 
-      if (timeDelta > 1000 * 60 * 60 * 1) {
+      if (Number.isNaN(timeDelta) || timeDelta > 1000 * 60 * 60 * 1) {
         result.statusFlags &= ~lazy.EnigmailConstants.GOOD_SIGNATURE;
-        result.statusFlags |= lazy.EnigmailConstants.MSG_SIG_INVALID;
+        result.statusFlags |= lazy.EnigmailConstants.BAD_SIGNATURE;
         result.extStatusFlags |=
           lazy.EnigmailConstants.EXT_SIGNING_TIME_MISMATCH;
       }
@@ -2713,7 +2715,8 @@ export var RNP = {
    * @param {string} data - The (allegedly) signed data.
    * @param {string} mimeSignatureData - The signature.
    * @param {?string} fromAddr - Email address.
-   * @param {?Date} msgDate - Date.
+   * @param {?Date} msgDate - Date of the message. If null, the signature
+   *   date isn't checked. An invalid date is treated as a date mismatch.
    * @returns {DecryptVerifyResult} containing verification status details.
    */
   async verifyDetached(data, mimeSignatureData, fromAddr, msgDate) {
