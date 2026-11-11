@@ -131,10 +131,18 @@ class mime_draft_data {
 // Bridge routines for legacy mime code
 ////////////////////////////////////////////////////////////////
 
-// Create bridge stream for libmime
-extern "C" void* mime_bridge_create_display_stream(
+// Convert a libmime status to an XPCOM result. Unknown failures remain generic.
+nsresult MimeStatusToNsresult(int status);
+
+// On failure, leave result null and release partially initialized state.
+extern "C" nsresult mime_bridge_create_display_stream(
     nsIMimeEmitter* newEmitter, nsStreamConverter* newPluginObj2, nsIURI* uri,
-    nsMimeOutputType format_out, uint32_t whattodo, nsIChannel* aChannel);
+    nsMimeOutputType format_out, uint32_t whattodo, nsIChannel* channel,
+    nsMIMESession** result);
+
+extern "C" nsresult mime_bridge_create_draft_stream(
+    nsIMimeEmitter* newEmitter, nsStreamConverter* newPluginObj2, nsIURI* uri,
+    nsMimeOutputType format_out, nsMIMESession** result);
 
 // To get the mime emitter...
 extern "C" nsIMimeEmitter* GetMimeEmitter(MimeDisplayOptions* opt);

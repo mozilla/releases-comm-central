@@ -25,6 +25,7 @@
 #include "mozilla/dom/Promise.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/ScopeExit.h"
 #include "mozilla/StaticPrefs_mail.h"
 #include "msgCore.h"
 #include "nsCExternalHandlerService.h"
@@ -2066,18 +2067,32 @@ int mime_decompose_file_close_fn(MimeClosure stream_closure) {
   return 0;
 }
 
-extern "C" void* mime_bridge_create_draft_stream(
+extern "C" nsresult mime_bridge_create_draft_stream(
     nsIMimeEmitter* newEmitter, nsStreamConverter* newPluginObj2, nsIURI* uri,
-    nsMimeOutputType format_out) {
+    nsMimeOutputType format_out, nsMIMESession** result) {
+  NS_ENSURE_ARG_POINTER(result);
+  *result = nullptr;
+  NS_ENSURE_ARG_POINTER(uri);
+  NS_ENSURE_ARG_POINTER(newPluginObj2);
+
   int status = 0;
   nsMIMESession* stream = nullptr;
-  mime_draft_data* mdd = nullptr;
+  auto* mdd = new mime_draft_data;
   MimeObject* obj = nullptr;
-
-  if (!uri) return nullptr;
-
-  mdd = new mime_draft_data;
-  if (!mdd) return nullptr;
+  auto cleanup = mozilla::MakeScopeExit([&] {
+    if (obj) {
+      obj->clazz->parse_eof(obj, true);
+      obj->clazz->parse_end(obj, true);
+      mime_free(obj);
+    }
+    if (mdd->options) {
+      PR_Free(const_cast<char*>(mdd->options->url));
+      delete mdd->options;
+    }
+    PR_Free(mdd->url_name);
+    delete mdd;
+    PR_Free(stream);
+  });
 
   nsAutoCString turl;
   nsCOMPtr<nsIMsgMessageService> msgService;
@@ -2086,23 +2101,24 @@ extern "C" void* mime_bridge_create_draft_stream(
   nsresult rv;
 
   // first, convert the rdf msg uri into a url that represents the message...
-  if (NS_FAILED(uri->GetSpec(turl))) goto FAIL;
+  rv = uri->GetSpec(turl);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   rv = GetMessageServiceFromURI(turl, getter_AddRefs(msgService));
-  if (NS_FAILED(rv)) goto FAIL;
+  NS_ENSURE_SUCCESS(rv, rv);
 
   rv = msgService->GetUrlForUri(turl, false, getter_AddRefs(aURL));
-  if (NS_FAILED(rv)) goto FAIL;
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  if (NS_SUCCEEDED(aURL->GetSpec(urlString))) {
-    int32_t typeIndex = urlString.Find("&type=application/x-message-display");
-    if (typeIndex != -1)
-      urlString.Cut(typeIndex,
-                    sizeof("&type=application/x-message-display") - 1);
-
-    mdd->url_name = ToNewCString(urlString);
-    if (!(mdd->url_name)) goto FAIL;
+  rv = aURL->GetSpec(urlString);
+  NS_ENSURE_SUCCESS(rv, rv);
+  int32_t typeIndex = urlString.Find("&type=application/x-message-display");
+  if (typeIndex != -1) {
+    urlString.Cut(typeIndex, sizeof("&type=application/x-message-display") - 1);
   }
+
+  mdd->url_name = ToNewCString(urlString);
+  if (!mdd->url_name) return NS_ERROR_OUT_OF_MEMORY;
 
   newPluginObj2->GetForwardInline(&mdd->forwardInline);
   newPluginObj2->GetForwardInlineFilter(&mdd->forwardInlineFilter);
@@ -2113,9 +2129,9 @@ extern "C" void* mime_bridge_create_draft_stream(
   newPluginObj2->GetOrigMsgHdr(getter_AddRefs(mdd->origMsgHdr));
   mdd->format_out = format_out;
   mdd->options = new MimeDisplayOptions;
-  if (!mdd->options) goto FAIL;
 
   mdd->options->url = strdup(mdd->url_name);
+  if (!mdd->options->url) return NS_ERROR_OUT_OF_MEMORY;
   mdd->options->format_out = format_out;  // output format
   mdd->options->decompose_file_p = true;  /* new field in MimeDisplayOptions */
   mdd->options->stream_closure = MimeClosure(MimeClosure::isMimeDraftData, mdd);
@@ -2136,13 +2152,13 @@ extern "C" void* mime_bridge_create_draft_stream(
 
   obj = mime_new((MimeObjectClass*)&mimeMessageClass, (MimeHeaders*)NULL,
                  MESSAGE_RFC822);
-  if (!obj) goto FAIL;
+  if (!obj) return NS_ERROR_FAILURE;
 
   obj->options = mdd->options;
   mdd->obj = obj;
 
   stream = PR_NEWZAP(nsMIMESession);
-  if (!stream) goto FAIL;
+  if (!stream) return NS_ERROR_OUT_OF_MEMORY;
 
   stream->name = "MIME To Draft Converter Stream";
   stream->complete = mime_parse_stream_complete;
@@ -2152,18 +2168,10 @@ extern "C" void* mime_bridge_create_draft_stream(
 
   status = obj->clazz->initialize(obj);
   if (status >= 0) status = obj->clazz->parse_begin(obj);
-  if (status < 0) goto FAIL;
+  rv = MimeStatusToNsresult(status);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  return stream;
-
-FAIL:
-  if (mdd) {
-    PR_Free(mdd->url_name);
-    if (mdd->options) delete mdd->options;
-    delete mdd;
-  }
-  PR_Free(stream);
-  PR_Free(obj);
-
-  return nullptr;
+  *result = stream;
+  cleanup.release();
+  return NS_OK;
 }

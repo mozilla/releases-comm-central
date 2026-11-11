@@ -33,21 +33,18 @@
 // Bridge routines for new stream converter XP-COM interface
 ////////////////////////////////////////////////////////////////
 
-extern "C" void* mime_bridge_create_draft_stream(
-    nsIMimeEmitter* newEmitter, nsStreamConverter* newPluginObj2, nsIURI* uri,
-    nsMimeOutputType format_out);
-
-extern "C" void* bridge_create_stream(nsIMimeEmitter* newEmitter,
-                                      nsStreamConverter* newPluginObj2,
-                                      nsIURI* uri, nsMimeOutputType format_out,
-                                      uint32_t whattodo, nsIChannel* aChannel) {
+static nsresult bridge_create_stream(nsIMimeEmitter* newEmitter,
+                                     nsStreamConverter* newPluginObj2,
+                                     nsIURI* uri, nsMimeOutputType format_out,
+                                     uint32_t whattodo, nsIChannel* channel,
+                                     nsMIMESession** result) {
   if ((format_out == nsMimeOutput::nsMimeMessageDraftOrTemplate) ||
       (format_out == nsMimeOutput::nsMimeMessageEditorTemplate))
     return mime_bridge_create_draft_stream(newEmitter, newPluginObj2, uri,
-                                           format_out);
+                                           format_out, result);
   else
-    return mime_bridge_create_display_stream(newEmitter, newPluginObj2, uri,
-                                             format_out, whattodo, aChannel);
+    return mime_bridge_create_display_stream(
+        newEmitter, newPluginObj2, uri, format_out, whattodo, channel, result);
 }
 
 void bridge_destroy_stream(void* newStream) {
@@ -462,11 +459,11 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI* aURI,
     whattodo = whattodo | mozITXTToHTMLConv::kStructPhrase;
   }
 
-  mBridgeStream =
-      bridge_create_stream(mEmitter, this, aURI, newType, whattodo, aChannel);
-  if (!mBridgeStream) {
-    return NS_ERROR_OUT_OF_MEMORY;
-  }
+  nsMIMESession* stream = nullptr;
+  rv = bridge_create_stream(mEmitter, this, aURI, newType, whattodo, aChannel,
+                            &stream);
+  NS_ENSURE_SUCCESS(rv, rv);
+  mBridgeStream = stream;
 
   mURI = aURI;
   if (mBridgeStream) {

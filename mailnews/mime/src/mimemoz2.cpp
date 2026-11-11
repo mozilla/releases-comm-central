@@ -15,6 +15,7 @@
 #include "modlmime.h"
 #include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/ScopeExit.h"
 #include "mozilla/StaticPrefs_mail.h"
 #include "mozilla/StaticPrefs_mailnews.h"
 #include "mozITXTToHTMLConv.h"
@@ -1289,18 +1290,40 @@ MimeDisplayOptions::~MimeDisplayOptions() {
 ////////////////////////////////////////////////////////////////
 // Bridge routines for new stream converter XP-COM interface
 ////////////////////////////////////////////////////////////////
-extern "C" void* mime_bridge_create_display_stream(
+nsresult MimeStatusToNsresult(int status) {
+  if (status >= 0) return NS_OK;
+  return status == MIME_OUT_OF_MEMORY ? NS_ERROR_OUT_OF_MEMORY
+                                      : NS_ERROR_FAILURE;
+}
+
+extern "C" nsresult mime_bridge_create_display_stream(
     nsIMimeEmitter* newEmitter, nsStreamConverter* newPluginObj2, nsIURI* uri,
-    nsMimeOutputType format_out, uint32_t whattodo, nsIChannel* aChannel) {
+    nsMimeOutputType format_out, uint32_t whattodo, nsIChannel* channel,
+    nsMIMESession** result) {
+  NS_ENSURE_ARG_POINTER(result);
+  *result = nullptr;
+  NS_ENSURE_ARG_POINTER(uri);
+  NS_ENSURE_ARG_POINTER(newPluginObj2);
+
   int status = 0;
-  MimeObject* obj;
-  mime_stream_data* msd;
-  nsMIMESession* stream = 0;
-
-  if (!uri) return nullptr;
-
-  msd = new mime_stream_data;
-  if (!msd) return NULL;
+  MimeObject* obj = nullptr;
+  auto* msd = new mime_stream_data;
+  nsMIMESession* stream = nullptr;
+  auto cleanup = mozilla::MakeScopeExit([&] {
+    if (obj) {
+      obj->clazz->parse_eof(obj, true);
+      obj->clazz->parse_end(obj, true);
+      mime_free(obj);
+    }
+    if (msd->options) {
+      NS_IF_RELEASE(msd->options->conv);
+      delete msd->options;
+    }
+    PR_Free(msd->url_name);
+    PR_Free(msd->orig_url_name);
+    delete msd;
+    PR_Free(stream);
+  });
 
   // Assign the new mime emitter - will handle output operations
   msd->output_emitter = newEmitter;
@@ -1310,42 +1333,29 @@ extern "C" void* mime_bridge_create_display_stream(
   nsresult rv;
 
   // Keep a hold of the channel...
-  msd->channel = aChannel;
+  msd->channel = channel;
   rv = uri->GetSpec(urlString);
-  if (NS_SUCCEEDED(rv)) {
-    if (!urlString.IsEmpty()) {
-      msd->url_name = ToNewCString(urlString);
-      if (!(msd->url_name)) {
-        delete msd;
-        return NULL;
-      }
-      nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(uri);
-      if (msgUrl) {
-        nsAutoCString orgSpec;
-        msgUrl->GetOriginalSpec(orgSpec);
-        msd->orig_url_name = ToNewCString(orgSpec);
-      }
-    }
+  NS_ENSURE_SUCCESS(rv, rv);
+  msd->url_name = ToNewCString(urlString);
+  if (!msd->url_name) return NS_ERROR_OUT_OF_MEMORY;
+
+  nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(uri);
+  if (msgUrl) {
+    nsAutoCString orgSpec;
+    msgUrl->GetOriginalSpec(orgSpec);
+    msd->orig_url_name = ToNewCString(orgSpec);
+    if (!msd->orig_url_name) return NS_ERROR_OUT_OF_MEMORY;
   }
 
   msd->format_out = format_out;     // output format
   msd->pluginObj2 = newPluginObj2;  // the plugin object pointer
 
   msd->options = new MimeDisplayOptions;
-  if (!msd->options) {
-    delete msd;
-    return 0;
-  }
-  //  memset(msd->options, 0, sizeof(*msd->options));
   msd->options->format_out = format_out;  // output format
 
   // Need the text converter...
   rv = CallCreateInstance(MOZ_TXTTOHTMLCONV_CONTRACTID, &(msd->options->conv));
-  if (NS_FAILED(rv)) {
-    PR_Free(msd->options);
-    delete msd;
-    return nullptr;
-  }
+  NS_ENSURE_SUCCESS(rv, rv);
 
   //
   // Set the defaults, based on the context, and the output-type.
@@ -1421,12 +1431,8 @@ extern "C" void* mime_bridge_create_display_stream(
   // We need to have the URL to be able to support the various
   // arguments
   status = mime_parse_url_options(msd->url_name, msd->options);
-  if (status < 0) {
-    PR_FREEIF(msd->options->part_to_load);
-    PR_Free(msd->options);
-    delete msd;
-    return 0;
-  }
+  rv = MimeStatusToNsresult(status);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   if (msd->options->headers == MimeHeadersMicro &&
       (msd->url_name == NULL || (strncmp(msd->url_name, "news:", 5) != 0 &&
@@ -1461,11 +1467,7 @@ extern "C" void* mime_bridge_create_display_stream(
 
   obj = mime_new((MimeObjectClass*)&mimeMessageClass, (MimeHeaders*)NULL,
                  MESSAGE_RFC822);
-  if (!obj) {
-    delete msd->options;
-    delete msd;
-    return 0;
-  }
+  if (!obj) return NS_ERROR_FAILURE;
 
   obj->options = msd->options;
   msd->obj = obj;
@@ -1474,12 +1476,7 @@ extern "C" void* mime_bridge_create_display_stream(
   PR_ASSERT(!(obj->options->decrypt_p && obj->options->write_html_p));
 
   stream = PR_NEW(nsMIMESession);
-  if (!stream) {
-    delete msd->options;
-    delete msd;
-    PR_Free(obj);
-    return 0;
-  }
+  if (!stream) return NS_ERROR_OUT_OF_MEMORY;
 
   memset((void*)stream, 0, sizeof(*stream));
   stream->name = "MIME Conversion Stream";
@@ -1490,15 +1487,12 @@ extern "C" void* mime_bridge_create_display_stream(
 
   status = obj->clazz->initialize(obj);
   if (status >= 0) status = obj->clazz->parse_begin(obj);
-  if (status < 0) {
-    PR_Free(stream);
-    delete msd->options;
-    delete msd;
-    PR_Free(obj);
-    return 0;
-  }
+  rv = MimeStatusToNsresult(status);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  return stream;
+  *result = stream;
+  cleanup.release();
+  return NS_OK;
 }
 
 //

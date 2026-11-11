@@ -77,6 +77,8 @@ tags = ["smime"]
 
 ["test_streamConverter.js"]
 
+["test_streamConverterErrors.js"]
+
 ["test_structured_headers.js"]
 
 ["test_text_attachment.js"]
