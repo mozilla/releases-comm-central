@@ -162,11 +162,13 @@ add_task(async function test_skip_sync_accounts_load() {
   await TestUtils.waitForCondition(
     () =>
       BrowserTestUtils.isVisible(
-        emailPasswordTemplate.querySelector("#password")
+        emailPasswordTemplate.querySelector('input[type="password"]')
       ),
     "The password form input should be visible."
   );
-  const passwordInput = emailPasswordTemplate.querySelector("#password");
+  const passwordInput = emailPasswordTemplate.querySelector(
+    'input[type="password"]'
+  );
 
   EventUtils.synthesizeMouseAtCenter(passwordInput, {});
 
@@ -281,11 +283,13 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
   await TestUtils.waitForCondition(
     () =>
       BrowserTestUtils.isVisible(
-        emailPasswordTemplate.querySelector("#password")
+        emailPasswordTemplate.querySelector('input[type="password"]')
       ),
     "The password form input should be visible."
   );
-  const passwordInput = emailPasswordTemplate.querySelector("#password");
+  const passwordInput = emailPasswordTemplate.querySelector(
+    'input[type="password"]'
+  );
 
   EventUtils.synthesizeMouseAtCenter(passwordInput, {});
 

@@ -465,7 +465,7 @@ add_task(async function test_exchange_manual_configuration() {
   const passwordStep = dialog.querySelector("#emailPasswordSubview");
   await BrowserTestUtils.waitForAttributeRemoval("hidden", passwordStep);
 
-  const passwordInput = passwordStep.querySelector("#password");
+  const passwordInput = passwordStep.querySelector('input[type="password"]');
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(passwordInput),
     "The password form input should be visible."
@@ -1041,7 +1041,7 @@ add_task(async function test_exchange_back_to_manual_configuration() {
  */
 async function fillPasswordInput(passwordStep) {
   info("Entering password");
-  const passwordInput = passwordStep.querySelector("#authenticationPassword");
+  const passwordInput = passwordStep.querySelector('input[type="password"]');
 
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(passwordInput),

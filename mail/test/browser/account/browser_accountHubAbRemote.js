@@ -312,7 +312,7 @@ add_task(async function test_wrongPassword() {
 
   info("Clearing password field");
   EventUtils.synthesizeMouseAtCenter(
-    passwordStep.querySelector("#password"),
+    passwordStep.querySelector('input[type="password"]'),
     {}
   );
   EventUtils.synthesizeKey("KEY_Backspace", { repeat: 7 });
@@ -323,7 +323,8 @@ add_task(async function test_wrongPassword() {
     true,
     event =>
       event.detail.completed &&
-      passwordStep.querySelector("#password").value === CardDAVServer.password
+      passwordStep.querySelector('input[type="password"]').value ===
+        CardDAVServer.password
   );
   EventUtils.sendString(CardDAVServer.password);
   await passwordOk;
@@ -367,7 +368,7 @@ add_task(async function test_wrongPasswordFromStorage() {
 
     info("Entering correct password");
     EventUtils.synthesizeMouseAtCenter(
-      passwordStep.querySelector("#password"),
+      passwordStep.querySelector('input[type="password"]'),
       {}
     );
     EventUtils.sendString(CardDAVServer.password);

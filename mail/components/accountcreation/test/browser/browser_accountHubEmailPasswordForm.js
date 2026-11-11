@@ -21,12 +21,30 @@ add_setup(async function () {
   subview = tab.browser.contentWindow.document.querySelector(
     "email-password-form"
   );
-  password = subview.querySelector("#password");
+  password = subview.querySelector('input[type="password"]');
   rememberPassword = subview.querySelector("#rememberPassword");
 
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
   });
+});
+
+add_task(async function test_passwordLabels() {
+  const doc = subview.ownerDocument;
+  const secondForm = doc.createElement("email-password-form");
+  doc.body.appendChild(secondForm);
+  await Promise.all([subview.ready, secondForm.ready]);
+
+  for (const form of [subview, secondForm]) {
+    const input = form.querySelector('input[type="password"]');
+    const label = form.querySelector("label[for]");
+    Assert.equal(label.control, input, "Each label belongs to its own input");
+    input.blur();
+    label.scrollIntoView({ block: "nearest" });
+    EventUtils.synthesizeMouseAtCenter(label, {}, subview.documentGlobal);
+    Assert.equal(doc.activeElement, input, "The label focuses its own input");
+  }
+  secondForm.remove();
 });
 
 add_task(function test_setState() {

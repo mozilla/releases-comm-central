@@ -22,7 +22,7 @@ add_setup(async function () {
   subview = tab.browser.contentWindow.document.querySelector(
     "email-authentication-form"
   );
-  password = subview.querySelector("#authenticationPassword");
+  password = subview.querySelector('input[type="password"]');
   rememberPassword = subview.querySelector("#rememberAuthenticationPassword");
   username = subview.querySelector("#authenticationUsername");
 

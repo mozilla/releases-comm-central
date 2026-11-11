@@ -104,7 +104,7 @@ add_task(async function test_graph_calendar_autodiscover() {
 
   await BrowserTestUtils.waitForAttributeRemoval("hidden", passwordStep);
   info("Entering password");
-  const passwordInput = passwordStep.querySelector("#password");
+  const passwordInput = passwordStep.querySelector('input[type="password"]');
 
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(passwordInput),

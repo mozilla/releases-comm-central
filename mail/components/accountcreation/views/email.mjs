@@ -534,6 +534,10 @@ class AccountHubEmail extends HTMLElement {
     this.#clearNotifications();
     this.#currentState = subview;
     await this.#loadTemplateScript(this.#states[subview].templateId);
+    await Promise.all([
+      this.#currentSubview.l10n.translateFragment(this.#currentSubview),
+      this.#currentSubview.headerReady,
+    ]);
     // Always dispatch the maximized event to ensure that the account hub is
     // fully visible when we change subview.
     this.dispatchEvent(

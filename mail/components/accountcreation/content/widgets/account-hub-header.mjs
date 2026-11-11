@@ -78,6 +78,7 @@ class AccountHubHeader extends HTMLElement {
     );
 
     this.refresh();
+    this.ready = this.l10n.translateFragment(shadowRoot);
   }
 
   /**

@@ -81,9 +81,16 @@ export class EmailPasswordForm extends AccountHubStep {
       .getElementById(this._templateId)
       .content.cloneNode(true);
     this.appendChild(template);
+    this.ready = this.l10n.translateFragment(this);
 
     this.#password = this.querySelector(this._passwordSelector);
     this.#rememberPassword = this.querySelector(this._rememberPasswordSelector);
+    const passwordLabel = this.querySelector(
+      `label[for="${this.#password.id}"]`
+    );
+    // Email and Address Book forms can coexist in the same shadow root.
+    this.#password.id = `${this.localName}-${crypto.randomUUID()}`;
+    passwordLabel.htmlFor = this.#password.id;
 
     this.#password.focus();
 

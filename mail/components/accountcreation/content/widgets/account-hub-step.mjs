@@ -52,6 +52,7 @@ export class AccountHubStep extends HTMLElement {
     ]);
     this.l10n.connectRoot(shadowRoot);
     this.#header = this.shadowRoot.querySelector("account-hub-header");
+    this.headerReady = this.#header.ready;
     this.#setHeader();
   }
 

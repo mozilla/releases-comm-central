@@ -608,11 +608,13 @@ add_task(async function test_account_enter_password_imap_account() {
   await TestUtils.waitForCondition(
     () =>
       BrowserTestUtils.isVisible(
-        emailPasswordTemplate.querySelector("#password")
+        emailPasswordTemplate.querySelector('input[type="password"]')
       ),
     "The password form input should be visible."
   );
-  const passwordInput = emailPasswordTemplate.querySelector("#password");
+  const passwordInput = emailPasswordTemplate.querySelector(
+    'input[type="password"]'
+  );
 
   EventUtils.synthesizeMouseAtCenter(passwordInput, {});
 

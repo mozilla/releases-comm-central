@@ -1760,7 +1760,9 @@ add_task(
         "Should currently be using default OAuth config"
       );
 
-      EventUtils.synthesizeMouseAtCenter(defaultOauthInput, {});
+      const defaultOauthCheckbox = defaultOauthInput.querySelector("input");
+      defaultOauthCheckbox.scrollIntoView({ block: "nearest" });
+      EventUtils.synthesizeMouseAtCenter(defaultOauthCheckbox, {});
       await BrowserTestUtils.waitForAttributeRemoval(
         "hidden",
         exchangeTypeSubview.querySelector("#exchangeTypeOauthCustom")
@@ -1869,7 +1871,7 @@ async function fillUserInfo(nameInput, emailInput, name, email) {
 }
 
 async function fillPasswordInput(passwordStep, password) {
-  const passwordInput = passwordStep.querySelector("#password");
+  const passwordInput = passwordStep.querySelector('input[type="password"]');
 
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(passwordInput),
