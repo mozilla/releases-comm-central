@@ -40,10 +40,13 @@ export var EnigmailURIs = {
     } else if (url.schemeIs("imap")) {
       const p = unescape(pathQueryRef);
       msgNum = p.replace(/(.*>)([0-9]+)([^0-9].*)?/, "$2");
-      msgFolder = p.replace(/\?.*$/, "").replace(/>[^>]+$/, "");
+      msgFolder = url.prePath + p.replace(/\?.*$/, "").replace(/>[^>]+$/, "");
     } else if (url.schemeIs("news")) {
       msgNum = pathQueryRef.replace(/(.*[?&]key=)([0-9]+)([^0-9].*)?/, "$2");
-      msgFolder = pathQueryRef.replace(/(.*[?&]group=)([^&]+)(&.*)?/, "$2");
+      msgFolder =
+        url.prePath +
+        "/" +
+        pathQueryRef.replace(/(.*[?&]group=)([^&]+)(&.*)?/, "$2");
     }
 
     return {

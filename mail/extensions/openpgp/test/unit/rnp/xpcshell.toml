@@ -25,6 +25,8 @@ skip-if = ["os != 'linux'"]
 
 ["test_mimeTree.js"]
 
+["test_msgIdentification.js"]
+
 # ML-KEM requires the experimental RNP library, which is only
 # distributed in nightly builds.
 ["test_pqcSubkey.js"]
