@@ -455,6 +455,14 @@ function chromeFileExists(aURI) {
   let available = 0;
   try {
     const uri = NetUtil.newURI(aURI);
+    if (
+      uri.schemeIs("moz-icon") &&
+      AppConstants.platform == "linux" &&
+      Services.env.get("MOZ_HEADLESS")
+    ) {
+      // The GTK icon channel doesn't load any icons in headless mode.
+      return true;
+    }
     // moz-icon: is only loadable as an image, so we pretend to do that.
     const contentPolicyType = uri.schemeIs("moz-icon")
       ? Ci.nsIContentPolicy.TYPE_IMAGE
