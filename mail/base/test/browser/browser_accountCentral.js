@@ -480,11 +480,9 @@ add_task(async function testLocal() {
 
   // Test links.
 
-  EventUtils.synthesizeMouseAtCenter(
-    doc.getElementById("donationLink"),
-    {},
-    win
-  );
+  const donationLink = doc.getElementById("donationLink");
+  donationLink.scrollIntoView({ block: "center" });
+  EventUtils.synthesizeMouseAtCenter(donationLink, {}, win);
   Assert.equal(
     MockExternalProtocolService.urls.length,
     1,
@@ -503,7 +501,9 @@ add_task(async function testLocal() {
     ["involvedLink", "https://www.thunderbird.net/participate/"],
     ["developerLink", "https://developer.thunderbird.net/"],
   ]) {
-    EventUtils.synthesizeMouseAtCenter(doc.getElementById(id), {}, win);
+    const link = doc.getElementById(id);
+    link.scrollIntoView({ block: "center" });
+    EventUtils.synthesizeMouseAtCenter(link, {}, win);
     MockExternalProtocolService.assertHasLoadedURL(url);
   }
 
