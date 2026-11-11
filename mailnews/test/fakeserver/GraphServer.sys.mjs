@@ -1265,7 +1265,7 @@ export class GraphServer extends MockServer {
    */
   #messageToJSON(parentId, itemId) {
     const item = this.getItemInfo(itemId);
-    return {
+    const data = {
       "@odata.type": "#microsoft.graph.message",
       id: itemId,
       parentFolderId: parentId,
@@ -1283,6 +1283,16 @@ export class GraphServer extends MockServer {
       toRecipients: syntheticRecipientsToGraph(item.syntheticMessage.to),
       ccRecipients: syntheticRecipientsToGraph(item.syntheticMessage.cc),
     };
+    if (item.syntheticMessage.date) {
+      data.sentDateTime = item.syntheticMessage.date.toISOString();
+    }
+    if (item.syntheticMessage.from) {
+      data.sender = new Recipient(
+        item.syntheticMessage.from[0],
+        item.syntheticMessage.from[1]
+      ).toJSON();
+    }
+    return data;
   }
 }
 
