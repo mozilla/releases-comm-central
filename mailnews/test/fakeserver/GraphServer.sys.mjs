@@ -1287,10 +1287,12 @@ export class GraphServer extends MockServer {
       data.sentDateTime = item.syntheticMessage.date.toISOString();
     }
     if (item.syntheticMessage.from) {
-      data.sender = new Recipient(
-        item.syntheticMessage.from[0],
-        item.syntheticMessage.from[1]
-      ).toJSON();
+      data.sender = {
+        emailAddress: new EmailAddress(
+          item.syntheticMessage.from[0],
+          item.syntheticMessage.from[1]
+        ).toJSON(),
+      };
     }
     return data;
   }
