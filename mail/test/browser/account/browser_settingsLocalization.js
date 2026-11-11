@@ -94,6 +94,17 @@ async function assertLocalizedElement(doc, selector, id, attributes = []) {
   }
 }
 
+add_task(async function test_localizesTabTitle() {
+  const doc = accountsTab.browser.contentDocument;
+  await doc.l10n.ready;
+
+  Assert.equal(
+    doc.l10n.getAttributes(doc.querySelector("title")).id,
+    "account-manager-document-title",
+    "The Accounts tab title should use the Accounts ID"
+  );
+});
+
 add_task(async function test_appliesLocalization() {
   const doc = await selectPane(
     MailServices.accounts.getAccount("account2"),

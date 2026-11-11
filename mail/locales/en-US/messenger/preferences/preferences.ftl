@@ -14,6 +14,10 @@ pane-general-title = General
 category-general =
     .tooltiptext = { pane-general-title }
 
+pane-notifications-title = Notifications
+category-notifications =
+    .tooltiptext = { pane-notifications-title }
+
 pane-appearance-title = Appearance
 category-appearance =
     .tooltiptext = { pane-appearance-title }
@@ -41,6 +45,12 @@ category-sync =
 pane-qr-export-title = Export for Mobile
 category-qr-export =
     .tooltiptext = Export for Mobile
+
+pane-beta-features-title = Beta Features
+category-beta-features =
+    .tooltiptext = { pane-beta-features-title }
+
+experimental-features-legend = Experimental Features
 
 general-language-and-fonts-header = Language & Fonts
 
@@ -141,7 +151,7 @@ update-in-progress-ok-button = &Discard
 # method of closing the UI will not discard the update.
 update-in-progress-cancel-button = &Continue
 
-account-button = Account Settings
+accounts-button = Accounts
 open-addons-sidebar-button = Add-ons and Themes
 
 ## OS Authentication dialog
@@ -640,6 +650,7 @@ show-conversation-view-label =
     .label = Show conversation view
     .accesskey = c
 conversation-view-preview-description = This is an early preview feature. It groups related messages together, but it might not always work as expected.
+conversation-view-settings-link = Configure Conversation View in Beta Features
 
 label-experiment = Experimental
 
@@ -692,6 +703,7 @@ new-calendar-checkbox-label =
     .label = View calendar events in the new dialog
 
 new-calendar-checkbox-description = Experimental new calendar dialog for viewing events
+new-calendar-dialog-settings-link = Configure New Calendar Event Dialog in Beta Features
 
 ## Compose Tab
 

@@ -344,6 +344,9 @@ appmenu-save-as-file =
 appmenu-settings =
     .label = Settings
 
+appmenu-accounts =
+    .label = Accounts
+
 appmenu-addons-and-themes =
     .label = Add-ons and Themes
 
@@ -619,8 +622,8 @@ spaces-context-switch-tab-item =
 settings-context-open-settings-item2 =
     .label = Settings
 
-settings-context-open-account-settings-item2 =
-    .label = Account Settings
+settings-context-open-accounts-item =
+    .label = Accounts
 
 settings-context-open-addons-item2 =
     .label = Add-ons and Themes

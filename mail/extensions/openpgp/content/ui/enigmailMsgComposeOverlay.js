@@ -1947,7 +1947,7 @@ Enigmail.msg = {
     }
     const buttons = [
       {
-        "l10n-id": "settings-context-open-account-settings-item2",
+        "l10n-id": "settings-context-open-accounts-item",
         callback() {
           MsgAccountManager(
             "am-e2e.xhtml",

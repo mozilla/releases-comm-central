@@ -15,6 +15,14 @@ menu-tools-settings =
     .label = Settings
     .accesskey = e
 
+menu-accounts =
+    .label = Accounts
+    .accesskey =
+        { PLATFORM() ->
+            [linux] A
+           *[other] n
+        }
+
 menu-addons-and-themes =
     .label = Add-ons and Themes
     .accesskey = A

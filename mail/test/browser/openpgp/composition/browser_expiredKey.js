@@ -90,8 +90,8 @@ add_task(async function testExpiredKeyShowsNotificationBar() {
   const buttons = notification._buttons;
   Assert.equal(
     buttons[0].buttonInfo["l10n-id"],
-    "settings-context-open-account-settings-item2",
-    "button0 should be the button to open account settings"
+    "settings-context-open-accounts-item",
+    "button0 should be the button to open Accounts"
   );
   cwc.close();
 });
@@ -130,8 +130,8 @@ add_task(async function testKeyWithSoonExpiryShowsNotification() {
   const buttons = notification._buttons;
   Assert.equal(
     buttons[0].buttonInfo["l10n-id"],
-    "settings-context-open-account-settings-item2",
-    "button0 should be the button to open account settings"
+    "settings-context-open-accounts-item",
+    "button0 should be the button to open Accounts"
   );
 
   cwc.close();
