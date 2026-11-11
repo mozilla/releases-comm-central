@@ -896,7 +896,7 @@ add_task(async function test_many_references() {
   const idsList = await displayReferences(ids);
   const items = () => [...idsList.querySelectorAll(".header-message-id")];
   const shownIds = () => items().map(li => li.id);
-  const ellipsisButton = () => idsList.querySelector(".show-hidden-ids");
+  const ellipsisButton = () => idsList.querySelector(".show-hidden-items");
 
   Assert.deepEqual(
     shownIds(),
@@ -1004,7 +1004,7 @@ add_task(async function test_few_references() {
     "the show more button should be last"
   );
   Assert.ok(
-    !idsList.querySelector(".show-hidden-ids"),
+    !idsList.querySelector(".show-hidden-items"),
     "the ellipsis button should not be shown when no ids are hidden"
   );
   EventUtils.synthesizeMouseAtCenter(toggleButton, {}, aboutMessage);
@@ -1020,7 +1020,7 @@ add_task(async function test_few_references() {
 
   ids = Array.from({ length: 21 }, (v, i) => `<${i}@example.com>`);
   idsList = await displayReferences(ids);
-  const ellipsisButton = idsList.querySelector(".show-hidden-ids");
+  const ellipsisButton = idsList.querySelector(".show-hidden-items");
   Assert.deepEqual(
     aboutMessage.document.l10n.getAttributes(ellipsisButton),
     { id: "message-header-field-show-count-more", args: { count: 1 } },
@@ -1034,6 +1034,80 @@ add_task(async function test_few_references() {
   );
 
   await SpecialPowers.popPrefEnv();
+});
+
+/**
+ * Test that only a bounded number of newsgroups are shown for a huge
+ * Newsgroups header, and that the hidden newsgroups are shown in batches.
+ */
+add_task(async function test_many_newsgroups() {
+  const groups = Array.from({ length: 1000 }, (v, i) => `alt.test.${i}`);
+  const msg = create_message({
+    clobberHeaders: { Newsgroups: groups.join(",") },
+  });
+  await add_message_to_folder([folder], msg);
+  await be_in_folder(folder);
+  const msgHdr = folder.msgDatabase.getMsgHdrForMessageID(msg.messageId);
+  await select_click_row(
+    about3Pane.gDBView.findIndexOfMsgHdr(msgHdr, true),
+    AccessibilityUtils
+  );
+
+  const list = aboutMessage.document.querySelector(
+    "#expandednewsgroupsBox .newsgroups-list"
+  );
+  const shownGroups = () =>
+    Array.from(
+      list.querySelectorAll(".header-newsgroup"),
+      li => li.textContent
+    );
+  const ellipsisButton = () => list.querySelector(".show-hidden-items");
+
+  Assert.deepEqual(
+    shownGroups(),
+    [...groups.slice(0, 10), ...groups.slice(-10)],
+    "the first and last newsgroups should be shown"
+  );
+  Assert.equal(
+    list.children[10],
+    ellipsisButton().parentNode,
+    "the ellipsis button should be in place of the hidden newsgroups"
+  );
+  Assert.ok(
+    list.children[9].classList.contains("last-before-button"),
+    "the newsgroup before the ellipsis button should be marked"
+  );
+  Assert.deepEqual(
+    aboutMessage.document.l10n.getAttributes(ellipsisButton()),
+    { id: "message-header-field-show-count-more", args: { count: 200 } },
+    "the ellipsis button should tell how many newsgroups it will show"
+  );
+
+  ellipsisButton().focus();
+  EventUtils.synthesizeKey("KEY_Enter", {}, aboutMessage);
+  Assert.deepEqual(
+    shownGroups(),
+    [...groups.slice(0, 210), ...groups.slice(-10)],
+    "a batch of hidden newsgroups should be shown"
+  );
+  Assert.equal(
+    aboutMessage.document.activeElement,
+    list.children[10],
+    "the first newly shown newsgroup should be focused"
+  );
+
+  while (ellipsisButton()) {
+    ellipsisButton().click();
+  }
+  Assert.deepEqual(
+    shownGroups(),
+    groups,
+    "all newsgroups should eventually be shown"
+  );
+  Assert.ok(
+    !list.querySelector(".show-more-ids"),
+    "there should be no show more button for newsgroups"
+  );
 });
 
 /**

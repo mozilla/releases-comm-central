@@ -1536,7 +1536,7 @@ function HideMessageHeaderPane() {
 function outputNewsgroups(headerEntry, headerValue) {
   headerValue
     .split(",")
-    .forEach(newsgroup => headerEntry.enclosingBox.addNewsgroup(newsgroup));
+    .forEach(newsgroup => headerEntry.enclosingBox.addItem(newsgroup));
   headerEntry.enclosingBox.buildView();
 }
 
@@ -1561,7 +1561,7 @@ function outputTags(headerEntry, headerValue) {
 function outputMessageIds(headerEntry, headerValue) {
   headerEntry.enclosingBox.clear();
   for (const id of headerValue.match(/<[^<>]*>/g) ?? []) {
-    headerEntry.enclosingBox.addId(id);
+    headerEntry.enclosingBox.addItem(id);
   }
   headerEntry.enclosingBox.buildView();
 }

@@ -820,7 +820,7 @@ button.email-action-flagged {
 .header-recipient:not(:last-child, .last-before-button)::after,
 .header-message-id:not(:last-child, .last-before-button)::after,
 .header-message-url:not(:last-child)::after,
-.header-newsgroup:not(:last-child)::after {
+.header-newsgroup:not(:last-child, .last-before-button)::after {
   content: ",";
 }
 
@@ -869,8 +869,8 @@ button.email-action-flagged {
   min-inline-size: 100px;
 }
 
-.ids-list {
-  /* Five rows of ids, each with its padding, and the row gaps between them. */
+.header-item-list {
+  /* Five rows of items, each with its padding, and the row gaps between them. */
   max-block-size: calc(5 * (1lh + 2 * var(--message-header-field-offset)) + 4 * 2px);
   overflow-y: auto;
 }
@@ -927,7 +927,7 @@ button.email-action-flagged {
 
 .show-more-recipients,
 .show-more-ids,
-.show-hidden-ids {
+.show-hidden-items {
   min-block-size: auto;
   min-inline-size: auto;
   border-radius: 12px;
@@ -955,7 +955,7 @@ button.email-action-flagged {
 }
 
 .show-more-ids,
-.show-hidden-ids {
+.show-hidden-items {
   padding: 2px 6px;
   font-size: 0.8rem;
 }
