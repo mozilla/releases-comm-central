@@ -717,7 +717,7 @@ void MimeCMSGetFromSender(MimeObject* obj, nsCString& from_addr,
   if (!s.IsEmpty())
     ExtractFirstAddress(EncodedHeader(s), sender_name, sender_addr);
 
-  msg_date.Adopt(MimeHeaders_get(msg_headers, HEADER_DATE, false, true));
+  msg_date.Adopt(MimeHeaders_get(msg_headers, HEADER_DATE, false, false));
 }
 
 void MimeCMSRequestAsyncSignatureVerification(
