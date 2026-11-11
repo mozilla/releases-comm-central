@@ -7,19 +7,19 @@ import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 let transactionManager = null;
 
 /**
- * CalTransactionManager is used to track user initiated operations on calendar
- * items. These transactions can be undone or repeated when appropriate.
+ * Records calendar changes as transactions that the user can undo or redo.
+ * Each transaction performs one change, such as an event edit. Undo calls the
+ * transaction's reverse operation. A batch groups changes into one Undo step.
  *
- * This implementation is used instead of nsITransactionManager because better
- * support for async transactions and access to batch transactions is needed
- * which nsITransactionManager does not provide.
+ * Calendar writes can finish later through promises. This manager supports
+ * those asynchronous writes and access to batches, unlike nsITransactionManager.
  */
 export class CalTransactionManager {
   /**
-   * Contains transactions executed by the transaction manager than can be
-   * undone.
+   * Contains transactions available for Undo, including work still pending.
+   * A failed commit removes its own transaction before reporting the error.
    *
-   * @type {CalTransaction}
+   * @type {CalTransaction[]}
    */
   undoStack = [];
 
@@ -27,7 +27,7 @@ export class CalTransactionManager {
    * Contains transactions that have been undone by the transaction manager and
    * can be redone again later if desired.
    *
-   * @type {CalTransaction}
+   * @type {CalTransaction[]}
    */
   redoStack = [];
 
@@ -53,15 +53,30 @@ export class CalTransactionManager {
    */
 
   /**
-   * Adds a CalTransaction to the internal stack. The transaction will be
-   * executed and its resulting Promise returned.
+   * Adds and executes a transaction. Removes the transaction if execution fails.
+   * Keeps other transactions available for Undo.
    *
    * @param {CalTransaction} trn - The CalTransaction to add to the stack and
    *                               execute.
+   * @returns {Promise<void>} Resolves after the transaction finishes. Removing
+   *   a failure from this stack does not reverse partial provider writes.
+   * @throws If the transaction fails.
    */
   async commit(trn) {
     this.undoStack.push(trn);
-    return trn.doTransaction();
+
+    try {
+      return await trn.doTransaction();
+    } catch (error) {
+      // A later transaction can finish while this transaction is pending.
+      // Remove this transaction by identity instead of removing the last entry.
+      const index = this.undoStack.indexOf(trn);
+      if (index != -1) {
+        this.undoStack.splice(index, 1);
+      }
+
+      throw error;
+    }
   }
 
   /**
@@ -69,7 +84,7 @@ export class CalTransactionManager {
    * The created transaction is returned and can be used to combine multiple
    * transactions into one.
    *
-   * @returns {CalBatchTrasaction}
+   * @returns {CalBatchTransaction} The new batch stored as one Undo entry.
    */
   beginBatch() {
     const trn = new CalBatchTransaction();
@@ -78,35 +93,60 @@ export class CalTransactionManager {
   }
 
   /**
-   * peekUndoStack provides the top transaction on the undo stack (if any)
-   * without modifying the stack.
+   * Returns the index of the last Undo entry that is not an empty batch.
+   *
+   * @returns {number} The entry index, or -1 if no entry remains.
+   */
+  #getUndoTransactionIndex() {
+    // Keep empty batches in place because callers can add members later.
+    // Pending members are already in the batch and must not be skipped.
+    for (let index = this.undoStack.length - 1; index >= 0; index--) {
+      const trn = this.undoStack[index];
+
+      if (trn instanceof CalBatchTransaction && !trn.transactions.length) {
+        continue;
+      }
+
+      return index;
+    }
+
+    return -1;
+  }
+
+  /**
+   * Returns the last Undo entry that is not an empty batch, without changing
+   * the stack.
    *
    * @returns {CalTransaction?}
    */
   peekUndoStack() {
-    return this.undoStack.at(-1);
+    return this.undoStack[this.#getUndoTransactionIndex()];
   }
 
   /**
-   * Undo the transaction at the top of the undo stack.
+   * Undoes the last Undo entry that is not an empty batch.
    *
-   * @throws - NS_ERROR_FAILURE if the undo stack is empty.
+   * @throws - NS_ERROR_FAILURE if no non-empty Undo entry remains.
    */
   async undo() {
-    if (!this.undoStack.length) {
+    const index = this.#getUndoTransactionIndex();
+
+    if (index == -1) {
       throw new Components.Exception(
         "CalTransactionManager: undo stack is empty!",
         Cr.NS_ERROR_FAILURE
       );
     }
-    const trn = this.undoStack.pop();
+
+    const [trn] = this.undoStack.splice(index, 1);
+
     this.redoStack.push(trn);
+
     return trn.undoTransaction();
   }
 
   /**
-   * Returns true if it is possible to undo the transaction at the top of the
-   * undo stack.
+   * Returns true if the last Undo entry that is not an empty batch is writable.
    *
    * @returns {boolean}
    */
@@ -126,9 +166,11 @@ export class CalTransactionManager {
   }
 
   /**
-   * Redo the transaction at the top of the redo stack.
+   * Redoes the transaction at the top of the redo stack. Removes the transaction
+   * from Undo history if execution fails.
    *
    * @throws - NS_ERROR_FAILURE if the redo stack is empty.
+   * @throws If the transaction fails.
    */
   async redo() {
     if (!this.redoStack.length) {
@@ -137,9 +179,10 @@ export class CalTransactionManager {
         Cr.NS_ERROR_FAILURE
       );
     }
+
     const trn = this.redoStack.pop();
-    this.undoStack.push(trn);
-    return trn.doTransaction();
+
+    return this.commit(trn);
   }
 
   /**
@@ -155,8 +198,9 @@ export class CalTransactionManager {
 }
 
 /**
- * CalTransaction represents a single, atomic user operation on one or more
- * calendar items.
+ * Defines an operation on one or more calendar items and its reverse operation.
+ * A transaction can use several provider writes. A failed transaction can leave
+ * earlier writes in place.
  */
 export class CalTransaction {
   /**
@@ -181,9 +225,8 @@ export class CalTransaction {
 }
 
 /**
- * CalBatchTransaction is used for batch transactions where multiple transactions
- * treated as one is desired. For example; where the user selects and deletes
- * more than one event.
+ * Groups transactions into one Undo step, such as deletion of several events.
+ * Each member still performs its own provider writes.
  */
 export class CalBatchTransaction extends CalTransaction {
   /**
@@ -194,12 +237,27 @@ export class CalBatchTransaction extends CalTransaction {
   transactions = [];
 
   /**
-   * Similar to the CalTransactionManager method except the transaction will be
-   * added to the batch.
+   * Adds and executes a transaction in this batch. Removes failed transactions
+   * while keeping successful transactions available for Undo.
+   *
+   * @param {CalTransaction} trn - The transaction to execute.
+   * @returns {Promise<void>} Resolves after the transaction finishes.
+   * @throws If the transaction fails.
    */
   async commit(trn) {
     this.transactions.push(trn);
-    return trn.doTransaction();
+
+    try {
+      return await trn.doTransaction();
+    } catch (error) {
+      // Other batch members can finish before this failure reaches the caller.
+      const index = this.transactions.indexOf(trn);
+      if (index != -1) {
+        this.transactions.splice(index, 1);
+      }
+
+      throw error;
+    }
   }
 
   canWrite() {
@@ -296,8 +354,15 @@ export class CalAddTransaction extends CalBaseTransaction {
  * CalModifyTransaction handles modifications.
  */
 export class CalModifyTransaction extends CalBaseTransaction {
+  /**
+   * Applies an edit or move and sends client scheduling messages.
+   *
+   * @returns {Promise<void>} Resolves after the edit or move succeeds.
+   * @throws If the calendar edit or move fails.
+   */
   async doTransaction() {
     let item;
+
     if (this.item.calendar.id == this.oldItem.calendar.id) {
       item = await this.calendar.modifyItem(
         cal.itip.prepareSequence(this.item, this.oldItem),
@@ -307,10 +372,17 @@ export class CalModifyTransaction extends CalBaseTransaction {
     } else {
       this.oldCalendar = this.oldItem.calendar;
       item = await this.calendar.addItem(this.item);
-      this._dispatch(Ci.calIOperationListener.ADD, item, this.oldItem);
+
+      // A remote calendar can delete the source and then lose the response.
+      // Keep the destination if deletion rejects; it may be the only copy.
       await this.oldItem.calendar.deleteItem(this.oldItem);
+
+      // Scheduling messages are invitations, updates, or cancellations.
+      // Send client scheduling messages only after both move operations succeed.
+      this._dispatch(Ci.calIOperationListener.ADD, item, this.oldItem);
       this._dispatch(Ci.calIOperationListener.DELETE, this.oldItem, this.oldItem);
     }
+
     this.item = item;
   }
 

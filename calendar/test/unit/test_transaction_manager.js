@@ -10,7 +10,6 @@ const { CalendarTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/calendar/CalendarTestUtils.sys.mjs"
 );
 const { CalEvent } = ChromeUtils.importESModule("resource:///modules/CalEvent.sys.mjs");
-const { CalTodo } = ChromeUtils.importESModule("resource:///modules/CalTodo.sys.mjs");
 const {
   CalTransactionManager,
   CalTransaction,
@@ -86,7 +85,7 @@ function doBatchTest(batches, expected) {
 /**
  * Tests the CalTransactionManager methods work as expected.
  */
-add_task(async function testCalTransactionManager() {
+add_task(async function test_calTransactionManager() {
   let manager = new CalTransactionManager();
 
   Assert.ok(!manager.canUndo(), "canUndo() returns false with an empty undo stack");
@@ -133,7 +132,7 @@ add_task(async function testCalTransactionManager() {
 /**
  * Tests the BatchTransaction works as expected.
  */
-add_task(async function testBatchTransaction() {
+add_task(async function test_batchTransaction() {
   let batch = new CalBatchTransaction();
 
   Assert.ok(!batch.canWrite(), "canWrite() returns false for an empty BatchTransaction");
@@ -195,7 +194,7 @@ add_task(async function testBatchTransaction() {
 /**
  * Tests that executing multiple batch transactions in sequence works.
  */
-add_task(async function testSequentialBatchTransactions() {
+add_task(async function test_sequentialBatchTransactions() {
   const manager = new CalTransactionManager();
 
   const batchTransactions = [
@@ -361,7 +360,7 @@ add_task(async function testSequentialBatchTransactions() {
 /**
  * Tests CalAddTransaction executes and reverses as expected.
  */
-add_task(async function testCalAddTransaction() {
+add_task(async function test_calAddTransaction() {
   const calendar = CalendarTestUtils.createCalendar("Test", "memory");
   const event = new CalEvent();
   event.id = "test";
@@ -381,7 +380,7 @@ add_task(async function testCalAddTransaction() {
 /**
  * Tests CalModifyTransaction executes and reverses as expected.
  */
-add_task(async function testCalModifyTransaction() {
+add_task(async function test_calModifyTransaction() {
   const calendar = CalendarTestUtils.createCalendar("Test", "memory");
   const event = new CalEvent();
   event.id = "test";
@@ -409,7 +408,7 @@ add_task(async function testCalModifyTransaction() {
 /**
  * Tests CalDeleteTransaction executes and reverses as expected.
  */
-add_task(async function testCalDeleteTransaction() {
+add_task(async function test_calDeleteTransaction() {
   const calendar = CalendarTestUtils.createCalendar("Test", "memory");
   const event = new CalEvent();
   event.id = "test";
@@ -428,4 +427,323 @@ add_task(async function testCalDeleteTransaction() {
   const revertedEvent = await calendar.getItem("test");
   Assert.ok(!!revertedEvent, "event was restored to the calendar");
   CalendarTestUtils.removeCalendar(calendar);
+});
+
+/**
+ * Checks that a failed commit leaves successful transactions available for Undo.
+ * Runs the same failure with an individual transaction and a transaction batch.
+ */
+add_task(async function test_failedCommitsLeaveOtherTransactions() {
+  for (const batch of [false, true]) {
+    const manager = new CalTransactionManager();
+    const owner = batch ? manager.beginBatch() : manager;
+    const first = new MockCalTransaction();
+    const last = new MockCalTransaction();
+    await owner.commit(first);
+
+    // Keep one commit pending while a later commit succeeds. Failure must
+    // remove the pending transaction without removing the later transaction.
+    const started = Promise.withResolvers();
+    const finish = Promise.withResolvers();
+    const failed = new MockCalTransaction();
+    failed.doTransaction = async () => {
+      started.resolve();
+      await finish.promise;
+      throw new Error("Commit failed");
+    };
+
+    const pending = owner.commit(failed);
+    await started.promise;
+    await owner.commit(last);
+    finish.resolve();
+
+    await Assert.rejects(pending, /Commit failed/, "The pending commit should report its failure.");
+    Assert.deepEqual(
+      batch ? owner.transactions : manager.undoStack,
+      [first, last],
+      "Failure should remove only the failed edit, even when another edit finishes first."
+    );
+
+    await manager.undo();
+
+    Assert.equal(last.undone, 1, "Undo should reverse the last successful transaction once.");
+
+    if (!batch) {
+      await manager.undo();
+    }
+
+    Assert.equal(first.undone, 1, "Undo should reverse the first successful transaction once.");
+    Assert.equal(failed.undone, 0, "Undo should not run a failed transaction.");
+
+    if (!batch) {
+      await manager.redo();
+    }
+    await manager.redo();
+
+    Assert.equal(first.done, 2, "Redo should execute the first successful transaction again.");
+    Assert.equal(last.done, 2, "Redo should execute the last successful transaction again.");
+  }
+});
+
+/** Checks that empty failed batches do not hide older changes or lose later members. */
+add_task(async function test_emptyFailedBatchesKeepUndoHistory() {
+  const manager = new CalTransactionManager();
+  const first = new MockCalTransaction();
+  const later = new MockCalTransaction();
+  const commitError = new Error("Batch member failed");
+
+  await manager.commit(first);
+
+  const batch = manager.beginBatch();
+  const emptyBatch = manager.beginBatch();
+
+  for (const owner of [batch, emptyBatch]) {
+    for (let i = 0; i < 2; i++) {
+      const failed = new MockCalTransaction();
+
+      failed.doTransaction = async () => {
+        throw commitError;
+      };
+
+      await Assert.rejects(
+        owner.commit(failed),
+        error => error === commitError,
+        "Each failed batch member should report the original error."
+      );
+    }
+
+    Assert.equal(owner.transactions.length, 0, "The failed batch should have no members.");
+  }
+
+  Assert.equal(manager.peekUndoStack(), first, "Undo should select the older transaction.");
+  Assert.ok(manager.canUndo(), "Empty failed batches should not block Undo.");
+  Assert.deepEqual(
+    manager.undoStack,
+    [first, batch, emptyBatch],
+    "Selecting an Undo entry should retain empty batches in their original positions."
+  );
+
+  await manager.undo();
+
+  Assert.equal(first.undone, 1, "Undo should reverse the older transaction once.");
+  Assert.equal(manager.peekRedoStack(), first, "Redo should contain the older transaction.");
+  Assert.equal(manager.peekUndoStack(), undefined, "Empty batches should provide no Undo entry.");
+  Assert.ok(!manager.canUndo(), "Undo should be unavailable when only empty batches remain.");
+
+  await Assert.rejects(
+    manager.undo(),
+    error => error.result === Cr.NS_ERROR_FAILURE,
+    "Undo should report an empty history when only empty batches remain."
+  );
+
+  Assert.equal(manager.redoStack.length, 1, "Empty batches should not add Redo entries.");
+
+  // The caller can still use the batch after Undo skips it.
+  await batch.commit(later);
+
+  Assert.equal(manager.peekUndoStack(), batch, "Undo should select the batch with a later member.");
+  Assert.ok(manager.canUndo(), "The later successful member should enable Undo.");
+
+  await manager.undo();
+
+  Assert.equal(later.undone, 1, "Undo should reverse the later batch member once.");
+  Assert.equal(manager.peekRedoStack(), batch, "Redo should retain the same batch.");
+
+  await manager.redo();
+
+  Assert.equal(later.done, 2, "Redo should execute the later batch member again.");
+  Assert.equal(manager.peekUndoStack(), batch, "Redo should return the batch to Undo history.");
+});
+
+/** Checks that a failure does not make a batch with a pending member disappear. */
+add_task(async function test_pendingBatchMemberKeepsUndoEntry() {
+  const manager = new CalTransactionManager();
+  const first = new MockCalTransaction();
+  const member = new MockCalTransaction();
+  const failed = new MockCalTransaction();
+  const started = Promise.withResolvers();
+  const finish = Promise.withResolvers();
+
+  await manager.commit(first);
+
+  const batch = manager.beginBatch();
+
+  member.doTransaction = async () => {
+    started.resolve();
+    await finish.promise;
+    member.done++;
+  };
+  failed.doTransaction = async () => {
+    throw new Error("Batch member failed");
+  };
+
+  const pending = batch.commit(member);
+
+  await started.promise;
+  await Assert.rejects(
+    batch.commit(failed),
+    /Batch member failed/,
+    "The failed member should report its error while another member remains pending."
+  );
+
+  Assert.equal(manager.peekUndoStack(), batch, "Undo should still select the pending batch.");
+  Assert.equal(batch.transactions[0], member, "Failure should retain the pending member.");
+  Assert.ok(manager.canUndo(), "The pending batch should retain its existing permission result.");
+
+  finish.resolve();
+  await pending;
+  await manager.undo();
+
+  Assert.equal(member.undone, 1, "Undo should reverse the completed batch member once.");
+  Assert.equal(
+    first.undone,
+    0,
+    "Undo should not skip the batch and reverse the older transaction."
+  );
+  Assert.equal(manager.peekUndoStack(), first, "Undo should next select the older transaction.");
+});
+
+/** Checks that skipping empty batches does not bypass a non-empty entry's permissions. */
+add_task(async function test_emptyBatchKeepsUndoPermissionChecks() {
+  for (const useBatch of [false, true]) {
+    const manager = new CalTransactionManager();
+    const first = new MockCalTransaction();
+    const unwritable = new MockCalTransaction(false);
+
+    await manager.commit(first);
+
+    const owner = useBatch ? manager.beginBatch() : manager;
+
+    await owner.commit(unwritable);
+    manager.beginBatch();
+
+    Assert.equal(
+      manager.peekUndoStack(),
+      useBatch ? owner : unwritable,
+      "Undo should select the non-empty entry even when it is not writable."
+    );
+    Assert.ok(
+      !manager.canUndo(),
+      "A non-empty unwritable entry should still block older Undo entries."
+    );
+    Assert.equal(first.undone, 0, "The permission check should not reverse the older transaction.");
+  }
+});
+
+/** Checks that a failed Redo leaves other successful transactions available for Undo. */
+add_task(async function test_redoFailureKeepsOtherTransactions() {
+  const manager = new CalTransactionManager();
+  const first = new MockCalTransaction();
+  const failed = new MockCalTransaction();
+  const last = new MockCalTransaction();
+  const redoError = new Error("Redo failed");
+
+  await manager.commit(first);
+  await manager.commit(failed);
+  await manager.undo();
+
+  // Hold Redo pending until a later commit succeeds. Failure must remove the
+  // Redo transaction without removing the later transaction.
+  const started = Promise.withResolvers();
+  const finish = Promise.withResolvers();
+
+  failed.doTransaction = async () => {
+    started.resolve();
+    await finish.promise;
+    throw redoError;
+  };
+
+  const pending = manager.redo();
+
+  await started.promise;
+  await manager.commit(last);
+
+  finish.resolve();
+
+  await Assert.rejects(
+    pending,
+    error => error === redoError,
+    "Redo should report the original error."
+  );
+
+  Assert.equal(manager.undoStack.length, 2, "Undo history should contain only successful changes.");
+  Assert.equal(manager.undoStack[0], first, "Undo history should retain the older transaction.");
+  Assert.equal(manager.peekUndoStack(), last, "Undo history should retain the later transaction.");
+  Assert.ok(!manager.canRedo(), "The failed transaction should leave Redo history.");
+  Assert.equal(failed.undone, 1, "Failure should not call the reverse operation again.");
+
+  await manager.undo();
+
+  Assert.equal(last.undone, 1, "Undo should reverse the later successful transaction once.");
+  Assert.equal(manager.peekUndoStack(), first, "Undo should next reach the older transaction.");
+
+  await manager.undo();
+
+  Assert.equal(first.undone, 1, "Undo should reverse the older successful transaction once.");
+  Assert.equal(failed.undone, 1, "Undo should not reach the failed Redo transaction.");
+  Assert.ok(
+    !manager.canUndo(),
+    "Undo history should be empty after both successful changes are undone."
+  );
+});
+
+/** Checks that a failed deletion response leaves the destination copy intact. */
+add_task(async function test_failedMoveRetainsDestination() {
+  const source = CalendarTestUtils.createCalendar("Source", "memory");
+  const destination = CalendarTestUtils.createCalendar("Destination", "memory");
+  const sourceProvider = source.wrappedJSObject;
+  const sourceDelete = sourceProvider.deleteItem;
+
+  registerCleanupFunction(() => {
+    sourceProvider.deleteItem = sourceDelete;
+    CalendarTestUtils.removeCalendar(source);
+    CalendarTestUtils.removeCalendar(destination);
+  });
+
+  const sourceError = new Error("Source deletion response lost");
+  const event = new CalEvent();
+
+  event.id = "failed-move";
+  event.title = "Source";
+  const original = await source.addItem(event);
+  const moved = original.clone();
+
+  moved.calendar = destination;
+  moved.title = "Destination";
+  const transaction = new CalModifyTransaction(moved, destination, original, null);
+  const manager = new CalTransactionManager();
+  let schedulingCalls = 0;
+
+  transaction._dispatch = () => schedulingCalls++;
+
+  // A server can delete the source before its response is lost. Complete the
+  // deletion, then reject to reproduce that uncertain result.
+  sourceProvider.deleteItem = async function (item) {
+    await sourceDelete.call(this, item);
+
+    throw sourceError;
+  };
+
+  await Assert.rejects(
+    manager.commit(transaction),
+    error => error === sourceError,
+    "The move should report the source deletion error."
+  );
+
+  const remainingSource = await source.getItem(event.id);
+  const storedDestination = await destination.getItem(event.id);
+
+  Assert.equal(remainingSource, null, "The source should be deleted before its response fails.");
+  Assert.ok(storedDestination, "The destination copy should remain after the failed response.");
+  Assert.equal(
+    storedDestination.title,
+    "Destination",
+    "The destination copy should retain the moved title."
+  );
+  Assert.equal(
+    schedulingCalls,
+    0,
+    "An unconfirmed move should not call the client scheduling handler."
+  );
+  Assert.equal(manager.undoStack.length, 0, "The failed move should leave no Undo transaction.");
 });
