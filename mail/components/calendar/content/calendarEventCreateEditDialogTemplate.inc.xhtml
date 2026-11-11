@@ -6,7 +6,14 @@
 
 <html:template id="calendarEventCreateEditDialogTemplate" xmlns="http://www.w3.org/1999/xhtml">
   <header class="calendar-event-create-edit-dialog-header">
-    <div class="calendar-name"></div>
+    <div class="calendar-name">
+      <span class="calendar-color" aria-hidden="true" hidden="hidden"></span>
+      <select
+        class="select calendar-selector"
+        data-l10n-id="calendar-event-calendar-selector"
+        disabled="disabled"
+      ></select>
+    </div>
     <div class="calendar-actions">
       <div class="expand-control"></div>
       <div class="more-actions">

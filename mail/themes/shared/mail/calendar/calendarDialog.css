@@ -370,7 +370,7 @@ li[is="calendar-dialog-attachment"] {
   inline-size: 424px;
   margin: 0;
   max-block-size: calc(100vh - 8 * var(--space-step));
-  min-inline-size: 424px;
+  min-inline-size: 436px;
   padding: 0;
   block-size: 100%;
   z-index: 999;
@@ -398,14 +398,81 @@ li[is="calendar-dialog-attachment"] {
     display: flex;
     flex-shrink: 0;
     flex-wrap: wrap;
+    align-items: center;
     justify-content: space-between;
     gap: calc(var(--space-step) * 3);
-    padding-block: calc(var(--space-step) * 4) calc(var(--space-step) * 3);
-    padding-inline: calc(var(--space-step) * 4);
+    padding-block: calc(var(--space-base) + 2 * var(--space-step)) calc(var(--space-step) * 3);
+    padding-inline: calc(var(--space-base) + 2 * var(--space-step));
 
     & .calendar-name {
+      position: relative;
       display: flex;
       flex: 1 1 auto;
+      min-inline-size: 0;
+      min-block-size: 38px;
+      align-items: center;
+    }
+
+    & .calendar-selector {
+      --background-image-width: 16px;
+      --end-padding: 16px;
+      flex: 1;
+      min-inline-size: 0;
+      block-size: 32px;
+      box-sizing: border-box;
+      margin: 0;
+      /* The border adds one pixel to the 27px text inset. */
+      padding-inline-start: calc(9 * var(--space-step) - var(--button-border-size));
+      background-image: var(--icon-nav-down);
+      background-size: 16px;
+      /* Keep the system font. Text widths can differ from Zeplin's Inter font. */
+      font: inherit;
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 16px;
+
+      @media not (prefers-contrast) {
+        /* Match the exported light palette without changing shared theme colors. */
+        --button-background-color: light-dark(#f7f7f7, var(--color-surface-lower-dark));
+        --button-border-color: light-dark(var(--color-surface-deep-light), var(--color-surface-border-dark));
+        --button-text-color: light-dark(#1a202c, var(--color-text-base-dark));
+      }
+    }
+
+    & .calendar-color {
+      position: absolute;
+      inset-inline-start: 9px;
+      inline-size: calc(4 * var(--space-step));
+      block-size: calc(4 * var(--space-step));
+      box-sizing: border-box;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    & .calendar-actions {
+      display: flex;
+      flex: none;
+      align-items: center;
+      gap: var(--space-step);
+
+      /* Reserve the design's control slots while their actions are unavailable. */
+      & .expand-control,
+      & .more-actions {
+        display: flex;
+        flex: none;
+        align-items: center;
+        inline-size: calc(8 * var(--space-step));
+        block-size: calc(8 * var(--space-step));
+      }
+
+      & .close-button,
+      & .menu-button {
+        inline-size: calc(8 * var(--space-step));
+        block-size: calc(8 * var(--space-step));
+        min-inline-size: 0;
+      }
     }
 
     & .event-title {

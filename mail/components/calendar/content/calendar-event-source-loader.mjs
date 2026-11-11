@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import {
+  canChangeEventCalendar,
+  canMoveCalendarEvent,
+  snapshotCalendar,
+} from "./calendar-event-calendar-options.mjs";
+
 const { cal } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calUtils.sys.mjs"
 );
@@ -38,11 +44,20 @@ const { cal } = ChromeUtils.importESModule(
  */
 
 /**
- * Serializable event data for a dialog source session.
+ * A copy of the loaded event data that Redux can store.
+ * The dialog uses this snapshot to create its editable draft. Calendar
+ * methods remain on the platform event returned alongside the snapshot.
  *
  * @typedef {object} CalendarEventSourceSnapshot
  * @property {CalendarEventSourceIdentity} identity - The route identity.
  * @property {CalendarEventSourceEventSnapshot} event - The event data.
+ * @property {CalendarEventCalendarData} calendar - The source calendar ID and
+ *   name copied when the event loads.
+ * @property {boolean} canMoveCalendar - The result of the source permission
+ *   checks when the event loads. Destination choices have separate checks.
+ * @property {boolean} canChangeCalendar - True if the user can modify the loaded
+ *   event and the event is neither an occurrence nor an invitation. Source
+ *   calendar permission has separate checks.
  */
 
 /**
@@ -95,17 +110,24 @@ function snapshotDateTime(dateTime) {
 }
 
 /**
- * Make the serializable event data shared by event dialogs.
+ * Returns copied event values and calendar data for the dialog state.
  *
- * Field components add data when they own that data.
+ * The returned `identity` holds the IDs used to find the saved event.
+ * The returned `event` values become the draft's starting values. The draft's
+ * calendar can change while `identity` keeps the original IDs.
  *
- * @param {CalendarEventSourceIdentity} identity
- * @param {calIEvent} event
- * @returns {CalendarEventSourceSnapshot}
+ * @param {CalendarEventSourceIdentity} identity - The route used to load the
+ *   event, including the occurrence ID if present.
+ * @param {calIEvent} event - The loaded event or occurrence.
+ * @returns {CalendarEventSourceSnapshot} Copied values and the result of the
+ *   source permission checks at the time of loading.
  */
 function snapshotEvent(identity, event) {
   return {
     identity: { ...identity },
+    calendar: snapshotCalendar(event.calendar),
+    canMoveCalendar: canMoveCalendarEvent(event),
+    canChangeCalendar: canChangeEventCalendar(event),
     event: {
       calendarId: identity.calendarId,
       eventId: event.id,

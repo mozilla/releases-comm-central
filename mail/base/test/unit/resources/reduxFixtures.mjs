@@ -25,3 +25,30 @@ const testSlice = createSlice({
 const injectedSlice = testSlice.injectInto(rootReducer);
 
 export const testSelector = injectedSlice.selectors.selectTest;
+
+/**
+ * Returns the state unchanged for context and identity checks.
+ *
+ * @param {object} state - The state passed by the test helper.
+ * @returns {object} The same state object.
+ */
+export function testStateSelector(state) {
+  return state;
+}
+
+/**
+ * Creates an async action that dispatches a test action and reads the state.
+ *
+ * @param {string} value - The test action's payload and extra selector argument.
+ * @returns {function(function(object): object, function(): object): Promise<string[]>}
+ *   The function that dispatches the action and returns the selector result.
+ */
+export function testThunk(value) {
+  return async (dispatch, getState) => {
+    // Dispatch after an await so the helper must wait for the function's result.
+    await Promise.resolve();
+    dispatch(testAction(value));
+
+    return testSelector(getState(), value);
+  };
+}

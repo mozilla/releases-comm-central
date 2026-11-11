@@ -48,6 +48,7 @@ let nextSessionId = 0;
  * Event data passed to a dialog after a source load.
  *
  * @typedef {object} CalendarEventDialogSource
+ * @property {number} generation - The number of the request that loaded the source.
  * @property {calIEvent} [event] - The raw event for a legacy dialog.
  * @property {CalendarEventSourceIdentity} identity - The source identity.
  * @property {CalendarEventSourceSnapshot} snapshot - The event snapshot.
@@ -493,6 +494,7 @@ export const CalendarEventDialogSourceMixin = superClass =>
 
         /** @type {CalendarEventDialogSource} */
         const source = {
+          generation: route.generation,
           identity: session.identity,
           isCurrent: route.isCurrent,
           signal: route.signal,

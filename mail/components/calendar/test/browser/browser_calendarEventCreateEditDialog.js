@@ -35,6 +35,8 @@ add_setup(async function () {
   dialog.container = dialogContainer;
 
   calendar = createCalendar();
+  cal.view.getCompositeCalendar(browser.contentWindow).defaultCalendar =
+    calendar;
   calendarEvent = await createEvent({
     calendar,
     name: "Create/Edit Loader Event",
@@ -46,8 +48,9 @@ add_setup(async function () {
   });
 
   await startAxeMutationObserver(browser, {
+    container: '[is="calendar-event-create-edit-dialog"]',
     message:
-      "The create/edit dialog shell stayed axe-clean while the test mutated it",
+      "The create/edit dialog shell should pass accessibility checks after changes.",
     specialPowers: SpecialPowers,
   });
 
@@ -413,9 +416,9 @@ add_task(async function test_accessibleStaticDialogShell() {
     await doc.l10n.translateFragment(dialog);
 
     Assert.equal(
-      dialog.getAttribute("aria-label"),
-      "Event",
-      "The dialog has an accessible name"
+      doc.l10n.getAttributes(dialog).id,
+      "calendar-event-create-edit-dialog",
+      "The dialog should use the localized event name"
     );
   } finally {
     dialog.close();
@@ -475,7 +478,11 @@ add_task(async function test_dialogHasMinimumWidth() {
     );
 
     const { width } = dialog.getBoundingClientRect();
-    Assert.greaterOrEqual(width, 424, "The dialog is at least 424px wide");
+    Assert.greaterOrEqual(
+      width,
+      436,
+      "The dialog should be at least 436px wide"
+    );
   } finally {
     dialog.close();
   }
@@ -1261,8 +1268,8 @@ add_task(async function test_createAndEditDraftLifecycle() {
 
   Assert.deepEqual(
     dialog.draft,
-    {},
-    "Create mode starts with an empty draft before fields set defaults"
+    { calendarId: calendar.id },
+    "Create mode should start with the selected calendar default"
   );
   dialog.resetCreateDraft({
     calendarId: calendar.id,
@@ -1329,8 +1336,8 @@ add_task(async function test_createAndEditDraftLifecycle() {
   await resetToCreateMode();
   Assert.deepEqual(
     dialog.draft,
-    {},
-    "Clearing an edit route removes its draft and starts a clean create draft"
+    { calendarId: calendar.id },
+    "Clearing an edit route should remove its draft and restore the calendar default"
   );
 });
 
@@ -1468,9 +1475,9 @@ add_task(async function test_moreButtonHasAccessibleName() {
   await doc.l10n.translateFragment(dialog);
 
   Assert.equal(
-    menuButton.getAttribute("aria-label"),
-    "More actions menu",
-    "The More button has an accessible name"
+    doc.l10n.getAttributes(menuButton).id,
+    "calendar-dialog-menu",
+    "The More button should use the localized menu name"
   );
 });
 
@@ -2036,7 +2043,8 @@ add_task(async function test_moreMenuStateResetsWhenDialogClosesWhileOpen() {
 });
 
 add_task(async function test_saveButtonDisabledValidityState() {
-  const { store, draftState } = browser.contentWindow.calendarTestState;
+  const redux = browser.contentWindow.ReduxTestUtils;
+
   await showLoadedEditDialog();
   const saveButton = dialog.querySelector("#save");
 
@@ -2050,12 +2058,15 @@ add_task(async function test_saveButtonDisabledValidityState() {
 
   // Mock an invalid form, making the save button disabled.
   dialog.updateDraftSection("title", { title: "" });
-  store.dispatch(
-    draftState.setSectionValidity({
+
+  await redux.dispatchAction(
+    "moz-src:///comm/mail/components/calendar/content/state/calendarEventDraftSlice.mjs",
+    "setSectionValidity",
+    {
       sessionKey: dialog.calendarEventSessionKey,
       section: "title",
       validity: { valid: false },
-    })
+    }
   );
 
   Assert.deepEqual(
@@ -2091,13 +2102,17 @@ add_task(async function test_saveButtonDisabledValidityState() {
 
   // Mock an invalid form, making the save button disabled.
   dialog.updateDraftSection("title", { title: "" });
-  store.dispatch(
-    draftState.setSectionValidity({
+
+  await redux.dispatchAction(
+    "moz-src:///comm/mail/components/calendar/content/state/calendarEventDraftSlice.mjs",
+    "setSectionValidity",
+    {
       sessionKey: dialog.calendarEventSessionKey,
       section: "title",
       validity: { valid: false },
-    })
+    }
   );
+
   Assert.deepEqual(
     dialog.dirtySections,
     ["title"],
@@ -2117,13 +2132,17 @@ add_task(async function test_saveButtonDisabledValidityState() {
     ["title"],
     "The calendar title should be dirty"
   );
-  store.dispatch(
-    draftState.setSectionValidity({
+
+  await redux.dispatchAction(
+    "moz-src:///comm/mail/components/calendar/content/state/calendarEventDraftSlice.mjs",
+    "setSectionValidity",
+    {
       sessionKey: dialog.calendarEventSessionKey,
       section: "title",
       validity: { valid: true },
-    })
+    }
   );
+
   Assert.ok(!saveButton.disabled, "The save button should be enabled");
 
   // Clicking save should trigger click event.
@@ -2139,7 +2158,8 @@ add_task(async function test_saveButtonDisabledValidityState() {
 });
 
 add_task(async function test_saveButtonStateForOperationStatus() {
-  const { store, sessionState } = browser.contentWindow.calendarTestState;
+  const redux = browser.contentWindow.ReduxTestUtils;
+
   await showLoadedEditDialog();
   const saveButton = dialog.querySelector("#save");
 
@@ -2151,12 +2171,15 @@ add_task(async function test_saveButtonStateForOperationStatus() {
   Assert.ok(!saveButton.disabled, "The save button should be enabled");
 
   // Mock a pending operation status, which should disable the save button.
-  store.dispatch(
-    sessionState.operationStarted({
+  await redux.dispatchAction(
+    "moz-src:///comm/mail/components/calendar/content/state/calendarEventCreateEditSessionSlice.mjs",
+    "operationStarted",
+    {
       sessionKey: dialog.calendarEventSessionKey,
       kind: "save",
-    })
+    }
   );
+
   Assert.ok(saveButton.disabled, "The save button should be disabled");
 
   // Switch to editing an existing calendar event where the save button should
@@ -2172,22 +2195,28 @@ add_task(async function test_saveButtonStateForOperationStatus() {
   Assert.ok(!saveButton.disabled, "The save button should be enabled");
 
   // Mock a pending operation status, which should disable the save button.
-  store.dispatch(
-    sessionState.operationStarted({
+  await redux.dispatchAction(
+    "moz-src:///comm/mail/components/calendar/content/state/calendarEventCreateEditSessionSlice.mjs",
+    "operationStarted",
+    {
       sessionKey: dialog.calendarEventSessionKey,
       kind: "save",
-    })
+    }
   );
+
   Assert.ok(saveButton.disabled, "The save button should be disabled");
 
   // Update the operation status to be successful, which should enable the save
   // button.
-  store.dispatch(
-    sessionState.operationSucceeded({
+  await redux.dispatchAction(
+    "moz-src:///comm/mail/components/calendar/content/state/calendarEventCreateEditSessionSlice.mjs",
+    "operationSucceeded",
+    {
       sessionKey: dialog.calendarEventSessionKey,
       kind: "save",
-    })
+    }
   );
+
   Assert.ok(!saveButton.disabled, "The save button should be enabled");
 
   // Clicking save should trigger click event.
@@ -2414,8 +2443,15 @@ add_task(async function test_titleLengthLimitAndTooltip() {
       "Changing another field should keep the unchanged long title valid"
     );
 
+    input.focus();
     input.setSelectionRange(200, 200);
     EventUtils.synthesizeKey("KEY_Backspace", {}, browser.contentWindow);
+
+    Assert.equal(
+      input.value,
+      longTitle.slice(0, -1),
+      "Backspace should remove the last character from the title"
+    );
     Assert.equal(
       input.getAttribute("aria-invalid"),
       "true",

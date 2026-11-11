@@ -69,27 +69,67 @@ const ReduxTestUtils = {
     });
   },
   /**
-   * Dispatch an action to the Redux store in this context. Waits until the
-   * action has reached the listener middleware at least, not necessarily until
-   * it has been applied to the store.
+   * Dispatches an action to the Redux store in this context.
+   * For a plain action, waits for the listener middleware to observe the action.
+   * For an action implemented as a function (a thunk), waits for its return value
+   * or promise. Work that the function does not return can still be pending.
    *
    * @param {string} moduleUri - The URI of the module that exports the action
    *   creator.
    * @param {string} exportName - The name of the action creator as exported
    *   from the module.
    * @param {*} [actionArgument] - The value to pass to the action creator, if any.
-   * @returns {Promise<object>} Resolves to the action as dispatched to the
-   *   store.
+   * @returns {Promise<*>} The observed plain action or the function's result.
    */
   async dispatchAction(moduleUri, exportName, actionArgument) {
     const actionCreator = await getModuleExport(moduleUri, exportName);
     const action = actionCreator(actionArgument);
+
+    if (typeof action == "function") {
+      return store.dispatch(action);
+    }
+
     const actionDispatched = this.waitForAction(
       actionCreator,
       dispatchedAction => dispatchedAction === action
     );
+
     store.dispatch(action);
+
     return actionDispatched;
+  },
+  /**
+   * Subscribes a listener to this context's store.
+   * Actions not marked `meta.RTK_autoBatch` notify the listener before dispatch
+   * returns. The store can delay notifications for marked actions.
+   * The caller must remove the listener when the test finishes.
+   *
+   * @param {() => void} listener - The function to call after a dispatch.
+   * @returns {() => void} A function that removes the listener.
+   */
+  subscribe(listener) {
+    return store.subscribe(listener);
+  },
+  /**
+   * Returns this context's current state object without copying it.
+   *
+   * @returns {object} The current Redux state.
+   */
+  getState() {
+    return store.getState();
+  },
+  /**
+   * Returns a selector's result from this context's store.
+   *
+   * @param {string} moduleUri - The URI of the module that exports the selector.
+   * @param {string} exportName - The selector's exported name.
+   * @param {...*} extraSelectorArguments - Arguments passed after the state.
+   * @returns {Promise<*>} The selector's result, without copying it.
+   */
+  async selectValue(moduleUri, exportName, ...extraSelectorArguments) {
+    const selector = await getModuleExport(moduleUri, exportName);
+
+    return selector(store.getState(), ...extraSelectorArguments);
   },
   /**
    * Assert that the result of a selector is deep equal to an expected value.

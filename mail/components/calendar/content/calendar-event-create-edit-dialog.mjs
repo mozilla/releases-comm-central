@@ -8,7 +8,13 @@ import {
 } from "./positioned-dialog.mjs";
 import { CalendarEventDialogSourceMixin } from "./calendar-event-dialog-source-mixin.mjs";
 import {
+  loadCalendarOptions,
+  observeCalendarOptions,
+  snapshotCalendar,
+} from "./calendar-event-calendar-options.mjs";
+import {
   clearCalendarEventDraft,
+  initializeFields,
   resetForCreate,
   resetFromSource,
   selectCalendarEventDraftState,
@@ -22,6 +28,17 @@ import {
   startEditSession,
 } from "./state/calendarEventCreateEditSessionSlice.mjs";
 import {
+  changeCalendar,
+  clearCalendarOptions,
+  clearCalendarSelection,
+  selectCalendarChoices,
+  setCalendarOptions,
+  setCalendarSelection,
+} from "./state/calendarEventCalendarSlice.mjs";
+import {
+  selectCalendarColorId,
+  createCalendarControlSelector,
+  selectCalendarAvailability,
   selectTitleViewModel,
   selectCanSave,
 } from "./state/calendar-event-create-edit-selectors.mjs";
@@ -31,17 +48,31 @@ import "./calendar-dialog-subview-manager.mjs"; // eslint-disable-line import-x/
 import "./calendar-dialog-toggleable-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
 import "./calendar-dialog-subview.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
+const { cal } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calUtils.sys.mjs"
+);
+
 /**
- * The dialog that creates and edits calendar events.
+ * Displays editable event values and a calendar selector in a dialog.
  *
- * The dialog reads its route attributes and loads event data. It makes a
- * draft, an editable copy, in Redux, the app state store. It watches its
- * session and keeps copies for public getters. Other components add position,
- * size, header controls, field rows, and Save.
+ * The Redux store holds app state. This dialog keeps unsaved event values in a
+ * draft in that store. A fixed session key identifies this dialog's entries.
+ * A route selects the event to edit, or create mode when no event is supplied.
+ * Each route has a new generation number so old results cannot change it.
+ *
+ * `CalendarEventDialogSourceMixin` adds route observation and event loading.
+ * This dialog supplies the hooks that turn loaded data into a draft and
+ * calendar choices. Selectors read store values for the controls. Store
+ * observation calls `handleStateChange` when those values change.
  *
  * Template ID: #calendarEventCreateEditDialogTemplate
  *
  * @tagname calendar-event-create-edit-dialog
+ * @attribute {string} calendar-id - The source calendar ID. Observed by the
+ *   source mixin. Set with `event-id` to edit an event.
+ * @attribute {string} event-id - The saved event ID. Observed by the source mixin.
+ * @attribute {string} recurrence-id - The optional occurrence start time in
+ *   microseconds, as a string. Observed by the source mixin.
  */
 export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixin(
   PositionedDialog
@@ -112,6 +143,27 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   #mode = null;
 
   /**
+   * The dropdown used to choose the event's calendar.
+   *
+   * @type {?HTMLSelectElement}
+   */
+  #calendarSelect = null;
+
+  /**
+   * True while the dialog holds focus during event loading.
+   *
+   * @type {boolean}
+   */
+  #restoreCalendarFocus = false;
+
+  /**
+   * Stops calendar-choice observation when this dialog disconnects.
+   *
+   * @type {?function(): void}
+   */
+  #stopObservingCalendarOptions = null;
+
+  /**
    * The margin maintained between this dialog and the visible calendar view.
    *
    * @type {number}
@@ -136,13 +188,15 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   triggerTopOffset = DEFAULT_DIALOG_MARGIN;
 
   /**
-   * Add this dialog's Redux data to the shared source observer. The shared
-   * constructor sets this element's fixed session key before these functions
-   * use it.
+   * Adds this dialog's selectors to the shared store observer.
+   * Each selector reads the entries for this dialog's fixed session key.
+   * The source mixin sets that key before the observer calls the selectors.
    *
-   * @param {...*} args
+   * @param {...*} args - Arguments for the dialog base classes.
    */
   constructor(...args) {
+    const selectCalendarControl = createCalendarControlSelector();
+
     super(
       {
         createEditSession: state =>
@@ -156,13 +210,21 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
           selectCanSave(state, this.calendarEventSessionKey),
         titleViewModel: state =>
           selectTitleViewModel(state, this.calendarEventSessionKey),
+        calendarControl: state =>
+          selectCalendarControl(state, this.calendarEventSessionKey),
+        calendarChoices: state =>
+          selectCalendarChoices(state, this.calendarEventSessionKey),
+        calendarColor: state =>
+          selectCalendarColorId(state, this.calendarEventSessionKey),
+        calendarAvailability: state =>
+          selectCalendarAvailability(state, this.calendarEventSessionKey),
       },
       ...args
     );
   }
 
   /**
-   * Start a "create" session with an empty draft. Field code adds defaults.
+   * Starts create mode with an empty draft for field code to add defaults.
    */
   #initializeDraft() {
     this.dispatch(
@@ -172,7 +234,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Create the dialog content and start route observation.
+   * Creates the dialog content and starts route observation.
    */
   connectedCallback() {
     if (!this.hasConnected) {
@@ -182,6 +244,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
         "calendarEventCreateEditDialogTemplate"
       );
       this.append(template.content.cloneNode(true));
+      this.#calendarSelect = this.querySelector(".calendar-selector");
 
       this.setAttribute("is", "calendar-event-create-edit-dialog");
 
@@ -189,6 +252,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
         "calendar-dialog-subview-manager"
       );
 
+      this.addEventListener("change", this);
       this.addEventListener("input", this);
       this.addEventListener("focusout", this);
       this.addEventListener("mouseover", this);
@@ -201,10 +265,47 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       window.MozXULElement?.insertFTLIfNeeded("messenger/calendarDialog.ftl");
       document.l10n.setAttributes(this, "calendar-event-create-edit-dialog");
     }
+
     this.addEventListener("calendar-dialog-open-subview", this);
     this.addEventListener("calendar-dialog-close-subview", this);
     this.addEventListener("click", this);
+
+    if (!this.#stopObservingCalendarOptions) {
+      const updateChoices = calendars => {
+        const snapshot = this.selectValue("sourceSession")?.snapshot ?? null;
+
+        this.dispatch(
+          setCalendarOptions({
+            sessionKey: this.calendarEventSessionKey,
+            calendars,
+            calendarId: this.#draft?.calendarId,
+            // Check the original source even after the draft changes calendars.
+            canChange: this.#canChangeCalendar(snapshot),
+          })
+        );
+      };
+
+      this.#stopObservingCalendarOptions = observeCalendarOptions(
+        updateChoices,
+        window
+      );
+      updateChoices(loadCalendarOptions().calendars);
+    }
+
     this.initializeCalendarEventRoute();
+  }
+
+  /**
+   * Stops choice updates and removes the disconnected dialog's cached choices.
+   */
+  disconnectedCallback() {
+    this.#stopObservingCalendarOptions?.();
+    this.#stopObservingCalendarOptions = null;
+    super.disconnectedCallback();
+
+    this.dispatch(
+      clearCalendarOptions({ sessionKey: this.calendarEventSessionKey })
+    );
   }
 
   /**
@@ -220,6 +321,9 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
 
   handleEvent(event) {
     switch (event.type) {
+      case "change":
+        this.#onCalendarChange(event);
+        break;
       case "click":
         for (const [selector, handler] of Object.entries(this.#clickHandlers)) {
           if (event.target.closest(selector)) {
@@ -310,6 +414,27 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
+   * Applies calendar changes from the current, enabled dropdown.
+   *
+   * @param {Event} event - The change event received by this dialog.
+   */
+  #onCalendarChange(event) {
+    const select = this.#calendarSelect;
+
+    // Other dropdowns in the dialog must not change the calendar.
+    if (!select || event.target !== select || select.disabled) {
+      return;
+    }
+
+    this.dispatch(
+      changeCalendar({
+        sessionKey: this.calendarEventSessionKey,
+        calendarId: select.value,
+      })
+    );
+  }
+
+  /**
    * Set the title tooltip when the input text is clipped; otherwise clear it.
    *
    * @param {HTMLInputElement} input - The title input.
@@ -345,7 +470,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * The current "create" or "edit" mode, or null when no session exists.
+   * Returns the current "create" or "edit" mode, or null if absent.
    *
    * @returns {"create"|"edit"|null}
    */
@@ -354,7 +479,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * The current copied draft, or null while "edit" data loads.
+   * Returns a copy of the unsaved event values, or null while edit data loads.
    *
    * @returns {?CalendarEventDraft}
    */
@@ -363,7 +488,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Whether any field section differs from its starting values.
+   * Returns whether any field section differs from its starting values.
    *
    * @returns {boolean}
    */
@@ -372,7 +497,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * The field sections that differ from their starting values.
+   * Returns the names of field sections that differ from their starting values.
    *
    * @returns {string[]}
    */
@@ -381,8 +506,8 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Whether the current draft has no known invalid sections and could be saved
-   * by future save code.
+   * Returns whether a draft exists, no work is pending, and all known field
+   * validation results are valid. This value does not check calendar permissions.
    *
    * @returns {boolean}
    */
@@ -391,7 +516,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Allow an empty route to open this dialog in "create" mode.
+   * Returns true so an empty route can open this dialog in create mode.
    *
    * @returns {boolean}
    */
@@ -400,12 +525,35 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Update a field section with values from its field code. The caller must
-   * supply every draft property for the section, including unchanged values.
-   * The reducer compares only the supplied properties with their baseline.
-   * An omitted changed property can cause a section to be marked clean.
+   * Checks current source permission, or permits selection for create mode.
    *
-   * @param {string} section
+   * @param {?CalendarEventSourceSnapshot} snapshot - The loaded source, or null
+   *   for create mode or before source loading finishes.
+   * @returns {boolean} Whether the source permits a calendar change.
+   */
+  #canChangeCalendar(snapshot) {
+    if (!snapshot) {
+      return true;
+    }
+
+    const calendar = cal.manager.getCalendarById(snapshot.calendar.id);
+
+    return (
+      snapshot.canChangeCalendar &&
+      !!calendar &&
+      cal.acl.isCalendarWritable(calendar) &&
+      cal.acl.userCanDeleteItemsFromCalendar(calendar)
+    );
+  }
+
+  /**
+   * Updates a group of related fields, such as the start and end times.
+   * The caller must supply every draft property for the section, including
+   * unchanged values. The reducer compares only the supplied properties with
+   * their starting values. If a changed property is omitted, the section can
+   * lose its changed status.
+   *
+   * @param {string} section - The name used to track changes to this field group.
    * @param {CalendarEventDraft} patch - All draft properties for the section.
    */
   updateDraftSection(section, patch) {
@@ -419,10 +567,10 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Reset a "create" draft with values from field defaults. This model does not
-   * choose a calendar or date/time default.
+   * Resets the starting and current values for a create draft.
+   * The caller supplies the defaults. Route code chooses the calendar default.
    *
-   * @param {CalendarEventDraft} initialDraft
+   * @param {CalendarEventDraft} initialDraft - Field defaults for the new draft.
    */
   resetCreateDraft(initialDraft) {
     this.dispatch(
@@ -434,13 +582,13 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Read changes from the shared source session and this dialog's draft and
-   * session. Update public values only when Redux reports a change. These
-   * saved values never call helper functions or `store.getState()`.
+   * Updates controls and public values when observed Redux values change.
+   * The store observer calls this method after a selector returns a new value.
+   * The getters read saved copies so reading a getter does not query the store.
    *
-   * @param {string} fieldName
-   * @param {*} oldValue
-   * @param {*} newValue
+   * @param {string} fieldName - The selector name supplied to the observer.
+   * @param {*} oldValue - The previously observed value.
+   * @param {*} newValue - The value returned by the selector after the change.
    */
   handleStateChange(fieldName, oldValue, newValue) {
     super.handleStateChange(fieldName, oldValue, newValue);
@@ -460,6 +608,12 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       if (saveButton) {
         saveButton.disabled = !this.#canSave;
       }
+    } else if (fieldName == "calendarControl") {
+      this.#renderCalendarControl(oldValue, newValue);
+    } else if (fieldName == "calendarColor") {
+      this.#renderCalendarColor(newValue);
+    } else if (fieldName == "calendarAvailability") {
+      this.#renderCalendarAvailability(newValue);
     } else if (fieldName == "titleViewModel") {
       this.#renderTitle(newValue);
     }
@@ -502,8 +656,93 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Update public getter values from the latest observed state.
-   * Copy draft data so callers cannot change Redux state through a getter.
+   * Applies calendar options and the selected value.
+   *
+   * @param {CalendarEventCalendarControlViewModel|undefined} oldValue - The
+   *   previously observed control values, or undefined before the first update.
+   * @param {CalendarEventCalendarControlViewModel} viewModel - The new values.
+   */
+  #renderCalendarControl(oldValue, viewModel) {
+    if (!this.#calendarSelect) {
+      return;
+    }
+
+    if (oldValue?.options !== viewModel.options) {
+      this.#renderCalendarOptions(viewModel.options);
+    }
+
+    this.#calendarSelect.value = viewModel.value;
+  }
+
+  /**
+   * Replaces the option nodes with the values returned by the options selector.
+   *
+   * @param {CalendarEventCalendarOption[]} options - The displayed choices.
+   */
+  #renderCalendarOptions(options) {
+    this.#calendarSelect.replaceChildren(
+      ...options.map(({ value, label, disabled }) => {
+        const option = document.createElement("option");
+
+        option.value = value;
+        option.textContent = label;
+        option.disabled = disabled;
+
+        return option;
+      })
+    );
+  }
+
+  /**
+   * Sets the calendar control's disabled state and focus.
+   *
+   * @param {CalendarEventCalendarAvailabilityViewModel} availability - The
+   *   disabled state and request number.
+   */
+  #renderCalendarAvailability({ disabled, generation }) {
+    if (!this.#calendarSelect) {
+      return;
+    }
+
+    const restoreFocus =
+      this.open &&
+      (document.activeElement === this.#calendarSelect ||
+        (this.#restoreCalendarFocus && document.activeElement === this));
+
+    this.#calendarSelect.disabled = disabled;
+    this.#restoreCalendarFocus = restoreFocus && generation === null;
+
+    if (!restoreFocus) {
+      return;
+    }
+
+    const focusTarget = disabled ? this : this.#calendarSelect;
+
+    focusTarget.focus();
+  }
+
+  /**
+   * Displays the calendar color, or hides the swatch when no calendar is selected.
+   *
+   * @param {?string} calendarId - The selected calendar ID, or null.
+   */
+  #renderCalendarColor(calendarId) {
+    if (!this.#calendarSelect) {
+      return;
+    }
+
+    const swatch = this.querySelector(".calendar-color");
+
+    swatch.hidden = calendarId === null;
+    swatch.style.backgroundColor =
+      calendarId === null
+        ? ""
+        : `var(--calendar-${cal.view.formatStringForCSSRule(calendarId)}-backcolor)`;
+  }
+
+  /**
+   * Updates public getter values from the latest observed state.
+   * Copies draft data so callers cannot change Redux state through a getter.
    */
   #updateDraftViewModel() {
     const draft = this.#draftState?.value ?? null;
@@ -540,7 +779,8 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Request deletion of the event currently being edited.
+   * Requests deletion of the event currently being edited.
+   * Dispatches `deleteevent` with the source identity in `detail`.
    */
   #requestDeleteEvent() {
     if (this.#menuButton.hidden) {
@@ -555,12 +795,14 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Select the visible calendar view before the readiness gate opens this
-   * dialog. A caller can pass a calendar cell or selected-range event target;
-   * menu, toolbar, and keyboard callers pass no matching target and therefore
-   * receive the centered fallback.
+   * Opens the dialog after the current route finishes loading.
+   * A calendar cell or selected-range event places the dialog beside that
+   * target. Other callers get a dialog centered in the visible calendar view,
+   * or the tab panel when the calendar view is unavailable.
+   * On first opening, focuses the calendar control if enabled, or the dialog.
+   * For an already open dialog, does not set focus after loading.
    *
-   * @param {?Event} event
+   * @param {?Event} [event] - The event that supplies a placement target, if any.
    * @returns {Promise<boolean>} Whether the dialog was shown.
    */
   async show(event) {
@@ -576,36 +818,120 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       : fallbackContainer;
 
     this.#subviewManager.showDefaultSubview();
-    return super.show(event);
+
+    const wasOpen = this.open;
+    const shown = await super.show(event);
+
+    // Do not reset focus here if the dialog was already open before loading.
+    if (shown && !wasOpen && this.open) {
+      const focusTarget =
+        this.#calendarSelect?.disabled === false ? this.#calendarSelect : this;
+      focusTarget.focus();
+    }
+
+    return shown;
   }
 
   /**
-   * Start a clean "create" session for an empty route.
+   * Starts create mode and adds the calendar default to its draft.
    *
-   * @param {CalendarEventDialogRouteRequest} _route
+   * @param {CalendarEventDialogRouteRequest} route - The route number and a
+   *   check that this request still belongs to the dialog.
+   * @returns {Promise<void>} Resolves after setting the source data and default,
+   *   or after an old route stops without applying its remaining results.
    */
-  async onEmptyCalendarEventRoute(_route) {
+  async onEmptyCalendarEventRoute(route) {
+    // Reject an old request before it resets the draft.
+    if (!route.isCurrent()) {
+      return;
+    }
+
     this.#initializeDraft();
+
+    // Apply the queued choice refresh before choosing this route's default.
+    await Promise.resolve();
+
+    if (!route.isCurrent()) {
+      return;
+    }
+
+    const calendars = this.selectValue("calendarChoices");
+    const windowDefault = cal.view.getCompositeCalendar(window).defaultCalendar;
+    const defaultCalendar =
+      windowDefault && cal.manager.getCalendarById(windowDefault.id)
+        ? snapshotCalendar(windowDefault)
+        : null;
+
+    // Prefer the window's default calendar if allowed, then the first allowed
+    // calendar. If neither exists, keep the unavailable default for display.
+    const calendar =
+      calendars.find(candidate => candidate.id == defaultCalendar?.id) ??
+      calendars[0] ??
+      defaultCalendar;
+
+    this.dispatch(
+      setCalendarSelection({
+        sessionKey: this.calendarEventSessionKey,
+        generation: route.generation,
+        calendar,
+        canChange: true,
+      })
+    );
+
+    // Store observers run during dispatch and can replace the route. Check
+    // again before adding defaults to the draft that now belongs to the dialog.
+    if (!calendar || !route.isCurrent()) {
+      return;
+    }
+
+    this.dispatch(
+      initializeFields({
+        sessionKey: this.calendarEventSessionKey,
+        defaults: { calendarId: calendar.id },
+      })
+    );
   }
 
   /**
-   * Start an "edit" session before source loading completes.
+   * Starts edit mode before event loading.
    *
-   * @param {CalendarEventSourceIdentity} _identity
-   * @param {CalendarEventDialogRouteRequest} _route
+   * @param {CalendarEventSourceIdentity} _identity - The source to load. The
+   *   shared source mixin uses this identity.
+   * @returns {Promise<void>} Resolves after starting the edit session.
    */
-  async onCalendarEventSourceLoadStart(_identity, _route) {
+  async onCalendarEventSourceLoadStart(_identity) {
     this.dispatch(
       startEditSession({ sessionKey: this.calendarEventSessionKey })
     );
   }
 
   /**
-   * Start the draft with data copied from the loaded source.
+   * Sets source permission and starts a draft from the loaded event snapshot.
    *
-   * @param {CalendarEventDialogSource} source
+   * @param {CalendarEventDialogSource} source - The loaded source data and a
+   *   check that the source still belongs to the current route.
+   * @returns {Promise<void>} Resolves after setting source and draft values,
+   *   or after an old route stops without applying its remaining results.
    */
-  async onCalendarEventSourceLoaded({ snapshot }) {
+  async onCalendarEventSourceLoaded({ snapshot, isCurrent, generation }) {
+    if (!isCurrent()) {
+      return;
+    }
+
+    this.dispatch(
+      setCalendarSelection({
+        sessionKey: this.calendarEventSessionKey,
+        generation,
+        calendar: snapshot.calendar,
+        canChange: this.#canChangeCalendar(snapshot),
+      })
+    );
+
+    // An observer can replace the route during the preceding dispatch.
+    if (!isCurrent()) {
+      return;
+    }
+
     this.dispatch(
       resetFromSource({
         sessionKey: this.calendarEventSessionKey,
@@ -615,10 +941,15 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Clear the draft and create/edit session when the route is replaced or
-   * closed.
+   * Removes source data, draft values, and mode for this dialog.
+   * Calendar choices remain cached until the dialog disconnects.
+   * The source mixin calls this hook when the route changes or closes. The
+   * session key stays fixed so the next route uses the same dialog entries.
    */
   onCalendarEventRouteCleared() {
+    this.dispatch(
+      clearCalendarSelection({ sessionKey: this.calendarEventSessionKey })
+    );
     this.dispatch(
       clearCalendarEventDraft({ sessionKey: this.calendarEventSessionKey })
     );
