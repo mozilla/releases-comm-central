@@ -391,14 +391,34 @@ add_task(async function test_keyboardSaveSelectedCalendarAndClose() {
   );
 
   const button = dialog.querySelector(".calendar-event-save");
+  const availability = dialog.querySelector(".availability-selector");
 
   Assert.ok(button, "The dialog should contain the Save button.");
   Assert.ok(!button.disabled, "The Save button should be enabled.");
+  Assert.ok(availability, "The footer should contain Availability.");
 
   locationInput.focus();
   EventUtils.synthesizeKey("KEY_Tab", {}, browser.contentWindow);
+  Assert.equal(
+    doc.activeElement,
+    availability,
+    "Tab should move focus from the last field to Availability."
+  );
 
+  EventUtils.synthesizeKey("KEY_Tab", {}, browser.contentWindow);
   Assert.equal(doc.activeElement, button, "Tab should move focus to Save.");
+
+  EventUtils.synthesizeKey(
+    "KEY_Tab",
+    { shiftKey: true },
+    browser.contentWindow
+  );
+
+  Assert.equal(
+    doc.activeElement,
+    availability,
+    "Shift+Tab should return focus from Save to Availability."
+  );
 
   EventUtils.synthesizeKey(
     "KEY_Tab",
@@ -412,6 +432,7 @@ add_task(async function test_keyboardSaveSelectedCalendarAndClose() {
     "Shift+Tab should return focus to the last field."
   );
 
+  EventUtils.synthesizeKey("KEY_Tab", {}, browser.contentWindow);
   EventUtils.synthesizeKey("KEY_Tab", {}, browser.contentWindow);
 
   const service = Cc["@mozilla.org/accessibilityService;1"].getService(

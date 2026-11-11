@@ -490,8 +490,10 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
   const closeButton = dialog.querySelector(".close-button");
   const titleInput = dialog.querySelector(".event-title-input");
   const descriptionRow = dialog.querySelector("#descriptionNavigationRow");
+  const availability = dialog.querySelector(".availability-selector");
 
   Assert.ok(titleInput, "The dialog should have a title input.");
+  Assert.ok(availability, "The footer should contain Availability.");
   Assert.ok(descriptionRow, "The dialog should have a Description row.");
   Assert.ok(
     descriptionRow.shadowRoot,
@@ -519,7 +521,13 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
     [{}, closeButton, "Tab should reach Close."],
     [{}, titleInput, "Tab should reach the title."],
     [{}, descriptionRow, "Tab should reach Description."],
+    [{}, availability, "Tab should reach Availability."],
     [{}, button, "Tab should reach Save."],
+    [
+      { shiftKey: true },
+      availability,
+      "Shift+Tab should return to Availability.",
+    ],
     [
       { shiftKey: true },
       descriptionRow,
@@ -537,6 +545,7 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
     [{}, closeButton, "Tab should reach Close again."],
     [{}, titleInput, "Tab should reach the title again."],
     [{}, descriptionRow, "Tab should reach Description again."],
+    [{}, availability, "Tab should reach Availability again."],
     [{}, button, "Tab should reach Save again."],
   ];
 

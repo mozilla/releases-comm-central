@@ -39,6 +39,7 @@ import {
   setCalendarSelection,
 } from "./state/calendarEventCalendarSlice.mjs";
 import {
+  selectAvailabilityControl,
   selectCalendarColorId,
   createCalendarControlSelector,
   selectCalendarAvailability,
@@ -169,6 +170,20 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   #calendarSelect = null;
 
   /**
+   * The current draft's availability control.
+   *
+   * @type {?HTMLSelectElement}
+   */
+  #availabilitySelect = null;
+
+  /**
+   * True while the dialog holds Availability focus during draft loading.
+   *
+   * @type {boolean}
+   */
+  #restoreAvailabilityFocus = false;
+
+  /**
    * True while the dialog holds focus during event loading.
    *
    * @type {boolean}
@@ -253,6 +268,8 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
 
     super(
       {
+        availabilityControl: state =>
+          selectAvailabilityControl(state, this.calendarEventSessionKey),
         canSave: state => selectCanSave(state, this.calendarEventSessionKey),
         createEditSession: state =>
           selectCalendarEventCreateEditSession(
@@ -300,6 +317,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       );
       this.append(template.content.cloneNode(true));
       this.#calendarSelect = this.querySelector(".calendar-selector");
+      this.#availabilitySelect = this.querySelector(".availability-selector");
       this.addEventListener("cancel", this);
       this.setAttribute("closedby", "closerequest");
 
@@ -382,6 +400,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
     switch (event.type) {
       case "change":
         this.#onCalendarChange(event);
+        this.#onAvailabilityChange(event);
         break;
       case "cancel":
         this.close();
@@ -532,6 +551,65 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
+   * Applies one availability patch from the current enabled control.
+   *
+   * @param {Event} event - The received change event.
+   */
+  #onAvailabilityChange(event) {
+    const select = this.#availabilitySelect;
+
+    // A detached control can still deliver a queued event after a draft reset.
+    if (!select || event.target !== select || select.disabled || !this.open) {
+      return;
+    }
+
+    if (!["default", "busy", "free"].includes(select.value)) {
+      return;
+    }
+
+    this.updateDraftSection("availability", { availability: select.value });
+  }
+
+  /**
+   * Updates availability and replaces controls belonging to an obsolete draft.
+   *
+   * @param {object|undefined} oldValue - The previously observed control values.
+   * @param {object} viewModel - The observed value, baseline, and disabled state.
+   */
+  #renderAvailability(oldValue, viewModel) {
+    if (!this.#availabilitySelect) {
+      return;
+    }
+
+    const restoreFocus =
+      this.open &&
+      (document.activeElement === this.#availabilitySelect ||
+        (this.#restoreAvailabilityFocus && document.activeElement === this));
+
+    if (oldValue?.baseline !== viewModel.baseline) {
+      // Removing the old select ends its native popup interaction. Its events
+      // must not change the replacement draft, even when the session key stays.
+      const select = this.#availabilitySelect.cloneNode(true);
+
+      this.#availabilitySelect.replaceWith(select);
+      this.#availabilitySelect = select;
+    }
+
+    this.#availabilitySelect.value = viewModel.value ?? "default";
+    this.#availabilitySelect.disabled = viewModel.disabled;
+    this.#restoreAvailabilityFocus =
+      restoreFocus && viewModel.baseline === null;
+
+    if (!restoreFocus) {
+      return;
+    }
+
+    const target = viewModel.disabled ? this : this.#availabilitySelect;
+
+    target.focus();
+  }
+
+  /**
    * Returns the current "create" or "edit" mode, or null if absent.
    *
    * @returns {"create"|"edit"|null}
@@ -657,7 +735,9 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   handleStateChange(fieldName, oldValue, newValue) {
     super.handleStateChange(fieldName, oldValue, newValue);
 
-    if (fieldName == "canSave") {
+    if (fieldName == "availabilityControl") {
+      this.#renderAvailability(oldValue, newValue);
+    } else if (fieldName == "canSave") {
       this.#canSave = newValue;
       this.#renderSave();
     } else if (fieldName == "createEditSession") {

@@ -402,3 +402,48 @@ export const selectDateTimeViewModel = createSelector(
     validity: draftState?.validation.dateTime ?? null,
   })
 );
+
+/**
+ * Returns the availability value without initializing a missing draft field.
+ *
+ * @type {CalendarEventCreateEditSelector<?string>}
+ */
+export const selectAvailability = createSelector(
+  [selectCurrentDraft],
+  draft => draft?.availability ?? null
+);
+
+/**
+ * Returns the starting values that identify the current draft lifetime.
+ * Ordinary field edits preserve this object; resetting the draft replaces it.
+ *
+ * @type {CalendarEventCreateEditSelector<?CalendarEventDraft>}
+ */
+const selectAvailabilityBaseline = createSelector(
+  [selectCalendarEventDraftState],
+  draft => draft?.baseline ?? null
+);
+
+/**
+ * Returns whether availability input is unavailable during loading or Save.
+ *
+ * @type {CalendarEventCreateEditSelector<boolean>}
+ */
+const selectAvailabilityDisabled = createSelector(
+  [selectCurrentDraft, selectCurrentOperation],
+  (draft, operation) =>
+    !draft || operation?.status == "pending" || operation?.status == "success"
+);
+
+/**
+ * Returns stable values for the availability control and its draft lifetime.
+ * The baseline is an identity token, not a source of availability defaults.
+ *
+ * @type {CalendarEventCreateEditSelector<{
+ *   value: ?string, baseline: ?CalendarEventDraft, disabled: boolean
+ * }>}
+ */
+export const selectAvailabilityControl = createSelector(
+  [selectAvailability, selectAvailabilityBaseline, selectAvailabilityDisabled],
+  (value, baseline, disabled) => ({ value, baseline, disabled })
+);

@@ -66,6 +66,8 @@ subsuite = "thunderbird"
 
 ["browser_calendarDialogToggleableRow.js"]
 
+["browser_calendarEventAvailabilitySelector.js"]
+
 ["browser_calendarEventCalendarSelector.js"]
 
 ["browser_calendarEventCreateEditDialog.js"]

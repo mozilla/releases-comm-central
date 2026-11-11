@@ -30,6 +30,7 @@ import { rootReducer } from "moz-src:///comm/mail/base/content/state/store.mjs";
  * @typedef {object} CalendarEventDraft
  * @property {string} [calendarId] - The selected calendar ID.
  * @property {Record<string, boolean>} [enabledRows] - Optional row enabled state.
+ * @property {"default"|"busy"|"free"} [availability] - Unsaved availability.
  * @property {string} [title] - The event title.
  * @property {?CalendarEventDateTimeSnapshot} [start] - The start date and time.
  * @property {?CalendarEventDateTimeSnapshot} [end] - The end date and time.

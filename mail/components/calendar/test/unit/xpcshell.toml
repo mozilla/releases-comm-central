@@ -2,6 +2,8 @@
 
 ["test_calendarAttachmentUtils.js"]
 
+["test_calendarEventAvailabilityState.js"]
+
 ["test_calendarEventCalendarOptions.js"]
 
 ["test_calendarEventCalendarState.js"]
