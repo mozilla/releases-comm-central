@@ -1570,11 +1570,10 @@ add_task(async function test_userAttendanceResponse() {
   );
   statusPromise = BrowserTestUtils.waitForAttribute("status", acceptanceWidget);
   await new Promise(resolve => setTimeout(resolve));
-  EventUtils.synthesizeMouseAtCenter(
-    acceptanceWidget.shadowRoot.querySelector('label[for="maybe"]'),
-    {},
-    browser.contentWindow
-  );
+  const maybeLabel =
+    acceptanceWidget.shadowRoot.querySelector('label[for="maybe"]');
+  maybeLabel.scrollIntoView({ block: "nearest", behavior: "instant" });
+  EventUtils.synthesizeMouseAtCenter(maybeLabel, {}, browser.contentWindow);
   await setEventReponseEvent;
   await statusPromise;
   Assert.equal(
