@@ -9,9 +9,13 @@ import { selectCalendarEventCreateEditSession } from "./calendarEventCreateEditS
 import { selectCalendarSelection } from "./calendarEventCalendarSlice.mjs";
 
 /**
- * A selector reads a value from the Redux app state. These selectors combine
- * data for one dialog into view models: objects with the values that controls
- * display.
+ * A selector is a function that reads a value from the Redux application state.
+ * `sessionKey` selects one dialog's data from the document's shared store.
+ * These selectors combine data into view models: objects with the values that
+ * controls display.
+ *
+ * `createSelector` keeps the previous result while its input values stay the
+ * same. The store observer can then skip controls whose data did not change.
  */
 
 /**
@@ -103,7 +107,8 @@ export const selectDialogMode = createSelector(
 
 /**
  * Returns work status and error data, or null when the session is absent.
- * This work state is separate from the route generation used by the control.
+ * The operation request ID identifies a Save attempt. A route generation
+ * identifies the event load and calendar choices. They have separate lifetimes.
  *
  * @type {CalendarEventCreateEditSelector<?CalendarEventCreateEditOperation>}
  */
@@ -144,19 +149,22 @@ export const selectIsDirty = createSelector(
 );
 
 /**
- * Returns true when a draft exists, no work is pending, and no stored validation
- * result is invalid. This does not check permissions, require validation from
- * every field, or save an event.
+ * Returns true when a draft exists, no work is pending, and all stored results
+ * for active sections are valid. Ignores results for disabled rows. This does
+ * not check permissions, require a result from every field, or save an event.
  *
  * @type {CalendarEventCreateEditSelector<boolean>}
  */
 export const selectCanSave = createSelector(
   [selectCurrentDraft, selectCalendarEventDraftState, selectCurrentOperation],
+  // Field code supplies validation results. Disabled rows retain input and
+  // validation, but their stored errors must not prevent saving active rows.
   (draft, draftState, operation) =>
     draft !== null &&
     operation?.status != "pending" &&
-    Object.values(draftState?.validation ?? {}).every(
-      validity => validity.valid
+    Object.entries(draftState?.validation ?? {}).every(
+      ([section, validity]) =>
+        draft.enabledRows?.[section] === false || validity.valid
     )
 );
 
@@ -235,8 +243,11 @@ export const selectCalendarColorId = createSelector(
  * @type {CalendarEventCreateEditSelector<boolean>}
  */
 export const selectCalendarDisabled = createSelector(
-  [selectCalendarSelection],
-  selection => !selection?.canChange || !selection.calendars.length
+  [selectCalendarSelection, selectCurrentOperation],
+  (selection, operation) =>
+    operation?.status == "pending" ||
+    !selection?.canChange ||
+    !selection.calendars.length
 );
 
 /**

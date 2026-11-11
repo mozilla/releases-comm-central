@@ -7,6 +7,8 @@ import {
   PositionedDialog,
 } from "./positioned-dialog.mjs";
 import { CalendarEventDialogSourceMixin } from "./calendar-event-dialog-source-mixin.mjs";
+import { store } from "moz-src:///comm/mail/base/content/state/store.mjs";
+import { saveCalendarEventEdit } from "./calendar-event-edit-save.mjs";
 import {
   loadCalendarOptions,
   observeCalendarOptions,
@@ -55,15 +57,23 @@ const { cal } = ChromeUtils.importESModule(
 /**
  * Displays editable event values and a calendar selector in a dialog.
  *
- * The Redux store holds app state. This dialog keeps unsaved event values in a
- * draft in that store. A fixed session key identifies this dialog's entries.
- * A route selects the event to edit, or create mode when no event is supplied.
- * Each route has a new generation number so old results cannot change it.
+ * A draft contains the user's unsaved values. Redux keeps these values in the
+ * document's store, an object that holds application state. A session key
+ * identifies this dialog's entries in the store and stays fixed for its life.
+ * A route is the set of IDs that selects the saved event and optional
+ * occurrence. An empty route selects create mode. Each route change gets a
+ * new generation number so a result from an old route cannot replace new data.
  *
  * `CalendarEventDialogSourceMixin` adds route observation and event loading.
  * This dialog supplies the hooks that turn loaded data into a draft and
- * calendar choices. Selectors read store values for the controls. Store
- * observation calls `handleStateChange` when those values change.
+ * calendar choices. An action describes a requested state change. Dispatching
+ * an action sends it to the store. Selectors read the state for the controls.
+ * The store observer calls `handleStateChange` when a selected value changes.
+ *
+ * The dialog keeps copies of draft data for public getters.
+ * Save commits an event copy through
+ * the host window's transaction functions, which also support Undo and meeting
+ * messages. Other components add size and field rows.
  *
  * Template ID: #calendarEventCreateEditDialogTemplate
  *
@@ -128,8 +138,8 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   #isDirty = false;
 
   /**
-   * True when a draft exists, no work is in progress, and all known sections
-   * are valid. This does not check permissions or save an event.
+   * True when a draft exists, no work is in progress, and all known active
+   * sections are valid. This does not check permissions or save an event.
    *
    * @type {boolean}
    */
@@ -162,6 +172,38 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
    * @type {?function(): void}
    */
   #stopObservingCalendarOptions = null;
+
+  /**
+   * The current edit route has finished initializing.
+   *
+   * @type {boolean}
+   */
+  #editReady = false;
+
+  #routeAttributes = ["calendar-id", "event-id", "recurrence-id"];
+
+  /**
+   * Ignore attribute callbacks while clearing saved IDs.
+   *
+   * @type {boolean}
+   */
+  #clearingSavedIds = false;
+
+  /**
+   * Restore a route attribute while Save is pending.
+   *
+   * @type {boolean}
+   */
+  #restoringRoute = false;
+
+  /**
+   * Converts optional field sections from draft data to Calendar properties.
+   * Each section supplies `keys`, `apply`, and `remove`. Base title and date
+   * fields use `applyCalendarEventDraft` instead.
+   *
+   * @type {Record<string, CalendarEventSaveField>}
+   */
+  saveFields = {};
 
   /**
    * The margin maintained between this dialog and the visible calendar view.
@@ -199,6 +241,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
 
     super(
       {
+        canSave: state => selectCanSave(state, this.calendarEventSessionKey),
         createEditSession: state =>
           selectCalendarEventCreateEditSession(
             state,
@@ -206,8 +249,6 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
           ),
         draftState: state =>
           selectCalendarEventDraftState(state, this.calendarEventSessionKey),
-        saveButtonState: state =>
-          selectCanSave(state, this.calendarEventSessionKey),
         titleViewModel: state =>
           selectTitleViewModel(state, this.calendarEventSessionKey),
         calendarControl: state =>
@@ -245,6 +286,8 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       );
       this.append(template.content.cloneNode(true));
       this.#calendarSelect = this.querySelector(".calendar-selector");
+      this.addEventListener("cancel", this);
+      this.setAttribute("closedby", "closerequest");
 
       this.setAttribute("is", "calendar-event-create-edit-dialog");
 
@@ -260,7 +303,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       this.addEventListener("command", this);
       this.#menu.addEventListener("popupshown", this);
       this.#menu.addEventListener("popuphidden", this);
-      this.querySelector("#save").disabled = !this.#canSave;
+      this.#renderSave();
 
       window.MozXULElement?.insertFTLIfNeeded("messenger/calendarDialog.ftl");
       document.l10n.setAttributes(this, "calendar-event-create-edit-dialog");
@@ -316,13 +359,18 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   #clickHandlers = {
     ".close-button": () => this.close(),
     "#calendarEventCreateEditDialogMenuButton": () => this.#openMenu(),
-    "#save": () => this.#save(),
+    ".calendar-event-save": () => {
+      this.save();
+    },
   };
 
   handleEvent(event) {
     switch (event.type) {
       case "change":
         this.#onCalendarChange(event);
+        break;
+      case "cancel":
+        this.close();
         break;
       case "click":
         for (const [selector, handler] of Object.entries(this.#clickHandlers)) {
@@ -506,8 +554,8 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Returns whether a draft exists, no work is pending, and all known field
-   * validation results are valid. This value does not check calendar permissions.
+   * Returns whether a draft exists, no work is pending, and all known active
+   * sections are valid. This does not check permissions or edit readiness.
    *
    * @returns {boolean}
    */
@@ -593,21 +641,46 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   handleStateChange(fieldName, oldValue, newValue) {
     super.handleStateChange(fieldName, oldValue, newValue);
 
-    if (fieldName == "createEditSession") {
+    if (fieldName == "canSave") {
+      this.#canSave = newValue;
+      this.#renderSave();
+    } else if (fieldName == "createEditSession") {
       this.#createEditSession = newValue;
       this.#updateDraftViewModel();
+      this.#renderSave();
+
+      if (
+        newValue?.operation.kind == "save" &&
+        newValue.operation.status == "success"
+      ) {
+        // The observer runs inside a store dispatch. Closing sends more actions
+        // to clear this session. Defer closing until that dispatch has finished.
+        queueMicrotask(() => {
+          // A later request can replace this success before the callback runs.
+          if (
+            this.#createEditSession?.operation.requestId !==
+            newValue.operation.requestId
+          ) {
+            return;
+          }
+
+          this.close();
+
+          // Closing already cleared the session. Remove the saved route IDs
+          // without starting a new route load from each attribute callback.
+          this.#clearingSavedIds = true;
+          for (const attribute of this.#routeAttributes) {
+            this.removeAttribute(attribute);
+          }
+          this.#clearingSavedIds = false;
+        });
+      }
     } else if (fieldName == "draftState") {
       this.#draftState = newValue;
       this.#updateDraftViewModel();
+      this.#renderSave();
     } else if (fieldName == "sourceSession") {
       this.#sourceSession = newValue;
-    } else if (fieldName == "saveButtonState") {
-      this.#canSave = newValue;
-      const saveButton = this.querySelector("#save");
-
-      if (saveButton) {
-        saveButton.disabled = !this.#canSave;
-      }
     } else if (fieldName == "calendarControl") {
       this.#renderCalendarControl(oldValue, newValue);
     } else if (fieldName == "calendarColor") {
@@ -652,6 +725,158 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       input.setAttribute("aria-errormessage", required.id);
     } else {
       input.removeAttribute("aria-errormessage");
+    }
+  }
+
+  /**
+   * Rejects event switches until Save finishes.
+   *
+   * @param {CalendarEventDialogRouteAttributes} [route] - The requested event.
+   */
+  setCalendarEventRoute(route) {
+    if (this.#createEditSession?.operation.status != "pending") {
+      super.setCalendarEventRoute(route);
+    }
+  }
+
+  /**
+   * Restores route attributes while Save is pending. Ignores saved-ID cleanup.
+   *
+   * @param {string} attribute - The changed attribute.
+   * @param {?string} oldValue - Its previous value.
+   * @param {?string} newValue - Its requested value.
+   */
+  attributeChangedCallback(attribute, oldValue, newValue) {
+    // Attribute restoration and saved-ID cleanup invoke this callback again.
+    // Those internal changes must not reach the route loader.
+    if (this.#clearingSavedIds || this.#restoringRoute) {
+      return;
+    }
+
+    if (
+      this.#createEditSession?.operation.status == "pending" &&
+      this.#routeAttributes.includes(attribute)
+    ) {
+      // Keep the current route stable until the provider operation finishes.
+      this.#restoringRoute = true;
+      if (oldValue === null) {
+        this.removeAttribute(attribute);
+      } else {
+        this.setAttribute(attribute, oldValue);
+      }
+      this.#restoringRoute = false;
+
+      return;
+    }
+
+    super.attributeChangedCallback(attribute, oldValue, newValue);
+  }
+
+  /** Discards the draft and closes the dialog unless Save is pending. */
+  close() {
+    if (this.#createEditSession?.operation.status != "pending") {
+      super.close();
+    }
+  }
+
+  /**
+   * Requests native dismissal unless Save is pending.
+   *
+   * @param {string} [returnValue=this.returnValue] - The value to store in the
+   *   native dialog's `returnValue` property when it closes. This is not the
+   *   Save status returned by `save()`.
+   */
+  requestClose(returnValue = this.returnValue) {
+    if (this.#createEditSession?.operation.status != "pending") {
+      // The cancel handler runs the shared close cleanup before native closing.
+      this.returnValue = returnValue;
+      super.requestClose(returnValue);
+    }
+  }
+
+  /**
+   * Saves the current edit session.
+   *
+   * Returns `unavailable` if the dialog is closed, the edit session is not ready,
+   * or `canSave` is false. `selectCanSave` reads the field validation results
+   * stored in the draft state. This method does not create new events.
+   *
+   * @returns {Promise<
+   *   {status: "success", identity: CalendarEventSourceIdentity} |
+   *   {status: "unavailable"|"stale"|"cancelled"|"error"}
+   * >}
+   *   The Save result, with the saved IDs in `identity` on success. Success means
+   *   the transaction finished. `handleStateChange` schedules closing separately.
+   */
+  async save() {
+    if (!this.open || !this.#editReady || !this.#canSave) {
+      return { status: "unavailable" };
+    }
+
+    // Use the host's occurrence prompt and transaction path so Save retains
+    // the existing Undo and scheduling behavior.
+    const host = window.top;
+    return saveCalendarEventEdit({
+      store,
+      sessionKey: this.calendarEventSessionKey,
+      fields: this.saveFields,
+      chooseOccurrence: event =>
+        host.promptOccurrenceModification(event, true, "edit")[0],
+      transact: (event, original) =>
+        host.doTransaction("modify", event, event.calendar, original, null, {
+          responseMode:
+            event.getProperty("X-MOZ-SEND-INVITATIONS") == "FALSE"
+              ? Ci.calIItipItem.NONE
+              : Ci.calIItipItem.AUTO,
+        }),
+    });
+  }
+
+  /** Displays observed Save progress and failures for keyboard and speech users. */
+  #renderSave() {
+    const body = this.querySelector(".calendar-event-create-edit-dialog-body");
+
+    // Store updates can arrive before connectedCallback creates the content.
+    if (!body) {
+      return;
+    }
+
+    const operation = this.#createEditSession?.operation;
+    const saving = operation?.status == "pending";
+
+    // Native dismissal includes Escape. Block dismissal while storage changes
+    // the event, because closing would discard the draft needed after failure.
+    this.setAttribute("closedby", saving ? "none" : "closerequest");
+    body.setAttribute("aria-busy", saving ? "true" : "false");
+
+    const button = this.querySelector(".calendar-event-save");
+    if (button) {
+      button.disabled =
+        !this.#editReady ||
+        !this.#canSave ||
+        saving ||
+        operation?.status == "success";
+
+      // Move focus from the newly disabled button to the dialog so keyboard
+      // users retain a focus target while Save is pending.
+      if (saving && document.activeElement === button) {
+        this.focus();
+      }
+    }
+
+    // aria-busy tells assistive software that body updates are incomplete.
+    // Keep the status outside that body so a screen reader can announce Save
+    // progress without waiting for the body to stop being busy.
+    const statusMessage = this.querySelector(".calendar-event-save-status");
+    if (statusMessage) {
+      if (saving || operation?.error?.code == "event-save-failed") {
+        document.l10n.setAttributes(
+          statusMessage,
+          saving ? "calendar-event-saving" : "calendar-event-save-failed"
+        );
+      } else {
+        document.l10n.setAttributes(statusMessage, "calendar-event-save-idle");
+      }
     }
   }
 
@@ -847,6 +1072,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
     }
 
     this.#initializeDraft();
+    this.#renderSave();
 
     // Apply the queued choice refresh before choosing this route's default.
     await Promise.resolve();
@@ -938,6 +1164,15 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
         snapshot,
       })
     );
+
+    // Localize the dialog before enabling Save.
+    await document.l10n.translateFragment(this);
+
+    // Only enable Save if this route is still current after localization.
+    if (isCurrent()) {
+      this.#editReady = true;
+      this.#renderSave();
+    }
   }
 
   /**
@@ -947,6 +1182,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
    * session key stays fixed so the next route uses the same dialog entries.
    */
   onCalendarEventRouteCleared() {
+    this.#editReady = false;
     this.dispatch(
       clearCalendarSelection({ sessionKey: this.calendarEventSessionKey })
     );
@@ -958,13 +1194,6 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
         sessionKey: this.calendarEventSessionKey,
       })
     );
-  }
-
-  /**
-   * Save the current draft of the create/edit dialog.
-   */
-  #save() {
-    // TODO: Implement save functionality.
   }
 }
 

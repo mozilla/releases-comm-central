@@ -209,13 +209,22 @@
           <footer class="calendar-event-create-edit-dialog-footer">
             <div class="status-select"></div>
             <div class="privacy-select"></div>
+            <!--
+              Match the production footer. aria-busy can delay announcements from
+              the body, so status text must remain outside that body during Save.
+            -->
+            <span
+              class="calendar-event-save-status"
+              role="status"
+              aria-live="polite"
+            ></span>
             <button
               id="save"
-              data-l10n-id="calendar-event-create-edit-save-button"
-              class="button button-primary"
+              class="calendar-event-save button button-primary"
+              type="button"
+              data-l10n-id="calendar-event-save"
               disabled="disabled"
-            >
-            </button>
+            ></button>
           </footer>
         </div>
         <calendar-dialog-subview

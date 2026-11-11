@@ -214,13 +214,33 @@ export async function loadCalendarEventSource(identity) {
     }
 
     try {
-      if (event.recurrenceStartDate?.compare(occurrenceId) == 0) {
+      // nativeTime records an instant but loses the date form. An all-day date
+      // has no time; a floating time has no time zone. Exception lookup uses
+      // these forms in its key, so restore them from the source series first.
+      const sourceDate = event.recurrenceStartDate;
+      if (sourceDate) {
+        occurrenceId.isDate = sourceDate.isDate;
+        if (sourceDate.timezone.isFloating) {
+          occurrenceId.timezone = sourceDate.timezone;
+        }
+      }
+
+      const exception = event.recurrenceInfo?.getExceptionFor(occurrenceId);
+      if (exception) {
+        // An exception is an edited occurrence. Its recurrence ID still names
+        // the original date even if the user moved its start. Load the stored
+        // exception by that ID instead of searching by its new start time.
+        event = exception;
+      } else if (event.recurrenceStartDate?.compare(occurrenceId) == 0) {
         event = event.recurrenceInfo?.getOccurrenceFor(occurrenceId);
       } else {
         // getOccurrenceFor creates a proxy for any recurrence ID, including
         // IDs that the item's rules do not produce. Find the next real
         // occurrence instead, beginning just before the requested instant.
         const instantBeforeOccurrence = occurrenceId.clone();
+        // Date-only arithmetic cannot represent one second before midnight.
+        // Use a date-time cursor without changing the requested occurrence ID.
+        instantBeforeOccurrence.isDate = false;
         instantBeforeOccurrence.addDuration(cal.createDuration("-PT1S"));
         event = event.recurrenceInfo?.getNextOccurrence(
           instantBeforeOccurrence

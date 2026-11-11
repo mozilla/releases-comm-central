@@ -6,6 +6,20 @@ import { createSlice } from "moz-src:///comm/third_party/redux/redux-toolkit/red
 import { rootReducer } from "moz-src:///comm/mail/base/content/state/store.mjs";
 
 /**
+ * Stores unsaved field values for each dialog. A Redux slice defines one part
+ * of the application's state and the actions that change that part.
+ *
+ * Callers dispatch an action, an object that names a change and carries its
+ * data in `payload`. A reducer below applies that action to this slice. Redux
+ * Toolkit uses Immer to record assignments and produce the next state. Code
+ * outside a reducer must use actions instead of changing stored values.
+ *
+ * `baseline` holds the starting values; `value` holds the current input. Their
+ * differences identify user edits. Both contain plain data that can be copied
+ * and stored as JSON. Calendar objects and writes stay outside this slice.
+ */
+
+/**
  * Unsaved event values that a user can change in the dialog.
  * Redux stores copies of these values. A "create" draft can omit values until
  * field code adds them. The source session keeps the IDs of the saved event
@@ -13,6 +27,7 @@ import { rootReducer } from "moz-src:///comm/mail/base/content/state/store.mjs";
  *
  * @typedef {object} CalendarEventDraft
  * @property {string} [calendarId] - The selected calendar ID.
+ * @property {Record<string, boolean>} [enabledRows] - Optional row enabled state.
  * @property {string} [title] - The event title.
  * @property {?CalendarEventDateTimeSnapshot} [start] - The start date and time.
  * @property {?CalendarEventDateTimeSnapshot} [end] - The end date and time.
@@ -125,10 +140,8 @@ function resetDraft(draft, value) {
 
 /**
  * Stores editable values and tracks user changes for each dialog.
- * Each reducer below changes this part of the Redux store. Redux Toolkit uses
- * Immer to turn the reducer's assignments into a new state value. Callers use
- * the exported actions to request these changes. These actions do not save an
- * event to a calendar.
+ * The exported actions change the draft, its starting values, or validation.
+ * They do not save an event to a calendar.
  */
 export const calendarEventDraftSlice = createSlice({
   name: "calendarEventDraft",
@@ -155,7 +168,20 @@ export const calendarEventDraftSlice = createSlice({
       }
 
       for (const [key, value] of Object.entries(defaults)) {
-        if (!Object.hasOwn(draft.value, key)) {
+        if (key == "enabledRows") {
+          // Fields can initialize at different times. Add only missing row
+          // defaults so one field does not replace another field's changes.
+          draft.value.enabledRows ??= {};
+          draft.baseline.enabledRows ??= {};
+
+          for (const [section, enabled] of Object.entries(value)) {
+            if (!Object.hasOwn(draft.value.enabledRows, section)) {
+              draft.value.enabledRows[section] = enabled;
+              draft.baseline.enabledRows[section] = enabled;
+            }
+          }
+        } else if (!Object.hasOwn(draft.value, key)) {
+          // Equal, separate copies keep a late default clean in both snapshots.
           draft.value[key] = structuredClone(value);
           draft.baseline[key] = structuredClone(value);
         }
@@ -250,7 +276,8 @@ export const calendarEventDraftSlice = createSlice({
      * @param {string} action.payload.sessionKey - The fixed dialog session key.
      * @param {string} action.payload.section - The field section name.
      * @param {CalendarEventDraft} action.payload.patch - All draft properties
-     *   for the section, including unchanged values.
+     *   for the section, including unchanged values. An `enabledRows` patch
+     *   contains only the flags owned by this section.
      */
     updateSection(state, action) {
       const { patch, section, sessionKey } = action.payload;
@@ -264,10 +291,31 @@ export const calendarEventDraftSlice = createSlice({
         return;
       }
 
-      Object.assign(draft.value, structuredClone(patch));
-      const isDirty = Object.keys(patch).some(
-        key => !valuesAreEqual(draft.value[key], draft.baseline?.[key])
-      );
+      const copiedPatch = structuredClone(patch);
+      if (copiedPatch.enabledRows) {
+        // A section owns only its own row flags. Preserve flags belonging to
+        // other sections when applying this section's complete patch.
+        copiedPatch.enabledRows = {
+          ...draft.value.enabledRows,
+          ...copiedPatch.enabledRows,
+        };
+      }
+
+      Object.assign(draft.value, copiedPatch);
+
+      // For enabledRows, compare only flags supplied by this section.
+      // A different row's change must not make this section dirty.
+      const isDirty = Object.keys(patch).some(key => {
+        if (key == "enabledRows") {
+          return Object.keys(patch.enabledRows).some(
+            row =>
+              draft.value.enabledRows[row] !==
+              draft.baseline?.enabledRows?.[row]
+          );
+        }
+        return !valuesAreEqual(draft.value[key], draft.baseline?.[key]);
+      });
+
       const dirtySectionIndex = draft.dirtySections.indexOf(section);
       if (isDirty && dirtySectionIndex == -1) {
         draft.dirtySections.push(section);

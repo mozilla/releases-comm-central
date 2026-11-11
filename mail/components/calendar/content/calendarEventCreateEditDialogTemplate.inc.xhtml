@@ -77,13 +77,23 @@
       <footer class="calendar-event-create-edit-dialog-footer">
         <div class="status-select"></div>
         <div class="privacy-select"></div>
+        <!--
+          aria-busy tells a screen reader that body updates are incomplete.
+          Keep status text outside that body so Save progress can be announced
+          while the body is busy.
+        -->
+        <span
+          class="calendar-event-save-status"
+          role="status"
+          aria-live="polite"
+        ></span>
         <button
           id="save"
-          data-l10n-id="calendar-event-create-edit-save-button"
-          class="button button-primary"
+          class="calendar-event-save button button-primary"
+          type="button"
+          data-l10n-id="calendar-event-save"
           disabled="disabled"
-        >
-        </button>
+        ></button>
       </footer>
     </div>
     #include calendarEventCreateEditDescriptionSubviewTemplate.inc.xhtml

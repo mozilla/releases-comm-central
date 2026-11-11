@@ -72,6 +72,8 @@ subsuite = "thunderbird"
 
 ["browser_calendarEventCreateEditDialogRouting.js"]
 
+["browser_calendarEventEditSave.js"]
+
 ["browser_calendarEventSessionRow.js"]
 
 ["browser_positionedDialog.js"]

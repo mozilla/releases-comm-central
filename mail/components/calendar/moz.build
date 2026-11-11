@@ -10,6 +10,7 @@ JAR_MANIFESTS += ["jar.mn"]
 XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.toml"]
 
 EXTRA_JS_MODULES.calendar += [
+    "modules/CalendarEventEdit.sys.mjs",
     "modules/JoinLinkParser.sys.mjs",
 ]
 
@@ -34,6 +35,8 @@ MOZ_SRC_FILES += [
     "content/calendar-event-create-edit-dialog.mjs",
     "content/calendar-event-dialog-route-controller.mjs",
     "content/calendar-event-dialog-source-mixin.mjs",
+    "content/calendar-event-edit-save.mjs",
+    "content/calendar-event-save-fields.mjs",
     "content/calendar-event-session-row.mjs",
     "content/calendar-event-source-loader.mjs",
     "content/dialog-position.mjs",

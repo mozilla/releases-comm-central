@@ -2045,18 +2045,23 @@ add_task(async function test_moreMenuStateResetsWhenDialogClosesWhileOpen() {
 add_task(async function test_saveButtonDisabledValidityState() {
   const redux = browser.contentWindow.ReduxTestUtils;
 
-  await showLoadedEditDialog();
+  await resetToCreateMode();
+  await dialog.show();
+
   const saveButton = dialog.querySelector("#save");
 
-  // Check if the save button is enabled when the create dialog loads.
+  Assert.ok(saveButton, "The dialog should have a Save button");
+
+  // Create drafts can be valid before saving new events is implemented.
   dialog.resetCreateDraft({
     calendarId: calendar.id,
     title: "Field provider title",
   });
   Assert.ok(!dialog.isDirty, "Create defaults should set the starting values");
-  Assert.ok(!saveButton.disabled, "The save button should be enabled");
+  Assert.ok(dialog.canSave, "The create draft should pass field validation");
+  Assert.ok(saveButton.disabled, "Save should remain disabled in create mode");
 
-  // Mock an invalid form, making the save button disabled.
+  // Simulate an invalid title in the create draft.
   dialog.updateDraftSection("title", { title: "" });
 
   await redux.dispatchAction(
@@ -2074,18 +2079,17 @@ add_task(async function test_saveButtonDisabledValidityState() {
     ["title"],
     "The calendar title should be dirty"
   );
+  Assert.ok(!dialog.canSave, "An invalid title should fail field validation");
   Assert.ok(saveButton.disabled, "The save button should be disabled");
 
-  // Switch to editing an existing calendar event where the save button should
-  // be enabled after loading.
   const sourceLoaded = waitForNextSourceLoad();
-  dialog.setAttribute("calendar-id", calendar.id);
-  dialog.setAttribute("event-id", calendarEvent.id);
+
+  dialog.setCalendarEventRoute({
+    calendarId: calendar.id,
+    eventId: calendarEvent.id,
+  });
+
   const source = await sourceLoaded;
-  await TestUtils.waitForCondition(
-    () => dialog.draft?.title == calendarEvent.title,
-    "Waiting for source data to set the edit draft"
-  );
 
   Assert.deepEqual(
     dialog.draft,
@@ -2100,7 +2104,7 @@ add_task(async function test_saveButtonDisabledValidityState() {
   Assert.ok(!dialog.isDirty, "A newly loaded edit draft should be clean");
   Assert.ok(!saveButton.disabled, "The save button should be enabled");
 
-  // Mock an invalid form, making the save button disabled.
+  // Simulate an invalid title in the loaded edit draft.
   dialog.updateDraftSection("title", { title: "" });
 
   await redux.dispatchAction(
@@ -2120,7 +2124,7 @@ add_task(async function test_saveButtonDisabledValidityState() {
   );
   Assert.ok(saveButton.disabled, "The save button should be disabled");
 
-  // Updating the title should make the form valid, and enable the save button.
+  // Restore the title and its field validation result.
   dialog.updateDraftSection("title", { title: "Unsaved title" });
   Assert.equal(
     dialog.draft.title,
@@ -2145,14 +2149,6 @@ add_task(async function test_saveButtonDisabledValidityState() {
 
   Assert.ok(!saveButton.disabled, "The save button should be enabled");
 
-  // Clicking save should trigger click event.
-  const saveButtonClickPromise = BrowserTestUtils.waitForEvent(
-    saveButton,
-    "click"
-  );
-  EventUtils.synthesizeMouseAtCenter(saveButton, {}, browser.contentWindow);
-  await saveButtonClickPromise;
-
   await resetToCreateMode();
   dialog.close();
 });
@@ -2161,74 +2157,80 @@ add_task(async function test_saveButtonStateForOperationStatus() {
   const redux = browser.contentWindow.ReduxTestUtils;
 
   await showLoadedEditDialog();
+
   const saveButton = dialog.querySelector("#save");
+  const operation = {
+    sessionKey: dialog.calendarEventSessionKey,
+    kind: "save",
+    requestId: "save-button-state",
+  };
 
-  // Check if the save button is enabled when the create dialog loads.
-  dialog.resetCreateDraft({
+  Assert.ok(saveButton, "The dialog should have a Save button");
+  Assert.ok(!saveButton.disabled, "Save should be enabled after edit loading");
+
+  // Simulate a pending Save without starting a provider transaction.
+  await redux.dispatchAction(
+    "moz-src:///comm/mail/components/calendar/content/state/calendarEventCreateEditSessionSlice.mjs",
+    "operationStarted",
+    operation
+  );
+
+  Assert.ok(saveButton.disabled, "Save should be disabled while pending");
+
+  dialog.setCalendarEventRoute({
     calendarId: calendar.id,
-    title: "Field provider title",
+    eventId: recurringEvent.id,
   });
-  Assert.ok(!saveButton.disabled, "The save button should be enabled");
 
-  // Mock a pending operation status, which should disable the save button.
+  Assert.equal(
+    dialog.getAttribute("event-id"),
+    calendarEvent.id,
+    "Pending Save should keep the current event route"
+  );
+
   await redux.dispatchAction(
     "moz-src:///comm/mail/components/calendar/content/state/calendarEventCreateEditSessionSlice.mjs",
-    "operationStarted",
+    "operationFailed",
     {
-      sessionKey: dialog.calendarEventSessionKey,
-      kind: "save",
+      ...operation,
+      error: { code: "event-save-failed" },
     }
   );
 
-  Assert.ok(saveButton.disabled, "The save button should be disabled");
-
-  // Switch to editing an existing calendar event where the save button should
-  // be enabled after loading.
-  const sourceLoaded = waitForNextSourceLoad();
-  dialog.setAttribute("calendar-id", calendar.id);
-  dialog.setAttribute("event-id", calendarEvent.id);
-  await sourceLoaded;
-  await TestUtils.waitForCondition(
-    () => dialog.draft?.title == calendarEvent.title,
-    "Waiting for source data to set the edit draft"
+  Assert.ok(dialog.open, "A failed Save should leave the dialog open");
+  Assert.ok(!saveButton.disabled, "A failed Save should enable retry");
+  Assert.equal(
+    dialog.draft.title,
+    calendarEvent.title,
+    "A failed Save should retain the draft title"
   );
-  Assert.ok(!saveButton.disabled, "The save button should be enabled");
 
-  // Mock a pending operation status, which should disable the save button.
+  const retry = { ...operation, requestId: "save-button-retry" };
+
   await redux.dispatchAction(
     "moz-src:///comm/mail/components/calendar/content/state/calendarEventCreateEditSessionSlice.mjs",
     "operationStarted",
-    {
-      sessionKey: dialog.calendarEventSessionKey,
-      kind: "save",
-    }
+    retry
   );
 
-  Assert.ok(saveButton.disabled, "The save button should be disabled");
+  Assert.ok(saveButton.disabled, "Save should be disabled during retry");
 
-  // Update the operation status to be successful, which should enable the save
-  // button.
+  // Success queues dialog closure, so observe close before dispatching it.
+  const closed = BrowserTestUtils.waitForEvent(dialog, "close");
+
   await redux.dispatchAction(
     "moz-src:///comm/mail/components/calendar/content/state/calendarEventCreateEditSessionSlice.mjs",
     "operationSucceeded",
-    {
-      sessionKey: dialog.calendarEventSessionKey,
-      kind: "save",
-    }
+    retry
   );
 
-  Assert.ok(!saveButton.disabled, "The save button should be enabled");
+  Assert.ok(saveButton.disabled, "Successful Save should keep Save disabled");
 
-  // Clicking save should trigger click event.
-  const saveButtonClickPromise = BrowserTestUtils.waitForEvent(
-    saveButton,
-    "click"
-  );
-  EventUtils.synthesizeMouseAtCenter(saveButton, {}, browser.contentWindow);
-  await saveButtonClickPromise;
+  await closed;
+
+  Assert.ok(!dialog.open, "Successful Save should close the dialog");
 
   await resetToCreateMode();
-  dialog.close();
 });
 
 async function loadTitleEvent(calendarEventToLoad) {

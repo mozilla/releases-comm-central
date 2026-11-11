@@ -6,12 +6,25 @@ import { createSlice } from "moz-src:///comm/third_party/redux/redux-toolkit/red
 import { rootReducer } from "moz-src:///comm/mail/base/content/state/store.mjs";
 
 /**
+ * Records dialog mode and operation progress in a Redux slice, one part of
+ * the application state. This slice stores data; the Save function does the
+ * calendar work. Draft field values live in calendarEventDraftSlice.mjs.
+ *
+ * Callers dispatch actions to request changes. Each action has a `payload`
+ * object with its inputs. The matching reducer below updates this slice.
+ * `sessionKey` selects one dialog. `requestId` selects one Save attempt in that
+ * dialog, so a late result cannot complete or release a replacement request.
+ */
+
+/**
  * This state records the operation kind, status, and error. Separate code
  * performs the operation.
  *
  * @typedef {object} CalendarEventCreateEditOperation
  * @property {?string} kind - The work name, or null when idle.
- * @property {"idle"|"pending"|"error"} status - The work status.
+ * @property {"idle"|"pending"|"error"|"success"} status - No operation, work
+ *   in progress, failed work, or completed work awaiting dialog cleanup.
+ * @property {?string} [requestId] - The Save request that owns this operation.
  * @property {?object} error - Error data from the code that did the work.
  */
 
@@ -32,9 +45,9 @@ import { rootReducer } from "moz-src:///comm/mail/base/content/state/store.mjs";
  */
 
 /**
- * Create an operation state with "idle" status, no error, and no operation kind.
+ * Returns an operation with "idle" status, no error, and no operation kind.
  *
- * @returns {CalendarEventCreateEditOperation}
+ * @returns {CalendarEventCreateEditOperation} The initial operation state.
  */
 function createOperation() {
   return {
@@ -45,18 +58,18 @@ function createOperation() {
 }
 
 /**
- * Get the mode and work state for one dialog, or null if absent.
+ * Returns the mode and operation for one dialog, or null if absent.
  *
- * @param {object} state
- * @param {string} sessionKey
- * @returns {?CalendarEventCreateEditSession}
+ * @param {object} state - The application state.
+ * @param {string} sessionKey - The fixed key for the dialog.
+ * @returns {?CalendarEventCreateEditSession} The session, or null if absent.
  */
 export function selectCalendarEventCreateEditSession(state, sessionKey) {
   return state.calendarEventCreateEditSession?.sessions[sessionKey] ?? null;
 }
 
 /**
- * Store mode and work state by dialog session key. Draft values are in
+ * Stores mode and operation progress by dialog session key. Draft values are in
  * calendarEventDraftSlice (./calendarEventDraftSlice.mjs).
  * These actions do not change calendar events.
  */
@@ -67,7 +80,7 @@ export const calendarEventCreateEditSessionSlice = createSlice({
   },
   reducers: {
     /**
-     * Remove the create/edit session for the supplied key.
+     * Removes the create/edit session for the supplied key.
      *
      * @param {CalendarEventCreateEditSessionSliceState} state - The session slice
      *   state.
@@ -79,8 +92,7 @@ export const calendarEventCreateEditSessionSlice = createSlice({
       delete state.sessions[action.payload.sessionKey];
     },
     /**
-     * Record an error for sessionKey only when the stored operation kind
-     * matches the supplied kind and the operation status is "pending".
+     * Records an error only for the matching pending operation and request.
      *
      * @param {CalendarEventCreateEditSessionSliceState} state - The session slice
      *   state.
@@ -88,25 +100,56 @@ export const calendarEventCreateEditSessionSlice = createSlice({
      * @param {object} action.payload - The action data.
      * @param {string} action.payload.sessionKey - The fixed dialog session key.
      * @param {string} action.payload.kind - The operation kind.
+     * @param {string} [action.payload.requestId] - The Save request ID.
      * @param {object} action.payload.error - Serializable error data.
      */
     operationFailed(state, action) {
-      const { error, kind, sessionKey } = action.payload;
+      const { error, kind, sessionKey, requestId } = action.payload;
       const session = state.sessions[sessionKey];
+
+      // A provider result can arrive after a replacement request starts.
+      // Only the request that owns the pending operation can record its error.
       if (
         session?.operation.kind != kind ||
-        session.operation.status != "pending"
+        session.operation.status != "pending" ||
+        session.operation.requestId !== requestId
       ) {
         return;
       }
+
       session.operation = {
         error,
+        ...(requestId ? { requestId } : {}),
         kind,
         status: "error",
       };
     },
     /**
-     * Set operation status to "pending" unless the session is absent or its
+     * Resets a replaced request only when it still owns the pending operation.
+     * Keeps draft data and replacement operations unchanged.
+     *
+     * @param {CalendarEventCreateEditSessionSliceState} state - The session state.
+     * @param {object} action - The Redux action.
+     * @param {object} action.payload - The action data.
+     * @param {string} action.payload.sessionKey - The fixed dialog session key.
+     * @param {string} action.payload.kind - The operation kind.
+     * @param {string} action.payload.requestId - The stale request ID.
+     */
+    operationReleased(state, action) {
+      const { kind, sessionKey, requestId } = action.payload;
+      const session = state.sessions[sessionKey];
+
+      // Releasing an old request must not unlock a newer pending Save.
+      if (
+        session?.operation.kind == kind &&
+        session.operation.status == "pending" &&
+        session.operation.requestId === requestId
+      ) {
+        session.operation = createOperation();
+      }
+    },
+    /**
+     * Sets operation status to "pending" unless the session is absent or its
      * operation status is already "pending".
      *
      * @param {CalendarEventCreateEditSessionSliceState} state - The session slice
@@ -115,22 +158,25 @@ export const calendarEventCreateEditSessionSlice = createSlice({
      * @param {object} action.payload - The action data.
      * @param {string} action.payload.sessionKey - The fixed dialog session key.
      * @param {string} action.payload.kind - The operation kind.
+     * @param {string} [action.payload.requestId] - The Save request ID.
      */
     operationStarted(state, action) {
-      const { kind, sessionKey } = action.payload;
+      const { kind, sessionKey, requestId } = action.payload;
       const session = state.sessions[sessionKey];
       if (!session || session.operation.status == "pending") {
         return;
       }
+
       session.operation = {
         error: null,
+        ...(requestId ? { requestId } : {}),
         kind,
         status: "pending",
       };
     },
     /**
-     * Reset the operation for sessionKey to "idle" only when the stored kind
-     * matches the supplied kind and the operation status is "pending".
+     * Records success for the matching request. Without a request ID, resets
+     * the operation to "idle". Ignores a different kind, request, or status.
      *
      * @param {CalendarEventCreateEditSessionSliceState} state - The session slice
      *   state.
@@ -138,20 +184,28 @@ export const calendarEventCreateEditSessionSlice = createSlice({
      * @param {object} action.payload - The action data.
      * @param {string} action.payload.sessionKey - The fixed dialog session key.
      * @param {string} action.payload.kind - The operation kind.
+     * @param {string} [action.payload.requestId] - The Save request ID.
      */
     operationSucceeded(state, action) {
-      const { kind, sessionKey } = action.payload;
+      const { kind, sessionKey, requestId } = action.payload;
       const session = state.sessions[sessionKey];
+
       if (
         session?.operation.kind != kind ||
-        session.operation.status != "pending"
+        session.operation.status != "pending" ||
+        session.operation.requestId !== requestId
       ) {
         return;
       }
-      session.operation = createOperation();
+
+      // Keep the successful Save request ID until the dialog observer closes
+      // that request's session. Older operations without IDs return to idle.
+      session.operation = requestId
+        ? { error: null, kind, requestId, status: "success" }
+        : createOperation();
     },
     /**
-     * Create or replace the session with "create" mode and "idle" operation state.
+     * Creates or replaces the session in "create" mode with no operation.
      *
      * @param {CalendarEventCreateEditSessionSliceState} state - The session slice
      *   state.
@@ -167,7 +221,7 @@ export const calendarEventCreateEditSessionSlice = createSlice({
       };
     },
     /**
-     * Create or replace the session with "edit" mode and "idle" operation state.
+     * Creates or replaces the session in "edit" mode with no operation.
      *
      * @param {CalendarEventCreateEditSessionSliceState} state - The session slice
      *   state.
@@ -190,6 +244,7 @@ calendarEventCreateEditSessionSlice.injectInto(rootReducer);
 export const {
   clearCalendarEventCreateEditSession,
   operationFailed,
+  operationReleased,
   operationStarted,
   operationSucceeded,
   startCreateSession,

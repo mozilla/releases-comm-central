@@ -4,10 +4,17 @@
 
 "use strict";
 
+/**
+ * Tests draft and operation data without dialog controls or calendar writes.
+ * Most cases call a slice reducer directly to inspect one state change.
+ * Store cases check that dispatched actions reach the installed slices.
+ */
+
 const {
   calendarEventDraftSlice,
   resetForCreate,
   resetFromSource,
+  initializeFields,
   setSectionValidity,
   updateSection,
 } = ChromeUtils.importESModule(
@@ -37,6 +44,13 @@ const {
 
 const sessionKey = "calendar-event-create-edit-state-test";
 
+/**
+ * Returns the source fields used by draft reducers. This fixture omits calendar
+ * display data because these tests do not load or show a calendar.
+ *
+ * @returns {{event: CalendarEventSourceEventSnapshot,
+ *   identity: CalendarEventSourceIdentity}} The copied source data for the draft.
+ */
 function sourceSnapshot() {
   return {
     event: {
@@ -295,6 +309,64 @@ add_task(function test_dirtySectionsAndValidationResetForNewSource() {
   );
 });
 
+add_task(function test_disabledRowsDoNotBlockSave() {
+  for (const enabled of [undefined, true, false]) {
+    const initialDraft = { location: "Retained room", title: "Draft" };
+
+    if (enabled !== undefined) {
+      initialDraft.enabledRows = { location: enabled };
+    }
+
+    // Missing and true flags keep the row active. Only an explicit false flag
+    // permits Save while this row retains an invalid value.
+    let draftState = reduceDraft(
+      undefined,
+      resetForCreate({ initialDraft, sessionKey })
+    );
+    draftState = reduceDraft(
+      draftState,
+      setSectionValidity({
+        section: "location",
+        sessionKey,
+        validity: { valid: false },
+      })
+    );
+    const state = { calendarEventDraft: draftState };
+
+    Assert.equal(
+      selectCanSave(state, sessionKey),
+      enabled === false,
+      "An invalid section should permit Save only when its row is disabled."
+    );
+
+    draftState = reduceDraft(
+      draftState,
+      setSectionValidity({
+        section: "title",
+        sessionKey,
+        validity: { valid: false },
+      })
+    );
+
+    Assert.ok(
+      !selectCanSave({ calendarEventDraft: draftState }, sessionKey),
+      "An invalid active title should block Save regardless of another row."
+    );
+
+    for (const section of ["title", "location"]) {
+      draftState = reduceDraft(
+        draftState,
+        setSectionValidity({ section, sessionKey, validity: { valid: true } })
+      );
+    }
+
+    Assert.ok(
+      selectCanSave({ calendarEventDraft: draftState }, sessionKey),
+      "Valid sections should permit Save with any row state."
+    );
+  }
+});
+
 add_task(function test_selectorsReflectDraftAndOperationState() {
   let draftState = reduceDraft(
     undefined,
@@ -398,5 +470,98 @@ add_task(function test_selectorsReflectDraftAndOperationState() {
     sessionState.sessions[sessionKey].operation.status,
     "idle",
     "A successful operation clears temporary session state"
+  );
+});
+
+add_task(function test_rowDefaultsAndDirtyStateStaySeparate() {
+  let state = reduceDraft(
+    undefined,
+    resetFromSource({ sessionKey, snapshot: sourceSnapshot() })
+  );
+
+  // Initialize two independent rows, then change only the location row.
+  state = reduceDraft(
+    state,
+    initializeFields({
+      sessionKey,
+      defaults: {
+        enabledRows: { location: true },
+        location: "Room",
+      },
+    })
+  );
+  state = reduceDraft(
+    state,
+    initializeFields({
+      sessionKey,
+      defaults: {
+        enabledRows: { reminders: true },
+        reminders: ["-PT10M"],
+      },
+    })
+  );
+  state = reduceDraft(
+    state,
+    updateSection({
+      sessionKey,
+      section: "location",
+      patch: {
+        enabledRows: { location: false },
+        location: "Room",
+      },
+    })
+  );
+  state = reduceDraft(
+    state,
+    updateSection({
+      sessionKey,
+      section: "reminders",
+      patch: {
+        enabledRows: { reminders: true },
+        reminders: ["-PT10M"],
+      },
+    })
+  );
+  let draft = state.sessions[sessionKey];
+
+  Assert.deepEqual(
+    draft.value.enabledRows,
+    {
+      location: false,
+      reminders: true,
+    },
+    "Updating one row should retain the other row's enabled state."
+  );
+  Assert.deepEqual(
+    draft.baseline.enabledRows,
+    {
+      location: true,
+      reminders: true,
+    },
+    "Row defaults should remain in the unchanged baseline."
+  );
+  Assert.deepEqual(
+    draft.dirtySections,
+    ["location"],
+    "One row should not make another section dirty."
+  );
+
+  state = reduceDraft(
+    state,
+    updateSection({
+      sessionKey,
+      section: "location",
+      patch: {
+        enabledRows: { location: true },
+        location: "Room",
+      },
+    })
+  );
+  draft = state.sessions[sessionKey];
+
+  Assert.deepEqual(
+    draft.dirtySections,
+    [],
+    "Restoring enabled state should clear its change."
   );
 });
