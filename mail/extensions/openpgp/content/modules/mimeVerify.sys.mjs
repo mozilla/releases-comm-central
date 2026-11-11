@@ -492,22 +492,13 @@ MimeVerify.prototype = {
       let msgDate;
       if (mimeSvc.mailChannel) {
         const { headerNames, headerValues } = mimeSvc.mailChannel;
-
-        for (let i = 0; i < headerNames.length; i++) {
-          if (!fromAddr && headerNames[i] == "From") {
-            fromAddr = lazy.EnigmailFuncs.stripEmail(headerValues[i]);
-            // Ignore address if domain contains a comment (in brackets).
-            if (lazy.EnigmailFuncs.domainHasComment(fromAddr)) {
-              fromAddr = "";
-            }
-          } else if (!msgDate && headerNames[i].toLowerCase() == "date") {
-            msgDate = new Date(headerValues[i]);
-          }
-          if (fromAddr && msgDate) {
-            break;
-          }
-        }
-        msgDate ??= new Date(NaN);
+        fromAddr = lazy.EnigmailFuncs.stripEmail(
+          headerValues.find((v, i) => headerNames[i].toLowerCase() == "from") ??
+            ""
+        );
+        msgDate = new Date(
+          headerValues.find((v, i) => headerNames[i].toLowerCase() == "date")
+        );
       }
 
       // ensure all lines end with CRLF as specified in RFC 3156, section 5

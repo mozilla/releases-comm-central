@@ -76,9 +76,6 @@ export var EnigmailDecryption = {
     if (fromAddr) {
       try {
         fromAddr = lazy.EnigmailFuncs.stripEmail(fromAddr);
-        if (lazy.EnigmailFuncs.domainHasComment(fromAddr)) {
-          fromAddr = false;
-        }
       } catch (ex) {
         fromAddr = false;
       }

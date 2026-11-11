@@ -449,26 +449,13 @@ MimeDecryptHandler.prototype = {
       const options = { maxOutputLength: maxOutput };
       if (mimeSvc.mailChannel) {
         const { headerNames, headerValues } = mimeSvc.mailChannel;
-        let foundFrom = false;
-        for (let i = 0; i < headerNames.length; i++) {
-          if (!foundFrom && headerNames[i] == "From") {
-            foundFrom = true;
-            const fromAddr = lazy.EnigmailFuncs.stripEmail(headerValues[i]);
-            // Ignore address if domain contains a comment (in brackets).
-            if (!lazy.EnigmailFuncs.domainHasComment(fromAddr)) {
-              options.fromAddr = fromAddr;
-            }
-          } else if (
-            !options.msgDate &&
-            headerNames[i].toLowerCase() == "date"
-          ) {
-            options.msgDate = new Date(headerValues[i]);
-          }
-          if (foundFrom && options.msgDate) {
-            break;
-          }
-        }
-        options.msgDate ??= new Date(NaN);
+        options.fromAddr = lazy.EnigmailFuncs.stripEmail(
+          headerValues.find((v, i) => headerNames[i].toLowerCase() == "from") ??
+            ""
+        );
+        options.msgDate = new Date(
+          headerValues.find((v, i) => headerNames[i].toLowerCase() == "date")
+        );
       }
 
       if (!options.fromAddr) {
