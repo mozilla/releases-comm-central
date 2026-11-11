@@ -76,6 +76,7 @@ add_task(async function testExpandCollapseUpdates() {
   // Clicking the twisty to collapse a row should update the message display.
   goDoCommand("cmd_expandAllThreads");
   threadTree.selectedIndex = 5;
+  threadTree.scrollToIndex(5, true);
   await messageLoaded(10);
 
   let selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
