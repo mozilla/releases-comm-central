@@ -55,6 +55,9 @@ tags = ["webextensions"]
 ["browser_ext_themes_onUpdated.js"]
 
 ["browser_ext_tooltip_in_extension_pages.js"]
+skip-if = [
+  "os == 'linux' && headless", # No drag service, so content tooltips can't be shown.
+]
 
 ["browser_ext_webrtc.js"]
 
