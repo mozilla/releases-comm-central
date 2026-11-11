@@ -109,6 +109,9 @@ add_task(async function test_remoteAddressBookFormPwFromStorage() {
 
 add_task(
   async function test_remoteAddressBookFormInferHostFromUsernamePwFromStorage() {
+    await SpecialPowers.pushPrefEnv({
+      set: [["signon.rememberSignons", true]],
+    });
     const login = await createLogin("https://example.com");
     const _srv = DNS.srv;
     DNS.srv = name => {
@@ -120,7 +123,9 @@ add_task(
 
     const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
     await goToRemoteForm(dialog);
+    const promptPromise = handleOtherSitePasswordPrompt("https://carddav.test");
     await fillInForm(dialog, "", false);
+    await promptPromise;
 
     Assert.ok(
       BrowserTestUtils.isHidden(
@@ -138,10 +143,11 @@ add_task(
     Assert.equal(
       logins.length,
       1,
-      "Login should be duplicated to redirected origin"
+      "Login should be saved for the server the SRV record points to"
     );
     await Services.logins.removeLoginAsync(logins[0]);
     DNS.srv = _srv;
+    await SpecialPowers.popPrefEnv();
   }
 );
 
@@ -461,7 +467,9 @@ add_task(async function test_dnsWithTXT() {
 
   const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
   await goToRemoteForm(dialog);
+  const promptPromise = handleOtherSitePasswordPrompt("https://example.org");
   await fillInForm(dialog, "", false);
+  await promptPromise;
 
   Assert.ok(
     BrowserTestUtils.isHidden(
@@ -934,6 +942,30 @@ async function showingError(dialog, stepId, errorStringId) {
     errorStringId,
     "Should display error"
   );
+}
+
+/**
+ * Answers the password dialog for a server that an SRV record points to. It is
+ * on another site than the one entered, so the stored password for that isn't
+ * sent there without asking.
+ *
+ * @param {string} origin - The origin the dialog should name.
+ * @returns {Promise} Resolves when the dialog has closed.
+ */
+function handleOtherSitePasswordPrompt(origin) {
+  return BrowserTestUtils.promiseAlertDialog(null, undefined, {
+    async callback(prompt) {
+      await new Promise(resolve => prompt.setTimeout(resolve));
+      Assert.stringContains(
+        prompt.document.getElementById("infoBody").textContent,
+        origin,
+        "the password dialog should name the server the SRV record points to"
+      );
+      prompt.document.getElementById("password1Textbox").value =
+        CardDAVServer.password;
+      prompt.document.querySelector("dialog").getButton("accept").click();
+    },
+  });
 }
 
 /**
