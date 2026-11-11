@@ -233,6 +233,7 @@ add_task(async function test_showHideAdvancedConfig() {
   );
   const simpleConfigButton = subview.querySelector("#simpleConfigurationLdap");
 
+  advancedConfigButton.scrollIntoView({ behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     advancedConfigButton,
     {},
@@ -306,6 +307,7 @@ add_task(async function test_maxResultsValidity() {
   );
   const simpleConfigButton = subview.querySelector("#simpleConfigurationLdap");
 
+  advancedConfigButton.scrollIntoView({ behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     advancedConfigButton,
     {},
@@ -331,6 +333,7 @@ add_task(async function test_maxResultsValidity() {
   const maxResults = subview.querySelector("#maxResults");
 
   // Move to max results input.
+  maxResults.scrollIntoView({ behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(maxResults, {}, subview.documentGlobal);
 
   let updated = BrowserTestUtils.waitForEvent(
@@ -436,6 +439,7 @@ add_task(async function test_captureStateAdvanced() {
     "#advancedConfigurationLdap"
   );
   // Show advanced configuration
+  advancedConfigButton.scrollIntoView({ behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     advancedConfigButton,
     {},
@@ -523,6 +527,7 @@ add_task(async function test_captureStateAdvanced() {
   const searchFilterInput = subview.querySelector("#search");
   searchFilterInput.value = "Test Filter";
 
+  maxResultsInput.scrollIntoView({ behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     maxResultsInput,
     {},
