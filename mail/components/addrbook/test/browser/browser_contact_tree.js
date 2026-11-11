@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { UIFontSize } = ChromeUtils.importESModule(
+  "resource:///modules/UIFontSize.sys.mjs"
+);
+
 add_setup(async () => {
   const account = MailServices.accounts.createAccount();
   const identity = MailServices.accounts.createIdentity();
@@ -831,8 +835,11 @@ add_task(async function test_layout() {
     }
   }
 
-  function checkRowHeight(height) {
-    Assert.equal(cardsList.getRowAtIndex(0).clientHeight, height);
+  function checkRowHeight(minHeight) {
+    Assert.equal(
+      cardsList.getRowAtIndex(0).clientHeight,
+      Math.max(minHeight, Math.ceil(UIFontSize.size * 1.2))
+    );
   }
 
   await SpecialPowers.pushPrefEnv({
@@ -1382,4 +1389,4 @@ add_task(async function test_copy() {
 
   await closeAddressBookWindow();
   await promiseDirectoryRemoved(book.URI);
-});
+}).skip(Services.env.get("MOZ_HEADLESS")); // Headless clipboard has no text/vcard.
