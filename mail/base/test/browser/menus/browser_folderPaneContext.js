@@ -1028,9 +1028,17 @@ add_task(async function testOpen() {
   await SimpleTest.promiseFocus(window);
 });
 
+function getFolderName(folder) {
+  const name = about3Pane.folderPane
+    .getRowForFolder(folder)
+    .querySelector(".name");
+  name.scrollIntoView({ block: "nearest" });
+  return name;
+}
+
 function leftClickOn(folder, modifiers = {}) {
   EventUtils.synthesizeMouseAtCenter(
-    about3Pane.folderPane.getRowForFolder(folder).querySelector(".name"),
+    getFolderName(folder),
     modifiers,
     about3Pane
   );
@@ -1038,7 +1046,7 @@ function leftClickOn(folder, modifiers = {}) {
 
 async function rightClickOn(folder, mode) {
   EventUtils.synthesizeMouseAtCenter(
-    about3Pane.folderPane.getRowForFolder(folder).querySelector(".name"),
+    getFolderName(folder),
     { type: "contextmenu" },
     about3Pane
   );
@@ -1048,7 +1056,7 @@ async function rightClickOn(folder, mode) {
 
 async function rightClickAndActivate(folder, idToActivate, activateOptions) {
   EventUtils.synthesizeMouseAtCenter(
-    about3Pane.folderPane.getRowForFolder(folder).querySelector(".name"),
+    getFolderName(folder),
     { type: "contextmenu" },
     about3Pane
   );
