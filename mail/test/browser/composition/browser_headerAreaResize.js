@@ -261,7 +261,7 @@ add_task(async function test_resizeHeaderAreaCommand() {
     // Exclude the existing Toolbars/To Field access key conflict from this test.
     doc
       .getElementById("menu_showToField")
-      .setAttribute("intended-duplicate-accesskey", "true");
+      .setAttribute("intended-duplicate-accesskey", "menu_ToolbarsNew");
   }
 
   win.focusMsgBody();
