@@ -117,6 +117,7 @@ async function subtestKeyboardAndMouse(variant) {
     "treegrid",
     "the row container should expose treegrid semantics"
   );
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
   Assert.equal(rows[0].getAttribute("role"), "row", "row has row semantics");
   Assert.equal(
     rows[0].querySelector("td").getAttribute("role"),
