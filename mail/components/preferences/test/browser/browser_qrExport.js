@@ -84,6 +84,17 @@ add_setup(async function () {
   });
 });
 
+/**
+ * Scroll a button into view and click it.
+ *
+ * @param {string} id - The id of the button.
+ */
+function clickButton(id) {
+  const button = prefsDocument.getElementById(id);
+  button.scrollIntoView({ behavior: "instant", block: "center" });
+  EventUtils.synthesizeMouseAtCenter(button, {}, prefsWindow);
+}
+
 add_task(async function test_init() {
   Assert.ok(
     BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportIntro")),
@@ -196,11 +207,7 @@ add_task(async function test_selectionUpdate() {
 add_task(async function test_selectAll() {
   await subtest_selectionState(0, false, true);
 
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportSelectAll"),
-    {},
-    prefsWindow
-  );
+  clickButton("qrExportSelectAll");
 
   const selectedAccounts = prefsDocument.querySelectorAll(
     "#qrExportAccountsList input:checked"
@@ -356,11 +363,7 @@ async function stepQRCode(direction) {
   const img = prefsDocument.querySelector("#qrCodeWizard img");
   const currentCode = img.src;
 
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById(`qrExportCodes${direction}`),
-    {},
-    prefsWindow
-  );
+  clickButton(`qrExportCodes${direction}`);
 
   await BrowserTestUtils.waitForMutationCondition(
     img,
@@ -379,11 +382,7 @@ add_task(async function test_stepThroughQrCodes() {
   );
   // Avoid needing the keystore.
   prefsDocument.getElementById("qrExportIncludePasswords").checked = false;
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportStart"),
-    {},
-    prefsWindow
-  );
+  clickButton("qrExportStart");
   await BrowserTestUtils.waitForMutationCondition(
     prefsDocument.getElementById("qrExportCodes"),
     {
@@ -442,11 +441,7 @@ add_task(async function test_stepThroughQrCodes() {
   );
 
   // Back to intro
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportCodesBack"),
-    {},
-    prefsWindow
-  );
+  clickButton("qrExportCodesBack");
 
   Assert.ok(
     BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportIntro")),
@@ -478,11 +473,7 @@ async function selectSingleAccountAndSetIncludePasswords(includePasswords) {
 add_task(async function test_completeCycleWithSummary() {
   selectSingleAccountAndSetIncludePasswords(false);
 
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportStart"),
-    {},
-    prefsWindow
-  );
+  clickButton("qrExportStart");
   await BrowserTestUtils.waitForMutationCondition(
     prefsDocument.getElementById("qrExportCodes"),
     {
@@ -492,15 +483,7 @@ add_task(async function test_completeCycleWithSummary() {
       BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportCodes"))
   );
 
-  prefsDocument.getElementById("qrExportCodesNext").scrollIntoView({
-    behavior: "instant",
-    block: "nearest",
-  });
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportCodesNext"),
-    {},
-    prefsWindow
-  );
+  clickButton("qrExportCodesNext");
 
   Assert.ok(
     BrowserTestUtils.isHidden(prefsDocument.getElementById("qrExportCodes")),
@@ -563,11 +546,7 @@ add_task(async function test_completeCycleWithSummary() {
     "Should show passwords excluded string"
   );
 
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportRestart"),
-    {},
-    prefsWindow
-  );
+  clickButton("qrExportRestart");
 
   Assert.ok(
     BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportIntro")),
@@ -583,11 +562,7 @@ add_task(async function test_summaryWithPasswords() {
   selectSingleAccountAndSetIncludePasswords(true);
 
   const promptPromise = expectPasswordPrompt("", "accept");
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportStart"),
-    {},
-    prefsWindow
-  );
+  clickButton("qrExportStart");
   await promptPromise;
   await BrowserTestUtils.waitForMutationCondition(
     prefsDocument.getElementById("qrExportCodes"),
@@ -598,15 +573,7 @@ add_task(async function test_summaryWithPasswords() {
       BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportCodes"))
   );
 
-  prefsDocument.getElementById("qrExportCodesNext").scrollIntoView({
-    behavior: "instant",
-    block: "nearest",
-  });
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportCodesNext"),
-    {},
-    prefsWindow
-  );
+  clickButton("qrExportCodesNext");
 
   Assert.ok(
     BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportSummary")),
@@ -622,11 +589,7 @@ add_task(async function test_summaryWithPasswords() {
     "Should show passwords included string"
   );
 
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportRestart"),
-    {},
-    prefsWindow
-  );
+  clickButton("qrExportRestart");
 }).skip(!OSKeyStoreTestUtils.canTestOSKeyStoreLogin());
 
 add_task(async function test_withPrimaryPassword() {
@@ -634,15 +597,7 @@ add_task(async function test_withPrimaryPassword() {
   await setPrimaryPassword("", "qrtest");
 
   const promptPromise = expectPasswordPrompt("qrtest", "accept");
-  prefsDocument.getElementById("qrExportStart").scrollIntoView({
-    behavior: "instant",
-    block: "center",
-  });
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportStart"),
-    {},
-    prefsWindow
-  );
+  clickButton("qrExportStart");
   await promptPromise;
   await BrowserTestUtils.waitForMutationCondition(
     prefsDocument.getElementById("qrExportCodes"),
@@ -652,15 +607,7 @@ add_task(async function test_withPrimaryPassword() {
     () =>
       BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportCodes"))
   );
-  prefsDocument.getElementById("qrExportCodesNext").scrollIntoView({
-    behavior: "instant",
-    block: "nearest",
-  });
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportCodesNext"),
-    {},
-    prefsWindow
-  );
+  clickButton("qrExportCodesNext");
 
   Assert.ok(
     BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportSummary")),
@@ -676,11 +623,7 @@ add_task(async function test_withPrimaryPassword() {
     "Should show passwords included string"
   );
 
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportRestart"),
-    {},
-    prefsWindow
-  );
+  clickButton("qrExportRestart");
 
   await setPrimaryPassword("qrtest", "");
 });
@@ -690,15 +633,7 @@ add_task(async function test_primaryPasswordRefused() {
   await setPrimaryPassword("", "qrtest");
 
   const promptPromise = expectPasswordPrompt("qrtest", "cancel");
-  prefsDocument.getElementById("qrExportStart").scrollIntoView({
-    behavior: "instant",
-    block: "center",
-  });
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportStart"),
-    {},
-    prefsWindow
-  );
+  clickButton("qrExportStart");
   await promptPromise;
 
   Assert.ok(
@@ -712,11 +647,7 @@ add_task(async function test_osAuthRefused() {
   selectSingleAccountAndSetIncludePasswords(true);
 
   const promptPromise = expectPasswordPrompt("", "cancel");
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportStart"),
-    {},
-    prefsWindow
-  );
+  clickButton("qrExportStart");
   await promptPromise;
 
   Assert.ok(
