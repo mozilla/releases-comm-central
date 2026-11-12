@@ -1397,7 +1397,7 @@ FeedParser.prototype = {
         ((alink.getAttribute("rel") && alink.getAttribute("rel") == linkRel) ||
           // If there isn't, assume 'alternate'.
           (!alink.getAttribute("rel") && linkRel == "alternate")) &&
-        alink.getAttribute("href")
+        alink.hasAttribute("href")
       ) {
         // Atom links are interpreted relative to xml:base.
         const href = alink.getAttribute("href");

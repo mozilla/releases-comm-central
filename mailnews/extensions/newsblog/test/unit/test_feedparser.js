@@ -610,3 +610,34 @@ add_task(function test_isValidRedirectUrl() {
     );
   }
 });
+
+// Bug 2077919: An explicitly empty Atom href resolves to its xml:base,
+// while a missing href does not represent a link.
+add_task(async function test_atom_empty_href() {
+  const doc = await do_parse_document("resources/atom_dates.xml", "text/xml");
+  const parser = new FeedParser();
+  const atomNS = "http://www.w3.org/2005/Atom";
+  const base = "https://example.com/article.html";
+  const link = doc.createElementNS(atomNS, "link");
+  link.setAttribute("rel", "alternate");
+  link.setAttribute("href", "");
+  Assert.equal(
+    parser.findAtomLink("alternate", [link], base),
+    base,
+    "empty href should resolve to the entry base URI"
+  );
+
+  link.removeAttribute("href");
+  Assert.equal(
+    parser.findAtomLink("alternate", [link], base),
+    null,
+    "missing href must not be treated as an empty reference"
+  );
+
+  link.setAttribute("href", "article.html");
+  Assert.equal(
+    parser.findAtomLink("alternate", [link], "https://example.com/"),
+    base,
+    "nonempty relative links should continue to resolve normally"
+  );
+});
