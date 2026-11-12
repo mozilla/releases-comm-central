@@ -45,11 +45,33 @@
         -webkit-text-fill-color: #ffffff;
       }
 
+      .transitioning {
+        color: #ffffff;
+        background-color: #000000;
+        transition: background-color 1s linear;
+      }
+
+      .transitioning.transition-end {
+        background-color: #007aff;
+      }
+
     </style>
   </head>
   <body>
     <main id="fixture"></main>
     <div id="outside"></div>
+    <template id="colorTransitions">
+      <div class="contrast-fixture">
+        <p id="transition-direct" class="transitioning">Transitioning text</p>
+        <div id="transition-parent" class="transitioning">
+          <span id="transition-child">Transitioning parent background</span>
+        </div>
+        <button id="transition-unnamed" class="transitioning"></button>
+        <p id="transition-static" class="literal-pair">
+          Static low-contrast text
+        </p>
+      </div>
+    </template>
     <template id="systemColors">
       <div class="contrast-fixture">
         <p id="system-direct" class="system-pair">System colors</p>

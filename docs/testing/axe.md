@@ -178,6 +178,13 @@ await checkAxe(tab.browser, {
 });
 ```
 
+## CSS transitions
+
+The helpers exclude `color-contrast` failures while the evaluated element or
+an ancestor has an active CSS transition. Other accessibility rules still run.
+The helpers do not wait for transitions or change scan scheduling. If another
+scan runs after the transitions finish, it checks contrast normally.
+
 ## System-color contrast
 
 The helpers exclude a text contrast failure when the failing check uses a

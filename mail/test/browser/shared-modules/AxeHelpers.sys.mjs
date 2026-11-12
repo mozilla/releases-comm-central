@@ -358,13 +358,33 @@ function captureSystemColors(element, win, inspector) {
 }
 
 /**
- * Runs axe and removes only failures evaluated with a matched system-color pair.
- * Keeps the original contrast check result until its measured colors are verified.
+ * Returns whether an element or an ancestor has an active CSS transition.
+ *
+ * @param {Element} element - The element being evaluated by axe.
+ * @param {object} inspector - The privileged InspectorUtils namespace.
+ * @returns {boolean} Whether a CSS transition affects the element or an ancestor.
+ */
+function hasActiveTransition(element, inspector) {
+  for (let ancestor = element; ancestor; ancestor = getColorParent(ancestor)) {
+    const isTransitioning = inspector
+      .getMatchingCSSRules(ancestor)
+      .some(rule => rule.declarationOrigin == "transitions");
+
+    if (isTransitioning) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Runs axe and excludes transient contrast failures and matched system colors.
  *
  * @param {Window} win - The window containing axe and the scan context.
  * @param {object|string|Element} context - The axe scan context.
  * @param {object} axeOptions - The axe run options.
- * @returns {Promise<object>} The results with proven system-color failures removed.
+ * @returns {Promise<object>} The results with excluded contrast failures removed.
  * @internal
  */
 export async function runAxeWithSystemColors(win, context, axeOptions) {
@@ -390,6 +410,11 @@ export async function runAxeWithSystemColors(win, context, axeOptions) {
     // Read provenance in the same synchronous call as the failing evaluation.
     // Styles after axe.run resolves cannot establish what the scan evaluated.
     try {
+      // Intermediate colors do not describe the settled UI. Keep other checks.
+      if (hasActiveTransition(element, inspector)) {
+        return true;
+      }
+
       const colors = captureSystemColors(element, win, inspector);
 
       if (colors) {

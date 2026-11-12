@@ -163,6 +163,104 @@ add_task(async function test_contentSystemColors() {
 });
 
 /**
+ * Checks contrast during CSS transitions and after the transitions finish.
+ *
+ * @param {boolean} inContent - Whether to use the spawned content API.
+ * @returns {Promise<void>} Resolves after checking both audit results.
+ */
+async function checkColorTransitions(inContent) {
+  const win = browser.contentWindow;
+  const doc = win.document;
+  const fixture = doc.getElementById("fixture");
+
+  fixture.replaceChildren(
+    doc.getElementById("colorTransitions").content.cloneNode(true)
+  );
+
+  const transitions = [];
+
+  for (const element of fixture.querySelectorAll(".transitioning")) {
+    Assert.equal(
+      win.getComputedStyle(element).backgroundColor,
+      "rgb(0, 0, 0)",
+      `${element.id} should start with a black background`
+    );
+
+    element.classList.add("transition-end");
+
+    const [transition] = element.getAnimations();
+
+    Assert.ok(transition, `${element.id} should start a CSS transition`);
+
+    // Hold a low-contrast intermediate color until the audit completes.
+    transition.pause();
+    transition.currentTime = 990;
+    await transition.ready;
+    transitions.push(transition);
+  }
+
+  const options = {
+    context: "#fixture",
+    axeOptions: { runOnly: ["color-contrast", "button-name"] },
+  };
+  const run = () =>
+    inContent
+      ? runAxe(browser, { ...options, specialPowers: SpecialPowers })
+      : runAxeInWindow(win, options);
+  const during = await run();
+
+  for (const transition of transitions) {
+    transition.finish();
+    await transition.finished;
+  }
+
+  if (during.skipped) {
+    Assert.ok(during.skippedReason, "Skipped builds should report a reason");
+
+    return;
+  }
+
+  const duringContrast = during.violations.find(
+    violation => violation.id == "color-contrast"
+  );
+
+  Assert.deepEqual(
+    duringContrast?.nodes.map(node => node.target.flat().join(" ")).sort(),
+    ["#transition-static"],
+    "Only unrelated settled text should fail contrast during transitions"
+  );
+  Assert.ok(
+    during.violations.some(
+      violation =>
+        violation.id == "button-name" &&
+        violation.nodes.some(node =>
+          node.target.includes("#transition-unnamed")
+        )
+    ),
+    "Other accessibility rules should still check transitioning elements"
+  );
+
+  const after = await run();
+  const afterContrast = after.violations.find(
+    violation => violation.id == "color-contrast"
+  );
+
+  Assert.deepEqual(
+    afterContrast?.nodes.map(node => node.target.flat().join(" ")).sort(),
+    ["#transition-child", "#transition-direct", "#transition-static"],
+    "The scan should report low-contrast text after the transitions finish"
+  );
+}
+
+add_task(async function test_windowColorTransitions() {
+  await checkColorTransitions(false);
+});
+
+add_task(async function test_contentColorTransitions() {
+  await checkColorTransitions(true);
+});
+
+/**
  * Checks color provenance before and after a watcher sees identical RGB values.
  *
  * @param {boolean} inContent - Whether to use the spawned content watcher.
