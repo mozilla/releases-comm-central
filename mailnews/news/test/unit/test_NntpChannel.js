@@ -580,3 +580,60 @@ add_task(async function test_nntpCachedPartOffline() {
     Services.io.offline = false;
   }
 });
+
+/**
+ * Test that portless URIs retain their URL listeners and share the memory
+ * cache with URIs that specify the configured server port.
+ */
+add_task(async function test_portlessUriListenersAndCache() {
+  const messageId = "8.unread@regular.invalid";
+  for (const port of ["", `:${NNTP_PORT}`, ""]) {
+    const uri = Services.io
+      .newURI(`news://localhost${port}/${messageId}`)
+      .QueryInterface(Ci.nsIMsgMailNewsUrl);
+    let starts = 0;
+    let stops = 0;
+    uri.RegisterListener({
+      OnStartRunningUrl(url) {
+        Assert.equal(url, uri, "The listener should receive the original URI");
+        starts++;
+      },
+      OnStopRunningUrl(url, status) {
+        Assert.equal(url, uri, "The listener should receive the original URI");
+        Assert.equal(status, Cr.NS_OK, "The request should succeed");
+        stops++;
+      },
+    });
+
+    const channel = NetUtil.newChannel({ uri, loadUsingSystemPrincipal: true });
+    Assert.equal(
+      channel.URI,
+      uri,
+      "The channel should retain the supplied URI"
+    );
+    Assert.equal(
+      channel.originalURI,
+      uri,
+      "The channel should retain the original URI"
+    );
+    const streamListener = new PromiseTestUtils.PromiseStreamListener();
+    channel.asyncOpen(streamListener);
+    const data = await streamListener.promise;
+    Assert.stringContains(
+      data,
+      `Message-ID: <${messageId}>`,
+      "The request should return the article"
+    );
+    Assert.equal(
+      starts,
+      1,
+      "The URL listener should be notified once on start"
+    );
+    Assert.equal(stops, 1, "The URL listener should be notified once on stop");
+    Assert.equal(
+      articleRequestCount(messageId),
+      1,
+      "Subsequent requests should read the same memory cache entry"
+    );
+  }
+});

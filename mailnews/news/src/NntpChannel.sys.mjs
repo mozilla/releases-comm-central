@@ -45,18 +45,13 @@ export class NntpChannel extends MailChannel {
     // has passed the security checks, see _readFromServer.
     this._server = lazy.NntpUtils.findServer(uri.asciiHost);
 
-    if (uri.port < 1) {
-      // Ensure the uri has a port so that memory cache works.
-      uri = uri
-        .mutate()
-        .setPort(
-          this._server?.port ??
-            (uri.scheme == "snews"
-              ? Ci.nsINntpIncomingServer.DEFAULT_NNTPS_PORT
-              : Ci.nsINntpIncomingServer.DEFAULT_NNTP_PORT)
-        )
-        .finalize();
-    }
+    this._port =
+      uri.port > 0
+        ? uri.port
+        : (this._server?.port ??
+          (uri.scheme == "snews"
+            ? Ci.nsINntpIncomingServer.DEFAULT_NNTPS_PORT
+            : Ci.nsINntpIncomingServer.DEFAULT_NNTP_PORT));
 
     // Two forms of the uri:
     // - news://news.mozilla.org:119/mailman.30.1608649442.1056.accessibility%40lists.mozilla.org?group=mozilla.accessibility&key=378
@@ -271,12 +266,9 @@ export class NntpChannel extends MailChannel {
     }
     // Configured servers may use any port, but don't let a url make us
     // connect to a port reserved for another service.
-    if (
-      !this._server &&
-      !Services.io.allowPort(this.URI.port, this.URI.scheme)
-    ) {
+    if (!this._server && !Services.io.allowPort(this._port, this.URI.scheme)) {
       throw Components.Exception(
-        `Port ${this.URI.port} not allowed`,
+        `Port ${this._port} not allowed`,
         Cr.NS_ERROR_PORT_ACCESS_NOT_ALLOWED
       );
     }
@@ -305,6 +297,11 @@ export class NntpChannel extends MailChannel {
       }
 
       let uri = this.URI;
+      if (uri.port < 1) {
+        // Normalize the cache key without replacing the URI that owns the
+        // URL listeners.
+        uri = uri.mutate().setPort(this._port).finalize();
+      }
       if (url.search) {
         // A full news url may look like
         // news://<host>:119/<Msg-ID>?group=<name>&key=<key>&header=quotebody.
@@ -425,7 +422,7 @@ export class NntpChannel extends MailChannel {
       if (this.URI.scheme == "snews") {
         this._server.socketType = Ci.nsMsgSocketType.SSL;
       }
-      this._server.port = this.URI.port;
+      this._server.port = this._port;
     }
     const pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
     pipe.init(true, true, 0, 0);
