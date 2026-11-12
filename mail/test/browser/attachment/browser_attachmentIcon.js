@@ -301,7 +301,11 @@ async function help_test_attachment_icon(index) {
 
   for (let i = 0; i < attachments.length; i++) {
     check_attachment_icon(i, attachments[i].icon, attachments[i].isSrc);
-    if (attachments[i].checkIconLoaded) {
+    // The GTK icon channel doesn't load any icons in headless mode.
+    if (
+      attachments[i].checkIconLoaded &&
+      !(AppConstants.platform == "linux" && Services.env.get("MOZ_HEADLESS"))
+    ) {
       await check_attachment_icon_loaded(i);
     }
   }
