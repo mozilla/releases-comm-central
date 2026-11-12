@@ -91,7 +91,7 @@ add_task(async function testShowPanelData() {
     "message text"
   );
   Assert.deepEqual(
-    document.l10n.getAttributes(notification.querySelector("button")),
+    document.l10n.getAttributes(notification.querySelector("moz-button")),
     { id: "calendar-invitation-panel-more-button", args: null },
     "button label"
   );

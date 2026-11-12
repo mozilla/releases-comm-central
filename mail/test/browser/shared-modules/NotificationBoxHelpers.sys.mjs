@@ -179,7 +179,7 @@ export function get_notification(win, id, val) {
 export function get_notification_button(aWindow, aBoxId, aValue, aMatch) {
   const notification = get_notification(aWindow, aBoxId, aValue);
   const buttons = notification.buttonContainer.querySelectorAll(
-    "button, toolbarbutton"
+    "moz-button, toolbarbutton"
   );
   for (const button of buttons) {
     let matchedAll = true;

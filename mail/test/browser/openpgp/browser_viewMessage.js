@@ -584,7 +584,7 @@ add_task(async function testOuterPgpSigInnerPgpEncryptedInsideMixed() {
   );
 
   const button = aboutMessage.document.querySelector(
-    `button[data-l10n-id="openpgp-show-encrypted-parts"]`
+    `moz-button[data-l10n-id="openpgp-show-encrypted-parts"]`
   );
   const openpgpprocessed2 = openpgpProcessed();
   EventUtils.synthesizeMouseAtCenter(
@@ -647,7 +647,7 @@ add_task(async function testOpenAndShowAttachedEml() {
 
   const openpgpprocessed2 = openpgpProcessed();
   const button = aboutMessage.document.querySelector(
-    `button[data-l10n-id="openpgp-show-signed-parts"]`
+    `moz-button[data-l10n-id="openpgp-show-signed-parts"]`
   );
   EventUtils.synthesizeMouseAtCenter(
     button,
@@ -699,7 +699,7 @@ add_task(async function testOpenAndShowAttachedEmlWithFooter() {
 
   const openpgpprocessed2 = openpgpProcessed();
   const button = aboutMessage.document.querySelector(
-    `button[data-l10n-id="openpgp-show-signed-parts"]`
+    `moz-button[data-l10n-id="openpgp-show-signed-parts"]`
   );
   EventUtils.synthesizeMouseAtCenter(
     button,

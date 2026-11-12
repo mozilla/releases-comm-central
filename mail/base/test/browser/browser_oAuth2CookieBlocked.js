@@ -123,7 +123,7 @@ async function pressAcceptCookies(notification, oAuthWindow) {
   const loadedPromise = BrowserTestUtils.browserLoaded(
     oAuthWindow.getBrowser()
   );
-  button.doCommand();
+  EventUtils.synthesizeMouseAtCenter(button, {}, button.documentGlobal);
   await loadedPromise;
 }
 

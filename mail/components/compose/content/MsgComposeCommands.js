@@ -10764,7 +10764,7 @@ function focusAttachmentBucket(attachmentArea) {
 function focusNotification() {
   const notification = gComposeNotification.allNotifications[0];
   if (notification) {
-    const button = notification.buttonContainer.querySelector("button");
+    const button = notification.buttonContainer.querySelector("moz-button");
     if (button) {
       button.focus();
     } else {

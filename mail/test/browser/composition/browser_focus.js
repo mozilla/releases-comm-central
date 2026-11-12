@@ -162,7 +162,7 @@ async function checkFocusCycling(win, options) {
 
   if (options.notifications) {
     Assert.equal(
-      firstNotification.querySelector("button"),
+      firstNotification.querySelector("moz-button"),
       doc.activeElement,
       "forward to notification"
     );
@@ -212,7 +212,7 @@ async function checkFocusCycling(win, options) {
 
   if (options.notifications) {
     Assert.equal(
-      firstNotification.querySelector("button"),
+      firstNotification.querySelector("moz-button"),
       doc.activeElement,
       "backward to notification"
     );
@@ -280,7 +280,7 @@ async function checkFocusCycling(win, options) {
       );
     } else if (options.notifications) {
       Assert.equal(
-        firstNotification.querySelector("button"),
+        firstNotification.querySelector("moz-button"),
         doc.activeElement,
         "from addressbook selector to notification"
       );
@@ -312,7 +312,7 @@ async function checkFocusCycling(win, options) {
     Assert.ok(languageButton.matches(":focus"), "from Cc button to status bar");
   } else if (options.notifications) {
     Assert.equal(
-      firstNotification.querySelector("button"),
+      firstNotification.querySelector("moz-button"),
       doc.activeElement,
       "from Cc button to notification"
     );
@@ -381,7 +381,7 @@ async function checkFocusCycling(win, options) {
       goForward();
       if (options.notifications) {
         Assert.equal(
-          firstNotification.querySelector("button"),
+          firstNotification.querySelector("moz-button"),
           doc.activeElement,
           `forward from attachment summary (open: ${open}) to notification`
         );
@@ -441,7 +441,7 @@ async function checkFocusCycling(win, options) {
     goForward();
     // Go to the first notification.
     Assert.equal(
-      firstNotification.querySelector("button"),
+      firstNotification.querySelector("moz-button"),
       doc.activeElement,
       "forward to the first notification"
     );
@@ -467,7 +467,7 @@ async function checkFocusCycling(win, options) {
     }
     goBackward();
     Assert.equal(
-      firstNotification.querySelector("button"),
+      firstNotification.querySelector("moz-button"),
       doc.activeElement,
       "return to the first notification"
     );
