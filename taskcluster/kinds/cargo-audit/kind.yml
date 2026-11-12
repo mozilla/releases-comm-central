@@ -42,11 +42,10 @@ tasks:
             using: run-task
             comm-checkout: true
             clone-with: hg
-            cwd: '{checkout}'
+            cwd: '{checkout}/comm/rust'
             command: >-
-                python3 comm/taskcluster/scripts/cargo_audit.py
-                --lockfile comm/rust/Cargo.lock
-                --ignore-file comm/rust/audit-ignore.toml
+                python3 ../taskcluster/scripts/cargo_audit.py
+                --lockfile Cargo.lock
         fetches:
             toolchain:
                 - linux64-cargo-audit

@@ -39,4 +39,7 @@ workspace's dependencies are up to date, then completely recreates
 
 </div>
 
-Do **not** directly modify `comm/rust/.cargo/*`!
+Do **not** directly modify `comm/rust/.cargo/config.toml.in`!
+
+`comm/rust/.cargo/audit.toml` is maintained by hand: it lists the RustSec
+advisories that the scheduled `cargo audit` task ignores.
