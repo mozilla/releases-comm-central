@@ -42,10 +42,13 @@
 #include "nscore.h"
 #include "OfflineStorage.h"
 #include "mozilla/Components.h"
+#include "mozilla/ErrorNames.h"
 #include "mozilla/StaticPrefs_mail.h"
 #include "UrlListener.h"
 
 constexpr auto kExchangeSyncStateProperty = "ewsSyncStateToken";
+
+extern mozilla::LazyLogModule gExchangeLog;  // From ExchangeMessageSync.cpp.
 
 constexpr auto kEWSMessageRootURI = "ews-message:/";
 constexpr auto kGraphMessageRootURI = "graph-message:/";
@@ -238,7 +241,30 @@ nsresult ExchangeFolder::GetDatabase() {
     // Create the database, blowing it away if it needs to be rebuilt.
     rv = msgDBService->OpenFolderDB(this, false, getter_AddRefs(mDatabase));
     if (NS_FAILED(rv)) {
+      nsAutoCString errorName;
+      mozilla::GetErrorName(rv, errorName);
+      MOZ_LOG_FMT(gExchangeLog,
+                  rv == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING ? LogLevel::Info
+                                                            : LogLevel::Warning,
+                  "Creating a new database for folder {} ({}), resyncing it",
+                  URI(), errorName);
       rv = msgDBService->CreateNewDB(this, getter_AddRefs(mDatabase));
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      // Mark the new summary as valid. Otherwise stores that track validity
+      // explicitly (e.g. maildir's "maildirValid") consider it out of date the
+      // next time it's opened, once messages have been stored, and it gets
+      // thrown away again. Don't bail out on failure: the rest of the database
+      // setup below must still happen.
+      if (NS_FAILED(mDatabase->SetSummaryValid(true))) {
+        NS_WARNING("Failed to mark new summary valid");
+      }
+
+      // The new database is empty, so the folder's sync state no longer
+      // describes what we have locally: drop it so the next sync fetches the
+      // whole folder instead of only changes since the old state (which would
+      // leave the folder empty for good). This also commits the database.
+      SetStringProperty(kExchangeSyncStateProperty, ""_ns);
     }
     NS_ENSURE_SUCCESS(rv, rv);
 

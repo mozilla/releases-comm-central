@@ -48,6 +48,8 @@ tags = ["foldernames"]
 
 ["test_outgoingServerValidation.js"]
 
+["test_rebuiltDatabaseResync.js"]
+
 ["test_saveDraft.js"]
 
 ["test_save_to_file.js"]
