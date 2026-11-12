@@ -71,17 +71,18 @@ add_task(function testNews() {
 });
 
 add_task(function testMailbox() {
-  const a = "mailbox:///home/user/profile/Mail/Local%20Folders/Inbox?number=41";
+  const mailDir = PathUtils.toFileURI(
+    PathUtils.join(PathUtils.tempDir, "Mail")
+  ).replace(/^file:/, "mailbox:");
+  const a = `${mailDir}/Local%20Folders/Inbox?number=41`;
+  const b = `${mailDir}/pop.example.com/Inbox?number=41`;
 
   Assert.ok(
     sameMessage(a, `${a}&part=1.1&filename=test.eml`),
     "the same local message with a query should have the same identity"
   );
   Assert.ok(
-    !sameMessage(
-      a,
-      "mailbox:///home/user/profile/Mail/pop.example.com/Inbox?number=41"
-    ),
+    !sameMessage(a, b),
     "local messages in different folders should have different identities"
   );
 });
