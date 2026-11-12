@@ -23,6 +23,9 @@ tags = ["addrbook"]
 ["test_ext_addressBook_bug_2038134.js"]
 tags = ["addrbook"]
 
+["test_ext_addressBook_bug_2085594.js"]
+tags = ["addrbook"]
+
 ["test_ext_addressBook_provider.js"]
 tags = ["addrbook"]
 

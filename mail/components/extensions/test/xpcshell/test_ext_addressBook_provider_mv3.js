@@ -123,6 +123,14 @@ END:VCARD`,
           "test",
           "The card has the correct display name."
         );
+        const digitOnlyNames = Array.from(card.properties, p => p.name).filter(
+          name => /^\d+$/.test(name)
+        );
+        Assert.deepEqual(
+          digitOnlyNames,
+          [],
+          "The card should not have digit-only properties."
+        );
         foundCards++;
       },
       onSearchFinished(status, isCompleteResult) {

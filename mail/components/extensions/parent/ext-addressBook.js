@@ -257,7 +257,9 @@ function isCustomProperty(name) {
   return (
     !hiddenProperties.includes(name) &&
     !BANISHED_PROPERTIES.includes(name) &&
-    name.match(/^\w+$/)
+    name.match(/^\w+$/) &&
+    // Digit-only names were created by mistake when storing MV3 vCard strings.
+    !/^\d+$/.test(name)
   );
 }
 
@@ -278,7 +280,10 @@ function addProperties(card, updateProperties, originalProperties) {
   );
   const mergedProperties = originalProperties
     ? new Map([
-        ...Array.from(originalProperties, p => [p.name, p.value]),
+        ...Array.from(originalProperties)
+          // Digit-only names were created by mistake when storing MV3 vCard strings.
+          .filter(p => !/^\d+$/.test(p.name))
+          .map(p => [p.name, p.value]),
         ...updates,
       ])
     : new Map(updates);
@@ -1185,8 +1190,10 @@ this.addressBook = class extends ExtensionAPIPersistent {
             } else {
               card = flatPropertiesToAbCard(resultData);
             }
-            // Add custom properties to the property bag.
-            addProperties(card, resultData);
+            if (extension.manifest.manifest_version < 3) {
+              // Add custom properties to the property bag.
+              addProperties(card, resultData);
+            }
             card.directoryUID = dir.UID;
             aListener.onSearchFoundCard(card);
           }
@@ -1386,8 +1393,10 @@ this.addressBook = class extends ExtensionAPIPersistent {
         } else {
           card = flatPropertiesToAbCard(createData, id);
         }
-        // Add custom properties to the property bag.
-        addProperties(card, createData);
+        if (extension.manifest.manifest_version < 3) {
+          // Add custom properties to the property bag.
+          addProperties(card, createData);
+        }
 
         // Check if the new card has an enforced UID.
         if (card.vCardProperties.getFirstValue("uid")) {
@@ -1509,7 +1518,11 @@ this.addressBook = class extends ExtensionAPIPersistent {
         }
 
         // Clone original properties and update custom properties.
-        addProperties(card, updateData, node.item.properties);
+        addProperties(
+          card,
+          extension.manifest.manifest_version < 3 ? updateData : {},
+          node.item.properties
+        );
 
         parentNode.item.modifyCard(card);
       },
