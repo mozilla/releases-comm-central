@@ -636,6 +636,7 @@ add_task(async function test_open_links_in_about_support() {
     tabmail.tabContainer,
     "TabOpen"
   );
+  elem.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     elem,
     { clickCount: 1 },
