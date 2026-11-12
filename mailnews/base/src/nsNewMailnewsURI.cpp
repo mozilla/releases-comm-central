@@ -46,20 +46,9 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
     if (NS_FAILED(rv)) return rv;
   }
 
-  // Creating mailbox URIs off the main thread can lead to crashes.
-  // Seems to happen when viewing PDFs.
   if (scheme.EqualsLiteral("mailbox") ||
       scheme.EqualsLiteral("mailbox-message")) {
-    if (NS_IsMainThread()) {
-      return nsMailboxService::NewURI(aSpec, aCharset, aBaseURI, aURI);
-    }
-    auto NewURI = [&aSpec, &aCharset, &aBaseURI, aURI, &rv]() -> auto {
-      rv = nsMailboxService::NewURI(aSpec, aCharset, aBaseURI, aURI);
-    };
-    nsCOMPtr<nsIRunnable> task = NS_NewRunnableFunction("NewURI", NewURI);
-    mozilla::SyncRunnable::DispatchToThread(
-        mozilla::GetMainThreadSerialEventTarget(), task);
-    return rv;
+    return nsMailboxService::NewURI(aSpec, aCharset, aBaseURI, aURI);
   }
 
   // If the scheme is one of the IMAP URL schemes, we need to use a mailnews

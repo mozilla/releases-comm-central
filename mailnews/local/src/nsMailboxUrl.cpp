@@ -27,6 +27,7 @@
 #include "nsCOMPtr.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Components.h"
+#include "mozilla/SyncRunnable.h"
 
 #include "nsIMsgAccountManager.h"
 
@@ -115,9 +116,16 @@ NS_IMETHODIMP nsMailboxUrl::GetNormalizedSpec(nsACString& aPrincipalSpec) {
   MsgRemoveQueryPart(spec);
 
   // Check for format lacking absolute path.
-  if (spec.Find("///") == kNotFound) {
+  if (spec.Find("///") == kNotFound && m_baseURL->SchemeIs("mailbox")) {
     nsCString folderPath;
-    nsresult rv = nsLocalURI2Path(kMailboxRootURI, spec.get(), folderPath);
+    nsresult rv = NS_ERROR_FAILURE;
+    // Translating the server needs the account manager, which is main-thread
+    // only. URLs with an absolute path can be created on any thread.
+    mozilla::SyncRunnable::DispatchToThread(
+        mozilla::GetMainThreadSerialEventTarget(),
+        NS_NewRunnableFunction("nsMailboxUrl::GetNormalizedSpec", [&]() {
+          rv = nsLocalURI2Path(kMailboxRootURI, spec.get(), folderPath);
+        }));
     if (NS_SUCCEEDED(rv)) {
       nsAutoCString buf;
       MsgEscapeURL(
