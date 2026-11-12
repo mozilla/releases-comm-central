@@ -247,7 +247,7 @@ add_task(async function test_file_attachment_icon_with_space() {
 
   await close_compose_window(cwc);
   await IOUtils.remove(path);
-});
+}).skip(AppConstants.platform == "linux" && Services.env.get("MOZ_HEADLESS")); // The GTK icon channel doesn't load icons in headless mode.
 
 add_task(async function test_webpage_attachment() {
   const cwc = await open_compose_new_mail();
