@@ -7,7 +7,7 @@
 /* globals saveURL */ // From contentAreaUtils.js
 /* globals goUpdateCommand */ // From globalOverlay.js
 
-var { openLinkExternally } = ChromeUtils.importESModule(
+var { openLinkExternally, openWebSearch } = ChromeUtils.importESModule(
   "resource:///modules/LinkHelper.sys.mjs"
 );
 var { AppConstants } = ChromeUtils.importESModule(

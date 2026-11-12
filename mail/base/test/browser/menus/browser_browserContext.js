@@ -8,11 +8,15 @@ var { MailServices } = ChromeUtils.importESModule(
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+var { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
+);
 
 const TEST_DOCUMENT_URL =
   "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/sampleContent.html";
 
 let about3Pane, testFolder;
+let webSearchCount = 0;
 
 async function getImageArrayBuffer() {
   const array = await IOUtils.read(getTestFilePath("../files/tb-logo.png"));
@@ -175,9 +179,52 @@ async function checkABrowser(browser, doc = browser.ownerDocument) {
   browserContext.activateItem(doc.getElementById("browserContext-saveimage"));
   Assert.equal(await pickerPromise, "tb-logo.png");
   SpecialPowers.MockFilePicker.cleanup();
+
+  // A text selection. Also checks searching the web works.
+
+  await SpecialPowers.spawn(browser, [], () => {
+    content.document.querySelector("input").blur();
+    const selection = content.document.getSelection();
+    selection.removeAllRanges();
+    const range = content.document.createRange();
+    const paragraph = content.document.querySelector("p");
+    range.setStart(paragraph.firstChild, 18);
+    range.setEnd(paragraph.firstChild, 32);
+    selection.addRange(range);
+  });
+  shownPromise = BrowserTestUtils.waitForEvent(browserContext, "popupshown");
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "p",
+    { type: "contextmenu" },
+    browser
+  );
+  await shownPromise;
+  const searchItem = doc.getElementById("browserContext-searchTheWeb");
+  Assert.ok(
+    BrowserTestUtils.isVisible(searchItem),
+    "search the web item should be visible"
+  );
+  Assert.stringContains(
+    searchItem.label,
+    `"sample content"`,
+    "search item label should contain the text to search"
+  );
+  const openedSearchPromise = MockExternalProtocolService.promiseLoad();
+  browserContext.activateItem(searchItem);
+  Assert.equal(
+    await openedSearchPromise,
+    "https://www.google.com/search?q=sample+content",
+    "should have tried to open the search in the browser"
+  );
+  webSearchCount++;
+
+  await SpecialPowers.spawn(browser, [], () => {
+    content.document.getSelection().removeAllRanges();
+  });
 }
 
 add_setup(async function () {
+  MockExternalProtocolService.init();
   await SpecialPowers.pushPrefEnv({
     set: [
       // Right-clicking text selects the word under the cursor on macOS, which
@@ -218,6 +265,14 @@ add_setup(async function () {
 
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
+    MockExternalProtocolService.cleanup();
+
+    Assert.equal(
+      Glean.mail.websearchUsage.google.testGetValue(),
+      webSearchCount,
+      "count of web searches should be correct"
+    );
+    Services.fog.testResetFOG();
   });
 });
 
