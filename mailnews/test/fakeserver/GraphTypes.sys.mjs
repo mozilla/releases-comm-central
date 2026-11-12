@@ -124,29 +124,38 @@ export class GraphCalendarAttendee {
   }
 }
 
+/**
+ * Graph's time representation.
+ * See https://learn.microsoft.com/en-us/graph/api/resources/datetimetimezone?view=graph-rest-1.0
+ *
+ * @typedef {object} GraphDateTimeTimeZone
+ * @property {string} dateTime
+ * @property {string} timeZone
+ */
+
+/**
+ * Graph's representation of a calendar event.
+ */
 export class GraphCalendarEvent {
   /**
+   * Create an event.
+   *
+   * The date/time types should conform to the object structure
+   * defined in
+   * https://learn.microsoft.com/en-us/graph/api/resources/datetimetimezone?view=graph-rest-1.0
+   *
    * @param {string} id - Graph ID (same space as message IDs)
    * @param {string} subject
-   * @param {string} startDateTime
-   * @param {string} endDateTime
+   * @param {GraphDateTimeTimeZone} startDateTime
+   * @param {GraphDateTimeTimeZone} endDateTime
    * @param {GraphCalendarAttendee[]} attendees
-   * @param {object} [properties={}] - Additional Graph event fields.
    */
-  constructor(
-    id,
-    subject,
-    startDateTime,
-    endDateTime,
-    attendees = [],
-    properties = {}
-  ) {
+  constructor(id, subject, startDateTime, endDateTime, attendees = []) {
     this.id = id;
     this.subject = subject;
     this.startDateTime = startDateTime;
     this.endDateTime = endDateTime;
     this.attendees = attendees;
-    this.properties = properties;
   }
 
   toJSON() {
@@ -154,16 +163,9 @@ export class GraphCalendarEvent {
       "@odata.type": "#microsoft.graph.event",
       id: this.id,
       subject: this.subject,
-      start: {
-        dateTime: this.startDateTime,
-        timeZone: "UTC",
-      },
-      end: {
-        dateTime: this.endDateTime,
-        timeZone: "UTC",
-      },
+      start: this.startDateTime,
+      end: this.endDateTime,
       attendees: this.attendees.map(x => x.toJSON()),
-      ...this.properties,
     };
   }
 }

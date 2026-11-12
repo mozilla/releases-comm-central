@@ -31,10 +31,9 @@ function generateEvents(calendarId, count) {
     const event = new GraphCalendarEvent(
       `id${index}`,
       `subject ${index}`,
-      "2039-01-01T01:00:00.0000000",
-      "2039-01-01T02:00:00.0000000",
-      [attendee],
-      {}
+      { dateTime: "2039-01-01T01:00:00.0000000" },
+      { dateTime: "2039-01-01T02:00:00.0000000" },
+      [attendee]
     );
 
     graphServer.addCalendarEvent(calendarId, event);
@@ -114,40 +113,54 @@ async function testReadTimeZones(server, calendar) {
   calendar.name = "Graph time zone test";
   server.clearItems();
   const events = [
-    new GraphCalendarEvent("windows-zone", "Summer", "", "", [], {
-      start: {
+    new GraphCalendarEvent(
+      "windows-zone",
+      "Summer",
+      {
         dateTime: "2039-07-15T09:00:00.0000000",
         timeZone: "Eastern Standard Time",
       },
-      end: {
+      {
         dateTime: "2039-07-15T10:00:00.0000000",
         timeZone: "Eastern Standard Time",
-      },
-    }),
-    new GraphCalendarEvent("iana-zone", "Winter", "", "", [], {
-      start: { dateTime: "2039-01-15T09:00:00", timeZone: "America/New_York" },
-      end: { dateTime: "2039-01-15T10:00:00", timeZone: "America/Los_Angeles" },
-    }),
-    new GraphCalendarEvent("missing-zone", "Missing zone", "", "", [], {
-      start: { dateTime: "2039-01-15T09:00:00" },
-      end: { dateTime: "2039-01-15T10:00:00", timeZone: null },
-    }),
-    new GraphCalendarEvent("suffix-zone", "Explicit offsets", "", "", [], {
-      start: { dateTime: "2039-01-15T09:00:00Z", timeZone: "America/New_York" },
-      end: { dateTime: "2039-01-15T10:00:00-05:00", timeZone: "America/New_York" },
-    }),
-    new GraphCalendarEvent("mismatched-offset", "Mismatched offset", "", "", [], {
-      start: { dateTime: "2039-01-15T09:00:00-08:00", timeZone: "America/New_York" },
-      end: { dateTime: "2039-01-15T10:00:00-08:00", timeZone: "America/New_York" },
-    }),
-    new GraphCalendarEvent("spring-transition", "Spring transition", "", "", [], {
-      start: { dateTime: "2026-03-08T01:30:00", timeZone: "America/New_York" },
-      end: { dateTime: "2026-03-08T03:30:00", timeZone: "America/New_York" },
-    }),
-    new GraphCalendarEvent("fall-transition", "Fall transition", "", "", [], {
-      start: { dateTime: "2026-11-01T00:30:00", timeZone: "America/New_York" },
-      end: { dateTime: "2026-11-01T02:30:00", timeZone: "America/New_York" },
-    }),
+      }
+    ),
+    new GraphCalendarEvent(
+      "iana-zone",
+      "Winter",
+      { dateTime: "2039-01-15T09:00:00", timeZone: "America/New_York" },
+      { dateTime: "2039-01-15T10:00:00", timeZone: "America/Los_Angeles" }
+    ),
+    new GraphCalendarEvent(
+      "missing-zone",
+      "Missing zone",
+      { dateTime: "2039-01-15T09:00:00" },
+      { dateTime: "2039-01-15T10:00:00", timeZone: null }
+    ),
+    new GraphCalendarEvent(
+      "suffix-zone",
+      "Explicit offsets",
+      { dateTime: "2039-01-15T09:00:00Z", timeZone: "America/New_York" },
+      { dateTime: "2039-01-15T10:00:00-05:00", timeZone: "America/New_York" }
+    ),
+    new GraphCalendarEvent(
+      "mismatched-offset",
+      "Mismatched offset",
+      { dateTime: "2039-01-15T09:00:00-08:00", timeZone: "America/New_York" },
+      { dateTime: "2039-01-15T10:00:00-08:00", timeZone: "America/New_York" }
+    ),
+    new GraphCalendarEvent(
+      "spring-transition",
+      "Spring transition",
+      { dateTime: "2026-03-08T01:30:00", timeZone: "America/New_York" },
+      { dateTime: "2026-03-08T03:30:00", timeZone: "America/New_York" }
+    ),
+    new GraphCalendarEvent(
+      "fall-transition",
+      "Fall transition",
+      { dateTime: "2026-11-01T00:30:00", timeZone: "America/New_York" },
+      { dateTime: "2026-11-01T02:30:00", timeZone: "America/New_York" }
+    ),
   ];
   for (const event of events) {
     server.addCalendarEvent(calendar.id, event);
@@ -230,10 +243,12 @@ async function testReadTimeZones(server, calendar) {
   const syncStateToken = graphCal.syncStateToken;
   server.addCalendarEvent(
     calendar.id,
-    new GraphCalendarEvent("unknown-zone", "Unknown", "", "", [], {
-      start: { dateTime: "2039-01-15T09:00:00", timeZone: "Invalid/TimeZone" },
-      end: { dateTime: "2039-01-15T10:00:00", timeZone: "UTC" },
-    })
+    new GraphCalendarEvent(
+      "unknown-zone",
+      "Unknown",
+      { dateTime: "2039-01-15T09:00:00", timeZone: "Invalid/TimeZone" },
+      { dateTime: "2039-01-15T10:00:00", timeZone: "UTC" }
+    )
   );
   calendarObserver._onLoadPromise = Promise.withResolvers();
   calendar.refresh();
