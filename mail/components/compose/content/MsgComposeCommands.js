@@ -3135,6 +3135,9 @@ function ToggleWindowLock(aDisable) {
     updateComposeItems();
     // Refocus what had focus when the lock began.
     ToggleWindowLock.activeElement?.focus();
+    // Auto-save also unlocks the window without first locking it. Do not
+    // reuse the focus stored by an earlier manual save.
+    ToggleWindowLock.activeElement = null;
   }
 }
 

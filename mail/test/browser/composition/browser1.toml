@@ -75,6 +75,8 @@ run-if = [
 
 ["browser_attachmentReminder.js"]
 
+["browser_autosaveFocus.js"]
+
 ["browser_base64Display.js"]
 
 ["browser_blockedContent.js"]
