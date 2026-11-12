@@ -13,7 +13,7 @@
   scrolling="false"
 >
   <head>
-    <title data-l10n-id="calendar-event-prompt-delete-title"></title>
+    <title></title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:"
@@ -63,12 +63,7 @@
           class="button secondary-button"
         ></button>
         <!-- Using html:button here avoids any styling conflicts with the XUL Button styling -->
-        <html:button
-          id="delete"
-          type="button"
-          data-l10n-id="calendar-prompt-delete-button"
-          class="button destructive-button"
-        ></html:button>
+        <html:button id="confirm" class="button" type="button"></html:button>
       </html:div>
     </dialog>
   </html:body>

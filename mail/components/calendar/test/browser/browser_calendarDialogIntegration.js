@@ -460,7 +460,7 @@ add_task(async function test_dialogDeleteMenuSingleEvent() {
   const eventId = dialog.getAttribute("event-id");
 
   const deletePromptPromise = BrowserTestUtils.promiseAlertDialogOpen(
-    "delete",
+    "confirm",
     "chrome://messenger/content/calendarPrompt.xhtml"
   );
   await subtestDeleteEventPrompt(deletePromptPromise, testDate.getDay() + 1);
@@ -506,7 +506,7 @@ add_task(async function test_dialogDeleteMenuRecurringEventsNoPromptPref() {
           const allEventsRadioOption = promptDialog.querySelector(
             "#allEventsRadioOption"
           );
-          const deleteButton = promptDialog.querySelector("#delete");
+          const deleteButton = promptDialog.querySelector("#confirm");
           EventUtils.synthesizeMouseAtCenter(allEventsRadioOption, {}, win);
           EventUtils.synthesizeMouseAtCenter(deleteButton, {}, win);
         },
@@ -544,7 +544,7 @@ add_task(async function test_dialogDeleteMenuSingleOccurence() {
   const eventId = dialog.getAttribute("event-id");
 
   const deletePromptPromise = BrowserTestUtils.promiseAlertDialogOpen(
-    "delete",
+    "confirm",
     "chrome://messenger/content/calendarPrompt.xhtml"
   );
 
@@ -588,7 +588,7 @@ add_task(async function test_dialogDeleteMenuSingleOccurrenceOfInfinite() {
           "The prompt should offer to delete one or all occurrences"
         );
         EventUtils.synthesizeMouseAtCenter(
-          promptDialog.querySelector("#delete"),
+          promptDialog.querySelector("#confirm"),
           {},
           win
         );
@@ -655,6 +655,208 @@ add_task(async function test_dialogDeleteMenuSingleEventNoPrompt() {
 
     const event = await calendar.getItem(eventId);
     Assert.ok(!event, "The event in the calendar should be gone");
+  } finally {
+    await SpecialPowers.popPrefEnv();
+  }
+});
+
+add_task(async function test_dialogEditSingleEvent() {
+  await createEvent({ calendar });
+  await openAndShowEvent();
+
+  const dialog = document.getElementById("calendarDialog");
+  const eventId = dialog.getAttribute("event-id", false);
+
+  await subtestEditEventPrompt(null, false);
+
+  const event = await calendar.getItem(eventId);
+  await calendar.deleteItem(event);
+});
+
+add_task(async function test_dialogEditSingleOccurrence() {
+  await createEvent({ calendar, repeats: true });
+  const testDate = new Date();
+  await openAndShowEvent({ baseDate: testDate, offset: 1 });
+
+  const dialog = document.getElementById("calendarDialog");
+  const eventId = dialog.getAttribute("event-id", false);
+
+  const editEventPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    null,
+    "chrome://messenger/content/calendarPrompt.xhtml",
+    {
+      async callback(win) {
+        const promptDialog = win.document.querySelector("dialog");
+        Assert.ok(
+          BrowserTestUtils.isVisible(
+            promptDialog.querySelector("#calendarPromptRadioOptions")
+          ),
+          "The prompt should offer to edit one or all occurrences"
+        );
+        EventUtils.synthesizeMouseAtCenter(
+          promptDialog.querySelector("#confirm"),
+          {},
+          win
+        );
+      },
+    }
+  );
+
+  await subtestEditEventPrompt(editEventPromise, true);
+
+  const event = await calendar.getItem(eventId);
+  await calendar.deleteItem(event);
+});
+
+add_task(async function test_dialogEditAllOccurrences() {
+  await createEvent({ calendar, repeats: true });
+  const testDate = new Date();
+  await openAndShowEvent({ baseDate: testDate, offset: 1 });
+
+  const dialog = document.getElementById("calendarDialog");
+  const eventId = dialog.getAttribute("event-id", false);
+
+  const editEventPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    null,
+    "chrome://messenger/content/calendarPrompt.xhtml",
+    {
+      async callback(win) {
+        const promptDialog = win.document.querySelector("dialog");
+        Assert.ok(
+          BrowserTestUtils.isVisible(
+            promptDialog.querySelector("#calendarPromptRadioOptions")
+          ),
+          "The prompt should offer to edit one or all occurrences"
+        );
+
+        EventUtils.synthesizeMouseAtCenter(
+          promptDialog.querySelector("#allEventsRadioOption"),
+          {},
+          win
+        );
+        EventUtils.synthesizeMouseAtCenter(
+          promptDialog.querySelector("#confirm"),
+          {},
+          win
+        );
+      },
+    }
+  );
+
+  await subtestEditEventPrompt(editEventPromise, false);
+
+  const event = await calendar.getItem(eventId);
+  await calendar.deleteItem(event);
+});
+
+add_task(async function test_dialogEditSingleEventNewDialog() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.event.createEditDialog.enabled", true]],
+  });
+
+  try {
+    await createEvent({ calendar });
+    await openAndShowEvent();
+
+    const dialog = document.getElementById("calendarDialog");
+    const eventId = dialog.getAttribute("event-id", false);
+
+    await subtestEditEventPrompt(null, false, true);
+
+    const event = await calendar.getItem(eventId);
+    await calendar.deleteItem(event);
+  } finally {
+    await SpecialPowers.popPrefEnv();
+  }
+});
+
+add_task(async function test_dialogEditSingleOccurrenceNewDialog() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.event.createEditDialog.enabled", true]],
+  });
+
+  try {
+    await createEvent({ calendar, repeats: true });
+    const testDate = new Date();
+    await openAndShowEvent({ baseDate: testDate, offset: 1 });
+
+    const dialog = document.getElementById("calendarDialog");
+    const eventId = dialog.getAttribute("event-id", false);
+
+    const editEventPromise = BrowserTestUtils.promiseAlertDialogOpen(
+      null,
+      "chrome://messenger/content/calendarPrompt.xhtml",
+      {
+        async callback(win) {
+          const promptDialog = win.document.querySelector("dialog");
+          Assert.ok(
+            BrowserTestUtils.isVisible(
+              promptDialog.querySelector("#calendarPromptRadioOptions")
+            ),
+            "The prompt should offer to edit one or all occurrences"
+          );
+          EventUtils.synthesizeMouseAtCenter(
+            promptDialog.querySelector("#confirm"),
+            {},
+            win
+          );
+        },
+      }
+    );
+
+    await subtestEditEventPrompt(editEventPromise, true, true);
+
+    const event = await calendar.getItem(eventId);
+    await calendar.deleteItem(event);
+  } finally {
+    await SpecialPowers.popPrefEnv();
+  }
+});
+
+add_task(async function test_dialogEditAllOccurrencesNewDialog() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.event.createEditDialog.enabled", true]],
+  });
+
+  try {
+    await createEvent({ calendar, repeats: true });
+    const testDate = new Date();
+    await openAndShowEvent({ baseDate: testDate, offset: 1 });
+
+    const dialog = document.getElementById("calendarDialog");
+    const eventId = dialog.getAttribute("event-id", false);
+
+    const editEventPromise = BrowserTestUtils.promiseAlertDialogOpen(
+      null,
+      "chrome://messenger/content/calendarPrompt.xhtml",
+      {
+        async callback(win) {
+          const promptDialog = win.document.querySelector("dialog");
+          Assert.ok(
+            BrowserTestUtils.isVisible(
+              promptDialog.querySelector("#calendarPromptRadioOptions")
+            ),
+            "The prompt should offer to edit one or all occurrences"
+          );
+
+          EventUtils.synthesizeMouseAtCenter(
+            promptDialog.querySelector("#allEventsRadioOption"),
+            {},
+            win
+          );
+          EventUtils.synthesizeMouseAtCenter(
+            promptDialog.querySelector("#confirm"),
+            {},
+            win
+          );
+        },
+      }
+    );
+
+    await subtestEditEventPrompt(editEventPromise, false, true);
+
+    const event = await calendar.getItem(eventId);
+    await calendar.deleteItem(event);
   } finally {
     await SpecialPowers.popPrefEnv();
   }
@@ -980,4 +1182,106 @@ async function subtestDeleteEventPrompt(promptPromise, eventBoxDay) {
   await deleteEventPromise;
   await promptPromise;
   await eventBoxRemovalPromise;
+}
+
+/**
+ * Clicks the edit button in the dialog and awaits the edit prompt dialog
+ * promise. Checks for the correct edit dialog opening correctly.
+ *
+ * @param {Promise?} promptPromise - The promise for the prompt to edit an event.
+ * @param {boolean} isOccurrence - If the event is an occurrence.
+ * @param {boolean} [editDialogPrefEnabled=false] - Whether  the new edit dialog pref is
+ *  enabled.
+ */
+async function subtestEditEventPrompt(
+  promptPromise,
+  isOccurrence,
+  editDialogPrefEnabled = false
+) {
+  const dialog = document.getElementById("calendarDialog");
+  const editButton = dialog.querySelector("#edit");
+  const editButtonClickPromise = BrowserTestUtils.waitForEvent(
+    dialog,
+    "click",
+    true
+  );
+
+  // If the new edit dialog pref is enabled, dialogElement is set as a promise
+  // for opening the new dialog, otherwise as a promise for opening the old
+  // edit dialog.
+  let dialogElement = editDialogPrefEnabled
+    ? waitForCreateEditDialogOpen()
+    : CalendarTestUtils.waitForEventDialog("edit");
+
+  EventUtils.synthesizeMouseAtCenter(editButton, {});
+  await editButtonClickPromise;
+
+  // When editing a single event, promptPromise will be set to null.
+  if (promptPromise) {
+    await promptPromise;
+  }
+
+  if (!editDialogPrefEnabled) {
+    dialogElement = await dialogElement;
+
+    // The recurrence select will be disabled if it is a single event of a
+    // recurring event.
+    const recurrenceSelect = dialogElement.document
+      .querySelector("iframe")
+      .contentDocument.querySelector("#item-repeat");
+
+    if (isOccurrence) {
+      Assert.ok(
+        recurrenceSelect.disabled,
+        "The recurrence select should be disabled"
+      );
+    } else {
+      Assert.ok(
+        !recurrenceSelect.disabled,
+        "The recurrence select should be enabled"
+      );
+    }
+
+    const closed = BrowserTestUtils.domWindowClosed(dialogElement);
+    dialogElement.document.querySelector("dialog").getButton("cancel").click();
+    await closed;
+
+    return;
+  }
+
+  // If the new edit dialog pref is enabled, check if it has a recurrence-id
+  // to see if it is an occurrence.
+  dialogElement = await dialogElement;
+
+  if (isOccurrence) {
+    Assert.ok(
+      dialogElement.getAttribute("recurrence-id"),
+      `The dialog element should have a recurrence ID`
+    );
+  } else {
+    Assert.ok(
+      !dialogElement.getAttribute("recurrence-id"),
+      "The dialog element should not have a recurrence ID"
+    );
+  }
+
+  dialogElement.close();
+}
+
+async function waitForCreateEditDialogOpen() {
+  const dialogRoot = document.querySelector(".calendar-dialog-root");
+  await BrowserTestUtils.waitForMutationCondition(
+    dialogRoot,
+    {
+      attributes: true,
+      attributeFilter: ["open"],
+      childList: true,
+      subtree: true,
+    },
+    () => document.getElementById("calendarEventCreateEditDialog")?.open,
+    "Waiting for the create/edit dialog to open"
+  );
+
+  const dialog = document.getElementById("calendarEventCreateEditDialog");
+  return dialog;
 }

@@ -212,7 +212,7 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
       this.#subviewManager.showSubview("calendarAttachmentsSubview"),
     "#expandAttendees": () =>
       this.#subviewManager.showSubview("calendarAttendeesSubview"),
-    "#deleteEvent": () => this.#deleteEvent(),
+    "#edit": () => this.#editEvent(),
   };
 
   /**
@@ -657,7 +657,7 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
     // Skip the deletion prompt if calendar.item.promptDelete is false.
     // If the event is recurring, we still need to show the prompt.
     if (promptPref || isRecurring) {
-      const returnValue = { value: CANCEL, isRecurring };
+      const returnValue = { value: CANCEL, isRecurring, type: "delete" };
       window.openDialog(
         "chrome://messenger/content/calendarPrompt.xhtml",
         "_blank",
@@ -700,6 +700,66 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
         // eslint-disable-next-line no-undef
         doTransaction("delete", event, calendar, null, null, extResponse);
         break;
+      case CANCEL:
+        break;
+    }
+  }
+
+  /**
+   * Opens the event editing dialog. The existing edit dialog code handles
+   * editing an occurrence or all events depending on what's passed to it.
+   *
+   * The modifyEventWithDialog function opens the new edit dialog if the
+   * calendar.event.createEditDialog.enabled pref is true.
+   */
+  async #editEvent() {
+    const calendar = cal.manager.getCalendarById(
+      this.getAttribute("calendar-id")
+    );
+    let event = await calendar.getItem(this.getAttribute("event-id"));
+    const isRecurring =
+      this.hasAttribute("recurrence-id") &&
+      !!event.recurrenceInfo &&
+      countOccurrences(event) != 1;
+
+    const CANCEL = 0;
+    const EDIT_OCCURRENCE = 1;
+    const EDIT_FOLLOWING = 2;
+    const EDIT_ALL = 3;
+    let response = isRecurring ? CANCEL : EDIT_ALL;
+
+    // Show the edit prompt if the event is recurring
+    if (isRecurring) {
+      const returnValue = { value: CANCEL, isRecurring, type: "edit" };
+      window.openDialog(
+        "chrome://messenger/content/calendarPrompt.xhtml",
+        "_blank",
+        "centerscreen,chrome,titlebar,modal",
+        returnValue
+      );
+      response = returnValue.value;
+    }
+
+    this.close();
+
+    switch (response) {
+      case EDIT_ALL:
+        // eslint-disable-next-line no-undef
+        modifyEventWithDialog(event, false);
+        break;
+      case EDIT_FOLLOWING:
+        // TODO: Add functionality to only edit all following events.
+        break;
+      case EDIT_OCCURRENCE: {
+        // Get the occurrence that will be edited.
+        const recurrenceId = cal.createDateTime();
+        recurrenceId.nativeTime = this.getAttribute("recurrence-id");
+        event = event.recurrenceInfo.getOccurrenceFor(recurrenceId);
+
+        // eslint-disable-next-line no-undef
+        modifyEventWithDialog(event, false);
+        break;
+      }
       case CANCEL:
         break;
     }

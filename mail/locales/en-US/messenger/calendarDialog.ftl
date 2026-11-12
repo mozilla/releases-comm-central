@@ -254,3 +254,9 @@ calendar-event-availability-selector =
 calendar-event-availability-default = Default
 calendar-event-availability-busy = Busy
 calendar-event-availability-free = Free
+
+calendar-event-prompt-edit-header = Edit this event or all occurrences of this event?
+
+calendar-prompt-edit-confirm-button = Confirm
+
+calendar-event-prompt-edit-title  = Edit event
