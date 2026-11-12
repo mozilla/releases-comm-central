@@ -604,10 +604,10 @@ function _normalize_view_index(aViewIndex) {
 
 /**
  * @param {integer} aViewIndex
+ * @param {Window} [win]
  * @returns {HTMLLIElement}
  */
-async function _get_row_at_index(aViewIndex) {
-  const win = get_about_3pane();
+async function _get_row_at_index(aViewIndex, win = get_about_3pane()) {
   const tree = win.document.getElementById("threadTree");
   await TestUtils.waitForCondition(
     () => aViewIndex < tree.view.rowCount,
@@ -737,9 +737,7 @@ export async function select_control_click_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
 
   const win = get_about_3pane();
-  const row = win.document
-    .getElementById("threadTree")
-    .getRowAtIndex(aViewIndex);
+  const row = await _get_row_at_index(aViewIndex, win);
   EventUtils.synthesizeMouseAtCenter(row, { accelKey: true }, win);
 
   await wait_for_message_display_completion();
@@ -777,9 +775,7 @@ export async function select_shift_click_row(
   }
   aViewIndex = _normalize_view_index(aViewIndex, win);
 
-  const row = win.document
-    .getElementById("threadTree")
-    .getRowAtIndex(aViewIndex);
+  const row = await _get_row_at_index(aViewIndex, win);
   await prepare_thread_row_descendant_click(row, accessibilityUtils);
   EventUtils.synthesizeMouseAtCenter(row, { shiftKey: true }, win);
   accessibilityUtils?.resetEnv();
