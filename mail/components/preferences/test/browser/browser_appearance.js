@@ -97,11 +97,9 @@ add_task(async function test_cards_table_switch() {
     "The cards row style should match the default pref"
   );
 
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("cardStyle2Rows"),
-    {},
-    prefsWindow
-  );
+  const cardStyle2Rows = prefsDocument.getElementById("cardStyle2Rows");
+  cardStyle2Rows.scrollIntoView({ block: "end", behavior: "instant" });
+  EventUtils.synthesizeMouseAtCenter(cardStyle2Rows, {}, prefsWindow);
 
   await BrowserTestUtils.waitForMutationCondition(
     threadTree,
@@ -158,6 +156,7 @@ add_task(async function test_cards_table_switch() {
     "The table view should have horizontal scroll"
   );
 
+  tableHorizontalScroll.scrollIntoView({ block: "end", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(tableHorizontalScroll, {}, prefsWindow);
 
   await TestUtils.waitForCondition(
