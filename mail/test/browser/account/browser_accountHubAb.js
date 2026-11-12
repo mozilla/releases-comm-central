@@ -479,6 +479,10 @@ add_task(async function test_localAddressBookCreation() {
     "#newLocalAddressBook"
   );
 
+  localAddressBookButton.scrollIntoView({
+    block: "center",
+    behavior: "instant",
+  });
   EventUtils.synthesizeMouseAtCenter(localAddressBookButton, {});
 
   await TestUtils.waitForCondition(() => {
