@@ -1033,6 +1033,20 @@ FeedParser.prototype = {
             tag.getAttribute("rel") == "enclosure"
               ? (tag.getAttribute("href") || "").trim()
               : null;
+          if (url) {
+            // Resolve Atom enclosure IRIs before validating their schemes.
+            // Without xml:base, the feed retrieval URL is the base URI.
+            const baseURI =
+              tag.getAttribute("xml:base") ||
+              itemNode.getAttribute("xml:base") ||
+              channel.getAttribute("xml:base") ||
+              aFeed.url;
+            try {
+              url = Services.io.newURI(baseURI).resolve(url);
+            } catch (ex) {
+              url = null;
+            }
+          }
           url = this.validLink(url);
           if (url && !encUrls.has(url)) {
             const type = this.removeUnprintableASCII(tag.getAttribute("type"));

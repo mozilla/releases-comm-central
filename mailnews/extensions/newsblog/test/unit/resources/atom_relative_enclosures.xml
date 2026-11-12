@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Enclosures</title>
+  <id>https://example.com/feed.xml</id>
+  <updated>2026-11-11T00:00:00Z</updated>
+  <entry>
+    <title>Episode</title>
+    <id>https://example.com/episode</id>
+    <updated>2026-11-11T00:00:00Z</updated>
+    <link rel="alternate" href="https://example.com/episode"/>
+    <link rel="enclosure" href="podcast/notes.txt" type="text/plain"/>
+    <link rel="enclosure" href="https://example.com/podcast/notes.txt"/>
+    <link rel="enclosure" href="javascript:alert(1)"/>
+  </entry>
+  <entry xml:base="https://cdn.example.net/media/">
+    <title>Episode with xml:base</title>
+    <id>https://example.com/episode2</id>
+    <updated>2026-11-11T00:00:00Z</updated>
+    <link rel="alternate" href="https://example.com/episode2"/>
+    <link rel="enclosure" href="audio.mp3" type="audio/mpeg"/>
+  </entry>
+</feed>

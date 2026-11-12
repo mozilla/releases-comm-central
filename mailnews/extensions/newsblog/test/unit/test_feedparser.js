@@ -26,6 +26,36 @@ function assertItemsEqual(got, expected) {
   }
 }
 
+// Atom enclosure hrefs are IRI references resolved against the feed retrieval
+// URL when there is no xml:base. Unsupported schemes must still be rejected.
+add_task(async function test_atom_relative_enclosures() {
+  const account = FeedUtils.createRssAccount("test_atom_relative_enclosures");
+  const folder = account.incomingServer.rootMsgFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  ).createLocalSubfolder("atomrelativeenclosures");
+  const doc = await do_parse_document(
+    "resources/atom_relative_enclosures.xml",
+    "text/xml"
+  );
+  const feed = new Feed("https://example.com/feed.xml", folder);
+  feed.parseItems = true;
+  feed.onParseError = function () {
+    throw new Error("PARSE ERROR");
+  };
+  const items = new FeedParser().parseAsAtomIETF(feed, doc);
+  Assert.equal(items.length, 2);
+  Assert.equal(items[0].enclosures.length, 1);
+  Assert.equal(
+    items[0].enclosures[0].mURL,
+    "https://example.com/podcast/notes.txt"
+  );
+  Assert.equal(items[1].enclosures.length, 1);
+  Assert.equal(
+    items[1].enclosures[0].mURL,
+    "https://cdn.example.net/media/audio.mp3"
+  );
+});
+
 // Test the rss1 feed parser
 add_task(async function test_rss1() {
   // Boilerplate.
