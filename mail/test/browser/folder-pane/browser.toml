@@ -46,6 +46,9 @@ skip-if = [
 # skip-if = ["os == 'mac'"]
 
 ["browser_folderPaneDragDrop.js"]
+skip-if = [
+  "os == 'linux' && headless", # No drag service, so drag and drop can't start.
+]
 
 ["browser_folderPaneHeader.js"]
 
