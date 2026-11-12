@@ -101,6 +101,7 @@ async function selectAuthenticationMethod(optionId) {
 
   await SimpleTest.promiseFocus(browser.contentWindow);
   const popupPromise = BrowserTestUtils.waitForSelectPopupShown(window);
+  authenticationSelect.scrollIntoView({ behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     authenticationSelect,
     {},
