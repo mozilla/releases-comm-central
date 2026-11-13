@@ -15,6 +15,7 @@ var {
   be_in_folder,
   create_folder,
   get_about_3pane,
+  toggle_message_pane,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
@@ -52,8 +53,12 @@ add_setup(async function () {
   await be_in_folder(folder);
   await ensure_table_view(document);
   await toggle_quick_filter_bar();
+  // The message pane isn't needed, and in small windows it leaves the thread
+  // pane too little room for the filter bar, which then gets covered.
+  toggle_message_pane();
 
   registerCleanupFunction(async function () {
+    toggle_message_pane();
     await ensure_cards_view(document);
     await cleanup_qfb_button();
     // Quick filter bar is hidden by default, need to toggle it off.
