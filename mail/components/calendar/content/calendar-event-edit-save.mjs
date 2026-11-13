@@ -27,6 +27,29 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 /**
+ * Returns whether Edit Save needs to write categories.
+ * Compares sorted names so order alone leaves the saved categories intact.
+ *
+ * @param {CalendarEventDraft} draft - The values captured for Save.
+ * @param {CalendarEventDraft} baseline - The starting values of the draft.
+ * @returns {boolean} Whether the enabled state or enabled selection changed.
+ */
+function haveCategoriesChanged(draft, baseline) {
+  const isEnabled = draft.enabledRows?.categories !== false;
+  const wasEnabled = baseline.enabledRows?.categories !== false;
+
+  if (isEnabled !== wasEnabled) {
+    return true;
+  }
+
+  return (
+    isEnabled &&
+    JSON.stringify((draft.categories ?? []).toSorted()) !==
+      JSON.stringify((baseline.categories ?? []).toSorted())
+  );
+}
+
+/**
  * Saves a copy of the draft through the host window's Calendar transaction.
  * A transaction writes the event and supports Undo and meeting messages.
  *
@@ -169,8 +192,19 @@ export async function saveCalendarEventEdit({
         // Field helpers own their properties. Disabled rows remove stored
         // properties while their entered values remain in the retained draft.
         const prepared = prepareCalendarEventSave(draft, fields);
+
         for (const [section, field] of Object.entries(fields)) {
+          // Keep the selected event's categories if the draft left them alone.
+          // The selected event may be newer or may be the parent series.
+          if (
+            section == "categories" &&
+            !haveCategoriesChanged(draft, baseline)
+          ) {
+            continue;
+          }
+
           const { enabled, values } = prepared[section];
+
           if (enabled) {
             field.apply(event, values);
           } else {

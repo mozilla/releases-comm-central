@@ -16,8 +16,8 @@ const { cal } = ChromeUtils.importESModule(
  * For enabled fields, create Save calls `validate` when supplied. After
  * validation succeeds, create Save calls `apply` for those fields.
  * Disabled fields add no properties to a new event.
- * Edit Save calls `apply` for enabled fields. For disabled fields, edit Save
- * calls `remove` to delete their properties from the existing event copy.
+ * Edit Save skips unchanged categories. For each field it saves, edit Save
+ * calls `apply` for an enabled row or `remove` for a disabled row.
  * Both paths keep disabled fields' input in the draft for retry.
  * Field code supplies defaults and checks permissions for its own values.
  *
@@ -32,6 +32,24 @@ const { cal } = ChromeUtils.importESModule(
  *   [validate] - Checks enabled values and displays errors during create Save.
  *   Returns the result for Save to store. Edit Save uses stored results instead.
  */
+
+/**
+ * Copies selected category names to the event being saved.
+ *
+ * Keeps each name intact, including commas and names absent from preferences.
+ * Missing or empty categories clear the event's categories. Edit Save uses
+ * this helper when the enabled state or enabled selection changes. Turning
+ * off the row calls `remove`. Create Save skips a disabled row. The draft
+ * keeps its selected names for retry. Save writes the event through a Calendar
+ * transaction after this helper updates it.
+ *
+ * @type {CalendarEventSaveField}
+ */
+export const calendarEventCategorySaveField = {
+  keys: ["categories"],
+  apply: (event, values) => event.setCategories(values.categories ?? []),
+  remove: event => event.setCategories([]),
+};
 
 /**
  * Copies field values for Save without clearing retained draft values.

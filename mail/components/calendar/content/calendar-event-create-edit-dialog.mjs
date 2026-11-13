@@ -10,6 +10,7 @@ import { CalendarEventDialogSourceMixin } from "./calendar-event-dialog-source-m
 import { store } from "moz-src:///comm/mail/base/content/state/store.mjs";
 import { saveCalendarEventEdit } from "./calendar-event-edit-save.mjs";
 import { saveCalendarEventCreate } from "./calendar-event-create-save.mjs";
+import { calendarEventCategorySaveField } from "./calendar-event-save-fields.mjs";
 import {
   loadCalendarOptions,
   observeCalendarOptions,
@@ -61,31 +62,23 @@ const { cal } = ChromeUtils.importESModule(
 /**
  * Displays editable event values, calendar choices, and category controls.
  *
- * A draft contains the user's unsaved values. Redux holds these values in a
- * store, an object shared by the components in this document. Each dialog has
- * a fixed session key to select its own entries. The session records whether
- * the dialog creates or edits an event and whether Save is in progress.
+ * Keeps unsaved values (the draft) in the document's Redux store under a fixed
+ * session key. Public getters return copies so callers cannot change the draft.
+ * The route attributes select a saved event or one occurrence in a repeating
+ * series. An empty route starts a new event.
  *
- * A route is the set of IDs that selects a saved event. An occurrence is one
- * event in a repeating series. The route can select an occurrence too.
- * An empty route selects create mode. Each route change gets a new generation
- * number. A result from an old route must not replace the new route's data.
+ * `CalendarEventDialogSourceMixin` loads the event. The category row loads its
+ * own options and observes and updates the draft for this dialog's session.
+ * The dialog waits for translated category controls before opening.
  *
- * `CalendarEventDialogSourceMixin` watches route attributes and loads events.
- * This dialog turns loaded event data into a draft and calendar choices.
- * The category row loads its own options and observes selected draft names.
- * An action describes a state change.
- * Dispatching sends that action to a reducer, which updates the stored data.
- * A selector reads values for a control without changing stored data. The
- * store observer calls `handleStateChange` when a selected value changes.
- * Public getters return copies so callers cannot change the stored draft.
+ * Save uses `saveFields` to copy draft values to an event, then calls the
+ * top-level window's `doTransaction` to write the event with Undo and meeting
+ * message support. A failed Save keeps the draft for retry. A successful Save
+ * closes the dialog only if the draft is still current.
+ * These Calendar transactions are separate from Redux actions.
  *
- * The category row observes the draft for this dialog's session. The dialog
- * waits for the translated category controls before opening.
- *
- * Save uses the top-level window's `doTransaction` function to write the event
- * and support Undo and meeting messages. These Calendar transactions are
- * separate from Redux actions.
+ * Closing clears the draft. While Save is pending, the dialog blocks closing
+ * and duplicate Save requests. In edit mode, it also blocks route changes.
  * Other components add size and field rows.
  *
  * Template ID: #calendarEventCreateEditDialogTemplate
@@ -226,16 +219,19 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   #restoringRoute = false;
 
   /**
-   * Supplies field helpers that check and copy unsaved values during Save.
-   * Each helper lists its draft properties in `keys` and writes them in `apply`.
-   * Create mode uses these helpers for all registered fields, including title
-   * and dates. A helper can supply `validate` to check input and display errors.
-   * Edit mode copies base title and date changes with `applyCalendarEventDraft`.
-   * Edit helpers must supply `remove` for fields that can be disabled.
+   * Maps each field section to the helper that checks and copies its values.
+   * Each helper lists draft properties in `keys` and copies them to an event
+   * with `apply`. Categories are registered here; other fields add their helpers.
+   *
+   * Create Save uses helpers for all fields, including title and dates. Helpers
+   * can supply `validate` to check input and display errors. Edit Save uses
+   * `applyCalendarEventDraft` for title and dates and helpers for other fields.
+   * An edit helper must supply `remove` if its row can be disabled. Create Save
+   * skips disabled rows. Both paths keep draft values for retry.
    *
    * @type {Record<string, CalendarEventSaveField>}
    */
-  saveFields = {};
+  saveFields = { categories: calendarEventCategorySaveField };
 
   /**
    * The margin maintained between this dialog and the visible calendar view.

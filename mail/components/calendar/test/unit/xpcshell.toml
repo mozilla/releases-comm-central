@@ -10,6 +10,8 @@
 
 ["test_calendarEventCategoryOptions.js"]
 
+["test_calendarEventCategorySave.js"]
+
 ["test_calendarEventCreateEditState.js"]
 
 ["test_calendarEventCreateSave.js"]
