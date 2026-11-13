@@ -60,6 +60,13 @@ add_task(async function test_openDefaultBrowser() {
 add_task(async function test_focusWindows() {
   const extension = ExtensionTestUtils.loadExtension({
     async background() {
+      const headlessPromise = new Promise(resolve => {
+        browser.test.onMessage.addListener((message, headless) => {
+          if (message == "headless") {
+            resolve(headless);
+          }
+        });
+      });
       const listener = {
         waitingPromises: [],
         waitForEvent() {
@@ -126,8 +133,8 @@ add_task(async function test_focusWindows() {
       const platformInfo = await browser.runtime.getPlatformInfo();
 
       let focusChangedPromise3;
-      if (["mac", "win"].includes(platformInfo.os)) {
-        // Mac and Windows don't fire this event. Pretend they do.
+      if (["mac", "win"].includes(platformInfo.os) || (await headlessPromise)) {
+        // Mac, Windows and headless runs don't fire this event. Pretend they do.
         focusChangedPromise3 = Promise.resolve([
           "onFocusChanged",
           browser.windows.WINDOW_ID_NONE,
@@ -170,6 +177,7 @@ add_task(async function test_focusWindows() {
   const account = createAccount();
 
   await extension.startup();
+  extension.sendMessage("headless", !!Services.env.get("MOZ_HEADLESS"));
 
   await extension.awaitMessage("openWindow");
   const newWindowPromise = BrowserTestUtils.domWindowOpened();
