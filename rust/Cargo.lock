@@ -1157,7 +1157,7 @@ dependencies = [
 [[package]]
 name = "crash-context"
 version = "0.8.0"
-source = "git+https://github.com/rust-minidump/minidump-writer.git?rev=3ab1604f91db05ec3f3a84d779a2871df7d9afd7#3ab1604f91db05ec3f3a84d779a2871df7d9afd7"
+source = "git+https://github.com/rust-minidump/minidump-writer.git?rev=d5ec275ce1276947f09f205a581fe2b3cf90178f#d5ec275ce1276947f09f205a581fe2b3cf90178f"
 dependencies = [
  "cfg-if",
  "libc",
@@ -4299,7 +4299,7 @@ dependencies = [
 [[package]]
 name = "minidump-writer"
 version = "0.13.0"
-source = "git+https://github.com/rust-minidump/minidump-writer.git?rev=3ab1604f91db05ec3f3a84d779a2871df7d9afd7#3ab1604f91db05ec3f3a84d779a2871df7d9afd7"
+source = "git+https://github.com/rust-minidump/minidump-writer.git?rev=d5ec275ce1276947f09f205a581fe2b3cf90178f#d5ec275ce1276947f09f205a581fe2b3cf90178f"
 dependencies = [
  "bitflags 2.10.0",
  "byteorder",
@@ -5577,7 +5577,7 @@ dependencies = [
 [[package]]
 name = "process-backend"
 version = "0.1.0"
-source = "git+https://github.com/rust-minidump/minidump-writer.git?rev=3ab1604f91db05ec3f3a84d779a2871df7d9afd7#3ab1604f91db05ec3f3a84d779a2871df7d9afd7"
+source = "git+https://github.com/rust-minidump/minidump-writer.git?rev=d5ec275ce1276947f09f205a581fe2b3cf90178f#d5ec275ce1276947f09f205a581fe2b3cf90178f"
 dependencies = [
  "libc",
  "postcard",
@@ -5589,7 +5589,7 @@ dependencies = [
 [[package]]
 name = "process-reader"
 version = "0.1.0"
-source = "git+https://github.com/rust-minidump/minidump-writer.git?rev=3ab1604f91db05ec3f3a84d779a2871df7d9afd7#3ab1604f91db05ec3f3a84d779a2871df7d9afd7"
+source = "git+https://github.com/rust-minidump/minidump-writer.git?rev=d5ec275ce1276947f09f205a581fe2b3cf90178f#d5ec275ce1276947f09f205a581fe2b3cf90178f"
 dependencies = [
  "libc",
  "serde",
@@ -5603,6 +5603,7 @@ dependencies = [
  "libc",
  "log",
  "mach2 0.6.0",
+ "process-backend",
  "scroll",
  "thiserror 2.0.12",
  "windows-sys",
