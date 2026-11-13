@@ -509,7 +509,7 @@ add_task(async function test_bodyScrollsWhenContentIsTooTall() {
 
   // Limit the size of the dialog container, to mimic a limited size in the
   // calendar view.
-  dialogContainer.style.blockSize = "200px";
+  dialogContainer.style.blockSize = "300px";
 
   const shortDialogRect = dialog.getBoundingClientRect();
   const shortHeaderRect = dialogHeader.getBoundingClientRect();
