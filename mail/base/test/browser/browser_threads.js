@@ -48,7 +48,10 @@ add_setup(async function () {
 
   // Check the initial state of a sample of messages.
 
-  await new Promise(about3Pane.requestAnimationFrame);
+  await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(0) && threadTree.getRowAtIndex(21),
+    "waiting for the rows to be rendered"
+  );
 
   checkRowThreadState(0, true);
   checkRowThreadState(1, false);
@@ -309,7 +312,11 @@ add_task(async function testIconsUnThreaded() {
   );
 
   goDoCommand("cmd_sort", { target: { value: "unthreaded" } });
-  await new Promise(about3Pane.requestAnimationFrame);
+  threadTree.scrollToIndex(0, true);
+  await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(0) && threadTree.getRowAtIndex(21),
+    "waiting for the rows to be rendered"
+  );
 
   // Switched to unthreaded and test again.
   threadTree.selectedIndex = 0;
@@ -328,7 +335,11 @@ add_task(async function testIconsUnThreaded() {
 
 async function checkContextMenu(index, expectedStates, itemToActivate) {
   const contextMenu = about3Pane.document.getElementById("mailContext");
-  const row = threadTree.getRowAtIndex(index);
+  threadTree.scrollToIndex(index, true);
+  const row = await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(index),
+    `waiting for row ${index} to be rendered`
+  );
 
   EventUtils.synthesizeMouseAtCenter(
     row.querySelector(".subject-line"),
