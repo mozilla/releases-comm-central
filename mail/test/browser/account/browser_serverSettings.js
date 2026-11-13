@@ -203,6 +203,10 @@ add_task(async function test_ews_trash_settings() {
     const deleteImmediatelyElement = iframe.getElementById(
       "ewsModelDeleteImmediately"
     );
+    deleteImmediatelyElement.scrollIntoView({
+      block: "center",
+      behavior: "instant",
+    });
     EventUtils.synthesizeMouseAtCenter(
       deleteImmediatelyElement,
       {},
@@ -279,6 +283,10 @@ add_task(async function test_imap_trash_settings() {
     const deleteImmediatelyElement = iframe.getElementById(
       "modelDeleteImmediately"
     );
+    deleteImmediatelyElement.scrollIntoView({
+      block: "center",
+      behavior: "instant",
+    });
     EventUtils.synthesizeMouseAtCenter(
       deleteImmediatelyElement,
       {},
@@ -298,6 +306,7 @@ add_task(async function test_imap_trash_settings() {
 
     // Change the UI and make sure the server updates.
     const markDeletedElement = iframe.getElementById("modelMarkDeleted");
+    markDeletedElement.scrollIntoView({ block: "center", behavior: "instant" });
     EventUtils.synthesizeMouseAtCenter(
       markDeletedElement,
       {},
