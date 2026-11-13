@@ -30,10 +30,11 @@ add_task(async function test_advancedLDAPDirectoryCreation() {
   );
 
   // Click the advanced config button and fill in the advanced config details.
-  EventUtils.synthesizeMouseAtCenter(
-    ldapFormSubview.querySelector("#advancedConfigurationLdap"),
-    {}
+  const advancedConfigButton = ldapFormSubview.querySelector(
+    "#advancedConfigurationLdap"
   );
+  advancedConfigButton.scrollIntoView({ behavior: "instant" });
+  EventUtils.synthesizeMouseAtCenter(advancedConfigButton, {});
 
   const formBody = ldapFormSubview.querySelector("#ldapFormBody");
   await BrowserTestUtils.waitForMutationCondition(
