@@ -27,3 +27,6 @@ head = "head.js"
 ["browser_unifiedToolbarTab.js"]
 
 ["browser_windowControls.js"]
+skip-if = [
+  "os == 'linux' && headless", # No GTK titlebar buttons, so no window controls are shown.
+]
