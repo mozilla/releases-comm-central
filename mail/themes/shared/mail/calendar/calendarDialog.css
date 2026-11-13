@@ -372,7 +372,7 @@ li[is="calendar-dialog-attachment"] {
   max-block-size: calc(100vh - 8 * var(--space-step));
   min-inline-size: 436px;
   padding: 0;
-  block-size: 100%;
+  block-size: auto;
   z-index: 999;
 
   &[open] {
@@ -511,6 +511,144 @@ li[is="calendar-dialog-attachment"] {
 
     &#save {
       margin-inline-start: auto;
+    }
+  }
+}
+
+[is="calendar-event-create-edit-dialog"] {
+  & .calendar-event-create-edit-dialog-body .calendar-event-category-row {
+    border-block-start: 0;
+  }
+
+  & .calendar-event-category-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-base);
+    min-inline-size: 0;
+  }
+
+  & .calendar-event-add-category {
+    --icon-size: 12px;
+    --button-padding: 0px;
+    align-self: start;
+    border: 0;
+    padding-inline-start: calc(var(--icon-size) + 2 * var(--space-step));
+    padding-inline-end: 0;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 17px;
+    color: var(--color-text-highlight);
+    background-image: var(--icon-circle-add-sm);
+
+    &:enabled:is(:hover, :active, :focus-visible) {
+      color: var(--color-text-highlight);
+    }
+  }
+
+  & .calendar-event-category-summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-base);
+    min-inline-size: 0;
+
+    &:not(:has(.calendar-event-category-chip)) {
+      display: none;
+    }
+  }
+
+  & .calendar-event-category-list {
+    display: flex;
+    flex-wrap: wrap;
+    flex: 1;
+    gap: var(--space-base);
+    min-inline-size: 0;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  & .calendar-event-category-chip {
+    display: flex;
+    align-items: center;
+    gap: calc(2 * var(--space-step));
+    box-sizing: border-box;
+    min-inline-size: 80px;
+    max-inline-size: 100%;
+    justify-content: center;
+    min-block-size: calc(8 * var(--space-step));
+    padding: calc(2 * var(--space-step)) calc(3 * var(--space-step));
+    border-radius: var(--space-step);
+    /* Keep the system font. Chip widths can differ from Zeplin's Inter font. */
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 12px;
+    /* Use neutral colors when a category has no color. */
+    color: var(--item-text-color, var(--color-text-base));
+    background-color: var(--item-color, var(--color-surface-subtle));
+
+    @media (forced-colors: active) {
+      outline: 1px solid CanvasText;
+      outline-offset: -1px;
+    }
+  }
+
+  & .calendar-event-category-label {
+    /* Limit long labels so shorter labels still have room.
+     * Clip only the text so the remove button and its focus ring stay visible. */
+    max-inline-size: 20ch;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  & .calendar-event-remove-category {
+    --icon-size: 12px;
+    --button-padding: 0px;
+    flex-shrink: 0;
+    block-size: var(--icon-size);
+    border: 0;
+    margin: 0;
+    background-image: var(--icon-close-xs);
+    color: inherit;
+
+    &:focus-visible {
+      outline-offset: var(--focus-outline-offset);
+    }
+  }
+
+  & .calendar-event-more-categories {
+    flex-shrink: 0;
+    min-inline-size: 0;
+    margin: 0;
+  }
+
+  & .calendar-event-category-choices,
+  & .calendar-event-category-overflow {
+    /* The dialog body scrolls when the lists exceed the available height. */
+    box-sizing: border-box;
+    padding: calc(2 * var(--space-step));
+    margin: 0;
+    border: 1px solid var(--color-surface-border);
+    border-radius: var(--space-step);
+    background-color: var(--color-surface-base);
+    list-style: none;
+    z-index: 1;
+
+    &:focus-visible {
+      outline: var(--focus-outline);
+      outline-offset: calc(-1 * var(--focus-outline-offset));
+    }
+  }
+
+  & .calendar-event-category-overflow:not([hidden]) {
+    display: flex;
+    flex-direction: column;
+    gap: calc(2 * var(--space-step));
+
+    & .calendar-event-category-chip {
+      flex-shrink: 0;
     }
   }
 }

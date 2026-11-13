@@ -21,6 +21,19 @@
   }
 }
 
+:host(.full-width) {
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    gap: 0;
+  }
+
+  & slot[name="content"]::slotted(*) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
+
 .row {
   flex-grow: 1;
   padding-inline: var(--calendar-dialog-row-padding-inline);

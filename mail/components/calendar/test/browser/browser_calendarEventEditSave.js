@@ -491,6 +491,13 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
   const titleInput = dialog.querySelector(".event-title-input");
   const descriptionRow = dialog.querySelector("#descriptionNavigationRow");
   const availability = dialog.querySelector(".availability-selector");
+  const categoryRow = dialog.querySelector(".calendar-event-category-row");
+
+  Assert.ok(categoryRow, "The fixture should contain the category row.");
+
+  const addCategory = categoryRow.querySelector(".calendar-event-add-category");
+
+  Assert.ok(addCategory, "The category row should contain Add category.");
 
   Assert.ok(titleInput, "The dialog should have a title input.");
   Assert.ok(availability, "The footer should contain Availability.");
@@ -512,8 +519,6 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
     "The More menu button should be visible for an edited event."
   );
 
-  // Follow the actual control order in both directions before activating Save.
-  // The header places More before Close.
   select.focus();
 
   const tabSteps = [
@@ -521,12 +526,18 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
     [{}, closeButton, "Tab should reach Close."],
     [{}, titleInput, "Tab should reach the title."],
     [{}, descriptionRow, "Tab should reach Description."],
+    [{}, addCategory, "Tab should reach Add category."],
     [{}, availability, "Tab should reach Availability."],
     [{}, button, "Tab should reach Save."],
     [
       { shiftKey: true },
       availability,
       "Shift+Tab should return to Availability.",
+    ],
+    [
+      { shiftKey: true },
+      addCategory,
+      "Shift+Tab should return to Add category.",
     ],
     [
       { shiftKey: true },
@@ -545,6 +556,7 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
     [{}, closeButton, "Tab should reach Close again."],
     [{}, titleInput, "Tab should reach the title again."],
     [{}, descriptionRow, "Tab should reach Description again."],
+    [{}, addCategory, "Tab should reach Add category again."],
     [{}, availability, "Tab should reach Availability again."],
     [{}, button, "Tab should reach Save again."],
   ];

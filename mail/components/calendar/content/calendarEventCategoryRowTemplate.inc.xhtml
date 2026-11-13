@@ -1,0 +1,51 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<calendar-dialog-row
+  class="calendar-event-category-row labelless full-width"
+>
+  <div slot="content" class="calendar-event-category-content">
+    <ul
+      class="calendar-event-category-choices"
+      data-l10n-id="calendar-event-category-choices"
+      hidden="hidden"
+    ></ul>
+    <div class="calendar-event-category-summary">
+      <ul
+        class="calendar-event-category-list"
+        data-l10n-id="calendar-event-selected-categories"
+      ></ul>
+      <button
+        class="button button-flat calendar-event-more-categories"
+        type="button"
+        data-l10n-id="calendar-event-more-categories"
+        data-l10n-args="{&quot;count&quot;:0}"
+        hidden="hidden"
+      ></button>
+    </div>
+    <button
+      class="button button-flat icon-button calendar-event-add-category"
+      type="button"
+      data-l10n-id="calendar-event-add-category"
+    ></button>
+    <ul
+      class="calendar-event-category-overflow"
+      data-l10n-id="calendar-event-remaining-categories"
+      tabindex="0"
+      hidden="hidden"
+    ></ul>
+    <template class="calendar-event-category-chip-template">
+      <li class="calendar-event-category-chip">
+        <span class="calendar-event-category-label"></span>
+        <button
+          class="button button-flat icon-button icon-only
+            calendar-event-remove-category"
+          type="button"
+          data-l10n-id="calendar-event-remove-category"
+          data-l10n-args="{&quot;category&quot;:&quot;&quot;}"
+        ></button>
+      </li>
+    </template>
+  </div>
+</calendar-dialog-row>

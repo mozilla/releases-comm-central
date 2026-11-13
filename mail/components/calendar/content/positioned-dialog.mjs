@@ -56,6 +56,35 @@ export class PositionedDialog extends HTMLDialogElement {
   #resizeTimeout;
 
   /**
+   * The pending frame for positioning after a size change.
+   *
+   * @type {?number}
+   */
+  #resizeFrame = null;
+
+  /**
+   * Repositions the dialog after its size changes.
+   *
+   * @type {ResizeObserver}
+   */
+  #resizeObserver = new ResizeObserver(() => {
+    if (!this.open || this.#resizeFrame !== null) {
+      return;
+    }
+
+    // Defer size writes to the next frame to avoid a ResizeObserver loop.
+    this.#resizeFrame = window.requestAnimationFrame(() => {
+      this.#resizeFrame = null;
+
+      if (!this.open) {
+        return;
+      }
+
+      this.#update();
+    });
+  });
+
+  /**
    * The trigger element the dialog was opened relative to.
    *
    * @type {HTMLElement}
@@ -121,6 +150,7 @@ export class PositionedDialog extends HTMLDialogElement {
     super.show();
 
     this.#update();
+    this.#resizeObserver.observe(this);
   }
 
   /**
@@ -151,6 +181,13 @@ export class PositionedDialog extends HTMLDialogElement {
   }
 
   close() {
+    this.#resizeObserver.disconnect();
+
+    if (this.#resizeFrame !== null) {
+      window.cancelAnimationFrame(this.#resizeFrame);
+      this.#resizeFrame = null;
+    }
+
     this.trigger = null;
     clearTimeout(this.#resizeTimeout);
     window.removeEventListener("resize", this.#debounceResize);

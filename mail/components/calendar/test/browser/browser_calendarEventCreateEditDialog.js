@@ -243,7 +243,11 @@ add_task(async function test_sharedRowAndSubviewScaffolding() {
 
   Assert.ok(subview, "The body provides the main subview scaffold");
   const rows = subview.querySelector(".calendar-event-create-edit-dialog-rows");
-  Assert.ok(rows, "The main subview provides the shared row container");
+  Assert.ok(rows, "The main subview should provide the shared row container.");
+  Assert.ok(
+    rows.querySelector("calendar-dialog-row.calendar-event-category-row"),
+    "The main subview should contain the shared category row."
+  );
 });
 
 add_task(async function test_navigationRowShowsMatchingSubview() {
@@ -334,7 +338,7 @@ add_task(async function test_reopeningDialogResetsSubview() {
 
     Assert.ok(
       BrowserTestUtils.isHidden(mainSubview),
-      "The main subview should be visible after closing the dialog"
+      "The main subview should be hidden after closing the dialog"
     );
 
     await dialog.show();

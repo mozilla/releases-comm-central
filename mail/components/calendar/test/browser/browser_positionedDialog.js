@@ -1272,6 +1272,72 @@ const tests = [
   },
 ];
 
+add_task(async function test_resizeAfterContentChange() {
+  await setupPositioning({
+    trigger: { width: 100, height: 100, left: 200, top: 200 },
+    container: { width: 500, height: 500, left: 0, top: 0 },
+    dialog: { width: 100, height: 100 },
+  });
+
+  const dialogWindow = dialogElement.documentGlobal;
+  const maxHeight = 200 - dialogElement.margin * 2;
+  let resizeError = false;
+
+  function onResizeError(event) {
+    if (
+      event.message ==
+      "ResizeObserver loop completed with undelivered notifications."
+    ) {
+      resizeError = true;
+    }
+  }
+
+  dialogWindow.addEventListener("error", onResizeError);
+
+  const resized = BrowserTestUtils.waitForMutationCondition(
+    dialogElement,
+    { attributes: true, attributeFilter: ["style"] },
+    () => dialogElement.style.maxHeight == `${maxHeight}px`
+  );
+
+  // Recreate content growth while a smaller container requires a new limit.
+  containerElement.style.height = "200px";
+  dialogElement.style.height = "400px";
+  await resized;
+
+  // Keep the dialog open until resize notification delivery has finished.
+  await new Promise(resolve => dialogWindow.requestAnimationFrame(resolve));
+  dialogWindow.removeEventListener("error", onResizeError);
+
+  const dialogBox = dialogElement.getBoundingClientRect();
+  const containerBox = containerElement.getBoundingClientRect();
+
+  Assert.ok(
+    !resizeError,
+    "Resizing the dialog should not report an undelivered resize notification"
+  );
+
+  Assert.equal(
+    dialogBox.height,
+    maxHeight,
+    "The growing dialog should use the smaller container's height limit"
+  );
+
+  Assert.greaterOrEqual(
+    dialogBox.top,
+    containerBox.top + dialogElement.margin,
+    "The resized dialog should stay below the container's top margin"
+  );
+
+  Assert.lessOrEqual(
+    dialogBox.bottom,
+    containerBox.bottom - dialogElement.margin,
+    "The resized dialog should stay above the container's bottom margin"
+  );
+
+  dialogElement.close();
+});
+
 add_task(async function test_positionedDialogPosition() {
   for (const test of tests) {
     const result = await setupPositioning(test);
