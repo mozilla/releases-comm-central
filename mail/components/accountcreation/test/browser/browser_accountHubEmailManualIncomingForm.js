@@ -52,6 +52,7 @@ async function checkAuthMethods(select, protocol) {
   await new Promise(resolve => window.requestAnimationFrame(resolve));
 
   const popupPromise = BrowserTestUtils.waitForSelectPopupShown(window);
+  select.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(select, {}, browser.contentWindow);
   const popup = await popupPromise;
 
@@ -108,6 +109,7 @@ add_task(async function test_switchBetweenIMAPAndEWSNoPref() {
   );
 
   let focusEvent = BrowserTestUtils.waitForEvent(usernameField, "focus");
+  usernameField.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(usernameField, {}, browser.contentWindow);
   await focusEvent;
 
@@ -129,6 +131,7 @@ add_task(async function test_switchBetweenIMAPAndEWSNoPref() {
   const protocolSelectorPromise =
     BrowserTestUtils.waitForSelectPopupShown(window);
 
+  protocolSelector.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     protocolSelector,
     {},
@@ -177,6 +180,7 @@ add_task(async function test_switchBetweenIMAPAndEWSNoPref() {
     () => ewsURLField.value == "https://outlook.office365.com/EWS/Exchange.asmx"
   );
   focusEvent = BrowserTestUtils.waitForEvent(ewsURLField, "focus");
+  ewsURLField.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(ewsURLField, {}, browser.contentWindow);
   await focusEvent;
   EventUtils.sendString(
@@ -197,6 +201,7 @@ add_task(async function test_switchBetweenIMAPAndEWSNoPref() {
 
   const authSelectorMethodPromise =
     BrowserTestUtils.waitForSelectPopupShown(window);
+  incomingAuthMethod.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     incomingAuthMethod,
     {},
@@ -225,6 +230,7 @@ add_task(async function test_switchBetweenIMAPAndEWSNoPref() {
     () => ewsURLField.value == ""
   );
   focusEvent = BrowserTestUtils.waitForEvent(ewsURLField, "focus");
+  ewsURLField.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(ewsURLField, {}, browser.contentWindow);
   await focusEvent;
   ewsURLField.select();
@@ -248,6 +254,7 @@ add_task(async function test_switchBetweenIMAPAndEWSNoPref() {
   const protocolSelectorMethodPromise =
     BrowserTestUtils.waitForSelectPopupShown(window);
 
+  protocolSelector.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     protocolSelector,
     {},
@@ -347,6 +354,7 @@ add_task(async function test_settingStateLeavesConfigIntact() {
   const protocolSelectorPromise =
     BrowserTestUtils.waitForSelectPopupShown(window);
 
+  protocolSelector.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     protocolSelector,
     {},
@@ -400,6 +408,7 @@ add_task(async function test_graphIsEnabledByPref() {
   const protocolSelectorPromise =
     BrowserTestUtils.waitForSelectPopupShown(window);
 
+  protocolSelector.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     protocolSelector,
     {},
@@ -449,6 +458,7 @@ add_task(async function test_switchBetweenIMAPAndGraph() {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 100));
 
+  protocolSelector.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     protocolSelector,
     {},
@@ -497,6 +507,7 @@ add_task(async function test_switchBetweenIMAPAndGraph() {
   );
 
   let focusEvent = BrowserTestUtils.waitForEvent(usernameField, "focus");
+  usernameField.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(usernameField, {}, browser.contentWindow);
   await focusEvent;
 
@@ -517,6 +528,7 @@ add_task(async function test_switchBetweenIMAPAndGraph() {
     () => exchangeURLField.value == "https://example.com/"
   );
   focusEvent = BrowserTestUtils.waitForEvent(exchangeURLField, "focus");
+  exchangeURLField.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     exchangeURLField,
     {},
@@ -556,6 +568,7 @@ add_task(async function testEWSGraphProtocolOauthOption() {
   await SimpleTest.promiseFocus(browser.contentWindow);
   let protocolSelectorPromise =
     BrowserTestUtils.waitForSelectPopupShown(window);
+  protocolSelector.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     protocolSelector,
     {},
@@ -581,6 +594,7 @@ add_task(async function testEWSGraphProtocolOauthOption() {
     "config-updated"
   );
   protocolSelectorPromise = BrowserTestUtils.waitForSelectPopupShown(window);
+  protocolSelector.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     protocolSelector,
     {},
@@ -605,6 +619,7 @@ add_task(async function testEWSGraphProtocolOauthOption() {
 
   const authSelectorMethodPromise =
     BrowserTestUtils.waitForSelectPopupShown(window);
+  incomingAuthMethod.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     incomingAuthMethod,
     {},
@@ -635,6 +650,7 @@ add_task(async function testEWSGraphProtocolOauthOption() {
     "config-updated"
   );
   protocolSelectorPromise = BrowserTestUtils.waitForSelectPopupShown(window);
+  protocolSelector.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     protocolSelector,
     {},
