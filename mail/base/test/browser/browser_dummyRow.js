@@ -144,7 +144,7 @@ add_task(async function test_dummy_row_selection() {
 
   goDoCommand("cmd_expandAllThreads");
   await TestUtils.waitForCondition(
-    () => threadTree.getRowAtIndex(8),
+    () => threadTree.view.rowCount > 8,
     "The expanded rows should be available"
   );
 
