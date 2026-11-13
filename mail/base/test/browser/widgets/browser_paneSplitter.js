@@ -119,6 +119,10 @@ const testRunner = {
 
   async synthMouse(position, type = "mousemove", otherPosition = 50) {
     let x, y;
+    // Synthesized mouse events are rounded to device pixels. Aim half a pixel
+    // towards the splitter side, or a fractional offset of the browser (as in
+    // headless mode) could move the mousedown off the splitter edge.
+    position += 0.5;
     if (!this.resizedIsBefore) {
       position = 500 - position;
     }
