@@ -91,6 +91,7 @@ async function chooseFileType(type) {
   const radio = importDoc.querySelector(
     `#addr-book-sources input[type="radio"][value="${type}"]`
   );
+  radio.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(radio, {}, importWin);
   await TestUtils.waitForTick();
   Assert.ok(radio.checked, `${type} radio should be checked`);
@@ -170,12 +171,16 @@ async function doImport(destinationValue, expectedFilters, expectedPath) {
     },
     "the new address book name should include the file name"
   );
+  directoryRadios
+    .find(r => r.value == destinationValue)
+    .scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     directoryRadios.find(r => r.value == destinationValue),
     {},
     importWin
   );
 
+  nextButton.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(summaryPane),
@@ -185,6 +190,9 @@ async function doImport(destinationValue, expectedFilters, expectedPath) {
   Assert.ok(BrowserTestUtils.isHidden(fieldMapPane));
   Assert.ok(BrowserTestUtils.isHidden(directoriesPane));
 
+  importDoc
+    .getElementById("addrBookStartImport")
+    .scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     importDoc.getElementById("addrBookStartImport"),
     {},
@@ -198,6 +206,9 @@ async function doImport(destinationValue, expectedFilters, expectedPath) {
     tabmail.tabContainer,
     "TabClose"
   );
+  summaryPane
+    .querySelector("button.progressFinish")
+    .scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     summaryPane.querySelector("button.progressFinish"),
     {},
@@ -252,6 +263,7 @@ add_task(async function testImportCSV() {
   MockFilePicker.setFiles([csvFile]);
   listenForFilters();
   await chooseFileType("csv");
+  nextButton.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
 
   await TestUtils.waitForCondition(
@@ -284,6 +296,7 @@ add_task(async function testImportCSV() {
 
   // Now move on to the actual importing.
 
+  nextButton.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
   await doImport(
     personalBook.dirPrefId,
@@ -324,6 +337,7 @@ add_task(async function testImportLDIF() {
   MockFilePicker.setFiles([ldifFile]);
   listenForFilters();
   await chooseFileType("ldif");
+  nextButton.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
 
   await doImport(personalBook.dirPrefId, ["*.ldif", "*.*"], ldifFile.path);
@@ -358,6 +372,7 @@ add_task(async function testImportVCard() {
   MockFilePicker.setFiles([vCardFile]);
   listenForFilters();
   await chooseFileType("vcard");
+  nextButton.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
 
   const newBookPromise = TestUtils.topicObserved("addrbook-directory-created");
@@ -400,6 +415,7 @@ add_task(async function testImportSQLite() {
   MockFilePicker.setFiles([sqliteFile]);
   listenForFilters();
   await chooseFileType("sqlite");
+  nextButton.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
 
   await doImport(personalBook.dirPrefId, ["*.sqlite", "*.*"], sqliteFile.path);
@@ -434,6 +450,7 @@ add_task(async function testImportMAB() {
   MockFilePicker.setFiles([mabFile]);
   listenForFilters();
   await chooseFileType("mab");
+  nextButton.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
 
   await doImport(historyBook.dirPrefId, ["*.mab", "*.*"], mabFile.path);
