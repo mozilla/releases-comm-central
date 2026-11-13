@@ -30,9 +30,9 @@ function assertItemsEqual(got, expected) {
 // URL when there is no xml:base. Unsupported schemes must still be rejected.
 add_task(async function test_atom_relative_enclosures() {
   const account = FeedUtils.createRssAccount("test_atom_relative_enclosures");
-  const folder = account.incomingServer.rootMsgFolder.QueryInterface(
-    Ci.nsIMsgLocalMailFolder
-  ).createLocalSubfolder("atomrelativeenclosures");
+  const folder = account.incomingServer.rootMsgFolder
+    .QueryInterface(Ci.nsIMsgLocalMailFolder)
+    .createLocalSubfolder("atomrelativeenclosures");
   const doc = await do_parse_document(
     "resources/atom_relative_enclosures.xml",
     "text/xml"
