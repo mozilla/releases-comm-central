@@ -18,3 +18,11 @@
 :host(:not([checked])) slot[name="content"] {
   display: none;
 }
+
+slot[name="content"]::slotted(*) {
+  grid-column: 1 / -1;
+}
+
+.row {
+  row-gap: calc(var(--space-step) * 3);
+}
