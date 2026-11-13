@@ -1859,7 +1859,9 @@ version = "0.1.0"
 dependencies = [
  "env_logger",
  "error-support-macros",
+ "glean",
  "glean-build",
+ "glean-sym",
  "lazy_static",
  "log",
  "parking_lot",
@@ -2964,6 +2966,18 @@ dependencies = [
  "uuid",
  "wr_malloc_size_of",
  "zeitstempel",
+]
+
+[[package]]
+name = "glean-sym"
+version = "71.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5ff241536985fa2d000a619a61486978fb2382773b804d11201b6f2882f29f7d"
+dependencies = [
+ "libloading",
+ "once_cell",
+ "serde",
+ "uniffi",
 ]
 
 [[package]]
